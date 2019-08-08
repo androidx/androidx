@@ -82,9 +82,9 @@ final class CaptureSession {
             new CaptureCallback() {
                 @Override
                 public void onCaptureCompleted(
-                        CameraCaptureSession session,
-                        CaptureRequest request,
-                        TotalCaptureResult result) {
+                        @NonNull CameraCaptureSession session,
+                        @NonNull CaptureRequest request,
+                        @NonNull TotalCaptureResult result) {
                 }
             };
     private final StateCallback mCaptureSessionStateCallback = new StateCallback();
@@ -529,6 +529,23 @@ final class CaptureSession {
                     continue;
                 }
 
+                // Validate all surfaces belong to configured surfaces map
+                boolean surfacesValid = true;
+                for (DeferrableSurface surface : captureConfig.getSurfaces()) {
+                    if (!mConfiguredSurfaceMap.containsKey(surface)) {
+                        Log.d(TAG, "Skipping capture request with invalid surface: " + surface);
+                        surfacesValid = false;
+                        break;
+                    }
+                }
+
+                if (!surfacesValid) {
+                    // An invalid surface was detected in this request.
+                    // Skip it and go on to the next request.
+                    // TODO (b/133710422): Report this request as an error.
+                    continue;
+                }
+
                 CaptureConfig.Builder captureConfigBuilder = CaptureConfig.Builder.from(
                         captureConfig);
 
@@ -563,11 +580,15 @@ final class CaptureSession {
                 }
                 callbackAggregator.addCamera2Callbacks(captureRequest, cameraCallbacks);
                 captureRequests.add(captureRequest);
-
             }
-            mCameraCaptureSession.captureBurst(captureRequests,
-                    callbackAggregator,
-                    mHandler);
+
+            if (!captureRequests.isEmpty()) {
+                mCameraCaptureSession.captureBurst(captureRequests,
+                        callbackAggregator,
+                        mHandler);
+            } else {
+                Log.d(TAG, "Skipping issuing burst request due to no valid request elements");
+            }
         } catch (CameraAccessException e) {
             Log.e(TAG, "Unable to access camera: " + e.getMessage());
             Thread.dumpStack();
@@ -671,7 +692,7 @@ final class CaptureSession {
          * will be immediately issued.
          */
         @Override
-        public void onConfigured(CameraCaptureSession session) {
+        public void onConfigured(@NonNull CameraCaptureSession session) {
             synchronized (mStateLock) {
                 switch (mState) {
                     case UNINITIALIZED:
@@ -713,7 +734,7 @@ final class CaptureSession {
         }
 
         @Override
-        public void onReady(CameraCaptureSession session) {
+        public void onReady(@NonNull CameraCaptureSession session) {
             synchronized (mStateLock) {
                 switch (mState) {
                     case UNINITIALIZED:
@@ -726,7 +747,7 @@ final class CaptureSession {
         }
 
         @Override
-        public void onClosed(CameraCaptureSession session) {
+        public void onClosed(@NonNull CameraCaptureSession session) {
             synchronized (mStateLock) {
                 if (mState == State.UNINITIALIZED) {
                     throw new IllegalStateException(
@@ -748,7 +769,7 @@ final class CaptureSession {
         }
 
         @Override
-        public void onConfigureFailed(CameraCaptureSession session) {
+        public void onConfigureFailed(@NonNull CameraCaptureSession session) {
             synchronized (mStateLock) {
                 switch (mState) {
                     case UNINITIALIZED:
