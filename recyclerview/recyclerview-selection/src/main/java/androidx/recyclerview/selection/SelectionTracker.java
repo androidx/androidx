@@ -490,6 +490,7 @@ public abstract class SelectionTracker<K> {
         private BandPredicate mBandPredicate;
         private int mBandOverlayId = R.drawable.selection_band_overlay;
 
+        // TODO(b/138958244): Support resetting state in response to unknown > cancel events.
         private int[] mGestureToolTypes = new int[] {
                 MotionEvent.TOOL_TYPE_FINGER,
                 MotionEvent.TOOL_TYPE_UNKNOWN
@@ -696,16 +697,14 @@ public abstract class SelectionTracker<K> {
             // of events. If mouse handling is configured as well, the mouse input
             // related handlers will intercept mouse input events.
 
+            // EventRouter receives events for RecyclerView, dispatching to handlers
+            // registered by tool-type.
+            EventRouter eventRouter = new EventRouter();
+
             // GestureRouter is responsible for routing GestureDetector events
             // to tool-type specific handlers.
             GestureRouter<MotionInputHandler> gestureRouter = new GestureRouter<>();
             GestureDetector gestureDetector = new GestureDetector(mContext, gestureRouter);
-
-            // TouchEventRouter takes its name from RecyclerView#OnItemTouchListener.
-            // Despite "Touch" being in the name, it receives events for all types of tools.
-            // This class is responsible for routing events to tool-type specific handlers,
-            // and if not handled by a handler, on to a GestureDetector for analysis.
-            TouchEventRouter eventRouter = new TouchEventRouter(gestureDetector);
 
             // GestureSelectionHelper provides logic that interprets a combination
             // of motions and gestures in order to provide gesture driven selection support
@@ -715,6 +714,8 @@ public abstract class SelectionTracker<K> {
 
             // Finally hook the framework up to listening to recycle view events.
             mRecyclerView.addOnItemTouchListener(eventRouter);
+            mRecyclerView.addOnItemTouchListener(
+                    new GestureDetectorOnItemTouchListenerAdapter(gestureDetector));
 
             // But before you move on, there's more work to do. Event plumbing has been
             // installed, but we haven't registered any of our helpers or callbacks.
@@ -782,7 +783,7 @@ public abstract class SelectionTracker<K> {
 
             for (int toolType : mGestureToolTypes) {
                 gestureRouter.register(toolType, touchHandler);
-                eventRouter.register(toolType, gestureHelper);
+                eventRouter.set(toolType, gestureHelper);
             }
 
             // Provides high level glue for binding mouse events and gestures
@@ -826,7 +827,7 @@ public abstract class SelectionTracker<K> {
                     mDetailsLookup, mOnDragInitiatedListener, bandHelper);
 
             for (int toolType : mPointerToolTypes) {
-                eventRouter.register(toolType, pointerEventHandler);
+                eventRouter.set(toolType, pointerEventHandler);
             }
 
             return tracker;
