@@ -142,6 +142,8 @@ fun ViewGroup.setContent(
     }
 }
 
+private typealias AmbientProvider = @Composable() (@Composable() () -> Unit) -> Unit
+
 @Composable
 private fun WrapWithAmbients(
     craneView: AndroidCraneView,
@@ -176,27 +178,46 @@ private fun WrapWithAmbients(
         }
     }
 
-    ContextAmbient.Provider(value = context) {
-        CoroutineContextAmbient.Provider(value = coroutineContext) {
-            DensityAmbient.Provider(value = Density(context)) {
-                FocusManagerAmbient.Provider(value = focusManager) {
-                    TextInputServiceAmbient.Provider(value = craneView.textInputService) {
-                        FontLoaderAmbient.Provider(value = AndroidFontResourceLoader(context)) {
-                            AutofillTreeAmbient.Provider(value = craneView.autofillTree) {
-                                AutofillAmbient.Provider(value = craneView.autofill) {
-                                    ConfigurationAmbient.Provider(value = configuration.value) {
-                                        LayoutDirectionAmbient.Provider(value = layoutDirection) {
-                                            content()
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
+    // Fold all the nested function in order to provide the desired ambient properties
+    // Having a lot of methods nested one inside the other will cause a Compile error. The name of
+    // the file generated will be unsupported by the compiler because it is too large.
+    listOf<AmbientProvider>(
+        { children ->
+            ContextAmbient.Provider(value = context, children = children)
+        },
+        { children ->
+            CoroutineContextAmbient.Provider(value = coroutineContext, children = children)
+        },
+        { children ->
+            DensityAmbient.Provider(value = Density(context), children = children)
+        },
+        { children ->
+            FocusManagerAmbient.Provider(value = focusManager, children = children)
+        },
+        { children ->
+            TextInputServiceAmbient.Provider(value = craneView.textInputService, children = children)
+        },
+        { children ->
+            FontLoaderAmbient.Provider(value = AndroidFontResourceLoader(context), children = children)
+        },
+        { children ->
+            AutofillTreeAmbient.Provider(value = craneView.autofillTree, children = children)
+        },
+        { children ->
+            AutofillAmbient.Provider(value = craneView.autofill, children = children)
+        },
+        { children ->
+            ConfigurationAmbient.Provider(value = configuration.value, children = children)
+        },
+        { children ->
+            AndroidCraneViewAmbient.Provider(value = craneView, children = children)
+        },
+        { children ->
+            LayoutDirectionAmbient.Provider(value = layoutDirection, children = children)
         }
-    }
+    ).fold(content, { current, ambient ->
+        { ambient(current) }
+    }).invoke()
 }
 
 val ContextAmbient = Ambient.of<Context>()
@@ -206,6 +227,9 @@ val DensityAmbient = Ambient.of<Density>()
 val CoroutineContextAmbient = Ambient.of<CoroutineContext>()
 
 val ConfigurationAmbient = Ambient.of<Configuration>()
+
+// TODO(b/139866476): The AndroidCraneView should not be exposed via ambient
+val AndroidCraneViewAmbient = Ambient.of<AndroidCraneView>()
 
 val AutofillAmbient = Ambient.of<Autofill?>()
 

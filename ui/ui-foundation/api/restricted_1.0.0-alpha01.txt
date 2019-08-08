@@ -42,6 +42,11 @@ package androidx.ui.foundation {
     method public void vertical(int column, kotlin.ranges.IntRange rows = 0 <other> rowCount, androidx.ui.foundation.shape.border.Border border = defaultBorder);
   }
 
+  public final class PopupKt {
+    ctor public PopupKt();
+    method public static void Popup(androidx.ui.layout.Alignment alignment, androidx.ui.core.IntPxPosition offset = IntPxPosition(IntPx.Zero, IntPx.Zero), kotlin.jvm.functions.Function0<kotlin.Unit> children);
+  }
+
   public final class ScrollerKt {
     ctor public ScrollerKt();
     method public static void HorizontalScroller(androidx.ui.foundation.ScrollerPosition scrollerPosition = +memo({ 
