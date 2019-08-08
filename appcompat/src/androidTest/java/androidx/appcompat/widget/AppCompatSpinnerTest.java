@@ -154,6 +154,7 @@ public class AppCompatSpinnerTest
     }
 
     @Test
+    @FlakyTest
     public void testThemedPopupRuntimeTheming() {
         final AppCompatSpinner spinner =
                 mContainer.findViewById(R.id.view_ocean_themed_popup);
@@ -241,6 +242,7 @@ public class AppCompatSpinnerTest
     }
 
     @Test
+    @FlakyTest
     public void testHorizontalOffset() {
         checkOffsetIsCorrect(500, false, false);
     }
