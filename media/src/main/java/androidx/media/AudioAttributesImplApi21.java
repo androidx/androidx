@@ -34,11 +34,15 @@ import androidx.versionedparcelable.VersionedParcelize;
 public class AudioAttributesImplApi21 implements AudioAttributesImpl {
     private static final String TAG = "AudioAttributesCompat21";
 
+    /** @hide */
+    @RestrictTo(LIBRARY) // Dejetified Parcelizer may not access the field unless it's public
     @ParcelField(1)
-    AudioAttributes mAudioAttributes;
+    public AudioAttributes mAudioAttributes;
 
+    /** @hide */
+    @RestrictTo(LIBRARY) // Dejetified Parcelizer may not access the field unless it's public
     @ParcelField(2)
-    int mLegacyStreamType = INVALID_STREAM_TYPE;
+    public int mLegacyStreamType = INVALID_STREAM_TYPE;
 
     /**
      * Used for VersionedParcelable
