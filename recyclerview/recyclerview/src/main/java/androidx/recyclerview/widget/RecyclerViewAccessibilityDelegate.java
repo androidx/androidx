@@ -22,6 +22,7 @@ import android.view.accessibility.AccessibilityEvent;
 
 import androidx.annotation.NonNull;
 import androidx.core.view.AccessibilityDelegateCompat;
+import androidx.core.view.ViewCompat;
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat;
 
 import java.util.Map;
@@ -108,13 +109,20 @@ public class RecyclerViewAccessibilityDelegate extends AccessibilityDelegateComp
             mRecyclerViewDelegate = recyclerViewDelegate;
         }
 
-        void setOriginalDelegateForItem(View itemView, AccessibilityDelegateCompat delegate) {
-            if (delegate != null) {
+        /**
+         * Saves a reference to the original delegate of the itemView so that it's behavior can be
+         * combined with the ItemDelegate's behavior.
+         */
+        void saveOriginalDelegate(View itemView) {
+            AccessibilityDelegateCompat delegate = ViewCompat.getAccessibilityDelegate(itemView);
+            if (delegate != null && delegate != this) {
                 mOriginalItemDelegates.put(itemView, delegate);
             }
-
         }
 
+        /**
+         * @return The delegate associated with itemView before the view was bound.
+         */
         AccessibilityDelegateCompat getAndRemoveOriginalDelegateForItem(View itemView) {
             return mOriginalItemDelegates.remove(itemView);
         }
