@@ -76,9 +76,10 @@ interface DragObserver {
 }
 
 // TODO(shepshapard): Convert to functional component with effects once effects are ready.
-// TODO(shepshapard): Should this calculate the drag distance as the average of all pointers
-//   (Shep thinks this is better), or should it only track the most recent pointer to have
-//   touched the screen over the detector (this is how Android currently does it)?
+// TODO(shepshapard): Should this calculate the drag distance as the average of all fingers
+//  (Shep thinks this is better), or should it only track the most recent finger to have
+//  touched the screen over the detector (this is how Android currently does it)?
+// TODO(b/139020678): Probably has shared functionality with other movement based detectors.
 /**
  * This gesture detector detects dragging in any direction.
  *
