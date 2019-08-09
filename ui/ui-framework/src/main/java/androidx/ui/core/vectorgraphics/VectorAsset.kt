@@ -19,29 +19,28 @@ package androidx.ui.core.vectorgraphics
 import androidx.compose.Composable
 import androidx.compose.composer
 import androidx.ui.core.Px
-import androidx.ui.graphics.vectorgraphics.BrushType
-import androidx.ui.graphics.vectorgraphics.DefaultAlpha
-import androidx.ui.graphics.vectorgraphics.DefaultGroupName
-import androidx.ui.graphics.vectorgraphics.DefaultPathName
-import androidx.ui.graphics.vectorgraphics.DefaultPivotX
-import androidx.ui.graphics.vectorgraphics.DefaultPivotY
-import androidx.ui.graphics.vectorgraphics.DefaultRotation
-import androidx.ui.graphics.vectorgraphics.DefaultScaleX
-import androidx.ui.graphics.vectorgraphics.DefaultScaleY
-import androidx.ui.graphics.vectorgraphics.DefaultStrokeLineCap
-import androidx.ui.graphics.vectorgraphics.DefaultStrokeLineJoin
-import androidx.ui.graphics.vectorgraphics.DefaultStrokeLineMiter
-import androidx.ui.graphics.vectorgraphics.DefaultStrokeLineWidth
-import androidx.ui.graphics.vectorgraphics.DefaultTranslationX
-import androidx.ui.graphics.vectorgraphics.DefaultTranslationY
+import androidx.ui.vector.BrushType
+import androidx.ui.vector.DefaultAlpha
+import androidx.ui.vector.DefaultGroupName
+import androidx.ui.vector.DefaultPathName
+import androidx.ui.vector.DefaultPivotX
+import androidx.ui.vector.DefaultPivotY
+import androidx.ui.vector.DefaultRotation
+import androidx.ui.vector.DefaultScaleX
+import androidx.ui.vector.DefaultScaleY
+import androidx.ui.vector.DefaultStrokeLineCap
+import androidx.ui.vector.DefaultStrokeLineJoin
+import androidx.ui.vector.DefaultStrokeLineMiter
+import androidx.ui.vector.DefaultStrokeLineWidth
+import androidx.ui.vector.DefaultTranslationX
+import androidx.ui.vector.DefaultTranslationY
 import androidx.ui.graphics.vectorgraphics.EmptyBrush
-import androidx.ui.graphics.vectorgraphics.EmptyPath
-import androidx.ui.graphics.vectorgraphics.PathData
+import androidx.ui.vector.EmptyPath
+import androidx.ui.vector.PathData
 import androidx.ui.painting.StrokeCap
 import androidx.ui.painting.StrokeJoin
 import androidx.ui.vector.VectorScope
 import java.util.Stack
-import java.util.function.Consumer
 
 /**
  * Builder used to construct a Vector graphic tree.
@@ -318,7 +317,7 @@ class VectorGroup(
     }
 
     override fun iterator(): Iterator<VectorNode> {
-        return object: Iterator<VectorNode> {
+        return object : Iterator<VectorNode> {
 
             val it = children.iterator()
 
@@ -396,7 +395,8 @@ fun DrawVector(vectorImage: VectorAsset) {
         viewportWidth = vectorImage.viewportWidth,
         viewportHeight = vectorImage.viewportHeight,
         defaultWidth = vectorImage.defaultWidth,
-        defaultHeight = vectorImage.defaultHeight) {
+        defaultHeight = vectorImage.defaultHeight
+    ) { _, _ ->
         RenderVectorGroup(group = vectorImage.root)
     }
 }

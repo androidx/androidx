@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.ui.graphics.vectorgraphics
+package androidx.ui.vector
 
 import android.graphics.Matrix
 import androidx.ui.engine.geometry.Offset
@@ -25,11 +25,12 @@ import androidx.ui.painting.PaintingStyle
 import androidx.ui.painting.Path
 import androidx.ui.painting.StrokeCap
 import androidx.ui.painting.StrokeJoin
-import androidx.compose.Children
-import androidx.compose.Composable
-import androidx.compose.Emittable
-import androidx.compose.composer
 import androidx.ui.core.Px
+import androidx.ui.graphics.vectorgraphics.Brush
+import androidx.ui.graphics.vectorgraphics.EmptyBrush
+import androidx.ui.graphics.vectorgraphics.PathBuilder
+import androidx.ui.graphics.vectorgraphics.PathNode
+import androidx.ui.graphics.vectorgraphics.PathParser
 import androidx.ui.painting.withSave
 import kotlin.math.ceil
 
