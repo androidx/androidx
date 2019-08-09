@@ -28,7 +28,7 @@ import androidx.ui.core.dp
 import androidx.ui.core.gesture.DoubleTapGestureDetector
 
 /**
- * Simple demo that shows off DragGestureDetector.
+ * Simple DoubleTapGestureDetector demo.
  */
 class DoubleTapGestureDetectorDemo : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {

@@ -39,13 +39,6 @@ import org.junit.runners.JUnit4
 class PressReleasedGestureDetectorTest {
 
     private lateinit var recognizer: PressReleaseGestureRecognizer
-    private val down = down(0)
-    private val downConsumed = down.consumeDownChange()
-    private val move = down.moveTo(timestamp = 100L.millisecondsToTimestamp(), x = 100f)
-    private val moveConsumed = move.consume(dx = 1f)
-    private val up = down.up(100L.millisecondsToTimestamp())
-    private val upConsumed = up.consumeDownChange()
-    private val upAfterMove = move.up(200L.millisecondsToTimestamp())
 
     @Before
     fun setup() {
@@ -55,97 +48,121 @@ class PressReleasedGestureDetectorTest {
 
     @Test
     fun pointerInputHandler_down_onReleaseNotCalled() {
-        recognizer.pointerInputHandler.invokeOverAllPasses(listOf(down))
+        recognizer.pointerInputHandler.invokeOverAllPasses(listOf(down()))
         verify(recognizer.onRelease!!, never()).invoke()
     }
 
     @Test
     fun pointerInputHandler_downConsumedUp_onReleaseNotCalled() {
-        recognizer.pointerInputHandler.invokeOverAllPasses(listOf(downConsumed))
-        recognizer.pointerInputHandler.invokeOverAllPasses(listOf(up))
+        var pointer = down().consumeDownChange()
+        recognizer.pointerInputHandler.invokeOverAllPasses(listOf(pointer))
+        pointer = pointer.up(100L.millisecondsToTimestamp())
+        recognizer.pointerInputHandler.invokeOverAllPasses(listOf(pointer))
+
         verify(recognizer.onRelease!!, never()).invoke()
     }
 
     @Test
     fun pointerInputHandler_downMoveConsumedUp_onReleaseNotCalled() {
-        recognizer.pointerInputHandler.invokeOverAllPasses(listOf(down))
-        recognizer.pointerInputHandler.invokeOverAllPasses(listOf(moveConsumed))
-        recognizer.pointerInputHandler.invokeOverAllPasses(listOf(upAfterMove))
+        var pointer = down()
+        recognizer.pointerInputHandler.invokeOverAllPasses(listOf(pointer))
+        pointer = pointer.moveTo(100L.millisecondsToTimestamp(), 5f).consume(5f)
+        recognizer.pointerInputHandler.invokeOverAllPasses(listOf(pointer))
+        pointer = pointer.up(200L.millisecondsToTimestamp())
+        recognizer.pointerInputHandler.invokeOverAllPasses(listOf(pointer))
+
         verify(recognizer.onRelease!!, never()).invoke()
     }
 
     @Test
     fun pointerInputHandler_downUpConsumed_onReleaseNotCalled() {
-        recognizer.pointerInputHandler.invokeOverAllPasses(listOf(down))
-        recognizer.pointerInputHandler.invokeOverAllPasses(listOf(upConsumed))
+        var pointer = down().consumeDownChange()
+        recognizer.pointerInputHandler.invokeOverAllPasses(listOf(pointer))
+        pointer = pointer.up(100L.millisecondsToTimestamp()).consumeDownChange()
+        recognizer.pointerInputHandler.invokeOverAllPasses(listOf(pointer))
+
         verify(recognizer.onRelease!!, never()).invoke()
     }
 
     @Test
     fun pointerInputHandler_downUp_onReleaseCalledOnce() {
-        recognizer.pointerInputHandler.invokeOverAllPasses(listOf(down))
-        recognizer.pointerInputHandler.invokeOverAllPasses(listOf(up))
+        var pointer = down()
+        recognizer.pointerInputHandler.invokeOverAllPasses(listOf(pointer))
+        pointer = pointer.up(100L.millisecondsToTimestamp())
+        recognizer.pointerInputHandler.invokeOverAllPasses(listOf(pointer))
+
         verify(recognizer.onRelease!!).invoke()
     }
 
     @Test
     fun pointerInputHandler_downMoveUp_onReleaseCalledOnce() {
-        recognizer.pointerInputHandler.invokeOverAllPasses(listOf(down))
-        recognizer.pointerInputHandler.invokeOverAllPasses(listOf(move))
-        recognizer.pointerInputHandler.invokeOverAllPasses(listOf(upAfterMove))
+        var pointer = down()
+        recognizer.pointerInputHandler.invokeOverAllPasses(listOf(pointer))
+        pointer = pointer.moveTo(100L.millisecondsToTimestamp(), 5f)
+        recognizer.pointerInputHandler.invokeOverAllPasses(listOf(pointer))
+        pointer = pointer.up(200L.millisecondsToTimestamp())
+        recognizer.pointerInputHandler.invokeOverAllPasses(listOf(pointer))
+
         verify(recognizer.onRelease!!).invoke()
     }
 
     @Test
     fun pointerInputHandler_consumeDownOnStartIsDefault_downChangeConsumed() {
-        val pointerEventChange = recognizer.pointerInputHandler.invokeOverAllPasses(listOf(down))
+        val pointerEventChange = recognizer.pointerInputHandler.invokeOverAllPasses(listOf(down()))
         assertThat(pointerEventChange.first().consumed.downChange, `is`(true))
     }
 
     @Test
     fun pointerInputHandler_consumeDownOnStartIsFalse_downChangeNotConsumed() {
         recognizer.consumeDownOnStart = false
-        val pointerEventChange = recognizer.pointerInputHandler.invokeOverAllPasses(listOf(down))
+        val pointerEventChange = recognizer.pointerInputHandler.invokeOverAllPasses(listOf(down()))
         assertThat(pointerEventChange.first().consumed.downChange, `is`(false))
     }
 
     @Test
     fun pointerInputHandler_upChangeConsumed() {
-        recognizer.pointerInputHandler.invokeOverAllPasses(listOf(down))
-        val pointerEventChange = recognizer.pointerInputHandler.invokeOverAllPasses(listOf(up))
+        var pointer = down()
+        recognizer.pointerInputHandler.invokeOverAllPasses(listOf(pointer))
+        pointer = pointer.up(100L.millisecondsToTimestamp())
+        val pointerEventChange = recognizer.pointerInputHandler.invokeOverAllPasses(listOf(pointer))
         assertThat(pointerEventChange.first().consumed.downChange, `is`(true))
     }
 
     @Test
     fun pointerInputHandler_downChangeConsumedDuringPostUp() {
-        var pointerEventChange = listOf(down)
+        var pointerEventChange = listOf(down())
         pointerEventChange = recognizer.pointerInputHandler.invokeOverPasses(
             pointerEventChange,
             PointerEventPass.InitialDown,
             PointerEventPass.PreUp,
-            PointerEventPass.PreDown)
+            PointerEventPass.PreDown
+        )
         assertThat(pointerEventChange.first().consumed.downChange, `is`(false))
 
         pointerEventChange = recognizer.pointerInputHandler.invoke(
             pointerEventChange,
-            PointerEventPass.PostUp)
+            PointerEventPass.PostUp
+        )
         assertThat(pointerEventChange.first().consumed.downChange, `is`(true))
     }
 
     @Test
     fun pointerInputHandler_upChangeConsumedDuringPostUp() {
-        recognizer.pointerInputHandler.invokeOverAllPasses(listOf(down))
-        var pointerEventChange = listOf(up)
+        val pointer = down()
+        recognizer.pointerInputHandler.invokeOverAllPasses(listOf(pointer))
+        var pointerEventChange = listOf(pointer.up(100L.millisecondsToTimestamp()))
         pointerEventChange = recognizer.pointerInputHandler.invokeOverPasses(
             pointerEventChange,
             PointerEventPass.InitialDown,
             PointerEventPass.PreUp,
-            PointerEventPass.PreDown)
+            PointerEventPass.PreDown
+        )
         assertThat(pointerEventChange.first().consumed.downChange, `is`(false))
 
         pointerEventChange = recognizer.pointerInputHandler.invoke(
             pointerEventChange,
-            PointerEventPass.PostUp)
+            PointerEventPass.PostUp
+        )
         assertThat(pointerEventChange.first().consumed.downChange, `is`(true))
     }
 }

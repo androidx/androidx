@@ -19,7 +19,6 @@ package androidx.ui.core.gesture
 import androidx.ui.core.PointerEventPass
 import androidx.ui.core.PointerInputChange
 import androidx.ui.core.changedToDown
-import androidx.compose.Children
 import androidx.compose.Composable
 import androidx.compose.ambient
 import androidx.compose.memo
@@ -39,6 +38,7 @@ import kotlin.coroutines.CoroutineContext
 // TODO(b/138605697): This bug tracks the note below: DoubleTapGestureDetector should use the
 //  eventual api that will allow it to temporary block tap.
 // TODO(b/138754591): The behavior of this gesture detector needs to be finalized.
+// TODO(b/139020678): Probably has shared functionality with other press based detectors.
 /**
  * Responds to pointers going up, down within a small duration, and then up again.
  *
@@ -54,8 +54,9 @@ fun DoubleTapGestureDetector(
     onDoubleTap: (PxPosition) -> Unit,
     children: @Composable() () -> Unit
 ) {
+    val coroutineContext = +ambient(CoroutineContextAmbient)
     val recognizer =
-        +memo { DoubleTapGestureRecognizer(+ambient(CoroutineContextAmbient)) }
+        +memo { DoubleTapGestureRecognizer(coroutineContext) }
     recognizer.onDoubleTap = onDoubleTap
 
     PointerInputWrapper(pointerInputHandler = recognizer.pointerInputHandler) {

@@ -46,7 +46,7 @@ import androidx.ui.core.round
 import androidx.ui.core.toRect
 
 /**
- * Demo app created to study some complex interactions of multiple DragGestureDetectors.
+ * Demonstration for how multiple DragGestureDetectors interact.
  */
 class NestedScrollingDemo : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -140,8 +140,8 @@ private fun Pressable(
     height: Dp
 ) {
 
-    val pressedColor = Color(0x1f000000)
-    val defaultColor = Color(0xFFFFFFFF.toInt())
+    val pressedColor = PressedColor
+    val defaultColor = DefaultBackgroundColor
 
     val color = +state { defaultColor }
     val showPressed = +state { false }
