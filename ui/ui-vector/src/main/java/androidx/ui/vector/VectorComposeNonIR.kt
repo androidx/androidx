@@ -29,9 +29,6 @@ import androidx.compose.Recomposer
 import androidx.compose.SlotTable
 import androidx.compose.ViewValidator
 import androidx.compose.cache
-import androidx.ui.graphics.vectorgraphics.GroupComponent
-import androidx.ui.graphics.vectorgraphics.VNode
-import androidx.ui.graphics.vectorgraphics.VectorComponent
 import java.util.WeakHashMap
 
 private val VectorTreeRoots = WeakHashMap<VectorComponent, VectorTree>()
@@ -50,7 +47,7 @@ private fun obtainVectorTree(container: VectorComponent): VectorTree {
 fun composeVector(
     container: VectorComponent,
     parent: CompositionReference? = null,
-    composable: @Composable() VectorScope.() -> Unit
+    composable: @Composable() VectorScope.(viewportWidth: Float, viewportHeight: Float) -> Unit
 ) {
     var root = VectorTreeRoots[container]
     if (root == null) {
@@ -59,6 +56,8 @@ fun composeVector(
         root.context = CompositionContext.prepare(root, parent) {
             VectorComposer(container.root, this).also { composer = it }
         }
+        root.viewportWidth = container.viewportWidth
+        root.viewportHeight = container.viewportHeight
         root.scope = VectorScope(VectorComposition(composer))
     }
     root.composable = composable
@@ -71,20 +70,23 @@ class VectorComposer(
 ) : Composer<VNode>(SlotTable(), Applier(root, VectorApplyAdapter()), recomposer)
 
 fun disposeVector(container: VectorComponent, parent: CompositionReference? = null) {
-    composeVector(container, parent) {}
+    composeVector(container, parent) { _, _ -> }
     VectorTreeRoots.remove(container)
 }
 
 private class VectorTree : Component() {
 
     lateinit var scope: VectorScope
-    lateinit var composable: @Composable() VectorScope.() -> Unit
+    lateinit var composable: @Composable() VectorScope.(Float, Float) -> Unit
     lateinit var context: CompositionContext
+
+    var viewportWidth: Float = 0.0f
+    var viewportHeight: Float = 0.0f
 
     override fun compose() {
         with(context.composer) {
             startGroup(0) // TODO (njawad) what key should be used here?
-            scope.composable()
+            scope.composable(viewportWidth, viewportHeight)
             endGroup()
         }
     }
@@ -128,7 +130,7 @@ class VectorComposition(val composer: VectorComposer) {
     @Suppress("NOTHING_TO_INLINE")
     inline operator fun <V> Effect<V>.unaryPlus(): V = resolve(this@VectorComposition.composer)
 
-    inline fun <T: VNode> emit(
+    inline fun <T : VNode> emit(
         key: Any,
         /*crossinline*/
         ctor: () -> T,
