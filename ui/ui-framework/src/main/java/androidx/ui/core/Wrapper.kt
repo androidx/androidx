@@ -153,6 +153,18 @@ private fun WrapWithAmbients(
     //             with nested AndroidCraneView case
     val focusManager = +memo { FocusManager() }
     val configuration = +state { context.applicationContext.resources.configuration }
+
+    // We don't use the attached View's layout direction here since that layout direction may not
+    // be resolved since the widgets may be composed without attaching to the RootViewImpl.
+    // In Jetpack Compose, use the locale layout direction (i.e. layoutDirection came from
+    // configuration) as a default layout direction.
+    val layoutDirection = when(configuration.value.layoutDirection) {
+        android.util.LayoutDirection.LTR -> LayoutDirection.Ltr
+        android.util.LayoutDirection.RTL -> LayoutDirection.Rtl
+        // API doc says Configuration#getLayoutDirection only returns LTR or RTL.
+        // Fallback to LTR for unexpected return value.
+        else -> LayoutDirection.Ltr
+    }
     +memo {
         craneView.configurationChangeObserver = {
             // onConfigurationChange is the correct hook to update configuration, however it is
@@ -163,6 +175,7 @@ private fun WrapWithAmbients(
             configuration.value = context.applicationContext.resources.configuration
         }
     }
+
     ContextAmbient.Provider(value = context) {
         CoroutineContextAmbient.Provider(value = coroutineContext) {
             DensityAmbient.Provider(value = Density(context)) {
@@ -172,7 +185,9 @@ private fun WrapWithAmbients(
                             AutofillTreeAmbient.Provider(value = craneView.autofillTree) {
                                 AutofillAmbient.Provider(value = craneView.autofill) {
                                     ConfigurationAmbient.Provider(value = configuration.value) {
-                                        content()
+                                        LayoutDirectionAmbient.Provider(value = layoutDirection) {
+                                            content()
+                                        }
                                     }
                                 }
                             }
@@ -196,6 +211,8 @@ val AutofillAmbient = Ambient.of<Autofill?>()
 
 // This will ultimately be replaced by Autofill Semantics (b/138604305).
 val AutofillTreeAmbient = Ambient.of<AutofillTree>()
+
+val LayoutDirectionAmbient = Ambient.of<LayoutDirection>()
 
 internal val FocusManagerAmbient = Ambient.of<FocusManager>()
 
