@@ -225,7 +225,7 @@ public class WorkManagerImpl extends WorkManager {
                 workTaskExecutor,
                 WorkDatabase.create(
                         context.getApplicationContext(),
-                        configuration.getTaskExecutor(),
+                        workTaskExecutor.getBackgroundExecutor(),
                         useTestDatabase)
         );
     }

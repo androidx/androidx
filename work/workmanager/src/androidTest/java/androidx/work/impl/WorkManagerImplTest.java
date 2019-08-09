@@ -77,7 +77,6 @@ import androidx.work.Constraints;
 import androidx.work.ContentUriTriggers;
 import androidx.work.Data;
 import androidx.work.ExistingPeriodicWorkPolicy;
-import androidx.work.Logger;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.PeriodicWorkRequest;
 import androidx.work.TestLifecycleOwner;
@@ -119,8 +118,6 @@ import java.util.concurrent.TimeUnit;
 
 @RunWith(AndroidJUnit4.class)
 public class WorkManagerImplTest {
-
-    private static final String TAG = Logger.tagWithPrefix("WorkManagerImplTest");
 
     private static final long SLEEP_DURATION_SMALL_MILLIS = 500L;
 
@@ -935,10 +932,8 @@ public class WorkManagerImplTest {
         assertThat(workInfo, is(nullValue()));
     }
 
-    // Temporarily disabled due to b/121002352.
-    // bug b/121090948 filed to keep track.
-    // @Test
-    // @MediumTest
+    @Test
+    @MediumTest
     @SuppressWarnings("unchecked")
     public void testGetWorkInfoById() {
         OneTimeWorkRequest work0 = new OneTimeWorkRequest.Builder(TestWorker.class).build();
@@ -1400,8 +1395,7 @@ public class WorkManagerImplTest {
     @LargeTest
     @SuppressWarnings("unchecked")
     public void testCancelAllWork_updatesLastCancelAllTimeLiveData() throws InterruptedException {
-        Preferences preferences = new Preferences(
-                (Context) ApplicationProvider.getApplicationContext());
+        Preferences preferences = new Preferences(ApplicationProvider.getApplicationContext());
         preferences.setLastCancelAllTimeMillis(0L);
 
         TestLifecycleOwner testLifecycleOwner = new TestLifecycleOwner();
