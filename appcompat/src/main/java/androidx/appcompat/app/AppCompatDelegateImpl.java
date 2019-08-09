@@ -2288,7 +2288,7 @@ class AppCompatDelegateImpl extends AppCompatDelegate
                 // just have to try it and catch the exception. We only log if we're actually
                 // trying to apply a uiMode configuration though.
                 if (newNightMode != applicationNightMode) {
-                    Log.e(TAG, "updateForNightMode. Calling applyOverrideConfiguration() failed"
+                    Log.w(TAG, "updateForNightMode. Calling applyOverrideConfiguration() failed"
                             + " with an exception. Will fall back to using"
                             + " Resources.updateConfiguration()", e);
                 }
