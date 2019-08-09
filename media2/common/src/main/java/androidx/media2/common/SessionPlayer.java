@@ -343,6 +343,9 @@ public abstract class SessionPlayer implements AutoCloseable {
     /**
      * Seeks to the specified position. Moves the playback head to the specified position.
      * <p>
+     * The position is the relative position based on the {@link MediaItem#getStartPosition()}. So
+     * calling {@link #seekTo(long)} with {@code 0} means the seek to the start position.
+     * <p>
      * On success, a {@link PlayerResult} should be returned with the current media item when the
      * command completed. If it's called in {@link #PLAYER_STATE_IDLE}, it is ignored and
      * a {@link PlayerResult} should be returned with
@@ -405,13 +408,18 @@ public abstract class SessionPlayer implements AutoCloseable {
 
     /**
      * Gets the current playback head position.
+     * <p>
+     * The position is the relative position based on the {@link MediaItem#getStartPosition()}.
+     * So the position {@code 0} means the start position of the {@link MediaItem}.
      *
      * @return the current playback position in ms, or {@link #UNKNOWN_TIME} if unknown.
      */
     public abstract long getCurrentPosition();
 
     /**
-     * Gets the duration of the current media item, or {@link #UNKNOWN_TIME} if unknown.
+     * Gets the duration of the current media item, or {@link #UNKNOWN_TIME} if unknown. If the
+     * current {@link MediaItem} has either start or end position, then duration would be adjusted
+     * accordingly instead of returning the whole size of the {@link MediaItem}.
      *
      * @return the duration in ms, or {@link #UNKNOWN_TIME}.
      */
@@ -419,6 +427,9 @@ public abstract class SessionPlayer implements AutoCloseable {
 
     /**
      * Gets the position for how much has been buffered, or {@link #UNKNOWN_TIME} if unknown.
+     * <p>
+     * The position is the relative position based on the {@link MediaItem#getStartPosition()}.
+     * So the position {@code 0} means the start position of the {@link MediaItem}.
      *
      * @return the buffered position in ms, or {@link #UNKNOWN_TIME}.
      */
