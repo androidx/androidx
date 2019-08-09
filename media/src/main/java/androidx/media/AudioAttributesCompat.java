@@ -235,7 +235,8 @@ public class AudioAttributesCompat implements VersionedParcelable {
     static final int INVALID_STREAM_TYPE = -1;  // AudioSystem.STREAM_DEFAULT
 
     /** @hide */
-    @RestrictTo(LIBRARY) // Dejetified Parcelizer may not access the field unless it's public
+    // It should be public to allow Parcelizers which never be de/jetified can access the field.
+    @RestrictTo(LIBRARY)
     @ParcelField(1)
     public AudioAttributesImpl mImpl;
 
