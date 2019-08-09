@@ -141,9 +141,9 @@ open class AsyncPagedListDiffer<T : Any> {
     internal var maxScheduledGeneration: Int = 0
 
     private val loadStateManager: LoadStateManager = object : LoadStateManager() {
-        override fun onStateChanged(type: LoadType, state: LoadState, error: Throwable?) {
+        override fun onStateChanged(type: LoadType, state: LoadState) {
             // Don't need to post - PagedList will already have done that
-            loadStateListeners.forEach { it(type, state, error) }
+            loadStateListeners.forEach { it(type, state) }
         }
     }
 
@@ -278,7 +278,7 @@ open class AsyncPagedListDiffer<T : Any> {
      *
      * @param pagedList The new [PagedList].
      * @param commitCallback Optional runnable that is executed when the PagedList is committed, if
-     *                       it is committed.
+     * it is committed.
      */
     open fun submitList(pagedList: PagedList<T>?, commitCallback: Runnable?) {
         // incrementing generation means any currently-running diffs are discarded when they finish
@@ -401,7 +401,7 @@ open class AsyncPagedListDiffer<T : Any> {
             // This is a load, not just an update of last load position, since the new list may be
             // incomplete. If new list is subset of old list, but doesn't fill the viewport, this
             // will likely trigger a load of new data.
-            newList.loadAround(Math.max(0, Math.min(newList.size - 1, newPosition)))
+            newList.loadAround(newPosition.coerceIn(0, newList.size - 1))
         }
 
         onCurrentListChanged(previousSnapshot, pagedList, commitCallback)

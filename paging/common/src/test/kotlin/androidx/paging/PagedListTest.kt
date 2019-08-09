@@ -16,6 +16,9 @@
 
 package androidx.paging
 
+import androidx.paging.ContiguousPagedListTest.Companion.EXCEPTION
+import androidx.paging.PagedList.LoadStateManager
+import androidx.paging.PagedList.LoadType.REFRESH
 import androidx.paging.futures.DirectDispatcher
 import androidx.testutils.TestDispatcher
 import androidx.testutils.TestExecutor
@@ -145,5 +148,20 @@ class PagedListTest {
 
         assertEquals(pagedSource, pagedList.pagedSource)
         assertEquals(config, pagedList.config)
+    }
+
+    @Test
+    fun setState_Error() {
+        var onStateChangeCalls = 0
+        val loadStateManager = object : LoadStateManager() {
+            override fun onStateChanged(type: PagedList.LoadType, state: PagedList.LoadState) {
+                onStateChangeCalls++
+            }
+        }
+
+        loadStateManager.setState(REFRESH, PagedList.LoadState.Error(EXCEPTION, true))
+        loadStateManager.setState(REFRESH, PagedList.LoadState.Error(EXCEPTION, true))
+
+        assertEquals(1, onStateChangeCalls)
     }
 }

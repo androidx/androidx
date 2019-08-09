@@ -18,6 +18,11 @@ package androidx.paging
 
 import androidx.annotation.MainThread
 import androidx.annotation.RestrictTo
+import androidx.paging.PagedList.LoadState.Idle
+import androidx.paging.PagedList.LoadState.Loading
+import androidx.paging.PagedList.LoadType.END
+import androidx.paging.PagedList.LoadType.REFRESH
+import androidx.paging.PagedList.LoadType.START
 import androidx.paging.PagedSource.KeyProvider
 import androidx.paging.PagedSource.LoadResult.Companion.COUNT_UNDEFINED
 import kotlinx.coroutines.CoroutineDispatcher
@@ -113,7 +118,7 @@ open class ContiguousPagedList<K : Any, V : Any>(
             page.size
         )
 
-        if (type == LoadType.END) {
+        if (type == END) {
             if (skipNewPage && !trimFromFront) {
                 // don't append this data, drop it
                 appendItemsRequested = 0
@@ -124,7 +129,7 @@ open class ContiguousPagedList<K : Any, V : Any>(
                     continueLoading = true
                 }
             }
-        } else if (type == LoadType.START) {
+        } else if (type == START) {
             if (skipNewPage && trimFromFront) {
                 // don't append this data, drop it
                 prependItemsRequested = 0
@@ -144,7 +149,7 @@ open class ContiguousPagedList<K : Any, V : Any>(
             // For simplicity (both of impl here, and contract w/ PagedSource) we don't
             // allow fetches in same direction - this means reading the load state is safe.
             if (trimFromFront) {
-                if (pager.loadStateManager.start != LoadState.LOADING) {
+                if (pager.loadStateManager.startState !is Loading) {
                     if (storage.trimFromFront(
                             replacePagesWithNulls,
                             config.maxSize,
@@ -153,15 +158,11 @@ open class ContiguousPagedList<K : Any, V : Any>(
                         )
                     ) {
                         // trimmed from front, ensure we can fetch in that dir
-                        pager.loadStateManager.setState(
-                            LoadType.START,
-                            LoadState.IDLE,
-                            null
-                        )
+                        pager.loadStateManager.setState(START, Idle)
                     }
                 }
             } else {
-                if (pager.loadStateManager.end != LoadState.LOADING) {
+                if (pager.loadStateManager.endState !is Loading) {
                     if (storage.trimFromEnd(
                             replacePagesWithNulls,
                             config.maxSize,
@@ -169,7 +170,7 @@ open class ContiguousPagedList<K : Any, V : Any>(
                             this@ContiguousPagedList
                         )
                     ) {
-                        pager.loadStateManager.setState(LoadType.END, LoadState.IDLE, null)
+                        pager.loadStateManager.setState(END, Idle)
                     }
                 }
             }
@@ -179,14 +180,13 @@ open class ContiguousPagedList<K : Any, V : Any>(
         return continueLoading
     }
 
-    override fun onStateChanged(type: LoadType, state: LoadState, error: Throwable?) =
-        dispatchStateChange(type, state, error)
+    override fun onStateChanged(type: LoadType, state: LoadState) = dispatchStateChange(type, state)
 
     private fun triggerBoundaryCallback(type: LoadType, page: List<V>) {
         if (boundaryCallback != null) {
             val deferEmpty = storage.size == 0
-            val deferBegin = (!deferEmpty && type == LoadType.START && page.isEmpty())
-            val deferEnd = (!deferEmpty && type == LoadType.END && page.isEmpty())
+            val deferBegin = (!deferEmpty && type == START && page.isEmpty())
+            val deferEnd = (!deferEmpty && type == END && page.isEmpty())
             deferBoundaryCallbacks(deferEmpty, deferBegin, deferEnd)
         }
     }
@@ -195,9 +195,11 @@ open class ContiguousPagedList<K : Any, V : Any>(
         super.retry()
         pager.retry()
 
-        if (pager.loadStateManager.refresh == LoadState.RETRYABLE_ERROR) {
-            // Loading the next PagedList failed, signal the retry callback.
-            refreshRetryCallback?.run()
+        pager.loadStateManager.refreshState.run {
+            // If loading the next PagedList failed, signal the retry callback.
+            if (this is LoadState.Error && retryable) {
+                refreshRetryCallback?.run()
+            }
         }
     }
 
@@ -231,14 +233,16 @@ open class ContiguousPagedList<K : Any, V : Any>(
                 if (initialResult.itemsBefore != COUNT_UNDEFINED) initialResult.itemsBefore else 0
             this.lastLoad = itemsBefore + initialResult.data.size / 2
         }
-        triggerBoundaryCallback(LoadType.REFRESH, initialResult.data)
+        triggerBoundaryCallback(REFRESH, initialResult.data)
     }
 
-    override fun dispatchCurrentLoadState(callback: LoadStateListener) =
+    override fun dispatchCurrentLoadState(callback: LoadStateListener) {
         pager.loadStateManager.dispatchCurrentLoadState(callback)
+    }
 
-    override fun setInitialLoadState(loadState: LoadState, error: Throwable?) =
-        pager.loadStateManager.setState(LoadType.REFRESH, loadState, error)
+    override fun setInitialLoadState(loadType: LoadType, loadState: LoadState) {
+        pager.loadStateManager.setState(loadType, loadState)
+    }
 
     @MainThread
     override fun dispatchUpdatesSinceSnapshot(snapshot: PagedList<V>, callback: Callback) {
