@@ -329,3 +329,70 @@ private fun <T> runToFirstDraw(
     FrameManager.nextFrame()
     testCase.recomposeSyncAssert(firstDrawCausesRecompose)
 }
+
+/**
+ *  Measures measure time of the hierarchy after changing a state.
+ */
+fun <T> BenchmarkRule.toggleStateMeasureMeasure(
+    activity: Activity,
+    testCase: T
+) where T : AndroidTestCase, T : ToggleableTestCase {
+    activity.runOnUiThreadSync {
+        testCase.runToFirstDraw()
+
+        measureRepeated {
+            runWithTimingDisabled {
+                testCase.toggleState()
+            }
+            testCase.measure()
+        }
+        activity.disposeComposition()
+    }
+}
+
+/**
+ *  Measures layout time of the hierarchy after changing a state.
+ */
+fun <T> BenchmarkRule.toggleStateMeasureLayout(
+    activity: Activity,
+    testCase: T
+) where T : AndroidTestCase, T : ToggleableTestCase {
+    activity.runOnUiThreadSync {
+        testCase.runToFirstDraw()
+
+        measureRepeated {
+            runWithTimingDisabled {
+                testCase.toggleState()
+                testCase.measure()
+            }
+            testCase.layout()
+        }
+        activity.disposeComposition()
+    }
+}
+
+/**
+ *  Measures draw time of the hierarchy after changing a state.
+ */
+fun <T> BenchmarkRule.toggleStateMeasureDraw(
+    activity: Activity,
+    testCase: T
+) where T : AndroidTestCase, T : ToggleableTestCase {
+    activity.runOnUiThreadSync {
+        testCase.runToFirstDraw()
+
+        measureRepeated {
+            runWithTimingDisabled {
+                testCase.toggleState()
+                testCase.measure()
+                testCase.layout()
+                testCase.prepareDraw()
+            }
+            testCase.draw()
+            runWithTimingDisabled {
+                testCase.finishDraw()
+            }
+        }
+        activity.disposeComposition()
+    }
+}
