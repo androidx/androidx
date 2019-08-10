@@ -2272,7 +2272,9 @@ public final class MediaBrowserCompat {
 
         @Override
         protected void onReceiveResult(int resultCode, Bundle resultData) {
-            MediaSessionCompat.ensureClassLoader(resultData);
+            if (resultData != null) {
+                resultData = MediaSessionCompat.unparcelWithClassLoader(resultData);
+            }
             if (resultCode != MediaBrowserServiceCompat.RESULT_OK || resultData == null
                     || !resultData.containsKey(MediaBrowserServiceCompat.KEY_MEDIA_ITEM)) {
                 mCallback.onError(mMediaId);
@@ -2302,7 +2304,9 @@ public final class MediaBrowserCompat {
 
         @Override
         protected void onReceiveResult(int resultCode, Bundle resultData) {
-            MediaSessionCompat.ensureClassLoader(resultData);
+            if (resultData != null) {
+                resultData = MediaSessionCompat.unparcelWithClassLoader(resultData);
+            }
             if (resultCode != MediaBrowserServiceCompat.RESULT_OK || resultData == null
                     || !resultData.containsKey(MediaBrowserServiceCompat.KEY_SEARCH_RESULTS)) {
                 mCallback.onError(mQuery, mExtras);
@@ -2310,14 +2314,15 @@ public final class MediaBrowserCompat {
             }
             Parcelable[] items = resultData.getParcelableArray(
                     MediaBrowserServiceCompat.KEY_SEARCH_RESULTS);
-            List<MediaItem> results = null;
             if (items != null) {
-                results = new ArrayList<>();
+                List<MediaItem> results = new ArrayList<>();
                 for (Parcelable item : items) {
                     results.add((MediaItem) item);
                 }
+                mCallback.onSearchResult(mQuery, mExtras, results);
+            } else {
+                mCallback.onError(mQuery, mExtras);
             }
-            mCallback.onSearchResult(mQuery, mExtras, results);
         }
     }
 

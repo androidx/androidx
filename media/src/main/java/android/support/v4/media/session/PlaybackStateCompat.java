@@ -808,6 +808,7 @@ public final class PlaybackStateCompat implements Parcelable {
             Bundle extras;
             if (Build.VERSION.SDK_INT >= 22) {
                 extras = stateFwk.getExtras();
+                MediaSessionCompat.ensureClassLoader(extras);
             } else {
                 extras = null;
             }
@@ -932,12 +933,14 @@ public final class PlaybackStateCompat implements Parcelable {
 
             PlaybackState.CustomAction customActionFwk =
                     (PlaybackState.CustomAction) customActionObj;
+            Bundle extras = customActionFwk.getExtras();
+            MediaSessionCompat.ensureClassLoader(extras);
             PlaybackStateCompat.CustomAction customActionCompat =
                     new PlaybackStateCompat.CustomAction(
                             customActionFwk.getAction(),
                             customActionFwk.getName(),
                             customActionFwk.getIcon(),
-                            customActionFwk.getExtras());
+                            extras);
             customActionCompat.mCustomActionFwk = customActionFwk;
             return customActionCompat;
         }
