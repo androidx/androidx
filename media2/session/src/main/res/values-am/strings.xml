@@ -17,9 +17,9 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="default_notification_channel_name" msgid="3980628489251198480">"አሁን በመጫወት ላይ"</string>
-    <string name="play_button_content_description" msgid="5898492519310326971">"አጫውት"</string>
-    <string name="pause_button_content_description" msgid="7844788760550939526">"ባለበት አቁም"</string>
-    <string name="skip_to_previous_item_button_content_description" msgid="250823119142607886">"ወደ ቀዳሚው ንጥል ዝለል"</string>
-    <string name="skip_to_next_item_button_content_description" msgid="3508534122676007656">"ወደ ቀጣዩ ንጥል ዝለል"</string>
+    <string name="default_notification_channel_name" msgid="6743534657295236036">"አሁን በመጫወት ላይ"</string>
+    <string name="play_button_content_description" msgid="6034272287948142298">"አጫውት"</string>
+    <string name="pause_button_content_description" msgid="4221330012095125431">"ባለበት አቁም"</string>
+    <string name="skip_to_previous_item_button_content_description" msgid="7233771088610629683">"ወደ ቀዳሚው ንጥል ዝለል"</string>
+    <string name="skip_to_next_item_button_content_description" msgid="17824442457643717">"ወደ ቀጣዩ ንጥል ዝለል"</string>
 </resources>

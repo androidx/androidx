@@ -17,9 +17,9 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="default_notification_channel_name" msgid="3980628489251198480">"ယခုဖွင့်ထားသော"</string>
-    <string name="play_button_content_description" msgid="5898492519310326971">"ဖွင့်ရန်"</string>
-    <string name="pause_button_content_description" msgid="7844788760550939526">"ခေတ္တရပ်ရန်"</string>
-    <string name="skip_to_previous_item_button_content_description" msgid="250823119142607886">"ပြီးခဲ့သည့်တစ်ခုသို့ ပြန်သွားရန်"</string>
-    <string name="skip_to_next_item_button_content_description" msgid="3508534122676007656">"နောက်တစ်ခုသို့ ကျော်ရန်"</string>
+    <string name="default_notification_channel_name" msgid="6743534657295236036">"ယခု ဖွင့်နေသည်"</string>
+    <string name="play_button_content_description" msgid="6034272287948142298">"ဖွင့်ရန်"</string>
+    <string name="pause_button_content_description" msgid="4221330012095125431">"ခေတ္တရပ်ရန်"</string>
+    <string name="skip_to_previous_item_button_content_description" msgid="7233771088610629683">"ပြီးခဲ့သည့်တစ်ခုသို့ ပြန်သွားရန်"</string>
+    <string name="skip_to_next_item_button_content_description" msgid="17824442457643717">"နောက်တစ်ခုသို့ ကျော်ရန်"</string>
 </resources>
