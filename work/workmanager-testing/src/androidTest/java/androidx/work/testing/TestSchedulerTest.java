@@ -161,6 +161,31 @@ public class TestSchedulerTest {
         }
     }
 
+    @Test
+    public void testWorker_afterSuccessfulRun_postConditions()
+            throws InterruptedException, ExecutionException {
+
+        OneTimeWorkRequest request = createWorkRequest();
+        WorkManager workManager = WorkManager.getInstance(mContext);
+        workManager.enqueue(request).getResult().get();
+        WorkInfo status = workManager.getWorkInfoById(request.getId()).get();
+        assertThat(status.getState().isFinished(), is(true));
+        mTestDriver.setAllConstraintsMet(request.getId());
+        mTestDriver.setInitialDelayMet(request.getId());
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testWorker_afterSuccessfulRun_throwsExceptionWhenSetPeriodDelayMet()
+            throws InterruptedException, ExecutionException {
+
+        OneTimeWorkRequest request = createWorkRequest();
+        WorkManager workManager = WorkManager.getInstance(mContext);
+        workManager.enqueue(request).getResult().get();
+        WorkInfo status = workManager.getWorkInfoById(request.getId()).get();
+        assertThat(status.getState().isFinished(), is(true));
+        mTestDriver.setPeriodDelayMet(request.getId());
+    }
+
     private static OneTimeWorkRequest createWorkRequest() {
         return new OneTimeWorkRequest.Builder(TestWorker.class).build();
     }
