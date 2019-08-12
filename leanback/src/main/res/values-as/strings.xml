@@ -40,7 +40,7 @@ limitations under the License.
     <string name="lb_playback_controls_thumb_down_outline" msgid="2847309435442474470">"থাম্ব ডাউন বাছনি কৰক"</string>
     <string name="lb_playback_controls_repeat_none" msgid="5812341701962930499">"একো পুনৰাই প্লে নকৰিব"</string>
     <string name="lb_playback_controls_repeat_all" msgid="5164826436271322261">"সকলো পুনৰাই প্লে কৰক"</string>
-    <string name="lb_playback_controls_repeat_one" msgid="7675097479246139440">"এটা পুনৰাই প্লে কৰক"</string>
+    <string name="lb_playback_controls_repeat_one" msgid="7675097479246139440">"এটা পুনৰাই প্লে’ কৰক"</string>
     <string name="lb_playback_controls_shuffle_enable" msgid="7809089255981448519">"সান-মিহলি সক্ষম কৰক"</string>
     <string name="lb_playback_controls_shuffle_disable" msgid="8182435535948303910">"সান-মিহলি অক্ষম কৰক"</string>
     <string name="lb_playback_controls_high_quality_enable" msgid="1862669142355962638">"উচ্চ মানৰ প্লেবেক সক্ষম কৰক"</string>
