@@ -98,8 +98,9 @@ public final class CustomTabsSession {
      *                           {@link Bundle#putParcelable(String, android.os.Parcelable)}.
      * @return                   true for success.
      */
-    public boolean mayLaunchUrl(Uri url, Bundle extras, List<Bundle> otherLikelyBundles) {
-        addIdToBundle(extras);
+    public boolean mayLaunchUrl(@NonNull Uri url, @Nullable Bundle extras,
+            @Nullable List<Bundle> otherLikelyBundles) {
+        extras = createBundleWithId(extras);
         try {
             return mService.mayLaunchUrl(mCallback, url, extras, otherLikelyBundles);
         } catch (RemoteException e) {
@@ -190,7 +191,7 @@ public final class CustomTabsSession {
      *         here doesn't mean an origin has already been assigned as the validation is
      *         asynchronous.
      */
-    public boolean requestPostMessageChannel(Uri postMessageOrigin) {
+    public boolean requestPostMessageChannel(@NonNull Uri postMessageOrigin) {
         Bundle extras = new Bundle();
         addIdToBundle(extras);
         try {
@@ -214,8 +215,8 @@ public final class CustomTabsSession {
      *        {@link CustomTabsService#RESULT_SUCCESS} if successful.
      */
     @Result
-    public int postMessage(String message, Bundle extras) {
-        addIdToBundle(extras);
+    public int postMessage(@NonNull String message, @Nullable Bundle extras) {
+        extras = createBundleWithId(extras);
         synchronized (mLock) {
             try {
                 return mService.postMessage(mCallback, message, extras);
@@ -251,10 +252,7 @@ public final class CustomTabsSession {
                 || relation > CustomTabsService.RELATION_HANDLE_ALL_URLS) {
             return false;
         }
-        if (extras == null) {
-            extras = new Bundle();
-        }
-        addIdToBundle(extras);
+        extras = createBundleWithId(extras);
         try {
             return mService.validateRelationship(mCallback, relation, origin, extras);
         } catch (RemoteException e) {
@@ -280,15 +278,19 @@ public final class CustomTabsSession {
      */
     public boolean receiveFile(@NonNull Uri uri, @CustomTabsService.FilePurpose int purpose,
             @Nullable Bundle extras) {
-        if (extras == null) {
-            extras = new Bundle();
-        }
-        addIdToBundle(extras);
+        extras = createBundleWithId(extras);
         try {
             return mService.receiveFile(mCallback, uri, purpose, extras);
         } catch (RemoteException e) {
             return false;
         }
+    }
+
+    private Bundle createBundleWithId(@Nullable Bundle bundle) {
+        Bundle bundleWithId = new Bundle();
+        if (bundle != null) bundleWithId.putAll(bundle);
+        addIdToBundle(bundleWithId);
+        return bundleWithId;
     }
 
     private void addIdToBundle(Bundle bundle) {
