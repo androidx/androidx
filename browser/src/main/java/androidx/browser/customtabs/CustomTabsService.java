@@ -182,8 +182,8 @@ public abstract class CustomTabsService extends Service {
         }
 
         @Override
-        public boolean mayLaunchUrl(ICustomTabsCallback callback, Uri url,
-                Bundle extras, List<Bundle> otherLikelyBundles) {
+        public boolean mayLaunchUrl(@Nullable ICustomTabsCallback callback, @NonNull Uri url,
+                @Nullable Bundle extras, @Nullable List<Bundle> otherLikelyBundles) {
             return CustomTabsService.this.mayLaunchUrl(
                     new CustomTabsSessionToken(callback, getSessionIdFromBundle(extras)),
                     url, extras, otherLikelyBundles);
