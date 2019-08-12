@@ -35,12 +35,14 @@ public class AudioAttributesImplApi21 implements AudioAttributesImpl {
     private static final String TAG = "AudioAttributesCompat21";
 
     /** @hide */
-    @RestrictTo(LIBRARY) // Dejetified Parcelizer may not access the field unless it's public
+    // It should be public to allow Parcelizers which never be de/jetified can access the field.
+    @RestrictTo(LIBRARY)
     @ParcelField(1)
     public AudioAttributes mAudioAttributes;
 
     /** @hide */
-    @RestrictTo(LIBRARY) // Dejetified Parcelizer may not access the field unless it's public
+    // It should be public to allow Parcelizers which never be de/jetified can access the field.
+    @RestrictTo(LIBRARY)
     @ParcelField(2)
     public int mLegacyStreamType = INVALID_STREAM_TYPE;
 
