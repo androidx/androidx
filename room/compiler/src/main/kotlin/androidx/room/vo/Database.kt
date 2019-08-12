@@ -73,7 +73,10 @@ data class Database(
         val indexDescriptions = entities
                 .flatMap { entity ->
                     entity.indices.map { index ->
-                        index.createQuery(entity.tableName)
+                        // For legacy purposes we need to remove the later added 'IF NOT EXISTS'
+                        // part of the create statement, otherwise old valid legacy hashes stop
+                        // being accepted even though the schema has not changed.
+                        index.createQuery(entity.tableName).replaceFirst("IF NOT EXISTS ", "")
                     }
                 }
         val viewDescriptions = views
