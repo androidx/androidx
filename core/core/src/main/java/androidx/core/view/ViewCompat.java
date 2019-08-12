@@ -1249,7 +1249,7 @@ public class ViewCompat {
 
     /**
      * Replaces an action. This can be used to change the default behavior or label of the action
-     * specified.
+     * specified. If label and command are both {@code null}, the action will be removed.
      *
      * @param view The view.
      * @param replacedAction The action to be replaced.
@@ -1265,7 +1265,11 @@ public class ViewCompat {
     public static void replaceAccessibilityAction(@NonNull View view, @NonNull
             AccessibilityActionCompat replacedAction,  @Nullable CharSequence label,
             @Nullable AccessibilityViewCommand command) {
-        addAccessibilityAction(view, replacedAction.createReplacementAction(label, command));
+        if (command == null && label == null) {
+            ViewCompat.removeAccessibilityAction(view, replacedAction.getId());
+        } else {
+            addAccessibilityAction(view, replacedAction.createReplacementAction(label, command));
+        }
     }
 
     private static void addAccessibilityAction(@NonNull View view,
