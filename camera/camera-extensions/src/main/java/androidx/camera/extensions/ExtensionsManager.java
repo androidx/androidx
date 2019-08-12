@@ -17,6 +17,7 @@ package androidx.camera.extensions;
 
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
 
 import androidx.annotation.GuardedBy;
 import androidx.annotation.Nullable;
@@ -31,6 +32,7 @@ import androidx.camera.core.PreviewConfig;
  * functions.
  */
 public final class ExtensionsManager {
+    private static final String TAG = "ExtensionsManager";
     /** The effect mode options applied on the bound use cases */
     public enum EffectMode {
         /** Normal mode without any specific effect applied. */
@@ -75,8 +77,16 @@ public final class ExtensionsManager {
      * @return True if the specific extension function is supported for the camera device.
      */
     public static boolean isExtensionAvailable(EffectMode effectMode, LensFacing lensFacing) {
-        return checkImageCaptureExtensionCapability(effectMode, lensFacing)
-                || checkPreviewExtensionCapability(effectMode, lensFacing);
+        boolean isImageCaptureAvailable = checkImageCaptureExtensionCapability(effectMode,
+                lensFacing);
+        boolean isPreviewAvailable = checkPreviewExtensionCapability(effectMode, lensFacing);
+
+        if (isImageCaptureAvailable != isPreviewAvailable) {
+            Log.e(TAG, "ImageCapture and Preview are not available simultaneously for "
+                    + effectMode.name());
+        }
+
+        return isImageCaptureAvailable && isPreviewAvailable;
     }
 
     /**
