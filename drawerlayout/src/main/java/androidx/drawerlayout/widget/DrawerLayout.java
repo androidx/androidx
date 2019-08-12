@@ -18,6 +18,7 @@
 package androidx.drawerlayout.widget;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
+import static androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat.ACTION_DISMISS;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -59,6 +60,7 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat;
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat;
+import androidx.core.view.accessibility.AccessibilityViewCommand;
 import androidx.customview.view.AbsSavedState;
 import androidx.customview.widget.ViewDragHelper;
 import androidx.drawerlayout.R;
@@ -252,6 +254,18 @@ public class DrawerLayout extends ViewGroup {
     private Matrix mChildInvertedMatrix;
 
     private static boolean sEdgeSizeUsingSystemGestureInsets = Build.VERSION.SDK_INT >= 29;
+
+    private final AccessibilityViewCommand mActionDismiss =
+            new AccessibilityViewCommand() {
+                @Override
+                public boolean perform(@NonNull View view, @Nullable CommandArguments arguments) {
+                    if (isDrawerOpen(view)  && getDrawerLockMode(view) != LOCK_MODE_LOCKED_OPEN) {
+                        closeDrawer(view);
+                        return true;
+                    }
+                    return false;
+                }
+            };
 
     /**
      * Listener for monitoring events about drawers.
@@ -879,6 +893,7 @@ public class DrawerLayout extends ViewGroup {
             }
 
             updateChildrenImportantForAccessibility(drawerView, false);
+            updateChildAccessibilityAction(drawerView);
 
             // Only send WINDOW_STATE_CHANGE if the host has window focus. This
             // may change if support for multiple foreground windows (e.g. IME)
@@ -906,6 +921,7 @@ public class DrawerLayout extends ViewGroup {
             }
 
             updateChildrenImportantForAccessibility(drawerView, true);
+            updateChildAccessibilityAction(drawerView);
 
             // Only send WINDOW_STATE_CHANGE if the host has window focus.
             if (hasWindowFocus()) {
@@ -927,6 +943,13 @@ public class DrawerLayout extends ViewGroup {
                 ViewCompat.setImportantForAccessibility(child,
                         ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS);
             }
+        }
+    }
+
+    private void updateChildAccessibilityAction(View child) {
+        ViewCompat.removeAccessibilityAction(child, ACTION_DISMISS.getId());
+        if (isDrawerOpen(child)  && getDrawerLockMode(child) != LOCK_MODE_LOCKED_OPEN) {
+            ViewCompat.replaceAccessibilityAction(child, ACTION_DISMISS, null, mActionDismiss);
         }
     }
 
@@ -1717,6 +1740,7 @@ public class DrawerLayout extends ViewGroup {
             lp.openState = LayoutParams.FLAG_IS_OPENED;
 
             updateChildrenImportantForAccessibility(drawerView, true);
+            updateChildAccessibilityAction(drawerView);
         } else if (animate) {
             lp.openState |= LayoutParams.FLAG_IS_OPENING;
 
