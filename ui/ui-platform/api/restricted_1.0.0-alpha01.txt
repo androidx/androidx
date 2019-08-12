@@ -212,13 +212,16 @@ package androidx.ui.core {
   public final class RepaintBoundaryNode extends androidx.ui.core.ComponentNode {
     ctor public RepaintBoundaryNode(String? name);
     method public boolean getClipToShape();
+    method public androidx.ui.core.Dp getElevation();
     method public String? getName();
     method public float getOpacity();
     method public androidx.ui.engine.geometry.Shape? getShape();
     method public void setClipToShape(boolean value);
+    method public void setElevation(androidx.ui.core.Dp value);
     method public void setOpacity(float value);
     method public void setShape(androidx.ui.engine.geometry.Shape? value);
     property public final boolean clipToShape;
+    property public final androidx.ui.core.Dp elevation;
     property public final float opacity;
     property public androidx.ui.core.RepaintBoundaryNode? repaintBoundary;
     property public final androidx.ui.engine.geometry.Shape? shape;

@@ -146,6 +146,9 @@ class AndroidCraneView constructor(context: Context)
 
     var commitUnsubscribe: (() -> Unit)? = null
 
+    private val elevationCompat: ElevationCompat? =
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) null else ElevationCompat()
+
     init {
         setWillNotDraw(false)
         isFocusable = true
@@ -421,7 +424,17 @@ class AndroidCraneView constructor(context: Context)
                     currentNode = previousNode
                 }
                 is RepaintBoundaryNode -> {
-                    node.container.callDraw(canvas)
+                    if (node.elevation > 0.dp) {
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                            canvas.nativeCanvas.enableZ()
+                            node.container.callDraw(canvas)
+                            canvas.nativeCanvas.disableZ()
+                        } else {
+                            elevationCompat!!.drawWithZ(canvas, node)
+                        }
+                    } else {
+                        node.container.callDraw(canvas)
+                    }
                 }
                 is LayoutNode -> {
                     if (node.visible) {
@@ -444,6 +457,18 @@ class AndroidCraneView constructor(context: Context)
                 }
             }
         }
+    }
+
+    override fun drawChild(
+        canvas: android.graphics.Canvas,
+        child: View,
+        drawingTime: Long
+    ): Boolean {
+        val elevationCompat = this.elevationCompat
+        if (elevationCompat != null && elevationCompat.handleDrawChild(canvas, child)) {
+            return false
+        }
+        return super.drawChild(canvas, child, drawingTime)
     }
 
     internal fun drawChild(canvas: Canvas, view: View, drawingTime: Long) {
@@ -601,6 +626,52 @@ class AndroidCraneView constructor(context: Context)
     }
 
     private fun autofillSupported() = Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
+
+    /**
+     * Compatible version of Canvas.enableZ()/disableZ().
+     *
+     * On Q we can just do:
+     * canvas.enableZ()
+     * node.container.callDraw(canvas)
+     * canvas.disableZ()
+     *
+     * But on older versions there is no such methods, but ViewGroup will call
+     * them internally inside dispatchDraw before calling the drawChild method.
+     * We can use this mechanism for our need just to have Canvas with Z enabled.
+     *
+     * So if we add a fake view, then call dispatchDraw manually, remember that
+     * if wasn't called by system(fakeDrawPass) and then when we handle next
+     * drawChild callback we would have a Canvas with z enabled. As we check for
+     * the fakeDrawPass we wouldn't draw other children Views ViewGroup can have.
+     * Then instead of drawing our fake view we draw our stored RepaintBoundary.
+     */
+    private inner class ElevationCompat {
+        private val fakeChild: View = View(context).apply {
+            setWillNotDraw(true)
+            addView(this)
+        }
+        private var fakeDrawPass: Boolean = false
+        private var boundary: RepaintBoundary? = null
+
+        fun drawWithZ(canvas: Canvas, node: RepaintBoundaryNode) {
+            this.boundary = node.container
+            fakeDrawPass = true
+            super@AndroidCraneView.dispatchDraw(canvas.nativeCanvas)
+            fakeDrawPass = false
+        }
+
+        fun handleDrawChild(canvas: android.graphics.Canvas, child: View): Boolean {
+            return if (fakeDrawPass) {
+                if (child === fakeChild) {
+                    boundary?.callDraw(Canvas(canvas))
+                    boundary = null
+                }
+                true
+            } else {
+                false
+            }
+        }
+    }
 }
 
 private class ConstraintRange(val min: IntPx, val max: IntPx)
@@ -658,7 +729,8 @@ private class RepaintBoundaryView(
         clipChildren = false
         setWillNotDraw(false) // we WILL draw
     }
-    private val outlineResolver = OutlineResolver(Density(context))
+    private val density = Density(context)
+    private val outlineResolver = OutlineResolver(density)
     private val outlineProviderImpl = object : ViewOutlineProvider() {
         override fun getOutline(view: View, outline: android.graphics.Outline) {
             outlineResolver.applyTo(outline)
@@ -742,6 +814,7 @@ private class RepaintBoundaryView(
             dirty = true
         }
         alpha = repaintBoundaryNode.opacity
+        elevation = withDensity(density) { repaintBoundaryNode.elevation.toPx().value }
     }
 }
 
@@ -762,7 +835,8 @@ private class RepaintBoundaryRenderNode(
         }
     val renderNode = RenderNode(repaintBoundaryNode.name)
     private val outline = android.graphics.Outline()
-    private val outlineResolver = OutlineResolver(Density(ownerView.context))
+    private val density = Density(ownerView.context)
+    private val outlineResolver = OutlineResolver(density)
     private var clipPath: android.graphics.Path? = null
 
     override fun setSize(width: Int, height: Int) {
@@ -817,6 +891,7 @@ private class RepaintBoundaryRenderNode(
             dirty = true
         }
         renderNode.alpha = repaintBoundaryNode.opacity
+        renderNode.elevation = withDensity(density) { repaintBoundaryNode.elevation.toPx().value }
         ownerView.invalidate()
     }
 }

@@ -31,6 +31,11 @@ package androidx.ui.core {
     method public static void Draw(kotlin.jvm.functions.Function0<kotlin.Unit> children, kotlin.jvm.functions.Function3<? super androidx.ui.core.DrawReceiver,? super androidx.ui.painting.Canvas,? super androidx.ui.core.PxSize,kotlin.Unit> onPaint);
   }
 
+  public final class DrawShadowKt {
+    ctor public DrawShadowKt();
+    method public static void DrawShadow(androidx.ui.engine.geometry.Shape shape, androidx.ui.core.Dp elevation);
+  }
+
   public final class EditorStyle {
     ctor public EditorStyle(androidx.ui.text.TextStyle? textStyle, androidx.ui.graphics.Color compositionColor, androidx.ui.graphics.Color selectionColor);
     ctor public EditorStyle();
