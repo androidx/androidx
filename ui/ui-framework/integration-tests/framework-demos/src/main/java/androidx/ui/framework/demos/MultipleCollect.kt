@@ -30,8 +30,8 @@ import androidx.ui.painting.Paint
 import androidx.compose.Children
 import androidx.compose.Composable
 import androidx.compose.composer
-import androidx.ui.graphics.vectorgraphics.Brush
-import androidx.ui.graphics.vectorgraphics.SolidColor
+import androidx.ui.graphics.Brush
+import androidx.ui.graphics.SolidColor
 
 @Composable
 fun ColoredRect(brush: Brush, width: Dp? = null, height: Dp? = null) {

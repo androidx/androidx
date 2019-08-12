@@ -27,7 +27,11 @@ import androidx.ui.core.Dp
 import androidx.ui.core.Draw
 import androidx.ui.core.Px
 import androidx.ui.core.withDensity
-import androidx.ui.graphics.vectorgraphics.Brush
+import androidx.ui.graphics.Brush
+import androidx.ui.graphics.EmptyBrush
+import androidx.ui.graphics.obtainBrush
+import androidx.ui.painting.StrokeCap
+import androidx.ui.painting.StrokeJoin
 import androidx.ui.vector.BrushType
 import androidx.ui.vector.DefaultAlpha
 import androidx.ui.vector.DefaultGroupName
@@ -43,18 +47,14 @@ import androidx.ui.vector.DefaultStrokeLineMiter
 import androidx.ui.vector.DefaultStrokeLineWidth
 import androidx.ui.vector.DefaultTranslationX
 import androidx.ui.vector.DefaultTranslationY
-import androidx.ui.graphics.vectorgraphics.EmptyBrush
 import androidx.ui.vector.EmptyPath
-import androidx.ui.vector.PathData
-import androidx.ui.vector.VectorComponent
 import androidx.ui.vector.GroupComponent
 import androidx.ui.vector.PathComponent
-import androidx.ui.vector.createPath
-import androidx.ui.graphics.vectorgraphics.obtainBrush
-import androidx.ui.painting.StrokeCap
-import androidx.ui.painting.StrokeJoin
+import androidx.ui.vector.PathData
+import androidx.ui.vector.VectorComponent
 import androidx.ui.vector.VectorScope
 import androidx.ui.vector.composeVector
+import androidx.ui.vector.createPath
 import androidx.ui.vector.disposeVector
 
 /**

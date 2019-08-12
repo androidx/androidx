@@ -19,6 +19,9 @@ package androidx.ui.core.vectorgraphics
 import androidx.compose.Composable
 import androidx.compose.composer
 import androidx.ui.core.Px
+import androidx.ui.graphics.EmptyBrush
+import androidx.ui.painting.StrokeCap
+import androidx.ui.painting.StrokeJoin
 import androidx.ui.vector.BrushType
 import androidx.ui.vector.DefaultAlpha
 import androidx.ui.vector.DefaultGroupName
@@ -34,11 +37,8 @@ import androidx.ui.vector.DefaultStrokeLineMiter
 import androidx.ui.vector.DefaultStrokeLineWidth
 import androidx.ui.vector.DefaultTranslationX
 import androidx.ui.vector.DefaultTranslationY
-import androidx.ui.graphics.vectorgraphics.EmptyBrush
 import androidx.ui.vector.EmptyPath
 import androidx.ui.vector.PathData
-import androidx.ui.painting.StrokeCap
-import androidx.ui.painting.StrokeJoin
 import androidx.ui.vector.VectorScope
 import java.util.Stack
 

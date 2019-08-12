@@ -23,8 +23,8 @@ import androidx.ui.core.Dp
 import androidx.ui.foundation.shape.DrawShape
 import androidx.ui.foundation.shape.RectangleShape
 import androidx.ui.graphics.Color
-import androidx.ui.graphics.vectorgraphics.Brush
-import androidx.ui.graphics.vectorgraphics.SolidColor
+import androidx.ui.graphics.Brush
+import androidx.ui.graphics.SolidColor
 import androidx.ui.layout.Container
 
 /**

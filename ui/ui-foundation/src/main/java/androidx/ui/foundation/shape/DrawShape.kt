@@ -26,8 +26,8 @@ import androidx.ui.engine.geometry.Outline
 import androidx.ui.engine.geometry.Shape
 import androidx.ui.engine.geometry.drawOutline
 import androidx.ui.graphics.Color
-import androidx.ui.graphics.vectorgraphics.Brush
-import androidx.ui.graphics.vectorgraphics.SolidColor
+import androidx.ui.graphics.Brush
+import androidx.ui.graphics.SolidColor
 import androidx.ui.painting.Paint
 
 /**

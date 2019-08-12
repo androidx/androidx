@@ -18,8 +18,8 @@ package androidx.ui.foundation.shape.border
 
 import androidx.ui.core.Dp
 import androidx.ui.graphics.Color
-import androidx.ui.graphics.vectorgraphics.Brush
-import androidx.ui.graphics.vectorgraphics.SolidColor
+import androidx.ui.graphics.Brush
+import androidx.ui.graphics.SolidColor
 
 /**
  * A border of a shape which will be drawn on top of the shape as an inner stroke.
