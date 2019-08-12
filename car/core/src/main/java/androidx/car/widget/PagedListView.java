@@ -118,6 +118,7 @@ public class PagedListView extends FrameLayout {
 
     private int mRowsPerPage = -1;
     private RecyclerView.Adapter<? extends RecyclerView.ViewHolder> mAdapter;
+    private AlphaJumpAdapter mAlphaJumpAdapter;
 
     /** Maximum number of pages to show. */
     private int mMaxPages = UNLIMITED_PAGES;
@@ -355,11 +356,6 @@ public class PagedListView extends FrameLayout {
                     default:
                         Log.e(TAG, "Unknown pagination direction (" + direction + ")");
                 }
-            }
-
-            @Override
-            public void onAlphaJump() {
-                setAlphaJumpVisible(true);
             }
         });
 
@@ -781,7 +777,17 @@ public class PagedListView extends FrameLayout {
         mRecyclerView.setAdapter(adapter);
 
         updateMaxItems();
-        updateAlphaJump();
+    }
+
+    /**
+     * Sets the alpha jump adapter for the list.
+     *
+     * @param adapter The alpha jump adapter to set for the list.
+     */
+    public void setAlphaJumpAdapter(@NonNull AlphaJumpAdapter adapter) {
+        mAlphaJumpAdapter = adapter;
+        mScrollBarView.setOnAlphaJumpListener(() -> setAlphaJumpVisible(true));
+        mScrollBarView.setShowAlphaJump(true);
     }
 
     /**
@@ -1386,11 +1392,6 @@ public class PagedListView extends FrameLayout {
         // will manually handle passing the state. See the comment in dispatchSaveInstanceState()
         // for more information.
         dispatchThawSelfOnly(container);
-    }
-
-    private void updateAlphaJump() {
-        boolean supportsAlphaJump = (mAdapter instanceof AlphaJumpAdapter);
-        mScrollBarView.setShowAlphaJump(supportsAlphaJump);
     }
 
     /**
