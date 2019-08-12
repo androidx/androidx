@@ -32,6 +32,7 @@ import androidx.slice.view.R;
 public class RowStyle {
     public static final int UNBOUNDED = -1;
 
+    private int mTitleItemStartPadding;
     private int mTitleItemEndPadding;
     private int mContentStartPadding;
     private int mContentEndPadding;
@@ -44,6 +45,8 @@ public class RowStyle {
     public RowStyle(Context context, int resId) {
         TypedArray a = context.getTheme().obtainStyledAttributes(resId, R.styleable.RowStyle);
         try {
+            mTitleItemStartPadding = (int) a.getDimension(
+                    R.styleable.RowStyle_titleItemStartPadding, UNBOUNDED);
             mTitleItemEndPadding = (int) a.getDimension(
                     R.styleable.RowStyle_titleItemEndPadding, UNBOUNDED);
             mContentStartPadding = (int) a.getDimension(
@@ -63,6 +66,10 @@ public class RowStyle {
         } finally {
             a.recycle();
         }
+    }
+
+    public int getTitleItemStartPadding() {
+        return mTitleItemStartPadding;
     }
 
     public int getTitleItemEndPadding() {

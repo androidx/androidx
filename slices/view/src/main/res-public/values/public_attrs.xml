@@ -33,6 +33,7 @@
     <public type="attr" name="gridBottomPadding" />
     <public type="attr" name="rowViewStyle" />
     <public type="attr" name="sliceViewStyle" />
+    <public type="attr" name="titleItemStartPadding" />
     <public type="attr" name="titleItemEndPadding" />
     <public type="attr" name="contentStartPadding" />
     <public type="attr" name="contentEndPadding" />
