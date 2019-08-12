@@ -21,6 +21,7 @@ import android.util.Size;
 import android.view.Surface;
 
 import androidx.annotation.IntDef;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
@@ -106,6 +107,7 @@ public interface ImageOutputConfig {
      * @return The stored value, if it exists in this configuration.
      * @throws IllegalArgumentException if the option does not exist in this configuration.
      */
+    @NonNull
     Rational getTargetAspectRatio();
 
     /**
@@ -144,7 +146,8 @@ public interface ImageOutputConfig {
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
-    Size getTargetResolution(Size valueIfMissing);
+    @Nullable
+    Size getTargetResolution(@Nullable Size valueIfMissing);
 
     /**
      * Retrieves the resolution of the target intending to use from this configuration.
@@ -154,6 +157,7 @@ public interface ImageOutputConfig {
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
+    @NonNull
     Size getTargetResolution();
 
     /**
@@ -166,7 +170,8 @@ public interface ImageOutputConfig {
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
-    Size getMaxResolution(Size valueIfMissing);
+    @Nullable
+    Size getMaxResolution(@Nullable Size valueIfMissing);
 
     /**
      * Retrieves the max resolution limitation of the target intending to use from this
@@ -177,6 +182,7 @@ public interface ImageOutputConfig {
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
+    @NonNull
     Size getMaxResolution();
 
     /**
@@ -199,7 +205,8 @@ public interface ImageOutputConfig {
          *                    height.
          * @return The current Builder.
          */
-        B setTargetAspectRatio(Rational aspectRatio);
+        @NonNull
+        B setTargetAspectRatio(@NonNull Rational aspectRatio);
 
         /**
          * Sets the rotation of the intended target for images from this configuration.
@@ -211,6 +218,7 @@ public interface ImageOutputConfig {
          * @param rotation The rotation of the intended target.
          * @return The current Builder.
          */
+        @NonNull
         B setTargetRotation(@RotationValue int rotation);
 
         /**
@@ -221,7 +229,8 @@ public interface ImageOutputConfig {
          * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
-        B setTargetResolution(Size resolution);
+        @NonNull
+        B setTargetResolution(@NonNull Size resolution);
 
         /**
          * Sets the max resolution limitation of the intended target from this configuration.
@@ -232,7 +241,8 @@ public interface ImageOutputConfig {
          * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
-        B setMaxResolution(Size resolution);
+        @NonNull
+        B setMaxResolution(@NonNull Size resolution);
     }
 
     /**

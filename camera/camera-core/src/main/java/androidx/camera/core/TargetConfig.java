@@ -16,6 +16,7 @@
 
 package androidx.camera.core;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
@@ -67,6 +68,7 @@ public interface TargetConfig<T> {
      * @return The stored value, if it exists in this configuration.
      * @throws IllegalArgumentException if the option does not exist in this configuration.
      */
+    @NonNull
     Class<T> getTargetClass();
 
     /**
@@ -91,6 +93,7 @@ public interface TargetConfig<T> {
      * @return The stored value, if it exists in this configuration.
      * @throws IllegalArgumentException if the option does not exist in this configuration.
      */
+    @NonNull
     String getTargetName();
 
     /**
@@ -118,7 +121,8 @@ public interface TargetConfig<T> {
          * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
-        B setTargetClass(Class<T> targetClass);
+        @NonNull
+        B setTargetClass(@NonNull Class<T> targetClass);
 
         /**
          * Sets the name of the target object being configured.
@@ -130,6 +134,7 @@ public interface TargetConfig<T> {
          *                   configured.
          * @return the current Builder.
          */
-        B setTargetName(String targetName);
+        @NonNull
+        B setTargetName(@NonNull String targetName);
     }
 }
