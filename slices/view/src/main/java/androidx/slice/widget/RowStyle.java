@@ -30,6 +30,8 @@ import androidx.slice.view.R;
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 @RequiresApi(19)
 public class RowStyle {
+    public static final int UNBOUNDED = -1;
+
     private int mTitleItemEndPadding;
     private int mContentStartPadding;
     private int mContentEndPadding;
@@ -43,21 +45,21 @@ public class RowStyle {
         TypedArray a = context.getTheme().obtainStyledAttributes(resId, R.styleable.RowStyle);
         try {
             mTitleItemEndPadding = (int) a.getDimension(
-                    R.styleable.RowStyle_titleItemEndPadding, -1);
+                    R.styleable.RowStyle_titleItemEndPadding, UNBOUNDED);
             mContentStartPadding = (int) a.getDimension(
-                    R.styleable.RowStyle_contentStartPadding, -1);
+                    R.styleable.RowStyle_contentStartPadding, UNBOUNDED);
             mContentEndPadding = (int) a.getDimension(
-                    R.styleable.RowStyle_contentEndPadding, -1);
+                    R.styleable.RowStyle_contentEndPadding, UNBOUNDED);
             mEndItemStartPadding = (int) a.getDimension(
-                    R.styleable.RowStyle_endItemStartPadding, -1);
+                    R.styleable.RowStyle_endItemStartPadding, UNBOUNDED);
             mEndItemEndPadding = (int) a.getDimension(
-                    R.styleable.RowStyle_endItemEndPadding, -1);
+                    R.styleable.RowStyle_endItemEndPadding, UNBOUNDED);
             mBottomDividerStartPadding = (int) a.getDimension(
-                    R.styleable.RowStyle_bottomDividerStartPadding, -1);
+                    R.styleable.RowStyle_bottomDividerStartPadding, UNBOUNDED);
             mBottomDividerEndPadding = (int) a.getDimension(
-                    R.styleable.RowStyle_bottomDividerEndPadding, -1);
+                    R.styleable.RowStyle_bottomDividerEndPadding, UNBOUNDED);
             mActionDividerHeight = (int) a.getDimension(
-                    R.styleable.RowStyle_actionDividerHeight, -1);
+                    R.styleable.RowStyle_actionDividerHeight, UNBOUNDED);
         } finally {
             a.recycle();
         }
