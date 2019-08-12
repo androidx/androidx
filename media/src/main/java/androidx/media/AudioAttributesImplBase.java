@@ -53,22 +53,26 @@ import java.util.Arrays;
 @RestrictTo(LIBRARY)
 public class AudioAttributesImplBase implements AudioAttributesImpl {
     /** @hide */
-    @RestrictTo(LIBRARY) // Dejetified Parcelizer may not access the field unless it's public
+    // It should be public to allow Parcelizers which never be de/jetified can access the field.
+    @RestrictTo(LIBRARY)
     @ParcelField(1)
     public int mUsage = USAGE_UNKNOWN;
 
     /** @hide */
-    @RestrictTo(LIBRARY) // Dejetified Parcelizer may not access the field unless it's public
+    // It should be public to allow Parcelizers which never be de/jetified can access the field.
+    @RestrictTo(LIBRARY)
     @ParcelField(2)
     public int mContentType = CONTENT_TYPE_UNKNOWN;
 
     /** @hide */
-    @RestrictTo(LIBRARY) // Dejetified Parcelizer may not access the field unless it's public
+    // It should be public to allow Parcelizers which never be de/jetified can access the field.
+    @RestrictTo(LIBRARY)
     @ParcelField(3)
     public int mFlags = 0x0;
 
     /** @hide */
-    @RestrictTo(LIBRARY) // Dejetified Parcelizer may not access the field unless it's public
+    // It should be public to allow Parcelizers which never be de/jetified can access the field.
+    @RestrictTo(LIBRARY)
     @ParcelField(4)
     public int mLegacyStream = INVALID_STREAM_TYPE;
 
