@@ -17,9 +17,9 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="default_notification_channel_name" msgid="6743534657295236036">"Сега слушате"</string>
-    <string name="play_button_content_description" msgid="6034272287948142298">"Пускане"</string>
-    <string name="pause_button_content_description" msgid="4221330012095125431">"Поставяне на пауза"</string>
-    <string name="skip_to_previous_item_button_content_description" msgid="7233771088610629683">"Преминаване към предишния елемент"</string>
-    <string name="skip_to_next_item_button_content_description" msgid="17824442457643717">"Преминаване към следващия елемент"</string>
+    <string name="default_notification_channel_name" msgid="6743534657295236036">"এতিয়া প্লে’ হৈ আছে"</string>
+    <string name="play_button_content_description" msgid="6034272287948142298">"প্লে\'"</string>
+    <string name="pause_button_content_description" msgid="4221330012095125431">"পজ"</string>
+    <string name="skip_to_previous_item_button_content_description" msgid="7233771088610629683">"পূৰ্বৱৰ্তী বস্তুটোলৈ যাওক"</string>
+    <string name="skip_to_next_item_button_content_description" msgid="17824442457643717">"পৰৱৰ্তী বস্তুটোলৈ যাওক"</string>
 </resources>

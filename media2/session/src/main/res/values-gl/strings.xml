@@ -17,9 +17,9 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="default_notification_channel_name" msgid="3980628489251198480">"Reproducindo"</string>
-    <string name="play_button_content_description" msgid="5898492519310326971">"Reproduce o contido"</string>
-    <string name="pause_button_content_description" msgid="7844788760550939526">"Pon en pausa o contido"</string>
-    <string name="skip_to_previous_item_button_content_description" msgid="250823119142607886">"Omite o elemento e vai ao anterior"</string>
-    <string name="skip_to_next_item_button_content_description" msgid="3508534122676007656">"Omite o elemento e vai ao seguinte"</string>
+    <string name="default_notification_channel_name" msgid="6743534657295236036">"Reproducindo"</string>
+    <string name="play_button_content_description" msgid="6034272287948142298">"Reproduce o contido"</string>
+    <string name="pause_button_content_description" msgid="4221330012095125431">"Pon en pausa o contido"</string>
+    <string name="skip_to_previous_item_button_content_description" msgid="7233771088610629683">"Omite o elemento e vai ao anterior"</string>
+    <string name="skip_to_next_item_button_content_description" msgid="17824442457643717">"Omite o elemento e vai ao seguinte"</string>
 </resources>
