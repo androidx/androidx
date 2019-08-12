@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package androidx.ui.graphics.vectorgraphics
+package androidx.ui.graphics
 
 import androidx.ui.core.Px
 import androidx.ui.engine.geometry.Offset
-import androidx.ui.graphics.Color
 import androidx.ui.painting.Gradient
 import androidx.ui.painting.Paint
+import androidx.ui.painting.Shader
 import androidx.ui.painting.TileMode
 import androidx.ui.vectormath64.Matrix4
 
@@ -88,7 +88,8 @@ fun LinearGradient(
         startY,
         endX,
         endY,
-        tileMode)
+        tileMode
+    )
 }
 
 /**
@@ -122,7 +123,8 @@ fun LinearGradient(
         startY,
         endX,
         endY,
-        tileMode)
+        tileMode
+    )
 }
 
 /**
@@ -207,7 +209,8 @@ fun VerticalGradient(
         startY = startY,
         endX = Px.Zero,
         endY = endY,
-        tileMode = tileMode)
+        tileMode = tileMode
+    )
 }
 
 /**
@@ -267,7 +270,8 @@ fun HorizontalGradient(
         startY = Px.Zero,
         endX = endX,
         endY = Px.Zero,
-        tileMode = tileMode)
+        tileMode = tileMode
+    )
 }
 
 /**
@@ -305,22 +309,28 @@ fun HorizontalGradient(
  * Brush implementation used to apply a linear gradient on a given [Paint]
  */
 data class LinearGradient internal constructor(
-    val colors: List<Color>,
-    val stops: List<Float>? = null,
-    val startX: Px,
-    val startY: Px,
-    val endX: Px,
-    val endY: Px,
-    val tileMode: TileMode = TileMode.clamp
+    private val colors: List<Color>,
+    private val stops: List<Float>? = null,
+    private val startX: Px,
+    private val startY: Px,
+    private val endX: Px,
+    private val endY: Px,
+    private val tileMode: TileMode = TileMode.clamp
 ) : Brush {
 
-    override fun applyBrush(p: Paint) {
-        p.shader = Gradient.linear(
+    private val shader: Shader
+
+    init {
+        shader = Gradient.linear(
             Offset(startX.value, startY.value),
             Offset(endX.value, endY.value),
             colors,
             stops,
             tileMode)
+    }
+
+    override fun applyBrush(p: Paint) {
+        p.shader = shader
     }
 }
 
@@ -336,9 +346,15 @@ data class RadialGradient internal constructor(
     private val tileMode: TileMode = TileMode.clamp
 ) : Brush {
 
-    override fun applyBrush(p: Paint) {
-        p.shader = Gradient.radial(
+    private val shader: Shader
+
+    init {
+        shader = Gradient.radial(
             Offset(centerX, centerY),
             radius, colors, stops, tileMode, Matrix4())
+    }
+
+    override fun applyBrush(p: Paint) {
+        p.shader = shader
     }
 }

@@ -26,8 +26,8 @@ import androidx.ui.painting.Path
 import androidx.ui.painting.StrokeCap
 import androidx.ui.painting.StrokeJoin
 import androidx.ui.core.Px
-import androidx.ui.graphics.vectorgraphics.Brush
-import androidx.ui.graphics.vectorgraphics.EmptyBrush
+import androidx.ui.graphics.Brush
+import androidx.ui.graphics.EmptyBrush
 import androidx.ui.graphics.vectorgraphics.PathBuilder
 import androidx.ui.graphics.vectorgraphics.PathNode
 import androidx.ui.graphics.vectorgraphics.PathParser
