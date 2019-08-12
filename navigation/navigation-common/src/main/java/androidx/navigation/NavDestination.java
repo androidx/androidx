@@ -161,6 +161,11 @@ public class NavDestination {
      */
     @NonNull
     static String getDisplayName(@NonNull Context context, int id) {
+        // aapt-generated IDs have the high byte nonzero,
+        // so anything below that cannot be a valid resource id
+        if (id <= 0x00FFFFFF) {
+            return Integer.toString(id);
+        }
         try {
             return context.getResources().getResourceName(id);
         } catch (Resources.NotFoundException e) {
