@@ -16,18 +16,15 @@
 
 package androidx.room.solver.query.result
 
-import androidx.room.ext.AndroidTypeNames
 import androidx.room.ext.CallableTypeSpecBuilder
 import androidx.room.ext.L
 import androidx.room.ext.N
 import androidx.room.ext.RoomCoroutinesTypeNames
-import androidx.room.ext.RoomTypeNames
 import androidx.room.ext.T
 import androidx.room.ext.arrayTypeName
 import androidx.room.ext.typeName
 import androidx.room.solver.CodeGenScope
 import com.squareup.javapoet.FieldSpec
-import com.squareup.javapoet.MethodSpec
 import javax.lang.model.type.TypeMirror
 
 /**
@@ -37,7 +34,7 @@ class CoroutineFlowResultBinder(
     val typeArg: TypeMirror,
     val tableNames: Set<String>,
     adapter: QueryResultAdapter?
-) : QueryResultBinder(adapter) {
+) : BaseObservableQueryResultBinder(adapter) {
 
     override fun convertAndReturn(
         roomSQLiteQueryVar: String,
@@ -50,11 +47,14 @@ class CoroutineFlowResultBinder(
             createRunQueryAndReturnStatements(
                 builder = this,
                 roomSQLiteQueryVar = roomSQLiteQueryVar,
-                canReleaseQuery = canReleaseQuery,
                 dbField = dbField,
                 inTransaction = inTransaction,
                 scope = scope,
                 cancellationSignalVar = "null")
+        }.apply {
+            if (canReleaseQuery) {
+                addMethod(createFinalizeMethod(roomSQLiteQueryVar))
+            }
         }.build()
 
         scope.builder().apply {
@@ -68,50 +68,5 @@ class CoroutineFlowResultBinder(
                 tableNamesList,
                 callableImpl)
         }
-    }
-
-    private fun createRunQueryAndReturnStatements(
-        builder: MethodSpec.Builder,
-        roomSQLiteQueryVar: String,
-        canReleaseQuery: Boolean,
-        dbField: FieldSpec,
-        inTransaction: Boolean,
-        scope: CodeGenScope,
-        cancellationSignalVar: String
-    ) {
-        val transactionWrapper = if (inTransaction) {
-            builder.transactionWrapper(dbField)
-        } else {
-            null
-        }
-        val shouldCopyCursor = adapter?.shouldCopyCursor() == true
-        val outVar = scope.getTmpVar("_result")
-        val cursorVar = scope.getTmpVar("_cursor")
-        transactionWrapper?.beginTransactionWithControlFlow()
-        builder.apply {
-            addStatement("final $T $L = $T.query($N, $L, $L, $L)",
-                AndroidTypeNames.CURSOR,
-                cursorVar,
-                RoomTypeNames.DB_UTIL,
-                dbField,
-                roomSQLiteQueryVar,
-                if (shouldCopyCursor) "true" else "false",
-                cancellationSignalVar)
-            beginControlFlow("try").apply {
-                val adapterScope = scope.fork()
-                adapter?.convert(outVar, cursorVar, adapterScope)
-                addCode(adapterScope.builder().build())
-                transactionWrapper?.commitTransaction()
-                addStatement("return $L", outVar)
-            }
-            nextControlFlow("finally").apply {
-                addStatement("$L.close()", cursorVar)
-                if (canReleaseQuery) {
-                    addStatement("$L.release()", roomSQLiteQueryVar)
-                }
-            }
-            endControlFlow()
-        }
-        transactionWrapper?.endTransactionWithControlFlow()
     }
 }
