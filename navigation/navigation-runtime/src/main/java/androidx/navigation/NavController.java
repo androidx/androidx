@@ -43,6 +43,7 @@ import androidx.lifecycle.ViewModelStoreOwner;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -292,7 +293,7 @@ public class NavController {
         for (Navigator<?> navigator : popOperations) {
             if (navigator.popBackStack()) {
                 NavBackStackEntry entry = mBackStack.removeLast();
-                entry.handleLifecycleEvent(Lifecycle.Event.ON_DESTROY);
+                entry.setMaxLifecycle(Lifecycle.State.DESTROYED);
                 if (mViewModel != null) {
                     mViewModel.clear(entry.mId);
                 }
@@ -377,6 +378,68 @@ public class NavController {
             // Keep popping
         }
         if (!mBackStack.isEmpty()) {
+            // First determine what the current resumed destination is and, if and only if
+            // the current resumed destination is a FloatingWindow, what destination is
+            // underneath it that must remain started.
+            NavDestination nextResumed = mBackStack.peekLast().getDestination();
+            NavDestination nextStarted = null;
+            if (nextResumed instanceof FloatingWindow) {
+                // Find the next destination in the back stack as that destination
+                // should still be STARTED when the FloatingWindow destination is above it.
+                Iterator<NavBackStackEntry> iterator = mBackStack.descendingIterator();
+                while (iterator.hasNext()) {
+                    NavDestination destination = iterator.next().getDestination();
+                    if (!(destination instanceof NavGraph)
+                            && !(destination instanceof FloatingWindow)) {
+                        nextStarted = destination;
+                        break;
+                    }
+                }
+            }
+            // First iterate downward through the stack, applying downward Lifecycle
+            // transitions and capturing any upward Lifecycle transitions to apply afterwards.
+            // This ensures proper nesting where parent navigation graphs are started before
+            // their children and stopped only after their children are stopped.
+            HashMap<NavBackStackEntry, Lifecycle.State> upwardStateTransitions = new HashMap<>();
+            Iterator<NavBackStackEntry> iterator = mBackStack.descendingIterator();
+            while (iterator.hasNext()) {
+                NavBackStackEntry entry = iterator.next();
+                Lifecycle.State currentMaxLifecycle = entry.getMaxLifecycle();
+                NavDestination destination = entry.getDestination();
+                if (nextResumed != null && destination.getId() == nextResumed.getId()) {
+                    // Upward Lifecycle transitions need to be done afterwards so that
+                    // the parent navigation graph is resumed before their children
+                    if (currentMaxLifecycle != Lifecycle.State.RESUMED) {
+                        upwardStateTransitions.put(entry, Lifecycle.State.RESUMED);
+                    }
+                    nextResumed = nextResumed.getParent();
+                } else if (nextStarted != null && destination.getId() == nextStarted.getId()) {
+                    if (currentMaxLifecycle == Lifecycle.State.RESUMED) {
+                        // Downward transitions should be done immediately so children are
+                        // paused before their parent navigation graphs
+                        entry.setMaxLifecycle(Lifecycle.State.STARTED);
+                    } else if (currentMaxLifecycle != Lifecycle.State.STARTED) {
+                        // Upward Lifecycle transitions need to be done afterwards so that
+                        // the parent navigation graph is started before their children
+                        upwardStateTransitions.put(entry, Lifecycle.State.STARTED);
+                    }
+                    nextStarted = nextStarted.getParent();
+                } else {
+                    entry.setMaxLifecycle(Lifecycle.State.CREATED);
+                }
+            }
+            // Apply all upward Lifecycle transitions by iterating through the stack again,
+            // this time applying the new lifecycle to the parent navigation graphs first
+            iterator = mBackStack.iterator();
+            while (iterator.hasNext()) {
+                NavBackStackEntry entry = iterator.next();
+                Lifecycle.State newState = upwardStateTransitions.get(entry);
+                if (newState != null) {
+                    entry.setMaxLifecycle(newState);
+                }
+            }
+
+            // Now call all registered OnDestinationChangedListener instances
             NavBackStackEntry backStackEntry = mBackStack.peekLast();
             for (OnDestinationChangedListener listener :
                     mOnDestinationChangedListeners) {
@@ -1060,7 +1123,7 @@ public class NavController {
     }
 
     /**
-     * Gets the {@link ViewModelStoreOwner} for a NavGraph.This can be passed to
+     * Gets the {@link ViewModelStoreOwner} for a NavGraph. This can be passed to
      * {@link androidx.lifecycle.ViewModelProvider} to retrieve a ViewModel that is scoped
      * to the navigation graph - it will be cleared when the navigation graph is popped off
      * the back stack.
@@ -1076,19 +1139,43 @@ public class NavController {
             throw new IllegalStateException("You must call setViewModelStore() before calling "
                     + "getViewModelStoreOwner().");
         }
+        return getBackStackEntry(navGraphId);
+    }
+
+    /**
+     * Gets the {@link NavBackStackEntry} for a NavGraph.
+     *
+     * @param navGraphId ID of a NavGraph that exists on the back stack
+     * @throws IllegalArgumentException if the NavGraph is not on the back stack
+     */
+    @NonNull
+    NavBackStackEntry getBackStackEntry(@IdRes int navGraphId) {
+        NavBackStackEntry lastFromBackStack = findBackStackEntry(navGraphId);
+        if (lastFromBackStack == null
+                || !(lastFromBackStack.getDestination() instanceof NavGraph)) {
+            throw new IllegalArgumentException("No NavGraph with ID " + navGraphId + " is on the "
+                    + "NavController's back stack");
+        }
+        return lastFromBackStack;
+    }
+
+    /**
+     * Find the topmost {@link NavBackStackEntry} for a destination id.
+     *
+     * @param destinationId ID of a destination that exists on the back stack
+     * @throws IllegalArgumentException if the destination is not on the back stack
+     */
+    @Nullable
+    NavBackStackEntry findBackStackEntry(@IdRes int destinationId) {
         NavBackStackEntry lastFromBackStack = null;
         Iterator<NavBackStackEntry> iterator = mBackStack.descendingIterator();
         while (iterator.hasNext()) {
             NavBackStackEntry entry = iterator.next();
             NavDestination destination = entry.getDestination();
-            if (destination instanceof NavGraph && destination.getId() == navGraphId) {
+            if (destination.getId() == destinationId) {
                 lastFromBackStack = entry;
                 break;
             }
-        }
-        if (lastFromBackStack == null) {
-            throw new IllegalArgumentException("No NavGraph with ID " + navGraphId + " is on the "
-                    + "NavController's back stack");
         }
         return lastFromBackStack;
     }
