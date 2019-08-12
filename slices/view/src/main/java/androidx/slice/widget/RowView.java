@@ -210,7 +210,7 @@ public class RowView extends SliceChildView implements View.OnClickListener,
 
         final RowStyle rowStyle = mSliceStyle.getRowStyle();
         setViewSidePaddings(mStartContainer,
-                RowStyle.UNBOUNDED, rowStyle.getTitleItemEndPadding());
+                rowStyle.getTitleItemStartPadding(), rowStyle.getTitleItemEndPadding());
         setViewSidePaddings(mContent,
                 rowStyle.getContentStartPadding(), rowStyle.getContentEndPadding());
         setViewSidePaddings(mEndContainer,
