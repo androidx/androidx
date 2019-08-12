@@ -49,6 +49,7 @@ import androidx.camera.testing.fakes.FakeUseCaseConfig;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
+import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 import androidx.test.rule.GrantPermissionRule;
 
@@ -68,6 +69,7 @@ import java.util.concurrent.atomic.AtomicReference;
 /**
  * Unit tests for {@link androidx.camera.extensions.ExtensionsErrorListener}.
  * */
+@SdkSuppress(minSdkVersion = Build.VERSION_CODES.M)
 public final class ExtensionsErrorListenerTest {
     @Rule
     public GrantPermissionRule mRuntimePermissionRule = GrantPermissionRule.grant(
@@ -97,10 +99,6 @@ public final class ExtensionsErrorListenerTest {
 
     @Before
     public void setUp() {
-        // Ignore the tests if SDK is before M since extension implementation is only supported
-        // after M.
-        assumeTrue(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M);
-
         Context context = ApplicationProvider.getApplicationContext();
         CameraDeviceSurfaceManager surfaceManager = new FakeCameraDeviceSurfaceManager();
         ExtendableUseCaseConfigFactory defaultConfigFactory = new ExtendableUseCaseConfigFactory();

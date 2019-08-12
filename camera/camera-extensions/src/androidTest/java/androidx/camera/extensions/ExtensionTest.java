@@ -37,6 +37,7 @@ import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CameraDevice;
 import android.hardware.camera2.CaptureRequest;
+import android.os.Build;
 
 import androidx.annotation.NonNull;
 import androidx.camera.camera2.Camera2AppConfig;
@@ -60,6 +61,7 @@ import androidx.camera.testing.CameraUtil;
 import androidx.camera.testing.fakes.FakeLifecycleOwner;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.filters.LargeTest;
+import androidx.test.filters.SdkSuppress;
 import androidx.test.rule.GrantPermissionRule;
 
 import org.junit.After;
@@ -77,6 +79,7 @@ import java.util.concurrent.TimeUnit;
 
 @RunWith(Parameterized.class)
 @LargeTest
+@SdkSuppress(minSdkVersion = Build.VERSION_CODES.M)
 public class ExtensionTest {
 
     @Rule
