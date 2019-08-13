@@ -20,6 +20,7 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.Surface;
 
+import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.camera.core.BaseCamera;
@@ -34,6 +35,7 @@ import androidx.camera.core.UseCase;
 import androidx.camera.core.UseCaseAttachState;
 import androidx.camera.core.impl.LiveDataObservable;
 import androidx.camera.core.impl.utils.futures.Futures;
+import androidx.core.util.Preconditions;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
@@ -54,7 +56,8 @@ public class FakeCamera implements BaseCamera {
     private final CameraInfo mCameraInfo;
     private String mCameraId;
     private UseCaseAttachState mUseCaseAttachState;
-    private State mState = State.INITIALIZED;
+    private State mState = State.CLOSED;
+    private int mAvailableCameraCount = 1;
 
     @Nullable
     private SessionConfig mSessionConfig;
@@ -84,26 +87,66 @@ public class FakeCamera implements BaseCamera {
         mUseCaseAttachState = new UseCaseAttachState(cameraId);
         mCameraControlInternal = cameraControl == null ? new FakeCameraControl(this)
                 : cameraControl;
-        mObservableState.postValue(BaseCamera.State.CLOSED);
+        mObservableState.postValue(State.CLOSED);
+    }
+
+    /**
+     * Sets the number of cameras that are available to open.
+     *
+     * <p>If this number is set to 0, then calling {@link #open()} will wait in a {@code
+     * PENDING_OPEN} state until the number is set to a value greater than 0 before entering an
+     * {@code OPEN} state.
+     *
+     * @param count An integer number greater than 0 representing the number of available cameras
+     *              to open on this device.
+     */
+    public void setAvailableCameraCount(@IntRange(from = 0) int count) {
+        Preconditions.checkArgumentNonnegative(count);
+        mAvailableCameraCount = count;
+        if (mAvailableCameraCount > 0 && mState == State.PENDING_OPEN) {
+            open();
+        }
+    }
+
+    /**
+     * Retrieves the number of cameras available to open on this device, as seen by this camera.
+     *
+     * @return An integer number greater than 0 representing the number of available cameras to
+     * open on this device.
+     */
+    @IntRange(from = 0)
+    public int getAvailableCameraCount() {
+        return mAvailableCameraCount;
     }
 
     @Override
     public void open() {
         checkNotReleased();
-        if (mState == State.INITIALIZED) {
-            mState = State.OPENED;
-            mObservableState.postValue(BaseCamera.State.OPEN);
+        if (mState == State.CLOSED || mState == State.PENDING_OPEN) {
+            if (mAvailableCameraCount > 0) {
+                mState = State.OPEN;
+                mObservableState.postValue(State.OPEN);
+            } else {
+                mState = State.PENDING_OPEN;
+                mObservableState.postValue(State.PENDING_OPEN);
+            }
         }
     }
 
     @Override
     public void close() {
         checkNotReleased();
-        if (mState == State.OPENED) {
-            mSessionConfig = null;
-            reconfigure();
-            mState = State.INITIALIZED;
-            mObservableState.postValue(BaseCamera.State.CLOSED);
+        switch (mState) {
+            case OPEN:
+                mSessionConfig = null;
+                reconfigure();
+                // fall through
+            case PENDING_OPEN:
+                mState = State.CLOSED;
+                mObservableState.postValue(State.CLOSED);
+                break;
+            default:
+                break;
         }
     }
 
@@ -111,12 +154,12 @@ public class FakeCamera implements BaseCamera {
     @NonNull
     public ListenableFuture<Void> release() {
         checkNotReleased();
-        if (mState == State.OPENED) {
+        if (mState == State.OPEN) {
             close();
         }
 
         mState = State.RELEASED;
-        mObservableState.postValue(BaseCamera.State.RELEASED);
+        mObservableState.postValue(State.RELEASED);
         return Futures.immediateFuture(null);
     }
 
@@ -244,7 +287,7 @@ public class FakeCamera implements BaseCamera {
             return;
         }
 
-        if (mState != State.OPENED) {
+        if (mState != State.OPEN) {
             Log.d(TAG, "CameraDevice is not opened");
             return;
         }
@@ -307,20 +350,4 @@ public class FakeCamera implements BaseCamera {
         // notifySurfaceDetached calls.
         mConfiguredDeferrableSurfaces.clear();
     }
-
-    enum State {
-        /**
-         * Stable state once the camera has been constructed.
-         */
-        INITIALIZED,
-        /**
-         * A stable state where the camera has been opened.
-         */
-        OPENED,
-        /**
-         * A stable state where the camera has been permanently closed.
-         */
-        RELEASED
-    }
-
 }
