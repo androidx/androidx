@@ -38,15 +38,19 @@ import androidx.ui.material.surface.Surface
 import androidx.ui.text.TextStyle
 
 /**
- * Styling params for the [Button].
+ * Styling configuration for a [Button].
  *
- * @param color The background color. Provide [Color.Transparent] to have no color.
- * @param shape Defines the Button's shape as well its shadow.
- * @param border Optional border to draw on top of the shape.
+ * The three basic Material button styles are provided by [ContainedButtonStyle], intended for high
+ * emphasis buttons, [OutlinedButtonStyle], intended for medium emphasis buttons, and
+ * [TextButtonStyle], intended for low emphasis buttons.
+ *
+ * @param color The background color. Use [Color.Transparent] to have no color
+ * @param shape Defines the button's shape as well as its shadow
+ * @param border Optional border to draw on top of the shape
  * @param elevation The z-coordinate at which to place this button. This controls the size
- *  of the shadow below the button.
- * @param paddings The paddings to apply for the Button's container.
- * @param textStyle The text style to apply for the children [Text] components.
+ *  of the shadow below the button
+ * @param paddings The spacing values to apply internally between the container and the content
+ * @param textStyle The text style to apply as a default for any children [Text] components
  */
 @Immutable
 data class ButtonStyle(
@@ -59,6 +63,9 @@ data class ButtonStyle(
 )
 
 /**
+ * Style used to configure a Button to look like a
+ * [Material Contained Button][https://material.io/design/components/buttons.html#contained-button].
+ *
  * Contained buttons are high-emphasis, distinguished by their use of elevation and fill. They
  * contain actions that are primary to your app.
  *
@@ -67,10 +74,10 @@ data class ButtonStyle(
  * @see OutlinedButtonStyle
  * @see TextButtonStyle
  *
- * @param color The background color.
- * @param shape Defines the Button's shape and shadow.
+ * @param color The background color
+ * @param shape Defines the button's shape as well as its shadow
  * @param elevation The z-coordinate at which to place this button. This controls the size
- *  of the shadow below the button.
+ *  of the shadow below the button
  */
 fun ContainedButtonStyle(
     color: Color = +themeColor { primary },
@@ -83,8 +90,12 @@ fun ContainedButtonStyle(
 )
 
 /**
- * Outlined buttons are medium-emphasis buttons. They contain actions that are important, but aren’t
- * the primary action in an app.
+ * Style used to configure a Button to look like a
+ * [Material Outlined Button][https://material.io/design/components/buttons.html#outlined-button].
+ *
+ * Outlined buttons are medium-emphasis buttons. They contain actions that are important, but are
+ * not the primary action in an app.
+ *
  * Outlined buttons are also a lower emphasis alternative to contained buttons, or a higher emphasis
  * alternative to text buttons.
  *
@@ -113,6 +124,9 @@ fun OutlinedButtonStyle(
 )
 
 /**
+ * Style used to configure a Button to look like a
+ * [Material Text Button][https://material.io/design/components/buttons.html#text-button].
+ *
  * Text buttons are typically used for less-pronounced actions, including those located in cards and
  * dialogs.
  *
@@ -133,22 +147,21 @@ fun TextButtonStyle(
 )
 
 /**
- * Material Design implementation of [Button].
+ * Material Design implementation of [Button][https://material.io/design/components/buttons.html].
  *
- * To make a [Button] clickable, you must provide an [onClick]. Not providing it will
- * also make this [Button] to be displayed as a disabled one.
+ * To make a button clickable, you must provide an onClick. If no onClick is provided, this button will display
+ * itself as disabled.
  *
- * The text style for internal [Text] components will be changed to [MaterialTypography.button],
- * text color will try to match the correlated color for the background [color]. For example,
- * on [MaterialColors.primary] background [MaterialColors.onPrimary] will be used for text.
+ * The default text style for internal [Text] components will be set to [MaterialTypography.button]. Text color will
+ * try to match the correlated color for the background color. For example if the background color is set to
+ * [MaterialColors.primary] then the text will by default use [MaterialColors.onPrimary].
  *
  * @sample androidx.ui.material.samples.ButtonSample
  *
- * @see BaseButton for the flexible variant that does not provide an internal padded container.
+ * @see BaseButton for the lower level variant of this component that does not provide an internal padded container.
  *
- * @param onClick Will be called when user clicked on the button. The button will be disabled
- *  when it is null.
- * @param style Contains the styling params for the Button.
+ * @param onClick Will be called when the user clicks the button. The button will be disabled if it is null.
+ * @param style Contains the styling parameters for the button.
  */
 @Composable
 fun Button(
@@ -169,21 +182,23 @@ fun Button(
 }
 
 /**
- * Material Design implementation of [Button] with [text].
+ * Material Design implementation of [Button][https://material.io/design/components/buttons.html] that contains some
+ * text.
  *
- * To make a [Button] clickable, you must provide an [onClick]. Not providing it will
- * also make this [Button] to be displayed as a disabled one.
+ * To make a button clickable, you must provide an onClick. If no onClick is provided, this button will display
+ * itself as disabled.
  *
- * The text style for internal [Text] components will be changed to [MaterialTypography.button].
+ * The default text style for internal [Text] components will be set to [MaterialTypography.button]. Text color will
+ * try to match the correlated color for the background color. For example if the background color is set to
+ * [MaterialColors.primary] then the text will by default use [MaterialColors.onPrimary].
  *
  * @sample androidx.ui.material.samples.ButtonWithTextSample
  *
- * @see Button for the version with a slot for a text so you can customize the text style.
+ * There is a different overload for this component that takes a lambda of customizable content.
  *
  * @param text The text to display.
- * @param onClick Will be called when user clicked on the button. The button will be disabled
- *  when it is null.
- * @param style Contains the styling params for the Button.
+ * @param onClick Will be called when the user clicks the button. The button will be disabled if it is null.
+ * @param style Contains the styling parameters for the button.
  */
 @Composable
 fun Button(
@@ -197,17 +212,16 @@ fun Button(
 }
 
 /**
- * [Button] with flexible user interface. You can provide any content as a [children] lambda.
+ * A basic Button with no internal content. Content can be provided via the children lambda parameter.
  *
- * To make a [Button] clickable, you must provide an [onClick]. Not providing it will
- * also make this [Button] to be displayed as a disabled one.
+ * To make a button clickable, you must provide an onClick. If no onClick is provided, this button will display
+ * itself as disabled.
  *
  * @sample androidx.ui.material.samples.BaseButtonSample
  *
- * @see Button overload for the default Material Design implementation of [Button] with text.
+ * For a Material styled button, see [Button].
  *
- * @param onClick Will be called when user clicked on the button. The button will be disabled
- *  when it is null.
+ * @param onClick Will be called when the user clicks the button. The button will be disabled if it is null.
  * @param color The background color. Provide [Color.Transparent] to have no color.
  * @param shape Defines the Button's shape as well its shadow.
  * @param border Optional border to draw on top of the button.
