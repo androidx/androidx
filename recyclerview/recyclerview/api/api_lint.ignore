@@ -337,8 +337,6 @@ MissingNullability: androidx.recyclerview.widget.LinearSnapHelper#findSnapView(a
     Missing nullability on parameter `layoutManager` in method `findSnapView`
 MissingNullability: androidx.recyclerview.widget.LinearSnapHelper#findTargetSnapPosition(androidx.recyclerview.widget.RecyclerView.LayoutManager, int, int) parameter #0:
     Missing nullability on parameter `layoutManager` in method `findTargetSnapPosition`
-MissingNullability: androidx.recyclerview.widget.ListAdapter#getItem(int):
-    Missing nullability on method `getItem` return
 MissingNullability: androidx.recyclerview.widget.OrientationHelper#createHorizontalHelper(androidx.recyclerview.widget.RecyclerView.LayoutManager):
     Missing nullability on method `createHorizontalHelper` return
 MissingNullability: androidx.recyclerview.widget.OrientationHelper#createHorizontalHelper(androidx.recyclerview.widget.RecyclerView.LayoutManager) parameter #0:
@@ -549,8 +547,6 @@ MissingNullability: androidx.recyclerview.widget.RecyclerView.SmoothScroller#get
     Missing nullability on parameter `view` in method `getChildPosition`
 MissingNullability: androidx.recyclerview.widget.RecyclerView.SmoothScroller#onChildAttachedToWindow(android.view.View) parameter #0:
     Missing nullability on parameter `child` in method `onChildAttachedToWindow`
-MissingNullability: androidx.recyclerview.widget.RecyclerView.State#get(int):
-    Missing nullability on method `get` return
 MissingNullability: androidx.recyclerview.widget.RecyclerView.State#put(int, Object) parameter #1:
     Missing nullability on parameter `data` in method `put`
 MissingNullability: androidx.recyclerview.widget.RecyclerView.State#toString():
@@ -629,54 +625,10 @@ MissingNullability: androidx.recyclerview.widget.SnapHelper#findSnapView(android
     Missing nullability on parameter `layoutManager` in method `findSnapView`
 MissingNullability: androidx.recyclerview.widget.SnapHelper#findTargetSnapPosition(androidx.recyclerview.widget.RecyclerView.LayoutManager, int, int) parameter #0:
     Missing nullability on parameter `layoutManager` in method `findTargetSnapPosition`
-MissingNullability: androidx.recyclerview.widget.SortedList#add(T) parameter #0:
-    Missing nullability on parameter `item` in method `add`
-MissingNullability: androidx.recyclerview.widget.SortedList#get(int):
-    Missing nullability on method `get` return
-MissingNullability: androidx.recyclerview.widget.SortedList#indexOf(T) parameter #0:
-    Missing nullability on parameter `item` in method `indexOf`
-MissingNullability: androidx.recyclerview.widget.SortedList#remove(T) parameter #0:
-    Missing nullability on parameter `item` in method `remove`
-MissingNullability: androidx.recyclerview.widget.SortedList#removeItemAt(int):
-    Missing nullability on method `removeItemAt` return
-MissingNullability: androidx.recyclerview.widget.SortedList#updateItemAt(int, T) parameter #1:
-    Missing nullability on parameter `item` in method `updateItemAt`
 MissingNullability: androidx.recyclerview.widget.SortedList.BatchedCallback#BatchedCallback(androidx.recyclerview.widget.SortedList.Callback<T2>) parameter #0:
     Missing nullability on parameter `wrappedCallback` in method `BatchedCallback`
-MissingNullability: androidx.recyclerview.widget.SortedList.BatchedCallback#areContentsTheSame(T2, T2) parameter #0:
-    Missing nullability on parameter `oldItem` in method `areContentsTheSame`
-MissingNullability: androidx.recyclerview.widget.SortedList.BatchedCallback#areContentsTheSame(T2, T2) parameter #1:
-    Missing nullability on parameter `newItem` in method `areContentsTheSame`
-MissingNullability: androidx.recyclerview.widget.SortedList.BatchedCallback#areItemsTheSame(T2, T2) parameter #0:
-    Missing nullability on parameter `item1` in method `areItemsTheSame`
-MissingNullability: androidx.recyclerview.widget.SortedList.BatchedCallback#areItemsTheSame(T2, T2) parameter #1:
-    Missing nullability on parameter `item2` in method `areItemsTheSame`
-MissingNullability: androidx.recyclerview.widget.SortedList.BatchedCallback#compare(T2, T2) parameter #0:
-    Missing nullability on parameter `o1` in method `compare`
-MissingNullability: androidx.recyclerview.widget.SortedList.BatchedCallback#compare(T2, T2) parameter #1:
-    Missing nullability on parameter `o2` in method `compare`
-MissingNullability: androidx.recyclerview.widget.SortedList.BatchedCallback#getChangePayload(T2, T2) parameter #0:
-    Missing nullability on parameter `item1` in method `getChangePayload`
-MissingNullability: androidx.recyclerview.widget.SortedList.BatchedCallback#getChangePayload(T2, T2) parameter #1:
-    Missing nullability on parameter `item2` in method `getChangePayload`
 MissingNullability: androidx.recyclerview.widget.SortedList.BatchedCallback#onChanged(int, int, Object) parameter #2:
     Missing nullability on parameter `payload` in method `onChanged`
-MissingNullability: androidx.recyclerview.widget.SortedList.Callback#areContentsTheSame(T2, T2) parameter #0:
-    Missing nullability on parameter `oldItem` in method `areContentsTheSame`
-MissingNullability: androidx.recyclerview.widget.SortedList.Callback#areContentsTheSame(T2, T2) parameter #1:
-    Missing nullability on parameter `newItem` in method `areContentsTheSame`
-MissingNullability: androidx.recyclerview.widget.SortedList.Callback#areItemsTheSame(T2, T2) parameter #0:
-    Missing nullability on parameter `item1` in method `areItemsTheSame`
-MissingNullability: androidx.recyclerview.widget.SortedList.Callback#areItemsTheSame(T2, T2) parameter #1:
-    Missing nullability on parameter `item2` in method `areItemsTheSame`
-MissingNullability: androidx.recyclerview.widget.SortedList.Callback#compare(T2, T2) parameter #0:
-    Missing nullability on parameter `o1` in method `compare`
-MissingNullability: androidx.recyclerview.widget.SortedList.Callback#compare(T2, T2) parameter #1:
-    Missing nullability on parameter `o2` in method `compare`
-MissingNullability: androidx.recyclerview.widget.SortedList.Callback#getChangePayload(T2, T2) parameter #0:
-    Missing nullability on parameter `item1` in method `getChangePayload`
-MissingNullability: androidx.recyclerview.widget.SortedList.Callback#getChangePayload(T2, T2) parameter #1:
-    Missing nullability on parameter `item2` in method `getChangePayload`
 MissingNullability: androidx.recyclerview.widget.SortedList.Callback#onChanged(int, int, Object) parameter #2:
     Missing nullability on parameter `payload` in method `onChanged`
 MissingNullability: androidx.recyclerview.widget.SortedListAdapterCallback#SortedListAdapterCallback(androidx.recyclerview.widget.RecyclerView.Adapter) parameter #0:

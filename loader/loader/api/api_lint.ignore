@@ -11,8 +11,6 @@ MissingNullability: androidx.loader.app.LoaderManager#dump(String, java.io.FileD
     Missing nullability on parameter `writer` in method `dump`
 MissingNullability: androidx.loader.app.LoaderManager#dump(String, java.io.FileDescriptor, java.io.PrintWriter, String[]) parameter #3:
     Missing nullability on parameter `args` in method `dump`
-MissingNullability: androidx.loader.app.LoaderManager.LoaderCallbacks#onLoadFinished(androidx.loader.content.Loader<D>, D) parameter #1:
-    Missing nullability on parameter `data` in method `onLoadFinished`
 MissingNullability: androidx.loader.content.AsyncTaskLoader#dump(String, java.io.FileDescriptor, java.io.PrintWriter, String[]) parameter #0:
     Missing nullability on parameter `prefix` in method `dump`
 MissingNullability: androidx.loader.content.AsyncTaskLoader#dump(String, java.io.FileDescriptor, java.io.PrintWriter, String[]) parameter #1:

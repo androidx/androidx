@@ -23,28 +23,10 @@ DocumentExceptions: androidx.core.view.ViewGroupKt#iterator(android.view.ViewGro
     Method ViewGroupKt.iterator appears to be throwing java.lang.IndexOutOfBoundsException; this should be listed in the documentation; see https://android.github.io/kotlin-guides/interop.html#document-exceptions
 
 
-MissingNullability: androidx.core.content.res.TypedArrayKt#use(android.content.res.TypedArray, kotlin.jvm.functions.Function1<? super android.content.res.TypedArray,? extends R>):
-    Missing nullability on method `use` return
-MissingNullability: androidx.core.database.sqlite.SQLiteDatabaseKt#transaction(android.database.sqlite.SQLiteDatabase, boolean, kotlin.jvm.functions.Function1<? super android.database.sqlite.SQLiteDatabase,? extends T>):
-    Missing nullability on method `transaction` return
 MissingNullability: androidx.core.graphics.ColorKt#convertTo(android.graphics.Color, android.graphics.ColorSpace):
     Missing nullability on method `convertTo` return
 MissingNullability: androidx.core.graphics.ColorKt#convertTo(android.graphics.Color, android.graphics.ColorSpace.Named):
     Missing nullability on method `convertTo` return
-MissingNullability: androidx.core.os.TraceKt#trace(String, kotlin.jvm.functions.Function0<? extends T>):
-    Missing nullability on method `trace` return
-MissingNullability: androidx.core.util.LongSparseArrayKt#getOrDefault(android.util.LongSparseArray<T>, long, T):
-    Missing nullability on method `getOrDefault` return
-MissingNullability: androidx.core.util.LongSparseArrayKt#getOrElse(android.util.LongSparseArray<T>, long, kotlin.jvm.functions.Function0<? extends T>):
-    Missing nullability on method `getOrElse` return
-MissingNullability: androidx.core.util.PairKt#component1(android.util.Pair<F,S>):
-    Missing nullability on method `component1` return
-MissingNullability: androidx.core.util.PairKt#component2(android.util.Pair<F,S>):
-    Missing nullability on method `component2` return
-MissingNullability: androidx.core.util.SparseArrayKt#getOrDefault(android.util.SparseArray<T>, int, T):
-    Missing nullability on method `getOrDefault` return
-MissingNullability: androidx.core.util.SparseArrayKt#getOrElse(android.util.SparseArray<T>, int, kotlin.jvm.functions.Function0<? extends T>):
-    Missing nullability on method `getOrElse` return
 
 
 PairedRegistration: androidx.core.animation.AnimatorKt#addListener(android.animation.Animator, kotlin.jvm.functions.Function1<? super android.animation.Animator,kotlin.Unit>, kotlin.jvm.functions.Function1<? super android.animation.Animator,kotlin.Unit>, kotlin.jvm.functions.Function1<? super android.animation.Animator,kotlin.Unit>, kotlin.jvm.functions.Function1<? super android.animation.Animator,kotlin.Unit>):
