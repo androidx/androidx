@@ -30,29 +30,27 @@ import java.util.List;
 /**
  * Registry for tool specific event handler. This provides map like functionality,
  * along with fallback to a default handler, while avoiding auto-boxing of tool
- * type values that would be necessitated where a Map used.
+ * type values that would be necessitated were a Map used.k
+ *
+ * <p>ToolHandlerRegistry guarantees that it will never return a null handler ensuring
+ * client code isn't peppered with null checks. To that end a default handler
+ * is required. This default handler will be returned when a handler matching
+ * the event tooltype has not be registered using {@link #set(int, T)}.
  *
  * @param <T> type of item being registered.
  */
 final class ToolHandlerRegistry<T> {
 
-    // Currently there are four known input types. ERASER is the last one, so has the
-    // highest value. UNKNOWN is zero, so we add one. This allows delegates to be
-    // registered by type, and avoid the auto-boxing that would be necessary were we
-    // to store delegates in a Map<Integer, Delegate>.
-    private static final int NUM_INPUT_TYPES = MotionEvent.TOOL_TYPE_ERASER + 1;
-
+    // list with one null entry for each known tooltype (0-4).
+    // See MotionEvent.TOOL_TYPE_ERASER for details. We're using a list here because
+    // it is parameterized type friendly, and a natural container given that
+    // the index values are 0-based ints.
     private final List<T> mHandlers = Arrays.asList(null, null, null, null, null);
     private final T mDefault;
 
     ToolHandlerRegistry(@NonNull T defaultDelegate) {
         checkArgument(defaultDelegate != null);
         mDefault = defaultDelegate;
-
-        // Initialize all values to null.
-        for (int i = 0; i < NUM_INPUT_TYPES; i++) {
-            mHandlers.set(i, null);
-        }
     }
 
     /**
