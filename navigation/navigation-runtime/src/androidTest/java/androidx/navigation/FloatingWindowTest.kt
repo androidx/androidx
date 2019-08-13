@@ -16,6 +16,7 @@
 
 package androidx.navigation
 
+import androidx.navigation.test.FloatingTestNavigator
 import androidx.navigation.test.R
 import androidx.navigation.testing.TestNavigator
 import androidx.test.core.app.ApplicationProvider
@@ -109,13 +110,4 @@ class FloatingWindowTest {
         navController.navigatorProvider.addNavigator(floatingNavigator)
         return navController
     }
-}
-
-@Navigator.Name("dialog")
-class FloatingTestNavigator : TestNavigator() {
-    override fun createDestination(): Destination {
-        return FloatingDestination(this)
-    }
-
-    class FloatingDestination(navigator: TestNavigator) : Destination(navigator), FloatingWindow
 }
