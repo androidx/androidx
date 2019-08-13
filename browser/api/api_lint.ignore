@@ -191,18 +191,6 @@ MissingNullability: androidx.browser.customtabs.CustomTabsServiceConnection#onSe
     Missing nullability on parameter `name` in method `onServiceConnected`
 MissingNullability: androidx.browser.customtabs.CustomTabsServiceConnection#onServiceConnected(android.content.ComponentName, android.os.IBinder) parameter #1:
     Missing nullability on parameter `service` in method `onServiceConnected`
-MissingNullability: androidx.browser.customtabs.CustomTabsSession#mayLaunchUrl(android.net.Uri, android.os.Bundle, java.util.List<android.os.Bundle>) parameter #0:
-    Missing nullability on parameter `url` in method `mayLaunchUrl`
-MissingNullability: androidx.browser.customtabs.CustomTabsSession#mayLaunchUrl(android.net.Uri, android.os.Bundle, java.util.List<android.os.Bundle>) parameter #1:
-    Missing nullability on parameter `extras` in method `mayLaunchUrl`
-MissingNullability: androidx.browser.customtabs.CustomTabsSession#mayLaunchUrl(android.net.Uri, android.os.Bundle, java.util.List<android.os.Bundle>) parameter #2:
-    Missing nullability on parameter `otherLikelyBundles` in method `mayLaunchUrl`
-MissingNullability: androidx.browser.customtabs.CustomTabsSession#postMessage(String, android.os.Bundle) parameter #0:
-    Missing nullability on parameter `message` in method `postMessage`
-MissingNullability: androidx.browser.customtabs.CustomTabsSession#postMessage(String, android.os.Bundle) parameter #1:
-    Missing nullability on parameter `extras` in method `postMessage`
-MissingNullability: androidx.browser.customtabs.CustomTabsSession#requestPostMessageChannel(android.net.Uri) parameter #0:
-    Missing nullability on parameter `postMessageOrigin` in method `requestPostMessageChannel`
 MissingNullability: androidx.browser.customtabs.CustomTabsSessionToken#equals(Object) parameter #0:
     Missing nullability on parameter `o` in method `equals`
 MissingNullability: androidx.browser.customtabs.PostMessageService#onBind(android.content.Intent):

@@ -5,7 +5,3 @@ KotlinOperator: androidx.lifecycle.SavedStateHandle#get(String):
     Method can be invoked with an indexing operator from Kotlin: `get` (this is usually desirable; just make sure it makes sense for this type of object)
 KotlinOperator: androidx.lifecycle.SavedStateHandle#set(String, T):
     Method can be invoked with an indexing operator from Kotlin: `set` (this is usually desirable; just make sure it makes sense for this type of object)
-
-
-MissingNullability: androidx.lifecycle.SavedStateHandle#getLiveData(String, T) parameter #1:
-    Missing nullability on parameter `initialValue` in method `getLiveData`

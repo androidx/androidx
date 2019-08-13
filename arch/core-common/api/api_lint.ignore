@@ -1,5 +1,0 @@
-// Baseline format: 1.0
-MissingNullability: androidx.arch.core.util.Function#apply(I):
-    Missing nullability on method `apply` return
-MissingNullability: androidx.arch.core.util.Function#apply(I) parameter #0:
-    Missing nullability on parameter `input` in method `apply`

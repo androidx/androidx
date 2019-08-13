@@ -125,8 +125,6 @@ MethodNameUnits: androidx.ui.core.Durations#inSeconds(androidx.ui.core.Duration)
 
 MissingNullability: androidx.ui.core.Constraints#Companion:
     Missing nullability on field `Companion` in class `class androidx.ui.core.Constraints`
-MissingNullability: androidx.ui.core.DensityKt#withDensity(androidx.ui.core.Density, kotlin.jvm.functions.Function1<? super androidx.ui.core.DensityReceiver,? extends R>):
-    Missing nullability on method `withDensity` return
 MissingNullability: androidx.ui.core.Dp#Companion:
     Missing nullability on field `Companion` in class `class androidx.ui.core.Dp`
 MissingNullability: androidx.ui.core.DpCubed#equals(Object) parameter #0:
@@ -195,10 +193,6 @@ MissingNullability: androidx.ui.painting.MaskFilter#Companion:
     Missing nullability on field `Companion` in class `class androidx.ui.painting.MaskFilter`
 MissingNullability: androidx.ui.painting.Path#Companion:
     Missing nullability on field `Companion` in class `class androidx.ui.painting.Path`
-MissingNullability: androidx.ui.semantics.SemanticsPropertyKey#getValue(androidx.ui.semantics.SemanticsPropertyReceiver, kotlin.reflect.KProperty<?>):
-    Missing nullability on method `getValue` return
-MissingNullability: androidx.ui.semantics.SemanticsPropertyKey#merge(T, T):
-    Missing nullability on method `merge` return
 MissingNullability: androidx.ui.text.TextSelection#Companion:
     Missing nullability on field `Companion` in class `class androidx.ui.text.TextSelection`
 MissingNullability: androidx.ui.util.Float16#Companion:

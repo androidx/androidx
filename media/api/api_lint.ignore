@@ -557,8 +557,6 @@ MissingNullability: androidx.media.MediaBrowserServiceCompat.Result#sendError(an
     Missing nullability on parameter `extras` in method `sendError`
 MissingNullability: androidx.media.MediaBrowserServiceCompat.Result#sendProgressUpdate(android.os.Bundle) parameter #0:
     Missing nullability on parameter `extras` in method `sendProgressUpdate`
-MissingNullability: androidx.media.MediaBrowserServiceCompat.Result#sendResult(T) parameter #0:
-    Missing nullability on parameter `result` in method `sendResult`
 MissingNullability: androidx.media.VolumeProviderCompat#getVolumeProvider():
     Missing nullability on method `getVolumeProvider` return
 MissingNullability: androidx.media.VolumeProviderCompat#setCallback(androidx.media.VolumeProviderCompat.Callback) parameter #0:

@@ -127,12 +127,8 @@ MissingNullability: androidx.car.widget.ListItem#addViewBinder(androidx.car.widg
     Missing nullability on parameter `binder` in method `addViewBinder`
 MissingNullability: androidx.car.widget.ListItem#addViewBinder(androidx.car.widget.ListItem.ViewBinder<VH>, androidx.car.widget.ListItem.ViewBinder<VH>) parameter #0:
     Missing nullability on parameter `binder` in method `addViewBinder`
-MissingNullability: androidx.car.widget.ListItem#onBind(VH) parameter #0:
-    Missing nullability on parameter `viewHolder` in method `onBind`
 MissingNullability: androidx.car.widget.ListItem#removeViewBinder(androidx.car.widget.ListItem.ViewBinder<VH>) parameter #0:
     Missing nullability on parameter `binder` in method `removeViewBinder`
-MissingNullability: androidx.car.widget.ListItem.ViewBinder#bind(VH) parameter #0:
-    Missing nullability on parameter `viewHolder` in method `bind`
 MissingNullability: androidx.car.widget.ListItem.ViewHolder#ViewHolder(android.view.View) parameter #0:
     Missing nullability on parameter `itemView` in method `ViewHolder`
 MissingNullability: androidx.car.widget.ListItemAdapter#onAttachedToRecyclerView(androidx.recyclerview.widget.RecyclerView) parameter #0:

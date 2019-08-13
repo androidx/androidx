@@ -27,34 +27,18 @@ MissingNullability: androidx.dynamicanimation.animation.DynamicAnimation#Y:
     Missing nullability on field `Y` in class `class androidx.dynamicanimation.animation.DynamicAnimation`
 MissingNullability: androidx.dynamicanimation.animation.DynamicAnimation#Z:
     Missing nullability on field `Z` in class `class androidx.dynamicanimation.animation.DynamicAnimation`
-MissingNullability: androidx.dynamicanimation.animation.DynamicAnimation#addEndListener(androidx.dynamicanimation.animation.DynamicAnimation.OnAnimationEndListener):
-    Missing nullability on method `addEndListener` return
 MissingNullability: androidx.dynamicanimation.animation.DynamicAnimation#addEndListener(androidx.dynamicanimation.animation.DynamicAnimation.OnAnimationEndListener) parameter #0:
     Missing nullability on parameter `listener` in method `addEndListener`
-MissingNullability: androidx.dynamicanimation.animation.DynamicAnimation#addUpdateListener(androidx.dynamicanimation.animation.DynamicAnimation.OnAnimationUpdateListener):
-    Missing nullability on method `addUpdateListener` return
 MissingNullability: androidx.dynamicanimation.animation.DynamicAnimation#addUpdateListener(androidx.dynamicanimation.animation.DynamicAnimation.OnAnimationUpdateListener) parameter #0:
     Missing nullability on parameter `listener` in method `addUpdateListener`
 MissingNullability: androidx.dynamicanimation.animation.DynamicAnimation#removeEndListener(androidx.dynamicanimation.animation.DynamicAnimation.OnAnimationEndListener) parameter #0:
     Missing nullability on parameter `listener` in method `removeEndListener`
 MissingNullability: androidx.dynamicanimation.animation.DynamicAnimation#removeUpdateListener(androidx.dynamicanimation.animation.DynamicAnimation.OnAnimationUpdateListener) parameter #0:
     Missing nullability on parameter `listener` in method `removeUpdateListener`
-MissingNullability: androidx.dynamicanimation.animation.DynamicAnimation#setMaxValue(float):
-    Missing nullability on method `setMaxValue` return
-MissingNullability: androidx.dynamicanimation.animation.DynamicAnimation#setMinValue(float):
-    Missing nullability on method `setMinValue` return
-MissingNullability: androidx.dynamicanimation.animation.DynamicAnimation#setMinimumVisibleChange(float):
-    Missing nullability on method `setMinimumVisibleChange` return
-MissingNullability: androidx.dynamicanimation.animation.DynamicAnimation#setStartValue(float):
-    Missing nullability on method `setStartValue` return
-MissingNullability: androidx.dynamicanimation.animation.DynamicAnimation#setStartVelocity(float):
-    Missing nullability on method `setStartVelocity` return
 MissingNullability: androidx.dynamicanimation.animation.DynamicAnimation.OnAnimationEndListener#onAnimationEnd(androidx.dynamicanimation.animation.DynamicAnimation, boolean, float, float) parameter #0:
     Missing nullability on parameter `animation` in method `onAnimationEnd`
 MissingNullability: androidx.dynamicanimation.animation.DynamicAnimation.OnAnimationUpdateListener#onAnimationUpdate(androidx.dynamicanimation.animation.DynamicAnimation, float, float) parameter #0:
     Missing nullability on parameter `animation` in method `onAnimationUpdate`
-MissingNullability: androidx.dynamicanimation.animation.FlingAnimation#FlingAnimation(K, androidx.dynamicanimation.animation.FloatPropertyCompat<K>) parameter #0:
-    Missing nullability on parameter `object` in method `FlingAnimation`
 MissingNullability: androidx.dynamicanimation.animation.FlingAnimation#FlingAnimation(K, androidx.dynamicanimation.animation.FloatPropertyCompat<K>) parameter #1:
     Missing nullability on parameter `property` in method `FlingAnimation`
 MissingNullability: androidx.dynamicanimation.animation.FlingAnimation#FlingAnimation(androidx.dynamicanimation.animation.FloatValueHolder) parameter #0:
@@ -73,16 +57,8 @@ MissingNullability: androidx.dynamicanimation.animation.FloatPropertyCompat#crea
     Missing nullability on method `createFloatPropertyCompat` return
 MissingNullability: androidx.dynamicanimation.animation.FloatPropertyCompat#createFloatPropertyCompat(android.util.FloatProperty<T>) parameter #0:
     Missing nullability on parameter `property` in method `createFloatPropertyCompat`
-MissingNullability: androidx.dynamicanimation.animation.FloatPropertyCompat#getValue(T) parameter #0:
-    Missing nullability on parameter `object` in method `getValue`
-MissingNullability: androidx.dynamicanimation.animation.FloatPropertyCompat#setValue(T, float) parameter #0:
-    Missing nullability on parameter `object` in method `setValue`
-MissingNullability: androidx.dynamicanimation.animation.SpringAnimation#SpringAnimation(K, androidx.dynamicanimation.animation.FloatPropertyCompat<K>) parameter #0:
-    Missing nullability on parameter `object` in method `SpringAnimation`
 MissingNullability: androidx.dynamicanimation.animation.SpringAnimation#SpringAnimation(K, androidx.dynamicanimation.animation.FloatPropertyCompat<K>) parameter #1:
     Missing nullability on parameter `property` in method `SpringAnimation`
-MissingNullability: androidx.dynamicanimation.animation.SpringAnimation#SpringAnimation(K, androidx.dynamicanimation.animation.FloatPropertyCompat<K>, float) parameter #0:
-    Missing nullability on parameter `object` in method `SpringAnimation`
 MissingNullability: androidx.dynamicanimation.animation.SpringAnimation#SpringAnimation(K, androidx.dynamicanimation.animation.FloatPropertyCompat<K>, float) parameter #1:
     Missing nullability on parameter `property` in method `SpringAnimation`
 MissingNullability: androidx.dynamicanimation.animation.SpringAnimation#SpringAnimation(androidx.dynamicanimation.animation.FloatValueHolder) parameter #0:

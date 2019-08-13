@@ -5,8 +5,6 @@ CallbackName: androidx.ui.core.gesture.DragObserver:
 
 MissingNullability: androidx.ui.core.LayoutResult#Companion:
     Missing nullability on field `Companion` in class `class androidx.ui.core.LayoutResult`
-MissingNullability: androidx.ui.core.TextSpanComposition#unaryPlus(androidx.compose.Effect<V>):
-    Missing nullability on method `unaryPlus` return
 MissingNullability: androidx.ui.semantics.SemanticsActions#Companion:
     Missing nullability on field `Companion` in class `class androidx.ui.semantics.SemanticsActions`
 MissingNullability: androidx.ui.semantics.SemanticsProperties#INSTANCE:

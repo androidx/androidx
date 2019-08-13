@@ -25,8 +25,6 @@ MissingNullability: androidx.wear.activity.ConfirmationActivity#onCreate(android
     Missing nullability on parameter `savedInstanceState` in method `onCreate`
 MissingNullability: androidx.wear.ambient.AmbientMode#attachAmbientSupport(T):
     Missing nullability on method `attachAmbientSupport` return
-MissingNullability: androidx.wear.ambient.AmbientMode#attachAmbientSupport(T) parameter #0:
-    Missing nullability on parameter `activity` in method `attachAmbientSupport`
 MissingNullability: androidx.wear.ambient.AmbientMode#dump(String, java.io.FileDescriptor, java.io.PrintWriter, String[]) parameter #0:
     Missing nullability on parameter `prefix` in method `dump`
 MissingNullability: androidx.wear.ambient.AmbientMode#dump(String, java.io.FileDescriptor, java.io.PrintWriter, String[]) parameter #1:
@@ -45,8 +43,6 @@ MissingNullability: androidx.wear.ambient.AmbientMode.AmbientCallbackProvider#ge
     Missing nullability on method `getAmbientCallback` return
 MissingNullability: androidx.wear.ambient.AmbientModeSupport#attach(T):
     Missing nullability on method `attach` return
-MissingNullability: androidx.wear.ambient.AmbientModeSupport#attach(T) parameter #0:
-    Missing nullability on parameter `activity` in method `attach`
 MissingNullability: androidx.wear.ambient.AmbientModeSupport#dump(String, java.io.FileDescriptor, java.io.PrintWriter, String[]) parameter #0:
     Missing nullability on parameter `prefix` in method `dump`
 MissingNullability: androidx.wear.ambient.AmbientModeSupport#dump(String, java.io.FileDescriptor, java.io.PrintWriter, String[]) parameter #1:

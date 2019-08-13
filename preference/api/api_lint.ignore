@@ -357,8 +357,6 @@ MissingNullability: androidx.preference.Preference.OnPreferenceClickListener#onP
     Missing nullability on parameter `preference` in method `onPreferenceClick`
 MissingNullability: androidx.preference.Preference.SummaryProvider#provideSummary(T):
     Missing nullability on method `provideSummary` return
-MissingNullability: androidx.preference.Preference.SummaryProvider#provideSummary(T) parameter #0:
-    Missing nullability on parameter `preference` in method `provideSummary`
 MissingNullability: androidx.preference.PreferenceCategory#PreferenceCategory(android.content.Context) parameter #0:
     Missing nullability on parameter `context` in method `PreferenceCategory`
 MissingNullability: androidx.preference.PreferenceCategory#PreferenceCategory(android.content.Context, android.util.AttributeSet) parameter #0:
