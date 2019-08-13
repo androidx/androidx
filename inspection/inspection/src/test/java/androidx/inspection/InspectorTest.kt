@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.inspection.agent
+package androidx.inspection
 
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
@@ -22,11 +22,11 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
-class AgentTest {
+class InspectorTest {
 
     @Test
     fun dummyTest() {
-        val value = object : Agent() {}
+        val value = object : Inspector() {}
         assertThat(value).isNotNull()
     }
 }

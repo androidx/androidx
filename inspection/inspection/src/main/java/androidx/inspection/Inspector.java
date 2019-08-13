@@ -14,11 +14,18 @@
  * limitations under the License.
  */
 
-package androidx.inspection.agent;
+package androidx.inspection;
 
 /**
  *  Implementation of this class are responsible to handle command from frontend and
  *  send back events.
  */
-public abstract class Agent {
+public abstract class Inspector {
+    /**
+     * Called when this inspector was disposed and no longer needed.
+     * <p>
+     * Agent should use this callback to unsubscribe from any events that it is listening to.
+     */
+    public void onDispose() {
+    }
 }
