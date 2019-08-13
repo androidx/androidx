@@ -43,7 +43,7 @@ import java.util.UUID;
  * destination is popped off the back stack, the lifecycle will be destroyed, state
  * will no longer be saved, and ViewModels will be cleared.
  */
-final class NavBackStackEntry implements
+public final class NavBackStackEntry implements
         LifecycleOwner,
         ViewModelStoreOwner, HasDefaultViewModelProviderFactory,
         SavedStateRegistryOwner {
