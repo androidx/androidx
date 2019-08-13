@@ -30,6 +30,7 @@ import android.util.Size;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.test.filters.MediumTest;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -65,6 +66,7 @@ public class ImageAnalysisTest {
     private Handler mBackgroundHandler;
     private Executor mBackgroundExecutor;
     private List<Image> mImagesReceived;
+    private ImageAnalysis mImageAnalysis;
 
     @Before
     public void setUp() {
@@ -80,6 +82,60 @@ public class ImageAnalysisTest {
         mImagesReceived = new ArrayList<>();
 
         ShadowImageReader.clear();
+    }
+
+    @After
+    public void tearDown() {
+        mImageAnalysis.clear();
+        mImagesReceived.clear();
+    }
+
+    @Test
+    public void nonBlockingAnalyzerClosed_imageNotAnalyzed() {
+        // Arrange.
+        setUpImageAnalysisWithMode(ImageAnalysis.ImageReaderMode.ACQUIRE_LATEST_IMAGE);
+
+        // Act.
+        // Receive images from camera feed.
+        ShadowImageReader.triggerCallbackWithImage(MOCK_IMAGE_1);
+        flushHandler(mBackgroundHandler);
+        ShadowImageReader.triggerCallbackWithImage(MOCK_IMAGE_2);
+        flushHandler(mBackgroundHandler);
+
+        // Assert.
+        // No image is received because callback handler is blocked.
+        assertThat(mImagesReceived).isEmpty();
+
+        // Flush callback handler and image1 is received.
+        flushHandler(mCallbackHandler);
+        assertThat(mImagesReceived).containsExactly(MOCK_IMAGE_1);
+
+        // Clear ImageAnalysis and flush both handlers. No more image should be received because
+        // it's closed.
+        mImageAnalysis.clear();
+        flushHandler(mBackgroundHandler);
+        flushHandler(mCallbackHandler);
+        assertThat(mImagesReceived).containsExactly(MOCK_IMAGE_1);
+    }
+
+    @Test
+    public void blockingAnalyzerClosed_imageNotAnalyzed() {
+        // Arrange.
+        setUpImageAnalysisWithMode(ImageAnalysis.ImageReaderMode.ACQUIRE_NEXT_IMAGE);
+
+        // Act.
+        // Receive images from camera feed.
+        ShadowImageReader.triggerCallbackWithImage(MOCK_IMAGE_1);
+        flushHandler(mBackgroundHandler);
+
+        // Assert.
+        // No image is received because callback handler is blocked.
+        assertThat(mImagesReceived).isEmpty();
+
+        // Flush callback handler and it's still empty because it's close.
+        mImageAnalysis.clear();
+        flushHandler(mCallbackHandler);
+        assertThat(mImagesReceived).isEmpty();
     }
 
     @Test
@@ -140,14 +196,14 @@ public class ImageAnalysisTest {
     }
 
     private void setUpImageAnalysisWithMode(ImageAnalysis.ImageReaderMode imageReaderMode) {
-        ImageAnalysis imageAnalysis = new ImageAnalysis(new ImageAnalysisConfig.Builder()
+        mImageAnalysis = new ImageAnalysis(new ImageAnalysisConfig.Builder()
                 .setCallbackHandler(mCallbackHandler)
                 .setBackgroundExecutor(mBackgroundExecutor)
                 .setImageQueueDepth(QUEUE_DEPTH)
                 .setImageReaderMode(imageReaderMode)
                 .build());
 
-        imageAnalysis.setAnalyzer(new ImageAnalysis.Analyzer() {
+        mImageAnalysis.setAnalyzer(new ImageAnalysis.Analyzer() {
             @Override
             public void analyze(ImageProxy image, int rotationDegrees) {
                 mImagesReceived.add(image.getImage());
@@ -156,7 +212,7 @@ public class ImageAnalysisTest {
 
         Map<String, Size> suggestedResolutionMap = new HashMap<>();
         suggestedResolutionMap.put(ShadowCameraX.DEFAULT_CAMERA_ID, DEFAULT_RESOLUTION);
-        imageAnalysis.updateSuggestedResolution(suggestedResolutionMap);
+        mImageAnalysis.updateSuggestedResolution(suggestedResolutionMap);
     }
 
     /**

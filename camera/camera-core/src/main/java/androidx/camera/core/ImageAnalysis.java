@@ -63,9 +63,10 @@ public final class ImageAnalysis extends UseCase {
     final AtomicInteger mRelativeRotation = new AtomicInteger();
     final Handler mHandler;
     private final ImageAnalysisConfig.Builder mUseCaseConfigBuilder;
-    private final ImageAnalysisBlockingCallback mImageAnalysisBlockingCallback;
     @SuppressWarnings("WeakerAccess") /* synthetic access */
-    final ImageAnalysisNonBlockingCallback mImageAnalysisNonBlockingCallback;
+    final ImageAnalysisBlockingAnalyzer mImageAnalysisBlockingAnalyzer;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    final ImageAnalysisNonBlockingAnalyzer mImageAnalysisNonBlockingAnalyzer;
     @Nullable
     ImageReaderProxy mImageReader;
     @Nullable
@@ -89,10 +90,10 @@ public final class ImageAnalysis extends UseCase {
         }
         setImageFormat(ImageReaderFormatRecommender.chooseCombo().imageAnalysisFormat());
         // Init both instead of lazy loading to void synchronization.
-        mImageAnalysisBlockingCallback = new ImageAnalysisBlockingCallback(mSubscribedAnalyzer,
+        mImageAnalysisBlockingAnalyzer = new ImageAnalysisBlockingAnalyzer(mSubscribedAnalyzer,
                 mRelativeRotation,
                 mHandler);
-        mImageAnalysisNonBlockingCallback = new ImageAnalysisNonBlockingCallback(
+        mImageAnalysisNonBlockingAnalyzer = new ImageAnalysisNonBlockingAnalyzer(
                 mSubscribedAnalyzer, mRelativeRotation,
                 mHandler, config.getBackgroundExecutor(
                 CameraXExecutors.highPriorityExecutor()));
@@ -220,7 +221,8 @@ public final class ImageAnalysis extends UseCase {
                     new DeferrableSurface.OnSurfaceDetachedListener() {
                         @Override
                         public void onSurfaceDetached() {
-                            mImageAnalysisNonBlockingCallback.close();
+                            mImageAnalysisNonBlockingAnalyzer.close();
+                            mImageAnalysisBlockingAnalyzer.close();
                             if (mImageReader != null) {
                                 mImageReader.close();
                                 mImageReader = null;
@@ -292,10 +294,11 @@ public final class ImageAnalysis extends UseCase {
         ImageReaderProxy.OnImageAvailableListener onImageAvailableListener;
 
         if (config.getImageReaderMode() == ImageReaderMode.ACQUIRE_NEXT_IMAGE) {
-            onImageAvailableListener = mImageAnalysisBlockingCallback;
+            onImageAvailableListener = mImageAnalysisBlockingAnalyzer;
+            mImageAnalysisBlockingAnalyzer.open();
         } else {
-            onImageAvailableListener = mImageAnalysisNonBlockingCallback;
-            mImageAnalysisNonBlockingCallback.open();
+            onImageAvailableListener = mImageAnalysisNonBlockingAnalyzer;
+            mImageAnalysisNonBlockingAnalyzer.open();
         }
         mImageReader.setOnImageAvailableListener(onImageAvailableListener, backgroundExecutor);
 
