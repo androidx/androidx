@@ -57,6 +57,8 @@ public class AppCompatCheckedTextView extends CheckedTextView {
             @NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(TintContextWrapper.wrap(context), attrs, defStyleAttr);
 
+        ThemeUtils.checkAppCompatTheme(this, getContext());
+
         mTextHelper = new AppCompatTextHelper(this);
         mTextHelper.loadFromAttributes(attrs, defStyleAttr);
         mTextHelper.applyCompoundDrawablesTints();

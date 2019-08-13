@@ -49,6 +49,8 @@ public class AppCompatSeekBar extends SeekBar {
             @NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
 
+        ThemeUtils.checkAppCompatTheme(this, getContext());
+
         mAppCompatSeekBarHelper = new AppCompatSeekBarHelper(this);
         mAppCompatSeekBarHelper.loadFromAttributes(attrs, defStyleAttr);
     }
