@@ -25,10 +25,9 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.util.Size;
 
-import androidx.camera.core.AppConfig;
+import androidx.camera.camera2.impl.Camera2CameraFactory;
 import androidx.camera.core.BaseCamera;
 import androidx.camera.core.CameraFactory;
-import androidx.camera.core.CameraX;
 import androidx.camera.core.ImageProxy;
 import androidx.camera.core.ImageReaderProxy;
 import androidx.camera.core.ImageReaderProxys;
@@ -44,6 +43,7 @@ import androidx.test.filters.LargeTest;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -51,6 +51,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Semaphore;
 
 /**
@@ -60,7 +61,8 @@ import java.util.concurrent.Semaphore;
 @RunWith(AndroidJUnit4.class)
 public final class ImageReaderProxysTest {
     private static final String CAMERA_ID = "0";
-    private static final int TEST_TIMEOUT_MILLIS = 3000;
+
+    private static CameraFactory sCameraFactory;
 
     private BaseCamera mCamera;
     private HandlerThread mHandlerThread;
@@ -81,27 +83,37 @@ public final class ImageReaderProxysTest {
         };
     }
 
+    @BeforeClass
+    public static void initializeFactory() {
+        Context context = ApplicationProvider.getApplicationContext();
+        sCameraFactory = new Camera2CameraFactory(context);
+    }
+
     @Before
     public void setUp() {
         assumeTrue(CameraUtil.deviceHasCamera());
-        Context context = ApplicationProvider.getApplicationContext();
-        AppConfig appConfig = Camera2AppConfig.create(context);
-        CameraFactory cameraFactory = appConfig.getCameraFactory(null);
-        CameraX.init(context, appConfig);
-        mCamera = cameraFactory.getCamera(CAMERA_ID);
+
         mHandlerThread = new HandlerThread("Background");
         mHandlerThread.start();
         mHandler = new Handler(mHandlerThread.getLooper());
         mReaders = new ArrayList<>();
+
+        // Grab the camera so we can wait for release in tearDown()
+
+        mCamera = sCameraFactory.getCamera(CAMERA_ID);
     }
 
     @After
-    public void tearDown() {
+    public void tearDown() throws ExecutionException, InterruptedException {
         for (ImageReaderProxy reader : mReaders) {
             reader.close();
         }
-        if (mCamera != null && mHandlerThread != null) {
-            mCamera.release();
+
+        if (mCamera != null) {
+            mCamera.release().get();
+        }
+
+        if (mHandlerThread != null) {
             mHandlerThread.quitSafely();
         }
     }
