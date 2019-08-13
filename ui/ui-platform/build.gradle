@@ -40,22 +40,27 @@ dependencies {
     testImplementation(ANDROIDX_TEST_RULES)
     testImplementation(ANDROIDX_TEST_RUNNER)
     testImplementation(JUNIT)
+    testImplementation(ROBOLECTRIC)
     testImplementation(MOCKITO_CORE)
     testImplementation(TRUTH)
     testImplementation MOCKITO_KOTLIN, {
         exclude group: 'org.mockito' // to keep control on the mockito version
     }
 
+    testImplementation project(":ui:ui-test")
+
     androidTestImplementation(ANDROIDX_TEST_RULES)
     androidTestImplementation(ANDROIDX_TEST_RUNNER)
     androidTestImplementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
     androidTestImplementation(JUNIT)
+    androidTestImplementation(TRUTH)
     androidTestImplementation(MOCKITO_CORE, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
     androidTestImplementation MOCKITO_KOTLIN, {
         exclude group: 'org.mockito' // to keep control on the mockito version
     }
 
-    implementation "androidx.core:core:1.0.0"
+    androidTestImplementation project(":ui:ui-test")
+
 }
 
 androidx {
@@ -65,4 +70,12 @@ androidx {
     mavenGroup = LibraryGroups.UI
     inceptionYear = "2019"
     description = "Contains internal implementation that allows separation of android implementation from host-side tests."
+}
+
+android {
+    testOptions {
+        unitTests {
+            includeAndroidResources = true
+        }
+    }
 }

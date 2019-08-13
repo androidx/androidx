@@ -14,56 +14,60 @@
  * limitations under the License.
  */
 
-package androidx.ui.autofill
+package androidx.ui.test.android.fake
 
 import android.graphics.Matrix
 import android.graphics.Rect
+import android.os.Build
 import android.os.Bundle
 import android.os.LocaleList
-import android.util.SparseArray
+import android.os.Parcel
 import android.view.View
 import android.view.ViewStructure
 import android.view.autofill.AutofillId
 import android.view.autofill.AutofillValue
-import com.nhaarman.mockitokotlin2.mock
+import androidx.annotation.GuardedBy
+import androidx.annotation.RequiresApi
 
 /**
- * A fake implementation of { SparseArray } to use in tests.
+ * A fake implementation of [ViewStructure] to use in tests.
+ *
+ * @hide
  */
-internal class FakeSparseArray : SparseArray<AutofillValue>() {
-
-    private val map = mutableMapOf<Int, AutofillValue>()
-
-    override fun append(key: Int, value: AutofillValue?) {
-        value?.let { map.putIfAbsent(key, it) }
-    }
-
-    override fun size() = map.count()
-
-    override fun keyAt(index: Int) = map.asSequence().elementAt(index).component1()
-
-    override fun get(key: Int) = map[key] ?: error("no element for the specified key")
-}
-
-/**
- * A fake implementation of { ViewStructure } to use in tests.
- */
-internal data class FakeViewStructure(
+@RequiresApi(Build.VERSION_CODES.O)
+data class FakeViewStructure(
     var virtualId: Int = 0,
     var packageName: String? = null,
     var typeName: String? = null,
     var entryName: String? = null,
     var children: MutableList<FakeViewStructure> = mutableListOf(),
     var bounds: Rect? = null,
-    private val autofillId: AutofillId? = mock(),
+    private val autofillId: AutofillId? = generateAutofillId(),
     private var autofillType: Int = View.AUTOFILL_TYPE_NONE,
     private var autofillHints: Array<out String> = arrayOf()
 ) : ViewStructure() {
 
+    internal companion object {
+        @GuardedBy("this")
+        private var previousId = 0
+        private val NO_SESSION = 0
+
+        @Synchronized
+        private fun generateAutofillId(): AutofillId {
+            var autofillId: AutofillId? = null
+            useParcel { parcel ->
+                parcel.writeInt(++previousId) // View Id.
+                parcel.writeInt(NO_SESSION) // Flag.
+                autofillId = AutofillId.CREATOR.createFromParcel(parcel)
+            }
+            return autofillId ?: error("Could not generate autofill id")
+        }
+    }
+
     override fun getChildCount() = children.count()
 
     override fun addChildCount(childCount: Int): Int {
-        repeat(childCount) { children.add(FakeViewStructure()) }
+        repeat(childCount) { children.add(FakeViewStructure(autofillId = autofillId)) }
         return children.count() - childCount
     }
 
@@ -206,4 +210,15 @@ private fun Rect?.contentEquals(other: Rect?) = when {
             other.right == right &&
             other.bottom == bottom &&
             other.top == top
+}
+
+/** Obtains a parcel and then recycles it correctly whether an exception is thrown or not. */
+private fun useParcel(block: (Parcel) -> Unit) {
+    var parcel: Parcel? = null
+    try {
+        parcel = Parcel.obtain()
+        block(parcel)
+    } finally {
+        parcel?.recycle()
+    }
 }
