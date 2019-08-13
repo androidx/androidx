@@ -17,6 +17,8 @@
 package androidx.navigation
 
 import android.os.Bundle
+import androidx.navigation.test.intArgument
+import androidx.navigation.test.stringArgument
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
@@ -24,18 +26,9 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
-private val stringArgument = "stringArg" to NavArgument.Builder()
-    .setType(NavType.StringType)
-    .setIsNullable(true)
-    .build()
-private val stringArgumentWithDefault = "stringArg" to NavArgument.Builder()
-    .setType(NavType.StringType)
-    .setDefaultValue("aaa")
-    .build()
-private val intArgument = "intArg" to NavArgument.Builder()
-    .setType(NavType.IntType)
-    .setDefaultValue(123)
-    .build()
+private val stringArgumentWithoutDefault = "stringArg" to stringArgument(true)
+private val stringArgumentWithDefault = "stringArg" to stringArgument("aaa")
+private val intArgumentWithDefault = "intArg" to intArgument(123)
 
 @SmallTest
 @RunWith(Parameterized::class)
@@ -51,11 +44,11 @@ class AddInDefaultArgsTest(
                 // Test with an empty set of arguments
                 mapOf(),
                 // Test with an argument with no default value
-                mapOf(stringArgument),
+                mapOf(stringArgumentWithoutDefault),
                 // Test with arguments where only some have default values
-                mapOf(stringArgument, intArgument),
+                mapOf(stringArgumentWithoutDefault, intArgumentWithDefault),
                 // Test with arguments that have default values
-                mapOf(stringArgumentWithDefault, intArgument)
+                mapOf(stringArgumentWithDefault, intArgumentWithDefault)
             ).forEach { arguments: Map<String, NavArgument> ->
                 // Run with a null Bundle
                 add(arrayOf(arguments, Bundle.EMPTY))
