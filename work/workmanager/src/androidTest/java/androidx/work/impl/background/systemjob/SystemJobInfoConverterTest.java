@@ -218,6 +218,25 @@ public class SystemJobInfoConverterTest extends WorkManagerTest {
         convertWithRequiredNetworkType(METERED, JobInfo.NETWORK_TYPE_METERED, 26);
     }
 
+    @Test
+    @SmallTest
+    @SdkSuppress(minSdkVersion = 29)
+    public void testConvert_setImportantWhileForeground() {
+        WorkSpec workSpec = getTestWorkSpecWithConstraints(new Constraints.Builder().build());
+        JobInfo jobInfo = mConverter.convert(workSpec, JOB_ID);
+        assertThat(jobInfo.isImportantWhileForeground(), is(true));
+    }
+
+    @Test
+    @SmallTest
+    @SdkSuppress(minSdkVersion = 29)
+    public void testConvert_setImportantWhileForeground_withTimingConstraints() {
+        WorkSpec workSpec = new WorkSpec("id", TestWorker.class.getName());
+        workSpec.setPeriodic(TEST_INTERVAL_DURATION, TEST_FLEX_DURATION);
+        JobInfo jobInfo = mConverter.convert(workSpec, JOB_ID);
+        assertThat(jobInfo.isImportantWhileForeground(), is(false));
+    }
+
     private void convertWithRequiredNetworkType(NetworkType networkType,
                                                 int jobInfoNetworkType,
                                                 int minSdkVersion) {
