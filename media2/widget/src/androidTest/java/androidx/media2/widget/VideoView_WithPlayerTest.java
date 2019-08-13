@@ -328,6 +328,9 @@ public class VideoView_WithPlayerTest extends MediaWidgetTestBase {
             // TODO: This if-block for API 28 should be removed. (b/137321781)
             return;
         }
+        if (Build.DEVICE.equals("fugu") && Build.VERSION.SDK_INT == 24) {
+            return;
+        }
         if (Build.VERSION.SDK_INT >= 24) {
             final int bufferQueueToleranceMs = 200;
             final int elapsedTimeForSecondScreenshotMs = 400;
