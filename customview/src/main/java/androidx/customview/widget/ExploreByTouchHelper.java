@@ -76,7 +76,7 @@ import java.util.List;
  *     }
  *
  *     &#64;Override
- *     public boolean onFocusChanged(boolean gainFocus, int direction,
+ *     public void onFocusChanged(boolean gainFocus, int direction,
  *         Rect previouslyFocusedRect) {
  *       super.onFocusChanged(gainFocus, direction, previouslyFocusedRect);
  *       mHelper.onFocusChanged(gainFocus, direction, previouslyFocusedRect);
