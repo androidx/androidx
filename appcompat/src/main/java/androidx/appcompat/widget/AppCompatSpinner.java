@@ -208,6 +208,8 @@ public class AppCompatSpinner extends Spinner implements TintableBackgroundView 
             int defStyleAttr, int mode, Resources.Theme popupTheme) {
         super(context, attrs, defStyleAttr);
 
+        ThemeUtils.checkAppCompatTheme(this, getContext());
+
         TintTypedArray a = TintTypedArray.obtainStyledAttributes(context, attrs,
                 R.styleable.Spinner, defStyleAttr, 0);
 
