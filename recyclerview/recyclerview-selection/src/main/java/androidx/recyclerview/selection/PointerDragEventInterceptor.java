@@ -25,7 +25,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.RecyclerView.OnItemTouchListener;
 
 /**
- * OnItemTouchListener that delegates drag events to a drag listener,
+ * OnItemTouchListener that detects and delegates drag events to a drag listener,
  * else sends event to fallback {@link OnItemTouchListener}.
  *
  * <p>See {@link OnDragInitiatedListener} for details on implementing drag and drop.
@@ -34,7 +34,7 @@ final class PointerDragEventInterceptor implements OnItemTouchListener {
 
     private final ItemDetailsLookup mEventDetailsLookup;
     private final OnDragInitiatedListener mDragListener;
-    private @Nullable OnItemTouchListener mDelegate;
+    private OnItemTouchListener mDelegate;
 
     PointerDragEventInterceptor(
             ItemDetailsLookup eventDetailsLookup,
@@ -46,30 +46,29 @@ final class PointerDragEventInterceptor implements OnItemTouchListener {
 
         mEventDetailsLookup = eventDetailsLookup;
         mDragListener = dragListener;
-        mDelegate = delegate;
+
+        if (delegate != null) {
+            mDelegate = delegate;
+        } else {
+            mDelegate = new DummyOnItemTouchListener();
+        }
     }
 
     @Override
     public boolean onInterceptTouchEvent(RecyclerView rv, MotionEvent e) {
         if (MotionEvents.isPointerDragEvent(e) && mEventDetailsLookup.inItemDragRegion(e)) {
             return mDragListener.onDragInitiated(e);
-        } else if (mDelegate != null) {
-            return mDelegate.onInterceptTouchEvent(rv, e);
         }
-        return false;
+        return mDelegate.onInterceptTouchEvent(rv, e);
     }
 
     @Override
     public void onTouchEvent(RecyclerView rv, MotionEvent e) {
-        if (mDelegate != null) {
-            mDelegate.onTouchEvent(rv, e);
-        }
+        mDelegate.onTouchEvent(rv, e);
     }
 
     @Override
     public void onRequestDisallowInterceptTouchEvent(boolean disallowIntercept) {
-        if (mDelegate != null) {
-            mDelegate.onRequestDisallowInterceptTouchEvent(disallowIntercept);
-        }
+        mDelegate.onRequestDisallowInterceptTouchEvent(disallowIntercept);
     }
 }
