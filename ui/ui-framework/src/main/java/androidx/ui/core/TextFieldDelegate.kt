@@ -28,39 +28,39 @@ import androidx.ui.input.SetSelectionEditOp
 import androidx.ui.input.TextInputService
 import androidx.ui.painting.Canvas
 import androidx.ui.text.AnnotatedString
-import androidx.ui.text.TextPainter
+import androidx.ui.text.TextDelegate
 
 internal class TextFieldDelegate {
     companion object {
         /**
          * Process text layout with given constraint.
          *
-         * @param textPainter The text painter
+         * @param textDelegate The text painter
          * @param constraints The layout constraints
          * @return the bounding box size(width and height) of the layout result
          */
         @JvmStatic
-        fun layout(textPainter: TextPainter, constraints: Constraints): Pair<IntPx, IntPx> {
-            val isEmptyText = textPainter.text?.text?.isEmpty() ?: true
+        fun layout(textDelegate: TextDelegate, constraints: Constraints): Pair<IntPx, IntPx> {
+            val isEmptyText = textDelegate.text?.text?.isEmpty() ?: true
             val activeTextPainter = if (isEmptyText) {
                 // Even with empty text, edit filed must have at least non-zero height widget. Use
                 // "H" height for this empty text height.
-                TextPainter(
+                TextDelegate(
                     text = AnnotatedString(text = "H"),
-                    style = textPainter.style,
-                    density = textPainter.density,
-                    resourceLoader = textPainter.resourceLoader
+                    style = textDelegate.style,
+                    density = textDelegate.density,
+                    resourceLoader = textDelegate.resourceLoader
                 ).apply {
                     layout(constraints)
                 }
             } else {
-                textPainter
+                textDelegate
             }
 
             // We anyway need to compute layout for preventing NPE during draw which require layout
             // result.
             // TODO(nona): Fix this?
-            textPainter.layout(constraints)
+            textDelegate.layout(constraints)
 
             val height = activeTextPainter.height.px.round()
             val width = constraints.maxWidth
@@ -73,7 +73,7 @@ internal class TextFieldDelegate {
          * @param canvas The target canvas.
          * @param value The editor state
          * @param offsetMap The offset map
-         * @param textPainter The text painter
+         * @param textDelegate The text painter
          * @param hasFocus true if this widget is focused, otherwise false
          * @param editorStyle The editor style.
          */
@@ -82,12 +82,12 @@ internal class TextFieldDelegate {
             canvas: Canvas,
             value: EditorModel,
             offsetMap: OffsetMap,
-            textPainter: TextPainter,
+            textDelegate: TextDelegate,
             hasFocus: Boolean,
             editorStyle: EditorStyle
         ) {
             value.composition?.let {
-                textPainter.paintBackground(
+                textDelegate.paintBackground(
                     offsetMap.originalToTransformed(it.start),
                     offsetMap.originalToTransformed(it.end),
                     editorStyle.compositionColor,
@@ -96,18 +96,18 @@ internal class TextFieldDelegate {
             }
             if (value.selection.collapsed) {
                 if (hasFocus) {
-                    textPainter.paintCursor(
+                    textDelegate.paintCursor(
                         offsetMap.originalToTransformed(value.selection.start), canvas)
                 }
             } else {
-                textPainter.paintBackground(
+                textDelegate.paintBackground(
                     offsetMap.originalToTransformed(value.selection.start),
                     offsetMap.originalToTransformed(value.selection.end),
                     editorStyle.selectionColor,
                     canvas
                 )
             }
-            textPainter.paint(canvas)
+            textDelegate.paint(canvas)
         }
 
         /**
@@ -118,7 +118,7 @@ internal class TextFieldDelegate {
         @JvmStatic
         fun notifyFocusedRect(
             value: EditorModel,
-            textPainter: TextPainter,
+            textDelegate: TextDelegate,
             layoutCoordinates: LayoutCoordinates,
             textInputService: TextInputService,
             hasFocus: Boolean,
@@ -129,11 +129,12 @@ internal class TextFieldDelegate {
             }
 
             val bbox = if (value.selection.end < value.text.length) {
-                textPainter.getBoundingBox(offsetMap.originalToTransformed(value.selection.end))
+                textDelegate.getBoundingBox(offsetMap.originalToTransformed(value.selection.end))
             } else if (value.selection.end != 0) {
-                textPainter.getBoundingBox(offsetMap.originalToTransformed(value.selection.end) - 1)
+                textDelegate.getBoundingBox(
+                    offsetMap.originalToTransformed(value.selection.end) - 1)
             } else {
-                Rect(0f, 0f, 1.0f, textPainter.preferredLineHeight)
+                Rect(0f, 0f, 1.0f, textDelegate.preferredLineHeight)
             }
             val globalLT = layoutCoordinates.localToRoot(PxPosition(bbox.left.px, bbox.top.px))
 
@@ -178,7 +179,7 @@ internal class TextFieldDelegate {
          * Called when onRelease event is fired.
          *
          * @param position The event position in widget coordinate.
-         * @param textPainter The text painter
+         * @param textDelegate The text painter
          * @param editProcessor The edit processor
          * @param offsetMap The offset map
          * @param onValueChange The callback called when the new editor state arrives.
@@ -188,7 +189,7 @@ internal class TextFieldDelegate {
         @JvmStatic
         fun onRelease(
             position: PxPosition,
-            textPainter: TextPainter,
+            textDelegate: TextDelegate,
             editProcessor: EditProcessor,
             offsetMap: OffsetMap,
             onValueChange: (EditorModel) -> Unit,
@@ -198,7 +199,7 @@ internal class TextFieldDelegate {
             textInputService?.showSoftwareKeyboard()
             if (hasFocus) {
                 val offset = offsetMap.transformedToOriginal(
-                    textPainter.getOffsetForPosition(position))
+                    textDelegate.getOffsetForPosition(position))
                 onEditCommand(
                     listOf(SetSelectionEditOp(offset, offset)),
                     editProcessor,

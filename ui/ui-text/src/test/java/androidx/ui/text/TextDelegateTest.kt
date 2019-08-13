@@ -30,105 +30,105 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
-class TextPainterTest() {
+class TextDelegateTest() {
     private val density = Density(density = 1f)
     private val resourceLoader = mock<Font.ResourceLoader>()
 
     @Test
     fun `constructor with default values`() {
-        val textPainter = TextPainter(density = density, resourceLoader = resourceLoader)
+        val textDelegate = TextDelegate(density = density, resourceLoader = resourceLoader)
 
-        assertThat(textPainter.text).isNull()
-        assertThat(textPainter.textAlign).isEqualTo(TextAlign.Start)
-        assertThat(textPainter.textDirection).isEqualTo(TextDirection.Ltr)
-        assertThat(textPainter.maxLines).isNull()
-        assertThat(textPainter.overflow).isEqualTo(TextOverflow.Clip)
-        assertThat(textPainter.locale).isNull()
+        assertThat(textDelegate.text).isNull()
+        assertThat(textDelegate.textAlign).isEqualTo(TextAlign.Start)
+        assertThat(textDelegate.textDirection).isEqualTo(TextDirection.Ltr)
+        assertThat(textDelegate.maxLines).isNull()
+        assertThat(textDelegate.overflow).isEqualTo(TextOverflow.Clip)
+        assertThat(textDelegate.locale).isNull()
     }
 
     @Test
     fun `constructor with customized text(TextSpan)`() {
         val text = AnnotatedString("Hello")
-        val textPainter = TextPainter(
+        val textDelegate = TextDelegate(
             text = text,
             density = density,
             resourceLoader = resourceLoader
         )
 
-        assertThat(textPainter.text).isEqualTo(text)
+        assertThat(textDelegate.text).isEqualTo(text)
     }
 
     @Test
     fun `constructor with customized textAlign`() {
-        val textPainter = TextPainter(
+        val textDelegate = TextDelegate(
             paragraphStyle = ParagraphStyle(textAlign = TextAlign.Left),
             density = density,
             resourceLoader = resourceLoader
         )
 
-        assertThat(textPainter.textAlign).isEqualTo(TextAlign.Left)
+        assertThat(textDelegate.textAlign).isEqualTo(TextAlign.Left)
     }
 
     @Test
     fun `constructor with customized textDirection`() {
-        val textPainter = TextPainter(
+        val textDelegate = TextDelegate(
             paragraphStyle = ParagraphStyle(textDirection = TextDirection.Rtl),
             density = density,
             resourceLoader = resourceLoader
         )
 
-        assertThat(textPainter.textDirection).isEqualTo(TextDirection.Rtl)
+        assertThat(textDelegate.textDirection).isEqualTo(TextDirection.Rtl)
     }
 
     @Test
     fun `constructor with customized maxLines`() {
         val maxLines = 8
 
-        val textPainter = TextPainter(
+        val textDelegate = TextDelegate(
             maxLines = maxLines,
             density = density,
             resourceLoader = resourceLoader
         )
 
-        assertThat(textPainter.maxLines).isEqualTo(maxLines)
+        assertThat(textDelegate.maxLines).isEqualTo(maxLines)
     }
 
     @Test
     fun `constructor with customized overflow`() {
         val overflow = TextOverflow.Ellipsis
 
-        val textPainter = TextPainter(
+        val textDelegate = TextDelegate(
             overflow = overflow,
             density = density,
             resourceLoader = resourceLoader
         )
 
-        assertThat(textPainter.overflow).isEqualTo(overflow)
+        assertThat(textDelegate.overflow).isEqualTo(overflow)
     }
 
     @Test
     fun `constructor with customized locale`() {
         val locale = Locale("en", "US")
 
-        val textPainter = TextPainter(
+        val textDelegate = TextDelegate(
             locale = locale,
             density = density,
             resourceLoader = resourceLoader
         )
 
-        assertThat(textPainter.locale).isEqualTo(locale)
+        assertThat(textDelegate.locale).isEqualTo(locale)
     }
 
     @Test
     fun `text setter`() {
-        val textPainter = TextPainter(density = density, resourceLoader = resourceLoader)
+        val textDelegate = TextDelegate(density = density, resourceLoader = resourceLoader)
         val text = AnnotatedString(text = "Hello")
 
-        textPainter.text = text
+        textDelegate.text = text
 
-        assertThat(textPainter.text).isEqualTo(text)
-        assertThat(textPainter.multiParagraph).isNull()
-        assertThat(textPainter.needsLayout).isTrue()
+        assertThat(textDelegate.text).isEqualTo(text)
+        assertThat(textDelegate.multiParagraph).isNull()
+        assertThat(textDelegate.needsLayout).isTrue()
     }
 
     @Test
@@ -137,7 +137,7 @@ class TextPainterTest() {
         val overflow = TextOverflow.Ellipsis
         val locale = Locale("en", "US")
         val text = AnnotatedString(text = "Hello")
-        val textPainter = TextPainter(
+        val textDelegate = TextDelegate(
             text = text,
             paragraphStyle = ParagraphStyle(
                 textAlign = TextAlign.Center,
@@ -150,7 +150,7 @@ class TextPainterTest() {
             resourceLoader = resourceLoader
         )
 
-        val paragraphStyle = textPainter.createParagraphStyle()
+        val paragraphStyle = textDelegate.createParagraphStyle()
 
         assertThat(paragraphStyle.textAlign).isEqualTo(TextAlign.Center)
         assertThat(paragraphStyle.textDirection).isEqualTo(TextDirection.Rtl)
@@ -173,55 +173,55 @@ class TextPainterTest() {
 
     @Test(expected = AssertionError::class)
     fun `minIntrinsicWidth without layout assertion should fail`() {
-        val textPainter = TextPainter(density = density, resourceLoader = resourceLoader)
+        val textDelegate = TextDelegate(density = density, resourceLoader = resourceLoader)
 
-        textPainter.minIntrinsicWidth
+        textDelegate.minIntrinsicWidth
     }
 
     @Test(expected = AssertionError::class)
     fun `maxIntrinsicWidth without layout assertion should fail`() {
-        val textPainter = TextPainter(density = density, resourceLoader = resourceLoader)
+        val textDelegate = TextDelegate(density = density, resourceLoader = resourceLoader)
 
-        textPainter.maxIntrinsicWidth
+        textDelegate.maxIntrinsicWidth
     }
 
     @Test(expected = AssertionError::class)
     fun `width without layout assertion should fail`() {
-        val textPainter = TextPainter(density = density, resourceLoader = resourceLoader)
+        val textDelegate = TextDelegate(density = density, resourceLoader = resourceLoader)
 
-        textPainter.width
+        textDelegate.width
     }
 
     @Test(expected = AssertionError::class)
     fun `height without layout assertion should fail`() {
-        val textPainter = TextPainter(density = density, resourceLoader = resourceLoader)
+        val textDelegate = TextDelegate(density = density, resourceLoader = resourceLoader)
 
-        textPainter.height
+        textDelegate.height
     }
 
     @Test(expected = AssertionError::class)
     fun `size without layout assertion should fail`() {
-        val textPainter = TextPainter(density = density, resourceLoader = resourceLoader)
+        val textDelegate = TextDelegate(density = density, resourceLoader = resourceLoader)
 
-        textPainter.size
+        textDelegate.size
     }
 
     @Test(expected = AssertionError::class)
     fun `layout without text assertion should fail`() {
-        val textPainter = TextPainter(
+        val textDelegate = TextDelegate(
             paragraphStyle = ParagraphStyle(textDirection = TextDirection.Ltr),
             density = density,
             resourceLoader = resourceLoader
         )
 
-        textPainter.layout(Constraints())
+        textDelegate.layout(Constraints())
     }
 
     @Test(expected = AssertionError::class)
     fun `paint without layout assertion should fail`() {
-        val textPainter = TextPainter(density = density, resourceLoader = resourceLoader)
+        val textDelegate = TextDelegate(density = density, resourceLoader = resourceLoader)
         val canvas = mock<Canvas>()
 
-        textPainter.paint(canvas)
+        textDelegate.paint(canvas)
     }
 }

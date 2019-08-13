@@ -18,7 +18,7 @@ package androidx.ui.core.selection
 
 import androidx.ui.core.PxPosition
 import androidx.ui.core.px
-import androidx.ui.text.TextPainter
+import androidx.ui.text.TextDelegate
 
 /**
  * The enum class allows user to decide the selection mode.
@@ -31,14 +31,14 @@ enum class SelectionMode {
      */
     Vertical {
         override fun isSelected(
-            textPainter: TextPainter,
+            textDelegate: TextDelegate,
             start: PxPosition,
             end: PxPosition
         ): Boolean {
             val top = 0.px
-            val bottom = textPainter.height.px
+            val bottom = textDelegate.height.px
             val left = 0.px
-            val right = textPainter.width.px
+            val right = textDelegate.width.px
 
             // When the end of the selection is above the top of the widget, the widget is outside
             // of the selection range.
@@ -67,14 +67,14 @@ enum class SelectionMode {
      */
     Horizontal {
         override fun isSelected(
-            textPainter: TextPainter,
+            textDelegate: TextDelegate,
             start: PxPosition,
             end: PxPosition
         ): Boolean {
             val top = 0.px
-            val bottom = textPainter.height.px
+            val bottom = textDelegate.height.px
             val left = 0.px
-            val right = textPainter.width.px
+            val right = textDelegate.width.px
 
             // When the end of the selection is on the left of the widget, the widget is outside of
             // the selection range.
@@ -97,7 +97,7 @@ enum class SelectionMode {
     };
 
     internal abstract fun isSelected(
-        textPainter: TextPainter,
+        textDelegate: TextDelegate,
         start: PxPosition,
         end: PxPosition
     ): Boolean

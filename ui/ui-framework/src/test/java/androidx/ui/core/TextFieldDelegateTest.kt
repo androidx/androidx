@@ -29,7 +29,7 @@ import androidx.ui.input.SetSelectionEditOp
 import androidx.ui.input.TextInputService
 import androidx.ui.painting.Canvas
 import androidx.ui.text.AnnotatedString
-import androidx.ui.text.TextPainter
+import androidx.ui.text.TextDelegate
 import androidx.ui.text.TextRange
 import androidx.ui.text.TextStyle
 import com.nhaarman.mockitokotlin2.any
@@ -52,7 +52,7 @@ import org.junit.runners.JUnit4
 class TextFieldDelegateTest {
 
     private lateinit var canvas: Canvas
-    private lateinit var painter: TextPainter
+    private lateinit var mDelegate: TextDelegate
     private lateinit var processor: EditProcessor
     private lateinit var onValueChange: (EditorModel) -> Unit
     private lateinit var onEditorActionPerformed: (Any) -> Unit
@@ -92,7 +92,7 @@ class TextFieldDelegateTest {
 
     @Before
     fun setup() {
-        painter = mock()
+        mDelegate = mock()
         canvas = mock()
         processor = mock()
         onValueChange = mock()
@@ -108,18 +108,18 @@ class TextFieldDelegateTest {
 
         TextFieldDelegate.draw(
             canvas = canvas,
-            textPainter = painter,
+            textDelegate = mDelegate,
             value = EditorModel(text = "Hello, World", selection = selection),
             editorStyle = EditorStyle(selectionColor = selectionColor),
             hasFocus = true,
             offsetMap = identityOffsetMap
         )
 
-        verify(painter, times(1)).paintBackground(
+        verify(mDelegate, times(1)).paintBackground(
             eq(selection.start), eq(selection.end), eq(selectionColor), eq(canvas))
-        verify(painter, times(1)).paint(eq(canvas))
+        verify(mDelegate, times(1)).paint(eq(canvas))
 
-        verify(painter, never()).paintCursor(any(), any())
+        verify(mDelegate, never()).paintCursor(any(), any())
     }
 
     @Test
@@ -128,16 +128,16 @@ class TextFieldDelegateTest {
 
         TextFieldDelegate.draw(
             canvas = canvas,
-            textPainter = painter,
+            textDelegate = mDelegate,
             value = EditorModel(text = "Hello, World", selection = cursor),
             editorStyle = EditorStyle(),
             hasFocus = true,
             offsetMap = identityOffsetMap
         )
 
-        verify(painter, times(1)).paintCursor(eq(cursor.start), eq(canvas))
-        verify(painter, times(1)).paint(eq(canvas))
-        verify(painter, never()).paintBackground(any(), any(), any(), any())
+        verify(mDelegate, times(1)).paintCursor(eq(cursor.start), eq(canvas))
+        verify(mDelegate, times(1)).paint(eq(canvas))
+        verify(mDelegate, never()).paintBackground(any(), any(), any(), any())
     }
 
     @Test
@@ -146,16 +146,16 @@ class TextFieldDelegateTest {
 
         TextFieldDelegate.draw(
             canvas = canvas,
-            textPainter = painter,
+            textDelegate = mDelegate,
             value = EditorModel(text = "Hello, World", selection = cursor),
             editorStyle = EditorStyle(),
             hasFocus = false,
             offsetMap = identityOffsetMap
         )
 
-        verify(painter, never()).paintCursor(any(), any())
-        verify(painter, times(1)).paint(eq(canvas))
-        verify(painter, never()).paintBackground(any(), any(), any(), any())
+        verify(mDelegate, never()).paintCursor(any(), any())
+        verify(mDelegate, times(1)).paint(eq(canvas))
+        verify(mDelegate, never()).paintBackground(any(), any(), any(), any())
     }
 
     @Test
@@ -167,7 +167,7 @@ class TextFieldDelegateTest {
 
         TextFieldDelegate.draw(
             canvas = canvas,
-            textPainter = painter,
+            textDelegate = mDelegate,
             value = EditorModel(text = "Hello, World", selection = cursor,
                 composition = composition),
             editorStyle = EditorStyle(compositionColor = compositionColor),
@@ -175,10 +175,10 @@ class TextFieldDelegateTest {
             offsetMap = identityOffsetMap
         )
 
-        verify(painter, times(1)).paintBackground(
+        verify(mDelegate, times(1)).paintBackground(
             eq(composition.start), eq(composition.end), eq(compositionColor), eq(canvas))
-        verify(painter, times(1)).paint(eq(canvas))
-        verify(painter, times(1)).paintCursor(eq(cursor.start), any())
+        verify(mDelegate, times(1)).paint(eq(canvas))
+        verify(mDelegate, times(1)).paintCursor(eq(cursor.start), any())
     }
 
     @Test
@@ -199,7 +199,7 @@ class TextFieldDelegateTest {
         val offset = 10
         val dummyEditorState = EditorModel(text = "Hello, World", selection = TextRange(1, 1))
 
-        whenever(painter.getOffsetForPosition(position)).thenReturn(offset)
+        whenever(mDelegate.getOffsetForPosition(position)).thenReturn(offset)
 
         val captor = argumentCaptor<List<EditOperation>>()
 
@@ -207,7 +207,7 @@ class TextFieldDelegateTest {
 
         TextFieldDelegate.onRelease(
             position,
-            painter,
+            mDelegate,
             processor,
             identityOffsetMap,
             onValueChange,
@@ -226,10 +226,10 @@ class TextFieldDelegateTest {
         val position = PxPosition(100.px, 200.px)
         val offset = 10
 
-        whenever(painter.getOffsetForPosition(position)).thenReturn(offset)
+        whenever(mDelegate.getOffsetForPosition(position)).thenReturn(offset)
         TextFieldDelegate.onRelease(
             position,
-            painter,
+            mDelegate,
             processor,
             identityOffsetMap,
             onValueChange,
@@ -246,7 +246,7 @@ class TextFieldDelegateTest {
 
         TextFieldDelegate.draw(
             canvas = canvas,
-            textPainter = painter,
+            textDelegate = mDelegate,
             value = EditorModel(
                 text = "Hello, World", selection = TextRange(1, 1),
                 composition = TextRange(1, 3)
@@ -256,9 +256,9 @@ class TextFieldDelegateTest {
             offsetMap = identityOffsetMap
             )
 
-        inOrder(painter) {
-            verify(painter).paintBackground(eq(1), eq(3), eq(Color.Red), eq(canvas))
-            verify(painter).paintCursor(eq(1), eq(canvas))
+        inOrder(mDelegate) {
+            verify(mDelegate).paintBackground(eq(1), eq(3), eq(Color.Red), eq(canvas))
+            verify(mDelegate).paintCursor(eq(1), eq(canvas))
         }
     }
 
@@ -293,13 +293,13 @@ class TextFieldDelegateTest {
     @Test
     fun notify_focused_rect() {
         val dummyRect = Rect(0f, 1f, 2f, 3f)
-        whenever(painter.getBoundingBox(any())).thenReturn(dummyRect)
+        whenever(mDelegate.getBoundingBox(any())).thenReturn(dummyRect)
         val dummyPoint = PxPosition(5.px, 6.px)
         whenever(layoutCoordinates.localToRoot(any())).thenReturn(dummyPoint)
         val dummyEditorState = EditorModel(text = "Hello, World", selection = TextRange(1, 1))
         TextFieldDelegate.notifyFocusedRect(
             dummyEditorState,
-            painter,
+            mDelegate,
             layoutCoordinates,
             textInputService,
             true /* hasFocus */,
@@ -313,7 +313,7 @@ class TextFieldDelegateTest {
         val dummyEditorState = EditorModel(text = "Hello, World", selection = TextRange(1, 1))
         TextFieldDelegate.notifyFocusedRect(
             dummyEditorState,
-            painter,
+            mDelegate,
             layoutCoordinates,
             textInputService,
             false /* hasFocus */,
@@ -325,13 +325,13 @@ class TextFieldDelegateTest {
     @Test
     fun notify_rect_tail() {
         val dummyRect = Rect(0f, 1f, 2f, 3f)
-        whenever(painter.getBoundingBox(any())).thenReturn(dummyRect)
+        whenever(mDelegate.getBoundingBox(any())).thenReturn(dummyRect)
         val dummyPoint = PxPosition(5.px, 6.px)
         whenever(layoutCoordinates.localToRoot(any())).thenReturn(dummyPoint)
         val dummyEditorState = EditorModel(text = "Hello, World", selection = TextRange(12, 12))
         TextFieldDelegate.notifyFocusedRect(
             dummyEditorState,
-            painter,
+            mDelegate,
             layoutCoordinates,
             textInputService,
             true /* hasFocus */,
@@ -343,13 +343,13 @@ class TextFieldDelegateTest {
     @Test
     fun notify_rect_empty() {
         val dummyHeight = 64f
-        whenever(painter.preferredLineHeight).thenReturn(dummyHeight)
+        whenever(mDelegate.preferredLineHeight).thenReturn(dummyHeight)
         val dummyPoint = PxPosition(5.px, 6.px)
         whenever(layoutCoordinates.localToRoot(any())).thenReturn(dummyPoint)
         val dummyEditorState = EditorModel(text = "", selection = TextRange(0, 0))
         TextFieldDelegate.notifyFocusedRect(
             dummyEditorState,
-            painter,
+            mDelegate,
             layoutCoordinates,
             textInputService,
             true, /* hasFocus */
@@ -369,17 +369,17 @@ class TextFieldDelegateTest {
         )
 
         val dummyText = AnnotatedString(text = "Hello, World")
-        whenever(painter.text).thenReturn(dummyText)
-        whenever(painter.style).thenReturn(TextStyle())
-        whenever(painter.density).thenReturn(Density(1.0f))
-        whenever(painter.resourceLoader).thenReturn(mock())
-        whenever(painter.height).thenReturn(512.0f)
+        whenever(mDelegate.text).thenReturn(dummyText)
+        whenever(mDelegate.style).thenReturn(TextStyle())
+        whenever(mDelegate.density).thenReturn(Density(1.0f))
+        whenever(mDelegate.resourceLoader).thenReturn(mock())
+        whenever(mDelegate.height).thenReturn(512.0f)
 
-        val res = TextFieldDelegate.layout(painter, constraints)
+        val res = TextFieldDelegate.layout(mDelegate, constraints)
         assertEquals(1024.px.round(), res.first)
         assertEquals(512.px.round(), res.second)
 
-        verify(painter, times(1)).layout(constraints)
+        verify(mDelegate, times(1)).layout(constraints)
     }
 
     @Test
@@ -389,7 +389,7 @@ class TextFieldDelegateTest {
 
         TextFieldDelegate.draw(
             canvas = canvas,
-            textPainter = painter,
+            textDelegate = mDelegate,
             value = EditorModel(text = "Hello, World", selection = selection),
             editorStyle = EditorStyle(selectionColor = selectionColor),
             hasFocus = true,
@@ -399,7 +399,7 @@ class TextFieldDelegateTest {
         val selectionStartInTransformedText = selection.start * 2
         val selectionEmdInTransformedText = selection.end * 2
 
-        verify(painter, times(1)).paintBackground(
+        verify(mDelegate, times(1)).paintBackground(
             eq(selectionStartInTransformedText),
             eq(selectionEmdInTransformedText),
             eq(selectionColor),
@@ -411,18 +411,18 @@ class TextFieldDelegateTest {
         val dummyRect = Rect(0f, 1f, 2f, 3f)
         val dummyPoint = PxPosition(5.px, 6.px)
         val dummyEditorState = EditorModel(text = "Hello, World", selection = TextRange(1, 3))
-        whenever(painter.getBoundingBox(any())).thenReturn(dummyRect)
+        whenever(mDelegate.getBoundingBox(any())).thenReturn(dummyRect)
         whenever(layoutCoordinates.localToRoot(any())).thenReturn(dummyPoint)
 
         TextFieldDelegate.notifyFocusedRect(
             dummyEditorState,
-            painter,
+            mDelegate,
             layoutCoordinates,
             textInputService,
             true /* hasFocus */,
             skippingOffsetMap
         )
-        verify(painter).getBoundingBox(6)
+        verify(mDelegate).getBoundingBox(6)
         verify(textInputService).notifyFocusedRect(any())
     }
 
@@ -432,7 +432,7 @@ class TextFieldDelegateTest {
         val offset = 10
         val dummyEditorState = EditorModel(text = "Hello, World", selection = TextRange(1, 1))
 
-        whenever(painter.getOffsetForPosition(position)).thenReturn(offset)
+        whenever(mDelegate.getOffsetForPosition(position)).thenReturn(offset)
 
         val captor = argumentCaptor<List<EditOperation>>()
 
@@ -440,7 +440,7 @@ class TextFieldDelegateTest {
 
         TextFieldDelegate.onRelease(
             position,
-            painter,
+            mDelegate,
             processor,
             skippingOffsetMap,
             onValueChange,

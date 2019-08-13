@@ -18,6 +18,7 @@ package androidx.ui.text
 
 import androidx.annotation.RestrictTo
 import androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP
+import androidx.annotation.RestrictTo.Scope.LIBRARY
 import androidx.annotation.VisibleForTesting
 import androidx.ui.core.Constraints
 import androidx.ui.core.Density
@@ -63,9 +64,9 @@ internal fun applyFloatingPointHack(layoutValue: Float): Float {
 /**
  * An object that paints a [TextSpan] tree into a [Canvas].
  *
- * To use a [TextPainter], follow these steps:
+ * To use a [TextDelegate], follow these steps:
  *
- * 1. Create a [TextSpan] tree and pass it to the [TextPainter] constructor.
+ * 1. Create a [TextSpan] tree and pass it to the [TextDelegate] constructor.
  *
  * 2. Call [layout] to prepare the paragraph.
  *
@@ -80,7 +81,7 @@ internal fun applyFloatingPointHack(layoutValue: Float): Float {
  *
  * @param style The text style specified to render the text. Notice that you can also set text style
  *  on the given [AnnotatedString], and the style set on [text] always has higher priority than this
- *  setting. But if only one gobal text style is needed, passing it to [TextPainter] is always
+ *  setting. But if only one gobal text style is needed, passing it to [TextDelegate] is always
  *  preferred.
  *
  * @param paragraphStyle Style configuration that applies only to paragraphs such as text alignment,
@@ -101,8 +102,11 @@ internal fun applyFloatingPointHack(layoutValue: Float): Float {
  *   After this is set, you must call [layout] before the next call to [paint].
  *
  * @param locale The locale used to select region-specific glyphs.
+ *
+ * @hide
  */
-class TextPainter(
+@RestrictTo(RestrictTo.Scope.LIBRARY)
+class TextDelegate(
     text: AnnotatedString? = null,
     val style: TextStyle? = null,
     val paragraphStyle: ParagraphStyle? = null,
@@ -206,7 +210,7 @@ class TextPainter(
 
     private fun assertNeedsLayout(name: String) {
         assert(!needsLayout) {
-            "TextPainter.$name should only be called after layout has been called."
+            "TextDelegate.$name should only be called after layout has been called."
         }
     }
 
@@ -294,11 +298,11 @@ class TextPainter(
      */
     private fun layoutText(minWidth: Float = 0.0f, maxWidth: Float = Float.POSITIVE_INFINITY) {
         assert(text != null) {
-            "TextPainter.text must be set to a non-null value before using the TextPainter."
+            "TextDelegate.text must be set to a non-null value before using the TextDelegate."
         }
         assert(textDirection != null) {
-            "TextPainter.textDirection must be set to a non-null value before using the" +
-                    " TextPainter."
+            "TextDelegate.textDirection must be set to a non-null value before using the" +
+                    " TextDelegate."
         }
 
         // TODO(haoyuchang): fix that when softWarp is false and overflow is Ellipsis, ellipsis
@@ -348,7 +352,7 @@ class TextPainter(
         // that affects the actual (but undetected) vertical overflow.
         hasVisualOverflow = didOverflowWidth || didOverflowHeight
         overflowShader = if (hasVisualOverflow && overflow == TextOverflow.Fade) {
-            val fadeSizePainter = TextPainter(
+            val fadeSizePainter = TextDelegate(
                 text = AnnotatedString(text = "\u2026", textStyles = listOf()),
                 style = textStyle,
                 paragraphStyle = paragraphStyle,
@@ -394,11 +398,11 @@ class TextPainter(
      * background, the text will not be visible by default.
      *
      * To set the text style, specify a [TextStyle] when creating the [TextSpan] that you pass to
-     * the [TextPainter] constructor or to the [text] property.
+     * the [TextDelegate] constructor or to the [text] property.
      */
     fun paint(canvas: Canvas) {
         assert(!needsLayout) {
-            "TextPainter.paint called when text geometry was not yet calculated.\n" +
+            "TextDelegate.paint called when text geometry was not yet calculated.\n" +
                     "Please call layout() before paint() to position the text before painting it."
         }
         // Ideally we could compute the min/max intrinsic width/height with a
