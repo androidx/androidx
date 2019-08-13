@@ -38,10 +38,20 @@ package androidx.navigation {
     method public androidx.navigation.ActivityNavigator.Extras.Builder setActivityOptions(androidx.core.app.ActivityOptionsCompat);
   }
 
+  public final class NavBackStackEntry implements androidx.lifecycle.HasDefaultViewModelProviderFactory androidx.lifecycle.LifecycleOwner androidx.savedstate.SavedStateRegistryOwner androidx.lifecycle.ViewModelStoreOwner {
+    method public android.os.Bundle? getArguments();
+    method public androidx.lifecycle.ViewModelProvider.Factory getDefaultViewModelProviderFactory();
+    method public androidx.navigation.NavDestination getDestination();
+    method public androidx.lifecycle.Lifecycle getLifecycle();
+    method public androidx.savedstate.SavedStateRegistry getSavedStateRegistry();
+    method public androidx.lifecycle.ViewModelStore getViewModelStore();
+  }
+
   public class NavController {
     ctor public NavController(android.content.Context);
     method public void addOnDestinationChangedListener(androidx.navigation.NavController.OnDestinationChangedListener);
     method public androidx.navigation.NavDeepLinkBuilder createDeepLink();
+    method public androidx.navigation.NavBackStackEntry getBackStackEntry(@IdRes int);
     method public androidx.navigation.NavDestination? getCurrentDestination();
     method public androidx.navigation.NavGraph getGraph();
     method public androidx.navigation.NavInflater getNavInflater();
