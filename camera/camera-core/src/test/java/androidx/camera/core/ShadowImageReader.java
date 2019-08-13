@@ -63,6 +63,11 @@ public class ShadowImageReader {
         sShadowImageReader.getListener().onImageAvailable(sImageReader);
     }
 
+    @Implementation
+    public void close() {
+        // no-op.
+    }
+
     /**
      * Clears incoming images.
      */
