@@ -162,7 +162,7 @@ fun Button(
         shape = style.shape,
         border = style.border,
         elevation = style.elevation,
-        defaultTextStyle = +themeTextStyle { button.merge(style.textStyle) }
+        textStyle = +themeTextStyle { button.merge(style.textStyle) }
     ) {
         Container(constraints = ButtonConstraints, padding = style.paddings, children = children)
     }
@@ -213,7 +213,7 @@ fun Button(
  * @param border Optional border to draw on top of the button.
  * @param elevation The z-coordinate at which to place this button. This controls the size
  *  of the shadow below the button.
- * @param defaultTextStyle The text style to apply for the children [Text] components.
+ * @param textStyle The text style to apply for the children [Text] components.
  */
 @Composable
 fun BaseButton(
@@ -222,11 +222,11 @@ fun BaseButton(
     shape: Shape = RectangleShape,
     border: Border? = null,
     elevation: Dp = 0.dp,
-    defaultTextStyle: TextStyle = +themeTextStyle { button },
+    textStyle: TextStyle = +themeTextStyle { button },
     children: @Composable() () -> Unit
 ) {
     Surface(shape, color, border, elevation) {
-        CurrentTextStyleProvider(value = defaultTextStyle) {
+        CurrentTextStyleProvider(value = textStyle) {
             if (onClick != null) {
                 Ripple(bounded = true) {
                     Clickable(onClick = onClick, children = children)
