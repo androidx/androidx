@@ -153,9 +153,10 @@ final class CameraAvailabilityRegistry {
             mDebugString.append(
                     "-------------------------------------------------------------------\n");
         }
-        // Count the number of cameras that are not in a CLOSED or OPENING state. All cameras
-        // that are in a CLOSING or RELEASING state may have previously been open, so we will
-        // count them as open until they reach a CLOSED or RELEASED state.
+        // Count the number of cameras that are not in a closed state state. Closed states are
+        // considered to be CLOSED, PENDING_OPEN or OPENING, since we can't guarantee a camera
+        // has actually be open in these states. All cameras that are in a CLOSING or RELEASING
+        // state may have previously been open, so we will count them as open.
         int openCount = 0;
         for (Map.Entry<BaseCamera, BaseCamera.State> entry : mCameraStates.entrySet()) {
             if (DEBUG) {
@@ -166,7 +167,8 @@ final class CameraAvailabilityRegistry {
                         stateString));
             }
             if (entry.getValue() != BaseCamera.State.CLOSED
-                    && entry.getValue() != BaseCamera.State.OPENING) {
+                    && entry.getValue() != BaseCamera.State.OPENING
+                    && entry.getValue() != BaseCamera.State.PENDING_OPEN) {
                 openCount++;
             }
         }

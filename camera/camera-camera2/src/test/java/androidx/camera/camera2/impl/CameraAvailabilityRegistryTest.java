@@ -22,6 +22,7 @@ import android.os.Build;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.camera.core.BaseCamera;
 import androidx.camera.core.Observable;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.testing.fakes.FakeCamera;
@@ -35,17 +36,19 @@ import org.robolectric.annotation.Config;
 import org.robolectric.annotation.internal.DoNotInstrument;
 import org.robolectric.shadows.ShadowLooper;
 
+import java.util.concurrent.atomic.AtomicReference;
+
 @SmallTest
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 public final class CameraAvailabilityRegistryTest {
-    private int mCameraCount;
+    private int mAvailableCameraCount;
     private Observable.Observer<Integer> mCountObserver = new Observable.Observer<Integer>() {
 
         @Override
         public void onNewData(@Nullable Integer value) {
-            mCameraCount = value;
+            mAvailableCameraCount = value;
         }
 
         @Override
@@ -56,7 +59,7 @@ public final class CameraAvailabilityRegistryTest {
 
     @Before
     public void setUp() {
-        mCameraCount = 0;
+        mAvailableCameraCount = 0;
     }
 
     @Test
@@ -70,7 +73,7 @@ public final class CameraAvailabilityRegistryTest {
 
         ShadowLooper.runUiThreadTasks();
 
-        int initialAvailableCount = mCameraCount;
+        int initialAvailableCount = mAvailableCameraCount;
 
         FakeCamera camera = new FakeCamera();
         camera.open();
@@ -79,7 +82,7 @@ public final class CameraAvailabilityRegistryTest {
 
         ShadowLooper.runUiThreadTasks();
 
-        int finalAvailableCount = mCameraCount;
+        int finalAvailableCount = mAvailableCameraCount;
 
         cameraCountObservable.removeObserver(mCountObserver);
 
@@ -98,7 +101,7 @@ public final class CameraAvailabilityRegistryTest {
 
         ShadowLooper.runUiThreadTasks();
 
-        int initialAvailableCount = mCameraCount;
+        int initialAvailableCount = mAvailableCameraCount;
 
         FakeCamera camera = new FakeCamera();
         // Do not open the camera. Leave in this state.
@@ -107,7 +110,7 @@ public final class CameraAvailabilityRegistryTest {
 
         ShadowLooper.runUiThreadTasks();
 
-        int finalAvailableCount = mCameraCount;
+        int finalAvailableCount = mAvailableCameraCount;
 
         cameraCountObservable.removeObserver(mCountObserver);
 
@@ -131,13 +134,13 @@ public final class CameraAvailabilityRegistryTest {
 
         ShadowLooper.runUiThreadTasks();
 
-        int initialAvailableCount = mCameraCount;
+        int initialAvailableCount = mAvailableCameraCount;
 
         camera.close();
 
         ShadowLooper.runUiThreadTasks();
 
-        int finalAvailableCount = mCameraCount;
+        int finalAvailableCount = mAvailableCameraCount;
 
         cameraCountObservable.removeObserver(mCountObserver);
 
@@ -161,13 +164,13 @@ public final class CameraAvailabilityRegistryTest {
 
         ShadowLooper.runUiThreadTasks();
 
-        int initialAvailableCount = mCameraCount;
+        int initialAvailableCount = mAvailableCameraCount;
 
         camera.release();
 
         ShadowLooper.runUiThreadTasks();
 
-        int finalAvailableCount = mCameraCount;
+        int finalAvailableCount = mAvailableCameraCount;
 
         cameraCountObservable.removeObserver(mCountObserver);
 
@@ -194,10 +197,51 @@ public final class CameraAvailabilityRegistryTest {
 
         ShadowLooper.runUiThreadTasks();
 
-        int finalAvailableCount = mCameraCount;
+        int finalAvailableCount = mAvailableCameraCount;
 
         cameraCountObservable.removeObserver(mCountObserver);
 
         assertThat(finalAvailableCount).isEqualTo(0);
+    }
+
+    @Test
+    public void pendingOpen_isNotCountedAsOpen() {
+        CameraAvailabilityRegistry registry = new CameraAvailabilityRegistry(1,
+                CameraXExecutors.directExecutor());
+
+        Observable<Integer> cameraCountObservable = registry.getAvailableCameraCount();
+
+        cameraCountObservable.addObserver(CameraXExecutors.directExecutor(), mCountObserver);
+
+        FakeCamera camera = new FakeCamera();
+
+        AtomicReference<BaseCamera.State> cameraState = new AtomicReference<>(null);
+        Observable.Observer<BaseCamera.State> stateObserver =
+                new Observable.Observer<BaseCamera.State>() {
+
+                    @Override
+                    public void onNewData(@Nullable BaseCamera.State value) {
+                        cameraState.set(value);
+                    }
+
+                    @Override
+                    public void onError(@NonNull Throwable t) {
+
+                    }
+                };
+
+        camera.getCameraState().addObserver(CameraXExecutors.directExecutor(), stateObserver);
+        camera.setAvailableCameraCount(0);
+        camera.open();
+
+        ShadowLooper.runUiThreadTasks();
+
+        camera.getCameraState().removeObserver(stateObserver);
+        cameraCountObservable.removeObserver(mCountObserver);
+
+        // Ensure that even though the camera is the PENDING_OPEN state, there is still 1 camera
+        // available to be opened.
+        assertThat(cameraState.get()).isEqualTo(BaseCamera.State.PENDING_OPEN);
+        assertThat(mAvailableCameraCount).isEqualTo(1);
     }
 }
