@@ -138,10 +138,10 @@ public final class ViewPager2 extends ViewGroup {
                 }
             };
 
-    LinearLayoutManager mLayoutManager;
+    private LinearLayoutManager mLayoutManager;
     private int mPendingCurrentItem = NO_POSITION;
     private Parcelable mPendingAdapterState;
-    private RecyclerView mRecyclerView;
+    RecyclerView mRecyclerView;
     private PagerSnapHelper mPagerSnapHelper;
     ScrollEventAdapter mScrollEventAdapter;
     private CompositeOnPageChangeCallback mPageChangeEventDispatcher;
@@ -540,9 +540,10 @@ public final class ViewPager2 extends ViewGroup {
     }
 
     int getPageSize() {
+        final RecyclerView rv = mRecyclerView;
         return getOrientation() == ORIENTATION_HORIZONTAL
-                ? getWidth() - getPaddingLeft() - getPaddingRight()
-                : getHeight() - getPaddingTop() - getPaddingBottom();
+                ? rv.getWidth() - rv.getPaddingLeft() - rv.getPaddingRight()
+                : rv.getHeight() - rv.getPaddingTop() - rv.getPaddingBottom();
     }
 
     /**
