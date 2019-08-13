@@ -1149,7 +1149,7 @@ public class NavController {
      * @throws IllegalArgumentException if the NavGraph is not on the back stack
      */
     @NonNull
-    NavBackStackEntry getBackStackEntry(@IdRes int navGraphId) {
+    public NavBackStackEntry getBackStackEntry(@IdRes int navGraphId) {
         NavBackStackEntry lastFromBackStack = findBackStackEntry(navGraphId);
         if (lastFromBackStack == null
                 || !(lastFromBackStack.getDestination() instanceof NavGraph)) {
