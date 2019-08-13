@@ -23,8 +23,6 @@ import androidx.compose.unaryPlus
 import androidx.ui.core.CurrentTextStyleProvider
 import androidx.ui.core.dp
 import androidx.ui.foundation.Dialog
-import androidx.ui.foundation.shape.corner.CornerSize
-import androidx.ui.foundation.shape.corner.CornerSizes
 import androidx.ui.foundation.shape.corner.RoundedCornerShape
 import androidx.ui.layout.Alignment
 import androidx.ui.layout.Column
@@ -176,6 +174,5 @@ private val TitlePadding = EdgeInsets(left = 24.dp, top = 24.dp, right = 24.dp, 
 // The height difference of the padding between a Dialog with a title and one without a title
 private val NoTitleExtraHeight = 2.dp
 private val TextToButtonsHeight = 28.dp
-private val ShapeCornerSize = CornerSizes(CornerSize(4.dp))
 // TODO: The corner radius should be customizable
-private val AlertDialogShape = RoundedCornerShape(ShapeCornerSize)
+private val AlertDialogShape = RoundedCornerShape(4.dp)

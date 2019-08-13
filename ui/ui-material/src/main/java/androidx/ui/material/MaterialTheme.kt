@@ -18,7 +18,6 @@ package androidx.ui.material
 
 import androidx.annotation.CheckResult
 import androidx.compose.Ambient
-import androidx.compose.Children
 import androidx.compose.Composable
 import androidx.compose.composer
 import androidx.compose.ambient
@@ -30,7 +29,6 @@ import androidx.ui.core.dp
 import androidx.ui.core.sp
 import androidx.ui.core.withDensity
 import androidx.ui.engine.geometry.Shape
-import androidx.ui.foundation.shape.corner.CornerSizes
 import androidx.ui.foundation.shape.corner.RoundedCornerShape
 import androidx.ui.graphics.Color
 import androidx.ui.material.ripple.CurrentRippleTheme
@@ -289,7 +287,7 @@ val CurrentShapeAmbient = Ambient.of<Shapes> {
 fun MaterialButtonShapeTheme(children: @Composable() () -> Unit) {
     val value = +withDensity {
         Shapes(
-            button = RoundedCornerShape(CornerSizes(4.dp))
+            button = RoundedCornerShape(4.dp)
         )
     }
     CurrentShapeAmbient.Provider(value = value, children = children)

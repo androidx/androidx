@@ -24,7 +24,6 @@ import androidx.ui.core.Text
 import androidx.ui.core.dp
 import androidx.ui.core.px
 import androidx.ui.foundation.shape.border.Border
-import androidx.ui.foundation.shape.corner.CornerSizes
 import androidx.ui.foundation.shape.corner.RoundedCornerShape
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Container
@@ -40,7 +39,7 @@ fun RippleDemo() {
         MaterialTheme {
             Padding(padding = 50.dp) {
                 Card(
-                    shape = RoundedCornerShape(CornerSizes(100.px)),
+                    shape = RoundedCornerShape(100.px),
                     border = Border(Color(0x80000000.toInt()), 1.dp)
                 ) {
                     Ripple(bounded = true) {
