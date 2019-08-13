@@ -9,14 +9,6 @@ EndsWithImpl: androidx.ui.core.SemanticsTreeNodeImpl:
     Don't expose your implementation details: `SemanticsTreeNodeImpl` ends with `Impl`
 
 
-MissingNullability: androidx.ui.core.DataNode#DataNode(androidx.ui.core.DataNodeKey<T>, T) parameter #1:
-    Missing nullability on parameter `value` in method `DataNode`
-MissingNullability: androidx.ui.core.DataNode#getValue():
-    Missing nullability on method `getValue` return
-MissingNullability: androidx.ui.core.semantics.SemanticsConfiguration#get(androidx.ui.semantics.SemanticsPropertyKey<T>):
-    Missing nullability on method `get` return
-MissingNullability: androidx.ui.core.semantics.SemanticsConfiguration#getOrElse(androidx.ui.semantics.SemanticsPropertyKey<T>, kotlin.jvm.functions.Function0<? extends T>):
-    Missing nullability on method `getOrElse` return
 MissingNullability: androidx.ui.core.semantics.SemanticsNode#Companion:
     Missing nullability on field `Companion` in class `class androidx.ui.core.semantics.SemanticsNode`
 MissingNullability: androidx.ui.internal.Unicode#INSTANCE:

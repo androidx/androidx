@@ -55,14 +55,6 @@ KotlinOperator: androidx.ui.text.style.TextDecoration#contains(androidx.ui.text.
     Note that adding the `operator` keyword would allow calling this method using operator syntax
 
 
-MissingNullability: androidx.ui.text.AnnotatedString.Item#Item(T, int, int) parameter #0:
-    Missing nullability on parameter `style` in method `Item`
-MissingNullability: androidx.ui.text.AnnotatedString.Item#component1():
-    Missing nullability on method `component1` return
-MissingNullability: androidx.ui.text.AnnotatedString.Item#copy(T, int, int) parameter #0:
-    Missing nullability on parameter `style` in method `copy`
-MissingNullability: androidx.ui.text.AnnotatedString.Item#getStyle():
-    Missing nullability on method `getStyle` return
 MissingNullability: androidx.ui.text.Locale#Companion:
     Missing nullability on field `Companion` in class `class androidx.ui.text.Locale`
 MissingNullability: androidx.ui.text.Locale#getCountryCode():

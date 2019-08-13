@@ -821,8 +821,6 @@ MissingNullability: androidx.core.graphics.PathSegment#toString():
     Missing nullability on method `toString` return
 MissingNullability: androidx.core.graphics.drawable.DrawableCompat#getColorFilter(android.graphics.drawable.Drawable):
     Missing nullability on method `getColorFilter` return
-MissingNullability: androidx.core.graphics.drawable.DrawableCompat#unwrap(android.graphics.drawable.Drawable):
-    Missing nullability on method `unwrap` return
 MissingNullability: androidx.core.graphics.drawable.DrawableCompat#wrap(android.graphics.drawable.Drawable):
     Missing nullability on method `wrap` return
 MissingNullability: androidx.core.graphics.drawable.IconCompat#createWithAdaptiveBitmap(android.graphics.Bitmap):
@@ -901,14 +899,10 @@ MissingNullability: androidx.core.os.LocaleListCompat#wrap(Object) parameter #0:
     Missing nullability on parameter `localeList` in method `wrap`
 MissingNullability: androidx.core.os.ParcelableCompat#newCreator(androidx.core.os.ParcelableCompatCreatorCallbacks<T>) parameter #0:
     Missing nullability on parameter `callbacks` in method `newCreator`
-MissingNullability: androidx.core.os.ParcelableCompatCreatorCallbacks#createFromParcel(android.os.Parcel, ClassLoader):
-    Missing nullability on method `createFromParcel` return
 MissingNullability: androidx.core.os.ParcelableCompatCreatorCallbacks#createFromParcel(android.os.Parcel, ClassLoader) parameter #0:
     Missing nullability on parameter `in` in method `createFromParcel`
 MissingNullability: androidx.core.os.ParcelableCompatCreatorCallbacks#createFromParcel(android.os.Parcel, ClassLoader) parameter #1:
     Missing nullability on parameter `loader` in method `createFromParcel`
-MissingNullability: androidx.core.os.ParcelableCompatCreatorCallbacks#newArray(int):
-    Missing nullability on method `newArray` return
 MissingNullability: androidx.core.provider.FontRequest#toString():
     Missing nullability on method `toString` return
 MissingNullability: androidx.core.provider.FontsContractCompat.FontFamilyResult#getFonts():
@@ -987,8 +981,6 @@ MissingNullability: androidx.core.text.PrecomputedTextCompat#getSpanFlags(Object
     Missing nullability on parameter `tag` in method `getSpanFlags`
 MissingNullability: androidx.core.text.PrecomputedTextCompat#getSpanStart(Object) parameter #0:
     Missing nullability on parameter `tag` in method `getSpanStart`
-MissingNullability: androidx.core.text.PrecomputedTextCompat#getSpans(int, int, Class<T>):
-    Missing nullability on method `getSpans` return
 MissingNullability: androidx.core.text.PrecomputedTextCompat#getSpans(int, int, Class<T>) parameter #2:
     Missing nullability on parameter `type` in method `getSpans`
 MissingNullability: androidx.core.text.PrecomputedTextCompat#getTextFuture(CharSequence, androidx.core.text.PrecomputedTextCompat.Params, java.util.concurrent.Executor):
@@ -1025,8 +1017,6 @@ MissingNullability: androidx.core.text.TextDirectionHeuristicsCompat#LTR:
     Missing nullability on field `LTR` in class `class androidx.core.text.TextDirectionHeuristicsCompat`
 MissingNullability: androidx.core.text.TextDirectionHeuristicsCompat#RTL:
     Missing nullability on field `RTL` in class `class androidx.core.text.TextDirectionHeuristicsCompat`
-MissingNullability: androidx.core.util.Consumer#accept(T) parameter #0:
-    Missing nullability on parameter `t` in method `accept`
 MissingNullability: androidx.core.util.Pair#equals(Object) parameter #0:
     Missing nullability on parameter `o` in method `equals`
 MissingNullability: androidx.core.util.PatternsCompat#DOMAIN_NAME:
@@ -1037,14 +1027,6 @@ MissingNullability: androidx.core.util.PatternsCompat#IP_ADDRESS:
     Missing nullability on field `IP_ADDRESS` in class `class androidx.core.util.PatternsCompat`
 MissingNullability: androidx.core.util.PatternsCompat#WEB_URL:
     Missing nullability on field `WEB_URL` in class `class androidx.core.util.PatternsCompat`
-MissingNullability: androidx.core.util.Pools.SimplePool#acquire():
-    Missing nullability on method `acquire` return
-MissingNullability: androidx.core.util.Pools.SynchronizedPool#acquire():
-    Missing nullability on method `acquire` return
-MissingNullability: androidx.core.util.Predicate#test(T) parameter #0:
-    Missing nullability on parameter `t` in method `test`
-MissingNullability: androidx.core.util.Supplier#get():
-    Missing nullability on method `get` return
 MissingNullability: androidx.core.view.AccessibilityDelegateCompat#dispatchPopulateAccessibilityEvent(android.view.View, android.view.accessibility.AccessibilityEvent) parameter #0:
     Missing nullability on parameter `host` in method `dispatchPopulateAccessibilityEvent`
 MissingNullability: androidx.core.view.AccessibilityDelegateCompat#dispatchPopulateAccessibilityEvent(android.view.View, android.view.accessibility.AccessibilityEvent) parameter #1:

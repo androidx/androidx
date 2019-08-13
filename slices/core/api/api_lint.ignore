@@ -45,48 +45,6 @@ MissingNullability: androidx.slice.SliceItem#hasHint(String) parameter #0:
     Missing nullability on parameter `hint` in method `hasHint`
 MissingNullability: androidx.slice.SliceItem#toString():
     Missing nullability on method `toString` return
-MissingNullability: androidx.slice.SliceProvider#call(String, String, android.os.Bundle):
-    Missing nullability on method `call` return
-MissingNullability: androidx.slice.SliceProvider#call(String, String, android.os.Bundle) parameter #0:
-    Missing nullability on parameter `method` in method `call`
-MissingNullability: androidx.slice.SliceProvider#call(String, String, android.os.Bundle) parameter #1:
-    Missing nullability on parameter `arg` in method `call`
-MissingNullability: androidx.slice.SliceProvider#call(String, String, android.os.Bundle) parameter #2:
-    Missing nullability on parameter `extras` in method `call`
-MissingNullability: androidx.slice.SliceProvider#getType(android.net.Uri):
-    Missing nullability on method `getType` return
-MissingNullability: androidx.slice.SliceProvider#getType(android.net.Uri) parameter #0:
-    Missing nullability on parameter `uri` in method `getType`
-MissingNullability: androidx.slice.SliceProvider#onBindSlice(android.net.Uri):
-    Missing nullability on method `onBindSlice` return
-MissingNullability: androidx.slice.SliceProvider#onBindSlice(android.net.Uri) parameter #0:
-    Missing nullability on parameter `sliceUri` in method `onBindSlice`
-MissingNullability: androidx.slice.SliceProvider#onGetSliceDescendants(android.net.Uri):
-    Missing nullability on method `onGetSliceDescendants` return
-MissingNullability: androidx.slice.SliceProvider#onGetSliceDescendants(android.net.Uri) parameter #0:
-    Missing nullability on parameter `uri` in method `onGetSliceDescendants`
-MissingNullability: androidx.slice.SliceProvider#onMapIntentToUri(android.content.Intent) parameter #0:
-    Missing nullability on parameter `intent` in method `onMapIntentToUri`
-MissingNullability: androidx.slice.SliceProvider#onSlicePinned(android.net.Uri) parameter #0:
-    Missing nullability on parameter `sliceUri` in method `onSlicePinned`
-MissingNullability: androidx.slice.SliceProvider#onSliceUnpinned(android.net.Uri) parameter #0:
-    Missing nullability on parameter `sliceUri` in method `onSliceUnpinned`
-MissingNullability: androidx.slice.SliceProviderWithCallbacks#attachInfo(android.content.Context, android.content.pm.ProviderInfo) parameter #0:
-    Missing nullability on parameter `context` in method `attachInfo`
-MissingNullability: androidx.slice.SliceProviderWithCallbacks#attachInfo(android.content.Context, android.content.pm.ProviderInfo) parameter #1:
-    Missing nullability on parameter `info` in method `attachInfo`
-MissingNullability: androidx.slice.SliceProviderWithCallbacks#call(String, String, android.os.Bundle):
-    Missing nullability on method `call` return
-MissingNullability: androidx.slice.SliceProviderWithCallbacks#call(String, String, android.os.Bundle) parameter #0:
-    Missing nullability on parameter `method` in method `call`
-MissingNullability: androidx.slice.SliceProviderWithCallbacks#call(String, String, android.os.Bundle) parameter #1:
-    Missing nullability on parameter `arg` in method `call`
-MissingNullability: androidx.slice.SliceProviderWithCallbacks#call(String, String, android.os.Bundle) parameter #2:
-    Missing nullability on parameter `extras` in method `call`
-MissingNullability: androidx.slice.SliceProviderWithCallbacks#createRemoteCallback(android.content.Context):
-    Missing nullability on method `createRemoteCallback` return
-MissingNullability: androidx.slice.SliceProviderWithCallbacks#createRemoteCallback(android.content.Context) parameter #0:
-    Missing nullability on parameter `context` in method `createRemoteCallback`
 MissingNullability: androidx.slice.core.SliceAction#setChecked(boolean):
     Missing nullability on method `setChecked` return
 MissingNullability: androidx.slice.core.SliceAction#setPriority(int):

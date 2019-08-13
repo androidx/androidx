@@ -31,54 +31,14 @@ MissingNullability: androidx.collection.ArraySet#equals(Object) parameter #0:
     Missing nullability on parameter `object` in method `equals`
 MissingNullability: androidx.collection.ArraySet#iterator():
     Missing nullability on method `iterator` return
-MissingNullability: androidx.collection.ArraySet#removeAt(int):
-    Missing nullability on method `removeAt` return
 MissingNullability: androidx.collection.ArraySet#toString():
     Missing nullability on method `toString` return
-MissingNullability: androidx.collection.CircularArray#addFirst(E) parameter #0:
-    Missing nullability on parameter `e` in method `addFirst`
-MissingNullability: androidx.collection.CircularArray#addLast(E) parameter #0:
-    Missing nullability on parameter `e` in method `addLast`
-MissingNullability: androidx.collection.CircularArray#get(int):
-    Missing nullability on method `get` return
-MissingNullability: androidx.collection.CircularArray#getFirst():
-    Missing nullability on method `getFirst` return
-MissingNullability: androidx.collection.CircularArray#getLast():
-    Missing nullability on method `getLast` return
-MissingNullability: androidx.collection.CircularArray#popFirst():
-    Missing nullability on method `popFirst` return
-MissingNullability: androidx.collection.CircularArray#popLast():
-    Missing nullability on method `popLast` return
-MissingNullability: androidx.collection.LongSparseArray#append(long, E) parameter #1:
-    Missing nullability on parameter `value` in method `append`
 MissingNullability: androidx.collection.LongSparseArray#clone():
     Missing nullability on method `clone` return
-MissingNullability: androidx.collection.LongSparseArray#containsValue(E) parameter #0:
-    Missing nullability on parameter `value` in method `containsValue`
-MissingNullability: androidx.collection.LongSparseArray#get(long, E):
-    Missing nullability on method `get` return
-MissingNullability: androidx.collection.LongSparseArray#get(long, E) parameter #1:
-    Missing nullability on parameter `valueIfKeyNotFound` in method `get`
-MissingNullability: androidx.collection.LongSparseArray#indexOfValue(E) parameter #0:
-    Missing nullability on parameter `value` in method `indexOfValue`
-MissingNullability: androidx.collection.LongSparseArray#put(long, E) parameter #1:
-    Missing nullability on parameter `value` in method `put`
-MissingNullability: androidx.collection.LongSparseArray#putIfAbsent(long, E) parameter #1:
-    Missing nullability on parameter `value` in method `putIfAbsent`
 MissingNullability: androidx.collection.LongSparseArray#remove(long, Object) parameter #1:
     Missing nullability on parameter `value` in method `remove`
-MissingNullability: androidx.collection.LongSparseArray#replace(long, E) parameter #1:
-    Missing nullability on parameter `value` in method `replace`
-MissingNullability: androidx.collection.LongSparseArray#replace(long, E, E) parameter #1:
-    Missing nullability on parameter `oldValue` in method `replace`
-MissingNullability: androidx.collection.LongSparseArray#replace(long, E, E) parameter #2:
-    Missing nullability on parameter `newValue` in method `replace`
-MissingNullability: androidx.collection.LongSparseArray#setValueAt(int, E) parameter #1:
-    Missing nullability on parameter `value` in method `setValueAt`
 MissingNullability: androidx.collection.LongSparseArray#toString():
     Missing nullability on method `toString` return
-MissingNullability: androidx.collection.LongSparseArray#valueAt(int):
-    Missing nullability on method `valueAt` return
 MissingNullability: androidx.collection.LruCache#snapshot():
     Missing nullability on method `snapshot` return
 MissingNullability: androidx.collection.LruCache#toString():
@@ -91,78 +51,22 @@ MissingNullability: androidx.collection.SimpleArrayMap#equals(Object) parameter 
     Missing nullability on parameter `object` in method `equals`
 MissingNullability: androidx.collection.SimpleArrayMap#get(Object) parameter #0:
     Missing nullability on parameter `key` in method `get`
-MissingNullability: androidx.collection.SimpleArrayMap#getOrDefault(Object, V):
-    Missing nullability on method `getOrDefault` return
 MissingNullability: androidx.collection.SimpleArrayMap#getOrDefault(Object, V) parameter #0:
     Missing nullability on parameter `key` in method `getOrDefault`
-MissingNullability: androidx.collection.SimpleArrayMap#getOrDefault(Object, V) parameter #1:
-    Missing nullability on parameter `defaultValue` in method `getOrDefault`
-MissingNullability: androidx.collection.SimpleArrayMap#keyAt(int):
-    Missing nullability on method `keyAt` return
-MissingNullability: androidx.collection.SimpleArrayMap#put(K, V) parameter #0:
-    Missing nullability on parameter `key` in method `put`
-MissingNullability: androidx.collection.SimpleArrayMap#put(K, V) parameter #1:
-    Missing nullability on parameter `value` in method `put`
-MissingNullability: androidx.collection.SimpleArrayMap#putIfAbsent(K, V) parameter #0:
-    Missing nullability on parameter `key` in method `putIfAbsent`
-MissingNullability: androidx.collection.SimpleArrayMap#putIfAbsent(K, V) parameter #1:
-    Missing nullability on parameter `value` in method `putIfAbsent`
 MissingNullability: androidx.collection.SimpleArrayMap#remove(Object) parameter #0:
     Missing nullability on parameter `key` in method `remove`
 MissingNullability: androidx.collection.SimpleArrayMap#remove(Object, Object) parameter #0:
     Missing nullability on parameter `key` in method `remove`
 MissingNullability: androidx.collection.SimpleArrayMap#remove(Object, Object) parameter #1:
     Missing nullability on parameter `value` in method `remove`
-MissingNullability: androidx.collection.SimpleArrayMap#removeAt(int):
-    Missing nullability on method `removeAt` return
-MissingNullability: androidx.collection.SimpleArrayMap#replace(K, V) parameter #0:
-    Missing nullability on parameter `key` in method `replace`
-MissingNullability: androidx.collection.SimpleArrayMap#replace(K, V) parameter #1:
-    Missing nullability on parameter `value` in method `replace`
-MissingNullability: androidx.collection.SimpleArrayMap#replace(K, V, V) parameter #0:
-    Missing nullability on parameter `key` in method `replace`
-MissingNullability: androidx.collection.SimpleArrayMap#replace(K, V, V) parameter #1:
-    Missing nullability on parameter `oldValue` in method `replace`
-MissingNullability: androidx.collection.SimpleArrayMap#replace(K, V, V) parameter #2:
-    Missing nullability on parameter `newValue` in method `replace`
-MissingNullability: androidx.collection.SimpleArrayMap#setValueAt(int, V):
-    Missing nullability on method `setValueAt` return
-MissingNullability: androidx.collection.SimpleArrayMap#setValueAt(int, V) parameter #1:
-    Missing nullability on parameter `value` in method `setValueAt`
 MissingNullability: androidx.collection.SimpleArrayMap#toString():
     Missing nullability on method `toString` return
-MissingNullability: androidx.collection.SimpleArrayMap#valueAt(int):
-    Missing nullability on method `valueAt` return
-MissingNullability: androidx.collection.SparseArrayCompat#append(int, E) parameter #1:
-    Missing nullability on parameter `value` in method `append`
 MissingNullability: androidx.collection.SparseArrayCompat#clone():
     Missing nullability on method `clone` return
-MissingNullability: androidx.collection.SparseArrayCompat#containsValue(E) parameter #0:
-    Missing nullability on parameter `value` in method `containsValue`
-MissingNullability: androidx.collection.SparseArrayCompat#get(int, E):
-    Missing nullability on method `get` return
-MissingNullability: androidx.collection.SparseArrayCompat#get(int, E) parameter #1:
-    Missing nullability on parameter `valueIfKeyNotFound` in method `get`
-MissingNullability: androidx.collection.SparseArrayCompat#indexOfValue(E) parameter #0:
-    Missing nullability on parameter `value` in method `indexOfValue`
-MissingNullability: androidx.collection.SparseArrayCompat#put(int, E) parameter #1:
-    Missing nullability on parameter `value` in method `put`
-MissingNullability: androidx.collection.SparseArrayCompat#putIfAbsent(int, E) parameter #1:
-    Missing nullability on parameter `value` in method `putIfAbsent`
 MissingNullability: androidx.collection.SparseArrayCompat#remove(int, Object) parameter #1:
     Missing nullability on parameter `value` in method `remove`
-MissingNullability: androidx.collection.SparseArrayCompat#replace(int, E) parameter #1:
-    Missing nullability on parameter `value` in method `replace`
-MissingNullability: androidx.collection.SparseArrayCompat#replace(int, E, E) parameter #1:
-    Missing nullability on parameter `oldValue` in method `replace`
-MissingNullability: androidx.collection.SparseArrayCompat#replace(int, E, E) parameter #2:
-    Missing nullability on parameter `newValue` in method `replace`
-MissingNullability: androidx.collection.SparseArrayCompat#setValueAt(int, E) parameter #1:
-    Missing nullability on parameter `value` in method `setValueAt`
 MissingNullability: androidx.collection.SparseArrayCompat#toString():
     Missing nullability on method `toString` return
-MissingNullability: androidx.collection.SparseArrayCompat#valueAt(int):
-    Missing nullability on method `valueAt` return
 
 
 NoClone: androidx.collection.LongSparseArray#clone():

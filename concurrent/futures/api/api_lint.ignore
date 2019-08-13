@@ -3,9 +3,5 @@ GenericException: androidx.concurrent.futures.CallbackToFutureAdapter.Resolver#a
     Methods must not throw generic exceptions (`java.lang.Exception`)
 
 
-MissingNullability: androidx.concurrent.futures.CallbackToFutureAdapter.Completer#set(T) parameter #0:
-    Missing nullability on parameter `value` in method `set`
-
-
 PairedRegistration: androidx.concurrent.futures.CallbackToFutureAdapter.Completer#addCancellationListener(Runnable, java.util.concurrent.Executor):
     Found addCancellationListener but not removeCancellationListener in androidx.concurrent.futures.CallbackToFutureAdapter.Completer
