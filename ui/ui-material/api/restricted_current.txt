@@ -45,7 +45,7 @@ package androidx.ui.material {
     primary
 }), androidx.ui.engine.geometry.Shape shape = +themeShape({ 
     button
-}), androidx.ui.core.Dp elevation = 0.dp);
+}), androidx.ui.core.Dp elevation = 2.dp);
     method public static androidx.ui.material.ButtonStyle OutlinedButtonStyle(androidx.ui.foundation.shape.border.Border border = Border(+themeColor({ 
     onSurface.copy(OutlinedStrokeOpacity)
 }), 1.dp), androidx.ui.graphics.Color color = +themeColor({ 
@@ -108,13 +108,13 @@ package androidx.ui.material {
     ctor public FloatingActionButtonKt();
     method public static void FloatingActionButton(kotlin.jvm.functions.Function0<kotlin.Unit>? onClick = null, androidx.ui.core.Dp minSize = FabSize, androidx.ui.engine.geometry.Shape shape = CircleShape, androidx.ui.graphics.Color color = +themeColor({ 
     primary
-}), androidx.ui.core.Dp elevation = 0.dp, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+}), androidx.ui.core.Dp elevation = 6.dp, kotlin.jvm.functions.Function0<kotlin.Unit> children);
     method public static void FloatingActionButton(androidx.ui.painting.Image icon, kotlin.jvm.functions.Function0<kotlin.Unit>? onClick = null, androidx.ui.graphics.Color color = +themeColor({ 
     primary
-}), androidx.ui.core.Dp elevation = 0.dp);
+}), androidx.ui.core.Dp elevation = 6.dp);
     method public static void FloatingActionButton(String text, androidx.ui.painting.Image? icon = null, androidx.ui.text.TextStyle? textStyle = null, kotlin.jvm.functions.Function0<kotlin.Unit>? onClick = null, androidx.ui.graphics.Color color = +themeColor({ 
     primary
-}), androidx.ui.core.Dp elevation = 0.dp);
+}), androidx.ui.core.Dp elevation = 6.dp);
     method public static androidx.ui.core.Dp getExtendedFabHeight();
     method public static androidx.ui.core.Dp getExtendedFabIconPadding();
     method public static androidx.ui.core.Dp getExtendedFabTextPadding();
@@ -364,7 +364,7 @@ package androidx.ui.material.surface {
     ctor public CardKt();
     method public static void Card(androidx.ui.engine.geometry.Shape shape = RectangleShape, androidx.ui.graphics.Color color = +themeColor({ 
     surface
-}), androidx.ui.foundation.shape.border.Border? border = null, androidx.ui.core.Dp elevation = 0.dp, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+}), androidx.ui.foundation.shape.border.Border? border = null, androidx.ui.core.Dp elevation = 1.dp, kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
 
   public final class SurfaceKt {
