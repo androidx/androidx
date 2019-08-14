@@ -40,15 +40,18 @@ public final class CameraEventCallbacks extends MultiValueSet<CameraEventCallbac
     }
 
     /** Returns a camera event callback which calls a list of other callbacks. */
+    @NonNull
     public ComboCameraEventCallback createComboCallback() {
         return new ComboCameraEventCallback(getAllItems());
     }
 
     /** Returns a camera event callback which does nothing. */
+    @NonNull
     public static CameraEventCallbacks createEmptyCallback() {
         return new CameraEventCallbacks();
     }
 
+    @NonNull
     @Override
     public MultiValueSet<CameraEventCallback> clone() {
         CameraEventCallbacks ret = createEmptyCallback();

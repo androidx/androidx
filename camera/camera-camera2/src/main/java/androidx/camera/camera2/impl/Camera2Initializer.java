@@ -23,6 +23,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.camera.camera2.Camera2AppConfig;
@@ -48,7 +49,7 @@ public final class Camera2Initializer extends ContentProvider {
     @Nullable
     @Override
     public Cursor query(
-            Uri uri,
+            @NonNull Uri uri,
             @Nullable String[] strings,
             @Nullable String s,
             @Nullable String[] strings1,
@@ -58,24 +59,24 @@ public final class Camera2Initializer extends ContentProvider {
 
     @Nullable
     @Override
-    public String getType(Uri uri) {
+    public String getType(@NonNull Uri uri) {
         return null;
     }
 
     @Nullable
     @Override
-    public Uri insert(Uri uri, @Nullable ContentValues contentValues) {
+    public Uri insert(@NonNull Uri uri, @Nullable ContentValues contentValues) {
         return null;
     }
 
     @Override
-    public int delete(Uri uri, @Nullable String s, @Nullable String[] strings) {
+    public int delete(@NonNull Uri uri, @Nullable String s, @Nullable String[] strings) {
         return 0;
     }
 
     @Override
     public int update(
-            Uri uri,
+            @NonNull Uri uri,
             @Nullable ContentValues contentValues,
             @Nullable String s,
             @Nullable String[] strings) {
