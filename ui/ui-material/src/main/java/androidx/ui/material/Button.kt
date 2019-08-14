@@ -82,7 +82,7 @@ data class ButtonStyle(
 fun ContainedButtonStyle(
     color: Color = +themeColor { primary },
     shape: Shape = +themeShape { button },
-    elevation: Dp = 0.dp // TODO update to 2.dp when DrawShadow will be ready
+    elevation: Dp = 2.dp
 ) = ButtonStyle(
     color = color,
     shape = shape,

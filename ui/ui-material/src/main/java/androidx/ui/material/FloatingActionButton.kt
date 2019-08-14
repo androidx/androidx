@@ -62,7 +62,7 @@ fun FloatingActionButton(
     minSize: Dp = FabSize,
     shape: Shape = CircleShape,
     color: Color = +themeColor { primary },
-    elevation: Dp = 0.dp, // TODO(Andrey) add the default elevation when it ready b/123215187
+    elevation: Dp = 6.dp,
     children: @Composable() () -> Unit
 ) {
     BaseButton(
@@ -99,7 +99,7 @@ fun FloatingActionButton(
     icon: Image,
     onClick: (() -> Unit)? = null,
     color: Color = +themeColor { primary },
-    elevation: Dp = 0.dp
+    elevation: Dp = 6.dp
 ) {
     FloatingActionButton(onClick = onClick, color = color, elevation = elevation) {
         SimpleImage(image = icon)
@@ -130,7 +130,7 @@ fun FloatingActionButton(
     textStyle: TextStyle? = null,
     onClick: (() -> Unit)? = null,
     color: Color = +themeColor { primary },
-    elevation: Dp = 0.dp
+    elevation: Dp = 6.dp
 ) {
     FloatingActionButton(
         onClick = onClick,

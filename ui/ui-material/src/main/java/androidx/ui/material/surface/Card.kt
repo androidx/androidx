@@ -16,7 +16,6 @@
 
 package androidx.ui.material.surface
 
-import androidx.compose.Children
 import androidx.compose.Composable
 import androidx.compose.composer
 import androidx.compose.unaryPlus
@@ -48,12 +47,12 @@ fun Card(
     shape: Shape = RectangleShape, // TODO (Andrey: Take the default shape from the theme)
     color: Color = +themeColor { surface },
     border: Border? = null,
-    elevation: Dp = 0.dp,
+    elevation: Dp = 1.dp,
     children: @Composable() () -> Unit
 ) {
     // TODO(Andrey: This currently adds no logic on top of Surface, I just reserve the name
     // for now. We will see what will be the additional Card specific logic later.
-    // It will add the default shape with rounded corners, default 1px elevation, elevate on hover.
+    // It will add the default shape with rounded corners, elevate on hover.
     Surface(
         shape = shape,
         color = color,
