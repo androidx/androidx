@@ -94,11 +94,11 @@ import java.util.concurrent.Executors;
  * {@link #PLAYER_STATE_IDLE}.
  * <p>
  * Here's the table of automatic audio focus behavior with audio attributes.
- * <table>
+ * <table summary="Audio focus handling overview">
  * <tr><th>Audio Attributes</th><th>Audio Focus Gain Type</th><th>Misc</th></tr>
  * <tr><td>{@link AudioAttributesCompat#USAGE_VOICE_COMMUNICATION_SIGNALLING}</td>
  *     <td>{@link android.media.AudioManager#AUDIOFOCUS_NONE}</td>
- *     <td /></tr>
+ *     <td></td></tr>
  * <tr><td><ul><li>{@link AudioAttributesCompat#USAGE_GAME}</li>
  *             <li>{@link AudioAttributesCompat#USAGE_MEDIA}</li>
  *             <li>{@link AudioAttributesCompat#USAGE_UNKNOWN}</li></ul></td>
@@ -108,7 +108,7 @@ import java.util.concurrent.Executors;
  * <tr><td><ul><li>{@link AudioAttributesCompat#USAGE_ALARM}</li>
  *             <li>{@link AudioAttributesCompat#USAGE_VOICE_COMMUNICATION}</li></ul></td>
  *     <td>{@link android.media.AudioManager#AUDIOFOCUS_GAIN_TRANSIENT}</td>
- *     <td /></tr>
+ *     <td></td></tr>
  * <tr><td><ul><li>{@link AudioAttributesCompat#USAGE_ASSISTANCE_NAVIGATION_GUIDANCE}</li>
  *             <li>{@link AudioAttributesCompat#USAGE_ASSISTANCE_SONIFICATION}</li>
  *             <li>{@link AudioAttributesCompat#USAGE_NOTIFICATION}</li>
@@ -118,15 +118,15 @@ import java.util.concurrent.Executors;
  *             <li>{@link AudioAttributesCompat#USAGE_NOTIFICATION_EVENT}</li>
  *             <li>{@link AudioAttributesCompat#USAGE_NOTIFICATION_RINGTONE}</li></ul></td>
  *     <td>{@link android.media.AudioManager#AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK}</td>
- *     <td /></tr>
+ *     <td></td></tr>
  * <tr><td><ul><li>{@link AudioAttributesCompat#USAGE_ASSISTANT}</li></ul></td>
  *     <td>{@link android.media.AudioManager#AUDIOFOCUS_GAIN_TRANSIENT_EXCLUSIVE}</td>
- *     <td /></tr>
+ *     <td></td></tr>
  * <tr><td>{@link AudioAttributesCompat#USAGE_ASSISTANCE_ACCESSIBILITY}</td>
  *     <td>{@link android.media.AudioManager#AUDIOFOCUS_GAIN_TRANSIENT} if
  *         {@link AudioAttributesCompat#CONTENT_TYPE_SPEECH},
  *         {@link android.media.AudioManager#AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK} otherwise</td>
- *     <td /></tr>
+ *     <td></td></tr>
  * <tr><td>{@code null}</td>
  *     <td>No audio focus handling, and sets the player volume to {@code 0}</td>
  *     <td>Only valid if your media contents don't have audio</td></tr>
@@ -414,10 +414,11 @@ public final class MediaPlayer extends SessionPlayer {
     public @interface SeekMode {}
 
     /**
-     * The return value of {@link #getSelectedTrack} when there is no selected track for the given
-     * type.
+     * The return value of {@link #getSelectedTrack(int)} when there is no selected track
+     * for the given type.
+     *
      * @see #getSelectedTrack(int)
-     * @deprecated {@link #getSelectedTrack} returns {@code null} instead of this value.
+     * @deprecated {@link #getSelectedTrack(int)} returns {@code null} instead of this value.
      */
     @Deprecated
     public static final int NO_TRACK_SELECTED = Integer.MIN_VALUE;
@@ -2153,9 +2154,9 @@ public final class MediaPlayer extends SessionPlayer {
     /**
      * Returns the audio session ID.
      *
-     * @return the audio session ID. {@see #setAudioSessionId(int)}
-     * Note that the audio session ID is 0 if a problem occurred when the MediaPlayer was
-     * constructed or it is closed.
+     * @return the audio session ID. See {@link #setAudioSessionId(int)}. Note that the audio
+     *     session ID is 0 if a problem occurred when the MediaPlayer was constructed or it is
+     *     closed.
      */
     public int getAudioSessionId() {
         synchronized (mStateLock) {
@@ -2217,10 +2218,9 @@ public final class MediaPlayer extends SessionPlayer {
      * <p>By default the send level is 0, so even if an effect is attached to the player
      * this method must be called for the effect to be applied.
      * <p>Note that the passed level value is a raw scalar. UI controls should be scaled
-     * logarithmically: the gain applied by audio framework ranges from -72dB to 0dB,
-     * so an appropriate conversion from linear UI input x to level is:
-     * x == 0 -> level = 0
-     * 0 < x <= R -> level = 10^(72*(x-R)/20/R)
+     * logarithmically: the gain applied by audio framework ranges from -72dB to 0dB, so an
+     * appropriate conversion from linear UI input x to level is: x == 0 -&gt; level = 0, 0 &lt; x
+     * &lt;= R -&gt; level = 10^(72*(x-R)/20/R)
      * <p>
      * On success, a {@link SessionPlayer.PlayerResult} is returned with
      * the current media item when the command completed.
