@@ -1139,34 +1139,22 @@ public class NavController {
             throw new IllegalStateException("You must call setViewModelStore() before calling "
                     + "getViewModelStoreOwner().");
         }
-        return getBackStackEntry(navGraphId);
-    }
-
-    /**
-     * Gets the {@link NavBackStackEntry} for a NavGraph.
-     *
-     * @param navGraphId ID of a NavGraph that exists on the back stack
-     * @throws IllegalArgumentException if the NavGraph is not on the back stack
-     */
-    @NonNull
-    public NavBackStackEntry getBackStackEntry(@IdRes int navGraphId) {
-        NavBackStackEntry lastFromBackStack = findBackStackEntry(navGraphId);
-        if (lastFromBackStack == null
-                || !(lastFromBackStack.getDestination() instanceof NavGraph)) {
-            throw new IllegalArgumentException("No NavGraph with ID " + navGraphId + " is on the "
-                    + "NavController's back stack");
+        NavBackStackEntry lastFromBackStack = getBackStackEntry(navGraphId);
+        if (!(lastFromBackStack.getDestination() instanceof NavGraph)) {
+            throw new IllegalArgumentException("No NavGraph with ID " + navGraphId
+                    + " is on the NavController's back stack");
         }
         return lastFromBackStack;
     }
 
     /**
-     * Find the topmost {@link NavBackStackEntry} for a destination id.
+     * Gets the topmost {@link NavBackStackEntry} for a destination id.
      *
      * @param destinationId ID of a destination that exists on the back stack
      * @throws IllegalArgumentException if the destination is not on the back stack
      */
-    @Nullable
-    NavBackStackEntry findBackStackEntry(@IdRes int destinationId) {
+    @NonNull
+    public NavBackStackEntry getBackStackEntry(@IdRes int destinationId) {
         NavBackStackEntry lastFromBackStack = null;
         Iterator<NavBackStackEntry> iterator = mBackStack.descendingIterator();
         while (iterator.hasNext()) {
@@ -1176,6 +1164,10 @@ public class NavController {
                 lastFromBackStack = entry;
                 break;
             }
+        }
+        if (lastFromBackStack == null) {
+            throw new IllegalArgumentException("No destination with ID " + destinationId
+                    + " is on the NavController's back stack");
         }
         return lastFromBackStack;
     }

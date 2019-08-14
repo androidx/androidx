@@ -150,7 +150,7 @@ class NavBackStackEntryTest {
         } catch (e: IllegalArgumentException) {
             assertThat(e)
                 .hasMessageThat().contains(
-                    "No NavGraph with ID $navGraphId is on the NavController's back stack"
+                    "No destination with ID $navGraphId is on the NavController's back stack"
                 )
         }
     }
