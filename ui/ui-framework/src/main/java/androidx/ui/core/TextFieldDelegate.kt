@@ -85,10 +85,10 @@ internal class TextFieldDelegate {
             // TODO(nona): Fix this?
             textDelegate.layout(constraints)
 
-            val isEmptyText = textDelegate.text?.text?.isEmpty() ?: true
+            val isEmptyText = textDelegate.text.text.isEmpty()
             val height = if (isEmptyText) {
                 computeLineHeightForEmptyText(
-                    textStyle = textDelegate.style ?: TextStyle(),
+                    textStyle = textDelegate.textStyle,
                     density = textDelegate.density,
                     resourceLoader = textDelegate.resourceLoader
                 )
@@ -167,7 +167,7 @@ internal class TextFieldDelegate {
                     offsetMap.originalToTransformed(value.selection.end) - 1)
             } else {
                 val lineHeightForEmptyText = computeLineHeightForEmptyText(
-                    textDelegate.style ?: TextStyle(),
+                    textDelegate.textStyle,
                     textDelegate.density,
                     textDelegate.resourceLoader
                 )

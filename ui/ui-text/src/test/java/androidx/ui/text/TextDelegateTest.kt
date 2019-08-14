@@ -16,11 +16,9 @@
 
 package androidx.ui.text
 
-import androidx.ui.core.Constraints
 import androidx.ui.core.Density
 import androidx.ui.painting.Canvas
 import androidx.ui.text.font.Font
-import androidx.ui.text.style.TextAlign
 import androidx.ui.text.style.TextDirection
 import androidx.ui.text.style.TextOverflow
 import com.google.common.truth.Truth.assertThat
@@ -36,10 +34,11 @@ class TextDelegateTest() {
 
     @Test
     fun `constructor with default values`() {
-        val textDelegate = TextDelegate(density = density, resourceLoader = resourceLoader)
+        val textDelegate = TextDelegate(
+            text = AnnotatedString(text = ""),
+            density = density,
+            resourceLoader = resourceLoader)
 
-        assertThat(textDelegate.text).isNull()
-        assertThat(textDelegate.textAlign).isEqualTo(TextAlign.Start)
         assertThat(textDelegate.textDirection).isEqualTo(TextDirection.Ltr)
         assertThat(textDelegate.maxLines).isNull()
         assertThat(textDelegate.overflow).isEqualTo(TextOverflow.Clip)
@@ -59,19 +58,9 @@ class TextDelegateTest() {
     }
 
     @Test
-    fun `constructor with customized textAlign`() {
-        val textDelegate = TextDelegate(
-            paragraphStyle = ParagraphStyle(textAlign = TextAlign.Left),
-            density = density,
-            resourceLoader = resourceLoader
-        )
-
-        assertThat(textDelegate.textAlign).isEqualTo(TextAlign.Left)
-    }
-
-    @Test
     fun `constructor with customized textDirection`() {
         val textDelegate = TextDelegate(
+            text = AnnotatedString(text = ""),
             paragraphStyle = ParagraphStyle(textDirection = TextDirection.Rtl),
             density = density,
             resourceLoader = resourceLoader
@@ -85,6 +74,7 @@ class TextDelegateTest() {
         val maxLines = 8
 
         val textDelegate = TextDelegate(
+            text = AnnotatedString(text = ""),
             maxLines = maxLines,
             density = density,
             resourceLoader = resourceLoader
@@ -98,6 +88,7 @@ class TextDelegateTest() {
         val overflow = TextOverflow.Ellipsis
 
         val textDelegate = TextDelegate(
+            text = AnnotatedString(text = ""),
             overflow = overflow,
             density = density,
             resourceLoader = resourceLoader
@@ -111,37 +102,13 @@ class TextDelegateTest() {
         val locale = Locale("en", "US")
 
         val textDelegate = TextDelegate(
+            text = AnnotatedString(text = ""),
             locale = locale,
             density = density,
             resourceLoader = resourceLoader
         )
 
         assertThat(textDelegate.locale).isEqualTo(locale)
-    }
-
-    @Test
-    fun `createParagraphStyle without TextStyle in AnnotatedText`() {
-        val maxLines = 5
-        val overflow = TextOverflow.Ellipsis
-        val locale = Locale("en", "US")
-        val text = AnnotatedString(text = "Hello")
-        val textDelegate = TextDelegate(
-            text = text,
-            paragraphStyle = ParagraphStyle(
-                textAlign = TextAlign.Center,
-                textDirection = TextDirection.Rtl
-            ),
-            maxLines = maxLines,
-            overflow = overflow,
-            locale = locale,
-            density = density,
-            resourceLoader = resourceLoader
-        )
-
-        val paragraphStyle = textDelegate.createParagraphStyle()
-
-        assertThat(paragraphStyle.textAlign).isEqualTo(TextAlign.Center)
-        assertThat(paragraphStyle.textDirection).isEqualTo(TextDirection.Rtl)
     }
 
     @Test
@@ -161,53 +128,50 @@ class TextDelegateTest() {
 
     @Test(expected = AssertionError::class)
     fun `minIntrinsicWidth without layout assertion should fail`() {
-        val textDelegate = TextDelegate(density = density, resourceLoader = resourceLoader)
+        val textDelegate = TextDelegate(
+            text = AnnotatedString(text = ""),
+            density = density,
+            resourceLoader = resourceLoader)
 
         textDelegate.minIntrinsicWidth
     }
 
     @Test(expected = AssertionError::class)
     fun `maxIntrinsicWidth without layout assertion should fail`() {
-        val textDelegate = TextDelegate(density = density, resourceLoader = resourceLoader)
+        val textDelegate = TextDelegate(
+            text = AnnotatedString(text = ""),
+            density = density,
+            resourceLoader = resourceLoader)
 
         textDelegate.maxIntrinsicWidth
     }
 
     @Test(expected = AssertionError::class)
     fun `width without layout assertion should fail`() {
-        val textDelegate = TextDelegate(density = density, resourceLoader = resourceLoader)
+        val textDelegate = TextDelegate(
+            text = AnnotatedString(text = ""),
+            density = density,
+            resourceLoader = resourceLoader)
 
         textDelegate.width
     }
 
     @Test(expected = AssertionError::class)
     fun `height without layout assertion should fail`() {
-        val textDelegate = TextDelegate(density = density, resourceLoader = resourceLoader)
+        val textDelegate = TextDelegate(
+            text = AnnotatedString(text = ""),
+            density = density,
+            resourceLoader = resourceLoader)
 
         textDelegate.height
     }
 
     @Test(expected = AssertionError::class)
-    fun `size without layout assertion should fail`() {
-        val textDelegate = TextDelegate(density = density, resourceLoader = resourceLoader)
-
-        textDelegate.size
-    }
-
-    @Test(expected = AssertionError::class)
-    fun `layout without text assertion should fail`() {
-        val textDelegate = TextDelegate(
-            paragraphStyle = ParagraphStyle(textDirection = TextDirection.Ltr),
-            density = density,
-            resourceLoader = resourceLoader
-        )
-
-        textDelegate.layout(Constraints())
-    }
-
-    @Test(expected = AssertionError::class)
     fun `paint without layout assertion should fail`() {
-        val textDelegate = TextDelegate(density = density, resourceLoader = resourceLoader)
+        val textDelegate = TextDelegate(
+            text = AnnotatedString(text = ""),
+            density = density,
+            resourceLoader = resourceLoader)
         val canvas = mock<Canvas>()
 
         textDelegate.paint(canvas)
