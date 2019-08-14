@@ -22,8 +22,6 @@ import androidx.ui.core.PxSize
 import androidx.ui.core.px
 import androidx.ui.engine.geometry.Outline
 import androidx.ui.engine.geometry.Shape
-import androidx.ui.foundation.shape.corner.CornerSize
-import androidx.ui.foundation.shape.corner.CornerSizes
 import androidx.ui.painting.Path
 import androidx.ui.painting.PathOperation
 import com.google.common.truth.Truth.assertThat
@@ -41,13 +39,7 @@ class CutCornerShapeTest {
 
     @Test
     fun cutCornersUniformCorners() {
-        val cut = CutCornerShape(
-            CornerSizes(
-                CornerSize(
-                    10.px
-                )
-            )
-        )
+        val cut = CutCornerShape(10.px)
 
         val outline = cut.toOutline() as Outline.Generic
         assertPathsEquals(outline.path, Path().apply {
@@ -69,14 +61,7 @@ class CutCornerShapeTest {
         val size2 = 22f
         val size3 = 32f
         val size4 = 42f
-        val cut = CutCornerShape(
-            CornerSizes(
-                CornerSize(size1.px),
-                CornerSize(size2.px),
-                CornerSize(size3.px),
-                CornerSize(size4.px)
-            )
-        )
+        val cut = CutCornerShape(size1.px, size2.px, size3.px, size4.px)
 
         val outline = cut.toOutline() as Outline.Generic
         assertPathsEquals(outline.path, Path().apply {
@@ -94,8 +79,8 @@ class CutCornerShapeTest {
 
     @Test
     fun cutCornerShapesAreEquals() {
-        assertThat(CutCornerShape(CornerSizes(10.px)))
-            .isEqualTo(CutCornerShape(CornerSizes(10.px)))
+        assertThat(CutCornerShape(10.px))
+            .isEqualTo(CutCornerShape(10.px))
     }
 
     private fun Shape.toOutline() = createOutline(size, density)

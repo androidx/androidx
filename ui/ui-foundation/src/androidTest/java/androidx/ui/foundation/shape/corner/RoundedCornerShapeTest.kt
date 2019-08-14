@@ -40,7 +40,7 @@ class RoundedCornerShapeTest {
 
     @Test
     fun roundedUniformCorners() {
-        val rounded = RoundedCornerShape(CornerSizes(25))
+        val rounded = RoundedCornerShape(25)
 
         val expectedRadius = Radius.circular(25f)
         val outline = rounded.toOutline() as Outline.Rounded
@@ -57,14 +57,7 @@ class RoundedCornerShapeTest {
         val radius2 = 22f
         val radius3 = 32f
         val radius4 = 42f
-        val rounded = RoundedCornerShape(
-            CornerSizes(
-                CornerSize(radius1.px),
-                CornerSize(radius2.px),
-                CornerSize(radius3.px),
-                CornerSize(radius4.px)
-            )
-        )
+        val rounded = RoundedCornerShape(radius1.px, radius2.px, radius3.px, radius4.px)
 
         val outline = rounded.toOutline() as Outline.Rounded
         assertThat(outline.rrect).isEqualTo(
@@ -80,8 +73,8 @@ class RoundedCornerShapeTest {
 
     @Test
     fun roundedCornerShapesAreEquals() {
-        assertThat(RoundedCornerShape(CornerSizes(12.dp)))
-            .isEqualTo(RoundedCornerShape(CornerSizes(12.dp)))
+        assertThat(RoundedCornerShape(12.dp))
+            .isEqualTo(RoundedCornerShape(12.dp))
     }
 
     private fun Shape.toOutline() = createOutline(size, density)
