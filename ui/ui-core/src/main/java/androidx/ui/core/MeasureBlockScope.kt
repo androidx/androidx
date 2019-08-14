@@ -17,14 +17,18 @@
 package androidx.ui.core
 
 /**
- * Receiver scope for [layoutResult's] lambda.
+ * The receiver scope of a layout's measure lambda. The return value of the
+ * measure lambda is [LayoutResult], which should be returned by [layout]
  */
-class PositioningBlockReceiver {
-    fun Placeable.place(x: IntPx, y: IntPx) {
-        this.placeInternal(x, y)
-    }
-
-    fun Placeable.place(x: Px, y: Px) {
-        this.placeInternal(x.round(), y.round())
-    }
+interface MeasureBlockScope : DensityReceiver {
+    /**
+     * Sets the size of the measured layout and assigns the positioning block.
+     * The [positioningBlock] is a lambda used for positioning children.
+     * [Placeable.place] should be called on children inside [positioningBlock].
+     */
+    fun layout(
+        width: IntPx,
+        height: IntPx,
+        positioningBlock: PositioningBlockScope.() -> Unit
+    ): LayoutResult
 }

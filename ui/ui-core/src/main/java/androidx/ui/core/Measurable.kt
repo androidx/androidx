@@ -13,17 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package androidx.ui.core
 
 /**
- * A part of the composition that can be measured. This represents a [Layout] somewhere
- * down the hierarchy.
- *
- * @return a [Placeable] that can be used within a [layoutResult] block
+ * A part of the composition that can be measured. This represents a layout.
+ * The instance should never be stored.
  */
-interface Measurable {
+interface Measurable : IntrinsicMeasurable {
     /**
-     * Data provided by the [ParentData].
+     * Resizes the layout based on [constraints], returning a [Placeable]
+     * layout that has its new size. A `Measurable` can only be measured
+     * once inside a layout pass.
      */
-    val parentData: Any?
+    fun measure(constraints: Constraints): Placeable
 }

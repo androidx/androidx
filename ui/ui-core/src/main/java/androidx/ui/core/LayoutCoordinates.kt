@@ -63,33 +63,3 @@ interface LayoutCoordinates {
     // We need to figure out how to solve it.
     fun getParentCoordinates(): LayoutCoordinates?
 }
-
-/**
- * A LayoutCoordinates implementation based on LayoutNode.
- */
-internal class LayoutNodeCoordinates(
-    private val layoutNode: LayoutNode
-) : LayoutCoordinates {
-
-    override val position get() = PxPosition(layoutNode.x, layoutNode.y)
-
-    override val size get() = PxSize(layoutNode.width, layoutNode.height)
-
-    override fun globalToLocal(global: PxPosition) = layoutNode.globalToLocal(global)
-
-    override fun localToGlobal(local: PxPosition) = layoutNode.localToGlobal(local)
-
-    override fun localToRoot(local: PxPosition) = layoutNode.localToGlobal(local, false)
-
-    override fun childToLocal(child: LayoutCoordinates, childLocal: PxPosition): PxPosition {
-        if (child !is LayoutNodeCoordinates) {
-            throw IllegalArgumentException("Incorrect child provided.")
-        }
-        return layoutNode.childToLocal(child.layoutNode, childLocal)
-    }
-
-    override fun getParentCoordinates(): LayoutCoordinates? {
-        val parent = layoutNode.parentLayoutNode
-        return if (parent != null) LayoutNodeCoordinates(parent) else null
-    }
-}
