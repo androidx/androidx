@@ -20,11 +20,18 @@ import android.content.Context;
 import android.util.Log;
 
 import androidx.annotation.GuardedBy;
+import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
+import androidx.camera.core.impl.utils.executor.CameraXExecutors;
+import androidx.camera.core.impl.utils.futures.Futures;
+import androidx.concurrent.futures.CallbackToFutureAdapter;
+import androidx.core.util.Preconditions;
 
-import java.util.Collections;
+import com.google.common.util.concurrent.ListenableFuture;
+
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -41,6 +48,12 @@ public final class CameraRepository implements UseCaseGroup.StateChangeListener 
 
     @GuardedBy("mCamerasLock")
     private final Map<String, BaseCamera> mCameras = new HashMap<>();
+    @GuardedBy("mCamerasLock")
+    private final Set<BaseCamera> mReleasingCameras = new HashSet<>();
+    @GuardedBy("mCamerasLock")
+    private ListenableFuture<Void> mDeinitFuture;
+    @GuardedBy("mCamerasLock")
+    private CallbackToFutureAdapter.Completer<Void> mDeinitCompleter;
 
     /**
      * Initializes the repository from a {@link Context}.
@@ -63,15 +76,66 @@ public final class CameraRepository implements UseCaseGroup.StateChangeListener 
             }
         }
     }
+
     /**
-     * Clear all cameras from the repository.
+     * Clear and release all cameras from the repository.
      *
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
-    public void clear() {
+    @NonNull
+    public ListenableFuture<Void> deinit() {
         synchronized (mCamerasLock) {
+            // If the camera list is empty, we can either return the current deinit future that
+            // has not yet completed, or an immediate successful future if we are already
+            // completely deinitialized.
+            if (mCameras.isEmpty()) {
+                return mDeinitFuture == null ? Futures.immediateFuture(null) : mDeinitFuture;
+            }
+
+            ListenableFuture<Void> currentFuture = mDeinitFuture;
+            if (currentFuture == null) {
+                // Create a single future that will be used to track closing of all cameras.
+                // Once all cameras have been released, this future will complete. This future
+                // will stay active until all cameras in mReleasingCameras has completed, even if
+                // CameraRepository is initialized and deinitialized multiple times in quick
+                // succession.
+                currentFuture = CallbackToFutureAdapter.getFuture((completer) -> {
+                    Preconditions.checkState(Thread.holdsLock(mCamerasLock));
+                    mDeinitCompleter = completer;
+                    return "CameraRepository-deinit";
+                });
+                mDeinitFuture = currentFuture;
+            }
+
+            for (final BaseCamera camera : mCameras.values()) {
+                // Release the camera and wait for it to complete. We keep track of which cameras
+                // are still releasing with mReleasingCameras.
+                mReleasingCameras.add(camera);
+                camera.release().addListener(() -> {
+                    synchronized (mCamerasLock) {
+                        // When the camera has completed releasing, we can now remove it from
+                        // mReleasingCameras. Any time a camera finishes releasing, we need to
+                        // check if all cameras a finished so we can finish the future which is
+                        // waiting for all cameras to release.
+                        mReleasingCameras.remove(camera);
+                        if (mReleasingCameras.isEmpty()) {
+                            Preconditions.checkNotNull(mDeinitCompleter);
+                            // Every camera has been released. Signal successful completion of
+                            // deinit().
+                            mDeinitCompleter.set(null);
+                            mDeinitCompleter = null;
+                            mDeinitFuture = null;
+                        }
+                    }
+                }, CameraXExecutors.directExecutor());
+            }
+
+            // Ensure all cameras are removed from the active "mCameras" map. This map can be
+            // repopulated by #init().
             mCameras.clear();
+
+            return currentFuture;
         }
     }
 
@@ -81,7 +145,6 @@ public final class CameraRepository implements UseCaseGroup.StateChangeListener 
      * @param cameraId id for the camera
      * @return a {@link BaseCamera} paired to this id
      * @throws IllegalArgumentException if there is no camera paired with the id
-     *
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
@@ -104,7 +167,7 @@ public final class CameraRepository implements UseCaseGroup.StateChangeListener 
      */
     Set<String> getCameraIds() {
         synchronized (mCamerasLock) {
-            return Collections.unmodifiableSet(mCameras.keySet());
+            return new HashSet<>(mCameras.keySet());
         }
     }
 
