@@ -50,8 +50,6 @@ class TestScheduler implements Scheduler, ExecutionListener {
     private final Map<String, InternalWorkState> mPendingWorkStates;
     private final Map<String, InternalWorkState> mTerminatedWorkStates;
 
-    private static final Object sLock = new Object();
-
     TestScheduler(@NonNull Context context) {
         mContext = context;
         mPendingWorkStates = new HashMap<>();
@@ -64,28 +62,24 @@ class TestScheduler implements Scheduler, ExecutionListener {
             return;
         }
 
-        synchronized (sLock) {
-            List<String> workSpecIdsToSchedule = new ArrayList<>(workSpecs.length);
-            for (WorkSpec workSpec : workSpecs) {
-                if (!mPendingWorkStates.containsKey(workSpec.id)) {
-                    mPendingWorkStates.put(workSpec.id, new InternalWorkState(mContext, workSpec));
-                }
-                workSpecIdsToSchedule.add(workSpec.id);
+        List<String> workSpecIdsToSchedule = new ArrayList<>(workSpecs.length);
+        for (WorkSpec workSpec : workSpecs) {
+            if (!mPendingWorkStates.containsKey(workSpec.id)) {
+                mPendingWorkStates.put(workSpec.id, new InternalWorkState(mContext, workSpec));
             }
-            scheduleInternal(workSpecIdsToSchedule);
+            workSpecIdsToSchedule.add(workSpec.id);
         }
+        scheduleInternal(workSpecIdsToSchedule);
     }
 
     @Override
     public void cancel(@NonNull String workSpecId) {
-        synchronized (sLock) {
-            WorkManagerImpl.getInstance(mContext).stopWork(workSpecId);
-            mPendingWorkStates.remove(workSpecId);
-            // We don't need to keep track of cancelled workSpecs. This is because subsequent calls
-            // to enqueue() will no-op because insertWorkSpec in WorkDatabase has a conflict
-            // policy of @Ignore. So TestScheduler will _never_ be asked to schedule those
-            // WorkSpecs.
-        }
+        // We don't need to keep track of cancelled workSpecs. This is because subsequent calls
+        // to enqueue() will no-op because insertWorkSpec in WorkDatabase has a conflict
+        // policy of @Ignore. So TestScheduler will _never_ be asked to schedule those
+        // WorkSpecs.
+        WorkManagerImpl.getInstance(mContext).stopWork(workSpecId);
+        mPendingWorkStates.remove(workSpecId);
     }
 
     /**
@@ -96,17 +90,15 @@ class TestScheduler implements Scheduler, ExecutionListener {
      * @throws IllegalArgumentException if {@code workSpecId} is not enqueued
      */
     void setAllConstraintsMet(@NonNull UUID workSpecId) {
-        synchronized (sLock) {
-            String id = workSpecId.toString();
-            if (!mTerminatedWorkStates.containsKey(id)) {
-                InternalWorkState internalWorkState = mPendingWorkStates.get(id);
-                if (internalWorkState == null) {
-                    throw new IllegalArgumentException(
-                            "Work with id " + workSpecId + " is not enqueued!");
-                }
-                internalWorkState.mConstraintsMet = true;
-                scheduleInternal(Collections.singletonList(workSpecId.toString()));
+        String id = workSpecId.toString();
+        if (!mTerminatedWorkStates.containsKey(id)) {
+            InternalWorkState internalWorkState = mPendingWorkStates.get(id);
+            if (internalWorkState == null) {
+                throw new IllegalArgumentException(
+                        "Work with id " + workSpecId + " is not enqueued!");
             }
+            internalWorkState.mConstraintsMet = true;
+            scheduleInternal(Collections.singletonList(workSpecId.toString()));
         }
     }
 
@@ -118,17 +110,15 @@ class TestScheduler implements Scheduler, ExecutionListener {
      * @throws IllegalArgumentException if {@code workSpecId} is not enqueued
      */
     void setInitialDelayMet(@NonNull UUID workSpecId) {
-        synchronized (sLock) {
-            String id = workSpecId.toString();
-            if (!mTerminatedWorkStates.containsKey(id)) {
-                InternalWorkState internalWorkState = mPendingWorkStates.get(id);
-                if (internalWorkState == null) {
-                    throw new IllegalArgumentException(
-                            "Work with id " + workSpecId + " is not enqueued!");
-                }
-                internalWorkState.mInitialDelayMet = true;
-                scheduleInternal(Collections.singletonList(workSpecId.toString()));
+        String id = workSpecId.toString();
+        if (!mTerminatedWorkStates.containsKey(id)) {
+            InternalWorkState internalWorkState = mPendingWorkStates.get(id);
+            if (internalWorkState == null) {
+                throw new IllegalArgumentException(
+                        "Work with id " + workSpecId + " is not enqueued!");
             }
+            internalWorkState.mInitialDelayMet = true;
+            scheduleInternal(Collections.singletonList(workSpecId.toString()));
         }
     }
 
@@ -140,29 +130,25 @@ class TestScheduler implements Scheduler, ExecutionListener {
      * @throws IllegalArgumentException if {@code workSpecId} is not enqueued
      */
     void setPeriodDelayMet(@NonNull UUID workSpecId) {
-        synchronized (sLock) {
-            String id = workSpecId.toString();
-            InternalWorkState internalWorkState = mPendingWorkStates.get(id);
-            if (internalWorkState == null) {
-                throw new IllegalArgumentException(
-                        "Work with id " + workSpecId + " is not enqueued!");
-            }
-            internalWorkState.mPeriodDelayMet = true;
-            scheduleInternal(Collections.singletonList(workSpecId.toString()));
+        String id = workSpecId.toString();
+        InternalWorkState internalWorkState = mPendingWorkStates.get(id);
+        if (internalWorkState == null) {
+            throw new IllegalArgumentException(
+                    "Work with id " + workSpecId + " is not enqueued!");
         }
+        internalWorkState.mPeriodDelayMet = true;
+        scheduleInternal(Collections.singletonList(workSpecId.toString()));
     }
 
     @Override
     public void onExecuted(@NonNull String workSpecId, boolean needsReschedule) {
-        synchronized (sLock) {
-            InternalWorkState internalWorkState = mPendingWorkStates.get(workSpecId);
-            if (internalWorkState != null) {
-                if (internalWorkState.mWorkSpec.isPeriodic()) {
-                    internalWorkState.reset();
-                } else {
-                    mTerminatedWorkStates.put(workSpecId, internalWorkState);
-                    mPendingWorkStates.remove(workSpecId);
-                }
+        InternalWorkState internalWorkState = mPendingWorkStates.get(workSpecId);
+        if (internalWorkState != null) {
+            if (internalWorkState.mWorkSpec.isPeriodic()) {
+                internalWorkState.reset();
+            } else {
+                mTerminatedWorkStates.put(workSpecId, internalWorkState);
+                mPendingWorkStates.remove(workSpecId);
             }
         }
     }
