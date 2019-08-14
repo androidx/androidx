@@ -164,18 +164,18 @@ sealed class ComponentNode : Emittable {
     /**
      * Execute [block] on all children of this ComponentNode.
      */
-    fun visitChildren(block: (ComponentNode) -> Unit) {
-        for (i in 0 until children.size) {
-            block(children[i])
+    inline fun visitChildren(block: (ComponentNode) -> Unit) {
+        for (i in 0 until count) {
+            block(this[i])
         }
     }
 
     /**
      * Execute [block] on all children of this ComponentNode in reverse order.
      */
-    fun visitChildrenReverse(block: (ComponentNode) -> Unit) {
-        for (i in children.size - 1 downTo 0) {
-            block(children[i])
+    inline fun visitChildrenReverse(block: (ComponentNode) -> Unit) {
+        for (i in count - 1 downTo 0) {
+            block(this[i])
         }
     }
 

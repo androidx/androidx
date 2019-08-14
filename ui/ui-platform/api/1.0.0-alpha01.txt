@@ -73,8 +73,8 @@ package androidx.ui.core {
     method public androidx.ui.core.RepaintBoundaryNode? getRepaintBoundary();
     method public final void setDepth(int p);
     method public final void setOwnerData(Object? p);
-    method public final void visitChildren(kotlin.jvm.functions.Function1<? super androidx.ui.core.ComponentNode,kotlin.Unit> block);
-    method public final void visitChildrenReverse(kotlin.jvm.functions.Function1<? super androidx.ui.core.ComponentNode,kotlin.Unit> block);
+    method public final inline void visitChildren(kotlin.jvm.functions.Function1<? super androidx.ui.core.ComponentNode,kotlin.Unit> block);
+    method public final inline void visitChildrenReverse(kotlin.jvm.functions.Function1<? super androidx.ui.core.ComponentNode,kotlin.Unit> block);
     property protected androidx.ui.core.LayoutNode? containingLayoutNode;
     property public final int count;
     property public final int depth;
