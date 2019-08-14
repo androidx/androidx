@@ -239,7 +239,6 @@ final class ScrollEventAdapter extends RecyclerView.OnScrollListener {
             return;
         }
 
-        // TODO(123350297): automated test for this
         MarginLayoutParams margin =
                 (firstVisibleView.getLayoutParams() instanceof MarginLayoutParams)
                         ? (MarginLayoutParams) firstVisibleView.getLayoutParams()
