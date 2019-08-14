@@ -17,6 +17,9 @@
 package androidx.navigation
 
 import android.net.Uri
+import androidx.navigation.test.intArgument
+import androidx.navigation.test.nullableStringArgument
+import androidx.navigation.test.stringArgument
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
@@ -110,7 +113,7 @@ class NavDeepLinkTest {
         val id = 2
         val matchArgs = deepLink.getMatchingArguments(
             Uri.parse(deepLinkArgument.replace("{id}", id.toString())),
-            mapOf("id" to NavArgument.Builder().setType(NavType.IntType).build())
+            mapOf("id" to intArgument())
         )
         assertWithMessage("Args should not be null")
             .that(matchArgs)
@@ -128,7 +131,7 @@ class NavDeepLinkTest {
         val id = "invalid"
         val matchArgs = deepLink.getMatchingArguments(
             Uri.parse(deepLinkArgument.replace("{id}", id)),
-            mapOf("id" to NavArgument.Builder().setType(NavType.IntType).build())
+            mapOf("id" to intArgument())
         )
         assertWithMessage("Args should be null")
             .that(matchArgs)
@@ -143,7 +146,7 @@ class NavDeepLinkTest {
         val id = 2
         val matchArgs = deepLink.getMatchingArguments(
             Uri.parse(deepLinkArgument.replace("{id}", id.toString())),
-            mapOf("id" to NavArgument.Builder().setType(NavType.IntType).build())
+            mapOf("id" to intArgument())
         )
         assertWithMessage("Args should not be null")
             .that(matchArgs)
@@ -161,7 +164,7 @@ class NavDeepLinkTest {
         val id = "invalid"
         val matchArgs = deepLink.getMatchingArguments(
             Uri.parse(deepLinkArgument.replace("{id}", id)),
-            mapOf("id" to NavArgument.Builder().setType(NavType.IntType).build())
+            mapOf("id" to intArgument())
         )
         assertWithMessage("Args should be null")
             .that(matchArgs)
@@ -178,12 +181,8 @@ class NavDeepLinkTest {
         val matchArgs = deepLink.getMatchingArguments(
             Uri.parse(deepLinkArgument
                 .replace("{id}", id.toString()).replace("{myarg}", myarg)),
-            mapOf("id" to NavArgument.Builder()
-                .setType(NavType.IntType)
-                .build(),
-                "myarg" to NavArgument.Builder()
-                    .setType(NavType.StringType)
-                    .build())
+            mapOf("id" to intArgument(),
+                "myarg" to stringArgument())
         )
         assertWithMessage("Args should not be null")
             .that(matchArgs)
@@ -204,10 +203,7 @@ class NavDeepLinkTest {
         val id = 2
         val matchArgs = deepLink.getMatchingArguments(
             Uri.parse("$DEEP_LINK_EXACT_HTTPS/users"),
-            mapOf("id" to NavArgument.Builder()
-                .setType(NavType.IntType)
-                .setDefaultValue(id)
-                .build())
+            mapOf("id" to intArgument(id))
         )
         assertWithMessage("Args should not be null")
             .that(matchArgs)
@@ -224,10 +220,7 @@ class NavDeepLinkTest {
 
         val matchArgs = deepLink.getMatchingArguments(
             Uri.parse("$DEEP_LINK_EXACT_HTTPS/users"),
-            mapOf("myarg" to NavArgument.Builder()
-                .setType(NavType.StringType)
-                .setIsNullable(true)
-                .build())
+            mapOf("myarg" to nullableStringArgument())
         )
         assertWithMessage("Args should not be null")
             .that(matchArgs)
@@ -246,10 +239,7 @@ class NavDeepLinkTest {
         val id = 2
         val matchArgs = deepLink.getMatchingArguments(
             Uri.parse(deepLinkArgument),
-            mapOf("id" to NavArgument.Builder()
-                .setType(NavType.IntType)
-                .setDefaultValue(id)
-                .build())
+            mapOf("id" to intArgument(id))
         )
         assertWithMessage("Args should not be null")
             .that(matchArgs)
@@ -267,10 +257,7 @@ class NavDeepLinkTest {
 
         val matchArgs = deepLink.getMatchingArguments(
             Uri.parse(deepLinkArgument),
-            mapOf("myarg" to NavArgument.Builder()
-                .setType(NavType.StringType)
-                .setIsNullable(true)
-                .build())
+            mapOf("myarg" to nullableStringArgument())
         )
         assertWithMessage("Args should not be null")
             .that(matchArgs)
@@ -289,13 +276,8 @@ class NavDeepLinkTest {
         val optional = "test"
         val matchArgs = deepLink.getMatchingArguments(
             Uri.parse("$DEEP_LINK_EXACT_HTTPS/users?id={id}".replace("{id}", id.toString())),
-            mapOf("id" to NavArgument.Builder()
-                .setType(NavType.IntType)
-                .build(),
-                "optional" to NavArgument.Builder()
-                    .setType(NavType.StringType)
-                    .setDefaultValue(optional)
-                    .build())
+            mapOf("id" to intArgument(),
+                "optional" to stringArgument(optional))
         )
         assertWithMessage("Args should not be null")
             .that(matchArgs)
@@ -318,13 +300,8 @@ class NavDeepLinkTest {
         val matchArgs = deepLink.getMatchingArguments(
             Uri.parse("$DEEP_LINK_EXACT_HTTPS/users?optional={optional}&id={id}"
                 .replace("{id}", id.toString())),
-            mapOf("id" to NavArgument.Builder()
-                .setType(NavType.IntType)
-                .build(),
-                "optional" to NavArgument.Builder()
-                    .setType(NavType.StringType)
-                    .setDefaultValue(optional)
-                    .build())
+            mapOf("id" to intArgument(),
+                "optional" to stringArgument(optional))
         )
         assertWithMessage("Args should not be null")
             .that(matchArgs)
@@ -345,13 +322,8 @@ class NavDeepLinkTest {
         val id = 2
         val matchArgs = deepLink.getMatchingArguments(
             Uri.parse("$DEEP_LINK_EXACT_HTTPS/users?id={id}".replace("{id}", id.toString())),
-            mapOf("id" to NavArgument.Builder()
-                .setType(NavType.IntType)
-                .build(),
-                "optional" to NavArgument.Builder()
-                    .setType(NavType.StringType)
-                    .setIsNullable(true)
-                    .build())
+            mapOf("id" to intArgument(),
+                "optional" to nullableStringArgument())
         )
         assertWithMessage("Args should not be null")
             .that(matchArgs)
@@ -374,13 +346,8 @@ class NavDeepLinkTest {
             deepLink.getMatchingArguments(
                 Uri.parse("$DEEP_LINK_EXACT_HTTPS/users?id={id}&invalid={invalid}"
                     .replace("{id}", id.toString())),
-                mapOf("id" to NavArgument.Builder()
-                    .setType(NavType.IntType)
-                    .build(),
-                    "invalid" to NavArgument.Builder()
-                        .setType(NavType.StringType)
-                        .setIsNullable(true)
-                        .build()))
+                mapOf("id" to intArgument(),
+                    "invalid" to nullableStringArgument()))
             fail(
                 "Adding parameter that does not exists in the NavDeepLink should throw " +
                         "IllegalArgumentException"
@@ -403,9 +370,7 @@ class NavDeepLinkTest {
         val matchArgs = deepLink.getMatchingArguments(
             Uri.parse("$DEEP_LINK_EXACT_HTTPS/users?string={id}"
                 .replace("{id}", id.toString())),
-            mapOf("id" to NavArgument.Builder()
-                .setType(NavType.IntType)
-                .build())
+            mapOf("id" to intArgument())
         )
         assertWithMessage("Args should not be null")
             .that(matchArgs)
@@ -422,10 +387,7 @@ class NavDeepLinkTest {
 
         val matchArgs = deepLink.getMatchingArguments(
             Uri.parse("$DEEP_LINK_EXACT_HTTPS/users"),
-            mapOf("myarg" to NavArgument.Builder()
-                .setType(NavType.StringType)
-                .setIsNullable(true)
-                .build())
+            mapOf("myarg" to nullableStringArgument())
         )
         assertWithMessage("Args should not be null")
             .that(matchArgs)
@@ -443,10 +405,7 @@ class NavDeepLinkTest {
         val id = 2
         val matchArgs = deepLink.getMatchingArguments(
             Uri.parse("$DEEP_LINK_EXACT_HTTPS/users"),
-            mapOf("id" to NavArgument.Builder()
-                .setType(NavType.IntType)
-                .setDefaultValue(id)
-                .build())
+            mapOf("id" to intArgument(id))
         )
         assertWithMessage("Args should not be null")
             .that(matchArgs)
@@ -464,7 +423,7 @@ class NavDeepLinkTest {
         val id = 2
         val matchArgs = deepLink.getMatchingArguments(
             Uri.parse(deepLinkArgument.replace("{id}", id.toString())),
-            mapOf("id" to NavArgument.Builder().setType(NavType.IntType).build())
+            mapOf("id" to intArgument())
         )
         assertWithMessage("Args should not be null")
             .that(matchArgs)
@@ -481,10 +440,7 @@ class NavDeepLinkTest {
 
         val matchArgs = deepLink.getMatchingArguments(
             Uri.parse("$DEEP_LINK_EXACT_HTTPS/users"),
-            mapOf("myarg" to NavArgument.Builder()
-                .setType(NavType.StringType)
-                .setIsNullable(true)
-                .build())
+            mapOf("myarg" to nullableStringArgument())
         )
         assertWithMessage("Args should not be null")
             .that(matchArgs)
@@ -502,10 +458,7 @@ class NavDeepLinkTest {
         val id = 2
         val matchArgs = deepLink.getMatchingArguments(
             Uri.parse("$DEEP_LINK_EXACT_HTTPS/users"),
-            mapOf("id" to NavArgument.Builder()
-                .setType(NavType.IntType)
-                .setDefaultValue(id)
-                .build())
+            mapOf("id" to intArgument(id))
         )
         assertWithMessage("Args should not be null")
             .that(matchArgs)
@@ -524,8 +477,8 @@ class NavDeepLinkTest {
         val last = "Doe"
         val matchArgs = deepLink.getMatchingArguments(
             Uri.parse(deepLinkArgument.replace("{first}", first).replace("{last}", last)),
-            mapOf("first" to NavArgument.Builder().setType(NavType.StringType).build(),
-                "last" to NavArgument.Builder().setType(NavType.StringType).build())
+            mapOf("first" to stringArgument(),
+                "last" to stringArgument())
         )
         assertWithMessage("Args should not be null")
             .that(matchArgs)
@@ -547,14 +500,8 @@ class NavDeepLinkTest {
         val last = "Doe"
         val matchArgs = deepLink.getMatchingArguments(
             Uri.parse("$DEEP_LINK_EXACT_HTTPS/users"),
-            mapOf("first" to NavArgument.Builder()
-                .setType(NavType.StringType)
-                .setDefaultValue(first)
-                .build(),
-                "last" to NavArgument.Builder()
-                    .setType(NavType.StringType)
-                    .setDefaultValue(last)
-                    .build())
+            mapOf("first" to stringArgument(first),
+                "last" to stringArgument(last))
         )
         assertWithMessage("Args should not be null")
             .that(matchArgs)
@@ -576,13 +523,8 @@ class NavDeepLinkTest {
         val last = "Doe"
         val matchArgs = deepLink.getMatchingArguments(
             Uri.parse("$DEEP_LINK_EXACT_HTTPS/users?name=Jane_"),
-            mapOf("first" to NavArgument.Builder()
-                .setType(NavType.StringType)
-                .build(),
-                "last" to NavArgument.Builder()
-                    .setType(NavType.StringType)
-                    .setDefaultValue(last)
-                    .build())
+            mapOf("first" to stringArgument(),
+                "last" to stringArgument(last))
         )
         assertWithMessage("Args should not be null")
             .that(matchArgs)
@@ -602,14 +544,8 @@ class NavDeepLinkTest {
 
         val matchArgs = deepLink.getMatchingArguments(
             Uri.parse("$DEEP_LINK_EXACT_HTTPS/users"),
-            mapOf("first" to NavArgument.Builder()
-                .setType(NavType.StringType)
-                .setIsNullable(true)
-                .build(),
-                "last" to NavArgument.Builder()
-                    .setType(NavType.StringType)
-                    .setIsNullable(true)
-                    .build())
+            mapOf("first" to nullableStringArgument(),
+                "last" to nullableStringArgument())
         )
         assertWithMessage("Args should not be null")
             .that(matchArgs)
@@ -631,9 +567,7 @@ class NavDeepLinkTest {
         val matchArgs = deepLink.getMatchingArguments(
             Uri.parse("$DEEP_LINK_EXACT_HTTPS/users?productId=wildCardMatch-{id}"
                 .replace("{id}", id.toString())),
-            mapOf("id" to NavArgument.Builder()
-                .setType(NavType.IntType)
-                .build())
+            mapOf("id" to intArgument())
         )
         assertWithMessage("Args should not be null")
             .that(matchArgs)
@@ -651,10 +585,7 @@ class NavDeepLinkTest {
         val id = 2
         val matchArgs = deepLink.getMatchingArguments(
             Uri.parse("$DEEP_LINK_EXACT_HTTPS/users"),
-            mapOf("id" to NavArgument.Builder()
-                .setType(NavType.IntType)
-                .setDefaultValue(id)
-                .build())
+            mapOf("id" to intArgument(id))
         )
         assertWithMessage("Args should not be null")
             .that(matchArgs)
@@ -671,10 +602,7 @@ class NavDeepLinkTest {
 
         val matchArgs = deepLink.getMatchingArguments(
             Uri.parse("$DEEP_LINK_EXACT_HTTPS/users?productId=wildCardMatch-{myarg}"),
-            mapOf("myarg" to NavArgument.Builder()
-                .setType(NavType.StringType)
-                .setIsNullable(true)
-                .build())
+            mapOf("myarg" to nullableStringArgument())
         )
         assertWithMessage("Args should not be null")
             .that(matchArgs)
@@ -693,10 +621,7 @@ class NavDeepLinkTest {
         val id = 2
         val matchArgs = deepLink.getMatchingArguments(
             Uri.parse("$DEEP_LINK_EXACT_HTTPS/users?productId=.*-"),
-            mapOf("id" to NavArgument.Builder()
-                .setType(NavType.IntType)
-                .setDefaultValue(id)
-                .build())
+            mapOf("id" to intArgument(id))
         )
         assertWithMessage("Args should not be null")
             .that(matchArgs)
@@ -715,9 +640,7 @@ class NavDeepLinkTest {
         val matchArgs = deepLink.getMatchingArguments(
             Uri.parse("$DEEP_LINK_EXACT_HTTPS/users?productId=A*B{id}"
                 .replace("{id}", id.toString())),
-            mapOf("id" to NavArgument.Builder()
-                .setType(NavType.IntType)
-                .build())
+            mapOf("id" to intArgument())
         )
         assertWithMessage("Args should not be null")
             .that(matchArgs)
@@ -736,9 +659,7 @@ class NavDeepLinkTest {
         val matchArgs = deepLink.getMatchingArguments(
             Uri.parse("$DEEP_LINK_EXACT_HTTPS/users?productId={id}A*B"
                 .replace("{id}", id.toString())),
-            mapOf("id" to NavArgument.Builder()
-                .setType(NavType.IntType)
-                .build())
+            mapOf("id" to intArgument())
         )
         assertWithMessage("Args should not be null")
             .that(matchArgs)
@@ -756,9 +677,7 @@ class NavDeepLinkTest {
         val path = "directions"
         val matchArgs = deepLink.getMatchingArguments(
             Uri.parse("$DEEP_LINK_EXACT_HTTPS/users?path=go/to/{path}".replace("{path}", path)),
-            mapOf("path" to NavArgument.Builder()
-                .setType(NavType.StringType)
-                .build())
+            mapOf("path" to stringArgument())
         )
         assertWithMessage("Args should not be null")
             .that(matchArgs)
@@ -776,10 +695,7 @@ class NavDeepLinkTest {
         val path = "directions"
         val matchArgs = deepLink.getMatchingArguments(
             Uri.parse("$DEEP_LINK_EXACT_HTTPS/users"),
-            mapOf("path" to NavArgument.Builder()
-                .setType(NavType.StringType)
-                .setDefaultValue(path)
-                .build())
+            mapOf("path" to stringArgument(path))
         )
         assertWithMessage("Args should not be null")
             .that(matchArgs)
@@ -796,10 +712,7 @@ class NavDeepLinkTest {
 
         val matchArgs = deepLink.getMatchingArguments(
             Uri.parse("$DEEP_LINK_EXACT_HTTPS/users"),
-            mapOf("path" to NavArgument.Builder()
-                .setType(NavType.StringType)
-                .setIsNullable(true)
-                .build())
+            mapOf("path" to nullableStringArgument())
         )
         assertWithMessage("Args should not be null")
             .that(matchArgs)
@@ -818,10 +731,7 @@ class NavDeepLinkTest {
         val path = "directions"
         val matchArgs = deepLink.getMatchingArguments(
             Uri.parse("$DEEP_LINK_EXACT_HTTPS/users?path=go/to/"),
-            mapOf("path" to NavArgument.Builder()
-                .setType(NavType.StringType)
-                .setDefaultValue(path)
-                .build())
+            mapOf("path" to stringArgument(path))
         )
         assertWithMessage("Args should not be null")
             .that(matchArgs)
@@ -840,7 +750,7 @@ class NavDeepLinkTest {
         val name = "John Doe"
         val matchArgs = deepLink.getMatchingArguments(
             Uri.parse(deepLinkArgument.replace("{name}", Uri.encode(name))),
-            mapOf("name" to NavArgument.Builder().setType(NavType.StringType).build())
+            mapOf("name" to stringArgument())
         )
 
         assertWithMessage("Args should not be null")
@@ -862,8 +772,8 @@ class NavDeepLinkTest {
             Uri.parse(deepLinkArgument
                 .replace("{id}", id.toString())
                 .replace("{postId}", postId.toString())),
-            mapOf("id" to NavArgument.Builder().setType(NavType.IntType).build(),
-                "postId" to NavArgument.Builder().setType(NavType.IntType).build())
+            mapOf("id" to intArgument(),
+                "postId" to intArgument())
         )
         assertWithMessage("Args should not be null")
             .that(matchArgs)
@@ -913,7 +823,7 @@ class NavDeepLinkTest {
             Uri.parse(deepLinkMultiple
                 .replace(".*", "test")
                 .replace("{postId}", postId.toString())),
-            mapOf("postId" to NavArgument.Builder().setType(NavType.IntType).build())
+            mapOf("postId" to intArgument())
         )
         assertWithMessage("Args should not be null")
             .that(matchArgs)
@@ -933,7 +843,7 @@ class NavDeepLinkTest {
             Uri.parse(deepLinkMultiple
                 .replace("{id}", id.toString())
                 .replace(".*", "test")),
-            mapOf("id" to NavArgument.Builder().setType(NavType.IntType).build())
+            mapOf("id" to intArgument())
         )
         assertWithMessage("Args should not be null")
             .that(matchArgs)
