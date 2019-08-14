@@ -3,7 +3,7 @@ package androidx.webkit {
 
   public final class ProxyConfig {
     method public java.util.List<java.lang.String!> getBypassRules();
-    method public java.util.List<androidx.core.util.Pair<java.lang.String!,java.lang.String!>!> getProxyRules();
+    method public java.util.List<androidx.webkit.ProxyConfig.ProxyRule!> getProxyRules();
     field public static final String MATCH_ALL_SCHEMES = "*";
     field public static final String MATCH_HTTP = "http";
     field public static final String MATCH_HTTPS = "https";
@@ -20,6 +20,11 @@ package androidx.webkit {
     method public androidx.webkit.ProxyConfig build();
     method public androidx.webkit.ProxyConfig.Builder bypassSimpleHostnames();
     method public androidx.webkit.ProxyConfig.Builder removeImplicitRules();
+  }
+
+  public static final class ProxyConfig.ProxyRule {
+    method public String getSchemeFilter();
+    method public String getUrl();
   }
 
   public abstract class ProxyController {
