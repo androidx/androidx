@@ -99,11 +99,6 @@ package androidx.ui.core {
     property public abstract Object? parentData;
   }
 
-  public interface OffsetMap {
-    method public int originalToTransformed(int offset);
-    method public int transformedToOriginal(int offset);
-  }
-
   public final class OpacityKt {
     ctor public OpacityKt();
     method public static void Opacity(@FloatRange(from=0.0, to=1.0) float opacity, kotlin.jvm.functions.Function0<kotlin.Unit> children);
@@ -112,13 +107,6 @@ package androidx.ui.core {
   public final class ParentDataKt {
     ctor public ParentDataKt();
     method public static void ParentData(Object data, kotlin.jvm.functions.Function0<kotlin.Unit> children);
-  }
-
-  public final class PasswordVisualTransformation implements androidx.ui.core.VisualTransformation {
-    ctor public PasswordVisualTransformation(char mask);
-    ctor public PasswordVisualTransformation();
-    method public androidx.ui.core.TransformedText filter(androidx.ui.text.AnnotatedString text);
-    method public char getMask();
   }
 
   public abstract class Placeable {
@@ -155,7 +143,7 @@ package androidx.ui.core {
 
   public final class TextFieldKt {
     ctor public TextFieldKt();
-    method public static void TextField(androidx.ui.input.EditorModel value, androidx.ui.core.EditorStyle editorStyle, androidx.ui.input.KeyboardType keyboardType = KeyboardType.Text, androidx.ui.input.ImeAction imeAction = ImeAction.Unspecified, kotlin.jvm.functions.Function1<? super androidx.ui.input.EditorModel,kotlin.Unit> onValueChange = {}, kotlin.jvm.functions.Function0<kotlin.Unit> onFocus = {}, kotlin.jvm.functions.Function0<kotlin.Unit> onBlur = {}, kotlin.jvm.functions.Function1<? super androidx.ui.input.ImeAction,kotlin.Unit> onImeActionPerformed = {}, androidx.ui.core.VisualTransformation? visualTransformation = null);
+    method public static void TextField(androidx.ui.input.EditorModel value, androidx.ui.core.EditorStyle editorStyle, androidx.ui.input.KeyboardType keyboardType = KeyboardType.Text, androidx.ui.input.ImeAction imeAction = ImeAction.Unspecified, kotlin.jvm.functions.Function1<? super androidx.ui.input.EditorModel,kotlin.Unit> onValueChange = {}, kotlin.jvm.functions.Function0<kotlin.Unit> onFocus = {}, kotlin.jvm.functions.Function0<kotlin.Unit> onBlur = {}, kotlin.jvm.functions.Function1<? super androidx.ui.input.ImeAction,kotlin.Unit> onImeActionPerformed = {}, androidx.ui.input.VisualTransformation? visualTransformation = null);
   }
 
   public final class TextKt {
@@ -191,23 +179,6 @@ package androidx.ui.core {
 
   public final class TextSpanScope {
     method public androidx.ui.core.TextSpanComposition getComposer();
-  }
-
-  public final class TransformedText {
-    ctor public TransformedText(androidx.ui.text.AnnotatedString transformedText, androidx.ui.core.OffsetMap offsetMap);
-    method public androidx.ui.text.AnnotatedString component1();
-    method public androidx.ui.core.OffsetMap component2();
-    method public androidx.ui.core.TransformedText copy(androidx.ui.text.AnnotatedString transformedText, androidx.ui.core.OffsetMap offsetMap);
-    method public androidx.ui.core.OffsetMap getOffsetMap();
-    method public androidx.ui.text.AnnotatedString getTransformedText();
-  }
-
-  public interface VisualTransformation {
-    method public androidx.ui.core.TransformedText filter(androidx.ui.text.AnnotatedString text);
-  }
-
-  public final class VisualTransformationKt {
-    ctor public VisualTransformationKt();
   }
 
   public final class WrapperKt {

@@ -24,8 +24,12 @@ import androidx.ui.input.EditorModel
 import androidx.ui.input.FinishComposingTextEditOp
 import androidx.ui.input.ImeAction
 import androidx.ui.input.KeyboardType
+import androidx.ui.input.OffsetMap
 import androidx.ui.input.SetSelectionEditOp
 import androidx.ui.input.TextInputService
+import androidx.ui.input.TransformedText
+import androidx.ui.input.VisualTransformation
+import androidx.ui.input.identityOffsetMap
 import androidx.ui.painting.Canvas
 import androidx.ui.text.AnnotatedString
 import androidx.ui.text.TextDelegate
