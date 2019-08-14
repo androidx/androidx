@@ -120,18 +120,6 @@ class TextDelegateTest() {
     }
 
     @Test
-    fun `text setter`() {
-        val textDelegate = TextDelegate(density = density, resourceLoader = resourceLoader)
-        val text = AnnotatedString(text = "Hello")
-
-        textDelegate.text = text
-
-        assertThat(textDelegate.text).isEqualTo(text)
-        assertThat(textDelegate.multiParagraph).isNull()
-        assertThat(textDelegate.needsLayout).isTrue()
-    }
-
-    @Test
     fun `createParagraphStyle without TextStyle in AnnotatedText`() {
         val maxLines = 5
         val overflow = TextOverflow.Ellipsis
