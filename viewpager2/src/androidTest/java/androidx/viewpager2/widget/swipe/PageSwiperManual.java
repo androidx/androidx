@@ -72,7 +72,8 @@ public class PageSwiperManual implements PageSwiper {
                 offsetCenter(-xOffset / 2, -yOffset / 2),
                 offsetCenter(xOffset / 2, yOffset / 2),
                 150, 20
-        ).perform(InstrumentationRegistry.getInstrumentation(), mViewPager, interpolator);
+        ).perform(InstrumentationRegistry.getInstrumentation(),
+                mViewPager.getChildAt(0), interpolator);
     }
 
     private static CoordinatesProvider offsetCenter(final float dx, final float dy) {
