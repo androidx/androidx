@@ -488,6 +488,19 @@ public final class CameraX {
     }
 
     /**
+     * Deinitializes CameraX so that it can be initialized again.
+     *
+     * <p>Note: This is only for testing purpose for now.
+     * TODO(b/138544571): Release all cameras in CameraX.deinit
+     *
+     * @hide
+     */
+    @RestrictTo(Scope.TESTS)
+    public static void deinit() {
+        INSTANCE.deinitInternal();
+    }
+
+    /**
      * Returns the context used for CameraX.
      *
      * @hide
@@ -693,6 +706,11 @@ public final class CameraX {
         }
 
         mCameraRepository.init(mCameraFactory);
+    }
+
+    private void deinitInternal() {
+        mInitialized.set(false);
+        mCameraRepository.clear();
     }
 
     private UseCaseGroupLifecycleController getOrCreateUseCaseGroup(LifecycleOwner lifecycleOwner) {
