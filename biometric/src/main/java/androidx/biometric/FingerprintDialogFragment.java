@@ -41,6 +41,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
+import androidx.annotation.VisibleForTesting;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.DialogFragment;
@@ -142,7 +143,8 @@ public class FingerprintDialogFragment extends DialogFragment {
     private boolean mDismissInstantly = true;
 
     // This should be re-set by the BiometricPromptCompat each time the lifecycle changes.
-    private DialogInterface.OnClickListener mNegativeButtonListener;
+    @VisibleForTesting
+    DialogInterface.OnClickListener mNegativeButtonListener;
 
     // Also created once and retained.
     @SuppressWarnings("deprecation")

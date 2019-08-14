@@ -28,6 +28,7 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.annotation.VisibleForTesting;
 import androidx.core.os.CancellationSignal;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
@@ -53,8 +54,10 @@ public class FingerprintHelperFragment extends Fragment {
     static final int USER_CANCELED_FROM_NEGATIVE_BUTTON = 2;
 
     // Re-set by the application, through BiometricPromptCompat upon orientation changes.
-    private Executor mExecutor;
-    private BiometricPrompt.AuthenticationCallback mClientAuthenticationCallback;
+    @VisibleForTesting
+    Executor mExecutor;
+    @VisibleForTesting
+    BiometricPrompt.AuthenticationCallback mClientAuthenticationCallback;
 
     // Re-set by BiometricPromptCompat upon orientation changes. This handler is used to send
     // messages from the AuthenticationCallbacks to the UI.

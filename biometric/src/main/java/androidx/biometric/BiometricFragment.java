@@ -36,6 +36,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
+import androidx.annotation.VisibleForTesting;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 
@@ -63,9 +64,12 @@ public class BiometricFragment extends Fragment {
     private Bundle mBundle;
 
     // Re-set by the application, through BiometricPromptCompat upon orientation changes.
-    private Executor mClientExecutor;
-    private DialogInterface.OnClickListener mClientNegativeButtonListener;
-    private BiometricPrompt.AuthenticationCallback mClientAuthenticationCallback;
+    @VisibleForTesting
+    Executor mClientExecutor;
+    @VisibleForTesting
+    DialogInterface.OnClickListener mClientNegativeButtonListener;
+    @VisibleForTesting
+    BiometricPrompt.AuthenticationCallback mClientAuthenticationCallback;
 
     // Set once and retained.
     private BiometricPrompt.CryptoObject mCryptoObject;
