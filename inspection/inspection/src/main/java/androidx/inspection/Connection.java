@@ -14,23 +14,20 @@
  * limitations under the License.
  */
 
-package androidx.inspection
+package androidx.inspection;
 
-import com.google.common.truth.Truth.assertThat
-import org.junit.Test
-import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
+import androidx.annotation.NonNull;
 
-@RunWith(JUnit4::class)
-class InspectorTest {
+/**
+ * A class representing a connection between studio and inspectors.
+ */
+public abstract class Connection {
 
-    @Test
-    fun dummyTest() {
-        val connection = object : Connection() {}
-        val value = object : Inspector(connection) {
-            override fun onReceiveCommand(data: ByteArray) {
-            }
-        }
-        assertThat(value).isNotNull()
+    /**
+     * Sends raw bytes to studio.
+     *
+     * @param data An array of bytes. Up to inspectors to determine how to encode bytes.
+     */
+    public void sendEvent(@NonNull byte[] data) {
     }
 }

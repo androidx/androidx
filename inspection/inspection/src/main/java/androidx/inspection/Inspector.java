@@ -16,16 +16,29 @@
 
 package androidx.inspection;
 
+import androidx.annotation.NonNull;
+
 /**
- *  Implementation of this class are responsible to handle command from frontend and
- *  send back events.
+ * Implementation of this class are responsible to handle command from frontend and
+ * send back events.
  */
 public abstract class Inspector {
+
+    public Inspector(@NonNull Connection connection) {
+    }
+
     /**
-     * Called when this inspector was disposed and no longer needed.
-     * <p>
+     * Called when this inspector  is no longer needed.
+     *
      * Agent should use this callback to unsubscribe from any events that it is listening to.
      */
     public void onDispose() {
     }
+
+    /**
+     * An inspector can implement this to handle incoming commands.
+     *
+     * @param data a raw byte array of the command sent by studio.
+     */
+    public abstract void onReceiveCommand(@NonNull byte[] data);
 }
