@@ -31,7 +31,7 @@ import androidx.ui.input.EditProcessor
 import androidx.ui.input.EditorModel
 import androidx.ui.input.ImeAction
 import androidx.ui.input.KeyboardType
-import androidx.ui.text.TextPainter
+import androidx.ui.text.TextDelegate
 import androidx.ui.text.TextStyle
 
 /**
@@ -126,7 +126,7 @@ fun TextField(
     }
     val textPainter = +memo(visualText, mergedStyle, density, resourceLoader) {
         // TODO(nona): Add parameter for text direction, softwrap, etc.
-        TextPainter(
+        TextDelegate(
             text = visualText,
             style = mergedStyle,
             density = density,

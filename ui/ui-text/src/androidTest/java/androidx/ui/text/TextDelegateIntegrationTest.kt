@@ -45,7 +45,7 @@ import kotlin.math.ceil
 
 @RunWith(JUnit4::class)
 @SmallTest
-class TextPainterIntegrationTest {
+class TextDelegateIntegrationTest {
 
     private val fontFamily = BASIC_MEASURE_FONT.asFontFamily()
     private val density = Density(density = 1f)
@@ -57,7 +57,7 @@ class TextPainterIntegrationTest {
         withDensity(density) {
             val fontSize = 20.sp
             val textStyle = TextStyle(fontSize = fontSize, fontFamily = fontFamily)
-            val textPainter = TextPainter(
+            val textPainter = TextDelegate(
                 style = textStyle,
                 density = density,
                 resourceLoader = resourceLoader
@@ -73,7 +73,7 @@ class TextPainterIntegrationTest {
 //    @Test
 //    fun preferredLineHeight_style_not_set() {
 //        val defaultTextStyle = TextStyle(fontFamily = fontFamily)
-//        val textPainter = TextPainter(style = defaultTextStyle)
+//        val textPainter = TextDelegate(style = defaultTextStyle)
 //
 //        val prefferedHeight = textPainter.preferredLineHeight
 //
@@ -89,7 +89,7 @@ class TextPainterIntegrationTest {
             text = text,
             textStyles = listOf(AnnotatedString.Item(textStyle, 0, text.length))
         )
-        val textPainter = TextPainter(
+        val textPainter = TextDelegate(
             text = annotatedString,
             paragraphStyle = ParagraphStyle(textDirection = TextDirection.Rtl),
             density = density,
@@ -117,7 +117,7 @@ class TextPainterIntegrationTest {
                     )
                 )
             )
-            val textPainter = TextPainter(
+            val textPainter = TextDelegate(
                 text = annotatedString,
                 paragraphStyle = ParagraphStyle(textDirection = TextDirection.Rtl),
                 density = density,
@@ -146,7 +146,7 @@ class TextPainterIntegrationTest {
                     )
                 )
             )
-            val textPainter = TextPainter(
+            val textPainter = TextDelegate(
                 text = annotatedString,
                 paragraphStyle = ParagraphStyle(textDirection = TextDirection.Rtl),
                 density = density,
@@ -168,7 +168,7 @@ class TextPainterIntegrationTest {
             text = text,
             textStyles = listOf(AnnotatedString.Item(textStyle, 0, text.length))
         )
-        val textPainter = TextPainter(
+        val textPainter = TextDelegate(
             text = annotatedString,
             paragraphStyle = ParagraphStyle(textDirection = TextDirection.Rtl),
             density = density,
@@ -196,7 +196,7 @@ class TextPainterIntegrationTest {
                     )
                 )
             )
-            val textPainter = TextPainter(
+            val textPainter = TextDelegate(
                 text = annotatedString,
                 paragraphStyle = ParagraphStyle(textDirection = TextDirection.Rtl),
                 density = density,
@@ -226,7 +226,7 @@ class TextPainterIntegrationTest {
                     )
                 )
             )
-            val textPainter = TextPainter(
+            val textPainter = TextDelegate(
                 text = annotatedString,
                 paragraphStyle = ParagraphStyle(textDirection = TextDirection.Rtl),
                 density = density,
@@ -249,7 +249,7 @@ class TextPainterIntegrationTest {
         var text = ""
         for (i in 1..50) text += " Hello"
         val annotatedString = AnnotatedString(text = text)
-        val textPainter = TextPainter(
+        val textPainter = TextDelegate(
             text = annotatedString,
             paragraphStyle = ParagraphStyle(textDirection = TextDirection.Rtl),
             maxLines = 2,
@@ -266,7 +266,7 @@ class TextPainterIntegrationTest {
     fun didExceedMaxLines_not_exceed() {
         val text = "Hello"
         val annotatedString = AnnotatedString(text = text)
-        val textPainter = TextPainter(
+        val textPainter = TextDelegate(
             text = annotatedString,
             paragraphStyle = ParagraphStyle(textDirection = TextDirection.Rtl),
             maxLines = 2,
@@ -281,7 +281,7 @@ class TextPainterIntegrationTest {
 
     @Test
     fun layout_build_paragraph() {
-        val textPainter = TextPainter(
+        val textPainter = TextDelegate(
             text = AnnotatedString(text = "Hello"),
             paragraphStyle = ParagraphStyle(textDirection = TextDirection.Ltr),
             density = density,
@@ -306,7 +306,7 @@ class TextPainterIntegrationTest {
                 )
             )
         )
-        val textPainter = TextPainter(
+        val textPainter = TextDelegate(
             text = annotatedString,
             paragraphStyle = ParagraphStyle(textDirection = TextDirection.Ltr),
             density = density,
@@ -335,7 +335,7 @@ class TextPainterIntegrationTest {
                     )
                 )
             )
-            val textPainter = TextPainter(
+            val textPainter = TextDelegate(
                 text = annotatedString,
                 paragraphStyle = ParagraphStyle(textDirection = TextDirection.Ltr),
                 density = density,
@@ -359,7 +359,7 @@ class TextPainterIntegrationTest {
             text = text,
             textStyles = listOf(AnnotatedString.Item(textStyle, 0, text.length))
         )
-        val textPainter = TextPainter(
+        val textPainter = TextDelegate(
             text = annotatedString,
             paragraphStyle = ParagraphStyle(textDirection = TextDirection.Ltr),
             density = density,
@@ -382,7 +382,7 @@ class TextPainterIntegrationTest {
             text = text,
             textStyles = listOf(AnnotatedString.Item(textStyle, 0, text.length))
         )
-        val textPainter = TextPainter(
+        val textPainter = TextDelegate(
             text = annotatedString,
             paragraphStyle = ParagraphStyle(textDirection = TextDirection.Ltr),
             overflow = TextOverflow.Fade,
@@ -408,7 +408,7 @@ class TextPainterIntegrationTest {
             text = text,
             textStyles = listOf(AnnotatedString.Item(textStyle, 0, text.length))
         )
-        val textPainter = TextPainter(
+        val textPainter = TextDelegate(
             text = annotatedString,
             paragraphStyle = ParagraphStyle(textDirection = TextDirection.Ltr),
             overflow = TextOverflow.Fade,
@@ -440,7 +440,7 @@ class TextPainterIntegrationTest {
                     )
                 )
             )
-            val textPainter = TextPainter(
+            val textPainter = TextDelegate(
                 text = annotatedString,
                 paragraphStyle = ParagraphStyle(textDirection = TextDirection.Ltr),
                 density = density,
@@ -518,7 +518,7 @@ class TextPainterIntegrationTest {
                     )
                 )
             )
-            val textPainter = TextPainter(
+            val textPainter = TextDelegate(
                 text = annotatedString,
                 paragraphStyle = ParagraphStyle(textDirection = TextDirection.Ltr),
                 density = density,
@@ -589,7 +589,7 @@ class TextPainterIntegrationTest {
                     )
                 )
             )
-            val textPainter = TextPainter(
+            val textPainter = TextDelegate(
                 text = annotatedString,
                 paragraphStyle = ParagraphStyle(textDirection = TextDirection.Ltr),
                 density = density,
@@ -670,7 +670,7 @@ class TextPainterIntegrationTest {
                 )
             )
             val selectionColor = Color(0x66AABB33)
-            val textPainter = TextPainter(
+            val textPainter = TextDelegate(
                 text = annotatedString,
                 paragraphStyle = ParagraphStyle(textDirection = TextDirection.Ltr),
                 density = density,

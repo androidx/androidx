@@ -140,43 +140,8 @@ package androidx.ui.text {
     method public androidx.ui.text.ParagraphStyle merge(androidx.ui.text.ParagraphStyle? other = null);
   }
 
-  public final class TextPainter {
-    ctor public TextPainter(androidx.ui.text.AnnotatedString? text, androidx.ui.text.TextStyle? style, androidx.ui.text.ParagraphStyle? paragraphStyle, Integer? maxLines, boolean softWrap, androidx.ui.text.style.TextOverflow overflow, androidx.ui.text.Locale? locale, androidx.ui.core.Density density, androidx.ui.text.font.Font.ResourceLoader resourceLoader);
-    method public androidx.ui.core.Density getDensity();
-    method public boolean getDidExceedMaxLines();
-    method public float getHeight();
-    method public androidx.ui.text.Locale? getLocale();
-    method public float getMaxIntrinsicWidth();
-    method public Integer? getMaxLines();
-    method public float getMinIntrinsicWidth();
-    method public int getOffsetForPosition(androidx.ui.core.PxPosition position);
-    method public androidx.ui.text.style.TextOverflow getOverflow();
-    method public androidx.ui.text.ParagraphStyle? getParagraphStyle();
-    method public float getPreferredLineHeight();
-    method public androidx.ui.text.font.Font.ResourceLoader getResourceLoader();
-    method public androidx.ui.engine.geometry.Size getSize();
-    method public boolean getSoftWrap();
-    method public androidx.ui.text.TextStyle? getStyle();
-    method public androidx.ui.text.AnnotatedString? getText();
-    method public float getWidth();
-    method public androidx.ui.text.TextRange getWordBoundary(int offset);
-    method public void layout(androidx.ui.core.Constraints constraints);
-    method public void paint(androidx.ui.painting.Canvas canvas);
-    method public void paintBackground(int start, int end, androidx.ui.graphics.Color color, androidx.ui.painting.Canvas canvas);
-    method public void paintCursor(int offset, androidx.ui.painting.Canvas canvas);
-    method public void setText(androidx.ui.text.AnnotatedString? value);
-    property public final boolean didExceedMaxLines;
-    property public final float height;
-    property public final float maxIntrinsicWidth;
-    property public final float minIntrinsicWidth;
-    property public final float preferredLineHeight;
-    property public final androidx.ui.engine.geometry.Size size;
-    property public final androidx.ui.text.AnnotatedString? text;
-    property public final float width;
-  }
-
-  public final class TextPainterKt {
-    ctor public TextPainterKt();
+  public final class TextDelegateKt {
+    ctor public TextDelegateKt();
   }
 
   public final class TextSpanKt {
