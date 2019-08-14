@@ -221,6 +221,7 @@ package androidx.ui.core {
     method public static androidx.compose.Ambient<android.content.Context> getContextAmbient();
     method public static androidx.compose.Ambient<kotlin.coroutines.CoroutineContext> getCoroutineContextAmbient();
     method public static androidx.compose.Ambient<androidx.ui.core.Density> getDensityAmbient();
+    method public static androidx.compose.Ambient<androidx.ui.core.LayoutDirection> getLayoutDirectionAmbient();
     method public static androidx.compose.CompositionContext? setContent(android.app.Activity, kotlin.jvm.functions.Function0<kotlin.Unit> content);
     method public static androidx.compose.CompositionContext? setContent(android.view.ViewGroup, kotlin.jvm.functions.Function0<kotlin.Unit> content);
     method @CheckResult(suggest="+") public static <R> androidx.compose.Effect<R> withDensity(kotlin.jvm.functions.Function1<? super androidx.ui.core.DensityReceiver,? extends R> block);
