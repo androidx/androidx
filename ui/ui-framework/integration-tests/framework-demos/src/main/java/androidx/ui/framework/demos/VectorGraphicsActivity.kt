@@ -102,8 +102,10 @@ class VectorGraphicsActivity : Activity() {
                     }
                     Path(
                         fill = HorizontalGradient(
-                            Color.Red,
-                            Color.Blue,
+                            listOf(
+                                Color.Red,
+                                Color.Blue
+                            ),
                             startX = Px.Zero,
                             endX = Px(viewportWidth / 2 + 100)
                         ),
@@ -142,13 +144,15 @@ class VectorGraphicsActivity : Activity() {
         val length = 150.0f
         Path(
             fill = RadialGradient(
-                Color(0xFF000080),
-                Color(0xFF808000),
-                Color(0xFF008080),
+                listOf(
+                    Color(0xFF000080),
+                    Color(0xFF808000),
+                    Color(0xFF008080)
+                ),
                 centerX = length / 2.0f,
                 centerY = length / 2.0f,
                 radius = length / 2.0f,
-                tileMode = TileMode.repeated
+                tileMode = TileMode.Repeated
             ),
             pathData = PathDelegate {
                 verticalLineTo(length)

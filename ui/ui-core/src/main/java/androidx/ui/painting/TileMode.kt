@@ -28,32 +28,23 @@ package androidx.ui.painting
 //
 // See also:
 //
-//  * [painting.Gradient], the superclass for [LinearGradient] and
-//    [RadialGradient], as used by [BoxDecoration] et al, which works in
+//  * [LinearGradientShader], [RadialGradientShader] which works in
 //    relative coordinates and can create a [Shader] representing the gradient
 //    for a particular [Rect] on demand.
-//  * [dart:ui.Gradient], the low-level class used when dealing with the
-//    [Paint.shader] property directly, with its [new Gradient.linear] and [new
-//    Gradient.radial] constructors.
-// These enum values must be kept in sync with SkShader::TileMode.
-enum class TileMode {
+enum class TileMode(val nativeTileMode: NativeTileMode) {
     // Edge is clamped to the final color.
     //
     // The gradient will paint the all the regions outside the inner area with
     // the color of the point closest to that region.
     //
-    // ![](https://flutter.github.io/assets-for-api-docs/assets/dart-ui/tile_mode_clamp_radial.png)
-    clamp,
+    Clamp(NativeClampTileMode()),
 
     // Edge is repeated from first color to last.
     //
     // This is as if the stop points from 0.0 to 1.0 were then repeated from 1.0
     // to 2.0, 2.0 to 3.0, and so forth (and for linear gradients, similarly from
     // -1.0 to 0.0, -2.0 to -1.0, etc).
-    //
-    // ![](https://flutter.github.io/assets-for-api-docs/assets/dart-ui/tile_mode_repeated_linear.png)
-    // ![](https://flutter.github.io/assets-for-api-docs/assets/dart-ui/tile_mode_repeated_radial.png)
-    repeated,
+    Repeated(NativeRepeatedTileMode()),
 
     // Edge is mirrored from last color to first.
     //
@@ -61,8 +52,11 @@ enum class TileMode {
     // from 2.0 to 1.0, then forwards from 2.0 to 3.0, then backwards again from
     // 4.0 to 3.0, and so forth (and for linear gradients, similarly from in the
     // negative direction).
-    //
-    // ![](https://flutter.github.io/assets-for-api-docs/assets/dart-ui/tile_mode_mirror_linear.png)
-    // ![](https://flutter.github.io/assets-for-api-docs/assets/dart-ui/tile_mode_mirror_radial.png)
-    mirror
+    Mirror(NativeMirrorTileMode())
 }
+
+/* expect */ typealias NativeTileMode = android.graphics.Shader.TileMode
+
+/* expect */ fun NativeClampTileMode(): NativeTileMode = android.graphics.Shader.TileMode.CLAMP
+/* expect */ fun NativeRepeatedTileMode(): NativeTileMode = android.graphics.Shader.TileMode.REPEAT
+/* expect */ fun NativeMirrorTileMode(): NativeTileMode = android.graphics.Shader.TileMode.MIRROR

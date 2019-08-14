@@ -18,11 +18,10 @@ package androidx.ui.graphics
 
 import androidx.ui.core.Px
 import androidx.ui.engine.geometry.Offset
-import androidx.ui.painting.Gradient
+import androidx.ui.painting.LinearGradientShader
 import androidx.ui.painting.Paint
-import androidx.ui.painting.Shader
+import androidx.ui.painting.RadialGradientShader
 import androidx.ui.painting.TileMode
-import androidx.ui.vectormath64.Matrix4
 
 val EmptyBrush = object : Brush {
     override fun applyBrush(p: Paint) {
@@ -74,15 +73,15 @@ fun obtainBrush(brush: Any?): Brush {
  * ```
  */
 fun LinearGradient(
-    vararg colors: Color,
+    colors: List<Color>,
     startX: Px,
     startY: Px,
     endX: Px,
     endY: Px,
-    tileMode: TileMode = TileMode.clamp
+    tileMode: TileMode = TileMode.Clamp
 ): LinearGradient {
     return LinearGradient(
-        colors.asList(),
+        colors,
         null,
         startX,
         startY,
@@ -114,7 +113,7 @@ fun LinearGradient(
     startY: Px,
     endX: Px,
     endY: Px,
-    tileMode: TileMode = TileMode.clamp
+    tileMode: TileMode = TileMode.Clamp
 ): LinearGradient {
     return LinearGradient(
         List<Color>(colorStops.size) { i -> colorStops[i].second },
@@ -137,7 +136,7 @@ fun LinearGradient(
  *      centerX = side1 / 2.0f,
  *      centerY = side2 / 2.0f,
  *      radius = side1 / 2.0f,
- *      tileMode = TileMode.repeated
+ *      tileMode = TileMode.Repeated
  * )
  * ```
  */
@@ -146,7 +145,7 @@ fun RadialGradient(
     centerX: Float,
     centerY: Float,
     radius: Float,
-    tileMode: TileMode = TileMode.clamp
+    tileMode: TileMode = TileMode.Clamp
 ): RadialGradient {
     return RadialGradient(
         List<Color>(colorStops.size) { i -> colorStops[i].second },
@@ -168,18 +167,18 @@ fun RadialGradient(
  *      centerX = side1 / 2.0f,
  *      centerY = side2 / 2.0f,
  *      radius = side1 / 2.0f,
- *      tileMode = TileMode.repeated
+ *      tileMode = TileMode.Repeated
  * )
  * ```
  */
 fun RadialGradient(
-    vararg colors: Color,
+    colors: List<Color>,
     centerX: Float,
     centerY: Float,
     radius: Float,
-    tileMode: TileMode = TileMode.clamp
+    tileMode: TileMode = TileMode.Clamp
 ): RadialGradient {
-    return RadialGradient(colors.asList(), null, centerX, centerY, radius, tileMode)
+    return RadialGradient(colors, null, centerX, centerY, radius, tileMode)
 }
 
 /**
@@ -197,13 +196,13 @@ fun RadialGradient(
  * ```
  */
 fun VerticalGradient(
-    vararg colors: Color,
+    colors: List<Color>,
     startY: Px,
     endY: Px,
-    tileMode: TileMode = TileMode.clamp
+    tileMode: TileMode = TileMode.Clamp
 ): LinearGradient {
     return LinearGradient(
-        colors.asList(),
+        colors,
         null,
         startX = Px.Zero,
         startY = startY,
@@ -230,7 +229,7 @@ fun VerticalGradient(
     vararg colorStops: ColorStop,
     startY: Px,
     endY: Px,
-    tileMode: TileMode = TileMode.clamp
+    tileMode: TileMode = TileMode.Clamp
 ): LinearGradient {
     return LinearGradient(
         List<Color>(colorStops.size) { i -> colorStops[i].second },
@@ -258,13 +257,13 @@ fun VerticalGradient(
  * ```
  */
 fun HorizontalGradient(
-    vararg colors: Color,
+    colors: List<Color>,
     startX: Px,
     endX: Px,
-    tileMode: TileMode = TileMode.clamp
+    tileMode: TileMode = TileMode.Clamp
 ): LinearGradient {
     return LinearGradient(
-        colors.asList(),
+        colors,
         null,
         startX = startX,
         startY = Px.Zero,
@@ -292,7 +291,7 @@ fun HorizontalGradient(
     vararg colorStops: ColorStop,
     startX: Px,
     endX: Px,
-    tileMode: TileMode = TileMode.clamp
+    tileMode: TileMode = TileMode.Clamp
 ): Brush {
     return LinearGradient(
         List<Color>(colorStops.size) { i -> colorStops[i].second },
@@ -315,19 +314,15 @@ data class LinearGradient internal constructor(
     private val startY: Px,
     private val endX: Px,
     private val endY: Px,
-    private val tileMode: TileMode = TileMode.clamp
+    private val tileMode: TileMode = TileMode.Clamp
 ) : Brush {
 
-    private val shader: Shader
-
-    init {
-        shader = Gradient.linear(
-            Offset(startX.value, startY.value),
-            Offset(endX.value, endY.value),
-            colors,
-            stops,
-            tileMode)
-    }
+    private val shader = LinearGradientShader(
+        Offset(startX.value, startY.value),
+        Offset(endX.value, endY.value),
+        colors,
+        stops,
+        tileMode)
 
     override fun applyBrush(p: Paint) {
         p.shader = shader
@@ -343,16 +338,16 @@ data class RadialGradient internal constructor(
     private val centerX: Float,
     private val centerY: Float,
     private val radius: Float,
-    private val tileMode: TileMode = TileMode.clamp
+    private val tileMode: TileMode = TileMode.Clamp
 ) : Brush {
 
-    private val shader: Shader
-
-    init {
-        shader = Gradient.radial(
-            Offset(centerX, centerY),
-            radius, colors, stops, tileMode, Matrix4())
-    }
+    private val shader = RadialGradientShader(
+        Offset(centerX, centerY),
+        radius,
+        colors,
+        stops,
+        tileMode
+    )
 
     override fun applyBrush(p: Paint) {
         p.shader = shader
