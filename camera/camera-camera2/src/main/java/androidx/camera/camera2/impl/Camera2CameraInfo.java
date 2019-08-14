@@ -70,9 +70,7 @@ final class Camera2CameraInfo implements CameraInfo {
 
     @Override
     public int getSensorRotationDegrees(@RotationValue int relativeRotation) {
-        Integer sensorOrientation =
-                mCameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION);
-        Preconditions.checkNotNull(sensorOrientation);
+        Integer sensorOrientation = getSensorOrientation();
         int relativeRotationDegrees =
                 CameraOrientationUtil.surfaceRotationToDegrees(relativeRotation);
         // Currently this assumes that a back-facing camera is always opposite to the screen.
@@ -83,6 +81,13 @@ final class Camera2CameraInfo implements CameraInfo {
                 relativeRotationDegrees,
                 sensorOrientation,
                 isOppositeFacingScreen);
+    }
+
+    int getSensorOrientation() {
+        Integer sensorOrientation =
+                mCameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION);
+        Preconditions.checkNotNull(sensorOrientation);
+        return sensorOrientation;
     }
 
     int getSupportedHardwareLevel() {
