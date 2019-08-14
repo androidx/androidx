@@ -17,7 +17,6 @@
 package androidx.ui.text
 
 import androidx.annotation.RestrictTo
-import androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP
 import androidx.annotation.RestrictTo.Scope.LIBRARY
 import androidx.annotation.VisibleForTesting
 import androidx.ui.core.Constraints
@@ -107,7 +106,7 @@ internal fun applyFloatingPointHack(layoutValue: Float): Float {
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 class TextDelegate(
-    text: AnnotatedString? = null,
+    val text: AnnotatedString? = null,
     val style: TextStyle? = null,
     val paragraphStyle: ParagraphStyle? = null,
     val maxLines: Int? = null,
@@ -125,38 +124,28 @@ class TextDelegate(
     internal var multiParagraph: MultiParagraph? = null
         private set
 
-    @VisibleForTesting
-    internal var needsLayout = true
+    private var needsLayout = true
         private set
 
-    @VisibleForTesting
-    internal var layoutTemplate: Paragraph? = null
+    private var layoutTemplate: Paragraph? = null
         private set
 
     private var overflowShader: Shader? = null
 
-    @VisibleForTesting
-    internal var hasVisualOverflow = false
+    var hasVisualOverflow = false
         private set
 
     private var lastMinWidth: Float = 0.0f
     private var lastMaxWidth: Float = 0.0f
 
-    @RestrictTo(LIBRARY_GROUP)
-    var text: AnnotatedString? = text
-        set(value) {
-            if (field == value) return
-            field = value
-            multiParagraph = null
-            needsLayout = true
-        }
-
-    internal val textStyle: TextStyle
+    private val textStyle: TextStyle
         get() = style ?: TextStyle()
 
+    @VisibleForTesting
     internal val textAlign: TextAlign =
         if (paragraphStyle?.textAlign != null) paragraphStyle.textAlign else DefaultTextAlign
 
+    @VisibleForTesting
     internal val textDirection: TextDirection? =
         paragraphStyle?.textDirection ?: DefaultTextDirection
 
@@ -168,6 +157,7 @@ class TextDelegate(
         )
     }
 
+    @VisibleForTesting
     internal fun createParagraphStyle(): ParagraphStyle {
         return ParagraphStyle(
             textAlign = textAlign,
@@ -478,10 +468,7 @@ class TextDelegate(
 
     /**
      * Returns the bottom y coordinate of the given line.
-     *
-     * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
     fun getLineBottom(lineIndex: Int): Float {
         assert(!needsLayout)
         return multiParagraph!!.getLineBottom(lineIndex)
@@ -491,10 +478,7 @@ class TextDelegate(
      * Returns the line number on which the specified text offset appears.
      * If you ask for a position before 0, you get 0; if you ask for a position
      * beyond the end of the text, you get the last line.
-     *
-     * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
     fun getLineForOffset(offset: Int): Int {
         assert(!needsLayout)
         return multiParagraph!!.getLineForOffset(offset)
@@ -502,10 +486,7 @@ class TextDelegate(
 
     /**
      * Get the primary horizontal position for the specified text offset.
-     *
-     * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
     fun getPrimaryHorizontal(offset: Int): Float {
         assert(!needsLayout)
         return multiParagraph!!.getPrimaryHorizontal(offset)
@@ -522,10 +503,7 @@ class TextDelegate(
      * the top, bottom, left and right of a character.
      *
      * Valid only after [layout] has been called.
-     *
-     * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
     fun getBoundingBox(offset: Int): Rect {
         assert(!needsLayout)
         return multiParagraph!!.getBoundingBox(offset)
