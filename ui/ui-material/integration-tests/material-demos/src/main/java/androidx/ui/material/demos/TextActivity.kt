@@ -27,7 +27,7 @@ open class TextActivity : MaterialDemoActivity() {
 
     @Composable
     override fun materialContent() {
-        val textColor = Color(0xFFFF0000.toInt())
+        val textColor = Color(0xFFFF0000)
         Text(
             text = "Hello",
             style = +themeTextStyle { h1.copy(color = textColor) })

@@ -55,7 +55,7 @@ class TextStyleTest {
 
     @Test
     fun `constructor with customized color`() {
-        val color = Color(0xFF00FF00.toInt())
+        val color = Color(0xFF00FF00)
 
         val textStyle = TextStyle(color = color)
 
@@ -118,7 +118,7 @@ class TextStyleTest {
 
     @Test
     fun `constructor with customized background`() {
-        val color = Color(0xFF00FF00.toInt())
+        val color = Color(0xFF00FF00)
 
         val textStyle = TextStyle(background = color)
 
@@ -154,7 +154,7 @@ class TextStyleTest {
 
     @Test
     fun `merge with other's color is null should use this' color`() {
-        val color = Color(0xFF00FF00.toInt())
+        val color = Color(0xFF00FF00)
         val textStyle = TextStyle(color = color)
         val otherTextStyle = TextStyle()
 
@@ -165,7 +165,7 @@ class TextStyleTest {
 
     @Test
     fun `merge with other's color is set should use other's color`() {
-        val color = Color(0xFF00FF00.toInt())
+        val color = Color(0xFF00FF00)
         val otherColor = Color(0x00FFFF00)
         val textStyle = TextStyle(color = color)
         val otherTextStyle = TextStyle(color = otherColor)
@@ -364,7 +364,7 @@ class TextStyleTest {
 
     @Test
     fun `merge with other's background is null should use this' background`() {
-        val color = Color(0xFF00FF00.toInt())
+        val color = Color(0xFF00FF00)
         val textStyle = TextStyle(background = color)
         val otherTextStyle = TextStyle()
 
@@ -375,8 +375,8 @@ class TextStyleTest {
 
     @Test
     fun `merge with other's background is set should use other's background`() {
-        val color = Color(0xFF00FF00.toInt())
-        val otherColor = Color(0xFF0000FF.toInt())
+        val color = Color(0xFF00FF00)
+        val otherColor = Color(0xFF0000FF)
         val textStyle = TextStyle(background = color)
         val otherTextStyle = TextStyle(background = otherColor)
 
@@ -440,7 +440,7 @@ class TextStyleTest {
 
     @Test
     fun `lerp color with a is Null and t is smaller than half`() {
-        val color = Color(0xFF00FF00.toInt())
+        val color = Color(0xFF00FF00)
         val t = 0.3f
         val textStyle = TextStyle(color = color)
 
@@ -457,7 +457,7 @@ class TextStyleTest {
 
     @Test
     fun `lerp color with a is Null and t is larger than half`() {
-        val color = Color(0xFF00FF00.toInt())
+        val color = Color(0xFF00FF00)
         val t = 0.8f
         val textStyle = TextStyle(color = color)
 
@@ -474,7 +474,7 @@ class TextStyleTest {
 
     @Test
     fun `lerp color with b is Null and t is smaller than half`() {
-        val color = Color(0xFF00FF00.toInt())
+        val color = Color(0xFF00FF00)
         val t = 0.3f
         val textStyle = TextStyle(color = color)
 
@@ -491,7 +491,7 @@ class TextStyleTest {
 
     @Test
     fun `lerp color with b is Null and t is larger than half`() {
-        val color = Color(0xFF00FF00.toInt())
+        val color = Color(0xFF00FF00)
         val t = 0.8f
         val textStyle = TextStyle(color = color)
 
@@ -508,7 +508,7 @@ class TextStyleTest {
 
     @Test
     fun `lerp color with a and b are not Null`() {
-        val color1 = Color(0xFF00FF00.toInt())
+        val color1 = Color(0xFF00FF00)
         val color2 = Color(0x00FFFF00)
         val t = 0.3f
         val textStyle1 = TextStyle(color = color1)
@@ -1211,7 +1211,7 @@ class TextStyleTest {
 
     @Test
     fun `lerp background with a is Null and t is smaller than half`() {
-        val color = Color(0xFF00FF00.toInt())
+        val color = Color(0xFF00FF00)
         val t = 0.2f
         val textStyle = TextStyle(background = color)
 
@@ -1222,7 +1222,7 @@ class TextStyleTest {
 
     @Test
     fun `lerp background with a is Null and t is larger than half`() {
-        val color = Color(0xFF00FF00.toInt())
+        val color = Color(0xFF00FF00)
         val t = 0.8f
         val textStyle = TextStyle(background = color)
 
@@ -1233,7 +1233,7 @@ class TextStyleTest {
 
     @Test
     fun `lerp background with b is Null and t is smaller than half`() {
-        val color = Color(0xFF00FF00.toInt())
+        val color = Color(0xFF00FF00)
         val t = 0.2f
         val textStyle = TextStyle(background = color)
 
@@ -1245,7 +1245,7 @@ class TextStyleTest {
     @Test
     fun `lerp background with b is Null and t is larger than half`() {
         val t = 0.8f
-        val textStyle = TextStyle(background = Color(0xFF00FF00.toInt()))
+        val textStyle = TextStyle(background = Color(0xFF00FF00))
 
         val newTextStyle = TextStyle.lerp(a = textStyle, t = t)
 
@@ -1366,7 +1366,7 @@ class TextStyleTest {
     @Test
     fun `compareTo textStyle with different layout returns LAYOUT`() {
         val fontSize = 10.sp
-        val bgColor = Color(0xFFFFFF00.toInt())
+        val bgColor = Color(0xFFFFFF00)
         val fontFeatureSettings = "\"kern\" 0"
 
         val textStyle = TextStyle(
@@ -1382,7 +1382,7 @@ class TextStyleTest {
             background = bgColor,
             decoration = TextDecoration.Underline,
             fontFamily = FontFamily(genericFamily = "sans-serif"),
-            shadow = Shadow(Color(0xFF0000FF.toInt()), Offset(1f, 2f), 3.px)
+            shadow = Shadow(Color(0xFF0000FF), Offset(1f, 2f), 3.px)
         )
 
         assertThat(
@@ -1423,11 +1423,11 @@ class TextStyleTest {
     @Test
     fun `compareTo textStyle with different paint returns paint`() {
         val fontSize = 10.sp
-        val color1 = Color(0xFF00FF00.toInt())
+        val color1 = Color(0xFF00FF00)
         val color2 = Color(0x00FFFF00)
 
-        val shadow1 = Shadow(Color(0xFF0000FF.toInt()), Offset(1f, 2f), 3.px)
-        val shadow2 = Shadow(Color(0xFF00FFFF.toInt()), Offset(1f, 2f), 3.px)
+        val shadow1 = Shadow(Color(0xFF0000FF), Offset(1f, 2f), 3.px)
+        val shadow2 = Shadow(Color(0xFF00FFFF), Offset(1f, 2f), 3.px)
 
         val textStyle = TextStyle(
             color = color1,

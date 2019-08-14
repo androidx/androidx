@@ -19,29 +19,29 @@ package androidx.ui.framework.demos.gestures
 import androidx.ui.graphics.Color
 import kotlin.random.Random
 
-val DefaultBackgroundColor = Color(0xffffffff.toInt())
+val DefaultBackgroundColor = Color(0xffffffff)
 val PressedColor = Color(0x1f000000)
 val BorderColor = Color(0x1f000000)
 
-val Red = Color(0xFFf44336.toInt())
-val Pink = Color(0xFFe91e63.toInt())
-val Purple = Color(0xFF9c27b0.toInt())
-val DeepPurple = Color(0xFF673ab7.toInt())
-val Indigo = Color(0xFF3f51b5.toInt())
-val Blue = Color(0xFF2196f3.toInt())
-val LightBlue = Color(0xFF03a9f4.toInt())
-val Cyan = Color(0xFF00bcd4.toInt())
-val Teal = Color(0xFF009688.toInt())
-val Green = Color(0xFF4caf50.toInt())
-val LightGreen = Color(0xFF8bc34a.toInt())
-val Lime = Color(0xFFcddc39.toInt())
-val Yellow = Color(0xFFffeb3b.toInt())
-val Amber = Color(0xFFffc107.toInt())
-val Orange = Color(0xFFff9800.toInt())
-val DeepOrange = Color(0xFFff5722.toInt())
-val Brown = Color(0xFF795548.toInt())
-val Grey = Color(0xFF9e9e9e.toInt())
-val BlueGrey = Color(0xFF607d8b.toInt())
+val Red = Color(0xFFf44336)
+val Pink = Color(0xFFe91e63)
+val Purple = Color(0xFF9c27b0)
+val DeepPurple = Color(0xFF673ab7)
+val Indigo = Color(0xFF3f51b5)
+val Blue = Color(0xFF2196f3)
+val LightBlue = Color(0xFF03a9f4)
+val Cyan = Color(0xFF00bcd4)
+val Teal = Color(0xFF009688)
+val Green = Color(0xFF4caf50)
+val LightGreen = Color(0xFF8bc34a)
+val Lime = Color(0xFFcddc39)
+val Yellow = Color(0xFFffeb3b)
+val Amber = Color(0xFFffc107)
+val Orange = Color(0xFFff9800)
+val DeepOrange = Color(0xFFff5722)
+val Brown = Color(0xFF795548)
+val Grey = Color(0xFF9e9e9e)
+val BlueGrey = Color(0xFF607d8b)
 
 val Colors = listOf(
     Red,
@@ -107,18 +107,18 @@ fun List<Color>.inOrder(current: Color?, forward: Boolean): Color {
     return this[next]
 }
 
+@Suppress("NOTHING_TO_INLINE")
+private inline fun mergeColor(c1: Float, a1: Float, c2: Float, a2: Float): Float {
+    return (c1 * a1 + (c2 * a2) * (1f - a1)) / (a1 + a2 * (1f - a1))
+}
+
 fun Color.over(that: Color): Color {
+    val a1 = alpha
+    val a2 = that.alpha
+    val r = mergeColor(red, a1, that.red, a2)
+    val g = mergeColor(green, a1, that.red, a2)
+    val b = mergeColor(blue, a1, that.blue, a2)
+    val a = a1 + (a2 * (1 - a1))
 
-    val a = this.getComponents()
-    val b = that.getComponents()
-
-    val result = FloatArray(4)
-
-    for (i in 0..2) {
-        result[i] = (a[i] * a[3] + (b[i] * b[3]) * (1 - a[3])) / (a[3] + b[3] * (1 - a[3]))
-    }
-
-    result[3] = a[3] + b[3] * (1 - a[3])
-
-    return Color(result[0], result[1], result[2], result[3])
+    return Color(red = r, green = g, blue = b, alpha = a)
 }

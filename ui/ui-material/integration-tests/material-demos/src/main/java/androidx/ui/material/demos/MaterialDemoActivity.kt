@@ -32,6 +32,7 @@ import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.PreferenceManager.getDefaultSharedPreferences
 import androidx.ui.core.setContent
 import androidx.ui.graphics.Color
+import androidx.ui.graphics.toArgb
 import androidx.ui.material.MaterialColors
 import androidx.ui.material.MaterialTheme
 import kotlin.random.Random

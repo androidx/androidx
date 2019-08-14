@@ -40,7 +40,7 @@ fun RippleDemo() {
             Padding(padding = 50.dp) {
                 Card(
                     shape = RoundedCornerShape(100.px),
-                    border = Border(Color(0x80000000.toInt()), 1.dp)
+                    border = Border(Color(0x80000000), 1.dp)
                 ) {
                     Ripple(bounded = true) {
                         Container(expanded = true) {

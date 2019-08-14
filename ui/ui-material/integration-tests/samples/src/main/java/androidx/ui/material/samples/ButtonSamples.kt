@@ -25,7 +25,6 @@ import androidx.ui.graphics.Color
 import androidx.ui.layout.Padding
 import androidx.ui.material.BaseButton
 import androidx.ui.material.Button
-import androidx.ui.material.ContainedButtonStyle
 import androidx.ui.material.OutlinedButtonStyle
 import androidx.ui.material.TextButtonStyle
 import androidx.ui.text.TextStyle
@@ -63,7 +62,7 @@ fun TextButtonSample(onClick: () -> Unit) {
 @Composable
 fun ButtonSample(onClick: () -> Unit) {
     Button(onClick) {
-        Text("Custom text style", TextStyle(color = Color.Lime))
+        Text("Custom text style", TextStyle(color = Color.Green))
     }
 }
 

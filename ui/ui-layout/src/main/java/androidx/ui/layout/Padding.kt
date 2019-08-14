@@ -45,7 +45,7 @@ data class EdgeInsets(
  * Example usage:
  *     Row {
  *         Padding(padding=EdgeInsets(right=20.dp)) {
- *             SizedRectangle(color=Color(0xFFFF0000.toInt()), width=20.dp, height= 20.dp)
+ *             SizedRectangle(color=Color(0xFFFF0000), width=20.dp, height= 20.dp)
  *         }
  *     }
  */
@@ -88,7 +88,7 @@ fun Padding(
  *
  * Example usage:
  *     Padding(left=20.dp, right=20.dp) {
- *         SizedRectangle(color=Color(0xFFFF0000.toInt()), width=20.dp, height= 20.dp)
+ *         SizedRectangle(color=Color(0xFFFF0000), width=20.dp, height= 20.dp)
  *     }
  */
 @Composable
@@ -114,7 +114,7 @@ fun Padding(
  *
  * Example usage:
  *     Padding(padding=20.dp) {
- *         SizedRectangle(color=Color(0xFFFF0000.toInt()), width=20.dp, height= 20.dp)
+ *         SizedRectangle(color=Color(0xFFFF0000), width=20.dp, height= 20.dp)
  *     }
  */
 @Composable

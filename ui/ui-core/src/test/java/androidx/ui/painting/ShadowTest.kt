@@ -32,14 +32,14 @@ class ShadowTest {
     @Test
     fun `default value`() {
         val shadow = Shadow()
-        assertThat(shadow.color, equalTo(Color(0xFF000000.toInt())))
+        assertThat(shadow.color, equalTo(Color(0xFF000000)))
         assertThat(shadow.blurRadius, equalTo(0.px))
         assertThat(shadow.offset, equalTo(Offset.zero))
     }
 
     @Test
     fun `constructor`() {
-        val color = Color(0xFF00FF00.toInt())
+        val color = Color(0xFF00FF00)
         val offset = Offset(2f, 3f)
         val blurRadius = 1.px
 
@@ -51,8 +51,8 @@ class ShadowTest {
 
     @Test
     fun `lerp`() {
-        val colorA = Color(0xFF00FF00.toInt())
-        val colorB = Color(0xFF0000FF.toInt())
+        val colorA = Color(0xFF00FF00)
+        val colorB = Color(0xFF0000FF)
         val offsetA = Offset(5f, 10f)
         val offsetB = Offset(0f, 5f)
         val radiusA = 0.px

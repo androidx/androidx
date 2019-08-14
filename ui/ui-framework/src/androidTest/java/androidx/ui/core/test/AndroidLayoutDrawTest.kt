@@ -52,6 +52,7 @@ import androidx.ui.core.toRect
 import androidx.ui.engine.geometry.Rect
 import androidx.ui.framework.test.TestActivity
 import androidx.ui.graphics.Color
+import androidx.ui.graphics.toArgb
 import androidx.ui.painting.Paint
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertSame
@@ -91,8 +92,8 @@ class AndroidLayoutDrawTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun simpleDrawTest() {
-        val yellow = Color(0xFFFFFF00.toInt())
-        val red = Color(0xFF800000.toInt())
+        val yellow = Color(0xFFFFFF00)
+        val red = Color(0xFF800000)
         val model = SquareModel(outerColor = yellow, innerColor = red, size = 10.ipx)
         composeSquares(model)
 
@@ -103,8 +104,8 @@ class AndroidLayoutDrawTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun nestedDrawTest() {
-        val yellow = Color(0xFFFFFF00.toInt())
-        val red = Color(0xFF800000.toInt())
+        val yellow = Color(0xFFFFFF00)
+        val red = Color(0xFF800000)
         val model = SquareModel(outerColor = yellow, innerColor = red, size = 10.ipx)
         composeNestedSquares(model)
 
@@ -115,15 +116,15 @@ class AndroidLayoutDrawTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun recomposeDrawTest() {
-        val white = Color(0xFFFFFFFF.toInt())
-        val blue = Color(0xFF000080.toInt())
+        val white = Color(0xFFFFFFFF)
+        val blue = Color(0xFF000080)
         val model = SquareModel(outerColor = blue, innerColor = white)
         composeSquares(model)
         validateSquareColors(outerColor = blue, innerColor = white, size = 10)
 
         drawLatch = CountDownLatch(1)
-        val red = Color(0xFF800000.toInt())
-        val yellow = Color(0xFFFFFF00.toInt())
+        val red = Color(0xFF800000)
+        val yellow = Color(0xFFFFFF00)
         activityTestRule.runOnUiThreadIR {
             model.outerColor = red
             model.innerColor = yellow
@@ -136,14 +137,14 @@ class AndroidLayoutDrawTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun recomposeNestedRepaintBoundariesColorChange() {
-        val white = Color(0xFFFFFFFF.toInt())
-        val blue = Color(0xFF000080.toInt())
+        val white = Color(0xFFFFFFFF)
+        val blue = Color(0xFF000080)
         val model = SquareModel(outerColor = blue, innerColor = white)
         composeSquaresWithNestedRepaintBoundaries(model)
         validateSquareColors(outerColor = blue, innerColor = white, size = 10)
 
         drawLatch = CountDownLatch(1)
-        val yellow = Color(0xFFFFFF00.toInt())
+        val yellow = Color(0xFFFFFF00)
         activityTestRule.runOnUiThreadIR {
             model.innerColor = yellow
         }
@@ -154,8 +155,8 @@ class AndroidLayoutDrawTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun recomposeNestedRepaintBoundariesSizeChange() {
-        val white = Color(0xFFFFFFFF.toInt())
-        val blue = Color(0xFF000080.toInt())
+        val white = Color(0xFFFFFFFF)
+        val blue = Color(0xFF000080)
         val model = SquareModel(outerColor = blue, innerColor = white)
         composeSquaresWithNestedRepaintBoundaries(model)
         validateSquareColors(outerColor = blue, innerColor = white, size = 10)
@@ -173,8 +174,8 @@ class AndroidLayoutDrawTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun recomposeRepaintBoundariesMove() {
-        val white = Color(0xFFFFFFFF.toInt())
-        val blue = Color(0xFF000080.toInt())
+        val white = Color(0xFFFFFFFF)
+        val blue = Color(0xFF000080)
         val model = SquareModel(outerColor = blue, innerColor = white)
         var offset = OffsetModel(10.ipx)
         composeMovingSquaresWithRepaintBoundary(model, offset)
@@ -201,8 +202,8 @@ class AndroidLayoutDrawTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun recomposeMove() {
-        val white = Color(0xFFFFFFFF.toInt())
-        val blue = Color(0xFF000080.toInt())
+        val white = Color(0xFFFFFFFF)
+        val blue = Color(0xFF000080)
         val model = SquareModel(outerColor = blue, innerColor = white)
         var offset = OffsetModel(10.ipx)
         composeMovingSquares(model, offset)
@@ -228,8 +229,8 @@ class AndroidLayoutDrawTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun recomposeSizeTest() {
-        val white = Color(0xFFFFFFFF.toInt())
-        val blue = Color(0xFF000080.toInt())
+        val white = Color(0xFFFFFFFF)
+        val blue = Color(0xFF000080)
         val model = SquareModel(outerColor = blue, innerColor = white)
         composeSquares(model)
         validateSquareColors(outerColor = blue, innerColor = white, size = 10)
@@ -243,7 +244,7 @@ class AndroidLayoutDrawTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun simpleSquareColorAndSizeTest() {
-        val green = Color(0xFF00FF00.toInt())
+        val green = Color(0xFF00FF00)
         val model = SquareModel(size = 20.ipx, outerColor = green, innerColor = green)
 
         activityTestRule.runOnUiThreadIR {
@@ -262,7 +263,7 @@ class AndroidLayoutDrawTest {
         validateSquareColors(outerColor = green, innerColor = green, size = 30)
 
         drawLatch = CountDownLatch(1)
-        val blue = Color(0xFF0000FF.toInt())
+        val blue = Color(0xFF0000FF)
 
         activityTestRule.runOnUiThreadIR {
             model.innerColor = blue
@@ -275,8 +276,8 @@ class AndroidLayoutDrawTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun noPlaceNoDraw() {
-        val green = Color(0xFF00FF00.toInt())
-        val white = Color(0xFFFFFFFF.toInt())
+        val green = Color(0xFF00FF00)
+        val white = Color(0xFFFFFFFF)
         val model = SquareModel(size = 20.ipx, outerColor = green, innerColor = white)
 
         activityTestRule.runOnUiThreadIR {
@@ -303,8 +304,8 @@ class AndroidLayoutDrawTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun drawOrderWithChildren() {
-        val green = Color(0xFF00FF00.toInt())
-        val white = Color(0xFFFFFFFF.toInt())
+        val green = Color(0xFF00FF00)
+        val white = Color(0xFFFFFFFF)
         val model = SquareModel(size = 20.ipx, outerColor = green, innerColor = white)
 
         activityTestRule.runOnUiThreadIR {
@@ -498,8 +499,8 @@ class AndroidLayoutDrawTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun measureInLayoutDoesNotAffectParentSize() {
-        val white = Color(0xFFFFFFFF.toInt())
-        val blue = Color(0xFF000080.toInt())
+        val white = Color(0xFFFFFFFF)
+        val blue = Color(0xFF000080)
         val model = SquareModel(outerColor = blue, innerColor = white)
         var measureCalls = 0
         var layoutCalls = 0
@@ -641,8 +642,8 @@ class AndroidLayoutDrawTest {
     fun testRelayoutOnNewChild() {
         val drawChild = DoDraw()
 
-        val outerColor = Color(0xFF000080.toInt())
-        val innerColor = Color(0xFFFFFFFF.toInt())
+        val outerColor = Color(0xFF000080)
+        val innerColor = Color(0xFFFFFFFF)
         activityTestRule.runOnUiThreadIR {
             activity.setContent {
                 AtLeastSize(size = 30.ipx) {
@@ -719,8 +720,8 @@ class AndroidLayoutDrawTest {
     fun testRedrawOnRemovedChild() {
         val drawChild = DoDraw(true)
 
-        val outerColor = Color(0xFF000080.toInt())
-        val innerColor = Color(0xFFFFFFFF.toInt())
+        val outerColor = Color(0xFF000080)
+        val innerColor = Color(0xFFFFFFFF)
         activityTestRule.runOnUiThreadIR {
             activity.setContent {
                 AtLeastSize(size = 30.ipx) {
@@ -763,8 +764,8 @@ class AndroidLayoutDrawTest {
     fun testRelayoutOnRemovedChild() {
         val drawChild = DoDraw(true)
 
-        val outerColor = Color(0xFF000080.toInt())
-        val innerColor = Color(0xFFFFFFFF.toInt())
+        val outerColor = Color(0xFF000080)
+        val innerColor = Color(0xFFFFFFFF)
         activityTestRule.runOnUiThreadIR {
             activity.setContent {
                 AtLeastSize(size = 30.ipx) {
@@ -887,7 +888,7 @@ class AndroidLayoutDrawTest {
                     }
                 }, onPaint = { canvas, parentSize ->
                     val paint = Paint()
-                    paint.color = Color(0xFF000000.toInt())
+                    paint.color = Color(0xFF000000)
                     canvas.drawRect(parentSize.toRect(), paint)
                 })
             }
@@ -1082,8 +1083,8 @@ class DrawCounterListener(private val view: View) :
 @Model
 class SquareModel(
     var size: IntPx = 10.ipx,
-    var outerColor: Color = Color(0xFF000080.toInt()),
-    var innerColor: Color = Color(0xFFFFFFFF.toInt())
+    var outerColor: Color = Color(0xFF000080),
+    var innerColor: Color = Color(0xFFFFFFFF)
 )
 
 @Model

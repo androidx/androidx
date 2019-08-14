@@ -110,17 +110,17 @@ fun FlexRowUsage() {
     FlexRow {
         expanded(flex = 2f) {
             Center {
-                SizedRectangle(color = Color(0xFF0000FF.toInt()), width = 40.dp, height = 40.dp)
+                SizedRectangle(color = Color(0xFF0000FF), width = 40.dp, height = 40.dp)
             }
-            SizedRectangle(color = Color(0xFF0000FF.toInt()), height = 40.dp)
+            SizedRectangle(color = Color(0xFF0000FF), height = 40.dp)
         }
         inflexible {
-            SizedRectangle(color = Color(0xFFFF0000.toInt()), width = 40.dp)
-            SizedRectangle(color = Color(0xFF00FF00.toInt()), width = 50.dp)
-            SizedRectangle(color = Color(0xFF0000FF.toInt()), width = 60.dp)
+            SizedRectangle(color = Color(0xFFFF0000), width = 40.dp)
+            SizedRectangle(color = Color(0xFF00FF00), width = 50.dp)
+            SizedRectangle(color = Color(0xFF0000FF), width = 60.dp)
         }
         expanded(flex = 1f) {
-            SizedRectangle(color = Color(0xFF00FF00.toInt()))
+            SizedRectangle(color = Color(0xFF00FF00))
         }
     }
 }
@@ -130,17 +130,17 @@ fun FlexColumnUsage() {
     FlexColumn {
         expanded(flex = 2f) {
             Center {
-                SizedRectangle(color = Color(0xFF0000FF.toInt()), width = 40.dp, height = 40.dp)
+                SizedRectangle(color = Color(0xFF0000FF), width = 40.dp, height = 40.dp)
             }
-            SizedRectangle(color = Color(0xFF0000FF.toInt()), width = 40.dp)
+            SizedRectangle(color = Color(0xFF0000FF), width = 40.dp)
         }
         inflexible {
-            SizedRectangle(color = Color(0xFFFF0000.toInt()), height = 40.dp)
-            SizedRectangle(color = Color(0xFF00FF00.toInt()), height = 50.dp)
-            SizedRectangle(color = Color(0xFF0000FF.toInt()), height = 60.dp)
+            SizedRectangle(color = Color(0xFFFF0000), height = 40.dp)
+            SizedRectangle(color = Color(0xFF00FF00), height = 50.dp)
+            SizedRectangle(color = Color(0xFF0000FF), height = 60.dp)
         }
         expanded(flex = 1f) {
-            SizedRectangle(color = Color(0xFF00FF00.toInt()))
+            SizedRectangle(color = Color(0xFF00FF00))
         }
     }
 }
@@ -148,25 +148,25 @@ fun FlexColumnUsage() {
 @Composable
 fun RowUsage() {
     Row {
-        SizedRectangle(color = Color(0xFF0000FF.toInt()), width = 40.dp, height = 40.dp)
-        SizedRectangle(color = Color(0xFFFF0000.toInt()), width = 40.dp, height = 80.dp)
-        SizedRectangle(color = Color(0xFF00FF00.toInt()), width = 80.dp, height = 70.dp)
+        SizedRectangle(color = Color(0xFF0000FF), width = 40.dp, height = 40.dp)
+        SizedRectangle(color = Color(0xFFFF0000), width = 40.dp, height = 80.dp)
+        SizedRectangle(color = Color(0xFF00FF00), width = 80.dp, height = 70.dp)
     }
 }
 
 @Composable
 fun ColumnUsage() {
     Column {
-        SizedRectangle(color = Color(0xFF0000FF.toInt()), width = 40.dp, height = 40.dp)
-        SizedRectangle(color = Color(0xFFFF0000.toInt()), width = 40.dp, height = 80.dp)
-        SizedRectangle(color = Color(0xFF00FF00.toInt()), width = 80.dp, height = 70.dp)
+        SizedRectangle(color = Color(0xFF0000FF), width = 40.dp, height = 40.dp)
+        SizedRectangle(color = Color(0xFFFF0000), width = 40.dp, height = 80.dp)
+        SizedRectangle(color = Color(0xFF00FF00), width = 80.dp, height = 70.dp)
     }
 }
 
 @Composable
 fun AlignUsage() {
     Align(alignment = Alignment.BottomRight) {
-        SizedRectangle(color = Color(0xFF0000FF.toInt()), width = 40.dp, height = 40.dp)
+        SizedRectangle(color = Color(0xFF0000FF), width = 40.dp, height = 40.dp)
     }
 }
 
@@ -174,32 +174,32 @@ fun AlignUsage() {
 fun StackUsage() {
     Stack {
         aligned(Alignment.Center) {
-            SizedRectangle(color = Color(0xFF0000FF.toInt()), width = 300.dp, height = 300.dp)
+            SizedRectangle(color = Color(0xFF0000FF), width = 300.dp, height = 300.dp)
         }
         aligned(Alignment.TopLeft) {
-            SizedRectangle(color = Color(0xFF00FF00.toInt()), width = 150.dp, height = 150.dp)
+            SizedRectangle(color = Color(0xFF00FF00), width = 150.dp, height = 150.dp)
         }
         aligned(Alignment.BottomRight) {
-            SizedRectangle(color = Color(0xFFFF0000.toInt()), width = 150.dp, height = 150.dp)
+            SizedRectangle(color = Color(0xFFFF0000), width = 150.dp, height = 150.dp)
         }
         positioned(
             leftInset = null, topInset = 20.dp, rightInset = null, bottomInset = 20.dp,
             fallbackAlignment = Alignment.BottomRight
         ) {
-            SizedRectangle(color = Color(0xFFFFA500.toInt()), width = 80.dp)
-            SizedRectangle(color = Color(0xFFA52A2A.toInt()), width = 20.dp)
+            SizedRectangle(color = Color(0xFFFFA500), width = 80.dp)
+            SizedRectangle(color = Color(0xFFA52A2A), width = 20.dp)
         }
         positioned(
             leftInset = 40.dp, topInset = null, rightInset = null, bottomInset = null,
             fallbackAlignment = Alignment.BottomRight
         ) {
-            SizedRectangle(color = Color(0xFFB22222.toInt()), width = 20.dp)
+            SizedRectangle(color = Color(0xFFB22222), width = 20.dp)
         }
         positioned(
             leftInset = null, topInset = null, rightInset = 40.dp, bottomInset = null,
             fallbackAlignment = Alignment.BottomRight
         ) {
-            SizedRectangle(color = Color(0xFFFFFF00.toInt()), width = 40.dp)
+            SizedRectangle(color = Color(0xFFFFFF00), width = 40.dp)
         }
     }
 }
@@ -208,7 +208,7 @@ fun StackUsage() {
 fun ConstrainedBoxUsage() {
     Align(alignment = Alignment.Center) {
         ConstrainedBox(constraints = DpConstraints.tightConstraints(50.dp, 50.dp)) {
-            SizedRectangle(color = Color(0xFFFF0000.toInt()))
+            SizedRectangle(color = Color(0xFFFF0000))
         }
     }
 }
@@ -217,10 +217,10 @@ fun ConstrainedBoxUsage() {
 fun PaddingUsage() {
     Row {
         Padding(padding = 20.dp) {
-            SizedRectangle(color = Color(0xFFFF0000.toInt()), width = 20.dp, height = 20.dp)
+            SizedRectangle(color = Color(0xFFFF0000), width = 20.dp, height = 20.dp)
         }
         Padding(padding = 20.dp) {
-            SizedRectangle(color = Color(0xFFFF0000.toInt()), width = 20.dp, height = 20.dp)
+            SizedRectangle(color = Color(0xFFFF0000), width = 20.dp, height = 20.dp)
         }
     }
 }
@@ -278,7 +278,7 @@ fun SingleCompositionRect() {
 }
 
 @Model
-class RectColor(var color: Color = Color(0xFF00FF00.toInt()), var cnt: Int = 4)
+class RectColor(var color: Color = Color(0xFF00FF00), var cnt: Int = 4)
 
 val rectColorModel = RectColor()
 

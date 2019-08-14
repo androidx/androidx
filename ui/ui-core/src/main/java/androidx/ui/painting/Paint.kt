@@ -19,6 +19,7 @@ package androidx.ui.painting
 import android.graphics.BlurMaskFilter
 import android.graphics.PorterDuffColorFilter
 import androidx.ui.graphics.Color
+import androidx.ui.graphics.toArgb
 
 class Paint {
 

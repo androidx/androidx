@@ -1069,77 +1069,45 @@ package androidx.ui.graphics {
     method public static androidx.ui.graphics.Brush obtainBrush(Object? brush);
   }
 
-  @AnyThread public final class Color {
-    method public operator int compareTo(androidx.ui.graphics.Color other);
+  public final class Color {
     method public androidx.ui.graphics.Color convert(androidx.ui.graphics.ColorSpace colorSpace);
     method public androidx.ui.graphics.Color copy(float alpha = this.alpha, float red = this.red, float green = this.green, float blue = this.blue);
     method public float getAlpha();
     method public float getBlue();
     method public androidx.ui.graphics.ColorSpace getColorSpace();
-    method public float getComponent(@IntRange(from=0, to=3) int component);
-    method public int getComponentCount();
-    method @Size(4) public float[] getComponents();
-    method @Size(4) public float[] getComponents(@Size(4) float[] components);
     method public float getGreen();
-    method public androidx.ui.graphics.ColorSpace.Model getModel();
     method public float getRed();
-    method public boolean isSrgb();
-    method public boolean isWideGamut();
-    method public float luminance();
-    method @ColorInt public int toArgb();
+    method public long getValue();
     property public final float alpha;
     property public final float blue;
     property public final androidx.ui.graphics.ColorSpace colorSpace;
-    property public final int componentCount;
     property public final float green;
-    property public final boolean isSrgb;
-    property public final boolean isWideGamut;
-    property public final androidx.ui.graphics.ColorSpace.Model model;
     property public final float red;
     field public static final androidx.ui.graphics.Color.Companion! Companion;
   }
 
   public static final class Color.Companion {
-    method public androidx.ui.graphics.Color getAqua();
     method public androidx.ui.graphics.Color getBlack();
     method public androidx.ui.graphics.Color getBlue();
     method public androidx.ui.graphics.Color getCyan();
     method public androidx.ui.graphics.Color getDarkGray();
-    method public androidx.ui.graphics.Color getFuchsia();
     method public androidx.ui.graphics.Color getGray();
     method public androidx.ui.graphics.Color getGreen();
     method public androidx.ui.graphics.Color getLightGray();
-    method public androidx.ui.graphics.Color getLime();
     method public androidx.ui.graphics.Color getMagenta();
-    method public androidx.ui.graphics.Color getMaroon();
-    method public androidx.ui.graphics.Color getNavy();
-    method public androidx.ui.graphics.Color getOlive();
-    method public androidx.ui.graphics.Color getPurple();
     method public androidx.ui.graphics.Color getRed();
-    method public androidx.ui.graphics.Color getSilver();
-    method public androidx.ui.graphics.Color getTeal();
     method public androidx.ui.graphics.Color getTransparent();
     method public androidx.ui.graphics.Color getWhite();
     method public androidx.ui.graphics.Color getYellow();
-    method public androidx.ui.graphics.Color parse(@Size(min=3) String colorString);
-    property public final androidx.ui.graphics.Color Aqua;
     property public final androidx.ui.graphics.Color Black;
     property public final androidx.ui.graphics.Color Blue;
     property public final androidx.ui.graphics.Color Cyan;
     property public final androidx.ui.graphics.Color DarkGray;
-    property public final androidx.ui.graphics.Color Fuchsia;
     property public final androidx.ui.graphics.Color Gray;
     property public final androidx.ui.graphics.Color Green;
     property public final androidx.ui.graphics.Color LightGray;
-    property public final androidx.ui.graphics.Color Lime;
     property public final androidx.ui.graphics.Color Magenta;
-    property public final androidx.ui.graphics.Color Maroon;
-    property public final androidx.ui.graphics.Color Navy;
-    property public final androidx.ui.graphics.Color Olive;
-    property public final androidx.ui.graphics.Color Purple;
     property public final androidx.ui.graphics.Color Red;
-    property public final androidx.ui.graphics.Color Silver;
-    property public final androidx.ui.graphics.Color Teal;
     property public final androidx.ui.graphics.Color Transparent;
     property public final androidx.ui.graphics.Color White;
     property public final androidx.ui.graphics.Color Yellow;
@@ -1150,8 +1118,11 @@ package androidx.ui.graphics {
     method public static androidx.ui.graphics.Color Color(float red, float green, float blue, float alpha = 1f, androidx.ui.graphics.ColorSpace colorSpace = colorSpace);
     method public static androidx.ui.graphics.Color Color(float[] components, androidx.ui.graphics.ColorSpace colorSpace);
     method public static androidx.ui.graphics.Color Color(@ColorInt int color);
+    method public static androidx.ui.graphics.Color Color(long color);
     method public static androidx.ui.graphics.Color Color(@IntRange(from=0, to=255) int red, @IntRange(from=0, to=255) int green, @IntRange(from=0, to=255) int blue, @IntRange(from=0, to=255) int alpha = 0xFF);
     method public static androidx.ui.graphics.Color lerp(androidx.ui.graphics.Color a, androidx.ui.graphics.Color b, @FloatRange(from=0.0, to=1.0) float t);
+    method public static float luminance(androidx.ui.graphics.Color);
+    method @ColorInt public static int toArgb(androidx.ui.graphics.Color);
   }
 
   @AnyThread public abstract class ColorSpace {

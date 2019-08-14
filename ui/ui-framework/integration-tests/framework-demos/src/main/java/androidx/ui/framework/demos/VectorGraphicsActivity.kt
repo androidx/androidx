@@ -127,9 +127,9 @@ class VectorGraphicsActivity : Activity() {
 
         Path(
             fill = VerticalGradient(
-                0.0f to Color.Aqua,
-                0.3f to Color.Lime,
-                1.0f to Color.Fuchsia,
+                0.0f to Color.Cyan,
+                0.3f to Color.Green,
+                1.0f to Color.Magenta,
                 startY = Px.Zero,
                 endY = Px(vectorHeight)
             ),
@@ -142,9 +142,9 @@ class VectorGraphicsActivity : Activity() {
         val length = 150.0f
         Path(
             fill = RadialGradient(
-                Color.Navy,
-                Color.Olive,
-                Color.Teal,
+                Color(0xFF000080),
+                Color(0xFF808000),
+                Color(0xFF008080),
                 centerX = length / 2.0f,
                 centerY = length / 2.0f,
                 radius = length / 2.0f,
@@ -165,7 +165,7 @@ class VectorGraphicsActivity : Activity() {
         val side2 = 150.0f
         Path(
             fill = RadialGradient(
-                0.0f to Color.Maroon,
+                0.0f to Color(0xFF800000),
                 0.3f to Color.Cyan,
                 0.8f to Color.Yellow,
                 centerX = side1 / 2.0f,

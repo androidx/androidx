@@ -107,7 +107,7 @@ fun Align(alignment: Alignment, children: @Composable() () -> Unit) {
  *
  * Example usage:
  * Center {
- *    SizedRectangle(color = Color(0xFF0000FF.toInt()), width = 40.dp, height = 40.dp)
+ *    SizedRectangle(color = Color(0xFF0000FF), width = 40.dp, height = 40.dp)
  * }
  */
 @Composable

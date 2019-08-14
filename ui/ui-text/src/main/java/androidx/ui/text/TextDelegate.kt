@@ -308,7 +308,7 @@ class TextDelegate(
                 Gradient.linear(
                     Offset(fadeStart, 0.0f),
                     Offset(fadeEnd, 0.0f),
-                    listOf(Color(0xFFFFFFFF.toInt()), Color(0x00FFFFFF))
+                    listOf(Color(0xFFFFFFFF), Color(0x00FFFFFF))
                 )
             } else {
                 val fadeEnd = size.height
@@ -316,7 +316,7 @@ class TextDelegate(
                 Gradient.linear(
                     Offset(0.0f, fadeStart),
                     Offset(0.0f, fadeEnd),
-                    listOf(Color(0xFFFFFFFF.toInt()), Color(0x00FFFFFF))
+                    listOf(Color(0xFFFFFFFF), Color(0x00FFFFFF))
                 )
             }
         } else {

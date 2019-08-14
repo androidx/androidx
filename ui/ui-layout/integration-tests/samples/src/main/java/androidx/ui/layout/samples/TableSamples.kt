@@ -33,7 +33,7 @@ fun SimpleTable() {
             for (i in 0 until 8) {
                 tableRow {
                     Padding(2.dp) {
-                        SizedRectangle(color = Color.Fuchsia, height = 50.dp)
+                        SizedRectangle(color = Color.Magenta, height = 50.dp)
                     }
                 }
             }
@@ -61,9 +61,9 @@ fun TableWithDifferentColumnWidths() {
                 tableRow { j ->
                     Padding(2.dp) {
                         if (j == 0) {
-                            SizedRectangle(color = Color.Fuchsia, width = 25.dp, height = 25.dp)
+                            SizedRectangle(color = Color.Magenta, width = 25.dp, height = 25.dp)
                         } else {
-                            SizedRectangle(color = Color.Fuchsia, height = 25.dp)
+                            SizedRectangle(color = Color.Magenta, height = 25.dp)
                         }
                     }
                 }
