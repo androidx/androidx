@@ -19,7 +19,7 @@ package androidx.ui.core.selection
 import androidx.ui.core.PxPosition
 import androidx.ui.core.px
 import androidx.ui.text.TextSelection
-import androidx.ui.text.TextPainter
+import androidx.ui.text.TextDelegate
 import kotlin.math.max
 
 /**
@@ -34,8 +34,8 @@ internal class TextSelectionProcessor(
     /** The lambda contains certain behavior when selection changes. Currently this is for changing
      * the selection used for drawing in Text widget. */
     var onSelectionChange: (TextSelection?) -> Unit = {},
-    /** The TextPainter object from Text widget. */
-    val textPainter: TextPainter
+    /** The TextDelegate object from Text widget. */
+    val textDelegate: TextDelegate
 ) {
     /**
      * The coordinates of the graphical position for selection start character offset.
@@ -69,7 +69,7 @@ internal class TextSelectionProcessor(
     internal var isSelected = false
 
     /** The length of the text in text widget. */
-    private val length = textPainter.text?.let { it.text.length } ?: 0
+    private val length = textDelegate.text?.let { it.text.length } ?: 0
 
     init {
         processTextSelection()
@@ -82,19 +82,19 @@ internal class TextSelectionProcessor(
         val startPx = selectionCoordinates.first
         val endPx = selectionCoordinates.second
 
-        if (!mode.isSelected(textPainter, start = startPx, end = endPx)) {
+        if (!mode.isSelected(textDelegate, start = startPx, end = endPx)) {
             onSelectionChange(null)
             return
         }
 
         isSelected = true
         var (textSelectionStart, containsWholeSelectionStart) =
-            getSelectionBorder(textPainter, startPx, true)
+            getSelectionBorder(textDelegate, startPx, true)
         var (textSelectionEnd, containsWholeSelectionEnd) =
-            getSelectionBorder(textPainter, endPx, false)
+            getSelectionBorder(textDelegate, endPx, false)
 
         if (textSelectionStart == textSelectionEnd) {
-            val wordBoundary = textPainter.getWordBoundary(textSelectionStart)
+            val wordBoundary = textDelegate.getWordBoundary(textSelectionStart)
             textSelectionStart = wordBoundary.start
             textSelectionEnd = wordBoundary.end
         }
@@ -113,7 +113,7 @@ internal class TextSelectionProcessor(
      * selection.
      */
     private fun getSelectionBorder(
-        textPainter: TextPainter,
+        textDelegate: TextDelegate,
         // This position is in Text widget coordinate system.
         position: PxPosition,
         isStart: Boolean
@@ -127,9 +127,9 @@ internal class TextSelectionProcessor(
         var containsWholeSelectionBorder = false
 
         val top = 0.px
-        val bottom = textPainter.height.px
+        val bottom = textDelegate.height.px
         val left = 0.px
-        val right = textPainter.width.px
+        val right = textDelegate.width.px
         // If the current text widget contains the whole selection's border, then find the exact
         // character offset of the border, and the flag checking if the widget contains the whole
         // selection's border will be set to true.
@@ -141,7 +141,7 @@ internal class TextSelectionProcessor(
             // Constrain the character offset of the selection border to be within the text range
             // of the current widget.
             val constrainedSelectionBorderOffset =
-                textPainter.getOffsetForPosition(position).coerceIn(0, length - 1)
+                textDelegate.getOffsetForPosition(position).coerceIn(0, length - 1)
             selectionBorder = constrainedSelectionBorderOffset
             containsWholeSelectionBorder = true
         }
@@ -149,10 +149,10 @@ internal class TextSelectionProcessor(
     }
 
     private fun getSelectionHandleCoordinates(offset: Int): PxPosition {
-        val left = textPainter.getPrimaryHorizontal(offset)
+        val left = textDelegate.getPrimaryHorizontal(offset)
 
-        val line = textPainter.getLineForOffset(offset)
-        val bottom = textPainter.getLineBottom(line)
+        val line = textDelegate.getLineForOffset(offset)
+        val bottom = textDelegate.getLineBottom(line)
 
         return PxPosition(left.px, bottom.px)
     }

@@ -38,7 +38,7 @@ import androidx.ui.core.selection.TextSelectionProcessor
 import androidx.ui.semantics.Semantics
 import androidx.ui.semantics.accessibilityLabel
 import androidx.ui.text.TextSelection
-import androidx.ui.text.TextPainter
+import androidx.ui.text.TextDelegate
 import androidx.ui.text.TextSpan
 import androidx.ui.text.TextStyle
 import androidx.ui.text.style.TextAlign
@@ -214,7 +214,7 @@ fun Text(
             maxLines,
             density
         ) {
-            TextPainter(
+            TextDelegate(
                 text = text,
                 style = mergedStyle,
                 paragraphStyle = paragraphStyle,
@@ -247,8 +247,8 @@ fun Text(
             minIntrinsicWidth { _, _ ->
                 // TODO(popam): discuss with the Text team about this
                 throw UnsupportedOperationException()
-                // textPainter.layout(Constraints(0.ipx, IntPx.Infinity, 0.ipx, h))
-                // textPainter.minIntrinsicWidth.px.round()
+                // textDelegate.layout(Constraints(0.ipx, IntPx.Infinity, 0.ipx, h))
+                // textDelegate.minIntrinsicWidth.px.round()
             }
             minIntrinsicHeight { _, w ->
                 textPainter.layout(Constraints(0.ipx, w, 0.ipx, IntPx.Infinity))
@@ -290,7 +290,7 @@ fun Text(
                             selectionCoordinates = Pair(startPx, endPx),
                             mode = mode,
                             onSelectionChange = { internalSelection.value = it },
-                            textPainter = textPainter
+                            textDelegate = textPainter
                         )
                         if (!textSelectionProcessor.isSelected) return null
 
