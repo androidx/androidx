@@ -310,7 +310,7 @@ public class CameraExtensionsActivity extends AppCompatActivity
                                                 + ".jpg"),
                                 new ImageCapture.OnImageSavedListener() {
                                     @Override
-                                    public void onImageSaved(File file) {
+                                    public void onImageSaved(@NonNull File file) {
                                         Log.d(TAG, "Saved image to " + file);
 
                                         if (!mTakePictureIdlingResource.isIdleNow()) {
@@ -330,8 +330,8 @@ public class CameraExtensionsActivity extends AppCompatActivity
 
                                     @Override
                                     public void onError(
-                                            ImageCapture.UseCaseError useCaseError,
-                                            String message,
+                                            @NonNull ImageCapture.ImageCaptureError error,
+                                            @NonNull String message,
                                             Throwable cause) {
                                         Log.e(TAG, "Failed to save image - " + message, cause);
                                     }
