@@ -19,11 +19,11 @@ package androidx.webkit;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.StringDef;
-import androidx.core.util.Pair;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Executor;
 
@@ -66,22 +66,22 @@ public final class ProxyConfig {
     private static final String BYPASS_RULE_SIMPLE_NAMES = "<local>";
     private static final String BYPASS_RULE_REMOVE_IMPLICIT = "<-loopback>";
 
-    private List<Pair<String, String>> mProxyRules;
+    private List<ProxyRule> mProxyRules;
     private List<String> mBypassRules;
 
     /**
      * @hide Internal use only
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-    public ProxyConfig(List<Pair<String, String>> proxyRules, List<String> bypassRules) {
+    public ProxyConfig(List<ProxyRule> proxyRules, List<String> bypassRules) {
         mProxyRules = proxyRules;
         mBypassRules = bypassRules;
     }
 
     /**
-     * Returns the current list of proxy rules. Each pair of (String, String) consists of the proxy
-     * URL and the URL schemes for which this proxy is used (one of {@code MATCH_HTTP},
-     * {@code MATCH_HTTPS}, {@code MATCH_ALL_SCHEMES}).
+     * Returns the current list of proxy rules. Each {@link ProxyRule} object
+     * holds the proxy URL and the URL schemes for which this proxy is used (one of
+     * {@code MATCH_HTTP}, {@code MATCH_HTTPS}, {@code MATCH_ALL_SCHEMES}).
      *
      * <p>To add new rules use {@link Builder#addProxyRule(String)} or
      * {@link Builder#addProxyRule(String, String)}.
@@ -89,8 +89,8 @@ public final class ProxyConfig {
      * @return List of proxy rules
      */
     @NonNull
-    public List<Pair<String, String>> getProxyRules() {
-        return mProxyRules;
+    public List<ProxyRule> getProxyRules() {
+        return Collections.unmodifiableList(mProxyRules);
     }
 
     /**
@@ -102,7 +102,52 @@ public final class ProxyConfig {
      */
     @NonNull
     public List<String> getBypassRules() {
-        return mBypassRules;
+        return Collections.unmodifiableList(mBypassRules);
+    }
+
+    /**
+     * Class that holds a scheme filter and a proxy URL.
+     */
+    public static final class ProxyRule {
+        private String mSchemeFilter;
+        private String mUrl;
+
+        /**
+         * @hide Internal use only
+         */
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
+        public ProxyRule(@NonNull String schemeFilter, @NonNull String url) {
+            mSchemeFilter = schemeFilter;
+            mUrl = url;
+        }
+
+        /**
+         * @hide Internal use only
+         */
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
+        public ProxyRule(@NonNull String url) {
+            this(ProxyConfig.MATCH_ALL_SCHEMES, url);
+        }
+
+        /**
+         * Returns the {@link String} that represents the scheme filter for this object.
+         *
+         * @return Scheme filter
+         */
+        @NonNull
+        public String getSchemeFilter() {
+            return mSchemeFilter;
+        }
+
+        /**
+         * Returns the {@link String} that represents the proxy URL for this object.
+         *
+         * @return Proxy URL
+         */
+        @NonNull
+        public String getUrl() {
+            return mUrl;
+        }
     }
 
     /**
@@ -115,7 +160,7 @@ public final class ProxyConfig {
      * connections to be made directly.
      */
     public static final class Builder {
-        private List<Pair<String, String>> mProxyRules;
+        private List<ProxyRule> mProxyRules;
         private List<String> mBypassRules;
 
         /**
@@ -175,7 +220,8 @@ public final class ProxyConfig {
          */
         @NonNull
         public Builder addProxyRule(@NonNull String proxyUrl) {
-            return addProxyRule(proxyUrl, MATCH_ALL_SCHEMES);
+            mProxyRules.add(new ProxyRule(proxyUrl));
+            return this;
         }
 
         /**
@@ -191,7 +237,7 @@ public final class ProxyConfig {
         @NonNull
         public Builder addProxyRule(@NonNull String proxyUrl,
                 @NonNull @ProxyScheme String schemeFilter) {
-            mProxyRules.add(new Pair<>(schemeFilter, proxyUrl));
+            mProxyRules.add(new ProxyRule(schemeFilter, proxyUrl));
             return this;
         }
 
@@ -220,7 +266,7 @@ public final class ProxyConfig {
          */
         @NonNull
         public Builder addDirect(@NonNull @ProxyScheme String schemeFilter) {
-            mProxyRules.add(new Pair<>(DIRECT, schemeFilter));
+            mProxyRules.add(new ProxyRule(schemeFilter, DIRECT));
             return this;
         }
 
@@ -271,7 +317,7 @@ public final class ProxyConfig {
         }
 
         @NonNull
-        private List<Pair<String, String>> proxyRules() {
+        private List<ProxyRule> proxyRules() {
             return mProxyRules;
         }
 
