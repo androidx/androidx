@@ -32,7 +32,6 @@ import androidx.ui.foundation.ColoredRect
 import androidx.ui.foundation.selection.MutuallyExclusiveSetItem
 import androidx.ui.foundation.shape.border.Border
 import androidx.ui.foundation.shape.border.DrawBorder
-import androidx.ui.foundation.shape.corner.CornerSizes
 import androidx.ui.foundation.shape.corner.RoundedCornerShape
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Alignment
@@ -230,7 +229,7 @@ fun FancyIndicator(color: Color) {
     // Color is passed in as a parameter [color]
     Padding(5.dp) {
         Container(expanded = true) {
-            DrawBorder(RoundedCornerShape(CornerSizes(5.dp)), Border(color, 2.dp))
+            DrawBorder(RoundedCornerShape(5.dp), Border(color, 2.dp))
         }
     }
 }
