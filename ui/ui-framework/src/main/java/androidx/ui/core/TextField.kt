@@ -16,7 +16,6 @@
 package androidx.ui.core
 
 import androidx.compose.composer
-import androidx.compose.Children
 import androidx.compose.Composable
 import androidx.compose.ambient
 import androidx.compose.memo
@@ -210,7 +209,7 @@ fun TextField(
                     hasFocus.value,
                     editorStyle) }
             },
-            layoutBlock = { _, constraints ->
+            measureBlock = { _, constraints ->
                 TextFieldDelegate.layout(textPainter, constraints).let {
                     layout(it.first, it.second) {}
                 }

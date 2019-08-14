@@ -136,9 +136,9 @@ class SwipeToDismiss : Activity() {
             OnChildPositioned({ coordinates ->
                 itemWidth.value = coordinates.size.width.value * 2 / 3f
             }) {
-                Layout(children = children, layoutBlock = { _, constraints ->
-                layout(constraints.maxWidth, IntPx(height.toInt())) {}
-            })
+                Layout(children) { _, constraints ->
+                    layout(constraints.maxWidth, IntPx(height.toInt())) {}
+                }
             }
         }
     }

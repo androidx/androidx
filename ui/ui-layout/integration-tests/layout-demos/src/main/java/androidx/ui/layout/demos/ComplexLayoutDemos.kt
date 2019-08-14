@@ -42,7 +42,6 @@ import androidx.ui.layout.Row
 import androidx.ui.layout.Stack
 import androidx.ui.graphics.Color
 import androidx.ui.painting.Paint
-import androidx.compose.Children
 import androidx.compose.Composable
 import androidx.compose.Model
 import androidx.compose.composer
@@ -60,8 +59,8 @@ import androidx.ui.layout.samples.SizedRectangle
  */
 @Composable
 fun IntrinsicWidth(children: @Composable() () -> Unit) {
-    ComplexLayout(children = children, block = {
-        layout { measurables, constraints ->
+    ComplexLayout(children) {
+        measure { measurables, constraints ->
             // Force child be as wide as its min intrinsic width.
             val width = measurables.first().minIntrinsicWidth(constraints.minHeight)
             val childConstraints = Constraints(
@@ -71,7 +70,7 @@ fun IntrinsicWidth(children: @Composable() () -> Unit) {
                 constraints.maxHeight
             )
             val childPlaceable = measurables.first().measure(childConstraints)
-            layoutResult(childPlaceable.width, childPlaceable.height) {
+            layout(childPlaceable.width, childPlaceable.height) {
                 childPlaceable.place(IntPx.Zero, IntPx.Zero)
             }
         }
@@ -87,7 +86,7 @@ fun IntrinsicWidth(children: @Composable() () -> Unit) {
         maxIntrinsicHeight { measurables, w ->
             measurables.first().maxIntrinsicHeight(w)
         }
-    })
+    }
 }
 
 /**
@@ -96,8 +95,8 @@ fun IntrinsicWidth(children: @Composable() () -> Unit) {
 @Composable
 fun RectangleWithIntrinsics(color: Color) {
     ComplexLayout(children = { DrawRectangle(color = color) }, block = {
-        layout { _, _ ->
-            layoutResult(80.ipx, 80.ipx) {}
+        measure { _, _ ->
+            layout(80.ipx, 80.ipx) {}
         }
         minIntrinsicWidth { _, _ -> 30.ipx }
         maxIntrinsicWidth { _, _ -> 150.ipx }
@@ -228,7 +227,7 @@ fun PaddingUsage() {
 
 @Composable
 fun SingleCompositionRow(children: @Composable() () -> Unit) {
-    Layout(layoutBlock = { measurables, constraints ->
+    Layout(children) { measurables, constraints ->
         val placeables = measurables.map {
             it.measure(constraints.copy(minWidth = 0.ipx, maxWidth = IntPx.Infinity))
         }
@@ -242,12 +241,12 @@ fun SingleCompositionRow(children: @Composable() () -> Unit) {
                 left += placeable.width
             }
         }
-    }, children = children)
+    }
 }
 
 @Composable
 fun SingleCompositionColumn(children: @Composable() () -> Unit) {
-    Layout(layoutBlock = { measurables, constraints ->
+    Layout(children) { measurables, constraints ->
         val placeables = measurables.map {
             it.measure(constraints.copy(minHeight = 0.ipx, maxHeight = IntPx.Infinity))
         }
@@ -261,7 +260,7 @@ fun SingleCompositionColumn(children: @Composable() () -> Unit) {
                 top += placeable.height
             }
         }
-    }, children = children)
+    }
 }
 
 @Composable
@@ -272,13 +271,10 @@ fun SingleCompositionRect() {
             canvas.drawRect(parentSize.toRect(), paint)
         }
     }
-    Layout(
-        layoutBlock = { _, constraints ->
-            val size = constraints.constrain(IntPxSize(30.ipx, 30.ipx))
-            layout(size.width, size.height) { }
-        },
-        children = Rectangle
-    )
+    Layout(Rectangle) { _, constraints ->
+        val size = constraints.constrain(IntPxSize(30.ipx, 30.ipx))
+        layout(size.width, size.height) { }
+    }
 }
 
 @Model
@@ -295,8 +291,8 @@ fun SingleCompositionRectWithIntrinsics() {
         }
     }
     ComplexLayout(children = Rectangle, block = {
-        layout { _, _ ->
-            layoutResult(50.ipx, 50.ipx) {}
+        measure { _, _ ->
+            layout(50.ipx, 50.ipx) {}
         }
         minIntrinsicWidth { _, _ -> 50.ipx }
         maxIntrinsicWidth { _, _ -> 50.ipx }
@@ -308,7 +304,7 @@ fun SingleCompositionRectWithIntrinsics() {
 @Composable
 fun SingleCompositionRowWithIntrinsics(children: @Composable() () -> Unit) {
     ComplexLayout(children = children, block = {
-        layout { measurables, constraints ->
+        measure { measurables, constraints ->
             val placeables = measurables.map { measurable ->
                 val childWidth = measurable.maxIntrinsicWidth(constraints.maxHeight)
                 measurable.measure(
@@ -320,7 +316,7 @@ fun SingleCompositionRowWithIntrinsics(children: @Composable() () -> Unit) {
             val width = placeables.map { it.width }.sum()
             val height = placeables.map { it.height }.max()
 
-            layoutResult(width, height) {
+            layout(width, height) {
                 var left = 0.ipx
                 placeables.forEach { placeable ->
                     placeable.place(left, 0.ipx)

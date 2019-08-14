@@ -16,7 +16,6 @@
 
 package androidx.ui.core.test
 
-import androidx.compose.Children
 import androidx.compose.Composable
 import androidx.compose.composer
 import androidx.test.filters.SmallTest
@@ -130,7 +129,7 @@ class TextLayoutTest {
                 Text("aaaa", style = TextStyle(fontFamily = fontFamily))
             }
             ComplexLayout(text) {
-                layout { measurables, _ ->
+                measure { measurables, _ ->
                     val textMeasurable = measurables.first()
 
                     // Min width.
@@ -154,7 +153,7 @@ class TextLayoutTest {
 
                     intrinsicsLatch.countDown()
 
-                    layoutResult(0.ipx, 0.ipx) {}
+                    layout(0.ipx, 0.ipx) {}
                 }
                 minIntrinsicWidth { _, _ -> 0.ipx }
                 minIntrinsicHeight { _, _ -> 0.ipx }

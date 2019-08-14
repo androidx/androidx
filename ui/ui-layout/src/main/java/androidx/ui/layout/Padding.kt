@@ -21,7 +21,6 @@ import androidx.ui.core.Layout
 import androidx.ui.core.dp
 import androidx.ui.core.min
 import androidx.ui.core.offset
-import androidx.compose.Children
 import androidx.compose.Composable
 import androidx.compose.composer
 
@@ -55,7 +54,7 @@ fun Padding(
     padding: EdgeInsets,
     children: @Composable() () -> Unit
 ) {
-    Layout(layoutBlock = { measurables, constraints ->
+    Layout(children) { measurables, constraints ->
         val measurable = measurables.firstOrNull()
         if (measurable == null) {
             layout(constraints.minWidth, constraints.minHeight) { }
@@ -78,7 +77,7 @@ fun Padding(
                 placeable.place(paddingLeft, paddingTop)
             }
         }
-    }, children = children)
+    }
 }
 
 /**

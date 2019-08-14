@@ -272,16 +272,13 @@ fun HintEditText(hintText: @Composable() () -> Unit) {
     if (state.value.text.isNotEmpty()) {
         inputField()
     } else {
-        Layout(
-            childrenArray = arrayOf(inputField, hintText),
-            layoutBlock = { measurable, constraints ->
-                val inputfieldPlacable = measurable[inputField].first().measure(constraints)
-                val hintTextPlacable = measurable[hintText].first().measure(constraints)
-                layout(inputfieldPlacable.width, inputfieldPlacable.height) {
-                    inputfieldPlacable.place(0.ipx, 0.ipx)
-                    hintTextPlacable.place(0.ipx, 0.ipx)
-                }
+        Layout(inputField, hintText) { measurable, constraints ->
+            val inputfieldPlacable = measurable[inputField].first().measure(constraints)
+            val hintTextPlacable = measurable[hintText].first().measure(constraints)
+            layout(inputfieldPlacable.width, inputfieldPlacable.height) {
+                inputfieldPlacable.place(0.ipx, 0.ipx)
+                hintTextPlacable.place(0.ipx, 0.ipx)
             }
-        )
+        }
     }
 }

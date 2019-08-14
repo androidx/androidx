@@ -29,7 +29,6 @@ import androidx.ui.core.PxPosition
 import androidx.ui.core.PxSize
 import androidx.ui.core.Ref
 import androidx.ui.core.px
-import androidx.compose.Children
 import androidx.compose.Composable
 import androidx.compose.composer
 import androidx.ui.core.ComplexLayout
@@ -140,7 +139,7 @@ open class LayoutTest {
             val layoutLatch = CountDownLatch(1)
             show {
                 ComplexLayout(layout) {
-                    layout { measurables, _ ->
+                    measure { measurables, _ ->
                         val measurable = measurables.first()
                         test(
                             { h -> measurable.minIntrinsicWidth(h) },
@@ -149,7 +148,7 @@ open class LayoutTest {
                             { w -> measurable.maxIntrinsicHeight(w) }
                         )
                         layoutLatch.countDown()
-                        layoutResult(0.ipx, 0.ipx) {}
+                        layout(0.ipx, 0.ipx) {}
                     }
                     minIntrinsicWidth { _, _ -> 0.ipx }
                     maxIntrinsicWidth { _, _ -> 0.ipx }
