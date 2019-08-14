@@ -127,9 +127,6 @@ class TextDelegate(
     private var needsLayout = true
         private set
 
-    private var layoutTemplate: Paragraph? = null
-        private set
-
     private var overflowShader: Shader? = null
 
     var hasVisualOverflow = false
@@ -166,37 +163,6 @@ class TextDelegate(
             lineHeight = paragraphStyle?.lineHeight
         )
     }
-
-    /**
-     * The height of a space in [text] in logical pixels.
-     *
-     * Not every line of text in [text] will have this height, but this height is "typical" for
-     * text in [text] and useful for sizing other objects relative a typical line of text.
-     *
-     * Obtaining this value does not require calling [layout].
-     *
-     * The style of the [text] property is used to determine the font settings that contribute to
-     * the [preferredLineHeight]. If [textStyle] is null, the default [TextStyle] values are used.
-     */
-    val preferredLineHeight: Float
-        get() {
-            if (layoutTemplate == null) {
-                // TODO(Migration/qqd): The textDirection below used to be RTL.
-                layoutTemplate = Paragraph(
-                    text = " ",
-                    style = createTextStyle(),
-                    // direction doesn't matter, text is just a space
-                    paragraphStyle = createParagraphStyle(),
-                    textStyles = listOf(),
-                    maxLines = maxLines,
-                    ellipsis = isEllipsis,
-                    density = density,
-                    resourceLoader = resourceLoader
-                )
-                layoutTemplate?.layout(ParagraphConstraints(width = Float.POSITIVE_INFINITY))
-            }
-            return layoutTemplate!!.height
-        }
 
     private fun assertNeedsLayout(name: String) {
         assert(!needsLayout) {

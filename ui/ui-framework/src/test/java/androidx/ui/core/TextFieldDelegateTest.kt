@@ -341,25 +341,6 @@ class TextFieldDelegateTest {
     }
 
     @Test
-    fun notify_rect_empty() {
-        val dummyHeight = 64f
-        whenever(mDelegate.preferredLineHeight).thenReturn(dummyHeight)
-        val dummyPoint = PxPosition(5.px, 6.px)
-        whenever(layoutCoordinates.localToRoot(any())).thenReturn(dummyPoint)
-        val dummyEditorState = EditorModel(text = "", selection = TextRange(0, 0))
-        TextFieldDelegate.notifyFocusedRect(
-            dummyEditorState,
-            mDelegate,
-            layoutCoordinates,
-            textInputService,
-            true, /* hasFocus */
-            identityOffsetMap)
-        val captor = argumentCaptor<Rect>()
-        verify(textInputService).notifyFocusedRect(captor.capture())
-        assertEquals(dummyHeight, captor.firstValue.height)
-    }
-
-    @Test
     fun layout() {
         val constraints = Constraints(
             minWidth = 0.px.round(),

@@ -28,7 +28,45 @@ import androidx.ui.input.SetSelectionEditOp
 import androidx.ui.input.TextInputService
 import androidx.ui.painting.Canvas
 import androidx.ui.text.AnnotatedString
+import androidx.ui.text.Paragraph
+import androidx.ui.text.ParagraphConstraints
+import androidx.ui.text.ParagraphStyle
 import androidx.ui.text.TextDelegate
+import androidx.ui.text.TextStyle
+import androidx.ui.text.font.Font
+import kotlin.math.roundToInt
+
+/**
+ * Computed the line height for the empty TextField.
+ *
+ * The bounding box or x-advance of the empty text is empty, i.e. 0x0 box or 0px advance. However
+ * this is not useful for TextField since text field want to reserve some amount of height for
+ * accepting touch for starting text input. In Android, uses FontMetrics of the first font in the
+ * fallback chain to compute this height, this is because custom font may have different
+ * ascender/descender from the default font in Android.
+ *
+ * Until we have font metrics APIs, use the height of reference text as a workaround.
+ *
+ * TODO(nona): Add FontMetrics API and stop doing this workaround.
+ */
+private fun computeLineHeightForEmptyText(
+    textStyle: TextStyle,
+    density: Density,
+    resourceLoader: Font.ResourceLoader
+): IntPx {
+    return Paragraph(
+        text = "H", // No meaning: just a reference character.
+        style = textStyle,
+        paragraphStyle = ParagraphStyle(),
+        textStyles = listOf(),
+        maxLines = 1,
+        ellipsis = false,
+        density = density,
+        resourceLoader = resourceLoader
+    ).apply {
+        layout(ParagraphConstraints(width = Float.POSITIVE_INFINITY))
+    }.height.roundToInt().ipx
+}
 
 internal class TextFieldDelegate {
     companion object {
@@ -41,28 +79,22 @@ internal class TextFieldDelegate {
          */
         @JvmStatic
         fun layout(textDelegate: TextDelegate, constraints: Constraints): Pair<IntPx, IntPx> {
-            val isEmptyText = textDelegate.text?.text?.isEmpty() ?: true
-            val activeTextPainter = if (isEmptyText) {
-                // Even with empty text, edit filed must have at least non-zero height widget. Use
-                // "H" height for this empty text height.
-                TextDelegate(
-                    text = AnnotatedString(text = "H"),
-                    style = textDelegate.style,
-                    density = textDelegate.density,
-                    resourceLoader = textDelegate.resourceLoader
-                ).apply {
-                    layout(constraints)
-                }
-            } else {
-                textDelegate
-            }
 
             // We anyway need to compute layout for preventing NPE during draw which require layout
             // result.
             // TODO(nona): Fix this?
             textDelegate.layout(constraints)
 
-            val height = activeTextPainter.height.px.round()
+            val isEmptyText = textDelegate.text?.text?.isEmpty() ?: true
+            val height = if (isEmptyText) {
+                computeLineHeightForEmptyText(
+                    textStyle = textDelegate.style ?: TextStyle(),
+                    density = textDelegate.density,
+                    resourceLoader = textDelegate.resourceLoader
+                )
+            } else {
+                textDelegate.height.px.round()
+            }
             val width = constraints.maxWidth
             return Pair(width, height)
         }
@@ -134,7 +166,12 @@ internal class TextFieldDelegate {
                 textDelegate.getBoundingBox(
                     offsetMap.originalToTransformed(value.selection.end) - 1)
             } else {
-                Rect(0f, 0f, 1.0f, textDelegate.preferredLineHeight)
+                val lineHeightForEmptyText = computeLineHeightForEmptyText(
+                    textDelegate.style ?: TextStyle(),
+                    textDelegate.density,
+                    textDelegate.resourceLoader
+                )
+                Rect(0f, 0f, 1.0f, lineHeightForEmptyText.value.toFloat())
             }
             val globalLT = layoutCoordinates.localToRoot(PxPosition(bbox.left.px, bbox.top.px))
 
