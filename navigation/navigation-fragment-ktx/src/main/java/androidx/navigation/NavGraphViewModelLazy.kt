@@ -38,7 +38,7 @@ import androidx.navigation.fragment.findNavController
  * factory returned by it will be used to create [ViewModel]:
  * ```
  * class MyFragment : Fragment() {
- *     val viewmodel: MainViewModel by navGraphViewModels(R.navigation.main) { myFactory }
+ *     val viewmodel: MainViewModel by navGraphViewModels(R.id.main) { myFactory }
  * }
  * ```
  *
