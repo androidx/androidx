@@ -73,7 +73,7 @@ final class SequentialExecutor implements Executor {
 
     /** Use {@link CameraXExecutors#newSequentialExecutor} */
     SequentialExecutor(Executor executor) {
-        this.mExecutor = Preconditions.checkNotNull(executor);
+        mExecutor = Preconditions.checkNotNull(executor);
     }
 
     /**
