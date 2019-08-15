@@ -42,8 +42,8 @@ android {
             manifest.srcFile 'AndroidManifest.xml'
             res.srcDirs += 'src/main/res-public'
             resources {
-                srcDirs = [fontDir.getAbsolutePath()]
-                includes = ["LICENSE_UNICODE", "LICENSE_OFL"]
+                srcDirs += [fontDir.getAbsolutePath()]
+                includes += ["LICENSE_UNICODE", "LICENSE_OFL"]
             }
         }
 
