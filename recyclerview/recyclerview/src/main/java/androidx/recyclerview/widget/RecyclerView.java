@@ -3339,33 +3339,27 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
                 int dx = mLastTouchX - x;
                 int dy = mLastTouchY - y;
 
-                mReusableIntPair[0] = 0;
-                mReusableIntPair[1] = 0;
-                if (dispatchNestedPreScroll(dx, dy, mReusableIntPair, mScrollOffset, TYPE_TOUCH)) {
-                    dx -= mReusableIntPair[0];
-                    dy -= mReusableIntPair[1];
-                    // Updated the nested offsets
-                    mNestedOffsets[0] += mScrollOffset[0];
-                    mNestedOffsets[1] += mScrollOffset[1];
-                }
-
                 if (mScrollState != SCROLL_STATE_DRAGGING) {
                     boolean startScroll = false;
-                    if (canScrollHorizontally && Math.abs(dx) > mTouchSlop) {
+                    if (canScrollHorizontally) {
                         if (dx > 0) {
-                            dx -= mTouchSlop;
+                            dx = Math.max(0, dx - mTouchSlop);
                         } else {
-                            dx += mTouchSlop;
+                            dx = Math.min(0, dx + mTouchSlop);
                         }
-                        startScroll = true;
+                        if (dx != 0) {
+                            startScroll = true;
+                        }
                     }
-                    if (canScrollVertically && Math.abs(dy) > mTouchSlop) {
+                    if (canScrollVertically) {
                         if (dy > 0) {
-                            dy -= mTouchSlop;
+                            dy = Math.max(0, dy - mTouchSlop);
                         } else {
-                            dy += mTouchSlop;
+                            dy = Math.min(0, dy + mTouchSlop);
                         }
-                        startScroll = true;
+                        if (dy != 0) {
+                            startScroll = true;
+                        }
                     }
                     if (startScroll) {
                         setScrollState(SCROLL_STATE_DRAGGING);
@@ -3373,6 +3367,22 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
                 }
 
                 if (mScrollState == SCROLL_STATE_DRAGGING) {
+                    mReusableIntPair[0] = 0;
+                    mReusableIntPair[1] = 0;
+                    if (dispatchNestedPreScroll(
+                            canScrollHorizontally ? dx : 0,
+                            canScrollVertically ? dy : 0,
+                            mReusableIntPair, mScrollOffset, TYPE_TOUCH
+                    )) {
+                        dx -= mReusableIntPair[0];
+                        dy -= mReusableIntPair[1];
+                        // Updated the nested offsets
+                        mNestedOffsets[0] += mScrollOffset[0];
+                        mNestedOffsets[1] += mScrollOffset[1];
+                        // Scroll has initiated, prevent parents from intercepting
+                        getParent().requestDisallowInterceptTouchEvent(true);
+                    }
+
                     mLastTouchX = x - mScrollOffset[0];
                     mLastTouchY = y - mScrollOffset[1];
 

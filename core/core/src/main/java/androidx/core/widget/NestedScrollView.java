@@ -870,11 +870,6 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
 
                 final int y = (int) ev.getY(activePointerIndex);
                 int deltaY = mLastMotionY - y;
-                if (dispatchNestedPreScroll(0, deltaY, mScrollConsumed, mScrollOffset,
-                        ViewCompat.TYPE_TOUCH)) {
-                    deltaY -= mScrollConsumed[1];
-                    mNestedYOffset += mScrollOffset[1];
-                }
                 if (!mIsBeingDragged && Math.abs(deltaY) > mTouchSlop) {
                     final ViewParent parent = getParent();
                     if (parent != null) {
@@ -888,6 +883,13 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
                     }
                 }
                 if (mIsBeingDragged) {
+                    // Start with nested pre scrolling
+                    if (dispatchNestedPreScroll(0, deltaY, mScrollConsumed, mScrollOffset,
+                            ViewCompat.TYPE_TOUCH)) {
+                        deltaY -= mScrollConsumed[1];
+                        mNestedYOffset += mScrollOffset[1];
+                    }
+
                     // Scroll to follow the motion event
                     mLastMotionY = y - mScrollOffset[1];
 
