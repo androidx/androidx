@@ -101,7 +101,8 @@ class FragmentLayoutInflaterFactory implements LayoutInflater.Factory2 {
             fragment.mHost = mFragmentManager.mHost;
             fragment.onInflate(mFragmentManager.mHost.getContext(), attrs,
                     fragment.mSavedFragmentState);
-            mFragmentManager.addFragment(fragment, true);
+            mFragmentManager.addFragment(fragment);
+            mFragmentManager.moveToState(fragment);
 
         } else if (fragment.mInLayout) {
             // A fragment already exists and it is not one we restored from

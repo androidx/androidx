@@ -400,7 +400,7 @@ final class BackStackRecord extends FragmentTransaction implements
             switch (op.mCmd) {
                 case OP_ADD:
                     f.setNextAnim(op.mEnterAnim);
-                    mManager.addFragment(f, false);
+                    mManager.addFragment(f);
                     break;
                 case OP_REMOVE:
                     f.setNextAnim(op.mExitAnim);
@@ -465,7 +465,7 @@ final class BackStackRecord extends FragmentTransaction implements
                     break;
                 case OP_REMOVE:
                     f.setNextAnim(op.mPopEnterAnim);
-                    mManager.addFragment(f, false);
+                    mManager.addFragment(f);
                     break;
                 case OP_HIDE:
                     f.setNextAnim(op.mPopEnterAnim);
