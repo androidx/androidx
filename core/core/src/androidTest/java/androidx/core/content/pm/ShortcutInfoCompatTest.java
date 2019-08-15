@@ -259,7 +259,7 @@ public class ShortcutInfoCompatTest {
 
         ShortcutInfoCompat compat = mBuilder
                 .setPersons(persons)
-                .setLongLived()
+                .setLongLived(true)
                 .build();
 
         ShortcutInfo shortcut = compat.toShortcutInfo();
