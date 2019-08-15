@@ -52,6 +52,8 @@ import androidx.camera.core.DeferrableSurface;
 import androidx.camera.core.ImmediateSurface;
 import androidx.camera.core.MutableOptionsBundle;
 import androidx.camera.core.SessionConfig;
+import androidx.camera.core.impl.utils.executor.CameraXExecutors;
+import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.camera.testing.CameraUtil;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
@@ -69,10 +71,13 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
 import org.mockito.Mockito;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -88,6 +93,8 @@ public final class CaptureSessionTest {
 
     private CameraDevice mCameraDevice;
 
+    private final List<CaptureSession> mCaptureSessions = new ArrayList<>();
+
     @Rule
     public GrantPermissionRule mRuntimePermissionRule = GrantPermissionRule.grant(
             Manifest.permission.CAMERA);
@@ -102,7 +109,16 @@ public final class CaptureSessionTest {
     }
 
     @After
-    public void tearDown() {
+    public void tearDown() throws ExecutionException, InterruptedException {
+        // Ensure all capture sessions are fully closed
+        List<ListenableFuture<Void>> releaseFutures = new ArrayList<>();
+        for (CaptureSession captureSession : mCaptureSessions) {
+            releaseFutures.add(captureSession.release(/*abortInFlightCaptures=*/false));
+        }
+        mCaptureSessions.clear();
+        Future<?> aggregateReleaseFuture = Futures.allAsList(releaseFutures);
+        aggregateReleaseFuture.get();
+
         if (mCameraDevice != null) {
             mTestParameters0.tearDown();
             mTestParameters1.tearDown();
@@ -112,7 +128,7 @@ public final class CaptureSessionTest {
 
     @Test
     public void setCaptureSessionSucceed() {
-        CaptureSession captureSession = new CaptureSession(mTestParameters0.mHandler);
+        CaptureSession captureSession = createCaptureSession(mTestParameters0);
 
         captureSession.setSessionConfig(mTestParameters0.mSessionConfig);
 
@@ -121,7 +137,7 @@ public final class CaptureSessionTest {
 
     @Test(expected = IllegalStateException.class)
     public void setCaptureSessionOnClosedSession_throwsException() {
-        CaptureSession captureSession = new CaptureSession(mTestParameters0.mHandler);
+        CaptureSession captureSession = createCaptureSession(mTestParameters0);
         SessionConfig newSessionConfig = mTestParameters0.mSessionConfig;
 
         captureSession.close();
@@ -132,7 +148,7 @@ public final class CaptureSessionTest {
 
     @Test
     public void openCaptureSessionSucceed() throws CameraAccessException, InterruptedException {
-        CaptureSession captureSession = new CaptureSession(mTestParameters0.mHandler);
+        CaptureSession captureSession = createCaptureSession(mTestParameters0);
         captureSession.setSessionConfig(mTestParameters0.mSessionConfig);
 
         captureSession.open(mTestParameters0.mSessionConfig, mCameraDevice);
@@ -153,7 +169,7 @@ public final class CaptureSessionTest {
     @Test
     public void openCaptureSessionWithOptionOverride()
             throws CameraAccessException, InterruptedException {
-        CaptureSession captureSession = new CaptureSession(mTestParameters0.mHandler);
+        CaptureSession captureSession = createCaptureSession(mTestParameters0);
         captureSession.setSessionConfig(mTestParameters0.mSessionConfig);
 
         captureSession.open(mTestParameters0.mSessionConfig, mCameraDevice);
@@ -192,7 +208,7 @@ public final class CaptureSessionTest {
 
     @Test
     public void closeUnopenedSession() {
-        CaptureSession captureSession = new CaptureSession(mTestParameters0.mHandler);
+        CaptureSession captureSession = createCaptureSession(mTestParameters0);
         captureSession.setSessionConfig(mTestParameters0.mSessionConfig);
 
         captureSession.close();
@@ -201,23 +217,18 @@ public final class CaptureSessionTest {
     }
 
     @Test
-    public void releaseUnopenedSession() throws ExecutionException, InterruptedException {
-        CaptureSession captureSession = new CaptureSession(mTestParameters0.mHandler);
+    public void releaseUnopenedSession() {
+        CaptureSession captureSession = createCaptureSession(mTestParameters0);
         captureSession.setSessionConfig(mTestParameters0.mSessionConfig);
 
-        ListenableFuture<Void> releaseFuture = captureSession.release(
-                /*abortInFlightCaptures=*/false);
-
-        // Wait for release
-        releaseFuture.get();
+        captureSession.release(/*abortInFlightCaptures=*/false);
 
         assertThat(captureSession.getState()).isEqualTo(State.RELEASED);
     }
 
     @Test
-    public void closeOpenedSession()
-            throws CameraAccessException, InterruptedException, ExecutionException {
-        CaptureSession captureSession = new CaptureSession(mTestParameters0.mHandler);
+    public void closeOpenedSession() throws CameraAccessException {
+        CaptureSession captureSession = createCaptureSession(mTestParameters0);
         captureSession.setSessionConfig(mTestParameters0.mSessionConfig);
         captureSession.open(mTestParameters0.mSessionConfig, mCameraDevice);
 
@@ -226,19 +237,12 @@ public final class CaptureSessionTest {
         // Session should be in closed state immediately after calling close() on an
         // opening/opened session.
         assertThat(captureSession.getState()).isEqualTo(State.CLOSED);
-
-        // Release the session to clean up for next test
-        ListenableFuture<Void> releaseFuture = captureSession.release(
-                /*abortInFlightCaptures=*/false);
-
-        // Wait for release to finish
-        releaseFuture.get();
     }
 
     @Test
     public void releaseOpenedSession()
             throws CameraAccessException, InterruptedException, ExecutionException {
-        CaptureSession captureSession = new CaptureSession(mTestParameters0.mHandler);
+        CaptureSession captureSession = createCaptureSession(mTestParameters0);
         captureSession.setSessionConfig(mTestParameters0.mSessionConfig);
         captureSession.open(mTestParameters0.mSessionConfig, mCameraDevice);
         ListenableFuture<Void> releaseFuture = captureSession.release(
@@ -255,22 +259,22 @@ public final class CaptureSessionTest {
 
     @Test
     public void openSecondSession() throws CameraAccessException, InterruptedException {
-        CaptureSession captureSession = new CaptureSession(mTestParameters0.mHandler);
-        captureSession.setSessionConfig(mTestParameters0.mSessionConfig);
+        CaptureSession captureSession0 = createCaptureSession(mTestParameters0);
+        captureSession0.setSessionConfig(mTestParameters0.mSessionConfig);
 
         // First session is opened
-        captureSession.open(mTestParameters0.mSessionConfig, mCameraDevice);
-        captureSession.close();
+        captureSession0.open(mTestParameters0.mSessionConfig, mCameraDevice);
+        captureSession0.close();
 
         // Open second session, which should cause first one to be released
-        CaptureSession captureSession1 = new CaptureSession(mTestParameters1.mHandler);
+        CaptureSession captureSession1 = createCaptureSession(mTestParameters1);
         captureSession1.setSessionConfig(mTestParameters1.mSessionConfig);
         captureSession1.open(mTestParameters1.mSessionConfig, mCameraDevice);
 
         mTestParameters1.waitForData();
 
         assertThat(captureSession1.getState()).isEqualTo(State.OPENED);
-        assertThat(captureSession.getState()).isEqualTo(State.RELEASED);
+        assertThat(captureSession0.getState()).isEqualTo(State.RELEASED);
 
         // First session should have StateCallback.onConfigured(), onClosed() calls.
         verify(mTestParameters0.mSessionStateCallback, times(1))
@@ -289,7 +293,7 @@ public final class CaptureSessionTest {
 
     @Test
     public void issueCaptureRequest() throws CameraAccessException, InterruptedException {
-        CaptureSession captureSession = new CaptureSession(mTestParameters0.mHandler);
+        CaptureSession captureSession = createCaptureSession(mTestParameters0);
         captureSession.setSessionConfig(mTestParameters0.mSessionConfig);
         captureSession.open(mTestParameters0.mSessionConfig, mCameraDevice);
 
@@ -310,7 +314,7 @@ public final class CaptureSessionTest {
     @Test
     public void issueCaptureRequestAppendAndOverrideRepeatingOptions()
             throws CameraAccessException, InterruptedException {
-        CaptureSession captureSession = new CaptureSession(mTestParameters0.mHandler);
+        CaptureSession captureSession = createCaptureSession(mTestParameters0);
         captureSession.setSessionConfig(mTestParameters0.mSessionConfig);
         captureSession.open(mTestParameters0.mSessionConfig, mCameraDevice);
 
@@ -348,23 +352,24 @@ public final class CaptureSessionTest {
         assertThat(captureResult.getRequest().get(CaptureRequest.CONTROL_AE_MODE)).isEqualTo(
                 CaptureRequest.CONTROL_AE_MODE_ON);
     }
+
     @Test
     public void issueCaptureRequestAcrossCaptureSessions()
             throws CameraAccessException, InterruptedException {
-        CaptureSession captureSession = new CaptureSession(mTestParameters0.mHandler);
-        captureSession.setSessionConfig(mTestParameters0.mSessionConfig);
+        CaptureSession captureSession0 = createCaptureSession(mTestParameters0);
+        captureSession0.setSessionConfig(mTestParameters0.mSessionConfig);
 
-        captureSession.issueCaptureRequests(
+        captureSession0.issueCaptureRequests(
                 Collections.singletonList(mTestParameters0.mCaptureConfig));
-        captureSession.open(mTestParameters0.mSessionConfig, mCameraDevice);
+        captureSession0.open(mTestParameters0.mSessionConfig, mCameraDevice);
 
-        captureSession.close();
-        CaptureSession captureSession2 = new CaptureSession(mTestParameters0.mHandler);
-        captureSession2.setSessionConfig(captureSession.getSessionConfig());
-        if (!captureSession.getCaptureConfigs().isEmpty()) {
-            captureSession2.issueCaptureRequests(captureSession.getCaptureConfigs());
+        captureSession0.close();
+        CaptureSession captureSession1 = createCaptureSession(mTestParameters0);
+        captureSession1.setSessionConfig(captureSession0.getSessionConfig());
+        if (!captureSession0.getCaptureConfigs().isEmpty()) {
+            captureSession1.issueCaptureRequests(captureSession0.getCaptureConfigs());
         }
-        captureSession2.open(mTestParameters0.mSessionConfig, mCameraDevice);
+        captureSession1.open(mTestParameters0.mSessionConfig, mCameraDevice);
 
         mTestParameters0.waitForCameraCaptureCallback();
 
@@ -376,7 +381,7 @@ public final class CaptureSessionTest {
     @Test
     public void issueCaptureRequestBeforeCaptureSessionOpened()
             throws CameraAccessException, InterruptedException {
-        CaptureSession captureSession = new CaptureSession(mTestParameters0.mHandler);
+        CaptureSession captureSession = createCaptureSession(mTestParameters0);
         captureSession.setSessionConfig(mTestParameters0.mSessionConfig);
 
         captureSession.issueCaptureRequests(
@@ -392,7 +397,7 @@ public final class CaptureSessionTest {
 
     @Test(expected = IllegalStateException.class)
     public void issueCaptureRequestOnClosedSession_throwsException() {
-        CaptureSession captureSession = new CaptureSession(mTestParameters0.mHandler);
+        CaptureSession captureSession = createCaptureSession(mTestParameters0);
 
         captureSession.close();
 
@@ -404,7 +409,7 @@ public final class CaptureSessionTest {
     @Test
     public void surfaceOnDetachedListenerIsCalledWhenSessionIsClose()
             throws CameraAccessException, InterruptedException, ExecutionException {
-        CaptureSession captureSession = new CaptureSession(mTestParameters0.mHandler);
+        CaptureSession captureSession = createCaptureSession(mTestParameters0);
         captureSession.setSessionConfig(mTestParameters0.mSessionConfig);
 
         captureSession.open(mTestParameters0.mSessionConfig, mCameraDevice);
@@ -432,7 +437,7 @@ public final class CaptureSessionTest {
 
     @Test
     public void cameraEventCallbackInvokedInOrder() throws CameraAccessException {
-        CaptureSession captureSession = new CaptureSession(mTestParameters0.mHandler);
+        CaptureSession captureSession = createCaptureSession(mTestParameters0);
         captureSession.setSessionConfig(mTestParameters0.mSessionConfig);
 
         captureSession.open(mTestParameters0.mSessionConfig, mCameraDevice);
@@ -457,7 +462,7 @@ public final class CaptureSessionTest {
         ArgumentCaptor<CameraCaptureResult> captureResultCaptor = ArgumentCaptor.forClass(
                 CameraCaptureResult.class);
 
-        CaptureSession captureSession = new CaptureSession(mTestParameters0.mHandler);
+        CaptureSession captureSession = createCaptureSession(mTestParameters0);
         captureSession.setSessionConfig(mTestParameters0.mSessionConfig);
 
         // Open the capture session and verify the onEnableSession callback would be invoked
@@ -496,6 +501,12 @@ public final class CaptureSessionTest {
                 never()).onCaptureCompleted(any(CameraCaptureResult.class));
     }
 
+    private CaptureSession createCaptureSession(CaptureSessionTestParameters testParams) {
+        CaptureSession captureSession = new CaptureSession(testParams.mExecutor);
+        mCaptureSessions.add(captureSession);
+        return captureSession;
+    }
+
     /**
      * A implementation to test {@link CameraEventCallback} on CaptureSession.
      */
@@ -531,7 +542,7 @@ public final class CaptureSessionTest {
         }
     }
 
-    private static CaptureConfig getCaptureConfig(CaptureRequest.Key key, int effectValue,
+    private static <T> CaptureConfig getCaptureConfig(CaptureRequest.Key<T> key, T effectValue,
             CameraCaptureCallback callback) {
         CaptureConfig.Builder captureConfigBuilder = new CaptureConfig.Builder();
         Camera2Config.Builder camera2ConfigurationBuilder =
@@ -552,6 +563,8 @@ public final class CaptureSessionTest {
         private final HandlerThread mHandlerThread;
         /** Handler for all asynchronous calls. */
         private final Handler mHandler;
+        /** Executor which delegates to Handler */
+        private final Executor mExecutor;
         /** Latch to wait for first image data to appear. */
         private final CountDownLatch mDataLatch = new CountDownLatch(1);
 
@@ -607,6 +620,8 @@ public final class CaptureSessionTest {
             mHandlerThread = new HandlerThread(name);
             mHandlerThread.start();
             mHandler = new Handler(mHandlerThread.getLooper());
+
+            mExecutor = CameraXExecutors.newHandlerExecutor(mHandler);
 
             mImageReader =
                     ImageReader.newInstance(640, 480, ImageFormat.YUV_420_888, /*maxImages*/ 2);

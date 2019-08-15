@@ -63,6 +63,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -95,8 +96,11 @@ final class Camera implements BaseCamera {
 
     private final Object mCameraInfoLock = new Object();
     /** The handler for camera callbacks and use case state management calls. */
+
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     final Handler mHandler;
+    private final Executor mExecutor;
+
     /**
      * State variable for tracking state of the camera.
      *
@@ -122,7 +126,7 @@ final class Camera implements BaseCamera {
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     int mCameraDeviceError = ERROR_NONE;
     /** The configured session which handles issuing capture requests. */
-    private CaptureSession mCaptureSession = new CaptureSession(null);
+    private CaptureSession mCaptureSession;
     /** The session configuration of camera control. */
     private SessionConfig mCameraControlSessionConfig = SessionConfig.defaultEmptySessionConfig();
 
@@ -172,14 +176,15 @@ final class Camera implements BaseCamera {
         mAvailableCamerasObservable = availableCamerasObservable;
         mHandler = handler;
         ScheduledExecutorService executorScheduler = CameraXExecutors.newHandlerExecutor(mHandler);
+        mExecutor = executorScheduler;
         mUseCaseAttachState = new UseCaseAttachState(cameraId);
         mObservableState.postValue(State.CLOSED);
         mCameraControlInternal = new Camera2CameraControl(this, executorScheduler,
                 executorScheduler);
-        mCaptureSession = new CaptureSession(mHandler);
+        mCaptureSession = new CaptureSession(mExecutor);
 
         // Register an observer to update the number of available cameras
-        mAvailableCamerasObservable.addObserver(executorScheduler, mAvailableCamerasObserver);
+        mAvailableCamerasObservable.addObserver(mExecutor, mAvailableCamerasObserver);
     }
 
     /**
@@ -266,7 +271,7 @@ final class Camera implements BaseCamera {
     private void configAndClose() {
         // Configure the camera with a dummy capture session in order to clear the
         // previous session. This should be released immediately after being configured.
-        final CaptureSession dummySession = new CaptureSession(null);
+        final CaptureSession dummySession = new CaptureSession(mExecutor);
 
         final SurfaceTexture surfaceTexture = new SurfaceTexture(0);
         surfaceTexture.setDefaultBufferSize(640, 480);
@@ -857,7 +862,7 @@ final class Camera implements BaseCamera {
         // Recreate an initialized (but not opened) capture session from the previous configuration
         SessionConfig previousSessionConfig = oldCaptureSession.getSessionConfig();
         List<CaptureConfig> unissuedCaptureConfigs = oldCaptureSession.getCaptureConfigs();
-        mCaptureSession = new CaptureSession(mHandler);
+        mCaptureSession = new CaptureSession(mExecutor);
         mCaptureSession.setSessionConfig(previousSessionConfig);
         mCaptureSession.issueCaptureRequests(unissuedCaptureConfigs);
 
