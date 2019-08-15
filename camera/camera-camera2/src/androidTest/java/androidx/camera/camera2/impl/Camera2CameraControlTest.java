@@ -30,7 +30,9 @@ import static android.hardware.camera2.CameraMetadata.FLASH_MODE_TORCH;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -41,7 +43,6 @@ import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CameraManager;
 import android.hardware.camera2.CaptureRequest;
-import android.hardware.camera2.params.MeteringRectangle;
 import android.os.Build;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -52,6 +53,9 @@ import androidx.camera.core.CameraInfoUnavailableException;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.CaptureConfig;
 import androidx.camera.core.FlashMode;
+import androidx.camera.core.FocusMeteringAction;
+import androidx.camera.core.FocusMeteringAction.MeteringMode;
+import androidx.camera.core.SensorOrientedMeteringPointFactory;
 import androidx.camera.core.SessionConfig;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.testing.HandlerUtil;
@@ -65,6 +69,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Mockito;
 
 import java.util.Collections;
 import java.util.List;
@@ -73,8 +78,6 @@ import java.util.concurrent.ScheduledExecutorService;
 @SmallTest
 @RunWith(AndroidJUnit4.class)
 public final class Camera2CameraControlTest {
-
-    private static final long NO_TIMEOUT = 0;
     private Camera2CameraControl mCamera2CameraControl;
     private CameraControlInternal.ControlUpdateListener mControlUpdateListener;
     private ArgumentCaptor<SessionConfig> mSessionConfigArgumentCaptor =
@@ -101,8 +104,7 @@ public final class Camera2CameraControlTest {
 
         ScheduledExecutorService executorService = CameraXExecutors.newHandlerExecutor(mHandler);
         mCamera2CameraControl = new Camera2CameraControl(mCameraCharacteristics,
-                mControlUpdateListener, NO_TIMEOUT,
-                executorService, executorService);
+                mControlUpdateListener, executorService, executorService);
 
         HandlerUtil.waitForLooperToIdle(mHandler);
 
@@ -137,143 +139,6 @@ public final class Camera2CameraControlTest {
     }
 
     @Test
-    public void focus_focusRectSetAndRequestsExecuted() throws InterruptedException {
-        Rect focusRect = new Rect(0, 0, 10, 10);
-        Rect meteringRect = new Rect(20, 20, 30, 30);
-
-        mCamera2CameraControl.focus(focusRect, meteringRect);
-
-        HandlerUtil.waitForLooperToIdle(mHandler);
-
-        verify(mControlUpdateListener, times(1)).onCameraControlUpdateSessionConfig(
-                mSessionConfigArgumentCaptor.capture());
-        SessionConfig sessionConfig = mSessionConfigArgumentCaptor.getValue();
-        Camera2Config repeatingConfig = new Camera2Config(sessionConfig.getImplementationOptions());
-
-        assertThat(
-                repeatingConfig.getCaptureRequestOption(
-                        CaptureRequest.CONTROL_AF_REGIONS, null))
-                .isEqualTo(
-                        new MeteringRectangle[]{
-                                new MeteringRectangle(focusRect,
-                                        MeteringRectangle.METERING_WEIGHT_MAX)
-                        });
-
-        assertThat(
-                repeatingConfig.getCaptureRequestOption(
-                        CaptureRequest.CONTROL_AE_REGIONS, null))
-                .isEqualTo(
-                        new MeteringRectangle[]{
-                                new MeteringRectangle(
-                                        meteringRect, MeteringRectangle.METERING_WEIGHT_MAX)
-                        });
-
-        assertThat(
-                repeatingConfig.getCaptureRequestOption(
-                        CaptureRequest.CONTROL_AWB_REGIONS, null))
-                .isEqualTo(
-                        new MeteringRectangle[]{
-                                new MeteringRectangle(
-                                        meteringRect, MeteringRectangle.METERING_WEIGHT_MAX)
-                        });
-
-        Camera2Config singleConfig = new Camera2Config(mCamera2CameraControl.getSharedOptions());
-        assertThat(
-                singleConfig.getCaptureRequestOption(
-                        CaptureRequest.CONTROL_AF_REGIONS, null))
-                .isEqualTo(
-                        new MeteringRectangle[]{
-                                new MeteringRectangle(focusRect,
-                                        MeteringRectangle.METERING_WEIGHT_MAX)
-                        });
-
-        assertThat(
-                singleConfig.getCaptureRequestOption(
-                        CaptureRequest.CONTROL_AE_REGIONS, null))
-                .isEqualTo(
-                        new MeteringRectangle[]{
-                                new MeteringRectangle(
-                                        meteringRect, MeteringRectangle.METERING_WEIGHT_MAX)
-                        });
-
-        assertThat(
-                singleConfig.getCaptureRequestOption(
-                        CaptureRequest.CONTROL_AWB_REGIONS, null))
-                .isEqualTo(
-                        new MeteringRectangle[]{
-                                new MeteringRectangle(
-                                        meteringRect, MeteringRectangle.METERING_WEIGHT_MAX)
-                        });
-
-        assertThat(mCamera2CameraControl.isFocusLocked()).isTrue();
-
-        verify(mControlUpdateListener).onCameraControlCaptureRequests(
-                mCaptureConfigArgumentCaptor.capture());
-        CaptureConfig captureConfig = mCaptureConfigArgumentCaptor.getValue().get(0);
-        Camera2Config resultCaptureConfig =
-                new Camera2Config(captureConfig.getImplementationOptions());
-
-        assertThat(resultCaptureConfig.getCaptureRequestOption(CaptureRequest.CONTROL_AF_TRIGGER,
-                null)).isEqualTo(CaptureRequest.CONTROL_AF_TRIGGER_START);
-    }
-
-    @Test
-    public void cancelFocus_regionRestored() throws InterruptedException {
-        Rect focusRect = new Rect(0, 0, 10, 10);
-        Rect meteringRect = new Rect(20, 20, 30, 30);
-
-        mCamera2CameraControl.focus(focusRect, meteringRect);
-        mCamera2CameraControl.cancelFocus();
-
-        HandlerUtil.waitForLooperToIdle(mHandler);
-
-        verify(mControlUpdateListener, times(2)).onCameraControlUpdateSessionConfig(
-                mSessionConfigArgumentCaptor.capture());
-        SessionConfig sessionConfig = mSessionConfigArgumentCaptor.getAllValues().get(1);
-        Camera2Config repeatingConfig = new Camera2Config(sessionConfig.getImplementationOptions());
-        MeteringRectangle zeroRegion =
-                new MeteringRectangle(new Rect(), MeteringRectangle.METERING_WEIGHT_DONT_CARE);
-
-        assertThat(
-                repeatingConfig.getCaptureRequestOption(
-                        CaptureRequest.CONTROL_AF_REGIONS, null))
-                .isEqualTo(new MeteringRectangle[]{zeroRegion});
-        assertThat(
-                repeatingConfig.getCaptureRequestOption(
-                        CaptureRequest.CONTROL_AE_REGIONS, null))
-                .isEqualTo(new MeteringRectangle[]{zeroRegion});
-        assertThat(
-                repeatingConfig.getCaptureRequestOption(
-                        CaptureRequest.CONTROL_AWB_REGIONS, null))
-                .isEqualTo(new MeteringRectangle[]{zeroRegion});
-
-        Camera2Config singleConfig = new Camera2Config(mCamera2CameraControl.getSharedOptions());
-        assertThat(
-                singleConfig.getCaptureRequestOption(
-                        CaptureRequest.CONTROL_AF_REGIONS, null))
-                .isEqualTo(new MeteringRectangle[]{zeroRegion});
-        assertThat(
-                singleConfig.getCaptureRequestOption(
-                        CaptureRequest.CONTROL_AE_REGIONS, null))
-                .isEqualTo(new MeteringRectangle[]{zeroRegion});
-        assertThat(
-                singleConfig.getCaptureRequestOption(
-                        CaptureRequest.CONTROL_AWB_REGIONS, null))
-                .isEqualTo(new MeteringRectangle[]{zeroRegion});
-
-        assertThat(mCamera2CameraControl.isFocusLocked()).isFalse();
-
-        verify(mControlUpdateListener, times(2)).onCameraControlCaptureRequests(
-                mCaptureConfigArgumentCaptor.capture());
-        CaptureConfig captureConfig = mCaptureConfigArgumentCaptor.getAllValues().get(1).get(0);
-        Camera2Config resultCaptureConfig =
-                new Camera2Config(captureConfig.getImplementationOptions());
-
-        assertThat(resultCaptureConfig.getCaptureRequestOption(CaptureRequest.CONTROL_AF_TRIGGER,
-                null)).isEqualTo(CaptureRequest.CONTROL_AF_TRIGGER_CANCEL);
-    }
-
-    @Test
     public void defaultAFAWBMode_ShouldBeCAFWhenNotFocusLocked() {
         Camera2Config singleConfig = new Camera2Config(mCamera2CameraControl.getSharedOptions());
         assertThat(
@@ -283,26 +148,6 @@ public final class Camera2CameraControlTest {
 
         assertAfMode(singleConfig, CONTROL_AF_MODE_CONTINUOUS_PICTURE);
         assertAwbMode(singleConfig, CONTROL_AWB_MODE_AUTO);
-    }
-
-    @Test
-    public void focus_afModeSetToAuto() throws InterruptedException {
-        Rect focusRect = new Rect(0, 0, 10, 10);
-        mCamera2CameraControl.focus(focusRect, focusRect);
-
-        HandlerUtil.waitForLooperToIdle(mHandler);
-
-        Camera2Config singleConfig = new Camera2Config(mCamera2CameraControl.getSharedOptions());
-
-        mCamera2CameraControl.cancelFocus();
-
-        HandlerUtil.waitForLooperToIdle(mHandler);
-
-        Camera2Config singleConfig2 = new Camera2Config(mCamera2CameraControl.getSharedOptions());
-
-        assertAfMode(singleConfig, CONTROL_AF_MODE_AUTO);
-        assertAfMode(singleConfig2, CONTROL_AF_MODE_CONTINUOUS_PICTURE);
-
     }
 
     @Test
@@ -526,6 +371,205 @@ public final class Camera2CameraControlTest {
 
         assertAfMode(resultCaptureConfig,
                 sharedOptions.getCaptureRequestOption(CaptureRequest.CONTROL_AF_MODE, null));
+    }
+
+    @Test
+    public void startFocusAndMetering_3ARegionsUpdatedInSessionAndSharedOptions()
+            throws InterruptedException {
+        SensorOrientedMeteringPointFactory factory = new SensorOrientedMeteringPointFactory(1.0f,
+                1.0f);
+        FocusMeteringAction action = FocusMeteringAction.Builder.from(factory.createPoint(0, 0))
+                .build();
+        mCamera2CameraControl.startFocusAndMetering(action);
+
+        HandlerUtil.waitForLooperToIdle(mHandler);
+
+        verify(mControlUpdateListener, times(1)).onCameraControlUpdateSessionConfig(
+                mSessionConfigArgumentCaptor.capture());
+        SessionConfig sessionConfig = mSessionConfigArgumentCaptor.getValue();
+        Camera2Config repeatingConfig = new Camera2Config(sessionConfig.getImplementationOptions());
+
+        // Here we verify only 3A region count is correct.  Values correctness are left to
+        // FocusMeteringControlTest.
+        assertThat(
+                repeatingConfig.getCaptureRequestOption(
+                        CaptureRequest.CONTROL_AF_REGIONS, null)).hasLength(1);
+        assertThat(
+                repeatingConfig.getCaptureRequestOption(
+                        CaptureRequest.CONTROL_AE_REGIONS, null)).hasLength(1);
+        assertThat(
+                repeatingConfig.getCaptureRequestOption(
+                        CaptureRequest.CONTROL_AWB_REGIONS, null)).hasLength(1);
+
+
+        Camera2Config singleConfig = new Camera2Config(mCamera2CameraControl.getSharedOptions());
+        assertThat(
+                singleConfig.getCaptureRequestOption(
+                        CaptureRequest.CONTROL_AF_REGIONS, null)).hasLength(1);
+        assertThat(
+                singleConfig.getCaptureRequestOption(
+                        CaptureRequest.CONTROL_AE_REGIONS, null)).hasLength(1);
+        assertThat(
+                singleConfig.getCaptureRequestOption(
+                        CaptureRequest.CONTROL_AWB_REGIONS, null)).hasLength(1);
+    }
+
+    @Test
+    public void startFocusAndMetering_AfIsTriggeredProperly() throws InterruptedException {
+        SensorOrientedMeteringPointFactory factory = new SensorOrientedMeteringPointFactory(1.0f,
+                1.0f);
+        FocusMeteringAction action = FocusMeteringAction.Builder.from(factory.createPoint(0, 0))
+                .build();
+        mCamera2CameraControl.startFocusAndMetering(action);
+        HandlerUtil.waitForLooperToIdle(mHandler);
+
+        verifyAfMode(CaptureRequest.CONTROL_AF_MODE_AUTO);
+
+        verify(mControlUpdateListener).onCameraControlCaptureRequests(
+                mCaptureConfigArgumentCaptor.capture());
+
+        CaptureConfig captureConfig = mCaptureConfigArgumentCaptor.getValue().get(0);
+        Camera2Config resultCaptureConfig =
+                new Camera2Config(captureConfig.getImplementationOptions());
+
+        // Trigger AF
+        assertThat(resultCaptureConfig.getCaptureRequestOption(CaptureRequest.CONTROL_AF_TRIGGER,
+                null)).isEqualTo(CaptureRequest.CONTROL_AF_TRIGGER_START);
+    }
+
+    @Test
+    public void startFocusAndMetering_AFNotInvolved_AfIsNotTriggered() throws InterruptedException {
+        SensorOrientedMeteringPointFactory factory = new SensorOrientedMeteringPointFactory(1.0f,
+                1.0f);
+        FocusMeteringAction action = FocusMeteringAction.Builder.from(factory.createPoint(0, 0),
+                MeteringMode.AE_AWB)
+                .build();
+        mCamera2CameraControl.startFocusAndMetering(action);
+        HandlerUtil.waitForLooperToIdle(mHandler);
+
+        verifyAfMode(CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE);
+
+        verify(mControlUpdateListener, never()).onCameraControlCaptureRequests(any());
+    }
+
+    @Test
+    public void cancelFocusAndMetering_3ARegionsReset() throws InterruptedException {
+        SensorOrientedMeteringPointFactory factory = new SensorOrientedMeteringPointFactory(1.0f,
+                1.0f);
+        FocusMeteringAction action = FocusMeteringAction.Builder.from(factory.createPoint(0, 0))
+                .build();
+        mCamera2CameraControl.startFocusAndMetering(action);
+        HandlerUtil.waitForLooperToIdle(mHandler);
+        Mockito.reset(mControlUpdateListener);
+
+        mCamera2CameraControl.cancelFocusAndMetering();
+        HandlerUtil.waitForLooperToIdle(mHandler);
+
+        verify(mControlUpdateListener, times(1)).onCameraControlUpdateSessionConfig(
+                mSessionConfigArgumentCaptor.capture());
+        SessionConfig sessionConfig = mSessionConfigArgumentCaptor.getValue();
+        Camera2Config repeatingConfig = new Camera2Config(sessionConfig.getImplementationOptions());
+
+        assertThat(
+                repeatingConfig.getCaptureRequestOption(
+                        CaptureRequest.CONTROL_AF_REGIONS, null)).isNull();
+        assertThat(
+                repeatingConfig.getCaptureRequestOption(
+                        CaptureRequest.CONTROL_AE_REGIONS, null)).isNull();
+        assertThat(
+                repeatingConfig.getCaptureRequestOption(
+                        CaptureRequest.CONTROL_AWB_REGIONS, null)).isNull();
+
+
+        Camera2Config singleConfig = new Camera2Config(mCamera2CameraControl.getSharedOptions());
+        assertThat(
+                singleConfig.getCaptureRequestOption(
+                        CaptureRequest.CONTROL_AF_REGIONS, null)).isNull();
+        assertThat(
+                singleConfig.getCaptureRequestOption(
+                        CaptureRequest.CONTROL_AE_REGIONS, null)).isNull();
+        assertThat(
+                singleConfig.getCaptureRequestOption(
+                        CaptureRequest.CONTROL_AWB_REGIONS, null)).isNull();
+    }
+
+    @Test
+    public void cancelFocusAndMetering_cancelAfProperly() throws InterruptedException {
+        SensorOrientedMeteringPointFactory factory = new SensorOrientedMeteringPointFactory(1.0f,
+                1.0f);
+        FocusMeteringAction action = FocusMeteringAction.Builder.from(factory.createPoint(0, 0))
+                .build();
+        mCamera2CameraControl.startFocusAndMetering(action);
+        HandlerUtil.waitForLooperToIdle(mHandler);
+        Mockito.reset(mControlUpdateListener);
+        mCamera2CameraControl.cancelFocusAndMetering();
+        HandlerUtil.waitForLooperToIdle(mHandler);
+
+        verifyAfMode(CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE);
+
+        verify(mControlUpdateListener).onCameraControlCaptureRequests(
+                mCaptureConfigArgumentCaptor.capture());
+
+        CaptureConfig captureConfig = mCaptureConfigArgumentCaptor.getValue().get(0);
+        Camera2Config resultCaptureConfig =
+                new Camera2Config(captureConfig.getImplementationOptions());
+
+        // Trigger AF
+        assertThat(resultCaptureConfig.getCaptureRequestOption(CaptureRequest.CONTROL_AF_TRIGGER,
+                null)).isEqualTo(CaptureRequest.CONTROL_AF_TRIGGER_CANCEL);
+    }
+
+    private void verifyAfMode(int expectAfMode) {
+        verify(mControlUpdateListener, times(1)).onCameraControlUpdateSessionConfig(
+                mSessionConfigArgumentCaptor.capture());
+        SessionConfig sessionConfig = mSessionConfigArgumentCaptor.getValue();
+        Camera2Config repeatingConfig = new Camera2Config(sessionConfig.getImplementationOptions());
+        assertThat(repeatingConfig.getCaptureRequestOption(CaptureRequest.CONTROL_AF_MODE,
+                null)).isEqualTo(expectAfMode);
+    }
+
+    @Test
+    public void cancelFocusAndMetering_AFNotInvolved_notCancelAF() throws InterruptedException {
+        SensorOrientedMeteringPointFactory factory = new SensorOrientedMeteringPointFactory(1.0f,
+                1.0f);
+        FocusMeteringAction action = FocusMeteringAction.Builder.from(factory.createPoint(0, 0),
+                MeteringMode.AE_ONLY)
+                .build();
+        mCamera2CameraControl.startFocusAndMetering(action);
+        HandlerUtil.waitForLooperToIdle(mHandler);
+        Mockito.reset(mControlUpdateListener);
+        mCamera2CameraControl.cancelFocusAndMetering();
+        HandlerUtil.waitForLooperToIdle(mHandler);
+
+        verify(mControlUpdateListener, never()).onCameraControlCaptureRequests(any());
+
+        verifyAfMode(CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE);
+    }
+
+    @Test
+    public void startFocus_afModeIsSetToAuto() throws InterruptedException {
+        SensorOrientedMeteringPointFactory factory = new SensorOrientedMeteringPointFactory(1.0f,
+                1.0f);
+        FocusMeteringAction action = FocusMeteringAction.Builder.from(factory.createPoint(0, 0))
+                .build();
+        mCamera2CameraControl.startFocusAndMetering(action);
+        HandlerUtil.waitForLooperToIdle(mHandler);
+
+        Camera2Config singleConfig = new Camera2Config(mCamera2CameraControl.getSharedOptions());
+
+        mCamera2CameraControl.cancelFocusAndMetering();
+        HandlerUtil.waitForLooperToIdle(mHandler);
+
+        Camera2Config singleConfig2 = new Camera2Config(mCamera2CameraControl.getSharedOptions());
+
+        assertThat(
+                singleConfig.getCaptureRequestOption(
+                        CaptureRequest.CONTROL_AF_MODE, null))
+                .isEqualTo(CaptureRequest.CONTROL_AF_MODE_AUTO);
+        assertThat(
+                singleConfig2.getCaptureRequestOption(
+                        CaptureRequest.CONTROL_AF_MODE, null))
+                       .isEqualTo(CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE);
     }
 
     private boolean isAfModeSupported(int afMode) {

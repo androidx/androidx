@@ -16,10 +16,33 @@
 
 package androidx.camera.core;
 
+import androidx.annotation.NonNull;
+import androidx.camera.core.FocusMeteringAction.OnAutoFocusListener;
+
 /**
  * An interface for controlling camera's zoom, focus and metering across all use cases.
  *
  * <p>Applications can retrieve the interface via CameraX.getCameraControl.
  */
 public interface CameraControl {
+
+    /**
+     * Starts a focus and metering action by the {@link FocusMeteringAction}.
+     *
+     * The {@link FocusMeteringAction} contains the configuration of multiple 3A
+     * {@link MeteringPoint}s, auto-cancel duration and{@link OnAutoFocusListener} to receive the
+     * auto-focus result. Check {@link FocusMeteringAction} for more details.
+     *
+     * @param action the {@link FocusMeteringAction} to be executed.
+     */
+    void startFocusAndMetering(@NonNull FocusMeteringAction action);
+
+    /**
+     * Cancels current {@link FocusMeteringAction}.
+     *
+     * <p>It clears the 3A regions and update current AF mode to CONTINOUS AF (if supported).
+     * If auto-focus does not completes, it will notify the {@link OnAutoFocusListener} with
+     * isFocusLocked set to false.
+     */
+    void cancelFocusAndMetering();
 }

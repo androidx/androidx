@@ -16,18 +16,14 @@
 
 package androidx.camera.camera2.impl;
 
-import android.annotation.SuppressLint;
 import android.graphics.Rect;
 import android.hardware.camera2.CameraCaptureSession;
 import android.hardware.camera2.CameraCaptureSession.CaptureCallback;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CameraDevice;
 import android.hardware.camera2.CaptureRequest;
-import android.hardware.camera2.CaptureResult;
 import android.hardware.camera2.TotalCaptureResult;
-import android.hardware.camera2.params.MeteringRectangle;
-import android.os.Build;
-import android.util.Log;
+import android.util.Rational;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -39,7 +35,7 @@ import androidx.camera.core.CameraControlInternal;
 import androidx.camera.core.CaptureConfig;
 import androidx.camera.core.Config;
 import androidx.camera.core.FlashMode;
-import androidx.camera.core.OnFocusListener;
+import androidx.camera.core.FocusMeteringAction;
 import androidx.camera.core.SessionConfig;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 
@@ -50,8 +46,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
 
 /**
  * A Camera2 implementation for CameraControlInternal interface
@@ -60,7 +54,6 @@ import java.util.concurrent.TimeUnit;
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public final class Camera2CameraControl implements CameraControlInternal {
-    private static final long DEFAULT_FOCUS_TIMEOUT_MS = 5000;
     private static final String TAG = "Camera2CameraControl";
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     final CameraControlSessionCallback mSessionCallback;
@@ -70,43 +63,22 @@ public final class Camera2CameraControl implements CameraControlInternal {
     private final ControlUpdateListener mControlUpdateListener;
     private final ScheduledExecutorService mScheduler;
     private final SessionConfig.Builder mSessionConfigBuilder = new SessionConfig.Builder();
-
+    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+    volatile Rational mPreviewAspectRatio = null;
+    @VisibleForTesting
+    final FocusMeteringControl mFocusMeteringControl;
     // use volatile modifier to make these variables in sync in all threads.
     private volatile boolean mIsTorchOn = false;
-    private volatile boolean mIsFocusLocked = false;
     private volatile FlashMode mFlashMode = FlashMode.OFF;
 
     //******************** Should only be accessed by executor *****************************//
-    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-    CaptureResultListener mSessionListenerForFocus = null;
     private Rect mCropRect = null;
-    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-    MeteringRectangle mAfRect;
-    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-    MeteringRectangle mAeRect;
-    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-    MeteringRectangle mAwbRect;
-    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-    Integer mCurrentAfState = CaptureResult.CONTROL_AF_STATE_INACTIVE;
-    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-    long mFocusTimeoutCounter = 0;
-    private long mFocusTimeoutMs;
-    private ScheduledFuture<?> mFocusTimeoutHandle;
     //**************************************************************************************//
 
 
     public Camera2CameraControl(@NonNull CameraCharacteristics cameraCharacteristics,
             @NonNull ControlUpdateListener controlUpdateListener,
             @NonNull ScheduledExecutorService scheduler, @NonNull Executor executor) {
-        this(cameraCharacteristics, controlUpdateListener, DEFAULT_FOCUS_TIMEOUT_MS, scheduler,
-                executor);
-    }
-
-    public Camera2CameraControl(@NonNull CameraCharacteristics cameraCharacteristics,
-            @NonNull ControlUpdateListener controlUpdateListener,
-            long focusTimeoutMs,
-            @NonNull ScheduledExecutorService scheduler,
-            @NonNull Executor executor) {
         mCameraCharacteristics = cameraCharacteristics;
         mControlUpdateListener = controlUpdateListener;
         if (CameraXExecutors.isSequentialExecutor(executor)) {
@@ -115,19 +87,42 @@ public final class Camera2CameraControl implements CameraControlInternal {
             mExecutor = CameraXExecutors.newSequentialExecutor(executor);
         }
         mScheduler = scheduler;
-        mFocusTimeoutMs = focusTimeoutMs;
-
         mSessionCallback = new CameraControlSessionCallback(mExecutor);
-
         mSessionConfigBuilder.setTemplateType(getDefaultTemplate());
         mSessionConfigBuilder.addRepeatingCameraCaptureCallback(
                 CaptureCallbackContainer.create(mSessionCallback));
+
+        mFocusMeteringControl = new FocusMeteringControl(this, mExecutor, mScheduler);
 
         // Initialize the session config
         mExecutor.execute(new Runnable() {
             @Override
             public void run() {
                 updateSessionConfig();
+            }
+        });
+    }
+
+    public void setPreviewAspectRatio(@Nullable Rational previewAspectRatio) {
+        mPreviewAspectRatio = previewAspectRatio;
+    }
+
+    @Override
+    public void startFocusAndMetering(@NonNull FocusMeteringAction action) {
+        mExecutor.execute(new Runnable() {
+            @Override
+            public void run() {
+                mFocusMeteringControl.startFocusAndMetering(action, mPreviewAspectRatio);
+            }
+        });
+    }
+
+    @Override
+    public void cancelFocusAndMetering() {
+        mExecutor.execute(new Runnable() {
+            @Override
+            public void run() {
+                mFocusMeteringControl.cancelFocusAndMetering();
             }
         });
     }
@@ -139,44 +134,6 @@ public final class Camera2CameraControl implements CameraControlInternal {
             @Override
             public void run() {
                 setCropRegionInternal(crop);
-            }
-        });
-    }
-
-    /** {@inheritDoc} */
-    @SuppressLint("LambdaLast") // Remove after https://issuetracker.google.com/135275901
-    @Override
-    public void focus(
-            @NonNull final Rect focus,
-            @NonNull final Rect metering,
-            @NonNull final Executor userListenerExecutor,
-            @NonNull final OnFocusListener listener) {
-        mExecutor.execute(new Runnable() {
-            @Override
-            public void run() {
-                focusInternal(focus, metering, userListenerExecutor, listener);
-            }
-        });
-    }
-
-    @Override
-    public void focus(@NonNull Rect focus, @NonNull Rect metering) {
-        mExecutor.execute(new Runnable() {
-            @Override
-            public void run() {
-                // Listener executor won't be called, so its ok use pass direct executor here.
-                focusInternal(focus, metering, CameraXExecutors.directExecutor(), null);
-            }
-        });
-    }
-
-    /** Cancels the focus operation. */
-    @VisibleForTesting
-    void cancelFocus() {
-        mExecutor.execute(new Runnable() {
-            @Override
-            public void run() {
-                cancelFocusInternal();
             }
         });
     }
@@ -222,11 +179,6 @@ public final class Camera2CameraControl implements CameraControlInternal {
         return mIsTorchOn;
     }
 
-    @Override
-    public boolean isFocusLocked() {
-        return mIsFocusLocked;
-    }
-
     /**
      * Issues a {@link CaptureRequest#CONTROL_AF_TRIGGER_START} request to start auto focus scan.
      */
@@ -235,7 +187,7 @@ public final class Camera2CameraControl implements CameraControlInternal {
         mExecutor.execute(new Runnable() {
             @Override
             public void run() {
-                triggerAfInternal();
+                mFocusMeteringControl.triggerAf();
             }
         });
     }
@@ -249,7 +201,7 @@ public final class Camera2CameraControl implements CameraControlInternal {
         mExecutor.execute(new Runnable() {
             @Override
             public void run() {
-                triggerAePrecaptureInternal();
+                mFocusMeteringControl.triggerAePrecapture();
             }
         });
     }
@@ -265,7 +217,8 @@ public final class Camera2CameraControl implements CameraControlInternal {
         mExecutor.execute(new Runnable() {
             @Override
             public void run() {
-                cancelAfAeTriggerInternal(cancelAfTrigger, cancelAePrecaptureTrigger);
+                mFocusMeteringControl.cancelAfAeTrigger(cancelAfTrigger,
+                        cancelAePrecaptureTrigger);
             }
         });
     }
@@ -316,143 +269,30 @@ public final class Camera2CameraControl implements CameraControlInternal {
         updateSessionConfig();
     }
 
-    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     @WorkerThread
-    void focusInternal(
-            final Rect focus,
-            final Rect metering,
-            @NonNull final Executor listenerExecutor,
-            @Nullable final OnFocusListener listener) {
-        mSessionCallback.removeListener(mSessionListenerForFocus);
-
-        cancelFocusTimeout();
-
-        mAfRect = new MeteringRectangle(focus, MeteringRectangle.METERING_WEIGHT_MAX);
-        mAeRect = new MeteringRectangle(metering, MeteringRectangle.METERING_WEIGHT_MAX);
-        mAwbRect = new MeteringRectangle(metering, MeteringRectangle.METERING_WEIGHT_MAX);
-        Log.d(TAG, "Setting new AF rectangle: " + mAfRect);
-        Log.d(TAG, "Setting new AE rectangle: " + mAeRect);
-        Log.d(TAG, "Setting new AWB rectangle: " + mAwbRect);
-
-        mCurrentAfState = CaptureResult.CONTROL_AF_STATE_INACTIVE;
-        mIsFocusLocked = true;
-
-        if (listener != null) {
-
-            mSessionListenerForFocus =
-                    new CaptureResultListener() {
-                        // Will be called on mExecutor since mSessionCallback was created with
-                        // mExecutor
-                        @WorkerThread
-                        @Override
-                        public boolean onCaptureResult(TotalCaptureResult result) {
-                            Integer afState = result.get(CaptureResult.CONTROL_AF_STATE);
-                            if (afState == null) {
-                                return false;
-                            }
-
-                            if (mCurrentAfState == CaptureResult.CONTROL_AF_STATE_ACTIVE_SCAN) {
-                                if (afState == CaptureResult.CONTROL_AF_STATE_FOCUSED_LOCKED) {
-                                    listenerExecutor.execute(
-                                            new Runnable() {
-                                                @Override
-                                                public void run() {
-                                                    listener.onFocusLocked(mAfRect.getRect());
-                                                }
-                                            });
-                                    return true; // finished
-                                } else if (afState
-                                        == CaptureResult.CONTROL_AF_STATE_NOT_FOCUSED_LOCKED) {
-                                    listenerExecutor.execute(
-                                            new Runnable() {
-                                                @Override
-                                                public void run() {
-                                                    listener.onFocusUnableToLock(
-                                                            mAfRect.getRect());
-                                                }
-                                            });
-                                    return true; // finished
-                                }
-                            }
-                            if (!mCurrentAfState.equals(afState)) {
-                                mCurrentAfState = afState;
-                            }
-                            return false; // continue checking
-                        }
-                    };
-
-            mSessionCallback.addListener(mSessionListenerForFocus);
+    @NonNull
+    Rect getCropSensorRegion() {
+        Rect cropRect = mCropRect;
+        if (cropRect == null) {
+            cropRect = getSensorRect();
         }
-        updateSessionConfig();
-
-        triggerAfInternal();
-        if (mFocusTimeoutMs > 0) {
-            final long timeoutId = ++mFocusTimeoutCounter;
-            final Runnable timeoutRunnable = new Runnable() {
-                @Override
-                public void run() {
-                    mExecutor.execute(new Runnable() {
-                        @WorkerThread
-                        @Override
-                        public void run() {
-                            if (timeoutId == mFocusTimeoutCounter) {
-                                cancelFocusInternal();
-
-                                mSessionCallback.removeListener(mSessionListenerForFocus);
-
-                                if (listener != null
-                                        && mCurrentAfState
-                                        == CaptureResult.CONTROL_AF_STATE_ACTIVE_SCAN) {
-                                    listenerExecutor.execute(
-                                            new Runnable() {
-                                                @Override
-                                                public void run() {
-                                                    listener.onFocusTimedOut(mAfRect.getRect());
-                                                }
-                                            });
-                                }
-                            }
-                        }
-                    });
-                }
-            };
-
-            mFocusTimeoutHandle = mScheduler.schedule(timeoutRunnable, mFocusTimeoutMs,
-                    TimeUnit.MILLISECONDS);
-        }
+        return cropRect;
     }
 
     @WorkerThread
-    private void cancelFocusTimeout() {
-        if (mFocusTimeoutHandle != null) {
-            mFocusTimeoutHandle.cancel(/*mayInterruptIfRunning=*/true);
-            mFocusTimeoutHandle = null;
-        }
+    @NonNull
+    Rect getSensorRect() {
+        return mCameraCharacteristics.get(CameraCharacteristics.SENSOR_INFO_ACTIVE_ARRAY_SIZE);
     }
 
-    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     @WorkerThread
-    void cancelFocusInternal() {
-        cancelFocusTimeout();
+    void removeCaptureResultListener(@NonNull CaptureResultListener listener) {
+        mSessionCallback.removeListener(listener);
+    }
 
-        MeteringRectangle zeroRegion =
-                new MeteringRectangle(new Rect(), MeteringRectangle.METERING_WEIGHT_DONT_CARE);
-        mAfRect = zeroRegion;
-        mAeRect = zeroRegion;
-        mAwbRect = zeroRegion;
-
-        // Send a single request to cancel af process
-        CaptureConfig.Builder singleRequestBuilder = createCaptureBuilderWithSharedOptions();
-        singleRequestBuilder.setTemplateType(getDefaultTemplate());
-        singleRequestBuilder.setUseRepeatingSurface(true);
-        Camera2Config.Builder configBuilder = new Camera2Config.Builder();
-        configBuilder.setCaptureRequestOption(CaptureRequest.CONTROL_AF_TRIGGER,
-                CaptureRequest.CONTROL_AF_TRIGGER_CANCEL);
-        singleRequestBuilder.addImplementationOptions(configBuilder.build());
-        notifyCaptureRequests(Collections.singletonList(singleRequestBuilder.build()));
-
-        mIsFocusLocked = false;
-        updateSessionConfig();
+    @WorkerThread
+    void addCaptureResultListener(@NonNull CaptureResultListener listener) {
+        mSessionCallback.addListener(listener);
     }
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
@@ -474,52 +314,6 @@ public final class Camera2CameraControl implements CameraControlInternal {
         updateSessionConfig();
     }
 
-    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-    @WorkerThread
-    void triggerAfInternal() {
-        CaptureConfig.Builder builder = createCaptureBuilderWithSharedOptions();
-        builder.setTemplateType(getDefaultTemplate());
-        builder.setUseRepeatingSurface(true);
-        Camera2Config.Builder configBuilder = new Camera2Config.Builder();
-        configBuilder.setCaptureRequestOption(CaptureRequest.CONTROL_AF_TRIGGER,
-                CaptureRequest.CONTROL_AF_TRIGGER_START);
-        builder.addImplementationOptions(configBuilder.build());
-        notifyCaptureRequests(Collections.singletonList(builder.build()));
-    }
-
-    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-    @WorkerThread
-    void triggerAePrecaptureInternal() {
-        CaptureConfig.Builder builder = createCaptureBuilderWithSharedOptions();
-        builder.setTemplateType(getDefaultTemplate());
-        builder.setUseRepeatingSurface(true);
-        Camera2Config.Builder configBuilder = new Camera2Config.Builder();
-        configBuilder.setCaptureRequestOption(CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER,
-                CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER_START);
-        builder.addImplementationOptions(configBuilder.build());
-        notifyCaptureRequests(Collections.singletonList(builder.build()));
-    }
-
-    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-    @WorkerThread
-    void cancelAfAeTriggerInternal(final boolean cancelAfTrigger,
-            final boolean cancelAePrecaptureTrigger) {
-        CaptureConfig.Builder builder = createCaptureBuilderWithSharedOptions();
-        builder.setUseRepeatingSurface(true);
-        builder.setTemplateType(getDefaultTemplate());
-
-        Camera2Config.Builder configBuilder = new Camera2Config.Builder();
-        if (cancelAfTrigger) {
-            configBuilder.setCaptureRequestOption(CaptureRequest.CONTROL_AF_TRIGGER,
-                    CaptureRequest.CONTROL_AF_TRIGGER_CANCEL);
-        }
-        if (Build.VERSION.SDK_INT >= 23 && cancelAePrecaptureTrigger) {
-            configBuilder.setCaptureRequestOption(CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER,
-                    CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER_CANCEL);
-        }
-        builder.addImplementationOptions(configBuilder.build());
-        notifyCaptureRequests(Collections.singletonList(builder.build()));
-    }
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     @WorkerThread
@@ -547,11 +341,8 @@ public final class Camera2CameraControl implements CameraControlInternal {
         builder.setCaptureRequestOption(
                 CaptureRequest.CONTROL_MODE, CaptureRequest.CONTROL_MODE_AUTO);
 
-        builder.setCaptureRequestOption(
-                CaptureRequest.CONTROL_AF_MODE,
-                isFocusLocked()
-                        ? getSupportedAfMode(CaptureRequest.CONTROL_AF_MODE_AUTO)
-                        : getSupportedAfMode(CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE));
+        // AF Mode is assigned in mFocusMeteringControl.
+        mFocusMeteringControl.addFocusMeteringOptions(builder);
 
         int aeMode = CaptureRequest.CONTROL_AE_MODE_ON;
         if (mIsTorchOn) {
@@ -576,19 +367,6 @@ public final class Camera2CameraControl implements CameraControlInternal {
                 CaptureRequest.CONTROL_AWB_MODE,
                 getSupportedAwbMode(CaptureRequest.CONTROL_AWB_MODE_AUTO));
 
-        if (mAfRect != null) {
-            builder.setCaptureRequestOption(
-                    CaptureRequest.CONTROL_AF_REGIONS, new MeteringRectangle[]{mAfRect});
-        }
-        if (mAeRect != null) {
-            builder.setCaptureRequestOption(
-                    CaptureRequest.CONTROL_AE_REGIONS, new MeteringRectangle[]{mAeRect});
-        }
-        if (mAwbRect != null) {
-            builder.setCaptureRequestOption(
-                    CaptureRequest.CONTROL_AWB_REGIONS, new MeteringRectangle[]{mAwbRect});
-        }
-
         if (mCropRect != null) {
             builder.setCaptureRequestOption(CaptureRequest.SCALER_CROP_REGION, mCropRect);
         }
@@ -607,7 +385,7 @@ public final class Camera2CameraControl implements CameraControlInternal {
      * </pre>
      */
     @WorkerThread
-    private int getSupportedAfMode(int preferredMode) {
+    int getSupportedAfMode(int preferredMode) {
         int[] modes = mCameraCharacteristics.get(CameraCharacteristics.CONTROL_AF_AVAILABLE_MODES);
         if (modes == null) {
             return CaptureRequest.CONTROL_AF_MODE_OFF;
@@ -699,14 +477,14 @@ public final class Camera2CameraControl implements CameraControlInternal {
     }
 
     /** An interface to listen to camera capture results. */
-    private interface CaptureResultListener {
+    interface CaptureResultListener {
         /**
          * Callback to handle camera capture results.
          *
          * @param captureResult camera capture result.
          * @return true to finish listening, false to continue listening.
          */
-        boolean onCaptureResult(TotalCaptureResult captureResult);
+        boolean onCaptureResult(@NonNull TotalCaptureResult captureResult);
     }
 
     static final class CameraControlSessionCallback extends CaptureCallback {
@@ -719,12 +497,12 @@ public final class Camera2CameraControl implements CameraControlInternal {
         }
 
         @WorkerThread
-        void addListener(CaptureResultListener listener) {
+        void addListener(@NonNull CaptureResultListener listener) {
             mResultListeners.add(listener);
         }
 
         @WorkerThread
-        void removeListener(CaptureResultListener listener) {
+        void removeListener(@NonNull CaptureResultListener listener) {
             mResultListeners.remove(listener);
         }
 
@@ -750,8 +528,6 @@ public final class Camera2CameraControl implements CameraControlInternal {
                     }
                 }
             });
-
-
         }
     }
 }

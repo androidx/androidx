@@ -29,6 +29,15 @@ dependencies {
     implementation("androidx.annotation:annotation:1.0.0")
 
     api(project(":camera:camera-core"))
+    androidTestImplementation(project(":camera:camera-testing"))
+    androidTestImplementation(MOCKITO_CORE)
+    androidTestImplementation(ESPRESSO_CORE)
+    androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
+    androidTestImplementation(ANDROIDX_TEST_CORE)
+    androidTestImplementation(ANDROIDX_TEST_RUNNER)
+    androidTestImplementation(ANDROIDX_TEST_RULES)
+    androidTestImplementation(TRUTH)
+    androidTestImplementation(project(":camera:camera-camera2"))
 }
 android {
     defaultConfig {

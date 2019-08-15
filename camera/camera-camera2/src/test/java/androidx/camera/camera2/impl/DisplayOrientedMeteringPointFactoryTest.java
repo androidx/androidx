@@ -109,7 +109,7 @@ public class DisplayOrientedMeteringPointFactoryTest {
                 mMockContext, CameraX.LensFacing.BACK, WIDTH, HEIGHT);
 
         MeteringPoint point = factory.createPoint(0, 0);
-        assertThat(point.getAreaLength()).isEqualTo(MeteringPointFactory.DEFAULT_AREASIZE);
+        assertThat(point.getSize()).isEqualTo(MeteringPointFactory.DEFAULT_AREASIZE);
         assertThat(point.getWeight()).isEqualTo(MeteringPointFactory.DEFAULT_WEIGHT);
         assertThat(point.getFOVAspectRatio()).isNull();
     }
@@ -122,7 +122,7 @@ public class DisplayOrientedMeteringPointFactoryTest {
         final float areaSize = 0.2f;
         final float weight = 0.5f;
         MeteringPoint point = factory.createPoint(0, 0, areaSize, weight);
-        assertThat(point.getAreaLength()).isEqualTo(areaSize);
+        assertThat(point.getSize()).isEqualTo(areaSize);
         assertThat(point.getWeight()).isEqualTo(weight);
         assertThat(point.getFOVAspectRatio()).isNull();
     }
