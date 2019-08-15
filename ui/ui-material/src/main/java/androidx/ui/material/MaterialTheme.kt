@@ -39,17 +39,22 @@ import androidx.ui.text.font.FontFamily
 import androidx.ui.text.TextStyle
 
 /**
- * This Component defines the styling principles from the Material design specification. It must be
+ * This component defines the styling principles from the Material design specification. It must be
  * present within a hierarchy of components that includes Material components, as it defines key
  * values such as base colors and typography.
  *
- * By default, it defines the colors as specified in the Color theme creation spec
- * (https://material.io/design/color/the-color-system.html#color-theme-creation) and the typography
- * defined in the Type Scale spec
- * (https://material.io/design/typography/the-type-system.html#type-scale).
+ * Material components such as [Button] and [Checkbox] use this definition to set default values.
  *
- * All values may be overriden by providing this component with the [colors] and [typography]
- * attributes. Use this to configure the overall theme of your application.
+ * It defines colors as specified in the [Material Color theme creation spec]
+ * [https://material.io/design/color/the-color-system.html#color-theme-creation] and the typography
+ * defined in the [Material Type Scale spec]
+ * [https://material.io/design/typography/the-type-system.html#type-scale].
+ *
+ * All values may be set by providing this component with the [colors][MaterialColors] and
+ * [typography][MaterialTypography] attributes. Use this to configure the overall theme of your
+ * application.
+ *
+ * @sample androidx.ui.material.samples.MaterialThemeSample
  */
 @Composable
 fun MaterialTheme(
@@ -73,21 +78,25 @@ fun MaterialTheme(
  * by the Material spec. You can read the values in it when creating custom components that want
  * to use Material colors, as well as override the values when you want to re-style a part of your
  * hierarchy.
+ *
+ * To access values within this ambient, use [themeColor].
  */
 val Colors = Ambient.of<MaterialColors>("colors") { error("No colors found!") }
 
 /**
- * This Ambient holds on to the current definiton of typography for this application as described
+ * This Ambient holds on to the current definition of typography for this application as described
  * by the Material spec.  You can read the values in it when creating custom components that want
  * to use Material types, as well as override the values when you want to re-style a part of your
- * hierarchy. Material components related to text such as [H1TextStyle] will refer to this Ambient
- * to obtain the values with which to style text.
+ * hierarchy. Material components related to text such as [Button] will use this Ambient
+ * to set values with which to style children text components.
+ *
+ * To access values within this ambient, use [themeTextStyle].
  */
 val Typography = Ambient.of<MaterialTypography>("typography") { error("No typography found!") }
 
 /**
- * Data class holding color values as defined by the Material specification
- * (https://material.io/design/color/the-color-system.html#color-theme-creation).
+ * Data class holding color values as defined by the [Material color specification]
+ * [https://material.io/design/color/the-color-system.html#color-theme-creation].
  */
 data class MaterialColors(
     /**
@@ -96,25 +105,23 @@ data class MaterialColors(
      */
     val primary: Color = Color(0xFF6200EE.toInt()),
     /**
-     * The primary variant is used to distinguish two elements of the app using the primary color,
-     * such as the top app bar and the system bar.
+     * The primary variant color is used to distinguish two elements of the app using the primary
+     * color, such as the top app bar and the system bar.
      */
     val primaryVariant: Color = Color(0xFF3700B3.toInt()),
     /**
      * The secondary color provides more ways to accent and distinguish your product.
      * Secondary colors are best for:
-     * <ul>
-     *     <li>Floating action buttons</li>
-     *     <li>Selection controls, like sliders and switches</li>
-     *     <li>Highlighting selected text</li>
-     *     <li>Progress bars</li>
-     *     <li>Links and headlines</li>
-     * </ul>
+     * - Floating action buttons
+     * - Selection controls, like sliders and switches
+     * - Highlighting selected text
+     * - Progress bars
+     * - Links and headlines
      */
     val secondary: Color = Color(0xFF03DAC6.toInt()),
     /**
-     * The secondary variant is used to distinguish two elements of the app using the secondary
-     * color.
+     * The secondary variant color is used to distinguish two elements of the app using the
+     * secondary color.
      */
     val secondaryVariant: Color = Color(0xFF018786.toInt()),
     /**
@@ -152,8 +159,8 @@ data class MaterialColors(
 )
 
 /**
- * Data class holding typography definitions as defined by the Material specification
- * (https://material.io/design/typography/the-type-system.html#type-scale).
+ * Data class holding typography definitions as defined by the [Material typography specification]
+ * [https://material.io/design/typography/the-type-system.html#type-scale].
  */
 data class MaterialTypography(
     // TODO(clara): case
@@ -219,7 +226,7 @@ data class MaterialTypography(
  * guidelines for descendants
  */
 @Composable
-fun MaterialRippleTheme(children: @Composable() () -> Unit) {
+private fun MaterialRippleTheme(children: @Composable() () -> Unit) {
     val materialColors = +ambient(Colors)
     val defaultTheme = +memo {
         RippleTheme(
@@ -239,7 +246,9 @@ fun MaterialRippleTheme(children: @Composable() () -> Unit) {
 }
 
 /**
- * Helps to resolve the [Color] by applying [choosingBlock] for the [MaterialColors].
+ * Helper effect that resolves [Color]s from the [Colors] ambient by applying [choosingBlock].
+ *
+ * @sample androidx.ui.material.samples.ThemeColorSample
  */
 @CheckResult(suggest = "+")
 fun themeColor(
@@ -247,7 +256,10 @@ fun themeColor(
 ) = effectOf<Color> { (+ambient(Colors)).choosingBlock() }
 
 /**
- * Helps to resolve the [TextStyle] by applying [choosingBlock] for the [MaterialTypography].
+ * Helper effect that resolves [TextStyle]s from the [Typography] ambient by applying
+ * [choosingBlock].
+ *
+ * @sample androidx.ui.material.samples.ThemeTextStyleSample
  */
 @CheckResult(suggest = "+")
 fun themeTextStyle(
@@ -294,7 +306,8 @@ fun MaterialButtonShapeTheme(children: @Composable() () -> Unit) {
 }
 
 /**
- * Helps to resolve the [Shape] by applying [choosingBlock] for the [Shapes].
+ * Helper effect to resolve [Shape]s from the [CurrentShapeAmbient] ambient by applying
+ * [choosingBlock].
  */
 @CheckResult(suggest = "+")
 fun themeShape(
