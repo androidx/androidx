@@ -1814,7 +1814,7 @@ public abstract class FragmentManager {
         f.initState();
     }
 
-    void addFragment(Fragment fragment, boolean moveToStateNow) {
+    void addFragment(Fragment fragment) {
         if (DEBUG) Log.v(TAG, "add: " + fragment);
         makeActive(fragment);
         if (!fragment.mDetached) {
@@ -1831,9 +1831,6 @@ public abstract class FragmentManager {
             }
             if (isMenuAvailable(fragment)) {
                 mNeedMenuInvalidate = true;
-            }
-            if (moveToStateNow) {
-                moveToState(fragment);
             }
         }
     }
