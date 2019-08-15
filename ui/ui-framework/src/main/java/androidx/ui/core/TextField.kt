@@ -26,37 +26,13 @@ import androidx.ui.core.gesture.TouchSlopDragGestureDetector
 import androidx.ui.core.gesture.DragObserver
 import androidx.ui.core.gesture.PressGestureDetector
 import androidx.ui.core.input.FocusManager
-import androidx.ui.graphics.Color
 import androidx.ui.input.EditProcessor
 import androidx.ui.input.EditorModel
+import androidx.ui.input.EditorStyle
 import androidx.ui.input.ImeAction
 import androidx.ui.input.KeyboardType
 import androidx.ui.input.VisualTransformation
 import androidx.ui.text.TextDelegate
-import androidx.ui.text.TextStyle
-
-/**
- * Data class holding text display attributes used for editors.
- */
-data class EditorStyle(
-    /** The  editor text style */
-    val textStyle: TextStyle? = null,
-
-    /**
-     * The composition background color
-     *
-     * @see EditorModel.composition
-     */
-    val compositionColor: Color = Color(alpha = 0xFF, red = 0xB0, green = 0xE0, blue = 0xE6),
-
-    /**
-     *  The selection background color
-     *
-     *  @see EditorModel.selection
-     */
-    // TODO(nona): share with Text.DEFAULT_SELECTION_COLOR
-    val selectionColor: Color = Color(alpha = 0x66, red = 0x33, green = 0xB5, blue = 0xE5)
-)
 
 /**
  * A default implementation of TextField

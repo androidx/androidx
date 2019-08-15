@@ -20,7 +20,6 @@ import androidx.compose.composer
 import androidx.compose.Composable
 import androidx.compose.state
 import androidx.compose.unaryPlus
-import androidx.ui.core.EditorStyle
 import androidx.ui.core.Layout
 import androidx.ui.input.OffsetMap
 import androidx.ui.input.PasswordVisualTransformation
@@ -31,6 +30,7 @@ import androidx.ui.input.VisualTransformation
 import androidx.ui.core.ipx
 import androidx.ui.graphics.Color
 import androidx.ui.input.EditorModel
+import androidx.ui.input.EditorStyle
 import androidx.ui.input.ImeAction
 import androidx.ui.input.KeyboardType
 import androidx.ui.layout.Column
@@ -41,7 +41,7 @@ import androidx.ui.text.TextStyle
 import java.util.Locale
 
 /**
- * The offset translater used for credit card input field.
+ * The offset translator used for credit card input field.
  *
  * @see creditCardFilter
  */
