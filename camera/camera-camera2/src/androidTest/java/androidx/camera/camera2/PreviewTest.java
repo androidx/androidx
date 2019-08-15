@@ -34,7 +34,6 @@ import android.util.Size;
 import android.view.Surface;
 
 import androidx.annotation.NonNull;
-import androidx.camera.camera2.impl.Camera2CameraControl;
 import androidx.camera.core.AppConfig;
 import androidx.camera.core.CameraControlInternal;
 import androidx.camera.core.CameraFactory;
@@ -48,8 +47,8 @@ import androidx.camera.core.Preview.OnPreviewOutputUpdateListener;
 import androidx.camera.core.Preview.PreviewOutput;
 import androidx.camera.core.PreviewConfig;
 import androidx.camera.core.SessionConfig;
-import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.testing.CameraUtil;
+import androidx.camera.testing.fakes.FakeCameraControl;
 import androidx.test.annotation.UiThreadTest;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -490,21 +489,16 @@ public final class PreviewTest {
     }
 
     private CameraControlInternal getFakeCameraControl() {
-        return new Camera2CameraControl(
-                new CameraControlInternal.ControlUpdateListener() {
-                    @Override
-                    public void onCameraControlUpdateSessionConfig(
-                            @NonNull SessionConfig sessionConfig) {
-                    }
+        return new FakeCameraControl(new CameraControlInternal.ControlUpdateListener() {
+            @Override
+            public void onCameraControlUpdateSessionConfig(@NonNull SessionConfig sessionConfig) {
+            }
 
-                    @Override
-                    public void onCameraControlCaptureRequests(
-                            @NonNull List<CaptureConfig> captureConfigs) {
-
-                    }
-                },
-                CameraXExecutors.mainThreadExecutor(),
-                CameraXExecutors.mainThreadExecutor());
+            @Override
+            public void onCameraControlCaptureRequests(
+                    @NonNull List<CaptureConfig> captureConfigs) {
+            }
+        });
     }
 
     private static final class SurfaceTextureCallable implements Callable<SurfaceTexture> {
