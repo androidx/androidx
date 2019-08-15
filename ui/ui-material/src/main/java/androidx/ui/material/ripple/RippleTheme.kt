@@ -16,19 +16,15 @@
 
 package androidx.ui.material.ripple
 
-import androidx.ui.material.MaterialRippleTheme
 import androidx.ui.graphics.Color
 import androidx.compose.Ambient
 
 /**
- * Defines the appearance and the behavior for [RippleEffect]s.
- * Used for customisation of [Ripple].
+ * Defines the appearance and the behavior for [RippleEffect]s. Used for customisation of [Ripple].
  *
- * To change some parameter and apply it to descendants modify
- * the [CurrentRippleTheme] ambient.
+ * To change some parameter and apply it to descendants modify the [CurrentRippleTheme] ambient.
  *
- * To apply the default values based on the Material Design guidelines
- * use [MaterialRippleTheme].
+ * To apply the default values based on the Material Design guidelines use [androidx.ui.material.MaterialTheme].
  */
 data class RippleTheme(
     /**
@@ -48,5 +44,5 @@ data class RippleTheme(
 typealias RippleColorCallback = (background: Color?) -> (Color)
 
 val CurrentRippleTheme = Ambient.of<RippleTheme> {
-    error("No RippleTheme provided. Please add MaterialRippleTheme as an ancestor.")
+    error("No RippleTheme provided. Please add MaterialTheme as an ancestor.")
 }
