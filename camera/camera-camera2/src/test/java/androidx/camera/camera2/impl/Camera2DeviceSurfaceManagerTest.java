@@ -75,6 +75,7 @@ import org.robolectric.shadows.ShadowCameraManager;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
 /** Robolectric test for {@link Camera2DeviceSurfaceManager} class */
 @SmallTest
@@ -138,8 +139,8 @@ public final class Camera2DeviceSurfaceManagerTest {
     }
 
     @After
-    public void tearDown() {
-        CameraX.deinit();
+    public void tearDown() throws ExecutionException, InterruptedException {
+        CameraX.deinit().get();
     }
 
     @Test

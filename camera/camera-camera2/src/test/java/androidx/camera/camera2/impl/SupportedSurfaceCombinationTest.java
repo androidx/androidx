@@ -60,6 +60,7 @@ import androidx.camera.testing.fakes.FakeCameraFactory;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.filters.SmallTest;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -76,6 +77,7 @@ import org.robolectric.shadows.ShadowCameraManager;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
 /** Robolectric test for {@link SupportedSurfaceCombination} class */
 @SmallTest
@@ -146,6 +148,11 @@ public final class SupportedSurfaceCombinationTest {
         Shadows.shadowOf(windowManager.getDefaultDisplay()).setRealHeight(mDisplaySize.getHeight());
 
         when(mMockCamcorderProfileHelper.hasProfile(anyInt(), anyInt())).thenReturn(true);
+    }
+
+    @After
+    public void tearDown() throws ExecutionException, InterruptedException {
+        CameraX.deinit().get();
     }
 
     @Test

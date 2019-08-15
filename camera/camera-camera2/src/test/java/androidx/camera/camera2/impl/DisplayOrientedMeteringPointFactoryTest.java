@@ -51,6 +51,8 @@ import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 import org.robolectric.annotation.internal.DoNotInstrument;
 
+import java.util.concurrent.ExecutionException;
+
 @SmallTest
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
@@ -101,8 +103,8 @@ public class DisplayOrientedMeteringPointFactoryTest {
     }
 
     @After
-    public void tearDown() {
-        CameraX.deinit();
+    public void tearDown() throws ExecutionException, InterruptedException {
+        CameraX.deinit().get();
     }
 
     @Test
