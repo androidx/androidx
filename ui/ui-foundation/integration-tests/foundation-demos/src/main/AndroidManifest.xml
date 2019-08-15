@@ -21,11 +21,27 @@
     <application>
 
         <activity android:name=".AnimatedDraggableActivity"
-            android:configChanges="orientation|screenSize"
-            android:label="Foundation/AnimatedDraggable">
+                  android:configChanges="orientation|screenSize"
+                  android:label="Foundation/AnimatedDraggable">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="androidx.ui.demos.SAMPLE_CODE" />
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="androidx.ui.demos.SAMPLE_CODE"/>
+            </intent-filter>
+        </activity>
+        <activity android:name=".VerticalScrollerActivity"
+                  android:configChanges="orientation|screenSize"
+                  android:label="Foundation/VerticalScroller">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="androidx.ui.demos.SAMPLE_CODE"/>
+            </intent-filter>
+        </activity>
+        <activity android:name=".HorizontalScrollerActivity"
+                  android:configChanges="orientation|screenSize"
+                  android:label="Foundation/HorizontalScroller with controls">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="androidx.ui.demos.SAMPLE_CODE"/>
             </intent-filter>
         </activity>
 

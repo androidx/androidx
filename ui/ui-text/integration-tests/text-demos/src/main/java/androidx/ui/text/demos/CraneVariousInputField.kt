@@ -35,7 +35,7 @@ import androidx.ui.input.ImeAction
 import androidx.ui.input.KeyboardType
 import androidx.ui.layout.Column
 import androidx.ui.layout.CrossAxisAlignment
-import androidx.ui.layout.VerticalScroller
+import androidx.ui.foundation.VerticalScroller
 import androidx.ui.text.AnnotatedString
 import androidx.ui.text.TextStyle
 import java.util.Locale

@@ -31,10 +31,10 @@ import androidx.ui.graphics.Color
 import androidx.ui.layout.Column
 import androidx.ui.layout.CrossAxisAlignment
 import androidx.ui.layout.FlexColumn
-import androidx.ui.layout.HorizontalScroller
+import androidx.ui.foundation.HorizontalScroller
 import androidx.ui.layout.Row
-import androidx.ui.layout.ScrollerPosition
-import androidx.ui.layout.VerticalScroller
+import androidx.ui.foundation.ScrollerPosition
+import androidx.ui.foundation.VerticalScroller
 import androidx.ui.material.MaterialTheme
 import androidx.ui.material.surface.Surface
 import androidx.ui.test.ComposeTestCase
@@ -65,7 +65,7 @@ class NestedScrollerTestCase(
     }!!
 
     override fun toggleState() {
-        scrollerPosition.position = if (scrollerPosition.position == 0.px) 10.px else 0.px
+        scrollerPosition.value = if (scrollerPosition.value == 0.px) 10.px else 0.px
         FrameManager.nextFrame()
     }
 

@@ -13,11 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.ui.layout.test
+package androidx.ui.foundation
 
+import android.app.Activity
 import android.graphics.Bitmap
 import android.os.Build
+import android.os.Handler
 import android.view.PixelCopy
+import android.view.View
+import android.view.ViewGroup
 import android.view.ViewTreeObserver
 import androidx.test.filters.SmallTest
 import androidx.ui.core.Draw
@@ -34,20 +38,21 @@ import androidx.ui.layout.ConstrainedBox
 import androidx.ui.layout.Container
 import androidx.ui.layout.CrossAxisAlignment
 import androidx.ui.layout.DpConstraints
-import androidx.ui.layout.ScrollerPosition
-import androidx.ui.layout.VerticalScroller
 import androidx.ui.graphics.Color
 import androidx.ui.painting.Paint
 import androidx.ui.painting.PaintingStyle
 import androidx.compose.composer
 import androidx.test.filters.SdkSuppress
+import androidx.ui.core.AndroidCraneView
 import androidx.ui.core.setContent
-import androidx.ui.layout.HorizontalScroller
 import androidx.ui.layout.Row
+import androidx.ui.test.android.AndroidComposeTestRule
+import androidx.ui.test.createComposeRule
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertTrue
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -56,7 +61,16 @@ import java.util.concurrent.TimeUnit
 
 @SmallTest
 @RunWith(JUnit4::class)
-class ScrollerTest : LayoutTest() {
+class ScrollerTest {
+
+    @get:Rule
+    val composeTestRule = createComposeRule()
+
+    // TODO(malkov/pavlis) : some tests here require activity access as we need
+    // to take screen's bitmap, abstract it better
+    val activity
+        get() = (composeTestRule as AndroidComposeTestRule).activityTestRule.activity
+
     val colors = listOf(
         Color(alpha = 0xFF, red = 0xFF, green = 0, blue = 0),
         Color(alpha = 0xFF, red = 0xFF, green = 0xA5, blue = 0),
@@ -69,10 +83,14 @@ class ScrollerTest : LayoutTest() {
     )
 
     var drawLatch = CountDownLatch(1)
+    lateinit var handler: Handler
 
     @Before
     fun setupDrawLatch() {
         drawLatch = CountDownLatch(1)
+        composeTestRule.runOnUiThread {
+            handler = Handler()
+        }
     }
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
@@ -99,8 +117,6 @@ class ScrollerTest : LayoutTest() {
         val changeListener = ScrollerChangeListener(scrollerPosition)
         composeVerticalScroller(scrollerPosition, changeListener, height = 30.ipx)
 
-        changeListener.waitForChange()
-
         validateVerticalScroller(0, 30)
 
         // The 'draw' method will no longer be called because only the position
@@ -112,13 +128,13 @@ class ScrollerTest : LayoutTest() {
                 latch.countDown()
             }
         }
-        runOnUiThread {
+        composeTestRule.runOnUiThread {
             activity.window.decorView.viewTreeObserver.addOnDrawListener(onDrawListener)
             assertEquals(10.px, changeListener.maxPosition)
-            scrollerPosition.position = 10.px
+            scrollerPosition.value = 10.px
         }
         assertTrue(latch.await(1, TimeUnit.SECONDS))
-        runOnUiThread {
+        composeTestRule.runOnUiThread {
             activity.window.decorView.viewTreeObserver.removeOnDrawListener(onDrawListener)
         }
         validateVerticalScroller(10, 30)
@@ -148,8 +164,6 @@ class ScrollerTest : LayoutTest() {
         val changeListener = ScrollerChangeListener(scrollerPosition)
         composeHorizontalScroller(scrollerPosition, changeListener, width = 30.ipx)
 
-        changeListener.waitForChange()
-
         validateHorizontalScroller(0, 30)
 
         // The 'draw' method will no longer be called because only the position
@@ -161,13 +175,13 @@ class ScrollerTest : LayoutTest() {
                 latch.countDown()
             }
         }
-        runOnUiThread {
+        composeTestRule.runOnUiThread {
             activity.window.decorView.viewTreeObserver.addOnDrawListener(onDrawListener)
             assertEquals(10.px, changeListener.maxPosition)
-            scrollerPosition.position = 10.px
+            scrollerPosition.value = 10.px
         }
         assertTrue(latch.await(1, TimeUnit.SECONDS))
-        runOnUiThread {
+        composeTestRule.runOnUiThread {
             activity.window.decorView.viewTreeObserver.removeOnDrawListener(onDrawListener)
         }
         validateHorizontalScroller(10, 30)
@@ -175,95 +189,89 @@ class ScrollerTest : LayoutTest() {
 
     private fun composeVerticalScroller(
         scrollerPosition: ScrollerPosition = ScrollerPosition(),
-        onScrollChanged: (position: Px, maxPosition: Px) -> Unit = { position, _ ->
-            scrollerPosition.position = position
+        onScrollChanged: (position: Px, max: Px) -> Unit = { position, _ ->
+            scrollerPosition.value = position
         },
         height: IntPx = 40.ipx
     ) {
         // We assume that the height of the device is more than 45 px
-        withDensity(density) {
+        withDensity(composeTestRule.density) {
             val constraints = DpConstraints.tightConstraints(45.px.toDp(), height.toDp())
-            val runnable: Runnable = object : Runnable {
-                override fun run() {
-                    activity.setContent {
-                        Align(alignment = Alignment.TopLeft) {
-                            ConstrainedBox(constraints = constraints) {
-                                VerticalScroller(
-                                    scrollerPosition = scrollerPosition,
-                                    onScrollChanged = onScrollChanged
-                                ) {
-                                    Column(crossAxisAlignment = CrossAxisAlignment.Start) {
-                                        colors.forEach { color ->
-                                            Container(
-                                                height = 5.px.toDp(),
-                                                width = 45.px.toDp()
-                                            ) {
-                                                Draw { canvas, parentSize ->
-                                                    val paint = Paint()
-                                                    paint.color = color
-                                                    paint.style = PaintingStyle.fill
-                                                    canvas.drawRect(parentSize.toRect(), paint)
-                                                }
+            composeTestRule.runOnUiThread {
+                activity.setContent {
+                    Align(alignment = Alignment.TopLeft) {
+                        ConstrainedBox(constraints = constraints) {
+                            VerticalScroller(
+                                scrollerPosition = scrollerPosition,
+                                onScrollPositionChanged = onScrollChanged
+                            ) {
+                                Column(crossAxisAlignment = CrossAxisAlignment.Start) {
+                                    colors.forEach { color ->
+                                        Container(
+                                            height = 5.px.toDp(),
+                                            width = 45.px.toDp()
+                                        ) {
+                                            Draw { canvas, parentSize ->
+                                                val paint = Paint()
+                                                paint.color = color
+                                                paint.style = PaintingStyle.fill
+                                                canvas.drawRect(parentSize.toRect(), paint)
                                             }
                                         }
                                     }
                                 }
-                                Draw { _, _ ->
-                                    drawLatch.countDown()
-                                }
+                            }
+                            Draw { _, _ ->
+                                drawLatch.countDown()
                             }
                         }
                     }
                 }
             }
-            activityTestRule.runOnUiThread(runnable)
         }
     }
 
     private fun composeHorizontalScroller(
         scrollerPosition: ScrollerPosition = ScrollerPosition(),
-        onScrollChanged: (position: Px, maxPosition: Px) -> Unit = { position, _ ->
-            scrollerPosition.position = position
+        onScrollChanged: (position: Px, max: Px) -> Unit = { position, _ ->
+            scrollerPosition.value = position
         },
         width: IntPx = 40.ipx
     ) {
         // We assume that the height of the device is more than 45 px
-        withDensity(density) {
+        withDensity(composeTestRule.density) {
             val constraints = DpConstraints.tightConstraints(width.toDp(), 45.px.toDp())
-            val runnable: Runnable = object : Runnable {
-                override fun run() {
-                    activity.setContent {
-                        Align(alignment = Alignment.TopLeft) {
-                            ConstrainedBox(constraints = constraints) {
-                                HorizontalScroller(
-                                    scrollerPosition = scrollerPosition,
-                                    onScrollChanged = onScrollChanged
-                                ) {
-                                    Row(crossAxisAlignment = CrossAxisAlignment.Start) {
-                                        colors.forEach { color ->
-                                            Container(
-                                                width = 5.px.toDp(),
-                                                height = 45.px.toDp()
-                                            ) {
-                                                Draw { canvas, parentSize ->
-                                                    val paint = Paint()
-                                                    paint.color = color
-                                                    paint.style = PaintingStyle.fill
-                                                    canvas.drawRect(parentSize.toRect(), paint)
-                                                }
+            composeTestRule.runOnUiThread {
+                activity.setContent {
+                    Align(alignment = Alignment.TopLeft) {
+                        ConstrainedBox(constraints = constraints) {
+                            HorizontalScroller(
+                                scrollerPosition = scrollerPosition,
+                                onScrollPositionChanged = onScrollChanged
+                            ) {
+                                Row(crossAxisAlignment = CrossAxisAlignment.Start) {
+                                    colors.forEach { color ->
+                                        Container(
+                                            width = 5.px.toDp(),
+                                            height = 45.px.toDp()
+                                        ) {
+                                            Draw { canvas, parentSize ->
+                                                val paint = Paint()
+                                                paint.color = color
+                                                paint.style = PaintingStyle.fill
+                                                canvas.drawRect(parentSize.toRect(), paint)
                                             }
                                         }
                                     }
                                 }
-                                Draw { _, _ ->
-                                    drawLatch.countDown()
-                                }
+                            }
+                            Draw { _, _ ->
+                                drawLatch.countDown()
                             }
                         }
                     }
                 }
             }
-            activityTestRule.runOnUiThread(runnable)
         }
     }
 
@@ -315,16 +323,6 @@ class ScrollerTest : LayoutTest() {
         }
     }
 
-    // We only need this because IR compiler doesn't like converting lambdas to Runnables
-    private fun runOnUiThread(block: () -> Unit) {
-        @Suppress("ObjectLiteralToLambda") val runnable: Runnable = object : Runnable {
-            override fun run() {
-                block()
-            }
-        }
-        activityTestRule.runOnUiThread(runnable)
-    }
-
     private fun waitAndScreenShot(): Bitmap {
         val view = findAndroidCraneView()
         waitForDraw(view)
@@ -365,7 +363,7 @@ class ScrollerTest : LayoutTest() {
                 changeCalls++
                 lock.notify()
             }
-            scrollerPosition.position = position
+            scrollerPosition.value = position
             this.maxPosition = maxPosition
         }
 
@@ -378,5 +376,43 @@ class ScrollerTest : LayoutTest() {
                 changeCalls--
             }
         }
+    }
+
+    // TODO(malkov): ALL below is copypaste from LayoutTest as this test in ui-foundation now
+
+    internal fun findAndroidCraneView(): AndroidCraneView {
+        val contentViewGroup = activity.findViewById<ViewGroup>(android.R.id.content)
+        return findAndroidCraneView(contentViewGroup)!!
+    }
+
+    internal fun findAndroidCraneView(parent: ViewGroup): AndroidCraneView? {
+        for (index in 0 until parent.childCount) {
+            val child = parent.getChildAt(index)
+            if (child is AndroidCraneView) {
+                return child
+            } else if (child is ViewGroup) {
+                val craneView = findAndroidCraneView(child)
+                if (craneView != null) {
+                    return craneView
+                }
+            }
+        }
+        return null
+    }
+
+    internal fun waitForDraw(view: View) {
+        val viewDrawLatch = CountDownLatch(1)
+        val listener = object : ViewTreeObserver.OnDrawListener {
+            override fun onDraw() {
+                viewDrawLatch.countDown()
+            }
+        }
+        view.post(object : Runnable {
+            override fun run() {
+                view.viewTreeObserver.addOnDrawListener(listener)
+                view.invalidate()
+            }
+        })
+        assertTrue(viewDrawLatch.await(1, TimeUnit.SECONDS))
     }
 }

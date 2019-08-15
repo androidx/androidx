@@ -42,6 +42,27 @@ package androidx.ui.foundation {
     method public void vertical(int column, kotlin.ranges.IntRange rows = 0 <other> rowCount, androidx.ui.foundation.shape.border.Border border = defaultBorder);
   }
 
+  public final class ScrollerKt {
+    ctor public ScrollerKt();
+    method public static void HorizontalScroller(androidx.ui.foundation.ScrollerPosition scrollerPosition = +memo({ 
+    <init>()
+}), kotlin.jvm.functions.Function2<? super androidx.ui.core.Px,? super androidx.ui.core.Px,kotlin.Unit> onScrollPositionChanged = { position, _ -> scrollerPosition.value = position }, boolean isScrollable = true, kotlin.jvm.functions.Function0<kotlin.Unit> child);
+    method public static void VerticalScroller(androidx.ui.foundation.ScrollerPosition scrollerPosition = +memo({ 
+    <init>()
+}), kotlin.jvm.functions.Function2<? super androidx.ui.core.Px,? super androidx.ui.core.Px,kotlin.Unit> onScrollPositionChanged = { position, _ -> scrollerPosition.value = position }, boolean isScrollable = true, kotlin.jvm.functions.Function0<kotlin.Unit> child);
+  }
+
+  public final class ScrollerPosition {
+    ctor public ScrollerPosition();
+    method public androidx.ui.core.Px getValue();
+    method public void scrollBy(androidx.ui.core.Px value);
+    method public void scrollTo(androidx.ui.core.Px value);
+    method public void setValue(androidx.ui.core.Px p);
+    method public void smoothScrollBy(androidx.ui.core.Px value, kotlin.jvm.functions.Function1<? super java.lang.Boolean,kotlin.Unit> onFinished = {});
+    method public void smoothScrollTo(androidx.ui.core.Px value, kotlin.jvm.functions.Function1<? super java.lang.Boolean,kotlin.Unit> onFinished = {});
+    property public final androidx.ui.core.Px value;
+  }
+
   public final class SimpleImageKt {
     ctor public SimpleImageKt();
     method public static void SimpleImage(androidx.ui.painting.Image image, androidx.ui.graphics.Color? tint = null);
@@ -71,13 +92,13 @@ package androidx.ui.foundation {
 package androidx.ui.foundation.animation {
 
   public final class AnimatedFloatDragController implements androidx.ui.foundation.gestures.DragValueController {
+    ctor public AnimatedFloatDragController(androidx.animation.AnimatedFloat animatedFloat, androidx.ui.foundation.animation.FlingConfig? flingConfig);
     ctor public AnimatedFloatDragController(float initialValue, androidx.ui.foundation.animation.FlingConfig? flingConfig);
     method public androidx.animation.AnimatedFloat getAnimatedFloat();
     method public float getCurrentValue();
     method public void onDrag(float target);
     method public void onDragEnd(float velocity, kotlin.jvm.functions.Function1<? super java.lang.Float,kotlin.Unit> onValueSettled);
     method public void setBounds(float min, float max);
-    property public final androidx.animation.AnimatedFloat animatedFloat;
     property public float currentValue;
   }
 
