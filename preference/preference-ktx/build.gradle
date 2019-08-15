@@ -40,7 +40,7 @@ android {
 }
 
 dependencies {
-    api(project(":preference"))
+    api(project(":preference:preference"))
     api(KOTLIN_STDLIB)
 
     androidTestImplementation(JUNIT)
