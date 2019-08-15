@@ -153,6 +153,10 @@ package androidx.ui.core {
     method public static androidx.compose.Ambient<java.lang.String> getTestTagAmbient();
   }
 
+  public final class TextFieldDelegateKt {
+    ctor public TextFieldDelegateKt();
+  }
+
   public final class TextFieldKt {
     ctor public TextFieldKt();
     method public static void TextField(androidx.ui.input.EditorModel value, androidx.ui.core.EditorStyle editorStyle, androidx.ui.input.KeyboardType keyboardType = KeyboardType.Text, androidx.ui.input.ImeAction imeAction = ImeAction.Unspecified, kotlin.jvm.functions.Function1<? super androidx.ui.input.EditorModel,kotlin.Unit> onValueChange = {}, kotlin.jvm.functions.Function0<kotlin.Unit> onFocus = {}, kotlin.jvm.functions.Function0<kotlin.Unit> onBlur = {}, kotlin.jvm.functions.Function1<? super androidx.ui.input.ImeAction,kotlin.Unit> onImeActionPerformed = {}, androidx.ui.core.VisualTransformation? visualTransformation = null);
