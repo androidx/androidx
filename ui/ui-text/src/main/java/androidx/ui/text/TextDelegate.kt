@@ -41,6 +41,7 @@ import androidx.ui.painting.Paint
 import androidx.ui.painting.Shader
 import androidx.ui.text.font.Font
 import androidx.ui.text.style.TextOverflow
+import java.util.Locale
 import kotlin.math.ceil
 
 private val DefaultTextAlign: TextAlign = TextAlign.Start

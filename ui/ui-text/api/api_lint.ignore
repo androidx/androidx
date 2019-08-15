@@ -9,21 +9,17 @@ AutoBoxing: androidx.ui.text.ParagraphStyle#copy(androidx.ui.text.style.TextAlig
     Must avoid boxed primitives (`java.lang.Float`)
 AutoBoxing: androidx.ui.text.ParagraphStyle#getLineHeight():
     Must avoid boxed primitives (`java.lang.Float`)
-AutoBoxing: androidx.ui.text.TextDelegate#TextPainter(androidx.ui.text.AnnotatedString, androidx.ui.text.TextStyle, androidx.ui.text.ParagraphStyle, Integer, boolean, androidx.ui.text.style.TextOverflow, androidx.ui.text.Locale, androidx.ui.core.Density, androidx.ui.text.font.Font.ResourceLoader) parameter #3:
-    Must avoid boxed primitives (`java.lang.Integer`)
-AutoBoxing: androidx.ui.text.TextDelegate#getMaxLines():
-    Must avoid boxed primitives (`java.lang.Integer`)
-AutoBoxing: androidx.ui.text.TextStyle#TextStyle(androidx.ui.graphics.Color, androidx.ui.core.Sp, Float, androidx.ui.text.font.FontWeight, androidx.ui.text.font.FontStyle, androidx.ui.text.font.FontSynthesis, androidx.ui.text.font.FontFamily, String, Float, androidx.ui.text.style.BaselineShift, androidx.ui.text.style.TextGeometricTransform, androidx.ui.text.Locale, androidx.ui.graphics.Color, androidx.ui.text.style.TextDecoration, androidx.ui.painting.Shadow) parameter #2:
+AutoBoxing: androidx.ui.text.TextStyle#TextStyle(androidx.ui.graphics.Color, androidx.ui.core.Sp, Float, androidx.ui.text.font.FontWeight, androidx.ui.text.font.FontStyle, androidx.ui.text.font.FontSynthesis, androidx.ui.text.font.FontFamily, String, Float, androidx.ui.text.style.BaselineShift, androidx.ui.text.style.TextGeometricTransform, java.util.Locale, androidx.ui.graphics.Color, androidx.ui.text.style.TextDecoration, androidx.ui.painting.Shadow) parameter #2:
     Must avoid boxed primitives (`java.lang.Float`)
-AutoBoxing: androidx.ui.text.TextStyle#TextStyle(androidx.ui.graphics.Color, androidx.ui.core.Sp, Float, androidx.ui.text.font.FontWeight, androidx.ui.text.font.FontStyle, androidx.ui.text.font.FontSynthesis, androidx.ui.text.font.FontFamily, String, Float, androidx.ui.text.style.BaselineShift, androidx.ui.text.style.TextGeometricTransform, androidx.ui.text.Locale, androidx.ui.graphics.Color, androidx.ui.text.style.TextDecoration, androidx.ui.painting.Shadow) parameter #8:
+AutoBoxing: androidx.ui.text.TextStyle#TextStyle(androidx.ui.graphics.Color, androidx.ui.core.Sp, Float, androidx.ui.text.font.FontWeight, androidx.ui.text.font.FontStyle, androidx.ui.text.font.FontSynthesis, androidx.ui.text.font.FontFamily, String, Float, androidx.ui.text.style.BaselineShift, androidx.ui.text.style.TextGeometricTransform, java.util.Locale, androidx.ui.graphics.Color, androidx.ui.text.style.TextDecoration, androidx.ui.painting.Shadow) parameter #8:
     Must avoid boxed primitives (`java.lang.Float`)
 AutoBoxing: androidx.ui.text.TextStyle#component3():
     Must avoid boxed primitives (`java.lang.Float`)
 AutoBoxing: androidx.ui.text.TextStyle#component9():
     Must avoid boxed primitives (`java.lang.Float`)
-AutoBoxing: androidx.ui.text.TextStyle#copy(androidx.ui.graphics.Color, androidx.ui.core.Sp, Float, androidx.ui.text.font.FontWeight, androidx.ui.text.font.FontStyle, androidx.ui.text.font.FontSynthesis, androidx.ui.text.font.FontFamily, String, Float, androidx.ui.text.style.BaselineShift, androidx.ui.text.style.TextGeometricTransform, androidx.ui.text.Locale, androidx.ui.graphics.Color, androidx.ui.text.style.TextDecoration, androidx.ui.painting.Shadow) parameter #2:
+AutoBoxing: androidx.ui.text.TextStyle#copy(androidx.ui.graphics.Color, androidx.ui.core.Sp, Float, androidx.ui.text.font.FontWeight, androidx.ui.text.font.FontStyle, androidx.ui.text.font.FontSynthesis, androidx.ui.text.font.FontFamily, String, Float, androidx.ui.text.style.BaselineShift, androidx.ui.text.style.TextGeometricTransform, java.util.Locale, androidx.ui.graphics.Color, androidx.ui.text.style.TextDecoration, androidx.ui.painting.Shadow) parameter #2:
     Must avoid boxed primitives (`java.lang.Float`)
-AutoBoxing: androidx.ui.text.TextStyle#copy(androidx.ui.graphics.Color, androidx.ui.core.Sp, Float, androidx.ui.text.font.FontWeight, androidx.ui.text.font.FontStyle, androidx.ui.text.font.FontSynthesis, androidx.ui.text.font.FontFamily, String, Float, androidx.ui.text.style.BaselineShift, androidx.ui.text.style.TextGeometricTransform, androidx.ui.text.Locale, androidx.ui.graphics.Color, androidx.ui.text.style.TextDecoration, androidx.ui.painting.Shadow) parameter #8:
+AutoBoxing: androidx.ui.text.TextStyle#copy(androidx.ui.graphics.Color, androidx.ui.core.Sp, Float, androidx.ui.text.font.FontWeight, androidx.ui.text.font.FontStyle, androidx.ui.text.font.FontSynthesis, androidx.ui.text.font.FontFamily, String, Float, androidx.ui.text.style.BaselineShift, androidx.ui.text.style.TextGeometricTransform, java.util.Locale, androidx.ui.graphics.Color, androidx.ui.text.style.TextDecoration, androidx.ui.painting.Shadow) parameter #8:
     Must avoid boxed primitives (`java.lang.Float`)
 AutoBoxing: androidx.ui.text.TextStyle#getFontSizeScale():
     Must avoid boxed primitives (`java.lang.Float`)
@@ -55,10 +51,6 @@ KotlinOperator: androidx.ui.text.style.TextDecoration#contains(androidx.ui.text.
     Note that adding the `operator` keyword would allow calling this method using operator syntax
 
 
-MissingNullability: androidx.ui.text.Locale#Companion:
-    Missing nullability on field `Companion` in class `class androidx.ui.text.Locale`
-MissingNullability: androidx.ui.text.Locale#getCountryCode():
-    Missing nullability on method `getCountryCode` return
 MissingNullability: androidx.ui.text.font.FontWeight#Companion:
     Missing nullability on field `Companion` in class `class androidx.ui.text.font.FontWeight`
 MissingNullability: androidx.ui.text.style.BaselineShift#Companion:

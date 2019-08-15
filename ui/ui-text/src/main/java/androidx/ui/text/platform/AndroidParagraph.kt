@@ -437,7 +437,7 @@ internal class AndroidParagraph constructor(
             style.locale?.let {
                 spannableString.setSpan(
                     // TODO(Migration/haoyuchang): support locale fallback in the framework
-                    LocaleSpan(Locale(it.languageCode, it.countryCode ?: "")),
+                    LocaleSpan(Locale(it.language, it.country ?: "")),
                     start,
                     end,
                     Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
@@ -497,8 +497,8 @@ private fun TextStyle.applyTextStyle(
 
     locale?.let {
         textPaint.textLocale = Locale(
-            it.languageCode,
-            it.countryCode ?: ""
+            it.language,
+            it.country ?: ""
         )
     }
 
