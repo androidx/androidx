@@ -32,12 +32,12 @@ import androidx.recyclerview.widget.RecyclerView.OnItemTouchListener;
  */
 final class PointerDragEventInterceptor implements OnItemTouchListener {
 
-    private final ItemDetailsLookup mEventDetailsLookup;
+    private final ItemDetailsLookup<?> mEventDetailsLookup;
     private final OnDragInitiatedListener mDragListener;
     private OnItemTouchListener mDelegate;
 
     PointerDragEventInterceptor(
-            ItemDetailsLookup eventDetailsLookup,
+            ItemDetailsLookup<?> eventDetailsLookup,
             OnDragInitiatedListener dragListener,
             @Nullable OnItemTouchListener delegate) {
 

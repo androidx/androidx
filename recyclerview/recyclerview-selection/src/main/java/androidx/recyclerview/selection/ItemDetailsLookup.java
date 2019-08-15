@@ -241,10 +241,10 @@ public abstract class ItemDetailsLookup<K> {
         @Override
         public boolean equals(@Nullable Object obj) {
             return (obj instanceof ItemDetails)
-                    && isEqualTo((ItemDetails) obj);
+                    && isEqualTo((ItemDetails<?>) obj);
         }
 
-        private boolean isEqualTo(@NonNull ItemDetails other) {
+        private boolean isEqualTo(@NonNull ItemDetails<?> other) {
             K key = getSelectionKey();
             boolean sameKeys = false;
             if (key == null) {

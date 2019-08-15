@@ -40,7 +40,7 @@ final class EventRouter implements OnItemTouchListener {
     private final ToolHandlerRegistry<OnItemTouchListener> mDelegates;
 
     EventRouter() {
-        mDelegates = new ToolHandlerRegistry<OnItemTouchListener>(new DummyOnItemTouchListener());
+        mDelegates = new ToolHandlerRegistry<>(new DummyOnItemTouchListener());
     }
 
     /**

@@ -58,7 +58,7 @@ class BandSelectionHelper<K> implements OnItemTouchListener {
     static final String TAG = "BandSelectionHelper";
     static final boolean DEBUG = false;
 
-    private final BandHost mHost;
+    private final BandHost<K> mHost;
     private final ItemKeyProvider<K> mKeyProvider;
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     final SelectionTracker<K> mSelectionTracker;
@@ -66,17 +66,17 @@ class BandSelectionHelper<K> implements OnItemTouchListener {
     private final FocusDelegate<K> mFocusDelegate;
     private final OperationMonitor mLock;
     private final AutoScroller mScroller;
-    private final GridModel.SelectionObserver mGridObserver;
+    private final GridModel.SelectionObserver<K> mGridObserver;
 
     private @Nullable Point mCurrentPosition;
     private @Nullable Point mOrigin;
-    private @Nullable GridModel mModel;
+    private @Nullable GridModel<K> mModel;
 
     /**
      * See {@link BandSelectionHelper#create}.
      */
     BandSelectionHelper(
-            @NonNull BandHost host,
+            @NonNull BandHost<K> host,
             @NonNull AutoScroller scroller,
             @NonNull ItemKeyProvider<K> keyProvider,
             @NonNull SelectionTracker<K> selectionTracker,
@@ -122,7 +122,7 @@ class BandSelectionHelper<K> implements OnItemTouchListener {
      *
      * @return new BandSelectionHelper instance.
      */
-    static <K> BandSelectionHelper create(
+    static <K> BandSelectionHelper<K> create(
             @NonNull RecyclerView recyclerView,
             @NonNull AutoScroller scroller,
             @DrawableRes int bandOverlayId,
