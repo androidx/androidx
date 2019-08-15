@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.ui.core
+package androidx.ui.input
 
 import androidx.ui.text.AnnotatedString
 import org.junit.Assert.assertEquals

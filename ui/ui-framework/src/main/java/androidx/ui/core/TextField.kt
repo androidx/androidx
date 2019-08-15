@@ -31,6 +31,7 @@ import androidx.ui.input.EditProcessor
 import androidx.ui.input.EditorModel
 import androidx.ui.input.ImeAction
 import androidx.ui.input.KeyboardType
+import androidx.ui.input.VisualTransformation
 import androidx.ui.text.TextDelegate
 import androidx.ui.text.TextStyle
 
@@ -61,7 +62,7 @@ data class EditorStyle(
  * A default implementation of TextField
  *
  * To make TextField work with platoform input service, you must keep the editor state and update
- * in [onValueChagne] callback.
+ * in [onValueChange] callback.
  *
  * Example:
  *     var state = +state { EditorModel() }

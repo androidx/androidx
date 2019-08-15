@@ -22,12 +22,12 @@ import androidx.compose.state
 import androidx.compose.unaryPlus
 import androidx.ui.core.EditorStyle
 import androidx.ui.core.Layout
-import androidx.ui.core.OffsetMap
-import androidx.ui.core.PasswordVisualTransformation
+import androidx.ui.input.OffsetMap
+import androidx.ui.input.PasswordVisualTransformation
 import androidx.ui.core.Text
 import androidx.ui.core.TextField
-import androidx.ui.core.TransformedText
-import androidx.ui.core.VisualTransformation
+import androidx.ui.input.TransformedText
+import androidx.ui.input.VisualTransformation
 import androidx.ui.core.ipx
 import androidx.ui.graphics.Color
 import androidx.ui.input.EditorModel
