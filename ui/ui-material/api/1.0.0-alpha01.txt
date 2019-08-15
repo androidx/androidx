@@ -154,7 +154,6 @@ package androidx.ui.material {
   public final class MaterialThemeKt {
     ctor public MaterialThemeKt();
     method public static void MaterialButtonShapeTheme(kotlin.jvm.functions.Function0<kotlin.Unit> children);
-    method public static void MaterialRippleTheme(kotlin.jvm.functions.Function0<kotlin.Unit> children);
     method public static void MaterialTheme(androidx.ui.material.MaterialColors colors = androidx.ui.material.MaterialColors(), androidx.ui.material.MaterialTypography typography = androidx.ui.material.MaterialTypography(), kotlin.jvm.functions.Function0<kotlin.Unit> children);
     method public static androidx.compose.Ambient<androidx.ui.material.MaterialColors> getColors();
     method public static androidx.compose.Ambient<androidx.ui.material.Shapes> getCurrentShapeAmbient();
