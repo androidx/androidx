@@ -67,6 +67,8 @@ public class ShortcutInfoCompat {
     // TODO: Support |auto| when the value of mIsLongLived is not set
     boolean mIsLongLived;
 
+    int mRank;
+
     ShortcutInfoCompat() { }
 
     /**
@@ -92,6 +94,7 @@ public class ShortcutInfoCompat {
         if (mCategories != null) {
             builder.setCategories(mCategories);
         }
+        builder.setRank(mRank);
 
         if (Build.VERSION.SDK_INT >= 29) {
             if (mPersons != null && mPersons.length > 0) {
@@ -241,6 +244,15 @@ public class ShortcutInfoCompat {
     }
 
     /**
+     * Returns the rank of the shortcut set with {@link Builder#setRank(int)}.
+     *
+     * @see Builder#setRank(int)
+     */
+    public int getRank() {
+        return mRank;
+    }
+
+    /**
      * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
@@ -311,6 +323,7 @@ public class ShortcutInfoCompat {
             mInfo.mIcon = shortcutInfo.mIcon;
             mInfo.mIsAlwaysBadged = shortcutInfo.mIsAlwaysBadged;
             mInfo.mIsLongLived = shortcutInfo.mIsLongLived;
+            mInfo.mRank = shortcutInfo.mRank;
             if (shortcutInfo.mPersons != null) {
                 mInfo.mPersons = Arrays.copyOf(shortcutInfo.mPersons, shortcutInfo.mPersons.length);
             }
@@ -336,6 +349,7 @@ public class ShortcutInfoCompat {
             mInfo.mDisabledMessage = shortcutInfo.getDisabledMessage();
             mInfo.mCategories = shortcutInfo.getCategories();
             mInfo.mPersons = ShortcutInfoCompat.getPersonsFromExtra(shortcutInfo.getExtras());
+            mInfo.mRank = shortcutInfo.getRank();
         }
 
         /**
@@ -487,6 +501,18 @@ public class ShortcutInfoCompat {
         @NonNull
         public Builder setLongLived() {
             mInfo.mIsLongLived = true;
+            return this;
+        }
+
+        /**
+         * Sets rank of a shortcut, which is a non-negative value that's used by the system to sort
+         * shortcuts. Lower value means higher importance.
+         *
+         * @see ShortcutInfo#getRank() for details.
+         */
+        @NonNull
+        public Builder setRank(int rank) {
+            mInfo.mRank = rank;
             return this;
         }
 
