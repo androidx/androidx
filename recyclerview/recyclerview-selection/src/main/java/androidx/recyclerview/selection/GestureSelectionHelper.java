@@ -17,7 +17,8 @@
 package androidx.recyclerview.selection;
 
 import static androidx.core.util.Preconditions.checkArgument;
-import static androidx.core.util.Preconditions.checkState;
+import static androidx.recyclerview.selection.Shared.DEBUG;
+import static androidx.recyclerview.selection.Shared.VERBOSE;
 
 import android.util.Log;
 import android.view.MotionEvent;
@@ -76,16 +77,19 @@ final class GestureSelectionHelper implements OnItemTouchListener {
      * Explicitly kicks off a gesture multi-select.
      */
     void start() {
-        checkState(!mStarted);
-
         // Partner code in MotionInputHandler ensures items
         // are selected and range anchor initialized prior to
         // start being called.
         // Verify the truth of that statement here
         // to make the implicit coupling less of a time bomb.
-        checkState(mSelectionMgr.isRangeActive());
-
-        mLock.checkStopped();
+        if (mStarted) {
+            if (DEBUG) {
+                Log.e(TAG, "Attempting to start, but state is already=started.");
+                throw new IllegalStateException(
+                        "Attempting to start, but state is already=started.");
+            }
+            return;
+        }
 
         mStarted = true;
         mLock.start();
@@ -94,15 +98,20 @@ final class GestureSelectionHelper implements OnItemTouchListener {
     @Override
     /** @hide */
     public boolean onInterceptTouchEvent(@NonNull RecyclerView unused, @NonNull MotionEvent e) {
+        // MotionEvents that aren't ACTION_DOWN are only ever passed to either onInterceptTouchEvent
+        // or onTouchEvent; never to both, so events delivered to this method are effectively
+        // lost if we don't act on them in this method.
+        //
         // TODO(b/132447183): For some reason we're not receiving an ACTION_UP
         // event after a > long-press NOT followed by a ACTION_MOVE < event.
         if (mStarted) {
-            handleTouch(e);
+            onTouchEvent(unused, e);
         }
 
+        // ACTION_CANCEL is associated with "TOOL_TYPE_UNKNOWN" and
+        // is handled in ResetManager.
         switch (e.getActionMasked()) {
             case MotionEvent.ACTION_MOVE:
-            case MotionEvent.ACTION_CANCEL:
             case MotionEvent.ACTION_UP:
                 return mStarted;
             default:
@@ -113,27 +122,11 @@ final class GestureSelectionHelper implements OnItemTouchListener {
     @Override
     /** @hide */
     public void onTouchEvent(@NonNull RecyclerView unused, @NonNull MotionEvent e) {
-        // See handleTouch(MotionEvent) javadoc for explanation as to why this is correct.
-        handleTouch(e);
-    }
+        if (!mStarted) {
+            if (VERBOSE) Log.i(TAG, "Ignoring input event. Not started.");
+            return;
+        }
 
-    /**
-     * If selection has started, will handle all appropriate types of MotionEvents and will return
-     * true if this OnItemTouchListener should start intercepting the rest of the MotionEvents.
-     *
-     * <p>This code, and the fact that this method is used by both OnInterceptTouchEvent and
-     * OnTouchEvent, is correct and valid because:
-     * <ol>
-     * <li>MotionEvents that aren't ACTION_DOWN are only ever passed to either onInterceptTouchEvent
-     * or onTouchEvent; never to both.  The MotionEvents we are handling in this method are not
-     * ACTION_DOWN, and therefore, its appropriate that both the onInterceptTouchEvent and
-     * onTouchEvent code paths cross this method.
-     * <li>This method returns true when we want to intercept MotionEvents.  OnInterceptTouchEvent
-     * uses that information to determine its own return, and OnMotionEvent doesn't have a return
-     * so this methods return value is irrelevant to it.
-     * </ol>
-     */
-    private void handleTouch(MotionEvent e) {
         if (!mSelectionMgr.isRangeActive()) {
             Log.e(TAG,
                     "Internal state of GestureSelectionHelper out of sync w/ SelectionTracker "
@@ -141,15 +134,14 @@ final class GestureSelectionHelper implements OnItemTouchListener {
             endSelection();
         }
 
+        // ACTION_CANCEL is associated with "TOOL_TYPE_UNKNOWN" and
+        // is handled in ResetManager.
         switch (e.getActionMasked()) {
             case MotionEvent.ACTION_MOVE:
                 handleMoveEvent(e);
                 break;
             case MotionEvent.ACTION_UP:
                 handleUpEvent();
-                break;
-            case MotionEvent.ACTION_CANCEL:
-                handleCancelEvent();
                 break;
         }
     }
@@ -167,17 +159,16 @@ final class GestureSelectionHelper implements OnItemTouchListener {
         endSelection();
     }
 
-    // Called when ACTION_CANCEL event is to be handled.
-    // This means this gesture selection is aborted, so reset everything and abandon provisional
-    // selection.
-    private void handleCancelEvent() {
-        mSelectionMgr.clearProvisionalSelection();
-        endSelection();
+    /**
+     * Immediately "Stops" active gesture selection, and resets all related state.
+     */
+    public void reset() {
+        if (DEBUG) Log.d(TAG, "Received reset request.");
+        mStarted = false;
+        mScroller.reset();
     }
 
     private void endSelection() {
-        checkState(mStarted);
-
         mStarted = false;
         mScroller.reset();
         mLock.stop();
@@ -186,6 +177,11 @@ final class GestureSelectionHelper implements OnItemTouchListener {
     // Call when an intercepted ACTION_MOVE event is passed down.
     // At this point, we are sure user wants to gesture multi-select.
     private void handleMoveEvent(@NonNull MotionEvent e) {
+        if (!mStarted) {
+            Log.e(TAG, "Received event while not started.");
+            if (DEBUG) throw new IllegalStateException("Received event while not started.");
+        }
+
         int lastGlidedItemPos = mView.getLastGlidedItemPosition(e);
         if (mSelectionPredicate.canSetStateAtPosition(lastGlidedItemPos, true)) {
             extendSelection(lastGlidedItemPos);

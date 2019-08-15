@@ -53,9 +53,7 @@ public final class OperationMonitor {
         mNumOps++;
 
         if (mNumOps == 1) {
-            for (OnChangeListener l : mListeners) {
-                l.onChanged();
-            }
+            notifyStateChanged();
         }
 
         if (DEBUG) Log.v(TAG, "Incremented content lock count to " + mNumOps + ".");
@@ -63,16 +61,27 @@ public final class OperationMonitor {
 
     @MainThread
     synchronized void stop() {
-        checkState(mNumOps > 0);
+        if (mNumOps == 0) {
+            if (DEBUG) Log.w(TAG, "Stop called whith opt count of 0.");
+            return;
+        }
 
         mNumOps--;
         if (DEBUG) Log.v(TAG, "Decremented content lock count to " + mNumOps + ".");
 
         if (mNumOps == 0) {
-            for (OnChangeListener l : mListeners) {
-                l.onChanged();
-            }
+            notifyStateChanged();
         }
+    }
+
+    @MainThread
+    synchronized void reset() {
+        if (DEBUG) Log.d(TAG, "Received reset request.");
+        if (mNumOps > 0) {
+            Log.w(TAG, "Resetting OperationMonitor with " + mNumOps + " active operations.");
+        }
+        mNumOps = 0;
+        notifyStateChanged();
     }
 
     /**
@@ -85,7 +94,6 @@ public final class OperationMonitor {
 
     /**
      * Registers supplied listener to be notified when operation status changes.
-     * @param listener
      */
     public void addListener(@NonNull OnChangeListener listener) {
         checkArgument(listener != null);
@@ -94,7 +102,6 @@ public final class OperationMonitor {
 
     /**
      * Unregisters listener for further notifications.
-     * @param listener
      */
     public void removeListener(@NonNull OnChangeListener listener) {
         checkArgument(listener != null);
@@ -104,15 +111,18 @@ public final class OperationMonitor {
     /**
      * Allows other selection code to perform a precondition check asserting the state is locked.
      */
-    void checkStarted() {
-        checkState(mNumOps > 0);
+    void checkStarted(boolean started) {
+        if (started) {
+            checkState(mNumOps > 0);
+        } else {
+            checkState(mNumOps == 0);
+        }
     }
 
-    /**
-     * Allows other selection code to perform a precondition check asserting the state is unlocked.
-     */
-    void checkStopped() {
-        checkState(mNumOps == 0);
+    private void notifyStateChanged() {
+        for (OnChangeListener l : mListeners) {
+            l.onChanged();
+        }
     }
 
     /**

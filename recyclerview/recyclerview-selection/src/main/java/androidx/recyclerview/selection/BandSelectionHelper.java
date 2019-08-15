@@ -48,9 +48,6 @@ import java.util.Set;
  * the user interacts with items using their pointer (and the band). Selectable items that intersect
  * with the band, both on and off screen, are selected on pointer up.
  *
- * @see SelectionTracker.Builder#withPointerTooltypes(int...) for details on the specific
- *     tooltypes routed to this helper.
- *
  * @param <K> Selection key type. @see {@link StorageStrategy} for supported types.
  */
 class BandSelectionHelper<K> implements OnItemTouchListener {
@@ -146,9 +143,7 @@ class BandSelectionHelper<K> implements OnItemTouchListener {
     @VisibleForTesting
     boolean isActive() {
         boolean active = mModel != null;
-        if (DEBUG && active) {
-            mLock.checkStarted();
-        }
+        if (DEBUG) mLock.checkStarted(active);
         return active;
     }
 
@@ -158,9 +153,10 @@ class BandSelectionHelper<K> implements OnItemTouchListener {
      */
     void reset() {
         if (!isActive()) {
+            if (DEBUG) Log.d(TAG, "Ignoring reset request, not active.");
             return;
         }
-
+        if (DEBUG) Log.d(TAG, "Handling reset request.");
         mHost.hideBand();
         if (mModel != null) {
             mModel.stopCapturing();
@@ -171,7 +167,7 @@ class BandSelectionHelper<K> implements OnItemTouchListener {
         mOrigin = null;
 
         mScroller.reset();
-        mLock.stop();
+        // mLock is reset by reset manager.
     }
 
     @VisibleForTesting
@@ -187,10 +183,7 @@ class BandSelectionHelper<K> implements OnItemTouchListener {
 
     @VisibleForTesting
     boolean shouldStop(@NonNull MotionEvent e) {
-        return isActive()
-                && (MotionEvents.isActionUp(e)
-                || MotionEvents.isActionPointerUp(e)
-                || MotionEvents.isActionCancel(e));
+        return isActive() && MotionEvents.isActionUp(e);
     }
 
     @Override
@@ -242,7 +235,9 @@ class BandSelectionHelper<K> implements OnItemTouchListener {
      * Starts band select by adding the drawable to the RecyclerView's overlay.
      */
     private void startBandSelect(@NonNull MotionEvent e) {
-        checkState(!isActive());
+        if (DEBUG) {
+            checkState(!isActive());
+        }
 
         if (!MotionEvents.isCtrlKeyPressed(e)) {
             mSelectionTracker.clearSelection();
@@ -303,7 +298,18 @@ class BandSelectionHelper<K> implements OnItemTouchListener {
         }
 
         mSelectionTracker.mergeProvisionalSelection();
-        reset();
+        mLock.stop();
+
+        mHost.hideBand();
+        if (mModel != null) {
+            mModel.stopCapturing();
+            mModel.onDestroy();
+        }
+
+        mModel = null;
+        mOrigin = null;
+
+        mScroller.reset();
     }
 
     /**
@@ -348,8 +354,6 @@ class BandSelectionHelper<K> implements OnItemTouchListener {
 
         /**
          * Add a listener to be notified on scroll events.
-         *
-         * @param listener
          */
         abstract void addOnScrollListener(@NonNull OnScrollListener listener);
     }
