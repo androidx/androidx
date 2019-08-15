@@ -20,6 +20,11 @@ import static android.hardware.camera2.CameraMetadata.CONTROL_AE_MODE_OFF;
 import static android.hardware.camera2.CameraMetadata.CONTROL_AE_MODE_ON;
 import static android.hardware.camera2.CameraMetadata.CONTROL_AE_MODE_ON_ALWAYS_FLASH;
 import static android.hardware.camera2.CameraMetadata.CONTROL_AE_MODE_ON_AUTO_FLASH;
+import static android.hardware.camera2.CameraMetadata.CONTROL_AF_MODE_AUTO;
+import static android.hardware.camera2.CameraMetadata.CONTROL_AF_MODE_CONTINUOUS_PICTURE;
+import static android.hardware.camera2.CameraMetadata.CONTROL_AF_MODE_OFF;
+import static android.hardware.camera2.CameraMetadata.CONTROL_AWB_MODE_AUTO;
+import static android.hardware.camera2.CameraMetadata.CONTROL_AWB_MODE_OFF;
 import static android.hardware.camera2.CameraMetadata.FLASH_MODE_OFF;
 import static android.hardware.camera2.CameraMetadata.FLASH_MODE_TORCH;
 
@@ -30,7 +35,11 @@ import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
+import android.content.Context;
 import android.graphics.Rect;
+import android.hardware.camera2.CameraAccessException;
+import android.hardware.camera2.CameraCharacteristics;
+import android.hardware.camera2.CameraManager;
 import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.params.MeteringRectangle;
 import android.os.Build;
@@ -39,12 +48,15 @@ import android.os.HandlerThread;
 
 import androidx.camera.camera2.Camera2Config;
 import androidx.camera.core.CameraControlInternal;
+import androidx.camera.core.CameraInfoUnavailableException;
+import androidx.camera.core.CameraX;
 import androidx.camera.core.CaptureConfig;
 import androidx.camera.core.FlashMode;
 import androidx.camera.core.SessionConfig;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.testing.HandlerUtil;
 import androidx.core.os.HandlerCompat;
+import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
 
@@ -72,16 +84,24 @@ public final class Camera2CameraControlTest {
             ArgumentCaptor.forClass(List.class);
     private HandlerThread mHandlerThread;
     private Handler mHandler;
+    private CameraCharacteristics mCameraCharacteristics;
 
     @Before
-    public void setUp() throws InterruptedException {
+    public void setUp() throws InterruptedException, CameraAccessException,
+            CameraInfoUnavailableException {
+        Context context = ApplicationProvider.getApplicationContext();
+        CameraManager cameraManager = (CameraManager) context.getSystemService(
+                Context.CAMERA_SERVICE);
+        mCameraCharacteristics = cameraManager.getCameraCharacteristics(
+                CameraX.getCameraWithLensFacing(CameraX.LensFacing.BACK));
         mControlUpdateListener = mock(CameraControlInternal.ControlUpdateListener.class);
         mHandlerThread = new HandlerThread("ControlThread");
         mHandlerThread.start();
         mHandler = HandlerCompat.createAsync(mHandlerThread.getLooper());
 
         ScheduledExecutorService executorService = CameraXExecutors.newHandlerExecutor(mHandler);
-        mCamera2CameraControl = new Camera2CameraControl(mControlUpdateListener, NO_TIMEOUT,
+        mCamera2CameraControl = new Camera2CameraControl(mCameraCharacteristics,
+                mControlUpdateListener, NO_TIMEOUT,
                 executorService, executorService);
 
         HandlerUtil.waitForLooperToIdle(mHandler);
@@ -260,15 +280,9 @@ public final class Camera2CameraControlTest {
                 singleConfig.getCaptureRequestOption(
                         CaptureRequest.CONTROL_MODE, CaptureRequest.CONTROL_MODE_OFF))
                 .isEqualTo(CaptureRequest.CONTROL_MODE_AUTO);
-        assertThat(
-                singleConfig.getCaptureRequestOption(
-                        CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_OFF))
-                .isEqualTo(CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE);
-        assertThat(
-                singleConfig.getCaptureRequestOption(
-                        CaptureRequest.CONTROL_AWB_MODE,
-                        CaptureRequest.CONTROL_AWB_MODE_OFF))
-                .isEqualTo(CaptureRequest.CONTROL_AWB_MODE_AUTO);
+
+        assertAfMode(singleConfig, CONTROL_AF_MODE_CONTINUOUS_PICTURE);
+        assertAwbMode(singleConfig, CONTROL_AWB_MODE_AUTO);
     }
 
     @Test
@@ -286,14 +300,9 @@ public final class Camera2CameraControlTest {
 
         Camera2Config singleConfig2 = new Camera2Config(mCamera2CameraControl.getSharedOptions());
 
-        assertThat(
-                singleConfig.getCaptureRequestOption(
-                        CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_OFF))
-                .isEqualTo(CaptureRequest.CONTROL_AF_MODE_AUTO);
-        assertThat(
-                singleConfig2.getCaptureRequestOption(
-                        CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_OFF))
-                .isEqualTo(CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE);
+        assertAfMode(singleConfig, CONTROL_AF_MODE_AUTO);
+        assertAfMode(singleConfig2, CONTROL_AF_MODE_CONTINUOUS_PICTURE);
+
     }
 
     @Test
@@ -306,10 +315,8 @@ public final class Camera2CameraControlTest {
                 mSessionConfigArgumentCaptor.capture());
         SessionConfig sessionConfig = mSessionConfigArgumentCaptor.getValue();
         Camera2Config camera2Config = new Camera2Config(sessionConfig.getImplementationOptions());
-        assertThat(
-                camera2Config.getCaptureRequestOption(
-                        CaptureRequest.CONTROL_AE_MODE, CONTROL_AE_MODE_OFF))
-                .isEqualTo(CONTROL_AE_MODE_ON_AUTO_FLASH);
+
+        assertAeMode(camera2Config, CONTROL_AE_MODE_ON_AUTO_FLASH);
         assertThat(mCamera2CameraControl.getFlashMode()).isEqualTo(FlashMode.AUTO);
     }
 
@@ -323,10 +330,9 @@ public final class Camera2CameraControlTest {
                 mSessionConfigArgumentCaptor.capture());
         SessionConfig sessionConfig = mSessionConfigArgumentCaptor.getValue();
         Camera2Config camera2Config = new Camera2Config(sessionConfig.getImplementationOptions());
-        assertThat(
-                camera2Config.getCaptureRequestOption(
-                        CaptureRequest.CONTROL_AE_MODE, CONTROL_AE_MODE_OFF))
-                .isEqualTo(CaptureRequest.CONTROL_AE_MODE_ON);
+
+        assertAeMode(camera2Config, CONTROL_AE_MODE_ON);
+
         assertThat(mCamera2CameraControl.getFlashMode()).isEqualTo(FlashMode.OFF);
     }
 
@@ -340,10 +346,9 @@ public final class Camera2CameraControlTest {
                 mSessionConfigArgumentCaptor.capture());
         SessionConfig sessionConfig = mSessionConfigArgumentCaptor.getValue();
         Camera2Config camera2Config = new Camera2Config(sessionConfig.getImplementationOptions());
-        assertThat(
-                camera2Config.getCaptureRequestOption(
-                        CaptureRequest.CONTROL_AE_MODE, CONTROL_AE_MODE_OFF))
-                .isEqualTo(CONTROL_AE_MODE_ON_ALWAYS_FLASH);
+
+        assertAeMode(camera2Config, CONTROL_AE_MODE_ON_ALWAYS_FLASH);
+
         assertThat(mCamera2CameraControl.getFlashMode()).isEqualTo(FlashMode.ON);
     }
 
@@ -357,10 +362,9 @@ public final class Camera2CameraControlTest {
                 mSessionConfigArgumentCaptor.capture());
         SessionConfig sessionConfig = mSessionConfigArgumentCaptor.getValue();
         Camera2Config camera2Config = new Camera2Config(sessionConfig.getImplementationOptions());
-        assertThat(
-                camera2Config.getCaptureRequestOption(
-                        CaptureRequest.CONTROL_AE_MODE, CONTROL_AE_MODE_OFF))
-                .isEqualTo(CONTROL_AE_MODE_ON);
+
+        assertAeMode(camera2Config, CONTROL_AE_MODE_ON);
+
         assertThat(
                 camera2Config.getCaptureRequestOption(
                         CaptureRequest.FLASH_MODE, FLASH_MODE_OFF))
@@ -379,10 +383,9 @@ public final class Camera2CameraControlTest {
                 mSessionConfigArgumentCaptor.capture());
         SessionConfig sessionConfig = mSessionConfigArgumentCaptor.getAllValues().get(0);
         Camera2Config camera2Config = new Camera2Config(sessionConfig.getImplementationOptions());
-        assertThat(
-                camera2Config.getCaptureRequestOption(
-                        CaptureRequest.CONTROL_AE_MODE, CONTROL_AE_MODE_OFF))
-                .isEqualTo(CONTROL_AE_MODE_ON_AUTO_FLASH);
+
+        assertAeMode(camera2Config, CONTROL_AE_MODE_ON_AUTO_FLASH);
+
         assertThat(camera2Config.getCaptureRequestOption(CaptureRequest.FLASH_MODE, -1))
                 .isEqualTo(-1);
         assertThat(mCamera2CameraControl.isTorchOn()).isFalse();
@@ -392,10 +395,9 @@ public final class Camera2CameraControlTest {
         CaptureConfig captureConfig = mCaptureConfigArgumentCaptor.getValue().get(0);
         Camera2Config resultCaptureConfig =
                 new Camera2Config(captureConfig.getImplementationOptions());
-        assertThat(
-                resultCaptureConfig.getCaptureRequestOption(
-                        CaptureRequest.CONTROL_AE_MODE, null))
-                .isEqualTo(CaptureRequest.CONTROL_AE_MODE_ON);
+
+        assertAeMode(resultCaptureConfig, CONTROL_AE_MODE_ON);
+
     }
 
     @Test
@@ -522,8 +524,88 @@ public final class Camera2CameraControlTest {
         Camera2Config sharedOptions =
                 new Camera2Config(mCamera2CameraControl.getSharedOptions());
 
-        assertThat(resultCaptureConfig.getCaptureRequestOption(CaptureRequest.CONTROL_AF_MODE,
-                null)).isEqualTo(
+        assertAfMode(resultCaptureConfig,
                 sharedOptions.getCaptureRequestOption(CaptureRequest.CONTROL_AF_MODE, null));
+    }
+
+    private boolean isAfModeSupported(int afMode) {
+        int[] modes = mCameraCharacteristics.get(CameraCharacteristics.CONTROL_AF_AVAILABLE_MODES);
+        return isModeInList(afMode, modes);
+    }
+
+    private boolean isAeModeSupported(int aeMode) {
+        int[] modes = mCameraCharacteristics.get(CameraCharacteristics.CONTROL_AE_AVAILABLE_MODES);
+        return isModeInList(aeMode, modes);
+    }
+
+    private boolean isAwbModeSupported(int awbMode) {
+        int[] modes = mCameraCharacteristics.get(CameraCharacteristics.CONTROL_AWB_AVAILABLE_MODES);
+        return isModeInList(awbMode, modes);
+    }
+
+
+    private boolean isModeInList(int mode, int[] modeList) {
+        if (modeList == null) {
+            return false;
+        }
+        for (int m : modeList) {
+            if (mode == m) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private void assertAfMode(Camera2Config config, int afMode) {
+        if (isAfModeSupported(afMode)) {
+            assertThat(config.getCaptureRequestOption(
+                    CaptureRequest.CONTROL_AF_MODE, null)).isEqualTo(afMode);
+        } else {
+            int fallbackMode;
+            if (isAfModeSupported(CONTROL_AF_MODE_CONTINUOUS_PICTURE)) {
+                fallbackMode = CONTROL_AF_MODE_CONTINUOUS_PICTURE;
+            } else if (isAfModeSupported(CONTROL_AF_MODE_AUTO)) {
+                fallbackMode = CONTROL_AF_MODE_AUTO;
+            } else {
+                fallbackMode = CONTROL_AF_MODE_OFF;
+            }
+
+            assertThat(config.getCaptureRequestOption(
+                    CaptureRequest.CONTROL_AF_MODE, null)).isEqualTo(fallbackMode);
+        }
+    }
+
+    private void assertAeMode(Camera2Config config, int aeMode) {
+        if (isAeModeSupported(aeMode)) {
+            assertThat(config.getCaptureRequestOption(
+                    CaptureRequest.CONTROL_AE_MODE, null)).isEqualTo(aeMode);
+        } else {
+            int fallbackMode;
+            if (isAeModeSupported(CONTROL_AE_MODE_ON)) {
+                fallbackMode = CONTROL_AE_MODE_ON;
+            } else {
+                fallbackMode = CONTROL_AE_MODE_OFF;
+            }
+
+            assertThat(config.getCaptureRequestOption(
+                    CaptureRequest.CONTROL_AE_MODE, null)).isEqualTo(fallbackMode);
+        }
+    }
+
+    private void assertAwbMode(Camera2Config config, int awbMode) {
+        if (isAwbModeSupported(awbMode)) {
+            assertThat(config.getCaptureRequestOption(
+                    CaptureRequest.CONTROL_AWB_MODE, null)).isEqualTo(awbMode);
+        } else {
+            int fallbackMode;
+            if (isAwbModeSupported(CONTROL_AWB_MODE_AUTO)) {
+                fallbackMode = CONTROL_AWB_MODE_AUTO;
+            } else {
+                fallbackMode = CONTROL_AWB_MODE_OFF;
+            }
+
+            assertThat(config.getCaptureRequestOption(
+                    CaptureRequest.CONTROL_AWB_MODE, null)).isEqualTo(fallbackMode);
+        }
     }
 }
