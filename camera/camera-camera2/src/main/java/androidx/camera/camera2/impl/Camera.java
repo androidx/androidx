@@ -1167,8 +1167,9 @@ final class Camera implements BaseCamera {
                     throw new IllegalStateException(
                             "onDisconnected() should not be possible from state: " + mState);
             }
-
-            closeCamera(/*abortInFlightCaptures=*/true);
+            // Not to close the in flight captures since the capture session has already been
+            // closed.
+            closeCamera(/*abortInFlightCaptures=*/false);
         }
 
         @Override
