@@ -52,22 +52,6 @@ class TextDelegateIntegrationTest {
     private val context = InstrumentationRegistry.getInstrumentation().context
     private val resourceLoader = TestFontResourceLoader(context)
 
-    @Test
-    fun preferredLineHeight_style_set() {
-        withDensity(density) {
-            val fontSize = 20.sp
-            val textStyle = TextStyle(fontSize = fontSize, fontFamily = fontFamily)
-            val textPainter = TextDelegate(
-                style = textStyle,
-                density = density,
-                resourceLoader = resourceLoader
-            )
-            val preferredHeight = textPainter.preferredLineHeight
-
-            assertThat(preferredHeight).isEqualTo(fontSize.toPx().value)
-        }
-    }
-
     // TODO(Migration/qqd): The default font size should be 14.0 but it returns 15.0. Need further
     // investigation. It is being changed in the native level, and probably related to the font.
 //    @Test
