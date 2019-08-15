@@ -72,16 +72,15 @@ public abstract class MeteringPointFactory {
      *
      * @param x          the logical x to be translated
      * @param y          the logical y to be translated
-     * @param areaLength area width/height. The value is ranging from 0 to 1 meaning the
-     *                   percentage of
-     *                   crop region width/height.
+     * @param size  size of the point. The value is ranging from 0 to 1 meaning the
+     *                   percentage of crop region width/height.
      * @param weight     weight of metering region ranging from 0 to 1.
      * @return A {@link MeteringPoint} that is translated into normalized crop region x/y.
      */
     @NonNull
-    public final MeteringPoint createPoint(float x, float y, float areaLength, float weight) {
+    public final MeteringPoint createPoint(float x, float y, float size, float weight) {
         PointF translatedXY = translatePoint(x, y);
-        return new MeteringPoint(translatedXY.x, translatedXY.y, areaLength, weight,
+        return new MeteringPoint(translatedXY.x, translatedXY.y, size, weight,
                 mFOVAspectRatio);
     }
 }

@@ -26,6 +26,8 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
+import android.util.Rational;
+import android.util.Size;
 import android.view.Surface;
 
 import androidx.annotation.GuardedBy;
@@ -44,6 +46,7 @@ import androidx.camera.core.CaptureConfig;
 import androidx.camera.core.DeferrableSurface;
 import androidx.camera.core.ImmediateSurface;
 import androidx.camera.core.Observable;
+import androidx.camera.core.Preview;
 import androidx.camera.core.SessionConfig;
 import androidx.camera.core.SessionConfig.ValidatingBuilder;
 import androidx.camera.core.UseCase;
@@ -112,7 +115,7 @@ final class Camera implements BaseCamera {
     private final LiveDataObservable<BaseCamera.State> mObservableState =
             new LiveDataObservable<>();
     /** The camera control shared across all use cases bound to this Camera. */
-    private final CameraControlInternal mCameraControlInternal;
+    private final Camera2CameraControl mCameraControlInternal;
     private final StateCallback mStateCallback = new StateCallback();
     /** Information about the characteristics of this camera */
     // Nullable because this is lazily instantiated
@@ -157,7 +160,6 @@ final class Camera implements BaseCamera {
      */
     @SuppressWarnings("WeakerAccess")
     int mNumAvailableCameras = 0;
-
 
     /**
      * Constructor for a camera.
@@ -617,7 +619,7 @@ final class Camera implements BaseCamera {
     // Re-attaches use case's surfaces if surfaces are changed when use case is online.
     @GuardedBy("mAttachedUseCaseLock")
     private void reattachUseCaseSurfaces(UseCase useCase) {
-        // if use case is offline, then DeferrableSurface attaching will happens when the use
+        // if use case is offline, then DeferrableSurface attaching will happen when the use
         // case is addOnlineUsecase()'d.   So here we don't need to do the attaching.
         if (!isUseCaseOnline(useCase)) {
             return;
@@ -720,7 +722,28 @@ final class Camera implements BaseCamera {
             open();
         }
 
+        updateCameraControlPreviewAspectRatio(useCases);
+    }
 
+
+    private void updateCameraControlPreviewAspectRatio(Collection<UseCase> useCases) {
+        for (UseCase useCase : useCases) {
+            if (useCase instanceof Preview) {
+                Size resolutoin = useCase.getAttachedSurfaceResolution(mCameraId);
+                Rational aspectRatio = new Rational(resolutoin.getWidth(), resolutoin.getHeight());
+                mCameraControlInternal.setPreviewAspectRatio(aspectRatio);
+                return;
+            }
+        }
+    }
+
+    private void clearCameraControlPreviewAspectRatio(Collection<UseCase> useCases) {
+        for (UseCase useCase : useCases) {
+            if (useCase instanceof Preview) {
+                mCameraControlInternal.setPreviewAspectRatio(null);
+                return;
+            }
+        }
     }
 
     /**
@@ -771,6 +794,7 @@ final class Camera implements BaseCamera {
             openCaptureSession();
         }
 
+        clearCameraControlPreviewAspectRatio(useCases);
     }
 
     /** Returns an interface to retrieve characteristics of the camera. */

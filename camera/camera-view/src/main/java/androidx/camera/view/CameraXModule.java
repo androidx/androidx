@@ -440,31 +440,6 @@ final class CameraXModule {
         }
     }
 
-    public void focus(Rect focus, Rect metering) {
-        if (mPreview == null) {
-            // Nothing to focus on since we don't yet have a preview
-            return;
-        }
-
-        Rect rescaledFocus;
-        Rect rescaledMetering;
-        try {
-            Rect sensorRegion;
-            if (mCropRegion != null) {
-                sensorRegion = mCropRegion;
-            } else {
-                sensorRegion = getSensorSize(getActiveCamera());
-            }
-            rescaledFocus = rescaleViewRectToSensorRect(focus, sensorRegion);
-            rescaledMetering = rescaleViewRectToSensorRect(metering, sensorRegion);
-        } catch (Exception e) {
-            Log.e(TAG, "Failed to rescale the focus and metering rectangles.", e);
-            return;
-        }
-
-        mPreview.focus(rescaledFocus, rescaledMetering);
-    }
-
     public float getZoomLevel() {
         return mZoomLevel;
     }

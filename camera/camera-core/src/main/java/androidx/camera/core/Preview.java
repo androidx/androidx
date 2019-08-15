@@ -36,7 +36,6 @@ import androidx.annotation.RestrictTo.Scope;
 import androidx.annotation.UiThread;
 import androidx.camera.core.CameraX.LensFacing;
 import androidx.camera.core.ImageOutputConfig.RotationValue;
-import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 
 import com.google.auto.value.AutoValue;
 
@@ -237,45 +236,6 @@ public class Preview extends UseCase {
         PreviewConfig config = (PreviewConfig) getUseCaseConfig();
         String cameraId = getCameraIdUnchecked(config);
         return getCameraControl(cameraId);
-    }
-
-    /**
-     * Adjusts the preview according to the properties in some local regions.
-     *
-     * <p>The auto-focus (AF) and auto-exposure (AE) properties will be recalculated from the local
-     * regions.
-     *
-     * <p>Dimensions of the sensor coordinate frame can be found using Camera2.
-     *
-     * @param focus    rectangle with dimensions in sensor coordinate frame for focus
-     * @param metering rectangle with dimensions in sensor coordinate frame for metering
-     */
-    public void focus(Rect focus, Rect metering) {
-        focus(focus, metering, null);
-    }
-
-    /**
-     * Adjusts the preview according to the properties in some local regions with a callback
-     * called once focus scan has completed.
-     *
-     * <p>The auto-focus (AF) and auto-exposure (AE) properties will be recalculated from the local
-     * regions.
-     *
-     * <p>Dimensions of the sensor coordinate frame can be found using Camera2.
-     *
-     * @param focus    rectangle with dimensions in sensor coordinate frame for focus
-     * @param metering rectangle with dimensions in sensor coordinate frame for metering
-     * @param listener listener for when focus has completed
-     */
-    public void focus(Rect focus, Rect metering, @Nullable OnFocusListener listener) {
-        // If the listener is not null, we will call it back on the main thread.
-        if (listener == null) {
-            getCurrentCameraControl().focus(focus, metering);
-        } else {
-            getCurrentCameraControl().focus(focus, metering, CameraXExecutors.mainThreadExecutor(),
-                    listener);
-        }
-
     }
 
     /**

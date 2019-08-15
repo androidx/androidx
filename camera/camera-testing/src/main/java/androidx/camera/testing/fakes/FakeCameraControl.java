@@ -16,7 +16,6 @@
 
 package androidx.camera.testing.fakes;
 
-import android.annotation.SuppressLint;
 import android.graphics.Rect;
 import android.util.Log;
 
@@ -25,11 +24,10 @@ import androidx.annotation.Nullable;
 import androidx.camera.core.CameraControlInternal;
 import androidx.camera.core.CaptureConfig;
 import androidx.camera.core.FlashMode;
-import androidx.camera.core.OnFocusListener;
+import androidx.camera.core.FocusMeteringAction;
 import androidx.camera.core.SessionConfig;
 
 import java.util.List;
-import java.util.concurrent.Executor;
 
 /**
  * A fake implementation for the CameraControlInternal interface.
@@ -49,21 +47,6 @@ public final class FakeCameraControl implements CameraControlInternal {
     @Override
     public void setCropRegion(@Nullable final Rect crop) {
         Log.d(TAG, "setCropRegion(" + crop + ")");
-    }
-
-    @SuppressLint("LambdaLast") // Remove after https://issuetracker.google.com/135275901
-    @Override
-    public void focus(
-            @NonNull final Rect focus,
-            @NonNull final Rect metering,
-            @NonNull final Executor listenerExecutor,
-            @NonNull final OnFocusListener listener) {
-        focus(focus, metering);
-    }
-
-    @Override
-    public void focus(@NonNull Rect focus, @NonNull Rect metering) {
-        Log.d(TAG, "focus(\n    " + focus + ",\n    " + metering + ")");
     }
 
     @NonNull
@@ -90,11 +73,6 @@ public final class FakeCameraControl implements CameraControlInternal {
     }
 
     @Override
-    public boolean isFocusLocked() {
-        return false;
-    }
-
-    @Override
     public void triggerAf() {
         Log.d(TAG, "triggerAf()");
     }
@@ -118,5 +96,13 @@ public final class FakeCameraControl implements CameraControlInternal {
 
     private void updateSessionConfig() {
         mControlUpdateListener.onCameraControlUpdateSessionConfig(mSessionConfigBuilder.build());
+    }
+
+    @Override
+    public void startFocusAndMetering(FocusMeteringAction action) {
+    }
+
+    @Override
+    public void cancelFocusAndMetering() {
     }
 }

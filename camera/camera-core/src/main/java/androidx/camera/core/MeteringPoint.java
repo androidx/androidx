@@ -36,7 +36,7 @@ import androidx.annotation.RestrictTo;
 public class MeteringPoint {
     private float mNormalizedCropRegionX;
     private float mNormalizedCropRegionY;
-    private float mAreaLength;
+    private float mSize;
     private float mWeight;
     @Nullable
     private Rational mFOVAspectRatio; // null for preview aspect ratio.
@@ -46,9 +46,8 @@ public class MeteringPoint {
      *
      * @param normalizedCropRegionX normalized X (ranging from 0 to 1) in current crop region.
      * @param normalizedCropRegionY normalized Y (ranging from 0 to 1) in current crop region.
-     * @param areaLength              area width/height (ranging from 0 to 1). The value represents
-     *                              the percentage
-     *                              of current crop region.
+     * @param size            size of the MeteringPoint(ranging from 0 to 1). The value
+     *                       represents the percentage of current crop region width/height.
      * @param weight                weight of this metering point ranging from 0 to 1.
      * @param fovAspectRatio        if specified, use this aspect ratio. Otherwise use Preview's
      *                              aspect
@@ -56,11 +55,11 @@ public class MeteringPoint {
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public MeteringPoint(float normalizedCropRegionX, float normalizedCropRegionY, float areaLength,
+    public MeteringPoint(float normalizedCropRegionX, float normalizedCropRegionY, float size,
             float weight, @Nullable Rational fovAspectRatio) {
         mNormalizedCropRegionX = normalizedCropRegionX;
         mNormalizedCropRegionY = normalizedCropRegionY;
-        mAreaLength = areaLength;
+        mSize = size;
         mWeight = weight;
         mFOVAspectRatio = fovAspectRatio;
     }
@@ -80,10 +79,11 @@ public class MeteringPoint {
     }
 
     /**
-     * Area Width/Height (Ranging from 0 to 1)
+     * Size of the MeteringPoint(ranging from 0 to 1). The value represents the percentage of
+     * current crop region width/height
      */
-    public float getAreaLength() {
-        return mAreaLength;
+    public float getSize() {
+        return mSize;
     }
 
     /**
@@ -94,10 +94,16 @@ public class MeteringPoint {
     }
 
     /**
-     * Sets area size (ranging from 0 to 1)
+     * Sets the size of MeteringPoint (ranging from 0 to 1). It is the percentage of the sensor
+     * width/height (or cropRegion width/height if crop region is set)
+     *
+     * <p><pre>Metering Area width = size * cropRegion.width
+     * Metering Area height = size * cropRegion.height
+     * </pre>
+     *
      */
-    public void setAreaLength(float areaLength) {
-        mAreaLength = areaLength;
+    public void setSize(float size) {
+        mSize = size;
     }
 
     /**

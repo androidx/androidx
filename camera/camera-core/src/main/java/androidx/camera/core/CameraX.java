@@ -405,9 +405,7 @@ public final class CameraX {
      * @return the {@link CameraControl}.
      * @throws CameraInfoUnavailableException if unable to access cameras, perhaps due to
      *                                        insufficient permissions.
-     * @hide
      */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     public static CameraControl getCameraControl(LensFacing lensFacing)
             throws CameraInfoUnavailableException {
 
