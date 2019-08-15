@@ -36,18 +36,6 @@ package androidx.ui.core {
     method public static void DrawShadow(androidx.ui.engine.geometry.Shape shape, androidx.ui.core.Dp elevation);
   }
 
-  public final class EditorStyle {
-    ctor public EditorStyle(androidx.ui.text.TextStyle? textStyle, androidx.ui.graphics.Color compositionColor, androidx.ui.graphics.Color selectionColor);
-    ctor public EditorStyle();
-    method public androidx.ui.text.TextStyle? component1();
-    method public androidx.ui.graphics.Color component2();
-    method public androidx.ui.graphics.Color component3();
-    method public androidx.ui.core.EditorStyle copy(androidx.ui.text.TextStyle? textStyle, androidx.ui.graphics.Color compositionColor, androidx.ui.graphics.Color selectionColor);
-    method public androidx.ui.graphics.Color getCompositionColor();
-    method public androidx.ui.graphics.Color getSelectionColor();
-    method public androidx.ui.text.TextStyle? getTextStyle();
-  }
-
   public final class IntrinsicMeasurementReceiver implements androidx.ui.core.DensityReceiver {
     method public androidx.ui.core.Density getDensity();
     method public androidx.ui.core.IntPx maxIntrinsicHeight(androidx.ui.core.Measurable, androidx.ui.core.IntPx w);
@@ -143,7 +131,7 @@ package androidx.ui.core {
 
   public final class TextFieldKt {
     ctor public TextFieldKt();
-    method public static void TextField(androidx.ui.input.EditorModel value, androidx.ui.core.EditorStyle editorStyle, androidx.ui.input.KeyboardType keyboardType = KeyboardType.Text, androidx.ui.input.ImeAction imeAction = ImeAction.Unspecified, kotlin.jvm.functions.Function1<? super androidx.ui.input.EditorModel,kotlin.Unit> onValueChange = {}, kotlin.jvm.functions.Function0<kotlin.Unit> onFocus = {}, kotlin.jvm.functions.Function0<kotlin.Unit> onBlur = {}, kotlin.jvm.functions.Function1<? super androidx.ui.input.ImeAction,kotlin.Unit> onImeActionPerformed = {}, androidx.ui.input.VisualTransformation? visualTransformation = null);
+    method public static void TextField(androidx.ui.input.EditorModel value, androidx.ui.input.EditorStyle editorStyle, androidx.ui.input.KeyboardType keyboardType = KeyboardType.Text, androidx.ui.input.ImeAction imeAction = ImeAction.Unspecified, kotlin.jvm.functions.Function1<? super androidx.ui.input.EditorModel,kotlin.Unit> onValueChange = {}, kotlin.jvm.functions.Function0<kotlin.Unit> onFocus = {}, kotlin.jvm.functions.Function0<kotlin.Unit> onBlur = {}, kotlin.jvm.functions.Function1<? super androidx.ui.input.ImeAction,kotlin.Unit> onImeActionPerformed = {}, androidx.ui.input.VisualTransformation? visualTransformation = null);
   }
 
   public final class TextKt {

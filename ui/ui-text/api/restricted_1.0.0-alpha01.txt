@@ -18,6 +18,18 @@ package androidx.ui.input {
     property public final String text;
   }
 
+  public final class EditorStyle {
+    ctor public EditorStyle(androidx.ui.text.TextStyle? textStyle, androidx.ui.graphics.Color compositionColor, androidx.ui.graphics.Color selectionColor);
+    ctor public EditorStyle();
+    method public androidx.ui.text.TextStyle? component1();
+    method public androidx.ui.graphics.Color component2();
+    method public androidx.ui.graphics.Color component3();
+    method public androidx.ui.input.EditorStyle copy(androidx.ui.text.TextStyle? textStyle, androidx.ui.graphics.Color compositionColor, androidx.ui.graphics.Color selectionColor);
+    method public androidx.ui.graphics.Color getCompositionColor();
+    method public androidx.ui.graphics.Color getSelectionColor();
+    method public androidx.ui.text.TextStyle? getTextStyle();
+  }
+
 
   public enum ImeAction {
     enum_constant public static final androidx.ui.input.ImeAction Done;
