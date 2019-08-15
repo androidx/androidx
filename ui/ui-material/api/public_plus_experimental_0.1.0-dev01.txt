@@ -89,6 +89,27 @@ package androidx.ui.material {
 }));
   }
 
+  public final class DataRow {
+    ctor public DataRow(kotlin.jvm.functions.Function1<? super java.lang.Integer,kotlin.Unit> children, boolean selected, kotlin.jvm.functions.Function1<? super java.lang.Boolean,kotlin.Unit>? onSelectedChange);
+    method public kotlin.jvm.functions.Function1<java.lang.Integer,kotlin.Unit> component1();
+    method public boolean component2();
+    method public kotlin.jvm.functions.Function1<java.lang.Boolean,kotlin.Unit>? component3();
+    method public androidx.ui.material.DataRow copy(kotlin.jvm.functions.Function1<? super java.lang.Integer,kotlin.Unit> children, boolean selected, kotlin.jvm.functions.Function1<? super java.lang.Boolean,kotlin.Unit>? onSelectedChange);
+    method public kotlin.jvm.functions.Function1<java.lang.Integer,kotlin.Unit> getChildren();
+    method public kotlin.jvm.functions.Function1<java.lang.Boolean,kotlin.Unit>? getOnSelectedChange();
+    method public boolean getSelected();
+  }
+
+  public final class DataTableKt {
+    ctor public DataTableKt();
+    method public static void DataTable(java.util.List<androidx.ui.material.DataRow> rows, int columns, kotlin.jvm.functions.Function1<? super java.lang.Integer,kotlin.Unit> header, kotlin.jvm.functions.Function1<? super java.lang.Integer,java.lang.Boolean> numeric = { false }, androidx.ui.core.Dp rowHeight = androidx.ui.material.DataTableKt.RowHeight, androidx.ui.core.Dp headerHeight = androidx.ui.material.DataTableKt.HeaderHeight, androidx.ui.layout.EdgeInsets cellSpacing = androidx.ui.material.DataTableKt.CellSpacing, androidx.ui.foundation.shape.border.Border border = Border(BorderColor, BorderWidth), androidx.ui.graphics.Color selectedColor = +themeColor({ 
+    primary.copy(0.08)
+}), kotlin.jvm.functions.Function1<? super java.lang.Boolean,kotlin.Unit> onSelectAll = { rows.forEach({ @null var row: androidx.ui.material.DataRow ->
+
+    row.onSelectedChange?.invoke(it)
+}) });
+  }
+
   public final class DividerKt {
     ctor public DividerKt();
     method public static void Divider(androidx.ui.graphics.Color color = +themeColor({ 
