@@ -159,7 +159,7 @@ internal object Errors {
                 |    throttling. To fix this, add the following to your benchmark module-level
                 |    build.gradle:
                 |        android.defaultConfig.testInstrumentationRunner
-                |            = "androidx.benchmark.AndroidBenchmarkRunner"
+                |            = "androidx.benchmark.junit4.AndroidBenchmarkRunner"
             """.trimMarginWrapNewlines()
         } else if (IsolationActivity.singleton.get() == null) {
             warningPrefix += "ACTIVITY-MISSING_"
@@ -169,7 +169,7 @@ internal object Errors {
                 |    from other visible apps. To fix this, add the following to your module-level
                 |    build.gradle:
                 |        android.defaultConfig.testInstrumentationRunner
-                |            = "androidx.benchmark.AndroidBenchmarkRunner"
+                |            = "androidx.benchmark.junit4.AndroidBenchmarkRunner"
             """.trimMarginWrapNewlines()
         }
 
