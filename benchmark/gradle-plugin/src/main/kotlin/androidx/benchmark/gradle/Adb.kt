@@ -43,13 +43,26 @@ class Adb {
         this.logger = logger
     }
 
-    fun isRooted(): Boolean {
+    /**
+     * Check if adb shell runs as root by default.
+     *
+     * The most common case for this is when adbd is running as root.
+     *
+     * @return `true` if adb shell runs as root by default, `false` otherwise.
+     */
+    fun isAdbdRoot(): Boolean {
         val defaultUser = execSync("shell id").stdout
-        if (defaultUser.contains("uid=0(root)")) {
-            return true
-        }
+        return defaultUser.contains("uid=0(root)")
+    }
 
-        return execSync("shell su exit", shouldThrow = false).exitValue == 0
+    /**
+     * Check if the `su` binary is installed.
+     */
+    fun isSuInstalled(): Boolean {
+        // Not all devices / methods of rooting support su -c, but sh -c is usually supported.
+        // Although the root group is su's default, using syntax different from "su gid cmd", can
+        // cause the adb shell command to hang on some devices.
+        return execSync("shell su 0 sh -c exit", shouldThrow = false).exitValue == 0
     }
 
     fun execSync(
