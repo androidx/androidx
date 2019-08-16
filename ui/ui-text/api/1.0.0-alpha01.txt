@@ -104,25 +104,6 @@ package androidx.ui.text {
     method public T! getStyle();
   }
 
-  public final class Locale {
-    ctor public Locale(String _languageCode, String? _countryCode);
-    method public String component1();
-    method public String? component2();
-    method public androidx.ui.text.Locale copy(String _languageCode, String? _countryCode);
-    method public String! getCountryCode();
-    method public String getLanguageCode();
-    method public String? get_countryCode();
-    method public String get_languageCode();
-    property public final String! countryCode;
-    property public final String languageCode;
-    field public static final androidx.ui.text.Locale.Companion! Companion;
-  }
-
-  public static final class Locale.Companion {
-    method public String _canonicalizeLanguageCode(String languageCode);
-    method public String _canonicalizeRegionCode(String regionCode);
-  }
-
   public final class MultiParagraphKt {
     ctor public MultiParagraphKt();
   }
@@ -190,12 +171,12 @@ package androidx.ui.text {
   }
 
   public final class TextStyle {
-    ctor public TextStyle(androidx.ui.graphics.Color? color, androidx.ui.core.Sp? fontSize, Float? fontSizeScale, androidx.ui.text.font.FontWeight? fontWeight, androidx.ui.text.font.FontStyle? fontStyle, androidx.ui.text.font.FontSynthesis? fontSynthesis, androidx.ui.text.font.FontFamily? fontFamily, String? fontFeatureSettings, Float? letterSpacing, androidx.ui.text.style.BaselineShift? baselineShift, androidx.ui.text.style.TextGeometricTransform? textGeometricTransform, androidx.ui.text.Locale? locale, androidx.ui.graphics.Color? background, androidx.ui.text.style.TextDecoration? decoration, androidx.ui.painting.Shadow? shadow);
+    ctor public TextStyle(androidx.ui.graphics.Color? color, androidx.ui.core.Sp? fontSize, Float? fontSizeScale, androidx.ui.text.font.FontWeight? fontWeight, androidx.ui.text.font.FontStyle? fontStyle, androidx.ui.text.font.FontSynthesis? fontSynthesis, androidx.ui.text.font.FontFamily? fontFamily, String? fontFeatureSettings, Float? letterSpacing, androidx.ui.text.style.BaselineShift? baselineShift, androidx.ui.text.style.TextGeometricTransform? textGeometricTransform, java.util.Locale? locale, androidx.ui.graphics.Color? background, androidx.ui.text.style.TextDecoration? decoration, androidx.ui.painting.Shadow? shadow);
     ctor public TextStyle();
     method public androidx.ui.graphics.Color? component1();
     method public androidx.ui.text.style.BaselineShift? component10();
     method public androidx.ui.text.style.TextGeometricTransform? component11();
-    method public androidx.ui.text.Locale? component12();
+    method public java.util.Locale? component12();
     method public androidx.ui.graphics.Color? component13();
     method public androidx.ui.text.style.TextDecoration? component14();
     method public androidx.ui.painting.Shadow? component15();
@@ -207,7 +188,7 @@ package androidx.ui.text {
     method public androidx.ui.text.font.FontFamily? component7();
     method public String? component8();
     method public Float? component9();
-    method public androidx.ui.text.TextStyle copy(androidx.ui.graphics.Color? color, androidx.ui.core.Sp? fontSize, Float? fontSizeScale, androidx.ui.text.font.FontWeight? fontWeight, androidx.ui.text.font.FontStyle? fontStyle, androidx.ui.text.font.FontSynthesis? fontSynthesis, androidx.ui.text.font.FontFamily? fontFamily, String? fontFeatureSettings, Float? letterSpacing, androidx.ui.text.style.BaselineShift? baselineShift, androidx.ui.text.style.TextGeometricTransform? textGeometricTransform, androidx.ui.text.Locale? locale, androidx.ui.graphics.Color? background, androidx.ui.text.style.TextDecoration? decoration, androidx.ui.painting.Shadow? shadow);
+    method public androidx.ui.text.TextStyle copy(androidx.ui.graphics.Color? color, androidx.ui.core.Sp? fontSize, Float? fontSizeScale, androidx.ui.text.font.FontWeight? fontWeight, androidx.ui.text.font.FontStyle? fontStyle, androidx.ui.text.font.FontSynthesis? fontSynthesis, androidx.ui.text.font.FontFamily? fontFamily, String? fontFeatureSettings, Float? letterSpacing, androidx.ui.text.style.BaselineShift? baselineShift, androidx.ui.text.style.TextGeometricTransform? textGeometricTransform, java.util.Locale? locale, androidx.ui.graphics.Color? background, androidx.ui.text.style.TextDecoration? decoration, androidx.ui.painting.Shadow? shadow);
     method public androidx.ui.graphics.Color? getBackground();
     method public androidx.ui.text.style.BaselineShift? getBaselineShift();
     method public androidx.ui.graphics.Color? getColor();
@@ -220,7 +201,7 @@ package androidx.ui.text {
     method public androidx.ui.text.font.FontSynthesis? getFontSynthesis();
     method public androidx.ui.text.font.FontWeight? getFontWeight();
     method public Float? getLetterSpacing();
-    method public androidx.ui.text.Locale? getLocale();
+    method public java.util.Locale? getLocale();
     method public androidx.ui.painting.Shadow? getShadow();
     method public androidx.ui.text.style.TextGeometricTransform? getTextGeometricTransform();
     method public androidx.ui.text.TextStyle merge(androidx.ui.text.TextStyle? other = null);

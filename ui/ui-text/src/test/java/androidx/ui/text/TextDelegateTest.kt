@@ -28,6 +28,7 @@ import com.nhaarman.mockitokotlin2.mock
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
+import java.util.Locale
 
 @RunWith(JUnit4::class)
 class TextDelegateTest() {

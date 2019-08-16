@@ -33,7 +33,6 @@ import androidx.ui.text.style.TextAlign
 import androidx.ui.text.style.TextDecoration
 import androidx.ui.text.style.TextDirection
 import androidx.ui.text.font.FontFamily
-import androidx.ui.text.Locale
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.lerp
 import androidx.ui.layout.Column
@@ -49,6 +48,7 @@ import androidx.ui.core.Sp
 import androidx.ui.core.sp
 import androidx.ui.text.AnnotatedString
 import androidx.ui.text.style.TextIndent
+import java.util.Locale
 
 val displayText = "Text Demo"
 val displayTextChinese = "文本演示"
@@ -377,7 +377,7 @@ fun TextDemoLocale() {
             text = "$text   ",
             style = TextStyle(
                 fontSize = fontSize8,
-                locale = Locale(_languageCode = "ja", _countryCode = "JP")
+                locale = Locale("ja", "JP")
             )
         )
 
@@ -385,7 +385,7 @@ fun TextDemoLocale() {
             text = "$text   ",
             style = TextStyle(
                 fontSize = fontSize8,
-                locale = Locale(_languageCode = "zh", _countryCode = "CN")
+                locale = Locale("zh", "CN")
             )
         )
 
@@ -393,7 +393,7 @@ fun TextDemoLocale() {
             text = text,
             style = TextStyle(
                 fontSize = fontSize8,
-                locale = Locale(_languageCode = "zh", _countryCode = "TW")
+                locale = Locale("zh", "TW")
             )
         )
     }

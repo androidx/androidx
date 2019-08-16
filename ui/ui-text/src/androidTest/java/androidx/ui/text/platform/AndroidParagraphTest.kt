@@ -37,7 +37,6 @@ import androidx.ui.text.style.TextGeometricTransform
 import androidx.ui.text.style.TextIndent
 import androidx.ui.text.font.FontFamily
 import androidx.ui.text.font.asFontFamily
-import androidx.ui.text.Locale
 import androidx.ui.graphics.Color
 import androidx.ui.text.matchers.equalToBitmap
 import androidx.ui.text.matchers.hasSpan
@@ -63,6 +62,7 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
+import java.util.Locale
 import kotlin.math.ceil
 
 @RunWith(JUnit4::class)
@@ -1216,7 +1216,7 @@ class AndroidParagraphTest {
 
     @Test
     fun locale_isSetOnParagraphImpl_enUS() {
-        val locale = Locale(_languageCode = "en", _countryCode = "US")
+        val locale = Locale("en", "US")
         val text = "abc"
         val paragraph = simpleParagraph(
             text = text,
@@ -1230,7 +1230,7 @@ class AndroidParagraphTest {
 
     @Test
     fun locale_isSetOnParagraphImpl_jpJP() {
-        val locale = Locale(_languageCode = "ja", _countryCode = "JP")
+        val locale = Locale("ja", "JP")
         val text = "abc"
         val paragraph = simpleParagraph(
             text = text,
@@ -1244,7 +1244,7 @@ class AndroidParagraphTest {
 
     @Test
     fun locale_noCountryCode_isSetOnParagraphImpl() {
-        val locale = Locale(_languageCode = "ja")
+        val locale = Locale("ja")
         val text = "abc"
         val paragraph = simpleParagraph(
             text = text,

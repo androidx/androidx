@@ -30,6 +30,7 @@ import androidx.ui.graphics.Color
 import androidx.ui.graphics.lerp
 import androidx.ui.lerp
 import androidx.ui.painting.Shadow
+import java.util.Locale
 
 /**
  * Configuration object to define the text style.
