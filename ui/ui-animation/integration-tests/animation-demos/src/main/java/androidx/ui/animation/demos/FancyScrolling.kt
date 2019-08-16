@@ -100,9 +100,9 @@ class FancyScrolling : Activity() {
                         drawItems(canvas, scroll, width, parentSize.height.value, paint)
                     }
                 }
-                Layout(children = children, layoutBlock = { _, constraints ->
+                Layout(children) { _, constraints ->
                     layout(constraints.maxWidth, IntPx(1200)) {}
-                })
+                }
             }
         }
     }

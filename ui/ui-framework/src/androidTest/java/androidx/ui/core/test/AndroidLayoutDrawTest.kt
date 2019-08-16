@@ -24,7 +24,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.ViewTreeObserver
 import androidx.annotation.RequiresApi
-import androidx.compose.Children
 import androidx.compose.Composable
 import androidx.compose.Compose
 import androidx.compose.Model
@@ -289,7 +288,7 @@ class AndroidLayoutDrawTest {
                     Padding(size = model.size) {
                         FillColor(model.innerColor)
                     }
-                }, layoutBlock = { measurables, constraints ->
+                }, measureBlock = { measurables, constraints ->
                     val placeables = measurables.map { it.measure(constraints) }
                     layout(placeables[0].width, placeables[0].height) {
                         placeables[0].place(0.ipx, 0.ipx)
@@ -366,11 +365,11 @@ class AndroidLayoutDrawTest {
                     Padding(size = size) {
                         WithConstraints { constraints ->
                             paddedConstraints.value = constraints
-                            Layout(layoutBlock = { _, childConstraints ->
+                            Layout(measureBlock = { _, childConstraints ->
                                 firstChildConstraints.value = childConstraints
                                 layout(size, size) { }
                             }, children = { })
-                            Layout(layoutBlock = { _, chilConstraints ->
+                            Layout(measureBlock = { _, chilConstraints ->
                                 secondChildConstraints.value = chilConstraints
                                 layout(size, size) { }
                             }, children = { })
@@ -424,23 +423,23 @@ class AndroidLayoutDrawTest {
         activityTestRule.runOnUiThreadIR {
             activity.setContent {
                 val header = @Composable {
-                    Layout(layoutBlock = { _, constraints ->
+                    Layout(measureBlock = { _, constraints ->
                         assertEquals(childConstraints[0], constraints)
                         layout(0.ipx, 0.ipx) {}
                     }, children = {})
                 }
                 val footer = @Composable {
-                    Layout(layoutBlock = { _, constraints ->
+                    Layout(measureBlock = { _, constraints ->
                         assertEquals(childConstraints[1], constraints)
                         layout(0.ipx, 0.ipx) {}
                     }, children = {})
-                    Layout(layoutBlock = { _, constraints ->
+                    Layout(measureBlock = { _, constraints ->
                         assertEquals(childConstraints[2], constraints)
                         layout(0.ipx, 0.ipx) {}
                     }, children = {})
                 }
                 @Suppress("USELESS_CAST")
-                Layout(childrenArray = arrayOf(header, footer)) { measurables, _ ->
+                Layout(header, footer) { measurables, _ ->
                     assertEquals(childrenCount, measurables.size)
                     measurables.forEachIndexed { index, measurable ->
                         measurable.measure(childConstraints[index])
@@ -462,16 +461,16 @@ class AndroidLayoutDrawTest {
             activity.setContent {
                 val header = @Composable {
                     ParentData(data = 0) {
-                        Layout(layoutBlock = { _, _ -> layout(0.ipx, 0.ipx, {}) }, children = {})
+                        Layout(measureBlock = { _, _ -> layout(0.ipx, 0.ipx, {}) }, children = {})
                     }
                 }
                 val footer = @Composable {
                     ParentData(data = 1) {
-                        Layout(layoutBlock = { _, _ -> layout(0.ipx, 0.ipx, {}) }, children = {})
+                        Layout(measureBlock = { _, _ -> layout(0.ipx, 0.ipx, {}) }, children = {})
                     }
                 }
 
-                Layout(childrenArray = arrayOf(header, footer)) { measurables, _ ->
+                Layout(header, footer) { measurables, _ ->
                     assertEquals(0, measurables[0].parentData)
                     assertEquals(1, measurables[1].parentData)
                     layout(0.ipx, 0.ipx, {})
@@ -522,7 +521,7 @@ class AndroidLayoutDrawTest {
                             canvas.drawRect(parentSize.toRect(), paint)
                         }
                     }
-                }, layoutBlock = { measurables, constraints ->
+                }, measureBlock = { measurables, constraints ->
                     measureCalls++
                     layout(30.ipx, 30.ipx) {
                         layoutCalls++
@@ -560,7 +559,7 @@ class AndroidLayoutDrawTest {
             height: IntPx,
             children: @Composable() () -> Unit
         ) {
-            Layout(children = children, layoutBlock = { measurables, constraints ->
+            Layout(children = children, measureBlock = { measurables, constraints ->
                 val resolvedWidth = width.coerceIn(constraints.minWidth, constraints.maxWidth)
                 val resolvedHeight = height.coerceIn(constraints.minHeight, constraints.maxHeight)
                 layout(resolvedWidth, resolvedHeight) {
@@ -596,7 +595,7 @@ class AndroidLayoutDrawTest {
                     drawn.value = true
                     latch.countDown()
                 }
-            }, layoutBlock = { _, constraints ->
+            }, measureBlock = { _, constraints ->
                 measured.value = true
                 val resolvedWidth = width.coerceIn(constraints.minWidth, constraints.maxWidth)
                 val resolvedHeight = constraints.minHeight
@@ -943,7 +942,7 @@ class AndroidLayoutDrawTest {
 @Composable
 fun AtLeastSize(size: IntPx, children: @Composable() () -> Unit) {
     Layout(
-        layoutBlock = { measurables, constraints ->
+        measureBlock = { measurables, constraints ->
             val newConstraints = Constraints(
                 minWidth = max(size, constraints.minWidth),
                 maxWidth = max(size, constraints.maxWidth),
@@ -971,7 +970,7 @@ fun AtLeastSize(size: IntPx, children: @Composable() () -> Unit) {
 @Composable
 fun Align(children: @Composable() () -> Unit) {
     Layout(
-        layoutBlock = { measurables, constraints ->
+        measureBlock = { measurables, constraints ->
             val newConstraints = Constraints(
                 minWidth = IntPx.Zero,
                 maxWidth = constraints.maxWidth,
@@ -999,7 +998,7 @@ fun Align(children: @Composable() () -> Unit) {
 @Composable
 fun Padding(size: IntPx, children: @Composable() () -> Unit) {
     Layout(
-        layoutBlock = { measurables, constraints ->
+        measureBlock = { measurables, constraints ->
             val totalDiff = size * 2
             val newConstraints = Constraints(
                 minWidth = (constraints.minWidth - totalDiff).coerceAtLeast(0.ipx),

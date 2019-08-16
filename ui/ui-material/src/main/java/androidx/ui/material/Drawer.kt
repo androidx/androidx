@@ -298,7 +298,7 @@ private fun WithOffset(
         RepaintBoundary {
             child()
         }
-    }, layoutBlock = { measurables, constraints ->
+    }) { measurables, constraints ->
         if (measurables.size > 1) {
             throw IllegalStateException("Only one child is allowed")
         }
@@ -316,7 +316,7 @@ private fun WithOffset(
         layout(width, height) {
             placeable?.place(xOffset.toIntPx(), yOffset.toIntPx())
         }
-    })
+    }
 }
 
 private val ScrimDefaultOpacity = 0.32f

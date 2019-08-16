@@ -205,7 +205,7 @@ class AnimationGestureSemanticsActivity : Activity() {
             ) { state ->
                 Circle(color = state[colorKey], sizeRatio = state[sizeKey])
             }
-        }, layoutBlock = { _, constraints ->
+        }, measureBlock = { _, constraints ->
             layout(constraints.maxWidth, constraints.maxHeight) {}
         })
     }

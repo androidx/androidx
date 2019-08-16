@@ -75,9 +75,9 @@ fun TransitionExample() {
                 DrawScaledRect(scale = state[scale], color = state[color])
             }
         }
-        Layout(children = children, layoutBlock = { _, constraints ->
+        Layout(children) { _, constraints ->
             layout(constraints.maxWidth, constraints.maxHeight) {}
-        })
+        }
     }
 }
 

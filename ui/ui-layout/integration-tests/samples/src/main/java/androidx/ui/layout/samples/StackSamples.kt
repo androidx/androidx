@@ -35,13 +35,11 @@ import androidx.ui.painting.Paint
  */
 @Composable
 fun SizedRectangle(color: Color, width: Dp? = null, height: Dp? = null) {
-    Layout(
-        children = { DrawRectangle(color = color) },
-        layoutBlock = { _, constraints ->
-            val widthPx = width?.toIntPx() ?: constraints.maxWidth
-            val heightPx = height?.toIntPx() ?: constraints.maxHeight
-            layout(widthPx, heightPx) {}
-        })
+    Layout(children = { DrawRectangle(color = color) }) { _, constraints ->
+        val widthPx = width?.toIntPx() ?: constraints.maxWidth
+        val heightPx = height?.toIntPx() ?: constraints.maxHeight
+        layout(widthPx, heightPx) {}
+    }
 }
 
 @Composable

@@ -46,9 +46,9 @@ class HelloAnimationActivity : Activity() {
 
 @Composable
 fun HelloAnimation() {
-    Layout(children = { ColorRect() }, layoutBlock = { _, constraints ->
+    Layout(children = { ColorRect() }) { _, constraints ->
         layout(constraints.maxWidth, constraints.maxHeight) {}
-    })
+    }
 }
 
 private val background = ColorPropKey()

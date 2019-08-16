@@ -21,7 +21,6 @@ import androidx.ui.core.Layout
 import androidx.ui.core.ipx
 import androidx.ui.core.looseMin
 import androidx.ui.core.max
-import androidx.compose.Children
 import androidx.compose.Composable
 import androidx.compose.composer
 
@@ -36,7 +35,7 @@ import androidx.compose.composer
  */
 @Composable
 fun Wrap(alignment: Alignment = Alignment.TopLeft, children: @Composable() () -> Unit) {
-    Layout(layoutBlock = { measurables, constraints ->
+    Layout(children) { measurables, constraints ->
         val measurable = measurables.firstOrNull()
         // The child cannot be larger than our max constraints, but we ignore min constraints.
         val placeable = measurable?.measure(constraints.looseMin())
@@ -53,5 +52,5 @@ fun Wrap(alignment: Alignment = Alignment.TopLeft, children: @Composable() () ->
                 placeable.place(position.x, position.y)
             }
         }
-    }, children=children)
+    }
 }
