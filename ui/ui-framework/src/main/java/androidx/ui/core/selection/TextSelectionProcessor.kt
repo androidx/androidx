@@ -69,7 +69,7 @@ internal class TextSelectionProcessor(
     internal var isSelected = false
 
     /** The length of the text in text widget. */
-    private val length = textDelegate.text?.let { it.text.length } ?: 0
+    private val length = textDelegate.text.text.length
 
     init {
         processTextSelection()
