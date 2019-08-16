@@ -94,8 +94,8 @@ package androidx.ui.material {
 
   public final class DrawerKt {
     ctor public DrawerKt();
-    method public static void BottomDrawer(androidx.ui.material.DrawerState drawerState, kotlin.jvm.functions.Function1<? super androidx.ui.material.DrawerState,kotlin.Unit> onStateChange, kotlin.jvm.functions.Function0<kotlin.Unit> drawerContent);
-    method public static void ModalDrawer(androidx.ui.material.DrawerState drawerState, kotlin.jvm.functions.Function1<? super androidx.ui.material.DrawerState,kotlin.Unit> onStateChange, kotlin.jvm.functions.Function0<kotlin.Unit> drawerContent);
+    method public static void BottomDrawerLayout(androidx.ui.material.DrawerState drawerState, kotlin.jvm.functions.Function1<? super androidx.ui.material.DrawerState,kotlin.Unit> onStateChange, kotlin.jvm.functions.Function0<kotlin.Unit> drawerContent, kotlin.jvm.functions.Function0<kotlin.Unit> bodyContent);
+    method public static void ModalDrawerLayout(androidx.ui.material.DrawerState drawerState, kotlin.jvm.functions.Function1<? super androidx.ui.material.DrawerState,kotlin.Unit> onStateChange, kotlin.jvm.functions.Function0<kotlin.Unit> drawerContent, kotlin.jvm.functions.Function0<kotlin.Unit> bodyContent);
     method public static void StaticDrawer(kotlin.jvm.functions.Function0<kotlin.Unit> drawerContent);
   }
 

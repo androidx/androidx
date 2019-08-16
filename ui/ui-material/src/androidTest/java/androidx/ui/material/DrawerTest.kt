@@ -16,16 +16,22 @@
 
 package androidx.ui.material
 
+import androidx.compose.Model
 import androidx.compose.composer
 import androidx.test.filters.MediumTest
 import androidx.ui.core.OnPositioned
 import androidx.ui.core.PxPosition
 import androidx.ui.core.PxSize
+import androidx.ui.core.TestTag
 import androidx.ui.core.dp
 import androidx.ui.core.round
 import androidx.ui.core.withDensity
+import androidx.ui.foundation.Clickable
 import androidx.ui.layout.Container
+import androidx.ui.semantics.Semantics
 import androidx.ui.test.createComposeRule
+import androidx.ui.test.doClick
+import androidx.ui.test.findByTag
 import com.google.common.truth.Truth
 import org.junit.Rule
 import org.junit.Test
@@ -33,24 +39,27 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import kotlin.math.roundToInt
 
+@Model
+data class DrawerStateHolder(var state: DrawerState)
+
 @MediumTest
 @RunWith(JUnit4::class)
 class DrawerTest {
 
     @get:Rule
-    val composeTestRule = createComposeRule()
+    val composeTestRule = createComposeRule(disableTransitions = true)
 
     @Test
     fun modalDrawer_testOffset_whenOpened() {
         var position: PxPosition? = null
         composeTestRule.setMaterialContent {
-            ModalDrawer(DrawerState.Opened, {}) {
+            ModalDrawerLayout(DrawerState.Opened, {}, drawerContent = {
                 Container(expanded = true) {
                     OnPositioned { coords ->
                         position = coords.localToGlobal(PxPosition.Origin)
                     }
                 }
-            }
+            }) {}
         }
         Truth.assertThat(position!!.x.value).isEqualTo(0f)
     }
@@ -59,13 +68,13 @@ class DrawerTest {
     fun modalDrawer_testOffset_whenClosed() {
         var position: PxPosition? = null
         composeTestRule.setMaterialContent {
-            ModalDrawer(DrawerState.Closed, {}) {
+            ModalDrawerLayout(DrawerState.Closed, {}, drawerContent = {
                 Container(expanded = true) {
                     OnPositioned { coords ->
                         position = coords.localToGlobal(PxPosition.Origin)
                     }
                 }
-            }
+            }) {}
         }
         val width = composeTestRule.displayMetrics.widthPixels
         Truth.assertThat(position!!.x.round().value).isEqualTo(-width)
@@ -75,13 +84,13 @@ class DrawerTest {
     fun modalDrawer_testEndPadding_whenOpened() {
         var size: PxSize? = null
         composeTestRule.setMaterialContent {
-            ModalDrawer(DrawerState.Opened, {}) {
+            ModalDrawerLayout(DrawerState.Opened, {}, drawerContent = {
                 Container(expanded = true) {
                     OnPositioned { coords ->
                         size = coords.size
                     }
                 }
-            }
+            }) {}
         }
 
         val width = composeTestRule.displayMetrics.widthPixels
@@ -95,13 +104,13 @@ class DrawerTest {
     fun bottomDrawer_testOffset_whenOpened() {
         var position: PxPosition? = null
         composeTestRule.setMaterialContent {
-            BottomDrawer(DrawerState.Opened, {}) {
+            BottomDrawerLayout(DrawerState.Opened, {}, drawerContent = {
                 Container(expanded = true) {
                     OnPositioned { coords ->
                         position = coords.localToGlobal(PxPosition.Origin)
                     }
                 }
-            }
+            }) {}
         }
         val width = composeTestRule.displayMetrics.widthPixels
         val height = composeTestRule.displayMetrics.heightPixels
@@ -114,13 +123,13 @@ class DrawerTest {
     fun bottomDrawer_testOffset_whenClosed() {
         var position: PxPosition? = null
         composeTestRule.setMaterialContent {
-            BottomDrawer(DrawerState.Closed, {}) {
+            BottomDrawerLayout(DrawerState.Closed, {}, drawerContent = {
                 Container(expanded = true) {
                     OnPositioned { coords ->
                         position = coords.localToGlobal(PxPosition.Origin)
                     }
                 }
-            }
+            }) {}
         }
         val height = composeTestRule.displayMetrics.heightPixels
         Truth.assertThat(position!!.y.round().value).isEqualTo(height)
@@ -135,5 +144,94 @@ class DrawerTest {
                 }
             }
             .assertWidthEqualsTo(256.dp)
+    }
+
+    @Test
+    fun modalDrawer_bodyContent_clickable() {
+        var drawerClicks = 0
+        var bodyClicks = 0
+        val drawerState = DrawerStateHolder(DrawerState.Closed)
+        composeTestRule.setMaterialContent {
+            //emulate click on the screen
+            TestTag("Drawer") {
+                Semantics(container = true) {
+                    ModalDrawerLayout(drawerState.state, { drawerState.state = it },
+                        drawerContent = {
+                            Clickable(onClick = { drawerClicks += 1 }) {
+                                Container(expanded = true) {}
+                            }
+                        },
+                        bodyContent = {
+                            Clickable(onClick = { bodyClicks += 1 }) {
+                                Container(expanded = true) {}
+                            }
+                        })
+                }
+            }
+        }
+
+        findByTag("Drawer")
+            .doClick()
+
+        Truth.assertThat(drawerClicks).isEqualTo(0)
+        Truth.assertThat(bodyClicks).isEqualTo(1)
+
+        composeTestRule.runOnUiThread {
+            drawerState.state = DrawerState.Opened
+        }
+        // TODO: we aren't correctly waiting for recompositions after clicking, so we need to wait
+        // again
+        Thread.sleep(100L)
+
+        findByTag("Drawer")
+            .doClick()
+
+
+        Truth.assertThat(drawerClicks).isEqualTo(1)
+        Truth.assertThat(bodyClicks).isEqualTo(1)
+    }
+
+    @Test
+    fun bottomDrawer_bodyContent_clickable() {
+        var drawerClicks = 0
+        var bodyClicks = 0
+        val drawerState = DrawerStateHolder(DrawerState.Closed)
+        composeTestRule.setMaterialContent {
+            //emulate click on the screen
+            TestTag("Drawer") {
+                Semantics(container = true) {
+                    BottomDrawerLayout(drawerState.state, { drawerState.state = it },
+                        drawerContent = {
+                            Clickable(onClick = { drawerClicks += 1 }) {
+                                Container(expanded = true) {}
+                            }
+                        },
+                        bodyContent = {
+                            Clickable(onClick = { bodyClicks += 1 }) {
+                                Container(expanded = true) {}
+                            }
+                        })
+                }
+            }
+        }
+
+        findByTag("Drawer")
+            .doClick()
+
+        Truth.assertThat(drawerClicks).isEqualTo(0)
+        Truth.assertThat(bodyClicks).isEqualTo(1)
+
+        // TODO (malkov/pavlis) : uncomment this when custom onClick location will be implemented
+//        composeTestRule.runOnUiThread {
+//            drawerState.state = DrawerState.Opened
+//        }
+//        Thread.sleep(100L)
+//
+//        findByTag("Drawer")
+//            .doClick()
+//
+//
+//        Truth.assertThat(drawerClicks).isEqualTo(1)
+//        Truth.assertThat(bodyClicks).isEqualTo(1)
     }
 }
