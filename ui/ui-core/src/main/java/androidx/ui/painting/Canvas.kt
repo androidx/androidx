@@ -22,6 +22,7 @@ import androidx.ui.engine.geometry.RRect
 import androidx.ui.engine.geometry.Rect
 import androidx.ui.graphics.Color
 import androidx.ui.vectormath64.Matrix4
+import androidx.ui.vectormath64.PI
 
 // TODO(mount/njawad): Separate the platform-independent API from the platform-dependent.
 // TODO(Migration/njawad): Copy the class here
@@ -245,6 +246,11 @@ interface Canvas {
     /** Add a rotation to the current transform. The argument is in degrees clockwise. */
     fun rotate(degrees: Float)
 
+    /** Add a rotation to the current transform. The argument is in radians clockwise. */
+    fun rotateRad(radians: Float) {
+        rotate(radians.toDegrees())
+    }
+
     /**
      * Add an axis-aligned skew to the current transform, with the first argument
      * being the horizontal skew in degrees clockwise around the origin, and the
@@ -252,6 +258,16 @@ interface Canvas {
      * origin.
      */
     fun skew(sx: Float, sy: Float)
+
+    /**
+     * Add an axis-aligned skew to the current transform, with the first argument
+     * being the horizontal skew in radians clockwise around the origin, and the
+     * second argument being the vertical skew in radians clockwise around the
+     * origin.
+     */
+    fun skewRad(sxRad: Float, syRad: Float) {
+        skew(sxRad.toDegrees(), syRad.toDegrees())
+    }
 
     /**
      * Multiply the current transform by the specified 4⨉4 transformation matrix
@@ -375,6 +391,28 @@ interface Canvas {
         useCenter: Boolean,
         paint: Paint
     )
+
+    /**
+     * Draw an arc scaled to fit inside the given rectangle. It starts from
+     * startAngle radians around the oval up to startAngle + sweepAngle
+     * radians around the oval, with zero radians being the point on
+     * the right hand side of the oval that crosses the horizontal line
+     * that intersects the center of the rectangle and with positive
+     * angles going clockwise around the oval. If useCenter is true, the arc is
+     * closed back to the center, forming a circle sector. Otherwise, the arc is
+     * not closed, forming a circle segment.
+     *
+     * This method is optimized for drawing arcs and should be faster than [Path.arcTo].
+     */
+    fun drawArcRad(
+        rect: Rect,
+        startAngleRad: Float,
+        sweepAngleRad: Float,
+        useCenter: Boolean,
+        paint: Paint
+    ) {
+        drawArc(rect, startAngleRad.toDegrees(), sweepAngleRad.toDegrees(), useCenter, paint)
+    }
 
     /**
      * Draws the given [Path] with the given [Paint]. Whether this shape is
@@ -599,3 +637,5 @@ interface Canvas {
 //    double elevation,
 //    bool transparentOccluder) native 'Canvas_drawShadow';
 }
+
+private fun Float.toDegrees(): Float = this * 180.0f / PI
