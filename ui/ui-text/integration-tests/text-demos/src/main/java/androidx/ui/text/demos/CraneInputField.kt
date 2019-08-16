@@ -20,9 +20,9 @@ import androidx.compose.composer
 import androidx.compose.Composable
 import androidx.compose.state
 import androidx.compose.unaryPlus
-import androidx.ui.core.EditorStyle
 import androidx.ui.core.TextField
 import androidx.ui.input.EditorModel
+import androidx.ui.input.EditorStyle
 import androidx.ui.input.ImeAction
 import androidx.ui.input.KeyboardType
 import androidx.ui.layout.Column

@@ -29,7 +29,6 @@ import androidx.ui.autofill.AutofillNode
 import androidx.ui.autofill.AutofillType
 import androidx.ui.core.AutofillAmbient
 import androidx.ui.core.AutofillTreeAmbient
-import androidx.ui.core.EditorStyle
 import androidx.ui.core.TextField
 import androidx.ui.core.Text
 import androidx.ui.material.themeTextStyle
@@ -39,6 +38,7 @@ import androidx.ui.core.PxPosition
 import androidx.ui.core.dp
 import androidx.ui.core.setContent
 import androidx.ui.input.EditorModel
+import androidx.ui.input.EditorStyle
 import androidx.ui.input.ImeAction
 import androidx.ui.input.KeyboardType
 import androidx.ui.layout.Column
