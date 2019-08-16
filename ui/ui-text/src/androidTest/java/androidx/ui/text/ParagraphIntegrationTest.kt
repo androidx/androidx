@@ -48,6 +48,7 @@ import org.junit.Assert.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
+import java.util.Locale
 
 @RunWith(JUnit4::class)
 @SmallTest
@@ -1000,10 +1001,10 @@ class ParagraphIntegrationTest {
             val fontSizeInPx = fontSize.toPx().value
             val locales = arrayOf(
                 // duplicate ja is on purpose
-                Locale(_languageCode = "ja"),
-                Locale(_languageCode = "ja"),
-                Locale(_languageCode = "zh", _countryCode = "CN"),
-                Locale(_languageCode = "zh", _countryCode = "TW")
+                Locale("ja"),
+                Locale("ja"),
+                Locale("zh", "CN"),
+                Locale("zh", "TW")
             )
 
             val bitmaps = locales.map { locale ->
