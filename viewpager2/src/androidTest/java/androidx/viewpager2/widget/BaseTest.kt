@@ -39,6 +39,7 @@ import androidx.test.espresso.action.Swipe
 import androidx.test.espresso.action.ViewActions.actionWithAssertions
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.isAssignableFrom
+import androidx.test.espresso.matcher.ViewMatchers.isCompletelyDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.espresso.matcher.ViewMatchers.withText
@@ -492,7 +493,7 @@ open class BaseTest {
         )
         assertThat("viewPager should be IDLE", viewPager.scrollState, equalTo(SCROLL_STATE_IDLE))
         if (value != null) {
-            onView(allOf<View>(withId(R.id.text_view), isDisplayed())).check(
+            onView(allOf<View>(withId(R.id.text_view), isCompletelyDisplayed())).check(
                 matches(withText(value))
             )
         }
