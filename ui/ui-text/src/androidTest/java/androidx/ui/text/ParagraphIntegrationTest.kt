@@ -20,6 +20,7 @@ import androidx.test.filters.SmallTest
 import androidx.test.filters.Suppress
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.ui.core.Density
+import androidx.ui.core.LayoutDirection
 import androidx.ui.core.PxPosition
 import androidx.ui.core.Sp
 import androidx.ui.core.px
@@ -43,6 +44,7 @@ import androidx.ui.text.font.asFontFamily
 import androidx.ui.text.matchers.equalToBitmap
 import androidx.ui.text.style.TextAlign
 import androidx.ui.text.style.TextDirection
+import androidx.ui.text.style.TextDirectionAlgorithm
 import androidx.ui.text.style.TextIndent
 import org.hamcrest.Matchers.equalTo
 import org.hamcrest.Matchers.greaterThan
@@ -817,7 +819,7 @@ class ParagraphIntegrationTest {
             val paragraph = simpleParagraph(
                 text = text,
                 fontSize = fontSize,
-                textDirection = TextDirection.Rtl
+                textDirectionAlgorithm = TextDirectionAlgorithm.ForceRtl
             )
             val width = text.length * fontSizeInPx
             paragraph.layout(ParagraphConstraints(width))
@@ -844,7 +846,7 @@ class ParagraphIntegrationTest {
             val paragraph = simpleParagraph(
                 text = text,
                 fontSize = fontSize,
-                textDirection = TextDirection.Ltr
+                textDirectionAlgorithm = TextDirectionAlgorithm.ForceLtr
             )
             val width = text.length * fontSizeInPx
             paragraph.layout(ParagraphConstraints(width))
@@ -873,7 +875,7 @@ class ParagraphIntegrationTest {
             val paragraph = simpleParagraph(
                 text = text,
                 fontSize = fontSize,
-                textDirection = TextDirection.Ltr
+                textDirectionAlgorithm = TextDirectionAlgorithm.ForceLtr
             )
             val width = text.length * fontSizeInPx
 
@@ -911,7 +913,7 @@ class ParagraphIntegrationTest {
             val paragraph = simpleParagraph(
                 text = text,
                 fontSize = fontSize,
-                textDirection = TextDirection.Rtl
+                textDirectionAlgorithm = TextDirectionAlgorithm.ForceRtl
             )
             val width = text.length * fontSizeInPx
 
@@ -973,7 +975,7 @@ class ParagraphIntegrationTest {
             val paragraph = simpleParagraph(
                 text = text,
                 fontSize = fontSize,
-                textDirection = TextDirection.Rtl
+                textDirectionAlgorithm = TextDirectionAlgorithm.ForceRtl
             )
             val width = text.length * fontSizeInPx
 
@@ -992,7 +994,7 @@ class ParagraphIntegrationTest {
             val paragraph = simpleParagraph(
                 text = text,
                 fontSize = fontSize,
-                textDirection = TextDirection.Ltr
+                textDirectionAlgorithm = TextDirectionAlgorithm.ForceLtr
             )
             val width = text.length * fontSizeInPx
 
@@ -1079,7 +1081,7 @@ class ParagraphIntegrationTest {
             val paragraph = simpleParagraph(
                 text = text,
                 fontSize = fontSize,
-                textDirection = TextDirection.Rtl
+                textDirectionAlgorithm = TextDirectionAlgorithm.ForceRtl
             )
             val width = text.length * fontSizeInPx
             paragraph.layout(ParagraphConstraints(width))
@@ -1106,7 +1108,7 @@ class ParagraphIntegrationTest {
             val paragraph = simpleParagraph(
                 text = text,
                 fontSize = fontSize,
-                textDirection = TextDirection.Ltr
+                textDirectionAlgorithm = TextDirectionAlgorithm.ForceLtr
             )
             val width = text.length * fontSizeInPx
             paragraph.layout(ParagraphConstraints(width))
@@ -1135,7 +1137,7 @@ class ParagraphIntegrationTest {
             val paragraph = simpleParagraph(
                 text = text,
                 fontSize = fontSize,
-                textDirection = TextDirection.Ltr
+                textDirectionAlgorithm = TextDirectionAlgorithm.ForceLtr
             )
             val width = text.length * fontSizeInPx
 
@@ -1173,7 +1175,7 @@ class ParagraphIntegrationTest {
             val paragraph = simpleParagraph(
                 text = text,
                 fontSize = fontSize,
-                textDirection = TextDirection.Rtl
+                textDirectionAlgorithm = TextDirectionAlgorithm.ForceRtl
             )
             val width = text.length * fontSizeInPx
 
@@ -1238,7 +1240,7 @@ class ParagraphIntegrationTest {
             val paragraph = simpleParagraph(
                 text = text,
                 fontSize = fontSize,
-                textDirection = TextDirection.Rtl
+                textDirectionAlgorithm = TextDirectionAlgorithm.ForceRtl
             )
             val width = text.length * fontSizeInPx
 
@@ -1257,7 +1259,7 @@ class ParagraphIntegrationTest {
             val paragraph = simpleParagraph(
                 text = text,
                 fontSize = fontSize,
-                textDirection = TextDirection.Ltr
+                textDirectionAlgorithm = TextDirectionAlgorithm.ForceLtr
             )
             val width = text.length * fontSizeInPx
 
@@ -1296,7 +1298,7 @@ class ParagraphIntegrationTest {
             val paragraph = simpleParagraph(
                 text = text,
                 fontSize = fontSize,
-                textDirection = TextDirection.Rtl
+                textDirectionAlgorithm = TextDirectionAlgorithm.ForceRtl
             )
             val width = text.length * fontSizeInPx
 
@@ -1337,7 +1339,7 @@ class ParagraphIntegrationTest {
             val paragraph = simpleParagraph(
                 text = text,
                 fontSize = fontSize,
-                textDirection = TextDirection.Ltr
+                textDirectionAlgorithm = TextDirectionAlgorithm.ForceLtr
             )
             val width = text.length * fontSizeInPx
 
@@ -1382,7 +1384,7 @@ class ParagraphIntegrationTest {
             val paragraph = simpleParagraph(
                 text = text,
                 fontSize = fontSize,
-                textDirection = TextDirection.Ltr
+                textDirectionAlgorithm = TextDirectionAlgorithm.ForceLtr
             )
             val width = text.length * fontSizeInPx
 
@@ -1405,7 +1407,7 @@ class ParagraphIntegrationTest {
             val paragraph = simpleParagraph(
                 text = text,
                 fontSize = fontSize,
-                textDirection = TextDirection.Rtl
+                textDirectionAlgorithm = TextDirectionAlgorithm.ForceRtl
             )
             val width = text.length * fontSizeInPx
 
@@ -1446,7 +1448,7 @@ class ParagraphIntegrationTest {
             val paragraph = simpleParagraph(
                 text = text,
                 fontSize = fontSize,
-                textDirection = TextDirection.Rtl
+                textDirectionAlgorithm = TextDirectionAlgorithm.ForceRtl
             )
             val width = text.length * fontSizeInPx
 
@@ -1487,7 +1489,7 @@ class ParagraphIntegrationTest {
             val paragraph = simpleParagraph(
                 text = text,
                 fontSize = fontSize,
-                textDirection = TextDirection.Ltr
+                textDirectionAlgorithm = TextDirectionAlgorithm.ForceLtr
             )
             val width = text.length * fontSizeInPx
 
@@ -1537,7 +1539,7 @@ class ParagraphIntegrationTest {
             val paragraph = simpleParagraph(
                 text = text,
                 fontSize = fontSize,
-                textDirection = TextDirection.Ltr
+                textDirectionAlgorithm = TextDirectionAlgorithm.ForceLtr
             )
             val width = text.length * fontSizeInPx
 
@@ -1564,7 +1566,7 @@ class ParagraphIntegrationTest {
             val paragraph = simpleParagraph(
                 text = text,
                 fontSize = fontSize,
-                textDirection = TextDirection.Rtl
+                textDirectionAlgorithm = TextDirectionAlgorithm.ForceRtl
             )
             val width = text.length * fontSizeInPx
 
@@ -1604,7 +1606,8 @@ class ParagraphIntegrationTest {
                     ),
                     paragraphStyle = ParagraphStyle(),
                     density = defaultDensity,
-                    resourceLoader = resourceLoader
+                    resourceLoader = resourceLoader,
+                    layoutDirection = LayoutDirection.Ltr
                 )
 
                 // just have 10x font size to have a bitmap
@@ -2027,7 +2030,7 @@ class ParagraphIntegrationTest {
 
             val paragraph = simpleParagraph(
                 text = text,
-                textDirection = TextDirection.Ltr,
+                textDirectionAlgorithm = TextDirectionAlgorithm.ForceLtr,
                 fontSize = fontSize
             )
             paragraph.layout(ParagraphConstraints(width = layoutWidth))
@@ -2048,7 +2051,7 @@ class ParagraphIntegrationTest {
 
             val paragraph = simpleParagraph(
                 text = text,
-                textDirection = TextDirection.Rtl,
+                textDirectionAlgorithm = TextDirectionAlgorithm.ForceRtl,
                 fontSize = fontSize
             )
             paragraph.layout(ParagraphConstraints(width = layoutWidth))
@@ -3223,7 +3226,6 @@ class ParagraphIntegrationTest {
         text: String = "",
         textIndent: TextIndent? = null,
         textAlign: TextAlign? = null,
-        textDirection: TextDirection? = null,
         fontSize: Sp? = null,
         maxLines: Int? = null,
         lineHeight: Float? = null,
@@ -3231,7 +3233,9 @@ class ParagraphIntegrationTest {
         fontFamily: FontFamily = fontFamilyMeasureFont,
         locale: Locale? = null,
         textStyle: TextStyle? = null,
-        density: Density? = null
+        density: Density? = null,
+        textDirectionAlgorithm: TextDirectionAlgorithm? = null,
+        layoutDirection: LayoutDirection = LayoutDirection.Ltr
     ): Paragraph {
         return Paragraph(
             text = text,
@@ -3244,11 +3248,12 @@ class ParagraphIntegrationTest {
             paragraphStyle = ParagraphStyle(
                 textIndent = textIndent,
                 textAlign = textAlign,
-                textDirection = textDirection,
+                textDirectionAlgorithm = textDirectionAlgorithm,
                 lineHeight = lineHeight
             ),
             maxLines = maxLines,
             density = density ?: defaultDensity,
+            layoutDirection = layoutDirection,
             resourceLoader = TestFontResourceLoader(context)
         )
     }

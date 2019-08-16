@@ -17,7 +17,7 @@
 package androidx.ui.text
 
 import androidx.ui.text.style.TextAlign
-import androidx.ui.text.style.TextDirection
+import androidx.ui.text.style.TextDirectionAlgorithm
 import androidx.ui.text.style.TextIndent
 
 /**
@@ -25,9 +25,9 @@ import androidx.ui.text.style.TextIndent
  *
  * @param textAlign The alignment of the text within the lines of the paragraph.
  *
- * @param textDirection The directionality of the text, Left to Right (LTR) or Right To Left (RTL).
- * This controls the overall directionality of the paragraph, as well as the meaning of
- * [TextAlign.Start] and [TextAlign.End] in the `textAlign` field.
+ * @param textDirectionAlgorithm The directionality of the text, Left to Right (LTR) or Right
+ * To Left (RTL). This controls the overall directionality of the paragraph, as well as the meaning
+ * of [TextAlign.Start] and [TextAlign.End] in the [textAlign] field.
  *
  * @param textIndent Specify how much a paragraph is indented.
  *
@@ -35,7 +35,7 @@ import androidx.ui.text.style.TextIndent
  */
 data class ParagraphStyle constructor(
     val textAlign: TextAlign? = null,
-    val textDirection: TextDirection? = null,
+    val textDirectionAlgorithm: TextDirectionAlgorithm? = null,
     val lineHeight: Float? = null,
     val textIndent: TextIndent? = null
 ) {
@@ -60,7 +60,7 @@ data class ParagraphStyle constructor(
             lineHeight = other.lineHeight ?: this.lineHeight,
             textIndent = other.textIndent ?: this.textIndent,
             textAlign = other.textAlign ?: this.textAlign,
-            textDirection = other.textDirection ?: this.textDirection
+            textDirectionAlgorithm = other.textDirectionAlgorithm ?: this.textDirectionAlgorithm
         )
     }
 }

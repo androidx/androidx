@@ -20,19 +20,21 @@ import androidx.test.filters.SmallTest
 import androidx.test.filters.Suppress
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.ui.core.Density
+import androidx.ui.core.LayoutDirection
 import androidx.ui.core.PxPosition
 import androidx.ui.core.Sp
 import androidx.ui.core.px
 import androidx.ui.core.sp
 import androidx.ui.core.withDensity
 import androidx.ui.engine.geometry.Rect
-import androidx.ui.text.style.TextDirection
+import androidx.ui.painting.Path
+import androidx.ui.painting.PathOperation
 import androidx.ui.text.FontTestData.Companion.BASIC_MEASURE_FONT
 import androidx.ui.text.font.FontFamily
 import androidx.ui.text.font.asFontFamily
-import androidx.ui.painting.Path
-import androidx.ui.painting.PathOperation
 import androidx.ui.text.style.TextAlign
+import androidx.ui.text.style.TextDirection
+import androidx.ui.text.style.TextDirectionAlgorithm
 import androidx.ui.text.style.TextIndent
 import com.nhaarman.mockitokotlin2.mock
 import org.hamcrest.Matchers.equalTo
@@ -717,7 +719,7 @@ class MultiParagraphIntegrationTest {
             val paragraph = simpleMultiParagraph(
                 text = text,
                 fontSize = fontSize,
-                textDirection = TextDirection.Rtl
+                textDirectionAlgorithm = TextDirectionAlgorithm.ForceRtl
             )
             val width = text.length * fontSizeInPx
             paragraph.layout(ParagraphConstraints(width))
@@ -744,7 +746,7 @@ class MultiParagraphIntegrationTest {
             val paragraph = simpleMultiParagraph(
                 text = text,
                 fontSize = fontSize,
-                textDirection = TextDirection.Ltr
+                textDirectionAlgorithm = TextDirectionAlgorithm.ForceLtr
             )
             val width = text.length * fontSizeInPx
             paragraph.layout(ParagraphConstraints(width))
@@ -773,7 +775,7 @@ class MultiParagraphIntegrationTest {
             val paragraph = simpleMultiParagraph(
                 text = text,
                 fontSize = fontSize,
-                textDirection = TextDirection.Ltr
+                textDirectionAlgorithm = TextDirectionAlgorithm.ForceLtr
             )
             val width = text.length * fontSizeInPx
 
@@ -811,7 +813,7 @@ class MultiParagraphIntegrationTest {
             val paragraph = simpleMultiParagraph(
                 text = text,
                 fontSize = fontSize,
-                textDirection = TextDirection.Rtl
+                textDirectionAlgorithm = TextDirectionAlgorithm.ForceRtl
             )
             val width = text.length * fontSizeInPx
 
@@ -874,7 +876,7 @@ class MultiParagraphIntegrationTest {
             val paragraph = simpleMultiParagraph(
                 text = text,
                 fontSize = fontSize,
-                textDirection = TextDirection.Rtl
+                textDirectionAlgorithm = TextDirectionAlgorithm.ForceRtl
             )
             val width = text.length * fontSizeInPx
 
@@ -893,7 +895,7 @@ class MultiParagraphIntegrationTest {
             val paragraph = simpleMultiParagraph(
                 text = text,
                 fontSize = fontSize,
-                textDirection = TextDirection.Ltr
+                textDirectionAlgorithm = TextDirectionAlgorithm.ForceLtr
             )
             val width = text.length * fontSizeInPx
 
@@ -980,7 +982,7 @@ class MultiParagraphIntegrationTest {
             val paragraph = simpleMultiParagraph(
                 text = text,
                 fontSize = fontSize,
-                textDirection = TextDirection.Rtl
+                textDirectionAlgorithm = TextDirectionAlgorithm.ForceRtl
             )
             val width = text.length * fontSizeInPx
             paragraph.layout(ParagraphConstraints(width))
@@ -1007,7 +1009,7 @@ class MultiParagraphIntegrationTest {
             val paragraph = simpleMultiParagraph(
                 text = text,
                 fontSize = fontSize,
-                textDirection = TextDirection.Ltr
+                textDirectionAlgorithm = TextDirectionAlgorithm.ForceLtr
             )
             val width = text.length * fontSizeInPx
             paragraph.layout(ParagraphConstraints(width))
@@ -1036,7 +1038,7 @@ class MultiParagraphIntegrationTest {
             val paragraph = simpleMultiParagraph(
                 text = text,
                 fontSize = fontSize,
-                textDirection = TextDirection.Ltr
+                textDirectionAlgorithm = TextDirectionAlgorithm.ForceLtr
             )
             val width = text.length * fontSizeInPx
 
@@ -1074,7 +1076,7 @@ class MultiParagraphIntegrationTest {
             val paragraph = simpleMultiParagraph(
                 text = text,
                 fontSize = fontSize,
-                textDirection = TextDirection.Rtl
+                textDirectionAlgorithm = TextDirectionAlgorithm.ForceRtl
             )
             val width = text.length * fontSizeInPx
 
@@ -1139,7 +1141,7 @@ class MultiParagraphIntegrationTest {
             val paragraph = simpleMultiParagraph(
                 text = text,
                 fontSize = fontSize,
-                textDirection = TextDirection.Rtl
+                textDirectionAlgorithm = TextDirectionAlgorithm.ForceRtl
             )
             val width = text.length * fontSizeInPx
 
@@ -1158,7 +1160,7 @@ class MultiParagraphIntegrationTest {
             val paragraph = simpleMultiParagraph(
                 text = text,
                 fontSize = fontSize,
-                textDirection = TextDirection.Ltr
+                textDirectionAlgorithm = TextDirectionAlgorithm.ForceLtr
             )
             val width = text.length * fontSizeInPx
 
@@ -1197,7 +1199,7 @@ class MultiParagraphIntegrationTest {
             val paragraph = simpleMultiParagraph(
                 text = text,
                 fontSize = fontSize,
-                textDirection = TextDirection.Rtl
+                textDirectionAlgorithm = TextDirectionAlgorithm.ForceRtl
             )
             val width = text.length * fontSizeInPx
 
@@ -1238,7 +1240,7 @@ class MultiParagraphIntegrationTest {
             val paragraph = simpleMultiParagraph(
                 text = text,
                 fontSize = fontSize,
-                textDirection = TextDirection.Ltr
+                textDirectionAlgorithm = TextDirectionAlgorithm.ForceLtr
             )
             val width = text.length * fontSizeInPx
 
@@ -1283,7 +1285,7 @@ class MultiParagraphIntegrationTest {
             val paragraph = simpleMultiParagraph(
                 text = text,
                 fontSize = fontSize,
-                textDirection = TextDirection.Ltr
+                textDirectionAlgorithm = TextDirectionAlgorithm.ForceLtr
             )
             val width = text.length * fontSizeInPx
 
@@ -1306,7 +1308,7 @@ class MultiParagraphIntegrationTest {
             val paragraph = simpleMultiParagraph(
                 text = text,
                 fontSize = fontSize,
-                textDirection = TextDirection.Rtl
+                textDirectionAlgorithm = TextDirectionAlgorithm.ForceRtl
             )
             val width = text.length * fontSizeInPx
 
@@ -1347,7 +1349,7 @@ class MultiParagraphIntegrationTest {
             val paragraph = simpleMultiParagraph(
                 text = text,
                 fontSize = fontSize,
-                textDirection = TextDirection.Rtl
+                textDirectionAlgorithm = TextDirectionAlgorithm.ForceRtl
             )
             val width = text.length * fontSizeInPx
 
@@ -1388,7 +1390,7 @@ class MultiParagraphIntegrationTest {
             val paragraph = simpleMultiParagraph(
                 text = text,
                 fontSize = fontSize,
-                textDirection = TextDirection.Ltr
+                textDirectionAlgorithm = TextDirectionAlgorithm.ForceLtr
             )
             val width = text.length * fontSizeInPx
 
@@ -1438,7 +1440,7 @@ class MultiParagraphIntegrationTest {
             val paragraph = simpleMultiParagraph(
                 text = text,
                 fontSize = fontSize,
-                textDirection = TextDirection.Ltr
+                textDirectionAlgorithm = TextDirectionAlgorithm.ForceLtr
             )
             val width = text.length * fontSizeInPx
 
@@ -1465,7 +1467,7 @@ class MultiParagraphIntegrationTest {
             val paragraph = simpleMultiParagraph(
                 text = text,
                 fontSize = fontSize,
-                textDirection = TextDirection.Rtl
+                textDirectionAlgorithm = TextDirectionAlgorithm.ForceRtl
             )
             val width = text.length * fontSizeInPx
 
@@ -2231,7 +2233,7 @@ class MultiParagraphIntegrationTest {
 
             val paragraph = simpleMultiParagraph(
                 text = text,
-                textDirection = TextDirection.Ltr,
+                textDirectionAlgorithm = TextDirectionAlgorithm.ForceLtr,
                 fontSize = fontSize
             )
             paragraph.layout(ParagraphConstraints(width = layoutWidth))
@@ -2252,7 +2254,7 @@ class MultiParagraphIntegrationTest {
 
             val paragraph = simpleMultiParagraph(
                 text = text,
-                textDirection = TextDirection.Rtl,
+                textDirectionAlgorithm = TextDirectionAlgorithm.ForceRtl,
                 fontSize = fontSize
             )
             paragraph.layout(ParagraphConstraints(width = layoutWidth))
@@ -2468,7 +2470,6 @@ class MultiParagraphIntegrationTest {
         text: String = "",
         textIndent: TextIndent? = null,
         textAlign: TextAlign? = null,
-        textDirection: TextDirection? = null,
         fontSize: Sp? = null,
         maxLines: Int? = null,
         lineHeight: Float? = null,
@@ -2477,7 +2478,9 @@ class MultiParagraphIntegrationTest {
         fontFamily: FontFamily = fontFamilyMeasureFont,
         locale: Locale? = null,
         textStyle: TextStyle? = null,
-        density: Density? = null
+        density: Density? = null,
+        layoutDirection: LayoutDirection = LayoutDirection.Ltr,
+        textDirectionAlgorithm: TextDirectionAlgorithm? = null
     ): MultiParagraph {
         return MultiParagraph(
             annotatedString = AnnotatedString(
@@ -2492,12 +2495,13 @@ class MultiParagraphIntegrationTest {
             ).merge(textStyle),
             paragraphStyle = ParagraphStyle(
                 textIndent = textIndent,
+                textDirectionAlgorithm = textDirectionAlgorithm,
                 textAlign = textAlign,
-                textDirection = textDirection,
                 lineHeight = lineHeight
             ),
             maxLines = maxLines,
             density = density ?: defaultDensity,
+            layoutDirection = layoutDirection,
             resourceLoader = TestFontResourceLoader(context)
         )
     }

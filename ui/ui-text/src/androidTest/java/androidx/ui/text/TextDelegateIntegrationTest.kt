@@ -21,6 +21,7 @@ import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.ui.core.Constraints
 import androidx.ui.core.Density
+import androidx.ui.core.LayoutDirection
 import androidx.ui.core.PxPosition
 import androidx.ui.core.ipx
 import androidx.ui.core.px
@@ -75,11 +76,11 @@ class TextDelegateIntegrationTest {
             )
             val textDelegate = TextDelegate(
                 text = annotatedString,
-                paragraphStyle = ParagraphStyle(textDirection = TextDirection.Rtl),
+                paragraphStyle = ParagraphStyle(),
                 density = density,
-                resourceLoader = resourceLoader
+                resourceLoader = resourceLoader,
+                layoutDirection = LayoutDirection.Ltr
             )
-
             textDelegate.layout(Constraints())
 
             assertThat(textDelegate.minIntrinsicWidth)
@@ -105,9 +106,10 @@ class TextDelegateIntegrationTest {
             )
             val textDelegate = TextDelegate(
                 text = annotatedString,
-                paragraphStyle = ParagraphStyle(textDirection = TextDirection.Rtl),
+                paragraphStyle = ParagraphStyle(),
                 density = density,
-                resourceLoader = resourceLoader
+                resourceLoader = resourceLoader,
+                layoutDirection = LayoutDirection.Ltr
             )
 
             textDelegate.layout(Constraints())
@@ -136,9 +138,10 @@ class TextDelegateIntegrationTest {
             )
             val textDelegate = TextDelegate(
                 text = annotatedString,
-                paragraphStyle = ParagraphStyle(textDirection = TextDirection.Rtl),
+                paragraphStyle = ParagraphStyle(),
                 density = density,
-                resourceLoader = resourceLoader
+                resourceLoader = resourceLoader,
+                layoutDirection = LayoutDirection.Ltr
             )
 
             textDelegate.layout(Constraints(0.ipx, 200.ipx))
@@ -158,9 +161,10 @@ class TextDelegateIntegrationTest {
         )
         val textDelegate = TextDelegate(
             text = annotatedString,
-            paragraphStyle = ParagraphStyle(textDirection = TextDirection.Rtl),
+            paragraphStyle = ParagraphStyle(),
             density = density,
-            resourceLoader = resourceLoader
+            resourceLoader = resourceLoader,
+            layoutDirection = LayoutDirection.Ltr
         )
 
         textDelegate.layout(Constraints(maxWidth = width))
@@ -186,9 +190,10 @@ class TextDelegateIntegrationTest {
             )
             val textDelegate = TextDelegate(
                 text = annotatedString,
-                paragraphStyle = ParagraphStyle(textDirection = TextDirection.Rtl),
+                paragraphStyle = ParagraphStyle(),
                 density = density,
-                resourceLoader = resourceLoader
+                resourceLoader = resourceLoader,
+                layoutDirection = LayoutDirection.Ltr
             )
 
             textDelegate.layout(Constraints())
@@ -201,9 +206,10 @@ class TextDelegateIntegrationTest {
     fun layout_build_layoutResult() {
         val textDelegate = TextDelegate(
             text = AnnotatedString(text = "Hello"),
-            paragraphStyle = ParagraphStyle(textDirection = TextDirection.Ltr),
+            paragraphStyle = ParagraphStyle(),
             density = density,
-            resourceLoader = resourceLoader
+            resourceLoader = resourceLoader,
+            layoutDirection = LayoutDirection.Ltr
         )
 
         textDelegate.layout(Constraints(0.ipx, 20.ipx))
@@ -226,9 +232,10 @@ class TextDelegateIntegrationTest {
         )
         val textDelegate = TextDelegate(
             text = annotatedString,
-            paragraphStyle = ParagraphStyle(textDirection = TextDirection.Ltr),
+            paragraphStyle = ParagraphStyle(),
             density = density,
-            resourceLoader = resourceLoader
+            resourceLoader = resourceLoader,
+            layoutDirection = LayoutDirection.Ltr
         )
         textDelegate.layout(Constraints())
 
@@ -255,9 +262,10 @@ class TextDelegateIntegrationTest {
             )
             val textDelegate = TextDelegate(
                 text = annotatedString,
-                paragraphStyle = ParagraphStyle(textDirection = TextDirection.Ltr),
+                paragraphStyle = ParagraphStyle(),
                 density = density,
-                resourceLoader = resourceLoader
+                resourceLoader = resourceLoader,
+                layoutDirection = LayoutDirection.Ltr
             )
             textDelegate.layout(Constraints())
 
@@ -279,9 +287,10 @@ class TextDelegateIntegrationTest {
         )
         val textDelegate = TextDelegate(
             text = annotatedString,
-            paragraphStyle = ParagraphStyle(textDirection = TextDirection.Ltr),
+            paragraphStyle = ParagraphStyle(),
             density = density,
-            resourceLoader = resourceLoader
+            resourceLoader = resourceLoader,
+            layoutDirection = LayoutDirection.Ltr
         )
 
         textDelegate.layout(Constraints())
@@ -302,12 +311,13 @@ class TextDelegateIntegrationTest {
         )
         val textDelegate = TextDelegate(
             text = annotatedString,
-            paragraphStyle = ParagraphStyle(textDirection = TextDirection.Ltr),
+            paragraphStyle = ParagraphStyle(),
             overflow = TextOverflow.Fade,
             softWrap = false,
             maxLines = 1,
             density = density,
-            resourceLoader = resourceLoader
+            resourceLoader = resourceLoader,
+            layoutDirection = LayoutDirection.Ltr
         )
 
         textDelegate.layout(Constraints(maxWidth = 100.ipx))
@@ -328,11 +338,12 @@ class TextDelegateIntegrationTest {
         )
         val textDelegate = TextDelegate(
             text = annotatedString,
-            paragraphStyle = ParagraphStyle(textDirection = TextDirection.Ltr),
+            paragraphStyle = ParagraphStyle(),
             overflow = TextOverflow.Fade,
             maxLines = 2,
             density = density,
-            resourceLoader = resourceLoader
+            resourceLoader = resourceLoader,
+            layoutDirection = LayoutDirection.Ltr
         )
 
         textDelegate.layout(Constraints(maxWidth = 100.ipx))
@@ -360,9 +371,10 @@ class TextDelegateIntegrationTest {
             )
             val textDelegate = TextDelegate(
                 text = annotatedString,
-                paragraphStyle = ParagraphStyle(textDirection = TextDirection.Ltr),
+                paragraphStyle = ParagraphStyle(),
                 density = density,
-                resourceLoader = resourceLoader
+                resourceLoader = resourceLoader,
+                layoutDirection = LayoutDirection.Ltr
             )
             textDelegate.layout(Constraints(maxWidth = 120.ipx))
 
@@ -438,9 +450,10 @@ class TextDelegateIntegrationTest {
             )
             val textDelegate = TextDelegate(
                 text = annotatedString,
-                paragraphStyle = ParagraphStyle(textDirection = TextDirection.Ltr),
+                paragraphStyle = ParagraphStyle(),
                 density = density,
-                resourceLoader = resourceLoader
+                resourceLoader = resourceLoader,
+                layoutDirection = LayoutDirection.Ltr
             )
             textDelegate.layout(Constraints())
 
@@ -509,9 +522,10 @@ class TextDelegateIntegrationTest {
             )
             val textDelegate = TextDelegate(
                 text = annotatedString,
-                paragraphStyle = ParagraphStyle(textDirection = TextDirection.Ltr),
+                paragraphStyle = ParagraphStyle(),
                 density = density,
-                resourceLoader = resourceLoader
+                resourceLoader = resourceLoader,
+                layoutDirection = LayoutDirection.Ltr
             )
             textDelegate.layout(Constraints())
 
@@ -590,9 +604,10 @@ class TextDelegateIntegrationTest {
             val selectionColor = Color(0x66AABB33)
             val textDelegate = TextDelegate(
                 text = annotatedString,
-                paragraphStyle = ParagraphStyle(textDirection = TextDirection.Ltr),
+                paragraphStyle = ParagraphStyle(),
                 density = density,
-                resourceLoader = resourceLoader
+                resourceLoader = resourceLoader,
+                layoutDirection = LayoutDirection.Ltr
             )
             textDelegate.layout(Constraints())
 

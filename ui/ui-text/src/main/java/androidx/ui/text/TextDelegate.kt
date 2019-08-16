@@ -22,6 +22,7 @@ import androidx.annotation.VisibleForTesting
 import androidx.ui.core.Constraints
 import androidx.ui.core.Density
 import androidx.ui.core.IntPxSize
+import androidx.ui.core.LayoutDirection
 import androidx.ui.core.PxPosition
 import androidx.ui.core.Sp
 import androidx.ui.core.constrain
@@ -117,6 +118,8 @@ internal fun applyFloatingPointHack(layoutValue: Float): Float {
  *
  * @param locale The locale used to select region-specific glyphs.
  *
+ * @param layoutDirection The widget layout direction.
+ *
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -129,6 +132,7 @@ class TextDelegate(
     val overflow: TextOverflow = TextOverflow.Clip,
     val locale: Locale? = null,
     val density: Density,
+    val layoutDirection: LayoutDirection,
     val resourceLoader: Font.ResourceLoader
 ) {
     init {
@@ -178,10 +182,6 @@ class TextDelegate(
     private var lastMinWidth: Float = 0.0f
     private var lastMaxWidth: Float = 0.0f
 
-    @VisibleForTesting
-    internal val textDirection: TextDirection? =
-        paragraphStyle?.textDirection ?: DefaultTextDirection
-
     private inline fun <T> assumeLayout(block: (LayoutResult) -> T) =
         block(layoutResult ?: throw AssertionError("layout must be called first"))
 
@@ -222,15 +222,8 @@ class TextDelegate(
      *
      * The text will layout with a width that's as close to its max intrinsic width as possible
      * while still being greater than or equal to `minWidth` and less than or equal to `maxWidth`.
-     *
-     * The [text] and [textDirection] properties must be non-null before this is called.
      */
     private fun layoutText(minWidth: Float, maxWidth: Float): MultiParagraph {
-        assert(textDirection != null) {
-            "TextDelegate.textDirection must be set to a non-null value before using the" +
-                    " TextDelegate."
-        }
-
         // TODO(haoyuchang): fix that when softWarp is false and overflow is Ellipsis, ellipsis
         //  doesn't work.
         val widthMatters = softWrap || overflow == TextOverflow.Ellipsis
@@ -252,6 +245,7 @@ class TextDelegate(
             maxLines = maxLines,
             ellipsis = overflow == TextOverflow.Ellipsis,
             density = density,
+            layoutDirection = layoutDirection,
             resourceLoader = resourceLoader
         ).apply { layout(ParagraphConstraints(width = finalMaxWidth)) }
 
@@ -290,7 +284,8 @@ class TextDelegate(
                 style = textStyle,
                 paragraphStyle = paragraphStyle,
                 density = density,
-                resourceLoader = resourceLoader
+                resourceLoader = resourceLoader,
+                layoutDirection = layoutDirection
             )
             val paragraphForFadeSizeDelegate = fadeSizeDelegate.layoutText(
                 minWidth = 1.0f,
@@ -299,7 +294,9 @@ class TextDelegate(
             val fadeWidth = paragraphForFadeSizeDelegate.width
             val fadeHeight = paragraphForFadeSizeDelegate.height
             if (didOverflowWidth) {
-                val (fadeStart, fadeEnd) = if (textDirection == TextDirection.Rtl) {
+                // FIXME: Should only fade the last line, i.e., should use last line's direction.
+                // (b/139496055)
+                val (fadeStart, fadeEnd) = if (layoutDirection == LayoutDirection.Rtl) {
                     Pair(fadeWidth, 0.0f)
                 } else {
                     Pair(size.width - fadeWidth, size.width)

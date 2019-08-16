@@ -39,8 +39,9 @@ import androidx.text.LayoutCompat.DEFAULT_ALIGNMENT
 import androidx.text.LayoutCompat.DEFAULT_JUSTIFICATION_MODE
 import androidx.text.LayoutCompat.DEFAULT_LINESPACING_MULTIPLIER
 import androidx.text.LayoutCompat.DEFAULT_MAX_LINES
-import androidx.text.LayoutCompat.DEFAULT_TEXT_DIRECTION
 import androidx.text.LayoutCompat.JUSTIFICATION_MODE_INTER_WORD
+import androidx.text.LayoutCompat.TEXT_DIRECTION_FIRST_STRONG_LTR
+import androidx.text.LayoutCompat.TEXT_DIRECTION_FIRST_STRONG_RTL
 import androidx.text.LayoutCompat.TEXT_DIRECTION_LTR
 import androidx.text.LayoutCompat.TEXT_DIRECTION_RTL
 import androidx.text.TextLayout
@@ -52,26 +53,28 @@ import androidx.text.style.ShadowSpan
 import androidx.text.style.SkewXSpan
 import androidx.text.style.TypefaceSpan
 import androidx.ui.core.Density
+import androidx.ui.core.LayoutDirection
 import androidx.ui.core.PxPosition
-import androidx.ui.text.TextRange
 import androidx.ui.core.px
 import androidx.ui.core.withDensity
 import androidx.ui.engine.geometry.Rect
 import androidx.ui.graphics.toArgb
+import androidx.ui.painting.Canvas
+import androidx.ui.painting.Path
+import androidx.ui.text.AnnotatedString
+import androidx.ui.text.Paragraph
+import androidx.ui.text.ParagraphConstraints
+import androidx.ui.text.ParagraphStyle
+import androidx.ui.text.TextRange
+import androidx.ui.text.TextStyle
 import androidx.ui.text.font.FontStyle
 import androidx.ui.text.font.FontSynthesis
 import androidx.ui.text.font.FontWeight
-import androidx.ui.text.Paragraph
-import androidx.ui.text.ParagraphConstraints
 import androidx.ui.text.style.TextAlign
 import androidx.ui.text.style.TextDecoration
 import androidx.ui.text.style.TextDirection
+import androidx.ui.text.style.TextDirectionAlgorithm
 import androidx.ui.text.style.TextIndent
-import androidx.ui.text.AnnotatedString
-import androidx.ui.painting.Canvas
-import androidx.ui.painting.Path
-import androidx.ui.text.ParagraphStyle
-import androidx.ui.text.TextStyle
 import java.util.Locale
 import kotlin.math.floor
 import kotlin.math.roundToInt
@@ -87,7 +90,8 @@ internal class AndroidParagraph constructor(
     val maxLines: Int?,
     val ellipsis: Boolean?,
     val typefaceAdapter: TypefaceAdapter,
-    val density: Density
+    val density: Density,
+    val layoutDirection: LayoutDirection
 ) : Paragraph {
 
     @VisibleForTesting
@@ -160,6 +164,25 @@ internal class AndroidParagraph constructor(
         )
     }
 
+    internal fun resolveTextDirectionHeuristics(
+        textDirectionAlgorithm: TextDirectionAlgorithm?
+    ): Int {
+        if (textDirectionAlgorithm == null) {
+            return if (layoutDirection == LayoutDirection.Ltr) {
+                TEXT_DIRECTION_FIRST_STRONG_LTR
+            } else {
+                TEXT_DIRECTION_FIRST_STRONG_RTL
+            }
+        }
+
+        return when (textDirectionAlgorithm) {
+            TextDirectionAlgorithm.ContentOrLtr -> TEXT_DIRECTION_FIRST_STRONG_LTR
+            TextDirectionAlgorithm.ContentOrRtl -> TEXT_DIRECTION_FIRST_STRONG_RTL
+            TextDirectionAlgorithm.ForceLtr -> TEXT_DIRECTION_LTR
+            TextDirectionAlgorithm.ForceRtl -> TEXT_DIRECTION_RTL
+        }
+    }
+
     override fun layout(constraints: ParagraphConstraints) {
         val width = constraints.width
 
@@ -167,13 +190,9 @@ internal class AndroidParagraph constructor(
 
         val alignment = toLayoutAlign(paragraphStyle.textAlign)
 
-        // TODO(Migration/haoyuchang): Layout has more settings that flutter,
-        //  we may add them in future.
-        val textDirectionHeuristic = when (paragraphStyle.textDirection) {
-            TextDirection.Ltr -> TEXT_DIRECTION_LTR
-            TextDirection.Rtl -> TEXT_DIRECTION_RTL
-            else -> DEFAULT_TEXT_DIRECTION
-        }
+        val textDirectionHeuristic = resolveTextDirectionHeuristics(
+            paragraphStyle.textDirectionAlgorithm
+        )
 
         val maxLines = maxLines ?: DEFAULT_MAX_LINES
         val justificationMode = when (paragraphStyle.textAlign) {
