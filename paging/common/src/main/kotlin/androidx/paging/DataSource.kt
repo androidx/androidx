@@ -179,7 +179,7 @@ internal constructor(internal val type: KeyType) {
          *
          * @param function Function that runs on each loaded item, returning items of a potentially
          * new type.
-         * @param ToValue Type of items produced by the new DataSource, from the passed function.
+         * @param ToValue Type of items produced by the new [DataSource], from the passed function.
          * @return A new [DataSource.Factory], which transforms items using the given function.
          *
          * @see mapByPage
@@ -198,7 +198,7 @@ internal constructor(internal val type: KeyType) {
          *
          * @param function Function that runs on each loaded item, returning items of a potentially
          * new type.
-         * @param ToValue Type of items produced by the new DataSource, from the passed function.
+         * @param ToValue Type of items produced by the new [DataSource], from the passed function.
          * @return A new [DataSource.Factory], which transforms items using the given function.
          *
          * @see mapByPage
@@ -215,7 +215,7 @@ internal constructor(internal val type: KeyType) {
          *
          * @param function Function that runs on each loaded page, returning items of a potentially
          * new type.
-         * @param ToValue Type of items produced by the new DataSource, from the passed function.
+         * @param ToValue Type of items produced by the new [DataSource], from the passed function.
          * @return A new [DataSource.Factory], which transforms items using the given function.
          *
          * @see map
@@ -238,7 +238,7 @@ internal constructor(internal val type: KeyType) {
          *
          * @param function Function that runs on each loaded page, returning items of a potentially
          * new type.
-         * @param ToValue Type of items produced by the new DataSource, from the passed function.
+         * @param ToValue Type of items produced by the new [DataSource], from the passed function.
          * @return A new [DataSource.Factory], which transforms items using the given function.
          *
          * @see map
@@ -278,7 +278,7 @@ internal constructor(internal val type: KeyType) {
      * @param function Function that runs on each loaded page, returning items of a potentially
      * new type.
      * @param ToValue Type of items produced by the new DataSource, from the passed function.
-     * @return A new DataSource, which transforms items using the given function.
+     * @return A new [DataSource], which transforms items using the given function.
      *
      * @see map
      * @see DataSource.Factory.map

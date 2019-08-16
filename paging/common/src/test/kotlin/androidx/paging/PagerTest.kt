@@ -16,11 +16,9 @@
 
 package androidx.paging
 
-import androidx.paging.PagedList.LoadState.DONE
-import androidx.paging.PagedList.LoadState.IDLE
-import androidx.paging.PagedList.LoadState.LOADING
-import androidx.paging.PagedList.LoadType.END
-import androidx.paging.PagedList.LoadType.START
+import androidx.paging.PagedList.Config
+import androidx.paging.PagedList.LoadState
+import androidx.paging.PagedList.LoadType
 import androidx.paging.PagedSource.LoadResult
 import androidx.paging.futures.DirectDispatcher
 import androidx.testutils.TestExecutor
@@ -69,18 +67,11 @@ class PagerTest {
         PositionalDataSource.RangeResult(data.subList(start, end)).toLoadResult<Int>()
 
     private data class Result(
-        val type: PagedList.LoadType,
+        val type: LoadType,
         val pageResult: LoadResult<*, String>
     )
 
-    private data class StateChange(
-        val type: PagedList.LoadType,
-        val state: PagedList.LoadState,
-        val error: Throwable? = null
-    )
-
     private class MockConsumer : Pager.PageConsumer<String> {
-
         private val results: MutableList<Result> = arrayListOf()
         private val stateChanges: MutableList<StateChange> = arrayListOf()
 
@@ -97,19 +88,15 @@ class PagerTest {
         }
 
         override fun onPageResult(
-            type: PagedList.LoadType,
+            type: LoadType,
             pageResult: LoadResult<*, String>
         ): Boolean {
             results.add(Result(type, pageResult))
             return false
         }
 
-        override fun onStateChanged(
-            type: PagedList.LoadType,
-            state: PagedList.LoadState,
-            error: Throwable?
-        ) {
-            stateChanges.add(StateChange(type, state, error))
+        override fun onStateChanged(type: LoadType, state: LoadState) {
+            stateChanges.add(StateChange(type, state))
         }
     }
 
@@ -127,7 +114,7 @@ class PagerTest {
 
         return Pager(
             GlobalScope,
-            PagedList.Config(2, 2, true, 10, PagedList.Config.MAX_SIZE_UNBOUNDED),
+            Config(2, 2, true, 10, Config.MAX_SIZE_UNBOUNDED),
             PagedSourceWrapper(ImmediateListDataSource(data)),
             DirectDispatcher,
             DirectDispatcher,
@@ -148,18 +135,15 @@ class PagerTest {
 
         assertTrue(consumer.takeResults().isEmpty())
         assertEquals(
-            consumer.takeStateChanges(),
-            listOf(StateChange(END, LOADING))
+            listOf(StateChange(LoadType.END, LoadState.Loading)),
+            consumer.takeStateChanges()
         )
 
         testExecutor.executeAll()
 
+        assertEquals(listOf(Result(LoadType.END, rangeResult(6, 8))), consumer.takeResults())
         assertEquals(
-            listOf(Result(END, rangeResult(6, 8))),
-            consumer.takeResults()
-        )
-        assertEquals(
-            listOf(StateChange(END, IDLE)),
+            listOf(StateChange(LoadType.END, LoadState.Idle)),
             consumer.takeStateChanges()
         )
     }
@@ -173,19 +157,15 @@ class PagerTest {
 
         assertTrue(consumer.takeResults().isEmpty())
         assertEquals(
-            consumer.takeStateChanges(), listOf(
-                StateChange(START, LOADING)
-            )
+            listOf(StateChange(LoadType.START, LoadState.Loading)),
+            consumer.takeStateChanges()
         )
 
         testExecutor.executeAll()
 
+        assertEquals(listOf(Result(LoadType.START, rangeResult(2, 4))), consumer.takeResults())
         assertEquals(
-            listOf(Result(START, rangeResult(2, 4))),
-            consumer.takeResults()
-        )
-        assertEquals(
-            listOf(StateChange(START, IDLE)),
+            listOf(StateChange(LoadType.START, LoadState.Idle)),
             consumer.takeStateChanges()
         )
     }
@@ -202,17 +182,18 @@ class PagerTest {
 
         assertEquals(
             listOf(
-                Result(END, rangeResult(6, 8)),
-                Result(END, rangeResult(8, 9))
+                Result(LoadType.END, rangeResult(6, 8)),
+                Result(LoadType.END, rangeResult(8, 9))
             ), consumer.takeResults()
         )
         assertEquals(
             listOf(
-                StateChange(END, LOADING),
-                StateChange(END, IDLE),
-                StateChange(END, LOADING),
-                StateChange(END, IDLE)
-            ), consumer.takeStateChanges()
+                StateChange(LoadType.END, LoadState.Loading),
+                StateChange(LoadType.END, LoadState.Idle),
+                StateChange(LoadType.END, LoadState.Loading),
+                StateChange(LoadType.END, LoadState.Idle)
+            ),
+            consumer.takeStateChanges()
         )
     }
 
@@ -228,17 +209,18 @@ class PagerTest {
 
         assertEquals(
             listOf(
-                Result(START, rangeResult(2, 4)),
-                Result(START, rangeResult(0, 2))
+                Result(LoadType.START, rangeResult(2, 4)),
+                Result(LoadType.START, rangeResult(0, 2))
             ), consumer.takeResults()
         )
         assertEquals(
             listOf(
-                StateChange(START, LOADING),
-                StateChange(START, IDLE),
-                StateChange(START, LOADING),
-                StateChange(START, IDLE)
-            ), consumer.takeStateChanges()
+                StateChange(LoadType.START, LoadState.Loading),
+                StateChange(LoadType.START, LoadState.Idle),
+                StateChange(LoadType.START, LoadState.Loading),
+                StateChange(LoadType.START, LoadState.Idle)
+            ),
+            consumer.takeStateChanges()
         )
     }
 
@@ -251,14 +233,12 @@ class PagerTest {
 
         // Pager triggers an immediate empty response here, so we don't need to flush the executor
         assertEquals(
-            listOf(
-                Result(END, LoadResult.empty<Int, String>())
-            ), consumer.takeResults()
+            listOf(Result(LoadType.END, LoadResult.empty<Int, String>())),
+            consumer.takeResults()
         )
         assertEquals(
-            listOf(
-                StateChange(END, DONE)
-            ), consumer.takeStateChanges()
+            listOf(StateChange(LoadType.END, LoadState.Done)),
+            consumer.takeStateChanges()
         )
     }
 
@@ -271,14 +251,12 @@ class PagerTest {
 
         // Pager triggers an immediate empty response here, so we don't need to flush the executor
         assertEquals(
-            listOf(
-                Result(START, LoadResult.empty<Int, String>())
-            ), consumer.takeResults()
+            listOf(Result(LoadType.START, LoadResult.empty<Int, String>())),
+            consumer.takeResults()
         )
         assertEquals(
-            listOf(
-                StateChange(START, DONE)
-            ), consumer.takeStateChanges()
+            listOf(StateChange(LoadType.START, LoadState.Done)),
+            consumer.takeStateChanges()
         )
     }
 }
