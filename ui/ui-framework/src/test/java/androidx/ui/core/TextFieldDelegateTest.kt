@@ -353,7 +353,7 @@ class TextFieldDelegateTest {
 
         val dummyText = AnnotatedString(text = "Hello, World")
         whenever(mDelegate.text).thenReturn(dummyText)
-        whenever(mDelegate.style).thenReturn(TextStyle())
+        whenever(mDelegate.textStyle).thenReturn(TextStyle())
         whenever(mDelegate.density).thenReturn(Density(1.0f))
         whenever(mDelegate.resourceLoader).thenReturn(mock())
         whenever(mDelegate.height).thenReturn(512.0f)

@@ -27,7 +27,6 @@ import androidx.ui.core.px
 import androidx.ui.core.sp
 import androidx.ui.core.withDensity
 import androidx.ui.engine.geometry.Rect
-import androidx.ui.engine.geometry.Size
 import androidx.ui.text.FontTestData.Companion.BASIC_MEASURE_FONT
 import androidx.ui.text.style.TextDirection
 import androidx.ui.text.font.asFontFamily
@@ -194,77 +193,7 @@ class TextDelegateIntegrationTest {
     }
 
     @Test
-    fun size_getter() {
-        withDensity(density) {
-            val fontSize = 20.sp
-            val fontSizeInPx = fontSize.toPx().value
-            val text = "Hello"
-            val textStyle = TextStyle(fontSize = fontSize, fontFamily = fontFamily)
-            val annotatedString = AnnotatedString(
-                text = text,
-                textStyles = listOf(
-                    AnnotatedString.Item(
-                        textStyle,
-                        0,
-                        text.length
-                    )
-                )
-            )
-            val textPainter = TextDelegate(
-                text = annotatedString,
-                paragraphStyle = ParagraphStyle(textDirection = TextDirection.Rtl),
-                density = density,
-                resourceLoader = resourceLoader
-            )
-
-            textPainter.layout(Constraints())
-
-            assertThat(textPainter.size).isEqualTo(
-                Size(
-                    width = fontSizeInPx * text.length,
-                    height = fontSizeInPx
-                )
-            )
-        }
-    }
-
-    @Test
-    fun didExceedMaxLines_exceed() {
-        var text = ""
-        for (i in 1..50) text += " Hello"
-        val annotatedString = AnnotatedString(text = text)
-        val textPainter = TextDelegate(
-            text = annotatedString,
-            paragraphStyle = ParagraphStyle(textDirection = TextDirection.Rtl),
-            maxLines = 2,
-            density = density,
-            resourceLoader = resourceLoader
-        )
-
-        textPainter.layout(Constraints(0.ipx, 200.ipx))
-
-        assertThat(textPainter.didExceedMaxLines).isTrue()
-    }
-
-    @Test
-    fun didExceedMaxLines_not_exceed() {
-        val text = "Hello"
-        val annotatedString = AnnotatedString(text = text)
-        val textPainter = TextDelegate(
-            text = annotatedString,
-            paragraphStyle = ParagraphStyle(textDirection = TextDirection.Rtl),
-            maxLines = 2,
-            density = density,
-            resourceLoader = resourceLoader
-        )
-
-        textPainter.layout(Constraints(0.ipx, 200.ipx))
-
-        assertThat(textPainter.didExceedMaxLines).isFalse()
-    }
-
-    @Test
-    fun layout_build_paragraph() {
+    fun layout_build_layoutResult() {
         val textPainter = TextDelegate(
             text = AnnotatedString(text = "Hello"),
             paragraphStyle = ParagraphStyle(textDirection = TextDirection.Ltr),
@@ -274,7 +203,7 @@ class TextDelegateIntegrationTest {
 
         textPainter.layout(Constraints(0.ipx, 20.ipx))
 
-        assertThat(textPainter.multiParagraph).isNotNull()
+        assertThat(textPainter.layoutResult).isNotNull()
     }
 
     @Test
@@ -443,10 +372,10 @@ class TextDelegateIntegrationTest {
             val defaultSelectionColor = Color(0x6633B5E5)
             expectedPaint.color = defaultSelectionColor
 
-            val firstLineLeft = textPainter.multiParagraph?.getLineLeft(0)
-            val secondLineLeft = textPainter.multiParagraph?.getLineLeft(1)
-            val firstLineRight = textPainter.multiParagraph?.getLineRight(0)
-            val secondLineRight = textPainter.multiParagraph?.getLineRight(1)
+            val firstLineLeft = textPainter.layoutResult?.multiParagraph?.getLineLeft(0)
+            val secondLineLeft = textPainter.layoutResult?.multiParagraph?.getLineLeft(1)
+            val firstLineRight = textPainter.layoutResult?.multiParagraph?.getLineRight(0)
+            val secondLineRight = textPainter.layoutResult?.multiParagraph?.getLineRight(1)
             expectedCanvas.drawRect(
                 Rect(firstLineLeft!!, 0f, firstLineRight!!, fontSizeInPx),
                 expectedPaint
@@ -456,7 +385,7 @@ class TextDelegateIntegrationTest {
                     secondLineLeft!!,
                     fontSizeInPx,
                     secondLineRight!!,
-                    textPainter.multiParagraph!!.height
+                    textPainter.layoutResult!!.multiParagraph.height
                 ),
                 expectedPaint
             )
