@@ -43,9 +43,38 @@ package androidx.ui.input {
   }
 
 
+  public interface OffsetMap {
+    method public int originalToTransformed(int offset);
+    method public int transformedToOriginal(int offset);
+  }
+
+  public final class PasswordVisualTransformation implements androidx.ui.input.VisualTransformation {
+    ctor public PasswordVisualTransformation(char mask);
+    ctor public PasswordVisualTransformation();
+    method public androidx.ui.input.TransformedText filter(androidx.ui.text.AnnotatedString text);
+    method public char getMask();
+  }
 
 
 
+
+
+  public final class TransformedText {
+    ctor public TransformedText(androidx.ui.text.AnnotatedString transformedText, androidx.ui.input.OffsetMap offsetMap);
+    method public androidx.ui.text.AnnotatedString component1();
+    method public androidx.ui.input.OffsetMap component2();
+    method public androidx.ui.input.TransformedText copy(androidx.ui.text.AnnotatedString transformedText, androidx.ui.input.OffsetMap offsetMap);
+    method public androidx.ui.input.OffsetMap getOffsetMap();
+    method public androidx.ui.text.AnnotatedString getTransformedText();
+  }
+
+  public interface VisualTransformation {
+    method public androidx.ui.input.TransformedText filter(androidx.ui.text.AnnotatedString text);
+  }
+
+  public final class VisualTransformationKt {
+    ctor public VisualTransformationKt();
+  }
 
 }
 
