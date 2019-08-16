@@ -108,7 +108,7 @@ final class BackStackState implements Parcelable {
             }
             String fWho = mFragmentWhos.get(num);
             if (fWho != null) {
-                Fragment f = fm.mActive.get(fWho);
+                Fragment f = fm.findActiveFragment(fWho);
                 op.mFragment = f;
             } else {
                 op.mFragment = null;
