@@ -29,7 +29,7 @@ import androidx.test.runner.AndroidJUnitRunner
  * ```
  * android {
  *     defaultConfig {
- *         testInstrumentationRunner "androidx.benchmark.AndroidBenchmarkRunner"
+ *         testInstrumentationRunner "androidx.benchmark.junit4.AndroidBenchmarkRunner"
  *     }
  * }
  * ```
