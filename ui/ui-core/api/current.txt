@@ -1420,8 +1420,6 @@ package androidx.ui.painting {
     method public static androidx.ui.painting.Canvas Canvas(androidx.ui.painting.Image image);
     method public static androidx.ui.painting.Canvas Canvas(androidx.ui.painting.PictureRecorder recorder, androidx.ui.engine.geometry.Rect cullRect = Rect.largest);
     method public static androidx.ui.painting.Canvas Canvas(android.graphics.Canvas c);
-    method public static inline void withSave(androidx.ui.painting.Canvas, kotlin.jvm.functions.Function0<kotlin.Unit> block);
-    method public static inline void withSaveLayer(androidx.ui.painting.Canvas, androidx.ui.engine.geometry.Rect? bounds, androidx.ui.painting.Paint paint, kotlin.jvm.functions.Function0<kotlin.Unit> block);
   }
 
   public final class AndroidImageKt {
@@ -1478,13 +1476,11 @@ package androidx.ui.painting {
     method public void drawArc(androidx.ui.engine.geometry.Rect rect, float startAngle, float sweepAngle, boolean useCenter, androidx.ui.painting.Paint paint);
     method public default void drawArcRad(androidx.ui.engine.geometry.Rect rect, float startAngleRad, float sweepAngleRad, boolean useCenter, androidx.ui.painting.Paint paint);
     method public void drawCircle(androidx.ui.engine.geometry.Offset center, float radius, androidx.ui.painting.Paint paint);
-    method public void drawColor(androidx.ui.graphics.Color color, androidx.ui.painting.BlendMode blendMode);
     method public void drawDRRect(androidx.ui.engine.geometry.RRect outer, androidx.ui.engine.geometry.RRect inner, androidx.ui.painting.Paint paint);
     method public void drawImage(androidx.ui.painting.Image image, androidx.ui.engine.geometry.Offset topLeftOffset, androidx.ui.painting.Paint paint);
     method public void drawImageRect(androidx.ui.painting.Image image, androidx.ui.engine.geometry.Rect src, androidx.ui.engine.geometry.Rect dst, androidx.ui.painting.Paint paint);
     method public void drawLine(androidx.ui.engine.geometry.Offset p1, androidx.ui.engine.geometry.Offset p2, androidx.ui.painting.Paint paint);
     method public void drawOval(androidx.ui.engine.geometry.Rect rect, androidx.ui.painting.Paint paint);
-    method public void drawPaint(androidx.ui.painting.Paint paint);
     method public void drawPath(androidx.ui.painting.Path path, androidx.ui.painting.Paint paint);
     method public void drawPicture(androidx.ui.painting.Picture picture);
     method public void drawPoints(androidx.ui.painting.PointMode pointMode, java.util.List<androidx.ui.engine.geometry.Offset> points, androidx.ui.painting.Paint paint);
@@ -1497,7 +1493,7 @@ package androidx.ui.painting {
     method public void rotate(float degrees);
     method public default void rotateRad(float radians);
     method public void save();
-    method public void saveLayer(androidx.ui.engine.geometry.Rect? bounds, androidx.ui.painting.Paint paint);
+    method public void saveLayer(androidx.ui.engine.geometry.Rect bounds, androidx.ui.painting.Paint paint);
     method public void scale(float sx, float sy = sx);
     method public void skew(float sx, float sy);
     method public default void skewRad(float sxRad, float syRad);
@@ -1507,6 +1503,8 @@ package androidx.ui.painting {
 
   public final class CanvasKt {
     ctor public CanvasKt();
+    method public static inline void withSave(androidx.ui.painting.Canvas, kotlin.jvm.functions.Function0<kotlin.Unit> block);
+    method public static inline void withSaveLayer(androidx.ui.painting.Canvas, androidx.ui.engine.geometry.Rect bounds, androidx.ui.painting.Paint paint, kotlin.jvm.functions.Function0<kotlin.Unit> block);
   }
 
   public enum ClipOp {
