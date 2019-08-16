@@ -1,0 +1,21 @@
+// Signature format: 3.0
+package androidx.lifecycle {
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public interface GeneratedAdapter {
+    method public void callMethods(androidx.lifecycle.LifecycleOwner!, androidx.lifecycle.Lifecycle.Event!, boolean, androidx.lifecycle.MethodCallsLogger!);
+  }
+
+  @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public interface GenericLifecycleObserver extends androidx.lifecycle.LifecycleEventObserver {
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class Lifecycling {
+    method public static String! getAdapterName(String!);
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class MethodCallsLogger {
+    ctor public MethodCallsLogger();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public boolean approveCall(String!, int);
+  }
+
+}
+
