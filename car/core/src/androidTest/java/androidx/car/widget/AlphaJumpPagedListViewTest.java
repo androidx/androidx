@@ -87,7 +87,9 @@ public class AlphaJumpPagedListViewTest {
         try {
             mActivityRule.runOnUiThread(() -> {
                 mPagedListView.setMaxPages(PagedListView.ItemCap.UNLIMITED);
-                mPagedListView.setAdapter(new AlphaJumpTestAdapter());
+                AlphaJumpTestAdapter adapter = new AlphaJumpTestAdapter();
+                mPagedListView.setAdapter(adapter);
+                mPagedListView.setAlphaJumpAdapter(adapter);
             });
         } catch (Throwable throwable) {
             throwable.printStackTrace();

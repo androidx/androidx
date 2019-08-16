@@ -99,10 +99,6 @@ class CarDialogUtil {
                         Log.e(TAG, "Unknown pagination direction (" + direction + ")");
                 }
             }
-
-            @Override
-            public void onAlphaJump() {
-            }
         });
     }
 
