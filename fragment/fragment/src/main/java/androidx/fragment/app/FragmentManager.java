@@ -1166,13 +1166,13 @@ public abstract class FragmentManager {
         if ((!f.mAdded || f.mDetached) && newState > Fragment.CREATED) {
             newState = Fragment.CREATED;
         }
-        if (f.mRemoving && newState > f.mState) {
-            if (f.mState == Fragment.INITIALIZING && f.isInBackStack()) {
-                // Allow the fragment to be created so that it can be saved later.
-                newState = Fragment.CREATED;
+        if (f.mRemoving) {
+            if (f.isInBackStack()) {
+                // Fragments on the back stack shouldn't go higher than CREATED
+                newState = Math.min(newState, Fragment.CREATED);
             } else {
-                // While removing a fragment, we can't change it to a higher state.
-                newState = f.mState;
+                // While removing a fragment, we always move to INITIALIZING
+                newState = Fragment.INITIALIZING;
             }
         }
         // Defer start if requested; don't allow it to move to STARTED or higher
@@ -1671,15 +1671,7 @@ public abstract class FragmentManager {
             }
             return;
         }
-        int nextState = mCurState;
-        if (f.mRemoving) {
-            if (f.isInBackStack()) {
-                nextState = Math.min(nextState, Fragment.CREATED);
-            } else {
-                nextState = Math.min(nextState, Fragment.INITIALIZING);
-            }
-        }
-        moveToState(f, nextState);
+        moveToState(f);
 
         if (f.mView != null) {
             // Move the view if it is out of order
