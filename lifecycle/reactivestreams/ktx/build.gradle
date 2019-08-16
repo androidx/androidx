@@ -32,7 +32,7 @@ dependencies {
   testImplementation(JUNIT)
   testImplementation(RX_JAVA)
   testImplementation(TRUTH)
-  testImplementation("androidx.arch.core:core-testing:2.1.0-rc01")
+  testImplementation("androidx.arch.core:core-testing:2.1.0")
 }
 
 androidx {
