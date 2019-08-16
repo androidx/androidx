@@ -34,6 +34,7 @@ import android.widget.TextView;
 import androidx.annotation.ColorRes;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.IntRange;
+import androidx.annotation.Nullable;
 import androidx.car.R;
 import androidx.core.content.ContextCompat;
 
@@ -50,6 +51,22 @@ public class PagedScrollBarView extends ViewGroup {
         /** Called when the linked view should be paged in the given direction */
         void onPaginate(int direction);
 
+        /**
+         * Called when the 'alpha jump' button is clicked and the linked view should switch into
+         * alpha jump mode, where we display a list of buttons to allow the user to quickly scroll
+         * to a certain point in the list, bypassing a lot of manual scrolling.
+         *
+         * <p>AlphaJump buckets only support characters from the {@code en} language. Characters
+         * from other languages not supported and bucketing behavior is undefined. AlphaJump overlay
+         * is still displayed if all buckets are empty.
+         *
+         * @deprecated Use {@link OnAlphaJumpListener#onAlphaJump()} instead.
+         */
+        @Deprecated
+        default void onAlphaJump() {}
+    }
+
+    public interface OnAlphaJumpListener {
         /**
          * Called when the 'alpha jump' button is clicked and the linked view should switch into
          * alpha jump mode, where we display a list of buttons to allow the user to quickly scroll
@@ -166,10 +183,19 @@ public class PagedScrollBarView extends ViewGroup {
      *
      * @param listener The listener to set.
      */
-    public void setPaginationListener(PaginationListener listener) {
+    public void setPaginationListener(@Nullable PaginationListener listener) {
         mUpButtonClickListener.setPaginationListener(listener);
         mDownButtonClickListener.setPaginationListener(listener);
         mAlphaJumpButtonClickListener.setPaginationListener(listener);
+    }
+
+    /**
+     * Sets the listener that will be notified when alpha jump button has been pressed.
+     *
+     * @param listener The listener to set.
+     */
+    public void setOnAlphaJumpListener(@Nullable OnAlphaJumpListener listener) {
+        mAlphaJumpButtonClickListener.setOnAlphaJumpListener(listener);
     }
 
     /** Returns {@code true} if the "up" button is pressed */
@@ -554,9 +580,14 @@ public class PagedScrollBarView extends ViewGroup {
     }
 
     private static class AlphaJumpButtonClickListener implements View.OnClickListener {
+        private OnAlphaJumpListener mOnAlphaJumpListener;
         private PaginationListener mPaginationListener;
 
         AlphaJumpButtonClickListener() {
+        }
+
+        public void setOnAlphaJumpListener(OnAlphaJumpListener listener) {
+            mOnAlphaJumpListener = listener;
         }
 
         public void setPaginationListener(PaginationListener listener) {
@@ -565,6 +596,10 @@ public class PagedScrollBarView extends ViewGroup {
 
         @Override
         public void onClick(View v) {
+            if (mOnAlphaJumpListener != null) {
+                mOnAlphaJumpListener.onAlphaJump();
+            }
+
             if (mPaginationListener != null) {
                 mPaginationListener.onAlphaJump();
             }

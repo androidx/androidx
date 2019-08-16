@@ -499,6 +499,7 @@ package androidx.car.widget {
     method public void removeOnScrollListener(androidx.recyclerview.widget.RecyclerView.OnScrollListener);
     method public void scrollToPosition(int);
     method public void setAdapter(androidx.recyclerview.widget.RecyclerView.Adapter<? extends androidx.recyclerview.widget.RecyclerView.ViewHolder>);
+    method public void setAlphaJumpAdapter(androidx.car.widget.AlphaJumpAdapter);
     method public void setAlphaJumpVisible(boolean);
     method public void setDividerColor(@ColorInt int);
     method public void setDividerVisibilityManager(androidx.car.widget.PagedListView.DividerVisibilityManager!);
@@ -573,7 +574,8 @@ package androidx.car.widget {
     method public void setButtonTintColor(@ColorRes int);
     method public void setDownButtonIcon(android.graphics.drawable.Drawable!);
     method public void setDownEnabled(boolean);
-    method public void setPaginationListener(androidx.car.widget.PagedScrollBarView.PaginationListener!);
+    method public void setOnAlphaJumpListener(androidx.car.widget.PagedScrollBarView.OnAlphaJumpListener?);
+    method public void setPaginationListener(androidx.car.widget.PagedScrollBarView.PaginationListener?);
     method public void setParameters(@IntRange(from=0) int, @IntRange(from=0) int, @IntRange(from=0) int, boolean);
     method public void setScrollbarThumbColor(@ColorRes int);
     method public void setScrollbarThumbEnabled(boolean);
@@ -581,8 +583,12 @@ package androidx.car.widget {
     method public void setUpEnabled(boolean);
   }
 
-  public static interface PagedScrollBarView.PaginationListener {
+  public static interface PagedScrollBarView.OnAlphaJumpListener {
     method public void onAlphaJump();
+  }
+
+  public static interface PagedScrollBarView.PaginationListener {
+    method @Deprecated public default void onAlphaJump();
     method public void onPaginate(int);
     field public static final int PAGE_DOWN = 1; // 0x1
     field public static final int PAGE_UP = 0; // 0x0
