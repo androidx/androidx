@@ -28,7 +28,6 @@ import androidx.ui.core.looseMin
 import androidx.ui.core.max
 import androidx.ui.core.offset
 import androidx.ui.core.withTight
-import androidx.compose.Children
 import androidx.compose.Composable
 import androidx.compose.composer
 import androidx.compose.trace
@@ -64,7 +63,7 @@ fun Container(
     children: @Composable() () -> Unit
 ) {
     trace("UI:Container") {
-        Layout(children = children, layoutBlock = { measurables, incomingConstraints ->
+        Layout(children) { measurables, incomingConstraints ->
             val containerConstraints = Constraints(constraints)
                 .withTight(width?.toIntPx(), height?.toIntPx())
                 .enforce(incomingConstraints)
@@ -98,6 +97,6 @@ fun Container(
                     )
                 }
             }
-        })
+        }
     }
 }

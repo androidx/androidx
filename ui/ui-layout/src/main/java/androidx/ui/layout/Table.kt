@@ -17,7 +17,6 @@
 package androidx.ui.layout
 
 import androidx.annotation.FloatRange
-import androidx.compose.Children
 import androidx.compose.Composable
 import androidx.compose.composer
 import androidx.compose.state

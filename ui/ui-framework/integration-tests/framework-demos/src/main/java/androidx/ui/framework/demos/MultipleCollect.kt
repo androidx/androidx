@@ -27,7 +27,6 @@ import androidx.ui.core.ipx
 import androidx.ui.core.toRect
 import androidx.ui.graphics.Color
 import androidx.ui.painting.Paint
-import androidx.compose.Children
 import androidx.compose.Composable
 import androidx.compose.composer
 import androidx.ui.graphics.Brush
@@ -35,14 +34,14 @@ import androidx.ui.graphics.SolidColor
 
 @Composable
 fun ColoredRect(brush: Brush, width: Dp? = null, height: Dp? = null) {
-    Layout(children = { DrawFillRect(brush = brush) }, layoutBlock = { _, constraints ->
+    Layout(children = { DrawFillRect(brush = brush) }) { _, constraints ->
         layout(
             width?.toIntPx()?.coerceIn(constraints.minWidth, constraints.maxWidth)
                 ?: constraints.maxWidth,
             height?.toIntPx()?.coerceIn(constraints.minHeight, constraints.maxHeight)
                 ?: constraints.maxHeight
         ) {}
-    })
+    }
 }
 
 @Composable
@@ -66,33 +65,31 @@ fun HeaderFooterLayout(
     content: @Composable() () -> Unit
 ) {
     @Suppress("USELESS_CAST")
-    Layout(
-        childrenArray = arrayOf(header, content, footer),
-        layoutBlock = { measurables, constraints ->
-            val headerPlaceable = measurables[header].first().measure(
-                Constraints.tightConstraints(constraints.maxWidth, 100.ipx)
-            )
-            val footerPadding = 50.ipx
-            val footerPlaceable = measurables[footer].first().measure(
-                Constraints.tightConstraints(constraints.maxWidth - footerPadding * 2, 100.ipx)
-            )
-            val itemHeight =
-                (constraints.maxHeight - headerPlaceable.height - footerPlaceable.height) /
-                        measurables[content].size
-            val contentPlaceables = measurables[content].map { measurable ->
-                measurable.measure(Constraints.tightConstraints(constraints.maxWidth, itemHeight))
-            }
+    Layout(header, content, footer) { measurables, constraints ->
+        val headerPlaceable = measurables[header].first().measure(
+            Constraints.tightConstraints(constraints.maxWidth, 100.ipx)
+        )
+        val footerPadding = 50.ipx
+        val footerPlaceable = measurables[footer].first().measure(
+            Constraints.tightConstraints(constraints.maxWidth - footerPadding * 2, 100.ipx)
+        )
+        val itemHeight =
+            (constraints.maxHeight - headerPlaceable.height - footerPlaceable.height) /
+                    measurables[content].size
+        val contentPlaceables = measurables[content].map { measurable ->
+            measurable.measure(Constraints.tightConstraints(constraints.maxWidth, itemHeight))
+        }
 
-            layout(constraints.maxWidth, constraints.maxHeight) {
-                headerPlaceable.place(0.ipx, 0.ipx)
-                footerPlaceable.place(footerPadding, constraints.maxHeight - footerPlaceable.height)
-                var top = headerPlaceable.height
-                contentPlaceables.forEach { placeable ->
-                    placeable.place(0.ipx, top)
-                    top += itemHeight
-                }
+        layout(constraints.maxWidth, constraints.maxHeight) {
+            headerPlaceable.place(0.ipx, 0.ipx)
+            footerPlaceable.place(footerPadding, constraints.maxHeight - footerPlaceable.height)
+            var top = headerPlaceable.height
+            contentPlaceables.forEach { placeable ->
+                placeable.place(0.ipx, top)
+                top += itemHeight
             }
-        })
+        }
+    }
 }
 
 @Composable

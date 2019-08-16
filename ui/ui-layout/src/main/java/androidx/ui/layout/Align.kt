@@ -21,7 +21,6 @@ import androidx.ui.core.IntPxSize
 import androidx.ui.core.Layout
 import androidx.ui.core.isFinite
 import androidx.ui.core.looseMin
-import androidx.compose.Children
 import androidx.compose.Composable
 import androidx.compose.composer
 import androidx.ui.core.round
@@ -70,7 +69,7 @@ enum class Alignment(private val verticalBias: Float, private val horizontalBias
  */
 @Composable
 fun Align(alignment: Alignment, children: @Composable() () -> Unit) {
-    Layout(layoutBlock = { measurables, constraints ->
+    Layout(children) { measurables, constraints ->
         val measurable = measurables.firstOrNull()
         // The child cannot be larger than our max constraints, but we ignore min constraints.
         val placeable = measurable?.measure(constraints.looseMin())
@@ -96,7 +95,7 @@ fun Align(alignment: Alignment, children: @Composable() () -> Unit) {
                 placeable.place(position.x, position.y)
             }
         }
-    }, children = children)
+    }
 }
 
 /**

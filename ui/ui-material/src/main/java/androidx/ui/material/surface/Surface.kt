@@ -112,7 +112,7 @@ fun Surface(
  */
 @Composable
 private fun SurfaceLayout(children: @Composable() () -> Unit) {
-    Layout(children = children, layoutBlock = { measurables, constraints ->
+    Layout(children) { measurables, constraints ->
         if (measurables.size > 1) {
             throw IllegalStateException("Surface can have only one direct measurable child!")
         }
@@ -125,5 +125,5 @@ private fun SurfaceLayout(children: @Composable() () -> Unit) {
                 placeable.place(0.ipx, 0.ipx)
             }
         }
-    })
+    }
 }

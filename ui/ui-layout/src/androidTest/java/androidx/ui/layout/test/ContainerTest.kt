@@ -352,11 +352,11 @@ class ContainerTest : LayoutTest() {
 
     @Composable
     fun EmptyBox(width: Dp, height: Dp) {
-        Layout(layoutBlock = { _, constraints ->
+        Layout(children = { }) { _, constraints ->
             layout(
                 width.toIntPx().coerceIn(constraints.minWidth, constraints.maxWidth),
                 height.toIntPx().coerceIn(constraints.minHeight, constraints.maxHeight)
             ) {}
-        }, children = { })
+        }
     }
 }

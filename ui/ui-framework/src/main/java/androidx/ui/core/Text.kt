@@ -240,9 +240,9 @@ fun Text(
             }
         }
         ComplexLayout(children) {
-            layout { _, constraints ->
+            measure { _, constraints ->
                 textPainter.layout(constraints)
-                layoutResult(textPainter.width.px.round(), textPainter.height.px.round()) {}
+                layout(textPainter.width.px.round(), textPainter.height.px.round()) {}
             }
             minIntrinsicWidth { _, _ ->
                 // TODO(popam): discuss with the Text team about this

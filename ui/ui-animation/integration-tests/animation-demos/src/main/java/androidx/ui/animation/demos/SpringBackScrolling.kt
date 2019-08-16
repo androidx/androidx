@@ -110,9 +110,9 @@ class SpringBackScrolling : Activity() {
                         drawRects(canvas, parentSize, paint, animScroll.value)
                     }
                 }
-                Layout(children = children, layoutBlock = { _, constraints ->
+                Layout(children) { _, constraints ->
                     layout(constraints.maxWidth, IntPx(1200)) {}
-                })
+                }
             }
         }
     }

@@ -16,7 +16,6 @@
 
 package androidx.ui.layout.test
 
-import androidx.compose.Children
 import androidx.compose.Composable
 import androidx.compose.composer
 import androidx.test.filters.SmallTest
@@ -499,12 +498,13 @@ private fun FixedIntrinsicsBox(
     width: Dp,
     maxIntrinsicWidth: Dp,
     minIntrinsicHeight: Dp,
-    height: Dp, maxIntrinsicHeight: Dp,
+    height: Dp,
+    maxIntrinsicHeight: Dp,
     children: @Composable() () -> Unit
 ) {
     ComplexLayout(children) {
-        layout { _, constraints ->
-            layoutResult(
+        measure { _, constraints ->
+            layout(
                 width.toIntPx().coerceIn(constraints.minWidth, constraints.maxWidth),
                 height.toIntPx().coerceIn(constraints.minHeight, constraints.maxHeight)
             ) { }

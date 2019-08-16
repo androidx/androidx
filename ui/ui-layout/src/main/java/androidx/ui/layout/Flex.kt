@@ -17,7 +17,6 @@
 package androidx.ui.layout
 
 import androidx.annotation.FloatRange
-import androidx.compose.Children
 import androidx.compose.Composable
 import androidx.compose.composer
 import androidx.ui.core.Constraints
@@ -489,7 +488,7 @@ private fun Flex(
         composable
     }
     ComplexLayout(flexChildren) {
-        layout { children, outerConstraints ->
+        measure { children, outerConstraints ->
             val constraints = OrientationIndependentConstraints(outerConstraints, orientation)
 
             var totalFlex = 0f
@@ -585,7 +584,7 @@ private fun Flex(
             } else {
                 mainAxisLayoutSize
             }
-            layoutResult(layoutWidth, layoutHeight) {
+            layout(layoutWidth, layoutHeight) {
                 val childrenMainAxisSize = placeables.map { it!!.mainAxisSize() }
                 val mainAxisPositions = mainAxisAlignment.aligner
                     .align(mainAxisLayoutSize, childrenMainAxisSize)

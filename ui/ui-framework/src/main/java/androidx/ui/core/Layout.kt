@@ -16,7 +16,6 @@
 
 package androidx.ui.core
 
-import androidx.compose.Children
 import androidx.compose.Composable
 import androidx.compose.Compose
 import androidx.compose.ambient
@@ -217,7 +216,7 @@ internal class ComplexLayoutStateMeasurablesList(
  * Receiver scope for the [ComplexLayout] lambda.
  */
 class ComplexLayoutReceiver internal constructor(internal val layoutState: ComplexLayoutState) {
-    fun layout(layoutBlock: ComplexLayoutBlock) {
+    fun measure(layoutBlock: ComplexLayoutBlock) {
         layoutState.layoutBlock = layoutBlock
     }
     fun minIntrinsicWidth(minIntrinsicWidthBlock: IntrinsicMeasurementBlock) {
@@ -325,13 +324,13 @@ class ComplexLayoutBlockReceiver internal constructor(
         this as ComplexLayoutState
         return this.measure(constraints)
     }
-    fun layoutResult(
+    fun layout(
         width: IntPx,
         height: IntPx,
-        block: PositioningBlockReceiver.() -> Unit
+        positioningBlock: PositioningBlockReceiver.() -> Unit
     ): LayoutResult {
         layoutState.resize(width, height)
-        layoutState.positioningBlock = block
+        layoutState.positioningBlock = positioningBlock
         return LayoutResult.instance
     }
     fun Measurable.minIntrinsicWidth(h: IntPx) =
@@ -359,7 +358,7 @@ private val LayoutMeasure = { m: Measurable, c: Constraints -> (m as ComplexLayo
 @Composable
 fun Layout(
     children: @Composable() () -> Unit,
-    layoutBlock: LayoutBlock
+    measureBlock: LayoutBlock
 ) {
     trace("UI:Layout") {
         ComplexLayout(children = children, block = {
@@ -368,10 +367,10 @@ fun Layout(
                 LayoutMeasure, /* measure lambda */
                 { _, _, _ -> }
             )
-            layout { measurables, constraints ->
+            measure { measurables, constraints ->
                 layoutReceiver.complexMeasure = LayoutMeasure
-                layoutReceiver.complexLayoutResult = { w, h, block -> layoutResult(w, h, block) }
-                layoutReceiver.layoutBlock(measurables, constraints)
+                layoutReceiver.complexLayoutResult = { w, h, block -> layout(w, h, block) }
+                layoutReceiver.measureBlock(measurables, constraints)
             }
 
             minIntrinsicWidth { measurables, h ->
@@ -382,7 +381,7 @@ fun Layout(
                 }
                 layoutReceiver.complexLayoutResult = { width, _, _ -> intrinsicWidth = width }
                 val constraints = Constraints(maxHeight = h)
-                layoutReceiver.layoutBlock(measurables, constraints)
+                layoutReceiver.measureBlock(measurables, constraints)
                 intrinsicWidth
             }
 
@@ -394,7 +393,7 @@ fun Layout(
                 }
                 layoutReceiver.complexLayoutResult = { width, _, _ -> intrinsicWidth = width }
                 val constraints = Constraints(maxHeight = h)
-                layoutReceiver.layoutBlock(measurables, constraints)
+                layoutReceiver.measureBlock(measurables, constraints)
                 intrinsicWidth
             }
 
@@ -406,7 +405,7 @@ fun Layout(
                 }
                 layoutReceiver.complexLayoutResult = { _, height, _ -> intrinsicHeight = height }
                 val constraints = Constraints(maxWidth = w)
-                layoutReceiver.layoutBlock(measurables, constraints)
+                layoutReceiver.measureBlock(measurables, constraints)
                 intrinsicHeight
             }
 
@@ -418,7 +417,7 @@ fun Layout(
                 }
                 layoutReceiver.complexLayoutResult = { _, height, _ -> intrinsicHeight = height }
                 val constraints = Constraints(maxWidth = w)
-                layoutReceiver.layoutBlock(measurables, constraints)
+                layoutReceiver.measureBlock(measurables, constraints)
                 intrinsicHeight
             }
         })
@@ -450,12 +449,12 @@ internal data class ChildrenEndParentData(val children: @Composable() () -> Unit
  */
 @Composable
 fun Layout(
-    childrenArray: Array<@Composable() () -> Unit>,
-    layoutBlock: LayoutBlock
+    vararg childrenArray: @Composable() () -> Unit,
+    measureBlock: LayoutBlock
 ) {
     val ChildrenEndMarker = @Composable { children: @Composable() () -> Unit ->
         ParentData(data = ChildrenEndParentData(children)) {
-            Layout(layoutBlock={_, _ -> layout(0.ipx, 0.ipx){}}, children = {})
+            Layout(measureBlock={_, _ -> layout(0.ipx, 0.ipx){}}, children = {})
         }
     }
     val children = @Composable {
@@ -466,7 +465,7 @@ fun Layout(
         }
     }
 
-    Layout(layoutBlock = layoutBlock, children = children)
+    Layout(measureBlock = measureBlock, children = children)
 }
 
 /**
@@ -503,9 +502,9 @@ class LayoutBlockReceiver internal constructor(
     fun layout(
         width: IntPx,
         height: IntPx,
-        block: PositioningBlockReceiver.() -> Unit
+        positioningBlock: PositioningBlockReceiver.() -> Unit
     ): LayoutResult {
-        complexLayoutResult(width, height, block)
+        complexLayoutResult(width, height, positioningBlock)
         return LayoutResult.instance
     }
 }
@@ -538,33 +537,31 @@ fun WithConstraints(children: @Composable() (Constraints) -> Unit) {
     val ref = +compositionReference()
     val context = +ambient(ContextAmbient)
 
-    Layout(
-        layoutBlock = { _, constraints ->
-            val root = layoutState.layoutNode
-            // Start subcomposition from the current node.
-            Compose.composeInto(
-                root,
-                context,
-                ref
-            ) {
-                children(p1 = constraints)
-            }
+    Layout(children = {}) { _, constraints ->
+        val root = layoutState.layoutNode
+        // Start subcomposition from the current node.
+        Compose.composeInto(
+            root,
+            context,
+            ref
+        ) {
+            children(p1 = constraints)
+        }
 
-            // Measure the obtained children and compute our size.
-            val measurables = layoutState.childrenMeasurables
-            val placeables = measurables.map { it.measure(constraints) }
-            val layoutSize = constraints.constrain(IntPxSize(
-                placeables.map { it.width }.maxBy { it.value } ?: IntPx.Zero,
-                placeables.map { it.height }.maxBy { it.value } ?: IntPx.Zero
-            ))
+        // Measure the obtained children and compute our size.
+        val measurables = layoutState.childrenMeasurables
+        val placeables = measurables.map { it.measure(constraints) }
+        val layoutSize = constraints.constrain(IntPxSize(
+            placeables.map { it.width }.maxBy { it.value } ?: IntPx.Zero,
+            placeables.map { it.height }.maxBy { it.value } ?: IntPx.Zero
+        ))
 
-            layout(layoutSize.width, layoutSize.height) {
-                placeables.forEach { placeable ->
-                    placeable.place(IntPx.Zero, IntPx.Zero)
-                }
+        layout(layoutSize.width, layoutSize.height) {
+            placeables.forEach { placeable ->
+                placeable.place(IntPx.Zero, IntPx.Zero)
             }
-        },
-        children={})
+        }
+    }
 }
 
 private val OnPositionedKey = DataNodeKey<(LayoutCoordinates) -> Unit>("Compose:OnPositioned")

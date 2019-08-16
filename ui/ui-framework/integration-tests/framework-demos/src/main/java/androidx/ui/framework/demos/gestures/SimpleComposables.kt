@@ -129,7 +129,7 @@ internal fun Border(color: Color, width: Dp, children: @Composable() () -> Unit)
                 )
             }
         },
-        layoutBlock = { measurables, constraints ->
+        measureBlock = { measurables, constraints ->
             val placeable =
                 if (measurables.isNotEmpty()) measurables.first().measure(constraints) else null
             val layoutWidth = placeable?.width ?: constraints.maxWidth

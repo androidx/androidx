@@ -16,7 +16,6 @@
 
 package androidx.ui.core.selection
 
-import androidx.compose.Children
 import androidx.compose.Composable
 import androidx.compose.composer
 import androidx.compose.memo
@@ -65,41 +64,35 @@ fun SelectionContainer(
                     children()
                 }
             }
-            Layout(children = content, layoutBlock = { measurables, constraints ->
+            Layout(content) { measurables, constraints ->
                 val placeable = measurables.firstOrNull()?.measure(constraints)
                 val width = placeable?.width ?: constraints.minWidth
                 val height = placeable?.height ?: constraints.minHeight
                 layout(width, height) {
                     placeable?.place(0.ipx, 0.ipx)
                 }
-            })
+            }
         }
         val startHandle = @Composable {
             TouchSlopDragGestureDetector(
                 dragObserver = manager.handleDragObserver(dragStartHandle = true)
             ) {
-                Layout(
-                    children = { LeftPointingSelectionHandle() },
-                    layoutBlock = { _, constraints ->
-                        layout(constraints.minWidth, constraints.minHeight) {}
-                    })
+                Layout(children = { LeftPointingSelectionHandle() }) { _, constraints ->
+                    layout(constraints.minWidth, constraints.minHeight) {}
+                }
             }
         }
         val endHandle = @Composable {
             TouchSlopDragGestureDetector(
                 dragObserver = manager.handleDragObserver(dragStartHandle = false)
             ) {
-                Layout(
-                    children = { RightPointingSelectionHandle() },
-                    layoutBlock = { _, constraints ->
-                        layout(constraints.minWidth, constraints.minHeight) {}
-                    })
+                Layout(children = { RightPointingSelectionHandle() }) { _, constraints ->
+                    layout(constraints.minWidth, constraints.minHeight) {}
+                }
             }
         }
         @Suppress("USELESS_CAST")
-        (Layout(
-        childrenArray = arrayOf(content, startHandle, endHandle),
-        layoutBlock = { measurables, constraints ->
+        Layout(content, startHandle, endHandle) { measurables, constraints ->
             val placeable = measurables[0].measure(constraints)
             val width = placeable.width
             val height = placeable.height
@@ -135,6 +128,6 @@ fun SelectionContainer(
                     end.place(endOffset.x, endOffset.y)
                 }
             }
-        }))
+        }
     }
 }
