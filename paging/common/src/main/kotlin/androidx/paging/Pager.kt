@@ -43,8 +43,9 @@ internal class Pager<K : Any, V : Any>(
     private val detached = AtomicBoolean(false)
 
     var loadStateManager = object : PagedList.LoadStateManager() {
-        override fun onStateChanged(type: LoadType, state: LoadState, error: Throwable?) =
-            pageConsumer.onStateChanged(type, state, error)
+        override fun onStateChanged(type: LoadType, state: LoadState) {
+            pageConsumer.onStateChanged(type, state)
+        }
     }
 
     val isDetached
@@ -103,8 +104,11 @@ internal class Pager<K : Any, V : Any>(
                 else -> throw IllegalStateException("Can only fetch more during append/prepend")
             }
         } else {
-            val state = if (value.data.isEmpty()) LoadState.DONE else LoadState.IDLE
-            loadStateManager.setState(type, state, null)
+            if (value.data.isEmpty()) {
+                loadStateManager.setState(type, LoadState.Done)
+            } else {
+                loadStateManager.setState(type, LoadState.Idle)
+            }
         }
     }
 
@@ -112,19 +116,16 @@ internal class Pager<K : Any, V : Any>(
         if (isDetached) return // abort!
 
         // TODO: handle nesting
-        val state = when {
-            source.isRetryableError(throwable) -> LoadState.RETRYABLE_ERROR
-            else -> LoadState.ERROR
-        }
-        loadStateManager.setState(type, state, throwable)
+        val state = LoadState.Error(throwable, source.isRetryableError(throwable))
+        loadStateManager.setState(type, state)
     }
 
     fun trySchedulePrepend() {
-        if (loadStateManager.start == LoadState.IDLE) schedulePrepend()
+        if (loadStateManager.startState is LoadState.Idle) schedulePrepend()
     }
 
     fun tryScheduleAppend() {
-        if (loadStateManager.end == LoadState.IDLE) scheduleAppend()
+        if (loadStateManager.endState is LoadState.Idle) scheduleAppend()
     }
 
     private fun canPrepend() = when (totalCount) {
@@ -156,7 +157,7 @@ internal class Pager<K : Any, V : Any>(
             is KeyProvider.ItemKey -> keyProvider.getKey(adjacentProvider.firstLoadedItem!!)
         }
 
-        loadStateManager.setState(LoadType.START, LoadState.LOADING, null)
+        loadStateManager.setState(LoadType.START, LoadState.Loading)
 
         val loadParams = LoadParams(
             PagedSource.LoadType.START,
@@ -185,7 +186,7 @@ internal class Pager<K : Any, V : Any>(
             )
         }
 
-        loadStateManager.setState(LoadType.END, LoadState.LOADING, null)
+        loadStateManager.setState(LoadType.END, LoadState.Loading)
         val loadParams = LoadParams(
             PagedSource.LoadType.END,
             key,
@@ -197,8 +198,12 @@ internal class Pager<K : Any, V : Any>(
     }
 
     fun retry() {
-        if (loadStateManager.start == LoadState.RETRYABLE_ERROR) schedulePrepend()
-        if (loadStateManager.end == LoadState.RETRYABLE_ERROR) scheduleAppend()
+        loadStateManager.startState.run {
+            if (this is LoadState.Error && retryable) schedulePrepend()
+        }
+        loadStateManager.endState.run {
+            if (this is LoadState.Error && retryable) scheduleAppend()
+        }
     }
 
     fun detach() = detached.set(true)
@@ -209,7 +214,7 @@ internal class Pager<K : Any, V : Any>(
          */
         fun onPageResult(type: LoadType, pageResult: LoadResult<*, V>): Boolean
 
-        fun onStateChanged(type: LoadType, state: LoadState, error: Throwable?)
+        fun onStateChanged(type: LoadType, state: LoadState)
     }
 
     internal interface AdjacentProvider<V : Any> {

@@ -60,13 +60,11 @@ import java.util.concurrent.Executor
  * REFRESH events can be used to drive a [androidx.swiperefreshlayout.widget.SwipeRefreshLayout], or
  * START/END events can be used to drive loading spinner items in your `RecyclerView`.
  *
- * @param type [LoadType] - START, END, or REFRESH.
- * @param state [LoadState] - IDLE, LOADING, DONE, ERROR, or RETRYABLE_ERROR
- * @param error [Throwable] if in an error state, null otherwise.
- *
+ * @see [LoadState]
+ * @see [LoadType]
  * @see [PagedList.retry]
  */
-typealias LoadStateListener = (type: LoadType, state: LoadState, error: Throwable?) -> Unit
+typealias LoadStateListener = (type: LoadType, state: LoadState) -> Unit
 
 /**
  * Lazy loading list that pages in immutable content from a [PagedSource].
@@ -221,62 +219,63 @@ abstract class PagedList<T : Any> : AbstractList<T> {
      *
      * You can use a [LoadStateListener] to observe [LoadState] of any [LoadType]. For UI purposes
      * (swipe refresh, loading spinner, retry button), this is typically done by registering a
-     * Listener with the [androidx.paging.PagedListAdapter] or
+     * [LoadStateListener] with the [androidx.paging.PagedListAdapter] or
      * [androidx.paging.AsyncPagedListDiffer].
      *
      * @see LoadState
      */
     enum class LoadType {
         /**
-         * PagedList content being reloaded, may contain content updates.
+         * [PagedList] content being reloaded, may contain content updates.
          */
         REFRESH,
 
         /**
-         * Load at the start of the PagedList.
+         * Load at the start of the [PagedList].
          */
         START,
 
         /**
-         * Load at the end of the PagedList.
+         * Load at the end of the [PagedList].
          */
         END
     }
 
     /**
-     * State of a PagedList load - associated with a `LoadType`
+     * LoadState of a PagedList load - associated with a [LoadType]
      *
      * You can use a [LoadStateListener] to observe [LoadState] of any [LoadType]. For UI
      * purposes (swipe refresh, loading spinner, retry button), this is typically done by
      * registering a callback with the `PagedListAdapter` or `AsyncPagedListDiffer`.
+     *
+     * @see LoadType
      */
-    enum class LoadState {
+    sealed class LoadState {
         /**
          * Indicates the PagedList is not currently loading, and no error currently observed.
          */
-        IDLE,
+        object Idle : LoadState()
 
         /**
          * Loading is in progress.
          */
-        LOADING,
+        object Loading : LoadState()
 
         /**
          * Loading is complete.
          */
-        DONE,
+        object Done : LoadState()
 
         /**
-         * Loading hit a non-retryable error.
-         */
-        ERROR,
-
-        /**
-         * Loading hit a retryable error.
+         * Loading hit an error.
+         *
+         * @param error [Throwable] that caused the load operation to generate this error state.
+         * @param retryable `true if the load operation that generated this error state can be
+         * retried, `false` otherwise.
          *
          * @see retry
          */
-        RETRYABLE_ERROR
+        data class Error(val error: Throwable, val retryable: Boolean) : LoadState()
     }
 
     /**
@@ -900,56 +899,40 @@ abstract class PagedList<T : Any> : AbstractList<T> {
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     abstract class LoadStateManager {
-        var refresh = LoadState.IDLE
-            private set
-        private var refreshError: Throwable? = null
-        var start = LoadState.IDLE
-            private set
-        private var startError: Throwable? = null
-        var end = LoadState.IDLE
-            private set
-        private var endError: Throwable? = null
+        var refreshState: LoadState = LoadState.Idle
+        var startState: LoadState = LoadState.Idle
+        var endState: LoadState = LoadState.Idle
 
-        fun setState(type: LoadType, state: LoadState, error: Throwable?) {
-            val expectError = state == LoadState.RETRYABLE_ERROR || state == LoadState.ERROR
-            val hasError = error != null
-            if (expectError != hasError) {
-                throw IllegalArgumentException(
-                    "Error states must be accompanied by a throwable, other states must not"
-                )
-            }
-
+        fun setState(type: LoadType, state: LoadState) {
             // deduplicate signals
             when (type) {
                 LoadType.REFRESH -> {
-                    if (refresh == state && refreshError == error) return
-                    refresh = state
-                    refreshError = error
+                    if (refreshState == state) return
+                    refreshState = state
                 }
                 LoadType.START -> {
-                    if (start == state && startError == error) return
-                    start = state
-                    startError = error
+                    if (startState == state) return
+                    startState = state
                 }
                 LoadType.END -> {
-                    if (end == state && endError == error) return
-                    end = state
-                    endError = error
+                    if (endState == state) return
+                    endState = state
                 }
             }
-            onStateChanged(type, state, error)
+
+            onStateChanged(type, state)
         }
 
         /**
          * @hide
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // protected otherwise.
-        abstract fun onStateChanged(type: LoadType, state: LoadState, error: Throwable?)
+        abstract fun onStateChanged(type: LoadType, state: LoadState)
 
         fun dispatchCurrentLoadState(callback: LoadStateListener) {
-            callback(LoadType.REFRESH, refresh, refreshError)
-            callback(LoadType.START, start, startError)
-            callback(LoadType.END, end, endError)
+            callback(LoadType.REFRESH, refreshState)
+            callback(LoadType.START, startState)
+            callback(LoadType.END, endState)
         }
     }
 
@@ -1160,7 +1143,7 @@ abstract class PagedList<T : Any> : AbstractList<T> {
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    open fun setInitialLoadState(loadState: LoadState, error: Throwable?) {
+    open fun setInitialLoadState(loadType: LoadType, loadState: LoadState) {
     }
 
     /**
@@ -1187,9 +1170,9 @@ abstract class PagedList<T : Any> : AbstractList<T> {
         this.refreshRetryCallback = refreshRetryCallback
     }
 
-    internal fun dispatchStateChange(type: LoadType, state: LoadState, error: Throwable?) {
+    internal fun dispatchStateChange(type: LoadType, state: LoadState) {
         loadStateListeners.removeAll { it.get() == null }
-        loadStateListeners.forEach { it.get()?.invoke(type, state, error) }
+        loadStateListeners.forEach { it.get()?.invoke(type, state) }
     }
 
     /**

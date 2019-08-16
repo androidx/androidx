@@ -137,7 +137,7 @@ package androidx.paging {
 
   public abstract class PagedList<T> extends java.util.AbstractList<T> {
     method public void addWeakCallback(java.util.List<? extends T>? previousSnapshot, androidx.paging.PagedList.Callback callback);
-    method public void addWeakLoadStateListener(kotlin.jvm.functions.Function3<? super androidx.paging.PagedList.LoadType,? super androidx.paging.PagedList.LoadState,? super java.lang.Throwable,kotlin.Unit> listener);
+    method public void addWeakLoadStateListener(kotlin.jvm.functions.Function2<? super androidx.paging.PagedList.LoadType,? super androidx.paging.PagedList.LoadState,kotlin.Unit> listener);
     method public abstract void detach();
     method public T? get(int index);
     method public androidx.paging.PagedList.Config getConfig();
@@ -151,7 +151,7 @@ package androidx.paging {
     method public boolean isImmutable();
     method public void loadAround(int index);
     method public void removeWeakCallback(androidx.paging.PagedList.Callback callback);
-    method public void removeWeakLoadStateListener(kotlin.jvm.functions.Function3<? super androidx.paging.PagedList.LoadType,? super androidx.paging.PagedList.LoadState,? super java.lang.Throwable,kotlin.Unit> listener);
+    method public void removeWeakLoadStateListener(kotlin.jvm.functions.Function2<? super androidx.paging.PagedList.LoadType,? super androidx.paging.PagedList.LoadState,kotlin.Unit> listener);
     method public void retry();
     method public java.util.List<T> snapshot();
     property public androidx.paging.PagedList.Config config;
@@ -214,12 +214,28 @@ package androidx.paging {
     method public androidx.paging.PagedList.Config.Builder setPrefetchDistance(@IntRange(from=0) int prefetchDistance);
   }
 
-  public enum PagedList.LoadState {
-    enum_constant public static final androidx.paging.PagedList.LoadState DONE;
-    enum_constant public static final androidx.paging.PagedList.LoadState ERROR;
-    enum_constant public static final androidx.paging.PagedList.LoadState IDLE;
-    enum_constant public static final androidx.paging.PagedList.LoadState LOADING;
-    enum_constant public static final androidx.paging.PagedList.LoadState RETRYABLE_ERROR;
+  public abstract static sealed class PagedList.LoadState {
+  }
+
+  public static final class PagedList.LoadState.Done extends androidx.paging.PagedList.LoadState {
+    field public static final androidx.paging.PagedList.LoadState.Done! INSTANCE;
+  }
+
+  public static final class PagedList.LoadState.Error extends androidx.paging.PagedList.LoadState {
+    ctor public PagedList.LoadState.Error(Throwable error, boolean retryable);
+    method public Throwable component1();
+    method public boolean component2();
+    method public androidx.paging.PagedList.LoadState.Error copy(Throwable error, boolean retryable);
+    method public Throwable getError();
+    method public boolean getRetryable();
+  }
+
+  public static final class PagedList.LoadState.Idle extends androidx.paging.PagedList.LoadState {
+    field public static final androidx.paging.PagedList.LoadState.Idle! INSTANCE;
+  }
+
+  public static final class PagedList.LoadState.Loading extends androidx.paging.PagedList.LoadState {
+    field public static final androidx.paging.PagedList.LoadState.Loading! INSTANCE;
   }
 
   public enum PagedList.LoadType {

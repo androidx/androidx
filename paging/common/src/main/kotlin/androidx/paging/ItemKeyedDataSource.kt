@@ -38,8 +38,8 @@ import kotlin.coroutines.resume
  * [Retrofit](https://square.github.io/retrofit/), while handling swipe-to-refresh, network errors,
  * and retry.
  *
- * @param Key Type of data used to query Value types out of the DataSource.
- * @param Value Type of items being loaded by the DataSource.
+ * @param Key Type of data used to query Value types out of the [DataSource].
+ * @param Value Type of items being loaded by the [DataSource].
  */
 abstract class ItemKeyedDataSource<Key : Any, Value : Any> : DataSource<Key, Value>(ITEM_KEYED) {
 

@@ -18,6 +18,9 @@ package androidx.paging
 
 import androidx.arch.core.executor.ArchTaskExecutor
 import androidx.lifecycle.LiveData
+import androidx.paging.PagedList.LoadType.REFRESH
+import androidx.paging.PagedList.LoadState.Error
+import androidx.paging.PagedList.LoadState.Loading
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -59,13 +62,8 @@ internal class LivePagedList<Key : Any, Value : Any>(
     }
 
     private fun onError(throwable: Throwable) {
-        val loadState = if (currentData.pagedSource.isRetryableError(throwable)) {
-            PagedList.LoadState.RETRYABLE_ERROR
-        } else {
-            PagedList.LoadState.ERROR
-        }
-
-        currentData.setInitialLoadState(loadState, throwable)
+        val loadState = Error(throwable, (currentData.pagedSource.isRetryableError(throwable)))
+        currentData.setInitialLoadState(REFRESH, loadState)
     }
 
     private fun onSuccess(value: PagedList<Value>) {
@@ -104,7 +102,7 @@ internal class LivePagedList<Key : Any, Value : Any>(
         pagedSource.registerInvalidatedCallback(callback)
 
         withContext(notifyDispatcher) {
-            currentData.setInitialLoadState(PagedList.LoadState.LOADING, null)
+            currentData.setInitialLoadState(REFRESH, Loading)
         }
 
         @Suppress("UNCHECKED_CAST") // getLastKey guaranteed to be of 'Key' type

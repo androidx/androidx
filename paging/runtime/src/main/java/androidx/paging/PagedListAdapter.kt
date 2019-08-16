@@ -173,7 +173,7 @@ abstract class PagedListAdapter<T : Any, VH : RecyclerView.ViewHolder> : Recycle
      *
      * @param pagedList The new list to be displayed.
      * @param commitCallback Optional runnable that is executed when the PagedList is committed, if
-     *                       it is committed.
+     * it is committed.
      */
     open fun submitList(pagedList: PagedList<T>?, commitCallback: Runnable?) =
         differ.submitList(pagedList, commitCallback)
@@ -217,8 +217,8 @@ abstract class PagedListAdapter<T : Any, VH : RecyclerView.ViewHolder> : Recycle
      * to a snapshot version of the PagedList during a diff. This means you cannot observe each
      * PagedList via this method.
      *
-     * @param previousList PagedList that was previously displayed, may be null.
-     * @param currentList new PagedList being displayed, may be null.
+     * @param previousList [PagedList] that was previously displayed, may be null.
+     * @param currentList new [PagedList] being displayed, may be null.
      *
      * @see currentList
      */
@@ -226,17 +226,15 @@ abstract class PagedListAdapter<T : Any, VH : RecyclerView.ViewHolder> : Recycle
     }
 
     /**
-     * Called when the LoadState for a particular type of load (START, END, REFRESH) has
-     * changed.
+     * Called when the [LoadState] for a particular type of load (START, END, REFRESH) has changed.
      *
      * REFRESH events can be used to drive a `SwipeRefreshLayout`, or START/END events
      * can be used to drive loading spinner items in the Adapter.
      *
-     * @param type Type of load - START, END, or REFRESH.
-     * @param state State of load - IDLE, LOADING, DONE, ERROR, or RETRYABLE_ERROR
-     * @param error Error, if in an error state, null otherwise.
+     * @param type [LoadType] Can be START, END, or REFRESH
+     * @param state [LoadState] IDLE, LOADING, DONE, ERROR, or RETRYABLE_ERROR
      */
-    open fun onLoadStateChanged(type: LoadType, state: LoadState, error: Throwable?) {
+    open fun onLoadStateChanged(type: LoadType, state: LoadState) {
     }
 
     /**
