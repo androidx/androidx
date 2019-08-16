@@ -180,7 +180,7 @@ public class WorkerWrapperTest extends DatabaseTest {
         assertThat(mWorkSpecDao.getState(work.getStringId()), is(FAILED));
     }
 
-    @Test
+    @Test(expected = IllegalStateException.class)
     @SmallTest
     public void testUsedWorker_failsExecution() {
         OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class).build();
@@ -205,7 +205,6 @@ public class WorkerWrapperTest extends DatabaseTest {
                 .withWorker(usedWorker)
                 .build();
         workerWrapper.run();
-        assertThat(mWorkSpecDao.getState(work.getStringId()), is(FAILED));
     }
 
     @Test
