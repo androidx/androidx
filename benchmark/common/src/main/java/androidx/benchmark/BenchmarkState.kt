@@ -58,7 +58,7 @@ class BenchmarkState {
     /** @hide */
     @Suppress("ConvertSecondaryConstructorToPrimary")
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    constructor() {}
+    constructor()
 
     private var warmupIteration = 0 // increasing iteration count during warmup
 
@@ -545,7 +545,7 @@ class BenchmarkState {
                 Errors.acquireWarningStringForLogging()?.split("\n") ?: listOf()
             return (warningLines + ideSummaryLine(key, nanos))
                 // remove first line if empty
-                .filterIndexed { index, it -> index != 0 || !it.isEmpty() }
+                .filterIndexed { index, it -> index != 0 || it.isNotEmpty() }
                 // join, prepending key to everything but first string,
                 // to make each line look the same
                 .joinToString("\n$STUDIO_OUTPUT_KEY_ID: ")
