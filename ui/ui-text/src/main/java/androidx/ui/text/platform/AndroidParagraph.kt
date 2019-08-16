@@ -284,9 +284,15 @@ internal class AndroidParagraph constructor(
         ensureLayout.isEllipsisApplied(lineIndex)
 
     override fun paint(canvas: Canvas) {
-        val tmpLayout = layout ?: throw IllegalStateException("paint cannot be " +
-                "called before layout() is called")
-        tmpLayout.paint(canvas.nativeCanvas)
+        val nativeCanvas = canvas.nativeCanvas
+        if (didExceedMaxLines) {
+            nativeCanvas.save()
+            nativeCanvas.clipRect(0f, 0f, width, height)
+        }
+        ensureLayout.paint(nativeCanvas)
+        if (didExceedMaxLines) {
+            nativeCanvas.restore()
+        }
     }
 
     private fun createTypeface(style: TextStyle): Typeface {

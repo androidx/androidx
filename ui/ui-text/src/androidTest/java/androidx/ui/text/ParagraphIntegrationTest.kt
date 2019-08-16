@@ -35,20 +35,25 @@ import androidx.ui.text.FontTestData.Companion.FONT_200_REGULAR
 import androidx.ui.text.font.FontFamily
 import androidx.ui.text.font.asFontFamily
 import androidx.ui.graphics.Color
+import androidx.ui.painting.Canvas
+import androidx.ui.painting.Image
+import androidx.ui.painting.ImageConfig
 import androidx.ui.text.matchers.equalToBitmap
 import androidx.ui.painting.Path
 import androidx.ui.painting.PathOperation
 import androidx.ui.painting.Shadow
 import androidx.ui.text.style.TextAlign
 import androidx.ui.text.style.TextIndent
-import com.nhaarman.mockitokotlin2.mock
 import org.hamcrest.Matchers.equalTo
+import org.hamcrest.Matchers.greaterThan
 import org.hamcrest.Matchers.not
 import org.junit.Assert.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import java.util.Locale
+import org.mockito.Mockito.mock
+import kotlin.math.roundToInt
 
 @RunWith(JUnit4::class)
 @SmallTest
@@ -1112,6 +1117,51 @@ class ParagraphIntegrationTest {
             paragraph.layout(ParagraphConstraints(width = 200f))
             val expectHeight = (lineCount + (lineCount - 1) * 0.2f) * fontSizeInPx
             assertThat(paragraph.height, equalTo(expectHeight))
+        }
+    }
+
+    @Test
+    fun maxLines_paintDifferently() {
+        withDensity(defaultDensity) {
+            val text = "a\na\na"
+            val fontSize = 100.sp
+            val fontSizeInPx = fontSize.toPx().value
+            val maxLines = 1
+
+            val paragraphWithMaxLine = simpleParagraph(
+                text = text,
+                fontSize = fontSize,
+                maxLines = maxLines
+            )
+            paragraphWithMaxLine.layout(ParagraphConstraints(width = fontSizeInPx))
+
+            val paragraphNoMaxLine = simpleParagraph(
+                text = text,
+                fontSize = fontSize
+            )
+            paragraphNoMaxLine.layout(ParagraphConstraints(width = fontSizeInPx))
+
+            // Make sure the maxLine is applied correctly
+            assertThat(paragraphNoMaxLine.height, greaterThan(paragraphWithMaxLine.height))
+
+            val imageNoMaxLine = Image(
+                paragraphNoMaxLine.width.roundToInt(),
+                paragraphNoMaxLine.height.roundToInt(),
+                ImageConfig.Argb8888
+            )
+            // Same size with imageNoMaxLine for comparison
+            val imageWithMaxLine = Image(
+                paragraphNoMaxLine.width.roundToInt(),
+                paragraphNoMaxLine.height.roundToInt(),
+                ImageConfig.Argb8888
+            )
+
+            paragraphNoMaxLine.paint(Canvas(imageNoMaxLine))
+            paragraphWithMaxLine.paint(Canvas(imageWithMaxLine))
+            assertThat(
+                imageNoMaxLine.nativeImage,
+                not(equalToBitmap(imageWithMaxLine.nativeImage))
+            )
         }
     }
 
@@ -2497,7 +2547,7 @@ class ParagraphIntegrationTest {
     fun paint_throws_exception_if_layout_is_not_called() {
         val paragraph = simpleParagraph()
 
-        paragraph.paint(mock())
+        paragraph.paint(mock(Canvas::class.java))
     }
 
     @Test(expected = IllegalStateException::class)
