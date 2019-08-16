@@ -39,6 +39,7 @@ import androidx.camera.core.ImageOutputConfig.RotationValue;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 
 import com.google.auto.value.AutoValue;
+import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.Map;
 import java.util.Objects;
@@ -504,10 +505,37 @@ public class Preview extends UseCase {
         UNKNOWN_ERROR
     }
 
-    /** A listener of {@link PreviewOutput}. */
+    /**
+     * A listener of {@link PreviewOutput}.
+     *
+     * TODO(b/117519540): Mark as deprecated once PreviewSurfaceCallback is ready.
+     */
     public interface OnPreviewOutputUpdateListener {
         /** Callback when PreviewOutput has been updated. */
         void onUpdated(PreviewOutput output);
+    }
+
+    /**
+     * A callback to access the Preview Surface.
+     */
+    public interface PreviewSurfaceCallback {
+
+        /**
+         * Get preview output Surface with the given resolution and format.
+         *
+         * <p> This is called when Preview needs a valid Surface. e.g. when the Preview is bound
+         * to lifecycle or the current Surface is no longer valid. When that happens, the
+         * implementation is required to create a Surface with the given resolution/format.
+         *
+         * <p> The Surface should be released after the use case is no longer active. If released
+         * prematurely, the implementation will be asked to provide a new Surface via this method.
+         *
+         * @param resolution the resolution required by CameraX.
+         * @param imageFormat the {@link ImageFormat} required by CameraX.
+         * @return A ListenableFuture that contains the user created Surface.
+         */
+        @NonNull
+        ListenableFuture<Surface> getSurface(@NonNull Size resolution, int imageFormat);
     }
 
     /**
