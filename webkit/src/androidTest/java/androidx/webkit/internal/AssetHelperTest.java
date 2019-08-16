@@ -17,7 +17,6 @@
 package androidx.webkit.internal;
 
 import android.content.Context;
-import android.net.Uri;
 import android.util.Log;
 
 import androidx.test.InstrumentationRegistry;
@@ -61,7 +60,7 @@ public class AssetHelperTest {
     @Test
     @SmallTest
     public void testOpenExistingResource() {
-        InputStream stream = mAssetHelper.openResource(Uri.parse("raw/test.txt"));
+        InputStream stream = mAssetHelper.openResource("raw/test.txt");
 
         Assert.assertNotNull("failed to open resource raw/test.txt", stream);
         Assert.assertEquals(readAsString(stream), TEST_STRING);
@@ -70,7 +69,7 @@ public class AssetHelperTest {
     @Test
     @SmallTest
     public void testOpenExistingResourceWithLeadingSlash() {
-        InputStream stream = mAssetHelper.openResource(Uri.parse("/raw/test"));
+        InputStream stream = mAssetHelper.openResource("/raw/test");
 
         Assert.assertNotNull("failed to open resource /raw/test.txt with leading slash", stream);
         Assert.assertEquals(readAsString(stream), TEST_STRING);
@@ -79,7 +78,7 @@ public class AssetHelperTest {
     @Test
     @SmallTest
     public void testOpenExistingResourceWithNoExtension() {
-        InputStream stream = mAssetHelper.openResource(Uri.parse("raw/test"));
+        InputStream stream = mAssetHelper.openResource("raw/test");
 
         Assert.assertNotNull("failed to open resource raw/test with no extension", stream);
         Assert.assertEquals(readAsString(stream), TEST_STRING);
@@ -89,19 +88,19 @@ public class AssetHelperTest {
     @SmallTest
     public void testOpenInvalidResources() {
         Assert.assertNull("raw/nonexist_file.html doesn't exist - should fail",
-                          mAssetHelper.openResource(Uri.parse("raw/nonexist_file.html")));
+                          mAssetHelper.openResource("raw/nonexist_file.html"));
 
         Assert.assertNull("test.txt doesn't have a resource type - should fail",
-                          mAssetHelper.openResource(Uri.parse("test.txt")));
+                          mAssetHelper.openResource("test.txt"));
 
         Assert.assertNull("resource with \"/android_res\" prefix should fail",
-                          mAssetHelper.openResource(Uri.parse("/android_res/raw/test.txt")));
+                          mAssetHelper.openResource("/android_res/raw/test.txt"));
     }
 
     @Test
     @SmallTest
     public void testOpenExistingAsset() {
-        InputStream stream = mAssetHelper.openAsset(Uri.parse("text/test.txt"));
+        InputStream stream = mAssetHelper.openAsset("text/test.txt");
 
         Assert.assertNotNull("failed to open asset text/test.txt", stream);
         Assert.assertEquals(readAsString(stream), TEST_STRING);
@@ -110,7 +109,7 @@ public class AssetHelperTest {
     @Test
     @SmallTest
     public void testOpenExistingAssetWithLeadingSlash() {
-        InputStream stream = mAssetHelper.openAsset(Uri.parse("/text/test.txt"));
+        InputStream stream = mAssetHelper.openAsset("/text/test.txt");
 
         Assert.assertNotNull("failed to open asset /text/test.txt with leading slash", stream);
         Assert.assertEquals(readAsString(stream), TEST_STRING);
@@ -120,16 +119,28 @@ public class AssetHelperTest {
     @SmallTest
     public void testOpenInvalidAssets() {
         Assert.assertNull("nonexist_file.html doesn't exist - should fail",
-                          mAssetHelper.openAsset(Uri.parse("nonexist_file.html")));
+                          mAssetHelper.openAsset("nonexist_file.html"));
 
         Assert.assertNull("asset with \"/android_asset\" prefix should fail",
-                          mAssetHelper.openAsset(Uri.parse("/android_asset/test.txt")));
+                          mAssetHelper.openAsset("/android_asset/test.txt"));
     }
 
     @Test
     @MediumTest
     public void testOpenFileFromInternalStorage() throws Throwable {
         File testFile = new File(mInternalStorageTestDir, "some_file.txt");
+        WebkitUtils.writeToFile(testFile, TEST_STRING);
+
+        InputStream stream = AssetHelper.openFile(testFile);
+        Assert.assertNotNull("Should be able to open \"" + testFile + "\" from internal storage",
+                stream);
+        Assert.assertEquals(readAsString(stream), TEST_STRING);
+    }
+
+    @Test
+    @MediumTest
+    public void testOpenFileNameWhichResemblesUriScheme() throws Throwable {
+        File testFile = new File(mInternalStorageTestDir, "obb/obb:11/test/some_file.txt");
         WebkitUtils.writeToFile(testFile, TEST_STRING);
 
         InputStream stream = AssetHelper.openFile(testFile);
@@ -195,10 +206,10 @@ public class AssetHelperTest {
         InputStream svgStream = null;
         InputStream svgzStream = null;
         try {
-            svgStream = assertOpen(Uri.parse("star.svg"));
+            svgStream = assertOpen("star.svg");
             byte[] expectedData = readFully(svgStream);
 
-            svgzStream = assertOpen(Uri.parse("star.svgz"));
+            svgzStream = assertOpen("star.svgz");
             byte[] actualData = readFully(svgzStream);
 
             Assert.assertArrayEquals(
@@ -209,9 +220,9 @@ public class AssetHelperTest {
         }
     }
 
-    private InputStream assertOpen(Uri uri) {
-        InputStream stream = mAssetHelper.openAsset(uri);
-        Assert.assertNotNull("Failed to open \"" + uri + "\"", stream);
+    private InputStream assertOpen(String path) {
+        InputStream stream = mAssetHelper.openAsset(path);
+        Assert.assertNotNull("Failed to open \"" + path + "\"", stream);
         return stream;
     }
 
