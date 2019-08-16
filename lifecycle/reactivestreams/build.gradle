@@ -31,18 +31,18 @@ android {
 }
 
 dependencies {
-    api("androidx.arch.core:core-common:2.1.0-rc01")
+    api("androidx.arch.core:core-common:2.1.0")
     api(project(":lifecycle:lifecycle-common"))
     api(project(":lifecycle:lifecycle-livedata"))
     api(project(":lifecycle:lifecycle-runtime"))
-    api(project(":annotation"))
+    api("androidx.annotation:annotation:1.1.0")
     api(REACTIVE_STREAMS)
 
     annotationProcessor(NULLAWAY)
 
     testImplementation(JUNIT)
     testImplementation(RX_JAVA)
-    testImplementation("androidx.arch.core:core-testing:2.1.0-rc01")
+    testImplementation("androidx.arch.core:core-testing:2.1.0")
 }
 
 androidx {
