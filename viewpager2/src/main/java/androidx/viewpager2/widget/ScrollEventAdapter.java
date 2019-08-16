@@ -16,8 +16,6 @@
 
 package androidx.viewpager2.widget;
 
-import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
-
 import static androidx.viewpager2.widget.ViewPager2.ORIENTATION_HORIZONTAL;
 import static androidx.viewpager2.widget.ViewPager2.SCROLL_STATE_DRAGGING;
 import static androidx.viewpager2.widget.ViewPager2.SCROLL_STATE_IDLE;
@@ -27,6 +25,7 @@ import static androidx.viewpager2.widget.ViewPager2.ScrollState;
 import static java.lang.annotation.RetentionPolicy.SOURCE;
 
 import android.view.View;
+import android.view.ViewGroup.LayoutParams;
 import android.view.ViewGroup.MarginLayoutParams;
 
 import androidx.annotation.IntDef;
@@ -44,13 +43,6 @@ import java.util.Locale;
  * relative to the pages and exposes this position via ({@link #getRelativeScrollPosition()}.
  */
 final class ScrollEventAdapter extends RecyclerView.OnScrollListener {
-    private static final MarginLayoutParams ZERO_MARGIN_LAYOUT_PARAMS;
-
-    static {
-        ZERO_MARGIN_LAYOUT_PARAMS = new MarginLayoutParams(MATCH_PARENT, MATCH_PARENT);
-        ZERO_MARGIN_LAYOUT_PARAMS.setMargins(0, 0, 0, 0);
-    }
-
     /** @hide */
     @Retention(SOURCE)
     @IntDef({STATE_IDLE, STATE_IN_PROGRESS_MANUAL_DRAG, STATE_IN_PROGRESS_SMOOTH_SCROLL,
@@ -67,8 +59,9 @@ final class ScrollEventAdapter extends RecyclerView.OnScrollListener {
     private static final int NO_POSITION = -1;
 
     private OnPageChangeCallback mCallback;
-    private final @NonNull LinearLayoutManager mLayoutManager;
     private final @NonNull ViewPager2 mViewPager;
+    private final @NonNull RecyclerView mRecyclerView;
+    private final @NonNull LinearLayoutManager mLayoutManager;
 
     // state related fields
     private @AdapterState int mAdapterState;
@@ -82,8 +75,10 @@ final class ScrollEventAdapter extends RecyclerView.OnScrollListener {
     private boolean mFakeDragging;
 
     ScrollEventAdapter(@NonNull ViewPager2 viewPager) {
-        mLayoutManager = viewPager.mLayoutManager;
         mViewPager = viewPager;
+        mRecyclerView = mViewPager.mRecyclerView;
+        //noinspection ConstantConditions
+        mLayoutManager = (LinearLayoutManager) mRecyclerView.getLayoutManager();
         mScrollValues = new ScrollEventValues();
         resetState();
     }
@@ -239,23 +234,34 @@ final class ScrollEventAdapter extends RecyclerView.OnScrollListener {
             return;
         }
 
-        MarginLayoutParams margin =
-                (firstVisibleView.getLayoutParams() instanceof MarginLayoutParams)
-                        ? (MarginLayoutParams) firstVisibleView.getLayoutParams()
-                        : ZERO_MARGIN_LAYOUT_PARAMS;
+        int leftDecorations = mLayoutManager.getLeftDecorationWidth(firstVisibleView);
+        int rightDecorations = mLayoutManager.getRightDecorationWidth(firstVisibleView);
+        int topDecorations = mLayoutManager.getTopDecorationHeight(firstVisibleView);
+        int bottomDecorations = mLayoutManager.getBottomDecorationHeight(firstVisibleView);
+
+        LayoutParams params = firstVisibleView.getLayoutParams();
+        if (params instanceof MarginLayoutParams) {
+            MarginLayoutParams margin = (MarginLayoutParams) params;
+            leftDecorations += margin.leftMargin;
+            rightDecorations += margin.rightMargin;
+            topDecorations += margin.topMargin;
+            bottomDecorations += margin.bottomMargin;
+        }
+
+        int decoratedHeight = firstVisibleView.getHeight() + topDecorations + bottomDecorations;
+        int decoratedWidth = firstVisibleView.getWidth() + leftDecorations + rightDecorations;
 
         boolean isHorizontal = mLayoutManager.getOrientation() == ORIENTATION_HORIZONTAL;
         int start, sizePx;
         if (isHorizontal) {
-            sizePx = firstVisibleView.getWidth() + margin.leftMargin + margin.rightMargin;
-            if (!mViewPager.isRtl()) {
-                start = firstVisibleView.getLeft() - margin.leftMargin;
-            } else {
-                start = sizePx - firstVisibleView.getRight() - margin.rightMargin;
+            sizePx = decoratedWidth;
+            start = firstVisibleView.getLeft() - leftDecorations - mRecyclerView.getPaddingLeft();
+            if (mViewPager.isRtl()) {
+                start = -start;
             }
         } else {
-            sizePx = firstVisibleView.getHeight() + margin.topMargin + margin.bottomMargin;
-            start = firstVisibleView.getTop() - margin.topMargin;
+            sizePx = decoratedHeight;
+            start = firstVisibleView.getTop() - topDecorations - mRecyclerView.getPaddingTop();
         }
 
         values.mOffsetPx = -start;
