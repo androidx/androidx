@@ -15,13 +15,6 @@
   ~ limitations under the License.
   -->
 <resources>
-    <color name="car_primary_text">@color/car_primary_text_dark</color>
-    <color name="car_secondary_text">@color/car_secondary_text_dark</color>
-
-    <!-- Deprecated. Mapping to primary and secondary text colors until removal. -->
-    <color name="car_body1">@color/car_primary_text_dark</color>
-    <color name="car_body2">@color/car_primary_text_dark</color>
-
     <color name="car_tint">@color/car_tint_light</color>
 
     <color name="car_card_dark">@color/car_grey_958</color>
