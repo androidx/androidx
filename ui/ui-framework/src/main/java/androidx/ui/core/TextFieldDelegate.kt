@@ -88,7 +88,7 @@ internal class TextFieldDelegate {
             // We anyway need to compute layout for preventing NPE during draw which require layout
             // result.
             // TODO(nona): Fix this?
-            textDelegate.layout(constraints)
+            textDelegate.layout(Constraints.tightConstraintsForWidth(constraints.maxWidth))
 
             val isEmptyText = textDelegate.text.text.isEmpty()
             val height = if (isEmptyText) {
