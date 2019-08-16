@@ -258,9 +258,12 @@ package androidx.browser.trusted {
     method public androidx.browser.trusted.TrustedWebActivityIntentBuilder setColorScheme(int);
     method public androidx.browser.trusted.TrustedWebActivityIntentBuilder setColorSchemeParams(int, androidx.browser.customtabs.CustomTabColorSchemeParams);
     method public androidx.browser.trusted.TrustedWebActivityIntentBuilder setNavigationBarColor(@ColorInt int);
+    method public androidx.browser.trusted.TrustedWebActivityIntentBuilder setShareParams(androidx.browser.trusted.sharing.ShareTarget, androidx.browser.trusted.sharing.ShareData);
     method public androidx.browser.trusted.TrustedWebActivityIntentBuilder setSplashScreenParams(android.os.Bundle);
     method public androidx.browser.trusted.TrustedWebActivityIntentBuilder setToolbarColor(@ColorInt int);
     field public static final String EXTRA_ADDITIONAL_TRUSTED_ORIGINS = "android.support.customtabs.extra.ADDITIONAL_TRUSTED_ORIGINS";
+    field public static final String EXTRA_SHARE_DATA = "androidx.browser.trusted.extra.SHARE_DATA";
+    field public static final String EXTRA_SHARE_TARGET = "androidx.browser.trusted.extra.SHARE_TARGET";
     field public static final String EXTRA_SPLASH_SCREEN_PARAMS = "androidx.browser.trusted.EXTRA_SPLASH_SCREEN_PARAMS";
   }
 
@@ -299,6 +302,58 @@ package androidx.browser.trusted {
     method public android.graphics.Bitmap? getSmallIconBitmap();
     method public int getSmallIconId();
     method public boolean notify(String, int, android.app.Notification, String);
+  }
+
+}
+
+package androidx.browser.trusted.sharing {
+
+  public final class ShareData {
+    ctor public ShareData(String?, String?, java.util.List<android.net.Uri!>?);
+    method public static androidx.browser.trusted.sharing.ShareData fromBundle(android.os.Bundle);
+    method public android.os.Bundle toBundle();
+    field public static final String KEY_TEXT = "androidx.browser.trusted.sharing.KEY_TEXT";
+    field public static final String KEY_TITLE = "androidx.browser.trusted.sharing.KEY_TITLE";
+    field public static final String KEY_URIS = "androidx.browser.trusted.sharing.KEY_URIS";
+    field public final String? text;
+    field public final String? title;
+    field public final java.util.List<android.net.Uri!>? uris;
+  }
+
+  public final class ShareTarget {
+    ctor public ShareTarget(String, String?, String?, androidx.browser.trusted.sharing.ShareTarget.Params);
+    method public static androidx.browser.trusted.sharing.ShareTarget? fromBundle(android.os.Bundle);
+    method public android.os.Bundle toBundle();
+    field public static final String ENCODING_TYPE_MULTIPART = "multipart/form-data";
+    field public static final String ENCODING_TYPE_URL_ENCODED = "application/x-www-form-urlencoded";
+    field public static final String KEY_ACTION = "androidx.browser.trusted.sharing.KEY_ACTION";
+    field public static final String KEY_ENCTYPE = "androidx.browser.trusted.sharing.KEY_ENCTYPE";
+    field public static final String KEY_METHOD = "androidx.browser.trusted.sharing.KEY_METHOD";
+    field public static final String KEY_PARAMS = "androidx.browser.trusted.sharing.KEY_PARAMS";
+    field public static final String METHOD_GET = "GET";
+    field public static final String METHOD_POST = "POST";
+    field public final String action;
+    field public final String? encodingType;
+    field public final String? method;
+    field public final androidx.browser.trusted.sharing.ShareTarget.Params params;
+  }
+
+  public static class ShareTarget.FileFormField {
+    ctor public ShareTarget.FileFormField(String, java.util.List<java.lang.String!>);
+    field public static final String KEY_ACCEPTED_TYPES = "androidx.browser.trusted.sharing.KEY_ACCEPTED_TYPES";
+    field public static final String KEY_NAME = "androidx.browser.trusted.sharing.KEY_FILE_NAME";
+    field public final java.util.List<java.lang.String!> acceptedTypes;
+    field public final String name;
+  }
+
+  public static class ShareTarget.Params {
+    ctor public ShareTarget.Params(String?, String?, java.util.List<androidx.browser.trusted.sharing.ShareTarget.FileFormField!>?);
+    field public static final String KEY_FILES = "androidx.browser.trusted.sharing.KEY_FILES";
+    field public static final String KEY_TEXT = "androidx.browser.trusted.sharing.KEY_TEXT";
+    field public static final String KEY_TITLE = "androidx.browser.trusted.sharing.KEY_TITLE";
+    field public final java.util.List<androidx.browser.trusted.sharing.ShareTarget.FileFormField!>? files;
+    field public final String? text;
+    field public final String? title;
   }
 
 }

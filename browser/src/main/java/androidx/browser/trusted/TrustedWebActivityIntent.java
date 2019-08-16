@@ -18,9 +18,12 @@ package androidx.browser.trusted;
 
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
+
+import java.util.List;
 
 /**
  * Holds an {@link Intent} and other data necessary to start a Trusted Web Activity.
@@ -29,17 +32,28 @@ public final class TrustedWebActivityIntent {
     @NonNull
     private final Intent mIntent;
 
-    TrustedWebActivityIntent(@NonNull Intent intent) {
+    @NonNull
+    private final List<Uri> mSharedFileUris;
+
+    TrustedWebActivityIntent(@NonNull Intent intent, @NonNull List<Uri> sharedFileUris) {
         mIntent = intent;
+        mSharedFileUris = sharedFileUris;
     }
 
     /**
      * Launches a Trusted Web Activity.
      */
     public void launchTrustedWebActivity(@NonNull Context context) {
+        grantUriPermissionToProvider(context);
         ContextCompat.startActivity(context, mIntent, null);
     }
 
+    private void grantUriPermissionToProvider(Context context) {
+        for (Uri uri : mSharedFileUris) {
+            context.grantUriPermission(mIntent.getPackage(), uri,
+                    Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        }
+    }
 
     /**
      * Returns the held {@link Intent}. For launching a Trusted Web Activity prefer using
