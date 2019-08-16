@@ -159,11 +159,7 @@ public final class WebViewAssetLoader {
         @WorkerThread
         @Nullable
         public WebResourceResponse handle(@NonNull String path) {
-            Uri uri = new Uri.Builder()
-                    .path(path)
-                    .build();
-
-            InputStream is = mAssetHelper.openAsset(uri);
+            InputStream is = mAssetHelper.openAsset(path);
             String mimeType = AssetHelper.guessMimeType(path);
             return new WebResourceResponse(mimeType, null, is);
         }
@@ -209,11 +205,7 @@ public final class WebViewAssetLoader {
         @WorkerThread
         @Nullable
         public WebResourceResponse handle(@NonNull String path) {
-            Uri uri = new Uri.Builder()
-                    .path(path)
-                    .build();
-
-            InputStream is = mAssetHelper.openResource(uri);
+            InputStream is = mAssetHelper.openResource(path);
             String mimeType = AssetHelper.guessMimeType(path);
             return new WebResourceResponse(mimeType, null, is);
         }

@@ -19,7 +19,6 @@ package androidx.webkit.internal;
 import android.content.Context;
 import android.content.res.AssetManager;
 import android.content.res.Resources;
-import android.net.Uri;
 import android.os.Build;
 import android.util.Log;
 import android.util.TypedValue;
@@ -32,7 +31,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URLConnection;
-import java.util.List;
 import java.util.zip.GZIPInputStream;
 
 /**
@@ -54,16 +52,25 @@ public class AssetHelper {
     }
 
     @Nullable
-    private static InputStream handleSvgzStream(@NonNull Uri uri, @Nullable InputStream stream) {
-        if (stream != null && uri.getLastPathSegment().endsWith(".svgz")) {
+    private static InputStream handleSvgzStream(@NonNull String path,
+            @Nullable InputStream stream) {
+        if (stream != null && path.endsWith(".svgz")) {
             try {
                 stream = new GZIPInputStream(stream);
             } catch (IOException e) {
-                Log.e(TAG, "Error decompressing " + uri + " - " + e.getMessage());
+                Log.e(TAG, "Error decompressing " + path + " - " + e.getMessage());
                 return null;
             }
         }
         return stream;
+    }
+
+    @NonNull
+    private static String removeLeadingSlash(@NonNull String path) {
+        if (path.length() > 1 && path.charAt(0) == '/') {
+            path = path.substring(1);
+        }
+        return path;
     }
 
     private int getFieldId(@NonNull String assetType, @NonNull String assetName) {
@@ -81,19 +88,20 @@ public class AssetHelper {
     /**
      * Open an InputStream for an Android resource.
      *
-     * @param uri The uri to load. The path must be of the form "asset_type/asset_name.ext".
+     * @param path Path of the form "resource_type/resource_name.ext".
      * @return An InputStream to the Android resource.
      */
     @Nullable
-    public InputStream openResource(@NonNull Uri uri) {
+    public InputStream openResource(@NonNull String path) {
+        path = removeLeadingSlash(path);
         // The path must be of the form "asset_type/asset_name.ext".
-        List<String> pathSegments = uri.getPathSegments();
-        if (pathSegments.size() != 2) {
-            Log.e(TAG, "Incorrect resource path: " + uri);
+        String[] pathSegments = path.split("/");
+        if (pathSegments.length != 2) {
+            Log.e(TAG, "Incorrect resource path: " + path);
             return null;
         }
-        String assetType = pathSegments.get(0);
-        String assetName = pathSegments.get(1);
+        String assetType = pathSegments[0];
+        String assetName = pathSegments[1];
 
         // Drop the file extension.
         assetName = assetName.split("\\.")[0];
@@ -101,13 +109,13 @@ public class AssetHelper {
             int fieldId = getFieldId(assetType, assetName);
             int valueType = getValueType(fieldId);
             if (valueType == TypedValue.TYPE_STRING) {
-                return handleSvgzStream(uri, mContext.getResources().openRawResource(fieldId));
+                return handleSvgzStream(path, mContext.getResources().openRawResource(fieldId));
             } else {
-                Log.e(TAG, "Asset not of type string: " + uri);
+                Log.e(TAG, "Asset not of type string: " + path);
                 return null;
             }
         } catch (Resources.NotFoundException e) {
-            Log.e(TAG, "Resource not found from URL: " + uri, e);
+            Log.e(TAG, "Resource not found from the path: " + path, e);
             return null;
         }
     }
@@ -115,21 +123,17 @@ public class AssetHelper {
     /**
      * Open an InputStream for an Android asset.
      *
-     * @param uri The uri to load.
+     * @param path Path to the asset file to load.
      * @return An InputStream to the Android asset.
      */
     @Nullable
-    public InputStream openAsset(@NonNull Uri uri) {
-        String path = uri.getPath();
-        // Strip leading slash if present.
-        if (path.length() > 1 && path.charAt(0) == '/') {
-            path = path.substring(1);
-        }
+    public InputStream openAsset(@NonNull String path) {
+        path = removeLeadingSlash(path);
         try {
             AssetManager assets = mContext.getAssets();
-            return handleSvgzStream(uri, assets.open(path, AssetManager.ACCESS_STREAMING));
+            return handleSvgzStream(path, assets.open(path, AssetManager.ACCESS_STREAMING));
         } catch (IOException e) {
-            Log.e(TAG, "Unable to open asset URL: " + uri);
+            Log.e(TAG, "Unable to open asset path: " + path);
             return null;
         }
     }
@@ -144,7 +148,7 @@ public class AssetHelper {
     public static InputStream openFile(@NonNull File file) {
         try {
             FileInputStream fis = new FileInputStream(file);
-            return handleSvgzStream(Uri.parse(file.getPath()), fis);
+            return handleSvgzStream(file.getPath(), fis);
         } catch (IOException e) {
             Log.e(TAG, "Error opening the requested file " + file, e);
             return null;
