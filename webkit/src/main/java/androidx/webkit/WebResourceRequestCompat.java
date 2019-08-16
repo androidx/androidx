@@ -25,8 +25,6 @@ import androidx.webkit.internal.WebResourceRequestAdapter;
 import androidx.webkit.internal.WebViewFeatureInternal;
 import androidx.webkit.internal.WebViewGlueCommunicator;
 
-// TODO(gsennton) add a test for this class
-
 /**
  * Compatibility version of {@link WebResourceRequest}.
  */
