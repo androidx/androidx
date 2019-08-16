@@ -310,7 +310,14 @@ final class CaptureSession {
                         List<CaptureConfig> configList =
                                 eventCallbacks.createComboCallback().onDisableSession();
                         if (!configList.isEmpty()) {
-                            issueCaptureRequests(setupConfiguredSurface(configList));
+                            try {
+                                issueCaptureRequests(setupConfiguredSurface(configList));
+                            } catch (IllegalStateException e) {
+                                // We couldn't issue the request before close the capture session,
+                                // but we should continue the close flow.
+                                Log.e(TAG, "Unable to issue the request before close the capture "
+                                        + "session", e);
+                            }
                         }
                     }
                     // Not break close flow.
