@@ -287,8 +287,17 @@ public class WebViewOnUiThread {
         });
     }
 
-    void evaluateJavascript(final String script, final ValueCallback<String> result) {
-        WebkitUtils.onMainThreadSync(() -> mWebView.evaluateJavascript(script, result));
+    /**
+     * Execute javascript synchronously, returning the result.
+     */
+    public String evaluateJavascriptSync(final String script) {
+        final ResolvableFuture<String> future = ResolvableFuture.create();
+        evaluateJavascript(script, result -> future.set(result));
+        return WebkitUtils.waitForFuture(future);
+    }
+
+    public void evaluateJavascript(final String script, final ValueCallback<String> result) {
+        WebkitUtils.onMainThread(() -> mWebView.evaluateJavascript(script, result));
     }
 
     public WebViewClient getWebViewClient() {
