@@ -300,7 +300,7 @@ limitations under the License.
         <item name="android:colorControlActivated">@color/car_accent_dark</item>
         <item name="listItemForeground">@drawable/car_card_ripple_background</item>
         <item name="android:background">@color/car_card_light</item>
-        <item name="android:textColorPrimary">@android:color/black</item>
+        <item name="android:textColorPrimary">@color/car_primary_text_dark</item>
         <item name="android:windowTitleStyle">@style/Widget.Car.Dialog.Title</item>
     </style>
 

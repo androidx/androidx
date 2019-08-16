@@ -32,6 +32,10 @@ limitations under the License.
         <item name="android:textColor">@color/car_primary_text_light</item>
     </style>
 
+    <style name="TextAppearance.Car.Display1.Dark">
+        <item name="android:textColor">@color/car_primary_text_dark</item>
+    </style>
+
     <style name="TextAppearance.Car.Display2">
         <item name="android:textStyle">normal</item>
         <item name="android:textSize">@dimen/car_display2_size</item>
@@ -42,6 +46,10 @@ limitations under the License.
         <item name="android:textColor">@color/car_primary_text_light</item>
     </style>
 
+    <style name="TextAppearance.Car.Display2.Dark">
+        <item name="android:textColor">@color/car_primary_text_dark</item>
+    </style>
+
     <style name="TextAppearance.Car.Display3">
         <item name="android:textStyle">normal</item>
         <item name="android:textSize">@dimen/car_display3_size</item>
@@ -50,6 +58,10 @@ limitations under the License.
 
     <style name="TextAppearance.Car.Display3.Light">
         <item name="android:textColor">@color/car_primary_text_light</item>
+    </style>
+
+    <style name="TextAppearance.Car.Display3.Dark">
+        <item name="android:textColor">@color/car_primary_text_dark</item>
     </style>
 
     <!-- The styling for body text. The color of this text changes based on the day/night mode. -->
@@ -72,6 +84,15 @@ limitations under the License.
         <item name="android:textColor">@color/car_primary_text_light</item>
     </style>
 
+    <!-- Body1 text that is permanently a dark color. -->
+    <style name="TextAppearance.Car.Body1.Dark">
+        <item name="android:textColor">@color/car_primary_text_dark</item>
+    </style>
+
+    <style name="TextAppearance.Car.Body1.Medium.Dark">
+        <item name="android:textColor">@color/car_primary_text_dark</item>
+    </style>
+
     <!-- An alternate styling for body text that is a different size than CarBody1. -->
     <style name="TextAppearance.Car.Body2">
         <item name="android:textStyle">normal</item>
@@ -82,6 +103,11 @@ limitations under the License.
     <!-- Body2 text that is permanently a light color. -->
     <style name="TextAppearance.Car.Body2.Light">
         <item name="android:textColor">@color/car_primary_text_light</item>
+    </style>
+
+    <!-- Body2 text that is permanently a light color. -->
+    <style name="TextAppearance.Car.Body2.Dark">
+        <item name="android:textColor">@color/car_primary_text_dark</item>
     </style>
 
     <!-- A smaller styling for body text. The color of this text changes based on the day/night
@@ -102,6 +128,14 @@ limitations under the License.
 
     <style name="TextAppearance.Car.Body3.Medium.Light">
         <item name="android:textColor">@color/car_secondary_text_light</item>
+    </style>
+
+    <style name="TextAppearance.Car.Body3.Dark">
+        <item name="android:textColor">@color/car_secondary_text_dark</item>
+    </style>
+
+    <style name="TextAppearance.Car.Body3.Medium.Dark">
+        <item name="android:textColor">@color/car_secondary_text_dark</item>
     </style>
 
     <style name="TextAppearance.Car.Body3.Medium.Accent">
@@ -144,6 +178,14 @@ limitations under the License.
         <item name="android:textColor">@color/car_secondary_text_light</item>
     </style>
 
+    <style name="TextAppearance.Car.SubText1.Dark">
+        <item name="android:textColor">@color/car_secondary_text_dark</item>
+    </style>
+
+    <style name="TextAppearance.Car.SubText1.Medium.Dark">
+        <item name="android:textColor">@color/car_secondary_text_dark</item>
+    </style>
+
     <style name="TextAppearance.Car.SubText1.Medium.Accent">
         <item name="android:textColor">@color/car_accent</item>
     </style>
@@ -164,6 +206,14 @@ limitations under the License.
 
     <style name="TextAppearance.Car.SubText2.Medium.Light">
         <item name="android:textColor">@color/car_secondary_text_light</item>
+    </style>
+
+    <style name="TextAppearance.Car.SubText2.Dark">
+        <item name="android:textColor">@color/car_secondary_text_dark</item>
+    </style>
+
+    <style name="TextAppearance.Car.SubText2.Medium.Dark">
+        <item name="android:textColor">@color/car_secondary_text_dark</item>
     </style>
 
     <style name="TextAppearance.Car.SubText2.Medium.Accent">
@@ -187,6 +237,15 @@ limitations under the License.
     <style name="TextAppearance.Car.SubText3.Medium.Light">
         <item name="android:textColor">@color/car_secondary_text_light</item>
     </style>
+
+    <style name="TextAppearance.Car.SubText3.Dark">
+        <item name="android:textColor">@color/car_secondary_text_dark</item>
+    </style>
+
+    <style name="TextAppearance.Car.SubText3.Medium.Dark">
+        <item name="android:textColor">@color/car_secondary_text_dark</item>
+    </style>
+
 
     <style name="TextAppearance.Car.SubText3.Medium.Accent">
         <item name="android:textColor">@color/car_accent</item>
@@ -213,6 +272,9 @@ limitations under the License.
     <!-- A style for TextInputLayout hints that is fixed to a light color. -->
     <style name="TextAppearance.Car.Hint.Light" parent="TextAppearance.Car.Body2.Light" />
 
+    <!-- A style for TextInputLayout hints that is fixed to a dark color. -->
+    <style name="TextAppearance.Car.Hint.Dark" parent="TextAppearance.Car.Body2.Dark" />
+
     <!-- Styles for an error message for TextInputLayouts. -->
     <style name="TextAppearance.Car.Error" parent="TextAppearance.Car.Body2">
         <item name="android:textColor">@color/car_red_400</item>
@@ -225,6 +287,10 @@ limitations under the License.
 
     <style name="TextAppearance.Car.ListItem.BodyText.Light">
         <item name="android:textColor">@color/car_secondary_text_light</item>
+    </style>
+
+    <style name="TextAppearance.Car.ListItem.BodyText.Dark">
+        <item name="android:textColor">@color/car_secondary_text_dark</item>
     </style>
 
     <!-- Style for the Alpha Jump button in the Scrollbar View -->
@@ -380,7 +446,7 @@ limitations under the License.
         <item name="android:singleLine">true</item>
         <item name="android:textAllCaps">false</item>
         <item name="android:background">@drawable/car_button_background</item>
-        <item name="android:textColor">@android:color/black</item>
+        <item name="android:textColor">@color/car_primary_text_dark</item>
     </style>
 
     <!-- A style for buttons that has white text. -->
