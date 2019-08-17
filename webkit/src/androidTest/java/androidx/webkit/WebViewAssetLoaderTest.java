@@ -67,12 +67,12 @@ public class WebViewAssetLoaderTest {
         }
 
         @Override
-        public InputStream openAsset(Uri uri) {
+        public InputStream openAsset(String path) {
             return null;
         }
 
         @Override
-        public InputStream openResource(Uri uri) {
+        public InputStream openResource(String path) {
             return null;
         }
     }
@@ -171,8 +171,8 @@ public class WebViewAssetLoaderTest {
 
         PathHandler assetsPathHandler = new AssetsPathHandler(new MockAssetHelper() {
             @Override
-            public InputStream openAsset(Uri url) {
-                if (url.getPath().equals("www/test.html")) {
+            public InputStream openAsset(String path) {
+                if (path.equals("www/test.html")) {
                     try {
                         return new ByteArrayInputStream(testHtmlContents.getBytes(ENCODING));
                     } catch (IOException e) {
@@ -198,8 +198,8 @@ public class WebViewAssetLoaderTest {
 
         PathHandler resourcesPathHandler = new ResourcesPathHandler(new MockAssetHelper() {
             @Override
-            public InputStream openResource(Uri uri) {
-                if (uri.getPath().equals("raw/test.html")) {
+            public InputStream openResource(String path) {
+                if (path.equals("raw/test.html")) {
                     try {
                         return new ByteArrayInputStream(testHtmlContents.getBytes(ENCODING));
                     } catch (IOException e) {
@@ -402,7 +402,7 @@ public class WebViewAssetLoaderTest {
 
         AssetHelper mockAssetHelper = new MockAssetHelper() {
             @Override
-            public InputStream openResource(Uri uri) {
+            public InputStream openResource(String path) {
                 try {
                     return new ByteArrayInputStream(testHtmlContents.getBytes(ENCODING));
                 } catch (IOException e) {
