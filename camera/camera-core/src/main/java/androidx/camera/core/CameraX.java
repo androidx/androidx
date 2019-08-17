@@ -708,7 +708,7 @@ public final class CameraX {
 
     private void deinitInternal() {
         mInitialized.set(false);
-        mCameraRepository.clear();
+        mCameraRepository.deinit();
     }
 
     private UseCaseGroupLifecycleController getOrCreateUseCaseGroup(LifecycleOwner lifecycleOwner) {
