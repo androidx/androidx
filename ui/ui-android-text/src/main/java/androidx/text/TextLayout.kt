@@ -15,8 +15,6 @@
  */
 package androidx.text
 
-import androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP
-
 import android.graphics.Canvas
 import android.graphics.Path
 import android.os.Build
@@ -28,6 +26,7 @@ import android.text.TextPaint
 import android.text.TextUtils
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
+import androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP
 import androidx.text.LayoutCompat.ALIGN_CENTER
 import androidx.text.LayoutCompat.ALIGN_LEFT
 import androidx.text.LayoutCompat.ALIGN_NORMAL
@@ -52,6 +51,9 @@ import androidx.text.LayoutCompat.TEXT_DIRECTION_RTL
 import androidx.text.LayoutCompat.TextDirection
 import androidx.text.LayoutCompat.TextLayoutAlignment
 import androidx.text.style.BaselineShiftSpan
+import java.text.BreakIterator
+import java.util.PriorityQueue
+import kotlin.math.max
 
 /**
  * Wrapper for Static Text Layout classes.
@@ -95,7 +97,6 @@ class TextLayout constructor(
         val finalWidth = width.toInt()
         val ellipsizeWidth = finalWidth
         val frameworkAlignment = TextAlignmentAdapter.get(alignment)
-        val frameworkTextDirectionHeuristic = getTextDirectionHeuristic(textDirectionHeuristic)
 
         // BoringLayout won't adjust line height for baselineShift,
         // use StaticLayout for those spans.
@@ -126,7 +127,7 @@ class TextLayout constructor(
                 finalWidth
             )
                 .setAlignment(frameworkAlignment)
-                .setTextDirection(frameworkTextDirectionHeuristic)
+                .setTextDirection(frameworkTextDir)
                 .setLineSpacingExtra(lineSpacingExtra)
                 .setLineSpacingMultiplier(lineSpacingMultiplier)
                 .setIncludePad(includePadding)
@@ -205,6 +206,50 @@ class TextLayout constructor(
     }
 }
 
+/**
+ * Returns the word with the longest length. To calculate it in a performant way, it applies a heuristics where
+ *  - it first finds a set of words with the longest length
+ *  - finds the word with maximum width in that set
+ *
+ *  @hide
+ */
+fun minIntrinsicWidth(text: CharSequence, paint: TextPaint): Float {
+    val iterator = BreakIterator.getLineInstance(paint.textLocale)
+    iterator.text = CharSequenceCharacterIterator(text, 0, text.length)
+
+    // 10 is just a random number that limits the size of the candidate list
+    val heapSize = 10
+    // min heap that will hold [heapSize] many words with max length
+    val longestWordCandidates = PriorityQueue<Pair<Int, Int>>(
+        heapSize,
+        Comparator<Pair<Int, Int>> { left, right ->
+            (left.second - left.first) - (right.second - right.first)
+        }
+    )
+
+    var start = 0
+    var end = iterator.next()
+    while (end != BreakIterator.DONE) {
+        if (longestWordCandidates.size < heapSize) {
+            longestWordCandidates.add(Pair(start, end))
+        } else {
+            longestWordCandidates.peek()?.let { minPair ->
+                if ((minPair.second - minPair.first) < (end - start)) {
+                    longestWordCandidates.poll()
+                    longestWordCandidates.add(Pair(start, end))
+                }
+            }
+        }
+
+        start = end
+        end = iterator.next()
+    }
+
+    return longestWordCandidates.map { pair ->
+        Layout.getDesiredWidth(text, pair.first, pair.second, paint)
+    }.max() ?: 0f
+}
+
 @RequiresApi(api = 18)
 internal fun getTextDirectionHeuristic(@TextDirection textDirectionHeuristic: Int):
         TextDirectionHeuristic {
@@ -256,94 +301,3 @@ object TextAlignmentAdapter {
         }
     }
 }
-
-//    class Metrics : BoringLayout.Metrics() {
-//        var interlineSpacing = -1
-//
-//        fun reset() {
-//            top = 0
-//            bottom = 0
-//            ascent = 0
-//            descent = 0
-//            width = -1
-//            //TODO: isn't leading same as interline spacing
-//            leading = 0
-//            interlineSpacing = 0
-//        }
-//    }
-
-// private fun getWidthWithLimits(maxWidth: Int, maxLines: Int): Int {
-//    if (isBasicText()) {
-//        basicMetrics = BoringLayoutFactory.Metrics()
-//        val width: Float
-//        if (!isSpanned) {
-//            //TODO: this did not change any values
-//            width = textPaint.measureText(charSequence, 0, charSequence.length)
-//        } else {
-//            width = Layout.getDesiredWidth(charSequence, 0, charSequence.length, textPaint)
-//        }
-//
-//        // TODO: height given in this metrics will not be valid for Spanned
-//        val interlineSpacing = textPaint.getFontMetricsInt(basicMetrics)
-//        basicMetrics!!.interlineSpacing = interlineSpacing
-//        basicMetrics!!.width = Math.ceil(width.toDouble()).toInt()
-//        return basicMetrics!!.width
-//    } else {
-//        val length = charSequence.length
-//        var currentLine = 0
-//        var lineStartIndex: Int
-//        var index = 0
-//        var currentMax = 0
-//        while (index < length && currentLine < maxLines) {
-//            lineStartIndex = TextUtils.indexOf(charSequence, '\n', index, length)
-//
-//            if (lineStartIndex < 0) lineStartIndex = length
-//            //TODO need improvement
-//            val width = ceil(
-//                Layout.getDesiredWidth(
-//                    charSequence,
-//                    index,
-//                    lineStartIndex,
-//                    textPaint
-//                )
-//            ).toInt()
-//            if (width > currentMax) currentMax = width
-//            if (width > maxWidth) break
-//            lineStartIndex++
-//            currentLine++
-//            index = lineStartIndex
-//        }
-//
-//        return min(currentMax, maxWidth)
-//    }
-// }
-
-//  Get the line bottom discarding the line spacing added.
-//
-// fun Layout.getLineBottomWithoutSpacing(line: Int): Int {
-//    val lineBottom = getLineBottom(line)
-//    val lastLineSpacingNotAdded = Build.VERSION.SDK_INT >= 19
-//    val isLastLine = line == lineCount - 1
-//
-//    val lineBottomWithoutSpacing: Int
-//    val lineSpacingExtra = spacingAdd
-//    val lineSpacingMultiplier = spacingMultiplier
-//    val hasLineSpacing = lineSpacingExtra != DEFAULT_LINESPACING_EXTRA
-//            || lineSpacingMultiplier != DEFAULT_LINESPACING_MULTIPLIER
-//
-//    if (!hasLineSpacing || isLastLine && lastLineSpacingNotAdded) {
-//        lineBottomWithoutSpacing = lineBottom
-//    } else {
-//        val extra: Float
-//        if (lineSpacingMultiplier.compareTo(DEFAULT_LINESPACING_MULTIPLIER) != 0) {
-//            val lineHeight = getLineHeight(line)
-//            extra = lineHeight - (lineHeight - lineSpacingExtra) / lineSpacingMultiplier
-//        } else {
-//            extra = lineSpacingExtra
-//        }
-//
-//        lineBottomWithoutSpacing = (lineBottom - extra).toInt()
-//    }
-//
-//    return lineBottomWithoutSpacing
-// }
