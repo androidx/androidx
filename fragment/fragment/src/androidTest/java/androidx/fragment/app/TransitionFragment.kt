@@ -37,7 +37,7 @@ open class TransitionFragment(
     var startTransitionCountDownLatch = CountDownLatch(1)
     var endTransitionCountDownLatch = CountDownLatch(1)
 
-    private val listener = object : Transition.TransitionListener {
+    val listener = object : Transition.TransitionListener {
         override fun onTransitionEnd(transition: Transition) {
             endTransitionCountDownLatch.countDown()
             startTransitionCountDownLatch = CountDownLatch(1)

@@ -15,12 +15,16 @@
  */
 package androidx.fragment.app
 
+import android.graphics.Rect
 import android.os.Build
+import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.LayoutRes
+import androidx.fragment.test.R
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.ActivityTestRule
 import androidx.testutils.runOnUiThreadRethrow
+import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import java.lang.ref.WeakReference
 import java.util.ArrayList
@@ -82,6 +86,75 @@ fun assertChildren(container: ViewGroup, vararg fragments: Fragment) {
             .isSameInstanceAs(container.getChildAt(index))
     }
 }
+
+// Transition test methods start
+fun ActivityTestRule<out FragmentActivity>.findGreen(): View {
+    return activity.findViewById(R.id.greenSquare)
+}
+
+fun ActivityTestRule<out FragmentActivity>.findBlue(): View {
+    return activity.findViewById(R.id.blueSquare)
+}
+
+fun ActivityTestRule<out FragmentActivity>.findRed(): View? {
+    return activity.findViewById(R.id.redSquare)
+}
+
+fun verifyAndClearTransition(
+    transition: TargetTracking,
+    epicenter: Rect?,
+    vararg expected: View
+) {
+    if (epicenter == null) {
+        assertThat(transition.capturedEpicenter).isNull()
+    } else {
+        assertThat(transition.capturedEpicenter).isEqualTo(epicenter)
+    }
+    val targets = transition.trackedTargets
+    val sb = StringBuilder()
+    sb.append("Expected: [")
+        .append(expected.size)
+        .append("] {")
+    var isFirst = true
+    for (view in expected) {
+        if (isFirst) {
+            isFirst = false
+        } else {
+            sb.append(", ")
+        }
+        sb.append(view)
+    }
+    sb.append("}, but got: [")
+        .append(targets.size)
+        .append("] {")
+    isFirst = true
+    for (view in targets) {
+        if (isFirst) {
+            isFirst = false
+        } else {
+            sb.append(", ")
+        }
+        sb.append(view)
+    }
+    sb.append("}")
+    val errorMessage = sb.toString()
+
+    assertWithMessage(errorMessage).that(targets.size).isEqualTo(expected.size)
+    for (view in expected) {
+        assertWithMessage(errorMessage).that(targets.contains(view)).isTrue()
+    }
+    transition.clearTargets()
+}
+
+fun verifyNoOtherTransitions(fragment: TransitionFragment) {
+    assertThat(fragment.enterTransition.targets.size).isEqualTo(0)
+    assertThat(fragment.exitTransition.targets.size).isEqualTo(0)
+    assertThat(fragment.reenterTransition.targets.size).isEqualTo(0)
+    assertThat(fragment.returnTransition.targets.size).isEqualTo(0)
+    assertThat(fragment.sharedElementEnter.targets.size).isEqualTo(0)
+    assertThat(fragment.sharedElementReturn.targets.size).isEqualTo(0)
+}
+// Transition test methods end
 
 /**
  * Allocates until a garbage collection occurs.
