@@ -21,7 +21,6 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 import android.animation.Animator;
 import android.animation.AnimatorInflater;
 import android.animation.AnimatorListenerAdapter;
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.res.Configuration;
@@ -70,6 +69,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -190,7 +190,13 @@ public abstract class FragmentManager {
     /**
      * Interface to indicate when exit animations are complete
      */
-    interface ExitAnimationCompleteMarker { }
+    interface ExitAnimationCompleteMarker {
+        /**
+         * Called when Animation objects need to be canceled.
+         */
+        @MainThread
+        void cancel();
+    }
 
     /**
      * Callback interface for listening to fragment state changes that happen
@@ -381,7 +387,7 @@ public abstract class FragmentManager {
     private final AtomicInteger mBackStackIndex = new AtomicInteger();
 
     private ArrayList<OnBackStackChangedListener> mBackStackChangeListeners;
-    private HashMap<Fragment, ExitAnimationCompleteMarker>
+    private HashMap<Fragment, HashSet<ExitAnimationCompleteMarker>>
             mExitAnimationCompleteMarkers = new HashMap<>();
     private final CopyOnWriteArrayList<FragmentLifecycleCallbacksHolder>
             mLifecycleCallbacks = new CopyOnWriteArrayList<>();
@@ -724,7 +730,10 @@ public abstract class FragmentManager {
      */
     void addExitAnimationCompleteMarker(@NonNull Fragment f,
             @NonNull ExitAnimationCompleteMarker listener) {
-        mExitAnimationCompleteMarkers.put(f, listener);
+        if (mExitAnimationCompleteMarkers.get(f) == null) {
+            mExitAnimationCompleteMarkers.put(f, new HashSet<ExitAnimationCompleteMarker>());
+        }
+        mExitAnimationCompleteMarkers.get(f).add(listener);
     }
 
     /**
@@ -734,11 +743,12 @@ public abstract class FragmentManager {
      * Destroy the view of the Fragment associated with that listener and move it to the proper
      * state.
      */
-    void removeExitAnimationComplete(@NonNull Fragment f) {
-        if (mExitAnimationCompleteMarkers.remove(f) != null
-                && f.getAnimatingAway() == null
-                && f.getAnimator() == null) {
+    void removeExitAnimationComplete(@NonNull Fragment f,
+            @NonNull ExitAnimationCompleteMarker marker) {
+        HashSet<ExitAnimationCompleteMarker> markers = mExitAnimationCompleteMarkers.get(f);
+        if (markers != null && markers.remove(marker) && markers.isEmpty()) {
             destroyFragmentView(f);
+            mExitAnimationCompleteMarkers.remove(f);
             moveToState(f, f.getStateAfterAnimating());
         }
     }
@@ -1227,13 +1237,10 @@ public abstract class FragmentManager {
                 return;
             }
             // If we are moving to the same state, we do not need to give up on the animation.
-            if (f.mState < newState && (f.getAnimatingAway() != null || f.getAnimator() != null
-                    || !mExitAnimationCompleteMarkers.isEmpty())) {
+            if (f.mState < newState && !mExitAnimationCompleteMarkers.isEmpty()) {
                 // The fragment is currently being animated...  but!  Now we
                 // want to move our state back up.  Give up on waiting for the
                 // animation and proceed from where we are.
-                f.setAnimatingAway(null);
-                f.setAnimator(null);
                 cancelExitAnimation(f);
             }
             switch (f.mState) {
@@ -1448,7 +1455,7 @@ public abstract class FragmentManager {
                         }
                         // If a fragment has an exit animation (or transition), do not destroy
                         // its view immediately and set the state after animating
-                        if (anim == null && mExitAnimationCompleteMarkers.get(f) == null) {
+                        if (mExitAnimationCompleteMarkers.get(f) == null) {
                             destroyFragmentView(f);
                         } else {
                             f.setStateAfterAnimating(newState);
@@ -1462,25 +1469,13 @@ public abstract class FragmentManager {
                             // being destroyed, but this fragment is
                             // currently animating away.  Stop the
                             // animation right now -- it is not needed,
-                            // and we can't wait any more on destroying
-                            // the fragment.
-                            if (f.getAnimatingAway() != null) {
-                                View v = f.getAnimatingAway();
-                                f.setAnimatingAway(null);
-                                v.clearAnimation();
-                            } else if (f.getAnimator() != null) {
-                                Animator animator = f.getAnimator();
-                                f.setAnimator(null);
-                                animator.cancel();
-                            }
-                            // We can no longer wait on transitions to run,
-                            // we need to destroy the view now and cancel the animation
+                            // and we can't wait anymore. we need to destroy
+                            // the view now and cancel the animation
                             if (mExitAnimationCompleteMarkers.get(f) != null) {
                                 cancelExitAnimation(f);
                             }
                         }
-                        if (f.getAnimatingAway() != null || f.getAnimator() != null
-                                || !mExitAnimationCompleteMarkers.isEmpty()) {
+                        if (!mExitAnimationCompleteMarkers.isEmpty()) {
                             // We are waiting for the fragment's view to finish
                             // animating away.  Just make a note of the state
                             // the fragment now should move to once the animation
@@ -1553,6 +1548,19 @@ public abstract class FragmentManager {
         final View viewToAnimate = fragment.mView;
         final ViewGroup container = fragment.mContainer;
         container.startViewTransition(viewToAnimate);
+        final ExitAnimationCompleteMarker marker =
+                new FragmentManager.ExitAnimationCompleteMarker() {
+                    @Override
+                    public void cancel() {
+                        if (fragment.getAnimatingAway() != null) {
+                            View v = fragment.getAnimatingAway();
+                            fragment.setAnimatingAway(null);
+                            v.clearAnimation();
+                        }
+                        fragment.setAnimator(null);
+                    }
+                };
+        addExitAnimationCompleteMarker(fragment, marker);
         if (anim.animation != null) {
             Animation animation =
                     new EndViewTransitionAnimation(anim.animation, container, viewToAnimate);
@@ -1568,16 +1576,11 @@ public abstract class FragmentManager {
                     // draw events happening after this call. We don't want to detach
                     // the view until after the onAnimationEnd()
                     container.post(new Runnable() {
-                        @SuppressLint("SyntheticAccessor") /* synthetic access */
                         @Override
                         public void run() {
-                            // We should check if other animations (or transitions) are still
-                            // running before we decide to destroy the view.
-                            if (fragment.getAnimatingAway() != null
-                                    && mExitAnimationCompleteMarkers.get(fragment) == null) {
+                            if (fragment.getAnimatingAway() != null) {
                                 fragment.setAnimatingAway(null);
-                                destroyFragmentView(fragment);
-                                moveToState(fragment, fragment.getStateAfterAnimating());
+                                removeExitAnimationComplete(fragment, marker);
                             }
                         }
                     });
@@ -1592,7 +1595,6 @@ public abstract class FragmentManager {
             Animator animator = anim.animator;
             fragment.setAnimator(anim.animator);
             animator.addListener(new AnimatorListenerAdapter() {
-                @SuppressLint("SyntheticAccessor") /* synthetic access */
                 @Override
                 public void onAnimationEnd(Animator anim) {
                     container.endViewTransition(viewToAnimate);
@@ -1600,12 +1602,8 @@ public abstract class FragmentManager {
                     // When that happens the the fragment's view won't have been removed yet.
                     Animator animator = fragment.getAnimator();
                     fragment.setAnimator(null);
-                    // We should check if other animations (or transitions) are still running
-                    // before we decide to destroy the view.
-                    if (animator != null && container.indexOfChild(viewToAnimate) < 0
-                            && mExitAnimationCompleteMarkers.get(fragment) == null) {
-                        destroyFragmentView(fragment);
-                        moveToState(fragment, fragment.getStateAfterAnimating());
+                    if (animator != null && container.indexOfChild(viewToAnimate) < 0) {
+                        removeExitAnimationComplete(fragment, marker);
                     }
                 }
             });
@@ -1617,14 +1615,20 @@ public abstract class FragmentManager {
     // If there is a listener associated with the given fragment, remove that listener and
     // destroy the fragment's view.
     private void cancelExitAnimation(@NonNull Fragment f) {
-        if (mExitAnimationCompleteMarkers.remove(f) != null
-                && f.getAnimatingAway() == null
-                && f.getAnimator() == null) {
-            destroyFragmentView(f);
+        HashSet<ExitAnimationCompleteMarker> markers = mExitAnimationCompleteMarkers.get(f);
+        if (markers != null) {
+            for (ExitAnimationCompleteMarker marker: markers) {
+                marker.cancel();
+                markers.remove(marker);
+                if (markers.isEmpty()) {
+                    destroyFragmentView(f);
+                    mExitAnimationCompleteMarkers.remove(f);
+                }
+            }
         }
     }
 
-    void destroyFragmentView(@NonNull Fragment fragment) {
+    private void destroyFragmentView(@NonNull Fragment fragment) {
         fragment.performDestroyView();
         dispatchOnFragmentViewDestroyed(fragment, false);
         fragment.mContainer = null;
@@ -2597,24 +2601,10 @@ public abstract class FragmentManager {
      */
     private void endAnimatingAwayFragments() {
         for (Fragment fragment : mActive.values()) {
-            if (fragment != null) {
-                if (fragment.getAnimatingAway() != null) {
-                    // Give up waiting for the animation and just end it.
-                    final int stateAfterAnimating = fragment.getStateAfterAnimating();
-                    final View animatingAway = fragment.getAnimatingAway();
-                    Animation animation = animatingAway.getAnimation();
-                    if (animation != null) {
-                        animation.cancel();
-                        // force-clear the animation, as Animation#cancel() doesn't work prior to N,
-                        // and will instead cause the animation to infinitely loop
-                        animatingAway.clearAnimation();
-                    }
-                    fragment.setAnimatingAway(null);
-                    destroyFragmentView(fragment);
-                    moveToState(fragment, stateAfterAnimating);
-                } else if (fragment.getAnimator() != null) {
-                    fragment.getAnimator().end();
-                }
+            if (fragment != null && mExitAnimationCompleteMarkers.get(fragment) != null) {
+                // Give up waiting for the animation and just end it.
+                cancelExitAnimation(fragment);
+                moveToState(fragment, fragment.getStateAfterAnimating());
             }
         }
     }

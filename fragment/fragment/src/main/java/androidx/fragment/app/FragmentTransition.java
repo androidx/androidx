@@ -297,9 +297,13 @@ class FragmentTransition {
     private static void setListenerForTransitionEnd(final FragmentManager fragmentManager,
             final Fragment outFragment, Object transition) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            fragmentManager.addExitAnimationCompleteMarker(outFragment,
-                    new FragmentManager.ExitAnimationCompleteMarker() { });
-
+            final FragmentManager.ExitAnimationCompleteMarker marker =
+                    new FragmentManager.ExitAnimationCompleteMarker() {
+                @Override
+                // Transitions do not need to do anything on cancel
+                public void cancel() { }
+            };
+            fragmentManager.addExitAnimationCompleteMarker(outFragment, marker);
             ((Transition) transition).addListener(new Transition.TransitionListener() {
                 @Override
                 public void onTransitionStart(Transition transition) { }
@@ -308,7 +312,7 @@ class FragmentTransition {
                 public void onTransitionEnd(Transition transition) {
                     if (outFragment.mView != null && outFragment.mState <= Fragment.CREATED
                             && (outFragment.mRemoving || outFragment.isDetached())) {
-                        fragmentManager.removeExitAnimationComplete(outFragment);
+                        fragmentManager.removeExitAnimationComplete(outFragment, marker);
                     }
                 }
 
