@@ -16,7 +16,6 @@
 
 package androidx.transition;
 
-import android.annotation.SuppressLint;
 import android.graphics.Matrix;
 import android.graphics.Rect;
 import android.os.Build;
@@ -37,9 +36,7 @@ class ViewUtils {
 
     static {
         if (Build.VERSION.SDK_INT >= 29) {
-            // TODO: replace with 'new ViewUtilsApi29()' when we can use an SDK_INT check as lint
-            //       doesn't understand BuildCompat API checks
-            IMPL = createViewUtilsApi29();
+            IMPL = new ViewUtilsApi29();
         } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             IMPL = new ViewUtilsApi23();
         } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
@@ -200,12 +197,6 @@ class ViewUtils {
      */
     static void setLeftTopRightBottom(@NonNull View v, int left, int top, int right, int bottom) {
         IMPL.setLeftTopRightBottom(v, left, top, right, bottom);
-    }
-
-    // TODO: delete when we use an SDK_INT check as lint doesn't understand BuildCompat API checks
-    @SuppressLint("NewApi")
-    private static ViewUtilsApi29 createViewUtilsApi29() {
-        return new ViewUtilsApi29();
     }
 
     private ViewUtils() {

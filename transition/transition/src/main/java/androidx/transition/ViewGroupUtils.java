@@ -52,7 +52,6 @@ class ViewGroupUtils {
     /**
      * Provides access to the hidden ViewGroup#suppressLayout method.
      */
-    @SuppressLint("NewApi") // TODO: Remove this suppression once Q SDK is released.
     static void suppressLayout(@NonNull ViewGroup group, boolean suppress) {
         if (Build.VERSION.SDK_INT >= 29) {
             group.suppressLayout(suppress);
@@ -80,7 +79,6 @@ class ViewGroupUtils {
     /**
      * Returns the index of the child to draw for this iteration.
      */
-    @SuppressLint("NewApi") // TODO: Remove this suppression once Q SDK is released.
     static int getChildDrawingOrder(@NonNull ViewGroup viewGroup, int i) {
         if (Build.VERSION.SDK_INT >= 29) {
             return viewGroup.getChildDrawingOrder(i);

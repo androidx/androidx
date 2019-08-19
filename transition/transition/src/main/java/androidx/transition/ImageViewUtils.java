@@ -41,7 +41,6 @@ class ImageViewUtils {
     /**
      * Sets the matrix to animate the content of the image view.
      */
-    @SuppressLint("NewApi") // TODO: Remove this suppression once Q SDK is released.
     static void animateTransform(@NonNull ImageView view, @Nullable Matrix matrix) {
         if (Build.VERSION.SDK_INT >= 29) {
             view.animateTransform(matrix);
