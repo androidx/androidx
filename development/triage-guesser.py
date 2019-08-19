@@ -148,13 +148,13 @@ class Triager(object):
   def __init__(self, fileFinder):
     self.recommenderRules = self.parseKnownOwners({
       "fragment": ["ilake", "mount", "adamp"],
-      "animation": ["chet", "mount", "tianlu"],
-      "transition": ["chet", "mount"],
+      "animation": ["mount", "tianlu"],
+      "transition": ["mount"],
       "theme": ["alanv"],
       "style": ["alanv"],
       "preferences": ["pavlis", "lpf"],
-      "ViewPager": ["jgielzak", "aurimas"],
-      "DrawerLayout": ["kirillg"],
+      "ViewPager": ["jgielzak", "jellefresen"],
+      "DrawerLayout": ["sjgilbert"],
       "RecyclerView": ["shepshapard", "yboyar"],
       "Loaders": ["ilake"],
       "VectorDrawableCompat": ["tianliu"],
@@ -173,7 +173,8 @@ class Triager(object):
       "Fonts": ["nona", "dougfelt"],
       "freetype": ["nona", "junkshik"],
       "harfbuzz": ["nona", "junkshik"],
-      "slice": ["jmonk", "madym"]
+      "slice": ["madym"],
+      "checkApi": ["jeffrygaston", "aurimas"]
     })
     self.recommenderRules.append(OwnersRule(fileFinder))
     self.recommenderRules.append(LastTouchedBy_Rule(fileFinder))
