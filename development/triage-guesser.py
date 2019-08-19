@@ -83,7 +83,7 @@ class GitLogger(object):
     return
 
   def gitLog1Author(self, filePath):
-    text = shellRunner.runAndGetOutput(["bash", "-c", "cd " + os.path.dirname(filePath) + " && git log --no-merges -1 --format='%ae' -- " + filePath]).strip().replace("@google.com", "")
+    text = shellRunner.runAndGetOutput(["bash", "-c", "cd " + os.path.dirname(filePath) + " && git log --no-merges -1 --format='%ae' -- " + os.path.basename(filePath)]).strip().replace("@google.com", "")
     return text
 gitLogger = GitLogger()
 
