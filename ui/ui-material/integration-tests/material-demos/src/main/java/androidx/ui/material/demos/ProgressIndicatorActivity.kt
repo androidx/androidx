@@ -61,8 +61,8 @@ private class ProgressState {
         handler.removeCallbacks(updateProgress)
     }
 
-    var handler = Handler()
-    var updateProgress: Runnable = object : Runnable {
+    val handler = Handler()
+    val updateProgress: Runnable = object : Runnable {
         override fun run() {
             if (progress == 1f) {
                 cycle++

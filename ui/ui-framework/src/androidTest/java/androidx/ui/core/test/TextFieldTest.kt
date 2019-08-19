@@ -33,6 +33,7 @@ import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.times
 import com.nhaarman.mockitokotlin2.verify
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -44,6 +45,7 @@ class TextFieldTest {
     @get:Rule
     val composeTestRule = createComposeRule()
 
+    @Ignore("Disabled due to b/139931491")
     @Test
     fun textField_focusInSemantics() {
         val focusManager = mock<FocusManager>()
