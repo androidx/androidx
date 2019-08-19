@@ -17,6 +17,7 @@ package androidx.fragment.app;
 
 import android.graphics.Rect;
 import android.os.Build;
+import android.transition.Transition;
 import android.util.SparseArray;
 import android.view.View;
 import android.view.ViewGroup;
@@ -252,6 +253,11 @@ class FragmentTransition {
         Object transition = mergeTransitions(impl, enterTransition, exitTransition,
                 sharedElementTransition, inFragment, inIsPop);
 
+        if (outFragment != null && exitingViews != null
+                && (exitingViews.size() > 0 || sharedElementsOut.size() > 0)) {
+            setListenerForTransitionEnd(fragmentManager, outFragment, transition);
+        }
+
         if (transition != null) {
             replaceHide(impl, exitTransition, outFragment, exitingViews);
             ArrayList<String> inNames =
@@ -265,6 +271,56 @@ class FragmentTransition {
             setViewVisibility(enteringViews, View.VISIBLE);
             impl.swapSharedElementTargets(sharedElementTransition,
                     sharedElementsOut, sharedElementsIn);
+        }
+    }
+
+    /**
+     * Set a listener for Transition end events.
+     *
+     * If either exitingViews or SharedElementsOut contain a view, a
+     * {@link FragmentManager.ExitAnimationCompleteMarker} will added to the
+     * given FragmentManager. The FragmentManager will check for the
+     * {@link FragmentManager.ExitAnimationCompleteMarker} to determine if the transition has
+     * finished.
+     *
+     * An {@link Transition.TransitionListener#onTransitionEnd} listener is added that removes
+     * the {@link FragmentManager.ExitAnimationCompleteMarker} from the given FragmentManager and
+     * that indicates to the FragmentManager that it should properly handle the out going Fragment.
+     *
+     * If the FragmentManager wishes to cancel the transition, it removes the
+     * {@link FragmentManager.ExitAnimationCompleteMarker} and destroys the view of the Fragment.
+     *
+     * @param fragmentManager The executing FragmentManager
+     * @param outFragment The first fragment that is exiting
+     * @param transition all transitions to be executed on a single container
+     */
+    private static void setListenerForTransitionEnd(final FragmentManager fragmentManager,
+            final Fragment outFragment, Object transition) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            fragmentManager.addExitAnimationCompleteMarker(outFragment,
+                    new FragmentManager.ExitAnimationCompleteMarker() { });
+
+            ((Transition) transition).addListener(new Transition.TransitionListener() {
+                @Override
+                public void onTransitionStart(Transition transition) { }
+
+                @Override
+                public void onTransitionEnd(Transition transition) {
+                    if (outFragment.mView != null && outFragment.mState <= Fragment.CREATED
+                            && (outFragment.mRemoving || outFragment.isDetached())) {
+                        fragmentManager.removeExitAnimationComplete(outFragment);
+                    }
+                }
+
+                @Override
+                public void onTransitionCancel(Transition transition) { }
+
+                @Override
+                public void onTransitionPause(Transition transition) { }
+
+                @Override
+                public void onTransitionResume(Transition transition) { }
+            });
         }
     }
 
@@ -353,6 +409,11 @@ class FragmentTransition {
 
         Object transition = mergeTransitions(impl, enterTransition, exitTransition,
                 sharedElementTransition, inFragment, fragments.lastInIsPop);
+
+        if (outFragment != null && exitingViews != null
+                && (exitingViews.size() > 0 || sharedElementsOut.size() > 0)) {
+            setListenerForTransitionEnd(fragmentManager, outFragment, transition);
+        }
 
         if (transition != null) {
             final ArrayList<View> enteringViews = new ArrayList<>();
