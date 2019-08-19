@@ -31,6 +31,7 @@ import android.view.ViewStructure
 import android.view.autofill.AutofillValue
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputConnection
+import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.compose.ObserverMap
 import androidx.ui.core.input.TextInputServiceAndroid
@@ -424,16 +425,15 @@ class AndroidCraneView constructor(context: Context)
                     currentNode = previousNode
                 }
                 is RepaintBoundaryNode -> {
+                    val container = node.container
                     if (node.elevation > 0.dp) {
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                            canvas.nativeCanvas.enableZ()
-                            node.container.callDraw(canvas)
-                            canvas.nativeCanvas.disableZ()
+                            container.callDrawWithZApi29(canvas)
                         } else {
-                            elevationCompat!!.drawWithZ(canvas, node)
+                            elevationCompat!!.drawWithZ(canvas, container)
                         }
                     } else {
-                        node.container.callDraw(canvas)
+                        container.callDraw(canvas)
                     }
                 }
                 is LayoutNode -> {
@@ -627,6 +627,16 @@ class AndroidCraneView constructor(context: Context)
 
     private fun autofillSupported() = Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
 
+    @RequiresApi(Build.VERSION_CODES.Q)
+    private fun RepaintBoundary.callDrawWithZApi29(canvas: Canvas) {
+        // do not inline this method as it will decrease the performance. enableZ/disableZ
+        // were added in Q and referencing them in a code not targeting Q makes this code
+        // slower even if the methods will not be executed.
+        canvas.nativeCanvas.enableZ()
+        callDraw(canvas)
+        canvas.nativeCanvas.disableZ()
+    }
+
     /**
      * Compatible version of Canvas.enableZ()/disableZ().
      *
@@ -648,13 +658,13 @@ class AndroidCraneView constructor(context: Context)
     private inner class ElevationCompat {
         private val fakeChild: View = View(context).apply {
             setWillNotDraw(true)
-            addView(this)
+            this@AndroidCraneView.addView(this)
         }
         private var fakeDrawPass: Boolean = false
         private var boundary: RepaintBoundary? = null
 
-        fun drawWithZ(canvas: Canvas, node: RepaintBoundaryNode) {
-            this.boundary = node.container
+        fun drawWithZ(canvas: Canvas, boundary: RepaintBoundary) {
+            this.boundary = boundary
             fakeDrawPass = true
             super@AndroidCraneView.dispatchDraw(canvas.nativeCanvas)
             fakeDrawPass = false
