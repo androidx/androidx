@@ -50,7 +50,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 /**
  * Class for using an OEM provided extension on image capture.
  */
-abstract class ImageCaptureExtender {
+public abstract class ImageCaptureExtender {
     static final Config.Option<EffectMode> OPTION_IMAGE_CAPTURE_EXTENDER_MODE =
             Config.Option.create("camerax.extensions.imageCaptureExtender.mode", EffectMode.class);
 
