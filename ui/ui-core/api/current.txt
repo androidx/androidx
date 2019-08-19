@@ -1476,6 +1476,7 @@ package androidx.ui.painting {
     method public void clipRect(androidx.ui.engine.geometry.Rect rect, androidx.ui.painting.ClipOp clipOp = ClipOp.intersect);
     method public void concat(androidx.ui.vectormath64.Matrix4 matrix4);
     method public void drawArc(androidx.ui.engine.geometry.Rect rect, float startAngle, float sweepAngle, boolean useCenter, androidx.ui.painting.Paint paint);
+    method public default void drawArcRad(androidx.ui.engine.geometry.Rect rect, float startAngleRad, float sweepAngleRad, boolean useCenter, androidx.ui.painting.Paint paint);
     method public void drawCircle(androidx.ui.engine.geometry.Offset center, float radius, androidx.ui.painting.Paint paint);
     method public void drawColor(androidx.ui.graphics.Color color, androidx.ui.painting.BlendMode blendMode);
     method public void drawDRRect(androidx.ui.engine.geometry.RRect outer, androidx.ui.engine.geometry.RRect inner, androidx.ui.painting.Paint paint);
@@ -1494,10 +1495,12 @@ package androidx.ui.painting {
     method public android.graphics.Canvas getNativeCanvas();
     method public void restore();
     method public void rotate(float degrees);
+    method public default void rotateRad(float radians);
     method public void save();
     method public void saveLayer(androidx.ui.engine.geometry.Rect? bounds, androidx.ui.painting.Paint paint);
     method public void scale(float sx, float sy = sx);
     method public void skew(float sx, float sy);
+    method public default void skewRad(float sxRad, float syRad);
     method public void translate(float dx, float dy);
     property public abstract android.graphics.Canvas nativeCanvas;
   }
