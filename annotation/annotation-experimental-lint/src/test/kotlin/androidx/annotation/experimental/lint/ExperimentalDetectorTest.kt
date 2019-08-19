@@ -52,11 +52,11 @@ class ExperimentalDetectorTest {
         /* ktlint-disable max-line-length */
         val expected = """
 src/sample/UseJavaExperimentalFromJava.java:27: Error: This declaration is experimental and its usage should be marked with
-'@sample.ExperimentalDateTime' or '@UseExperimental(sample.ExperimentalDateTime.class)' [UnsafeExperimentalUsageError]
+'@sample.ExperimentalDateTime' or '@UseExperimental(markerClass = sample.ExperimentalDateTime.class)' [UnsafeExperimentalUsageError]
         DateProvider dateProvider = new DateProvider();
                                     ~~~~~~~~~~~~~~~~~~
 src/sample/UseJavaExperimentalFromJava.java:28: Error: This declaration is experimental and its usage should be marked with
-'@sample.ExperimentalDateTime' or '@UseExperimental(sample.ExperimentalDateTime.class)' [UnsafeExperimentalUsageError]
+'@sample.ExperimentalDateTime' or '@UseExperimental(markerClass = sample.ExperimentalDateTime.class)' [UnsafeExperimentalUsageError]
         return dateProvider.getDate();
                             ~~~~~~~
 2 errors, 0 warnings
@@ -77,11 +77,11 @@ src/sample/UseJavaExperimentalFromJava.java:28: Error: This declaration is exper
         /* ktlint-disable max-line-length */
         val expected = """
 src/sample/UseJavaExperimentalFromKt.kt:27: Error: This declaration is experimental and its usage should be marked with
-'@sample.ExperimentalDateTime' or '@UseExperimental(sample.ExperimentalDateTime.class)' [UnsafeExperimentalUsageError]
+'@sample.ExperimentalDateTime' or '@UseExperimental(markerClass = sample.ExperimentalDateTime.class)' [UnsafeExperimentalUsageError]
         val dateProvider = DateProvider()
                            ~~~~~~~~~~~~
 src/sample/UseJavaExperimentalFromKt.kt:28: Error: This declaration is experimental and its usage should be marked with
-'@sample.ExperimentalDateTime' or '@UseExperimental(sample.ExperimentalDateTime.class)' [UnsafeExperimentalUsageError]
+'@sample.ExperimentalDateTime' or '@UseExperimental(markerClass = sample.ExperimentalDateTime.class)' [UnsafeExperimentalUsageError]
         return dateProvider.date
                             ~~~~
 2 errors, 0 warnings
@@ -103,11 +103,11 @@ src/sample/UseJavaExperimentalFromKt.kt:28: Error: This declaration is experimen
         /* ktlint-disable max-line-length */
         val expected = """
 src/sample/UseKtExperimentalFromJava.java:27: Error: This declaration is experimental and its usage should be marked with
-'@sample.ExperimentalDateTimeKt' or '@UseExperimental(sample.ExperimentalDateTimeKt.class)' [UnsafeExperimentalUsageError]
+'@sample.ExperimentalDateTimeKt' or '@UseExperimental(markerClass = sample.ExperimentalDateTimeKt.class)' [UnsafeExperimentalUsageError]
         DateProviderKt dateProvider = new DateProviderKt();
                                       ~~~~~~~~~~~~~~~~~~~~
 src/sample/UseKtExperimentalFromJava.java:28: Error: This declaration is experimental and its usage should be marked with
-'@sample.ExperimentalDateTimeKt' or '@UseExperimental(sample.ExperimentalDateTimeKt.class)' [UnsafeExperimentalUsageError]
+'@sample.ExperimentalDateTimeKt' or '@UseExperimental(markerClass = sample.ExperimentalDateTimeKt.class)' [UnsafeExperimentalUsageError]
         return dateProvider.getDate();
                             ~~~~~~~
 2 errors, 0 warnings
@@ -129,15 +129,15 @@ src/sample/UseKtExperimentalFromJava.java:28: Error: This declaration is experim
         /* ktlint-disable max-line-length */
         val expected = """
 src/sample/UseJavaPackageFromJava.java:30: Error: This declaration is experimental and its usage should be marked with
-'@sample.foo.ExperimentalPackage' or '@UseExperimental(sample.foo.ExperimentalPackage.class)' [UnsafeExperimentalUsageError]
+'@sample.foo.ExperimentalPackage' or '@UseExperimental(markerClass = sample.foo.ExperimentalPackage.class)' [UnsafeExperimentalUsageError]
         Bar bar = new Bar();
                   ~~~~~~~~~
 src/sample/UseJavaPackageFromJava.java:31: Error: This declaration is experimental and its usage should be marked with
-'@sample.foo.ExperimentalPackage' or '@UseExperimental(sample.foo.ExperimentalPackage.class)' [UnsafeExperimentalUsageError]
+'@sample.foo.ExperimentalPackage' or '@UseExperimental(markerClass = sample.foo.ExperimentalPackage.class)' [UnsafeExperimentalUsageError]
         bar.baz();
             ~~~
 src/sample/UseJavaPackageFromJava.java:54: Error: This declaration is experimental and its usage should be marked with
-'@sample.foo.ExperimentalPackage' or '@UseExperimental(sample.foo.ExperimentalPackage.class)' [UnsafeExperimentalUsageError]
+'@sample.foo.ExperimentalPackage' or '@UseExperimental(markerClass = sample.foo.ExperimentalPackage.class)' [UnsafeExperimentalUsageError]
         callPackageExperimental();
         ~~~~~~~~~~~~~~~~~~~~~~~
 3 errors, 0 warnings
@@ -159,15 +159,15 @@ src/sample/UseJavaPackageFromJava.java:54: Error: This declaration is experiment
         /* ktlint-disable max-line-length */
         val expected = """
 src/sample/UseJavaPackageFromKt.kt:30: Error: This declaration is experimental and its usage should be marked with
-'@sample.foo.ExperimentalPackage' or '@UseExperimental(sample.foo.ExperimentalPackage.class)' [UnsafeExperimentalUsageError]
+'@sample.foo.ExperimentalPackage' or '@UseExperimental(markerClass = sample.foo.ExperimentalPackage.class)' [UnsafeExperimentalUsageError]
         val bar = Bar()
                   ~~~
 src/sample/UseJavaPackageFromKt.kt:31: Error: This declaration is experimental and its usage should be marked with
-'@sample.foo.ExperimentalPackage' or '@UseExperimental(sample.foo.ExperimentalPackage.class)' [UnsafeExperimentalUsageError]
+'@sample.foo.ExperimentalPackage' or '@UseExperimental(markerClass = sample.foo.ExperimentalPackage.class)' [UnsafeExperimentalUsageError]
         bar.baz()
             ~~~
 src/sample/UseJavaPackageFromKt.kt:54: Error: This declaration is experimental and its usage should be marked with
-'@sample.foo.ExperimentalPackage' or '@UseExperimental(sample.foo.ExperimentalPackage.class)' [UnsafeExperimentalUsageError]
+'@sample.foo.ExperimentalPackage' or '@UseExperimental(markerClass = sample.foo.ExperimentalPackage.class)' [UnsafeExperimentalUsageError]
         callPackageExperimental()
         ~~~~~~~~~~~~~~~~~~~~~~~
 3 errors, 0 warnings

@@ -18,6 +18,7 @@ package androidx.annotation.experimental.lint
 
 import com.android.tools.lint.detector.api.AnnotationUsageType
 import com.android.tools.lint.detector.api.Category
+import com.android.tools.lint.detector.api.ConstantEvaluator
 import com.android.tools.lint.detector.api.Detector
 import com.android.tools.lint.detector.api.Implementation
 import com.android.tools.lint.detector.api.Issue
@@ -28,6 +29,7 @@ import com.android.tools.lint.detector.api.SourceCodeScanner
 import com.android.tools.lint.detector.api.isKotlin
 import com.intellij.psi.PsiClassType
 import com.intellij.psi.PsiElement
+import com.intellij.psi.PsiField
 import com.intellij.psi.PsiMethod
 import org.jetbrains.uast.UAnnotated
 import org.jetbrains.uast.UAnnotation
@@ -35,7 +37,7 @@ import org.jetbrains.uast.UClass
 import org.jetbrains.uast.UClassLiteralExpression
 import org.jetbrains.uast.UElement
 import org.jetbrains.uast.UNamedExpression
-import org.jetbrains.uast.USimpleNameReferenceExpression
+import org.jetbrains.uast.UReferenceExpression
 import org.jetbrains.uast.getParentOfType
 
 @Suppress("SyntheticAccessor")
@@ -92,20 +94,23 @@ class ExperimentalDetector : Detector(), SourceCodeScanner {
         val useAnnotation = (annotation.uastParent as? UClass)?.qualifiedName ?: return
         if (!hasOrUsesAnnotation(context, usage, useAnnotation, useAnnotationName)) {
             val level = extractAttribute(annotation, "level")
-            report(context, usage, """
-                This declaration is experimental and its usage should be marked with
-                '@$useAnnotation' or '@UseExperimental($useAnnotation.class)'
+            if (level != null) {
+                report(context, usage, """
+                    This declaration is experimental and its usage should be marked with
+                    '@$useAnnotation' or '@UseExperimental(markerClass = $useAnnotation.class)'
                 """, level)
+            } else {
+                report(context, annotation, """
+                    Failed to extract attribute "level" from annotation
+                """, "ERROR")
+            }
         }
     }
 
-    private fun extractAttribute(annotation: UAnnotation, name: String): String {
-        if (annotation.attributeValues.isNotEmpty()) {
-            return annotation.attributeValues[0].simpleName
-                ?: throw IllegalStateException("Failed to extract level from simple annotation")
-        }
-        return (annotation.findAttributeValue(name)?.evaluate() as? Pair<*, *>)?.second?.toString()
-            ?: throw IllegalStateException("Failed to extract level from reference annotation")
+    @Suppress("SameParameterValue")
+    private fun extractAttribute(annotation: UAnnotation, name: String): String? {
+        val expression = annotation.findAttributeValue(name) as? UReferenceExpression
+        return (ConstantEvaluator().evaluate(expression) as? PsiField)?.name
     }
 
     /**
@@ -150,7 +155,8 @@ class ExperimentalDetector : Detector(), SourceCodeScanner {
         val issue = when (level) {
             "ERROR" -> ISSUE_ERROR
             "WARNING" -> ISSUE_WARNING
-            else -> throw IllegalArgumentException("Level must be one of ERROR, WARNING")
+            else -> throw IllegalArgumentException("Level was \"" + level + "\" but must be one " +
+                    "of: ERROR, WARNING")
         }
         context.report(issue, usage, context.getNameLocation(usage), message.trimIndent())
     }
@@ -203,13 +209,6 @@ class ExperimentalDetector : Detector(), SourceCodeScanner {
             ISSUE_WARNING
         )
     }
-}
-
-/**
- * Returns the simple name (not qualified) associated with an expression, if any.
- */
-private val UNamedExpression?.simpleName: String? get() = this?.let {
-    (expression as? USimpleNameReferenceExpression)?.identifier
 }
 
 /**
