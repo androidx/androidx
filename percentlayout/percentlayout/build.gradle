@@ -10,7 +10,7 @@ plugins {
 
 dependencies {
     api(ANDROIDX_ANNOTATION)
-    implementation("androidx.core:core:1.1.0-rc01")
+    implementation("androidx.core:core:1.1.0")
 
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
     androidTestImplementation(ANDROIDX_TEST_CORE)
