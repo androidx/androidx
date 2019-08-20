@@ -47,10 +47,12 @@ public abstract class InspectorFactory<T extends Inspector> {
         return mInspectorId;
     }
 
-    // TODO: pass the connection in this method
     /**
+     * Creates a new inspector with the provided connection.
+     *
+     * @param connection a connection to send events.
      * @return a new instance of an inspector.
      */
     @NonNull
-    public abstract T createInspector();
+    public abstract T createInspector(@NonNull Connection connection);
 }
