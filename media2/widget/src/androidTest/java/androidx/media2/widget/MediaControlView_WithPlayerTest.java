@@ -23,6 +23,7 @@ import static androidx.test.espresso.matcher.RootMatchers.isPlatformPopup;
 import static androidx.test.espresso.matcher.ViewMatchers.isClickable;
 import static androidx.test.espresso.matcher.ViewMatchers.isCompletelyDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
+import static androidx.test.espresso.matcher.ViewMatchers.isEnabled;
 import static androidx.test.espresso.matcher.ViewMatchers.withContentDescription;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
@@ -301,29 +302,31 @@ public class MediaControlView_WithPlayerTest extends MediaWidgetTestBase {
 
         assertTrue(callback.mItemLatch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
         assertEquals(0, playerWrapper.getCurrentMediaItemIndex());
-        onView(allOf(withId(R.id.prev), not(isClickable())));
-        onView(allOf(withId(R.id.next), isClickable()));
+        onView(allOf(withId(R.id.prev), isCompletelyDisplayed()))
+                .check(matches(not(isEnabled())));
+        onView(allOf(withId(R.id.next), isCompletelyDisplayed())).check(matches(isEnabled()));
         callback.mItemLatch = new CountDownLatch(1);
         onView(allOf(withId(R.id.next), isCompletelyDisplayed())).perform(click());
 
         assertTrue(callback.mItemLatch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
         assertEquals(1, playerWrapper.getCurrentMediaItemIndex());
-        onView(allOf(withId(R.id.prev), isClickable()));
-        onView(allOf(withId(R.id.next), isClickable()));
+        onView(allOf(withId(R.id.prev), isCompletelyDisplayed())).check(matches(isEnabled()));
+        onView(allOf(withId(R.id.next), isCompletelyDisplayed())).check(matches(isEnabled()));
         callback.mItemLatch = new CountDownLatch(1);
         onView(allOf(withId(R.id.next), isCompletelyDisplayed())).perform(click());
 
         assertTrue(callback.mItemLatch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
         assertEquals(2, playerWrapper.getCurrentMediaItemIndex());
-        onView(allOf(withId(R.id.prev), isClickable()));
-        onView(allOf(withId(R.id.next), not(isClickable())));
+        onView(allOf(withId(R.id.prev), isCompletelyDisplayed())).check(matches(isEnabled()));
+        onView(allOf(withId(R.id.next), isCompletelyDisplayed()))
+                .check(matches(not(isEnabled())));
         callback.mItemLatch = new CountDownLatch(1);
         onView(allOf(withId(R.id.prev), isCompletelyDisplayed())).perform(click());
 
         assertTrue(callback.mItemLatch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
         assertEquals(1, playerWrapper.getCurrentMediaItemIndex());
-        onView(allOf(withId(R.id.prev), isClickable()));
-        onView(allOf(withId(R.id.next), isClickable()));
+        onView(allOf(withId(R.id.prev), isCompletelyDisplayed())).check(matches(isEnabled()));
+        onView(allOf(withId(R.id.next), isCompletelyDisplayed())).check(matches(isEnabled()));
     }
 
     @Test
