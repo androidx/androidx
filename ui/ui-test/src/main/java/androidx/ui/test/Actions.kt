@@ -20,7 +20,8 @@ package androidx.ui.test
  * Performs a click action on the given component.
  */
 fun SemanticsNodeInteraction.doClick(): SemanticsNodeInteraction {
-    assertStillExists()
+    // TODO(b/129400818): uncomment this after Merge Semantics is merged
+    // assertHasClickAction()
 
     // TODO(catalintudor): get real coordinates after Semantics API is ready (b/125702443)
     val globalCoordinates = semanticsTreeNode.globalPosition

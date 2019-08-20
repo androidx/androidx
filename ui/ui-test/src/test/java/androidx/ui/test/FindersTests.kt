@@ -25,10 +25,9 @@ import androidx.ui.test.helpers.FakeSemanticsTreeInteraction
 import com.google.common.truth.Truth
 import org.junit.Test
 
-// TODO(b/138167927): findByTag_* tests do not call findByTag
 class FindersTests {
     @Test
-    fun findByTag_zeroOutOfOne_findsNone() {
+    fun findAll_zeroOutOfOne_findsNone() {
         semanticsTreeInteractionFactory = { selector ->
             FakeSemanticsTreeInteraction(selector)
                 .withSemantics(newNode(
@@ -43,7 +42,7 @@ class FindersTests {
     }
 
     @Test
-    fun findByTag_oneOutOfTwo_findsOne() {
+    fun findAll_oneOutOfTwo_findsOne() {
         val node1 = newNode(SemanticsConfiguration().apply {
             testTag = "myTestTag"
         })
@@ -61,7 +60,7 @@ class FindersTests {
     }
 
     @Test
-    fun findByTag_twoOutOfTwo_findsTwo() {
+    fun findAll_twoOutOfTwo_findsTwo() {
         val node1 = newNode(
             SemanticsConfiguration().apply {
                 testTag = "myTestTag"

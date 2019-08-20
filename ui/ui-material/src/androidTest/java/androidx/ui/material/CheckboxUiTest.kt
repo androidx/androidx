@@ -29,6 +29,7 @@ import androidx.ui.foundation.selection.ToggleableState.Unchecked
 import androidx.ui.foundation.semantics.toggleableState
 import androidx.ui.layout.Column
 import androidx.ui.semantics.accessibilityValue
+import androidx.ui.test.assertHasNoClickAction
 import androidx.ui.test.assertIsChecked
 import androidx.ui.test.assertIsUnchecked
 import androidx.ui.test.assertSemanticsIsEqualTo
@@ -126,9 +127,7 @@ class CheckboxUiTest {
         }
 
         findByTag(defaultTag)
-            .assertIsUnchecked()
-            .doClick()
-            .assertIsUnchecked()
+            .assertHasNoClickAction()
     }
 
     @Test
