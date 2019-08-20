@@ -17,7 +17,6 @@
 package androidx.paging
 
 import androidx.paging.PagedList.LoadState
-import androidx.paging.PagedList.LoadType
 import androidx.paging.PagedSource.KeyProvider
 import androidx.paging.PagedSource.LoadParams
 import androidx.paging.PagedSource.LoadResult
@@ -43,7 +42,7 @@ internal class Pager<K : Any, V : Any>(
     private val detached = AtomicBoolean(false)
 
     var loadStateManager = object : PagedList.LoadStateManager() {
-        override fun onStateChanged(type: LoadType, state: LoadState) {
+        override fun onStateChanged(type: PageLoadType, state: LoadState) {
             pageConsumer.onStateChanged(type, state)
         }
     }
@@ -54,7 +53,7 @@ internal class Pager<K : Any, V : Any>(
     init {
         prevKey = result.prevKey
         nextKey = result.nextKey
-        this.adjacentProvider.onPageResultResolution(LoadType.REFRESH, result)
+        this.adjacentProvider.onPageResultResolution(PageLoadType.REFRESH, result)
         totalCount = when (result.counted) {
             // only one of leadingNulls / offset may be used
             true -> result.itemsBefore + result.data.size + result.itemsAfter
@@ -62,7 +61,7 @@ internal class Pager<K : Any, V : Any>(
         }
     }
 
-    private fun scheduleLoad(type: LoadType, params: LoadParams<K>) {
+    private fun scheduleLoad(type: PageLoadType, params: LoadParams<K>) {
         // Listen on the BG thread if the paged source is invalid, since it can be expensive.
         pagedListScope.launch(fetchDispatcher) {
             try {
@@ -86,18 +85,18 @@ internal class Pager<K : Any, V : Any>(
         }
     }
 
-    private fun onLoadSuccess(type: LoadType, value: LoadResult<K, V>) {
+    private fun onLoadSuccess(type: PageLoadType, value: LoadResult<K, V>) {
         if (isDetached) return // abort!
 
         adjacentProvider.onPageResultResolution(type, value)
 
         if (pageConsumer.onPageResult(type, value)) {
             when (type) {
-                LoadType.START -> {
+                PageLoadType.START -> {
                     prevKey = value.prevKey
                     schedulePrepend()
                 }
-                LoadType.END -> {
+                PageLoadType.END -> {
                     nextKey = value.nextKey
                     scheduleAppend()
                 }
@@ -112,7 +111,7 @@ internal class Pager<K : Any, V : Any>(
         }
     }
 
-    private fun onLoadError(type: LoadType, throwable: Throwable) {
+    private fun onLoadError(type: PageLoadType, throwable: Throwable) {
         if (isDetached) return // abort!
 
         // TODO: handle nesting
@@ -144,7 +143,7 @@ internal class Pager<K : Any, V : Any>(
 
     private fun schedulePrepend() {
         if (!canPrepend()) {
-            onLoadSuccess(LoadType.START, LoadResult.empty())
+            onLoadSuccess(PageLoadType.START, LoadResult.empty())
             return
         }
 
@@ -157,21 +156,21 @@ internal class Pager<K : Any, V : Any>(
             is KeyProvider.ItemKey -> keyProvider.getKey(adjacentProvider.firstLoadedItem!!)
         }
 
-        loadStateManager.setState(LoadType.START, LoadState.Loading)
+        loadStateManager.setState(PageLoadType.START, LoadState.Loading)
 
         val loadParams = LoadParams(
-            PagedSource.LoadType.START,
+            PageLoadType.START,
             key,
             config.pageSize,
             config.enablePlaceholders,
             config.pageSize
         )
-        scheduleLoad(LoadType.START, loadParams)
+        scheduleLoad(PageLoadType.START, loadParams)
     }
 
     private fun scheduleAppend() {
         if (!canAppend()) {
-            onLoadSuccess(LoadType.END, LoadResult.empty())
+            onLoadSuccess(PageLoadType.END, LoadResult.empty())
             return
         }
 
@@ -186,15 +185,15 @@ internal class Pager<K : Any, V : Any>(
             )
         }
 
-        loadStateManager.setState(LoadType.END, LoadState.Loading)
+        loadStateManager.setState(PageLoadType.END, LoadState.Loading)
         val loadParams = LoadParams(
-            PagedSource.LoadType.END,
+            PageLoadType.END,
             key,
             config.pageSize,
             config.enablePlaceholders,
             config.pageSize
         )
-        scheduleLoad(LoadType.END, loadParams)
+        scheduleLoad(PageLoadType.END, loadParams)
     }
 
     fun retry() {
@@ -212,9 +211,9 @@ internal class Pager<K : Any, V : Any>(
         /**
          * @return `true` if we need to fetch more
          */
-        fun onPageResult(type: LoadType, pageResult: LoadResult<*, V>): Boolean
+        fun onPageResult(type: PageLoadType, pageResult: LoadResult<*, V>): Boolean
 
-        fun onStateChanged(type: LoadType, state: LoadState)
+        fun onStateChanged(type: PageLoadType, state: LoadState)
     }
 
     internal interface AdjacentProvider<V : Any> {
@@ -230,7 +229,7 @@ internal class Pager<K : Any, V : Any>(
          * implementation of the AdjacentProvider to handle this (generally by ignoring this call if
          * dropping is supported).
          */
-        fun onPageResultResolution(type: LoadType, result: LoadResult<*, V>)
+        fun onPageResultResolution(type: PageLoadType, result: LoadResult<*, V>)
     }
 
     internal class SimpleAdjacentProvider<V : Any> : AdjacentProvider<V> {
@@ -247,16 +246,16 @@ internal class Pager<K : Any, V : Any>(
         private var leadingUnloadedCount: Int = 0
         private var trailingUnloadedCount: Int = 0
 
-        override fun onPageResultResolution(type: LoadType, result: LoadResult<*, V>) {
+        override fun onPageResultResolution(type: PageLoadType, result: LoadResult<*, V>) {
             if (result.data.isEmpty()) return
 
-            if (type == LoadType.START) {
+            if (type == PageLoadType.START) {
                 firstLoadedItemIndex -= result.data.size
                 firstLoadedItem = result.data[0]
                 if (counted) {
                     leadingUnloadedCount -= result.data.size
                 }
-            } else if (type == LoadType.END) {
+            } else if (type == PageLoadType.END) {
                 lastLoadedItemIndex += result.data.size
                 lastLoadedItem = result.data.last()
                 if (counted) {

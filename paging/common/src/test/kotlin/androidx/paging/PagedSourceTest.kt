@@ -19,7 +19,6 @@ package androidx.paging
 import androidx.paging.PagedSource.LoadParams
 import androidx.paging.PagedSource.LoadResult
 import androidx.paging.PagedSource.LoadResult.Companion.COUNT_UNDEFINED
-import androidx.paging.PagedSource.LoadType
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertSame
@@ -43,7 +42,7 @@ class PagedSourceTest {
     ): LoadResult<Key, Item> {
         return pagedSource.load(
             LoadParams(
-                LoadType.INITIAL,
+                PageLoadType.REFRESH,
                 key,
                 initialLoadSize,
                 enablePlaceholders,
@@ -65,7 +64,7 @@ class PagedSourceTest {
 
             // Verify error is propagated correctly.
             pagedSource.enqueueError()
-            val errorParams = LoadParams(LoadType.INITIAL, key, 10, false, 10)
+            val errorParams = LoadParams(PageLoadType.REFRESH, key, 10, false, 10)
             assertFailsWith<CustomException> {
                 pagedSource.load(errorParams)
             }
@@ -197,7 +196,7 @@ class PagedSourceTest {
 
         runBlocking {
             val key = dataSource.keyProvider.getKey(ITEMS_BY_NAME_ID[5])
-            val params = LoadParams(LoadType.START, key, 5, false, 5)
+            val params = LoadParams(PageLoadType.START, key, 5, false, 5)
             val observed = dataSource.load(params).data
 
             assertEquals(ITEMS_BY_NAME_ID.subList(0, 5), observed)
@@ -205,7 +204,7 @@ class PagedSourceTest {
             // Verify error is propagated correctly.
             dataSource.enqueueError()
             assertFailsWith<CustomException> {
-                val errorParams = LoadParams(LoadType.START, key, 5, false, 5)
+                val errorParams = LoadParams(PageLoadType.START, key, 5, false, 5)
                 dataSource.load(errorParams)
             }
         }
@@ -217,7 +216,7 @@ class PagedSourceTest {
 
         runBlocking {
             val key = dataSource.keyProvider.getKey(ITEMS_BY_NAME_ID[5])
-            val params = LoadParams(LoadType.END, key, 5, false, 5)
+            val params = LoadParams(PageLoadType.END, key, 5, false, 5)
             val observed = dataSource.load(params).data
 
             assertEquals(ITEMS_BY_NAME_ID.subList(6, 11), observed)
@@ -225,7 +224,7 @@ class PagedSourceTest {
             // Verify error is propagated correctly.
             dataSource.enqueueError()
             assertFailsWith<CustomException> {
-                val errorParams = LoadParams(LoadType.END, key, 5, false, 5)
+                val errorParams = LoadParams(PageLoadType.END, key, 5, false, 5)
                 dataSource.load(errorParams)
             }
         }
@@ -269,9 +268,9 @@ class PagedSourceTest {
 
         override suspend fun load(params: LoadParams<Key>): LoadResult<Key, Item> {
             return when (params.loadType) {
-                LoadType.INITIAL -> loadInitial(params)
-                LoadType.START -> loadBefore(params)
-                LoadType.END -> loadAfter(params)
+                PageLoadType.REFRESH -> loadInitial(params)
+                PageLoadType.START -> loadBefore(params)
+                PageLoadType.END -> loadAfter(params)
             }
         }
 

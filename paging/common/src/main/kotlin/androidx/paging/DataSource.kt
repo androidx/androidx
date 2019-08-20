@@ -431,21 +431,11 @@ internal constructor(internal val type: KeyType) {
     }
 
     /**
-     * @hide
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
-    enum class LoadType {
-        INITIAL,
-        START,
-        END
-    }
-
-    /**
      * @param K Type of the key used to query the [DataSource].
      * @property key Can be `null` for init, otherwise non-null
      */
     class Params<K : Any> internal constructor(
-        internal val type: LoadType,
+        internal val type: PageLoadType,
         val key: K?,
         val initialLoadSize: Int,
         val placeholdersEnabled: Boolean,

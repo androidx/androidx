@@ -21,14 +21,15 @@ import android.widget.Button
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
+import androidx.paging.PageLoadType
 import androidx.paging.PagedList
 import androidx.paging.PagedList.LoadState.Done
 import androidx.paging.PagedList.LoadState.Error
 import androidx.paging.PagedList.LoadState.Idle
 import androidx.paging.PagedList.LoadState.Loading
-import androidx.paging.PagedList.LoadType.END
-import androidx.paging.PagedList.LoadType.REFRESH
-import androidx.paging.PagedList.LoadType.START
+import androidx.paging.PageLoadType.END
+import androidx.paging.PageLoadType.REFRESH
+import androidx.paging.PageLoadType.START
 import androidx.paging.PagedListAdapter
 import androidx.paging.integration.testapp.R
 import androidx.recyclerview.widget.RecyclerView
@@ -75,7 +76,7 @@ class PagedListSampleActivity : AppCompatActivity() {
             adapter.currentList?.retry()
         }
 
-        adapter.addLoadStateListener { type: PagedList.LoadType, state: PagedList.LoadState ->
+        adapter.addLoadStateListener { type: PageLoadType, state: PagedList.LoadState ->
             val button = when (type) {
                 REFRESH -> buttonRefresh
                 START -> buttonStart

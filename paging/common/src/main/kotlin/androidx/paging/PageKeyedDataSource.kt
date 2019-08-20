@@ -211,15 +211,15 @@ abstract class PageKeyedDataSource<Key : Any, Value : Any> : DataSource<Key, Val
      */
     @Suppress("RedundantVisibilityModifier") // Metalava doesn't inherit visibility properly.
     internal final override suspend fun load(params: Params<Key>): BaseResult<Value> = when {
-        params.type == LoadType.INITIAL -> loadInitial(
+        params.type == PageLoadType.REFRESH -> loadInitial(
             LoadInitialParams(
                 params.initialLoadSize,
                 params.placeholdersEnabled
             )
         )
         params.key == null -> BaseResult.empty()
-        params.type == LoadType.START -> loadBefore(LoadParams(params.key, params.pageSize))
-        params.type == LoadType.END -> loadAfter(LoadParams(params.key, params.pageSize))
+        params.type == PageLoadType.START -> loadBefore(LoadParams(params.key, params.pageSize))
+        params.type == PageLoadType.END -> loadAfter(LoadParams(params.key, params.pageSize))
         else -> throw IllegalArgumentException("Unsupported type " + params.type.toString())
     }
 

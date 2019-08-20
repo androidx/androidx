@@ -17,7 +17,6 @@
 package androidx.paging
 
 import androidx.paging.PagedList.LoadState
-import androidx.paging.PagedList.LoadType
 import androidx.recyclerview.widget.AdapterListUpdateCallback
 import androidx.recyclerview.widget.AsyncDifferConfig
 import androidx.recyclerview.widget.DiffUtil
@@ -231,10 +230,10 @@ abstract class PagedListAdapter<T : Any, VH : RecyclerView.ViewHolder> : Recycle
      * REFRESH events can be used to drive a `SwipeRefreshLayout`, or START/END events
      * can be used to drive loading spinner items in the Adapter.
      *
-     * @param type [LoadType] Can be START, END, or REFRESH
+     * @param type [PageLoadType] Can be START, END, or REFRESH
      * @param state [LoadState] IDLE, LOADING, DONE, ERROR, or RETRYABLE_ERROR
      */
-    open fun onLoadStateChanged(type: LoadType, state: LoadState) {
+    open fun onLoadStateChanged(type: PageLoadType, state: LoadState) {
     }
 
     /**
