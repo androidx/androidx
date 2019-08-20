@@ -34,7 +34,8 @@ import java.net.URLConnection;
 import java.util.zip.GZIPInputStream;
 
 /**
-  * Handles opening resources and assets.
+  * A Utility class for opening resources, assets and files for
+  * {@link androidx.webkit.WebViewAssetLoader}.
   * Forked from the chromuim project org.chromium.android_webview.AndroidProtocolHandler
   */
 public class AssetHelper {
@@ -73,9 +74,9 @@ public class AssetHelper {
         return path;
     }
 
-    private int getFieldId(@NonNull String assetType, @NonNull String assetName) {
+    private int getFieldId(@NonNull String resourceType, @NonNull String resourceName) {
         String packageName = mContext.getPackageName();
-        int id = mContext.getResources().getIdentifier(assetName, assetType, packageName);
+        int id = mContext.getResources().getIdentifier(resourceName, resourceType, packageName);
         return id;
     }
 
@@ -89,29 +90,32 @@ public class AssetHelper {
      * Open an InputStream for an Android resource.
      *
      * @param path Path of the form "resource_type/resource_name.ext".
-     * @return An InputStream to the Android resource.
+     * @return An {@link InputStream} to the Android resource or {@code null} if it cannot open the
+     *         resource file.
      */
     @Nullable
     public InputStream openResource(@NonNull String path) {
         path = removeLeadingSlash(path);
-        // The path must be of the form "asset_type/asset_name.ext".
+        // The path must be of the form "resource_type/resource_name.ext".
         String[] pathSegments = path.split("/");
         if (pathSegments.length != 2) {
             Log.e(TAG, "Incorrect resource path: " + path);
             return null;
         }
-        String assetType = pathSegments[0];
-        String assetName = pathSegments[1];
+        String resourceType = pathSegments[0];
+        String resourceName = pathSegments[1];
 
         // Drop the file extension.
-        assetName = assetName.split("\\.")[0];
+        resourceName = resourceName.split("\\.")[0];
         try {
-            int fieldId = getFieldId(assetType, assetName);
+            int fieldId = getFieldId(resourceType, resourceName);
             int valueType = getValueType(fieldId);
             if (valueType == TypedValue.TYPE_STRING) {
                 return handleSvgzStream(path, mContext.getResources().openRawResource(fieldId));
             } else {
-                Log.e(TAG, "Asset not of type string: " + path);
+                Log.e(TAG,
+                        String.format("Expected %s resource to be of TYPE_STRING but was %d",
+                                path, valueType));
                 return null;
             }
         } catch (Resources.NotFoundException e) {
@@ -124,7 +128,8 @@ public class AssetHelper {
      * Open an InputStream for an Android asset.
      *
      * @param path Path to the asset file to load.
-     * @return An InputStream to the Android asset.
+     * @return An {@link InputStream} to the Android asset or {@code null} if it cannot open the
+     *         asset file.
      */
     @Nullable
     public InputStream openAsset(@NonNull String path) {
@@ -141,7 +146,7 @@ public class AssetHelper {
     /**
      * Open an {@code InputStream} for a file in application data directories.
      *
-     * @param file The the file to be opened.
+     * @param file The file to be opened.
      * @return An {@code InputStream} for the requested file or {@code null} if an error happens.
      */
     @Nullable
