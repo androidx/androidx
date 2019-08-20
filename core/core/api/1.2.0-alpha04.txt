@@ -916,6 +916,7 @@ package androidx.core.content.pm {
     method public android.content.Intent getIntent();
     method public android.content.Intent![] getIntents();
     method public CharSequence? getLongLabel();
+    method public int getRank();
     method public CharSequence getShortLabel();
     method @RequiresApi(25) public android.content.pm.ShortcutInfo! toShortcutInfo();
   }
@@ -934,6 +935,7 @@ package androidx.core.content.pm {
     method public androidx.core.content.pm.ShortcutInfoCompat.Builder setLongLived();
     method public androidx.core.content.pm.ShortcutInfoCompat.Builder setPerson(androidx.core.app.Person);
     method public androidx.core.content.pm.ShortcutInfoCompat.Builder setPersons(androidx.core.app.Person![]);
+    method public androidx.core.content.pm.ShortcutInfoCompat.Builder setRank(int);
     method public androidx.core.content.pm.ShortcutInfoCompat.Builder setShortLabel(CharSequence);
   }
 
