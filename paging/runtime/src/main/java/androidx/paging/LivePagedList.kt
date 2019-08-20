@@ -210,7 +210,7 @@ fun <Key : Any, Value : Any> PagedSourceFactory<Key, Value>.toLiveData(
         config,
         boundaryCallback,
         this,
-        Dispatchers.Main,
+        Dispatchers.Main.immediate,
         fetchDispatcher
     )
 }
@@ -247,7 +247,7 @@ fun <Key : Any, Value : Any> PagedSourceFactory<Key, Value>.toLiveData(
         PagedList.Config.Builder().setPageSize(pageSize).build(),
         boundaryCallback,
         this,
-        Dispatchers.Main,
+        Dispatchers.Main.immediate,
         fetchDispatcher
     )
 }
