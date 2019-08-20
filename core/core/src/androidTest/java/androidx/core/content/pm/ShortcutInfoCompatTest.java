@@ -126,6 +126,7 @@ public class ShortcutInfoCompatTest {
         assertEquals(TEST_SHORTCUT_ID, compat.getId());
         assertEquals(TEST_SHORTCUT_SHORT_LABEL, compat.getShortLabel());
         assertEquals(mAction, compat.getIntent());
+        assertEquals(0, compat.getRank());
         assertNull(compat.getLongLabel());
         assertNull(compat.getDisabledMessage());
         assertNull(compat.getActivity());
@@ -140,11 +141,13 @@ public class ShortcutInfoCompatTest {
         Set<String> categories = new HashSet<>();
         categories.add("cat1");
         categories.add("cat2");
+        int rank = 3;
         ShortcutInfoCompat compat = mBuilder
                 .setActivity(activity)
                 .setCategories(categories)
                 .setDisabledMessage(disabledMessage)
                 .setLongLabel(longLabel)
+                .setRank(rank)
                 .build();
 
         ShortcutInfoCompat copyCompat = new ShortcutInfoCompat.Builder(compat).build();
@@ -155,6 +158,7 @@ public class ShortcutInfoCompatTest {
         assertEquals(disabledMessage, copyCompat.getDisabledMessage());
         assertEquals(activity, copyCompat.getActivity());
         assertEquals(categories, copyCompat.getCategories());
+        assertEquals(rank, copyCompat.getRank());
     }
 
     @Test
@@ -166,7 +170,7 @@ public class ShortcutInfoCompatTest {
         Set<String> categories = new HashSet<>();
         categories.add("cat1");
         categories.add("cat2");
-
+        int rank = 3;
         ShortcutInfo.Builder builder = new ShortcutInfo.Builder(mContext, TEST_SHORTCUT_ID);
         ShortcutInfo shortcut = builder.setIntent(mAction)
                 .setShortLabel(TEST_SHORTCUT_SHORT_LABEL)
@@ -174,6 +178,7 @@ public class ShortcutInfoCompatTest {
                 .setCategories(categories)
                 .setDisabledMessage(disabledMessage)
                 .setLongLabel(longLabel)
+                .setRank(rank)
                 .build();
 
         ShortcutInfoCompat compat = new ShortcutInfoCompat.Builder(mContext, shortcut).build();
@@ -185,6 +190,7 @@ public class ShortcutInfoCompatTest {
         assertEquals(disabledMessage, compat.getDisabledMessage());
         assertEquals(activity, compat.getActivity());
         assertEquals(categories, compat.getCategories());
+        assertEquals(rank, compat.getRank());
     }
 
     @Test
@@ -195,12 +201,13 @@ public class ShortcutInfoCompatTest {
         Set<String> categories = new HashSet<>();
         categories.add("cat1");
         categories.add("cat2");
-
+        int rank = 3;
         ShortcutInfoCompat compat = mBuilder
                 .setActivity(activity)
                 .setCategories(categories)
                 .setDisabledMessage(disabledMessage)
                 .setLongLabel(longLabel)
+                .setRank(3)
                 .build();
         assertEquals(TEST_SHORTCUT_ID, compat.getId());
         assertEquals(TEST_SHORTCUT_SHORT_LABEL, compat.getShortLabel());
@@ -209,6 +216,7 @@ public class ShortcutInfoCompatTest {
         assertEquals(disabledMessage, compat.getDisabledMessage());
         assertEquals(activity, compat.getActivity());
         assertEquals(categories, compat.getCategories());
+        assertEquals(rank, compat.getRank());
     }
 
     @Test
@@ -220,12 +228,13 @@ public class ShortcutInfoCompatTest {
         Set<String> categories = new HashSet<>();
         categories.add("cat1");
         categories.add("cat2");
-
+        int rank = 3;
         ShortcutInfoCompat compat = mBuilder
                 .setActivity(activity)
                 .setCategories(categories)
                 .setDisabledMessage(disabledMessage)
                 .setLongLabel(longLabel)
+                .setRank(3)
                 .build();
 
         ShortcutInfo shortcut = compat.toShortcutInfo();
@@ -238,6 +247,7 @@ public class ShortcutInfoCompatTest {
         assertEquals(disabledMessage, shortcut.getDisabledMessage());
         assertEquals(activity, shortcut.getActivity());
         assertEquals(categories, shortcut.getCategories());
+        assertEquals(rank, shortcut.getRank());
     }
 
     @Test
