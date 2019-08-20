@@ -16,7 +16,9 @@
 
 package androidx.biometric;
 
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.fragment.app.FragmentActivity;
 
 /**
  * @hide
@@ -46,6 +48,16 @@ public class Utils {
                 return false;
             default:
                 return true;
+        }
+    }
+
+    /**
+     * Finishes a given activity if and only if it's a {@link DeviceCredentialHandlerActivity}.
+     * @param activity The activity to finish.
+     */
+    public static void maybeFinishHandler(@Nullable FragmentActivity activity) {
+        if (activity instanceof DeviceCredentialHandlerActivity && !activity.isFinishing()) {
+            activity.finish();
         }
     }
 }
