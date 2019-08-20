@@ -19,12 +19,16 @@ package androidx.ui.test
 import androidx.ui.core.semantics.SemanticsConfiguration
 import androidx.ui.core.semantics.getOrNull
 import androidx.ui.foundation.semantics.FoundationSemanticsProperties
+import androidx.ui.semantics.SemanticsActions
 
 /**
  * Verifies that a component is checkable.
  */
 val SemanticsConfiguration.isToggleable: Boolean
     get() = contains(FoundationSemanticsProperties.ToggleableState)
+
+val SemanticsConfiguration.hasClickAction: Boolean
+    get() = SemanticsActions.OnClick in this
 
 // TODO(ryanmentley/pavlis): Do we want these convenience functions?
 /**

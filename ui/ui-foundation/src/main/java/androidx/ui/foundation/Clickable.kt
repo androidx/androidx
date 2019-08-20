@@ -29,7 +29,7 @@ import androidx.ui.semantics.onClick
  *
  * @sample androidx.ui.foundation.samples.ClickableSample
  *
- * @param onClick will be called when user clicked on the button. The button will not be
+ * @param onClick will be called when user clicked on the button. The children will not be
  *  clickable when it is null.
  * @param consumeDownOnStart true means [PressReleasedGestureDetector] should consume
  *  down events. Provide false if you have some visual feedback like Ripples,
