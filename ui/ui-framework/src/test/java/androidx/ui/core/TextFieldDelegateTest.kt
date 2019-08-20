@@ -362,7 +362,10 @@ class TextFieldDelegateTest {
         assertEquals(1024.px.round(), res.first)
         assertEquals(512.px.round(), res.second)
 
-        verify(mDelegate, times(1)).layout(constraints)
+        val captor = argumentCaptor<Constraints>()
+        verify(mDelegate, times(1)).layout(captor.capture())
+        assertEquals(1024.ipx, captor.firstValue.minWidth)
+        assertEquals(1024.ipx, captor.firstValue.maxWidth)
     }
 
     @Test
