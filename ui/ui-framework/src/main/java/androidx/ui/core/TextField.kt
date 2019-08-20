@@ -31,6 +31,8 @@ import androidx.ui.input.EditorStyle
 import androidx.ui.input.ImeAction
 import androidx.ui.input.KeyboardType
 import androidx.ui.input.VisualTransformation
+import androidx.ui.semantics.Semantics
+import androidx.ui.semantics.onClick
 import androidx.ui.text.TextDelegate
 
 /**
@@ -210,28 +212,40 @@ private fun TextInputEventObserver(
     val focused = +state { false }
     val focusManager = +ambient(FocusManagerAmbient)
 
-    DragPositionGestureDetector(
-        onPress = {
-            if (focused.value) {
-                onPress(it)
-            } else {
-                focusManager.requestFocus(object : FocusManager.FocusNode {
-                    override fun onFocus() {
-                        onFocus()
-                        focused.value = true
-                    }
+    val doFocusIn = {
+        if (!focused.value) {
+            focusManager.requestFocus(object : FocusManager.FocusNode {
+                override fun onFocus() {
+                    onFocus()
+                    focused.value = true
+                }
 
-                    override fun onBlur() {
-                        onBlur()
-                        focused.value = false
-                    }
-                })
-            }
-        },
-        onDragAt = onDragAt,
-        onRelease = onRelease
+                override fun onBlur() {
+                    onBlur()
+                    focused.value = false
+                }
+            })
+        }
+    }
+
+    Semantics(
+        properties = {
+            onClick(action = doFocusIn)
+        }
     ) {
-        children()
+        DragPositionGestureDetector(
+            onPress = {
+                if (focused.value) {
+                    onPress(it)
+                } else {
+                    doFocusIn()
+                }
+            },
+            onDragAt = onDragAt,
+            onRelease = onRelease
+        ) {
+            children()
+        }
     }
 }
 
