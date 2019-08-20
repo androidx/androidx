@@ -33,7 +33,7 @@ dependencies {
     implementation(ARCH_CORE_RUNTIME)
 
     api(SUPPORT_ANNOTATIONS)
-    api(GUAVA_ANDROID)
+    implementation(GUAVA_ANDROID)
     androidTestImplementation(ANDROIDX_TEST_RUNNER)
     androidTestImplementation(TRUTH)
 }
