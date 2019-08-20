@@ -17,7 +17,6 @@
 package com.example.android.biometric;
 
 import android.content.Context;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -162,12 +161,6 @@ abstract class BiometricPromptDemoController {
             }
             log("canAuthenticate: " + message);
         });
-
-
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
-            mAllowDeviceCredentialCheckbox.setEnabled(false);
-            mAllowDeviceCredentialCheckbox.setChecked(false);
-        }
     }
 
     void onPause() {
@@ -196,8 +189,7 @@ abstract class BiometricPromptDemoController {
                                 + mCounter)
                 .setConfirmationRequired(mRequireConfirmationCheckbox.isChecked());
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q
-                && mAllowDeviceCredentialCheckbox.isChecked()) {
+        if (mAllowDeviceCredentialCheckbox.isChecked()) {
             builder.setDeviceCredentialAllowed(true);
         } else {
             builder.setNegativeButtonText("Negative Button " + mCounter);

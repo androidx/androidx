@@ -25,6 +25,7 @@ import android.view.View;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.biometric.BiometricPrompt;
 import androidx.fragment.app.FragmentActivity;
@@ -50,7 +51,7 @@ import javax.crypto.SecretKey;
 /**
  * Demo activity that shows how BiometricPrompt can be used with credential bound secret keys.
  */
-@RequiresApi(api = Build.VERSION_CODES.Q)
+@RequiresApi(api = Build.VERSION_CODES.M)
 public class BiometricPromptDemoCredentialBoundKeyActivity extends FragmentActivity {
 
     private static final String TAG = "bio_prompt_demo_control";
@@ -150,7 +151,7 @@ public class BiometricPromptDemoCredentialBoundKeyActivity extends FragmentActiv
     };
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.biometric_prompt_demo_credential_bound_key);
 

@@ -47,33 +47,30 @@ public class BiometricPromptDemo extends FragmentActivity {
         hostInFragmentButton.setOnClickListener(view -> launchFragmentHost());
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             biometricBoundKeyDemoButton.setOnClickListener(view -> launchBiometricBoundKeyDemo());
-        } else {
-            biometricBoundKeyDemoButton.setVisibility(View.GONE);
-        }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             credentialBoundKeyDemoButton.setOnClickListener(view -> launchCredentialBoundKeyDemo());
         } else {
+            biometricBoundKeyDemoButton.setVisibility(View.GONE);
             credentialBoundKeyDemoButton.setVisibility(View.GONE);
         }
     }
 
     private void launchActivityHost() {
-        Intent intent = new Intent(this, BiometricPromptDemoActivityHost.class);
+        final Intent intent = new Intent(this, BiometricPromptDemoActivityHost.class);
         startActivity(intent);
     }
 
     private void launchFragmentHost() {
-        Intent intent = new Intent(this, BiometricPromptDemoFragmentHostActivity.class);
+        final Intent intent = new Intent(this, BiometricPromptDemoFragmentHostActivity.class);
         startActivity(intent);
     }
 
     private void launchBiometricBoundKeyDemo() {
-        Intent intent = new Intent(this, BiometricPromptDemoBiometricBoundKeyActivity.class);
+        final Intent intent = new Intent(this, BiometricPromptDemoBiometricBoundKeyActivity.class);
         startActivity(intent);
     }
 
     private void launchCredentialBoundKeyDemo() {
-        Intent intent = new Intent(this, BiometricPromptDemoCredentialBoundKeyActivity.class);
+        final Intent intent = new Intent(this, BiometricPromptDemoCredentialBoundKeyActivity.class);
         startActivity(intent);
     }
 }
