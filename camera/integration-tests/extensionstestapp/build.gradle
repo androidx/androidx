@@ -57,5 +57,6 @@ dependencies {
     androidTestImplementation(ANDROIDX_TEST_UIAUTOMATOR)
     androidTestImplementation(ESPRESSO_CORE)
     androidTestImplementation(project(":camera:camera-testing"))
+    androidTestCompileOnly(project(":camera:camera-extensions-stub"))
 }
 
