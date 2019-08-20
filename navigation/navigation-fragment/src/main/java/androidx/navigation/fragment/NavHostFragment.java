@@ -290,7 +290,8 @@ public class NavHostFragment extends Fragment implements NavHost {
     @Deprecated
     @NonNull
     protected Navigator<? extends FragmentNavigator.Destination> createFragmentNavigator() {
-        return new FragmentNavigator(requireContext(), getChildFragmentManager(), getId());
+        return new FragmentNavigator(requireContext(), getChildFragmentManager(),
+                getContainerId());
     }
 
     @Nullable
@@ -302,8 +303,25 @@ public class NavHostFragment extends Fragment implements NavHost {
         // automatically), but this ensures that the View exists as part of this Fragment's View
         // hierarchy in cases where the NavHostFragment is added programmatically as is required
         // for child fragment transactions
-        containerView.setId(getId());
+        containerView.setId(getContainerId());
         return containerView;
+    }
+
+    /**
+     * We specifically can't use {@link View#NO_ID} as the container ID (as we use
+     * {@link androidx.fragment.app.FragmentTransaction#add(int, Fragment)} under the hood),
+     * so we need to make sure we return a valid ID when asked for the container ID.
+     *
+     * @return a valid ID to be used to contain child fragments
+     */
+    private int getContainerId() {
+        int id = getId();
+        if (id != 0 && id != View.NO_ID) {
+            return id;
+        }
+        // Fallback to using our own ID if this Fragment wasn't added via
+        // add(containerViewId, Fragment)
+        return R.id.nav_host_fragment_container;
     }
 
     @Override
