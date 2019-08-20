@@ -98,9 +98,6 @@ typealias PagedSourceFactory<Key, Value> = () -> PagedSource<Key, Value>
  * passed to a [PagedList] to be displayed in a `RecyclerView`
  */
 abstract class PagedSource<Key : Any, Value : Any> {
-    enum class LoadType {
-        INITIAL, START, END
-    }
 
     /**
      * Params for generic load request on a [PagedSource].
@@ -109,9 +106,9 @@ abstract class PagedSource<Key : Any, Value : Any> {
      */
     data class LoadParams<Key : Any>(
         /**
-         * [LoadType], for different behavior, e.g. only count initial load
+         * [PageLoadType], for different behavior, e.g. only count initial load
          */
-        val loadType: LoadType,
+        val loadType: PageLoadType,
         /**
          * Key for the page to be loaded
          */

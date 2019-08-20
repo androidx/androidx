@@ -181,15 +181,15 @@ abstract class ItemKeyedDataSource<Key : Any, Value : Any> : DataSource<Key, Val
     @Suppress("RedundantVisibilityModifier") // Metalava doesn't inherit visibility properly.
     internal final override suspend fun load(params: Params<Key>): BaseResult<Value> {
         return when (params.type) {
-            LoadType.INITIAL -> loadInitial(
+            PageLoadType.REFRESH -> loadInitial(
                 LoadInitialParams(
                     params.key,
                     params.initialLoadSize,
                     params.placeholdersEnabled
                 )
             )
-            LoadType.START -> loadBefore(LoadParams(params.key!!, params.pageSize))
-            LoadType.END -> loadAfter(LoadParams(params.key!!, params.pageSize))
+            PageLoadType.START -> loadBefore(LoadParams(params.key!!, params.pageSize))
+            PageLoadType.END -> loadAfter(LoadParams(params.key!!, params.pageSize))
         }
     }
 

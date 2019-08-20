@@ -43,14 +43,8 @@ class PagedSourceWrapper<Key : Any, Value : Any>(
     }
 
     override suspend fun load(params: LoadParams<Key>): LoadResult<Key, Value> {
-        val loadType = when (params.loadType) {
-            LoadType.INITIAL -> DataSource.LoadType.INITIAL
-            LoadType.START -> DataSource.LoadType.START
-            LoadType.END -> DataSource.LoadType.END
-        }
-
         val dataSourceParams = DataSource.Params(
-            loadType,
+            params.loadType,
             params.key,
             params.loadSize,
             params.placeholdersEnabled,
