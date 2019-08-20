@@ -98,4 +98,22 @@ class NavHostFragmentTest {
                 .isSameInstanceAs(secondNavHostFragment.navController)
         }
     }
+
+    @Test
+    fun testFindNavControllerDynamicWithoutId() {
+        with(ActivityScenario.launch(EmptyActivity::class.java)) {
+            withActivity {
+                supportFragmentManager.beginTransaction()
+                    .add(NavHostFragment(), "tag")
+                    .commitNow()
+            }
+            val hostRootNavController = withActivity {
+                val navHostFragment = supportFragmentManager.findFragmentByTag("tag")!!
+                navHostFragment.requireView().findNavController()
+            }
+            assertWithMessage("NavController on the host's root view should be non-null")
+                .that(hostRootNavController)
+                .isNotNull()
+        }
+    }
 }
