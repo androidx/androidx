@@ -164,27 +164,28 @@ public class AssetHelperTest {
 
     @Test
     @SmallTest
-    public void testIsCanonicalChildOf() throws Throwable {
+    public void testGetCanonicalFile() throws Throwable {
         // Two files are used for testing :
         // "/some/path/to/file_1.txt" and "/some/path/file_2.txt"
 
-        File parent = new File(mInternalStorageTestDir, "/some/path/");
-        File child = new File(parent, "/to/./file_1.txt");
-        boolean res = AssetHelper.isCanonicalChildOf(parent, child);
-        Assert.assertTrue(
-                "/to/./\"file_1.txt\" is in a subdirectory of \"/some/path/\"", res);
+        File parent = new File(mInternalStorageTestDir, "some/path/");
+        File child = AssetHelper.getCanonicalFileIfChild(parent, "to/./file_1.txt");
+        File expectedFile = new File(parent, "to/file_1.txt");
+        Assert.assertNotNull(
+                "to/./\"file_1.txt\" is in a subdirectory of \"some/path/\"", child);
+        Assert.assertEquals(expectedFile.getCanonicalPath(), child.getCanonicalPath());
 
-        parent = new File(mInternalStorageTestDir, "/some/path/");
-        child = new File(parent, "/to/../file_2.txt");
-        res = AssetHelper.isCanonicalChildOf(parent, child);
-        Assert.assertTrue(
-                "/to/../\"file_2.txt\" is in a subdirectory of \"/some/path/\"", res);
+        parent = new File(mInternalStorageTestDir, "some/path/");
+        child = AssetHelper.getCanonicalFileIfChild(parent, "to/../file_2.txt");
+        expectedFile = new File(parent, "file_2.txt");
+        Assert.assertNotNull(
+                "to/../\"file_2.txt\" is in a subdirectory of \"some/path/\"", child);
+        Assert.assertEquals(expectedFile.getCanonicalPath(), child.getCanonicalPath());
 
-        parent = new File(mInternalStorageTestDir, "/some/path/to");
-        child = new File(parent, "/../file_2.txt");
-        res = AssetHelper.isCanonicalChildOf(parent, child);
-        Assert.assertFalse(
-                "/../\"file_2.txt\" is not in a subdirectory of \"/some/path/to/\"", res);
+        parent = new File(mInternalStorageTestDir, "some/path/to");
+        child = AssetHelper.getCanonicalFileIfChild(parent, "../file_2.txt");
+        Assert.assertNull(
+                "../\"file_2.txt\" is not in a subdirectory of \"some/path/to/\"", child);
     }
 
     private static String readAsString(InputStream is) throws IOException {

@@ -20,10 +20,10 @@ import android.content.Context;
 import android.content.res.AssetManager;
 import android.content.res.Resources;
 import android.os.Build;
-import android.util.Log;
 import android.util.TypedValue;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -135,37 +135,41 @@ public class AssetHelper {
     }
 
     /**
-     * Util method to test if the a given file is a child of the given parent directory.
-     * It uses canonical paths to make sure to resolve any symlinks, {@code "../"}, {@code "./"}
-     * ... etc in the given paths.
+     * Resolves the given relative child string path against the given parent directory.
      *
-     * @param parent the parent directory.
-     * @param child the child file.
-     * @return {@code true} if the canonical path of the given {@code child} starts with the
-     *         canonical path of the given {@code parent}, {@code false} otherwise.
+     * It resolves the given child path and creates a {@link File} object using the canonical path
+     * of that file if its canonical path starts with the canonical path of the parent directory.
+     *
+     * @param parent {@link File} for the parent directory.
+     * @param child Relative path for the child file.
+     * @return {@link File} for the given child path or {@code null} if the given path doesn't
+     *         resolve to be a child of the given parent.
      */
-    public static boolean isCanonicalChildOf(@NonNull File parent, @NonNull File child) {
-        try {
-            String parentCanonicalPath = parent.getCanonicalPath();
-            String childCanonicalPath = child.getCanonicalPath();
-
-            if (!parentCanonicalPath.endsWith("/")) parentCanonicalPath += "/";
-
-            return childCanonicalPath.startsWith(parentCanonicalPath);
-        } catch (IOException e) {
-            Log.e(TAG, "Error getting the canonical path of file", e);
-            return false;
+    @Nullable
+    public static File getCanonicalFileIfChild(@NonNull File parent, @NonNull String child)
+            throws IOException {
+        String parentCanonicalPath = getCanonicalDirPath(parent);
+        String childCanonicalPath = new File(parent, child).getCanonicalPath();
+        if (childCanonicalPath.startsWith(parentCanonicalPath)) {
+            return new File(childCanonicalPath);
         }
+        return null;
     }
 
     /**
-     * Get the canonical path of the given directory with a slash {@code "/"} at the end.
+     * Returns the canonical path for the given directory with a {@code "/"} at the end if doesn't
+     * have one.
+     *
+     * Having a slash {@code "/"} at the end of a directory path is important when checking if a
+     * directory is a parent of another child directory or a file.
+     * E.g: the directory {@code "/some/path/to"} is not a parent of "/some/path/to_file". However,
+     * it will pass the {@code parentPath.startsWith(childPath)} check.
      */
     @NonNull
-    public static String getCanonicalPath(@NonNull File file) throws IOException {
-        String path = file.getCanonicalPath();
-        if (!path.endsWith("/")) path += "/";
-        return path;
+    public static String getCanonicalDirPath(@NonNull File file) throws IOException {
+        String canonicalPath = file.getCanonicalPath();
+        if (!canonicalPath.endsWith("/")) canonicalPath += "/";
+        return canonicalPath;
     }
 
     /**
