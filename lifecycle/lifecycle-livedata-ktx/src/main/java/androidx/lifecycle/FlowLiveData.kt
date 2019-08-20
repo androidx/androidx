@@ -14,8 +14,12 @@
  * limitations under the License.
  */
 
+@file:JvmName("FlowLiveDataConversions")
+
 package androidx.lifecycle
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -25,6 +29,7 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flow
+import java.time.Duration
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 
@@ -56,6 +61,7 @@ import kotlin.coroutines.EmptyCoroutineContext
  * @param timeoutInMs The timeout in ms before cancelling the block if there are no active observers
  * ([LiveData.hasActiveObservers]. Defaults to [DEFAULT_TIMEOUT].
  */
+@JvmOverloads
 fun <T> Flow<T>.asLiveData(
     context: CoroutineContext = EmptyCoroutineContext,
     timeoutInMs: Long = DEFAULT_TIMEOUT
@@ -94,3 +100,37 @@ fun <T> LiveData<T>.asFlow(): Flow<T> = flow {
         }
     }
 }
+
+/**
+ * Creates a LiveData that has values collected from the origin [Flow].
+ *
+ * The upstream flow collection starts when the returned [LiveData] becomes active
+ * ([LiveData.onActive]).
+ * If the [LiveData] becomes inactive ([LiveData.onInactive]) while the flow has not completed,
+ * the flow collection will be cancelled after [timeout] unless the [LiveData]
+ * becomes active again before that timeout (to gracefully handle cases like Activity rotation).
+ *
+ * After a cancellation, if the [LiveData] becomes active again, the upstream flow collection will
+ * be re-executed.
+ *
+ * If the upstream flow completes successfully *or* is cancelled due to reasons other than
+ * [LiveData] becoming inactive, it *will not* be re-collected even after [LiveData] goes through
+ * active inactive cycle.
+ *
+ * If flow completes with an exception, then exception will be delivered to the
+ * [CoroutineExceptionHandler][kotlinx.coroutines.CoroutineExceptionHandler] of provided [context].
+ * By default [EmptyCoroutineContext] is used to so an exception will be delivered to main's
+ * thread [UncaughtExceptionHandler][Thread.UncaughtExceptionHandler]. If your flow upstream is
+ * expected to throw, you can use [catch operator][kotlinx.coroutines.flow.catch] on upstream flow
+ * to emit a helpful error object.
+ *
+ * @param context The CoroutineContext to collect the upstream flow in. Defaults to
+ * [EmptyCoroutineContext] combined with [Dispatchers.Main]
+ * @param timeout The timeout in ms before cancelling the block if there are no active observers
+ * ([LiveData.hasActiveObservers]. Defaults to [DEFAULT_TIMEOUT].
+ */
+@RequiresApi(Build.VERSION_CODES.O)
+fun <T> Flow<T>.asLiveData(
+    context: CoroutineContext = EmptyCoroutineContext,
+    timeout: Duration
+): LiveData<T> = asLiveData(context, timeout.toMillis())
