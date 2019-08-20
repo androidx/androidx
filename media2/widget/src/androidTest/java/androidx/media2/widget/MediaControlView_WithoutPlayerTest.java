@@ -29,7 +29,6 @@ import static org.junit.Assert.assertTrue;
 import android.view.View;
 
 import androidx.annotation.NonNull;
-import androidx.media2.widget.test.R;
 import androidx.test.annotation.UiThreadTest;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
@@ -60,7 +59,8 @@ public class MediaControlView_WithoutPlayerTest extends MediaWidgetTestBase {
     @Before
     public void setup() throws Throwable {
         mActivity = mActivityRule.getActivity();
-        mMediaControlView = mActivity.findViewById(R.id.mediacontrolview);
+        mMediaControlView = mActivity.findViewById(
+                androidx.media2.widget.test.R.id.mediacontrolview);
 
         setKeepScreenOn(mActivityRule);
         checkAttachedToWindow(mMediaControlView);
