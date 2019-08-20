@@ -50,7 +50,7 @@ private val DefaultTextDirection: TextDirection = TextDirection.Ltr
 private val DefaultFontSize: Sp = 14.sp
 
 /**
- * Resolve text style to be able to pass underlying paragraphs.
+ * Resolve text style to be able to pass to underlying paragraphs.
  *
  * We need to pass non-null font size to underlying paragraph.
  */
@@ -143,7 +143,7 @@ class TextDelegate(
     /**
      * The paragraph style.
      *
-     * If null is passed to constructor, use default paragraph style is used.
+     * If null is passed to constructor, use default paragraph style.
      */
     val paragraphStyle: ParagraphStyle = paragraphStyle ?: ParagraphStyle()
 
