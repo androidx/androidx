@@ -55,6 +55,9 @@ fun DrawRectangle(color: Color) {
 @Composable
 fun SimpleStack() {
     Stack {
+        expanded {
+            SizedRectangle(color = Color(0xFFFFFFFF.toInt()))
+        }
         aligned(Alignment.Center) {
             SizedRectangle(color = Color(0xFF0000FF), width = 300.dp, height = 300.dp)
         }

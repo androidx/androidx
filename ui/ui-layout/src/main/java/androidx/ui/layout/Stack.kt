@@ -42,6 +42,23 @@ class StackChildren {
     internal val stackChildren: List<@Composable() () -> Unit>
         get() = _stackChildren
 
+    /**
+     * Positioned children are positioned in the box of the [Stack] according to the given insets.
+     *
+     * The insets may be null, but at least one inset must be non-null.
+     *
+     * If both insets in a direction (i.e. left-right or top-bottom) are non-null, then the
+     * children will be measured with tight constraints in that direction so that they fill all
+     * the space in that direction minus the insets. For example, if the [Stack] is 100dp wide and
+     * the children have left and right insets of 10dp, the children will be forced to be 80dp wide.
+     *
+     * If only one inset in a direction is non-null, then the children will be measured with
+     * loose constraints in that direction. For example, if the [Stack] is 100dp wide and the
+     * children have 10dp left insets, then the children will be anywhere from 0dp to 90dp wide.
+     *
+     * Finally, if both insets in one direction are null, then the children will be positioned
+     * on that direction according to the specified [fallbackAlignment], which defaults to Center.
+     */
     fun positioned(
         leftInset: Dp? = null,
         topInset: Dp? = null,
@@ -62,6 +79,15 @@ class StackChildren {
         _stackChildren += { ParentData(data = data, children = children) }
     }
 
+    /**
+     * Aligned children determine the size of the [Stack] and are aligned within the box of the
+     * [Stack] according to the specified [alignment].
+     *
+     * By default, the constraints passed to the [Stack] from its parent are loosened before they
+     * are passed to its children. To pass these constraints unmodified, set [loose] to false.
+     *
+     * @param loose Specifies how the constraints passed to the children are adjusted.
+     */
     fun aligned(
         alignment: Alignment,
         loose: Boolean = true,
@@ -74,6 +100,9 @@ class StackChildren {
         _stackChildren += { ParentData(data = data, children = children) }
     }
 
+    /**
+     * Expanded children are forced to expand to fill the box of the [Stack].
+     */
     fun expanded(children: @Composable() () -> Unit) {
         val data = StackChildData(alignment = Alignment.TopLeft, fit = StackFit.Expand)
         _stackChildren += { ParentData(data = data, children = children) }
@@ -93,6 +122,7 @@ class StackChildren {
  * their specified insets. When the positioning of these is ambiguous in one direction (the
  * component has [null] left and right or top and bottom insets), the positioning in this direction
  * will be resolved according to the positioned child's fallbackAlignment argument.
+ * - [expanded], which are forced to expand to fill the box of the [Stack].
  *
  * Example usage:
  *
@@ -138,7 +168,7 @@ fun Stack(
                     (childData.leftInset?.toIntPx() ?: IntPx.Zero) -
                     (childData.rightInset?.toIntPx() ?: IntPx.Zero)).coerceAtLeast(0.ipx)
             val childMinWidth = if (childData.leftInset != null && childData.rightInset != null &&
-                    childMaxWidth.isFinite()) {
+                childMaxWidth.isFinite()) {
                 childMaxWidth
             } else {
                 IntPx.Zero
