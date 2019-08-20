@@ -353,7 +353,7 @@ package androidx.media2.session {
     method public androidx.media2.session.SessionCommandGroup.Builder removeCommand(androidx.media2.session.SessionCommand);
   }
 
-  public class SessionResult implements androidx.media2.common.BaseResult androidx.versionedparcelable.VersionedParcelable {
+  public class SessionResult extends androidx.versionedparcelable.CustomVersionedParcelable implements androidx.media2.common.BaseResult {
     ctor public SessionResult(int, android.os.Bundle?);
     method public long getCompletionTime();
     method public android.os.Bundle? getCustomCommandResult();

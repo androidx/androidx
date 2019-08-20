@@ -226,12 +226,10 @@ public class MediaSessionProviderService extends Service {
 
                 ParcelImplListSlice listSlice = config.getParcelable(KEY_PLAYLIST);
                 if (listSlice != null) {
-                    localPlayer.mPlaylist = MediaTestUtils.convertToMediaItems(listSlice.getList(),
-                            false /* createItem */);
+                    localPlayer.mPlaylist = MediaTestUtils.convertToMediaItems(listSlice.getList());
                 }
-                ParcelImpl currentItem = config.getParcelable(KEY_MEDIA_ITEM);
-                localPlayer.mCurrentMediaItem = (currentItem == null)
-                        ? null : (MediaItem) MediaParcelUtils.fromParcelable(currentItem);
+                localPlayer.mCurrentMediaItem =
+                        MediaTestUtils.convertToMediaItem(config.getParcelable(KEY_MEDIA_ITEM));
                 localPlayer.mMetadata = ParcelUtils.getVersionedParcelable(config, KEY_METADATA);
                 ParcelImpl videoSize = config.getParcelable(KEY_VIDEO_SIZE);
                 if (videoSize != null) {
@@ -439,7 +437,7 @@ public class MediaSessionProviderService extends Service {
                 throws RemoteException {
             MediaSession session = mSessionMap.get(sessionId);
             MockPlayer player = (MockPlayer) session.getPlayer();
-            player.mPlaylist = MediaTestUtils.convertToMediaItems(playlist, false /* createItem */);
+            player.mPlaylist = MediaTestUtils.convertToMediaItems(playlist);
         }
 
         @Override
