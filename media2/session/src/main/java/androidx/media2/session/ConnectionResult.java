@@ -54,8 +54,10 @@ class ConnectionResult extends CustomVersionedParcelable {
     PendingIntent mSessionActivity;
     @ParcelField(3)
     int mPlayerState;
-    @ParcelField(4)
+    @NonParcelField
     MediaItem mCurrentMediaItem;
+    @ParcelField(4)
+    MediaItem mParcelableCurrentMediaItem;
     @ParcelField(5)
     long mPositionEventTimeMs;
     @ParcelField(6)
@@ -235,11 +237,14 @@ class ConnectionResult extends CustomVersionedParcelable {
     @Override
     public void onPreParceling(boolean isStream) {
         mSessionBinder = (IBinder) mSessionStub;
+        mParcelableCurrentMediaItem = MediaUtils.upcastForPreparceling(mCurrentMediaItem);
     }
 
     @Override
     public void onPostParceling() {
         mSessionStub = IMediaSession.Stub.asInterface(mSessionBinder);
         mSessionBinder = null;
+        mCurrentMediaItem = mParcelableCurrentMediaItem;
+        mParcelableCurrentMediaItem = null;
     }
 }
