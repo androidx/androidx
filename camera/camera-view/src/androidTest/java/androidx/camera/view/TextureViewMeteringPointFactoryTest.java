@@ -40,6 +40,7 @@ import androidx.camera.core.MeteringPointFactory;
 import androidx.camera.core.Preview;
 import androidx.camera.core.PreviewConfig;
 import androidx.camera.testing.CameraUtil;
+import androidx.camera.testing.CoreAppTestUtil;
 import androidx.camera.testing.fakes.FakeActivity;
 import androidx.camera.testing.fakes.FakeLifecycleOwner;
 import androidx.test.core.app.ApplicationProvider;
@@ -91,6 +92,8 @@ public class TextureViewMeteringPointFactoryTest {
     @Before
     public void setUp() throws Throwable {
         assumeTrue(CameraUtil.deviceHasCamera());
+        CoreAppTestUtil.assumeCompatibleDevice();
+
         mContext = ApplicationProvider.getApplicationContext();
         AppConfig config = Camera2AppConfig.create(mContext);
         CameraX.init(mContext, config);
@@ -104,11 +107,15 @@ public class TextureViewMeteringPointFactoryTest {
     @After
     public void tearDown() throws InterruptedException {
         CameraX.unbindAll();
-        mLatchForCameraClose.await(3, TimeUnit.SECONDS);
+        if (mLatchForCameraClose != null) {
+            mLatchForCameraClose.await(3, TimeUnit.SECONDS);
+        }
     }
 
     @Test
     public void backCamera_translatedPoint_SameAsDisplayOriented() throws Throwable {
+        assumeTrue(CameraUtil.hasCameraWithLensFacing(CameraX.LensFacing.BACK));
+
         startAndWaitForCameraReady(CameraX.LensFacing.BACK);
 
         TextureViewMeteringPointFactory factory = new TextureViewMeteringPointFactory(mTextureView);
@@ -126,6 +133,8 @@ public class TextureViewMeteringPointFactoryTest {
 
     @Test
     public void frontCamera_translatedPoint_SameAsDisplayOriented() throws Throwable {
+        assumeTrue(CameraUtil.hasCameraWithLensFacing(CameraX.LensFacing.FRONT));
+
         startAndWaitForCameraReady(CameraX.LensFacing.FRONT);
 
         TextureViewMeteringPointFactory factory = new TextureViewMeteringPointFactory(mTextureView);

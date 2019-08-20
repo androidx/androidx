@@ -30,6 +30,7 @@ import static android.hardware.camera2.CameraMetadata.FLASH_MODE_TORCH;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.junit.Assume.assumeTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -58,6 +59,7 @@ import androidx.camera.core.FocusMeteringAction.MeteringMode;
 import androidx.camera.core.SensorOrientedMeteringPointFactory;
 import androidx.camera.core.SessionConfig;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
+import androidx.camera.testing.CameraUtil;
 import androidx.camera.testing.HandlerUtil;
 import androidx.core.os.HandlerCompat;
 import androidx.test.core.app.ApplicationProvider;
@@ -92,6 +94,8 @@ public final class Camera2CameraControlTest {
     @Before
     public void setUp() throws InterruptedException, CameraAccessException,
             CameraInfoUnavailableException {
+        assumeTrue(CameraUtil.hasCameraWithLensFacing(CameraX.LensFacing.BACK));
+
         Context context = ApplicationProvider.getApplicationContext();
         CameraManager cameraManager = (CameraManager) context.getSystemService(
                 Context.CAMERA_SERVICE);
@@ -115,7 +119,9 @@ public final class Camera2CameraControlTest {
 
     @After
     public void tearDown() {
-        mHandlerThread.quitSafely();
+        if (mHandlerThread != null) {
+            mHandlerThread.quitSafely();
+        }
     }
 
     @Test
@@ -524,8 +530,7 @@ public final class Camera2CameraControlTest {
                 mSessionConfigArgumentCaptor.capture());
         SessionConfig sessionConfig = mSessionConfigArgumentCaptor.getValue();
         Camera2Config repeatingConfig = new Camera2Config(sessionConfig.getImplementationOptions());
-        assertThat(repeatingConfig.getCaptureRequestOption(CaptureRequest.CONTROL_AF_MODE,
-                null)).isEqualTo(expectAfMode);
+        assertAfMode(repeatingConfig, expectAfMode);
     }
 
     @Test
@@ -556,20 +561,13 @@ public final class Camera2CameraControlTest {
         HandlerUtil.waitForLooperToIdle(mHandler);
 
         Camera2Config singleConfig = new Camera2Config(mCamera2CameraControl.getSharedOptions());
+        assertAfMode(singleConfig, CaptureRequest.CONTROL_AF_MODE_AUTO);
 
         mCamera2CameraControl.cancelFocusAndMetering();
         HandlerUtil.waitForLooperToIdle(mHandler);
 
         Camera2Config singleConfig2 = new Camera2Config(mCamera2CameraControl.getSharedOptions());
-
-        assertThat(
-                singleConfig.getCaptureRequestOption(
-                        CaptureRequest.CONTROL_AF_MODE, null))
-                .isEqualTo(CaptureRequest.CONTROL_AF_MODE_AUTO);
-        assertThat(
-                singleConfig2.getCaptureRequestOption(
-                        CaptureRequest.CONTROL_AF_MODE, null))
-                       .isEqualTo(CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE);
+        assertAfMode(singleConfig2, CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE);
     }
 
     private boolean isAfModeSupported(int afMode) {
