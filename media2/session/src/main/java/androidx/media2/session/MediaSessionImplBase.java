@@ -419,7 +419,6 @@ class MediaSessionImplBase implements MediaSession.MediaSessionImpl {
 
     @Override
     @NonNull
-    @SuppressWarnings("unchecked")
     public List<ControllerInfo> getConnectedControllers() {
         List<ControllerInfo> controllers = new ArrayList<>();
         controllers.addAll(mSessionStub.getConnectedControllersManager()
@@ -1745,10 +1744,10 @@ class MediaSessionImplBase implements MediaSession.MediaSessionImpl {
         final ListenableFuture<T>[] mFutures;
         AtomicInteger mSuccessCount = new AtomicInteger(0);
 
-        @SuppressWarnings("unchecked")
-        public static <U extends BaseResult> CombinedCommandResultFuture create(
+        @SafeVarargs
+        public static <U extends BaseResult> CombinedCommandResultFuture<U> create(
                 Executor executor, ListenableFuture<U>... futures) {
-            return new CombinedCommandResultFuture<U>(executor, futures);
+            return new CombinedCommandResultFuture<>(executor, futures);
         }
 
         private CombinedCommandResultFuture(Executor executor,
