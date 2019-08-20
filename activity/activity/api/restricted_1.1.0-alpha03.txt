@@ -6,7 +6,6 @@ package androidx.activity {
     ctor @ContentView public ComponentActivity(@LayoutRes int);
     method public androidx.lifecycle.ViewModelProvider.Factory getDefaultViewModelProviderFactory();
     method @Deprecated public Object? getLastCustomNonConfigurationInstance();
-    method public androidx.lifecycle.Lifecycle getLifecycle();
     method public final androidx.activity.OnBackPressedDispatcher getOnBackPressedDispatcher();
     method public final androidx.savedstate.SavedStateRegistry getSavedStateRegistry();
     method public androidx.lifecycle.ViewModelStore getViewModelStore();
