@@ -18,8 +18,8 @@ package androidx.ui.core.selection
 
 import androidx.ui.core.PxPosition
 import androidx.ui.core.px
-import androidx.ui.text.TextSelection
 import androidx.ui.text.TextDelegate
+import androidx.ui.text.TextRange
 import kotlin.math.max
 
 /**
@@ -33,7 +33,7 @@ internal class TextSelectionProcessor(
     val mode: SelectionMode,
     /** The lambda contains certain behavior when selection changes. Currently this is for changing
      * the selection used for drawing in Text widget. */
-    var onSelectionChange: (TextSelection?) -> Unit = {},
+    var onSelectionChange: (TextRange?) -> Unit = {},
     /** The TextDelegate object from Text widget. */
     val textDelegate: TextDelegate
 ) {
@@ -99,7 +99,7 @@ internal class TextSelectionProcessor(
             textSelectionEnd = wordBoundary.end
         }
 
-        onSelectionChange(TextSelection(textSelectionStart, textSelectionEnd))
+        onSelectionChange(TextRange(textSelectionStart, textSelectionEnd))
 
         startCoordinates = getSelectionHandleCoordinates(textSelectionStart)
         endCoordinates = getSelectionHandleCoordinates(textSelectionEnd)
