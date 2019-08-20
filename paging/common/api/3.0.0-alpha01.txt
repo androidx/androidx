@@ -150,7 +150,6 @@ package androidx.paging {
     method @Deprecated public final androidx.paging.DataSource<?,T> getDataSource();
     method public abstract Object? getLastKey();
     method public int getLoadedCount();
-    method public final androidx.paging.PagedSource<?,T> getPagedSource();
     method public int getPositionOffset();
     method public int getSize();
     method public abstract boolean isDetached();
@@ -166,7 +165,6 @@ package androidx.paging {
     property public boolean isImmutable;
     property public abstract Object? lastKey;
     property public int loadedCount;
-    property public final androidx.paging.PagedSource<?,T> pagedSource;
     property public int positionOffset;
     property public int size;
   }
