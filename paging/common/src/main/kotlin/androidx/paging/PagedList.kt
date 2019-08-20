@@ -26,7 +26,6 @@ import androidx.paging.PagedList.Config
 import androidx.paging.PagedList.Config.Builder
 import androidx.paging.PagedList.Config.Companion.MAX_SIZE_UNBOUNDED
 import androidx.paging.PagedList.LoadState
-import androidx.paging.PagedList.LoadType
 import androidx.paging.PagedSource.KeyProvider
 import androidx.paging.futures.DirectDispatcher
 import kotlinx.coroutines.CoroutineDispatcher
@@ -46,7 +45,7 @@ import java.util.concurrent.Executor
  * Callback for changes to loading state - whether the refresh, prepend, or append is idle, loading,
  * or has an error.
  *
- * Used to observe the [LoadState] of any [LoadType] (REFRESH/START/END). For UI purposes (swipe
+ * Used to observe the [LoadState] of any [PageLoadType] (REFRESH/START/END). For UI purposes (swipe
  * refresh, loading spinner, retry button), this is typically done by registering a
  * [LoadStateListener] with the [androidx.paging.PagedListAdapter] or
  * [androidx.paging.AsyncPagedListDiffer].
@@ -61,10 +60,10 @@ import java.util.concurrent.Executor
  * START/END events can be used to drive loading spinner items in your `RecyclerView`.
  *
  * @see [LoadState]
- * @see [LoadType]
+ * @see [PageLoadType]
  * @see [PagedList.retry]
  */
-typealias LoadStateListener = (type: LoadType, state: LoadState) -> Unit
+typealias LoadStateListener = (type: PageLoadType, state: LoadState) -> Unit
 
 /**
  * Lazy loading list that pages in immutable content from a [PagedSource].
@@ -190,7 +189,7 @@ abstract class PagedList<T : Any> : AbstractList<T> {
             }
 
             val params = PagedSource.LoadParams(
-                PagedSource.LoadType.INITIAL,
+                PageLoadType.REFRESH,
                 key,
                 config.initialLoadSizeHint,
                 config.enablePlaceholders,
@@ -215,40 +214,13 @@ abstract class PagedList<T : Any> : AbstractList<T> {
     }
 
     /**
-     * Type of load a PagedList can perform.
+     * LoadState of a PagedList load - associated with a [PageLoadType]
      *
-     * You can use a [LoadStateListener] to observe [LoadState] of any [LoadType]. For UI purposes
-     * (swipe refresh, loading spinner, retry button), this is typically done by registering a
-     * [LoadStateListener] with the [androidx.paging.PagedListAdapter] or
-     * [androidx.paging.AsyncPagedListDiffer].
-     *
-     * @see LoadState
-     */
-    enum class LoadType {
-        /**
-         * [PagedList] content being reloaded, may contain content updates.
-         */
-        REFRESH,
-
-        /**
-         * Load at the start of the [PagedList].
-         */
-        START,
-
-        /**
-         * Load at the end of the [PagedList].
-         */
-        END
-    }
-
-    /**
-     * LoadState of a PagedList load - associated with a [LoadType]
-     *
-     * You can use a [LoadStateListener] to observe [LoadState] of any [LoadType]. For UI
+     * You can use a [LoadStateListener] to observe [LoadState] of any [PageLoadType]. For UI
      * purposes (swipe refresh, loading spinner, retry button), this is typically done by
      * registering a callback with the `PagedListAdapter` or `AsyncPagedListDiffer`.
      *
-     * @see LoadType
+     * @see PageLoadType
      */
     sealed class LoadState {
         /**
@@ -506,7 +478,7 @@ abstract class PagedList<T : Any> : AbstractList<T> {
          * Creates a [PagedList] asynchronously with the given parameters.
          *
          * This call will dispatch [PagedSource.load] immediately with
-         * [PagedSource.LoadType.INITIAL], and return a [PagedList] once it completes, triggering
+         * [PageLoadType.REFRESH], and return a [PagedList] once it completes, triggering
          * [loadStateListeners].
          *
          * @throws IllegalArgumentException if [notifyDispatcher] or [fetchDispatcher] are not set.
@@ -903,18 +875,18 @@ abstract class PagedList<T : Any> : AbstractList<T> {
         var startState: LoadState = LoadState.Idle
         var endState: LoadState = LoadState.Idle
 
-        fun setState(type: LoadType, state: LoadState) {
+        fun setState(type: PageLoadType, state: LoadState) {
             // deduplicate signals
             when (type) {
-                LoadType.REFRESH -> {
+                PageLoadType.REFRESH -> {
                     if (refreshState == state) return
                     refreshState = state
                 }
-                LoadType.START -> {
+                PageLoadType.START -> {
                     if (startState == state) return
                     startState = state
                 }
-                LoadType.END -> {
+                PageLoadType.END -> {
                     if (endState == state) return
                     endState = state
                 }
@@ -927,12 +899,12 @@ abstract class PagedList<T : Any> : AbstractList<T> {
          * @hide
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // protected otherwise.
-        abstract fun onStateChanged(type: LoadType, state: LoadState)
+        abstract fun onStateChanged(type: PageLoadType, state: LoadState)
 
         fun dispatchCurrentLoadState(callback: LoadStateListener) {
-            callback(LoadType.REFRESH, refreshState)
-            callback(LoadType.START, startState)
-            callback(LoadType.END, endState)
+            callback(PageLoadType.REFRESH, refreshState)
+            callback(PageLoadType.START, startState)
+            callback(PageLoadType.END, endState)
         }
     }
 
@@ -1143,7 +1115,7 @@ abstract class PagedList<T : Any> : AbstractList<T> {
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    open fun setInitialLoadState(loadType: LoadType, loadState: LoadState) {
+    open fun setInitialLoadState(loadType: PageLoadType, loadState: LoadState) {
     }
 
     /**
@@ -1170,7 +1142,7 @@ abstract class PagedList<T : Any> : AbstractList<T> {
         this.refreshRetryCallback = refreshRetryCallback
     }
 
-    internal fun dispatchStateChange(type: LoadType, state: LoadState) {
+    internal fun dispatchStateChange(type: PageLoadType, state: LoadState) {
         loadStateListeners.removeAll { it.get() == null }
         loadStateListeners.forEach { it.get()?.invoke(type, state) }
     }

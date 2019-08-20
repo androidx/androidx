@@ -18,7 +18,7 @@ package androidx.paging
 
 import androidx.arch.core.executor.ArchTaskExecutor
 import androidx.lifecycle.LiveData
-import androidx.paging.PagedList.LoadType.REFRESH
+import androidx.paging.PageLoadType.REFRESH
 import androidx.paging.PagedList.LoadState.Error
 import androidx.paging.PagedList.LoadState.Loading
 import kotlinx.coroutines.CoroutineDispatcher

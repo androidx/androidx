@@ -17,8 +17,11 @@
 package androidx.paging
 
 import androidx.paging.ContiguousPagedListTest.Companion.EXCEPTION
+import androidx.paging.PageLoadType.REFRESH
+import androidx.paging.PagedList.Builder
+import androidx.paging.PagedList.Config
+import androidx.paging.PagedList.LoadState
 import androidx.paging.PagedList.LoadStateManager
-import androidx.paging.PagedList.LoadType.REFRESH
 import androidx.paging.futures.DirectDispatcher
 import androidx.testutils.TestDispatcher
 import androidx.testutils.TestExecutor
@@ -43,7 +46,7 @@ class PagedListTest {
 
             override suspend fun load(params: LoadParams<Int>): LoadResult<Int, String> =
                 when (params.loadType) {
-                    LoadType.INITIAL -> LoadResult(
+                    REFRESH -> LoadResult(
                         data = listOf("a"),
                         itemsBefore = 0,
                         itemsAfter = 0
@@ -62,7 +65,7 @@ class PagedListTest {
     @Test
     fun createLegacy() {
         @Suppress("DEPRECATION")
-        val pagedList = PagedList.Builder(ListDataSource(ITEMS), 100)
+        val pagedList = Builder(ListDataSource(ITEMS), 100)
             .setNotifyExecutor(TestExecutor())
             .setFetchExecutor(TestExecutor())
             .build()
@@ -72,7 +75,7 @@ class PagedListTest {
 
     @Test
     fun createAsync() {
-        val config = PagedList.Config.Builder()
+        val config = Config.Builder()
             .setPageSize(10)
             .setEnablePlaceholders(false)
             .build()
@@ -112,7 +115,7 @@ class PagedListTest {
             override fun isRetryableError(error: Throwable) = false
         }
 
-        val config = PagedList.Config.Builder()
+        val config = Config.Builder()
             .setPageSize(10)
             .setEnablePlaceholders(false)
             .build()
@@ -141,7 +144,7 @@ class PagedListTest {
 
     @Test
     fun defaults() = runBlocking {
-        val pagedList = PagedList.Builder(pagedSource, config)
+        val pagedList = Builder(pagedSource, config)
             .setNotifyDispatcher(DirectDispatcher)
             .setFetchDispatcher(DirectDispatcher)
             .buildAsync()
@@ -154,13 +157,13 @@ class PagedListTest {
     fun setState_Error() {
         var onStateChangeCalls = 0
         val loadStateManager = object : LoadStateManager() {
-            override fun onStateChanged(type: PagedList.LoadType, state: PagedList.LoadState) {
+            override fun onStateChanged(type: PageLoadType, state: LoadState) {
                 onStateChangeCalls++
             }
         }
 
-        loadStateManager.setState(REFRESH, PagedList.LoadState.Error(EXCEPTION, true))
-        loadStateManager.setState(REFRESH, PagedList.LoadState.Error(EXCEPTION, true))
+        loadStateManager.setState(REFRESH, LoadState.Error(EXCEPTION, true))
+        loadStateManager.setState(REFRESH, LoadState.Error(EXCEPTION, true))
 
         assertEquals(1, onStateChangeCalls)
     }

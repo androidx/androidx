@@ -44,7 +44,6 @@ package androidx.paging {
     method @AnyThread public void onInvalidated();
   }
 
-
   public static final class DataSource.Params<K> {
     method public int getInitialLoadSize();
     method public K? getKey();
@@ -139,10 +138,16 @@ package androidx.paging {
     ctor public PageKeyedDataSourceKt();
   }
 
+  public enum PageLoadType {
+    enum_constant public static final androidx.paging.PageLoadType END;
+    enum_constant public static final androidx.paging.PageLoadType REFRESH;
+    enum_constant public static final androidx.paging.PageLoadType START;
+  }
+
   public abstract class PagedList<T> extends java.util.AbstractList<T> {
     ctor @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public PagedList(kotlinx.coroutines.CoroutineScope coroutineScope, androidx.paging.PagedSource<?,T> pagedSource, androidx.paging.PagedStorage<T> storage, kotlinx.coroutines.CoroutineDispatcher notifyDispatcher, kotlinx.coroutines.CoroutineDispatcher backgroundDispatcher, androidx.paging.PagedList.BoundaryCallback<T>? boundaryCallback, androidx.paging.PagedList.Config config);
     method public void addWeakCallback(java.util.List<? extends T>? previousSnapshot, androidx.paging.PagedList.Callback callback);
-    method public void addWeakLoadStateListener(kotlin.jvm.functions.Function2<? super androidx.paging.PagedList.LoadType,? super androidx.paging.PagedList.LoadState,kotlin.Unit> listener);
+    method public void addWeakLoadStateListener(kotlin.jvm.functions.Function2<? super androidx.paging.PageLoadType,? super androidx.paging.PagedList.LoadState,kotlin.Unit> listener);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static final suspend <K, T> Object create(androidx.paging.PagedSource<K,T> p, kotlinx.coroutines.CoroutineScope pagedSource, kotlinx.coroutines.CoroutineDispatcher coroutineScope, kotlinx.coroutines.CoroutineDispatcher notifyDispatcher, kotlinx.coroutines.CoroutineDispatcher fetchDispatcher, androidx.paging.PagedList.BoundaryCallback<T>? initialFetchDispatcher, androidx.paging.PagedList.Config boundaryCallback, K? config, kotlin.coroutines.Continuation<? super androidx.paging.PagedList<T>> key);
     method public abstract void detach();
     method public T? get(int index);
@@ -158,9 +163,9 @@ package androidx.paging {
     method public boolean isImmutable();
     method public void loadAround(int index);
     method public void removeWeakCallback(androidx.paging.PagedList.Callback callback);
-    method public void removeWeakLoadStateListener(kotlin.jvm.functions.Function2<? super androidx.paging.PagedList.LoadType,? super androidx.paging.PagedList.LoadState,kotlin.Unit> listener);
+    method public void removeWeakLoadStateListener(kotlin.jvm.functions.Function2<? super androidx.paging.PageLoadType,? super androidx.paging.PagedList.LoadState,kotlin.Unit> listener);
     method public void retry();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void setInitialLoadState(androidx.paging.PagedList.LoadType loadType, androidx.paging.PagedList.LoadState loadState);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void setInitialLoadState(androidx.paging.PageLoadType loadType, androidx.paging.PagedList.LoadState loadState);
     method public java.util.List<T> snapshot();
     property public androidx.paging.PagedList.Config config;
     property @Deprecated public final androidx.paging.DataSource<?,T> dataSource;
@@ -251,24 +256,18 @@ package androidx.paging {
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public abstract static class PagedList.LoadStateManager {
-    method public final void dispatchCurrentLoadState(kotlin.jvm.functions.Function2<? super androidx.paging.PagedList.LoadType,? super androidx.paging.PagedList.LoadState,kotlin.Unit> callback);
+    method public final void dispatchCurrentLoadState(kotlin.jvm.functions.Function2<? super androidx.paging.PageLoadType,? super androidx.paging.PagedList.LoadState,kotlin.Unit> callback);
     method public final androidx.paging.PagedList.LoadState getEndState();
     method public final androidx.paging.PagedList.LoadState getRefreshState();
     method public final androidx.paging.PagedList.LoadState getStartState();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public abstract void onStateChanged(androidx.paging.PagedList.LoadType type, androidx.paging.PagedList.LoadState state);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public abstract void onStateChanged(androidx.paging.PageLoadType type, androidx.paging.PagedList.LoadState state);
     method public final void setEndState(androidx.paging.PagedList.LoadState p);
     method public final void setRefreshState(androidx.paging.PagedList.LoadState p);
     method public final void setStartState(androidx.paging.PagedList.LoadState p);
-    method public final void setState(androidx.paging.PagedList.LoadType type, androidx.paging.PagedList.LoadState state);
+    method public final void setState(androidx.paging.PageLoadType type, androidx.paging.PagedList.LoadState state);
     property public final androidx.paging.PagedList.LoadState endState;
     property public final androidx.paging.PagedList.LoadState refreshState;
     property public final androidx.paging.PagedList.LoadState startState;
-  }
-
-  public enum PagedList.LoadType {
-    enum_constant public static final androidx.paging.PagedList.LoadType END;
-    enum_constant public static final androidx.paging.PagedList.LoadType REFRESH;
-    enum_constant public static final androidx.paging.PagedList.LoadType START;
   }
 
   public final class PagedListConfigKt {
@@ -311,16 +310,16 @@ package androidx.paging {
   }
 
   public static final class PagedSource.LoadParams<Key> {
-    ctor public PagedSource.LoadParams(androidx.paging.PagedSource.LoadType loadType, Key? key, int loadSize, boolean placeholdersEnabled, int pageSize);
-    method public androidx.paging.PagedSource.LoadType component1();
+    ctor public PagedSource.LoadParams(androidx.paging.PageLoadType loadType, Key? key, int loadSize, boolean placeholdersEnabled, int pageSize);
+    method public androidx.paging.PageLoadType component1();
     method public Key? component2();
     method public int component3();
     method public boolean component4();
     method public int component5();
-    method public androidx.paging.PagedSource.LoadParams<Key> copy(androidx.paging.PagedSource.LoadType loadType, Key? key, int loadSize, boolean placeholdersEnabled, int pageSize);
+    method public androidx.paging.PagedSource.LoadParams<Key> copy(androidx.paging.PageLoadType loadType, Key? key, int loadSize, boolean placeholdersEnabled, int pageSize);
     method public Key? getKey();
     method public int getLoadSize();
-    method public androidx.paging.PagedSource.LoadType getLoadType();
+    method public androidx.paging.PageLoadType getLoadType();
     method public int getPageSize();
     method public boolean getPlaceholdersEnabled();
   }
@@ -343,12 +342,6 @@ package androidx.paging {
   }
 
   public static final class PagedSource.LoadResult.Companion {
-  }
-
-  public enum PagedSource.LoadType {
-    enum_constant public static final androidx.paging.PagedSource.LoadType END;
-    enum_constant public static final androidx.paging.PagedSource.LoadType INITIAL;
-    enum_constant public static final androidx.paging.PagedSource.LoadType START;
   }
 
   public final class PagedSourceKt {
