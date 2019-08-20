@@ -53,7 +53,8 @@ public class CameraBurstCaptureCallback extends CameraCaptureSession.CaptureCall
     @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
     public void onCaptureBufferLost(
-            CameraCaptureSession session, CaptureRequest request, Surface surface, long frame) {
+            @NonNull CameraCaptureSession session, @NonNull CaptureRequest request,
+            @NonNull Surface surface, long frame) {
         for (CameraCaptureSession.CaptureCallback callback : getCallbacks(request)) {
             callback.onCaptureBufferLost(session, request, surface, frame);
         }

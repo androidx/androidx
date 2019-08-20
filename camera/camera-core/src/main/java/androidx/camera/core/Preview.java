@@ -301,6 +301,7 @@ public class Preview extends UseCase {
         }
     }
 
+    @NonNull
     @Override
     public String toString() {
         return TAG + ":" + getName();

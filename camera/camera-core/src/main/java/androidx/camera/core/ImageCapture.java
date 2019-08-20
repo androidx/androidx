@@ -566,6 +566,7 @@ public class ImageCapture extends UseCase {
                         mExecutor);
     }
 
+    @NonNull
     @Override
     public String toString() {
         return TAG + ":" + getName();
