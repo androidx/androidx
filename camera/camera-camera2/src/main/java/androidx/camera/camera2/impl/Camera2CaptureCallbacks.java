@@ -24,6 +24,7 @@ import android.hardware.camera2.TotalCaptureResult;
 import android.os.Build;
 import android.view.Surface;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
@@ -43,6 +44,7 @@ public final class Camera2CaptureCallbacks {
     }
 
     /** Returns a session capture callback which does nothing. */
+    @NonNull
     public static CameraCaptureSession.CaptureCallback createNoOpCallback() {
         return new NoOpSessionCaptureCallback();
     }
@@ -54,8 +56,9 @@ public final class Camera2CaptureCallbacks {
     }
 
     /** Returns a session capture callback which calls a list of other callbacks. */
+    @NonNull
     public static CameraCaptureSession.CaptureCallback createComboCallback(
-            CameraCaptureSession.CaptureCallback... callbacks) {
+            @NonNull CameraCaptureSession.CaptureCallback... callbacks) {
         return createComboCallback(Arrays.asList(callbacks));
     }
 
@@ -63,41 +66,45 @@ public final class Camera2CaptureCallbacks {
             extends CameraCaptureSession.CaptureCallback {
         @Override
         public void onCaptureBufferLost(
-                CameraCaptureSession session,
-                CaptureRequest request,
-                Surface surface,
+                @NonNull CameraCaptureSession session,
+                @NonNull CaptureRequest request,
+                @NonNull Surface surface,
                 long frame) {
         }
 
         @Override
         public void onCaptureCompleted(
-                CameraCaptureSession session, CaptureRequest request, TotalCaptureResult result) {
+                @NonNull CameraCaptureSession session, @NonNull CaptureRequest request,
+                @NonNull TotalCaptureResult result) {
         }
 
         @Override
         public void onCaptureFailed(
-                CameraCaptureSession session, CaptureRequest request, CaptureFailure failure) {
+                @NonNull CameraCaptureSession session, @NonNull CaptureRequest request,
+                @NonNull CaptureFailure failure) {
         }
 
         @Override
         public void onCaptureProgressed(
-                CameraCaptureSession session,
-                CaptureRequest request,
-                CaptureResult partialResult) {
+                @NonNull CameraCaptureSession session,
+                @NonNull CaptureRequest request,
+                @NonNull CaptureResult partialResult) {
         }
 
         @Override
-        public void onCaptureSequenceAborted(CameraCaptureSession session, int sequenceId) {
+        public void onCaptureSequenceAborted(@NonNull CameraCaptureSession session,
+                int sequenceId) {
         }
 
         @Override
         public void onCaptureSequenceCompleted(
-                CameraCaptureSession session, int sequenceId, long frame) {
+                @NonNull CameraCaptureSession session, int sequenceId, long frame) {
         }
 
         @Override
         public void onCaptureStarted(
-                CameraCaptureSession session, CaptureRequest request, long timestamp, long frame) {
+                @NonNull CameraCaptureSession session, @NonNull CaptureRequest request,
+                long timestamp, long frame) {
         }
     }
 
@@ -117,7 +124,8 @@ public final class Camera2CaptureCallbacks {
         @RequiresApi(api = Build.VERSION_CODES.N)
         @Override
         public void onCaptureBufferLost(
-                CameraCaptureSession session, CaptureRequest request, Surface surface, long frame) {
+                @NonNull CameraCaptureSession session, @NonNull CaptureRequest request,
+                @NonNull Surface surface, long frame) {
             for (CameraCaptureSession.CaptureCallback callback : mCallbacks) {
                 callback.onCaptureBufferLost(session, request, surface, frame);
             }
@@ -125,7 +133,8 @@ public final class Camera2CaptureCallbacks {
 
         @Override
         public void onCaptureCompleted(
-                CameraCaptureSession session, CaptureRequest request, TotalCaptureResult result) {
+                @NonNull CameraCaptureSession session, @NonNull CaptureRequest request,
+                @NonNull TotalCaptureResult result) {
             for (CameraCaptureSession.CaptureCallback callback : mCallbacks) {
                 callback.onCaptureCompleted(session, request, result);
             }
@@ -133,7 +142,8 @@ public final class Camera2CaptureCallbacks {
 
         @Override
         public void onCaptureFailed(
-                CameraCaptureSession session, CaptureRequest request, CaptureFailure failure) {
+                @NonNull CameraCaptureSession session, @NonNull CaptureRequest request,
+                @NonNull CaptureFailure failure) {
             for (CameraCaptureSession.CaptureCallback callback : mCallbacks) {
                 callback.onCaptureFailed(session, request, failure);
             }
@@ -141,14 +151,16 @@ public final class Camera2CaptureCallbacks {
 
         @Override
         public void onCaptureProgressed(
-                CameraCaptureSession session, CaptureRequest request, CaptureResult partialResult) {
+                @NonNull CameraCaptureSession session, @NonNull CaptureRequest request,
+                @NonNull CaptureResult partialResult) {
             for (CameraCaptureSession.CaptureCallback callback : mCallbacks) {
                 callback.onCaptureProgressed(session, request, partialResult);
             }
         }
 
         @Override
-        public void onCaptureSequenceAborted(CameraCaptureSession session, int sequenceId) {
+        public void onCaptureSequenceAborted(@NonNull CameraCaptureSession session,
+                int sequenceId) {
             for (CameraCaptureSession.CaptureCallback callback : mCallbacks) {
                 callback.onCaptureSequenceAborted(session, sequenceId);
             }
@@ -156,7 +168,7 @@ public final class Camera2CaptureCallbacks {
 
         @Override
         public void onCaptureSequenceCompleted(
-                CameraCaptureSession session, int sequenceId, long frame) {
+                @NonNull CameraCaptureSession session, int sequenceId, long frame) {
             for (CameraCaptureSession.CaptureCallback callback : mCallbacks) {
                 callback.onCaptureSequenceCompleted(session, sequenceId, frame);
             }
@@ -164,7 +176,8 @@ public final class Camera2CaptureCallbacks {
 
         @Override
         public void onCaptureStarted(
-                CameraCaptureSession session, CaptureRequest request, long timestamp, long frame) {
+                @NonNull CameraCaptureSession session, @NonNull CaptureRequest request,
+                long timestamp, long frame) {
             for (CameraCaptureSession.CaptureCallback callback : mCallbacks) {
                 callback.onCaptureStarted(session, request, timestamp, frame);
             }

@@ -18,6 +18,8 @@ package androidx.camera.extensions;
 
 import android.text.TextUtils;
 
+import androidx.annotation.NonNull;
+
 import com.google.auto.value.AutoValue;
 
 import java.math.BigInteger;
@@ -76,6 +78,7 @@ abstract class Version implements Comparable<Version> {
 
     abstract String getDescription();
 
+    @NonNull
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder(getMajor() + "." + getMinor() + "." + getPatch());

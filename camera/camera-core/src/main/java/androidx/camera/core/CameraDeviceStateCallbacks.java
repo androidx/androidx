@@ -18,6 +18,7 @@ package androidx.camera.core;
 
 import android.hardware.camera2.CameraDevice;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 
@@ -65,19 +66,19 @@ public final class CameraDeviceStateCallbacks {
 
     static final class NoOpDeviceStateCallback extends CameraDevice.StateCallback {
         @Override
-        public void onOpened(CameraDevice cameraDevice) {
+        public void onOpened(@NonNull CameraDevice cameraDevice) {
         }
 
         @Override
-        public void onClosed(CameraDevice cameraDevice) {
+        public void onClosed(@NonNull CameraDevice cameraDevice) {
         }
 
         @Override
-        public void onDisconnected(CameraDevice cameraDevice) {
+        public void onDisconnected(@NonNull CameraDevice cameraDevice) {
         }
 
         @Override
-        public void onError(CameraDevice cameraDevice, int error) {
+        public void onError(@NonNull CameraDevice cameraDevice, int error) {
         }
     }
 
@@ -94,28 +95,28 @@ public final class CameraDeviceStateCallbacks {
         }
 
         @Override
-        public void onOpened(CameraDevice cameraDevice) {
+        public void onOpened(@NonNull CameraDevice cameraDevice) {
             for (CameraDevice.StateCallback callback : mCallbacks) {
                 callback.onOpened(cameraDevice);
             }
         }
 
         @Override
-        public void onClosed(CameraDevice cameraDevice) {
+        public void onClosed(@NonNull CameraDevice cameraDevice) {
             for (CameraDevice.StateCallback callback : mCallbacks) {
                 callback.onClosed(cameraDevice);
             }
         }
 
         @Override
-        public void onDisconnected(CameraDevice cameraDevice) {
+        public void onDisconnected(@NonNull CameraDevice cameraDevice) {
             for (CameraDevice.StateCallback callback : mCallbacks) {
                 callback.onDisconnected(cameraDevice);
             }
         }
 
         @Override
-        public void onError(CameraDevice cameraDevice, int error) {
+        public void onError(@NonNull CameraDevice cameraDevice, int error) {
             for (CameraDevice.StateCallback callback : mCallbacks) {
                 callback.onError(cameraDevice, error);
             }
