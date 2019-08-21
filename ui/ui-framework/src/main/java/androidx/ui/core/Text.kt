@@ -37,8 +37,8 @@ import androidx.ui.core.selection.TextSelectionHandler
 import androidx.ui.core.selection.TextSelectionProcessor
 import androidx.ui.semantics.Semantics
 import androidx.ui.semantics.accessibilityLabel
-import androidx.ui.text.TextSelection
 import androidx.ui.text.TextDelegate
+import androidx.ui.text.TextRange
 import androidx.ui.text.TextSpan
 import androidx.ui.text.TextStyle
 import androidx.ui.text.style.TextAlign
@@ -190,7 +190,7 @@ fun Text(
      */
     selectionColor: Color = DefaultSelectionColor
 ) {
-    val internalSelection = +state<TextSelection?> { null }
+    val internalSelection = +state<TextRange?> { null }
     val registrar = +ambient(SelectionRegistrarAmbient)
     val layoutCoordinates = +state<LayoutCoordinates?> { null }
 

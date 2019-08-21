@@ -1836,27 +1836,6 @@ package androidx.ui.text {
     method public static String substring(CharSequence, androidx.ui.text.TextRange range);
   }
 
-  public final class TextSelection {
-    ctor public TextSelection(int baseOffset, int extentOffset, boolean isDirectional);
-    method public int component1();
-    method public int component2();
-    method public boolean component3();
-    method public androidx.ui.text.TextSelection copy(int baseOffset, int extentOffset, boolean isDirectional);
-    method public int getBaseOffset();
-    method public int getEnd();
-    method public int getExtentOffset();
-    method public int getStart();
-    method public boolean isDirectional();
-    property public final int end;
-    property public final int start;
-    field public static final androidx.ui.text.TextSelection.Companion! Companion;
-  }
-
-  public static final class TextSelection.Companion {
-    method public androidx.ui.text.TextSelection collapsed(int offset);
-    method public androidx.ui.text.TextSelection fromPosition(int position);
-  }
-
 }
 
 package androidx.ui.text.style {
