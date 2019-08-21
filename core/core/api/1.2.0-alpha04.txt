@@ -2351,6 +2351,7 @@ package androidx.core.view.accessibility {
     method public static int getMovementGranularity(android.view.accessibility.AccessibilityEvent!);
     method @Deprecated public static androidx.core.view.accessibility.AccessibilityRecordCompat! getRecord(android.view.accessibility.AccessibilityEvent!, int);
     method @Deprecated public static int getRecordCount(android.view.accessibility.AccessibilityEvent!);
+    method public static android.view.accessibility.AccessibilityEvent obtain(android.view.accessibility.AccessibilityEvent);
     method public static void setAction(android.view.accessibility.AccessibilityEvent!, int);
     method public static void setContentChangeTypes(android.view.accessibility.AccessibilityEvent!, int);
     method public static void setMovementGranularity(android.view.accessibility.AccessibilityEvent!, int);
