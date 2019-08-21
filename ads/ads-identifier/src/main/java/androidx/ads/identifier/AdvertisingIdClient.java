@@ -163,7 +163,8 @@ public class AdvertisingIdClient {
         ServiceInfo serviceInfo =
                 AdvertisingIdUtils.selectServiceByPriority(resolveInfos, packageManager);
         if (serviceInfo == null) {
-            throw new AdvertisingIdNotAvailableException("No Advertising ID Provider available.");
+            throw new AdvertisingIdNotAvailableException(
+                    "No compatible AndroidX Advertising ID Provider available.");
         }
         return new ComponentName(serviceInfo.packageName, serviceInfo.name);
     }
