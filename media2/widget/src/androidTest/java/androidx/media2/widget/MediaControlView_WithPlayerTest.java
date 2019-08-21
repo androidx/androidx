@@ -44,7 +44,6 @@ import androidx.media2.common.MediaMetadata;
 import androidx.media2.common.SessionPlayer;
 import androidx.media2.common.SessionPlayer.TrackInfo;
 import androidx.media2.session.MediaController;
-import androidx.media2.widget.test.R;
 import androidx.test.filters.LargeTest;
 import androidx.test.rule.ActivityTestRule;
 
@@ -90,10 +89,11 @@ public class MediaControlView_WithPlayerTest extends MediaWidgetTestBase {
     @Before
     public void setup() throws Throwable {
         mActivity = mActivityRule.getActivity();
-        mMediaControlView = mActivity.findViewById(R.id.mediacontrolview);
+        mMediaControlView = mActivity.findViewById(
+                androidx.media2.widget.test.R.id.mediacontrolview);
 
         Uri fileSchemeUri = Uri.parse("android.resource://" + mContext.getPackageName() + "/"
-                + R.raw.test_file_scheme_video);
+                + androidx.media2.widget.test.R.raw.test_file_scheme_video);
         mFileSchemeMediaItem = createTestMediaItem(fileSchemeUri);
 
         setKeepScreenOn(mActivityRule);
@@ -355,7 +355,7 @@ public class MediaControlView_WithPlayerTest extends MediaWidgetTestBase {
     @Test
     public void testButtonVisibilityForMusicFile() throws Throwable {
         Uri uri = Uri.parse("android.resource://" + mContext.getPackageName() + "/"
-                + R.raw.test_music);
+                + androidx.media2.widget.test.R.raw.test_music);
         final MediaItem uriMediaItem = createTestMediaItem(uri);
 
         final CountDownLatch latch = new CountDownLatch(1);
@@ -379,7 +379,7 @@ public class MediaControlView_WithPlayerTest extends MediaWidgetTestBase {
     @Test
     public void testUpdateAndSelectSubtitleTrack() throws Throwable {
         Uri uri = Uri.parse("android.resource://" + mContext.getPackageName() + "/"
-                + R.raw.testvideo_with_2_subtitle_tracks);
+                + androidx.media2.widget.test.R.raw.testvideo_with_2_subtitle_tracks);
 
         final String subtitleTrackOffText = mContext.getResources().getString(
                 R.string.MediaControlView_subtitle_off_text);
@@ -471,7 +471,8 @@ public class MediaControlView_WithPlayerTest extends MediaWidgetTestBase {
         mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                ViewGroup layout = mActivity.findViewById(R.id.framelayout);
+                ViewGroup layout = mActivity.findViewById(
+                        androidx.media2.widget.test.R.id.framelayout);
                 layout.removeView(mMediaControlView);
                 mMediaControlView = new MediaControlView(mActivity);
                 if (playerWrapper.mPlayer != null) {
