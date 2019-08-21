@@ -31,9 +31,8 @@ dependencies {
         exclude group: 'com.google.guava', module: 'listenablefuture'
     }
     implementation(ARCH_CORE_RUNTIME)
-
     api(SUPPORT_ANNOTATIONS)
-    implementation(GUAVA_ANDROID)
+    implementation(ANDROIDX_CONCURRENT_FUTURES)
     androidTestImplementation(ANDROIDX_TEST_RUNNER)
     androidTestImplementation(TRUTH)
 }
