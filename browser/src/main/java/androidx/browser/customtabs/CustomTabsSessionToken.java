@@ -103,6 +103,11 @@ public class CustomTabsSessionToken {
 
     CustomTabsSessionToken(@Nullable ICustomTabsCallback callbackBinder,
             @Nullable PendingIntent sessionId) {
+        if (callbackBinder == null && sessionId == null) {
+            throw new IllegalStateException("CustomTabsSessionToken must have either a session id "
+                    + "or a callback (or both).");
+        }
+
         mCallbackBinder = callbackBinder;
         mSessionId = sessionId;
 
@@ -193,10 +198,16 @@ public class CustomTabsSessionToken {
     public boolean equals(Object o) {
         if (!(o instanceof CustomTabsSessionToken)) return false;
         CustomTabsSessionToken other = (CustomTabsSessionToken) o;
-        if (mSessionId != null && other.getId() != null) return mSessionId.equals(other.getId());
 
-        return other.getCallbackBinder() != null
-                && other.getCallbackBinder().equals(mCallbackBinder.asBinder());
+        PendingIntent otherSessionId = other.getId();
+        // If one object has a session id and the other one doesn't, they're not equal.
+        if ((mSessionId == null) != (otherSessionId == null)) return false;
+
+        // If both objects have an id, check that they are equal.
+        if (mSessionId != null) return mSessionId.equals(otherSessionId);
+
+        // Otherwise check for binder equality.
+        return getCallbackBinder().equals(other.getCallbackBinder());
     }
 
     /**
