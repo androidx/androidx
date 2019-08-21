@@ -315,9 +315,11 @@ class BenchmarkState {
                     throw AssertionError(Errors.UNSUPPRESSED_WARNING_MESSAGE)
                 }
                 if (!firstBenchmark && Arguments.startupMode) {
-                    throw AssertionError("Error - multiple benchmarks in startup mode. Only one " +
-                            "benchmark may be run per 'am instrument' call, to ensure result " +
-                            "isolation.")
+                    throw AssertionError(
+                        "Error - multiple benchmarks in startup mode. Only one " +
+                                "benchmark may be run per 'am instrument' call, to ensure result " +
+                                "isolation."
+                    )
                 }
                 firstBenchmark = false
 
@@ -491,6 +493,11 @@ class BenchmarkState {
 
         private var firstBenchmark = true
 
+        @Experimental
+        @Retention(AnnotationRetention.BINARY)
+        @Target(AnnotationTarget.FUNCTION)
+        annotation class ExperimentalExternalReport
+
         /**
          * Hooks for benchmarks not using [androidx.benchmark.junit4.BenchmarkRule] to register
          * results.
@@ -502,14 +509,14 @@ class BenchmarkState {
          * @param totalRunTimeNs The total run time of the benchmark
          * @param dataNs List of all measured results, in nanoseconds
          * @param warmupIterations Number of iterations of warmup before measurements started.
-         *                         Should be no less than 0.
+         * Should be no less than 0.
          * @param thermalThrottleSleepSeconds Number of seconds benchmark was paused during thermal
-         *                                    throttling.
+         * throttling.
          * @param repeatIterations Number of iterations in between each measurement. Should be no
-         *                         less than 1.
+         * less than 1.
          */
-        @Suppress("unused")
         @JvmStatic
+        @ExperimentalExternalReport
         fun reportData(
             className: String,
             testName: String,
@@ -531,7 +538,7 @@ class BenchmarkState {
 
             // Report value to Studio console
             val bundle = Bundle()
-            val fullTestName = Errors.PREFIX +
+            val fullTestName = PREFIX +
                     if (className.isNotEmpty()) "$className.$testName" else testName
             bundle.putIdeSummaryLine(fullTestName, report.stats.min)
             InstrumentationRegistry.getInstrumentation().sendStatus(Activity.RESULT_OK, bundle)
