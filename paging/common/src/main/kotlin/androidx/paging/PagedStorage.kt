@@ -124,16 +124,7 @@ class PagedStorage<T : Any> : AbstractList<T>, Pager.AdjacentProvider<T> {
         callback.onInitialized(size)
     }
 
-    override fun get(index: Int): T? {
-        // is it definitely outside 'pages'?
-        val localIndex = index - leadingNullCount
-
-        when {
-            index < 0 || index >= size ->
-                throw IndexOutOfBoundsException("Index: $index, Size: $size")
-            localIndex < 0 || localIndex >= storageCount -> return null
-        }
-
+    fun getFromStorage(localIndex: Int): T {
         var localPageIndex = 0
         var pageInternalIndex: Int
 
@@ -150,6 +141,18 @@ class PagedStorage<T : Any> : AbstractList<T>, Pager.AdjacentProvider<T> {
             localPageIndex++
         }
         return pages[localPageIndex][pageInternalIndex]
+    }
+
+    override fun get(index: Int): T? {
+        // is it definitely outside 'pages'?
+        val localIndex = index - leadingNullCount
+
+        when {
+            index < 0 || index >= size ->
+                throw IndexOutOfBoundsException("Index: $index, Size: $size")
+            localIndex < 0 || localIndex >= storageCount -> return null
+            else -> return getFromStorage(localIndex)
+        }
     }
 
     /**

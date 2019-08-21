@@ -37,7 +37,6 @@ internal class SnapshotPagedList<T : Any>(private val pagedList: PagedList<T>) :
     override val isDetached = true
 
     override fun detach() {}
-    override fun dispatchUpdatesSinceSnapshot(snapshot: PagedList<T>, callback: Callback) {}
     override fun dispatchCurrentLoadState(callback: LoadStateListener) {}
     override fun loadAroundInternal(index: Int) {}
 }

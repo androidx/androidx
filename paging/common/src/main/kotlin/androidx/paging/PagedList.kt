@@ -211,6 +211,37 @@ abstract class PagedList<T : Any> : AbstractList<T> {
                 lastLoad
             )
         }
+
+        /**
+         * Extremely naive diff dispatch: mark entire list as modified (essentially,
+         * notifyDataSetChanged). We do this because previous logic was incorrect, and
+         * could dispatch invalid diffs when pages are dropped. Instead of passing a
+         * snapshot, we now recommend to strictly use the addWeakCallback variant that
+         * only accepts a callback.
+         */
+        internal fun dispatchNaiveUpdatesSinceSnapshot(
+            currentSize: Int,
+            snapshotSize: Int,
+            callback: Callback
+        ) {
+            if (snapshotSize < currentSize) {
+                if (snapshotSize > 0) {
+                    callback.onChanged(0, snapshotSize)
+                }
+                val diffCount = currentSize - snapshotSize
+                if (diffCount > 0) {
+                    callback.onInserted(snapshotSize, diffCount)
+                }
+            } else {
+                if (currentSize > 0) {
+                    callback.onChanged(0, currentSize)
+                }
+                val diffCount = snapshotSize - currentSize
+                if (diffCount != 0) {
+                    callback.onRemoved(currentSize, diffCount)
+                }
+            }
+        }
     }
 
     /**
@@ -1050,17 +1081,6 @@ abstract class PagedList<T : Any> : AbstractList<T> {
     abstract fun dispatchCurrentLoadState(callback: LoadStateListener)
 
     /**
-     * Dispatch updates since the non-empty snapshot was taken.
-     *
-     * @param snapshot Non-empty snapshot.
-     * @param callback [Callback] for updates that have occurred since snapshot.
-     *
-     * @hide
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
-    abstract fun dispatchUpdatesSinceSnapshot(snapshot: PagedList<T>, callback: Callback)
-
-    /**
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -1349,18 +1369,29 @@ abstract class PagedList<T : Any> : AbstractList<T> {
      *
      * @see removeWeakCallback
      */
+    @Deprecated("Dispatching a diff since snapshot created is behavior that can be instead " +
+            "tracked by attaching a Callback to the PagedList that is mutating, and tracking " +
+            "changes since calling PagedList.snapshot().")
     open fun addWeakCallback(previousSnapshot: List<T>?, callback: Callback) {
         if (previousSnapshot != null && previousSnapshot !== this) {
-            if (previousSnapshot.isNotEmpty()) {
-                val storageSnapshot = previousSnapshot as PagedList<T>
-                dispatchUpdatesSinceSnapshot(storageSnapshot, callback)
-            } else if (!storage.isEmpty()) {
-                // If snapshot is empty, diff is trivial - just notify number new items.
-                // Note: occurs in async init, when snapshot taken before init page arrives
-                callback.onInserted(0, storage.size)
-            }
+            dispatchNaiveUpdatesSinceSnapshot(size, previousSnapshot.size, callback)
         }
+        addWeakCallback(callback)
+    }
 
+    /**
+     * Adds a callback.
+     *
+     * The callback is internally held as weak reference, so [PagedList] doesn't hold a strong
+     * reference to its observer, such as a [androidx.paging.PagedListAdapter]. If an adapter were
+     * held with a strong reference, it would be necessary to clear its [PagedList] observer before
+     * it could be GC'd.
+     *
+     * @param callback Callback to dispatch to.
+     *
+     * @see removeWeakCallback
+     */
+    open fun addWeakCallback(callback: Callback) {
         // first, clean up any empty weak refs
         callbacks.removeAll { it.get() == null }
 

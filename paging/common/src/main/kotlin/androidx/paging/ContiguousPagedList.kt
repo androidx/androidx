@@ -249,55 +249,6 @@ open class ContiguousPagedList<K : Any, V : Any>(
     }
 
     @MainThread
-    override fun dispatchUpdatesSinceSnapshot(snapshot: PagedList<V>, callback: Callback) {
-        val snapshotStorage = snapshot.storage
-
-        val newlyAppended = storage.numberAppended - snapshotStorage.numberAppended
-        val newlyPrepended = storage.numberPrepended - snapshotStorage.numberPrepended
-
-        val previousTrailing = snapshotStorage.trailingNullCount
-        val previousLeading = snapshotStorage.leadingNullCount
-
-        // Validate that the snapshot looks like a previous version of this list - if it's not,
-        // we can't be sure we'll dispatch callbacks safely
-        if (snapshotStorage.isEmpty() ||
-            newlyAppended < 0 ||
-            newlyPrepended < 0 ||
-            storage.trailingNullCount != maxOf(previousTrailing - newlyAppended, 0) ||
-            storage.leadingNullCount != maxOf(previousLeading - newlyPrepended, 0) ||
-            storage.storageCount != snapshotStorage.storageCount + newlyAppended + newlyPrepended
-        ) {
-            throw IllegalArgumentException(
-                "Invalid snapshot provided - doesn't appear to be a snapshot of this PagedList"
-            )
-        }
-
-        if (newlyAppended != 0) {
-            val changedCount = minOf(previousTrailing, newlyAppended)
-            val addedCount = newlyAppended - changedCount
-
-            val endPosition = snapshotStorage.leadingNullCount + snapshotStorage.storageCount
-            if (changedCount != 0) {
-                callback.onChanged(endPosition, changedCount)
-            }
-            if (addedCount != 0) {
-                callback.onInserted(endPosition + changedCount, addedCount)
-            }
-        }
-        if (newlyPrepended != 0) {
-            val changedCount = minOf(previousLeading, newlyPrepended)
-            val addedCount = newlyPrepended - changedCount
-
-            if (changedCount != 0) {
-                callback.onChanged(previousLeading, changedCount)
-            }
-            if (addedCount != 0) {
-                callback.onInserted(0, addedCount)
-            }
-        }
-    }
-
-    @MainThread
     override fun loadAroundInternal(index: Int) {
         val prependItems =
             getPrependItemsRequested(config.prefetchDistance, index, storage.leadingNullCount)

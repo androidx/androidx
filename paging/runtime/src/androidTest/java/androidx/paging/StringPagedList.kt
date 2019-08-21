@@ -55,8 +55,6 @@ class StringPagedList constructor(
         detached = true
     }
 
-    override fun dispatchUpdatesSinceSnapshot(snapshot: PagedList<String>, callback: Callback) {}
-
     override fun dispatchCurrentLoadState(callback: LoadStateListener) {}
 
     override fun loadAroundInternal(index: Int) {}
