@@ -48,7 +48,7 @@ class KotlinMetadataElementTest {
             val (testClassElement, metadataElement) = getMetadataElement(invocation)
             assertThat(
                 ElementFilter.constructorsIn(testClassElement.enclosedElements).map {
-                    val desc = MoreElements.asExecutable(it).descriptor(invocation.typeUtils)
+                    val desc = MoreElements.asExecutable(it).descriptor()
                     desc to (desc == metadataElement.findPrimaryConstructorSignature())
                 }.toSet()
             ).isEqualTo(
