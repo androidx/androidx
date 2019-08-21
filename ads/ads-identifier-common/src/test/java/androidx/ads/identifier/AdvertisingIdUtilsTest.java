@@ -16,8 +16,6 @@
 
 package androidx.ads.identifier;
 
-import static androidx.ads.identifier.testing.MockPackageManagerHelper.createServiceResolveInfo;
-
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.mockito.ArgumentMatchers.eq;
@@ -26,7 +24,6 @@ import static org.mockito.Mockito.when;
 
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
-import android.content.pm.ResolveInfo;
 import android.content.pm.ServiceInfo;
 
 import androidx.test.filters.SmallTest;
@@ -57,13 +54,13 @@ public class AdvertisingIdUtilsTest {
 
     @Test
     public void selectServiceByPriority() throws Exception {
-        List<ResolveInfo> resolveInfos = Lists.newArrayList(
-                createResolveInfo("c.normal.1", false, 1),
-                createResolveInfo("y.normal.0", false, 0),
-                createResolveInfo("x.normal.0", false, 0),
-                createResolveInfo("z.high.2", true, 2));
+        List<ServiceInfo> serviceInfos = Lists.newArrayList(
+                createServiceInfo("c.normal.1", false, 1),
+                createServiceInfo("y.normal.0", false, 0),
+                createServiceInfo("x.normal.0", false, 0),
+                createServiceInfo("z.high.2", true, 2));
 
-        List<String> priorityList = getPriorityList(resolveInfos);
+        List<String> priorityList = getPriorityList(serviceInfos);
 
         assertThat(priorityList).containsExactly(
                 "z.high.2",
@@ -75,14 +72,14 @@ public class AdvertisingIdUtilsTest {
 
     @Test
     public void selectServiceByPriority_firstInstallTime() throws Exception {
-        List<ResolveInfo> resolveInfos = Lists.newArrayList(
-                createResolveInfo("com.a", false, 2),
-                createResolveInfo("com.b", false, 9),
-                createResolveInfo("com.c", false, 7),
-                createResolveInfo("com.d", false, 10),
-                createResolveInfo("com.e", false, 0));
+        List<ServiceInfo> serviceInfos = Lists.newArrayList(
+                createServiceInfo("com.a", false, 2),
+                createServiceInfo("com.b", false, 9),
+                createServiceInfo("com.c", false, 7),
+                createServiceInfo("com.d", false, 10),
+                createServiceInfo("com.e", false, 0));
 
-        List<String> priorityList = getPriorityList(resolveInfos);
+        List<String> priorityList = getPriorityList(serviceInfos);
 
         assertThat(priorityList).containsExactly(
                 "com.e",
@@ -95,14 +92,14 @@ public class AdvertisingIdUtilsTest {
 
     @Test
     public void selectServiceByPriority_packageName() throws Exception {
-        List<ResolveInfo> resolveInfos = Lists.newArrayList(
-                createResolveInfo("com.abc.id", false, 0),
-                createResolveInfo("com.abc", false, 0),
-                createResolveInfo("org.example", false, 0),
-                createResolveInfo("com.abcde", false, 0),
-                createResolveInfo("com.abcde_id", false, 0));
+        List<ServiceInfo> serviceInfos = Lists.newArrayList(
+                createServiceInfo("com.abc.id", false, 0),
+                createServiceInfo("com.abc", false, 0),
+                createServiceInfo("org.example", false, 0),
+                createServiceInfo("com.abcde", false, 0),
+                createServiceInfo("com.abcde_id", false, 0));
 
-        List<String> priorityList = getPriorityList(resolveInfos);
+        List<String> priorityList = getPriorityList(serviceInfos);
 
         assertThat(priorityList).containsExactly(
                 "com.abc",
@@ -113,22 +110,17 @@ public class AdvertisingIdUtilsTest {
         ).inOrder();
     }
 
-    private List<String> getPriorityList(List<ResolveInfo> resolveInfos) {
+    private List<String> getPriorityList(List<ServiceInfo> serviceInfos) {
         List<String> result = new ArrayList<>();
-        while (resolveInfos.size() > 0) {
+        while (serviceInfos.size() > 0) {
             final ServiceInfo serviceInfo =
-                    AdvertisingIdUtils.selectServiceByPriority(resolveInfos, mPackageManager);
+                    AdvertisingIdUtils.selectServiceByPriority(serviceInfos, mPackageManager);
 
             result.add(serviceInfo.packageName);
 
-            resolveInfos.removeIf(resolveInfo -> resolveInfo.serviceInfo == serviceInfo);
+            serviceInfos.remove(serviceInfo);
         }
         return result;
-    }
-
-    @Test
-    public void selectServiceByPriority_inputNull() {
-        assertThat(AdvertisingIdUtils.selectServiceByPriority(null, mPackageManager)).isNull();
     }
 
     @Test
@@ -139,7 +131,7 @@ public class AdvertisingIdUtilsTest {
         assertThat(serviceInfo).isNull();
     }
 
-    private ResolveInfo createResolveInfo(String packageName, boolean requestHighPriority,
+    private ServiceInfo createServiceInfo(String packageName, boolean requestHighPriority,
             long firstInstallTime) throws Exception {
         PackageInfo packageInfo = new PackageInfo();
         packageInfo.packageName = packageName;
@@ -152,6 +144,8 @@ public class AdvertisingIdUtilsTest {
         when(mPackageManager.getPackageInfo(eq(packageName), eq(PackageManager.GET_PERMISSIONS)))
                 .thenReturn(packageInfo);
 
-        return createServiceResolveInfo(packageName);
+        ServiceInfo serviceInfo = mock(ServiceInfo.class);
+        serviceInfo.packageName = packageName;
+        return serviceInfo;
     }
 }

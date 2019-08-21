@@ -108,25 +108,24 @@ public class AdvertisingIdProviderManager {
     public static List<AdvertisingIdProviderInfo> getAdvertisingIdProviders(
             @NonNull Context context) {
         PackageManager packageManager = context.getPackageManager();
-        List<ResolveInfo> resolveInfos =
+        List<ServiceInfo> serviceInfos =
                 AdvertisingIdUtils.getAdvertisingIdProviderServices(packageManager);
-        if (resolveInfos.isEmpty()) {
+        if (serviceInfos.isEmpty()) {
             return Collections.emptyList();
         }
 
         Map<String, String> activityMap = getOpenSettingsActivities(packageManager);
         ServiceInfo highestPriorityServiceInfo =
-                AdvertisingIdUtils.selectServiceByPriority(resolveInfos, packageManager);
+                AdvertisingIdUtils.selectServiceByPriority(serviceInfos, packageManager);
 
         List<AdvertisingIdProviderInfo> providerInfos = new ArrayList<>();
-        for (ResolveInfo resolveInfo : resolveInfos) {
-            String packageName = resolveInfo.serviceInfo.packageName;
+        for (ServiceInfo serviceInfo : serviceInfos) {
+            String packageName = serviceInfo.packageName;
 
             AdvertisingIdProviderInfo.Builder builder =
                     AdvertisingIdProviderInfo.builder()
                             .setPackageName(packageName)
-                            .setHighestPriority(
-                                    resolveInfo.serviceInfo == highestPriorityServiceInfo);
+                            .setHighestPriority(serviceInfo == highestPriorityServiceInfo);
             String activityName = activityMap.get(packageName);
             if (activityName != null) {
                 builder.setSettingsIntent(
