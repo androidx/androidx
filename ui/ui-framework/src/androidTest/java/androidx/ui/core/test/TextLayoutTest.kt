@@ -48,7 +48,6 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import java.lang.UnsupportedOperationException
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 
@@ -109,13 +108,13 @@ class TextLayoutTest {
                 textSize.value = coordinates.size
                 layoutLatch.countDown()
             }) {
-                Text("aa", style = TextStyle(fontFamily = fontFamily))
+                Text("aa ", style = TextStyle(fontFamily = fontFamily))
             }
             OnChildPositioned({ coordinates ->
                 doubleTextSize.value = coordinates.size
                 layoutLatch.countDown()
             }) {
-                Text("aaaa", style = TextStyle(fontFamily = fontFamily))
+                Text("aa aa ", style = TextStyle(fontFamily = fontFamily))
             }
         }
         assertTrue(layoutLatch.await(1, TimeUnit.SECONDS))
@@ -126,20 +125,13 @@ class TextLayoutTest {
         val intrinsicsLatch = CountDownLatch(1)
         show {
             val text = @Composable {
-                Text("aaaa", style = TextStyle(fontFamily = fontFamily))
+                Text("aa aa ", style = TextStyle(fontFamily = fontFamily))
             }
             ComplexLayout(text) {
                 measure { measurables, _ ->
                     val textMeasurable = measurables.first()
-
                     // Min width.
-                    var threw = false
-                    try {
-                        textMeasurable.minIntrinsicWidth(0.ipx)
-                    } catch (e: UnsupportedOperationException) {
-                        threw = true
-                    }
-                    assertTrue(threw)
+                    assertEquals(textWidth, textMeasurable.minIntrinsicWidth(0.ipx))
                     // Min height.
                     assertTrue(textMeasurable.minIntrinsicHeight(textWidth) > textHeight)
                     assertEquals(textHeight, textMeasurable.minIntrinsicHeight(doubleTextWidth))

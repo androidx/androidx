@@ -27,13 +27,13 @@ import androidx.ui.core.px
 import androidx.ui.core.sp
 import androidx.ui.core.withDensity
 import androidx.ui.engine.geometry.Rect
-import androidx.ui.text.FontTestData.Companion.BASIC_MEASURE_FONT
-import androidx.ui.text.style.TextDirection
-import androidx.ui.text.font.asFontFamily
 import androidx.ui.graphics.Color
-import androidx.ui.text.matchers.equalToBitmap
 import androidx.ui.painting.Canvas
 import androidx.ui.painting.Paint
+import androidx.ui.text.FontTestData.Companion.BASIC_MEASURE_FONT
+import androidx.ui.text.font.asFontFamily
+import androidx.ui.text.matchers.equalToBitmap
+import androidx.ui.text.style.TextDirection
 import androidx.ui.text.style.TextOverflow
 import com.google.common.truth.Truth.assertThat
 import org.junit.Assert
@@ -65,23 +65,26 @@ class TextDelegateIntegrationTest {
 
     @Test
     fun minIntrinsicWidth_getter() {
-        val fontSize = 20.sp
-        val text = "Hello"
-        val textStyle = TextStyle(fontSize = fontSize, fontFamily = fontFamily)
-        val annotatedString = AnnotatedString(
-            text = text,
-            textStyles = listOf(AnnotatedString.Item(textStyle, 0, text.length))
-        )
-        val textDelegate = TextDelegate(
-            text = annotatedString,
-            paragraphStyle = ParagraphStyle(textDirection = TextDirection.Rtl),
-            density = density,
-            resourceLoader = resourceLoader
-        )
+        withDensity(density) {
+            val fontSize = 20.sp
+            val text = "Hello"
+            val textStyle = TextStyle(fontSize = fontSize, fontFamily = fontFamily)
+            val annotatedString = AnnotatedString(
+                text = text,
+                textStyles = listOf(AnnotatedString.Item(textStyle, 0, text.length))
+            )
+            val textDelegate = TextDelegate(
+                text = annotatedString,
+                paragraphStyle = ParagraphStyle(textDirection = TextDirection.Rtl),
+                density = density,
+                resourceLoader = resourceLoader
+            )
 
-        textDelegate.layout(Constraints())
+            textDelegate.layout(Constraints())
 
-        assertThat(textDelegate.minIntrinsicWidth).isEqualTo(0.0f)
+            assertThat(textDelegate.minIntrinsicWidth)
+                .isEqualTo(fontSize.toPx().value * text.length)
+        }
     }
 
     @Test

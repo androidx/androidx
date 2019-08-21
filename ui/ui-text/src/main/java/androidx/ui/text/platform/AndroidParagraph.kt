@@ -112,14 +112,12 @@ internal class AndroidParagraph constructor(
             }
         } ?: 0.0f
 
-    // TODO(siyamed): we do not have this concept. they limit to the max word size.
-    // it didn't make sense to me. I believe we might be able to do it. if we can use
-    // wordbreaker.
-    override val minIntrinsicWidth: Float
-        get() = 0.0f
-
     override val maxIntrinsicWidth: Float
         get() = layout?.maxIntrinsicWidth ?: 0.0f
+
+    override val minIntrinsicWidth: Float by lazy {
+        androidx.text.minIntrinsicWidth(charSequence, textPaint)
+    }
 
     override val baseline: Float
         get() = layout?.getLineBaseline(0) ?: 0.0f
@@ -145,14 +143,10 @@ internal class AndroidParagraph constructor(
     internal val underlyingText: CharSequence
         get() = ensureLayout.text
 
-    override fun layout(constraints: ParagraphConstraints) {
-        val width = constraints.width
-
-        val floorWidth = floor(width)
-
+    private val charSequence: CharSequence by lazy {
         val newStyle = style.applyTextStyle(textPaint, typefaceAdapter, density)
 
-        val charSequence = applyTextStyle(
+        applyTextStyle(
             text = text,
             textIndent = paragraphStyle.textIndent,
             textStyles = listOf(
@@ -164,6 +158,12 @@ internal class AndroidParagraph constructor(
             ) + textStyles,
             density = density
         )
+    }
+
+    override fun layout(constraints: ParagraphConstraints) {
+        val width = constraints.width
+
+        val floorWidth = floor(width)
 
         val alignment = toLayoutAlign(paragraphStyle.textAlign)
 
