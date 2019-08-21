@@ -1149,6 +1149,10 @@ public class NavController {
 
     /**
      * Gets the topmost {@link NavBackStackEntry} for a destination id.
+     * <p>
+     * This is always safe to use with {@link #getCurrentDestination() the current destination} or
+     * {@link NavDestination#getParent() its parent} or grandparent navigation graphs as these
+     * destinations are guaranteed to be on the back stack.
      *
      * @param destinationId ID of a destination that exists on the back stack
      * @throws IllegalArgumentException if the destination is not on the back stack
