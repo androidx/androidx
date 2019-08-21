@@ -25,7 +25,7 @@ import androidx.compose.composer
  *
  *     Draw { canvas, parentSize ->
  *         val paint = Paint()
- *         paint.color = Color(0xFF000000.toInt())
+ *         paint.color = Color(0xFF000000)
  *         canvas.drawRect(Rect(0.0f, 0.0f, parentSize.width, parentSize.height, paint)
  *     }
  *

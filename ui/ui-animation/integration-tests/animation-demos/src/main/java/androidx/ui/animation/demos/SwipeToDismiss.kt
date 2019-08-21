@@ -181,9 +181,9 @@ class SwipeToDismiss : Activity() {
     }
 
     private val colors = listOf(
-        Color(0xFFffd7d7.toInt()),
-        Color(0xFFffe9d6.toInt()),
-        Color(0xFFfffbd0.toInt()),
-        Color(0xFFe3ffd9.toInt()),
-        Color(0xFFd0fff8.toInt()))
+        Color(0xFFffd7d7),
+        Color(0xFFffe9d6),
+        Color(0xFFfffbd0),
+        Color(0xFFe3ffd9),
+        Color(0xFFd0fff8))
 }

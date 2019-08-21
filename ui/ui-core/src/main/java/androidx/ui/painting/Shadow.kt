@@ -27,7 +27,7 @@ import androidx.ui.graphics.lerp
  * A single shadow.
  */
 data class Shadow(
-    val color: Color = Color(0xFF000000.toInt()),
+    val color: Color = Color(0xFF000000),
     val offset: Offset = Offset.zero,
     val blurRadius: Px = 0.px
 )

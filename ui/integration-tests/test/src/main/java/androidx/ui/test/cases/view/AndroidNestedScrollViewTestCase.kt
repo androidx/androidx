@@ -21,6 +21,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.HorizontalScrollView
 import androidx.ui.graphics.Color
+import androidx.ui.graphics.toArgb
 import androidx.ui.test.AndroidTestCase
 import androidx.ui.test.R
 import androidx.ui.test.ToggleableTestCase

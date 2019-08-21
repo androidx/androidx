@@ -43,7 +43,7 @@ fun SimpleTableWithBorders() {
             repeat(8) {
                 tableRow {
                     Padding(2.dp) {
-                        ColoredRect(color = Color.Fuchsia, height = 50.dp)
+                        ColoredRect(color = Color.Magenta, height = 50.dp)
                     }
                 }
             }

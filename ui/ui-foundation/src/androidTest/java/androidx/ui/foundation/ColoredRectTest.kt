@@ -20,7 +20,6 @@ import androidx.compose.composer
 import androidx.test.filters.MediumTest
 import androidx.ui.core.dp
 import androidx.ui.core.ipx
-import androidx.ui.foundation.ColoredRect
 import androidx.ui.graphics.Color
 import androidx.ui.layout.DpConstraints
 import androidx.ui.test.createComposeRule
@@ -37,7 +36,7 @@ class ColoredRectTest {
     @get:Rule
     val composeTestRule = createComposeRule()
 
-    private val color = Color(0xFFFF0000.toInt())
+    private val color = Color(0xFFFF0000)
 
     @Test
     fun coloredRect_fixedSizes() {

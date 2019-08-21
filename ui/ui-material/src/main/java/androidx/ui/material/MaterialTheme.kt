@@ -31,6 +31,7 @@ import androidx.ui.core.withDensity
 import androidx.ui.engine.geometry.Shape
 import androidx.ui.foundation.shape.corner.RoundedCornerShape
 import androidx.ui.graphics.Color
+import androidx.ui.graphics.luminance
 import androidx.ui.material.ripple.CurrentRippleTheme
 import androidx.ui.material.ripple.DefaultRippleEffectFactory
 import androidx.ui.material.ripple.RippleTheme
@@ -103,12 +104,12 @@ data class MaterialColors(
      * The primary color is the color displayed most frequently across your app’s screens and
      * components.
      */
-    val primary: Color = Color(0xFF6200EE.toInt()),
+    val primary: Color = Color(0xFF6200EE),
     /**
      * The primary variant color is used to distinguish two elements of the app using the primary
      * color, such as the top app bar and the system bar.
      */
-    val primaryVariant: Color = Color(0xFF3700B3.toInt()),
+    val primaryVariant: Color = Color(0xFF3700B3),
     /**
      * The secondary color provides more ways to accent and distinguish your product.
      * Secondary colors are best for:
@@ -118,12 +119,12 @@ data class MaterialColors(
      * - Progress bars
      * - Links and headlines
      */
-    val secondary: Color = Color(0xFF03DAC6.toInt()),
+    val secondary: Color = Color(0xFF03DAC6),
     /**
      * The secondary variant color is used to distinguish two elements of the app using the
      * secondary color.
      */
-    val secondaryVariant: Color = Color(0xFF018786.toInt()),
+    val secondaryVariant: Color = Color(0xFF018786),
     /**
      * The background color appears behind scrollable content.
      */
@@ -135,7 +136,7 @@ data class MaterialColors(
     /**
      * The error color is used to indicate error within components, such as text fields.
      */
-    val error: Color = Color(0xFFB00020.toInt()),
+    val error: Color = Color(0xFFB00020),
     /**
      * Color used for text and icons displayed on top of the primary color.
      */

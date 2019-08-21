@@ -230,7 +230,7 @@ fun VariousInputFieldDemo() {
                 Text(
                     text = "Hint Text",
                     style = TextStyle(
-                        color = Color(0xFF888888.toInt()),
+                        color = Color(0xFF888888),
                         fontSize = fontSize8
                     )
                 )

@@ -52,7 +52,7 @@ fun CustomShapeDemo() {
                 onClick = {},
                 style = OutlinedButtonStyle(
                     shape = TriangleShape,
-                    color = Color.Aqua,
+                    color = Color.Cyan,
                     border = Border(Color.DarkGray, 1.dp)
                 )
             ) {

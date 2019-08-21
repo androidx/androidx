@@ -18,6 +18,7 @@ package androidx.ui.painting
 
 import androidx.ui.engine.geometry.Offset
 import androidx.ui.graphics.Color
+import androidx.ui.graphics.toArgb
 import androidx.ui.vectormath64.Matrix4
 import androidx.ui.vectormath64.PI
 

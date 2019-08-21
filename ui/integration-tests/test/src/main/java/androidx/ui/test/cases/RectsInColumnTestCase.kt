@@ -19,7 +19,6 @@ package androidx.ui.test.cases
 import android.app.Activity
 import androidx.compose.composer
 import androidx.compose.Composable
-import androidx.compose.CompositionContext
 import androidx.compose.FrameManager
 import androidx.compose.State
 import androidx.compose.state
@@ -61,10 +60,10 @@ class RectsInColumnTestCase(
 
     override fun toggleState() {
         val state = states.first()
-        if (state.value == Color.Purple) {
+        if (state.value == Color.Magenta) {
             state.value = Color.Blue
         } else {
-            state.value = Color.Purple
+            state.value = Color.Magenta
         }
         FrameManager.nextFrame()
     }

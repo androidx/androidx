@@ -135,12 +135,12 @@ class FancyScrolling : Activity() {
     }
 
     private val colors = listOf(
-        Color(0xFFffd9d9.toInt()),
-        Color(0xFFffa3a3.toInt()),
-        Color(0xFFff7373.toInt()),
-        Color(0xFFff3b3b.toInt()),
-        Color(0xFFce0000.toInt()),
-        Color(0xFFff3b3b.toInt()),
-        Color(0xFFff7373.toInt()),
-        Color(0xFFffa3a3.toInt()))
+        Color(0xFFffd9d9),
+        Color(0xFFffa3a3),
+        Color(0xFFff7373),
+        Color(0xFFff3b3b),
+        Color(0xFFce0000),
+        Color(0xFFff3b3b),
+        Color(0xFFff7373),
+        Color(0xFFffa3a3))
 }

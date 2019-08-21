@@ -29,7 +29,7 @@ import androidx.ui.painting.Path
 
 internal val HANDLE_WIDTH = 80.px
 internal val HANDLE_HEIGHT = 80.px
-private val HANDLE_COLOR = Color(0xFF2B28F5.toInt())
+private val HANDLE_COLOR = Color(0xFF2B28F5)
 
 @Composable
 internal fun LeftPointingSelectionHandle() {

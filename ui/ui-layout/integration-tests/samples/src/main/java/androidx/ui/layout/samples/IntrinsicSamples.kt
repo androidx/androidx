@@ -59,7 +59,7 @@ fun SameWidthBoxes() {
                     DrawShape(RectangleShape, Color.Blue)
                 }
                 ConstrainedBox(DpConstraints.tightConstraints(width = 10.dp, height = 10.dp)) {
-                    DrawShape(RectangleShape, Color.Fuchsia)
+                    DrawShape(RectangleShape, Color.Magenta)
                 }
             }
         }
@@ -121,7 +121,7 @@ fun SameWidthTextBoxes() {
                     Text("Extremely long text giving the width of its siblings")
                 }
                 Wrap {
-                    DrawShape(RectangleShape, Color.Fuchsia)
+                    DrawShape(RectangleShape, Color.Magenta)
                     Text("Medium length text")
                 }
             }

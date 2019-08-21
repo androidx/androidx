@@ -2631,7 +2631,7 @@ class ParagraphIntegrationTest {
             val textStyle =
                 TextStyle(
                     shadow = Shadow(
-                        Color(0xFF00FF00.toInt()),
+                        Color(0xFF00FF00),
                         Offset(1f, 2f),
                         3.px
                     )
