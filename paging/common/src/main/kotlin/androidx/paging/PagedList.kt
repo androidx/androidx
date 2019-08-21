@@ -997,16 +997,20 @@ abstract class PagedList<T : Any> : AbstractList<T> {
 
     /**
      * The [PagedSource] that provides data to this [PagedList].
+     *
+     * @hide
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     val pagedSource: PagedSource<*, T>
 
     /**
      * @throws IllegalStateException if this [PagedList] was instantiated without a
-     * [PagedSourceWrapper] wrapping a backing [DataSource]
+     * wrapping a backing [DataSource]
      */
     @Deprecated(
-        message = "DataSource is deprecated and has been replaced by PagedSource",
-        replaceWith = ReplaceWith("pagedSource")
+        message = "DataSource is deprecated and has been replaced by PagedSource. PagedList " +
+                "offers indirect ways of controlling fetch ('loadAround()', 'retry()') so that " +
+                "you should not need to access the DataSource/PagedSource."
     )
     val dataSource: DataSource<*, T>
         get() {
