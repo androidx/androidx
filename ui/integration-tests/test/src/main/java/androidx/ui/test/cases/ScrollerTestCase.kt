@@ -32,8 +32,8 @@ import androidx.ui.graphics.Color
 import androidx.ui.layout.Column
 import androidx.ui.layout.Container
 import androidx.ui.layout.CrossAxisAlignment
-import androidx.ui.layout.ScrollerPosition
-import androidx.ui.layout.VerticalScroller
+import androidx.ui.foundation.ScrollerPosition
+import androidx.ui.foundation.VerticalScroller
 import androidx.ui.painting.Paint
 import androidx.ui.painting.PaintingStyle
 import androidx.ui.test.ComposeTestCase
@@ -75,7 +75,7 @@ class ScrollerTestCase(
     }!!
 
     override fun toggleState() {
-        scrollerPosition.position = if (scrollerPosition.position == 0.px) 10.px else 0.px
+        scrollerPosition.value = if (scrollerPosition.value == 0.px) 10.px else 0.px
         FrameManager.nextFrame()
     }
 
