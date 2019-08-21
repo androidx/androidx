@@ -24,6 +24,7 @@ import androidx.ui.painting.Path
 import androidx.ui.text.font.Font
 import androidx.ui.text.platform.AndroidParagraph
 import androidx.ui.text.platform.TypefaceAdapter
+import androidx.ui.text.style.TextDirection
 
 /**
  * A paragraph of text.
@@ -134,6 +135,23 @@ interface Paragraph {
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     fun getPrimaryHorizontal(offset: Int): Float
+
+    /**
+     * Get the secondary horizontal position for the specified text offset.
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    fun getSecondaryHorizontal(offset: Int): Float
+
+    /**
+     * Get the text direction of the paragraph containing the given offset.
+     */
+    fun getParagraphDirection(offset: Int): TextDirection
+
+    /**
+     * Get the text direction of the character at the given offset.
+     */
+    fun getBidiRunDirection(offset: Int): TextDirection
 
     /** Returns the character offset closest to the given graphical position. */
     fun getOffsetForPosition(position: PxPosition): Int

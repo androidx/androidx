@@ -438,6 +438,27 @@ class TextDelegate(
         layoutResult.multiParagraph.getPrimaryHorizontal(offset)
     }
 
+    /**
+     * Get the secondary horizontal position for the specified text offset.
+     */
+    fun getSecondaryHorizontal(offset: Int): Float = assumeLayout { layoutResult ->
+        layoutResult.multiParagraph.getSecondaryHorizontal(offset)
+    }
+
+    /**
+     * Get the text direction of the paragraph containing the given offset.
+     */
+    fun getParagraphDirection(offset: Int): TextDirection = assumeLayout { layoutResult ->
+        layoutResult.multiParagraph.getParagraphDirection(offset)
+    }
+
+    /**
+     * Get the text direction of the character at the given offset.
+     */
+    fun getBidiRunDirection(offset: Int): TextDirection = assumeLayout { layoutResult ->
+        layoutResult.multiParagraph.getBidiRunDirection(offset)
+    }
+
     /** Returns the character offset closest to the given graphical position. */
     fun getOffsetForPosition(position: PxPosition): Int = assumeLayout { layoutResult ->
         layoutResult.multiParagraph.getOffsetForPosition(position)

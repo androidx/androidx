@@ -25,6 +25,7 @@ import androidx.ui.engine.geometry.Rect
 import androidx.ui.painting.Canvas
 import androidx.ui.painting.Path
 import androidx.ui.text.font.Font
+import androidx.ui.text.style.TextDirection
 import java.lang.IllegalStateException
 import kotlin.math.max
 
@@ -265,6 +266,67 @@ internal class MultiParagraph(
 
         return with(paragraphInfoList[paragraphIndex]) {
             paragraph.getPrimaryHorizontal(offset.toLocalIndex())
+        }
+    }
+
+    /** Get the secondary horizontal position for the specified text offset. */
+    fun getSecondaryHorizontal(offset: Int): Float {
+        assertNeedLayout()
+        if (offset !in 0..annotatedString.text.length) {
+            throw AssertionError("offset($offset) is out of bounds " +
+                    "(0,${annotatedString.text.length}")
+        }
+
+        val paragraphIndex = if (offset == annotatedString.text.length) {
+            paragraphInfoList.lastIndex
+        } else {
+            findParagraphByIndex(paragraphInfoList, offset)
+        }
+
+        return with(paragraphInfoList[paragraphIndex]) {
+            paragraph.getSecondaryHorizontal(offset.toLocalIndex())
+        }
+    }
+
+    /**
+     * Get the text direction of the paragraph containing the given offset.
+     */
+    fun getParagraphDirection(offset: Int): TextDirection {
+        assertNeedLayout()
+        if (offset !in 0..annotatedString.text.length) {
+            throw AssertionError("offset($offset) is out of bounds " +
+                    "(0,${annotatedString.text.length}")
+        }
+
+        val paragraphIndex = if (offset == annotatedString.text.length) {
+            paragraphInfoList.lastIndex
+        } else {
+            findParagraphByIndex(paragraphInfoList, offset)
+        }
+
+        return with(paragraphInfoList[paragraphIndex]) {
+            paragraph.getParagraphDirection(offset.toLocalIndex())
+        }
+    }
+
+    /**
+     * Get the text direction of the character at the given offset.
+     */
+    fun getBidiRunDirection(offset: Int): TextDirection {
+        assertNeedLayout()
+        if (offset !in 0..annotatedString.text.length) {
+            throw AssertionError("offset($offset) is out of bounds " +
+                    "(0,${annotatedString.text.length}")
+        }
+
+        val paragraphIndex = if (offset == annotatedString.text.length) {
+            paragraphInfoList.lastIndex
+        } else {
+            findParagraphByIndex(paragraphInfoList, offset)
+        }
+
+        return with(paragraphInfoList[paragraphIndex]) {
+            paragraph.getBidiRunDirection(offset.toLocalIndex())
         }
     }
 

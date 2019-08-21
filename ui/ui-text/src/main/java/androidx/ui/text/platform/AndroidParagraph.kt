@@ -277,6 +277,18 @@ internal class AndroidParagraph constructor(
     override fun getPrimaryHorizontal(offset: Int): Float =
         ensureLayout.getPrimaryHorizontal(offset)
 
+    override fun getSecondaryHorizontal(offset: Int): Float =
+        ensureLayout.getSecondaryHorizontal(offset)
+
+    override fun getParagraphDirection(offset: Int): TextDirection {
+        val lineIndex = ensureLayout.getLineForOffset(offset)
+        val direction = ensureLayout.getParagraphDirection(lineIndex)
+        return if (direction == 1) TextDirection.Ltr else TextDirection.Rtl
+    }
+
+    override fun getBidiRunDirection(offset: Int): TextDirection {
+        return if (ensureLayout.isRtlCharAt(offset)) TextDirection.Rtl else TextDirection.Ltr
+    }
     /**
      * @return true if the given line is ellipsized, else false.
      */

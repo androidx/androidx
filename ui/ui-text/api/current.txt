@@ -110,6 +110,7 @@ package androidx.ui.text {
 
   public interface Paragraph {
     method public float getBaseline();
+    method public androidx.ui.text.style.TextDirection getBidiRunDirection(int offset);
     method public androidx.ui.engine.geometry.Rect getCursorRect(int offset);
     method public boolean getDidExceedMaxLines();
     method public float getHeight();
@@ -121,6 +122,7 @@ package androidx.ui.text {
     method public float getMaxIntrinsicWidth();
     method public float getMinIntrinsicWidth();
     method public int getOffsetForPosition(androidx.ui.core.PxPosition position);
+    method public androidx.ui.text.style.TextDirection getParagraphDirection(int offset);
     method public androidx.ui.painting.Path getPathForRange(int start, int end);
     method public float getWidth();
     method public androidx.ui.text.TextRange getWordBoundary(int offset);
