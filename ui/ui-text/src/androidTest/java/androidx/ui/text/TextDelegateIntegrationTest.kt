@@ -56,9 +56,9 @@ class TextDelegateIntegrationTest {
 //    @Test
 //    fun preferredLineHeight_style_not_set() {
 //        val defaultTextStyle = TextStyle(fontFamily = fontFamily)
-//        val textPainter = TextDelegate(style = defaultTextStyle)
+//        val textDelegate = TextDelegate(style = defaultTextStyle)
 //
-//        val prefferedHeight = textPainter.preferredLineHeight
+//        val prefferedHeight = textDelegate.preferredLineHeight
 //
 //        assertThat(prefferedHeight).isEqualTo(14.0)
 //    }
@@ -72,16 +72,16 @@ class TextDelegateIntegrationTest {
             text = text,
             textStyles = listOf(AnnotatedString.Item(textStyle, 0, text.length))
         )
-        val textPainter = TextDelegate(
+        val textDelegate = TextDelegate(
             text = annotatedString,
             paragraphStyle = ParagraphStyle(textDirection = TextDirection.Rtl),
             density = density,
             resourceLoader = resourceLoader
         )
 
-        textPainter.layout(Constraints())
+        textDelegate.layout(Constraints())
 
-        assertThat(textPainter.minIntrinsicWidth).isEqualTo(0.0f)
+        assertThat(textDelegate.minIntrinsicWidth).isEqualTo(0.0f)
     }
 
     @Test
@@ -100,16 +100,18 @@ class TextDelegateIntegrationTest {
                     )
                 )
             )
-            val textPainter = TextDelegate(
+            val textDelegate = TextDelegate(
                 text = annotatedString,
                 paragraphStyle = ParagraphStyle(textDirection = TextDirection.Rtl),
                 density = density,
                 resourceLoader = resourceLoader
             )
 
-            textPainter.layout(Constraints())
+            textDelegate.layout(Constraints())
 
-            assertThat(textPainter.maxIntrinsicWidth).isEqualTo(fontSize.toPx().value * text.length)
+            assertThat(
+                textDelegate.maxIntrinsicWidth).isEqualTo(fontSize.toPx().value * text.length
+            )
         }
     }
 
@@ -129,16 +131,16 @@ class TextDelegateIntegrationTest {
                     )
                 )
             )
-            val textPainter = TextDelegate(
+            val textDelegate = TextDelegate(
                 text = annotatedString,
                 paragraphStyle = ParagraphStyle(textDirection = TextDirection.Rtl),
                 density = density,
                 resourceLoader = resourceLoader
             )
 
-            textPainter.layout(Constraints(0.ipx, 200.ipx))
+            textDelegate.layout(Constraints(0.ipx, 200.ipx))
 
-            assertThat(textPainter.width).isEqualTo(fontSize.toPx().value * text.length)
+            assertThat(textDelegate.width).isEqualTo(fontSize.toPx().value * text.length)
         }
     }
 
@@ -151,16 +153,16 @@ class TextDelegateIntegrationTest {
             text = text,
             textStyles = listOf(AnnotatedString.Item(textStyle, 0, text.length))
         )
-        val textPainter = TextDelegate(
+        val textDelegate = TextDelegate(
             text = annotatedString,
             paragraphStyle = ParagraphStyle(textDirection = TextDirection.Rtl),
             density = density,
             resourceLoader = resourceLoader
         )
 
-        textPainter.layout(Constraints(maxWidth = width))
+        textDelegate.layout(Constraints(maxWidth = width))
 
-        assertThat(textPainter.width).isEqualTo(width.value.toFloat())
+        assertThat(textDelegate.width).isEqualTo(width.value.toFloat())
     }
 
     @Test
@@ -179,31 +181,31 @@ class TextDelegateIntegrationTest {
                     )
                 )
             )
-            val textPainter = TextDelegate(
+            val textDelegate = TextDelegate(
                 text = annotatedString,
                 paragraphStyle = ParagraphStyle(textDirection = TextDirection.Rtl),
                 density = density,
                 resourceLoader = resourceLoader
             )
 
-            textPainter.layout(Constraints())
+            textDelegate.layout(Constraints())
 
-            assertThat(textPainter.height).isEqualTo(fontSize.toPx().value)
+            assertThat(textDelegate.height).isEqualTo(fontSize.toPx().value)
         }
     }
 
     @Test
     fun layout_build_layoutResult() {
-        val textPainter = TextDelegate(
+        val textDelegate = TextDelegate(
             text = AnnotatedString(text = "Hello"),
             paragraphStyle = ParagraphStyle(textDirection = TextDirection.Ltr),
             density = density,
             resourceLoader = resourceLoader
         )
 
-        textPainter.layout(Constraints(0.ipx, 20.ipx))
+        textDelegate.layout(Constraints(0.ipx, 20.ipx))
 
-        assertThat(textPainter.layoutResult).isNotNull()
+        assertThat(textDelegate.layoutResult).isNotNull()
     }
 
     @Test
@@ -219,15 +221,15 @@ class TextDelegateIntegrationTest {
                 )
             )
         )
-        val textPainter = TextDelegate(
+        val textDelegate = TextDelegate(
             text = annotatedString,
             paragraphStyle = ParagraphStyle(textDirection = TextDirection.Ltr),
             density = density,
             resourceLoader = resourceLoader
         )
-        textPainter.layout(Constraints())
+        textDelegate.layout(Constraints())
 
-        val selection = textPainter.getOffsetForPosition(PxPosition.Origin)
+        val selection = textDelegate.getOffsetForPosition(PxPosition.Origin)
 
         assertThat(selection).isEqualTo(0)
     }
@@ -248,15 +250,15 @@ class TextDelegateIntegrationTest {
                     )
                 )
             )
-            val textPainter = TextDelegate(
+            val textDelegate = TextDelegate(
                 text = annotatedString,
                 paragraphStyle = ParagraphStyle(textDirection = TextDirection.Ltr),
                 density = density,
                 resourceLoader = resourceLoader
             )
-            textPainter.layout(Constraints())
+            textDelegate.layout(Constraints())
 
-            val selection = textPainter.getOffsetForPosition(
+            val selection = textDelegate.getOffsetForPosition(
                 position = PxPosition((fontSize.toPx().value * characterIndex + 1).px, 0.px)
             )
 
@@ -272,16 +274,16 @@ class TextDelegateIntegrationTest {
             text = text,
             textStyles = listOf(AnnotatedString.Item(textStyle, 0, text.length))
         )
-        val textPainter = TextDelegate(
+        val textDelegate = TextDelegate(
             text = annotatedString,
             paragraphStyle = ParagraphStyle(textDirection = TextDirection.Ltr),
             density = density,
             resourceLoader = resourceLoader
         )
 
-        textPainter.layout(Constraints())
+        textDelegate.layout(Constraints())
 
-        assertThat(textPainter.hasVisualOverflow).isFalse()
+        assertThat(textDelegate.hasVisualOverflow).isFalse()
     }
 
     @Test
@@ -295,7 +297,7 @@ class TextDelegateIntegrationTest {
             text = text,
             textStyles = listOf(AnnotatedString.Item(textStyle, 0, text.length))
         )
-        val textPainter = TextDelegate(
+        val textDelegate = TextDelegate(
             text = annotatedString,
             paragraphStyle = ParagraphStyle(textDirection = TextDirection.Ltr),
             overflow = TextOverflow.Fade,
@@ -305,9 +307,9 @@ class TextDelegateIntegrationTest {
             resourceLoader = resourceLoader
         )
 
-        textPainter.layout(Constraints(maxWidth = 100.ipx))
+        textDelegate.layout(Constraints(maxWidth = 100.ipx))
 
-        assertThat(textPainter.hasVisualOverflow).isTrue()
+        assertThat(textDelegate.hasVisualOverflow).isTrue()
     }
 
     @Test
@@ -321,7 +323,7 @@ class TextDelegateIntegrationTest {
             text = text,
             textStyles = listOf(AnnotatedString.Item(textStyle, 0, text.length))
         )
-        val textPainter = TextDelegate(
+        val textDelegate = TextDelegate(
             text = annotatedString,
             paragraphStyle = ParagraphStyle(textDirection = TextDirection.Ltr),
             overflow = TextOverflow.Fade,
@@ -330,9 +332,9 @@ class TextDelegateIntegrationTest {
             resourceLoader = resourceLoader
         )
 
-        textPainter.layout(Constraints(maxWidth = 100.ipx))
+        textDelegate.layout(Constraints(maxWidth = 100.ipx))
 
-        assertThat(textPainter.hasVisualOverflow).isTrue()
+        assertThat(textDelegate.hasVisualOverflow).isTrue()
     }
 
     @Test
@@ -353,17 +355,17 @@ class TextDelegateIntegrationTest {
                     )
                 )
             )
-            val textPainter = TextDelegate(
+            val textDelegate = TextDelegate(
                 text = annotatedString,
                 paragraphStyle = ParagraphStyle(textDirection = TextDirection.Ltr),
                 density = density,
                 resourceLoader = resourceLoader
             )
-            textPainter.layout(Constraints(maxWidth = 120.ipx))
+            textDelegate.layout(Constraints(maxWidth = 120.ipx))
 
             val expectedBitmap = Bitmap.createBitmap(
-                ceil(textPainter.width).toInt(),
-                ceil(textPainter.height).toInt(),
+                ceil(textDelegate.width).toInt(),
+                ceil(textDelegate.height).toInt(),
                 Bitmap.Config.ARGB_8888
             )
             val expectedCanvas =
@@ -372,10 +374,10 @@ class TextDelegateIntegrationTest {
             val defaultSelectionColor = Color(0x6633B5E5)
             expectedPaint.color = defaultSelectionColor
 
-            val firstLineLeft = textPainter.layoutResult?.multiParagraph?.getLineLeft(0)
-            val secondLineLeft = textPainter.layoutResult?.multiParagraph?.getLineLeft(1)
-            val firstLineRight = textPainter.layoutResult?.multiParagraph?.getLineRight(0)
-            val secondLineRight = textPainter.layoutResult?.multiParagraph?.getLineRight(1)
+            val firstLineLeft = textDelegate.layoutResult?.multiParagraph?.getLineLeft(0)
+            val secondLineLeft = textDelegate.layoutResult?.multiParagraph?.getLineLeft(1)
+            val firstLineRight = textDelegate.layoutResult?.multiParagraph?.getLineRight(0)
+            val secondLineRight = textDelegate.layoutResult?.multiParagraph?.getLineRight(1)
             expectedCanvas.drawRect(
                 Rect(firstLineLeft!!, 0f, firstLineRight!!, fontSizeInPx),
                 expectedPaint
@@ -385,21 +387,21 @@ class TextDelegateIntegrationTest {
                     secondLineLeft!!,
                     fontSizeInPx,
                     secondLineRight!!,
-                    textPainter.layoutResult!!.multiParagraph.height
+                    textDelegate.layoutResult!!.multiParagraph.height
                 ),
                 expectedPaint
             )
 
             val actualBitmap = Bitmap.createBitmap(
-                ceil(textPainter.width).toInt(),
-                ceil(textPainter.height).toInt(),
+                ceil(textDelegate.width).toInt(),
+                ceil(textDelegate.height).toInt(),
                 Bitmap.Config.ARGB_8888
             )
             val actualCanvas = Canvas(android.graphics.Canvas(actualBitmap))
 
             // Run.
             // Select all.
-            textPainter.paintBackground(
+            textDelegate.paintBackground(
                 start = 0,
                 end = text.length,
                 color = defaultSelectionColor,
@@ -431,17 +433,17 @@ class TextDelegateIntegrationTest {
                     )
                 )
             )
-            val textPainter = TextDelegate(
+            val textDelegate = TextDelegate(
                 text = annotatedString,
                 paragraphStyle = ParagraphStyle(textDirection = TextDirection.Ltr),
                 density = density,
                 resourceLoader = resourceLoader
             )
-            textPainter.layout(Constraints())
+            textDelegate.layout(Constraints())
 
             val expectedBitmap = Bitmap.createBitmap(
-                ceil(textPainter.width).toInt(),
-                ceil(textPainter.height).toInt(),
+                ceil(textDelegate.width).toInt(),
+                ceil(textDelegate.height).toInt(),
                 Bitmap.Config.ARGB_8888
             )
             val expectedCanvas =
@@ -460,14 +462,14 @@ class TextDelegateIntegrationTest {
             )
 
             val actualBitmap = Bitmap.createBitmap(
-                ceil(textPainter.width).toInt(),
-                ceil(textPainter.height).toInt(),
+                ceil(textDelegate.width).toInt(),
+                ceil(textDelegate.height).toInt(),
                 Bitmap.Config.ARGB_8888
             )
             val actualCanvas = Canvas(android.graphics.Canvas(actualBitmap))
 
             // Run.
-            textPainter.paintBackground(
+            textDelegate.paintBackground(
                 start = selectionStart,
                 end = selectionEnd,
                 color = defaultSelectionColor,
@@ -502,17 +504,17 @@ class TextDelegateIntegrationTest {
                     )
                 )
             )
-            val textPainter = TextDelegate(
+            val textDelegate = TextDelegate(
                 text = annotatedString,
                 paragraphStyle = ParagraphStyle(textDirection = TextDirection.Ltr),
                 density = density,
                 resourceLoader = resourceLoader
             )
-            textPainter.layout(Constraints())
+            textDelegate.layout(Constraints())
 
             val expectedBitmap = Bitmap.createBitmap(
-                ceil(textPainter.width).toInt(),
-                ceil(textPainter.height).toInt(),
+                ceil(textDelegate.width).toInt(),
+                ceil(textDelegate.height).toInt(),
                 Bitmap.Config.ARGB_8888
             )
             val expectedCanvas =
@@ -543,14 +545,14 @@ class TextDelegateIntegrationTest {
             )
 
             val actualBitmap = Bitmap.createBitmap(
-                ceil(textPainter.width).toInt(),
-                ceil(textPainter.height).toInt(),
+                ceil(textDelegate.width).toInt(),
+                ceil(textDelegate.height).toInt(),
                 Bitmap.Config.ARGB_8888
             )
             val actualCanvas = Canvas(android.graphics.Canvas(actualBitmap))
 
             // Run.
-            textPainter.paintBackground(
+            textDelegate.paintBackground(
                 start = selectionLTRStart,
                 end = textLTR.length + selectionRTLEnd,
                 color = defaultSelectionColor,
@@ -583,17 +585,17 @@ class TextDelegateIntegrationTest {
                 )
             )
             val selectionColor = Color(0x66AABB33)
-            val textPainter = TextDelegate(
+            val textDelegate = TextDelegate(
                 text = annotatedString,
                 paragraphStyle = ParagraphStyle(textDirection = TextDirection.Ltr),
                 density = density,
                 resourceLoader = resourceLoader
             )
-            textPainter.layout(Constraints())
+            textDelegate.layout(Constraints())
 
             val expectedBitmap = Bitmap.createBitmap(
-                ceil(textPainter.width).toInt(),
-                ceil(textPainter.height).toInt(),
+                ceil(textDelegate.width).toInt(),
+                ceil(textDelegate.height).toInt(),
                 Bitmap.Config.ARGB_8888
             )
             val expectedCanvas =
@@ -611,14 +613,14 @@ class TextDelegateIntegrationTest {
             )
 
             val actualBitmap = Bitmap.createBitmap(
-                ceil(textPainter.width).toInt(),
-                ceil(textPainter.height).toInt(),
+                ceil(textDelegate.width).toInt(),
+                ceil(textDelegate.height).toInt(),
                 Bitmap.Config.ARGB_8888
             )
             val actualCanvas = Canvas(android.graphics.Canvas(actualBitmap))
 
             // Run.
-            textPainter.paintBackground(
+            textDelegate.paintBackground(
                 start = selectionStart,
                 end = selectionEnd,
                 color = selectionColor,
