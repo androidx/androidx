@@ -675,7 +675,7 @@ class MultiParagraphIntegrationTest {
     }
 
     @Test
-    fun getPrimaryHorizontal_bidi_singleLine_textDirectionDefault() {
+    fun getPrimaryHorizontal_Bidi_singleLine_textDirectionDefault() {
         withDensity(defaultDensity) {
             val ltrText = "abc"
             val rtlText = "\u05D0\u05D1\u05D2"
@@ -763,7 +763,7 @@ class MultiParagraphIntegrationTest {
     }
 
     @Test
-    fun getPrimaryHorizontal_bidi_singleLine_textDirectionLtr() {
+    fun getPrimaryHorizontal_Bidi_singleLine_textDirectionLtr() {
         withDensity(defaultDensity) {
             val ltrText = "abc"
             val rtlText = "\u05D0\u05D1\u05D2"
@@ -801,7 +801,7 @@ class MultiParagraphIntegrationTest {
     }
 
     @Test
-    fun getPrimaryHorizontal_bidi_singleLine_textDirectionRtl() {
+    fun getPrimaryHorizontal_Bidi_singleLine_textDirectionRtl() {
         withDensity(defaultDensity) {
             val ltrText = "abc"
             val rtlText = "\u05D0\u05D1\u05D2"
@@ -900,6 +900,584 @@ class MultiParagraphIntegrationTest {
             paragraph.layout(ParagraphConstraints(width))
 
             assertThat(paragraph.getPrimaryHorizontal(text.length), equalTo(0f))
+        }
+    }
+
+    @Test
+    fun getSecondaryHorizontal_ltr_singleLine_textDirectionDefault() {
+        withDensity(defaultDensity) {
+            val text = "abc"
+            val fontSize = 50.sp
+            val fontSizeInPx = fontSize.toPx().value
+            val paragraph = simpleMultiParagraph(text = text, fontSize = fontSize)
+
+            paragraph.layout(ParagraphConstraints(width = text.length * fontSizeInPx))
+
+            for (i in 0..text.length) {
+                assertThat(
+                    paragraph.getSecondaryHorizontal(i),
+                    equalTo(fontSizeInPx * i)
+                )
+            }
+        }
+    }
+
+    @Test
+    fun getSecondaryHorizontal_rtl_singleLine_textDirectionDefault() {
+        withDensity(defaultDensity) {
+            val text = "\u05D0\u05D1\u05D2"
+            val fontSize = 50.sp
+            val fontSizeInPx = fontSize.toPx().value
+            val paragraph = simpleMultiParagraph(text = text, fontSize = fontSize)
+            val width = text.length * fontSizeInPx
+
+            paragraph.layout(ParagraphConstraints(width))
+
+            for (i in 0..text.length) {
+                assertThat(
+                    paragraph.getSecondaryHorizontal(i),
+                    equalTo(width - fontSizeInPx * i)
+                )
+            }
+        }
+    }
+
+    @Test
+    fun getSecondaryHorizontal_Bidi_singleLine_textDirectionDefault() {
+        withDensity(defaultDensity) {
+            val ltrText = "abc"
+            val rtlText = "\u05D0\u05D1\u05D2"
+            val text = ltrText + rtlText
+            val fontSize = 50.sp
+            val fontSizeInPx = fontSize.toPx().value
+            val paragraph = simpleMultiParagraph(text = text, fontSize = fontSize)
+            val width = text.length * fontSizeInPx
+
+            paragraph.layout(ParagraphConstraints(width))
+
+            for (i in 0 until ltrText.length) {
+                assertThat(
+                    paragraph.getSecondaryHorizontal(i),
+                    equalTo(fontSizeInPx * i)
+                )
+            }
+
+            for (i in 0..rtlText.length) {
+                assertThat(
+                    paragraph.getSecondaryHorizontal(i + ltrText.length),
+                    equalTo(width - fontSizeInPx * i)
+                )
+            }
+        }
+    }
+
+    @Test
+    fun getSecondaryHorizontal_ltr_singleLine_textDirectionRtl() {
+        withDensity(defaultDensity) {
+            val text = "abc"
+            val fontSize = 50.sp
+            val fontSizeInPx = fontSize.toPx().value
+            val paragraph = simpleMultiParagraph(
+                text = text,
+                fontSize = fontSize,
+                textDirection = TextDirection.Rtl
+            )
+            val width = text.length * fontSizeInPx
+            paragraph.layout(ParagraphConstraints(width))
+
+            assertThat(paragraph.getSecondaryHorizontal(0), equalTo(0f))
+
+            for (i in 1 until text.length) {
+                assertThat(
+                    paragraph.getSecondaryHorizontal(i),
+                    equalTo(fontSizeInPx * i)
+                )
+            }
+
+            assertThat(paragraph.getSecondaryHorizontal(text.length), equalTo(width))
+        }
+    }
+
+    @Test
+    fun getSecondaryHorizontal_rtl_singleLine_textDirectionLtr() {
+        withDensity(defaultDensity) {
+            val text = "\u05D0\u05D1\u05D2"
+            val fontSize = 50.sp
+            val fontSizeInPx = fontSize.toPx().value
+            val paragraph = simpleMultiParagraph(
+                text = text,
+                fontSize = fontSize,
+                textDirection = TextDirection.Ltr
+            )
+            val width = text.length * fontSizeInPx
+            paragraph.layout(ParagraphConstraints(width))
+
+            assertThat(paragraph.getSecondaryHorizontal(0), equalTo(width))
+
+            for (i in 1 until text.length) {
+                assertThat(
+                    paragraph.getSecondaryHorizontal(i),
+                    equalTo(width - fontSizeInPx * i)
+                )
+            }
+
+            assertThat(paragraph.getSecondaryHorizontal(text.length), equalTo(0f))
+        }
+    }
+
+    @Test
+    fun getSecondaryHorizontal_Bidi_singleLine_textDirectionLtr() {
+        withDensity(defaultDensity) {
+            val ltrText = "abc"
+            val rtlText = "\u05D0\u05D1\u05D2"
+            val text = ltrText + rtlText
+            val fontSize = 50.sp
+            val fontSizeInPx = fontSize.toPx().value
+            val paragraph = simpleMultiParagraph(
+                text = text,
+                fontSize = fontSize,
+                textDirection = TextDirection.Ltr
+            )
+            val width = text.length * fontSizeInPx
+
+            paragraph.layout(ParagraphConstraints(width))
+
+            for (i in 0 until ltrText.length) {
+                assertThat(
+                    paragraph.getSecondaryHorizontal(i),
+                    equalTo(fontSizeInPx * i)
+                )
+            }
+
+            for (i in 0 until rtlText.length) {
+                assertThat(
+                    paragraph.getSecondaryHorizontal(i + ltrText.length),
+                    equalTo(width - fontSizeInPx * i)
+                )
+            }
+
+            assertThat(
+                paragraph.getSecondaryHorizontal(text.length),
+                equalTo(width - rtlText.length * fontSizeInPx)
+            )
+        }
+    }
+
+    @Test
+    fun getSecondaryHorizontal_Bidi_singleLine_textDirectionRtl() {
+        withDensity(defaultDensity) {
+            val ltrText = "abc"
+            val rtlText = "\u05D0\u05D1\u05D2"
+            val text = ltrText + rtlText
+            val fontSize = 50.sp
+            val fontSizeInPx = fontSize.toPx().value
+            val paragraph = simpleMultiParagraph(
+                text = text,
+                fontSize = fontSize,
+                textDirection = TextDirection.Rtl
+            )
+            val width = text.length * fontSizeInPx
+
+            paragraph.layout(ParagraphConstraints(width))
+
+            assertThat(
+                paragraph.getSecondaryHorizontal(0),
+                equalTo(width - ltrText.length * fontSizeInPx)
+            )
+            for (i in 1..ltrText.length) {
+                assertThat(
+                    paragraph.getSecondaryHorizontal(i),
+                    equalTo(rtlText.length * fontSizeInPx + i * fontSizeInPx)
+                )
+            }
+
+            for (i in 1..rtlText.length) {
+                assertThat(
+                    paragraph.getSecondaryHorizontal(i + ltrText.length),
+                    equalTo(rtlText.length * fontSizeInPx - i * fontSizeInPx)
+                )
+            }
+        }
+    }
+
+    @Test
+    fun getSecondaryHorizontal_ltr_newLine_textDirectionDefault() {
+        withDensity(defaultDensity) {
+            val text = "abc\n"
+            val fontSize = 50.sp
+            val fontSizeInPx = fontSize.toPx().value
+            val paragraph = simpleMultiParagraph(text = text, fontSize = fontSize)
+            val width = text.length * fontSizeInPx
+
+            paragraph.layout(ParagraphConstraints(width))
+
+            assertThat(paragraph.getSecondaryHorizontal(text.length), equalTo(0f))
+        }
+    }
+
+    @Test
+    fun getSecondaryHorizontal_rtl_newLine_textDirectionDefault() {
+        withDensity(defaultDensity) {
+            val text = "\u05D0\u05D1\u05D2\n"
+            val fontSize = 50.sp
+            val fontSizeInPx = fontSize.toPx().value
+            val paragraph = simpleMultiParagraph(text = text, fontSize = fontSize)
+            val width = text.length * fontSizeInPx
+
+            paragraph.layout(ParagraphConstraints(width))
+
+            assertThat(paragraph.getSecondaryHorizontal(text.length), equalTo(0f))
+        }
+    }
+
+    @Test
+    fun getSecondaryHorizontal_ltr_newLine_textDirectionRtl() {
+        withDensity(defaultDensity) {
+            val text = "abc\n"
+            val fontSize = 50.sp
+            val fontSizeInPx = fontSize.toPx().value
+            val paragraph = simpleMultiParagraph(
+                text = text,
+                fontSize = fontSize,
+                textDirection = TextDirection.Rtl
+            )
+            val width = text.length * fontSizeInPx
+
+            paragraph.layout(ParagraphConstraints(width))
+
+            assertThat(paragraph.getSecondaryHorizontal(text.length), equalTo(width))
+        }
+    }
+
+    @Test
+    fun getSecondaryHorizontal_rtl_newLine_textDirectionLtr() {
+        withDensity(defaultDensity) {
+            val text = "\u05D0\u05D1\u05D2\n"
+            val fontSize = 50.sp
+            val fontSizeInPx = fontSize.toPx().value
+            val paragraph = simpleMultiParagraph(
+                text = text,
+                fontSize = fontSize,
+                textDirection = TextDirection.Ltr
+            )
+            val width = text.length * fontSizeInPx
+
+            paragraph.layout(ParagraphConstraints(width))
+
+            assertThat(paragraph.getSecondaryHorizontal(text.length), equalTo(0f))
+        }
+    }
+
+    @Test
+    fun getParagraphDirection_ltr_singleLine_textDirectionDefault() {
+        withDensity(defaultDensity) {
+            val text = "abc"
+            val fontSize = 50.sp
+            val fontSizeInPx = fontSize.toPx().value
+            val paragraph = simpleMultiParagraph(
+                text = text,
+                fontSize = fontSize
+            )
+            val width = text.length * fontSizeInPx
+
+            paragraph.layout(ParagraphConstraints(width))
+
+            for (i in 0..text.length) {
+                assertThat(paragraph.getParagraphDirection(i), equalTo(TextDirection.Ltr))
+            }
+        }
+    }
+
+    @Test
+    fun getParagraphDirection_ltr_singleLine_textDirectionRtl() {
+        withDensity(defaultDensity) {
+            val text = "abc"
+            val fontSize = 50.sp
+            val fontSizeInPx = fontSize.toPx().value
+            val paragraph = simpleMultiParagraph(
+                text = text,
+                fontSize = fontSize,
+                textDirection = TextDirection.Rtl
+            )
+            val width = text.length * fontSizeInPx
+
+            paragraph.layout(ParagraphConstraints(width))
+
+            for (i in 0..text.length) {
+                assertThat(paragraph.getParagraphDirection(i), equalTo(TextDirection.Rtl))
+            }
+        }
+    }
+
+    @Test
+    fun getParagraphDirection_rtl_singleLine_textDirectionDefault() {
+        withDensity(defaultDensity) {
+            val text = "\u05D0\u05D1\u05D2\n"
+            val fontSize = 50.sp
+            val fontSizeInPx = fontSize.toPx().value
+            val paragraph = simpleMultiParagraph(
+                text = text,
+                fontSize = fontSize
+            )
+            val width = text.length * fontSizeInPx
+
+            paragraph.layout(ParagraphConstraints(width))
+
+            for (i in 0 until text.length) {
+                assertThat(paragraph.getParagraphDirection(i), equalTo(TextDirection.Rtl))
+            }
+        }
+    }
+
+    @Test
+    fun getParagraphDirection_rtl_singleLine_textDirectionLtr() {
+        withDensity(defaultDensity) {
+            val text = "abc"
+            val fontSize = 50.sp
+            val fontSizeInPx = fontSize.toPx().value
+            val paragraph = simpleMultiParagraph(
+                text = text,
+                fontSize = fontSize,
+                textDirection = TextDirection.Ltr
+            )
+            val width = text.length * fontSizeInPx
+
+            paragraph.layout(ParagraphConstraints(width))
+
+            for (i in 0..text.length) {
+                assertThat(paragraph.getParagraphDirection(i), equalTo(TextDirection.Ltr))
+            }
+        }
+    }
+
+    @Test
+    fun getParagraphDirection_Bidi_singleLine_textDirectionDefault() {
+        withDensity(defaultDensity) {
+            val ltrText = "abc"
+            val rtlText = "\u05D0\u05D1\u05D2"
+            val text = ltrText + rtlText
+            val fontSize = 50.sp
+            val fontSizeInPx = fontSize.toPx().value
+            val paragraph = simpleMultiParagraph(
+                text = text,
+                fontSize = fontSize
+            )
+            val width = text.length * fontSizeInPx
+
+            paragraph.layout(ParagraphConstraints(width))
+
+            for (i in 0..text.length) {
+                assertThat(paragraph.getParagraphDirection(i), equalTo(TextDirection.Ltr))
+            }
+        }
+    }
+
+    @Test
+    fun getParagraphDirection_Bidi_singleLine_textDirectionLtr() {
+        withDensity(defaultDensity) {
+            val ltrText = "abc"
+            val rtlText = "\u05D0\u05D1\u05D2"
+            val text = ltrText + rtlText
+            val fontSize = 50.sp
+            val fontSizeInPx = fontSize.toPx().value
+            val paragraph = simpleMultiParagraph(
+                text = text,
+                fontSize = fontSize,
+                textDirection = TextDirection.Ltr
+            )
+            val width = text.length * fontSizeInPx
+
+            paragraph.layout(ParagraphConstraints(width))
+
+            for (i in 0..text.length) {
+                assertThat(paragraph.getParagraphDirection(i), equalTo(TextDirection.Ltr))
+            }
+        }
+    }
+
+    @Test
+    fun getParagraphDirection_Bidi_singleLine_textDirectionRtl() {
+        withDensity(defaultDensity) {
+            val ltrText = "abc"
+            val rtlText = "\u05D0\u05D1\u05D2"
+            val text = ltrText + rtlText
+            val fontSize = 50.sp
+            val fontSizeInPx = fontSize.toPx().value
+            val paragraph = simpleMultiParagraph(
+                text = text,
+                fontSize = fontSize,
+                textDirection = TextDirection.Rtl
+            )
+            val width = text.length * fontSizeInPx
+
+            paragraph.layout(ParagraphConstraints(width))
+
+            for (i in 0..text.length) {
+                assertThat(paragraph.getParagraphDirection(i), equalTo(TextDirection.Rtl))
+            }
+        }
+    }
+
+    @Test
+    fun getBidiRunDirection_ltr_singleLine_textDirectionDefault() {
+        withDensity(defaultDensity) {
+            val text = "abc"
+            val fontSize = 50.sp
+            val fontSizeInPx = fontSize.toPx().value
+            val paragraph = simpleMultiParagraph(
+                text = text,
+                fontSize = fontSize
+            )
+            val width = text.length * fontSizeInPx
+
+            paragraph.layout(ParagraphConstraints(width))
+
+            for (i in 0..text.length) {
+                assertThat(paragraph.getBidiRunDirection(i), equalTo(TextDirection.Ltr))
+            }
+        }
+    }
+
+    @Test
+    fun getBidiRunDirection_ltr_singleLine_textDirectionRtl() {
+        withDensity(defaultDensity) {
+            val text = "abc"
+            val fontSize = 50.sp
+            val fontSizeInPx = fontSize.toPx().value
+            val paragraph = simpleMultiParagraph(
+                text = text,
+                fontSize = fontSize,
+                textDirection = TextDirection.Rtl
+            )
+            val width = text.length * fontSizeInPx
+
+            paragraph.layout(ParagraphConstraints(width))
+
+            for (i in 0..text.length) {
+                assertThat(paragraph.getBidiRunDirection(i), equalTo(TextDirection.Ltr))
+            }
+        }
+    }
+
+    @Test
+    fun getBidiRunDirection_rtl_singleLine_textDirectionDefault() {
+        withDensity(defaultDensity) {
+            val text = "\u05D0\u05D1\u05D2\n"
+            val fontSize = 50.sp
+            val fontSizeInPx = fontSize.toPx().value
+            val paragraph = simpleMultiParagraph(
+                text = text,
+                fontSize = fontSize
+            )
+            val width = text.length * fontSizeInPx
+
+            paragraph.layout(ParagraphConstraints(width))
+
+            for (i in 0 until text.length) {
+                assertThat(paragraph.getBidiRunDirection(i), equalTo(TextDirection.Rtl))
+            }
+        }
+    }
+
+    @Test
+    fun getBidiRunDirection_rtl_singleLine_textDirectionLtr() {
+        withDensity(defaultDensity) {
+            val text = "\u05D0\u05D1\u05D2\n"
+            val fontSize = 50.sp
+            val fontSizeInPx = fontSize.toPx().value
+            val paragraph = simpleMultiParagraph(
+                text = text,
+                fontSize = fontSize,
+                textDirection = TextDirection.Ltr
+            )
+            val width = text.length * fontSizeInPx
+
+            paragraph.layout(ParagraphConstraints(width))
+
+            for (i in 0 until text.length - 1) {
+                assertThat(paragraph.getBidiRunDirection(i), equalTo(TextDirection.Rtl))
+            }
+            assertThat(paragraph.getBidiRunDirection(text.length - 1), equalTo(TextDirection.Ltr))
+        }
+    }
+
+    @Test
+    fun getBidiRunDirection_Bidi_singleLine_textDirectionDefault() {
+        withDensity(defaultDensity) {
+            val ltrText = "abc"
+            val rtlText = "\u05D0\u05D1\u05D2"
+            val text = ltrText + rtlText
+            val fontSize = 50.sp
+            val fontSizeInPx = fontSize.toPx().value
+            val paragraph = simpleMultiParagraph(
+                text = text,
+                fontSize = fontSize
+            )
+            val width = text.length * fontSizeInPx
+
+            paragraph.layout(ParagraphConstraints(width))
+
+            for (i in 0 until ltrText.length) {
+                assertThat(paragraph.getBidiRunDirection(i), equalTo(TextDirection.Ltr))
+            }
+
+            for (i in ltrText.length until text.length) {
+                assertThat(paragraph.getBidiRunDirection(i), equalTo(TextDirection.Rtl))
+            }
+        }
+    }
+
+    @Test
+    fun getBidiRunDirection_Bidi_singleLine_textDirectionLtr() {
+        withDensity(defaultDensity) {
+            val ltrText = "abc"
+            val rtlText = "\u05D0\u05D1\u05D2"
+            val text = ltrText + rtlText
+            val fontSize = 50.sp
+            val fontSizeInPx = fontSize.toPx().value
+            val paragraph = simpleMultiParagraph(
+                text = text,
+                fontSize = fontSize,
+                textDirection = TextDirection.Ltr
+            )
+            val width = text.length * fontSizeInPx
+
+            paragraph.layout(ParagraphConstraints(width))
+
+            for (i in 0 until ltrText.length) {
+                assertThat(paragraph.getBidiRunDirection(i), equalTo(TextDirection.Ltr))
+            }
+
+            for (i in ltrText.length until text.length) {
+                assertThat(paragraph.getBidiRunDirection(i), equalTo(TextDirection.Rtl))
+            }
+        }
+    }
+
+    @Test
+    fun getBidiRunDirection_Bidi_singleLine_textDirectionRtl() {
+        withDensity(defaultDensity) {
+            val ltrText = "abc"
+            val rtlText = "\u05D0\u05D1\u05D2"
+            val text = ltrText + rtlText
+            val fontSize = 50.sp
+            val fontSizeInPx = fontSize.toPx().value
+            val paragraph = simpleMultiParagraph(
+                text = text,
+                fontSize = fontSize,
+                textDirection = TextDirection.Rtl
+            )
+            val width = text.length * fontSizeInPx
+
+            paragraph.layout(ParagraphConstraints(width))
+
+            for (i in 0 until ltrText.length) {
+                assertThat(paragraph.getBidiRunDirection(i), equalTo(TextDirection.Ltr))
+            }
+
+            for (i in ltrText.length until text.length) {
+                assertThat(paragraph.getBidiRunDirection(i), equalTo(TextDirection.Rtl))
+            }
         }
     }
 
