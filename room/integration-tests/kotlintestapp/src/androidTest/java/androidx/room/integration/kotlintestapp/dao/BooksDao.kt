@@ -388,4 +388,7 @@ interface BooksDao {
     @Transaction
     @Query("SELECT * FROM book")
     fun getBooksFlowInTransaction(): Flow<List<Book>>
+
+    @Query("SELECT * FROM book WHERE bookId = :id")
+    fun getOneBooksFlow(id: String): Flow<Book?>
 }
