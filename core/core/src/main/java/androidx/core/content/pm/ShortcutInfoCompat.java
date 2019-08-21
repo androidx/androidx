@@ -494,13 +494,23 @@ public class ShortcutInfoCompat {
         }
 
         /**
+         * @deprecated Use {@ink #setLongLived(boolean)) instead.
+         */
+        @Deprecated
+        @NonNull
+        public Builder setLongLived() {
+            mInfo.mIsLongLived = true;
+            return this;
+        }
+
+        /**
          * Sets if a shortcut would be valid even if it has been unpublished/invisible by the app
          * (as a dynamic or pinned shortcut). If it is long lived, it can be cached by various
          * system services even after it has been unpublished as a dynamic shortcut.
          */
         @NonNull
-        public Builder setLongLived() {
-            mInfo.mIsLongLived = true;
+        public Builder setLongLived(boolean longLived) {
+            mInfo.mIsLongLived = longLived;
             return this;
         }
 
