@@ -19,11 +19,9 @@ package androidx.ui.painting
 import android.graphics.Matrix
 import androidx.ui.Vertices
 import androidx.ui.core.toFrameworkRect
-import androidx.ui.core.toFrameworkRectF
 import androidx.ui.engine.geometry.Offset
 import androidx.ui.engine.geometry.RRect
 import androidx.ui.engine.geometry.Rect
-import androidx.ui.graphics.Color
 import androidx.ui.vectormath64.Matrix4
 import androidx.ui.vectormath64.isIdentity
 
@@ -52,96 +50,6 @@ import androidx.ui.vectormath64.isIdentity
 
 fun Canvas(c: android.graphics.Canvas): Canvas = AndroidCanvas(c)
 
-/**
- * Saves a copy of the current transform and clip on the save stack and executes the
- * provided lambda with the current transform applied. Once the lambda has been executed,
- * the transformation is popped from the stack, undoing the transformation.
- *
- *
- * See also:
- *
- *  * [saveLayer], which does the same thing but additionally also groups the
- *    commands
- */
-/* expect */ inline fun Canvas.withSave(block: () -> Unit) {
-    try {
-        nativeCanvas.save()
-        block()
-    } finally {
-        nativeCanvas.restore()
-    }
-}
-
-/**
- * Saves a copy of the current transform and clip on the save stack, and then
- * creates a new group which subsequent calls will become a part of. When the
- * lambda is executed and the save stack is popped, the group will be flattened into
- * a layer and have the given `paint`'s [Paint.colorFilter] and [Paint.blendMode]
- * applied.
- *
- * This lets you create composite effects, for example making a group of
- * drawing commands semi-transparent. Without using [saveLayer], each part of
- * the group would be painted individually, so where they overlap would be
- * darker than where they do not. By using [saveLayer] to group them
- * together, they can be drawn with an opaque color at first, and then the
- * entire group can be made transparent using the [saveLayer]'s paint.
- *
- *
- * ## Using saveLayer with clips
- *
- * When a rectangular clip operation (from [clipRect]) is not axis-aligned
- * with the raster buffer, or when the clip operation is not rectalinear (e.g.
- * because it is a rounded rectangle clip created by [clipRRect] or an
- * arbitrarily complicated path clip created by [clipPath]), the edge of the
- * clip needs to be anti-aliased.
- *
- * If two draw calls overlap at the edge of such a clipped region, without
- * using [saveLayer], the first drawing will be anti-aliased with the
- * background first, and then the second will be anti-aliased with the result
- * of blending the first drawing and the background. On the other hand, if
- * [saveLayer] is used immediately after establishing the clip, the second
- * drawing will cover the first in the layer, and thus the second alone will
- * be anti-aliased with the background when the layer is clipped and
- * composited (when lambda is finished executing).
- *
- * (Incidentally, rather than using [clipRRect] and [drawPaint] to draw
- * rounded rectangles like this, prefer the [drawRRect] method. These
- * examples are using [drawPaint] as a proxy for "complicated draw operations
- * that will get clipped", to illustrate the point.)
- *
- * ## Performance considerations
- *
- * Generally speaking, [saveLayer] is relatively expensive.
- *
- * There are a several different hardware architectures for GPUs (graphics
- * processing units, the hardware that handles graphics), but most of them
- * involve batching commands and reordering them for performance. When layers
- * are used, they cause the rendering pipeline to have to switch render
- * target (from one layer to another). Render target switches can flush the
- * GPU's command buffer, which typically means that optimizations that one
- * could get with larger batching are lost. Render target switches also
- * generate a lot of memory churn because the GPU needs to copy out the
- * current frame buffer contents from the part of memory that's optimized for
- * writing, and then needs to copy it back in once the previous render target
- * (layer) is restored.
- *
- * See also:
- *
- *  * [save], which saves the current state, but does not create a new layer
- *    for subsequent commands.
- *  * [BlendMode], which discusses the use of [Paint.blendMode] with
- *    [saveLayer].
- */
-@SuppressWarnings("deprecation")
-inline fun Canvas.withSaveLayer(bounds: Rect?, paint: Paint, block: () -> Unit) {
-    try {
-        nativeCanvas.saveLayer(bounds?.toFrameworkRectF(), paint.asFrameworkPaint())
-        block()
-    } finally {
-        nativeCanvas.restore()
-    }
-}
-
 private class AndroidCanvas(val internalCanvas: android.graphics.Canvas) : Canvas {
 
     private val internalPath = Path()
@@ -169,32 +77,17 @@ private class AndroidCanvas(val internalCanvas: android.graphics.Canvas) : Canva
      * @see Canvas.saveLayer
      */
     @SuppressWarnings("deprecation")
-    override fun saveLayer(bounds: Rect?, paint: Paint) {
-        if (bounds == null) {
-            TODO("Migration/njawad framework does not have " +
-                    "equivalent for saveLayerWithoutBounds")
-        } else {
-            @Suppress("DEPRECATION")
-            internalCanvas.saveLayer(
-                bounds.left,
-                bounds.top,
-                bounds.right,
-                bounds.bottom,
-                paint.asFrameworkPaint(),
-                android.graphics.Canvas.ALL_SAVE_FLAG
-            )
-        }
+    override fun saveLayer(bounds: Rect, paint: Paint) {
+        @Suppress("DEPRECATION")
+        internalCanvas.saveLayer(
+            bounds.left,
+            bounds.top,
+            bounds.right,
+            bounds.bottom,
+            paint.asFrameworkPaint(),
+            android.graphics.Canvas.ALL_SAVE_FLAG
+        )
     }
-
-    // TODO(Migration/njawad find equivalent implementation for _saveLayerWithoutBounds or not
-//    void _saveLayerWithoutBounds(List<dynamic> paintObjects, ByteData paintData)
-//    native 'Canvas_saveLayerWithoutBounds';
-//    void _saveLayer(double left,
-//    double top,
-//    double right,
-//    double bottom,
-//    List<dynamic> paintObjects,
-//    ByteData paintData) native 'Canvas_saveLayer';
 
     /**
      * @see Canvas.translate
@@ -286,13 +179,6 @@ private class AndroidCanvas(val internalCanvas: android.graphics.Canvas) : Canva
     }
 
     /**
-     * @see Canvas.drawColor
-     */
-    override fun drawColor(color: Color, blendMode: BlendMode) {
-        internalCanvas.drawColor(color.toArgb(), blendMode.toPorterDuffMode())
-    }
-
-    /**
      * @see Canvas.drawLine
      */
     override fun drawLine(p1: Offset, p2: Offset, paint: Paint) {
@@ -303,13 +189,6 @@ private class AndroidCanvas(val internalCanvas: android.graphics.Canvas) : Canva
             p2.dy,
             paint.asFrameworkPaint()
         )
-    }
-
-    /**
-     * @see Canvas.drawPaint
-     */
-    override fun drawPaint(paint: Paint) {
-        internalCanvas.drawPaint(paint.asFrameworkPaint())
     }
 
     /**
@@ -552,10 +431,4 @@ private class AndroidCanvas(val internalCanvas: android.graphics.Canvas) : Canva
             paint.asFrameworkPaint()
         )
     }
-
-    // TODO(Migration/njawad add drawAtlas API)
-
-    // TODO(Migration/njawad add drawRawAtlas API)
-
-    // TODO(Migration/njawad add drawShadow API)
 }
