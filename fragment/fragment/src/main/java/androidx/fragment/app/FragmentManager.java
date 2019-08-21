@@ -1628,6 +1628,23 @@ public abstract class FragmentManager {
         }
     }
 
+    /**
+     * Allows for changing the draw order on a container, if the container is a
+     * FragmentContainerView.
+     */
+    void setExitAnimationOrder(Fragment f, boolean isPop) {
+        // This will be false if a child fragment is added to its parent's childFragmentManager
+        // before a view is created for Parent. In all other cases (adding a fragment to an
+        // FragmentActivity's fragmentManager, adding a child fragment to a parent that has a view),
+        // it should be true.
+        if (mContainer.onHasView()) {
+            ViewGroup container = (ViewGroup) mContainer.onFindViewById(f.mFragmentId);
+            if (container instanceof FragmentContainerView) {
+                ((FragmentContainerView) container).setDrawDisappearingViewsLast(!isPop);
+            }
+        }
+    }
+
     private void destroyFragmentView(@NonNull Fragment fragment) {
         fragment.performDestroyView();
         dispatchOnFragmentViewDestroyed(fragment, false);

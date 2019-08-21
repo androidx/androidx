@@ -327,6 +327,212 @@ class FragmentContainerViewTest {
         assertThat(drawnFirst!!).isEqualTo(frag1View)
     }
 
+    // Disappearing child views should be drawn last if transaction is a pop.
+    @Test
+    fun drawDisappearingChildViewsLast() {
+        val fm = activityRule.activity.supportFragmentManager
+
+        val fragmentContainerView = activityRule.activity
+            .findViewById<FragmentContainerTestView>(R.id.fragment_container_view)
+
+        val fragment2 = ChildViewFragment()
+
+        fm.beginTransaction()
+            .setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right,
+                android.R.anim.slide_in_left, android.R.anim.slide_out_right)
+            .replace(R.id.fragment_container_view, ChildViewFragment(), "1")
+            .commit()
+        activityRule.waitForExecution()
+
+        fm.beginTransaction()
+            .setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right,
+                android.R.anim.slide_in_left, android.R.anim.slide_out_right)
+            .replace(R.id.fragment_container_view, fragment2, "2")
+            .addToBackStack(null)
+            .commit()
+        activityRule.waitForExecution()
+
+        val frag2View = fragment2.mView as ChildView
+        drawnFirstCountDownLatch.await()
+
+        fragmentContainerView.endViewTransitionLatch.await()
+        fragmentContainerView.endViewTransitionLatch = CountDownLatch(1)
+
+        // reset the first drawn view for the transaction we care about.
+        drawnFirst = null
+        drawnFirstCountDownLatch = CountDownLatch(1)
+
+        fm.popBackStack()
+        activityRule.waitForExecution()
+
+        fragmentContainerView.endViewTransitionLatch.await()
+        fragmentContainerView.endViewTransitionLatch = CountDownLatch(1)
+
+        drawnFirstCountDownLatch.await()
+        // The popped Fragment will be drawn last and therefore will be on top
+        assertThat(drawnFirst!!).isNotEqualTo(frag2View)
+    }
+
+    @Test
+    fun drawDisappearingChildViewsLastAfterPopNoReordering() {
+        val fm = activityRule.activity.supportFragmentManager
+
+        val fragmentContainerView = activityRule.activity
+            .findViewById<FragmentContainerTestView>(R.id.fragment_container_view)
+
+        val fragment1 = ChildViewFragment()
+        val fragment2 = ChildViewFragment()
+
+        fm.beginTransaction()
+            .setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right,
+                android.R.anim.slide_in_left, android.R.anim.slide_out_right)
+            .replace(R.id.fragment_container_view, fragment1, "1")
+            .commit()
+        activityRule.waitForExecution()
+
+        fm.beginTransaction()
+            .setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right,
+                android.R.anim.slide_in_left, android.R.anim.slide_out_right)
+            .replace(R.id.fragment_container_view, fragment2, "2")
+            .setPrimaryNavigationFragment(fragment2)
+            .addToBackStack(null)
+            .commit()
+        activityRule.waitForExecution()
+
+        val frag2View = fragment2.mView as ChildView
+        drawnFirstCountDownLatch.await()
+
+        fragmentContainerView.endViewTransitionLatch.await()
+        fragmentContainerView.endViewTransitionLatch = CountDownLatch(1)
+
+        // reset the first drawn view for the transaction we care about.
+        drawnFirst = null
+        drawnFirstCountDownLatch = CountDownLatch(1)
+
+        fm.popBackStack()
+        fm.beginTransaction()
+            .setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right,
+                android.R.anim.slide_in_left, android.R.anim.slide_out_right)
+            .replace(R.id.fragment_container_view, fragment1, "1")
+            .commit()
+        activityRule.waitForExecution()
+
+        fragmentContainerView.endViewTransitionLatch.await()
+        fragmentContainerView.endViewTransitionLatch = CountDownLatch(1)
+
+        drawnFirstCountDownLatch.await()
+        assertThat(drawnFirst!!).isNotEqualTo(frag2View)
+    }
+
+    @Test
+    fun drawDisappearingChildViewsLastAfterPopReorderingAllowed() {
+        val fm = activityRule.activity.supportFragmentManager
+
+        val fragmentContainerView = activityRule.activity
+            .findViewById<FragmentContainerTestView>(R.id.fragment_container_view)
+
+        val fragment1 = ChildViewFragment()
+        val fragment2 = ChildViewFragment()
+
+        fm.beginTransaction()
+            .setReorderingAllowed(true)
+            .setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right,
+                android.R.anim.slide_in_left, android.R.anim.slide_out_right)
+            .replace(R.id.fragment_container_view, fragment1, "1")
+            .commit()
+        activityRule.waitForExecution()
+
+        fm.beginTransaction()
+            .setReorderingAllowed(true)
+            .setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right,
+                android.R.anim.slide_in_left, android.R.anim.slide_out_right)
+            .replace(R.id.fragment_container_view, fragment2, "2")
+            .setPrimaryNavigationFragment(fragment2)
+            .addToBackStack(null)
+            .commit()
+        activityRule.waitForExecution()
+
+        val frag2View = fragment2.mView as ChildView
+        drawnFirstCountDownLatch.await()
+
+        fragmentContainerView.endViewTransitionLatch.await()
+        fragmentContainerView.endViewTransitionLatch = CountDownLatch(1)
+
+        // reset the first drawn view for the transaction we care about.
+        drawnFirst = null
+        drawnFirstCountDownLatch = CountDownLatch(1)
+
+        fm.popBackStack()
+        fm.beginTransaction()
+            .setReorderingAllowed(true)
+            .setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right,
+                android.R.anim.slide_in_left, android.R.anim.slide_out_right)
+            .replace(R.id.fragment_container_view, fragment1, "1")
+            .commit()
+        activityRule.waitForExecution()
+
+        fragmentContainerView.endViewTransitionLatch.await()
+        fragmentContainerView.endViewTransitionLatch = CountDownLatch(1)
+
+        drawnFirstCountDownLatch.await()
+        assertThat(drawnFirst!!).isNotEqualTo(frag2View)
+    }
+
+    @Test
+    fun drawDisappearingChildViewsLastAfterPopReorderingAllowedAddNewFragment() {
+        val fm = activityRule.activity.supportFragmentManager
+
+        val fragmentContainerView = activityRule.activity
+            .findViewById<FragmentContainerTestView>(R.id.fragment_container_view)
+
+        val fragment1 = ChildViewFragment()
+        val fragment2 = ChildViewFragment()
+
+        fm.beginTransaction()
+            .setReorderingAllowed(true)
+            .setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right,
+                android.R.anim.slide_in_left, android.R.anim.slide_out_right)
+            .replace(R.id.fragment_container_view, fragment1, "1")
+            .commit()
+        activityRule.waitForExecution()
+
+        fm.beginTransaction()
+            .setReorderingAllowed(true)
+            .setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right,
+                android.R.anim.slide_in_left, android.R.anim.slide_out_right)
+            .replace(R.id.fragment_container_view, fragment2, "2")
+            .setPrimaryNavigationFragment(fragment2)
+            .addToBackStack(null)
+            .commit()
+        activityRule.waitForExecution()
+
+        val frag2View = fragment2.mView as ChildView
+        drawnFirstCountDownLatch.await()
+
+        fragmentContainerView.endViewTransitionLatch.await()
+        fragmentContainerView.endViewTransitionLatch = CountDownLatch(1)
+
+        // reset the first drawn view for the transaction we care about.
+        drawnFirst = null
+        drawnFirstCountDownLatch = CountDownLatch(1)
+
+        fm.popBackStack()
+        fm.beginTransaction()
+            .setReorderingAllowed(true)
+            .setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right,
+                android.R.anim.slide_in_left, android.R.anim.slide_out_right)
+            .add(R.id.fragment_container_view, ChildViewFragment(), "1")
+            .commit()
+        activityRule.waitForExecution()
+
+        fragmentContainerView.endViewTransitionLatch.await()
+        fragmentContainerView.endViewTransitionLatch = CountDownLatch(1)
+
+        drawnFirstCountDownLatch.await()
+        // The view that was popped is drawn first which means it is on the bottom.
+        assertThat(drawnFirst!!).isEqualTo(frag2View)
+    }
+
     class ChildViewFragment : StrictViewFragment() {
         override fun onCreateView(
             inflater: LayoutInflater,
@@ -362,6 +568,7 @@ class FragmentContainerViewTest {
 }
 
 class FragmentContainerTestView : FragmentContainerView {
+    var endViewTransitionLatch = CountDownLatch(1)
 
     constructor(context: Context) : super(context)
 
@@ -373,5 +580,10 @@ class FragmentContainerTestView : FragmentContainerView {
     override fun removeView(view: View) {
         view.invalidate()
         super.removeView(view)
+    }
+
+    override fun endViewTransition(view: View) {
+        endViewTransitionLatch.countDown()
+        super.endViewTransition(view)
     }
 }
