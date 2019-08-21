@@ -18,6 +18,8 @@ package androidx.camera.camera2;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.junit.Assume.assumeTrue;
+
 import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
@@ -30,6 +32,7 @@ import androidx.camera.core.ImageAnalysisConfig;
 import androidx.camera.core.MeteringPoint;
 import androidx.camera.core.MeteringPointFactory;
 import androidx.camera.core.SensorOrientedMeteringPointFactory;
+import androidx.camera.testing.CameraUtil;
 import androidx.camera.testing.fakes.FakeLifecycleOwner;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.test.core.app.ApplicationProvider;
@@ -100,6 +103,8 @@ public final class SensorOrientedMeteringPointFactoryTest {
 
     @Test
     public void createPointWithFoVUseCase_success() {
+        assumeTrue(CameraUtil.hasCameraWithLensFacing(CameraX.LensFacing.BACK));
+
         ImageAnalysisConfig imageAnalysisConfig =
                 new ImageAnalysisConfig.Builder()
                         .setLensFacing(CameraX.LensFacing.BACK)
@@ -118,6 +123,8 @@ public final class SensorOrientedMeteringPointFactoryTest {
 
     @Test(expected = IllegalStateException.class)
     public void createPointWithFoVUseCase_FailedNotBound() {
+        assumeTrue(CameraUtil.hasCameraWithLensFacing(CameraX.LensFacing.BACK));
+
         ImageAnalysisConfig imageAnalysisConfig =
                 new ImageAnalysisConfig.Builder()
                         .setLensFacing(CameraX.LensFacing.BACK)
