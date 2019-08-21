@@ -332,8 +332,9 @@ public class WebViewCompatTest {
         WebView webView = WebViewOnUiThread.createWebView();
 
         // Asserts that if WebView is running in multi process, render process is not null
-        assertEquals(WebViewCompat.isMultiProcessEnabled(),
-                WebViewCompat.getWebViewRenderProcess(webView) != null);
+        WebViewRenderProcess renderer = WebkitUtils.onMainThreadSync(
+                () -> WebViewCompat.getWebViewRenderProcess(webView));
+        assertEquals(WebViewCompat.isMultiProcessEnabled(), renderer != null);
 
         WebViewOnUiThread.destroy(webView);
     }
