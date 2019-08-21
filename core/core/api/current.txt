@@ -932,7 +932,8 @@ package androidx.core.content.pm {
     method public androidx.core.content.pm.ShortcutInfoCompat.Builder setIntent(android.content.Intent);
     method public androidx.core.content.pm.ShortcutInfoCompat.Builder setIntents(android.content.Intent![]);
     method public androidx.core.content.pm.ShortcutInfoCompat.Builder setLongLabel(CharSequence);
-    method public androidx.core.content.pm.ShortcutInfoCompat.Builder setLongLived();
+    method @Deprecated public androidx.core.content.pm.ShortcutInfoCompat.Builder setLongLived();
+    method public androidx.core.content.pm.ShortcutInfoCompat.Builder setLongLived(boolean);
     method public androidx.core.content.pm.ShortcutInfoCompat.Builder setPerson(androidx.core.app.Person);
     method public androidx.core.content.pm.ShortcutInfoCompat.Builder setPersons(androidx.core.app.Person![]);
     method public androidx.core.content.pm.ShortcutInfoCompat.Builder setRank(int);
