@@ -142,23 +142,6 @@ package androidx.ui.layout {
     method public static void Padding(androidx.ui.core.Dp padding, kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
 
-  public final class ScrollerKt {
-    ctor public ScrollerKt();
-    method public static void HorizontalScroller(androidx.ui.layout.ScrollerPosition scrollerPosition = +memo({ 
-    <init>()
-}), kotlin.jvm.functions.Function2<? super androidx.ui.core.Px,? super androidx.ui.core.Px,kotlin.Unit> onScrollChanged = { position, _ -> scrollerPosition.position = position }, kotlin.jvm.functions.Function0<kotlin.Unit> child);
-    method public static void VerticalScroller(androidx.ui.layout.ScrollerPosition scrollerPosition = +memo({ 
-    <init>()
-}), kotlin.jvm.functions.Function2<? super androidx.ui.core.Px,? super androidx.ui.core.Px,kotlin.Unit> onScrollChanged = { position, _ -> scrollerPosition.position = position }, kotlin.jvm.functions.Function0<kotlin.Unit> child);
-  }
-
-  public final class ScrollerPosition {
-    ctor public ScrollerPosition();
-    method public androidx.ui.core.Px getPosition();
-    method public void setPosition(androidx.ui.core.Px p);
-    property public final androidx.ui.core.Px position;
-  }
-
   public final class SpacerKt {
     ctor public SpacerKt();
     method public static void FixedSpacer(androidx.ui.core.Dp width, androidx.ui.core.Dp height);

@@ -29,16 +29,24 @@ import androidx.ui.lerp
  * It makes it possible to have animation support for [Draggable] composable
  * as well as to have fling animation after drag has ended, which is defined by [FlingConfig]
  *
- * @param initialValue initial value for AnimatedFloat to set it up
+ * @param animatedFloat instance of AnimatedFloat to control
  * @param flingConfig sets behavior of the fling after drag has ended.
  * Default is null, which means no fling will occur no matter the velocity
  */
 class AnimatedFloatDragController(
-    initialValue: Float,
+    val animatedFloat: AnimatedFloat,
     private val flingConfig: FlingConfig? = null
 ) : DragValueController {
 
-    val animatedFloat = AnimatedFloat(AnimValueHolder(initialValue, ::lerp))
+    /**
+     * Construct controller that creates and owns AnimatedFloat instance
+     *
+     * @param initialValue initial value for AnimatedFloat to set it up
+     * @param flingConfig sets behavior of the fling after drag has ended.
+     * Default is null, which means no fling will occur no matter the velocity
+     */
+    constructor(initialValue: Float, flingConfig: FlingConfig?)
+            : this(AnimatedFloat(AnimValueHolder(initialValue, ::lerp)), flingConfig)
 
     override val currentValue
         get() = animatedFloat.value

@@ -38,7 +38,7 @@ import androidx.ui.graphics.lerp
 import androidx.ui.layout.Column
 import androidx.ui.layout.CrossAxisAlignment
 import androidx.ui.layout.Row
-import androidx.ui.layout.VerticalScroller
+import androidx.ui.foundation.VerticalScroller
 import androidx.ui.text.ParagraphStyle
 import androidx.ui.painting.Shadow
 import androidx.compose.composer

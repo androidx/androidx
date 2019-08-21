@@ -14,8 +14,14 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-<manifest package="androidx.ui.foundation" xmlns:android="http://schemas.android.com/apk/res/android">
-     <application>
+<manifest package="androidx.ui.foundation"
+          xmlns:tools="http://schemas.android.com/tools"
+          xmlns:android="http://schemas.android.com/apk/res/android">
+     <application
+         android:requestLegacyExternalStorage="true"
+         android:debuggable="false"
+         tools:ignore="HardcodedDebugMode"
+         tools:replace="android:debuggable">
         <activity
             android:name="androidx.ui.test.android.DefaultTestActivity"
             android:theme="@style/TestTheme"/>
