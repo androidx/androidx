@@ -100,7 +100,7 @@ fun TextField(
     val (visualText, offsetMap) = +memo(value, visualTransformation) {
         TextFieldDelegate.applyVisualFilter(value, visualTransformation)
     }
-    val textPainter = +memo(visualText, mergedStyle, density, resourceLoader) {
+    val textDelegate = +memo(visualText, mergedStyle, density, resourceLoader) {
         // TODO(nona): Add parameter for text direction, softwrap, etc.
         TextDelegate(
             text = visualText,
@@ -131,7 +131,7 @@ fun TextField(
                 textInputService?.let { textInputService ->
                     TextFieldDelegate.notifyFocusedRect(
                         value,
-                        textPainter,
+                        textDelegate,
                         coords,
                         textInputService,
                         hasFocus.value,
@@ -153,7 +153,7 @@ fun TextField(
         onRelease = {
             TextFieldDelegate.onRelease(
                 it,
-                textPainter,
+                textDelegate,
                 processor,
                 offsetMap,
                 onValueChange,
@@ -170,7 +170,7 @@ fun TextField(
                         coords.value = it
                         TextFieldDelegate.notifyFocusedRect(
                             value,
-                            textPainter,
+                            textDelegate,
                             it,
                             textInputService,
                             hasFocus.value,
@@ -182,12 +182,12 @@ fun TextField(
                     canvas,
                     value,
                     offsetMap,
-                    textPainter,
+                    textDelegate,
                     hasFocus.value,
                     editorStyle) }
             },
             measureBlock = { _, constraints ->
-                TextFieldDelegate.layout(textPainter, constraints).let {
+                TextFieldDelegate.layout(textDelegate, constraints).let {
                     layout(it.first, it.second) {}
                 }
             }

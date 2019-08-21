@@ -205,7 +205,7 @@ fun Text(
             accessibilityLabel = text.text
         }
     ) {
-        val textPainter = +memo(
+        val textDelegate = +memo(
             text,
             mergedStyle,
             paragraphStyle,
@@ -232,17 +232,17 @@ fun Text(
             OnPositioned(onPositioned = { layoutCoordinates.value = it })
             Draw { canvas, _ ->
                 internalSelection.value?.let {
-                    textPainter.paintBackground(
+                    textDelegate.paintBackground(
                         it.start, it.end, selectionColor, canvas
                     )
                 }
-                textPainter.paint(canvas)
+                textDelegate.paint(canvas)
             }
         }
         ComplexLayout(children) {
             measure { _, constraints ->
-                textPainter.layout(constraints)
-                layout(textPainter.width.px.round(), textPainter.height.px.round()) {}
+                textDelegate.layout(constraints)
+                layout(textDelegate.width.px.round(), textDelegate.height.px.round()) {}
             }
             minIntrinsicWidth { _, _ ->
                 // TODO(popam): discuss with the Text team about this
@@ -251,16 +251,16 @@ fun Text(
                 // textDelegate.minIntrinsicWidth.px.round()
             }
             minIntrinsicHeight { _, w ->
-                textPainter.layout(Constraints(0.ipx, w, 0.ipx, IntPx.Infinity))
-                textPainter.height.px.round()
+                textDelegate.layout(Constraints(0.ipx, w, 0.ipx, IntPx.Infinity))
+                textDelegate.height.px.round()
             }
             maxIntrinsicWidth { _, h ->
-                textPainter.layout(Constraints(0.ipx, IntPx.Infinity, 0.ipx, h))
-                textPainter.maxIntrinsicWidth.px.round()
+                textDelegate.layout(Constraints(0.ipx, IntPx.Infinity, 0.ipx, h))
+                textDelegate.maxIntrinsicWidth.px.round()
             }
             maxIntrinsicHeight { _, w ->
-                textPainter.layout(Constraints(0.ipx, w, 0.ipx, IntPx.Infinity))
-                textPainter.height.px.round()
+                textDelegate.layout(Constraints(0.ipx, w, 0.ipx, IntPx.Infinity))
+                textDelegate.height.px.round()
             }
         }
 
@@ -290,7 +290,7 @@ fun Text(
                             selectionCoordinates = Pair(startPx, endPx),
                             mode = mode,
                             onSelectionChange = { internalSelection.value = it },
-                            textDelegate = textPainter
+                            textDelegate = textDelegate
                         )
                         if (!textSelectionProcessor.isSelected) return null
 
