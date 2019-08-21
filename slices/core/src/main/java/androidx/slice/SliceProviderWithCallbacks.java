@@ -59,6 +59,7 @@ public abstract class SliceProviderWithCallbacks<T extends SliceProviderWithCall
     @Nullable
     @Override
     public Bundle call(@NonNull String method, @Nullable String arg, @Nullable Bundle extras) {
+        if (extras == null) return null;
         if (ProviderRelayReceiver.METHOD_PROVIDER_CALLBACK.equals(method)) {
             CallbackHandlerRegistry.sInstance.invokeCallback(getContext(), this, extras);
             return null;
@@ -81,7 +82,7 @@ public abstract class SliceProviderWithCallbacks<T extends SliceProviderWithCall
     @Override
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     public RemoteCallback toRemoteCallback(@NonNull Class<T> cls, @NonNull Context context,
-            @Nullable String authority, @NonNull Bundle args, @Nullable String method) {
+            @NonNull String authority, @NonNull Bundle args, @Nullable String method) {
         if (authority == null) {
             throw new IllegalStateException(
                     "ContentProvider must be attached before creating callbacks");
