@@ -16,11 +16,6 @@
 
 package androidx.ui.test
 
-import androidx.ui.unit.Density
-import androidx.ui.unit.PxSize
-import androidx.ui.unit.dp
-import androidx.ui.unit.ipx
-import androidx.ui.core.semantics.SemanticsConfiguration
 import androidx.ui.foundation.selection.ToggleableState
 import androidx.ui.foundation.semantics.inMutuallyExclusiveGroup
 import androidx.ui.foundation.semantics.selected
@@ -28,6 +23,10 @@ import androidx.ui.foundation.semantics.toggleableState
 import androidx.ui.semantics.hidden
 import androidx.ui.semantics.testTag
 import androidx.ui.test.helpers.FakeSemanticsTreeInteraction
+import androidx.ui.unit.Density
+import androidx.ui.unit.PxSize
+import androidx.ui.unit.dp
+import androidx.ui.unit.ipx
 import org.junit.Test
 
 class AssertsTests {
@@ -36,9 +35,9 @@ class AssertsTests {
     fun assertIsVisible_forVisibleElement_isOk() {
         semanticsTreeInteractionFactory = { selector ->
             FakeSemanticsTreeInteraction(selector)
-                .withProperties(SemanticsConfiguration().also {
-                    it.testTag = "test"
-                    it.hidden = false
+                .withProperties({
+                    testTag = "test"
+                    hidden = false
                 })
         }
 
@@ -50,9 +49,9 @@ class AssertsTests {
     fun assertIsVisible_forNotVisibleElement_throwsError() {
         semanticsTreeInteractionFactory = { selector ->
             FakeSemanticsTreeInteraction(selector)
-                .withProperties(SemanticsConfiguration().also {
-                    it.testTag = "test"
-                    it.hidden = true
+                .withProperties({
+                    testTag = "test"
+                    hidden = true
                 })
         }
 
@@ -64,9 +63,9 @@ class AssertsTests {
     fun assertIsHidden_forHiddenElement_isOk() {
         semanticsTreeInteractionFactory = { selector ->
             FakeSemanticsTreeInteraction(selector)
-                .withProperties(SemanticsConfiguration().also {
-                    it.testTag = "test"
-                    it.hidden = true
+                .withProperties({
+                    testTag = "test"
+                    hidden = true
                 })
         }
 
@@ -78,9 +77,9 @@ class AssertsTests {
     fun assertIsHidden_forNotHiddenElement_throwsError() {
         semanticsTreeInteractionFactory = { selector ->
             FakeSemanticsTreeInteraction(selector)
-                .withProperties(SemanticsConfiguration().also {
-                    it.testTag = "test"
-                    it.hidden = false
+                .withProperties({
+                    testTag = "test"
+                    hidden = false
                 })
         }
 
@@ -92,9 +91,9 @@ class AssertsTests {
     fun assertIsOn_forCheckedElement_isOk() {
         semanticsTreeInteractionFactory = { selector ->
             FakeSemanticsTreeInteraction(selector)
-                .withProperties(SemanticsConfiguration().also {
-                    it.testTag = "test"
-                    it.toggleableState = ToggleableState.On
+                .withProperties({
+                    testTag = "test"
+                    toggleableState = ToggleableState.On
                 })
         }
 
@@ -106,9 +105,9 @@ class AssertsTests {
     fun assertIsOn_forUncheckedElement_throwsError() {
         semanticsTreeInteractionFactory = { selector ->
             FakeSemanticsTreeInteraction(selector)
-                .withProperties(SemanticsConfiguration().also {
-                    it.testTag = "test"
-                    it.toggleableState = ToggleableState.Off
+                .withProperties({
+                    testTag = "test"
+                    toggleableState = ToggleableState.Off
                 })
         }
 
@@ -120,8 +119,8 @@ class AssertsTests {
     fun assertIsOn_forNotToggleableElement_throwsError() {
         semanticsTreeInteractionFactory = { selector ->
             FakeSemanticsTreeInteraction(selector)
-                .withProperties(SemanticsConfiguration().also {
-                    it.testTag = "test"
+                .withProperties({
+                    testTag = "test"
                 })
         }
 
@@ -133,9 +132,9 @@ class AssertsTests {
     fun assertIsOff_forCheckedElement_throwsError() {
         semanticsTreeInteractionFactory = { selector ->
             FakeSemanticsTreeInteraction(selector)
-                .withProperties(SemanticsConfiguration().also {
-                    it.testTag = "test"
-                    it.toggleableState = ToggleableState.On
+                .withProperties({
+                    testTag = "test"
+                    toggleableState = ToggleableState.On
                 })
         }
 
@@ -147,9 +146,9 @@ class AssertsTests {
     fun assertIsOff_forUncheckedElement_isOk() {
         semanticsTreeInteractionFactory = { selector ->
             FakeSemanticsTreeInteraction(selector)
-                .withProperties(SemanticsConfiguration().also {
-                    it.testTag = "test"
-                    it.toggleableState = ToggleableState.Off
+                .withProperties({
+                    testTag = "test"
+                    toggleableState = ToggleableState.Off
                 })
         }
 
@@ -161,8 +160,8 @@ class AssertsTests {
     fun assertIsOff_forNotToggleableElement_throwsError() {
         semanticsTreeInteractionFactory = { selector ->
             FakeSemanticsTreeInteraction(selector)
-                .withProperties(SemanticsConfiguration().also {
-                    it.testTag = "test"
+                .withProperties({
+                    testTag = "test"
                 })
         }
 
@@ -174,9 +173,9 @@ class AssertsTests {
     fun assertIsSelected_forNotSelectedElement_throwsError() {
         semanticsTreeInteractionFactory = { selector ->
             FakeSemanticsTreeInteraction(selector)
-                .withProperties(SemanticsConfiguration().also {
-                    it.testTag = "test"
-                    it.selected = false
+                .withProperties({
+                    testTag = "test"
+                    selected = false
                 })
         }
 
@@ -188,9 +187,9 @@ class AssertsTests {
     fun assertIsSelected_forSelectedElement_isOk() {
         semanticsTreeInteractionFactory = { selector ->
             FakeSemanticsTreeInteraction(selector)
-                .withProperties(SemanticsConfiguration().also {
-                    it.testTag = "test"
-                    it.selected = true
+                .withProperties({
+                    testTag = "test"
+                    selected = true
                 })
         }
 
@@ -202,8 +201,8 @@ class AssertsTests {
     fun assertIsSelected_forNotSelectableElement_throwsError() {
         semanticsTreeInteractionFactory = { selector ->
             FakeSemanticsTreeInteraction(selector)
-                .withProperties(SemanticsConfiguration().also {
-                    it.testTag = "test"
+                .withProperties({
+                    testTag = "test"
                 })
         }
 
@@ -215,9 +214,9 @@ class AssertsTests {
     fun assertIsUnselected_forSelectedElement_throwsError() {
         semanticsTreeInteractionFactory = { selector ->
             FakeSemanticsTreeInteraction(selector)
-                .withProperties(SemanticsConfiguration().also {
-                    it.testTag = "test"
-                    it.selected = true
+                .withProperties({
+                    testTag = "test"
+                    selected = true
                 })
         }
 
@@ -229,9 +228,9 @@ class AssertsTests {
     fun assertIsUnselected_forUnselectedElement_isOk() {
         semanticsTreeInteractionFactory = { selector ->
             FakeSemanticsTreeInteraction(selector)
-                .withProperties(SemanticsConfiguration().also {
-                    it.testTag = "test"
-                    it.selected = false
+                .withProperties({
+                    testTag = "test"
+                    selected = false
                 })
         }
 
@@ -243,8 +242,8 @@ class AssertsTests {
     fun assertIsUnselected_forNotSelectableElement_throwsError() {
         semanticsTreeInteractionFactory = { selector ->
             FakeSemanticsTreeInteraction(selector)
-                .withProperties(SemanticsConfiguration().also {
-                    it.testTag = "test"
+                .withProperties({
+                    testTag = "test"
                 })
         }
 
@@ -256,9 +255,9 @@ class AssertsTests {
     fun assertItemInExclusiveGroup_forItemNotInGroup_throwsError() {
         semanticsTreeInteractionFactory = { selector ->
             FakeSemanticsTreeInteraction(selector)
-                .withProperties(SemanticsConfiguration().also {
-                    it.testTag = "test"
-                    it.inMutuallyExclusiveGroup = false
+                .withProperties({
+                    testTag = "test"
+                    inMutuallyExclusiveGroup = false
                 })
         }
 
@@ -270,8 +269,8 @@ class AssertsTests {
     fun assertItemInExclusiveGroup_forItemWithoutProperty_throwsError() {
         semanticsTreeInteractionFactory = { selector ->
             FakeSemanticsTreeInteraction(selector)
-                .withProperties(SemanticsConfiguration().also {
-                    it.testTag = "test"
+                .withProperties({
+                    testTag = "test"
                 })
         }
 
@@ -283,9 +282,9 @@ class AssertsTests {
     fun assertItemInExclusiveGroup_forItemInGroup_isOk() {
         semanticsTreeInteractionFactory = { selector ->
             FakeSemanticsTreeInteraction(selector)
-                .withProperties(SemanticsConfiguration().also {
-                    it.testTag = "test"
-                    it.inMutuallyExclusiveGroup = true
+                .withProperties({
+                    testTag = "test"
+                    inMutuallyExclusiveGroup = true
                 })
         }
 

@@ -24,6 +24,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.FrameLayout
+import androidx.compose.Ambient
 import androidx.compose.Composable
 import androidx.compose.Compose
 import androidx.compose.Context
@@ -114,6 +115,17 @@ fun DropdownPopup(
     )
 }
 
+private val DefaultTestTag = "DEFAULT_TEST_TAG"
+// TODO(b/142431825): This is a hack to work around Popups not using Semantics for test tags
+//  We should either remove it, or come up with an abstracted general solution that isn't specific
+//  to Popup
+private val PopupTestTagAmbient = Ambient.of { DefaultTestTag }
+
+@Composable
+internal fun PopupTestTag(tag: String, children: @Composable() () -> Unit) {
+    PopupTestTagAmbient.Provider(value = tag, children = children)
+}
+
 @Composable
 private fun Popup(
     popupProperties: PopupProperties,
@@ -124,7 +136,7 @@ private fun Popup(
     val context = ambient(ContextAmbient)
     // TODO(b/139866476): Decide if we want to expose the AndroidComposeView
     val composeView = ambient(AndroidComposeViewAmbient)
-    val providedTestTag = ambient(TestTagAmbient)
+    val providedTestTag = ambient(PopupTestTagAmbient)
 
     val popupLayout = remember(popupProperties) {
         escapeCompose { PopupLayout(

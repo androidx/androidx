@@ -54,7 +54,7 @@ private const val tag = "widget"
 private fun Ui(onDoubleTap: (PxPosition) -> Unit, onPointerInput: PointerInputHandler) {
     Align(alignment = Alignment.BottomRight) {
         TestTag(tag) {
-            Semantics {
+            Semantics(container = true) {
                 DoubleTapGestureDetector(onDoubleTap = onDoubleTap) {
                     PointerInputWrapper(pointerInputHandler = onPointerInput, cancelHandler = {}) {
                         WithDensity {

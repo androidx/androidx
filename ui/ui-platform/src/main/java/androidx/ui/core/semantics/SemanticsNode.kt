@@ -16,10 +16,17 @@
 
 package androidx.ui.core.semantics
 
+import androidx.ui.core.ComponentNode
+import androidx.ui.core.SemanticsComponentNode
+import androidx.ui.core.boundsInRoot
+import androidx.ui.core.findChildSemanticsComponentNodes
+import androidx.ui.core.findFirstLayoutNodeInTree
+import androidx.ui.core.globalBounds
 import androidx.ui.core.ifDebug
-import androidx.ui.geometry.Rect
+import androidx.ui.core.requireFirstLayoutNodeInTree
 import androidx.ui.semantics.AccessibilityAction
 import androidx.ui.semantics.SemanticsPropertyKey
+import androidx.ui.unit.PxBounds
 
 /**
  * Signature for a function that is called for each [SemanticsNode].
@@ -32,34 +39,43 @@ internal typealias SemanticsNodeVisitor = (node: SemanticsNode) -> Boolean
 
 /**
  * A node that represents some semantic data.
- *
- * The semantics tree is maintained during the semantics phase of the pipeline
- * (i.e., during [PipelineOwner.flushSemantics]), which happens after
- * compositing. The semantics tree is then uploaded into the engine for use
- * by assistive technology.
  */
-class SemanticsNode private constructor(
+class SemanticsNode internal constructor(
     /**
      * The unique identifier for this node.
      *
      * The root node has an id of zero. Other nodes are given a unique id when
      * they are created.
      */
-    val id: Int
+    val id: Int,
+    unmergedConfig: SemanticsConfiguration,
+    // TODO(b/144404665): Testing currently mandates this be public - should it be?
+    var componentNode: ComponentNode
 ) {
+    var unmergedConfig: SemanticsConfiguration = unmergedConfig
+        private set
+
+    private var dirty: Boolean = false
 
     companion object {
-        private var lastIdentifier: Int = 0
-        private fun generateNewId(): Int {
+        // TODO(b/145955412) maybe randomize? don't want this to be a contract
+        //  (and if you're reading the source, fair warning: this may change unpredictably)
+        // TODO: Might need to be atomic for multi-threaded composition
+        private var lastIdentifier: Int = 2
+
+        // TODO(b/145955062): This should be private, but needs to be accessed across modules
+        //  (from framework)
+        fun generateNewId(): Int {
             lastIdentifier += 1
             return lastIdentifier
         }
 
-        fun root(
-            owner: SemanticsOwner
+        internal fun root(
+            owner: SemanticsOwner,
+            config: SemanticsConfiguration,
+            componentNode: ComponentNode
         ): SemanticsNode {
-            // TODO(ryanmentley): Reconsider whether this should be non-zero, especially for multiple Compose hierachies
-            val node = SemanticsNode(0)
+            val node = SemanticsNode(generateNewId(), config, componentNode)
             node.attach(owner)
             return node
         }
@@ -79,140 +95,211 @@ class SemanticsNode private constructor(
      * Each semantic node has a unique identifier that is assigned when the node
      * is created.
      */
-    constructor() : this(generateNewId())
+    constructor(unmergedConfig: SemanticsConfiguration, componentNode: SemanticsComponentNode) :
+            this(generateNewId(), unmergedConfig, componentNode)
 
     // GEOMETRY
 
-    /** The bounding box for this node in its coordinate system. */
-    var rect: Rect = Rect.zero
-        set(value) {
-            if (field != value) {
-                field = value
-                markDirty()
-            }
+    /** The bounding box for this node relative to the root of this Compose hierarchy */
+    val boundsInRoot: PxBounds
+        get() {
+            val layoutNode = componentNode.requireFirstLayoutNodeInTree()
+            return layoutNode.coordinates.boundsInRoot
         }
 
-    /**
-     * The semantic clip from an ancestor that was applied to this node.
-     *
-     * Expressed in the coordinate system of the node. May be null if no clip has
-     * been applied.
-     *
-     * Descendant [SemanticsNode]s that are positioned outside of this rect will
-     * be excluded from the semantics tree. Descendant [SemanticsNode]s that are
-     * overlapping with this rect, but are outside of [parentPaintClipRect] will
-     * be included in the tree, but they will be marked as hidden because they
-     * are assumed to be not visible on screen.
-     *
-     * If this rect is null, all descendant [SemanticsNode]s outside of
-     * [parentPaintClipRect] will be excluded from the tree.
-     *
-     * If this rect is non-null it has to completely enclose
-     * [parentPaintClipRect]. If [parentPaintClipRect] is null this property is
-     * also null.
-     */
-    var parentSemanticsClipRect: Rect? = null
-
-    /**
-     * The paint clip from an ancestor that was applied to this node.
-     *
-     * Expressed in the coordinate system of the node. May be null if no clip has
-     * been applied.
-     *
-     * Descendant [SemanticsNode]s that are positioned outside of this rect will
-     * either be excluded from the semantics tree (if they have no overlap with
-     * [parentSemanticsClipRect]) or they will be included and marked as hidden
-     * (if they are overlapping with [parentSemanticsClipRect]).
-     *
-     * This rect is completely enclosed by [parentSemanticsClipRect].
-     *
-     * If this rect is null [parentSemanticsClipRect] also has to be null.
-     */
-    var parentPaintClipRect: Rect? = null
-
-    /**
-     * Whether the node is invisible.
-     *
-     * A node whose [rect] is outside of the bounds of the screen and hence not
-     * reachable for users is considered invisible if its semantic information
-     * is not merged into a (partially) visible parent as indicated by
-     * [isMergedIntoParent].
-     *
-     * An invisible node can be safely dropped from the semantic tree without
-     * loosing semantic information that is relevant for describing the content
-     * currently shown on screen.
-     */
-    val isInvisible: Boolean
-        get() = !isMergedIntoParent && rect.isEmpty()
+    val globalBounds: PxBounds
+        get() {
+            val layoutNode = componentNode.requireFirstLayoutNodeInTree()
+            return layoutNode.coordinates.globalBounds
+        }
 
     // MERGING
+    val isSemanticBoundary: Boolean
+        get() = unmergedConfig.isSemanticBoundary
 
-    /** Whether this node merges its semantic information into an ancestor node. */
-    var isMergedIntoParent: Boolean = false
-        set(value) {
-            if (field == value)
-                return
-            field = value
-            markDirty()
+    private var mergedParent: SemanticsNode? = null
+
+    private var mergedConfig: SemanticsConfiguration? = null
+    /**
+     * The merged configuration of this node
+     */
+    val config: SemanticsConfiguration
+        get() {
+            ensureMergedParentAndConfig()
+            return mergedConfig!!
         }
 
     /**
-     * Whether this node is taking part in a merge of semantic information.
-     *
-     * This returns true if the node is either merged into an ancestor node or if
-     * decedent nodes are merged into this node.
-     *
-     * See also:
-     *
-     *  * [isMergedIntoParent]
-     *  * [mergeAllDescendantsIntoThisNode]
+     * Contract: After this returns, [mergedParent] and [mergedConfig] are both non-null
      */
-    val isPartOfNodeMerging
-        get() = mergeAllDescendantsIntoThisNode || isMergedIntoParent
+    private fun ensureMergedParentAndConfig() {
+        var config = mergedConfig
+        if (config == null) {
+            config = buildMergedConfig()
+            mergedConfig = config
+        }
+
+        dirty = false
+    }
+
+    /**
+     * Contract: After this returns, [mergedParent] is non-null
+     */
+    private fun buildMergedConfig(
+        parentNode: SemanticsNode? = null,
+        mergedConfigFromParent: SemanticsConfiguration? = null,
+        mergeAllChildren: Boolean = false
+    ): SemanticsConfiguration {
+        // The forced merging might not start at the top-level node,
+        // so we need to check at each level
+        @Suppress("NAME_SHADOWING")
+        val mergeAllChildren = mergeAllChildren || mergeAllDescendantsIntoThisNode
+
+        val mergedConfig: SemanticsConfiguration
+        if (mergedConfigFromParent == null || parentNode == null) {
+            check(isSemanticBoundary) {
+                "Attempting to build a merged configuration " +
+                        "starting from a node that is not a semantic boundary"
+            }
+
+            // We are a semantic boundary - start by copying our configuration so that we can add
+            // our children's configuration to it
+            mergedConfig = unmergedConfig.copy()
+            mergedParent = this
+        } else {
+            // We're being merged into our parent - add our node's data
+            mergedConfig = mergedConfigFromParent
+            mergedParent = parentNode
+            // If we are forcibly merging, we want to ignore conflicts
+            mergedConfig.absorb(unmergedConfig, ignoreAlreadySet = mergeAllChildren)
+        }
+
+        // Collect semantic information from children.
+        // Order is significant here because we will attempt to merge duplicate keys.
+        // This affects, for instance, the label text.
+        for (child in unmergedChildren) {
+            if (child.isSemanticBoundary && !mergeAllChildren) {
+                // Don't merge anything that crosses a semantic boundary. They will create
+                // their own SemanticsNodes, so we ignore them here.
+                // This doesn't apply if we've been explicitly told to merge all children.
+                continue
+            }
+
+            // Recursively walk down the tree and collect child data
+            child.buildMergedConfig(
+                parentNode = this,
+                mergedConfigFromParent = mergedConfig,
+                mergeAllChildren = mergeAllChildren
+            )
+        }
+
+        return mergedConfig
+    }
 
     /** Whether this node and all of its descendants should be treated as one logical entity. */
-    var mergeAllDescendantsIntoThisNode = false
-        private set
+    private val mergeAllDescendantsIntoThisNode: Boolean
+        get() = unmergedConfig.isMergingSemanticsOfDescendants
 
     // CHILDREN
 
+    private var _unmergedChildren: MutableList<SemanticsNode>? = null
+    val unmergedChildren: List<SemanticsNode>
+        get() {
+            var unmergedChildren = _unmergedChildren
+            if (unmergedChildren == null) {
+                unmergedChildren = mutableListOf()
+                // TODO(ryanmentley): Should this require the layout child?
+                val semanticsChildren =
+                    componentNode.findFirstLayoutNodeInTree()?.findChildSemanticsComponentNodes()
+                        ?: emptyList()
+                for (semanticsChild in semanticsChildren) {
+                    // This is eager - if desired, we could make this lazier
+                    unmergedChildren.add(semanticsChild.semanticsNode)
+                    adoptChild(semanticsChild.semanticsNode)
+                    markDirty()
+                }
+                _unmergedChildren = unmergedChildren
+            }
+
+            return unmergedChildren
+        }
+
+    private var _children: List<SemanticsNode>? = null
     /** Contains the children in inverse hit test order (i.e. paint order). */
-    var children: List<SemanticsNode> = emptyList()
+    val children: List<SemanticsNode>
+        get() {
+            check(isSemanticBoundary) {
+                "Requested merged children " +
+                        "from a node that is not a semantic boundary"
+            }
+
+            var children = _children
+            if (children == null) {
+                children = buildMergedChildren()
+                _children = children
+            }
+
+            return children
+        }
+
+    private fun buildMergedChildren(childrenFromParent: MutableList<SemanticsNode>? = null):
+            List<SemanticsNode> {
+        if (mergeAllDescendantsIntoThisNode) {
+            // All of our descendants will be merged, so we have no children after merging
+            return emptyList()
+        }
+
+        val mergedChildren = childrenFromParent ?: mutableListOf()
+
+        // The merged children are the set of indirect children that are semantic boundaries
+        for (child in unmergedChildren) {
+            if (child.isSemanticBoundary) {
+                // Add the child, don't recurse - we don't want to cross the semantic boundary
+                mergedChildren += child
+            } else {
+                // Search recursively, depth-first (so that the child order matches)
+                child.buildMergedChildren(mergedChildren)
+            }
+        }
+
+        return mergedChildren
+    }
 
     /** Whether this node has a non-zero number of children. */
     val hasChildren
         get() = children.isNotEmpty()
 
-    /** The number of children this node has. */
-    val childrenCount
-        get() = children.size
-
     /**
      * Mark the given node as being a child of this node.
      */
     private fun adoptChild(child: SemanticsNode) {
-        assert(child.parent == null)
+        check(child.parent == null)
         ifDebug {
-            var node: SemanticsNode? = this
-            while (node!!.parent != null)
-                node = node.parent
-            assert(node != child) // indicates we are about to create a cycle
+            var node: SemanticsNode = this
+            while (node.parent != null) {
+                node = node.parent!!
+                check(node != child) // indicates we are about to create a cycle
+            }
         }
         child.parent = this
-        if (attached)
+        if (attached) {
             child.attach(owner!!)
-        redepthChild(child)
+        }
+        markDirty()
     }
 
     /**
      * Disconnect the given node from this node.
      */
     private fun dropChild(child: SemanticsNode) {
-        assert(child.parent == this)
+        check(child.parent == this)
         assert(child.attached == attached)
         child.parent = null
-        if (attached)
+        if (child.attached) {
             child.detach()
+        }
+        _unmergedChildren?.remove(child)
+        markDirty()
     }
 
     /**
@@ -249,8 +336,7 @@ class SemanticsNode private constructor(
      *
      * The entire subtree that this node belongs to will have the same owner.
      */
-    var owner: SemanticsOwner? = null
-        private set
+    internal var owner: SemanticsOwner? = null
 
     /**
      * Whether this node is in a tree whose root is attached to something.
@@ -262,72 +348,44 @@ class SemanticsNode private constructor(
     val attached get() = owner != null
 
     /** The parent of this node in the tree. */
+    // TODO(b/145947383): this needs to be the *merged* parent
     var parent: SemanticsNode? = null
 
-    /**
-     * The depth of this node in the tree.
-     *
-     * The depth of nodes in a tree monotonically increases as you traverse down
-     * the tree.
-     */
-    var depth = 0
-        private set
-
-    val config = SemanticsConfiguration()
-
-    /**
-     * Adjust the [depth] of the given [child] to be greater than this node's own
-     * [depth].
-     */
-    fun redepthChild(child: SemanticsNode) {
-        assert(child.owner == owner)
-        if (child.depth <= depth) {
-            child.depth = depth + 1
-            child.redepthChildren()
-        }
-    }
-
-    fun redepthChildren() {
-        children.forEach(::redepthChild)
-    }
-
     // TODO(ryanmentley): Document the proper usage of attach/detach once they're more solidified
-    private fun attach(owner: SemanticsOwner) {
-        assert(this.owner == null)
+    internal fun attach(owner: SemanticsOwner) {
+        assert(!attached)
         this.owner = owner
-        assert(!owner.nodes.containsKey(id))
-        owner.nodes[id] = this
-        owner.detachedNodes.remove(this)
-        if (dirty) {
-            dirty = false
-            markDirty()
-        }
-        children.let {
-            for (child in it) {
-                child.attach(owner)
-            }
+        owner.onAttach(this)
+        for (child in unmergedChildren) {
+            child.attach(owner)
         }
     }
 
     // TODO(ryanmentley): Should we make this API idempotent so that it works if detached
-    // more than once?
-    private fun detach() {
-        assert(owner != null)
+    //  more than once?
+    /**
+     * Detaches the node from its owner.
+     *
+     * Note: this does *not* detach it from its parent, so a node's attached state should always
+     * match its parent's
+     */
+    internal fun detach() {
+        check(attached)
 
-        owner!!.let {
-            assert(it.nodes.containsKey(id))
-            assert(!it.detachedNodes.contains(this))
-            it.nodes.remove(id)
-            it.detachedNodes.add(this)
-        }
+        owner!!.onDetach(this)
         owner = null
-        assert(parent == null || attached == parent!!.attached)
 
-        for (child in children) {
-            // The list of children may be stale and may contain nodes that have
-            // been assigned to a different parent.
-            if (child.parent == this) {
-                child.detach()
+        check(parent == null || attached == parent!!.attached) {
+            "attached: $attached, parent.attached: ${parent?.attached}"
+        }
+
+        _unmergedChildren?.let {
+            for (child in it) {
+                // The list of children may be stale and may contain nodes that have
+                // been assigned to a different parent.
+                if (child.parent == this) {
+                    child.detach()
+                }
             }
         }
 
@@ -337,18 +395,39 @@ class SemanticsNode private constructor(
         markDirty()
     }
 
-    private var dirty: Boolean = false
-
-    private fun markDirty() {
-        if (dirty) {
-            return
-        }
-        dirty = true
-        if (attached) {
-            owner!!.let {
-                assert(!it.detachedNodes.contains(this))
-                it.dirtyNodes.add(this)
+    internal fun invalidateChildren() {
+        val localUnmergedChildren = _unmergedChildren
+        // Clear unmerged children
+        // TODO(ryanmentley): probably eventually needs to be smarter and invalidate things
+        if (localUnmergedChildren != null) {
+            // copy because it will change as we drop
+            for (child in ArrayList(localUnmergedChildren)) {
+                dropChild(child)
             }
+        }
+        // Will be regenerated from the ComponentNode
+        _unmergedChildren = null
+
+        markDirty()
+        parent?.invalidateChildren()
+    }
+
+    internal fun markDirty() {
+        // Mark the merged parent dirty, if we have one, as it needs to be regenerated with new
+        // changes.  Note - we could be our own merged parent if we are the semantic boundary node
+        if (mergedParent != this) {
+            mergedParent?.markDirty()
+        }
+        mergedParent = null
+
+        // Will be regenerated from unmergedChildren
+        _children = null
+
+        // Will be regenerated from unmergedConfig and unmergedChildren
+        mergedConfig = null
+
+        if (attached) {
+            owner!!.onNodeMarkedDirty(this)
         }
     }
 

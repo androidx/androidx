@@ -16,15 +16,13 @@
 
 package androidx.ui.core
 
-import androidx.compose.Ambient
 import androidx.compose.Composable
+import androidx.ui.semantics.Semantics
+import androidx.ui.semantics.testTag
 
-val DefaultTestTag = "DEFAULT_TEST_TAG"
-val TestTagAmbient = Ambient.of { DefaultTestTag }
-
-// Implementation with ambients now for only one semantics inside.
-// replace with mergeable semantics later
 @Composable
 fun TestTag(tag: String, children: @Composable() () -> Unit) {
-    TestTagAmbient.Provider(value = tag, children = children)
+    Semantics(properties = { testTag = tag }) {
+        children()
+    }
 }

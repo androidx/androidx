@@ -17,53 +17,41 @@
 package androidx.ui.test.helpers
 
 import android.graphics.Bitmap
-import androidx.ui.core.SemanticsTreeNode
 import androidx.ui.core.SemanticsTreeProvider
 import androidx.ui.core.semantics.SemanticsConfiguration
-import androidx.ui.geometry.Rect
+import androidx.ui.core.semantics.SemanticsNode
 import androidx.ui.test.InputDispatcher
-import androidx.ui.test.SemanticsNodeInteraction
 import androidx.ui.test.SemanticsTreeInteraction
 import androidx.ui.test.SemanticsTreeNodeStub
+import androidx.ui.unit.PxBounds
 
 internal class FakeSemanticsTreeInteraction internal constructor(
-    private val selector: SemanticsConfiguration.() -> Boolean
-) : SemanticsTreeInteraction {
-
-    private lateinit var semanticsToUse: List<SemanticsNodeInteraction>
+    selector: SemanticsConfiguration.() -> Boolean
+) : SemanticsTreeInteraction(selector) {
+    private lateinit var semanticsToUse: List<SemanticsNode>
 
     fun withProperties(
-        vararg properties: SemanticsConfiguration
+        vararg properties: SemanticsConfiguration.() -> Unit
     ): FakeSemanticsTreeInteraction {
-        semanticsToUse = properties.map {
-            SemanticsNodeInteraction(SemanticsTreeNodeStub(/* data= */ it), this)
+        semanticsToUse = properties.map { configBlock ->
+            val config = SemanticsConfiguration().also {
+                it.isSemanticBoundary = true
+                it.configBlock()
+            }
+            SemanticsTreeNodeStub(config)
         }.toList()
         return this
     }
 
-    fun withSemantics(vararg nodes: SemanticsTreeNode): FakeSemanticsTreeInteraction {
-        semanticsToUse = nodes.toList().map {
-            SemanticsNodeInteraction(it, this)
-        }.toList()
+    fun withSemantics(vararg nodes: SemanticsNode): FakeSemanticsTreeInteraction {
+        semanticsToUse = nodes.toList()
         return this
     }
 
-    override fun findAllMatching(): List<SemanticsNodeInteraction> {
-        // TODO(pavlis): This is too simplified, use more of the real code so we test more than
-        // just a lambda correctness.
-
-        return semanticsToUse
-            .filter { node -> node.semanticsTreeNode.data.selector() }
-    }
-
-    override fun findOne(): SemanticsNodeInteraction {
-        val foundNodes = findAllMatching()
-
-        if (foundNodes.size != 1) {
-            throw AssertionError("Found '${foundNodes.size}' nodes but exactly '1' was expected!")
+    override fun getAllSemanticsNodes(): List<SemanticsNode> {
+        return semanticsToUse.filter {
+            selector(it.config)
         }
-
-        return foundNodes.first()
     }
 
     override fun performAction(action: (SemanticsTreeProvider) -> Unit) {
@@ -74,17 +62,11 @@ internal class FakeSemanticsTreeInteraction internal constructor(
         TODO("replace with host side interaction")
     }
 
-    override fun contains(semanticsConfiguration: SemanticsConfiguration): Boolean {
-        return semanticsToUse
-            .map { it.semanticsTreeNode.data }
-            .contains(semanticsConfiguration)
-    }
-
-    override fun isInScreenBounds(rectangle: Rect): Boolean {
+    override fun isInScreenBounds(rectangle: PxBounds): Boolean {
         TODO("catalintudor: implement")
     }
 
-    override fun captureNodeToBitmap(node: SemanticsTreeNode): Bitmap {
+    override fun captureNodeToBitmap(node: SemanticsNode): Bitmap {
         TODO("not implemented")
     }
 }

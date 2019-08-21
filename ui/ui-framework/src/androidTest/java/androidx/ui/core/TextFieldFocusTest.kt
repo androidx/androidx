@@ -23,8 +23,8 @@ import androidx.ui.core.input.FocusManager
 import androidx.ui.input.TextInputService
 import androidx.ui.test.createComposeRule
 import com.google.common.truth.Truth.assertThat
-import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import org.junit.Rule
 import org.junit.Test

@@ -56,6 +56,7 @@ import androidx.ui.material.BottomAppBar.FabConfiguration
 import androidx.ui.material.BottomAppBar.FabPosition
 import androidx.ui.material.ripple.Ripple
 import androidx.ui.material.surface.Surface
+import androidx.ui.semantics.Semantics
 import androidx.ui.text.TextStyle
 import androidx.ui.unit.Density
 import androidx.ui.unit.Dp
@@ -165,10 +166,12 @@ private fun BaseTopAppBar(
                     alignmentLine = LastBaseline,
                     after = withDensity(ambientDensity()) { AppBarTitleBaselineOffset.toDp() }
                 ) {
-                    // TODO: AlignmentLineOffset requires a child, so in case title() is
-                    // empty we just add an empty wrap here - should be fixed when we move to
-                    // modifiers.
-                    Wrap(children = title)
+                    Semantics(container = true) {
+                        // TODO: AlignmentLineOffset requires a child, so in case title() is
+                        // empty we just add an empty wrap here - should be fixed when we move to
+                        // modifiers.
+                        Wrap(children = title)
+                    }
                 }
             }
             if (endContent != null) {

@@ -54,7 +54,7 @@ private val expectedDuration = LongPressTimeout + 100.milliseconds
 private fun Ui(recorder: PointerInputRecorder, onLongPress: (PxPosition) -> Unit) {
     Align(alignment = Alignment.BottomRight) {
         TestTag(tag) {
-            Semantics {
+            Semantics(container = true) {
                 LongPressGestureDetector(onLongPress = onLongPress) {
                     PointerInputWrapper(
                         pointerInputHandler = recorder::onPointerInput,

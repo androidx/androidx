@@ -228,7 +228,7 @@ private fun Scroller(
 ) {
     val direction =
         if (isVertical) DragDirection.Vertical else DragDirection.Horizontal
-    Semantics(properties = {
+    Semantics(container = true, properties = {
         if (isScrollable) {
             ScrollTo(action = { x, y ->
                 if (isVertical) {

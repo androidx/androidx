@@ -42,7 +42,7 @@ import org.junit.Assert.assertTrue
  */
 @RequiresApi(Build.VERSION_CODES.O)
 fun SemanticsNodeInteraction.captureToBitmap(): Bitmap {
-    return semanticsTreeInteraction.captureNodeToBitmap(semanticsTreeNode)
+    return semanticsTreeInteraction.captureNodeToBitmap(semanticsNode)
 }
 
 /**

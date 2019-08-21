@@ -16,13 +16,17 @@
 
 package androidx.ui.test
 
-import androidx.ui.semantics.testTag
+import androidx.ui.core.semantics.getOrNull
+import androidx.ui.semantics.SemanticsProperties
+
 // TODO(b/133217292)
 fun SemanticsNodeInteraction.dumpSemantics(consumer: (String) -> Unit) {
     val builder = StringBuilder()
 
     semanticsTreeInteraction.findAllMatching().forEach {
-        builder.appendln("Label: '${it.semanticsTreeNode.data.testTag}'")
+        builder.appendln(
+            "Tag: '${it.semanticsNode.config.getOrNull(SemanticsProperties.TestTag)}'"
+        )
     }
 
     consumer.invoke(builder.toString())

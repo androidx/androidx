@@ -24,6 +24,7 @@ import androidx.ui.layout.Column
 import androidx.ui.material.Button
 import androidx.ui.material.MaterialTheme
 import androidx.ui.material.surface.Surface
+import androidx.ui.semantics.Semantics
 import androidx.ui.test.util.expectAssertionError
 import org.junit.Rule
 import org.junit.Test
@@ -48,7 +49,9 @@ class AssertExistsTest {
                             Button(text = "Toggle", onClick = { toggle(!showText) })
                         }
                         if (showText) {
-                            Text("Hello")
+                            Semantics(container = true) {
+                                Text("Hello")
+                            }
                         }
                     }
                 }

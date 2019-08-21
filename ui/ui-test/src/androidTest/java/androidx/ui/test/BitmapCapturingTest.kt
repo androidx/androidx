@@ -162,11 +162,11 @@ class BitmapCapturingTest {
                     DrawShape(RectangleShape, SolidColor(colorBg))
 
                     TestTag(rootTag) {
-                        Semantics {
+                        Semantics(container = true) {
                             Column {
                                 Row {
                                     TestTag(tag11) {
-                                        Semantics {
+                                        Semantics(container = true) {
                                             ColoredRect(
                                                 color = color11,
                                                 width = 100.ipx.toDp(),
@@ -175,7 +175,7 @@ class BitmapCapturingTest {
                                         }
                                     }
                                     TestTag(tag12) {
-                                        Semantics {
+                                        Semantics(container = true) {
                                             ColoredRect(
                                                 color = color12,
                                                 width = 100.ipx.toDp(),
@@ -186,7 +186,7 @@ class BitmapCapturingTest {
                                 }
                                 Row {
                                     TestTag(tag21) {
-                                        Semantics {
+                                        Semantics(container = true) {
                                             ColoredRect(
                                                 color = color21,
                                                 width = 100.ipx.toDp(),
@@ -195,7 +195,7 @@ class BitmapCapturingTest {
                                         }
                                     }
                                     TestTag(tag22) {
-                                        Semantics {
+                                        Semantics(container = true) {
                                             ColoredRect(
                                                 color = color22,
                                                 width = 100.ipx.toDp(),

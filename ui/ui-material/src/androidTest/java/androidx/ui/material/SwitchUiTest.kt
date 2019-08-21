@@ -23,6 +23,7 @@ import androidx.ui.foundation.Strings
 import androidx.ui.foundation.selection.ToggleableState
 import androidx.ui.foundation.semantics.toggleableState
 import androidx.ui.layout.Column
+import androidx.ui.layout.Stack
 import androidx.ui.semantics.accessibilityValue
 import androidx.ui.test.assertHasNoClickAction
 import androidx.ui.test.assertIsOff
@@ -79,8 +80,12 @@ class SwitchUiTest {
     fun switch_toggle() {
         composeTestRule.setMaterialContent {
             val (checked, onChecked) = state { false }
-            TestTag(tag = defaultSwitchTag) {
-                Switch(checked, onChecked)
+
+            // Stack is needed because otherwise the control will be expanded to fill its parent
+            Stack {
+                TestTag(tag = defaultSwitchTag) {
+                    Switch(checked, onChecked)
+                }
             }
         }
         findByTag(defaultSwitchTag)
@@ -91,11 +96,14 @@ class SwitchUiTest {
 
     @Test
     fun switch_toggleTwice() {
-
         composeTestRule.setMaterialContent {
             val (checked, onChecked) = state { false }
-            TestTag(tag = defaultSwitchTag) {
-                Switch(checked, onChecked)
+
+            // Stack is needed because otherwise the control will be expanded to fill its parent
+            Stack {
+                TestTag(tag = defaultSwitchTag) {
+                    Switch(checked, onChecked)
+                }
             }
         }
         findByTag(defaultSwitchTag)
