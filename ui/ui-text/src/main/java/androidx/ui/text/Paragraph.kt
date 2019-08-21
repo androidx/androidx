@@ -50,8 +50,7 @@ interface Paragraph {
     val height: Float
 
     /**
-     * The minimum width that this paragraph could be without failing to paint
-     * its contents within itself.
+     * The width for text if all soft wrap opportunities were taken.
      *
      * Valid only after [layout] has been called.
      */

@@ -67,8 +67,6 @@ class MultiParagraphIntegrationTest {
             assertThat(paragraph.baseline, equalTo(fontSizeInPx * 0.8f))
             assertThat(paragraph.maxIntrinsicWidth, equalTo(0.0f))
             assertThat(paragraph.minIntrinsicWidth, equalTo(0.0f))
-            // TODO(Migration/siyamed): no baseline query per line?
-            // TODO(Migration/siyamed): no line count?
         }
     }
 
@@ -76,7 +74,7 @@ class MultiParagraphIntegrationTest {
     fun single_line_default_values() {
         withDensity(defaultDensity) {
             val fontSize = 50.sp
-            val fontSizeInpx = fontSize.toPx().value
+            val fontSizeInPx = fontSize.toPx().value
 
             for (text in arrayOf("xyz", "\u05D0\u05D1\u05D2")) {
                 val paragraph = simpleMultiParagraph(text = text, fontSize = fontSize)
@@ -85,15 +83,17 @@ class MultiParagraphIntegrationTest {
                 paragraph.layout(ParagraphConstraints(width = 200.0f))
 
                 assertThat(text, paragraph.width, equalTo(200.0f))
-                assertThat(text, paragraph.height, equalTo(fontSizeInpx))
+                assertThat(text, paragraph.height, equalTo(fontSizeInPx))
                 // defined in sample_font
-                assertThat(text, paragraph.baseline, equalTo(fontSizeInpx * 0.8f))
+                assertThat(text, paragraph.baseline, equalTo(fontSizeInPx * 0.8f))
                 assertThat(
                     text,
                     paragraph.maxIntrinsicWidth,
-                    equalTo(fontSizeInpx * text.length)
+                    equalTo(fontSizeInPx * text.length)
                 )
-                assertThat(text, paragraph.minIntrinsicWidth, equalTo(0.0f))
+                assertThat(text, paragraph.minIntrinsicWidth,
+                    equalTo(text.length * fontSizeInPx)
+                )
             }
         }
     }
@@ -125,7 +125,7 @@ class MultiParagraphIntegrationTest {
                     paragraph.maxIntrinsicWidth,
                     equalTo(fontSizeInPx * text.length)
                 )
-                assertThat(text, paragraph.minIntrinsicWidth, equalTo(0.0f))
+                assertThat(text, paragraph.minIntrinsicWidth, equalTo(text.length * fontSizeInPx))
             }
         }
     }

@@ -30,13 +30,13 @@ import androidx.compose.unaryPlus
 import androidx.ui.core.selection.Selection
 import androidx.ui.core.selection.SelectionMode
 import androidx.ui.core.selection.SelectionRegistrarAmbient
-import androidx.ui.graphics.Color
-import androidx.ui.text.AnnotatedString
-import androidx.ui.text.ParagraphStyle
 import androidx.ui.core.selection.TextSelectionHandler
 import androidx.ui.core.selection.TextSelectionProcessor
+import androidx.ui.graphics.Color
 import androidx.ui.semantics.Semantics
 import androidx.ui.semantics.accessibilityLabel
+import androidx.ui.text.AnnotatedString
+import androidx.ui.text.ParagraphStyle
 import androidx.ui.text.TextDelegate
 import androidx.ui.text.TextRange
 import androidx.ui.text.TextSpan
@@ -150,10 +150,7 @@ fun Text(
  * The Text widget displays text that uses multiple different styles. The text to display is
  * described using a [AnnotatedString].
  *
- * TODO(popam): fix this
- * @throws UnsupportedOperationException
  */
-// TODO(migration/qqd): Add tests when text widget system is mature and testable.
 @Composable
 fun Text(
     /**
@@ -245,21 +242,20 @@ fun Text(
                 layout(textDelegate.width.px.round(), textDelegate.height.px.round()) {}
             }
             minIntrinsicWidth { _, _ ->
-                // TODO(popam): discuss with the Text team about this
-                throw UnsupportedOperationException()
-                // textDelegate.layout(Constraints(0.ipx, IntPx.Infinity, 0.ipx, h))
-                // textDelegate.minIntrinsicWidth.px.round()
+                textDelegate.layout(Constraints(0.ipx, IntPx.Infinity, 0.ipx, IntPx.Infinity))
+                textDelegate.minIntrinsicWidth.px.round()
             }
-            minIntrinsicHeight { _, w ->
-                textDelegate.layout(Constraints(0.ipx, w, 0.ipx, IntPx.Infinity))
+            minIntrinsicHeight { _, width ->
+                // given the width constraint, determine the min height
+                textDelegate.layout(Constraints(0.ipx, width, 0.ipx, IntPx.Infinity))
                 textDelegate.height.px.round()
             }
-            maxIntrinsicWidth { _, h ->
-                textDelegate.layout(Constraints(0.ipx, IntPx.Infinity, 0.ipx, h))
+            maxIntrinsicWidth { _, height ->
+                textDelegate.layout(Constraints(0.ipx, IntPx.Infinity, 0.ipx, height))
                 textDelegate.maxIntrinsicWidth.px.round()
             }
-            maxIntrinsicHeight { _, w ->
-                textDelegate.layout(Constraints(0.ipx, w, 0.ipx, IntPx.Infinity))
+            maxIntrinsicHeight { _, width ->
+                textDelegate.layout(Constraints(0.ipx, width, 0.ipx, IntPx.Infinity))
                 textDelegate.height.px.round()
             }
         }

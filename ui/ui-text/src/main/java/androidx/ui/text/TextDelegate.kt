@@ -186,8 +186,7 @@ class TextDelegate(
         block(layoutResult ?: throw AssertionError("layout must be called first"))
 
     /**
-     * The width at which decreasing the width of the text would prevent it from painting itself
-     * completely within its bounds.
+     * The width for text if all soft wrap opportunities were taken.
      *
      * Valid only after [layout] has been called.
      */
