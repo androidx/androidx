@@ -130,6 +130,7 @@ class BenchmarkStateTest {
         }
     }
 
+    @UseExperimental(BenchmarkState.Companion.ExperimentalExternalReport::class)
     @Test
     fun reportResult() {
         BenchmarkState.reportData("className", "testName", 900000000, listOf(100), 1, 0, 1)

@@ -12,7 +12,6 @@ package androidx.benchmark {
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public inline boolean keepRunningInline();
     method public void pauseTiming();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void report(String fullClassName, String simpleClassName, String methodName);
-    method public static void reportData(String className, String testName, long totalRunTimeNs, java.util.List<java.lang.Long> dataNs, @IntRange(from=0) int warmupIterations, @IntRange(from=0) long thermalThrottleSleepSeconds, @IntRange(from=1) int repeatIterations);
     method public void resumeTiming();
   }
 
