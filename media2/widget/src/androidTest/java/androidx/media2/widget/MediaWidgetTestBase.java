@@ -141,6 +141,8 @@ public class MediaWidgetTestBase extends MediaTestBase {
         return list;
     }
 
+    // TODO(b/138091975) Do not ignore returned Futures if feasible.
+    @SuppressWarnings("FutureReturnValueIgnored")
     PlayerWrapper createPlayerWrapperOfController(@NonNull PlayerWrapper.PlayerCallback callback,
             @Nullable MediaItem item, @Nullable List<MediaItem> playlist) {
         prepareLooper();
@@ -169,6 +171,8 @@ public class MediaWidgetTestBase extends MediaTestBase {
         return wrapper;
     }
 
+    // TODO(b/138091975) Do not ignore returned Futures if feasible.
+    @SuppressWarnings("FutureReturnValueIgnored")
     PlayerWrapper createPlayerWrapperOfPlayer(@NonNull PlayerWrapper.PlayerCallback callback,
             @Nullable MediaItem item, @Nullable List<MediaItem> playlist) {
         SessionPlayer player = new MediaPlayer(mContext);
