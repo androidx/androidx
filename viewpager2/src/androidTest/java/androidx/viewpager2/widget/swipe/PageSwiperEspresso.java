@@ -23,11 +23,13 @@ import static androidx.test.espresso.action.ViewActions.swipeRight;
 import static androidx.test.espresso.action.ViewActions.swipeUp;
 import static androidx.test.espresso.matcher.ViewMatchers.isAssignableFrom;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
+import static androidx.test.espresso.matcher.ViewMatchers.withParent;
 import static androidx.viewpager2.widget.BaseTestKt.isHorizontal;
 import static androidx.viewpager2.widget.BaseTestKt.isRtl;
 
 import static org.hamcrest.CoreMatchers.allOf;
 
+import androidx.recyclerview.widget.RecyclerView;
 import androidx.test.espresso.ViewAction;
 import androidx.viewpager2.widget.ViewPager2;
 
@@ -53,6 +55,10 @@ public class PageSwiperEspresso implements PageSwiper {
     }
 
     private void swipe(ViewAction swipeAction) {
-        onView(allOf(isDisplayed(), isAssignableFrom(ViewPager2.class))).perform(swipeAction);
+        onView(allOf(
+                isDisplayed(),
+                isAssignableFrom(RecyclerView.class),
+                withParent(isAssignableFrom(ViewPager2.class))
+        )).perform(swipeAction);
     }
 }
