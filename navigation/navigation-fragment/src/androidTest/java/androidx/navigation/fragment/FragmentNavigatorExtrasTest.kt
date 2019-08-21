@@ -19,11 +19,11 @@ package androidx.navigation.fragment
 import android.view.View
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
+import androidx.test.platform.app.InstrumentationRegistry
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.Mockito.mock
 
 @LargeTest
 @RunWith(AndroidJUnit4::class)
@@ -31,7 +31,7 @@ class FragmentNavigatorExtrasTest {
 
     @Test
     fun testAddSharedElement() {
-        val view = mock(View::class.java)
+        val view = View(InstrumentationRegistry.getInstrumentation().targetContext)
         val extras = FragmentNavigator.Extras.Builder()
                 .addSharedElement(view, "test")
                 .build()
@@ -44,7 +44,9 @@ class FragmentNavigatorExtrasTest {
 
     @Test
     fun testAddSharedElements() {
-        val map = mapOf(mock(View::class.java) to "test1", mock(View::class.java) to "test2")
+        val map = mapOf(
+            View(InstrumentationRegistry.getInstrumentation().targetContext) to "test1",
+            View(InstrumentationRegistry.getInstrumentation().targetContext) to "test2")
         val extras = FragmentNavigator.Extras.Builder()
                 .addSharedElements(map)
                 .build()
