@@ -53,7 +53,7 @@ fun TextField(
     value: EditorModel,
 
     /** The editor style */
-    editorStyle: EditorStyle,
+    editorStyle: EditorStyle? = null,
 
     /**
      * The keyboard type to be used in this text field.
@@ -98,7 +98,7 @@ fun TextField(
 
     // Memos
     val processor = +memo { EditProcessor() }
-    val mergedStyle = style.merge(editorStyle.textStyle)
+    val mergedStyle = style.merge(editorStyle?.textStyle)
     val (visualText, offsetMap) = +memo(value, visualTransformation) {
         TextFieldDelegate.applyVisualFilter(value, visualTransformation)
     }
@@ -186,7 +186,7 @@ fun TextField(
                     offsetMap,
                     textDelegate,
                     hasFocus.value,
-                    editorStyle) }
+                    editorStyle?.selectionColor) }
             },
             measureBlock = { _, constraints ->
                 TextFieldDelegate.layout(textDelegate, constraints).let {

@@ -53,6 +53,8 @@ import org.junit.runners.JUnit4
 @RunWith(JUnit4::class)
 class TextFieldDelegateTest {
 
+    private val DefaultCompositionColor = Color(-5185306)
+
     private lateinit var canvas: Canvas
     private lateinit var mDelegate: TextDelegate
     private lateinit var processor: EditProcessor
@@ -112,7 +114,7 @@ class TextFieldDelegateTest {
             canvas = canvas,
             textDelegate = mDelegate,
             value = EditorModel(text = "Hello, World", selection = selection),
-            editorStyle = EditorStyle(selectionColor = selectionColor),
+            selectionColor = selectionColor,
             hasFocus = true,
             offsetMap = identityOffsetMap
         )
@@ -132,7 +134,6 @@ class TextFieldDelegateTest {
             canvas = canvas,
             textDelegate = mDelegate,
             value = EditorModel(text = "Hello, World", selection = cursor),
-            editorStyle = EditorStyle(),
             hasFocus = true,
             offsetMap = identityOffsetMap
         )
@@ -150,7 +151,6 @@ class TextFieldDelegateTest {
             canvas = canvas,
             textDelegate = mDelegate,
             value = EditorModel(text = "Hello, World", selection = cursor),
-            editorStyle = EditorStyle(),
             hasFocus = false,
             offsetMap = identityOffsetMap
         )
@@ -163,7 +163,7 @@ class TextFieldDelegateTest {
     @Test
     fun draw_composition_test() {
         val composition = TextRange(0, 1)
-        val compositionColor = Color.Red
+        val compositionColor = DefaultCompositionColor
 
         val cursor = TextRange(1, 1)
 
@@ -172,7 +172,6 @@ class TextFieldDelegateTest {
             textDelegate = mDelegate,
             value = EditorModel(text = "Hello, World", selection = cursor,
                 composition = composition),
-            editorStyle = EditorStyle(compositionColor = compositionColor),
             hasFocus = true,
             offsetMap = identityOffsetMap
         )
@@ -253,13 +252,17 @@ class TextFieldDelegateTest {
                 text = "Hello, World", selection = TextRange(1, 1),
                 composition = TextRange(1, 3)
             ),
-            editorStyle = EditorStyle(compositionColor = Color.Red),
             hasFocus = true,
             offsetMap = identityOffsetMap
             )
 
         inOrder(mDelegate) {
-            verify(mDelegate).paintBackground(eq(1), eq(3), eq(Color.Red), eq(canvas))
+            verify(mDelegate).paintBackground(
+                eq(1),
+                eq(3),
+                eq(DefaultCompositionColor),
+                eq(canvas)
+            )
             verify(mDelegate).paintCursor(eq(1), eq(canvas))
         }
     }
@@ -377,7 +380,7 @@ class TextFieldDelegateTest {
             canvas = canvas,
             textDelegate = mDelegate,
             value = EditorModel(text = "Hello, World", selection = selection),
-            editorStyle = EditorStyle(selectionColor = selectionColor),
+            selectionColor = selectionColor,
             hasFocus = true,
             offsetMap = skippingOffsetMap
         )
