@@ -147,7 +147,7 @@ fun SimpleDrawChild(drawLatch: CountDownLatch) {
     AtLeastSize(size = 10.ipx) {
         Draw { canvas, parentSize ->
             val paint = Paint()
-            paint.color = Color(0xFF008000.toInt())
+            paint.color = Color(0xFF008000)
             canvas.drawRect(parentSize.toRect(), paint)
             drawLatch.countDown()
         }

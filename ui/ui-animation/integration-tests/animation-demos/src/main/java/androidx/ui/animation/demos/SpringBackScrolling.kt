@@ -140,12 +140,12 @@ class SpringBackScrolling : Activity() {
     }
 
     private val colors = listOf(
-            Color(0xFFdaf8e3.toInt()),
-            Color(0xFF97ebdb.toInt()),
-            Color(0xFF00c2c7.toInt()),
-            Color(0xFF0086ad.toInt()),
-            Color(0xFF005582.toInt()),
-            Color(0xFF0086ad.toInt()),
-            Color(0xFF00c2c7.toInt()),
-            Color(0xFF97ebdb.toInt()))
+            Color(0xFFdaf8e3),
+            Color(0xFF97ebdb),
+            Color(0xFF00c2c7),
+            Color(0xFF0086ad),
+            Color(0xFF005582),
+            Color(0xFF0086ad),
+            Color(0xFF00c2c7),
+            Color(0xFF97ebdb))
 }

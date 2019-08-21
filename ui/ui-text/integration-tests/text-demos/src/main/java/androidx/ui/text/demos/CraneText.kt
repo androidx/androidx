@@ -122,7 +122,7 @@ fun TagLine(tag: String) {
         Span(
             text = tag,
             style = TextStyle(
-                color = Color(0xFFAAAAAA.toInt()),
+                color = Color(0xFFAAAAAA),
                 fontSize = fontSize6
             )
         )
@@ -135,7 +135,7 @@ fun SecondTagLine(tag: String) {
         Span(
             text = tag,
             style = TextStyle(
-                color = Color(0xFFAAAAAA.toInt()),
+                color = Color(0xFFAAAAAA),
                 fontSize = fontSize4
             )
         )
@@ -150,7 +150,7 @@ fun TextDemoBasic() {
         Span(
             text = "$displayText   ",
             style = TextStyle(
-                color = Color(0xFFFF0000.toInt()),
+                color = Color(0xFFFF0000),
                 fontSize = fontSize6,
                 fontWeight = FontWeight.w200,
                 fontStyle = FontStyle.Italic
@@ -160,7 +160,7 @@ fun TextDemoBasic() {
         Span(
             text = "$displayText   ",
             style = TextStyle(
-                color = Color(0xFF00FF00.toInt()),
+                color = Color(0xFF00FF00),
                 fontSize = fontSize8,
                 fontWeight = FontWeight.w500,
                 fontStyle = FontStyle.Normal
@@ -170,7 +170,7 @@ fun TextDemoBasic() {
         Span(
             text = displayText,
             style = TextStyle(
-                color = Color(0xFF0000FF.toInt()),
+                color = Color(0xFF0000FF),
                 fontSize = fontSize10,
                 fontWeight = FontWeight.w800,
                 fontStyle = FontStyle.Normal
@@ -187,7 +187,7 @@ fun TextDemoLanguage() {
         Span(
             text = "$displayTextChinese   ",
             style = TextStyle(
-                color = Color(0xFFFF0000.toInt()),
+                color = Color(0xFFFF0000),
                 fontSize = fontSize6,
                 fontWeight = FontWeight.w200,
                 fontStyle = FontStyle.Italic
@@ -197,7 +197,7 @@ fun TextDemoLanguage() {
         Span(
             text = "$displayTextArabic   ",
             style = TextStyle(
-                color = Color(0xFF00FF00.toInt()),
+                color = Color(0xFF00FF00),
                 fontSize = fontSize8,
                 fontWeight = FontWeight.w500,
                 fontStyle = FontStyle.Normal
@@ -207,7 +207,7 @@ fun TextDemoLanguage() {
         Span(
             text = displayTextHindi,
             style = TextStyle(
-                color = Color(0xFF0000FF.toInt()),
+                color = Color(0xFF0000FF),
                 fontSize = fontSize10,
                 fontWeight = FontWeight.w800,
                 fontStyle = FontStyle.Normal
@@ -346,7 +346,7 @@ fun TextDemoBackground() {
             text = "$displayText   ",
             style = TextStyle(
                 fontSize = fontSize8,
-                background = Color(0xFFFF0000.toInt())
+                background = Color(0xFFFF0000)
             )
         )
 
@@ -354,7 +354,7 @@ fun TextDemoBackground() {
             text = "$displayText   ",
             style = TextStyle(
                 fontSize = fontSize8,
-                background = Color(0xFF00FF00.toInt())
+                background = Color(0xFF00FF00)
             )
         )
 
@@ -362,7 +362,7 @@ fun TextDemoBackground() {
             text = displayText,
             style = TextStyle(
                 fontSize = fontSize8,
-                background = Color(0xFF0000FF.toInt())
+                background = Color(0xFF0000FF)
             )
         )
     }
@@ -426,7 +426,7 @@ fun TextDemoTextAlign() {
                 text = text,
                 style = TextStyle(
                     fontSize = fontSize8,
-                    color = Color(0xFFFF0000.toInt())
+                    color = Color(0xFFFF0000)
                 )
             )
         }
@@ -435,7 +435,7 @@ fun TextDemoTextAlign() {
                 text = text,
                 style = TextStyle(
                     fontSize = fontSize8,
-                    color = Color(0xFF0000FF.toInt())
+                    color = Color(0xFF0000FF)
                 )
             )
         }
@@ -476,7 +476,7 @@ fun TextDemoSoftWrap() {
         text = "$text$displayText"
     }
     val textStyle =
-        TextStyle(fontSize = fontSize8, color = Color(0xFFFF0000.toInt()))
+        TextStyle(fontSize = fontSize8, color = Color(0xFFFF0000))
 
     Column(crossAxisAlignment = CrossAxisAlignment.Start) {
         Text {
@@ -497,7 +497,7 @@ fun TexDemoTextOverflowFade() {
         text += displayText
     }
     val textSytle =
-        TextStyle(fontSize = fontSize8, color = Color(0xFFFF0000.toInt()))
+        TextStyle(fontSize = fontSize8, color = Color(0xFFFF0000))
     SecondTagLine(tag = "horizontally fading edge")
     Text(
         maxLines = 1,
@@ -518,7 +518,7 @@ fun TexDemoTextOverflowFade() {
 @Composable
 fun TextDemoShadowEffect() {
     val shadow = Shadow(
-        Color(0xFFE0A0A0.toInt()),
+        Color(0xFFE0A0A0),
         Offset(5f, 5f),
         blurRadius = 5.px
     )
@@ -538,7 +538,7 @@ fun TextDemoSelection() {
         Text {
             Span(
                 style = TextStyle(
-                    color = Color(0xFFFF0000.toInt()),
+                    color = Color(0xFFFF0000),
                     fontSize = fontSize6,
                     fontWeight = FontWeight.w200,
                     fontStyle = FontStyle.Italic
@@ -549,7 +549,7 @@ fun TextDemoSelection() {
                 Span(
                     text = displayTextHindi,
                     style = TextStyle(
-                        color = Color(0xFF0000FF.toInt()),
+                        color = Color(0xFF0000FF),
                         fontSize = fontSize10,
                         fontWeight = FontWeight.w800,
                         fontStyle = FontStyle.Normal
@@ -577,7 +577,7 @@ fun TextDemoSelectionWithStringInput() {
         Text(
             text = "$displayText    $displayTextChinese    $displayTextHindi",
             style = TextStyle(
-                color = Color(0xFFFF0000.toInt()),
+                color = Color(0xFFFF0000),
                 fontSize = fontSize6,
                 fontWeight = FontWeight.w200,
                 fontStyle = FontStyle.Italic
@@ -594,15 +594,15 @@ fun TextDemoSelection2DArrayVertical() {
     }
 
     val colorList = listOf(
-        Color(0xFFFF0000.toInt()),
-        Color(0xFF00FF00.toInt()),
-        Color(0xFF0000FF.toInt()),
-        Color(0xFF00FFFF.toInt()),
-        Color(0xFFFF00FF.toInt()),
-        Color(0xFFFFFF00.toInt()),
-        Color(0xFF0000FF.toInt()),
-        Color(0xFF00FF00.toInt()),
-        Color(0xFFFF0000.toInt())
+        Color(0xFFFF0000),
+        Color(0xFF00FF00),
+        Color(0xFF0000FF),
+        Color(0xFF00FFFF),
+        Color(0xFFFF00FF),
+        Color(0xFFFFFF00),
+        Color(0xFF0000FF),
+        Color(0xFF00FF00),
+        Color(0xFFFF0000)
     )
 
     val selection = +state<Selection?> { null }
@@ -637,15 +637,15 @@ fun TextDemoSelection2DArrayHorizontal() {
     }
 
     val colorList = listOf(
-        Color(0xFFFF0000.toInt()),
-        Color(0xFF00FF00.toInt()),
-        Color(0xFF0000FF.toInt()),
-        Color(0xFF00FFFF.toInt()),
-        Color(0xFFFF00FF.toInt()),
-        Color(0xFFFFFF00.toInt()),
-        Color(0xFF0000FF.toInt()),
-        Color(0xFF00FF00.toInt()),
-        Color(0xFFFF0000.toInt())
+        Color(0xFFFF0000),
+        Color(0xFF00FF00),
+        Color(0xFF0000FF),
+        Color(0xFF00FFFF),
+        Color(0xFFFF00FF),
+        Color(0xFFFFFF00),
+        Color(0xFF0000FF),
+        Color(0xFF00FF00),
+        Color(0xFFFF0000)
     )
 
     val selection = +state<Selection?> { null }
@@ -678,8 +678,8 @@ fun TextDemoSelection2DArrayHorizontal() {
 fun TextDemoComposableTextSpan() {
     Text(text = "This is a ", style = TextStyle(fontSize = fontSize8)) {
         Span(text = "composable ", style = TextStyle(fontStyle = FontStyle.Italic))
-        val color1 = Color(0xFFEF50AD.toInt())
-        val color2 = Color(0xFF10AF52.toInt())
+        val color1 = Color(0xFFEF50AD)
+        val color2 = Color(0xFF10AF52)
         val text = "TextSpan"
         text.forEachIndexed { index, ch ->
             val color = lerp(color1, color2, index.toFloat() / text.lastIndex)

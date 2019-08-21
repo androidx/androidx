@@ -17,8 +17,6 @@
 package androidx.ui.test.cases
 
 import android.app.Activity
-import androidx.compose.Composable
-import androidx.compose.CompositionContext
 import androidx.compose.composer
 import androidx.compose.FrameManager
 import androidx.compose.Model
@@ -63,10 +61,10 @@ class RectsInColumnSharedModelTestCase(
     }!!
 
     override fun toggleState() {
-        if (model.color == Color.Purple) {
+        if (model.color == Color.Magenta) {
             model.color = Color.Blue
         } else {
-            model.color = Color.Purple
+            model.color = Color.Magenta
         }
         FrameManager.nextFrame()
     }

@@ -38,6 +38,7 @@ import androidx.ui.engine.geometry.Rect
 import androidx.ui.engine.geometry.Shape
 import androidx.ui.framework.test.TestActivity
 import androidx.ui.graphics.Color
+import androidx.ui.graphics.toArgb
 import androidx.ui.painting.Paint
 import androidx.ui.painting.Path
 import org.junit.Assert

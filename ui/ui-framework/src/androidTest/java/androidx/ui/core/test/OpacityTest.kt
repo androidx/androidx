@@ -128,7 +128,7 @@ class OpacityTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun switchFromHalfOpacityToFull() {
-        val color = Color.Lime
+        val color = Color.Green
         val model = OpacityModel(0.5f)
 
         rule.runOnUiThreadIR {

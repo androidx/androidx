@@ -31,7 +31,6 @@ import androidx.ui.layout.WidthSpacer
 import androidx.ui.layout.Wrap
 import androidx.ui.graphics.Color
 import androidx.ui.text.TextStyle
-import androidx.compose.Children
 import androidx.compose.Composable
 import androidx.compose.composer
 import androidx.ui.core.setContent
@@ -65,7 +64,7 @@ fun ContainerWithBackground(
 
 @Composable
 fun LayoutDemo() {
-    val lightGrey = Color(0xFFCFD8DC.toInt())
+    val lightGrey = Color(0xFFCFD8DC)
     Column(
         mainAxisAlignment = MainAxisAlignment.Start,
         crossAxisAlignment = CrossAxisAlignment.Start
@@ -149,14 +148,14 @@ fun LayoutDemo() {
 @Composable
 fun PurpleSquare() {
     Container(width = BigSize, height = BigSize) {
-        DrawRectangle(color = Color(0xFF6200EE.toInt()))
+        DrawRectangle(color = Color(0xFF6200EE))
     }
 }
 
 @Composable
 fun CyanSquare() {
     Container(width = SmallSize, height = SmallSize) {
-        DrawRectangle(color = Color(0xFF03DAC6.toInt()))
+        DrawRectangle(color = Color(0xFF03DAC6))
     }
 }
 

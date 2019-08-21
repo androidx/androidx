@@ -45,6 +45,7 @@ import androidx.compose.composer
 import androidx.test.filters.SdkSuppress
 import androidx.ui.core.AndroidCraneView
 import androidx.ui.core.setContent
+import androidx.ui.graphics.toArgb
 import androidx.ui.layout.Row
 import androidx.ui.test.android.AndroidComposeTestRule
 import androidx.ui.test.createComposeRule

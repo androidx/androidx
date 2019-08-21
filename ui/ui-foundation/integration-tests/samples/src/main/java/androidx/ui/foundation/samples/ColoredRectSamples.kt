@@ -34,7 +34,7 @@ fun ColoredRectColorSample() {
 @Composable
 fun ColoredRectBrushSample() {
     ColoredRect(
-        brush = SolidColor(Color.Fuchsia),
+        brush = SolidColor(Color.Magenta),
         width = 20.dp,
         height = 20.dp
     )

@@ -41,9 +41,9 @@ import androidx.ui.material.surface.Surface
 import androidx.ui.material.themeTextStyle
 
 class SelectionControlsActivity : MaterialDemoActivity() {
-    private val customColor = Color(0xFFFF5722.toInt())
-    private val customColor2 = Color(0xFFE91E63.toInt())
-    private val customColor3 = Color(0xFF607D8B.toInt())
+    private val customColor = Color(0xFFFF5722)
+    private val customColor2 = Color(0xFFE91E63)
+    private val customColor3 = Color(0xFF607D8B)
 
     @Composable
     override fun materialContent() {

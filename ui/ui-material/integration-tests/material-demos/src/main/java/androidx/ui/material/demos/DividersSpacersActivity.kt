@@ -49,8 +49,8 @@ class DividersSpacersActivity : MaterialDemoActivity() {
             "Mauris tristique arcu nec aliquam.",
             "Vivamus euismod augue eget maximus."
         )
-        val color = Color(0xFFE91E63.toInt())
-        val dividerColor = Color(0xFFC6C6C6.toInt())
+        val color = Color(0xFFE91E63)
+        val dividerColor = Color(0xFFC6C6C6)
         val blackColor = Color.Black
         Column {
             Column {

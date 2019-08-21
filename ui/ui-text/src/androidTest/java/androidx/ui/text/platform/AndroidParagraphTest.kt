@@ -38,6 +38,7 @@ import androidx.ui.text.style.TextIndent
 import androidx.ui.text.font.FontFamily
 import androidx.ui.text.font.asFontFamily
 import androidx.ui.graphics.Color
+import androidx.ui.graphics.toArgb
 import androidx.ui.text.matchers.equalToBitmap
 import androidx.ui.text.matchers.hasSpan
 import androidx.ui.text.matchers.hasSpanOnTop
@@ -111,7 +112,7 @@ class AndroidParagraphTest {
     @Test
     fun testAnnotatedString_setColorOnWholeText() {
         val text = "abcde"
-        val textStyle = TextStyle(color = Color(0xFF0000FF.toInt()))
+        val textStyle = TextStyle(color = Color(0xFF0000FF))
 
         val paragraph = simpleParagraph(
             text = text,
@@ -125,7 +126,7 @@ class AndroidParagraphTest {
     @Test
     fun testAnnotatedString_setColorOnPartOfText() {
         val text = "abcde"
-        val textStyle = TextStyle(color = Color(0xFF0000FF.toInt()))
+        val textStyle = TextStyle(color = Color(0xFF0000FF))
 
         val paragraph = simpleParagraph(
             text = text,
@@ -139,8 +140,8 @@ class AndroidParagraphTest {
     @Test
     fun testAnnotatedString_setColorTwice_lastOneOverwrite() {
         val text = "abcde"
-        val textStyle = TextStyle(color = Color(0xFF0000FF.toInt()))
-        val textStyleOverwrite = TextStyle(color = Color(0xFF00FF00.toInt()))
+        val textStyle = TextStyle(color = Color(0xFF0000FF))
+        val textStyleOverwrite = TextStyle(color = Color(0xFF00FF00))
 
         val paragraph = simpleParagraph(
             text = text,
@@ -398,7 +399,7 @@ class AndroidParagraphTest {
     @Test
     fun testAnnotatedString_setBackgroundOnWholeText() {
         val text = "abcde"
-        val color = Color(0xFF0000FF.toInt())
+        val color = Color(0xFF0000FF)
         val textStyle = TextStyle(background = color)
 
         val paragraph = simpleParagraph(
@@ -418,7 +419,7 @@ class AndroidParagraphTest {
     @Test
     fun testAnnotatedString_setBackgroundOnPartText() {
         val text = "abcde"
-        val color = Color(0xFF0000FF.toInt())
+        val color = Color(0xFF0000FF)
         val textStyle = TextStyle(background = color)
 
         val paragraph = simpleParagraph(
@@ -438,9 +439,9 @@ class AndroidParagraphTest {
     @Test
     fun testAnnotatedString_setBackgroundTwice_lastOneOverwrite() {
         val text = "abcde"
-        val color = Color(0xFF0000FF.toInt())
+        val color = Color(0xFF0000FF)
         val textStyle = TextStyle(background = color)
-        val colorOverwrite = Color(0xFF00FF00.toInt())
+        val colorOverwrite = Color(0xFF00FF00)
         val textStyleOverwrite = TextStyle(background = colorOverwrite)
 
         val paragraph = simpleParagraph(
@@ -674,7 +675,7 @@ class AndroidParagraphTest {
     @Test
     fun testAnnotatedString_setShadow() {
         val text = "abcde"
-        val color = Color(0xFF00FF00.toInt())
+        val color = Color(0xFF00FF00)
         val offset = Offset(1f, 2f)
         val radius = 3.px
         val textStyle = TextStyle(shadow = Shadow(color, offset, radius))
@@ -702,12 +703,12 @@ class AndroidParagraphTest {
     @Test
     fun testAnnotatedString_setShadowTwice_lastOnTop() {
         val text = "abcde"
-        val color = Color(0xFF00FF00.toInt())
+        val color = Color(0xFF00FF00)
         val offset = Offset(1f, 2f)
         val radius = 3.px
         val textStyle = TextStyle(shadow = Shadow(color, offset, radius))
 
-        val colorOverwrite = Color(0xFF0000FF.toInt())
+        val colorOverwrite = Color(0xFF0000FF)
         val offsetOverwrite = Offset(3f, 2f)
         val radiusOverwrite = 1.px
         val textStyleOverwrite = TextStyle(

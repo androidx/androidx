@@ -57,6 +57,7 @@ import androidx.ui.text.TextRange
 import androidx.ui.core.px
 import androidx.ui.core.withDensity
 import androidx.ui.engine.geometry.Rect
+import androidx.ui.graphics.toArgb
 import androidx.ui.text.font.FontStyle
 import androidx.ui.text.font.FontSynthesis
 import androidx.ui.text.font.FontWeight

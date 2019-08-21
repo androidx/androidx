@@ -41,7 +41,7 @@ import androidx.ui.material.surface.Card
 import androidx.ui.material.themeTextStyle
 
 // TODO: This is not integrated with the theme
-internal val cardInternalColor = Color(0xFF33333D.toInt())
+internal val cardInternalColor = Color(0xFF33333D)
 
 /**
  * The Alerts card within the Rally Overview screen.
@@ -101,21 +101,21 @@ fun RallyAccountsCard() {
                         name = "Checking",
                         number = "1234",
                         amount = "2,215.13",
-                        color = Color(0xFF005D57.toInt())
+                        color = Color(0xFF005D57)
                     )
                     Divider(color = colors.surface, height = 2.dp)
                     RallyAccountRow(
                         name = "Home Savings",
                         number = "5678",
                         amount = "8,676.88",
-                        color = Color(0xFF04B97F.toInt())
+                        color = Color(0xFF04B97F)
                     )
                     Divider(color = colors.surface, height = 2.dp)
                     RallyAccountRow(
                         name = "Car Savings",
                         number = "9012",
                         amount = "987.48",
-                        color = Color(0xFF37EFBA.toInt())
+                        color = Color(0xFF37EFBA)
                     )
                     Divider(color = colors.surface, height = 2.dp)
                     Button(text = "See All", style = TextButtonStyle())

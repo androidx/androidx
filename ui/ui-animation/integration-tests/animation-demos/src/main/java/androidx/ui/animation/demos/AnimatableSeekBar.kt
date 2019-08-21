@@ -92,7 +92,7 @@ class AnimatableSeekBar : Activity() {
                 Rect(0f, centerY - 5, parentSize.width.value, centerY + 5),
                 paint
             )
-            paint.color = Color.Fuchsia
+            paint.color = Color.Magenta
             canvas.drawRect(
                 Rect(0f, centerY - 5, x, centerY + 5),
                 paint

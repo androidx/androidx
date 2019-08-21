@@ -35,8 +35,8 @@ import androidx.compose.composer
  */
 class TouchSlopDragGestureDetectorDemo : Activity() {
 
-    val VerticalColor = Color(0xfff44336.toInt())
-    val HorizontalColor = Color(0xff2196f3.toInt())
+    val VerticalColor = Color(0xfff44336)
+    val HorizontalColor = Color(0xff2196f3)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
