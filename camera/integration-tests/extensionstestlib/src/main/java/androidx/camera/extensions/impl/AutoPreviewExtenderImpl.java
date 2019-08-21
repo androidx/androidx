@@ -18,9 +18,13 @@ package androidx.camera.extensions.impl;
 import android.content.Context;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CaptureRequest;
+import android.util.Pair;
+import android.util.Size;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+
+import java.util.List;
 
 /**
  * Implementation for auto preview use case.
@@ -65,6 +69,11 @@ public final class AutoPreviewExtenderImpl implements PreviewExtenderImpl {
     @Override
     public ProcessorImpl getProcessor() {
         return RequestUpdateProcessorImpls.noUpdateProcessor();
+    }
+
+    @Override
+    public List<Pair<Integer, Size[]>> getSupportedResolutions() {
+        return null;
     }
 
     @Override

@@ -201,4 +201,9 @@ public final class HdrImageCaptureExtenderImpl implements ImageCaptureExtenderIm
         return 4;
     }
 
+    @Override
+    public List<Pair<Integer, Size[]>> getSupportedResolutions() {
+        return null;
+    }
+
 }

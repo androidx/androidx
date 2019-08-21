@@ -176,4 +176,9 @@ public final class AutoImageCaptureExtenderImpl implements ImageCaptureExtenderI
     public int getMaxCaptureStage() {
         return 3;
     }
+
+    @Override
+    public List<Pair<Integer, Size[]>> getSupportedResolutions() {
+        return null;
+    }
 }

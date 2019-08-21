@@ -17,6 +17,8 @@ package androidx.camera.extensions.impl;
 
 import android.content.Context;
 import android.hardware.camera2.CameraCharacteristics;
+import android.util.Pair;
+import android.util.Size;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -80,6 +82,11 @@ public final class AutoImageCaptureExtenderImpl implements ImageCaptureExtenderI
 
     @Override
     public CaptureStageImpl onDisableSession() {
+        throw new RuntimeException("Stub, replace with implementation.");
+    }
+
+    @Override
+    public List<Pair<Integer, Size[]>> getSupportedResolutions() {
         throw new RuntimeException("Stub, replace with implementation.");
     }
 }
