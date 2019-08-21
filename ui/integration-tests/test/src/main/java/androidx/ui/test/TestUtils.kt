@@ -19,7 +19,8 @@ package androidx.ui.test
 import android.app.Activity
 import androidx.compose.composer
 import androidx.test.rule.ActivityTestRule
-
+import java.lang.StringBuilder
+import kotlin.random.Random
 
 fun <T : Activity> ActivityTestRule<T>.runOnUiThreadSync(action: () -> Unit) {
     // Workaround for lambda bug in IR
@@ -37,4 +38,39 @@ fun Activity.runOnUiThreadSync(action: () -> Unit) {
             action.invoke()
         }
     })
+}
+
+class RandomTextGenerator(
+    private val space: String = " ",
+    private val charRanges: List<IntRange> = alphabets
+) {
+    private val random = Random(0)
+
+    private fun nextWord(length: Int): String =
+        List(length) {
+            charRanges.random(random).random(random).toChar()
+        }.joinToString(separator = "")
+
+    fun nextParagraph(
+        length: Int,
+        wordLength: Int = 9
+    ): String {
+        return if (length == 0) {
+            ""
+        } else {
+            StringBuilder().apply {
+                while (this.length < length) {
+                    append(nextWord(wordLength))
+                    append(space)
+                }
+            }.substring(0, length)
+        }
+    }
+
+    companion object {
+        val alphabets = listOf(
+            IntRange('a'.toInt(), 'z'.toInt()),
+            IntRange('A'.toInt(), 'Z'.toInt())
+        )
+    }
 }
