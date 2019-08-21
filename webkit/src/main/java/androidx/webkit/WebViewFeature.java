@@ -407,8 +407,8 @@ public class WebViewFeature {
     /**
      * Feature for {@link #isFeatureSupported(String)}.
      * This feature covers
-     * {@link WebViewCompat#setForceDark(WebSettings, int)} and
-     * {@link WebViewCompat#getForceDark(WebSettings)}.
+     * {@link WebSettingsCompat#setForceDark(WebSettings, int)} and
+     * {@link WebSettingsCompat#getForceDark(WebSettings)}.
      *
      * TODO(amalova): unhide
      * @hide
