@@ -189,7 +189,7 @@ class VectorComposition(val composer: VectorComposer) {
             block()
             endGroup()
         } else {
-            skipGroup(0)
+            skipCurrentGroup()
         }
         endGroup()
     }
@@ -209,7 +209,7 @@ class VectorComposition(val composer: VectorComposer) {
             block(f)
             endGroup()
         } else {
-            skipGroup(0)
+            skipCurrentGroup()
         }
         endGroup()
     }
