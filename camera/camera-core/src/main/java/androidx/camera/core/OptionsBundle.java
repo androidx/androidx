@@ -16,6 +16,7 @@
 
 package androidx.camera.core;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
@@ -59,7 +60,8 @@ public class OptionsBundle implements Config {
      * @param otherConfig Configuration containing options/values to be copied.
      * @return A new OptionsBundle pre-populated with options/values.
      */
-    public static OptionsBundle from(Config otherConfig) {
+    @NonNull
+    public static OptionsBundle from(@NonNull Config otherConfig) {
         // No need to create another instance since OptionsBundle is immutable
         if (OptionsBundle.class.equals(otherConfig.getClass())) {
             return (OptionsBundle) otherConfig;
@@ -86,44 +88,45 @@ public class OptionsBundle implements Config {
      *
      * @return An OptionsBundle pre-populated with no options/values.
      */
+    @NonNull
     public static OptionsBundle emptyBundle() {
         return EMPTY_BUNDLE;
     }
 
     @Override
+    @NonNull
     public Set<Option<?>> listOptions() {
         return Collections.unmodifiableSet(mOptions.keySet());
     }
 
     @Override
-    public boolean containsOption(Option<?> id) {
+    public boolean containsOption(@NonNull Option<?> id) {
         return mOptions.containsKey(id);
     }
 
     @Override
-    public <ValueT> ValueT retrieveOption(Option<ValueT> id) {
-        ValueT value = retrieveOption(id, /*valueIfMissing=*/ null);
-        if (value == null) {
+    @Nullable
+    public <ValueT> ValueT retrieveOption(@NonNull Option<ValueT> id) {
+        if (!mOptions.containsKey(id)) {
             throw new IllegalArgumentException("Option does not exist: " + id);
         }
 
+        @SuppressWarnings("unchecked")
+        ValueT value = (ValueT) mOptions.get(id);
+
         return value;
     }
 
+    @Override
     @Nullable
-    @Override
-    public <ValueT> ValueT retrieveOption(Option<ValueT> id, @Nullable ValueT valueIfMissing) {
-        @SuppressWarnings("unchecked") // Options should have only been inserted via insertOption()
-                ValueT value = (ValueT) mOptions.get(id);
-        if (value == null) {
-            value = valueIfMissing;
-        }
-
-        return value;
+    @SuppressWarnings("unchecked")
+    public <ValueT> ValueT retrieveOption(@NonNull Option<ValueT> id,
+            @Nullable ValueT valueIfMissing) {
+        return mOptions.containsKey(id) ? (ValueT) mOptions.get(id) : valueIfMissing;
     }
 
     @Override
-    public void findOptions(String idStem, OptionMatcher matcher) {
+    public void findOptions(@NonNull String idStem, @NonNull OptionMatcher matcher) {
         Option<Void> query = Option.create(idStem, Void.class);
         for (Entry<Option<?>, Object> entry : mOptions.tailMap(query).entrySet()) {
             if (!entry.getKey().getId().startsWith(idStem)) {

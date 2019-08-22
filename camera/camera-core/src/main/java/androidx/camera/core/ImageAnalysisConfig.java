@@ -79,6 +79,7 @@ public final class ImageAnalysisConfig
      * @return The stored value, if it exists in this configuration.
      * @throws IllegalArgumentException if the option does not exist in this configuration.
      */
+    @NonNull
     public ImageReaderMode getImageReaderMode() {
         return retrieveOption(OPTION_IMAGE_READER_MODE);
     }
@@ -120,7 +121,7 @@ public final class ImageAnalysisConfig
     /** @hide */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
-    public boolean containsOption(Option<?> id) {
+    public boolean containsOption(@NonNull Option<?> id) {
         return mConfig.containsOption(id);
     }
 
@@ -128,7 +129,7 @@ public final class ImageAnalysisConfig
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
     @Nullable
-    public <ValueT> ValueT retrieveOption(Option<ValueT> id) {
+    public <ValueT> ValueT retrieveOption(@NonNull Option<ValueT> id) {
         return mConfig.retrieveOption(id);
     }
 
@@ -136,20 +137,22 @@ public final class ImageAnalysisConfig
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
     @Nullable
-    public <ValueT> ValueT retrieveOption(Option<ValueT> id, @Nullable ValueT valueIfMissing) {
+    public <ValueT> ValueT retrieveOption(@NonNull Option<ValueT> id,
+            @Nullable ValueT valueIfMissing) {
         return mConfig.retrieveOption(id, valueIfMissing);
     }
 
     /** @hide */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
-    public void findOptions(String idStem, OptionMatcher matcher) {
+    public void findOptions(@NonNull String idStem, @NonNull OptionMatcher matcher) {
         mConfig.findOptions(idStem, matcher);
     }
 
     /** @hide */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
+    @NonNull
     public Set<Option<?>> listOptions() {
         return mConfig.listOptions();
     }
@@ -173,6 +176,7 @@ public final class ImageAnalysisConfig
     /** @hide */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
+    @NonNull
     public Class<ImageAnalysis> getTargetClass() {
         @SuppressWarnings("unchecked") // Value should only be added via Builder#setTargetClass()
                 Class<ImageAnalysis> storedClass =
@@ -207,6 +211,7 @@ public final class ImageAnalysisConfig
      * @throws IllegalArgumentException if the option does not exist in this configuration.
      */
     @Override
+    @NonNull
     public String getTargetName() {
         return retrieveOption(OPTION_TARGET_NAME);
     }
@@ -297,6 +302,7 @@ public final class ImageAnalysisConfig
      * @throws IllegalArgumentException if the option does not exist in this configuration.
      */
     @Override
+    @NonNull
     public Rational getTargetAspectRatio() {
         return retrieveOption(OPTION_TARGET_ASPECT_RATIO);
     }
@@ -342,7 +348,8 @@ public final class ImageAnalysisConfig
      * configuration.
      */
     @Override
-    public Size getTargetResolution(Size valueIfMissing) {
+    @Nullable
+    public Size getTargetResolution(@Nullable Size valueIfMissing) {
         return retrieveOption(ImageOutputConfig.OPTION_TARGET_RESOLUTION, valueIfMissing);
     }
 
@@ -353,6 +360,7 @@ public final class ImageAnalysisConfig
      * @throws IllegalArgumentException if the option does not exist in this configuration.
      */
     @Override
+    @NonNull
     public Size getTargetResolution() {
         return retrieveOption(ImageOutputConfig.OPTION_TARGET_RESOLUTION);
     }
@@ -360,13 +368,15 @@ public final class ImageAnalysisConfig
     /** @hide */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
-    public Size getMaxResolution(Size valueIfMissing) {
+    @Nullable
+    public Size getMaxResolution(@Nullable Size valueIfMissing) {
         return retrieveOption(OPTION_MAX_RESOLUTION, valueIfMissing);
     }
 
     /** @hide */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
+    @NonNull
     public Size getMaxResolution() {
         return retrieveOption(OPTION_MAX_RESOLUTION);
     }
@@ -393,6 +403,7 @@ public final class ImageAnalysisConfig
      * @throws IllegalArgumentException if the option does not exist in this configuration.
      */
     @Override
+    @NonNull
     public Handler getCallbackHandler() {
         return retrieveOption(OPTION_CALLBACK_HANDLER);
     }
@@ -404,8 +415,8 @@ public final class ImageAnalysisConfig
      * @return The stored value or <code>valueIfMissing</code> if the value does not exist in this
      * configuration.
      */
-    @Nullable
     @Override
+    @Nullable
     public Executor getBackgroundExecutor(@Nullable Executor valueIfMissing) {
         return retrieveOption(OPTION_BACKGROUND_EXECUTOR, valueIfMissing);
     }
@@ -416,8 +427,8 @@ public final class ImageAnalysisConfig
      * @return The stored value, if it exists in this configuration.
      * @throws IllegalArgumentException if the option does not exist in this configuration.
      */
-    @NonNull
     @Override
+    @NonNull
     public Executor getBackgroundExecutor() {
         return retrieveOption(OPTION_BACKGROUND_EXECUTOR);
     }
@@ -435,6 +446,7 @@ public final class ImageAnalysisConfig
     /** @hide */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
+    @NonNull
     public SessionConfig getDefaultSessionConfig() {
         return retrieveOption(OPTION_DEFAULT_SESSION_CONFIG);
     }
@@ -451,6 +463,7 @@ public final class ImageAnalysisConfig
     /** @hide */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
+    @NonNull
     public SessionConfig.OptionUnpacker getSessionOptionUnpacker() {
         return retrieveOption(OPTION_SESSION_CONFIG_UNPACKER);
     }
@@ -466,6 +479,7 @@ public final class ImageAnalysisConfig
     /** @hide */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
+    @NonNull
     public CaptureConfig getDefaultCaptureConfig() {
         return retrieveOption(OPTION_DEFAULT_CAPTURE_CONFIG);
     }
@@ -482,6 +496,7 @@ public final class ImageAnalysisConfig
     /** @hide */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
+    @NonNull
     public CaptureConfig.OptionUnpacker getCaptureOptionUnpacker() {
         return retrieveOption(OPTION_CAPTURE_CONFIG_UNPACKER);
     }
@@ -500,8 +515,8 @@ public final class ImageAnalysisConfig
 
     /** @hide */
     @RestrictTo(Scope.LIBRARY_GROUP)
-    @Nullable
     @Override
+    @Nullable
     public UseCase.EventListener getUseCaseEventListener(
             @Nullable UseCase.EventListener valueIfMissing) {
         return retrieveOption(OPTION_USE_CASE_EVENT_LISTENER, valueIfMissing);
@@ -509,8 +524,8 @@ public final class ImageAnalysisConfig
 
     /** @hide */
     @RestrictTo(Scope.LIBRARY_GROUP)
-    @Nullable
     @Override
+    @NonNull
     public UseCase.EventListener getUseCaseEventListener() {
         return retrieveOption(OPTION_USE_CASE_EVENT_LISTENER);
     }
@@ -554,7 +569,8 @@ public final class ImageAnalysisConfig
          * @param configuration An immutable configuration to pre-populate this builder.
          * @return The new Builder.
          */
-        public static Builder fromConfig(ImageAnalysisConfig configuration) {
+        @NonNull
+        public static Builder fromConfig(@NonNull ImageAnalysisConfig configuration) {
             return new Builder(MutableOptionsBundle.from(configuration));
         }
 
@@ -567,7 +583,8 @@ public final class ImageAnalysisConfig
          * @param mode The mode to set.
          * @return The current Builder.
          */
-        public Builder setImageReaderMode(ImageReaderMode mode) {
+        @NonNull
+        public Builder setImageReaderMode(@NonNull ImageReaderMode mode) {
             getMutableConfig().insertOption(OPTION_IMAGE_READER_MODE, mode);
             return this;
         }
@@ -599,6 +616,7 @@ public final class ImageAnalysisConfig
          * @param depth The total number of images available to the camera.
          * @return The current Builder.
          */
+        @NonNull
         public Builder setImageQueueDepth(int depth) {
             getMutableConfig().insertOption(OPTION_IMAGE_QUEUE_DEPTH, depth);
             return this;
@@ -611,6 +629,7 @@ public final class ImageAnalysisConfig
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
+        @NonNull
         public MutableConfig getMutableConfig() {
             return mMutableConfig;
         }
@@ -620,6 +639,7 @@ public final class ImageAnalysisConfig
          *
          * @return A {@link ImageAnalysisConfig} populated with the current state.
          */
+        @NonNull
         public ImageAnalysisConfig build() {
             return new ImageAnalysisConfig(OptionsBundle.from(mMutableConfig));
         }
@@ -629,7 +649,8 @@ public final class ImageAnalysisConfig
         /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
-        public Builder setTargetClass(Class<ImageAnalysis> targetClass) {
+        @NonNull
+        public Builder setTargetClass(@NonNull Class<ImageAnalysis> targetClass) {
             getMutableConfig().insertOption(OPTION_TARGET_CLASS, targetClass);
 
             // If no name is set yet, then generate a unique name
@@ -652,7 +673,8 @@ public final class ImageAnalysisConfig
          * @return the current Builder.
          */
         @Override
-        public Builder setTargetName(String targetName) {
+        @NonNull
+        public Builder setTargetName(@NonNull String targetName) {
             getMutableConfig().insertOption(OPTION_TARGET_NAME, targetName);
             return this;
         }
@@ -714,7 +736,8 @@ public final class ImageAnalysisConfig
          * @return The current Builder.
          */
         @Override
-        public Builder setTargetAspectRatio(Rational aspectRatio) {
+        @NonNull
+        public Builder setTargetAspectRatio(@NonNull Rational aspectRatio) {
             getMutableConfig().insertOption(OPTION_TARGET_ASPECT_RATIO, aspectRatio);
             return this;
         }
@@ -730,6 +753,7 @@ public final class ImageAnalysisConfig
          * @return The current Builder.
          */
         @Override
+        @NonNull
         public Builder setTargetRotation(@RotationValue int rotation) {
             getMutableConfig().insertOption(OPTION_TARGET_ROTATION, rotation);
             return this;
@@ -748,7 +772,8 @@ public final class ImageAnalysisConfig
          * @return The current Builder.
          */
         @Override
-        public Builder setTargetResolution(Size resolution) {
+        @NonNull
+        public Builder setTargetResolution(@NonNull Size resolution) {
             getMutableConfig()
                     .insertOption(ImageOutputConfig.OPTION_TARGET_RESOLUTION, resolution);
             return this;
@@ -757,7 +782,8 @@ public final class ImageAnalysisConfig
         /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
-        public Builder setMaxResolution(Size resolution) {
+        @NonNull
+        public Builder setMaxResolution(@NonNull Size resolution) {
             getMutableConfig().insertOption(OPTION_MAX_RESOLUTION, resolution);
             return this;
         }
@@ -771,7 +797,8 @@ public final class ImageAnalysisConfig
          * @return the current Builder.
          */
         @Override
-        public Builder setCallbackHandler(Handler handler) {
+        @NonNull
+        public Builder setCallbackHandler(@NonNull Handler handler) {
             getMutableConfig().insertOption(OPTION_CALLBACK_HANDLER, handler);
             return this;
         }
@@ -782,8 +809,8 @@ public final class ImageAnalysisConfig
          * @param executor The executor which will be used for background tasks.
          * @return the current Builder.
          */
-        @NonNull
         @Override
+        @NonNull
         public Builder setBackgroundExecutor(@NonNull Executor executor) {
             getMutableConfig().insertOption(OPTION_BACKGROUND_EXECUTOR, executor);
             return this;
@@ -794,7 +821,8 @@ public final class ImageAnalysisConfig
         /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
-        public Builder setDefaultSessionConfig(SessionConfig sessionConfig) {
+        @NonNull
+        public Builder setDefaultSessionConfig(@NonNull SessionConfig sessionConfig) {
             getMutableConfig().insertOption(OPTION_DEFAULT_SESSION_CONFIG, sessionConfig);
             return this;
         }
@@ -802,7 +830,8 @@ public final class ImageAnalysisConfig
         /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
-        public Builder setDefaultCaptureConfig(CaptureConfig captureConfig) {
+        @NonNull
+        public Builder setDefaultCaptureConfig(@NonNull CaptureConfig captureConfig) {
             getMutableConfig().insertOption(OPTION_DEFAULT_CAPTURE_CONFIG, captureConfig);
             return this;
         }
@@ -810,7 +839,9 @@ public final class ImageAnalysisConfig
         /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
-        public Builder setSessionOptionUnpacker(SessionConfig.OptionUnpacker optionUnpacker) {
+        @NonNull
+        public Builder setSessionOptionUnpacker(
+                @NonNull SessionConfig.OptionUnpacker optionUnpacker) {
             getMutableConfig().insertOption(OPTION_SESSION_CONFIG_UNPACKER, optionUnpacker);
             return this;
         }

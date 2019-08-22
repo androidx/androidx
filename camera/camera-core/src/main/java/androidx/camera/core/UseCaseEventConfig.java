@@ -16,6 +16,7 @@
 
 package androidx.camera.core;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 
@@ -50,7 +51,7 @@ public interface UseCaseEventConfig {
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @Nullable
+    @NonNull
     UseCase.EventListener getUseCaseEventListener();
 
     // Option Declarations:
@@ -71,6 +72,7 @@ public interface UseCaseEventConfig {
          * @hide
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        B setUseCaseEventListener(UseCase.EventListener eventListener);
+        @NonNull
+        B setUseCaseEventListener(@NonNull UseCase.EventListener eventListener);
     }
 }

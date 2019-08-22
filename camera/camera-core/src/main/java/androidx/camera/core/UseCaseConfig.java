@@ -16,6 +16,7 @@
 
 package androidx.camera.core;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
@@ -109,6 +110,7 @@ public interface UseCaseConfig<T extends UseCase> extends TargetConfig<T>, Confi
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
+    @NonNull
     SessionConfig getDefaultSessionConfig();
 
     /**
@@ -137,6 +139,7 @@ public interface UseCaseConfig<T extends UseCase> extends TargetConfig<T>, Confi
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
+    @NonNull
     CaptureConfig getDefaultCaptureConfig();
 
     /**
@@ -170,6 +173,7 @@ public interface UseCaseConfig<T extends UseCase> extends TargetConfig<T>, Confi
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
+    @NonNull
     SessionConfig.OptionUnpacker getSessionOptionUnpacker();
 
     /**
@@ -203,6 +207,7 @@ public interface UseCaseConfig<T extends UseCase> extends TargetConfig<T>, Confi
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
+    @NonNull
     CaptureConfig.OptionUnpacker getCaptureOptionUnpacker();
 
     /**
@@ -248,7 +253,8 @@ public interface UseCaseConfig<T extends UseCase> extends TargetConfig<T>, Confi
          * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
-        B setDefaultSessionConfig(SessionConfig sessionConfig);
+        @NonNull
+        B setDefaultSessionConfig(@NonNull SessionConfig sessionConfig);
 
         /**
          * Sets the default capture configuration for this use case.
@@ -258,7 +264,8 @@ public interface UseCaseConfig<T extends UseCase> extends TargetConfig<T>, Confi
          * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
-        B setDefaultCaptureConfig(CaptureConfig captureConfig);
+        @NonNull
+        B setDefaultCaptureConfig(@NonNull CaptureConfig captureConfig);
 
         /**
          * Sets the Option Unpacker for translating this configuration into a {@link SessionConfig}
@@ -271,7 +278,8 @@ public interface UseCaseConfig<T extends UseCase> extends TargetConfig<T>, Confi
          * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
-        B setSessionOptionUnpacker(SessionConfig.OptionUnpacker optionUnpacker);
+        @NonNull
+        B setSessionOptionUnpacker(@NonNull SessionConfig.OptionUnpacker optionUnpacker);
 
         /**
          * Sets the Option Unpacker for translating this configuration into a {@link CaptureConfig}
@@ -284,7 +292,8 @@ public interface UseCaseConfig<T extends UseCase> extends TargetConfig<T>, Confi
          * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
-        B setCaptureOptionUnpacker(CaptureConfig.OptionUnpacker optionUnpacker);
+        @NonNull
+        B setCaptureOptionUnpacker(@NonNull CaptureConfig.OptionUnpacker optionUnpacker);
 
         /**
          * Sets the surface occupancy priority of the intended target from this configuration.
@@ -300,6 +309,7 @@ public interface UseCaseConfig<T extends UseCase> extends TargetConfig<T>, Confi
          * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
         B setSurfaceOccupancyPriority(int priority);
 
         /**
@@ -308,6 +318,7 @@ public interface UseCaseConfig<T extends UseCase> extends TargetConfig<T>, Confi
          * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
         C build();
     }
 }
