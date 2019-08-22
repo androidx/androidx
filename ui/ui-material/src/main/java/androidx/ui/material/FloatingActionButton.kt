@@ -98,10 +98,11 @@ fun FloatingActionButton(
 fun FloatingActionButton(
     icon: Image,
     onClick: (() -> Unit)? = null,
+    shape: Shape = CircleShape,
     color: Color = +themeColor { primary },
     elevation: Dp = 6.dp
 ) {
-    FloatingActionButton(onClick = onClick, color = color, elevation = elevation) {
+    FloatingActionButton(onClick = onClick, shape = shape, color = color, elevation = elevation) {
         SimpleImage(image = icon)
     }
 }

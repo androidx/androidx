@@ -16,16 +16,27 @@
 
 package androidx.ui.material.samples
 
+import androidx.animation.TweenBuilder
 import androidx.annotation.Sampled
 import androidx.compose.Composable
 import androidx.compose.composer
+import androidx.compose.unaryPlus
+import androidx.ui.animation.animatedFloat
 import androidx.ui.core.Text
+import androidx.ui.foundation.shape.corner.CircleShape
+import androidx.ui.foundation.shape.corner.RoundedCornerShape
 import androidx.ui.graphics.Color
 import androidx.ui.material.AppBarIcon
 import androidx.ui.material.BottomAppBar
+import androidx.ui.material.BottomAppBar.FabConfiguration
 import androidx.ui.material.FloatingActionButton
 import androidx.ui.material.TopAppBar
+import androidx.ui.material.shape.CutCornerShape
+import androidx.ui.material.themeColor
 import androidx.ui.painting.Image
+import androidx.ui.text.TextStyle
+import kotlin.math.abs
+import kotlin.math.roundToInt
 
 @Suppress("UNUSED_VARIABLE")
 @Composable
@@ -99,13 +110,12 @@ fun SimpleBottomAppBarCenterFab(getMyActionImage: () -> Image, getMyNavigationIm
 
     BottomAppBar(
         navigationIcon = navigationIcon,
-        floatingActionButton = {
+        fabConfiguration = FabConfiguration {
             FloatingActionButton(
-                color = Color.Black,
+                color = +themeColor { secondary },
                 icon = someActionImage,
                 onClick = { /** doSomething() */ })
         },
-        fabPosition = BottomAppBar.FabPosition.Center,
         contextualActions = contextualActions
     ) { actionData ->
         val (actionTitle, actionImage) = actionData
@@ -121,13 +131,131 @@ fun SimpleBottomAppBarEndFab(getMyActionImage: () -> Image) {
     val contextualActions = listOf("Action 1" to someActionImage, "action 2" to someActionImage)
 
     BottomAppBar(
-        floatingActionButton = {
+        fabConfiguration = FabConfiguration(fabPosition = BottomAppBar.FabPosition.End) {
             FloatingActionButton(
-                color = Color.Black,
+                color = +themeColor { secondary },
                 icon = someActionImage,
                 onClick = { /** doSomething() */ })
         },
-        fabPosition = BottomAppBar.FabPosition.End,
+        contextualActions = contextualActions
+    ) { actionData ->
+        val (actionTitle, actionImage) = actionData
+        AppBarIcon(actionImage) { /* doSomething()*/ }
+    }
+}
+
+@Suppress("UNUSED_VARIABLE")
+@Sampled
+@Composable
+fun SimpleBottomAppBarCutoutFab(
+    getMyActionImage: () -> Image,
+    getMyNavigationImage: () -> Image
+) {
+    val someActionImage: Image = getMyActionImage()
+    val someNavigationImage: Image = getMyNavigationImage()
+
+    val navigationIcon: @Composable() () -> Unit = {
+        AppBarIcon(someNavigationImage) { /* doSomething()*/ }
+    }
+    val contextualActions = listOf("Action 1" to someActionImage, "action 2" to someActionImage)
+
+    BottomAppBar(
+        navigationIcon = navigationIcon,
+        fabConfiguration = FabConfiguration(cutoutShape = CircleShape) {
+            FloatingActionButton(
+                color = +themeColor { secondary },
+                icon = someActionImage,
+                onClick = { /** doSomething() */ })
+        },
+        contextualActions = contextualActions
+    ) { actionData ->
+        val (actionTitle, actionImage) = actionData
+        AppBarIcon(actionImage) { /* doSomething()*/ }
+    }
+}
+
+@Suppress("UNUSED_VARIABLE")
+@Sampled
+@Composable
+fun SimpleBottomAppBarExtendedCutoutFab(
+    getMyActionImage: () -> Image,
+    getMyNavigationImage: () -> Image
+) {
+    val someActionImage: Image = getMyActionImage()
+    val someNavigationImage: Image = getMyNavigationImage()
+
+    val navigationIcon: @Composable() () -> Unit = {
+        AppBarIcon(someNavigationImage) { /* doSomething()*/ }
+    }
+    val contextualActions = listOf("Action 1" to someActionImage, "action 2" to someActionImage)
+
+    BottomAppBar(
+        navigationIcon = navigationIcon,
+        fabConfiguration = FabConfiguration(cutoutShape = CircleShape) {
+            FloatingActionButton(
+                color = +themeColor { secondary },
+                text = "Extended FAB",
+                textStyle = TextStyle(color = Color.White),
+                onClick = { /** doSomething() */ })
+        },
+        contextualActions = contextualActions
+    ) { actionData ->
+        val (actionTitle, actionImage) = actionData
+        AppBarIcon(actionImage) { /* doSomething()*/ }
+    }
+}
+
+@Suppress("UNUSED_VARIABLE")
+@Sampled
+@Composable
+fun SimpleBottomAppBarFancyAnimatingCutoutFab(
+    getMyActionImage: () -> Image,
+    getMyNavigationImage: () -> Image
+) {
+    val someActionImage: Image = getMyActionImage()
+    val someNavigationImage: Image = getMyNavigationImage()
+
+    val navigationIcon: @Composable() () -> Unit = {
+        AppBarIcon(someNavigationImage) { /* doSomething()*/ }
+    }
+    val contextualActions = listOf("Action 1" to someActionImage, "action 2" to someActionImage)
+
+    // Consider negative values to mean 'cut corner' and positive values to mean 'round corner'
+    val sharpEdgePercent = -50f
+    val roundEdgePercent = 45f
+
+    // Start with sharp edges
+    val animatedProgress = +animatedFloat(sharpEdgePercent)
+
+    val progress = animatedProgress.value.roundToInt()
+
+    // When progress is 0, there is no modification to the edges so we are just drawing a rectangle.
+    // This allows for a smooth transition between cut corners and round corners.
+    val fabShape = if (progress < 0) {
+        CutCornerShape(abs(progress))
+    } else {
+        RoundedCornerShape(progress)
+    }
+
+    val switchShape = {
+        val target = animatedProgress.targetValue
+        val nextTarget = if (target == roundEdgePercent) sharpEdgePercent else roundEdgePercent
+        animatedProgress.animateTo(
+            targetValue = nextTarget,
+            anim = TweenBuilder<Float>().apply { duration = 600 }
+        )
+    }
+
+    BottomAppBar(
+        navigationIcon = navigationIcon,
+        fabConfiguration = FabConfiguration(cutoutShape = fabShape) {
+            FloatingActionButton(
+                color = +themeColor { secondary },
+                icon = someActionImage,
+                onClick = switchShape,
+                shape = fabShape
+            )
+        },
         contextualActions = contextualActions
     ) { actionData ->
         val (actionTitle, actionImage) = actionData
