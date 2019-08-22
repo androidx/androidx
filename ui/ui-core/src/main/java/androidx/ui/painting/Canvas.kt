@@ -21,7 +21,7 @@ import androidx.ui.engine.geometry.Offset
 import androidx.ui.engine.geometry.RRect
 import androidx.ui.engine.geometry.Rect
 import androidx.ui.vectormath64.Matrix4
-import androidx.ui.vectormath64.PI
+import androidx.ui.vectormath64.degrees
 
 // TODO(mount/njawad): Separate the platform-independent API from the platform-dependent.
 // TODO(Migration/njawad): Copy the class here
@@ -261,7 +261,7 @@ interface Canvas {
 
     /** Add a rotation to the current transform. The argument is in radians clockwise. */
     fun rotateRad(radians: Float) {
-        rotate(radians.toDegrees())
+        rotate(degrees(radians))
     }
 
     /**
@@ -279,7 +279,7 @@ interface Canvas {
      * origin.
      */
     fun skewRad(sxRad: Float, syRad: Float) {
-        skew(sxRad.toDegrees(), syRad.toDegrees())
+        skew(degrees(sxRad), degrees(syRad))
     }
 
     /**
@@ -409,7 +409,7 @@ interface Canvas {
         useCenter: Boolean,
         paint: Paint
     ) {
-        drawArc(rect, startAngleRad.toDegrees(), sweepAngleRad.toDegrees(), useCenter, paint)
+        drawArc(rect, degrees(startAngleRad), degrees(sweepAngleRad), useCenter, paint)
     }
 
     /**
@@ -467,5 +467,3 @@ interface Canvas {
 
     fun drawVertices(vertices: Vertices, blendMode: BlendMode, paint: Paint)
 }
-
-private fun Float.toDegrees(): Float = this * 180.0f / PI
