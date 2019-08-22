@@ -46,6 +46,8 @@ public class OptionsBundleTest {
     private static final Option<Object> OPTION_2 = Option.create("option.2", Object.class);
     private static final Option<List<Integer>> OPTION_INTEGER_LIST = Option.create(
             "option.int_list", List.class);
+    private static final Option<Object> OPTION_NULL_VALUE = Option.create("option.NullVaule",
+            Object.class);
     private static final Option<Object> OPTION_MISSING =
             Option.create("option.missing", Object.class);
 
@@ -71,6 +73,7 @@ public class OptionsBundleTest {
         mutOpts.insertOption(OPTION_1_A, VALUE_1_A);
         mutOpts.insertOption(OPTION_2, VALUE_2);
         mutOpts.insertOption(OPTION_INTEGER_LIST, VALUE_INTEGER_LIST);
+        mutOpts.insertOption(OPTION_NULL_VALUE, null);
 
         mAllOpts = OptionsBundle.from(mutOpts);
     }
@@ -89,6 +92,12 @@ public class OptionsBundleTest {
     }
 
     @Test
+    public void canRetrieveNullOptionValue() {
+        assertThat(mAllOpts.retrieveOption(OPTION_NULL_VALUE)).isNull();
+        assertThat(mAllOpts.retrieveOption(OPTION_NULL_VALUE, VALUE_MISSING)).isNull();
+    }
+
+    @Test
     public void willReturnDefault_ifOptionIsMissing() {
         Object value = mAllOpts.retrieveOption(OPTION_MISSING, VALUE_MISSING);
         assertThat(value).isSameInstanceAs(VALUE_MISSING);
@@ -104,10 +113,11 @@ public class OptionsBundleTest {
     public void canListOptions() {
         Set<Option<?>> list = mAllOpts.listOptions();
         for (Option<?> opt : list) {
-            assertThat(opt).isAnyOf(OPTION_1, OPTION_1_A, OPTION_2, OPTION_INTEGER_LIST);
+            assertThat(opt).isAnyOf(OPTION_1, OPTION_1_A, OPTION_2, OPTION_INTEGER_LIST,
+                    OPTION_NULL_VALUE);
         }
 
-        assertThat(list).hasSize(4);
+        assertThat(list).hasSize(5);
     }
 
     @Test

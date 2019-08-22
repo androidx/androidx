@@ -74,6 +74,7 @@ interface ThreadConfig {
      * @return The stored value, if it exists in this configuration.
      * @throws IllegalArgumentException if the option does not exist in this configuration.
      */
+    @NonNull
     Handler getCallbackHandler();
 
     /**
@@ -112,7 +113,8 @@ interface ThreadConfig {
          * @param handler The handler which will be used to post callbacks.
          * @return the current Builder.
          */
-        B setCallbackHandler(Handler handler);
+        @NonNull
+        B setCallbackHandler(@NonNull Handler handler);
 
         /**
          * Sets the default executor that will be used for background tasks.
