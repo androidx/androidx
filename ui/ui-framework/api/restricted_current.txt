@@ -372,6 +372,16 @@ package androidx.ui.core.vectorgraphics.compat {
 
 }
 
+package androidx.ui.res {
+
+  public final class ResourcesKt {
+    ctor public ResourcesKt();
+    method @CheckResult(suggest="+") public static androidx.compose.Effect<java.lang.String> stringResource(@StringRes int id);
+    method @CheckResult(suggest="+") public static androidx.compose.Effect<java.lang.String> stringResource(@StringRes int id, java.lang.Object... formatArgs);
+  }
+
+}
+
 package androidx.ui.semantics {
 
   public final class SemanticsActions {
