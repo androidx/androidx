@@ -17,6 +17,7 @@
 package androidx.ui.text
 
 import androidx.ui.core.Density
+import androidx.ui.core.LayoutDirection
 import androidx.ui.core.Px
 import androidx.ui.core.PxPosition
 import androidx.ui.core.px
@@ -41,6 +42,7 @@ internal class MultiParagraph(
     val maxLines: Int? = null,
     val ellipsis: Boolean? = null,
     val density: Density,
+    val layoutDirection: LayoutDirection,
     val resourceLoader: Font.ResourceLoader
 ) {
     /**
@@ -126,6 +128,7 @@ internal class MultiParagraph(
                 maxLines,
                 ellipsis,
                 density,
+                layoutDirection,
                 resourceLoader
             )
 

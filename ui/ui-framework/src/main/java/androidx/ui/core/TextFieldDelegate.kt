@@ -73,6 +73,7 @@ private fun computeLineHeightForEmptyText(
         maxLines = 1,
         ellipsis = false,
         density = density,
+        layoutDirection = LayoutDirection.Ltr,
         resourceLoader = resourceLoader
     ).apply {
         layout(ParagraphConstraints(width = Float.POSITIVE_INFINITY))

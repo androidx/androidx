@@ -17,9 +17,9 @@
 package androidx.ui.text
 
 import androidx.ui.core.Density
+import androidx.ui.core.LayoutDirection
 import androidx.ui.painting.Canvas
 import androidx.ui.text.font.Font
-import androidx.ui.text.style.TextDirection
 import androidx.ui.text.style.TextOverflow
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.mock
@@ -38,9 +38,10 @@ class TextDelegateTest() {
         val textDelegate = TextDelegate(
             text = AnnotatedString(text = ""),
             density = density,
-            resourceLoader = resourceLoader)
+            resourceLoader = resourceLoader,
+            layoutDirection = LayoutDirection.Ltr
+        )
 
-        assertThat(textDelegate.textDirection).isEqualTo(TextDirection.Ltr)
         assertThat(textDelegate.maxLines).isNull()
         assertThat(textDelegate.overflow).isEqualTo(TextOverflow.Clip)
         assertThat(textDelegate.locale).isNull()
@@ -52,22 +53,11 @@ class TextDelegateTest() {
         val textDelegate = TextDelegate(
             text = text,
             density = density,
-            resourceLoader = resourceLoader
+            resourceLoader = resourceLoader,
+            layoutDirection = LayoutDirection.Ltr
         )
 
         assertThat(textDelegate.text).isEqualTo(text)
-    }
-
-    @Test
-    fun `constructor with customized textDirection`() {
-        val textDelegate = TextDelegate(
-            text = AnnotatedString(text = ""),
-            paragraphStyle = ParagraphStyle(textDirection = TextDirection.Rtl),
-            density = density,
-            resourceLoader = resourceLoader
-        )
-
-        assertThat(textDelegate.textDirection).isEqualTo(TextDirection.Rtl)
     }
 
     @Test
@@ -78,7 +68,8 @@ class TextDelegateTest() {
             text = AnnotatedString(text = ""),
             maxLines = maxLines,
             density = density,
-            resourceLoader = resourceLoader
+            resourceLoader = resourceLoader,
+            layoutDirection = LayoutDirection.Ltr
         )
 
         assertThat(textDelegate.maxLines).isEqualTo(maxLines)
@@ -92,7 +83,8 @@ class TextDelegateTest() {
             text = AnnotatedString(text = ""),
             overflow = overflow,
             density = density,
-            resourceLoader = resourceLoader
+            resourceLoader = resourceLoader,
+            layoutDirection = LayoutDirection.Ltr
         )
 
         assertThat(textDelegate.overflow).isEqualTo(overflow)
@@ -106,7 +98,8 @@ class TextDelegateTest() {
             text = AnnotatedString(text = ""),
             locale = locale,
             density = density,
-            resourceLoader = resourceLoader
+            resourceLoader = resourceLoader,
+            layoutDirection = LayoutDirection.Ltr
         )
 
         assertThat(textDelegate.locale).isEqualTo(locale)
@@ -132,7 +125,8 @@ class TextDelegateTest() {
         val textDelegate = TextDelegate(
             text = AnnotatedString(text = ""),
             density = density,
-            resourceLoader = resourceLoader)
+            resourceLoader = resourceLoader,
+            layoutDirection = LayoutDirection.Ltr)
 
         textDelegate.minIntrinsicWidth
     }
@@ -142,7 +136,8 @@ class TextDelegateTest() {
         val textDelegate = TextDelegate(
             text = AnnotatedString(text = ""),
             density = density,
-            resourceLoader = resourceLoader)
+            resourceLoader = resourceLoader,
+            layoutDirection = LayoutDirection.Ltr)
 
         textDelegate.maxIntrinsicWidth
     }
@@ -152,7 +147,8 @@ class TextDelegateTest() {
         val textDelegate = TextDelegate(
             text = AnnotatedString(text = ""),
             density = density,
-            resourceLoader = resourceLoader)
+            resourceLoader = resourceLoader,
+            layoutDirection = LayoutDirection.Ltr)
 
         textDelegate.width
     }
@@ -162,7 +158,8 @@ class TextDelegateTest() {
         val textDelegate = TextDelegate(
             text = AnnotatedString(text = ""),
             density = density,
-            resourceLoader = resourceLoader)
+            resourceLoader = resourceLoader,
+            layoutDirection = LayoutDirection.Ltr)
 
         textDelegate.height
     }
@@ -172,7 +169,8 @@ class TextDelegateTest() {
         val textDelegate = TextDelegate(
             text = AnnotatedString(text = ""),
             density = density,
-            resourceLoader = resourceLoader)
+            resourceLoader = resourceLoader,
+            layoutDirection = LayoutDirection.Ltr)
         val canvas = mock<Canvas>()
 
         textDelegate.paint(canvas)
