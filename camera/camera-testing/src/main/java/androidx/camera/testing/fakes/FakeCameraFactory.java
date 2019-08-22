@@ -39,23 +39,26 @@ import java.util.Set;
 @RestrictTo(Scope.LIBRARY_GROUP)
 public final class FakeCameraFactory implements CameraFactory {
 
-    private static final String BACK_ID = "0";
-    private static final String FRONT_ID = "1";
+    private static final String DEFAULT_BACK_ID = "0";
+    private static final String DEFAULT_FRONT_ID = "1";
 
     private Set<String> mCameraIds;
+    private String mFrontCameraId = DEFAULT_FRONT_ID;
+    private String mBackCameraId = DEFAULT_BACK_ID;
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     final Map<String, BaseCamera> mCameraMap = new HashMap<>();
 
     public FakeCameraFactory() {
         HashSet<String> camIds = new HashSet<>();
-        camIds.add(BACK_ID);
-        camIds.add(FRONT_ID);
+        camIds.add(DEFAULT_BACK_ID);
+        camIds.add(DEFAULT_FRONT_ID);
 
         mCameraIds = Collections.unmodifiableSet(camIds);
 
-        insertCamera(BACK_ID, new FakeCamera(new FakeCameraInfo(0, LensFacing.BACK), null));
-        insertCamera(FRONT_ID, new FakeCamera(new FakeCameraInfo(0, LensFacing.FRONT), null));
+        insertCamera(DEFAULT_BACK_ID, new FakeCamera(new FakeCameraInfo(0, LensFacing.BACK), null));
+        insertCamera(DEFAULT_FRONT_ID, new FakeCamera(new FakeCameraInfo(0, LensFacing.FRONT),
+                null));
     }
 
     @Override
@@ -89,21 +92,53 @@ public final class FakeCameraFactory implements CameraFactory {
     }
 
     /**
-     * Inserts a camera with front camera id.
+     * Inserts a camera and sets it as the default front camera.
      *
-     * @param camera Camera implementation.
+     * <p>This is a convenience method for calling {@link #insertCamera(String, BaseCamera)}
+     * followed by {@link #setDefaultCameraIdForLensFacing(LensFacing, String)} with
+     * {@link LensFacing#FRONT}.
+     *
+     * @param cameraId Identifier to use for the front camera.
+     * @param camera   Camera implementation.
      */
-    public void insertFrontCamera(@NonNull BaseCamera camera) {
-        insertCamera(FRONT_ID, camera);
+    public void insertDefaultFrontCamera(@NonNull String cameraId, @NonNull BaseCamera camera) {
+        insertCamera(cameraId, camera);
+        setDefaultCameraIdForLensFacing(LensFacing.FRONT, cameraId);
     }
 
     /**
-     * Inserts a camera with back camera id.
+     * Inserts a camera and sets it as the default back camera.
      *
-     * @param camera Camera implementation.
+     * <p>This is a convenience method for calling {@link #insertCamera(String, BaseCamera)}
+     * followed by {@link #setDefaultCameraIdForLensFacing(LensFacing, String)} with
+     * {@link LensFacing#BACK}.
+     *
+     * @param cameraId Identifier to use for the back camera.
+     * @param camera   Camera implementation.
      */
-    public void insertBackCamera(@NonNull BaseCamera camera) {
-        insertCamera(BACK_ID, camera);
+    public void insertDefaultBackCamera(@NonNull String cameraId, @NonNull BaseCamera camera) {
+        insertCamera(cameraId, camera);
+        setDefaultCameraIdForLensFacing(LensFacing.BACK, cameraId);
+    }
+
+    /**
+     * Sets the camera ID which will be returned by {@link #cameraIdForLensFacing(LensFacing)}.
+     *
+     * @param lensFacing The {@link LensFacing} to set.
+     * @param cameraId   The camera ID which will be returned.
+     */
+    public void setDefaultCameraIdForLensFacing(@NonNull LensFacing lensFacing,
+            @NonNull String cameraId) {
+        switch (lensFacing) {
+            case FRONT:
+                mFrontCameraId = cameraId;
+                break;
+            case BACK:
+                mBackCameraId = cameraId;
+                break;
+            default:
+                throw new IllegalArgumentException("Invalid lens facing: " + lensFacing);
+        }
     }
 
     @Override
@@ -117,9 +152,9 @@ public final class FakeCameraFactory implements CameraFactory {
     public String cameraIdForLensFacing(@NonNull LensFacing lensFacing) {
         switch (lensFacing) {
             case FRONT:
-                return FRONT_ID;
+                return mFrontCameraId;
             case BACK:
-                return BACK_ID;
+                return mBackCameraId;
             default:
                 return null;
         }

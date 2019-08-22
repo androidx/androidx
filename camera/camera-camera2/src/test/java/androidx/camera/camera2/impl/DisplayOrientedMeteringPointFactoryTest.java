@@ -58,6 +58,8 @@ import org.robolectric.annotation.internal.DoNotInstrument;
 public class DisplayOrientedMeteringPointFactoryTest {
     private static final float WIDTH = 480;
     private static final float HEIGHT = 640;
+    private static final String FRONT_CAMERA_ID = "1";
+    private static final String BACK_CAMERA_ID = "0";
     private Context mMockContext;
     private Display mMockDisplay;
 
@@ -67,9 +69,9 @@ public class DisplayOrientedMeteringPointFactoryTest {
 
         // Init CameraX to inject our FakeCamera with FakeCameraInfo.
         FakeCameraFactory fakeCameraFactory = new FakeCameraFactory();
-        fakeCameraFactory.insertBackCamera(
+        fakeCameraFactory.insertDefaultBackCamera(BACK_CAMERA_ID,
                 new FakeCamera(new FakeCameraInfo(90, CameraX.LensFacing.BACK), null));
-        fakeCameraFactory.insertFrontCamera(
+        fakeCameraFactory.insertDefaultFrontCamera(FRONT_CAMERA_ID,
                 new FakeCamera(new FakeCameraInfo(270, CameraX.LensFacing.FRONT), null));
 
         CameraDeviceSurfaceManager surfaceManager = new FakeCameraDeviceSurfaceManager();
