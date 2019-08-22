@@ -18,6 +18,7 @@ package androidx.ui.core
 
 import android.util.Log
 import androidx.ui.engine.geometry.Rect
+import androidx.ui.graphics.Color
 import androidx.ui.input.EditOperation
 import androidx.ui.input.EditProcessor
 import androidx.ui.input.EditorModel
@@ -40,6 +41,11 @@ import androidx.ui.text.TextDelegate
 import androidx.ui.text.TextStyle
 import androidx.ui.text.font.Font
 import kotlin.math.roundToInt
+
+// -5185306 = 0xFFB0E0E6 = A(0xFF), R(0xB0), G(0xE0), B(0xE6)
+internal const val DEFAULT_COMPOSITION_COLOR: Int = -5185306
+// TODO(nona): share with Text.DEFAULT_SELECTION_COLOR
+internal const val DEFAULT_SELECTION_COLOR: Int = 0x6633B5E5
 
 /**
  * Computed the line height for the empty TextField.
@@ -112,7 +118,7 @@ internal class TextFieldDelegate {
          * @param offsetMap The offset map
          * @param textDelegate The text painter
          * @param hasFocus true if this widget is focused, otherwise false
-         * @param editorStyle The editor style.
+         * @param selectionColor The selection color
          */
         @JvmStatic
         fun draw(
@@ -121,13 +127,13 @@ internal class TextFieldDelegate {
             offsetMap: OffsetMap,
             textDelegate: TextDelegate,
             hasFocus: Boolean,
-            editorStyle: EditorStyle
+            selectionColor: Color? = null
         ) {
             value.composition?.let {
                 textDelegate.paintBackground(
                     offsetMap.originalToTransformed(it.start),
                     offsetMap.originalToTransformed(it.end),
-                    editorStyle.compositionColor,
+                    Color(DEFAULT_COMPOSITION_COLOR),
                     canvas
                 )
             }
@@ -140,7 +146,7 @@ internal class TextFieldDelegate {
                 textDelegate.paintBackground(
                     offsetMap.originalToTransformed(value.selection.start),
                     offsetMap.originalToTransformed(value.selection.end),
-                    editorStyle.selectionColor,
+                    selectionColor ?: Color(DEFAULT_SELECTION_COLOR),
                     canvas
                 )
             }

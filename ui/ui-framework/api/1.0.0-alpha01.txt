@@ -135,7 +135,7 @@ package androidx.ui.core {
 
   public final class TextFieldKt {
     ctor public TextFieldKt();
-    method public static void TextField(androidx.ui.input.EditorModel value, androidx.ui.input.EditorStyle editorStyle, androidx.ui.input.KeyboardType keyboardType = KeyboardType.Text, androidx.ui.input.ImeAction imeAction = ImeAction.Unspecified, kotlin.jvm.functions.Function1<? super androidx.ui.input.EditorModel,kotlin.Unit> onValueChange = {}, kotlin.jvm.functions.Function0<kotlin.Unit> onFocus = {}, kotlin.jvm.functions.Function0<kotlin.Unit> onBlur = {}, kotlin.jvm.functions.Function1<? super androidx.ui.input.ImeAction,kotlin.Unit> onImeActionPerformed = {}, androidx.ui.input.VisualTransformation? visualTransformation = null);
+    method public static void TextField(androidx.ui.input.EditorModel value, androidx.ui.input.EditorStyle? editorStyle = null, androidx.ui.input.KeyboardType keyboardType = KeyboardType.Text, androidx.ui.input.ImeAction imeAction = ImeAction.Unspecified, kotlin.jvm.functions.Function1<? super androidx.ui.input.EditorModel,kotlin.Unit> onValueChange = {}, kotlin.jvm.functions.Function0<kotlin.Unit> onFocus = {}, kotlin.jvm.functions.Function0<kotlin.Unit> onBlur = {}, kotlin.jvm.functions.Function1<? super androidx.ui.input.ImeAction,kotlin.Unit> onImeActionPerformed = {}, androidx.ui.input.VisualTransformation? visualTransformation = null);
   }
 
   public final class TextKt {
