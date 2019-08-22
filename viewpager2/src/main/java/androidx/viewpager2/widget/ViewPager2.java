@@ -1008,6 +1008,20 @@ public final class ViewPager2 extends ViewGroup {
             extraLayoutSpace[0] = offscreenSpace;
             extraLayoutSpace[1] = offscreenSpace;
         }
+
+        @Override
+        public boolean requestChildRectangleOnScreen(@NonNull RecyclerView parent,
+                @NonNull View child, @NonNull Rect rect, boolean immediate,
+                boolean focusedChildVisible) {
+            int position = getPosition(child);
+            if (getCurrentItem() == position) {
+                return false;
+            }
+
+            boolean smoothScroll = !immediate;
+            setCurrentItem(position, smoothScroll);
+            return smoothScroll;
+        }
     }
 
     private class PagerSnapHelperImpl extends PagerSnapHelper {
