@@ -72,6 +72,10 @@ public class FragmentContainerView extends FrameLayout {
 
     private ArrayList<View> mTransitioningFragmentViews;
 
+    // Used to indicate whether the FragmentContainerView should override the default ViewGroup
+    // drawing order.
+    private boolean mDrawDisappearingViewsFirst = true;
+
     public FragmentContainerView(@NonNull Context context) {
         this(context, null);
     }
@@ -125,7 +129,7 @@ public class FragmentContainerView extends FrameLayout {
 
     @Override
     protected void dispatchDraw(@NonNull Canvas canvas) {
-        if (mDisappearingFragmentChildren != null) {
+        if (mDrawDisappearingViewsFirst && mDisappearingFragmentChildren != null) {
             for (int i = 0; i < mDisappearingFragmentChildren.size(); i++) {
                 super.drawChild(canvas, mDisappearingFragmentChildren.get(i), getDrawingTime());
             }
@@ -135,7 +139,8 @@ public class FragmentContainerView extends FrameLayout {
 
     @Override
     protected boolean drawChild(@NonNull Canvas canvas, @NonNull View child, long drawingTime) {
-        if (mDisappearingFragmentChildren != null && mDisappearingFragmentChildren.size() > 0) {
+        if (mDrawDisappearingViewsFirst && mDisappearingFragmentChildren != null
+                && mDisappearingFragmentChildren.size() > 0) {
             // If the child is disappearing, we have already drawn it so skip.
             if (mDisappearingFragmentChildren.contains(child)) {
                 return false;
@@ -159,11 +164,17 @@ public class FragmentContainerView extends FrameLayout {
     public void endViewTransition(@NonNull View view) {
         if (mTransitioningFragmentViews != null) {
             mTransitioningFragmentViews.remove(view);
-            if (mDisappearingFragmentChildren != null) {
-                mDisappearingFragmentChildren.remove(view);
+            if (mDisappearingFragmentChildren != null
+                    && mDisappearingFragmentChildren.remove(view)) {
+                mDrawDisappearingViewsFirst = true;
             }
         }
         super.endViewTransition(view);
+    }
+
+    // Used to indicate the container should change the default drawing order.
+    void setDrawDisappearingViewsLast(boolean drawDisappearingViewsFirst) {
+        mDrawDisappearingViewsFirst = drawDisappearingViewsFirst;
     }
 
     /**
