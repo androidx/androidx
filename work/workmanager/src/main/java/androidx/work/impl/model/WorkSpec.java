@@ -50,7 +50,10 @@ import java.util.UUID;
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Entity(
-        indices = {@Index(value = {"schedule_requested_at"})}
+        indices = {
+                @Index(value = {"schedule_requested_at"}),
+                @Index(value = {"period_start_time"})
+        }
 )
 public class WorkSpec {
     private static final String TAG = Logger.tagWithPrefix("WorkSpec");
