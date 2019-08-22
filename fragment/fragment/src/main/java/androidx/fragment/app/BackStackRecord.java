@@ -400,6 +400,7 @@ final class BackStackRecord extends FragmentTransaction implements
             switch (op.mCmd) {
                 case OP_ADD:
                     f.setNextAnim(op.mEnterAnim);
+                    mManager.setExitAnimationOrder(f, false);
                     mManager.addFragment(f);
                     break;
                 case OP_REMOVE:
@@ -412,6 +413,7 @@ final class BackStackRecord extends FragmentTransaction implements
                     break;
                 case OP_SHOW:
                     f.setNextAnim(op.mEnterAnim);
+                    mManager.setExitAnimationOrder(f, false);
                     mManager.showFragment(f);
                     break;
                 case OP_DETACH:
@@ -420,6 +422,7 @@ final class BackStackRecord extends FragmentTransaction implements
                     break;
                 case OP_ATTACH:
                     f.setNextAnim(op.mEnterAnim);
+                    mManager.setExitAnimationOrder(f, false);
                     mManager.attachFragment(f);
                     break;
                 case OP_SET_PRIMARY_NAV:
@@ -461,6 +464,7 @@ final class BackStackRecord extends FragmentTransaction implements
             switch (op.mCmd) {
                 case OP_ADD:
                     f.setNextAnim(op.mPopExitAnim);
+                    mManager.setExitAnimationOrder(f, true);
                     mManager.removeFragment(f);
                     break;
                 case OP_REMOVE:
@@ -473,6 +477,7 @@ final class BackStackRecord extends FragmentTransaction implements
                     break;
                 case OP_SHOW:
                     f.setNextAnim(op.mPopExitAnim);
+                    mManager.setExitAnimationOrder(f, true);
                     mManager.hideFragment(f);
                     break;
                 case OP_DETACH:
@@ -481,6 +486,7 @@ final class BackStackRecord extends FragmentTransaction implements
                     break;
                 case OP_ATTACH:
                     f.setNextAnim(op.mPopExitAnim);
+                    mManager.setExitAnimationOrder(f, true);
                     mManager.detachFragment(f);
                     break;
                 case OP_SET_PRIMARY_NAV:
