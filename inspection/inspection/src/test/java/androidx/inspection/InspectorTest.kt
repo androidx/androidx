@@ -28,7 +28,7 @@ class InspectorTest {
     fun dummyTest() {
         val connection = object : Connection() {}
         val value = object : Inspector(connection) {
-            override fun onReceiveCommand(data: ByteArray) {
+            override fun onReceiveCommand(data: ByteArray, callback: CommandCallback) {
             }
         }
         assertThat(value).isNotNull()
