@@ -173,7 +173,7 @@ public class MediaBrowserLegacyTest extends MediaSessionTestBase {
             public BrowserRoot onGetRoot(String clientPackageName, int clientUid,
                     Bundle rootHints) {
                 assertEquals(mContext.getPackageName(), clientPackageName);
-                if (rootHints.keySet().contains(testMediaId)) {
+                if (rootHints != null && rootHints.keySet().contains(testMediaId)) {
                     // This should happen because getLibraryRoot() is called with testExtras.
                     return browserRootWithParam;
                 }
