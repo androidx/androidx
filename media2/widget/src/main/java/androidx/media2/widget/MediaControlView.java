@@ -133,7 +133,7 @@ import java.util.Locale;
  * If the value is not set, the following default value will be shown:
  * {@link androidx.media2.widget.R.string#mcv2_non_music_title_unknown_text}
  */
-public class MediaControlView extends ViewGroup {
+public class MediaControlView extends MediaViewGroup {
     private static final String TAG = "MediaControlView";
     static final boolean DEBUG = Log.isLoggable(TAG, Log.DEBUG);
 
@@ -596,9 +596,8 @@ public class MediaControlView extends ViewGroup {
     }
 
     @Override
-    public void onVisibilityAggregated(boolean isVisible) {
-        super.onVisibilityAggregated(isVisible);
-
+    void onVisibilityAggregatedCompat(boolean isVisible) {
+        super.onVisibilityAggregatedCompat(isVisible);
         if (mPlayer == null) return;
         if (isVisible) {
             removeCallbacks(mUpdateProgress);

@@ -45,7 +45,9 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 /**
  * A high level view for media playbacks that can be integrated with either a {@link SessionPlayer}
@@ -144,7 +146,6 @@ public class VideoView extends SelectiveLayout {
 
     PlayerWrapper mPlayer;
     MediaControlView mMediaControlView;
-    Executor mCallbackExecutor;
 
     MusicView mMusicView;
 
@@ -225,8 +226,6 @@ public class VideoView extends SelectiveLayout {
 
     private void initialize(Context context, @Nullable AttributeSet attrs) {
         mSelectedSubtitleTrackInfo = null;
-
-        mCallbackExecutor = ContextCompat.getMainExecutor(context);
 
         setFocusable(true);
         setFocusableInTouchMode(true);
@@ -489,11 +488,32 @@ public class VideoView extends SelectiveLayout {
     @Override
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
-
         if (mPlayer != null) {
             mPlayer.attachCallback();
+        }
+    }
+
+    @Override
+    void onVisibilityAggregatedCompat(boolean isVisible) {
+        super.onVisibilityAggregatedCompat(isVisible);
+        if (mPlayer == null) {
+            return;
+        }
+
+        if (isVisible) {
             if (!mCurrentView.assignSurfaceToPlayerWrapper(mPlayer)) {
                 Log.w(TAG, "failed to assign surface");
+            }
+        } else {
+            if (mPlayer.mController != null && !mPlayer.mController.isConnected()) {
+                Log.w(TAG, "Surface is being destroyed, but player will not be informed "
+                        + "as the associated media controller is disconnected.");
+                return;
+            }
+            try {
+                mPlayer.setSurface(null).get(100, TimeUnit.MILLISECONDS);
+            } catch (ExecutionException | InterruptedException | TimeoutException e) {
+                Log.e(TAG, "calling setSurface(null) was not successful.", e);
             }
         }
     }
@@ -501,7 +521,6 @@ public class VideoView extends SelectiveLayout {
     @Override
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
-
         if (mPlayer != null) {
             mPlayer.detachCallback();
         }
