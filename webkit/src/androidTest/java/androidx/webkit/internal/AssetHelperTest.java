@@ -17,7 +17,7 @@
 package androidx.webkit.internal;
 
 import android.content.Context;
-import android.util.Log;
+import android.content.res.Resources;
 
 import androidx.test.InstrumentationRegistry;
 import androidx.test.filters.MediumTest;
@@ -59,70 +59,78 @@ public class AssetHelperTest {
 
     @Test
     @SmallTest
-    public void testOpenExistingResource() {
+    public void testOpenExistingResourceWithExtension() throws Throwable {
         InputStream stream = mAssetHelper.openResource("raw/test.txt");
-
-        Assert.assertNotNull("failed to open resource raw/test.txt", stream);
         Assert.assertEquals(readAsString(stream), TEST_STRING);
     }
 
     @Test
     @SmallTest
-    public void testOpenExistingResourceWithLeadingSlash() {
+    public void testOpenExistingResourceWithLeadingSlash() throws Throwable {
         InputStream stream = mAssetHelper.openResource("/raw/test");
-
-        Assert.assertNotNull("failed to open resource /raw/test.txt with leading slash", stream);
         Assert.assertEquals(readAsString(stream), TEST_STRING);
     }
 
     @Test
     @SmallTest
-    public void testOpenExistingResourceWithNoExtension() {
+    public void testOpenExistingResourceWithNoExtension() throws Throwable {
         InputStream stream = mAssetHelper.openResource("raw/test");
-
-        Assert.assertNotNull("failed to open resource raw/test with no extension", stream);
         Assert.assertEquals(readAsString(stream), TEST_STRING);
     }
 
-    @Test
+    @Test(expected = Resources.NotFoundException.class)
     @SmallTest
-    public void testOpenInvalidResources() {
-        Assert.assertNull("raw/nonexist_file.html doesn't exist - should fail",
-                          mAssetHelper.openResource("raw/nonexist_file.html"));
+    public void testOpenNonExistentResource() throws Throwable {
+        mAssetHelper.openResource("raw/nonexist_file.html");
+        Assert.fail("raw/nonexist_file.html doesn't exist - should fail");
+    }
 
-        Assert.assertNull("test.txt doesn't have a resource type - should fail",
-                          mAssetHelper.openResource("test.txt"));
+    @Test(expected = IllegalArgumentException.class)
+    @SmallTest
+    public void testOpenInvalidResourcePath_onlyFileName() throws Throwable {
+        mAssetHelper.openResource("test.txt");
+        Assert.fail("test.txt doesn't have a resource type - should fail");
+    }
 
-        Assert.assertNull("resource with \"/android_res\" prefix should fail",
-                          mAssetHelper.openResource("/android_res/raw/test.txt"));
+    // This Test makes sure that AssetHelper#openResource trys to open the given path from resources
+    // without dropping any parts of it, unlike dropping the "android_res" prefix in
+    // "file://android_res/..." urls when opening a resource file.
+    @Test(expected = IllegalArgumentException.class)
+    @SmallTest
+    public void testOpenInvalidResourcePath_threePathSegements() throws Throwable {
+        mAssetHelper.openResource("/android_res/raw/test.txt");
+        Assert.fail("resource with \"/android_res\" prefix should fail");
     }
 
     @Test
     @SmallTest
-    public void testOpenExistingAsset() {
+    public void testOpenExistingAsset() throws Throwable {
         InputStream stream = mAssetHelper.openAsset("text/test.txt");
-
-        Assert.assertNotNull("failed to open asset text/test.txt", stream);
         Assert.assertEquals(readAsString(stream), TEST_STRING);
     }
 
     @Test
     @SmallTest
-    public void testOpenExistingAssetWithLeadingSlash() {
+    public void testOpenExistingAssetWithLeadingSlash() throws Throwable {
         InputStream stream = mAssetHelper.openAsset("/text/test.txt");
-
-        Assert.assertNotNull("failed to open asset /text/test.txt with leading slash", stream);
         Assert.assertEquals(readAsString(stream), TEST_STRING);
     }
 
-    @Test
+    @Test(expected = IOException.class)
     @SmallTest
-    public void testOpenInvalidAssets() {
-        Assert.assertNull("nonexist_file.html doesn't exist - should fail",
-                          mAssetHelper.openAsset("nonexist_file.html"));
+    public void testOpenInvalidAssets_nonExistentAsset() throws Throwable {
+        mAssetHelper.openAsset("nonexist_file.html");
+        Assert.fail("nonexist_file.html doesn't exist - should fail");
+    }
 
-        Assert.assertNull("asset with \"/android_asset\" prefix should fail",
-                          mAssetHelper.openAsset("/android_asset/test.txt"));
+    // This Test makes sure that AssetHelper#openAsset tries to open the given path from assets
+    // without dropping any parts of it, unlike dropping the "android_asset" prefix in
+    // "file://android_assets/..." urls when opening an asset file.
+    @Test(expected = IOException.class)
+    @SmallTest
+    public void testOpenExistingAsset_withAndroidAssetPrefix() throws Throwable {
+        mAssetHelper.openAsset("/android_asset/text/test.txt");
+        Assert.fail("asset with \"/android_asset\" prefix should fail");
     }
 
     @Test
@@ -132,8 +140,6 @@ public class AssetHelperTest {
         WebkitUtils.writeToFile(testFile, TEST_STRING);
 
         InputStream stream = AssetHelper.openFile(testFile);
-        Assert.assertNotNull("Should be able to open \"" + testFile + "\" from internal storage",
-                stream);
         Assert.assertEquals(readAsString(stream), TEST_STRING);
     }
 
@@ -144,18 +150,16 @@ public class AssetHelperTest {
         WebkitUtils.writeToFile(testFile, TEST_STRING);
 
         InputStream stream = AssetHelper.openFile(testFile);
-        Assert.assertNotNull("Should be able to open \"" + testFile + "\" from internal storage",
-                stream);
         Assert.assertEquals(readAsString(stream), TEST_STRING);
     }
 
-    @Test
+    @Test(expected = IOException.class)
     @MediumTest
     public void testOpenNonExistingFileInInternalStorage() throws Throwable {
         File testFile = new File(mInternalStorageTestDir, "some/path/to/non_exist_file.txt");
+        // Calling AssetHelper#openFile should throw IOException
         InputStream stream = AssetHelper.openFile(testFile);
-        Assert.assertNull("Should not be able to open a non existing file from internal storage",
-                stream);
+        Assert.fail("Should not be able to open a non existing file from internal storage");
     }
 
     @Test
@@ -183,19 +187,14 @@ public class AssetHelperTest {
                 "/../\"file_2.txt\" is not in a subdirectory of \"/some/path/to/\"", res);
     }
 
-    private static String readAsString(InputStream is) {
+    private static String readAsString(InputStream is) throws IOException {
         ByteArrayOutputStream os = new ByteArrayOutputStream();
         byte[] buffer = new byte[512];
         int len = 0;
-        try {
-            while ((len = is.read(buffer)) != -1) {
-                os.write(buffer, 0, len);
-            }
-            return new String(os.toByteArray(), "utf-8");
-        } catch (IOException e) {
-            Log.e(TAG, "exception when reading the string", e);
-            return "";
+        while ((len = is.read(buffer)) != -1) {
+            os.write(buffer, 0, len);
         }
+        return new String(os.toByteArray(), "utf-8");
     }
 
     // star.svg and star.svgz contain the same data. AssetHelper should decompress the
@@ -220,7 +219,7 @@ public class AssetHelperTest {
         }
     }
 
-    private InputStream assertOpen(String path) {
+    private InputStream assertOpen(String path) throws IOException {
         InputStream stream = mAssetHelper.openAsset(path);
         Assert.assertNotNull("Failed to open \"" + path + "\"", stream);
         return stream;

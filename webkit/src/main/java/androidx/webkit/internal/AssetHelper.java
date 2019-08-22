@@ -24,10 +24,10 @@ import android.util.Log;
 import android.util.TypedValue;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URLConnection;
@@ -52,18 +52,10 @@ public class AssetHelper {
         this.mContext = context;
     }
 
-    @Nullable
+    @NonNull
     private static InputStream handleSvgzStream(@NonNull String path,
-            @Nullable InputStream stream) {
-        if (stream != null && path.endsWith(".svgz")) {
-            try {
-                stream = new GZIPInputStream(stream);
-            } catch (IOException e) {
-                Log.e(TAG, "Error decompressing " + path + " - " + e.getMessage());
-                return null;
-            }
-        }
-        return stream;
+            @NonNull InputStream stream) throws IOException {
+        return path.endsWith(".svgz") ? new GZIPInputStream(stream) : stream;
     }
 
     @NonNull
@@ -90,74 +82,56 @@ public class AssetHelper {
      * Open an InputStream for an Android resource.
      *
      * @param path Path of the form "resource_type/resource_name.ext".
-     * @return An {@link InputStream} to the Android resource or {@code null} if it cannot open the
-     *         resource file.
+     * @return An {@link InputStream} to the Android resource.
      */
-    @Nullable
-    public InputStream openResource(@NonNull String path) {
+    @NonNull
+    public InputStream openResource(@NonNull String path)
+            throws Resources.NotFoundException, IOException {
         path = removeLeadingSlash(path);
         // The path must be of the form "resource_type/resource_name.ext".
         String[] pathSegments = path.split("/");
         if (pathSegments.length != 2) {
-            Log.e(TAG, "Incorrect resource path: " + path);
-            return null;
+            throw new IllegalArgumentException("Incorrect resource path: " + path);
         }
         String resourceType = pathSegments[0];
         String resourceName = pathSegments[1];
 
         // Drop the file extension.
         resourceName = resourceName.split("\\.")[0];
-        try {
-            int fieldId = getFieldId(resourceType, resourceName);
-            int valueType = getValueType(fieldId);
-            if (valueType == TypedValue.TYPE_STRING) {
-                return handleSvgzStream(path, mContext.getResources().openRawResource(fieldId));
-            } else {
-                Log.e(TAG,
-                        String.format("Expected %s resource to be of TYPE_STRING but was %d",
-                                path, valueType));
-                return null;
-            }
-        } catch (Resources.NotFoundException e) {
-            Log.e(TAG, "Resource not found from the path: " + path, e);
-            return null;
+        int fieldId = getFieldId(resourceType, resourceName);
+        int valueType = getValueType(fieldId);
+        if (valueType != TypedValue.TYPE_STRING) {
+            throw new IOException(
+                    String.format("Expected %s resource to be of TYPE_STRING but was %d",
+                            path, valueType));
         }
+        return handleSvgzStream(path, mContext.getResources().openRawResource(fieldId));
     }
 
     /**
      * Open an InputStream for an Android asset.
      *
      * @param path Path to the asset file to load.
-     * @return An {@link InputStream} to the Android asset or {@code null} if it cannot open the
-     *         asset file.
+     * @return An {@link InputStream} to the Android asset.
      */
-    @Nullable
-    public InputStream openAsset(@NonNull String path) {
+    @NonNull
+    public InputStream openAsset(@NonNull String path) throws IOException {
         path = removeLeadingSlash(path);
-        try {
-            AssetManager assets = mContext.getAssets();
-            return handleSvgzStream(path, assets.open(path, AssetManager.ACCESS_STREAMING));
-        } catch (IOException e) {
-            Log.e(TAG, "Unable to open asset path: " + path);
-            return null;
-        }
+        AssetManager assets = mContext.getAssets();
+        return handleSvgzStream(path, assets.open(path, AssetManager.ACCESS_STREAMING));
     }
 
     /**
      * Open an {@code InputStream} for a file in application data directories.
      *
      * @param file The file to be opened.
-     * @return An {@code InputStream} for the requested file or {@code null} if an error happens.
+     * @return An {@code InputStream} for the requested file.
      */
-    @Nullable
-    public static InputStream openFile(@NonNull File file) {
-        try {
-            FileInputStream fis = new FileInputStream(file);
-            return handleSvgzStream(file.getPath(), fis);
-        } catch (IOException e) {
-            Log.e(TAG, "Error opening the requested file " + file, e);
-            return null;
-        }
+    @NonNull
+    public static InputStream openFile(@NonNull File file) throws FileNotFoundException,
+            IOException {
+        FileInputStream fis = new FileInputStream(file);
+        return handleSvgzStream(file.getPath(), fis);
     }
 
     /**
