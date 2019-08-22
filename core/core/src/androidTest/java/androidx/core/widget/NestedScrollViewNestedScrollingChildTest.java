@@ -23,6 +23,7 @@ import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyFloat;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -68,6 +69,7 @@ public class NestedScrollViewNestedScrollingChildTest {
 
     private NestedScrollingSpyView mParentSpy;
     private NestedScrollView mNestedScrollView;
+    private int mTouchSlop;
 
     @Before
     public void setup() {
@@ -87,6 +89,9 @@ public class NestedScrollViewNestedScrollingChildTest {
         mParentSpy.setMinimumWidth(1000);
         mParentSpy.setMinimumHeight(1000);
 
+        mTouchSlop = ViewConfiguration.get(
+                ApplicationProvider.getApplicationContext()).getScaledTouchSlop();
+
         // Create view hierarchy
 
         mNestedScrollView.addView(child);
@@ -104,8 +109,7 @@ public class NestedScrollViewNestedScrollingChildTest {
 
     @Test
     public void uiFingerDown_parentHasNestedScrollingChildWithTypeTouch() {
-        when(mParentSpy.onStartNestedScroll(any(View.class), any(View.class), anyInt(), anyInt()))
-                .thenReturn(true);
+        parentAcceptsAnyNestedScroll(true);
         MotionEvent down = MotionEvent.obtain(0, 0, MotionEvent.ACTION_DOWN, 500, 500, 0);
 
         mNestedScrollView.dispatchTouchEvent(down);
@@ -116,8 +120,7 @@ public class NestedScrollViewNestedScrollingChildTest {
 
     @Test
     public void uiFingerDown_parentRejects_parentDoesNotHaveNestedScrollingChild() {
-        when(mParentSpy.onStartNestedScroll(any(View.class), any(View.class), anyInt(), anyInt()))
-                .thenReturn(false);
+        parentAcceptsAnyNestedScroll(false);
         MotionEvent down = MotionEvent.obtain(0, 0, MotionEvent.ACTION_DOWN, 500, 500, 0);
 
         mNestedScrollView.dispatchTouchEvent(down);
@@ -128,8 +131,7 @@ public class NestedScrollViewNestedScrollingChildTest {
 
     @Test
     public void uiFingerUp_afterFingerDown_parentDoesNotHaveNestedScrollingChild() {
-        when(mParentSpy.onStartNestedScroll(any(View.class), any(View.class), anyInt(), anyInt()))
-                .thenReturn(true);
+        parentAcceptsAnyNestedScroll(true);
         MotionEvent down = MotionEvent.obtain(0, 0, MotionEvent.ACTION_DOWN, 500, 500, 0);
         MotionEvent up = MotionEvent.obtain(0, 100, MotionEvent.ACTION_UP, 500, 500, 0);
         mNestedScrollView.dispatchTouchEvent(down);
@@ -142,29 +144,23 @@ public class NestedScrollViewNestedScrollingChildTest {
 
     @Test
     public void uiFingerScroll_parentOnNestedPreScrollCalledCorrectly() {
-        when(mParentSpy.onStartNestedScroll(any(View.class), any(View.class), anyInt(), anyInt()))
-                .thenReturn(true);
+        parentAcceptsAnyNestedScroll(true);
         MotionEvent down = MotionEvent.obtain(0, 0, MotionEvent.ACTION_DOWN, 500, 500, 0);
-        MotionEvent move =
-                MotionEvent.obtain(0, 100, MotionEvent.ACTION_MOVE, 500, 300, 0);
+        MotionEvent move = MotionEvent.obtain(0, 100, MotionEvent.ACTION_MOVE, 500, 300, 0);
 
         mNestedScrollView.dispatchTouchEvent(down);
         mNestedScrollView.dispatchTouchEvent(move);
 
-        verify(mParentSpy).onNestedPreScroll(mNestedScrollView, 0, 200, new int[]{0, 0},
-                ViewCompat.TYPE_TOUCH);
+        verify(mParentSpy).onNestedPreScroll(mNestedScrollView, 0, 200 - mTouchSlop,
+                new int[]{0, 0}, ViewCompat.TYPE_TOUCH);
     }
 
     @Test
     public void uiFingerScroll_scrollsBeyondLimit_parentOnNestedScrollCalledCorrectly() {
-        when(mParentSpy.onStartNestedScroll(any(View.class), any(View.class), anyInt(), anyInt()))
-                .thenReturn(true);
-        int touchSlop =
-                ViewConfiguration.get(
-                        ApplicationProvider.getApplicationContext()).getScaledTouchSlop();
+        parentAcceptsAnyNestedScroll(true);
         MotionEvent down = MotionEvent.obtain(0, 0, MotionEvent.ACTION_DOWN, 500, 500, 0);
         MotionEvent move =
-                MotionEvent.obtain(0, 100, MotionEvent.ACTION_MOVE, 500, 300 - touchSlop, 0);
+                MotionEvent.obtain(0, 100, MotionEvent.ACTION_MOVE, 500, 300 - mTouchSlop, 0);
 
         mNestedScrollView.dispatchTouchEvent(down);
         mNestedScrollView.dispatchTouchEvent(move);
@@ -175,14 +171,10 @@ public class NestedScrollViewNestedScrollingChildTest {
 
     @Test
     public void uiFingerScroll_scrollsWithinLimit_parentOnNestedScrollCalledCorrectly() {
-        when(mParentSpy.onStartNestedScroll(any(View.class), any(View.class), anyInt(), anyInt()))
-                .thenReturn(true);
-        int touchSlop =
-                ViewConfiguration.get(
-                        ApplicationProvider.getApplicationContext()).getScaledTouchSlop();
+        parentAcceptsAnyNestedScroll(true);
         MotionEvent down = MotionEvent.obtain(0, 0, MotionEvent.ACTION_DOWN, 500, 500, 0);
         MotionEvent move =
-                MotionEvent.obtain(0, 100, MotionEvent.ACTION_MOVE, 500, 450 - touchSlop, 0);
+                MotionEvent.obtain(0, 100, MotionEvent.ACTION_MOVE, 500, 450 - mTouchSlop, 0);
 
         mNestedScrollView.dispatchTouchEvent(down);
         mNestedScrollView.dispatchTouchEvent(move);
@@ -201,28 +193,113 @@ public class NestedScrollViewNestedScrollingChildTest {
             }
         }).when(mParentSpy)
                 .onNestedPreScroll(any(View.class), anyInt(), anyInt(), any(int[].class), anyInt());
-        when(mParentSpy.onStartNestedScroll(any(View.class), any(View.class), anyInt(), anyInt()))
-                .thenReturn(true);
-        int touchSlop =
-                ViewConfiguration.get(
-                        ApplicationProvider.getApplicationContext()).getScaledTouchSlop();
+        parentAcceptsAnyNestedScroll(true);
         MotionEvent down = MotionEvent.obtain(0, 0, MotionEvent.ACTION_DOWN, 500, 500, 0);
-        MotionEvent move =
-                MotionEvent.obtain(0, 100, MotionEvent.ACTION_MOVE, 500, 300, 0);
+        MotionEvent move = MotionEvent.obtain(0, 100, MotionEvent.ACTION_MOVE, 500, 300, 0);
 
         mNestedScrollView.dispatchTouchEvent(down);
         mNestedScrollView.dispatchTouchEvent(move);
 
-        verify(mParentSpy).onNestedPreScroll(mNestedScrollView, 0, 200, new int[]{0, 0},
-                ViewCompat.TYPE_TOUCH);
-        verify(mParentSpy).onNestedScroll(mNestedScrollView, 0, 100, 0, 50 - touchSlop,
+        verify(mParentSpy).onNestedPreScroll(mNestedScrollView, 0, 200 - mTouchSlop,
+                new int[]{0, 0}, ViewCompat.TYPE_TOUCH);
+        verify(mParentSpy).onNestedScroll(mNestedScrollView, 0, 100, 0, 50 - mTouchSlop,
                 ViewCompat.TYPE_TOUCH, new int[]{0, 0});
     }
 
     @Test
+    public void uiFingerScroll_onlyPreScrollConsumed_requestInterceptCalled() {
+        doAnswer(new Answer() {
+            public Object answer(InvocationOnMock invocation) {
+                Object[] args = invocation.getArguments();
+                ((int[]) args[3])[1] = 200 - mTouchSlop;
+                return null; // void method, so return null
+            }
+        }).when(mParentSpy).onNestedPreScroll(any(View.class), anyInt(), anyInt(), any(int[].class),
+                anyInt());
+        parentAcceptsAnyNestedScroll(true);
+
+        MotionEvent down = MotionEvent.obtain(0, 0, MotionEvent.ACTION_DOWN, 500, 500, 0);
+        MotionEvent move = MotionEvent.obtain(0, 100, MotionEvent.ACTION_MOVE, 500, 300, 0);
+
+        mNestedScrollView.dispatchTouchEvent(down);
+        mNestedScrollView.dispatchTouchEvent(move);
+
+        // requestDisallowInterceptTouchEvent called
+        verify(mParentSpy, atLeastOnce()).requestDisallowInterceptTouchEvent(eq(true));
+    }
+
+    @Test
+    public void uiFingerScroll_onlyScrollConsumedByNsv_requestInterceptCalled() {
+        parentAcceptsAnyNestedScroll(true);
+
+        MotionEvent down = MotionEvent.obtain(0, 0, MotionEvent.ACTION_DOWN, 500, 500, 0);
+        MotionEvent move = MotionEvent.obtain(0, 100, MotionEvent.ACTION_MOVE, 500,
+                400 - mTouchSlop, 0);
+
+        mNestedScrollView.dispatchTouchEvent(down);
+        mNestedScrollView.dispatchTouchEvent(move);
+
+        // requestDisallowInterceptTouchEvent called
+        verify(mParentSpy, atLeastOnce()).requestDisallowInterceptTouchEvent(eq(true));
+    }
+
+    @Test
+    public void uiFingerScroll_onlyScrollConsumedByParent_requestInterceptCalled() {
+        doAnswer(new Answer() {
+            public Object answer(InvocationOnMock invocation) {
+                Object[] args = invocation.getArguments();
+                ((int[]) args[6])[1] = -(200 - mTouchSlop);
+                return null; // void method, so return null
+            }
+        }).when(mParentSpy).onNestedScroll(any(View.class), anyInt(), anyInt(), anyInt(), anyInt(),
+                anyInt(), any(int[].class));
+        parentAcceptsAnyNestedScroll(true);
+
+        // Scrolling up to prevent NSV from consuming scroll
+        MotionEvent down = MotionEvent.obtain(0, 0, MotionEvent.ACTION_DOWN, 500, 500, 0);
+        MotionEvent move = MotionEvent.obtain(0, 100, MotionEvent.ACTION_MOVE, 500, 700, 0);
+
+        mNestedScrollView.dispatchTouchEvent(down);
+        mNestedScrollView.dispatchTouchEvent(move);
+
+        // requestDisallowInterceptTouchEvent called
+        verify(mParentSpy, atLeastOnce()).requestDisallowInterceptTouchEvent(eq(true));
+    }
+
+    @Test
+    public void uiFingerScroll_noScrollConsumed_requestInterceptCalled() {
+        parentAcceptsAnyNestedScroll(true);
+
+        // Scrolling up to prevent NSV from consuming scroll
+        MotionEvent down = MotionEvent.obtain(0, 0, MotionEvent.ACTION_DOWN, 500, 500, 0);
+        MotionEvent move = MotionEvent.obtain(0, 100, MotionEvent.ACTION_MOVE, 500, 700, 0);
+
+        mNestedScrollView.dispatchTouchEvent(down);
+        mNestedScrollView.dispatchTouchEvent(move);
+
+        // requestDisallowInterceptTouchEvent called
+        verify(mParentSpy, atLeastOnce()).requestDisallowInterceptTouchEvent(eq(true));
+    }
+
+    @Test
+    public void uiFingerScroll_touchSlopNotExceeded_requestInterceptNotCalled() {
+        parentAcceptsAnyNestedScroll(true);
+
+        // Scrolling up to prevent NSV from consuming scroll
+        MotionEvent down = MotionEvent.obtain(0, 0, MotionEvent.ACTION_DOWN, 500, 500, 0);
+        MotionEvent move = MotionEvent.obtain(0, 100, MotionEvent.ACTION_MOVE, 500,
+                500 - mTouchSlop, 0);
+
+        mNestedScrollView.dispatchTouchEvent(down);
+        mNestedScrollView.dispatchTouchEvent(move);
+
+        // requestDisallowInterceptTouchEvent called
+        verify(mParentSpy, never()).requestDisallowInterceptTouchEvent(anyBoolean());
+    }
+
+    @Test
     public void uiFling_parentHasNestedScrollingChildWithTypeFling() {
-        when(mParentSpy.onStartNestedScroll(any(View.class), any(View.class), anyInt(), anyInt()))
-                .thenReturn(true);
+        parentAcceptsAnyNestedScroll(true);
         long startTime = SystemClock.uptimeMillis();
         SimpleGestureGeneratorKt
                 .simulateFling(mNestedScrollView, startTime, 500, 500, Direction.UP);
@@ -233,8 +310,7 @@ public class NestedScrollViewNestedScrollingChildTest {
 
     @Test
     public void uiFling_callsNestedFlingsCorrectly() {
-        when(mParentSpy.onStartNestedScroll(any(View.class), any(View.class), anyInt(), anyInt()))
-                .thenReturn(true);
+        parentAcceptsAnyNestedScroll(true);
         long startTime = SystemClock.uptimeMillis();
         SimpleGestureGeneratorKt
                 .simulateFling(mNestedScrollView, startTime, 500, 500, Direction.UP);
@@ -256,8 +332,7 @@ public class NestedScrollViewNestedScrollingChildTest {
 
         // Arrange
 
-        when(mParentSpy.onStartNestedScroll(any(View.class), any(View.class), anyInt(), anyInt()))
-                .thenReturn(true);
+        parentAcceptsAnyNestedScroll(true);
 
         final Context context = ApplicationProvider.getApplicationContext();
         FlingData flingData = SimpleGestureGeneratorKt.generateFlingData(context);
@@ -303,8 +378,7 @@ public class NestedScrollViewNestedScrollingChildTest {
 
     private void uiFlings_returnValueOfOnNestedPreFlingDeterminesCallToOnNestedFling(
             boolean returnValue, boolean onNestedFlingCalled) {
-        when(mParentSpy.onStartNestedScroll(any(View.class), any(View.class), anyInt(), anyInt()))
-                .thenReturn(true);
+        parentAcceptsAnyNestedScroll(true);
         when(mParentSpy.onNestedPreFling(eq(mNestedScrollView), anyFloat(), anyFloat()))
                 .thenReturn(returnValue);
 
@@ -330,8 +404,7 @@ public class NestedScrollViewNestedScrollingChildTest {
 
     @Test
     public void smoothScrollBy_stopsInProgressNestedScroll() {
-        when(mParentSpy.onStartNestedScroll(any(View.class), any(View.class), anyInt(), anyInt()))
-                .thenReturn(true);
+        parentAcceptsAnyNestedScroll(true);
         mNestedScrollView.fling(100);
         mNestedScrollView.smoothScrollBy(0, 100);
         verify(mParentSpy).onStopNestedScroll(mNestedScrollView, ViewCompat.TYPE_NON_TOUCH);
@@ -342,6 +415,11 @@ public class NestedScrollViewNestedScrollingChildTest {
         mNestedScrollView.fling(100);
         verify(mParentSpy).onStartNestedScroll(mNestedScrollView, mNestedScrollView,
                 View.SCROLL_AXIS_VERTICAL, ViewCompat.TYPE_NON_TOUCH);
+    }
+
+    private void parentAcceptsAnyNestedScroll(boolean accepts) {
+        when(mParentSpy.onStartNestedScroll(any(View.class), any(View.class), anyInt(), anyInt()))
+                .thenReturn(accepts);
     }
 
     public class NestedScrollingSpyView extends FrameLayout implements NestedScrollingChild3,

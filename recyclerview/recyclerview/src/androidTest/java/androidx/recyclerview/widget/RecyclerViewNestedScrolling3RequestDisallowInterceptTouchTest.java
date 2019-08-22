@@ -63,6 +63,7 @@ public class RecyclerViewNestedScrolling3RequestDisallowInterceptTouchTest {
 
     private RecyclerView mRecyclerView;
     private NestedScrollingSpyView mParent;
+    private int mTouchSlop;
 
     @Rule
     public final ActivityTestRule<TestContentViewActivity> mActivityTestRule;
@@ -79,38 +80,37 @@ public class RecyclerViewNestedScrolling3RequestDisallowInterceptTouchTest {
 
     @Test
     public void parentConsumes1pxRvConsumes0px() {
-        mParent.consumeX = 0;
         mParent.consumeY = 1;
 
-        int touchSlop = ViewConfiguration.get(mRecyclerView.getContext()).getScaledTouchSlop();
         // RecyclerView consumes nothing because we scroll up, and we're already at the top
-        swipeVertically(touchSlop + 100);
+        swipeVertically(mTouchSlop + 100);
 
         verify(mParent, atLeastOnce()).requestDisallowInterceptTouchEvent(eq(true));
     }
 
     @Test
     public void parentConsumes0pxRvConsumes1px() {
-        mParent.consumeX = 0;
-        mParent.consumeY = 0;
-
-        int touchSlop = ViewConfiguration.get(mRecyclerView.getContext()).getScaledTouchSlop();
         // RecyclerView consumes all because we scroll down, and we're already at the top
-        swipeVertically(-touchSlop - 1);
+        swipeVertically(-mTouchSlop - 1);
 
         verify(mParent, atLeastOnce()).requestDisallowInterceptTouchEvent(eq(true));
     }
 
     @Test
     public void parentConsumes0pxRvConsumes0px() {
-        mParent.consumeX = 0;
-        mParent.consumeY = 0;
-
-        int touchSlop = ViewConfiguration.get(mRecyclerView.getContext()).getScaledTouchSlop();
         // RecyclerView consumes nothing because we scroll up, and we're already at the top
-        swipeVertically(touchSlop + 100);
+        swipeVertically(mTouchSlop + 100);
 
         verify(mParent, never()).requestDisallowInterceptTouchEvent(eq(true));
+    }
+
+    @Test
+    public void parentPreConsumes1pxRvConsumes0px() {
+        mParent.consumePreY = 1;
+
+        swipeVertically(-mTouchSlop - 1);
+
+        verify(mParent, atLeastOnce()).requestDisallowInterceptTouchEvent(eq(true));
     }
 
     private void setup() {
@@ -126,6 +126,13 @@ public class RecyclerViewNestedScrolling3RequestDisallowInterceptTouchTest {
         mParent.setLayoutParams(new ViewGroup.LayoutParams(WIDTH, PARENT_HEIGHT));
         mParent.setBackgroundColor(0xFF0000FF);
         mParent.addView(mRecyclerView);
+
+        mParent.consumeX = 0;
+        mParent.consumeY = 0;
+        mParent.consumePreX = 0;
+        mParent.consumePreY = 0;
+
+        mTouchSlop = ViewConfiguration.get(mRecyclerView.getContext()).getScaledTouchSlop();
     }
 
     private void attachToActivity() throws Throwable {
@@ -158,6 +165,10 @@ public class RecyclerViewNestedScrolling3RequestDisallowInterceptTouchTest {
         // Use only positive values, value is used in both directions
         public int consumeX = 0;
         public int consumeY = 0;
+        // The amount of pixels to consume during a nested pre scroll
+        // Use only positive values, value is used in both directions
+        public int consumePreX = 0;
+        public int consumePreY = 0;
 
         public NestedScrollingSpyView(Context context) {
             super(context);
@@ -210,7 +221,16 @@ public class RecyclerViewNestedScrolling3RequestDisallowInterceptTouchTest {
         @Override
         public void onNestedPreScroll(@NonNull View target, int dx, int dy, @NonNull int[] consumed,
                 int type) {
-            onNestedPreScroll(target, dx, dy, consumed);
+            if (consumePreX != 0) {
+                consumed[0] += dx > 0
+                        ? Math.min(consumePreX, dx)
+                        : Math.max(-consumePreX, dx);
+            }
+            if (consumePreY != 0) {
+                consumed[1] += dy > 0
+                        ? Math.min(consumePreY, dy)
+                        : Math.max(-consumePreY, dy);
+            }
         }
 
         // NestedScrollingParent1
