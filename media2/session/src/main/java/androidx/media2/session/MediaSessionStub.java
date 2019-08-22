@@ -1434,7 +1434,11 @@ class MediaSessionStub extends IMediaSession.Stub {
         @Override
         void onVideoSizeChanged(int seq, @NonNull VideoSize videoSize) throws RemoteException {
             ParcelImpl videoSizeParcel = MediaParcelUtils.toParcelable(videoSize);
-            mIControllerCallback.onVideoSizeChanged(seq, null, videoSizeParcel);
+            // dummyItem is used instead of 'null' to keep backward compatibility with 1.0.0.
+            // In 1.0.0, MediaControllerStub filters out the corresponding call if the item is null.
+            final MediaItem dummyItem = new MediaItem.Builder().build();
+            mIControllerCallback.onVideoSizeChanged(seq, MediaParcelUtils.toParcelable(dummyItem),
+                    videoSizeParcel);
         }
 
         @Override
