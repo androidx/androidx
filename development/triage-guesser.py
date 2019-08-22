@@ -6,7 +6,7 @@ def usage():
   print("""Usage: cat <issues> | triage-guesser.py
 triage-guesser.py attempts to guess the assignee based on the title of the bug
 
-triage-guesser reads issues from stdin
+triage-guesser reads issues from stdin (issues can be copy-pasted from the hotlist)
 """)
   sys.exit(1)
 
@@ -83,7 +83,7 @@ class GitLogger(object):
     return
 
   def gitLog1Author(self, filePath):
-    text = shellRunner.runAndGetOutput(["bash", "-c", "cd " + os.path.dirname(filePath) + " && git log --no-merges -1 --format='%ae' -- " + filePath]).strip().replace("@google.com", "")
+    text = shellRunner.runAndGetOutput(["bash", "-c", "cd " + os.path.dirname(filePath) + " && git log --no-merges -1 --format='%ae' -- " + os.path.basename(filePath)]).strip().replace("@google.com", "")
     return text
 gitLogger = GitLogger()
 
@@ -148,13 +148,13 @@ class Triager(object):
   def __init__(self, fileFinder):
     self.recommenderRules = self.parseKnownOwners({
       "fragment": ["ilake", "mount", "adamp"],
-      "animation": ["chet", "mount", "tianlu"],
-      "transition": ["chet", "mount"],
+      "animation": ["mount", "tianlu"],
+      "transition": ["mount"],
       "theme": ["alanv"],
       "style": ["alanv"],
       "preferences": ["pavlis", "lpf"],
-      "ViewPager": ["jgielzak", "aurimas"],
-      "DrawerLayout": ["kirillg"],
+      "ViewPager": ["jgielzak", "jellefresen"],
+      "DrawerLayout": ["sjgilbert"],
       "RecyclerView": ["shepshapard", "yboyar"],
       "Loaders": ["ilake"],
       "VectorDrawableCompat": ["tianliu"],
@@ -167,13 +167,17 @@ class Triager(object):
       "colorstatelist": ["alanv"],
       "multilocale": ["nona", "mnita"],
       "TextView": ["siyamed", "clarabayarri"],
-      "Linkify": ["siyamed", "toki"],
-      "Spannable": ["siyamed"],
-      "Minikin": ["nona"],
-      "Fonts": ["nona", "dougfelt"],
-      "freetype": ["nona", "junkshik"],
-      "harfbuzz": ["nona", "junkshik"],
-      "slice": ["jmonk", "madym"]
+      "text": ["android-text"],
+      "emoji": ["android-text", "siyamed"],
+      "Linkify": ["android-text", "siyamed", "toki"],
+      "Spannable": ["android-text", "siyamed"],
+      "Minikin": ["android-text", "nona"],
+      "Fonts": ["android-text", "nona", "dougfelt"],
+      "freetype": ["android-text", "nona", "junkshik"],
+      "harfbuzz": ["android-text", "nona", "junkshik"],
+      "slice": ["madym"],
+      "checkApi": ["jeffrygaston", "aurimas"],
+      "compose": ["chuckj", "jsproch", "lelandr"]
     })
     self.recommenderRules.append(OwnersRule(fileFinder))
     self.recommenderRules.append(LastTouchedBy_Rule(fileFinder))
@@ -214,7 +218,7 @@ class Triager(object):
 
     lines = [line.strip() for line in lines]
     fields = [line for line in lines if line != ""]
-    linesPerIssue = 5
+    linesPerIssue = 4
     if len(fields) % linesPerIssue != 0:
       raise Exception("Parse error, number of lines must be divisible by " + str(linesPerIssue) + ", not " + str(len(fields)) + ". Last line: " + fields[-1])
     issues = []
@@ -223,21 +227,15 @@ class Triager(object):
       issueType = fields[1]
 
       middle = fields[2].split("\t")
-      expectedNumTabComponents = 3
+      expectedNumTabComponents = 5
       if len(middle) != expectedNumTabComponents:
         raise Exception("Parse error: wrong number of tabs in " + str(middle) + ", got " + str(len(middle) - 1) + ", expected " + str(expectedNumTabComponents - 1))
       description = middle[0]
       currentAssignee = middle[1]
       status = middle[2]
+      issueId = middle[4]
 
-
-      middle2 = fields[3].split("\t")
-      expectedNumTabComponents = 2
-      if len(middle2) != expectedNumTabComponents:
-        raise Exception("Parse error: wrong number of tabs in " + str(middle2) + ", got " + str(len(middle2) - 1) + ", expected " + str(expectedNumTabComponents - 1))
-      issueId = middle2[1]
-      
-      when = fields[4]
+      when = fields[3]
 
       issues.append(Issue(issueId, description))
       fields = fields[linesPerIssue:]
@@ -256,19 +254,19 @@ class Triager(object):
           if count > 0 and count < len(overallRecommendation.usernames):
             overallRecommendation = newRecommendation
     return overallRecommendation
-    
-   
+
+
 
 def main(args):
   if len(args) != 1:
     usage()
   fileFinder = FileFinder(os.path.dirname(args[0]))
-  print("Reading issues from stdin")
+  print("Reading issues (copy-paste from the hotlist) from stdin")
   lines = sys.stdin.readlines()
   triager = Triager(fileFinder)
   triager.process(lines)
 
-  
-  
+
+
 
 main(sys.argv)
