@@ -49,33 +49,41 @@ fun TouchSlopDragGestureDetector(
     canDrag: ((Direction) -> Boolean)? = null,
     children: @Composable() () -> Unit
 ) {
-    val canStartDrag = +memo { Single(false) }
+    val glue = +memo { TouchSlopDragGestureDetectorGlue() }
+    glue.touchSlopDragObserver = dragObserver
 
-    val internalDragObserver: DragObserver =
-        +memo(dragObserver) {
-            object : DragObserver {
-
-                override fun onStart() {
-                    dragObserver.onStart()
-                }
-
-                override fun onDrag(dragDistance: PxPosition): PxPosition {
-                    return dragObserver.onDrag(dragDistance)
-                }
-
-                override fun onStop(velocity: PxPosition) {
-                    dragObserver.onStop(velocity)
-                    canStartDrag.value = false
-                }
-            }
-        }
-
-    RawDragGestureDetector(internalDragObserver, canStartDrag::value::get) {
-        TouchSlopExceededGestureDetector({ canStartDrag.value = true }, canDrag) {
+    RawDragGestureDetector(glue.rawDragObserver, glue::dragEnabled) {
+        TouchSlopExceededGestureDetector(glue::enableDrag, canDrag) {
             children()
         }
     }
 }
 
+/**
+ * Glues together the logic of RawDragGestureDetector and TouchSlopExceededGestureDetector.
+ */
+private class TouchSlopDragGestureDetectorGlue {
 
-internal data class Single<T>(var value: T)
+    lateinit var touchSlopDragObserver: DragObserver
+    var dragEnabled = false
+
+    fun enableDrag() {
+        dragEnabled = true
+    }
+
+    val rawDragObserver: DragObserver =
+        object : DragObserver {
+            override fun onStart() {
+                touchSlopDragObserver.onStart()
+            }
+
+            override fun onDrag(dragDistance: PxPosition): PxPosition {
+                return touchSlopDragObserver.onDrag(dragDistance)
+            }
+
+            override fun onStop(velocity: PxPosition) {
+                touchSlopDragObserver.onStop(velocity)
+                dragEnabled = false
+            }
+        }
+}

@@ -226,6 +226,18 @@ package androidx.ui.core.gesture {
     method public default void onStop(androidx.ui.core.PxPosition velocity);
   }
 
+  public final class LongPressDragGestureDetectorKt {
+    ctor public LongPressDragGestureDetectorKt();
+    method public static void LongPressDragGestureDetector(androidx.ui.core.gesture.LongPressDragObserver longPressDragObserver, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+  }
+
+  public interface LongPressDragObserver {
+    method public default androidx.ui.core.PxPosition onDrag(androidx.ui.core.PxPosition dragDistance);
+    method public default void onDragStart();
+    method public default void onLongPress(androidx.ui.core.PxPosition pxPosition);
+    method public default void onStop(androidx.ui.core.PxPosition velocity);
+  }
+
   public final class LongPressGestureDetectorKt {
     ctor public LongPressGestureDetectorKt();
     method public static void LongPressGestureDetector(kotlin.jvm.functions.Function1<? super androidx.ui.core.PxPosition,kotlin.Unit> onLongPress, kotlin.jvm.functions.Function0<kotlin.Unit> children);
