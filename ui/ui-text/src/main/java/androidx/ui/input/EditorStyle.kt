@@ -27,17 +27,9 @@ data class EditorStyle(
     val textStyle: TextStyle? = null,
 
     /**
-     * The composition background color
-     *
-     * @see EditorModel.composition
-     */
-    val compositionColor: Color = Color(alpha = 0xFF, red = 0xB0, green = 0xE0, blue = 0xE6),
-
-    /**
      *  The selection background color
      *
      *  @see EditorModel.selection
      */
-    // TODO(nona): share with Text.DEFAULT_SELECTION_COLOR
-    val selectionColor: Color = Color(alpha = 0x66, red = 0x33, green = 0xB5, blue = 0xE5)
+    val selectionColor: Color? = null
 )
