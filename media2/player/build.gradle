@@ -24,7 +24,7 @@ dependencies {
     androidTestImplementation(ANDROIDX_TEST_RUNNER)
     androidTestImplementation(ANDROIDX_TEST_RULES)
     androidTestImplementation(ESPRESSO_CORE, libs.exclude_for_espresso)
-    androidTestImplementation project(':internal-testutils')
+    androidTestImplementation project(':internal-testutils-runtime')
     annotationProcessor(project(":versionedparcelable-annotation"))
 }
 
