@@ -1,3 +1,11 @@
+pluginManagement {
+    repositories {
+        maven {
+            url = new File(buildscript.sourceFile.parent + "/../../prebuilts/androidx/external").getCanonicalFile()
+        }
+    }
+}
+
 rootProject.name = "androidx"
 
 /////////////////////////////
