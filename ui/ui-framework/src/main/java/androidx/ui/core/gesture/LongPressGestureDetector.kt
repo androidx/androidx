@@ -120,11 +120,12 @@ internal class LongPressGestureRecognizer(
             }
 
             if (pass == PointerEventPass.PostDown &&
-                state == State.Primed &&
+                state != State.Idle &&
                 changes.any { it.anyPositionChangeConsumed() }
             ) {
-                // If we are currently primed and any pointers had consumed movement, we should no longer fire the long
-                // press event so reset.
+                // If we are primed, reset so we don't fire.
+                // If we are fired, reset to idle so we don't block up events that still fire after dragging
+                // (like flinging).
                 reset()
             }
 
