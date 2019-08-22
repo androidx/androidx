@@ -46,5 +46,13 @@
             </intent-filter>
         </activity>
 
+        <activity android:name=".CraneInputFieldTrickyUseCaseActivity"
+                  android:configChanges="orientation|screenSize"
+                  android:label="Text/Input Field/Tricky Input Field Demo">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="androidx.ui.demos.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
     </application>
 </manifest>
