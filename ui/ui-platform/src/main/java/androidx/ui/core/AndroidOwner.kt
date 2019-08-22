@@ -61,9 +61,14 @@ import androidx.ui.autofill.unregisterCallback
 
 @TargetApi(Build.VERSION_CODES.LOLLIPOP)
 class AndroidCraneView constructor(context: Context)
-    : ViewGroup(context), Owner, SemanticsTreeProvider {
+    : ViewGroup(context), Owner, SemanticsTreeProvider, DensityReceiver {
+    override var density: Density = Density(context)
+        private set
 
-    val root = LayoutNode()
+    val root = LayoutNode().also {
+        it.measureBlock = RootMeasureBlock
+    }
+
     // LayoutNodes that need measure and layout, the value is true when measure is needed
     private val relayoutNodes = TreeSet<LayoutNode>(DepthComparator)
 
@@ -264,6 +269,7 @@ class AndroidCraneView constructor(context: Context)
     private fun requestRelayout(layoutNode: LayoutNode) {
         if (layoutNode == root || constraints.isZero) {
             requestLayout()
+            layoutNode.needsRemeasure = true
         } else if (relayoutNodes.isEmpty()) {
             Choreographer.getInstance().postFrameCallback {
                 measureAndLayout()
@@ -305,17 +311,17 @@ class AndroidCraneView constructor(context: Context)
                 relayoutNodes.forEach { layoutNode ->
                     if (layoutNode.needsRemeasure) {
                         val parent = layoutNode.parentLayoutNode
-                        if (parent != null && parent.layout != null) {
+                        if (parent != null) {
                             // This should call measure and layout on the child
-                            val parentLayout = parent.layout!!
+                            val parentLayout = parent
                             parent.needsRelayout = true
-                            parentLayout.callLayout()
+                            parentLayout.placeChildren()
                         } else {
-                            layoutNode.layout?.callMeasure(layoutNode.constraints)
-                            layoutNode.layout?.callLayout()
+                            layoutNode.measure(layoutNode.constraints)
+                            layoutNode.placeChildren()
                         }
                     } else if (layoutNode.needsRelayout) {
-                        layoutNode.layout?.callLayout()
+                        layoutNode.placeChildren()
                     }
                 }
                 repaintBoundaryChanges.forEach { node ->
@@ -344,7 +350,7 @@ class AndroidCraneView constructor(context: Context)
             val frame = currentFrame()
             measureIteration++
             frame.observeReads(frameReadObserver) {
-                callMeasure(constraints)
+                root.measure(constraints)
             }
             setMeasuredDimension(root.width.value, root.height.value)
         }
@@ -370,15 +376,9 @@ class AndroidCraneView constructor(context: Context)
     override fun onLayout(changed: Boolean, l: Int, t: Int, r: Int, b: Int) {
         trace("AndroidOwner:onLayout") {
             val frame = currentFrame()
-            root.startLayout()
             frame.observeReads(frameReadObserver) {
-                root.visitLayoutChildren { child ->
-                    child.moveTo(0.ipx, 0.ipx)
-                    child.layout?.callLayout()
-                }
+                root.placeChildren()
             }
-            root.moveTo(0.ipx, 0.ipx)
-            root.endLayout()
         }
         measureAndLayout()
     }
@@ -389,8 +389,7 @@ class AndroidCraneView constructor(context: Context)
     fun callDraw(
         canvas: Canvas,
         node: ComponentNode,
-        parentSize: PxSize,
-        densityReceiver: DensityReceiver
+        parentSize: PxSize
     ) {
         trace("AndroidOwner:callDraw") {
             when (node) {
@@ -404,14 +403,14 @@ class AndroidCraneView constructor(context: Context)
                         val receiver: DrawReceiverImpl
                         if (ownerData == null) {
                             receiver =
-                                DrawReceiverImpl(node, canvas, parentSize, densityReceiver.density)
+                                DrawReceiverImpl(node, canvas, parentSize, density)
                             node.ownerData = receiver
                         } else {
                             receiver = ownerData as DrawReceiverImpl
                             receiver.childDrawn = false
                             receiver.canvas = canvas
                             receiver.parentSize = parentSize
-                            receiver.density = densityReceiver.density
+                            receiver.density = density
                         }
                         onPaintWithChildren(receiver, canvas, parentSize)
                         if (!receiver.childDrawn) {
@@ -419,7 +418,7 @@ class AndroidCraneView constructor(context: Context)
                         }
                     } else {
                         val onPaint = node.onPaint!!
-                        densityReceiver.onPaint(canvas, parentSize)
+                        this.onPaint(canvas, parentSize)
                     }
                     node.needsPaint = false
                     currentNode = previousNode
@@ -445,7 +444,7 @@ class AndroidCraneView constructor(context: Context)
                         }
                         val size = PxSize(node.width, node.height)
                         node.visitChildren { child ->
-                            callDraw(canvas, child, size, densityReceiver)
+                            callDraw(canvas, child, size)
                         }
                         if (doTranslate) {
                             canvas.restore()
@@ -453,7 +452,7 @@ class AndroidCraneView constructor(context: Context)
                     }
                 }
                 else -> node.visitChildren {
-                    callDraw(canvas, it, parentSize, densityReceiver)
+                    callDraw(canvas, it, parentSize)
                 }
             }
         }
@@ -487,9 +486,8 @@ class AndroidCraneView constructor(context: Context)
         val layoutNode = node as? LayoutNode ?: node.parentLayoutNode!!
         val parentSize = PxSize(layoutNode.width, layoutNode.height)
         val uiCanvas = Canvas(canvas)
-        val densityReceiver = DensityReceiverImpl(density = Density(context))
         node.visitChildren { child ->
-            callDraw(uiCanvas, child, parentSize, densityReceiver)
+            callDraw(uiCanvas, child, parentSize)
         }
     }
 
@@ -584,20 +582,8 @@ class AndroidCraneView constructor(context: Context)
 
     override fun onConfigurationChanged(newConfig: Configuration?) {
         super.onConfigurationChanged(newConfig)
+        density = Density(context)
         configurationChangeObserver()
-    }
-
-    private fun callMeasure(constraints: Constraints) {
-        var maxWidth = 0.ipx
-        var maxHeight = 0.ipx
-        root.startMeasure()
-        root.visitLayoutChildren { layoutNode ->
-            layoutNode.layout?.callMeasure(constraints)
-            maxWidth = max(maxWidth, layoutNode.width)
-            maxHeight = max(maxHeight, layoutNode.height)
-        }
-        root.resize(maxWidth, maxHeight)
-        root.endMeasure()
     }
 
     private fun clearNodeModels(node: ComponentNode) {
@@ -620,7 +606,7 @@ class AndroidCraneView constructor(context: Context)
             }
             childDrawn = true
             drawNode.visitChildren { child ->
-                callDraw(canvas, child, parentSize, this)
+                callDraw(canvas, child, parentSize)
             }
         }
     }
@@ -682,6 +668,34 @@ class AndroidCraneView constructor(context: Context)
             }
         }
     }
+
+    internal companion object {
+        private val RootMeasureBlock:
+                MeasureBlockScope.(List<Measurable>, Constraints) -> LayoutResult =
+            { measurables, constraints ->
+                if (measurables.isEmpty()) {
+                    layout(IntPx.Zero, IntPx.Zero) {}
+                } else if (measurables.size == 1) {
+                    val placeable = measurables[0].measure(constraints)
+                    layout(placeable.width, placeable.height) {
+                        placeable.place(IntPx.Zero, IntPx.Zero)
+                    }
+                } else {
+                    val placeables = measurables.map { it.measure(constraints) }
+                    var maxWidth = IntPx.Zero
+                    var maxHeight = IntPx.Zero
+                    placeables.forEach { placeable ->
+                        maxWidth = max(placeable.width, maxWidth)
+                        maxHeight = max(placeable.height, maxHeight)
+                    }
+                    layout(maxWidth, maxHeight) {
+                        placeables.forEach { placeable ->
+                            placeable.place(IntPx.Zero, IntPx.Zero)
+                        }
+                    }
+                }
+            }
+    }
 }
 
 private class ConstraintRange(val min: IntPx, val max: IntPx)
@@ -720,7 +734,7 @@ private interface RepaintBoundary {
 
     /**
      * `true` indicates that the RepaintBoundary must be redrawn and `false` indicates
-     * that no change has occured since the previous [callDraw] or [updateDisplayList] call.
+     * that no change has occured since the previous [callDraw] call.
      */
     var dirty: Boolean
 }

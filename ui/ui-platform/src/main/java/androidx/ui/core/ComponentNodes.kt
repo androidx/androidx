@@ -28,6 +28,8 @@ import kotlin.reflect.KProperty
  * through them.
  */
 interface Owner {
+    val density: Density
+
     /**
      * Called from a [DrawNode], this registers with the underlying view system that a
      * redraw of the given [drawNode] is required. It may cause other nodes to redraw, if
@@ -369,25 +371,60 @@ class DrawNode : ComponentNode() {
 }
 
 /**
- * ComplexMeasureBox component methods that must be called from here.
- */
-interface MeasurableLayout {
-    /**
-     * Performs measurement. After completion, the owned [LayoutNode] should be
-     * properly sized.
-     */
-    fun callMeasure(constraints: Constraints)
-
-    /**
-     * Places all children that are to be part of the layout.
-     */
-    fun callLayout()
-}
-
-/**
  * Backing node for Layout component.
  */
-class LayoutNode : ComponentNode() {
+class LayoutNode() : ComponentNode(), Measurable, MeasureBlockScope {
+    /**
+     * The lambda used to measure the child. It must call [MeasureBlockScope.layout] before
+     * completing.
+     */
+    var measureBlock:
+            MeasureBlockScope.(List<Measurable>, Constraints) -> LayoutResult = ErrorMeasureBlock
+        set(value) {
+            field = value
+            requestRemeasure()
+        }
+
+    /**
+     * The lambda used to calculate [IntrinsicMeasurable.minIntrinsicWidth].
+     */
+    var minIntrinsicWidthBlock:
+            DensityReceiver.(List<IntrinsicMeasurable>, IntPx) -> IntPx = ErrorIntrinsicBlock
+        set(value) {
+            field = value
+            requestRemeasure()
+        }
+
+    /**
+     * The lambda used to calculate [IntrinsicMeasurable.maxIntrinsicWidth].
+     */
+    var maxIntrinsicWidthBlock:
+            DensityReceiver.(List<IntrinsicMeasurable>, IntPx) -> IntPx = ErrorIntrinsicBlock
+        set(value) {
+            field = value
+            requestRemeasure()
+        }
+
+    /**
+     * The lambda used to calculate [IntrinsicMeasurable.minIntrinsicHeight].
+     */
+    var minIntrinsicHeightBlock:
+            DensityReceiver.(List<IntrinsicMeasurable>, IntPx) -> IntPx = ErrorIntrinsicBlock
+        set(value) {
+            field = value
+            requestRemeasure()
+        }
+
+    /**
+     * The lambda used to calculate [IntrinsicMeasurable.maxIntrinsicHeight].
+     */
+    var maxIntrinsicHeightBlock:
+            DensityReceiver.(List<IntrinsicMeasurable>, IntPx) -> IntPx = ErrorIntrinsicBlock
+        set(value) {
+            field = value
+            requestRemeasure()
+        }
+
     /**
      * The constraints used the last time [layout] was called.
      */
@@ -398,9 +435,6 @@ class LayoutNode : ComponentNode() {
         set(value) {
             value?.value = this
         }
-
-    // This is a ComplexLayout, but we don't have access to that class from here.
-    var layout: MeasurableLayout? = null
 
     /**
      * The width of this layout
@@ -438,13 +472,13 @@ class LayoutNode : ComponentNode() {
     var affectsParentSize: Boolean = true
 
     /**
-     * `true` when called between [startMeasure] and [endMeasure]
+     * `true` when called inside [measure]
      */
     internal var isInMeasure: Boolean = false
 
     /**
      * `true` when the layout has been dirtied by [requestRemeasure]. `false` after
-     * the measurement has been complete ([resize] has been called).
+     * the measurement has been complete ([place] has been called).
      */
     var needsRemeasure = false
         internal set
@@ -462,26 +496,172 @@ class LayoutNode : ComponentNode() {
     override val containingLayoutNode: LayoutNode?
         get() = this
 
+    /**
+     * This is the lambda that is passed to [MeasureBlockScope.layout] to
+     * position children.
+     */
+    private var positioningBlock: PositioningBlockScope.() -> Unit = {}
+
+    /**
+     * A local version of [Owner.measureIteration] to ensure that [measureBlock]
+     * is not called multiple times within a measure pass.
+     */
+    private var measureIteration = 0L
+
+    /**
+     * Identifies when [layoutChildren] needs to be recalculated or if it can use
+     * the cached value.
+     */
+    private var layoutChildrenDirty = false
+
+    /**
+     * The cached value of [layoutChildren]
+     */
+    private val _layoutChildren = mutableListOf<LayoutNode>()
+
+    /**
+     * All first level [LayoutNode] descendents. All LayoutNodes in the List
+     * will have this as [parentLayoutNode].
+     */
+    val layoutChildren: List<LayoutNode>
+        get() {
+            if (layoutChildrenDirty) {
+                _layoutChildren.clear()
+                addLayoutChildren(this, _layoutChildren)
+                layoutChildrenDirty = false
+            }
+            return _layoutChildren
+        }
+
+    /**
+     * `true` when parentDataNode has to be rediscovered. This is when the
+     * LayoutNode has been attached.
+     */
+    private var parentDataDirty = false
+
+    override val parentData: Any?
+        get() = parentDataNode?.value
+
+    /**
+     * The parentData [DataNode] for this LayoutNode.
+     */
+    private var parentDataNode: DataNode<*>? = null
+        get() {
+            if (parentDataDirty) {
+                // walk up to find ParentData
+                field = null
+                var node = parent
+                val parentLayoutNode = parentLayoutNode
+                while (node != null && node !== parentLayoutNode) {
+                    if (node is DataNode<*> && node.key === ParentDataKey) {
+                        field = node
+                        break
+                    }
+                    node = node.parent
+                }
+                parentDataDirty = false
+            }
+            return field
+        }
+        private set
+
+    override val density: Density
+        get() = owner?.density ?: Density(1f)
+
+    val placeable = object : Placeable() {
+        override val width: IntPx
+            get() = this@LayoutNode.width
+        override val height: IntPx
+            get() = this@LayoutNode.height
+
+        override fun place(x: IntPx, y: IntPx) {
+            this@LayoutNode.place(x, y)
+        }
+    }
+
     override fun attach(owner: Owner) {
         super.attach(owner)
         requestRemeasure()
+        parentDataDirty = true
+        parentLayoutNode?.layoutChildrenDirty = true
     }
 
     override fun detach() {
+        parentLayoutNode?.layoutChildrenDirty = true
         parentLayoutNode?.requestRemeasure()
+        parentDataDirty = true
         super.detach()
     }
 
-    fun moveTo(x: IntPx, y: IntPx) {
+    override fun measure(constraints: Constraints): Placeable {
+        val owner = owner
+        val iteration = if (owner == null) 0L else owner.measureIteration
+        if (measureIteration == iteration) {
+            throw IllegalStateException("measure() may not be called multiple times " +
+                    "on the same Measurable")
+        }
+        measureIteration = iteration
+        if (this.constraints == constraints && !needsRemeasure) {
+            val parent = parentLayoutNode
+            if (parent != null && parent.isInMeasure) {
+                affectsParentSize = true
+            }
+            return placeable // we're already measured to this size, don't do anything
+        }
+
+        isInMeasure = true
+        layoutChildren.forEach { child ->
+            child.affectsParentSize = false
+        }
+        owner?.onStartMeasure(this)
+        this.constraints = constraints
+
+        this.measureBlock(layoutChildren, constraints)
+        owner?.onEndMeasure(this)
+        isInMeasure = false
+        needsRemeasure = false
+        needsRelayout = true
+        return placeable
+    }
+
+    override fun minIntrinsicWidth(height: IntPx): IntPx =
+        minIntrinsicWidthBlock(this, layoutChildren, height)
+
+    override fun maxIntrinsicWidth(height: IntPx): IntPx =
+        maxIntrinsicWidthBlock(this, layoutChildren, height)
+
+    override fun minIntrinsicHeight(width: IntPx): IntPx =
+        minIntrinsicHeightBlock(this, layoutChildren, width)
+
+    override fun maxIntrinsicHeight(width: IntPx): IntPx =
+        maxIntrinsicHeightBlock(this, layoutChildren, width)
+
+    fun place(x: IntPx, y: IntPx) {
         visible = true
         if (x != this.x || y != this.y) {
             this.x = x
             this.y = y
             owner?.onPositionChange(this)
         }
+        placeChildren()
     }
 
-    fun resize(width: IntPx, height: IntPx) {
+    fun placeChildren() {
+        if (needsRelayout) {
+            owner?.onStartLayout(this)
+            layoutChildren.forEach { it.visible = false }
+            PositioningBlockScope.positioningBlock()
+            dispatchOnPositionedCallbacks()
+            owner?.onEndLayout(this)
+            needsRelayout = false
+        }
+    }
+
+    override fun layout(
+        width: IntPx,
+        height: IntPx,
+        positioningBlock: PositioningBlockScope.() -> Unit
+    ): LayoutResult {
         val parent = parentLayoutNode
         if (parent != null && parent.isInMeasure) {
             affectsParentSize = true
@@ -491,49 +671,71 @@ class LayoutNode : ComponentNode() {
             this.height = height
             owner?.onSizeChange(this)
         }
+        this.positioningBlock = positioningBlock
+        return LayoutResult.Instance
     }
 
     /**
-     * Must be called by the [MeasurableLayout] when the measurement starts.
-     */
-    fun startMeasure() {
-        isInMeasure = true
-        visitLayoutChildren { child ->
-            child.affectsParentSize = false
-            child.visible = false
-        }
-        owner?.onStartMeasure(this)
-    }
-
-    /**
-     * Must be called by the [MeasurableLayout] when the measurement ends.
-     */
-    fun endMeasure() {
-        owner?.onEndMeasure(this)
-        isInMeasure = false
-        needsRemeasure = false
-        needsRelayout = true
-    }
-
-    /**
-     * Must be called by the [MeasurableLayout] when the layout starts
-     */
-    fun startLayout() {
-        owner?.onStartLayout(this)
-    }
-
-    /**
-     * Must be called by the [MeasurableLayout] when the layout ends
-     */
-    fun endLayout() {
-        owner?.onEndLayout(this)
-        needsRelayout = false
-    }
-
-    /**
-     * Used by [ComplexLayoutState] to request a new measurement + layout pass from the owner.
+     * Used by `ComplexLayoutState` to request a new measurement + layout pass from the owner.
      */
     fun requestRemeasure() = owner?.onRequestMeasure(this)
+
+    private fun dispatchOnPositionedCallbacks() {
+        // There are two types of callbacks:
+        // a) when the Layout is positioned - `onPositioned`
+        // b) when the child of the Layout is positioned - `onChildPositioned`
+        // To create LayoutNodeCoordinates only once here we will call callbacks from
+        // both `onPositioned` and 'onChildPositioned'.
+        val coordinates = LayoutNodeCoordinates(this)
+        walkOnPosition(this, coordinates)
+        walkOnChildPositioned(this, coordinates)
+    }
+
+    internal companion object {
+        @Suppress("UNCHECKED_CAST")
+        private fun walkOnPosition(node: ComponentNode, coordinates: LayoutCoordinates) {
+            node.visitChildren { child ->
+                if (child !is LayoutNode) {
+                    if (child is DataNode<*> && child.key === OnPositionedKey) {
+                        val method = child.value as (LayoutCoordinates) -> Unit
+                        method(coordinates)
+                    }
+                    walkOnPosition(child, coordinates)
+                }
+            }
+        }
+
+        @Suppress("UNCHECKED_CAST")
+        private fun walkOnChildPositioned(layoutNode: LayoutNode, coordinates: LayoutCoordinates) {
+            var node = layoutNode.parent
+            while (node != null && node !is LayoutNode) {
+                if (node is DataNode<*> && node.key === OnChildPositionedKey) {
+                    val method = node.value as (LayoutCoordinates) -> Unit
+                    method(coordinates)
+                }
+                node = node.parent
+            }
+        }
+
+        private val ErrorMeasureBlock:
+                MeasureBlockScope.(List<Measurable>, Constraints) -> LayoutResult = { _, _ ->
+            throw IllegalStateException("Undefined measure and it is required")
+        }
+        private val ErrorIntrinsicBlock:
+                DensityReceiver.(List<IntrinsicMeasurable>, IntPx) -> IntPx = { _, _ ->
+            throw IllegalStateException("Undefined intrinsics block and it is required")
+        }
+
+        private fun addLayoutChildren(node: ComponentNode, list: MutableList<LayoutNode>) {
+            node.visitChildren { child ->
+                if (child is LayoutNode) {
+                    list += child
+                } else {
+                    addLayoutChildren(child, list)
+                }
+            }
+        }
+    }
 }
 
 private class InvalidatingProperty<T>(private var value: T) :
@@ -652,20 +854,6 @@ class DataNode<T>(val key: DataNodeKey<T>, var value: T) : ComponentNode() {
  * Returns [ComponentNode.owner] or throws if it is null.
  */
 fun ComponentNode.requireOwner(): Owner = owner ?: ErrorMessages.NodeShouldBeAttached.state()
-
-/**
- * The list of child Layouts. It can contain zero or more entries.
- */
-fun LayoutNode.childrenLayouts(): List<Any> {
-    val layouts = mutableListOf<Any>()
-    visitLayoutChildren { child ->
-        val layout = child.layout
-        if (layout != null) {
-            layouts.add(layout)
-        }
-    }
-    return layouts
-}
 
 /**
  * Inserts a child [ComponentNode] at a last index. If this ComponentNode [isAttached]
@@ -796,3 +984,49 @@ fun ComponentNode.findLastLayoutChild(block: (LayoutNode) -> Boolean): LayoutNod
  * Returns `true` if this ComponentNode has no descendant [LayoutNode]s.
  */
 fun ComponentNode.hasNoLayoutDescendants() = findLastLayoutChild { true } == null
+
+/**
+ * DataNodeKey for ParentData
+ */
+val ParentDataKey = DataNodeKey<Any>("Compose:ParentData")
+
+/**
+ * DataNodeKey for OnPositioned callback
+ */
+val OnPositionedKey = DataNodeKey<(LayoutCoordinates) -> Unit>("Compose:OnPositioned")
+
+/**
+ * DataNodeKey for OnChildPositioned callback
+ */
+val OnChildPositionedKey =
+    DataNodeKey<(LayoutCoordinates) -> Unit>("Compose:OnChildPositioned")
+
+/**
+ * A LayoutCoordinates implementation based on LayoutNode.
+ */
+private class LayoutNodeCoordinates(
+    private val layoutNode: LayoutNode
+) : LayoutCoordinates {
+
+    override val position get() = PxPosition(layoutNode.x, layoutNode.y)
+
+    override val size get() = PxSize(layoutNode.width, layoutNode.height)
+
+    override fun globalToLocal(global: PxPosition) = layoutNode.globalToLocal(global)
+
+    override fun localToGlobal(local: PxPosition) = layoutNode.localToGlobal(local)
+
+    override fun localToRoot(local: PxPosition) = layoutNode.localToGlobal(local, false)
+
+    override fun childToLocal(child: LayoutCoordinates, childLocal: PxPosition): PxPosition {
+        if (child !is LayoutNodeCoordinates) {
+            throw IllegalArgumentException("Incorrect child provided.")
+        }
+        return layoutNode.childToLocal(child.layoutNode, childLocal)
+    }
+
+    override fun getParentCoordinates(): LayoutCoordinates? {
+        val parent = layoutNode.parentLayoutNode
+        return if (parent != null) LayoutNodeCoordinates(parent) else null
+    }
+}

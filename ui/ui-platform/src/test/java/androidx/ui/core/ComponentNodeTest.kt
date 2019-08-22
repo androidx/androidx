@@ -355,17 +355,17 @@ class ComponentNodeTest {
         val owner = mock(Owner::class.java)
         node.attach(owner)
         verify(owner, times(0)).onSizeChange(node)
-        node.resize(10.ipx, 10.ipx)
+        node.layout(10.ipx, 10.ipx) {}
         verify(owner, times(1)).onSizeChange(node)
     }
 
     @Test
-    fun moveTo() {
+    fun place() {
         val (node, _, _) = createSimpleLayout()
         val owner = mock(Owner::class.java)
         node.attach(owner)
         verify(owner, times(0)).onPositionChange(node)
-        node.moveTo(10.ipx, 10.ipx)
+        node.place(10.ipx, 10.ipx)
         verify(owner, times(1)).onPositionChange(node)
     }
 
@@ -458,8 +458,8 @@ class ComponentNodeTest {
         val y0 = 10.ipx
         val x1 = 50.ipx
         val y1 = 80.ipx
-        node0.moveTo(x0, y0)
-        node1.moveTo(x1, y1)
+        node0.place(x0, y0)
+        node1.place(x1, y1)
 
         val globalPosition = PxPosition(250.px, 300.px)
 
@@ -483,8 +483,8 @@ class ComponentNodeTest {
         val y0 = 10.ipx
         val x1 = 50.ipx
         val y1 = 80.ipx
-        node0.moveTo(x0, y0)
-        node1.moveTo(x1, y1)
+        node0.place(x0, y0)
+        node1.place(x1, y1)
 
         val localPosition = PxPosition(5.px, 15.px)
 
@@ -501,7 +501,7 @@ class ComponentNodeTest {
     fun testLocalToGlobalUsesOwnerPosition() {
         val node = LayoutNode()
         node.attach(mockOwner(PxPosition(20.px, 20.px)))
-        node.moveTo(100.ipx, 10.ipx)
+        node.place(100.ipx, 10.ipx)
 
         val result = node.localToGlobal(PxPosition.Origin)
 
@@ -516,8 +516,8 @@ class ComponentNodeTest {
 
         val x1 = 50.ipx
         val y1 = 80.ipx
-        node0.moveTo(100.ipx, 10.ipx)
-        node1.moveTo(x1, y1)
+        node0.place(100.ipx, 10.ipx)
+        node1.place(x1, y1)
 
         val localPosition = PxPosition(5.px, 15.px)
 
@@ -568,8 +568,8 @@ class ComponentNodeTest {
         val parent = LayoutNode()
         val child = LayoutNode()
         parent.emitInsertAt(0, child)
-        parent.moveTo(-100.ipx, 10.ipx)
-        child.moveTo(50.ipx, 80.ipx)
+        parent.place(-100.ipx, 10.ipx)
+        child.place(50.ipx, 80.ipx)
 
         val actual = child.positionRelativeToRoot()
 
@@ -582,7 +582,7 @@ class ComponentNodeTest {
         parent.attach(mockOwner(PxPosition(20.px, 20.px)))
         val child = LayoutNode()
         parent.emitInsertAt(0, child)
-        child.moveTo(50.ipx, 80.ipx)
+        child.place(50.ipx, 80.ipx)
 
         val actual = child.positionRelativeToRoot()
 
@@ -594,8 +594,8 @@ class ComponentNodeTest {
         val parent = LayoutNode()
         val child = LayoutNode()
         parent.emitInsertAt(0, child)
-        parent.moveTo(-100.ipx, 10.ipx)
-        child.moveTo(50.ipx, 80.ipx)
+        parent.place(-100.ipx, 10.ipx)
+        child.place(50.ipx, 80.ipx)
 
         val actual = child.positionRelativeToAncestor(parent)
 
@@ -609,9 +609,9 @@ class ComponentNodeTest {
         val child = LayoutNode()
         grandParent.emitInsertAt(0, parent)
         parent.emitInsertAt(0, child)
-        grandParent.moveTo(-7.ipx, 17.ipx)
-        parent.moveTo(23.ipx, -13.ipx)
-        child.moveTo(-3.ipx, 11.ipx)
+        grandParent.place(-7.ipx, 17.ipx)
+        parent.place(23.ipx, -13.ipx)
+        child.place(-3.ipx, 11.ipx)
 
         val actual = child.positionRelativeToAncestor(grandParent)
 
@@ -663,7 +663,7 @@ class ComponentNodeTest {
 
     // ComponentNode should error when removing at count > entry count
     @Test
-    fun testRemoveTooMany() {
+    fun testReplaceoMany() {
         val pointerInputNode = PointerInputNode()
         pointerInputNode.emitInsertAt(0, DrawNode())
         thrown.expect(IndexOutOfBoundsException::class.java)
@@ -672,7 +672,7 @@ class ComponentNodeTest {
 
     // ComponentNode should error when there aren't enough items
     @Test
-    fun testRemoveTooMany2() {
+    fun testReplaceoMany2() {
         val pointerInputNode = PointerInputNode()
         thrown.expect(IndexOutOfBoundsException::class.java)
         pointerInputNode.emitRemoveAt(0, 1)

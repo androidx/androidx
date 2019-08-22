@@ -58,5 +58,3 @@ fun ParentData(data: Any, children: @Composable() () -> Unit) {
         <children/>
     </DataNode>
 }
-
-internal val ParentDataKey = DataNodeKey<Any>("Compose:ParentData")
