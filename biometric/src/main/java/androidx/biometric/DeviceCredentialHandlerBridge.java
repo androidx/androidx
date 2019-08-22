@@ -68,7 +68,7 @@ class DeviceCredentialHandlerBridge {
 
     @Retention(RetentionPolicy.SOURCE)
     @IntDef({RESULT_NONE, RESULT_SUCCESS, RESULT_ERROR})
-    private @interface DeviceCredentialResult {}
+    @interface DeviceCredentialResult {}
 
     private @DeviceCredentialResult int mDeviceCredentialResult = RESULT_NONE;
 
