@@ -505,7 +505,7 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
         return mControllerInfoForAll;
     }
 
-    ConnectedControllersManager getConnectedControllersManager() {
+    ConnectedControllersManager<RemoteUserInfo> getConnectedControllersManager() {
         return mConnectedControllersManager;
     }
 

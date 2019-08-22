@@ -40,7 +40,7 @@ class SequencedFutureManager implements AutoCloseable {
     @GuardedBy("mLock")
     private int mNextSequenceNumber;
     @GuardedBy("mLock")
-    private ArrayMap<Integer, SequencedFuture> mSeqToFutureMap = new ArrayMap<>();
+    private ArrayMap<Integer, SequencedFuture<?>> mSeqToFutureMap = new ArrayMap<>();
 
     /**
      * Obtains next sequence number without creating future. Used for methods with no return
@@ -63,14 +63,12 @@ class SequencedFutureManager implements AutoCloseable {
     // TODO: Find better way to get closed result -- result has completion time, and it should be
     //       set when the manager is closed, not now.
     public <T> SequencedFuture<T> createSequencedFuture(T resultWhenClosed) {
-        final SequencedFuture<T> result;
-        final int seq;
         synchronized (mLock) {
-            seq = obtainNextSequenceNumber();
-            result = SequencedFuture.create(seq, resultWhenClosed);
+            int seq = obtainNextSequenceNumber();
+            SequencedFuture<T> result = SequencedFuture.create(seq, resultWhenClosed);
             mSeqToFutureMap.put(seq, result);
+            return result;
         }
-        return result;
     }
 
     /**
@@ -83,11 +81,11 @@ class SequencedFutureManager implements AutoCloseable {
     @SuppressWarnings("unchecked")
     public <T> void setFutureResult(int seq, T result) {
         synchronized (mLock) {
-            SequencedFuture future = mSeqToFutureMap.remove(seq);
+            SequencedFuture<?> future = mSeqToFutureMap.remove(seq);
             if (future != null) {
                 if (result == null
                         || future.getResultWhenClosed().getClass() == result.getClass()) {
-                    future.set(result);
+                    ((SequencedFuture<T>) future).set(result);
                 } else {
                     Log.w(TAG, "Type mismatch, expected "
                             + future.getResultWhenClosed().getClass()
@@ -105,15 +103,14 @@ class SequencedFutureManager implements AutoCloseable {
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public void close() {
-        List<SequencedFuture> pendingResults = new ArrayList<>();
+        List<SequencedFuture<?>> pendingResults;
         synchronized (mLock) {
-            pendingResults.addAll(mSeqToFutureMap.values());
+            pendingResults = new ArrayList<>(mSeqToFutureMap.values());
             mSeqToFutureMap.clear();
         }
-        for (SequencedFuture result: pendingResults) {
-            result.set(result.getResultWhenClosed());
+        for (SequencedFuture<?> result: pendingResults) {
+            result.setWithTheValueOfResultWhenClosed();
         }
     }
 
@@ -126,12 +123,16 @@ class SequencedFutureManager implements AutoCloseable {
          * method call.
          */
         static <T> SequencedFuture<T> create(int seq, @NonNull T resultWhenClosed) {
-            return new SequencedFuture<T>(seq, resultWhenClosed);
+            return new SequencedFuture<>(seq, resultWhenClosed);
         }
 
         @Override
         public boolean set(@Nullable T value) {
             return super.set(value);
+        }
+
+        void setWithTheValueOfResultWhenClosed() {
+            set(mResultWhenClosed);
         }
 
         public int getSequenceNumber() {

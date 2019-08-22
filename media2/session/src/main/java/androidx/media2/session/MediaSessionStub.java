@@ -245,7 +245,7 @@ class MediaSessionStub extends IMediaSession.Stub {
                                 }, DIRECT_EXECUTOR);
                             }
                         } else if (task instanceof SessionCallbackTask) {
-                            final Object result = ((SessionCallbackTask) task).run(controller);
+                            final Object result = ((SessionCallbackTask<?>) task).run(controller);
                             if (result == null) {
                                 throw new RuntimeException("SessionCallback has returned null,"
                                         + " commandCode=" + commandCode);
@@ -258,7 +258,7 @@ class MediaSessionStub extends IMediaSession.Stub {
                                         + ". Fix bug");
                             }
                         } else if (task instanceof LibrarySessionCallbackTask) {
-                            final Object result = ((LibrarySessionCallbackTask) task).run(
+                            final Object result = ((LibrarySessionCallbackTask<?>) task).run(
                                     controller);
                             if (result == null) {
                                 throw new RuntimeException("LibrarySessionCallback has returned"
@@ -308,7 +308,7 @@ class MediaSessionStub extends IMediaSession.Stub {
     }
 
     private void dispatchLibrarySessionTask(@NonNull IMediaController caller, int seq,
-            @CommandCode final int commandCode, @NonNull final LibrarySessionCallbackTask task) {
+            @CommandCode final int commandCode, @NonNull final LibrarySessionCallbackTask<?> task) {
         if (!(mSessionImpl instanceof MediaLibrarySessionImpl)) {
             throw new RuntimeException("MediaSession cannot handle MediaLibrarySession command");
         }
@@ -1259,7 +1259,7 @@ class MediaSessionStub extends IMediaSession.Stub {
      *
      * @see #dispatchSessionTask
      */
-    private interface SessionTask<T> {
+    private interface SessionTask {
         // empty interface
     }
 
