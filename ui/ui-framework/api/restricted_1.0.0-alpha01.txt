@@ -6,23 +6,12 @@ package androidx.ui.core {
     method public static void Clip(androidx.ui.engine.geometry.Shape shape, kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
 
-  public final class ComplexLayoutBlockReceiver implements androidx.ui.core.DensityReceiver {
-    method public androidx.ui.core.Density getDensity();
-    method public androidx.ui.core.LayoutResult layout(androidx.ui.core.IntPx width, androidx.ui.core.IntPx height, kotlin.jvm.functions.Function1<? super androidx.ui.core.PositioningBlockReceiver,kotlin.Unit> positioningBlock);
-    method public androidx.ui.core.IntPx maxIntrinsicHeight(androidx.ui.core.Measurable, androidx.ui.core.IntPx w);
-    method public androidx.ui.core.IntPx maxIntrinsicWidth(androidx.ui.core.Measurable, androidx.ui.core.IntPx h);
-    method public androidx.ui.core.Placeable measure(androidx.ui.core.Measurable, androidx.ui.core.Constraints constraints);
-    method public androidx.ui.core.IntPx minIntrinsicHeight(androidx.ui.core.Measurable, androidx.ui.core.IntPx w);
-    method public androidx.ui.core.IntPx minIntrinsicWidth(androidx.ui.core.Measurable, androidx.ui.core.IntPx h);
-    property public androidx.ui.core.Density density;
-  }
-
-  public final class ComplexLayoutReceiver {
-    method public void maxIntrinsicHeight(kotlin.jvm.functions.Function3<? super androidx.ui.core.IntrinsicMeasurementReceiver,? super java.util.List<? extends androidx.ui.core.Measurable>,? super androidx.ui.core.IntPx,androidx.ui.core.IntPx> maxIntrinsicHeightBlock);
-    method public void maxIntrinsicWidth(kotlin.jvm.functions.Function3<? super androidx.ui.core.IntrinsicMeasurementReceiver,? super java.util.List<? extends androidx.ui.core.Measurable>,? super androidx.ui.core.IntPx,androidx.ui.core.IntPx> maxIntrinsicWidthBlock);
-    method public void measure(kotlin.jvm.functions.Function3<? super androidx.ui.core.ComplexLayoutBlockReceiver,? super java.util.List<? extends androidx.ui.core.Measurable>,? super androidx.ui.core.Constraints,androidx.ui.core.LayoutResult> layoutBlock);
-    method public void minIntrinsicHeight(kotlin.jvm.functions.Function3<? super androidx.ui.core.IntrinsicMeasurementReceiver,? super java.util.List<? extends androidx.ui.core.Measurable>,? super androidx.ui.core.IntPx,androidx.ui.core.IntPx> minIntrinsicHeightBlock);
-    method public void minIntrinsicWidth(kotlin.jvm.functions.Function3<? super androidx.ui.core.IntrinsicMeasurementReceiver,? super java.util.List<? extends androidx.ui.core.Measurable>,? super androidx.ui.core.IntPx,androidx.ui.core.IntPx> minIntrinsicWidthBlock);
+  public final class ComplexLayoutScope {
+    method public void maxIntrinsicHeight(kotlin.jvm.functions.Function3<? super androidx.ui.core.DensityReceiver,? super java.util.List<? extends androidx.ui.core.IntrinsicMeasurable>,? super androidx.ui.core.IntPx,androidx.ui.core.IntPx> maxIntrinsicHeightBlock);
+    method public void maxIntrinsicWidth(kotlin.jvm.functions.Function3<? super androidx.ui.core.DensityReceiver,? super java.util.List<? extends androidx.ui.core.IntrinsicMeasurable>,? super androidx.ui.core.IntPx,androidx.ui.core.IntPx> maxIntrinsicWidthBlock);
+    method public void measure(kotlin.jvm.functions.Function3<? super androidx.ui.core.MeasureBlockScope,? super java.util.List<? extends androidx.ui.core.Measurable>,? super androidx.ui.core.Constraints,androidx.ui.core.LayoutResult> measureBlock);
+    method public void minIntrinsicHeight(kotlin.jvm.functions.Function3<? super androidx.ui.core.DensityReceiver,? super java.util.List<? extends androidx.ui.core.IntrinsicMeasurable>,? super androidx.ui.core.IntPx,androidx.ui.core.IntPx> minIntrinsicHeightBlock);
+    method public void minIntrinsicWidth(kotlin.jvm.functions.Function3<? super androidx.ui.core.DensityReceiver,? super java.util.List<? extends androidx.ui.core.IntrinsicMeasurable>,? super androidx.ui.core.IntPx,androidx.ui.core.IntPx> minIntrinsicWidthBlock);
   }
 
   public final class DrawKt {
@@ -36,55 +25,29 @@ package androidx.ui.core {
     method public static void DrawShadow(androidx.ui.engine.geometry.Shape shape, androidx.ui.core.Dp elevation);
   }
 
-  public final class IntrinsicMeasurementReceiver implements androidx.ui.core.DensityReceiver {
-    method public androidx.ui.core.Density getDensity();
-    method public androidx.ui.core.IntPx maxIntrinsicHeight(androidx.ui.core.Measurable, androidx.ui.core.IntPx w);
-    method public androidx.ui.core.IntPx maxIntrinsicWidth(androidx.ui.core.Measurable, androidx.ui.core.IntPx h);
-    method public androidx.ui.core.IntPx minIntrinsicHeight(androidx.ui.core.Measurable, androidx.ui.core.IntPx w);
-    method public androidx.ui.core.IntPx minIntrinsicWidth(androidx.ui.core.Measurable, androidx.ui.core.IntPx h);
-    property public androidx.ui.core.Density density;
-  }
-
-  public final class LayoutBlockReceiver implements androidx.ui.core.DensityReceiver {
-    method public operator java.util.List<androidx.ui.core.Measurable> get(java.util.List<? extends androidx.ui.core.Measurable>, kotlin.jvm.functions.Function0<kotlin.Unit> children);
-    method public androidx.ui.core.Density getDensity();
-    method public androidx.ui.core.LayoutResult layout(androidx.ui.core.IntPx width, androidx.ui.core.IntPx height, kotlin.jvm.functions.Function1<? super androidx.ui.core.PositioningBlockReceiver,kotlin.Unit> positioningBlock);
-    method public androidx.ui.core.Placeable measure(androidx.ui.core.Measurable, androidx.ui.core.Constraints constraints);
-    property public androidx.ui.core.Density density;
-  }
-
-  public interface LayoutCoordinates {
-    method public androidx.ui.core.PxPosition childToLocal(androidx.ui.core.LayoutCoordinates child, androidx.ui.core.PxPosition childLocal);
-    method public androidx.ui.core.LayoutCoordinates? getParentCoordinates();
-    method public androidx.ui.core.PxPosition getPosition();
-    method public androidx.ui.core.PxSize getSize();
-    method public androidx.ui.core.PxPosition globalToLocal(androidx.ui.core.PxPosition global);
-    method public androidx.ui.core.PxPosition localToGlobal(androidx.ui.core.PxPosition local);
-    method public androidx.ui.core.PxPosition localToRoot(androidx.ui.core.PxPosition local);
-    property public abstract androidx.ui.core.PxPosition position;
-    property public abstract androidx.ui.core.PxSize size;
-  }
-
   public final class LayoutKt {
     ctor public LayoutKt();
-    method public static void ComplexLayout(kotlin.jvm.functions.Function0<kotlin.Unit> children, kotlin.jvm.functions.Function1<? super androidx.ui.core.ComplexLayoutReceiver,kotlin.Unit> block);
-    method public static void Layout(kotlin.jvm.functions.Function0<kotlin.Unit> children, kotlin.jvm.functions.Function3<? super androidx.ui.core.LayoutBlockReceiver,? super java.util.List<? extends androidx.ui.core.Measurable>,? super androidx.ui.core.Constraints,androidx.ui.core.LayoutResult> measureBlock);
-    method public static void Layout(kotlin.jvm.functions.Function0<kotlin.Unit>![] childrenArray, kotlin.jvm.functions.Function3<? super androidx.ui.core.LayoutBlockReceiver,? super java.util.List<? extends androidx.ui.core.Measurable>,? super androidx.ui.core.Constraints,androidx.ui.core.LayoutResult> measureBlock);
+    method public static void ComplexLayout(kotlin.jvm.functions.Function0<kotlin.Unit> children, kotlin.jvm.functions.Function1<? super androidx.ui.core.ComplexLayoutScope,kotlin.Unit> block);
+    method public static void Layout(kotlin.jvm.functions.Function0<kotlin.Unit> children, kotlin.jvm.functions.Function3<? super androidx.ui.core.MeasureBlockScope,? super java.util.List<? extends androidx.ui.core.Measurable>,? super androidx.ui.core.Constraints,androidx.ui.core.LayoutResult> measureBlock);
+    method public static void Layout(kotlin.jvm.functions.Function0<kotlin.Unit>![] childrenArray, kotlin.jvm.functions.Function3<? super androidx.ui.core.MeasureBlockScope,? super androidx.ui.core.MultiComposableMeasurables,? super androidx.ui.core.Constraints,androidx.ui.core.LayoutResult> measureBlock);
     method public static void OnChildPositioned(kotlin.jvm.functions.Function1<? super androidx.ui.core.LayoutCoordinates,kotlin.Unit> onPositioned, kotlin.jvm.functions.Function0<kotlin.Unit> children);
     method public static void OnPositioned(kotlin.jvm.functions.Function1<? super androidx.ui.core.LayoutCoordinates,kotlin.Unit> onPositioned);
     method public static void WithConstraints(kotlin.jvm.functions.Function1<? super androidx.ui.core.Constraints,kotlin.Unit> children);
   }
 
-  public final class LayoutResult {
-    field public static final androidx.ui.core.LayoutResult.Companion! Companion;
-  }
-
-  public static final class LayoutResult.Companion {
-  }
-
-  public interface Measurable {
-    method public Object? getParentData();
-    property public abstract Object? parentData;
+  public final class MultiComposableMeasurables implements kotlin.jvm.internal.markers.KMappedMarker java.util.List<androidx.ui.core.Measurable> {
+    method public boolean contains(androidx.ui.core.Measurable element);
+    method public boolean containsAll(java.util.Collection<?> elements);
+    method public operator java.util.List<androidx.ui.core.Measurable> get(kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method public androidx.ui.core.Measurable get(int index);
+    method public int getSize();
+    method public int indexOf(androidx.ui.core.Measurable element);
+    method public boolean isEmpty();
+    method public java.util.Iterator<androidx.ui.core.Measurable> iterator();
+    method public int lastIndexOf(androidx.ui.core.Measurable element);
+    method public java.util.ListIterator<androidx.ui.core.Measurable> listIterator();
+    method public java.util.ListIterator<androidx.ui.core.Measurable> listIterator(int index);
+    method public java.util.List<androidx.ui.core.Measurable> subList(int fromIndex, int toIndex);
   }
 
   public final class OpacityKt {
@@ -97,24 +60,9 @@ package androidx.ui.core {
     method public static void ParentData(Object data, kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
 
-  public abstract class Placeable {
-    ctor public Placeable();
-    method public abstract androidx.ui.core.IntPx getHeight();
-    method public abstract androidx.ui.core.IntPx getWidth();
-    method protected abstract void place(androidx.ui.core.IntPx x, androidx.ui.core.IntPx y);
-    property public abstract androidx.ui.core.IntPx height;
-    property public abstract androidx.ui.core.IntPx width;
-  }
-
   public final class PointerInputWrapperKt {
     ctor public PointerInputWrapperKt();
     method public static void PointerInputWrapper(kotlin.jvm.functions.Function2<? super java.util.List<androidx.ui.core.PointerInputChange>,? super androidx.ui.core.PointerEventPass,? extends java.util.List<androidx.ui.core.PointerInputChange>> pointerInputHandler = { event, _ -> event }, kotlin.jvm.functions.Function0<kotlin.Unit> children);
-  }
-
-  public final class PositioningBlockReceiver {
-    ctor public PositioningBlockReceiver();
-    method public void place(androidx.ui.core.Placeable, androidx.ui.core.IntPx x, androidx.ui.core.IntPx y);
-    method public void place(androidx.ui.core.Placeable, androidx.ui.core.Px x, androidx.ui.core.Px y);
   }
 
   public final class RepaintBoundaryKt {

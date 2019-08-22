@@ -22,11 +22,11 @@ import androidx.compose.composer
 import androidx.ui.core.Constraints
 import androidx.ui.core.IntPx
 import androidx.ui.core.IntPxSize
-import androidx.ui.core.Measurable
 import androidx.ui.core.Placeable
 import androidx.ui.core.ipx
 import androidx.ui.core.max
 import androidx.ui.core.ComplexLayout
+import androidx.ui.core.IntrinsicMeasurable
 import androidx.ui.core.ParentData
 import androidx.ui.core.isFinite
 import androidx.ui.core.px
@@ -461,8 +461,8 @@ private data class OrientationIndependentConstraints(
         }
 }
 
-private val Measurable.flex: Float get() = (parentData as FlexInfo).flex
-private val Measurable.fit: FlexFit get() = (parentData as FlexInfo).fit
+private val IntrinsicMeasurable.flex: Float get() = (parentData as FlexInfo).flex
+private val IntrinsicMeasurable.fit: FlexFit get() = (parentData as FlexInfo).fit
 
 /**
  * Layout model that places its children in a horizontal or vertical sequence, according to the
@@ -664,9 +664,9 @@ private fun Flex(
 }
 
 private fun intrinsicSize(
-    children: List<Measurable>,
-    intrinsicMainSize: Measurable.(IntPx) -> IntPx,
-    intrinsicCrossSize: Measurable.(IntPx) -> IntPx,
+    children: List<IntrinsicMeasurable>,
+    intrinsicMainSize: IntrinsicMeasurable.(IntPx) -> IntPx,
+    intrinsicCrossSize: IntrinsicMeasurable.(IntPx) -> IntPx,
     crossAxisAvailable: IntPx,
     flexOrientation: FlexOrientation,
     intrinsicOrientation: FlexOrientation
@@ -677,8 +677,8 @@ private fun intrinsicSize(
 }
 
 private fun intrinsicMainAxisSize(
-    children: List<Measurable>,
-    mainAxisSize: Measurable.(IntPx) -> IntPx,
+    children: List<IntrinsicMeasurable>,
+    mainAxisSize: IntrinsicMeasurable.(IntPx) -> IntPx,
     crossAxisAvailable: IntPx
 ): IntPx {
     var maxFlexibleSpace = 0.ipx
@@ -698,9 +698,9 @@ private fun intrinsicMainAxisSize(
 }
 
 private fun intrinsicCrossAxisSize(
-    children: List<Measurable>,
-    mainAxisSize: Measurable.(IntPx) -> IntPx,
-    crossAxisSize: Measurable.(IntPx) -> IntPx,
+    children: List<IntrinsicMeasurable>,
+    mainAxisSize: IntrinsicMeasurable.(IntPx) -> IntPx,
+    crossAxisSize: IntrinsicMeasurable.(IntPx) -> IntPx,
     mainAxisAvailable: IntPx
 ): IntPx {
     var inflexibleSpace = 0.ipx

@@ -13,19 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package androidx.ui.core
 
 /**
- * A [Placeable] corresponds to a child which can be positioned by its parent container.
- * Most [Placeable]s are the result of a [Measureable.measure] call.
+ * Value returned by [MeasureBlockScope.layout] to ensure developers call
+ * it during the measure pass.
  */
-// TODO(popam): investigate if this class is really needed, as it blocks making
-//              MeasuredPlaceable an inline class
-abstract class Placeable {
-    abstract val width: IntPx
-    abstract val height: IntPx
-    protected abstract fun place(x: IntPx, y: IntPx)
-    internal fun placeInternal(x: IntPx, y: IntPx) {
-        place(x, y)
+class LayoutResult private constructor() {
+    companion object {
+        /**
+         * The only instance of LayoutResult. Application developers
+         * do not typically need direct access to Instance as it is
+         * returned from [MeasureBlockScope.layout].
+         */
+        val Instance = LayoutResult()
     }
 }

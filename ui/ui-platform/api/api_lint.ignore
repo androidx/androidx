@@ -3,12 +3,18 @@ DocumentExceptions: androidx.ui.core.AndroidCraneView#onAttach(androidx.ui.core.
     Method AndroidCraneView.onAttach appears to be throwing java.lang.IllegalStateException; this should be listed in the documentation; see https://android.github.io/kotlin-guides/interop.html#document-exceptions
 DocumentExceptions: androidx.ui.core.ComponentNodesKt#childToLocal(androidx.ui.core.LayoutNode, androidx.ui.core.LayoutNode, androidx.ui.core.PxPosition):
     Method ComponentNodesKt.childToLocal appears to be throwing java.lang.IllegalStateException; this should be listed in the documentation; see https://android.github.io/kotlin-guides/interop.html#document-exceptions
+DocumentExceptions: androidx.ui.core.LayoutNode#measure(androidx.ui.core.Constraints):
+    Method LayoutNode.measure appears to be throwing java.lang.IllegalStateException; this should be listed in the documentation; see https://android.github.io/kotlin-guides/interop.html#document-exceptions
 
 
 EndsWithImpl: androidx.ui.core.SemanticsTreeNodeImpl:
     Don't expose your implementation details: `SemanticsTreeNodeImpl` ends with `Impl`
 
 
+MissingNullability: androidx.ui.core.AndroidCraneView#Companion:
+    Missing nullability on field `Companion` in class `class androidx.ui.core.AndroidCraneView`
+MissingNullability: androidx.ui.core.LayoutNode#Companion:
+    Missing nullability on field `Companion` in class `class androidx.ui.core.LayoutNode`
 MissingNullability: androidx.ui.core.semantics.SemanticsNode#Companion:
     Missing nullability on field `Companion` in class `class androidx.ui.core.semantics.SemanticsNode`
 MissingNullability: androidx.ui.internal.Unicode#INSTANCE:

@@ -2387,8 +2387,8 @@ class HitPathTrackerTest {
 
         hitResult.refreshOffsets()
 
-        childLayoutNode.moveTo(newChildOffset.x, newChildOffset.y)
-        parentLayoutNode.moveTo(newParentOffset.x, newParentOffset.y)
+        childLayoutNode.place(newChildOffset.x, newChildOffset.y)
+        parentLayoutNode.place(newParentOffset.x, newParentOffset.y)
 
         // Act
 

@@ -434,9 +434,56 @@ package androidx.ui.core {
     method public androidx.ui.core.IntPx getWidth();
   }
 
+  public interface IntrinsicMeasurable {
+    method public Object? getParentData();
+    method public androidx.ui.core.IntPx maxIntrinsicHeight(androidx.ui.core.IntPx width);
+    method public androidx.ui.core.IntPx maxIntrinsicWidth(androidx.ui.core.IntPx height);
+    method public androidx.ui.core.IntPx minIntrinsicHeight(androidx.ui.core.IntPx width);
+    method public androidx.ui.core.IntPx minIntrinsicWidth(androidx.ui.core.IntPx height);
+    property public abstract Object? parentData;
+  }
+
+  public interface LayoutCoordinates {
+    method public androidx.ui.core.PxPosition childToLocal(androidx.ui.core.LayoutCoordinates child, androidx.ui.core.PxPosition childLocal);
+    method public androidx.ui.core.LayoutCoordinates? getParentCoordinates();
+    method public androidx.ui.core.PxPosition getPosition();
+    method public androidx.ui.core.PxSize getSize();
+    method public androidx.ui.core.PxPosition globalToLocal(androidx.ui.core.PxPosition global);
+    method public androidx.ui.core.PxPosition localToGlobal(androidx.ui.core.PxPosition local);
+    method public androidx.ui.core.PxPosition localToRoot(androidx.ui.core.PxPosition local);
+    property public abstract androidx.ui.core.PxPosition position;
+    property public abstract androidx.ui.core.PxSize size;
+  }
+
   public enum LayoutDirection {
     enum_constant public static final androidx.ui.core.LayoutDirection Ltr;
     enum_constant public static final androidx.ui.core.LayoutDirection Rtl;
+  }
+
+  public final class LayoutResult {
+    field public static final androidx.ui.core.LayoutResult.Companion! Companion;
+  }
+
+  public static final class LayoutResult.Companion {
+    method public androidx.ui.core.LayoutResult getInstance();
+    property public final androidx.ui.core.LayoutResult Instance;
+  }
+
+  public interface Measurable extends androidx.ui.core.IntrinsicMeasurable {
+    method public androidx.ui.core.Placeable measure(androidx.ui.core.Constraints constraints);
+  }
+
+  public interface MeasureBlockScope extends androidx.ui.core.DensityReceiver {
+    method public androidx.ui.core.LayoutResult layout(androidx.ui.core.IntPx width, androidx.ui.core.IntPx height, kotlin.jvm.functions.Function1<? super androidx.ui.core.PositioningBlockScope,kotlin.Unit> positioningBlock);
+  }
+
+  public abstract class Placeable {
+    ctor public Placeable();
+    method public abstract androidx.ui.core.IntPx getHeight();
+    method public abstract androidx.ui.core.IntPx getWidth();
+    method protected abstract void place(androidx.ui.core.IntPx x, androidx.ui.core.IntPx y);
+    property public abstract androidx.ui.core.IntPx height;
+    property public abstract androidx.ui.core.IntPx width;
   }
 
   public enum PointerEventPass {
@@ -496,6 +543,12 @@ package androidx.ui.core {
     method public androidx.ui.core.Dp getY();
     method public inline operator androidx.ui.core.Position minus(androidx.ui.core.Position other);
     method public inline operator androidx.ui.core.Position plus(androidx.ui.core.Position other);
+  }
+
+  public final class PositioningBlockScope {
+    method public void place(androidx.ui.core.Placeable, androidx.ui.core.IntPx x, androidx.ui.core.IntPx y);
+    method public void place(androidx.ui.core.Placeable, androidx.ui.core.Px x, androidx.ui.core.Px y);
+    field public static final androidx.ui.core.PositioningBlockScope! INSTANCE;
   }
 
   public final class Px {
