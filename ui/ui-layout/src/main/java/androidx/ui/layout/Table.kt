@@ -241,8 +241,12 @@ fun Table(
         }
 
         // Force recomposition of decorations.
-        verticalOffsets.value = rowOffsets
-        horizontalOffsets.value = columnOffsets
+        if (!verticalOffsets.value.contentEquals(rowOffsets)) {
+            verticalOffsets.value = rowOffsets
+        }
+        if (!horizontalOffsets.value.contentEquals(columnOffsets)) {
+            horizontalOffsets.value = columnOffsets
+        }
 
         // TODO(calintat): Figure out what to do when these exceed max constraints.
         val tableWidth =
