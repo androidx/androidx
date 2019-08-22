@@ -44,8 +44,8 @@ class EditProcessorTest {
         verify(tis, times(1)).onStateUpdated(captor.capture())
         assertEquals(1, captor.allValues.size)
         assertEquals("ABCDE", captor.firstValue.text)
-        assertEquals(0, captor.firstValue.selection.start)
-        assertEquals(0, captor.firstValue.selection.end)
+        assertEquals(0, captor.firstValue.selection.min)
+        assertEquals(0, captor.firstValue.selection.max)
 
         reset(tis)
         val newState = proc.onEditCommands(listOf(
@@ -53,8 +53,8 @@ class EditProcessorTest {
         ))
 
         assertEquals("XABCDE", newState.text)
-        assertEquals(1, newState.selection.start)
-        assertEquals(1, newState.selection.end)
+        assertEquals(1, newState.selection.min)
+        assertEquals(1, newState.selection.max)
         // onEditCommands should not fire onStateUpdated since need to pass it to developer first.
         verify(tis, never()).onStateUpdated(any())
     }

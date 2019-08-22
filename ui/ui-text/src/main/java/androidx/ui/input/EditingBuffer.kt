@@ -57,13 +57,13 @@ class EditingBuffer(
     /**
      * The inclusive selection start offset
      */
-    var selectionStart = initialSelection.start
+    var selectionStart = initialSelection.min
         private set
 
     /**
      * The exclusive selection end offset
      */
-    var selectionEnd = initialSelection.end
+    var selectionEnd = initialSelection.max
         private set
 
     /**
@@ -116,8 +116,8 @@ class EditingBuffer(
     val length: Int get() = gapBuffer.length
 
     init {
-        val start = initialSelection.start
-        val end = initialSelection.end
+        val start = initialSelection.min
+        val end = initialSelection.max
         if (start < 0 || start > initialText.length) {
             throw IndexOutOfBoundsException(
                 "start ($start) offset is outside of text region ${initialText.length}")
@@ -234,7 +234,7 @@ class EditingBuffer(
                 // Result:
                 //   Buffer     : ABCDEFPQRSTUVWXYZ
                 //   Composition:       |=====|
-                compositionStart = deleteRange.start
+                compositionStart = deleteRange.min
                 compositionEnd -= deleteRange.length
             } else { // deleteRange contains compositionEnd
                 // Input:
@@ -245,10 +245,10 @@ class EditingBuffer(
                 // Result:
                 //   Buffer     : ABCDEFGHSTUVWXYZ
                 //   Composition:    |====|
-                compositionEnd = deleteRange.start
+                compositionEnd = deleteRange.min
             }
         } else {
-            if (compositionStart <= deleteRange.start) {
+            if (compositionStart <= deleteRange.min) {
                 // Input:
                 //   Buffer     : ABCDEFGHIJKLMNOPQRSTUVWXYZ
                 //   Delete     :            |-------|

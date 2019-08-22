@@ -1858,10 +1858,14 @@ package androidx.ui.text {
     method public boolean getCollapsed();
     method public int getEnd();
     method public int getLength();
+    method public int getMax();
+    method public int getMin();
     method public int getStart();
     method public boolean intersects(androidx.ui.text.TextRange other);
     property public final boolean collapsed;
     property public final int length;
+    property public final int max;
+    property public final int min;
   }
 
   public final class TextRangeKt {

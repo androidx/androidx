@@ -51,13 +51,13 @@ internal data class InputState(
      * Helper function for getting text before selection range.
      */
     fun getTextBeforeSelection(maxChars: Int): String =
-        text.substring(Math.max(0, selection.start - maxChars), selection.start)
+        text.substring(Math.max(0, selection.min - maxChars), selection.min)
 
     /**
      * Helper function for getting text after selection range.
      */
     fun getTextAfterSelection(maxChars: Int): String =
-        text.substring(selection.end, Math.min(selection.end + maxChars, text.length))
+        text.substring(selection.max, Math.min(selection.max + maxChars, text.length))
 
     /**
      * Helper function for getting text currently selected.
@@ -71,8 +71,8 @@ internal data class InputState(
         text = this@InputState.text
         partialEndOffset = this@InputState.text.length
         partialStartOffset = -1 // -1 means full text
-        selectionStart = selection.start
-        selectionEnd = selection.end
+        selectionStart = selection.min
+        selectionEnd = selection.max
         flags = ExtractedText.FLAG_SINGLE_LINE // TODO(nona): Support multiline text.
     }
 }

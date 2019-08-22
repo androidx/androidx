@@ -16,21 +16,22 @@
 
 package androidx.ui.text
 
-fun CharSequence.substring(range: TextRange): String = this.substring(range.start, range.end)
+fun CharSequence.substring(range: TextRange): String = this.substring(range.min, range.max)
 
 /**
- * An immutable text range class
+ * An immutable text range class, represents a text range from [start] (inclusive) to [end]
+ * (exclusive). [end] can be smaller than [start] and in those cases [min] and [max] can be
+ * used in order to fetch the values.
+ *
  * @param start the inclusive starting offset of the range.
  * @param end the exclusive end offset of the range
  */
 data class TextRange(val start: Int, val end: Int) {
+    /** The minimum offset of the range. */
+    val min: Int get() = if (start > end) end else start
 
-    init {
-        if (start > end) {
-            // TODO(nona): Handle reversed range?
-            throw IllegalArgumentException("Reversed range is not supported (yet)")
-        }
-    }
+    /** The maximum offset of the range. */
+    val max: Int get() = if (start > end) start else end
 
     /**
      * Returns true if the range is collapsed
@@ -40,20 +41,20 @@ data class TextRange(val start: Int, val end: Int) {
     /**
      * Returns the length of the range.
      */
-    val length: Int get() = end - start
+    val length: Int get() = max - min
 
     /**
      * Returns true if the given range has intersection with this range
      */
-    fun intersects(other: TextRange): Boolean = start < other.end && other.start < end
+    fun intersects(other: TextRange): Boolean = min < other.max && other.min < max
 
     /**
      * Returns true if this range covers including equals with the given range.
      */
-    fun contains(other: TextRange): Boolean = start <= other.start && other.end <= end
+    fun contains(other: TextRange): Boolean = min <= other.min && other.max <= max
 
     /**
      * Returns true if the given offset is a part of this range.
      */
-    fun contains(offset: Int): Boolean = start <= offset && offset < end
+    fun contains(offset: Int): Boolean = min <= offset && offset < max
 }

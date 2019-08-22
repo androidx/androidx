@@ -27,6 +27,25 @@ import org.junit.runners.JUnit4
 @RunWith(JUnit4::class)
 class TextRangeTest {
     @Test
+    fun substring() {
+        val text = "abcdef"
+        assertEquals(text.substring(TextRange(0, 3)), text.substring(0, 3))
+    }
+
+    @Test
+    fun substring_not_start_larger_than_end() {
+        val text = "abcdef"
+        assertEquals(text.substring(TextRange(3, 0)), text.substring(0, 3))
+    }
+
+    @Test
+    fun min_max() {
+        val textRange = TextRange(9, 8)
+        assertEquals(textRange.min, 8)
+        assertEquals(textRange.max, 9)
+    }
+
+    @Test
     fun equality() {
         assertEquals(TextRange(0, 0), TextRange(0, 0))
         assertEquals(TextRange(0, 1), TextRange(0, 1))

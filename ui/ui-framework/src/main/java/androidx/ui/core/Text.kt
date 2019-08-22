@@ -232,7 +232,7 @@ fun Text(
             Draw { canvas, _ ->
                 internalSelection.value?.let {
                     textDelegate.paintBackground(
-                        it.start, it.end, selectionColor, canvas
+                        it.min, it.max, selectionColor, canvas
                     )
                 }
                 textDelegate.paint(canvas)

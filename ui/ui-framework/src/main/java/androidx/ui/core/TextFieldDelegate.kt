@@ -22,7 +22,6 @@ import androidx.ui.graphics.Color
 import androidx.ui.input.EditOperation
 import androidx.ui.input.EditProcessor
 import androidx.ui.input.EditorModel
-import androidx.ui.input.EditorStyle
 import androidx.ui.input.FinishComposingTextEditOp
 import androidx.ui.input.ImeAction
 import androidx.ui.input.KeyboardType
@@ -132,8 +131,8 @@ internal class TextFieldDelegate {
         ) {
             value.composition?.let {
                 textDelegate.paintBackground(
-                    offsetMap.originalToTransformed(it.start),
-                    offsetMap.originalToTransformed(it.end),
+                    offsetMap.originalToTransformed(it.min),
+                    offsetMap.originalToTransformed(it.max),
                     Color(DEFAULT_COMPOSITION_COLOR),
                     canvas
                 )
@@ -141,12 +140,12 @@ internal class TextFieldDelegate {
             if (value.selection.collapsed) {
                 if (hasFocus) {
                     textDelegate.paintCursor(
-                        offsetMap.originalToTransformed(value.selection.start), canvas)
+                        offsetMap.originalToTransformed(value.selection.min), canvas)
                 }
             } else {
                 textDelegate.paintBackground(
-                    offsetMap.originalToTransformed(value.selection.start),
-                    offsetMap.originalToTransformed(value.selection.end),
+                    offsetMap.originalToTransformed(value.selection.min),
+                    offsetMap.originalToTransformed(value.selection.max),
                     selectionColor ?: Color(DEFAULT_SELECTION_COLOR),
                     canvas
                 )
@@ -172,11 +171,11 @@ internal class TextFieldDelegate {
                 return
             }
 
-            val bbox = if (value.selection.end < value.text.length) {
-                textDelegate.getBoundingBox(offsetMap.originalToTransformed(value.selection.end))
-            } else if (value.selection.end != 0) {
+            val bbox = if (value.selection.max < value.text.length) {
+                textDelegate.getBoundingBox(offsetMap.originalToTransformed(value.selection.max))
+            } else if (value.selection.max != 0) {
                 textDelegate.getBoundingBox(
-                    offsetMap.originalToTransformed(value.selection.end) - 1)
+                    offsetMap.originalToTransformed(value.selection.max) - 1)
             } else {
                 val lineHeightForEmptyText = computeLineHeightForEmptyText(
                     textDelegate.textStyle,
