@@ -75,7 +75,7 @@ limitations under the License.
                 app:dividerEndMargin="@dimen/car_keyline_1"
                 app:dividerStartMargin="@dimen/car_keyline_1"
                 app:gutter="none"
-                app:scrollBarEnabled="false"
+                app:scrollBarVisibleIfNeeded="false"
                 app:showPagedListViewDivider="true" />
 
             <!-- Using multiple nested LinearLayouts because the Dialog will support partial
