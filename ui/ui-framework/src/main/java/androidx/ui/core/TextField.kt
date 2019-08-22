@@ -95,6 +95,7 @@ fun TextField(
     val textInputService = +ambient(TextInputServiceAmbient)
     val density = +ambient(DensityAmbient)
     val resourceLoader = +ambient(FontLoaderAmbient)
+    val layoutDirection = +ambient(LayoutDirectionAmbient)
 
     // Memos
     val processor = +memo { EditProcessor() }
@@ -103,11 +104,12 @@ fun TextField(
         TextFieldDelegate.applyVisualFilter(value, visualTransformation)
     }
     val textDelegate = +memo(visualText, mergedStyle, density, resourceLoader) {
-        // TODO(nona): Add parameter for text direction, softwrap, etc.
+        // TODO(nona): Add parameter softwrap, etc.
         TextDelegate(
             text = visualText,
             style = mergedStyle,
             density = density,
+            layoutDirection = layoutDirection,
             resourceLoader = resourceLoader
         )
     }

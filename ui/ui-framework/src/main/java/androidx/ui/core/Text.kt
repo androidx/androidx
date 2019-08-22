@@ -196,6 +196,7 @@ fun Text(
 
     val density = +ambientDensity()
     val resourceLoader = +ambient(FontLoaderAmbient)
+    val layoutDirection = +ambient(LayoutDirectionAmbient)
 
     Semantics(
         properties = {
@@ -219,6 +220,7 @@ fun Text(
                 overflow = overflow,
                 maxLines = maxLines,
                 density = density,
+                layoutDirection = layoutDirection,
                 resourceLoader = resourceLoader
             )
         }

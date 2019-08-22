@@ -13,6 +13,10 @@ import android.text.style.StrikethroughSpan
 import android.text.style.UnderlineSpan
 import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
+import androidx.text.LayoutCompat.TEXT_DIRECTION_FIRST_STRONG_LTR
+import androidx.text.LayoutCompat.TEXT_DIRECTION_FIRST_STRONG_RTL
+import androidx.text.LayoutCompat.TEXT_DIRECTION_LTR
+import androidx.text.LayoutCompat.TEXT_DIRECTION_RTL
 import androidx.text.StaticLayoutCompat
 import androidx.text.style.BaselineShiftSpan
 import androidx.text.style.FontFeatureSpan
@@ -21,6 +25,7 @@ import androidx.text.style.ShadowSpan
 import androidx.text.style.SkewXSpan
 import androidx.text.style.TypefaceSpan
 import androidx.ui.core.Density
+import androidx.ui.core.LayoutDirection
 import androidx.ui.core.px
 import androidx.ui.core.sp
 import androidx.ui.core.withDensity
@@ -47,6 +52,7 @@ import androidx.ui.painting.Shadow
 import androidx.ui.text.ParagraphStyle
 import androidx.ui.text.TestFontResourceLoader
 import androidx.ui.text.TextStyle
+import androidx.ui.text.style.TextDirectionAlgorithm
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
@@ -57,6 +63,7 @@ import com.nhaarman.mockitokotlin2.verify
 import org.hamcrest.Matchers.equalTo
 import org.hamcrest.Matchers.not
 import org.hamcrest.Matchers.nullValue
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertThat
 import org.junit.Assert.assertTrue
@@ -1257,6 +1264,101 @@ class AndroidParagraphTest {
         assertThat(paragraph.textLocale.toLanguageTag(), equalTo("ja"))
     }
 
+    @Test
+    fun resolveTextDirectionHeuristics_null() {
+        assertEquals(
+            TEXT_DIRECTION_FIRST_STRONG_LTR,
+            simpleParagraph(
+                text = "a",
+                layoutDirection = LayoutDirection.Ltr
+            ).resolveTextDirectionHeuristics(null)
+        )
+
+        assertEquals(
+            TEXT_DIRECTION_FIRST_STRONG_RTL,
+            simpleParagraph(
+                text = "a",
+                layoutDirection = LayoutDirection.Rtl
+            ).resolveTextDirectionHeuristics(null)
+        )
+    }
+
+    @Test
+    fun resolveTextDirectionHeuristics_DefaultLtr() {
+        assertEquals(
+            TEXT_DIRECTION_FIRST_STRONG_LTR,
+            simpleParagraph(
+                text = "a",
+                layoutDirection = LayoutDirection.Ltr
+            ).resolveTextDirectionHeuristics(TextDirectionAlgorithm.ContentOrLtr)
+        )
+
+        assertEquals(
+            TEXT_DIRECTION_FIRST_STRONG_LTR,
+            simpleParagraph(
+                text = "a",
+                layoutDirection = LayoutDirection.Rtl
+                ).resolveTextDirectionHeuristics(TextDirectionAlgorithm.ContentOrLtr)
+        )
+    }
+
+    @Test
+    fun resolveTextDirectionHeuristics_DefaultRtl() {
+        assertEquals(
+            TEXT_DIRECTION_FIRST_STRONG_RTL,
+            simpleParagraph(
+                text = "a",
+                layoutDirection = LayoutDirection.Ltr
+            ).resolveTextDirectionHeuristics(TextDirectionAlgorithm.ContentOrRtl)
+        )
+
+        assertEquals(
+            TEXT_DIRECTION_FIRST_STRONG_RTL,
+            simpleParagraph(
+                text = "a",
+                layoutDirection = LayoutDirection.Rtl
+                ).resolveTextDirectionHeuristics(TextDirectionAlgorithm.ContentOrRtl)
+        )
+    }
+
+    @Test
+    fun resolveTextDirectionHeuristics_Ltr() {
+        assertEquals(
+            TEXT_DIRECTION_LTR,
+            simpleParagraph(
+                text = "a",
+                layoutDirection = LayoutDirection.Ltr
+            ).resolveTextDirectionHeuristics(TextDirectionAlgorithm.ForceLtr)
+        )
+
+        assertEquals(
+            TEXT_DIRECTION_LTR,
+            simpleParagraph(
+                text = "a",
+                layoutDirection = LayoutDirection.Rtl
+                ).resolveTextDirectionHeuristics(TextDirectionAlgorithm.ForceLtr)
+        )
+    }
+
+    @Test
+    fun resolveTextDirectionHeuristics_Rtl() {
+        assertEquals(
+            TEXT_DIRECTION_RTL,
+            simpleParagraph(
+                text = "a",
+                layoutDirection = LayoutDirection.Ltr
+            ).resolveTextDirectionHeuristics(TextDirectionAlgorithm.ForceRtl)
+        )
+
+        assertEquals(
+            TEXT_DIRECTION_RTL,
+            simpleParagraph(
+                text = "a",
+                layoutDirection = LayoutDirection.Rtl
+                ).resolveTextDirectionHeuristics(TextDirectionAlgorithm.ForceRtl)
+        )
+    }
+
     private fun simpleParagraph(
         text: String = "",
         textStyles: List<AnnotatedString.Item<TextStyle>> = listOf(),
@@ -1265,6 +1367,7 @@ class AndroidParagraphTest {
         ellipsis: Boolean? = null,
         maxLines: Int? = null,
         textStyle: TextStyle? = null,
+        layoutDirection: LayoutDirection = LayoutDirection.Ltr,
         typefaceAdapter: TypefaceAdapter = TypefaceAdapter()
     ): AndroidParagraph {
         return AndroidParagraph(
@@ -1278,7 +1381,8 @@ class AndroidParagraphTest {
             ),
             maxLines = maxLines,
             ellipsis = ellipsis,
-            density = Density(density = 1f)
+            density = Density(density = 1f),
+            layoutDirection = layoutDirection
         )
     }
 

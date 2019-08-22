@@ -17,6 +17,7 @@ package androidx.ui.text
 
 import androidx.annotation.RestrictTo
 import androidx.ui.core.Density
+import androidx.ui.core.LayoutDirection
 import androidx.ui.core.PxPosition
 import androidx.ui.engine.geometry.Rect
 import androidx.ui.painting.Canvas
@@ -195,6 +196,7 @@ interface Paragraph {
     maxLines: Int? = null,
     ellipsis: Boolean? = null,
     density: Density,
+    layoutDirection: LayoutDirection,
     resourceLoader: Font.ResourceLoader
 ): Paragraph {
     return AndroidParagraph(
@@ -207,6 +209,7 @@ interface Paragraph {
         typefaceAdapter = TypefaceAdapter(
             resourceLoader = resourceLoader
         ),
-        density = density
+        density = density,
+        layoutDirection = layoutDirection
     )
 }

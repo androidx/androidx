@@ -31,7 +31,6 @@ import androidx.ui.text.font.FontStyle
 import androidx.ui.text.font.FontWeight
 import androidx.ui.text.style.TextAlign
 import androidx.ui.text.style.TextDecoration
-import androidx.ui.text.style.TextDirection
 import androidx.ui.text.font.FontFamily
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.lerp
@@ -446,7 +445,6 @@ fun TextDemoTextAlign() {
         SecondTagLine(tag = "textAlgin = TextAlign.Start for Rtl")
         Text(
             paragraphStyle = ParagraphStyle(
-                textDirection = TextDirection.Rtl,
                 textAlign = TextAlign.Start
             )
         ) {
@@ -459,7 +457,6 @@ fun TextDemoTextAlign() {
         SecondTagLine(tag = "textAlgin = TextAlign.End for Rtl")
         Text(
             paragraphStyle = ParagraphStyle(
-                textDirection = TextDirection.Rtl,
                 textAlign = TextAlign.End
             )
         ) {
@@ -813,12 +810,12 @@ fun TextDemoParagraphTextDirection() {
             textStyles = listOf(),
             paragraphStyles = listOf(
                 AnnotatedString.Item(
-                    ParagraphStyle(textDirection = TextDirection.Ltr),
+                    ParagraphStyle(),
                     0,
                     ltrText.length
                 ),
                 AnnotatedString.Item(
-                    ParagraphStyle(textDirection = TextDirection.Rtl),
+                    ParagraphStyle(),
                     ltrText.length,
                     ltrText.length + rtlText.length
                 )
