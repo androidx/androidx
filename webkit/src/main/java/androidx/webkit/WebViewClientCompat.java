@@ -75,6 +75,7 @@ public class WebViewClientCompat extends WebViewClient implements WebViewClientB
      */
     @Override
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    @NonNull
     public final String[] getSupportedFeatures() {
         return sSupportedFeatures;
     }

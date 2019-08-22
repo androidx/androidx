@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 3.5.0-beta04" client="gradle" variant="debug" version="3.5.0-beta04">
+<issues format="5" by="lint 3.5.0-beta05" client="gradle" variant="debug" version="3.5.0-beta05">
 
     <issue
         id="KotlinPropertyAccess"
@@ -30,7 +30,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/webkit/WebViewCompat.java"
-            line="548"
+            line="550"
             column="13"/>
     </issue>
 
@@ -411,28 +411,6 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public ProxyConfig(List&lt;String[]&gt; proxyRules, List&lt;String> bypassRules) {"
-        errorLine2="                       ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/webkit/ProxyConfig.java"
-            line="78"
-            column="24"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public ProxyConfig(List&lt;String[]&gt; proxyRules, List&lt;String> bypassRules) {"
-        errorLine2="                                                  ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/webkit/ProxyConfig.java"
-            line="78"
-            column="51"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="            String[][] proxyRules, String[] bypassRules, Runnable listener, Executor executor);"
         errorLine2="            ~~~~~~~~~~">
         <location
@@ -648,17 +626,6 @@
             file="../../../external/webview_support_interfaces/src/org/chromium/support_lib_boundary/StaticsBoundaryInterface.java"
             line="19"
             column="5"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="                         List&lt;String> customIncludedCategories, @TracingMode int tracingMode) {"
-        errorLine2="                         ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/webkit/TracingConfig.java"
-            line="129"
-            column="26"/>
     </issue>
 
     <issue
@@ -901,28 +868,6 @@
             file="../../../external/webview_support_interfaces/src/org/chromium/support_lib_boundary/WebMessagePortBoundaryInterface.java"
             line="22"
             column="66"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public abstract WebMessagePort getFrameworkPort();"
-        errorLine2="                    ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/webkit/WebMessagePortCompat.java"
-            line="156"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public abstract InvocationHandler getInvocationHandler();"
-        errorLine2="                    ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/webkit/WebMessagePortCompat.java"
-            line="165"
-            column="21"/>
     </issue>
 
     <issue
@@ -1242,17 +1187,6 @@
             file="../../../external/webview_support_interfaces/src/org/chromium/support_lib_boundary/WebViewClientBoundaryInterface.java"
             line="24"
             column="52"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public final String[] getSupportedFeatures() {"
-        errorLine2="                 ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/webkit/WebViewClientCompat.java"
-            line="77"
-            column="18"/>
     </issue>
 
     <issue

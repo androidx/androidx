@@ -126,7 +126,8 @@ public class TracingConfig {
     /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     public TracingConfig(@PredefinedCategories int predefinedCategories,
-                         List<String> customIncludedCategories, @TracingMode int tracingMode) {
+                         @NonNull List<String> customIncludedCategories,
+                         @TracingMode int tracingMode) {
         mPredefinedCategories = predefinedCategories;
         mCustomIncludedCategories.addAll(customIncludedCategories);
         mTracingMode = tracingMode;

@@ -153,6 +153,7 @@ public abstract class WebMessagePortCompat {
      */
     @RequiresApi(23)
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    @NonNull
     public abstract WebMessagePort getFrameworkPort();
 
     /**
@@ -161,6 +162,7 @@ public abstract class WebMessagePortCompat {
      * the WebView APK supports {@link WebMessagePortCompat}.
      * @hide
      */
+    @NonNull
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     public abstract InvocationHandler getInvocationHandler();
 
