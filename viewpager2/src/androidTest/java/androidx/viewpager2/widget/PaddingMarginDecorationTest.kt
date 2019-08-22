@@ -60,11 +60,10 @@ class PaddingMarginDecorationTest(private val config: TestConfig) : BaseTest() {
 
         // Set unequal decorations, to prevent symmetry from hiding bugs
         // Similarly, make sure no margin is an exact multiple of another margin
-        // TODO(139452422): Set to 2/3/7/5 when PagerSnapHelper is fixed
         const val fLeft = 2
-        const val fTop = 2
-        const val fRight = 2
-        const val fBottom = 2
+        const val fTop = 3
+        const val fRight = 7
+        const val fBottom = 5
 
         fun View.applyMargin(margin: Int) {
             val lp = layoutParams as MarginLayoutParams
