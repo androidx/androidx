@@ -303,3 +303,13 @@ inline fun PxSize(width: IntPx, height: IntPx): PxSize =
  * Create a [PxPosition] from [IntPx] values.
  */
 inline fun PxPosition(x: IntPx, y: IntPx): PxPosition = PxPosition(x = x.toPx(), y = y.toPx())
+
+/**
+ * Convert a [IntPxPosition] to a [PxPosition]
+ */
+inline fun IntPxPosition.toPxPosition(): PxPosition = PxPosition(this.x, this.y)
+
+/**
+ * Convert a [IntPxSize] to a [PxSize]
+ */
+inline fun IntPxSize.toPxSize(): PxSize = PxSize(this.width, this.height)

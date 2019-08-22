@@ -409,6 +409,8 @@ package androidx.ui.core {
     method public static operator androidx.ui.core.IntPx times(double, androidx.ui.core.IntPx other);
     method public static operator androidx.ui.core.IntPx times(int, androidx.ui.core.IntPx other);
     method public static inline androidx.ui.core.Px toPx(androidx.ui.core.IntPx);
+    method public static inline androidx.ui.core.PxPosition toPxPosition(androidx.ui.core.IntPxPosition);
+    method public static inline androidx.ui.core.PxSize toPxSize(androidx.ui.core.IntPxSize);
     method public static inline androidx.ui.core.IntPxSize toSize(androidx.ui.core.IntPxBounds);
   }
 
