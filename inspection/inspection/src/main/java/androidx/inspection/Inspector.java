@@ -24,12 +24,15 @@ import androidx.annotation.NonNull;
  */
 public abstract class Inspector {
 
+    /**
+     * @param connection a connection object that allows to send events to studio
+     */
     public Inspector(@NonNull Connection connection) {
     }
 
     /**
      * Called when this inspector  is no longer needed.
-     *
+     * <p>
      * Agent should use this callback to unsubscribe from any events that it is listening to.
      */
     public void onDispose() {
@@ -37,8 +40,24 @@ public abstract class Inspector {
 
     /**
      * An inspector can implement this to handle incoming commands.
+     * <p>
+     * Every command should be replied with a {@link CommandCallback#reply(byte[])} call on the
+     * given {@code callback} object.
      *
      * @param data a raw byte array of the command sent by studio.
+     * @param callback a callback to reply on the given command.
      */
-    public abstract void onReceiveCommand(@NonNull byte[] data);
+    public abstract void onReceiveCommand(@NonNull byte[] data, @NonNull CommandCallback callback);
+
+    /**
+     * Callback to reply on an command from the studio
+     */
+    public interface CommandCallback {
+        /**
+         * Sends a response on the previously handled command.
+         *
+         * @param response a raw byte array of the response to studio command.
+         */
+        void reply(@NonNull byte[] response);
+    }
 }
