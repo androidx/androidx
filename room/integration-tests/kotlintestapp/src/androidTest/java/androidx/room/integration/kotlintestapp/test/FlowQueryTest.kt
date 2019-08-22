@@ -254,4 +254,42 @@ class FlowQueryTest : TestDatabaseTest() {
         latch.await()
         job.cancelAndJoin()
     }
+
+    @Test
+    fun receiveBook_async_update_null() = runBlocking {
+        booksDao.addAuthors(TestUtil.AUTHOR_1)
+        booksDao.addPublishers(TestUtil.PUBLISHER)
+        booksDao.addBooks(TestUtil.BOOK_1)
+
+        val firstResultLatch = CountDownLatch(1)
+        val secondResultLatch = CountDownLatch(1)
+        val results = mutableListOf<Book?>()
+        val job = async(Dispatchers.IO) {
+            booksDao.getOneBooksFlow(TestUtil.BOOK_1.bookId).collect {
+                when (results.size) {
+                    0 -> {
+                        results.add(it)
+                        firstResultLatch.countDown()
+                    }
+                    1 -> {
+                        results.add(it)
+                        secondResultLatch.countDown()
+                    }
+                    else -> fail("Should have only collected 2 results.")
+                }
+            }
+        }
+
+        firstResultLatch.await()
+        booksDao.deleteBookSuspend(TestUtil.BOOK_1)
+
+        secondResultLatch.await()
+        assertThat(results.size).isEqualTo(2)
+        assertThat(results[0])
+            .isEqualTo(TestUtil.BOOK_1)
+        assertThat(results[1])
+            .isNull()
+
+        job.cancelAndJoin()
+    }
 }
