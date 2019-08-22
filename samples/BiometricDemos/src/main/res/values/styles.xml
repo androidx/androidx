@@ -16,5 +16,5 @@
   -->
 
 <resources>
-    <style name="AppTheme" parent="Theme.AppCompat.DayNight"/>
+    <style name="AppTheme" parent="Theme.AppCompat.DayNight" />
 </resources>
