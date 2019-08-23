@@ -26,4 +26,6 @@
     <string name="fingerprint_error_user_canceled" msgid="3421037373085129417">"Notandi hætti við að nota fingrafar."</string>
     <string name="fingerprint_error_lockout" msgid="1651062876313169162">"Of margar tilraunir. Reyndu aftur síðar."</string>
     <string name="default_error_msg" msgid="7497355367608150274">"Óþekkt villa"</string>
+    <string name="generic_error_user_canceled" msgid="7474799539658018076">"Notandi hætti við auðkenningu."</string>
+    <string name="confirm_device_credential_password" msgid="4296851028928624518">"Nota aðgangsorð"</string>
 </resources>

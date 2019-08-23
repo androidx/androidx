@@ -26,4 +26,6 @@
     <string name="fingerprint_error_user_canceled" msgid="3421037373085129417">"கைரேகைச் சரிபார்ப்பு பயனரால் ரத்துசெய்யப்பட்டது."</string>
     <string name="fingerprint_error_lockout" msgid="1651062876313169162">"பலமுறை முயன்றுவிட்டீர்கள். பிறகு முயலவும்."</string>
     <string name="default_error_msg" msgid="7497355367608150274">"அறியப்படாத பிழை"</string>
+    <string name="generic_error_user_canceled" msgid="7474799539658018076">"பயனரால் அங்கீகரிப்பு ரத்துசெய்யப்பட்டது."</string>
+    <string name="confirm_device_credential_password" msgid="4296851028928624518">"கடவுச்சொல்லைப் பயன்படுத்து"</string>
 </resources>

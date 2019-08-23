@@ -26,4 +26,6 @@
     <string name="fingerprint_error_user_canceled" msgid="3421037373085129417">"ব্যৱহাৰকাৰীয়ে ফিংগাৰপ্ৰিণ্টৰ দ্বাৰা বিশ্বাসযোগ্যতা প্ৰমাণীকৰণ কাৰ্য বাতিল কৰিছে।"</string>
     <string name="fingerprint_error_lockout" msgid="1651062876313169162">"অতি বেছি চেষ্টা অনুগ্ৰহ কৰি পিছত আকৌ চেষ্টা কৰক।"</string>
     <string name="default_error_msg" msgid="7497355367608150274">"অজ্ঞাত আসোঁৱাহ"</string>
+    <string name="generic_error_user_canceled" msgid="7474799539658018076">"বিশ্বাসযোগ্যতা প্ৰমাণীকৰণ ব্যৱহাৰকাৰীয়ে বাতিল কৰিছে।"</string>
+    <string name="confirm_device_credential_password" msgid="4296851028928624518">"পাছৱৰ্ড ব্যৱহাৰ কৰক"</string>
 </resources>

@@ -26,4 +26,6 @@
     <string name="fingerprint_error_user_canceled" msgid="3421037373085129417">"ผู้ใช้ยกเลิกการทำงานของลายนิ้วมือ"</string>
     <string name="fingerprint_error_lockout" msgid="1651062876313169162">"ลองหลายครั้งเกินไป โปรดลองอีกครั้งภายหลัง"</string>
     <string name="default_error_msg" msgid="7497355367608150274">"ข้อผิดพลาดที่ไม่รู้จัก"</string>
+    <string name="generic_error_user_canceled" msgid="7474799539658018076">"ผู้ใช้ยกเลิกการตรวจสอบสิทธิ์"</string>
+    <string name="confirm_device_credential_password" msgid="4296851028928624518">"ใช้รหัสผ่าน"</string>
 </resources>

@@ -26,4 +26,6 @@
     <string name="fingerprint_error_user_canceled" msgid="3421037373085129417">"کاربر عملیات اثر انگشت را لغو کرد"</string>
     <string name="fingerprint_error_lockout" msgid="1651062876313169162">"تعداد تلاش‌ها بیش از حد مجاز است. لطفاً بعداً دوباره امتحان کنید."</string>
     <string name="default_error_msg" msgid="7497355367608150274">"خطای ناشناس"</string>
+    <string name="generic_error_user_canceled" msgid="7474799539658018076">"کاربر احراز هویت را لغو کرد."</string>
+    <string name="confirm_device_credential_password" msgid="4296851028928624518">"استفاده از گذرواژه"</string>
 </resources>

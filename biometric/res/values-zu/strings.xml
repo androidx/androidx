@@ -26,4 +26,6 @@
     <string name="fingerprint_error_user_canceled" msgid="3421037373085129417">"Umsebenzi wesigxivizo somunwe sikhanselwe umsebenzisi."</string>
     <string name="fingerprint_error_lockout" msgid="1651062876313169162">"Imizamo eminingi kakhulu. Sicela uzame futhi ngokuhamba kwesikhathi."</string>
     <string name="default_error_msg" msgid="7497355367608150274">"Iphutha elingaziwe"</string>
+    <string name="generic_error_user_canceled" msgid="7474799539658018076">"Ukugunyaza kukhanselwe umsebenzisi."</string>
+    <string name="confirm_device_credential_password" msgid="4296851028928624518">"Sebenzisa iphasiwedi"</string>
 </resources>

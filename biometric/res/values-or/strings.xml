@@ -26,4 +26,6 @@
     <string name="fingerprint_error_user_canceled" msgid="3421037373085129417">"ୟୁଜର୍‌ଙ୍କ ଦ୍ଵାରା ଆଙ୍ଗୁଠି ଚିହ୍ନ ନେବା କାମକୁ କ୍ୟାନ୍ସଲ୍ କରିଦିଆଯାଇଛି।"</string>
     <string name="fingerprint_error_lockout" msgid="1651062876313169162">"ବହୁତ ଅଧିକ ପ୍ରଚେଷ୍ଟା। ଦୟାକରି ପରେ ପୁଣି ଚେଷ୍ଟା କରନ୍ତୁ।"</string>
     <string name="default_error_msg" msgid="7497355367608150274">"ଅଜଣା ତ୍ରୁଟି"</string>
+    <string name="generic_error_user_canceled" msgid="7474799539658018076">"ଉପଯୋଗକର୍ତ୍ତାଙ୍କ ଦ୍ୱାରା ପ୍ରାମାଣିକତା ବାତିଲ୍ କରାଯାଇଛି।"</string>
+    <string name="confirm_device_credential_password" msgid="4296851028928624518">"ପାସ୍‌ୱାର୍ଡ୍ ବ୍ୟବହାର କରନ୍ତୁ"</string>
 </resources>

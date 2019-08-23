@@ -26,4 +26,6 @@
     <string name="fingerprint_error_user_canceled" msgid="3421037373085129417">"Barmaq izi əməliyyatı istifadəçi tərəfindən ləğv edildi."</string>
     <string name="fingerprint_error_lockout" msgid="1651062876313169162">"Həddən çox cəhd oldu. Sonra sınayın."</string>
     <string name="default_error_msg" msgid="7497355367608150274">"Naməlum xəta"</string>
+    <string name="generic_error_user_canceled" msgid="7474799539658018076">"İstifadəçi doğrulamanı ləğv edib."</string>
+    <string name="confirm_device_credential_password" msgid="4296851028928624518">"Parol istifadə edin"</string>
 </resources>
