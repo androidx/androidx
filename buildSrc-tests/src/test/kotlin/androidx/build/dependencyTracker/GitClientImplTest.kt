@@ -22,6 +22,7 @@ import androidx.build.gitclient.GitClient
 import androidx.build.gitclient.GitClientImpl
 import androidx.build.gitclient.GitClientImpl.Companion.CHANGED_FILES_CMD_PREFIX
 import androidx.build.gitclient.GitClientImpl.Companion.PREV_MERGE_CMD
+import androidx.build.gitclient.GitCommitRange
 import junit.framework.TestCase.assertEquals
 import junit.framework.TestCase.assertNull
 import org.junit.Rule
@@ -385,8 +386,10 @@ class GitClientImplTest {
         )
 
         val gitLogList: List<Commit> = client.getGitLog(
-            top = "topSha",
-            sha = "sha",
+            GitCommitRange(
+                top = "topSha",
+                sha = "sha"
+            ),
             keepMerges = false,
             fullProjectDir = File(projectDir)
         )
