@@ -494,7 +494,7 @@ abstract class PagedList<T : Any> : AbstractList<T> {
             return create(
                 pagedSource,
                 coroutineScope,
-                notifyDispatcher ?: Dispatchers.Main,
+                notifyDispatcher ?: Dispatchers.Main.immediate,
                 fetchDispatcher ?: Dispatchers.IO,
                 initialFetchDispatcher,
                 boundaryCallback,

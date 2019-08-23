@@ -154,7 +154,7 @@ suspend fun <T> Lifecycle.whenResumed(block: suspend CoroutineScope.() -> T): T 
 suspend fun <T> Lifecycle.whenStateAtLeast(
     minState: Lifecycle.State,
     block: suspend CoroutineScope.() -> T
-) = withContext(Dispatchers.Main) {
+) = withContext(Dispatchers.Main.immediate) {
     val job = coroutineContext[Job] ?: error("when[State] methods should have a parent job")
     val dispatcher = PausingDispatcher()
     val controller =
