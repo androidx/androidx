@@ -26,4 +26,6 @@
     <string name="fingerprint_error_user_canceled" msgid="3421037373085129417">"उपयोगकर्ता ने फिंगरप्रिंट की पुष्टि की कार्रवाई रद्द कर दी है."</string>
     <string name="fingerprint_error_lockout" msgid="1651062876313169162">"कई बार कोशिश की जा चुकी है. कृपया बाद में फिर से कोशिश करें."</string>
     <string name="default_error_msg" msgid="7497355367608150274">"अनजान गड़बड़ी"</string>
+    <string name="generic_error_user_canceled" msgid="7474799539658018076">"उपयोगकर्ता ने पुष्टि करने की प्रक्रिया रद्द की."</string>
+    <string name="confirm_device_credential_password" msgid="4296851028928624518">"पासवर्ड का इस्तेमाल करें"</string>
 </resources>

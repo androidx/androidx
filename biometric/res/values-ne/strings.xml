@@ -26,4 +26,6 @@
     <string name="fingerprint_error_user_canceled" msgid="3421037373085129417">"प्रयोगकर्ताले फिंगरप्रिन्टसम्बन्धी कारबाही रद्द गर्नुभयो।"</string>
     <string name="fingerprint_error_lockout" msgid="1651062876313169162">"अत्यधिक पटक प्रयासहरू गरिए। कृपया पछि फेरि प्रयास गर्नुहोस्।"</string>
     <string name="default_error_msg" msgid="7497355367608150274">"अज्ञात त्रुटि"</string>
+    <string name="generic_error_user_canceled" msgid="7474799539658018076">"प्रयोगकर्ताले प्रमाणीकरण सेवा रद्द गर्नुभयो।"</string>
+    <string name="confirm_device_credential_password" msgid="4296851028928624518">"पासवर्ड प्रयोग गर्नुहोस्"</string>
 </resources>

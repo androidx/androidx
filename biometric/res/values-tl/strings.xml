@@ -26,4 +26,6 @@
     <string name="fingerprint_error_user_canceled" msgid="3421037373085129417">"Kinansela ng user ang operasyon sa fingerprint."</string>
     <string name="fingerprint_error_lockout" msgid="1651062876313169162">"Masyadong maraming pagsubok. Pakisubukan ulit sa ibang pagkakataon."</string>
     <string name="default_error_msg" msgid="7497355367608150274">"Hindi alam na error"</string>
+    <string name="generic_error_user_canceled" msgid="7474799539658018076">"Kinansela ng user ang pag-authenticate."</string>
+    <string name="confirm_device_credential_password" msgid="4296851028928624518">"Gamitin ang password"</string>
 </resources>

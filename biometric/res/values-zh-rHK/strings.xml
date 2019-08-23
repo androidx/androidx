@@ -26,4 +26,6 @@
     <string name="fingerprint_error_user_canceled" msgid="3421037373085129417">"使用者已取消指紋操作。"</string>
     <string name="fingerprint_error_lockout" msgid="1651062876313169162">"嘗試次數過多。請稍後再試。"</string>
     <string name="default_error_msg" msgid="7497355367608150274">"不明錯誤"</string>
+    <string name="generic_error_user_canceled" msgid="7474799539658018076">"使用者已取消驗證。"</string>
+    <string name="confirm_device_credential_password" msgid="4296851028928624518">"使用密碼"</string>
 </resources>
