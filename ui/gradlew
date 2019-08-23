@@ -7,13 +7,18 @@
 ##############################################################################
 
 # Override Kotlin version needed for compose - see buildSrc/build_dependencies.gradle
-export KOTLIN_OVERRIDE="1.3.30-compose-20190520"
+export KOTLIN_OVERRIDE="1.3.50-compose-20190806"
 
-# Override AGP version because compose-studio is behind androidx-studio
-export GRADLE_PLUGIN_VERSION="3.5.0-beta01"
+# Relative path to the directory containing this script, from the current directory
+relativeScriptPath="`dirname \"$0\"`/"
 
-# Path to the directory containing this script
-DIR="`dirname \"$0\"`/"
+propertiesFile="${relativeScriptPath}/studio_versions.properties"
 
-# Use main gradle wrapper
-exec "$DIR"../gradlew "$@"
+# The version of AGP we should override with - may be empty
+agp_override="$(grep "agp_override=" ${propertiesFile} | sed 's/[^=]*=//')"
+
+# If not empty, override the version of AGP used
+[ ! -z "$agp_override" ] && export GRADLE_PLUGIN_VERSION="${agp_override}"
+
+# Use main gradle wrapper from AndroidX
+exec "$relativeScriptPath"../gradlew "$@"
