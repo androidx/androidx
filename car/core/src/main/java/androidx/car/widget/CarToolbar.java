@@ -790,9 +790,10 @@ public class CarToolbar extends ViewGroup {
             return;
         }
 
-        CharSequence[] titles = mOverflowMenuItems.stream()
-                .map(CarMenuItem::getTitle)
-                .toArray(CharSequence[]::new);
+        List<CarListDialog.Item> titles = new ArrayList<>();
+        for (CarMenuItem item : mOverflowMenuItems) {
+            titles.add(new CarListDialog.Item(item.getTitle()));
+        }
 
         mOverflowDialog = new CarListDialog.Builder(getContext())
                 .setItems(titles, mOverflowDialogClickListener)
