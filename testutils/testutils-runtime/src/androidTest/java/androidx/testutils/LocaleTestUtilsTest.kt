@@ -26,7 +26,6 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import org.hamcrest.CoreMatchers
-import org.hamcrest.Matchers
 import org.junit.After
 import org.junit.Assert
 import org.junit.Before
@@ -91,18 +90,18 @@ class LocaleTestUtilsTest {
                 "Default",
                 LocaleTestUtils.DEFAULT_TEST_LANGUAGE
             ),
-            LocaleTestUtils.DEFAULT_TEST_LANGUAGE,
-            Matchers.isIn(availableLanguages)
+            availableLanguages,
+            CoreMatchers.hasItem(LocaleTestUtils.DEFAULT_TEST_LANGUAGE)
         )
         Assert.assertThat(
             getReason("LTR", LocaleTestUtils.LTR_LANGUAGE),
-            LocaleTestUtils.LTR_LANGUAGE,
-            Matchers.isIn(availableLanguages)
+            availableLanguages,
+            CoreMatchers.hasItem(LocaleTestUtils.LTR_LANGUAGE)
         )
         Assert.assertThat(
             getReason("RTL", LocaleTestUtils.RTL_LANGUAGE),
-            LocaleTestUtils.RTL_LANGUAGE,
-            Matchers.isIn(availableLanguages)
+            availableLanguages,
+            CoreMatchers.hasItem(LocaleTestUtils.RTL_LANGUAGE)
         )
     }
 
