@@ -26,4 +26,6 @@
     <string name="fingerprint_error_user_canceled" msgid="3421037373085129417">"Mtumiaji ameghairi uthibitishaji wa alama ya kidole."</string>
     <string name="fingerprint_error_lockout" msgid="1651062876313169162">"Umejaribu mara nyingi mno. Tafadhali jaribu tena baadaye."</string>
     <string name="default_error_msg" msgid="7497355367608150274">"Hitilafu isiyojulikana"</string>
+    <string name="generic_error_user_canceled" msgid="7474799539658018076">"Uthibitishaji umeghairiwa na mtumiaji."</string>
+    <string name="confirm_device_credential_password" msgid="4296851028928624518">"Tumia nenosiri"</string>
 </resources>

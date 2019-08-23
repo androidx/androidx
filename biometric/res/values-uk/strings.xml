@@ -26,4 +26,6 @@
     <string name="fingerprint_error_user_canceled" msgid="3421037373085129417">"Користувач скасував дію з відбитком пальця."</string>
     <string name="fingerprint_error_lockout" msgid="1651062876313169162">"Забагато спроб. Зачекайте."</string>
     <string name="default_error_msg" msgid="7497355367608150274">"Невідома помилка"</string>
+    <string name="generic_error_user_canceled" msgid="7474799539658018076">"Автентифікацію скасовано користувачем."</string>
+    <string name="confirm_device_credential_password" msgid="4296851028928624518">"Ввести пароль"</string>
 </resources>

@@ -26,4 +26,6 @@
     <string name="fingerprint_error_user_canceled" msgid="3421037373085129417">"Barmoq izi amali foydalanuvchi tomonidan bekor qilindi"</string>
     <string name="fingerprint_error_lockout" msgid="1651062876313169162">"Juda koʻp urinish amalga oshirildi. Keyinroq qaytadan urining."</string>
     <string name="default_error_msg" msgid="7497355367608150274">"Notanish xato"</string>
+    <string name="generic_error_user_canceled" msgid="7474799539658018076">"Autentifikatsiya foydalanuvchi tomonidan bekor qilindi"</string>
+    <string name="confirm_device_credential_password" msgid="4296851028928624518">"Paroldan foydalanish"</string>
 </resources>

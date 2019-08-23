@@ -26,4 +26,6 @@
     <string name="fingerprint_error_user_canceled" msgid="3421037373085129417">"ഫിംഗർപ്രിന്റിന്റെ പ്രവർത്തനം ഉപയോക്താവ് റദ്ദാക്കി."</string>
     <string name="fingerprint_error_lockout" msgid="1651062876313169162">"നിരവധി ശ്രമങ്ങൾ. പിന്നീട് വീണ്ടും ശ്രമിക്കുക."</string>
     <string name="default_error_msg" msgid="7497355367608150274">"അജ്ഞാത പിശക്"</string>
+    <string name="generic_error_user_canceled" msgid="7474799539658018076">"പരിശോധിച്ചുറപ്പിക്കൽ ഉപയോക്താവ് റദ്ദാക്കി."</string>
+    <string name="confirm_device_credential_password" msgid="4296851028928624518">"പാസ്‌വേഡ് ഉപയോഗിക്കുക"</string>
 </resources>

@@ -26,4 +26,6 @@
     <string name="fingerprint_error_user_canceled" msgid="3421037373085129417">"ಬಳಕೆದಾರರಿಂದ ಫಿಂಗರ್‌ ಫ್ರಿಂಟ್‌ ಕಾರ್ಯಾಚರಣೆಯನ್ನು ರದ್ದುಪಡಿಸಲಾಗಿದೆ."</string>
     <string name="fingerprint_error_lockout" msgid="1651062876313169162">"ಹಲವು ಬಾರಿ ಪ್ರಯತ್ನಿಸಿರುವಿರಿ ನಂತರ ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ."</string>
     <string name="default_error_msg" msgid="7497355367608150274">"ಅಪರಿಚಿತ ದೋಷ"</string>
+    <string name="generic_error_user_canceled" msgid="7474799539658018076">"ಬಳಕೆದಾರರು ದೃಢೀಕರಣವನ್ನು ರದ್ದುಗೊಳಿಸಿದ್ದಾರೆ."</string>
+    <string name="confirm_device_credential_password" msgid="4296851028928624518">"ಪಾಸ್‌ವರ್ಡ್ ಬಳಸಿ"</string>
 </resources>

@@ -26,4 +26,6 @@
     <string name="fingerprint_error_user_canceled" msgid="3421037373085129417">"L\'usuari ha cancel·lat l\'operació d\'empremta digital."</string>
     <string name="fingerprint_error_lockout" msgid="1651062876313169162">"Massa intents. Torna-ho a provar més tard."</string>
     <string name="default_error_msg" msgid="7497355367608150274">"Error desconegut"</string>
+    <string name="generic_error_user_canceled" msgid="7474799539658018076">"L\'usuari ha cancel·lat l\'autenticació."</string>
+    <string name="confirm_device_credential_password" msgid="4296851028928624518">"Utilitza la contrasenya"</string>
 </resources>
