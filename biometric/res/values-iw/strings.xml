@@ -26,4 +26,6 @@
     <string name="fingerprint_error_user_canceled" msgid="3421037373085129417">"פעולת טביעת האצבע בוטלה בידי המשתמש."</string>
     <string name="fingerprint_error_lockout" msgid="1651062876313169162">"ניסית יותר מדי פעמים. יש לנסות שוב מאוחר יותר."</string>
     <string name="default_error_msg" msgid="7497355367608150274">"שגיאה לא ידועה"</string>
+    <string name="generic_error_user_canceled" msgid="7474799539658018076">"האימות בוטל על ידי המשתמש."</string>
+    <string name="confirm_device_credential_password" msgid="4296851028928624518">"שימוש בסיסמה"</string>
 </resources>

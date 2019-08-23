@@ -26,4 +26,6 @@
     <string name="fingerprint_error_user_canceled" msgid="3421037373085129417">"ຜູ້ໃຊ້ໄດ້ຍົກເລີກຄຳສັ່ງລາຍນິ້ວມືແລ້ວ."</string>
     <string name="fingerprint_error_lockout" msgid="1651062876313169162">"ມີຄວາມພະຍາຍາມຫຼາຍເທື່ອເກີນໄປ. ກະລຸນາລອງໃໝ່ໃນພາຍຫຼັງ."</string>
     <string name="default_error_msg" msgid="7497355367608150274">"ຄວາມຜິດພາດທີ່ບໍ່ຮູ້ຈັກ"</string>
+    <string name="generic_error_user_canceled" msgid="7474799539658018076">"ຜູ້ໃຊ້ຍົກເລີກການພິສູດຢືນຢັນແລ້ວ."</string>
+    <string name="confirm_device_credential_password" msgid="4296851028928624518">"ໃຊ້ລະຫັດຜ່ານ"</string>
 </resources>

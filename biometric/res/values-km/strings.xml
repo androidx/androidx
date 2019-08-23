@@ -26,4 +26,6 @@
     <string name="fingerprint_error_user_canceled" msgid="3421037373085129417">"ប្រតិបត្តិការ​ស្នាម​ម្រាម​ដៃ​ត្រូវ​បាន​បោះ​បង់​ដោយ​អ្នក​ប្រើប្រាស់។"</string>
     <string name="fingerprint_error_lockout" msgid="1651062876313169162">"ផ្ទៀងផ្ទាត់​មិនត្រឹមត្រូវ​ច្រើនដងពេក​។ សូម​ព្យាយាម​ម្ដង​ទៀត​នៅ​ពេល​ក្រោយ​។"</string>
     <string name="default_error_msg" msgid="7497355367608150274">"មាន​បញ្ហា​ដែល​មិន​ស្គាល់"</string>
+    <string name="generic_error_user_canceled" msgid="7474799539658018076">"អ្នកប្រើប្រាស់​បានបោះបង់​ការផ្ទៀងផ្ទាត់ហើយ។"</string>
+    <string name="confirm_device_credential_password" msgid="4296851028928624518">"ប្រើពាក្យសម្ងាត់"</string>
 </resources>
