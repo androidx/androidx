@@ -18,8 +18,7 @@ package androidx.camera.camera2;
 
 import android.content.Context;
 
-import androidx.annotation.RestrictTo;
-import androidx.annotation.RestrictTo.Scope;
+import androidx.annotation.NonNull;
 import androidx.camera.camera2.impl.Camera2CameraFactory;
 import androidx.camera.camera2.impl.Camera2DeviceSurfaceManager;
 import androidx.camera.camera2.impl.ImageAnalysisConfigProvider;
@@ -34,13 +33,11 @@ import androidx.camera.core.ImageAnalysisConfig;
 import androidx.camera.core.ImageCaptureConfig;
 import androidx.camera.core.PreviewConfig;
 import androidx.camera.core.VideoCaptureConfig;
+import androidx.core.util.Preconditions;
 
 /**
  * Convenience class for generating a pre-populated Camera2 {@link AppConfig}.
- *
- * @hide Until CameraX.init() is made public
  */
-@RestrictTo(Scope.LIBRARY_GROUP)
 public final class Camera2AppConfig {
 
     private Camera2AppConfig() {
@@ -50,7 +47,10 @@ public final class Camera2AppConfig {
      * Creates the {@link AppConfig} containing the Camera2 implementation pieces for
      * CameraX.
      */
-    public static AppConfig create(Context context) {
+    @NonNull
+    public static AppConfig create(@NonNull Context context) {
+        Preconditions.checkNotNull(context);
+
         // Create the camera factory for creating Camera2 camera objects
         CameraFactory cameraFactory = new Camera2CameraFactory(context);
 

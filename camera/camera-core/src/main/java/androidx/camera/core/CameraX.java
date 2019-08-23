@@ -572,10 +572,7 @@ public final class CameraX {
      * @param context   to attach
      * @param appConfig configuration options for this application session.
      * @return A {@link ListenableFuture} representing the initialization task.
-     *
-     * @hide
      */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
     public static ListenableFuture<Void> init(@NonNull Context context,
             @NonNull AppConfig appConfig) {
@@ -583,15 +580,6 @@ public final class CameraX {
         Preconditions.checkNotNull(appConfig);
 
         synchronized (sInitDeinitLock) {
-            // TODO(b/141155037): Remove auto deinit() call when Camera2Initializer is removed.
-            // Currently this is for test purpose. Because CameraX.init() will be invoked by
-            // Camera2Initializer on android test. If invoke CameraX.init() in test's setUp()
-            // method, then it causes continuously invoke init() and leads to precondition check
-            // fail.
-            if (sTargetInitialized) {
-                deinit();
-            }
-
             Preconditions.checkState(!sTargetInitialized, "Must call CameraX.deinit() first.");
             sTargetInitialized = true;
 
@@ -644,10 +632,7 @@ public final class CameraX {
      * Deinitializes CameraX so that it can be initialized again.
      *
      * @return A {@link ListenableFuture} representing the deinitialization task.
-     *
-     * @hide
      */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
     public static ListenableFuture<Void> deinit() {
         synchronized (sInitDeinitLock) {

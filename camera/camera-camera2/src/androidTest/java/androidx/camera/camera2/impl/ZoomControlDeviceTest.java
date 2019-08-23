@@ -118,7 +118,8 @@ public final class ZoomControlDeviceTest {
     }
 
     @After
-    public void tearDown() {
+    public void tearDown() throws ExecutionException, InterruptedException {
+        CameraX.deinit().get();
         if (mHandlerThread != null) {
             mHandlerThread.quit();
         }
