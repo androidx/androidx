@@ -29,7 +29,6 @@ dependencies {
     implementation(ANDROIDX_TEST_EXT_JUNIT)
     implementation(ANDROIDX_TEST_CORE)
     implementation(ANDROIDX_TEST_RULES)
-    implementation(ESPRESSO_CORE, libs.exclude_for_espresso)
     implementation(KOTLIN_STDLIB)
 }
 

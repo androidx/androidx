@@ -277,9 +277,10 @@ includeProject(":support-wear-demos", new File(samplesRoot, "SupportWearDemos"))
 //
 /////////////////////////////
 
-includeProject(":internal-testutils", "testutils")
-includeProject(":internal-testutils-common", "testutils-common")
-includeProject(":internal-testutils-ktx", "testutils-ktx")
+includeProject(":internal-testutils-common", "testutils/testutils-common")
+includeProject(":internal-testutils-runtime", "testutils/testutils-runtime")
+includeProject(":internal-testutils-espresso", "testutils/testutils-espresso")
+includeProject(":internal-testutils-ktx", "testutils/testutils-ktx")
 
 /////////////////////////////
 //
