@@ -20,6 +20,7 @@ import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assume.assumeTrue;
 
+import android.app.Instrumentation;
 import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
@@ -36,6 +37,7 @@ import androidx.camera.testing.CameraUtil;
 import androidx.camera.testing.fakes.FakeLifecycleOwner;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.test.core.app.ApplicationProvider;
+import androidx.test.platform.app.InstrumentationRegistry;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -43,6 +45,7 @@ import org.junit.Test;
 public final class SensorOrientedMeteringPointFactoryTest {
     private static final float WIDTH = 480;
     private static final float HEIGHT = 640;
+    private final Instrumentation mInstrumentation = InstrumentationRegistry.getInstrumentation();
     private LifecycleOwner mLifecycle;
     SensorOrientedMeteringPointFactory mPointFactory;
     @Before
@@ -113,7 +116,12 @@ public final class SensorOrientedMeteringPointFactoryTest {
                         .setCallbackHandler(new Handler(Looper.getMainLooper()))
                         .build();
         ImageAnalysis imageAnalysis = new ImageAnalysis(imageAnalysisConfig);
-        CameraX.bindToLifecycle(mLifecycle, imageAnalysis);
+        mInstrumentation.runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                CameraX.bindToLifecycle(mLifecycle, imageAnalysis);
+            }
+        });
 
         SensorOrientedMeteringPointFactory factory = new SensorOrientedMeteringPointFactory(
                 WIDTH, HEIGHT, imageAnalysis);

@@ -26,14 +26,12 @@ import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 
 import android.Manifest;
+import android.app.Instrumentation;
 import android.content.Context;
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCaptureSession;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CameraDevice;
-import android.os.Handler;
-import android.os.HandlerThread;
-import android.os.Looper;
 
 import androidx.annotation.NonNull;
 import androidx.camera.camera2.Camera2AppConfig;
@@ -56,6 +54,7 @@ import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.FlakyTest;
 import androidx.test.filters.LargeTest;
+import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.GrantPermissionRule;
 
 import org.junit.After;
@@ -97,11 +96,11 @@ public final class Camera2ImplCameraXTest {
     @Rule
     public GrantPermissionRule mRuntimePermissionRule = GrantPermissionRule.grant(
             Manifest.permission.CAMERA);
+
+    private final Instrumentation mInstrumentation = InstrumentationRegistry.getInstrumentation();
     private CountDownLatch mLatchForDeviceClose;
     private CameraDevice.StateCallback mDeviceStateCallback;
     private FakeLifecycleOwner mLifecycle;
-    private HandlerThread mHandlerThread;
-    private Handler mMainThreadHandler;
 
     private static Observer<Long> createCountIncrementingObserver(final AtomicLong counter) {
         return new Observer<Long>() {
@@ -118,9 +117,6 @@ public final class Camera2ImplCameraXTest {
         Context context = ApplicationProvider.getApplicationContext();
         CameraX.init(context, Camera2AppConfig.create(context));
         mLifecycle = new FakeLifecycleOwner();
-        mHandlerThread = new HandlerThread("ErrorHandlerThread");
-        mHandlerThread.start();
-        mMainThreadHandler = new Handler(Looper.getMainLooper());
 
         mLatchForDeviceClose = new CountDownLatch(1);
         mDeviceStateCallback = spy(new DeviceStateCallbackImpl());
@@ -128,10 +124,13 @@ public final class Camera2ImplCameraXTest {
 
     @After
     public void tearDown() throws InterruptedException {
-        if (mHandlerThread != null) {
-            CameraX.unbindAll();
-            mHandlerThread.quitSafely();
-        }
+        mInstrumentation.runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                CameraX.unbindAll();
+            }
+        });
+
         // Wait camera to be closed.
         if (mLatchForDeviceClose != null) {
             mLatchForDeviceClose.await(2, TimeUnit.SECONDS);
@@ -141,7 +140,7 @@ public final class Camera2ImplCameraXTest {
     @Test
     public void lifecycleResume_opensCameraAndStreamsFrames() {
         Observer<Long> mockObserver = Mockito.mock(Observer.class);
-        mMainThreadHandler.post(new Runnable() {
+        mInstrumentation.runOnMainSync(new Runnable() {
             @Override
             public void run() {
                 ImageAnalysisConfig.Builder builder =
@@ -175,7 +174,7 @@ public final class Camera2ImplCameraXTest {
         Observer<Long> mockObserver = Mockito.mock(Observer.class);
         Observer<Long> mockObserver2 = Mockito.mock(Observer.class);
 
-        mMainThreadHandler.post(new Runnable() {
+        mInstrumentation.runOnMainSync(new Runnable() {
             @Override
             public void run() {
                 ImageAnalysisConfig.Builder builder =
@@ -213,7 +212,7 @@ public final class Camera2ImplCameraXTest {
         final AtomicLong observedCount = new AtomicLong(0);
         final SessionCaptureCallback sessionCaptureCallback = new SessionCaptureCallback();
         final DeviceStateCallback deviceStateCallback = new DeviceStateCallback();
-        mMainThreadHandler.post(new Runnable() {
+        mInstrumentation.runOnMainSync(new Runnable() {
             @Override
             public void run() {
                 ImageAnalysisConfig.Builder configBuilder =
@@ -233,7 +232,7 @@ public final class Camera2ImplCameraXTest {
         // Wait a little bit for the camera to open and stream frames.
         sessionCaptureCallback.waitForOnCaptureCompleted(5);
 
-        mMainThreadHandler.post(new Runnable() {
+        mInstrumentation.runOnMainSync(new Runnable() {
             @Override
             public void run() {
                 mLifecycle.pauseAndStop();
@@ -261,9 +260,15 @@ public final class Camera2ImplCameraXTest {
         new Camera2Config.Extender(builder).setDeviceStateCallback(mDeviceStateCallback);
         ImageAnalysisConfig config = builder.build();
         ImageAnalysis useCase = new ImageAnalysis(config);
-        CameraX.bindToLifecycle(mLifecycle, useCase);
-        useCase.setAnalyzer(mImageAnalyzer);
-        mLifecycle.startAndResume();
+
+        mInstrumentation.runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                CameraX.bindToLifecycle(mLifecycle, useCase);
+                useCase.setAnalyzer(mImageAnalyzer);
+                mLifecycle.startAndResume();
+            }
+        });
 
         verify(mDeviceStateCallback, timeout(3000)).onOpened(any(CameraDevice.class));
     }
@@ -275,8 +280,14 @@ public final class Camera2ImplCameraXTest {
         new Camera2Config.Extender(builder).setDeviceStateCallback(mDeviceStateCallback);
         ImageAnalysisConfig config = builder.build();
         ImageAnalysis useCase = new ImageAnalysis(config);
-        CameraX.bindToLifecycle(mLifecycle, useCase);
-        mLifecycle.startAndResume();
+
+        mInstrumentation.runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                CameraX.bindToLifecycle(mLifecycle, useCase);
+                mLifecycle.startAndResume();
+            }
+        });
 
         verify(mDeviceStateCallback, timeout(3000)).onOpened(any(CameraDevice.class));
     }
@@ -293,8 +304,14 @@ public final class Camera2ImplCameraXTest {
 
         ImageAnalysisConfig config = builder.build();
         ImageAnalysis useCase = new ImageAnalysis(config);
-        CameraX.bindToLifecycle(mLifecycle, useCase);
-        mLifecycle.startAndResume();
+
+        mInstrumentation.runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                CameraX.bindToLifecycle(mLifecycle, useCase);
+                mLifecycle.startAndResume();
+            }
+        });
 
         // When no analyzer is set, there will be no active surface for repeating request
         // CaptureSession#mSessionConfig will be null. Thus we wait until capture session
@@ -314,11 +331,22 @@ public final class Camera2ImplCameraXTest {
             new Camera2Config.Extender(builder).setDeviceStateCallback(callback);
             ImageAnalysisConfig config = builder.build();
             ImageAnalysis useCase = new ImageAnalysis(config);
-            CameraX.bindToLifecycle(mLifecycle, useCase);
+
+            mInstrumentation.runOnMainSync(new Runnable() {
+                @Override
+                public void run() {
+                    CameraX.bindToLifecycle(mLifecycle, useCase);
+                }
+            });
 
             verify(callback, timeout(5000)).onOpened(any(CameraDevice.class));
 
-            CameraX.unbind(useCase);
+            mInstrumentation.runOnMainSync(new Runnable() {
+                @Override
+                public void run() {
+                    CameraX.unbind(useCase);
+                }
+            });
 
             verify(callback, timeout(3000)).onClosed(any(CameraDevice.class));
         }
@@ -335,12 +363,23 @@ public final class Camera2ImplCameraXTest {
             new Camera2Config.Extender(builder).setDeviceStateCallback(callback);
             ImageAnalysisConfig config = builder.build();
             ImageAnalysis useCase = new ImageAnalysis(config);
-            CameraX.bindToLifecycle(mLifecycle, useCase);
-            useCase.setAnalyzer(mImageAnalyzer);
+
+            mInstrumentation.runOnMainSync(new Runnable() {
+                @Override
+                public void run() {
+                    CameraX.bindToLifecycle(mLifecycle, useCase);
+                    useCase.setAnalyzer(mImageAnalyzer);
+                }
+            });
 
             verify(callback, timeout(5000)).onOpened(any(CameraDevice.class));
 
-            CameraX.unbind(useCase);
+            mInstrumentation.runOnMainSync(new Runnable() {
+                @Override
+                public void run() {
+                    CameraX.unbind(useCase);
+                }
+            });
 
             verify(callback, timeout(3000)).onClosed(any(CameraDevice.class));
         }
@@ -353,12 +392,23 @@ public final class Camera2ImplCameraXTest {
         new Camera2Config.Extender(builder).setDeviceStateCallback(mDeviceStateCallback);
         ImageAnalysisConfig config = builder.build();
         ImageAnalysis useCase = new ImageAnalysis(config);
-        CameraX.bindToLifecycle(mLifecycle, useCase);
-        mLifecycle.startAndResume();
+
+        mInstrumentation.runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                CameraX.bindToLifecycle(mLifecycle, useCase);
+                mLifecycle.startAndResume();
+            }
+        });
 
         verify(mDeviceStateCallback, timeout(3000)).onOpened(any(CameraDevice.class));
 
-        CameraX.unbindAll();
+        mInstrumentation.runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                CameraX.unbindAll();
+            }
+        });
 
         verify(mDeviceStateCallback, timeout(3000)).onClosed(any(CameraDevice.class));
     }
@@ -370,12 +420,23 @@ public final class Camera2ImplCameraXTest {
         new Camera2Config.Extender(builder).setDeviceStateCallback(mDeviceStateCallback);
         ImageAnalysisConfig config = builder.build();
         ImageAnalysis useCase = new ImageAnalysis(config);
-        CameraX.bindToLifecycle(mLifecycle, useCase);
-        mLifecycle.startAndResume();
+
+        mInstrumentation.runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                CameraX.bindToLifecycle(mLifecycle, useCase);
+                mLifecycle.startAndResume();
+            }
+        });
 
         verify(mDeviceStateCallback, timeout(3000)).onOpened(any(CameraDevice.class));
 
-        CameraX.unbind(useCase);
+        mInstrumentation.runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                CameraX.unbind(useCase);
+            }
+        });
 
         verify(mDeviceStateCallback, timeout(3000)).onClosed(any(CameraDevice.class));
     }
@@ -394,12 +455,22 @@ public final class Camera2ImplCameraXTest {
                         .build();
         ImageCapture useCase1 = new ImageCapture(configuration);
 
-        CameraX.bindToLifecycle(mLifecycle, useCase0, useCase1);
-        mLifecycle.startAndResume();
+        mInstrumentation.runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                CameraX.bindToLifecycle(mLifecycle, useCase0, useCase1);
+                mLifecycle.startAndResume();
+            }
+        });
 
         verify(mDeviceStateCallback, timeout(3000)).onOpened(any(CameraDevice.class));
 
-        CameraX.unbind(useCase1);
+        mInstrumentation.runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                CameraX.unbind(useCase1);
+            }
+        });
 
         Thread.sleep(3000);
 
@@ -420,14 +491,23 @@ public final class Camera2ImplCameraXTest {
                         .build();
         ImageCapture useCase1 = new ImageCapture(configuration);
 
-        CameraX.bindToLifecycle(mLifecycle, useCase0, useCase1);
-
-        mLifecycle.startAndResume();
+        mInstrumentation.runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                CameraX.bindToLifecycle(mLifecycle, useCase0, useCase1);
+                mLifecycle.startAndResume();
+            }
+        });
 
         verify(mDeviceStateCallback, timeout(3000)).onOpened(any(CameraDevice.class));
 
-        CameraX.unbind(useCase0);
-        CameraX.unbind(useCase1);
+        mInstrumentation.runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                CameraX.unbind(useCase0);
+                CameraX.unbind(useCase1);
+            }
+        });
 
         verify(mDeviceStateCallback, timeout(3000).times(1)).onClosed(any(CameraDevice.class));
     }

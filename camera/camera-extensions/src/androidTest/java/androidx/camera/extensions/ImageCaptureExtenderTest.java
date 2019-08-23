@@ -27,6 +27,7 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import android.Manifest;
+import android.app.Instrumentation;
 import android.content.Context;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CaptureRequest;
@@ -44,6 +45,7 @@ import androidx.camera.testing.CameraUtil;
 import androidx.camera.testing.fakes.FakeLifecycleOwner;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
+import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.GrantPermissionRule;
 
 import org.junit.Before;
@@ -62,6 +64,7 @@ public class ImageCaptureExtenderTest {
     public GrantPermissionRule mRuntimePermissionRule = GrantPermissionRule.grant(
             Manifest.permission.CAMERA);
 
+    private final Instrumentation mInstrumentation = InstrumentationRegistry.getInstrumentation();
     private FakeLifecycleOwner mLifecycleOwner;
     private ImageCaptureExtenderImpl mMockImageCaptureExtenderImpl;
     private ArrayList<CaptureStageImpl> mCaptureStages = new ArrayList<>(); {
@@ -90,8 +93,13 @@ public class ImageCaptureExtenderTest {
                         mock(CaptureProcessor.class));
 
         ImageCapture useCase = new ImageCapture(configBuilder.build());
-        CameraX.bindToLifecycle(mLifecycleOwner, useCase);
-        mLifecycleOwner.startAndResume();
+        mInstrumentation.runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                CameraX.bindToLifecycle(mLifecycleOwner, useCase);
+                mLifecycleOwner.startAndResume();
+            }
+        });
 
         // To verify the event callbacks in order, and to verification of the getCaptureStages()
         // is also used to wait for the capture session created. The test for the unbind
@@ -102,8 +110,13 @@ public class ImageCaptureExtenderTest {
         inOrder.verify(mMockImageCaptureExtenderImpl,
                 timeout(3000).atLeastOnce()).getCaptureStages();
 
-        // Unbind the use case to test the onDeInit.
-        CameraX.unbind(useCase);
+        mInstrumentation.runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                // Unbind the use case to test the onDeInit.
+                CameraX.unbind(useCase);
+            }
+        });
 
         // To verify the deInit should been called.
         inOrder.verify(mMockImageCaptureExtenderImpl, timeout(3000)).onDeInit();
@@ -126,10 +139,15 @@ public class ImageCaptureExtenderTest {
         new Camera2Config.Extender(configBuilder).setCameraEventCallback(
                 new CameraEventCallbacks(imageCaptureAdapter));
 
-
         ImageCapture useCase = new ImageCapture(configBuilder.build());
-        CameraX.bindToLifecycle(mLifecycleOwner, useCase);
-        mLifecycleOwner.startAndResume();
+
+        mInstrumentation.runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                CameraX.bindToLifecycle(mLifecycleOwner, useCase);
+                mLifecycleOwner.startAndResume();
+            }
+        });
 
         // To verify the event callbacks in order, and to verification of the onEnableSession()
         // is also used to wait for the capture session created. The test for the unbind
@@ -142,8 +160,13 @@ public class ImageCaptureExtenderTest {
         inOrder.verify(mMockImageCaptureExtenderImpl,
                 timeout(3000).atLeastOnce()).onEnableSession();
 
-        // Unbind the use case to test the onDisableSession and onDeInit.
-        CameraX.unbind(useCase);
+        mInstrumentation.runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                // Unbind the use case to test the onDisableSession and onDeInit.
+                CameraX.unbind(useCase);
+            }
+        });
 
         // To verify the onDisableSession and onDeInit.
         inOrder.verify(mMockImageCaptureExtenderImpl,
