@@ -725,6 +725,7 @@ public final class CameraX {
             throw new IllegalStateException(
                     "Invalid app configuration provided. Missing CameraDeviceSurfaceManager.");
         }
+        mSurfaceManager.init();
 
         mDefaultConfigFactory = appConfig.getUseCaseConfigRepository(null);
         if (mDefaultConfigFactory == null) {

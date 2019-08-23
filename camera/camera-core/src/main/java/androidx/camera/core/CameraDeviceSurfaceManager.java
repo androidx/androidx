@@ -36,6 +36,18 @@ import java.util.Map;
 @RestrictTo(Scope.LIBRARY_GROUP)
 public interface CameraDeviceSurfaceManager {
     /**
+     * Prepare necessary resources for the surface manager.
+     */
+    void init();
+
+    /**
+     * Check whether the surface manager is initialized.
+     *
+     * @return true if initialized
+     */
+    boolean isInitialized();
+
+    /**
      * Check whether the input surface configuration list is under the capability of any combination
      * of this object.
      *
