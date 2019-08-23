@@ -25,6 +25,7 @@ import static androidx.slice.test.SampleSliceProvider.getUri;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
@@ -76,6 +77,8 @@ public class SliceBrowser extends AppCompatActivity implements SliceView.OnSlice
     private static final String TAG = "SliceBrowser";
 
     private static final String SLICE_METADATA_KEY = "android.metadata.SLICE_URI";
+    private static final String SHARED_PREFS_NAME = "shared_prefs";
+    private static final String KEY_URI = "com.example.androidx.slice.demos.sliceuris";
     private static final boolean TEST_INTENT = false;
 
     private ArrayList<Uri> mSliceUris = new ArrayList<Uri>();
@@ -84,6 +87,7 @@ public class SliceBrowser extends AppCompatActivity implements SliceView.OnSlice
     private SimpleCursorAdapter mAdapter;
     private LiveData<Slice> mSliceLiveData;
     private SliceView mSliceView;
+    private SharedPreferences mSharedPreferences;
 
     // Mode menu
     private int mSelectedMode;
@@ -141,6 +145,8 @@ public class SliceBrowser extends AppCompatActivity implements SliceView.OnSlice
             }
         });
 
+        mSharedPreferences = getSharedPreferences(SHARED_PREFS_NAME, Context.MODE_PRIVATE);
+
         mSelectedMode = (savedInstanceState != null)
                 ? savedInstanceState.getInt("SELECTED_MODE", SliceView.MODE_LARGE)
                 : SliceView.MODE_LARGE;
@@ -150,6 +156,8 @@ public class SliceBrowser extends AppCompatActivity implements SliceView.OnSlice
             mScrollingEnabled = savedInstanceState.getBoolean("SCROLLING_ENABLED");
             mSelectedHeight = savedInstanceState.getInt("SELECTED_HEIGHT", WRAP_CONTENT);
             uri = savedInstanceState.getString("SELECTED_SLICE", null);
+        } else if (mSharedPreferences != null) {
+            uri = mSharedPreferences.getString(KEY_URI, null);
         }
 
         updateAvailableSlices();
@@ -326,6 +334,7 @@ public class SliceBrowser extends AppCompatActivity implements SliceView.OnSlice
 
     private void addSlice(Uri uri) {
         if (ContentResolver.SCHEME_CONTENT.equals(uri.getScheme())) {
+            mSharedPreferences.edit().putString(KEY_URI, uri.toString()).apply();
             mSliceView.setTag(uri);
             showSlice(SliceLiveData.fromUri(this, uri));
         } else {
