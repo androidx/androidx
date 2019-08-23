@@ -17,15 +17,21 @@
 import static androidx.build.dependencies.DependenciesKt.*
 import androidx.build.BuildServerConfigurationKt
 
+buildscript {
+    dependencies {
+        classpath("gradle.plugin.com.google.protobuf:protobuf-gradle-plugin:0.8.8")
+    }
+}
+
 plugins {
     id("java")
-    id("com.google.protobuf") version("0.8.8")
 }
+
+apply(plugin: "com.google.protobuf")
 
 dependencies {
     compile(PROTOBUF)
 }
-
 
 tasks.withType(Jar) {
     destinationDir = BuildServerConfigurationKt.getDistributionDirectory(rootProject)

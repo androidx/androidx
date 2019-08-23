@@ -148,6 +148,7 @@ repositories {
     jcenter()
     mavenCentral()
     google()
+    gradlePluginPortal()
 }
 
 if (artifactName != null) {
