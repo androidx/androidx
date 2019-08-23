@@ -429,6 +429,20 @@ public class PagedListView extends FrameLayout {
     }
 
     /**
+     * Returns a {@link Gutter} value that identifies which sides the gutter applies to.
+     *
+     * <p>The gutter is the space to the start/end of the list view items and will be equal in size
+     * to the scroll bars. By default, there is a gutter to both the left and right of the list
+     * view items, to account for the scroll bar.
+     *
+     * @return gutter The {@link Gutter} value that identifies which sides to apply the gutter to.
+     */
+    @Gutter
+    public int getGutter() {
+        return mGutter;
+    }
+
+    /**
      * Set the gutter to the specified value.
      *
      * <p>The gutter is the space to the start/end of the list view items and will be equal in size
@@ -523,12 +537,23 @@ public class PagedListView extends FrameLayout {
     }
 
     /**
+     * Returns the width of the container that holds the scrollbar. The scrollbar will be centered
+     * within this width.
+     *
+     * @return width The width of the scrollbar container.
+     */
+    @Px
+    public int getScrollBarContainerWidth() {
+        return mScrollBarView.getLayoutParams().width;
+    }
+
+    /**
      * Sets the width of the container that holds the scrollbar. The scrollbar will be centered
      * within this width.
      *
      * @param width The width of the scrollbar container.
      */
-    public void setScrollBarContainerWidth(int width) {
+    public void setScrollBarContainerWidth(@Px int width) {
         ViewGroup.LayoutParams layoutParams = mScrollBarView.getLayoutParams();
         layoutParams.width = width;
         mScrollBarView.requestLayout();
