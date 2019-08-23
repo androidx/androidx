@@ -16,6 +16,8 @@
 
 package androidx.camera.extensions;
 
+import static com.google.common.truth.Truth.assertThat;
+
 import static org.junit.Assume.assumeTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.atLeastOnce;
@@ -29,17 +31,22 @@ import static org.mockito.Mockito.when;
 import android.Manifest;
 import android.app.Instrumentation;
 import android.content.Context;
+import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CaptureRequest;
 import android.util.Pair;
+import android.util.Size;
 
 import androidx.camera.camera2.Camera2AppConfig;
 import androidx.camera.camera2.Camera2Config;
 import androidx.camera.camera2.impl.CameraEventCallbacks;
+import androidx.camera.core.CameraDeviceConfig;
+import androidx.camera.core.CameraInfoUnavailableException;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.CaptureProcessor;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCaptureConfig;
+import androidx.camera.extensions.impl.BeautyImageCaptureExtenderImpl;
 import androidx.camera.extensions.impl.CaptureStageImpl;
 import androidx.camera.extensions.impl.ImageCaptureExtenderImpl;
 import androidx.camera.testing.CameraUtil;
@@ -47,6 +54,7 @@ import androidx.camera.testing.fakes.FakeLifecycleOwner;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
+import androidx.test.filters.SmallTest;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.GrantPermissionRule;
 
@@ -58,6 +66,7 @@ import org.junit.runner.RunWith;
 import org.mockito.InOrder;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
@@ -192,6 +201,58 @@ public class ImageCaptureExtenderTest {
 
         // To verify there is no any other calls on the mock.
         verifyNoMoreInteractions(mMockImageCaptureExtenderImpl);
+    }
+
+    @Test
+    @SmallTest
+    public void canSetSupportedResolutionsToConfigTest()
+            throws CameraInfoUnavailableException, CameraAccessException {
+        CameraX.LensFacing lensFacing = CameraX.LensFacing.BACK;
+        assumeTrue(CameraUtil.hasCameraWithLensFacing(lensFacing));
+        ImageCaptureConfig.Builder configBuilder = new ImageCaptureConfig.Builder().setLensFacing(
+                lensFacing);
+
+        String cameraId = androidx.camera.extensions.CameraUtil.getCameraId(
+                ((CameraDeviceConfig) configBuilder.build()));
+        CameraCharacteristics cameraCharacteristics =
+                CameraUtil.getCameraManager().getCameraCharacteristics(
+                        CameraX.getCameraWithLensFacing(lensFacing));
+
+        // Only BeautyImageCaptureExtenderImpl has sample implementation for ImageCapture.
+        // Retrieves the target format/resolutions pair list directly from
+        // BeautyImageCaptureExtenderImpl.
+        BeautyImageCaptureExtenderImpl impl = new BeautyImageCaptureExtenderImpl();
+
+        impl.init(cameraId, cameraCharacteristics);
+        List<Pair<Integer, Size[]>> targetFormatResolutionsPairList =
+                impl.getSupportedResolutions();
+
+        assertThat(targetFormatResolutionsPairList).isNotNull();
+
+        // Retrieves the target format/resolutions pair list from builder after applying beauty
+        // mode.
+        BeautyImageCaptureExtender extender = BeautyImageCaptureExtender.create(configBuilder);
+        assertThat(configBuilder.build().getSupportedResolutions(null)).isNull();
+        extender.enableExtension();
+
+        List<Pair<Integer, Size[]>> resultFormatResolutionsPairList =
+                configBuilder.build().getSupportedResolutions(null);
+
+        assertThat(resultFormatResolutionsPairList).isNotNull();
+
+        // Checks the result and target pair lists are the same
+        for (Pair<Integer, Size[]> resultPair : resultFormatResolutionsPairList) {
+            Size[] targetSizes = null;
+            for (Pair<Integer, Size[]> targetPair : targetFormatResolutionsPairList) {
+                if (targetPair.first.equals(resultPair.first)) {
+                    targetSizes = targetPair.second;
+                    break;
+                }
+            }
+
+            assertThat(Arrays.asList(resultPair.second).equals(
+                    Arrays.asList(targetSizes))).isTrue();
+        }
     }
 
     final class FakeCaptureStage implements CaptureStageImpl {

@@ -19,6 +19,9 @@ package androidx.camera.extensions;
 import android.hardware.camera2.CameraCharacteristics;
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
+import android.util.Pair;
+import android.util.Size;
 
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
@@ -51,6 +54,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * Class for using an OEM provided extension on image capture.
  */
 public abstract class ImageCaptureExtender {
+    private static final String TAG = "ImageCaptureExtender";
     static final Config.Option<EffectMode> OPTION_IMAGE_CAPTURE_EXTENDER_MODE =
             Config.Option.create("camerax.extensions.imageCaptureExtender.mode", EffectMode.class);
 
@@ -130,6 +134,21 @@ public abstract class ImageCaptureExtender {
         mBuilder.setUseCaseEventListener(imageCaptureAdapter);
         mBuilder.setCaptureBundle(imageCaptureAdapter);
         mBuilder.getMutableConfig().insertOption(OPTION_IMAGE_CAPTURE_EXTENDER_MODE, mEffectMode);
+        setSupportedResolutions();
+    }
+
+    private void setSupportedResolutions() {
+        List<Pair<Integer, Size[]>> supportedResolutions = null;
+
+        try {
+            supportedResolutions = mImpl.getSupportedResolutions();
+        } catch (NoSuchMethodError e) {
+            Log.e(TAG, "getSupportedResolution interface is not implemented in vendor library.");
+        }
+
+        if (supportedResolutions != null) {
+            mBuilder.setSupportedResolutions(supportedResolutions);
+        }
     }
 
     static void checkPreviewEnabled(EffectMode effectMode, Collection<UseCase> activeUseCases) {
