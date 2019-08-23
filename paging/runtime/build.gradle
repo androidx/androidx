@@ -41,9 +41,7 @@ dependencies {
     api(KOTLIN_COROUTINES)
 
     androidTestImplementation project(':internal-testutils-common')
-    androidTestImplementation project(':internal-testutils-ktx'), {
-        exclude group: 'com.google.truth'
-    }
+    androidTestImplementation project(':internal-testutils-ktx')
     androidTestImplementation(ANDROIDX_TEST_CORE)
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
     androidTestImplementation(ANDROIDX_TEST_RUNNER)

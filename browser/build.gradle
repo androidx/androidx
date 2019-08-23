@@ -32,6 +32,7 @@ dependencies {
     testImplementation(ROBOLECTRIC)
     testImplementation(MOCKITO_CORE)
 
+    androidTestImplementation(SUPPORT_APPCOMPAT)
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
     androidTestImplementation(ANDROIDX_TEST_CORE)
     androidTestImplementation(ANDROIDX_TEST_RUNNER)

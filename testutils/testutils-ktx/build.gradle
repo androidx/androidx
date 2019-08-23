@@ -22,7 +22,6 @@ plugins {
 }
 
 dependencies {
-    api(TRUTH)
     api(KOTLIN_STDLIB)
     api(KOTLIN_COROUTINES)
 }
