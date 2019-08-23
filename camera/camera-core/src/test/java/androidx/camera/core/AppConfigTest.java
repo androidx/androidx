@@ -18,6 +18,8 @@ package androidx.camera.core;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.mockito.Mockito.mock;
+
 import android.os.Build;
 
 import androidx.camera.testing.fakes.FakeAppConfig;
@@ -31,6 +33,8 @@ import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 import org.robolectric.annotation.internal.DoNotInstrument;
+
+import java.util.concurrent.Executor;
 
 @SmallTest
 @RunWith(RobolectricTestRunner.class)
@@ -62,5 +66,15 @@ public class AppConfigTest {
         CameraDeviceSurfaceManager surfaceManager =
                 mAppConfig.getDeviceSurfaceManager(/*valueIfMissing=*/ null);
         assertThat(surfaceManager).isInstanceOf(FakeCameraDeviceSurfaceManager.class);
+    }
+
+    @Test
+    public void canGetCameraExecutor() {
+        Executor mockExecutor = mock(Executor.class);
+        AppConfig appConfig = new AppConfig.Builder()
+                .setCameraExecutor(mockExecutor)
+                .build();
+        Executor cameraExecutor = appConfig.getCameraExecutor(/*valueIfMissing=*/ null);
+        assertThat(cameraExecutor).isEqualTo(mockExecutor);
     }
 }
