@@ -78,6 +78,7 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
 
     private static final int SLEEP_TIME = 1000;
     private static final long WAIT_TIME_MS = 300;
+    private static final long LARGE_TEST_WAIT_TIME_MS = 10000;
     private static final float FLOAT_TOLERANCE = .0001f;
     private static final int INVALID_SHUFFLE_MODE = -1000;
     private static final int INVALID_REPEAT_MODE = -1000;
@@ -1810,7 +1811,7 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
     @Test
     @MediumTest
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
-    public void testCurrentMediaItemChangedCalledAfterSetPlayList() throws Exception {
+    public void testCurrentMediaItemChangedCalledAfterSetPlaylist() throws Exception {
         int listSize = 2;
         List<MediaItem> playlist = createPlaylist(listSize);
 
@@ -1822,8 +1823,96 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
         assertTrue(onCurrentMediaItemChangedMonitor.waitForSignal(WAIT_TIME_MS));
     }
 
+    @Test
+    @LargeTest
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
+    public void testCurrentMediaItemChangedAndPlaybackCompletedWhilePlayingPlaylist()
+            throws Exception {
+        List<MediaItem> playlist = new ArrayList<>();
+        playlist.add(createMediaItem(R.raw.number1));
+        playlist.add(createMediaItem(R.raw.number2));
+        playlist.add(createMediaItem(R.raw.number3));
+
+        TestUtils.Monitor onPlaybackCompletedMonitor = new TestUtils.Monitor();
+        mPlayer.registerPlayerCallback(mExecutor, new SessionPlayer.PlayerCallback() {
+            int mCurrentMediaItemChangedCount = 0;
+
+            @Override
+            public void onCurrentMediaItemChanged(@NonNull SessionPlayer player,
+                    @NonNull MediaItem item) {
+                assertEquals(player.getCurrentMediaItem(), item);
+
+                int currentIdx = player.getCurrentMediaItemIndex();
+                int expectedCurrentIdx = mCurrentMediaItemChangedCount++;
+                assertEquals(expectedCurrentIdx, currentIdx);
+                assertEquals(playlist.get(expectedCurrentIdx), item);
+            }
+
+            @Override
+            public void onPlaybackCompleted(@NonNull SessionPlayer player) {
+                onPlaybackCompletedMonitor.signal();
+            }
+        });
+
+        assertNotNull(mPlayer.setSurface(mActivity.getSurfaceHolder().getSurface()));
+        assertNotNull(mPlayer.setPlaylist(playlist, null));
+        assertNotNull(mPlayer.prepare());
+        assertNotNull(mPlayer.play());
+
+        assertTrue(onPlaybackCompletedMonitor.waitForSignal(LARGE_TEST_WAIT_TIME_MS));
+    }
+
+    @Test
+    @LargeTest
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
+    public void testRepeatAll() throws Exception {
+        List<MediaItem> playlist = new ArrayList<>();
+        playlist.add(createMediaItem(R.raw.number1));
+        playlist.add(createMediaItem(R.raw.number2));
+        playlist.add(createMediaItem(R.raw.number3));
+        int listSize = playlist.size();
+        int waitForCurrentMediaChangeCount = listSize * 2;
+
+        TestUtils.Monitor onCurrentMediaItemChangedMonitor = new TestUtils.Monitor();
+        TestUtils.Monitor onPlaybackCompletedMonitor = new TestUtils.Monitor();
+        PlayerCallbackForPlaylist callback = new PlayerCallbackForPlaylist(
+                playlist, onCurrentMediaItemChangedMonitor) {
+            int mCurrentMediaItemChangedCount = 0;
+
+            @Override
+            public void onCurrentMediaItemChanged(@NonNull SessionPlayer player,
+                    @NonNull MediaItem item) {
+                super.onCurrentMediaItemChanged(player, item);
+
+                int expectedCurrentIdx = (mCurrentMediaItemChangedCount++) % listSize;
+                assertEquals(expectedCurrentIdx, player.getCurrentMediaItemIndex());
+            }
+
+            @Override
+            public void onPlaybackCompleted(@NonNull SessionPlayer player) {
+                onPlaybackCompletedMonitor.signal();
+            }
+        };
+        mPlayer.registerPlayerCallback(mExecutor, callback);
+
+        assertNotNull(mPlayer.setSurface(mActivity.getSurfaceHolder().getSurface()));
+        assertNotNull(mPlayer.setPlaylist(playlist, null));
+        assertNotNull(mPlayer.prepare());
+        assertNotNull(mPlayer.setRepeatMode(SessionPlayer.REPEAT_MODE_ALL));
+        assertNotNull(mPlayer.play());
+
+        assertEquals(waitForCurrentMediaChangeCount,
+                onCurrentMediaItemChangedMonitor.waitForCountedSignals(
+                        waitForCurrentMediaChangeCount, LARGE_TEST_WAIT_TIME_MS));
+        assertEquals(0, onPlaybackCompletedMonitor.getNumSignal());
+    }
+
     private MediaItem createMediaItem() throws Exception {
-        try (AssetFileDescriptor afd = mResources.openRawResourceFd(R.raw.testvideo)) {
+        return createMediaItem(R.raw.testvideo);
+    }
+
+    private MediaItem createMediaItem(int resId) throws Exception {
+        try (AssetFileDescriptor afd = mResources.openRawResourceFd(resId)) {
             return new FileMediaItem.Builder(
                     ParcelFileDescriptor.dup(afd.getFileDescriptor()))
                     .setFileDescriptorOffset(afd.getStartOffset())
