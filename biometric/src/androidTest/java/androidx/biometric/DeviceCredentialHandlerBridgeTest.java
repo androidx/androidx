@@ -16,10 +16,7 @@
 
 package androidx.biometric;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.hamcrest.CoreMatchers.nullValue;
-import static org.junit.Assert.assertThat;
+import static com.google.common.truth.Truth.assertThat;
 
 import android.content.DialogInterface;
 import android.os.Build;
@@ -36,8 +33,8 @@ import org.junit.runner.RunWith;
 
 import java.util.concurrent.Executor;
 
-@RunWith(AndroidJUnit4.class)
 @SmallTest
+@RunWith(AndroidJUnit4.class)
 public class DeviceCredentialHandlerBridgeTest {
     private static final BiometricPrompt.AuthenticationCallback AUTH_CALLBACK =
             new BiometricPrompt.AuthenticationCallback() {
@@ -63,23 +60,23 @@ public class DeviceCredentialHandlerBridgeTest {
     @Test
     public void testGetInstance_CreatesSingleton() {
         // Calling getInstanceIfNotNull should *not* create the singleton.
-        assertThat(DeviceCredentialHandlerBridge.getInstanceIfNotNull(), nullValue());
+        assertThat(DeviceCredentialHandlerBridge.getInstanceIfNotNull()).isNull();
 
         // Calling getInstance *should* create the singleton.
         final DeviceCredentialHandlerBridge bridge = DeviceCredentialHandlerBridge.getInstance();
-        assertThat(bridge, notNullValue());
-        assertThat(DeviceCredentialHandlerBridge.getInstance(), equalTo(bridge));
-        assertThat(DeviceCredentialHandlerBridge.getInstanceIfNotNull(), equalTo(bridge));
+        assertThat(bridge).isNotNull();
+        assertThat(DeviceCredentialHandlerBridge.getInstance()).isEqualTo(bridge);
+        assertThat(DeviceCredentialHandlerBridge.getInstanceIfNotNull()).isEqualTo(bridge);
     }
 
     @Test
     public void testClientThemeResId_CanSetAndGet() {
         final DeviceCredentialHandlerBridge bridge = DeviceCredentialHandlerBridge.getInstance();
-        assertThat(bridge.getClientThemeResId(), equalTo(0));
+        assertThat(bridge.getClientThemeResId()).isEqualTo(0);
 
         final int resId = 42;
         bridge.setClientThemeResId(resId);
-        assertThat(bridge.getClientThemeResId(), equalTo(resId));
+        assertThat(bridge.getClientThemeResId()).isEqualTo(resId);
     }
 
     @Test
@@ -87,38 +84,38 @@ public class DeviceCredentialHandlerBridgeTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.P)
     public void testBiometricFragment_CanSetAndGet() {
         final DeviceCredentialHandlerBridge bridge = DeviceCredentialHandlerBridge.getInstance();
-        assertThat(bridge.getBiometricFragment(), nullValue());
+        assertThat(bridge.getBiometricFragment()).isNull();
 
         final BiometricFragment fragment = BiometricFragment.newInstance();
         bridge.setBiometricFragment(fragment);
-        assertThat(bridge.getBiometricFragment(), equalTo(fragment));
+        assertThat(bridge.getBiometricFragment()).isEqualTo(fragment);
     }
 
     @Test
     @UiThreadTest
     public void testFingerprintFragments_CanSetAndGet() {
         final DeviceCredentialHandlerBridge bridge = DeviceCredentialHandlerBridge.getInstance();
-        assertThat(bridge.getFingerprintDialogFragment(), nullValue());
-        assertThat(bridge.getFingerprintHelperFragment(), nullValue());
+        assertThat(bridge.getFingerprintDialogFragment()).isNull();
+        assertThat(bridge.getFingerprintHelperFragment()).isNull();
 
         final FingerprintDialogFragment dialogFragment = FingerprintDialogFragment.newInstance();
         final FingerprintHelperFragment helperFragment = FingerprintHelperFragment.newInstance();
         bridge.setFingerprintFragments(dialogFragment, helperFragment);
-        assertThat(bridge.getFingerprintDialogFragment(), equalTo(dialogFragment));
-        assertThat(bridge.getFingerprintHelperFragment(), equalTo(helperFragment));
+        assertThat(bridge.getFingerprintDialogFragment()).isEqualTo(dialogFragment);
+        assertThat(bridge.getFingerprintHelperFragment()).isEqualTo(helperFragment);
     }
 
     @Test
     public void testCallbacks_CanSetAndGet() {
         final DeviceCredentialHandlerBridge bridge = DeviceCredentialHandlerBridge.getInstance();
-        assertThat(bridge.getExecutor(), nullValue());
-        assertThat(bridge.getOnClickListener(), nullValue());
-        assertThat(bridge.getAuthenticationCallback(), nullValue());
+        assertThat(bridge.getExecutor()).isNull();
+        assertThat(bridge.getOnClickListener()).isNull();
+        assertThat(bridge.getAuthenticationCallback()).isNull();
 
         bridge.setCallbacks(EXECUTOR, CLICK_LISTENER, AUTH_CALLBACK);
-        assertThat(bridge.getExecutor(), equalTo(EXECUTOR));
-        assertThat(bridge.getOnClickListener(), equalTo(CLICK_LISTENER));
-        assertThat(bridge.getAuthenticationCallback(), equalTo(AUTH_CALLBACK));
+        assertThat(bridge.getExecutor()).isEqualTo(EXECUTOR);
+        assertThat(bridge.getOnClickListener()).isEqualTo(CLICK_LISTENER);
+        assertThat(bridge.getAuthenticationCallback()).isEqualTo(AUTH_CALLBACK);
     }
 
     @Test
@@ -128,14 +125,14 @@ public class DeviceCredentialHandlerBridgeTest {
         final DeviceCredentialHandlerBridge bridge = DeviceCredentialHandlerBridge.getInstance();
         final BiometricFragment fragment = BiometricFragment.newInstance();
         bridge.setBiometricFragment(fragment);
-        assertThat(fragment.mClientExecutor, nullValue());
-        assertThat(fragment.mClientNegativeButtonListener, nullValue());
-        assertThat(fragment.mClientAuthenticationCallback, nullValue());
+        assertThat(fragment.mClientExecutor).isNull();
+        assertThat(fragment.mClientNegativeButtonListener).isNull();
+        assertThat(fragment.mClientAuthenticationCallback).isNull();
 
         bridge.setCallbacks(EXECUTOR, CLICK_LISTENER, AUTH_CALLBACK);
-        assertThat(fragment.mClientExecutor, equalTo(EXECUTOR));
-        assertThat(fragment.mClientNegativeButtonListener, equalTo(CLICK_LISTENER));
-        assertThat(fragment.mClientAuthenticationCallback, equalTo(AUTH_CALLBACK));
+        assertThat(fragment.mClientExecutor).isEqualTo(EXECUTOR);
+        assertThat(fragment.mClientNegativeButtonListener).isEqualTo(CLICK_LISTENER);
+        assertThat(fragment.mClientAuthenticationCallback).isEqualTo(AUTH_CALLBACK);
     }
 
     @Test
@@ -145,29 +142,29 @@ public class DeviceCredentialHandlerBridgeTest {
         final FingerprintDialogFragment dialogFragment = FingerprintDialogFragment.newInstance();
         final FingerprintHelperFragment helperFragment = FingerprintHelperFragment.newInstance();
         bridge.setFingerprintFragments(dialogFragment, helperFragment);
-        assertThat(dialogFragment.mNegativeButtonListener, nullValue());
-        assertThat(helperFragment.mExecutor, nullValue());
-        assertThat(helperFragment.mClientAuthenticationCallback, nullValue());
+        assertThat(dialogFragment.mNegativeButtonListener).isNull();
+        assertThat(helperFragment.mExecutor).isNull();
+        assertThat(helperFragment.mClientAuthenticationCallback).isNull();
 
         bridge.setCallbacks(EXECUTOR, CLICK_LISTENER, AUTH_CALLBACK);
-        assertThat(dialogFragment.mNegativeButtonListener, equalTo(CLICK_LISTENER));
-        assertThat(helperFragment.mExecutor, equalTo(EXECUTOR));
-        assertThat(helperFragment.mClientAuthenticationCallback, equalTo(AUTH_CALLBACK));
+        assertThat(dialogFragment.mNegativeButtonListener).isEqualTo(CLICK_LISTENER);
+        assertThat(helperFragment.mExecutor).isEqualTo(EXECUTOR);
+        assertThat(helperFragment.mClientAuthenticationCallback).isEqualTo(AUTH_CALLBACK);
     }
 
     @Test
     public void testDeviceCredentialResult_CanSetAndGet() {
         final DeviceCredentialHandlerBridge bridge = DeviceCredentialHandlerBridge.getInstance();
-        assertThat(bridge.getDeviceCredentialResult(),
-                equalTo(DeviceCredentialHandlerBridge.RESULT_NONE));
+        assertThat(bridge.getDeviceCredentialResult())
+                .isEqualTo(DeviceCredentialHandlerBridge.RESULT_NONE);
 
         final @DeviceCredentialResult int resultBad = DeviceCredentialHandlerBridge.RESULT_ERROR;
         bridge.setDeviceCredentialResult(resultBad);
-        assertThat(bridge.getDeviceCredentialResult(), equalTo(resultBad));
+        assertThat(bridge.getDeviceCredentialResult()).isEqualTo(resultBad);
 
         final @DeviceCredentialResult int resultGood = DeviceCredentialHandlerBridge.RESULT_SUCCESS;
         bridge.setDeviceCredentialResult(resultGood);
-        assertThat(bridge.getDeviceCredentialResult(), equalTo(resultGood));
+        assertThat(bridge.getDeviceCredentialResult()).isEqualTo(resultGood);
     }
 
     @Test
@@ -177,7 +174,7 @@ public class DeviceCredentialHandlerBridgeTest {
         final DeviceCredentialHandlerBridge bridge = DeviceCredentialHandlerBridge.getInstance();
         bridge.setBiometricFragment(BiometricFragment.newInstance());
         bridge.reset();
-        assertThat(bridge.getBiometricFragment(), nullValue());
+        assertThat(bridge.getBiometricFragment()).isNull();
     }
 
     @Test
@@ -188,12 +185,12 @@ public class DeviceCredentialHandlerBridgeTest {
                 FingerprintDialogFragment.newInstance(), FingerprintHelperFragment.newInstance());
         bridge.setCallbacks(EXECUTOR, CLICK_LISTENER, AUTH_CALLBACK);
         bridge.reset();
-        assertThat(bridge.getFingerprintDialogFragment(), nullValue());
-        assertThat(bridge.getFingerprintHelperFragment(), nullValue());
-        assertThat(bridge.getExecutor(), nullValue());
-        assertThat(bridge.getOnClickListener(), nullValue());
-        assertThat(bridge.getAuthenticationCallback(), nullValue());
-        assertThat(DeviceCredentialHandlerBridge.getInstanceIfNotNull(), nullValue());
+        assertThat(bridge.getFingerprintDialogFragment()).isNull();
+        assertThat(bridge.getFingerprintHelperFragment()).isNull();
+        assertThat(bridge.getExecutor()).isNull();
+        assertThat(bridge.getOnClickListener()).isNull();
+        assertThat(bridge.getAuthenticationCallback()).isNull();
+        assertThat(DeviceCredentialHandlerBridge.getInstanceIfNotNull()).isNull();
     }
 
     @Test
@@ -202,9 +199,9 @@ public class DeviceCredentialHandlerBridgeTest {
         bridge.setCallbacks(EXECUTOR, CLICK_LISTENER, AUTH_CALLBACK);
         bridge.ignoreNextReset();
         bridge.reset();
-        assertThat(bridge.getExecutor(), equalTo(EXECUTOR));
+        assertThat(bridge.getExecutor()).isEqualTo(EXECUTOR);
         bridge.reset();
-        assertThat(bridge.getExecutor(), nullValue());
+        assertThat(bridge.getExecutor()).isNull();
     }
 
     @Test
@@ -214,11 +211,11 @@ public class DeviceCredentialHandlerBridgeTest {
         bridge.startIgnoringReset();
         for (int i = 0; i < 5; ++i) {
             bridge.reset();
-            assertThat(bridge.getExecutor(), equalTo(EXECUTOR));
+            assertThat(bridge.getExecutor()).isEqualTo(EXECUTOR);
         }
         bridge.stopIgnoringReset();
         bridge.reset();
-        assertThat(bridge.getExecutor(), nullValue());
+        assertThat(bridge.getExecutor()).isNull();
     }
 
     @Test
@@ -228,19 +225,19 @@ public class DeviceCredentialHandlerBridgeTest {
         bridge.startIgnoringReset();
         for (int i = 0; i < 3; ++i) {
             bridge.reset();
-            assertThat(bridge.getExecutor(), equalTo(EXECUTOR));
+            assertThat(bridge.getExecutor()).isEqualTo(EXECUTOR);
         }
 
         // Should keep preventing reset until stopIgnoringReset is called.
         bridge.ignoreNextReset();
         for (int i = 0; i < 3; ++i) {
             bridge.reset();
-            assertThat(bridge.getExecutor(), equalTo(EXECUTOR));
+            assertThat(bridge.getExecutor()).isEqualTo(EXECUTOR);
         }
 
         bridge.stopIgnoringReset();
         bridge.reset();
-        assertThat(bridge.getExecutor(), nullValue());
+        assertThat(bridge.getExecutor()).isNull();
     }
 
     @Test
@@ -251,10 +248,10 @@ public class DeviceCredentialHandlerBridgeTest {
         bridge.startIgnoringReset();
         for (int i = 0; i < 5; ++i) {
             bridge.reset();
-            assertThat(bridge.getExecutor(), equalTo(EXECUTOR));
+            assertThat(bridge.getExecutor()).isEqualTo(EXECUTOR);
         }
         bridge.stopIgnoringReset();
         bridge.reset();
-        assertThat(bridge.getExecutor(), nullValue());
+        assertThat(bridge.getExecutor()).isNull();
     }
 }
