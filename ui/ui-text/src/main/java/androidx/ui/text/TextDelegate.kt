@@ -37,7 +37,7 @@ import androidx.ui.text.style.TextDirection
 import androidx.ui.graphics.Color
 import androidx.ui.painting.BlendMode
 import androidx.ui.painting.Canvas
-import androidx.ui.painting.Gradient
+import androidx.ui.painting.LinearGradientShader
 import androidx.ui.painting.Paint
 import androidx.ui.painting.Shader
 import androidx.ui.text.font.Font
@@ -301,7 +301,7 @@ class TextDelegate(
                 } else {
                     Pair(size.width - fadeWidth, size.width)
                 }
-                Gradient.linear(
+                LinearGradientShader(
                     Offset(fadeStart, 0.0f),
                     Offset(fadeEnd, 0.0f),
                     listOf(Color(0xFFFFFFFF), Color(0x00FFFFFF))
@@ -309,7 +309,7 @@ class TextDelegate(
             } else {
                 val fadeEnd = size.height
                 val fadeStart = fadeEnd - fadeHeight
-                Gradient.linear(
+                LinearGradientShader(
                     Offset(0.0f, fadeStart),
                     Offset(0.0f, fadeEnd),
                     listOf(Color(0xFFFFFFFF), Color(0x00FFFFFF))

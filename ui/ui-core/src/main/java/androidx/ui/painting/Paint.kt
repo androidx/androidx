@@ -275,7 +275,7 @@ class Paint {
         get() = internalShader
         set(value) {
             internalShader = value
-            internalPaint.shader = internalShader?.toFrameworkShader()
+            internalPaint.shader = internalShader?.nativeShader
         }
 
     // A color filter to apply when a shape is drawn or when a layer is
