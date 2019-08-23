@@ -32,14 +32,13 @@ import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 
 import android.Manifest;
+import android.app.Instrumentation;
 import android.content.Context;
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCharacteristics;
-import android.hardware.camera2.CameraDevice;
 import android.hardware.camera2.CaptureRequest;
 import android.os.Build;
 
-import androidx.annotation.NonNull;
 import androidx.camera.camera2.Camera2AppConfig;
 import androidx.camera.camera2.Camera2Config;
 import androidx.camera.camera2.impl.CameraEventCallback;
@@ -63,6 +62,7 @@ import androidx.camera.testing.fakes.FakeLifecycleOwner;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.SdkSuppress;
+import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.GrantPermissionRule;
 
 import org.junit.After;
@@ -75,8 +75,7 @@ import org.mockito.ArgumentCaptor;
 
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.ExecutionException;
 
 @RunWith(Parameterized.class)
 @LargeTest
@@ -87,11 +86,10 @@ public class ExtensionTest {
     public GrantPermissionRule mRuntimePermissionRule = GrantPermissionRule.grant(
             Manifest.permission.CAMERA);
 
+    private final Instrumentation mInstrumentation = InstrumentationRegistry.getInstrumentation();
     private FakeLifecycleOwner mLifecycleOwner;
-    private CameraDevice.StateCallback mCameraStatusCallback;
     private ExtensionsManager.EffectMode mEffectMode;
     private CameraX.LensFacing mLensFacing;
-    private CountDownLatch mLatch;
 
     private ImageCaptureConfig.Builder mImageCaptureConfigBuilder;
     private PreviewConfig.Builder mPreviewConfigBuilder;
@@ -130,40 +128,12 @@ public class ExtensionTest {
 
         mImageCaptureConfigBuilder = new ImageCaptureConfig.Builder();
         mPreviewConfigBuilder = new PreviewConfig.Builder();
-        mCameraStatusCallback = new CameraDevice.StateCallback() {
-            @Override
-            public void onOpened(@NonNull CameraDevice camera) {
-                mLatch  = new CountDownLatch(1);
-            }
-
-            @Override
-            public void onDisconnected(@NonNull CameraDevice camera) {
-
-            }
-
-            @Override
-            public void onError(@NonNull CameraDevice camera, int error) {
-
-            }
-
-            @Override
-            public void onClosed(@NonNull CameraDevice camera) {
-                mLatch.countDown();
-            }
-        };
-
-        new Camera2Config.Extender(mImageCaptureConfigBuilder).setDeviceStateCallback(
-                mCameraStatusCallback);
     }
 
     @After
-    public void cleanUp() throws InterruptedException {
-        if (mLatch != null) {
-            CameraX.unbindAll();
-
-            // Make sure camera was closed.
-            mLatch.await(3000, TimeUnit.MILLISECONDS);
-        }
+    public void cleanUp() throws InterruptedException, ExecutionException {
+        mInstrumentation.runOnMainSync(CameraX::unbindAll);
+        CameraX.deinit().get();
     }
 
     @Test

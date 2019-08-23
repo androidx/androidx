@@ -30,11 +30,13 @@ import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.Collections;
+import java.util.concurrent.ExecutionException;
 
 /** JUnit test cases for UseCaseSurfaceOccupancyManager class. */
 @SmallTest
@@ -46,6 +48,11 @@ public final class UseCaseSurfaceOccupancyManagerTest {
         Context context = ApplicationProvider.getApplicationContext();
         AppConfig appConfig = Camera2AppConfig.create(context);
         CameraX.init(context, appConfig);
+    }
+
+    @After
+    public void tearDown() throws ExecutionException, InterruptedException {
+        CameraX.deinit().get();
     }
 
     @Test(expected = IllegalArgumentException.class)

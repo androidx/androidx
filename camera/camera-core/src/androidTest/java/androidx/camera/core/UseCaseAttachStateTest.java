@@ -35,6 +35,7 @@ import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -42,6 +43,7 @@ import org.mockito.Mockito;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
 @LargeTest
 @RunWith(AndroidJUnit4.class)
@@ -65,6 +67,11 @@ public class UseCaseAttachStateTest {
                     "Unable to attach to camera with LensFacing " + LensFacing.BACK, e);
         }
         CameraX.init(ApplicationProvider.getApplicationContext(), appConfig);
+    }
+
+    @After
+    public void tearDown() throws ExecutionException, InterruptedException {
+        CameraX.deinit().get();
     }
 
     @Test

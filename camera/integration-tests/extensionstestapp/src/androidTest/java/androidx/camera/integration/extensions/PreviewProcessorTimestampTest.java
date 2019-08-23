@@ -24,17 +24,14 @@ import static org.junit.Assume.assumeNotNull;
 import static org.junit.Assume.assumeTrue;
 
 import android.Manifest;
-import android.content.Context;
+import android.app.Instrumentation;
 import android.graphics.SurfaceTexture;
 import android.hardware.camera2.CameraDevice;
 import android.os.Handler;
 import android.os.HandlerThread;
-import android.os.Looper;
 
 import androidx.annotation.NonNull;
-import androidx.camera.camera2.Camera2AppConfig;
 import androidx.camera.camera2.Camera2Config;
-import androidx.camera.core.AppConfig;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.CaptureProcessor;
 import androidx.camera.core.ImageAnalysisConfig;
@@ -58,8 +55,8 @@ import androidx.camera.extensions.PreviewExtender;
 import androidx.camera.testing.GLUtil;
 import androidx.camera.testing.TimestampCaptureProcessor;
 import androidx.camera.testing.fakes.FakeLifecycleOwner;
-import androidx.test.core.app.ApplicationProvider;
 import androidx.test.filters.MediumTest;
+import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.GrantPermissionRule;
 
 import org.junit.After;
@@ -88,6 +85,7 @@ public class PreviewProcessorTimestampTest {
     public GrantPermissionRule mRuntimePermissionRule = GrantPermissionRule.grant(
             Manifest.permission.CAMERA);
 
+    private final Instrumentation mInstrumentation = InstrumentationRegistry.getInstrumentation();
     private FakeLifecycleOwner mLifecycleOwner;
     private CameraDevice.StateCallback mCameraStatusCallback;
     private ExtensionsManager.EffectMode mEffectMode;
@@ -136,10 +134,6 @@ public class PreviewProcessorTimestampTest {
         mProcessingHandler = new Handler(mProcessingHandlerThread.getLooper());
 
         assumeTrue(androidx.camera.testing.CameraUtil.deviceHasCamera());
-
-        Context context = ApplicationProvider.getApplicationContext();
-        AppConfig appConfig = Camera2AppConfig.create(context);
-        CameraX.init(context, appConfig);
 
         mLifecycleOwner = new FakeLifecycleOwner();
 
@@ -216,14 +210,13 @@ public class PreviewProcessorTimestampTest {
     @After
     public void cleanUp() throws InterruptedException {
         if (mLatch != null) {
-            CameraX.unbindAll();
+            mInstrumentation.runOnMainSync(CameraX::unbindAll);
 
             // Make sure camera was closed.
             mLatch.await(3000, TimeUnit.MILLISECONDS);
         }
     }
 
-    private Handler mMainHandler = new Handler(Looper.getMainLooper());
     private HandlerThread mProcessingHandlerThread;
     private Handler mProcessingHandler;
 
@@ -257,7 +250,7 @@ public class PreviewProcessorTimestampTest {
                 }
         );
 
-        mMainHandler.post(() -> {
+        mInstrumentation.runOnMainSync(() -> {
             CameraX.bindToLifecycle(mLifecycleOwner, preview, imageCapture);
 
             mLifecycleOwner.startAndResume();

@@ -33,6 +33,7 @@ import androidx.annotation.NonNull;
 import androidx.camera.core.CameraX.ErrorCode;
 import androidx.camera.core.CameraX.ErrorListener;
 import androidx.camera.core.CameraX.LensFacing;
+import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.testing.fakes.FakeCamera;
 import androidx.camera.testing.fakes.FakeCameraDeviceSurfaceManager;
 import androidx.camera.testing.fakes.FakeCameraFactory;
@@ -56,6 +57,8 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -66,6 +69,7 @@ public final class CameraXTest {
     private static final String CAMERA_ID = "0";
 
     private final Instrumentation mInstrumentation = InstrumentationRegistry.getInstrumentation();
+    private Context mContext;
     private String mCameraId;
     private BaseCamera mCamera;
     private FakeLifecycleOwner mLifecycle;
@@ -73,19 +77,12 @@ public final class CameraXTest {
     private CountDownLatch mLatch;
     private HandlerThread mHandlerThread;
     private Handler mHandler;
-
-    private static String getCameraIdWithLensFacingUnchecked(LensFacing lensFacing) {
-        try {
-            return CameraX.getCameraWithLensFacing(lensFacing);
-        } catch (Exception e) {
-            throw new IllegalArgumentException(
-                    "Unable to get camera id for camera lens facing " + lensFacing, e);
-        }
-    }
+    private AppConfig.Builder mAppConfigBuilder;
 
     @Before
     public void setUp() {
-        Context context = ApplicationProvider.getApplicationContext();
+        mContext = ApplicationProvider.getApplicationContext();
+
         CameraDeviceSurfaceManager surfaceManager = new FakeCameraDeviceSurfaceManager();
         ExtendableUseCaseConfigFactory defaultConfigFactory = new ExtendableUseCaseConfigFactory();
         defaultConfigFactory.installDefaultProvider(FakeUseCaseConfig.class,
@@ -100,16 +97,12 @@ public final class CameraXTest {
                 CAMERA_LENS_FACING));
         cameraFactory.insertCamera(CAMERA_LENS_FACING, CAMERA_ID, () -> mCamera);
         cameraFactory.setDefaultCameraIdForLensFacing(CAMERA_LENS_FACING, CAMERA_ID);
-        AppConfig.Builder appConfigBuilder =
+        mAppConfigBuilder =
                 new AppConfig.Builder()
                         .setCameraFactory(cameraFactory)
                         .setDeviceSurfaceManager(surfaceManager)
                         .setUseCaseConfigFactory(defaultConfigFactory);
 
-        // CameraX.init will actually init just once across all test cases. However we need to get
-        // the real CameraFactory instance being injected into the init process.  So here we store
-        // the CameraFactory instance in static fields.
-        CameraX.init(context, appConfigBuilder.build());
         mLifecycle = new FakeLifecycleOwner();
 
         mLatch = new CountDownLatch(1);
@@ -117,25 +110,119 @@ public final class CameraXTest {
         mHandlerThread = new HandlerThread("ErrorHandlerThread");
         mHandlerThread.start();
         mHandler = new Handler(mHandlerThread.getLooper());
-        mCameraId = getCameraIdWithLensFacingUnchecked(CAMERA_LENS_FACING);
+        mCameraId = cameraFactory.cameraIdForLensFacing(CAMERA_LENS_FACING);
     }
 
     @After
     public void tearDown() throws ExecutionException, InterruptedException {
-        mInstrumentation.runOnMainSync(new Runnable() {
-            @Override
-            public void run() {
-                CameraX.unbindAll();
-            }
-        });
-        CameraX.deinit().get();
+        if (CameraX.isInitialized()) {
+            mInstrumentation.runOnMainSync(CameraX::unbindAll);
+        }
 
+        CameraX.deinit().get();
         mHandlerThread.quitSafely();
+    }
+
+    @Test
+    public void initDeinit_success() throws ExecutionException, InterruptedException {
+        CameraX.init(mContext, mAppConfigBuilder.build()).get();
+        assertThat(CameraX.isInitialized()).isTrue();
+
+        CameraX.deinit().get();
+        assertThat(CameraX.isInitialized()).isFalse();
+    }
+
+    @Test
+    public void failInit_shouldInDeinitState() throws InterruptedException {
+        // Create an empty config to cause a failed init.
+        AppConfig appConfig = new AppConfig.Builder().build();
+        Exception exception = null;
+        try {
+            CameraX.init(mContext, appConfig).get();
+        } catch (ExecutionException e) {
+            exception = e;
+        }
+        assertThat(exception).isInstanceOf(ExecutionException.class);
+        assertThat(CameraX.isInitialized()).isFalse();
+    }
+
+    @Test
+    public void reinit_success() throws ExecutionException, InterruptedException {
+        CameraX.init(mContext, mAppConfigBuilder.build()).get();
+        assertThat(CameraX.isInitialized()).isTrue();
+
+        CameraX.deinit().get();
+        assertThat(CameraX.isInitialized()).isFalse();
+
+        CameraX.init(mContext, mAppConfigBuilder.build()).get();
+        assertThat(CameraX.isInitialized()).isTrue();
+    }
+
+    @Test
+    public void reinit_withPreviousFailedInit() throws ExecutionException, InterruptedException {
+        // Create an empty config to cause a failed init.
+        AppConfig appConfig = new AppConfig.Builder().build();
+        Exception exception = null;
+        try {
+            CameraX.init(mContext, appConfig).get();
+        } catch (ExecutionException e) {
+            exception = e;
+        }
+        assertThat(exception).isInstanceOf(ExecutionException.class);
+
+        CameraX.init(mContext, mAppConfigBuilder.build()).get();
+        assertThat(CameraX.isInitialized()).isTrue();
+    }
+
+    @Test
+    public void initDeinit_withDirectExecutor() {
+        mAppConfigBuilder.setCameraExecutor(CameraXExecutors.directExecutor());
+
+        // Don't call Future.get() because its behavior should be the same as synchronous call.
+        CameraX.init(mContext, mAppConfigBuilder.build());
+        assertThat(CameraX.isInitialized()).isTrue();
+
+        CameraX.deinit();
+        assertThat(CameraX.isInitialized()).isFalse();
+    }
+
+    @Test
+    public void initDeinit_withMultiThreadExecutor()
+            throws ExecutionException, InterruptedException {
+        ExecutorService executorService = Executors.newFixedThreadPool(3);
+        mAppConfigBuilder.setCameraExecutor(executorService);
+
+        CameraX.init(mContext, mAppConfigBuilder.build()).get();
+        assertThat(CameraX.isInitialized()).isTrue();
+
+        CameraX.deinit().get();
+        assertThat(CameraX.isInitialized()).isFalse();
+
+        executorService.shutdown();
+    }
+
+    @Test
+    public void init_withDifferentAppConfig() {
+        FakeCameraFactory cameraFactory0 = new FakeCameraFactory();
+        FakeCameraFactory cameraFactory1 = new FakeCameraFactory();
+
+        mAppConfigBuilder.setCameraFactory(cameraFactory0);
+        CameraX.init(mContext, mAppConfigBuilder.build());
+
+        assertThat(CameraX.getCameraFactory()).isEqualTo(cameraFactory0);
+
+        CameraX.deinit();
+
+        mAppConfigBuilder.setCameraFactory(cameraFactory1);
+        CameraX.init(mContext, mAppConfigBuilder.build());
+
+        assertThat(CameraX.getCameraFactory()).isEqualTo(cameraFactory1);
     }
 
     @Test
     @UiThreadTest
     public void bind_createsNewUseCaseGroup() {
+        initCameraX();
         CameraX.bindToLifecycle(mLifecycle, new FakeUseCase());
         // One observer is the use case group. The other observer removes the use case upon the
         // lifecycle's destruction.
@@ -145,6 +232,7 @@ public final class CameraXTest {
     @Test
     @UiThreadTest
     public void bindMultipleUseCases() {
+        initCameraX();
         FakeUseCaseConfig config0 =
                 new FakeUseCaseConfig.Builder().setTargetName("config0").build();
         FakeUseCase fakeUseCase = new FakeUseCase(config0);
@@ -161,6 +249,7 @@ public final class CameraXTest {
     @Test
     @UiThreadTest
     public void isNotBound_afterUnbind() {
+        initCameraX();
         FakeUseCase fakeUseCase = new FakeUseCase();
         CameraX.bindToLifecycle(mLifecycle, fakeUseCase);
 
@@ -171,6 +260,7 @@ public final class CameraXTest {
     @Test
     @UiThreadTest
     public void bind_createsDifferentUseCaseGroups_forDifferentLifecycles() {
+        initCameraX();
         FakeUseCaseConfig config0 =
                 new FakeUseCaseConfig.Builder().setTargetName("config0").build();
         CameraX.bindToLifecycle(mLifecycle, new FakeUseCase(config0));
@@ -189,6 +279,7 @@ public final class CameraXTest {
     @Test(expected = IllegalArgumentException.class)
     @UiThreadTest
     public void exception_withDestroyedLifecycle() {
+        initCameraX();
         FakeUseCase useCase = new FakeUseCase();
 
         mLifecycle.destroy();
@@ -199,6 +290,7 @@ public final class CameraXTest {
     @Test
     @UiThreadTest
     public void noException_bindUseCases_withDifferentLensFacing() {
+        initCameraX();
         FakeUseCaseConfig config0 =
                 new FakeUseCaseConfig.Builder().setLensFacing(LensFacing.FRONT).build();
         FakeUseCase fakeUseCase = new FakeUseCase(config0);
@@ -217,6 +309,7 @@ public final class CameraXTest {
 
     @Test
     public void errorListenerGetsCalled_whenErrorPosted() throws InterruptedException {
+        initCameraX();
         CameraX.setErrorListener(mErrorListener, mHandler);
         CameraX.postError(CameraX.ErrorCode.CAMERA_STATE_INCONSISTENT, "");
         mLatch.await(1, TimeUnit.SECONDS);
@@ -226,6 +319,7 @@ public final class CameraXTest {
 
     @Test
     public void requestingDefaultConfiguration_returnsDefaultConfiguration() {
+        initCameraX();
         // Requesting a default configuration will throw if CameraX is not initialized.
         FakeUseCaseConfig config = CameraX.getDefaultUseCaseConfig(
                 FakeUseCaseConfig.class, CAMERA_LENS_FACING);
@@ -236,6 +330,7 @@ public final class CameraXTest {
     @Test
     @UiThreadTest
     public void attachCameraControl_afterBindToLifecycle() {
+        initCameraX();
         FakeUseCaseConfig config0 =
                 new FakeUseCaseConfig.Builder().setTargetName("config0").build();
         AttachCameraFakeCase fakeUseCase = new AttachCameraFakeCase(config0);
@@ -249,6 +344,7 @@ public final class CameraXTest {
     @Test
     @UiThreadTest
     public void onCameraControlReadyIsCalled_afterBindToLifecycle() {
+        initCameraX();
         FakeUseCaseConfig config0 =
                 new FakeUseCaseConfig.Builder().setTargetName("config0").build();
         AttachCameraFakeCase fakeUseCase = spy(new AttachCameraFakeCase(config0));
@@ -261,6 +357,7 @@ public final class CameraXTest {
     @Test
     @UiThreadTest
     public void detachCameraControl_afterUnbind() {
+        initCameraX();
         FakeUseCaseConfig config0 =
                 new FakeUseCaseConfig.Builder().setTargetName("config0").build();
         AttachCameraFakeCase fakeUseCase = new AttachCameraFakeCase(config0);
@@ -279,6 +376,7 @@ public final class CameraXTest {
     @Test
     @UiThreadTest
     public void eventListenerCalled_bindAndUnbind() {
+        initCameraX();
         UseCase.EventListener eventListener = Mockito.mock(UseCase.EventListener.class);
 
         FakeUseCaseConfig.Builder fakeConfigBuilder = new FakeUseCaseConfig.Builder();
@@ -294,6 +392,7 @@ public final class CameraXTest {
 
     @Test
     public void canRetrieveCameraInfo() throws CameraInfoUnavailableException {
+        initCameraX();
         String cameraId = CameraX.getCameraWithLensFacing(CAMERA_LENS_FACING);
         CameraInfoInternal cameraInfoInternal = CameraX.getCameraInfo(cameraId);
         assertThat(cameraInfoInternal).isNotNull();
@@ -302,6 +401,7 @@ public final class CameraXTest {
 
     @Test
     public void canGetCameraXContext() {
+        initCameraX();
         Context context = CameraX.getContext();
         assertThat(context).isNotNull();
     }
@@ -309,6 +409,7 @@ public final class CameraXTest {
     @Test
     @UiThreadTest
     public void canGetActiveUseCases_afterBindToLifecycle() {
+        initCameraX();
         FakeUseCaseConfig config0 =
                 new FakeUseCaseConfig.Builder().setTargetName("config0").build();
         FakeUseCase fakeUseCase = new FakeUseCase(config0);
@@ -327,6 +428,7 @@ public final class CameraXTest {
 
     @Test
     public void canGetCameraIdWithConfig() throws CameraInfoUnavailableException {
+        initCameraX();
         FakeUseCaseConfig.Builder fakeConfigBuilder = new FakeUseCaseConfig.Builder();
         fakeConfigBuilder.setLensFacing(CAMERA_LENS_FACING);
         String cameraId = CameraX.getCameraWithCameraDeviceConfig(fakeConfigBuilder.build());
@@ -337,8 +439,13 @@ public final class CameraXTest {
     @Test(expected = CameraInfoUnavailableException.class)
     public void cameraInfo_returnFlashAvailableFailed_forFrontCamera()
             throws CameraInfoUnavailableException {
+        initCameraX();
         CameraInfo cameraInfo = CameraX.getCameraInfo(CameraX.LensFacing.FRONT);
         cameraInfo.isFlashAvailable();
+    }
+
+    private void initCameraX() {
+        CameraX.init(mContext, mAppConfigBuilder.build());
     }
 
     private static class CountingErrorListener implements ErrorListener {

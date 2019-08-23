@@ -585,8 +585,8 @@ public final class Camera2DeviceSurfaceManagerTest {
 
     private void initCameraX() {
         AppConfig appConfig = createFakeAppConfig();
-        mSurfaceManager = appConfig.getDeviceSurfaceManager(null);
         CameraX.init(mContext, appConfig);
+        mSurfaceManager = CameraX.getSurfaceManager();
     }
 
     private AppConfig createFakeAppConfig() {

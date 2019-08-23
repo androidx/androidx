@@ -98,8 +98,10 @@ public final class Camera2CameraControlTest {
         Context context = ApplicationProvider.getApplicationContext();
         CameraManager cameraManager = (CameraManager) context.getSystemService(
                 Context.CAMERA_SERVICE);
+        Camera2CameraFactory camera2CameraFactory = new Camera2CameraFactory(context);
         mCameraCharacteristics = cameraManager.getCameraCharacteristics(
-                CameraX.getCameraWithLensFacing(CameraX.LensFacing.BACK));
+                camera2CameraFactory.cameraIdForLensFacing(CameraX.LensFacing.BACK));
+
         mControlUpdateListener = mock(CameraControlInternal.ControlUpdateListener.class);
         mHandlerThread = new HandlerThread("ControlThread");
         mHandlerThread.start();
