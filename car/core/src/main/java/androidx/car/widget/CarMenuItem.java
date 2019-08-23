@@ -259,7 +259,7 @@ public final class CarMenuItem {
         /**
          * Sets the style of the {@code CarMenuItem}.
          *
-         * @param styleResId Res Id of the style to be used for the {@code CarMenuItem}.
+         * @param styleResId Resource Id of the style to be used for the {@code CarMenuItem}.
          * @return This {@code Builder} object to allow call chaining.
          */
         @NonNull
@@ -280,6 +280,12 @@ public final class CarMenuItem {
             return this;
         }
 
+        /**
+         * Sets the icon of the {@code CarMenuItem}.
+         *
+         * @param iconId Resource Id of the icon to be used for the {@code CarMenuItem}.
+         * @return This {@code Builder} object to allow call chaining.
+         */
         @NonNull
         public Builder setIcon(@DrawableRes int iconId) {
             if (mContext == null) {
