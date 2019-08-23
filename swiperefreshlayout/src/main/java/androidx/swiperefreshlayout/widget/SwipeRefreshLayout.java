@@ -27,6 +27,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
+import android.view.ViewParent;
 import android.view.animation.Animation;
 import android.view.animation.Animation.AnimationListener;
 import android.view.animation.DecelerateInterpolator;
@@ -183,6 +184,9 @@ public class SwipeRefreshLayout extends ViewGroup implements NestedScrollingPare
     boolean mUsingCustomStart;
 
     private OnChildScrollUpCallback mChildScrollUpCallback;
+
+    /** @see #setLegacyRequestDisallowInterceptTouchEventEnabled */
+    private boolean mEnableLegacyRequestDisallowInterceptTouch;
 
     private Animation.AnimationListener mRefreshListener = new Animation.AnimationListener() {
         @Override
@@ -804,6 +808,32 @@ public class SwipeRefreshLayout extends ViewGroup implements NestedScrollingPare
         return mIsBeingDragged;
     }
 
+    /**
+     * Enables the legacy behavior of {@link #requestDisallowInterceptTouchEvent} from before
+     * 1.1.0-alpha03, where the request is not propagated up to its parents in either of the
+     * following two cases:
+     * <ul>
+     *     <li>The child as an {@link AbsListView} and the runtime is API < 21</li>
+     *     <li>The child has nested scrolling disabled</li>
+     * </ul>
+     * Use this method <em>only</em> if your application:
+     * <ul>
+     *     <li>is upgrading SwipeRefreshLayout from &lt; 1.1.0-alpha03 to &gt;= 1.1.0-alpha03</li>
+     *     <li>relies on a parent of SwipeRefreshLayout to intercept touch events and that
+     *     parent no longer responds to touch events</li>
+     *     <li>setting this method to {@code true} fixes that issue</li>
+     * </ul>
+     *
+     * @param enabled {@code true} to enable the legacy behavior, {@code false} for default behavior
+     * @deprecated Only use this method if the changes introduced in
+     *             {@link #requestDisallowInterceptTouchEvent} in version 1.1.0-alpha03 are breaking
+     *             your application.
+     */
+    @Deprecated
+    public void setLegacyRequestDisallowInterceptTouchEventEnabled(boolean enabled) {
+        mEnableLegacyRequestDisallowInterceptTouch = enabled;
+    }
+
     @Override
     public void requestDisallowInterceptTouchEvent(boolean b) {
         // if this is a List < L or another view that doesn't support nested
@@ -811,7 +841,15 @@ public class SwipeRefreshLayout extends ViewGroup implements NestedScrollingPare
         // isn't stolen
         if ((android.os.Build.VERSION.SDK_INT < 21 && mTarget instanceof AbsListView)
                 || (mTarget != null && !ViewCompat.isNestedScrollingEnabled(mTarget))) {
-            // Nope.
+            if (mEnableLegacyRequestDisallowInterceptTouch) {
+                // Nope.
+            } else {
+                // Ignore here, but pass it up to our parent
+                ViewParent parent = getParent();
+                if (parent != null) {
+                    parent.requestDisallowInterceptTouchEvent(b);
+                }
+            }
         } else {
             super.requestDisallowInterceptTouchEvent(b);
         }

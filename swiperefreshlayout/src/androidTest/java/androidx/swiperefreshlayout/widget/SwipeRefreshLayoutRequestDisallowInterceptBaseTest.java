@@ -32,14 +32,17 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
-public class SwipeToRefreshLayoutRequestDisallowInterceptTest {
+public abstract class SwipeRefreshLayoutRequestDisallowInterceptBaseTest {
 
     @Rule
-    public final ActivityTestRule<SwipeRefreshLayoutInRecyclerViewActivity> mActivityTestRule =
-            new ActivityTestRule<>(SwipeRefreshLayoutInRecyclerViewActivity.class);
+    public final ActivityTestRule<? extends SwipeRefreshLayoutInRecyclerViewBaseActivity>
+            mActivityTestRule = new ActivityTestRule<>(getActivityClass());
 
-    private SwipeRefreshLayoutInRecyclerViewActivity.RecyclerViewImpl mRecyclerView;
+    private RequestDisallowInterceptRecordingRecyclerView mRecyclerView;
     private int mTouchSlop;
+
+    protected abstract
+            Class<? extends SwipeRefreshLayoutInRecyclerViewBaseActivity> getActivityClass();
 
     @Before
     public void setUp() throws Throwable {

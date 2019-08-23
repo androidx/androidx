@@ -39,11 +39,11 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
-public class SwipeRefreshLayoutInHorizontallyScrollingParentTest {
+public abstract class SwipeRefreshLayoutInScrollingParentBaseTest {
 
     @Rule
-    public final ActivityTestRule<SwipeRefreshLayoutInRecyclerViewActivity> mActivityTestRule =
-            new ActivityTestRule<>(SwipeRefreshLayoutInRecyclerViewActivity.class);
+    public final ActivityTestRule<? extends SwipeRefreshLayoutInRecyclerViewBaseActivity>
+            mActivityTestRule = new ActivityTestRule<>(getActivityClass());
 
     private RecyclerView mRecyclerView;
     private LinearLayoutManager mLayoutManager;
@@ -54,6 +54,9 @@ public class SwipeRefreshLayoutInHorizontallyScrollingParentTest {
 
     private int mRecordedRvPosition;
     private int mRecordedRvOffset;
+
+    protected abstract
+            Class<? extends SwipeRefreshLayoutInRecyclerViewBaseActivity> getActivityClass();
 
     @Nullable
     private SwipeRefreshLayout getSwipeRefreshLayout() {
