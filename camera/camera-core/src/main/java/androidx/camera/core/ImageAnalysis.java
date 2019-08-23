@@ -30,6 +30,7 @@ import androidx.annotation.RestrictTo.Scope;
 import androidx.annotation.UiThread;
 import androidx.camera.core.CameraX.LensFacing;
 import androidx.camera.core.ImageOutputConfig.RotationValue;
+import androidx.camera.core.impl.utils.Threads;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 
 import java.util.Map;
@@ -104,9 +105,12 @@ public final class ImageAnalysis extends UseCase {
      *
      * <p>This is equivalent to calling {@code setAnalyzer(null)}.  This will stop data from
      * streaming to the {@link ImageAnalysis}.
+     *
+     * @throws IllegalStateException If not called on main thread.
      */
     @UiThread
     public void removeAnalyzer() {
+        Threads.checkMainThread();
         setAnalyzer(null);
     }
 
@@ -168,10 +172,12 @@ public final class ImageAnalysis extends UseCase {
      * Retrieves a previously set analyzer.
      *
      * @return The last set analyzer or {@code null} if no analyzer is set.
+     * @throws IllegalStateException If not called on main thread.
      */
     @UiThread
     @Nullable
     public Analyzer getAnalyzer() {
+        Threads.checkMainThread();
         return mSubscribedAnalyzer.get();
     }
 
@@ -191,9 +197,11 @@ public final class ImageAnalysis extends UseCase {
      *
      * @param analyzer of the images or {@code null} to stop data streaming to
      *                 {@link ImageAnalysis}.
+     * @throws IllegalStateException If not called on main thread.
      */
     @UiThread
     public void setAnalyzer(@Nullable Analyzer analyzer) {
+        Threads.checkMainThread();
         Analyzer previousAnalyzer = mSubscribedAnalyzer.getAndSet(analyzer);
         if (previousAnalyzer == null && analyzer != null) {
             notifyActive();

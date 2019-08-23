@@ -25,6 +25,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
+import androidx.camera.core.impl.utils.Threads;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleOwner;
 
@@ -163,9 +164,11 @@ public final class CameraX {
      * @param lifecycleOwner The lifecycleOwner which controls the lifecycle transitions of the use
      *                       cases.
      * @param useCases       The use cases to bind to a lifecycle.
-     * @throws IllegalStateException If the use case has already been bound to another lifecycle.
+     * @throws IllegalStateException If the use case has already been bound to another lifecycle
+     *                               or method is not called on main thread.
      */
     public static void bindToLifecycle(LifecycleOwner lifecycleOwner, UseCase... useCases) {
+        Threads.checkMainThread();
         UseCaseGroupLifecycleController useCaseGroupLifecycleController =
                 INSTANCE.getOrCreateUseCaseGroup(lifecycleOwner);
         UseCaseGroup useCaseGroupToBind = useCaseGroupLifecycleController.getUseCaseGroup();
@@ -233,8 +236,10 @@ public final class CameraX {
      * however listeners and settings should be reset by the application.
      *
      * @param useCases The collection of use cases to remove.
+     * @throws IllegalStateException If not called on main thread.
      */
     public static void unbind(UseCase... useCases) {
+        Threads.checkMainThread();
         Collection<UseCaseGroupLifecycleController> useCaseGroups =
                 INSTANCE.mUseCaseGroupRepository.getUseCaseGroups();
 
@@ -270,8 +275,11 @@ public final class CameraX {
      * Unbinds all use cases from the lifecycle and removes them from CameraX.
      *
      * <p>This will initiate a close of every currently open camera.
+     *
+     * @throws IllegalStateException If not called on main thread.
      */
     public static void unbindAll() {
+        Threads.checkMainThread();
         Collection<UseCaseGroupLifecycleController> useCaseGroups =
                 INSTANCE.mUseCaseGroupRepository.getUseCaseGroups();
 

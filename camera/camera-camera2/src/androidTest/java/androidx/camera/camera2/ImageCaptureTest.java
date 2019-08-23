@@ -30,6 +30,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import android.Manifest;
+import android.app.Instrumentation;
 import android.content.Context;
 import android.graphics.ImageFormat;
 import android.hardware.camera2.CameraAccessException;
@@ -74,6 +75,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.FlakyTest;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.Suppress;
+import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.GrantPermissionRule;
 
 import org.junit.After;
@@ -108,6 +110,8 @@ public final class ImageCaptureTest {
     private static final Size DEFAULT_RESOLUTION = new Size(640, 480);
     private static final Size SECONDARY_RESOLUTION = new Size(320, 240);
     private static final LensFacing BACK_LENS_FACING = LensFacing.BACK;
+
+    private final Instrumentation mInstrumentation = InstrumentationRegistry.getInstrumentation();
 
     private HandlerThread mHandlerThread;
     private Handler mHandler;
@@ -597,8 +601,14 @@ public final class ImageCaptureTest {
         ImageCaptureConfig.Builder configBuilder =
                 new ImageCaptureConfig.Builder().setCaptureBundle(captureBundle);
         ImageCapture imageCapture = new ImageCapture(configBuilder.build());
-        CameraX.bindToLifecycle(lifecycle, imageCapture);
-        lifecycle.startAndResume();
+
+        mInstrumentation.runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                CameraX.bindToLifecycle(lifecycle, imageCapture);
+                lifecycle.startAndResume();
+            }
+        });
 
         OnImageCapturedListener mockOnImageCaptureListener = mock(OnImageCapturedListener.class);
         imageCapture.takePicture(mockOnImageCaptureListener);
@@ -606,7 +616,12 @@ public final class ImageCaptureTest {
         verify(mockOnImageCaptureListener, timeout(3000)).onError(any(ImageCaptureError.class),
                 anyString(), any(IllegalArgumentException.class));
 
-        CameraX.unbind(imageCapture);
+        mInstrumentation.runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                CameraX.unbind(imageCapture);
+            }
+        });
     }
 
     @Test
@@ -631,8 +646,14 @@ public final class ImageCaptureTest {
                 .setCaptureProcessor(mock(CaptureProcessor.class))
                 .build();
         ImageCapture imageCapture = new ImageCapture(config);
-        CameraX.bindToLifecycle(lifecycle, imageCapture);
-        lifecycle.startAndResume();
+
+        mInstrumentation.runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                CameraX.bindToLifecycle(lifecycle, imageCapture);
+                lifecycle.startAndResume();
+            }
+        });
 
         // Add an additional capture stage to test the case
         // captureStage.size() >　mMaxCaptureStages during takePicture.
@@ -648,6 +669,11 @@ public final class ImageCaptureTest {
         verify(mockOnImageCaptureListener, timeout(3000).times(2)).onError(
                 any(ImageCaptureError.class), anyString(), any(IllegalArgumentException.class));
 
-        CameraX.unbind(imageCapture);
+        mInstrumentation.runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                CameraX.unbind(imageCapture);
+            }
+        });
     }
 }
