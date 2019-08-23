@@ -16,38 +16,34 @@
 
 package androidx.ui.autofill
 
-import android.content.Context
+import android.app.Activity
 import android.graphics.Rect
+import android.util.SparseArray
 import android.view.View
-import android.view.autofill.AutofillManager
 import android.view.autofill.AutofillValue
 import androidx.test.filters.SmallTest
-import com.nhaarman.mockitokotlin2.eq
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.times
-import com.nhaarman.mockitokotlin2.verify
-import com.nhaarman.mockitokotlin2.whenever
+import androidx.ui.ComposeUiRobolectricTestRunner
+import com.google.common.truth.Truth
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
+import org.robolectric.Robolectric
+import org.robolectric.annotation.Config
 
 @SmallTest
-@RunWith(JUnit4::class)
+@RunWith(ComposeUiRobolectricTestRunner::class)
+@Config(
+    manifest = Config.NONE,
+    minSdk = 26)
 class AndroidPerformAutofillTest {
     private val autofillTree = AutofillTree()
     private lateinit var androidAutofill: AndroidAutofill
 
     @Before
     fun setup() {
-        val autofillManager: AutofillManager = mock()
-
-        val context: Context = mock()
-        whenever(context.getSystemService(eq(AutofillManager::class.java)))
-            .thenReturn(autofillManager)
-
-        val view: View = mock()
-        whenever(view.context).thenReturn(context)
+        val activity = Robolectric.setupActivity(Activity::class.java)
+        val view = View(activity)
+        activity.setContentView(view)
 
         androidAutofill = AndroidAutofill(view, autofillTree)
     }
@@ -55,48 +51,44 @@ class AndroidPerformAutofillTest {
     @Test
     fun performAutofill_name() {
         // Arrange.
-        val onFill: (String) -> Unit = mock()
+        val expectedValue = "First Name"
+        var autofilledValue = ""
         val autofillNode = AutofillNode(
-            onFill = onFill,
+            onFill = { autofilledValue = it },
             autofillTypes = listOf(AutofillType.Name),
             boundingBox = Rect(0, 0, 0, 0)
         )
         autofillTree += autofillNode
 
-        val autofillValue: AutofillValue = mock()
-        whenever(autofillValue.isText).thenReturn(true)
-        whenever(autofillValue.textValue).thenReturn("First Name")
-
-        val autofillValues = FakeSparseArray().apply { append(autofillNode.id, autofillValue) }
+        val autofillValues = SparseArray<AutofillValue>()
+            .apply { append(autofillNode.id, AutofillValue.forText(expectedValue)) }
 
         // Act.
         androidAutofill.performAutofill(autofillValues)
 
         // Assert.
-        verify(onFill, times(1)).invoke("First Name")
+        Truth.assertThat(autofilledValue).isEqualTo(expectedValue)
     }
 
     @Test
     fun performAutofill_email() {
         // Arrange.
-        val onFill: (String) -> Unit = mock()
+        val expectedValue = "email@google.com"
+        var autofilledValue = ""
         val autofillNode = AutofillNode(
-            onFill = onFill,
+            onFill = { autofilledValue = it },
             autofillTypes = listOf(AutofillType.EmailAddress),
             boundingBox = Rect(0, 0, 0, 0)
         )
         autofillTree += autofillNode
 
-        val autofillValue: AutofillValue = mock()
-        whenever(autofillValue.isText).thenReturn(true)
-        whenever(autofillValue.textValue).thenReturn("email@google.com")
-
-        val autofillValues = FakeSparseArray().apply { append(autofillNode.id, autofillValue) }
+        val autofillValues = SparseArray<AutofillValue>()
+            .apply { append(autofillNode.id, AutofillValue.forText(expectedValue)) }
 
         // Act.
         androidAutofill.performAutofill(autofillValues)
 
         // Assert.
-        verify(onFill, times(1)).invoke("email@google.com")
+        Truth.assertThat(autofilledValue).isEqualTo(expectedValue)
     }
 }

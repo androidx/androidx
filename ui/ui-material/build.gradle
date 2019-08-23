@@ -55,6 +55,7 @@ dependencies {
 
     androidTestImplementation project(":ui:ui-material:integration-tests:samples")
     androidTestImplementation project(":ui:ui-test")
+    androidTestApi project(":ui:ui-platform")
 
     androidTestImplementation(ANDROIDX_TEST_RULES)
     androidTestImplementation(ANDROIDX_TEST_RUNNER)

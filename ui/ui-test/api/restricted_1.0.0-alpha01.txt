@@ -133,3 +133,11 @@ package androidx.ui.test.android {
 
 }
 
+package androidx.ui.test.android.fake {
+
+  public final class FakeViewStructureKt {
+    ctor public FakeViewStructureKt();
+  }
+
+}
+
