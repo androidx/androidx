@@ -27,6 +27,9 @@ import androidx.car.app.CarListDialog;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.FragmentActivity;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * A demo activity that will display a {@link CarListDialog} with configurable options for what is
  * in the contents of that resulting dialog.
@@ -128,10 +131,10 @@ public class CarListDialogDemo extends FragmentActivity {
             return items;
         }
 
-        private String[] createItems(int numOfItems) {
-            String[] items = new String[numOfItems];
+        private List<CarListDialog.Item> createItems(int numOfItems) {
+            List<CarListDialog.Item> items = new ArrayList<>();
             for (int i = 0; i < numOfItems; i++) {
-                items[i] = "Item " + (i + 1);
+                items.add(new CarListDialog.Item("Item " + (i + 1)));
             }
             return items;
         }

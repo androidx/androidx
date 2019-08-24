@@ -19,12 +19,15 @@ package androidx.car.app;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.res.Resources;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.Button;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -58,6 +61,8 @@ public class CarListDialog extends Dialog {
     @Nullable
     private final CharSequence mTitle;
     private TextView mTitleView;
+    @Nullable
+    private CharSequence mDismissButtonText;
 
     private ListItemAdapter mAdapter;
     private final int mInitialPosition;
@@ -76,6 +81,7 @@ public class CarListDialog extends Dialog {
         mInitialPosition = builder.mInitialPosition;
         mOnClickListener = builder.mOnClickListener;
         mTitle = builder.mTitle;
+        mDismissButtonText = builder.mDismissButtonText;
 
         if (builder.mSections != null) {
             initializeWithSections(builder.mSections);
@@ -122,10 +128,32 @@ public class CarListDialog extends Dialog {
 
         initializeTitle();
         initializeList();
+        initializeDismissButton(window);
 
         // Need to set this elevation listener last because the title and list need to be
         // initialized first.
         initializeTitleElevationListener();
+    }
+
+    private void initializeDismissButton(Window window) {
+        Button dismissButtonView = window.findViewById(R.id.dismiss_button);
+
+        if (TextUtils.isEmpty(mDismissButtonText)) {
+            dismissButtonView.setVisibility(View.GONE);
+            return;
+        }
+
+        Resources res = getContext().getResources();
+        dismissButtonView.setText(mDismissButtonText);
+        dismissButtonView.setOnClickListener(v -> dismiss());
+
+        int buttonOffset = res.getDimensionPixelSize(R.dimen.car_padding_4)
+                - res.getDimensionPixelSize(R.dimen.car_padding_2);
+        ViewGroup.MarginLayoutParams layoutParams =
+                (ViewGroup.MarginLayoutParams) dismissButtonView.getLayoutParams();
+        int buttonExtraSpace = CarDialogUtil.calculateExtraButtonSpace(dismissButtonView);
+        layoutParams.setMarginStart(buttonOffset - buttonExtraSpace / 2);
+        dismissButtonView.requestLayout();
     }
 
     private void initializeTitle() {
@@ -178,12 +206,12 @@ public class CarListDialog extends Dialog {
      * {@link TextListItem} but only populates the title field with the the values in the array.
      */
     @SuppressWarnings("unchecked")
-    private void initializeWithItems(CharSequence[] items) {
+    private void initializeWithItems(List<Item> items) {
         Context context = getContext();
         List<ListItem> listItems = new ArrayList<>();
 
-        for (int i = 0; i < items.length; i++) {
-            listItems.add(createItem(/* text= */ items[i], /* position= */ i));
+        for (int i = 0; i < items.size(); i++) {
+            listItems.add(createItem(items.get(i), i));
         }
 
         mAdapter = new ListItemAdapter(context, new ListItemProvider.ListProvider(listItems));
@@ -206,10 +234,9 @@ public class CarListDialog extends Dialog {
 
             listItems.add(header);
 
-            CharSequence[] items = section.getItems();
-            // Now initialize all the items associated with this subsection.
-            for (int i = 0, length = items.length; i < length; i++) {
-                listItems.add(createItem(/* text= */ items[i], /* position= */ i));
+            List<Item> items = section.getItems();
+            for (int i = 0; i < items.size(); i++) {
+                listItems.add(createItem(items.get(i), i));
             }
         }
 
@@ -219,29 +246,68 @@ public class CarListDialog extends Dialog {
     /**
      * Creates the {@link TextListItem} that represents an item in the {@code CarListDialog}.
      *
-     * @param text     The text to display as the title in {@code TextListItem}.
+     * @param item     The text to display as the title in {@code TextListItem}.
      * @param position The position of the item in the list.
      */
-    private TextListItem createItem(CharSequence text, int position) {
-        TextListItem item = new TextListItem(getContext());
-        item.setTitle(text);
+    private TextListItem createItem(Item item, int position) {
+        TextListItem listItem = new TextListItem(getContext());
+        listItem.setTitle(item.mTitle);
+        listItem.setBody(item.mBody != null ? item.mBody : "");
+
+        if (item.mIconDrawable != null) {
+            listItem.setPrimaryActionIcon(item.mIconDrawable,
+                    TextListItem.PRIMARY_ACTION_ICON_SIZE_MEDIUM);
+        }
 
         // Save the position to pass to onItemClick().
-        item.setOnClickListener(v -> onItemClick(position));
+        listItem.setOnClickListener(v -> onItemClick(position));
 
-        return item;
+        return listItem;
     }
 
     /**
      * Check if a click listener has been set on this dialog and notify that a click has happened
-     * at the given item position, then dismisses this dialog. If no listener has been set, the
-     * dialog just dismisses.
+     * at the given item position. If no dismiss button has been configured for the dialog, a
+     * click on the item will result in dismissal of the dialog.
      */
     private void onItemClick(int position) {
         if (mOnClickListener != null) {
             mOnClickListener.onClick(/* dialog= */ this, position);
         }
-        dismiss();
+
+        if (TextUtils.isEmpty(mDismissButtonText)) {
+            dismiss();
+        }
+    }
+
+    /**
+     * A struct that holds data for a list dialog item. An item is a combination of the item
+     * title and optional body text and icon.
+     */
+    public static class Item {
+
+        final CharSequence mTitle;
+        @Nullable
+        CharSequence mBody;
+        @Nullable
+        Drawable mIconDrawable;
+
+        /**
+         * Creates a Item.
+         *
+         * @param title The title of the item. This value must be non-empty.
+         */
+        public Item(@NonNull CharSequence title) {
+            mTitle = title;
+        }
+
+        public void setBody(@NonNull CharSequence body) {
+            mBody = body;
+        }
+
+        public void setIconDrawable(@NonNull Drawable iconDrawable) {
+            mIconDrawable = iconDrawable;
+        }
     }
 
     /**
@@ -250,7 +316,36 @@ public class CarListDialog extends Dialog {
      */
     public static class DialogSubSection {
         private final CharSequence mTitle;
-        private final CharSequence[] mItems;
+        private final List<Item> mItems;
+
+        /**
+         * Creates a subsection.
+         *
+         * @param title The title of the section. Must be non-empty.
+         * @param items A list of items associated with this section. This list cannot be
+         *              {@code null} or empty.
+         * @deprecated Use {@link androidx.car.app.CarListDialog.DialogSubSection
+         * #CarListDialog.DialogSubSection(CharSequence, List)} instead.
+         */
+        @Deprecated
+        public DialogSubSection(@NonNull CharSequence title, @NonNull CharSequence[] items) {
+            if (TextUtils.isEmpty(title)) {
+                throw new IllegalArgumentException("Title cannot be empty.");
+            }
+
+            if (items.length == 0) {
+                throw new IllegalArgumentException("Items cannot be empty.");
+            }
+
+            mTitle = title;
+
+            List<Item> itemsList = new ArrayList<>();
+            for (CharSequence itemText : items) {
+                itemsList.add(new Item(itemText));
+            }
+
+            mItems = itemsList;
+        }
 
         /**
          * Creates a subsection.
@@ -259,12 +354,12 @@ public class CarListDialog extends Dialog {
          * @param items A list of items associated with this section. This list cannot be
          *              {@code null} or empty.
          */
-        public DialogSubSection(@NonNull CharSequence title, @NonNull CharSequence[] items) {
+        public DialogSubSection(@NonNull CharSequence title, @NonNull List<Item> items) {
             if (TextUtils.isEmpty(title)) {
                 throw new IllegalArgumentException("Title cannot be empty.");
             }
 
-            if (items == null || items.length == 0) {
+            if (items.size() == 0) {
                 throw new IllegalArgumentException("Items cannot be empty.");
             }
 
@@ -280,7 +375,7 @@ public class CarListDialog extends Dialog {
 
         /** Returns the section items. */
         @NonNull
-        public CharSequence[] getItems() {
+        public List<Item> getItems() {
             return mItems;
         }
 
@@ -294,7 +389,7 @@ public class CarListDialog extends Dialog {
          */
         public int getItemCount() {
             // Adding 1 to the length for account for the title.
-            return mItems.length + 1;
+            return mItems.size() + 1;
         }
     }
 
@@ -306,8 +401,9 @@ public class CarListDialog extends Dialog {
         private final Context mContext;
 
         CharSequence mTitle;
+        CharSequence mDismissButtonText;
         int mInitialPosition;
-        CharSequence[] mItems;
+        List<Item> mItems;
         DialogSubSection[] mSections;
         DialogInterface.OnClickListener mOnClickListener;
 
@@ -320,7 +416,7 @@ public class CarListDialog extends Dialog {
          *
          * @param context The {@code Context} that the dialog is to be created in.
          */
-        public Builder(Context context) {
+        public Builder(@NonNull Context context) {
             mContext = context;
         }
 
@@ -369,11 +465,45 @@ public class CarListDialog extends Dialog {
          * @param items           The items that will appear in the list.
          * @param onClickListener The listener that will be notified of a click.
          * @return This {@code Builder} object to allow for chaining of calls.
+         * @deprecated Use {@link #setItems(List, OnClickListener)} instead.
          */
+        @Deprecated
         @NonNull
         public Builder setItems(@NonNull CharSequence[] items,
                 @Nullable OnClickListener onClickListener) {
-            if (items == null || items.length == 0) {
+            List<Item> itemsList = new ArrayList<>();
+            for (CharSequence itemText : items) {
+                itemsList.add(new Item(itemText));
+            }
+
+            return setItems(itemsList, onClickListener);
+        }
+
+        /**
+         * Sets the items that should appear in the list. The dialog will automatically dismiss
+         * itself when an item in the list is clicked on.
+         *
+         * <p>If a {@link DialogInterface.OnClickListener} is given, then it will be notified
+         * of the click. The dialog will still be dismissed afterwards. The {@code which}
+         * parameter of the {@link DialogInterface.OnClickListener#onClick(DialogInterface, int)}
+         * method will be the position of the item. This position maps to the index of the item in
+         * the given list.
+         *
+         * <p>The provided list of items cannot be {@code null} or empty. Passing an empty list
+         * to this method will throw an {@link IllegalArgumentException}.
+         *
+         * <p>If both this method and {@link #setItems(DialogSubSection[], OnClickListener)} are
+         * called, then the sections will take precedent, and the items set via this method will
+         * be ignored.
+         *
+         * @param items           The items that will appear in the list.
+         * @param onClickListener The listener that will be notified of a click.
+         * @return This {@code Builder} object to allow for chaining of calls.
+         */
+        @NonNull
+        public Builder setItems(@NonNull List<Item> items,
+                @Nullable OnClickListener onClickListener) {
+            if (items.size() == 0) {
                 throw new IllegalArgumentException("Provided list of items cannot be empty.");
             }
 
@@ -395,10 +525,10 @@ public class CarListDialog extends Dialog {
          * the given list.
          *
          * <p>The provided list of sections cannot be {@code null} or empty. The list of items
-         * within a section also cannot be empty. Passing an empty list to this method will
-         * throw can exception.
+         * within a section also cannot be empty. Passing an empty list to this method will throw an
+         * {@link IllegalArgumentException}.
          *
-         * <p>If both this method and {@link #setItems(CharSequence[], OnClickListener)} are called,
+         * <p>If both this method and {@link #setItems(List, OnClickListener)} are called,
          * then the sections will take precedent, and the items set via the other method will be
          * ignored.
          *
@@ -409,7 +539,7 @@ public class CarListDialog extends Dialog {
         @NonNull
         public Builder setItems(@NonNull DialogSubSection[] sections,
                 @Nullable OnClickListener onClickListener) {
-            if (sections == null || sections.length == 0) {
+            if (sections.length == 0) {
                 throw new IllegalArgumentException("Provided list of sections cannot be empty.");
             }
 
@@ -483,18 +613,32 @@ public class CarListDialog extends Dialog {
         }
 
         /**
+         * Configure the dialog to include an explicit dismiss button. If a dismiss button is
+         * configured for the dialog, clicks on items will not result in dismissal of the dialog.
+         *
+         * @param text The text to display in the dismiss button.
+         * @return This {@code Builder} object to allow for chaining of calls.
+         */
+        @NonNull
+        public Builder setDismissButton(@NonNull CharSequence text) {
+            mDismissButtonText = text;
+            return this;
+        }
+
+        /**
          * Creates an {@link CarListDialog} with the arguments supplied to this {@code Builder}.
          *
-         * <p>If {@link #setItems(CharSequence[], DialogInterface.OnClickListener)} is never called,
+         * <p>If {@link #setItems(List, DialogInterface.OnClickListener)} is never called,
          * then calling this method will throw an exception.
          *
          * <p>Calling this method does not display the dialog. Utilize this dialog within a
          * {@link androidx.fragment.app.DialogFragment} to show the dialog.
          */
+        @NonNull
         public CarListDialog create() {
             // Check that the dialog was created with a list of either sections or items.
             if ((mSections == null || mSections.length == 0)
-                    && (mItems == null || mItems.length == 0)) {
+                    && (mItems == null || mItems.size() == 0)) {
                 throw new IllegalStateException(
                         "CarListDialog cannot be created with a non-empty list.");
             }
@@ -510,7 +654,7 @@ public class CarListDialog extends Dialog {
                     numOfItems += section.getItemCount();
                 }
             } else {
-                numOfItems = mItems.length;
+                numOfItems = mItems.size();
             }
 
             if (mInitialPosition >= numOfItems) {
