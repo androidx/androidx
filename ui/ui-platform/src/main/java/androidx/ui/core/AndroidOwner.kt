@@ -81,8 +81,8 @@ class AndroidCraneView constructor(context: Context)
     // Map from model to LayoutNodes that *only* need layout and not measure
     private val relayoutOnly = ObserverMap<Any, LayoutNode>()
 
-    // TODO: Replace with SemanticsTree.
-    //  This is a temporary hack until we have a semantics tree implemented.
+    // Used by components that want to provide autofill semantic information.
+    // TODO: Replace with SemanticsTree: Temporary hack until we have a semantics tree implemented.
     val autofillTree = AutofillTree()
 
     // RepaintBoundaryNodes that have had their boundary changed. When using Views,
@@ -101,7 +101,7 @@ class AndroidCraneView constructor(context: Context)
 
     var constraints = Constraints.tightConstraints(width = IntPx.Zero, height = IntPx.Zero)
     // TODO(mount): reinstate when coroutines are supported by IR compiler
-//    private val ownerScope = CoroutineScope(Dispatchers.Main.immediate + Job())
+    // private val ownerScope = CoroutineScope(Dispatchers.Main.immediate + Job())
 
     // Used for tracking which nodes a frame read is applied to
     internal var currentNode: ComponentNode? = null
@@ -112,6 +112,8 @@ class AndroidCraneView constructor(context: Context)
     var configurationChangeObserver: () -> Unit = {}
 
     private val _autofill = if (autofillSupported()) AndroidAutofill(this, autofillTree) else null
+
+    // Used as an ambient for performing autofill.
     val autofill: Autofill? get() = _autofill
 
     override var measureIteration: Long = 1L
@@ -179,17 +181,17 @@ class AndroidCraneView constructor(context: Context)
 
     override fun onInvalidate(drawNode: DrawNode) {
         // TODO(mount): use ownerScope. This isn't supported by IR compiler yet
-//        ownerScope.launch {
+        // ownerScope.launch {
         invalidateRepaintBoundary(drawNode)
-//        }
+        // }
     }
 
     override fun onSizeChange(layoutNode: LayoutNode) {
         // TODO(mount): use ownerScope. This isn't supported by IR compiler yet
-//        ownerScope.launch {
+        // ownerScope.launch {
         layoutNode.visitChildren(::collectChildrenRepaintBoundaries)
         invalidateRepaintBoundary(layoutNode)
-//        }
+        // }
     }
 
     /**
@@ -213,9 +215,9 @@ class AndroidCraneView constructor(context: Context)
 
     override fun onPositionChange(layoutNode: LayoutNode) {
         // TODO(mount): use ownerScope. This isn't supported by IR compiler yet
-//        ownerScope.launch {
+        // ownerScope.launch {
         invalidateRepaintBoundary(layoutNode)
-//        }
+        // }
     }
 
     override fun onRepaintBoundaryParamsChange(repaintBoundaryNode: RepaintBoundaryNode) {

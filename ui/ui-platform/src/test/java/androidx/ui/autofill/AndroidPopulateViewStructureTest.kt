@@ -16,38 +16,35 @@
 
 package androidx.ui.autofill
 
-import android.content.Context
+import android.app.Activity
 import android.graphics.Rect
 import android.view.View
 import android.view.ViewStructure
-import android.view.autofill.AutofillManager
 import androidx.test.filters.SmallTest
+import androidx.ui.ComposeUiRobolectricTestRunner
+import androidx.ui.test.android.fake.FakeViewStructure
 import com.google.common.truth.Truth.assertThat
-import com.nhaarman.mockitokotlin2.eq
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.whenever
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
+import org.robolectric.Robolectric
+import org.robolectric.annotation.Config
 
 @SmallTest
-@RunWith(JUnit4::class)
+@RunWith(ComposeUiRobolectricTestRunner::class)
+@Config(
+    manifest = Config.NONE,
+    minSdk = 26)
 class AndroidPopulateViewStructureTest {
+    private val PACKAGE_NAME = "androidx.ui.platform.test"
     private val autofillTree = AutofillTree()
     private lateinit var androidAutofill: AndroidAutofill
 
     @Before
     fun setup() {
-        val autofillManager: AutofillManager = mock()
-
-        val context: Context = mock()
-        whenever(context.getSystemService(eq(AutofillManager::class.java)))
-            .thenReturn(autofillManager)
-        whenever(context.packageName).thenReturn("com.google.testpackage")
-
-        val view: View = mock()
-        whenever(view.context).thenReturn(context)
+        val activity = Robolectric.setupActivity(Activity::class.java)
+        val view = View(activity)
+        activity.setContentView(view)
 
         androidAutofill = AndroidAutofill(view, autofillTree)
     }
@@ -82,7 +79,7 @@ class AndroidPopulateViewStructureTest {
         assertThat(viewStructure).isEqualTo(FakeViewStructure().apply {
             children.add(FakeViewStructure().apply {
                 virtualId = autofillNode.id
-                packageName = "com.google.testpackage"
+                packageName = PACKAGE_NAME
                 setAutofillType(View.AUTOFILL_TYPE_TEXT)
                 setAutofillHints(arrayOf(View.AUTOFILL_HINT_NAME))
                 setDimens(0, 0, 0, 0, 0, 0)
@@ -115,14 +112,14 @@ class AndroidPopulateViewStructureTest {
         assertThat(viewStructure).isEqualTo(FakeViewStructure().apply {
             children.add(FakeViewStructure().apply {
                 virtualId = nameAutofillNode.id
-                packageName = "com.google.testpackage"
+                packageName = PACKAGE_NAME
                 setAutofillType(View.AUTOFILL_TYPE_TEXT)
                 setAutofillHints(arrayOf(View.AUTOFILL_HINT_NAME))
                 setDimens(0, 0, 0, 0, 0, 0)
             })
             children.add(FakeViewStructure().apply {
                 virtualId = emailAutofillNode.id
-                packageName = "com.google.testpackage"
+                packageName = PACKAGE_NAME
                 setAutofillType(View.AUTOFILL_TYPE_TEXT)
                 setAutofillHints(arrayOf(View.AUTOFILL_HINT_EMAIL_ADDRESS))
                 setDimens(0, 0, 0, 0, 0, 0)

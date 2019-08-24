@@ -16,65 +16,72 @@
 
 package androidx.ui.autofill
 
-import android.content.Context
+import android.app.Activity
 import android.graphics.Rect
 import android.view.View
 import android.view.autofill.AutofillManager
 import androidx.test.filters.SmallTest
-import com.nhaarman.mockitokotlin2.eq
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.whenever
-import com.nhaarman.mockitokotlin2.times
-import com.nhaarman.mockitokotlin2.verify
+import androidx.ui.ComposeUiRobolectricTestRunner
+import com.google.common.truth.Truth.assertThat
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.ExpectedException
 import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
+import org.robolectric.Robolectric
+import org.robolectric.annotation.Config
+import org.robolectric.annotation.Implementation
+import org.robolectric.annotation.Implements
+import org.robolectric.shadow.api.Shadow
 
 @SmallTest
-@RunWith(JUnit4::class)
+@RunWith(ComposeUiRobolectricTestRunner::class)
+@Config(
+    manifest = Config.NONE,
+    shadows = [ShadowAutofillManager::class],
+    minSdk = 26
+)
 class AndroidAutofillTest {
 
     @get:Rule
     val expectedException = ExpectedException.none()!!
 
     private lateinit var androidAutofill: AndroidAutofill
-    private lateinit var autofillManager: AutofillManager
+    private lateinit var autofillManager: ShadowAutofillManager
     private lateinit var view: View
     private val autofillTree = AutofillTree()
 
     @Before
     fun setup() {
-        autofillManager = mock()
+        val activity = Robolectric.setupActivity(Activity::class.java)
+        view = View(activity)
+        activity.setContentView(view)
 
-        val context: Context = mock()
-        whenever(context.getSystemService(eq(AutofillManager::class.java)))
-            .thenReturn(autofillManager)
-
-        view = mock()
-        whenever(view.context).thenReturn(context)
+        autofillManager = Shadow.extract<ShadowAutofillManager>(
+            activity.getSystemService(AutofillManager::class.java)
+        )
 
         androidAutofill = AndroidAutofill(view, autofillTree)
     }
 
     @Test
     fun importantForAutofill_is_yes() {
-        verify(view).setImportantForAutofill(View.IMPORTANT_FOR_AUTOFILL_YES)
+        assertThat(view.importantForAutofill).isEqualTo(View.IMPORTANT_FOR_AUTOFILL_YES)
     }
 
     @Test
     fun requestAutofillForNode_calls_notifyViewEntered() {
         // Arrange.
-        val autofillNode = AutofillNode(onFill = {}, boundingBox = Rect(0, 0, 0, 0))
+        val bounds = Rect(0, 0, 0, 0)
+        val autofillNode = AutofillNode(onFill = {}, boundingBox = bounds)
 
         // Act.
         androidAutofill.requestAutofillForNode(autofillNode)
 
         // Assert.
-        verify(autofillManager, times(1))
-            .notifyViewEntered(view, autofillNode.id, autofillNode.boundingBox!!)
+        assertThat(autofillManager.viewEnteredStats).containsExactly(
+            ShadowAutofillManager.NotifyViewEntered(view, autofillNode.id, bounds)
+        )
     }
 
     @Test
@@ -98,6 +105,27 @@ class AndroidAutofillTest {
         androidAutofill.cancelAutofillForNode(autofillNode)
 
         // Assert.
-        verify(autofillManager, times(1)).notifyViewExited(view, autofillNode.id)
+        assertThat(autofillManager.viewExitedStats).containsExactly(
+            ShadowAutofillManager.NotifyViewExited(view, autofillNode.id)
+        )
+    }
+}
+
+@Implements(value = AutofillManager::class, minSdk = 26)
+internal class ShadowAutofillManager {
+    data class NotifyViewEntered(val view: View, val virtualId: Int, val rect: Rect)
+    data class NotifyViewExited(val view: View, val virtualId: Int)
+
+    val viewEnteredStats = mutableListOf<NotifyViewEntered>()
+    val viewExitedStats = mutableListOf<NotifyViewExited>()
+
+    @Implementation
+    fun notifyViewEntered(view: View, virtualId: Int, rect: Rect) {
+        viewEnteredStats += NotifyViewEntered(view, virtualId, rect)
+    }
+
+    @Implementation
+    fun notifyViewExited(view: View, virtualId: Int) {
+        viewExitedStats += NotifyViewExited(view, virtualId)
     }
 }
