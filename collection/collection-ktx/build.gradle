@@ -29,7 +29,7 @@ dependencies {
     compile(KOTLIN_STDLIB)
     testCompile(JUNIT)
     testCompile(TRUTH)
-    testCompile(project(":internal-testutils-ktx"))
+    testCompile(project(":internal-testutils-truth"))
 }
 
 androidx {
