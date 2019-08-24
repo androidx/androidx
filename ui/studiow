@@ -1,12 +1,14 @@
 #!/bin/bash
 set -e
+set -m
 
 # This is a wrapper script that runs the specific version of Android Studio that is recommended for developing in this repository.
 # (This serves a similar purpose to gradlew)
+#
+# NOTE: if you are changing this file, consider applying the changes to ../studiow, used for the main AndroidX project.
 
 
-function getStudioUrl() {
-  propertiesFile="${scriptDir}/studio_versions.properties"
+function getPrebuiltStudioZipPath() {
   version="$(grep "studio_version=" ${propertiesFile} | sed 's/[^=]*=//')"
   ideaMajorVersion="$(grep "idea_major_version=" ${propertiesFile} | sed 's/[^=]*=//')"
   buildNumber="$(grep "studio_build_number=" ${propertiesFile} | sed 's/[^=]*=//')"
@@ -16,8 +18,8 @@ function getStudioUrl() {
   else
     extension="zip"
   fi
-  studioUrl="https://dl.google.com/dl/android/studio/ide-zips/${version}/android-studio-ide-${ideaMajorVersion}.${buildNumber}-${osName}.${extension}"
-  echo "${studioUrl}"
+
+  echo "${scriptDir}/../../../prebuilts/androidx/studio/android-studio-ide-${ideaMajorVersion}.${buildNumber}-${osName}.${extension}"
 }
 
 acceptsLicenseAgreement="$1"
@@ -35,10 +37,20 @@ function getOsName() {
   echo "${osName}"
 }
 osName="$(getOsName)"
-studioUrl="$(getStudioUrl $osName)"
-studioDestName="$(basename ${studioUrl})"
-studioZipPath="${tempDir}/${studioDestName}"
-studioUnzippedPath="$(echo ${studioZipPath} | sed 's/\.zip$//' | sed 's/\.tar.gz$//')"
+propertiesFile="${scriptDir}/studio_versions.properties"
+prebuiltStudioZipPath="$(getPrebuiltStudioZipPath $osName)"
+studioDestName="$(basename ${prebuiltStudioZipPath})"
+studioUnzippedPath="${tempDir}/${studioDestName}"
+studioUnzippedPath="$(echo ${studioUnzippedPath} | sed 's/\.zip$//' | sed 's/\.tar.gz$//')"
+
+# The version of AGP we should override with - may be empty if we should just use the default
+# version specified in AndroidX. See ui/studio_versions.properties.
+agp_override="$(grep "agp_override=" ${propertiesFile} | sed 's/[^=]*=//')"
+
+# Set the env variable if we have a valid version to override with, else noop
+GRADLE_PLUGIN_VERSION_OVERRIDE=""
+[ ! -z "$agp_override" ] && GRADLE_PLUGIN_VERSION_OVERRIDE="GRADLE_PLUGIN_VERSION=${agp_override}"
+
 
 function error_exit {
     echo "$1" >&2   ## Send message to stderr.
@@ -133,8 +145,6 @@ function updateStudio() {
   fi
 
   mkdir -p "${tempDir}"
-  downloadFile "${studioUrl}" "${studioZipPath}"
-  echo
 
   echo "Removing previous installations"
   ls "${tempDir}" | grep -v "^${studioDestName}\$" | sed "s|^|${tempDir}/|" | xargs rm -rf
@@ -142,43 +152,34 @@ function updateStudio() {
   echo "Unzipping"
   if [ "${osName}" == "linux" ]; then
     mkdir $studioUnzippedPath
-    tar -xzf "${studioZipPath}" --directory "${studioUnzippedPath}"
+    tar -xzf "${prebuiltStudioZipPath}" --directory "${studioUnzippedPath}"
   else
-    unzip "${studioZipPath}" -d "${studioUnzippedPath}"
+    unzip "${prebuiltStudioZipPath}" -d "${studioUnzippedPath}"
   fi
 }
 
-function ensureComposeAt() {
-  pluginPath=$1
-  copyOption=$2
-  idePluginJar="$pluginPath/r4a-ide-plugin.jar"
-  compilerPluginJar="$pluginPath/r4a-compiler-plugin.jar"
-  compilerPluginJarOutput="${projectDir}/../../../out/ui/compose/compose-compiler-hosted/build/libs/compose-compiler-hosted-1.0.0-alpha01.jar"
-  idePluginJarOutput="${projectDir}/../../../out/ui/compose/compose-ide-plugin/build/libs/compose-ide-plugin-1.0.0-alpha01.jar"
-  if [ ! -e "$idePluginJarOutput" ] || [ ! -e "$compilerPluginJarOutput" ]
-  then
-    echo "Building compose plugin"
-    ${scriptDir}/gradlew -p ${projectDir} :compose:compose-ide-plugin:assemble :compose:compose-compiler-hosted:assemble
+# Copies the built compose-ide-plugin to the plugin directory of the studio installation. This
+# ensures that the compose plugin is used at startup
+function updateComposeIdePlugin() {
+  if [ "${osName}" == "mac" ]; then
+    composeIdePluginDirectory="$(findStudioMacAppPath)/Contents/plugins/compose-ide-plugin/"
+  else
+    composeIdePluginDirectory="${studioUnzippedPath}/android-studio/plugins/compose-ide-plugin/"
   fi
-  cp $copyOption "$compilerPluginJarOutput" "$compilerPluginJar"
-  cp $copyOption "$idePluginJarOutput" "$idePluginJar"
-}
+  # this is the idea sandbox directory that the compose ide plugin is located in
+  composePluginDirectory="${projectDir}/../../../out/ui/compose/compose-ide-plugin/build/idea-sandbox/plugins/compose-ide-plugin/"
 
-function ensureComposeLinux() {
-  ensureComposeAt "${studioUnzippedPath}/android-studio/plugins/Kotlin/lib" "-u"
-}
-
-function ensureComposeMac() {
-  ensureComposeAt "$(findStudioMacAppPath)/Contents/plugins/Kotlin/lib"
+  echo ""
+  echo "Copying compose-ide-plugin to $composeIdePluginDirectory"
+  echo ""
+  mkdir -p "${composeIdePluginDirectory}"
+  cp -f -R "${composePluginDirectory}" "${composeIdePluginDirectory}"
 }
 
 function ensureCompose() {
-  # ensure compose plugin is up-to-date
-  if [ "${osName}" == "mac" ]; then
-    ensureComposeMac
-  else
-    ensureComposeLinux
-  fi
+  # This gradle command will prepare a sandbox directory that we can point studio to that will
+  # have all of the correct structure to load the compose plugin
+  ${scriptDir}/gradlew -p ${projectDir} :compose:compose-ide-plugin:prepareSandbox
 }
 
 # ANDROID_LINT_NULLNESS_IGNORE_DEPRECATED environment variable prevents Studio from showing IDE
@@ -187,25 +188,31 @@ function ensureCompose() {
 
 function runStudioLinux() {
   studioPath="${studioUnzippedPath}/android-studio/bin/studio.sh"
-  echo "$studioPath &"
+  updateComposeIdePlugin
+
+  echo ""
+  echo "Launching Studio"
   # Override AGP version overridden because compose studio is behind androidx studio
   env STUDIO_PROPERTIES="${projectDir}/idea.properties" \
       STUDIO_VM_OPTIONS="${projectDir}/../development/studio/studio.vmoptions" \
       ANDROID_LINT_NULLNESS_IGNORE_DEPRECATED="true" \
-      KOTLIN_OVERRIDE="1.3.30-compose-20190520" \
-      GRADLE_PLUGIN_VERSION="3.5.0-beta01" \
+      KOTLIN_OVERRIDE="1.3.50-compose-20190806" \
+      $GRADLE_PLUGIN_VERSION_OVERRIDE \
       "${studioPath}" "${projectDir}" &
 }
 
 function runStudioMac() {
   appPath="$(findStudioMacAppPath)"
-  echo "open ${appPath}"
+  updateComposeIdePlugin
+
+  echo ""
+  echo "Launching Studio"
   # Override AGP version overridden because compose studio is behind androidx studio
   env STUDIO_PROPERTIES="${projectDir}/idea.properties" \
       STUDIO_VM_OPTIONS="${projectDir}/../development/studio/studio.vmoptions" \
       ANDROID_LINT_NULLNESS_IGNORE_DEPRECATED="true" \
-      KOTLIN_OVERRIDE="1.3.30-compose-20190520" \
-      GRADLE_PLUGIN_VERSION="3.5.0-beta01" \
+      KOTLIN_OVERRIDE="1.3.50-compose-20190806" \
+      $GRADLE_PLUGIN_VERSION_OVERRIDE \
       open -a "${appPath}" "${projectDir}"
 }
 
