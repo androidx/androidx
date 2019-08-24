@@ -11,10 +11,6 @@ EndsWithImpl: androidx.ui.core.SemanticsTreeNodeImpl:
     Don't expose your implementation details: `SemanticsTreeNodeImpl` ends with `Impl`
 
 
-MissingNullability: androidx.ui.core.AndroidCraneView#Companion:
-    Missing nullability on field `Companion` in class `class androidx.ui.core.AndroidCraneView`
-MissingNullability: androidx.ui.core.LayoutNode#Companion:
-    Missing nullability on field `Companion` in class `class androidx.ui.core.LayoutNode`
 MissingNullability: androidx.ui.core.semantics.SemanticsNode#Companion:
     Missing nullability on field `Companion` in class `class androidx.ui.core.semantics.SemanticsNode`
 MissingNullability: androidx.ui.internal.Unicode#INSTANCE:

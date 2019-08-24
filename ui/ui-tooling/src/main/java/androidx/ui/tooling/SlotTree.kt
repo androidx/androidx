@@ -75,8 +75,6 @@ class NodeGroup(
     children: Array<Group>
 ) : Group(key, box, data, children)
 
-private fun SlotReader.getGroup(): Group = getGroup(true)
-
 /**
  * A key that has being joined together to form one key.
  */
@@ -99,8 +97,8 @@ internal val emptyBox = PxBounds(0.px, 0.px, 0.px, 0.px)
 /**
  * Iterate the slot table and extract a group tree that corresponds to the content of the table.
  */
-private fun SlotReader.getGroup(expectKey: Boolean): Group {
-    val key = if (expectKey) convertKey(next()) else null
+private fun SlotReader.getGroup(): Group {
+    val key = convertKey(groupKey)
     val nodeGroup = isNode
     val end = current + groupSize
     next()
@@ -108,23 +106,17 @@ private fun SlotReader.getGroup(expectKey: Boolean): Group {
     val children = mutableListOf<Group>()
     val node = if (nodeGroup) next() else null
     while (current < end && isGroup) {
-        children.add(getGroup(false))
+        children.add(getGroup())
     }
 
     // A group can start with data
     while (!isGroup && current <= end) {
-        val dataOrKey = next()
-        if (isGroup) {
-            // Last value is a key, back up.
-            previous()
-            break
-        }
-        data.add(dataOrKey)
+        data.add(next())
     }
 
-    // A group ends with a lest of keyed groups
+    // A group ends with a list of groups
     while (current < end) {
-        children.add(getGroup(true))
+        children.add(getGroup())
     }
 
     // Calculate bounding box
