@@ -200,7 +200,7 @@ class LivePagedListBuilder<Key : Any, Value : Any> {
             config,
             boundaryCallback,
             pagedSourceFactory,
-            Dispatchers.Main,
+            Dispatchers.Main.immediate,
             fetchDispatcher
         )
     }

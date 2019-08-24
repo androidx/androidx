@@ -88,7 +88,7 @@ internal class LiveDataScopeImpl<T>(
 
     // use `liveData` provided context + main dispatcher to communicate with the target
     // LiveData. This gives us main thread safety as well as cancellation cooperation
-    private val coroutineContext = context + Dispatchers.Main
+    private val coroutineContext = context + Dispatchers.Main.immediate
 
     override suspend fun emitSource(source: LiveData<T>): DisposableHandle =
         withContext(coroutineContext) {
@@ -115,7 +115,7 @@ internal fun <T> MediatorLiveData<T>.addDisposableSource(
     return object : DisposableHandle {
         override fun dispose() {
             if (disposed.compareAndSet(false, true)) {
-                CoroutineScope(Dispatchers.Main).launch {
+                CoroutineScope(Dispatchers.Main.immediate).launch {
                     removeSource(source)
                 }
             }
@@ -160,7 +160,7 @@ internal class BlockRunner<T>(
         if (cancellationJob != null) {
             error("Cancel call cannot happen without a maybeRun")
         }
-        cancellationJob = scope.launch(Dispatchers.Main) {
+        cancellationJob = scope.launch(Dispatchers.Main.immediate) {
             delay(timeoutInMs)
             if (!liveData.hasActiveObservers()) {
                 // one last check on active observers to avoid any race condition between starting
@@ -189,7 +189,7 @@ internal class CoroutineLiveData<T>(
         // The scope for this LiveData where we launch every block Job.
         // We default to Main dispatcher but developer can override it.
         // The supervisor job is added last to isolate block runs.
-        val scope = CoroutineScope(Dispatchers.Main + context + supervisorJob)
+        val scope = CoroutineScope(Dispatchers.Main.immediate + context + supervisorJob)
         blockRunner = BlockRunner(
             liveData = this,
             block = block,
@@ -317,7 +317,7 @@ internal class CoroutineLiveData<T>(
  * ```
  *
  * @param context The CoroutineContext to run the given block in. Defaults to
- * [EmptyCoroutineContext] combined with [Dispatchers.Main]
+ * [EmptyCoroutineContext] combined with [Dispatchers.Main.immediate]
  * @param timeoutInMs The timeout in ms before cancelling the block if there are no active observers
  * ([LiveData.hasActiveObservers]. Defaults to [DEFAULT_TIMEOUT].
  * @param block The block to run when the [LiveData] has active observers.
@@ -421,7 +421,7 @@ fun <T> liveData(
  * ```
  *
  * * @param context The CoroutineContext to run the given block in. Defaults to
- * [EmptyCoroutineContext] combined with [Dispatchers.Main].
+ * [EmptyCoroutineContext] combined with [Dispatchers.Main.immediate].
  * @param timeout The timeout duration before cancelling the block if there are no active observers
  * ([LiveData.hasActiveObservers].
  * @param block The block to run when the [LiveData] has active observers.

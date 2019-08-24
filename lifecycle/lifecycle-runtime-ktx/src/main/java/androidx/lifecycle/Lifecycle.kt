@@ -29,7 +29,7 @@ import kotlin.coroutines.CoroutineContext
  *
  * This scope will be cancelled when the [Lifecycle] is destroyed.
  *
- * This scope is bound to [Dispatchers.Main]
+ * This scope is bound to [Dispatchers.Main.immediate]
  */
 val Lifecycle.coroutineScope: LifecycleCoroutineScope
     get() {
@@ -40,7 +40,7 @@ val Lifecycle.coroutineScope: LifecycleCoroutineScope
             }
             val newScope = LifecycleCoroutineScopeImpl(
                 this,
-                SupervisorJob() + Dispatchers.Main
+                SupervisorJob() + Dispatchers.Main.immediate
             )
             if (mInternalScopeRef.compareAndSet(null, newScope)) {
                 newScope.register()
@@ -50,7 +50,7 @@ val Lifecycle.coroutineScope: LifecycleCoroutineScope
     }
 
 /**
- * [CoroutineScope] tied to a [Lifecycle] and [Dispatchers.Main]
+ * [CoroutineScope] tied to a [Lifecycle] and [Dispatchers.Main.immediate]
  *
  * This scope will be cancelled when the [Lifecycle] is destroyed.
  *
@@ -112,8 +112,7 @@ internal class LifecycleCoroutineScopeImpl(
     }
 
     fun register() {
-        // TODO use Main.Immediate once it is graduated out of experimental.
-        launch(Dispatchers.Main) {
+        launch(Dispatchers.Main.immediate) {
             if (lifecycle.currentState >= Lifecycle.State.INITIALIZED) {
                 lifecycle.addObserver(this@LifecycleCoroutineScopeImpl)
             } else {

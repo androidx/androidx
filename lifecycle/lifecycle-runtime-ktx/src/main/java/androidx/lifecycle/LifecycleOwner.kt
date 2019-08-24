@@ -24,7 +24,7 @@ import kotlinx.coroutines.Dispatchers
  *
  * This scope will be cancelled when the [Lifecycle] is destroyed.
  *
- * This scope is bound to [Dispatchers.Main].
+ * This scope is bound to [Dispatchers.Main.immediate].
  */
 val LifecycleOwner.lifecycleScope: LifecycleCoroutineScope
     get() = lifecycle.coroutineScope
