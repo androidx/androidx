@@ -1112,14 +1112,14 @@ package androidx.ui.graphics {
 
   public final class BrushKt {
     ctor public BrushKt();
-    method public static androidx.ui.graphics.LinearGradient HorizontalGradient(androidx.ui.graphics.Color![] colors, androidx.ui.core.Px startX, androidx.ui.core.Px endX, androidx.ui.painting.TileMode tileMode = TileMode.clamp);
-    method public static androidx.ui.graphics.Brush HorizontalGradient(kotlin.Pair<java.lang.Float,androidx.ui.graphics.Color>![] colorStops, androidx.ui.core.Px startX, androidx.ui.core.Px endX, androidx.ui.painting.TileMode tileMode = TileMode.clamp);
-    method public static androidx.ui.graphics.LinearGradient LinearGradient(androidx.ui.graphics.Color![] colors, androidx.ui.core.Px startX, androidx.ui.core.Px startY, androidx.ui.core.Px endX, androidx.ui.core.Px endY, androidx.ui.painting.TileMode tileMode = TileMode.clamp);
-    method public static androidx.ui.graphics.LinearGradient LinearGradient(kotlin.Pair<java.lang.Float,androidx.ui.graphics.Color>![] colorStops, androidx.ui.core.Px startX, androidx.ui.core.Px startY, androidx.ui.core.Px endX, androidx.ui.core.Px endY, androidx.ui.painting.TileMode tileMode = TileMode.clamp);
-    method public static androidx.ui.graphics.RadialGradient RadialGradient(kotlin.Pair<java.lang.Float,androidx.ui.graphics.Color>![] colorStops, float centerX, float centerY, float radius, androidx.ui.painting.TileMode tileMode = TileMode.clamp);
-    method public static androidx.ui.graphics.RadialGradient RadialGradient(androidx.ui.graphics.Color![] colors, float centerX, float centerY, float radius, androidx.ui.painting.TileMode tileMode = TileMode.clamp);
-    method public static androidx.ui.graphics.LinearGradient VerticalGradient(androidx.ui.graphics.Color![] colors, androidx.ui.core.Px startY, androidx.ui.core.Px endY, androidx.ui.painting.TileMode tileMode = TileMode.clamp);
-    method public static androidx.ui.graphics.LinearGradient VerticalGradient(kotlin.Pair<java.lang.Float,androidx.ui.graphics.Color>![] colorStops, androidx.ui.core.Px startY, androidx.ui.core.Px endY, androidx.ui.painting.TileMode tileMode = TileMode.clamp);
+    method public static androidx.ui.graphics.LinearGradient HorizontalGradient(java.util.List<androidx.ui.graphics.Color> colors, androidx.ui.core.Px startX, androidx.ui.core.Px endX, androidx.ui.painting.TileMode tileMode = TileMode.Clamp);
+    method public static androidx.ui.graphics.Brush HorizontalGradient(kotlin.Pair<java.lang.Float,androidx.ui.graphics.Color>![] colorStops, androidx.ui.core.Px startX, androidx.ui.core.Px endX, androidx.ui.painting.TileMode tileMode = TileMode.Clamp);
+    method public static androidx.ui.graphics.LinearGradient LinearGradient(java.util.List<androidx.ui.graphics.Color> colors, androidx.ui.core.Px startX, androidx.ui.core.Px startY, androidx.ui.core.Px endX, androidx.ui.core.Px endY, androidx.ui.painting.TileMode tileMode = TileMode.Clamp);
+    method public static androidx.ui.graphics.LinearGradient LinearGradient(kotlin.Pair<java.lang.Float,androidx.ui.graphics.Color>![] colorStops, androidx.ui.core.Px startX, androidx.ui.core.Px startY, androidx.ui.core.Px endX, androidx.ui.core.Px endY, androidx.ui.painting.TileMode tileMode = TileMode.Clamp);
+    method public static androidx.ui.graphics.RadialGradient RadialGradient(kotlin.Pair<java.lang.Float,androidx.ui.graphics.Color>![] colorStops, float centerX, float centerY, float radius, androidx.ui.painting.TileMode tileMode = TileMode.Clamp);
+    method public static androidx.ui.graphics.RadialGradient RadialGradient(java.util.List<androidx.ui.graphics.Color> colors, float centerX, float centerY, float radius, androidx.ui.painting.TileMode tileMode = TileMode.Clamp);
+    method public static androidx.ui.graphics.LinearGradient VerticalGradient(java.util.List<androidx.ui.graphics.Color> colors, androidx.ui.core.Px startY, androidx.ui.core.Px endY, androidx.ui.painting.TileMode tileMode = TileMode.Clamp);
+    method public static androidx.ui.graphics.LinearGradient VerticalGradient(kotlin.Pair<java.lang.Float,androidx.ui.graphics.Color>![] colorStops, androidx.ui.core.Px startY, androidx.ui.core.Px endY, androidx.ui.painting.TileMode tileMode = TileMode.Clamp);
     method public static androidx.ui.graphics.Brush getEmptyBrush();
     method public static androidx.ui.graphics.Brush obtainBrush(Object? brush);
   }
@@ -1554,17 +1554,6 @@ package androidx.ui.painting {
     enum_constant public static final androidx.ui.painting.FilterQuality none;
   }
 
-  public final class Gradient extends androidx.ui.painting.Shader {
-    method public android.graphics.Shader toFrameworkShader$lintWithKotlin();
-    field public static final androidx.ui.painting.Gradient.Companion! Companion;
-  }
-
-  public static final class Gradient.Companion {
-    method public androidx.ui.painting.Gradient linear(androidx.ui.engine.geometry.Offset from, androidx.ui.engine.geometry.Offset to, java.util.List<androidx.ui.graphics.Color> colors, java.util.List<java.lang.Float>? colorStops = null, androidx.ui.painting.TileMode tileMode = TileMode.clamp);
-    method public androidx.ui.painting.Gradient radial(androidx.ui.engine.geometry.Offset center, float radius, java.util.List<androidx.ui.graphics.Color> color, java.util.List<java.lang.Float>? colorStops, androidx.ui.painting.TileMode tileMode = TileMode.clamp, androidx.ui.vectormath64.Matrix4 matrix4);
-    method public androidx.ui.painting.Gradient sweep(androidx.ui.engine.geometry.Offset center, java.util.List<androidx.ui.graphics.Color> colors, java.util.List<java.lang.Float> colorStops, androidx.ui.painting.TileMode tileMode = TileMode.clamp, float startAngle, float endAngle = 6.2831855f, androidx.ui.vectormath64.Matrix4 matrix4);
-  }
-
   public interface Image {
     method public androidx.ui.graphics.ColorSpace getColorSpace();
     method public androidx.ui.painting.ImageConfig getConfig();
@@ -1748,8 +1737,16 @@ package androidx.ui.painting {
     enum_constant public static final androidx.ui.painting.PointMode polygon;
   }
 
-  public abstract class Shader {
-    ctor public Shader();
+  public final class Shader {
+    ctor public Shader(android.graphics.Shader nativeShader);
+    method public android.graphics.Shader getNativeShader();
+  }
+
+  public final class ShaderKt {
+    ctor public ShaderKt();
+    method public static androidx.ui.painting.Shader ImageShader(androidx.ui.painting.Image image, androidx.ui.painting.TileMode tileModeX = TileMode.Clamp, androidx.ui.painting.TileMode tileModeY = TileMode.Clamp);
+    method public static androidx.ui.painting.Shader LinearGradientShader(androidx.ui.engine.geometry.Offset from, androidx.ui.engine.geometry.Offset to, java.util.List<androidx.ui.graphics.Color> colors, java.util.List<java.lang.Float>? colorStops = null, androidx.ui.painting.TileMode tileMode = TileMode.Clamp);
+    method public static androidx.ui.painting.Shader RadialGradientShader(androidx.ui.engine.geometry.Offset center, float radius, java.util.List<androidx.ui.graphics.Color> colors, java.util.List<java.lang.Float>? colorStops = null, androidx.ui.painting.TileMode tileMode = TileMode.Clamp);
   }
 
   public final class Shadow {
@@ -1782,9 +1779,17 @@ package androidx.ui.painting {
   }
 
   public enum TileMode {
-    enum_constant public static final androidx.ui.painting.TileMode clamp;
-    enum_constant public static final androidx.ui.painting.TileMode mirror;
-    enum_constant public static final androidx.ui.painting.TileMode repeated;
+    method public final android.graphics.Shader.TileMode getNativeTileMode();
+    enum_constant public static final androidx.ui.painting.TileMode Clamp;
+    enum_constant public static final androidx.ui.painting.TileMode Mirror;
+    enum_constant public static final androidx.ui.painting.TileMode Repeated;
+  }
+
+  public final class TileModeKt {
+    ctor public TileModeKt();
+    method public static android.graphics.Shader.TileMode NativeClampTileMode();
+    method public static android.graphics.Shader.TileMode NativeMirrorTileMode();
+    method public static android.graphics.Shader.TileMode NativeRepeatedTileMode();
   }
 
 }
