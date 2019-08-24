@@ -191,8 +191,6 @@ MissingNullability: androidx.ui.graphics.ColorSpace.Named#Companion:
     Missing nullability on field `Companion` in class `class androidx.ui.graphics.ColorSpace.Named`
 MissingNullability: androidx.ui.graphics.ColorSpace.Rgb#Companion:
     Missing nullability on field `Companion` in class `class androidx.ui.graphics.ColorSpace.Rgb`
-MissingNullability: androidx.ui.painting.Gradient#Companion:
-    Missing nullability on field `Companion` in class `class androidx.ui.painting.Gradient`
 MissingNullability: androidx.ui.painting.MaskFilter#Companion:
     Missing nullability on field `Companion` in class `class androidx.ui.painting.MaskFilter`
 MissingNullability: androidx.ui.painting.Path#Companion:

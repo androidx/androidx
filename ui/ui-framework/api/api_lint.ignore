@@ -1,6 +1,8 @@
 // Baseline format: 1.0
 CallbackName: androidx.ui.core.gesture.DragObserver:
     Class should be named DragCallback
+CallbackName: androidx.ui.core.gesture.LongPressDragObserver:
+    Class should be named LongPressDragCallback
 
 
 DocumentExceptions: androidx.ui.core.LayoutKt#WithConstraints(kotlin.jvm.functions.Function1<? super androidx.ui.core.Constraints,kotlin.Unit>):
