@@ -24,12 +24,14 @@ import androidx.camera.core.BaseCamera;
 import androidx.camera.core.CameraFactory;
 import androidx.camera.core.CameraX.LensFacing;
 import androidx.camera.core.LensFacingCameraIdFilter;
+import androidx.core.util.Preconditions;
 
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.Callable;
 
 /**
  * A {@link CameraFactory} implementation that contains and produces fake cameras.
@@ -47,7 +49,7 @@ public final class FakeCameraFactory implements CameraFactory {
     private String mBackCameraId = DEFAULT_BACK_ID;
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-    final Map<String, BaseCamera> mCameraMap = new HashMap<>();
+    final Map<String, Callable<BaseCamera>> mCameraMap = new HashMap<>();
 
     public FakeCameraFactory() {
         HashSet<String> camIds = new HashSet<>();
@@ -56,8 +58,9 @@ public final class FakeCameraFactory implements CameraFactory {
 
         mCameraIds = Collections.unmodifiableSet(camIds);
 
-        insertCamera(DEFAULT_BACK_ID, new FakeCamera(new FakeCameraInfo(0, LensFacing.BACK), null));
-        insertCamera(DEFAULT_FRONT_ID, new FakeCamera(new FakeCameraInfo(0, LensFacing.FRONT),
+        insertCamera(DEFAULT_BACK_ID, () -> new FakeCamera(new FakeCameraInfo(0, LensFacing.BACK),
+                null));
+        insertCamera(DEFAULT_FRONT_ID, () -> new FakeCamera(new FakeCameraInfo(0, LensFacing.FRONT),
                 null));
     }
 
@@ -65,23 +68,24 @@ public final class FakeCameraFactory implements CameraFactory {
     @NonNull
     public BaseCamera getCamera(@NonNull String cameraId) {
         if (mCameraIds.contains(cameraId)) {
-            BaseCamera camera = mCameraMap.get(cameraId);
-            if (camera == null) {
-                camera = new FakeCamera();
-                mCameraMap.put(cameraId, camera);
+            try {
+                Callable<BaseCamera> cameraCallable =
+                        Preconditions.checkNotNull(mCameraMap.get(cameraId));
+                return cameraCallable.call();
+            } catch (Exception e) {
+                throw new RuntimeException("Unable to create camera.", e);
             }
-            return camera;
         }
         throw new IllegalArgumentException("Unknown camera: " + cameraId);
     }
 
     /**
-     * Inserts a camera with the given camera ID.
+     * Inserts a {@link Callable} for creating cameras with the given camera ID.
      *
      * @param cameraId Identifier to use for the camera.
-     * @param camera   Camera implementation.
+     * @param camera   Callable used to provide the Camera implementation.
      */
-    public void insertCamera(@NonNull String cameraId, @NonNull BaseCamera camera) {
+    public void insertCamera(@NonNull String cameraId, @NonNull Callable<BaseCamera> camera) {
         if (!mCameraIds.contains(cameraId)) {
             HashSet<String> newCameraIds = new HashSet<>(mCameraIds);
             newCameraIds.add(cameraId);
@@ -94,14 +98,15 @@ public final class FakeCameraFactory implements CameraFactory {
     /**
      * Inserts a camera and sets it as the default front camera.
      *
-     * <p>This is a convenience method for calling {@link #insertCamera(String, BaseCamera)}
+     * <p>This is a convenience method for calling {@link #insertCamera(String, Callable)}
      * followed by {@link #setDefaultCameraIdForLensFacing(LensFacing, String)} with
      * {@link LensFacing#FRONT}.
      *
      * @param cameraId Identifier to use for the front camera.
      * @param camera   Camera implementation.
      */
-    public void insertDefaultFrontCamera(@NonNull String cameraId, @NonNull BaseCamera camera) {
+    public void insertDefaultFrontCamera(@NonNull String cameraId,
+            @NonNull Callable<BaseCamera> camera) {
         insertCamera(cameraId, camera);
         setDefaultCameraIdForLensFacing(LensFacing.FRONT, cameraId);
     }
@@ -109,14 +114,15 @@ public final class FakeCameraFactory implements CameraFactory {
     /**
      * Inserts a camera and sets it as the default back camera.
      *
-     * <p>This is a convenience method for calling {@link #insertCamera(String, BaseCamera)}
+     * <p>This is a convenience method for calling {@link #insertCamera(String, Callable)}
      * followed by {@link #setDefaultCameraIdForLensFacing(LensFacing, String)} with
      * {@link LensFacing#BACK}.
      *
      * @param cameraId Identifier to use for the back camera.
      * @param camera   Camera implementation.
      */
-    public void insertDefaultBackCamera(@NonNull String cameraId, @NonNull BaseCamera camera) {
+    public void insertDefaultBackCamera(@NonNull String cameraId,
+            @NonNull Callable<BaseCamera> camera) {
         insertCamera(cameraId, camera);
         setDefaultCameraIdForLensFacing(LensFacing.BACK, cameraId);
     }
@@ -163,7 +169,7 @@ public final class FakeCameraFactory implements CameraFactory {
     @Override
     @NonNull
     public LensFacingCameraIdFilter getLensFacingCameraIdFilter(@NonNull LensFacing lensFacing) {
-        return LensFacingCameraIdFilter.createLensFacingCameraIdFilterWithCameraMap(lensFacing,
-                mCameraMap);
+        throw new UnsupportedOperationException("LensFacingCameraIdFilter not yet implemented for"
+                + " FakeCameraFactory");
     }
 }

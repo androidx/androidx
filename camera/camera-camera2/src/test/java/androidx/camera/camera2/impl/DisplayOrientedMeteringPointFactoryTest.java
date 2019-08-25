@@ -70,9 +70,9 @@ public class DisplayOrientedMeteringPointFactoryTest {
         // Init CameraX to inject our FakeCamera with FakeCameraInfo.
         FakeCameraFactory fakeCameraFactory = new FakeCameraFactory();
         fakeCameraFactory.insertDefaultBackCamera(BACK_CAMERA_ID,
-                new FakeCamera(new FakeCameraInfo(90, CameraX.LensFacing.BACK), null));
+                () -> new FakeCamera(new FakeCameraInfo(90, CameraX.LensFacing.BACK), null));
         fakeCameraFactory.insertDefaultFrontCamera(FRONT_CAMERA_ID,
-                new FakeCamera(new FakeCameraInfo(270, CameraX.LensFacing.FRONT), null));
+                () -> new FakeCamera(new FakeCameraInfo(270, CameraX.LensFacing.FRONT), null));
 
         CameraDeviceSurfaceManager surfaceManager = new FakeCameraDeviceSurfaceManager();
         ExtendableUseCaseConfigFactory defaultConfigFactory = new ExtendableUseCaseConfigFactory();
