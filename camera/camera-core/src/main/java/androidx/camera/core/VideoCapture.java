@@ -16,6 +16,7 @@
 
 package androidx.camera.core;
 
+import android.annotation.SuppressLint;
 import android.location.Location;
 import android.media.AudioFormat;
 import android.media.AudioRecord;
@@ -48,6 +49,8 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.Map;
+import java.util.concurrent.Executor;
+import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -228,12 +231,15 @@ public class VideoCapture extends UseCase {
      * {@link OnVideoSavedListener#onError(VideoCaptureError, String, Throwable)}.
      *
      * @param saveLocation Location to save the video capture
+     * @param executor     The executor in which the listener callback methods will be run.
      * @param listener     Listener to call for the recorded video
      */
-    public void startRecording(File saveLocation, OnVideoSavedListener listener) {
+    @SuppressLint("LambdaLast") // Maybe remove after https://issuetracker.google.com/135275901
+    public void startRecording(@NonNull File saveLocation,
+            @NonNull Executor executor, @NonNull OnVideoSavedListener listener) {
         mIsFirstVideoSampleWrite.set(false);
         mIsFirstAudioSampleWrite.set(false);
-        startRecording(saveLocation, listener, EMPTY_METADATA);
+        startRecording(saveLocation, EMPTY_METADATA, executor, listener);
     }
 
     /**
@@ -244,15 +250,20 @@ public class VideoCapture extends UseCase {
      * {@link OnVideoSavedListener#onError(VideoCaptureError, String, Throwable)}.
      *
      * @param saveLocation Location to save the video capture
-     * @param listener     Listener to call for the recorded video
      * @param metadata     Metadata to save with the recorded video
+     * @param executor     The executor in which the listener callback methods will be run.
+     * @param listener     Listener to call for the recorded video
      */
+    @SuppressLint("LambdaLast") // Maybe remove after https://issuetracker.google.com/135275901
     public void startRecording(
-            final File saveLocation, final OnVideoSavedListener listener, Metadata metadata) {
+            @NonNull File saveLocation, @NonNull Metadata metadata,
+            @NonNull Executor executor,
+            @NonNull OnVideoSavedListener listener) {
         Log.i(TAG, "startRecording");
+        OnVideoSavedListener postListener = new VideoSavedListenerWrapper(executor, listener);
 
         if (!mEndOfAudioVideoSignal.get()) {
-            listener.onError(
+            postListener.onError(
                     VideoCaptureError.RECORDING_IN_PROGRESS, "It is still in video recording!",
                     null);
             return;
@@ -262,7 +273,7 @@ public class VideoCapture extends UseCase {
             // audioRecord start
             mAudioRecorder.startRecording();
         } catch (IllegalStateException e) {
-            listener.onError(VideoCaptureError.ENCODER_ERROR, "AudioRecorder start fail", e);
+            postListener.onError(VideoCaptureError.ENCODER_ERROR, "AudioRecorder start fail", e);
             return;
         }
 
@@ -278,7 +289,8 @@ public class VideoCapture extends UseCase {
 
         } catch (IllegalStateException e) {
             setupEncoder(getAttachedSurfaceResolution(cameraId));
-            listener.onError(VideoCaptureError.ENCODER_ERROR, "Audio/Video encoder start fail", e);
+            postListener.onError(VideoCaptureError.ENCODER_ERROR, "Audio/Video encoder start fail",
+                    e);
             return;
         }
 
@@ -310,7 +322,7 @@ public class VideoCapture extends UseCase {
             }
         } catch (IOException e) {
             setupEncoder(getAttachedSurfaceResolution(cameraId));
-            listener.onError(VideoCaptureError.MUXER_ERROR, "MediaMuxer creation failed!", e);
+            postListener.onError(VideoCaptureError.MUXER_ERROR, "MediaMuxer creation failed!", e);
             return;
         }
 
@@ -324,7 +336,7 @@ public class VideoCapture extends UseCase {
                 new Runnable() {
                     @Override
                     public void run() {
-                        VideoCapture.this.audioEncode(listener);
+                        VideoCapture.this.audioEncode(postListener);
                     }
                 });
 
@@ -332,9 +344,9 @@ public class VideoCapture extends UseCase {
                 new Runnable() {
                     @Override
                     public void run() {
-                        boolean errorOccurred = VideoCapture.this.videoEncode(listener);
+                        boolean errorOccurred = VideoCapture.this.videoEncode(postListener);
                         if (!errorOccurred) {
-                            listener.onVideoSaved(saveLocation);
+                            postListener.onVideoSaved(saveLocation);
                         }
                     }
                 });
@@ -342,7 +354,7 @@ public class VideoCapture extends UseCase {
 
     /**
      * Stops recording video, this must be called after {@link
-     * VideoCapture#startRecording(File, OnVideoSavedListener, Metadata)} is called.
+     * VideoCapture#startRecording(File, Metadata, Executor, OnVideoSavedListener)} is called.
      *
      * <p>stopRecording() is asynchronous API. User need to check if {@link
      * OnVideoSavedListener#onVideoSaved(File)} or
@@ -924,5 +936,38 @@ public class VideoCapture extends UseCase {
         /** Data representing a geographic location. */
         @Nullable
         public Location location;
+    }
+
+    private final class VideoSavedListenerWrapper implements OnVideoSavedListener {
+
+        @NonNull Executor mExecutor;
+        @NonNull OnVideoSavedListener mOnVideoSavedListener;
+
+        VideoSavedListenerWrapper(@NonNull Executor executor,
+                @NonNull OnVideoSavedListener onVideoSavedListener) {
+            mExecutor = executor;
+            mOnVideoSavedListener = onVideoSavedListener;
+        }
+
+        @Override
+        public void onVideoSaved(@NonNull File file) {
+            try {
+                mExecutor.execute(() -> mOnVideoSavedListener.onVideoSaved(file));
+            } catch (RejectedExecutionException e) {
+                Log.e(TAG, "Unable to post to the supplied executor.");
+            }
+        }
+
+        @Override
+        public void onError(@NonNull VideoCaptureError videoCaptureError, @NonNull String message,
+                @Nullable Throwable cause) {
+            try {
+                mExecutor.execute(
+                        () -> mOnVideoSavedListener.onError(videoCaptureError, message, cause));
+            } catch (RejectedExecutionException e) {
+                Log.e(TAG, "Unable to post to the supplied executor.");
+            }
+        }
+
     }
 }

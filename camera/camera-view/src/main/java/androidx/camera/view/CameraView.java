@@ -654,9 +654,13 @@ public final class CameraView extends ViewGroup {
      * Takes a video and calls the OnVideoSavedListener when done.
      *
      * @param file The destination.
+     * @param executor The executor in which the listener callback methods will be run.
+     * @param listener Listener which will receive success or failure callbacks.
      */
-    public void startRecording(File file, OnVideoSavedListener listener) {
-        mCameraModule.startRecording(file, listener);
+    @SuppressLint("LambdaLast") // Maybe remove after https://issuetracker.google.com/135275901
+    public void startRecording(@NonNull File file, @NonNull Executor executor,
+            @NonNull OnVideoSavedListener listener) {
+        mCameraModule.startRecording(file, executor, listener);
     }
 
     /** Stops an in progress video. */

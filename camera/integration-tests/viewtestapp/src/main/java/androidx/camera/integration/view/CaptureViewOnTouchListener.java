@@ -112,7 +112,8 @@ class CaptureViewOnTouchListener
     void onHold() {
         if (mCameraView.getCaptureMode() == CaptureMode.VIDEO
                 || mCameraView.getCaptureMode() == CaptureMode.MIXED) {
-            mCameraView.startRecording(createNewFile(VIDEO_EXTENSION), this);
+            mCameraView.startRecording(createNewFile(VIDEO_EXTENSION),
+                    CameraXExecutors.mainThreadExecutor(), this);
         }
     }
 

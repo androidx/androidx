@@ -334,7 +334,7 @@ final class CameraXModule {
         mImageCapture.takePicture(saveLocation, metadata, executor, listener);
     }
 
-    public void startRecording(File file, final OnVideoSavedListener listener) {
+    public void startRecording(File file, Executor executor, final OnVideoSavedListener listener) {
         if (mVideoCapture == null) {
             return;
         }
@@ -350,6 +350,7 @@ final class CameraXModule {
         mVideoIsRecording.set(true);
         mVideoCapture.startRecording(
                 file,
+                executor,
                 new VideoCapture.OnVideoSavedListener() {
                     @Override
                     public void onVideoSaved(@NonNull File savedFile) {

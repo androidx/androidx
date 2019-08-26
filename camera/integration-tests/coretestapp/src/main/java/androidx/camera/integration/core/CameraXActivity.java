@@ -655,7 +655,8 @@ public class CameraXActivity extends AppCompatActivity
                         String text = button.getText().toString();
                         if (text.equals("Record") && !mVideoFileSaver.isSaving()) {
                             mVideoCapture.startRecording(
-                                    mVideoFileSaver.getNewVideoFile(), mVideoFileSaver);
+                                    mVideoFileSaver.getNewVideoFile(),
+                                    CameraXExecutors.mainThreadExecutor(), mVideoFileSaver);
                             mVideoFileSaver.setSaving();
                             buttonView.setText("Stop");
                         } else if (text.equals("Stop") && mVideoFileSaver.isSaving()) {
