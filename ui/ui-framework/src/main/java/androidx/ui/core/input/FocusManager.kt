@@ -39,7 +39,7 @@ internal open class FocusManager {
     /**
      * Request the input focus
      */
-    fun requestFocus(client: FocusNode) {
+    open fun requestFocus(client: FocusNode) {
         val currentFocus = focusedClient
         if (currentFocus == client) {
             return // focus in to the same component. Do nothing.
