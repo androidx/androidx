@@ -76,7 +76,6 @@ import androidx.ui.text.style.TextDirection
 import androidx.ui.text.style.TextDirectionAlgorithm
 import androidx.ui.text.style.TextIndent
 import java.util.Locale
-import kotlin.math.floor
 import kotlin.math.roundToInt
 
 /**
@@ -186,8 +185,6 @@ internal class AndroidParagraph constructor(
     override fun layout(constraints: ParagraphConstraints) {
         val width = constraints.width
 
-        val floorWidth = floor(width)
-
         val alignment = toLayoutAlign(paragraphStyle.textAlign)
 
         val textDirectionHeuristic = resolveTextDirectionHeuristics(
@@ -210,7 +207,7 @@ internal class AndroidParagraph constructor(
 
         layout = TextLayout(
             charSequence = charSequence,
-            width = floorWidth,
+            width = width,
             textPaint = textPaint,
             ellipsize = ellipsize,
             alignment = alignment,
@@ -219,7 +216,7 @@ internal class AndroidParagraph constructor(
             maxLines = maxLines,
             justificationMode = justificationMode
         )
-        this.width = floorWidth
+        this.width = width
     }
 
     override fun getOffsetForPosition(position: PxPosition): Int {
