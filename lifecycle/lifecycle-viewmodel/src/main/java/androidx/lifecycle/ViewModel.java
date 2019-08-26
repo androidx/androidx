@@ -55,8 +55,8 @@ import java.util.Map;
  *         super.onCreate(savedInstanceState);
  *         setContentView(R.layout.user_activity_layout);
  *         final UserModel viewModel = new ViewModelProvider(this).get(UserModel.class);
- *         viewModel.userLiveData.observer(this, new Observer<User>() {
- *            {@literal @}Override
+ *         viewModel.getUser().observe(this, new Observer<User>() {
+ *             {@literal @}Override
  *             public void onChanged(@Nullable User data) {
  *                 // update ui.
  *             }
