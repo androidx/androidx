@@ -53,23 +53,15 @@ import org.mockito.Mockito;
 import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @MediumTest
 @RunWith(AndroidJUnit4.class)
 public final class CameraXTest {
-    // TODO(b/126431497): This shouldn't need to be static, but the initialization behavior does
-    //  not allow us to reinitialize before each test.
-    private static FakeCameraFactory sCameraFactory = new FakeCameraFactory();
     private static final LensFacing CAMERA_LENS_FACING = LensFacing.BACK;
-
-    static {
-        String cameraId = sCameraFactory.cameraIdForLensFacing(CAMERA_LENS_FACING);
-        sCameraFactory.insertCamera(CAMERA_LENS_FACING, cameraId,
-                () -> new FakeCamera(new FakeCameraInfo(0, CAMERA_LENS_FACING),
-                        mock(CameraControlInternal.class)));
-    }
+    private static final String CAMERA_ID = "0";
 
     private final Instrumentation mInstrumentation = InstrumentationRegistry.getInstrumentation();
     private String mCameraId;
@@ -101,9 +93,14 @@ public final class CameraXTest {
                         return new FakeUseCaseConfig.Builder().build();
                     }
                 });
+        FakeCameraFactory cameraFactory = new FakeCameraFactory();
+        mCamera = new FakeCamera(new FakeCameraInfo(0, CAMERA_LENS_FACING),
+                mock(CameraControlInternal.class));
+        cameraFactory.insertCamera(CAMERA_LENS_FACING, CAMERA_ID, () -> mCamera);
+        cameraFactory.setDefaultCameraIdForLensFacing(CAMERA_LENS_FACING, CAMERA_ID);
         AppConfig.Builder appConfigBuilder =
                 new AppConfig.Builder()
-                        .setCameraFactory(sCameraFactory)
+                        .setCameraFactory(cameraFactory)
                         .setDeviceSurfaceManager(surfaceManager)
                         .setUseCaseConfigFactory(defaultConfigFactory);
 
@@ -119,18 +116,18 @@ public final class CameraXTest {
         mHandlerThread.start();
         mHandler = new Handler(mHandlerThread.getLooper());
         mCameraId = getCameraIdWithLensFacingUnchecked(CAMERA_LENS_FACING);
-        mCamera = sCameraFactory.getCamera(mCameraId);
-
     }
 
     @After
-    public void tearDown() {
+    public void tearDown() throws ExecutionException, InterruptedException {
         mInstrumentation.runOnMainSync(new Runnable() {
             @Override
             public void run() {
                 CameraX.unbindAll();
             }
         });
+        CameraX.deinit().get();
+
         mHandlerThread.quitSafely();
     }
 
