@@ -22,6 +22,7 @@ import static org.junit.Assume.assumeTrue;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.Instrumentation;
 import android.content.Context;
 import android.graphics.SurfaceTexture;
 import android.hardware.camera2.CameraDevice;
@@ -46,6 +47,7 @@ import androidx.camera.testing.fakes.FakeLifecycleOwner;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
+import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.ActivityTestRule;
 import androidx.test.rule.GrantPermissionRule;
 
@@ -81,6 +83,7 @@ public class TextureViewMeteringPointFactoryTest {
     }
 
     private static final int WAIT_FRAMECOUNT = 1;
+    private final Instrumentation mInstrumentation = InstrumentationRegistry.getInstrumentation();
     private FakeLifecycleOwner mLifecycle;
     private CountDownLatch mLatchForFrameReady;
     private CountDownLatch mLatchForCameraClose;
@@ -106,7 +109,12 @@ public class TextureViewMeteringPointFactoryTest {
 
     @After
     public void tearDown() throws InterruptedException {
-        CameraX.unbindAll();
+        mInstrumentation.runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                CameraX.unbindAll();
+            }
+        });
         if (mLatchForCameraClose != null) {
             mLatchForCameraClose.await(3, TimeUnit.SECONDS);
         }
@@ -128,7 +136,7 @@ public class TextureViewMeteringPointFactoryTest {
         // Uses DisplayOrientedMeteringPointFactory to verify if coordinates are correct.
         // DisplayOrientedMeteringPointFactory has the same width / height as the TextureView and
         // TextureViewMeteringPointFactory
-        assertFactoryOuputSamePoints(factory, displayFactory);
+        assertFactoryOutputSamePoints(factory, displayFactory);
     }
 
     @Test
@@ -147,7 +155,7 @@ public class TextureViewMeteringPointFactoryTest {
         // Uses DisplayOrientedMeteringPointFactory to verify if coordinates are correct.
         // DisplayOrientedMeteringPointFactory has the same width / height as the TextureView and
         // TextureViewMeteringPointFactory
-        assertFactoryOuputSamePoints(factory, displayFactory);
+        assertFactoryOutputSamePoints(factory, displayFactory);
 
     }
 
@@ -216,45 +224,51 @@ public class TextureViewMeteringPointFactoryTest {
                 });
 
         Preview preview = new Preview(previewConfigBuilder.build());
-        preview.setOnPreviewOutputUpdateListener(
-                new Preview.OnPreviewOutputUpdateListener() {
-                    @Override
-                    public void onUpdated(Preview.PreviewOutput output) {
-                        mActivityRule.getActivity().runOnUiThread(new Runnable() {
+        mInstrumentation.runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                preview.setOnPreviewOutputUpdateListener(
+                        new Preview.OnPreviewOutputUpdateListener() {
                             @Override
-                            public void run() {
-                                ViewGroup viewGroup = (ViewGroup) mTextureView.getParent();
-                                viewGroup.removeView(mTextureView);
-                                viewGroup.addView(mTextureView);
+                            public void onUpdated(Preview.PreviewOutput output) {
+                                mActivityRule.getActivity().runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        ViewGroup viewGroup = (ViewGroup) mTextureView.getParent();
+                                        viewGroup.removeView(mTextureView);
+                                        viewGroup.addView(mTextureView);
 
-                                mTextureView.setSurfaceTexture(output.getSurfaceTexture());
-                                output.getSurfaceTexture().setOnFrameAvailableListener(
-                                        new SurfaceTexture.OnFrameAvailableListener() {
-                                            int mFrameCount = 0;
-                                            @Override
-                                            public void onFrameAvailable(
-                                                    SurfaceTexture surfaceTexture) {
-                                                mFrameCount++;
-                                                if (mFrameCount == WAIT_FRAMECOUNT) {
-                                                    mLatchForFrameReady.countDown();
-                                                }
-                                            }
-                                        });
+                                        mTextureView.setSurfaceTexture(output.getSurfaceTexture());
+                                        output.getSurfaceTexture().setOnFrameAvailableListener(
+                                                new SurfaceTexture.OnFrameAvailableListener() {
+                                                    int mFrameCount = 0;
+                                                    @Override
+                                                    public void onFrameAvailable(
+                                                            SurfaceTexture surfaceTexture) {
+                                                        mFrameCount++;
+                                                        if (mFrameCount == WAIT_FRAMECOUNT) {
+                                                            mLatchForFrameReady.countDown();
+                                                        }
+                                                    }
+                                                });
+                                    }
+                                });
                             }
                         });
-                    }
-                });
 
-        // SurfaceTexture#getTransformMatrix is initialized properly when camera starts to ouput.
-        CameraX.bindToLifecycle(mLifecycle, preview);
-        mLifecycle.startAndResume();
+                // SurfaceTexture#getTransformMatrix is initialized properly when camera starts
+                // to output.
+                CameraX.bindToLifecycle(mLifecycle, preview);
+                mLifecycle.startAndResume();
+            }
+        });
 
         mLatchForFrameReady.await(3, TimeUnit.SECONDS);
         mWidth = mTextureView.getWidth();
         mHeight = mTextureView.getHeight();
     }
 
-    private void assertFactoryOuputSamePoints(MeteringPointFactory factory1,
+    private void assertFactoryOutputSamePoints(MeteringPointFactory factory1,
             MeteringPointFactory factory2) {
         MeteringPoint point1;
         MeteringPoint point2;
