@@ -1359,6 +1359,14 @@ class AndroidParagraphTest {
         )
     }
 
+    @Test
+    fun floatingWidth() {
+        val floatWidth = 1.3f
+        val paragraph = simpleParagraph(text = "Hello, World")
+        paragraph.layout(ParagraphConstraints(floatWidth))
+        assertEquals(floatWidth, paragraph.width)
+    }
+
     private fun simpleParagraph(
         text: String = "",
         textStyles: List<AnnotatedString.Item<TextStyle>> = listOf(),

@@ -105,21 +105,6 @@ class TextDelegateTest() {
         assertThat(textDelegate.locale).isEqualTo(locale)
     }
 
-    @Test
-    fun `applyFloatingPointHack with value is integer toDouble`() {
-        assertThat(applyFloatingPointHack(2f)).isEqualTo(2.0f)
-    }
-
-    @Test
-    fun `applyFloatingPointHack with value smaller than half`() {
-        assertThat(applyFloatingPointHack(2.2f)).isEqualTo(3.0f)
-    }
-
-    @Test
-    fun `applyFloatingPointHack with value larger than half`() {
-        assertThat(applyFloatingPointHack(2.8f)).isEqualTo(3.0f)
-    }
-
     @Test(expected = AssertionError::class)
     fun `minIntrinsicWidth without layout assertion should fail`() {
         val textDelegate = TextDelegate(

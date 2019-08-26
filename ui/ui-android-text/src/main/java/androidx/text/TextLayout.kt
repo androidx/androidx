@@ -53,7 +53,7 @@ import androidx.text.LayoutCompat.TextLayoutAlignment
 import androidx.text.style.BaselineShiftSpan
 import java.text.BreakIterator
 import java.util.PriorityQueue
-import kotlin.math.max
+import kotlin.math.ceil
 
 /**
  * Wrapper for Static Text Layout classes.
@@ -94,8 +94,6 @@ class TextLayout constructor(
         maxIntrinsicWidth = boringMetrics?.width?.toFloat()
             ?: Layout.getDesiredWidth(charSequence, start, end, textPaint)
 
-        val finalWidth = width.toInt()
-        val ellipsizeWidth = finalWidth
         val frameworkAlignment = TextAlignmentAdapter.get(alignment)
 
         // BoringLayout won't adjust line height for baselineShift,
@@ -112,19 +110,19 @@ class TextLayout constructor(
             BoringLayoutCompat.Builder(
                 charSequence,
                 textPaint,
-                finalWidth,
+                ceil(width).toInt(),
                 boringMetrics
             )
                 .setAlignment(frameworkAlignment)
                 .setIncludePad(includePadding)
                 .setEllipsize(ellipsize)
-                .setEllipsizedWidth(ellipsizeWidth)
+                .setEllipsizedWidth(ceil(width).toInt())
                 .build()
         } else {
             StaticLayoutCompat.Builder(
                 charSequence,
                 textPaint,
-                finalWidth
+                ceil(width).toInt()
             )
                 .setAlignment(frameworkAlignment)
                 .setTextDirection(frameworkTextDir)
@@ -132,7 +130,7 @@ class TextLayout constructor(
                 .setLineSpacingMultiplier(lineSpacingMultiplier)
                 .setIncludePad(includePadding)
                 .setEllipsize(ellipsize)
-                .setEllipsizedWidth(ellipsizeWidth)
+                .setEllipsizedWidth(ceil(width).toInt())
                 .setMaxLines(maxLines)
                 .setBreakStrategy(breakStrategy)
                 .setHyphenationFrequency(hyphenationFrequency)
