@@ -16,7 +16,6 @@
 
 package androidx.ui.res
 
-import android.os.LocaleList
 import androidx.compose.unaryPlus
 import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
@@ -28,6 +27,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
+import java.util.Locale
 
 @RunWith(JUnit4::class)
 @SmallTest
@@ -65,7 +65,7 @@ class ResourcesTest {
 
         val spanishContext = context.createConfigurationContext(
             context.resources.configuration.apply {
-                setLocales(LocaleList.forLanguageTags("es-ES"))
+                setLocale(Locale.forLanguageTag("es-ES"))
             }
         )
 
@@ -95,7 +95,7 @@ class ResourcesTest {
 
         val spanishContext = context.createConfigurationContext(
             context.resources.configuration.apply {
-                setLocales(LocaleList.forLanguageTags("es-ES"))
+                setLocale(Locale.forLanguageTag("es-ES"))
             }
         )
 
@@ -125,7 +125,7 @@ class ResourcesTest {
 
         val spanishContext = context.createConfigurationContext(
             context.resources.configuration.apply {
-                setLocales(LocaleList.forLanguageTags("es-ES"))
+                setLocale(Locale.forLanguageTag("es-ES"))
             }
         )
 
@@ -155,7 +155,7 @@ class ResourcesTest {
 
         val spanishContext = context.createConfigurationContext(
             context.resources.configuration.apply {
-                setLocales(LocaleList.forLanguageTags("es-ES"))
+                setLocale(Locale.forLanguageTag("es-ES"))
             }
         )
 
