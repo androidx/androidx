@@ -28,6 +28,7 @@ import static org.mockito.Mockito.when;
 import android.content.Context;
 import android.graphics.ImageFormat;
 import android.hardware.camera2.CameraCharacteristics;
+import android.hardware.camera2.CameraManager;
 import android.hardware.camera2.CameraMetadata;
 import android.os.Build;
 import android.util.Rational;
@@ -52,7 +53,10 @@ import androidx.camera.core.SurfaceConfig.ConfigType;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.VideoCapture;
 import androidx.camera.core.VideoCaptureConfig;
+import androidx.camera.testing.CameraUtil;
 import androidx.camera.testing.StreamConfigurationMapUtil;
+import androidx.camera.testing.fakes.FakeCamera;
+import androidx.camera.testing.fakes.FakeCameraFactory;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.filters.SmallTest;
 
@@ -132,6 +136,7 @@ public final class SupportedSurfaceCombinationTest {
             };
 
     private final Context mContext = RuntimeEnvironment.application.getApplicationContext();
+    private FakeCameraFactory mCameraFactory;
 
     @Before
     public void setUp() {
@@ -841,13 +846,18 @@ public final class SupportedSurfaceCombinationTest {
     }
 
     private void setupCamera(boolean supportsRaw) {
+        mCameraFactory = new FakeCameraFactory();
         addCamera(
                 LEGACY_CAMERA_ID, CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY, null,
                 CameraCharacteristics.LENS_FACING_FRONT);
+        mCameraFactory.setDefaultCameraIdForLensFacing(LensFacing.FRONT, LEGACY_CAMERA_ID);
+
         addCamera(
                 LIMITED_CAMERA_ID,
                 CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED,
                 null, CameraCharacteristics.LENS_FACING_BACK);
+        mCameraFactory.setDefaultCameraIdForLensFacing(LensFacing.BACK, LIMITED_CAMERA_ID);
+
         addCamera(
                 FULL_CAMERA_ID, CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL, null,
                 CameraCharacteristics.LENS_FACING_BACK);
@@ -885,9 +895,11 @@ public final class SupportedSurfaceCombinationTest {
                     CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES, capabilities);
         }
 
-        ((ShadowCameraManager) Shadow.extract(
-                ApplicationProvider.getApplicationContext().getSystemService(
-                        Context.CAMERA_SERVICE)))
+
+        CameraManager cameraManager = (CameraManager) ApplicationProvider.getApplicationContext()
+                .getSystemService(Context.CAMERA_SERVICE);
+
+        ((ShadowCameraManager) Shadow.extract(cameraManager))
                 .addCamera(cameraId, characteristics);
 
         int[] supportedFormats = isRawSupported(capabilities)
@@ -897,10 +909,16 @@ public final class SupportedSurfaceCombinationTest {
                 CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP,
                 StreamConfigurationMapUtil.generateFakeStreamConfigurationMap(
                         supportedFormats, mSupportedSizes));
+
+        LensFacing lensFacingEnum = CameraUtil.getLensFacingEnumFromInt(lensFacing);
+        mCameraFactory.insertCamera(lensFacingEnum, cameraId, () -> new FakeCamera(cameraId,
+                new Camera2CameraInfo(cameraManager, cameraId), null));
     }
 
     private void initCameraX() {
-        AppConfig appConfig = Camera2AppConfig.create(mContext);
+        AppConfig appConfig = AppConfig.Builder.fromConfig(Camera2AppConfig.create(mContext))
+                .setCameraFactory(mCameraFactory)
+                .build();
         CameraX.init(mContext, appConfig);
     }
 

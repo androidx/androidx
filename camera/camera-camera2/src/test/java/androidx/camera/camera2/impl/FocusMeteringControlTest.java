@@ -37,35 +37,31 @@ import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.CaptureResult;
 import android.hardware.camera2.TotalCaptureResult;
 import android.hardware.camera2.params.MeteringRectangle;
-import android.os.Handler;
-import android.os.Looper;
+import android.os.Build;
 import android.util.Rational;
 import android.util.Size;
 
 import androidx.annotation.NonNull;
-import androidx.camera.camera2.Camera2AppConfig;
 import androidx.camera.camera2.Camera2Config;
 import androidx.camera.camera2.impl.Camera2CameraControl.CaptureResultListener;
-import androidx.camera.core.AppConfig;
-import androidx.camera.core.CameraX;
+import androidx.camera.core.CameraControlInternal;
 import androidx.camera.core.FocusMeteringAction;
 import androidx.camera.core.ImageAnalysis;
 import androidx.camera.core.MeteringPoint;
 import androidx.camera.core.MeteringPointFactory;
-import androidx.camera.core.Observable;
 import androidx.camera.core.SensorOrientedMeteringPointFactory;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.filters.SmallTest;
 
 import com.google.common.collect.Sets;
-import com.google.common.util.concurrent.ListenableFuture;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.Config;
 import org.robolectric.annotation.internal.DoNotInstrument;
 import org.robolectric.shadow.api.Shadow;
 import org.robolectric.shadows.ShadowCameraCharacteristics;
@@ -77,6 +73,7 @@ import java.util.concurrent.TimeUnit;
 
 @SmallTest
 @RunWith(RobolectricTestRunner.class)
+@Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 @DoNotInstrument
 public class FocusMeteringControlTest {
     private static final String CAMERA0_ID = "0";
@@ -95,27 +92,28 @@ public class FocusMeteringControlTest {
     private static final int AREA_HEIGHT2 =
             (int) (MeteringPointFactory.DEFAULT_AREASIZE * SENSOR_HEIGHT2);
 
-    SensorOrientedMeteringPointFactory mPointFactory = new SensorOrientedMeteringPointFactory(1, 1);
-    FocusMeteringControl mFocusMeteringControl;
+    private final SensorOrientedMeteringPointFactory mPointFactory =
+            new SensorOrientedMeteringPointFactory(1, 1);
+    private FocusMeteringControl mFocusMeteringControl;
 
-    MeteringPoint mPoint1 = mPointFactory.createPoint(0, 0);
-    MeteringPoint mPoint2 = mPointFactory.createPoint(0.0f, 1.0f);
-    MeteringPoint mPoint3 = mPointFactory.createPoint(1.0f, 1.0f);
+    private final MeteringPoint mPoint1 = mPointFactory.createPoint(0, 0);
+    private final MeteringPoint mPoint2 = mPointFactory.createPoint(0.0f, 1.0f);
+    private final MeteringPoint mPoint3 = mPointFactory.createPoint(1.0f, 1.0f);
 
-    Rect mMRect1 = new Rect(0, 0, AREA_WIDTH / 2, AREA_HEIGHT / 2);
-    Rect mMRect2 = new Rect(0, SENSOR_HEIGHT - AREA_HEIGHT / 2, AREA_WIDTH / 2, SENSOR_HEIGHT);
-    Rect mMRect3 = new Rect(SENSOR_WIDTH - AREA_WIDTH / 2, SENSOR_HEIGHT - AREA_HEIGHT / 2,
+    private static final Rect M_RECT_1 = new Rect(0, 0, AREA_WIDTH / 2, AREA_HEIGHT / 2);
+    private static final Rect M_RECT_2 = new Rect(0, SENSOR_HEIGHT - AREA_HEIGHT / 2,
+            AREA_WIDTH / 2,
+            SENSOR_HEIGHT);
+    private static final Rect M_RECT_3 = new Rect(SENSOR_WIDTH - AREA_WIDTH / 2,
+            SENSOR_HEIGHT - AREA_HEIGHT / 2,
             SENSOR_WIDTH, SENSOR_HEIGHT);
 
-    Rational mPreviewAspectRatio4X3 = new Rational(4, 3);
-    Camera2CameraControl mCamera2CameraControl;
+    private static final Rational PREVIEW_ASPECT_RATIO_4_X_3 = new Rational(4, 3);
+    private Camera2CameraControl mCamera2CameraControl;
 
     @Before
     public void setUp() throws CameraAccessException {
-        Context context = ApplicationProvider.getApplicationContext();
-        AppConfig config = Camera2AppConfig.create(context);
-        CameraX.init(context, config);
-        initCameraManager();
+        initCameras();
         mFocusMeteringControl = spy(initFocusMeteringControl(CAMERA0_ID));
     }
 
@@ -124,15 +122,15 @@ public class FocusMeteringControlTest {
         CameraManager cameraManager =
                 (CameraManager) ApplicationProvider.getApplicationContext().getSystemService(
                         Context.CAMERA_SERVICE);
-        Camera camera = spy(
-                new Camera(cameraManager, cameraID, getObserable(),
-                        new Handler(Looper.getMainLooper())));
 
         CameraCharacteristics cameraCharacteristics =
                 cameraManager.getCameraCharacteristics(
                         cameraID);
 
-        mCamera2CameraControl = spy(new Camera2CameraControl(cameraCharacteristics, camera,
+        CameraControlInternal.ControlUpdateListener updateListener = mock(
+                CameraControlInternal.ControlUpdateListener.class);
+
+        mCamera2CameraControl = spy(new Camera2CameraControl(cameraCharacteristics, updateListener,
                 CameraXExecutors.mainThreadExecutor(), CameraXExecutors.mainThreadExecutor()));
 
 
@@ -140,28 +138,7 @@ public class FocusMeteringControlTest {
                 CameraXExecutors.mainThreadExecutor(), CameraXExecutors.mainThreadExecutor());
     }
 
-    private Observable<Integer> getObserable() {
-        return new Observable<Integer>() {
-            @NonNull
-            @Override
-            public ListenableFuture<Integer> fetchData() {
-                return null;
-            }
-
-            @Override
-            public void addObserver(@NonNull Executor executor,
-                    @NonNull Observer<Integer> observer) {
-
-            }
-
-            @Override
-            public void removeObserver(@NonNull Observer<Integer> observer) {
-
-            }
-        };
-    }
-
-    private void initCameraManager() {
+    private void initCameras() {
         // **** Camera 0 characteristics ****//
         CameraCharacteristics characteristics0 =
                 ShadowCameraCharacteristics.newCameraCharacteristics();
@@ -170,18 +147,18 @@ public class FocusMeteringControlTest {
 
         shadowCharacteristics0.set(CameraCharacteristics.SENSOR_INFO_ACTIVE_ARRAY_SIZE,
                 new Rect(0, 0, SENSOR_WIDTH, SENSOR_HEIGHT));
-        shadowCharacteristics0.set(CameraCharacteristics.CONTROL_AF_AVAILABLE_MODES, new int[] {
+        shadowCharacteristics0.set(CameraCharacteristics.CONTROL_AF_AVAILABLE_MODES, new int[]{
                 CaptureResult.CONTROL_AF_MODE_CONTINUOUS_PICTURE,
                 CaptureResult.CONTROL_AF_MODE_AUTO,
                 CaptureResult.CONTROL_AF_MODE_OFF
         });
-        shadowCharacteristics0.set(CameraCharacteristics.CONTROL_AE_AVAILABLE_MODES, new int[] {
+        shadowCharacteristics0.set(CameraCharacteristics.CONTROL_AE_AVAILABLE_MODES, new int[]{
                 CaptureResult.CONTROL_AE_MODE_ON,
                 CaptureResult.CONTROL_AE_MODE_ON_ALWAYS_FLASH,
                 CaptureResult.CONTROL_AE_MODE_ON_AUTO_FLASH,
                 CaptureResult.CONTROL_AE_MODE_OFF
         });
-        shadowCharacteristics0.set(CameraCharacteristics.CONTROL_AWB_AVAILABLE_MODES, new int[] {
+        shadowCharacteristics0.set(CameraCharacteristics.CONTROL_AWB_AVAILABLE_MODES, new int[]{
                 CaptureResult.CONTROL_AWB_MODE_AUTO,
                 CaptureResult.CONTROL_AWB_MODE_OFF,
         });
@@ -193,7 +170,7 @@ public class FocusMeteringControlTest {
                                 .getSystemService(Context.CAMERA_SERVICE)))
                 .addCamera(CAMERA0_ID, characteristics0);
 
-        // **** Camera 0 characteristics ****//
+        // **** Camera 1 characteristics ****//
         CameraCharacteristics characteristics1 =
                 ShadowCameraCharacteristics.newCameraCharacteristics();
 
@@ -201,13 +178,13 @@ public class FocusMeteringControlTest {
 
         shadowCharacteristics1.set(CameraCharacteristics.SENSOR_INFO_ACTIVE_ARRAY_SIZE,
                 new Rect(0, 0, SENSOR_WIDTH2, SENSOR_HEIGHT2));
+
         // Add the camera to the camera service
         ((ShadowCameraManager)
                 Shadow.extract(
                         ApplicationProvider.getApplicationContext()
                                 .getSystemService(Context.CAMERA_SERVICE)))
                 .addCamera(CAMERA1_ID, characteristics1);
-
     }
 
     private MeteringRectangle[] getAfRects(FocusMeteringControl control) {
@@ -241,18 +218,18 @@ public class FocusMeteringControlTest {
     public void startFocusAndMetering_defaultPoint_3ARectssAreCorrect() {
         mFocusMeteringControl.startFocusAndMetering(
                 FocusMeteringAction.Builder.from(mPoint1).build(),
-                mPreviewAspectRatio4X3);
+                PREVIEW_ASPECT_RATIO_4_X_3);
 
         MeteringRectangle[] afRects = getAfRects(mFocusMeteringControl);
         MeteringRectangle[] aeRects = getAeRects(mFocusMeteringControl);
         MeteringRectangle[] awbRects = getAwbRects(mFocusMeteringControl);
 
         assertThat(afRects.length).isEqualTo(1);
-        assertThat(afRects[0].getRect()).isEqualTo(mMRect1);
+        assertThat(afRects[0].getRect()).isEqualTo(M_RECT_1);
         assertThat(aeRects.length).isEqualTo(1);
-        assertThat(aeRects[0].getRect()).isEqualTo(mMRect1);
+        assertThat(aeRects[0].getRect()).isEqualTo(M_RECT_1);
         assertThat(awbRects.length).isEqualTo(1);
-        assertThat(awbRects[0].getRect()).isEqualTo(mMRect1);
+        assertThat(awbRects[0].getRect()).isEqualTo(M_RECT_1);
     }
 
     @Test
@@ -261,26 +238,26 @@ public class FocusMeteringControlTest {
                 FocusMeteringAction.Builder.from(mPoint1)
                         .addPoint(mPoint2)
                         .addPoint(mPoint3)
-                        .build(), mPreviewAspectRatio4X3);
+                        .build(), PREVIEW_ASPECT_RATIO_4_X_3);
 
         MeteringRectangle[] afRects = getAfRects(mFocusMeteringControl);
         MeteringRectangle[] aeRects = getAeRects(mFocusMeteringControl);
         MeteringRectangle[] awbRects = getAwbRects(mFocusMeteringControl);
 
         assertThat(afRects.length).isEqualTo(3);
-        assertThat(afRects[0].getRect()).isEqualTo(mMRect1);
-        assertThat(afRects[1].getRect()).isEqualTo(mMRect2);
-        assertThat(afRects[2].getRect()).isEqualTo(mMRect3);
+        assertThat(afRects[0].getRect()).isEqualTo(M_RECT_1);
+        assertThat(afRects[1].getRect()).isEqualTo(M_RECT_2);
+        assertThat(afRects[2].getRect()).isEqualTo(M_RECT_3);
 
         assertThat(aeRects.length).isEqualTo(3);
-        assertThat(aeRects[0].getRect()).isEqualTo(mMRect1);
-        assertThat(aeRects[1].getRect()).isEqualTo(mMRect2);
-        assertThat(aeRects[2].getRect()).isEqualTo(mMRect3);
+        assertThat(aeRects[0].getRect()).isEqualTo(M_RECT_1);
+        assertThat(aeRects[1].getRect()).isEqualTo(M_RECT_2);
+        assertThat(aeRects[2].getRect()).isEqualTo(M_RECT_3);
 
         assertThat(awbRects.length).isEqualTo(3);
-        assertThat(awbRects[0].getRect()).isEqualTo(mMRect1);
-        assertThat(awbRects[1].getRect()).isEqualTo(mMRect2);
-        assertThat(awbRects[2].getRect()).isEqualTo(mMRect3);
+        assertThat(awbRects[0].getRect()).isEqualTo(M_RECT_1);
+        assertThat(awbRects[1].getRect()).isEqualTo(M_RECT_2);
+        assertThat(awbRects[2].getRect()).isEqualTo(M_RECT_3);
     }
 
     @Test
@@ -289,23 +266,23 @@ public class FocusMeteringControlTest {
                 FocusMeteringAction.Builder.from(mPoint1, FocusMeteringAction.MeteringMode.AWB_ONLY)
                         .addPoint(mPoint2, FocusMeteringAction.MeteringMode.AF_AE)
                         .addPoint(mPoint3, FocusMeteringAction.MeteringMode.AF_AE_AWB)
-                        .build(), mPreviewAspectRatio4X3);
+                        .build(), PREVIEW_ASPECT_RATIO_4_X_3);
 
         MeteringRectangle[] afRects = getAfRects(mFocusMeteringControl);
         MeteringRectangle[] aeRects = getAeRects(mFocusMeteringControl);
         MeteringRectangle[] awbRects = getAwbRects(mFocusMeteringControl);
 
         assertThat(afRects.length).isEqualTo(2);
-        assertThat(afRects[0].getRect()).isEqualTo(mMRect2);
-        assertThat(afRects[1].getRect()).isEqualTo(mMRect3);
+        assertThat(afRects[0].getRect()).isEqualTo(M_RECT_2);
+        assertThat(afRects[1].getRect()).isEqualTo(M_RECT_3);
 
         assertThat(aeRects.length).isEqualTo(2);
-        assertThat(aeRects[0].getRect()).isEqualTo(mMRect2);
-        assertThat(aeRects[1].getRect()).isEqualTo(mMRect3);
+        assertThat(aeRects[0].getRect()).isEqualTo(M_RECT_2);
+        assertThat(aeRects[1].getRect()).isEqualTo(M_RECT_3);
 
         assertThat(awbRects.length).isEqualTo(2);
-        assertThat(awbRects[0].getRect()).isEqualTo(mMRect1);
-        assertThat(awbRects[1].getRect()).isEqualTo(mMRect3);
+        assertThat(awbRects[0].getRect()).isEqualTo(M_RECT_1);
+        assertThat(awbRects[1].getRect()).isEqualTo(M_RECT_3);
     }
 
     @Test
@@ -314,19 +291,19 @@ public class FocusMeteringControlTest {
                 FocusMeteringAction.Builder.from(mPoint1, FocusMeteringAction.MeteringMode.AF_ONLY)
                         .addPoint(mPoint2, FocusMeteringAction.MeteringMode.AWB_ONLY)
                         .addPoint(mPoint3, FocusMeteringAction.MeteringMode.AE_ONLY)
-                        .build(), mPreviewAspectRatio4X3);
+                        .build(), PREVIEW_ASPECT_RATIO_4_X_3);
         MeteringRectangle[] afRects = getAfRects(mFocusMeteringControl);
         MeteringRectangle[] aeRects = getAeRects(mFocusMeteringControl);
         MeteringRectangle[] awbRects = getAwbRects(mFocusMeteringControl);
 
         assertThat(afRects.length).isEqualTo(1);
-        assertThat(afRects[0].getRect()).isEqualTo(mMRect1);
+        assertThat(afRects[0].getRect()).isEqualTo(M_RECT_1);
 
         assertThat(aeRects.length).isEqualTo(1);
-        assertThat(aeRects[0].getRect()).isEqualTo(mMRect3);
+        assertThat(aeRects[0].getRect()).isEqualTo(M_RECT_3);
 
         assertThat(awbRects.length).isEqualTo(1);
-        assertThat(awbRects[0].getRect()).isEqualTo(mMRect2);
+        assertThat(awbRects[0].getRect()).isEqualTo(M_RECT_2);
     }
 
     @Test
@@ -341,7 +318,7 @@ public class FocusMeteringControlTest {
         MeteringPoint centorPt = mPointFactory.createPoint(0.5f, 0.5f);
         mFocusMeteringControl.startFocusAndMetering(
                 FocusMeteringAction.Builder.from(centorPt).build(),
-                mPreviewAspectRatio4X3);
+                PREVIEW_ASPECT_RATIO_4_X_3);
         MeteringRectangle[] afRects = getAfRects(mFocusMeteringControl);
 
         final int areaWidth = (int) (MeteringPointFactory.DEFAULT_AREASIZE * cropRect.width());
@@ -376,7 +353,7 @@ public class FocusMeteringControlTest {
 
         mFocusMeteringControl.startFocusAndMetering(
                 FocusMeteringAction.Builder.from(mPoint1).build(),
-                mPreviewAspectRatio4X3);
+                PREVIEW_ASPECT_RATIO_4_X_3);
         MeteringRectangle[] afRects = getAfRects(mFocusMeteringControl);
 
         Rect adjustedRect = new Rect(240 - AREA_WIDTH2 / 2, 0, 240 + AREA_WIDTH2 / 2,
@@ -397,7 +374,7 @@ public class FocusMeteringControlTest {
 
         MeteringPoint point = factory.createPoint(0, 0);
         mFocusMeteringControl.startFocusAndMetering(FocusMeteringAction.Builder.from(point).build(),
-                mPreviewAspectRatio4X3);
+                PREVIEW_ASPECT_RATIO_4_X_3);
         MeteringRectangle[] afRects = getAfRects(mFocusMeteringControl);
 
 
@@ -413,7 +390,7 @@ public class FocusMeteringControlTest {
 
         mFocusMeteringControl.startFocusAndMetering(FocusMeteringAction.Builder.from(point1)
                 .addPoint(point2)
-                .addPoint(point3).build(), mPreviewAspectRatio4X3);
+                .addPoint(point3).build(), PREVIEW_ASPECT_RATIO_4_X_3);
         MeteringRectangle[] afRects = getAfRects(mFocusMeteringControl);
 
         assertThat(afRects.length).isEqualTo(3);
@@ -433,7 +410,7 @@ public class FocusMeteringControlTest {
 
         mFocusMeteringControl.startFocusAndMetering(FocusMeteringAction.Builder.from(point1)
                 .addPoint(point2)
-                .addPoint(point3).build(), mPreviewAspectRatio4X3);
+                .addPoint(point3).build(), PREVIEW_ASPECT_RATIO_4_X_3);
         MeteringRectangle[] afRects = getAfRects(mFocusMeteringControl);
 
         assertThat(afRects.length).isEqualTo(3);
@@ -453,7 +430,7 @@ public class FocusMeteringControlTest {
 
         mFocusMeteringControl.startFocusAndMetering(FocusMeteringAction.Builder.from(point1)
                 .addPoint(point2)
-                .addPoint(point3).build(), mPreviewAspectRatio4X3);
+                .addPoint(point3).build(), PREVIEW_ASPECT_RATIO_4_X_3);
         MeteringRectangle[] afRects = getAfRects(mFocusMeteringControl);
 
         assertThat(afRects.length).isEqualTo(3);
@@ -476,7 +453,7 @@ public class FocusMeteringControlTest {
     @Test
     public void withAFPoints_AFIsTriggered() {
         mFocusMeteringControl.startFocusAndMetering(FocusMeteringAction.Builder.from(mPoint1,
-                FocusMeteringAction.MeteringMode.AF_AE_AWB).build(), mPreviewAspectRatio4X3);
+                FocusMeteringAction.MeteringMode.AF_AE_AWB).build(), PREVIEW_ASPECT_RATIO_4_X_3);
 
         verify(mFocusMeteringControl).triggerAf();
         Mockito.reset(mFocusMeteringControl);
@@ -484,21 +461,21 @@ public class FocusMeteringControlTest {
         mFocusMeteringControl.startFocusAndMetering(
                 FocusMeteringAction.Builder.from(mPoint1,
                         FocusMeteringAction.MeteringMode.AF_ONLY).build(),
-                mPreviewAspectRatio4X3);
+                PREVIEW_ASPECT_RATIO_4_X_3);
         verify(mFocusMeteringControl).triggerAf();
         Mockito.reset(mFocusMeteringControl);
 
         mFocusMeteringControl.startFocusAndMetering(
                 FocusMeteringAction.Builder.from(mPoint1,
                         FocusMeteringAction.MeteringMode.AF_AE).build(),
-                mPreviewAspectRatio4X3);
+                PREVIEW_ASPECT_RATIO_4_X_3);
         verify(mFocusMeteringControl).triggerAf();
         Mockito.reset(mFocusMeteringControl);
 
         mFocusMeteringControl.startFocusAndMetering(
                 FocusMeteringAction.Builder.from(mPoint1,
                         FocusMeteringAction.MeteringMode.AF_AWB).build(),
-                mPreviewAspectRatio4X3);
+                PREVIEW_ASPECT_RATIO_4_X_3);
         verify(mFocusMeteringControl).triggerAf();
         Mockito.reset(mFocusMeteringControl);
     }
@@ -506,28 +483,28 @@ public class FocusMeteringControlTest {
     @Test
     public void withoutAFPoints_AFIsNotTriggered() {
         mFocusMeteringControl.startFocusAndMetering(FocusMeteringAction.Builder.from(mPoint1,
-                FocusMeteringAction.MeteringMode.AE_ONLY).build(), mPreviewAspectRatio4X3);
+                FocusMeteringAction.MeteringMode.AE_ONLY).build(), PREVIEW_ASPECT_RATIO_4_X_3);
         verify(mFocusMeteringControl, never()).triggerAf();
         Mockito.reset(mFocusMeteringControl);
 
         mFocusMeteringControl.startFocusAndMetering(
                 FocusMeteringAction.Builder.from(mPoint1,
                         FocusMeteringAction.MeteringMode.AWB_ONLY).build(),
-                mPreviewAspectRatio4X3);
+                PREVIEW_ASPECT_RATIO_4_X_3);
         verify(mFocusMeteringControl, never()).triggerAf();
         Mockito.reset(mFocusMeteringControl);
 
         mFocusMeteringControl.startFocusAndMetering(
                 FocusMeteringAction.Builder.from(mPoint1,
                         FocusMeteringAction.MeteringMode.AE_ONLY).build(),
-                mPreviewAspectRatio4X3);
+                PREVIEW_ASPECT_RATIO_4_X_3);
         verify(mFocusMeteringControl, never()).triggerAf();
         Mockito.reset(mFocusMeteringControl);
 
         mFocusMeteringControl.startFocusAndMetering(
                 FocusMeteringAction.Builder.from(mPoint1,
                         FocusMeteringAction.MeteringMode.AE_AWB).build(),
-                mPreviewAspectRatio4X3);
+                PREVIEW_ASPECT_RATIO_4_X_3);
         verify(mFocusMeteringControl, never()).triggerAf();
         Mockito.reset(mFocusMeteringControl);
     }
@@ -536,7 +513,7 @@ public class FocusMeteringControlTest {
     public void updateSessionConfigIsCalled() {
         mFocusMeteringControl.startFocusAndMetering(
                 FocusMeteringAction.Builder.from(mPoint1).build(),
-                mPreviewAspectRatio4X3);
+                PREVIEW_ASPECT_RATIO_4_X_3);
 
         verify(mCamera2CameraControl, times(1)).updateSessionConfig();
     }
@@ -549,7 +526,7 @@ public class FocusMeteringControlTest {
                 .setAutoCancelDuration(autocancelDuration, TimeUnit.MILLISECONDS)
                 .build();
 
-        mFocusMeteringControl.startFocusAndMetering(action, mPreviewAspectRatio4X3);
+        mFocusMeteringControl.startFocusAndMetering(action, PREVIEW_ASPECT_RATIO_4_X_3);
 
         // This is necessary for running delayed task in robolectric.
         ShadowLooper.runUiThreadTasksIncludingDelayedTasks();
@@ -567,7 +544,7 @@ public class FocusMeteringControlTest {
                 .disableAutoCancel()
                 .build();
 
-        mFocusMeteringControl.startFocusAndMetering(action, mPreviewAspectRatio4X3);
+        mFocusMeteringControl.startFocusAndMetering(action, PREVIEW_ASPECT_RATIO_4_X_3);
 
         // This is necessary for running delayed task in robolectric.
         ShadowLooper.runUiThreadTasksIncludingDelayedTasks();
@@ -583,7 +560,7 @@ public class FocusMeteringControlTest {
         FocusMeteringAction action = FocusMeteringAction.Builder.from(mPoint1)
                 .setAutoFocusCallback(onAutoFocusListener)
                 .build();
-        mFocusMeteringControl.startFocusAndMetering(action, mPreviewAspectRatio4X3);
+        mFocusMeteringControl.startFocusAndMetering(action, PREVIEW_ASPECT_RATIO_4_X_3);
         mFocusMeteringControl.cancelFocusAndMetering();
 
         verify(onAutoFocusListener).onFocusCompleted(false);
@@ -598,7 +575,7 @@ public class FocusMeteringControlTest {
                 FocusMeteringAction.MeteringMode.AE_AWB)
                 .setAutoFocusCallback(onAutoFocusListener)
                 .build();
-        mFocusMeteringControl.startFocusAndMetering(action, mPreviewAspectRatio4X3);
+        mFocusMeteringControl.startFocusAndMetering(action, PREVIEW_ASPECT_RATIO_4_X_3);
 
         verify(onAutoFocusListener).onFocusCompleted(false);
         Mockito.reset(onAutoFocusListener);
@@ -607,7 +584,7 @@ public class FocusMeteringControlTest {
                 FocusMeteringAction.MeteringMode.AE_ONLY)
                 .setAutoFocusCallback(onAutoFocusListener)
                 .build();
-        mFocusMeteringControl.startFocusAndMetering(action, mPreviewAspectRatio4X3);
+        mFocusMeteringControl.startFocusAndMetering(action, PREVIEW_ASPECT_RATIO_4_X_3);
         verify(onAutoFocusListener).onFocusCompleted(false);
         Mockito.reset(onAutoFocusListener);
 
@@ -615,7 +592,7 @@ public class FocusMeteringControlTest {
                 FocusMeteringAction.MeteringMode.AWB_ONLY)
                 .setAutoFocusCallback(onAutoFocusListener)
                 .build();
-        mFocusMeteringControl.startFocusAndMetering(action, mPreviewAspectRatio4X3);
+        mFocusMeteringControl.startFocusAndMetering(action, PREVIEW_ASPECT_RATIO_4_X_3);
         verify(onAutoFocusListener).onFocusCompleted(false);
         Mockito.reset(onAutoFocusListener);
     }
@@ -629,7 +606,7 @@ public class FocusMeteringControlTest {
                 .setAutoFocusCallback(onAutoFocusListener)
                 .build();
 
-        mFocusMeteringControl.startFocusAndMetering(action, mPreviewAspectRatio4X3);
+        mFocusMeteringControl.startFocusAndMetering(action, PREVIEW_ASPECT_RATIO_4_X_3);
 
         for (CaptureResultListener listener :
                 mCamera2CameraControl.mSessionCallback.mResultListeners) {
@@ -663,7 +640,7 @@ public class FocusMeteringControlTest {
                 .setAutoFocusCallback(executor, onAutoFocusListener)
                 .build();
 
-        mFocusMeteringControl.startFocusAndMetering(action, mPreviewAspectRatio4X3);
+        mFocusMeteringControl.startFocusAndMetering(action, PREVIEW_ASPECT_RATIO_4_X_3);
         for (CaptureResultListener listener :
                 mCamera2CameraControl.mSessionCallback.mResultListeners) {
             TotalCaptureResult result1 = mock(TotalCaptureResult.class);
@@ -691,7 +668,7 @@ public class FocusMeteringControlTest {
                 .setAutoFocusCallback(onAutoFocusListener)
                 .build();
 
-        mFocusMeteringControl.startFocusAndMetering(action, mPreviewAspectRatio4X3);
+        mFocusMeteringControl.startFocusAndMetering(action, PREVIEW_ASPECT_RATIO_4_X_3);
 
         for (CaptureResultListener listener :
                 mCamera2CameraControl.mSessionCallback.mResultListeners) {
@@ -718,7 +695,7 @@ public class FocusMeteringControlTest {
                 .setAutoFocusCallback(onAutoFocusListener)
                 .build();
 
-        mFocusMeteringControl.startFocusAndMetering(action, mPreviewAspectRatio4X3);
+        mFocusMeteringControl.startFocusAndMetering(action, PREVIEW_ASPECT_RATIO_4_X_3);
 
         for (CaptureResultListener listener :
                 mCamera2CameraControl.mSessionCallback.mResultListeners) {
@@ -748,7 +725,7 @@ public class FocusMeteringControlTest {
                 .addPoint(mPoint2, FocusMeteringAction.MeteringMode.AF_AE_AWB)
                 .build();
 
-        mFocusMeteringControl.startFocusAndMetering(action, mPreviewAspectRatio4X3);
+        mFocusMeteringControl.startFocusAndMetering(action, PREVIEW_ASPECT_RATIO_4_X_3);
         MeteringRectangle[] afRects = getAfRects(mFocusMeteringControl);
         MeteringRectangle[] aeRects = getAeRects(mFocusMeteringControl);
         MeteringRectangle[] awbRects = getAwbRects(mFocusMeteringControl);
@@ -775,7 +752,7 @@ public class FocusMeteringControlTest {
                 .addPoint(mPoint2, FocusMeteringAction.MeteringMode.AF_AE_AWB)
                 .build();
 
-        mFocusMeteringControl.startFocusAndMetering(action, mPreviewAspectRatio4X3);
+        mFocusMeteringControl.startFocusAndMetering(action, PREVIEW_ASPECT_RATIO_4_X_3);
         Mockito.reset(mCamera2CameraControl);
 
         mFocusMeteringControl.cancelFocusAndMetering();
@@ -790,28 +767,28 @@ public class FocusMeteringControlTest {
                 FocusMeteringAction.MeteringMode.AF_AE_AWB)
                 .build();
 
-        mFocusMeteringControl.startFocusAndMetering(action, mPreviewAspectRatio4X3);
+        mFocusMeteringControl.startFocusAndMetering(action, PREVIEW_ASPECT_RATIO_4_X_3);
         Mockito.reset(mFocusMeteringControl);
         mFocusMeteringControl.cancelFocusAndMetering();
         verify(mFocusMeteringControl, times(1)).cancelAfAeTrigger(true, false);
 
         action = FocusMeteringAction.Builder.from(mPoint1, FocusMeteringAction.MeteringMode.AF_AE)
                 .build();
-        mFocusMeteringControl.startFocusAndMetering(action, mPreviewAspectRatio4X3);
+        mFocusMeteringControl.startFocusAndMetering(action, PREVIEW_ASPECT_RATIO_4_X_3);
         Mockito.reset(mFocusMeteringControl);
         mFocusMeteringControl.cancelFocusAndMetering();
         verify(mFocusMeteringControl, times(1)).cancelAfAeTrigger(true, false);
 
         action = FocusMeteringAction.Builder.from(mPoint1, FocusMeteringAction.MeteringMode.AF_AWB)
                 .build();
-        mFocusMeteringControl.startFocusAndMetering(action, mPreviewAspectRatio4X3);
+        mFocusMeteringControl.startFocusAndMetering(action, PREVIEW_ASPECT_RATIO_4_X_3);
         Mockito.reset(mFocusMeteringControl);
         mFocusMeteringControl.cancelFocusAndMetering();
         verify(mFocusMeteringControl, times(1)).cancelAfAeTrigger(true, false);
 
         action = FocusMeteringAction.Builder.from(mPoint1, FocusMeteringAction.MeteringMode.AF_ONLY)
                 .build();
-        mFocusMeteringControl.startFocusAndMetering(action, mPreviewAspectRatio4X3);
+        mFocusMeteringControl.startFocusAndMetering(action, PREVIEW_ASPECT_RATIO_4_X_3);
         Mockito.reset(mFocusMeteringControl);
         mFocusMeteringControl.cancelFocusAndMetering();
         verify(mFocusMeteringControl, times(1)).cancelAfAeTrigger(true, false);
@@ -823,7 +800,7 @@ public class FocusMeteringControlTest {
                 FocusMeteringAction.MeteringMode.AE_ONLY)
                 .build();
 
-        mFocusMeteringControl.startFocusAndMetering(action, mPreviewAspectRatio4X3);
+        mFocusMeteringControl.startFocusAndMetering(action, PREVIEW_ASPECT_RATIO_4_X_3);
         Mockito.reset(mFocusMeteringControl);
         mFocusMeteringControl.cancelFocusAndMetering();
         verify(mFocusMeteringControl, never()).cancelAfAeTrigger(true, false);
@@ -831,14 +808,14 @@ public class FocusMeteringControlTest {
         action = FocusMeteringAction.Builder.from(mPoint1,
                 FocusMeteringAction.MeteringMode.AWB_ONLY)
                 .build();
-        mFocusMeteringControl.startFocusAndMetering(action, mPreviewAspectRatio4X3);
+        mFocusMeteringControl.startFocusAndMetering(action, PREVIEW_ASPECT_RATIO_4_X_3);
         Mockito.reset(mFocusMeteringControl);
         mFocusMeteringControl.cancelFocusAndMetering();
         verify(mFocusMeteringControl, never()).cancelAfAeTrigger(true, false);
 
         action = FocusMeteringAction.Builder.from(mPoint1, FocusMeteringAction.MeteringMode.AE_AWB)
                 .build();
-        mFocusMeteringControl.startFocusAndMetering(action, mPreviewAspectRatio4X3);
+        mFocusMeteringControl.startFocusAndMetering(action, PREVIEW_ASPECT_RATIO_4_X_3);
         Mockito.reset(mFocusMeteringControl);
         mFocusMeteringControl.cancelFocusAndMetering();
         verify(mFocusMeteringControl, never()).cancelAfAeTrigger(true, false);
@@ -853,7 +830,7 @@ public class FocusMeteringControlTest {
                 .setAutoCancelDuration(autocancelDuration, TimeUnit.MILLISECONDS)
                 .build();
 
-        mFocusMeteringControl.startFocusAndMetering(action, mPreviewAspectRatio4X3);
+        mFocusMeteringControl.startFocusAndMetering(action, PREVIEW_ASPECT_RATIO_4_X_3);
         mFocusMeteringControl.cancelFocusAndMetering();
         Mockito.reset(mFocusMeteringControl);
 
@@ -870,7 +847,7 @@ public class FocusMeteringControlTest {
 
         verifyAfMode(CaptureResult.CONTROL_AF_MODE_CONTINUOUS_PICTURE);
 
-        mFocusMeteringControl.startFocusAndMetering(action, mPreviewAspectRatio4X3);
+        mFocusMeteringControl.startFocusAndMetering(action, PREVIEW_ASPECT_RATIO_4_X_3);
 
         verifyAfMode(CaptureResult.CONTROL_AF_MODE_AUTO);
     }
@@ -888,14 +865,14 @@ public class FocusMeteringControlTest {
                 FocusMeteringAction.MeteringMode.AE_AWB).build();
 
         verifyAfMode(CaptureResult.CONTROL_AF_MODE_CONTINUOUS_PICTURE);
-        mFocusMeteringControl.startFocusAndMetering(action, mPreviewAspectRatio4X3);
+        mFocusMeteringControl.startFocusAndMetering(action, PREVIEW_ASPECT_RATIO_4_X_3);
         verifyAfMode(CaptureResult.CONTROL_AF_MODE_CONTINUOUS_PICTURE);
     }
 
     @Test
     public void startAndThenCancel_isAfAutoModeIsFalse() {
         FocusMeteringAction action = FocusMeteringAction.Builder.from(mPoint1).build();
-        mFocusMeteringControl.startFocusAndMetering(action, mPreviewAspectRatio4X3);
+        mFocusMeteringControl.startFocusAndMetering(action, PREVIEW_ASPECT_RATIO_4_X_3);
         mFocusMeteringControl.cancelFocusAndMetering();
         verifyAfMode(CaptureResult.CONTROL_AF_MODE_CONTINUOUS_PICTURE);
     }

@@ -30,6 +30,7 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.util.Log;
 
+import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresPermission;
 import androidx.camera.core.BaseCamera;
@@ -37,6 +38,8 @@ import androidx.camera.core.CameraX;
 import androidx.camera.core.UseCase;
 import androidx.test.core.app.ApplicationProvider;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -245,5 +248,35 @@ public final class CameraUtil {
         }
 
         return false;
+    }
+
+    /**
+     * The current lens facing directions supported by CameraX, as defined the
+     * {@link CameraMetadata}.
+     */
+    @Retention(RetentionPolicy.SOURCE)
+    @IntDef({CameraMetadata.LENS_FACING_FRONT, CameraMetadata.LENS_FACING_BACK})
+    @interface SupportedLensFacingInt { }
+
+
+    /**
+     * Converts a lens facing direction from a {@link CameraMetadata} integer to a
+     * {@link CameraX.LensFacing}.
+     *
+     * @param lensFacingInteger The lens facing integer, as defined in {@link CameraMetadata}.
+     * @return The lens facing enum.
+     */
+    @NonNull
+    public static CameraX.LensFacing getLensFacingEnumFromInt(
+            @SupportedLensFacingInt int lensFacingInteger) {
+        switch (lensFacingInteger) {
+            case CameraMetadata.LENS_FACING_BACK:
+                return CameraX.LensFacing.BACK;
+            case CameraMetadata.LENS_FACING_FRONT:
+                return CameraX.LensFacing.FRONT;
+            default:
+                throw new IllegalArgumentException(
+                        "Unsupported lens facing integer: " + lensFacingInteger);
+        }
     }
 }
