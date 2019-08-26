@@ -66,7 +66,7 @@ public final class CameraXTest {
 
     static {
         String cameraId = sCameraFactory.cameraIdForLensFacing(CAMERA_LENS_FACING);
-        sCameraFactory.insertCamera(cameraId,
+        sCameraFactory.insertCamera(CAMERA_LENS_FACING, cameraId,
                 () -> new FakeCamera(new FakeCameraInfo(0, CAMERA_LENS_FACING),
                         mock(CameraControlInternal.class)));
     }
