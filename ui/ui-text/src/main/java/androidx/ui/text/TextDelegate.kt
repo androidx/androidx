@@ -17,7 +17,6 @@
 package androidx.ui.text
 
 import androidx.annotation.RestrictTo
-import androidx.annotation.RestrictTo.Scope.LIBRARY
 import androidx.annotation.VisibleForTesting
 import androidx.ui.core.Constraints
 import androidx.ui.core.Density
@@ -32,8 +31,6 @@ import androidx.ui.core.sp
 import androidx.ui.engine.geometry.Offset
 import androidx.ui.engine.geometry.Rect
 import androidx.ui.engine.geometry.Size
-import androidx.ui.text.style.TextAlign
-import androidx.ui.text.style.TextDirection
 import androidx.ui.graphics.Color
 import androidx.ui.painting.BlendMode
 import androidx.ui.painting.Canvas
@@ -41,9 +38,10 @@ import androidx.ui.painting.LinearGradientShader
 import androidx.ui.painting.Paint
 import androidx.ui.painting.Shader
 import androidx.ui.text.font.Font
+import androidx.ui.text.style.TextAlign
+import androidx.ui.text.style.TextDirection
 import androidx.ui.text.style.TextOverflow
 import java.util.Locale
-import kotlin.math.ceil
 
 private val DefaultTextAlign: TextAlign = TextAlign.Start
 private val DefaultTextDirection: TextDirection = TextDirection.Ltr
@@ -63,18 +61,6 @@ private fun resolveTextStyle(style: TextStyle?) =
     } else {
         style
     }
-
-/**
- * Unfortunately, using full precision floating point here causes bad layouts because floating
- * point math isn't associative. If we add and subtract padding, for example, we'll get
- * different values when we estimate sizes and when we actually compute layout because the
- * operations will end up associated differently. To work around this problem for now, we round
- * fractional pixel values up to the nearest whole pixel value. The right long-term fix is to do
- * layout using fixed precision arithmetic.
- */
-internal fun applyFloatingPointHack(layoutValue: Float): Float {
-    return ceil(layoutValue)
-}
 
 /**
  * An object that paints a [TextSpan] tree into a [Canvas].
@@ -191,7 +177,7 @@ class TextDelegate(
      * Valid only after [layout] has been called.
      */
     val minIntrinsicWidth: Float
-        get() = assumeLayout { applyFloatingPointHack(it.multiParagraph.minIntrinsicWidth) }
+        get() = assumeLayout { it.multiParagraph.minIntrinsicWidth }
 
     /**
      * The width at which increasing the width of the text no longer decreases the height.
@@ -199,7 +185,7 @@ class TextDelegate(
      * Valid only after [layout] has been called.
      */
     val maxIntrinsicWidth: Float
-        get() = assumeLayout { applyFloatingPointHack(it.multiParagraph.maxIntrinsicWidth) }
+        get() = assumeLayout { it.multiParagraph.maxIntrinsicWidth }
 
     /**
      * The horizontal space required to paint this text.
@@ -207,7 +193,7 @@ class TextDelegate(
      * Valid only after [layout] has been called.
      */
     val width: Float
-        get() = assumeLayout { applyFloatingPointHack(it.size.width) }
+        get() = assumeLayout { it.size.width }
 
     /**
      * The vertical space required to paint this text.
@@ -215,7 +201,7 @@ class TextDelegate(
      * Valid only after [layout] has been called.
      */
     val height: Float
-        get() = assumeLayout { applyFloatingPointHack(it.size.height) }
+        get() = assumeLayout { it.size.height }
 
     /**
      * Computes the visual position of the glyphs for painting the text.
