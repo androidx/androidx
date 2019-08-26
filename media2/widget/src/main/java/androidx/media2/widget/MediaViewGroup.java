@@ -79,4 +79,8 @@ abstract class MediaViewGroup extends ViewGroup {
     void onVisibilityAggregatedCompat(boolean isVisible) {
         mAggregatedIsVisible = isVisible;
     }
+
+    boolean isAggregatedVisible() {
+        return mAggregatedIsVisible;
+    }
 }

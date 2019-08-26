@@ -17,7 +17,6 @@
 package androidx.media2.widget;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -37,6 +36,7 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.PixelCopy;
 import android.view.SurfaceView;
+import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -122,7 +122,7 @@ public class VideoView_WithPlayerTest extends MediaWidgetTestBase {
 
         playerWrapper.play();
         assertTrue(callback.mPlayingLatch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
-        checkVideoRendering();
+        checkVideoRendering(true);
     }
 
     @Test
@@ -144,7 +144,7 @@ public class VideoView_WithPlayerTest extends MediaWidgetTestBase {
 
         playerWrapper.play();
         assertTrue(callback.mPlayingLatch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
-        checkVideoRendering();
+        checkVideoRendering(true);
     }
 
     @Test
@@ -173,7 +173,68 @@ public class VideoView_WithPlayerTest extends MediaWidgetTestBase {
 
         playerWrapper.play();
         assertTrue(callback.mPlayingLatch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
-        checkVideoRendering();
+        checkVideoRendering(true);
+    }
+
+    @Test
+    public void testPlayVideoWithVisibilityChange() throws Throwable {
+        final VideoView.OnViewTypeChangedListener mockViewTypeListener =
+                mock(VideoView.OnViewTypeChangedListener.class);
+
+        DefaultPlayerCallback callback = new DefaultPlayerCallback();
+        PlayerWrapper playerWrapper = createPlayerWrapper(callback, mMediaItem, null);
+        setPlayerWrapper(playerWrapper);
+
+        // The default view type is surface view.
+        assertEquals(mVideoView.getViewType(), VideoView.VIEW_TYPE_SURFACEVIEW);
+        mActivityRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mVideoView.setOnViewTypeChangedListener(mockViewTypeListener);
+                mVideoView.setViewType(VideoView.VIEW_TYPE_TEXTUREVIEW);
+                mVideoView.setVisibility(View.GONE);
+            }
+        });
+        assertTrue(callback.mItemLatch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+        assertTrue(callback.mPausedLatch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+
+        playerWrapper.play();
+        assertTrue(callback.mPlayingLatch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+        checkVideoRendering(false);
+
+        mActivityRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mVideoView.setVisibility(View.VISIBLE);
+            }
+        });
+        // Note: Actual view type change is done when VideoView has a valid surface.
+        verify(mockViewTypeListener, timeout(WAIT_TIME_MS))
+                .onViewTypeChanged(mVideoView, VideoView.VIEW_TYPE_TEXTUREVIEW);
+        assertEquals(mVideoView.getViewType(), VideoView.VIEW_TYPE_TEXTUREVIEW);
+        checkVideoRendering(true);
+
+        mActivityRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mVideoView.setViewType(VideoView.VIEW_TYPE_SURFACEVIEW);
+            }
+        });
+        verify(mockViewTypeListener, timeout(WAIT_TIME_MS))
+                .onViewTypeChanged(mVideoView, VideoView.VIEW_TYPE_SURFACEVIEW);
+        assertEquals(mVideoView.getViewType(), VideoView.VIEW_TYPE_SURFACEVIEW);
+        checkVideoRendering(true);
+
+        mActivityRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mVideoView.setVisibility(View.GONE);
+            }
+        });
+        // Although it is not flaky, since checkVideoRendering() waits a bit before actual
+        // screen capturing, we might need to define a listener to ensure the player's surface
+        // has been released.
+        checkVideoRendering(false);
     }
 
     @Test
@@ -206,7 +267,7 @@ public class VideoView_WithPlayerTest extends MediaWidgetTestBase {
 
         playerWrapper.play();
         assertTrue(callback.mPlayingLatch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
-        checkVideoRendering();
+        checkVideoRendering(true);
 
         mActivityRule.runOnUiThread(new Runnable() {
             @Override
@@ -216,7 +277,7 @@ public class VideoView_WithPlayerTest extends MediaWidgetTestBase {
         });
         verify(mockViewTypeListener, timeout(WAIT_TIME_MS))
                 .onViewTypeChanged(mVideoView, VideoView.VIEW_TYPE_TEXTUREVIEW);
-        checkVideoRendering();
+        checkVideoRendering(true);
     }
 
     // @UiThreadTest will be ignored by Parameterized test runner (b/30746303)
@@ -323,7 +384,7 @@ public class VideoView_WithPlayerTest extends MediaWidgetTestBase {
         return createPlayerWrapperOfType(callback, item, playlist, mPlayerType);
     }
 
-    private void checkVideoRendering() throws InterruptedException {
+    private void checkVideoRendering(boolean expectRendering) throws InterruptedException {
         if (Build.DEVICE.equals("sailfish") && Build.VERSION.SDK_INT == 28) {
             // See b/137321781
             return;
@@ -340,7 +401,7 @@ public class VideoView_WithPlayerTest extends MediaWidgetTestBase {
             Bitmap beforeBitmap = getVideoScreenshot();
             Thread.sleep(elapsedTimeForSecondScreenshotMs);
             Bitmap afterBitmap = getVideoScreenshot();
-            assertFalse(afterBitmap.sameAs(beforeBitmap));
+            assertEquals(expectRendering, !afterBitmap.sameAs(beforeBitmap));
         }
     }
 
@@ -348,8 +409,12 @@ public class VideoView_WithPlayerTest extends MediaWidgetTestBase {
         Bitmap bitmap = Bitmap.createBitmap(mVideoView.getWidth(),
                 mVideoView.getHeight(), Bitmap.Config.RGB_565);
         if (mVideoView.getViewType() == mVideoView.VIEW_TYPE_SURFACEVIEW) {
-            int copyResult = mPixelCopyHelper.request(mVideoView.mSurfaceView, bitmap);
-            assertEquals("PixelCopy failed.", PixelCopy.SUCCESS, copyResult);
+            if (mVideoView.mSurfaceView.hasAvailableSurface()) {
+                int copyResult = mPixelCopyHelper.request(mVideoView.mSurfaceView, bitmap);
+                if (copyResult != PixelCopy.ERROR_SOURCE_NO_DATA) {
+                    assertEquals("PixelCopy failed.", PixelCopy.SUCCESS, copyResult);
+                }
+            }
         } else {
             bitmap = mVideoView.mTextureView.getBitmap(bitmap);
         }
@@ -407,7 +472,6 @@ public class VideoView_WithPlayerTest extends MediaWidgetTestBase {
                 /* PixelCopy request didn't complete within 1s */
                 mStatus = PixelCopy.ERROR_TIMEOUT;
             }
-            Log.e(TAG, "PixelCopyResult: " + mStatus);
             return mStatus;
         }
     }

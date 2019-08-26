@@ -29,6 +29,7 @@ import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
+import androidx.media2.common.BaseResult;
 import androidx.media2.common.MediaItem;
 import androidx.media2.common.MediaMetadata;
 import androidx.media2.common.SessionPlayer;
@@ -38,6 +39,8 @@ import androidx.media2.common.VideoSize;
 import androidx.media2.session.MediaController;
 import androidx.media2.session.MediaSession;
 import androidx.palette.graphics.Palette;
+
+import com.google.common.util.concurrent.ListenableFuture;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -170,8 +173,8 @@ public class VideoView extends SelectiveLayout {
                         + ", width/height: " + width + "/" + height
                         + ", " + view.toString());
             }
-            if (view == mTargetView) {
-                ((VideoViewInterface) view).takeOver();
+            if (view == mTargetView && VideoView.this.isAggregatedVisible()) {
+                mTargetView.assignSurfaceToPlayerWrapper(mPlayer);
             }
         }
 
@@ -193,9 +196,7 @@ public class VideoView extends SelectiveLayout {
         @Override
         public void onSurfaceTakeOverDone(@NonNull VideoViewInterface view) {
             if (view != mTargetView) {
-                if (DEBUG) {
-                    Log.d(TAG, "onSurfaceTakeOverDone(). view is not targetView. ignore.: " + view);
-                }
+                Log.w(TAG, "onSurfaceTakeOverDone(). view is not targetView. ignore.: " + view);
                 return;
             }
             if (DEBUG) {
@@ -335,11 +336,10 @@ public class VideoView extends SelectiveLayout {
         if (isAttachedToWindow()) {
             mPlayer.attachCallback();
         }
-
-        mSurfaceView.setPlayerWrapper(mPlayer);
-        mTextureView.setPlayerWrapper(mPlayer);
-        if (!mCurrentView.assignSurfaceToPlayerWrapper(mPlayer)) {
-            Log.w(TAG, "failed to assign surface");
+        if (this.isAggregatedVisible()) {
+            mTargetView.assignSurfaceToPlayerWrapper(mPlayer);
+        } else {
+            resetPlayerSurfaceWithNullAsync();
         }
 
         if (mMediaControlView != null) {
@@ -372,11 +372,10 @@ public class VideoView extends SelectiveLayout {
         if (isAttachedToWindow()) {
             mPlayer.attachCallback();
         }
-
-        mSurfaceView.setPlayerWrapper(mPlayer);
-        mTextureView.setPlayerWrapper(mPlayer);
-        if (!mCurrentView.assignSurfaceToPlayerWrapper(mPlayer)) {
-            Log.w(TAG, "failed to assign surface");
+        if (this.isAggregatedVisible()) {
+            mTargetView.assignSurfaceToPlayerWrapper(mPlayer);
+        } else {
+            resetPlayerSurfaceWithNullAsync();
         }
 
         if (mMediaControlView != null) {
@@ -458,8 +457,10 @@ public class VideoView extends SelectiveLayout {
         }
 
         mTargetView = targetView;
+        if (this.isAggregatedVisible()) {
+            targetView.assignSurfaceToPlayerWrapper(mPlayer);
+        }
         ((View) targetView).setVisibility(View.VISIBLE);
-        targetView.takeOver();
         requestLayout();
     }
 
@@ -501,20 +502,14 @@ public class VideoView extends SelectiveLayout {
         }
 
         if (isVisible) {
-            if (!mCurrentView.assignSurfaceToPlayerWrapper(mPlayer)) {
-                Log.w(TAG, "failed to assign surface");
-            }
+            mTargetView.assignSurfaceToPlayerWrapper(mPlayer);
         } else {
-            if (mPlayer.mController != null && !mPlayer.mController.isConnected()) {
+            if (mPlayer == null || mPlayer.hasDisconnectedController()) {
                 Log.w(TAG, "Surface is being destroyed, but player will not be informed "
                         + "as the associated media controller is disconnected.");
                 return;
             }
-            try {
-                mPlayer.setSurface(null).get(100, TimeUnit.MILLISECONDS);
-            } catch (ExecutionException | InterruptedException | TimeoutException e) {
-                Log.e(TAG, "calling setSurface(null) was not successful.", e);
-            }
+            resetPlayerSurfaceWithNull();
         }
     }
 
@@ -605,6 +600,40 @@ public class VideoView extends SelectiveLayout {
         }
     }
 
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    void resetPlayerSurfaceWithNull() {
+        try {
+            int resultCode = mPlayer.setSurface(null).get(100, TimeUnit.MILLISECONDS)
+                    .getResultCode();
+            if (resultCode != BaseResult.RESULT_SUCCESS) {
+                Log.e(TAG, "calling setSurface(null) was not "
+                        + "successful. ResultCode: " + resultCode);
+            }
+        } catch (ExecutionException | InterruptedException | TimeoutException e) {
+            Log.e(TAG, "calling setSurface(null) was not successful.", e);
+        }
+    }
+
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    void resetPlayerSurfaceWithNullAsync() {
+        ListenableFuture<? extends BaseResult> future = mPlayer.setSurface(null);
+        future.addListener(
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            int resultCode = future.get().getResultCode();
+                            if (resultCode != BaseResult.RESULT_SUCCESS) {
+                                Log.e(TAG, "calling setSurface(null) was not "
+                                        + "successful. ResultCode: " + resultCode);
+                            }
+                        } catch (ExecutionException | InterruptedException e) {
+                            Log.e(TAG, "calling setSurface(null) was not successful.", e);
+                        }
+                    }
+                }, ContextCompat.getMainExecutor(getContext()));
+    }
+
     private Drawable getAlbumArt(@NonNull MediaMetadata metadata, Drawable defaultDrawable) {
         Drawable drawable = defaultDrawable;
         Bitmap bitmap = null;
@@ -642,8 +671,8 @@ public class VideoView extends SelectiveLayout {
                 Log.d(TAG, "onConnected()");
             }
             if (shouldIgnoreCallback(player)) return;
-            if (!mCurrentView.assignSurfaceToPlayerWrapper(mPlayer)) {
-                Log.w(TAG, "failed to assign surface");
+            if (VideoView.this.isAggregatedVisible()) {
+                mTargetView.assignSurfaceToPlayerWrapper(mPlayer);
             }
         }
 
