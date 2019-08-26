@@ -36,6 +36,7 @@ import androidx.camera.core.ImageCapture.ImageCaptureError;
 import androidx.camera.core.ImageCapture.OnImageSavedListener;
 import androidx.camera.core.VideoCapture;
 import androidx.camera.core.VideoCapture.OnVideoSavedListener;
+import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.view.CameraView;
 import androidx.camera.view.CameraView.CaptureMode;
 
@@ -102,7 +103,8 @@ class CaptureViewOnTouchListener
     void onTap() {
         if (mCameraView.getCaptureMode() == CaptureMode.IMAGE
                 || mCameraView.getCaptureMode() == CaptureMode.MIXED) {
-            mCameraView.takePicture(createNewFile(PHOTO_EXTENSION), this);
+            mCameraView.takePicture(createNewFile(PHOTO_EXTENSION),
+                    CameraXExecutors.mainThreadExecutor(), this);
         }
     }
 

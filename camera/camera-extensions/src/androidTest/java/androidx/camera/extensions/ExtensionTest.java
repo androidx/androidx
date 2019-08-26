@@ -52,6 +52,7 @@ import androidx.camera.core.ImageCaptureConfig;
 import androidx.camera.core.ImageProxy;
 import androidx.camera.core.Preview;
 import androidx.camera.core.PreviewConfig;
+import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.extensions.impl.AutoPreviewExtenderImpl;
 import androidx.camera.extensions.impl.BeautyPreviewExtenderImpl;
 import androidx.camera.extensions.impl.BokehPreviewExtenderImpl;
@@ -187,7 +188,8 @@ public class ExtensionTest {
         // To set the update listener and Preview will change to active state.
         preview.setOnPreviewOutputUpdateListener(mockOnPreviewOutputUpdateListener);
 
-        imageCapture.takePicture(mockOnImageCapturedListener);
+        imageCapture.takePicture(CameraXExecutors.mainThreadExecutor(),
+                mockOnImageCapturedListener);
 
         // Verify the image captured.
         ArgumentCaptor<ImageProxy> imageProxy = ArgumentCaptor.forClass(ImageProxy.class);

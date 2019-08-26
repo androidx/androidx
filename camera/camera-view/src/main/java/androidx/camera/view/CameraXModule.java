@@ -59,6 +59,7 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.Set;
+import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /** CameraX use case operation built on @{link androidx.camera.core}. */
@@ -299,7 +300,7 @@ final class CameraXModule {
                 "Explicit open/close of camera not yet supported. Use bindtoLifecycle() instead.");
     }
 
-    public void takePicture(OnImageCapturedListener listener) {
+    public void takePicture(Executor executor, OnImageCapturedListener listener) {
         if (mImageCapture == null) {
             return;
         }
@@ -312,10 +313,10 @@ final class CameraXModule {
             throw new IllegalArgumentException("OnImageCapturedListener should not be empty");
         }
 
-        mImageCapture.takePicture(listener);
+        mImageCapture.takePicture(executor, listener);
     }
 
-    public void takePicture(File saveLocation, OnImageSavedListener listener) {
+    public void takePicture(File saveLocation, Executor executor, OnImageSavedListener listener) {
         if (mImageCapture == null) {
             return;
         }
@@ -330,7 +331,7 @@ final class CameraXModule {
 
         ImageCapture.Metadata metadata = new ImageCapture.Metadata();
         metadata.isReversedHorizontal = mCameraLensFacing == LensFacing.FRONT;
-        mImageCapture.takePicture(saveLocation, listener, metadata);
+        mImageCapture.takePicture(saveLocation, metadata, executor, listener);
     }
 
     public void startRecording(File file, final OnVideoSavedListener listener) {

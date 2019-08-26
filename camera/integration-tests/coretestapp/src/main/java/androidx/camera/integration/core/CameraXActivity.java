@@ -57,6 +57,7 @@ import androidx.camera.core.PreviewConfig;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.VideoCapture;
 import androidx.camera.core.VideoCaptureConfig;
+import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.MutableLiveData;
@@ -490,6 +491,7 @@ public class CameraXActivity extends AppCompatActivity
                                         dir,
                                         formatter.format(Calendar.getInstance().getTime())
                                                 + ".jpg"),
+                                CameraXExecutors.mainThreadExecutor(),
                                 new ImageCapture.OnImageSavedListener() {
                                     @Override
                                     public void onImageSaved(@NonNull File file) {

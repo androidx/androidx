@@ -43,6 +43,7 @@ import androidx.camera.core.ImageCaptureConfig;
 import androidx.camera.core.Preview;
 import androidx.camera.core.PreviewConfig;
 import androidx.camera.core.UseCase;
+import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.extensions.AutoImageCaptureExtender;
 import androidx.camera.extensions.AutoPreviewExtender;
 import androidx.camera.extensions.BeautyImageCaptureExtender;
@@ -308,6 +309,7 @@ public class CameraExtensionsActivity extends AppCompatActivity
                                         formatter.format(Calendar.getInstance().getTime())
                                                 + mCurrentImageCaptureType.name()
                                                 + ".jpg"),
+                                CameraXExecutors.mainThreadExecutor(),
                                 new ImageCapture.OnImageSavedListener() {
                                     @Override
                                     public void onImageSaved(@NonNull File file) {
