@@ -22,6 +22,7 @@ import androidx.ui.engine.geometry.RRect
 import androidx.ui.engine.geometry.Radius
 import androidx.ui.engine.geometry.Rect
 import androidx.ui.vectormath64.Matrix4
+import androidx.ui.vectormath64.degrees
 
 class Path(private val internalPath: android.graphics.Path = android.graphics.Path()) {
 
@@ -158,10 +159,10 @@ class Path(private val internalPath: android.graphics.Path = android.graphics.Pa
     }
 
     /**
-     * If the `forceMoveTo` argument is false, adds a straight line
+     * If the [forceMoveTo] argument is false, adds a straight line
      * segment and an arc segment.
      *
-     * If the `forceMoveTo` argument is true, starts a new subpath
+     * If the [forceMoveTo] argument is true, starts a new subpath
      * consisting of an arc segment.
      *
      * In either case, the arc segment consists of the arc that follows
@@ -175,7 +176,39 @@ class Path(private val internalPath: android.graphics.Path = android.graphics.Pa
      * The line segment added if `forceMoveTo` is false starts at the
      * current point and ends at the start of the arc.
      */
-    fun arcTo(rect: Rect, startAngle: Float, sweepAngle: Float, forceMoveTo: Boolean) {
+    fun arcToRad(
+        rect: Rect,
+        startAngleRadians: Float,
+        sweepAngleRadians: Float,
+        forceMoveTo: Boolean
+    ) {
+        arcTo(rect, degrees(startAngleRadians), degrees(sweepAngleRadians), forceMoveTo)
+    }
+
+    /**
+     * If the [forceMoveTo] argument is false, adds a straight line
+     * segment and an arc segment.
+     *
+     * If the [forceMoveTo] argument is true, starts a new subpath
+     * consisting of an arc segment.
+     *
+     * In either case, the arc segment consists of the arc that follows
+     * the edge of the oval bounded by the given rectangle, from
+     * startAngle degrees around the oval up to startAngle + sweepAngle
+     * degrees around the oval, with zero degrees being the point on
+     * the right hand side of the oval that crosses the horizontal line
+     * that intersects the center of the rectangle and with positive
+     * angles going clockwise around the oval.
+     *
+     * The line segment added if `forceMoveTo` is false starts at the
+     * current point and ends at the start of the arc.
+     */
+    fun arcTo(
+        rect: Rect,
+        startAngleDegrees: Float,
+        sweepAngleDegrees: Float,
+        forceMoveTo: Boolean
+    ) {
         val left = rect.left
         val top = rect.top
         val right = rect.right
@@ -183,8 +216,8 @@ class Path(private val internalPath: android.graphics.Path = android.graphics.Pa
         rectF.set(left, top, right, bottom)
         internalPath.arcTo(
             rectF,
-            startAngle,
-            sweepAngle,
+            startAngleDegrees,
+            sweepAngleDegrees,
             forceMoveTo
         )
     }
@@ -334,10 +367,24 @@ class Path(private val internalPath: android.graphics.Path = android.graphics.Pa
      * rectangle and with positive angles going clockwise around the
      * oval.
      */
-    fun addArc(oval: Rect, startAngle: Float, sweepAngle: Float) {
+    fun addArcRad(oval: Rect, startAngleRadians: Float, sweepAngleRadians: Float) {
+        addArc(oval, degrees(startAngleRadians), degrees(sweepAngleRadians))
+    }
+
+    /**
+     * Adds a new subpath with one arc segment that consists of the arc
+     * that follows the edge of the oval bounded by the given
+     * rectangle, from startAngle degrees around the oval up to
+     * startAngle + sweepAngle degrees around the oval, with zero
+     * degrees being the point on the right hand side of the oval that
+     * crosses the horizontal line that intersects the center of the
+     * rectangle and with positive angles going clockwise around the
+     * oval.
+     */
+    fun addArc(oval: Rect, startAngleDegrees: Float, sweepAngleDegrees: Float) {
         assert(_rectIsValid(oval))
         rectF.set(oval.toFrameworkRect())
-        internalPath.addArc(rectF, startAngle, sweepAngle)
+        internalPath.addArc(rectF, startAngleDegrees, sweepAngleDegrees)
     }
 
     // Not necessary as wrapping platform Path

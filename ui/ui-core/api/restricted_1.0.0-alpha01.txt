@@ -1663,14 +1663,16 @@ package androidx.ui.painting {
     ctor public Path(android.graphics.Path internalPath);
     ctor public Path();
     method public void _addRect(float left, float top, float right, float bottom);
-    method public void addArc(androidx.ui.engine.geometry.Rect oval, float startAngle, float sweepAngle);
+    method public void addArc(androidx.ui.engine.geometry.Rect oval, float startAngleDegrees, float sweepAngleDegrees);
+    method public void addArcRad(androidx.ui.engine.geometry.Rect oval, float startAngleRadians, float sweepAngleRadians);
     method public void addOval(androidx.ui.engine.geometry.Rect oval);
     method public void addPath(androidx.ui.painting.Path path, androidx.ui.engine.geometry.Offset offset = Offset.zero, androidx.ui.vectormath64.Matrix4? matrix = null);
     method public void addPolygon(java.util.List<androidx.ui.engine.geometry.Offset> points, boolean close);
     method public void addRRect(androidx.ui.engine.geometry.RRect rrect);
     method public void addRect(androidx.ui.engine.geometry.Rect rect);
-    method public void arcTo(androidx.ui.engine.geometry.Rect rect, float startAngle, float sweepAngle, boolean forceMoveTo);
+    method public void arcTo(androidx.ui.engine.geometry.Rect rect, float startAngleDegrees, float sweepAngleDegrees, boolean forceMoveTo);
     method public void arcToPoint(androidx.ui.engine.geometry.Offset arcEnd, androidx.ui.engine.geometry.Radius radius = Radius.zero, float rotation = 0.0f, boolean largeArc = false, boolean clockwise = true);
+    method public void arcToRad(androidx.ui.engine.geometry.Rect rect, float startAngleRadians, float sweepAngleRadians, boolean forceMoveTo);
     method public void close();
     method public void conicTo(float x1, float y1, float x2, float y2, float w);
     method public boolean contains(androidx.ui.engine.geometry.Offset offset);
