@@ -25,6 +25,7 @@ import android.os.Looper;
 import android.os.SystemClock;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.test.espresso.InjectEventSecurityException;
@@ -64,10 +65,23 @@ public class SwipeToLocation implements ViewAction {
             int heightParent = parent.getHeight() - verticalPadding;
             int widthView = view.getWidth();
             int heightView = view.getHeight();
+            int leftMarginView = 0;
+            int topMarginView = 0;
+
+            ViewGroup.LayoutParams params = view.getLayoutParams();
+            if (params instanceof ViewGroup.MarginLayoutParams) {
+                ViewGroup.MarginLayoutParams margins = (ViewGroup.MarginLayoutParams) params;
+                leftMarginView = margins.leftMargin;
+                topMarginView = margins.topMargin;
+                widthView += margins.leftMargin + margins.rightMargin;
+                heightView += margins.topMargin + margins.bottomMargin;
+            }
 
             float[] coords = new float[2];
-            coords[X] = (widthParent - widthView) / 2;
-            coords[Y] = (heightParent - heightView) / 2;
+            //noinspection IntegerDivisionInFloatingPointContext
+            coords[X] = (widthParent - widthView) / 2 + parent.getPaddingLeft() + leftMarginView;
+            //noinspection IntegerDivisionInFloatingPointContext
+            coords[Y] = (heightParent - heightView) / 2 + parent.getPaddingTop() + topMarginView;
             return coords;
         }
 
