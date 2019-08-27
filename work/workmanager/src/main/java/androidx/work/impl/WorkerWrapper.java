@@ -370,13 +370,19 @@ public class WorkerWrapper implements Runnable {
         // if necessary. mInterrupted is always true here, we don't really care about the return
         // value.
         tryCheckForInterruptionAndResolve();
+        boolean isDone = false;
         if (mInnerFuture != null) {
             // Propagate the cancellations to the inner future.
+            isDone = mInnerFuture.isDone();
             mInnerFuture.cancel(true);
         }
-        // Worker can be null if run() hasn't been called yet.
-        if (mWorker != null) {
+        // Worker can be null if run() hasn't been called yet
+        if (mWorker != null && !isDone) {
             mWorker.stop();
+        } else {
+            String message =
+                    String.format("WorkSpec %s is already done. Not interrupting.", mWorkSpec);
+            Logger.get().debug(TAG, message);
         }
     }
 
