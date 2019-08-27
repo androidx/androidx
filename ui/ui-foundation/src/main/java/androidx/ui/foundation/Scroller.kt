@@ -41,7 +41,6 @@ import androidx.ui.core.toPx
 import androidx.ui.foundation.animation.AnimatedFloatDragController
 import androidx.ui.foundation.animation.FlingConfig
 import androidx.ui.foundation.gestures.DragDirection
-import androidx.ui.foundation.gestures.DragValueController
 import androidx.ui.foundation.gestures.Draggable
 import androidx.ui.foundation.shape.RectangleShape
 import androidx.ui.layout.Constraints
@@ -190,22 +189,14 @@ private fun Scroller(
 ) {
     val maxPosition = +state { Px.Infinity }
     val direction = if (isVertical) DragDirection.Vertical else DragDirection.Horizontal
-    val controller = +memo(isScrollable) {
-        if (isScrollable) {
-            scrollerPosition.controller
-        } else {
-            StubController(scrollerPosition.instantValue).also {
-                scrollerPosition.scrollTo(scrollerPosition.instantValue.px)
-            }
-        }
-    }
+    scrollerPosition.controller.enabled = isScrollable
     scrollerPosition.lh.lambda = { onScrollPositionChanged(it.px, maxPosition.value) }
     PressGestureDetector(onPress = { scrollerPosition.scrollTo(scrollerPosition.value) }) {
         Draggable(
             dragDirection = direction,
             minValue = -maxPosition.value.value,
             maxValue = 0f,
-            valueController = controller
+            valueController = scrollerPosition.controller
         ) {
             ScrollerLayout(
                 scrollerPosition = scrollerPosition,
@@ -291,17 +282,6 @@ private class ScrollPositionValueHolder(
             current = value
             onValueChanged(value)
         }
-}
-
-private fun StubController(value: Float) = object : DragValueController {
-    override val currentValue: Float
-        get() = value
-
-    override fun onDrag(target: Float) {}
-
-    override fun onDragEnd(velocity: Float, onValueSettled: (Float) -> Unit) {}
-
-    override fun setBounds(min: Float, max: Float) {}
 }
 
 internal data class LambdaHolder(var lambda: (Float) -> Unit)
