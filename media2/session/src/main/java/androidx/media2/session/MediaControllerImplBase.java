@@ -97,6 +97,7 @@ import androidx.media2.session.MediaController.VolumeFlags;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -598,7 +599,7 @@ class MediaControllerImplBase implements MediaControllerImpl {
     @Override
     public List<MediaItem> getPlaylist() {
         synchronized (mLock) {
-            return mPlaylist;
+            return new ArrayList<>(mPlaylist);
         }
     }
 

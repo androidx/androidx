@@ -77,6 +77,7 @@ import androidx.media2.session.MediaSession.CommandButton;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -106,7 +107,7 @@ class MediaControllerImplLegacy implements MediaController.MediaControllerImpl {
     final Object mLock = new Object();
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
-            MediaController mInstance;
+    MediaController mInstance;
 
     @GuardedBy("mLock")
     @SuppressWarnings("WeakerAccess") /* synthetic access */
@@ -121,7 +122,7 @@ class MediaControllerImplLegacy implements MediaController.MediaControllerImpl {
     List<QueueItem> mQueue;
     @GuardedBy("mLock")
     @SuppressWarnings("WeakerAccess") /* synthetic access */
-            MediaMetadata mPlaylistMetadata;
+    MediaMetadata mPlaylistMetadata;
     @GuardedBy("mLock")
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     @RepeatMode int mRepeatMode;
@@ -133,7 +134,7 @@ class MediaControllerImplLegacy implements MediaController.MediaControllerImpl {
     int mPlayerState;
     @GuardedBy("mLock")
     @SuppressWarnings("WeakerAccess") /* synthetic access */
-            MediaItem mCurrentMediaItem;
+    MediaItem mCurrentMediaItem;
     @GuardedBy("mLock")
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     int mBufferingState;
@@ -603,7 +604,7 @@ class MediaControllerImplLegacy implements MediaController.MediaControllerImpl {
                 Log.w(TAG, "Session isn't active", new IllegalStateException());
                 return null;
             }
-            return (mPlaylist == null || mPlaylist.size() == 0) ? null : mPlaylist;
+            return (mPlaylist == null || mPlaylist.size() == 0) ? null : new ArrayList<>(mPlaylist);
         }
     }
 
