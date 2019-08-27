@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-package androidx.ui.core.vectorgraphics.compat
+package androidx.ui.graphics.vector.compat
 
 import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.ui.core.Px
 
-import androidx.ui.core.vectorgraphics.VectorPath
+import androidx.ui.graphics.vector.VectorPath
 import androidx.ui.framework.test.R
-import androidx.ui.graphics.vectorgraphics.PathCommand
-import androidx.ui.graphics.vectorgraphics.PathNode
+import androidx.ui.graphics.vector.PathCommand
+import androidx.ui.graphics.vector.PathNode
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -36,7 +36,11 @@ class XmlVectorParserTest {
     @Test
     fun testParseXml() {
         val res = InstrumentationRegistry.getInstrumentation().targetContext.resources
-        val asset = loadVectorResource(null, res, R.drawable.test_compose_vector)
+        val asset = loadVectorResource(
+            null,
+            res,
+            R.drawable.test_compose_vector
+        )
         val density = res.displayMetrics.density
         val expectedSize = Px(density*24)
         assertEquals(expectedSize, asset.defaultWidth)

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.ui.core.vectorgraphics
+package androidx.ui.graphics.vector
 
 import androidx.compose.Composable
 import androidx.compose.composer
@@ -22,24 +22,6 @@ import androidx.ui.core.Px
 import androidx.ui.graphics.EmptyBrush
 import androidx.ui.painting.StrokeCap
 import androidx.ui.painting.StrokeJoin
-import androidx.ui.vector.BrushType
-import androidx.ui.vector.DefaultAlpha
-import androidx.ui.vector.DefaultGroupName
-import androidx.ui.vector.DefaultPathName
-import androidx.ui.vector.DefaultPivotX
-import androidx.ui.vector.DefaultPivotY
-import androidx.ui.vector.DefaultRotation
-import androidx.ui.vector.DefaultScaleX
-import androidx.ui.vector.DefaultScaleY
-import androidx.ui.vector.DefaultStrokeLineCap
-import androidx.ui.vector.DefaultStrokeLineJoin
-import androidx.ui.vector.DefaultStrokeLineMiter
-import androidx.ui.vector.DefaultStrokeLineWidth
-import androidx.ui.vector.DefaultTranslationX
-import androidx.ui.vector.DefaultTranslationY
-import androidx.ui.vector.EmptyPath
-import androidx.ui.vector.PathData
-import androidx.ui.vector.VectorScope
 import java.util.Stack
 
 /**
@@ -111,15 +93,15 @@ class VectorAssetBuilder(
     ): VectorAssetBuilder {
         ensureNotConsumed()
         val group = VectorGroup(
-                name,
-                rotate,
-                pivotX,
-                pivotY,
-                scaleX,
-                scaleY,
-                translationX,
-                translationY,
-                clipPathData
+            name,
+            rotate,
+            pivotX,
+            pivotY,
+            scaleX,
+            scaleY,
+            translationX,
+            translationY,
+            clipPathData
         )
         nodes.add(group)
         currentGroup.addNode(group)
@@ -156,18 +138,18 @@ class VectorAssetBuilder(
     ): VectorAssetBuilder {
         ensureNotConsumed()
         currentGroup.addNode(
-                VectorPath(
-                        name,
-                        pathData,
-                        fill,
-                        fillAlpha,
-                        stroke,
-                        strokeAlpha,
-                        strokeLineWidth,
-                        strokeLineCap,
-                        strokeLineJoin,
-                        strokeLineMiter
-                )
+            VectorPath(
+                name,
+                pathData,
+                fill,
+                fillAlpha,
+                stroke,
+                strokeAlpha,
+                strokeLineWidth,
+                strokeLineCap,
+                strokeLineJoin,
+                strokeLineMiter
+            )
         )
         return this
     }
@@ -431,7 +413,8 @@ private fun VectorScope.RenderVectorGroup(group: VectorGroup) {
                 translationY = vectorNode.translationY,
                 pivotX = vectorNode.pivotX,
                 pivotY = vectorNode.pivotY,
-                clipPathData = vectorNode.clipPathData) {
+                clipPathData = vectorNode.clipPathData
+            ) {
                 RenderVectorGroup(group = vectorNode)
             }
         }

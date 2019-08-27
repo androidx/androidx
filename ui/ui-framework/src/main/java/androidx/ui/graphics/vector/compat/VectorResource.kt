@@ -14,21 +14,21 @@
  * limitations under the License.
  */
 
-package androidx.ui.core.vectorgraphics.compat
+package androidx.ui.graphics.vector.compat
 
-import androidx.compose.composer
 import android.annotation.SuppressLint
 import android.content.res.Resources
 import android.util.Xml
 import androidx.annotation.CheckResult
 import androidx.compose.Composable
+import androidx.compose.composer
 import androidx.compose.ambient
 import androidx.compose.effectOf
 import androidx.compose.memo
 import androidx.compose.unaryPlus
 import androidx.ui.core.ContextAmbient
-import androidx.ui.core.vectorgraphics.DrawVector
-import androidx.ui.core.vectorgraphics.VectorAsset
+import androidx.ui.graphics.vector.DrawVector
+import androidx.ui.graphics.vector.VectorAsset
 import org.xmlpull.v1.XmlPullParserException
 
 /**
@@ -57,7 +57,8 @@ fun vectorResource(resId: Int) = effectOf<VectorAsset> {
 @SuppressWarnings("RestrictedApi")
 fun loadVectorResource(
     theme: Resources.Theme? = null,
-    res: Resources, resId: Int
+    res: Resources,
+    resId: Int
 ): VectorAsset {
     @SuppressLint("ResourceType") val parser = res.getXml(resId)
     val attrs = Xml.asAttributeSet(parser)

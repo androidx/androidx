@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.ui.vector
+package androidx.ui.graphics.vector
 
 import androidx.compose.Applier
 import androidx.compose.ApplyAdapter

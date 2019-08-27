@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.ui.graphics.vectorgraphics
+package androidx.ui.graphics.vector
 
 class PathBuilder {
 
