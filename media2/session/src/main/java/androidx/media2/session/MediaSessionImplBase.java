@@ -1625,6 +1625,9 @@ class MediaSessionImplBase implements MediaSession.MediaSessionImpl {
             if (!item.equals(player.getCurrentMediaItem())) {
                 return;
             }
+            if (player.getPlayerState() == PLAYER_STATE_IDLE) {
+                return;
+            }
             final long duration = player.getDuration();
             if (duration <= 0 || duration == UNKNOWN_TIME) {
                 return;
