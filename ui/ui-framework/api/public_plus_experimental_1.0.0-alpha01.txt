@@ -83,7 +83,7 @@ package androidx.ui.core {
 
   public final class TextFieldKt {
     ctor public TextFieldKt();
-    method public static void TextField(androidx.ui.input.EditorModel value, androidx.ui.input.EditorStyle? editorStyle = null, androidx.ui.input.KeyboardType keyboardType = KeyboardType.Text, androidx.ui.input.ImeAction imeAction = ImeAction.Unspecified, kotlin.jvm.functions.Function1<? super androidx.ui.input.EditorModel,kotlin.Unit> onValueChange = {}, kotlin.jvm.functions.Function0<kotlin.Unit> onFocus = {}, kotlin.jvm.functions.Function0<kotlin.Unit> onBlur = {}, String? focusIdentifier = null, kotlin.jvm.functions.Function1<? super androidx.ui.input.ImeAction,kotlin.Unit> onImeActionPerformed = {}, androidx.ui.input.VisualTransformation? visualTransformation = null);
+    method public static void TextField(androidx.ui.input.EditorModel value, androidx.ui.input.EditorStyle? editorStyle = null, androidx.ui.input.KeyboardType keyboardType = KeyboardType.Text, androidx.ui.input.ImeAction imeAction = ImeAction.Unspecified, kotlin.jvm.functions.Function1<? super androidx.ui.input.EditorModel,kotlin.Unit> onValueChange = {}, kotlin.jvm.functions.Function0<kotlin.Unit> onFocus = {}, kotlin.jvm.functions.Function0<kotlin.Unit> onBlur = {}, kotlin.jvm.functions.Function1<? super androidx.ui.input.ImeAction,kotlin.Unit> onImeActionPerformed = {}, androidx.ui.input.VisualTransformation? visualTransformation = null);
   }
 
   public final class TextKt {
@@ -128,14 +128,13 @@ package androidx.ui.core {
     method public static void ComposeView(kotlin.jvm.functions.Function0<kotlin.Unit> children);
     method public static void WithDensity(kotlin.jvm.functions.Function1<? super androidx.ui.core.DensityReceiver,kotlin.Unit> block);
     method @CheckResult(suggest="+") public static androidx.compose.Effect<androidx.ui.core.Density> ambientDensity();
-    method public static androidx.compose.Ambient<androidx.ui.core.AndroidComposeView> getAndroidComposeViewAmbient();
+    method public static androidx.compose.Ambient<androidx.ui.core.AndroidCraneView> getAndroidCraneViewAmbient();
     method public static androidx.compose.Ambient<androidx.ui.autofill.Autofill> getAutofillAmbient();
     method public static androidx.compose.Ambient<androidx.ui.autofill.AutofillTree> getAutofillTreeAmbient();
     method public static androidx.compose.Ambient<android.content.res.Configuration> getConfigurationAmbient();
     method public static androidx.compose.Ambient<android.content.Context> getContextAmbient();
     method public static androidx.compose.Ambient<kotlin.coroutines.CoroutineContext> getCoroutineContextAmbient();
     method public static androidx.compose.Ambient<androidx.ui.core.Density> getDensityAmbient();
-    method public static androidx.compose.Ambient<androidx.ui.core.input.FocusManager> getFocusManagerAmbient();
     method public static androidx.compose.Ambient<androidx.ui.core.LayoutDirection> getLayoutDirectionAmbient();
     method public static androidx.compose.CompositionContext? setContent(android.app.Activity, kotlin.jvm.functions.Function0<kotlin.Unit> content);
     method public static androidx.compose.CompositionContext? setContent(android.view.ViewGroup, kotlin.jvm.functions.Function0<kotlin.Unit> content);
@@ -242,14 +241,6 @@ package androidx.ui.core.gesture.util {
 
   public final class VelocityTrackerKt {
     ctor public VelocityTrackerKt();
-  }
-
-}
-
-package androidx.ui.core.input {
-
-  public class FocusManager {
-    method public final void requestFocusById(String identifier);
   }
 
 }

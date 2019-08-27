@@ -67,7 +67,7 @@ fun DrawBorder(shape: Shape, border: Border) {
                 diffPathIsCached = true
             }
 
-            border.brush.applyBrush(paint)
+            border.brush.applyTo(paint)
             canvas.drawPath(diffPath, paint)
         }
     }
