@@ -218,7 +218,7 @@ public abstract class FragmentStateAdapter extends
 
             for (int ix = 0; ix < mFragments.size(); ix++) {
                 long itemId = mFragments.keyAt(ix);
-                if (!mItemIdToViewHolder.containsKey(itemId)) {
+                if (!isFragmentViewBound(itemId)) {
                     toRemove.add(itemId);
                 }
             }
@@ -227,6 +227,24 @@ public abstract class FragmentStateAdapter extends
         for (Long itemId : toRemove) {
             removeFragment(itemId);
         }
+    }
+
+    private boolean isFragmentViewBound(long itemId) {
+        if (mItemIdToViewHolder.containsKey(itemId)) {
+            return true;
+        }
+
+        Fragment fragment = mFragments.get(itemId);
+        if (fragment == null) {
+            return false;
+        }
+
+        View view = fragment.getView();
+        if (view == null) {
+            return false;
+        }
+
+        return view.getParent() != null;
     }
 
     private Long itemForViewHolder(int viewHolderId) {
