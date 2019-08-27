@@ -35,7 +35,7 @@ import java.util.concurrent.TimeoutException;
  * It also provides additional safety checks, failing the future if it will never complete.
  *
  * <p>For example, you work with the following async api:
- * <pre>{@code
+ * <pre>
  * class AsyncApi  {
  *     interface OnResult {
  *         void onSuccess(Foo foo);
@@ -44,19 +44,19 @@ import java.util.concurrent.TimeoutException;
  *
  *     void load(OnResult onResult) {}
  * }
- * }</pre>
+ * </pre>
  *
  * <p>Code that wraps it as {@code ListenableFuture} would look like:
- * <pre>{@code
- * ListenableFuture<Foo> asyncOperation() {
+ * <pre>
+ * ListenableFuture&lt;Foo&gt; asyncOperation() {
  *     return CallbackToFutureAdapter.getFuture(completer -> {
  *         asyncApi.load(new OnResult() {
- *             @Override
+ *             &#64;Override
  *             public void onSuccess(Foo foo) {
  *                 completer.set(foo);
  *             }
  *
- *             @Override
+ *             &#64;Override
  *             public void onError(Failure failure) {
  *                 completer.setException(failure.exception);
  *             }
@@ -66,7 +66,7 @@ import java.util.concurrent.TimeoutException;
  *         return "AsyncApi.load operation";
  *     });
  * }
- * }</pre>
+ * </pre>
  *
  * <p> Try to avoid creating references from listeners on the returned {@code Future} to the {@link
  * Completer} or the passed-in {@code tag} object, as this will defeat the best-effort early failure
