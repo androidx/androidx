@@ -23,9 +23,11 @@ import androidx.test.filters.SmallTest
 import androidx.ui.core.FocusManagerAmbient
 import androidx.ui.core.TestTag
 import androidx.ui.core.TextField
+import androidx.ui.core.TextInputServiceAmbient
 import androidx.ui.core.input.FocusManager
 import androidx.ui.input.EditorModel
 import androidx.ui.input.EditorStyle
+import androidx.ui.input.TextInputService
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.doClick
 import androidx.ui.test.findByTag
@@ -33,7 +35,6 @@ import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.times
 import com.nhaarman.mockitokotlin2.verify
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -45,19 +46,21 @@ class TextFieldTest {
     @get:Rule
     val composeTestRule = createComposeRule()
 
-    @Ignore("Disabled due to b/139931491")
     @Test
     fun textField_focusInSemantics() {
         val focusManager = mock<FocusManager>()
+        val inputService = mock<TextInputService>()
         composeTestRule.setContent {
             val state = +state { EditorModel() }
             FocusManagerAmbient.Provider(value = focusManager) {
-                TestTag(tag = "textField") {
-                    TextField(
-                        value = state.value,
-                        onValueChange = { state.value = it },
-                        editorStyle = EditorStyle()
-                    )
+                TextInputServiceAmbient.Provider(value = inputService) {
+                    TestTag(tag = "textField") {
+                        TextField(
+                            value = state.value,
+                            onValueChange = { state.value = it },
+                            editorStyle = EditorStyle()
+                        )
+                    }
                 }
             }
         }
