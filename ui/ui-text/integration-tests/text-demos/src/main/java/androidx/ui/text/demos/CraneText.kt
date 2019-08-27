@@ -529,6 +529,8 @@ fun TextDemoShadowEffect() {
 @Composable
 fun TextDemoSelection() {
     val selection = +state<Selection?> { null }
+    val arabicSentence =
+        "\nكلمة شين في قاموس المعاني الفوري مجال البحث مصطلحات المعجم الوسيط ،اللغة"
     SelectionContainer(
         selection = selection.value,
         onSelectionChange = { selection.value = it }) {
@@ -542,6 +544,7 @@ fun TextDemoSelection() {
                 )
             ) {
                 Span(text = "$displayText   ")
+                Span(text = "$displayTextArabic   ")
                 Span(text = "$displayTextChinese   ")
                 Span(
                     text = displayTextHindi,
@@ -552,6 +555,7 @@ fun TextDemoSelection() {
                         fontStyle = FontStyle.Normal
                     )
                 )
+                Span(text = "$arabicSentence")
                 Span(
                     text = "\n先帝创业未半而中道崩殂，今天下三分，益州疲弊，此诚危急存亡之秋也。",
                     style = TextStyle(locale = Locale("zh", "CN"))

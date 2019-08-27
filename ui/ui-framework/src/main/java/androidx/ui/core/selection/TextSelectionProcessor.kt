@@ -20,6 +20,7 @@ import androidx.ui.core.PxPosition
 import androidx.ui.core.px
 import androidx.ui.text.TextDelegate
 import androidx.ui.text.TextRange
+import androidx.ui.text.style.TextDirection
 import kotlin.math.max
 
 /**
@@ -55,6 +56,8 @@ internal class TextSelectionProcessor(
      * This coordinates is in child widget coordinates system.
      */
     internal var endCoordinates: PxPosition = PxPosition.Origin
+    internal var startDirection = TextDirection.Ltr
+    internal var endDirection = TextDirection.Ltr
     /**
      * A flag to check if the text widget contains the whole selection's start.
      */
@@ -101,8 +104,11 @@ internal class TextSelectionProcessor(
 
         onSelectionChange(TextRange(textSelectionStart, textSelectionEnd))
 
-        startCoordinates = getSelectionHandleCoordinates(textSelectionStart)
-        endCoordinates = getSelectionHandleCoordinates(textSelectionEnd)
+        startCoordinates = getSelectionHandleCoordinates(textSelectionStart, true)
+        endCoordinates = getSelectionHandleCoordinates(textSelectionEnd, false)
+
+        startDirection = textDelegate.getBidiRunDirection(textSelectionStart)
+        endDirection = textDelegate.getBidiRunDirection(Math.max(textSelectionEnd - 1, 0))
 
         this.containsWholeSelectionStart = containsWholeSelectionStart
         this.containsWholeSelectionEnd = containsWholeSelectionEnd
@@ -148,12 +154,17 @@ internal class TextSelectionProcessor(
         return Pair(selectionBorder, containsWholeSelectionBorder)
     }
 
-    private fun getSelectionHandleCoordinates(offset: Int): PxPosition {
-        val left = textDelegate.getPrimaryHorizontal(offset)
-
+    private fun getSelectionHandleCoordinates(offset: Int, isStart: Boolean): PxPosition {
         val line = textDelegate.getLineForOffset(offset)
-        val bottom = textDelegate.getLineBottom(line)
+        val offsetToCheck = if (isStart) offset else Math.max(offset - 1, 0)
+        val bidiRunDirection = textDelegate.getBidiRunDirection(offsetToCheck)
+        val paragraphDirection = textDelegate.getParagraphDirection(offset)
 
-        return PxPosition(left.px, bottom.px)
+        val x =
+            if (bidiRunDirection == paragraphDirection) textDelegate.getPrimaryHorizontal(offset)
+            else textDelegate.getSecondaryHorizontal(offset)
+        val y = textDelegate.getLineBottom(line)
+
+        return PxPosition(x.px, y.px)
     }
 }
