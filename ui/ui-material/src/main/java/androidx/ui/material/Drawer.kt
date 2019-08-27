@@ -22,7 +22,6 @@ import androidx.compose.composer
 import androidx.compose.memo
 import androidx.compose.onCommit
 import androidx.compose.unaryPlus
-import androidx.ui.animation.animatedFloat
 import androidx.ui.core.Dp
 import androidx.ui.core.IntPx
 import androidx.ui.core.Layout
@@ -37,9 +36,9 @@ import androidx.ui.core.withDensity
 import androidx.ui.foundation.Clickable
 import androidx.ui.foundation.ColoredRect
 import androidx.ui.foundation.animation.AnchorsFlingConfig
-import androidx.ui.foundation.gestures.Draggable
 import androidx.ui.foundation.animation.AnimatedFloatDragController
 import androidx.ui.foundation.gestures.DragDirection
+import androidx.ui.foundation.gestures.Draggable
 import androidx.ui.foundation.gestures.DraggableCallback
 import androidx.ui.layout.Alignment
 import androidx.ui.layout.Container
@@ -72,7 +71,7 @@ enum class DrawerState {
  * at the same time. They can be used on tablet and desktop,
  * but they are not suitable for mobile due to limited screen size.
  *
- * @see [ModalDrawer] and [BottomDrawer] for more mobile friendly options
+ * See [ModalDrawerLayout] and [BottomDrawerLayout] for more mobile friendly options.
  *
  * @sample androidx.ui.material.samples.StaticDrawerSample
  *
@@ -93,8 +92,9 @@ fun StaticDrawer(
  * Modal navigation drawers block interaction with the rest of an app’s content with a scrim.
  * They are elevated above most of the app’s UI and don’t affect the screen’s layout grid.
  *
- * @see [StaticDrawer] for always visible drawer, suitable for tables or desktop
- * @see [BottomDrawer] for drawer that is recommended when you have bottom navigation
+ * See [StaticDrawer] for always visible drawer, suitable for tablet or desktop.
+ * See [BottomDrawerLayout] for a layout that introduces a bottom drawer, suitable when
+ * using bottom navigation.
  *
  * @sample androidx.ui.material.samples.ModalDrawerSample
  *
@@ -102,14 +102,16 @@ fun StaticDrawer(
  * @param onStateChange lambda to be invoked when the drawer requests to change its state,
  * e.g. when the drawer is being swiped to the new state or when the scrim is clicked
  * @param drawerContent composable that represents content inside the drawer
+ * @param bodyContent content of the rest of the UI
  *
  * @throws IllegalStateException when parent has [Px.Infinity] width
  */
 @Composable
-fun ModalDrawer(
+fun ModalDrawerLayout(
     drawerState: DrawerState,
     onStateChange: (DrawerState) -> Unit,
-    drawerContent: @Composable() () -> Unit
+    drawerContent: @Composable() () -> Unit,
+    bodyContent: @Composable() () -> Unit
 ) {
     Container(expanded = true) {
         WithConstraints { pxConstraints ->
@@ -148,6 +150,7 @@ fun ModalDrawer(
 
                 Stack {
                     aligned(Alignment.TopLeft) {
+                        bodyContent()
                         Scrim(drawerState, onStateChange, scrimAlpha)
                         DrawerContent(dpOffset, constraints, drawerContent)
                     }
@@ -167,8 +170,8 @@ fun ModalDrawer(
  * These drawers open upon tapping the navigation menu icon in the bottom app bar.
  * They are only for use on mobile.
  *
- * @see [StaticDrawer] for always visible drawer, suitable for tables or desktop
- * @see [ModalDrawer] for classic "from the side" drawer
+ * See [StaticDrawer] for always visible drawer, suitable for tablet or desktop
+ * See [ModalDrawerLayout] for a layout that introduces a classic from-the-side drawer.
  *
  * @sample androidx.ui.material.samples.BottomDrawerSample
  *
@@ -176,14 +179,16 @@ fun ModalDrawer(
  * @param onStateChange lambda to be invoked when the drawer requests to change its state,
  * e.g. when the drawer is being swiped to the new state or when the scrim is clicked
  * @param drawerContent composable that represents content inside the drawer
+ * @param bodyContent content of the rest of the UI
  *
  * @throws IllegalStateException when parent has [Px.Infinity] height
  */
 @Composable
-fun BottomDrawer(
+fun BottomDrawerLayout(
     drawerState: DrawerState,
     onStateChange: (DrawerState) -> Unit,
-    drawerContent: @Composable() () -> Unit
+    drawerContent: @Composable() () -> Unit,
+    bodyContent: @Composable() () -> Unit
 ) {
     Container(expanded = true) {
         WithConstraints { pxConstraints ->
@@ -233,6 +238,7 @@ fun BottomDrawer(
                 }
                 Stack {
                     aligned(Alignment.TopLeft) {
+                        bodyContent()
                         Scrim(drawerState, onStateChange, scrimAlpha)
                         BottomDrawerContent(dpOffset, constraints, drawerContent)
                     }
