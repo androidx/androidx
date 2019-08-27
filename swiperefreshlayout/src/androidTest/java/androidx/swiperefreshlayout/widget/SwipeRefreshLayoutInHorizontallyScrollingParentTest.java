@@ -73,15 +73,14 @@ public class SwipeRefreshLayoutInHorizontallyScrollingParentTest {
         assertThat(mSwipeRefreshLayout, notNullValue());
         assertThat(isIndicatorVisible(mSwipeRefreshLayout), equalTo(false));
 
-        mGestureDistance = mSwipeRefreshLayout.getProgressViewEndOffset()
-                - mSwipeRefreshLayout.getProgressViewStartOffset();
+        mGestureDistance = mSwipeRefreshLayout.getProgressViewEndOffset();
         assertThat(mGestureDistance, greaterThanOrEqualTo(2));
     }
 
     @Test
     public void swipeHorizontallyDuringRefreshGesture() {
         recordRvPosition();
-        swipeVerticallyThenHorizontally(mGestureDistance, mTouchSlop * 3);
+        swipeVerticallyThenHorizontally(mTouchSlop + mGestureDistance, mTouchSlop * 3);
 
         // Gesture wasn't completed, so SRL should not be refreshing
         assertThat(mSwipeRefreshLayout.isRefreshing(), equalTo(false));
@@ -94,7 +93,7 @@ public class SwipeRefreshLayoutInHorizontallyScrollingParentTest {
     @Test
     public void swipeHorizontallyAfterRefreshGesture() {
         recordRvPosition();
-        swipeVerticallyThenHorizontally(mGestureDistance * 2, mTouchSlop * 3);
+        swipeVerticallyThenHorizontally(mTouchSlop + mGestureDistance * 2 + 1, mTouchSlop * 3);
 
         // Gesture was completed, so SRL should be refreshing
         assertThat(mSwipeRefreshLayout.isRefreshing(), equalTo(true));
@@ -107,8 +106,8 @@ public class SwipeRefreshLayoutInHorizontallyScrollingParentTest {
     private void swipeVerticallyThenHorizontally(int dy, int dx) {
         SwipeInjector swiper = new SwipeInjector(InstrumentationRegistry.getInstrumentation());
         swiper.startDrag(CENTER, mRecyclerView);
-        swiper.dragBy(0, dy, 300);
-        swiper.dragBy(dx, 0, 100);
+        swiper.dragBy(0, dy, 150);
+        swiper.dragBy(dx, 0, 50);
         swiper.finishDrag();
     }
 

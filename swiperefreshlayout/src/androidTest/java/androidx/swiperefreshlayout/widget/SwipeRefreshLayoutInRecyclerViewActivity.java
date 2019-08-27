@@ -20,6 +20,7 @@ import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 
 import static androidx.recyclerview.widget.RecyclerView.HORIZONTAL;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
@@ -32,13 +33,13 @@ import androidx.recyclerview.widget.RecyclerView;
 
 public class SwipeRefreshLayoutInRecyclerViewActivity extends FragmentActivity {
 
-    RecyclerView mRecyclerView;
+    RecyclerViewImpl mRecyclerView;
     SwipeRefreshLayout mSwipeRefreshLayout;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mRecyclerView = new RecyclerView(this);
+        mRecyclerView = new RecyclerViewImpl(this);
         mRecyclerView.setLayoutParams(matchParent());
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this, HORIZONTAL, false));
         mRecyclerView.setAdapter(new Adapter());
@@ -52,6 +53,25 @@ public class SwipeRefreshLayoutInRecyclerViewActivity extends FragmentActivity {
     private static class ViewHolder extends RecyclerView.ViewHolder {
         ViewHolder(@NonNull View itemView) {
             super(itemView);
+        }
+    }
+
+    public static class RecyclerViewImpl extends RecyclerView {
+        public boolean mRequestDisallowInterceptTrueCalled;
+        public boolean mRequestDisallowInterceptFalseCalled;
+
+        public RecyclerViewImpl(@NonNull Context context) {
+            super(context);
+        }
+
+        @Override
+        public void requestDisallowInterceptTouchEvent(boolean disallowIntercept) {
+            super.requestDisallowInterceptTouchEvent(disallowIntercept);
+            if (disallowIntercept) {
+                mRequestDisallowInterceptTrueCalled = true;
+            } else {
+                mRequestDisallowInterceptFalseCalled = true;
+            }
         }
     }
 
@@ -98,6 +118,7 @@ public class SwipeRefreshLayoutInRecyclerViewActivity extends FragmentActivity {
 
         private ViewHolder createOtherItem(@NonNull ViewGroup parent) {
             View view = new View(parent.getContext());
+            view.setLayoutParams(matchParent());
             view.setBackgroundColor(0xFFFF0000);
             return new ViewHolder(view);
         }
