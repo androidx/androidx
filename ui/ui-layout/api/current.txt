@@ -20,6 +20,11 @@ package androidx.ui.layout {
     enum_constant public static final androidx.ui.layout.Alignment TopRight;
   }
 
+  public final class AlignmentLineKt {
+    ctor public AlignmentLineKt();
+    method public static void AlignmentLineOffset(androidx.ui.core.AlignmentLine alignmentLine, androidx.ui.core.Dp before = 0.dp, androidx.ui.core.Dp after = 0.dp, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+  }
+
   public final class AspectRatioKt {
     ctor public AspectRatioKt();
     method public static void AspectRatio(float aspectRatio, kotlin.jvm.functions.Function0<kotlin.Unit> children);
