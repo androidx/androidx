@@ -32,6 +32,23 @@ import androidx.annotation.RequiresApi
 /**
  * A fake implementation of [ViewStructure] to use in tests.
  *
+ * @param virtualId An ID that is unique for each viewStructure node in the viewStructure tree.
+ * @param packageName The package name of the app (Used as an autofill heuristic).
+ * @param typeName The type name of the view's identifier, or null if there is none.
+ * @param entryName The entry name of the view's identifier, or null if there is none.
+ * @param children A list of [ViewStructure]s that are children of the current [ViewStructure].
+ * @param bounds The bounds (Dimensions) of the component represented by this [ViewStructure].
+ * @param autofillId The [autofillId] for the parent component. The same autofillId is used for
+ * other child components.
+ * @param autofillType The data type. Can be one of the following:
+ * [View.AUTOFILL_TYPE_DATE],
+ * [View.AUTOFILL_TYPE_LIST],
+ * [View.AUTOFILL_TYPE_TEXT],
+ * [View.AUTOFILL_TYPE_TOGGLE] or
+ * [View.AUTOFILL_TYPE_NONE].
+ * @param autofillHints The autofill hint. If this value not specified, we use heuristics to
+ * determine what data to use while performing autofill.
+ *
  * @hide
  */
 @RequiresApi(Build.VERSION_CODES.O)
