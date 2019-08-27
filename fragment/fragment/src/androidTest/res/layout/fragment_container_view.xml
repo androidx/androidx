@@ -15,9 +15,9 @@
   limitations under the License.
   -->
 
-<androidx.fragment.app.FragmentContainerTestView
+<androidx.fragment.app.FragmentContainerView
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/fragment_container_view"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
-</androidx.fragment.app.FragmentContainerTestView>
+</androidx.fragment.app.FragmentContainerView>
