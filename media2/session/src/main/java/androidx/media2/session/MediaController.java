@@ -322,7 +322,11 @@ public class MediaController implements AutoCloseable {
     }
 
     /**
-     * Requests that the player increases the playback speed.
+     * Requests that the player to fast forward playback.
+     * <p>
+     * The implementation may be different depending on the players. For example, it can be
+     * implemented by seeking forward once, series of seeking forward, or increasing playback speed.
+     * If you need full control, then use {@link #seekTo} or {@link #setPlaybackSpeed} directly.
      *
      * @see MediaSession.SessionCallback#onFastForward(MediaSession, MediaSession.ControllerInfo)
      */
@@ -335,7 +339,12 @@ public class MediaController implements AutoCloseable {
     }
 
     /**
-     * Requests that the player decreases the playback speed.
+     * Requests that the player to rewind playback.
+     * <p>
+     * The implementation may be different depending on the players. For example, it can be
+     * implemented by seeking backward once, series of seeking backward, or decreasing playback
+     * speed. If you need full control, then use {@link #seekTo} or {@link #setPlaybackSpeed}
+     * directly.
      *
      * @see MediaSession.SessionCallback#onRewind(MediaSession, MediaSession.ControllerInfo)
      */
@@ -349,7 +358,11 @@ public class MediaController implements AutoCloseable {
 
     /**
      * Requests that the player skips backward within the current media item.
-     *
+     * <p>
+     * The implementation may be different depending on the players. For example, it can be
+     * implemented by seeking forward once with the fixed amount of seconds, or seeking forward to
+     * the nearest bookmark. If you need full control, then use {@link #seekTo} directly.
+     * *
      * @see MediaSession.SessionCallback#onSkipForward(MediaSession, MediaSession.ControllerInfo)
      */
     @NonNull
@@ -363,6 +376,10 @@ public class MediaController implements AutoCloseable {
 
     /**
      * Requests that the player skips forward within the current media item.
+     * <p>
+     * The implementation may be different depending on the players. For example, it can be
+     * implemented by seeking backward once with the fixed amount of seconds, or seeking backward to
+     * the nearest bookmark. If you need full control, then use {@link #seekTo} directly.
      *
      * @see MediaSession.SessionCallback#onSkipBackward(MediaSession, MediaSession.ControllerInfo)
      */

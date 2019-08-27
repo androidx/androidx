@@ -19,7 +19,6 @@ package androidx.media2.common;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 import static androidx.media2.common.BaseResult.RESULT_ERROR_NOT_SUPPORTED;
-import static androidx.media2.common.BaseResult.RESULT_ERROR_UNKNOWN;
 
 import android.media.MediaFormat;
 import android.os.Bundle;
