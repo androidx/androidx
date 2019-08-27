@@ -22,7 +22,6 @@ import androidx.ui.input.CommitTextEditOp
 import androidx.ui.input.EditOperation
 import androidx.ui.input.EditProcessor
 import androidx.ui.input.EditorModel
-import androidx.ui.input.EditorStyle
 import androidx.ui.input.FinishComposingTextEditOp
 import androidx.ui.input.ImeAction
 import androidx.ui.input.KeyboardType
@@ -120,7 +119,7 @@ class TextFieldDelegateTest {
         )
 
         verify(mDelegate, times(1)).paintBackground(
-            eq(selection.start), eq(selection.end), eq(selectionColor), eq(canvas))
+            eq(selection.min), eq(selection.max), eq(selectionColor), eq(canvas))
         verify(mDelegate, times(1)).paint(eq(canvas))
 
         verify(mDelegate, never()).paintCursor(any(), any())
@@ -138,7 +137,7 @@ class TextFieldDelegateTest {
             offsetMap = identityOffsetMap
         )
 
-        verify(mDelegate, times(1)).paintCursor(eq(cursor.start), eq(canvas))
+        verify(mDelegate, times(1)).paintCursor(eq(cursor.min), eq(canvas))
         verify(mDelegate, times(1)).paint(eq(canvas))
         verify(mDelegate, never()).paintBackground(any(), any(), any(), any())
     }
@@ -177,9 +176,9 @@ class TextFieldDelegateTest {
         )
 
         verify(mDelegate, times(1)).paintBackground(
-            eq(composition.start), eq(composition.end), eq(compositionColor), eq(canvas))
+            eq(composition.min), eq(composition.max), eq(compositionColor), eq(canvas))
         verify(mDelegate, times(1)).paint(eq(canvas))
-        verify(mDelegate, times(1)).paintCursor(eq(cursor.start), any())
+        verify(mDelegate, times(1)).paintCursor(eq(cursor.min), any())
     }
 
     @Test
@@ -385,8 +384,8 @@ class TextFieldDelegateTest {
             offsetMap = skippingOffsetMap
         )
 
-        val selectionStartInTransformedText = selection.start * 2
-        val selectionEmdInTransformedText = selection.end * 2
+        val selectionStartInTransformedText = selection.min * 2
+        val selectionEmdInTransformedText = selection.max * 2
 
         verify(mDelegate, times(1)).paintBackground(
             eq(selectionStartInTransformedText),
