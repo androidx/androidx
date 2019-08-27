@@ -113,7 +113,7 @@ internal class AndroidSemanticsTreeInteraction internal constructor(
      *
      * @return Whether the method had to wait for pending changes or not.
      */
-    private fun waitForIdleCompose(): Boolean {
+    override fun waitForIdleCompose(): Boolean {
         if (Looper.getMainLooper() == Looper.myLooper()) {
             throw Exception("Cannot be run on UI thread.")
         }
