@@ -106,9 +106,9 @@ internal class RecordingInputConnection(
 
         // The candidateStart and candidateEnd is composition start and composition end in
         // updateSelection API. Need to pass -1 if there is no composition.
-        val candidateStart = next.composition?.start ?: -1
-        val candidateEnd = next.composition?.end ?: -1
-        imm.updateSelection(view, next.selection.start, next.selection.end,
+        val candidateStart = next.composition?.min ?: -1
+        val candidateEnd = next.composition?.max ?: -1
+        imm.updateSelection(view, next.selection.min, next.selection.max,
             candidateStart, candidateEnd)
     }
 
@@ -321,7 +321,7 @@ internal class RecordingInputConnection(
 
     override fun getCursorCapsMode(reqModes: Int): Int {
         if (DEBUG) { Log.d(TAG, "getCursorCapsMode($reqModes)") }
-        return TextUtils.getCapsMode(inputState.text, inputState.selection.start, reqModes)
+        return TextUtils.getCapsMode(inputState.text, inputState.selection.min, reqModes)
     }
 
     override fun performPrivateCommand(action: String?, data: Bundle?): Boolean {

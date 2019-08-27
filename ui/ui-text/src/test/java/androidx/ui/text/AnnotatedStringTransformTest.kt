@@ -37,7 +37,7 @@ class AnnotatedStringTransformTest {
      * Helper function for creating AnnotatedString.Item with TextRange.
      */
     private fun <T> makeItem(style: T, range: TextRange) =
-        AnnotatedString.Item(style, range.start, range.end)
+        AnnotatedString.Item(style, range.min, range.max)
 
     /**
      * Make AnnotatedString.Item with original string with using "(" and ")" characters.
