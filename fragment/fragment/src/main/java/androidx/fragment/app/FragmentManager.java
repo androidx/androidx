@@ -71,7 +71,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -355,16 +354,6 @@ public abstract class FragmentManager {
     private static final String VIEW_STATE_TAG = "android:view_state";
     private static final String USER_VISIBLE_HINT_TAG = "android:user_visible_hint";
 
-    private static final class FragmentLifecycleCallbacksHolder {
-        final FragmentLifecycleCallbacks mCallback;
-        final boolean mRecursive;
-
-        FragmentLifecycleCallbacksHolder(FragmentLifecycleCallbacks callback, boolean recursive) {
-            mCallback = callback;
-            mRecursive = recursive;
-        }
-    }
-
     private final ArrayList<OpGenerator> mPendingActions = new ArrayList<>();
     private boolean mExecutingActions;
 
@@ -389,8 +378,8 @@ public abstract class FragmentManager {
     private ArrayList<OnBackStackChangedListener> mBackStackChangeListeners;
     private HashMap<Fragment, HashSet<ExitAnimationCompleteMarker>>
             mExitAnimationCompleteMarkers = new HashMap<>();
-    private final CopyOnWriteArrayList<FragmentLifecycleCallbacksHolder>
-            mLifecycleCallbacks = new CopyOnWriteArrayList<>();
+    private final FragmentLifecycleCallbacksDispatcher mLifecycleCallbacksDispatcher =
+            new FragmentLifecycleCallbacksDispatcher(this);
 
     int mCurState = Fragment.INITIALIZING;
     FragmentHostCallback<?> mHost;
@@ -1315,19 +1304,23 @@ public abstract class FragmentManager {
                             }
                         }
 
-                        dispatchOnFragmentPreAttached(f, mHost.getContext(), false);
+                        mLifecycleCallbacksDispatcher.dispatchOnFragmentPreAttached(
+                                f, mHost.getContext(), false);
                         f.performAttach();
                         if (f.mParentFragment == null) {
                             mHost.onAttachFragment(f);
                         } else {
                             f.mParentFragment.onAttachFragment(f);
                         }
-                        dispatchOnFragmentAttached(f, mHost.getContext(), false);
+                        mLifecycleCallbacksDispatcher.dispatchOnFragmentAttached(
+                                f, mHost.getContext(), false);
 
                         if (!f.mIsCreated) {
-                            dispatchOnFragmentPreCreated(f, f.mSavedFragmentState, false);
+                            mLifecycleCallbacksDispatcher.dispatchOnFragmentPreCreated(
+                                    f, f.mSavedFragmentState, false);
                             f.performCreate(f.mSavedFragmentState);
-                            dispatchOnFragmentCreated(f, f.mSavedFragmentState, false);
+                            mLifecycleCallbacksDispatcher.dispatchOnFragmentCreated(
+                                    f, f.mSavedFragmentState, false);
                         } else {
                             f.restoreChildFragmentState(f.mSavedFragmentState);
                             f.mState = Fragment.CREATED;
@@ -1382,8 +1375,8 @@ public abstract class FragmentManager {
                                 }
                                 ViewCompat.requestApplyInsets(f.mView);
                                 f.onViewCreated(f.mView, f.mSavedFragmentState);
-                                dispatchOnFragmentViewCreated(f, f.mView, f.mSavedFragmentState,
-                                        false);
+                                mLifecycleCallbacksDispatcher.dispatchOnFragmentViewCreated(
+                                        f, f.mView, f.mSavedFragmentState, false);
                                 // Only animate the view if it is visible. This is done after
                                 // dispatchOnFragmentViewCreated in case visibility is changed
                                 f.mIsNewlyAdded = (f.mView.getVisibility() == View.VISIBLE)
@@ -1392,7 +1385,8 @@ public abstract class FragmentManager {
                         }
 
                         f.performActivityCreated(f.mSavedFragmentState);
-                        dispatchOnFragmentActivityCreated(f, f.mSavedFragmentState, false);
+                        mLifecycleCallbacksDispatcher.dispatchOnFragmentActivityCreated(
+                                f, f.mSavedFragmentState, false);
                         if (f.mView != null) {
                             f.restoreViewState(f.mSavedFragmentState);
                         }
@@ -1403,14 +1397,14 @@ public abstract class FragmentManager {
                     if (newState > Fragment.ACTIVITY_CREATED) {
                         if (DEBUG) Log.v(TAG, "moveto STARTED: " + f);
                         f.performStart();
-                        dispatchOnFragmentStarted(f, false);
+                        mLifecycleCallbacksDispatcher.dispatchOnFragmentStarted(f, false);
                     }
                     // fall through
                 case Fragment.STARTED:
                     if (newState > Fragment.STARTED) {
                         if (DEBUG) Log.v(TAG, "moveto RESUMED: " + f);
                         f.performResume();
-                        dispatchOnFragmentResumed(f, false);
+                        mLifecycleCallbacksDispatcher.dispatchOnFragmentResumed(f, false);
                         f.mSavedFragmentState = null;
                         f.mSavedViewState = null;
                     }
@@ -1421,14 +1415,14 @@ public abstract class FragmentManager {
                     if (newState < Fragment.RESUMED) {
                         if (DEBUG) Log.v(TAG, "movefrom RESUMED: " + f);
                         f.performPause();
-                        dispatchOnFragmentPaused(f, false);
+                        mLifecycleCallbacksDispatcher.dispatchOnFragmentPaused(f, false);
                     }
                     // fall through
                 case Fragment.STARTED:
                     if (newState < Fragment.STARTED) {
                         if (DEBUG) Log.v(TAG, "movefrom STARTED: " + f);
                         f.performStop();
-                        dispatchOnFragmentStopped(f, false);
+                        mLifecycleCallbacksDispatcher.dispatchOnFragmentStopped(f, false);
                     }
                     // fall through
                 case Fragment.ACTIVITY_CREATED:
@@ -1508,13 +1502,15 @@ public abstract class FragmentManager {
                                     mNonConfig.clearNonConfigState(f);
                                 }
                                 f.performDestroy();
-                                dispatchOnFragmentDestroyed(f, false);
+                                mLifecycleCallbacksDispatcher.dispatchOnFragmentDestroyed(
+                                        f, false);
                             } else {
                                 f.mState = Fragment.INITIALIZING;
                             }
 
                             f.performDetach();
-                            dispatchOnFragmentDetached(f, false);
+                            mLifecycleCallbacksDispatcher.dispatchOnFragmentDetached(
+                                    f, false);
                             if (beingRemoved || mNonConfig.shouldDestroy(f)) {
                                 makeInactive(f);
                             } else {
@@ -1650,7 +1646,7 @@ public abstract class FragmentManager {
 
     private void destroyFragmentView(@NonNull Fragment fragment) {
         fragment.performDestroyView();
-        dispatchOnFragmentViewDestroyed(fragment, false);
+        mLifecycleCallbacksDispatcher.dispatchOnFragmentViewDestroyed(fragment, false);
         fragment.mContainer = null;
         fragment.mView = null;
         // Set here to ensure that Observers are called after
@@ -1672,7 +1668,8 @@ public abstract class FragmentManager {
                 f.mView.setSaveFromParentEnabled(false);
                 if (f.mHidden) f.mView.setVisibility(View.GONE);
                 f.onViewCreated(f.mView, f.mSavedFragmentState);
-                dispatchOnFragmentViewCreated(f, f.mView, f.mSavedFragmentState, false);
+                mLifecycleCallbacksDispatcher.dispatchOnFragmentViewCreated(
+                        f, f.mView, f.mSavedFragmentState, false);
             }
         }
     }
@@ -2799,7 +2796,8 @@ public abstract class FragmentManager {
             mStateBundle = new Bundle();
         }
         f.performSaveInstanceState(mStateBundle);
-        dispatchOnFragmentSaveInstanceState(f, mStateBundle, false);
+        mLifecycleCallbacksDispatcher.dispatchOnFragmentSaveInstanceState(
+                f, mStateBundle, false);
         if (!mStateBundle.isEmpty()) {
             result = mStateBundle;
             mStateBundle = null;
@@ -3068,6 +3066,11 @@ public abstract class FragmentManager {
         // values() provides a view into the map, so removing elements from it
         // removes the relevant pairs in the Map
         values.removeAll(Collections.singleton(null));
+    }
+
+    @Nullable
+    Fragment getParent() {
+        return mParent;
     }
 
     void attachController(@NonNull FragmentHostCallback<?> host,
@@ -3383,6 +3386,11 @@ public abstract class FragmentManager {
         return mHostFragmentFactory;
     }
 
+    @NonNull
+    FragmentLifecycleCallbacksDispatcher getLifecycleCallbacksDispatcher() {
+        return mLifecycleCallbacksDispatcher;
+    }
+
     /**
      * Registers a {@link FragmentLifecycleCallbacks} to listen to fragment lifecycle events
      * happening in this FragmentManager. All registered callbacks will be automatically
@@ -3393,7 +3401,7 @@ public abstract class FragmentManager {
      */
     public void registerFragmentLifecycleCallbacks(@NonNull FragmentLifecycleCallbacks cb,
             boolean recursive) {
-        mLifecycleCallbacks.add(new FragmentLifecycleCallbacksHolder(cb, recursive));
+        mLifecycleCallbacksDispatcher.registerFragmentLifecycleCallbacks(cb, recursive);
     }
 
     /**
@@ -3404,189 +3412,7 @@ public abstract class FragmentManager {
      * @param cb Callbacks to unregister
      */
     public void unregisterFragmentLifecycleCallbacks(@NonNull FragmentLifecycleCallbacks cb) {
-        synchronized (mLifecycleCallbacks) {
-            for (int i = 0, count = mLifecycleCallbacks.size(); i < count; i++) {
-                if (mLifecycleCallbacks.get(i).mCallback == cb) {
-                    mLifecycleCallbacks.remove(i);
-                    break;
-                }
-            }
-        }
-    }
-
-    private void dispatchOnFragmentPreAttached(@NonNull Fragment f, @NonNull Context context,
-            boolean onlyRecursive) {
-        if (mParent != null) {
-            FragmentManager parentManager = mParent.requireFragmentManager();
-            parentManager.dispatchOnFragmentPreAttached(f, context, true);
-        }
-        for (FragmentLifecycleCallbacksHolder holder : mLifecycleCallbacks) {
-            if (!onlyRecursive || holder.mRecursive) {
-                holder.mCallback.onFragmentPreAttached(this, f, context);
-            }
-        }
-    }
-
-    private void dispatchOnFragmentAttached(@NonNull Fragment f, @NonNull Context context,
-            boolean onlyRecursive) {
-        if (mParent != null) {
-            FragmentManager parentManager = mParent.requireFragmentManager();
-            parentManager.dispatchOnFragmentAttached(f, context, true);
-        }
-        for (FragmentLifecycleCallbacksHolder holder : mLifecycleCallbacks) {
-            if (!onlyRecursive || holder.mRecursive) {
-                holder.mCallback.onFragmentAttached(this, f, context);
-            }
-        }
-    }
-
-    private void dispatchOnFragmentPreCreated(@NonNull Fragment f,
-            @Nullable Bundle savedInstanceState, boolean onlyRecursive) {
-        if (mParent != null) {
-            FragmentManager parentManager = mParent.requireFragmentManager();
-            parentManager.dispatchOnFragmentPreCreated(f, savedInstanceState, true);
-        }
-        for (FragmentLifecycleCallbacksHolder holder : mLifecycleCallbacks) {
-            if (!onlyRecursive || holder.mRecursive) {
-                holder.mCallback.onFragmentPreCreated(this, f, savedInstanceState);
-            }
-        }
-    }
-
-    private void dispatchOnFragmentCreated(@NonNull Fragment f,
-            @Nullable Bundle savedInstanceState, boolean onlyRecursive) {
-        if (mParent != null) {
-            FragmentManager parentManager = mParent.requireFragmentManager();
-            parentManager.dispatchOnFragmentCreated(f, savedInstanceState, true);
-        }
-        for (FragmentLifecycleCallbacksHolder holder : mLifecycleCallbacks) {
-            if (!onlyRecursive || holder.mRecursive) {
-                holder.mCallback.onFragmentCreated(this, f, savedInstanceState);
-            }
-        }
-    }
-
-    private void dispatchOnFragmentActivityCreated(@NonNull Fragment f,
-            @Nullable Bundle savedInstanceState, boolean onlyRecursive) {
-        if (mParent != null) {
-            FragmentManager parentManager = mParent.requireFragmentManager();
-            parentManager.dispatchOnFragmentActivityCreated(f, savedInstanceState, true);
-        }
-        for (FragmentLifecycleCallbacksHolder holder : mLifecycleCallbacks) {
-            if (!onlyRecursive || holder.mRecursive) {
-                holder.mCallback.onFragmentActivityCreated(this, f, savedInstanceState);
-            }
-        }
-    }
-
-    private void dispatchOnFragmentViewCreated(@NonNull Fragment f, @NonNull View v,
-            @Nullable Bundle savedInstanceState, boolean onlyRecursive) {
-        if (mParent != null) {
-            FragmentManager parentManager = mParent.requireFragmentManager();
-            parentManager.dispatchOnFragmentViewCreated(f, v, savedInstanceState, true);
-        }
-        for (FragmentLifecycleCallbacksHolder holder : mLifecycleCallbacks) {
-            if (!onlyRecursive || holder.mRecursive) {
-                holder.mCallback.onFragmentViewCreated(this, f, v, savedInstanceState);
-            }
-        }
-    }
-
-    private void dispatchOnFragmentStarted(@NonNull Fragment f, boolean onlyRecursive) {
-        if (mParent != null) {
-            FragmentManager parentManager = mParent.requireFragmentManager();
-            parentManager.dispatchOnFragmentStarted(f, true);
-        }
-        for (FragmentLifecycleCallbacksHolder holder : mLifecycleCallbacks) {
-            if (!onlyRecursive || holder.mRecursive) {
-                holder.mCallback.onFragmentStarted(this, f);
-            }
-        }
-    }
-
-    private void dispatchOnFragmentResumed(@NonNull Fragment f, boolean onlyRecursive) {
-        if (mParent != null) {
-            FragmentManager parentManager = mParent.requireFragmentManager();
-            parentManager.dispatchOnFragmentResumed(f, true);
-        }
-        for (FragmentLifecycleCallbacksHolder holder : mLifecycleCallbacks) {
-            if (!onlyRecursive || holder.mRecursive) {
-                holder.mCallback.onFragmentResumed(this, f);
-            }
-        }
-    }
-
-    private void dispatchOnFragmentPaused(@NonNull Fragment f, boolean onlyRecursive) {
-        if (mParent != null) {
-            FragmentManager parentManager = mParent.requireFragmentManager();
-            parentManager.dispatchOnFragmentPaused(f, true);
-        }
-        for (FragmentLifecycleCallbacksHolder holder : mLifecycleCallbacks) {
-            if (!onlyRecursive || holder.mRecursive) {
-                holder.mCallback.onFragmentPaused(this, f);
-            }
-        }
-    }
-
-    private void dispatchOnFragmentStopped(@NonNull Fragment f, boolean onlyRecursive) {
-        if (mParent != null) {
-            FragmentManager parentManager = mParent.requireFragmentManager();
-            parentManager.dispatchOnFragmentStopped(f, true);
-        }
-        for (FragmentLifecycleCallbacksHolder holder : mLifecycleCallbacks) {
-            if (!onlyRecursive || holder.mRecursive) {
-                holder.mCallback.onFragmentStopped(this, f);
-            }
-        }
-    }
-
-    private void dispatchOnFragmentSaveInstanceState(@NonNull Fragment f, @NonNull Bundle outState,
-            boolean onlyRecursive) {
-        if (mParent != null) {
-            FragmentManager parentManager = mParent.requireFragmentManager();
-            parentManager.dispatchOnFragmentSaveInstanceState(f, outState, true);
-        }
-        for (FragmentLifecycleCallbacksHolder holder : mLifecycleCallbacks) {
-            if (!onlyRecursive || holder.mRecursive) {
-                holder.mCallback.onFragmentSaveInstanceState(this, f, outState);
-            }
-        }
-    }
-
-    private void dispatchOnFragmentViewDestroyed(@NonNull Fragment f, boolean onlyRecursive) {
-        if (mParent != null) {
-            FragmentManager parentManager = mParent.requireFragmentManager();
-            parentManager.dispatchOnFragmentViewDestroyed(f, true);
-        }
-        for (FragmentLifecycleCallbacksHolder holder : mLifecycleCallbacks) {
-            if (!onlyRecursive || holder.mRecursive) {
-                holder.mCallback.onFragmentViewDestroyed(this, f);
-            }
-        }
-    }
-
-    private void dispatchOnFragmentDestroyed(@NonNull Fragment f, boolean onlyRecursive) {
-        if (mParent != null) {
-            FragmentManager parentManager = mParent.requireFragmentManager();
-            parentManager.dispatchOnFragmentDestroyed(f, true);
-        }
-        for (FragmentLifecycleCallbacksHolder holder : mLifecycleCallbacks) {
-            if (!onlyRecursive || holder.mRecursive) {
-                holder.mCallback.onFragmentDestroyed(this, f);
-            }
-        }
-    }
-
-    private void dispatchOnFragmentDetached(@NonNull Fragment f, boolean onlyRecursive) {
-        if (mParent != null) {
-            FragmentManager parentManager = mParent.requireFragmentManager();
-            parentManager.dispatchOnFragmentDetached(f, true);
-        }
-        for (FragmentLifecycleCallbacksHolder holder : mLifecycleCallbacks) {
-            if (!onlyRecursive || holder.mRecursive) {
-                holder.mCallback.onFragmentDetached(this, f);
-            }
-        }
+        mLifecycleCallbacksDispatcher.unregisterFragmentLifecycleCallbacks(cb);
     }
 
     // Checks if fragments that belong to this fragment manager (or their children) have menus,
