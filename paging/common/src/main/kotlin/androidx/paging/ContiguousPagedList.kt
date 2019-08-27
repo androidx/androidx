@@ -346,16 +346,6 @@ open class ContiguousPagedList<K : Any, V : Any>(
         notifyInserted(endPosition + changed, added)
     }
 
-    @MainThread
-    override fun onPagePlaceholderInserted(pageIndex: Int) {
-        throw IllegalStateException("Tiled callback on ContiguousPagedList")
-    }
-
-    @MainThread
-    override fun onPageInserted(start: Int, count: Int) {
-        throw IllegalStateException("Tiled callback on ContiguousPagedList")
-    }
-
     override fun onPagesRemoved(startOfDrops: Int, count: Int) = notifyRemoved(startOfDrops, count)
 
     override fun onPagesSwappedToPlaceholder(startOfDrops: Int, count: Int) =

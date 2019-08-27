@@ -160,8 +160,6 @@ class PagedStorage<T : Any> : AbstractList<T>, Pager.AdjacentProvider<T> {
         fun onInitialized(count: Int)
         fun onPagePrepended(leadingNulls: Int, changed: Int, added: Int)
         fun onPageAppended(endPosition: Int, changed: Int, added: Int)
-        fun onPagePlaceholderInserted(pageIndex: Int)
-        fun onPageInserted(start: Int, count: Int)
         fun onPagesRemoved(startOfDrops: Int, count: Int)
         fun onPagesSwappedToPlaceholder(startOfDrops: Int, count: Int)
     }
