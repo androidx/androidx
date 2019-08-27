@@ -2954,18 +2954,67 @@ public abstract class FragmentManager {
         FragmentManagerState fms = (FragmentManagerState) state;
         if (fms.mActive == null) return;
 
-        // First re-attach any non-config instances we are retaining back
-        // to their saved state, so we don't try to instantiate them again.
-        for (Fragment f : mNonConfig.getRetainedFragments()) {
-            if (DEBUG) Log.v(TAG, "restoreSaveState: re-attaching retained " + f);
-            FragmentState fs = null;
-            for (FragmentState fragmentState : fms.mActive) {
-                if (fragmentState.mWho.equals(f.mWho)) {
-                    fs = fragmentState;
-                    break;
+        // Build the full list of active fragments, instantiating them from
+        // their saved state.
+        mActive.clear();
+        for (FragmentState fs : fms.mActive) {
+            if (fs != null) {
+                Fragment f;
+                Fragment retainedFragment = mNonConfig.findRetainedFragmentByWho(fs.mWho);
+                if (retainedFragment != null) {
+                    if (DEBUG) {
+                        Log.v(TAG, "restoreSaveState: re-attaching retained "
+                                + retainedFragment);
+                    }
+                    f = retainedFragment;
+                    f.mSavedViewState = null;
+                    f.mBackStackNesting = 0;
+                    f.mInLayout = false;
+                    f.mAdded = false;
+                    f.mTargetWho = f.mTarget != null ? f.mTarget.mWho : null;
+                    f.mTarget = null;
+                } else {
+                    ClassLoader classLoader = mHost.getContext().getClassLoader();
+                    f = getFragmentFactory().instantiate(classLoader, fs.mClassName);
+                    if (fs.mArguments != null) {
+                        fs.mArguments.setClassLoader(classLoader);
+                    }
+                    f.setArguments(fs.mArguments);
+                    f.mWho = fs.mWho;
+                    f.mFromLayout = fs.mFromLayout;
+                    f.mRestored = true;
+                    f.mFragmentId = fs.mFragmentId;
+                    f.mContainerId = fs.mContainerId;
+                    f.mTag = fs.mTag;
+                    f.mRetainInstance = fs.mRetainInstance;
+                    f.mRemoving = fs.mRemoving;
+                    f.mDetached = fs.mDetached;
+                    f.mHidden = fs.mHidden;
+                    f.mMaxState = Lifecycle.State.values()[fs.mMaxLifecycleState];
+
+                    if (FragmentManager.DEBUG) {
+                        Log.v(FragmentManager.TAG, "Instantiated fragment " + f);
+                    }
                 }
+                if (fs.mSavedFragmentState != null) {
+                    fs.mSavedFragmentState.setClassLoader(mHost.getContext().getClassLoader());
+                    f.mSavedFragmentState = fs.mSavedFragmentState;
+                } else {
+                    // When restoring a Fragment, always ensure we have a
+                    // non-null Bundle so that developers have a signal for
+                    // when the Fragment is being restored
+                    f.mSavedFragmentState = new Bundle();
+                }
+                f.mFragmentManager = this;
+                if (DEBUG) Log.v(TAG, "restoreSaveState: active (" + f.mWho + "): " + f);
+                mActive.put(f.mWho, f);
             }
-            if (fs == null) {
+        }
+
+        // Check to make sure there aren't any retained fragments that aren't in mActive
+        // This can happen if a retained fragment is added after the state is saved
+        for (Fragment f : mNonConfig.getRetainedFragments()) {
+            if (!mActive.containsKey(f.mWho)) {
                 if (DEBUG) {
                     Log.v(TAG, "Discarding retained Fragment " + f
                             + " that was not found in the set of active Fragments " + fms.mActive);
@@ -2976,37 +3025,6 @@ public abstract class FragmentManager {
                 moveToState(f, Fragment.CREATED);
                 f.mRemoving = true;
                 moveToState(f, Fragment.INITIALIZING);
-                continue;
-            }
-            fs.mInstance = f;
-            f.mSavedViewState = null;
-            f.mBackStackNesting = 0;
-            f.mInLayout = false;
-            f.mAdded = false;
-            f.mTargetWho = f.mTarget != null ? f.mTarget.mWho : null;
-            f.mTarget = null;
-            if (fs.mSavedFragmentState != null) {
-                fs.mSavedFragmentState.setClassLoader(mHost.getContext().getClassLoader());
-                f.mSavedViewState = fs.mSavedFragmentState.getSparseParcelableArray(
-                        FragmentManager.VIEW_STATE_TAG);
-                f.mSavedFragmentState = fs.mSavedFragmentState;
-            }
-        }
-
-        // Build the full list of active fragments, instantiating them from
-        // their saved state.
-        mActive.clear();
-        for (FragmentState fs : fms.mActive) {
-            if (fs != null) {
-                Fragment f = fs.instantiate(mHost.getContext().getClassLoader(),
-                        getFragmentFactory());
-                f.mFragmentManager = this;
-                if (DEBUG) Log.v(TAG, "restoreSaveState: active (" + f.mWho + "): " + f);
-                mActive.put(f.mWho, f);
-                // Now that the fragment is instantiated (or came from being
-                // retained above), clear mInstance in case we end up re-restoring
-                // from this FragmentState again.
-                fs.mInstance = null;
             }
         }
 

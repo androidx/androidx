@@ -20,10 +20,8 @@ import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
-import androidx.lifecycle.Lifecycle;
 
 @SuppressLint("BanParcelableUsage")
 final class FragmentState implements Parcelable {
@@ -41,8 +39,6 @@ final class FragmentState implements Parcelable {
     final int mMaxLifecycleState;
 
     Bundle mSavedFragmentState;
-
-    Fragment mInstance;
 
     FragmentState(Fragment frag) {
         mClassName = frag.getClass().getName();
@@ -73,44 +69,6 @@ final class FragmentState implements Parcelable {
         mHidden = in.readInt() != 0;
         mSavedFragmentState = in.readBundle();
         mMaxLifecycleState = in.readInt();
-    }
-
-    public Fragment instantiate(@NonNull ClassLoader classLoader,
-            @NonNull FragmentFactory factory) {
-        if (mInstance == null) {
-            if (mArguments != null) {
-                mArguments.setClassLoader(classLoader);
-            }
-
-            mInstance = factory.instantiate(classLoader, mClassName);
-            mInstance.setArguments(mArguments);
-
-            if (mSavedFragmentState != null) {
-                mSavedFragmentState.setClassLoader(classLoader);
-                mInstance.mSavedFragmentState = mSavedFragmentState;
-            } else {
-                // When restoring a Fragment, always ensure we have a
-                // non-null Bundle so that developers have a signal for
-                // when the Fragment is being restored
-                mInstance.mSavedFragmentState = new Bundle();
-            }
-            mInstance.mWho = mWho;
-            mInstance.mFromLayout = mFromLayout;
-            mInstance.mRestored = true;
-            mInstance.mFragmentId = mFragmentId;
-            mInstance.mContainerId = mContainerId;
-            mInstance.mTag = mTag;
-            mInstance.mRetainInstance = mRetainInstance;
-            mInstance.mRemoving = mRemoving;
-            mInstance.mDetached = mDetached;
-            mInstance.mHidden = mHidden;
-            mInstance.mMaxState = Lifecycle.State.values()[mMaxLifecycleState];
-
-            if (FragmentManager.DEBUG) {
-                Log.v(FragmentManager.TAG, "Instantiated fragment " + mInstance);
-            }
-        }
-        return mInstance;
     }
 
     @NonNull
