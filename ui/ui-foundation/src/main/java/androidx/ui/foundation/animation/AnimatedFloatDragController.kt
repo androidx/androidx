@@ -39,6 +39,11 @@ class AnimatedFloatDragController(
 ) : DragValueController {
 
     /**
+     * whether or not this controller should update value on drag / fling events
+     */
+    var enabled: Boolean = true
+
+    /**
      * Construct controller that creates and owns AnimatedFloat instance
      *
      * @param initialValue initial value for AnimatedFloat to set it up
@@ -54,11 +59,11 @@ class AnimatedFloatDragController(
     override fun setBounds(min: Float, max: Float) = animatedFloat.setBounds(min, max)
 
     override fun onDrag(target: Float) {
-        animatedFloat.snapTo(target)
+        if (enabled) animatedFloat.snapTo(target)
     }
 
     override fun onDragEnd(velocity: Float, onValueSettled: (Float) -> Unit) {
-        if (flingConfig != null) {
+        if (flingConfig != null && enabled) {
             val config =
                 flingConfig.copy(onAnimationFinished = { value: Float, cancelled: Boolean ->
                     if (!cancelled) onValueSettled(value)

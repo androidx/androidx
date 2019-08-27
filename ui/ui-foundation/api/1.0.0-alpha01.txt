@@ -101,10 +101,13 @@ package androidx.ui.foundation.animation {
     ctor public AnimatedFloatDragController(float initialValue, androidx.ui.foundation.animation.FlingConfig? flingConfig);
     method public androidx.animation.AnimatedFloat getAnimatedFloat();
     method public float getCurrentValue();
+    method public boolean getEnabled();
     method public void onDrag(float target);
     method public void onDragEnd(float velocity, kotlin.jvm.functions.Function1<? super java.lang.Float,kotlin.Unit> onValueSettled);
     method public void setBounds(float min, float max);
+    method public void setEnabled(boolean p);
     property public float currentValue;
+    property public final boolean enabled;
   }
 
   public final class FlingConfig {

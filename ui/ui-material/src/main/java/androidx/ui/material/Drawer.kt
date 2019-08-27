@@ -101,6 +101,7 @@ fun StaticDrawer(
  * @param drawerState state of the drawer
  * @param onStateChange lambda to be invoked when the drawer requests to change its state,
  * e.g. when the drawer is being swiped to the new state or when the scrim is clicked
+ * @param gesturesEnabled whether or not drawer can be interacted by gestures
  * @param drawerContent composable that represents content inside the drawer
  * @param bodyContent content of the rest of the UI
  *
@@ -110,6 +111,7 @@ fun StaticDrawer(
 fun ModalDrawerLayout(
     drawerState: DrawerState,
     onStateChange: (DrawerState) -> Unit,
+    gesturesEnabled: Boolean = true,
     drawerContent: @Composable() () -> Unit,
     bodyContent: @Composable() () -> Unit
 ) {
@@ -134,6 +136,7 @@ fun ModalDrawerLayout(
             +onCommit(valueByState) {
                 controller.animatedFloat.animateTo(valueByState, AnimationBuilder)
             }
+            controller.enabled = gesturesEnabled
 
             Draggable(
                 dragDirection = DragDirection.Horizontal,
@@ -178,6 +181,7 @@ fun ModalDrawerLayout(
  * @param drawerState state of the drawer
  * @param onStateChange lambda to be invoked when the drawer requests to change its state,
  * e.g. when the drawer is being swiped to the new state or when the scrim is clicked
+ * @param gesturesEnabled whether or not drawer can be interacted by gestures
  * @param drawerContent composable that represents content inside the drawer
  * @param bodyContent content of the rest of the UI
  *
@@ -187,6 +191,7 @@ fun ModalDrawerLayout(
 fun BottomDrawerLayout(
     drawerState: DrawerState,
     onStateChange: (DrawerState) -> Unit,
+    gesturesEnabled: Boolean = true,
     drawerContent: @Composable() () -> Unit,
     bodyContent: @Composable() () -> Unit
 ) {
@@ -221,6 +226,7 @@ fun BottomDrawerLayout(
             +onCommit(valueByState) {
                 controller.animatedFloat.animateTo(valueByState, AnimationBuilder)
             }
+            controller.enabled = gesturesEnabled
 
             Draggable(
                 dragDirection = DragDirection.Vertical,
