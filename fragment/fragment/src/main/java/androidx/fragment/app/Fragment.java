@@ -214,9 +214,6 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     // The View generated for this fragment.
     View mView;
 
-    // The real inner view that will save/restore state.
-    View mInnerView;
-
     // Whether this fragment should defer starting until after other fragments
     // have been started and their loaders are finished.
     boolean mDeferStart;
@@ -573,7 +570,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
 
     final void restoreViewState(Bundle savedInstanceState) {
         if (mSavedViewState != null) {
-            mInnerView.restoreHierarchyState(mSavedViewState);
+            mView.restoreHierarchyState(mSavedViewState);
             mSavedViewState = null;
         }
         mCalled = false;
@@ -2596,9 +2593,6 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
         }
         if (mView != null) {
             writer.print(prefix); writer.print("mView="); writer.println(mView);
-        }
-        if (mInnerView != null) {
-            writer.print(prefix); writer.print("mInnerView="); writer.println(mView);
         }
         if (getAnimatingAway() != null) {
             writer.print(prefix);

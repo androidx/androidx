@@ -1372,7 +1372,6 @@ public abstract class FragmentManager {
                             f.performCreateView(f.performGetLayoutInflater(
                                     f.mSavedFragmentState), container, f.mSavedFragmentState);
                             if (f.mView != null) {
-                                f.mInnerView = f.mView;
                                 f.mView.setSaveFromParentEnabled(false);
                                 setViewTag(f);
                                 if (container != null) {
@@ -1389,8 +1388,6 @@ public abstract class FragmentManager {
                                 // dispatchOnFragmentViewCreated in case visibility is changed
                                 f.mIsNewlyAdded = (f.mView.getVisibility() == View.VISIBLE)
                                         && f.mContainer != null;
-                            } else {
-                                f.mInnerView = null;
                             }
                         }
 
@@ -1660,7 +1657,6 @@ public abstract class FragmentManager {
         // the Fragment's view is set to null
         fragment.mViewLifecycleOwner = null;
         fragment.mViewLifecycleOwnerLiveData.setValue(null);
-        fragment.mInnerView = null;
         fragment.mInLayout = false;
     }
 
@@ -1673,13 +1669,10 @@ public abstract class FragmentManager {
             f.performCreateView(f.performGetLayoutInflater(
                     f.mSavedFragmentState), null, f.mSavedFragmentState);
             if (f.mView != null) {
-                f.mInnerView = f.mView;
                 f.mView.setSaveFromParentEnabled(false);
                 if (f.mHidden) f.mView.setVisibility(View.GONE);
                 f.onViewCreated(f.mView, f.mSavedFragmentState);
                 dispatchOnFragmentViewCreated(f, f.mView, f.mSavedFragmentState, false);
-            } else {
-                f.mInnerView = null;
             }
         }
     }
@@ -2784,7 +2777,7 @@ public abstract class FragmentManager {
     }
 
     private void saveFragmentViewState(Fragment f) {
-        if (f.mInnerView == null) {
+        if (f.mView == null) {
             return;
         }
         if (mStateArray == null) {
@@ -2792,7 +2785,7 @@ public abstract class FragmentManager {
         } else {
             mStateArray.clear();
         }
-        f.mInnerView.saveHierarchyState(mStateArray);
+        f.mView.saveHierarchyState(mStateArray);
         if (mStateArray.size() > 0) {
             f.mSavedViewState = mStateArray;
             mStateArray = null;
