@@ -67,10 +67,6 @@ class StringPagedList constructor(
 
     override fun onPageAppended(endPosition: Int, changed: Int, added: Int) {}
 
-    override fun onPagePlaceholderInserted(pageIndex: Int) {}
-
-    override fun onPageInserted(start: Int, count: Int) {}
-
     override fun onPagesRemoved(startOfDrops: Int, count: Int) = notifyRemoved(startOfDrops, count)
 
     override fun onPagesSwappedToPlaceholder(startOfDrops: Int, count: Int) =
