@@ -60,9 +60,9 @@ class PopupActivity : Activity() {
             val exampleIndex = +state { 0 }
             val totalExamples = 7
 
-            Column(mainAxisSize = FlexSize.Min) {
+            Column(mainAxisSize = FlexSize.Wrap) {
                 FlexRow(
-                    mainAxisSize = FlexSize.Max,
+                    mainAxisSize = FlexSize.Expand,
                     mainAxisAlignment = MainAxisAlignment.SpaceBetween
                 ) {
                     inflexible {
