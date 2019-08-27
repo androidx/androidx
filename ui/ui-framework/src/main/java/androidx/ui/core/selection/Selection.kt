@@ -18,6 +18,7 @@ package androidx.ui.core.selection
 
 import androidx.ui.core.LayoutCoordinates
 import androidx.ui.core.PxPosition
+import androidx.ui.text.style.TextDirection
 
 /**
  * Data class of Selection.
@@ -42,6 +43,17 @@ data class Selection(
      */
     val endCoordinates: PxPosition,
     /**
+     * Text direction of the starting character in selection.
+     */
+    val startDirection: TextDirection,
+    /**
+     * Text direction of the last character in selection.
+     *
+     * Note: The selection is inclusive-exclusive. But this is the text direction of the last
+     * character of the selection.
+     */
+    val endDirection: TextDirection,
+    /**
      * The layout coordinates of the child which contains the start of the selection. If the child
      * does not contain the start of the selection, this should be null.
      */
@@ -58,13 +70,15 @@ data class Selection(
         if (other.startLayoutCoordinates != null) {
             currentSelection = currentSelection.copy(
                 startCoordinates = other.startCoordinates,
-                startLayoutCoordinates = other.startLayoutCoordinates
+                startLayoutCoordinates = other.startLayoutCoordinates,
+                startDirection = other.startDirection
             )
         }
         if (other.endLayoutCoordinates != null) {
             currentSelection = currentSelection.copy(
                 endCoordinates = other.endCoordinates,
-                endLayoutCoordinates = other.endLayoutCoordinates
+                endLayoutCoordinates = other.endLayoutCoordinates,
+                endDirection = other.endDirection
             )
         }
         return currentSelection

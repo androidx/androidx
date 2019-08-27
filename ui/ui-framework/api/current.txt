@@ -246,15 +246,19 @@ package androidx.ui.core.gesture.util {
 package androidx.ui.core.selection {
 
   public final class Selection {
-    ctor public Selection(androidx.ui.core.PxPosition startCoordinates, androidx.ui.core.PxPosition endCoordinates, androidx.ui.core.LayoutCoordinates? startLayoutCoordinates, androidx.ui.core.LayoutCoordinates? endLayoutCoordinates);
+    ctor public Selection(androidx.ui.core.PxPosition startCoordinates, androidx.ui.core.PxPosition endCoordinates, androidx.ui.text.style.TextDirection startDirection, androidx.ui.text.style.TextDirection endDirection, androidx.ui.core.LayoutCoordinates? startLayoutCoordinates, androidx.ui.core.LayoutCoordinates? endLayoutCoordinates);
     method public androidx.ui.core.PxPosition component1();
     method public androidx.ui.core.PxPosition component2();
-    method public androidx.ui.core.LayoutCoordinates? component3();
-    method public androidx.ui.core.LayoutCoordinates? component4();
-    method public androidx.ui.core.selection.Selection copy(androidx.ui.core.PxPosition startCoordinates, androidx.ui.core.PxPosition endCoordinates, androidx.ui.core.LayoutCoordinates? startLayoutCoordinates, androidx.ui.core.LayoutCoordinates? endLayoutCoordinates);
+    method public androidx.ui.text.style.TextDirection component3();
+    method public androidx.ui.text.style.TextDirection component4();
+    method public androidx.ui.core.LayoutCoordinates? component5();
+    method public androidx.ui.core.LayoutCoordinates? component6();
+    method public androidx.ui.core.selection.Selection copy(androidx.ui.core.PxPosition startCoordinates, androidx.ui.core.PxPosition endCoordinates, androidx.ui.text.style.TextDirection startDirection, androidx.ui.text.style.TextDirection endDirection, androidx.ui.core.LayoutCoordinates? startLayoutCoordinates, androidx.ui.core.LayoutCoordinates? endLayoutCoordinates);
     method public androidx.ui.core.PxPosition getEndCoordinates();
+    method public androidx.ui.text.style.TextDirection getEndDirection();
     method public androidx.ui.core.LayoutCoordinates? getEndLayoutCoordinates();
     method public androidx.ui.core.PxPosition getStartCoordinates();
+    method public androidx.ui.text.style.TextDirection getStartDirection();
     method public androidx.ui.core.LayoutCoordinates? getStartLayoutCoordinates();
   }
 

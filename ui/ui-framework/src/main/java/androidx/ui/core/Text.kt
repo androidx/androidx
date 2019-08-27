@@ -297,6 +297,8 @@ fun Text(
                         return Selection(
                             startCoordinates = textSelectionProcessor.startCoordinates,
                             endCoordinates = textSelectionProcessor.endCoordinates,
+                            startDirection = textSelectionProcessor.startDirection,
+                            endDirection = textSelectionProcessor.endDirection,
                             startLayoutCoordinates =
                             if (textSelectionProcessor.containsWholeSelectionStart) {
                                 layoutCoordinates.value!!

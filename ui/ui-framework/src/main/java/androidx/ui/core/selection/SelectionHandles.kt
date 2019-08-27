@@ -26,10 +26,11 @@ import androidx.ui.engine.geometry.Rect
 import androidx.ui.graphics.Color
 import androidx.ui.painting.Paint
 import androidx.ui.painting.Path
+import androidx.ui.text.style.TextDirection
 
 internal val HANDLE_WIDTH = 80.px
 internal val HANDLE_HEIGHT = 80.px
-private val HANDLE_COLOR = Color(0xFF2B28F5)
+private val HANDLE_COLOR = Color(0xFF2B28F5.toInt())
 
 @Composable
 internal fun LeftPointingSelectionHandle() {
@@ -82,5 +83,21 @@ internal fun RightPointingSelectionHandle() {
         )
 
         canvas.drawPath(path, paint)
+    }
+}
+
+@Composable
+internal fun StartSelectionHandle(selection: Selection?) {
+    selection?.let {
+        if (it.startDirection == TextDirection.Ltr) LeftPointingSelectionHandle()
+        else RightPointingSelectionHandle()
+    }
+}
+
+@Composable
+internal fun EndSelectionHandle(selection: Selection?) {
+    selection?.let {
+        if (it.endDirection == TextDirection.Ltr) RightPointingSelectionHandle()
+        else LeftPointingSelectionHandle()
     }
 }
