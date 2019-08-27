@@ -35,6 +35,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
@@ -43,9 +44,12 @@ import android.net.Uri;
 import android.os.Build;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
+import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 import androidx.work.ArrayCreatingInputMerger;
 import androidx.work.Configuration;
@@ -55,6 +59,7 @@ import androidx.work.ListenableWorker;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.PeriodicWorkRequest;
 import androidx.work.ProgressUpdater;
+import androidx.work.WorkerFactory;
 import androidx.work.WorkerParameters;
 import androidx.work.impl.model.Dependency;
 import androidx.work.impl.model.DependencyDao;
@@ -1120,6 +1125,52 @@ public class WorkerWrapperTest extends DatabaseTest {
         workerWrapper.run();
         assertThat(listener.mResult, is(false));
         assertThat(mWorkSpecDao.getState(work.getStringId()), is(FAILED));
+    }
+
+    @Test
+    @SmallTest
+    @SdkSuppress(minSdkVersion = 21)
+    public void testInterruptionsAfterCompletion() {
+        // Suppressing this test prior to API 21, because creating a spy() ends up loading
+        // android.net.Network class which does not exist before API 21.
+
+        OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class).build();
+        insertWork(work);
+
+        WorkerFactory spyingFactory = new WorkerFactory() {
+            @Nullable
+            @Override
+            public ListenableWorker createWorker(
+                    @NonNull Context appContext,
+                    @NonNull String workerClassName,
+                    @NonNull WorkerParameters workerParameters) {
+
+                ListenableWorker instance = getDefaultWorkerFactory()
+                        .createWorkerWithDefaultFallback(
+                                appContext, workerClassName, workerParameters);
+
+                return (instance == null) ? null : spy(instance);
+            }
+        };
+
+        Configuration configuration = new Configuration.Builder(mConfiguration)
+                .setWorkerFactory(spyingFactory)
+                .build();
+
+        WorkerWrapper workerWrapper = new WorkerWrapper.Builder(
+                mContext,
+                configuration,
+                mWorkTaskExecutor,
+                mDatabase,
+                work.getStringId()).build();
+
+        FutureListener listener = createAndAddFutureListener(workerWrapper);
+        workerWrapper.run();
+        assertThat(listener.mResult, is(false));
+        assertThat(mWorkSpecDao.getState(work.getStringId()), is(SUCCEEDED));
+        workerWrapper.interrupt(true);
+        ListenableWorker worker = workerWrapper.mWorker;
+        verify(worker, never()).onStopped();
     }
 
     private WorkerWrapper.Builder createBuilder(String workSpecId) {

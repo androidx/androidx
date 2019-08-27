@@ -18,6 +18,7 @@ package androidx.work.impl;
 import android.content.Context;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.work.Configuration;
 import androidx.work.Logger;
@@ -56,11 +57,11 @@ public class Processor implements ExecutionListener {
     private final Object mLock;
 
     public Processor(
-            Context appContext,
-            Configuration configuration,
-            TaskExecutor workTaskExecutor,
-            WorkDatabase workDatabase,
-            List<Scheduler> schedulers) {
+            @NonNull Context appContext,
+            @NonNull Configuration configuration,
+            @NonNull TaskExecutor workTaskExecutor,
+            @NonNull WorkDatabase workDatabase,
+            @NonNull List<Scheduler> schedulers) {
         mAppContext = appContext;
         mConfiguration = configuration;
         mWorkTaskExecutor = workTaskExecutor;
@@ -78,7 +79,7 @@ public class Processor implements ExecutionListener {
      * @param id The work id to execute.
      * @return {@code true} if the work was successfully enqueued for processing
      */
-    public boolean startWork(String id) {
+    public boolean startWork(@NonNull String id) {
         return startWork(id, null);
     }
 
@@ -89,7 +90,10 @@ public class Processor implements ExecutionListener {
      * @param runtimeExtras The {@link WorkerParameters.RuntimeExtras} for this work, if any.
      * @return {@code true} if the work was successfully enqueued for processing
      */
-    public boolean startWork(String id, WorkerParameters.RuntimeExtras runtimeExtras) {
+    public boolean startWork(
+            @NonNull String id,
+            @Nullable WorkerParameters.RuntimeExtras runtimeExtras) {
+
         WorkerWrapper workWrapper;
         synchronized (mLock) {
             // Work may get triggered multiple times if they have passing constraints
@@ -128,7 +132,7 @@ public class Processor implements ExecutionListener {
      * @param id The work id to stop
      * @return {@code true} if the work was stopped successfully
      */
-    public boolean stopWork(String id) {
+    public boolean stopWork(@NonNull String id) {
         synchronized (mLock) {
             Logger.get().debug(TAG, String.format("Processor stopping %s", id));
             WorkerWrapper wrapper = mEnqueuedWorkMap.remove(id);
@@ -148,7 +152,7 @@ public class Processor implements ExecutionListener {
      * @param id The work id to stop and cancel
      * @return {@code true} if the work was stopped successfully
      */
-    public boolean stopAndCancelWork(String id) {
+    public boolean stopAndCancelWork(@NonNull String id) {
         synchronized (mLock) {
             Logger.get().debug(TAG, String.format("Processor cancelling %s", id));
             mCancelledIds.add(id);
@@ -169,7 +173,7 @@ public class Processor implements ExecutionListener {
      * @param id The work id to query
      * @return {@code true} if the id has already been marked as cancelled
      */
-    public boolean isCancelled(String id) {
+    public boolean isCancelled(@NonNull String id) {
         synchronized (mLock) {
             return mCancelledIds.contains(id);
         }
@@ -199,7 +203,7 @@ public class Processor implements ExecutionListener {
      *
      * @param executionListener The {@link ExecutionListener} to add
      */
-    public void addExecutionListener(ExecutionListener executionListener) {
+    public void addExecutionListener(@NonNull ExecutionListener executionListener) {
         synchronized (mLock) {
             mOuterListeners.add(executionListener);
         }
@@ -210,7 +214,7 @@ public class Processor implements ExecutionListener {
      *
      * @param executionListener The {@link ExecutionListener} to remove
      */
-    public void removeExecutionListener(ExecutionListener executionListener) {
+    public void removeExecutionListener(@NonNull ExecutionListener executionListener) {
         synchronized (mLock) {
             mOuterListeners.remove(executionListener);
         }
