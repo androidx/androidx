@@ -27,6 +27,7 @@ import static android.support.mediacompat.testlib.MediaBrowserConstants
         .SEND_DELAYED_NOTIFY_CHILDREN_CHANGED;
 import static android.support.mediacompat.testlib.MediaBrowserConstants.SET_SESSION_TOKEN;
 import static android.support.mediacompat.testlib.MediaSessionConstants.RELEASE;
+import static android.support.mediacompat.testlib.MediaSessionConstants.RELEASE_AND_THEN_SET_PLAYBACK_STATE;
 import static android.support.mediacompat.testlib.MediaSessionConstants.SEND_SESSION_EVENT;
 import static android.support.mediacompat.testlib.MediaSessionConstants.SET_ACTIVE;
 import static android.support.mediacompat.testlib.MediaSessionConstants.SET_CAPTIONING_ENABLED;
@@ -157,6 +158,10 @@ public class ServiceBroadcastReceiver extends BroadcastReceiver {
                     break;
                 case SET_RATING_TYPE:
                     session.setRatingType(RatingCompat.RATING_5_STARS);
+                    break;
+                case RELEASE_AND_THEN_SET_PLAYBACK_STATE:
+                    session.release();
+                    session.setPlaybackState(extras.getParcelable(KEY_ARGUMENT));
                     break;
             }
         }

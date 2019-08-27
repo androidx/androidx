@@ -38,6 +38,7 @@ public class MediaSessionConstants {
     public static final int SET_PLAYBACK_TO_LOCAL = 115;
     public static final int SET_PLAYBACK_TO_REMOTE = 116;
     public static final int SET_RATING_TYPE = 117;
+    public static final int RELEASE_AND_THEN_SET_PLAYBACK_STATE = 118;
 
     public static final String TEST_SESSION_TAG = "test-session-tag";
     public static final String TEST_KEY = "test-key";

@@ -3743,6 +3743,7 @@ public class MediaSessionCompat {
         @Override
         public void release() {
             mDestroyed = true;
+            mExtraControllerCallbacks.kill();
             mSessionFwk.release();
         }
 
