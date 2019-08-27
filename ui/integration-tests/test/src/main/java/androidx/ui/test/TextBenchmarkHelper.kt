@@ -16,13 +16,19 @@
 
 package androidx.ui.test
 
+import androidx.ui.core.px
+import androidx.ui.core.sp
+import androidx.ui.engine.geometry.Offset
 import androidx.ui.graphics.Color
+import androidx.ui.painting.Shadow
 import androidx.ui.text.AnnotatedString
 import androidx.ui.text.TextStyle
+import androidx.ui.text.font.FontStyle
 import androidx.ui.text.font.FontWeight
 import androidx.ui.text.style.BaselineShift
 import androidx.ui.text.style.TextDecoration
 import androidx.ui.text.style.TextGeometricTransform
+import java.util.Locale
 import kotlin.random.Random
 
 class RandomTextGenerator(
@@ -30,15 +36,22 @@ class RandomTextGenerator(
     private val random: Random = Random(0)
 ) {
     // a set of predefined TextStyle's to add to styled text
-    val textStyleList = arrayOf(
+    private val nonMetricAffectingTextStyles = arrayOf(
         TextStyle(color = Color.Blue),
+        TextStyle(background = Color.Cyan),
+        TextStyle(decoration = TextDecoration.Underline),
+        TextStyle(shadow = Shadow(Color.Black, Offset(3f, 3f), 2.px))
+    )
+
+    private val metricAffectingTextStyles = arrayOf(
+        TextStyle(fontSize = 18.sp),
         TextStyle(fontSizeScale = 2f),
         TextStyle(fontWeight = FontWeight.bold),
+        TextStyle(fontStyle = FontStyle.Italic),
         TextStyle(letterSpacing = 0.2f),
         TextStyle(baselineShift = BaselineShift.Subscript),
         TextStyle(textGeometricTransform = TextGeometricTransform(0.5f, 0.5f)),
-        TextStyle(background = Color.Cyan),
-        TextStyle(decoration = TextDecoration.Underline)
+        TextStyle(locale = Locale.ITALIAN)
     )
 
     /**
@@ -71,22 +84,62 @@ class RandomTextGenerator(
     /**
      * Given a [text] mark each character group with a predefined TextStyle. The order of TextStyles is predefined,
      * and not randomized on purpose in order to get a consistent result in our benchmarks.
+     * @param text The text on which the markup is applied.
+     * @param styleCount The number of the text styles applied on the [text].
+     * @param hasMetricAffectingStyle Whether to apply metric affecting [TextStyle]s text, which
+     *  increases the difficulty to measure text.
      */
     fun createStyles(
-        text: String
+        text: String,
+        styleCount: Int = text.split(alphabet.space).size,
+        hasMetricAffectingStyle: Boolean = true
     ): List<AnnotatedString.Item<TextStyle>> {
-        var index = 0
-        var styleCount = 0
-        return text.split(alphabet.space).map {
-            val start = index
-            val end = start + it.length
-            index += it.length + 1
-            AnnotatedString.Item(
-                start = start,
-                end = end,
-                style = textStyleList[styleCount++ % textStyleList.size]
-            )
+        val textStyleList = nonMetricAffectingTextStyles + if (hasMetricAffectingStyle) {
+            metricAffectingTextStyles
+        } else {
+            arrayOf()
         }
+
+        val words = text.split(alphabet.space)
+
+        var index = 0
+        var styleIndex = 0
+
+        val stylePerWord = styleCount / words.size
+        val remains = styleCount % words.size
+
+        return words.withIndex().flatMap { (wordIndex, word) ->
+            val start = index
+            val end = start + word.length
+            index += word.length + 1
+
+            val styleCountOnWord = stylePerWord + if (wordIndex < remains) 1 else 0
+            List(styleCountOnWord) {
+                AnnotatedString.Item(
+                    start = start,
+                    end = end,
+                    style = textStyleList[styleIndex++ % textStyleList.size]
+                )
+            }
+        }
+    }
+
+    /**
+     * Create an [AnnotatedString] with randomly generated text but predefined TextStyles.
+     * @see nextParagraph
+     * @see createStyles
+     */
+    fun nextAnnotatedString(
+        length: Int,
+        wordLength: Int = 9,
+        styleCount: Int,
+        hasMetricAffectingStyle: Boolean = true
+    ): AnnotatedString {
+        val text = nextParagraph(length, wordLength)
+        return AnnotatedString(
+            text = text,
+            textStyles = createStyles(text, styleCount, hasMetricAffectingStyle)
+        )
     }
 }
 
