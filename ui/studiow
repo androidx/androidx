@@ -164,7 +164,7 @@ function updateComposeIdePlugin() {
   if [ "${osName}" == "mac" ]; then
     composeIdePluginDirectory="$(findStudioMacAppPath)/Contents/plugins/compose-ide-plugin/"
   else
-    composeIdePluginDirectory="${studioUnzippedPath}/android-studio/plugins/compose-ide-plugin/"
+    composeIdePluginDirectory="${studioUnzippedPath}/android-studio/plugins/"
   fi
   # this is the idea sandbox directory that the compose ide plugin is located in
   composePluginDirectory="${projectDir}/../../../out/ui/compose/compose-ide-plugin/build/idea-sandbox/plugins/compose-ide-plugin/"
