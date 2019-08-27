@@ -1117,6 +1117,16 @@ public abstract class FragmentManager {
         int nextAnim = fragment.getNextAnim();
         // Clear the Fragment animation
         fragment.setNextAnim(0);
+        // We do not need to keep up with the removing Fragment after we get its next animation.
+        // If transactions do not allow reordering, this will always be true and the visible
+        // removing fragment will be cleared. If reordering is allowed, this will only be true
+        // after all records in a transaction have been executed and the visible removing
+        // fragment has the correct animation, so it is time to clear it.
+        View container = mContainer.onFindViewById(fragment.mContainerId);
+        if (container != null
+                && container.getTag(R.id.visible_removing_fragment_view_tag) != null) {
+            container.setTag(R.id.visible_removing_fragment_view_tag, null);
+        }
         // If there is a transition on the container, clear those set on the fragment
         if (fragment.mContainer != null && fragment.mContainer.getLayoutTransition() != null) {
             return null;
@@ -1633,12 +1643,8 @@ public abstract class FragmentManager {
      * FragmentContainerView.
      */
     void setExitAnimationOrder(Fragment f, boolean isPop) {
-        // This will be false if a child fragment is added to its parent's childFragmentManager
-        // before a view is created for Parent. In all other cases (adding a fragment to an
-        // FragmentActivity's fragmentManager, adding a child fragment to a parent that has a view),
-        // it should be true.
-        if (mContainer.onHasView()) {
-            ViewGroup container = (ViewGroup) mContainer.onFindViewById(f.mFragmentId);
+        ViewGroup container = getFragmentContainer(f);
+        if (container != null) {
             if (container instanceof FragmentContainerView) {
                 ((FragmentContainerView) container).setDrawDisappearingViewsLast(!isPop);
             }
@@ -1923,6 +1929,7 @@ public abstract class FragmentManager {
             }
             fragment.mAdded = false;
             fragment.mRemoving = true;
+            setVisibleRemovingFragment(fragment);
         }
     }
 
@@ -1939,6 +1946,7 @@ public abstract class FragmentManager {
             // Toggle hidden changed so that if a fragment goes through show/hide/show
             // it doesn't go through the animation.
             fragment.mHiddenChanged = !fragment.mHiddenChanged;
+            setVisibleRemovingFragment(fragment);
         }
     }
 
@@ -1972,6 +1980,7 @@ public abstract class FragmentManager {
                     mNeedMenuInvalidate = true;
                 }
                 fragment.mAdded = false;
+                setVisibleRemovingFragment(fragment);
             }
         }
     }
@@ -2575,6 +2584,34 @@ public abstract class FragmentManager {
                 record.executeOps();
             }
         }
+    }
+
+    /**
+     * Set a Fragment that is visibly being removed from the screen to a tag on its container.
+     * If a Fragment with the same container is already set, the previously added
+     * Fragment has its exit animation updated to the correct exit animation (either exit or
+     * pop_exit).
+     */
+    private void setVisibleRemovingFragment(Fragment f) {
+        ViewGroup container = getFragmentContainer(f);
+        if (container != null) {
+            if (container.getTag(R.id.visible_removing_fragment_view_tag) == null) {
+                container.setTag(R.id.visible_removing_fragment_view_tag, f);
+            }
+            ((Fragment) container.getTag(R.id.visible_removing_fragment_view_tag))
+                    .setNextAnim(f.getNextAnim());
+        }
+    }
+
+    private ViewGroup getFragmentContainer(Fragment f) {
+        // This will be false if a child fragment is added to its parent's childFragmentManager
+        // before a view is created for Parent. In all other cases (adding a fragment to an
+        // FragmentActivity's fragmentManager, adding a child fragment to a parent that has a view),
+        // it should be true.
+        if (mContainer.onHasView()) {
+            return (ViewGroup) mContainer.onFindViewById(f.mContainerId);
+        }
+        return null;
     }
 
     /**
