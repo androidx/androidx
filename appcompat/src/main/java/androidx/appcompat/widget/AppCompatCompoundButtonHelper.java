@@ -18,7 +18,6 @@ package androidx.appcompat.widget;
 
 import android.content.res.ColorStateList;
 import android.content.res.Resources;
-import android.content.res.TypedArray;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
@@ -48,11 +47,13 @@ class AppCompatCompoundButtonHelper {
     }
 
     void loadFromAttributes(@Nullable AttributeSet attrs, int defStyleAttr) {
-        TypedArray a = mView.getContext().obtainStyledAttributes(attrs, R.styleable.CompoundButton,
-                defStyleAttr, 0);
+        TintTypedArray a =
+                TintTypedArray.obtainStyledAttributes(mView.getContext(), attrs,
+                        R.styleable.CompoundButton, defStyleAttr, 0);
         if (Build.VERSION.SDK_INT >= 29) {
             mView.saveAttributeDataForStyleable(mView.getContext(),
-                    R.styleable.CompoundButton, attrs, a, defStyleAttr, 0);
+                    R.styleable.CompoundButton, attrs, a.getWrappedTypeArray(), defStyleAttr, 0);
+
         }
         try {
             boolean buttonDrawableLoaded = false;
