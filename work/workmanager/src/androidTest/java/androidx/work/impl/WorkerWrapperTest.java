@@ -49,6 +49,7 @@ import androidx.annotation.Nullable;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
+import androidx.test.filters.MediumTest;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 import androidx.work.ArrayCreatingInputMerger;
@@ -1128,7 +1129,7 @@ public class WorkerWrapperTest extends DatabaseTest {
     }
 
     @Test
-    @SmallTest
+    @MediumTest
     @SdkSuppress(minSdkVersion = 21)
     public void testInterruptionsAfterCompletion() {
         // Suppressing this test prior to API 21, because creating a spy() ends up loading
