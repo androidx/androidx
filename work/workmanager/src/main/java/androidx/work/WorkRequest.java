@@ -113,15 +113,17 @@ public abstract class WorkRequest {
      * @param <B> The concrete implementation of this Builder
      * @param <W> The type of work object built by this Builder
      */
-    public abstract static class Builder<B extends Builder, W extends WorkRequest> {
+    public abstract static class Builder<B extends Builder<?, ?>, W extends WorkRequest> {
 
         boolean mBackoffCriteriaSet = false;
         UUID mId;
         WorkSpec mWorkSpec;
         Set<String> mTags = new HashSet<>();
+        Class<? extends ListenableWorker> mWorkerClass;
 
         Builder(@NonNull Class<? extends ListenableWorker> workerClass) {
             mId = UUID.randomUUID();
+            mWorkerClass = workerClass;
             mWorkSpec = new WorkSpec(mId.toString(), workerClass.getName());
             addTag(workerClass.getName());
         }
@@ -267,6 +269,25 @@ public abstract class WorkRequest {
         @RequiresApi(26)
         public @NonNull B setInitialDelay(@NonNull Duration duration) {
             mWorkSpec.initialDelay = duration.toMillis();
+            return getThis();
+        }
+
+        /**
+         * Specifies that the {@link WorkRequest} should create and run in a foreground service.
+         *
+         * Throws an {@link IllegalStateException} if the {@link ListenableWorker} does not
+         * implement the {@link NotificationProvider} interface.
+         *
+         * @return The current {@link Builder}
+         */
+        @NonNull
+        public B setRunInForeground(boolean runInForeground) {
+            if (runInForeground && !NotificationProvider.class.isAssignableFrom(mWorkerClass)) {
+                String message = String.format("%s must implement %s", mWorkerClass,
+                        NotificationProvider.class.getName());
+                throw new IllegalStateException(message);
+            }
+            mWorkSpec.runInForeground = runInForeground;
             return getThis();
         }
 
