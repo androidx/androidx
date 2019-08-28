@@ -86,7 +86,8 @@ class ParagraphIntegrationTest {
 
             assertThat(paragraph.height, equalTo(fontSizeInPx))
             // defined in sample_font
-            assertThat(paragraph.baseline, equalTo(fontSizeInPx * 0.8f))
+            assertThat(paragraph.firstBaseline, equalTo(fontSizeInPx * 0.8f))
+            assertThat(paragraph.lastBaseline, equalTo(fontSizeInPx * 0.8f))
             assertThat(paragraph.maxIntrinsicWidth, equalTo(0.0f))
             assertThat(paragraph.minIntrinsicWidth, equalTo(0.0f))
             // TODO(Migration/siyamed): no baseline query per line?
@@ -109,7 +110,8 @@ class ParagraphIntegrationTest {
                 assertThat(text, paragraph.width, equalTo(200.0f))
                 assertThat(text, paragraph.height, equalTo(fontSizeInPx))
                 // defined in sample_font
-                assertThat(text, paragraph.baseline, equalTo(fontSizeInPx * 0.8f))
+                assertThat(text, paragraph.firstBaseline, equalTo(fontSizeInPx * 0.8f))
+                assertThat(text, paragraph.lastBaseline, equalTo(fontSizeInPx * 0.8f))
                 assertThat(
                     text,
                     paragraph.maxIntrinsicWidth,
@@ -141,7 +143,12 @@ class ParagraphIntegrationTest {
                     equalTo(2 * fontSizeInPx + fontSizeInPx / 5.0f)
                 )
                 // defined in sample_font
-                assertThat(text, paragraph.baseline, equalTo(fontSizeInPx * 0.8f))
+                assertThat(text, paragraph.firstBaseline, equalTo(fontSizeInPx * 0.8f))
+                assertThat(
+                    text,
+                    paragraph.lastBaseline,
+                    equalTo(fontSizeInPx + fontSizeInPx / 5.0f + fontSizeInPx * 0.8f)
+                )
                 assertThat(
                     text,
                     paragraph.maxIntrinsicWidth,
@@ -174,7 +181,12 @@ class ParagraphIntegrationTest {
                     equalTo(2 * fontSizeInPx + fontSizeInPx / 5.0f)
                 )
                 // defined in sample_font
-                assertThat(text, paragraph.baseline, equalTo(fontSizeInPx * 0.8f))
+                assertThat(text, paragraph.firstBaseline, equalTo(fontSizeInPx * 0.8f))
+                assertThat(
+                    text,
+                    paragraph.lastBaseline,
+                    equalTo(fontSizeInPx + fontSizeInPx / 5.0f + fontSizeInPx * 0.8f)
+                )
                 assertThat(
                     text,
                     paragraph.maxIntrinsicWidth,
@@ -209,7 +221,12 @@ class ParagraphIntegrationTest {
                     equalTo(4 * fontSizeInPx + 3 * fontSizeInPx / 5.0f)
                 )
                 // defined in sample_font
-                assertThat(text, paragraph.baseline, equalTo(fontSizeInPx * 0.8f))
+                assertThat(text, paragraph.firstBaseline, equalTo(fontSizeInPx * 0.8f))
+                assertThat(
+                    text,
+                    paragraph.lastBaseline,
+                    equalTo(3 * fontSizeInPx + 3 * fontSizeInPx / 5.0f + fontSizeInPx * 0.8f)
+                )
                 assertThat(
                     text,
                     paragraph.maxIntrinsicWidth,
@@ -1656,15 +1673,37 @@ class ParagraphIntegrationTest {
             val fontSize = 100.sp
             val fontSizeInPx = fontSize.toPx().value
             val lineCount = text.lines().size
-            val maxLines = lineCount
+            val maxLines = lineCount - 1
             val paragraph = simpleParagraph(
                 text = text,
                 fontSize = fontSize,
                 maxLines = maxLines
             )
             paragraph.layout(ParagraphConstraints(width = Float.MAX_VALUE))
-            val expectHeight = (lineCount + (lineCount - 1) * 0.2f) * fontSizeInPx
+            val expectHeight = (maxLines + (maxLines - 1) * 0.2f) * fontSizeInPx
             assertThat(paragraph.height, equalTo(expectHeight))
+        }
+    }
+
+    @Test
+    fun maxLines_withMaxLineSmallerThanTextLines_haveCorrectBaselines() {
+        withDensity(defaultDensity) {
+            val text = "a\na\na"
+            val fontSize = 100.sp
+            val fontSizeInPx = fontSize.toPx().value
+            val lineCount = text.lines().size
+            val maxLines = lineCount - 1
+            val paragraph = simpleParagraph(
+                text = text,
+                fontSize = fontSize,
+                maxLines = maxLines
+            )
+            paragraph.layout(ParagraphConstraints(width = Float.MAX_VALUE))
+            val expectFirstBaseline = 0.8f * fontSizeInPx
+            assertThat(paragraph.firstBaseline, equalTo(expectFirstBaseline))
+            val expectLastBaseline =
+                ((maxLines - 1) + (maxLines - 1) * 0.2f) * fontSizeInPx + 0.8f * fontSizeInPx
+            assertThat(paragraph.lastBaseline, equalTo(expectLastBaseline))
         }
     }
 
@@ -3168,7 +3207,8 @@ class ParagraphIntegrationTest {
     fun alphabeticBaseline_default_value() {
         val paragraph = simpleParagraph()
 
-        assertThat(paragraph.baseline, equalTo(0.0f))
+        assertThat(paragraph.firstBaseline, equalTo(0.0f))
+        assertThat(paragraph.lastBaseline, equalTo(0.0f))
     }
 
     @Test

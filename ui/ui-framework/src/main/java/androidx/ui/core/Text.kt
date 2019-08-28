@@ -241,7 +241,15 @@ fun Text(
         ComplexLayout(children) {
             measure { _, constraints ->
                 textDelegate.layout(constraints)
-                layout(textDelegate.width.px.round(), textDelegate.height.px.round()) {}
+                layout(
+                    textDelegate.width.px.round(),
+                    textDelegate.height.px.round(),
+                    // Provide values for the alignment lines defined by text - the first
+                    // and last baselines of the text. These can be used by parent layouts
+                    // to position this text or align this and other texts by baseline.
+                    FirstBaseline to textDelegate.firstBaseline.px.round(),
+                    LastBaseline to textDelegate.lastBaseline.px.round()
+                ) {}
             }
             minIntrinsicWidth { _, _ ->
                 textDelegate.layout(Constraints(0.ipx, IntPx.Infinity, 0.ipx, IntPx.Infinity))
@@ -317,6 +325,16 @@ fun Text(
         }
     }
 }
+
+/**
+ * [AlignmentLine] defined by the baseline of a first line of a [Text].
+ */
+val FirstBaseline = HorizontalAlignmentLine(::min)
+
+/**
+ * [AlignmentLine] defined by the baseline of the last line of a [Text].
+ */
+val LastBaseline = HorizontalAlignmentLine(::max)
 
 internal val CurrentTextStyleAmbient = Ambient.of<TextStyle>("current text style") {
     TextStyle()
