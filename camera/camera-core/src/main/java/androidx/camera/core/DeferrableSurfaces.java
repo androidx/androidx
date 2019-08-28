@@ -18,6 +18,7 @@ package androidx.camera.core;
 
 import android.view.Surface;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.camera.core.impl.utils.futures.Futures;
@@ -51,7 +52,21 @@ public final class DeferrableSurfaces {
      * means that the returned list will only be guaranteed to be less than or equal to in size to
      * the original collection.
      */
-    public static List<Surface> surfaceList(Collection<DeferrableSurface> deferrableSurfaces) {
+    @NonNull
+    public static List<Surface> surfaceList(
+            @NonNull Collection<DeferrableSurface> deferrableSurfaces) {
+        return surfaceList(deferrableSurfaces, true);
+    }
+
+    /**
+     * Returns a {@link Surface} list from a {@link DeferrableSurface} collection.
+     *
+     * @param removeNullSurfaces If true remove all Surfaces that were not retrieved.
+     */
+    @NonNull
+    public static List<Surface> surfaceList(
+            @NonNull Collection<DeferrableSurface> deferrableSurfaces,
+            boolean removeNullSurfaces) {
         List<ListenableFuture<Surface>> listenableFutureSurfaces = new ArrayList<>();
 
         for (DeferrableSurface deferrableSurface : deferrableSurfaces) {
@@ -63,10 +78,12 @@ public final class DeferrableSurfaces {
             // unmodifiable so it will throw an Exception
             List<Surface> surfaces =
                     new ArrayList<>(Futures.successfulAsList(listenableFutureSurfaces).get());
-            surfaces.removeAll(Collections.singleton(null));
+            if (removeNullSurfaces) {
+                surfaces.removeAll(Collections.singleton(null));
+            }
             return Collections.unmodifiableList(surfaces);
         } catch (InterruptedException | ExecutionException e) {
-            return Collections.unmodifiableList(Collections.<Surface>emptyList());
+            return Collections.unmodifiableList(Collections.emptyList());
         }
     }
 
@@ -77,7 +94,9 @@ public final class DeferrableSurfaces {
      * means that the returned set will only be guaranteed to be less than or equal to in size to
      * the original collection.
      */
-    public static Set<Surface> surfaceSet(Collection<DeferrableSurface> deferrableSurfaces) {
+    @NonNull
+    public static Set<Surface> surfaceSet(
+            @NonNull Collection<DeferrableSurface> deferrableSurfaces) {
         List<ListenableFuture<Surface>> listenableFutureSurfaces = new ArrayList<>();
 
         for (DeferrableSurface deferrableSurface : deferrableSurfaces) {
@@ -90,14 +109,7 @@ public final class DeferrableSurfaces {
             surfaces.removeAll(Collections.singleton(null));
             return Collections.unmodifiableSet(surfaces);
         } catch (InterruptedException | ExecutionException e) {
-            return Collections.unmodifiableSet(Collections.<Surface>emptySet());
-        }
-    }
-
-    /** Calls {@link DeferrableSurface#refresh()} iteratively. */
-    public static void refresh(Collection<DeferrableSurface> deferrableSurfaces) {
-        for (DeferrableSurface deferrableSurface : deferrableSurfaces) {
-            deferrableSurface.refresh();
+            return Collections.unmodifiableSet(Collections.emptySet());
         }
     }
 }

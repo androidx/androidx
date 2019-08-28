@@ -102,17 +102,6 @@ public final class ProcessingSurfaceTextureTest {
     }
 
     @Test
-    public void resetCreatesNewSurfaceTexture() {
-        ProcessingSurfaceTexture processingSurfaceTexture = createProcessingSurfaceTexture();
-
-        SurfaceTexture surfaceTextureBefore = processingSurfaceTexture.getSurfaceTexture();
-        processingSurfaceTexture.resetSurfaceTexture();
-
-        assertThat(processingSurfaceTexture.getSurfaceTexture()).isNotSameInstanceAs(
-                surfaceTextureBefore);
-    }
-
-    @Test
     public void validInputSurface() throws ExecutionException, InterruptedException {
         ProcessingSurfaceTexture processingSurfaceTexture = createProcessingSurfaceTexture();
 
@@ -184,16 +173,6 @@ public final class ProcessingSurfaceTextureTest {
 
         // Exception should be thrown here
         processingSurfaceTexture.getSurfaceTexture();
-    }
-
-    @Test(expected = IllegalStateException.class)
-    public void resetSurfaceTextureThrowsExceptionWhenReleased() {
-        ProcessingSurfaceTexture processingSurfaceTexture = createProcessingSurfaceTexture();
-
-        processingSurfaceTexture.release();
-
-        // Exception should be thrown here
-        processingSurfaceTexture.resetSurfaceTexture();
     }
 
     @Test(expected = IllegalStateException.class)

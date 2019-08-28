@@ -92,8 +92,10 @@ public class Preview extends UseCase {
     @Nullable
     private PreviewOutput mLatestPreviewOutput;
     private boolean mSurfaceDispatched = false;
+    private SessionConfig.Builder mSessionConfigBuilder;
 
-    private SurfaceTextureHolder mSurfaceTextureHolder;
+    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+    SurfaceTextureHolder mSurfaceTextureHolder;
 
     /**
      * Creates a new preview use case from the given configuration.
@@ -111,7 +113,6 @@ public class Preview extends UseCase {
         Threads.checkMainThread();
         SessionConfig.Builder sessionConfigBuilder = SessionConfig.Builder.createFrom(config);
 
-        DeferrableSurface deferrableSurface;
         final CaptureProcessor captureProcessor = config.getCaptureProcessor(null);
         if (captureProcessor != null) {
             CaptureStage captureStage = new CaptureStage.DefaultCaptureStage();
@@ -128,9 +129,8 @@ public class Preview extends UseCase {
             sessionConfigBuilder.addCameraCaptureCallback(
                     processingSurfaceTexture.getCameraCaptureCallback());
 
-            mSurfaceTextureHolder = new ProcessingSurfaceTextureHolder(processingSurfaceTexture,
-                    this, resolution);
-            deferrableSurface = processingSurfaceTexture;
+            mSurfaceTextureHolder = processingSurfaceTexture;
+            sessionConfigBuilder.addSurface(processingSurfaceTexture);
             sessionConfigBuilder.setTag(captureStage.getId());
         } else {
             final ImageInfoProcessor processor = config.getImageInfoProcessor(null);
@@ -149,22 +149,12 @@ public class Preview extends UseCase {
                 });
             }
 
-            CheckedSurfaceTexture checkedSurfaceTexture = new CheckedSurfaceTexture(
-                    new CheckedSurfaceTexture.OnTextureChangedListener() {
-                        @Override
-                        public void onTextureChanged(SurfaceTexture newSurfaceTexture,
-                                Size newResolution) {
-                            Preview.this.updateOutput(newSurfaceTexture, newResolution);
-                        }
-                    }
-            );
-            checkedSurfaceTexture.setResolution(resolution);
-            mSurfaceTextureHolder = new CheckedSurfaceTextureHolder(checkedSurfaceTexture);
-            deferrableSurface = checkedSurfaceTexture;
+            CheckedSurfaceTexture checkedSurfaceTexture = new CheckedSurfaceTexture(resolution);
+
+            mSurfaceTextureHolder = checkedSurfaceTexture;
+            sessionConfigBuilder.addSurface(checkedSurfaceTexture);
         }
 
-        mSurfaceTextureHolder.resetSurfaceTexture();
-        sessionConfigBuilder.addSurface(deferrableSurface);
 
         sessionConfigBuilder.addErrorListener(new SessionConfig.ErrorListener() {
             @Override
@@ -174,6 +164,7 @@ public class Preview extends UseCase {
                 SessionConfig.Builder sessionConfigBuilder = createPipeline(config, resolution);
                 String cameraId = getCameraIdUnchecked(config);
                 attachToCamera(cameraId, sessionConfigBuilder.build());
+                updateOutput(mSurfaceTextureHolder.getSurfaceTexture(), resolution);
                 notifyReset();
             }
         });
@@ -269,7 +260,10 @@ public class Preview extends UseCase {
             notifyInactive();
         } else if (oldListener != null && oldListener != newListener) {
             if (mLatestPreviewOutput != null) {
-                mSurfaceTextureHolder.resetSurfaceTexture();
+                PreviewConfig config = (PreviewConfig) getUseCaseConfig();
+                Size resolution = mLatestPreviewOutput.getTextureSize();
+                updateConfigAndOutput(config, resolution);
+                notifyReset();
             }
         }
     }
@@ -314,6 +308,14 @@ public class Preview extends UseCase {
         Threads.checkMainThread();
         mPreviewSurfaceCallback = null;
         notifyInactive();
+    }
+
+    private void updateConfigAndOutput(PreviewConfig config, Size resolution) {
+        String cameraId = getCameraIdUnchecked(config);
+
+        mSessionConfigBuilder = createPipeline(config, resolution);
+        attachToCamera(cameraId, mSessionConfigBuilder.build());
+        updateOutput(mSurfaceTextureHolder.getSurfaceTexture(), resolution);
     }
 
     private CameraControlInternal getCurrentCameraControl() {
@@ -435,8 +437,6 @@ public class Preview extends UseCase {
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
     public void clear() {
-        mSurfaceTextureHolder.release();
-
         removePreviewOutputListener();
         notifyInactive();
 
@@ -468,10 +468,7 @@ public class Preview extends UseCase {
                     "Suggested resolution map missing resolution for camera " + cameraId);
         }
 
-        clearPipeline();
-        SessionConfig.Builder sessionConfigBuilder = createPipeline(config, resolution);
-        attachToCamera(cameraId, sessionConfigBuilder.build());
-
+        updateConfigAndOutput(config, resolution);
         return suggestedResolutionMap;
     }
 
@@ -532,12 +529,6 @@ public class Preview extends UseCase {
             }
 
             if (outputListener != null) {
-                // If we have a listener, then we should be active and we require a reset if the
-                // SurfaceTexture changed.
-                if (textureChanged) {
-                    notifyReset();
-                }
-
                 mSurfaceDispatched = true;
                 outputListener.onUpdated(newOutput);
             }
@@ -652,55 +643,5 @@ public class Preview extends UseCase {
          * PreviewOutput's {@link SurfaceTexture#getTransformMatrix(float[])}.
          */
         public abstract int getRotationDegrees();
-    }
-
-    // Interface for releasing and resetting a SurfaceTexture
-    private interface SurfaceTextureHolder {
-        void release();
-
-        void resetSurfaceTexture();
-    }
-
-    private static class CheckedSurfaceTextureHolder implements SurfaceTextureHolder {
-        private final CheckedSurfaceTexture mCheckedSurfaceTexture;
-
-        CheckedSurfaceTextureHolder(CheckedSurfaceTexture checkedSurfaceTexture) {
-            mCheckedSurfaceTexture = checkedSurfaceTexture;
-        }
-
-        @Override
-        public void release() {
-            mCheckedSurfaceTexture.release();
-        }
-
-        @Override
-        public void resetSurfaceTexture() {
-            mCheckedSurfaceTexture.resetSurfaceTexture();
-        }
-    }
-
-    private static class ProcessingSurfaceTextureHolder implements SurfaceTextureHolder {
-        private final ProcessingSurfaceTexture mProcessingSurfaceTexture;
-        private final Preview mPreview;
-        private final Size mResolution;
-
-        ProcessingSurfaceTextureHolder(ProcessingSurfaceTexture processingSurfaceTexture,
-                Preview preview,
-                Size resolution) {
-            mProcessingSurfaceTexture = processingSurfaceTexture;
-            mPreview = preview;
-            mResolution = resolution;
-        }
-
-        @Override
-        public void release() {
-            mProcessingSurfaceTexture.release();
-        }
-
-        @Override
-        public void resetSurfaceTexture() {
-            mProcessingSurfaceTexture.resetSurfaceTexture();
-            mPreview.updateOutput(mProcessingSurfaceTexture.getSurfaceTexture(), mResolution);
-        }
     }
 }

@@ -121,10 +121,6 @@ public abstract class DeferrableSurface {
      */
     abstract ListenableFuture<Surface> provideSurface();
 
-    /** Refreshes the {@link DeferrableSurface} before attach if needed. */
-    public void refresh() {
-    }
-
     /** Notifies this surface is attached */
     public void notifySurfaceAttached() {
         synchronized (mLock) {

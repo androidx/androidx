@@ -19,6 +19,7 @@ package androidx.camera.camera2.impl;
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCaptureSession;
 import android.hardware.camera2.CameraCaptureSession.CaptureCallback;
+import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CameraDevice;
 import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.TotalCaptureResult;
@@ -99,7 +100,11 @@ final class CaptureSession {
      */
     private Map<DeferrableSurface, Surface> mConfiguredSurfaceMap = new HashMap<>();
 
-
+    /**
+     * Whether the configured {@link DeferrableSurface} should be closed when the CaptureSession is
+     * closed.
+     */
+    private final boolean mCloseSurfacesOnSessionClose;
     /** The list of DeferrableSurface used to notify surface detach events */
     @GuardedBy("mConfiguredDeferrableSurfaces")
     List<DeferrableSurface> mConfiguredDeferrableSurfaces = Collections.emptyList();
@@ -117,8 +122,11 @@ final class CaptureSession {
      * Constructor for CaptureSession.
      *
      * @param executor The executor is responsible for queuing up callbacks from capture requests.
+     * @param closeSurfacesOnSessionClose If true, then when the CaptureSession closes it will
+     *                                    also close all the {@link DeferrableSurface} that it was
+     *                                    configured with.
      */
-    CaptureSession(@NonNull Executor executor) {
+    CaptureSession(@NonNull Executor executor, boolean closeSurfacesOnSessionClose) {
         mState = State.INITIALIZED;
 
         // Ensure tasks posted to the executor are executed sequentially.
@@ -127,6 +135,7 @@ final class CaptureSession {
         } else {
             mExecutor = CameraXExecutors.newSequentialExecutor(executor);
         }
+        mCloseSurfacesOnSessionClose = closeSurfacesOnSessionClose;
     }
 
     /**
@@ -193,7 +202,7 @@ final class CaptureSession {
      * @throws CameraAccessException if the camera is in an invalid start state
      */
     void open(SessionConfig sessionConfig, CameraDevice cameraDevice)
-            throws CameraAccessException {
+            throws CameraAccessException, DeferrableSurface.SurfaceClosedException {
         synchronized (mStateLock) {
             switch (mState) {
                 case UNINITIALIZED:
@@ -202,13 +211,24 @@ final class CaptureSession {
                 case INITIALIZED:
                     List<DeferrableSurface> surfaces = sessionConfig.getSurfaces();
 
-                    // Before creating capture session, some surfaces may need to refresh.
-                    DeferrableSurfaces.refresh(surfaces);
-
                     mConfiguredDeferrableSurfaces = new ArrayList<>(surfaces);
 
-                    List<Surface> configuredSurfaces = new ArrayList<>(
-                            DeferrableSurfaces.surfaceList(mConfiguredDeferrableSurfaces));
+                    List<Surface> configuredSurfaces =
+                            DeferrableSurfaces.surfaceList(mConfiguredDeferrableSurfaces, false);
+
+                    // If a Surface in configuredSurfaces is null it means the Surface was not
+                    // retrieved from the ListenableFuture. Only handle the first failed Surface
+                    // since subsequent calls to CaptureSession.open() will handle the other
+                    // failed Surfaces if there are any.
+                    if (configuredSurfaces.contains(null)) {
+                        int i = configuredSurfaces.indexOf(null);
+                        Log.d(TAG, "Some surfaces were closed.");
+                        DeferrableSurface deferrableSurface = mConfiguredDeferrableSurfaces.get(i);
+                        mConfiguredDeferrableSurfaces.clear();
+                        throw new DeferrableSurface.SurfaceClosedException("Surface closed",
+                                deferrableSurface);
+                    }
+
                     if (configuredSurfaces.isEmpty()) {
                         Log.e(TAG, "Unable to open capture session with no surfaces. ");
                         return;
@@ -325,6 +345,8 @@ final class CaptureSession {
                     mState = State.CLOSED;
                     mSessionConfig = null;
                     mCameraEventOnRepeatingOptions = null;
+                    closeConfiguredDeferrableSurfaces();
+
                     break;
                 case CLOSED:
                 case RELEASING:
@@ -772,6 +794,8 @@ final class CaptureSession {
 
                 Log.d(TAG, "CameraCaptureSession.onClosed()");
 
+                closeConfiguredDeferrableSurfaces();
+
                 mState = State.RELEASED;
                 mCameraCaptureSession = null;
 
@@ -808,9 +832,15 @@ final class CaptureSession {
         }
     }
 
-    /** Also notify the surface detach event if receives camera device close event */
-    public void notifyCameraDeviceClose() {
-        notifySurfaceDetached();
+    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+    void closeConfiguredDeferrableSurfaces() {
+        if (!mCloseSurfacesOnSessionClose) {
+            return;
+        }
+
+        for (DeferrableSurface deferrableSurface : mConfiguredDeferrableSurfaces) {
+            deferrableSurface.close();
+        }
     }
 
     List<CaptureConfig> setupConfiguredSurface(List<CaptureConfig> list) {
@@ -836,5 +866,32 @@ final class CaptureSession {
         }
 
         return mExecutor;
+    }
+
+    static final class Builder {
+        private Executor mExecutor;
+        private int mSupportedHardwareLevel = -1;
+
+        CaptureSession build() {
+            boolean closeSurfaceOnClose = false;
+            if (mSupportedHardwareLevel
+                    == CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY) {
+                closeSurfaceOnClose = true;
+            }
+
+            if (mExecutor == null) {
+                mExecutor = CameraXExecutors.myLooperExecutor();
+            }
+
+            return new CaptureSession(mExecutor, closeSurfaceOnClose);
+        }
+
+        void setExecutor(@NonNull Executor executor) {
+            mExecutor = executor;
+        }
+
+        void setSupportedHardwareLevel(int supportedHardwareLevel) {
+            mSupportedHardwareLevel = supportedHardwareLevel;
+        }
     }
 }

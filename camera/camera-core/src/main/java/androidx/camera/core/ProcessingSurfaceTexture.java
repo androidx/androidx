@@ -35,7 +35,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 /**
  * A {@link DeferrableSurface} that does processing and outputs a {@link SurfaceTexture}.
  */
-final class ProcessingSurfaceTexture extends DeferrableSurface {
+final class ProcessingSurfaceTexture extends DeferrableSurface implements SurfaceTextureHolder {
     private static final String TAG = "ProcessingSurfaceTextur";
 
     private final Object mLock = new Object();
@@ -153,12 +153,11 @@ final class ProcessingSurfaceTexture extends DeferrableSurface {
     /**
      * Returns the SurfaceTexture that the result of the processing gets written to.
      *
-     * <p> Whenever {@link #resetSurfaceTexture()} is called the previous output becomes invalidated
-     * so this method should be called again to retrieve a new output SurfaceTexture. This should
-     * only be called by the consumer thread.
+     * <p> This should only be called by the consumer thread.
      *
      * @throws IllegalStateException if {@link #release()} ()} has already been called
      */
+    @Override
     @NonNull
     public SurfaceTexture getSurfaceTexture() {
         synchronized (mLock) {
@@ -168,26 +167,6 @@ final class ProcessingSurfaceTexture extends DeferrableSurface {
 
             return mSurfaceTexture;
         }
-    }
-
-    /**
-     * Resets the output {@link SurfaceTexture}.
-     *
-     * <p> This should only be called by the consumer thread.
-     *
-     * @throws IllegalStateException if {@link #release()} has already been called
-     */
-    void resetSurfaceTexture() {
-        if (mReleased) {
-            throw new IllegalStateException("ProcessingSurfaceTexture already released!");
-        }
-
-        mSurfaceTexture.release();
-        mSurfaceTextureSurface.release();
-
-        mSurfaceTexture = FixedSizeSurfaceTextures.createDetachedSurfaceTexture(mResolution);
-        mSurfaceTextureSurface = new Surface(mSurfaceTexture);
-        mCaptureProcessor.onOutputSurface(mSurfaceTextureSurface, PixelFormat.RGBA_8888);
     }
 
     /**
@@ -212,6 +191,7 @@ final class ProcessingSurfaceTexture extends DeferrableSurface {
      * <p> After closing the ProcessingSurfaceTexture it should not be used again. A new instance
      * should be created. This should only be called by the consumer thread.
      */
+    @Override
     public void release() {
         synchronized (mLock) {
             if (mReleased) {

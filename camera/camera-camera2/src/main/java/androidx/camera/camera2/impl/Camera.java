@@ -60,6 +60,7 @@ import androidx.core.util.Preconditions;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -128,6 +129,9 @@ final class Camera implements BaseCamera {
     CameraDevice mCameraDevice;
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     int mCameraDeviceError = ERROR_NONE;
+
+    private CaptureSession.Builder mCaptureSessionBuilder = new CaptureSession.Builder();
+
     /** The configured session which handles issuing capture requests. */
     private CaptureSession mCaptureSession;
     /** The session configuration of camera control. */
@@ -187,11 +191,15 @@ final class Camera implements BaseCamera {
                     mCameraManager.getCameraCharacteristics(mCameraId);
             mCameraControlInternal = new Camera2CameraControl(cameraCharacteristics,
                     this, executorScheduler, executorScheduler);
+            @SuppressWarnings("ConstantConditions") /* characteristic on all devices */
+            int supportedHardwareLevel = cameraCharacteristics.get(
+                    CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL);
+            mCaptureSessionBuilder.setSupportedHardwareLevel(supportedHardwareLevel);
         } catch (CameraAccessException e) {
             throw new IllegalStateException("Cannot access camera", e);
         }
-
-        mCaptureSession = new CaptureSession(mExecutor);
+        mCaptureSessionBuilder.setExecutor(mExecutor);
+        mCaptureSession = mCaptureSessionBuilder.build();
 
         // Register an observer to update the number of available cameras
         mAvailableCamerasObservable.addObserver(mExecutor, mAvailableCamerasObserver);
@@ -281,7 +289,7 @@ final class Camera implements BaseCamera {
     private void configAndClose() {
         // Configure the camera with a dummy capture session in order to clear the
         // previous session. This should be released immediately after being configured.
-        final CaptureSession dummySession = new CaptureSession(mExecutor);
+        final CaptureSession dummySession = mCaptureSessionBuilder.build();
 
         final SurfaceTexture surfaceTexture = new SurfaceTexture(0);
         surfaceTexture.setDefaultBufferSize(640, 480);
@@ -313,6 +321,8 @@ final class Camera implements BaseCamera {
             Log.d(TAG, "Unable to configure camera " + mCameraId + " due to "
                     + e.getMessage());
             closeAndCleanupRunner.run();
+        } catch (DeferrableSurface.SurfaceClosedException e) {
+            postSurfaceClosedError(e);
         }
     }
 
@@ -546,6 +556,7 @@ final class Camera implements BaseCamera {
         synchronized (mAttachedUseCaseLock) {
             reattachUseCaseSurfaces(useCase);
             mUseCaseAttachState.setUseCaseActive(useCase);
+            mUseCaseAttachState.updateUseCase(useCase);
         }
         updateCaptureSessionConfig();
     }
@@ -876,6 +887,32 @@ final class Camera implements BaseCamera {
             mCaptureSession.open(validatingBuilder.build(), mCameraDevice);
         } catch (CameraAccessException e) {
             Log.d(TAG, "Unable to configure camera " + mCameraId + " due to " + e.getMessage());
+        } catch (DeferrableSurface.SurfaceClosedException e) {
+            postSurfaceClosedError(e);
+        }
+    }
+
+    void postSurfaceClosedError(DeferrableSurface.SurfaceClosedException e) {
+        Executor executor = CameraXExecutors.mainThreadExecutor();
+
+        for (UseCase useCase : mUseCaseAttachState.getOnlineUseCases()) {
+            SessionConfig sessionConfigError = useCase.getSessionConfig(mCameraId);
+            if (sessionConfigError.getSurfaces().contains(e.getDeferrableSurface())) {
+                List<SessionConfig.ErrorListener> errorListeners =
+                        sessionConfigError.getErrorListeners();
+                if (!errorListeners.isEmpty()) {
+                    SessionConfig.ErrorListener errorListener = errorListeners.get(0);
+                    Log.d(TAG, "Posting surface closed", new Throwable());
+                    executor.execute(new Runnable() {
+                        @Override
+                        public void run() {
+                            errorListener.onError(sessionConfigError,
+                                    SessionConfig.SessionError.SESSION_ERROR_SURFACE_NEEDS_RESET);
+                        }
+                    });
+                    break;
+                }
+            }
         }
     }
 
@@ -894,7 +931,7 @@ final class Camera implements BaseCamera {
         // Recreate an initialized (but not opened) capture session from the previous configuration
         SessionConfig previousSessionConfig = oldCaptureSession.getSessionConfig();
         List<CaptureConfig> unissuedCaptureConfigs = oldCaptureSession.getCaptureConfigs();
-        mCaptureSession = new CaptureSession(mExecutor);
+        mCaptureSession = mCaptureSessionBuilder.build();
         mCaptureSession.setSessionConfig(previousSessionConfig);
         mCaptureSession.issueCaptureRequests(unissuedCaptureConfigs);
 

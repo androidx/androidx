@@ -162,6 +162,8 @@ public class FocusMeteringControlTest {
                 CaptureResult.CONTROL_AWB_MODE_AUTO,
                 CaptureResult.CONTROL_AWB_MODE_OFF,
         });
+        shadowCharacteristics0.set(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL,
+                CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY);
 
         // Add the camera to the camera service
         ((ShadowCameraManager)
@@ -178,6 +180,8 @@ public class FocusMeteringControlTest {
 
         shadowCharacteristics1.set(CameraCharacteristics.SENSOR_INFO_ACTIVE_ARRAY_SIZE,
                 new Rect(0, 0, SENSOR_WIDTH2, SENSOR_HEIGHT2));
+        shadowCharacteristics1.set(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL,
+                CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_3);
 
         // Add the camera to the camera service
         ((ShadowCameraManager)

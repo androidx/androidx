@@ -21,90 +21,40 @@ import android.os.Looper;
 import android.util.Size;
 import android.view.Surface;
 
-import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.UiThread;
-import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.concurrent.Executor;
 
 /**
  * A {@link DeferrableSurface} which verifies the {@link SurfaceTexture} that backs the {@link
  * Surface} is unreleased before returning the Surface.
  */
-final class CheckedSurfaceTexture extends DeferrableSurface {
-    private final OnTextureChangedListener mOutputChangedListener;
-    final List<Surface> mSurfaceToReleaseList = new ArrayList<>();
-    @Nullable
-    FixedSizeSurfaceTexture mSurfaceTexture;
-    @Nullable
-    Surface mSurface;
-    @Nullable
-    private Size mResolution;
+final class CheckedSurfaceTexture extends DeferrableSurface implements SurfaceTextureHolder {
+    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+    @NonNull
+    final FixedSizeSurfaceTexture mSurfaceTexture;
 
-    final Object mLock = new Object();
+    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+    @NonNull
+    final Surface mSurface;
 
-    @VisibleForTesting
-    @GuardedBy("mLock")
-    final Map<SurfaceTexture, Resource> mResourceMap = new HashMap<>();
+    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+    final Resource mResource;
 
-    CheckedSurfaceTexture(
-            OnTextureChangedListener outputChangedListener) {
-        mOutputChangedListener = outputChangedListener;
-    }
+    CheckedSurfaceTexture(Size resolution) {
+        mResource = new Resource();
 
-    private FixedSizeSurfaceTexture createDetachedSurfaceTexture(Size resolution) {
-        Resource resource = new Resource();
-        FixedSizeSurfaceTexture surfaceTexture = new FixedSizeSurfaceTexture(0,
-                resolution, resource);
-        surfaceTexture.detachFromGLContext();
-        resource.setSurfaceTexture(surfaceTexture);
+        mSurfaceTexture = new FixedSizeSurfaceTexture(0, resolution, mResource);
+        mSurfaceTexture.detachFromGLContext();
 
-        synchronized (mLock) {
-            mResourceMap.put(surfaceTexture, resource);
-        }
-
-        return surfaceTexture;
-    }
-
-    @UiThread
-    void setResolution(@NonNull Size resolution) {
-        mResolution = resolution;
-    }
-
-    @UiThread
-    void resetSurfaceTexture() {
-        if (mResolution == null) {
-            throw new IllegalStateException(
-                    "setResolution() must be called before resetSurfaceTexture()");
-        }
-
-        release();
-
-        mSurfaceTexture = createDetachedSurfaceTexture(mResolution);
-        mOutputChangedListener.onTextureChanged(mSurfaceTexture, mResolution);
-    }
-
-
-    @UiThread
-    boolean isSurfaceTextureReleasing(FixedSizeSurfaceTexture surfaceTexture) {
-        synchronized (mLock) {
-            Resource resource = mResourceMap.get(surfaceTexture);
-            if (resource == null) {
-                return true;
-            }
-
-            return resource.isReleasing();
-        }
+        mSurface = new Surface(mSurfaceTexture);
+        mResource.setSurfaceTexture(mSurfaceTexture);
+        mResource.setSurface(mSurface);
     }
 
     /**
@@ -125,17 +75,13 @@ final class CheckedSurfaceTexture extends DeferrableSurface {
                                 new Runnable() {
                                     @Override
                                     public void run() {
-                                        if (isSurfaceTextureReleasing(
-                                                mSurfaceTexture)) {
-                                            // Reset the surface texture and notify the listener
-                                            CheckedSurfaceTexture.this.resetSurfaceTexture();
+                                        if (mResource.isReleasing()) {
+                                            completer.setException(new SurfaceClosedException(
+                                                    "Surface already released",
+                                                    CheckedSurfaceTexture.this));
+                                        } else {
+                                            completer.set(mSurface);
                                         }
-
-                                        if (mSurface == null) {
-                                            mSurface = createSurfaceFrom(
-                                                    mSurfaceTexture);
-                                        }
-                                        completer.set(mSurface);
                                     }
                                 };
                         runOnMainThread(checkAndSetRunnable);
@@ -144,93 +90,26 @@ final class CheckedSurfaceTexture extends DeferrableSurface {
                 });
     }
 
-    @UiThread
-    Surface createSurfaceFrom(FixedSizeSurfaceTexture surfaceTexture) {
-        Surface surface = new Surface(surfaceTexture);
-
-        synchronized (mLock) {
-            Resource resource = mResourceMap.get(surfaceTexture);
-            if (resource == null) {
-                resource = new Resource();
-                resource.setSurfaceTexture(surfaceTexture);
-                mResourceMap.put(surfaceTexture, resource);
-            }
-
-            resource.setSurface(surface);
-        }
-        return surface;
-    }
-
     @Override
-    public void refresh() {
-        runOnMainThread(new Runnable() {
-            @Override
-            public void run() {
-                if (isSurfaceTextureReleasing(mSurfaceTexture)) {
-                    // Reset the surface texture and notify the listener
-                    CheckedSurfaceTexture.this.resetSurfaceTexture();
-                }
-                // To fix the incorrect preview orientation for devices running on legacy camera,
-                // it needs to attach a new Surface instance to the newly created camera capture
-                // session.
-                if (mSurface != null) {
-                    mSurfaceToReleaseList.add(mSurface);
-                }
-                mSurface = createSurfaceFrom(mSurfaceTexture);
-            }
-        });
+    @NonNull
+    public SurfaceTexture getSurfaceTexture() {
+        return mSurfaceTexture;
     }
 
     @UiThread
-    void release() {
-        if (mSurface == null && mSurfaceTexture == null) {
-            return;
-        }
-
-        Resource resource;
-        synchronized (mLock) {
-            resource = mResourceMap.get(mSurfaceTexture);
-        }
-
-        if (resource != null) {
-            releaseResourceWhenDetached(resource);
-        }
-        mSurfaceTexture = null;
-        mSurface = null;
-
-        for (Surface surface : mSurfaceToReleaseList) {
-            surface.release();
-        }
-        mSurfaceToReleaseList.clear();
+    @Override
+    public void release() {
+        releaseResourceWhenDetached(mResource);
     }
 
     void releaseResourceWhenDetached(final Resource resource) {
-        synchronized (mLock) {
-            resource.setReleasing(true);
-        }
+        resource.setReleasing(true);
 
         setOnSurfaceDetachedListener(CameraXExecutors.mainThreadExecutor(),
                 new OnSurfaceDetachedListener() {
                     @Override
                     public void onSurfaceDetached() {
-                        List<Resource> resourcesToRelease = new ArrayList<>();
-
-                        synchronized (mLock) {
-                            for (Resource resource : mResourceMap.values()) {
-                                if (resource.isReleasing()) {
-                                    resourcesToRelease.add(resource);
-                                }
-                            }
-
-                            // Removes the resource from the map since it is of no use.
-                            for (Resource resourceToRemove : resourcesToRelease) {
-                                mResourceMap.remove(resourceToRemove.mSurfaceTexture);
-                            }
-                        }
-
-                        for (Resource resource : resourcesToRelease) {
-                            resource.release();
-                        }
+                        resource.release();
                     }
                 });
     }
@@ -241,10 +120,6 @@ final class CheckedSurfaceTexture extends DeferrableSurface {
                         ? CameraXExecutors.directExecutor()
                         : CameraXExecutors.mainThreadExecutor();
         executor.execute(runnable);
-    }
-
-    interface OnTextureChangedListener {
-        void onTextureChanged(SurfaceTexture newOutput, Size newResolution);
     }
 
     /**
