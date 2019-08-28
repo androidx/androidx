@@ -66,7 +66,7 @@ import java.util.ArrayList;
  * <p>Fragments using exit animations are drawn before all others for FragmentContainerView. This
  * ensures that exiting Fragments do not appear on top of the view.
  */
-public class FragmentContainerView extends FrameLayout {
+public final class FragmentContainerView extends FrameLayout {
 
     private ArrayList<View> mDisappearingFragmentChildren;
 
