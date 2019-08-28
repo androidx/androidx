@@ -362,10 +362,6 @@ public class VideoView_WithPlayerTest extends MediaWidgetTestBase {
         private int mStatus = PixelCopy.SUCCESS;
 
         SynchronousPixelCopy() {
-            if (Build.VERSION.SDK_INT == 28) {
-                // TODO: This if-block for API 28 should be removed. (b/137321781)
-                return;
-            }
             if (Build.VERSION.SDK_INT >= 24) {
                 this.mHandlerThread = new HandlerThread("PixelCopyHelper");
                 mHandlerThread.start();
@@ -374,10 +370,6 @@ public class VideoView_WithPlayerTest extends MediaWidgetTestBase {
         }
 
         public void release() {
-            if (Build.VERSION.SDK_INT == 28) {
-                // TODO: This if-block for API 28 should be removed. (b/137321781)
-                return;
-            }
             if (Build.VERSION.SDK_INT >= 24) {
                 if (mHandlerThread.isAlive()) {
                     mHandlerThread.quitSafely();
@@ -386,10 +378,6 @@ public class VideoView_WithPlayerTest extends MediaWidgetTestBase {
         }
 
         public int request(SurfaceView source, Bitmap dest) {
-            if (Build.VERSION.SDK_INT == 28) {
-                // TODO: This if-block for API 28 should be removed. (b/137321781)
-                return -1;
-            }
             if (Build.VERSION.SDK_INT < 24) {
                 return -1;
             }
