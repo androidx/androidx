@@ -20,8 +20,6 @@ import android.os.Build;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityRecord;
 
-import androidx.annotation.NonNull;
-
 /**
  * Helper for accessing features in {@link AccessibilityEvent}.
  */
@@ -276,32 +274,6 @@ public final class AccessibilityEventCompat {
     @Deprecated
     public static AccessibilityRecordCompat asRecord(AccessibilityEvent event) {
         return new AccessibilityRecordCompat(event);
-    }
-
-    /**
-     * Returns a cached instance if such is available otherwise a new one. The returned instance
-     * is initialized from the given <code>event</code>.
-     *
-     * <p>
-     * {@link AccessibilityRecord} introduced properties ScrollDeltaX and ScrollDeltaY in API 28.
-     * These values aren't being propagated during
-     * {@link AccessibilityEvent#obtain(AccessibilityEvent)} in API 28 and 29. Call this to get a
-     * copy with the right scroll values.
-     * </p>
-     *
-     * @param event The event.
-     * @return An instance.
-     */
-    @NonNull
-    public static AccessibilityEvent obtain(@NonNull AccessibilityEvent event) {
-        AccessibilityEvent newEvent = AccessibilityEvent.obtain(event);
-        // As ScrollDeltaX and ScrollDeltaY aren't populated in P and Q, restore the correct
-        // values here.
-        if (Build.VERSION.SDK_INT >= 28 && Build.VERSION.SDK_INT <= 29) {
-            newEvent.setScrollDeltaX(event.getScrollDeltaX());
-            newEvent.setScrollDeltaY(event.getScrollDeltaY());
-        }
-        return newEvent;
     }
 
     /**
