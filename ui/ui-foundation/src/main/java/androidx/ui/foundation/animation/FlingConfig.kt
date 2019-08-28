@@ -21,6 +21,8 @@ import androidx.animation.AnimationBuilder
 import androidx.animation.DecayAnimation
 import androidx.animation.ExponentialDecay
 import androidx.animation.PhysicsBuilder
+import androidx.animation.AnimationEndReason
+import androidx.animation.OnFlingEnd
 import androidx.animation.TargetAnimation
 import androidx.animation.fling
 import kotlin.math.abs
@@ -40,7 +42,7 @@ import kotlin.math.abs
  * consider using [AnchorsFlingConfig] function to generate such behaviour.
  *
  * @param decayAnimation the animation to control fling behaviour
- * @param onAnimationFinished callback to be invoked when fling finishes by decay
+ * @param onAnimationEnd callback to be invoked when fling finishes by decay
  * or being interrupted by gesture input.
  * Consider second boolean param "cancelled" to know what happened.
  * @param adjustTarget callback to be called at the start of fling
@@ -48,7 +50,7 @@ import kotlin.math.abs
  */
 data class FlingConfig(
     val decayAnimation: DecayAnimation = ExponentialDecay(),
-    val onAnimationFinished: ((finalValue: Float, cancelled: Boolean) -> Unit)? = null,
+    val onAnimationEnd: OnFlingEnd? = null,
     val adjustTarget: (Float) -> TargetAnimation? = { null }
 )
 
@@ -63,7 +65,7 @@ fun AnimatedFloat.fling(config: FlingConfig, startVelocity: Float) {
         startVelocity,
         config.decayAnimation,
         config.adjustTarget,
-        { config.onAnimationFinished?.invoke(value, it) }
+        config.onAnimationEnd
     )
 }
 
@@ -74,10 +76,10 @@ fun AnimatedFloat.fling(config: FlingConfig, startVelocity: Float) {
  * It takes velocity into account, though value will be animated to the closest
  * point in provided list considering velocity.
  *
- * @param animationAnchors set of anchors to animate to
- * @param onAnimationFinished callback to be invoked when animation value reaches desired anchor
+ * @param anchors set of anchors to animate to
+ * @param onAnimationEnd callback to be invoked when animation value reaches desired anchor
  * or fling being interrupted by gesture input.
- * Consider the second boolean param "cancelled" to know what happened.
+ * Consult [AnimationEndReason] param to know what happened.
  * @param animationBuilder animation which will be used for animations
  * @param decayAnimation decay animation to be used to calculate closest point in the anchors set
  * considering velocity.
@@ -85,7 +87,7 @@ fun AnimatedFloat.fling(config: FlingConfig, startVelocity: Float) {
 fun AnchorsFlingConfig(
     anchors: List<Float>,
     animationBuilder: AnimationBuilder<Float> = PhysicsBuilder(),
-    onAnimationFinished: ((finalValue: Float, cancelled: Boolean) -> Unit)? = null,
+    onAnimationEnd: OnFlingEnd? = null,
     decayAnimation: DecayAnimation = ExponentialDecay()
 ): FlingConfig {
     val adjustTarget: (Float) -> TargetAnimation? = { target ->
@@ -93,5 +95,5 @@ fun AnchorsFlingConfig(
         val adjusted = point ?: target
         TargetAnimation(adjusted, animationBuilder)
     }
-    return FlingConfig(decayAnimation, onAnimationFinished, adjustTarget)
+    return FlingConfig(decayAnimation, onAnimationEnd, adjustTarget)
 }

@@ -73,7 +73,9 @@ class SpringBackScrolling : Activity() {
                 }
                 override fun onStop(velocity: PxPosition) {
                     isFlinging.value = true
-                    animScroll.fling(velocity.x.value, onFinished = { isFlinging.value = false })
+                    animScroll.fling(velocity.x.value, onEnd = { _, _, _ ->
+                        isFlinging.value = false
+                    })
                 }
             }) {
                 val children = @Composable {

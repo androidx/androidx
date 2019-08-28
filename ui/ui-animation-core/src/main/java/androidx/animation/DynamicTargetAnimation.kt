@@ -39,24 +39,26 @@ interface DynamicTargetAnimation<T> {
     // TODO: use lambda with default values to combine the following 4 methods when b/134103877
     //  is fixed
     fun animateTo(targetValue: T)
-    fun animateTo(targetValue: T, onFinished: (canceled: Boolean) -> Unit)
+    fun animateTo(
+        targetValue: T,
+        onEnd: (endReason: AnimationEndReason, endValue: T) -> Unit
+    )
     fun animateTo(targetValue: T, anim: AnimationBuilder<T> = PhysicsBuilder())
     /**
      * Sets the target value, which effectively starts an animation to change the value from [value]
      * to the target value. If there is already an animation in flight, this method will interrupt
-     * the ongoing animation, invoke [onFinished] that is associated with that animation, and start
+     * the ongoing animation, invoke [onEnd] that is associated with that animation, and start
      * a new animation from the current value to the new target value.
      *
      * @param targetValue The new value to animate to
      * @param anim The animation that will be used to animate from the current value to the new
      *             target value
-     * @param onFinished A callback that will be invoked when the animation reaches the target or
-     *                   gets canceled.
+     * @param onEnd A callback that will be invoked when the animation finished by any reason.
      */
     fun animateTo(
         targetValue: T,
         anim: AnimationBuilder<T> = PhysicsBuilder(),
-        onFinished: (canceled: Boolean) -> Unit
+        onEnd: (endReason: AnimationEndReason, endValue: T) -> Unit
     )
 
     /**
@@ -85,3 +87,28 @@ data class TargetAnimation(
     val target: Float,
     val animation: AnimationBuilder<Float> = PhysicsBuilder()
 )
+
+/**
+ * Possible reasons with which DynamicTargetAnimation can finish
+ */
+enum class AnimationEndReason {
+    /**
+     * Animation has successfully reached the [DynamicTargetAnimation.targetValue] value
+     * and come to stop
+     */
+    TargetReached,
+    /**
+     * Animation was interrupted, e.g by another animation
+     */
+    Interrupted,
+    /**
+     * Animation will be forced to end when its value reaches upper/lower bound (if they have
+     * been defined, e.g via [AnimatedFloat.setBounds])
+     *
+     * Unlike [TargetReached], when an animation ends due to [BoundReached], it often falls short
+     * from its initial target, and the remaining velocity is often non-zero. Both the end value
+     * and the remaining velocity can be obtained via `onEnd` param in [AnimatedFloat.fling]
+     * callback
+     */
+    BoundReached
+}

@@ -17,6 +17,7 @@
 package androidx.ui.foundation.animation
 
 import androidx.animation.AnimatedFloat
+import androidx.animation.AnimationEndReason
 import androidx.animation.ValueHolder
 import androidx.compose.Model
 import androidx.ui.foundation.gestures.DragValueController
@@ -64,10 +65,11 @@ class AnimatedFloatDragController(
 
     override fun onDragEnd(velocity: Float, onValueSettled: (Float) -> Unit) {
         if (flingConfig != null && enabled) {
-            val config =
-                flingConfig.copy(onAnimationFinished = { value: Float, cancelled: Boolean ->
-                    if (!cancelled) onValueSettled(value)
-                    flingConfig.onAnimationFinished?.invoke(value, cancelled)
+            val config = flingConfig.copy(
+                onAnimationEnd =
+                { endReason: AnimationEndReason, value: Float, finalVelocity: Float ->
+                    if (endReason != AnimationEndReason.Interrupted) onValueSettled(value)
+                    flingConfig.onAnimationEnd?.invoke(endReason, value, finalVelocity)
                 })
             animatedFloat.fling(config, velocity)
         } else {
