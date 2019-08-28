@@ -30,8 +30,7 @@ import java.lang.reflect.Method;
  * offered by {@link android.os.Debug#startMethodTracing}.  In particular, it enables
  * tracing of events that occur across multiple processes.
  * <p>For information about using the Systrace tool, read <a
- * href="{@docRoot}tools/debugging/systrace.html">Analyzing Display and Performance
- * with Systrace</a>.
+ * href="{@docRoot}studio/profile/systrace/">Overview of system tracing</a>.
  */
 public final class TraceCompat {
 
