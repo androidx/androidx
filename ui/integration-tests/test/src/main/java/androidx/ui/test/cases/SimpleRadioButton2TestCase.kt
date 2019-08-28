@@ -16,13 +16,12 @@
 
 package androidx.ui.test.cases
 
-import android.app.Activity
+import androidx.compose.Composable
 import androidx.ui.core.Density
 import androidx.ui.core.Dp
 import androidx.ui.core.Px
 import androidx.ui.core.PxSize
 import androidx.ui.core.dp
-import androidx.ui.core.setContent
 import androidx.ui.core.withDensity
 import androidx.ui.engine.geometry.Offset
 import androidx.ui.engine.geometry.Outline
@@ -36,17 +35,15 @@ import androidx.ui.graphics.Color
 import androidx.ui.graphics.Path
 import androidx.ui.layout.Container
 
-class SimpleRadioButton2TestCase(
-    activity: Activity
-) : BaseSimpleRadioButtonTestCase(activity) {
-
-    override fun setComposeContent(activity: Activity) = activity.setContent {
+class SimpleRadioButton2TestCase : BaseSimpleRadioButtonTestCase() {
+    @Composable
+    override fun emitContent() {
         Container(width = 48.dp, height = 48.dp) {
             DrawBorder(CircleShape, Border(Color.Cyan, 1.dp))
             val padding = (48.dp - getInnerSize().value) / 2
             DrawShape(PaddingShape(padding, CircleShape), Color.Cyan)
         }
-    }!!
+    }
 }
 
 private data class PaddingShape(val padding: Dp, val shape: Shape) : Shape {

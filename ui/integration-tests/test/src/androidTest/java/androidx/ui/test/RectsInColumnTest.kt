@@ -16,9 +16,7 @@
 
 package androidx.ui.test
 
-import android.app.Activity
 import androidx.test.filters.MediumTest
-import androidx.test.rule.ActivityTestRule
 import androidx.ui.test.cases.RectsInColumnTestCase
 import org.junit.Rule
 import org.junit.Test
@@ -39,18 +37,20 @@ class RectsInColumnTest(private val numberOfRectangles: Int) {
     }
 
     @get:Rule
-    val activityRule = ActivityTestRule(Activity::class.java)
-
-    @get:Rule
-    val disableAnimationRule = DisableTransitions()
+    val composeTestRule = createComposeRule(disableTransitions = true)
 
     @Test
     fun toggleRectangleColor_compose() {
-        activityRule.runOnUiThreadSync {
-            val testCase = RectsInColumnTestCase(activityRule.activity, numberOfRectangles)
-            runComposeTestWithStateToggleAndAssertRecompositions(testCase) {
+        val testCase = RectsInColumnTestCase(numberOfRectangles)
+        composeTestRule
+            .forGivenTestCase(testCase)
+            .performTestWithEventsControl {
+                doFrame()
+                assertNoPendingChanges()
+                assertMeasureSizeIsPositive()
                 testCase.toggleState()
+                doFrame()
+                assertNoPendingChanges()
             }
-        }
     }
 }

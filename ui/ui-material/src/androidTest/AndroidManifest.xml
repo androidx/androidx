@@ -16,8 +16,6 @@
   -->
 <manifest package="androidx.ui.material" xmlns:android="http://schemas.android.com/apk/res/android">
      <application>
-        <activity
-            android:name="androidx.ui.test.android.DefaultTestActivity"
-            android:theme="@style/TestTheme"/>
+         <activity android:name="android.app.Activity" android:theme="@style/TestTheme"/>
     </application>
 </manifest>

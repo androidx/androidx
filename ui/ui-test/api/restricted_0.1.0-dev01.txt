@@ -36,7 +36,56 @@ package androidx.ui.test {
     method public androidx.ui.test.CollectedSizes assertWidthEqualsTo(kotlin.jvm.functions.Function1<? super androidx.ui.core.DensityScope,androidx.ui.core.IntPx> expectedWidthPx);
   }
 
+  public interface ComposeBenchmarkScope extends androidx.ui.test.ComposeTestCaseScope {
+    method public void disposeContent();
+    method public void draw();
+    method public void drawFinish();
+    method public void drawPrepare();
+    method public void invalidateViews();
+    method public void measureWithSpec(int widthSpec, int heightSpec);
+    method public void requestLayout();
+    method public void setupContent();
+  }
+
+  public interface ComposeTestCase {
+    method public void getContent();
+  }
+
+  public interface ComposeTestCaseScope {
+    method public void capturePreviewPictureToActivity();
+    method public void doFrame();
+    method public void drawToBitmap();
+    method public boolean getDidLastRecomposeHaveChanges();
+    method public int getMeasuredHeight();
+    method public int getMeasuredWidth();
+    method public boolean hasPendingChanges();
+    method public void layout();
+    method public void measure();
+    method public void recompose();
+    property public abstract boolean didLastRecomposeHaveChanges;
+    property public abstract int measuredHeight;
+    property public abstract int measuredWidth;
+  }
+
+  public final class ComposeTestCaseScopeKt {
+    ctor public ComposeTestCaseScopeKt();
+    method public static void assertHasPendingChanges(androidx.ui.test.ComposeTestCaseScope);
+    method public static void assertLastRecomposeHadChanges(androidx.ui.test.ComposeTestCaseScope);
+    method public static void assertLastRecomposeHadNoChanges(androidx.ui.test.ComposeTestCaseScope);
+    method public static void assertMeasureSizeIsPositive(androidx.ui.test.ComposeTestCaseScope);
+    method public static void assertNoPendingChanges(androidx.ui.test.ComposeTestCaseScope);
+    method public static void doFramesAssertAllHadChangesExceptLastOne(androidx.ui.test.ComposeTestCaseScope, int numberOfFramesToBeStable);
+    method public static int doFramesUntilNoChangesPending(androidx.ui.test.ComposeTestCaseScope, int maxAmountOfFrames = 10);
+    method public static void recomposeAssertHadChanges(androidx.ui.test.ComposeTestCaseScope);
+  }
+
+  public interface ComposeTestCaseSetup {
+    method public void performTestWithEventsControl(kotlin.jvm.functions.Function1<? super androidx.ui.test.ComposeTestCaseScope,kotlin.Unit> block);
+  }
+
   public interface ComposeTestRule extends org.junit.rules.TestRule {
+    method public androidx.ui.test.ComposeTestCaseSetup forGivenContent(kotlin.jvm.functions.Function0<kotlin.Unit> composable);
+    method public androidx.ui.test.ComposeTestCaseSetup forGivenTestCase(androidx.ui.test.ComposeTestCase testCase);
     method public androidx.ui.core.Density getDensity();
     method public android.util.DisplayMetrics getDisplayMetrics();
     method public void runOnUiThread(kotlin.jvm.functions.Function0<kotlin.Unit> action);
@@ -106,16 +155,52 @@ package androidx.ui.test {
 
 package androidx.ui.test.android {
 
+  public final class AndroidComposeTestCaseRunner implements androidx.ui.test.ComposeBenchmarkScope androidx.ui.test.ComposeTestCaseScope {
+    ctor public AndroidComposeTestCaseRunner(androidx.ui.test.ComposeTestCase testCase, android.app.Activity activity);
+    method public void capturePreviewPictureToActivity();
+    method public void disposeContent();
+    method public void doFrame();
+    method public void draw();
+    method public void drawFinish();
+    method public void drawPrepare();
+    method public void drawToBitmap();
+    method public boolean getDidLastRecomposeHaveChanges();
+    method public int getMeasuredHeight();
+    method public int getMeasuredWidth();
+    method public boolean hasPendingChanges();
+    method public void invalidateViews();
+    method public void layout();
+    method public void measure();
+    method public void measureWithSpec(int widthSpec, int heightSpec);
+    method public void recompose();
+    method public void requestLayout();
+    method public void setupContent();
+    property public boolean didLastRecomposeHaveChanges;
+    property public int measuredHeight;
+    property public int measuredWidth;
+  }
+
+  public final class AndroidComposeTestCaseRunnerKt {
+    ctor public AndroidComposeTestCaseRunnerKt();
+  }
+
+  public final class AndroidComposeTestCaseSetup implements androidx.ui.test.ComposeTestCaseSetup {
+    ctor public AndroidComposeTestCaseSetup(androidx.ui.test.ComposeTestRule testRule, androidx.ui.test.ComposeTestCase testCase, android.app.Activity activity);
+    method public void performTestWithEventsControl(kotlin.jvm.functions.Function1<? super androidx.ui.test.ComposeTestCaseScope,kotlin.Unit> block);
+  }
+
   public final class AndroidComposeTestRule implements androidx.ui.test.ComposeTestRule {
     ctor public AndroidComposeTestRule(boolean disableTransitions, boolean shouldThrowOnRecomposeTimeout);
     ctor public AndroidComposeTestRule();
     method public org.junit.runners.model.Statement apply(org.junit.runners.model.Statement base, org.junit.runner.Description? description);
-    method public androidx.test.rule.ActivityTestRule<androidx.ui.test.android.DefaultTestActivity> getActivityTestRule();
+    method public androidx.ui.test.ComposeTestCaseSetup forGivenContent(kotlin.jvm.functions.Function0<kotlin.Unit> composable);
+    method public androidx.ui.test.ComposeTestCaseSetup forGivenTestCase(androidx.ui.test.ComposeTestCase testCase);
+    method public androidx.test.rule.ActivityTestRule<android.app.Activity> getActivityTestRule();
     method public androidx.ui.core.Density getDensity();
     method public android.util.DisplayMetrics getDisplayMetrics();
     method public void runOnUiThread(kotlin.jvm.functions.Function0<kotlin.Unit> action);
     method public void setContent(kotlin.jvm.functions.Function0<kotlin.Unit> composable);
-    property public final androidx.test.rule.ActivityTestRule<androidx.ui.test.android.DefaultTestActivity> activityTestRule;
+    property public final androidx.test.rule.ActivityTestRule<android.app.Activity> activityTestRule;
     property public androidx.ui.core.Density density;
     property public android.util.DisplayMetrics displayMetrics;
   }
@@ -123,13 +208,6 @@ package androidx.ui.test.android {
   public final class AndroidComposeTestRule.AndroidComposeStatement extends org.junit.runners.model.Statement {
     ctor public AndroidComposeTestRule.AndroidComposeStatement(org.junit.runners.model.Statement base);
     method public void evaluate();
-  }
-
-  public final class DefaultTestActivity extends android.app.Activity {
-    ctor public DefaultTestActivity();
-    method public java.util.concurrent.CountDownLatch getHasFocusLatch();
-    method public void setHasFocusLatch(java.util.concurrent.CountDownLatch p);
-    property public final java.util.concurrent.CountDownLatch hasFocusLatch;
   }
 
 }

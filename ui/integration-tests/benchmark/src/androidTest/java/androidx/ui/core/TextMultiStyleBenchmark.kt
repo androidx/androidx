@@ -16,17 +16,14 @@
 
 package androidx.ui.core
 
-import android.app.Activity
-import androidx.benchmark.junit4.BenchmarkRule
 import androidx.test.filters.LargeTest
-import androidx.test.rule.ActivityTestRule
-import androidx.ui.benchmark.measureDrawPerf
-import androidx.ui.benchmark.measureFirstCompose
-import androidx.ui.benchmark.measureFirstDraw
-import androidx.ui.benchmark.measureFirstLayout
-import androidx.ui.benchmark.measureFirstMeasure
-import androidx.ui.benchmark.measureLayoutPerf
-import androidx.ui.test.DisableTransitions
+import androidx.ui.benchmark.ComposeBenchmarkRule
+import androidx.ui.benchmark.benchmarkDrawPerf
+import androidx.ui.benchmark.benchmarkFirstCompose
+import androidx.ui.benchmark.benchmarkFirstDraw
+import androidx.ui.benchmark.benchmarkFirstLayout
+import androidx.ui.benchmark.benchmarkFirstMeasure
+import androidx.ui.benchmark.benchmarkLayoutPerf
 import androidx.ui.test.TextBenchmarkTestRule
 import androidx.ui.test.cartesian
 import org.junit.Rule
@@ -45,18 +42,10 @@ class TextMultiStyleBenchmark(
     private val styleCount: Int
 ) {
     @get:Rule
-    val benchmarkRule = BenchmarkRule()
-
-    @get:Rule
-    val activityRule = ActivityTestRule(Activity::class.java)
-
-    @get:Rule
-    val disableAnimationRule = DisableTransitions()
-
-    @get:Rule
     val textBenchmarkRule = TextBenchmarkTestRule()
 
-    private val activity: Activity get() = activityRule.activity
+    @get:Rule
+    val benchmarkRule = ComposeBenchmarkRule()
 
     companion object {
         @JvmStatic
@@ -74,10 +63,8 @@ class TextMultiStyleBenchmark(
     @Test
     fun first_compose() {
         textBenchmarkRule.generator { textGenerator ->
-            benchmarkRule.measureFirstCompose(
-                activity,
+            benchmarkRule.benchmarkFirstCompose(
                 TextMultiStyleTestCase(
-                    activity,
                     textLength,
                     styleCount,
                     textGenerator
@@ -93,10 +80,8 @@ class TextMultiStyleBenchmark(
     @Test
     fun first_measure() {
         textBenchmarkRule.generator { textGenerator ->
-            benchmarkRule.measureFirstMeasure(
-                activity,
+            benchmarkRule.benchmarkFirstMeasure(
                 TextMultiStyleTestCase(
-                    activity,
                     textLength,
                     styleCount,
                     textGenerator
@@ -112,10 +97,8 @@ class TextMultiStyleBenchmark(
     @Test
     fun first_layout() {
         textBenchmarkRule.generator { textGenerator ->
-            benchmarkRule.measureFirstLayout(
-                activity,
+            benchmarkRule.benchmarkFirstLayout(
                 TextMultiStyleTestCase(
-                    activity,
                     textLength,
                     styleCount,
                     textGenerator
@@ -131,10 +114,8 @@ class TextMultiStyleBenchmark(
     @Test
     fun first_draw() {
         textBenchmarkRule.generator { textGenerator ->
-            benchmarkRule.measureFirstDraw(
-                activity,
+            benchmarkRule.benchmarkFirstDraw(
                 TextMultiStyleTestCase(
-                    activity,
                     textLength,
                     styleCount,
                     textGenerator
@@ -151,10 +132,8 @@ class TextMultiStyleBenchmark(
     @Test
     fun layout() {
         textBenchmarkRule.generator { textGenerator ->
-            benchmarkRule.measureLayoutPerf(
-                activity,
+            benchmarkRule.benchmarkLayoutPerf(
                 TextMultiStyleTestCase(
-                    activity,
                     textLength,
                     styleCount,
                     textGenerator
@@ -169,10 +148,8 @@ class TextMultiStyleBenchmark(
     @Test
     fun draw() {
         textBenchmarkRule.generator { textGenerator ->
-            benchmarkRule.measureDrawPerf(
-                activity,
+            benchmarkRule.benchmarkDrawPerf(
                 TextMultiStyleTestCase(
-                    activity,
                     textLength,
                     styleCount,
                     textGenerator

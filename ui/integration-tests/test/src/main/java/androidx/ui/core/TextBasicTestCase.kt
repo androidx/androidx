@@ -16,8 +16,7 @@
 
 package androidx.ui.core
 
-import android.app.Activity
-import android.view.ViewGroup
+import androidx.compose.Composable
 import androidx.ui.graphics.Color
 import androidx.ui.layout.ConstrainedBox
 import androidx.ui.layout.DpConstraints
@@ -30,11 +29,9 @@ import androidx.ui.text.TextStyle
  * The benchmark test case for [Text], where the input is a plain string.
  */
 class TextBasicTestCase(
-    activity: Activity,
-    private val textLength: Int,
-    private val randomTextGenerator: RandomTextGenerator
-) : ComposeTestCase(activity) {
-    private var text: String = ""
+    textLength: Int,
+    randomTextGenerator: RandomTextGenerator
+) : ComposeTestCase {
 
     /**
      * Text render has a word cache in the underlying system. To get a proper metric of its
@@ -44,16 +41,14 @@ class TextBasicTestCase(
      * is recreated. This helps to make sure that the text composable created later won't benefit
      * from the previous result.
      */
-    override fun setupContentInternal(activity: Activity): ViewGroup {
-        text = randomTextGenerator.nextParagraph(textLength)
-        return super.setupContentInternal(activity)
-    }
+    private val text = randomTextGenerator.nextParagraph(textLength)
 
-    override fun setComposeContent(activity: Activity) = activity.setContent {
+    @Composable
+    override fun emitContent() {
         Wrap {
             ConstrainedBox(constraints = DpConstraints.tightConstraintsForWidth(160.dp)) {
                 Text(text = text, style = TextStyle(color = Color.Black, fontSize = 8.sp))
             }
         }
-    }!!
+    }
 }

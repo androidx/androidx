@@ -16,23 +16,13 @@
 
 package androidx.ui.test
 
-import android.app.Activity
-import androidx.test.rule.ActivityTestRule
+import androidx.compose.Composable
 
-fun <T : Activity> ActivityTestRule<T>.runOnUiThreadSync(action: () -> Unit) {
-    // Workaround for lambda bug in IR
-    runOnUiThread(object : Runnable {
-        override fun run() {
-            action.invoke()
-        }
-    })
-}
-
-fun Activity.runOnUiThreadSync(action: () -> Unit) {
-    // Workaround for lambda bug in IR
-    runOnUiThread(object : Runnable {
-        override fun run() {
-            action.invoke()
-        }
-    })
+/**
+ * To be implemented to provide a test case that is then executed by [ComposeTestRule] or can be
+ * used in benchmarks.
+ */
+interface ComposeTestCase {
+    @Composable
+    fun emitContent()
 }

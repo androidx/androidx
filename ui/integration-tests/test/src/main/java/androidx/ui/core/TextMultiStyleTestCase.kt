@@ -16,15 +16,13 @@
 
 package androidx.ui.core
 
-import android.app.Activity
-import android.view.ViewGroup
+import androidx.compose.Composable
 import androidx.ui.graphics.Color
 import androidx.ui.layout.ConstrainedBox
 import androidx.ui.layout.DpConstraints
 import androidx.ui.layout.Wrap
 import androidx.ui.test.ComposeTestCase
 import androidx.ui.test.RandomTextGenerator
-import androidx.ui.text.AnnotatedString
 import androidx.ui.text.TextStyle
 
 /**
@@ -32,32 +30,27 @@ import androidx.ui.text.TextStyle
  * on it.
  */
 class TextMultiStyleTestCase(
-    activity: Activity,
-    private val textLength: Int,
-    private val styleCount: Int,
-    private val randomTextGenerator: RandomTextGenerator
-) : ComposeTestCase(activity) {
-
-    private lateinit var text: AnnotatedString
+    textLength: Int,
+    styleCount: Int,
+    randomTextGenerator: RandomTextGenerator
+) : ComposeTestCase {
 
     /**
      * Trick to avoid the text word cache.
-     * @see TextBasicTestCase.setupContentInternal
+     * @see TextBasicTestCase.text
      */
-    override fun setupContentInternal(activity: Activity): ViewGroup {
-        text = randomTextGenerator.nextAnnotatedString(
-            length = textLength,
-            styleCount = styleCount,
-            hasMetricAffectingStyle = true
-        )
-        return super.setupContentInternal(activity)
-    }
+    private val text = randomTextGenerator.nextAnnotatedString(
+        length = textLength,
+        styleCount = styleCount,
+        hasMetricAffectingStyle = true
+    )
 
-    override fun setComposeContent(activity: Activity) = activity.setContent {
+    @Composable
+    override fun emitContent() {
         Wrap {
             ConstrainedBox(constraints = DpConstraints.tightConstraintsForWidth(160.dp)) {
                 Text(text = text, style = TextStyle(color = Color.Black, fontSize = 8.sp))
             }
         }
-    }!!
+    }
 }

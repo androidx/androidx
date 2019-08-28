@@ -16,9 +16,8 @@
 
 package androidx.ui.test.cases
 
-import android.app.Activity
+import androidx.compose.Composable
 import androidx.ui.core.dp
-import androidx.ui.core.setContent
 import androidx.ui.foundation.shape.DrawShape
 import androidx.ui.foundation.shape.border.Border
 import androidx.ui.foundation.shape.border.DrawBorder
@@ -26,11 +25,9 @@ import androidx.ui.foundation.shape.corner.CircleShape
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Container
 
-class SimpleRadioButton1TestCase(
-    activity: Activity
-) : BaseSimpleRadioButtonTestCase(activity) {
-
-    override fun setComposeContent(activity: Activity) = activity.setContent {
+class SimpleRadioButton1TestCase : BaseSimpleRadioButtonTestCase() {
+    @Composable
+    override fun emitContent() {
         Container(width = 48.dp, height = 48.dp) {
             DrawBorder(CircleShape, Border(Color.Cyan, 1.dp))
             val innerSize = getInnerSize().value
@@ -38,5 +35,5 @@ class SimpleRadioButton1TestCase(
                 DrawShape(CircleShape, Color.Cyan)
             }
         }
-    }!!
+    }
 }

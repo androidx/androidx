@@ -21,11 +21,12 @@ import android.util.DisplayMetrics
 import android.view.ViewGroup
 import android.view.ViewTreeObserver
 import androidx.compose.Composable
-import androidx.compose.Compose
 import androidx.test.rule.ActivityTestRule
 import androidx.ui.animation.transitionsEnabled
 import androidx.ui.core.Density
 import androidx.ui.core.setContent
+import androidx.ui.test.ComposeTestCase
+import androidx.ui.test.ComposeTestCaseSetup
 import androidx.ui.test.ComposeTestRule
 import androidx.ui.test.throwOnRecomposeTimeout
 import org.junit.runner.Description
@@ -41,7 +42,7 @@ class AndroidComposeTestRule(
     private val shouldThrowOnRecomposeTimeout: Boolean = false
 ) : ComposeTestRule {
 
-    val activityTestRule = ActivityTestRule<DefaultTestActivity>(DefaultTestActivity::class.java)
+    val activityTestRule = ActivityTestRule<Activity>(Activity::class.java)
 
     override val density: Density get() = Density(activityTestRule.activity)
 
@@ -64,9 +65,6 @@ class AndroidComposeTestRule(
     /**
      * Use this in your tests to setup the UI content to be tested. This should be called exactly
      * once per test.
-     * <p>
-     * Please note that you need to add the following activity
-     * [androidx.ui.test.android.DefaultTestActivity] to you tests manifest in order to use this.
      */
     @SuppressWarnings("SyntheticAccessor")
     override fun setContent(composable: @Composable() () -> Unit) {
@@ -91,6 +89,28 @@ class AndroidComposeTestRule(
         drawLatch.await(1, TimeUnit.SECONDS)
     }
 
+    override fun forGivenContent(composable: @Composable() () -> Unit): ComposeTestCaseSetup {
+        val testCase = object : ComposeTestCase {
+            @Composable
+            override fun emitContent() {
+                composable()
+            }
+        }
+        return AndroidComposeTestCaseSetup(
+            this,
+            testCase,
+            activityTestRule.activity
+        )
+    }
+
+    override fun forGivenTestCase(testCase: ComposeTestCase): ComposeTestCaseSetup {
+        return AndroidComposeTestCaseSetup(
+            this,
+            testCase,
+            activityTestRule.activity
+        )
+    }
+
     inner class AndroidComposeStatement(
         private val base: Statement
     ) : Statement() {
@@ -103,17 +123,6 @@ class AndroidComposeTestRule(
                 transitionsEnabled = true
                 throwOnRecomposeTimeout = false
             }
-        }
-    }
-}
-
-class DefaultTestActivity : Activity() {
-    var hasFocusLatch = CountDownLatch(1)
-
-    override fun onWindowFocusChanged(hasFocus: Boolean) {
-        super.onWindowFocusChanged(hasFocus)
-        if (hasFocus) {
-            hasFocusLatch.countDown()
         }
     }
 }

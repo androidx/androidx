@@ -16,17 +16,12 @@
 
 package androidx.ui.test.cases
 
-import android.app.Activity
-import android.view.View
 import androidx.compose.Composable
-import androidx.compose.CompositionContext
-import androidx.compose.FrameManager
 import androidx.compose.State
 import androidx.compose.state
 import androidx.compose.unaryPlus
 import androidx.ui.core.Alignment
 import androidx.ui.core.Text
-import androidx.ui.core.setContent
 import androidx.ui.layout.Align
 import androidx.ui.layout.Column
 import androidx.ui.layout.FlexRow
@@ -35,20 +30,19 @@ import androidx.ui.material.MaterialTheme
 import androidx.ui.material.surface.Surface
 import androidx.ui.test.ComposeTestCase
 import androidx.ui.test.ToggleableTestCase
-import androidx.ui.test.findComposeView
 
 /**
  * Test case that puts the given amount of checkboxes into a column of rows and makes changes by
  * toggling the first checkbox.
  */
 class CheckboxesInRowsTestCase(
-    activity: Activity,
     private val amountOfCheckboxes: Int
-) : ComposeTestCase(activity), ToggleableTestCase {
+) : ComposeTestCase, ToggleableTestCase {
 
     private val states = mutableListOf<State<Boolean>>()
 
-    override fun setComposeContent(activity: Activity) = activity.setContent {
+    @Composable
+    override fun emitContent() {
         MaterialTheme {
             Surface {
                 Column {
@@ -67,12 +61,11 @@ class CheckboxesInRowsTestCase(
                 }
             }
         }
-    }!!
+    }
 
     override fun toggleState() {
         val state = states.first()
         state.value = !state.value
-        FrameManager.nextFrame()
     }
 
     @Composable
