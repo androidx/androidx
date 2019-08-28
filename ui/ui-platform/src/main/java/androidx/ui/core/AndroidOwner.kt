@@ -81,8 +81,13 @@ class AndroidCraneView constructor(context: Context)
     // Map from model to LayoutNodes that *only* need layout and not measure
     private val relayoutOnly = ObserverMap<Any, LayoutNode>()
 
+    // Blocks to execute after the layout pass ends.
+    private val afterLayout = mutableListOf<() -> Unit>()
+
     // Used by components that want to provide autofill semantic information.
     // TODO: Replace with SemanticsTree: Temporary hack until we have a semantics tree implemented.
+    // TODO: Replace with SemanticsTree.
+    //  This is a temporary hack until we have a semantics tree implemented.
     val autofillTree = AutofillTree()
 
     // RepaintBoundaryNodes that have had their boundary changed. When using Views,
@@ -375,6 +380,10 @@ class AndroidCraneView constructor(context: Context)
         currentNode = layoutNode
     }
 
+    override fun runAfterLayout(block: () -> Unit) {
+        afterLayout += block
+    }
+
     override fun onLayout(changed: Boolean, l: Int, t: Int, r: Int, b: Int) {
         trace("AndroidOwner:onLayout") {
             val frame = currentFrame()
@@ -383,6 +392,11 @@ class AndroidCraneView constructor(context: Context)
             }
         }
         measureAndLayout()
+
+        for (block in afterLayout) {
+            block()
+        }
+        afterLayout.clear()
     }
 
     override fun onDraw(canvas: android.graphics.Canvas) {

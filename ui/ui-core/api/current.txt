@@ -69,6 +69,15 @@ package androidx.ui.autofill {
 
 package androidx.ui.core {
 
+  public abstract sealed class AlignmentLine {
+    method public final boolean getHorizontal();
+  }
+
+  public final class AlignmentLineKt {
+    ctor public AlignmentLineKt();
+    method public static androidx.ui.core.IntPx merge(androidx.ui.core.AlignmentLine, androidx.ui.core.IntPx position1, androidx.ui.core.IntPx position2);
+  }
+
   public final class Bounds {
     ctor public Bounds(androidx.ui.core.Dp left, androidx.ui.core.Dp top, androidx.ui.core.Dp right, androidx.ui.core.Dp bottom);
     method public androidx.ui.core.Dp component1();
@@ -350,6 +359,10 @@ package androidx.ui.core {
     field public static final long SecondsPerMinute = 60L; // 0x3cL
   }
 
+  public final class HorizontalAlignmentLine extends androidx.ui.core.AlignmentLine {
+    ctor public HorizontalAlignmentLine(kotlin.jvm.functions.Function2<? super androidx.ui.core.IntPx,? super androidx.ui.core.IntPx,androidx.ui.core.IntPx> merger);
+  }
+
   public final class IntPx {
     ctor public IntPx(int value);
     method public inline operator int compareTo(androidx.ui.core.IntPx other);
@@ -474,11 +487,12 @@ package androidx.ui.core {
   }
 
   public interface MeasureBlockScope extends androidx.ui.core.DensityReceiver {
-    method public androidx.ui.core.LayoutResult layout(androidx.ui.core.IntPx width, androidx.ui.core.IntPx height, kotlin.jvm.functions.Function1<? super androidx.ui.core.PositioningBlockScope,kotlin.Unit> positioningBlock);
+    method public androidx.ui.core.LayoutResult layout(androidx.ui.core.IntPx width, androidx.ui.core.IntPx height, kotlin.Pair<? extends androidx.ui.core.AlignmentLine,androidx.ui.core.IntPx>![] alignmentLines, kotlin.jvm.functions.Function1<? super androidx.ui.core.PositioningBlockScope,kotlin.Unit> positioningBlock);
   }
 
   public abstract class Placeable {
     ctor public Placeable();
+    method public abstract operator androidx.ui.core.IntPx? get(androidx.ui.core.AlignmentLine line);
     method public abstract androidx.ui.core.IntPx getHeight();
     method public abstract androidx.ui.core.IntPx getWidth();
     method protected abstract void place(androidx.ui.core.IntPx x, androidx.ui.core.IntPx y);
@@ -802,6 +816,10 @@ package androidx.ui.core {
     ctor public VelocityKt();
     method public static operator androidx.ui.core.Velocity minus(androidx.ui.core.Velocity, androidx.ui.core.Velocity other);
     method public static operator androidx.ui.core.Velocity plus(androidx.ui.core.Velocity, androidx.ui.core.Velocity other);
+  }
+
+  public final class VerticalAlignmentLine extends androidx.ui.core.AlignmentLine {
+    ctor public VerticalAlignmentLine(kotlin.jvm.functions.Function2<? super androidx.ui.core.IntPx,? super androidx.ui.core.IntPx,androidx.ui.core.IntPx> merger);
   }
 
 }

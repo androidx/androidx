@@ -37,16 +37,19 @@ import androidx.ui.core.ContextAmbient
 import androidx.ui.core.Density
 import androidx.ui.core.DensityAmbient
 import androidx.ui.core.Draw
+import androidx.ui.core.HorizontalAlignmentLine
 import androidx.ui.core.IntPx
 import androidx.ui.core.Layout
 import androidx.ui.core.ParentData
 import androidx.ui.core.Ref
 import androidx.ui.core.RepaintBoundary
+import androidx.ui.core.VerticalAlignmentLine
 import androidx.ui.core.WithConstraints
 import androidx.ui.core.coerceAtLeast
 import androidx.ui.core.coerceIn
 import androidx.ui.core.ipx
 import androidx.ui.core.max
+import androidx.ui.core.min
 import androidx.ui.core.setContent
 import androidx.ui.core.toRect
 import androidx.ui.engine.geometry.Rect
@@ -55,6 +58,7 @@ import androidx.ui.graphics.Color
 import androidx.ui.graphics.toArgb
 import androidx.ui.painting.Paint
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertSame
 import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
@@ -69,7 +73,6 @@ import java.util.concurrent.TimeUnit
 /**
  * Corresponds to ContainingViewTest, but tests single composition measure, layout and draw.
  * It also tests that layouts with both Layout and MeasureBox work.
- * TODO(popam): remove this comment and ContainingViewTest when ComplexMeasureBox is removed
  */
 @SmallTest
 @RunWith(JUnit4::class)
@@ -462,19 +465,19 @@ class AndroidLayoutDrawTest {
             activity.setContent {
                 val header = @Composable {
                     ParentData(data = 0) {
-                        Layout(measureBlock = { _, _ -> layout(0.ipx, 0.ipx, {}) }, children = {})
+                        Layout(measureBlock = { _, _ -> layout(0.ipx, 0.ipx) {}}, children = {})
                     }
                 }
                 val footer = @Composable {
                     ParentData(data = 1) {
-                        Layout(measureBlock = { _, _ -> layout(0.ipx, 0.ipx, {}) }, children = {})
+                        Layout(measureBlock = { _, _ -> layout(0.ipx, 0.ipx) {}}, children = {})
                     }
                 }
 
                 Layout(header, footer) { measurables, _ ->
                     assertEquals(0, measurables[0].parentData)
                     assertEquals(1, measurables[1].parentData)
-                    layout(0.ipx, 0.ipx, {})
+                    layout(0.ipx, 0.ipx) {}
                 }
             }
         }
@@ -800,6 +803,442 @@ class AndroidLayoutDrawTest {
         validateSquareColors(outerColor = outerColor, innerColor = outerColor, size = 10)
     }
 
+    @Test
+    fun testAlignmentLines() {
+        val TestVerticalLine = VerticalAlignmentLine(::min)
+        val TestHorizontalLine = HorizontalAlignmentLine(::max)
+        val layoutLatch = CountDownLatch(1)
+        activityTestRule.runOnUiThreadIR {
+            activity.setContent {
+                val child1 = @Composable {
+                    Wrap {
+                        Layout({}) { _, _ ->
+                            layout(
+                                0.ipx,
+                                0.ipx,
+                                TestVerticalLine to 10.ipx,
+                                TestHorizontalLine to 20.ipx
+                            ) {}
+                        }
+                    }
+                }
+                val child2 = @Composable {
+                    Wrap {
+                        Layout({}) { _, _ ->
+                            layout(
+                                0.ipx,
+                                0.ipx,
+                                TestVerticalLine to 20.ipx,
+                                TestHorizontalLine to 10.ipx
+                            ) {}
+                        }
+                    }
+                }
+                val inner = @Composable {
+                    Layout({ child1(); child2() }) { measurables, constraints ->
+                        val placeable1 = measurables[0].measure(constraints)
+                        val placeable2 = measurables[1].measure(constraints)
+                        assertEquals(10.ipx, placeable1[TestVerticalLine])
+                        assertEquals(20.ipx, placeable1[TestHorizontalLine])
+                        assertEquals(20.ipx, placeable2[TestVerticalLine])
+                        assertEquals(10.ipx, placeable2[TestHorizontalLine])
+                        layout(0.ipx, 0.ipx) {
+                            placeable1.place(0.ipx, 0.ipx)
+                            placeable2.place(0.ipx, 0.ipx)
+                        }
+                    }
+                }
+                Layout(inner) { measurables, constraints ->
+                    val placeable = measurables.first().measure(constraints)
+                    assertEquals(10.ipx, placeable[TestVerticalLine])
+                    assertEquals(20.ipx, placeable[TestHorizontalLine])
+                    layout(placeable.width, placeable.height) {
+                        placeable.place(0.ipx, 0.ipx)
+                        layoutLatch.countDown()
+                    }
+                }
+            }
+        }
+        assertTrue(layoutLatch.await(1, TimeUnit.SECONDS))
+    }
+
+    @Test
+    fun testAlignmentLines_areNotInheritedFromInvisibleChildren() {
+        val TestLine1 = VerticalAlignmentLine(::min)
+        val TestLine2 = VerticalAlignmentLine(::min)
+        val layoutLatch = CountDownLatch(1)
+        activityTestRule.runOnUiThreadIR {
+            activity.setContent {
+                val child1 = @Composable {
+                    Layout({}) { _, _ -> layout(0.ipx, 0.ipx,TestLine1 to 10.ipx) {} }
+                }
+                val child2 = @Composable {
+                    Layout({}) { _, _ -> layout(0.ipx, 0.ipx, TestLine2 to 20.ipx) {} }
+                }
+                val inner = @Composable {
+                    Layout({ child1(); child2() }) { measurables, constraints ->
+                        val placeable1 = measurables[0].measure(constraints)
+                        measurables[1].measure(constraints)
+                        layout(0.ipx, 0.ipx) {
+                            // Only place the first child.
+                            placeable1.place(0.ipx, 0.ipx)
+                        }
+                    }
+                }
+                Layout(inner) { measurables, constraints ->
+                    val placeable = measurables.first().measure(constraints)
+                    assertEquals(10.ipx, placeable[TestLine1])
+                    assertNull(placeable[TestLine2])
+                    layout(placeable.width, placeable.height) {
+                        placeable.place(0.ipx, 0.ipx)
+                        layoutLatch.countDown()
+                    }
+                }
+            }
+        }
+        assertTrue(layoutLatch.await(1, TimeUnit.SECONDS))
+    }
+
+    @Test
+    fun testAlignmentLines_doNotCauseMultipleMeasuresOrLayouts() {
+        val TestLine1 = VerticalAlignmentLine(::min)
+        val TestLine2 = VerticalAlignmentLine(::min)
+        var child1Measures = 0
+        var child2Measures = 0
+        var child1Layouts = 0
+        var child2Layouts = 0
+        val layoutLatch = CountDownLatch(1)
+        activityTestRule.runOnUiThreadIR {
+            activity.setContent {
+                val child1 = @Composable {
+                    Layout({}) { _, _ ->
+                        ++child1Measures
+                        layout(0.ipx, 0.ipx,TestLine1 to 10.ipx) {
+                            ++child1Layouts
+                        }
+                    }
+                }
+                val child2 = @Composable {
+                    Layout({}) { _, _ ->
+                        ++child2Measures
+                        layout(0.ipx, 0.ipx, TestLine2 to 20.ipx) {
+                            ++child2Layouts
+                        }
+                    }
+                }
+                val inner = @Composable {
+                    Layout({ child1(); child2() }) { measurables, constraints ->
+                        val placeable1 = measurables[0].measure(constraints)
+                        val placeable2 = measurables[1].measure(constraints)
+                        layout(0.ipx, 0.ipx) {
+                            placeable1.place(0.ipx, 0.ipx)
+                            placeable2.place(0.ipx, 0.ipx)
+                        }
+                    }
+                }
+                Layout(inner) { measurables, constraints ->
+                    val placeable = measurables.first().measure(constraints)
+                    assertEquals(10.ipx, placeable[TestLine1])
+                    assertEquals(20.ipx, placeable[TestLine2])
+                    layout(placeable.width, placeable.height) {
+                        placeable.place(0.ipx, 0.ipx)
+                        layoutLatch.countDown()
+                    }
+                }
+            }
+        }
+        assertTrue(layoutLatch.await(1, TimeUnit.SECONDS))
+        assertEquals(1, child1Measures)
+        assertEquals(1, child2Measures)
+        assertEquals(1, child1Layouts)
+        assertEquals(1, child2Layouts)
+    }
+
+    @Test
+    fun testAlignmentLines_onlyLayoutEarlyWhenNeeded() {
+        val TestLine1 = VerticalAlignmentLine(::min)
+        val TestLine2 = VerticalAlignmentLine(::min)
+        var child1Measures = 0
+        var child2Measures = 0
+        var child1Layouts = 0
+        var child2Layouts = 0
+        val layoutLatch = CountDownLatch(1)
+        activityTestRule.runOnUiThreadIR {
+            activity.setContent {
+                val child1 = @Composable {
+                    Layout({}) { _, _ ->
+                        ++child1Measures
+                        layout(0.ipx, 0.ipx,TestLine1 to 10.ipx) {
+                            ++child1Layouts
+                        }
+                    }
+                }
+                val child2 = @Composable {
+                    Layout({}) { _, _ ->
+                        ++child2Measures
+                        layout(0.ipx, 0.ipx, TestLine2 to 20.ipx) {
+                            ++child2Layouts
+                        }
+                    }
+                }
+                val inner = @Composable {
+                    Layout({ child1(); child2() }) { measurables, constraints ->
+                        val placeable1 = measurables[0].measure(constraints)
+                        assertEquals(10.ipx, placeable1[TestLine1])
+                        val placeable2 = measurables[1].measure(constraints)
+                        layout(0.ipx, 0.ipx) {
+                            placeable1.place(0.ipx, 0.ipx)
+                            placeable2.place(0.ipx, 0.ipx)
+                        }
+                    }
+                }
+                Layout(inner) { measurables, constraints ->
+                    val placeable = measurables.first().measure(constraints)
+                    layout(placeable.width, placeable.height) {
+                        layoutLatch.countDown()
+                    }
+                }
+            }
+        }
+        assertTrue(layoutLatch.await(1, TimeUnit.SECONDS))
+        assertEquals(1, child1Measures)
+        assertEquals(1, child2Measures)
+        assertEquals(1, child1Layouts)
+        assertEquals(0, child2Layouts)
+    }
+
+    @Test
+    fun testAlignmentLines_canBeQueriedInThePositioningBlock() {
+        val TestLine = VerticalAlignmentLine(::min)
+        val layoutLatch = CountDownLatch(1)
+        activityTestRule.runOnUiThreadIR {
+            activity.setContent {
+                val child1 = @Composable {
+                    Layout({}) { _, _ -> layout(0.ipx, 0.ipx,TestLine to 10.ipx) { } }
+                }
+                val child2 = @Composable {
+                    Layout({}) { _, _ -> layout(0.ipx, 0.ipx, TestLine to 20.ipx) { } }
+                }
+                val inner = @Composable {
+                    Layout({ child1(); child2() }) { measurables, constraints ->
+                        val placeable1 = measurables[0].measure(constraints)
+                        layout(0.ipx, 0.ipx) {
+                            assertEquals(10.ipx, placeable1[TestLine])
+                            val placeable2 = measurables[1].measure(constraints)
+                            assertEquals(20.ipx, placeable2[TestLine])
+                        }
+                    }
+                }
+                Layout(inner) { measurables, constraints ->
+                    val placeable = measurables.first().measure(constraints)
+                    layout(placeable.width, placeable.height) {
+                        layoutLatch.countDown()
+                    }
+                }
+            }
+        }
+        assertTrue(layoutLatch.await(1, TimeUnit.SECONDS))
+    }
+
+    @Test
+    fun testAlignmentLines_doNotCauseExtraLayout_whenQueriedAfterPositioning() {
+        val TestLine = VerticalAlignmentLine(::min)
+        val layoutLatch = CountDownLatch(1)
+        var childLayouts = 0
+        activityTestRule.runOnUiThreadIR {
+            activity.setContent {
+                val child = @Composable {
+                    Layout({}) { _, _ -> layout(0.ipx, 0.ipx,TestLine to 10.ipx) { ++childLayouts } }
+                }
+                val inner = @Composable {
+                    Layout({ child() }) { measurables, constraints ->
+                        val placeable = measurables[0].measure(constraints)
+                        layout(0.ipx, 0.ipx) {
+                            placeable.place(0.ipx, 0.ipx)
+                            assertEquals(10.ipx, placeable[TestLine])
+                        }
+                    }
+                }
+                Layout(inner) { measurables, constraints ->
+                    val placeable = measurables.first().measure(constraints)
+                    layout(placeable.width, placeable.height) {
+                        placeable.place(0.ipx, 0.ipx)
+                        layoutLatch.countDown()
+                    }
+                }
+            }
+        }
+        assertTrue(layoutLatch.await(1, TimeUnit.SECONDS))
+        assertEquals(1, childLayouts)
+    }
+
+    @Test
+    fun testAlignmentLines_recomposeCorrectly() {
+        val TestLine = VerticalAlignmentLine(::min)
+        var layoutLatch = CountDownLatch(1)
+        val model = OffsetModel(10.ipx)
+        var measure = 0
+        var layout = 0
+        var linePosition: IntPx? = null
+        activityTestRule.runOnUiThreadIR {
+            activity.setContent {
+                val child = @Composable {
+                    Layout({}) { _, _ -> layout(0.ipx, 0.ipx, TestLine to model.offset) {} }
+                }
+                Layout(child) { measurables, constraints ->
+                    val placeable = measurables.first().measure(constraints)
+                    linePosition = placeable[TestLine]
+                    ++measure
+                    layout(placeable.width, placeable.height) {
+                        ++layout
+                        layoutLatch.countDown()
+                    }
+                }
+            }
+        }
+        assertTrue(layoutLatch.await(1, TimeUnit.SECONDS))
+        assertEquals(1, measure)
+        assertEquals(1, layout)
+        assertEquals(10.ipx, linePosition)
+
+        layoutLatch = CountDownLatch(1)
+        activityTestRule.runOnUiThreadIR {
+            model.offset = 20.ipx
+        }
+        assertTrue(layoutLatch.await(1, TimeUnit.SECONDS))
+        assertEquals(2, measure)
+        assertEquals(2, layout)
+        assertEquals(20.ipx, linePosition)
+    }
+
+    @Test
+    fun testAlignmentLines_recomposeCorrectly_whenQueriedInLayout() {
+        val TestLine = VerticalAlignmentLine(::min)
+        var layoutLatch = CountDownLatch(1)
+        val model = OffsetModel(10.ipx)
+        var measure = 0
+        var layout = 0
+        var linePosition: IntPx? = null
+        activityTestRule.runOnUiThreadIR {
+            activity.setContent {
+                val child = @Composable {
+                    Layout({}) { _, _ -> layout(0.ipx, 0.ipx, TestLine to model.offset) {} }
+                }
+                Layout(child) { measurables, constraints ->
+                    val placeable = measurables.first().measure(constraints)
+                    ++measure
+                    layout(placeable.width, placeable.height) {
+                        linePosition = placeable[TestLine]
+                        ++layout
+                        layoutLatch.countDown()
+                    }
+                }
+            }
+        }
+        assertTrue(layoutLatch.await(1, TimeUnit.SECONDS))
+        assertEquals(1, measure)
+        assertEquals(1, layout)
+        assertEquals(10.ipx, linePosition)
+
+        layoutLatch = CountDownLatch(1)
+        activityTestRule.runOnUiThreadIR { model.offset = 20.ipx }
+        assertTrue(layoutLatch.await(1, TimeUnit.SECONDS))
+        assertEquals(2, measure)
+        assertEquals(2, layout)
+        assertEquals(20.ipx, linePosition)
+    }
+
+    @Test
+    fun testAlignmentLines_recomposeCorrectly_whenMeasuredAndQueriedInLayout() {
+        val TestLine = VerticalAlignmentLine(::min)
+        var layoutLatch = CountDownLatch(1)
+        val model = OffsetModel(10.ipx)
+        var measure = 0
+        var layout = 0
+        var linePosition: IntPx? = null
+        activityTestRule.runOnUiThreadIR {
+            activity.setContent {
+                val child = @Composable {
+                    Layout({}) { _, _ -> layout(0.ipx, 0.ipx, TestLine to model.offset) {} }
+                }
+                Layout(child) { measurables, constraints ->
+                    ++measure
+                    layout(0.ipx, 0.ipx) {
+                        val placeable = measurables.first().measure(constraints)
+                        linePosition = placeable[TestLine]
+                        ++layout
+                        layoutLatch.countDown()
+                    }
+                }
+            }
+        }
+        assertTrue(layoutLatch.await(1, TimeUnit.SECONDS))
+        assertEquals(1, measure)
+        assertEquals(1, layout)
+        assertEquals(10.ipx, linePosition)
+
+        layoutLatch = CountDownLatch(1)
+        activityTestRule.runOnUiThreadIR { model.offset = 20.ipx }
+        assertTrue(layoutLatch.await(1, TimeUnit.SECONDS))
+        assertEquals(1, measure)
+        assertEquals(2, layout)
+        assertEquals(20.ipx, linePosition)
+    }
+
+    @Test
+    fun testAlignmentLines_onlyComputesAlignmentLinesWhenNeeded() {
+        var layoutLatch = CountDownLatch(1)
+        val model = OffsetModel(10.ipx)
+        var alignmentLinesCalculations = 0
+        val TestLine = VerticalAlignmentLine { _, _ ->
+            ++alignmentLinesCalculations
+            0.ipx
+        }
+        activityTestRule.runOnUiThreadIR {
+            activity.setContent {
+                val innerChild = @Composable {
+                    model.offset // Artificial remeasure.
+                    Layout({}) { _, _ ->
+                        layout(0.ipx, 0.ipx, TestLine to 10.ipx) { }
+                    }
+                }
+                val child = @Composable {
+                    Layout({ innerChild(); innerChild() }) { measurables, constraints ->
+                        model.offset // Artificial remeasure.
+                        val placeable1 = measurables[0].measure(constraints)
+                        val placeable2 = measurables[1].measure(constraints)
+                        layout(0.ipx, 0.ipx) {
+                            placeable1.place(0.ipx, 0.ipx)
+                            placeable2.place(0.ipx, 0.ipx)
+                        }
+                    }
+                }
+                Layout(child) { measurables, constraints ->
+                    val placeable = measurables.first().measure(constraints)
+                    if (model.offset < 15.ipx) {
+                        placeable[TestLine]
+                    }
+                    layout(0.ipx, 0.ipx) {
+                        placeable.place(0.ipx, 0.ipx)
+                        layoutLatch.countDown()
+                    }
+                }
+            }
+        }
+        assertTrue(layoutLatch.await(1, TimeUnit.SECONDS))
+        assertEquals(1, alignmentLinesCalculations)
+
+        layoutLatch = CountDownLatch(1)
+        activityTestRule.runOnUiThreadIR { model.offset = 20.ipx }
+        assertTrue(layoutLatch.await(1, TimeUnit.SECONDS))
+        assertEquals(1, alignmentLinesCalculations)
+
+        layoutLatch = CountDownLatch(1)
+        activityTestRule.runOnUiThreadIR { model.offset = 10.ipx }
+        assertTrue(layoutLatch.await(1, TimeUnit.SECONDS))
+        assertEquals(2, alignmentLinesCalculations)
+    }
+
     private fun composeSquares(model: SquareModel) {
         activityTestRule.runOnUiThreadIR {
             activity.setContent {
@@ -1047,7 +1486,7 @@ fun TwoMeasureLayout(
             // expected
             latch.countDown()
         }
-        layout(0.ipx, 0.ipx, {})
+        layout(0.ipx, 0.ipx){}
     }
 }
 
@@ -1061,6 +1500,18 @@ fun Position(size: IntPx, offset: OffsetModel, children: @Composable() () -> Uni
             placeables.forEach { child ->
                 child.place(offset.offset, offset.offset)
             }
+        }
+    }
+}
+
+@Composable
+fun Wrap(children: @Composable() () -> Unit) {
+    Layout(children) { measurables, constraints ->
+        val placeables = measurables.map { it.measure(constraints) }
+        val width = placeables.maxBy { it.width.value }?.width ?: 0.ipx
+        val height = placeables.maxBy { it.height.value }?.height ?: 0.ipx
+        layout(width, height) {
+            placeables.forEach { it.place(0.ipx, 0.ipx) }
         }
     }
 }

@@ -90,6 +90,12 @@ interface Owner {
     fun onEndLayout(layoutNode: LayoutNode)
 
     /**
+     * Queues a block to be ran at the end of the layout pass, after nodes
+     * have been positioned.
+     */
+    fun runAfterLayout(block: () -> Unit)
+
+    /**
      * Returns a position of the owner in its window.
      */
     fun calculatePosition(): PxPosition
@@ -373,7 +379,7 @@ class DrawNode : ComponentNode() {
 /**
  * Backing node for Layout component.
  */
-class LayoutNode() : ComponentNode(), Measurable, MeasureBlockScope {
+class LayoutNode : ComponentNode(), Measurable, MeasureBlockScope {
     /**
      * The lambda used to measure the child. It must call [MeasureBlockScope.layout] before
      * completing.
@@ -449,6 +455,11 @@ class LayoutNode() : ComponentNode(), Measurable, MeasureBlockScope {
         private set
 
     /**
+     * The alignment lines of this layout
+     */
+    val alignmentLines: MutableMap<AlignmentLine, IntPx> = hashMapOf()
+
+    /**
      * The horizontal position within the parent of this layout
      */
     var x = IntPx.Zero
@@ -474,7 +485,13 @@ class LayoutNode() : ComponentNode(), Measurable, MeasureBlockScope {
     /**
      * `true` when called inside [measure]
      */
-    internal var isInMeasure: Boolean = false
+    var isInMeasure: Boolean = false
+
+    /**
+     * `true` when the current node is positioned during the measure pass,
+     * since it needs to compute alignment lines.
+     */
+    var positionedDuringMeasurePass: Boolean = false
 
     /**
      * `true` when the layout has been dirtied by [requestRemeasure]. `false` after
@@ -489,6 +506,17 @@ class LayoutNode() : ComponentNode(), Measurable, MeasureBlockScope {
      */
     var needsRelayout = false
         internal set
+
+    /**
+     * `true` when an ancestor requires our alignment lines
+     */
+    var alignmentLinesRequired = false
+
+    /**
+     * `true` when the alignment lines have to be recomputed because the layout has
+     * been remeasured
+     */
+    var dirtyAlignmentLines = true
 
     override val parentLayoutNode: LayoutNode?
         get() = super.containingLayoutNode
@@ -573,6 +601,7 @@ class LayoutNode() : ComponentNode(), Measurable, MeasureBlockScope {
             get() = this@LayoutNode.width
         override val height: IntPx
             get() = this@LayoutNode.height
+        override fun get(line: AlignmentLine): IntPx? = calculateAlignmentLines()[line]
 
         override fun place(x: IntPx, y: IntPx) {
             this@LayoutNode.place(x, y)
@@ -610,8 +639,10 @@ class LayoutNode() : ComponentNode(), Measurable, MeasureBlockScope {
         }
 
         isInMeasure = true
+        dirtyAlignmentLines = true
         layoutChildren.forEach { child ->
             child.affectsParentSize = false
+            child.alignmentLinesRequired = false
         }
         owner?.onStartMeasure(this)
         this.constraints = constraints
@@ -647,19 +678,54 @@ class LayoutNode() : ComponentNode(), Measurable, MeasureBlockScope {
     }
 
     fun placeChildren() {
-        if (needsRelayout) {
-            owner?.onStartLayout(this)
-            layoutChildren.forEach { it.visible = false }
-            PositioningBlockScope.positioningBlock()
-            dispatchOnPositionedCallbacks()
-            owner?.onEndLayout(this)
-            needsRelayout = false
+        if (!needsRelayout) return
+
+        owner?.onStartLayout(this)
+        layoutChildren.forEach { child ->
+            child.visible = false
+            child.alignmentLinesRequired = alignmentLinesRequired
+            if (dirtyAlignmentLines) child.dirtyAlignmentLines = true
         }
+        positionedDuringMeasurePass = parentLayoutNode?.isInMeasure ?: false ||
+                parentLayoutNode?.positionedDuringMeasurePass ?: false
+        PositioningBlockScope.positioningBlock()
+        if (!positionedDuringMeasurePass) {
+            dispatchOnPositionedCallbacks()
+        } else {
+            // We need to dispatch OnPositioned callbacks only after all the
+            // ancestor layout nodes have been positioned.
+            owner?.runAfterLayout(dispatchOnPositionedCallbacks)
+        }
+        owner?.onEndLayout(this)
+        needsRelayout = false
+
+        if (!alignmentLinesRequired || !dirtyAlignmentLines) return
+        layoutChildren.forEach { child ->
+            if (!child.visible) return@forEach
+            child.alignmentLines.entries.forEach { (childLine, linePosition) ->
+                val linePositionInContainer = linePosition +
+                        if (childLine.horizontal) child.y else child.x
+                // If the line was already provided by a previous child, merge the two values.
+                alignmentLines[childLine] = if (childLine in alignmentLines) {
+                    childLine.merge(alignmentLines.getValue(childLine), linePositionInContainer)
+                } else {
+                    linePositionInContainer
+                }
+            }
+        }
+        dirtyAlignmentLines = false
+    }
+
+    internal fun calculateAlignmentLines() : Map<AlignmentLine, IntPx> {
+        alignmentLinesRequired = true
+        if (dirtyAlignmentLines) placeChildren()
+        return alignmentLines
     }
 
     override fun layout(
         width: IntPx,
         height: IntPx,
+        vararg alignmentLines: Pair<AlignmentLine, IntPx>,
         positioningBlock: PositioningBlockScope.() -> Unit
     ): LayoutResult {
         val parent = parentLayoutNode
@@ -671,6 +737,8 @@ class LayoutNode() : ComponentNode(), Measurable, MeasureBlockScope {
             this.height = height
             owner?.onSizeChange(this)
         }
+        this.alignmentLines.clear()
+        this.alignmentLines += alignmentLines
         this.positioningBlock = positioningBlock
         return LayoutResult.Instance
     }
@@ -680,7 +748,7 @@ class LayoutNode() : ComponentNode(), Measurable, MeasureBlockScope {
      */
     fun requestRemeasure() = owner?.onRequestMeasure(this)
 
-    private fun dispatchOnPositionedCallbacks() {
+    private val dispatchOnPositionedCallbacks = {
         // There are two types of callbacks:
         // a) when the Layout is positioned - `onPositioned`
         // b) when the child of the Layout is positioned - `onChildPositioned`
