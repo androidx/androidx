@@ -106,6 +106,7 @@ fun ComplexLayout(
  * Used to return a fixed sized item for intrinsics measurements in [Layout]
  */
 private class DummyPlaceable(override val width: IntPx, override val height: IntPx) : Placeable() {
+    override fun get(line: AlignmentLine): IntPx? = null
     override fun place(x: IntPx, y: IntPx) { }
 }
 
@@ -191,6 +192,7 @@ private class IntrinsicsMeasureBlockScope (
     override fun layout(
         width: IntPx,
         height: IntPx,
+        vararg alignmentLines: Pair<AlignmentLine, IntPx>,
         positioningBlock: PositioningBlockScope.() -> Unit
     ): LayoutResult {
         measuredValue = if (widthHeight == IntrinsicWidthHeight.Width) width else height

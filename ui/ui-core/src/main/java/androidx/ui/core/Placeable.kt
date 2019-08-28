@@ -36,6 +36,12 @@ abstract class Placeable {
     abstract val height: IntPx
 
     /**
+     * Returns the position of an [alignment line][AlignmentLine],
+     * or [null] if the line is not provided.
+     */
+    abstract operator fun get(line: AlignmentLine): IntPx?
+
+    /**
      * Positions the layout within its parent. This must be called or the
      * layout won't be shown within its parent. This should be called within
      * the [MeasureBlockScope.layout]'s lambda. Public access to this method

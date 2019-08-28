@@ -48,9 +48,14 @@ import androidx.compose.composer
 import androidx.compose.effectOf
 import androidx.compose.memo
 import androidx.compose.onCommit
+import androidx.ui.core.HorizontalAlignmentLine
+import androidx.ui.core.Text
+import androidx.ui.core.VerticalAlignmentLine
 import androidx.ui.layout.AspectRatio
 import androidx.ui.layout.Container
+import androidx.ui.layout.CrossAxisAlignment
 import androidx.ui.layout.EdgeInsets
+import androidx.ui.layout.Wrap
 import androidx.ui.layout.samples.DrawRectangle
 import androidx.ui.layout.samples.SizedRectangle
 
@@ -354,16 +359,39 @@ fun FillWithRectangles() {
 }
 
 @Composable
-fun ComplexLayoutDemos() {
-    Center {
-        ConstrainedBox(DpConstraints(maxWidth = 100.dp)) {
-            AspectRatio(2f) {
-                DrawRectangle(color = Color.Blue)
-                Container(padding = EdgeInsets(20.dp)) {
-                    SizedRectangle(color = Color.Black)
-                }
+fun PositionUsingAlignmentLine() {
+    val DummyVertical = VerticalAlignmentLine(::max)
+    val DummyHorizontal = HorizontalAlignmentLine(::max)
+    val childWithLines = @Composable {
+        Wrap {
+            Layout({}) { _, _ ->
+                layout(30.ipx, 50.ipx, DummyVertical to 15.ipx, DummyHorizontal to 25.ipx) {}
             }
+            DrawRectangle(Color.Blue)
         }
+    }
+
+    Layout(childWithLines) { measurables, constraints ->
+        val measurable = measurables.first()
+        val placeable = measurable.measure(constraints)
+        val distanceToVertical = 70.ipx
+        val distanceToHorizontal = 70.ipx
+        layout(
+            distanceToVertical + placeable[DummyVertical]!! + placeable.width,
+            distanceToHorizontal + placeable[DummyHorizontal]!! + placeable.height
+        ) {
+            placeable.place(
+                distanceToVertical - placeable[DummyVertical]!!,
+                distanceToHorizontal - placeable[DummyHorizontal]!!
+            )
+        }
+    }
+}
+
+@Composable
+fun ComplexLayoutDemos() {
+    Wrap {
+        PositionUsingAlignmentLine()
     }
 }
 
