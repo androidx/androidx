@@ -324,8 +324,8 @@ public class VideoView_WithPlayerTest extends MediaWidgetTestBase {
     }
 
     private void checkVideoRendering() throws InterruptedException {
-        if (Build.VERSION.SDK_INT == 28) {
-            // TODO: This if-block for API 28 should be removed. (b/137321781)
+        if (Build.DEVICE.equals("sailfish") && Build.VERSION.SDK_INT == 28) {
+            // See b/137321781
             return;
         }
         if (Build.DEVICE.equals("fugu") && Build.VERSION.SDK_INT == 24) {
