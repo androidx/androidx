@@ -19,8 +19,6 @@ package androidx.ui.material
 import androidx.animation.PhysicsBuilder
 import androidx.compose.Composable
 import androidx.compose.composer
-import androidx.compose.memo
-import androidx.compose.onCommit
 import androidx.compose.unaryPlus
 import androidx.ui.core.Dp
 import androidx.ui.core.IntPx
@@ -35,17 +33,15 @@ import androidx.ui.core.min
 import androidx.ui.core.withDensity
 import androidx.ui.foundation.Clickable
 import androidx.ui.foundation.ColoredRect
-import androidx.ui.foundation.animation.AnchorsFlingConfig
-import androidx.ui.foundation.animation.AnimatedFloatDragController
 import androidx.ui.foundation.gestures.DragDirection
 import androidx.ui.foundation.gestures.Draggable
-import androidx.ui.foundation.gestures.DraggableCallback
 import androidx.ui.layout.Alignment
 import androidx.ui.layout.Container
 import androidx.ui.layout.DpConstraints
 import androidx.ui.layout.EdgeInsets
 import androidx.ui.layout.Stack
 import androidx.ui.lerp
+import androidx.ui.material.internal.anchoredControllerByState
 import androidx.ui.material.surface.Surface
 import kotlin.math.max
 
@@ -126,16 +122,13 @@ fun ModalDrawerLayout(
             }
             val minValue = -pxConstraints.maxWidth.value.toFloat()
             val maxValue = 0f
-            val valueByState = if (drawerState == DrawerState.Opened) maxValue else minValue
 
-            val callback = DraggableCallback(onDragSettled = {
-                onStateChange(if (it <= minValue) DrawerState.Closed else DrawerState.Opened)
-            })
-            val flingConfig = AnchorsFlingConfig(listOf(minValue, maxValue), AnimationBuilder)
-            val controller = +memo { AnimatedFloatDragController(valueByState, flingConfig) }
-            +onCommit(valueByState) {
-                controller.animatedFloat.animateTo(valueByState, AnimationBuilder)
-            }
+            val (controller, callback) = +anchoredControllerByState(
+                drawerState,
+                onStateChange,
+                listOf(minValue to DrawerState.Closed, maxValue to DrawerState.Opened),
+                AnimationBuilder
+            )
             controller.enabled = gesturesEnabled
 
             Draggable(
@@ -214,18 +207,13 @@ fun BottomDrawerLayout(
                 maxValue,
                 BottomDrawerOpenFraction
             )
-            val valueByState = if (drawerState == DrawerState.Opened) openedValue else maxValue
-            val anchors = listOf(minValue, maxValue, openedValue)
-            val callback = DraggableCallback(onDragSettled = {
-                onStateChange(if (it >= maxValue) DrawerState.Closed else DrawerState.Opened)
-            })
-
-            val flingConfig = AnchorsFlingConfig(anchors, AnimationBuilder)
-
-            val controller = +memo { AnimatedFloatDragController(valueByState, flingConfig) }
-            +onCommit(valueByState) {
-                controller.animatedFloat.animateTo(valueByState, AnimationBuilder)
-            }
+            val anchors = listOf(
+                maxValue to DrawerState.Closed,
+                openedValue to DrawerState.Opened,
+                minValue to DrawerState.Opened
+            )
+            val (controller, callback) =
+                +anchoredControllerByState(drawerState, onStateChange, anchors, AnimationBuilder)
             controller.enabled = gesturesEnabled
 
             Draggable(
