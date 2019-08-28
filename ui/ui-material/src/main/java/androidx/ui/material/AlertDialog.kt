@@ -81,7 +81,7 @@ fun AlertDialog(
         MaterialTheme(colors = currentColors, typography = currentTypography) {
             Surface(shape = AlertDialogShape) {
                 Container(width = AlertDialogWidth) {
-                    Column(mainAxisSize = FlexSize.Min,
+                    Column(mainAxisSize = FlexSize.Wrap,
                         crossAxisAlignment = CrossAxisAlignment.Start) {
                         if (title != null) {
                             Container(
@@ -140,7 +140,7 @@ private fun AlertDialogButtonLayout(
         if (buttonLayout == AlertDialogButtonLayout.SideBySide) {
             Row(
                 mainAxisAlignment = MainAxisAlignment.End,
-                mainAxisSize = FlexSize.Min
+                mainAxisSize = FlexSize.Wrap
             ) {
                 if (dismissButton != null) {
                     dismissButton()

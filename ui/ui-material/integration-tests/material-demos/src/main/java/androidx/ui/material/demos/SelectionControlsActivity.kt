@@ -97,7 +97,7 @@ class SelectionControlsActivity : MaterialDemoActivity() {
         val textStyle = +themeTextStyle { subtitle1 }
 
         RadioGroup {
-            Row(mainAxisSize = FlexSize.Min) {
+            Row(mainAxisSize = FlexSize.Wrap) {
                 radioOptions.forEach { text ->
                     val selected = text == selectedOption
                     RadioGroupItem(
@@ -152,7 +152,7 @@ class SelectionControlsActivity : MaterialDemoActivity() {
     fun SwitchDemo() {
         Row(
             mainAxisAlignment = MainAxisAlignment.SpaceAround,
-            mainAxisSize = FlexSize.Min
+            mainAxisSize = FlexSize.Wrap
         ) {
             val (checked, onChecked) = +state { false }
             val (checked2, onChecked2) = +state { false }
@@ -169,7 +169,7 @@ class SelectionControlsActivity : MaterialDemoActivity() {
     fun RadioButtonDemo() {
         Row(
             mainAxisAlignment = MainAxisAlignment.SpaceAround,
-            mainAxisSize = FlexSize.Min
+            mainAxisSize = FlexSize.Wrap
         ) {
             RadioButton(selected = true, onSelect = null)
             RadioButton(selected = false, onSelect = null)

@@ -109,7 +109,7 @@ fun RadioGroup(
     textStyle: TextStyle? = null
 ) {
     RadioGroup {
-        Column(mainAxisSize = FlexSize.Min) {
+        Column(mainAxisSize = FlexSize.Wrap) {
             options.forEach { text ->
                 RadioGroupTextItem(
                     selected = (text == selectedOption),
@@ -181,7 +181,7 @@ class RadioGroupScope internal constructor() {
     ) {
         RadioGroupItem(selected = selected, onSelect = onSelect) {
             Padding(padding = DefaultRadioItemPadding) {
-                Row(mainAxisSize = FlexSize.Max, mainAxisAlignment = MainAxisAlignment.Start) {
+                Row(mainAxisSize = FlexSize.Expand, mainAxisAlignment = MainAxisAlignment.Start) {
                     RadioButton(selected = selected, onSelect = onSelect, color = radioColor)
                     Padding(left = DefaultRadioLabelOffset) {
                         Text(text = text, style = +themeTextStyle { body1.merge(textStyle) })
