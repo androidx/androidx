@@ -765,7 +765,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
             return mTarget;
         } else if (mFragmentManager != null && mTargetWho != null) {
             // Look up the target Fragment from the FragmentManager
-            return mFragmentManager.mActive.get(mTargetWho);
+            return mFragmentManager.findActiveFragment(mTargetWho);
         }
         return null;
     }
