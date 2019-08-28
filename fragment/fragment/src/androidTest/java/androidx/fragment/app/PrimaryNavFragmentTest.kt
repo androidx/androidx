@@ -306,6 +306,10 @@ class PrimaryNavFragmentTest {
         activityRule.waitForExecution()
 
         inOrder.verify(strictFragment).onPrimaryNavigationFragmentChanged(false)
+        inOrder.verify(postponedFragment).onPrimaryNavigationFragmentChanged(true)
+        inOrder.verify(postponedFragment).onPrimaryNavigationFragmentChanged(false)
+        inOrder.verify(strictFragment).onPrimaryNavigationFragmentChanged(true)
+        inOrder.verify(strictFragment).onPrimaryNavigationFragmentChanged(false)
         inOrder.verify(replacementFragment).onPrimaryNavigationFragmentChanged(true)
         assertWithMessage("primary nav fragment not set correctly after replace")
             .that(fm.primaryNavigationFragment)
