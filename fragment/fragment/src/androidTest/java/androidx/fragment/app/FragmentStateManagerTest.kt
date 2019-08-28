@@ -18,20 +18,59 @@ package androidx.fragment.app
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
+import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 
 import org.junit.runner.RunWith
+import org.mockito.Mockito.mock
 
 @RunWith(AndroidJUnit4::class)
 @MediumTest
 class FragmentStateManagerTest {
 
+    private val dispatcher = FragmentLifecycleCallbacksDispatcher(
+        mock(FragmentManager::class.java))
+    private val classLoader get() = InstrumentationRegistry.getInstrumentation()
+        .targetContext.classLoader
+
     @Test
     fun constructorFragment() {
         val fragment = StrictFragment()
-        val fragmentStateManager = FragmentStateManager(fragment)
+        val fragmentStateManager = FragmentStateManager(dispatcher, fragment)
         assertThat(fragmentStateManager.fragment)
             .isSameInstanceAs(fragment)
+    }
+
+    @Test
+    fun constructorFragmentFactory() {
+        val fragment = StrictFragment()
+        val fragmentState = FragmentStateManager(dispatcher, fragment).saveState()
+
+        val fragmentStateManager = FragmentStateManager(dispatcher,
+            classLoader, FragmentFactory(), fragmentState)
+
+        val restoredFragment = fragmentStateManager.fragment
+        assertThat(restoredFragment)
+            .isInstanceOf(StrictFragment::class.java)
+        assertThat(restoredFragment.mSavedFragmentState)
+            .isNotNull()
+    }
+
+    @Test
+    fun constructorRetainedFragment() {
+        val fragment = StrictFragment()
+        val fragmentState = FragmentStateManager(dispatcher, fragment).saveState()
+        assertThat(fragment.mSavedFragmentState)
+            .isNull()
+
+        val fragmentStateManager = FragmentStateManager(dispatcher,
+            fragment, fragmentState)
+
+        val restoredFragment = fragmentStateManager.fragment
+        assertThat(restoredFragment)
+            .isSameInstanceAs(fragment)
+        assertThat(restoredFragment.mSavedFragmentState)
+            .isNotNull()
     }
 }
