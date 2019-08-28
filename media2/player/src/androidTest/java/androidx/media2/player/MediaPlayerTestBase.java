@@ -18,8 +18,6 @@ package androidx.media2.player;
 
 import static android.content.Context.KEYGUARD_SERVICE;
 
-import static androidx.media2.common.BaseResult.RESULT_SUCCESS;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
@@ -164,7 +162,7 @@ abstract class MediaPlayerTestBase extends MediaTestBase {
 
     static <T extends SessionPlayer.PlayerResult> void assertFutureSuccess(Future<T> future)
             throws Exception {
-        assertFutureStateEquals(future, RESULT_SUCCESS);
+        assertFutureStateEquals(future, SessionPlayer.PlayerResult.RESULT_SUCCESS);
     }
 
     static <T extends SessionPlayer.PlayerResult> void assertFutureStateEquals(Future<T> future,
