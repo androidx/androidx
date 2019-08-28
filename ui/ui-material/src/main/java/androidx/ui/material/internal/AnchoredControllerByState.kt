@@ -25,7 +25,6 @@ import androidx.compose.state
 import androidx.ui.foundation.gestures.Draggable
 import androidx.ui.foundation.animation.AnchorsFlingConfig
 import androidx.ui.foundation.animation.AnimatedFloatDragController
-import androidx.ui.foundation.gestures.DragValueController
 import androidx.ui.foundation.gestures.DraggableCallback
 
 /**
@@ -53,7 +52,7 @@ internal fun <T> anchoredControllerByState(
     onStateChange: (T) -> Unit,
     anchorsToState: List<Pair<Float, T>>,
     animationBuilder: AnimationBuilder<Float>
-) = effectOf<Pair<DragValueController, DraggableCallback>> {
+) = effectOf<Pair<AnimatedFloatDragController, DraggableCallback>> {
     val anchors = +memo(anchorsToState) { anchorsToState.map { it.first } }
     val currentValue = anchorsToState.firstOrNull { it.second == state }!!.first
 
