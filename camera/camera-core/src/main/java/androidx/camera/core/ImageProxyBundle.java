@@ -31,6 +31,9 @@ public interface ImageProxyBundle {
      * been generated.
      *
      * @param captureId The id for the captures that generated the {@link ImageProxy}.
+     *
+     * @return If the id does not exist for the bundle, then the ListenableFuture will contain an
+     * {@link IllegalArgumentException}.
      */
     @NonNull
     ListenableFuture<ImageProxy> getImageProxy(int captureId);
