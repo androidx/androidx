@@ -18,6 +18,7 @@ package androidx.build.dependencyTracker
 
 import androidx.build.gitclient.Commit
 import androidx.build.gitclient.GitClient
+import androidx.build.gitclient.GitCommitRange
 import org.gradle.api.Project
 import org.gradle.api.plugins.ExtraPropertiesExtension
 import org.gradle.testfixtures.ProjectBuilder
@@ -838,8 +839,7 @@ class AffectedModuleDetectorImplTest {
 
         // Implement unused abstract method
         override fun getGitLog(
-            sha: String,
-            top: String,
+            gitCommitRange: GitCommitRange,
             keepMerges: Boolean,
             fullProjectDir: File
         ): List<Commit> = listOf()
