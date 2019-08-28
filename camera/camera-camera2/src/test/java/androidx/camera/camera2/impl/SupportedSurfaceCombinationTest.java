@@ -76,6 +76,7 @@ import org.robolectric.shadows.ShadowCameraCharacteristics;
 import org.robolectric.shadows.ShadowCameraManager;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
@@ -137,7 +138,8 @@ public final class SupportedSurfaceCombinationTest {
                     new Size(800, 450),
                     new Size(640, 480),
                     new Size(320, 240),
-                    new Size(320, 180)
+                    new Size(320, 180),
+                    new Size(256, 144) // For checkSmallSizesAreFilteredOut test.
             };
 
     private final Context mContext = RuntimeEnvironment.application.getApplicationContext();
@@ -570,6 +572,71 @@ public final class SupportedSurfaceCombinationTest {
         assertThat(imageCaptureLensFacing).isNotNull();
         assertThat(imageAnalysisLensFacing).isNotNull();
         assertThat(videoCaptureLensFacing).isNotNull();
+    }
+
+    @Test
+    public void checkSmallSizesAreFilteredOutByDefaultSize480p() {
+        setupCamera(/* supportsRaw= */ false);
+        SupportedSurfaceCombination supportedSurfaceCombination =
+                new SupportedSurfaceCombination(
+                        mContext, LIMITED_CAMERA_ID, mMockCamcorderProfileHelper);
+        /* This test case is for b/139018208 that get small resolution 144x256 with below
+        conditions:
+        1. The target aspect ratio is set to the screen size 1080 x 2220 (9:18.5).
+        2. The camera doesn't provide any 9:18.5 resolution and the size 144x256(9:16)
+         is considered the 9:18.5 mod16 version.
+        3. There is no other bigger resolution matched the target aspect ratio.
+        */
+        final int displayWidth = 1080;
+        final int displayHeight = 2220;
+        PreviewConfig.Builder previewConfigBuilder = new PreviewConfig.Builder();
+        previewConfigBuilder.setTargetResolution(new Size(displayHeight, displayWidth));
+        Preview preview = new Preview(previewConfigBuilder.build());
+
+        List<UseCase> useCases = new ArrayList<>();
+        useCases.add(preview);
+        Map<UseCase, Size> suggestedResolutionMap =
+                supportedSurfaceCombination.getSuggestedResolutions(null, useCases);
+
+        // Checks the preconditions.
+        final Size preconditionSize = new Size(256, 144);
+        final Rational targetRatio = new Rational(displayHeight, displayWidth);
+        ArrayList<Size> sizeList = new ArrayList<>(Arrays.asList(mSupportedSizes));
+        assertTrue(sizeList.contains(preconditionSize));
+        for (Size s : mSupportedSizes) {
+            Rational supportedRational = new Rational(s.getWidth(), s.getHeight());
+            assertFalse(supportedRational.equals(targetRatio));
+        }
+
+        // Checks the mechanism has filtered out the sizes which are smaller than default size 480p.
+        Size previewSize = suggestedResolutionMap.get(preview);
+        assertTrue(!previewSize.equals(preconditionSize));
+    }
+
+    @Test
+    public void checkSmallTargetResolutionIsNotFilteredOutBy480p() {
+        setupCamera(/* supportsRaw= */ false);
+        SupportedSurfaceCombination supportedSurfaceCombination =
+                new SupportedSurfaceCombination(
+                        mContext, LIMITED_CAMERA_ID, mMockCamcorderProfileHelper);
+
+        // The resolution selection will filter out the sizes which are smaller than min(640x480,
+        // TARGET_RESOLUTION)
+        final Size targetResolution = new Size(240, 320);
+        PreviewConfig.Builder previewConfigBuilder = new PreviewConfig.Builder();
+        previewConfigBuilder.setTargetResolution(targetResolution);
+        Preview preview = new Preview(previewConfigBuilder.build());
+
+        List<UseCase> useCases = new ArrayList<>();
+        useCases.add(preview);
+        Map<UseCase, Size> suggestedResolutionMap =
+                supportedSurfaceCombination.getSuggestedResolutions(null, useCases);
+
+        // Checks the returned size is 320x240, if we set the target resolution which is smaller
+        // than 480p.
+        final Size resultSize = new Size(320, 240);
+        Size previewSize = suggestedResolutionMap.get(preview);
+        assertTrue(previewSize.equals(resultSize));
     }
 
     @Test
