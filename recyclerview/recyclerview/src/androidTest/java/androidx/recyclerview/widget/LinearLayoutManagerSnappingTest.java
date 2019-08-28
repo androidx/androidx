@@ -39,23 +39,41 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class LinearLayoutManagerSnappingTest extends BaseLinearLayoutManagerTest {
 
     final Config mConfig;
-    final boolean mReverseScroll;
+    private final boolean mReverseScroll;
+    private final boolean mApplyPadding;
 
-    public LinearLayoutManagerSnappingTest(Config config, boolean reverseScroll) {
+    public LinearLayoutManagerSnappingTest(Config config, boolean reverseScroll,
+            boolean applyPadding) {
         mConfig = config;
         mReverseScroll = reverseScroll;
+        mApplyPadding = applyPadding;
     }
 
-    @Parameterized.Parameters(name = "config:{0},reverseScroll:{1}")
+    @Parameterized.Parameters(name = "config:{0},reverseScroll:{1},applyPadding:{2}")
     public static List<Object[]> getParams() {
         List<Object[]> result = new ArrayList<>();
         List<Config> configs = createBaseVariations();
         for (Config config : configs) {
             for (boolean reverseScroll : new boolean[] {true, false}) {
-                result.add(new Object[]{config, reverseScroll});
+                for (boolean applyPadding : new boolean[] {true, false}) {
+                    result.add(new Object[]{config, reverseScroll, applyPadding});
+                }
             }
         }
         return result;
+    }
+
+    @Override
+    void setupByConfig(Config config, boolean waitForFirstLayout,
+            @Nullable RecyclerView.LayoutParams childLayoutParams,
+            @Nullable RecyclerView.LayoutParams parentLayoutParams) throws Throwable {
+        super.setupByConfig(config, false, childLayoutParams, parentLayoutParams);
+        if (mApplyPadding) {
+            mRecyclerView.setPadding(17, 23, 0, 0);
+        }
+        if (waitForFirstLayout) {
+            waitForFirstLayout();
+        }
     }
 
     @Test
@@ -199,11 +217,12 @@ public class LinearLayoutManagerSnappingTest extends BaseLinearLayoutManagerTest
         mLayoutManager.waitForSnap(10);
     }
 
-    @Nullable private View findCenterView(RecyclerView.LayoutManager layoutManager) {
+    @Nullable
+    private View findCenterView(RecyclerView.LayoutManager layoutManager) {
         if (layoutManager.canScrollHorizontally()) {
-            return mRecyclerView.findChildViewUnder(mRecyclerView.getWidth() / 2, 0);
+            return mRecyclerView.findChildViewUnder(getRvCenterX(), mRecyclerView.getPaddingTop());
         } else {
-            return mRecyclerView.findChildViewUnder(0, mRecyclerView.getHeight() / 2);
+            return mRecyclerView.findChildViewUnder(mRecyclerView.getPaddingLeft(), getRvCenterY());
         }
     }
 
@@ -217,23 +236,43 @@ public class LinearLayoutManagerSnappingTest extends BaseLinearLayoutManagerTest
         return helper.getDecoratedMeasurement(view);
     }
 
+    private int getWidthMinusPadding(View view) {
+        return view.getWidth() - view.getPaddingLeft() - view.getPaddingRight();
+    }
+
+    private int getHeightMinusPadding(View view) {
+        return view.getHeight() - view.getPaddingTop() - view.getPaddingBottom();
+    }
+
+    private int getRvCenterX() {
+        return getWidthMinusPadding(mRecyclerView) / 2 + mRecyclerView.getPaddingLeft();
+    }
+
+    private int getRvCenterY() {
+        return getHeightMinusPadding(mRecyclerView) / 2 + mRecyclerView.getPaddingTop();
+    }
+
+    private int getViewCenterX(View view) {
+        return mLayoutManager.getViewBounds(view).centerX();
+    }
+
+    private int getViewCenterY(View view) {
+        return mLayoutManager.getViewBounds(view).centerY();
+    }
+
     private void assertCenterAligned(View view) {
         if (mLayoutManager.canScrollHorizontally()) {
-            assertEquals(mRecyclerView.getWidth() / 2,
-                    mLayoutManager.getViewBounds(view).centerX());
+            assertEquals(getRvCenterX(), getViewCenterX(view));
         } else {
-            assertEquals(mRecyclerView.getHeight() / 2,
-                    mLayoutManager.getViewBounds(view).centerY());
+            assertEquals(getRvCenterY(), getViewCenterY(view));
         }
     }
 
     private int distFromCenter(View view) {
         if (mLayoutManager.canScrollHorizontally()) {
-            return Math.abs(mRecyclerView.getWidth() / 2 -
-                mLayoutManager.getViewBounds(view).centerX());
+            return Math.abs(getRvCenterX() - getViewCenterX(view));
         } else {
-            return Math.abs(mRecyclerView.getHeight() / 2 -
-                mLayoutManager.getViewBounds(view).centerY());
+            return Math.abs(getRvCenterY() - getViewCenterY(view));
         }
     }
 
