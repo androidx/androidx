@@ -196,6 +196,22 @@ class TextDelegate(
         get() = assumeLayout { it.size.width }
 
     /**
+     * The vertical space from the top of text box to the baseline of the first line.
+     *
+     * Valid only after [layout] has been called.
+     */
+    val firstBaseline: Float
+        get() = assumeLayout { it.multiParagraph.firstBaseline }
+
+    /**
+     * The vertical space from the top of text box to the baseline of the last line.
+     *
+     * Valid only after [layout] has been called.
+     */
+    val lastBaseline: Float
+        get() = assumeLayout { it.multiParagraph.lastBaseline }
+
+    /**
      * The vertical space required to paint this text.
      *
      * Valid only after [layout] has been called.

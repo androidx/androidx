@@ -97,8 +97,15 @@ internal class MultiParagraph(
      * The distance from the top of the paragraph to the alphabetic
      * baseline of the first line, in logical pixels.
      */
-    val baseline: Float
-        get() = if (paragraphInfoList.isEmpty()) 0f else paragraphInfoList[0].paragraph.baseline
+    val firstBaseline: Float get() =
+        if (paragraphInfoList.isEmpty()) 0f else paragraphInfoList[0].paragraph.firstBaseline
+
+    /**
+     * The distance from the top of the paragraph to the alphabetic
+     * baseline of the first line, in logical pixels.
+     */
+    val lastBaseline: Float get() =
+        if (paragraphInfoList.isEmpty()) 0f else paragraphInfoList.last().paragraph.lastBaseline
 
     /** The total number of lines in the text. */
     var lineCount: Int = 0

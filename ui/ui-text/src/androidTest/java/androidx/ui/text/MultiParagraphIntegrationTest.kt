@@ -66,7 +66,8 @@ class MultiParagraphIntegrationTest {
 
             assertThat(paragraph.height, equalTo(fontSizeInPx))
             // defined in sample_font
-            assertThat(paragraph.baseline, equalTo(fontSizeInPx * 0.8f))
+            assertThat(paragraph.firstBaseline, equalTo(fontSizeInPx * 0.8f))
+            assertThat(paragraph.lastBaseline, equalTo(fontSizeInPx * 0.8f))
             assertThat(paragraph.maxIntrinsicWidth, equalTo(0.0f))
             assertThat(paragraph.minIntrinsicWidth, equalTo(0.0f))
         }
@@ -87,7 +88,8 @@ class MultiParagraphIntegrationTest {
                 assertThat(text, paragraph.width, equalTo(200.0f))
                 assertThat(text, paragraph.height, equalTo(fontSizeInPx))
                 // defined in sample_font
-                assertThat(text, paragraph.baseline, equalTo(fontSizeInPx * 0.8f))
+                assertThat(text, paragraph.firstBaseline, equalTo(fontSizeInPx * 0.8f))
+                assertThat(text, paragraph.lastBaseline, equalTo(fontSizeInPx * 0.8f))
                 assertThat(
                     text,
                     paragraph.maxIntrinsicWidth,
@@ -121,7 +123,12 @@ class MultiParagraphIntegrationTest {
                     equalTo(2 * fontSizeInPx + fontSizeInPx / 5.0f)
                 )
                 // defined in sample_font
-                assertThat(text, paragraph.baseline, equalTo(fontSizeInPx * 0.8f))
+                assertThat(text, paragraph.firstBaseline, equalTo(fontSizeInPx * 0.8f))
+                assertThat(
+                    text,
+                    paragraph.lastBaseline,
+                    equalTo(fontSizeInPx + fontSizeInPx / 5.0f + fontSizeInPx * 0.8f)
+                )
                 assertThat(
                     text,
                     paragraph.maxIntrinsicWidth,
@@ -1969,7 +1976,8 @@ class MultiParagraphIntegrationTest {
     fun alphabeticBaseline_default_value() {
         val paragraph = simpleMultiParagraph()
 
-        assertThat(paragraph.baseline, equalTo(0.0f))
+        assertThat(paragraph.firstBaseline, equalTo(0.0f))
+        assertThat(paragraph.lastBaseline, equalTo(0.0f))
     }
 
     @Test

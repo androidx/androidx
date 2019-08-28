@@ -21,8 +21,11 @@ import androidx.compose.composer
 import androidx.test.filters.SmallTest
 import androidx.test.rule.ActivityTestRule
 import androidx.ui.core.ComplexLayout
+import androidx.ui.core.Constraints
 import androidx.ui.core.Density
+import androidx.ui.core.FirstBaseline
 import androidx.ui.core.IntPx
+import androidx.ui.core.LastBaseline
 import androidx.ui.core.Layout
 import androidx.ui.core.OnChildPositioned
 import androidx.ui.core.PxSize
@@ -154,6 +157,33 @@ class TextLayoutTest {
             }
         }
         assertTrue(intrinsicsLatch.await(1, TimeUnit.SECONDS))
+    }
+
+    @Test
+    fun testTextLayout_providesBaselines() = withDensity(density) {
+        val layoutLatch = CountDownLatch(2)
+        show {
+            val text = @Composable {
+                Text("aa", style = TextStyle(fontFamily = fontFamily))
+            }
+            Layout(text) { measurables, _ ->
+                val placeable = measurables.first().measure(Constraints())
+                assertNotNull(placeable[FirstBaseline])
+                assertNotNull(placeable[LastBaseline])
+                assertEquals(placeable[FirstBaseline], placeable[LastBaseline])
+                layoutLatch.countDown()
+                layout(0.ipx, 0.ipx) {}
+            }
+            Layout(text) { measurables, _ ->
+                val placeable = measurables.first().measure(Constraints(maxWidth = 0.ipx))
+                assertNotNull(placeable[FirstBaseline])
+                assertNotNull(placeable[LastBaseline])
+                assertTrue(placeable[FirstBaseline]!!.value < placeable[LastBaseline]!!.value)
+                layoutLatch.countDown()
+                layout(0.ipx, 0.ipx) {}
+            }
+        }
+        assertTrue(layoutLatch.await(1, TimeUnit.SECONDS))
     }
 
     private fun show(composable: @Composable() () -> Unit) {
