@@ -15,6 +15,7 @@
  */
 package androidx.work;
 
+import android.annotation.SuppressLint;
 import android.os.Build;
 
 import androidx.annotation.NonNull;
@@ -57,10 +58,12 @@ public final class PeriodicWorkRequest extends WorkRequest {
     /**
      * The minimum interval duration for {@link PeriodicWorkRequest} (in milliseconds).
      */
+    @SuppressLint("MinMaxConstant")
     public static final long MIN_PERIODIC_INTERVAL_MILLIS = 15 * 60 * 1000L; // 15 minutes.
     /**
      * The minimum flex duration for {@link PeriodicWorkRequest} (in milliseconds).
      */
+    @SuppressLint("MinMaxConstant")
     public static final long MIN_PERIODIC_FLEX_MILLIS = 5 * 60 * 1000L; // 5 minutes.
 
     PeriodicWorkRequest(Builder builder) {

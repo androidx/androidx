@@ -15,6 +15,8 @@
  */
 package androidx.work;
 
+import android.annotation.SuppressLint;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
@@ -43,11 +45,13 @@ public abstract class WorkRequest {
     /**
      * The maximum backoff time (in milliseconds) for work that has to be retried.
      */
+    @SuppressLint("MinMaxConstant")
     public static final long MAX_BACKOFF_MILLIS = 5 * 60 * 60 * 1000; // 5 hours.
 
     /**
      * The minimum backoff time for work (in milliseconds) that has to be retried.
      */
+    @SuppressLint("MinMaxConstant")
     public static final long MIN_BACKOFF_MILLIS = 10 * 1000; // 10 seconds.
 
     private @NonNull UUID mId;
