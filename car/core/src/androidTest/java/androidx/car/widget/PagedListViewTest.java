@@ -452,9 +452,9 @@ public final class PagedListViewTest {
     public void testScrollBarToggleHidden() throws Throwable {
         // Just need enough items to ensure the scroll bar is showing.
         setUpPagedListView(ITEMS_PER_PAGE * 10);
-        mActivityRule.runOnUiThread(() -> mPagedListView.setScrollBarEnabled(false));
+        mActivityRule.runOnUiThread(() -> mPagedListView.setScrollBarVisibleIfNeeded(false));
         onView(withId(R.id.paged_scroll_view)).check(matches(not(isDisplayed())));
-        mActivityRule.runOnUiThread(() -> mPagedListView.setScrollBarEnabled(true));
+        mActivityRule.runOnUiThread(() -> mPagedListView.setScrollBarVisibleIfNeeded(true));
         onView(withId(R.id.paged_scroll_view)).check(matches(isDisplayed()));
     }
 

@@ -303,6 +303,7 @@ attr scrollBarContainerWidth
 attr scrollBarEnabled
 attr scrollBarGravity
 attr scrollBarTopMargin
+attr scrollBarVisibleIfNeeded
 attr showPagedListViewDivider
 attr showScrollBarThumb
 attr subtitle

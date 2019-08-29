@@ -104,7 +104,7 @@ public class PagedListView extends FrameLayout {
     private final RecyclerView mRecyclerView;
     private final PagedSnapHelper mSnapHelper;
     final Handler mHandler = new Handler();
-    private boolean mScrollBarEnabled;
+    private boolean mIsScrollBarVisibleIfNeeded;
     @VisibleForTesting
     PagedScrollBarView mScrollBarView;
 
@@ -329,7 +329,14 @@ public class PagedListView extends FrameLayout {
         // clickable view becomes focusable by default.
         setFocusable(false);
 
-        mScrollBarEnabled = a.getBoolean(R.styleable.PagedListView_scrollBarEnabled, true);
+        // The scrollBarEnabled attribute is deprecated and scrollBarVisibleIfNeeded should be
+        // used instead. The scrollBarVisibleIfNeeded value takes precedence over scrollBarEnabled
+        // when present.
+        boolean scrollBarEnabled = a.getBoolean(R.styleable.PagedListView_scrollBarEnabled, true);
+        mIsScrollBarVisibleIfNeeded = a.getBoolean(
+                R.styleable.PagedListView_scrollBarVisibleIfNeeded,
+                scrollBarEnabled);
+
         mScrollBarView = findViewById(R.id.paged_scroll_view);
         mScrollBarView.setPaginationListener(new PagedScrollBarView.PaginationListener() {
             @Override
@@ -366,9 +373,9 @@ public class PagedListView extends FrameLayout {
                     a.getInt(R.styleable.PagedListView_scrollBarGravity, Gravity.LEFT);
         }
 
-        mScrollBarView.setVisibility(mScrollBarEnabled ? VISIBLE : GONE);
+        mScrollBarView.setVisibility(mIsScrollBarVisibleIfNeeded ? VISIBLE : GONE);
 
-        if (mScrollBarEnabled) {
+        if (mIsScrollBarVisibleIfNeeded) {
             // Use the top margin that is defined in the layout as the default value.
             int topMargin = a.getDimensionPixelSize(
                     R.styleable.PagedListView_scrollBarTopMargin,
@@ -469,7 +476,7 @@ public class PagedListView extends FrameLayout {
 
         // Default starting margin is either the width of the scroll bar, if present at the start,
         // or just flush to the edge.
-        int startMargin = mScrollBarEnabled && isScrollBarGravityStart
+        int startMargin = mIsScrollBarVisibleIfNeeded && isScrollBarGravityStart
                 ? mScrollBarView.getLayoutParams().width : 0;
         if ((mGutter & Gutter.START) != 0) {
             // Ensure that the gutter value is large enough so that the RecyclerView does not
@@ -479,7 +486,7 @@ public class PagedListView extends FrameLayout {
 
         // Default end margin is either the width of the scroll bar, if present at the end, or
         // just flush to the edge.
-        int endMargin = mScrollBarEnabled && isScrollBarGravityEnd
+        int endMargin = mIsScrollBarVisibleIfNeeded && isScrollBarGravityEnd
                 ? mScrollBarView.getLayoutParams().width : 0;
         if ((mGutter & Gutter.END) != 0) {
             // Ensure that the gutter value is large enough so that the RecyclerView does not
@@ -596,11 +603,13 @@ public class PagedListView extends FrameLayout {
      * If enabled, a scroll bar will appear when the number of items causes the PagedListView to
      * be scrollable. Otherwise, the scroll bar is hidden regardless of item count.
      *
-     * @param enabled {@code true} to enable the scroll bar.
+     * @param isEnabled {@code true} to enable the scroll bar.
+     * @deprecated Use {@link #setScrollBarVisibleIfNeeded(boolean)} instead.
      */
-    public final void setScrollBarEnabled(boolean enabled) {
-        mScrollBarEnabled = enabled;
-        mScrollBarView.setVisibility(mScrollBarEnabled ? VISIBLE : GONE);
+    @Deprecated
+    public final void setScrollBarEnabled(boolean isEnabled) {
+        mIsScrollBarVisibleIfNeeded = isEnabled;
+        mScrollBarView.setVisibility(mIsScrollBarVisibleIfNeeded ? VISIBLE : GONE);
 
         // Ensure that the gutter is updated so that the RecyclerView does not overlap the scroll
         // bar.
@@ -608,10 +617,27 @@ public class PagedListView extends FrameLayout {
     }
 
     /**
-     * Returns {@code true} if the scroll bar is enabled.
+     * Sets whether the scroll bar is visible when the PagedListView is scrollable.
+     *
+     * If {@code true}, a scroll bar will appear when the number of items causes the
+     * PagedListView to be scrollable. Otherwise, the scroll bar is hidden regardless of item count.
+     *
+     * @param isVisible {@code true} to enable the scroll bar.
      */
-    public final boolean isScrollBarEnabled() {
-        return mScrollBarEnabled;
+    public final void setScrollBarVisibleIfNeeded(boolean isVisible) {
+        mIsScrollBarVisibleIfNeeded = isVisible;
+        mScrollBarView.setVisibility(mIsScrollBarVisibleIfNeeded ? VISIBLE : GONE);
+
+        // Ensure that the gutter is updated so that the RecyclerView does not overlap the scroll
+        // bar.
+        setGutter(mGutter);
+    }
+
+    /**
+     * Returns {@code true} if the scroll bar is visible when the PagedListView is scrollable.
+     */
+    public final boolean isScrollBarVisibleIfNeeded() {
+        return mIsScrollBarVisibleIfNeeded;
     }
 
     /**
@@ -620,7 +646,7 @@ public class PagedListView extends FrameLayout {
      *
      * @param offset The top offset to add in pixels.
      *
-     *               {@link R.attr#listContentTopOffset}
+     * {@link R.attr#listContentTopOffset}
      */
     public void setListContentTopOffset(@Px int offset) {
         TopOffsetDecoration existing = null;
@@ -1227,7 +1253,7 @@ public class PagedListView extends FrameLayout {
             mLastItemCount = itemCount;
         }
 
-        if (!mScrollBarEnabled) {
+        if (!mIsScrollBarVisibleIfNeeded) {
             // Don't change the visibility of the ScrollBar unless it's enabled.
             return;
         }
@@ -1268,7 +1294,7 @@ public class PagedListView extends FrameLayout {
      *                {@code false} if no animation is used
      */
     void updatePaginationButtons(boolean animate) {
-        if (!mScrollBarEnabled) {
+        if (!mIsScrollBarVisibleIfNeeded) {
             // Don't change the visibility of the ScrollBar unless it's enabled.
             return;
         }
