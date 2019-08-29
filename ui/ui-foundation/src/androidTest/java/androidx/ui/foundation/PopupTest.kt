@@ -18,8 +18,12 @@ package androidx.ui.foundation
 import android.view.View
 import androidx.compose.composer
 import androidx.test.espresso.Espresso
+import androidx.test.espresso.Root
+import androidx.test.espresso.UiController
+import androidx.test.espresso.ViewAction
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.BoundedMatcher
+import androidx.test.espresso.matcher.RootMatchers
 import androidx.test.espresso.matcher.RootMatchers.isPlatformPopup
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.filters.MediumTest
@@ -27,6 +31,7 @@ import androidx.ui.core.AndroidCraneView
 import androidx.ui.core.IntPx
 import androidx.ui.core.IntPxPosition
 import androidx.ui.core.IntPxSize
+import androidx.ui.core.OnPositioned
 import androidx.ui.core.Text
 import androidx.ui.core.toPxPosition
 import androidx.ui.core.toPxSize
@@ -39,11 +44,13 @@ import com.google.common.truth.Truth
 import org.hamcrest.CoreMatchers.instanceOf
 import org.hamcrest.Description
 import org.hamcrest.Matcher
-import org.junit.Ignore
+import org.hamcrest.TypeSafeMatcher
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 
 @MediumTest
 @RunWith(JUnit4::class)
@@ -57,7 +64,11 @@ class PopupTest {
     private val parentSize = IntPxSize(IntPx(100), IntPx(100))
     private val popupSize = IntPxSize(IntPx(40), IntPx(20))
 
-    private fun createPopupWithAlignmentRule(alignment: Alignment) {
+    private var craneViewAbsolutePosition = IntPxPosition(IntPx(0), IntPx(0))
+
+    // TODO(b/140215440): Some tests are calling the OnChildPosition method inside the Popup too
+    //  many times
+    private fun createPopupWithAlignmentRule(alignment: Alignment, measureLatch: CountDownLatch) {
         withDensity(composeTestRule.density) {
             val popupWidthDp = popupSize.width.toDp()
             val popupHeightDp = popupSize.height.toDp()
@@ -70,18 +81,65 @@ class PopupTest {
                 Align(alignment = Alignment.TopLeft) {
                     Container(width = parentWidthDp, height = parentHeightDp) {
                         Popup(alignment = alignment, offset = offset) {
+                            // This is called after the OnChildPosition method in Popup() which updates the popup to
+                            // its final position
+                            OnPositioned {
+                                measureLatch.countDown()
+                            }
                             Container(width = popupWidthDp, height = popupHeightDp) {}
                         }
                     }
                 }
             }
         }
+
+        provideAndroidCraneViewOffset()
     }
 
     private fun popupMatches(viewMatcher: Matcher<in View>) {
         Espresso.onView(instanceOf(AndroidCraneView::class.java))
             .inRoot(isPlatformPopup())
             .check(matches(viewMatcher))
+    }
+
+    private fun isNotPlatformPopup(): TypeSafeMatcher<Root> {
+        return object : TypeSafeMatcher<Root>() {
+            override fun describeTo(description: Description?) {
+                description?.appendText("isNotPopupPlatform")
+            }
+
+            override fun matchesSafely(item: Root?): Boolean {
+                return !RootMatchers.isPlatformPopup().matches(item)
+            }
+        }
+    }
+
+    private fun saveAndroidCraneViewOffset(): ViewAction {
+        return object : ViewAction {
+            override fun getDescription(): String {
+                return "Get AndroidCraneView offset"
+            }
+
+            override fun getConstraints(): Matcher<View> {
+                return matchesAndroidCraneView()
+            }
+
+            override fun perform(uiController: UiController?, view: View?) {
+                val positionArray = IntArray(2)
+                view?.getLocationOnScreen(positionArray)
+
+                craneViewAbsolutePosition = IntPxPosition(
+                    IntPx(positionArray[0]),
+                    IntPx(positionArray[1])
+                )
+            }
+        }
+    }
+
+    private fun provideAndroidCraneViewOffset() {
+        Espresso.onView(instanceOf(AndroidCraneView::class.java))
+            .inRoot(isNotPlatformPopup())
+            .perform(saveAndroidCraneViewOffset())
     }
 
     @Test
@@ -117,7 +175,6 @@ class PopupTest {
         popupMatches(matchesSize(popupSize.width.value, popupSize.height.value))
     }
 
-    @Ignore("Disabled due to b/139875128")
     @Test
     fun popup_correctPosition_alignmentTopLeft() {
         /* Expected TopLeft Position
@@ -125,13 +182,14 @@ class PopupTest {
            y = offset.y
         */
         val expectedPositionTopLeft = IntPxPosition(IntPx(10), IntPx(10))
+        val measureLatch = CountDownLatch(1)
 
-        createPopupWithAlignmentRule(alignment = Alignment.TopLeft)
+        createPopupWithAlignmentRule(alignment = Alignment.TopLeft, measureLatch = measureLatch)
 
-        popupMatches(matchesPosition(expectedPositionTopLeft))
+        measureLatch.await(1, TimeUnit.SECONDS)
+        popupMatches(matchesPosition(craneViewAbsolutePosition + expectedPositionTopLeft))
     }
 
-    @Ignore("Disabled due to b/139875128")
     @Test
     fun popup_correctPosition_alignmentTopCenter() {
         /* Expected TopCenter Position
@@ -139,13 +197,14 @@ class PopupTest {
            y = offset.y
         */
         val expectedPositionTopCenter = IntPxPosition(IntPx(40), IntPx(10))
+        val measureLatch = CountDownLatch(1)
 
-        createPopupWithAlignmentRule(alignment = Alignment.TopCenter)
+        createPopupWithAlignmentRule(alignment = Alignment.TopCenter, measureLatch = measureLatch)
 
-        popupMatches(matchesPosition(expectedPositionTopCenter))
+        measureLatch.await(1, TimeUnit.SECONDS)
+        popupMatches(matchesPosition(craneViewAbsolutePosition + expectedPositionTopCenter))
     }
 
-    @Ignore("Disabled due to b/139875128")
     @Test
     fun popup_correctPosition_alignmentTopRight() {
         /* Expected TopRight Position
@@ -153,13 +212,14 @@ class PopupTest {
            y = offset.y
         */
         val expectedPositionTopRight = IntPxPosition(IntPx(70), IntPx(10))
+        val measureLatch = CountDownLatch(1)
 
-        createPopupWithAlignmentRule(alignment = Alignment.TopRight)
+        createPopupWithAlignmentRule(alignment = Alignment.TopRight, measureLatch = measureLatch)
 
-        popupMatches(matchesPosition(expectedPositionTopRight))
+        measureLatch.await(1, TimeUnit.SECONDS)
+        popupMatches(matchesPosition(craneViewAbsolutePosition + expectedPositionTopRight))
     }
 
-    @Ignore("Disabled due to b/139875128")
     @Test
     fun popup_correctPosition_alignmentCenterRight() {
         /* Expected CenterRight Position
@@ -167,13 +227,14 @@ class PopupTest {
            y = offset.y + parentSize.y / 2 - popupSize.y / 2
         */
         val expectedPositionCenterRight = IntPxPosition(IntPx(70), IntPx(50))
+        val measureLatch = CountDownLatch(1)
 
-        createPopupWithAlignmentRule(alignment = Alignment.CenterRight)
+        createPopupWithAlignmentRule(alignment = Alignment.CenterRight, measureLatch = measureLatch)
 
-        popupMatches(matchesPosition(expectedPositionCenterRight))
+        measureLatch.await(1, TimeUnit.SECONDS)
+        popupMatches(matchesPosition(craneViewAbsolutePosition + expectedPositionCenterRight))
     }
 
-    @Ignore("Disabled due to b/139875128")
     @Test
     fun popup_correctPosition_alignmentBottomRight() {
         /* Expected BottomRight Position
@@ -181,13 +242,14 @@ class PopupTest {
            y = offset.y + parentSize.y - popupSize.y
         */
         val expectedPositionBottomRight = IntPxPosition(IntPx(70), IntPx(90))
+        val measureLatch = CountDownLatch(1)
 
-        createPopupWithAlignmentRule(alignment = Alignment.BottomRight)
+        createPopupWithAlignmentRule(alignment = Alignment.BottomRight, measureLatch = measureLatch)
 
-        popupMatches(matchesPosition(expectedPositionBottomRight))
+        measureLatch.await(1, TimeUnit.SECONDS)
+        popupMatches(matchesPosition(craneViewAbsolutePosition + expectedPositionBottomRight))
     }
 
-    @Ignore("Disabled due to b/139875128")
     @Test
     fun popup_correctPosition_alignmentBottomCenter() {
         /* Expected BottomCenter Position
@@ -195,13 +257,17 @@ class PopupTest {
            y = offset.y + parentSize.y - popupSize.y
         */
         val expectedPositionBottomCenter = IntPxPosition(IntPx(40), IntPx(90))
+        val measureLatch = CountDownLatch(1)
 
-        createPopupWithAlignmentRule(alignment = Alignment.BottomCenter)
+        createPopupWithAlignmentRule(
+            alignment = Alignment.BottomCenter,
+            measureLatch = measureLatch
+        )
 
-        popupMatches(matchesPosition(expectedPositionBottomCenter))
+        measureLatch.await(1, TimeUnit.SECONDS)
+        popupMatches(matchesPosition(craneViewAbsolutePosition + expectedPositionBottomCenter))
     }
 
-    @Ignore("Disabled due to b/139875128")
     @Test
     fun popup_correctPosition_alignmentBottomLeft() {
         /* Expected BottomLeft Position
@@ -209,13 +275,14 @@ class PopupTest {
            y = offset.y + parentSize.y - popupSize.y
         */
         val expectedPositionBottomLeft = IntPxPosition(IntPx(10), IntPx(90))
+        val measureLatch = CountDownLatch(1)
 
-        createPopupWithAlignmentRule(alignment = Alignment.BottomLeft)
+        createPopupWithAlignmentRule(alignment = Alignment.BottomLeft, measureLatch = measureLatch)
 
-        popupMatches(matchesPosition(expectedPositionBottomLeft))
+        measureLatch.await(1, TimeUnit.SECONDS)
+        popupMatches(matchesPosition(craneViewAbsolutePosition + expectedPositionBottomLeft))
     }
 
-    @Ignore("Disabled due to b/139875128")
     @Test
     fun popup_correctPosition_alignmentCenterLeft() {
         /* Expected CenterLeft Position
@@ -223,13 +290,14 @@ class PopupTest {
            y = offset.y + parentSize.y / 2 - popupSize.y / 2
         */
         val expectedPositionCenterLeft = IntPxPosition(IntPx(10), IntPx(50))
+        val measureLatch = CountDownLatch(1)
 
-        createPopupWithAlignmentRule(alignment = Alignment.CenterLeft)
+        createPopupWithAlignmentRule(alignment = Alignment.CenterLeft, measureLatch = measureLatch)
 
-        popupMatches(matchesPosition(expectedPositionCenterLeft))
+        measureLatch.await(1, TimeUnit.SECONDS)
+        popupMatches(matchesPosition(craneViewAbsolutePosition + expectedPositionCenterLeft))
     }
 
-    @Ignore("Disabled due to b/139875128")
     @Test
     fun popup_correctPosition_alignmentCenter() {
         /* Expected Center Position
@@ -237,10 +305,12 @@ class PopupTest {
            y = offset.y + parentSize.y / 2 - popupSize.y / 2
         */
         val expectedPositionCenter = IntPxPosition(IntPx(40), IntPx(50))
+        val measureLatch = CountDownLatch(1)
 
-        createPopupWithAlignmentRule(alignment = Alignment.Center)
+        createPopupWithAlignmentRule(alignment = Alignment.Center, measureLatch = measureLatch)
 
-        popupMatches(matchesPosition(expectedPositionCenter))
+        measureLatch.await(1, TimeUnit.SECONDS)
+        popupMatches(matchesPosition(craneViewAbsolutePosition + expectedPositionCenter))
     }
 
     @Test
@@ -405,6 +475,18 @@ class PopupTest {
         Truth.assertThat(positionCenter).isEqualTo(expectedPositionCenter)
     }
 
+    private fun matchesAndroidCraneView(): BoundedMatcher<View, View> {
+        return object : BoundedMatcher<View, View>(View::class.java) {
+            override fun matchesSafely(item: View?): Boolean {
+                return (item is AndroidCraneView)
+            }
+
+            override fun describeTo(description: Description?) {
+                description?.appendText("with no AndroidCraneView")
+            }
+        }
+    }
+
     private fun matchesSize(width: Int, height: Int): BoundedMatcher<View, View> {
         return object : BoundedMatcher<View, View>(View::class.java) {
             override fun matchesSafely(item: View?): Boolean {
@@ -419,15 +501,19 @@ class PopupTest {
 
     private fun matchesPosition(expectedPosition: IntPxPosition): BoundedMatcher<View, View> {
         return object : BoundedMatcher<View, View>(View::class.java) {
+            // (-1, -1) no position found
+            var positionFound = IntPxPosition(IntPx(-1), IntPx(-1))
             override fun matchesSafely(item: View?): Boolean {
                 val position = IntArray(2)
                 item?.getLocationOnScreen(position)
+                positionFound = IntPxPosition(IntPx(position[0]), IntPx(position[1]))
 
-                return expectedPosition == IntPxPosition(IntPx(position[0]), IntPx(position[1]))
+                return expectedPosition == positionFound
             }
 
             override fun describeTo(description: Description?) {
-                description?.appendText("with expected position: $expectedPosition")
+                description?.appendText("with expected position: $expectedPosition" +
+                        " but position found: $positionFound")
             }
         }
     }
