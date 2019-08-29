@@ -4,13 +4,13 @@ package androidx.paging {
   public class AsyncPagedListDiffer<T> {
     ctor public AsyncPagedListDiffer(androidx.recyclerview.widget.RecyclerView.Adapter<?> adapter, androidx.recyclerview.widget.DiffUtil.ItemCallback<T> diffCallback);
     ctor public AsyncPagedListDiffer(androidx.recyclerview.widget.ListUpdateCallback listUpdateCallback, androidx.recyclerview.widget.AsyncDifferConfig<T> config);
-    method public void addLoadStateListener(kotlin.jvm.functions.Function2<? super androidx.paging.PageLoadType,? super androidx.paging.PagedList.LoadState,kotlin.Unit> listener);
+    method public void addLoadStateListener(kotlin.jvm.functions.Function2<? super androidx.paging.LoadType,? super androidx.paging.LoadState,kotlin.Unit> listener);
     method public void addPagedListListener(androidx.paging.AsyncPagedListDiffer.PagedListListener<T> listener);
     method public final void addPagedListListener(kotlin.jvm.functions.Function2<? super androidx.paging.PagedList<T>,? super androidx.paging.PagedList<T>,kotlin.Unit> callback);
     method public androidx.paging.PagedList<T>? getCurrentList();
     method public T? getItem(int index);
     method public int getItemCount();
-    method public void removeLoadStateListener(kotlin.jvm.functions.Function2<? super androidx.paging.PageLoadType,? super androidx.paging.PagedList.LoadState,kotlin.Unit> listener);
+    method public void removeLoadStateListener(kotlin.jvm.functions.Function2<? super androidx.paging.LoadType,? super androidx.paging.LoadState,kotlin.Unit> listener);
     method public void removePagedListListener(androidx.paging.AsyncPagedListDiffer.PagedListListener<T> listener);
     method public final void removePagedListListener(kotlin.jvm.functions.Function2<? super androidx.paging.PagedList<T>,? super androidx.paging.PagedList<T>,kotlin.Unit> callback);
     method public void submitList(androidx.paging.PagedList<T>? pagedList);
@@ -50,14 +50,14 @@ package androidx.paging {
   public abstract class PagedListAdapter<T, VH extends androidx.recyclerview.widget.RecyclerView.ViewHolder> extends androidx.recyclerview.widget.RecyclerView.Adapter<VH> {
     ctor protected PagedListAdapter(androidx.recyclerview.widget.DiffUtil.ItemCallback<T> diffCallback);
     ctor protected PagedListAdapter(androidx.recyclerview.widget.AsyncDifferConfig<T> config);
-    method public void addLoadStateListener(kotlin.jvm.functions.Function2<? super androidx.paging.PageLoadType,? super androidx.paging.PagedList.LoadState,kotlin.Unit> callback);
+    method public void addLoadStateListener(kotlin.jvm.functions.Function2<? super androidx.paging.LoadType,? super androidx.paging.LoadState,kotlin.Unit> callback);
     method public androidx.paging.PagedList<T>? getCurrentList();
     method protected T? getItem(int position);
     method public int getItemCount();
     method @Deprecated public void onCurrentListChanged(androidx.paging.PagedList<T>? currentList);
     method public void onCurrentListChanged(androidx.paging.PagedList<T>? previousList, androidx.paging.PagedList<T>? currentList);
-    method public void onLoadStateChanged(androidx.paging.PageLoadType type, androidx.paging.PagedList.LoadState state);
-    method public void removeLoadStateListener(kotlin.jvm.functions.Function2<? super androidx.paging.PageLoadType,? super androidx.paging.PagedList.LoadState,kotlin.Unit> callback);
+    method public void onLoadStateChanged(androidx.paging.LoadType type, androidx.paging.LoadState state);
+    method public void removeLoadStateListener(kotlin.jvm.functions.Function2<? super androidx.paging.LoadType,? super androidx.paging.LoadState,kotlin.Unit> callback);
     method public void submitList(androidx.paging.PagedList<T>? pagedList);
     method public void submitList(androidx.paging.PagedList<T>? pagedList, Runnable? commitCallback);
     property public androidx.paging.PagedList<T>? currentList;
