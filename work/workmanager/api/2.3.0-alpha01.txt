@@ -166,6 +166,24 @@ package androidx.work {
     enum_constant public static final androidx.work.NetworkType UNMETERED;
   }
 
+  public final class NotificationMetadata {
+    method public android.app.Notification getNotification();
+    method public int getNotificationId();
+    method public String? getNotificationTag();
+    method public int getNotificationType();
+  }
+
+  public static final class NotificationMetadata.Builder {
+    ctor public NotificationMetadata.Builder(@IntRange(from=1) int, android.app.Notification);
+    method public androidx.work.NotificationMetadata build();
+    method public androidx.work.NotificationMetadata.Builder setNotificationTag(String);
+    method public androidx.work.NotificationMetadata.Builder setNotificationType(int);
+  }
+
+  public interface NotificationProvider {
+    method public androidx.work.NotificationMetadata getNotification();
+  }
+
   public final class OneTimeWorkRequest extends androidx.work.WorkRequest {
     method public static androidx.work.OneTimeWorkRequest from(Class<? extends androidx.work.ListenableWorker>);
     method public static java.util.List<androidx.work.OneTimeWorkRequest!> from(java.util.List<java.lang.Class<? extends androidx.work.ListenableWorker>!>);
