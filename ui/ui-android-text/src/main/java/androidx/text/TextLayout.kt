@@ -82,7 +82,7 @@ import kotlin.math.ceil
  * @param rightIndents the indents to be applied to the right of the text as pixel values. Each
  * element in the array is applied to the corresponding line. For lines past the last element in
  * array, the last element repeats.
- *
+ * @param layoutIntrinsics previously calculated [LayoutIntrinsics] for this text
  * @see StaticLayoutCompat
  *
  * @hide
@@ -103,13 +103,17 @@ class TextLayout constructor(
     @HyphenationFrequency hyphenationFrequency: Int = DEFAULT_HYPHENATION_FREQUENCY,
     @JustificationMode justificationMode: Int = DEFAULT_JUSTIFICATION_MODE,
     leftIndents: IntArray? = null,
-    rightIndents: IntArray? = null
+    rightIndents: IntArray? = null,
+    val layoutIntrinsics: LayoutIntrinsics = LayoutIntrinsics(
+        charSequence,
+        textPaint,
+        textDirectionHeuristic
+    )
 ) {
     val maxIntrinsicWidth: Float
         get() = layoutIntrinsics.maxIntrinsicWidth
 
     val didExceedMaxLines: Boolean
-    private val layoutIntrinsics: LayoutIntrinsics
 
     /**
      * Please do not access this object directly from runtime code.
@@ -131,11 +135,9 @@ class TextLayout constructor(
             false
         }
 
-        layoutIntrinsics = LayoutIntrinsics(charSequence, textPaint, textDirectionHeuristic)
+        val boringMetrics = layoutIntrinsics.boringMetrics
 
-        val boringMetrics = this.layoutIntrinsics.boringMetrics
-
-        layout = if (boringMetrics != null && maxIntrinsicWidth <= width &&
+        layout = if (boringMetrics != null && layoutIntrinsics.maxIntrinsicWidth <= width &&
             !hasBaselineShiftSpans) {
             BoringLayoutCompat.Builder(
                 charSequence,

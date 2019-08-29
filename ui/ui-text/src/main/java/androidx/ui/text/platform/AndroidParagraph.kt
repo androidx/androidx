@@ -44,6 +44,7 @@ import androidx.text.LayoutCompat.TEXT_DIRECTION_FIRST_STRONG_LTR
 import androidx.text.LayoutCompat.TEXT_DIRECTION_FIRST_STRONG_RTL
 import androidx.text.LayoutCompat.TEXT_DIRECTION_LTR
 import androidx.text.LayoutCompat.TEXT_DIRECTION_RTL
+import androidx.text.LayoutIntrinsics
 import androidx.text.TextLayout
 import androidx.text.selection.WordBoundary
 import androidx.text.style.BaselineShiftSpan
@@ -109,18 +110,23 @@ internal class AndroidParagraph constructor(
                 maxLines >= 0 &&
                 maxLines < lineCount
             ) {
-                it.getLineBottom(maxLines - 1).toFloat()
+                it.getLineBottom(maxLines - 1)
             } else {
                 it.height.toFloat()
             }
         } ?: 0.0f
 
     override val maxIntrinsicWidth: Float
-        get() = layout?.maxIntrinsicWidth ?: 0.0f
+        get() = layoutIntrinsics.maxIntrinsicWidth
 
-    override val minIntrinsicWidth: Float by lazy {
-        androidx.text.minIntrinsicWidth(charSequence, textPaint)
-    }
+    override val minIntrinsicWidth: Float
+        get() = layoutIntrinsics.minIntrinsicWidth
+
+    private val textDirectionHeuristic: Int
+        get() = resolveTextDirectionHeuristics(
+            layoutDirection,
+            paragraphStyle.textDirectionAlgorithm
+        )
 
     override val firstBaseline: Float
         get() = layout?.getLineBaseline(0) ?: 0.0f
@@ -131,7 +137,6 @@ internal class AndroidParagraph constructor(
         } else {
             layout?.getLineBaseline(lineCount - 1) ?: 0.0f
         }
-
 
     override val didExceedMaxLines: Boolean
         get() = layout?.didExceedMaxLines ?: false
@@ -154,15 +159,18 @@ internal class AndroidParagraph constructor(
     internal val underlyingText: CharSequence
         get() = ensureLayout.text
 
-    private val charSequence: CharSequence by lazy {
-        val newStyle = textPaint.applyTextStyle(style, typefaceAdapter, density)
+    private val charSequence: CharSequence
+    private val layoutIntrinsics: LayoutIntrinsics
 
-        createStyledText(
+    init {
+        val notAppliedStyle = textPaint.applyTextStyle(style, typefaceAdapter, density)
+
+        charSequence = createStyledText(
             text = text,
             textIndent = paragraphStyle.textIndent,
             textStyles = listOf(
                 AnnotatedString.Item(
-                    newStyle,
+                    notAppliedStyle,
                     0,
                     text.length
                 )
@@ -170,17 +178,14 @@ internal class AndroidParagraph constructor(
             density = density,
             typefaceAdapter = typefaceAdapter
         )
+
+        layoutIntrinsics = LayoutIntrinsics(charSequence, textPaint, textDirectionHeuristic)
     }
 
     override fun layout(constraints: ParagraphConstraints) {
         val width = constraints.width
 
         val alignment = toLayoutAlign(paragraphStyle.textAlign)
-
-        val textDirectionHeuristic = resolveTextDirectionHeuristics(
-            layoutDirection,
-            paragraphStyle.textDirectionAlgorithm
-        )
 
         val maxLines = maxLines ?: DEFAULT_MAX_LINES
         val justificationMode = when (paragraphStyle.textAlign) {
@@ -205,7 +210,8 @@ internal class AndroidParagraph constructor(
             textDirectionHeuristic = textDirectionHeuristic,
             lineSpacingMultiplier = lineSpacingMultiplier,
             maxLines = maxLines,
-            justificationMode = justificationMode
+            justificationMode = justificationMode,
+            layoutIntrinsics = layoutIntrinsics
         )
         this.width = width
     }
