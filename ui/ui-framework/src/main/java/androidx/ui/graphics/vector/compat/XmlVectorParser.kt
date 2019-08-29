@@ -14,28 +14,27 @@
  * limitations under the License.
  */
 
-package androidx.ui.core.vectorgraphics.compat
+package androidx.ui.graphics.vector.compat
 
 import android.content.res.Resources
 import android.util.AttributeSet
 import androidx.core.content.res.TypedArrayUtils
 import androidx.ui.core.Px
-import androidx.ui.core.vectorgraphics.VectorAssetBuilder
+import androidx.ui.graphics.vector.VectorAssetBuilder
 
 import androidx.ui.graphics.EmptyBrush
-
-import androidx.ui.graphics.vectorgraphics.PathNode
-import androidx.ui.vector.addPathNodes
 import androidx.ui.painting.StrokeCap
 import androidx.ui.painting.StrokeJoin
-import androidx.ui.vector.DefaultPivotX
-import androidx.ui.vector.DefaultPivotY
-import androidx.ui.vector.DefaultRotation
-import androidx.ui.vector.DefaultScaleX
-import androidx.ui.vector.DefaultScaleY
-import androidx.ui.vector.DefaultTranslationX
-import androidx.ui.vector.DefaultTranslationY
-import androidx.ui.vector.EmptyPath
+import androidx.ui.graphics.vector.addPathNodes
+import androidx.ui.graphics.vector.DefaultPivotX
+import androidx.ui.graphics.vector.DefaultPivotY
+import androidx.ui.graphics.vector.DefaultRotation
+import androidx.ui.graphics.vector.DefaultScaleX
+import androidx.ui.graphics.vector.DefaultScaleY
+import androidx.ui.graphics.vector.DefaultTranslationX
+import androidx.ui.graphics.vector.DefaultTranslationY
+import androidx.ui.graphics.vector.EmptyPath
+import androidx.ui.graphics.vector.PathNode
 import org.xmlpull.v1.XmlPullParser
 import org.xmlpull.v1.XmlPullParserException
 
@@ -233,7 +232,8 @@ internal fun XmlPullParser.parsePath(
         "strokeLineJoin",
         AndroidVectorResources.STYLEABLE_VECTOR_DRAWABLE_PATH_STROKE_LINE_JOIN, -1
     )
-    val strokeLineJoin = getStrokeLineJoin(lineJoin, StrokeJoin.bevel)
+    val strokeLineJoin =
+        getStrokeLineJoin(lineJoin, StrokeJoin.bevel)
     val strokeMiterLimit = TypedArrayUtils.getNamedFloat(
         a,
         this,

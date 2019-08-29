@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.ui.core.vectorgraphics
+package androidx.ui.graphics.vector
 
 import androidx.compose.Children
 import androidx.compose.Composable
@@ -32,30 +32,6 @@ import androidx.ui.graphics.EmptyBrush
 import androidx.ui.graphics.obtainBrush
 import androidx.ui.painting.StrokeCap
 import androidx.ui.painting.StrokeJoin
-import androidx.ui.vector.BrushType
-import androidx.ui.vector.DefaultAlpha
-import androidx.ui.vector.DefaultGroupName
-import androidx.ui.vector.DefaultPathName
-import androidx.ui.vector.DefaultPivotX
-import androidx.ui.vector.DefaultPivotY
-import androidx.ui.vector.DefaultRotation
-import androidx.ui.vector.DefaultScaleX
-import androidx.ui.vector.DefaultScaleY
-import androidx.ui.vector.DefaultStrokeLineCap
-import androidx.ui.vector.DefaultStrokeLineJoin
-import androidx.ui.vector.DefaultStrokeLineMiter
-import androidx.ui.vector.DefaultStrokeLineWidth
-import androidx.ui.vector.DefaultTranslationX
-import androidx.ui.vector.DefaultTranslationY
-import androidx.ui.vector.EmptyPath
-import androidx.ui.vector.GroupComponent
-import androidx.ui.vector.PathComponent
-import androidx.ui.vector.PathData
-import androidx.ui.vector.VectorComponent
-import androidx.ui.vector.VectorScope
-import androidx.ui.vector.composeVector
-import androidx.ui.vector.createPath
-import androidx.ui.vector.disposeVector
 
 /**
  * Sentinel value used to indicate that a dimension is not provided
@@ -66,9 +42,9 @@ private const val unset: Float = -1.0f
  * Draw a vector graphic with the provided width, height and viewport dimensions
  * [defaultWidth] Intrinsic width of the Vector in [Dp]
  * [defaultHeight] Intrinsic height of hte Vector in [Dp]
- * [vectorWidth] Width of the viewport space. The viewport is the virtual canvas where paths are drawn on.
+ * [viewportWidth] Width of the viewport space. The viewport is the virtual canvas where paths are drawn on.
  *  This parameter is optional. Not providing it will use the [defaultWidth] converted to [Px]
- * [vectorHeight] Height of hte viewport space. The viewport is the virtual canvas where paths are drawn on.
+ * [viewportHeight] Height of hte viewport space. The viewport is the virtual canvas where paths are drawn on.
  *  This parameter is optional. Not providing it will use the [defaultHeight] converted to [Px]
  */
 @Composable
@@ -92,9 +68,9 @@ fun DrawVector(
  * Draw a vector graphic with the provided width, height and viewport dimensions
  * [defaultWidth] Intrinsic width of the Vector in [Px]
  * [defaultHeight] Intrinsic height of hte Vector in [Px]
- * [vectorWidth] Width of the viewport space. The viewport is the virtual canvas where paths are drawn on.
+ * [viewportWidth] Width of the viewport space. The viewport is the virtual canvas where paths are drawn on.
  *  This parameter is optional. Not providing it will use the [defaultWidth]
- * [vectorHeight] Height of hte viewport space. The viewport is the virtual canvas where paths are drawn on.
+ * [viewportHeight] Height of hte viewport space. The viewport is the virtual canvas where paths are drawn on.
  *  This parameter is optional. Not providing it will use the [defaultHeight]
  */
 @Composable

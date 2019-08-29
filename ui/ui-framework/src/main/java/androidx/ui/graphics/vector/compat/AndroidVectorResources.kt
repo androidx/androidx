@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.ui.core.vectorgraphics.compat
+package androidx.ui.graphics.vector.compat
 
 import androidx.annotation.StyleableRes
 

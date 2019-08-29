@@ -28,7 +28,7 @@ import androidx.ui.core.WithDensity
 import androidx.ui.core.dp
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.HorizontalGradient
-import androidx.ui.graphics.vectorgraphics.PathBuilder
+import androidx.ui.graphics.vector.PathBuilder
 import androidx.ui.graphics.RadialGradient
 import androidx.ui.graphics.VerticalGradient
 import androidx.ui.layout.Center
@@ -36,12 +36,12 @@ import androidx.ui.layout.Column
 import androidx.ui.layout.Container
 import androidx.ui.painting.TileMode
 import androidx.ui.core.setContent
-import androidx.ui.core.vectorgraphics.DrawVector
-import androidx.ui.core.vectorgraphics.Group
-import androidx.ui.core.vectorgraphics.Path
-import androidx.ui.core.vectorgraphics.compat.vectorResource
-import androidx.ui.vector.PathDelegate
-import androidx.ui.vector.VectorScope
+import androidx.ui.graphics.vector.DrawVector
+import androidx.ui.graphics.vector.Group
+import androidx.ui.graphics.vector.Path
+import androidx.ui.graphics.vector.compat.vectorResource
+import androidx.ui.graphics.vector.PathDelegate
+import androidx.ui.graphics.vector.VectorScope
 
 class VectorGraphicsActivity : Activity() {
 
