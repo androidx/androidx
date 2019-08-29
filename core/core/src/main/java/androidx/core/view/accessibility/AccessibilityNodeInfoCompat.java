@@ -546,7 +546,6 @@ public class AccessibilityNodeInfoCompat {
 
         final Object mAction;
         private final int mId;
-        private final CharSequence mLabel;
         private final Class<? extends CommandArguments> mViewCommandArgumentClass;
 
         /**
@@ -592,7 +591,6 @@ public class AccessibilityNodeInfoCompat {
                 AccessibilityViewCommand command,
                 Class<? extends CommandArguments> viewCommandArgumentClass) {
             mId = id;
-            mLabel = label;
             mCommand = command;
             if (Build.VERSION.SDK_INT >= 21 && action == null) {
                 mAction = new AccessibilityNodeInfo.AccessibilityAction(id, label);
@@ -665,6 +663,31 @@ public class AccessibilityNodeInfoCompat {
                 AccessibilityViewCommand command) {
             return new AccessibilityActionCompat(null, mId, label, command,
                     mViewCommandArgumentClass);
+        }
+
+        @Override
+        public int hashCode() {
+            return mAction != null ? mAction.hashCode() : 0;
+        }
+
+        @Override
+        public boolean equals(@Nullable Object obj) {
+            if (obj == null) {
+                return false;
+            }
+            if (getClass() != obj.getClass()) {
+                return false;
+            }
+            AccessibilityNodeInfoCompat.AccessibilityActionCompat other =
+                    (AccessibilityNodeInfoCompat.AccessibilityActionCompat) obj;
+            if (mAction == null) {
+                if (other.mAction != null) {
+                    return false;
+                }
+            } else if (!mAction.equals(other.mAction)) {
+                return false;
+            }
+            return true;
         }
     }
 
@@ -4108,6 +4131,12 @@ public class AccessibilityNodeInfoCompat {
                 return "ACTION_PASTE";
             case ACTION_SET_SELECTION:
                 return "ACTION_SET_SELECTION";
+            case ACTION_EXPAND:
+                return "ACTION_EXPAND";
+            case ACTION_COLLAPSE:
+                return "ACTION_COLLAPSE";
+            case ACTION_SET_TEXT:
+                return "ACTION_SET_TEXT";
             case android.R.id.accessibilityActionScrollUp:
                 return "ACTION_SCROLL_UP";
             case android.R.id.accessibilityActionScrollLeft:
@@ -4124,6 +4153,20 @@ public class AccessibilityNodeInfoCompat {
                 return "ACTION_PAGE_LEFT";
             case android.R.id.accessibilityActionPageRight:
                 return "ACTION_PAGE_RIGHT";
+            case android.R.id.accessibilityActionShowOnScreen:
+                return "ACTION_SHOW_ON_SCREEN";
+            case android.R.id.accessibilityActionScrollToPosition:
+                return "ACTION_SCROLL_TO_POSITION";
+            case android.R.id.accessibilityActionContextClick:
+                return "ACTION_CONTEXT_CLICK";
+            case android.R.id.accessibilityActionSetProgress:
+                return "ACTION_SET_PROGRESS";
+            case android.R.id.accessibilityActionMoveWindow:
+                return "ACTION_MOVE_WINDOW";
+            case android.R.id.accessibilityActionShowTooltip:
+                return "ACTION_SHOW_TOOLTIP";
+            case android.R.id.accessibilityActionHideTooltip:
+                return "ACTION_HIDE_TOOLTIP";
             default:
                 return"ACTION_UNKNOWN";
         }
