@@ -16,10 +16,7 @@
 
 package androidx.text;
 
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.greaterThan;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
+import static com.google.common.truth.Truth.assertThat;
 
 import android.text.BoringLayout;
 import android.text.Layout;
@@ -46,14 +43,14 @@ public class BoringLayoutCompatTest {
         BoringLayout boringLayout = new BoringLayoutCompat.Builder(text, paint, width, metrics)
                 .build();
 
-        assertThat(boringLayout.getText(), equalTo(text));
-        assertThat(boringLayout.getPaint(), equalTo(paint));
+        assertThat(boringLayout.getText()).isEqualTo(text);
+        assertThat(boringLayout.getPaint()).isEqualTo(paint);
         // The width and height of the boringLayout is the same in metrics, indicating metrics is
         // passed correctly.
-        assertThat((int) boringLayout.getLineWidth(0), equalTo(metrics.width));
-        assertThat(boringLayout.getLineBottom(0) - boringLayout.getLineTop(0),
-                equalTo(metrics.bottom - metrics.top));
-        assertThat(boringLayout.getWidth(), equalTo(width));
+        assertThat((int) boringLayout.getLineWidth(0)).isEqualTo(metrics.width);
+        assertThat(boringLayout.getLineBottom(0) - boringLayout.getLineTop(0))
+                .isEqualTo(metrics.bottom - metrics.top);
+        assertThat(boringLayout.getWidth()).isEqualTo(width);
     }
 
     @Test(expected = NullPointerException.class)
@@ -76,7 +73,7 @@ public class BoringLayoutCompatTest {
         final BoringLayout boringLayout = new BoringLayoutCompat.Builder("",
                 new TextPaint(), 0, new BoringLayout.Metrics()).build();
 
-        assertNotNull(boringLayout);
+        assertThat(boringLayout).isNotNull();
     }
 
     @Test(expected = NullPointerException.class)
@@ -93,7 +90,7 @@ public class BoringLayoutCompatTest {
                 .setText(text)
                 .build();
 
-        assertThat(boringLayout.getText(), equalTo(text));
+        assertThat(boringLayout.getText()).isEqualTo(text);
     }
 
     @Test(expected = NullPointerException.class)
@@ -110,7 +107,7 @@ public class BoringLayoutCompatTest {
                 .setPaint(paint)
                 .build();
 
-        assertThat(boringLayout.getPaint(), equalTo(paint));
+        assertThat(boringLayout.getPaint()).isEqualTo(paint);
     }
 
     @Test
@@ -121,7 +118,7 @@ public class BoringLayoutCompatTest {
                 .setWidth(90)
                 .build();
 
-        assertThat(boringLayout.getWidth(), equalTo(width));
+        assertThat(boringLayout.getWidth()).isEqualTo(width);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -150,7 +147,7 @@ public class BoringLayoutCompatTest {
                 .setAlignment(align)
                 .build();
 
-        assertThat(boringLayout.getAlignment(), equalTo(align));
+        assertThat(boringLayout.getAlignment()).isEqualTo(align);
     }
 
     @Test
@@ -159,7 +156,7 @@ public class BoringLayoutCompatTest {
                 new TextPaint(), 0, new BoringLayout.Metrics())
                 .build();
 
-        assertThat(boringLayout.getAlignment(), equalTo(Layout.Alignment.ALIGN_NORMAL));
+        assertThat(boringLayout.getAlignment()).isEqualTo(Layout.Alignment.ALIGN_NORMAL);
     }
 
     @Test
@@ -173,8 +170,8 @@ public class BoringLayoutCompatTest {
                 .setIncludePad(true)
                 .build();
 
-        assertThat(boringLayout.getLineAscent(0), equalTo(metrics.top));
-        assertThat(boringLayout.getLineDescent(0), equalTo(metrics.bottom));
+        assertThat(boringLayout.getLineAscent(0)).isEqualTo(metrics.top);
+        assertThat(boringLayout.getLineDescent(0)).isEqualTo(metrics.bottom);
     }
 
     @Test
@@ -188,8 +185,8 @@ public class BoringLayoutCompatTest {
                 .setIncludePad(false)
                 .build();
 
-        assertThat(boringLayout.getLineAscent(0), equalTo(metrics.ascent));
-        assertThat(boringLayout.getLineDescent(0), equalTo(metrics.descent));
+        assertThat(boringLayout.getLineAscent(0)).isEqualTo(metrics.ascent);
+        assertThat(boringLayout.getLineDescent(0)).isEqualTo(metrics.descent);
     }
 
     @Test
@@ -206,7 +203,7 @@ public class BoringLayoutCompatTest {
         final int topPad = boringLayout.getTopPadding();
         final int bottomPad = boringLayout.getBottomPadding();
         // Top and bottom padding are not 0 at the same time, indicating includePad is true.
-        assertThat(topPad * topPad + bottomPad * bottomPad, greaterThan(0));
+        assertThat(topPad * topPad + bottomPad * bottomPad).isGreaterThan(0);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -228,7 +225,7 @@ public class BoringLayoutCompatTest {
                 .setEllipsizedWidth(width)
                 .build();
 
-        assertThat(boringLayout.getEllipsisCount(0), equalTo(0));
+        assertThat(boringLayout.getEllipsisCount(0)).isEqualTo(0);
     }
 
     @Test
@@ -245,7 +242,7 @@ public class BoringLayoutCompatTest {
                 .setEllipsizedWidth(ellipsizedWidth)
                 .build();
 
-        assertThat(boringLayout.getEllipsisCount(0), greaterThan(0));
+        assertThat(boringLayout.getEllipsisCount(0)).isGreaterThan(0);
     }
 
     @Test
@@ -261,7 +258,7 @@ public class BoringLayoutCompatTest {
                 .build();
 
         // EllipsisCount should be 0 indicating ellipsize is null.
-        assertThat(boringLayout.getEllipsisCount(0), equalTo(0));
+        assertThat(boringLayout.getEllipsisCount(0)).isEqualTo(0);
     }
 
 }

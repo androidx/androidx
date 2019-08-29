@@ -16,8 +16,7 @@
 
 package androidx.text.style;
 
-import static org.hamcrest.Matchers.equalTo;
-import static org.junit.Assert.assertThat;
+import static com.google.common.truth.Truth.assertThat;
 
 import android.text.TextPaint;
 
@@ -36,9 +35,9 @@ public class SkewXSpanTest {
         final SkewXSpan span = new SkewXSpan(skewX);
         final TextPaint paint = new TextPaint();
 
-        assertThat(span.getSkewX(), equalTo(skewX));
+        assertThat(span.getSkewX()).isEqualTo(skewX);
         span.updateMeasureState(paint);
-        assertThat(paint.getTextSkewX(), equalTo(skewX));
+        assertThat(paint.getTextSkewX()).isEqualTo(skewX);
     }
 
     @Test
@@ -48,6 +47,6 @@ public class SkewXSpanTest {
         final TextPaint paint = new TextPaint();
 
         span.updateDrawState(paint);
-        assertThat(paint.getTextSkewX(), equalTo(skewX));
+        assertThat(paint.getTextSkewX()).isEqualTo(skewX);
     }
 }

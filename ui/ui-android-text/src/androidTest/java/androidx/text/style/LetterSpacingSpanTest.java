@@ -16,8 +16,8 @@
 
 package androidx.text.style;
 
-import static org.hamcrest.Matchers.equalTo;
-import static org.junit.Assert.assertThat;
+
+import static com.google.common.truth.Truth.assertThat;
 
 import android.text.TextPaint;
 
@@ -37,7 +37,7 @@ public class LetterSpacingSpanTest {
         final TextPaint paint = new TextPaint();
 
         span.updateDrawState(paint);
-        assertThat(paint.getLetterSpacing(), equalTo(letterSpacing));
+        assertThat(paint.getLetterSpacing()).isEqualTo(letterSpacing);
     }
 
     @Test
@@ -47,7 +47,7 @@ public class LetterSpacingSpanTest {
         final TextPaint paint = new TextPaint();
 
         span.updateMeasureState(paint);
-        assertThat(paint.getLetterSpacing(), equalTo(letterSpacing));
+        assertThat(paint.getLetterSpacing()).isEqualTo(letterSpacing);
     }
 
 }
