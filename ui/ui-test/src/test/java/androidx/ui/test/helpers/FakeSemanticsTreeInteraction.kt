@@ -21,6 +21,7 @@ import androidx.ui.core.semantics.SemanticsConfiguration
 import androidx.ui.test.SemanticsNodeInteraction
 import androidx.ui.test.SemanticsTreeInteraction
 import androidx.ui.test.SemanticsTreeNodeStub
+import androidx.ui.test.semanticsTreeInteractionFactory
 
 internal class FakeSemanticsTreeInteraction internal constructor(
     private val selector: SemanticsConfiguration.() -> Boolean
@@ -70,5 +71,9 @@ internal class FakeSemanticsTreeInteraction internal constructor(
         return semanticsToUse
             .map { it.semanticsTreeNode.data }
             .contains(semanticsConfiguration)
+    }
+
+    override fun waitForIdleCompose(): Boolean {
+        return semanticsTreeInteractionFactory(selector).waitForIdleCompose()
     }
 }

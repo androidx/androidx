@@ -33,6 +33,8 @@ internal abstract class SemanticsTreeInteraction {
     internal abstract fun sendClick(x: Float, y: Float)
 
     internal abstract fun contains(semanticsConfiguration: SemanticsConfiguration): Boolean
+
+    internal abstract fun waitForIdleCompose(): Boolean
 }
 
 internal var semanticsTreeInteractionFactory: (
