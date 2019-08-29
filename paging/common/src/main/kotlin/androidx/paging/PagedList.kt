@@ -16,7 +16,6 @@
 
 package androidx.paging
 
-import androidx.annotation.AnyThread
 import androidx.annotation.IntRange
 import androidx.annotation.MainThread
 import androidx.annotation.RestrictTo
@@ -33,7 +32,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.asCoroutineDispatcher
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import java.lang.ref.WeakReference
@@ -944,20 +942,12 @@ abstract class PagedList<T : Any> : AbstractList<T> {
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     constructor(
-        coroutineScope: CoroutineScope,
         pagedSource: PagedSource<*, T>,
         storage: PagedStorage<T>,
-        notifyDispatcher: CoroutineDispatcher,
-        backgroundDispatcher: CoroutineDispatcher,
-        boundaryCallback: BoundaryCallback<T>?,
         config: Config
     ) : super() {
-        this.coroutineScope = coroutineScope
         this.pagedSource = pagedSource
         this.storage = storage
-        this.notifyDispatcher = notifyDispatcher
-        this.backgroundDispatcher = backgroundDispatcher
-        this.boundaryCallback = boundaryCallback
         this.config = config
         this.callbacks = ArrayList()
         this.loadStateListeners = ArrayList()
@@ -971,11 +961,6 @@ abstract class PagedList<T : Any> : AbstractList<T> {
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // protected otherwise
     fun getStorage() = storage
-
-    internal val notifyDispatcher: CoroutineDispatcher
-    internal val backgroundDispatcher: CoroutineDispatcher
-
-    internal val boundaryCallback: BoundaryCallback<T>?
 
     internal var refreshRetryCallback: Runnable? = null
 
@@ -999,22 +984,9 @@ abstract class PagedList<T : Any> : AbstractList<T> {
      */
     open val config: Config
 
-    internal val coroutineScope: CoroutineScope
-
     private val callbacks: MutableList<WeakReference<Callback>>
 
     private val loadStateListeners: MutableList<WeakReference<LoadStateListener>>
-
-    // if set to true, boundaryCallback is non-null, and should
-    // be dispatched when nearby load has occurred
-    private var boundaryCallbackBeginDeferred = false
-
-    private var boundaryCallbackEndDeferred = false
-
-    // lowest and highest index accessed by loadAround. Used to
-    // decide when boundaryCallback should be dispatched
-    private var lowestIndexAccessed = Int.MAX_VALUE
-    private var highestIndexAccessed = Int.MIN_VALUE
 
     /**
      * Size of the list, including any placeholders (not-yet-loaded null padding).
@@ -1191,121 +1163,7 @@ abstract class PagedList<T : Any> : AbstractList<T> {
         if (index < 0 || index >= size) {
             throw IndexOutOfBoundsException("Index: $index, Size: $size")
         }
-
-        lastLoad = index + positionOffset
         loadAroundInternal(index)
-
-        lowestIndexAccessed = minOf(lowestIndexAccessed, index)
-        highestIndexAccessed = maxOf(highestIndexAccessed, index)
-
-        /*
-         * lowestIndexAccessed / highestIndexAccessed have been updated, so check if we need to
-         * dispatch boundary callbacks. Boundary callbacks are deferred until last items are loaded,
-         * and accesses happen near the boundaries.
-         *
-         * Note: we post here, since RecyclerView may want to add items in response, and this
-         * call occurs in PagedListAdapter bind.
-         */
-        tryDispatchBoundaryCallbacks(true)
-    }
-
-    // Creation thread for initial synchronous load, otherwise main thread
-    // Safe to access main thread only state - no other thread has reference during construction
-    @AnyThread
-    internal fun deferBoundaryCallbacks(
-        deferEmpty: Boolean,
-        deferBegin: Boolean,
-        deferEnd: Boolean
-    ) {
-        if (boundaryCallback == null) {
-            throw IllegalStateException("Can't defer BoundaryCallback, no instance")
-        }
-
-        /*
-         * If lowest/highest haven't been initialized, set them to storage size,
-         * since placeholders must already be computed by this point.
-         *
-         * This is just a minor optimization so that BoundaryCallback callbacks are sent immediately
-         * if the initial load size is smaller than the prefetch window (see
-         * TiledPagedListTest#boundaryCallback_immediate())
-         */
-        if (lowestIndexAccessed == Int.MAX_VALUE) {
-            lowestIndexAccessed = storage.size
-        }
-        if (highestIndexAccessed == Int.MIN_VALUE) {
-            highestIndexAccessed = 0
-        }
-
-        if (deferEmpty || deferBegin || deferEnd) {
-            // Post to the main thread, since we may be on creation thread currently
-            coroutineScope.launch(notifyDispatcher) {
-                // on is dispatched immediately, since items won't be accessed
-
-                if (deferEmpty) {
-                    boundaryCallback.onZeroItemsLoaded()
-                }
-
-                // for other callbacks, mark deferred, and only dispatch if loadAround
-                // has been called near to the position
-                if (deferBegin) {
-                    boundaryCallbackBeginDeferred = true
-                }
-                if (deferEnd) {
-                    boundaryCallbackEndDeferred = true
-                }
-                tryDispatchBoundaryCallbacks(false)
-            }
-        }
-    }
-
-    /**
-     * Call this when lowest/HighestIndexAccessed are changed, or boundaryCallbackBegin/EndDeferred
-     * is set.
-     */
-    private fun tryDispatchBoundaryCallbacks(post: Boolean) {
-        val dispatchBegin = boundaryCallbackBeginDeferred &&
-                lowestIndexAccessed <= config.prefetchDistance
-        val dispatchEnd = boundaryCallbackEndDeferred &&
-                highestIndexAccessed >= size - 1 - config.prefetchDistance
-
-        if (!dispatchBegin && !dispatchEnd) return
-
-        if (dispatchBegin) {
-            boundaryCallbackBeginDeferred = false
-        }
-        if (dispatchEnd) {
-            boundaryCallbackEndDeferred = false
-        }
-        if (post) {
-            coroutineScope.launch(notifyDispatcher) {
-                dispatchBoundaryCallbacks(dispatchBegin, dispatchEnd)
-            }
-        } else {
-            dispatchBoundaryCallbacks(dispatchBegin, dispatchEnd)
-        }
-    }
-
-    private fun dispatchBoundaryCallbacks(begin: Boolean, end: Boolean) {
-        // safe to deref boundaryCallback here, since we only defer if boundaryCallback present
-        if (begin) {
-            boundaryCallback!!.onItemAtFrontLoaded(storage.firstLoadedItem)
-        }
-        if (end) {
-            boundaryCallback!!.onItemAtEndLoaded(storage.lastLoadedItem)
-        }
-    }
-
-    /**
-     * @hide
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-    internal fun offsetAccessIndices(offset: Int) {
-        // update last loadAround index
-        lastLoad += offset
-
-        // update access range
-        lowestIndexAccessed += offset
-        highestIndexAccessed += offset
     }
 
     /**
