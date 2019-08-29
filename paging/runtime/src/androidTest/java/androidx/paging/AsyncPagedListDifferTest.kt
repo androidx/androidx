@@ -246,7 +246,7 @@ class AsyncPagedListDifferTest {
     }
 
     @Test
-    fun newPageWhileDiffing() {
+    fun oldListUpdateIgnoredWhileDiffing() {
         val config = PagedList.Config.Builder()
             .setInitialLoadSizeHint(4)
             .setPageSize(2)
@@ -285,6 +285,47 @@ class AsyncPagedListDifferTest {
         // finally, a full flush will complete the swap-triggered load within the new list
         drain()
         verify(callback).onChanged(8, 2, null)
+    }
+
+    @Test
+    fun newPageChangesDeferredDuringDiff() {
+        val config = Config(
+            initialLoadSizeHint = 4,
+            pageSize = 2,
+            prefetchDistance = 2
+        )
+
+        val callback = mock<ListUpdateCallback>()
+        val differ = createDiffer(callback)
+
+        differ.submitList(createPagedListFromListAndPos(config, ALPHABET_LIST, 2))
+        verify(callback).onInserted(0, ALPHABET_LIST.size)
+        verifyNoMoreInteractions(callback)
+        drain()
+        verifyNoMoreInteractions(callback)
+        assertNotNull(differ.currentList)
+        assertFalse(differ.currentList!!.isImmutable)
+
+        // trigger page loading in new list, after submitting (and thus snapshotting)
+        val newList = createPagedListFromListAndPos(config, ALPHABET_LIST, 2)
+        differ.submitList(newList)
+        newList.loadAround(4)
+        verifyNoMoreInteractions(callback)
+
+        // drain page fetching, but list became immutable, page changes aren't dispatched yet
+        drainExceptDiffThread()
+        verifyNoMoreInteractions(callback)
+        assertNotNull(differ.currentList)
+        assertTrue(differ.currentList!!.isImmutable)
+
+        // flush diff, which signals nothing, since 1st pagedlist == 2nd pagedlist
+        diffThread.executeAll()
+        mainThread.executeAll()
+        verify(callback).onChanged(4, 2, null)
+        verify(callback).onChanged(6, 2, null)
+        verifyNoMoreInteractions(callback)
+        assertNotNull(differ.currentList)
+        assertFalse(differ.currentList!!.isImmutable)
     }
 
     @Test

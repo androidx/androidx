@@ -35,19 +35,16 @@ internal fun <T : Any> PagedStorage<T>.computeDiff(
     newList: PagedStorage<T>,
     diffCallback: DiffUtil.ItemCallback<T>
 ): DiffUtil.DiffResult {
-    val oldOffset = leadingNullCount
-    val newOffset = newList.leadingNullCount
-
-    val oldSize = size - oldOffset - trailingNullCount
-    val newSize = newList.size - newOffset - newList.trailingNullCount
+    val oldSize = storageCount
+    val newSize = newList.storageCount
 
     return DiffUtil.calculateDiff(object : DiffUtil.Callback() {
         override fun getChangePayload(oldItemPosition: Int, newItemPosition: Int): Any? {
-            val oldItem = get(oldItemPosition + oldOffset)
-            val newItem = newList[newItemPosition + newList.leadingNullCount]
+            val oldItem = getFromStorage(oldItemPosition)
+            val newItem = newList.getFromStorage(newItemPosition)
 
             return when {
-                oldItem == null || newItem == null -> null
+                oldItem === newItem -> true
                 else -> diffCallback.getChangePayload(oldItem, newItem)
             }
         }
@@ -57,23 +54,21 @@ internal fun <T : Any> PagedStorage<T>.computeDiff(
         override fun getNewListSize() = newSize
 
         override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-            val oldItem = get(oldItemPosition + oldOffset)
-            val newItem = newList[newItemPosition + newList.leadingNullCount]
+            val oldItem = getFromStorage(oldItemPosition)
+            val newItem = newList.getFromStorage(newItemPosition)
 
             return when {
                 oldItem === newItem -> true
-                oldItem == null || newItem == null -> false
                 else -> diffCallback.areItemsTheSame(oldItem, newItem)
             }
         }
 
         override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-            val oldItem = get(oldItemPosition + oldOffset)
-            val newItem = newList[newItemPosition + newList.leadingNullCount]
+            val oldItem = getFromStorage(oldItemPosition)
+            val newItem = newList.getFromStorage(newItemPosition)
 
             return when {
                 oldItem === newItem -> true
-                oldItem == null || newItem == null -> false
                 else -> diffCallback.areContentsTheSame(oldItem, newItem)
             }
         }
@@ -165,13 +160,11 @@ internal fun PagedStorage<*>.transformAnchorIndex(
     newList: PagedStorage<*>,
     oldPosition: Int
 ): Int {
-    val oldOffset = leadingNullCount
-
     // diffResult's indices starting after nulls, need to transform to diffutil indices
     // (see also dispatchDiff(), which adds this offset when dispatching)
-    val diffIndex = oldPosition - oldOffset
+    val diffIndex = oldPosition - leadingNullCount
 
-    val oldSize = size - oldOffset - trailingNullCount
+    val oldSize = storageCount
 
     // if our anchor is non-null, use it or close item's position in new list
     if (diffIndex in 0 until oldSize) {

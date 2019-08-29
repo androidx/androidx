@@ -43,7 +43,7 @@ RegistrationName: androidx.paging.DataSource#removeInvalidatedCallback(androidx.
     Callback methods should be named register/unregister; was removeInvalidatedCallback
 RegistrationName: androidx.paging.DataSource#removeInvalidatedCallback(kotlin.jvm.functions.Function0<kotlin.Unit>):
     Callback methods should be named register/unregister; was removeInvalidatedCallback
-RegistrationName: androidx.paging.PagedList#addWeakCallback(java.util.List<? extends T>, androidx.paging.PagedList.Callback):
+RegistrationName: androidx.paging.PagedList#addWeakCallback(androidx.paging.PagedList.Callback):
     Callback methods should be named register/unregister; was addWeakCallback
 RegistrationName: androidx.paging.PagedList#removeWeakCallback(androidx.paging.PagedList.Callback):
     Callback methods should be named register/unregister; was removeWeakCallback
