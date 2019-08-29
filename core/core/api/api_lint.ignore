@@ -29,6 +29,8 @@ ActionValue: androidx.core.app.NotificationCompat#EXTRA_BACKGROUND_IMAGE_URI:
     Inconsistent extra value; expected `androidx.core.app.extra.BACKGROUND_IMAGE_URI`, was `android.backgroundImageUri`
 ActionValue: androidx.core.app.NotificationCompat#EXTRA_BIG_TEXT:
     Inconsistent extra value; expected `androidx.core.app.extra.BIG_TEXT`, was `android.bigText`
+ActionValue: androidx.core.app.NotificationCompat#EXTRA_CHRONOMETER_COUNT_DOWN:
+    Inconsistent extra value; expected `androidx.core.app.extra.CHRONOMETER_COUNT_DOWN`, was `android.chronometerCountDown`
 ActionValue: androidx.core.app.NotificationCompat#EXTRA_COMPACT_ACTIONS:
     Inconsistent extra value; expected `androidx.core.app.extra.COMPACT_ACTIONS`, was `android.compactActions`
 ActionValue: androidx.core.app.NotificationCompat#EXTRA_CONVERSATION_TITLE:

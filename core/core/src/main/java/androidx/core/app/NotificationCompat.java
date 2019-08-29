@@ -347,6 +347,13 @@ public class NotificationCompat {
     public static final String EXTRA_SHOW_CHRONOMETER = "android.showChronometer";
 
     /**
+     * Notification extras key: whether the chronometer set on the notification should count down
+     * instead of counting up. Is only relevant if key {@link #EXTRA_SHOW_CHRONOMETER} is present.
+     * This extra is a boolean. The default is false.
+     */
+    public static final String EXTRA_CHRONOMETER_COUNT_DOWN = "android.chronometerCountDown";
+
+    /**
      * Notification extras key: whether the when field set using {@link Builder#setWhen} should
      * be shown, as supplied to {@link Builder#setShowWhen(boolean)}.
      */
@@ -707,6 +714,7 @@ public class NotificationCompat {
         int mPriority;
         boolean mShowWhen = true;
         boolean mUseChronometer;
+        boolean mChronometerCountDown;
         Style mStyle;
         CharSequence mSubText;
         CharSequence[] mRemoteInputHistory;
@@ -807,6 +815,21 @@ public class NotificationCompat {
          */
         public Builder setUsesChronometer(boolean b) {
             mUseChronometer = b;
+            return this;
+        }
+
+        /**
+         * Sets the Chronometer to count down instead of counting up.
+         *
+         * This is only relevant if setUsesChronometer(boolean) has been set to true. If it
+         * isn't set the chronometer will count up.
+         *
+         * @see android.widget.Chronometer
+         */
+        @RequiresApi(24)
+        public @NonNull Builder setChronometerCountDown(boolean b) {
+            mChronometerCountDown = b;
+            mExtras.putBoolean(EXTRA_CHRONOMETER_COUNT_DOWN, b);
             return this;
         }
 
@@ -1931,6 +1954,10 @@ public class NotificationCompat {
                             mBuilder.getWhenIfShowing()
                                     + (SystemClock.elapsedRealtime() - System.currentTimeMillis()));
                     contentView.setBoolean(R.id.chronometer, "setStarted", true);
+                    if (mBuilder.mChronometerCountDown && Build.VERSION.SDK_INT >= 24) {
+                        contentView.setChronometerCountDown(R.id.chronometer,
+                                mBuilder.mChronometerCountDown);
+                    }
                 } else {
                     contentView.setViewVisibility(R.id.time, View.VISIBLE);
                     contentView.setLong(R.id.time, "setTime", mBuilder.getWhenIfShowing());
