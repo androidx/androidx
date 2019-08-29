@@ -127,7 +127,7 @@ import java.util.Locale;
  * If values for these keys are not set, the following default values will be shown, respectively:
  * {@link androidx.media2.widget.R.string#mcv2_music_title_unknown_text}
  * {@link androidx.media2.widget.R.string#mcv2_music_artist_unknown_text}
- * {@link androidx.media2.widget.R.drawable#ic_default_album_image}
+ * {@link androidx.media2.widget.R.drawable#media2_widget_ic_default_album_image}
  *
  * For non-music, only {@link MediaMetadata#METADATA_KEY_TITLE} metadata is supported.
  * If the value is not set, the following default value will be shown:
@@ -285,7 +285,7 @@ public class MediaControlView extends MediaViewGroup {
         super(context, attrs, defStyleAttr);
 
         mResources = context.getResources();
-        inflate(context, R.layout.media_controller, this);
+        inflate(context, R.layout.media2_widget_media_controller, this);
         initControllerView();
         mDelayedAnimationIntervalMs = DEFAULT_DELAYED_ANIMATION_INTERVAL_MS;
         mAccessibilityManager = (AccessibilityManager) context.getSystemService(
@@ -585,7 +585,7 @@ public class MediaControlView extends MediaViewGroup {
                         ? childBottom - mProgressBar.getMeasuredHeight()
                         : childBottom - mProgressBar.getMeasuredHeight()
                                 - mResources.getDimensionPixelSize(
-                                        R.dimen.mcv2_custom_progress_margin_bottom));
+                                        R.dimen.media2_widget_custom_progress_margin_bottom));
         layoutChild(mMinimalFullScreenView,
                 childLeft,
                 childBottom - mMinimalFullScreenView.getMeasuredHeight());
@@ -698,7 +698,8 @@ public class MediaControlView extends MediaViewGroup {
 
         // Relating to Settings List View
         initializeSettingsLists();
-        mSettingsListView = (ListView) inflateLayout(getContext(), R.layout.settings_list);
+        mSettingsListView = (ListView) inflateLayout(getContext(),
+                R.layout.media2_widget_settings_list);
         mSettingsAdapter = new SettingsAdapter(mSettingsMainTextsList, mSettingsSubTextsList,
                 mSettingsIconIdsList);
         mSubSettingsAdapter = new SubSettingsAdapter(null, 0);
@@ -712,20 +713,22 @@ public class MediaControlView extends MediaViewGroup {
         mTransportControlsMap.append(SIZE_TYPE_MINIMAL, mMinimalTransportControls);
 
         mEmbeddedSettingsItemWidth = mResources.getDimensionPixelSize(
-                R.dimen.mcv2_embedded_settings_width);
-        mFullSettingsItemWidth = mResources.getDimensionPixelSize(R.dimen.mcv2_full_settings_width);
+                R.dimen.media2_widget_embedded_settings_width);
+        mFullSettingsItemWidth = mResources.getDimensionPixelSize(
+                R.dimen.media2_widget_full_settings_width);
         mSettingsItemHeight = mResources.getDimensionPixelSize(
-                R.dimen.mcv2_settings_height);
+                R.dimen.media2_widget_settings_height);
         mSettingsWindowMargin = (-1) * mResources.getDimensionPixelSize(
-                R.dimen.mcv2_settings_offset);
+                R.dimen.media2_widget_settings_offset);
         mSettingsWindow = new PopupWindow(mSettingsListView, mEmbeddedSettingsItemWidth,
                 LayoutParams.WRAP_CONTENT, true);
         mSettingsWindow.setBackgroundDrawable(new ColorDrawable());
         mSettingsWindow.setOnDismissListener(mSettingsDismissListener);
 
-        float titleBarHeight = mResources.getDimension(R.dimen.mcv2_title_bar_height);
-        float progressBarHeight = mResources.getDimension(R.dimen.mcv2_custom_progress_thumb_size);
-        float bottomBarHeight = mResources.getDimension(R.dimen.mcv2_bottom_bar_height);
+        float titleBarHeight = mResources.getDimension(R.dimen.media2_widget_title_bar_height);
+        float progressBarHeight = mResources.getDimension(
+                R.dimen.media2_widget_custom_progress_thumb_size);
+        float bottomBarHeight = mResources.getDimension(R.dimen.media2_widget_bottom_bar_height);
 
         View[] bottomBarGroup = { mBottomBarBackground, mBottomBarLeft, mTimeView, mBasicControls,
                 mExtraControls, mProgressBar };
@@ -1261,14 +1264,14 @@ public class MediaControlView extends MediaViewGroup {
             final boolean isEnteringFullScreen = !mIsFullScreen;
             if (isEnteringFullScreen) {
                 mFullScreenButton.setImageDrawable(
-                        mResources.getDrawable(R.drawable.ic_fullscreen_exit));
+                        mResources.getDrawable(R.drawable.media2_widget_ic_fullscreen_exit));
                 mMinimalFullScreenButton.setImageDrawable(
-                        mResources.getDrawable(R.drawable.ic_fullscreen_exit));
+                        mResources.getDrawable(R.drawable.media2_widget_ic_fullscreen_exit));
             } else {
                 mFullScreenButton.setImageDrawable(
-                        mResources.getDrawable(R.drawable.ic_fullscreen));
+                        mResources.getDrawable(R.drawable.media2_widget_ic_fullscreen));
                 mMinimalFullScreenButton.setImageDrawable(
-                        mResources.getDrawable(R.drawable.ic_fullscreen));
+                        mResources.getDrawable(R.drawable.media2_widget_ic_fullscreen));
             }
             mIsFullScreen = isEnteringFullScreen;
             mOnFullScreenListener.onFullScreen(MediaControlView.this,
@@ -1420,7 +1423,7 @@ public class MediaControlView extends MediaViewGroup {
 
             findFullSizedControlButton(R.id.next).setVisibility(View.VISIBLE);
             findFullSizedControlButton(R.id.next).setEnabled(false);
-            findFullSizedControlButton(R.id.next).setColorFilter(R.color.gray);
+            findFullSizedControlButton(R.id.next).setColorFilter(R.color.media2_widget_gray);
 
             mTimeView.setVisibility(View.GONE);
             mAdSkipView.setVisibility(View.VISIBLE);
@@ -1508,8 +1511,8 @@ public class MediaControlView extends MediaViewGroup {
         mSettingsSubTextsList.add(RESOURCE_EMPTY);
 
         mSettingsIconIdsList = new ArrayList<Integer>();
-        mSettingsIconIdsList.add(R.drawable.ic_audiotrack);
-        mSettingsIconIdsList.add(R.drawable.ic_speed);
+        mSettingsIconIdsList.add(R.drawable.media2_widget_ic_audiotrack);
+        mSettingsIconIdsList.add(R.drawable.media2_widget_ic_speed);
 
         mAudioTrackDescriptionList = new ArrayList<String>();
         mAudioTrackDescriptionList.add(
@@ -1522,7 +1525,7 @@ public class MediaControlView extends MediaViewGroup {
         mSelectedSpeedIndex = PLAYBACK_SPEED_1x_INDEX;
 
         mPlaybackSpeedMultBy100List = new ArrayList<Integer>();
-        int[] speeds = mResources.getIntArray(R.array.speed_multiplied_by_100);
+        int[] speeds = mResources.getIntArray(R.array.media2_widget_speed_multiplied_by_100);
         for (int i = 0; i < speeds.length; i++) {
             mPlaybackSpeedMultBy100List.add(speeds[i]);
         }
@@ -1769,13 +1772,13 @@ public class MediaControlView extends MediaViewGroup {
         Drawable drawable;
         String description;
         if (type == PLAY_BUTTON_PAUSE) {
-            drawable = mResources.getDrawable(R.drawable.ic_pause_circle_filled);
+            drawable = mResources.getDrawable(R.drawable.media2_widget_ic_pause_circle_filled);
             description = mResources.getString(R.string.mcv2_pause_button_desc);
         } else if (type == PLAY_BUTTON_PLAY) {
-            drawable = mResources.getDrawable(R.drawable.ic_play_circle_filled);
+            drawable = mResources.getDrawable(R.drawable.media2_widget_ic_play_circle_filled);
             description = mResources.getString(R.string.mcv2_play_button_desc);
         } else if (type == PLAY_BUTTON_REPLAY) {
-            drawable = mResources.getDrawable(R.drawable.ic_replay_circle_filled);
+            drawable = mResources.getDrawable(R.drawable.media2_widget_ic_replay_circle_filled);
             description = mResources.getString(R.string.mcv2_replay_button_desc);
         } else {
             throw new IllegalArgumentException("unknown type " + type);
@@ -1920,7 +1923,7 @@ public class MediaControlView extends MediaViewGroup {
 
         @Override
         public View getView(int position, View convertView, ViewGroup container) {
-            View row = inflateLayout(getContext(), R.layout.settings_list_item);
+            View row = inflateLayout(getContext(), R.layout.media2_widget_settings_list_item);
             TextView mainTextView = (TextView) row.findViewById(R.id.main_text);
             TextView subTextView = (TextView) row.findViewById(R.id.sub_text);
             ImageView iconView = (ImageView) row.findViewById(R.id.icon);
@@ -1990,7 +1993,7 @@ public class MediaControlView extends MediaViewGroup {
 
         @Override
         public View getView(int position, View convertView, ViewGroup container) {
-            View row = inflateLayout(getContext(), R.layout.sub_settings_list_item);
+            View row = inflateLayout(getContext(), R.layout.media2_widget_sub_settings_list_item);
             TextView textView = (TextView) row.findViewById(R.id.text);
             ImageView checkView = (ImageView) row.findViewById(R.id.check);
 
@@ -2217,7 +2220,7 @@ public class MediaControlView extends MediaViewGroup {
                             mSubSettingsAdapter.setCheckPosition(mSelectedSubtitleTrackIndex + 1);
                         }
                         mSubtitleButton.setImageDrawable(
-                                mResources.getDrawable(R.drawable.ic_subtitle_on));
+                                mResources.getDrawable(R.drawable.media2_widget_ic_subtitle_on));
                         mSubtitleButton.setContentDescription(
                                 mResources.getString(R.string.mcv2_cc_is_on));
                         break;
@@ -2252,7 +2255,7 @@ public class MediaControlView extends MediaViewGroup {
                             mSubSettingsAdapter.setCheckPosition(mSelectedSubtitleTrackIndex + 1);
                         }
                         mSubtitleButton.setImageDrawable(
-                                mResources.getDrawable(R.drawable.ic_subtitle_off));
+                                mResources.getDrawable(R.drawable.media2_widget_ic_subtitle_off));
                         mSubtitleButton.setContentDescription(
                                 mResources.getString(R.string.mcv2_cc_is_off));
                         break;

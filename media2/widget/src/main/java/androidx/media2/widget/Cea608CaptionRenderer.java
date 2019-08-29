@@ -162,11 +162,11 @@ class Cea608CaptionRenderer extends SubtitleController.Renderer {
 
                 // get the default (will be updated later during measure)
                 mOutlineWidth = res.getDimensionPixelSize(
-                        R.dimen.subtitle_outline_width);
+                        R.dimen.media2_widget_subtitle_outline_width);
                 mShadowRadius = res.getDimensionPixelSize(
-                        R.dimen.subtitle_shadow_radius);
+                        R.dimen.media2_widget_subtitle_shadow_radius);
                 mShadowOffset = res.getDimensionPixelSize(
-                        R.dimen.subtitle_shadow_offset);
+                        R.dimen.media2_widget_subtitle_shadow_offset);
             }
 
             void setCaptionStyle(CaptionStyle captionStyle) {

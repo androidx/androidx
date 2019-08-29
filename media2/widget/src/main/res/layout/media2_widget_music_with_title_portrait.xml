@@ -15,8 +15,8 @@
 -->
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:padding="@dimen/MusicView_full_padding"
-    android:background="@color/music_view_default_background"
+    android:padding="@dimen/media2_widget_music_view_full_padding"
+    android:background="@color/media2_widget_music_view_default_background"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:layout_gravity="center"
@@ -24,27 +24,27 @@
 
     <ImageView
         android:id="@+id/album"
-        android:layout_width="@dimen/MusicView_full_image_size"
-        android:layout_height="@dimen/MusicView_full_image_size"
-        android:layout_marginBottom="@dimen/MusicView_image_title_gap"
-        android:src="@drawable/ic_default_album_image"/>
+        android:layout_width="@dimen/media2_widget_music_view_full_image_size"
+        android:layout_height="@dimen/media2_widget_music_view_full_image_size"
+        android:layout_marginBottom="@dimen/media2_widget_music_view_image_title_gap"
+        android:src="@drawable/media2_widget_ic_default_album_image"/>
 
     <TextView
         android:id="@+id/title"
-        android:maxWidth="@dimen/MusicView_full_image_size"
+        android:maxWidth="@dimen/media2_widget_music_view_full_image_size"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/mcv2_music_title_unknown_text"
-        android:textSize="@dimen/MusicView_title_text_size"
+        android:textSize="@dimen/media2_widget_music_view_title_text_size"
         android:textStyle="bold"
         android:textColor="#FFFFFF" />
 
     <TextView
         android:id="@+id/artist"
-        android:maxWidth="@dimen/MusicView_full_image_size"
+        android:maxWidth="@dimen/media2_widget_music_view_full_image_size"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/mcv2_music_artist_unknown_text"
-        android:textSize="@dimen/MusicView_artist_text_size"
+        android:textSize="@dimen/media2_widget_music_view_artist_text_size"
         android:textColor="#BBBBBB" />
 </LinearLayout>
