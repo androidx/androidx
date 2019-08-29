@@ -14,9 +14,12 @@
      limitations under the License.
 -->
 
-<resources>
-    <dimen name="spacer_large">20dp</dimen>
-    <dimen name="spacer_small">5dp</dimen>
-    <dimen name="halfPageMargin">16dp</dimen><!-- half of distance between pages -->
-    <dimen name="peekOffset">50dp</dimen><!-- how much of adjacent pages is shown -->
-</resources>
+<ImageView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_marginLeft="@dimen/halfPageMargin"
+    android:layout_marginRight="@dimen/halfPageMargin"
+    android:background="#0C2962"
+    android:padding="6dp"
+    android:scaleType="fitCenter"
+    android:src="@drawable/jetpack_logo" />
