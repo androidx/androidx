@@ -16,21 +16,14 @@
 
 package androidx.paging
 
-import androidx.testutils.TestDispatcher
-import kotlinx.coroutines.GlobalScope
-
 class StringPagedList constructor(
     leadingNulls: Int,
     trailingNulls: Int,
     vararg items: String,
     list: List<String> = items.toList()
 ) : PagedList<String>(
-    GlobalScope,
     PagedSourceWrapper(ListDataSource(list)),
     PagedStorage(),
-    TestDispatcher(),
-    TestDispatcher(),
-    null,
     Config.Builder().setPageSize(1).build()
 ), PagedStorage.Callback {
     var detached = false
