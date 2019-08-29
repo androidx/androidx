@@ -26,11 +26,7 @@ import androidx.annotation.RestrictTo;
 
 /**
  * Metadata used for surfacing a {@link android.app.Notification}.
- *
- * TODO Unhide for foreground service support
- * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public final class NotificationMetadata {
 
     private final String mNotificationTag;
@@ -115,10 +111,7 @@ public final class NotificationMetadata {
 
     /**
      * A {@link NotificationMetadata} Builder.
-     *
-     * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final class Builder {
 
         @Nullable

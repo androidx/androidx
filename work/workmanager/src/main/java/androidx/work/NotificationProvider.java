@@ -17,17 +17,12 @@
 package androidx.work;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RestrictTo;
 
 /**
  * An interface which helps surface user visible notifications for a
  * {@link androidx.work.WorkRequest} when running in the context of a foreground
  * {@link android.app.Service}.
- *
- * TODO Unhide for foreground service support
- * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface NotificationProvider {
 
     /***
