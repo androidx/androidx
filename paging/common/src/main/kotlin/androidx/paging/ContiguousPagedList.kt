@@ -16,6 +16,7 @@
 
 package androidx.paging
 
+import androidx.annotation.AnyThread
 import androidx.annotation.MainThread
 import androidx.annotation.RestrictTo
 import androidx.paging.PageLoadType.END
@@ -27,6 +28,7 @@ import androidx.paging.PagedSource.KeyProvider
 import androidx.paging.PagedSource.LoadResult.Companion.COUNT_UNDEFINED
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 
 /**
  * @hide
@@ -34,20 +36,16 @@ import kotlinx.coroutines.CoroutineScope
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 open class ContiguousPagedList<K : Any, V : Any>(
     pagedSource: PagedSource<K, V>,
-    coroutineScope: CoroutineScope,
-    notifyDispatcher: CoroutineDispatcher,
-    backgroundDispatcher: CoroutineDispatcher,
-    boundaryCallback: BoundaryCallback<V>?,
+    internal val coroutineScope: CoroutineScope,
+    internal val notifyDispatcher: CoroutineDispatcher,
+    internal val backgroundDispatcher: CoroutineDispatcher,
+    internal val boundaryCallback: BoundaryCallback<V>?,
     config: Config,
     initialResult: PagedSource.LoadResult<K, V>,
     lastLoad: Int
 ) : PagedList<V>(
-    coroutineScope,
     pagedSource,
     PagedStorage<V>(),
-    notifyDispatcher,
-    backgroundDispatcher,
-    boundaryCallback,
     config
 ), PagedStorage.Callback, Pager.PageConsumer<V> {
     internal companion object {
@@ -67,8 +65,17 @@ open class ContiguousPagedList<K : Any, V : Any>(
     }
 
     private var prependItemsRequested = 0
-
     private var appendItemsRequested = 0
+
+    // if set to true, boundaryCallback is non-null, and should
+    // be dispatched when nearby load has occurred
+    private var boundaryCallbackBeginDeferred = false
+    private var boundaryCallbackEndDeferred = false
+
+    // lowest and highest index accessed by loadAround. Used to
+    // decide when boundaryCallback should be dispatched
+    private var lowestIndexAccessed = Int.MAX_VALUE
+    private var highestIndexAccessed = Int.MIN_VALUE
 
     private var replacePagesWithNulls = false
 
@@ -195,6 +202,92 @@ open class ContiguousPagedList<K : Any, V : Any>(
         }
     }
 
+    // Creation thread for initial synchronous load, otherwise main thread
+    // Safe to access main thread only state - no other thread has reference during construction
+    @AnyThread
+    internal fun deferBoundaryCallbacks(
+        deferEmpty: Boolean,
+        deferBegin: Boolean,
+        deferEnd: Boolean
+    ) {
+        if (boundaryCallback == null) {
+            throw IllegalStateException("Can't defer BoundaryCallback, no instance")
+        }
+
+        /*
+         * If lowest/highest haven't been initialized, set them to storage size,
+         * since placeholders must already be computed by this point.
+         *
+         * This is just a minor optimization so that BoundaryCallback callbacks are sent immediately
+         * if the initial load size is smaller than the prefetch window (see
+         * TiledPagedListTest#boundaryCallback_immediate())
+         */
+        if (lowestIndexAccessed == Int.MAX_VALUE) {
+            lowestIndexAccessed = storage.size
+        }
+        if (highestIndexAccessed == Int.MIN_VALUE) {
+            highestIndexAccessed = 0
+        }
+
+        if (deferEmpty || deferBegin || deferEnd) {
+            // Post to the main thread, since we may be on creation thread currently
+            coroutineScope.launch(notifyDispatcher) {
+                // on is dispatched immediately, since items won't be accessed
+
+                if (deferEmpty) {
+                    boundaryCallback.onZeroItemsLoaded()
+                }
+
+                // for other callbacks, mark deferred, and only dispatch if loadAround
+                // has been called near to the position
+                if (deferBegin) {
+                    boundaryCallbackBeginDeferred = true
+                }
+                if (deferEnd) {
+                    boundaryCallbackEndDeferred = true
+                }
+                tryDispatchBoundaryCallbacks(false)
+            }
+        }
+    }
+
+    /**
+     * Call this when lowest/HighestIndexAccessed are changed, or boundaryCallbackBegin/EndDeferred
+     * is set.
+     */
+    private fun tryDispatchBoundaryCallbacks(post: Boolean) {
+        val dispatchBegin = boundaryCallbackBeginDeferred &&
+                lowestIndexAccessed <= config.prefetchDistance
+        val dispatchEnd = boundaryCallbackEndDeferred &&
+                highestIndexAccessed >= size - 1 - config.prefetchDistance
+
+        if (!dispatchBegin && !dispatchEnd) return
+
+        if (dispatchBegin) {
+            boundaryCallbackBeginDeferred = false
+        }
+        if (dispatchEnd) {
+            boundaryCallbackEndDeferred = false
+        }
+        if (post) {
+            coroutineScope.launch(notifyDispatcher) {
+                dispatchBoundaryCallbacks(dispatchBegin, dispatchEnd)
+            }
+        } else {
+            dispatchBoundaryCallbacks(dispatchBegin, dispatchEnd)
+        }
+    }
+
+    private fun dispatchBoundaryCallbacks(begin: Boolean, end: Boolean) {
+        // safe to deref boundaryCallback here, since we only defer if boundaryCallback present
+        if (begin) {
+            boundaryCallback!!.onItemAtFrontLoaded(storage.firstLoadedItem)
+        }
+        if (end) {
+            boundaryCallback!!.onItemAtEndLoaded(storage.lastLoadedItem)
+        }
+    }
+
     override fun retry() {
         super.retry()
         pager.retry()
@@ -250,6 +343,8 @@ open class ContiguousPagedList<K : Any, V : Any>(
 
     @MainThread
     override fun loadAroundInternal(index: Int) {
+        lastLoad = index + positionOffset
+
         val prependItems =
             getPrependItemsRequested(config.prefetchDistance, index, storage.leadingNullCount)
         val appendItems = getAppendItemsRequested(
@@ -267,6 +362,19 @@ open class ContiguousPagedList<K : Any, V : Any>(
         if (appendItemsRequested > 0) {
             pager.tryScheduleAppend()
         }
+
+        lowestIndexAccessed = minOf(lowestIndexAccessed, index)
+        highestIndexAccessed = maxOf(highestIndexAccessed, index)
+
+        /*
+         * lowestIndexAccessed / highestIndexAccessed have been updated, so check if we need to
+         * dispatch boundary callbacks. Boundary callbacks are deferred until last items are loaded,
+         * and accesses happen near the boundaries.
+         *
+         * Note: we post here, since RecyclerView may want to add items in response, and this
+         * call occurs in PagedListAdapter bind.
+         */
+        tryDispatchBoundaryCallbacks(true)
     }
 
     override fun detach() = pager.detach()
@@ -287,7 +395,12 @@ open class ContiguousPagedList<K : Any, V : Any>(
         notifyChanged(leadingNulls, changed)
         notifyInserted(0, added)
 
-        offsetAccessIndices(added)
+        // update last loadAround index
+        lastLoad += added
+
+        // update access range
+        lowestIndexAccessed += added
+        highestIndexAccessed += added
     }
 
     @MainThread
