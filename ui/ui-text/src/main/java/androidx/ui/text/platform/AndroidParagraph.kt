@@ -109,9 +109,9 @@ internal class AndroidParagraph constructor(
                 maxLines >= 0 &&
                 maxLines < lineCount
             ) {
-                it.layout.getLineBottom(maxLines - 1).toFloat()
+                it.getLineBottom(maxLines - 1).toFloat()
             } else {
-                it.layout.height.toFloat()
+                it.height.toFloat()
             }
         } ?: 0.0f
 

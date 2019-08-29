@@ -17,11 +17,17 @@
 package androidx.text
 
 import android.graphics.Typeface
+import android.text.BoringLayout
 import android.text.Layout
+import android.text.SpannableString
+import android.text.Spanned
+import android.text.StaticLayout
 import android.text.TextPaint
 import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
+import androidx.text.style.BaselineShiftSpan
 import org.hamcrest.CoreMatchers.equalTo
+import org.hamcrest.CoreMatchers.instanceOf
 import org.hamcrest.Matchers.greaterThanOrEqualTo
 import org.hamcrest.Matchers.lessThanOrEqualTo
 import org.junit.Assert.assertThat
@@ -34,6 +40,7 @@ import org.junit.runners.JUnit4
 @SmallTest
 class TextLayoutTest {
     lateinit var sampleTypeface: Typeface
+
     @Before
     fun setup() {
         val instrumentation = InstrumentationRegistry.getInstrumentation()
@@ -313,5 +320,66 @@ class TextLayoutTest {
         // In the sample_font.ttf, the height of the line should be
         // fontSize + 0.2 * fontSize(line gap)
         assertThat(layout.getLineHeight(0), equalTo(textSize * 1.2f))
+    }
+
+    @Test
+    fun createsBoringLayout_for_boringText() {
+        assertThat(
+            TextLayout(
+                charSequence = "a",
+                width = Float.MAX_VALUE,
+                textPaint = TextPaint()
+            ).layout,
+            instanceOf(BoringLayout::class.java)
+        )
+    }
+
+    @Test
+    fun createsStaticLayout_for_rtl_text() {
+        assertThat(
+            TextLayout(
+                charSequence = "\u05D0",
+                width = Float.MAX_VALUE,
+                textPaint = TextPaint()
+            ).layout,
+            instanceOf(StaticLayout::class.java)
+        )
+    }
+
+    @Test
+    fun createsStaticLayout_if_line_break_is_needed() {
+        val text = "ab"
+        val textSize = 20.0f
+        val layoutWidth = textSize * text.length
+
+        val textPaint = TextPaint()
+        textPaint.typeface = sampleTypeface
+        textPaint.textSize = textSize
+
+        assertThat(
+            TextLayout(
+                charSequence = text,
+                width = layoutWidth / 2f,
+                textPaint = textPaint
+            ).layout,
+            instanceOf(StaticLayout::class.java)
+        )
+    }
+
+    @Test
+    fun createsStaticLayout_if_text_has_baselineshift_spans() {
+        val text = SpannableString("a").apply {
+            // 0.5f is a random value
+            setSpan(BaselineShiftSpan(0.5f), 0, length, Spanned.SPAN_INCLUSIVE_INCLUSIVE)
+        }
+
+        assertThat(
+            TextLayout(
+                charSequence = text,
+                width = Float.MAX_VALUE,
+                textPaint = TextPaint()
+            ).layout,
+            instanceOf(StaticLayout::class.java)
+        )
     }
 }

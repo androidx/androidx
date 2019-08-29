@@ -24,9 +24,11 @@ import android.text.TextDirectionHeuristic
 import android.text.TextDirectionHeuristics
 import android.text.TextPaint
 import android.text.TextUtils
+import androidx.annotation.Px
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP
+import androidx.annotation.VisibleForTesting
 import androidx.text.LayoutCompat.ALIGN_CENTER
 import androidx.text.LayoutCompat.ALIGN_LEFT
 import androidx.text.LayoutCompat.ALIGN_NORMAL
@@ -58,6 +60,31 @@ import kotlin.math.ceil
 /**
  * Wrapper for Static Text Layout classes.
  *
+ * @param charSequence text to be laid out.
+ * @param width the maximum width for the text
+ * @param textPaint base paint used for text layout
+ * @param alignment text alignment for the text layout. One of [TextLayoutAlignment].
+ * @param ellipsize whether the text needs to be ellipsized. If the maxLines is set and text
+ * cannot fit in the provided number of lines.
+ * @param textDirectionHeuristic the heuristics to be applied while deciding on the text direction.
+ * @param lineSpacingMultiplier the multiplier to be applied to each line of the text.
+ * @param lineSpacingExtra the extra height to be added to each line of the text.
+ * @param includePadding defines whether the extra space to be applied beyond font ascent and
+ * descent,
+ * @param maxLines the maximum number of lines to be laid out.
+ * @param breakStrategy the strategy to be used for line breaking
+ * @param hyphenationFrequency set the frequency to control the amount of automatic hyphenation
+ * applied.
+ * @param justificationMode whether to justify the text.
+ * @param leftIndents the indents to be applied to the left of the text as pixel values. Each
+ * element in the array is applied to the corresponding line. For lines past the last element in
+ * array, the last element repeats.
+ * @param rightIndents the indents to be applied to the right of the text as pixel values. Each
+ * element in the array is applied to the corresponding line. For lines past the last element in
+ * array, the last element repeats.
+ *
+ * @see StaticLayoutCompat
+ *
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -69,7 +96,7 @@ class TextLayout constructor(
     ellipsize: TextUtils.TruncateAt? = null,
     @TextDirection textDirectionHeuristic: Int = DEFAULT_TEXT_DIRECTION,
     lineSpacingMultiplier: Float = DEFAULT_LINESPACING_MULTIPLIER,
-    lineSpacingExtra: Float = DEFAULT_LINESPACING_EXTRA,
+    @Px lineSpacingExtra: Float = DEFAULT_LINESPACING_EXTRA,
     includePadding: Boolean = true,
     maxLines: Int = Int.MAX_VALUE,
     @BreakStrategy breakStrategy: Int = DEFAULT_BREAK_STRATEGY,
@@ -79,21 +106,20 @@ class TextLayout constructor(
     rightIndents: IntArray? = null
 ) {
     val maxIntrinsicWidth: Float
-    val layout: Layout
+        get() = layoutIntrinsics.maxIntrinsicWidth
+
     val didExceedMaxLines: Boolean
+    private val layoutIntrinsics: LayoutIntrinsics
+
+    /**
+     * Please do not access this object directly from runtime code.
+     */
+    @VisibleForTesting
+    val layout: Layout
 
     init {
-        val start = 0
         val end = charSequence.length
         val frameworkTextDir = getTextDirectionHeuristic(textDirectionHeuristic)
-        val boringMetrics = BoringLayoutCompat.isBoring(charSequence, textPaint, frameworkTextDir)
-
-        // TODO(haoyuchang): we didn't pass the TextDirection to Layout.getDesiredWidth(), check if
-        //  there is any behavior difference from
-        //  Layout.getWidthWithLimits(charSequence, start, end, paint, dir)
-        maxIntrinsicWidth = boringMetrics?.width?.toFloat()
-            ?: Layout.getDesiredWidth(charSequence, start, end, textPaint)
-
         val frameworkAlignment = TextAlignmentAdapter.get(alignment)
 
         // BoringLayout won't adjust line height for baselineShift,
@@ -104,6 +130,10 @@ class TextLayout constructor(
         } else {
             false
         }
+
+        layoutIntrinsics = LayoutIntrinsics(charSequence, textPaint, textDirectionHeuristic)
+
+        val boringMetrics = this.layoutIntrinsics.boringMetrics
 
         layout = if (boringMetrics != null && maxIntrinsicWidth <= width &&
             !hasBaselineShiftSpans) {
@@ -160,6 +190,9 @@ class TextLayout constructor(
 
     val text: CharSequence
         get() = layout.text
+
+    val height: Int
+        get() = layout.height
 
     fun getLineLeft(lineIndex: Int): Float = layout.getLineLeft(lineIndex)
 

@@ -165,7 +165,6 @@ public class LayoutCompat {
     })
     public @interface TextLayoutAlignment { }
 
-
     /**
      * @hide
      */
