@@ -31,7 +31,7 @@ import java.util.concurrent.TimeUnit;
  * such as doze mode.
  * <p>
  * You can control when the work executes in the period interval more exactly - see
- * {@code PeriodicWorkRequest.Builder#Builder} for documentation on {@code flexInterval}s.
+ * {@link PeriodicWorkRequest.Builder} for documentation on {@code flexInterval}s.
  * <p>
  * Periodic work has a minimum interval of 15 minutes and it cannot have an initial delay.
  * <p>
