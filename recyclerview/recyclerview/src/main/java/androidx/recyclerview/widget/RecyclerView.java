@@ -610,6 +610,28 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
         }
     };
 
+    // These fields are only used to track whether we need to layout and measure RV children in
+    // onLayout.
+    //
+    // We track this information because there is an optimized path such that when
+    // LayoutManager#isAutoMeasureEnabled() returns true and we are measured with
+    // MeasureSpec.EXACTLY in both dimensions, we skip measuring and layout children till the
+    // layout phase.
+    //
+    // However, there are times when we are first measured with something other than
+    // MeasureSpec.EXACTLY in both dimensions, in which case we measure and layout children during
+    // onMeasure. Then if we are measured again with EXACTLY, and we skip measurement, we will
+    // get laid out with a different size than we were last aware of being measured with.  If
+    // that happens and we don't check for it, we may not remeasure children, which would be a bug.
+    //
+    // mLastAutoMeasureNonExactMeasureResult tracks our last known measurements in this case, and
+    // mLastAutoMeasureSkippedDueToExact tracks whether or not we skipped.  So, whenever we
+    // layout, we can see if our last known measurement information is different from our actual
+    // laid out size, and if it is, only then do we remeasure and relayout children.
+    private boolean mLastAutoMeasureSkippedDueToExact;
+    private int mLastAutoMeasureNonExactMeasuredWidth = 0;
+    private int mLastAutoMeasureNonExactMeasuredHeight = 0;
+
     /**
      * The callback to convert view info diffs into animations.
      */
@@ -3614,9 +3636,11 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
              */
             mLayout.onMeasure(mRecycler, mState, widthSpec, heightSpec);
 
-            final boolean measureSpecModeIsExactly =
+            // Calculate and track whether we should skip measurement here because the MeasureSpec
+            // modes in both dimensions are EXACTLY.
+            mLastAutoMeasureSkippedDueToExact =
                     widthMode == MeasureSpec.EXACTLY && heightMode == MeasureSpec.EXACTLY;
-            if (measureSpecModeIsExactly || mAdapter == null) {
+            if (mLastAutoMeasureSkippedDueToExact || mAdapter == null) {
                 return;
             }
 
@@ -3643,6 +3667,9 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
                 // now we can get the width and height from the children.
                 mLayout.setMeasuredDimensionFromChildren(widthSpec, heightSpec);
             }
+
+            mLastAutoMeasureNonExactMeasuredWidth = getMeasuredWidth();
+            mLastAutoMeasureNonExactMeasuredHeight = getMeasuredHeight();
         } else {
             if (mHasFixedSize) {
                 mLayout.onMeasure(mRecycler, mState, widthSpec, heightSpec);
@@ -3935,14 +3962,34 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
             return;
         }
         mState.mIsMeasuring = false;
+
+        // If the last time we measured children in onMeasure, we skipped the measurement and layout
+        // of RV children because the MeasureSpec in both dimensions was EXACTLY, and current
+        // dimensions of the RV are not equal to the last measured dimensions of RV, we need to
+        // measure and layout children one last time.
+        boolean needsRemeasureDueToExactSkip = mLastAutoMeasureSkippedDueToExact
+                        && (mLastAutoMeasureNonExactMeasuredWidth != getWidth()
+                        || mLastAutoMeasureNonExactMeasuredHeight != getHeight());
+        mLastAutoMeasureNonExactMeasuredWidth = 0;
+        mLastAutoMeasureNonExactMeasuredHeight = 0;
+        mLastAutoMeasureSkippedDueToExact = false;
+
         if (mState.mLayoutStep == State.STEP_START) {
             dispatchLayoutStep1();
             mLayout.setExactMeasureSpecsFrom(this);
             dispatchLayoutStep2();
-        } else if (mAdapterHelper.hasUpdates() || mLayout.getWidth() != getWidth()
+        } else if (mAdapterHelper.hasUpdates()
+                || needsRemeasureDueToExactSkip
+                || mLayout.getWidth() != getWidth()
                 || mLayout.getHeight() != getHeight()) {
             // First 2 steps are done in onMeasure but looks like we have to run again due to
             // changed size.
+
+            // TODO(shepshapard): Worth a note that I believe
+            //  "mLayout.getWidth() != getWidth() || mLayout.getHeight() != getHeight()" above is
+            //  not actually correct, causes unnecessary work to be done, and should be
+            //  removed. Removing causes many tests to fail and I didn't have the time to
+            //  investigate. Just a note for the a future reader or bug fixer.
             mLayout.setExactMeasureSpecsFrom(this);
             dispatchLayoutStep2();
         } else {
