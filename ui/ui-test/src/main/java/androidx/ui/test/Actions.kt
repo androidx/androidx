@@ -33,3 +33,5 @@ fun SemanticsNodeInteraction.doClick(): SemanticsNodeInteraction {
 
     return this
 }
+
+fun waitForIdleCompose(): Boolean = semanticsTreeInteractionFactory({ true }).waitForIdleCompose()

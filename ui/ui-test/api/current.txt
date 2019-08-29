@@ -4,6 +4,7 @@ package androidx.ui.test {
   public final class ActionsKt {
     ctor public ActionsKt();
     method public static androidx.ui.test.SemanticsNodeInteraction doClick(androidx.ui.test.SemanticsNodeInteraction);
+    method public static boolean waitForIdleCompose();
   }
 
   public final class AssertionsKt {
