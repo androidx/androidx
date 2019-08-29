@@ -1373,81 +1373,81 @@ package androidx.ui.graphics {
 
 }
 
-package androidx.ui.graphics.vectorgraphics {
+package androidx.ui.graphics.vector {
 
   public final class PathBuilder {
     ctor public PathBuilder();
-    method public androidx.ui.graphics.vectorgraphics.PathBuilder arcTo(float horizontalEllipseRadius, float verticalEllipseRadius, float theta, float largeArcFlag, float sweepFlag, float x1, float y1);
-    method public androidx.ui.graphics.vectorgraphics.PathBuilder arcToRelative(float a, float b, float theta, float largeArcFlag, float sweepFlag, float x1, float y1);
-    method public androidx.ui.graphics.vectorgraphics.PathBuilder close();
-    method public androidx.ui.graphics.vectorgraphics.PathBuilder curveTo(float x1, float y1, float x2, float y2, float x3, float y3);
-    method public androidx.ui.graphics.vectorgraphics.PathBuilder curveToRelative(float dx1, float dy1, float dx2, float dy2, float dx3, float dy3);
-    method public androidx.ui.graphics.vectorgraphics.PathNode![] getNodes();
-    method public androidx.ui.graphics.vectorgraphics.PathBuilder horizontalLineTo(float x);
-    method public androidx.ui.graphics.vectorgraphics.PathBuilder horizontalLineToRelative(float x);
-    method public androidx.ui.graphics.vectorgraphics.PathBuilder lineTo(float x, float y);
-    method public androidx.ui.graphics.vectorgraphics.PathBuilder lineToRelative(float x, float y);
-    method public androidx.ui.graphics.vectorgraphics.PathBuilder moveTo(float x, float y);
-    method public androidx.ui.graphics.vectorgraphics.PathBuilder moveToRelative(float x, float y);
-    method public androidx.ui.graphics.vectorgraphics.PathBuilder quadTo(float x1, float y1, float x2, float y2);
-    method public androidx.ui.graphics.vectorgraphics.PathBuilder quadToRelative(float x1, float y1, float x2, float y2);
-    method public androidx.ui.graphics.vectorgraphics.PathBuilder reflectiveCurveTo(float x1, float y1, float x2, float y2);
-    method public androidx.ui.graphics.vectorgraphics.PathBuilder reflectiveCurveToRelative(float x1, float y1, float x2, float y2);
-    method public androidx.ui.graphics.vectorgraphics.PathBuilder reflectiveQuadTo(float x1, float y1);
-    method public androidx.ui.graphics.vectorgraphics.PathBuilder reflectiveQuadToRelative(float x1, float y1);
-    method public androidx.ui.graphics.vectorgraphics.PathBuilder verticalLineTo(float y);
-    method public androidx.ui.graphics.vectorgraphics.PathBuilder verticalLineToRelative(float y);
+    method public androidx.ui.graphics.vector.PathBuilder arcTo(float horizontalEllipseRadius, float verticalEllipseRadius, float theta, float largeArcFlag, float sweepFlag, float x1, float y1);
+    method public androidx.ui.graphics.vector.PathBuilder arcToRelative(float a, float b, float theta, float largeArcFlag, float sweepFlag, float x1, float y1);
+    method public androidx.ui.graphics.vector.PathBuilder close();
+    method public androidx.ui.graphics.vector.PathBuilder curveTo(float x1, float y1, float x2, float y2, float x3, float y3);
+    method public androidx.ui.graphics.vector.PathBuilder curveToRelative(float dx1, float dy1, float dx2, float dy2, float dx3, float dy3);
+    method public androidx.ui.graphics.vector.PathNode![] getNodes();
+    method public androidx.ui.graphics.vector.PathBuilder horizontalLineTo(float x);
+    method public androidx.ui.graphics.vector.PathBuilder horizontalLineToRelative(float x);
+    method public androidx.ui.graphics.vector.PathBuilder lineTo(float x, float y);
+    method public androidx.ui.graphics.vector.PathBuilder lineToRelative(float x, float y);
+    method public androidx.ui.graphics.vector.PathBuilder moveTo(float x, float y);
+    method public androidx.ui.graphics.vector.PathBuilder moveToRelative(float x, float y);
+    method public androidx.ui.graphics.vector.PathBuilder quadTo(float x1, float y1, float x2, float y2);
+    method public androidx.ui.graphics.vector.PathBuilder quadToRelative(float x1, float y1, float x2, float y2);
+    method public androidx.ui.graphics.vector.PathBuilder reflectiveCurveTo(float x1, float y1, float x2, float y2);
+    method public androidx.ui.graphics.vector.PathBuilder reflectiveCurveToRelative(float x1, float y1, float x2, float y2);
+    method public androidx.ui.graphics.vector.PathBuilder reflectiveQuadTo(float x1, float y1);
+    method public androidx.ui.graphics.vector.PathBuilder reflectiveQuadToRelative(float x1, float y1);
+    method public androidx.ui.graphics.vector.PathBuilder verticalLineTo(float y);
+    method public androidx.ui.graphics.vector.PathBuilder verticalLineToRelative(float y);
   }
 
   public enum PathCommand {
     method public final char toKey();
-    enum_constant public static final androidx.ui.graphics.vectorgraphics.PathCommand ArcTo;
-    enum_constant public static final androidx.ui.graphics.vectorgraphics.PathCommand Close;
-    enum_constant public static final androidx.ui.graphics.vectorgraphics.PathCommand CurveTo;
-    enum_constant public static final androidx.ui.graphics.vectorgraphics.PathCommand HorizontalLineTo;
-    enum_constant public static final androidx.ui.graphics.vectorgraphics.PathCommand LineTo;
-    enum_constant public static final androidx.ui.graphics.vectorgraphics.PathCommand MoveTo;
-    enum_constant public static final androidx.ui.graphics.vectorgraphics.PathCommand QuadTo;
-    enum_constant public static final androidx.ui.graphics.vectorgraphics.PathCommand ReflectiveCurveTo;
-    enum_constant public static final androidx.ui.graphics.vectorgraphics.PathCommand ReflectiveQuadTo;
-    enum_constant public static final androidx.ui.graphics.vectorgraphics.PathCommand RelativeArcTo;
-    enum_constant public static final androidx.ui.graphics.vectorgraphics.PathCommand RelativeClose;
-    enum_constant public static final androidx.ui.graphics.vectorgraphics.PathCommand RelativeCurveTo;
-    enum_constant public static final androidx.ui.graphics.vectorgraphics.PathCommand RelativeHorizontalTo;
-    enum_constant public static final androidx.ui.graphics.vectorgraphics.PathCommand RelativeLineTo;
-    enum_constant public static final androidx.ui.graphics.vectorgraphics.PathCommand RelativeMoveTo;
-    enum_constant public static final androidx.ui.graphics.vectorgraphics.PathCommand RelativeQuadTo;
-    enum_constant public static final androidx.ui.graphics.vectorgraphics.PathCommand RelativeReflectiveCurveTo;
-    enum_constant public static final androidx.ui.graphics.vectorgraphics.PathCommand RelativeReflectiveQuadTo;
-    enum_constant public static final androidx.ui.graphics.vectorgraphics.PathCommand RelativeVerticalTo;
-    enum_constant public static final androidx.ui.graphics.vectorgraphics.PathCommand VerticalLineTo;
+    enum_constant public static final androidx.ui.graphics.vector.PathCommand ArcTo;
+    enum_constant public static final androidx.ui.graphics.vector.PathCommand Close;
+    enum_constant public static final androidx.ui.graphics.vector.PathCommand CurveTo;
+    enum_constant public static final androidx.ui.graphics.vector.PathCommand HorizontalLineTo;
+    enum_constant public static final androidx.ui.graphics.vector.PathCommand LineTo;
+    enum_constant public static final androidx.ui.graphics.vector.PathCommand MoveTo;
+    enum_constant public static final androidx.ui.graphics.vector.PathCommand QuadTo;
+    enum_constant public static final androidx.ui.graphics.vector.PathCommand ReflectiveCurveTo;
+    enum_constant public static final androidx.ui.graphics.vector.PathCommand ReflectiveQuadTo;
+    enum_constant public static final androidx.ui.graphics.vector.PathCommand RelativeArcTo;
+    enum_constant public static final androidx.ui.graphics.vector.PathCommand RelativeClose;
+    enum_constant public static final androidx.ui.graphics.vector.PathCommand RelativeCurveTo;
+    enum_constant public static final androidx.ui.graphics.vector.PathCommand RelativeHorizontalTo;
+    enum_constant public static final androidx.ui.graphics.vector.PathCommand RelativeLineTo;
+    enum_constant public static final androidx.ui.graphics.vector.PathCommand RelativeMoveTo;
+    enum_constant public static final androidx.ui.graphics.vector.PathCommand RelativeQuadTo;
+    enum_constant public static final androidx.ui.graphics.vector.PathCommand RelativeReflectiveCurveTo;
+    enum_constant public static final androidx.ui.graphics.vector.PathCommand RelativeReflectiveQuadTo;
+    enum_constant public static final androidx.ui.graphics.vector.PathCommand RelativeVerticalTo;
+    enum_constant public static final androidx.ui.graphics.vector.PathCommand VerticalLineTo;
   }
 
   public final class PathCommandKt {
     ctor public PathCommandKt();
-    method public static androidx.ui.graphics.vectorgraphics.PathCommand toPathCommand(char);
+    method public static androidx.ui.graphics.vector.PathCommand toPathCommand(char);
   }
 
   public final class PathNode {
-    ctor public PathNode(androidx.ui.graphics.vectorgraphics.PathCommand command, float[] args);
-    method public androidx.ui.graphics.vectorgraphics.PathCommand component1();
+    ctor public PathNode(androidx.ui.graphics.vector.PathCommand command, float[] args);
+    method public androidx.ui.graphics.vector.PathCommand component1();
     method public float[] component2();
-    method public androidx.ui.graphics.vectorgraphics.PathNode copy(androidx.ui.graphics.vectorgraphics.PathCommand command, float[] args);
+    method public androidx.ui.graphics.vector.PathNode copy(androidx.ui.graphics.vector.PathCommand command, float[] args);
     method public float[] getArgs();
-    method public androidx.ui.graphics.vectorgraphics.PathCommand getCommand();
+    method public androidx.ui.graphics.vector.PathCommand getCommand();
   }
 
   public final class PathNodeKt {
     ctor public PathNodeKt();
-    method public static operator StringBuilder plus(StringBuilder, androidx.ui.graphics.vectorgraphics.PathNode node);
+    method public static operator StringBuilder plus(StringBuilder, androidx.ui.graphics.vector.PathNode node);
   }
 
   public final class PathParser {
     ctor public PathParser();
-    method public androidx.ui.graphics.vectorgraphics.PathParser addPathNodes(androidx.ui.graphics.vectorgraphics.PathNode![] nodes);
+    method public androidx.ui.graphics.vector.PathParser addPathNodes(androidx.ui.graphics.vector.PathNode![] nodes);
     method public void clear();
-    method public androidx.ui.graphics.vectorgraphics.PathParser parsePathString(String pathData);
-    method public androidx.ui.graphics.vectorgraphics.PathNode![] toNodes();
+    method public androidx.ui.graphics.vector.PathParser parsePathString(String pathData);
+    method public androidx.ui.graphics.vector.PathNode![] toNodes();
     method public androidx.ui.painting.Path toPath(androidx.ui.painting.Path target = androidx.ui.painting.Path());
   }
 
