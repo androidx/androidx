@@ -47,6 +47,7 @@ import androidx.car.R;
 import androidx.car.app.CarListDialog;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.MarginLayoutParamsCompat;
+import androidx.core.widget.TextViewCompat;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -250,7 +251,9 @@ public class CarToolbar extends ViewGroup {
             width += navWidth + getHorizontalMargins(mNavButtonView);
         }
 
-        mToolbarItems.forEach(this::removeView);
+        for (View view: mToolbarItems) {
+            removeView(view);
+        }
         mToolbarItems.clear();
         mOverflowMenuItems.clear();
 
@@ -648,7 +651,7 @@ public class CarToolbar extends ViewGroup {
      * @param resId Resource id of TextAppearance.
      */
     public void setTitleTextAppearance(@StyleRes int resId) {
-        mTitleTextView.setTextAppearance(resId);
+        TextViewCompat.setTextAppearance(mTitleTextView, resId);
     }
 
     /**
@@ -658,7 +661,7 @@ public class CarToolbar extends ViewGroup {
      * @param resId Resource id of TextAppearance.
      */
     public void setSubtitleTextAppearance(@StyleRes int resId) {
-        mSubtitleTextView.setTextAppearance(resId);
+        TextViewCompat.setTextAppearance(mSubtitleTextView, resId);
     }
 
     /**

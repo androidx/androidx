@@ -716,7 +716,7 @@ limitations under the License.
 
     <style name="CarPreference.SwitchPreference">
         <item name="android:layout">@layout/preference_material_car</item>
-        <item name="android:widgetLayout">@layout/preference_car_switch_widget</item>
+        <item name="android:widgetLayout">@layout/preference_car_switch_compat_widget</item>
     </style>
 
     <style name="CarPreference.SeekBarPreference">
