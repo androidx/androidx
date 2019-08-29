@@ -143,11 +143,6 @@ package androidx.webkit {
     method public androidx.webkit.WebViewAssetLoader.Builder setHttpAllowed(boolean);
   }
 
-  public static final class WebViewAssetLoader.InternalStoragePathHandler implements androidx.webkit.WebViewAssetLoader.PathHandler {
-    ctor public WebViewAssetLoader.InternalStoragePathHandler(android.content.Context, java.io.File);
-    method @WorkerThread public android.webkit.WebResourceResponse handle(String);
-  }
-
   public static interface WebViewAssetLoader.PathHandler {
     method @WorkerThread public android.webkit.WebResourceResponse? handle(String);
   }
