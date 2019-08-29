@@ -23,12 +23,12 @@ HiddenTypeParameter: androidx.paging.PositionalDataSource#loadInitial$lintWithKo
     Parameter p references hidden type class androidx.paging.PositionalDataSource.InitialResult.
 
 
-MissingNullability: androidx.paging.PagedList.LoadState.Done#INSTANCE:
-    Missing nullability on field `INSTANCE` in class `class androidx.paging.PagedList.LoadState.Done`
-MissingNullability: androidx.paging.PagedList.LoadState.Idle#INSTANCE:
-    Missing nullability on field `INSTANCE` in class `class androidx.paging.PagedList.LoadState.Idle`
-MissingNullability: androidx.paging.PagedList.LoadState.Loading#INSTANCE:
-    Missing nullability on field `INSTANCE` in class `class androidx.paging.PagedList.LoadState.Loading`
+MissingNullability: androidx.paging.LoadState.Done#INSTANCE:
+    Missing nullability on field `INSTANCE` in class `class androidx.paging.LoadState.Done`
+MissingNullability: androidx.paging.LoadState.Idle#INSTANCE:
+    Missing nullability on field `INSTANCE` in class `class androidx.paging.LoadState.Idle`
+MissingNullability: androidx.paging.LoadState.Loading#INSTANCE:
+    Missing nullability on field `INSTANCE` in class `class androidx.paging.LoadState.Loading`
 MissingNullability: androidx.paging.PagedSource.KeyProvider.Positional#INSTANCE:
     Missing nullability on field `INSTANCE` in class `class androidx.paging.PagedSource.KeyProvider.Positional`
 MissingNullability: androidx.paging.PagedSource.LoadResult#Companion:

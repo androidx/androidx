@@ -22,10 +22,10 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleRegistry
 import androidx.lifecycle.Observer
-import androidx.paging.PagedList.LoadState.Error
-import androidx.paging.PagedList.LoadState.Idle
-import androidx.paging.PagedList.LoadState.Loading
-import androidx.paging.PageLoadType.REFRESH
+import androidx.paging.LoadState.Error
+import androidx.paging.LoadState.Idle
+import androidx.paging.LoadState.Loading
+import androidx.paging.LoadType.REFRESH
 import androidx.test.filters.SmallTest
 import androidx.testutils.TestDispatcher
 import androidx.testutils.TestExecutor
@@ -64,8 +64,8 @@ class LivePagedListBuilderTest {
     }
 
     private data class LoadState(
-        val type: PageLoadType,
-        val state: PagedList.LoadState
+        val type: LoadType,
+        val state: androidx.paging.LoadState
     )
 
     @ExperimentalCoroutinesApi
@@ -111,7 +111,7 @@ class LivePagedListBuilderTest {
             override val keyProvider = KeyProvider.Positional
 
             override suspend fun load(params: LoadParams<Int>) = when (params.loadType) {
-                PageLoadType.REFRESH -> loadInitial(params)
+                LoadType.REFRESH -> loadInitial(params)
                 else -> loadRange()
             }
 

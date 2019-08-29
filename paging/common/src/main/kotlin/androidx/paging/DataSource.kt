@@ -435,7 +435,7 @@ internal constructor(internal val type: KeyType) {
      * @property key Can be `null` for init, otherwise non-null
      */
     class Params<K : Any> internal constructor(
-        internal val type: PageLoadType,
+        internal val type: LoadType,
         val key: K?,
         val initialLoadSize: Int,
         val placeholdersEnabled: Boolean,
