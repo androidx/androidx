@@ -19,7 +19,6 @@ package androidx.paging
 import androidx.annotation.VisibleForTesting
 import androidx.arch.core.executor.ArchTaskExecutor
 import androidx.lifecycle.LiveData
-import androidx.paging.PagedList.LoadState
 import androidx.paging.PagedList.LoadStateManager
 import androidx.recyclerview.widget.AdapterListUpdateCallback
 import androidx.recyclerview.widget.AsyncDifferConfig
@@ -140,7 +139,7 @@ open class AsyncPagedListDiffer<T : Any> {
     internal var maxScheduledGeneration: Int = 0
 
     private val loadStateManager: LoadStateManager = object : LoadStateManager() {
-        override fun onStateChanged(type: PageLoadType, state: LoadState) {
+        override fun onStateChanged(type: LoadType, state: LoadState) {
             // Don't need to post - PagedList will already have done that
             loadStateListeners.forEach { it(type, state) }
         }

@@ -16,7 +16,6 @@
 
 package androidx.paging
 
-import androidx.paging.PagedList.LoadState
 import androidx.paging.PagedSource.KeyProvider
 import androidx.paging.PagedSource.LoadParams
 import androidx.paging.PagedSource.LoadResult
@@ -42,7 +41,7 @@ internal class Pager<K : Any, V : Any>(
     private val detached = AtomicBoolean(false)
 
     var loadStateManager = object : PagedList.LoadStateManager() {
-        override fun onStateChanged(type: PageLoadType, state: LoadState) {
+        override fun onStateChanged(type: LoadType, state: LoadState) {
             pageConsumer.onStateChanged(type, state)
         }
     }
@@ -53,7 +52,7 @@ internal class Pager<K : Any, V : Any>(
     init {
         prevKey = result.prevKey
         nextKey = result.nextKey
-        this.adjacentProvider.onPageResultResolution(PageLoadType.REFRESH, result)
+        this.adjacentProvider.onPageResultResolution(LoadType.REFRESH, result)
         totalCount = when (result.counted) {
             // only one of leadingNulls / offset may be used
             true -> result.itemsBefore + result.data.size + result.itemsAfter
@@ -61,7 +60,7 @@ internal class Pager<K : Any, V : Any>(
         }
     }
 
-    private fun scheduleLoad(type: PageLoadType, params: LoadParams<K>) {
+    private fun scheduleLoad(type: LoadType, params: LoadParams<K>) {
         // Listen on the BG thread if the paged source is invalid, since it can be expensive.
         pagedListScope.launch(fetchDispatcher) {
             try {
@@ -85,18 +84,18 @@ internal class Pager<K : Any, V : Any>(
         }
     }
 
-    private fun onLoadSuccess(type: PageLoadType, value: LoadResult<K, V>) {
+    private fun onLoadSuccess(type: LoadType, value: LoadResult<K, V>) {
         if (isDetached) return // abort!
 
         adjacentProvider.onPageResultResolution(type, value)
 
         if (pageConsumer.onPageResult(type, value)) {
             when (type) {
-                PageLoadType.START -> {
+                LoadType.START -> {
                     prevKey = value.prevKey
                     schedulePrepend()
                 }
-                PageLoadType.END -> {
+                LoadType.END -> {
                     nextKey = value.nextKey
                     scheduleAppend()
                 }
@@ -111,7 +110,7 @@ internal class Pager<K : Any, V : Any>(
         }
     }
 
-    private fun onLoadError(type: PageLoadType, throwable: Throwable) {
+    private fun onLoadError(type: LoadType, throwable: Throwable) {
         if (isDetached) return // abort!
 
         // TODO: handle nesting
@@ -143,7 +142,7 @@ internal class Pager<K : Any, V : Any>(
 
     private fun schedulePrepend() {
         if (!canPrepend()) {
-            onLoadSuccess(PageLoadType.START, LoadResult.empty())
+            onLoadSuccess(LoadType.START, LoadResult.empty())
             return
         }
 
@@ -156,21 +155,21 @@ internal class Pager<K : Any, V : Any>(
             is KeyProvider.ItemKey -> keyProvider.getKey(adjacentProvider.firstLoadedItem!!)
         }
 
-        loadStateManager.setState(PageLoadType.START, LoadState.Loading)
+        loadStateManager.setState(LoadType.START, LoadState.Loading)
 
         val loadParams = LoadParams(
-            PageLoadType.START,
+            LoadType.START,
             key,
             config.pageSize,
             config.enablePlaceholders,
             config.pageSize
         )
-        scheduleLoad(PageLoadType.START, loadParams)
+        scheduleLoad(LoadType.START, loadParams)
     }
 
     private fun scheduleAppend() {
         if (!canAppend()) {
-            onLoadSuccess(PageLoadType.END, LoadResult.empty())
+            onLoadSuccess(LoadType.END, LoadResult.empty())
             return
         }
 
@@ -185,15 +184,15 @@ internal class Pager<K : Any, V : Any>(
             )
         }
 
-        loadStateManager.setState(PageLoadType.END, LoadState.Loading)
+        loadStateManager.setState(LoadType.END, LoadState.Loading)
         val loadParams = LoadParams(
-            PageLoadType.END,
+            LoadType.END,
             key,
             config.pageSize,
             config.enablePlaceholders,
             config.pageSize
         )
-        scheduleLoad(PageLoadType.END, loadParams)
+        scheduleLoad(LoadType.END, loadParams)
     }
 
     fun retry() {
@@ -211,9 +210,9 @@ internal class Pager<K : Any, V : Any>(
         /**
          * @return `true` if we need to fetch more
          */
-        fun onPageResult(type: PageLoadType, pageResult: LoadResult<*, V>): Boolean
+        fun onPageResult(type: LoadType, pageResult: LoadResult<*, V>): Boolean
 
-        fun onStateChanged(type: PageLoadType, state: LoadState)
+        fun onStateChanged(type: LoadType, state: LoadState)
     }
 
     internal interface AdjacentProvider<V : Any> {
@@ -229,7 +228,7 @@ internal class Pager<K : Any, V : Any>(
          * implementation of the AdjacentProvider to handle this (generally by ignoring this call if
          * dropping is supported).
          */
-        fun onPageResultResolution(type: PageLoadType, result: LoadResult<*, V>)
+        fun onPageResultResolution(type: LoadType, result: LoadResult<*, V>)
     }
 
     internal class SimpleAdjacentProvider<V : Any> : AdjacentProvider<V> {
@@ -246,16 +245,16 @@ internal class Pager<K : Any, V : Any>(
         private var leadingUnloadedCount: Int = 0
         private var trailingUnloadedCount: Int = 0
 
-        override fun onPageResultResolution(type: PageLoadType, result: LoadResult<*, V>) {
+        override fun onPageResultResolution(type: LoadType, result: LoadResult<*, V>) {
             if (result.data.isEmpty()) return
 
-            if (type == PageLoadType.START) {
+            if (type == LoadType.START) {
                 firstLoadedItemIndex -= result.data.size
                 firstLoadedItem = result.data[0]
                 if (counted) {
                     leadingUnloadedCount -= result.data.size
                 }
-            } else if (type == PageLoadType.END) {
+            } else if (type == LoadType.END) {
                 lastLoadedItemIndex += result.data.size
                 lastLoadedItem = result.data.last()
                 if (counted) {

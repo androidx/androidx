@@ -18,7 +18,7 @@ package androidx.paging.integration.testapp.custom
 
 import android.graphics.Color
 import androidx.annotation.ColorInt
-import androidx.paging.PageLoadType
+import androidx.paging.LoadType
 import androidx.paging.PagedSource
 import java.util.ArrayList
 import java.util.concurrent.atomic.AtomicBoolean
@@ -32,7 +32,7 @@ internal class ItemDataSource : PagedSource<Int, Item>() {
     override val keyProvider = KeyProvider.Positional
 
     override suspend fun load(params: LoadParams<Int>) = when (params.loadType) {
-        PageLoadType.REFRESH -> loadInitial(params)
+        LoadType.REFRESH -> loadInitial(params)
         else -> loadRange(params)
     }
 

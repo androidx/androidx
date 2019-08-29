@@ -302,7 +302,7 @@ class PagedStorage<T : Any> : AbstractList<T>, Pager.AdjacentProvider<T> {
         )
     }
 
-    override fun onPageResultResolution(type: PageLoadType, result: LoadResult<*, T>) {
+    override fun onPageResultResolution(type: LoadType, result: LoadResult<*, T>) {
         // ignored
     }
 

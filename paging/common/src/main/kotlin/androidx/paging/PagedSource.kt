@@ -106,9 +106,9 @@ abstract class PagedSource<Key : Any, Value : Any> {
      */
     data class LoadParams<Key : Any>(
         /**
-         * [PageLoadType], for different behavior, e.g. only count initial load
+         * [LoadType], for different behavior, e.g. only count initial load
          */
-        val loadType: PageLoadType,
+        val loadType: LoadType,
         /**
          * Key for the page to be loaded
          */

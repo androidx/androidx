@@ -19,11 +19,11 @@ package androidx.paging
 import androidx.annotation.AnyThread
 import androidx.annotation.MainThread
 import androidx.annotation.RestrictTo
-import androidx.paging.PageLoadType.END
-import androidx.paging.PageLoadType.REFRESH
-import androidx.paging.PageLoadType.START
-import androidx.paging.PagedList.LoadState.Idle
-import androidx.paging.PagedList.LoadState.Loading
+import androidx.paging.LoadType.END
+import androidx.paging.LoadType.REFRESH
+import androidx.paging.LoadType.START
+import androidx.paging.LoadState.Idle
+import androidx.paging.LoadState.Loading
 import androidx.paging.PagedSource.KeyProvider
 import androidx.paging.PagedSource.LoadResult.Companion.COUNT_UNDEFINED
 import kotlinx.coroutines.CoroutineDispatcher
@@ -112,7 +112,7 @@ open class ContiguousPagedList<K : Any, V : Any>(
      * Given a page result, apply or drop it, and return whether more loading is needed.
      */
     override fun onPageResult(
-        type: PageLoadType,
+        type: LoadType,
         pageResult: PagedSource.LoadResult<*, V>
     ): Boolean {
         var continueLoading = false
@@ -190,10 +190,10 @@ open class ContiguousPagedList<K : Any, V : Any>(
         return continueLoading
     }
 
-    override fun onStateChanged(type: PageLoadType, state: LoadState) =
+    override fun onStateChanged(type: LoadType, state: LoadState) =
         dispatchStateChange(type, state)
 
-    private fun triggerBoundaryCallback(type: PageLoadType, page: List<V>) {
+    private fun triggerBoundaryCallback(type: LoadType, page: List<V>) {
         if (boundaryCallback != null) {
             val deferEmpty = storage.size == 0
             val deferBegin = (!deferEmpty && type == START && page.isEmpty())
@@ -337,7 +337,7 @@ open class ContiguousPagedList<K : Any, V : Any>(
         pager.loadStateManager.dispatchCurrentLoadState(callback)
     }
 
-    override fun setInitialLoadState(loadType: PageLoadType, loadState: LoadState) {
+    override fun setInitialLoadState(loadType: LoadType, loadState: LoadState) {
         pager.loadStateManager.setState(loadType, loadState)
     }
 

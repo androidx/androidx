@@ -16,6 +16,4 @@
 
 package androidx.paging
 
-import androidx.paging.PagedList.LoadState
-
-internal data class StateChange(val type: PageLoadType, val state: LoadState)
+internal data class StateChange(val type: LoadType, val state: LoadState)
