@@ -28,6 +28,8 @@ import androidx.ui.benchmark.measureFirstMeasure
 import androidx.ui.benchmark.measureLayoutPerf
 import androidx.ui.test.DisableTransitions
 import androidx.ui.test.RandomTextGenerator
+import androidx.ui.test.TextType
+import androidx.ui.test.cartesian
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -35,8 +37,10 @@ import org.junit.runners.Parameterized
 
 @LargeTest
 @RunWith(Parameterized::class)
-class TextBasicBenchmark(
-    private val textLength: Int
+class TextMultiStyleBenchmark(
+    private val textLength: Int,
+    private val styleCount: Int,
+    private val hasMetricAffectingStyle: Boolean
 ) {
     @get:Rule
     val benchmarkRule = BenchmarkRule()
@@ -53,15 +57,25 @@ class TextBasicBenchmark(
 
     companion object {
         @JvmStatic
-        @Parameterized.Parameters(name = "length={0}")
-        fun initParameters(): Array<Any> = arrayOf(8, 16, 32, 64, 128, 256, 512, 1024)
+        @Parameterized.Parameters(name = "length={0} styleCount={1} hasMetricAffectingStyle={2}")
+        fun initParameters() = cartesian(
+                arrayOf(8, 64, 512),
+                arrayOf(8, 64, 512),
+                arrayOf(true, false)
+            )
     }
 
     @Test
     fun first_compose() {
         benchmarkRule.measureFirstCompose(
             activity,
-            TextBasicTestCase(activity, textLength, textGenerator)
+            TextMultiStyleTestCase(
+                activity,
+                textLength,
+                styleCount,
+                hasMetricAffectingStyle,
+                textGenerator
+            )
         )
     }
 
@@ -69,7 +83,13 @@ class TextBasicBenchmark(
     fun first_measure() {
         benchmarkRule.measureFirstMeasure(
             activity,
-            TextBasicTestCase(activity, textLength, textGenerator)
+            TextMultiStyleTestCase(
+                activity,
+                textLength,
+                styleCount,
+                hasMetricAffectingStyle,
+                textGenerator
+            )
         )
     }
 
@@ -77,7 +97,13 @@ class TextBasicBenchmark(
     fun first_layout() {
         benchmarkRule.measureFirstLayout(
             activity,
-            TextBasicTestCase(activity, textLength, textGenerator)
+            TextMultiStyleTestCase(
+                activity,
+                textLength,
+                styleCount,
+                hasMetricAffectingStyle,
+                textGenerator
+            )
         )
     }
 
@@ -85,7 +111,13 @@ class TextBasicBenchmark(
     fun first_draw() {
         benchmarkRule.measureFirstDraw(
             activity,
-            TextBasicTestCase(activity, textLength, textGenerator)
+            TextMultiStyleTestCase(
+                activity,
+                textLength,
+                styleCount,
+                hasMetricAffectingStyle,
+                textGenerator
+            )
         )
     }
 
@@ -93,7 +125,13 @@ class TextBasicBenchmark(
     fun layout() {
         benchmarkRule.measureLayoutPerf(
             activity,
-            TextBasicTestCase(activity, textLength, textGenerator)
+            TextMultiStyleTestCase(
+                activity,
+                textLength,
+                styleCount,
+                hasMetricAffectingStyle,
+                textGenerator
+            )
         )
     }
 
@@ -101,7 +139,13 @@ class TextBasicBenchmark(
     fun draw() {
         benchmarkRule.measureDrawPerf(
             activity,
-            TextBasicTestCase(activity, textLength, textGenerator)
+            TextMultiStyleTestCase(
+                activity,
+                textLength,
+                styleCount,
+                hasMetricAffectingStyle,
+                textGenerator
+            )
         )
     }
 }
