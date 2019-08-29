@@ -165,6 +165,10 @@
             android:configChanges="orientation|screenSize"/>
 
         <activity
+            android:name="androidx.appcompat.app.NightModeCustomConfigurationActivity"
+            android:theme="@style/Theme.AppCompat.DayNight"/>
+
+        <activity
                 android:name="androidx.appcompat.app.AppCompatVectorDrawableIntegrationActivity"/>
 
         <activity

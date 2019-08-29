@@ -25,6 +25,7 @@ import org.junit.runners.Suite
     NightModeOrientationConfigChangesTestCase::class,
     NightModeLateOnCreateTestCase::class,
     NightModePreventOverrideConfigTestCase::class,
-    NightModeUiModeConfigChangesTestCase::class
+    NightModeUiModeConfigChangesTestCase::class,
+    NightModeCustomFontScaleTestCase::class
 )
 class NightModeTestSuite
