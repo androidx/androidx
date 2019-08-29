@@ -69,4 +69,32 @@ class FocusManagerTest {
         verify(FocusNode1, times(1)).onFocus()
         verify(FocusNode1, never()).onBlur()
     }
+
+    @Test
+    fun register_and_focusNodeById() {
+        val id = "Focus Node ID"
+        val node = mock<FocusManager.FocusNode>()
+
+        val fm = FocusManager()
+
+        fm.registerFocusNode(id, node)
+        fm.requestFocusById(id)
+        verify(node, times(1)).onFocus()
+        verify(node, never()).onBlur()
+    }
+
+    @Test
+    fun unregister() {
+        val id = "Focus Node ID"
+        val node = mock<FocusManager.FocusNode>()
+
+        val fm = FocusManager()
+
+        fm.registerFocusNode(id, node)
+
+        fm.unregisterFocusNode(id)
+        fm.requestFocusById(id)
+        verify(node, never()).onFocus()
+        verify(node, never()).onBlur()
+    }
 }

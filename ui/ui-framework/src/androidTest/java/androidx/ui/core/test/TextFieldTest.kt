@@ -21,7 +21,6 @@ import androidx.compose.composer
 import androidx.compose.state
 import androidx.compose.unaryPlus
 import androidx.test.filters.SmallTest
-import androidx.test.platform.app.InstrumentationRegistry
 import androidx.ui.core.FocusManagerAmbient
 import androidx.ui.core.TestTag
 import androidx.ui.core.TextField

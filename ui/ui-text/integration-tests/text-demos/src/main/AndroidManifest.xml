@@ -54,5 +54,14 @@
                 <category android:name="androidx.ui.demos.SAMPLE_CODE" />
             </intent-filter>
         </activity>
+
+        <activity android:name=".CraneInputFieldFocusTransitionActivity"
+            android:configChanges="orientation|screenSize"
+            android:label="Text/Input Field/Focus Transition Demo">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="androidx.ui.demos.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
     </application>
 </manifest>

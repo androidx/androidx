@@ -17,16 +17,17 @@
 package androidx.ui.core.input
 
 /**
- * Manages the input focus
+ * Manages focused widget and available.
  *
- * TODO(nona): make this public?
+ * You can access the active focus manager via ambient.
  */
-internal open class FocusManager {
+open class FocusManager internal constructor() {
 
     /**
      * An interface for focusable object
+     * TODO(nona): Consider making this public for custom text field.
      */
-    interface FocusNode {
+    internal interface FocusNode {
         /** Called when this component gained the focus */
         fun onFocus()
 
@@ -34,12 +35,55 @@ internal open class FocusManager {
         fun onBlur()
     }
 
+    /**
+     * The focused client. Maybe null if nothing is focused.
+     */
     private var focusedClient: FocusNode? = null
 
     /**
-     * Request the input focus
+     * The identifier to focusable node map.
      */
-    open fun requestFocus(client: FocusNode) {
+    private val focusMap = mutableMapOf<String, FocusNode>()
+
+    /**
+     * Request the focus assiciated with the identifier.
+     *
+     * Do nothing if there is no focusable node assciated with given identifier.
+     *
+     * @param identifier The focusable node identifier.
+     */
+    fun requestFocusById(identifier: String) {
+        // TODO: Good to defer the task for avoiding possible infinity loop.
+        focusMap[identifier]?.let { requestFocus(it) }
+    }
+
+    /**
+     * Register the focusable node with identifier.
+     *
+     * The caller must unregister when the focusable node is disposed.
+     * This function overwrites if the focusable node is already registered.
+     *
+     * TODO(nona): Consider making this public for custom text field.
+     */
+    internal fun registerFocusNode(identifier: String, node: FocusNode) {
+        focusMap[identifier] = node
+    }
+
+    /**
+     * Unregister the focusable node associated with given identifier.
+     *
+     * TODO(nona): Consider making this public for custom text field.
+     */
+    internal fun unregisterFocusNode(identifier: String) {
+        focusMap.remove(identifier)
+    }
+
+    /**
+     * Request the input focus
+     *
+     * TODO(nona): Consider making this public for custom text field.
+     */
+    internal open fun requestFocus(client: FocusNode) {
         val currentFocus = focusedClient
         if (currentFocus == client) {
             return // focus in to the same component. Do nothing.
