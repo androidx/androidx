@@ -29,7 +29,8 @@ import androidx.ui.text.style.lerp
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.lerp
 import androidx.ui.lerp
-import androidx.ui.painting.Shadow
+import androidx.ui.graphics.Shadow
+import java.util.Locale
 
 /**
  * Configuration object to define the text style.
@@ -229,7 +230,7 @@ data class TextStyle(
                     b.decoration,
                     t
                 ),
-                shadow = androidx.ui.painting.lerp(
+                shadow = lerp(
                     a.shadow ?: Shadow(),
                     b.shadow ?: Shadow(),
                     t

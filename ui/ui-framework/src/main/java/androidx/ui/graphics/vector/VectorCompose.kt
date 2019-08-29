@@ -28,8 +28,8 @@ import androidx.ui.core.Draw
 import androidx.ui.core.Px
 import androidx.ui.core.withDensity
 import androidx.ui.graphics.Brush
-import androidx.ui.painting.StrokeCap
-import androidx.ui.painting.StrokeJoin
+import androidx.ui.graphics.StrokeCap
+import androidx.ui.graphics.StrokeJoin
 
 /**
  * Sentinel value used to indicate that a dimension is not provided

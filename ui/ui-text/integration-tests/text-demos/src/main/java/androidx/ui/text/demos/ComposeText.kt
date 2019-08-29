@@ -39,7 +39,7 @@ import androidx.ui.layout.CrossAxisAlignment
 import androidx.ui.layout.Row
 import androidx.ui.foundation.VerticalScroller
 import androidx.ui.text.ParagraphStyle
-import androidx.ui.painting.Shadow
+import androidx.ui.graphics.Shadow
 import androidx.compose.composer
 import androidx.ui.text.TextStyle
 import androidx.ui.text.style.TextOverflow

@@ -40,7 +40,7 @@ import androidx.ui.material.ripple.RippleEffect
 import androidx.ui.material.ripple.RippleEffectFactory
 import androidx.ui.material.ripple.RippleTheme
 import androidx.ui.material.surface.Card
-import androidx.ui.painting.Canvas
+import androidx.ui.graphics.Canvas
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.doClick
 import androidx.ui.test.findByTag

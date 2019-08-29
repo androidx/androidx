@@ -32,7 +32,7 @@ import androidx.ui.layout.FlexSize
 import androidx.ui.layout.Padding
 import androidx.ui.layout.Row
 import androidx.ui.layout.WidthSpacer
-import androidx.ui.painting.Image
+import androidx.ui.graphics.Image
 import androidx.ui.text.TextStyle
 
 /**

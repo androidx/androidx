@@ -41,7 +41,7 @@ import androidx.ui.layout.Padding
 import androidx.ui.layout.Row
 import androidx.ui.layout.Stack
 import androidx.ui.graphics.Color
-import androidx.ui.painting.Paint
+import androidx.ui.graphics.Paint
 import androidx.compose.Composable
 import androidx.compose.Model
 import androidx.compose.composer

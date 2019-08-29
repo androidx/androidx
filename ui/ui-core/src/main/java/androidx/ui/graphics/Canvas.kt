@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.ui.painting
+package androidx.ui.graphics
 
 import androidx.ui.Vertices
 import androidx.ui.engine.geometry.Offset
@@ -353,7 +353,7 @@ interface Canvas {
      *
      * This shape is almost but not quite entirely unlike an annulus.
      */
-    fun drawDRRect(outer: RRect, inner: RRect, paint: Paint)
+    fun drawDoubleRoundRect(outer: RRect, inner: RRect, paint: Paint)
 
     /**
      * Draws an axis-aligned oval that fills the given axis-aligned rectangle

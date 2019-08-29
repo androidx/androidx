@@ -56,7 +56,7 @@ import androidx.ui.engine.geometry.Rect
 import androidx.ui.framework.test.TestActivity
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.toArgb
-import androidx.ui.painting.Paint
+import androidx.ui.graphics.Paint
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertSame
@@ -477,7 +477,7 @@ class AndroidLayoutDrawTest {
                 Layout(header, footer) { measurables, _ ->
                     assertEquals(0, measurables[0].parentData)
                     assertEquals(1, measurables[1].parentData)
-                    layout(0.ipx, 0.ipx) {}
+                    layout(0.ipx, 0.ipx) { }
                 }
             }
         }
@@ -812,25 +812,25 @@ class AndroidLayoutDrawTest {
             activity.setContent {
                 val child1 = @Composable {
                     Wrap {
-                        Layout({}) { _, _ ->
+                        Layout({ }) { _, _ ->
                             layout(
                                 0.ipx,
                                 0.ipx,
                                 TestVerticalLine to 10.ipx,
                                 TestHorizontalLine to 20.ipx
-                            ) {}
+                            ) { }
                         }
                     }
                 }
                 val child2 = @Composable {
                     Wrap {
-                        Layout({}) { _, _ ->
+                        Layout({ }) { _, _ ->
                             layout(
                                 0.ipx,
                                 0.ipx,
                                 TestVerticalLine to 20.ipx,
                                 TestHorizontalLine to 10.ipx
-                            ) {}
+                            ) { }
                         }
                     }
                 }
@@ -873,7 +873,7 @@ class AndroidLayoutDrawTest {
                     Layout({}) { _, _ -> layout(0.ipx, 0.ipx, TestLine1 to 10.ipx) {} }
                 }
                 val child2 = @Composable {
-                    Layout({}) { _, _ -> layout(0.ipx, 0.ipx, TestLine2 to 20.ipx) {} }
+                    Layout({ }) { _, _ -> layout(0.ipx, 0.ipx, TestLine2 to 20.ipx) { } }
                 }
                 val inner = @Composable {
                     Layout({ child1(); child2() }) { measurables, constraints ->
@@ -911,7 +911,7 @@ class AndroidLayoutDrawTest {
         activityTestRule.runOnUiThreadIR {
             activity.setContent {
                 val child1 = @Composable {
-                    Layout({}) { _, _ ->
+                    Layout({ }) { _, _ ->
                         ++child1Measures
                         layout(0.ipx, 0.ipx, TestLine1 to 10.ipx) {
                             ++child1Layouts
@@ -919,7 +919,7 @@ class AndroidLayoutDrawTest {
                     }
                 }
                 val child2 = @Composable {
-                    Layout({}) { _, _ ->
+                    Layout({ }) { _, _ ->
                         ++child2Measures
                         layout(0.ipx, 0.ipx, TestLine2 to 20.ipx) {
                             ++child2Layouts
@@ -966,7 +966,7 @@ class AndroidLayoutDrawTest {
         activityTestRule.runOnUiThreadIR {
             activity.setContent {
                 val child1 = @Composable {
-                    Layout({}) { _, _ ->
+                    Layout({ }) { _, _ ->
                         ++child1Measures
                         layout(0.ipx, 0.ipx, TestLine1 to 10.ipx) {
                             ++child1Layouts
@@ -974,7 +974,7 @@ class AndroidLayoutDrawTest {
                     }
                 }
                 val child2 = @Composable {
-                    Layout({}) { _, _ ->
+                    Layout({ }) { _, _ ->
                         ++child2Measures
                         layout(0.ipx, 0.ipx, TestLine2 to 20.ipx) {
                             ++child2Layouts
@@ -1017,7 +1017,7 @@ class AndroidLayoutDrawTest {
                     Layout({}) { _, _ -> layout(0.ipx, 0.ipx, TestLine to 10.ipx) { } }
                 }
                 val child2 = @Composable {
-                    Layout({}) { _, _ -> layout(0.ipx, 0.ipx, TestLine to 20.ipx) { } }
+                    Layout({ }) { _, _ -> layout(0.ipx, 0.ipx, TestLine to 20.ipx) { } }
                 }
                 val inner = @Composable {
                     Layout({ child1(); child2() }) { measurables, constraints ->
@@ -1091,7 +1091,7 @@ class AndroidLayoutDrawTest {
         activityTestRule.runOnUiThreadIR {
             activity.setContent {
                 val child = @Composable {
-                    Layout({}) { _, _ -> layout(0.ipx, 0.ipx, TestLine to model.offset) {} }
+                    Layout({ }) { _, _ -> layout(0.ipx, 0.ipx, TestLine to model.offset) { } }
                 }
                 Layout(child) { measurables, constraints ->
                     val placeable = measurables.first().measure(constraints)
@@ -1130,7 +1130,7 @@ class AndroidLayoutDrawTest {
         activityTestRule.runOnUiThreadIR {
             activity.setContent {
                 val child = @Composable {
-                    Layout({}) { _, _ -> layout(0.ipx, 0.ipx, TestLine to model.offset) {} }
+                    Layout({ }) { _, _ -> layout(0.ipx, 0.ipx, TestLine to model.offset) { } }
                 }
                 Layout(child) { measurables, constraints ->
                     val placeable = measurables.first().measure(constraints)
@@ -1167,7 +1167,7 @@ class AndroidLayoutDrawTest {
         activityTestRule.runOnUiThreadIR {
             activity.setContent {
                 val child = @Composable {
-                    Layout({}) { _, _ -> layout(0.ipx, 0.ipx, TestLine to model.offset) {} }
+                    Layout({ }) { _, _ -> layout(0.ipx, 0.ipx, TestLine to model.offset) { } }
                 }
                 Layout(child) { measurables, constraints ->
                     ++measure
@@ -1206,7 +1206,7 @@ class AndroidLayoutDrawTest {
             activity.setContent {
                 val innerChild = @Composable {
                     model.offset // Artificial remeasure.
-                    Layout({}) { _, _ ->
+                    Layout({ }) { _, _ ->
                         layout(0.ipx, 0.ipx, TestLine to 10.ipx) { }
                     }
                 }
@@ -1494,7 +1494,7 @@ fun TwoMeasureLayout(
             // expected
             latch.countDown()
         }
-        layout(0.ipx, 0.ipx){}
+        layout(0.ipx, 0.ipx){ }
     }
 }
 

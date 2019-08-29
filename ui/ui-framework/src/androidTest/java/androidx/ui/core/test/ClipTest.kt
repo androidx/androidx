@@ -39,9 +39,9 @@ import androidx.ui.engine.geometry.Shape
 import androidx.ui.framework.test.TestActivity
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.toArgb
-import androidx.ui.painting.Paint
-import androidx.ui.painting.Path
-import androidx.ui.painting.PathOperation
+import androidx.ui.graphics.Paint
+import androidx.ui.graphics.Path
+import androidx.ui.graphics.PathOperation
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Rule

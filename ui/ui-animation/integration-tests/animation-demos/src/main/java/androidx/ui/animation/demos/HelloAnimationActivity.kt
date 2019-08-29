@@ -30,7 +30,7 @@ import androidx.ui.core.Draw
 import androidx.ui.core.toRect
 import androidx.ui.engine.geometry.Rect
 import androidx.ui.graphics.Color
-import androidx.ui.painting.Paint
+import androidx.ui.graphics.Paint
 import androidx.compose.Composable
 import androidx.compose.Recompose
 import androidx.compose.composer

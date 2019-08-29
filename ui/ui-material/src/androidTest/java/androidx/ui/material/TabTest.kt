@@ -32,8 +32,8 @@ import androidx.ui.layout.Alignment
 import androidx.ui.layout.Container
 import androidx.ui.material.samples.TextTabs
 import androidx.ui.material.surface.Surface
-import androidx.ui.painting.Image
-import androidx.ui.painting.ImageConfig
+import androidx.ui.graphics.Image
+import androidx.ui.graphics.ImageConfig
 import androidx.ui.test.assertCountEquals
 import androidx.ui.test.assertIsUnselected
 import androidx.ui.test.assertIsSelected

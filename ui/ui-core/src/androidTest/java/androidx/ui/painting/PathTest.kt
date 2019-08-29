@@ -18,7 +18,11 @@ package androidx.ui.painting
 
 import androidx.test.filters.SmallTest
 import androidx.ui.engine.geometry.Rect
+import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.Color
+import androidx.ui.graphics.Image
+import androidx.ui.graphics.Paint
+import androidx.ui.graphics.Path
 import androidx.ui.graphics.toArgb
 import androidx.ui.vectormath64.PI
 import androidx.ui.vectormath64.radians

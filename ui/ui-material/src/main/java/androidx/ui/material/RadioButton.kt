@@ -48,9 +48,9 @@ import androidx.ui.layout.Padding
 import androidx.ui.layout.Row
 import androidx.ui.layout.Wrap
 import androidx.ui.material.ripple.Ripple
-import androidx.ui.painting.Canvas
-import androidx.ui.painting.Paint
-import androidx.ui.painting.PaintingStyle
+import androidx.ui.graphics.Canvas
+import androidx.ui.graphics.Paint
+import androidx.ui.graphics.PaintingStyle
 import androidx.ui.text.TextStyle
 
 /**
@@ -275,13 +275,13 @@ private fun DensityReceiver.drawRadio(
 
     if (gap == 0.dp) {
         val inner = outer.shrink(outerPx - innerPx)
-        canvas.drawDRRect(outer, inner, p)
+        canvas.drawDoubleRoundRect(outer, inner, p)
     } else {
         val inner = outer.shrink(RadioStrokeWidth.toPx().value)
-        canvas.drawDRRect(outer, inner, p)
+        canvas.drawDoubleRoundRect(outer, inner, p)
         val radioOuter = inner.shrink(gap.toPx().value)
         val radioInner = outer.shrink(outerPx - innerPx)
-        canvas.drawDRRect(radioOuter, radioInner, p)
+        canvas.drawDoubleRoundRect(radioOuter, radioInner, p)
     }
 }
 

@@ -25,7 +25,7 @@ import androidx.ui.core.px
 import androidx.ui.engine.geometry.Outline
 import androidx.ui.foundation.shape.corner.CornerBasedShape
 import androidx.ui.foundation.shape.corner.CornerSize
-import androidx.ui.painting.Path
+import androidx.ui.graphics.Path
 
 /**
  * A shape describing the rectangle with cut corners.

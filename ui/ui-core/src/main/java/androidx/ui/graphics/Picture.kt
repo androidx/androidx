@@ -1,4 +1,4 @@
-package androidx.ui.painting
+package androidx.ui.graphics
 
 import androidx.ui.engine.geometry.Rect
 

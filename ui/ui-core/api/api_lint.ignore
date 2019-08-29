@@ -47,8 +47,6 @@ AcronymName: androidx.ui.engine.geometry.Rect.Companion#fromLTRB(float, float, f
     Acronyms should not be capitalized in method names: was `fromLTRB`, should this be `fromLtrb`?
 AcronymName: androidx.ui.engine.geometry.Rect.Companion#fromLTWH(float, float, float, float):
     Acronyms should not be capitalized in method names: was `fromLTWH`, should this be `fromLtwh`?
-AcronymName: androidx.ui.painting.Canvas#drawDRRect(androidx.ui.engine.geometry.RRect, androidx.ui.engine.geometry.RRect, androidx.ui.painting.Paint):
-    Acronyms should not be capitalized in method names: was `drawDRRect`, should this be `drawDrRect`?
 
 
 AutoBoxing: androidx.ui.vectormath64.Matrix4#scale(Object, Float, Float) parameter #1:
@@ -61,14 +59,6 @@ AutoBoxing: androidx.ui.vectormath64.Matrix4Kt#getAsScale(androidx.ui.vectormath
 
 DocumentExceptions: androidx.ui.graphics.ColorKt#Color(float, float, float, float, androidx.ui.graphics.colorspace.ColorSpace):
     Method ColorKt.Color appears to be throwing java.lang.IllegalArgumentException; this should be listed in the documentation; see https://android.github.io/kotlin-guides/interop.html#document-exceptions
-DocumentExceptions: androidx.ui.painting.Path#arcToPoint(androidx.ui.engine.geometry.Offset, androidx.ui.engine.geometry.Radius, float, boolean, boolean):
-    Method Path.arcToPoint appears to be throwing java.lang.UnsupportedOperationException; this should be listed in the documentation; see https://android.github.io/kotlin-guides/interop.html#document-exceptions
-DocumentExceptions: androidx.ui.painting.Path#conicTo(float, float, float, float, float):
-    Method Path.conicTo appears to be throwing java.lang.UnsupportedOperationException; this should be listed in the documentation; see https://android.github.io/kotlin-guides/interop.html#document-exceptions
-DocumentExceptions: androidx.ui.painting.Path#relativeConicTo(float, float, float, float, float):
-    Method Path.relativeConicTo appears to be throwing java.lang.UnsupportedOperationException; this should be listed in the documentation; see https://android.github.io/kotlin-guides/interop.html#document-exceptions
-DocumentExceptions: androidx.ui.painting.Path.Companion#combine(androidx.ui.painting.PathOperation, androidx.ui.painting.Path, androidx.ui.painting.Path):
-    Method Companion.combine appears to be throwing java.lang.IllegalArgumentException; this should be listed in the documentation; see https://android.github.io/kotlin-guides/interop.html#document-exceptions
 DocumentExceptions: androidx.ui.vectormath64.Matrix2#get(androidx.ui.vectormath64.MatrixColumn):
     Method Matrix2.get appears to be throwing java.lang.IllegalArgumentException; this should be listed in the documentation; see https://android.github.io/kotlin-guides/interop.html#document-exceptions
 DocumentExceptions: androidx.ui.vectormath64.Matrix2#get(int):
@@ -111,7 +101,7 @@ KotlinOperator: androidx.ui.engine.geometry.Rect#contains(androidx.ui.engine.geo
     Note that adding the `operator` keyword would allow calling this method using operator syntax
 KotlinOperator: androidx.ui.engine.geometry.Size#contains(androidx.ui.engine.geometry.Offset):
     Note that adding the `operator` keyword would allow calling this method using operator syntax
-KotlinOperator: androidx.ui.painting.Path#contains(androidx.ui.engine.geometry.Offset):
+KotlinOperator: androidx.ui.graphics.Path#contains(androidx.ui.engine.geometry.Offset):
     Note that adding the `operator` keyword would allow calling this method using operator syntax
 KotlinOperator: androidx.ui.text.TextRange#contains(androidx.ui.text.TextRange):
     Note that adding the `operator` keyword would allow calling this method using operator syntax
@@ -183,14 +173,14 @@ MissingNullability: androidx.ui.engine.geometry.Size#Companion:
     Missing nullability on field `Companion` in class `class androidx.ui.engine.geometry.Size`
 MissingNullability: androidx.ui.graphics.Color#Companion:
     Missing nullability on field `Companion` in class `class androidx.ui.graphics.Color`
+MissingNullability: androidx.ui.graphics.MaskFilter#Companion:
+    Missing nullability on field `Companion` in class `class androidx.ui.graphics.MaskFilter`
+MissingNullability: androidx.ui.graphics.Path#Companion:
+    Missing nullability on field `Companion` in class `class androidx.ui.graphics.Path`
 MissingNullability: androidx.ui.graphics.colorspace.ColorSpaces#INSTANCE:
     Missing nullability on field `INSTANCE` in class `class androidx.ui.graphics.colorspace.ColorSpaces`
 MissingNullability: androidx.ui.graphics.colorspace.Illuminant#INSTANCE:
     Missing nullability on field `INSTANCE` in class `class androidx.ui.graphics.colorspace.Illuminant`
-MissingNullability: androidx.ui.painting.MaskFilter#Companion:
-    Missing nullability on field `Companion` in class `class androidx.ui.painting.MaskFilter`
-MissingNullability: androidx.ui.painting.Path#Companion:
-    Missing nullability on field `Companion` in class `class androidx.ui.painting.Path`
 MissingNullability: androidx.ui.util.Float16#Companion:
     Missing nullability on field `Companion` in class `class androidx.ui.util.Float16`
 MissingNullability: androidx.ui.vectormath64.Matrix2#Companion:

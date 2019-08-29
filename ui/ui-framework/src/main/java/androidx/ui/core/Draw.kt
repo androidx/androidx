@@ -15,7 +15,7 @@
  */
 package androidx.ui.core
 
-import androidx.ui.painting.Canvas
+import androidx.ui.graphics.Canvas
 import androidx.compose.Children
 import androidx.compose.Composable
 import androidx.compose.composer

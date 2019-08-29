@@ -37,9 +37,9 @@ import androidx.ui.layout.Padding
 import androidx.ui.layout.Wrap
 import androidx.ui.material.internal.anchoredControllerByState
 import androidx.ui.material.ripple.Ripple
-import androidx.ui.painting.Canvas
-import androidx.ui.painting.Paint
-import androidx.ui.painting.StrokeCap
+import androidx.ui.graphics.Canvas
+import androidx.ui.graphics.Paint
+import androidx.ui.graphics.StrokeCap
 
 /**
  * A Switch is a two state toggleable component that provides on/off like options

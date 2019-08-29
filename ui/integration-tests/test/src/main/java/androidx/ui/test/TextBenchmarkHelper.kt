@@ -20,7 +20,7 @@ import androidx.ui.core.px
 import androidx.ui.core.sp
 import androidx.ui.engine.geometry.Offset
 import androidx.ui.graphics.Color
-import androidx.ui.painting.Shadow
+import androidx.ui.graphics.Shadow
 import androidx.ui.text.AnnotatedString
 import androidx.ui.text.LocaleList
 import androidx.ui.text.TextStyle

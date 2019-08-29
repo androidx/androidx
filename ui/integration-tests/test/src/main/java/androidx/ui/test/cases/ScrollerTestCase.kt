@@ -34,8 +34,8 @@ import androidx.ui.layout.Container
 import androidx.ui.layout.CrossAxisAlignment
 import androidx.ui.foundation.ScrollerPosition
 import androidx.ui.foundation.VerticalScroller
-import androidx.ui.painting.Paint
-import androidx.ui.painting.PaintingStyle
+import androidx.ui.graphics.Paint
+import androidx.ui.graphics.PaintingStyle
 import androidx.ui.test.ComposeTestCase
 import androidx.ui.test.ToggleableTestCase
 

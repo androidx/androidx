@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 The Android Open Source Project
+ * Copyright 2019 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
-package androidx.ui.painting
+package androidx.ui.graphics
 
+import android.graphics.BitmapShader
+import android.graphics.LinearGradient
+import android.graphics.RadialGradient
 import androidx.ui.engine.geometry.Offset
-import androidx.ui.graphics.Color
-import androidx.ui.graphics.toArgb
 
 /**
  * Class that represents the corresponding Shader implementation on a platform. This maps
@@ -51,7 +52,7 @@ import androidx.ui.graphics.toArgb
 ): Shader {
     validateColorStops(colors, colorStops)
     return Shader(
-        android.graphics.LinearGradient(
+        LinearGradient(
             from.dx,
             from.dy,
             to.dx,
@@ -87,7 +88,7 @@ import androidx.ui.graphics.toArgb
 ): Shader {
     validateColorStops(colors, colorStops)
     return Shader(
-        android.graphics.RadialGradient(
+        RadialGradient(
             center.dx,
             center.dy,
             radius,
@@ -104,7 +105,7 @@ import androidx.ui.graphics.toArgb
     tileModeY: TileMode = TileMode.Clamp
 ): Shader {
     return Shader(
-        android.graphics.BitmapShader(
+        BitmapShader(
             image.nativeImage,
             tileModeX.nativeTileMode,
             tileModeY.nativeTileMode

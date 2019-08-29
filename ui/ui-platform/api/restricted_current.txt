@@ -16,7 +16,7 @@ package androidx.ui.core {
   public final class AndroidComposeView extends android.view.ViewGroup implements androidx.ui.core.DensityReceiver androidx.ui.core.Owner androidx.ui.core.SemanticsTreeProvider {
     ctor public AndroidComposeView(android.content.Context context);
     method public androidx.ui.core.PxPosition calculatePosition();
-    method public void callDraw(androidx.ui.painting.Canvas canvas, androidx.ui.core.ComponentNode node, androidx.ui.core.PxSize parentSize);
+    method public void callDraw(androidx.ui.graphics.Canvas canvas, androidx.ui.core.ComponentNode node, androidx.ui.core.PxSize parentSize);
     method public java.util.List<androidx.ui.core.SemanticsTreeNode> getAllSemanticNodes();
     method public androidx.ui.autofill.Autofill? getAutofill();
     method public androidx.ui.autofill.AutofillTree getAutofillTree();
@@ -126,15 +126,15 @@ package androidx.ui.core {
   public final class DrawNode extends androidx.ui.core.ComponentNode {
     ctor public DrawNode();
     method public boolean getNeedsPaint();
-    method public kotlin.jvm.functions.Function3<androidx.ui.core.DensityReceiver,androidx.ui.painting.Canvas,androidx.ui.core.PxSize,kotlin.Unit>? getOnPaint();
-    method public kotlin.jvm.functions.Function3<androidx.ui.core.DrawReceiver,androidx.ui.painting.Canvas,androidx.ui.core.PxSize,kotlin.Unit>? getOnPaintWithChildren();
+    method public kotlin.jvm.functions.Function3<androidx.ui.core.DensityReceiver,androidx.ui.graphics.Canvas,androidx.ui.core.PxSize,kotlin.Unit>? getOnPaint();
+    method public kotlin.jvm.functions.Function3<androidx.ui.core.DrawReceiver,androidx.ui.graphics.Canvas,androidx.ui.core.PxSize,kotlin.Unit>? getOnPaintWithChildren();
     method public void invalidate();
     method public void setNeedsPaint(boolean p);
-    method public void setOnPaint(kotlin.jvm.functions.Function3<? super androidx.ui.core.DensityReceiver,? super androidx.ui.painting.Canvas,? super androidx.ui.core.PxSize,kotlin.Unit>? value);
-    method public void setOnPaintWithChildren(kotlin.jvm.functions.Function3<? super androidx.ui.core.DrawReceiver,? super androidx.ui.painting.Canvas,? super androidx.ui.core.PxSize,kotlin.Unit>? value);
+    method public void setOnPaint(kotlin.jvm.functions.Function3<? super androidx.ui.core.DensityReceiver,? super androidx.ui.graphics.Canvas,? super androidx.ui.core.PxSize,kotlin.Unit>? value);
+    method public void setOnPaintWithChildren(kotlin.jvm.functions.Function3<? super androidx.ui.core.DrawReceiver,? super androidx.ui.graphics.Canvas,? super androidx.ui.core.PxSize,kotlin.Unit>? value);
     property public final boolean needsPaint;
-    property public final kotlin.jvm.functions.Function3<androidx.ui.core.DensityReceiver,androidx.ui.painting.Canvas,androidx.ui.core.PxSize,kotlin.Unit>? onPaint;
-    property public final kotlin.jvm.functions.Function3<androidx.ui.core.DrawReceiver,androidx.ui.painting.Canvas,androidx.ui.core.PxSize,kotlin.Unit>? onPaintWithChildren;
+    property public final kotlin.jvm.functions.Function3<androidx.ui.core.DensityReceiver,androidx.ui.graphics.Canvas,androidx.ui.core.PxSize,kotlin.Unit>? onPaint;
+    property public final kotlin.jvm.functions.Function3<androidx.ui.core.DrawReceiver,androidx.ui.graphics.Canvas,androidx.ui.core.PxSize,kotlin.Unit>? onPaintWithChildren;
   }
 
   public final class LayoutNode extends androidx.ui.core.ComponentNode implements androidx.ui.core.Measurable androidx.ui.core.MeasureBlockScope {

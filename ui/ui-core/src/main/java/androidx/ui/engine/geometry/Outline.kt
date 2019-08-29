@@ -16,9 +16,9 @@
 
 package androidx.ui.engine.geometry
 
-import androidx.ui.painting.Canvas
-import androidx.ui.painting.Paint
-import androidx.ui.painting.Path
+import androidx.ui.graphics.Canvas
+import androidx.ui.graphics.Paint
+import androidx.ui.graphics.Path
 
 /**
  * Defines a simple shape, used for bounding graphical regions.

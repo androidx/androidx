@@ -47,7 +47,7 @@ import androidx.ui.material.samples.SimpleTopAppBar
 import androidx.ui.material.samples.SimpleTopAppBarNavIcon
 import androidx.ui.material.surface.Surface
 import androidx.ui.material.themeTextStyle
-import androidx.ui.painting.imageFromResource
+import androidx.ui.graphics.imageFromResource
 
 class AppBarActivity : MaterialDemoActivity() {
 

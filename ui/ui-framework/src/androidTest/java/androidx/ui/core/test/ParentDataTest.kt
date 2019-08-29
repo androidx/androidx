@@ -25,7 +25,7 @@ import androidx.ui.core.ipx
 import androidx.ui.core.toRect
 import androidx.ui.framework.test.TestActivity
 import androidx.ui.graphics.Color
-import androidx.ui.painting.Paint
+import androidx.ui.graphics.Paint
 import androidx.compose.Composable
 import androidx.compose.composer
 import androidx.ui.core.setContent
