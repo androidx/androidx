@@ -24,6 +24,6 @@
         android:id="@+id/paged_list_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:scrollBarEnabled="false"
+        app:scrollBarVisibleIfNeeded="false"
         app:showPagedListViewDivider="false"/>
 </FrameLayout>

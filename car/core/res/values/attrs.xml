@@ -46,8 +46,10 @@ limitations under the License.
              items in the PagedListView. There is a default value that changes per screen size if
              a gutter size is not explicitly set.-->
         <attr name="gutterSize" format="dimension" />
-        <!-- Whether to display the scrollbar or not. Defaults to true. -->
+        <!-- @deprecated Use scrollBarVisibleIfNeeded instead -->
         <attr name="scrollBarEnabled" format="boolean" />
+        <!-- Whether to display the scrollbar when the list is scrollable. Defaults to true. -->
+        <attr name="scrollBarVisibleIfNeeded" format="boolean" />
         <!-- The top margin before the scroll bar is drawn. -->
         <attr name="scrollBarTopMargin" format="dimension" />
         <!-- The width of the container that will hold the scrollbar. The scrollbar is centered

@@ -63,7 +63,7 @@ limitations under the License.
                 app:dividerStartMargin="@dimen/car_keyline_1"
                 app:dividerEndMargin="@dimen/car_keyline_1"
                 app:showPagedListViewDivider="true"
-                app:scrollBarEnabled="false" />
+                app:scrollBarVisibleIfNeeded="false" />
 
             <Button
                 android:id="@+id/dismiss_button"
