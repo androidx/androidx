@@ -293,7 +293,7 @@ class ContiguousPagedListTest(private val placeholdersEnabled: Boolean) {
     fun append() {
         val pagedList = createCountedPagedList(0)
         val callback = mock<Callback>()
-        pagedList.addWeakCallback(null, callback)
+        pagedList.addWeakCallback(callback)
         verifyRange(0, 40, pagedList)
         verifyZeroInteractions(callback)
 
@@ -309,7 +309,7 @@ class ContiguousPagedListTest(private val placeholdersEnabled: Boolean) {
     fun prepend() {
         val pagedList = createCountedPagedList(80)
         val callback = mock<Callback>()
-        pagedList.addWeakCallback(null, callback)
+        pagedList.addWeakCallback(callback)
         verifyRange(60, 40, pagedList)
         verifyZeroInteractions(callback)
 
@@ -325,7 +325,7 @@ class ContiguousPagedListTest(private val placeholdersEnabled: Boolean) {
     fun outwards() {
         val pagedList = createCountedPagedList(40)
         val callback = mock<Callback>()
-        pagedList.addWeakCallback(null, callback)
+        pagedList.addWeakCallback(callback)
         verifyRange(20, 40, pagedList)
         verifyZeroInteractions(callback)
 
@@ -412,7 +412,7 @@ class ContiguousPagedListTest(private val placeholdersEnabled: Boolean) {
             maxSize = 70
         )
         val callback = mock<Callback>()
-        pagedList.addWeakCallback(null, callback)
+        pagedList.addWeakCallback(callback)
         verifyRange(0, 20, pagedList)
         verifyZeroInteractions(callback)
 
@@ -449,7 +449,7 @@ class ContiguousPagedListTest(private val placeholdersEnabled: Boolean) {
             maxSize = 70
         )
         val callback = mock<Callback>()
-        pagedList.addWeakCallback(null, callback)
+        pagedList.addWeakCallback(callback)
         verifyRange(80, 20, pagedList)
         verifyZeroInteractions(callback)
 
@@ -495,7 +495,7 @@ class ContiguousPagedListTest(private val placeholdersEnabled: Boolean) {
         verifyRange(1, 3, pagedList)
 
         val callback = mock<Callback>()
-        pagedList.addWeakCallback(null, callback)
+        pagedList.addWeakCallback(callback)
 
         // start a load at the beginning...
         pagedList.loadAround(if (placeholdersEnabled) 1 else 0)
@@ -537,7 +537,7 @@ class ContiguousPagedListTest(private val placeholdersEnabled: Boolean) {
         drain()
 
         val callback = mock<Callback>()
-        pagedList.addWeakCallback(null, callback)
+        pagedList.addWeakCallback(callback)
 
         // start a load at the end...
         pagedList.loadAround(if (placeholdersEnabled) 3 else 2)
@@ -759,7 +759,7 @@ class ContiguousPagedListTest(private val placeholdersEnabled: Boolean) {
         )
 
         val callback = mock<Callback>()
-        pagedList.addWeakCallback(null, callback)
+        pagedList.addWeakCallback(callback)
         verifyRange(0, 10, pagedList)
         verifyZeroInteractions(callback)
 
@@ -786,6 +786,7 @@ class ContiguousPagedListTest(private val placeholdersEnabled: Boolean) {
 
         // snapshot at 60 items
         val snapshot = pagedList.snapshot() as PagedList<Item>
+        val snapshotCopy = snapshot.toList()
         verifyRange(0, 60, snapshot)
 
         // load more items...
@@ -795,9 +796,14 @@ class ContiguousPagedListTest(private val placeholdersEnabled: Boolean) {
         verifyRange(0, 60, snapshot)
 
         // and verify the snapshot hasn't received them
+        assertEquals(snapshotCopy, snapshot)
         val callback = mock<Callback>()
+        @Suppress("DEPRECATION")
         pagedList.addWeakCallback(snapshot, callback)
-        verifyCallback(callback, 60)
+        verify(callback).onChanged(0, snapshot.size)
+        if (!placeholdersEnabled) {
+            verify(callback).onInserted(60, 20)
+        }
         verifyNoMoreInteractions(callback)
     }
 
@@ -812,6 +818,7 @@ class ContiguousPagedListTest(private val placeholdersEnabled: Boolean) {
 
         // snapshot at 60 items
         val snapshot = pagedList.snapshot() as PagedList<Item>
+        val snapshotCopy = snapshot.toList()
         verifyRange(40, 60, snapshot)
 
         pagedList.loadAround(if (placeholdersEnabled) 45 else 5)
@@ -819,9 +826,15 @@ class ContiguousPagedListTest(private val placeholdersEnabled: Boolean) {
         verifyRange(20, 80, pagedList)
         verifyRange(40, 60, snapshot)
 
+        assertEquals(snapshotCopy, snapshot)
         val callback = mock<Callback>()
+        @Suppress("DEPRECATION")
         pagedList.addWeakCallback(snapshot, callback)
-        verifyCallback(callback, 40, 0)
+        verify(callback).onChanged(0, snapshot.size)
+        if (!placeholdersEnabled) {
+            // deprecated snapshot compare dispatches as if inserts occur at the end
+            verify(callback).onInserted(60, 20)
+        }
         verifyNoMoreInteractions(callback)
     }
 
@@ -850,18 +863,20 @@ class ContiguousPagedListTest(private val placeholdersEnabled: Boolean) {
     }
 
     @Test
-    fun addWeakCallbackEmpty() {
+    fun addWeakCallbackLegacyEmpty() {
         val pagedList = createCountedPagedList(0)
-        val callback = mock<Callback>()
         verifyRange(0, 40, pagedList)
 
         // capture empty snapshot
         val initSnapshot = pagedList.snapshot()
         assertEquals(pagedList, initSnapshot)
 
-        // verify that adding callback notifies nothing going from empty -> empty
+        // verify that adding callback notifies naive "everything changed" when snapshot passed
+        var callback = mock<Callback>()
+        @Suppress("DEPRECATION")
         pagedList.addWeakCallback(initSnapshot, callback)
-        verifyZeroInteractions(callback)
+        verify(callback).onChanged(0, pagedList.size)
+        verifyNoMoreInteractions(callback)
         pagedList.removeWeakCallback(callback)
 
         pagedList.loadAround(35)
@@ -869,8 +884,13 @@ class ContiguousPagedListTest(private val placeholdersEnabled: Boolean) {
         verifyRange(0, 60, pagedList)
 
         // verify that adding callback notifies insert going from empty -> content
+        callback = mock()
+        @Suppress("DEPRECATION")
         pagedList.addWeakCallback(initSnapshot, callback)
-        verifyCallback(callback, 40)
+        verify(callback).onChanged(0, initSnapshot.size)
+        if (!placeholdersEnabled) {
+            verify(callback).onInserted(40, 20)
+        }
         verifyNoMoreInteractions(callback)
     }
 
