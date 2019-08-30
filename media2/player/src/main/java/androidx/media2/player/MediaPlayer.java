@@ -497,7 +497,8 @@ public final class MediaPlayer extends SessionPlayer {
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     MediaPlayer2 mPlayer;
-    private ExecutorService mExecutor;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    ExecutorService mExecutor;
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     static final class PendingCommand {
@@ -727,7 +728,8 @@ public final class MediaPlayer extends SessionPlayer {
         }, mExecutor);
     }
 
-    private void addPendingFuture(final PendingFuture<? extends PlayerResult> pendingFuture) {
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    void addPendingFuture(final PendingFuture<? extends PlayerResult> pendingFuture) {
         synchronized (mPendingFutures) {
             mPendingFutures.add(pendingFuture);
             executePendingFutures();
@@ -3181,14 +3183,81 @@ public final class MediaPlayer extends SessionPlayer {
                         setBufferingState(item, BUFFERING_STATE_COMPLETE);
                     }
                     break;
-                case MediaPlayer2.MEDIA_INFO_DATA_SOURCE_LIST_END:
-                    setState(PLAYER_STATE_PAUSED);
-                    notifySessionPlayerCallback(new SessionPlayerCallbackNotifier() {
-                        @Override
-                        public void callCallback(SessionPlayer.PlayerCallback callback) {
-                            callback.onPlaybackCompleted(MediaPlayer.this);
+                case MediaPlayer2.MEDIA_INFO_DATA_SOURCE_START:
+                    boolean shouldNotifyCurrentMediaItemChanged;
+                    MediaItem nextPlaylistItem;
+                    synchronized (mPlaylistLock) {
+                        if (mCurPlaylistItem == item) {
+                            // Playback is started for the media item that the MediaPlayer has set
+                            // as the current media item via MediaPlayer2.setMediaItem() or
+                            // MediaPlayer2.skipToNext(). In that case, the current media item is
+                            // already notified in the MediaPlayer2.EventCallback#onCallCompleted(),
+                            // so don't need to notify again.
+                            shouldNotifyCurrentMediaItemChanged = false;
+                            nextPlaylistItem = null;
+                        } else {
+                            // Playback is advanced to the next item by MediaPlayer2 itself after
+                            // the playback of the mCurPlaylistItem is completed.
+                            // In that case, update the mCurPlaylistItem and also notify about the
+                            // current media item changes.
+                            shouldNotifyCurrentMediaItemChanged = true;
+                            mCurrentShuffleIdx = mShuffledList.indexOf(item);
+                            updateAndGetCurrentNextItemIfNeededLocked();
+                            nextPlaylistItem = mNextPlaylistItem;
                         }
-                    });
+                    }
+                    if (shouldNotifyCurrentMediaItemChanged) {
+                        notifySessionPlayerCallback(new SessionPlayerCallbackNotifier() {
+                            @Override
+                            public void callCallback(SessionPlayer.PlayerCallback callback) {
+                                callback.onCurrentMediaItemChanged(MediaPlayer.this, item);
+                            }
+                        });
+                        // If the playback is advanced to the next item by itself, then the next
+                        // media item may be emptied. If so, sets the next media item so the
+                        // playback continues.
+                        if (nextPlaylistItem != null) {
+                            PendingFuture<PlayerResult> pendingFuture =
+                                    new PendingFuture<PlayerResult>(mExecutor) {
+                                        @Override
+                                        List<ResolvableFuture<PlayerResult>> onExecute() {
+                                            ArrayList<ResolvableFuture<PlayerResult>> futures =
+                                                    new ArrayList<>();
+                                            futures.add(setNextMediaItemInternal(nextPlaylistItem));
+                                            return futures;
+                                        }
+                                    };
+                            addPendingFuture(pendingFuture);
+                        }
+                    }
+                    break;
+                case MediaPlayer2.MEDIA_INFO_DATA_SOURCE_LIST_END:
+                    MediaItem nextItemToPlay;
+                    synchronized (mPlaylistLock) {
+                        mCurrentShuffleIdx = mShuffledList.indexOf(item);
+                        nextItemToPlay = mNextPlaylistItem;
+                    }
+                    if (nextItemToPlay != null) {
+                        // Although the MediaPlayer2's playback is completed, but there's still
+                        // remaining items to play in the playlist. It happens if the MediaPlayer2's
+                        // playback is completed before the MediaPlayer has set the next item to
+                        // play.
+                        // Forcefully call skipToNextPlaylistItem to resume playback.
+                        ListenableFuture<PlayerResult> future = skipToNextPlaylistItem();
+                        if (future == null) {
+                            Log.e(TAG, "Cannot play next media item", new IllegalStateException());
+                            setState(PLAYER_STATE_ERROR);
+                        }
+                    } else {
+                        // The playback for the playlist is completed for real. Notify accordingly.
+                        setState(PLAYER_STATE_PAUSED);
+                        notifySessionPlayerCallback(new SessionPlayerCallbackNotifier() {
+                            @Override
+                            public void callCallback(SessionPlayer.PlayerCallback callback) {
+                                callback.onPlaybackCompleted(MediaPlayer.this);
+                            }
+                        });
+                    }
                     break;
             }
             if (sInfoCodeMap.containsKey(mp2What)) {
