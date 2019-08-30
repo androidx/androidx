@@ -47,6 +47,10 @@ package androidx.paging {
     method public static <Key, Value> androidx.lifecycle.LiveData<androidx.paging.PagedList<Value>> toLiveData(kotlin.jvm.functions.Function0<? extends androidx.paging.PagedSource<Key,Value>>, int pageSize, Key? initialLoadKey = null, androidx.paging.PagedList.BoundaryCallback<Value>? boundaryCallback = null, kotlinx.coroutines.CoroutineScope coroutineScope = GlobalScope, kotlinx.coroutines.CoroutineDispatcher fetchDispatcher = Dispatchers.IO);
   }
 
+  public final class NullPaddedListDiffHelperKt {
+    ctor public NullPaddedListDiffHelperKt();
+  }
+
   public abstract class PagedListAdapter<T, VH extends androidx.recyclerview.widget.RecyclerView.ViewHolder> extends androidx.recyclerview.widget.RecyclerView.Adapter<VH> {
     ctor protected PagedListAdapter(androidx.recyclerview.widget.DiffUtil.ItemCallback<T> diffCallback);
     ctor protected PagedListAdapter(androidx.recyclerview.widget.AsyncDifferConfig<T> config);
@@ -61,10 +65,6 @@ package androidx.paging {
     method public void submitList(androidx.paging.PagedList<T>? pagedList);
     method public void submitList(androidx.paging.PagedList<T>? pagedList, Runnable? commitCallback);
     property public androidx.paging.PagedList<T>? currentList;
-  }
-
-  public final class PagedStorageDiffHelperKt {
-    ctor public PagedStorageDiffHelperKt();
   }
 
 }

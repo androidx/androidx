@@ -25,17 +25,15 @@ import java.util.AbstractList
  *
  * This class only holds data, and does not have any notion of the ideas of async loads, or
  * prefetching.
- *
- * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
-class PagedStorage<T : Any> : AbstractList<T>, Pager.AdjacentProvider<T> {
+internal class PagedStorage<T : Any> : AbstractList<T>, Pager.AdjacentProvider<T>,
+    NullPaddedList<T> {
     private val pages: ArrayList<List<T>>
 
-    var leadingNullCount: Int = 0
+    override var leadingNullCount: Int = 0
         private set
 
-    var trailingNullCount: Int = 0
+    override var trailingNullCount: Int = 0
         private set
 
     var positionOffset: Int = 0
@@ -43,7 +41,7 @@ class PagedStorage<T : Any> : AbstractList<T>, Pager.AdjacentProvider<T> {
     /**
      * Number of loaded items held by [pages].
      */
-    var storageCount: Int = 0
+    override var storageCount: Int = 0
         private set
 
     var numberPrepended: Int = 0
@@ -124,12 +122,11 @@ class PagedStorage<T : Any> : AbstractList<T>, Pager.AdjacentProvider<T> {
         callback.onInitialized(size)
     }
 
-    fun getFromStorage(localIndex: Int): T {
+    override fun getFromStorage(localIndex: Int): T {
         var localPageIndex = 0
-        var pageInternalIndex: Int
+        var pageInternalIndex: Int = localIndex
 
         // Since we don't know if page sizes are regular, we walk to correct page.
-        pageInternalIndex = localIndex
         val localPageCount = pages.size
         while (localPageIndex < localPageCount) {
             val pageSize = pages[localPageIndex].size

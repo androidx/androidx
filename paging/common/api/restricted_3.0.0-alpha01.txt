@@ -129,6 +129,18 @@ package androidx.paging {
     enum_constant public static final androidx.paging.LoadType START;
   }
 
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public interface NullPaddedList<T> {
+    method public T! getFromStorage(int localIndex);
+    method public int getLeadingNullCount();
+    method public int getSize();
+    method public int getStorageCount();
+    method public int getTrailingNullCount();
+    property public abstract int leadingNullCount;
+    property public abstract int size;
+    property public abstract int storageCount;
+    property public abstract int trailingNullCount;
+  }
+
   public abstract class PageKeyedDataSource<Key, Value> extends androidx.paging.DataSource<Key,Value> {
     ctor public PageKeyedDataSource();
     method public final suspend Object load$lintWithKotlin(androidx.paging.DataSource.Params<Key> params, kotlin.coroutines.Continuation<? super androidx.paging.DataSource.BaseResult<Value>> p);
@@ -169,20 +181,19 @@ package androidx.paging {
   }
 
   public abstract class PagedList<T> extends java.util.AbstractList<T> {
-    ctor @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public PagedList(androidx.paging.PagedSource<?,T> pagedSource, androidx.paging.PagedStorage<T> storage, androidx.paging.PagedList.Config config);
     method @Deprecated public void addWeakCallback(java.util.List<? extends T>? previousSnapshot, androidx.paging.PagedList.Callback callback);
     method public void addWeakCallback(androidx.paging.PagedList.Callback callback);
     method public void addWeakLoadStateListener(kotlin.jvm.functions.Function2<? super androidx.paging.LoadType,? super androidx.paging.LoadState,kotlin.Unit> listener);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static final suspend <K, T> Object create(androidx.paging.PagedSource<K,T> p, kotlinx.coroutines.CoroutineScope pagedSource, kotlinx.coroutines.CoroutineDispatcher coroutineScope, kotlinx.coroutines.CoroutineDispatcher notifyDispatcher, kotlinx.coroutines.CoroutineDispatcher fetchDispatcher, androidx.paging.PagedList.BoundaryCallback<T>? initialFetchDispatcher, androidx.paging.PagedList.Config boundaryCallback, K? config, kotlin.coroutines.Continuation<? super androidx.paging.PagedList<T>> key);
     method public abstract void detach();
     method public T? get(int index);
-    method public androidx.paging.PagedList.Config getConfig();
+    method public final androidx.paging.PagedList.Config getConfig();
     method @Deprecated public final androidx.paging.DataSource<?,T> getDataSource();
     method public abstract Object? getLastKey();
     method public int getLoadedCount();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final androidx.paging.NullPaddedList<T> getNullPaddedList();
     method public int getPositionOffset();
     method public int getSize();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final androidx.paging.PagedStorage<T> getStorage();
     method public abstract boolean isDetached();
     method public boolean isImmutable();
     method public void loadAround(int index);
@@ -191,7 +202,6 @@ package androidx.paging {
     method public void retry();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void setInitialLoadState(androidx.paging.LoadType loadType, androidx.paging.LoadState loadState);
     method public java.util.List<T> snapshot();
-    property public androidx.paging.PagedList.Config config;
     property @Deprecated public final androidx.paging.DataSource<?,T> dataSource;
     property public abstract boolean isDetached;
     property public boolean isImmutable;
@@ -352,8 +362,6 @@ package androidx.paging {
     method public suspend Object load(androidx.paging.PagedSource.LoadParams<Key> params, kotlin.coroutines.Continuation<? super androidx.paging.PagedSource.LoadResult<Key,Value>> p);
     property public androidx.paging.PagedSource.KeyProvider<Key,Value> keyProvider;
   }
-
-
 
   public abstract class PositionalDataSource<T> extends androidx.paging.DataSource<java.lang.Integer,T> {
     ctor public PositionalDataSource();

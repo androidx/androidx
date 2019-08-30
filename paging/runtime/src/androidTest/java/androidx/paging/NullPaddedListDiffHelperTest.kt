@@ -30,13 +30,24 @@ import org.mockito.Mockito.verifyZeroInteractions
 
 @SmallTest
 @RunWith(JUnit4::class)
-class PagedStorageDiffHelperTest {
+class NullPaddedListDiffHelperTest {
+    class Storage(
+        override val leadingNullCount: Int,
+        private val data: List<String>,
+        override val trailingNullCount: Int
+    ) : NullPaddedList<String> {
+        override fun getFromStorage(localIndex: Int): String = data[localIndex]
+        override val size: Int
+            get() = leadingNullCount + data.size + trailingNullCount
+        override val storageCount: Int
+            get() = data.size
+    }
 
     @Test
     fun sameListNoUpdates() {
         validateTwoListDiff(
-                PagedStorage(5, listOf("a", "b", "c"), 5),
-                PagedStorage(5, listOf("a", "b", "c"), 5)) {
+                Storage(5, listOf("a", "b", "c"), 5),
+                Storage(5, listOf("a", "b", "c"), 5)) {
             verifyZeroInteractions(it)
         }
     }
@@ -44,8 +55,8 @@ class PagedStorageDiffHelperTest {
     @Test
     fun appendFill() {
         validateTwoListDiff(
-                PagedStorage(5, listOf("a", "b"), 5),
-                PagedStorage(5, listOf("a", "b", "c"), 4)) {
+                Storage(5, listOf("a", "b"), 5),
+                Storage(5, listOf("a", "b", "c"), 4)) {
             verify(it).onRemoved(11, 1)
             verify(it).onInserted(7, 1)
             // NOTE: ideally would be onChanged(7, 1, null)
@@ -56,8 +67,8 @@ class PagedStorageDiffHelperTest {
     @Test
     fun prependFill() {
         validateTwoListDiff(
-                PagedStorage(5, listOf("b", "c"), 5),
-                PagedStorage(4, listOf("a", "b", "c"), 5)) {
+                Storage(5, listOf("b", "c"), 5),
+                Storage(4, listOf("a", "b", "c"), 5)) {
             verify(it).onRemoved(0, 1)
             verify(it).onInserted(4, 1)
             // NOTE: ideally would be onChanged(4, 1, null);
@@ -68,8 +79,8 @@ class PagedStorageDiffHelperTest {
     @Test
     fun change() {
         validateTwoListDiff(
-                PagedStorage(5, listOf("a1", "b1", "c1"), 5),
-                PagedStorage(5, listOf("a2", "b1", "c2"), 5)) {
+                Storage(5, listOf("a1", "b1", "c1"), 5),
+                Storage(5, listOf("a2", "b1", "c2"), 5)) {
             verify(it).onChanged(5, 1, null)
             verify(it).onChanged(7, 1, null)
             verifyNoMoreInteractions(it)
@@ -79,8 +90,8 @@ class PagedStorageDiffHelperTest {
     @Test
     fun move() {
         validateTwoListDiff(
-                PagedStorage(5, listOf("a", "b", "c", "d"), 5),
-                PagedStorage(5, listOf("a", "b", "d", "c"), 5)) {
+                Storage(5, listOf("a", "b", "c", "d"), 5),
+                Storage(5, listOf("a", "b", "d", "c"), 5)) {
             // 7, 8 would also be valid, but below is what DiffUtil outputs
             verify(it).onMoved(8, 7)
             verifyNoMoreInteractions(it)
@@ -90,8 +101,8 @@ class PagedStorageDiffHelperTest {
     @Test
     fun transformAnchorIndex_removal() {
         validateTwoListDiffTransform(
-                PagedStorage(5, listOf("a", "b", "c", "d", "e"), 5),
-                PagedStorage(5, listOf("a", "d", "e"), 5)) { transformAnchorIndex ->
+                Storage(5, listOf("a", "b", "c", "d", "e"), 5),
+                Storage(5, listOf("a", "d", "e"), 5)) { transformAnchorIndex ->
             // a doesn't move
             assertEquals(5, transformAnchorIndex(5))
 
@@ -108,8 +119,8 @@ class PagedStorageDiffHelperTest {
     @Test
     fun transformAnchorIndex_insert() {
         validateTwoListDiffTransform(
-                PagedStorage(5, listOf("a", "d", "e"), 5),
-                PagedStorage(5, listOf("a", "b", "c", "d", "e"), 5)) { transformAnchorIndex ->
+                Storage(5, listOf("a", "d", "e"), 5),
+                Storage(5, listOf("a", "b", "c", "d", "e"), 5)) { transformAnchorIndex ->
             // a doesn't move
             assertEquals(5, transformAnchorIndex(5))
 
@@ -122,8 +133,8 @@ class PagedStorageDiffHelperTest {
     @Test
     fun transformAnchorIndex_move() {
         validateTwoListDiffTransform(
-                PagedStorage(5, listOf("a", "d", "e", "b", "c"), 5),
-                PagedStorage(5, listOf("a", "b", "c", "d", "e"), 5)) { transformAnchorIndex ->
+                Storage(5, listOf("a", "d", "e", "b", "c"), 5),
+                Storage(5, listOf("a", "b", "c", "d", "e"), 5)) { transformAnchorIndex ->
             assertEquals(5, transformAnchorIndex(5))
             assertEquals(8, transformAnchorIndex(6))
             assertEquals(9, transformAnchorIndex(7))
@@ -135,8 +146,8 @@ class PagedStorageDiffHelperTest {
     @Test
     fun transformAnchorIndex_allMissing() {
         validateTwoListDiffTransform(
-                PagedStorage(5, listOf("a", "d", "e", "b", "c"), 5),
-                PagedStorage(5, listOf("f", "g", "h", "i", "j"), 5)) { transformAnchorIndex ->
+                Storage(5, listOf("a", "d", "e", "b", "c"), 5),
+                Storage(5, listOf("f", "g", "h", "i", "j"), 5)) { transformAnchorIndex ->
             assertEquals(5, transformAnchorIndex(5))
             assertEquals(6, transformAnchorIndex(6))
             assertEquals(7, transformAnchorIndex(7))
@@ -148,8 +159,8 @@ class PagedStorageDiffHelperTest {
     @Test
     fun transformAnchorIndex_offset() {
         validateTwoListDiffTransform(
-                PagedStorage(5, listOf("a"), 6),
-                PagedStorage(7, listOf("a"), 8)) { transformAnchorIndex ->
+                Storage(5, listOf("a"), 6),
+                Storage(7, listOf("a"), 8)) { transformAnchorIndex ->
             assertEquals(7, transformAnchorIndex(5))
         }
     }
@@ -157,8 +168,8 @@ class PagedStorageDiffHelperTest {
     @Test
     fun transformAnchorIndex_nullBehavior() {
         validateTwoListDiffTransform(
-                PagedStorage(3, listOf("a"), 4),
-                PagedStorage(1, listOf("a"), 2)) { transformAnchorIndex ->
+                Storage(3, listOf("a"), 4),
+                Storage(1, listOf("a"), 2)) { transformAnchorIndex ->
             // null, so map to same position in new list
             assertEquals(0, transformAnchorIndex(0))
             assertEquals(1, transformAnchorIndex(1))
@@ -177,8 +188,8 @@ class PagedStorageDiffHelperTest {
     @Test
     fun transformAnchorIndex_boundaryBehavior() {
         validateTwoListDiffTransform(
-                PagedStorage(3, listOf("a"), 4),
-                PagedStorage(1, listOf("a"), 2)) { transformAnchorIndex ->
+                Storage(3, listOf("a"), 4),
+                Storage(1, listOf("a"), 2)) { transformAnchorIndex ->
             // shouldn't happen, but to be safe, indices are clamped
             assertEquals(0, transformAnchorIndex(-1))
             assertEquals(3, transformAnchorIndex(100))
@@ -198,8 +209,8 @@ class PagedStorageDiffHelperTest {
         }
 
         private fun validateTwoListDiff(
-            oldList: PagedStorage<String>,
-            newList: PagedStorage<String>,
+            oldList: Storage,
+            newList: Storage,
             validator: (callback: ListUpdateCallback) -> Unit
         ) {
             val diffResult = oldList.computeDiff(newList, DIFF_CALLBACK)
@@ -209,8 +220,8 @@ class PagedStorageDiffHelperTest {
             validator(listUpdateCallback)
         }
         private fun validateTwoListDiffTransform(
-            oldList: PagedStorage<String>,
-            newList: PagedStorage<String>,
+            oldList: Storage,
+            newList: Storage,
             validator: (positionMapper: (Int) -> Int) -> Unit
         ) {
             validator {

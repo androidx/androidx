@@ -35,7 +35,6 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import java.lang.ref.WeakReference
 import java.util.AbstractList
-import java.util.ArrayList
 import java.util.concurrent.Executor
 
 /**
@@ -143,7 +142,24 @@ typealias LoadStateListener = (type: LoadType, state: LoadState) -> Unit
  *
  * @param T The type of the entries in the list.
  */
-abstract class PagedList<T : Any> : AbstractList<T> {
+abstract class PagedList<T : Any> internal constructor(
+    /**
+     * The [PagedSource] that provides data to this [PagedList].
+     *
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    val pagedSource: PagedSource<*, T>,
+
+    internal val storage: PagedStorage<T>,
+
+    /**
+     * Return the Config used to construct this PagedList.
+     *
+     * @return the Config of this PagedList
+     */
+    val config: Config
+) : AbstractList<T>() {
     /**
      * @hide
      */
@@ -902,27 +918,8 @@ abstract class PagedList<T : Any> : AbstractList<T> {
     /**
      * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    constructor(
-        pagedSource: PagedSource<*, T>,
-        storage: PagedStorage<T>,
-        config: Config
-    ) : super() {
-        this.pagedSource = pagedSource
-        this.storage = storage
-        this.config = config
-        this.callbacks = ArrayList()
-        this.loadStateListeners = ArrayList()
-        requiredRemainder = this.config.prefetchDistance * 2 + this.config.pageSize
-    }
-
-    internal val storage: PagedStorage<T>
-
-    /**
-     * @hide
-     */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // protected otherwise
-    fun getStorage() = storage
+    fun getNullPaddedList(): NullPaddedList<T> = storage
 
     internal var refreshRetryCallback: Runnable? = null
 
@@ -937,18 +934,11 @@ abstract class PagedList<T : Any> : AbstractList<T> {
     var lastLoad = 0
     internal var lastItem: T? = null
 
-    internal val requiredRemainder: Int
+    internal val requiredRemainder = config.prefetchDistance * 2 + config.pageSize
 
-    /**
-     * Return the Config used to construct this PagedList.
-     *
-     * @return the Config of this PagedList
-     */
-    open val config: Config
+    private val callbacks = mutableListOf<WeakReference<Callback>>()
 
-    private val callbacks: MutableList<WeakReference<Callback>>
-
-    private val loadStateListeners: MutableList<WeakReference<LoadStateListener>>
+    private val loadStateListeners = mutableListOf<WeakReference<LoadStateListener>>()
 
     /**
      * Size of the list, including any placeholders (not-yet-loaded null padding).
@@ -959,14 +949,6 @@ abstract class PagedList<T : Any> : AbstractList<T> {
      */
     override val size
         get() = storage.size
-
-    /**
-     * The [PagedSource] that provides data to this [PagedList].
-     *
-     * @hide
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    val pagedSource: PagedSource<*, T>
 
     /**
      * @throws IllegalStateException if this [PagedList] was instantiated without a

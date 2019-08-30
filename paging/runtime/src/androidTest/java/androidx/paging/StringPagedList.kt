@@ -16,50 +16,40 @@
 
 package androidx.paging
 
-class StringPagedList constructor(
+import androidx.testutils.DirectDispatcher
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.runBlocking
+
+private class FakeSource<Value : Any>(
+    private val leadingNulls: Int,
+    private val trailingNulls: Int,
+    private val data: List<Value>
+) : PagedSource<Any, Value>() {
+    override suspend fun load(params: LoadParams<Any>): LoadResult<Any, Value> {
+        if (params.loadType == LoadType.REFRESH) {
+            return LoadResult(
+                data = data,
+                itemsBefore = leadingNulls,
+                itemsAfter = trailingNulls)
+        }
+        throw IllegalArgumentException("This test source only supports initial load")
+    }
+}
+
+@Suppress("TestFunctionName")
+fun StringPagedList(
     leadingNulls: Int,
     trailingNulls: Int,
-    vararg items: String,
-    list: List<String> = items.toList()
-) : PagedList<String>(
-    PagedSourceWrapper(ListDataSource(list)),
-    PagedStorage(),
-    Config.Builder().setPageSize(1).build()
-), PagedStorage.Callback {
-    var detached = false
-
-    init {
-        val keyedStorage = getStorage()
-        keyedStorage.init(
-            leadingNulls,
-            list,
-            trailingNulls,
-            0,
-            this
-        )
-    }
-
-    override val lastKey: Any? = null
-
-    override val isDetached
-        get() = detached
-
-    override fun detach() {
-        detached = true
-    }
-
-    override fun dispatchCurrentLoadState(callback: LoadStateListener) {}
-
-    override fun loadAroundInternal(index: Int) {}
-
-    override fun onInitialized(count: Int) {}
-
-    override fun onPagePrepended(leadingNulls: Int, changed: Int, added: Int) {}
-
-    override fun onPageAppended(endPosition: Int, changed: Int, added: Int) {}
-
-    override fun onPagesRemoved(startOfDrops: Int, count: Int) = notifyRemoved(startOfDrops, count)
-
-    override fun onPagesSwappedToPlaceholder(startOfDrops: Int, count: Int) =
-        notifyChanged(startOfDrops, count)
+    vararg items: String
+): PagedList<String> = runBlocking {
+    PagedList.create(
+        pagedSource = FakeSource(leadingNulls, trailingNulls, items.toList()),
+        coroutineScope = GlobalScope,
+        notifyDispatcher = DirectDispatcher,
+        fetchDispatcher = DirectDispatcher,
+        initialFetchDispatcher = DirectDispatcher,
+        boundaryCallback = null,
+        config = Config(1, prefetchDistance = 0),
+        key = null
+    )
 }
