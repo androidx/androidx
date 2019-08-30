@@ -17,7 +17,7 @@
 package androidx.ui.core
 
 import androidx.test.filters.SmallTest
-import androidx.ui.graphics.ColorSpace
+import androidx.ui.graphics.colorspace.ColorSpaces
 import androidx.ui.painting.Image
 import androidx.ui.painting.ImageConfig
 import org.junit.Assert.assertEquals
@@ -32,7 +32,7 @@ class ImageTest {
 
     @Test
     fun testCreatedImage() {
-        val cs = ColorSpace.get(ColorSpace.Named.Srgb)
+        val cs = ColorSpaces.Srgb
         val image = Image(
             width = 10,
             height = 20,

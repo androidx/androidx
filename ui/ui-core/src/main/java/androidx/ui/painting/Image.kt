@@ -16,7 +16,7 @@
 
 package androidx.ui.painting
 
-import androidx.ui.graphics.ColorSpace
+import androidx.ui.graphics.colorspace.ColorSpace
 
 // Opaque handle to raw decoded image data (pixels).
 /**
