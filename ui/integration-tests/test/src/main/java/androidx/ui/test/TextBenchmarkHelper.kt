@@ -29,6 +29,7 @@ import androidx.ui.text.style.BaselineShift
 import androidx.ui.text.style.TextDecoration
 import androidx.ui.text.style.TextGeometricTransform
 import java.util.Locale
+import kotlin.math.ceil
 import kotlin.random.Random
 
 class RandomTextGenerator(
@@ -53,6 +54,13 @@ class RandomTextGenerator(
         TextStyle(textGeometricTransform = TextGeometricTransform(0.5f, 0.5f)),
         TextStyle(locale = Locale.ITALIAN)
     )
+
+    private fun getTextStyleList(hasMetricAffectingStyle: Boolean) =
+        nonMetricAffectingTextStyles + if (hasMetricAffectingStyle) {
+            metricAffectingTextStyles
+        } else {
+            arrayOf()
+        }
 
     /**
      * Creates a sequence of characters group of length [length].
@@ -94,11 +102,7 @@ class RandomTextGenerator(
         styleCount: Int = text.split(alphabet.space).size,
         hasMetricAffectingStyle: Boolean = true
     ): List<AnnotatedString.Item<TextStyle>> {
-        val textStyleList = nonMetricAffectingTextStyles + if (hasMetricAffectingStyle) {
-            metricAffectingTextStyles
-        } else {
-            arrayOf()
-        }
+        val textStyleList = getTextStyleList(hasMetricAffectingStyle)
 
         val words = text.split(alphabet.space)
 
@@ -140,6 +144,24 @@ class RandomTextGenerator(
             text = text,
             textStyles = createStyles(text, styleCount, hasMetricAffectingStyle)
         )
+    }
+
+    /**
+     * Create a list of word(character group)-[TextStyle] pairs, words are randomly generated while
+     * the [TextStyle] is created in a fixed order.
+     */
+    fun nextStyledWordList(
+        length: Int,
+        wordLength: Int = 9,
+        hasMetricAffectingStyle: Boolean = true
+    ): List<Pair<String, TextStyle>> {
+        val textStyleList = getTextStyleList(hasMetricAffectingStyle)
+
+        val wordCount = ceil(length.toFloat() / (wordLength + 1)).toInt()
+        var styleIndex = 0
+        return List(wordCount) {
+            Pair("${nextWord(length)} ", textStyleList[styleIndex++ % textStyleList.size])
+        }
     }
 }
 
