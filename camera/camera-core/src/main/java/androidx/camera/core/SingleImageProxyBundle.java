@@ -73,6 +73,7 @@ final class SingleImageProxyBundle implements ImageProxyBundle {
     }
 
     @Override
+    @NonNull
     public ListenableFuture<ImageProxy> getImageProxy(int captureId) {
         if (captureId != mCaptureId) {
             return Futures.immediateFailedFuture(
@@ -82,6 +83,7 @@ final class SingleImageProxyBundle implements ImageProxyBundle {
     }
 
     @Override
+    @NonNull
     public List<Integer> getCaptureIds() {
         return Collections.singletonList(mCaptureId);
     }
