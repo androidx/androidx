@@ -41,6 +41,7 @@ import androidx.ui.core.OnChildPositioned
 import androidx.ui.core.OnPositioned
 import androidx.ui.core.VerticalAlignmentLine
 import androidx.ui.core.min
+import androidx.ui.layout.Alignment
 import androidx.ui.layout.Center
 import androidx.ui.layout.Column
 import androidx.ui.layout.Container
@@ -50,7 +51,6 @@ import androidx.ui.layout.FlexRow
 import androidx.ui.layout.Row
 import androidx.ui.layout.Wrap
 import org.junit.Assert.assertTrue
-import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -69,7 +69,7 @@ class FlexTest : LayoutTest() {
         val childSize = arrayOf(PxSize(-1.px, -1.px), PxSize(-1.px, -1.px))
         val childPosition = arrayOf(PxPosition(-1.px, -1.px), PxPosition(-1.px, -1.px))
         show {
-            Center {
+            Container(alignment = Alignment.TopLeft) {
                 Row {
                     Container(width = sizeDp, height = sizeDp) {
                         OnPositioned(onPositioned = { coordinates ->
@@ -99,14 +99,8 @@ class FlexTest : LayoutTest() {
             PxSize((sizeDp.toPx() * 2).round(), (sizeDp.toPx() * 2).round()),
             childSize[1]
         )
-        assertEquals(
-            PxPosition(0.px, (root.height.px / 2 - size.toPx() / 2).round().toPx()),
-            childPosition[0]
-        )
-        assertEquals(
-            PxPosition(size.toPx(), (root.height.px / 2 - size.toPx()).round().toPx()),
-            childPosition[1]
-        )
+        assertEquals(PxPosition(0.px, 0.px), childPosition[0])
+        assertEquals(PxPosition(size.toPx(), 0.px), childPosition[1])
     }
 
     @Test
@@ -118,7 +112,7 @@ class FlexTest : LayoutTest() {
         val childSize = arrayOf(PxSize(-1.px, -1.px), PxSize(-1.px, -1.px))
         val childPosition = arrayOf(PxPosition(-1.px, -1.px), PxPosition(-1.px, -1.px))
         show {
-            Center {
+            Container(alignment = Alignment.TopLeft) {
                 FlexRow {
                     val widthDp = 50.px.toDp()
 
@@ -157,20 +151,8 @@ class FlexTest : LayoutTest() {
             PxSize((root.width.px * 2 / 3).round().toPx(), (heightDp.toPx() * 2).round().toPx()),
             childSize[1]
         )
-        assertEquals(
-            PxPosition(
-                0.px,
-                (root.height.px / 2 - (childrenHeight.toPx()) / 2).round().toPx()
-            ),
-            childPosition[0]
-        )
-        assertEquals(
-            PxPosition(
-                (root.width.px / 3).round().toPx(),
-                (root.height.px / 2).round().toPx() - childrenHeight.toPx()
-            ),
-            childPosition[1]
-        )
+        assertEquals(PxPosition(0.px, 0.px), childPosition[0])
+        assertEquals(PxPosition((root.width.px / 3).round().toPx(), 0.px), childPosition[1])
     }
 
     @Test
@@ -184,7 +166,7 @@ class FlexTest : LayoutTest() {
         val childSize = arrayOf(PxSize(-1.px, -1.px), PxSize(-1.px, -1.px))
         val childPosition = arrayOf(PxPosition(-1.px, -1.px), PxPosition(-1.px, -1.px))
         show {
-            Center {
+            Container(alignment = Alignment.TopLeft) {
                 FlexRow {
                     flexible(flex = 1f) {
                         Container(width = childrenWidthDp, height = childrenHeightDp) {
@@ -218,17 +200,8 @@ class FlexTest : LayoutTest() {
             PxSize(childrenWidth.toPx(), (childrenHeightDp.toPx() * 2).round().toPx()),
             childSize[1]
         )
-        assertEquals(
-            PxPosition(0.px, ((root.height.px - childrenHeight.toPx()) / 2).round().toPx()),
-            childPosition[0]
-        )
-        assertEquals(
-            PxPosition(
-                childrenWidth.toPx(),
-                (root.height.px / 2 - childrenHeight.toPx()).round().toPx()
-            ),
-            childPosition[1]
-        )
+        assertEquals(PxPosition(0.px, 0.px), childPosition[0])
+        assertEquals(PxPosition(childrenWidth.toPx(), 0.px), childPosition[1])
     }
 
     @Test
@@ -240,7 +213,7 @@ class FlexTest : LayoutTest() {
         val childSize = arrayOf(PxSize(-1.px, -1.px), PxSize(-1.px, -1.px))
         val childPosition = arrayOf(PxPosition(-1.px, -1.px), PxPosition(-1.px, -1.px))
         show {
-            Center {
+            Container(alignment = Alignment.TopLeft) {
                 Column {
                     Container(width = sizeDp, height = sizeDp) {
                         OnPositioned(onPositioned = { coordinates ->
@@ -269,14 +242,8 @@ class FlexTest : LayoutTest() {
             PxSize((sizeDp.toPx() * 2).round(), (sizeDp.toPx() * 2).round()),
             childSize[1]
         )
-        assertEquals(
-            PxPosition((root.width.px / 2 - size.toPx() / 2).round().toPx(), 0.px),
-            childPosition[0]
-        )
-        assertEquals(
-            PxPosition((root.width.px / 2 - size.toPx()).round().toPx(), size.toPx()),
-            childPosition[1]
-        )
+        assertEquals(PxPosition(0.px, 0.px), childPosition[0])
+        assertEquals(PxPosition(0.px, size.toPx()), childPosition[1])
     }
 
     @Test
@@ -288,7 +255,7 @@ class FlexTest : LayoutTest() {
         val childSize = arrayOf(PxSize(-1.px, -1.px), PxSize(-1.px, -1.px))
         val childPosition = arrayOf(PxPosition(-1.px, -1.px), PxPosition(-1.px, -1.px))
         show {
-            Center {
+            Container(alignment = Alignment.TopLeft) {
                 FlexColumn {
                     val heightDp = 50.px.toDp()
 
@@ -327,17 +294,8 @@ class FlexTest : LayoutTest() {
             PxSize((widthDp.toPx() * 2).round(), (root.height.px * 2 / 3).round()),
             childSize[1]
         )
-        assertEquals(
-            PxPosition((root.width.px / 2 - childrenWidth.toPx() / 2).round().toPx(), 0.px),
-            childPosition[0]
-        )
-        assertEquals(
-            PxPosition(
-                (root.width.px / 2 - childrenWidth.toPx()).round().toPx(),
-                (root.height.px / 3).round().toPx()
-            ),
-            childPosition[1]
-        )
+        assertEquals(PxPosition(0.px, 0.px), childPosition[0])
+        assertEquals(PxPosition(0.px, (root.height.px / 3).round().toPx()), childPosition[1])
     }
 
     @Test
@@ -351,7 +309,7 @@ class FlexTest : LayoutTest() {
         val childSize = arrayOf(PxSize(-1.px, -1.px), PxSize(-1.px, -1.px))
         val childPosition = arrayOf(PxPosition(-1.px, -1.px), PxPosition(-1.px, -1.px))
         show {
-            Center {
+            Container(alignment = Alignment.TopLeft) {
                 FlexColumn {
                     flexible(flex = 1f) {
                         Container(width = childrenWidthDp, height = childrenHeightDp) {
@@ -385,17 +343,8 @@ class FlexTest : LayoutTest() {
             PxSize((childrenWidthDp.toPx() * 2).round(), childrenHeight),
             childSize[1]
         )
-        assertEquals(
-            PxPosition((root.width.px / 2 - childrenWidth.toPx() / 2).round().toPx(), 0.px),
-            childPosition[0]
-        )
-        assertEquals(
-            PxPosition(
-                (root.width.px / 2 - childrenWidth.toPx()).round().toPx(),
-                childrenHeight.toPx()
-            ),
-            childPosition[1]
-        )
+        assertEquals(PxPosition(0.px, 0.px), childPosition[0])
+        assertEquals(PxPosition(0.px, childrenHeight.toPx()), childPosition[1])
     }
 
     @Test
