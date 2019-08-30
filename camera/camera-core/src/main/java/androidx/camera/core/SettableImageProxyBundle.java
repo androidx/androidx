@@ -62,6 +62,7 @@ final class SettableImageProxyBundle implements ImageProxyBundle {
     }
 
     @Override
+    @NonNull
     public ListenableFuture<ImageProxy> getImageProxy(int captureId) {
         synchronized (mLock) {
             if (mClosed) {
@@ -80,6 +81,7 @@ final class SettableImageProxyBundle implements ImageProxyBundle {
     }
 
     @Override
+    @NonNull
     public List<Integer> getCaptureIds() {
         return Collections.unmodifiableList(mCaptureIdList);
     }

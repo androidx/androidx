@@ -16,6 +16,8 @@
 
 package androidx.camera.core;
 
+import androidx.annotation.NonNull;
+
 import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.List;
@@ -30,11 +32,13 @@ public interface ImageProxyBundle {
      *
      * @param captureId The id for the captures that generated the {@link ImageProxy}.
      */
+    @NonNull
     ListenableFuture<ImageProxy> getImageProxy(int captureId);
 
     /**
      * Returns the list of identifiers for the capture that produced the data in
      * this bundle.
      */
+    @NonNull
     List<Integer> getCaptureIds();
 }
