@@ -16,12 +16,10 @@
 
 package androidx.ui.graphics
 import androidx.test.filters.SmallTest
+import androidx.ui.graphics.colorspace.ColorSpaces
 import androidx.ui.lerp
 import androidx.ui.toHexString
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
-import org.junit.Assert.assertSame
-import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -29,16 +27,16 @@ import org.junit.runners.JUnit4
 @SmallTest
 @RunWith(JUnit4::class)
 class ColorTest {
-    private val adobeColorSpace = ColorSpace.Named.AdobeRgb.colorSpace
+    private val adobeColorSpace = ColorSpaces.AdobeRgb
     private val srgbColor = Color(0xFFFF8000)
     private val adobeColor = Color(red = 0.8916f, green = 0.4980f, blue = 0.1168f,
-            colorSpace = ColorSpace.Named.AdobeRgb.colorSpace)
+            colorSpace = ColorSpaces.AdobeRgb)
     private val epsilon = 0.0001f // Float16 squished into ColorLong isn't very accurate.
 
     @Test
     fun colorSpace() {
-        assertEquals(ColorSpace.Named.Srgb.colorSpace, srgbColor.colorSpace)
-        assertEquals(ColorSpace.Named.AdobeRgb.colorSpace, adobeColor.colorSpace)
+        assertEquals(ColorSpaces.Srgb, srgbColor.colorSpace)
+        assertEquals(ColorSpaces.AdobeRgb, adobeColor.colorSpace)
     }
 
     @Test
@@ -105,8 +103,8 @@ class ColorTest {
         val red = Color.Red
         val green = Color.Green
 
-        val redLinear = red.convert(ColorSpace.Named.LinearExtendedSrgb.colorSpace)
-        val greenLinear = green.convert(ColorSpace.Named.LinearExtendedSrgb.colorSpace)
+        val redLinear = red.convert(ColorSpaces.LinearExtendedSrgb)
+        val greenLinear = green.convert(ColorSpaces.LinearExtendedSrgb)
 
         for (i in 0..255) {
             val t = i / 255f
@@ -115,9 +113,9 @@ class ColorTest {
                 red = lerp(redLinear.red, greenLinear.red, t),
                 green = lerp(redLinear.green, greenLinear.green, t),
                 blue = lerp(redLinear.blue, greenLinear.blue, t),
-                colorSpace = ColorSpace.Named.LinearExtendedSrgb.colorSpace
+                colorSpace = ColorSpaces.LinearExtendedSrgb
             )
-            val expected = expectedLinear.convert(ColorSpace.Named.Srgb.colorSpace)
+            val expected = expectedLinear.convert(ColorSpaces.Srgb)
             val colorARGB = Color(color.toArgb())
             val expectedARGB = Color(expected.toArgb())
             assertEquals("at t = $t[$i] was ${colorARGB.toArgb().toHexString()}, " +

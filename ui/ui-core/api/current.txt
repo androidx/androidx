@@ -1143,17 +1143,17 @@ package androidx.ui.graphics {
   }
 
   public final class Color {
-    method public androidx.ui.graphics.Color convert(androidx.ui.graphics.ColorSpace colorSpace);
+    method public androidx.ui.graphics.Color convert(androidx.ui.graphics.colorspace.ColorSpace colorSpace);
     method public androidx.ui.graphics.Color copy(float alpha = this.alpha, float red = this.red, float green = this.green, float blue = this.blue);
     method public float getAlpha();
     method public float getBlue();
-    method public androidx.ui.graphics.ColorSpace getColorSpace();
+    method public androidx.ui.graphics.colorspace.ColorSpace getColorSpace();
     method public float getGreen();
     method public float getRed();
     method public long getValue();
     property public final float alpha;
     property public final float blue;
-    property public final androidx.ui.graphics.ColorSpace colorSpace;
+    property public final androidx.ui.graphics.colorspace.ColorSpace colorSpace;
     property public final float green;
     property public final float red;
     field public static final androidx.ui.graphics.Color.Companion! Companion;
@@ -1188,171 +1188,13 @@ package androidx.ui.graphics {
 
   public final class ColorKt {
     ctor public ColorKt();
-    method public static androidx.ui.graphics.Color Color(float red, float green, float blue, float alpha = 1f, androidx.ui.graphics.ColorSpace colorSpace = colorSpace);
-    method public static androidx.ui.graphics.Color Color(float[] components, androidx.ui.graphics.ColorSpace colorSpace);
+    method public static androidx.ui.graphics.Color Color(float red, float green, float blue, float alpha = 1f, androidx.ui.graphics.colorspace.ColorSpace colorSpace = ColorSpaces.Srgb);
     method public static androidx.ui.graphics.Color Color(@ColorInt int color);
     method public static androidx.ui.graphics.Color Color(long color);
     method public static androidx.ui.graphics.Color Color(@IntRange(from=0, to=255) int red, @IntRange(from=0, to=255) int green, @IntRange(from=0, to=255) int blue, @IntRange(from=0, to=255) int alpha = 0xFF);
     method public static androidx.ui.graphics.Color lerp(androidx.ui.graphics.Color a, androidx.ui.graphics.Color b, @FloatRange(from=0.0, to=1.0) float t);
     method public static float luminance(androidx.ui.graphics.Color);
     method @ColorInt public static int toArgb(androidx.ui.graphics.Color);
-  }
-
-  @AnyThread public abstract class ColorSpace {
-    method @Size(min=3) public final float[] fromXyz(float x, float y, float z);
-    method @Size(min=3) public abstract float[] fromXyz(@Size(min=3) float[] v);
-    method @IntRange(from=1, to=4) public final int getComponentCount();
-    method public final int getId();
-    method public abstract float getMaxValue(@IntRange(from=0, to=3) int component);
-    method public abstract float getMinValue(@IntRange(from=0, to=3) int component);
-    method public final androidx.ui.graphics.ColorSpace.Model getModel();
-    method public final String getName();
-    method public boolean isSrgb();
-    method public abstract boolean isWideGamut();
-    method public final void setId$lintWithKotlin(int p);
-    method @Size(3) public final float[] toXyz(float r, float g, float b);
-    method @Size(min=3) public abstract float[] toXyz(@Size(min=3) float[] v);
-    property @IntRange(from=1, to=4) public final int componentCount;
-    property public final int id;
-    property public boolean isSrgb;
-    property public abstract boolean isWideGamut;
-    field public static final androidx.ui.graphics.ColorSpace.Companion! Companion;
-    field public static final int MaxId = 63; // 0x3f
-    field public static final int MinId = -1; // 0xffffffff
-  }
-
-  public enum ColorSpace.Adaptation {
-    enum_constant public static final androidx.ui.graphics.ColorSpace.Adaptation Bradford;
-    enum_constant public static final androidx.ui.graphics.ColorSpace.Adaptation Ciecat02;
-    enum_constant public static final androidx.ui.graphics.ColorSpace.Adaptation VonKries;
-  }
-
-  public static final class ColorSpace.Companion {
-    method public androidx.ui.graphics.ColorSpace adapt(androidx.ui.graphics.ColorSpace colorSpace, @Size(min=2, max=3) float[] whitePoint, androidx.ui.graphics.ColorSpace.Adaptation adaptation = Adaptation.Bradford);
-    method public androidx.ui.graphics.ColorSpace adapt(androidx.ui.graphics.ColorSpace colorSpace, @Size(min=2, max=3) float[] whitePoint);
-    method public androidx.ui.graphics.ColorSpace.Connector connect(androidx.ui.graphics.ColorSpace source, androidx.ui.graphics.ColorSpace destination);
-    method public androidx.ui.graphics.ColorSpace.Connector connect(androidx.ui.graphics.ColorSpace source, androidx.ui.graphics.ColorSpace destination, androidx.ui.graphics.ColorSpace.RenderIntent intent);
-    method public androidx.ui.graphics.ColorSpace.Connector connect(androidx.ui.graphics.ColorSpace source, androidx.ui.graphics.ColorSpace.RenderIntent intent = RenderIntent.Perceptual);
-    method public androidx.ui.graphics.ColorSpace.Connector connect(androidx.ui.graphics.ColorSpace source);
-    method public operator androidx.ui.graphics.ColorSpace get(androidx.ui.graphics.ColorSpace.Named name);
-    method public float[] getIlluminantA();
-    method public float[] getIlluminantB();
-    method public float[] getIlluminantC();
-    method public float[] getIlluminantD50();
-    method public float[] getIlluminantD55();
-    method public float[] getIlluminantD60();
-    method public float[] getIlluminantD65();
-    method public float[] getIlluminantD75();
-    method public float[] getIlluminantE();
-    method public androidx.ui.graphics.ColorSpace? match(@Size(9) float[] toXYZD50, androidx.ui.graphics.ColorSpace.Rgb.TransferParameters function);
-    property public final float[] IlluminantA;
-    property public final float[] IlluminantB;
-    property public final float[] IlluminantC;
-    property public final float[] IlluminantD50;
-    property public final float[] IlluminantD55;
-    property public final float[] IlluminantD60;
-    property public final float[] IlluminantD65;
-    property public final float[] IlluminantD75;
-    property public final float[] IlluminantE;
-  }
-
-  @AnyThread public static class ColorSpace.Connector {
-    method public final androidx.ui.graphics.ColorSpace getDestination();
-    method public final androidx.ui.graphics.ColorSpace.RenderIntent getRenderIntent();
-    method public final androidx.ui.graphics.ColorSpace getSource();
-    method @Size(3) public final float[] transform(float r, float g, float b);
-    method @Size(min=3) public float[] transform(@Size(min=3) float[] v);
-    field public static final androidx.ui.graphics.ColorSpace.Connector.Companion! Companion;
-  }
-
-  public static final class ColorSpace.Connector.Companion {
-  }
-
-  public enum ColorSpace.Model {
-    method public final int getComponentCount();
-    enum_constant public static final androidx.ui.graphics.ColorSpace.Model Cmyk;
-    enum_constant public static final androidx.ui.graphics.ColorSpace.Model Lab;
-    enum_constant public static final androidx.ui.graphics.ColorSpace.Model Rgb;
-    enum_constant public static final androidx.ui.graphics.ColorSpace.Model Xyz;
-  }
-
-  public enum ColorSpace.Named {
-    enum_constant public static final androidx.ui.graphics.ColorSpace.Named Aces;
-    enum_constant public static final androidx.ui.graphics.ColorSpace.Named Acescg;
-    enum_constant public static final androidx.ui.graphics.ColorSpace.Named AdobeRgb;
-    enum_constant public static final androidx.ui.graphics.ColorSpace.Named Bt2020;
-    enum_constant public static final androidx.ui.graphics.ColorSpace.Named Bt709;
-    enum_constant public static final androidx.ui.graphics.ColorSpace.Named CieLab;
-    enum_constant public static final androidx.ui.graphics.ColorSpace.Named CieXyz;
-    enum_constant public static final androidx.ui.graphics.ColorSpace.Named DciP3;
-    enum_constant public static final androidx.ui.graphics.ColorSpace.Named DisplayP3;
-    enum_constant public static final androidx.ui.graphics.ColorSpace.Named ExtendedSrgb;
-    enum_constant public static final androidx.ui.graphics.ColorSpace.Named LinearExtendedSrgb;
-    enum_constant public static final androidx.ui.graphics.ColorSpace.Named LinearSrgb;
-    enum_constant public static final androidx.ui.graphics.ColorSpace.Named Ntsc1953;
-    enum_constant public static final androidx.ui.graphics.ColorSpace.Named ProPhotoRgb;
-    enum_constant public static final androidx.ui.graphics.ColorSpace.Named SmpteC;
-    enum_constant public static final androidx.ui.graphics.ColorSpace.Named Srgb;
-    field public static final androidx.ui.graphics.ColorSpace.Named.Companion! Companion;
-  }
-
-  public static final class ColorSpace.Named.Companion {
-  }
-
-  public enum ColorSpace.RenderIntent {
-    enum_constant public static final androidx.ui.graphics.ColorSpace.RenderIntent Absolute;
-    enum_constant public static final androidx.ui.graphics.ColorSpace.RenderIntent Perceptual;
-    enum_constant public static final androidx.ui.graphics.ColorSpace.RenderIntent Relative;
-    enum_constant public static final androidx.ui.graphics.ColorSpace.RenderIntent Saturation;
-  }
-
-  @AnyThread public static final class ColorSpace.Rgb extends androidx.ui.graphics.ColorSpace {
-    ctor public ColorSpace.Rgb(@Size(min=null) String name, @Size(null) float[] toXYZ, kotlin.jvm.functions.Function1<? super java.lang.Double,java.lang.Double> oetf, kotlin.jvm.functions.Function1<? super java.lang.Double,java.lang.Double> eotf);
-    ctor public ColorSpace.Rgb(@Size(min=null) String name, @Size(min=null, max=null) float[] primaries, @Size(min=null, max=null) float[] whitePoint, kotlin.jvm.functions.Function1<? super java.lang.Double,java.lang.Double> oetf, kotlin.jvm.functions.Function1<? super java.lang.Double,java.lang.Double> eotf, float min, float max);
-    ctor public ColorSpace.Rgb(@Size(min=null) String name, @Size(null) float[] toXYZ, androidx.ui.graphics.ColorSpace.Rgb.TransferParameters function);
-    ctor public ColorSpace.Rgb(@Size(min=null) String name, @Size(min=null, max=null) float[] primaries, @Size(min=null, max=null) float[] whitePoint, androidx.ui.graphics.ColorSpace.Rgb.TransferParameters function);
-    ctor public ColorSpace.Rgb(@Size(min=null) String name, @Size(null) float[] toXYZ, double gamma);
-    ctor public ColorSpace.Rgb(@Size(min=null) String name, @Size(min=null, max=null) float[] primaries, @Size(min=null, max=null) float[] whitePoint, double gamma);
-    method @Size(3) public float[] fromLinear(float r, float g, float b);
-    method @Size(min=3) public float[] fromLinear(@Size(min=3) float[] v);
-    method @Size(min=3) public float[] fromXyz(@Size(min=3) float[] v);
-    method public kotlin.jvm.functions.Function1<java.lang.Double,java.lang.Double> getEotf();
-    method @Size(9) public float[] getInverseTransform();
-    method @Size(min=9) public float[] getInverseTransform(@Size(min=9) float[] inverseTransform);
-    method public float getMaxValue(int component);
-    method public float getMinValue(int component);
-    method public kotlin.jvm.functions.Function1<java.lang.Double,java.lang.Double> getOetf();
-    method @Size(6) public float[] getPrimaries();
-    method @Size(min=6) public float[] getPrimaries(@Size(min=6) float[] primaries);
-    method public androidx.ui.graphics.ColorSpace.Rgb.TransferParameters? getTransferParameters();
-    method @Size(9) public float[] getTransform();
-    method @Size(min=9) public float[] getTransform(@Size(min=9) float[] transform);
-    method @Size(2) public float[] getWhitePoint();
-    method @Size(min=2) public float[] getWhitePoint(@Size(min=2) float[] whitePoint);
-    method public boolean isWideGamut();
-    method @Size(3) public float[] toLinear(float r, float g, float b);
-    method @Size(min=3) public float[] toLinear(@Size(min=3) float[] v);
-    method @Size(min=3) public float[] toXyz(@Size(min=3) float[] v);
-    property public final kotlin.jvm.functions.Function1<java.lang.Double,java.lang.Double> eotf;
-    property public boolean isSrgb;
-    property public boolean isWideGamut;
-    property public final kotlin.jvm.functions.Function1<java.lang.Double,java.lang.Double> oetf;
-    field public static final androidx.ui.graphics.ColorSpace.Rgb.Companion! Companion;
-  }
-
-  public static final class ColorSpace.Rgb.Companion {
-  }
-
-  public static final class ColorSpace.Rgb.TransferParameters {
-    ctor public ColorSpace.Rgb.TransferParameters(double a, double b, double c, double d, double e, double f, double g);
-    ctor public ColorSpace.Rgb.TransferParameters(double a, double b, double c, double d, double g);
-    method public double getA();
-    method public double getB();
-    method public double getC();
-    method public double getD();
-    method public double getE();
-    method public double getF();
-    method public double getG();
   }
 
   public final class LinearGradient implements androidx.ui.graphics.Brush {
@@ -1369,6 +1211,184 @@ package androidx.ui.graphics {
     ctor public SolidColor(androidx.ui.graphics.Color value);
     method public void applyBrush(androidx.ui.painting.Paint p);
     method public androidx.ui.graphics.SolidColor copy(androidx.ui.graphics.Color value);
+  }
+
+}
+
+package androidx.ui.graphics.colorspace {
+
+  public enum Adaptation {
+    enum_constant public static final androidx.ui.graphics.colorspace.Adaptation Bradford;
+    enum_constant public static final androidx.ui.graphics.colorspace.Adaptation Ciecat02;
+    enum_constant public static final androidx.ui.graphics.colorspace.Adaptation VonKries;
+  }
+
+  public enum ColorModel {
+    method public final int getComponentCount();
+    enum_constant public static final androidx.ui.graphics.colorspace.ColorModel Cmyk;
+    enum_constant public static final androidx.ui.graphics.colorspace.ColorModel Lab;
+    enum_constant public static final androidx.ui.graphics.colorspace.ColorModel Rgb;
+    enum_constant public static final androidx.ui.graphics.colorspace.ColorModel Xyz;
+  }
+
+  public abstract class ColorSpace {
+    ctor public ColorSpace(String name, androidx.ui.graphics.colorspace.ColorModel model);
+    method @Size(min=3) public final float[] fromXyz(float x, float y, float z);
+    method @Size(min=3) public abstract float[] fromXyz(@Size(min=3) float[] v);
+    method @IntRange(from=1, to=4) public final int getComponentCount();
+    method public abstract float getMaxValue(@IntRange(from=0, to=3) int component);
+    method public abstract float getMinValue(@IntRange(from=0, to=3) int component);
+    method public final androidx.ui.graphics.colorspace.ColorModel getModel();
+    method public final String getName();
+    method public boolean isSrgb();
+    method public abstract boolean isWideGamut();
+    method @Size(3) public final float[] toXyz(float r, float g, float b);
+    method @Size(min=3) public abstract float[] toXyz(@Size(min=3) float[] v);
+    property @IntRange(from=1, to=4) public final int componentCount;
+    property public boolean isSrgb;
+    property public abstract boolean isWideGamut;
+  }
+
+  public final class ColorSpaceKt {
+    ctor public ColorSpaceKt();
+    method public static androidx.ui.graphics.colorspace.ColorSpace adapt(androidx.ui.graphics.colorspace.ColorSpace, androidx.ui.graphics.colorspace.WhitePoint whitePoint, androidx.ui.graphics.colorspace.Adaptation adaptation = Adaptation.Bradford);
+    method public static androidx.ui.graphics.colorspace.ColorSpace adapt(androidx.ui.graphics.colorspace.ColorSpace, androidx.ui.graphics.colorspace.WhitePoint whitePoint);
+    method public static androidx.ui.graphics.colorspace.Connector connect(androidx.ui.graphics.colorspace.ColorSpace, androidx.ui.graphics.colorspace.ColorSpace destination = ColorSpaces.Srgb, androidx.ui.graphics.colorspace.RenderIntent intent = RenderIntent.Perceptual);
+  }
+
+  public final class ColorSpaces {
+    method public androidx.ui.graphics.colorspace.Rgb getAces();
+    method public androidx.ui.graphics.colorspace.Rgb getAcescg();
+    method public androidx.ui.graphics.colorspace.Rgb getAdobeRgb();
+    method public androidx.ui.graphics.colorspace.Rgb getBt2020();
+    method public androidx.ui.graphics.colorspace.Rgb getBt709();
+    method public androidx.ui.graphics.colorspace.ColorSpace getCieLab();
+    method public androidx.ui.graphics.colorspace.ColorSpace getCieXyz();
+    method public androidx.ui.graphics.colorspace.Rgb getDciP3();
+    method public androidx.ui.graphics.colorspace.Rgb getDisplayP3();
+    method public androidx.ui.graphics.colorspace.Rgb getExtendedSrgb();
+    method public androidx.ui.graphics.colorspace.Rgb getLinearExtendedSrgb();
+    method public androidx.ui.graphics.colorspace.Rgb getLinearSrgb();
+    method public androidx.ui.graphics.colorspace.Rgb getNtsc1953();
+    method public androidx.ui.graphics.colorspace.Rgb getProPhotoRgb();
+    method public androidx.ui.graphics.colorspace.Rgb getSmpteC();
+    method public androidx.ui.graphics.colorspace.Rgb getSrgb();
+    method public androidx.ui.graphics.colorspace.ColorSpace? match(@Size(9) float[] toXYZD50, androidx.ui.graphics.colorspace.TransferParameters function);
+    property public final androidx.ui.graphics.colorspace.Rgb Aces;
+    property public final androidx.ui.graphics.colorspace.Rgb Acescg;
+    property public final androidx.ui.graphics.colorspace.Rgb AdobeRgb;
+    property public final androidx.ui.graphics.colorspace.Rgb Bt2020;
+    property public final androidx.ui.graphics.colorspace.Rgb Bt709;
+    property public final androidx.ui.graphics.colorspace.ColorSpace CieLab;
+    property public final androidx.ui.graphics.colorspace.ColorSpace CieXyz;
+    property public final androidx.ui.graphics.colorspace.Rgb DciP3;
+    property public final androidx.ui.graphics.colorspace.Rgb DisplayP3;
+    property public final androidx.ui.graphics.colorspace.Rgb ExtendedSrgb;
+    property public final androidx.ui.graphics.colorspace.Rgb LinearExtendedSrgb;
+    property public final androidx.ui.graphics.colorspace.Rgb LinearSrgb;
+    property public final androidx.ui.graphics.colorspace.Rgb Ntsc1953;
+    property public final androidx.ui.graphics.colorspace.Rgb ProPhotoRgb;
+    property public final androidx.ui.graphics.colorspace.Rgb SmpteC;
+    property public final androidx.ui.graphics.colorspace.Rgb Srgb;
+    field public static final androidx.ui.graphics.colorspace.ColorSpaces! INSTANCE;
+  }
+
+  public class Connector {
+    method public final androidx.ui.graphics.colorspace.ColorSpace getDestination();
+    method public final androidx.ui.graphics.colorspace.RenderIntent getRenderIntent();
+    method public final androidx.ui.graphics.colorspace.ColorSpace getSource();
+    method @Size(3) public final float[] transform(float r, float g, float b);
+    method @Size(min=3) public float[] transform(@Size(min=3) float[] v);
+  }
+
+  public final class Illuminant {
+    method public androidx.ui.graphics.colorspace.WhitePoint getA();
+    method public androidx.ui.graphics.colorspace.WhitePoint getB();
+    method public androidx.ui.graphics.colorspace.WhitePoint getC();
+    method public androidx.ui.graphics.colorspace.WhitePoint getD50();
+    method public androidx.ui.graphics.colorspace.WhitePoint getD55();
+    method public androidx.ui.graphics.colorspace.WhitePoint getD60();
+    method public androidx.ui.graphics.colorspace.WhitePoint getD65();
+    method public androidx.ui.graphics.colorspace.WhitePoint getD75();
+    method public androidx.ui.graphics.colorspace.WhitePoint getE();
+    property public final androidx.ui.graphics.colorspace.WhitePoint A;
+    property public final androidx.ui.graphics.colorspace.WhitePoint B;
+    property public final androidx.ui.graphics.colorspace.WhitePoint C;
+    property public final androidx.ui.graphics.colorspace.WhitePoint D50;
+    property public final androidx.ui.graphics.colorspace.WhitePoint D55;
+    property public final androidx.ui.graphics.colorspace.WhitePoint D60;
+    property public final androidx.ui.graphics.colorspace.WhitePoint D65;
+    property public final androidx.ui.graphics.colorspace.WhitePoint D75;
+    property public final androidx.ui.graphics.colorspace.WhitePoint E;
+    field public static final androidx.ui.graphics.colorspace.Illuminant! INSTANCE;
+  }
+
+  public enum RenderIntent {
+    enum_constant public static final androidx.ui.graphics.colorspace.RenderIntent Absolute;
+    enum_constant public static final androidx.ui.graphics.colorspace.RenderIntent Perceptual;
+    enum_constant public static final androidx.ui.graphics.colorspace.RenderIntent Relative;
+    enum_constant public static final androidx.ui.graphics.colorspace.RenderIntent Saturation;
+  }
+
+  public final class Rgb extends androidx.ui.graphics.colorspace.ColorSpace {
+    ctor public Rgb(@Size(min=null) String name, @Size(null) float[] toXYZ, kotlin.jvm.functions.Function1<? super java.lang.Double,java.lang.Double> oetf, kotlin.jvm.functions.Function1<? super java.lang.Double,java.lang.Double> eotf);
+    ctor public Rgb(@Size(min=null) String name, @Size(min=null, max=null) float[] primaries, androidx.ui.graphics.colorspace.WhitePoint whitePoint, kotlin.jvm.functions.Function1<? super java.lang.Double,java.lang.Double> oetf, kotlin.jvm.functions.Function1<? super java.lang.Double,java.lang.Double> eotf, float min, float max);
+    ctor public Rgb(@Size(min=null) String name, @Size(null) float[] toXYZ, androidx.ui.graphics.colorspace.TransferParameters function);
+    ctor public Rgb(@Size(min=null) String name, @Size(min=null, max=null) float[] primaries, androidx.ui.graphics.colorspace.WhitePoint whitePoint, androidx.ui.graphics.colorspace.TransferParameters function);
+    ctor public Rgb(@Size(min=null) String name, @Size(null) float[] toXYZ, double gamma);
+    ctor public Rgb(@Size(min=null) String name, @Size(min=null, max=null) float[] primaries, androidx.ui.graphics.colorspace.WhitePoint whitePoint, double gamma);
+    method @Size(3) public float[] fromLinear(float r, float g, float b);
+    method @Size(min=3) public float[] fromLinear(@Size(min=3) float[] v);
+    method @Size(min=3) public float[] fromXyz(@Size(min=3) float[] v);
+    method public kotlin.jvm.functions.Function1<java.lang.Double,java.lang.Double> getEotf();
+    method @Size(9) public float[] getInverseTransform();
+    method @Size(min=9) public float[] getInverseTransform(@Size(min=9) float[] inverseTransform);
+    method public float getMaxValue(int component);
+    method public float getMinValue(int component);
+    method public kotlin.jvm.functions.Function1<java.lang.Double,java.lang.Double> getOetf();
+    method @Size(6) public float[] getPrimaries();
+    method @Size(min=6) public float[] getPrimaries(@Size(min=6) float[] primaries);
+    method public androidx.ui.graphics.colorspace.TransferParameters? getTransferParameters();
+    method @Size(9) public float[] getTransform();
+    method @Size(min=9) public float[] getTransform(@Size(min=9) float[] transform);
+    method public androidx.ui.graphics.colorspace.WhitePoint getWhitePoint();
+    method public boolean isWideGamut();
+    method @Size(3) public float[] toLinear(float r, float g, float b);
+    method @Size(min=3) public float[] toLinear(@Size(min=3) float[] v);
+    method @Size(min=3) public float[] toXyz(@Size(min=3) float[] v);
+    property public final kotlin.jvm.functions.Function1<java.lang.Double,java.lang.Double> eotf;
+    property public boolean isSrgb;
+    property public boolean isWideGamut;
+    property public final kotlin.jvm.functions.Function1<java.lang.Double,java.lang.Double> oetf;
+  }
+
+  public final class TransferParameters {
+    ctor public TransferParameters(double gamma, double a, double b, double c, double d, double e, double f);
+    method public double component1();
+    method public double component2();
+    method public double component3();
+    method public double component4();
+    method public double component5();
+    method public double component6();
+    method public double component7();
+    method public androidx.ui.graphics.colorspace.TransferParameters copy(double gamma, double a, double b, double c, double d, double e, double f);
+    method public double getA();
+    method public double getB();
+    method public double getC();
+    method public double getD();
+    method public double getE();
+    method public double getF();
+    method public double getGamma();
+  }
+
+  public final class WhitePoint {
+    ctor public WhitePoint(float x, float y);
+    ctor public WhitePoint(float x, float y, float z);
+    method public float component1();
+    method public float component2();
+    method public androidx.ui.graphics.colorspace.WhitePoint copy(float x, float y);
+    method public float getX();
+    method public float getY();
   }
 
 }
@@ -1468,7 +1488,7 @@ package androidx.ui.painting {
 
   public final class AndroidImageKt {
     ctor public AndroidImageKt();
-    method public static androidx.ui.painting.Image Image(int width, int height, androidx.ui.painting.ImageConfig config = ImageConfig.Argb8888, boolean hasAlpha = true, androidx.ui.graphics.ColorSpace colorSpace = ColorSpace.get(ColorSpace.Named.Srgb));
+    method public static androidx.ui.painting.Image Image(int width, int height, androidx.ui.painting.ImageConfig config = ImageConfig.Argb8888, boolean hasAlpha = true, androidx.ui.graphics.colorspace.ColorSpace colorSpace = ColorSpaces.Srgb);
     method public static androidx.ui.painting.Image imageFromResource(android.content.res.Resources res, int resId);
   }
 
@@ -1573,14 +1593,14 @@ package androidx.ui.painting {
   }
 
   public interface Image {
-    method public androidx.ui.graphics.ColorSpace getColorSpace();
+    method public androidx.ui.graphics.colorspace.ColorSpace getColorSpace();
     method public androidx.ui.painting.ImageConfig getConfig();
     method public boolean getHasAlpha();
     method public int getHeight();
     method public android.graphics.Bitmap getNativeImage();
     method public int getWidth();
     method public void prepareToDraw();
-    property public abstract androidx.ui.graphics.ColorSpace colorSpace;
+    property public abstract androidx.ui.graphics.colorspace.ColorSpace colorSpace;
     property public abstract androidx.ui.painting.ImageConfig config;
     property public abstract boolean hasAlpha;
     property public abstract int height;
