@@ -50,6 +50,7 @@ import androidx.work.impl.constraints.trackers.BatteryNotLowTracker;
 import androidx.work.impl.constraints.trackers.NetworkStateTracker;
 import androidx.work.impl.constraints.trackers.StorageNotLowTracker;
 import androidx.work.impl.constraints.trackers.Trackers;
+import androidx.work.impl.foreground.ForegroundProcessor;
 import androidx.work.impl.model.WorkSpec;
 import androidx.work.impl.utils.SynchronousExecutor;
 import androidx.work.impl.utils.taskexecutor.InstantWorkTaskExecutor;
@@ -87,6 +88,7 @@ public class ConstraintTrackingWorkerTest extends DatabaseTest {
     private TaskExecutor mWorkTaskExecutor;
     private Scheduler mScheduler;
     private ProgressUpdater mProgressUpdater;
+    private ForegroundProcessor mForegroundProcessor;
     private Trackers mTracker;
     private BatteryChargingTracker mBatteryChargingTracker;
     private BatteryNotLowTracker mBatteryNotLowTracker;
@@ -105,6 +107,7 @@ public class ConstraintTrackingWorkerTest extends DatabaseTest {
         mWorkManagerImpl = mock(WorkManagerImpl.class);
         mScheduler = mock(Scheduler.class);
         mProgressUpdater = mock(ProgressUpdater.class);
+        mForegroundProcessor = mock(ForegroundProcessor.class);
         when(mWorkManagerImpl.getWorkDatabase()).thenReturn(mDatabase);
         when(mWorkManagerImpl.getWorkTaskExecutor()).thenReturn(mWorkTaskExecutor);
         when(mWorkManagerImpl.getConfiguration()).thenReturn(mConfiguration);
@@ -279,6 +282,7 @@ public class ConstraintTrackingWorkerTest extends DatabaseTest {
                 mContext,
                 mConfiguration,
                 mWorkTaskExecutor,
+                mForegroundProcessor,
                 mDatabase,
                 mWork.getStringId());
     }

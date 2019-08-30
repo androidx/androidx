@@ -41,6 +41,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
+import org.mockito.ArgumentMatchers.eq
 import org.mockito.Mockito.spy
 import org.mockito.Mockito.times
 import org.mockito.Mockito.verify
@@ -85,7 +86,7 @@ class CoroutineWorkerTest {
         WorkManagerImpl.setDelegate(workManagerImpl)
         database = workManagerImpl.workDatabase
         // No op
-        progressUpdater = ProgressUpdater { _, _, _ ->
+        progressUpdater = ProgressUpdater { _, _, _, _ ->
             val future = SettableFuture.create<Void>()
             future.set(null)
             future
@@ -180,7 +181,8 @@ class CoroutineWorkerTest {
                 .updateProgress(
                     any(Context::class.java),
                     any(UUID::class.java),
-                    captor.capture()
+                    captor.capture(),
+                    eq(null)
                 )
             assertThat(result, `is`(instanceOf(ListenableWorker.Result.Success::class.java)))
             val recent = captor.allValues.lastOrNull()

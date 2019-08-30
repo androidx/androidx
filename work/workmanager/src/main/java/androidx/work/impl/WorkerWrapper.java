@@ -22,10 +22,12 @@ import static androidx.work.WorkInfo.State.ENQUEUED;
 import static androidx.work.WorkInfo.State.FAILED;
 import static androidx.work.WorkInfo.State.RUNNING;
 import static androidx.work.WorkInfo.State.SUCCEEDED;
+import static androidx.work.impl.foreground.SystemForegroundDispatcher.createNotifyIntent;
 import static androidx.work.impl.model.WorkSpec.SCHEDULE_NOT_REQUESTED_YET;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.Intent;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -38,10 +40,13 @@ import androidx.work.InputMerger;
 import androidx.work.InputMergerFactory;
 import androidx.work.ListenableWorker;
 import androidx.work.Logger;
+import androidx.work.NotificationMetadata;
+import androidx.work.NotificationProvider;
 import androidx.work.WorkInfo;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 import androidx.work.impl.background.systemalarm.RescheduleReceiver;
+import androidx.work.impl.foreground.ForegroundProcessor;
 import androidx.work.impl.model.DependencyDao;
 import androidx.work.impl.model.WorkSpec;
 import androidx.work.impl.model.WorkSpecDao;
@@ -72,7 +77,8 @@ public class WorkerWrapper implements Runnable {
     // Avoid Synthetic accessor
     static final String TAG = Logger.tagWithPrefix("WorkerWrapper");
 
-    private Context mAppContext;
+    // Avoid Synthetic accessor
+    Context mAppContext;
     private String mWorkSpecId;
     private List<Scheduler> mSchedulers;
     private WorkerParameters.RuntimeExtras mRuntimeExtras;
@@ -86,6 +92,7 @@ public class WorkerWrapper implements Runnable {
 
     private Configuration mConfiguration;
     private TaskExecutor mWorkTaskExecutor;
+    private ForegroundProcessor mForegroundProcessor;
     private WorkDatabase mWorkDatabase;
     private WorkSpecDao mWorkSpecDao;
     private DependencyDao mDependencyDao;
@@ -94,7 +101,9 @@ public class WorkerWrapper implements Runnable {
     private List<String> mTags;
     private String mWorkDescription;
 
-    private @NonNull SettableFuture<Boolean> mFuture = SettableFuture.create();
+    // Synthetic access
+    @NonNull
+    SettableFuture<Boolean> mFuture = SettableFuture.create();
 
     // Package-private for synthetic accessor.
     @Nullable ListenableFuture<ListenableWorker.Result> mInnerFuture = null;
@@ -102,9 +111,10 @@ public class WorkerWrapper implements Runnable {
     private volatile boolean mInterrupted;
 
     // Package-private for synthetic accessor.
-    WorkerWrapper(Builder builder) {
+    WorkerWrapper(@NonNull Builder builder) {
         mAppContext = builder.mAppContext;
         mWorkTaskExecutor = builder.mWorkTaskExecutor;
+        mForegroundProcessor = builder.mForegroundProcessor;
         mWorkSpecId = builder.mWorkSpecId;
         mSchedulers = builder.mSchedulers;
         mRuntimeExtras = builder.mRuntimeExtras;
@@ -259,6 +269,28 @@ public class WorkerWrapper implements Runnable {
         if (trySetRunning()) {
             if (tryCheckForInterruptionAndResolve()) {
                 return;
+            }
+
+            if (mWorkSpec.runInForeground) {
+                // This can happen when a developer refactor code, and your Worker no longer
+                // implements a NotificationProvider.
+                if (mWorker instanceof NotificationProvider) {
+                    // Make sure the first notification is set up.
+                    NotificationProvider provider = (NotificationProvider) mWorker;
+                    final NotificationMetadata metadata = provider.getNotification();
+                    mForegroundProcessor.startForeground(mWorkSpecId);
+                    // Notification intent
+                    Intent intent = createNotifyIntent(mAppContext, metadata);
+                    mAppContext.startService(intent);
+
+                    // Resolve background schedulers without the request to reschedule.
+                    mFuture.set(false);
+                } else {
+                    String message = String.format("Worker (%s) cannot be started in the "
+                                    + "foreground as it does not implement a NotificationProvider",
+                            mWorkDescription);
+                    Logger.get().error(TAG, message);
+                }
             }
 
             final SettableFuture<ListenableWorker.Result> future = SettableFuture.create();
@@ -440,6 +472,9 @@ public class WorkerWrapper implements Runnable {
             mWorkDatabase.endTransaction();
         }
 
+        if (mWorkSpec != null && mWorkSpec.runInForeground) {
+            mForegroundProcessor.stopForeground(mWorkSpecId);
+        }
         mFuture.set(needsReschedule);
     }
 
@@ -606,6 +641,7 @@ public class WorkerWrapper implements Runnable {
         @NonNull Context mAppContext;
         @Nullable
         ListenableWorker mWorker;
+        @NonNull ForegroundProcessor mForegroundProcessor;
         @NonNull TaskExecutor mWorkTaskExecutor;
         @NonNull Configuration mConfiguration;
         @NonNull WorkDatabase mWorkDatabase;
@@ -617,10 +653,12 @@ public class WorkerWrapper implements Runnable {
         public Builder(@NonNull Context context,
                 @NonNull Configuration configuration,
                 @NonNull TaskExecutor workTaskExecutor,
+                @NonNull ForegroundProcessor foregroundProcessor,
                 @NonNull WorkDatabase database,
                 @NonNull String workSpecId) {
             mAppContext = context.getApplicationContext();
             mWorkTaskExecutor = workTaskExecutor;
+            mForegroundProcessor = foregroundProcessor;
             mConfiguration = configuration;
             mWorkDatabase = database;
             mWorkSpecId = workSpecId;
@@ -630,7 +668,8 @@ public class WorkerWrapper implements Runnable {
          * @param schedulers The list of {@link Scheduler}s used for scheduling {@link Worker}s.
          * @return The instance of {@link Builder} for chaining.
          */
-        public Builder withSchedulers(List<Scheduler> schedulers) {
+        @NonNull
+        public Builder withSchedulers(@NonNull List<Scheduler> schedulers) {
             mSchedulers = schedulers;
             return this;
         }
@@ -641,7 +680,8 @@ public class WorkerWrapper implements Runnable {
          *                      will be retained.
          * @return The instance of {@link Builder} for chaining.
          */
-        public Builder withRuntimeExtras(WorkerParameters.RuntimeExtras runtimeExtras) {
+        @NonNull
+        public Builder withRuntimeExtras(@Nullable WorkerParameters.RuntimeExtras runtimeExtras) {
             if (runtimeExtras != null) {
                 mRuntimeExtras = runtimeExtras;
             }
@@ -653,8 +693,9 @@ public class WorkerWrapper implements Runnable {
          * {@link WorkerWrapper}. Useful in the context of testing.
          * @return The instance of {@link Builder} for chaining.
          */
+        @NonNull
         @VisibleForTesting
-        public Builder withWorker(ListenableWorker worker) {
+        public Builder withWorker(@NonNull ListenableWorker worker) {
             mWorker = worker;
             return this;
         }
