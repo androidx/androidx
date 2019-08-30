@@ -16,9 +16,7 @@
 
 package androidx.text.style;
 
-import static org.hamcrest.CoreMatchers.not;
-import static org.hamcrest.Matchers.equalTo;
-import static org.junit.Assert.assertThat;
+import static com.google.common.truth.Truth.assertThat;
 
 import android.text.TextPaint;
 
@@ -37,10 +35,10 @@ public class BaselineShiftSpanTest {
         final BaselineShiftSpan span = new BaselineShiftSpan(multiplier);
         final TextPaint textPaint = new TextPaint();
         // Make sure baseline shift is zero when created
-        assertThat(textPaint.baselineShift, equalTo(0));
+        assertThat(textPaint.baselineShift).isEqualTo(0);
 
         span.updateMeasureState(textPaint);
-        assertThat(textPaint.baselineShift, not(equalTo(0)));
+        assertThat(textPaint.baselineShift).isNotEqualTo(0);
     }
 
     @Test
@@ -49,9 +47,9 @@ public class BaselineShiftSpanTest {
         final BaselineShiftSpan span = new BaselineShiftSpan(multiplier);
         final TextPaint textPaint = new TextPaint();
         // Make sure baseline shift is zero when created
-        assertThat(textPaint.baselineShift, equalTo(0));
+        assertThat(textPaint.baselineShift).isEqualTo(0);
 
         span.updateDrawState(textPaint);
-        assertThat(textPaint.baselineShift, not(equalTo(0)));
+        assertThat(textPaint.baselineShift).isNotEqualTo(0);
     }
 }

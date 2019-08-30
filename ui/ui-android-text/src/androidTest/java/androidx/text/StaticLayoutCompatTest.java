@@ -16,11 +16,7 @@
 
 package androidx.text;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.Matchers.greaterThan;
-import static org.hamcrest.Matchers.greaterThanOrEqualTo;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
+import static com.google.common.truth.Truth.assertThat;
 
 import android.app.Instrumentation;
 import android.graphics.Typeface;
@@ -60,9 +56,9 @@ public class StaticLayoutCompatTest {
         final StaticLayout staticLayout = new StaticLayoutCompat.Builder(text, paint, width)
                 .build();
 
-        assertThat(staticLayout.getText(), equalTo(text));
-        assertThat(staticLayout.getPaint(), equalTo(paint));
-        assertThat(staticLayout.getWidth(), equalTo(width));
+        assertThat(staticLayout.getText()).isEqualTo(text);
+        assertThat(staticLayout.getPaint()).isEqualTo(paint);
+        assertThat(staticLayout.getWidth()).isEqualTo(width);
     }
 
     @Test(expected = NullPointerException.class)
@@ -80,7 +76,7 @@ public class StaticLayoutCompatTest {
         final StaticLayout staticLayout = new StaticLayoutCompat.Builder("", new TextPaint(), 0)
                 .build();
 
-        assertNotNull(staticLayout);
+        assertThat(staticLayout).isNotNull();
     }
 
     @Test
@@ -90,7 +86,7 @@ public class StaticLayoutCompatTest {
                 .setText(text)
                 .build();
 
-        assertThat(staticLayout.getText(), equalTo(text));
+        assertThat(staticLayout.getText()).isEqualTo(text);
     }
 
     @Test(expected = NullPointerException.class)
@@ -130,7 +126,7 @@ public class StaticLayoutCompatTest {
                 .build();
 
         // Check start is 0
-        assertThat(staticLayout.getLineStart(0), equalTo(0));
+        assertThat(staticLayout.getLineStart(0)).isEqualTo(0);
     }
 
     @Test
@@ -142,7 +138,7 @@ public class StaticLayoutCompatTest {
 
         int lineNum = staticLayout.getLineCount();
         // Check the end is str.length()
-        assertThat(staticLayout.getLineStart(lineNum), equalTo(str.length()));
+        assertThat(staticLayout.getLineStart(lineNum)).isEqualTo(str.length());
     }
 
     @Test
@@ -152,7 +148,7 @@ public class StaticLayoutCompatTest {
                 .setPaint(paint)
                 .build();
 
-        assertThat(staticLayout.getPaint(), equalTo(paint));
+        assertThat(staticLayout.getPaint()).isEqualTo(paint);
     }
 
     @Test(expected = NullPointerException.class)
@@ -167,7 +163,7 @@ public class StaticLayoutCompatTest {
                 .setWidth(width)
                 .build();
 
-        assertThat(staticLayout.getWidth(), equalTo(width));
+        assertThat(staticLayout.getWidth()).isEqualTo(width);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -182,7 +178,7 @@ public class StaticLayoutCompatTest {
                 .setAlignment(align)
                 .build();
 
-        assertThat(staticLayout.getAlignment(), equalTo(align));
+        assertThat(staticLayout.getAlignment()).isEqualTo(align);
     }
 
     @Test(expected = NullPointerException.class)
@@ -195,7 +191,7 @@ public class StaticLayoutCompatTest {
         final StaticLayout staticLayout = new StaticLayoutCompat.Builder("", new TextPaint(), 0)
                 .build();
 
-        assertThat(staticLayout.getAlignment(), equalTo(Layout.Alignment.ALIGN_NORMAL));
+        assertThat(staticLayout.getAlignment()).isEqualTo(Layout.Alignment.ALIGN_NORMAL);
     }
 
     @Test
@@ -205,7 +201,7 @@ public class StaticLayoutCompatTest {
                 .setTextDirection(textDir)
                 .build();
 
-        assertThat(staticLayout.getParagraphDirection(0), equalTo(Layout.DIR_RIGHT_TO_LEFT));
+        assertThat(staticLayout.getParagraphDirection(0)).isEqualTo(Layout.DIR_RIGHT_TO_LEFT);
     }
 
     @Test(expected = NullPointerException.class)
@@ -219,7 +215,7 @@ public class StaticLayoutCompatTest {
         final StaticLayout staticLayout = new StaticLayoutCompat.Builder(text, new TextPaint(), 0)
                 .build();
 
-        assertThat(staticLayout.getParagraphDirection(0), equalTo(Layout.DIR_LEFT_TO_RIGHT));
+        assertThat(staticLayout.getParagraphDirection(0)).isEqualTo(Layout.DIR_LEFT_TO_RIGHT);
     }
 
     @Test
@@ -228,7 +224,7 @@ public class StaticLayoutCompatTest {
         final StaticLayout staticLayout = new StaticLayoutCompat.Builder(text, new TextPaint(), 0)
                 .build();
 
-        assertThat(staticLayout.getParagraphDirection(0), equalTo(Layout.DIR_RIGHT_TO_LEFT));
+        assertThat(staticLayout.getParagraphDirection(0)).isEqualTo(Layout.DIR_RIGHT_TO_LEFT);
     }
 
     @Test
@@ -237,7 +233,7 @@ public class StaticLayoutCompatTest {
         final StaticLayout staticLayout = new StaticLayoutCompat.Builder(text,
                 new TextPaint(), 0).build();
 
-        assertThat(staticLayout.getParagraphDirection(0), equalTo(Layout.DIR_LEFT_TO_RIGHT));
+        assertThat(staticLayout.getParagraphDirection(0)).isEqualTo(Layout.DIR_LEFT_TO_RIGHT);
     }
 
     @Test
@@ -247,7 +243,7 @@ public class StaticLayoutCompatTest {
                 .setLineSpacingExtra(lineSpacingExtra)
                 .build();
 
-        assertThat(staticLayout.getSpacingAdd(), equalTo(lineSpacingExtra));
+        assertThat(staticLayout.getSpacingAdd()).isEqualTo(lineSpacingExtra);
     }
 
     @Test
@@ -257,7 +253,7 @@ public class StaticLayoutCompatTest {
                 .setLineSpacingMultiplier(lineSpacingMultiplier)
                 .build();
 
-        assertThat(staticLayout.getSpacingMultiplier(), equalTo(lineSpacingMultiplier));
+        assertThat(staticLayout.getSpacingMultiplier()).isEqualTo(lineSpacingMultiplier);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -272,7 +268,7 @@ public class StaticLayoutCompatTest {
         final StaticLayout staticLayout = new StaticLayoutCompat.Builder("", new TextPaint(), 0)
                 .build();
 
-        assertThat(staticLayout.getSpacingAdd(), equalTo(0.0f));
+        assertThat(staticLayout.getSpacingAdd()).isEqualTo(0.0f);
     }
 
     @Test
@@ -280,7 +276,7 @@ public class StaticLayoutCompatTest {
         final StaticLayout staticLayout = new StaticLayoutCompat.Builder("", new TextPaint(), 0)
                 .build();
 
-        assertThat(staticLayout.getSpacingMultiplier(), equalTo(1.0f));
+        assertThat(staticLayout.getSpacingMultiplier()).isEqualTo(1.0f);
     }
 
     @Test
@@ -298,7 +294,7 @@ public class StaticLayoutCompatTest {
                 .build();
 
         // Ellipsized char in the first line should be zero
-        assertThat(staticLayout.getEllipsisCount(0), equalTo(0));
+        assertThat(staticLayout.getEllipsisCount(0)).isEqualTo(0);
     }
 
     @Test
@@ -316,7 +312,7 @@ public class StaticLayoutCompatTest {
                 .setMaxLines(1)
                 .build();
 
-        assertThat(staticLayout.getEllipsisCount(0), greaterThan(0));
+        assertThat(staticLayout.getEllipsisCount(0)).isGreaterThan(0);
     }
 
     // Testing of BreakStrategy is non-trivial, only test if it will crash.
@@ -357,7 +353,7 @@ public class StaticLayoutCompatTest {
 
         // If hyphenation is off, "writing" will become "writin" + "\n" +"g".
         // The second line should start with 'g'.
-        assertThat(staticLayout.getLineStart(1), equalTo("writin".length()));
+        assertThat(staticLayout.getLineStart(1)).isEqualTo("writin".length());
     }
 
     @Test
@@ -373,10 +369,10 @@ public class StaticLayoutCompatTest {
                 .setHyphenationFrequency(Layout.HYPHENATION_FREQUENCY_FULL)
                 .build();
 
-        assertThat(staticLayout.getLineCount(), equalTo(2));
+        assertThat(staticLayout.getLineCount()).isEqualTo(2);
         // If hyphenation is on, "writing" will become "writ-" + "\n" + "ing".
         // The second line should start with 'i'.
-        assertThat(staticLayout.getLineStart(1), equalTo("writ".length()));
+        assertThat(staticLayout.getLineStart(1)).isEqualTo("writ".length());
     }
 
     @Test
@@ -392,10 +388,10 @@ public class StaticLayoutCompatTest {
                 .setHyphenationFrequency(Layout.HYPHENATION_FREQUENCY_FULL)
                 .build();
 
-        assertThat(staticLayout.getLineCount(), equalTo(2));
+        assertThat(staticLayout.getLineCount()).isEqualTo(2);
         // If hyphenation is on, "writing" will become "writ-" + "\n" + "ing".
         // The second line should start with 'i'.
-        assertThat(staticLayout.getLineStart(1), equalTo("writ".length()));
+        assertThat(staticLayout.getLineStart(1)).isEqualTo("writ".length());
     }
 
     @Test
@@ -410,10 +406,10 @@ public class StaticLayoutCompatTest {
         final StaticLayout staticLayout = new StaticLayoutCompat.Builder(text, paint, (int) width)
                 .build();
 
-        assertThat(staticLayout.getLineCount(), equalTo(2));
+        assertThat(staticLayout.getLineCount()).isEqualTo(2);
         // If hyphenation is off, "writing" will become "writin" + "\n" +"g".
         // The second line should start with 'g'.
-        assertThat(staticLayout.getLineStart(1), equalTo("writin".length()));
+        assertThat(staticLayout.getLineStart(1)).isEqualTo("writin".length());
     }
 
     @Test
@@ -431,10 +427,10 @@ public class StaticLayoutCompatTest {
                 .build();
 
         // Last line won't be justified, need two lines.
-        assertThat(staticLayout.getLineCount(), greaterThan(1));
+        assertThat(staticLayout.getLineCount()).isGreaterThan(1);
         // If there is no justification, first line width should not be changed.
         final float firstLineWidth = "a b".length() * charWidth;
-        assertThat(staticLayout.getLineRight(0), equalTo(firstLineWidth));
+        assertThat(staticLayout.getLineRight(0)).isEqualTo(firstLineWidth);
     }
 
     @Test
@@ -452,15 +448,15 @@ public class StaticLayoutCompatTest {
                 .build();
 
         // Last line won't be justified, need two lines.
-        assertThat(staticLayout.getLineCount(), greaterThan(1));
+        assertThat(staticLayout.getLineCount()).isGreaterThan(1);
         // The line right much be greater than text length when justification is on.
-        assertThat(staticLayout.getLineRight(0), greaterThan("a b".length() * charWidth));
+        assertThat(staticLayout.getLineRight(0)).isGreaterThan("a b".length() * charWidth);
         // The line right ideally should be width. But before API 28, justification shows an extra
         // space at the end of each line. So we tolerate those cases by make sure light right is
         // bigger than width - sizeOfSpace, where sizeOfSpace equals extra / spaceNum.
         final int spaceNum = "a b".split(" ").length - 1;
         final float lineRightLowerBoundary = width - extra / (spaceNum + 1);
-        assertThat(staticLayout.getLineRight(0), greaterThanOrEqualTo(lineRightLowerBoundary));
+        assertThat(staticLayout.getLineRight(0)).isAtLeast(lineRightLowerBoundary);
     }
 
     @Test
@@ -477,10 +473,10 @@ public class StaticLayoutCompatTest {
                 .build();
 
         // Last line won't be justified, need two lines.
-        assertThat(staticLayout.getLineCount(), greaterThan(1));
+        assertThat(staticLayout.getLineCount()).isGreaterThan(1);
         // If there is no justification, first line width should not be changed.
         final float firstLineWidth = "a b".length() * charWidth;
-        assertThat(staticLayout.getLineRight(0), equalTo(firstLineWidth));
+        assertThat(staticLayout.getLineRight(0)).isEqualTo(firstLineWidth);
     }
 
     // Returns a paint which render characters with width equals to given charWidth.

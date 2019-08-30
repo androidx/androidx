@@ -40,8 +40,12 @@ fun Layout.bitmap(): Bitmap {
         this.height,
         Bitmap.Config.ARGB_8888
     )
-    this.draw(android.graphics.Canvas(bitmap))
+    this.draw(Canvas(bitmap))
     return bitmap
+}
+
+fun TextLayout.bitmap(): Bitmap {
+    return layout.bitmap()
 }
 
 fun Typeface.bitmap(): Bitmap {
@@ -59,5 +63,5 @@ fun Typeface.bitmap(text: String): Bitmap {
         textPaint = paint,
         width = text.length * fontSize * 1.5f
     )
-    return layout.layout.bitmap()
+    return layout.bitmap()
 }

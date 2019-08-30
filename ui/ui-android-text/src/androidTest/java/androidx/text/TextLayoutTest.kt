@@ -17,14 +17,16 @@
 package androidx.text
 
 import android.graphics.Typeface
+import android.text.BoringLayout
 import android.text.Layout
+import android.text.SpannableString
+import android.text.Spanned
+import android.text.StaticLayout
 import android.text.TextPaint
 import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
-import org.hamcrest.CoreMatchers.equalTo
-import org.hamcrest.Matchers.greaterThanOrEqualTo
-import org.hamcrest.Matchers.lessThanOrEqualTo
-import org.junit.Assert.assertThat
+import androidx.text.style.BaselineShiftSpan
+import com.google.common.truth.Truth.assertThat
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -34,6 +36,7 @@ import org.junit.runners.JUnit4
 @SmallTest
 class TextLayoutTest {
     lateinit var sampleTypeface: Typeface
+
     @Before
     fun setup() {
         val instrumentation = InstrumentationRegistry.getInstrumentation()
@@ -50,11 +53,11 @@ class TextLayoutTest {
         val textLayout = TextLayout(charSequence = "", textPaint = TextPaint())
         val frameworkLayout = textLayout.layout
 
-        assertThat(frameworkLayout.width, equalTo(0))
-        assertThat(frameworkLayout.alignment, equalTo(Layout.Alignment.ALIGN_NORMAL))
-        assertThat(frameworkLayout.getParagraphDirection(0), equalTo(Layout.DIR_LEFT_TO_RIGHT))
-        assertThat(frameworkLayout.spacingMultiplier, equalTo(1.0f))
-        assertThat(frameworkLayout.spacingAdd, equalTo(0.0f))
+        assertThat(frameworkLayout.width).isEqualTo(0)
+        assertThat(frameworkLayout.alignment).isEqualTo(Layout.Alignment.ALIGN_NORMAL)
+        assertThat(frameworkLayout.getParagraphDirection(0)).isEqualTo(Layout.DIR_LEFT_TO_RIGHT)
+        assertThat(frameworkLayout.spacingMultiplier).isEqualTo(1.0f)
+        assertThat(frameworkLayout.spacingAdd).isEqualTo(0.0f)
         // TODO(Migration/haoyuchang): Need public API to test includePadding, maxLines,
         // breakStrategy and hyphenFrequency.
     }
@@ -69,7 +72,7 @@ class TextLayoutTest {
         )
         val frameworkLayout = textLayout.layout
 
-        assertThat(frameworkLayout.width, equalTo(layoutWidth.toInt()))
+        assertThat(frameworkLayout.width).isEqualTo(layoutWidth.toInt())
     }
 
     @Test
@@ -89,7 +92,7 @@ class TextLayoutTest {
         )
         val frameworkLayout = textLayout.layout
 
-        assertThat(frameworkLayout.width, lessThanOrEqualTo(layoutWidth.toInt()))
+        assertThat(frameworkLayout.width).isAtMost(layoutWidth.toInt())
     }
 
     @Test
@@ -116,7 +119,7 @@ class TextLayoutTest {
         for (i in 0 until layout.lineCount - 1) {
             // In the sample_font.ttf, the height of the line should be
             // fontSize + 0.2 * fontSize(line gap)
-            assertThat(layout.getLineHeight(i), equalTo(textSize * 1.2f + lineSpacingExtra))
+            assertThat(layout.getLineHeight(i)).isEqualTo(textSize * 1.2f + lineSpacingExtra)
         }
     }
 
@@ -142,12 +145,12 @@ class TextLayoutTest {
         )
 
         val lastLine = layout.lineCount - 1
-        assertThat(lastLine, greaterThanOrEqualTo(1))
+        assertThat(lastLine).isAtLeast(1)
 
         val actualHeight = layout.getLineHeight(lastLine)
         // In the sample_font.ttf, the height of the line should be
         // fontSize + 0.2 * fontSize(line gap)
-        assertThat(actualHeight, equalTo(textSize * 1.2f))
+        assertThat(actualHeight).isEqualTo(textSize * 1.2f)
     }
 
     @Test
@@ -172,10 +175,10 @@ class TextLayoutTest {
 
         )
 
-        assertThat(layout.lineCount, equalTo(1))
+        assertThat(layout.lineCount).isEqualTo(1)
         // In the sample_font.ttf, the height of the line should be
         // fontSize + 0.2 * fontSize(line gap)
-        assertThat(layout.getLineHeight(0), equalTo(textSize * 1.2f))
+        assertThat(layout.getLineHeight(0)).isEqualTo(textSize * 1.2f)
     }
 
     @Test
@@ -200,10 +203,10 @@ class TextLayoutTest {
 
         )
 
-        assertThat(layout.lineCount, equalTo(1))
+        assertThat(layout.lineCount).isEqualTo(1)
         // In the sample_font.ttf, the height of the line should be
         // fontSize + 0.2 * fontSize(line gap)
-        assertThat(layout.getLineHeight(0), equalTo(textSize * 1.2f))
+        assertThat(layout.getLineHeight(0)).isEqualTo(textSize * 1.2f)
     }
 
     @Test
@@ -230,7 +233,7 @@ class TextLayoutTest {
         for (i in 0 until layout.lineCount - 1) {
             // In the sample_font.ttf, the height of the line should be
             // fontSize + 0.2 * fontSize(line gap)
-            assertThat(layout.getLineHeight(i), equalTo(textSize * 1.2f * lineSpacingMultiplier))
+            assertThat(layout.getLineHeight(i)).isEqualTo(textSize * 1.2f * lineSpacingMultiplier)
         }
     }
 
@@ -258,7 +261,7 @@ class TextLayoutTest {
         val lastLine = layout.lineCount - 1
         // In the sample_font.ttf, the height of the line should be
         // fontSize + 0.2 * fontSize(line gap)
-        assertThat(layout.getLineHeight(lastLine), equalTo(textSize * 1.2f))
+        assertThat(layout.getLineHeight(lastLine)).isEqualTo(textSize * 1.2f)
     }
 
     @Test
@@ -282,10 +285,10 @@ class TextLayoutTest {
             includePadding = false
         )
 
-        assertThat(layout.lineCount, equalTo(1))
+        assertThat(layout.lineCount).isEqualTo(1)
         // In the sample_font.ttf, the height of the line should be
         // fontSize + 0.2 * fontSize(line gap)
-        assertThat(layout.getLineHeight(0), equalTo(textSize * 1.2f))
+        assertThat(layout.getLineHeight(0)).isEqualTo(textSize * 1.2f)
     }
 
     @Test
@@ -309,9 +312,66 @@ class TextLayoutTest {
             includePadding = false
         )
 
-        assertThat(layout.lineCount, equalTo(1))
+        assertThat(layout.lineCount).isEqualTo(1)
         // In the sample_font.ttf, the height of the line should be
         // fontSize + 0.2 * fontSize(line gap)
-        assertThat(layout.getLineHeight(0), equalTo(textSize * 1.2f))
+        assertThat(layout.getLineHeight(0)).isEqualTo(textSize * 1.2f)
+    }
+
+    @Test
+    fun createsBoringLayout_for_boringText() {
+        assertThat(
+            TextLayout(
+                charSequence = "a",
+                width = Float.MAX_VALUE,
+                textPaint = TextPaint()
+            ).layout
+        ).isInstanceOf(BoringLayout::class.java)
+    }
+
+    @Test
+    fun createsStaticLayout_for_rtl_text() {
+        assertThat(
+            TextLayout(
+                charSequence = "\u05D0",
+                width = Float.MAX_VALUE,
+                textPaint = TextPaint()
+            ).layout
+        ).isInstanceOf(StaticLayout::class.java)
+    }
+
+    @Test
+    fun createsStaticLayout_if_line_break_is_needed() {
+        val text = "ab"
+        val textSize = 20.0f
+        val layoutWidth = textSize * text.length
+
+        val textPaint = TextPaint()
+        textPaint.typeface = sampleTypeface
+        textPaint.textSize = textSize
+
+        assertThat(
+            TextLayout(
+                charSequence = text,
+                width = layoutWidth / 2f,
+                textPaint = textPaint
+            ).layout
+        ).isInstanceOf(StaticLayout::class.java)
+    }
+
+    @Test
+    fun createsStaticLayout_if_text_has_baselineshift_spans() {
+        val text = SpannableString("a").apply {
+            // 0.5f is a random value
+            setSpan(BaselineShiftSpan(0.5f), 0, length, Spanned.SPAN_INCLUSIVE_INCLUSIVE)
+        }
+
+        assertThat(
+            TextLayout(
+                charSequence = text,
+                width = Float.MAX_VALUE,
+                textPaint = TextPaint()
+            ).layout
+        ).isInstanceOf(StaticLayout::class.java)
     }
 }

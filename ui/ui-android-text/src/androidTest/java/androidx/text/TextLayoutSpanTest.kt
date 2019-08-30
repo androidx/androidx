@@ -25,8 +25,7 @@ import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.text.style.BaselineShiftSpan
 import androidx.text.style.SkewXSpan
-import org.hamcrest.Matchers.equalTo
-import org.junit.Assert.assertThat
+import com.google.common.truth.Truth.assertThat
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -220,13 +219,13 @@ class TextLayoutSpanTest {
             val ret = invoc.callRealMethod()
             val paint = invoc.getArgument(0) as TextPaint
             baselineShift?.let {
-                assertThat(paint.baselineShift, equalTo(it))
+                assertThat(paint.baselineShift).isEqualTo(it)
             }
             skewX?.let {
-                assertThat(paint.textSkewX, equalTo(it))
+                assertThat(paint.textSkewX).isEqualTo(it)
             }
             scaleX?.let {
-                assertThat(paint.textScaleX, equalTo(it))
+                assertThat(paint.textScaleX).isEqualTo(it)
             }
             ret
         }

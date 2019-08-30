@@ -16,8 +16,7 @@
 
 package androidx.text.style;
 
-import static org.hamcrest.Matchers.equalTo;
-import static org.junit.Assert.assertThat;
+import static com.google.common.truth.Truth.assertThat;
 
 import android.text.TextPaint;
 
@@ -41,10 +40,10 @@ public class FontFeatureSpanTest {
         final FontFeatureSpan span = new FontFeatureSpan(fontFeatureSettings);
         final TextPaint textPaint = new TextPaint();
         // Make sure baseline shift is zero when created
-        assertThat(textPaint.getFontFeatureSettings(), equalTo(null));
+        assertThat(textPaint.getFontFeatureSettings()).isNull();
 
         span.updateMeasureState(textPaint);
-        assertThat(textPaint.getFontFeatureSettings(), equalTo(fontFeatureSettings));
+        assertThat(textPaint.getFontFeatureSettings()).isEqualTo(fontFeatureSettings);
     }
 
     @Test
@@ -53,9 +52,9 @@ public class FontFeatureSpanTest {
         final FontFeatureSpan span = new FontFeatureSpan(fontFeatureSettings);
         final TextPaint textPaint = new TextPaint();
         // Make sure baseline shift is zero when created
-        assertThat(textPaint.getFontFeatureSettings(), equalTo(null));
+        assertThat(textPaint.getFontFeatureSettings()).isNull();
 
         span.updateDrawState(textPaint);
-        assertThat(textPaint.getFontFeatureSettings(), equalTo(fontFeatureSettings));
+        assertThat(textPaint.getFontFeatureSettings()).isEqualTo(fontFeatureSettings);
     }
 }
