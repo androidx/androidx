@@ -1,0 +1,11 @@
+// Signature format: 3.0
+package androidx.loader.app {
+
+  public final class LoaderManagerKt {
+    ctor public LoaderManagerKt();
+    method @MainThread public static inline <D> void initLoader(androidx.loader.app.LoaderManager, int id, androidx.loader.content.Loader<D> loader, kotlin.jvm.functions.Function0<kotlin.Unit> onLoaderReset = {}, kotlin.jvm.functions.Function1<? super D,kotlin.Unit> onLoadFinished);
+    method @MainThread public static inline <D> void restartLoader(androidx.loader.app.LoaderManager, int id, androidx.loader.content.Loader<D> loader, kotlin.jvm.functions.Function0<kotlin.Unit> onLoaderReset = {}, kotlin.jvm.functions.Function1<? super D,kotlin.Unit> onLoadFinished);
+  }
+
+}
+
