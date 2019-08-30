@@ -66,6 +66,7 @@ public class CarListDialog extends Dialog {
 
     private ListItemAdapter mAdapter;
     private final int mInitialPosition;
+    private final boolean mDismissOnClick;
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     PagedListView mList;
 
@@ -82,6 +83,7 @@ public class CarListDialog extends Dialog {
         mOnClickListener = builder.mOnClickListener;
         mTitle = builder.mTitle;
         mDismissButtonText = builder.mDismissButtonText;
+        mDismissOnClick = builder.mDismissOnClick;
 
         if (builder.mSections != null) {
             initializeWithSections(builder.mSections);
@@ -252,8 +254,7 @@ public class CarListDialog extends Dialog {
     private TextListItem createItem(Item item, int position) {
         TextListItem listItem = new TextListItem(getContext());
         listItem.setTitle(item.mTitle);
-        listItem.setBody(item.mBody != null ? item.mBody : "");
-
+        listItem.setBody(item.mBody);
         if (item.mIconDrawable != null) {
             listItem.setPrimaryActionIcon(item.mIconDrawable,
                     TextListItem.PRIMARY_ACTION_ICON_SIZE_MEDIUM);
@@ -275,7 +276,7 @@ public class CarListDialog extends Dialog {
             mOnClickListener.onClick(/* dialog= */ this, position);
         }
 
-        if (TextUtils.isEmpty(mDismissButtonText)) {
+        if (mDismissOnClick) {
             dismiss();
         }
     }
@@ -284,7 +285,7 @@ public class CarListDialog extends Dialog {
      * A struct that holds data for a list dialog item. An item is a combination of the item
      * title and optional body text and icon.
      */
-    public static class Item {
+    public static final class Item {
 
         final CharSequence mTitle;
         @Nullable
@@ -293,20 +294,64 @@ public class CarListDialog extends Dialog {
         Drawable mIconDrawable;
 
         /**
-         * Creates a Item.
-         *
-         * @param title The title of the item. This value must be non-empty.
+         * Builder class that can be used to create a {@link Item}.
          */
-        public Item(@NonNull CharSequence title) {
-            mTitle = title;
+        public static class Builder {
+
+            @NonNull
+            final CharSequence mTitle;
+            @Nullable
+            CharSequence mBody;
+            @Nullable
+            Drawable mIconDrawable;
+
+            /**
+             * Creates a new instance of the {@code Builder}.
+             *
+             * @param title The title for the item.
+             */
+            public Builder(@NonNull CharSequence title) {
+                mTitle = title;
+            }
+
+            /**
+             * Sets the body text for the item.
+             *
+             * @param body The body text for th item.
+             * @return This {@code Builder} object to allow for chaining of calls.
+             */
+            @NonNull
+            public Builder setBody(@NonNull CharSequence body) {
+                mBody = body;
+                return this;
+            }
+
+            /**
+             * Sets the icon for the item.
+             *
+             * @param iconDrawable The icon for the item.
+             * @return This {@code Builder} object to allow for chaining of calls.
+             */
+            @NonNull
+            public Builder setIconDrawable(@NonNull Drawable iconDrawable) {
+                mIconDrawable = iconDrawable;
+                return this;
+            }
+
+            @NonNull
+            public Item build() {
+                return new Item(this);
+            }
         }
 
-        public void setBody(@NonNull CharSequence body) {
-            mBody = body;
-        }
+        /**
+         * Creates an Item.
+         */
+        Item(@NonNull Builder builder) {
+            mTitle = builder.mTitle;
+            mBody = builder.mBody;
+            mIconDrawable = builder.mIconDrawable;
 
-        public void setIconDrawable(@NonNull Drawable iconDrawable) {
-            mIconDrawable = iconDrawable;
         }
     }
 
@@ -317,9 +362,17 @@ public class CarListDialog extends Dialog {
     public static class DialogSubSection {
         private final CharSequence mTitle;
         private final List<Item> mItems;
+        boolean mDismissOnClick;
 
         /**
          * Creates a subsection.
+         *
+         * <p>When using this deprecated constructor, items will dismiss on click to maintain
+         * previously expected behavior. When using
+         * {@link androidx.car.app.CarListDialog.DialogSubSection
+         * #CarListDialog.DialogSubSection(CharSequence, List)}, dismissal must be handled in
+         * click callbacks or through the inclusion of a dismiss button
+         * {@link CarListDialog.Builder#setDismissButton(CharSequence)}.
          *
          * @param title The title of the section. Must be non-empty.
          * @param items A list of items associated with this section. This list cannot be
@@ -338,10 +391,11 @@ public class CarListDialog extends Dialog {
             }
 
             mTitle = title;
+            mDismissOnClick = true;
 
             List<Item> itemsList = new ArrayList<>();
             for (CharSequence itemText : items) {
-                itemsList.add(new Item(itemText));
+                itemsList.add(new Item.Builder(itemText).build());
             }
 
             mItems = itemsList;
@@ -363,6 +417,7 @@ public class CarListDialog extends Dialog {
                 throw new IllegalArgumentException("Items cannot be empty.");
             }
 
+            mDismissOnClick = false;
             mTitle = title;
             mItems = items;
         }
@@ -402,6 +457,7 @@ public class CarListDialog extends Dialog {
 
         CharSequence mTitle;
         CharSequence mDismissButtonText;
+        boolean mDismissOnClick;
         int mInitialPosition;
         List<Item> mItems;
         DialogSubSection[] mSections;
@@ -473,8 +529,9 @@ public class CarListDialog extends Dialog {
                 @Nullable OnClickListener onClickListener) {
             List<Item> itemsList = new ArrayList<>();
             for (CharSequence itemText : items) {
-                itemsList.add(new Item(itemText));
+                itemsList.add(new Item.Builder(itemText).build());
             }
+            mDismissOnClick = true;
 
             return setItems(itemsList, onClickListener);
         }
@@ -484,10 +541,11 @@ public class CarListDialog extends Dialog {
          * itself when an item in the list is clicked on.
          *
          * <p>If a {@link DialogInterface.OnClickListener} is given, then it will be notified
-         * of the click. The dialog will still be dismissed afterwards. The {@code which}
-         * parameter of the {@link DialogInterface.OnClickListener#onClick(DialogInterface, int)}
-         * method will be the position of the item. This position maps to the index of the item in
-         * the given list.
+         * of the click.  The {@code which} parameter of the
+         * {@link DialogInterface.OnClickListener#onClick(DialogInterface, int)} method will be
+         * the position of the item. This position maps to the index of the item in the given
+         * list. Handle dialog dismissal in this click listener or through the inclusion of a
+         * dismiss button {@link CarListDialog.Builder#setDismissButton(CharSequence)}.
          *
          * <p>The provided list of items cannot be {@code null} or empty. Passing an empty list
          * to this method will throw an {@link IllegalArgumentException}.
@@ -527,6 +585,12 @@ public class CarListDialog extends Dialog {
          * <p>The provided list of sections cannot be {@code null} or empty. The list of items
          * within a section also cannot be empty. Passing an empty list to this method will throw an
          * {@link IllegalArgumentException}.
+         *
+         * When using the deprecated DialogSubSection constructor, items will automatically
+         * dismiss upon click. When using{@link androidx.car.app.CarListDialog.DialogSubSection
+         * #CarListDialog.DialogSubSection(CharSequence, List)}, dismissal must be handled in
+         * click callbacks or through the inclusion of a dismiss button
+         * {@link CarListDialog.Builder#setDismissButton(CharSequence)}.
          *
          * <p>If both this method and {@link #setItems(List, OnClickListener)} are called,
          * then the sections will take precedent, and the items set via the other method will be
@@ -649,10 +713,17 @@ public class CarListDialog extends Dialog {
             if (mSections != null) {
                 mItems = null;
 
+                boolean shouldDismissOnClick = false;
                 // Calculate the total number of items by adding up all the sections.
                 for (DialogSubSection section : mSections) {
                     numOfItems += section.getItemCount();
+                    // If using a deprecated DialogSubSection or deprecated setItems() method,
+                    // items automatically dismiss on click, to maintain previously expected
+                    // behavior. Newer classes and methods require explicit dismissal from the
+                    // dismiss click listener.
+                    shouldDismissOnClick |= section.mDismissOnClick;
                 }
+                mDismissOnClick = shouldDismissOnClick;
             } else {
                 numOfItems = mItems.size();
             }

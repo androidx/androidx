@@ -48,10 +48,14 @@ package androidx.car.app {
     method public CharSequence getTitle();
   }
 
-  public static class CarListDialog.Item {
-    ctor public CarListDialog.Item(CharSequence);
-    method public void setBody(CharSequence);
-    method public void setIconDrawable(android.graphics.drawable.Drawable);
+  public static final class CarListDialog.Item {
+  }
+
+  public static class CarListDialog.Item.Builder {
+    ctor public CarListDialog.Item.Builder(CharSequence);
+    method public androidx.car.app.CarListDialog.Item build();
+    method public androidx.car.app.CarListDialog.Item.Builder setBody(CharSequence);
+    method public androidx.car.app.CarListDialog.Item.Builder setIconDrawable(android.graphics.drawable.Drawable);
   }
 
   public final class CarMultipleChoiceDialog extends android.app.Dialog {

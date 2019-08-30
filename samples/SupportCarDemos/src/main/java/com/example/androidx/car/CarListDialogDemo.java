@@ -134,7 +134,7 @@ public class CarListDialogDemo extends FragmentActivity {
         private List<CarListDialog.Item> createItems(int numOfItems) {
             List<CarListDialog.Item> items = new ArrayList<>();
             for (int i = 0; i < numOfItems; i++) {
-                items.add(new CarListDialog.Item("Item " + (i + 1)));
+                items.add(new CarListDialog.Item.Builder("Item " + (i + 1)).build());
             }
             return items;
         }
