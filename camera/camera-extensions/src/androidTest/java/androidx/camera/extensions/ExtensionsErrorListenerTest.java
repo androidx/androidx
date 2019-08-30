@@ -27,6 +27,7 @@ import android.content.Context;
 import android.os.Build;
 
 import androidx.annotation.NonNull;
+import androidx.camera.camera2.Camera2AppConfig;
 import androidx.camera.core.AppConfig;
 import androidx.camera.core.CameraControlInternal;
 import androidx.camera.core.CameraDeviceSurfaceManager;
@@ -53,6 +54,7 @@ import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 import androidx.test.rule.GrantPermissionRule;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -61,6 +63,7 @@ import org.junit.runner.RunWith;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -74,17 +77,6 @@ public final class ExtensionsErrorListenerTest {
     @Rule
     public GrantPermissionRule mRuntimePermissionRule = GrantPermissionRule.grant(
             Manifest.permission.CAMERA);
-
-    // TODO(b/126431497): This shouldn't need to be static, but the initialization behavior does
-    //  not allow us to reinitialize before each test.
-    private static FakeCameraFactory sCameraFactory = new FakeCameraFactory();
-
-    static {
-        String cameraId = sCameraFactory.cameraIdForLensFacing(LensFacing.BACK);
-        sCameraFactory.insertCamera(LensFacing.BACK, cameraId,
-                () -> new FakeCamera(new FakeCameraInfo(0, LensFacing.BACK),
-                        mock(CameraControlInternal.class)));
-    }
 
     private CountDownLatch mLatch;
 
@@ -101,7 +93,11 @@ public final class ExtensionsErrorListenerTest {
     public void setUp() {
         Context context = ApplicationProvider.getApplicationContext();
         CameraDeviceSurfaceManager surfaceManager = new FakeCameraDeviceSurfaceManager();
-        ExtendableUseCaseConfigFactory defaultConfigFactory = new ExtendableUseCaseConfigFactory();
+
+        // Pull out the Camera2 use case config factory because it provides correct defaults
+        ExtendableUseCaseConfigFactory defaultConfigFactory =
+                (ExtendableUseCaseConfigFactory) Camera2AppConfig.create(
+                        context).getUseCaseConfigRepository(null);
         defaultConfigFactory.installDefaultProvider(FakeUseCaseConfig.class,
                 new ConfigProvider<FakeUseCaseConfig>() {
                     @Override
@@ -109,9 +105,15 @@ public final class ExtensionsErrorListenerTest {
                         return new FakeUseCaseConfig.Builder().build();
                     }
                 });
+
+        FakeCameraFactory cameraFactory = new FakeCameraFactory();
+        cameraFactory.insertCamera(LensFacing.BACK, "0",
+                () -> new FakeCamera(new FakeCameraInfo(0, LensFacing.BACK),
+                        mock(CameraControlInternal.class)));
+
         AppConfig.Builder appConfigBuilder =
                 new AppConfig.Builder()
-                        .setCameraFactory(sCameraFactory)
+                        .setCameraFactory(cameraFactory)
                         .setDeviceSurfaceManager(surfaceManager)
                         .setUseCaseConfigFactory(defaultConfigFactory);
 
@@ -122,6 +124,12 @@ public final class ExtensionsErrorListenerTest {
 
         assumeTrue(CameraUtil.deviceHasCamera());
         mLatch = new CountDownLatch(1);
+    }
+
+    @After
+    public void tearDown() throws ExecutionException, InterruptedException {
+        // Wait for CameraX to finish deinitializing before the next test.
+        CameraX.deinit().get();
     }
 
     @Test
