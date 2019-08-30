@@ -298,7 +298,7 @@ package androidx.work {
     field public static final long MIN_BACKOFF_MILLIS = 10000L; // 0x2710L
   }
 
-  public abstract static class WorkRequest.Builder<B extends androidx.work.WorkRequest.Builder, W extends androidx.work.WorkRequest> {
+  public abstract static class WorkRequest.Builder<B extends androidx.work.WorkRequest.Builder<?, ?>, W extends androidx.work.WorkRequest> {
     method public final B addTag(String);
     method public final W build();
     method public final B keepResultsForAtLeast(long, java.util.concurrent.TimeUnit);
@@ -309,6 +309,7 @@ package androidx.work {
     method public B setInitialDelay(long, java.util.concurrent.TimeUnit);
     method @RequiresApi(26) public B setInitialDelay(java.time.Duration);
     method public final B setInputData(androidx.work.Data);
+    method public B setRunInForeground(boolean);
   }
 
   public abstract class Worker extends androidx.work.ListenableWorker {
