@@ -21,6 +21,7 @@ import androidx.compose.composer
 import androidx.compose.state
 import androidx.compose.unaryPlus
 import androidx.test.filters.SmallTest
+import androidx.test.platform.app.InstrumentationRegistry
 import androidx.ui.core.FocusManagerAmbient
 import androidx.ui.core.TestTag
 import androidx.ui.core.TextField
@@ -144,8 +145,80 @@ class TextFieldTest {
             val stateCaptor = argumentCaptor<EditorModel>()
             verify(textInputService, atLeastOnce()).onStateUpdated(stateCaptor.capture())
 
-            // Don't care the intermediate state update. It should eventually be "1a2b3".
+            // Don't care about the intermediate state update. It should eventually be "1a2b3".
             assertEquals("1a2b3", stateCaptor.lastValue.text)
+        }
+    }
+
+    @Composable
+    private fun OnlyDigitsApp() {
+        val state = +state { EditorModel() }
+        TextField(
+            value = state.value,
+            onValueChange = {
+                if (it.text.all { it.isDigit() }) {
+                    state.value = it
+                }
+            }
+        )
+    }
+
+    @Test
+    fun textField_commitTexts_state_may_not_set() {
+        val focusManager = mock<FocusManager>()
+        val textInputService = mock<TextInputService>()
+
+        // Always give focus to the passed node.
+        whenever(focusManager.requestFocus(any())).thenAnswer {
+            (it.arguments[0] as FocusManager.FocusNode).onFocus()
+        }
+
+        composeTestRule.setContent {
+            FocusManagerAmbient.Provider(value = focusManager) {
+                TextInputServiceAmbient.Provider(value = textInputService) {
+                    TestTag(tag = "textField") {
+                        OnlyDigitsApp()
+                    }
+                }
+            }
+        }
+
+        // Perform click to focus in.
+        val element = findByTag("textField")
+        element.doClick()
+
+        // Verify startInput is called and capture the callback.
+        val onEditCommandCaptor = argumentCaptor<(List<EditOperation>) -> Unit>()
+        verify(textInputService, times(1)).startInput(
+            initModel = any(),
+            keyboardType = any(),
+            imeAction = any(),
+            onEditCommand = onEditCommandCaptor.capture(),
+            onImeActionPerformed = any()
+        )
+        assertEquals(1, onEditCommandCaptor.allValues.size)
+        val onEditCommandCallback = onEditCommandCaptor.firstValue
+        assertNotNull(onEditCommandCallback)
+
+        // Performs input events "1", "a", "2", "b", "3". Only numbers should remain.
+        arrayOf(
+            listOf(CommitTextEditOp("1", 1)),
+            listOf(CommitTextEditOp("a", 1)),
+            listOf(CommitTextEditOp("2", 1)),
+            listOf(CommitTextEditOp("b", 1)),
+            listOf(CommitTextEditOp("3", 1))
+        ).forEach {
+            composeTestRule.runOnUiThread { onEditCommandCallback(it) }
+            waitForIdleCompose()
+        }
+
+        composeTestRule.runOnUiThread {
+            val stateCaptor = argumentCaptor<EditorModel>()
+            verify(textInputService, atLeastOnce()).onStateUpdated(stateCaptor.capture())
+
+            // Don't care about the intermediate state update. It should eventually be "123" since
+            // the rejects if the incoming model contains alphabets.
+            assertEquals("123", stateCaptor.lastValue.text)
         }
     }
 }
