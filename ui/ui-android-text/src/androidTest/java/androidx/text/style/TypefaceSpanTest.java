@@ -16,8 +16,8 @@
 
 package androidx.text.style;
 
-import static org.hamcrest.Matchers.sameInstance;
-import static org.junit.Assert.assertThat;
+import static com.google.common.truth.Truth.assertThat;
+
 import static org.mockito.Mockito.mock;
 
 import android.graphics.Typeface;
@@ -40,7 +40,7 @@ public class TypefaceSpanTest {
 
         span.updateDrawState(paint);
 
-        assertThat(paint.getTypeface(), sameInstance(typeface));
+        assertThat(paint.getTypeface()).isSameInstanceAs(typeface);
     }
 
     @Test
@@ -51,6 +51,6 @@ public class TypefaceSpanTest {
 
         span.updateMeasureState(paint);
 
-        assertThat(paint.getTypeface(), sameInstance(typeface));
+        assertThat(paint.getTypeface()).isSameInstanceAs(typeface);
     }
 }

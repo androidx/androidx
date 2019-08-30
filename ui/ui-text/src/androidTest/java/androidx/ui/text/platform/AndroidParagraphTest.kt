@@ -1268,18 +1268,12 @@ class AndroidParagraphTest {
     fun resolveTextDirectionHeuristics_null() {
         assertEquals(
             TEXT_DIRECTION_FIRST_STRONG_LTR,
-            simpleParagraph(
-                text = "a",
-                layoutDirection = LayoutDirection.Ltr
-            ).resolveTextDirectionHeuristics(null)
+            resolveTextDirectionHeuristics(LayoutDirection.Ltr, null)
         )
 
         assertEquals(
             TEXT_DIRECTION_FIRST_STRONG_RTL,
-            simpleParagraph(
-                text = "a",
-                layoutDirection = LayoutDirection.Rtl
-            ).resolveTextDirectionHeuristics(null)
+            resolveTextDirectionHeuristics(LayoutDirection.Rtl, null)
         )
     }
 
@@ -1287,18 +1281,18 @@ class AndroidParagraphTest {
     fun resolveTextDirectionHeuristics_DefaultLtr() {
         assertEquals(
             TEXT_DIRECTION_FIRST_STRONG_LTR,
-            simpleParagraph(
-                text = "a",
-                layoutDirection = LayoutDirection.Ltr
-            ).resolveTextDirectionHeuristics(TextDirectionAlgorithm.ContentOrLtr)
+            resolveTextDirectionHeuristics(
+                LayoutDirection.Ltr,
+                TextDirectionAlgorithm.ContentOrLtr
+            )
         )
 
         assertEquals(
             TEXT_DIRECTION_FIRST_STRONG_LTR,
-            simpleParagraph(
-                text = "a",
-                layoutDirection = LayoutDirection.Rtl
-                ).resolveTextDirectionHeuristics(TextDirectionAlgorithm.ContentOrLtr)
+            resolveTextDirectionHeuristics(
+                LayoutDirection.Rtl,
+                TextDirectionAlgorithm.ContentOrLtr
+            )
         )
     }
 
@@ -1306,18 +1300,18 @@ class AndroidParagraphTest {
     fun resolveTextDirectionHeuristics_DefaultRtl() {
         assertEquals(
             TEXT_DIRECTION_FIRST_STRONG_RTL,
-            simpleParagraph(
-                text = "a",
-                layoutDirection = LayoutDirection.Ltr
-            ).resolveTextDirectionHeuristics(TextDirectionAlgorithm.ContentOrRtl)
+            resolveTextDirectionHeuristics(
+                LayoutDirection.Ltr,
+                TextDirectionAlgorithm.ContentOrRtl
+            )
         )
 
         assertEquals(
             TEXT_DIRECTION_FIRST_STRONG_RTL,
-            simpleParagraph(
-                text = "a",
-                layoutDirection = LayoutDirection.Rtl
-                ).resolveTextDirectionHeuristics(TextDirectionAlgorithm.ContentOrRtl)
+            resolveTextDirectionHeuristics(
+                LayoutDirection.Rtl,
+                TextDirectionAlgorithm.ContentOrRtl
+            )
         )
     }
 
@@ -1325,18 +1319,18 @@ class AndroidParagraphTest {
     fun resolveTextDirectionHeuristics_Ltr() {
         assertEquals(
             TEXT_DIRECTION_LTR,
-            simpleParagraph(
-                text = "a",
-                layoutDirection = LayoutDirection.Ltr
-            ).resolveTextDirectionHeuristics(TextDirectionAlgorithm.ForceLtr)
+            resolveTextDirectionHeuristics(
+                LayoutDirection.Ltr,
+                TextDirectionAlgorithm.ForceLtr
+            )
         )
 
         assertEquals(
             TEXT_DIRECTION_LTR,
-            simpleParagraph(
-                text = "a",
-                layoutDirection = LayoutDirection.Rtl
-                ).resolveTextDirectionHeuristics(TextDirectionAlgorithm.ForceLtr)
+            resolveTextDirectionHeuristics(
+                LayoutDirection.Rtl,
+                TextDirectionAlgorithm.ForceLtr
+            )
         )
     }
 
@@ -1344,18 +1338,18 @@ class AndroidParagraphTest {
     fun resolveTextDirectionHeuristics_Rtl() {
         assertEquals(
             TEXT_DIRECTION_RTL,
-            simpleParagraph(
-                text = "a",
-                layoutDirection = LayoutDirection.Ltr
-            ).resolveTextDirectionHeuristics(TextDirectionAlgorithm.ForceRtl)
+            resolveTextDirectionHeuristics(
+                LayoutDirection.Ltr,
+                TextDirectionAlgorithm.ForceRtl
+            )
         )
 
         assertEquals(
             TEXT_DIRECTION_RTL,
-            simpleParagraph(
-                text = "a",
-                layoutDirection = LayoutDirection.Rtl
-                ).resolveTextDirectionHeuristics(TextDirectionAlgorithm.ForceRtl)
+            resolveTextDirectionHeuristics(
+                LayoutDirection.Rtl,
+                TextDirectionAlgorithm.ForceRtl
+            )
         )
     }
 
