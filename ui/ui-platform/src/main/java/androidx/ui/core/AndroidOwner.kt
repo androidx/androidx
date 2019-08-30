@@ -848,7 +848,7 @@ private class RepaintBoundaryView(
     override fun onParamsChange() {
         outlineResolver.update(repaintBoundaryNode, PxSize(width.px, height.px))
         clipToOutline = outlineResolver.clipToOutline
-        this.outlineProvider = if (outlineResolver.hasShape) outlineProviderImpl else null
+        this.outlineProvider = if (outlineResolver.hasOutline) outlineProviderImpl else null
         if (outlineResolver.manualClipPath !== clipPath) {
             clipPath = outlineResolver.manualClipPath
             dirty = true
@@ -920,8 +920,8 @@ private class RepaintBoundaryRenderNode(
     override fun onParamsChange() {
         val size = PxSize(renderNode.width.px, renderNode.height.px)
         outlineResolver.update(repaintBoundaryNode, size)
-        renderNode.clipToOutline = outlineResolver.clipToOutline
-        if (outlineResolver.hasShape) {
+        renderNode.clipToOutline = outlineResolver.clipToOutline && outlineResolver.hasOutline
+        if (outlineResolver.hasOutline) {
             renderNode.setOutline(outline.apply { outlineResolver.applyTo(this) })
         } else {
             renderNode.setOutline(null)
@@ -957,11 +957,12 @@ private class OutlineResolver(private val density: Density) {
     private val cachedOutline = android.graphics.Outline().apply { alpha = 1f }
     private var size: PxSize = PxSize.Zero
     private var shape: Shape? = null
-    var manualClipPath: android.graphics.Path? = null
-        private set
-    var clipToOutline: Boolean = false
-        private set
-    val hasShape: Boolean get() = shape != null
+    private var clipToShape: Boolean = false
+    private var hasElevation: Boolean = false
+    private var outlinePath: android.graphics.Path? = null
+    val hasOutline: Boolean get() = !cachedOutline.isEmpty
+    val clipToOutline: Boolean get() = clipToShape && manualClipPath == null
+    val manualClipPath: android.graphics.Path? get() = if (clipToShape) outlinePath else null
 
     fun update(node: RepaintBoundaryNode, size: PxSize) {
         var cacheIsDirty = false
@@ -973,9 +974,10 @@ private class OutlineResolver(private val density: Density) {
             this.size = size
             cacheIsDirty = true
         }
-        clipToOutline = (shape != null && node.clipToShape)
+        hasElevation = node.elevation > 0.dp
+        clipToShape = (shape != null && node.clipToShape)
         if (cacheIsDirty) {
-            manualClipPath = null
+            outlinePath = null
             shape?.let { updateCache(it) }
         }
     }
@@ -1033,9 +1035,15 @@ private class OutlineResolver(private val density: Density) {
 
     private fun updateCacheWithPath(composePath: Path) {
         val path = composePath.toFrameworkPath()
-        cachedOutline.setConvexPath(path)
-        if (clipToOutline) {
-            manualClipPath = path
+        if (hasElevation) {
+            if (path.isConvex) {
+                cachedOutline.setConvexPath(path)
+            } else {
+                throw IllegalStateException("Only convex paths can be used for drawing the shadow!")
+            }
+        } else {
+            cachedOutline.setEmpty()
         }
+        outlinePath = path
     }
 }

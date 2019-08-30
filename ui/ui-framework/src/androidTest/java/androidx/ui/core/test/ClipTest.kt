@@ -41,6 +41,7 @@ import androidx.ui.graphics.Color
 import androidx.ui.graphics.toArgb
 import androidx.ui.painting.Paint
 import androidx.ui.painting.Path
+import androidx.ui.painting.PathOperation
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Rule
@@ -190,6 +191,39 @@ class ClipTest {
 
         takeScreenShot(30).apply {
             assertTriangle(Color.Cyan, Color.Green)
+        }
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun concaveClip() {
+        // 30 pixels rect with a rect hole of 10 pixels in the middle
+        val concaveShape = object : Shape {
+            override fun createOutline(size: PxSize, density: Density): Outline =
+                Outline.Generic(
+                    Path().apply {
+                        op(
+                            Path().apply { addRect(Rect(0f, 0f, 30f, 30f)) },
+                            Path().apply { addRect(Rect(10f, 10f, 20f, 20f)) },
+                            PathOperation.difference
+                        )
+                    }
+                )
+        }
+        rule.runOnUiThreadIR {
+            activity.setContent {
+                AtLeastSize(size = 30.ipx) {
+                    FillColor(Color.Green)
+                    Clip(concaveShape) {
+                        FillColor(Color.Cyan)
+                    }
+                }
+            }
+        }
+
+        takeScreenShot(30).apply {
+            assertRect(color = Color.Green, size = 10)
+            assertRect(color = Color.Cyan, size = 30, holeSize = 10)
         }
     }
 
