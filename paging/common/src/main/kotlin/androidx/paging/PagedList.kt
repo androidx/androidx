@@ -1023,7 +1023,7 @@ abstract class PagedList<T : Any> internal constructor(
      *
      * @see size
      */
-    open val loadedCount
+    val loadedCount
         get() = storage.storageCount
 
     /**
@@ -1048,7 +1048,7 @@ abstract class PagedList<T : Any> internal constructor(
      * If the [PagedSource] has a [PagedSource.KeyProvider.ItemKey] or
      * [PagedSource.KeyProvider.PageKey], it doesn't use positions, returns 0.
      */
-    open val positionOffset: Int
+    val positionOffset: Int
         get() = storage.positionOffset
 
     /**
@@ -1103,7 +1103,7 @@ abstract class PagedList<T : Any> internal constructor(
      *
      * @param index Index at which to load.
      */
-    open fun loadAround(index: Int) {
+    fun loadAround(index: Int) {
         if (index < 0 || index >= size) {
             throw IndexOutOfBoundsException("Index: $index, Size: $size")
         }
@@ -1118,7 +1118,7 @@ abstract class PagedList<T : Any> internal constructor(
      *
      * @return Immutable snapshot of [PagedList] data.
      */
-    open fun snapshot(): List<T> = when {
+    fun snapshot(): List<T> = when {
         isImmutable -> this
         else -> SnapshotPagedList(this)
     }
@@ -1130,7 +1130,7 @@ abstract class PagedList<T : Any> internal constructor(
      *
      * @see removeWeakLoadStateListener
      */
-    open fun addWeakLoadStateListener(listener: LoadStateListener) {
+    fun addWeakLoadStateListener(listener: LoadStateListener) {
         // Clean up any empty weak refs.
         loadStateListeners.removeAll { it.get() == null }
 
@@ -1146,7 +1146,7 @@ abstract class PagedList<T : Any> internal constructor(
      *
      * @see addWeakLoadStateListener
      */
-    open fun removeWeakLoadStateListener(listener: LoadStateListener) {
+    fun removeWeakLoadStateListener(listener: LoadStateListener) {
         loadStateListeners.removeAll { it.get() == null || it.get() === listener }
     }
 
@@ -1174,7 +1174,7 @@ abstract class PagedList<T : Any> internal constructor(
     @Deprecated("Dispatching a diff since snapshot created is behavior that can be instead " +
             "tracked by attaching a Callback to the PagedList that is mutating, and tracking " +
             "changes since calling PagedList.snapshot().")
-    open fun addWeakCallback(previousSnapshot: List<T>?, callback: Callback) {
+    fun addWeakCallback(previousSnapshot: List<T>?, callback: Callback) {
         if (previousSnapshot != null && previousSnapshot !== this) {
             dispatchNaiveUpdatesSinceSnapshot(size, previousSnapshot.size, callback)
         }
@@ -1193,7 +1193,7 @@ abstract class PagedList<T : Any> internal constructor(
      *
      * @see removeWeakCallback
      */
-    open fun addWeakCallback(callback: Callback) {
+    fun addWeakCallback(callback: Callback) {
         // first, clean up any empty weak refs
         callbacks.removeAll { it.get() == null }
 
@@ -1208,7 +1208,7 @@ abstract class PagedList<T : Any> internal constructor(
      *
      * @see addWeakCallback
      */
-    open fun removeWeakCallback(callback: Callback) {
+    fun removeWeakCallback(callback: Callback) {
         callbacks.removeAll { it.get() == null || it.get() === callback }
     }
 
