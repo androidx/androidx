@@ -26,13 +26,11 @@ import androidx.test.filters.LargeTest
 import androidx.test.rule.ActivityTestRule
 import androidx.testutils.runOnUiThreadRethrow
 import androidx.testutils.waitForExecution
+import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.Mockito.inOrder
-import org.mockito.Mockito.spy
-import org.mockito.Mockito.verify
 
 @RunWith(AndroidJUnit4::class)
 @LargeTest
@@ -43,21 +41,22 @@ class PrimaryNavFragmentTest {
     @Test
     fun delegateBackToPrimaryNav() {
         val fm = activityRule.activity.supportFragmentManager
-        val strictFragment = spy(StrictFragment())
+        val navigations = mutableListOf<Pair<Fragment, Boolean>>()
+        val trackingFragment = TrackingFragment(navigations)
 
         fm.beginTransaction()
-            .add(strictFragment, null)
-            .setPrimaryNavigationFragment(strictFragment)
+            .add(trackingFragment, null)
+            .setPrimaryNavigationFragment(trackingFragment)
             .commit()
         executePendingTransactions(fm)
 
-        verify(strictFragment).onPrimaryNavigationFragmentChanged(true)
+        assertThat(navigations.drain()).isEqualTo(listOf(trackingFragment to true))
         assertWithMessage("new fragment is not primary nav fragment")
             .that(fm.primaryNavigationFragment)
-            .isSameInstanceAs(strictFragment)
+            .isSameInstanceAs(trackingFragment)
 
         val child = StrictFragment()
-        val cfm = strictFragment.childFragmentManager
+        val cfm = trackingFragment.childFragmentManager
         cfm.beginTransaction()
             .add(child, null)
             .addToBackStack(null)
@@ -78,140 +77,143 @@ class PrimaryNavFragmentTest {
     @Test
     fun popPrimaryNav() {
         val fm = activityRule.activity.supportFragmentManager
-        val strictFragment1 = spy(StrictFragment())
-        val strictFragment2 = spy(StrictFragment())
-        val inOrder = inOrder(strictFragment1, strictFragment2)
+        val navigations = mutableListOf<Pair<Fragment, Boolean>>()
+        val trackingFragment1 = TrackingFragment(navigations)
+        val trackingFragment2 = TrackingFragment(navigations)
 
         fm.beginTransaction()
-            .add(strictFragment1, null)
-            .setPrimaryNavigationFragment(strictFragment1)
+            .add(trackingFragment1, null)
+            .setPrimaryNavigationFragment(trackingFragment1)
             .commit()
         executePendingTransactions(fm)
 
-        inOrder.verify(strictFragment1).onPrimaryNavigationFragmentChanged(true)
+        assertThat(navigations.drain()).isEqualTo(listOf(trackingFragment1 to true))
         assertWithMessage("new fragment is not primary nav fragment")
             .that(fm.primaryNavigationFragment)
-            .isSameInstanceAs(strictFragment1)
+            .isSameInstanceAs(trackingFragment1)
 
         fm.beginTransaction()
-            .remove(strictFragment1)
+            .remove(trackingFragment1)
             .addToBackStack(null)
             .commit()
         executePendingTransactions(fm)
 
-        inOrder.verify(strictFragment1).onPrimaryNavigationFragmentChanged(false)
+        assertThat(navigations.drain()).isEqualTo(listOf(trackingFragment1 to false))
         assertWithMessage("primary nav fragment is not null after remove")
             .that(fm.primaryNavigationFragment)
             .isNull()
 
         activityRule.onBackPressed()
 
-        inOrder.verify(strictFragment1).onPrimaryNavigationFragmentChanged(true)
+        assertThat(navigations.drain()).isEqualTo(listOf(trackingFragment1 to true))
         assertWithMessage("primary nav fragment was not restored on pop")
             .that(fm.primaryNavigationFragment)
-            .isSameInstanceAs(strictFragment1)
+            .isSameInstanceAs(trackingFragment1)
 
         fm.beginTransaction()
-            .remove(strictFragment1)
-            .add(strictFragment2, null)
-            .setPrimaryNavigationFragment(strictFragment2)
+            .remove(trackingFragment1)
+            .add(trackingFragment2, null)
+            .setPrimaryNavigationFragment(trackingFragment2)
             .addToBackStack(null)
             .commit()
         executePendingTransactions(fm)
 
-        inOrder.verify(strictFragment1).onPrimaryNavigationFragmentChanged(false)
-        inOrder.verify(strictFragment2).onPrimaryNavigationFragmentChanged(true)
+        assertThat(navigations.drain()).isEqualTo(
+            listOf(trackingFragment1 to false, trackingFragment2 to true))
+
         assertWithMessage("primary nav fragment not updated to new fragment")
             .that(fm.primaryNavigationFragment)
-            .isSameInstanceAs(strictFragment2)
+            .isSameInstanceAs(trackingFragment2)
 
         activityRule.onBackPressed()
 
-        inOrder.verify(strictFragment2).onPrimaryNavigationFragmentChanged(false)
-        inOrder.verify(strictFragment1).onPrimaryNavigationFragmentChanged(true)
+        assertThat(navigations.drain()).isEqualTo(
+            listOf(trackingFragment2 to false, trackingFragment1 to true))
         assertWithMessage("primary nav fragment not restored on pop")
             .that(fm.primaryNavigationFragment)
-            .isSameInstanceAs(strictFragment1)
+            .isSameInstanceAs(trackingFragment1)
 
         fm.beginTransaction()
-            .setPrimaryNavigationFragment(strictFragment1)
+            .setPrimaryNavigationFragment(trackingFragment1)
             .addToBackStack(null)
             .commit()
         executePendingTransactions(fm)
 
         assertWithMessage("primary nav fragment not retained when set again in new transaction")
             .that(fm.primaryNavigationFragment)
-            .isSameInstanceAs(strictFragment1)
+            .isSameInstanceAs(trackingFragment1)
         activityRule.onBackPressed()
 
         assertWithMessage(
             "same primary nav fragment not retained when set primary nav transaction popped")
             .that(fm.primaryNavigationFragment)
-            .isSameInstanceAs(strictFragment1)
+            .isSameInstanceAs(trackingFragment1)
     }
 
     @Test
     fun replacePrimaryNav() {
         val fm = activityRule.activity.supportFragmentManager
-        val strictFragment1 = spy(StrictFragment())
-        val strictFragment2 = spy(StrictFragment())
-        val inOrder = inOrder(strictFragment1, strictFragment2)
+        val navigations = mutableListOf<Pair<Fragment, Boolean>>()
+
+        val trackingFragment1 = TrackingFragment(navigations)
+        val trackingFragment2 = TrackingFragment(navigations)
 
         fm.beginTransaction()
-            .add(android.R.id.content, strictFragment1)
-            .setPrimaryNavigationFragment(strictFragment1)
+            .add(android.R.id.content, trackingFragment1)
+            .setPrimaryNavigationFragment(trackingFragment1)
             .commit()
         executePendingTransactions(fm)
 
-        inOrder.verify(strictFragment1).onPrimaryNavigationFragmentChanged(true)
+        assertThat(navigations.drain()).isEqualTo(listOf(trackingFragment1 to true))
         assertWithMessage("new fragment is not primary nav fragment")
             .that(fm.primaryNavigationFragment)
-            .isSameInstanceAs(strictFragment1)
+            .isSameInstanceAs(trackingFragment1)
 
         fm.beginTransaction()
-            .replace(android.R.id.content, strictFragment2)
+            .replace(android.R.id.content, trackingFragment2)
             .addToBackStack(null)
             .commit()
 
         executePendingTransactions(fm)
 
-        inOrder.verify(strictFragment1).onPrimaryNavigationFragmentChanged(false)
+        assertThat(navigations.drain()).isEqualTo(listOf(trackingFragment1 to false))
+        navigations.clear()
         assertWithMessage("primary nav fragment not null after replace")
             .that(fm.primaryNavigationFragment)
             .isNull()
 
         activityRule.onBackPressed()
 
-        inOrder.verify(strictFragment1).onPrimaryNavigationFragmentChanged(true)
+        assertThat(navigations.drain()).isEqualTo(listOf(trackingFragment1 to true))
         assertWithMessage("primary nav fragment not restored after popping replace")
             .that(fm.primaryNavigationFragment)
-            .isSameInstanceAs(strictFragment1)
+            .isSameInstanceAs(trackingFragment1)
 
         fm.beginTransaction()
             .setPrimaryNavigationFragment(null)
             .commit()
         executePendingTransactions(fm)
 
-        inOrder.verify(strictFragment1).onPrimaryNavigationFragmentChanged(false)
+        assertThat(navigations.drain()).isEqualTo(listOf(trackingFragment1 to false))
         assertWithMessage("primary nav fragment not null after explicit set to null")
             .that(fm.primaryNavigationFragment)
             .isNull()
 
         fm.beginTransaction()
-            .replace(android.R.id.content, strictFragment2)
-            .setPrimaryNavigationFragment(strictFragment2)
+            .replace(android.R.id.content, trackingFragment2)
+            .setPrimaryNavigationFragment(trackingFragment2)
             .addToBackStack(null)
             .commit()
         executePendingTransactions(fm)
 
-        inOrder.verify(strictFragment2).onPrimaryNavigationFragmentChanged(true)
+        assertThat(navigations.drain()).isEqualTo(listOf(trackingFragment2 to true))
         assertWithMessage("primary nav fragment not set correctly after replace")
             .that(fm.primaryNavigationFragment)
-            .isSameInstanceAs(strictFragment2)
+            .isSameInstanceAs(trackingFragment2)
 
         activityRule.onBackPressed()
 
-        inOrder.verify(strictFragment2).onPrimaryNavigationFragmentChanged(false)
+        assertThat(navigations.drain()).isEqualTo(listOf(trackingFragment2 to false))
         assertWithMessage("primary nav fragment not null after popping replace")
             .that(fm.primaryNavigationFragment)
             .isNull()
@@ -220,64 +222,65 @@ class PrimaryNavFragmentTest {
     @Test
     fun replacePrimaryNavAfterSetPrimary() {
         val fm = activityRule.activity.supportFragmentManager
-        val strictFragment1 = spy(StrictFragment())
-        val strictFragment2 = spy(StrictFragment())
-        val inOrder = inOrder(strictFragment1, strictFragment2)
+        val navigations = mutableListOf<Pair<Fragment, Boolean>>()
+
+        val trackingFragment1 = TrackingFragment(navigations)
+        val trackingFragment2 = TrackingFragment(navigations)
 
         fm.beginTransaction()
-            .add(android.R.id.content, strictFragment1)
-            .setPrimaryNavigationFragment(strictFragment1)
+            .add(android.R.id.content, trackingFragment1)
+            .setPrimaryNavigationFragment(trackingFragment1)
             .commit()
         executePendingTransactions(fm)
 
-        inOrder.verify(strictFragment1).onPrimaryNavigationFragmentChanged(true)
+        assertThat(navigations.drain()).isEqualTo(listOf(trackingFragment1 to true))
         assertWithMessage("new fragment is not primary nav fragment")
             .that(fm.primaryNavigationFragment)
-            .isSameInstanceAs(strictFragment1)
+            .isSameInstanceAs(trackingFragment1)
 
         // Note that we specifically call setPrimaryNavigationFragment() before the replace() call
         fm.beginTransaction()
-            .setPrimaryNavigationFragment(strictFragment2)
-            .replace(android.R.id.content, strictFragment2)
+            .setPrimaryNavigationFragment(trackingFragment2)
+            .replace(android.R.id.content, trackingFragment2)
             .addToBackStack(null)
             .commit()
         executePendingTransactions(fm)
 
-        inOrder.verify(strictFragment1).onPrimaryNavigationFragmentChanged(false)
-        inOrder.verify(strictFragment2).onPrimaryNavigationFragmentChanged(true)
+        assertThat(navigations.drain()).isEqualTo(
+            listOf(trackingFragment1 to false, trackingFragment2 to true))
         assertWithMessage("primary nav fragment not set correctly after replace")
             .that(fm.primaryNavigationFragment)
-            .isSameInstanceAs(strictFragment2)
+            .isSameInstanceAs(trackingFragment2)
 
         activityRule.onBackPressed()
 
         // Note that strictFragment2 does not get a callback since the
         // pop of the replace happens before the pop of the setPrimaryFragment
-        inOrder.verify(strictFragment1).onPrimaryNavigationFragmentChanged(true)
+        assertThat(navigations.drain()).isEqualTo(listOf(trackingFragment1 to true))
         assertWithMessage("primary nav fragment is restored after popping replace")
             .that(fm.primaryNavigationFragment)
-            .isSameInstanceAs(strictFragment1)
+            .isSameInstanceAs(trackingFragment1)
     }
 
     @Test
     fun replacePostponedFragment() {
         val fm = activityRule.activity.supportFragmentManager
-        val strictFragment = spy(StrictViewFragment())
-        val postponedFragment = spy(PostponedFragment())
-        val replacementFragment = spy(StrictFragment())
-        val inOrder = inOrder(strictFragment, postponedFragment, replacementFragment)
+        val navigations = mutableListOf<Pair<Fragment, Boolean>>()
+        val trackingFragment = TrackingViewFragment(navigations)
+        val postponedFragment = PostponedFragment(navigations)
+        val replacementFragment = TrackingFragment(navigations)
 
         fm.beginTransaction()
-            .add(android.R.id.content, strictFragment)
-            .setPrimaryNavigationFragment(strictFragment)
+            .add(android.R.id.content, trackingFragment)
+            .setPrimaryNavigationFragment(trackingFragment)
             .setReorderingAllowed(true)
             .commit()
         executePendingTransactions(fm)
 
-        inOrder.verify(strictFragment).onPrimaryNavigationFragmentChanged(true)
+        assertThat(navigations.drain()).isEqualTo(listOf(trackingFragment to true))
         assertWithMessage("new fragment is not primary nav fragment")
             .that(fm.primaryNavigationFragment)
-            .isSameInstanceAs(strictFragment)
+            .isSameInstanceAs(trackingFragment)
 
         fm.beginTransaction()
             .replace(android.R.id.content, postponedFragment)
@@ -287,13 +290,17 @@ class PrimaryNavFragmentTest {
             .commit()
         activityRule.waitForExecution()
 
-        inOrder.verify(strictFragment).onPrimaryNavigationFragmentChanged(false)
-        inOrder.verify(postponedFragment).onPrimaryNavigationFragmentChanged(true)
-        inOrder.verify(postponedFragment).onPrimaryNavigationFragmentChanged(false)
-        inOrder.verify(strictFragment).onPrimaryNavigationFragmentChanged(true)
+        assertThat(navigations.drain()).isEqualTo(
+            listOf(
+                trackingFragment to false,
+                postponedFragment to true,
+                postponedFragment to false,
+                trackingFragment to true
+            )
+        )
         assertWithMessage("primary nav fragment not set correctly after replace")
             .that(fm.primaryNavigationFragment)
-            .isSameInstanceAs(strictFragment)
+            .isSameInstanceAs(trackingFragment)
 
         // Now pop the back stack and also add a replacement Fragment
         fm.popBackStack()
@@ -305,12 +312,17 @@ class PrimaryNavFragmentTest {
             .commit()
         activityRule.waitForExecution()
 
-        inOrder.verify(strictFragment).onPrimaryNavigationFragmentChanged(false)
-        inOrder.verify(postponedFragment).onPrimaryNavigationFragmentChanged(true)
-        inOrder.verify(postponedFragment).onPrimaryNavigationFragmentChanged(false)
-        inOrder.verify(strictFragment).onPrimaryNavigationFragmentChanged(true)
-        inOrder.verify(strictFragment).onPrimaryNavigationFragmentChanged(false)
-        inOrder.verify(replacementFragment).onPrimaryNavigationFragmentChanged(true)
+        assertThat(navigations.drain()).isEqualTo(
+            listOf(
+                trackingFragment to false,
+                postponedFragment to true,
+                postponedFragment to false,
+                trackingFragment to true,
+                trackingFragment to false,
+                replacementFragment to true
+                )
+        )
+
         assertWithMessage("primary nav fragment not set correctly after replace")
             .that(fm.primaryNavigationFragment)
             .isSameInstanceAs(replacementFragment)
@@ -318,14 +330,16 @@ class PrimaryNavFragmentTest {
         // Now go back to the first Fragment
         activityRule.onBackPressed()
 
-        inOrder.verify(replacementFragment).onPrimaryNavigationFragmentChanged(false)
-        inOrder.verify(strictFragment).onPrimaryNavigationFragmentChanged(true)
+        assertThat(navigations.drain()).isEqualTo(
+            listOf(replacementFragment to false, trackingFragment to true)
+        )
+
         assertWithMessage("primary nav fragment is restored after replace")
             .that(fm.primaryNavigationFragment)
-            .isSameInstanceAs(strictFragment)
+            .isSameInstanceAs(trackingFragment)
         assertWithMessage("Only the first Fragment should exist on the FragmentManager")
             .that(fm.fragments)
-            .containsExactly(strictFragment)
+            .containsExactly(trackingFragment)
     }
 
     private fun executePendingTransactions(fm: FragmentManager) {
@@ -336,13 +350,35 @@ class PrimaryNavFragmentTest {
         activity.onBackPressed()
     }
 
-    open class PostponedFragment : StrictViewFragment() {
+    private fun <T> MutableList<T>.drain(): List<T> {
+        val result = ArrayList<T>(this)
+        this.clear()
+        return result
+    }
+
+    class PostponedFragment(
+        tracking: MutableList<Pair<Fragment, Boolean>>
+    ) : TrackingViewFragment(tracking) {
         override fun onCreateView(
             inflater: LayoutInflater,
             container: ViewGroup?,
             savedInstanceState: Bundle?
         ) = super.onCreateView(inflater, container, savedInstanceState).also {
             postponeEnterTransition()
+        }
+    }
+
+    class TrackingFragment(val tracker: MutableList<Pair<Fragment, Boolean>>) : StrictFragment() {
+        override fun onPrimaryNavigationFragmentChanged(isPrimaryNavigationFragment: Boolean) {
+            tracker.add(this to isPrimaryNavigationFragment)
+        }
+    }
+
+    open class TrackingViewFragment(
+        val tracker: MutableList<Pair<Fragment, Boolean>>
+    ) : StrictViewFragment() {
+        override fun onPrimaryNavigationFragmentChanged(isPrimaryNavigationFragment: Boolean) {
+            tracker.add(this to isPrimaryNavigationFragment)
         }
     }
 }
