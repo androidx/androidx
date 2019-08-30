@@ -31,8 +31,11 @@ import androidx.ui.core.Ref
 import androidx.ui.core.px
 import androidx.compose.Composable
 import androidx.compose.composer
+import androidx.ui.core.AlignmentLine
 import androidx.ui.core.ComplexLayout
 import androidx.ui.core.IntPx
+import androidx.ui.core.Layout
+import androidx.ui.core.coerceIn
 import androidx.ui.core.ipx
 import androidx.ui.core.setContent
 import org.junit.Assert.assertEquals
@@ -157,6 +160,21 @@ open class LayoutTest {
                 }
             }
             assertTrue(layoutLatch.await(1, TimeUnit.SECONDS))
+        }
+    }
+
+    @Composable
+    internal fun FixedSizeLayout(
+        width: IntPx,
+        height: IntPx,
+        vararg alignmentLines: Pair<AlignmentLine, IntPx>
+    ) {
+        Layout({}) { _, constraints ->
+            layout(
+                width.coerceIn(constraints.minWidth, constraints.maxWidth),
+                height.coerceIn(constraints.minHeight, constraints.maxHeight),
+                *alignmentLines
+            ) {}
         }
     }
 
