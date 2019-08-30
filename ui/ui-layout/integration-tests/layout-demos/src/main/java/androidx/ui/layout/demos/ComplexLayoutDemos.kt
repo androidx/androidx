@@ -48,16 +48,20 @@ import androidx.compose.composer
 import androidx.compose.effectOf
 import androidx.compose.memo
 import androidx.compose.onCommit
+import androidx.ui.core.FirstBaseline
 import androidx.ui.core.HorizontalAlignmentLine
 import androidx.ui.core.Text
 import androidx.ui.core.VerticalAlignmentLine
+import androidx.ui.core.sp
 import androidx.ui.layout.AspectRatio
 import androidx.ui.layout.Container
 import androidx.ui.layout.CrossAxisAlignment
 import androidx.ui.layout.EdgeInsets
+import androidx.ui.layout.FlexSize
 import androidx.ui.layout.Wrap
 import androidx.ui.layout.samples.DrawRectangle
 import androidx.ui.layout.samples.SizedRectangle
+import androidx.ui.text.TextStyle
 
 /**
  * A widget that forces its only child to be as wide as its min intrinsic width.
@@ -389,9 +393,22 @@ fun PositionUsingAlignmentLine() {
 }
 
 @Composable
+fun RowBaselineAlignment() {
+    Row(crossAxisAlignment = CrossAxisAlignment.AlignmentLine(FirstBaseline)) {
+        Text("First text")
+        Column(mainAxisSize = FlexSize.Wrap) {
+            SizedRectangle(Color.Blue, width = 10.dp, height = 50.dp)
+            Padding(30.dp) {
+                Text("Second text", style = TextStyle(fontSize = 45.sp))
+            }
+        }
+    }
+}
+
+@Composable
 fun ComplexLayoutDemos() {
     Wrap {
-        PositionUsingAlignmentLine()
+        RowBaselineAlignment()
     }
 }
 

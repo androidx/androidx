@@ -19,6 +19,7 @@ package androidx.ui.layout
 import androidx.annotation.FloatRange
 import androidx.compose.Composable
 import androidx.compose.composer
+import androidx.ui.core.AlignmentLine
 import androidx.ui.core.Constraints
 import androidx.ui.core.IntPx
 import androidx.ui.core.IntPxSize
@@ -382,31 +383,36 @@ enum class MainAxisAlignment(internal val aligner: Aligner) {
 
 /**
  * Used to specify the alignment of a layout's children, in cross axis direction.
+ *
+ * TODO(popam): refine this API surface with modifiers - add type safety for alignment orientation.
  */
-enum class CrossAxisAlignment {
-    /**
-     * Place children such that their center is in the middle of the cross axis.
-     */
-    Center,
-    /**
-     * Place children such that their start edge is aligned to the start edge of the cross
-     * axis. TODO(popam): Consider rtl directionality.
-     */
-    Start,
-    /**
-     * Place children such that their end edge is aligned to the end edge of the cross
-     * axis. TODO(popam): Consider rtl directionality.
-     */
-    End,
-    /**
-     * Force children to occupy the entire cross axis space.
-     */
-    Stretch,
-    /**
-     * Align children by their baseline. TODO(popam): support this when baseline support is
-     * added in ComplexMeasureBox.
-     */
-    Baseline
+class CrossAxisAlignment private constructor(
+    internal val alignmentLine: AlignmentLine?
+) {
+    companion object {
+        /**
+         * Place children such that their center is in the middle of the cross axis.
+         */
+        val Center = CrossAxisAlignment(null)
+        /**
+         * Place children such that their start edge is aligned to the start edge of the cross
+         * axis. TODO(popam): Consider rtl directionality.
+         */
+        val Start = CrossAxisAlignment(null)
+        /**
+         * Place children such that their end edge is aligned to the end edge of the cross
+         * axis. TODO(popam): Consider rtl directionality.
+         */
+        val End = CrossAxisAlignment(null)
+        /**
+         * Force children to occupy the entire cross axis space.
+         */
+        val Stretch = CrossAxisAlignment(null)
+        /**
+         * Align children by their baseline.
+         */
+        fun AlignmentLine(alignmentLine: AlignmentLine) = CrossAxisAlignment(alignmentLine)
+    }
 }
 
 /**
@@ -496,6 +502,8 @@ private fun Flex(
             var totalFlex = 0f
             var inflexibleSpace = IntPx.Zero
             var crossAxisSpace = IntPx.Zero
+            var beforeCrossAxisAlignmentLine = IntPx.Zero
+            var afterCrossAxisAlignmentLine = IntPx.Zero
 
             val placeables = arrayOfNulls<Placeable>(children.size)
             // First measure children with zero flex.
@@ -518,6 +526,18 @@ private fun Flex(
                     )
                     inflexibleSpace += placeable.mainAxisSize()
                     crossAxisSpace = max(crossAxisSpace, placeable.crossAxisSize())
+                    if (crossAxisAlignment.alignmentLine != null) {
+                        val alignmentLinePosition = placeable[crossAxisAlignment.alignmentLine]
+                        beforeCrossAxisAlignmentLine = max(
+                            beforeCrossAxisAlignmentLine,
+                            alignmentLinePosition ?: 0.ipx
+                        )
+                        afterCrossAxisAlignmentLine = max(
+                            afterCrossAxisAlignmentLine,
+                            placeable.crossAxisSize() -
+                                    (alignmentLinePosition ?: placeable.crossAxisSize())
+                        )
+                    }
                     placeables[i] = placeable
                 }
             }
@@ -574,7 +594,13 @@ private fun Flex(
             ) {
                 constraints.crossAxisMax
             } else {
-                max(crossAxisSpace, constraints.crossAxisMin)
+                max(
+                    crossAxisSpace,
+                    max(
+                        constraints.crossAxisMin,
+                        beforeCrossAxisAlignmentLine + afterCrossAxisAlignmentLine
+                    )
+                )
             }
             val layoutWidth = if (orientation == FlexOrientation.Horizontal) {
                 mainAxisLayoutSize
@@ -607,7 +633,13 @@ private fun Flex(
                             ).y
                         }
                         else -> {
-                            IntPx.Zero /* TODO(popam): support baseline */
+                            val alignmentLinePosition =
+                                placeable[crossAxisAlignment.alignmentLine!!]
+                            if (alignmentLinePosition != null) {
+                                beforeCrossAxisAlignmentLine - alignmentLinePosition
+                            } else {
+                                IntPx.Zero
+                            }
                         }
                     }
                     if (orientation == FlexOrientation.Horizontal) {
