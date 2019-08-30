@@ -90,112 +90,125 @@ fun TextField(
      */
     visualTransformation: VisualTransformation? = null
 ) {
-    // Ambients
-    val style = +ambient(CurrentTextStyleAmbient)
-    val textInputService = +ambient(TextInputServiceAmbient)
-    val density = +ambient(DensityAmbient)
-    val resourceLoader = +ambient(FontLoaderAmbient)
-    val layoutDirection = +ambient(LayoutDirectionAmbient)
+    // If developer doesn't pass new value to TextField, recompose won't happen but internal state
+    // and IME may think it is updated. To fix this inconsistent state, enforce recompose by
+    // incrementing generation counter when we callback to the developer and reset the state with
+    // the latest state.
+    val generation = +state { 0 }
+    val Wrapper: @Composable() (Int, @Composable() () -> Unit) -> Unit = { _, child -> child() }
+    val onValueChangeWrapper: (EditorModel) -> Unit = { onValueChange(it); generation.value++ }
 
-    // Memos
-    val processor = +memo { EditProcessor() }
-    val mergedStyle = style.merge(editorStyle?.textStyle)
-    val (visualText, offsetMap) = +memo(value, visualTransformation) {
-        TextFieldDelegate.applyVisualFilter(value, visualTransformation)
-    }
-    val textDelegate = +memo(visualText, mergedStyle, density, resourceLoader) {
-        // TODO(nona): Add parameter softwrap, etc.
-        TextDelegate(
-            text = visualText,
-            style = mergedStyle,
-            density = density,
-            layoutDirection = layoutDirection,
-            resourceLoader = resourceLoader
-        )
-    }
+    Wrapper(generation.value) {
+        // Ambients
+        val style = +ambient(CurrentTextStyleAmbient)
+        val textInputService = +ambient(TextInputServiceAmbient)
+        val density = +ambient(DensityAmbient)
+        val resourceLoader = +ambient(FontLoaderAmbient)
+        val layoutDirection = +ambient(LayoutDirectionAmbient)
 
-    // States
-    val hasFocus = +state { false }
-    val coords = +state<LayoutCoordinates?> { null }
-
-    processor.onNewState(value, textInputService)
-    TextInputEventObserver(
-        onPress = { },
-        onFocus = {
-            hasFocus.value = true
-            TextFieldDelegate.onFocus(
-                textInputService,
-                value,
-                processor,
-                keyboardType,
-                imeAction,
-                onValueChange,
-                onImeActionPerformed)
-            coords.value?.let { coords ->
-                textInputService?.let { textInputService ->
-                    TextFieldDelegate.notifyFocusedRect(
-                        value,
-                        textDelegate,
-                        coords,
-                        textInputService,
-                        hasFocus.value,
-                        offsetMap
-                    )
-                }
-            }
-            onFocus()
-        },
-        onBlur = {
-            hasFocus.value = false
-            TextFieldDelegate.onBlur(
-                textInputService,
-                processor,
-                onValueChange)
-            onBlur()
-        },
-        onDragAt = { TextFieldDelegate.onDragAt(it) },
-        onRelease = {
-            TextFieldDelegate.onRelease(
-                it,
-                textDelegate,
-                processor,
-                offsetMap,
-                onValueChange,
-                textInputService,
-                hasFocus.value)
+        // Memos
+        val processor = +memo { EditProcessor() }
+        val mergedStyle = style.merge(editorStyle?.textStyle)
+        val (visualText, offsetMap) = +memo(value, visualTransformation) {
+            TextFieldDelegate.applyVisualFilter(value, visualTransformation)
         }
-    ) {
-        Layout(
-            children = @Composable {
-                OnPositioned {
-                    if (textInputService != null) {
-                        // TODO(nona): notify focused rect in onPreDraw equivalent callback for
-                        //             supporting multiline text.
-                        coords.value = it
+        val textDelegate = +memo(visualText, mergedStyle, density, resourceLoader) {
+            // TODO(nona): Add parameter softwrap, etc.
+            TextDelegate(
+                text = visualText,
+                style = mergedStyle,
+                density = density,
+                layoutDirection = layoutDirection,
+                resourceLoader = resourceLoader
+            )
+        }
+
+        // States
+        val hasFocus = +state { false }
+        val coords = +state<LayoutCoordinates?> { null }
+
+        processor.onNewState(value, textInputService)
+        TextInputEventObserver(
+            onPress = { },
+            onFocus = {
+                hasFocus.value = true
+                TextFieldDelegate.onFocus(
+                    textInputService,
+                    value,
+                    processor,
+                    keyboardType,
+                    imeAction,
+                    onValueChangeWrapper,
+                    onImeActionPerformed)
+                coords.value?.let { coords ->
+                    textInputService?.let { textInputService ->
                         TextFieldDelegate.notifyFocusedRect(
                             value,
                             textDelegate,
-                            it,
+                            coords,
                             textInputService,
                             hasFocus.value,
                             offsetMap
                         )
                     }
                 }
-                Draw { canvas, _ -> TextFieldDelegate.draw(
-                    canvas,
-                    value,
-                    offsetMap,
-                    textDelegate,
-                    hasFocus.value,
-                    editorStyle?.selectionColor) }
+                onFocus()
             },
-            measureBlock = { _, constraints ->
-                TextFieldDelegate.layout(textDelegate, constraints).let {
-                    layout(it.first, it.second) {}
-                }
+            onBlur = {
+                hasFocus.value = false
+                TextFieldDelegate.onBlur(
+                    textInputService,
+                    processor,
+                    onValueChangeWrapper)
+                onBlur()
+            },
+            onDragAt = { TextFieldDelegate.onDragAt(it) },
+            onRelease = {
+                TextFieldDelegate.onRelease(
+                    it,
+                    textDelegate,
+                    processor,
+                    offsetMap,
+                    onValueChangeWrapper,
+                    textInputService,
+                    hasFocus.value)
             }
-        )
+        ) {
+            Layout(
+                children = @Composable {
+                    OnPositioned {
+                        if (textInputService != null) {
+                            // TODO(nona): notify focused rect in onPreDraw equivalent callback for
+                            //             supporting multiline text.
+                            coords.value = it
+                            TextFieldDelegate.notifyFocusedRect(
+                                value,
+                                textDelegate,
+                                it,
+                                textInputService,
+                                hasFocus.value,
+                                offsetMap
+                            )
+                        }
+                    }
+                    Draw { canvas, _ ->
+                        TextFieldDelegate.draw(
+                            canvas,
+                            value,
+                            offsetMap,
+                            textDelegate,
+                            hasFocus.value,
+                            editorStyle?.selectionColor
+                        )
+                    }
+                },
+                measureBlock = { _, constraints ->
+                    TextFieldDelegate.layout(textDelegate, constraints).let {
+                        layout(it.first, it.second) {}
+                    }
+                }
+            )
+        }
     }
 }
 
