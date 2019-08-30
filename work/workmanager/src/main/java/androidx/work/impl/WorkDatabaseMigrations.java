@@ -48,6 +48,7 @@ public class WorkDatabaseMigrations {
     public static final int VERSION_6 = 6;
     public static final int VERSION_7 = 7;
     public static final int VERSION_8 = 8;
+    public static final int VERSION_9 = 9;
 
     private static final String CREATE_SYSTEM_ID_INFO =
             "CREATE TABLE IF NOT EXISTS `SystemIdInfo` (`work_spec_id` TEXT NOT NULL, `system_id`"
@@ -83,11 +84,15 @@ public class WorkDatabaseMigrations {
             "CREATE INDEX IF NOT EXISTS `index_WorkSpec_period_start_time` ON `workspec` "
                     + "(`period_start_time`)";
 
+    private static final String CREATE_RUN_IN_FOREGROUND =
+            "ALTER TABLE workspec ADD COLUMN `run_in_foreground` INTEGER NOT NULL DEFAULT 0";
+
     /**
      * Removes the {@code alarmInfo} table and substitutes it for a more general
      * {@code SystemIdInfo} table.
      * Adds implicit work tags for all work (a tag with the worker class name).
      */
+    @NonNull
     public static Migration MIGRATION_1_2 = new Migration(VERSION_1, VERSION_2) {
         @Override
         public void migrate(@NonNull SupportSQLiteDatabase database) {
@@ -121,6 +126,7 @@ public class WorkDatabaseMigrations {
      * Marks {@code SCHEDULE_REQUESTED_AT} to something other than
      * {@code SCHEDULE_NOT_REQUESTED_AT}.
      */
+    @NonNull
     public static Migration MIGRATION_3_4 = new Migration(VERSION_3, VERSION_4) {
         @Override
         public void migrate(@NonNull SupportSQLiteDatabase database) {
@@ -133,6 +139,7 @@ public class WorkDatabaseMigrations {
     /**
      * Adds the {@code ContentUri} delays to the WorkSpec table.
      */
+    @NonNull
     public static Migration MIGRATION_4_5 = new Migration(VERSION_4, VERSION_5) {
         @Override
         public void migrate(@NonNull SupportSQLiteDatabase database) {
@@ -160,6 +167,17 @@ public class WorkDatabaseMigrations {
         @Override
         public void migrate(@NonNull SupportSQLiteDatabase database) {
             database.execSQL(CREATE_INDEX_PERIOD_START_TIME);
+        }
+    };
+
+    /**
+     * Adds a notification_provider to the {@link WorkSpec}.
+     */
+    @NonNull
+    public static Migration MIGRATION_8_9 = new Migration(VERSION_8, VERSION_9) {
+        @Override
+        public void migrate(@NonNull SupportSQLiteDatabase database) {
+            database.execSQL(CREATE_RUN_IN_FOREGROUND);
         }
     };
 }

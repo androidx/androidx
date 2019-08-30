@@ -22,6 +22,7 @@ import static androidx.work.impl.WorkDatabaseMigrations.MIGRATION_3_4;
 import static androidx.work.impl.WorkDatabaseMigrations.MIGRATION_4_5;
 import static androidx.work.impl.WorkDatabaseMigrations.MIGRATION_6_7;
 import static androidx.work.impl.WorkDatabaseMigrations.MIGRATION_7_8;
+import static androidx.work.impl.WorkDatabaseMigrations.MIGRATION_8_9;
 import static androidx.work.impl.WorkDatabaseMigrations.VERSION_1;
 import static androidx.work.impl.WorkDatabaseMigrations.VERSION_2;
 import static androidx.work.impl.WorkDatabaseMigrations.VERSION_3;
@@ -30,6 +31,7 @@ import static androidx.work.impl.WorkDatabaseMigrations.VERSION_5;
 import static androidx.work.impl.WorkDatabaseMigrations.VERSION_6;
 import static androidx.work.impl.WorkDatabaseMigrations.VERSION_7;
 import static androidx.work.impl.WorkDatabaseMigrations.VERSION_8;
+import static androidx.work.impl.WorkDatabaseMigrations.VERSION_9;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -73,6 +75,7 @@ public class WorkDatabaseMigrationTest {
     private static final String COLUMN_WORKSPEC_ID = "work_spec_id";
     private static final String COLUMN_SYSTEM_ID = "system_id";
     private static final String COLUMN_ALARM_ID = "alarm_id";
+    private static final String COLUMN_RUN_IN_FOREGROUND = "run_in_foreground";
 
     // Queries
     private static final String INSERT_ALARM_INFO = "INSERT INTO alarmInfo VALUES (?, ?)";
@@ -316,6 +319,22 @@ public class WorkDatabaseMigrationTest {
                 MIGRATION_7_8);
 
         assertThat(checkIndexExists(database, INDEX_PERIOD_START_TIME, TABLE_WORKSPEC), is(true));
+        database.close();
+    }
+
+    @Test
+    @MediumTest
+    public void testMigrationVersion8To9() throws IOException {
+        SupportSQLiteDatabase database =
+                mMigrationTestHelper.createDatabase(TEST_DATABASE, VERSION_8);
+        database = mMigrationTestHelper.runMigrationsAndValidate(
+                TEST_DATABASE,
+                VERSION_9,
+                VALIDATE_DROPPED_TABLES,
+                MIGRATION_8_9);
+
+        assertThat(checkColumnExists(database, TABLE_WORKSPEC, COLUMN_RUN_IN_FOREGROUND),
+                is(true));
         database.close();
     }
 

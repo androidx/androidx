@@ -20,6 +20,7 @@ import static androidx.work.impl.WorkDatabaseMigrations.MIGRATION_3_4;
 import static androidx.work.impl.WorkDatabaseMigrations.MIGRATION_4_5;
 import static androidx.work.impl.WorkDatabaseMigrations.MIGRATION_6_7;
 import static androidx.work.impl.WorkDatabaseMigrations.MIGRATION_7_8;
+import static androidx.work.impl.WorkDatabaseMigrations.MIGRATION_8_9;
 import static androidx.work.impl.WorkDatabaseMigrations.VERSION_2;
 import static androidx.work.impl.WorkDatabaseMigrations.VERSION_3;
 import static androidx.work.impl.WorkDatabaseMigrations.VERSION_5;
@@ -67,7 +68,7 @@ import java.util.concurrent.TimeUnit;
         SystemIdInfo.class,
         WorkName.class,
         WorkProgress.class},
-        version = 8)
+        version = 9)
 @TypeConverters(value = {Data.class, WorkTypeConverters.class})
 public abstract class WorkDatabase extends RoomDatabase {
 
@@ -98,6 +99,7 @@ public abstract class WorkDatabase extends RoomDatabase {
      *                        access
      * @return The created WorkDatabase
      */
+    @NonNull
     public static WorkDatabase create(
             @NonNull Context context,
             @NonNull Executor queryExecutor,
@@ -121,6 +123,7 @@ public abstract class WorkDatabase extends RoomDatabase {
                         new WorkDatabaseMigrations.WorkMigration(context, VERSION_5, VERSION_6))
                 .addMigrations(MIGRATION_6_7)
                 .addMigrations(MIGRATION_7_8)
+                .addMigrations(MIGRATION_8_9)
                 .fallbackToDestructiveMigration()
                 .build();
     }
@@ -144,6 +147,7 @@ public abstract class WorkDatabase extends RoomDatabase {
     }
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
+    @NonNull
     static String getPruneSQL() {
         return PRUNE_SQL_FORMAT_PREFIX + getPruneDate() + PRUNE_SQL_FORMAT_SUFFIX;
     }
@@ -155,26 +159,31 @@ public abstract class WorkDatabase extends RoomDatabase {
     /**
      * @return The Data Access Object for {@link WorkSpec}s.
      */
+    @NonNull
     public abstract WorkSpecDao workSpecDao();
 
     /**
      * @return The Data Access Object for {@link Dependency}s.
      */
+    @NonNull
     public abstract DependencyDao dependencyDao();
 
     /**
      * @return The Data Access Object for {@link WorkTag}s.
      */
+    @NonNull
     public abstract WorkTagDao workTagDao();
 
     /**
      * @return The Data Access Object for {@link SystemIdInfo}s.
      */
+    @NonNull
     public abstract SystemIdInfoDao systemIdInfoDao();
 
     /**
      * @return The Data Access Object for {@link WorkName}s.
      */
+    @NonNull
     public abstract WorkNameDao workNameDao();
 
     /**
