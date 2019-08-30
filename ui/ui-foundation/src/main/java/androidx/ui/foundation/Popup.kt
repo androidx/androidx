@@ -35,8 +35,8 @@ import androidx.compose.memo
 import androidx.compose.onCommit
 import androidx.compose.onDispose
 import androidx.compose.unaryPlus
-import androidx.ui.core.AndroidCraneView
-import androidx.ui.core.AndroidCraneViewAmbient
+import androidx.ui.core.AndroidComposeView
+import androidx.ui.core.AndroidComposeViewAmbient
 import androidx.ui.core.ContextAmbient
 import androidx.ui.core.IntPx
 import androidx.ui.core.IntPxPosition
@@ -70,14 +70,14 @@ fun Popup(
     children: @Composable() () -> Unit
 ) {
     val context = +ambient(ContextAmbient)
-    // TODO(b/139866476): Decide if we want to expose the AndroidCraneView
-    val craneView = +ambient(AndroidCraneViewAmbient)
+    // TODO(b/139866476): Decide if we want to expose the AndroidComposeView
+    val composeView = +ambient(AndroidComposeViewAmbient)
 
     val popupPositionProperties = +memo {
         PopupPositionProperties(
             alignment = alignment,
             offset = offset,
-            craneView = craneView
+            composeView = composeView
         )
     }
     popupPositionProperties.alignment = alignment
@@ -164,7 +164,7 @@ private fun updatePopup(popup: PopupWindow, popupPositionProperties: PopupPositi
 
     if (!popup.isShowing) {
         popup.showAtLocation(
-            popupPositionProperties.craneView,
+            popupPositionProperties.composeView,
             Gravity.NO_GRAVITY,
             popupGlobalPosition.x.value,
             popupGlobalPosition.y.value
@@ -182,7 +182,7 @@ private fun updatePopup(popup: PopupWindow, popupPositionProperties: PopupPositi
 private data class PopupPositionProperties(
     var alignment: Alignment,
     var offset: IntPxPosition,
-    val craneView: View
+    val composeView: View
 ) {
     var parentPosition = PxPosition.Origin
     var parentSize = PxSize.Zero
@@ -228,10 +228,10 @@ internal fun calculatePopupGlobalPosition(
  * Disposes the root view of the Activity.
  */
 fun disposeActivityComposition(activity: Activity) {
-    val craneView = activity.window.decorView
+    val composeView = activity.window.decorView
         .findViewById<ViewGroup>(android.R.id.content)
-        .getChildAt(0) as? AndroidCraneView
+        .getChildAt(0) as? AndroidComposeView
         ?: error("No root view found")
 
-    Compose.disposeComposition(craneView.root, activity, null)
+    Compose.disposeComposition(composeView.root, activity, null)
 }

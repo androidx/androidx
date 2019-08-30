@@ -51,9 +51,9 @@ import kotlin.coroutines.CoroutineContext
  */
 @Composable
 fun ComposeView(children: @Composable() () -> Unit) {
-    val rootRef = +memo { Ref<AndroidCraneView>() }
+    val rootRef = +memo { Ref<AndroidComposeView>() }
 
-    <AndroidCraneView ref=rootRef>
+    <AndroidComposeView ref=rootRef>
         var reference: CompositionReference? = null
         var cc: CompositionContext? = null
 
@@ -65,7 +65,7 @@ fun ComposeView(children: @Composable() () -> Unit) {
         // the child. The Observe is put in place here to ensure that the scope around the
         // reference we are using is as small as possible, and, in particular, does not include
         // the composition of `children()`. This means that we are using the nullability of `cc`
-        // to determine if the CraneWrapper in general is getting recomposed, or if its just
+        // to determine if the ComposeWrapper in general is getting recomposed, or if its just
         // the invalidation scope of the Observe. If it's the latter, we just want to call
         // `cc.recomposeSync()` which will only recompose the invalidations in the child context,
         // which means it *will not* call `children()` again if it doesn't have to.
@@ -93,7 +93,7 @@ fun ComposeView(children: @Composable() () -> Unit) {
                 children()
             }
         }
-    </AndroidCraneView>
+    </AndroidComposeView>
 }
 
 /**
@@ -105,16 +105,16 @@ fun ComposeView(children: @Composable() () -> Unit) {
 fun Activity.setContent(
     content: @Composable() () -> Unit
 ): CompositionContext? {
-    val craneView = window.decorView
+    val composeView = window.decorView
         .findViewById<ViewGroup>(android.R.id.content)
-        .getChildAt(0) as? AndroidCraneView
-        ?: AndroidCraneView(this).also { setContentView(it) }
+        .getChildAt(0) as? AndroidComposeView
+        ?: AndroidComposeView(this).also { setContentView(it) }
 
     // If this value is inlined where it is used, an error that includes 'Precise Reference:
     // kotlinx.coroutines.Dispatchers' not instance of 'Precise Reference: androidx.compose.Ambient'.
     val coroutineContext = Dispatchers.Main
-    return Compose.composeInto(craneView.root, this) {
-        WrapWithAmbients(craneView, this, coroutineContext) {
+    return Compose.composeInto(composeView.root, this) {
+        WrapWithAmbients(composeView, this, coroutineContext) {
             content()
         }
     }
@@ -128,15 +128,15 @@ fun Activity.setContent(
 fun ViewGroup.setContent(
     content: @Composable() () -> Unit
 ): CompositionContext? {
-    val craneView =
-        if (childCount > 0) { getChildAt(0) as? AndroidCraneView } else { removeAllViews(); null }
-        ?: AndroidCraneView(context).also { addView(it) }
+    val composeView =
+        if (childCount > 0) { getChildAt(0) as? AndroidComposeView } else { removeAllViews(); null }
+        ?: AndroidComposeView(context).also { addView(it) }
 
     // If this value is inlined where it is used, an error that includes 'Precise Reference:
     // kotlinx.coroutines.Dispatchers' not instance of 'Precise Reference: androidx.compose.Ambient'.
     val coroutineContext = Dispatchers.Main
-    return Compose.composeInto(craneView.root, context) {
-        WrapWithAmbients(craneView, context, coroutineContext) {
+    return Compose.composeInto(composeView.root, context) {
+        WrapWithAmbients(composeView, context, coroutineContext) {
             content()
         }
     }
@@ -146,13 +146,13 @@ private typealias AmbientProvider = @Composable() (@Composable() () -> Unit) -> 
 
 @Composable
 private fun WrapWithAmbients(
-    craneView: AndroidCraneView,
+    composeView: AndroidComposeView,
     context: Context,
     coroutineContext: CoroutineContext,
     content: @Composable() () -> Unit
 ) {
     // TODO(nona): Tie the focus manger lifecycle to Window, otherwise FocusManager won't work
-    //             with nested AndroidCraneView case
+    //             with nested AndroidComposeView case
     val focusManager = +memo { FocusManager() }
     val configuration = +state { context.applicationContext.resources.configuration }
 
@@ -168,7 +168,7 @@ private fun WrapWithAmbients(
         else -> LayoutDirection.Ltr
     }
     +memo {
-        craneView.configurationChangeObserver = {
+        composeView.configurationChangeObserver = {
             // onConfigurationChange is the correct hook to update configuration, however it is
             // possible that the configuration object itself may come from a wrapped
             // context / themed activity, and may not actually reflect the system. So instead we
@@ -195,22 +195,22 @@ private fun WrapWithAmbients(
             FocusManagerAmbient.Provider(value = focusManager, children = children)
         },
         { children ->
-            TextInputServiceAmbient.Provider(value = craneView.textInputService, children = children)
+            TextInputServiceAmbient.Provider(value = composeView.textInputService, children = children)
         },
         { children ->
             FontLoaderAmbient.Provider(value = AndroidFontResourceLoader(context), children = children)
         },
         { children ->
-            AutofillTreeAmbient.Provider(value = craneView.autofillTree, children = children)
+            AutofillTreeAmbient.Provider(value = composeView.autofillTree, children = children)
         },
         { children ->
-            AutofillAmbient.Provider(value = craneView.autofill, children = children)
+            AutofillAmbient.Provider(value = composeView.autofill, children = children)
         },
         { children ->
             ConfigurationAmbient.Provider(value = configuration.value, children = children)
         },
         { children ->
-            AndroidCraneViewAmbient.Provider(value = craneView, children = children)
+            AndroidComposeViewAmbient.Provider(value = composeView, children = children)
         },
         { children ->
             LayoutDirectionAmbient.Provider(value = layoutDirection, children = children)
@@ -228,8 +228,8 @@ val CoroutineContextAmbient = Ambient.of<CoroutineContext>()
 
 val ConfigurationAmbient = Ambient.of<Configuration>()
 
-// TODO(b/139866476): The AndroidCraneView should not be exposed via ambient
-val AndroidCraneViewAmbient = Ambient.of<AndroidCraneView>()
+// TODO(b/139866476): The AndroidComposeView should not be exposed via ambient
+val AndroidComposeViewAmbient = Ambient.of<AndroidComposeView>()
 
 val AutofillAmbient = Ambient.of<Autofill?>()
 

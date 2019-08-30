@@ -28,7 +28,7 @@ import androidx.test.espresso.matcher.RootMatchers.isPlatformPopup
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.filters.FlakyTest
 import androidx.test.filters.MediumTest
-import androidx.ui.core.AndroidCraneView
+import androidx.ui.core.AndroidComposeView
 import androidx.ui.core.IntPx
 import androidx.ui.core.IntPxPosition
 import androidx.ui.core.IntPxSize
@@ -65,7 +65,7 @@ class PopupTest {
     private val parentSize = IntPxSize(IntPx(100), IntPx(100))
     private val popupSize = IntPxSize(IntPx(40), IntPx(20))
 
-    private var craneViewAbsolutePosition = IntPxPosition(IntPx(0), IntPx(0))
+    private var composeViewAbsolutePosition = IntPxPosition(IntPx(0), IntPx(0))
 
     // TODO(b/140215440): Some tests are calling the OnChildPosition method inside the Popup too
     //  many times
@@ -94,11 +94,11 @@ class PopupTest {
             }
         }
 
-        provideAndroidCraneViewOffset()
+        provideAndroidComposeViewOffset()
     }
 
     private fun popupMatches(viewMatcher: Matcher<in View>) {
-        Espresso.onView(instanceOf(AndroidCraneView::class.java))
+        Espresso.onView(instanceOf(AndroidComposeView::class.java))
             .inRoot(isPlatformPopup())
             .check(matches(viewMatcher))
     }
@@ -115,21 +115,21 @@ class PopupTest {
         }
     }
 
-    private fun saveAndroidCraneViewOffset(): ViewAction {
+    private fun saveAndroidComposeViewOffset(): ViewAction {
         return object : ViewAction {
             override fun getDescription(): String {
-                return "Get AndroidCraneView offset"
+                return "Get AndroidComposeView offset"
             }
 
             override fun getConstraints(): Matcher<View> {
-                return matchesAndroidCraneView()
+                return matchesAndroidComposeView()
             }
 
             override fun perform(uiController: UiController?, view: View?) {
                 val positionArray = IntArray(2)
                 view?.getLocationOnScreen(positionArray)
 
-                craneViewAbsolutePosition = IntPxPosition(
+                composeViewAbsolutePosition = IntPxPosition(
                     IntPx(positionArray[0]),
                     IntPx(positionArray[1])
                 )
@@ -137,10 +137,10 @@ class PopupTest {
         }
     }
 
-    private fun provideAndroidCraneViewOffset() {
-        Espresso.onView(instanceOf(AndroidCraneView::class.java))
+    private fun provideAndroidComposeViewOffset() {
+        Espresso.onView(instanceOf(AndroidComposeView::class.java))
             .inRoot(isNotPlatformPopup())
-            .perform(saveAndroidCraneViewOffset())
+            .perform(saveAndroidComposeViewOffset())
     }
 
     @Test
@@ -189,7 +189,7 @@ class PopupTest {
         createPopupWithAlignmentRule(alignment = Alignment.TopLeft, measureLatch = measureLatch)
 
         measureLatch.await(1, TimeUnit.SECONDS)
-        popupMatches(matchesPosition(craneViewAbsolutePosition + expectedPositionTopLeft))
+        popupMatches(matchesPosition(composeViewAbsolutePosition + expectedPositionTopLeft))
     }
 
     @FlakyTest(bugId = 140549636, detail = "Final position might not be updated before check")
@@ -205,7 +205,7 @@ class PopupTest {
         createPopupWithAlignmentRule(alignment = Alignment.TopCenter, measureLatch = measureLatch)
 
         measureLatch.await(1, TimeUnit.SECONDS)
-        popupMatches(matchesPosition(craneViewAbsolutePosition + expectedPositionTopCenter))
+        popupMatches(matchesPosition(composeViewAbsolutePosition + expectedPositionTopCenter))
     }
 
     @FlakyTest(bugId = 140549636, detail = "Final position might not be updated before check")
@@ -221,7 +221,7 @@ class PopupTest {
         createPopupWithAlignmentRule(alignment = Alignment.TopRight, measureLatch = measureLatch)
 
         measureLatch.await(1, TimeUnit.SECONDS)
-        popupMatches(matchesPosition(craneViewAbsolutePosition + expectedPositionTopRight))
+        popupMatches(matchesPosition(composeViewAbsolutePosition + expectedPositionTopRight))
     }
 
     @FlakyTest(bugId = 140549636, detail = "Final position might not be updated before check")
@@ -237,7 +237,7 @@ class PopupTest {
         createPopupWithAlignmentRule(alignment = Alignment.CenterRight, measureLatch = measureLatch)
 
         measureLatch.await(1, TimeUnit.SECONDS)
-        popupMatches(matchesPosition(craneViewAbsolutePosition + expectedPositionCenterRight))
+        popupMatches(matchesPosition(composeViewAbsolutePosition + expectedPositionCenterRight))
     }
 
     @FlakyTest(bugId = 140549636, detail = "Final position might not be updated before check")
@@ -253,7 +253,7 @@ class PopupTest {
         createPopupWithAlignmentRule(alignment = Alignment.BottomRight, measureLatch = measureLatch)
 
         measureLatch.await(1, TimeUnit.SECONDS)
-        popupMatches(matchesPosition(craneViewAbsolutePosition + expectedPositionBottomRight))
+        popupMatches(matchesPosition(composeViewAbsolutePosition + expectedPositionBottomRight))
     }
 
     @FlakyTest(bugId = 140549636, detail = "Final position might not be updated before check")
@@ -272,7 +272,7 @@ class PopupTest {
         )
 
         measureLatch.await(1, TimeUnit.SECONDS)
-        popupMatches(matchesPosition(craneViewAbsolutePosition + expectedPositionBottomCenter))
+        popupMatches(matchesPosition(composeViewAbsolutePosition + expectedPositionBottomCenter))
     }
 
     @FlakyTest(bugId = 140549636, detail = "Final position might not be updated before check")
@@ -288,7 +288,7 @@ class PopupTest {
         createPopupWithAlignmentRule(alignment = Alignment.BottomLeft, measureLatch = measureLatch)
 
         measureLatch.await(1, TimeUnit.SECONDS)
-        popupMatches(matchesPosition(craneViewAbsolutePosition + expectedPositionBottomLeft))
+        popupMatches(matchesPosition(composeViewAbsolutePosition + expectedPositionBottomLeft))
     }
 
     @FlakyTest(bugId = 140549636, detail = "Final position might not be updated before check")
@@ -304,7 +304,7 @@ class PopupTest {
         createPopupWithAlignmentRule(alignment = Alignment.CenterLeft, measureLatch = measureLatch)
 
         measureLatch.await(1, TimeUnit.SECONDS)
-        popupMatches(matchesPosition(craneViewAbsolutePosition + expectedPositionCenterLeft))
+        popupMatches(matchesPosition(composeViewAbsolutePosition + expectedPositionCenterLeft))
     }
 
     @FlakyTest(bugId = 140549636, detail = "Final position might not be updated before check")
@@ -320,7 +320,7 @@ class PopupTest {
         createPopupWithAlignmentRule(alignment = Alignment.Center, measureLatch = measureLatch)
 
         measureLatch.await(1, TimeUnit.SECONDS)
-        popupMatches(matchesPosition(craneViewAbsolutePosition + expectedPositionCenter))
+        popupMatches(matchesPosition(composeViewAbsolutePosition + expectedPositionCenter))
     }
 
     @Test
@@ -485,14 +485,14 @@ class PopupTest {
         Truth.assertThat(positionCenter).isEqualTo(expectedPositionCenter)
     }
 
-    private fun matchesAndroidCraneView(): BoundedMatcher<View, View> {
+    private fun matchesAndroidComposeView(): BoundedMatcher<View, View> {
         return object : BoundedMatcher<View, View>(View::class.java) {
             override fun matchesSafely(item: View?): Boolean {
-                return (item is AndroidCraneView)
+                return (item is AndroidComposeView)
             }
 
             override fun describeTo(description: Description?) {
-                description?.appendText("with no AndroidCraneView")
+                description?.appendText("with no AndroidComposeView")
             }
         }
     }

@@ -50,17 +50,17 @@ class WrapperTest {
     }
 
     @Test
-    fun ensureCraneWrapperDoesntPropagateInvalidations() {
+    fun ensureComposeWrapperDoesntPropagateInvalidations() {
         val commitLatch = CountDownLatch(2)
         var rootCount = 0
-        var craneWrapperCount = 0
+        var composeWrapperCount = 0
         var innerCount = 0
 
         runOnUiThread {
             activity.setViewContent {
                 +onCommit { rootCount++ }
                 ComposeView {
-                    +onCommit { craneWrapperCount++ }
+                    +onCommit { composeWrapperCount++ }
                     Recompose { recompose ->
                         +onCommit {
                             innerCount++
@@ -73,7 +73,7 @@ class WrapperTest {
         }
         assertTrue(commitLatch.await(1, TimeUnit.SECONDS))
         assertEquals(1, rootCount)
-        assertEquals(1, craneWrapperCount)
+        assertEquals(1, composeWrapperCount)
         assertEquals(2, innerCount)
     }
 

@@ -15,7 +15,6 @@
  */
 package androidx.ui.foundation
 
-import android.app.Activity
 import android.graphics.Bitmap
 import android.os.Build
 import android.os.Handler
@@ -43,7 +42,7 @@ import androidx.ui.painting.Paint
 import androidx.ui.painting.PaintingStyle
 import androidx.compose.composer
 import androidx.test.filters.SdkSuppress
-import androidx.ui.core.AndroidCraneView
+import androidx.ui.core.AndroidComposeView
 import androidx.ui.core.setContent
 import androidx.ui.graphics.toArgb
 import androidx.ui.layout.Row
@@ -325,7 +324,7 @@ class ScrollerTest {
     }
 
     private fun waitAndScreenShot(): Bitmap {
-        val view = findAndroidCraneView()
+        val view = findAndroidComposeView()
         waitForDraw(view)
 
         val offset = intArrayOf(0, 0)
@@ -381,20 +380,20 @@ class ScrollerTest {
 
     // TODO(malkov): ALL below is copypaste from LayoutTest as this test in ui-foundation now
 
-    internal fun findAndroidCraneView(): AndroidCraneView {
+    internal fun findAndroidComposeView(): AndroidComposeView {
         val contentViewGroup = activity.findViewById<ViewGroup>(android.R.id.content)
-        return findAndroidCraneView(contentViewGroup)!!
+        return findAndroidComposeView(contentViewGroup)!!
     }
 
-    internal fun findAndroidCraneView(parent: ViewGroup): AndroidCraneView? {
+    internal fun findAndroidComposeView(parent: ViewGroup): AndroidComposeView? {
         for (index in 0 until parent.childCount) {
             val child = parent.getChildAt(index)
-            if (child is AndroidCraneView) {
+            if (child is AndroidComposeView) {
                 return child
             } else if (child is ViewGroup) {
-                val craneView = findAndroidCraneView(child)
-                if (craneView != null) {
-                    return craneView
+                val composeView = findAndroidComposeView(child)
+                if (composeView != null) {
+                    return composeView
                 }
             }
         }

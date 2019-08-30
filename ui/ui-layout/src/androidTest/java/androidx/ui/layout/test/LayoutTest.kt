@@ -22,7 +22,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.ViewTreeObserver
 import androidx.test.rule.ActivityTestRule
-import androidx.ui.core.AndroidCraneView
+import androidx.ui.core.AndroidComposeView
 import androidx.ui.core.Density
 import androidx.ui.core.OnPositioned
 import androidx.ui.core.PxPosition
@@ -81,24 +81,24 @@ open class LayoutTest {
         activityTestRule.runOnUiThread(runnable)
     }
 
-    internal fun findAndroidCraneView(): AndroidCraneView {
-        return findAndroidCraneView(activity)
+    internal fun findAndroidComposeView(): AndroidComposeView {
+        return findAndroidComposeView(activity)
     }
 
-    internal fun findAndroidCraneView(activity: Activity): AndroidCraneView {
+    internal fun findAndroidComposeView(activity: Activity): AndroidComposeView {
         val contentViewGroup = activity.findViewById<ViewGroup>(android.R.id.content)
-        return findAndroidCraneView(contentViewGroup)!!
+        return findAndroidComposeView(contentViewGroup)!!
     }
 
-    internal fun findAndroidCraneView(parent: ViewGroup): AndroidCraneView? {
+    internal fun findAndroidComposeView(parent: ViewGroup): AndroidComposeView? {
         for (index in 0 until parent.childCount) {
             val child = parent.getChildAt(index)
-            if (child is AndroidCraneView) {
+            if (child is AndroidComposeView) {
                 return child
             } else if (child is ViewGroup) {
-                val craneView = findAndroidCraneView(child)
-                if (craneView != null) {
-                    return craneView
+                val composeView = findAndroidComposeView(child)
+                if (composeView != null) {
+                    return composeView
                 }
             }
         }
