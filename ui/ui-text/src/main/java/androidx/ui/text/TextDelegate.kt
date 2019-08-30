@@ -43,8 +43,6 @@ import androidx.ui.text.style.TextDirection
 import androidx.ui.text.style.TextOverflow
 import java.util.Locale
 
-private val DefaultTextAlign: TextAlign = TextAlign.Start
-private val DefaultTextDirection: TextDirection = TextDirection.Ltr
 /** The default font size if none is specified. */
 private val DefaultFontSize: Sp = 14.sp
 
@@ -63,44 +61,40 @@ private fun resolveTextStyle(style: TextStyle?) =
     }
 
 /**
- * An object that paints a [TextSpan] tree into a [Canvas].
+ * An object that paints text onto a [Canvas].
  *
  * To use a [TextDelegate], follow these steps:
  *
- * 1. Create a [TextSpan] tree and pass it to the [TextDelegate] constructor.
+ * 1. Create an [AnnotatedString] and pass it to the [TextDelegate] constructor.
  *
  * 2. Call [layout] to prepare the paragraph.
  *
  * 3. Call [paint] as often as desired to paint the paragraph.
  *
- * If the width of the area into which the text is being painted changes, return to step 2. If the
+ *  If the width of the area into which the text is being painted changes, return to step 2. If the
  *  text to be painted changes, return to step 1.
  *
- * @param text The (potentially styled) text to paint. After this is set, you must call [layout]
- *   before the next call to [paint]. This and [textDirection] must be non-null before you call
- *   [layout].
+ * @param text the text to paint.
  *
- * @param style The text style specified to render the text. Notice that you can also set text style
- *  on the given [AnnotatedString], and the style set on [text] always has higher priority than this
- *  setting. But if only one gobal text style is needed, passing it to [TextDelegate] is always
- *  preferred.
+ * @param style The text style specified to render the text. Notice that you can also set text
+ * style on the given [AnnotatedString], and the style set on [text] always has higher priority
+ * than this setting. But if only one global text style is needed, passing it to [TextDelegate]
+ * is always preferred.
  *
- * @param paragraphStyle Style configuration that applies only to paragraphs such as text alignment,
+ * @param paragraphStyle style configuration that applies only to paragraphs such as text alignment,
  * or text direction.
  *
- * @param maxLines An optional maximum number of lines for the text to span, wrapping if necessary.
- *   If the text exceeds the given number of lines, it is truncated such that subsequent lines are
- *   dropped.
- *   After this is set, you must call [layout] before the next call to [paint].
+ * @param maxLines An optional maximum number of lines for the text to span, wrapping if
+ * necessary. If the text exceeds the given number of lines, it is truncated such that subsequent
+ * lines are dropped.
  *
- * @param softWrap Whether the text should break at soft line breaks.
- *   If false, the glyphs in the text will be positioned as if there was unlimited horizontal space.
- *   If [softWrap] is false, [overflow] and [textAlign] may have unexpected effects.
+ * @param softWrap Whether the text should break at soft line breaks. If false, the glyphs in the
+ * text will be positioned as if there was unlimited horizontal space. If [softWrap] is false,
+ * [overflow] and [TextAlign] may have unexpected effects.
  *
- * @param overflow How visual overflow should be handled.
- *   Specifically, the ellipsis is applied to the last line before the line truncated by [maxLines],
- *   if [maxLines] is non-null and that line overflows the width constraint.
- *   After this is set, you must call [layout] before the next call to [paint].
+ * @param overflow How visual overflow should be handled. Specifically, the ellipsis is applied
+ * to the last line before the line truncated by [maxLines], if [maxLines] is non-null and that
+ * line overflows the width constraint.
  *
  * @param locale The locale used to select region-specific glyphs.
  *
@@ -121,22 +115,6 @@ class TextDelegate(
     val layoutDirection: LayoutDirection,
     val resourceLoader: Font.ResourceLoader
 ) {
-    init {
-        assert(maxLines == null || maxLines > 0)
-    }
-
-    /**
-     * The resolved text style.
-     */
-    val textStyle: TextStyle = resolveTextStyle(style)
-
-    /**
-     * The paragraph style.
-     *
-     * If null is passed to constructor, use default paragraph style.
-     */
-    val paragraphStyle: ParagraphStyle = paragraphStyle ?: ParagraphStyle()
-
     /**
      * The data class which holds text layout result.
      */
@@ -153,6 +131,22 @@ class TextDelegate(
          */
         val size: Size
     )
+
+    init {
+        assert(maxLines == null || maxLines > 0)
+    }
+
+    /**
+     * The resolved text style.
+     */
+    val textStyle: TextStyle = resolveTextStyle(style)
+
+    /**
+     * The paragraph style.
+     *
+     * If null is passed to constructor, use default paragraph style.
+     */
+    val paragraphStyle: ParagraphStyle = paragraphStyle ?: ParagraphStyle()
 
     /**
      * The text layout result. null if text layout is not computed.
@@ -225,7 +219,7 @@ class TextDelegate(
      * The text will layout with a width that's as close to its max intrinsic width as possible
      * while still being greater than or equal to `minWidth` and less than or equal to `maxWidth`.
      */
-    private fun layoutText(minWidth: Float, maxWidth: Float): MultiParagraph {
+    internal fun layoutText(minWidth: Float, maxWidth: Float): MultiParagraph {
         // TODO(haoyuchang): fix that when softWarp is false and overflow is Ellipsis, ellipsis
         //  doesn't work.
         val widthMatters = softWrap || overflow == TextOverflow.Ellipsis
@@ -249,14 +243,24 @@ class TextDelegate(
             density = density,
             layoutDirection = layoutDirection,
             resourceLoader = resourceLoader
-        ).apply { layout(ParagraphConstraints(width = finalMaxWidth)) }
+        )
 
-        if (minWidth != finalMaxWidth) {
-            val newWidth = multiParagraph.maxIntrinsicWidth.coerceIn(minWidth, finalMaxWidth)
-            if (newWidth != multiParagraph.width) {
-                multiParagraph.layout(ParagraphConstraints(width = newWidth))
-            }
+        // if minWidth == maxWidth the width is fixed.
+        //    therefore we can pass that value to our paragraph and use it
+        // if minWidth != maxWidth there is a range
+        //    then we should check if the max intrinsic width is in this range to decide the
+        //    width to be passed to Paragraph
+        //        if max intrinsic width is between minWidth and maxWidth
+        //           we can use it to layout
+        //        else if max intrinsic width is greater than maxWidth, we can only use maxWidth
+        //        else if max intrinsic width is less than minWidth, we should use minWidth
+        val width = if (minWidth == finalMaxWidth) {
+            finalMaxWidth
+        } else {
+            multiParagraph.maxIntrinsicWidth.coerceIn(minWidth, finalMaxWidth)
         }
+
+        multiParagraph.layout(ParagraphConstraints(width = width))
 
         return multiParagraph
     }
@@ -267,12 +271,15 @@ class TextDelegate(
             constraints.maxWidth.value.toFloat()
         )
 
-        val didOverflowHeight = multiParagraph.didExceedMaxLines
         val size = constraints.constrain(
             IntPxSize(multiParagraph.width.px.round(), multiParagraph.height.px.round())
         ).let {
             Size(it.width.value.toFloat(), it.height.value.toFloat())
         }
+
+        layoutResult = LayoutResult(multiParagraph, size)
+
+        val didOverflowHeight = multiParagraph.didExceedMaxLines
         val didOverflowWidth = size.width < multiParagraph.width
         // TODO(abarth): We're only measuring the sizes of the line boxes here. If
         // the glyphs draw outside the line boxes, we might think that there isn't
@@ -280,48 +287,8 @@ class TextDelegate(
         // a problem if we start having horizontal overflow and introduce a clip
         // that affects the actual (but undetected) vertical overflow.
         hasVisualOverflow = didOverflowWidth || didOverflowHeight
-        overflowShader = if (hasVisualOverflow && overflow == TextOverflow.Fade) {
-            val fadeSizeDelegate = TextDelegate(
-                text = AnnotatedString(text = "\u2026", textStyles = listOf()),
-                style = textStyle,
-                paragraphStyle = paragraphStyle,
-                density = density,
-                resourceLoader = resourceLoader,
-                layoutDirection = layoutDirection
-            )
-            val paragraphForFadeSizeDelegate = fadeSizeDelegate.layoutText(
-                minWidth = 1.0f,
-                maxWidth = Float.POSITIVE_INFINITY
-            )
-            val fadeWidth = paragraphForFadeSizeDelegate.width
-            val fadeHeight = paragraphForFadeSizeDelegate.height
-            if (didOverflowWidth) {
-                // FIXME: Should only fade the last line, i.e., should use last line's direction.
-                // (b/139496055)
-                val (fadeStart, fadeEnd) = if (layoutDirection == LayoutDirection.Rtl) {
-                    Pair(fadeWidth, 0.0f)
-                } else {
-                    Pair(size.width - fadeWidth, size.width)
-                }
-                LinearGradientShader(
-                    Offset(fadeStart, 0.0f),
-                    Offset(fadeEnd, 0.0f),
-                    listOf(Color(0xFFFFFFFF), Color(0x00FFFFFF))
-                )
-            } else {
-                val fadeEnd = size.height
-                val fadeStart = fadeEnd - fadeHeight
-                LinearGradientShader(
-                    Offset(0.0f, fadeStart),
-                    Offset(0.0f, fadeEnd),
-                    listOf(Color(0xFFFFFFFF), Color(0x00FFFFFF))
-                )
-            }
-        } else {
-            null
-        }
 
-        layoutResult = LayoutResult(multiParagraph, size)
+        overflowShader = createOverflowShader(hasVisualOverflow, didOverflowWidth, size)
     }
 
     /**
@@ -482,5 +449,52 @@ class TextDelegate(
      */
     fun getWordBoundary(offset: Int): TextRange = assumeLayout { layoutResult ->
         layoutResult.multiParagraph.getWordBoundary(offset)
+    }
+}
+
+private fun TextDelegate.createOverflowShader(
+    hasVisualOverflow: Boolean,
+    didOverflowWidth: Boolean,
+    size: Size
+): Shader? {
+    return if (hasVisualOverflow && overflow == TextOverflow.Fade) {
+        val fadeSizeDelegate = TextDelegate(
+            text = AnnotatedString(text = "\u2026", textStyles = listOf()),
+            style = textStyle,
+            paragraphStyle = paragraphStyle,
+            density = density,
+            resourceLoader = resourceLoader,
+            layoutDirection = layoutDirection
+        )
+        val paragraphForFadeSizeDelegate = fadeSizeDelegate.layoutText(
+            minWidth = 1.0f,
+            maxWidth = Float.POSITIVE_INFINITY
+        )
+        val fadeWidth = paragraphForFadeSizeDelegate.width
+        val fadeHeight = paragraphForFadeSizeDelegate.height
+        if (didOverflowWidth) {
+            // FIXME: Should only fade the last line, i.e., should use last line's direction.
+            // (b/139496055)
+            val (fadeStart, fadeEnd) = if (layoutDirection == LayoutDirection.Rtl) {
+                Pair(fadeWidth, 0.0f)
+            } else {
+                Pair(size.width - fadeWidth, size.width)
+            }
+            LinearGradientShader(
+                Offset(fadeStart, 0.0f),
+                Offset(fadeEnd, 0.0f),
+                listOf(Color(0xFFFFFFFF), Color(0x00FFFFFF))
+            )
+        } else {
+            val fadeEnd = size.height
+            val fadeStart = fadeEnd - fadeHeight
+            LinearGradientShader(
+                Offset(0.0f, fadeStart),
+                Offset(0.0f, fadeEnd),
+                listOf(Color(0xFFFFFFFF), Color(0x00FFFFFF))
+            )
+        }
+    } else {
+        null
     }
 }
