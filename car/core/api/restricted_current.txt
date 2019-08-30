@@ -201,7 +201,6 @@ package androidx.car.uxrestrictions {
     method public int getMaxContentDepth();
     method public int getMaxCumulativeContentItems();
     method public int getMaxRestrictedStringLength();
-    method public long getTimestamp();
     method public boolean hasSameRestrictionsAs(androidx.car.uxrestrictions.CarUxRestrictions!);
     method public boolean isDistractionOptimizationRequired();
     field public static final int UX_RESTRICTIONS_BASELINE = 0; // 0x0
@@ -218,7 +217,7 @@ package androidx.car.uxrestrictions {
   }
 
   public static final class CarUxRestrictions.Builder {
-    ctor public CarUxRestrictions.Builder(boolean, @androidx.car.uxrestrictions.CarUxRestrictions.CarUxRestrictionsInfo int, long);
+    ctor public CarUxRestrictions.Builder(boolean, @androidx.car.uxrestrictions.CarUxRestrictions.CarUxRestrictionsInfo int);
     method public androidx.car.uxrestrictions.CarUxRestrictions build();
     method public androidx.car.uxrestrictions.CarUxRestrictions.Builder setMaxContentDepth(int);
     method public androidx.car.uxrestrictions.CarUxRestrictions.Builder setMaxCumulativeContentItems(int);
