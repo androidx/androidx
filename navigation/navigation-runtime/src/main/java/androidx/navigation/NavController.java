@@ -1114,12 +1114,10 @@ public class NavController {
     }
 
     void setViewModelStore(@NonNull ViewModelStore viewModelStore) {
-        mViewModel = NavControllerViewModel.getInstance(viewModelStore);
-        // Ensure that all of the NavBackStackEntry instances are using the
-        // newly set NavControllerViewModel as their backing store.
-        for (NavBackStackEntry entry : mBackStack) {
-            entry.setNavControllerViewModel(mViewModel);
+        if (!mBackStack.isEmpty()) {
+            throw new IllegalStateException("ViewModelStore should be set before setGraph call");
         }
+        mViewModel = NavControllerViewModel.getInstance(viewModelStore);
     }
 
     /**
