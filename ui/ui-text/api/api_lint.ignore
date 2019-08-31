@@ -51,6 +51,10 @@ KotlinOperator: androidx.ui.text.style.TextDecoration#contains(androidx.ui.text.
     Note that adding the `operator` keyword would allow calling this method using operator syntax
 
 
+MissingNullability: androidx.ui.text.Locale#Companion:
+    Missing nullability on field `Companion` in class `class androidx.ui.text.Locale`
+MissingNullability: androidx.ui.text.LocaleList#Companion:
+    Missing nullability on field `Companion` in class `class androidx.ui.text.LocaleList`
 MissingNullability: androidx.ui.text.font.FontWeight#Companion:
     Missing nullability on field `Companion` in class `class androidx.ui.text.font.FontWeight`
 MissingNullability: androidx.ui.text.style.BaselineShift#Companion:
