@@ -90,13 +90,13 @@ class SubtitleView extends View {
         // TODO: Move these to a default style.
         final Resources res = getContext().getResources();
         mCornerRadius = res
-                .getDimensionPixelSize(R.dimen.subtitle_corner_radius);
+                .getDimensionPixelSize(R.dimen.media2_widget_subtitle_corner_radius);
         mOutlineWidth = res
-                .getDimensionPixelSize(R.dimen.subtitle_outline_width);
+                .getDimensionPixelSize(R.dimen.media2_widget_subtitle_outline_width);
         mShadowRadius = res
-                .getDimensionPixelSize(R.dimen.subtitle_shadow_radius);
+                .getDimensionPixelSize(R.dimen.media2_widget_subtitle_shadow_radius);
         mShadowOffsetX = res
-                .getDimensionPixelSize(R.dimen.subtitle_shadow_offset);
+                .getDimensionPixelSize(R.dimen.media2_widget_subtitle_shadow_offset);
         mShadowOffsetY = mShadowOffsetX;
 
         mTextPaint = new TextPaint();
