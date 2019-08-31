@@ -18,7 +18,12 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:gravity="center"
-    android:orientation="horizontal">
+    android:orientation="horizontal"
+    android:visibility="visible">
 
-    <ImageButton android:id="@+id/pause" style="@style/MinimalTransportControlsButton" />
+    <ImageButton android:id="@+id/prev" style="@style/Media2_Widget_EmbeddedTransportControlsButton.Previous" />
+    <ImageButton android:id="@+id/rew" style="@style/Media2_Widget_EmbeddedTransportControlsButton.Rew" />
+    <ImageButton android:id="@+id/pause" style="@style/Media2_Widget_EmbeddedTransportControlsButton.Pause" />
+    <ImageButton android:id="@+id/ffwd" style="@style/Media2_Widget_EmbeddedTransportControlsButton.Ffwd" />
+    <ImageButton android:id="@+id/next" style="@style/Media2_Widget_EmbeddedTransportControlsButton.Next" />
 </LinearLayout>

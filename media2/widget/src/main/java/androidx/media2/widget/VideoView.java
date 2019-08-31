@@ -102,7 +102,7 @@ import java.util.concurrent.TimeoutException;
  * If values for these keys are not set, the following default values will be shown, respectively:
  * {@link androidx.media2.widget.R.string#mcv2_music_title_unknown_text}
  * {@link androidx.media2.widget.R.string#mcv2_music_artist_unknown_text}
- * {@link androidx.media2.widget.R.drawable#ic_default_album_image}
+ * {@link androidx.media2.widget.R.drawable#media2_widget_ic_default_album_image}
  *
  * <p>
  * Note: VideoView does not retain its full state when going into the background. In particular, it
@@ -588,7 +588,7 @@ public class VideoView extends SelectiveLayout {
             Resources resources = getResources();
 
             Drawable albumDrawable = getAlbumArt(metadata,
-                    resources.getDrawable(R.drawable.ic_default_album_image));
+                    resources.getDrawable(R.drawable.media2_widget_ic_default_album_image));
             String title = getString(metadata, MediaMetadata.METADATA_KEY_TITLE,
                     resources.getString(R.string.mcv2_music_title_unknown_text));
             String artist = getString(metadata, MediaMetadata.METADATA_KEY_ARTIST,
@@ -624,7 +624,7 @@ public class VideoView extends SelectiveLayout {
             drawable = new BitmapDrawable(getResources(), bitmap);
         } else {
             mMusicView.setBackgroundColor(
-                    getResources().getColor(R.color.music_view_default_background));
+                    getResources().getColor(R.color.media2_widget_music_view_default_background));
         }
         return drawable;
     }

@@ -25,28 +25,28 @@
             android:id="@+id/center_view_background"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="@color/center_view_background" />
+            android:background="@color/media2_widget_center_view_background" />
 
         <include
             android:id="@+id/embedded_transport_controls"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            layout="@layout/embedded_transport_controls" />
+            layout="@layout/media2_widget_embedded_transport_controls" />
 
         <include
             android:id="@+id/minimal_transport_controls"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            layout="@layout/minimal_transport_controls" />
+            layout="@layout/media2_widget_minimal_transport_controls" />
     </FrameLayout>
 
     <LinearLayout
         android:id="@+id/title_bar"
-        android:background="@drawable/title_bar_gradient"
+        android:background="@drawable/media2_widget_title_bar_gradient"
         android:baselineAligned="false"
-        style="@style/TitleBar">
+        style="@style/Media2_Widget_TitleBar">
 
         <LinearLayout
             android:id="@+id/title_bar_left"
@@ -63,8 +63,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:singleLine="true"
-                android:paddingStart="@dimen/mcv2_embedded_icon_padding"
-                android:paddingEnd="@dimen/mcv2_embedded_icon_padding"
+                android:paddingStart="@dimen/media2_widget_embedded_icon_padding"
+                android:paddingEnd="@dimen/media2_widget_embedded_icon_padding"
                 android:textSize="15sp"
                 android:textColor="#FFFFFFFF"/>
         </LinearLayout>
@@ -99,7 +99,7 @@
                     android:id="@+id/ad_launch"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    style="@style/TitleBarButton.Launch" />
+                    style="@style/Media2_Widget_TitleBarButton.Launch" />
             </LinearLayout>
         </LinearLayout>
     </LinearLayout>
@@ -113,25 +113,25 @@
 
         <ImageButton
             android:id="@+id/minimal_fullscreen"
-            style="@style/BottomBarButton.FullScreen" />
+            style="@style/Media2_Widget_BottomBarButton.FullScreen" />
     </LinearLayout>
 
     <View
         android:id="@+id/bottom_bar_background"
         android:layout_width="match_parent"
-        android:layout_height="@dimen/mcv2_bottom_bar_height"
-        android:background="@color/bottom_bar_background"
+        android:layout_height="@dimen/media2_widget_bottom_bar_height"
+        android:background="@color/media2_widget_bottom_bar_background"
         android:layoutDirection="ltr" />
 
     <LinearLayout
         android:id="@+id/bottom_bar_left"
         android:layout_width="wrap_content"
-        android:layout_height="@dimen/mcv2_bottom_bar_height"
+        android:layout_height="@dimen/media2_widget_bottom_bar_height"
         android:layoutDirection="ltr">
 
         <include
             android:id="@+id/full_transport_controls"
-            layout="@layout/full_transport_controls" />
+            layout="@layout/media2_widget_full_transport_controls" />
 
         <TextView
             android:id="@+id/ad_skip_time"
@@ -147,22 +147,22 @@
     <LinearLayout
         android:id="@+id/time"
         android:layout_width="wrap_content"
-        android:layout_height="@dimen/mcv2_bottom_bar_height"
+        android:layout_height="@dimen/media2_widget_bottom_bar_height"
         android:paddingStart="10dp"
         android:paddingEnd="10dp"
         android:layoutDirection="ltr">
 
         <TextView
             android:id="@+id/time_current"
-            style="@style/TimeText.Current" />
+            style="@style/Media2_Widget_TimeText.Current" />
 
         <TextView
             android:id="@+id/time_interpunct"
-            style="@style/TimeText.Interpunct" />
+            style="@style/Media2_Widget_TimeText.Interpunct" />
 
         <TextView
             android:id="@+id/time_end"
-            style="@style/TimeText.End" />
+            style="@style/Media2_Widget_TimeText.End" />
     </LinearLayout>
 
     <LinearLayout
@@ -183,19 +183,19 @@
 
         <ImageButton
             android:id="@+id/subtitle"
-            style="@style/BottomBarButton.CC"
+            style="@style/Media2_Widget_BottomBarButton.CC"
             android:alpha="0.5"
             android:scaleType="fitCenter"
             android:visibility="gone" />
 
         <ImageButton
             android:id="@+id/fullscreen"
-            style="@style/BottomBarButton.FullScreen"
+            style="@style/Media2_Widget_BottomBarButton.FullScreen"
             android:visibility="gone" />
 
         <ImageButton
                 android:id="@+id/overflow_show"
-                style="@style/BottomBarButton.OverflowShow" />
+                style="@style/Media2_Widget_BottomBarButton.OverflowShow" />
     </LinearLayout>
 
     <LinearLayout
@@ -208,17 +208,17 @@
 
         <ImageButton
             android:id="@+id/settings"
-            style="@style/BottomBarButton.Settings" />
+            style="@style/Media2_Widget_BottomBarButton.Settings" />
 
         <ImageButton
                 android:id="@+id/overflow_hide"
-                style="@style/BottomBarButton.OverflowHide" />
+                style="@style/Media2_Widget_BottomBarButton.OverflowHide" />
     </LinearLayout>
 
     <FrameLayout
         android:id="@+id/progress_bar"
         android:layout_width="match_parent"
-        android:layout_height="@dimen/mcv2_custom_progress_thumb_size"
+        android:layout_height="@dimen/media2_widget_custom_progress_thumb_size"
         android:layoutDirection="ltr">
 
         <SeekBar
@@ -228,10 +228,10 @@
             android:contentDescription="@string/mcv2_seek_bar_desc"
             android:paddingStart="0dp"
             android:paddingEnd="0dp"
-            android:maxHeight="@dimen/mcv2_custom_progress_max_size"
-            android:minHeight="@dimen/mcv2_custom_progress_max_size"
-            android:progressDrawable="@drawable/custom_progress"
-            android:thumb="@drawable/custom_progress_thumb"
+            android:maxHeight="@dimen/media2_widget_custom_progress_max_size"
+            android:minHeight="@dimen/media2_widget_custom_progress_max_size"
+            android:progressDrawable="@drawable/media2_widget_custom_progress"
+            android:thumb="@drawable/media2_widget_custom_progress_thumb"
             android:thumbOffset="0dp"
             android:splitTrack="false"
             android:elevation="10dp" />

@@ -20,13 +20,13 @@
      color is specified -->
     <color name="notification_material_background_media_default_color">#ff424242</color>
 
-    <color name="gray">#808080</color>
-    <color name="white">#ffffff</color>
-    <color name="white_opacity_70">#B3ffffff</color>
-    <color name="black_opacity_70">#B3000000</color>
-    <color name="title_bar_gradient_start">#d0000000</color>
-    <color name="title_bar_gradient_end">#00000000</color>
-    <color name="center_view_background">#90000000</color>
-    <color name="bottom_bar_background">#b0000000</color>
-    <color name="music_view_default_background">#424242</color>
+    <color name="media2_widget_gray">#808080</color>
+    <color name="media2_widget_white">#ffffff</color>
+    <color name="media2_widget_white_opacity_70">#B3ffffff</color>
+    <color name="media2_widget_black_opacity_70">#B3000000</color>
+    <color name="media2_widget_title_bar_gradient_start">#d0000000</color>
+    <color name="media2_widget_title_bar_gradient_end">#00000000</color>
+    <color name="media2_widget_center_view_background">#90000000</color>
+    <color name="media2_widget_bottom_bar_background">#b0000000</color>
+    <color name="media2_widget_music_view_default_background">#424242</color>
 </resources>

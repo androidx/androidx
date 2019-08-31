@@ -21,9 +21,9 @@
     android:orientation="horizontal"
     android:visibility="visible">
 
-    <ImageButton android:id="@+id/prev" style="@style/EmbeddedTransportControlsButton.Previous" />
-    <ImageButton android:id="@+id/rew" style="@style/EmbeddedTransportControlsButton.Rew" />
-    <ImageButton android:id="@+id/pause" style="@style/EmbeddedTransportControlsButton.Pause" />
-    <ImageButton android:id="@+id/ffwd" style="@style/EmbeddedTransportControlsButton.Ffwd" />
-    <ImageButton android:id="@+id/next" style="@style/EmbeddedTransportControlsButton.Next" />
+    <ImageButton android:id="@+id/prev" style="@style/Media2_Widget_FullTransportControlsButton.Previous" />
+    <ImageButton android:id="@+id/rew" style="@style/Media2_Widget_FullTransportControlsButton.Rew" />
+    <ImageButton android:id="@+id/pause" style="@style/Media2_Widget_FullTransportControlsButton.Pause" />
+    <ImageButton android:id="@+id/ffwd" style="@style/Media2_Widget_FullTransportControlsButton.Ffwd" />
+    <ImageButton android:id="@+id/next" style="@style/Media2_Widget_FullTransportControlsButton.Next" />
 </LinearLayout>
