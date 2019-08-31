@@ -50,6 +50,10 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // Uncomment this to use the experimental toolbar.
+//        ToolbarController.setFloatingToolbarFactory(FloatingToolbar::new);
+
         setContentView(R.layout.activity_main);
         mInput = findViewById(R.id.textView_input);
         setLinkMovementMethod(mInput);

@@ -58,6 +58,7 @@ import android.widget.ListView;
 import android.widget.PopupWindow;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
@@ -86,7 +87,7 @@ import java.util.Objects;
  */
 @RestrictTo(LIBRARY_GROUP_PREFIX)
 @RequiresApi(Build.VERSION_CODES.M)
-final class FloatingToolbar {
+final class FloatingToolbar implements IFloatingToolbar {
 
     // This class is responsible for the public API of the floating toolbar.
     // It delegates rendering operations to the FloatingToolbarPopup.
@@ -95,7 +96,6 @@ final class FloatingToolbar {
     static final Object FLOATING_TOOLBAR_TAG = "floating_toolbar";
     static final Object MAIN_PANEL_TAG = "main_panel";
     static final Object OVERFLOW_PANEL_TAG = "main_overflow";
-    static final int MENU_ID_SMART_ACTION = R.id.smartAction;
 
     private static final SupportMenuItem.OnMenuItemClickListener NO_OP_MENUITEM_CLICK_LISTENER =
             new SupportMenuItem.OnMenuItemClickListener() {
@@ -198,28 +198,20 @@ final class FloatingToolbar {
         });
     }
 
-    /**
-     * Sets the menu to be shown in this floating toolbar.
-     * NOTE: Call {@link #updateLayout()} or {@link #show()} to effect visual changes to the
-     * toolbar.
-     */
-    public void setMenu(SupportMenu menu) {
+    @Override
+    public void setMenu(@NonNull SupportMenu menu) {
         mMenu = Preconditions.checkNotNull(menu);
     }
 
-    /**
-     * Returns the currently set menu.
-     */
     @Nullable
+    @Override
     public SupportMenu getMenu() {
         return mMenu;
     }
 
-    /**
-     * Sets the custom listener for invocation of menu items in this floating toolbar.
-     */
+    @Override
     public void setOnMenuItemClickListener(
-            SupportMenuItem.OnMenuItemClickListener menuItemClickListener) {
+            @Nullable SupportMenuItem.OnMenuItemClickListener menuItemClickListener) {
         if (menuItemClickListener != null) {
             mMenuItemClickListener = menuItemClickListener;
         } else {
@@ -227,23 +219,12 @@ final class FloatingToolbar {
         }
     }
 
-    /**
-     * Sets the content rectangle. This is the area of the interesting content that this toolbar
-     * should avoid obstructing.
-     * NOTE: Call {@link #updateLayout()} or {@link #show()} to effect visual changes to the
-     * toolbar.
-     */
+    @Override
     public void setContentRect(Rect rect) {
         mContentRect.set(Preconditions.checkNotNull(rect));
     }
 
-    /**
-     * Sets the suggested width of this floating toolbar.
-     * The actual width will be about this size but there are no guarantees that it will be exactly
-     * the suggested width.
-     * NOTE: Call {@link #updateLayout()} or {@link #show()} to effect visual changes to the
-     * toolbar.
-     */
+    @Override
     public void setSuggestedWidth(int suggestedWidth) {
         // Check if there's been a substantial width spec change.
         int difference = Math.abs(suggestedWidth - mSuggestedWidth);
@@ -255,62 +236,47 @@ final class FloatingToolbar {
     /**
      * Shows this floating toolbar.
      */
+    @Override
     public void show() {
         registerOrientationHandler();
         doShow();
     }
 
-    /**
-     * Updates this floating toolbar to reflect recent position and view updates.
-     * NOTE: This method is a no-op if the toolbar isn't showing.
-     */
+    @Override
     public void updateLayout() {
         if (mPopup.isShowing()) {
             doShow();
         }
     }
 
-    /**
-     * Dismisses this floating toolbar.
-     */
+    @Override
     public void dismiss() {
         unregisterOrientationHandler();
         mPopup.dismiss();
         mWidthChanged = true;
     }
 
-    /**
-     * Hides this floating toolbar. This is a no-op if the toolbar is not showing.
-     * Use {@link #isHidden()} to distinguish between a hidden and a dismissed toolbar.
-     */
+    @Override
     public void hide() {
         mPopup.hide();
     }
 
-    /**
-     * Returns {@code true} if this toolbar is currently showing. {@code false} otherwise.
-     */
+    @Override
     public boolean isShowing() {
         return mPopup.isShowing();
     }
 
-    /**
-     * Returns {@code true} if this toolbar is currently hidden. {@code false} otherwise.
-     */
+    @Override
     public boolean isHidden() {
         return mPopup.isHidden();
     }
 
-    /**
-     * Sets the floating toolbar's onDismissListener.
-     */
+    @Override
     public void setOnDismissListener(@Nullable PopupWindow.OnDismissListener onDismiss) {
         mPopup.setOnDismissListener(onDismiss);
     }
 
-    /**
-     * Sets whether or not to dismiss the floating toolbar after a menu item click has been handled.
-     */
+    @Override
     public void setDismissOnMenuItemClick(boolean dismiss) {
         mPopup.setDismissOnMenuItemClick(dismiss);
     }

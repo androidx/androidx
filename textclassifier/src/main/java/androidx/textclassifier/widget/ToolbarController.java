@@ -16,6 +16,7 @@
 
 package androidx.textclassifier.widget;
 
+import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.app.PendingIntent;
@@ -40,6 +41,7 @@ import android.view.ViewTreeObserver;
 import android.widget.PopupWindow;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
@@ -73,10 +75,12 @@ public final class ToolbarController {
 
     private final TextView mTextView;
     private final Rect mContentRect;
-    private final FloatingToolbar mToolbar;
+    private final IFloatingToolbar mToolbar;
     private final BackgroundSpan mHighlight;
 
     private static WeakReference<ToolbarController> sInstance = new WeakReference<>(null);
+    private static FloatingToolbarFactory sFloatingToolbarFactory =
+            textView -> new FloatingToolbar(textView);
 
     /**
      * Returns the singleton instance of the toolbar controller and associates it with the specified
@@ -99,9 +103,17 @@ public final class ToolbarController {
         mTextView = Preconditions.checkNotNull(textView);
         mContentRect = new Rect();
         mHighlight = new BackgroundSpan(withAlpha(mTextView.getHighlightColor()));
-        mToolbar = new FloatingToolbar(textView);
+        mToolbar = sFloatingToolbarFactory.create(textView);
         mToolbar.setOnMenuItemClickListener(new OnMenuItemClickListener(mToolbar));
         mToolbar.setDismissOnMenuItemClick(true);
+    }
+
+    /**
+     * Sets a factory that creates an instance of floating toolbar.
+     */
+    public static void setFloatingToolbarFactory(
+            @NonNull FloatingToolbarFactory floatingToolbarFactory) {
+        sFloatingToolbarFactory = Preconditions.checkNotNull(floatingToolbarFactory);
     }
 
     /**
@@ -146,7 +158,7 @@ public final class ToolbarController {
     }
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
-    static void dismissImmediately(FloatingToolbar toolbar) {
+    static void dismissImmediately(IFloatingToolbar toolbar) {
         toolbar.hide();
         toolbar.dismiss();
     }
@@ -207,7 +219,7 @@ public final class ToolbarController {
 
     private static void setHighlight(
             final TextView textView, final BackgroundSpan highlight,
-            final int start, final int end, final FloatingToolbar toolbar) {
+            final int start, final int end, final IFloatingToolbar toolbar) {
         final CharSequence text = textView.getText();
         if (text instanceof Spannable) {
             removeHighlight(textView);
@@ -342,7 +354,7 @@ public final class ToolbarController {
     }
 
     private static void setListeners(
-            TextView textView, int start, int end, FloatingToolbar toolbar) {
+            TextView textView, int start, int end, IFloatingToolbar toolbar) {
         toolbar.setOnDismissListener(
                 new OnToolbarDismissListener(
                         textView,
@@ -368,7 +380,7 @@ public final class ToolbarController {
 
         private static final long THROTTLE_DELAY_MS = 300;
 
-        private final FloatingToolbar mToolbar;
+        private final IFloatingToolbar mToolbar;
         private final TextView mTextView;
         private final Rect mContentRect;
         private final Rect mTempRect;
@@ -377,7 +389,7 @@ public final class ToolbarController {
 
         private long mLastUpdateTimeMs = System.currentTimeMillis() - THROTTLE_DELAY_MS;
 
-        TextViewListener(FloatingToolbar toolbar, TextView textView, int start, int end) {
+        TextViewListener(IFloatingToolbar toolbar, TextView textView, int start, int end) {
             mToolbar = Preconditions.checkNotNull(toolbar);
             mTextView = Preconditions.checkNotNull(textView);
             mContentRect = new Rect();
@@ -439,12 +451,12 @@ public final class ToolbarController {
      */
     private static final class ActionModeCallback extends ActionMode.Callback2 {
 
-        private final FloatingToolbar mToolbar;
+        private final IFloatingToolbar mToolbar;
         @Nullable final ActionMode.Callback mOriginalCallback;
         private final boolean mPreferMe;
 
         ActionModeCallback(
-                FloatingToolbar toolbar,
+                IFloatingToolbar toolbar,
                 @Nullable ActionMode.Callback originalCallback,
                 boolean preferMe) {
             mToolbar = Preconditions.checkNotNull(toolbar);
@@ -567,9 +579,9 @@ public final class ToolbarController {
 
     private static final class OnMenuItemClickListener implements MenuItem.OnMenuItemClickListener {
 
-        private final FloatingToolbar mToolbar;
+        private final IFloatingToolbar mToolbar;
 
-        OnMenuItemClickListener(FloatingToolbar toolbar) {
+        OnMenuItemClickListener(IFloatingToolbar toolbar) {
             mToolbar = Preconditions.checkNotNull(toolbar);
         }
 
@@ -604,5 +616,10 @@ public final class ToolbarController {
             // Prevent this span from being parceled.
             return NON_PARCELABLE_UNDERLYING;
         }
+    }
+
+    public interface FloatingToolbarFactory {
+        @NonNull
+        IFloatingToolbar create(@NonNull TextView textView);
     }
 }
