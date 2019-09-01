@@ -59,9 +59,10 @@ class NavControllerViewModel extends ViewModel {
 
     @Override
     protected void onCleared() {
-        for (UUID key: mViewModelStores.keySet()) {
-            clear(key);
+        for (ViewModelStore store: mViewModelStores.values()) {
+            store.clear();
         }
+        mViewModelStores.clear();
     }
 
     @NonNull
