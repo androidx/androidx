@@ -34,7 +34,6 @@ import androidx.ui.painting.Paint
 import androidx.ui.text.FontTestData.Companion.BASIC_MEASURE_FONT
 import androidx.ui.text.font.asFontFamily
 import androidx.ui.text.matchers.equalToBitmap
-import androidx.ui.text.style.TextDirection
 import androidx.ui.text.style.TextOverflow
 import com.google.common.truth.Truth.assertThat
 import org.junit.Assert
@@ -295,7 +294,7 @@ class TextDelegateIntegrationTest {
 
         textDelegate.layout(Constraints())
 
-        assertThat(textDelegate.hasVisualOverflow).isFalse()
+        assertThat(textDelegate.layoutResult?.hasVisualOverflow).isFalse()
     }
 
     @Test
@@ -322,7 +321,7 @@ class TextDelegateIntegrationTest {
 
         textDelegate.layout(Constraints(maxWidth = 100.ipx))
 
-        assertThat(textDelegate.hasVisualOverflow).isTrue()
+        assertThat(textDelegate.layoutResult?.hasVisualOverflow).isTrue()
     }
 
     @Test
@@ -348,7 +347,7 @@ class TextDelegateIntegrationTest {
 
         textDelegate.layout(Constraints(maxWidth = 100.ipx))
 
-        assertThat(textDelegate.hasVisualOverflow).isTrue()
+        assertThat(textDelegate.layoutResult?.hasVisualOverflow).isTrue()
     }
 
     @Test
