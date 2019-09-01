@@ -433,4 +433,39 @@ class BenchmarkPluginTest {
         val codeCoverageOutput = gradleRunner.withArguments("printTestCoverageEnabled").build()
         assertTrue { codeCoverageOutput.output.contains("true") }
     }
+
+    @Test
+    fun applyPluginAndroidOldRunner() {
+        buildFile.writeText(
+            """
+            plugins {
+                id('com.android.library')
+                id('androidx.benchmark')
+            }
+
+            repositories {
+                maven { url "$prebuiltsRepo/androidx/external" }
+                maven { url "$prebuiltsRepo/androidx/internal" }
+            }
+
+            android {
+                compileSdkVersion $compileSdkVersion
+                buildToolsVersion "$buildToolsVersion"
+
+                defaultConfig {
+                    minSdkVersion $minSdkVersion
+                    testInstrumentationRunner "androidx.benchmark.AndroidBenchmarkRunner"
+                }
+            }
+
+            dependencies {
+                androidTestImplementation "androidx.benchmark:benchmark:1.0.0-alpha04"
+            }
+        """.trimIndent()
+        )
+
+        assertFailsWith(UnexpectedBuildFailure::class) {
+            gradleRunner.withArguments("assemble").build()
+        }
+    }
 }
