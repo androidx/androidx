@@ -20,8 +20,8 @@ import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assume.assumeTrue;
 import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 
@@ -33,7 +33,6 @@ import android.hardware.camera2.CameraCaptureSession;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CameraDevice;
 
-import androidx.annotation.NonNull;
 import androidx.camera.camera2.Camera2AppConfig;
 import androidx.camera.camera2.Camera2Config;
 import androidx.camera.camera2.impl.util.SemaphoreReleasingCamera2Callbacks.DeviceStateCallback;
@@ -62,10 +61,8 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mockito;
 
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
@@ -98,7 +95,7 @@ public final class Camera2ImplCameraXTest {
             Manifest.permission.CAMERA);
 
     private final Instrumentation mInstrumentation = InstrumentationRegistry.getInstrumentation();
-    private CountDownLatch mLatchForDeviceClose;
+
     private CameraDevice.StateCallback mDeviceStateCallback;
     private FakeLifecycleOwner mLifecycle;
 
@@ -118,12 +115,11 @@ public final class Camera2ImplCameraXTest {
         CameraX.init(context, Camera2AppConfig.create(context));
         mLifecycle = new FakeLifecycleOwner();
 
-        mLatchForDeviceClose = new CountDownLatch(1);
-        mDeviceStateCallback = spy(new DeviceStateCallbackImpl());
+        mDeviceStateCallback = mock(CameraDevice.StateCallback.class);
     }
 
     @After
-    public void tearDown() throws InterruptedException {
+    public void tearDown() throws InterruptedException, ExecutionException {
         mInstrumentation.runOnMainSync(new Runnable() {
             @Override
             public void run() {
@@ -131,15 +127,13 @@ public final class Camera2ImplCameraXTest {
             }
         });
 
-        // Wait camera to be closed.
-        if (mLatchForDeviceClose != null) {
-            mLatchForDeviceClose.await(2, TimeUnit.SECONDS);
-        }
+        // Wait for CameraX to deinit
+        CameraX.deinit().get();
     }
 
     @Test
     public void lifecycleResume_opensCameraAndStreamsFrames() {
-        Observer<Long> mockObserver = Mockito.mock(Observer.class);
+        Observer<Long> mockObserver = mock(Observer.class);
         mInstrumentation.runOnMainSync(new Runnable() {
             @Override
             public void run() {
@@ -171,8 +165,8 @@ public final class Camera2ImplCameraXTest {
         assumeTrue(
                 hardwareLevelValue != CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY);
 
-        Observer<Long> mockObserver = Mockito.mock(Observer.class);
-        Observer<Long> mockObserver2 = Mockito.mock(Observer.class);
+        Observer<Long> mockObserver = mock(Observer.class);
+        Observer<Long> mockObserver2 = mock(Observer.class);
 
         mInstrumentation.runOnMainSync(new Runnable() {
             @Override
@@ -294,7 +288,7 @@ public final class Camera2ImplCameraXTest {
 
     @Test
     public void bind_opensCamera_noActiveUseCase_sessionIsConfigured() {
-        CameraCaptureSession.StateCallback mockSessionStateCallback = Mockito.mock(
+        CameraCaptureSession.StateCallback mockSessionStateCallback = mock(
                 CameraCaptureSession.StateCallback.class);
 
         ImageAnalysisConfig.Builder builder =
@@ -327,7 +321,7 @@ public final class Camera2ImplCameraXTest {
         mLifecycle.startAndResume();
 
         for (int i = 0; i < 2; i++) {
-            CameraDevice.StateCallback callback = Mockito.mock(CameraDevice.StateCallback.class);
+            CameraDevice.StateCallback callback = mock(CameraDevice.StateCallback.class);
             new Camera2Config.Extender(builder).setDeviceStateCallback(callback);
             ImageAnalysisConfig config = builder.build();
             ImageAnalysis useCase = new ImageAnalysis(config);
@@ -359,7 +353,7 @@ public final class Camera2ImplCameraXTest {
         mLifecycle.startAndResume();
 
         for (int i = 0; i < 2; i++) {
-            CameraDevice.StateCallback callback = Mockito.mock(CameraDevice.StateCallback.class);
+            CameraDevice.StateCallback callback = mock(CameraDevice.StateCallback.class);
             new Camera2Config.Extender(builder).setDeviceStateCallback(callback);
             ImageAnalysisConfig config = builder.build();
             ImageAnalysis useCase = new ImageAnalysis(config);
@@ -510,24 +504,5 @@ public final class Camera2ImplCameraXTest {
         });
 
         verify(mDeviceStateCallback, timeout(3000).times(1)).onClosed(any(CameraDevice.class));
-    }
-
-    public class DeviceStateCallbackImpl extends CameraDevice.StateCallback {
-        @Override
-        public void onOpened(@NonNull CameraDevice camera) {
-        }
-
-        @Override
-        public void onClosed(@NonNull CameraDevice camera) {
-            mLatchForDeviceClose.countDown();
-        }
-
-        @Override
-        public void onDisconnected(@NonNull CameraDevice camera) {
-        }
-
-        @Override
-        public void onError(@NonNull CameraDevice camera, int error) {
-        }
     }
 }

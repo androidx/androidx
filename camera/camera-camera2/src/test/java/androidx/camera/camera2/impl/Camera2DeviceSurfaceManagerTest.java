@@ -28,6 +28,7 @@ import static org.mockito.Mockito.when;
 import android.content.Context;
 import android.graphics.ImageFormat;
 import android.hardware.camera2.CameraCharacteristics;
+import android.hardware.camera2.CameraManager;
 import android.os.Build;
 import android.util.Rational;
 import android.util.Size;
@@ -35,7 +36,6 @@ import android.view.WindowManager;
 
 import androidx.camera.core.AppConfig;
 import androidx.camera.core.CameraDeviceSurfaceManager;
-import androidx.camera.core.CameraFactory;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.CameraX.LensFacing;
 import androidx.camera.core.ExtendableUseCaseConfigFactory;
@@ -52,7 +52,10 @@ import androidx.camera.core.SurfaceConfig.ConfigType;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.VideoCapture;
 import androidx.camera.core.VideoCaptureConfig;
+import androidx.camera.testing.CameraUtil;
 import androidx.camera.testing.StreamConfigurationMapUtil;
+import androidx.camera.testing.fakes.FakeCamera;
+import androidx.camera.testing.fakes.FakeCameraFactory;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.filters.SmallTest;
 
@@ -72,6 +75,7 @@ import org.robolectric.shadows.ShadowCameraManager;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
 /** Robolectric test for {@link Camera2DeviceSurfaceManager} class */
 @SmallTest
@@ -120,6 +124,7 @@ public final class Camera2DeviceSurfaceManagerTest {
 
     private final Context mContext = ApplicationProvider.getApplicationContext();
     private CameraDeviceSurfaceManager mSurfaceManager;
+    private FakeCameraFactory mCameraFactory;
 
     @Before
     public void setUp() {
@@ -134,8 +139,8 @@ public final class Camera2DeviceSurfaceManagerTest {
     }
 
     @After
-    public void tearDown() {
-        CameraX.deinit();
+    public void tearDown() throws ExecutionException, InterruptedException {
+        CameraX.deinit().get();
     }
 
     @Test
@@ -512,13 +517,19 @@ public final class Camera2DeviceSurfaceManagerTest {
     }
 
     private void setupCamera() {
+        mCameraFactory = new FakeCameraFactory();
+
         addCamera(
                 LEGACY_CAMERA_ID, CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY, null,
                 CameraCharacteristics.LENS_FACING_FRONT);
+        mCameraFactory.setDefaultCameraIdForLensFacing(LensFacing.FRONT, LEGACY_CAMERA_ID);
+
         addCamera(
                 LIMITED_CAMERA_ID, CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED,
                 null,
                 CameraCharacteristics.LENS_FACING_BACK);
+        mCameraFactory.setDefaultCameraIdForLensFacing(LensFacing.BACK, LIMITED_CAMERA_ID);
+
         addCamera(
                 FULL_CAMERA_ID, CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL, null,
                 CameraCharacteristics.LENS_FACING_BACK);
@@ -548,15 +559,20 @@ public final class Camera2DeviceSurfaceManagerTest {
                     CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES, capabilities);
         }
 
-        ((ShadowCameraManager) Shadow.extract(
-                ApplicationProvider.getApplicationContext().getSystemService(
-                        Context.CAMERA_SERVICE)))
+        CameraManager cameraManager = (CameraManager) ApplicationProvider.getApplicationContext()
+                .getSystemService(Context.CAMERA_SERVICE);
+
+        ((ShadowCameraManager) Shadow.extract(cameraManager))
                 .addCamera(cameraId, characteristics);
 
         shadowCharacteristics.set(
                 CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP,
                 StreamConfigurationMapUtil.generateFakeStreamConfigurationMap(
                         mSupportedFormats, mSupportedSizes));
+
+        LensFacing lensFacingEnum = CameraUtil.getLensFacingEnumFromInt(lensFacing);
+        mCameraFactory.insertCamera(lensFacingEnum, cameraId, () -> new FakeCamera(cameraId,
+                new Camera2CameraInfo(cameraManager, cameraId), null));
     }
 
     private void initCameraX() {
@@ -567,9 +583,6 @@ public final class Camera2DeviceSurfaceManagerTest {
 
     private AppConfig createFakeAppConfig() {
 
-        // Create the camera factory for creating Camera2 camera objects
-        CameraFactory cameraFactory = new Camera2CameraFactory(mContext);
-
         // Create the DeviceSurfaceManager for Camera2
         CameraDeviceSurfaceManager surfaceManager =
                 new Camera2DeviceSurfaceManager(mContext, mMockCamcorderProfileHelper);
@@ -578,20 +591,20 @@ public final class Camera2DeviceSurfaceManagerTest {
         ExtendableUseCaseConfigFactory configFactory = new ExtendableUseCaseConfigFactory();
         configFactory.installDefaultProvider(
                 ImageAnalysisConfig.class,
-                new ImageAnalysisConfigProvider(cameraFactory, mContext));
+                new ImageAnalysisConfigProvider(mCameraFactory, mContext));
         configFactory.installDefaultProvider(
                 ImageCaptureConfig.class,
-                new ImageCaptureConfigProvider(cameraFactory, mContext));
+                new ImageCaptureConfigProvider(mCameraFactory, mContext));
         configFactory.installDefaultProvider(
                 VideoCaptureConfig.class,
-                new VideoCaptureConfigProvider(cameraFactory, mContext));
+                new VideoCaptureConfigProvider(mCameraFactory, mContext));
         configFactory.installDefaultProvider(
                 PreviewConfig.class,
-                new PreviewConfigProvider(cameraFactory, mContext));
+                new PreviewConfigProvider(mCameraFactory, mContext));
 
         AppConfig.Builder appConfigBuilder =
                 new AppConfig.Builder()
-                        .setCameraFactory(cameraFactory)
+                        .setCameraFactory(mCameraFactory)
                         .setDeviceSurfaceManager(surfaceManager)
                         .setUseCaseConfigFactory(configFactory);
 

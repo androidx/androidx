@@ -20,9 +20,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 
-import java.util.LinkedHashSet;
-import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 
 /**
  * A filter selects camera id with specified lens facing from a camera id set.
@@ -35,11 +34,11 @@ public abstract class LensFacingCameraIdFilter implements CameraIdFilter {
     @NonNull
     public abstract CameraX.LensFacing getLensFacing();
 
-    /** Creates a lens facing camera id filter with a predefined camera map. */
+    /** Creates a lens facing camera id filter with a given set of ids for a LensFacing. */
     @NonNull
-    public static LensFacingCameraIdFilter createLensFacingCameraIdFilterWithCameraMap(
-            @NonNull CameraX.LensFacing lensFacing, @Nullable Map<String, BaseCamera> cameraMap) {
-        return new SettableLensFacingCameraIdFilter(lensFacing, cameraMap);
+    public static LensFacingCameraIdFilter createLensFacingCameraIdFilterWithIdSet(
+            @NonNull CameraX.LensFacing lensFacing, @Nullable Set<String> ids) {
+        return new SettableLensFacingCameraIdFilter(lensFacing, ids);
     }
 
     /** Creates a lens facing camera id filter. */
@@ -50,41 +49,29 @@ public abstract class LensFacingCameraIdFilter implements CameraIdFilter {
             return CameraX.getCameraFactory().getLensFacingCameraIdFilter(lensFacing);
         }
         // Returns a no ops camera id filter if CameraX hasn't been initialized.
-        return createLensFacingCameraIdFilterWithCameraMap(lensFacing, null);
+        return createLensFacingCameraIdFilterWithIdSet(lensFacing, null);
     }
 
     private static final class SettableLensFacingCameraIdFilter extends LensFacingCameraIdFilter {
-        private CameraX.LensFacing mLensFacing;
-        private Map<String, BaseCamera> mCameraMap;
+        private final CameraX.LensFacing mLensFacing;
+        @Nullable
+        private final Set<String> mIds;
 
-        SettableLensFacingCameraIdFilter(CameraX.LensFacing lensFacing,
-                @Nullable Map<String, BaseCamera> cameraMap) {
+        SettableLensFacingCameraIdFilter(CameraX.LensFacing lensFacing, @Nullable Set<String> ids) {
             mLensFacing = lensFacing;
-            mCameraMap = cameraMap;
+            mIds = ids;
         }
 
         @Override
         @NonNull
         public Set<String> filter(@NonNull Set<String> cameraIds) {
-            if (mCameraMap == null) {
+            if (mIds == null) {
                 return cameraIds;
             }
 
-            Set<String> resultCameraIdSet = new LinkedHashSet<>();
-
-            for (String cameraId : cameraIds) {
-                if (mCameraMap.containsKey(cameraId)) {
-                    try {
-                        if (mCameraMap.get(cameraId).getCameraInfo().getLensFacing()
-                                == mLensFacing) {
-                            resultCameraIdSet.add(cameraId);
-                        }
-                    } catch (CameraInfoUnavailableException e) {
-                        throw new IllegalArgumentException("Unable to get camera info.", e);
-                    }
-                }
-            }
-
+            // Use a TreeSet to maintain lexical order of ids
+            Set<String> resultCameraIdSet = new TreeSet<>(cameraIds);
+            resultCameraIdSet.retainAll(mIds);
             return resultCameraIdSet;
         }
 
