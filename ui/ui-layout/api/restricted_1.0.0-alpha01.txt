@@ -181,6 +181,8 @@ package androidx.ui.layout {
   }
 
   public abstract class TableColumnWidth {
+    method public androidx.ui.core.IntPx maxIntrinsicWidth(java.util.List<androidx.ui.layout.TableMeasurable> cells, androidx.ui.core.IntPx containerWidth, androidx.ui.core.Density density, androidx.ui.core.IntPx availableHeight);
+    method public androidx.ui.core.IntPx minIntrinsicWidth(java.util.List<androidx.ui.layout.TableMeasurable> cells, androidx.ui.core.IntPx containerWidth, androidx.ui.core.Density density, androidx.ui.core.IntPx availableHeight);
     method public abstract androidx.ui.core.IntPx preferredWidth(java.util.List<androidx.ui.layout.TableMeasurable> cells, androidx.ui.core.IntPx containerWidth, androidx.ui.core.Density density);
   }
 
@@ -213,10 +215,20 @@ package androidx.ui.layout {
     method public androidx.ui.core.IntPx preferredWidth(java.util.List<androidx.ui.layout.TableMeasurable> cells, androidx.ui.core.IntPx containerWidth, androidx.ui.core.Density density);
   }
 
+  public static final class TableColumnWidth.MaxIntrinsic extends androidx.ui.layout.TableColumnWidth.Inflexible {
+    method public androidx.ui.core.IntPx preferredWidth(java.util.List<androidx.ui.layout.TableMeasurable> cells, androidx.ui.core.IntPx containerWidth, androidx.ui.core.Density density);
+    field public static final androidx.ui.layout.TableColumnWidth.MaxIntrinsic! INSTANCE;
+  }
+
   public static final class TableColumnWidth.Min extends androidx.ui.layout.TableColumnWidth.Inflexible {
     ctor public TableColumnWidth.Min(androidx.ui.layout.TableColumnWidth.Inflexible a, androidx.ui.layout.TableColumnWidth.Inflexible b);
     method public androidx.ui.layout.TableColumnWidth.Min copy(androidx.ui.layout.TableColumnWidth.Inflexible a, androidx.ui.layout.TableColumnWidth.Inflexible b);
     method public androidx.ui.core.IntPx preferredWidth(java.util.List<androidx.ui.layout.TableMeasurable> cells, androidx.ui.core.IntPx containerWidth, androidx.ui.core.Density density);
+  }
+
+  public static final class TableColumnWidth.MinIntrinsic extends androidx.ui.layout.TableColumnWidth.Inflexible {
+    method public androidx.ui.core.IntPx preferredWidth(java.util.List<androidx.ui.layout.TableMeasurable> cells, androidx.ui.core.IntPx containerWidth, androidx.ui.core.Density density);
+    field public static final androidx.ui.layout.TableColumnWidth.MinIntrinsic! INSTANCE;
   }
 
   public static final class TableColumnWidth.Wrap extends androidx.ui.layout.TableColumnWidth.Inflexible {
@@ -231,7 +243,11 @@ package androidx.ui.layout {
 
   public final class TableMeasurable {
     method public kotlin.jvm.functions.Function0<androidx.ui.core.IntPx> component1();
-    method public androidx.ui.layout.TableMeasurable copy(kotlin.jvm.functions.Function0<androidx.ui.core.IntPx> preferredWidth);
+    method public kotlin.jvm.functions.Function1<androidx.ui.core.IntPx,androidx.ui.core.IntPx> component2();
+    method public kotlin.jvm.functions.Function1<androidx.ui.core.IntPx,androidx.ui.core.IntPx> component3();
+    method public androidx.ui.layout.TableMeasurable copy(kotlin.jvm.functions.Function0<androidx.ui.core.IntPx> preferredWidth, kotlin.jvm.functions.Function1<? super androidx.ui.core.IntPx,androidx.ui.core.IntPx> minIntrinsicWidth, kotlin.jvm.functions.Function1<? super androidx.ui.core.IntPx,androidx.ui.core.IntPx> maxIntrinsicWidth);
+    method public kotlin.jvm.functions.Function1<androidx.ui.core.IntPx,androidx.ui.core.IntPx> getMaxIntrinsicWidth();
+    method public kotlin.jvm.functions.Function1<androidx.ui.core.IntPx,androidx.ui.core.IntPx> getMinIntrinsicWidth();
     method public kotlin.jvm.functions.Function0<androidx.ui.core.IntPx> getPreferredWidth();
   }
 

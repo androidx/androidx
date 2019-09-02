@@ -16,6 +16,7 @@
 
 package androidx.ui.layout.test
 
+import androidx.compose.Composable
 import androidx.compose.composer
 import androidx.test.filters.SmallTest
 import androidx.ui.core.Density
@@ -31,6 +32,7 @@ import androidx.ui.core.min
 import androidx.ui.core.withDensity
 import androidx.ui.layout.Align
 import androidx.ui.layout.Alignment
+import androidx.ui.layout.AspectRatio
 import androidx.ui.layout.ConstrainedBox
 import androidx.ui.layout.Container
 import androidx.ui.layout.DpConstraints
@@ -292,6 +294,124 @@ class TableTest : LayoutTest() {
                     PxPosition(
                         size * j + availableSpace * flexes.take(j).sum() / totalFlex,
                         size * i),
+                    childPosition[i][j].value
+                )
+            }
+        }
+    }
+
+    @Test
+    fun testTable_withColumnWidth_minIntrinsic() = withDensity(density) {
+        val rows = 8
+        val columns = 8
+
+        val size = 64.ipx
+        val sizeDp = size.toDp()
+
+        val tableSize = Ref<PxSize>()
+        val childSize = Array(rows) { Array(columns) { Ref<PxSize>() } }
+        val childPosition = Array(rows) { Array(columns) { Ref<PxPosition>() } }
+        val positionedLatch = CountDownLatch(rows * columns + 1)
+
+        show {
+            Align(Alignment.TopLeft) {
+                OnChildPositioned(onPositioned = { coordinates ->
+                    tableSize.value = coordinates.size
+                    positionedLatch.countDown()
+                }) {
+                    Table(
+                        columns = columns,
+                        columnWidth = { TableColumnWidth.MinIntrinsic }
+                    ) {
+                        for (i in 0 until rows) {
+                            tableRow { j ->
+                                Container(width = sizeDp, height = sizeDp) {
+                                    SaveLayoutInfo(
+                                        size = childSize[i][j],
+                                        position = childPosition[i][j],
+                                        positionedLatch = positionedLatch
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        positionedLatch.await(1, TimeUnit.SECONDS)
+
+        assertEquals(
+            PxSize(size * columns, size * rows),
+            tableSize.value
+        )
+        for (i in 0 until rows) {
+            for (j in 0 until columns) {
+                assertEquals(
+                    PxSize(size, size),
+                    childSize[i][j].value
+                )
+                assertEquals(
+                    PxPosition(size * j, size * i),
+                    childPosition[i][j].value
+                )
+            }
+        }
+    }
+
+    @Test
+    fun testTable_withColumnWidth_maxIntrinsic() = withDensity(density) {
+        val rows = 8
+        val columns = 8
+
+        val size = 64.ipx
+        val sizeDp = size.toDp()
+
+        val tableSize = Ref<PxSize>()
+        val childSize = Array(rows) { Array(columns) { Ref<PxSize>() } }
+        val childPosition = Array(rows) { Array(columns) { Ref<PxPosition>() } }
+        val positionedLatch = CountDownLatch(rows * columns + 1)
+
+        show {
+            Align(Alignment.TopLeft) {
+                OnChildPositioned(onPositioned = { coordinates ->
+                    tableSize.value = coordinates.size
+                    positionedLatch.countDown()
+                }) {
+                    Table(
+                        columns = columns,
+                        columnWidth = { TableColumnWidth.MaxIntrinsic }
+                    ) {
+                        for (i in 0 until rows) {
+                            tableRow { j ->
+                                Container(width = sizeDp, height = sizeDp) {
+                                    SaveLayoutInfo(
+                                        size = childSize[i][j],
+                                        position = childPosition[i][j],
+                                        positionedLatch = positionedLatch
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        positionedLatch.await(1, TimeUnit.SECONDS)
+
+        assertEquals(
+            PxSize(size * columns, size * rows),
+            tableSize.value
+        )
+        for (i in 0 until rows) {
+            for (j in 0 until columns) {
+                assertEquals(
+                    PxSize(size, size),
+                    childSize[i][j].value
+                )
+                assertEquals(
+                    PxPosition(size * j, size * i),
                     childPosition[i][j].value
                 )
             }
@@ -1051,6 +1171,309 @@ class TableTest : LayoutTest() {
                 PxPosition(tableWidth / 2, size * i),
                 childPosition[i][4].value
             )
+        }
+    }
+
+    @Test
+    fun testTable_hasCorrectIntrinsicMeasurements_flex() = withDensity(density) {
+        val rows = 8
+        val columns = 8
+
+        val testDimension = 256.ipx
+
+        testIntrinsics(
+            @Composable {
+                Table(
+                    columns = columns,
+                    columnWidth = { TableColumnWidth.Flex(flex = 1f) }
+                ) {
+                    for (i in 0 until rows) {
+                        tableRow {
+                            AspectRatio(aspectRatio = 2f) { }
+                        }
+                    }
+                }
+            }
+        ) { minIntrinsicWidth, minIntrinsicHeight, maxIntrinsicWidth, maxIntrinsicHeight ->
+            // Min width
+            assertEquals(0.ipx, minIntrinsicWidth(IntPx.Zero))
+            assertEquals(0.ipx, minIntrinsicWidth(testDimension))
+            assertEquals(0.ipx, minIntrinsicWidth(IntPx.Infinity))
+
+            // Min height
+            assertEquals(0.ipx, minIntrinsicHeight(IntPx.Zero))
+            assertEquals(testDimension / columns / 2 * rows, minIntrinsicHeight(testDimension))
+            assertEquals(0.ipx, minIntrinsicHeight(IntPx.Infinity))
+
+            // Max width
+            assertEquals(0.ipx, maxIntrinsicWidth(IntPx.Zero))
+            assertEquals(0.ipx, maxIntrinsicWidth(testDimension))
+            assertEquals(0.ipx, maxIntrinsicWidth(IntPx.Infinity))
+
+            // Max height
+            assertEquals(0.ipx, maxIntrinsicHeight(IntPx.Zero))
+            assertEquals(testDimension / columns / 2 * rows, maxIntrinsicHeight(testDimension))
+            assertEquals(0.ipx, maxIntrinsicHeight(IntPx.Infinity))
+        }
+    }
+
+    @Test
+    fun testTable_hasCorrectIntrinsicMeasurements_wrap() = withDensity(density) {
+        val rows = 8
+        val columns = 8
+
+        val testDimension = 256.ipx
+
+        testIntrinsics(
+            @Composable {
+                Table(
+                    columns = columns,
+                    columnWidth = { TableColumnWidth.Wrap }
+                ) {
+                    for (i in 0 until rows) {
+                        tableRow {
+                            AspectRatio(aspectRatio = 2f) { }
+                        }
+                    }
+                }
+            }
+        ) { minIntrinsicWidth, minIntrinsicHeight, maxIntrinsicWidth, maxIntrinsicHeight ->
+            // Min width
+            assertEquals(0.ipx, minIntrinsicWidth(IntPx.Zero))
+            assertEquals(testDimension * columns * 2 / rows, minIntrinsicWidth(testDimension))
+            assertEquals(0.ipx, minIntrinsicWidth(IntPx.Infinity))
+
+            // Min height
+            assertEquals(0.ipx, minIntrinsicHeight(IntPx.Zero))
+            assertEquals(0.ipx, minIntrinsicHeight(testDimension))
+            assertEquals(0.ipx, minIntrinsicHeight(IntPx.Infinity))
+
+            // Max width
+            assertEquals(0.ipx, maxIntrinsicWidth(IntPx.Zero))
+            assertEquals(testDimension * columns * 2 / rows, maxIntrinsicWidth(testDimension))
+            assertEquals(0.ipx, maxIntrinsicWidth(IntPx.Infinity))
+
+            // Max height
+            assertEquals(0.ipx, maxIntrinsicHeight(IntPx.Zero))
+            assertEquals(0.ipx, maxIntrinsicHeight(testDimension))
+            assertEquals(0.ipx, maxIntrinsicHeight(IntPx.Infinity))
+        }
+    }
+
+    @Test
+    fun testTable_hasCorrectIntrinsicMeasurements_wrap_flexible() = withDensity(density) {
+        val rows = 8
+        val columns = 8
+
+        val testDimension = 256.ipx
+
+        testIntrinsics(
+            @Composable {
+                Table(
+                    columns = columns,
+                    columnWidth = { TableColumnWidth.Wrap.flexible(flex = 1f) }
+                ) {
+                    for (i in 0 until rows) {
+                        tableRow {
+                            AspectRatio(aspectRatio = 2f) { }
+                        }
+                    }
+                }
+            }
+        ) { minIntrinsicWidth, minIntrinsicHeight, maxIntrinsicWidth, maxIntrinsicHeight ->
+            // Min width
+            assertEquals(0.ipx, minIntrinsicWidth(IntPx.Zero))
+            assertEquals(testDimension * columns * 2 / rows, minIntrinsicWidth(testDimension))
+            assertEquals(0.ipx, minIntrinsicWidth(IntPx.Infinity))
+
+            // Min height
+            assertEquals(0.ipx, minIntrinsicHeight(IntPx.Zero))
+            assertEquals(testDimension / columns / 2 * rows, minIntrinsicHeight(testDimension))
+            assertEquals(0.ipx, minIntrinsicHeight(IntPx.Infinity))
+
+            // Max width
+            assertEquals(0.ipx, maxIntrinsicWidth(IntPx.Zero))
+            assertEquals(testDimension * columns * 2 / rows, maxIntrinsicWidth(testDimension))
+            assertEquals(0.ipx, maxIntrinsicWidth(IntPx.Infinity))
+
+            // Max height
+            assertEquals(0.ipx, maxIntrinsicHeight(IntPx.Zero))
+            assertEquals(testDimension / columns / 2 * rows, maxIntrinsicHeight(testDimension))
+            assertEquals(0.ipx, maxIntrinsicHeight(IntPx.Infinity))
+        }
+    }
+
+    @Test
+    fun testTable_hasCorrectIntrinsicMeasurements_minIntrinsic() = withDensity(density) {
+        val rows = 8
+        val columns = 8
+
+        val testDimension = 256.ipx
+
+        testIntrinsics(
+            @Composable {
+                Table(
+                    columns = columns,
+                    columnWidth = { TableColumnWidth.MinIntrinsic }
+                ) {
+                    for (i in 0 until rows) {
+                        tableRow {
+                            AspectRatio(aspectRatio = 2f) { }
+                        }
+                    }
+                }
+            }
+        ) { minIntrinsicWidth, minIntrinsicHeight, maxIntrinsicWidth, maxIntrinsicHeight ->
+            // Min width
+            assertEquals(0.ipx, minIntrinsicWidth(IntPx.Zero))
+            assertEquals(testDimension * columns * 2 / rows, minIntrinsicWidth(testDimension))
+            assertEquals(0.ipx, minIntrinsicWidth(IntPx.Infinity))
+
+            // Min height
+            assertEquals(0.ipx, minIntrinsicHeight(IntPx.Zero))
+            assertEquals(0.ipx, minIntrinsicHeight(testDimension))
+            assertEquals(0.ipx, minIntrinsicHeight(IntPx.Infinity))
+
+            // Max width
+            assertEquals(0.ipx, maxIntrinsicWidth(IntPx.Zero))
+            assertEquals(testDimension * columns * 2 / rows, maxIntrinsicWidth(testDimension))
+            assertEquals(0.ipx, maxIntrinsicWidth(IntPx.Infinity))
+
+            // Max height
+            assertEquals(0.ipx, maxIntrinsicHeight(IntPx.Zero))
+            assertEquals(0.ipx, maxIntrinsicHeight(testDimension))
+            assertEquals(0.ipx, maxIntrinsicHeight(IntPx.Infinity))
+        }
+    }
+
+    @Test
+    fun testTable_hasCorrectIntrinsicMeasurements_maxIntrinsic() = withDensity(density) {
+        val rows = 8
+        val columns = 8
+
+        val testDimension = 256.ipx
+
+        testIntrinsics(
+            @Composable {
+                Table(
+                    columns = columns,
+                    columnWidth = { TableColumnWidth.MaxIntrinsic }
+                ) {
+                    for (i in 0 until rows) {
+                        tableRow {
+                            AspectRatio(aspectRatio = 2f) { }
+                        }
+                    }
+                }
+            }
+        ) { minIntrinsicWidth, minIntrinsicHeight, maxIntrinsicWidth, maxIntrinsicHeight ->
+            // Min width
+            assertEquals(0.ipx, minIntrinsicWidth(IntPx.Zero))
+            assertEquals(testDimension * columns * 2 / rows, minIntrinsicWidth(testDimension))
+            assertEquals(0.ipx, minIntrinsicWidth(IntPx.Infinity))
+
+            // Min height
+            assertEquals(0.ipx, minIntrinsicHeight(IntPx.Zero))
+            assertEquals(0.ipx, minIntrinsicHeight(testDimension))
+            assertEquals(0.ipx, minIntrinsicHeight(IntPx.Infinity))
+
+            // Max width
+            assertEquals(0.ipx, maxIntrinsicWidth(IntPx.Zero))
+            assertEquals(testDimension * columns * 2 / rows, maxIntrinsicWidth(testDimension))
+            assertEquals(0.ipx, maxIntrinsicWidth(IntPx.Infinity))
+
+            // Max height
+            assertEquals(0.ipx, maxIntrinsicHeight(IntPx.Zero))
+            assertEquals(0.ipx, maxIntrinsicHeight(testDimension))
+            assertEquals(0.ipx, maxIntrinsicHeight(IntPx.Infinity))
+        }
+    }
+
+    @Test
+    fun testTable_hasCorrectIntrinsicMeasurements_fixed() = withDensity(density) {
+        val rows = 8
+        val columns = 8
+
+        val size = 64.ipx
+        val sizeDp = size.toDp()
+        val testDimension = 256.ipx
+
+        testIntrinsics(
+            @Composable {
+                Table(
+                    columns = columns,
+                    columnWidth = { TableColumnWidth.Fixed(width = sizeDp) }
+                ) {
+                    for (i in 0 until rows) {
+                        tableRow {
+                            AspectRatio(aspectRatio = 2f) { }
+                        }
+                    }
+                }
+            }
+        ) { minIntrinsicWidth, minIntrinsicHeight, maxIntrinsicWidth, maxIntrinsicHeight ->
+            // Min width
+            assertEquals(size * 8, minIntrinsicWidth(IntPx.Zero))
+            assertEquals(size * 8, minIntrinsicWidth(testDimension))
+            assertEquals(size * 8, minIntrinsicWidth(IntPx.Infinity))
+
+            // Min height
+            assertEquals(size * 4, minIntrinsicHeight(IntPx.Zero))
+            assertEquals(size * 4, minIntrinsicHeight(testDimension))
+            assertEquals(size * 4, minIntrinsicHeight(IntPx.Infinity))
+
+            // Max width
+            assertEquals(size * 8, maxIntrinsicWidth(IntPx.Zero))
+            assertEquals(size * 8, maxIntrinsicWidth(testDimension))
+            assertEquals(size * 8, maxIntrinsicWidth(IntPx.Infinity))
+
+            // Max height
+            assertEquals(size * 4, maxIntrinsicHeight(IntPx.Zero))
+            assertEquals(size * 4, maxIntrinsicHeight(testDimension))
+            assertEquals(size * 4, maxIntrinsicHeight(IntPx.Infinity))
+        }
+    }
+
+    @Test
+    fun testTable_hasCorrectIntrinsicMeasurements_fraction() = withDensity(density) {
+        val rows = 8
+        val columns = 8
+
+        val testDimension = 256.ipx
+
+        testIntrinsics(
+            @Composable {
+                Table(
+                    columns = columns,
+                    columnWidth = { TableColumnWidth.Fraction(fraction = 1f / columns) }
+                ) {
+                    for (i in 0 until rows) {
+                        tableRow {
+                            AspectRatio(aspectRatio = 2f) { }
+                        }
+                    }
+                }
+            }
+        ) { minIntrinsicWidth, minIntrinsicHeight, maxIntrinsicWidth, maxIntrinsicHeight ->
+            // Min width
+            assertEquals(0.ipx, minIntrinsicWidth(IntPx.Zero))
+            assertEquals(0.ipx, minIntrinsicWidth(testDimension))
+            assertEquals(0.ipx, minIntrinsicWidth(IntPx.Infinity))
+
+            // Min height
+            assertEquals(0.ipx, minIntrinsicHeight(IntPx.Zero))
+            assertEquals(testDimension / 2, minIntrinsicHeight(testDimension))
+            assertEquals(0.ipx, minIntrinsicHeight(IntPx.Infinity))
+
+            // Max width
+            assertEquals(0.ipx, maxIntrinsicWidth(IntPx.Zero))
+            assertEquals(0.ipx, maxIntrinsicWidth(testDimension))
+            assertEquals(0.ipx, maxIntrinsicWidth(IntPx.Infinity))
+
+            // Max height
+            assertEquals(0.ipx, maxIntrinsicHeight(IntPx.Zero))
+            assertEquals(testDimension / 2, maxIntrinsicHeight(testDimension))
+            assertEquals(0.ipx, maxIntrinsicHeight(IntPx.Infinity))
         }
     }
 
