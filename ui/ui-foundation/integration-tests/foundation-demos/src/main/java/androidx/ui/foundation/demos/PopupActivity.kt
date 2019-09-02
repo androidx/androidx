@@ -23,12 +23,15 @@ import androidx.compose.composer
 import androidx.compose.state
 import androidx.compose.unaryPlus
 import androidx.ui.core.Dp
+import androidx.ui.core.Draw
 import androidx.ui.core.Text
 import androidx.ui.core.TextField
 import androidx.ui.core.dp
 import androidx.ui.core.setContent
+import androidx.ui.core.toRect
 import androidx.ui.foundation.Clickable
 import androidx.ui.foundation.Popup
+import androidx.ui.foundation.PopupProperties
 import androidx.ui.foundation.VerticalScroller
 import androidx.ui.foundation.disposeActivityComposition
 import androidx.ui.foundation.shape.DrawShape
@@ -49,6 +52,7 @@ import androidx.ui.layout.FlexSize
 import androidx.ui.layout.HeightSpacer
 import androidx.ui.layout.MainAxisAlignment
 import androidx.ui.layout.Wrap
+import androidx.ui.painting.Paint
 import androidx.ui.text.ParagraphStyle
 import androidx.ui.text.TextStyle
 import androidx.ui.text.style.TextAlign
@@ -59,7 +63,7 @@ class PopupActivity : Activity() {
 
         setContent {
             val exampleIndex = +state { 0 }
-            val totalExamples = 7
+            val totalExamples = 8
 
             Column(mainAxisSize = FlexSize.Wrap) {
                 FlexRow(
@@ -94,12 +98,14 @@ class PopupActivity : Activity() {
                                     2 -> "Popup's behavior when the parent's size or position " +
                                             "changes"
                                     3 -> "Aligning the popup inside a parent"
-                                    4 -> "[bug] Undesired visual effect caused by" +
+                                    4 -> "Insert an email in the popup and then click outside to " +
+                                            "dismiss"
+                                    5 -> "[bug] Undesired visual effect caused by" +
                                             " having a new size content displayed at the old" +
                                             " position, until the new one is calculated"
-                                    5 -> "[bug] The popup is not aligning to its " +
+                                    6 -> "[bug] The popup is not aligning to its " +
                                             "parent when the parent is inside a Scroller"
-                                    6 -> "[bug] The popup is not repositioned " +
+                                    7 -> "[bug] The popup is not repositioned " +
                                             "when the parent is moved by the keyboard"
                                     else -> "Demo description here"
                                 }
@@ -129,9 +135,10 @@ class PopupActivity : Activity() {
                     1 -> PopupWithChangingContent()
                     2 -> PopupWithChangingParent()
                     3 -> PopupAlignmentDemo()
-                    4 -> PopupWithChangingSize()
-                    5 -> PopupInsideScroller()
-                    6 -> PopupOnKeyboardUp()
+                    4 -> PopupWithEditText()
+                    5 -> PopupWithChangingSize()
+                    6 -> PopupInsideScroller()
+                    7 -> PopupOnKeyboardUp()
                 }
             }
         }
@@ -321,6 +328,53 @@ fun PopupAlignmentDemo() {
 }
 
 @Composable
+fun PopupWithEditText() {
+    Container {
+        Column {
+            val widthSize = 190.dp
+            val heightSize = 120.dp
+            val editLineSize = 150.dp
+            val showEmail = +state {
+                "Enter your email in the white rectangle and click outside"
+            }
+            val email = +state { "email" }
+            val showPopup = +state { true }
+
+            Text(text = showEmail.value)
+
+            ColoredContainer(
+                height = heightSize,
+                width = widthSize,
+                color = Color.Red
+            ) {
+                if (showPopup.value) {
+                    Popup(
+                        alignment = Alignment.Center,
+                        popupProperties = PopupProperties(
+                            isFocusable = true,
+                            onDismissRequest = {
+                                showEmail.value = "You entered: " + email.value
+                                showPopup.value = false
+                            }
+                        )
+                    ) {
+                        Container(width = editLineSize) {
+                            EditLine(
+                                initialText = "",
+                                color = Color.White,
+                                onValueChange = {
+                                    email.value = it.text
+                                }
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
 fun PopupWithChangingSize() {
     Container {
         Column {
@@ -470,17 +524,26 @@ fun ColoredContainer(
 fun EditLine(
     keyboardType: KeyboardType = KeyboardType.Text,
     imeAction: ImeAction = ImeAction.Unspecified,
+    onValueChange: (EditorModel) -> Unit = {},
     initialText: String = "",
     color: Color = Color.White
 ) {
     val state = +state { EditorModel(text = initialText) }
     Wrap {
-        DrawShape(RectangleShape, color)
+        val paint = Paint()
+        paint.color = color
+
+        Draw { canvas, parentSize ->
+            canvas.drawRect(parentSize.toRect(), paint)
+        }
         TextField(
             value = state.value,
             keyboardType = keyboardType,
             imeAction = imeAction,
-            onValueChange = { state.value = it },
+            onValueChange = {
+                state.value = it
+                onValueChange(it)
+            },
             editorStyle = EditorStyle(textStyle = TextStyle())
         )
     }
