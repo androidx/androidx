@@ -41,7 +41,7 @@ class TableRecompositionTestCase(
     override fun setComposeContent(activity: Activity) = activity.setContent {
         MaterialTheme {
             Surface {
-                Table(columnCount = numberOfCells) {
+                Table(columns = numberOfCells) {
                     addDecoration { _, _ -> }
                     repeat(numberOfCells) {
                         tableRow {
