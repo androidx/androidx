@@ -31,8 +31,8 @@ import androidx.recyclerview.widget.ListUpdateCallback
  * To only inform DiffUtil about single loaded page in this case, by pruning all other nulls from
  * consideration.
  */
-internal fun <T : Any> PagedStorage<T>.computeDiff(
-    newList: PagedStorage<T>,
+internal fun <T : Any> NullPaddedList<T>.computeDiff(
+    newList: NullPaddedList<T>,
     diffCallback: DiffUtil.ItemCallback<T>
 ): DiffUtil.DiffResult {
     val oldSize = storageCount
@@ -108,9 +108,9 @@ private class OffsettingListUpdateCallback internal constructor(
  * handle this by passing the snapshot to the callback, and dispatching those changes
  * immediately after dispatching this diff.
  */
-internal fun <T : Any> PagedStorage<T>.dispatchDiff(
+internal fun <T : Any> NullPaddedList<T>.dispatchDiff(
     callback: ListUpdateCallback,
-    newList: PagedStorage<T>,
+    newList: NullPaddedList<T>,
     diffResult: DiffUtil.DiffResult
 ) {
     val trailingOld = trailingNullCount
@@ -155,9 +155,9 @@ internal fun <T : Any> PagedStorage<T>.dispatchDiff(
  * Given an oldPosition representing an anchor in the old data set, computes its new position
  * after the diff, or a guess if it no longer exists.
  */
-internal fun PagedStorage<*>.transformAnchorIndex(
+internal fun NullPaddedList<*>.transformAnchorIndex(
     diffResult: DiffUtil.DiffResult,
-    newList: PagedStorage<*>,
+    newList: NullPaddedList<*>,
     oldPosition: Int
 ): Int {
     // diffResult's indices starting after nulls, need to transform to diffutil indices

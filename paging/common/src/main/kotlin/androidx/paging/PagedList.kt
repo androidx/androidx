@@ -35,7 +35,6 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import java.lang.ref.WeakReference
 import java.util.AbstractList
-import java.util.ArrayList
 import java.util.concurrent.Executor
 
 /**
@@ -143,7 +142,24 @@ typealias LoadStateListener = (type: LoadType, state: LoadState) -> Unit
  *
  * @param T The type of the entries in the list.
  */
-abstract class PagedList<T : Any> : AbstractList<T> {
+abstract class PagedList<T : Any> internal constructor(
+    /**
+     * The [PagedSource] that provides data to this [PagedList].
+     *
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    val pagedSource: PagedSource<*, T>,
+
+    internal val storage: PagedStorage<T>,
+
+    /**
+     * Return the Config used to construct this PagedList.
+     *
+     * @return the Config of this PagedList
+     */
+    val config: Config
+) : AbstractList<T>() {
     /**
      * @hide
      */
@@ -902,27 +918,8 @@ abstract class PagedList<T : Any> : AbstractList<T> {
     /**
      * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    constructor(
-        pagedSource: PagedSource<*, T>,
-        storage: PagedStorage<T>,
-        config: Config
-    ) : super() {
-        this.pagedSource = pagedSource
-        this.storage = storage
-        this.config = config
-        this.callbacks = ArrayList()
-        this.loadStateListeners = ArrayList()
-        requiredRemainder = this.config.prefetchDistance * 2 + this.config.pageSize
-    }
-
-    internal val storage: PagedStorage<T>
-
-    /**
-     * @hide
-     */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // protected otherwise
-    fun getStorage() = storage
+    fun getNullPaddedList(): NullPaddedList<T> = storage
 
     internal var refreshRetryCallback: Runnable? = null
 
@@ -937,18 +934,11 @@ abstract class PagedList<T : Any> : AbstractList<T> {
     var lastLoad = 0
     internal var lastItem: T? = null
 
-    internal val requiredRemainder: Int
+    internal val requiredRemainder = config.prefetchDistance * 2 + config.pageSize
 
-    /**
-     * Return the Config used to construct this PagedList.
-     *
-     * @return the Config of this PagedList
-     */
-    open val config: Config
+    private val callbacks = mutableListOf<WeakReference<Callback>>()
 
-    private val callbacks: MutableList<WeakReference<Callback>>
-
-    private val loadStateListeners: MutableList<WeakReference<LoadStateListener>>
+    private val loadStateListeners = mutableListOf<WeakReference<LoadStateListener>>()
 
     /**
      * Size of the list, including any placeholders (not-yet-loaded null padding).
@@ -959,14 +949,6 @@ abstract class PagedList<T : Any> : AbstractList<T> {
      */
     override val size
         get() = storage.size
-
-    /**
-     * The [PagedSource] that provides data to this [PagedList].
-     *
-     * @hide
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    val pagedSource: PagedSource<*, T>
 
     /**
      * @throws IllegalStateException if this [PagedList] was instantiated without a
@@ -1041,7 +1023,7 @@ abstract class PagedList<T : Any> : AbstractList<T> {
      *
      * @see size
      */
-    open val loadedCount
+    val loadedCount
         get() = storage.storageCount
 
     /**
@@ -1066,7 +1048,7 @@ abstract class PagedList<T : Any> : AbstractList<T> {
      * If the [PagedSource] has a [PagedSource.KeyProvider.ItemKey] or
      * [PagedSource.KeyProvider.PageKey], it doesn't use positions, returns 0.
      */
-    open val positionOffset: Int
+    val positionOffset: Int
         get() = storage.positionOffset
 
     /**
@@ -1121,7 +1103,7 @@ abstract class PagedList<T : Any> : AbstractList<T> {
      *
      * @param index Index at which to load.
      */
-    open fun loadAround(index: Int) {
+    fun loadAround(index: Int) {
         if (index < 0 || index >= size) {
             throw IndexOutOfBoundsException("Index: $index, Size: $size")
         }
@@ -1136,7 +1118,7 @@ abstract class PagedList<T : Any> : AbstractList<T> {
      *
      * @return Immutable snapshot of [PagedList] data.
      */
-    open fun snapshot(): List<T> = when {
+    fun snapshot(): List<T> = when {
         isImmutable -> this
         else -> SnapshotPagedList(this)
     }
@@ -1148,7 +1130,7 @@ abstract class PagedList<T : Any> : AbstractList<T> {
      *
      * @see removeWeakLoadStateListener
      */
-    open fun addWeakLoadStateListener(listener: LoadStateListener) {
+    fun addWeakLoadStateListener(listener: LoadStateListener) {
         // Clean up any empty weak refs.
         loadStateListeners.removeAll { it.get() == null }
 
@@ -1164,7 +1146,7 @@ abstract class PagedList<T : Any> : AbstractList<T> {
      *
      * @see addWeakLoadStateListener
      */
-    open fun removeWeakLoadStateListener(listener: LoadStateListener) {
+    fun removeWeakLoadStateListener(listener: LoadStateListener) {
         loadStateListeners.removeAll { it.get() == null || it.get() === listener }
     }
 
@@ -1192,7 +1174,7 @@ abstract class PagedList<T : Any> : AbstractList<T> {
     @Deprecated("Dispatching a diff since snapshot created is behavior that can be instead " +
             "tracked by attaching a Callback to the PagedList that is mutating, and tracking " +
             "changes since calling PagedList.snapshot().")
-    open fun addWeakCallback(previousSnapshot: List<T>?, callback: Callback) {
+    fun addWeakCallback(previousSnapshot: List<T>?, callback: Callback) {
         if (previousSnapshot != null && previousSnapshot !== this) {
             dispatchNaiveUpdatesSinceSnapshot(size, previousSnapshot.size, callback)
         }
@@ -1211,7 +1193,7 @@ abstract class PagedList<T : Any> : AbstractList<T> {
      *
      * @see removeWeakCallback
      */
-    open fun addWeakCallback(callback: Callback) {
+    fun addWeakCallback(callback: Callback) {
         // first, clean up any empty weak refs
         callbacks.removeAll { it.get() == null }
 
@@ -1226,7 +1208,7 @@ abstract class PagedList<T : Any> : AbstractList<T> {
      *
      * @see addWeakCallback
      */
-    open fun removeWeakCallback(callback: Callback) {
+    fun removeWeakCallback(callback: Callback) {
         callbacks.removeAll { it.get() == null || it.get() === callback }
     }
 
