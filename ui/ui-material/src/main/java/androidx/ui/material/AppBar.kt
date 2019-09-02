@@ -40,6 +40,7 @@ import androidx.ui.engine.geometry.addOutline
 import androidx.ui.foundation.Clickable
 import androidx.ui.foundation.SimpleImage
 import androidx.ui.foundation.shape.RectangleShape
+import androidx.ui.foundation.shape.corner.CircleShape
 import androidx.ui.layout.Container
 import androidx.ui.layout.FlexRow
 import androidx.ui.layout.MainAxisAlignment
@@ -58,6 +59,7 @@ import androidx.ui.painting.Path
 import androidx.ui.painting.PathOperation
 import androidx.ui.semantics.Semantics
 import androidx.ui.text.TextStyle
+import kotlin.math.sqrt
 
 /**
  * A TopAppBar displays information and actions relating to the current screen and is placed at the
@@ -365,6 +367,7 @@ private data class BottomAppBarCutoutShape(
         )
 
         val cutoutStartX = fabPosition.x.value - cutoutOffset.value
+        val cutoutEndX = cutoutStartX + cutoutSize.width.value
 
         val cutoutRadius = cutoutSize.height.value / 2f
         // Shift the cutout up by half its height, so only the bottom half of the cutout is actually
@@ -373,7 +376,185 @@ private data class BottomAppBarCutoutShape(
 
         addOutline(cutoutShape.createOutline(cutoutSize, density))
         shift(Offset(cutoutStartX, cutoutStartY))
+
+        // TODO: consider exposing the custom cutout shape instead of just replacing circle shapes?
+        if (cutoutShape == CircleShape) {
+            val edgeRadius = withDensity(density) { BottomAppBarRoundedEdgeRadius.toPx().value }
+            // TODO: possibly support providing a custom vertical offset?
+            addRoundedEdges(cutoutStartX, cutoutEndX, cutoutRadius, edgeRadius, 0f)
+        }
     }
+
+    /**
+     * Adds rounded edges to the [Path] representing a circular cutout in a BottomAppBar.
+     *
+     * Adds a curve for the left and right edges, with a straight line drawn between them - this
+     * combined with the cutout shape results in the overall cutout path that can be subtracted
+     * from the bounding rect of the app bar.
+     *
+     * @param cutoutStartPosition the absolute start position of the cutout
+     * @param cutoutEndPosition the absolute end position of the cutout
+     * @param cutoutRadius the radius of the cutout's circular edge - for a typical circular FAB
+     * this will just be the radius of the circular cutout, but in the case of an extended FAB, we
+     * can model this as two circles on either side attached to a rectangle.
+     * @param roundedEdgeRadius how far from the points where the cutout intersects with the app bar
+     * should the rounded edges be drawn to.
+     * @param verticalOffset how far the app bar is from the center of the cutout circle
+     */
+    private fun Path.addRoundedEdges(
+        cutoutStartPosition: Float,
+        cutoutEndPosition: Float,
+        cutoutRadius: Float,
+        roundedEdgeRadius: Float,
+        verticalOffset: Float
+    ) {
+        // Where the cutout intersects with the app bar, as if the cutout is not vertically aligned
+        // with the app bar, the intersect will not be equal to the radius of the circle.
+        val appBarInterceptOffset = calculateCutoutCircleYIntercept(cutoutRadius, verticalOffset)
+        val appBarInterceptStartX = cutoutStartPosition + (cutoutRadius + appBarInterceptOffset)
+        val appBarInterceptEndX = cutoutEndPosition - (cutoutRadius + appBarInterceptOffset)
+
+        // How far the control point is away from the cutout intercept. We set this to be as small
+        // as possible so that we have the most 'rounded' curve.
+        val controlPointOffset = 1f
+
+        // How far the control point is away from the center of the radius of the cutout
+        val controlPointRadiusOffset = appBarInterceptOffset - controlPointOffset
+
+        // The coordinates offset from the center of the radius of the cutout, where we should
+        // draw the curve to
+        val (curveInterceptXOffset, curveInterceptYOffset) = calculateRoundedEdgeIntercept(
+            controlPointRadiusOffset,
+            verticalOffset,
+            cutoutRadius
+        )
+
+        // Convert the offset relative to the center of the cutout circle into an absolute
+        // coordinate, by adding the radius of the shape to get a pure relative offset from the
+        // leftmost edge, and then positioning it next to the cutout
+        val curveInterceptStartX = cutoutStartPosition + (curveInterceptXOffset + cutoutRadius)
+        val curveInterceptEndX = cutoutEndPosition - (curveInterceptXOffset + cutoutRadius)
+
+        // Convert the curveInterceptYOffset which is relative to the center of the cutout, to an
+        // absolute position
+        val curveInterceptY = curveInterceptYOffset - verticalOffset
+
+        // Where the rounded edge starts
+        val roundedEdgeStartX = appBarInterceptStartX - roundedEdgeRadius
+        val roundedEdgeEndX = appBarInterceptEndX + roundedEdgeRadius
+
+        moveTo(roundedEdgeStartX, 0f)
+        quadraticBezierTo(
+            appBarInterceptStartX - controlPointOffset,
+            0f,
+            curveInterceptStartX,
+            curveInterceptY
+        )
+        lineTo(curveInterceptEndX, curveInterceptY)
+        quadraticBezierTo(appBarInterceptEndX + controlPointOffset, 0f, roundedEdgeEndX, 0f)
+        close()
+    }
+}
+
+/**
+ * Helper to make the following equations easier to read
+ */
+@Suppress("NOTHING_TO_INLINE")
+private inline fun square(x: Float) = x * x
+
+/**
+ * Returns the relative y intercept for a circle with the given [cutoutRadius] and [verticalOffset]
+ *
+ * Returns the leftmost intercept, so this will be a negative number that when added to the circle's
+ * absolute origin will give the absolute position of the left intercept, where the circle meets
+ * the app bar.
+ *
+ * Explanation:
+ * First construct the equation for a circle with given radius and vertical offset:
+ * x^2 + (y-verticalOffset)^2 = radius^2
+ *
+ * We want to find the y intercept where the cutout hits the top edge of the bottom app bar, so
+ * rearrange and set y to 0:
+ *
+ * x^2 = radius^2 - (0-verticalOffset)^2
+ *
+ * We are only interested in the left most (negative x) solution as we mirror this for the right
+ * edge later.
+ */
+@Suppress("NOTHING_TO_INLINE")
+internal inline fun calculateCutoutCircleYIntercept(
+    cutoutRadius: Float,
+    verticalOffset: Float
+): Float {
+    return -sqrt(square(cutoutRadius) - square(verticalOffset))
+}
+
+// TODO: Consider extracting this into the shape package / similar, might be useful for cutouts in
+// general.
+/**
+ * For a given control point on a quadratic bezier curve, calculates the required intercept
+ * point to create a smooth curve between the rounded edges near the cutout, and the actual curve
+ * that is part of the cutout.
+ *
+ * This returns the relative offset from the center of a circle with radius that is half the
+ * height of the cutout.
+ *
+ * Explanation and derivation comes from the Flutter team: https://goo.gl/Ufzrqn
+ *
+ * @param controlPointX the horizontal offset of the control point from the center of the circle
+ * @param verticalOffset the vertical offset of the top edge of the app bar from the center of the
+ * circle. I.e, if this is 2f, then the top edge of the app bar is 2f below the center. If 0f, the
+ * top edge of the app bar is in centered inside the circle.
+ * @param radius the radius of the circle - essentially the 'depth' of the cutout
+ */
+@Suppress("UnnecessaryVariable")
+internal fun calculateRoundedEdgeIntercept(
+    controlPointX: Float,
+    verticalOffset: Float,
+    radius: Float
+): Pair<Float, Float> {
+    val a = controlPointX
+    val b = verticalOffset
+    val r = radius
+
+    // expands to a2b2r2 + b4r2 - b2r4
+    val discriminant = square(b) * square(r) * (square(a) + square(b) - square(r))
+    val divisor = square(a) + square(b)
+    // the '-b' part of the quadratic solution
+    val bCoefficient = a * square(r)
+
+    // Two solutions for the x coordinate relative to the midpoint of the circle
+    val xSolutionA = (bCoefficient - sqrt(discriminant)) / divisor
+    val xSolutionB = (bCoefficient + sqrt(discriminant)) / divisor
+
+    // Get y coordinate from r2 = x2 + y2 -> y2 = r2 - x2
+    val ySolutionA = sqrt(square(r) - square(xSolutionA))
+    val ySolutionB = sqrt(square(r) - square(xSolutionB))
+
+    // If the vertical offset is 0, the vertical center of the circle lines up with the top edge of
+    // the bottom app bar, so both solutions are identical.
+    // If the vertical offset is not 0, there are two distinct solutions: one that will meet in the
+    // top half of the circle, and one that will meet in the bottom half of the circle. As the app
+    // bar is always on the bottom edge of the circle, we are always interested in the bottom half
+    // solution. To calculate which is which, it depends on whether the vertical offset is positive
+    // or negative.
+    val (xSolution, ySolution) = if (b > 0) {
+        // When the offset is positive, the top edge of the app bar is below the center of the
+        // circle. The largest solution will be the one closest to the bottom of the circle, so we
+        // pick that.
+        if (ySolutionA > ySolutionB) xSolutionA to ySolutionA else xSolutionB to ySolutionB
+    } else {
+        // When the offset is negative, the top edge of the app bar is above the center of the
+        // circle. The smallest solution will be the one closest to the top of the circle, so we
+        // pick that.
+        if (ySolutionA < ySolutionB) xSolutionA to ySolutionA else xSolutionB to ySolutionB
+    }
+
+    // If the calculated x coordinate is further away from the origin than the control point, the
+    // curve will fold back on itself. In this scenario, we actually join the circle above the
+    // center, so invert the y coordinate.
+    val adjustedYSolution = if (xSolution < controlPointX) -ySolution else ySolution
+    return xSolution to adjustedYSolution
 }
 
 @Composable
@@ -539,6 +720,8 @@ private val TopAppBarElevation = 4.dp
 
 // The gap on all sides between the FAB and the cutout
 private val BottomAppBarCutoutOffset = 8.dp
+// How far from the notch the rounded edges start
+private val BottomAppBarRoundedEdgeRadius = 4.dp
 
 private const val MaxIconsInTopAppBar = 2
 private const val MaxIconsInBottomAppBarCenterFab = 2
