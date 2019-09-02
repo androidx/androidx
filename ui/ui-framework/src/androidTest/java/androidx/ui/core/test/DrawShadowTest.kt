@@ -29,6 +29,7 @@ import androidx.ui.core.Dp
 import androidx.ui.core.Draw
 import androidx.ui.core.DrawShadow
 import androidx.ui.core.PxSize
+import androidx.ui.core.RepaintBoundary
 import androidx.ui.core.dp
 import androidx.ui.core.ipx
 import androidx.ui.core.setContent
@@ -76,18 +77,30 @@ class DrawShadowTest {
     fun shadowDrawn() {
         rule.runOnUiThreadIR {
             activity.setContent {
-                AtLeastSize(size = 12.ipx) {
-                    FillColor(Color.White)
-                    AtLeastSize(size = 10.ipx) {
-                        DrawShadow(rectShape, 8.dp)
-                    }
+                ShadowContainer()
+            }
+        }
+
+        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
+        takeScreenShot(12).apply {
+            hasShadow()
+        }
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun shadowDrawnInsideRenderNode() {
+        rule.runOnUiThreadIR {
+            activity.setContent {
+                RepaintBoundary {
+                    ShadowContainer()
                 }
             }
         }
 
         assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
         takeScreenShot(12).apply {
-            assertNotEquals(color(5, 11), Color.White)
+            hasShadow()
         }
     }
 
@@ -98,12 +111,7 @@ class DrawShadowTest {
 
         rule.runOnUiThreadIR {
             activity.setContent {
-                AtLeastSize(size = 12.ipx) {
-                    FillColor(Color.White)
-                    AtLeastSize(size = 10.ipx) {
-                        DrawShadow(rectShape, model.elevation)
-                    }
-                }
+                ShadowContainer(model.elevation)
             }
         }
         assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
@@ -115,6 +123,20 @@ class DrawShadowTest {
         takeScreenShot(12).apply {
             assertEquals(color(5, 11), Color.White)
         }
+    }
+
+    @Composable
+    private fun ShadowContainer(elevation: Dp = 8.dp) {
+        AtLeastSize(size = 12.ipx) {
+            FillColor(Color.White)
+            AtLeastSize(size = 10.ipx) {
+                DrawShadow(rectShape, elevation)
+            }
+        }
+    }
+
+    private fun Bitmap.hasShadow() {
+        assertNotEquals(color(width / 2, height - 1), Color.White)
     }
 
     @Composable

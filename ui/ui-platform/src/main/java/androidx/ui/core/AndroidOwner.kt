@@ -159,8 +159,14 @@ class AndroidCraneView constructor(context: Context)
 
     var commitUnsubscribe: (() -> Unit)? = null
 
-    private val elevationCompat: ElevationCompat? =
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) null else ElevationCompat()
+    private val elevationHandler =
+        if (Build.VERSION.SDK_INT >= 29) {
+            ElevationHandler29()
+        } else {
+            ElevationHandlerCompat(this) { canvas ->
+                super.dispatchDraw(canvas)
+            }
+        }
 
     init {
         setWillNotDraw(false)
@@ -291,9 +297,9 @@ class AndroidCraneView constructor(context: Context)
 
         if (node is RepaintBoundaryNode) {
             val ownerData = if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.P || isInEditMode()) {
-                RepaintBoundaryView(this, node)
+                RepaintBoundaryView(this, elevationHandler, node)
             } else {
-                RepaintBoundaryRenderNode(this, node)
+                RepaintBoundaryRenderNode(this, elevationHandler, node)
             }
             node.ownerData = ownerData
             ownerData.attach(node.parent?.repaintBoundary?.container)
@@ -442,11 +448,7 @@ class AndroidCraneView constructor(context: Context)
                 is RepaintBoundaryNode -> {
                     val container = node.container
                     if (node.elevation > 0.dp) {
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                            container.callDrawWithZApi29(canvas)
-                        } else {
-                            elevationCompat!!.drawWithZ(canvas, container)
-                        }
+                        container.parentElevationHandler.callDrawWithEnabledZ(canvas, container)
                     } else {
                         container.callDraw(canvas)
                     }
@@ -479,8 +481,7 @@ class AndroidCraneView constructor(context: Context)
         child: View,
         drawingTime: Long
     ): Boolean {
-        val elevationCompat = this.elevationCompat
-        if (elevationCompat != null && elevationCompat.handleDrawChild(canvas, child)) {
+        if (elevationHandler.handleDrawChild(canvas, child)) {
             return false
         }
         return super.drawChild(canvas, child, drawingTime)
@@ -629,62 +630,6 @@ class AndroidCraneView constructor(context: Context)
 
     private fun autofillSupported() = Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
 
-    @RequiresApi(Build.VERSION_CODES.Q)
-    private fun RepaintBoundary.callDrawWithZApi29(canvas: Canvas) {
-        // do not inline this method as it will decrease the performance. enableZ/disableZ
-        // were added in Q and referencing them in a code not targeting Q makes this code
-        // slower even if the methods will not be executed.
-        canvas.nativeCanvas.enableZ()
-        callDraw(canvas)
-        canvas.nativeCanvas.disableZ()
-    }
-
-    /**
-     * Compatible version of Canvas.enableZ()/disableZ().
-     *
-     * On Q we can just do:
-     * canvas.enableZ()
-     * node.container.callDraw(canvas)
-     * canvas.disableZ()
-     *
-     * But on older versions there is no such methods, but ViewGroup will call
-     * them internally inside dispatchDraw before calling the drawChild method.
-     * We can use this mechanism for our need just to have Canvas with Z enabled.
-     *
-     * So if we add a fake view, then call dispatchDraw manually, remember that
-     * if wasn't called by system(fakeDrawPass) and then when we handle next
-     * drawChild callback we would have a Canvas with z enabled. As we check for
-     * the fakeDrawPass we wouldn't draw other children Views ViewGroup can have.
-     * Then instead of drawing our fake view we draw our stored RepaintBoundary.
-     */
-    private inner class ElevationCompat {
-        private val fakeChild: View = View(context).apply {
-            setWillNotDraw(true)
-            this@AndroidCraneView.addView(this)
-        }
-        private var fakeDrawPass: Boolean = false
-        private var boundary: RepaintBoundary? = null
-
-        fun drawWithZ(canvas: Canvas, boundary: RepaintBoundary) {
-            this.boundary = boundary
-            fakeDrawPass = true
-            super@AndroidCraneView.dispatchDraw(canvas.nativeCanvas)
-            fakeDrawPass = false
-        }
-
-        fun handleDrawChild(canvas: android.graphics.Canvas, child: View): Boolean {
-            return if (fakeDrawPass) {
-                if (child === fakeChild) {
-                    boundary?.callDraw(Canvas(canvas))
-                    boundary = null
-                }
-                true
-            } else {
-                false
-            }
-        }
-    }
-
     internal companion object {
         private val RootMeasureBlock:
                 MeasureBlockScope.(List<Measurable>, Constraints) -> LayoutResult =
@@ -753,6 +698,12 @@ private interface RepaintBoundary {
      * that no change has occured since the previous [callDraw] call.
      */
     var dirty: Boolean
+
+    /**
+     * The ElevationHandler of a parent for this RepaintBoundary. this can be or
+     * an owner view ElevationHandler or the parent RepaintBoundary's one.
+     */
+    val parentElevationHandler: ElevationHandler
 }
 
 /**
@@ -760,6 +711,7 @@ private interface RepaintBoundary {
  */
 private class RepaintBoundaryView(
     val ownerView: AndroidCraneView,
+    val ownerElevationHandler: ElevationHandler,
     val repaintBoundaryNode: RepaintBoundaryNode
 ) : ViewGroup(ownerView.context), RepaintBoundary {
     init {
@@ -783,6 +735,24 @@ private class RepaintBoundaryView(
                 invalidate()
             }
             field = value
+        }
+    private val elevationHandler =
+        if (Build.VERSION.SDK_INT >= 29) {
+            ElevationHandler29()
+        } else {
+            ElevationHandlerCompat(this) { canvas ->
+                super.dispatchDraw(canvas)
+            }
+        }
+
+    override val parentElevationHandler: ElevationHandler
+        get() {
+            val parentView = parent
+            return if (parentView is RepaintBoundaryView) {
+                parentView.elevationHandler
+            } else {
+                ownerElevationHandler
+            }
         }
 
     override fun setSize(width: Int, height: Int) {
@@ -814,7 +784,18 @@ private class RepaintBoundaryView(
     }
 
     fun drawChild(canvas: Canvas, child: View, drawingTime: Long) {
-        drawChild(canvas.nativeCanvas, child, drawingTime)
+        super.drawChild(canvas.nativeCanvas, child, drawingTime)
+    }
+
+    override fun drawChild(
+        canvas: android.graphics.Canvas,
+        child: View,
+        drawingTime: Long
+    ): Boolean {
+        if (elevationHandler.handleDrawChild(canvas, child)) {
+            return false
+        }
+        return super.drawChild(canvas, child, drawingTime)
     }
 
     override fun dispatchDraw(canvas: android.graphics.Canvas) {
@@ -864,6 +845,7 @@ private class RepaintBoundaryView(
 @TargetApi(29)
 private class RepaintBoundaryRenderNode(
     val ownerView: AndroidCraneView,
+    override val parentElevationHandler: ElevationHandler,
     val repaintBoundaryNode: RepaintBoundaryNode
 ) : RepaintBoundary {
     override var dirty = true
@@ -1045,5 +1027,72 @@ private class OutlineResolver(private val density: Density) {
             cachedOutline.setEmpty()
         }
         outlinePath = path
+    }
+}
+
+private interface ElevationHandler {
+    fun callDrawWithEnabledZ(canvas: Canvas, boundary: RepaintBoundary)
+    fun handleDrawChild(canvas: android.graphics.Canvas, child: View): Boolean
+}
+
+@RequiresApi(29)
+private class ElevationHandler29 : ElevationHandler {
+
+    override fun callDrawWithEnabledZ(canvas: Canvas, boundary: RepaintBoundary) {
+        val nativeCanvas = canvas.nativeCanvas
+        nativeCanvas.enableZ()
+        boundary.callDraw(canvas)
+        nativeCanvas.disableZ()
+    }
+
+    override fun handleDrawChild(canvas: android.graphics.Canvas, child: View) = false
+}
+
+/**
+ * Compatible version of Canvas.enableZ()/disableZ().
+ *
+ * On API 29 we can just do:
+ * canvas.enableZ()
+ * node.container.callDraw(canvas)
+ * canvas.disableZ()
+ *
+ * But on older versions there is no such methods, but ViewGroup will call
+ * them internally inside dispatchDraw before calling the drawChild method.
+ * We can use this mechanism for our need just to have Canvas with Z enabled.
+ *
+ * So if we add a fake view, then call dispatchDraw manually, remember that
+ * if wasn't called by system(fakeDrawPass) and then when we handle next
+ * drawChild callback we would have a Canvas with z enabled. As we check for
+ * the fakeDrawPass we wouldn't draw other children Views ViewGroup can have.
+ * Then instead of drawing our fake view we draw our stored RepaintBoundary.
+ */
+private class ElevationHandlerCompat(
+    private val viewGroup: ViewGroup,
+    private val superDispatchDraw: (android.graphics.Canvas) -> Unit
+) : ElevationHandler {
+    private val fakeChild: View = View(viewGroup.context).apply {
+        setWillNotDraw(true)
+        viewGroup.addView(this)
+    }
+    private var fakeDrawPass: Boolean = false
+    private var boundary: RepaintBoundary? = null
+
+    override fun callDrawWithEnabledZ(canvas: Canvas, boundary: RepaintBoundary) {
+        this.boundary = boundary
+        fakeDrawPass = true
+        superDispatchDraw(canvas.nativeCanvas)
+        fakeDrawPass = false
+    }
+
+    override fun handleDrawChild(canvas: android.graphics.Canvas, child: View): Boolean {
+        return if (fakeDrawPass) {
+            if (child === fakeChild) {
+                boundary?.callDraw(Canvas(canvas))
+                boundary = null
+            }
+            true
+        } else {
+            false
+        }
     }
 }
