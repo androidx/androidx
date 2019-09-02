@@ -166,31 +166,30 @@ package androidx.paging {
   }
 
   public abstract class PagedList<T> extends java.util.AbstractList<T> {
-    method @Deprecated public void addWeakCallback(java.util.List<? extends T>? previousSnapshot, androidx.paging.PagedList.Callback callback);
-    method public void addWeakCallback(androidx.paging.PagedList.Callback callback);
-    method public void addWeakLoadStateListener(kotlin.jvm.functions.Function2<? super androidx.paging.LoadType,? super androidx.paging.LoadState,kotlin.Unit> listener);
+    method @Deprecated public final void addWeakCallback(java.util.List<? extends T>? previousSnapshot, androidx.paging.PagedList.Callback callback);
+    method public final void addWeakCallback(androidx.paging.PagedList.Callback callback);
+    method public final void addWeakLoadStateListener(kotlin.jvm.functions.Function2<? super androidx.paging.LoadType,? super androidx.paging.LoadState,kotlin.Unit> listener);
     method public abstract void detach();
     method public T? get(int index);
-    method public androidx.paging.PagedList.Config getConfig();
+    method public final androidx.paging.PagedList.Config getConfig();
     method @Deprecated public final androidx.paging.DataSource<?,T> getDataSource();
     method public abstract Object? getLastKey();
-    method public int getLoadedCount();
-    method public int getPositionOffset();
+    method public final int getLoadedCount();
+    method public final int getPositionOffset();
     method public int getSize();
     method public abstract boolean isDetached();
     method public boolean isImmutable();
-    method public void loadAround(int index);
-    method public void removeWeakCallback(androidx.paging.PagedList.Callback callback);
-    method public void removeWeakLoadStateListener(kotlin.jvm.functions.Function2<? super androidx.paging.LoadType,? super androidx.paging.LoadState,kotlin.Unit> listener);
+    method public final void loadAround(int index);
+    method public final void removeWeakCallback(androidx.paging.PagedList.Callback callback);
+    method public final void removeWeakLoadStateListener(kotlin.jvm.functions.Function2<? super androidx.paging.LoadType,? super androidx.paging.LoadState,kotlin.Unit> listener);
     method public void retry();
-    method public java.util.List<T> snapshot();
-    property public androidx.paging.PagedList.Config config;
+    method public final java.util.List<T> snapshot();
     property @Deprecated public final androidx.paging.DataSource<?,T> dataSource;
     property public abstract boolean isDetached;
     property public boolean isImmutable;
     property public abstract Object? lastKey;
-    property public int loadedCount;
-    property public int positionOffset;
+    property public final int loadedCount;
+    property public final int positionOffset;
     property public int size;
   }
 
