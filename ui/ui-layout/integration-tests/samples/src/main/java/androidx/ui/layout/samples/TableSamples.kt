@@ -29,7 +29,7 @@ import androidx.ui.layout.TableColumnWidth
 @Composable
 fun SimpleTable() {
     Padding(2.dp) {
-        Table(columnCount = 8) {
+        Table(columns = 8) {
             for (i in 0 until 8) {
                 tableRow {
                     Padding(2.dp) {
@@ -46,14 +46,14 @@ fun SimpleTable() {
 fun TableWithDifferentColumnWidths() {
     Padding(2.dp) {
         Table(
-            columnCount = 5,
+            columns = 5,
             columnWidth = { columnIndex ->
                 when (columnIndex) {
-                    0 -> TableColumnWidth.Inflexible.Wrap
-                    1 -> TableColumnWidth.Flexible(flex = 1f)
-                    2 -> TableColumnWidth.Flexible(flex = 3f)
-                    3 -> TableColumnWidth.Inflexible.Fixed(width = 50.dp)
-                    else -> TableColumnWidth.Inflexible.Fraction(fraction = 0.5f)
+                    0 -> TableColumnWidth.Wrap
+                    1 -> TableColumnWidth.Flex(flex = 1f)
+                    2 -> TableColumnWidth.Flex(flex = 3f)
+                    3 -> TableColumnWidth.Fixed(width = 50.dp)
+                    else -> TableColumnWidth.Fraction(fraction = 0.5f)
                 }
             }
         ) {
