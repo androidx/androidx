@@ -9,5 +9,9 @@ MissingNullability: androidx.ui.layout.CrossAxisAlignment#Companion:
     Missing nullability on field `Companion` in class `class androidx.ui.layout.CrossAxisAlignment`
 MissingNullability: androidx.ui.layout.DpConstraints#Companion:
     Missing nullability on field `Companion` in class `class androidx.ui.layout.DpConstraints`
+MissingNullability: androidx.ui.layout.TableColumnWidth.MaxIntrinsic#INSTANCE:
+    Missing nullability on field `INSTANCE` in class `class androidx.ui.layout.TableColumnWidth.MaxIntrinsic`
+MissingNullability: androidx.ui.layout.TableColumnWidth.MinIntrinsic#INSTANCE:
+    Missing nullability on field `INSTANCE` in class `class androidx.ui.layout.TableColumnWidth.MinIntrinsic`
 MissingNullability: androidx.ui.layout.TableColumnWidth.Wrap#INSTANCE:
     Missing nullability on field `INSTANCE` in class `class androidx.ui.layout.TableColumnWidth.Wrap`
