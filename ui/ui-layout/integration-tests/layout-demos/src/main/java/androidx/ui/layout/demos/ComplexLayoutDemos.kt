@@ -53,6 +53,7 @@ import androidx.ui.core.HorizontalAlignmentLine
 import androidx.ui.core.Text
 import androidx.ui.core.VerticalAlignmentLine
 import androidx.ui.core.sp
+import androidx.ui.layout.AlignmentLineOffset
 import androidx.ui.layout.AspectRatio
 import androidx.ui.layout.Container
 import androidx.ui.layout.CrossAxisAlignment
@@ -406,9 +407,17 @@ fun RowBaselineAlignment() {
 }
 
 @Composable
+fun AlignmentLineOffsetUsage() {
+    AlignmentLineOffset(FirstBaseline, before = 20.dp, after = 40.dp) {
+        DrawRectangle(Color.Gray)
+        Text("Text providing baseline")
+    }
+}
+
+@Composable
 fun ComplexLayoutDemos() {
     Wrap {
-        RowBaselineAlignment()
+        AlignmentLineOffsetUsage()
     }
 }
 
