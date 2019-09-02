@@ -21,13 +21,14 @@ import androidx.compose.Composable
 import androidx.compose.composer
 import androidx.compose.state
 import androidx.compose.unaryPlus
+import androidx.ui.core.ComplexLayout
 import androidx.ui.core.Constraints
 import androidx.ui.core.Density
+import androidx.ui.core.DensityReceiver
 import androidx.ui.core.Dp
 import androidx.ui.core.IntPx
 import androidx.ui.core.IntPxSize
-import androidx.ui.core.Layout
-import androidx.ui.core.Measurable
+import androidx.ui.core.IntrinsicMeasurable
 import androidx.ui.core.ParentData
 import androidx.ui.core.Placeable
 import androidx.ui.core.constrain
@@ -69,7 +70,7 @@ typealias TableDecoration =
  */
 private data class TableChildData(val rowIndex: Int)
 
-private val Measurable.rowIndex get() = (parentData as? TableChildData)?.rowIndex
+private val IntrinsicMeasurable.rowIndex get() = (parentData as? TableChildData)?.rowIndex
 
 /**
  * Used to specify the size of a [Table]'s column.
@@ -85,6 +86,34 @@ abstract class TableColumnWidth private constructor(internal val flexValue: Floa
         containerWidth: IntPx,
         density: Density
     ): IntPx
+
+    /**
+     * Returns the minimum intrinsic width of the column for the given height.
+     *
+     * This is used for computing the table's intrinsic dimensions. Defaults to [preferredWidth].
+     */
+    open fun minIntrinsicWidth(
+        cells: List<TableMeasurable>,
+        containerWidth: IntPx,
+        density: Density,
+        availableHeight: IntPx
+    ): IntPx {
+        return preferredWidth(cells, containerWidth, density)
+    }
+
+    /**
+     * Returns the minimum intrinsic width of the column for the given height.
+     *
+     * This is used for computing the table's intrinsic dimensions. Defaults to [preferredWidth].
+     */
+    open fun maxIntrinsicWidth(
+        cells: List<TableMeasurable>,
+        containerWidth: IntPx,
+        density: Density,
+        availableHeight: IntPx
+    ): IntPx {
+        return preferredWidth(cells, containerWidth, density)
+    }
 
     /**
      * An inflexible column has a fixed size which is computed by [preferredWidth].
@@ -107,6 +136,24 @@ abstract class TableColumnWidth private constructor(internal val flexValue: Floa
         ): IntPx {
             return other.preferredWidth(cells, containerWidth, density)
         }
+
+        override fun minIntrinsicWidth(
+            cells: List<TableMeasurable>,
+            containerWidth: IntPx,
+            density: Density,
+            availableHeight: IntPx
+        ): IntPx {
+            return other.minIntrinsicWidth(cells, containerWidth, density, availableHeight)
+        }
+
+        override fun maxIntrinsicWidth(
+            cells: List<TableMeasurable>,
+            containerWidth: IntPx,
+            density: Density,
+            availableHeight: IntPx
+        ): IntPx {
+            return other.maxIntrinsicWidth(cells, containerWidth, density, availableHeight)
+        }
     }
 
     /**
@@ -126,6 +173,10 @@ abstract class TableColumnWidth private constructor(internal val flexValue: Floa
 
     /**
      * Sizes the column to the width of the widest child in that column.
+     *
+     * Note that in order to compute their preferred widths, the children will be measured with
+     * infinite width constraints, which means that some of them may have infinite width. For a
+     * wrap content behaviour that avoids this, use [MinIntrinsicWidth] or [MaxIntrinsicWidth].
      */
     object Wrap : Inflexible() {
 
@@ -136,6 +187,112 @@ abstract class TableColumnWidth private constructor(internal val flexValue: Floa
         ): IntPx {
             return cells.fold(IntPx.Zero) { acc, cell ->
                 max(acc, cell.preferredWidth())
+            }
+        }
+
+        override fun minIntrinsicWidth(
+            cells: List<TableMeasurable>,
+            containerWidth: IntPx,
+            density: Density,
+            availableHeight: IntPx
+        ): IntPx {
+            return cells.fold(IntPx.Zero) { acc, cell ->
+                max(acc, cell.minIntrinsicWidth(availableHeight / cells.size))
+            }
+        }
+
+        override fun maxIntrinsicWidth(
+            cells: List<TableMeasurable>,
+            containerWidth: IntPx,
+            density: Density,
+            availableHeight: IntPx
+        ): IntPx {
+            return cells.fold(IntPx.Zero) { acc, cell ->
+                max(acc, cell.maxIntrinsicWidth(availableHeight / cells.size))
+            }
+        }
+    }
+
+    /**
+     * Sizes the column to the largest of the minimum intrinsic widths of the children in that
+     * column (i.e. the minimum width such that children can layout/paint themselves correctly).
+     *
+     * Note that this is a very expensive way to size a column. For a wrap content behaviour that
+     * skips the intrinsic measurements which compute the column width before measuring, use [Wrap].
+     */
+    object MinIntrinsic : Inflexible() {
+
+        override fun preferredWidth(
+            cells: List<TableMeasurable>,
+            containerWidth: IntPx,
+            density: Density
+        ): IntPx {
+            return cells.fold(IntPx.Zero) { acc, cell ->
+                max(acc, cell.minIntrinsicWidth(IntPx.Infinity))
+            }
+        }
+
+        override fun minIntrinsicWidth(
+            cells: List<TableMeasurable>,
+            containerWidth: IntPx,
+            density: Density,
+            availableHeight: IntPx
+        ): IntPx {
+            return cells.fold(IntPx.Zero) { acc, cell ->
+                max(acc, cell.minIntrinsicWidth(availableHeight / cells.size))
+            }
+        }
+
+        override fun maxIntrinsicWidth(
+            cells: List<TableMeasurable>,
+            containerWidth: IntPx,
+            density: Density,
+            availableHeight: IntPx
+        ): IntPx {
+            return cells.fold(IntPx.Zero) { acc, cell ->
+                max(acc, cell.maxIntrinsicWidth(availableHeight / cells.size))
+            }
+        }
+    }
+
+    /**
+     * Sizes the column to the largest of the maximum intrinsic widths of the children in that
+     * column (i.e. the maximum width such that children can occupy the entire space without waste).
+     *
+     * Note that this is a very expensive way to size a column. For a wrap content behaviour that
+     * skips the intrinsic measurements which compute the column width before measuring, use [Wrap].
+     */
+    object MaxIntrinsic : Inflexible() {
+
+        override fun preferredWidth(
+            cells: List<TableMeasurable>,
+            containerWidth: IntPx,
+            density: Density
+        ): IntPx {
+            return cells.fold(IntPx.Zero) { acc, cell ->
+                max(acc, cell.maxIntrinsicWidth(IntPx.Infinity))
+            }
+        }
+
+        override fun minIntrinsicWidth(
+            cells: List<TableMeasurable>,
+            containerWidth: IntPx,
+            density: Density,
+            availableHeight: IntPx
+        ): IntPx {
+            return cells.fold(IntPx.Zero) { acc, cell ->
+                max(acc, cell.minIntrinsicWidth(availableHeight / cells.size))
+            }
+        }
+
+        override fun maxIntrinsicWidth(
+            cells: List<TableMeasurable>,
+            containerWidth: IntPx,
+            density: Density,
+            availableHeight: IntPx
+        ): IntPx {
+            return cells.fold(IntPx.Zero) { acc, cell ->
+                max(acc, cell.maxIntrinsicWidth(availableHeight / cells.size))
             }
         }
     }
@@ -193,6 +350,30 @@ abstract class TableColumnWidth private constructor(internal val flexValue: Floa
                 b.preferredWidth(cells, containerWidth, density)
             )
         }
+
+        override fun minIntrinsicWidth(
+            cells: List<TableMeasurable>,
+            containerWidth: IntPx,
+            density: Density,
+            availableHeight: IntPx
+        ): IntPx {
+            return min(
+                a.minIntrinsicWidth(cells, containerWidth, density, availableHeight),
+                b.minIntrinsicWidth(cells, containerWidth, density, availableHeight)
+            )
+        }
+
+        override fun maxIntrinsicWidth(
+            cells: List<TableMeasurable>,
+            containerWidth: IntPx,
+            density: Density,
+            availableHeight: IntPx
+        ): IntPx {
+            return min(
+                a.maxIntrinsicWidth(cells, containerWidth, density, availableHeight),
+                b.maxIntrinsicWidth(cells, containerWidth, density, availableHeight)
+            )
+        }
     }
 
     /**
@@ -212,6 +393,30 @@ abstract class TableColumnWidth private constructor(internal val flexValue: Floa
                 b.preferredWidth(cells, containerWidth, density)
             )
         }
+
+        override fun minIntrinsicWidth(
+            cells: List<TableMeasurable>,
+            containerWidth: IntPx,
+            density: Density,
+            availableHeight: IntPx
+        ): IntPx {
+            return max(
+                a.minIntrinsicWidth(cells, containerWidth, density, availableHeight),
+                b.minIntrinsicWidth(cells, containerWidth, density, availableHeight)
+            )
+        }
+
+        override fun maxIntrinsicWidth(
+            cells: List<TableMeasurable>,
+            containerWidth: IntPx,
+            density: Density,
+            availableHeight: IntPx
+        ): IntPx {
+            return max(
+                a.maxIntrinsicWidth(cells, containerWidth, density, availableHeight),
+                b.maxIntrinsicWidth(cells, containerWidth, density, availableHeight)
+            )
+        }
     }
 }
 
@@ -223,7 +428,17 @@ data class TableMeasurable internal constructor(
     /**
      * Computes the preferred width of the child by measuring with infinite constraints.
      */
-    val preferredWidth: () -> IntPx
+    val preferredWidth: () -> IntPx,
+
+    /**
+     * Computes the minimum intrinsic width of the child for the given available height.
+     */
+    val minIntrinsicWidth: (IntPx) -> IntPx,
+
+    /**
+     * Computes the maximum intrinsic width of the child for the given available height.
+     */
+    val maxIntrinsicWidth: (IntPx) -> IntPx
 )
 
 /**
@@ -256,93 +471,214 @@ fun Table(
         composable
     }
 
-    Layout(tableChildren) { children, constraints ->
-        val measurables =
-            children.filter { it.rowIndex != null }.groupBy { it.rowIndex }.values.toList()
-        val rows = measurables.size
-        val placeables = Array(rows) { arrayOfNulls<Placeable>(columns) }
+    ComplexLayout(tableChildren) {
+        measure { children, constraints ->
+            val measurables =
+                children.filter { it.rowIndex != null }.groupBy { it.rowIndex }.values.toList()
+            val rows = measurables.size
+            val placeables = Array(rows) { arrayOfNulls<Placeable>(columns) }
 
-        // Compute column widths and collect flex information.
-        var totalFlex = 0f
-        var availableSpace =
-            if (constraints.maxWidth.isFinite()) constraints.maxWidth else constraints.minWidth
-        val columnWidths = Array(columns) { IntPx.Zero }
-        for (column in 0 until columns) {
-            val spec = columnWidth(column)
-            val cells = List(rows) { row ->
-                TableMeasurable(
-                    preferredWidth = {
-                        placeables[row][column]?.width
-                            ?: measurables[row][column].measure(Constraints())
-                                .also { placeables[row][column] = it }.width
-                    }
-                )
-            }
-            columnWidths[column] = spec.preferredWidth(cells, constraints.maxWidth, density)
-            availableSpace -= columnWidths[column]
-            totalFlex += spec.flexValue
-        }
-
-        // Grow flexible columns to fill available horizontal space.
-        if (totalFlex > 0 && availableSpace > IntPx.Zero) {
+            // Compute column widths and collect flex information.
+            var totalFlex = 0f
+            var availableSpace =
+                if (constraints.maxWidth.isFinite()) constraints.maxWidth else constraints.minWidth
+            val columnWidths = Array(columns) { IntPx.Zero }
             for (column in 0 until columns) {
                 val spec = columnWidth(column)
-                if (spec.flexValue > 0) {
-                    columnWidths[column] += availableSpace * (spec.flexValue / totalFlex)
-                }
-            }
-        }
-
-        // Measure the remaining children and calculate row heights.
-        val rowHeights = Array(rows) { IntPx.Zero }
-        for (row in 0 until rows) {
-            for (column in 0 until columns) {
-                if (placeables[row][column] == null) {
-                    placeables[row][column] = measurables[row][column].measure(
-                        Constraints(minWidth = IntPx.Zero, maxWidth = columnWidths[column])
+                val cells = List(rows) { row ->
+                    TableMeasurable(
+                        preferredWidth = {
+                            placeables[row][column]?.width
+                                ?: measurables[row][column].measure(Constraints())
+                                    .also { placeables[row][column] = it }.width
+                        },
+                        minIntrinsicWidth = { measurables[row][column].minIntrinsicWidth(it) },
+                        maxIntrinsicWidth = { measurables[row][column].maxIntrinsicWidth(it) }
                     )
                 }
-                rowHeights[row] = max(rowHeights[row], placeables[row][column]!!.height)
+                columnWidths[column] = spec.preferredWidth(cells, constraints.maxWidth, density)
+                availableSpace -= columnWidths[column]
+                totalFlex += spec.flexValue
             }
-        }
 
-        // Compute row/column offsets.
-        val rowOffsets = Array(rows + 1) { IntPx.Zero }
-        val columnOffsets = Array(columns + 1) { IntPx.Zero }
-        for (row in 0 until rows) {
-            rowOffsets[row + 1] = rowOffsets[row] + rowHeights[row]
-        }
-        for (column in 0 until columns) {
-            columnOffsets[column + 1] = columnOffsets[column] + columnWidths[column]
-        }
+            // Grow flexible columns to fill available horizontal space.
+            if (totalFlex > 0 && availableSpace > IntPx.Zero) {
+                for (column in 0 until columns) {
+                    val spec = columnWidth(column)
+                    if (spec.flexValue > 0) {
+                        columnWidths[column] += availableSpace * (spec.flexValue / totalFlex)
+                    }
+                }
+            }
 
-        // Force recomposition of decorations.
-        if (!verticalOffsets.value.contentEquals(rowOffsets)) {
-            verticalOffsets.value = rowOffsets
-        }
-        if (!horizontalOffsets.value.contentEquals(columnOffsets)) {
-            horizontalOffsets.value = columnOffsets
-        }
-
-        // TODO(calintat): Do something when these do not satisfy constraints.
-        val tableSize = constraints.constrain(IntPxSize(columnOffsets[columns], rowOffsets[rows]))
-
-        layout(tableSize.width, tableSize.height) {
+            // Measure the remaining children and calculate row heights.
+            val rowHeights = Array(rows) { IntPx.Zero }
             for (row in 0 until rows) {
                 for (column in 0 until columns) {
-                    val placeable = placeables[row][column]!!
-                    val position = childAlignment.align(
-                        IntPxSize(
-                            width = columnWidths[column] - placeable.width,
-                            height = rowHeights[row] - placeable.height
+                    if (placeables[row][column] == null) {
+                        placeables[row][column] = measurables[row][column].measure(
+                            Constraints(minWidth = IntPx.Zero, maxWidth = columnWidths[column])
                         )
-                    )
-                    placeable.place(
-                        x = columnOffsets[column] + position.x,
-                        y = rowOffsets[row] + position.y
-                    )
+                    }
+                    rowHeights[row] = max(rowHeights[row], placeables[row][column]!!.height)
                 }
             }
+
+            // Compute row/column offsets.
+            val rowOffsets = Array(rows + 1) { IntPx.Zero }
+            val columnOffsets = Array(columns + 1) { IntPx.Zero }
+            for (row in 0 until rows) {
+                rowOffsets[row + 1] = rowOffsets[row] + rowHeights[row]
+            }
+            for (column in 0 until columns) {
+                columnOffsets[column + 1] = columnOffsets[column] + columnWidths[column]
+            }
+
+            // Force recomposition of decorations.
+            if (!verticalOffsets.value.contentEquals(rowOffsets)) {
+                verticalOffsets.value = rowOffsets
+            }
+            if (!horizontalOffsets.value.contentEquals(columnOffsets)) {
+                horizontalOffsets.value = columnOffsets
+            }
+
+            // TODO(calintat): Do something when these do not satisfy constraints.
+            val tableSize =
+                constraints.constrain(IntPxSize(columnOffsets[columns], rowOffsets[rows]))
+
+            layout(tableSize.width, tableSize.height) {
+                for (row in 0 until rows) {
+                    for (column in 0 until columns) {
+                        val placeable = placeables[row][column]!!
+                        val position = childAlignment.align(
+                            IntPxSize(
+                                width = columnWidths[column] - placeable.width,
+                                height = rowHeights[row] - placeable.height
+                            )
+                        )
+                        placeable.place(
+                            x = columnOffsets[column] + position.x,
+                            y = rowOffsets[row] + position.y
+                        )
+                    }
+                }
+            }
+        }
+
+        fun DensityReceiver.intrinsicWidth(
+            children: List<IntrinsicMeasurable>,
+            availableHeight: IntPx,
+            minimise: Boolean
+        ): IntPx {
+            val measurables =
+                children.filter { it.rowIndex != null }.groupBy { it.rowIndex }.values.toList()
+            val rows = measurables.size
+
+            var totalFlex = 0f
+            var flexibleSpace = IntPx.Zero
+            var inflexibleSpace = IntPx.Zero
+
+            for (column in 0 until columns) {
+                val spec = columnWidth(column)
+                val cells = List(rows) { row ->
+                    TableMeasurable(
+                        preferredWidth = { IntPx.Zero },
+                        minIntrinsicWidth = { measurables[row][column].minIntrinsicWidth(it) },
+                        maxIntrinsicWidth = { measurables[row][column].maxIntrinsicWidth(it) }
+                    )
+                }
+                val width = if (minimise) {
+                    spec.minIntrinsicWidth(cells, IntPx.Infinity, density, availableHeight)
+                } else {
+                    spec.maxIntrinsicWidth(cells, IntPx.Infinity, density, availableHeight)
+                }
+                if (spec.flexValue <= 0) {
+                    inflexibleSpace += width
+                } else {
+                    totalFlex += spec.flexValue
+                    flexibleSpace = max(flexibleSpace, width / spec.flexValue)
+                }
+            }
+            return flexibleSpace * totalFlex + inflexibleSpace
+        }
+
+        fun DensityReceiver.intrinsicHeight(
+            children: List<IntrinsicMeasurable>,
+            availableWidth: IntPx,
+            intrinsicHeight: IntrinsicMeasurable.(IntPx) -> IntPx
+        ): IntPx {
+            val measurables =
+                children.filter { it.rowIndex != null }.groupBy { it.rowIndex }.values.toList()
+            val rows = measurables.size
+
+            // Compute column widths and collect flex information.
+            var totalFlex = 0f
+            var availableSpace = availableWidth
+            val columnWidths = Array(columns) { IntPx.Zero }
+            for (column in 0 until columns) {
+                val spec = columnWidth(column)
+                val cells = List(rows) { row ->
+                    TableMeasurable(
+                        preferredWidth = { IntPx.Zero },
+                        minIntrinsicWidth = { measurables[row][column].minIntrinsicWidth(it) },
+                        maxIntrinsicWidth = { measurables[row][column].maxIntrinsicWidth(it) }
+                    )
+                }
+                columnWidths[column] =
+                    spec.maxIntrinsicWidth(cells, availableWidth, density, IntPx.Infinity)
+                availableSpace -= columnWidths[column]
+                totalFlex += spec.flexValue
+            }
+
+            // Grow flexible columns to fill available horizontal space.
+            if (totalFlex > 0 && availableSpace > IntPx.Zero) {
+                for (column in 0 until columns) {
+                    val spec = columnWidth(column)
+                    if (spec.flexValue > 0) {
+                        columnWidths[column] += availableSpace * (spec.flexValue / totalFlex)
+                    }
+                }
+            }
+
+            // Calculate row heights and table height.
+            return (0 until rows).fold(IntPx.Zero) { tableHeight, row ->
+                val rowHeight = (0 until columns).fold(IntPx.Zero) { rowHeight, column ->
+                    max(rowHeight, measurables[row][column].intrinsicHeight(columnWidths[column]))
+                }
+                tableHeight + rowHeight
+            }
+        }
+
+        minIntrinsicWidth { measurables, availableHeight ->
+            intrinsicWidth(
+                children = measurables,
+                availableHeight = availableHeight,
+                minimise = true
+            )
+        }
+
+        minIntrinsicHeight { measurables, availableWidth ->
+            intrinsicHeight(
+                children = measurables,
+                availableWidth = availableWidth,
+                intrinsicHeight = { w -> minIntrinsicHeight(w) }
+            )
+        }
+
+        maxIntrinsicWidth { measurables, availableHeight ->
+            intrinsicWidth(
+                children = measurables,
+                availableHeight = availableHeight,
+                minimise = false
+            )
+        }
+
+        maxIntrinsicHeight { measurables, availableWidth ->
+            intrinsicHeight(
+                children = measurables,
+                availableWidth = availableWidth,
+                intrinsicHeight = { w -> maxIntrinsicHeight(w) }
+            )
         }
     }
 }
