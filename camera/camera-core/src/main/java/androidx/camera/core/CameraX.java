@@ -29,6 +29,8 @@ import androidx.camera.core.impl.utils.Threads;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleOwner;
 
+import com.google.common.util.concurrent.ListenableFuture;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -497,13 +499,13 @@ public final class CameraX {
      * Deinitializes CameraX so that it can be initialized again.
      *
      * <p>Note: This is only for testing purpose for now.
-     * TODO(b/138544571): Release all cameras in CameraX.deinit
      *
      * @hide
      */
     @RestrictTo(Scope.TESTS)
-    public static void deinit() {
-        INSTANCE.deinitInternal();
+    @NonNull
+    public static ListenableFuture<Void> deinit() {
+        return INSTANCE.deinitInternal();
     }
 
     /**
@@ -714,9 +716,10 @@ public final class CameraX {
         mCameraRepository.init(mCameraFactory);
     }
 
-    private void deinitInternal() {
+    private ListenableFuture<Void> deinitInternal() {
         mInitialized.set(false);
-        mCameraRepository.deinit();
+
+        return mCameraRepository.deinit();
     }
 
     private UseCaseGroupLifecycleController getOrCreateUseCaseGroup(LifecycleOwner lifecycleOwner) {

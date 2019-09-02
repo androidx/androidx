@@ -51,6 +51,8 @@ import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 import org.robolectric.annotation.internal.DoNotInstrument;
 
+import java.util.concurrent.ExecutionException;
+
 @SmallTest
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
@@ -58,6 +60,8 @@ import org.robolectric.annotation.internal.DoNotInstrument;
 public class DisplayOrientedMeteringPointFactoryTest {
     private static final float WIDTH = 480;
     private static final float HEIGHT = 640;
+    private static final String FRONT_CAMERA_ID = "1";
+    private static final String BACK_CAMERA_ID = "0";
     private Context mMockContext;
     private Display mMockDisplay;
 
@@ -67,10 +71,10 @@ public class DisplayOrientedMeteringPointFactoryTest {
 
         // Init CameraX to inject our FakeCamera with FakeCameraInfo.
         FakeCameraFactory fakeCameraFactory = new FakeCameraFactory();
-        fakeCameraFactory.insertBackCamera(
-                new FakeCamera(new FakeCameraInfo(90, CameraX.LensFacing.BACK), null));
-        fakeCameraFactory.insertFrontCamera(
-                new FakeCamera(new FakeCameraInfo(270, CameraX.LensFacing.FRONT), null));
+        fakeCameraFactory.insertDefaultBackCamera(BACK_CAMERA_ID,
+                () -> new FakeCamera(new FakeCameraInfo(90, CameraX.LensFacing.BACK), null));
+        fakeCameraFactory.insertDefaultFrontCamera(FRONT_CAMERA_ID,
+                () -> new FakeCamera(new FakeCameraInfo(270, CameraX.LensFacing.FRONT), null));
 
         CameraDeviceSurfaceManager surfaceManager = new FakeCameraDeviceSurfaceManager();
         ExtendableUseCaseConfigFactory defaultConfigFactory = new ExtendableUseCaseConfigFactory();
@@ -99,8 +103,8 @@ public class DisplayOrientedMeteringPointFactoryTest {
     }
 
     @After
-    public void tearDown() {
-        CameraX.deinit();
+    public void tearDown() throws ExecutionException, InterruptedException {
+        CameraX.deinit().get();
     }
 
     @Test
