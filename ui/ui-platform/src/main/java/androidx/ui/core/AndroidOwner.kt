@@ -285,8 +285,14 @@ class AndroidComposeView constructor(context: Context)
                 measureAndLayout()
             }
         }
-        layoutNode.needsRelayout = true
-        relayoutNodes += layoutNode
+        var layout = layoutNode
+        while (layout.alignmentLinesRequired && !layout.needsRelayout) {
+            layout.needsRelayout = true
+            if (layout.parentLayoutNode == null) break
+            layout = layout.parentLayoutNode!!
+        }
+        layout.needsRelayout = true
+        relayoutNodes += layout
     }
 
     override fun onAttach(node: ComponentNode) {
