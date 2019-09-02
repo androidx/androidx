@@ -33,7 +33,10 @@ import androidx.ui.core.ipx
 import androidx.ui.core.round
 import androidx.ui.core.toPx
 import androidx.ui.foundation.ColoredRect
+import androidx.ui.foundation.shape.corner.CircleShape
 import androidx.ui.graphics.Color
+import androidx.ui.material.BottomAppBar.FabConfiguration
+import androidx.ui.material.BottomAppBar.FabPosition
 import androidx.ui.semantics.Semantics
 import androidx.ui.semantics.testTag
 import androidx.ui.text.TextStyle
@@ -337,7 +340,64 @@ class AppBarTest {
                                 FakeIcon()
                             }
                         },
-                        floatingActionButton = {
+                        fabConfiguration = FabConfiguration(FabPosition.Center) {
+                            OnChildPositioned(onPositioned = { coords ->
+                                fabCoords = coords
+                            }) {
+                                FakeIcon()
+                            }
+                        },
+                        contextualActions = createImageList(1),
+                        action = {
+                            OnChildPositioned(onPositioned = { coords ->
+                                actionCoords = coords
+                            }) { it() }
+                        }
+                    )
+                }
+            }
+        }
+
+        withDensity(composeTestRule.density) {
+            // Navigation icon should be at the beginning
+            val navigationIconPositionX = navigationIconCoords!!.localToGlobal(PxPosition.Origin).x
+            val navigationIconExpectedPositionX = 16.dp.toIntPx().toPx()
+            Truth.assertThat(navigationIconPositionX).isEqualTo(navigationIconExpectedPositionX)
+
+            // FAB should be placed in the center
+            val fabPositionX = fabCoords!!.localToGlobal(PxPosition.Origin).x
+            val fabExpectedPositionX =
+                ((appBarCoords!!.size.width - 24.dp.toPx()) / 2).round().toPx()
+            Truth.assertThat(fabPositionX).isEqualTo(fabExpectedPositionX)
+
+            // Action should be placed at the end
+            val actionPositionX = actionCoords!!.localToGlobal(PxPosition.Origin).x
+            val actionExpectedPositionX = appBarCoords!!.size.width.round().toPx() -
+                    16.dp.toIntPx().toPx() - 24.dp.toIntPx().toPx()
+            Truth.assertThat(actionPositionX).isEqualTo(actionExpectedPositionX)
+        }
+    }
+
+    @Test
+    fun bottomAppBar_centerCutoutFab_positioning() {
+        var appBarCoords: LayoutCoordinates? = null
+        var navigationIconCoords: LayoutCoordinates? = null
+        var fabCoords: LayoutCoordinates? = null
+        var actionCoords: LayoutCoordinates? = null
+        composeTestRule.setMaterialContent {
+            Container {
+                OnChildPositioned(onPositioned = { coords ->
+                    appBarCoords = coords
+                }) {
+                    BottomAppBar(
+                        navigationIcon = {
+                            OnChildPositioned(onPositioned = { coords ->
+                                navigationIconCoords = coords
+                            }) {
+                                FakeIcon()
+                            }
+                        },
+                        fabConfiguration = FabConfiguration(FabPosition.Center, CircleShape) {
                             OnChildPositioned(onPositioned = { coords ->
                                 fabCoords = coords
                             }) {
@@ -386,14 +446,56 @@ class AppBarTest {
                     appBarCoords = coords
                 }) {
                     BottomAppBar(
-                        floatingActionButton = {
+                        fabConfiguration = FabConfiguration(FabPosition.End) {
                             OnChildPositioned(onPositioned = { coords ->
                                 fabCoords = coords
                             }) {
                                 FakeIcon()
                             }
                         },
-                        fabPosition = BottomAppBar.FabPosition.End,
+                        contextualActions = createImageList(1),
+                        action = {
+                            OnChildPositioned(onPositioned = { coords ->
+                                actionCoords = coords
+                            }) { it() }
+                        }
+                    )
+                }
+            }
+        }
+
+        withDensity(composeTestRule.density) {
+            // Action should be placed at the start
+            val actionPositionX = actionCoords!!.localToGlobal(PxPosition.Origin).x
+            val actionExpectedPositionX = 16.dp.toIntPx().toPx()
+            Truth.assertThat(actionPositionX).isEqualTo(actionExpectedPositionX)
+
+            // FAB should be placed at the end
+            val fabPositionX = fabCoords!!.localToGlobal(PxPosition.Origin).x
+            val fabExpectedPositionX = appBarCoords!!.size.width.round().toPx() -
+                    16.dp.toIntPx().toPx() - 24.dp.toIntPx().toPx()
+            Truth.assertThat(fabPositionX).isEqualTo(fabExpectedPositionX)
+        }
+    }
+
+    @Test
+    fun bottomAppBar_endCutoutFab_positioning() {
+        var appBarCoords: LayoutCoordinates? = null
+        var fabCoords: LayoutCoordinates? = null
+        var actionCoords: LayoutCoordinates? = null
+        composeTestRule.setMaterialContent {
+            Container {
+                OnChildPositioned(onPositioned = { coords ->
+                    appBarCoords = coords
+                }) {
+                    BottomAppBar(
+                        fabConfiguration = FabConfiguration(FabPosition.End, CircleShape) {
+                            OnChildPositioned(onPositioned = { coords ->
+                                fabCoords = coords
+                            }) {
+                                FakeIcon()
+                            }
+                        },
                         contextualActions = createImageList(1),
                         action = {
                             OnChildPositioned(onPositioned = { coords ->

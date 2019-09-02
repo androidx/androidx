@@ -18,39 +18,124 @@ package androidx.ui.material.demos
 
 import androidx.compose.Composable
 import androidx.compose.composer
+import androidx.compose.state
 import androidx.compose.unaryPlus
 import androidx.ui.core.Text
+import androidx.ui.core.dp
+import androidx.ui.layout.Alignment
 import androidx.ui.layout.Column
+import androidx.ui.layout.Container
+import androidx.ui.layout.FlexColumn
 import androidx.ui.layout.MainAxisAlignment
+import androidx.ui.material.RadioGroup
+import androidx.ui.material.demos.AppBarActivity.BottomAppBarOption.CenterFab
+import androidx.ui.material.demos.AppBarActivity.BottomAppBarOption.CutoutFab
+import androidx.ui.material.demos.AppBarActivity.BottomAppBarOption.EndFab
+import androidx.ui.material.demos.AppBarActivity.BottomAppBarOption.ExtendedCutoutFab
+import androidx.ui.material.demos.AppBarActivity.BottomAppBarOption.FancyAnimatingCutoutFab
+import androidx.ui.material.demos.AppBarActivity.BottomAppBarOption.NoFab
+import androidx.ui.material.demos.AppBarActivity.TopAppBarOption.NavIcon
+import androidx.ui.material.demos.AppBarActivity.TopAppBarOption.Simple
+import androidx.ui.material.samples.SimpleBottomAppBarCutoutFab
 import androidx.ui.material.samples.SimpleBottomAppBarCenterFab
 import androidx.ui.material.samples.SimpleBottomAppBarEndFab
+import androidx.ui.material.samples.SimpleBottomAppBarExtendedCutoutFab
+import androidx.ui.material.samples.SimpleBottomAppBarFancyAnimatingCutoutFab
 import androidx.ui.material.samples.SimpleBottomAppBarNoFab
 import androidx.ui.material.samples.SimpleTopAppBar
 import androidx.ui.material.samples.SimpleTopAppBarNavIcon
+import androidx.ui.material.surface.Surface
 import androidx.ui.material.themeTextStyle
 import androidx.ui.painting.imageFromResource
 
 class AppBarActivity : MaterialDemoActivity() {
 
+    private val favouriteImage by lazy { { imageFromResource(resources, R.drawable.ic_favorite) } }
+    private val navigationImage by lazy { { imageFromResource(resources, R.drawable.ic_menu) } }
+
+    private enum class TopAppBarOption(val description: String) {
+        Simple("Simple"),
+        NavIcon("With Nav Icon")
+    }
+
+    private enum class BottomAppBarOption(val description: String) {
+        NoFab("No FAB"),
+        CenterFab("Center FAB"),
+        EndFab("End FAB"),
+        CutoutFab("Cutout FAB"),
+        ExtendedCutoutFab("Extended Cutout FAB"),
+        FancyAnimatingCutoutFab("Fancy Animating Cutout FAB")
+    }
+
+    private val topAppBarOptions = listOf(Simple, NavIcon)
+    private val bottomAppBarOptions = listOf(
+        NoFab, CenterFab, EndFab, CutoutFab, ExtendedCutoutFab, FancyAnimatingCutoutFab
+    )
+
     @Composable
     override fun materialContent() {
-        val favouriteImage = { imageFromResource(resources, R.drawable.ic_favorite) }
-        val navigationImage = { imageFromResource(resources, R.drawable.ic_menu) }
-        Column(mainAxisAlignment = MainAxisAlignment.SpaceBetween) {
-            DemoText("TopAppBar")
-            SimpleTopAppBar(favouriteImage)
+        var selectedTopAppBar by +state { Simple }
+        var selectedBottomAppBar by +state { NoFab }
 
-            DemoText("TopAppBar - With navigation icon")
-            SimpleTopAppBarNavIcon(favouriteImage, navigationImage)
-
-            DemoText("BottomAppBar - No FAB")
-            SimpleBottomAppBarNoFab(favouriteImage, navigationImage)
-
-            DemoText("BottomAppBar - Center FAB")
-            SimpleBottomAppBarCenterFab(favouriteImage, navigationImage)
-
-            DemoText("BottomAppBar - End FAB")
-            SimpleBottomAppBarEndFab(favouriteImage)
+        Surface {
+            FlexColumn {
+                inflexible {
+                    Container(height = 120.dp, alignment = Alignment.TopCenter) {
+                        when (selectedTopAppBar) {
+                            Simple -> SimpleTopAppBar(favouriteImage)
+                            NavIcon -> SimpleTopAppBarNavIcon(favouriteImage, navigationImage)
+                        }
+                    }
+                }
+                flexible(1f) {
+                    Column(mainAxisAlignment = MainAxisAlignment.SpaceBetween) {
+                        DemoText("TopAppBar options")
+                        RadioGroup {
+                            topAppBarOptions.forEach { topAppBar ->
+                                RadioGroupTextItem(
+                                    selected = (topAppBar == selectedTopAppBar),
+                                    onSelect = { selectedTopAppBar = topAppBar },
+                                    text = topAppBar.description
+                                )
+                            }
+                        }
+                        DemoText("BottomAppBar options")
+                        RadioGroup {
+                            bottomAppBarOptions.forEach { bottomAppBar ->
+                                RadioGroupTextItem(
+                                    selected = (bottomAppBar == selectedBottomAppBar),
+                                    onSelect = { selectedBottomAppBar = bottomAppBar },
+                                    text = bottomAppBar.description
+                                )
+                            }
+                        }
+                    }
+                }
+                inflexible {
+                    Container(height = 120.dp, alignment = Alignment.BottomCenter) {
+                        when (selectedBottomAppBar) {
+                            NoFab -> SimpleBottomAppBarNoFab(favouriteImage, navigationImage)
+                            CenterFab -> SimpleBottomAppBarCenterFab(
+                                favouriteImage,
+                                navigationImage
+                            )
+                            EndFab -> SimpleBottomAppBarEndFab(favouriteImage)
+                            CutoutFab -> SimpleBottomAppBarCutoutFab(
+                                favouriteImage,
+                                navigationImage
+                            )
+                            ExtendedCutoutFab -> SimpleBottomAppBarExtendedCutoutFab(
+                                favouriteImage,
+                                navigationImage
+                            )
+                            FancyAnimatingCutoutFab -> SimpleBottomAppBarFancyAnimatingCutoutFab(
+                                favouriteImage,
+                                navigationImage
+                            )
+                        }
+                    }
+                }
+            }
         }
     }
 
