@@ -16,7 +16,7 @@ package androidx.ui.material {
     method public static void AppBarIcon(androidx.ui.painting.Image icon, kotlin.jvm.functions.Function0<kotlin.Unit> onClick);
     method public static <T> void BottomAppBar(androidx.ui.graphics.Color color = +themeColor({ 
     primary
-}), kotlin.jvm.functions.Function0<kotlin.Unit>? navigationIcon = (kotlin.jvm.functions.Function0<? extends kotlin.Unit>)null, kotlin.jvm.functions.Function0<kotlin.Unit>? floatingActionButton = (kotlin.jvm.functions.Function0<? extends kotlin.Unit>)null, androidx.ui.material.BottomAppBar.FabPosition fabPosition = Center, java.util.List<? extends T>? contextualActions = null, kotlin.jvm.functions.Function1<? super T,kotlin.Unit> action = {});
+}), kotlin.jvm.functions.Function0<kotlin.Unit>? navigationIcon = (kotlin.jvm.functions.Function0<? extends kotlin.Unit>)null, androidx.ui.material.BottomAppBar.FabConfiguration? fabConfiguration = null, java.util.List<? extends T>? contextualActions = null, kotlin.jvm.functions.Function1<? super T,kotlin.Unit> action = {});
     method public static <T> void TopAppBar(kotlin.jvm.functions.Function0<kotlin.Unit> title = {}, androidx.ui.graphics.Color color = +themeColor({ 
     primary
 }), kotlin.jvm.functions.Function0<kotlin.Unit>? navigationIcon = (kotlin.jvm.functions.Function0<? extends kotlin.Unit>)null, java.util.List<? extends T>? contextualActions = null, kotlin.jvm.functions.Function1<? super T,kotlin.Unit> action = {});
@@ -26,9 +26,13 @@ package androidx.ui.material {
     field public static final androidx.ui.material.BottomAppBar! INSTANCE;
   }
 
+  public static final class BottomAppBar.FabConfiguration {
+    ctor public BottomAppBar.FabConfiguration(internal androidx.ui.material.BottomAppBar.FabPosition fabPosition, internal androidx.ui.engine.geometry.Shape? cutoutShape, internal kotlin.jvm.functions.Function0<kotlin.Unit> fab);
+    method public androidx.ui.material.BottomAppBar.FabConfiguration copy(androidx.ui.material.BottomAppBar.FabPosition fabPosition, androidx.ui.engine.geometry.Shape? cutoutShape, kotlin.jvm.functions.Function0<kotlin.Unit> fab);
+  }
+
   public enum BottomAppBar.FabPosition {
     enum_constant public static final androidx.ui.material.BottomAppBar.FabPosition Center;
-    enum_constant public static final androidx.ui.material.BottomAppBar.FabPosition CenterCut;
     enum_constant public static final androidx.ui.material.BottomAppBar.FabPosition End;
   }
 
@@ -109,7 +113,7 @@ package androidx.ui.material {
     method public static void FloatingActionButton(kotlin.jvm.functions.Function0<kotlin.Unit>? onClick = null, androidx.ui.core.Dp minSize = FabSize, androidx.ui.engine.geometry.Shape shape = CircleShape, androidx.ui.graphics.Color color = +themeColor({ 
     primary
 }), androidx.ui.core.Dp elevation = 6.dp, kotlin.jvm.functions.Function0<kotlin.Unit> children);
-    method public static void FloatingActionButton(androidx.ui.painting.Image icon, kotlin.jvm.functions.Function0<kotlin.Unit>? onClick = null, androidx.ui.graphics.Color color = +themeColor({ 
+    method public static void FloatingActionButton(androidx.ui.painting.Image icon, kotlin.jvm.functions.Function0<kotlin.Unit>? onClick = null, androidx.ui.engine.geometry.Shape shape = CircleShape, androidx.ui.graphics.Color color = +themeColor({ 
     primary
 }), androidx.ui.core.Dp elevation = 6.dp);
     method public static void FloatingActionButton(String text, androidx.ui.painting.Image? icon = null, androidx.ui.text.TextStyle? textStyle = null, kotlin.jvm.functions.Function0<kotlin.Unit>? onClick = null, androidx.ui.graphics.Color color = +themeColor({ 
