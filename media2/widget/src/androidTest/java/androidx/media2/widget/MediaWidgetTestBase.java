@@ -51,6 +51,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 public class MediaWidgetTestBase extends MediaTestBase {
@@ -70,11 +71,13 @@ public class MediaWidgetTestBase extends MediaTestBase {
 
     Context mContext;
     Executor mMainHandlerExecutor;
+    Executor mSessionCallbackExecutor;
 
     @Before
     public void setupWidgetTest() {
         mContext = ApplicationProvider.getApplicationContext();
         mMainHandlerExecutor = ContextCompat.getMainExecutor(mContext);
+        mSessionCallbackExecutor = Executors.newFixedThreadPool(1);
     }
 
     static <T extends Activity> void setKeepScreenOn(ActivityTestRule<T> activityRule)
@@ -150,6 +153,7 @@ public class MediaWidgetTestBase extends MediaTestBase {
         SessionPlayer player = new MediaPlayer(mContext);
         MediaSession session = new MediaSession.Builder(mContext, player)
                 .setId(UUID.randomUUID().toString())
+                .setSessionCallback(mSessionCallbackExecutor, new MediaSession.SessionCallback() {})
                 .build();
         MediaController controller = new MediaController.Builder(mContext)
                 .setSessionToken(session.getToken())
