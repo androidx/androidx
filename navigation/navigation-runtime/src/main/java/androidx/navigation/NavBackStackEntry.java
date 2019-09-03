@@ -106,10 +106,6 @@ public final class NavBackStackEntry implements
         return mArgs;
     }
 
-    void setNavControllerViewModel(@NonNull NavControllerViewModel navControllerViewModel) {
-        mNavControllerViewModel = navControllerViewModel;
-    }
-
     /**
      * {@inheritDoc}
      * <p>
