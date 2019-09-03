@@ -17,6 +17,7 @@
 package androidx.ui.input
 
 import androidx.annotation.RestrictTo
+import androidx.annotation.VisibleForTesting
 import androidx.ui.text.TextRange
 
 /**
@@ -30,7 +31,9 @@ import androidx.ui.text.TextRange
 class EditProcessor {
 
     // The previous editor state we passed back to the user of this class.
-    private var mPreviousModel: EditorModel? = null
+    @VisibleForTesting
+    internal var mPreviousModel: EditorModel? = null
+        private set
 
     // The editing buffer used for applying editor commands from IME.
     private var mBuffer: EditingBuffer =
@@ -49,6 +52,7 @@ class EditProcessor {
                 initialSelection = model.selection)
         }
 
+        mPreviousModel = model
         textInputService?.onStateUpdated(model)
     }
 
