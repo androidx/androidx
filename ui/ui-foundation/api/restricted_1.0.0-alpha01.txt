@@ -44,8 +44,18 @@ package androidx.ui.foundation {
 
   public final class PopupKt {
     ctor public PopupKt();
-    method public static void Popup(androidx.ui.layout.Alignment alignment, androidx.ui.core.IntPxPosition offset = IntPxPosition(IntPx.Zero, IntPx.Zero), kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method public static void Popup(androidx.ui.layout.Alignment alignment, androidx.ui.core.IntPxPosition offset = IntPxPosition(IntPx.Zero, IntPx.Zero), androidx.ui.foundation.PopupProperties popupProperties = androidx.ui.foundation.PopupProperties(), kotlin.jvm.functions.Function0<kotlin.Unit> children);
     method public static void disposeActivityComposition(android.app.Activity activity);
+  }
+
+  public final class PopupProperties {
+    ctor public PopupProperties(boolean isFocusable, kotlin.jvm.functions.Function0<kotlin.Unit>? onDismissRequest);
+    ctor public PopupProperties();
+    method public boolean component1();
+    method public kotlin.jvm.functions.Function0<kotlin.Unit>? component2();
+    method public androidx.ui.foundation.PopupProperties copy(boolean isFocusable, kotlin.jvm.functions.Function0<kotlin.Unit>? onDismissRequest);
+    method public kotlin.jvm.functions.Function0<kotlin.Unit>? getOnDismissRequest();
+    method public boolean isFocusable();
   }
 
   public final class ScrollerKt {
