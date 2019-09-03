@@ -2468,17 +2468,6 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    Object getTag();"
-        errorLine2="    ~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/core/ImageInfo.java"
-            line="22"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    CaptureStage getCaptureStage();"
         errorLine2="    ~~~~~~~~~~~~">
         <location

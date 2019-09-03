@@ -16,6 +16,7 @@
 
 package androidx.camera.testing.fakes;
 
+import androidx.annotation.Nullable;
 import androidx.camera.core.ImageInfo;
 
 /**
@@ -33,6 +34,7 @@ public final class FakeImageInfo implements ImageInfo {
     }
 
     @Override
+    @Nullable
     public Object getTag() {
         return mTag;
     }
