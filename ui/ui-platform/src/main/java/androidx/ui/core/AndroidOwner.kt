@@ -302,13 +302,30 @@ class AndroidComposeView constructor(context: Context)
                 measureAndLayout()
             }
         }
+
+        if (!layoutNode.alignmentLinesRequired) {
+            layoutNode.needsRelayout = true
+            relayoutNodes += layoutNode
+            // Mark parents alignment lines as dirty, for cases when we needed alignment lines
+            // at some point, but currently they are not queried anymore. If they are actively
+            // queried, they will be made dirty below in this method.
+            var layout: LayoutNode? = layoutNode
+            while (layout != null && !layout.dirtyAlignmentLines) {
+                layout.dirtyAlignmentLines = true
+                layout = layout.parentLayoutNode
+            }
+            return
+        }
+
         var layout = layoutNode
-        while (layout.alignmentLinesRequired && !layout.needsRelayout) {
+        while (layout != layoutNode.alignmentLinesQueryOwner && !layout.needsRelayout) {
             layout.needsRelayout = true
+            layout.dirtyAlignmentLines = true
             if (layout.parentLayoutNode == null) break
             layout = layout.parentLayoutNode!!
         }
         layout.needsRelayout = true
+        layout.dirtyAlignmentLines = true
         relayoutNodes += layout
     }
 

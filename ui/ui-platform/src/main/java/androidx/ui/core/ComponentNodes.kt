@@ -533,15 +533,32 @@ class LayoutNode : ComponentNode(), Measurable, MeasureScope {
         internal set
 
     /**
-     * `true` when an ancestor requires our alignment lines
+     * `true` when the parent reads our alignment lines
      */
-    var alignmentLinesRequired = false
+    internal var alignmentLinesRead = false
 
     /**
      * `true` when the alignment lines have to be recomputed because the layout has
      * been remeasured
      */
-    var dirtyAlignmentLines = true
+    internal var dirtyAlignmentLines = true
+
+    /**
+     * `true` when an ancestor relies on our alignment lines
+     */
+    internal val alignmentLinesRequired
+        get() = alignmentLinesQueryOwner != null && alignmentLinesQueryOwner!!.alignmentLinesRead
+
+    /**
+     * Used by the parent to identify if the child has been queried for alignment lines since
+     * last measurement.
+     */
+    internal var alignmentLinesQueriedSinceLastLayout = false
+
+    /**
+     * The closest layout node above in the hierarchy which asked for alignment lines.
+     */
+    internal var alignmentLinesQueryOwner: LayoutNode? = null
 
     override val parentLayoutNode: LayoutNode?
         get() = super.containingLayoutNode
@@ -775,6 +792,7 @@ class LayoutNode : ComponentNode(), Measurable, MeasureScope {
         parentLayoutNode?.layoutChildrenDirty = true
         parentLayoutNode?.requestRemeasure()
         parentDataDirty = true
+        alignmentLinesQueryOwner = null
         super.detach()
     }
 
@@ -799,7 +817,6 @@ class LayoutNode : ComponentNode(), Measurable, MeasureScope {
         dirtyAlignmentLines = true
         layoutChildren.forEach { child ->
             child.affectsParentSize = false
-            child.alignmentLinesRequired = false
         }
         owner?.onStartMeasure(this)
         try {
@@ -838,12 +855,18 @@ class LayoutNode : ComponentNode(), Measurable, MeasureScope {
             owner?.onStartLayout(this)
             layoutChildren.forEach { child ->
                 child.isPlaced = false
-                child.alignmentLinesRequired = alignmentLinesRequired
-                if (dirtyAlignmentLines) child.dirtyAlignmentLines = true
+                if (alignmentLinesRequired && child.dirtyAlignmentLines) child.needsRelayout = true
+                if (!child.alignmentLinesRequired) {
+                    child.alignmentLinesQueryOwner = alignmentLinesQueryOwner
+                }
+                child.alignmentLinesQueriedSinceLastLayout = false
             }
             positionedDuringMeasurePass = parentLayoutNode?.isMeasuring ?: false ||
                     parentLayoutNode?.positionedDuringMeasurePass ?: false
             Placeable.positioningBlock()
+            layoutChildren.forEach { child ->
+                child.alignmentLinesRead = child.alignmentLinesQueriedSinceLastLayout
+            }
             owner?.onEndLayout(this)
             needsRelayout = false
 
@@ -871,9 +894,14 @@ class LayoutNode : ComponentNode(), Measurable, MeasureScope {
         }
     }
 
-    internal fun calculateAlignmentLines(): Map<AlignmentLine, IntPx> {
-        alignmentLinesRequired = true
-        if (dirtyAlignmentLines) placeChildren()
+    internal fun calculateAlignmentLines() : Map<AlignmentLine, IntPx> {
+        alignmentLinesRead = true
+        alignmentLinesQueryOwner = this
+        alignmentLinesQueriedSinceLastLayout = true
+        if (dirtyAlignmentLines) {
+            needsRelayout = true
+            placeChildren()
+        }
         return alignmentLines
     }
 

@@ -1338,6 +1338,111 @@ class AndroidLayoutDrawTest {
         assertEquals(2, outerChildLayouts)
     }
 
+    @Test
+    fun testAlignmentLines_whenQueriedAfterPlacing() {
+        val TestLine = VerticalAlignmentLine(::min)
+        val layoutLatch = CountDownLatch(1)
+        var childLayouts = 0
+        activityTestRule.runOnUiThreadIR {
+            activity.setContent {
+                val child = @Composable {
+                    Layout({}) { _, _ ->
+                        layout(0.ipx, 0.ipx, TestLine to 10.ipx) { ++childLayouts }
+                    }
+                }
+                val inner = @Composable {
+                    Layout({ Wrap { Wrap { child() } } }) { measurables, constraints ->
+                        val placeable = measurables[0].measure(constraints)
+                        layout(0.ipx, 0.ipx) {
+                            placeable.place(0.ipx, 0.ipx)
+                            assertEquals(10.ipx, placeable[TestLine])
+                        }
+                    }
+                }
+                Layout(inner) { measurables, constraints ->
+                    val placeable = measurables.first().measure(constraints)
+                    layout(placeable.width, placeable.height) {
+                        placeable.place(0.ipx, 0.ipx)
+                        layoutLatch.countDown()
+                    }
+                }
+            }
+        }
+        assertTrue(layoutLatch.await(1, TimeUnit.SECONDS))
+        // Two layouts as the alignment line was only queried after the child was placed.
+        assertEquals(2, childLayouts)
+    }
+
+    @Test
+    fun testAlignmentLines_whenQueriedAfterPlacing_haveCorrectNumberOfLayouts() {
+        val TestLine = VerticalAlignmentLine(::min)
+        var layoutLatch = CountDownLatch(1)
+        var childLayouts = 0
+        val model = OffsetModel(10.ipx)
+        activityTestRule.runOnUiThreadIR {
+            activity.setContent {
+                val child = @Composable {
+                    Layout({}) { _, _ ->
+                        layout(0.ipx, 0.ipx,TestLine to 10.ipx) {
+                            model.offset // To ensure relayout.
+                            ++childLayouts
+                        }
+                    }
+                }
+                val inner = @Composable {
+                    Layout({ WrapForceRelayout(model) { child() } }) { measurables, constraints ->
+                        val placeable = measurables[0].measure(constraints)
+                        layout(0.ipx, 0.ipx) {
+                            if (model.offset > 15.ipx) assertEquals(10.ipx, placeable[TestLine])
+                            placeable.place(0.ipx, 0.ipx)
+                            if (model.offset > 5.ipx) assertEquals(10.ipx, placeable[TestLine])
+                        }
+                    }
+                }
+                Layout(inner) { measurables, constraints ->
+                    val placeable = measurables.first().measure(constraints)
+                    layout(placeable.width, placeable.height) {
+                        model.offset // To ensure relayout.
+                        placeable.place(0.ipx, 0.ipx)
+                        layoutLatch.countDown()
+                    }
+                }
+            }
+        }
+        assertTrue(layoutLatch.await(1, TimeUnit.SECONDS))
+        // Two layouts as the alignment line was only queried after the child was placed.
+        assertEquals(2, childLayouts)
+
+        layoutLatch = CountDownLatch(1)
+        activityTestRule.runOnUiThreadIR { model.offset = 12.ipx }
+        assertTrue(layoutLatch.await(5, TimeUnit.SECONDS))
+        // Just one more layout as the alignment lines were speculatively calculated this time.
+        assertEquals(3, childLayouts)
+
+        layoutLatch = CountDownLatch(1)
+        activityTestRule.runOnUiThreadIR { model.offset = 17.ipx }
+        assertTrue(layoutLatch.await(1, TimeUnit.SECONDS))
+        // One layout as the alignment lines are queried before.
+        assertEquals(4, childLayouts)
+
+        layoutLatch = CountDownLatch(1)
+        activityTestRule.runOnUiThreadIR { model.offset = 12.ipx }
+        assertTrue(layoutLatch.await(1, TimeUnit.SECONDS))
+        // One layout as the alignment lines are still calculated speculatively.
+        assertEquals(5, childLayouts)
+
+        layoutLatch = CountDownLatch(1)
+        activityTestRule.runOnUiThreadIR { model.offset = 1.ipx }
+        assertTrue(layoutLatch.await(1, TimeUnit.SECONDS))
+        assertEquals(6, childLayouts)
+        layoutLatch = CountDownLatch(1)
+        activityTestRule.runOnUiThreadIR { model.offset = 10.ipx }
+        assertTrue(layoutLatch.await(1, TimeUnit.SECONDS))
+        // Two layouts again, since alignment lines were not queried during last layout,
+        // so we did not calculate them speculatively anymore.
+        assertEquals(8, childLayouts)
+    }
+
     /**
      * WithConstraints will cause a requestLayout during layout in some circumstances.
      * The test here is the minimal example from a bug.
@@ -1790,6 +1895,19 @@ private fun ScrollerLayout(
         layout(width, placeable.height) {
             onMaxPositionChanged()
             placeable.place(0.ipx, 0.ipx)
+        }
+    }
+}
+
+@Composable
+fun WrapForceRelayout(model: OffsetModel, children: @Composable() () -> Unit) {
+    Layout(children) { measurables, constraints ->
+        val placeables = measurables.map { it.measure(constraints) }
+        val width = placeables.maxBy { it.width.value }?.width ?: 0.ipx
+        val height = placeables.maxBy { it.height.value }?.height ?: 0.ipx
+        layout(width, height) {
+            model.offset
+            placeables.forEach { it.place(0.ipx, 0.ipx) }
         }
     }
 }
