@@ -79,6 +79,12 @@ public final class PreviewTest {
     private static final Size DEFAULT_RESOLUTION = new Size(640, 480);
     private static final Size SECONDARY_RESOLUTION = new Size(320, 240);
 
+    private static final Preview.PreviewSurfaceCallback MOCK_PREVIEW_SURFACE_CALLBACK =
+            mock(Preview.PreviewSurfaceCallback.class);
+    private static final Preview.OnPreviewOutputUpdateListener
+            MOCK_ON_PREVIEW_OUTPUT_UPDATE_LISTENER =
+            mock(Preview.OnPreviewOutputUpdateListener.class);
+
     private PreviewConfig mDefaultConfig;
     @Mock
     private OnPreviewOutputUpdateListener mMockListener;
@@ -102,6 +108,39 @@ public final class PreviewTest {
 
         // init CameraX before creating Preview to get preview size with CameraX's context
         mDefaultConfig = Preview.DEFAULT_CONFIG.getConfig(LensFacing.BACK);
+    }
+
+    @Test
+    @UiThreadTest
+    public void getAndSetPreviewSurfaceCallback() {
+        Preview preview = new Preview(mDefaultConfig);
+        preview.setPreviewSurfaceCallback(MOCK_PREVIEW_SURFACE_CALLBACK);
+        assertThat(preview.getPreviewSurfaceCallback()).isEqualTo(MOCK_PREVIEW_SURFACE_CALLBACK);
+    }
+
+    @Test
+    @UiThreadTest
+    public void removePreviewSurfaceCallback() {
+        Preview preview = new Preview(mDefaultConfig);
+        preview.setPreviewSurfaceCallback(MOCK_PREVIEW_SURFACE_CALLBACK);
+        preview.removePreviewSurfaceCallback();
+        assertThat(preview.getPreviewSurfaceCallback()).isNull();
+    }
+
+    @Test(expected = IllegalStateException.class)
+    @UiThreadTest
+    public void setPreviewSurfaceCallbackThenOnPreviewOutputUpdateListener_throwsException() {
+        Preview preview = new Preview(mDefaultConfig);
+        preview.setPreviewSurfaceCallback(MOCK_PREVIEW_SURFACE_CALLBACK);
+        preview.setOnPreviewOutputUpdateListener(MOCK_ON_PREVIEW_OUTPUT_UPDATE_LISTENER);
+    }
+
+    @Test(expected = IllegalStateException.class)
+    @UiThreadTest
+    public void setOnPreviewOutputUpdateListenerThenPreviewSurfaceCallback_throwsException() {
+        Preview preview = new Preview(mDefaultConfig);
+        preview.setOnPreviewOutputUpdateListener(MOCK_ON_PREVIEW_OUTPUT_UPDATE_LISTENER);
+        preview.setPreviewSurfaceCallback(MOCK_PREVIEW_SURFACE_CALLBACK);
     }
 
     @FlakyTest
