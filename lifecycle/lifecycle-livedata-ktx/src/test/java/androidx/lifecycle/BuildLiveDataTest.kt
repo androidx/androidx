@@ -1,4 +1,4 @@
-/*
+ /*
  * Copyright 2019 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -419,6 +419,40 @@ class BuildLiveDataTest {
         ld.addObserver().assertItems(3, 4)
         // re-observe, get latest value only
         ld.addObserver().assertItems(4)
+    }
+
+    @Test
+    fun raceTest() {
+        val subLiveData = MutableLiveData(1)
+        val subject = liveData(testScope.coroutineContext) {
+            emitSource(subLiveData)
+            emitSource(subLiveData)
+            emit(2)
+        }
+        subject.addObserver().apply {
+            scopes.triggerAllActions()
+            assertItems(1, 1, 2)
+            subLiveData.value = 3
+            scopes.triggerAllActions()
+            // we do not expect 3 because it is disposed
+            assertItems(1, 1, 2)
+        }
+    }
+
+    @Test
+    fun raceTest_withCustomDispose() {
+        val subLiveData = MutableLiveData(1)
+        val subject = liveData(testScope.coroutineContext) {
+            emitSource(subLiveData).dispose()
+            emitSource(subLiveData)
+        }
+        subject.addObserver().apply {
+            scopes.triggerAllActions()
+            assertItems(1, 1)
+            subLiveData.value = 3
+            scopes.triggerAllActions()
+            assertItems(1, 1, 3)
+        }
     }
 
     private fun <T> LiveData<T>.addObserver() = this.addObserver(scopes)
