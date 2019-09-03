@@ -47,8 +47,6 @@ internal class MultiParagraph(
 ) {
     /**
      * The width for text if all soft wrap opportunities were taken.
-     *
-     * Valid only after [layout] has been called.
      */
     val minIntrinsicWidth: Float
         get() = paragraphInfoList.foldRight(0f) { paragraphInfo, minWidth ->
@@ -58,8 +56,6 @@ internal class MultiParagraph(
     /**
      * Returns the smallest width beyond which increasing the width never
      * decreases the height.
-     *
-     * Valid only after [layout] has been called.
      */
     val maxIntrinsicWidth: Float
         get() = paragraphInfoList.foldRight(0f) { paragraphInfo, maxWidth ->
