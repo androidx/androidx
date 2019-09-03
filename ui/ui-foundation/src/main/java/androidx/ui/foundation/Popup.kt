@@ -16,13 +16,16 @@
 
 package androidx.ui.foundation
 
+import android.app.Activity
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.view.Gravity
 import android.view.View
+import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.PopupWindow
 import androidx.compose.Composable
+import androidx.compose.Compose
 import androidx.compose.ambient
 import androidx.compose.composer
 import androidx.compose.disposeComposition
@@ -30,6 +33,7 @@ import androidx.compose.memo
 import androidx.compose.onCommit
 import androidx.compose.onDispose
 import androidx.compose.unaryPlus
+import androidx.ui.core.AndroidCraneView
 import androidx.ui.core.AndroidCraneViewAmbient
 import androidx.ui.core.ContextAmbient
 import androidx.ui.core.IntPx
@@ -182,4 +186,17 @@ internal fun calculatePopupGlobalPosition(
     popupGlobalPosition += offset
 
     return popupGlobalPosition
+}
+
+// TODO(b/140396932): Remove once Activity.disposeComposition() is working properly
+/**
+ * Disposes the root view of the Activity.
+ */
+fun disposeActivityComposition(activity: Activity) {
+    val craneView = activity.window.decorView
+        .findViewById<ViewGroup>(android.R.id.content)
+        .getChildAt(0) as? AndroidCraneView
+        ?: error("No root view found")
+
+    Compose.disposeComposition(craneView.root, activity, null)
 }
