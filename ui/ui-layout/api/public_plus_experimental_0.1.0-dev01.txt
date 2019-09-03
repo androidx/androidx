@@ -176,7 +176,7 @@ package androidx.ui.layout {
 
   public final class TableChildren {
     method public void tableDecoration(boolean overlay, kotlin.jvm.functions.Function1<? super androidx.ui.layout.TableDecorationChildren,kotlin.Unit> decoration);
-    method public void tableRow(kotlin.jvm.functions.Function1<? super java.lang.Integer,kotlin.Unit> children);
+    method public void tableRow(kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
 
   public abstract class TableColumnWidth {
