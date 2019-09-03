@@ -100,8 +100,13 @@ public final class NavHostController extends NavController {
      * Sets the host's ViewModelStore used by the NavController to store ViewModels at the
      * navigation graph level. This is required to call {@link #getViewModelStoreOwner} and
      * should generally be called for you by your {@link NavHost}.
+     * <p>
+     * You must call this method before {@link #setGraph(int)} or similar methods, because the
+     * {@link ViewModelStore} set here will be used by the created {@link NavBackStackEntry} items.
      *
      * @param viewModelStore ViewModelStore used to store ViewModels at the navigation graph level
+     * @throws IllegalStateException if this method is called when graph was already set via
+     * {@link #setGraph(int)} or similar methods.
      */
     @Override
     public void setViewModelStore(@NonNull ViewModelStore viewModelStore) {
