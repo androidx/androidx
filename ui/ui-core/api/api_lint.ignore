@@ -105,10 +105,6 @@ EndsWithImpl: androidx.ui.core.DensityReceiverImpl:
     Don't expose your implementation details: `DensityReceiverImpl` ends with `Impl`
 
 
-HiddenTypeParameter: androidx.ui.graphics.colorspace.Rgb#Companion:
-    Field Rgb.Companion references hidden type androidx.ui.graphics.colorspace.Rgb.Companion.
-
-
 KotlinOperator: androidx.ui.engine.geometry.RRect#contains(androidx.ui.engine.geometry.Offset):
     Note that adding the `operator` keyword would allow calling this method using operator syntax
 KotlinOperator: androidx.ui.engine.geometry.Rect#contains(androidx.ui.engine.geometry.Offset):
@@ -187,12 +183,8 @@ MissingNullability: androidx.ui.engine.geometry.Size#Companion:
     Missing nullability on field `Companion` in class `class androidx.ui.engine.geometry.Size`
 MissingNullability: androidx.ui.graphics.Color#Companion:
     Missing nullability on field `Companion` in class `class androidx.ui.graphics.Color`
-MissingNullability: androidx.ui.graphics.colorspace.ColorSpace#Companion:
-    Missing nullability on field `Companion` in class `class androidx.ui.graphics.colorspace.ColorSpace`
 MissingNullability: androidx.ui.graphics.colorspace.ColorSpaces#INSTANCE:
     Missing nullability on field `INSTANCE` in class `class androidx.ui.graphics.colorspace.ColorSpaces`
-MissingNullability: androidx.ui.graphics.colorspace.Connector#Companion:
-    Missing nullability on field `Companion` in class `class androidx.ui.graphics.colorspace.Connector`
 MissingNullability: androidx.ui.graphics.colorspace.Illuminant#INSTANCE:
     Missing nullability on field `INSTANCE` in class `class androidx.ui.graphics.colorspace.Illuminant`
 MissingNullability: androidx.ui.painting.MaskFilter#Companion:
