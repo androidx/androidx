@@ -16,9 +16,12 @@
 
 package androidx.camera.core;
 
+import androidx.annotation.Nullable;
+
 /** Metadata for an image. */
 public interface ImageInfo {
     /** Returns the tag of the metadata. */
+    @Nullable
     Object getTag();
     /** Returns the timestamp of the metadata. */
     long getTimestamp();
