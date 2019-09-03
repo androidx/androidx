@@ -30,6 +30,7 @@ import androidx.ui.core.setContent
 import androidx.ui.foundation.Clickable
 import androidx.ui.foundation.Popup
 import androidx.ui.foundation.VerticalScroller
+import androidx.ui.foundation.disposeActivityComposition
 import androidx.ui.foundation.shape.DrawShape
 import androidx.ui.foundation.shape.RectangleShape
 import androidx.ui.foundation.shape.corner.CircleShape
@@ -134,6 +135,13 @@ class PopupActivity : Activity() {
                 }
             }
         }
+    }
+
+    // TODO(b/140396932): Replace with Activity.disposeComposition() when it will be working
+    //  properly
+    override fun onDestroy() {
+        disposeActivityComposition(this)
+        super.onDestroy()
     }
 }
 

@@ -45,6 +45,7 @@ package androidx.ui.foundation {
   public final class PopupKt {
     ctor public PopupKt();
     method public static void Popup(androidx.ui.layout.Alignment alignment, androidx.ui.core.IntPxPosition offset = IntPxPosition(IntPx.Zero, IntPx.Zero), kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method public static void disposeActivityComposition(android.app.Activity activity);
   }
 
   public final class ScrollerKt {
