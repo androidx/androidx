@@ -52,16 +52,12 @@ interface Paragraph {
 
     /**
      * The width for text if all soft wrap opportunities were taken.
-     *
-     * Valid only after [layout] has been called.
      */
     val minIntrinsicWidth: Float
 
     /**
      * Returns the smallest width beyond which increasing the width never
      * decreases the height.
-     *
-     * Valid only after [layout] has been called.
      */
     val maxIntrinsicWidth: Float
 
