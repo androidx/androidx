@@ -238,7 +238,7 @@ val AutofillTreeAmbient = Ambient.of<AutofillTree>()
 
 val LayoutDirectionAmbient = Ambient.of<LayoutDirection>()
 
-internal val FocusManagerAmbient = Ambient.of<FocusManager>()
+val FocusManagerAmbient = Ambient.of<FocusManager>()
 
 internal val TextInputServiceAmbient = Ambient.of<TextInputService?>()
 

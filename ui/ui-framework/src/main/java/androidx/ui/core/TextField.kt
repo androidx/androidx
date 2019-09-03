@@ -19,6 +19,7 @@ import androidx.compose.composer
 import androidx.compose.Composable
 import androidx.compose.ambient
 import androidx.compose.memo
+import androidx.compose.onDispose
 import androidx.compose.state
 import androidx.compose.unaryPlus
 import androidx.ui.core.gesture.TouchSlopDragGestureDetector
@@ -82,7 +83,19 @@ fun TextField(
     /** Called when the input field loses focus. */
     onBlur: () -> Unit = {},
 
-    /** Called when the InputMethod requested an IME action */
+    /** Optional value to identify focus identifier
+     *
+     *  You can pass FocusManager.requestFocus to this value to move focus to this TextField.
+     *  This identifier must be unique in your app. If you have duplicated identifiers, the behavior
+     *  is undefined.
+     */
+    focusIdentifier: String? = null,
+
+    /**
+     *  Called when the InputMethod requested an IME action
+     *
+     *  TODO(nona): Provide default focus movement implementation with traversing semantics tree.
+     */
     onImeActionPerformed: (ImeAction) -> Unit = {},
 
     /**
@@ -129,6 +142,7 @@ fun TextField(
 
         processor.onNewState(value, textInputService)
         TextInputEventObserver(
+            focusIdentifier = focusIdentifier,
             onPress = { },
             onFocus = {
                 hasFocus.value = true
@@ -222,24 +236,41 @@ private fun TextInputEventObserver(
     onRelease: (PxPosition) -> Unit,
     onFocus: () -> Unit,
     onBlur: () -> Unit,
+    focusIdentifier: String?,
     children: @Composable() () -> Unit
 ) {
     val focused = +state { false }
     val focusManager = +ambient(FocusManagerAmbient)
 
+    val focusNode = +memo {
+        val node = object : FocusManager.FocusNode {
+            override fun onFocus() {
+                onFocus()
+                focused.value = true
+            }
+
+            override fun onBlur() {
+                onBlur()
+                focused.value = false
+            }
+        }
+
+        if (focusIdentifier != null)
+            focusManager.registerFocusNode(focusIdentifier, node)
+
+        node
+    }
+
+    +onDispose {
+        if (focusIdentifier != null)
+            focusManager.unregisterFocusNode(focusIdentifier)
+    }
+
+    // TODO: unregister when memo-ed object has disposed.
+
     val doFocusIn = {
         if (!focused.value) {
-            focusManager.requestFocus(object : FocusManager.FocusNode {
-                override fun onFocus() {
-                    onFocus()
-                    focused.value = true
-                }
-
-                override fun onBlur() {
-                    onBlur()
-                    focused.value = false
-                }
-            })
+            focusManager.requestFocus(focusNode)
         }
     }
 
