@@ -26,6 +26,8 @@ import android.widget.FrameLayout
 import android.widget.PopupWindow
 import androidx.compose.Composable
 import androidx.compose.Compose
+import androidx.compose.Context
+import androidx.compose.Immutable
 import androidx.compose.ambient
 import androidx.compose.composer
 import androidx.compose.disposeComposition
@@ -57,35 +59,41 @@ import androidx.ui.layout.Alignment
  *
  * @param alignment The alignment relative to the parent.
  * @param offset An offset from the original aligned position of the popup.
+ * @param popupProperties Provides extended set of properties to configure the popup.
  * @param children The content to be displayed inside the popup.
  */
 @Composable
 fun Popup(
     alignment: Alignment,
     offset: IntPxPosition = IntPxPosition(IntPx.Zero, IntPx.Zero),
+    popupProperties: PopupProperties = PopupProperties(),
     children: @Composable() () -> Unit
 ) {
     val context = +ambient(ContextAmbient)
     // TODO(b/139866476): Decide if we want to expose the AndroidCraneView
     val craneView = +ambient(AndroidCraneViewAmbient)
 
-    val popupProperties = +memo {
-        PopupProperties(
+    val popupPositionProperties = +memo {
+        PopupPositionProperties(
             alignment = alignment,
             offset = offset,
             craneView = craneView
         )
     }
-    popupProperties.alignment = alignment
-    popupProperties.offset = offset
+    popupPositionProperties.alignment = alignment
+    popupPositionProperties.offset = offset
 
     val frameLayout = +memo { FrameLayout(context) }
     val popup = +memo {
-        PopupWindow(context).apply {
+        PopupWrapper(context).apply {
             contentView = frameLayout
             setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
         }
     }
+
+    // Set popup properties
+    popup.isFocusable = popupProperties.isFocusable
+    popup.onDismissRequest = popupProperties.onDismissRequest
 
     // Get the parent's global position and size
     OnPositioned { coordinates ->
@@ -93,17 +101,17 @@ fun Popup(
         val layoutPosition = coordinates.localToGlobal(PxPosition.Origin)
         val layoutSize = coordinates.size
 
-        popupProperties.parentPosition = layoutPosition
-        popupProperties.parentSize = layoutSize
+        popupPositionProperties.parentPosition = layoutPosition
+        popupPositionProperties.parentSize = layoutSize
 
-        updatePopup(popup, popupProperties)
+        updatePopup(popup, popupPositionProperties)
     }
 
     +onCommit {
         frameLayout.setContent {
             OnChildPositioned({
-                popupProperties.childrenSize = it.size
-                updatePopup(popup, popupProperties)
+                popupPositionProperties.childrenSize = it.size
+                updatePopup(popup, popupPositionProperties)
             }) {
                 children()
             }
@@ -112,22 +120,51 @@ fun Popup(
 
     +onDispose {
         frameLayout.disposeComposition()
-        popup.dismiss()
+        // Call the dismiss method of the PopupWindow which actually dismisses the popup
+        popup.dismissWithoutNotifying()
     }
 }
 
-private fun updatePopup(popup: PopupWindow, popupProperties: PopupProperties) {
+private class PopupWrapper(context: Context) : PopupWindow(context) {
+    var onDismissRequest: (() -> Unit)? = null
+
+    override fun dismiss() {
+        // Invoke the onDismissRequest and prevent the PopupWindow from dismissing itself
+        onDismissRequest?.invoke()
+    }
+
+    fun dismissWithoutNotifying() {
+        // Dismiss the PopupWindow
+        super.dismiss()
+    }
+}
+
+// TODO(b/139800142): Add other PopupWindow properties which may be needed
+@Immutable
+data class PopupProperties(
+    /**
+     * Indicates if the popup can grab the focus.
+     */
+    val isFocusable: Boolean = false,
+    /**
+     * Executes when the popup tries to dismiss itself.
+     * This happens when the popup is focusable and the user clicks outside.
+     */
+    val onDismissRequest: (() -> Unit)? = null
+)
+
+private fun updatePopup(popup: PopupWindow, popupPositionProperties: PopupPositionProperties) {
     val popupGlobalPosition = calculatePopupGlobalPosition(
-        popupProperties.parentPosition,
-        popupProperties.alignment,
-        popupProperties.offset,
-        popupProperties.parentSize,
-        popupProperties.childrenSize
+        popupPositionProperties.parentPosition,
+        popupPositionProperties.alignment,
+        popupPositionProperties.offset,
+        popupPositionProperties.parentSize,
+        popupPositionProperties.childrenSize
     )
 
     if (!popup.isShowing) {
         popup.showAtLocation(
-            popupProperties.craneView,
+            popupPositionProperties.craneView,
             Gravity.NO_GRAVITY,
             popupGlobalPosition.x.value,
             popupGlobalPosition.y.value
@@ -144,7 +181,7 @@ private fun updatePopup(popup: PopupWindow, popupProperties: PopupProperties) {
     }
 }
 
-private class PopupProperties(
+private data class PopupPositionProperties(
     var alignment: Alignment,
     var offset: IntPxPosition,
     val craneView: View
