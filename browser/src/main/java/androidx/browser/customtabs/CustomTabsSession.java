@@ -192,11 +192,19 @@ public final class CustomTabsSession {
      *         asynchronous.
      */
     public boolean requestPostMessageChannel(@NonNull Uri postMessageOrigin) {
-        Bundle extras = new Bundle();
-        addIdToBundle(extras);
         try {
-            return mService.requestPostMessageChannelWithExtras(
-                    mCallback, postMessageOrigin, extras);
+            // If mId is not null we know that the CustomTabsService supports
+            // requestPostMessageChannelWithExtras. That is because non-null mId means that
+            // CustomTabsSession was created with CustomTabsClient#newSession(Callback int), which
+            // can succeed only when browsers supporting CustomTabsService#newSessionWithExtras.
+            // This was added at the same time as requestPostMessageChannelWithExtras.
+            if (mId != null) {
+                return mService.requestPostMessageChannelWithExtras(
+                        mCallback, postMessageOrigin, createBundleWithId(null));
+            } else {
+                return mService.requestPostMessageChannel(mCallback, postMessageOrigin);
+            }
+
         } catch (RemoteException e) {
             return false;
         }

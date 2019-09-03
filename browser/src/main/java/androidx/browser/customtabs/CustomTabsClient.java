@@ -215,6 +215,8 @@ public class CustomTabsClient {
      * @return The session object that was created as a result of the transaction. The client can
      *         use this to relay session specific calls.
      *         Null if the service failed to respond (threw a RemoteException).
+     *         If {@code null} is returned, attempt using {@link #newSession(CustomTabsCallback)}
+     *         which is supported with older browsers.
      */
     public @Nullable CustomTabsSession newSession(@Nullable final CustomTabsCallback callback,
             int id) {
