@@ -29,6 +29,8 @@ import androidx.ui.material.samples.FancyIndicatorContainerTabs
 import androidx.ui.material.samples.FancyIndicatorTabs
 import androidx.ui.material.samples.FancyTabs
 import androidx.ui.material.samples.IconTabs
+import androidx.ui.material.samples.ScrollingFancyIndicatorContainerTabs
+import androidx.ui.material.samples.ScrollingTextTabs
 import androidx.ui.material.samples.TextAndIconTabs
 import androidx.ui.material.samples.TextTabs
 import androidx.ui.graphics.imageFromResource
@@ -47,10 +49,12 @@ class TabActivity : MaterialDemoActivity() {
                     TextTabs()
                     IconTabs(favouriteImage)
                     TextAndIconTabs(favouriteImage)
+                    ScrollingTextTabs()
                 } else {
                     FancyTabs()
                     FancyIndicatorTabs()
                     FancyIndicatorContainerTabs()
+                    ScrollingFancyIndicatorContainerTabs()
                 }
             }
 

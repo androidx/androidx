@@ -273,7 +273,7 @@ package androidx.ui.material {
   public final class TabKt {
     ctor public TabKt();
     method public static void Tab(String? text = null, androidx.ui.graphics.Image? icon = null, boolean selected, kotlin.jvm.functions.Function0<kotlin.Unit> onSelected);
-    method public static <T> void TabRow(java.util.List<? extends T> items, int selectedIndex, kotlin.jvm.functions.Function1<? super java.util.List<androidx.ui.material.TabRow.TabPosition>,kotlin.Unit> indicatorContainer = { tabPositions -> TabRow.IndicatorContainer(tabPositions, selectedIndex, { 
+    method public static <T> void TabRow(java.util.List<? extends T> items, int selectedIndex, boolean scrollable = false, kotlin.jvm.functions.Function1<? super java.util.List<androidx.ui.material.TabRow.TabPosition>,kotlin.Unit> indicatorContainer = { tabPositions -> TabRow.IndicatorContainer(tabPositions, selectedIndex, { 
     TabRow.Indicator()
 }) }, kotlin.jvm.functions.Function2<? super java.lang.Integer,? super T,kotlin.Unit> tab);
   }
@@ -285,14 +285,13 @@ package androidx.ui.material {
   }
 
   public static final class TabRow.TabPosition {
-    ctor public TabRow.TabPosition(androidx.ui.core.Dp xOffset, androidx.ui.core.Dp width, androidx.ui.core.Dp height);
-    method public androidx.ui.core.Dp component1();
-    method public androidx.ui.core.Dp component2();
-    method public androidx.ui.core.Dp component3();
-    method public androidx.ui.material.TabRow.TabPosition copy(androidx.ui.core.Dp xOffset, androidx.ui.core.Dp width, androidx.ui.core.Dp height);
-    method public androidx.ui.core.Dp getHeight();
-    method public androidx.ui.core.Dp getWidth();
-    method public androidx.ui.core.Dp getXOffset();
+    method public androidx.ui.core.IntPx component1();
+    method public androidx.ui.core.IntPx component2();
+    method public androidx.ui.material.TabRow.TabPosition copy(androidx.ui.core.IntPx left, androidx.ui.core.IntPx width);
+    method public androidx.ui.core.IntPx getLeft();
+    method public androidx.ui.core.IntPx getRight();
+    method public androidx.ui.core.IntPx getWidth();
+    property public final androidx.ui.core.IntPx right;
   }
 
   public final class TextKt {

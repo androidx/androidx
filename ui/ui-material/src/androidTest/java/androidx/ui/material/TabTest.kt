@@ -19,7 +19,6 @@ import androidx.compose.Composable
 import androidx.compose.composer
 import androidx.compose.state
 import androidx.compose.unaryPlus
-import androidx.test.filters.FlakyTest
 import androidx.test.filters.LargeTest
 import androidx.ui.core.Alignment
 import androidx.ui.core.LayoutCoordinates
@@ -31,6 +30,7 @@ import androidx.ui.core.withDensity
 import androidx.ui.foundation.ColoredRect
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Container
+import androidx.ui.material.samples.ScrollingTextTabs
 import androidx.ui.material.samples.TextTabs
 import androidx.ui.material.surface.Surface
 import androidx.ui.graphics.Image
@@ -104,20 +104,20 @@ class TabTest {
             .assertHeightEqualsTo(ExpectedLargeTabHeight)
     }
 
-    @FlakyTest(bugId = 141741358, detail = "Fails with No static method tabRow_indicatorPosition")
     @Test
-    fun tabRow_indicatorPosition() {
+    fun fixedTabRow_indicatorPosition() {
         val indicatorHeight = 1.dp
         var tabRowCoords: LayoutCoordinates? = null
         var indicatorCoords: LayoutCoordinates? = null
 
         composeTestRule
             .setMaterialContent {
-                val state = +state { 0 }
+                // TODO: Go back to delegate syntax when b/141741358 is fixed
+                val (state, setState) = +state { 0 }
                 val titles = listOf("TAB 1", "TAB 2")
 
                 val indicatorContainer = @Composable { tabPositions: List<TabRow.TabPosition> ->
-                    TabRow.IndicatorContainer(tabPositions, state.value) {
+                    TabRow.IndicatorContainer(tabPositions, state) {
                         OnChildPositioned({ indicatorCoords = it }) {
                             ColoredRect(Color.Red, height = indicatorHeight)
                         }
@@ -128,11 +128,11 @@ class TabTest {
                     OnChildPositioned({ tabRowCoords = it }) {
                         TabRow(
                             items = titles,
-                            selectedIndex = state.value,
+                            selectedIndex = state,
                             indicatorContainer = indicatorContainer
                         ) { index, text ->
-                            Tab(text = text, selected = state.value == index) {
-                                state.value = index
+                            Tab(text = text, selected = state == index) {
+                                setState(index)
                             }
                         }
                     }
@@ -174,7 +174,83 @@ class TabTest {
     }
 
     @Test
-    fun tabRow_initialTabSelected() {
+    fun scrollableTabRow_indicatorPosition() {
+        val indicatorHeight = 1.dp
+        val scrollableTabRowOffset = 52.dp
+        val minimumTabWidth = 90.dp
+        var tabRowCoords: LayoutCoordinates? = null
+        var indicatorCoords: LayoutCoordinates? = null
+
+        composeTestRule
+            .setMaterialContent {
+                // TODO: Go back to delegate syntax when b/141741358 is fixed
+                val (state, setState) = +state { 0 }
+                val titles = listOf("TAB 1", "TAB 2")
+
+                val indicatorContainer = @Composable { tabPositions: List<TabRow.TabPosition> ->
+                    TabRow.IndicatorContainer(tabPositions, state) {
+                        OnChildPositioned({ indicatorCoords = it }) {
+                            ColoredRect(Color.Red, height = indicatorHeight)
+                        }
+                    }
+                }
+
+                Container(alignment = Alignment.TopCenter) {
+                    OnChildPositioned({ tabRowCoords = it }) {
+                        TabRow(
+                            items = titles,
+                            scrollable = true,
+                            selectedIndex = state,
+                            indicatorContainer = indicatorContainer
+                        ) { index, text ->
+                            Tab(text = text, selected = state == index) {
+                                setState(index)
+                            }
+                        }
+                    }
+                }
+            }
+
+        val tabRowHeight = tabRowCoords!!.size.height
+
+        // Indicator is drawn in a recomposition, so wait until we recompose and are stable before
+        // running assertions
+        findAll { isInMutuallyExclusiveGroup }
+
+        // Indicator should be placed in the bottom left of the first tab
+        withDensity(composeTestRule.density) {
+            val indicatorPositionX = indicatorCoords!!.localToGlobal(PxPosition.Origin).x
+            // Tabs in a scrollable tab row are offset 52.dp from each end
+            val expectedPositionX = scrollableTabRowOffset.toIntPx().toPx()
+            Truth.assertThat(indicatorPositionX).isEqualTo(expectedPositionX)
+
+            val indicatorPositionY = indicatorCoords!!.localToGlobal(PxPosition.Origin).y
+            val expectedPositionY = tabRowHeight - indicatorHeight.toIntPx().toPx()
+            Truth.assertThat(indicatorPositionY).isEqualTo(expectedPositionY)
+        }
+
+        // Click the second tab
+        findAll { isInMutuallyExclusiveGroup }[1].doClick()
+
+        // TODO: we aren't correctly waiting for recompositions after clicking, so we need to wait
+        // again
+        findAll { isInMutuallyExclusiveGroup }
+
+        // Indicator should now be placed in the bottom left of the second tab, so its x coordinate
+        // should be in the middle of the TabRow
+        withDensity(composeTestRule.density) {
+            val indicatorPositionX = indicatorCoords!!.localToGlobal(PxPosition.Origin).x
+            val expectedPositionX = (scrollableTabRowOffset + minimumTabWidth).toIntPx().toPx()
+            Truth.assertThat(indicatorPositionX).isEqualTo(expectedPositionX)
+
+            val indicatorPositionY = indicatorCoords!!.localToGlobal(PxPosition.Origin).y
+            val expectedPositionY = tabRowHeight - indicatorHeight.toIntPx().toPx()
+            Truth.assertThat(indicatorPositionY).isEqualTo(expectedPositionY)
+        }
+    }
+
+    @Test
+    fun fixedTabRow_initialTabSelected() {
         composeTestRule
             .setMaterialContent {
                 TextTabs()
@@ -192,7 +268,7 @@ class TabTest {
     }
 
     @Test
-    fun tabRow_selectNewTab() {
+    fun fixedTabRow_selectNewTab() {
         composeTestRule
             .setMaterialContent {
                 TextTabs()
@@ -222,5 +298,56 @@ class TabTest {
                 }
             }
         }.assertCountEquals(3)
+    }
+
+    @Test
+    fun scrollableTabRow_initialTabSelected() {
+        composeTestRule
+            .setMaterialContent {
+                ScrollingTextTabs()
+            }
+
+        findAll { isInMutuallyExclusiveGroup }.apply {
+            forEachIndexed { index, interaction ->
+                if (index == 0) {
+                    interaction.assertIsSelected()
+                } else {
+                    interaction.assertIsUnselected()
+                }
+            }
+        }.assertCountEquals(10)
+    }
+
+    @Test
+    fun scrollableTabRow_selectNewTab() {
+        composeTestRule
+            .setMaterialContent {
+                ScrollingTextTabs()
+            }
+
+        // Only the first tab should be selected
+        findAll { isInMutuallyExclusiveGroup }.apply {
+            forEachIndexed { index, interaction ->
+                if (index == 0) {
+                    interaction.assertIsSelected()
+                } else {
+                    interaction.assertIsUnselected()
+                }
+            }
+        }.assertCountEquals(10)
+
+        // Click the second tab
+        findAll { isInMutuallyExclusiveGroup }[1].doClick()
+
+        // Now only the second tab should be selected
+        findAll { isInMutuallyExclusiveGroup }.apply {
+            forEachIndexed { index, interaction ->
+                if (index == 1) {
+                    interaction.assertIsSelected()
+                } else {
+                    interaction.assertIsUnselected()
+                }
+            }
+        }.assertCountEquals(10)
     }
 }
