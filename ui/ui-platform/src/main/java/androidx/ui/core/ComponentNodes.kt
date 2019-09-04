@@ -531,7 +531,7 @@ class LayoutNode : ComponentNode(), Measurable {
      * Whether or not this has been placed in the hierarchy.
      */
     var isPlaced = false
-        private set
+        internal set
 
     /**
      * `true` when the parent's size depends on this LayoutNode's size
@@ -1346,6 +1346,25 @@ fun ComponentNode.findLastLayoutChild(block: (LayoutNode) -> Boolean): LayoutNod
             }
         }
     }
+    return null
+}
+
+/**
+ * Executes [selector] on every parent of this [ComponentNode] and returns the closest
+ * [ComponentNode] to return `true` from [selector] or null if [selector] returns false
+ * for all ancestors.
+ */
+fun ComponentNode.findClosestParentNode(selector: (ComponentNode) -> Boolean): ComponentNode? {
+    // TODO(b/143866294): move this to the testing side after the hierarchy isn't flattened anymore
+    var currentParent = parent
+    while (currentParent != null) {
+        if (selector(currentParent)) {
+            return currentParent
+        } else {
+            currentParent = currentParent.parent
+        }
+    }
+
     return null
 }
 

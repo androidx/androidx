@@ -17,12 +17,13 @@
 package androidx.ui.core
 
 import androidx.ui.core.semantics.SemanticsConfiguration
+import androidx.ui.engine.geometry.Rect
 
 /**
  * Represent a node in the semantics tree together with information about its parent and children.
  *
  * @param parent Parent of this node or null if none
- * @param data The actual semantics data of this node
+ * @param semanticsComponentNode The actual semantics data of this node
  */
 class SemanticsTreeNodeImpl(
     override val parent: SemanticsTreeNode?,
@@ -35,15 +36,26 @@ class SemanticsTreeNodeImpl(
     fun addChild(child: SemanticsTreeNode) {
         _children.add(child)
     }
-    override val globalPosition: PxPosition?
+    override val globalRect: Rect?
         get() {
             // TODO(ryanmentley): Handle multiple children better
-            val layoutNode = semanticsComponentNode.findLastLayoutChild { true }
-            return layoutNode?.localToGlobal(PxPosition(0.px, 0.px))
+            val layoutNode = semanticsComponentNode.findLastLayoutChild { true } ?: return null
+            val position = layoutNode.localToGlobal(PxPosition(0.px, 0.px))
+
+            return Rect.fromLTWH(
+                position.x.value,
+                position.y.value,
+                layoutNode.width.toPx().value,
+                layoutNode.height.toPx().value
+            )
         }
 
     override val data: SemanticsConfiguration
         get() = semanticsComponentNode.semanticsConfiguration
+
+    override fun findClosestParentNode(selector: (ComponentNode) -> Boolean): ComponentNode? {
+        return semanticsComponentNode.findClosestParentNode(selector)
+    }
 }
 
 /**

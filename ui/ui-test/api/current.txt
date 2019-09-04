@@ -13,8 +13,10 @@ package androidx.ui.test {
     method public static void assertDoesNotExist(kotlin.jvm.functions.Function1<? super androidx.ui.core.semantics.SemanticsConfiguration,java.lang.Boolean> selector);
     method public static androidx.ui.test.SemanticsNodeInteraction assertHasClickAction(androidx.ui.test.SemanticsNodeInteraction);
     method public static androidx.ui.test.SemanticsNodeInteraction assertHasNoClickAction(androidx.ui.test.SemanticsNodeInteraction);
+    method public static androidx.ui.test.SemanticsNodeInteraction assertIsDisplayed(androidx.ui.test.SemanticsNodeInteraction);
     method public static androidx.ui.test.SemanticsNodeInteraction assertIsHidden(androidx.ui.test.SemanticsNodeInteraction);
     method public static androidx.ui.test.SemanticsNodeInteraction assertIsInMutuallyExclusiveGroup(androidx.ui.test.SemanticsNodeInteraction);
+    method public static androidx.ui.test.SemanticsNodeInteraction assertIsNotDisplayed(androidx.ui.test.SemanticsNodeInteraction);
     method public static androidx.ui.test.SemanticsNodeInteraction assertIsOff(androidx.ui.test.SemanticsNodeInteraction);
     method public static androidx.ui.test.SemanticsNodeInteraction assertIsOn(androidx.ui.test.SemanticsNodeInteraction);
     method public static androidx.ui.test.SemanticsNodeInteraction assertIsSelected(androidx.ui.test.SemanticsNodeInteraction);
@@ -24,6 +26,7 @@ package androidx.ui.test {
     method public static androidx.ui.test.SemanticsNodeInteraction assertSemanticsIsEqualTo(androidx.ui.test.SemanticsNodeInteraction, androidx.ui.core.semantics.SemanticsConfiguration expectedProperties);
     method public static androidx.ui.test.SemanticsNodeInteraction assertValueEquals(androidx.ui.test.SemanticsNodeInteraction, String value);
     method public static void verify(androidx.ui.test.SemanticsNodeInteraction, kotlin.jvm.functions.Function1<? super androidx.ui.core.semantics.SemanticsConfiguration,java.lang.String> assertionMessage, kotlin.jvm.functions.Function1<? super androidx.ui.core.semantics.SemanticsConfiguration,java.lang.Boolean> condition);
+    method public static void verifyHierarchy(androidx.ui.test.SemanticsNodeInteraction, kotlin.jvm.functions.Function1<? super androidx.ui.core.semantics.SemanticsConfiguration,java.lang.String> assertionMessage, kotlin.jvm.functions.Function1<? super androidx.ui.core.semantics.SemanticsConfiguration,java.lang.Boolean> condition);
   }
 
   public final class CollectedSizes {

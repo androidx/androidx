@@ -88,6 +88,7 @@ package androidx.ui.core {
     ctor public ComponentNodesKt();
     method public static void add(androidx.ui.core.ComponentNode, androidx.ui.core.ComponentNode child);
     method public static androidx.ui.core.PxPosition childToLocal(androidx.ui.core.LayoutNode, androidx.ui.core.LayoutNode child, androidx.ui.core.PxPosition childLocal);
+    method public static androidx.ui.core.ComponentNode? findClosestParentNode(androidx.ui.core.ComponentNode, kotlin.jvm.functions.Function1<? super androidx.ui.core.ComponentNode,java.lang.Boolean> selector);
     method public static androidx.ui.core.LayoutNode? findLastLayoutChild(androidx.ui.core.ComponentNode, kotlin.jvm.functions.Function1<? super androidx.ui.core.LayoutNode,java.lang.Boolean> block);
     method public static androidx.ui.core.DataNodeKey<kotlin.jvm.functions.Function1<androidx.ui.core.LayoutCoordinates,kotlin.Unit>> getOnChildPositionedKey();
     method public static androidx.ui.core.DataNodeKey<kotlin.jvm.functions.Function1<androidx.ui.core.LayoutCoordinates,kotlin.Unit>> getOnPositionedKey();
@@ -173,6 +174,7 @@ package androidx.ui.core {
     method public void setModifier(androidx.ui.core.Modifier value);
     method public void setNeedsRelayout$lintWithKotlin(boolean p);
     method public void setNeedsRemeasure$lintWithKotlin(boolean p);
+    method public void setPlaced$lintWithKotlin(boolean p);
     method public void setPositionedDuringMeasurePass(boolean p);
     method public void setRef(androidx.ui.core.Ref<androidx.ui.core.LayoutNode>? value);
     property public final boolean affectsParentSize;
@@ -283,26 +285,28 @@ package androidx.ui.core {
   }
 
   public interface SemanticsTreeNode {
+    method public androidx.ui.core.ComponentNode? findClosestParentNode(kotlin.jvm.functions.Function1<? super androidx.ui.core.ComponentNode,java.lang.Boolean> selector);
     method public java.util.Set<androidx.ui.core.SemanticsTreeNode> getChildren();
     method public androidx.ui.core.semantics.SemanticsConfiguration getData();
-    method public androidx.ui.core.PxPosition? getGlobalPosition();
+    method public androidx.ui.engine.geometry.Rect? getGlobalRect();
     method public androidx.ui.core.SemanticsTreeNode? getParent();
     property public abstract java.util.Set<androidx.ui.core.SemanticsTreeNode> children;
     property public abstract androidx.ui.core.semantics.SemanticsConfiguration data;
-    property public abstract androidx.ui.core.PxPosition? globalPosition;
+    property public abstract androidx.ui.engine.geometry.Rect? globalRect;
     property public abstract androidx.ui.core.SemanticsTreeNode? parent;
   }
 
   public final class SemanticsTreeNodeImpl implements androidx.ui.core.SemanticsTreeNode {
     ctor public SemanticsTreeNodeImpl(androidx.ui.core.SemanticsTreeNode? parent, androidx.ui.core.SemanticsComponentNode semanticsComponentNode);
     method public void addChild(androidx.ui.core.SemanticsTreeNode child);
+    method public androidx.ui.core.ComponentNode? findClosestParentNode(kotlin.jvm.functions.Function1<? super androidx.ui.core.ComponentNode,java.lang.Boolean> selector);
     method public java.util.Set<androidx.ui.core.SemanticsTreeNode> getChildren();
     method public androidx.ui.core.semantics.SemanticsConfiguration getData();
-    method public androidx.ui.core.PxPosition? getGlobalPosition();
+    method public androidx.ui.engine.geometry.Rect? getGlobalRect();
     method public androidx.ui.core.SemanticsTreeNode? getParent();
     property public java.util.Set<androidx.ui.core.SemanticsTreeNode> children;
     property public androidx.ui.core.semantics.SemanticsConfiguration data;
-    property public androidx.ui.core.PxPosition? globalPosition;
+    property public androidx.ui.engine.geometry.Rect? globalRect;
   }
 
   public final class SemanticsTreeNodeImplKt {

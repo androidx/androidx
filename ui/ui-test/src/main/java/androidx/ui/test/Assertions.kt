@@ -16,8 +16,16 @@
 
 package androidx.ui.test
 
+import androidx.ui.core.LayoutNode
+import androidx.ui.core.PxPosition
+import androidx.ui.core.RepaintBoundaryNode
+import androidx.ui.core.SemanticsTreeNode
+import androidx.ui.core.localToGlobal
+import androidx.ui.core.px
 import androidx.ui.core.semantics.SemanticsConfiguration
 import androidx.ui.core.semantics.getOrNull
+import androidx.ui.core.toPx
+import androidx.ui.engine.geometry.Rect
 import androidx.ui.foundation.selection.ToggleableState
 import androidx.ui.foundation.semantics.FoundationSemanticsProperties
 import androidx.ui.semantics.SemanticsProperties
@@ -42,7 +50,7 @@ fun assertDoesNotExist(
  */
 // TODO(b/123702531): Provide guarantees of being visible VS being actually displayed
 fun SemanticsNodeInteraction.assertIsVisible(): SemanticsNodeInteraction {
-    verify({ "The component is not visible!" }) {
+    verifyHierarchy({ "The component is not visible!" }) {
         it.getOrNull(SemanticsProperties.Hidden) != true
     }
     return this
@@ -54,8 +62,38 @@ fun SemanticsNodeInteraction.assertIsVisible(): SemanticsNodeInteraction {
  * at all, please use [assertNoLongerExists]
  */
 fun SemanticsNodeInteraction.assertIsHidden(): SemanticsNodeInteraction {
-    verify({ "The component is visible!" }) {
+    verifyHierarchy({ "The component is visible!" }) {
         it.getOrNull(SemanticsProperties.Hidden) == true
+    }
+
+    return this
+}
+
+/**
+ * Asserts that the current component is displayed.
+ * This function also calls [assertIsVisible] to check if it is visible from a Semantics perspective
+ * and afterwards checks if it's bounding rectangle is contained inside the closest layout node.
+ */
+fun SemanticsNodeInteraction.assertIsDisplayed(): SemanticsNodeInteraction {
+    // TODO(b/143607231): check semantics hidden property
+    // TODO(b/143608742): check the correct AndroidCraneView is visible
+
+    verify({ "The component is not displayed!" }) {
+        checkIsDisplayed()
+    }
+    return this
+}
+
+/**
+ * Asserts that the current component is not displayed.
+ * This function checks if it's bounding rectangle is not contained inside the closest layout node.
+ */
+fun SemanticsNodeInteraction.assertIsNotDisplayed(): SemanticsNodeInteraction {
+    // TODO(b/143607231): check semantics hidden property
+    // TODO(b/143608742): check no AndroidCraneView contains the given component
+
+    verify({ "The component is displayed!" }) {
+        !checkIsDisplayed()
     }
 
     return this
@@ -225,6 +263,26 @@ fun SemanticsNodeInteraction.verify(
 }
 
 /**
+ * Verifies that the provided condition is true on all parent semantics nodes.
+ * Throws [AssertionError] if it is not.
+ */
+fun SemanticsNodeInteraction.verifyHierarchy(
+    assertionMessage: (SemanticsConfiguration) -> String,
+    condition: (SemanticsConfiguration) -> Boolean
+) {
+    assertExists()
+
+    var node: SemanticsTreeNode? = semanticsTreeNode
+    while (node != null) {
+        if (!condition.invoke(node.data)) {
+            // TODO(b/133217292)
+            throw AssertionError("Assert failed: ${assertionMessage(semanticsTreeNode.data)}")
+        }
+        node = node.parent
+    }
+}
+
+/**
  * Asserts that the component is still part of the component tree.
  */
 internal fun SemanticsNodeInteraction.assertExists() {
@@ -257,4 +315,52 @@ internal fun SemanticsNodeInteraction.assertIsSelectable(): SemanticsNodeInterac
     }
 
     return this
+}
+
+private fun SemanticsNodeInteraction.checkIsDisplayed(): Boolean {
+    // hierarchy check - check layout nodes are visible
+    if (semanticsTreeNode.findClosestParentNode {
+            it is LayoutNode && !it.isPlaced
+        } != null) {
+        return false
+    }
+
+    // check node doesn't clip unintentionally (e.g. row too small for content)
+    val globalRect = semanticsTreeNode.globalRect
+    if (!semanticsTreeInteraction.isInScreenBounds(globalRect!!)) {
+        return false
+    }
+
+    // check if we have clipping via RepaintBoundaryNode
+    val repaintBoundaryNode = semanticsTreeNode.findClosestParentNode {
+        it is RepaintBoundaryNode && it.clipToShape
+    }
+    if (repaintBoundaryNode == null) {
+        // if we don't have a repaint boundary then the component is visible as we already checked
+        // the layout nodes and screen bounds
+        return true
+    }
+
+    // check boundary (e.g. essential for scrollable layouts)
+    val layoutNode = repaintBoundaryNode.parentLayoutNode
+        ?: throw AssertionError(
+            "Semantic Node has no parent layout to check for visibility layout"
+        )
+    return layoutNode.contains(globalRect)
+}
+
+/**
+ * Returns `true` if the given [rectangle] is completely contained within this
+ * [LayoutNode].
+ */
+private fun LayoutNode.contains(rectangle: Rect): Boolean {
+    val globalPositionTopLeft = localToGlobal(PxPosition(0.px, 0.px))
+
+    val rect = Rect.fromLTWH(
+        globalPositionTopLeft.x.value,
+        globalPositionTopLeft.y.value,
+        width.toPx().value + 1f,
+        height.toPx().value + 1f)
+
+    return rect.contains(rectangle.getTopLeft()) && rect.contains(rectangle.getBottomRight())
 }
