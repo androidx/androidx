@@ -79,6 +79,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 /**
  * Tests for {@link CaptureSession}. This requires an environment where a valid {@link
@@ -91,7 +92,7 @@ public final class CaptureSessionTest {
     private CaptureSessionTestParameters mTestParameters0;
     private CaptureSessionTestParameters mTestParameters1;
 
-    private CameraDevice mCameraDevice;
+    private CameraUtil.CameraDeviceHolder mCameraDeviceHolder;
 
     private final List<CaptureSession> mCaptureSessions = new ArrayList<>();
 
@@ -101,11 +102,11 @@ public final class CaptureSessionTest {
 
     @Before
     public void setup() throws CameraAccessException, InterruptedException,
-            AssumptionViolatedException {
+            AssumptionViolatedException, TimeoutException, ExecutionException {
         assumeTrue(CameraUtil.deviceHasCamera());
         mTestParameters0 = new CaptureSessionTestParameters("mTestParameters0");
         mTestParameters1 = new CaptureSessionTestParameters("mTestParameters1");
-        mCameraDevice = CameraUtil.getCameraDevice();
+        mCameraDeviceHolder = CameraUtil.getCameraDevice();
     }
 
     @After
@@ -119,10 +120,10 @@ public final class CaptureSessionTest {
         Future<?> aggregateReleaseFuture = Futures.allAsList(releaseFutures);
         aggregateReleaseFuture.get();
 
-        if (mCameraDevice != null) {
+        if (mCameraDeviceHolder != null) {
+            CameraUtil.releaseCameraDevice(mCameraDeviceHolder);
             mTestParameters0.tearDown();
             mTestParameters1.tearDown();
-            CameraUtil.releaseCameraDevice(mCameraDevice);
         }
     }
 
@@ -151,7 +152,7 @@ public final class CaptureSessionTest {
         CaptureSession captureSession = createCaptureSession(mTestParameters0);
         captureSession.setSessionConfig(mTestParameters0.mSessionConfig);
 
-        captureSession.open(mTestParameters0.mSessionConfig, mCameraDevice);
+        captureSession.open(mTestParameters0.mSessionConfig, mCameraDeviceHolder.get());
 
         mTestParameters0.waitForData();
 
@@ -172,7 +173,7 @@ public final class CaptureSessionTest {
         CaptureSession captureSession = createCaptureSession(mTestParameters0);
         captureSession.setSessionConfig(mTestParameters0.mSessionConfig);
 
-        captureSession.open(mTestParameters0.mSessionConfig, mCameraDevice);
+        captureSession.open(mTestParameters0.mSessionConfig, mCameraDeviceHolder.get());
 
         mTestParameters0.waitForData();
 
@@ -230,7 +231,7 @@ public final class CaptureSessionTest {
     public void closeOpenedSession() throws CameraAccessException {
         CaptureSession captureSession = createCaptureSession(mTestParameters0);
         captureSession.setSessionConfig(mTestParameters0.mSessionConfig);
-        captureSession.open(mTestParameters0.mSessionConfig, mCameraDevice);
+        captureSession.open(mTestParameters0.mSessionConfig, mCameraDeviceHolder.get());
 
         captureSession.close();
 
@@ -244,7 +245,7 @@ public final class CaptureSessionTest {
             throws CameraAccessException, InterruptedException, ExecutionException {
         CaptureSession captureSession = createCaptureSession(mTestParameters0);
         captureSession.setSessionConfig(mTestParameters0.mSessionConfig);
-        captureSession.open(mTestParameters0.mSessionConfig, mCameraDevice);
+        captureSession.open(mTestParameters0.mSessionConfig, mCameraDeviceHolder.get());
         ListenableFuture<Void> releaseFuture = captureSession.release(
                 /*abortInFlightCaptures=*/false);
 
@@ -263,13 +264,13 @@ public final class CaptureSessionTest {
         captureSession0.setSessionConfig(mTestParameters0.mSessionConfig);
 
         // First session is opened
-        captureSession0.open(mTestParameters0.mSessionConfig, mCameraDevice);
+        captureSession0.open(mTestParameters0.mSessionConfig, mCameraDeviceHolder.get());
         captureSession0.close();
 
         // Open second session, which should cause first one to be released
         CaptureSession captureSession1 = createCaptureSession(mTestParameters1);
         captureSession1.setSessionConfig(mTestParameters1.mSessionConfig);
-        captureSession1.open(mTestParameters1.mSessionConfig, mCameraDevice);
+        captureSession1.open(mTestParameters1.mSessionConfig, mCameraDeviceHolder.get());
 
         mTestParameters1.waitForData();
 
@@ -295,7 +296,7 @@ public final class CaptureSessionTest {
     public void issueCaptureRequest() throws CameraAccessException, InterruptedException {
         CaptureSession captureSession = createCaptureSession(mTestParameters0);
         captureSession.setSessionConfig(mTestParameters0.mSessionConfig);
-        captureSession.open(mTestParameters0.mSessionConfig, mCameraDevice);
+        captureSession.open(mTestParameters0.mSessionConfig, mCameraDeviceHolder.get());
 
         mTestParameters0.waitForData();
 
@@ -316,7 +317,7 @@ public final class CaptureSessionTest {
             throws CameraAccessException, InterruptedException {
         CaptureSession captureSession = createCaptureSession(mTestParameters0);
         captureSession.setSessionConfig(mTestParameters0.mSessionConfig);
-        captureSession.open(mTestParameters0.mSessionConfig, mCameraDevice);
+        captureSession.open(mTestParameters0.mSessionConfig, mCameraDeviceHolder.get());
 
         mTestParameters0.waitForData();
 
@@ -361,7 +362,7 @@ public final class CaptureSessionTest {
 
         captureSession0.issueCaptureRequests(
                 Collections.singletonList(mTestParameters0.mCaptureConfig));
-        captureSession0.open(mTestParameters0.mSessionConfig, mCameraDevice);
+        captureSession0.open(mTestParameters0.mSessionConfig, mCameraDeviceHolder.get());
 
         captureSession0.close();
         CaptureSession captureSession1 = createCaptureSession(mTestParameters0);
@@ -369,7 +370,7 @@ public final class CaptureSessionTest {
         if (!captureSession0.getCaptureConfigs().isEmpty()) {
             captureSession1.issueCaptureRequests(captureSession0.getCaptureConfigs());
         }
-        captureSession1.open(mTestParameters0.mSessionConfig, mCameraDevice);
+        captureSession1.open(mTestParameters0.mSessionConfig, mCameraDeviceHolder.get());
 
         mTestParameters0.waitForCameraCaptureCallback();
 
@@ -386,7 +387,7 @@ public final class CaptureSessionTest {
 
         captureSession.issueCaptureRequests(
                 Collections.singletonList(mTestParameters0.mCaptureConfig));
-        captureSession.open(mTestParameters0.mSessionConfig, mCameraDevice);
+        captureSession.open(mTestParameters0.mSessionConfig, mCameraDeviceHolder.get());
 
         mTestParameters0.waitForCameraCaptureCallback();
 
@@ -412,7 +413,7 @@ public final class CaptureSessionTest {
         CaptureSession captureSession = createCaptureSession(mTestParameters0);
         captureSession.setSessionConfig(mTestParameters0.mSessionConfig);
 
-        captureSession.open(mTestParameters0.mSessionConfig, mCameraDevice);
+        captureSession.open(mTestParameters0.mSessionConfig, mCameraDeviceHolder.get());
 
         mTestParameters0.waitForData();
 
@@ -440,7 +441,7 @@ public final class CaptureSessionTest {
         CaptureSession captureSession = createCaptureSession(mTestParameters0);
         captureSession.setSessionConfig(mTestParameters0.mSessionConfig);
 
-        captureSession.open(mTestParameters0.mSessionConfig, mCameraDevice);
+        captureSession.open(mTestParameters0.mSessionConfig, mCameraDeviceHolder.get());
 
         InOrder inOrder = inOrder(mTestParameters0.mMockCameraEventCallback);
 
@@ -467,7 +468,7 @@ public final class CaptureSessionTest {
 
         // Open the capture session and verify the onEnableSession callback would be invoked
         // but onDisableSession callback not.
-        captureSession.open(mTestParameters0.mSessionConfig, mCameraDevice);
+        captureSession.open(mTestParameters0.mSessionConfig, mCameraDeviceHolder.get());
 
         // Verify the request options in onEnableSession.
         verify(mTestParameters0.mTestCameraEventCallback.mEnableCallback,
