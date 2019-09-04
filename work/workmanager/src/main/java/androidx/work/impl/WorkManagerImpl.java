@@ -285,6 +285,7 @@ public class WorkManagerImpl extends WorkManager {
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @NonNull
     public Context getApplicationContext() {
         return mContext;
     }
@@ -294,6 +295,7 @@ public class WorkManagerImpl extends WorkManager {
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @NonNull
     public WorkDatabase getWorkDatabase() {
         return mWorkDatabase;
     }
@@ -558,7 +560,7 @@ public class WorkManagerImpl extends WorkManager {
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public void startWork(String workSpecId) {
+    public void startWork(@NonNull String workSpecId) {
         startWork(workSpecId, null);
     }
 
@@ -568,7 +570,9 @@ public class WorkManagerImpl extends WorkManager {
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public void startWork(String workSpecId, WorkerParameters.RuntimeExtras runtimeExtras) {
+    public void startWork(
+            @NonNull String workSpecId,
+            @Nullable WorkerParameters.RuntimeExtras runtimeExtras) {
         mWorkTaskExecutor
                 .executeOnBackgroundThread(
                         new StartWorkRunnable(this, workSpecId, runtimeExtras));
@@ -579,7 +583,7 @@ public class WorkManagerImpl extends WorkManager {
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public void stopWork(String workSpecId) {
+    public void stopWork(@NonNull String workSpecId) {
         mWorkTaskExecutor.executeOnBackgroundThread(new StopWorkRunnable(this, workSpecId));
     }
 
@@ -674,7 +678,11 @@ public class WorkManagerImpl extends WorkManager {
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public @NonNull List<Scheduler> createSchedulers(Context context, TaskExecutor taskExecutor) {
+    @NonNull
+    public List<Scheduler> createSchedulers(
+            @NonNull Context context,
+            @NonNull TaskExecutor taskExecutor) {
+
         return Arrays.asList(
                 Schedulers.createBestAvailableBackgroundScheduler(context, this),
                 // Specify the task executor directly here as this happens before internalInit.

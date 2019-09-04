@@ -19,6 +19,7 @@ package androidx.work;
 import android.content.Context;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
@@ -40,5 +41,6 @@ public interface ProgressUpdater {
     ListenableFuture<Void> updateProgress(
             @NonNull Context context,
             @NonNull UUID id,
-            @NonNull Data data);
+            @NonNull Data data,
+            @Nullable NotificationProvider provider);
 }

@@ -62,6 +62,7 @@ import androidx.work.PeriodicWorkRequest;
 import androidx.work.ProgressUpdater;
 import androidx.work.WorkerFactory;
 import androidx.work.WorkerParameters;
+import androidx.work.impl.foreground.ForegroundProcessor;
 import androidx.work.impl.model.Dependency;
 import androidx.work.impl.model.DependencyDao;
 import androidx.work.impl.model.WorkSpec;
@@ -106,6 +107,7 @@ public class WorkerWrapperTest extends DatabaseTest {
     private DependencyDao mDependencyDao;
     private Context mContext;
     private Scheduler mMockScheduler;
+    private ForegroundProcessor mMockForegroundProcessor;
     private ProgressUpdater mMockProgressUpdater;
     private Executor mSynchronousExecutor = new SynchronousExecutor();
 
@@ -120,6 +122,7 @@ public class WorkerWrapperTest extends DatabaseTest {
         mWorkSpecDao = mDatabase.workSpecDao();
         mDependencyDao = mDatabase.dependencyDao();
         mMockScheduler = mock(Scheduler.class);
+        mMockForegroundProcessor = mock(ForegroundProcessor.class);
         mMockProgressUpdater = mock(ProgressUpdater.class);
     }
 
@@ -1162,6 +1165,7 @@ public class WorkerWrapperTest extends DatabaseTest {
                 mContext,
                 configuration,
                 mWorkTaskExecutor,
+                mMockForegroundProcessor,
                 mDatabase,
                 work.getStringId()).build();
 
@@ -1179,6 +1183,7 @@ public class WorkerWrapperTest extends DatabaseTest {
                 mContext,
                 mConfiguration,
                 mWorkTaskExecutor,
+                mMockForegroundProcessor,
                 mDatabase,
                 workSpecId);
     }

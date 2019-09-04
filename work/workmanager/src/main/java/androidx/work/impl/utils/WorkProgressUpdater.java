@@ -16,16 +16,24 @@
 
 package androidx.work.impl.utils;
 
+import static androidx.work.impl.foreground.SystemForegroundDispatcher.createNotifyIntent;
+
 import android.content.Context;
+import android.content.Intent;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.work.Data;
 import androidx.work.Logger;
+import androidx.work.NotificationMetadata;
+import androidx.work.NotificationProvider;
 import androidx.work.ProgressUpdater;
 import androidx.work.WorkInfo.State;
 import androidx.work.impl.WorkDatabase;
 import androidx.work.impl.model.WorkProgress;
+import androidx.work.impl.model.WorkSpec;
+import androidx.work.impl.model.WorkSpecDao;
 import androidx.work.impl.utils.futures.SettableFuture;
 import androidx.work.impl.utils.taskexecutor.TaskExecutor;
 
@@ -60,7 +68,8 @@ public class WorkProgressUpdater implements ProgressUpdater {
     public ListenableFuture<Void> updateProgress(
             @NonNull final Context context,
             @NonNull final UUID id,
-            @NonNull final Data data) {
+            @NonNull final Data data,
+            @Nullable final NotificationProvider notificationProvider) {
         final SettableFuture<Void> future = SettableFuture.create();
         mTaskExecutor.executeOnBackgroundThread(new Runnable() {
             @Override
@@ -69,22 +78,35 @@ public class WorkProgressUpdater implements ProgressUpdater {
                 Logger.get().info(TAG, String.format("Updating progress for %s (%s)", id, data));
                 mWorkDatabase.beginTransaction();
                 try {
-                    State state = mWorkDatabase.workSpecDao().getState(workSpecId);
-                    if (state == null) {
+                    WorkSpecDao workSpecDao = mWorkDatabase.workSpecDao();
+                    WorkSpec workSpec = workSpecDao.getWorkSpec(workSpecId);
+                    if (workSpec != null) {
+                        State state = workSpec.state;
+                        // Update Progress
+                        if (state == State.RUNNING) {
+                            WorkProgress progress = new WorkProgress(workSpecId, data);
+                            mWorkDatabase.workProgressDao().insert(progress);
+                            // Update Notification
+                            if (workSpec.runInForeground && notificationProvider != null) {
+                                Logger.get().debug(TAG, "Updating notification");
+                                NotificationMetadata metadata =
+                                        notificationProvider.getNotification();
+                                Intent intent = createNotifyIntent(context, metadata);
+                                context.startService(intent);
+                            }
+                        } else {
+                            Logger.get().warning(TAG,
+                                    String.format(
+                                            "Ignoring setProgressAsync(...). WorkSpec (%s) is not"
+                                                    + " in a RUNNING state.",
+                                            workSpecId));
+                        }
+                    } else {
                         Logger.get().warning(TAG,
                                 String.format(
                                         "Ignoring setProgressAsync(...). WorkSpec (%s) does not "
                                                 + "exist.",
                                         workSpecId));
-                    } else if (state.isFinished()) {
-                        Logger.get().warning(TAG,
-                                String.format(
-                                        "Ignoring setProgressAsync(...). WorkSpec (%s) has "
-                                                + "finished execution.",
-                                        workSpecId));
-                    } else {
-                        WorkProgress progress = new WorkProgress(workSpecId, data);
-                        mWorkDatabase.workProgressDao().insert(progress);
                     }
                     future.set(null);
                     mWorkDatabase.setTransactionSuccessful();

@@ -231,7 +231,7 @@ package androidx.work {
   }
 
   public interface ProgressUpdater {
-    method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void!> updateProgress(android.content.Context, java.util.UUID, androidx.work.Data);
+    method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void!> updateProgress(android.content.Context, java.util.UUID, androidx.work.Data, androidx.work.NotificationProvider?);
   }
 
   public abstract class WorkContinuation {
