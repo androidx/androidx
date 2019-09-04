@@ -37,6 +37,7 @@ import android.hardware.camera2.TotalCaptureResult;
 import android.media.Image;
 import android.util.Pair;
 
+import androidx.camera.camera2.Camera2AppConfig;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.Preview;
 import androidx.camera.core.PreviewConfig;
@@ -46,6 +47,7 @@ import androidx.camera.extensions.impl.PreviewImageProcessorImpl;
 import androidx.camera.extensions.impl.RequestUpdateProcessorImpl;
 import androidx.camera.testing.CameraUtil;
 import androidx.camera.testing.fakes.FakeLifecycleOwner;
+import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
 import androidx.test.platform.app.InstrumentationRegistry;
@@ -61,6 +63,7 @@ import org.mockito.InOrder;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 @RunWith(AndroidJUnit4.class)
 public class PreviewExtenderTest {
@@ -76,18 +79,25 @@ public class PreviewExtenderTest {
     public void setUp() {
         assumeTrue(CameraUtil.deviceHasCamera());
         assumeTrue(CameraUtil.hasCameraWithLensFacing(CameraX.LensFacing.BACK));
+
+        Context context = ApplicationProvider.getApplicationContext();
+        CameraX.init(context, Camera2AppConfig.create(context));
+
         mFakeLifecycle = new FakeLifecycleOwner();
         mFakeLifecycle.startAndResume();
     }
 
     @After
-    public void cleanUp() {
+    public void cleanUp() throws ExecutionException, InterruptedException {
         mInstrumentation.runOnMainSync(new Runnable() {
             @Override
             public void run() {
                 CameraX.unbindAll();
             }
         });
+
+        // Wait for CameraX to finish deinitializing before the next test.
+        CameraX.deinit().get();
     }
 
     @Test

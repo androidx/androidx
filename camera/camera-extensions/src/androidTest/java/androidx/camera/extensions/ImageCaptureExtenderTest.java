@@ -33,6 +33,7 @@ import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CaptureRequest;
 import android.util.Pair;
 
+import androidx.camera.camera2.Camera2AppConfig;
 import androidx.camera.camera2.Camera2Config;
 import androidx.camera.camera2.impl.CameraEventCallbacks;
 import androidx.camera.core.CameraX;
@@ -43,11 +44,13 @@ import androidx.camera.extensions.impl.CaptureStageImpl;
 import androidx.camera.extensions.impl.ImageCaptureExtenderImpl;
 import androidx.camera.testing.CameraUtil;
 import androidx.camera.testing.fakes.FakeLifecycleOwner;
+import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.GrantPermissionRule;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -56,6 +59,7 @@ import org.mockito.InOrder;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 @RunWith(AndroidJUnit4.class)
 public class ImageCaptureExtenderTest {
@@ -78,6 +82,15 @@ public class ImageCaptureExtenderTest {
         mMockImageCaptureExtenderImpl = mock(ImageCaptureExtenderImpl.class);
 
         when(mMockImageCaptureExtenderImpl.getCaptureStages()).thenReturn(mCaptureStages);
+
+        Context context = ApplicationProvider.getApplicationContext();
+        CameraX.init(context, Camera2AppConfig.create(context));
+    }
+
+    @After
+    public void tearDown() throws ExecutionException, InterruptedException {
+        // Wait for CameraX to finish deinitializing before the next test.
+        CameraX.deinit().get();
     }
 
     @Test
