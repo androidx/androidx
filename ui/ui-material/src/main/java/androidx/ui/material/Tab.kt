@@ -39,6 +39,7 @@ import androidx.ui.graphics.Color
 import androidx.ui.layout.Alignment
 import androidx.ui.layout.Column
 import androidx.ui.layout.Container
+import androidx.ui.layout.CrossAxisAlignment
 import androidx.ui.layout.FlexRow
 import androidx.ui.layout.MainAxisAlignment
 import androidx.ui.layout.Padding
@@ -361,7 +362,10 @@ private fun CombinedTab(
         Container(height = LargeTabHeight) {
             Padding(top = SingleRowTextImagePadding, bottom = SingleRowTextBaselinePadding) {
                 TabTransition(color = tint, selected = selected) { tabTintColor ->
-                    Column(mainAxisAlignment = MainAxisAlignment.SpaceBetween) {
+                    Column(
+                        mainAxisAlignment = MainAxisAlignment.SpaceBetween,
+                        crossAxisAlignment = CrossAxisAlignment.Center
+                    ) {
                         TabIcon(icon, tabTintColor)
                         // TODO: This should be aligned to the bottom padding by baseline,
                         // not raw layout

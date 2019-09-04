@@ -25,6 +25,7 @@ import androidx.ui.core.dp
 import androidx.ui.layout.Alignment
 import androidx.ui.layout.Column
 import androidx.ui.layout.Container
+import androidx.ui.layout.CrossAxisAlignment
 import androidx.ui.layout.FlexColumn
 import androidx.ui.layout.MainAxisAlignment
 import androidx.ui.material.RadioGroup
@@ -88,7 +89,10 @@ class AppBarActivity : MaterialDemoActivity() {
                     }
                 }
                 flexible(1f) {
-                    Column(mainAxisAlignment = MainAxisAlignment.SpaceBetween) {
+                    Column(
+                        mainAxisAlignment = MainAxisAlignment.SpaceBetween,
+                        crossAxisAlignment = CrossAxisAlignment.Center
+                    ) {
                         DemoText("TopAppBar options")
                         RadioGroup {
                             topAppBarOptions.forEach { topAppBar ->
