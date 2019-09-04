@@ -97,6 +97,10 @@ class PlayerWrapper {
                 .build();
     }
 
+    boolean hasDisconnectedController() {
+        return mController != null && !mController.isConnected();
+    }
+
     void attachCallback() {
         if (mCallbackAttached) return;
         if (mController != null) {
