@@ -62,13 +62,11 @@ public abstract class AbstractSavedStateViewModelFactory extends ViewModelProvid
     @NonNull
     @Override
     public final <T extends ViewModel> T create(@NonNull String key, @NonNull Class<T> modelClass) {
-        Bundle restoredState = mSavedStateRegistry.consumeRestoredStateForKey(key);
-        SavedStateHandle handle = SavedStateHandle.createHandle(restoredState, mDefaultArgs);
-        SavedStateHandleController controller = new SavedStateHandleController(key, handle);
+        SavedStateHandleController controller = SavedStateHandleController.create(
+                mSavedStateRegistry, mLifecycle, key, mDefaultArgs);
         controller.attachToLifecycle(mSavedStateRegistry, mLifecycle);
-        T viewmodel = create(key, modelClass, handle);
+        T viewmodel = create(key, modelClass, controller.getHandle());
         viewmodel.setTagIfAbsent(TAG_SAVED_STATE_HANDLE_CONTROLLER, controller);
-        mSavedStateRegistry.runOnNextRecreation(OnRecreation.class);
         return viewmodel;
     }
 
@@ -99,62 +97,5 @@ public abstract class AbstractSavedStateViewModelFactory extends ViewModelProvid
     protected abstract <T extends ViewModel> T create(@NonNull String key,
             @NonNull Class<T> modelClass, @NonNull SavedStateHandle handle);
 
-    static final class OnRecreation implements SavedStateRegistry.AutoRecreated {
-
-        @Override
-        public void onRecreated(@NonNull SavedStateRegistryOwner owner) {
-            if (!(owner instanceof ViewModelStoreOwner)) {
-                throw new IllegalStateException(
-                        "Internal error: OnRecreation should be registered only on components"
-                                + "that implement ViewModelStoreOwner");
-            }
-            ViewModelStore viewModelStore = ((ViewModelStoreOwner) owner).getViewModelStore();
-            SavedStateRegistry savedStateRegistry = owner.getSavedStateRegistry();
-            for (String key : viewModelStore.keys()) {
-                ViewModel viewModel = viewModelStore.get(key);
-                SavedStateHandleController controller = viewModel.getTag(
-                        TAG_SAVED_STATE_HANDLE_CONTROLLER);
-                if (controller != null && !controller.isAttached()) {
-                    controller.attachToLifecycle(owner.getSavedStateRegistry(),
-                            owner.getLifecycle());
-                }
-            }
-            if (!viewModelStore.keys().isEmpty()) {
-                savedStateRegistry.runOnNextRecreation(OnRecreation.class);
-            }
-        }
-    }
-
-    static final class SavedStateHandleController implements LifecycleEventObserver {
-        private final String mKey;
-        boolean mIsAttached = false;
-        private final SavedStateHandle mHandle;
-
-        SavedStateHandleController(String key, SavedStateHandle handle) {
-            mKey = key;
-            mHandle = handle;
-        }
-
-        boolean isAttached() {
-            return mIsAttached;
-        }
-
-        void attachToLifecycle(SavedStateRegistry registry, Lifecycle lifecycle) {
-            if (mIsAttached) {
-                throw new IllegalStateException("Already attached to lifecycleOwner");
-            }
-            mIsAttached = true;
-            lifecycle.addObserver(this);
-            registry.registerSavedStateProvider(mKey, mHandle.savedStateProvider());
-        }
-
-        @Override
-        public void onStateChanged(@NonNull LifecycleOwner source, @NonNull Lifecycle.Event event) {
-            if (event == Lifecycle.Event.ON_DESTROY) {
-                mIsAttached = false;
-                source.getLifecycle().removeObserver(this);
-            }
-        }
-    }
 }
 
