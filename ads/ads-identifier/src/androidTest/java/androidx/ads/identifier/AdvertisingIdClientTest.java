@@ -18,25 +18,20 @@ package androidx.ads.identifier;
 
 import static androidx.ads.identifier.AdvertisingIdUtils.GET_AD_ID_ACTION;
 import static androidx.ads.identifier.MockAdvertisingIdService.TESTING_AD_ID;
+import static androidx.ads.identifier.testing.MockPackageManagerHelper.createServiceResolveInfo;
 
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.fail;
-import static org.mockito.ArgumentMatchers.argThat;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.when;
 
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.Intent;
-import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
-import android.content.pm.ResolveInfo;
-import android.content.pm.ServiceInfo;
-import android.os.Build;
 
 import androidx.ads.identifier.internal.BlockingServiceConnection;
 import androidx.ads.identifier.provider.IAdvertisingIdService;
+import androidx.ads.identifier.testing.MockPackageManagerHelper;
 import androidx.annotation.NonNull;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.test.core.app.ApplicationProvider;
@@ -48,16 +43,11 @@ import com.google.common.util.concurrent.ListenableFuture;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnit;
-import org.mockito.junit.MockitoRule;
 
 import java.io.IOException;
 import java.util.Collections;
-import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 
@@ -68,11 +58,7 @@ public class AdvertisingIdClientTest {
     private static final String MOCK_THROWS_NPE_SERVICE_NAME =
             MockAdvertisingIdThrowsNpeService.class.getName();
 
-    @Rule
-    public MockitoRule mMockitoRule = MockitoJUnit.rule();
-
-    @Mock
-    private PackageManager mMockPackageManager;
+    private MockPackageManagerHelper mMockPackageManagerHelper = new MockPackageManagerHelper();
 
     private Context mContext;
 
@@ -91,12 +77,12 @@ public class AdvertisingIdClientTest {
 
             @Override
             public PackageManager getPackageManager() {
-                return mMockPackageManager;
+                return mMockPackageManagerHelper.getMockPackageManager();
             }
         };
 
-        mockQueryIntentServices(Lists.newArrayList(
-                createResolveInfo(mContext.getPackageName(), MOCK_SERVICE_NAME)));
+        mMockPackageManagerHelper.mockQueryGetAdIdServices(Lists.newArrayList(
+                createServiceResolveInfo(mContext.getPackageName(), MOCK_SERVICE_NAME)));
     }
 
     @After
@@ -108,22 +94,6 @@ public class AdvertisingIdClientTest {
         Intent npeServiceIntent = new Intent(GET_AD_ID_ACTION);
         npeServiceIntent.setClassName(mContext.getPackageName(), MOCK_THROWS_NPE_SERVICE_NAME);
         mContext.stopService(npeServiceIntent);
-    }
-
-    private void mockQueryIntentServices(List<ResolveInfo> resolveInfos) throws Exception {
-        boolean supportMatchSystemOnly = Build.VERSION.SDK_INT >= Build.VERSION_CODES.N;
-        int flags = supportMatchSystemOnly ? PackageManager.MATCH_SYSTEM_ONLY : 0;
-        when(mMockPackageManager.queryIntentServices(
-                argThat(intent -> intent != null && GET_AD_ID_ACTION.equals(intent.getAction())),
-                eq(flags))).thenReturn(resolveInfos);
-        for (ResolveInfo resolveInfo : resolveInfos) {
-            if (!supportMatchSystemOnly) {
-                ApplicationInfo applicationInfo = new ApplicationInfo();
-                applicationInfo.flags |= ApplicationInfo.FLAG_SYSTEM;
-                when(mMockPackageManager.getApplicationInfo(resolveInfo.serviceInfo.packageName, 0))
-                        .thenReturn(applicationInfo);
-            }
-        }
     }
 
     @Test
@@ -138,7 +108,7 @@ public class AdvertisingIdClientTest {
     }
 
     public void getAdvertisingIdInfo_noProvider() throws Exception {
-        mockQueryIntentServices(Collections.emptyList());
+        mMockPackageManagerHelper.mockQueryGetAdIdServices(Collections.emptyList());
 
         try {
             AdvertisingIdClient.getAdvertisingIdInfo(mContext).get();
@@ -151,8 +121,8 @@ public class AdvertisingIdClientTest {
 
     @Test
     public void getAdvertisingIdInfo_serviceThrowsNullPointerException() throws Exception {
-        mockQueryIntentServices(Lists.newArrayList(
-                createResolveInfo(mContext.getPackageName(), MOCK_THROWS_NPE_SERVICE_NAME)));
+        mMockPackageManagerHelper.mockQueryGetAdIdServices(Lists.newArrayList(
+                createServiceResolveInfo(mContext.getPackageName(), MOCK_THROWS_NPE_SERVICE_NAME)));
 
         try {
             AdvertisingIdClient.getAdvertisingIdInfo(mContext).get();
@@ -298,25 +268,18 @@ public class AdvertisingIdClientTest {
 
     @Test
     public void isAdvertisingIdProviderAvailable_noProvider() throws Exception {
-        mockQueryIntentServices(Collections.emptyList());
+        mMockPackageManagerHelper.mockQueryGetAdIdServices(Collections.emptyList());
 
         assertThat(AdvertisingIdClient.isAdvertisingIdProviderAvailable(mContext)).isFalse();
     }
 
     @Test
     public void isAdvertisingIdProviderAvailable_twoProviders() throws Exception {
-        mockQueryIntentServices(Lists.newArrayList(
-                createResolveInfo("com.a", "A"),
-                createResolveInfo("com.b", "B")));
+        mMockPackageManagerHelper.mockQueryGetAdIdServices(Lists.newArrayList(
+                createServiceResolveInfo("com.a", "A"),
+                createServiceResolveInfo("com.b", "B")));
 
         assertThat(AdvertisingIdClient.isAdvertisingIdProviderAvailable(mContext)).isTrue();
     }
 
-    private static ResolveInfo createResolveInfo(String packageName, String name) {
-        ResolveInfo resolveInfo = new ResolveInfo();
-        resolveInfo.serviceInfo = new ServiceInfo();
-        resolveInfo.serviceInfo.packageName = packageName;
-        resolveInfo.serviceInfo.name = name;
-        return resolveInfo;
-    }
 }
