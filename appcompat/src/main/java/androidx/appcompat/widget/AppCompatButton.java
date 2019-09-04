@@ -38,6 +38,7 @@ import androidx.appcompat.R;
 import androidx.core.view.TintableBackgroundView;
 import androidx.core.widget.AutoSizeableTextView;
 import androidx.core.widget.TextViewCompat;
+import androidx.core.widget.TintableCompoundDrawablesView;
 
 /**
  * A {@link Button} which supports compatible features on older versions of the platform,
@@ -55,7 +56,7 @@ import androidx.core.widget.TextViewCompat;
  * You should only need to manually use this class when writing custom views.</p>
  */
 public class AppCompatButton extends Button implements TintableBackgroundView,
-        AutoSizeableTextView {
+        AutoSizeableTextView, TintableCompoundDrawablesView {
 
     private final AppCompatBackgroundHelper mBackgroundTintHelper;
     private final AppCompatTextHelper mTextHelper;
@@ -373,5 +374,49 @@ public class AppCompatButton extends Button implements TintableBackgroundView,
     public void setCustomSelectionActionModeCallback(ActionMode.Callback actionModeCallback) {
         super.setCustomSelectionActionModeCallback(TextViewCompat
                 .wrapCustomSelectionActionModeCallback(this, actionModeCallback));
+    }
+
+    /**
+     * @hide
+     * @param tint the tint to apply, may be {@code null} to clear tint
+     */
+    @Override
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    public void setSupportCompoundDrawablesTintList(@Nullable ColorStateList tint) {
+        mTextHelper.setCompoundDrawableTintList(tint);
+        mTextHelper.applyCompoundDrawablesTints();
+    }
+
+    /**
+     * @hide
+     * @return the tint applied to the compound drawables
+     */
+    @Nullable
+    @Override
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    public ColorStateList getSupportCompoundDrawablesTintList() {
+        return mTextHelper.getCompoundDrawableTintList();
+    }
+
+    /**
+     * @hide
+     * @param tintMode the blending mode used to apply the tint, may be {@code null} to clear tint
+     */
+    @Override
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    public void setSupportCompoundDrawablesTintMode(@Nullable PorterDuff.Mode tintMode) {
+        mTextHelper.setCompoundDrawableTintMode(tintMode);
+        mTextHelper.applyCompoundDrawablesTints();
+    }
+
+    /**
+     * @hide
+     * @return the blending mode used to apply the tint to the compound drawables
+     */
+    @Nullable
+    @Override
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    public PorterDuff.Mode getSupportCompoundDrawablesTintMode() {
+        return mTextHelper.getCompoundDrawableTintMode();
     }
 }
