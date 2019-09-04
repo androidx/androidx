@@ -21,7 +21,7 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
-    <application android:usesCleartextTraffic="true">
+    <application>
         <activity android:name="androidx.media2.player.MediaStubActivity"
                   android:label="MediaStubActivity"
                   android:screenOrientation="nosensor"
