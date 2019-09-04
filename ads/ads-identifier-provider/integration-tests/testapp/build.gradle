@@ -30,5 +30,6 @@ android {
 
 dependencies {
     implementation(project(":ads-identifier-provider"))
+    implementation(project(":recyclerview:recyclerview"))
     implementation("androidx.annotation:annotation:1.1.0")
 }
