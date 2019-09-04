@@ -485,6 +485,37 @@ class FragmentLifecycleTest {
         assertThat(fragmentA.calledOnDestroy).isTrue()
     }
 
+    /**
+     * Test that onDestroyView gets called for childFragment with Animation even when there is a
+     * config change.
+     */
+    @Test
+    @UiThreadTest
+    fun childFragmentViewDestroyedWithParent() {
+        val viewModelStore = ViewModelStore()
+        val fc = activityRule.startupFragmentController(viewModelStore)
+        val fm = fc.supportFragmentManager
+
+        val fragment = StrictViewFragment(R.layout.simple_container)
+        fm.beginTransaction()
+            .add(android.R.id.content, fragment)
+            .commitNow()
+
+        val childFragment = StrictViewFragment()
+
+        fragment.childFragmentManager.beginTransaction()
+            .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
+            .add(R.id.fragmentContainer, childFragment, "child")
+            .commitNow()
+
+        val viewLifecycleOwner = childFragment.viewLifecycleOwner
+
+        fc.restart(activityRule, viewModelStore, false)
+
+        assertWithMessage("ChildFragment viewLifecycle was not destroyed")
+            .that(viewLifecycleOwner.lifecycle.currentState).isEqualTo(Lifecycle.State.DESTROYED)
+    }
+
     @Test
     @UiThreadTest
     fun testSetArgumentsLifecycle() {
