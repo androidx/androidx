@@ -73,7 +73,7 @@ public final class ProxyConfig {
      * @hide Internal use only
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-    public ProxyConfig(List<ProxyRule> proxyRules, List<String> bypassRules) {
+    public ProxyConfig(@NonNull List<ProxyRule> proxyRules, @NonNull List<String> bypassRules) {
         mProxyRules = proxyRules;
         mBypassRules = bypassRules;
     }
