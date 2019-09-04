@@ -21,9 +21,9 @@ import android.os.Bundle
 import androidx.compose.composer
 import androidx.ui.core.setContent
 
-class CraneInputFieldFocusTransitionActivity : Activity() {
+class ComposeInputFieldActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContent { TextFieldFocusTransition() }
+        setContent { InputFieldDemo() }
     }
 }

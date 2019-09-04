@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 The Android Open Source Project
+ * Copyright 2018 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,9 +21,9 @@ import android.os.Bundle
 import androidx.compose.composer
 import androidx.ui.core.setContent
 
-class CraneInputFieldActivity : Activity() {
+class ComposeTextActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContent { InputFieldDemo() }
+        setContent { TextDemo() }
     }
 }

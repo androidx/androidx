@@ -19,7 +19,7 @@
         package="androidx.ui.text.demos">
 
     <application>
-        <activity android:name=".CraneTextActivity"
+        <activity android:name=".ComposeTextActivity"
                   android:configChanges="orientation|screenSize"
                   android:label="Text/Static Text Demo">
             <intent-filter>
@@ -28,7 +28,7 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".CraneInputFieldActivity"
+        <activity android:name=".ComposeInputFieldActivity"
             android:configChanges="orientation|screenSize"
             android:label="Text/Input Field/Input Field Demo">
             <intent-filter>
@@ -37,7 +37,7 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".CraneVariousInputFieldActivity"
+        <activity android:name=".ComposeVariousInputFieldActivity"
                   android:configChanges="orientation|screenSize"
                   android:label="Text/Input Field/Various Input Field Demo">
             <intent-filter>
@@ -46,7 +46,7 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".CraneInputFieldTrickyUseCaseActivity"
+        <activity android:name=".ComposeInputFieldTrickyUseCaseActivity"
                   android:configChanges="orientation|screenSize"
                   android:label="Text/Input Field/Tricky Input Field Demo">
             <intent-filter>
@@ -55,7 +55,7 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".CraneInputFieldFocusTransitionActivity"
+        <activity android:name=".ComposeInputFieldFocusTransitionActivity"
             android:configChanges="orientation|screenSize"
             android:label="Text/Input Field/Focus Transition Demo">
             <intent-filter>
