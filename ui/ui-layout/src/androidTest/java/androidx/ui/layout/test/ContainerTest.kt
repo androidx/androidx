@@ -41,8 +41,11 @@ import androidx.ui.layout.FixedSpacer
 import androidx.ui.layout.Row
 import androidx.ui.layout.Wrap
 import androidx.compose.Composable
+import androidx.compose.Model
 import androidx.compose.composer
+import androidx.ui.core.IntPx
 import androidx.ui.core.ipx
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -350,6 +353,120 @@ class ContainerTest : LayoutTest() {
         assertEquals(PxSize(childSize.toIntPx(), childSize.toIntPx()), childCoordinates!!.size)
     }
 
+    @Test
+    fun testContainer_childAffectsContainerSize() {
+        var layoutLatch = CountDownLatch(2)
+        val model = SizeModel(10.dp)
+        var measure = 0
+        var layout = 0
+        show {
+            Align(alignment = Alignment.TopLeft) {
+                Layout(children = {
+                    Container {
+                        OnChildPositioned(onPositioned = {
+                            layoutLatch.countDown()
+                        }) {
+                            EmptyBox(width = model.size, height = 10.dp)
+                        }
+                    }
+                }) { measurables, constraints ->
+                    val placeable = measurables.first().measure(constraints)
+                    ++measure
+                    layout(placeable.width, placeable.height) {
+                        placeable.place(IntPx.Zero, IntPx.Zero)
+                        ++layout
+                        layoutLatch.countDown()
+                    }
+                }
+            }
+        }
+        assertTrue(layoutLatch.await(1, TimeUnit.SECONDS))
+        assertEquals(1, measure)
+        assertEquals(1, layout)
+
+        layoutLatch = CountDownLatch(2)
+        activityTestRule.runOnUiThread { model.size = 20.dp }
+        assertTrue(layoutLatch.await(1, TimeUnit.SECONDS))
+        assertEquals(2, measure)
+        assertEquals(2, layout)
+    }
+
+    @Test
+    fun testContainer_childDoesNotAffectContainerSize_whenSizeIsMax() {
+        var layoutLatch = CountDownLatch(2)
+        val model = SizeModel(10.dp)
+        var measure = 0
+        var layout = 0
+        show {
+            Align(alignment = Alignment.TopLeft) {
+                Layout(children = {
+                    Container(expanded = true) {
+                        OnChildPositioned(onPositioned = {
+                            layoutLatch.countDown()
+                        }) {
+                            EmptyBox(width = model.size, height = 10.dp)
+                        }
+                    }
+                }) { measurables, constraints ->
+                    val placeable = measurables.first().measure(constraints)
+                    ++measure
+                    layout(placeable.width, placeable.height) {
+                        placeable.place(IntPx.Zero, IntPx.Zero)
+                        ++layout
+                        layoutLatch.countDown()
+                    }
+                }
+            }
+        }
+        assertTrue(layoutLatch.await(1, TimeUnit.SECONDS))
+        assertEquals(1, measure)
+        assertEquals(1, layout)
+
+        layoutLatch = CountDownLatch(1)
+        activityTestRule.runOnUiThread { model.size = 20.dp }
+        assertTrue(layoutLatch.await(1, TimeUnit.SECONDS))
+        assertEquals(1, measure)
+        assertEquals(1, layout)
+    }
+
+    @Test
+    fun testContainer_childDoesNotAffectContainerSize_whenFixedWidthAndHeight() {
+        var layoutLatch = CountDownLatch(2)
+        val model = SizeModel(10.dp)
+        var measure = 0
+        var layout = 0
+        show {
+            Align(alignment = Alignment.TopLeft) {
+                Layout(children = {
+                    Container(width = 20.dp, height = 20.dp) {
+                        OnChildPositioned(onPositioned = {
+                            layoutLatch.countDown()
+                        }) {
+                            EmptyBox(width = model.size, height = 10.dp)
+                        }
+                    }
+                }) { measurables, constraints ->
+                    val placeable = measurables.first().measure(constraints)
+                    ++measure
+                    layout(placeable.width, placeable.height) {
+                        placeable.place(IntPx.Zero, IntPx.Zero)
+                        ++layout
+                        layoutLatch.countDown()
+                    }
+                }
+            }
+        }
+        assertTrue(layoutLatch.await(1, TimeUnit.SECONDS))
+        assertEquals(1, measure)
+        assertEquals(1, layout)
+
+        layoutLatch = CountDownLatch(1)
+        activityTestRule.runOnUiThread { model.size = 20.dp }
+        assertTrue(layoutLatch.await(1, TimeUnit.SECONDS))
+        assertEquals(1, measure)
+        assertEquals(1, layout)
+    }
+
     @Composable
     fun EmptyBox(width: Dp, height: Dp) {
         Layout(children = { }) { _, constraints ->
@@ -360,3 +477,6 @@ class ContainerTest : LayoutTest() {
         }
     }
 }
+
+@Model
+data class SizeModel(var size: Dp)
