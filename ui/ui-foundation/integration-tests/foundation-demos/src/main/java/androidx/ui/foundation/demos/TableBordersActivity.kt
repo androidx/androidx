@@ -20,14 +20,14 @@ import android.app.Activity
 import android.os.Bundle
 import androidx.compose.composer
 import androidx.ui.core.setContent
-import androidx.ui.foundation.samples.SimpleTableWithBorders
+import androidx.ui.foundation.samples.TableWithBorders
 
 class TableBordersActivity : Activity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            SimpleTableWithBorders()
+            TableWithBorders()
         }
     }
 }

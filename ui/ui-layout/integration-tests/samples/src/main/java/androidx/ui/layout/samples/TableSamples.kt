@@ -19,8 +19,12 @@ package androidx.ui.layout.samples
 import androidx.annotation.Sampled
 import androidx.compose.Composable
 import androidx.compose.composer
+import androidx.ui.core.Dp
 import androidx.ui.core.dp
+import androidx.ui.foundation.shape.DrawShape
+import androidx.ui.foundation.shape.corner.CircleShape
 import androidx.ui.graphics.Color
+import androidx.ui.layout.AspectRatio
 import androidx.ui.layout.Padding
 import androidx.ui.layout.Table
 import androidx.ui.layout.TableColumnWidth
@@ -33,7 +37,29 @@ fun SimpleTable() {
             for (i in 0 until 8) {
                 tableRow {
                     Padding(2.dp) {
-                        SizedRectangle(color = Color.Magenta, height = 50.dp)
+                        SizedSquare(color = Color.Magenta)
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Sampled
+@Composable
+fun TableWithDecorations() {
+    Padding(2.dp) {
+        Table(columns = 8) {
+            tableDecoration(overlay = false) {
+                SizedRectangle(color = Color.Green)
+            }
+            tableDecoration(overlay = false) {
+                DrawShape(shape = CircleShape, color = Color.Red)
+            }
+            for (i in 0 until 8) {
+                tableRow {
+                    Padding(2.dp) {
+                        SizedSquare(color = Color.Magenta)
                     }
                 }
             }
@@ -69,5 +95,12 @@ fun TableWithDifferentColumnWidths() {
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun SizedSquare(color: Color, size: Dp? = null) {
+    AspectRatio(aspectRatio = 1f) {
+        SizedRectangle(color, width = size)
     }
 }

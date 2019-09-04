@@ -54,7 +54,7 @@ class TableRecompositionTest(private val numberOfCells: Int) {
             testCase.assertMeasureSizeIsPositive()
 
             FrameManager.nextFrame()
-            testCase.recomposeSyncAssertHadChanges()
+            testCase.recomposeSyncAssertNoChanges()
 
             testCase.measure()
             testCase.layout()
