@@ -1313,8 +1313,8 @@ public abstract class FragmentManager {
                     // We want to unconditionally run this anytime we do a moveToState that
                     // moves the Fragment above INITIALIZING, including cases such as when
                     // we move from CREATED => CREATED as part of the case fall through above.
-                    if (newState > Fragment.INITIALIZING) {
-                        ensureInflatedFragmentView(f);
+                    if (newState > Fragment.INITIALIZING && fragmentStateManager != null) {
+                        fragmentStateManager.ensureInflatedView();
                     }
 
                     if (newState > Fragment.CREATED) {
@@ -1640,20 +1640,6 @@ public abstract class FragmentManager {
 
     void moveToState(Fragment f) {
         moveToState(f, mCurState);
-    }
-
-    private void ensureInflatedFragmentView(Fragment f) {
-        if (f.mFromLayout && !f.mPerformedCreateView) {
-            f.performCreateView(f.performGetLayoutInflater(
-                    f.mSavedFragmentState), null, f.mSavedFragmentState);
-            if (f.mView != null) {
-                f.mView.setSaveFromParentEnabled(false);
-                if (f.mHidden) f.mView.setVisibility(View.GONE);
-                f.onViewCreated(f.mView, f.mSavedFragmentState);
-                mLifecycleCallbacksDispatcher.dispatchOnFragmentViewCreated(
-                        f, f.mView, f.mSavedFragmentState, false);
-            }
-        }
     }
 
     /**
