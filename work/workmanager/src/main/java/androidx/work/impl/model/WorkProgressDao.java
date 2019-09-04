@@ -45,6 +45,20 @@ public interface WorkProgressDao {
     void insert(@NonNull WorkProgress progress);
 
     /**
+     * Deletes a {@link WorkProgress} from the database.
+     *
+     * @param workSpecId The {@link WorkSpec} id
+     */
+    @Query("DELETE from WorkProgress where work_spec_id=:workSpecId")
+    void delete(@NonNull String workSpecId);
+
+    /**
+     * Removes all {@link WorkProgress} entries from the {@link WorkProgress} table.
+     */
+    @Query("DELETE FROM WorkProgress")
+    void deleteAll();
+
+    /**
      * @param workSpecId The {@link String} workSpec id
      * @return The progress {@link Data} associated with the given {@link String} workSpec id.
      */

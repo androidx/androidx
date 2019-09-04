@@ -38,6 +38,7 @@ import androidx.work.impl.Schedulers;
 import androidx.work.impl.WorkDatabase;
 import androidx.work.impl.WorkManagerImpl;
 import androidx.work.impl.background.systemjob.SystemJobScheduler;
+import androidx.work.impl.model.WorkProgressDao;
 import androidx.work.impl.model.WorkSpec;
 import androidx.work.impl.model.WorkSpecDao;
 
@@ -132,6 +133,7 @@ public class ForceStopRunnable implements Runnable {
         // Reset previously unfinished work.
         WorkDatabase workDatabase = mWorkManager.getWorkDatabase();
         WorkSpecDao workSpecDao = workDatabase.workSpecDao();
+        WorkProgressDao workProgressDao = workDatabase.workProgressDao();
         workDatabase.beginTransaction();
         boolean needsScheduling;
         try {
@@ -150,6 +152,7 @@ public class ForceStopRunnable implements Runnable {
                     workSpecDao.markWorkSpecScheduled(workSpec.id, SCHEDULE_NOT_REQUESTED_YET);
                 }
             }
+            workProgressDao.deleteAll();
             workDatabase.setTransactionSuccessful();
         } finally {
             workDatabase.endTransaction();
