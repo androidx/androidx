@@ -165,6 +165,12 @@ class AndroidComposeView constructor(context: Context)
             }
         }
 
+    /**
+     * Flag to indicate that we're measuring and we shouldn't be requesting
+     * measure/layout.
+     */
+    private var duringMeasureLayout = false
+
     init {
         setWillNotDraw(false)
         isFocusable = true
@@ -179,7 +185,7 @@ class AndroidComposeView constructor(context: Context)
         modelToNodes[models].forEach { node ->
             when (node) {
                 is DrawNode -> node.invalidate()
-                is LayoutNode -> node.requestRemeasure()
+                is LayoutNode -> requestMeasure(node, false)
             }
         }
         relayoutOnly[models].forEach { node ->
@@ -247,14 +253,25 @@ class AndroidComposeView constructor(context: Context)
     }
 
     override fun onRequestMeasure(layoutNode: LayoutNode) {
+        requestMeasure(layoutNode, isNodeChange = true)
+    }
+
+    private fun requestMeasure(layoutNode: LayoutNode, isNodeChange: Boolean) {
         trace("AndroidOwner:onRequestMeasure") {
-            // find root of layout request:
-            if (layoutNode.needsRemeasure) {
-                // don't need to do anything because it already needs to be remeasured
+            // If we have already marked this layoutNode, we know that it is already
+            // set to be remeasured. If we're doing this during the measure/layout
+            // then we shouldn't affect the relayoutNodes. This can happen in rare
+            // cases when using subcomposition, where the measure lambda is set during
+            // measurement.
+            if (layoutNode.needsRemeasure || duringMeasureLayout) {
+                check(isNodeChange || !duringMeasureLayout) {
+                    "onRequestMeasure called during measure/layout"
+                }
                 return
             }
             layoutNode.needsRemeasure = true
 
+            // find root of layout request:
             var layout = layoutNode
             while (layout.parentLayoutNode != null && layout.parentLayoutNode != root &&
                 layout.affectsParentSize
@@ -321,34 +338,39 @@ class AndroidComposeView constructor(context: Context)
      */
     private fun measureAndLayout() {
         trace("AndroidOwner:measureAndLayout") {
-            measureIteration++
-            val frame = currentFrame()
-            val topNode = relayoutNodes.firstOrNull()
-            frame.observeReads(frameReadObserver) {
-                relayoutNodes.forEach { layoutNode ->
-                    if (layoutNode.needsRemeasure) {
-                        val parent = layoutNode.parentLayoutNode
-                        if (parent != null) {
-                            // This should call measure and layout on the child
-                            val parentLayout = parent
-                            parent.needsRelayout = true
-                            parentLayout.placeChildren()
-                        } else {
-                            layoutNode.measure(layoutNode.constraints)
+            try {
+                duringMeasureLayout = true
+                measureIteration++
+                val frame = currentFrame()
+                val topNode = relayoutNodes.firstOrNull()
+                frame.observeReads(frameReadObserver) {
+                    relayoutNodes.forEach { layoutNode ->
+                        if (layoutNode.needsRemeasure) {
+                            val parent = layoutNode.parentLayoutNode
+                            if (parent != null) {
+                                // This should call measure and layout on the child
+                                val parentLayout = parent
+                                parent.needsRelayout = true
+                                parentLayout.placeChildren()
+                            } else {
+                                layoutNode.measure(layoutNode.constraints)
+                                layoutNode.placeChildren()
+                            }
+                        } else if (layoutNode.needsRelayout) {
                             layoutNode.placeChildren()
                         }
-                    } else if (layoutNode.needsRelayout) {
-                        layoutNode.placeChildren()
                     }
                 }
+                topNode?.dispatchOnPositionedCallbacks()
+                repaintBoundaryChanges.forEach { node ->
+                    val parent = node.parentLayoutNode!!
+                    node.container.setSize(parent.width.value, parent.height.value)
+                }
+                relayoutNodes.clear()
+                repaintBoundaryChanges.clear()
+            } finally {
+                duringMeasureLayout = false
             }
-            topNode?.dispatchOnPositionedCallbacks()
-            repaintBoundaryChanges.forEach { node ->
-                val parent = node.parentLayoutNode!!
-                node.container.setSize(parent.width.value, parent.height.value)
-            }
-            relayoutNodes.clear()
-            repaintBoundaryChanges.clear()
         }
     }
 
