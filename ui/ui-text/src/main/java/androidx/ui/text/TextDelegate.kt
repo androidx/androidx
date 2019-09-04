@@ -129,11 +129,21 @@ class TextDelegate(
         /**
          * The amount of space required to paint this text.
          */
-        val size: Size
-    )
+        val size: Size,
 
-    init {
-        assert(maxLines == null || maxLines > 0)
+        /**
+         * The minimum width provided while calculating this result.
+         */
+        val minWidth: Float,
+
+        /**
+         * The maximum width provided while calculating this result.
+         */
+        val maxWidth: Float
+    ) {
+        private val didOverflowHeight: Boolean get() = multiParagraph.didExceedMaxLines
+        val didOverflowWidth: Boolean get() = size.width < multiParagraph.width
+        val hasVisualOverflow: Boolean get() = didOverflowWidth || didOverflowHeight
     }
 
     /**
@@ -155,12 +165,6 @@ class TextDelegate(
     internal var layoutResult: LayoutResult? = null
 
     private var overflowShader: Shader? = null
-
-    @VisibleForTesting
-    internal var hasVisualOverflow = false
-
-    private var lastMinWidth: Float = 0.0f
-    private var lastMaxWidth: Float = 0.0f
 
     private inline fun <T> assumeLayout(block: (LayoutResult) -> T) =
         block(layoutResult ?: throw AssertionError("layout must be called first"))
@@ -213,27 +217,17 @@ class TextDelegate(
     val height: Float
         get() = assumeLayout { it.size.height }
 
+    init {
+        assert(maxLines == null || maxLines > 0)
+    }
+
     /**
      * Computes the visual position of the glyphs for painting the text.
      *
      * The text will layout with a width that's as close to its max intrinsic width as possible
      * while still being greater than or equal to `minWidth` and less than or equal to `maxWidth`.
      */
-    internal fun layoutText(minWidth: Float, maxWidth: Float): MultiParagraph {
-        // TODO(haoyuchang): fix that when softWarp is false and overflow is Ellipsis, ellipsis
-        //  doesn't work.
-        val widthMatters = softWrap || overflow == TextOverflow.Ellipsis
-        val finalMaxWidth = if (widthMatters) maxWidth else Float.POSITIVE_INFINITY
-
-        // If the layout result is the same one we computed before, just return the previous
-        // result.
-        val prevResult = layoutResult
-        if (prevResult != null && minWidth == lastMinWidth && finalMaxWidth == lastMaxWidth) {
-            return prevResult.multiParagraph
-        }
-
-        lastMinWidth = minWidth
-        lastMaxWidth = finalMaxWidth
+    private fun layoutText(minWidth: Float, maxWidth: Float): MultiParagraph {
         val multiParagraph = MultiParagraph(
             annotatedString = text,
             textStyle = textStyle,
@@ -254,10 +248,10 @@ class TextDelegate(
         //           we can use it to layout
         //        else if max intrinsic width is greater than maxWidth, we can only use maxWidth
         //        else if max intrinsic width is less than minWidth, we should use minWidth
-        val width = if (minWidth == finalMaxWidth) {
-            finalMaxWidth
+        val width = if (minWidth == maxWidth) {
+            maxWidth
         } else {
-            multiParagraph.maxIntrinsicWidth.coerceIn(minWidth, finalMaxWidth)
+            multiParagraph.maxIntrinsicWidth.coerceIn(minWidth, maxWidth)
         }
 
         multiParagraph.layout(ParagraphConstraints(width = width))
@@ -266,10 +260,23 @@ class TextDelegate(
     }
 
     fun layout(constraints: Constraints) {
-        val multiParagraph = layoutText(
-            constraints.minWidth.value.toFloat(),
+        // TODO(haoyuchang): fix that when softWarp is false and overflow is Ellipsis, ellipsis
+        //  doesn't work.
+        val minWidth = constraints.minWidth.value.toFloat()
+        val widthMatters = softWrap || overflow == TextOverflow.Ellipsis
+        val maxWidth = if (widthMatters) {
             constraints.maxWidth.value.toFloat()
-        )
+        } else {
+            Float.POSITIVE_INFINITY
+        }
+
+        // If the layout result is the same one we computed before, just return the previous
+        // result.
+        layoutResult?.let {
+            if (it.minWidth == minWidth && it.maxWidth == maxWidth) return@layout
+        }
+
+        val multiParagraph = layoutText(minWidth, maxWidth)
 
         val size = constraints.constrain(
             IntPxSize(multiParagraph.width.px.round(), multiParagraph.height.px.round())
@@ -277,18 +284,9 @@ class TextDelegate(
             Size(it.width.value.toFloat(), it.height.value.toFloat())
         }
 
-        layoutResult = LayoutResult(multiParagraph, size)
-
-        val didOverflowHeight = multiParagraph.didExceedMaxLines
-        val didOverflowWidth = size.width < multiParagraph.width
-        // TODO(abarth): We're only measuring the sizes of the line boxes here. If
-        // the glyphs draw outside the line boxes, we might think that there isn't
-        // visual overflow when there actually is visual overflow. This can become
-        // a problem if we start having horizontal overflow and introduce a clip
-        // that affects the actual (but undetected) vertical overflow.
-        hasVisualOverflow = didOverflowWidth || didOverflowHeight
-
-        overflowShader = createOverflowShader(hasVisualOverflow, didOverflowWidth, size)
+        layoutResult = LayoutResult(multiParagraph, size, minWidth, maxWidth).also {
+            overflowShader = createOverflowShader(it)
+        }
     }
 
     /**
@@ -319,7 +317,7 @@ class TextDelegate(
         // it non-null. For now Crane Text version does not need to layout text again. Comment it.
         // layoutTextWithConstraints(constraints!!)
 
-        if (hasVisualOverflow) {
+        if (layoutResult.hasVisualOverflow) {
             val bounds = Rect.fromLTWH(0f, 0f, layoutResult.size.width, layoutResult.size.height)
             if (overflowShader != null) {
                 // This layer limits what the shader below blends with to be just the text
@@ -333,7 +331,7 @@ class TextDelegate(
 
         layoutResult.multiParagraph.paint(canvas)
         val size = layoutResult.size
-        if (hasVisualOverflow) {
+        if (layoutResult.hasVisualOverflow) {
             if (overflowShader != null) {
                 val bounds = Rect.fromLTWH(0f, 0f, size.width, size.height)
                 val paint = Paint()
@@ -453,32 +451,29 @@ class TextDelegate(
 }
 
 private fun TextDelegate.createOverflowShader(
-    hasVisualOverflow: Boolean,
-    didOverflowWidth: Boolean,
-    size: Size
+    layoutResult: TextDelegate.LayoutResult
 ): Shader? {
-    return if (hasVisualOverflow && overflow == TextOverflow.Fade) {
-        val fadeSizeDelegate = TextDelegate(
-            text = AnnotatedString(text = "\u2026", textStyles = listOf()),
-            style = textStyle,
+    return if (layoutResult.hasVisualOverflow && overflow == TextOverflow.Fade) {
+        val paragraph = MultiParagraph(
+            annotatedString = AnnotatedString(text = "\u2026", textStyles = listOf()),
+            textStyle = textStyle,
             paragraphStyle = paragraphStyle,
             density = density,
             resourceLoader = resourceLoader,
             layoutDirection = layoutDirection
         )
-        val paragraphForFadeSizeDelegate = fadeSizeDelegate.layoutText(
-            minWidth = 1.0f,
-            maxWidth = Float.POSITIVE_INFINITY
-        )
-        val fadeWidth = paragraphForFadeSizeDelegate.width
-        val fadeHeight = paragraphForFadeSizeDelegate.height
-        if (didOverflowWidth) {
+
+        paragraph.layout(ParagraphConstraints(Float.POSITIVE_INFINITY))
+
+        val fadeWidth = paragraph.width
+        val fadeHeight = paragraph.height
+        if (layoutResult.didOverflowWidth) {
             // FIXME: Should only fade the last line, i.e., should use last line's direction.
             // (b/139496055)
             val (fadeStart, fadeEnd) = if (layoutDirection == LayoutDirection.Rtl) {
                 Pair(fadeWidth, 0.0f)
             } else {
-                Pair(size.width - fadeWidth, size.width)
+                Pair(layoutResult.size.width - fadeWidth, layoutResult.size.width)
             }
             LinearGradientShader(
                 Offset(fadeStart, 0.0f),
@@ -486,7 +481,7 @@ private fun TextDelegate.createOverflowShader(
                 listOf(Color(0xFFFFFFFF), Color(0x00FFFFFF))
             )
         } else {
-            val fadeEnd = size.height
+            val fadeEnd = layoutResult.size.height
             val fadeStart = fadeEnd - fadeHeight
             LinearGradientShader(
                 Offset(0.0f, fadeStart),
