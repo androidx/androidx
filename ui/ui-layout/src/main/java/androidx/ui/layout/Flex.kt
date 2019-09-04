@@ -99,7 +99,7 @@ class FlexChildren internal constructor() {
 fun FlexRow(
     mainAxisAlignment: MainAxisAlignment = MainAxisAlignment.Start,
     mainAxisSize: FlexSize = FlexSize.Expand,
-    crossAxisAlignment: CrossAxisAlignment = CrossAxisAlignment.Center,
+    crossAxisAlignment: CrossAxisAlignment = CrossAxisAlignment.Start,
     crossAxisSize: FlexSize = FlexSize.Wrap,
     block: FlexChildren.() -> Unit
 ) {
@@ -142,7 +142,7 @@ fun FlexRow(
 fun FlexColumn(
     mainAxisAlignment: MainAxisAlignment = MainAxisAlignment.Start,
     mainAxisSize: FlexSize = FlexSize.Expand,
-    crossAxisAlignment: CrossAxisAlignment = CrossAxisAlignment.Center,
+    crossAxisAlignment: CrossAxisAlignment = CrossAxisAlignment.Start,
     crossAxisSize: FlexSize = FlexSize.Wrap,
     block: FlexChildren.() -> Unit
 ) {
@@ -176,7 +176,7 @@ fun FlexColumn(
 fun Row(
     mainAxisAlignment: MainAxisAlignment = MainAxisAlignment.Start,
     mainAxisSize: FlexSize = FlexSize.Expand,
-    crossAxisAlignment: CrossAxisAlignment = CrossAxisAlignment.Center,
+    crossAxisAlignment: CrossAxisAlignment = CrossAxisAlignment.Start,
     crossAxisSize: FlexSize = FlexSize.Wrap,
     block: @Composable() () -> Unit
 ) {
@@ -212,7 +212,7 @@ fun Row(
 fun Column(
     mainAxisAlignment: MainAxisAlignment = MainAxisAlignment.Start,
     mainAxisSize: FlexSize = FlexSize.Expand,
-    crossAxisAlignment: CrossAxisAlignment = CrossAxisAlignment.Center,
+    crossAxisAlignment: CrossAxisAlignment = CrossAxisAlignment.Start,
     crossAxisSize: FlexSize = FlexSize.Wrap,
     block: @Composable() () -> Unit
 ) {
@@ -482,7 +482,7 @@ private fun Flex(
     mainAxisSize: FlexSize = FlexSize.Expand,
     mainAxisAlignment: MainAxisAlignment = MainAxisAlignment.Start,
     crossAxisSize: FlexSize = FlexSize.Wrap,
-    crossAxisAlignment: CrossAxisAlignment = CrossAxisAlignment.Center,
+    crossAxisAlignment: CrossAxisAlignment = CrossAxisAlignment.Start,
     block: FlexChildren.() -> Unit
 ) {
     fun Placeable.mainAxisSize() = if (orientation == FlexOrientation.Horizontal) width else height

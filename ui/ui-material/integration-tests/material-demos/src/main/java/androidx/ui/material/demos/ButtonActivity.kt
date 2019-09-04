@@ -38,6 +38,7 @@ import androidx.compose.composer
 import androidx.compose.unaryPlus
 import androidx.ui.layout.Center
 import androidx.ui.layout.Column
+import androidx.ui.layout.CrossAxisAlignment
 import androidx.ui.layout.MainAxisAlignment
 import androidx.ui.material.Button
 import androidx.ui.material.ContainedButtonStyle
@@ -54,7 +55,10 @@ class ButtonActivity : MaterialDemoActivity() {
     override fun materialContent() {
         val onClick: () -> Unit = { Log.e("ButtonDemo", "onClick") }
         Center {
-            Column(mainAxisAlignment = MainAxisAlignment.SpaceEvenly) {
+            Column(
+                mainAxisAlignment = MainAxisAlignment.SpaceEvenly,
+                crossAxisAlignment = CrossAxisAlignment.Center
+            ) {
                 ContainedButtonSample(onClick)
 
                 OutlinedButtonSample(onClick)
