@@ -31,10 +31,12 @@ import androidx.ui.core.Text
 import androidx.ui.core.dp
 import androidx.ui.foundation.Clickable
 import androidx.ui.foundation.ColoredRect
+import androidx.ui.foundation.SimpleImage
 import androidx.ui.foundation.drawBorders
 import androidx.ui.foundation.selection.ToggleableState
 import androidx.ui.foundation.shape.border.Border
 import androidx.ui.graphics.Color
+import androidx.ui.graphics.Image
 import androidx.ui.layout.Column
 import androidx.ui.layout.Container
 import androidx.ui.layout.CrossAxisAlignment
@@ -48,33 +50,6 @@ import androidx.ui.layout.WidthSpacer
 import androidx.ui.material.ripple.Ripple
 import androidx.ui.text.TextStyle
 import androidx.ui.text.font.FontWeight
-
-/**
- * Configuration for a row of a [DataTable].
- */
-data class DataRow(
-    /**
-     * The content for this row indexed by column.
-     */
-    val children: @Composable() (index: Int) -> Unit,
-
-    /**
-     * Whether this row is selected.
-     *
-     * If [onSelectedChange] is non-null for any row in the table, then a checkbox is shown at the
-     * start of each row. The checkbox will be checked if and only if the row is selected (true).
-     */
-    val selected: Boolean = false,
-
-    /**
-     * Called when the user selects or unselects a selectable row.
-     *
-     * If this is not null, then the row is selectable. The current selection state of the row
-     * is given by [selected]. A row whose [onSelectedChange] callback is null is ignored for
-     * the purpose of determining the state of the 'all' checkbox, and its checkbox is disabled.
-     */
-    val onSelectedChange: ((Boolean) -> Unit)? = null
-)
 
 /**
  * Pagination configuration for a [DataTable].
@@ -189,6 +164,126 @@ fun DefaultDataTableSorting(
 }
 
 /**
+ * Collects information about the children of a [DataTable] when
+ * its body is executed with a [DataTableChildren] as argument.
+ */
+class DataTableChildren internal constructor() {
+    internal var header: HeaderRowInfo? = null
+    internal val rows = mutableListOf<DataRowInfo>()
+
+    /**
+     * Creates a data row in a [DataTable] with the given content.
+     *
+     * If [onSelectedChange] is non-null for any row in the table, then a checkbox is shown at the
+     * start of each row. The checkbox will be checked if and only if the row is selected (true).
+     *
+     * @param selected Whether this row is selected.
+     * @param onSelectedChange Called when a user selects or unselects this row.
+     */
+    fun dataRow(
+        selected: Boolean = false,
+        onSelectedChange: ((Boolean) -> Unit)? = null,
+        children: @Composable() (index: Int) -> Unit
+    ) {
+        rows += DataRowInfo(children, selected, onSelectedChange)
+    }
+
+    /**
+     * Creates a data row in a [DataTable] with a [text] and an optional [icon].
+     *
+     * If [onSelectedChange] is non-null for any row in the table, then a checkbox is shown at the
+     * start of each row. The checkbox will be checked if and only if the row is selected (true).
+     *
+     * @param text Text to display in each cell.
+     * @param icon Optional image to draw to the left of the text in each cell.
+     * @param selected Whether this row is selected.
+     * @param onSelectedChange Called when a user selects or unselects this row.
+     */
+    fun dataRow(
+        text: (index: Int) -> String,
+        icon: (index: Int) -> Image? = { null },
+        selected: Boolean = false,
+        onSelectedChange: ((Boolean) -> Unit)? = null
+    ) {
+        val children: @Composable() (Int) -> Unit = { j ->
+            val image = icon(j)
+            if (image == null) {
+                Text(text = text(j))
+            } else {
+                Row {
+                    SimpleImage(image = image)
+                    WidthSpacer(2.dp)
+                    Text(text = text(j))
+                }
+            }
+        }
+        rows += DataRowInfo(children, selected, onSelectedChange)
+    }
+
+    /**
+     * Creates a header row in a [DataTable] with the given content.
+     *
+     * Note that the [onSelectAll] callback may be null, in which case the default behaviour will
+     * be used, i.e. select or unselect all selectable rows using their onSelectedChange callbacks.
+     *
+     * @param onSelectAll Called when a user selects or unselects all rows using the 'all' checkbox.
+     */
+    fun headerRow(
+        onSelectAll: ((Boolean) -> Unit)? = null,
+        children: @Composable() (index: Int) -> Unit
+    ) {
+        header = HeaderRowInfo(children, onSelectAll)
+    }
+
+    /**
+     * Creates a header row in a [DataTable] with a [text] and an optional [icon].
+     *
+     * Note that the [onSelectAll] callback may be null, in which case the default behaviour will
+     * be used, i.e. select or unselect all selectable rows using their onSelectedChange callbacks.
+     *
+     * @param text Text to display in each column header
+     * @param icon Optional image to draw to the left of the text in each column header.
+     * @param onSelectAll Called when a user selects or unselects all rows using the 'all' checkbox.
+     */
+    fun headerRow(
+        text: (index: Int) -> String,
+        icon: (index: Int) -> Image? = { null },
+        onSelectAll: ((Boolean) -> Unit)? = null
+    ) {
+        val children: @Composable() (Int) -> Unit = { j ->
+            val image = icon(j)
+            if (image == null) {
+                Text(text = text(j))
+            } else {
+                Row {
+                    SimpleImage(image = image)
+                    WidthSpacer(2.dp)
+                    Text(text = text(j))
+                }
+            }
+        }
+        header = HeaderRowInfo(children, onSelectAll)
+    }
+}
+
+/**
+ * Configuration for the data row of a [DataTable].
+ */
+internal data class DataRowInfo(
+    val children: @Composable() (index: Int) -> Unit,
+    val selected: Boolean,
+    val onSelectedChange: ((Boolean) -> Unit)?
+)
+
+/**
+ * Configuration for the header row of a [DataTable].
+ */
+internal data class HeaderRowInfo(
+    val children: @Composable() (index: Int) -> Unit,
+    val onSelectAll: ((Boolean) -> Unit)?
+)
+
+/**
  * Data tables display information in a grid-like format of rows and columns. They organize
  * information in a way that’s easy to scan, so that users can look for patterns and insights.
  *
@@ -206,32 +301,33 @@ fun DefaultDataTableSorting(
  *
  * @param rows The data to show in each row (excluding the header row).
  * @param columns The number of columns in the table.
- * @param header The header of the given column.
  * @param numeric Whether the given column represents numeric data.
- * @param rowHeight The height of each row (excluding the header row).
- * @param headerHeight The height of the header row.
+ * @param dataRowHeight The height of each row (excluding the header row).
+ * @param headerRowHeight The height of the header row.
  * @param cellSpacing The padding to apply around each cell.
  * @param border The style used for the table borders.
  * @param selectedColor The color used to indicate selected rows.
- * @param onSelectAll Called when the user selects or unselects every row using the 'all' checkbox.
  * @param pagination Contains the pagination configuration. To disable pagination, set this to null.
  * @param sorting Contains the sorting configuration. To disable sorting, set this to null.
  */
 @Composable
 fun DataTable(
-    rows: List<DataRow>,
     columns: Int,
-    header: @Composable() (index: Int) -> Unit,
     numeric: (Int) -> Boolean = { false },
-    rowHeight: Dp = RowHeight,
-    headerHeight: Dp = HeaderHeight,
+    dataRowHeight: Dp = DataRowHeight,
+    headerRowHeight: Dp = HeaderRowHeight,
     cellSpacing: EdgeInsets = CellSpacing,
     border: Border = Border(color = BorderColor, width = BorderWidth),
     selectedColor: Color = +themeColor { primary.copy(alpha = 0.08f) },
-    onSelectAll: (Boolean) -> Unit = { rows.forEach { row -> row.onSelectedChange?.invoke(it) } },
     pagination: DataTablePagination? = null,
-    sorting: DataTableSorting? = null
+    sorting: DataTableSorting? = null,
+    block: DataTableChildren.() -> Unit
 ) {
+    val scope = DataTableChildren()
+    scope.block()
+    val rows = scope.rows
+    val header = scope.header
+
     val selectableRows = rows.filter { it.onSelectedChange != null }
     val showCheckboxes = selectableRows.isNotEmpty()
 
@@ -265,49 +361,56 @@ fun DataTable(
             }
 
             // Header row
-            tableRow {
-                if (showCheckboxes) {
-                    Container(height = headerHeight, padding = cellSpacing) {
-                        val parentState = when (selectableRows.count { it.selected }) {
-                            selectableRows.size -> ToggleableState.Checked
-                            0 -> ToggleableState.Unchecked
-                            else -> ToggleableState.Indeterminate
+            if (header != null) {
+                tableRow {
+                    if (showCheckboxes) {
+                        Container(height = headerRowHeight, padding = cellSpacing) {
+                            val parentState = when (selectableRows.count { it.selected }) {
+                                selectableRows.size -> ToggleableState.Checked
+                                0 -> ToggleableState.Unchecked
+                                else -> ToggleableState.Indeterminate
+                            }
+                            TriStateCheckbox(value = parentState, onClick = {
+                                val newValue = parentState != ToggleableState.Checked
+                                if (header.onSelectAll != null) {
+                                    header.onSelectAll.invoke(newValue)
+                                } else {
+                                    rows.forEach { it.onSelectedChange?.invoke(newValue) }
+                                }
+                            })
                         }
-                        TriStateCheckbox(value = parentState, onClick = {
-                            onSelectAll(parentState != ToggleableState.Checked)
-                        })
                     }
-                }
-                for (j in 0 until columns) {
-                    Container(height = headerHeight, padding = cellSpacing) {
-                        var fontWeight = FontWeight.W500
-                        var onSort = null as (() -> Unit)?
-                        var headerDecoration = null as (@Composable() () -> Unit)?
+                    for (j in 0 until columns) {
+                        Container(height = headerRowHeight, padding = cellSpacing) {
+                            var fontWeight = FontWeight.W500
+                            var onSort = null as (() -> Unit)?
+                            var headerDecoration = null as (@Composable() () -> Unit)?
 
-                        if (sorting != null && sorting.sortableColumns.contains(j)) {
-                            if (sorting.column == j) {
-                                fontWeight = FontWeight.Bold
-                                onSort = {
-                                    sorting.onSortChange(j, !sorting.ascending)
-                                }
-                                headerDecoration = {
-                                    // TODO(calintat): Replace with animated arrow icons.
-                                    Text(text = if (sorting.ascending) "↑" else "↓")
-                                    WidthSpacer(2.dp)
-                                }
-                            } else {
-                                onSort = {
-                                    sorting.onSortChange(j, true)
+                            if (sorting != null && sorting.sortableColumns.contains(j)) {
+                                if (sorting.column == j) {
+                                    fontWeight = FontWeight.Bold
+                                    onSort = {
+                                        sorting.onSortChange(j, !sorting.ascending)
+                                    }
+                                    headerDecoration = {
+                                        // TODO(calintat): Replace with animated arrow icons.
+                                        Text(text = if (sorting.ascending) "↑" else "↓")
+                                        WidthSpacer(2.dp)
+                                    }
+                                } else {
+                                    onSort = {
+                                        sorting.onSortChange(j, true)
+                                    }
                                 }
                             }
-                        }
 
-                        CurrentTextStyleProvider(TextStyle(fontWeight = fontWeight)) {
-                            Ripple(bounded = true) {
-                                Clickable(onClick = onSort) {
-                                    Row {
-                                        headerDecoration?.invoke()
-                                        header(index = j)
+                            CurrentTextStyleProvider(TextStyle(fontWeight = fontWeight)) {
+                                Ripple(bounded = true) {
+                                    Clickable(onClick = onSort) {
+                                        Row {
+                                            headerDecoration?.invoke()
+                                            header.children(index = j)
+                                        }
                                     }
                                 }
                             }
@@ -320,12 +423,12 @@ fun DataTable(
             visibleRows.forEach { row ->
                 tableRow {
                     if (showCheckboxes) {
-                        Container(height = rowHeight, padding = cellSpacing) {
+                        Container(height = dataRowHeight, padding = cellSpacing) {
                             Checkbox(row.selected, row.onSelectedChange)
                         }
                     }
                     for (j in 0 until columns) {
-                        Container(height = rowHeight, padding = cellSpacing) {
+                        Container(height = dataRowHeight, padding = cellSpacing) {
                             row.children(index = j)
                         }
                     }
@@ -339,9 +442,15 @@ fun DataTable(
                         if (row.onSelectedChange == null) return@forEachIndexed
                         ParentData(data = index) {
                             Ripple(bounded = true) {
-                                Clickable(onClick = { row.onSelectedChange.invoke(!row.selected) }) {
+                                Clickable(
+                                    onClick = { row.onSelectedChange.invoke(!row.selected) }
+                                ) {
                                     ColoredRect(
-                                        color = if (row.selected) selectedColor else Color.Transparent
+                                        color = if (row.selected) {
+                                            selectedColor
+                                        } else {
+                                            Color.Transparent
+                                        }
                                     )
                                 }
                             }
@@ -374,7 +483,7 @@ fun DataTable(
     } else {
         Column {
             table()
-            Container(height = rowHeight, padding = cellSpacing) {
+            Container(height = dataRowHeight, padding = cellSpacing) {
                 Row(
                     mainAxisSize = LayoutSize.Expand,
                     mainAxisAlignment = MainAxisAlignment.End,
@@ -426,8 +535,8 @@ fun DataTable(
     }
 }
 
-private val RowHeight = 52.dp
-private val HeaderHeight = 56.dp
+private val DataRowHeight = 52.dp
+private val HeaderRowHeight = 56.dp
 private val CellSpacing = EdgeInsets(left = 16.dp, right = 16.dp)
 private val BorderColor = Color(0xFFC6C6C6.toInt())
 private val BorderWidth = 1.dp

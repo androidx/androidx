@@ -20,8 +20,6 @@ import androidx.annotation.Sampled
 import androidx.compose.Composable
 import androidx.compose.Model
 import androidx.compose.composer
-import androidx.ui.core.Text
-import androidx.ui.material.DataRow
 import androidx.ui.material.DataTable
 import androidx.ui.material.DefaultDataTablePagination
 import androidx.ui.material.DefaultDataTableSorting
@@ -37,11 +35,7 @@ private data class Dessert(
     val calcium: Int,
     val iron: Int,
     var selected: Boolean = false
-) {
-    fun onSelectedChange(newValue: Boolean) {
-        selected = newValue
-    }
-}
+)
 
 private val headers = listOf(
     "Dessert",
@@ -142,29 +136,29 @@ private val mutableDesserts = mutableListOf(
 fun SimpleDataTable() {
     DataTable(
         columns = headers.size,
-        header = { j -> Text(text = headers[j]) },
-        numeric = { j -> j != 0 },
-        rows = desserts.map { dessert ->
-            DataRow(
-                children = { j ->
-                    Text(
-                        text = when (j) {
-                            0 -> dessert.name
-                            1 -> dessert.calories.toString()
-                            2 -> dessert.fat.toString()
-                            3 -> dessert.carbs.toString()
-                            4 -> dessert.protein.toString()
-                            5 -> dessert.sodium.toString()
-                            6 -> dessert.calcium.toString() + "%"
-                            else -> dessert.iron.toString() + "%"
-                        }
-                    )
+        numeric = { j -> j != 0 }
+    ) {
+        headerRow(text = { j -> headers[j] })
+
+        desserts.forEach { dessert ->
+            dataRow(
+                text = { j ->
+                    when (j) {
+                        0 -> dessert.name
+                        1 -> dessert.calories.toString()
+                        2 -> dessert.fat.toString()
+                        3 -> dessert.carbs.toString()
+                        4 -> dessert.protein.toString()
+                        5 -> dessert.sodium.toString()
+                        6 -> dessert.calcium.toString() + "%"
+                        else -> dessert.iron.toString() + "%"
+                    }
                 },
                 selected = dessert.selected,
-                onSelectedChange = { dessert.onSelectedChange(it) }
+                onSelectedChange = { dessert.selected = it }
             )
         }
-    )
+    }
 }
 
 @Sampled
@@ -172,34 +166,34 @@ fun SimpleDataTable() {
 fun DataTableWithPagination() {
     DataTable(
         columns = headers.size,
-        header = { j -> Text(text = headers[j]) },
         numeric = { j -> j != 0 },
-        rows = extraDesserts.map { dessert ->
-            DataRow(
-                children = { j ->
-                    Text(
-                        text = when (j) {
-                            0 -> dessert.name
-                            1 -> dessert.calories.toString()
-                            2 -> dessert.fat.toString()
-                            3 -> dessert.carbs.toString()
-                            4 -> dessert.protein.toString()
-                            5 -> dessert.sodium.toString()
-                            6 -> dessert.calcium.toString() + "%"
-                            else -> dessert.iron.toString() + "%"
-                        }
-                    )
-                },
-                selected = dessert.selected,
-                onSelectedChange = { dessert.onSelectedChange(it) }
-            )
-        },
         pagination = DefaultDataTablePagination(
             initialPage = 1,
             initialRowsPerPage = 7,
             availableRowsPerPage = listOf(7, 14, 28)
         )
-    )
+    ) {
+        headerRow(text = { j -> headers[j] })
+
+        extraDesserts.forEach { dessert ->
+            dataRow(
+                text = { j ->
+                    when (j) {
+                        0 -> dessert.name
+                        1 -> dessert.calories.toString()
+                        2 -> dessert.fat.toString()
+                        3 -> dessert.carbs.toString()
+                        4 -> dessert.protein.toString()
+                        5 -> dessert.sodium.toString()
+                        6 -> dessert.calcium.toString() + "%"
+                        else -> dessert.iron.toString() + "%"
+                    }
+                },
+                selected = dessert.selected,
+                onSelectedChange = { dessert.selected = it }
+            )
+        }
+    }
 }
 
 @Sampled
@@ -207,28 +201,7 @@ fun DataTableWithPagination() {
 fun DataTableWithSorting() {
     DataTable(
         columns = headers.size,
-        header = { j -> Text(text = headers[j]) },
         numeric = { j -> j != 0 },
-        rows = mutableDesserts.map { dessert ->
-            DataRow(
-                children = { j ->
-                    Text(
-                        text = when (j) {
-                            0 -> dessert.name
-                            1 -> dessert.calories.toString()
-                            2 -> dessert.fat.toString()
-                            3 -> dessert.carbs.toString()
-                            4 -> dessert.protein.toString()
-                            5 -> dessert.sodium.toString()
-                            6 -> dessert.calcium.toString() + "%"
-                            else -> dessert.iron.toString() + "%"
-                        }
-                    )
-                },
-                selected = dessert.selected,
-                onSelectedChange = { dessert.onSelectedChange(it) }
-            )
-        },
         sorting = DefaultDataTableSorting(
             sortableColumns = setOf(1, 2, 3, 4, 5, 6, 7),
             onSortRequest = { sortColumn, ascending ->
@@ -249,5 +222,26 @@ fun DataTableWithSorting() {
                 })
             }
         )
-    )
+    ) {
+        headerRow(text = { j -> headers[j] })
+
+        mutableDesserts.forEach { dessert ->
+            dataRow(
+                text = { j ->
+                    when (j) {
+                        0 -> dessert.name
+                        1 -> dessert.calories.toString()
+                        2 -> dessert.fat.toString()
+                        3 -> dessert.carbs.toString()
+                        4 -> dessert.protein.toString()
+                        5 -> dessert.sodium.toString()
+                        6 -> dessert.calcium.toString() + "%"
+                        else -> dessert.iron.toString() + "%"
+                    }
+                },
+                selected = dessert.selected,
+                onSelectedChange = { dessert.selected = it }
+            )
+        }
+    }
 }
