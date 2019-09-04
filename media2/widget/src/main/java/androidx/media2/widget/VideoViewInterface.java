@@ -31,17 +31,6 @@ interface VideoViewInterface {
     boolean assignSurfaceToPlayerWrapper(PlayerWrapper player);
     void setSurfaceListener(SurfaceListener l);
     int getViewType();
-    void setPlayerWrapper(PlayerWrapper player);
-
-    /**
-     * Takes over oldView. It means that the PlayerWrapper will start rendering on this view.
-     * If the view doesn't have a PlayerWrapper instance or its surface is not available,
-     * the actual execution is deferred until a PlayerWrapper instance is set
-     * by {@link #setPlayerWrapper} or its surface becomes available.
-     * {@link SurfaceListener#onSurfaceTakeOverDone} will be called when the actual execution is
-     * done.
-     */
-    void takeOver();
 
     /**
      * Indicates if the view's surface is available.

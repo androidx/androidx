@@ -34,8 +34,6 @@ class VideoSurfaceView extends SurfaceView
     private Surface mSurface = null;
     SurfaceListener mSurfaceListener = null;
     private PlayerWrapper mPlayer;
-    // A flag to indicate taking over other view should be proceed.
-    private boolean mIsTakingOverOldView;
 
     VideoSurfaceView(Context context) {
         super(context, null);
@@ -48,6 +46,7 @@ class VideoSurfaceView extends SurfaceView
 
     @Override
     public boolean assignSurfaceToPlayerWrapper(PlayerWrapper player) {
+        mPlayer = player;
         if (player == null || !hasAvailableSurface()) {
             return false;
         }
@@ -72,19 +71,6 @@ class VideoSurfaceView extends SurfaceView
     @Override
     public int getViewType() {
         return VIEW_TYPE_SURFACEVIEW;
-    }
-
-    @Override
-    public void setPlayerWrapper(PlayerWrapper player) {
-        mPlayer = player;
-        if (mIsTakingOverOldView) {
-            mIsTakingOverOldView = !assignSurfaceToPlayerWrapper(mPlayer);
-        }
-    }
-
-    @Override
-    public void takeOver() {
-        mIsTakingOverOldView = !assignSurfaceToPlayerWrapper(mPlayer);
     }
 
     @Override
