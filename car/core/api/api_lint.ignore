@@ -11,10 +11,6 @@ MissingNullability: androidx.car.app.CarListDialog#onCreate(android.os.Bundle) p
     Missing nullability on parameter `savedInstanceState` in method `onCreate`
 MissingNullability: androidx.car.app.CarListDialog#setTitle(CharSequence) parameter #0:
     Missing nullability on parameter `title` in method `setTitle`
-MissingNullability: androidx.car.app.CarListDialog.Builder#Builder(android.content.Context) parameter #0:
-    Missing nullability on parameter `context` in method `Builder`
-MissingNullability: androidx.car.app.CarListDialog.Builder#create():
-    Missing nullability on method `create` return
 MissingNullability: androidx.car.app.CarMultipleChoiceDialog#onCreate(android.os.Bundle) parameter #0:
     Missing nullability on parameter `savedInstanceState` in method `onCreate`
 MissingNullability: androidx.car.app.CarMultipleChoiceDialog#setTitle(CharSequence) parameter #0:
@@ -191,8 +187,6 @@ MissingNullability: androidx.car.widget.PagedScrollBarView#PagedScrollBarView(an
     Missing nullability on parameter `attrs` in method `PagedScrollBarView`
 MissingNullability: androidx.car.widget.PagedScrollBarView#setDownButtonIcon(android.graphics.drawable.Drawable) parameter #0:
     Missing nullability on parameter `icon` in method `setDownButtonIcon`
-MissingNullability: androidx.car.widget.PagedScrollBarView#setPaginationListener(androidx.car.widget.PagedScrollBarView.PaginationListener) parameter #0:
-    Missing nullability on parameter `listener` in method `setPaginationListener`
 MissingNullability: androidx.car.widget.PagedScrollBarView#setUpButtonIcon(android.graphics.drawable.Drawable) parameter #0:
     Missing nullability on parameter `icon` in method `setUpButtonIcon`
 MissingNullability: androidx.car.widget.SeekbarListItem#createViewHolder(android.view.View) parameter #0:
