@@ -30,7 +30,6 @@ import androidx.ui.graphics.Color
 import androidx.ui.graphics.lerp
 import androidx.ui.lerp
 import androidx.ui.painting.Shadow
-import java.util.Locale
 
 /**
  * Configuration object to define the text style.
@@ -52,7 +51,7 @@ import java.util.Locale
  * @param baselineShift This parameter specifies how much the baseline is shifted from the current
  *  position.
  * @param textGeometricTransform The geometric transformation applied the text.
- * @param locale The locale used to select region-specific glyphs.
+ * @param localeList The locale list used to select region-specific glyphs.
  * @param background The background color for the text.
  * @param decoration The decorations to paint near the text (e.g., an underline).
  * @param shadow The shadow effect applied on the text.
@@ -69,7 +68,7 @@ data class TextStyle(
     val letterSpacing: Float? = null,
     val baselineShift: BaselineShift? = null,
     val textGeometricTransform: TextGeometricTransform? = null,
-    val locale: Locale? = null,
+    val localeList: LocaleList? = null,
     val background: Color? = null,
     val decoration: TextDecoration? = null,
     val shadow: Shadow? = null
@@ -98,7 +97,7 @@ data class TextStyle(
             letterSpacing = other.letterSpacing ?: this.letterSpacing,
             baselineShift = other.baselineShift ?: this.baselineShift,
             textGeometricTransform = other.textGeometricTransform ?: this.textGeometricTransform,
-            locale = other.locale ?: this.locale,
+            localeList = other.localeList ?: this.localeList,
             background = other.background ?: this.background,
             decoration = other.decoration ?: this.decoration,
             shadow = other.shadow ?: this.shadow
@@ -219,7 +218,7 @@ data class TextStyle(
                     b.textGeometricTransform ?: TextGeometricTransform.None,
                     t
                 ),
-                locale = lerpDiscrete(a.locale, b.locale, t),
+                localeList = lerpDiscrete(a.localeList, b.localeList, t),
                 background = lerpDiscrete(
                     a.background,
                     b.background,
@@ -260,7 +259,7 @@ data class TextStyle(
             letterSpacing != other.letterSpacing ||
             baselineShift != other.baselineShift ||
             textGeometricTransform != other.textGeometricTransform ||
-            locale != other.locale ||
+            localeList != other.localeList ||
             background != other.background
         ) {
             return RenderComparison.LAYOUT

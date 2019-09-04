@@ -54,7 +54,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import org.mockito.Mockito.mock
-import java.util.Locale
 import kotlin.math.roundToInt
 
 @RunWith(JUnit4::class)
@@ -1607,19 +1606,19 @@ class ParagraphIntegrationTest {
             val fontSizeInPx = fontSize.toPx().value
             val locales = arrayOf(
                 // duplicate ja is on purpose
-                Locale("ja"),
-                Locale("ja"),
-                Locale("zh", "CN"),
-                Locale("zh", "TW")
+                LocaleList("ja"),
+                LocaleList("ja"),
+                LocaleList("zh-CN"),
+                LocaleList("zh-TW")
             )
 
-            val bitmaps = locales.map { locale ->
+            val bitmaps = locales.map { localeList ->
                 val paragraph = Paragraph(
                     text = text,
                     textStyles = listOf(),
                     style = TextStyle(
                         fontSize = fontSize,
-                        locale = locale
+                        localeList = localeList
                     ),
                     paragraphStyle = ParagraphStyle(),
                     density = defaultDensity,
@@ -3271,7 +3270,7 @@ class ParagraphIntegrationTest {
         lineHeight: Float? = null,
         textStyles: List<AnnotatedString.Item<TextStyle>> = listOf(),
         fontFamily: FontFamily = fontFamilyMeasureFont,
-        locale: Locale? = null,
+        localeList: LocaleList? = null,
         textStyle: TextStyle? = null,
         density: Density? = null,
         textDirectionAlgorithm: TextDirectionAlgorithm? = null,
@@ -3283,7 +3282,7 @@ class ParagraphIntegrationTest {
             style = TextStyle(
                 fontFamily = fontFamily,
                 fontSize = fontSize,
-                locale = locale
+                localeList = localeList
             ).merge(textStyle),
             paragraphStyle = ParagraphStyle(
                 textIndent = textIndent,

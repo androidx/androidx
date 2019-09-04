@@ -41,7 +41,6 @@ import androidx.ui.text.font.Font
 import androidx.ui.text.style.TextAlign
 import androidx.ui.text.style.TextDirection
 import androidx.ui.text.style.TextOverflow
-import java.util.Locale
 
 /** The default font size if none is specified. */
 private val DefaultFontSize: Sp = 14.sp
@@ -96,8 +95,6 @@ private fun resolveTextStyle(style: TextStyle?) =
  * to the last line before the line truncated by [maxLines], if [maxLines] is non-null and that
  * line overflows the width constraint.
  *
- * @param locale The locale used to select region-specific glyphs.
- *
  * @param layoutDirection The widget layout direction.
  *
  * @hide
@@ -110,7 +107,6 @@ class TextDelegate(
     val maxLines: Int? = null,
     val softWrap: Boolean = true,
     val overflow: TextOverflow = TextOverflow.Clip,
-    val locale: Locale? = null,
     val density: Density,
     val layoutDirection: LayoutDirection,
     val resourceLoader: Font.ResourceLoader

@@ -46,8 +46,8 @@ import androidx.ui.text.style.TextOverflow
 import androidx.ui.core.Sp
 import androidx.ui.core.sp
 import androidx.ui.text.AnnotatedString
+import androidx.ui.text.LocaleList
 import androidx.ui.text.style.TextIndent
-import java.util.Locale
 
 val displayText = "Text Demo"
 val displayTextChinese = "文本演示"
@@ -376,7 +376,7 @@ fun TextDemoLocale() {
             text = "$text   ",
             style = TextStyle(
                 fontSize = fontSize8,
-                locale = Locale("ja", "JP")
+                localeList = LocaleList("ja-JP")
             )
         )
 
@@ -384,7 +384,7 @@ fun TextDemoLocale() {
             text = "$text   ",
             style = TextStyle(
                 fontSize = fontSize8,
-                locale = Locale("zh", "CN")
+                localeList = LocaleList("zh-CN")
             )
         )
 
@@ -392,7 +392,7 @@ fun TextDemoLocale() {
             text = text,
             style = TextStyle(
                 fontSize = fontSize8,
-                locale = Locale("zh", "TW")
+                localeList = LocaleList("zh-TW")
             )
         )
     }
@@ -558,11 +558,11 @@ fun TextDemoSelection() {
                 Span(text = "$arabicSentence")
                 Span(
                     text = "\n先帝创业未半而中道崩殂，今天下三分，益州疲弊，此诚危急存亡之秋也。",
-                    style = TextStyle(locale = Locale("zh", "CN"))
+                    style = TextStyle(localeList = LocaleList("zh-CN"))
                 )
                 Span(
                     text = "\nまず、現在天下が魏・呉・蜀に分れており、そのうち蜀は疲弊していることを指摘する。",
-                    style = TextStyle(locale = Locale("ja", "JP"))
+                    style = TextStyle(localeList = LocaleList("ja-JP"))
                 )
             }
         }
