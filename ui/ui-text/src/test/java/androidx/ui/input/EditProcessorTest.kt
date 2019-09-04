@@ -39,7 +39,9 @@ class EditProcessorTest {
         val proc = EditProcessor()
         val tis: TextInputService = mock()
 
-        proc.onNewState(EditorModel("ABCDE", TextRange(0, 0)), tis)
+        val model = EditorModel("ABCDE", TextRange(0, 0))
+        proc.onNewState(model, tis)
+        assertEquals(model, proc.mPreviousModel)
         val captor = argumentCaptor<EditorModel>()
         verify(tis, times(1)).onStateUpdated(captor.capture())
         assertEquals(1, captor.allValues.size)
