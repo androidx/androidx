@@ -154,7 +154,7 @@ class AnnotatedStringTransformTest {
             )
         )
 
-        val uppercase = input.toUpperCase(Locale.forLanguageTag("tr"))
+        val uppercase = input.toUpperCase(LocaleList("tr"))
 
         assertEquals(input.text.toUpperCase(Locale.forLanguageTag("tr")), uppercase.text)
 
@@ -188,7 +188,7 @@ class AnnotatedStringTransformTest {
             )
         )
 
-        val lowercase = input.toLowerCase(Locale.forLanguageTag("lt"))
+        val lowercase = input.toLowerCase(LocaleList("lt"))
 
         assertEquals(input.text.toLowerCase(Locale.forLanguageTag("lt")), lowercase.text)
 

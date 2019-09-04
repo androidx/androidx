@@ -78,17 +78,17 @@ package androidx.ui.text {
 
   public final class AnnotatedString {
     ctor public AnnotatedString(String text, java.util.List<androidx.ui.text.AnnotatedString.Item<androidx.ui.text.TextStyle>> textStyles, java.util.List<androidx.ui.text.AnnotatedString.Item<androidx.ui.text.ParagraphStyle>> paragraphStyles);
-    method public androidx.ui.text.AnnotatedString capitalize(java.util.Locale locale = Locale.getDefault());
+    method public androidx.ui.text.AnnotatedString capitalize(androidx.ui.text.LocaleList localeList = LocaleList.current);
     method public String component1();
     method public java.util.List<androidx.ui.text.AnnotatedString.Item<androidx.ui.text.TextStyle>> component2();
     method public java.util.List<androidx.ui.text.AnnotatedString.Item<androidx.ui.text.ParagraphStyle>> component3();
     method public androidx.ui.text.AnnotatedString copy(String text, java.util.List<androidx.ui.text.AnnotatedString.Item<androidx.ui.text.TextStyle>> textStyles, java.util.List<androidx.ui.text.AnnotatedString.Item<androidx.ui.text.ParagraphStyle>> paragraphStyles);
-    method public androidx.ui.text.AnnotatedString decapitalize(java.util.Locale locale = Locale.getDefault());
+    method public androidx.ui.text.AnnotatedString decapitalize(androidx.ui.text.LocaleList localeList = LocaleList.current);
     method public java.util.List<androidx.ui.text.AnnotatedString.Item<androidx.ui.text.ParagraphStyle>> getParagraphStyles();
     method public String getText();
     method public java.util.List<androidx.ui.text.AnnotatedString.Item<androidx.ui.text.TextStyle>> getTextStyles();
-    method public androidx.ui.text.AnnotatedString toLowerCase(java.util.Locale locale = Locale.getDefault());
-    method public androidx.ui.text.AnnotatedString toUpperCase(java.util.Locale locale = Locale.getDefault());
+    method public androidx.ui.text.AnnotatedString toLowerCase(androidx.ui.text.LocaleList localeList = LocaleList.current);
+    method public androidx.ui.text.AnnotatedString toUpperCase(androidx.ui.text.LocaleList localeList = LocaleList.current);
   }
 
   public static final class AnnotatedString.Item<T> {
@@ -100,6 +100,45 @@ package androidx.ui.text {
     method public int getEnd();
     method public int getStart();
     method public T! getStyle();
+  }
+
+  public final class Locale {
+    ctor public Locale(String languageTag);
+    method public String getLanguage();
+    method public String getRegion();
+    method public String getScript();
+    method public String toLanguageTag();
+    property public final String language;
+    property public final String region;
+    property public final String script;
+    field public static final androidx.ui.text.Locale.Companion! Companion;
+  }
+
+  public static final class Locale.Companion {
+    method public androidx.ui.text.Locale getCurrent();
+    property public final androidx.ui.text.Locale current;
+  }
+
+  public final class LocaleList implements java.util.Collection<androidx.ui.text.Locale> kotlin.jvm.internal.markers.KMappedMarker {
+    ctor public LocaleList(java.util.List<androidx.ui.text.Locale> localeList);
+    ctor public LocaleList(String languageTags);
+    ctor public LocaleList(androidx.ui.text.Locale... locales);
+    method public java.util.List<androidx.ui.text.Locale> component1();
+    method public operator boolean contains(androidx.ui.text.Locale element);
+    method public boolean containsAll(java.util.Collection<?> elements);
+    method public androidx.ui.text.LocaleList copy(java.util.List<androidx.ui.text.Locale> localeList);
+    method public operator androidx.ui.text.Locale get(int i);
+    method public java.util.List<androidx.ui.text.Locale> getLocaleList();
+    method public int getSize();
+    method public boolean isEmpty();
+    method public java.util.Iterator<androidx.ui.text.Locale> iterator();
+    property public int size;
+    field public static final androidx.ui.text.LocaleList.Companion! Companion;
+  }
+
+  public static final class LocaleList.Companion {
+    method public androidx.ui.text.LocaleList getCurrent();
+    property public final androidx.ui.text.LocaleList current;
   }
 
   public final class MultiParagraphKt {
@@ -162,6 +201,18 @@ package androidx.ui.text {
     method public androidx.ui.text.style.TextDirectionAlgorithm? getTextDirectionAlgorithm();
     method public androidx.ui.text.style.TextIndent? getTextIndent();
     method public androidx.ui.text.ParagraphStyle merge(androidx.ui.text.ParagraphStyle? other = null);
+  }
+
+  public final class StringKt {
+    ctor public StringKt();
+    method public static String capitalize(String, androidx.ui.text.Locale locale);
+    method public static String capitalize(String, androidx.ui.text.LocaleList localeList);
+    method public static String decapitalize(String, androidx.ui.text.Locale locale);
+    method public static String decapitalize(String, androidx.ui.text.LocaleList localeList);
+    method public static String toLowerCase(String, androidx.ui.text.Locale locale);
+    method public static String toLowerCase(String, androidx.ui.text.LocaleList localeList);
+    method public static String toUpperCase(String, androidx.ui.text.Locale locale);
+    method public static String toUpperCase(String, androidx.ui.text.LocaleList localeList);
   }
 
   public final class TextDelegateKt {
@@ -333,6 +384,10 @@ package androidx.ui.text.platform {
 
   public final class AndroidParagraphKt {
     ctor public AndroidParagraphKt();
+  }
+
+  public final class PlatformLocaleKt {
+    ctor public PlatformLocaleKt();
   }
 
 }

@@ -16,7 +16,6 @@
 
 package androidx.ui.text
 
-import java.util.Locale
 import java.util.SortedSet
 
 /**
@@ -68,11 +67,12 @@ data class AnnotatedString(
      * transform the character, e.g. style starts from between base alphabet character and accent
      * character.
      *
-     * @param locale A locale used for upper case mapping.
+     * @param localeList A locale list used for upper case mapping. Only the first locale is
+     *                   effective. If empty locale list is passed, use the current locale instead.
      * @return A uppercase transformed string.
      */
-    fun toUpperCase(locale: Locale = Locale.getDefault()): AnnotatedString {
-        return transform { str, start, end -> str.substring(start, end).toUpperCase(locale) }
+    fun toUpperCase(localeList: LocaleList = LocaleList.current): AnnotatedString {
+        return transform { str, start, end -> str.substring(start, end).toUpperCase(localeList) }
     }
 
     /**
@@ -85,11 +85,12 @@ data class AnnotatedString(
      * transform the character, e.g. style starts from between base alphabet character and accent
      * character.
      *
-     * @param locale A locale used for lower case mapping.
+     * @param localeList A locale list used for lower case mapping. Only the first locale is
+     *                   effective. If empty locale list is passed, use the current locale instead.
      * @return A lowercase transformed string.
      */
-    fun toLowerCase(locale: Locale = Locale.getDefault()): AnnotatedString {
-        return transform { str, start, end -> str.substring(start, end).toLowerCase(locale) }
+    fun toLowerCase(localeList: LocaleList = LocaleList.current): AnnotatedString {
+        return transform { str, start, end -> str.substring(start, end).toLowerCase(localeList) }
     }
 
     /**
@@ -102,17 +103,16 @@ data class AnnotatedString(
      * transform the character, e.g. style starts from between base alphabet character and accent
      * character.
      *
-     * @param locale A locale used for capitalization. Note that, this locale is currently ignored
-     *               since underlying Kotlin method is experimental.
+     * @param localeList A locale list used for capitalize mapping. Only the first locale is
+     *                   effective. If empty locale list is passed, use the current locale instead.
+     *                   Note that, this locale is currently ignored since underlying Kotlin method
+     *                   is experimental.
      * @return A capitalized string.
      */
-    fun capitalize(
-        @Suppress("UNUSED_PARAMETER") locale: Locale = Locale.getDefault()
-    ): AnnotatedString {
+    fun capitalize(localeList: LocaleList = LocaleList.current): AnnotatedString {
         return transform { str, start, end ->
             if (start == 0) {
-                // TODO: pass locale if capitalize with locale function is published.
-                str.substring(start, end).capitalize()
+                str.substring(start, end).capitalize(localeList)
             } else {
                 str.substring(start, end)
             }
@@ -129,17 +129,16 @@ data class AnnotatedString(
      * transform the character, e.g. style starts from between base alphabet character and accent
      * character.
      *
-     * @param locale A locale used for decapitalization. Note that, this locale is currently
-     *               ignored since underlying Kotlin method is experimental.
+     * @param localeList A locale list used for decapitalize mapping. Only the first locale is
+     *                   effective. If empty locale list is passed, use the current locale instead.
+     *                   Note that, this locale is currently ignored since underlying Kotlin method
+     *                   is experimental.
      * @return A decapitalized string.
      */
-    fun decapitalize(
-        @Suppress("UNUSED_PARAMETER") locale: Locale = Locale.getDefault()
-    ): AnnotatedString {
+    fun decapitalize(localeList: LocaleList = LocaleList.current): AnnotatedString {
         return transform { str, start, end ->
             if (start == 0) {
-                // TODO: pass locale if decapitalize with locale function is published.
-                str.substring(start, end).decapitalize()
+                str.substring(start, end).decapitalize(localeList)
             } else {
                 str.substring(start, end)
             }
