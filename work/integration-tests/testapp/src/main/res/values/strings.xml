@@ -25,7 +25,15 @@
     <string name="replace_completed_work">Test Replacing Completed Work</string>
     <string name="run_retry_worker">Run Retry Worker</string>
     <string name="run_recursive_worker">Run Recursive Worker</string>
+    <string name="run_foreground_worker">Run Foreground Worker</string>
     <string name="crash_app">Crash App</string>
     <string name="create_hundred_job_exception">Create 100 Job Exception</string>
     <string name="keep">Use KEEP</string>
+    <!-- Foreground service support -->
+    <string name="channel_id">10</string>
+    <integer name="channel_importance">3</integer>
+    <string name="channel_name">WorkManager</string>
+    <string name="channel_description">Foreground Work</string>
+    <integer name="notification_id">1</integer>
+    <string name="notification_title">Working</string>
 </resources>

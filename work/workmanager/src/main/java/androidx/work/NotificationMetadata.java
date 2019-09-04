@@ -64,14 +64,6 @@ public final class NotificationMetadata {
         return mNotificationType;
     }
 
-    /**
-     * @return The user visible {@link Notification}
-     */
-    @NonNull
-    public Notification getNotification() {
-        return mNotification;
-    }
-
     @Override
     public boolean equals(@Nullable Object o) {
         if (this == o) return true;
@@ -88,6 +80,14 @@ public final class NotificationMetadata {
         }
         return mNotification != null ? mNotification.equals(that.mNotification)
                 : that.mNotification == null;
+    }
+
+    /**
+     * @return The user visible {@link Notification}
+     */
+    @NonNull
+    public Notification getNotification() {
+        return mNotification;
     }
 
     @Override

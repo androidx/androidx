@@ -199,8 +199,13 @@ public abstract class ListenableWorker {
      */
     @NonNull
     public final ListenableFuture<Void> setProgressAsync(@NonNull Data data) {
+        NotificationProvider provider = null;
+        if (this instanceof NotificationProvider) {
+            provider = (NotificationProvider) this;
+        }
+
         return mWorkerParams.getProgressUpdater()
-                .updateProgress(getApplicationContext(), getId(), data);
+                .updateProgress(getApplicationContext(), getId(), data, provider);
     }
 
     /**
@@ -392,7 +397,7 @@ public abstract class ListenableWorker {
              * @hide
              */
             @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-            public Data getOutputData() {
+            public @NonNull Data getOutputData() {
                 return mOutputData;
             }
 
@@ -447,7 +452,7 @@ public abstract class ListenableWorker {
              * @hide
              */
             @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-            public Data getOutputData() {
+            public @NonNull Data getOutputData() {
                 return mOutputData;
             }
 
