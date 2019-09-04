@@ -20,6 +20,7 @@ import android.os.Bundle;
 import android.os.Parcelable;
 import android.util.Log;
 import android.util.SparseArray;
+import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -122,6 +123,20 @@ class FragmentStateManager {
     @NonNull
     Fragment getFragment() {
         return mFragment;
+    }
+
+    void ensureInflatedView() {
+        if (mFragment.mFromLayout && !mFragment.mPerformedCreateView) {
+            mFragment.performCreateView(mFragment.performGetLayoutInflater(
+                    mFragment.mSavedFragmentState), null, mFragment.mSavedFragmentState);
+            if (mFragment.mView != null) {
+                mFragment.mView.setSaveFromParentEnabled(false);
+                if (mFragment.mHidden) mFragment.mView.setVisibility(View.GONE);
+                mFragment.onViewCreated(mFragment.mView, mFragment.mSavedFragmentState);
+                mDispatcher.dispatchOnFragmentViewCreated(
+                        mFragment, mFragment.mView, mFragment.mSavedFragmentState, false);
+            }
+        }
     }
 
     void restoreState(@NonNull ClassLoader classLoader) {
