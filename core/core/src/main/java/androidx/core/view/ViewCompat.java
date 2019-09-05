@@ -23,6 +23,7 @@ import android.annotation.SuppressLint;
 import android.content.ClipData;
 import android.content.Context;
 import android.content.res.ColorStateList;
+import android.content.res.TypedArray;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.PorterDuff;
@@ -31,6 +32,7 @@ import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.AttributeSet;
 import android.util.Log;
 import android.util.SparseArray;
 import android.view.Display;
@@ -487,6 +489,41 @@ public class ViewCompat {
         }
         rect.setEmpty();
         return rect;
+    }
+
+    @RequiresApi(29)
+    private static class ViewCompatApi29 {
+        public static void saveAttributeDataForStyleable(@NonNull View view,
+                @NonNull Context context, @NonNull int[] styleable, @Nullable AttributeSet attrs,
+                @NonNull TypedArray t, int defStyleAttr, int defStyleRes) {
+            view.saveAttributeDataForStyleable(
+                    context, styleable, attrs, t, defStyleAttr, defStyleRes);
+        }
+    }
+
+    /**
+     * Stores debugging information about attributes. This should be called in a constructor by
+     * every custom {@link View} that uses a custom styleable. If the custom view does not call it,
+     * then the custom attributes used by this view will not be visible in layout inspection tools.
+     *
+     * No-op before API 29.
+     *
+     *  @param context Context under which this view is created.
+     * @param styleable A reference to styleable array R.styleable.Foo
+     * @param attrs AttributeSet used to construct this view.
+     * @param t Resolved {@link TypedArray} returned by a call to
+     *        {@link android.content.res.Resources#obtainAttributes(AttributeSet, int[])}.
+     * @param defStyleAttr Default style attribute passed into the view constructor.
+     * @param defStyleRes Default style resource passed into the view constructor.
+     */
+    public static void saveAttributeDataForStyleable(@NonNull View view,
+            @SuppressLint("ContextFirst") @NonNull Context context, @NonNull int[] styleable,
+            @Nullable AttributeSet attrs, @NonNull TypedArray t, int defStyleAttr,
+            int defStyleRes) {
+        if (Build.VERSION.SDK_INT >= 29) {
+            ViewCompatApi29.saveAttributeDataForStyleable(
+                    view, context, styleable, attrs, t, defStyleAttr, defStyleRes);
+        }
     }
 
     /**

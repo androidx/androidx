@@ -29,7 +29,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
-import android.graphics.drawable.Icon;
 import android.net.Uri;
 import android.os.Binder;
 import android.os.Build;
@@ -444,7 +443,8 @@ public class SliceProviderCompat {
                         if (holder.mVersionedParcelable instanceof IconCompat) {
                             IconCompat icon = (IconCompat) holder.mVersionedParcelable;
                             icon.checkResource(context);
-                            if (icon.getType() == Icon.TYPE_RESOURCE && icon.getResId() == 0) {
+                            if (icon.getType() == IconCompat.TYPE_RESOURCE
+                                    && icon.getResId() == 0) {
                                 holder.mVersionedParcelable = null;
                             }
                         }

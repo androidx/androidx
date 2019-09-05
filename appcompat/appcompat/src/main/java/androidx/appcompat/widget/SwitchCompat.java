@@ -228,11 +228,9 @@ public class SwitchCompat extends CompoundButton {
 
         final TintTypedArray a = TintTypedArray.obtainStyledAttributes(context,
                 attrs, R.styleable.SwitchCompat, defStyleAttr, 0);
-        if (Build.VERSION.SDK_INT >= 29) {
-            saveAttributeDataForStyleable(
-                    context, R.styleable.SwitchCompat, attrs,
-                    a.getWrappedTypeArray(), defStyleAttr, 0);
-        }
+        ViewCompat.saveAttributeDataForStyleable(this,
+                context, R.styleable.SwitchCompat, attrs,
+                a.getWrappedTypeArray(), defStyleAttr, 0);
 
         mThumbDrawable = a.getDrawable(R.styleable.SwitchCompat_android_thumb);
         if (mThumbDrawable != null) {

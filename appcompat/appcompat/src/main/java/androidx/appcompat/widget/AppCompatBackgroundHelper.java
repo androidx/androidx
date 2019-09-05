@@ -48,11 +48,9 @@ class AppCompatBackgroundHelper {
     void loadFromAttributes(@Nullable AttributeSet attrs, int defStyleAttr) {
         TintTypedArray a = TintTypedArray.obtainStyledAttributes(mView.getContext(), attrs,
                 R.styleable.ViewBackgroundHelper, defStyleAttr, 0);
-        if (Build.VERSION.SDK_INT >= 29) {
-            mView.saveAttributeDataForStyleable(mView.getContext(),
-                    R.styleable.ViewBackgroundHelper, attrs, a.getWrappedTypeArray(),
-                    defStyleAttr, 0);
-        }
+        ViewCompat.saveAttributeDataForStyleable(mView, mView.getContext(),
+                R.styleable.ViewBackgroundHelper, attrs, a.getWrappedTypeArray(),
+                defStyleAttr, 0);
         try {
             if (a.hasValue(R.styleable.ViewBackgroundHelper_android_background)) {
                 mBackgroundResId = a.getResourceId(

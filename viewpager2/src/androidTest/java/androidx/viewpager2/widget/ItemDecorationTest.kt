@@ -22,12 +22,12 @@ import androidx.recyclerview.widget.RecyclerView.ItemDecoration
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
-import androidx.testutils.assertThrows
 import androidx.viewpager2.widget.ViewPager2.ORIENTATION_HORIZONTAL
 import androidx.viewpager2.widget.ViewPager2.ORIENTATION_VERTICAL
 import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.Matchers.greaterThan
 import org.junit.Assert.assertThat
+import org.junit.Assert.fail
 import org.junit.Test
 import org.junit.runner.RunWith
 import java.util.concurrent.CountDownLatch
@@ -124,14 +124,23 @@ class ItemDecorationTest : BaseTest() {
 
         // get / remove: illegal indexes
         listOf(-100, -1, 2, 5, 100).forEach { ix ->
-            assertThrows<IndexOutOfBoundsException> { viewPager.getItemDecorationAt(ix) }
-            assertThrows<IndexOutOfBoundsException> { viewPager.removeItemDecorationAt(ix) }
+            try {
+                viewPager.getItemDecorationAt(ix)
+                fail()
+            } catch (_: IndexOutOfBoundsException) {}
+            try {
+                viewPager.removeItemDecorationAt(ix)
+                fail()
+            } catch (_: IndexOutOfBoundsException) {}
         }
         assertThat(viewPager.itemDecorations, equalTo(initialDecorations))
 
         // add: illegal indexes
         listOf(3, 5, 100).forEach { ix ->
-            assertThrows<IndexOutOfBoundsException> { viewPager.addItemDecoration(decoration3, ix) }
+            try {
+                viewPager.addItemDecoration(decoration3, ix)
+                fail()
+            } catch (_: IndexOutOfBoundsException) {}
         }
         assertThat(viewPager.itemDecorations, equalTo(initialDecorations))
 
