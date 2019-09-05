@@ -461,7 +461,7 @@ class BenchmarkState {
         )
     }
 
-    internal companion object {
+    companion object {
         private const val TAG = "Benchmark"
         private const val STUDIO_OUTPUT_KEY_PREFIX = "android.studio.display."
         private const val STUDIO_OUTPUT_KEY_ID = "benchmark"
@@ -547,7 +547,7 @@ class BenchmarkState {
             ResultWriter.appendReport(report)
         }
 
-        internal fun ideSummaryLineWrapped(key: String, nanos: Long): String {
+        private fun ideSummaryLineWrapped(key: String, nanos: Long): String {
             val warningLines =
                 Errors.acquireWarningStringForLogging()?.split("\n") ?: listOf()
             return (warningLines + ideSummaryLine(key, nanos))
@@ -560,7 +560,7 @@ class BenchmarkState {
 
         // NOTE: this summary line will use default locale to determine separators. As
         // this line is only meant for human eyes, we don't worry about consistency here.
-        fun ideSummaryLine(key: String, nanos: Long) = String.format(
+        internal fun ideSummaryLine(key: String, nanos: Long) = String.format(
             // 13 is used for alignment here, because it's enough that 9.99sec will still
             // align with any other output, without moving data too far to the right
             "%13s ns %s",
@@ -568,7 +568,7 @@ class BenchmarkState {
             key
         )
 
-        fun Bundle.putIdeSummaryLine(testName: String, nanos: Long) {
+        internal fun Bundle.putIdeSummaryLine(testName: String, nanos: Long) {
             putString(
                 STUDIO_OUTPUT_KEY_PREFIX + STUDIO_OUTPUT_KEY_ID,
                 ideSummaryLineWrapped(testName, nanos)
