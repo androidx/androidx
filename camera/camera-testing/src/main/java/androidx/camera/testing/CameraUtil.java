@@ -74,11 +74,6 @@ public final class CameraUtil {
     public static CameraDeviceHolder getCameraDevice()
             throws CameraAccessException, InterruptedException, TimeoutException,
             ExecutionException {
-        // Setup threading required for callback on openCamera()
-        final HandlerThread handlerThread = new HandlerThread("handler thread");
-        handlerThread.start();
-        Handler handler = new Handler(handlerThread.getLooper());
-
         CameraManager cameraManager = getCameraManager();
 
         // Use the first camera available.
@@ -107,7 +102,7 @@ public final class CameraUtil {
 
         @GuardedBy("mLock")
         CameraDevice mCameraDevice;
-        HandlerThread mHandlerThread;
+        final HandlerThread mHandlerThread;
         private ListenableFuture<Void> mCloseFuture;
 
         @RequiresPermission(Manifest.permission.CAMERA)
@@ -156,14 +151,18 @@ public final class CameraUtil {
 
                         @Override
                         public void onError(@NonNull CameraDevice cameraDevice, int i) {
+                            boolean notifyOpenFailed = false;
                             synchronized (mLock) {
                                 if (mCameraDevice == null) {
-                                    openCompleter.setException(new RuntimeException("Failed to "
-                                            + "open camera device due to error code: " + i));
+                                    notifyOpenFailed = true;
+                                } else {
+                                    mCameraDevice = null;
                                 }
                             }
-                            synchronized (mLock) {
-                                mCameraDevice = null;
+
+                            if (notifyOpenFailed) {
+                                openCompleter.setException(new RuntimeException("Failed to "
+                                        + "open camera device due to error code: " + i));
                             }
                             cameraDevice.close();
 
