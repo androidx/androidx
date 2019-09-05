@@ -45,6 +45,7 @@ import android.view.ViewGroup;
 import android.view.animation.BaseInterpolator;
 import android.view.animation.DecelerateInterpolator;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RequiresPermission;
@@ -65,11 +66,13 @@ import androidx.camera.core.VideoCapture.OnVideoSavedListener;
 import androidx.lifecycle.LifecycleOwner;
 
 import java.io.File;
+import java.util.concurrent.Executor;
 
 /**
  * A {@link View} that displays a preview of the camera with methods {@link
- * #takePicture(OnImageCapturedListener)}, {@link #takePicture(File, OnImageSavedListener)}, {@link
- * #startRecording(File, OnVideoSavedListener)} and {@link #stopRecording()}.
+ * #takePicture(Executor, OnImageCapturedListener)},
+ * {@link #takePicture(File, Executor, OnImageSavedListener)},
+ * {@link #startRecording(File, Executor, OnVideoSavedListener)} and {@link #stopRecording()}.
  *
  * <p>Because the Camera is a limited resource and consumes a high amount of power, CameraView must
  * be opened/closed. CameraView will handle opening/closing automatically through use of a {@link
@@ -626,29 +629,38 @@ public final class CameraView extends ViewGroup {
      * Takes a picture, and calls {@link OnImageCapturedListener#onCaptureSuccess(ImageProxy, int)}
      * once when done.
      *
+     * @param executor The executor in which the listener callback methods will be run.
      * @param listener Listener which will receive success or failure callbacks.
      */
-    public void takePicture(OnImageCapturedListener listener) {
-        mCameraModule.takePicture(listener);
+    @SuppressLint("LambdaLast") // Maybe remove after https://issuetracker.google.com/135275901
+    public void takePicture(@NonNull Executor executor, @NonNull OnImageCapturedListener listener) {
+        mCameraModule.takePicture(executor, listener);
     }
 
     /**
      * Takes a picture and calls {@link OnImageSavedListener#onImageSaved(File)} when done.
      *
      * @param file     The destination.
+     * @param executor The executor in which the listener callback methods will be run.
      * @param listener Listener which will receive success or failure callbacks.
      */
-    public void takePicture(File file, OnImageSavedListener listener) {
-        mCameraModule.takePicture(file, listener);
+    @SuppressLint("LambdaLast") // Maybe remove after https://issuetracker.google.com/135275901
+    public void takePicture(@NonNull File file, @NonNull Executor executor,
+            @NonNull OnImageSavedListener listener) {
+        mCameraModule.takePicture(file, executor, listener);
     }
 
     /**
      * Takes a video and calls the OnVideoSavedListener when done.
      *
      * @param file The destination.
+     * @param executor The executor in which the listener callback methods will be run.
+     * @param listener Listener which will receive success or failure callbacks.
      */
-    public void startRecording(File file, OnVideoSavedListener listener) {
-        mCameraModule.startRecording(file, listener);
+    @SuppressLint("LambdaLast") // Maybe remove after https://issuetracker.google.com/135275901
+    public void startRecording(@NonNull File file, @NonNull Executor executor,
+            @NonNull OnVideoSavedListener listener) {
+        mCameraModule.startRecording(file, executor, listener);
     }
 
     /** Stops an in progress video. */
@@ -713,7 +725,7 @@ public final class CameraView extends ViewGroup {
     }
 
     /** Sets the active flash strategy. */
-    public void setFlash(FlashMode flashMode) {
+    public void setFlash(@NonNull FlashMode flashMode) {
         mCameraModule.setFlash(flashMode);
     }
 
@@ -726,7 +738,7 @@ public final class CameraView extends ViewGroup {
     }
 
     @Override
-    public boolean onTouchEvent(MotionEvent event) {
+    public boolean onTouchEvent(@NonNull MotionEvent event) {
         // Disable pinch-to-zoom and tap-to-focus while the camera module is paused.
         if (mCameraModule.isPaused()) {
             return false;
