@@ -167,7 +167,7 @@ public class WorkManagerImpl extends WorkManager {
                 throw new IllegalStateException("WorkManager is already initialized.  Did you "
                         + "try to initialize it manually without disabling "
                         + "WorkManagerInitializer? See "
-                        + "WorkManager#initialize(Context, Configuration) or the class level"
+                        + "WorkManager#initialize(Context, Configuration) or the class level "
                         + "Javadoc for more information.");
             }
 
