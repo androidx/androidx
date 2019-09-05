@@ -17,6 +17,7 @@
 package androidx.camera.core;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
 import androidx.camera.core.FocusMeteringAction.OnAutoFocusListener;
 
 /**
@@ -25,7 +26,6 @@ import androidx.camera.core.FocusMeteringAction.OnAutoFocusListener;
  * <p>Applications can retrieve the interface via CameraX.getCameraControl.
  */
 public interface CameraControl {
-
     /**
      * Starts a focus and metering action by the {@link FocusMeteringAction}.
      *
@@ -45,4 +45,39 @@ public interface CameraControl {
      * isFocusLocked set to false.
      */
     void cancelFocusAndMetering();
+
+    /**
+     * An exception thrown when the argument is out of range.
+     */
+    final class ArgumentOutOfRangeException extends Exception {
+        /** @hide */
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        public ArgumentOutOfRangeException(@NonNull String message) {
+            super(message);
+        }
+
+        /** @hide */
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        public ArgumentOutOfRangeException(@NonNull String message, @NonNull Throwable cause) {
+            super(message, cause);
+        }
+    }
+
+    /**
+     * An exception representing a failure that the operation is canceled which might be caused by
+     * a new value is set or camera is closed.
+     */
+    final class OperationCanceledException extends Exception {
+        /** @hide */
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        public OperationCanceledException(@NonNull String message) {
+            super(message);
+        }
+
+        /** @hide */
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        public OperationCanceledException(@NonNull String message, @NonNull Throwable cause) {
+            super(message, cause);
+        }
+    }
 }

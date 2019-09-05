@@ -34,7 +34,7 @@ dependencies {
     implementation("androidx.concurrent:concurrent-futures:1.0.0")
 
     implementation(AUTO_VALUE_ANNOTATIONS)
-    implementation(GUAVA_LISTENABLE_FUTURE)
+    api(GUAVA_LISTENABLE_FUTURE)
 
     annotationProcessor(AUTO_VALUE)
 
