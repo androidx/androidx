@@ -24,7 +24,6 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.ServiceConnection;
 import android.os.IBinder;
-import android.os.SystemClock;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -128,7 +127,7 @@ public class CarUxRestrictionsHelper {
         }
 
         return new CarUxRestrictions.Builder(false,
-                CarUxRestrictions.UX_RESTRICTIONS_BASELINE, SystemClock.elapsedRealtimeNanos())
+                CarUxRestrictions.UX_RESTRICTIONS_BASELINE)
                 .build();
     }
 
