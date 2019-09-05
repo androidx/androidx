@@ -149,58 +149,68 @@ public class FingerprintDialogFragment extends DialogFragment {
     // Also created once and retained.
     @SuppressWarnings("deprecation")
     private final DialogInterface.OnClickListener mDeviceCredentialButtonListener =
-            (dialog, which) -> {
-                if (which == DialogInterface.BUTTON_NEGATIVE) {
-                    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-                        Log.e(TAG, "Failed to check device credential. Not supported prior to L.");
-                        return;
-                    }
+            new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    if (which == DialogInterface.BUTTON_NEGATIVE) {
+                        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+                            Log.e(TAG, "Failed to check device credential."
+                                    + " Not supported prior to L.");
+                            return;
+                        }
 
-                    final FragmentActivity activity = getActivity();
-                    if (!(activity instanceof DeviceCredentialHandlerActivity)) {
-                        Log.e(TAG, "Failed to check device credential. Parent handler not found.");
-                        return;
-                    }
+                        final FragmentActivity activity =
+                                FingerprintDialogFragment.this.getActivity();
+                        if (!(activity instanceof DeviceCredentialHandlerActivity)) {
+                            Log.e(TAG, "Failed to check device credential."
+                                    + " Parent handler not found.");
+                            return;
+                        }
 
-                    final Object service = activity.getSystemService(Context.KEYGUARD_SERVICE);
-                    if (!(service instanceof KeyguardManager)) {
-                        Log.e(TAG, "Failed to check device credential. KeyguardManager not found.");
-                        return;
-                    }
-                    final KeyguardManager km = (KeyguardManager) service;
+                        final Object service = activity.getSystemService(Context.KEYGUARD_SERVICE);
+                        if (!(service instanceof KeyguardManager)) {
+                            Log.e(TAG, "Failed to check device credential."
+                                    + " KeyguardManager not found.");
+                            return;
+                        }
+                        final KeyguardManager km = (KeyguardManager) service;
 
-                    // Dismiss the fingerprint dialog without forwarding errors to the client.
-                    final FingerprintHelperFragment fingerprintHelperFragment =
-                            (FingerprintHelperFragment) getFragmentManager().findFragmentByTag(
-                                    BiometricPrompt.FINGERPRINT_HELPER_FRAGMENT_TAG);
-                    if (fingerprintHelperFragment != null) {
-                        fingerprintHelperFragment.setConfirmingDeviceCredential(true);
-                    }
-                    onCancel(dialog);
+                        // Dismiss the fingerprint dialog without forwarding errors to the client.
+                        final FingerprintHelperFragment fingerprintHelperFragment =
+                                (FingerprintHelperFragment) FingerprintDialogFragment.this
+                                        .getFragmentManager()
+                                        .findFragmentByTag(
+                                                BiometricPrompt.FINGERPRINT_HELPER_FRAGMENT_TAG);
+                        if (fingerprintHelperFragment != null) {
+                            fingerprintHelperFragment.setConfirmingDeviceCredential(true);
+                        }
+                        FingerprintDialogFragment.this.onCancel(dialog);
 
-                    // Pass along the title and subtitle from the biometric prompt.
-                    final CharSequence title;
-                    final CharSequence subtitle;
-                    if (mBundle != null) {
-                        title = mBundle.getCharSequence(BiometricPrompt.KEY_TITLE);
-                        subtitle = mBundle.getCharSequence(BiometricPrompt.KEY_SUBTITLE);
-                    } else {
-                        title = null;
-                        subtitle = null;
-                    }
+                        // Pass along the title and subtitle from the biometric prompt.
+                        final CharSequence title;
+                        final CharSequence subtitle;
+                        if (mBundle != null) {
+                            title = mBundle.getCharSequence(BiometricPrompt.KEY_TITLE);
+                            subtitle = mBundle.getCharSequence(BiometricPrompt.KEY_SUBTITLE);
+                        } else {
+                            title = null;
+                            subtitle = null;
+                        }
 
-                    // Prevent the bridge from resetting until the confirmation activity finishes.
-                    DeviceCredentialHandlerBridge bridge =
-                            DeviceCredentialHandlerBridge.getInstanceIfNotNull();
-                    if (bridge != null) {
-                        bridge.startIgnoringReset();
-                    }
+                        // Prevent bridge from resetting until the confirmation activity finishes.
+                        DeviceCredentialHandlerBridge bridge =
+                                DeviceCredentialHandlerBridge.getInstanceIfNotNull();
+                        if (bridge != null) {
+                            bridge.startIgnoringReset();
+                        }
 
-                    // Launch a new instance of the confirm device credential Settings activity.
-                    final Intent intent = km.createConfirmDeviceCredentialIntent(title, subtitle);
-                    intent.setFlags(
-                            Intent.FLAG_ACTIVITY_MULTIPLE_TASK | Intent.FLAG_ACTIVITY_NEW_DOCUMENT);
-                    activity.startActivityForResult(intent, 0 /* requestCode */);
+                        // Launch a new instance of the confirm device credential Settings activity.
+                        final Intent intent =
+                                km.createConfirmDeviceCredentialIntent(title, subtitle);
+                        intent.setFlags(Intent.FLAG_ACTIVITY_MULTIPLE_TASK
+                                | Intent.FLAG_ACTIVITY_NEW_DOCUMENT);
+                        activity.startActivityForResult(intent, 0 /* requestCode */);
+                    }
                 }
             };
 
@@ -247,13 +257,16 @@ public class FingerprintDialogFragment extends DialogFragment {
                 isDeviceCredentialAllowed()
                         ? getString(R.string.confirm_device_credential_password)
                         : mBundle.getCharSequence(BiometricPrompt.KEY_NEGATIVE_TEXT);
-        builder.setNegativeButton(negativeButtonText, (dialog, which) -> {
-            if (isDeviceCredentialAllowed()) {
-                mDeviceCredentialButtonListener.onClick(dialog, which);
-            } else if (mNegativeButtonListener != null) {
-                mNegativeButtonListener.onClick(dialog, which);
-            } else {
-                Log.w(TAG, "No suitable negative button listener.");
+        builder.setNegativeButton(negativeButtonText, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                if (FingerprintDialogFragment.this.isDeviceCredentialAllowed()) {
+                    mDeviceCredentialButtonListener.onClick(dialog, which);
+                } else if (mNegativeButtonListener != null) {
+                    mNegativeButtonListener.onClick(dialog, which);
+                } else {
+                    Log.w(TAG, "No suitable negative button listener.");
+                }
             }
         });
 
@@ -429,7 +442,12 @@ public class FingerprintDialogFragment extends DialogFragment {
     private void dismissAfterDelay() {
         mErrorText.setTextColor(mErrorColor);
         mErrorText.setText(R.string.fingerprint_error_lockout);
-        mHandler.postDelayed(this::dismiss, HIDE_DIALOG_DELAY);
+        mHandler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                FingerprintDialogFragment.this.dismiss();
+            }
+        }, HIDE_DIALOG_DELAY);
     }
 
     private void handleDismissDialogError() {
