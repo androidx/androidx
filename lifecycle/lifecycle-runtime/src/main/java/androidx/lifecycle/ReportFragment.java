@@ -17,9 +17,13 @@
 package androidx.lifecycle;
 
 import android.app.Activity;
+import android.app.Application;
 import android.app.Fragment;
+import android.os.Build;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 
 /**
@@ -34,13 +38,96 @@ public class ReportFragment extends Fragment {
             + ".LifecycleDispatcher.report_fragment_tag";
 
     public static void injectIfNeededIn(Activity activity) {
-        // ProcessLifecycleOwner should always correctly work and some activities may not extend
-        // FragmentActivity from support lib, so we use framework fragments for activities
-        android.app.FragmentManager manager = activity.getFragmentManager();
-        if (manager.findFragmentByTag(REPORT_FRAGMENT_TAG) == null) {
-            manager.beginTransaction().add(new ReportFragment(), REPORT_FRAGMENT_TAG).commit();
-            // Hopefully, we are the first to make a transaction.
-            manager.executePendingTransactions();
+        if (Build.VERSION.SDK_INT >= 29) {
+            // On API 29+, we can register for the correct Lifecycle callbacks directly
+            activity.registerActivityLifecycleCallbacks(
+                    new Application.ActivityLifecycleCallbacks() {
+                        @Override
+                        public void onActivityCreated(@NonNull Activity activity,
+                                @Nullable Bundle bundle) {
+                        }
+
+                        @Override
+                        public void onActivityPostCreated(@NonNull Activity activity,
+                                @Nullable Bundle savedInstanceState) {
+                            dispatch(activity, Lifecycle.Event.ON_CREATE);
+                        }
+
+                        @Override
+                        public void onActivityStarted(@NonNull Activity activity) {
+                        }
+
+                        @Override
+                        public void onActivityPostStarted(@NonNull Activity activity) {
+                            dispatch(activity, Lifecycle.Event.ON_START);
+                        }
+
+                        @Override
+                        public void onActivityResumed(@NonNull Activity activity) {
+                        }
+
+                        @Override
+                        public void onActivityPostResumed(@NonNull Activity activity) {
+                            dispatch(activity, Lifecycle.Event.ON_RESUME);
+                        }
+
+                        @Override
+                        public void onActivityPrePaused(@NonNull Activity activity) {
+                            dispatch(activity, Lifecycle.Event.ON_PAUSE);
+                        }
+
+                        @Override
+                        public void onActivityPaused(@NonNull Activity activity) {
+                        }
+
+                        @Override
+                        public void onActivityPreStopped(@NonNull Activity activity) {
+                            dispatch(activity, Lifecycle.Event.ON_STOP);
+                        }
+
+                        @Override
+                        public void onActivityStopped(@NonNull Activity activity) {
+                        }
+
+                        @Override
+                        public void onActivitySaveInstanceState(@NonNull Activity activity,
+                                @NonNull Bundle bundle) {
+                        }
+
+                        @Override
+                        public void onActivityPreDestroyed(@NonNull Activity activity) {
+                            dispatch(activity, Lifecycle.Event.ON_DESTROY);
+                        }
+
+                        @Override
+                        public void onActivityDestroyed(@NonNull Activity activity) {
+                        }
+                    });
+        } else {
+            // ProcessLifecycleOwner should always correctly work and some activities may not
+            // extend FragmentActivity from support lib, so we use framework fragments for
+            // activities prior to API 29 so as to get the correct timing of Lifecycle events
+            android.app.FragmentManager manager = activity.getFragmentManager();
+            if (manager.findFragmentByTag(REPORT_FRAGMENT_TAG) == null) {
+                manager.beginTransaction().add(new ReportFragment(), REPORT_FRAGMENT_TAG).commit();
+                // Hopefully, we are the first to make a transaction.
+                manager.executePendingTransactions();
+            }
+        }
+    }
+
+    @SuppressWarnings("deprecation")
+    static void dispatch(@NonNull Activity activity, @NonNull Lifecycle.Event event) {
+        if (activity instanceof LifecycleRegistryOwner) {
+            ((LifecycleRegistryOwner) activity).getLifecycle().handleLifecycleEvent(event);
+            return;
+        }
+
+        if (activity instanceof LifecycleOwner) {
+            Lifecycle lifecycle = ((LifecycleOwner) activity).getLifecycle();
+            if (lifecycle instanceof LifecycleRegistry) {
+                ((LifecycleRegistry) lifecycle).handleLifecycleEvent(event);
+            }
         }
     }
 
@@ -73,56 +160,41 @@ public class ReportFragment extends Fragment {
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         dispatchCreate(mProcessListener);
-        dispatch(Lifecycle.Event.ON_CREATE);
+        dispatch(getActivity(), Lifecycle.Event.ON_CREATE);
     }
 
     @Override
     public void onStart() {
         super.onStart();
         dispatchStart(mProcessListener);
-        dispatch(Lifecycle.Event.ON_START);
+        dispatch(getActivity(), Lifecycle.Event.ON_START);
     }
 
     @Override
     public void onResume() {
         super.onResume();
         dispatchResume(mProcessListener);
-        dispatch(Lifecycle.Event.ON_RESUME);
+        dispatch(getActivity(), Lifecycle.Event.ON_RESUME);
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        dispatch(Lifecycle.Event.ON_PAUSE);
+        dispatch(getActivity(), Lifecycle.Event.ON_PAUSE);
     }
 
     @Override
     public void onStop() {
         super.onStop();
-        dispatch(Lifecycle.Event.ON_STOP);
+        dispatch(getActivity(), Lifecycle.Event.ON_STOP);
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        dispatch(Lifecycle.Event.ON_DESTROY);
+        dispatch(getActivity(), Lifecycle.Event.ON_DESTROY);
         // just want to be sure that we won't leak reference to an activity
         mProcessListener = null;
-    }
-
-    private void dispatch(Lifecycle.Event event) {
-        Activity activity = getActivity();
-        if (activity instanceof LifecycleRegistryOwner) {
-            ((LifecycleRegistryOwner) activity).getLifecycle().handleLifecycleEvent(event);
-            return;
-        }
-
-        if (activity instanceof LifecycleOwner) {
-            Lifecycle lifecycle = ((LifecycleOwner) activity).getLifecycle();
-            if (lifecycle instanceof LifecycleRegistry) {
-                ((LifecycleRegistry) lifecycle).handleLifecycleEvent(event);
-            }
-        }
     }
 
     void setProcessListener(ActivityInitializationListener processListener) {
