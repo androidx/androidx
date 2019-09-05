@@ -24,6 +24,7 @@ import androidx.ui.core.LayoutDirection
 import androidx.ui.core.sp
 import androidx.ui.test.Alphabet
 import androidx.ui.test.RandomTextGenerator
+import androidx.ui.test.RandomTextGeneratorTestRule
 import androidx.ui.test.TextType
 import androidx.ui.test.cartesian
 import androidx.ui.text.font.Font
@@ -53,7 +54,8 @@ class ParagraphBenchmark(
     @get:Rule
     val benchmarkRule = BenchmarkRule()
 
-    val textGenerator = RandomTextGenerator(alphabet = alphabet)
+    @get:Rule
+    val textGeneratorRule = RandomTextGeneratorTestRule(alphabet)
 
     // dummy object required to construct Paragraph
     private val resourceLoader = object : Font.ResourceLoader {
@@ -62,8 +64,9 @@ class ParagraphBenchmark(
         }
     }
 
-    private fun paragraph(): Paragraph {
+    private fun paragraph(textGenerator: RandomTextGenerator): Paragraph {
         val text = textGenerator.nextParagraph(textLength)
+
         val styles = if (textType == TextType.StyledText) {
             textGenerator.createStyles(text)
         } else {
@@ -84,7 +87,9 @@ class ParagraphBenchmark(
     fun minIntrinsicWidth() {
         benchmarkRule.measureRepeated {
             val paragraph = runWithTimingDisabled {
-                paragraph()
+                textGeneratorRule.generator { textGenerator ->
+                    paragraph(textGenerator)
+                }
             }
 
             paragraph.minIntrinsicWidth
@@ -95,12 +100,14 @@ class ParagraphBenchmark(
     fun layout() {
         benchmarkRule.measureRepeated {
             val pair = runWithTimingDisabled {
+                textGeneratorRule.generator { textGenerator ->
+                    val paragraph = paragraph(textGenerator)
+                    paragraph.layout(ParagraphConstraints(Float.MAX_VALUE))
+                    // create a new paragraph and use a smaller width to get
+                    // some line breaking in the result
+                    Pair(paragraph(textGenerator), paragraph.maxIntrinsicWidth / 4f)
+                }
                 // measure an approximate max intrinsic width
-                val paragraph = paragraph()
-                paragraph.layout(ParagraphConstraints(Float.MAX_VALUE))
-                // create a new paragraph and use a smaller width to get
-                // some line breaking in the result
-                Pair(paragraph(), paragraph.maxIntrinsicWidth / 4f)
             }
 
             pair.first.layout(ParagraphConstraints(pair.second))

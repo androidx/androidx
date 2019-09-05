@@ -27,8 +27,7 @@ import androidx.ui.benchmark.measureFirstLayout
 import androidx.ui.benchmark.measureFirstMeasure
 import androidx.ui.benchmark.measureLayoutPerf
 import androidx.ui.test.DisableTransitions
-import androidx.ui.test.RandomTextGenerator
-import androidx.ui.test.TextType
+import androidx.ui.test.RandomTextGeneratorTestRule
 import androidx.ui.test.cartesian
 import org.junit.Rule
 import org.junit.Test
@@ -51,9 +50,10 @@ class TextMultiStyleBenchmark(
     @get:Rule
     val disableAnimationRule = DisableTransitions()
 
-    private val activity: Activity get() = activityRule.activity
+    @get:Rule
+    val textGeneratorRule = RandomTextGeneratorTestRule()
 
-    private val textGenerator = RandomTextGenerator()
+    private val activity: Activity get() = activityRule.activity
 
     companion object {
         @JvmStatic
@@ -67,85 +67,97 @@ class TextMultiStyleBenchmark(
 
     @Test
     fun first_compose() {
-        benchmarkRule.measureFirstCompose(
-            activity,
-            TextMultiStyleTestCase(
+        textGeneratorRule.generator { textGenerator ->
+            benchmarkRule.measureFirstCompose(
                 activity,
-                textLength,
-                styleCount,
-                hasMetricAffectingStyle,
-                textGenerator
+                TextMultiStyleTestCase(
+                    activity,
+                    textLength,
+                    styleCount,
+                    hasMetricAffectingStyle,
+                    textGenerator
+                )
             )
-        )
+        }
     }
 
     @Test
     fun first_measure() {
-        benchmarkRule.measureFirstMeasure(
-            activity,
-            TextMultiStyleTestCase(
+        textGeneratorRule.generator { textGenerator ->
+            benchmarkRule.measureFirstMeasure(
                 activity,
-                textLength,
-                styleCount,
-                hasMetricAffectingStyle,
-                textGenerator
+                TextMultiStyleTestCase(
+                    activity,
+                    textLength,
+                    styleCount,
+                    hasMetricAffectingStyle,
+                    textGenerator
+                )
             )
-        )
+        }
     }
 
     @Test
     fun first_layout() {
-        benchmarkRule.measureFirstLayout(
-            activity,
-            TextMultiStyleTestCase(
+        textGeneratorRule.generator { textGenerator ->
+            benchmarkRule.measureFirstLayout(
                 activity,
-                textLength,
-                styleCount,
-                hasMetricAffectingStyle,
-                textGenerator
+                TextMultiStyleTestCase(
+                    activity,
+                    textLength,
+                    styleCount,
+                    hasMetricAffectingStyle,
+                    textGenerator
+                )
             )
-        )
+        }
     }
 
     @Test
     fun first_draw() {
-        benchmarkRule.measureFirstDraw(
-            activity,
-            TextMultiStyleTestCase(
+        textGeneratorRule.generator { textGenerator ->
+            benchmarkRule.measureFirstDraw(
                 activity,
-                textLength,
-                styleCount,
-                hasMetricAffectingStyle,
-                textGenerator
+                TextMultiStyleTestCase(
+                    activity,
+                    textLength,
+                    styleCount,
+                    hasMetricAffectingStyle,
+                    textGenerator
+                )
             )
-        )
+        }
     }
 
     @Test
     fun layout() {
-        benchmarkRule.measureLayoutPerf(
-            activity,
-            TextMultiStyleTestCase(
+        textGeneratorRule.generator { textGenerator ->
+            benchmarkRule.measureLayoutPerf(
                 activity,
-                textLength,
-                styleCount,
-                hasMetricAffectingStyle,
-                textGenerator
+                TextMultiStyleTestCase(
+                    activity,
+                    textLength,
+                    styleCount,
+                    hasMetricAffectingStyle,
+                    textGenerator
+                )
             )
-        )
+        }
     }
 
     @Test
     fun draw() {
-        benchmarkRule.measureDrawPerf(
-            activity,
-            TextMultiStyleTestCase(
+        textGeneratorRule.generator { textGenerator ->
+            benchmarkRule.measureDrawPerf(
                 activity,
-                textLength,
-                styleCount,
-                hasMetricAffectingStyle,
-                textGenerator
+                TextMultiStyleTestCase(
+                    activity,
+                    textLength,
+                    styleCount,
+                    hasMetricAffectingStyle,
+                    textGenerator
+                )
             )
-        )
+        }
     }
 }

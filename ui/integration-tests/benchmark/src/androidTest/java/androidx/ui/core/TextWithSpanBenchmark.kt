@@ -27,7 +27,7 @@ import androidx.ui.benchmark.measureFirstLayout
 import androidx.ui.benchmark.measureFirstMeasure
 import androidx.ui.benchmark.measureLayoutPerf
 import androidx.ui.test.DisableTransitions
-import androidx.ui.test.RandomTextGenerator
+import androidx.ui.test.RandomTextGeneratorTestRule
 import androidx.ui.test.cartesian
 import org.junit.Rule
 import org.junit.Test
@@ -49,9 +49,10 @@ class TextWithSpanBenchmark(
     @get:Rule
     val disableAnimationRule = DisableTransitions()
 
-    private val activity: Activity get() = activityRule.activity
+    @get:Rule
+    val textGeneratorRule = RandomTextGeneratorTestRule()
 
-    private val textGenerator = RandomTextGenerator()
+    private val activity: Activity get() = activityRule.activity
 
     companion object {
         @JvmStatic
@@ -64,79 +65,91 @@ class TextWithSpanBenchmark(
 
     @Test
     fun first_compose() {
-        benchmarkRule.measureFirstCompose(
-            activity,
-            TextWithSpanTestCase(
+        textGeneratorRule.generator { textGenerator ->
+            benchmarkRule.measureFirstCompose(
                 activity,
-                textLength,
-                hasMetricAffectingStyle,
-                textGenerator
+                TextWithSpanTestCase(
+                    activity,
+                    textLength,
+                    hasMetricAffectingStyle,
+                    textGenerator
+                )
             )
-        )
+        }
     }
 
     @Test
     fun first_measure() {
-        benchmarkRule.measureFirstMeasure(
-            activity,
-            TextWithSpanTestCase(
+        textGeneratorRule.generator { textGenerator ->
+            benchmarkRule.measureFirstMeasure(
                 activity,
-                textLength,
-                hasMetricAffectingStyle,
-                textGenerator
+                TextWithSpanTestCase(
+                    activity,
+                    textLength,
+                    hasMetricAffectingStyle,
+                    textGenerator
+                )
             )
-        )
+        }
     }
 
     @Test
     fun first_layout() {
-        benchmarkRule.measureFirstLayout(
-            activity,
-            TextWithSpanTestCase(
+        textGeneratorRule.generator { textGenerator ->
+            benchmarkRule.measureFirstLayout(
                 activity,
-                textLength,
-                hasMetricAffectingStyle,
-                textGenerator
+                TextWithSpanTestCase(
+                    activity,
+                    textLength,
+                    hasMetricAffectingStyle,
+                    textGenerator
+                )
             )
-        )
+        }
     }
 
     @Test
     fun first_draw() {
-        benchmarkRule.measureFirstDraw(
-            activity,
-            TextWithSpanTestCase(
+        textGeneratorRule.generator { textGenerator ->
+            benchmarkRule.measureFirstDraw(
                 activity,
-                textLength,
-                hasMetricAffectingStyle,
-                textGenerator
+                TextWithSpanTestCase(
+                    activity,
+                    textLength,
+                    hasMetricAffectingStyle,
+                    textGenerator
+                )
             )
-        )
+        }
     }
 
     @Test
     fun layout() {
-        benchmarkRule.measureLayoutPerf(
-            activity,
-            TextWithSpanTestCase(
+        textGeneratorRule.generator { textGenerator ->
+            benchmarkRule.measureLayoutPerf(
                 activity,
-                textLength,
-                hasMetricAffectingStyle,
-                textGenerator
+                TextWithSpanTestCase(
+                    activity,
+                    textLength,
+                    hasMetricAffectingStyle,
+                    textGenerator
+                )
             )
-        )
+        }
     }
 
     @Test
     fun draw() {
-        benchmarkRule.measureDrawPerf(
-            activity,
-            TextWithSpanTestCase(
+        textGeneratorRule.generator { textGenerator ->
+            benchmarkRule.measureDrawPerf(
                 activity,
-                textLength,
-                hasMetricAffectingStyle,
-                textGenerator
+                TextWithSpanTestCase(
+                    activity,
+                    textLength,
+                    hasMetricAffectingStyle,
+                    textGenerator
+                )
             )
-        )
+        }
     }
 }
