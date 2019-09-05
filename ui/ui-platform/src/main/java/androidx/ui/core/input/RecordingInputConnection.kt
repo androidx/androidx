@@ -143,7 +143,7 @@ internal class RecordingInputConnection(
     override fun endBatchEdit(): Boolean {
         if (DEBUG) { Log.d(TAG, "endBatchEdit()") }
         batchDepth--
-        if (batchDepth == 0) {
+        if (batchDepth == 0 && editOps.isNotEmpty()) {
             eventListener.onEditOperations(editOps.toList())
             editOps.clear()
         }
