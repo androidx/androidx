@@ -16,6 +16,8 @@
 package androidx.ui.text.platform
 
 import android.graphics.Typeface
+import android.os.Build
+import android.os.LocaleList as AndroidLocaleList
 import android.text.SpannableString
 import android.text.Spanned
 import android.text.TextPaint
@@ -29,6 +31,7 @@ import android.text.style.RelativeSizeSpan
 import android.text.style.ScaleXSpan
 import android.text.style.StrikethroughSpan
 import android.text.style.UnderlineSpan
+import androidx.annotation.RequiresApi
 import androidx.annotation.VisibleForTesting
 import androidx.text.LayoutCompat.ALIGN_CENTER
 import androidx.text.LayoutCompat.ALIGN_LEFT
@@ -63,6 +66,8 @@ import androidx.ui.graphics.toArgb
 import androidx.ui.painting.Canvas
 import androidx.ui.painting.Path
 import androidx.ui.text.AnnotatedString
+import androidx.ui.text.Locale
+import androidx.ui.text.LocaleList
 import androidx.ui.text.Paragraph
 import androidx.ui.text.ParagraphConstraints
 import androidx.ui.text.ParagraphStyle
@@ -76,7 +81,7 @@ import androidx.ui.text.style.TextDecoration
 import androidx.ui.text.style.TextDirection
 import androidx.ui.text.style.TextDirectionAlgorithm
 import androidx.ui.text.style.TextIndent
-import java.util.Locale
+import java.util.Locale as JavaLocale
 import kotlin.math.roundToInt
 
 /**
@@ -142,7 +147,7 @@ internal class AndroidParagraph constructor(
         get() = layout?.didExceedMaxLines ?: false
 
     @VisibleForTesting
-    internal val textLocale: Locale
+    internal val textLocale: JavaLocale
         get() = textPaint.textLocale
 
     override val lineCount: Int
@@ -466,10 +471,14 @@ private fun createStyledText(
             )
         }
         // TODO(Migration/haoyuchang): implement height
-        style.locale?.let {
+        style.localeList?.let {
             spannableString.setSpan(
-                // TODO(Migration/haoyuchang): support locale fallback in the framework
-                LocaleSpan(Locale(it.language, it.country ?: "")),
+                if (Build.VERSION.SDK_INT >= 24) {
+                    LocaleSpan(it.toAndroidLocaleList())
+                } else {
+                    val locale = if (it.isEmpty()) Locale.current else it[0]
+                    LocaleSpan(locale.toJavaLocale())
+                },
                 start,
                 end,
                 Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
@@ -521,11 +530,13 @@ private fun TextPaint.applyTextStyle(
         typeface = createTypeface(style, typefaceAdapter)
     }
 
-    style.locale?.let {
-        textLocale = Locale(
-            it.language,
-            it.country ?: ""
-        )
+    style.localeList?.let {
+        if (Build.VERSION.SDK_INT >= 24) {
+            textLocales = it.toAndroidLocaleList()
+        } else {
+            val locale = if (it.isEmpty()) Locale.current else it[0]
+            textLocale = locale.toJavaLocale()
+        }
     }
 
     style.color?.let {
@@ -615,3 +626,9 @@ private fun toLayoutAlign(align: TextAlign?): Int = when (align) {
     TextAlign.End -> ALIGN_OPPOSITE
     else -> DEFAULT_ALIGNMENT
 }
+
+private fun Locale.toJavaLocale(): JavaLocale = (platformLocale as AndroidLocale).javaLocale
+
+@RequiresApi(api = 24)
+private fun LocaleList.toAndroidLocaleList(): AndroidLocaleList =
+    AndroidLocaleList(*map { it.toJavaLocale() }.toTypedArray())

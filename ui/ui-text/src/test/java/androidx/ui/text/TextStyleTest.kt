@@ -34,7 +34,6 @@ import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import java.util.Locale
 
 @RunWith(JUnit4::class)
 class TextStyleTest {
@@ -47,7 +46,7 @@ class TextStyleTest {
         assertThat(textStyle.fontWeight).isNull()
         assertThat(textStyle.fontStyle).isNull()
         assertThat(textStyle.letterSpacing).isNull()
-        assertThat(textStyle.locale).isNull()
+        assertThat(textStyle.localeList).isNull()
         assertThat(textStyle.background).isNull()
         assertThat(textStyle.decoration).isNull()
         assertThat(textStyle.fontFamily).isNull()
@@ -109,11 +108,11 @@ class TextStyleTest {
 
     @Test
     fun `constructor with customized locale`() {
-        val locale = Locale("en", "US")
+        val localeList = LocaleList("en-US")
 
-        val textStyle = TextStyle(locale = locale)
+        val textStyle = TextStyle(localeList = localeList)
 
-        assertThat(textStyle.locale).isEqualTo(locale)
+        assertThat(textStyle.localeList).isEqualTo(localeList)
     }
 
     @Test
@@ -410,25 +409,25 @@ class TextStyleTest {
 
     @Test
     fun `merge with other's locale is null should use this' locale`() {
-        val locale = Locale("en", "US")
-        val textStyle = TextStyle(locale = locale)
+        val localeList = LocaleList("en-US")
+        val textStyle = TextStyle(localeList = localeList)
         val otherTextStyle = TextStyle()
 
         val newTextStyle = textStyle.merge(otherTextStyle)
 
-        assertThat(newTextStyle.locale).isEqualTo(locale)
+        assertThat(newTextStyle.localeList).isEqualTo(localeList)
     }
 
     @Test
     fun `merge with other's locale is set should use other's locale`() {
-        val locale = Locale("en", "US")
-        val otherLocale = Locale("ja", "JP")
-        val textStyle = TextStyle(locale = locale)
-        val otherTextStyle = TextStyle(locale = otherLocale)
+        val localeList = LocaleList("en-US")
+        val otherlocaleList = LocaleList("ja-JP")
+        val textStyle = TextStyle(localeList = localeList)
+        val otherTextStyle = TextStyle(localeList = otherlocaleList)
 
         val newTextStyle = textStyle.merge(otherTextStyle)
 
-        assertThat(newTextStyle.locale).isEqualTo(otherLocale)
+        assertThat(newTextStyle.localeList).isEqualTo(otherlocaleList)
     }
 
     @Test
@@ -1141,72 +1140,72 @@ class TextStyleTest {
 
     @Test
     fun `lerp locale with a is Null and t is smaller than half`() {
-        val locale = Locale("en", "US")
+        val localeList = LocaleList("en-US")
         val t = 0.2f
-        val textStyle = TextStyle(locale = locale)
+        val textStyle = TextStyle(localeList = localeList)
 
         val newTextStyle = TextStyle.lerp(b = textStyle, t = t)
 
-        assertThat(newTextStyle?.locale).isNull()
+        assertThat(newTextStyle?.localeList).isNull()
     }
 
     @Test
     fun `lerp locale with a is Null and t is larger than half`() {
-        val locale = Locale("en", "US")
+        val localeList = LocaleList("en-US")
         val t = 0.8f
-        val textStyle = TextStyle(locale = locale)
+        val textStyle = TextStyle(localeList = localeList)
 
         val newTextStyle = TextStyle.lerp(b = textStyle, t = t)
 
-        assertThat(newTextStyle?.locale).isEqualTo(locale)
+        assertThat(newTextStyle?.localeList).isEqualTo(localeList)
     }
 
     @Test
     fun `lerp locale with b is Null and t is smaller than half`() {
-        val locale = Locale("en", "US")
+        val localeList = LocaleList("en-US")
         val t = 0.2f
-        val textStyle = TextStyle(locale = locale)
+        val textStyle = TextStyle(localeList = localeList)
 
         val newTextStyle = TextStyle.lerp(a = textStyle, t = t)
 
-        assertThat(newTextStyle?.locale).isEqualTo(locale)
+        assertThat(newTextStyle?.localeList).isEqualTo(localeList)
     }
 
     @Test
     fun `lerp locale with b is Null and t is larger than half`() {
-        val locale = Locale("en", "US")
+        val localeList = LocaleList("en-US")
         val t = 0.8f
-        val textStyle = TextStyle(locale = locale)
+        val textStyle = TextStyle(localeList = localeList)
 
         val newTextStyle = TextStyle.lerp(a = textStyle, t = t)
 
-        assertThat(newTextStyle?.locale).isNull()
+        assertThat(newTextStyle?.localeList).isNull()
     }
 
     @Test
     fun `lerp locale with a and b are not Null and t is smaller than half`() {
-        val locale1 = Locale("en", "US")
-        val locale2 = Locale("ja", "JP")
+        val localeList1 = LocaleList("en-US")
+        val localeList2 = LocaleList("ja-JP")
         val t = 0.3f
-        val textStyle1 = TextStyle(locale = locale1)
-        val textStyle2 = TextStyle(locale = locale2)
+        val textStyle1 = TextStyle(localeList = localeList1)
+        val textStyle2 = TextStyle(localeList = localeList2)
 
         val newTextStyle = TextStyle.lerp(a = textStyle1, b = textStyle2, t = t)
 
-        assertThat(newTextStyle?.locale).isEqualTo(locale1)
+        assertThat(newTextStyle?.localeList).isEqualTo(localeList1)
     }
 
     @Test
     fun `lerp locale with a and b are not Null and t is larger than half`() {
-        val locale1 = Locale("en", "US")
-        val locale2 = Locale("ja", "JP")
+        val localeList1 = LocaleList("en-US")
+        val localeList2 = LocaleList("ja-JP")
         val t = 0.8f
-        val textStyle1 = TextStyle(locale = locale1)
-        val textStyle2 = TextStyle(locale = locale2)
+        val textStyle1 = TextStyle(localeList = localeList1)
+        val textStyle2 = TextStyle(localeList = localeList2)
 
         val newTextStyle = TextStyle.lerp(a = textStyle1, b = textStyle2, t = t)
 
-        assertThat(newTextStyle?.locale).isEqualTo(locale2)
+        assertThat(newTextStyle?.localeList).isEqualTo(localeList2)
     }
 
     @Test
@@ -1378,7 +1377,7 @@ class TextStyleTest {
             letterSpacing = 1.0f,
             baselineShift = BaselineShift.Subscript,
             textGeometricTransform = TextGeometricTransform(scaleX = 1.0f),
-            locale = Locale("en", "US"),
+            localeList = LocaleList("en-US"),
             background = bgColor,
             decoration = TextDecoration.Underline,
             fontFamily = FontFamily(genericFamily = "sans-serif"),
@@ -1416,7 +1415,7 @@ class TextStyleTest {
             .copy(textGeometricTransform = TextGeometricTransform())))
             .isEqualTo(RenderComparison.LAYOUT)
 
-        assertThat(textStyle.compareTo(textStyle.copy(locale = Locale("ja", "JP"))))
+        assertThat(textStyle.compareTo(textStyle.copy(localeList = LocaleList("ja-JP"))))
             .isEqualTo(RenderComparison.LAYOUT)
     }
 
@@ -1437,7 +1436,7 @@ class TextStyleTest {
             letterSpacing = 1.0f,
             baselineShift = BaselineShift.Superscript,
             textGeometricTransform = TextGeometricTransform(null, null),
-            locale = Locale("en", "US"),
+            localeList = LocaleList("en-US"),
             decoration = TextDecoration.Underline,
             fontFamily = FontFamily(genericFamily = "sans-serif"),
             shadow = shadow1

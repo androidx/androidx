@@ -49,6 +49,8 @@ import androidx.ui.text.matchers.hasSpan
 import androidx.ui.text.matchers.hasSpanOnTop
 import androidx.ui.text.AnnotatedString
 import androidx.ui.painting.Shadow
+import androidx.ui.text.Locale
+import androidx.ui.text.LocaleList
 import androidx.ui.text.ParagraphStyle
 import androidx.ui.text.TestFontResourceLoader
 import androidx.ui.text.TextStyle
@@ -70,7 +72,6 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import java.util.Locale
 import kotlin.math.ceil
 
 @RunWith(JUnit4::class)
@@ -482,8 +483,8 @@ class AndroidParagraphTest {
     @Test
     fun testAnnotatedString_setLocaleOnWholeText() {
         val text = "abcde"
-        val locale = Locale("en", "US")
-        val textStyle = TextStyle(locale = locale)
+        val localeList = LocaleList("en-US")
+        val textStyle = TextStyle(localeList = localeList)
 
         val paragraph = simpleParagraph(
             text = text,
@@ -497,8 +498,8 @@ class AndroidParagraphTest {
     @Test
     fun testAnnotatedString_setLocaleOnPartText() {
         val text = "abcde"
-        val locale = Locale("en", "US")
-        val textStyle = TextStyle(locale = locale)
+        val localeList = LocaleList("en-US")
+        val textStyle = TextStyle(localeList = localeList)
 
         val paragraph = simpleParagraph(
             text = text,
@@ -512,8 +513,8 @@ class AndroidParagraphTest {
     @Test
     fun testAnnotatedString_setLocaleTwice_lastOneOverwrite() {
         val text = "abcde"
-        val textStyle = TextStyle(locale = Locale("en", "US"))
-        val textStyleOverwrite = TextStyle(locale = Locale("ja", "JP"))
+        val textStyle = TextStyle(localeList = LocaleList("en-US"))
+        val textStyleOverwrite = TextStyle(localeList = LocaleList("ja-JP"))
 
         val paragraph = simpleParagraph(
             text = text,
@@ -1068,16 +1069,17 @@ class AndroidParagraphTest {
 
     @Test
     fun testTextStyle_locale_appliedOnTextPaint() {
-        val systemLocale = java.util.Locale.JAPANESE
-        val locale = Locale(systemLocale.language, systemLocale.country)
+        val platformLocale = java.util.Locale.JAPANESE
+        val localeList = LocaleList(platformLocale.toLanguageTag())
 
         val paragraph = simpleParagraph(
             text = "",
-            textStyle = TextStyle(locale = locale)
+            textStyle = TextStyle(localeList = localeList)
         )
         paragraph.layout(ParagraphConstraints(width = 0.0f))
 
-        assertThat(paragraph.textPaint.textLocale, equalTo(systemLocale))
+        assertThat(paragraph.textPaint.textLocale.language, equalTo(platformLocale.language))
+        assertThat(paragraph.textPaint.textLocale.country, equalTo(platformLocale.country))
     }
 
     @Test
@@ -1224,11 +1226,11 @@ class AndroidParagraphTest {
 
     @Test
     fun locale_isSetOnParagraphImpl_enUS() {
-        val locale = Locale("en", "US")
+        val localeList = LocaleList("en-US")
         val text = "abc"
         val paragraph = simpleParagraph(
             text = text,
-            textStyle = TextStyle(locale = locale)
+            textStyle = TextStyle(localeList = localeList)
         )
 
         paragraph.layout(ParagraphConstraints(width = Float.MAX_VALUE))
@@ -1238,11 +1240,11 @@ class AndroidParagraphTest {
 
     @Test
     fun locale_isSetOnParagraphImpl_jpJP() {
-        val locale = Locale("ja", "JP")
+        val localeList = LocaleList("ja-JP")
         val text = "abc"
         val paragraph = simpleParagraph(
             text = text,
-            textStyle = TextStyle(locale = locale)
+            textStyle = TextStyle(localeList = localeList)
         )
 
         paragraph.layout(ParagraphConstraints(width = Float.MAX_VALUE))
@@ -1252,11 +1254,11 @@ class AndroidParagraphTest {
 
     @Test
     fun locale_noCountryCode_isSetOnParagraphImpl() {
-        val locale = Locale("ja")
+        val localeList = LocaleList("ja")
         val text = "abc"
         val paragraph = simpleParagraph(
             text = text,
-            textStyle = TextStyle(locale = locale)
+            textStyle = TextStyle(localeList = localeList)
         )
 
         paragraph.layout(ParagraphConstraints(width = Float.MAX_VALUE))

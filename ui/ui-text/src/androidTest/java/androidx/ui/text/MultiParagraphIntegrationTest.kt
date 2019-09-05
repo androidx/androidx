@@ -42,7 +42,6 @@ import org.junit.Assert.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import java.util.Locale
 
 @RunWith(JUnit4::class)
 @SmallTest
@@ -2484,7 +2483,7 @@ class MultiParagraphIntegrationTest {
         textStyles: List<AnnotatedString.Item<TextStyle>> = listOf(),
         paragraphStyles: List<AnnotatedString.Item<ParagraphStyle>> = listOf(),
         fontFamily: FontFamily = fontFamilyMeasureFont,
-        locale: Locale? = null,
+        localeList: LocaleList? = null,
         textStyle: TextStyle? = null,
         density: Density? = null,
         layoutDirection: LayoutDirection = LayoutDirection.Ltr,
@@ -2499,7 +2498,7 @@ class MultiParagraphIntegrationTest {
             textStyle = TextStyle(
                 fontFamily = fontFamily,
                 fontSize = fontSize,
-                locale = locale
+                localeList = localeList
             ).merge(textStyle),
             paragraphStyle = ParagraphStyle(
                 textIndent = textIndent,

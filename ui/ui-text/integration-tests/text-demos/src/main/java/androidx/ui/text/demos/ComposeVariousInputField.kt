@@ -37,8 +37,9 @@ import androidx.ui.layout.Column
 import androidx.ui.layout.CrossAxisAlignment
 import androidx.ui.foundation.VerticalScroller
 import androidx.ui.text.AnnotatedString
+import androidx.ui.text.Locale
+import androidx.ui.text.LocaleList
 import androidx.ui.text.TextStyle
-import java.util.Locale
 
 /**
  * The offset translator used for credit card input field.
@@ -94,10 +95,12 @@ private val identityTranslater = object : OffsetMap {
  *
  * This filer converts ASCII characters to capital form.
  */
-private class CapitalizeTransformation(val locale: Locale = Locale.US) : VisualTransformation {
+private class CapitalizeTransformation(
+    val locale: LocaleList = LocaleList("en-US")
+) : VisualTransformation {
     override fun filter(text: AnnotatedString): TransformedText {
         // TODO(nona): identityTranslater doesn't work for some locale, e.g. Turkish
-        return TransformedText(AnnotatedString(text.text.toUpperCase(locale)), identityTranslater)
+        return TransformedText(AnnotatedString(text.text).toUpperCase(locale), identityTranslater)
     }
 }
 
@@ -189,7 +192,7 @@ fun VariousInputFieldDemo() {
                 onValueChange = { old, new ->
                     if (new.text.any { !it.isLetterOrDigit() }) old else new
                 },
-                visualTransformation = CapitalizeTransformation(Locale.forLanguageTag("tr"))
+                visualTransformation = CapitalizeTransformation(LocaleList("tr"))
             )
 
             TagLine(tag = "Password")
