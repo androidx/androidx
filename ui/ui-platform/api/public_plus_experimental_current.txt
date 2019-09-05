@@ -13,8 +13,8 @@ package androidx.ui.autofill {
 
 package androidx.ui.core {
 
-  public final class AndroidCraneView extends android.view.ViewGroup implements androidx.ui.core.DensityReceiver androidx.ui.core.Owner androidx.ui.core.SemanticsTreeProvider {
-    ctor public AndroidCraneView(android.content.Context context);
+  public final class AndroidComposeView extends android.view.ViewGroup implements androidx.ui.core.DensityReceiver androidx.ui.core.Owner androidx.ui.core.SemanticsTreeProvider {
+    ctor public AndroidComposeView(android.content.Context context);
     method public androidx.ui.core.PxPosition calculatePosition();
     method public void callDraw(androidx.ui.painting.Canvas canvas, androidx.ui.core.ComponentNode node, androidx.ui.core.PxSize parentSize);
     method public java.util.List<androidx.ui.core.SemanticsTreeNode> getAllSemanticNodes();
@@ -25,7 +25,7 @@ package androidx.ui.core {
     method public androidx.ui.core.Constraints getConstraints();
     method public androidx.ui.core.Density getDensity();
     method public long getMeasureIteration();
-    method public androidx.ui.core.Ref<androidx.ui.core.AndroidCraneView>? getRef();
+    method public androidx.ui.core.Ref<androidx.ui.core.AndroidComposeView>? getRef();
     method public androidx.ui.core.LayoutNode getRoot();
     method public void onAttach(androidx.ui.core.ComponentNode node);
     method public void onDetach(androidx.ui.core.ComponentNode node);
@@ -43,7 +43,7 @@ package androidx.ui.core {
     method public void setCommitUnsubscribe(kotlin.jvm.functions.Function0<kotlin.Unit>? p);
     method public void setConfigurationChangeObserver(kotlin.jvm.functions.Function0<kotlin.Unit> p);
     method public void setConstraints(androidx.ui.core.Constraints p);
-    method public void setRef(androidx.ui.core.Ref<androidx.ui.core.AndroidCraneView>? value);
+    method public void setRef(androidx.ui.core.Ref<androidx.ui.core.AndroidComposeView>? value);
     property public final androidx.ui.autofill.Autofill? autofill;
     property public final androidx.ui.autofill.AutofillTree autofillTree;
     property public final kotlin.jvm.functions.Function0<kotlin.Unit>? commitUnsubscribe;
@@ -51,7 +51,7 @@ package androidx.ui.core {
     property public final androidx.ui.core.Constraints constraints;
     property public androidx.ui.core.Density density;
     property public long measureIteration;
-    property public final androidx.ui.core.Ref<androidx.ui.core.AndroidCraneView>? ref;
+    property public final androidx.ui.core.Ref<androidx.ui.core.AndroidComposeView>? ref;
     property public final androidx.ui.core.LayoutNode root;
   }
 

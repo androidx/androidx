@@ -73,7 +73,7 @@ class AlignTest : LayoutTest() {
         }
         positionedLatch.await(1, TimeUnit.SECONDS)
 
-        val root = findAndroidCraneView()
+        val root = findAndroidComposeView()
         waitForDraw(root)
 
         assertEquals(PxSize(root.width.px, root.height.px), alignSize.value)
@@ -123,7 +123,7 @@ class AlignTest : LayoutTest() {
         }
         positionedLatch.await(1, TimeUnit.SECONDS)
 
-        val root = findAndroidCraneView()
+        val root = findAndroidComposeView()
         waitForDraw(root)
 
         assertEquals(PxSize(size, size), alignSize.value)
@@ -246,7 +246,7 @@ class AlignTest : LayoutTest() {
         }
         positionedLatch.await(1, TimeUnit.SECONDS)
 
-        val root = findAndroidCraneView()
+        val root = findAndroidComposeView()
         waitForDraw(root)
 
         assertEquals(PxSize(childSizeIpx, childSizeIpx), childSize.value)

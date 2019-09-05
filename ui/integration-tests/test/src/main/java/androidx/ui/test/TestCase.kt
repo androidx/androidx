@@ -29,7 +29,7 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.compose.CompositionContext
 import androidx.compose.FrameManager
-import androidx.ui.core.AndroidCraneView
+import androidx.ui.core.AndroidComposeView
 import androidx.ui.core.ComponentNode
 import androidx.ui.core.DrawNode
 import com.google.common.truth.Truth
@@ -186,7 +186,7 @@ private fun invalidateViews(view: View) {
             invalidateViews(child)
         }
     }
-    if (view is AndroidCraneView) {
+    if (view is AndroidComposeView) {
         invalidateComponentNodes(view.root)
     }
 }
@@ -256,7 +256,7 @@ fun TestCase.capturePreviewPictureToActivity() {
 }
 
 /**
- * Returns the first found [AndroidCraneView] in the content view hierarchy:
+ * Returns the first found [AndroidComposeView] in the content view hierarchy:
  *
  *     override fun setupContent(activity: Activity) {
  *         activity.setContent { ... }
@@ -264,12 +264,12 @@ fun TestCase.capturePreviewPictureToActivity() {
  *         FrameManager.nextFrame()
  *     }
  */
-fun ComposeTestCase.findComposeView(): AndroidCraneView? {
+fun ComposeTestCase.findComposeView(): AndroidComposeView? {
     return findComposeView(activity.findViewById(android.R.id.content))
 }
 
-private fun findComposeView(view: View): AndroidCraneView? {
-    if (view is AndroidCraneView) {
+private fun findComposeView(view: View): AndroidComposeView? {
+    if (view is AndroidComposeView) {
         return view
     }
 

@@ -44,7 +44,7 @@ val EmptyPath = emptyArray<PathNode>()
 
 /**
  * paint used to draw the cached vector graphic to the provided canvas
- * TODO (njawad) Can we update the Crane Canvas API to make this paint optional?
+ * TODO (njawad) Can we update the Compose Canvas API to make this paint optional?
  */
 internal val EmptyPaint = Paint()
 

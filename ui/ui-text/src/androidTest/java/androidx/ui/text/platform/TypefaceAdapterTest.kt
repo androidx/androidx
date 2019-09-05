@@ -65,7 +65,7 @@ import org.mockito.junit.MockitoJUnitRunner
 @SmallTest
 class TypefaceAdapterTest {
     // TODO(Migration/siyamed): These native calls should be removed after the
-    // counterparts are implemented in crane.
+    // counterparts are implemented in compose.
     private val context = InstrumentationRegistry.getInstrumentation().context
     private val resourceLoader = TestFontResourceLoader(context)
 

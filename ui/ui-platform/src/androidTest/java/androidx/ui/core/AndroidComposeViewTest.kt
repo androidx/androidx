@@ -33,34 +33,34 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 
-class AndroidCraneViewTest {
+class AndroidComposeViewTest {
     @get:Rule
     val activityTestRule = ActivityTestRule<Activity>(Activity::class.java)
 
     private val PACKAGE_NAME = "androidx.ui.platform.test"
-    private lateinit var craneView: AndroidCraneView
+    private lateinit var composeView: AndroidComposeView
 
     @Before
     fun setup() {
-        craneView = AndroidCraneView(activityTestRule.activity)
+        composeView = AndroidComposeView(activityTestRule.activity)
     }
 
     @SdkSuppress(maxSdkVersion = 25)
     @Test
     fun autofillAmbient_belowApi26_isNull() {
-        assertThat(craneView.autofill).isNull()
+        assertThat(composeView.autofill).isNull()
     }
 
     @SdkSuppress(minSdkVersion = 26)
     @Test
     fun autofillAmbient_isNotNull() {
-        assertThat(craneView.autofill).isNotNull()
+        assertThat(composeView.autofill).isNotNull()
     }
 
     @SdkSuppress(minSdkVersion = 26)
     @Test
     fun autofillAmbient_returnsAnInstanceOfAndroidAutofill() {
-        assertThat(craneView.autofill).isInstanceOf(AndroidAutofill::class.java)
+        assertThat(composeView.autofill).isInstanceOf(AndroidAutofill::class.java)
     }
 
     @SdkSuppress(minSdkVersion = 26)
@@ -73,10 +73,10 @@ class AndroidCraneViewTest {
             autofillTypes = listOf(AutofillType.Name),
             boundingBox = Rect(0, 0, 0, 0)
         )
-        craneView.autofillTree += autofillNode
+        composeView.autofillTree += autofillNode
 
         // Act.
-        craneView.onProvideAutofillVirtualStructure(viewStructure, 0)
+        composeView.onProvideAutofillVirtualStructure(viewStructure, 0)
 
         // Assert.
         assertThat(viewStructure).isEqualTo(FakeViewStructure().apply {
@@ -104,10 +104,10 @@ class AndroidCraneViewTest {
         val autofillValues = SparseArray<AutofillValue>().apply {
             append(autofillNode.id, AutofillValue.forText(expectedValue))
         }
-        craneView.autofillTree += autofillNode
+        composeView.autofillTree += autofillNode
 
         // Act.
-        craneView.autofill(autofillValues)
+        composeView.autofill(autofillValues)
 
         // Assert.
         assertThat(autofilledValue).isEqualTo(expectedValue)
