@@ -151,8 +151,8 @@
                 android:theme="@style/Theme.AppCompat.DayNight"/>
 
         <activity
-            android:name="androidx.appcompat.app.NightModeLateOnCreateActivity"
-            android:theme="@style/Theme.AppCompat.DayNight"/>
+                android:name="androidx.appcompat.app.NightModeLateOnCreateActivity"
+                android:theme="@style/Theme.AppCompat.DayNight"/>
 
         <activity
                 android:name="androidx.appcompat.app.NightModeUiModeConfigChangesActivity"
@@ -160,13 +160,13 @@
                 android:configChanges="uiMode"/>
 
         <activity
-            android:name="androidx.appcompat.app.NightModeOrientationConfigChangesActivity"
-            android:theme="@style/Theme.AppCompat.DayNight"
-            android:configChanges="orientation|screenSize"/>
+                android:name="androidx.appcompat.app.NightModeRotateDoesNotRecreateActivity"
+                android:theme="@style/Theme.AppCompat.DayNight"
+                android:configChanges="orientation|screenSize"/>
 
         <activity
-            android:name="androidx.appcompat.app.NightModeCustomConfigurationActivity"
-            android:theme="@style/Theme.AppCompat.DayNight"/>
+                android:name="androidx.appcompat.app.NightModeCustomConfigurationActivity"
+                android:theme="@style/Theme.AppCompat.DayNight"/>
 
         <activity
                 android:name="androidx.appcompat.app.AppCompatVectorDrawableIntegrationActivity"/>

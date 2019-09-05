@@ -2241,15 +2241,16 @@ class AppCompatDelegateImpl extends AppCompatDelegate
      *
      * @param mode The new night mode to apply
      * @param allowRecreation whether to attempt activity recreate
-     * @param baseConfiguration the base configuration to use, if any
+     * @param baseConfig the base configuration to use, if any
      * @return true if an action has been taken (recreation, resources updating, etc)
      */
     private boolean updateForNightMode(@ApplyableNightMode final int mode,
-            final boolean allowRecreation, @Nullable Configuration baseConfiguration) {
+            final boolean allowRecreation, @Nullable Configuration baseConfig) {
         boolean handled = false;
 
-        final int applicationNightMode = mContext.getApplicationContext()
-                .getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
+        final Configuration appConfig = mContext.getApplicationContext()
+                .getResources().getConfiguration();
+        final int applicationNightMode = appConfig.uiMode & Configuration.UI_MODE_NIGHT_MASK;
 
         int newNightMode;
         switch (mode) {
@@ -2274,15 +2275,18 @@ class AppCompatDelegateImpl extends AppCompatDelegate
                 && Build.VERSION.SDK_INT >= 17
                 && !mBaseContextAttached
                 && mHost instanceof android.view.ContextThemeWrapper) {
+            final android.view.ContextThemeWrapper host = (android.view.ContextThemeWrapper) mHost;
+
             // If we're here then we can try and apply an override configuration on the Context.
-            final Configuration conf = new Configuration(baseConfiguration);
-            conf.uiMode = newNightMode | (conf.uiMode & ~Configuration.UI_MODE_NIGHT_MASK);
+            final Configuration overrideConfig = generateConfigDelta(appConfig, baseConfig);
+            overrideConfig.uiMode =
+                    newNightMode | (overrideConfig.uiMode & ~Configuration.UI_MODE_NIGHT_MASK);
 
             try {
                 if (DEBUG) {
                     Log.d(TAG, "updateForNightMode. Applying override config");
                 }
-                ((android.view.ContextThemeWrapper) mHost).applyOverrideConfiguration(conf);
+                host.applyOverrideConfiguration(overrideConfig);
                 handled = true;
             } catch (IllegalStateException e) {
                 // applyOverrideConfiguration throws an IllegalStateException if its resources
@@ -2325,7 +2329,7 @@ class AppCompatDelegateImpl extends AppCompatDelegate
                 Log.d(TAG, "updateForNightMode. Updating resources config");
             }
             updateResourcesConfigurationForNightMode(newNightMode, activityHandlingUiMode,
-                    baseConfiguration);
+                    baseConfig);
             handled = true;
         }
 
@@ -3111,6 +3115,132 @@ class AppCompatDelegateImpl extends AppCompatDelegate
             ActionBar ab = getSupportActionBar();
             if (ab != null) {
                 ab.setHomeActionContentDescription(contentDescRes);
+            }
+        }
+    }
+
+    /**
+     * Copied from the platform's private method in Configuration. This is <strong>not</strong>
+     * suitable for general use, as it cannot handle some properties including any added after
+     * API 29. See comments inside method for specific properties that could not be handled.
+     * <p>
+     * Generate a delta Configuration between <code>base</code> and <code>change</code>. The
+     * resulting delta can be used with {@link Configuration#updateFrom(Configuration)}.
+     * <p>
+     * Caveat: If the any of the Configuration's members becomes undefined, then
+     * {@link Configuration#updateFrom(Configuration)} will treat it as a no-op and not update that
+     * member.
+     * <p>
+     * This is fine for device configurations as no member is ever undefined.
+     */
+    private static Configuration generateConfigDelta(@NonNull Configuration base,
+            @Nullable Configuration change) {
+        final Configuration delta = new Configuration();
+        if (change == null || base.diff(change) == 0) {
+            return delta;
+        }
+
+        if (base.fontScale != change.fontScale) {
+            delta.fontScale = change.fontScale;
+        }
+
+        if (base.mcc != change.mcc) {
+            delta.mcc = change.mcc;
+        }
+
+        if (base.mnc != change.mnc) {
+            delta.mnc = change.mnc;
+        }
+
+        // Locale lists are not supported.
+
+        if (base.locale != change.locale) {
+            delta.locale = change.locale;
+        }
+
+        if (base.touchscreen != change.touchscreen) {
+            delta.touchscreen = change.touchscreen;
+        }
+
+        if (base.keyboard != change.keyboard) {
+            delta.keyboard = change.keyboard;
+        }
+
+        if (base.keyboardHidden != change.keyboardHidden) {
+            delta.keyboardHidden = change.keyboardHidden;
+        }
+
+        if (base.navigation != change.navigation) {
+            delta.navigation = change.navigation;
+        }
+
+        if (base.navigationHidden != change.navigationHidden) {
+            delta.navigationHidden = change.navigationHidden;
+        }
+
+        if (base.orientation != change.orientation) {
+            delta.orientation = change.orientation;
+        }
+
+        if ((base.screenLayout & Configuration.SCREENLAYOUT_SIZE_MASK)
+                != (change.screenLayout & Configuration.SCREENLAYOUT_SIZE_MASK)) {
+            delta.screenLayout |= change.screenLayout & Configuration.SCREENLAYOUT_SIZE_MASK;
+        }
+
+        if ((base.screenLayout & Configuration.SCREENLAYOUT_LAYOUTDIR_MASK)
+                != (change.screenLayout & Configuration.SCREENLAYOUT_LAYOUTDIR_MASK)) {
+            delta.screenLayout |= change.screenLayout & Configuration.SCREENLAYOUT_LAYOUTDIR_MASK;
+        }
+
+        if ((base.screenLayout & Configuration.SCREENLAYOUT_LONG_MASK)
+                != (change.screenLayout & Configuration.SCREENLAYOUT_LONG_MASK)) {
+            delta.screenLayout |= change.screenLayout & Configuration.SCREENLAYOUT_LONG_MASK;
+        }
+
+        if ((base.screenLayout & Configuration.SCREENLAYOUT_ROUND_MASK)
+                != (change.screenLayout & Configuration.SCREENLAYOUT_ROUND_MASK)) {
+            delta.screenLayout |= change.screenLayout & Configuration.SCREENLAYOUT_ROUND_MASK;
+        }
+
+        // Color mode is not supported.
+
+        if ((base.uiMode & Configuration.UI_MODE_TYPE_MASK)
+                != (change.uiMode & Configuration.UI_MODE_TYPE_MASK)) {
+            delta.uiMode |= change.uiMode & Configuration.UI_MODE_TYPE_MASK;
+        }
+
+        if ((base.uiMode & Configuration.UI_MODE_NIGHT_MASK)
+                != (change.uiMode & Configuration.UI_MODE_NIGHT_MASK)) {
+            delta.uiMode |= change.uiMode & Configuration.UI_MODE_NIGHT_MASK;
+        }
+
+        if (base.screenWidthDp != change.screenWidthDp) {
+            delta.screenWidthDp = change.screenWidthDp;
+        }
+
+        if (base.screenHeightDp != change.screenHeightDp) {
+            delta.screenHeightDp = change.screenHeightDp;
+        }
+
+        if (base.smallestScreenWidthDp != change.smallestScreenWidthDp) {
+            delta.smallestScreenWidthDp = change.smallestScreenWidthDp;
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+            ConfigurationImplApi17.generateConfigDelta(base, change, delta);
+        }
+
+        // Assets sequence and window configuration are not supported.
+
+        return delta;
+    }
+
+    @RequiresApi(17)
+    static class ConfigurationImplApi17 {
+        static void generateConfigDelta(Configuration base, Configuration change,
+                Configuration delta) {
+            if (base.densityDpi != change.densityDpi) {
+                delta.densityDpi = change.densityDpi;
             }
         }
     }

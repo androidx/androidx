@@ -23,7 +23,12 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.test.R;
 import androidx.appcompat.testutils.BaseTestActivity;
 
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
+
 public class NightModeActivity extends BaseTestActivity {
+    private final Semaphore mOnConfigurationChangeSemaphore = new Semaphore(0);
+
     private int mLastNightModeChange = Integer.MIN_VALUE;
     private Configuration mLastConfigurationChange;
 
@@ -40,6 +45,8 @@ public class NightModeActivity extends BaseTestActivity {
     @Override
     public void onConfigurationChanged(@NonNull Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
+
+        mOnConfigurationChangeSemaphore.release();
         mLastConfigurationChange = newConfig;
     }
 
@@ -54,5 +61,35 @@ public class NightModeActivity extends BaseTestActivity {
         final int mode = mLastNightModeChange;
         mLastNightModeChange = Integer.MIN_VALUE;
         return mode;
+    }
+
+    /**
+     * Resets the number of received configuration changes.
+     * <p>
+     * Call this method before {@link #expectOnConfigurationChange(long)} to ensure only future
+     * configuration changes are counted.
+     *
+     * @see #expectOnConfigurationChange(long)
+     */
+    public void resetOnConfigurationChange() {
+        mOnConfigurationChangeSemaphore.drainPermits();
+    }
+
+    /**
+     * Blocks until a single configuration change has been received.
+     * <p>
+     * Configuration changes are sticky; if any configuration changes were received prior to
+     * calling this method and {@link #resetOnConfigurationChange()} has not been called, this
+     * method will return immediately.
+     *
+     * @param timeout maximum amount of time to wait for a configuration change
+     * @throws InterruptedException
+     */
+    public void expectOnConfigurationChange(long timeout) throws InterruptedException {
+        if (Thread.currentThread() == getMainLooper().getThread()) {
+            throw new IllegalStateException("Method cannot be called on the Activity's UI thread");
+        }
+
+        mOnConfigurationChangeSemaphore.tryAcquire(timeout, TimeUnit.MILLISECONDS);
     }
 }
