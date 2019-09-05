@@ -24,6 +24,7 @@ import android.util.Size;
 import android.view.Display;
 import android.view.Surface;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
@@ -78,7 +79,7 @@ public final class ImageAnalysis extends UseCase {
      *
      * @param config for this use case instance
      */
-    public ImageAnalysis(ImageAnalysisConfig config) {
+    public ImageAnalysis(@NonNull ImageAnalysisConfig config) {
         super(config);
         mUseCaseConfigBuilder = ImageAnalysisConfig.Builder.fromConfig(config);
 

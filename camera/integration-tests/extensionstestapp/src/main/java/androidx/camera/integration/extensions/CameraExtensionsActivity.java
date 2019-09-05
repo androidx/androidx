@@ -161,7 +161,7 @@ public class CameraExtensionsActivity extends AppCompatActivity
         mPreview.setOnPreviewOutputUpdateListener(
                 new Preview.OnPreviewOutputUpdateListener() {
                     @Override
-                    public void onUpdated(Preview.PreviewOutput output) {
+                    public void onUpdated(@NonNull Preview.PreviewOutput output) {
                         // If TextureView was already created, need to re-add it to change the
                         // SurfaceTexture.
                         ViewGroup viewGroup = (ViewGroup) textureView.getParent();

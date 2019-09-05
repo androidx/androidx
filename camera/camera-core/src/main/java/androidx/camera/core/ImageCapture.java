@@ -155,7 +155,7 @@ public class ImageCapture extends UseCase {
      * @param userConfig for this use case instance
      * @throws IllegalArgumentException if the configuration is invalid.
      */
-    public ImageCapture(ImageCaptureConfig userConfig) {
+    public ImageCapture(@NonNull ImageCaptureConfig userConfig) {
         super(userConfig);
         mUseCaseConfigBuilder = ImageCaptureConfig.Builder.fromConfig(userConfig);
         // Ensure we're using the combined configuration (user config + defaults)
