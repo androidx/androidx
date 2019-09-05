@@ -22,13 +22,13 @@ import androidx.ui.engine.geometry.Offset
 import androidx.ui.graphics.Color
 import androidx.ui.painting.Shadow
 import androidx.ui.text.AnnotatedString
+import androidx.ui.text.LocaleList
 import androidx.ui.text.TextStyle
 import androidx.ui.text.font.FontStyle
 import androidx.ui.text.font.FontWeight
 import androidx.ui.text.style.BaselineShift
 import androidx.ui.text.style.TextDecoration
 import androidx.ui.text.style.TextGeometricTransform
-import java.util.Locale
 import kotlin.math.ceil
 import kotlin.random.Random
 
@@ -52,7 +52,7 @@ class RandomTextGenerator(
         TextStyle(letterSpacing = 0.2f),
         TextStyle(baselineShift = BaselineShift.Subscript),
         TextStyle(textGeometricTransform = TextGeometricTransform(0.5f, 0.5f)),
-        TextStyle(locale = Locale.ITALIAN)
+        TextStyle(localeList = LocaleList("it"))
     )
 
     private fun getTextStyleList(hasMetricAffectingStyle: Boolean) =

@@ -26,7 +26,6 @@ import com.nhaarman.mockitokotlin2.mock
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import java.util.Locale
 
 @RunWith(JUnit4::class)
 class TextDelegateTest() {
@@ -44,7 +43,6 @@ class TextDelegateTest() {
 
         assertThat(textDelegate.maxLines).isNull()
         assertThat(textDelegate.overflow).isEqualTo(TextOverflow.Clip)
-        assertThat(textDelegate.locale).isNull()
     }
 
     @Test
@@ -88,21 +86,6 @@ class TextDelegateTest() {
         )
 
         assertThat(textDelegate.overflow).isEqualTo(overflow)
-    }
-
-    @Test
-    fun `constructor with customized locale`() {
-        val locale = Locale("en", "US")
-
-        val textDelegate = TextDelegate(
-            text = AnnotatedString(text = ""),
-            locale = locale,
-            density = density,
-            resourceLoader = resourceLoader,
-            layoutDirection = LayoutDirection.Ltr
-        )
-
-        assertThat(textDelegate.locale).isEqualTo(locale)
     }
 
     @Test(expected = AssertionError::class)
