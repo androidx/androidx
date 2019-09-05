@@ -170,13 +170,11 @@ private fun updatePopup(popup: PopupWindow, popupPositionProperties: PopupPositi
             popupGlobalPosition.y.value
         )
     } else {
-        // TODO(b/140229042): Investigate the use of the force parameter
         popup.update(
             popupGlobalPosition.x.value,
             popupGlobalPosition.y.value,
             /*updateIgnoreWidth = */ -1,
-            /*updateIgnoreHeight = */ -1,
-            /*force =*/ true
+            /*updateIgnoreHeight = */ -1
         )
     }
 }
