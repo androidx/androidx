@@ -101,7 +101,8 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
 
     static final Object USE_DEFAULT_TRANSITION = new Object();
 
-    static final int INITIALIZING = 0;     // Not yet created.
+    static final int INITIALIZING = -1;    // Not yet attached.
+    static final int ATTACHED = 0;         // Attached to the host.
     static final int CREATED = 1;          // Created.
     static final int ACTIVITY_CREATED = 2; // Fully created, not started.
     static final int STARTED = 3;          // Created and started, not resumed.
@@ -2634,6 +2635,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
                 return (mView != null);
             }
         }, this);
+        mState = ATTACHED;
         mCalled = false;
         onAttach(mHost.getContext());
         if (!mCalled) {
@@ -2887,7 +2889,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     void performDestroy() {
         mChildFragmentManager.dispatchDestroy();
         mLifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_DESTROY);
-        mState = INITIALIZING;
+        mState = ATTACHED;
         mCalled = false;
         mIsCreated = false;
         onDestroy();
@@ -2898,6 +2900,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     }
 
     void performDetach() {
+        mState = INITIALIZING;
         mCalled = false;
         onDetach();
         mLayoutInflater = null;

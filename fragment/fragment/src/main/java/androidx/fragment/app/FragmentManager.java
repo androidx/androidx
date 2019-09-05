@@ -1244,7 +1244,7 @@ public abstract class FragmentManager {
             switch (f.mState) {
                 case Fragment.INITIALIZING:
                     if (newState > Fragment.INITIALIZING) {
-                        if (DEBUG) Log.v(TAG, "moveto CREATED: " + f);
+                        if (DEBUG) Log.v(TAG, "moveto ATTACHED: " + f);
                         if (fragmentStateManager != null) {
                             fragmentStateManager.restoreState(mHost.getContext().getClassLoader());
                         }
@@ -1296,7 +1296,11 @@ public abstract class FragmentManager {
                         }
                         mLifecycleCallbacksDispatcher.dispatchOnFragmentAttached(
                                 f, mHost.getContext(), false);
-
+                    }
+                    // fall through
+                case Fragment.ATTACHED:
+                    if (newState > Fragment.ATTACHED) {
+                        if (DEBUG) Log.v(TAG, "moveto CREATED: " + f);
                         if (!f.mIsCreated) {
                             mLifecycleCallbacksDispatcher.dispatchOnFragmentPreCreated(
                                     f, f.mSavedFragmentState, false);
@@ -1487,26 +1491,32 @@ public abstract class FragmentManager {
                                 mLifecycleCallbacksDispatcher.dispatchOnFragmentDestroyed(
                                         f, false);
                             } else {
-                                f.mState = Fragment.INITIALIZING;
+                                f.mState = Fragment.ATTACHED;
                             }
-
-                            f.performDetach();
-                            mLifecycleCallbacksDispatcher.dispatchOnFragmentDetached(
-                                    f, false);
-                            if (beingRemoved || mNonConfig.shouldDestroy(f)) {
-                                makeInactive(f);
-                            } else {
-                                f.mHost = null;
-                                f.mParentFragment = null;
-                                f.mFragmentManager = null;
-                                if (f.mTargetWho != null) {
-                                    Fragment target = findActiveFragment(f.mTargetWho);
-                                    if (target != null && target.getRetainInstance()) {
-                                        // Only keep references to other retained Fragments
-                                        // to avoid developers accessing Fragments that
-                                        // are never coming back
-                                        f.mTarget = target;
-                                    }
+                        }
+                    }
+                    // fall through
+                case Fragment.ATTACHED:
+                    if (newState < Fragment.ATTACHED) {
+                        if (DEBUG) Log.v(TAG, "movefrom ATTACHED: " + f);
+                        boolean beingRemoved = f.mRemoving && !f.isInBackStack();
+                        f.performDetach();
+                        mLifecycleCallbacksDispatcher.dispatchOnFragmentDetached(
+                                f, false);
+                        if (beingRemoved || mNonConfig.shouldDestroy(f)) {
+                            makeInactive(f);
+                        } else {
+                            f.mState = Fragment.INITIALIZING;
+                            f.mHost = null;
+                            f.mParentFragment = null;
+                            f.mFragmentManager = null;
+                            if (f.mTargetWho != null) {
+                                Fragment target = findActiveFragment(f.mTargetWho);
+                                if (target != null && target.getRetainInstance()) {
+                                    // Only keep references to other retained Fragments
+                                    // to avoid developers accessing Fragments that
+                                    // are never coming back
+                                    f.mTarget = target;
                                 }
                             }
                         }
