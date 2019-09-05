@@ -24,6 +24,7 @@ import androidx.ui.painting.Canvas
 import androidx.ui.painting.Path
 import androidx.ui.text.font.Font
 import androidx.ui.text.platform.AndroidParagraph
+import androidx.ui.text.platform.AndroidParagraphIntrinsics
 import androidx.ui.text.platform.TypefaceAdapter
 import androidx.ui.text.style.TextDirection
 
@@ -39,14 +40,14 @@ interface Paragraph {
     /**
      * The amount of horizontal space this paragraph occupies.
      *
-     * Valid only after [layout] has been called.
+     * Should be called after [layout] has been called.
      */
     val width: Float
 
     /**
      * The amount of vertical space this paragraph occupies.
      *
-     * Valid only after [layout] has been called.
+     * Should be called after [layout] has been called.
      */
     val height: Float
 
@@ -64,12 +65,16 @@ interface Paragraph {
     /**
      * The distance from the top of the paragraph to the alphabetic
      * baseline of the first line, in logical pixels.
+     *
+     * Should be called after [layout] has been called.
      */
     val firstBaseline: Float
 
     /**
      * The distance from the top of the paragraph to the alphabetic
      * baseline of the last line, in logical pixels.
+     *
+     * Should be called after [layout] has been called.
      */
     val lastBaseline: Float
 
@@ -80,11 +85,15 @@ interface Paragraph {
      * constraint.
      *
      * See the discussion of the `maxLines` and `ellipsis` arguments at [ParagraphStyle].
+     *
+     * Should be called after [layout] has been called.
      */
     val didExceedMaxLines: Boolean
 
     /**
      * The total number of lines in the text.
+     *
+     * Should be called after [layout] has been called.
      */
     val lineCount: Int
 
@@ -182,14 +191,9 @@ interface Paragraph {
     fun paint(canvas: Canvas)
 }
 
-/*expect fun Paragraph(
-    text: String,
-    style: TextStyle,
-    paragraphStyle: ParagraphStyle,
-    textStyles: List<AnnotatedString.Item<TextStyle>>,
-    density: Density
-): Paragraph*/
-
+/**
+ * @see Paragraph
+ */
 /* actual */ fun Paragraph(
     text: String,
     style: TextStyle,
@@ -213,5 +217,17 @@ interface Paragraph {
         ),
         density = density,
         layoutDirection = layoutDirection
+    )
+}
+
+/* actual */ fun Paragraph(
+    paragraphIntrinsics: ParagraphIntrinsics,
+    maxLines: Int? = null,
+    ellipsis: Boolean? = null
+): Paragraph {
+    return AndroidParagraph(
+        paragraphIntrinsics = paragraphIntrinsics as AndroidParagraphIntrinsics,
+        maxLines = maxLines,
+        ellipsis = ellipsis
     )
 }

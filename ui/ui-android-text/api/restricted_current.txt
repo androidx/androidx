@@ -52,6 +52,10 @@ package androidx.text {
   }
 
 
+  public final class LayoutIntrinsicsKt {
+    ctor public LayoutIntrinsicsKt();
+  }
+
 
 
 

@@ -20,6 +20,8 @@ import android.text.BoringLayout
 import android.text.Layout
 import android.text.TextPaint
 import androidx.annotation.RestrictTo
+import java.text.BreakIterator
+import java.util.PriorityQueue
 
 /**
  * Computes and caches the text layout intrinsic values such as min/max width.
@@ -36,7 +38,7 @@ class LayoutIntrinsics(
      * Compute Android platform BoringLayout metrics. A null value means the provided CharSequence
      * cannot be laid out using a BoringLayout.
      */
-    internal val boringMetrics: BoringLayout.Metrics? by lazy {
+    val boringMetrics: BoringLayout.Metrics? by lazy {
         val frameworkTextDir = getTextDirectionHeuristic(textDirectionHeuristic)
         BoringLayoutCompat.isBoring(charSequence, textPaint, frameworkTextDir)
     }
@@ -61,4 +63,48 @@ class LayoutIntrinsics(
         boringMetrics?.width?.toFloat()
             ?: Layout.getDesiredWidth(charSequence, 0, charSequence.length, textPaint)
     }
+}
+
+/**
+ * Returns the word with the longest length. To calculate it in a performant way, it applies a heuristics where
+ *  - it first finds a set of words with the longest length
+ *  - finds the word with maximum width in that set
+ *
+ *  @hide
+ */
+fun minIntrinsicWidth(text: CharSequence, paint: TextPaint): Float {
+    val iterator = BreakIterator.getLineInstance(paint.textLocale)
+    iterator.text = CharSequenceCharacterIterator(text, 0, text.length)
+
+    // 10 is just a random number that limits the size of the candidate list
+    val heapSize = 10
+    // min heap that will hold [heapSize] many words with max length
+    val longestWordCandidates = PriorityQueue<Pair<Int, Int>>(
+        heapSize,
+        Comparator<Pair<Int, Int>> { left, right ->
+            (left.second - left.first) - (right.second - right.first)
+        }
+    )
+
+    var start = 0
+    var end = iterator.next()
+    while (end != BreakIterator.DONE) {
+        if (longestWordCandidates.size < heapSize) {
+            longestWordCandidates.add(Pair(start, end))
+        } else {
+            longestWordCandidates.peek()?.let { minPair ->
+                if ((minPair.second - minPair.first) < (end - start)) {
+                    longestWordCandidates.poll()
+                    longestWordCandidates.add(Pair(start, end))
+                }
+            }
+        }
+
+        start = end
+        end = iterator.next()
+    }
+
+    return longestWordCandidates.map { pair ->
+        Layout.getDesiredWidth(text, pair.first, pair.second, paint)
+    }.max() ?: 0f
 }
