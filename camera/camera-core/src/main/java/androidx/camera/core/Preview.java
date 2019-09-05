@@ -37,6 +37,7 @@ import androidx.annotation.UiThread;
 import androidx.camera.core.CameraX.LensFacing;
 import androidx.camera.core.ImageOutputConfig.RotationValue;
 import androidx.camera.core.impl.utils.Threads;
+import androidx.core.util.Preconditions;
 
 import com.google.auto.value.AutoValue;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -79,11 +80,16 @@ public class Preview extends UseCase {
     @RestrictTo(Scope.LIBRARY_GROUP)
     public static final Defaults DEFAULT_CONFIG = new Defaults();
     private static final String TAG = "Preview";
+
+    private static final String CONFLICTING_SURFACE_API_ERROR_MESSAGE =
+            "PreviewSurfaceCallback cannot be used with OnPreviewOutputUpdateListener.";
     private final Handler mMainHandler = new Handler(Looper.getMainLooper());
 
     private final PreviewConfig.Builder mUseCaseConfigBuilder;
     @Nullable
     private OnPreviewOutputUpdateListener mSubscribedPreviewOutputListener;
+    @Nullable
+    private PreviewSurfaceCallback mPreviewSurfaceCallback;
     @Nullable
     private PreviewOutput mLatestPreviewOutput;
     private boolean mSurfaceDispatched = false;
@@ -224,6 +230,8 @@ public class Preview extends UseCase {
     public void setOnPreviewOutputUpdateListener(
             @Nullable OnPreviewOutputUpdateListener newListener) {
         Threads.checkMainThread();
+        Preconditions.checkState(mPreviewSurfaceCallback == null,
+                CONFLICTING_SURFACE_API_ERROR_MESSAGE);
         OnPreviewOutputUpdateListener oldListener = mSubscribedPreviewOutputListener;
         mSubscribedPreviewOutputListener = newListener;
         if (oldListener == null && newListener != null) {
@@ -239,6 +247,48 @@ public class Preview extends UseCase {
                 mSurfaceTextureHolder.resetSurfaceTexture();
             }
         }
+    }
+
+    /**
+     * Gets {@link PreviewSurfaceCallback}
+     *
+     * @return the last set callback or {@code null} if no listener is set
+     */
+    @UiThread
+    @Nullable
+    public PreviewSurfaceCallback getPreviewSurfaceCallback() {
+        Threads.checkMainThread();
+        return mPreviewSurfaceCallback;
+    }
+
+    /**
+     * Sets a {@link PreviewSurfaceCallback} to provide Surface for Preview.
+     *
+     * <p> Setting the callback will signal to the camera that the use case is ready to receive
+     * data.
+     *
+     * @param previewSurfaceCallback PreviewSurfaceCallback that provides a Preview.
+     */
+    @UiThread
+    public void setPreviewSurfaceCallback(@NonNull PreviewSurfaceCallback previewSurfaceCallback) {
+        Threads.checkMainThread();
+        Preconditions.checkState(mSubscribedPreviewOutputListener == null,
+                CONFLICTING_SURFACE_API_ERROR_MESSAGE);
+        mPreviewSurfaceCallback = previewSurfaceCallback;
+        notifyActive();
+    }
+
+    /**
+     * Removes the {@link PreviewSurfaceCallback}.
+     *
+     * <p> Removing the callback will signal to the camera that the camera should no longer
+     * stream data.
+     */
+    @UiThread
+    public void removePreviewSurfaceCallback() {
+        Threads.checkMainThread();
+        mPreviewSurfaceCallback = null;
+        notifyInactive();
     }
 
     private CameraControlInternal getCurrentCameraControl() {
@@ -499,7 +549,7 @@ public class Preview extends UseCase {
          * <p> The Surface should be released after the use case is no longer active. If released
          * prematurely, the implementation will be asked to provide a new Surface via this method.
          *
-         * @param resolution the resolution required by CameraX.
+         * @param resolution  the resolution required by CameraX.
          * @param imageFormat the {@link ImageFormat} required by CameraX.
          * @return A ListenableFuture that contains the user created Surface.
          */
