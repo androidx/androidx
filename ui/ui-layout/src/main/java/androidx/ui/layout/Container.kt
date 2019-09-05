@@ -20,8 +20,11 @@ import androidx.ui.core.Constraints
 import androidx.ui.core.Dp
 import androidx.ui.core.IntPxSize
 import androidx.ui.core.Layout
+import androidx.ui.core.Placeable
 import androidx.ui.core.dp
 import androidx.ui.core.enforce
+import androidx.ui.core.hasTightHeight
+import androidx.ui.core.hasTightWidth
 import androidx.ui.core.ipx
 import androidx.ui.core.isFinite
 import androidx.ui.core.looseMin
@@ -72,26 +75,35 @@ fun Container(
             val childConstraints = containerConstraints
                 .looseMin()
                 .offset(-totalHorizontal, -totalVertical)
-            val placeable = measurables.firstOrNull()?.measure(childConstraints)
-            val containerWidth = if (!expanded || !containerConstraints.maxWidth.isFinite()) {
-                max((placeable?.width ?: 0.ipx) + totalHorizontal, containerConstraints.minWidth)
-            } else {
+            var placeable: Placeable? = null
+            val containerWidth = if ((containerConstraints.hasTightWidth || expanded) &&
+                containerConstraints.maxWidth.isFinite()
+            ) {
                 containerConstraints.maxWidth
-            }
-            val containerHeight = if (!expanded || !containerConstraints.maxHeight.isFinite()) {
-                max((placeable?.height ?: 0.ipx) + totalVertical, containerConstraints.minHeight)
             } else {
+                placeable = measurables.firstOrNull()?.measure(childConstraints)
+                max((placeable?.width ?: 0.ipx) + totalHorizontal, containerConstraints.minWidth)
+            }
+            val containerHeight = if ((containerConstraints.hasTightHeight || expanded) &&
+                containerConstraints.maxHeight.isFinite()
+            ) {
                 containerConstraints.maxHeight
+            } else {
+                if (placeable == null) {
+                    placeable = measurables.firstOrNull()?.measure(childConstraints)
+                }
+                max((placeable?.height ?: 0.ipx) + totalVertical, containerConstraints.minHeight)
             }
             layout(containerWidth, containerHeight) {
-                if (placeable != null) {
+                val p = placeable ?: measurables.firstOrNull()?.measure(childConstraints)
+                p?.let {
                     val position = alignment.align(
                         IntPxSize(
-                            containerWidth - placeable.width - totalHorizontal,
-                            containerHeight - placeable.height - totalVertical
+                            containerWidth - it.width - totalHorizontal,
+                            containerHeight - it.height - totalVertical
                         )
                     )
-                    placeable.place(
+                    it.place(
                         padding.left.toIntPx() + position.x,
                         padding.top.toIntPx() + position.y
                     )
