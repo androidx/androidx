@@ -64,7 +64,6 @@ import java.util.concurrent.TimeoutException;
 @LargeTest
 @RunWith(AndroidJUnit4.class)
 public class AdvertisingIdClientTest {
-    private static final String MOCK_SERVICE_PACKAGE_NAME = "androidx.ads.identifier.test";
     private static final String MOCK_SERVICE_NAME = MockAdvertisingIdService.class.getName();
     private static final String MOCK_THROWS_NPE_SERVICE_NAME =
             MockAdvertisingIdThrowsNpeService.class.getName();
@@ -97,17 +96,17 @@ public class AdvertisingIdClientTest {
         };
 
         mockQueryIntentServices(Lists.newArrayList(
-                createResolveInfo(MOCK_SERVICE_PACKAGE_NAME, MOCK_SERVICE_NAME)));
+                createResolveInfo(mContext.getPackageName(), MOCK_SERVICE_NAME)));
     }
 
     @After
     public void tearDown() {
         Intent serviceIntent = new Intent(GET_AD_ID_ACTION);
-        serviceIntent.setClassName(MOCK_SERVICE_PACKAGE_NAME, MOCK_SERVICE_NAME);
+        serviceIntent.setClassName(mContext.getPackageName(), MOCK_SERVICE_NAME);
         mContext.stopService(serviceIntent);
 
         Intent npeServiceIntent = new Intent(GET_AD_ID_ACTION);
-        npeServiceIntent.setClassName(MOCK_SERVICE_PACKAGE_NAME, MOCK_THROWS_NPE_SERVICE_NAME);
+        npeServiceIntent.setClassName(mContext.getPackageName(), MOCK_THROWS_NPE_SERVICE_NAME);
         mContext.stopService(npeServiceIntent);
     }
 
@@ -134,7 +133,7 @@ public class AdvertisingIdClientTest {
         assertThat(info).isEqualTo(AdvertisingIdInfo.builder()
                 .setId(TESTING_AD_ID)
                 .setLimitAdTrackingEnabled(true)
-                .setProviderPackageName(MOCK_SERVICE_PACKAGE_NAME)
+                .setProviderPackageName(mContext.getPackageName())
                 .build());
     }
 
@@ -153,7 +152,7 @@ public class AdvertisingIdClientTest {
     @Test
     public void getAdvertisingIdInfo_serviceThrowsNullPointerException() throws Exception {
         mockQueryIntentServices(Lists.newArrayList(
-                createResolveInfo(MOCK_SERVICE_PACKAGE_NAME, MOCK_THROWS_NPE_SERVICE_NAME)));
+                createResolveInfo(mContext.getPackageName(), MOCK_THROWS_NPE_SERVICE_NAME)));
 
         try {
             AdvertisingIdClient.getAdvertisingIdInfo(mContext).get();
@@ -174,7 +173,7 @@ public class AdvertisingIdClientTest {
         assertThat(info).isEqualTo(AdvertisingIdInfo.builder()
                 .setId(TESTING_AD_ID)
                 .setLimitAdTrackingEnabled(true)
-                .setProviderPackageName(MOCK_SERVICE_PACKAGE_NAME)
+                .setProviderPackageName(mContext.getPackageName())
                 .build());
     }
 
@@ -190,7 +189,7 @@ public class AdvertisingIdClientTest {
         AdvertisingIdInfo expected = AdvertisingIdInfo.builder()
                 .setId(TESTING_AD_ID)
                 .setLimitAdTrackingEnabled(true)
-                .setProviderPackageName(MOCK_SERVICE_PACKAGE_NAME)
+                .setProviderPackageName(mContext.getPackageName())
                 .build();
         assertThat(info1).isEqualTo(expected);
         assertThat(info2).isEqualTo(expected);
@@ -286,7 +285,7 @@ public class AdvertisingIdClientTest {
     }
 
     @Test
-    public void normalizeId() throws Exception {
+    public void normalizeId() {
         String id = AdvertisingIdClient.normalizeId("abc");
 
         assertThat(id).isEqualTo("90015098-3cd2-3fb0-9696-3f7d28e17f72"); // UUID version 3 of "abc"

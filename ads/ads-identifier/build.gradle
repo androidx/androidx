@@ -22,16 +22,15 @@ import androidx.build.Publish
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("kotlin-android")
 }
 
 dependencies {
-    implementation("androidx.annotation:annotation:1.1.0")
+    api("androidx.annotation:annotation:1.1.0")
     implementation("androidx.core:core:1.1.0")
     implementation(AUTO_VALUE_ANNOTATIONS)
     annotationProcessor(AUTO_VALUE)
     api(GUAVA_LISTENABLE_FUTURE)
-    implementation("androidx.concurrent:concurrent-futures:1.0.0-beta01")
+    implementation("androidx.concurrent:concurrent-futures:1.0.0-rc01")
 
     implementation(project(":ads-identifier-common"))
 

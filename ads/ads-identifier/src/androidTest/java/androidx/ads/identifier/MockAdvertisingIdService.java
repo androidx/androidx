@@ -19,7 +19,6 @@ package androidx.ads.identifier;
 import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
-import android.os.RemoteException;
 
 import androidx.ads.identifier.provider.IAdvertisingIdService;
 import androidx.annotation.Nullable;
@@ -47,12 +46,12 @@ public class MockAdvertisingIdService extends Service {
 
     private static class MockAdvertisingIdServiceImpl extends IAdvertisingIdService.Stub {
         @Override
-        public String getId() throws RemoteException {
+        public String getId() {
             return TESTING_AD_ID;
         }
 
         @Override
-        public boolean isLimitAdTrackingEnabled() throws RemoteException {
+        public boolean isLimitAdTrackingEnabled() {
             return true;
         }
     }
