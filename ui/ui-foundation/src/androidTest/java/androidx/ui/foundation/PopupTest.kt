@@ -26,6 +26,7 @@ import androidx.test.espresso.matcher.BoundedMatcher
 import androidx.test.espresso.matcher.RootMatchers
 import androidx.test.espresso.matcher.RootMatchers.isPlatformPopup
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
+import androidx.test.filters.FlakyTest
 import androidx.test.filters.MediumTest
 import androidx.ui.core.AndroidCraneView
 import androidx.ui.core.IntPx
@@ -175,6 +176,7 @@ class PopupTest {
         popupMatches(matchesSize(popupSize.width.value, popupSize.height.value))
     }
 
+    @FlakyTest(bugId = 140549636, detail = "Final position might not be updated before check")
     @Test
     fun popup_correctPosition_alignmentTopLeft() {
         /* Expected TopLeft Position
@@ -190,6 +192,7 @@ class PopupTest {
         popupMatches(matchesPosition(craneViewAbsolutePosition + expectedPositionTopLeft))
     }
 
+    @FlakyTest(bugId = 140549636, detail = "Final position might not be updated before check")
     @Test
     fun popup_correctPosition_alignmentTopCenter() {
         /* Expected TopCenter Position
@@ -205,6 +208,7 @@ class PopupTest {
         popupMatches(matchesPosition(craneViewAbsolutePosition + expectedPositionTopCenter))
     }
 
+    @FlakyTest(bugId = 140549636, detail = "Final position might not be updated before check")
     @Test
     fun popup_correctPosition_alignmentTopRight() {
         /* Expected TopRight Position
@@ -220,6 +224,7 @@ class PopupTest {
         popupMatches(matchesPosition(craneViewAbsolutePosition + expectedPositionTopRight))
     }
 
+    @FlakyTest(bugId = 140549636, detail = "Final position might not be updated before check")
     @Test
     fun popup_correctPosition_alignmentCenterRight() {
         /* Expected CenterRight Position
@@ -235,6 +240,7 @@ class PopupTest {
         popupMatches(matchesPosition(craneViewAbsolutePosition + expectedPositionCenterRight))
     }
 
+    @FlakyTest(bugId = 140549636, detail = "Final position might not be updated before check")
     @Test
     fun popup_correctPosition_alignmentBottomRight() {
         /* Expected BottomRight Position
@@ -250,6 +256,7 @@ class PopupTest {
         popupMatches(matchesPosition(craneViewAbsolutePosition + expectedPositionBottomRight))
     }
 
+    @FlakyTest(bugId = 140549636, detail = "Final position might not be updated before check")
     @Test
     fun popup_correctPosition_alignmentBottomCenter() {
         /* Expected BottomCenter Position
@@ -268,6 +275,7 @@ class PopupTest {
         popupMatches(matchesPosition(craneViewAbsolutePosition + expectedPositionBottomCenter))
     }
 
+    @FlakyTest(bugId = 140549636, detail = "Final position might not be updated before check")
     @Test
     fun popup_correctPosition_alignmentBottomLeft() {
         /* Expected BottomLeft Position
@@ -283,6 +291,7 @@ class PopupTest {
         popupMatches(matchesPosition(craneViewAbsolutePosition + expectedPositionBottomLeft))
     }
 
+    @FlakyTest(bugId = 140549636, detail = "Final position might not be updated before check")
     @Test
     fun popup_correctPosition_alignmentCenterLeft() {
         /* Expected CenterLeft Position
@@ -298,6 +307,7 @@ class PopupTest {
         popupMatches(matchesPosition(craneViewAbsolutePosition + expectedPositionCenterLeft))
     }
 
+    @FlakyTest(bugId = 140549636, detail = "Final position might not be updated before check")
     @Test
     fun popup_correctPosition_alignmentCenter() {
         /* Expected Center Position
