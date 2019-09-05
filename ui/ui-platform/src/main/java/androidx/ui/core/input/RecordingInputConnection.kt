@@ -66,7 +66,7 @@ internal class RecordingInputConnection(
     @VisibleForTesting
     internal var inputState: InputState = initState
         set(value) {
-            if (DEBUG) { Log.d(TAG, "New InputState has set: $inputState") }
+            if (DEBUG) { Log.d(TAG, "New InputState has set: $value -> $inputState") }
             field = value
         }
 
@@ -108,6 +108,11 @@ internal class RecordingInputConnection(
         // updateSelection API. Need to pass -1 if there is no composition.
         val candidateStart = next.composition?.min ?: -1
         val candidateEnd = next.composition?.max ?: -1
+        if (DEBUG) {
+            Log.d(TAG, "updateSelection(" +
+                        "selection = (${next.selection.min},${next.selection.max}), " +
+                        "compoairion = ($candidateStart, $candidateEnd)")
+        }
         imm.updateSelection(view, next.selection.min, next.selection.max,
             candidateStart, candidateEnd)
     }
@@ -156,7 +161,7 @@ internal class RecordingInputConnection(
     // /////////////////////////////////////////////////////////////////////////////////////////////
 
     override fun commitText(text: CharSequence?, newCursorPosition: Int): Boolean {
-        if (DEBUG) { Log.d(TAG, "commitText($text, $newCursorPosition)") }
+        if (DEBUG) { Log.d(TAG, "commitText(\"$text\", $newCursorPosition)") }
         addEditOpWithBatch(CommitTextEditOp(text.toString(), newCursorPosition))
         return true
     }
@@ -168,7 +173,7 @@ internal class RecordingInputConnection(
     }
 
     override fun setComposingText(text: CharSequence?, newCursorPosition: Int): Boolean {
-        if (DEBUG) { Log.d(TAG, "setComposingText($text, $newCursorPosition)") }
+        if (DEBUG) { Log.d(TAG, "setComposingText(\"$text\", $newCursorPosition)") }
         addEditOpWithBatch(SetComposingTextEditOp(text.toString(), newCursorPosition))
         return true
     }

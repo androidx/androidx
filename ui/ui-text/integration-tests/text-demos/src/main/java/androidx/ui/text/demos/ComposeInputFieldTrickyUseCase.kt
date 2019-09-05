@@ -21,18 +21,24 @@ import androidx.compose.Composable
 import androidx.compose.state
 import androidx.compose.unaryPlus
 import androidx.ui.core.TextField
+import androidx.ui.core.sp
 import androidx.ui.layout.Column
 import androidx.ui.layout.CrossAxisAlignment
 import androidx.ui.foundation.VerticalScroller
 import androidx.ui.input.EditorModel
+import androidx.ui.input.EditorStyle
 import androidx.ui.input.KeyboardType
+import androidx.ui.text.TextStyle
 
 @Composable
 fun InputFieldTrickyUseCase() {
     VerticalScroller {
         Column(crossAxisAlignment = CrossAxisAlignment.Start) {
-            TagLine(tag = "not set state. (don't set if non number is added)")
+            TagLine(tag = "don't set if non number is added")
             RejectNonDigits()
+
+            TagLine(tag = "always clear composition")
+            RejectComposition()
         }
     }
 }
@@ -42,11 +48,24 @@ private fun RejectNonDigits() {
     val state = +state { EditorModel() }
     TextField(
         value = state.value,
+        editorStyle = EditorStyle(textStyle = TextStyle(fontSize = 32.sp)),
         onValueChange = {
             if (it.text.all { it.isDigit() }) {
                 state.value = it
             }
         },
         keyboardType = KeyboardType.Number
+    )
+}
+
+@Composable
+private fun RejectComposition() {
+    val state = +state { EditorModel() }
+    TextField(
+        value = state.value,
+        editorStyle = EditorStyle(textStyle = TextStyle(fontSize = 32.sp)),
+        onValueChange = {
+            state.value = EditorModel(text = it.text, selection = it.selection)
+        }
     )
 }
