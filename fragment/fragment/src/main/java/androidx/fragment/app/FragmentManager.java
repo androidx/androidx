@@ -1462,7 +1462,7 @@ public abstract class FragmentManager {
                                 cancelExitAnimation(f);
                             }
                         }
-                        if (!mExitAnimationCompleteMarkers.isEmpty()) {
+                        if (mExitAnimationCompleteMarkers.get(f) != null) {
                             // We are waiting for the fragment's view to finish
                             // animating away.  Just make a note of the state
                             // the fragment now should move to once the animation
