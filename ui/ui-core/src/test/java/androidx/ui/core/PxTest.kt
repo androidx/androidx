@@ -413,4 +413,37 @@ class PxTest {
         val rect = Rect(0f, 0f, 10f, 5f)
         assertEquals(rect, size.toRect())
     }
+
+    @Test
+    fun sizeTimesInt() {
+        assertEquals(PxSize(10.px, 10.px), PxSize(2.5.px, 2.5.px) * 4)
+        assertEquals(PxSize(10.px, 10.px), 4 * PxSize(2.5.px, 2.5.px))
+    }
+
+    @Test
+    fun sizeDivInt() {
+        assertEquals(PxSize(10.px, 10.px), PxSize(40.px, 40.px) / 4)
+    }
+
+    @Test
+    fun sizeTimesFloat() {
+        assertEquals(PxSize(10.px, 10.px), PxSize(4.px, 4.px) * 2.5f)
+        assertEquals(PxSize(10.px, 10.px), 2.5f * PxSize(4.px, 4.px))
+    }
+
+    @Test
+    fun sizeDivFloat() {
+        assertEquals(PxSize(10.px, 10.px), PxSize(40.px, 40.px) / 4f)
+    }
+
+    @Test
+    fun sizeTimesDouble() {
+        assertEquals(PxSize(10.px, 10.px), PxSize(4.px, 4.px) * 2.5)
+        assertEquals(PxSize(10.px, 10.px), 2.5 * PxSize(4.px, 4.px))
+    }
+
+    @Test
+    fun sizeDivDouble() {
+        assertEquals(PxSize(10.px, 10.px), PxSize(40.px, 40.px) / 4.0)
+    }
 }

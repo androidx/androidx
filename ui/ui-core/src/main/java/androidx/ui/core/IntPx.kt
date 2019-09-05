@@ -90,6 +90,12 @@ data /*inline*/ class IntPx(val value: Int) {
         keepInfinity(IntPx(value = value * other))
 
     /**
+     * Returns the remainder of the IntPx when dividing by an integer.
+     */
+    inline operator fun rem(other: Int): IntPx =
+        IntPx(value = value % other)
+
+    /**
      * Support comparing Dimensions with comparison operators.
      */
     inline operator fun compareTo(other: IntPx) = value.compareTo(other.value)
@@ -225,7 +231,25 @@ inline fun IntPx.toPx(): Px = value.px
 /**
  * A two dimensional size using [IntPx] for units
  */
-/*inline*/ data class IntPxSize(val width: IntPx, val height: IntPx)
+/*inline*/ data class IntPxSize(val width: IntPx, val height: IntPx) {
+    /**
+     * Returns an IntPxSize scaled by multiplying [width] and [height] by [other]
+     */
+    inline operator fun times(other: Int): IntPxSize =
+        IntPxSize(width = width * other, height = height * other)
+
+    /**
+     * Returns an IntPxSize scaled by dividing [width] and [height] by [other]
+     */
+    inline operator fun div(other: Int): IntPxSize =
+        IntPxSize(width = width / other, height = height / other)
+}
+
+/**
+ * Returns an [IntPxSize] with [size]'s [IntPxSize.width] and [IntPxSize.height]
+ * multiplied by [this]
+ */
+inline operator fun Int.times(size: IntPxSize) = size * this
 
 /**
  * Returns the [IntPxPosition] of the center of the rect from the point of [0, 0]

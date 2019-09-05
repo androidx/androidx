@@ -231,4 +231,20 @@ class IntPxTest {
     fun createPosition() {
         assertEquals(PxPosition(10.px, 20.px), PxPosition(10.ipx, 20.ipx))
     }
+
+    @Test
+    fun remainder() {
+        assertEquals(2.ipx, 10.ipx % 4)
+    }
+
+    @Test
+    fun sizeTimesInt() {
+        assertEquals(IntPxSize(10.ipx, 10.ipx), IntPxSize(2.ipx, 2.ipx) * 5)
+        assertEquals(IntPxSize(10.ipx, 10.ipx), 5 * IntPxSize(2.ipx, 2.ipx))
+    }
+
+    @Test
+    fun sizeDivInt() {
+        assertEquals(IntPxSize(10.ipx, 10.ipx), IntPxSize(40.ipx, 40.ipx) / 4)
+    }
 }
