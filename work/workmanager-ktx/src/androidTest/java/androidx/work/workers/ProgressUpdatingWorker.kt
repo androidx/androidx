@@ -26,6 +26,7 @@ class ProgressUpdatingWorker(context: Context, parameters: WorkerParameters) :
     CoroutineWorker(context, parameters) {
 
     companion object {
+        const val Expected = "Expected"
         const val Progress = "Progress"
         private const val delayDuration = 1L
     }
@@ -33,9 +34,14 @@ class ProgressUpdatingWorker(context: Context, parameters: WorkerParameters) :
     override suspend fun doWork(): Result {
         val firstUpdate = Data.Builder().putInt(Progress, 10).build()
         val lastUpdate = Data.Builder().putInt(Progress, 100).build()
+        val expected = inputData.getString(Expected)
         setProgress(firstUpdate)
         delay(delayDuration)
         setProgress(lastUpdate)
-        return Result.success()
+        return when (expected) {
+            "Failure" -> Result.failure()
+            "Retry" -> Result.retry()
+            else -> Result.success()
+        }
     }
 }

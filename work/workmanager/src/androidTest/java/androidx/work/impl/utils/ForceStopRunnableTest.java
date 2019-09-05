@@ -38,6 +38,7 @@ import androidx.work.Configuration;
 import androidx.work.impl.Scheduler;
 import androidx.work.impl.WorkDatabase;
 import androidx.work.impl.WorkManagerImpl;
+import androidx.work.impl.model.WorkProgressDao;
 import androidx.work.impl.model.WorkSpec;
 import androidx.work.impl.model.WorkSpecDao;
 
@@ -57,6 +58,7 @@ public class ForceStopRunnableTest {
     private Configuration mConfiguration;
     private WorkDatabase mWorkDatabase;
     private WorkSpecDao mWorkSpecDao;
+    private WorkProgressDao mWorkProgressDao;
     private Preferences mPreferences;
     private ForceStopRunnable mRunnable;
 
@@ -66,6 +68,7 @@ public class ForceStopRunnableTest {
         mWorkManager = mock(WorkManagerImpl.class);
         mWorkDatabase = mock(WorkDatabase.class);
         mWorkSpecDao = mock(WorkSpecDao.class);
+        mWorkProgressDao = mock(WorkProgressDao.class);
         mPreferences = mock(Preferences.class);
         mScheduler = mock(Scheduler.class);
         mConfiguration = new Configuration.Builder().build();
@@ -73,6 +76,7 @@ public class ForceStopRunnableTest {
         when(mWorkManager.getWorkDatabase()).thenReturn(mWorkDatabase);
         when(mWorkManager.getSchedulers()).thenReturn(Collections.singletonList(mScheduler));
         when(mWorkDatabase.workSpecDao()).thenReturn(mWorkSpecDao);
+        when(mWorkDatabase.workProgressDao()).thenReturn(mWorkProgressDao);
         when(mWorkManager.getPreferences()).thenReturn(mPreferences);
         when(mWorkManager.getConfiguration()).thenReturn(mConfiguration);
         mRunnable = new ForceStopRunnable(mContext, mWorkManager);
@@ -131,6 +135,9 @@ public class ForceStopRunnableTest {
         runnable.run();
         verify(mWorkSpecDao, times(2))
                 .markWorkSpecScheduled(eq(id), anyLong());
+
+        verify(mWorkProgressDao, times(1))
+                .deleteAll();
 
         verify(mScheduler, times(1)).schedule(eq(workSpec));
     }

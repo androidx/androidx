@@ -34,6 +34,7 @@ import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.runBlocking
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.CoreMatchers.instanceOf
+import org.hamcrest.CoreMatchers.nullValue
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.After
 import org.junit.Before
@@ -187,6 +188,52 @@ class CoroutineWorkerTest {
             assertThat(result, `is`(instanceOf(ListenableWorker.Result.Success::class.java)))
             val recent = captor.allValues.lastOrNull()
             assertThat(recent?.getInt(ProgressUpdatingWorker.Progress, 0), `is`(100))
+            val progress = database.workProgressDao().getProgressForWorkSpecId(workRequest.stringId)
+            assertThat(progress, nullValue())
+        }
+    }
+
+    @Test
+    @LargeTest
+    fun testProgressUpdatesForRetry() {
+        val workerFactory = WorkerFactory.getDefaultWorkerFactory()
+        val progressUpdater = spy(WorkProgressUpdater(database, workManagerImpl.workTaskExecutor))
+        val input = workDataOf(ProgressUpdatingWorker.Expected to "Retry")
+        val workRequest = OneTimeWorkRequestBuilder<ProgressUpdatingWorker>()
+            .setInputData(input)
+            .build()
+        database.workSpecDao().insertWorkSpec(workRequest.workSpec)
+        val worker = workerFactory.createWorkerWithDefaultFallback(
+            context,
+            ProgressUpdatingWorker::class.java.name,
+            WorkerParameters(
+                workRequest.id,
+                Data.EMPTY,
+                emptyList(),
+                WorkerParameters.RuntimeExtras(),
+                1,
+                configuration.executor,
+                workManagerImpl.workTaskExecutor,
+                workerFactory,
+                progressUpdater
+            )
+        ) as ProgressUpdatingWorker
+
+        runBlocking {
+            val result = worker.doWork()
+            val captor = ArgumentCaptor.forClass(Data::class.java)
+            verify(progressUpdater, times(2))
+                .updateProgress(
+                    any(Context::class.java),
+                    any(UUID::class.java),
+                    captor.capture(),
+                    eq(null)
+                )
+            assertThat(result, `is`(instanceOf(ListenableWorker.Result.Success::class.java)))
+            val recent = captor.allValues.lastOrNull()
+            assertThat(recent?.getInt(ProgressUpdatingWorker.Progress, 0), `is`(100))
+            val progress = database.workProgressDao().getProgressForWorkSpecId(workRequest.stringId)
+            assertThat(progress, nullValue())
         }
     }
 

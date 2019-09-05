@@ -355,6 +355,7 @@ public class WorkerWrapper implements Runnable {
             mWorkDatabase.beginTransaction();
             try {
                 WorkInfo.State state = mWorkSpecDao.getState(mWorkSpecId);
+                mWorkDatabase.workProgressDao().delete(mWorkSpecId);
                 if (state == null) {
                     // state can be null here with a REPLACE on beginUniqueWork().
                     // Treat it as a failure, and rescheduleAndResolve() will
@@ -375,6 +376,7 @@ public class WorkerWrapper implements Runnable {
                 mWorkDatabase.endTransaction();
             }
         }
+
         // Try to schedule any newly-unblocked workers, and workers requiring rescheduling (such as
         // periodic work using AlarmManager).  This code runs after runWorker() because it should
         // happen in its own transaction.
