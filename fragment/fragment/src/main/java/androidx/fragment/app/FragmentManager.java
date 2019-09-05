@@ -23,6 +23,7 @@ import android.animation.AnimatorInflater;
 import android.animation.AnimatorListenerAdapter;
 import android.app.Activity;
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.os.Bundle;
@@ -843,6 +844,44 @@ public abstract class FragmentManager {
      */
     void setViewTag(@NonNull Fragment fragment) {
         fragment.mView.setTag(R.id.fragment_container_view_tag, fragment);
+    }
+
+    /**
+     * Recurse up the view hierarchy, looking for a FragmentManager
+     *
+     * @param view the view to search from
+     * @return The containing {@link FragmentManager} of the given view.
+     * @throws IllegalStateException if there no Fragment associated with the view and the
+     * view's context is not a {@link FragmentActivity}.
+     */
+    @NonNull
+    static FragmentManager findFragmentManager(@NonNull View view) {
+        // Search the view ancestors for a Fragment
+        Fragment fragment = findViewFragment(view);
+        FragmentManager fm;
+        // If there is a Fragment in the hierarchy, get its childFragmentManager, otherwise
+        // use the fragmentManager of the Activity.
+        if (fragment != null) {
+            fm = fragment.getChildFragmentManager();
+        } else {
+            Context context = view.getContext();
+            FragmentActivity fragmentActivity = null;
+            while (context instanceof ContextWrapper) {
+                if (context instanceof FragmentActivity) {
+                    fragmentActivity = (FragmentActivity) context;
+                    break;
+                }
+                context = ((ContextWrapper) context).getBaseContext();
+            }
+            if (fragmentActivity != null) {
+                fm = fragmentActivity.getSupportFragmentManager();
+            } else {
+                throw new IllegalStateException("View " + view + " is not within a subclass of "
+                        + "FragmentActivity.");
+            }
+
+        }
+        return fm;
     }
 
     /**
