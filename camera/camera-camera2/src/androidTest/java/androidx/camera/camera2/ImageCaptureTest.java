@@ -40,8 +40,6 @@ import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.TotalCaptureResult;
 import android.hardware.camera2.params.StreamConfigurationMap;
 import android.location.Location;
-import android.os.Handler;
-import android.os.HandlerThread;
 import android.util.Size;
 import android.view.Surface;
 
@@ -94,6 +92,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.Semaphore;
 
 @FlakyTest
@@ -113,8 +113,7 @@ public final class ImageCaptureTest {
 
     private final Instrumentation mInstrumentation = InstrumentationRegistry.getInstrumentation();
 
-    private HandlerThread mHandlerThread;
-    private Handler mHandler;
+    private ExecutorService mListenerExecutor;
     private BaseCamera mCamera;
     private ImageCaptureConfig mDefaultConfig;
     private ImageCapture.OnImageCapturedListener mOnImageCapturedListener;
@@ -161,9 +160,7 @@ public final class ImageCaptureTest {
     @Before
     public void setUp()  {
         assumeTrue(CameraUtil.deviceHasCamera());
-        mHandlerThread = new HandlerThread("CaptureThread");
-        mHandlerThread.start();
-        mHandler = new Handler(mHandlerThread.getLooper());
+        mListenerExecutor = Executors.newSingleThreadExecutor();
         Context context = ApplicationProvider.getApplicationContext();
         AppConfig appConfig = Camera2AppConfig.create(context);
         CameraFactory cameraFactory = appConfig.getCameraFactory(null);
@@ -215,19 +212,21 @@ public final class ImageCaptureTest {
 
     @After
     public void tearDown() {
-        if (mHandlerThread != null && mCamera != null) {
-            mHandlerThread.quitSafely();
+        if (mCamera != null) {
             mCamera.close();
             if (mCapturedImage != null) {
                 mCapturedImage.close();
             }
+        }
+        if (mListenerExecutor != null) {
+            mListenerExecutor.shutdown();
         }
     }
 
     @Test
     public void capturedImageHasCorrectProperties() throws InterruptedException {
         ImageCaptureConfig config =
-                new ImageCaptureConfig.Builder().setCallbackHandler(mHandler).build();
+                new ImageCaptureConfig.Builder().build();
         ImageCapture useCase = new ImageCapture(config);
         Map<String, Size> suggestedResolutionMap = new HashMap<>();
         suggestedResolutionMap.put(mCameraId, DEFAULT_RESOLUTION);
@@ -235,7 +234,7 @@ public final class ImageCaptureTest {
         CameraUtil.openCameraWithUseCase(mCameraId, mCamera, useCase, mRepeatingUseCase);
         useCase.addStateChangeListener(mCamera);
 
-        useCase.takePicture(mOnImageCapturedListener);
+        useCase.takePicture(mListenerExecutor, mOnImageCapturedListener);
         // Wait for the signal that the image has been captured.
         mSemaphore.acquire();
 
@@ -256,6 +255,7 @@ public final class ImageCaptureTest {
         int numImages = 5;
         for (int i = 0; i < numImages; ++i) {
             useCase.takePicture(
+                    mListenerExecutor,
                     new ImageCapture.OnImageCapturedListener() {
                         @Override
                         public void onCaptureSuccess(ImageProxy image, int rotationDegrees) {
@@ -291,6 +291,7 @@ public final class ImageCaptureTest {
         int numImages = 5;
         for (int i = 0; i < numImages; ++i) {
             useCase.takePicture(
+                    mListenerExecutor,
                     new ImageCapture.OnImageCapturedListener() {
                         @Override
                         public void onCaptureSuccess(ImageProxy image, int rotationDegrees) {
@@ -321,7 +322,7 @@ public final class ImageCaptureTest {
 
         File saveLocation = File.createTempFile("test", ".jpg");
         saveLocation.deleteOnExit();
-        useCase.takePicture(saveLocation, mOnImageSavedListener);
+        useCase.takePicture(saveLocation, mListenerExecutor, mOnImageSavedListener);
 
         // Wait for the signal that the image has been saved.
         mSemaphore.acquire();
@@ -342,7 +343,7 @@ public final class ImageCaptureTest {
         File saveLocation = File.createTempFile("test", ".jpg");
         saveLocation.deleteOnExit();
         Metadata metadata = new Metadata();
-        useCase.takePicture(saveLocation, mOnImageSavedListener, metadata);
+        useCase.takePicture(saveLocation, metadata, mListenerExecutor, mOnImageSavedListener);
 
         // Wait for the signal that the image has been saved.
         mSemaphore.acquire();
@@ -371,7 +372,7 @@ public final class ImageCaptureTest {
         saveLocation.deleteOnExit();
         Metadata metadata = new Metadata();
         metadata.isReversedHorizontal = true;
-        useCase.takePicture(saveLocation, mOnImageSavedListener, metadata);
+        useCase.takePicture(saveLocation, metadata, mListenerExecutor, mOnImageSavedListener);
 
         // Wait for the signal that the image has been saved.
         mSemaphore.acquire();
@@ -397,7 +398,7 @@ public final class ImageCaptureTest {
         saveLocation.deleteOnExit();
         Metadata metadata = new Metadata();
         metadata.isReversedVertical = true;
-        useCase.takePicture(saveLocation, mOnImageSavedListener, metadata);
+        useCase.takePicture(saveLocation, metadata, mListenerExecutor, mOnImageSavedListener);
 
         // Wait for the signal that the image has been saved.
         mSemaphore.acquire();
@@ -421,7 +422,7 @@ public final class ImageCaptureTest {
         Location location = new Location("ImageCaptureTest");
         Metadata metadata = new Metadata();
         metadata.location = location;
-        useCase.takePicture(saveLocation, mOnImageSavedListener, metadata);
+        useCase.takePicture(saveLocation, metadata, mListenerExecutor, mOnImageSavedListener);
 
         // Wait for the signal that the image has been saved.
         mSemaphore.acquire();
@@ -445,7 +446,7 @@ public final class ImageCaptureTest {
             File saveLocation = File.createTempFile("test" + i, ".jpg");
             saveLocation.deleteOnExit();
 
-            useCase.takePicture(saveLocation, mOnImageSavedListener);
+            useCase.takePicture(saveLocation, mListenerExecutor, mOnImageSavedListener);
         }
 
         // Wait for the signal that all images have been saved.
@@ -465,7 +466,7 @@ public final class ImageCaptureTest {
 
         // Note the invalid path
         File saveLocation = new File("/not/a/real/path.jpg");
-        useCase.takePicture(saveLocation, mOnImageSavedListener);
+        useCase.takePicture(saveLocation, mListenerExecutor, mOnImageSavedListener);
 
         // Wait for the signal that an error occurred.
         mSemaphore.acquire();
@@ -478,7 +479,7 @@ public final class ImageCaptureTest {
     @Test
     public void updateSessionConfigWithSuggestedResolution() throws InterruptedException {
         ImageCaptureConfig config =
-                new ImageCaptureConfig.Builder().setCallbackHandler(mHandler).build();
+                new ImageCaptureConfig.Builder().build();
         ImageCapture useCase = new ImageCapture(config);
         useCase.addStateChangeListener(mCamera);
         final Size[] sizes = {SECONDARY_RESOLUTION, DEFAULT_RESOLUTION};
@@ -490,7 +491,7 @@ public final class ImageCaptureTest {
             useCase.updateSuggestedResolution(suggestedResolutionMap);
             CameraUtil.openCameraWithUseCase(mCameraId, mCamera, useCase, mRepeatingUseCase);
 
-            useCase.takePicture(mOnImageCapturedListener);
+            useCase.takePicture(mListenerExecutor, mOnImageCapturedListener);
             // Wait for the signal that the image has been captured.
             mSemaphore.acquire();
 
@@ -504,8 +505,7 @@ public final class ImageCaptureTest {
 
     @Test
     public void camera2InteropCaptureSessionCallbacks() throws InterruptedException {
-        ImageCaptureConfig.Builder configBuilder =
-                new ImageCaptureConfig.Builder().setCallbackHandler(mHandler);
+        ImageCaptureConfig.Builder configBuilder = new ImageCaptureConfig.Builder();
         CameraCaptureSession.CaptureCallback captureCallback =
                 mock(CameraCaptureSession.CaptureCallback.class);
         new Camera2Config.Extender(configBuilder).setSessionCaptureCallback(captureCallback);
@@ -516,7 +516,7 @@ public final class ImageCaptureTest {
         CameraUtil.openCameraWithUseCase(mCameraId, mCamera, useCase, mRepeatingUseCase);
         useCase.addStateChangeListener(mCamera);
 
-        useCase.takePicture(mOnImageCapturedListener);
+        useCase.takePicture(mListenerExecutor, mOnImageCapturedListener);
         // Wait for the signal that the image has been captured.
         mSemaphore.acquire();
 
@@ -560,7 +560,7 @@ public final class ImageCaptureTest {
         CameraUtil.openCameraWithUseCase(mCameraId, mCamera, useCase, mRepeatingUseCase);
         useCase.addStateChangeListener(mCamera);
 
-        useCase.takePicture(mOnImageCapturedListener);
+        useCase.takePicture(mListenerExecutor, mOnImageCapturedListener);
 
         // Wait for the signal that the image has been saved.
         mSemaphore.acquire();
@@ -611,7 +611,7 @@ public final class ImageCaptureTest {
         });
 
         OnImageCapturedListener mockOnImageCaptureListener = mock(OnImageCapturedListener.class);
-        imageCapture.takePicture(mockOnImageCaptureListener);
+        imageCapture.takePicture(mListenerExecutor, mockOnImageCaptureListener);
 
         verify(mockOnImageCaptureListener, timeout(3000)).onError(any(ImageCaptureError.class),
                 anyString(), any(IllegalArgumentException.class));
@@ -662,8 +662,8 @@ public final class ImageCaptureTest {
         OnImageCapturedListener mockOnImageCaptureListener = mock(OnImageCapturedListener.class);
 
         // Take 2 photos.
-        imageCapture.takePicture(mockOnImageCaptureListener);
-        imageCapture.takePicture(mockOnImageCaptureListener);
+        imageCapture.takePicture(mListenerExecutor, mockOnImageCaptureListener);
+        imageCapture.takePicture(mListenerExecutor, mockOnImageCaptureListener);
 
         // It should get onError() callback twice.
         verify(mockOnImageCaptureListener, timeout(3000).times(2)).onError(

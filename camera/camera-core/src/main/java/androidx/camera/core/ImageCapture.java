@@ -16,6 +16,7 @@
 
 package androidx.camera.core;
 
+import android.annotation.SuppressLint;
 import android.graphics.ImageFormat;
 import android.location.Location;
 import android.media.Image;
@@ -62,6 +63,7 @@ import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -111,7 +113,7 @@ public class ImageCapture extends UseCase {
                         private final AtomicInteger mId = new AtomicInteger(0);
 
                         @Override
-                        public Thread newThread(Runnable r) {
+                        public Thread newThread(@NonNull Runnable r) {
                             return new Thread(
                                     r,
                                     CameraXThreads.TAG + "image_capture_" + mId.getAndIncrement());
@@ -126,7 +128,7 @@ public class ImageCapture extends UseCase {
 
     /**
      * Processing that gets done to the mCaptureBundle to produce the final image that is produced
-     * by {@link #takePicture(OnImageCapturedListener)}
+     * by {@link #takePicture(Executor, OnImageCapturedListener)}
      */
     private final CaptureProcessor mCaptureProcessor;
     private final ImageCaptureConfig.Builder mUseCaseConfigBuilder;
@@ -256,11 +258,11 @@ public class ImageCapture extends UseCase {
      * Sets target aspect ratio.
      *
      * <p>This sets the cropping rectangle returned by {@link ImageProxy#getCropRect()} returned
-     * from {@link ImageCapture#takePicture(OnImageCapturedListener)}.
+     * from {@link ImageCapture#takePicture(Executor, OnImageCapturedListener)}.
      *
      * <p>This crops the saved image when calling
-     * {@link ImageCapture#takePicture(File, OnImageSavedListener)} or
-     * {@link ImageCapture#takePicture(File, OnImageSavedListener, Metadata)}.
+     * {@link ImageCapture#takePicture(File, Executor, OnImageSavedListener)} or
+     * {@link ImageCapture#takePicture(File, Metadata, Executor, OnImageSavedListener)}.
      *
      * <p>Cropping occurs around the center of the image and as though it were in the target
      * rotation.
@@ -321,21 +323,24 @@ public class ImageCapture extends UseCase {
      * <p>The listener's callback will be called only once for every invocation of this method. The
      * listener is responsible for calling {@link Image#close()} on the returned image.
      *
+     * @param executor The executor in which the listener callback methods will be run.
      * @param listener Listener to be called for the newly captured image
      */
-    public void takePicture(final OnImageCapturedListener listener) {
+    @SuppressLint("LambdaLast") // Maybe remove after https://issuetracker.google.com/135275901
+    public void takePicture(@NonNull Executor executor,
+            final @NonNull OnImageCapturedListener listener) {
         if (Looper.getMainLooper() != Looper.myLooper()) {
             mMainHandler.post(
                     new Runnable() {
                         @Override
                         public void run() {
-                            ImageCapture.this.takePicture(listener);
+                            ImageCapture.this.takePicture(executor, listener);
                         }
                     });
             return;
         }
 
-        sendImageCaptureRequest(listener, mHandler);
+        sendImageCaptureRequest(executor, listener);
     }
 
     /**
@@ -344,10 +349,14 @@ public class ImageCapture extends UseCase {
      * <p>The listener's callback will be called only once for every invocation of this method.
      *
      * @param saveLocation       Location to store the newly captured image.
+     * @param executor           The executor in which the listener callback methods will be run.
      * @param imageSavedListener Listener to be called for the newly captured image.
      */
-    public void takePicture(File saveLocation, OnImageSavedListener imageSavedListener) {
-        takePicture(saveLocation, imageSavedListener, EMPTY_METADATA);
+    @SuppressLint("LambdaLast") // Maybe remove after https://issuetracker.google.com/135275901
+    public void takePicture(@NonNull File saveLocation,
+            @NonNull Executor executor,
+            @NonNull OnImageSavedListener imageSavedListener) {
+        takePicture(saveLocation, EMPTY_METADATA, executor, imageSavedListener);
     }
 
     /**
@@ -359,20 +368,23 @@ public class ImageCapture extends UseCase {
      * metadata will be included in the EXIF.
      *
      * @param saveLocation       Location to store the newly captured image.
-     * @param imageSavedListener Listener to be called for the newly captured image.
      * @param metadata           Metadata to be stored with the saved image. For JPEG this will
      *                           be included in the EXIF.
+     * @param executor           The executor in which the listener callback methods will be run.
+     * @param imageSavedListener Listener to be called for the newly captured image.
      */
+    @SuppressLint("LambdaLast") // Maybe remove after https://issuetracker.google.com/135275901
     public void takePicture(
-            final File saveLocation, final OnImageSavedListener imageSavedListener,
-            final Metadata metadata) {
+            final @NonNull File saveLocation,
+            final @NonNull Metadata metadata, @NonNull Executor executor,
+            final @NonNull OnImageSavedListener imageSavedListener) {
         if (Looper.getMainLooper() != Looper.myLooper()) {
             mMainHandler.post(
                     new Runnable() {
                         @Override
                         public void run() {
-                            ImageCapture.this.takePicture(saveLocation, imageSavedListener,
-                                    metadata);
+                            ImageCapture.this.takePicture(saveLocation,
+                                    metadata, executor, imageSavedListener);
                         }
                     });
             return;
@@ -428,7 +440,6 @@ public class ImageCapture extends UseCase {
                 new OnImageCapturedListener() {
                     @Override
                     public void onCaptureSuccess(ImageProxy image, int rotationDegrees) {
-                        Handler completionHandler = (mHandler != null) ? mHandler : mMainHandler;
                         CameraXExecutors.ioExecutor()
                                 .execute(
                                         new ImageSaver(
@@ -438,8 +449,8 @@ public class ImageCapture extends UseCase {
                                                 metadata.isReversedHorizontal,
                                                 metadata.isReversedVertical,
                                                 metadata.location,
-                                                imageSavedListenerWrapper,
-                                                completionHandler));
+                                                executor,
+                                                imageSavedListenerWrapper));
                     }
 
                     @Override
@@ -450,14 +461,14 @@ public class ImageCapture extends UseCase {
                     }
                 };
 
-        // Always use the mMainHandler for the initial callback so we don't need to double post to
-        // another thread
-        sendImageCaptureRequest(imageCaptureCallbackWrapper, mMainHandler);
+        // Always use the mainThreadExecutor for the initial callback so we don't need to double
+        // post to another thread
+        sendImageCaptureRequest(CameraXExecutors.mainThreadExecutor(), imageCaptureCallbackWrapper);
     }
 
     @UiThread
     private void sendImageCaptureRequest(
-            OnImageCapturedListener listener, @Nullable Handler listenerHandler) {
+            @Nullable Executor listenerExecutor, OnImageCapturedListener listener) {
 
         String cameraId = getCameraIdUnchecked(mConfig);
 
@@ -476,7 +487,7 @@ public class ImageCapture extends UseCase {
         targetRatio = ImageUtil.rotate(targetRatio, relativeRotation);
 
         mImageCaptureRequests.offer(
-                new ImageCaptureRequest(listener, listenerHandler, relativeRotation, targetRatio));
+                new ImageCaptureRequest(relativeRotation, targetRatio, listenerExecutor, listener));
         if (mImageCaptureRequests.size() == 1) {
             issueImageCaptureRequests();
         }
@@ -1010,7 +1021,7 @@ public class ImageCapture extends UseCase {
 
     /**
      * Describes the error that occurred during an image capture operation (such as {@link
-     * ImageCapture#takePicture(OnImageCapturedListener)}).
+     * ImageCapture#takePicture(Executor, OnImageCapturedListener)}).
      *
      * <p>This is a parameter sent to the error callback functions set in listeners such as {@link
      * ImageCapture.OnImageSavedListener#onError(ImageCaptureError, String, Throwable)}.
@@ -1300,67 +1311,60 @@ public class ImageCapture extends UseCase {
     }
 
     private final class ImageCaptureRequest {
-        OnImageCapturedListener mListener;
-        @Nullable
-        Handler mHandler;
         @RotationValue
         int mRotationDegrees;
         Rational mTargetRatio;
+        @NonNull
+        Executor mListenerExecutor;
+        @NonNull
+        OnImageCapturedListener mListener;
 
         ImageCaptureRequest(
-                OnImageCapturedListener listener,
-                @Nullable Handler handler,
                 @RotationValue int rotationDegrees,
-                Rational targetRatio) {
-            mListener = listener;
-            mHandler = handler;
+                Rational targetRatio,
+                @NonNull Executor executor,
+                @NonNull OnImageCapturedListener listener) {
             mRotationDegrees = rotationDegrees;
             mTargetRatio = targetRatio;
+            mListenerExecutor = executor;
+            mListener = listener;
         }
 
         void dispatchImage(final ImageProxy image) {
-            if (mHandler != null && Looper.myLooper() != mHandler.getLooper()) {
-                boolean posted =
-                        mHandler.post(
-                                new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        ImageCaptureRequest.this.dispatchImage(image);
-                                    }
-                                });
-                // Unable to post to the supplied handler, close the image.
-                if (!posted) {
-                    Log.e(TAG, "Unable to post to the supplied handler.");
-                    image.close();
-                }
-                return;
-            }
+            try {
+                mListenerExecutor.execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        Size sourceSize = new Size(image.getWidth(), image.getHeight());
+                        if (ImageUtil.isAspectRatioValid(sourceSize, mTargetRatio)) {
+                            image.setCropRect(
+                                    ImageUtil.computeCropRectFromAspectRatio(sourceSize,
+                                            mTargetRatio));
+                        }
 
-            Size sourceSize = new Size(image.getWidth(), image.getHeight());
-            if (ImageUtil.isAspectRatioValid(sourceSize, mTargetRatio)) {
-                image.setCropRect(
-                        ImageUtil.computeCropRectFromAspectRatio(sourceSize, mTargetRatio));
-            }
+                        mListener.onCaptureSuccess(image, mRotationDegrees);
+                    }
+                });
+            } catch (RejectedExecutionException e) {
+                Log.e(TAG, "Unable to post to the supplied executor.");
 
-            mListener.onCaptureSuccess(image, mRotationDegrees);
+                // Unable to execute on the supplied executor, close the image.
+                image.close();
+            }
         }
 
         void callbackError(final ImageCaptureError imageCaptureError, final String message,
                 final Throwable cause) {
-            if (mHandler != null && Looper.myLooper() != mHandler.getLooper()) {
-                boolean posted = mHandler.post(new Runnable() {
+            try {
+                mListenerExecutor.execute(new Runnable() {
                     @Override
                     public void run() {
-                        ImageCaptureRequest.this.callbackError(imageCaptureError, message, cause);
+                        mListener.onError(imageCaptureError, message, cause);
                     }
                 });
-                if (!posted) {
-                    Log.e(TAG, "Unable to post to the supplied handler.");
-                }
-                return;
+            } catch (RejectedExecutionException e) {
+                Log.e(TAG, "Unable to post to the supplied executor.");
             }
-
-            mListener.onError(imageCaptureError, message, cause);
         }
     }
 }

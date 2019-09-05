@@ -17,7 +17,6 @@
 package androidx.camera.core;
 
 import android.location.Location;
-import android.os.Handler;
 
 import androidx.annotation.Nullable;
 import androidx.camera.core.ImageUtil.CodecFailedException;
@@ -25,6 +24,7 @@ import androidx.camera.core.ImageUtil.CodecFailedException;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.concurrent.Executor;
 
 final class ImageSaver implements Runnable {
     private static final String TAG = "ImageSaver";
@@ -41,10 +41,10 @@ final class ImageSaver implements Runnable {
     private final boolean mIsReversedVertical;
     // The file to save the image to
     final File mFile;
+    // The executor to call back on
+    private final Executor mExecutor;
     // The callback to call on completion
     final OnImageSavedListener mListener;
-    // The handler to call back on
-    private final Handler mHandler;
 
     ImageSaver(
             ImageProxy image,
@@ -53,15 +53,15 @@ final class ImageSaver implements Runnable {
             boolean reversedHorizontal,
             boolean reversedVertical,
             @Nullable Location location,
-            OnImageSavedListener listener,
-            Handler handler) {
+            Executor executor,
+            OnImageSavedListener listener) {
         mImage = image;
         mFile = file;
         mOrientation = orientation;
         mIsReversedHorizontal = reversedHorizontal;
         mIsReversedVertical = reversedVertical;
         mListener = listener;
-        mHandler = handler;
+        mExecutor = executor;
         mLocation = location;
     }
 
@@ -120,7 +120,7 @@ final class ImageSaver implements Runnable {
     }
 
     private void postSuccess() {
-        mHandler.post(new Runnable() {
+        mExecutor.execute(new Runnable() {
             @Override
             public void run() {
                 mListener.onImageSaved(mFile);
@@ -130,7 +130,7 @@ final class ImageSaver implements Runnable {
 
     private void postError(final SaveError saveError, final String message,
             @Nullable final Throwable cause) {
-        mHandler.post(new Runnable() {
+        mExecutor.execute(new Runnable() {
             @Override
             public void run() {
                 mListener.onError(saveError, message, cause);

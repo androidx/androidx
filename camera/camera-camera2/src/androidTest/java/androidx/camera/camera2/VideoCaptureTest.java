@@ -35,6 +35,7 @@ import androidx.camera.core.UseCase.StateChangeListener;
 import androidx.camera.core.VideoCapture;
 import androidx.camera.core.VideoCapture.OnVideoSavedListener;
 import androidx.camera.core.VideoCaptureConfig;
+import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.testing.CameraUtil;
 import androidx.test.InstrumentationRegistry;
 import androidx.test.core.app.ApplicationProvider;
@@ -107,6 +108,7 @@ public final class VideoCaptureTest {
                 new File(
                         mContext.getFilesDir()
                                 + "/useCaseBecomesActive_whenStartingVideoRecording.mp4"),
+                CameraXExecutors.mainThreadExecutor(),
                 mMockVideoSavedListener);
 
         verify(mListener, times(1)).onUseCaseActive(mUseCaseCaptor.capture());
@@ -125,6 +127,7 @@ public final class VideoCaptureTest {
                 new File(
                         mContext.getFilesDir()
                                 + "/useCaseBecomesInactive_whenStoppingVideoRecording.mp4"),
+                CameraXExecutors.mainThreadExecutor(),
                 mMockVideoSavedListener);
 
         try {
@@ -160,6 +163,7 @@ public final class VideoCaptureTest {
                 new File(
                         mContext.getFilesDir()
                                 + "/useCaseBecomesInactive_whenStoppingVideoRecording.mp4"),
+                CameraXExecutors.mainThreadExecutor(),
                 mMockVideoSavedListener);
 
         verify(mListener, times(1)).onUseCaseActive(mUseCaseCaptor.capture());

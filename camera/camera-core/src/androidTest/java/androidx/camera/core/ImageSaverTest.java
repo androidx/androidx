@@ -29,8 +29,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.ImageFormat;
 import android.graphics.Rect;
-import android.os.Handler;
-import android.os.HandlerThread;
 import android.util.Base64;
 
 import androidx.annotation.Nullable;
@@ -48,6 +46,8 @@ import org.mockito.Mock;
 import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.Semaphore;
 
 @MediumTest
@@ -118,8 +118,7 @@ public class ImageSaverTest {
                 }
             };
 
-    private HandlerThread mBackgroundThread;
-    private Handler mBackgroundHandler;
+    private ExecutorService mBackgroundExecutor;
 
     @Before
     public void setup() {
@@ -152,15 +151,13 @@ public class ImageSaverTest {
         when(mJpegDataPlane.getBuffer()).thenReturn(mJpegDataBuffer);
         when(mMockJpegImage.getPlanes()).thenReturn(new ImageProxy.PlaneProxy[]{mJpegDataPlane});
 
-        // Set up a background thread/handler for callbacks
-        mBackgroundThread = new HandlerThread("CallbackThread");
-        mBackgroundThread.start();
-        mBackgroundHandler = new Handler(mBackgroundThread.getLooper());
+        // Set up a background executor for callbacks
+        mBackgroundExecutor = Executors.newSingleThreadExecutor();
     }
 
     @After
     public void tearDown() {
-        mBackgroundThread.quitSafely();
+        mBackgroundExecutor.shutdown();
     }
 
     private ImageSaver getDefaultImageSaver(ImageProxy image, File file) {
@@ -171,8 +168,8 @@ public class ImageSaverTest {
                 /*reversedHorizontal=*/ false,
                 /*reversedVertical=*/ false,
                 /*location=*/ null,
-                mSyncListener,
-                mBackgroundHandler);
+                mBackgroundExecutor,
+                mSyncListener);
     }
 
     @Test
@@ -258,8 +255,8 @@ public class ImageSaverTest {
                         /*reversedHorizontal=*/ false,
                         /*reversedVertical=*/ false,
                         /*location=*/ null,
-                        mSyncListener,
-                        mBackgroundHandler);
+                        mBackgroundExecutor,
+                        mSyncListener);
         imageSaver.run();
 
         mSemaphore.acquire();
