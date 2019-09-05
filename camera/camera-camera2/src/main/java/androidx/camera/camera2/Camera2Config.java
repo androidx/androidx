@@ -181,6 +181,7 @@ public final class Camera2Config implements Config {
      * @param valueIfMissing The value to return if this configuration option has not been set.
      * @return The stored value or <code>valueIfMissing</code> if the value does not exist in this
      * configuration.
+     * @hide
      */
     @Nullable
     public CameraEventCallbacks getCameraEventCallback(
@@ -360,6 +361,7 @@ public final class Camera2Config implements Config {
          *
          * @param cameraEventCallbacks The CameraEventCallbacks.
          * @return The current Extender.
+         * @hide
          */
         @NonNull
         public Extender setCameraEventCallback(@NonNull CameraEventCallbacks cameraEventCallbacks) {
