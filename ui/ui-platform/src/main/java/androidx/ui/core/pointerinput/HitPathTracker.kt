@@ -144,7 +144,7 @@ internal class Node(
     val children: MutableSet<Node> = mutableSetOf()
 
     // Stores the associated PointerInputNode's virtual position relative to it's parent
-    // PointerInputNode, or relative to the crane root if it has no parent PointerInputNode.
+    // PointerInputNode, or relative to the compose root if it has no parent PointerInputNode.
     var offset: PxPosition = PxPosition.Origin
 
     fun dispatchChanges(

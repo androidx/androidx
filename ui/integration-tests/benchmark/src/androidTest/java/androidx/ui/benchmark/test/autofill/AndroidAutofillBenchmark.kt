@@ -28,7 +28,7 @@ import androidx.test.rule.ActivityTestRule
 import androidx.ui.autofill.AutofillNode
 import androidx.test.filters.SdkSuppress
 import androidx.ui.autofill.AutofillType
-import androidx.ui.core.AndroidCraneView
+import androidx.ui.core.AndroidComposeView
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -45,11 +45,11 @@ class AndroidAutofillBenchmark {
     @get:Rule
     val benchmarkRule = BenchmarkRule()
 
-    private lateinit var craneView: AndroidCraneView
+    private lateinit var composeView: AndroidComposeView
 
     @Before
     fun setup() {
-        craneView = AndroidCraneView(activityRule.activity)
+        composeView = AndroidComposeView(activityRule.activity)
     }
 
     @Test
@@ -66,11 +66,11 @@ class AndroidAutofillBenchmark {
         val autofillValues = SparseArray<AutofillValue>().apply {
             append(autofillNode.id, AutofillValue.forText("Name"))
         }
-        craneView.autofillTree += autofillNode
+        composeView.autofillTree += autofillNode
 
         // Assess.
         benchmarkRule.measureRepeated {
-            craneView.autofill(autofillValues)
+            composeView.autofill(autofillValues)
         }
     }
 }

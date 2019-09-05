@@ -19,7 +19,7 @@ package androidx.ui.core.semantics
 import androidx.ui.semantics.AccessibilityAction
 import androidx.ui.semantics.SemanticsPropertyKey
 
-// TODO(ryanmentley): Clean up and integrate this (probably with AndroidCraneView)
+// TODO(ryanmentley): Clean up and integrate this (probably with AndroidComposeView)
 
 /**
  * Owns [SemanticsNode] objects and notifies listeners of changes to the

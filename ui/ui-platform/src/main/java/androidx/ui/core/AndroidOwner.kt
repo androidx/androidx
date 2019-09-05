@@ -60,7 +60,7 @@ import androidx.ui.autofill.registerCallback
 import androidx.ui.autofill.unregisterCallback
 
 @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-class AndroidCraneView constructor(context: Context)
+class AndroidComposeView constructor(context: Context)
     : ViewGroup(context), Owner, SemanticsTreeProvider, DensityReceiver {
     override var density: Density = Density(context)
         private set
@@ -95,7 +95,7 @@ class AndroidCraneView constructor(context: Context)
     // is kept separate from dirtyRepaintBoundaryNodes.
     private val repaintBoundaryChanges = TreeSet<RepaintBoundaryNode>(DepthComparator)
 
-    var ref: Ref<AndroidCraneView>? = null
+    var ref: Ref<AndroidComposeView>? = null
         set(value) {
             field = value
             if (value != null) {
@@ -511,7 +511,7 @@ class AndroidCraneView constructor(context: Context)
     /**
      * Called to draw the root or a repaint boundary node and observe all model reads during
      * the draw calls. Note that this takes a framework Canvas, so it is called only from
-     * [AndroidCraneView] or [RepaintBoundaryView].
+     * [AndroidComposeView] or [RepaintBoundaryView].
      */
     internal fun watchDraw(canvas: android.graphics.Canvas, node: ComponentNode) {
         trace("AndroidOwner:draw") {
@@ -710,7 +710,7 @@ private interface RepaintBoundary {
  * View implementation of RepaintBoundary.
  */
 private class RepaintBoundaryView(
-    val ownerView: AndroidCraneView,
+    val ownerView: AndroidComposeView,
     val ownerElevationHandler: ElevationHandler,
     val repaintBoundaryNode: RepaintBoundaryNode
 ) : ViewGroup(ownerView.context), RepaintBoundary {
@@ -844,7 +844,7 @@ private class RepaintBoundaryView(
  */
 @TargetApi(29)
 private class RepaintBoundaryRenderNode(
-    val ownerView: AndroidCraneView,
+    val ownerView: AndroidComposeView,
     override val parentElevationHandler: ElevationHandler,
     val repaintBoundaryNode: RepaintBoundaryNode
 ) : RepaintBoundary {

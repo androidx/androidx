@@ -30,7 +30,7 @@ import java.lang.annotation.RetentionPolicy;
 
 /**
  * LayoutCompat class which provides all supported attributes by framework, and also defines
- * default value of those attributes for Crane.
+ * default value of those attributes for Compose.
  *
  * @hide
  */

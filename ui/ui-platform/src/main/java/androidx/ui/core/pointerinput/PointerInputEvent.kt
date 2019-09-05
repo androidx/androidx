@@ -24,7 +24,7 @@ import androidx.ui.core.PointerInputData
 // after more things are set (and after things like API review) to avoid thrashing.
 /**
  * The normalized data structure for pointer input event information that is taken in processed by
- * Crane (via the [PointerInputEventProcessor]).
+ * Compose (via the [PointerInputEventProcessor]).
  */
 internal data class PointerInputEvent(
     val timestamp: Timestamp,

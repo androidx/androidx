@@ -31,7 +31,7 @@ import androidx.compose.composer
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.test.rule.ActivityTestRule
-import androidx.ui.core.AndroidCraneView
+import androidx.ui.core.AndroidComposeView
 import androidx.ui.core.Constraints
 import androidx.ui.core.ContextAmbient
 import androidx.ui.core.Density
@@ -188,7 +188,7 @@ class AndroidLayoutDrawTest {
         activityTestRule.runOnUiThreadIR {
             // there isn't going to be a normal draw because we are just moving the repaint
             // boundary, but we should have a draw cycle
-            activityTestRule.findAndroidCraneView().viewTreeObserver.addOnDrawListener(object :
+            activityTestRule.findAndroidComposeView().viewTreeObserver.addOnDrawListener(object :
                 ViewTreeObserver.OnDrawListener {
                 override fun onDraw() {
                     drawLatch.countDown()
@@ -216,7 +216,7 @@ class AndroidLayoutDrawTest {
         activityTestRule.runOnUiThreadIR {
             // there isn't going to be a normal draw because we are just moving the repaint
             // boundary, but we should have a draw cycle
-            activityTestRule.findAndroidCraneView().viewTreeObserver.addOnDrawListener(object :
+            activityTestRule.findAndroidComposeView().viewTreeObserver.addOnDrawListener(object :
                 ViewTreeObserver.OnDrawListener {
                 override fun onDraw() {
                     drawLatch.countDown()
@@ -465,12 +465,12 @@ class AndroidLayoutDrawTest {
             activity.setContent {
                 val header = @Composable {
                     ParentData(data = 0) {
-                        Layout(measureBlock = { _, _ -> layout(0.ipx, 0.ipx) {}}, children = {})
+                        Layout(measureBlock = { _, _ -> layout(0.ipx, 0.ipx) {} }, children = {})
                     }
                 }
                 val footer = @Composable {
                     ParentData(data = 1) {
-                        Layout(measureBlock = { _, _ -> layout(0.ipx, 0.ipx) {}}, children = {})
+                        Layout(measureBlock = { _, _ -> layout(0.ipx, 0.ipx) {} }, children = {})
                     }
                 }
 
@@ -485,7 +485,7 @@ class AndroidLayoutDrawTest {
 
     // TODO(lmr): refactor to use the globally provided one when it lands
     private fun Activity.compose(composable: @Composable() () -> Unit) {
-        val root = AndroidCraneView(this)
+        val root = AndroidComposeView(this)
 
         setContentView(root)
         Compose.composeInto(root.root, context = this) {
@@ -870,7 +870,7 @@ class AndroidLayoutDrawTest {
         activityTestRule.runOnUiThreadIR {
             activity.setContent {
                 val child1 = @Composable {
-                    Layout({}) { _, _ -> layout(0.ipx, 0.ipx,TestLine1 to 10.ipx) {} }
+                    Layout({}) { _, _ -> layout(0.ipx, 0.ipx, TestLine1 to 10.ipx) {} }
                 }
                 val child2 = @Composable {
                     Layout({}) { _, _ -> layout(0.ipx, 0.ipx, TestLine2 to 20.ipx) {} }
@@ -913,7 +913,7 @@ class AndroidLayoutDrawTest {
                 val child1 = @Composable {
                     Layout({}) { _, _ ->
                         ++child1Measures
-                        layout(0.ipx, 0.ipx,TestLine1 to 10.ipx) {
+                        layout(0.ipx, 0.ipx, TestLine1 to 10.ipx) {
                             ++child1Layouts
                         }
                     }
@@ -968,7 +968,7 @@ class AndroidLayoutDrawTest {
                 val child1 = @Composable {
                     Layout({}) { _, _ ->
                         ++child1Measures
-                        layout(0.ipx, 0.ipx,TestLine1 to 10.ipx) {
+                        layout(0.ipx, 0.ipx, TestLine1 to 10.ipx) {
                             ++child1Layouts
                         }
                     }
@@ -1014,7 +1014,7 @@ class AndroidLayoutDrawTest {
         activityTestRule.runOnUiThreadIR {
             activity.setContent {
                 val child1 = @Composable {
-                    Layout({}) { _, _ -> layout(0.ipx, 0.ipx,TestLine to 10.ipx) { } }
+                    Layout({}) { _, _ -> layout(0.ipx, 0.ipx, TestLine to 10.ipx) { } }
                 }
                 val child2 = @Composable {
                     Layout({}) { _, _ -> layout(0.ipx, 0.ipx, TestLine to 20.ipx) { } }
@@ -1048,7 +1048,15 @@ class AndroidLayoutDrawTest {
         activityTestRule.runOnUiThreadIR {
             activity.setContent {
                 val child = @Composable {
-                    Layout({}) { _, _ -> layout(0.ipx, 0.ipx,TestLine to 10.ipx) { ++childLayouts } }
+                    Layout({}) { _, _ ->
+                        layout(
+                            0.ipx,
+                            0.ipx,
+                            TestLine to 10.ipx
+                        ) {
+                            ++childLayouts
+                        }
+                    }
                 }
                 val inner = @Composable {
                     Layout({ child() }) { measurables, constraints ->
@@ -1554,20 +1562,20 @@ fun ActivityTestRule<*>.runOnUiThreadIR(block: () -> Unit) {
     runOnUiThread(runnable)
 }
 
-fun ActivityTestRule<*>.findAndroidCraneView(): AndroidCraneView {
+fun ActivityTestRule<*>.findAndroidComposeView(): AndroidComposeView {
     val contentViewGroup = activity.findViewById<ViewGroup>(android.R.id.content)
-    return findAndroidCraneView(contentViewGroup)!!
+    return findAndroidComposeView(contentViewGroup)!!
 }
 
-fun findAndroidCraneView(parent: ViewGroup): AndroidCraneView? {
+fun findAndroidComposeView(parent: ViewGroup): AndroidComposeView? {
     for (index in 0 until parent.childCount) {
         val child = parent.getChildAt(index)
-        if (child is AndroidCraneView) {
+        if (child is AndroidComposeView) {
             return child
         } else if (child is ViewGroup) {
-            val craneView = findAndroidCraneView(child)
-            if (craneView != null) {
-                return craneView
+            val composeView = findAndroidComposeView(child)
+            if (composeView != null) {
+                return composeView
             }
         }
     }
@@ -1576,7 +1584,7 @@ fun findAndroidCraneView(parent: ViewGroup): AndroidCraneView? {
 
 @RequiresApi(Build.VERSION_CODES.O)
 fun ActivityTestRule<*>.waitAndScreenShot(): Bitmap {
-    val view = findAndroidCraneView()
+    val view = findAndroidComposeView()
     val flushListener = DrawCounterListener(view)
     val offset = intArrayOf(0, 0)
     var handler: Handler? = null
