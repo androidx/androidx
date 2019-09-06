@@ -63,7 +63,7 @@ fun TableChildren.drawBorders(
                     )
                 }
                 // TODO(calintat): Reset paint when that operation is available.
-                border.brush.applyBrush(paint)
+                border.brush.applyTo(paint)
                 paint.strokeWidth = border.width.toPx().value
                 canvas.drawLine(p1, p2, paint)
             }

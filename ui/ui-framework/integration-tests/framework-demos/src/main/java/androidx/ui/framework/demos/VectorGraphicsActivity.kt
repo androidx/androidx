@@ -36,11 +36,12 @@ import androidx.ui.layout.Column
 import androidx.ui.layout.Container
 import androidx.ui.painting.TileMode
 import androidx.ui.core.setContent
+import androidx.ui.graphics.SolidColor
 import androidx.ui.graphics.vector.DrawVector
 import androidx.ui.graphics.vector.Group
 import androidx.ui.graphics.vector.Path
+import androidx.ui.graphics.vector.PathData
 import androidx.ui.graphics.vector.compat.vectorResource
-import androidx.ui.graphics.vector.PathDelegate
 import androidx.ui.graphics.vector.VectorScope
 
 class VectorGraphicsActivity : Activity() {
@@ -93,7 +94,7 @@ class VectorGraphicsActivity : Activity() {
                     pivotY = (viewportHeight / 2),
                     rotation = 25.0f
                 ) {
-                    val pathData = PathDelegate {
+                    val pathData = PathData {
                         moveTo(viewportWidth / 2 - 100, viewportHeight / 2 - 100)
                         horizontalLineToRelative(200.0f)
                         verticalLineToRelative(200.0f)
@@ -120,7 +121,7 @@ class VectorGraphicsActivity : Activity() {
 
     @Composable
     fun VectorScope.BackgroundPath(vectorWidth: Float, vectorHeight: Float) {
-        val background = PathDelegate {
+        val background = PathData {
             horizontalLineTo(vectorWidth)
             verticalLineTo(vectorHeight)
             horizontalLineTo(0.0f)
@@ -154,7 +155,7 @@ class VectorGraphicsActivity : Activity() {
                 radius = length / 2.0f,
                 tileMode = TileMode.Repeated
             ),
-            pathData = PathDelegate {
+            pathData = PathData {
                 verticalLineTo(length)
                 horizontalLineTo(length)
                 close()
@@ -176,7 +177,7 @@ class VectorGraphicsActivity : Activity() {
                 centerY = side2 / 2.0f,
                 radius = side1 / 2.0f
             ),
-            pathData = PathDelegate {
+            pathData = PathData {
                 horizontalLineToRelative(side1)
                 verticalLineToRelative(side2)
                 close()
@@ -186,11 +187,11 @@ class VectorGraphicsActivity : Activity() {
 
     @Composable
     fun VectorScope.StripePath(vectorWidth: Float, vectorHeight: Float) {
-        val stripeDelegate = PathDelegate {
+        val stripeDelegate = PathData {
             stripe(vectorWidth, vectorHeight, 10)
         }
 
-        Path(stroke = Color.Blue, pathData = stripeDelegate)
+        Path(stroke = SolidColor(Color.Blue), pathData = stripeDelegate)
     }
 
     private fun PathBuilder.stripe(vectorWidth: Float, vectorHeight: Float, numLines: Int) {

@@ -27,7 +27,9 @@ import androidx.ui.painting.StrokeCap
 import androidx.ui.painting.StrokeJoin
 import androidx.ui.core.Px
 import androidx.ui.graphics.Brush
-import androidx.ui.graphics.EmptyBrush
+import androidx.ui.graphics.vector.PathBuilder
+import androidx.ui.graphics.vector.PathNode
+import androidx.ui.graphics.vector.PathParser
 import androidx.ui.painting.withSave
 import kotlin.math.ceil
 
@@ -48,15 +50,11 @@ val EmptyPath = emptyArray<PathNode>()
  */
 internal val EmptyPaint = Paint()
 
-class PathDelegate(val delegate: PathBuilder.() -> Unit)
-
-// TODO figure out how to use UNIONTYPE with a Lambda receiver. Cannot cast to KClass which is what
-// UnionType is expecting
-// TODO uncomment usage of UnionType when Compose can be accessed across modules
-typealias PathData = /*@UnionType(String::class, PathDelegate::class, Array<PathNode>::class)*/ Any?
-
-// TODO (njawad) change to color int
-typealias BrushType = /*@UnionType(Int::class, Brush::class)*/ Any
+inline fun PathData(block: PathBuilder.() -> Unit): Array<PathNode> =
+    with(PathBuilder()) {
+        block()
+        getNodes()
+    }
 
 const val DefaultPathName = ""
 const val DefaultAlpha = 1.0f
@@ -129,11 +127,11 @@ class VectorComponent(
 
 class PathComponent(val name: String) : VNode() {
 
-    var fill: Brush = EmptyBrush
+    var fill: Brush? = null
         set(value) {
             field = value
             updateFillPaint {
-                field.applyBrush(this)
+                field?.applyTo(this)
             }
         }
 
@@ -145,7 +143,7 @@ class PathComponent(val name: String) : VNode() {
             }
         }
 
-    var pathNodes: Array<PathNode> = emptyArray()
+    var pathData: Array<PathNode> = emptyArray()
         set(value) {
             field = value
             isPathDirty = true
@@ -167,11 +165,11 @@ class PathComponent(val name: String) : VNode() {
             }
         }
 
-    var stroke: Brush = EmptyBrush
+    var stroke: Brush? = null
         set(value) {
             field = value
             updateStrokePaint {
-                field.applyBrush(this)
+                field?.applyTo(this)
             }
         }
 
@@ -208,7 +206,7 @@ class PathComponent(val name: String) : VNode() {
 
     private val parser = PathParser()
 
-    private fun updateStrokePaint(strokePaintUpdater: Paint.() -> Unit) {
+    private inline fun updateStrokePaint(strokePaintUpdater: Paint.() -> Unit) {
         if (strokePaint == null) {
             strokePaint = createStrokePaint()
         } else {
@@ -224,7 +222,7 @@ class PathComponent(val name: String) : VNode() {
         strokeCap = strokeLineCap
         strokeJoin = strokeLineJoin
         strokeMiterLimit = strokeLineMiter
-        stroke.applyBrush(this)
+        stroke?.applyTo(this)
     }
 
     private fun updateFillPaint(fillPaintUpdater: Paint.() -> Unit) {
@@ -239,13 +237,13 @@ class PathComponent(val name: String) : VNode() {
         isAntiAlias = true
         alpha = fillAlpha
         style = PaintingStyle.fill
-        fill.applyBrush(this)
+        fill?.applyTo(this)
     }
 
     private fun updatePath() {
         parser.clear()
         path.reset()
-        parser.addPathNodes(pathNodes).toPath(path)
+        parser.addPathNodes(pathData).toPath(path)
     }
 
     override fun draw(canvas: Canvas) {
@@ -255,7 +253,7 @@ class PathComponent(val name: String) : VNode() {
         }
 
         val fillBrush = fill
-        if (fillBrush !== EmptyBrush) {
+        if (fillBrush != null) {
             var targetFillPaint = fillPaint
             if (targetFillPaint == null) {
                 targetFillPaint = createFillPaint()
@@ -265,7 +263,7 @@ class PathComponent(val name: String) : VNode() {
         }
 
         val strokeBrush = stroke
-        if (strokeBrush !== EmptyBrush) {
+        if (strokeBrush != null) {
             var targetStrokePaint = strokePaint
             if (targetStrokePaint == null) {
                 targetStrokePaint = createStrokePaint()
@@ -286,14 +284,14 @@ class GroupComponent(val name: String = DefaultGroupName) : VNode() {
 
     private val children = mutableListOf<VNode>()
 
-    var clipPathNodes: Array<PathNode> = EmptyPath
+    var clipPathData: Array<PathNode> = EmptyPath
         set(value) {
             field = value
             isClipPathDirty = true
         }
 
     private val willClipPath: Boolean
-        get() = clipPathNodes.isNotEmpty()
+        get() = clipPathData.isNotEmpty()
 
     private var isClipPathDirty = true
 
@@ -318,7 +316,7 @@ class GroupComponent(val name: String = DefaultGroupName) : VNode() {
                 targetClip.reset()
             }
 
-            targetParser.addPathNodes(clipPathNodes).toPath(targetClip)
+            targetParser.addPathNodes(clipPathData).toPath(targetClip)
         }
     }
 
@@ -455,19 +453,5 @@ class GroupComponent(val name: String = DefaultGroupName) : VNode() {
             sb.append("\t").append(node.toString()).append("\n")
         }
         return sb.toString()
-    }
-}
-
-fun createPath(pathData: PathData): Array<PathNode> {
-    @Suppress("UNCHECKED_CAST")
-    return when (pathData) {
-        is Array<*> -> pathData as Array<PathNode>
-        is PathDelegate -> {
-            with(PathBuilder()) {
-                pathData.delegate(this)
-                getNodes()
-            }
-        }
-        else -> throw IllegalArgumentException("Must be array of PathNodes or PathDelegate")
     }
 }

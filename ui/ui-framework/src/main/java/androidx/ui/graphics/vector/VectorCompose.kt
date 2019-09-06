@@ -28,8 +28,6 @@ import androidx.ui.core.Draw
 import androidx.ui.core.Px
 import androidx.ui.core.withDensity
 import androidx.ui.graphics.Brush
-import androidx.ui.graphics.EmptyBrush
-import androidx.ui.graphics.obtainBrush
 import androidx.ui.painting.StrokeCap
 import androidx.ui.painting.StrokeJoin
 
@@ -116,13 +114,9 @@ fun VectorScope.Group(
     scaleY: Float = DefaultScaleY,
     translationX: Float = DefaultTranslationX,
     translationY: Float = DefaultTranslationY,
-    clipPathData: PathData = EmptyPath,
+    clipPathData: Array<PathNode> = EmptyPath,
     children: @Composable() VectorScope.() -> Unit
 ) {
-
-    val clipPathNodes = +memo(clipPathData) {
-        createPath(clipPathData)
-    }
     <GroupComponent
         name = name
         rotation = rotation
@@ -132,7 +126,7 @@ fun VectorScope.Group(
         scaleY = scaleY
         translationX = translationX
         translationY = translationY
-        clipPathNodes = clipPathNodes
+        clipPathData = clipPathData
     >
         children()
     </GroupComponent>
@@ -140,27 +134,23 @@ fun VectorScope.Group(
 
 @Composable
 fun VectorScope.Path(
-    pathData: PathData,
+    pathData: Array<PathNode>,
     name: String = DefaultPathName,
-    fill: BrushType = EmptyBrush,
+    fill: Brush? = null,
     fillAlpha: Float = DefaultAlpha,
-    stroke: BrushType = EmptyBrush,
+    stroke: Brush? = null,
     strokeAlpha: Float = DefaultAlpha,
     strokeLineWidth: Float = DefaultStrokeLineWidth,
     strokeLineCap: StrokeCap = DefaultStrokeLineCap,
     strokeLineJoin: StrokeJoin = DefaultStrokeLineJoin,
     strokeLineMiter: Float = DefaultStrokeLineMiter
 ) {
-    val pathNodes = createPath(pathData)
-    val fillBrush: Brush = obtainBrush(fill)
-    val strokeBrush: Brush = obtainBrush(stroke)
-
     <PathComponent
         name
-        pathNodes
-        fill = fillBrush
+        pathData
+        fill
         fillAlpha
-        stroke = strokeBrush
+        stroke
         strokeAlpha
         strokeLineWidth
         strokeLineJoin

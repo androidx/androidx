@@ -22,6 +22,8 @@ import androidx.ui.core.Px
 
 import androidx.ui.graphics.vector.VectorPath
 import androidx.ui.framework.test.R
+import androidx.ui.graphics.Color
+import androidx.ui.graphics.SolidColor
 import androidx.ui.graphics.vector.PathCommand
 import androidx.ui.graphics.vector.PathNode
 import org.junit.Assert.assertEquals
@@ -50,10 +52,9 @@ class XmlVectorParserTest {
         assertEquals(1, asset.root.size)
 
         val node = asset.root.iterator().next() as VectorPath
-        assertEquals(0xFFFF0000.toInt(), node.fill as Int)
+        assertEquals(Color(0xFFFF0000), (node.fill as SolidColor).value)
 
-        @Suppress("UNCHECKED_CAST")
-        val path = node.pathData as Array<PathNode>
+        val path = node.pathData
         assertEquals(3, path.size)
         assertEquals(PathCommand.MoveTo, path.get(0).command)
         assertEquals(20.0f, path.get(0).args[0])
