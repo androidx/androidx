@@ -548,7 +548,7 @@ public class Preview extends UseCase {
      */
     public interface OnPreviewOutputUpdateListener {
         /** Callback when PreviewOutput has been updated. */
-        void onUpdated(PreviewOutput output);
+        void onUpdated(@NonNull PreviewOutput output);
     }
 
     /**
@@ -629,6 +629,7 @@ public class Preview extends UseCase {
         }
 
         /** Returns the PreviewOutput that receives image data. */
+        @NonNull
         public abstract SurfaceTexture getSurfaceTexture();
 
         /** Returns the dimensions of the PreviewOutput. */

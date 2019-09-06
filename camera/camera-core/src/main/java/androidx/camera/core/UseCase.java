@@ -88,8 +88,11 @@ public abstract class UseCase {
      * Creates a named instance of the use case.
      *
      * @param useCaseConfig the configuration object used for this use case
+     *
+     * @hide
      */
-    protected UseCase(UseCaseConfig<?> useCaseConfig) {
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    protected UseCase(@NonNull UseCaseConfig<?> useCaseConfig) {
         updateUseCaseConfig(useCaseConfig);
     }
 

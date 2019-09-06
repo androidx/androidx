@@ -79,7 +79,7 @@ public final class ImageAnalysis extends UseCase {
      *
      * @param config for this use case instance
      */
-    public ImageAnalysis(ImageAnalysisConfig config) {
+    public ImageAnalysis(@NonNull ImageAnalysisConfig config) {
         super(config);
         mUseCaseConfigBuilder = ImageAnalysisConfig.Builder.fromConfig(config);
 

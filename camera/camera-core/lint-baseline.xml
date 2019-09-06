@@ -2138,17 +2138,6 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public ImageAnalysis(ImageAnalysisConfig config) {"
-        errorLine2="                         ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/core/ImageAnalysis.java"
-            line="73"
-            column="26"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    protected UseCaseConfig.Builder&lt;?, ?, ?> getDefaultBuilder(LensFacing lensFacing) {"
         errorLine2="                                                               ~~~~~~~~~~">
         <location
@@ -2210,17 +2199,6 @@
             file="src/main/java/androidx/camera/core/ImageAnalysis.java"
             line="407"
             column="46"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public ImageCapture(ImageCaptureConfig userConfig) {"
-        errorLine2="                        ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/core/ImageCapture.java"
-            line="155"
-            column="25"/>
     </issue>
 
     <issue
@@ -3007,17 +2985,6 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        void onUpdated(PreviewOutput output);"
-        errorLine2="                       ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/core/Preview.java"
-            line="462"
-            column="24"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="        public PreviewConfig getConfig(LensFacing lensFacing) {"
         errorLine2="               ~~~~~~~~~~~~~">
         <location
@@ -3035,17 +3002,6 @@
             file="src/main/java/androidx/camera/core/Preview.java"
             line="492"
             column="40"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public abstract SurfaceTexture getSurfaceTexture();"
-        errorLine2="                        ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/core/Preview.java"
-            line="513"
-            column="25"/>
     </issue>
 
     <issue
@@ -3563,17 +3519,6 @@
             file="src/main/java/androidx/camera/core/SurfaceSizeDefinition.java"
             line="68"
             column="21"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    protected UseCase(UseCaseConfig&lt;?> useCaseConfig) {"
-        errorLine2="                      ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/core/UseCase.java"
-            line="91"
-            column="23"/>
     </issue>
 
     <issue

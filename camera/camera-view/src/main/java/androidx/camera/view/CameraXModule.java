@@ -261,7 +261,7 @@ final class CameraXModule {
         mPreview.setOnPreviewOutputUpdateListener(
                 new Preview.OnPreviewOutputUpdateListener() {
                     @Override
-                    public void onUpdated(Preview.PreviewOutput output) {
+                    public void onUpdated(@NonNull Preview.PreviewOutput output) {
                         boolean needReverse = cameraOrientation != 0 && cameraOrientation != 180;
                         int textureWidth =
                                 needReverse

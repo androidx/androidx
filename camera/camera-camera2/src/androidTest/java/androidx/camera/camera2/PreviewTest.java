@@ -217,7 +217,7 @@ public final class PreviewTest {
         useCase.setOnPreviewOutputUpdateListener(
                 new OnPreviewOutputUpdateListener() {
                     @Override
-                    public void onUpdated(Preview.PreviewOutput previewOutput) {
+                    public void onUpdated(@NonNull Preview.PreviewOutput previewOutput) {
                         surfaceTextureCallable0.setSurfaceTexture(
                                 previewOutput.getSurfaceTexture());
                         future0.run();
@@ -233,7 +233,7 @@ public final class PreviewTest {
         useCase.setOnPreviewOutputUpdateListener(
                 new OnPreviewOutputUpdateListener() {
                     @Override
-                    public void onUpdated(Preview.PreviewOutput previewOutput) {
+                    public void onUpdated(@NonNull Preview.PreviewOutput previewOutput) {
                         surfaceTextureCallable1.setSurfaceTexture(
                                 previewOutput.getSurfaceTexture());
                         future1.run();
@@ -261,7 +261,7 @@ public final class PreviewTest {
         useCase.setOnPreviewOutputUpdateListener(
                 new OnPreviewOutputUpdateListener() {
                     @Override
-                    public void onUpdated(Preview.PreviewOutput previewOutput) {
+                    public void onUpdated(@NonNull Preview.PreviewOutput previewOutput) {
                         surfaceTextureCallable.setSurfaceTexture(
                                 previewOutput.getSurfaceTexture());
                         future.run();
@@ -287,7 +287,7 @@ public final class PreviewTest {
         useCase.setOnPreviewOutputUpdateListener(
                 new OnPreviewOutputUpdateListener() {
                     @Override
-                    public void onUpdated(PreviewOutput previewOutput) {
+                    public void onUpdated(@NonNull PreviewOutput previewOutput) {
                         surfaceTextureCallable0.setSurfaceTexture(
                                 previewOutput.getSurfaceTexture());
                         future0.run();
@@ -302,7 +302,7 @@ public final class PreviewTest {
         useCase.setOnPreviewOutputUpdateListener(
                 new Preview.OnPreviewOutputUpdateListener() {
                     @Override
-                    public void onUpdated(Preview.PreviewOutput previewOutput) {
+                    public void onUpdated(@NonNull Preview.PreviewOutput previewOutput) {
                         surfaceTextureCallable1.setSurfaceTexture(
                                 previewOutput.getSurfaceTexture());
                         future1.run();
@@ -374,7 +374,7 @@ public final class PreviewTest {
         useCase.setOnPreviewOutputUpdateListener(
                 new Preview.OnPreviewOutputUpdateListener() {
                     @Override
-                    public void onUpdated(Preview.PreviewOutput previewOutput) {
+                    public void onUpdated(@NonNull Preview.PreviewOutput previewOutput) {
                         calledCount.incrementAndGet();
                     }
                 });
@@ -401,7 +401,7 @@ public final class PreviewTest {
         useCase.setOnPreviewOutputUpdateListener(
                 new OnPreviewOutputUpdateListener() {
                     @Override
-                    public void onUpdated(Preview.PreviewOutput previewOutput) {
+                    public void onUpdated(@NonNull Preview.PreviewOutput previewOutput) {
                         latestPreviewOutput.set(previewOutput);
                     }
                 });
@@ -436,7 +436,7 @@ public final class PreviewTest {
                         useCase.setOnPreviewOutputUpdateListener(
                                 new Preview.OnPreviewOutputUpdateListener() {
                                     @Override
-                                    public void onUpdated(PreviewOutput previewOutput) {
+                                    public void onUpdated(@NonNull PreviewOutput previewOutput) {
                                         // Release the surface texture
                                         previewOutput.getSurfaceTexture().release();
 
@@ -467,7 +467,7 @@ public final class PreviewTest {
         useCase.setOnPreviewOutputUpdateListener(
                 new OnPreviewOutputUpdateListener() {
                     @Override
-                    public void onUpdated(Preview.PreviewOutput previewOutput) {
+                    public void onUpdated(@NonNull Preview.PreviewOutput previewOutput) {
                         surfaceTextureCallable0.setSurfaceTexture(
                                 previewOutput.getSurfaceTexture());
                         future0.run();
@@ -493,7 +493,7 @@ public final class PreviewTest {
         useCase.setOnPreviewOutputUpdateListener(
                 new Preview.OnPreviewOutputUpdateListener() {
                     @Override
-                    public void onUpdated(PreviewOutput previewOutput) {
+                    public void onUpdated(@NonNull PreviewOutput previewOutput) {
                         surfaceTextureCallable0.setSurfaceTexture(
                                 previewOutput.getSurfaceTexture());
                         future0.run();
