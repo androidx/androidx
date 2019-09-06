@@ -230,7 +230,7 @@ public class TextureViewMeteringPointFactoryTest {
                 preview.setOnPreviewOutputUpdateListener(
                         new Preview.OnPreviewOutputUpdateListener() {
                             @Override
-                            public void onUpdated(Preview.PreviewOutput output) {
+                            public void onUpdated(@NonNull Preview.PreviewOutput output) {
                                 mActivityRule.getActivity().runOnUiThread(new Runnable() {
                                     @Override
                                     public void run() {
