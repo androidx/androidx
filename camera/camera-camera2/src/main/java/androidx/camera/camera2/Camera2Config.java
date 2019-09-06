@@ -183,6 +183,7 @@ public final class Camera2Config implements Config {
      * configuration.
      * @hide
      */
+    @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
     public CameraEventCallbacks getCameraEventCallback(
             @Nullable CameraEventCallbacks valueIfMissing) {
@@ -363,6 +364,7 @@ public final class Camera2Config implements Config {
          * @return The current Extender.
          * @hide
          */
+        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public Extender setCameraEventCallback(@NonNull CameraEventCallbacks cameraEventCallbacks) {
             mBaseBuilder.getMutableConfig().insertOption(CAMERA_EVENT_CALLBACK_OPTION,
