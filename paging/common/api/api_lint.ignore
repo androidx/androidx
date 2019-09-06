@@ -23,6 +23,10 @@ HiddenTypeParameter: androidx.paging.PositionalDataSource#loadInitial$lintWithKo
     Parameter p references hidden type class androidx.paging.PositionalDataSource.InitialResult.
 
 
+MinMaxConstant: androidx.paging.PagedList.Config#MAX_SIZE_UNBOUNDED:
+    If min/max could change in future, make them dynamic methods: androidx.paging.PagedList.Config#MAX_SIZE_UNBOUNDED
+
+
 MissingNullability: androidx.paging.LoadState.Done#INSTANCE:
     Missing nullability on field `INSTANCE` in class `class androidx.paging.LoadState.Done`
 MissingNullability: androidx.paging.LoadState.Idle#INSTANCE:

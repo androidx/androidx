@@ -16,6 +16,7 @@
 
 package androidx.dynamicanimation.animation;
 
+import android.annotation.SuppressLint;
 import android.os.Looper;
 import android.util.AndroidRuntimeException;
 import android.view.View;
@@ -266,18 +267,22 @@ public abstract class DynamicAnimation<T extends DynamicAnimation<T>>
     /**
      * The minimum visible change in pixels that can be visible to users.
      */
+    @SuppressLint("MinMaxConstant")
     public static final float MIN_VISIBLE_CHANGE_PIXELS = 1f;
     /**
      * The minimum visible change in degrees that can be visible to users.
      */
+    @SuppressLint("MinMaxConstant")
     public static final float MIN_VISIBLE_CHANGE_ROTATION_DEGREES = 1f / 10f;
     /**
      * The minimum visible change in alpha that can be visible to users.
      */
+    @SuppressLint("MinMaxConstant")
     public static final float MIN_VISIBLE_CHANGE_ALPHA = 1f / 256f;
     /**
      * The minimum visible change in scale that can be visible to users.
      */
+    @SuppressLint("MinMaxConstant")
     public static final float MIN_VISIBLE_CHANGE_SCALE = 1f / 500f;
 
     // Use the max value of float to indicate an unset state.
