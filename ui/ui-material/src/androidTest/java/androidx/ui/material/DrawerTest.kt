@@ -33,6 +33,7 @@ import androidx.ui.test.createComposeRule
 import androidx.ui.test.doClick
 import androidx.ui.test.findByTag
 import com.google.common.truth.Truth
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -147,6 +148,7 @@ class DrawerTest {
     }
 
     @Test
+    @Ignore("(malkov/mount): unignore this when b/136678145 is fixed")
     fun modalDrawer_bodyContent_clickable() {
         var drawerClicks = 0
         var bodyClicks = 0
@@ -192,6 +194,7 @@ class DrawerTest {
     }
 
     @Test
+    @Ignore("(malkov/mount): unignore this when b/136678145 is fixed")
     fun bottomDrawer_bodyContent_clickable() {
         var drawerClicks = 0
         var bodyClicks = 0
