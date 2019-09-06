@@ -1943,18 +1943,18 @@ class MultiParagraphIntegrationTest {
         assertThat(resultHebrew.end, equalTo(text.indexOf('\u05d2') + 1))
     }
 
-    @Test
-    fun width_default_value() {
+    @Test(expected = IllegalStateException::class)
+    fun width_throws_exception_if_layout_is_not_called() {
         val paragraph = simpleMultiParagraph()
 
-        assertThat(paragraph.width, equalTo(0.0f))
+        paragraph.width
     }
 
-    @Test
-    fun height_default_value() {
+    @Test(expected = IllegalStateException::class)
+    fun height_throws_exception_if_layout_is_not_called() {
         val paragraph = simpleMultiParagraph()
 
-        assertThat(paragraph.height, equalTo(0.0f))
+        paragraph.height
     }
 
     @Test
@@ -1971,19 +1971,25 @@ class MultiParagraphIntegrationTest {
         assertThat(paragraph.maxIntrinsicWidth, equalTo(0.0f))
     }
 
-    @Test
-    fun alphabeticBaseline_default_value() {
+    @Test(expected = IllegalStateException::class)
+    fun firstBaseline_throws_exception_if_layout_is_not_called() {
         val paragraph = simpleMultiParagraph()
 
-        assertThat(paragraph.firstBaseline, equalTo(0.0f))
-        assertThat(paragraph.lastBaseline, equalTo(0.0f))
+        paragraph.firstBaseline
     }
 
-    @Test
-    fun didExceedMaxLines_default_value() {
+    @Test(expected = IllegalStateException::class)
+    fun lastBaseline_throws_exception_if_layout_is_not_called() {
         val paragraph = simpleMultiParagraph()
 
-        assertThat(paragraph.didExceedMaxLines, equalTo(false))
+        paragraph.lastBaseline
+    }
+
+    @Test(expected = IllegalStateException::class)
+    fun didExceedMaxLines_throws_exception_if_layout_is_not_called() {
+        val paragraph = simpleMultiParagraph()
+
+        paragraph.didExceedMaxLines
     }
 
     @Test(expected = IllegalStateException::class)

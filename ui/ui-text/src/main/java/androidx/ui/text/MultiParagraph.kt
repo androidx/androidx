@@ -27,7 +27,6 @@ import androidx.ui.painting.Canvas
 import androidx.ui.painting.Path
 import androidx.ui.text.font.Font
 import androidx.ui.text.style.TextDirection
-import java.lang.IllegalStateException
 import kotlin.math.max
 
 /**
@@ -72,6 +71,10 @@ internal class MultiParagraph(
      */
     var didExceedMaxLines: Boolean = false
         private set
+        get() {
+            assertNeedLayout()
+            return field
+        }
 
     /**
      * The amount of horizontal space this paragraph occupies.
@@ -80,6 +83,10 @@ internal class MultiParagraph(
      */
     var width: Float = 0f
         private set
+        get() {
+            assertNeedLayout()
+            return field
+        }
 
     /**
      * The amount of vertical space this paragraph occupies.
@@ -88,24 +95,46 @@ internal class MultiParagraph(
      */
     var height: Float = 0f
         private set
+        get() {
+            assertNeedLayout()
+            return field
+        }
 
     /**
      * The distance from the top of the paragraph to the alphabetic
      * baseline of the first line, in logical pixels.
      */
-    val firstBaseline: Float get() =
-        if (paragraphInfoList.isEmpty()) 0f else paragraphInfoList[0].paragraph.firstBaseline
+    val firstBaseline: Float
+        get() {
+            assertNeedLayout()
+            return if (paragraphInfoList.isEmpty()) {
+                0f
+            } else {
+                paragraphInfoList[0].paragraph.firstBaseline
+            }
+        }
 
     /**
      * The distance from the top of the paragraph to the alphabetic
      * baseline of the first line, in logical pixels.
      */
-    val lastBaseline: Float get() =
-        if (paragraphInfoList.isEmpty()) 0f else paragraphInfoList.last().paragraph.lastBaseline
+    val lastBaseline: Float
+        get() {
+            assertNeedLayout()
+            return if (paragraphInfoList.isEmpty()) {
+                0f
+            } else {
+                paragraphInfoList.last().paragraph.lastBaseline
+            }
+        }
 
     /** The total number of lines in the text. */
     var lineCount: Int = 0
         private set
+        get() {
+            assertNeedLayout()
+            return field
+        }
 
     private var needLayout = true
 
