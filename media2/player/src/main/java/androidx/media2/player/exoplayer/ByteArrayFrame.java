@@ -23,6 +23,7 @@ import android.os.Parcel;
 
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.media2.exoplayer.external.Format;
 import androidx.media2.exoplayer.external.metadata.Metadata;
 import androidx.media2.exoplayer.external.util.Util;
 
@@ -101,4 +102,16 @@ import java.util.Arrays;
         }
 
     };
+
+    @Nullable
+    @Override
+    public Format getWrappedMetadataFormat() {
+        return null;
+    }
+
+    @Nullable
+    @Override
+    public byte[] getWrappedMetadataBytes() {
+        return null;
+    }
 }

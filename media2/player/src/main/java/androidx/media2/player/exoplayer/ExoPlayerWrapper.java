@@ -41,13 +41,10 @@ import androidx.media2.common.SessionPlayer.TrackInfo;
 import androidx.media2.common.SubtitleData;
 import androidx.media2.common.UriMediaItem;
 import androidx.media2.exoplayer.external.C;
-import androidx.media2.exoplayer.external.DefaultLoadControl;
 import androidx.media2.exoplayer.external.ExoPlaybackException;
-import androidx.media2.exoplayer.external.ExoPlayerFactory;
 import androidx.media2.exoplayer.external.Format;
 import androidx.media2.exoplayer.external.Player;
 import androidx.media2.exoplayer.external.SimpleExoPlayer;
-import androidx.media2.exoplayer.external.analytics.AnalyticsCollector;
 import androidx.media2.exoplayer.external.audio.AudioAttributes;
 import androidx.media2.exoplayer.external.audio.AudioCapabilities;
 import androidx.media2.exoplayer.external.audio.AudioListener;
@@ -444,16 +441,14 @@ import java.util.Map;
         mAudioSink = new DefaultAudioSink(
                 AudioCapabilities.getCapabilities(mContext), new AudioProcessor[0]);
         TextRenderer textRenderer = new TextRenderer(listener);
+        RenderersFactory renderersFactory = new RenderersFactory(mContext, mAudioSink,
+                textRenderer);
         mTrackSelector = new TrackSelector(textRenderer);
-        mPlayer = ExoPlayerFactory.newSimpleInstance(
-                mContext,
-                new RenderersFactory(mContext, mAudioSink, textRenderer),
-                mTrackSelector.getPlayerTrackSelector(),
-                new DefaultLoadControl(),
-                /* drmSessionManager= */ null,
-                mBandwidthMeter,
-                new AnalyticsCollector.Factory(),
-                mLooper);
+        mPlayer = new SimpleExoPlayer.Builder(mContext, renderersFactory)
+                .setTrackSelector(mTrackSelector.getPlayerTrackSelector())
+                .setBandwidthMeter(mBandwidthMeter)
+                .setLooper(mLooper)
+                .build();
         mPlayerHandler = new Handler(mPlayer.getPlaybackLooper());
         mMediaItemQueue = new MediaItemQueue(mContext, mPlayer, mListener);
         mPlayer.addListener(listener);
