@@ -18,6 +18,7 @@ package androidx.ui.animation.demos
 
 import android.app.Activity
 import android.os.Bundle
+import androidx.animation.AnimationEndReason
 import androidx.animation.ExponentialDecay
 import androidx.animation.FastOutSlowInEasing
 import androidx.animation.PhysicsBuilder
@@ -110,14 +111,15 @@ class SwipeToDismiss : Activity() {
                     }
                 }
             }
+
             override fun onStop(velocity: PxPosition) {
                 isFlinging.value = true
                 itemBottom.fling(velocity.y.value,
                     ExponentialDecay(3.0f),
                     adjustTarget(velocity.y.value),
-                    onFinished = {
+                    onEnd = { endReason, final, _ ->
                         isFlinging.value = false
-                        if (!it && itemBottom.value == 0f) {
+                        if (endReason != AnimationEndReason.Interrupted && final == 0f) {
                             reset()
                         }
                     })
@@ -129,8 +131,10 @@ class SwipeToDismiss : Activity() {
                 val alpha = 1f - FastOutSlowInEasing(progress)
                 val horizontalOffset = progress * itemWidth.value
                 drawLeftItems(horizontalOffset, itemWidth.value, itemHeight, index.value)
-                drawDismissingItem(itemBottom.value, itemWidth.value, itemHeight, index.value + 1,
-                    alpha)
+                drawDismissingItem(
+                    itemBottom.value, itemWidth.value, itemHeight, index.value + 1,
+                    alpha
+                )
             }
 
             OnChildPositioned({ coordinates ->
@@ -150,10 +154,12 @@ class SwipeToDismiss : Activity() {
             paint.color = colors[index % colors.size]
             val centerX = parentSize.width.value / 2
             val itemRect =
-                Rect(centerX - width * 1.5f + horizontalOffset + padding,
+                Rect(
+                    centerX - width * 1.5f + horizontalOffset + padding,
                     parentSize.height.value - height,
                     centerX - width * 0.5f + horizontalOffset - padding,
-                    parentSize.height.value)
+                    parentSize.height.value
+                )
             canvas.drawRect(itemRect, paint)
 
             if (itemRect.left >= 0) {
@@ -172,11 +178,14 @@ class SwipeToDismiss : Activity() {
             paint.alpha = alpha
             val centerX = parentSize.width.value / 2
             canvas.drawRect(
-                Rect(centerX - width / 2 + padding,
+                Rect(
+                    centerX - width / 2 + padding,
                     bottom - height,
                     centerX + width / 2 - padding,
-                    bottom),
-                paint)
+                    bottom
+                ),
+                paint
+            )
         }
     }
 
@@ -185,5 +194,6 @@ class SwipeToDismiss : Activity() {
         Color(0xFFffe9d6),
         Color(0xFFfffbd0),
         Color(0xFFe3ffd9),
-        Color(0xFFd0fff8))
+        Color(0xFFd0fff8)
+    )
 }

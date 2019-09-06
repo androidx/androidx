@@ -17,6 +17,7 @@
 package androidx.ui.foundation
 
 import androidx.animation.AnimatedFloat
+import androidx.animation.AnimationEndReason
 import androidx.animation.ExponentialDecay
 import androidx.animation.ValueHolder
 import androidx.compose.Children
@@ -68,8 +69,11 @@ class ScrollerPosition {
      * @param value target value to smooth scroll to
      */
     // TODO (malkov/tianliu) : think about allowing to scroll with custom animation timings/curves
-    fun smoothScrollTo(value: Px, onFinished: (isCancelled: Boolean) -> Unit = {}) {
-        controller.animatedFloat.animateTo(-value.value, onFinished)
+    fun smoothScrollTo(
+        value: Px,
+        onEnd: (endReason: AnimationEndReason, finishValue: Float) -> Unit = { _, _ -> }
+    ) {
+        controller.animatedFloat.animateTo(-value.value, onEnd)
     }
 
     /**
@@ -77,8 +81,11 @@ class ScrollerPosition {
      *
      * @param value delta to scroll by
      */
-    fun smoothScrollBy(value: Px, onFinished: (isCancelled: Boolean) -> Unit = {}) {
-        smoothScrollTo(this.value + value, onFinished)
+    fun smoothScrollBy(
+        value: Px,
+        onEnd: (endReason: AnimationEndReason, finishValue: Float) -> Unit = { _, _ -> }
+    ) {
+        smoothScrollTo(this.value + value, onEnd)
     }
 
     /**
