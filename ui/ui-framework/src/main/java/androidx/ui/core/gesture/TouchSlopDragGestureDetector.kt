@@ -21,7 +21,6 @@ import androidx.compose.memo
 import androidx.compose.unaryPlus
 import androidx.ui.core.Direction
 import androidx.ui.core.PxPosition
-import androidx.compose.composer
 
 // TODO(shepshapard): Convert to functional component with effects once effects are ready.
 /**
@@ -73,8 +72,8 @@ private class TouchSlopDragGestureDetectorGlue {
 
     val rawDragObserver: DragObserver =
         object : DragObserver {
-            override fun onStart() {
-                touchSlopDragObserver.onStart()
+            override fun onStart(downPosition: PxPosition) {
+                touchSlopDragObserver.onStart(downPosition)
             }
 
             override fun onDrag(dragDistance: PxPosition): PxPosition {
