@@ -16,26 +16,18 @@
 
 package androidx.ads.identifier.provider;
 
-import static androidx.ads.identifier.AdvertisingIdUtils.GET_AD_ID_ACTION;
 import static androidx.ads.identifier.provider.AdvertisingIdProviderManager.OPEN_SETTINGS_ACTION;
+import static androidx.ads.identifier.testing.MockPackageManagerHelper.createActivityResolveInfo;
+import static androidx.ads.identifier.testing.MockPackageManagerHelper.createServiceResolveInfo;
 
 import static com.google.common.truth.Truth.assertThat;
-
-import static org.mockito.ArgumentMatchers.argThat;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.when;
 
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.Intent;
-import android.content.pm.ActivityInfo;
-import android.content.pm.ApplicationInfo;
-import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
-import android.content.pm.ResolveInfo;
-import android.content.pm.ServiceInfo;
-import android.os.Build;
 
+import androidx.ads.identifier.testing.MockPackageManagerHelper;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
 import androidx.test.platform.app.InstrumentationRegistry;
@@ -44,14 +36,9 @@ import com.google.common.collect.Lists;
 import com.google.common.truth.Correspondence;
 
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnit;
-import org.mockito.junit.MockitoRule;
 
-import java.util.List;
 import java.util.concurrent.Callable;
 
 @SmallTest
@@ -62,11 +49,7 @@ public class AdvertisingIdProviderManagerTest {
             PROVIDER_INFO_EQUALITY = Correspondence.from(
             AdvertisingIdProviderManagerTest::isProviderInfoEqual, "is equivalent to");
 
-    @Rule
-    public MockitoRule mMockitoRule = MockitoJUnit.rule();
-
-    @Mock
-    private PackageManager mMockPackageManager;
+    private MockPackageManagerHelper mMockPackageManagerHelper = new MockPackageManagerHelper();
 
     private Context mContext;
 
@@ -77,56 +60,14 @@ public class AdvertisingIdProviderManagerTest {
         mContext = new ContextWrapper(context) {
             @Override
             public PackageManager getPackageManager() {
-                return mMockPackageManager;
+                return mMockPackageManagerHelper.getMockPackageManager();
             }
         };
     }
 
-    private ResolveInfo createServiceResolveInfo(String packageName) {
-        ResolveInfo resolveInfo = new ResolveInfo();
-        resolveInfo.serviceInfo = new ServiceInfo();
-        resolveInfo.serviceInfo.packageName = packageName;
-        return resolveInfo;
-    }
-
-    private ResolveInfo createActivityResolveInfo(String packageName, String name) {
-        ResolveInfo resolveInfo = new ResolveInfo();
-        resolveInfo.activityInfo = new ActivityInfo();
-        resolveInfo.activityInfo.packageName = packageName;
-        resolveInfo.activityInfo.name = name;
-        return resolveInfo;
-    }
-
-    private void mockQueryIntentServices(List<ResolveInfo> resolveInfos) throws Exception {
-        boolean supportMatchSystemOnly = Build.VERSION.SDK_INT >= Build.VERSION_CODES.N;
-        int flags = supportMatchSystemOnly ? PackageManager.MATCH_SYSTEM_ONLY : 0;
-        when(mMockPackageManager.queryIntentServices(
-                argThat(intent -> intent != null && GET_AD_ID_ACTION.equals(intent.getAction())),
-                eq(flags))).thenReturn(resolveInfos);
-        for (ResolveInfo resolveInfo : resolveInfos) {
-            if (!supportMatchSystemOnly) {
-                ApplicationInfo applicationInfo = new ApplicationInfo();
-                applicationInfo.flags |= ApplicationInfo.FLAG_SYSTEM;
-                when(mMockPackageManager.getApplicationInfo(resolveInfo.serviceInfo.packageName, 0))
-                        .thenReturn(applicationInfo);
-            }
-            PackageInfo packageInfo = new PackageInfo();
-            packageInfo.packageName = resolveInfo.serviceInfo.packageName;
-            when(mMockPackageManager.getPackageInfo(packageInfo.packageName,
-                    PackageManager.GET_PERMISSIONS)).thenReturn(packageInfo);
-        }
-    }
-
-    private void mockQueryIntentActivities(List<ResolveInfo> resolveInfos) {
-        when(mMockPackageManager.queryIntentActivities(
-                argThat(intent -> intent != null
-                        && OPEN_SETTINGS_ACTION.equals(intent.getAction())),
-                eq(0))).thenReturn(resolveInfos);
-    }
-
     @Test
     public void getAllAdIdProviders_onlySelf() throws Exception {
-        mockQueryIntentServices(
+        mMockPackageManagerHelper.mockQueryGetAdIdServices(
                 Lists.newArrayList(createServiceResolveInfo(mContext.getPackageName())));
 
         assertThat(AdvertisingIdProviderManager.getAdvertisingIdProviders(mContext))
@@ -145,7 +86,7 @@ public class AdvertisingIdProviderManagerTest {
 
     @Test
     public void getAllAdIdProviders() throws Exception {
-        mockQueryIntentServices(
+        mMockPackageManagerHelper.mockQueryGetAdIdServices(
                 Lists.newArrayList(
                         createServiceResolveInfo(mContext.getPackageName()),
                         createServiceResolveInfo("com.a")));
@@ -162,12 +103,12 @@ public class AdvertisingIdProviderManagerTest {
 
     @Test
     public void getAllAdIdProviders_withOpenIntent() throws Exception {
-        mockQueryIntentServices(
+        mMockPackageManagerHelper.mockQueryGetAdIdServices(
                 Lists.newArrayList(
                         createServiceResolveInfo(mContext.getPackageName()),
                         createServiceResolveInfo("com.a")));
 
-        mockQueryIntentActivities(
+        mMockPackageManagerHelper.mockQueryOpenSettingsActivities(
                 Lists.newArrayList(
                         createActivityResolveInfo(mContext.getPackageName(), "Activity"),
                         createActivityResolveInfo("com.a", "A")));
@@ -190,13 +131,13 @@ public class AdvertisingIdProviderManagerTest {
 
     @Test
     public void getAllAdIdProviders_twoOtherProviders() throws Exception {
-        mockQueryIntentServices(
+        mMockPackageManagerHelper.mockQueryGetAdIdServices(
                 Lists.newArrayList(
                         createServiceResolveInfo(mContext.getPackageName()),
                         createServiceResolveInfo("com.a"),
                         createServiceResolveInfo("com.b")));
 
-        mockQueryIntentActivities(
+        mMockPackageManagerHelper.mockQueryOpenSettingsActivities(
                 Lists.newArrayList(
                         createActivityResolveInfo(mContext.getPackageName(), "Activity"),
                         createActivityResolveInfo("com.a", "A")));
@@ -222,12 +163,12 @@ public class AdvertisingIdProviderManagerTest {
 
     @Test
     public void getAllAdIdProviders_extraOpenIntent() throws Exception {
-        mockQueryIntentServices(
+        mMockPackageManagerHelper.mockQueryGetAdIdServices(
                 Lists.newArrayList(
                         createServiceResolveInfo(mContext.getPackageName()),
                         createServiceResolveInfo("com.a")));
 
-        mockQueryIntentActivities(
+        mMockPackageManagerHelper.mockQueryOpenSettingsActivities(
                 Lists.newArrayList(
                         createActivityResolveInfo(mContext.getPackageName(), "Activity"),
                         createActivityResolveInfo("com.a", "A"),
