@@ -24,6 +24,7 @@ import android.util.Size;
 import android.view.Display;
 import android.view.Surface;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
@@ -98,6 +99,86 @@ public final class ImageAnalysis extends UseCase {
                 mSubscribedAnalyzer, mRelativeRotation,
                 mHandler, config.getBackgroundExecutor(
                 CameraXExecutors.highPriorityExecutor()));
+    }
+
+    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+    SessionConfig.Builder createPipeline(ImageAnalysisConfig config, Size resolution) {
+        Threads.checkMainThread();
+        String cameraId = getCameraIdUnchecked(config);
+
+        Executor backgroundExecutor = config.getBackgroundExecutor(
+                CameraXExecutors.highPriorityExecutor());
+
+        int imageQueueDepth = config.getImageReaderMode() == ImageReaderMode.ACQUIRE_NEXT_IMAGE
+                ? config.getImageQueueDepth() : NON_BLOCKING_IMAGE_DEPTH;
+
+        mImageReader =
+                ImageReaderProxys.createCompatibleReader(
+                        cameraId,
+                        resolution.getWidth(),
+                        resolution.getHeight(),
+                        getImageFormat(),
+                        imageQueueDepth,
+                        backgroundExecutor);
+
+        tryUpdateRelativeRotation(cameraId);
+
+        ImageReaderProxy.OnImageAvailableListener onImageAvailableListener;
+
+        if (config.getImageReaderMode() == ImageReaderMode.ACQUIRE_NEXT_IMAGE) {
+            onImageAvailableListener = mImageAnalysisBlockingAnalyzer;
+            mImageAnalysisBlockingAnalyzer.open();
+        } else {
+            onImageAvailableListener = mImageAnalysisNonBlockingAnalyzer;
+            mImageAnalysisNonBlockingAnalyzer.open();
+        }
+        mImageReader.setOnImageAvailableListener(onImageAvailableListener, backgroundExecutor);
+
+        SessionConfig.Builder sessionConfigBuilder = SessionConfig.Builder.createFrom(config);
+
+        mDeferrableSurface = new ImmediateSurface(mImageReader.getSurface());
+
+        sessionConfigBuilder.addSurface(mDeferrableSurface);
+
+        sessionConfigBuilder.addErrorListener(new SessionConfig.ErrorListener() {
+            @Override
+            public void onError(@NonNull SessionConfig sessionConfig,
+                    @NonNull SessionConfig.SessionError error) {
+                clearPipeline();
+                SessionConfig.Builder sessionConfigBuilder = createPipeline(config, resolution);
+                attachToCamera(cameraId, sessionConfigBuilder.build());
+
+                notifyReset();
+            }
+        });
+
+        return sessionConfigBuilder;
+    }
+
+    /**
+     * Clear the internal pipeline so that the pipeline can be set up again.
+     */
+    void clearPipeline() {
+        Threads.checkMainThread();
+        mImageAnalysisNonBlockingAnalyzer.close();
+        mImageAnalysisBlockingAnalyzer.close();
+
+        final DeferrableSurface deferrableSurface = mDeferrableSurface;
+        mDeferrableSurface = null;
+        final ImageReaderProxy imageReaderProxy = mImageReader;
+        mImageReader = null;
+        if (deferrableSurface != null) {
+            deferrableSurface.setOnSurfaceDetachedListener(
+                    CameraXExecutors.mainThreadExecutor(),
+                    new DeferrableSurface.OnSurfaceDetachedListener() {
+                        @Override
+                        public void onSurfaceDetached() {
+                            if (imageReaderProxy != null) {
+                                imageReaderProxy.close();
+                            }
+                        }
+                    });
+        }
     }
 
     /**
@@ -223,21 +304,7 @@ public final class ImageAnalysis extends UseCase {
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
     public void clear() {
-        if (mDeferrableSurface != null) {
-            mDeferrableSurface.setOnSurfaceDetachedListener(
-                    CameraXExecutors.mainThreadExecutor(),
-                    new DeferrableSurface.OnSurfaceDetachedListener() {
-                        @Override
-                        public void onSurfaceDetached() {
-                            mImageAnalysisNonBlockingAnalyzer.close();
-                            mImageAnalysisBlockingAnalyzer.close();
-                            if (mImageReader != null) {
-                                mImageReader.close();
-                                mImageReader = null;
-                            }
-                        }
-                    });
-        }
+        clearPipeline();
         super.clear();
     }
 
@@ -282,40 +349,7 @@ public final class ImageAnalysis extends UseCase {
             mImageReader.close();
         }
 
-        Executor backgroundExecutor = config.getBackgroundExecutor(
-                CameraXExecutors.highPriorityExecutor());
-
-        int imageQueueDepth = config.getImageReaderMode() == ImageReaderMode.ACQUIRE_NEXT_IMAGE
-                ? config.getImageQueueDepth() : NON_BLOCKING_IMAGE_DEPTH;
-
-        mImageReader =
-                ImageReaderProxys.createCompatibleReader(
-                        cameraId,
-                        resolution.getWidth(),
-                        resolution.getHeight(),
-                        getImageFormat(),
-                        imageQueueDepth,
-                        backgroundExecutor);
-
-        tryUpdateRelativeRotation(cameraId);
-
-        ImageReaderProxy.OnImageAvailableListener onImageAvailableListener;
-
-        if (config.getImageReaderMode() == ImageReaderMode.ACQUIRE_NEXT_IMAGE) {
-            onImageAvailableListener = mImageAnalysisBlockingAnalyzer;
-            mImageAnalysisBlockingAnalyzer.open();
-        } else {
-            onImageAvailableListener = mImageAnalysisNonBlockingAnalyzer;
-            mImageAnalysisNonBlockingAnalyzer.open();
-        }
-        mImageReader.setOnImageAvailableListener(onImageAvailableListener, backgroundExecutor);
-
-        SessionConfig.Builder sessionConfigBuilder = SessionConfig.Builder.createFrom(config);
-
-        mDeferrableSurface = new ImmediateSurface(mImageReader.getSurface());
-
-        sessionConfigBuilder.addSurface(mDeferrableSurface);
-
+        SessionConfig.Builder sessionConfigBuilder = createPipeline(config, resolution);
         attachToCamera(cameraId, sessionConfigBuilder.build());
 
         return suggestedResolutionMap;

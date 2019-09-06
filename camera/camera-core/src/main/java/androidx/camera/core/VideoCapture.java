@@ -113,6 +113,7 @@ public class VideoCapture extends UseCase {
     private final AtomicBoolean mIsFirstVideoSampleWrite = new AtomicBoolean(false);
     private final AtomicBoolean mIsFirstAudioSampleWrite = new AtomicBoolean(false);
     private final VideoCaptureConfig.Builder mUseCaseConfigBuilder;
+
     @NonNull
     MediaCodec mVideoEncoder;
     @NonNull
@@ -453,7 +454,8 @@ public class VideoCapture extends UseCase {
      * Setup the {@link MediaCodec} for encoding video from a camera {@link Surface} and encoding
      * audio from selected audio source.
      */
-    private void setupEncoder(Size resolution) {
+    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+    void setupEncoder(Size resolution) {
         VideoCaptureConfig config = (VideoCaptureConfig) getUseCaseConfig();
 
         // video encoder setup
@@ -468,14 +470,23 @@ public class VideoCapture extends UseCase {
         }
         mCameraSurface = mVideoEncoder.createInputSurface();
 
-        SessionConfig.Builder builder = SessionConfig.Builder.createFrom(config);
+        SessionConfig.Builder sessionConfigBuilder = SessionConfig.Builder.createFrom(config);
 
         mDeferrableSurface = new ImmediateSurface(mCameraSurface);
 
-        builder.addSurface(mDeferrableSurface);
+        sessionConfigBuilder.addSurface(mDeferrableSurface);
 
         String cameraId = getCameraIdUnchecked(config);
-        attachToCamera(cameraId, builder.build());
+
+        sessionConfigBuilder.addErrorListener(new SessionConfig.ErrorListener() {
+            @Override
+            public void onError(@NonNull SessionConfig sessionConfig,
+                    @NonNull SessionConfig.SessionError error) {
+                setupEncoder(resolution);
+            }
+        });
+
+        attachToCamera(cameraId, sessionConfigBuilder.build());
 
         // audio encoder setup
         setAudioParametersByCamcorderProfile(resolution, cameraId);

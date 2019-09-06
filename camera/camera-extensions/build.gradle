@@ -38,6 +38,7 @@ dependencies {
     testImplementation(MOCKITO_CORE)
     testImplementation(ROBOLECTRIC)
 
+    testImplementation project(":camera:camera-testing")
     testImplementation(project(":camera:camera-extensions-stub"))
     // To use the extensions-stub for testing directly.
 
@@ -59,6 +60,9 @@ android {
 
         buildConfigField "String", "CAMERA_VERSION", "\"${LibraryVersions.CAMERA_EXTENSIONS}\""
     }
+
+    // Use Robolectric 4.+
+    testOptions.unitTests.includeAndroidResources = true
 }
 
 // Enable generating BuildConfig.java since support library default disable it.

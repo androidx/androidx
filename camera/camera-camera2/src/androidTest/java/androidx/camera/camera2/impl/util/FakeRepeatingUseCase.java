@@ -24,6 +24,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.util.Size;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.camera.core.CameraX;
@@ -81,8 +82,8 @@ public class FakeRepeatingUseCase extends FakeUseCase {
                 .setSessionOptionUnpacker(
                         new SessionConfig.OptionUnpacker() {
                             @Override
-                            public void unpack(UseCaseConfig<?> useCaseConfig,
-                                    SessionConfig.Builder sessionConfigBuilder) {
+                            public void unpack(@NonNull UseCaseConfig<?> useCaseConfig,
+                                    @NonNull SessionConfig.Builder sessionConfigBuilder) {
                                 // Set the template since it is currently required by implementation
                                 sessionConfigBuilder.setTemplateType(CameraDevice.TEMPLATE_PREVIEW);
                             }

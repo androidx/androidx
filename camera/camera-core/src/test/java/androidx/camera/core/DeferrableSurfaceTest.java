@@ -20,11 +20,16 @@ import static com.google.common.truth.Truth.assertThat;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+
 
 import android.os.Build;
 import android.view.Surface;
 
-import androidx.annotation.Nullable;
+import androidx.annotation.NonNull;
+import androidx.camera.core.impl.utils.executor.CameraXExecutors;
+import androidx.camera.core.impl.utils.futures.FutureCallback;
+import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.test.filters.SmallTest;
 
 import com.google.common.util.concurrent.ListenableFuture;
@@ -32,6 +37,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
@@ -45,15 +51,15 @@ import java.util.concurrent.Executor;
 @DoNotInstrument
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 public class DeferrableSurfaceTest {
-    DeferrableSurface mDeferrableSurface;
+    private DeferrableSurface mDeferrableSurface;
 
     @Before
     public void setup() {
         mDeferrableSurface = new DeferrableSurface() {
-            @Nullable
             @Override
-            public ListenableFuture<Surface> getSurface() {
-                return null;
+            @NonNull
+            public ListenableFuture<Surface> provideSurface() {
+                return Futures.immediateFuture(null);
             }
         };
     }
@@ -141,5 +147,22 @@ public class DeferrableSurfaceTest {
         mDeferrableSurface.notifySurfaceDetached();
 
         mDeferrableSurface.notifySurfaceDetached();
+    }
+
+    @Test
+    public void closedSurfaceContainsSurfaceClosedException() {
+        mDeferrableSurface.close();
+
+        ListenableFuture<Surface> surfaceListenableFuture = mDeferrableSurface.getSurface();
+
+        FutureCallback<Surface> futureCallback = Mockito.mock(FutureCallback.class);
+        ArgumentCaptor<Throwable> throwableCaptor = ArgumentCaptor.forClass(Throwable.class);
+
+        Futures.addCallback(surfaceListenableFuture, futureCallback,
+                CameraXExecutors.directExecutor());
+        verify(futureCallback, times(1)).onFailure(throwableCaptor.capture());
+
+        assertThat(throwableCaptor.getValue()).isInstanceOf(
+                DeferrableSurface.SurfaceClosedException.class);
     }
 }

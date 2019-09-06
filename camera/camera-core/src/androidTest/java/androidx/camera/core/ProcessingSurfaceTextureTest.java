@@ -102,17 +102,6 @@ public final class ProcessingSurfaceTextureTest {
     }
 
     @Test
-    public void resetCreatesNewSurfaceTexture() {
-        ProcessingSurfaceTexture processingSurfaceTexture = createProcessingSurfaceTexture();
-
-        SurfaceTexture surfaceTextureBefore = processingSurfaceTexture.getSurfaceTexture();
-        processingSurfaceTexture.resetSurfaceTexture();
-
-        assertThat(processingSurfaceTexture.getSurfaceTexture()).isNotSameInstanceAs(
-                surfaceTextureBefore);
-    }
-
-    @Test
     public void validInputSurface() throws ExecutionException, InterruptedException {
         ProcessingSurfaceTexture processingSurfaceTexture = createProcessingSurfaceTexture();
 
@@ -177,30 +166,20 @@ public final class ProcessingSurfaceTextureTest {
     }
 
     @Test(expected = IllegalStateException.class)
-    public void getSurfaceTextureThrowsExceptionWhenClosed() {
+    public void getSurfaceTextureThrowsExceptionWhenReleased() {
         ProcessingSurfaceTexture processingSurfaceTexture = createProcessingSurfaceTexture();
 
-        processingSurfaceTexture.close();
+        processingSurfaceTexture.release();
 
         // Exception should be thrown here
         processingSurfaceTexture.getSurfaceTexture();
     }
 
     @Test(expected = IllegalStateException.class)
-    public void resetSurfaceTextureThrowsExceptionWhenClosed() {
+    public void getCameraCaptureCallbackThrowsExceptionWhenReleased() {
         ProcessingSurfaceTexture processingSurfaceTexture = createProcessingSurfaceTexture();
 
-        processingSurfaceTexture.close();
-
-        // Exception should be thrown here
-        processingSurfaceTexture.resetSurfaceTexture();
-    }
-
-    @Test(expected = IllegalStateException.class)
-    public void getCameraCaptureCallbackThrowsExceptionWhenClosed() {
-        ProcessingSurfaceTexture processingSurfaceTexture = createProcessingSurfaceTexture();
-
-        processingSurfaceTexture.close();
+        processingSurfaceTexture.release();
 
         // Exception should be thrown here
         processingSurfaceTexture.getCameraCaptureCallback();

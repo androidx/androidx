@@ -18,6 +18,7 @@ package androidx.camera.camera2.impl;
 
 import android.hardware.camera2.CaptureRequest;
 
+import androidx.annotation.NonNull;
 import androidx.camera.camera2.Camera2Config;
 import androidx.camera.core.CameraCaptureSessionStateCallbacks;
 import androidx.camera.core.CameraDeviceStateCallbacks;
@@ -37,7 +38,8 @@ final class Camera2SessionOptionUnpacker implements SessionConfig.OptionUnpacker
     static final Camera2SessionOptionUnpacker INSTANCE = new Camera2SessionOptionUnpacker();
 
     @Override
-    public void unpack(UseCaseConfig<?> config, final SessionConfig.Builder builder) {
+    public void unpack(@NonNull UseCaseConfig<?> config,
+            @NonNull final SessionConfig.Builder builder) {
         SessionConfig defaultSessionConfig =
                 config.getDefaultSessionConfig(/*valueIfMissing=*/ null);
 

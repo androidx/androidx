@@ -18,6 +18,7 @@ package androidx.camera.testing.fakes;
 
 import android.util.Size;
 
+import androidx.annotation.NonNull;
 import androidx.camera.core.CameraX.LensFacing;
 import androidx.camera.core.SessionConfig;
 import androidx.camera.core.UseCase;
@@ -51,8 +52,8 @@ public class FakeUseCase extends UseCase {
                 .setLensFacing(lensFacing)
                 .setSessionOptionUnpacker(new SessionConfig.OptionUnpacker() {
                     @Override
-                    public void unpack(UseCaseConfig<?> useCaseConfig,
-                            SessionConfig.Builder sessionConfigBuilder) {
+                    public void unpack(@NonNull UseCaseConfig<?> useCaseConfig,
+                            @NonNull SessionConfig.Builder sessionConfigBuilder) {
                     }
                 });
     }

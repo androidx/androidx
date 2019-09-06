@@ -44,6 +44,7 @@ import androidx.camera.core.CameraCaptureResult.EmptyCameraCaptureResult;
 import androidx.camera.core.CameraX.LensFacing;
 import androidx.camera.core.ForwardingImageProxy.OnImageCloseListener;
 import androidx.camera.core.ImageOutputConfig.RotationValue;
+import androidx.camera.core.impl.utils.Threads;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.impl.utils.futures.AsyncFunction;
 import androidx.camera.core.impl.utils.futures.FluentFuture;
@@ -104,7 +105,8 @@ public class ImageCapture extends UseCase {
     final ArrayDeque<ImageCaptureRequest> mImageCaptureRequests = new ArrayDeque<>();
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     final Handler mHandler;
-    private final SessionConfig.Builder mSessionConfigBuilder;
+    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+    SessionConfig.Builder mSessionConfigBuilder;
     private final CaptureConfig mCaptureConfig;
     private final ExecutorService mExecutor =
             Executors.newFixedThreadPool(
@@ -138,6 +140,7 @@ public class ImageCapture extends UseCase {
     private CameraCaptureCallback mMetadataMatchingCaptureCallback;
     private ImageCaptureConfig mConfig;
     private DeferrableSurface mDeferrableSurface;
+
     /**
      * A flag to check 3A converged or not.
      *
@@ -155,7 +158,7 @@ public class ImageCapture extends UseCase {
      * @param userConfig for this use case instance
      * @throws IllegalArgumentException if the configuration is invalid.
      */
-    public ImageCapture(ImageCaptureConfig userConfig) {
+    public ImageCapture(@NonNull ImageCaptureConfig userConfig) {
         super(userConfig);
         mUseCaseConfigBuilder = ImageCaptureConfig.Builder.fromConfig(userConfig);
         // Ensure we're using the combined configuration (user config + defaults)
@@ -199,11 +202,102 @@ public class ImageCapture extends UseCase {
             throw new IllegalStateException("No default handler specified.");
         }
 
-        mSessionConfigBuilder = SessionConfig.Builder.createFrom(mConfig);
-        mSessionConfigBuilder.addRepeatingCameraCaptureCallback(mSessionCallbackChecker);
-
         CaptureConfig.Builder captureBuilder = CaptureConfig.Builder.createFrom(mConfig);
         mCaptureConfig = captureBuilder.build();
+    }
+
+    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+    SessionConfig.Builder createPipeline(ImageCaptureConfig config,  Size resolution) {
+        Threads.checkMainThread();
+        SessionConfig.Builder sessionConfigBuilder = SessionConfig.Builder.createFrom(config);
+        sessionConfigBuilder.addRepeatingCameraCaptureCallback(mSessionCallbackChecker);
+
+        // Setup the ImageReader to do processing
+        if (mCaptureProcessor != null) {
+            ProcessingImageReader processingImageReader =
+                    new ProcessingImageReader(
+                            resolution.getWidth(),
+                            resolution.getHeight(),
+                            getImageFormat(), mMaxCaptureStages,
+                            mHandler, getCaptureBundle(CaptureBundles.singleDefaultCaptureBundle()),
+                            mCaptureProcessor);
+            mMetadataMatchingCaptureCallback = processingImageReader.getCameraCaptureCallback();
+            mImageReader = processingImageReader;
+        } else {
+            MetadataImageReader metadataImageReader = new MetadataImageReader(resolution.getWidth(),
+                    resolution.getHeight(), getImageFormat(), MAX_IMAGES, mHandler);
+            mMetadataMatchingCaptureCallback = metadataImageReader.getCameraCaptureCallback();
+            mImageReader = metadataImageReader;
+        }
+
+        mImageReader.setOnImageAvailableListener(
+                new ImageReaderProxy.OnImageAvailableListener() {
+                    @Override
+                    public void onImageAvailable(ImageReaderProxy imageReader) {
+                        ImageProxy image = null;
+                        try {
+                            image = imageReader.acquireLatestImage();
+                        } catch (IllegalStateException e) {
+                            Log.e(TAG, "Failed to acquire latest image.", e);
+                        } finally {
+                            if (image != null) {
+                                // Call the head request listener to process the captured image.
+                                ImageCaptureRequest imageCaptureRequest;
+                                if ((imageCaptureRequest = mImageCaptureRequests.peek()) != null) {
+                                    SingleCloseImageProxy wrappedImage = new SingleCloseImageProxy(
+                                            image);
+                                    wrappedImage.addOnImageCloseListener(mOnImageCloseListener);
+                                    imageCaptureRequest.dispatchImage(wrappedImage);
+                                } else {
+                                    // Discard the image if we have no requests.
+                                    image.close();
+                                }
+                            }
+                        }
+                    }
+                },
+                mMainHandler);
+
+        mDeferrableSurface = new ImmediateSurface(mImageReader.getSurface());
+        sessionConfigBuilder.addNonRepeatingSurface(mDeferrableSurface);
+
+        sessionConfigBuilder.addErrorListener(new SessionConfig.ErrorListener() {
+            @Override
+            public void onError(@NonNull SessionConfig sessionConfig,
+                    @NonNull SessionConfig.SessionError error) {
+                clearPipeline();
+                String cameraId = getCameraIdUnchecked(config);
+                mSessionConfigBuilder = createPipeline(config, resolution);
+                attachToCamera(cameraId, mSessionConfigBuilder.build());
+                notifyReset();
+            }
+        });
+
+        return sessionConfigBuilder;
+    }
+
+    /**
+     * Clear the internal pipeline so that the pipeline can be set up again.
+     */
+    void clearPipeline() {
+        Threads.checkMainThread();
+        DeferrableSurface deferrableSurface = mDeferrableSurface;
+        mDeferrableSurface = null;
+        ImageReaderProxy imageReaderProxy = mImageReader;
+        mImageReader = null;
+
+        if (deferrableSurface != null) {
+            deferrableSurface.setOnSurfaceDetachedListener(
+                    CameraXExecutors.mainThreadExecutor(),
+                    new DeferrableSurface.OnSurfaceDetachedListener() {
+                        @Override
+                        public void onSurfaceDetached() {
+                            if (imageReaderProxy != null) {
+                                imageReaderProxy.close();
+                            }
+                        }
+                    });
+        }
     }
 
     /**
@@ -591,19 +685,7 @@ public class ImageCapture extends UseCase {
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
     public void clear() {
-        if (mDeferrableSurface != null) {
-            mDeferrableSurface.setOnSurfaceDetachedListener(
-                    CameraXExecutors.mainThreadExecutor(),
-                    new DeferrableSurface.OnSurfaceDetachedListener() {
-                        @Override
-                        public void onSurfaceDetached() {
-                            if (mImageReader != null) {
-                                mImageReader.close();
-                                mImageReader = null;
-                            }
-                        }
-                    });
-        }
+        clearPipeline();
         mExecutor.shutdown();
         super.clear();
     }
@@ -633,56 +715,7 @@ public class ImageCapture extends UseCase {
             mImageReader.close();
         }
 
-        // Setup the ImageReader to do processing
-        if (mCaptureProcessor != null) {
-            ProcessingImageReader processingImageReader =
-                    new ProcessingImageReader(
-                            resolution.getWidth(),
-                            resolution.getHeight(),
-                            getImageFormat(), mMaxCaptureStages,
-                            mHandler, getCaptureBundle(CaptureBundles.singleDefaultCaptureBundle()),
-                            mCaptureProcessor);
-            mMetadataMatchingCaptureCallback = processingImageReader.getCameraCaptureCallback();
-            mImageReader = processingImageReader;
-        } else {
-            MetadataImageReader metadataImageReader = new MetadataImageReader(resolution.getWidth(),
-                    resolution.getHeight(), getImageFormat(), MAX_IMAGES, mHandler);
-            mMetadataMatchingCaptureCallback = metadataImageReader.getCameraCaptureCallback();
-            mImageReader = metadataImageReader;
-        }
-
-        mImageReader.setOnImageAvailableListener(
-                new ImageReaderProxy.OnImageAvailableListener() {
-                    @Override
-                    public void onImageAvailable(ImageReaderProxy imageReader) {
-                        ImageProxy image = null;
-                        try {
-                            image = imageReader.acquireLatestImage();
-                        } catch (IllegalStateException e) {
-                            Log.e(TAG, "Failed to acquire latest image.", e);
-                        } finally {
-                            if (image != null) {
-                                // Call the head request listener to process the captured image.
-                                ImageCaptureRequest imageCaptureRequest;
-                                if ((imageCaptureRequest = mImageCaptureRequests.peek()) != null) {
-                                    SingleCloseImageProxy wrappedImage = new SingleCloseImageProxy(
-                                            image);
-                                    wrappedImage.addOnImageCloseListener(mOnImageCloseListener);
-                                    imageCaptureRequest.dispatchImage(wrappedImage);
-                                } else {
-                                    // Discard the image if we have no requests.
-                                    image.close();
-                                }
-                            }
-                        }
-                    }
-                },
-                mMainHandler);
-
-        mSessionConfigBuilder.clearSurfaces();
-
-        mDeferrableSurface = new ImmediateSurface(mImageReader.getSurface());
-        mSessionConfigBuilder.addNonRepeatingSurface(mDeferrableSurface);
+        mSessionConfigBuilder = createPipeline(mConfig, resolution);
 
         attachToCamera(cameraId, mSessionConfigBuilder.build());
 
@@ -954,30 +987,32 @@ public class ImageCapture extends UseCase {
 
             ListenableFuture<Boolean> future = CallbackToFutureAdapter.getFuture(
                     new CallbackToFutureAdapter.Resolver<Boolean>() {
-
                         @Override
                         public Object attachCompleter(@NonNull final
                                 CallbackToFutureAdapter.Completer<Boolean> completer) {
-                            CameraCaptureCallback completerCallback = new CameraCaptureCallback() {
-                                @Override
-                                public void onCaptureCompleted(
-                                        @NonNull CameraCaptureResult result) {
-                                    completer.set(true);
-                                }
+                                CameraCaptureCallback completerCallback =
+                                        new CameraCaptureCallback() {
+                                        @Override
+                                        public void onCaptureCompleted(
+                                                @NonNull CameraCaptureResult result) {
+                                            completer.set(true);
+                                        }
 
-                                @Override
-                                public void onCaptureFailed(@NonNull CameraCaptureFailure failure) {
-                                    Log.e(TAG,
-                                            "capture picture get onCaptureFailed with reason "
-                                                    + failure.getReason());
-                                    completer.set(false);
-                                }
-                            };
-                            builder.addCameraCaptureCallback(completerCallback);
+                                        @Override
+                                        public void onCaptureFailed(
+                                                @NonNull CameraCaptureFailure failure) {
+                                            Log.e(TAG,
+                                                    "capture picture get onCaptureFailed with "
+                                                            + "reason "
+                                                            + failure.getReason());
+                                            completer.set(false);
+                                        }
+                                    };
+                                builder.addCameraCaptureCallback(completerCallback);
 
-                            captureConfigs.add(builder.build());
-                            return "issueTakePicture[stage=" + captureStage.getId() + "]";
-                        }
+                                captureConfigs.add(builder.build());
+                                return "issueTakePicture[stage=" + captureStage.getId() + "]";
+                            }
                     });
             futureList.add(future);
 

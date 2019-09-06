@@ -18,15 +18,23 @@ package androidx.camera.core;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+
 import android.view.Surface;
 
+import androidx.camera.core.impl.utils.executor.CameraXExecutors;
+import androidx.camera.core.impl.utils.futures.FutureCallback;
+import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
 import java.util.concurrent.ExecutionException;
@@ -35,13 +43,33 @@ import java.util.concurrent.ExecutionException;
 @RunWith(AndroidJUnit4.class)
 public final class ImmediateSurfaceTest {
     private Surface mMockSurface = Mockito.mock(Surface.class);
+    private ImmediateSurface mImmediateSurface;
+
+    @Before
+    public void setup() {
+        mImmediateSurface = new ImmediateSurface(mMockSurface);
+    }
 
     @Test
     public void getSurface_returnsInstance() throws ExecutionException, InterruptedException {
-        ImmediateSurface immediateSurface = new ImmediateSurface(mMockSurface);
-
-        ListenableFuture<Surface> surfaceListenableFuture = immediateSurface.getSurface();
+        ListenableFuture<Surface> surfaceListenableFuture = mImmediateSurface.getSurface();
 
         assertThat(surfaceListenableFuture.get()).isSameInstanceAs(mMockSurface);
+    }
+
+    @Test
+    public void surfaceClosedExceptionWhenClosed() {
+        mImmediateSurface.close();
+
+        ListenableFuture<Surface> surface = mImmediateSurface.getSurface();
+
+        FutureCallback<Surface> futureCallback = Mockito.mock(FutureCallback.class);
+        ArgumentCaptor<Throwable> throwableCaptor = ArgumentCaptor.forClass(Throwable.class);
+
+        Futures.addCallback(surface, futureCallback, CameraXExecutors.directExecutor());
+        verify(futureCallback, times(1)).onFailure(throwableCaptor.capture());
+
+        assertThat(throwableCaptor.getValue()).isInstanceOf(
+                DeferrableSurface.SurfaceClosedException.class);
     }
 }

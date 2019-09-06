@@ -21,6 +21,7 @@ import android.media.Image;
 
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.camera.core.ImageInfo;
 import androidx.camera.core.ImageProxy;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
@@ -105,6 +106,7 @@ public final class FakeImageProxy implements ImageProxy {
     }
 
     @Override
+    @Nullable
     public Image getImage() {
         return mImage;
     }
@@ -127,6 +129,10 @@ public final class FakeImageProxy implements ImageProxy {
 
     public void setImageInfo(ImageInfo imageInfo) {
         mImageInfo = imageInfo;
+    }
+
+    public void setImage(@Nullable Image image) {
+        mImage = image;
     }
 
     /**

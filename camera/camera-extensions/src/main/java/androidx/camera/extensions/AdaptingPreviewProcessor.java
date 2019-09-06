@@ -39,9 +39,11 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 /** A {@link CaptureProcessor} that calls a vendor provided preview processing implementation. */
-final class AdaptingPreviewProcessor implements CaptureProcessor {
+final class AdaptingPreviewProcessor implements CaptureProcessor,
+        PreviewExtender.CloseableProcessor {
     private static final String TAG = "AdaptingPreviewProcesso";
     private final PreviewImageProcessorImpl mImpl;
+    private BlockingCloseAccessCounter mAccessCounter = new BlockingCloseAccessCounter();
 
     AdaptingPreviewProcessor(PreviewImageProcessorImpl impl) {
         mImpl = impl;
@@ -49,8 +51,16 @@ final class AdaptingPreviewProcessor implements CaptureProcessor {
 
     @Override
     public void onOutputSurface(Surface surface, int imageFormat) {
-        mImpl.onOutputSurface(surface, imageFormat);
-        mImpl.onImageFormatUpdate(imageFormat);
+        if (!mAccessCounter.tryIncrement()) {
+            return;
+        }
+
+        try {
+            mImpl.onOutputSurface(surface, imageFormat);
+            mImpl.onImageFormatUpdate(imageFormat);
+        } finally {
+            mAccessCounter.decrement();
+        }
     }
 
     @Override
@@ -59,44 +69,62 @@ final class AdaptingPreviewProcessor implements CaptureProcessor {
         Preconditions.checkArgument(ids.size() == 1,
                 "Processing preview bundle must be 1, but found " + ids.size());
 
-        ListenableFuture<ImageProxy> imageProxyListenableFuture = bundle.getImageProxy(ids.get(0));
+        ListenableFuture<ImageProxy> imageProxyListenableFuture = bundle.getImageProxy(
+                ids.get(0));
         Preconditions.checkArgument(imageProxyListenableFuture.isDone());
 
+        ImageProxy imageProxy;
         try {
-            ImageProxy imageProxy = imageProxyListenableFuture.get();
-            Image image = imageProxy.getImage();
-            if (image == null) {
-                return;
-            }
 
-            ImageInfo imageInfo = imageProxy.getImageInfo();
-
-            CameraCaptureResult result =
-                    CameraCaptureResults.retrieveCameraCaptureResult(imageInfo);
-            if (result == null) {
-                mImpl.process(image, null);
-                return;
-            }
-
-            CaptureResult captureResult =
-                    Camera2CameraCaptureResultConverter.getCaptureResult(result);
-            if (captureResult == null) {
-                mImpl.process(image, null);
-                return;
-            }
-
-            if (captureResult instanceof TotalCaptureResult) {
-                mImpl.process(imageProxy.getImage(), (TotalCaptureResult) captureResult);
-            } else {
-                mImpl.process(image, null);
-            }
+            imageProxy = imageProxyListenableFuture.get();
         } catch (ExecutionException | InterruptedException e) {
             Log.e(TAG, "Unable to retrieve ImageProxy from bundle");
+            return;
+        }
+
+        Image image = imageProxy.getImage();
+
+        ImageInfo imageInfo = imageProxy.getImageInfo();
+        CameraCaptureResult result =
+                CameraCaptureResults.retrieveCameraCaptureResult(imageInfo);
+        CaptureResult captureResult =
+                Camera2CameraCaptureResultConverter.getCaptureResult(result);
+
+        TotalCaptureResult totalCaptureResult = null;
+        if (captureResult instanceof TotalCaptureResult) {
+            totalCaptureResult = (TotalCaptureResult) captureResult;
+        }
+
+        if (image == null) {
+            return;
+        }
+
+        if (!mAccessCounter.tryIncrement()) {
+            return;
+        }
+
+        try {
+            mImpl.process(image, totalCaptureResult);
+        } finally {
+            mAccessCounter.decrement();
         }
     }
 
     @Override
     public void onResolutionUpdate(Size size) {
-        mImpl.onResolutionUpdate(size);
+        if (!mAccessCounter.tryIncrement()) {
+            return;
+        }
+
+        try {
+            mImpl.onResolutionUpdate(size);
+        } finally {
+            mAccessCounter.decrement();
+        }
+    }
+
+    @Override
+    public void close() {
+        mAccessCounter.destroyAndWaitForZeroAccess();
     }
 }
