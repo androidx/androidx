@@ -2600,6 +2600,10 @@ public abstract class FragmentManager {
     }
 
     private ViewGroup getFragmentContainer(Fragment f) {
+        // If the fragment has no containerId we should return null immediately.
+        if (f.mContainerId <= 0) {
+            return null;
+        }
         // This will be false if a child fragment is added to its parent's childFragmentManager
         // before a view is created for Parent. In all other cases (adding a fragment to an
         // FragmentActivity's fragmentManager, adding a child fragment to a parent that has a view),
