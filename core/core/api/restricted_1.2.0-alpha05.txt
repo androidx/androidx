@@ -1586,6 +1586,7 @@ package androidx.core.os {
     method @Deprecated public static boolean isAtLeastOMR1();
     method @Deprecated public static boolean isAtLeastP();
     method @Deprecated public static boolean isAtLeastQ();
+    method public static boolean isAtLeastR();
   }
 
   public final class CancellationSignal {
