@@ -21,20 +21,15 @@ import androidx.ui.engine.geometry.Offset
 import androidx.ui.painting.LinearGradientShader
 import androidx.ui.painting.Paint
 import androidx.ui.painting.RadialGradientShader
+import androidx.ui.painting.Shader
 import androidx.ui.painting.TileMode
 
-val EmptyBrush = object : Brush {
-    override fun applyBrush(p: Paint) {
-        // NO-OP
-    }
-}
-
 interface Brush {
-    fun applyBrush(p: Paint)
+    fun applyTo(p: Paint)
 }
 
-data class SolidColor(private val value: Color) : Brush {
-    override fun applyBrush(p: Paint) {
+class SolidColor(val value: Color) : Brush {
+    override fun applyTo(p: Paint) {
         p.color = value
     }
 }
@@ -42,29 +37,14 @@ data class SolidColor(private val value: Color) : Brush {
 typealias ColorStop = Pair<Float, Color>
 
 /**
- * Obtains actual Brush instance from Union type, throws an IllegalArgumentException
- * if the type is other than Int, Color, Brush or null
- */
-fun obtainBrush(brush: Any?): Brush {
-    return when (brush) {
-        is Int -> SolidColor(Color(brush))
-        is Color -> SolidColor(brush)
-        is Brush -> brush
-        null -> EmptyBrush
-        else -> throw IllegalArgumentException(brush.javaClass.simpleName +
-                "Brush must be either a Color long, LinearGradient or RadialGradient")
-    }
-}
-
-/**
  * Creates a linear gradient with the provided colors along the given start and end coordinates.
  * The colors are
  *
  * ```
  *  LinearGradient(
- *      0.0f to Color.Aqua,
- *      0.3f to Color.Lime,
- *      1.0f to Color.Fuchsia,
+ *      0.0f to Color.Red,
+ *      0.3f to Color.Green,
+ *      1.0f to Color.Blue,
  *      startX = Px.Zero,
  *      startY = Px(50.0f),
  *      endY = Px.Zero,
@@ -97,9 +77,9 @@ fun LinearGradient(
  *
  * ```
  *  LinearGradient(
- *      0.0f to Color.Aqua,
- *      0.3f to Color.Lime,
- *      1.0f to Color.Fuchsia,
+ *      0.0f to Color.Red,
+ *      0.3f to Color.Green,
+ *      1.0f to Color.Blue,
  *      startX = Px.Zero,
  *      startY = Px(50.0f),
  *      endY = Px.Zero,
@@ -130,9 +110,9 @@ fun LinearGradient(
  * Creates a radial gradient with the given colors at the provided offset defined in the [ColorStop]
  * ```
  * RadialGradient(
- *      0.0f to Color.Navy,
- *      0.3f to Color.Olive,
- *      1.0f to Color.Teal,
+ *      0.0f to Color.Red,
+ *      0.3f to Color.Green,
+ *      1.0f to Color.Blue,
  *      centerX = side1 / 2.0f,
  *      centerY = side2 / 2.0f,
  *      radius = side1 / 2.0f,
@@ -161,9 +141,9 @@ fun RadialGradient(
  * Creates a radial gradient with the given colors evenly dispersed within the gradient
  * ```
  * RadialGradient(
- *      Color.Navy,
- *      Color.Olive,
- *      Color.Teal,
+ *      Color.Red,
+ *      Color.Green,
+ *      Color.Blue,
  *      centerX = side1 / 2.0f,
  *      centerY = side2 / 2.0f,
  *      radius = side1 / 2.0f,
@@ -186,9 +166,9 @@ fun RadialGradient(
  * Ex:
  * ```
  *  VerticalGradient(
- *      Color.Aqua,
- *      Color.Lime,
- *      Color.Fuchsia,
+ *      Color.Red,
+ *      Color.Green,
+ *      Color.Blue,
  *      startY = Px.Zero,
  *      endY = Px(100.0f)
  * )
@@ -217,9 +197,9 @@ fun VerticalGradient(
  * Ex:
  * ```
  *  VerticalGradient(
- *      Color.Aqua,
- *      Color.Lime,
- *      Color.Fuchsia,
+ *      Color.Red,
+ *      Color.Green,
+ *      Color.Blue,
  *      startY = Px.Zero,
  *      endY = Px(100.0f)
  * )
@@ -248,9 +228,9 @@ fun VerticalGradient(
  * Ex:
  * ```
  *  HorizontalGradient(
- *      Color.Aqua,
- *      Color.Lime,
- *      Color.Fuchsia,
+ *      Color.Red,
+ *      Color.Green,
+ *      Color.Blue,
  *      startX = Px(10.0f),
  *      endX = Px(20.0f)
  * )
@@ -279,9 +259,9 @@ fun HorizontalGradient(
  * Ex:
  * ```
  *  HorizontalGradient(
- *      0.0f to Color.Aqua,
- *      0.3f to Color.Lime,
- *      1.0f to Color.Fuchsia,
+ *      0.0f to Color.Red,
+ *      0.3f to Color.Green,
+ *      1.0f to Color.Blue,
  *      startX = Px.Zero,
  *      endX = Px(100.0f)
  * )
@@ -315,19 +295,15 @@ data class LinearGradient internal constructor(
     private val endX: Px,
     private val endY: Px,
     private val tileMode: TileMode = TileMode.Clamp
-) : Brush {
-
-    private val shader = LinearGradientShader(
-        Offset(startX.value, startY.value),
-        Offset(endX.value, endY.value),
-        colors,
-        stops,
-        tileMode)
-
-    override fun applyBrush(p: Paint) {
-        p.shader = shader
-    }
-}
+) : ShaderBrush(
+        LinearGradientShader(
+            Offset(startX.value, startY.value),
+            Offset(endX.value, endY.value),
+            colors,
+            stops,
+            tileMode
+        )
+    )
 
 /**
  * Brush implementation used to apply a radial gradient on a given [Paint]
@@ -339,17 +315,21 @@ data class RadialGradient internal constructor(
     private val centerY: Float,
     private val radius: Float,
     private val tileMode: TileMode = TileMode.Clamp
-) : Brush {
-
-    private val shader = RadialGradientShader(
-        Offset(centerX, centerY),
-        radius,
-        colors,
-        stops,
-        tileMode
+) : ShaderBrush(
+        RadialGradientShader(
+            Offset(centerX, centerY),
+            radius,
+            colors,
+            stops,
+            tileMode
+        )
     )
 
-    override fun applyBrush(p: Paint) {
+/**
+ * Brush implementation that wraps and applies a the provided shader to a [Paint]
+ */
+open class ShaderBrush(val shader: Shader) : Brush {
+    override fun applyTo(p: Paint) {
         p.shader = shader
     }
 }

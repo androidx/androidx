@@ -18,11 +18,16 @@ package androidx.ui.graphics.vector.compat
 
 import android.content.res.Resources
 import android.util.AttributeSet
+import androidx.core.content.res.ComplexColorCompat
 import androidx.core.content.res.TypedArrayUtils
 import androidx.ui.core.Px
 import androidx.ui.graphics.vector.VectorAssetBuilder
+import androidx.ui.graphics.Brush
+import androidx.ui.graphics.Color
+import androidx.ui.graphics.ShaderBrush
+import androidx.ui.graphics.SolidColor
 
-import androidx.ui.graphics.EmptyBrush
+import androidx.ui.painting.Shader
 import androidx.ui.painting.StrokeCap
 import androidx.ui.painting.StrokeJoin
 import androidx.ui.graphics.vector.addPathNodes
@@ -284,11 +289,8 @@ internal fun XmlPullParser.parsePath(
 
     a.recycle()
 
-    @Suppress("IMPLICIT_CAST_TO_ANY")
-    val fillBrush = if (fillColor.willDraw()) fillColor.color else EmptyBrush
-
-    @Suppress("IMPLICIT_CAST_TO_ANY")
-    val strokeBrush = if (strokeColor.willDraw()) strokeColor.color else EmptyBrush
+    val fillBrush = obtainBrushFromComplexColor(fillColor)
+    val strokeBrush = obtainBrushFromComplexColor(strokeColor)
 
     builder.addPath(
         pathData,
@@ -302,6 +304,19 @@ internal fun XmlPullParser.parsePath(
         strokeLineJoin,
         strokeMiterLimit)
 }
+
+@SuppressWarnings("RestrictedApi")
+private fun obtainBrushFromComplexColor(complexColor: ComplexColorCompat): Brush? =
+   if (complexColor.willDraw()) {
+       val shader = complexColor.shader
+       if (shader != null) {
+           ShaderBrush(Shader(shader))
+       } else {
+           SolidColor(Color(complexColor.color))
+       }
+   } else {
+       null
+   }
 
 @SuppressWarnings("RestrictedApi")
 internal fun XmlPullParser.parseGroup(

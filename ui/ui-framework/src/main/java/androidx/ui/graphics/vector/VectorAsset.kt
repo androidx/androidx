@@ -19,7 +19,7 @@ package androidx.ui.graphics.vector
 import androidx.compose.Composable
 import androidx.compose.composer
 import androidx.ui.core.Px
-import androidx.ui.graphics.EmptyBrush
+import androidx.ui.graphics.Brush
 import androidx.ui.painting.StrokeCap
 import androidx.ui.painting.StrokeJoin
 import java.util.Stack
@@ -89,7 +89,7 @@ class VectorAssetBuilder(
         scaleY: Float = DefaultScaleY,
         translationX: Float = DefaultTranslationX,
         translationY: Float = DefaultTranslationY,
-        clipPathData: PathData = EmptyPath
+        clipPathData: Array<PathNode> = EmptyPath
     ): VectorAssetBuilder {
         ensureNotConsumed()
         val group = VectorGroup(
@@ -125,11 +125,11 @@ class VectorAssetBuilder(
      * @return This VectorAssetBuilder instance as a convenience for chaining calls
      */
     fun addPath(
-        pathData: PathData,
+        pathData: Array<PathNode>,
         name: String = DefaultPathName,
-        fill: BrushType = EmptyBrush,
+        fill: Brush? = null,
         fillAlpha: Float = DefaultAlpha,
-        stroke: BrushType = EmptyBrush,
+        stroke: Brush? = null,
         strokeAlpha: Float = DefaultAlpha,
         strokeLineWidth: Float = DefaultStrokeLineWidth,
         strokeLineCap: StrokeCap = DefaultStrokeLineCap,
@@ -281,7 +281,7 @@ class VectorGroup(
     /**
      * Path information used to clip the content within the group
      */
-    val clipPathData: PathData = EmptyPath
+    val clipPathData: Array<PathNode> = EmptyPath
 
 ) : VectorNode(), Iterable<VectorNode> {
 
@@ -323,12 +323,12 @@ class VectorPath(
     /**
      * Path information to render the shape of the path
      */
-    val pathData: PathData,
+    val pathData: Array<PathNode>,
 
     /**
      *  Specifies the color or gradient used to fill the path
      */
-    val fill: BrushType = EmptyBrush,
+    val fill: Brush? = null,
 
     /**
      * Opacity to fill the path
@@ -338,7 +338,7 @@ class VectorPath(
     /**
      * Specifies the color or gradient used to fill the stroke
      */
-    val stroke: BrushType = EmptyBrush,
+    val stroke: Brush? = null,
 
     /**
      * Opacity to stroke the path
