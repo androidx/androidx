@@ -140,6 +140,17 @@ class BenchmarkPlugin : Plugin<Project> {
                     // adb.
                     it.finalizedBy("benchmarkReport")
                 }
+
+                val legacyRunner = "androidx.benchmark.AndroidBenchmarkRunner"
+                if (defaultConfig.testInstrumentationRunner == legacyRunner) {
+                    throw StopExecutionException(
+                        """Detected usage of the testInstrumentationRunner,
+                            androidx.benchmark.AndroidBenchmarkRunner, in project ${project.name},
+                            which is no longer valid as it has been moved to
+                            androidx.benchmark.junit4.AndroidBenchmarkRunner."""
+                            .trimIndent()
+                    )
+                }
             }
         }
     }
