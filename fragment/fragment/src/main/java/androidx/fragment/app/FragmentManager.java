@@ -3226,7 +3226,7 @@ public abstract class FragmentManager {
     @SuppressWarnings("ReferenceEquality")
     void setPrimaryNavigationFragment(Fragment f) {
         if (f != null && (findActiveFragment(f.mWho) != f
-                || (f.mHost != null && f.getFragmentManager() != this))) {
+                || (f.mHost != null && f.mFragmentManager != this))) {
             throw new IllegalArgumentException("Fragment " + f
                     + " is not an active fragment of FragmentManager " + this);
         }
@@ -3267,7 +3267,7 @@ public abstract class FragmentManager {
 
     void setMaxLifecycle(Fragment f, Lifecycle.State state) {
         if ((findActiveFragment(f.mWho) != f
-                || (f.mHost != null && f.getFragmentManager() != this))) {
+                || (f.mHost != null && f.mFragmentManager != this))) {
             throw new IllegalArgumentException("Fragment " + f
                     + " is not an active fragment of FragmentManager " + this);
         }

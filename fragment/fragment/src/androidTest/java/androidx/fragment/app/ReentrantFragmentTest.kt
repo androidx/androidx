@@ -158,7 +158,7 @@ class ReentrantFragment : StrictFragment() {
     }
 
     private fun executeTransaction() {
-        requireFragmentManager().beginTransaction()
+        parentFragmentManager.beginTransaction()
             .add(StrictFragment(), "should throw")
             .commitNow()
     }

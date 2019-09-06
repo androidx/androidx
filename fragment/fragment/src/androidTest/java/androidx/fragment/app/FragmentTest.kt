@@ -255,6 +255,7 @@ class FragmentTest {
         assertThat(childFragment.requireParentFragment()).isSameInstanceAs(parentFragment)
     }
 
+    @Suppress("DEPRECATION") // needed for requireFragmentManager()
     @SmallTest
     @Test
     fun requireMethodsThrowsWhenNotAttached() {
@@ -309,6 +310,15 @@ class FragmentTest {
 
         try {
             fragment.requireFragmentManager()
+            fail()
+        } catch (expected: IllegalStateException) {
+            assertThat(expected)
+                .hasMessageThat()
+                .contains("Fragment $fragment not associated with a fragment manager.")
+        }
+
+        try {
+            fragment.parentFragmentManager
             fail()
         } catch (expected: IllegalStateException) {
             assertThat(expected)
