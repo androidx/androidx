@@ -406,6 +406,39 @@ inline class PxInverse(val value: Float) {
  * A two dimensional size using [Px] for units
  */
 data class PxSize(val width: Px, val height: Px) {
+    /**
+     * Returns a PxSize scaled by multiplying [width] and [height] by [other]
+     */
+    inline operator fun times(other: Int): PxSize =
+        PxSize(width = width * other, height = height * other)
+
+    /**
+     * Returns a PxSize scaled  by multiplying [width] and [height] by [other]
+     */
+    inline operator fun times(other: Float): PxSize =
+        PxSize(width = width * other, height = height * other)
+
+    /**
+     * Returns a PxSize scaled  by multiplying [width] and [height] by [other]
+     */
+    inline operator fun times(other: Double): PxSize = times(other.toFloat())
+
+    /**
+     * Returns a PxSize scaled  by dividing [width] and [height] by [other]
+     */
+    inline operator fun div(other: Int): PxSize =
+        PxSize(width = width / other, height = height / other)
+
+    /**
+     * Returns a PxSize scaled  by dividing [width] and [height] by [other]
+     */
+    inline operator fun div(other: Float): PxSize =
+        PxSize(width = width / other, height = height / other)
+
+    /**
+     * Returns a PxSize scaled  by dividing [width] and [height] by [other]
+     */
+    inline operator fun div(other: Double): PxSize = div(other.toFloat())
 
     companion object {
         /**
@@ -414,6 +447,21 @@ data class PxSize(val width: Px, val height: Px) {
         val Zero = PxSize(0.px, 0.px)
     }
 }
+
+/**
+ * Returns a [PxSize] with [size]'s [PxSize.width] and [PxSize.height] multiplied by [this]
+ */
+inline operator fun Int.times(size: PxSize) = size * this
+
+/**
+ * Returns a [PxSize] with [size]'s [PxSize.width] and [PxSize.height] multiplied by [this]
+ */
+inline operator fun Float.times(size: PxSize) = size * this
+
+/**
+ * Returns a [PxSize] with [size]'s [PxSize.width] and [PxSize.height] multiplied by [this]
+ */
+inline operator fun Double.times(size: PxSize) = size * this
 
 /**
  * Returns the [PxPosition] of the center of the rect from the point of [0, 0]

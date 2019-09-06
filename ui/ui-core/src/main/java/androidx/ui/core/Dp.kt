@@ -407,7 +407,57 @@ inline class DpInverse(val value: Float) {
  * A two dimensional size using [Dp] for units
  */
 @Immutable
-data class Size(val width: Dp, val height: Dp)
+data class Size(val width: Dp, val height: Dp) {
+    /**
+     * Scales the Size by multiplying [width] and [height] by [other]
+     */
+    inline operator fun times(other: Int): Size =
+        Size(width = width * other, height = height * other)
+
+    /**
+     * Scales the Size by multiplying [width] and [height] by [other]
+     */
+    inline operator fun times(other: Float): Size =
+        Size(width = width * other, height = height * other)
+
+    /**
+     * Scales the Size by multiplying [width] and [height] by [other]
+     */
+    inline operator fun times(other: Double): Size = times(other.toFloat())
+
+    /**
+     * Scales the Size by dividing [width] and [height] by [other]
+     */
+    inline operator fun div(other: Int): Size =
+        Size(width = width / other, height = height / other)
+
+    /**
+
+     * Scales the Size by dividing [width] and [height] by [other]
+     */
+    inline operator fun div(other: Float): Size =
+        Size(width = width / other, height = height / other)
+
+    /**
+     * Scales the Size by dividing [width] and [height] by [other]
+     */
+    inline operator fun div(other: Double): Size = div(other.toFloat())
+}
+
+/**
+ * Returns a [Size] with [size]'s [Size.width] and [Size.height] multiplied by [this]
+ */
+inline operator fun Int.times(size: Size) = size * this
+
+/**
+ * Returns a [Size] with [size]'s [Size.width] and [Size.height] multiplied by [this]
+ */
+inline operator fun Float.times(size: Size) = size * this
+
+/**
+ * Returns a [Size] with [size]'s [Size.width] and [Size.height] multiplied by [this]
+ */
+inline operator fun Double.times(size: Size) = size * this
 
 /**
  * Returns the [Position] of the center of the rect from the point of [0, 0]
