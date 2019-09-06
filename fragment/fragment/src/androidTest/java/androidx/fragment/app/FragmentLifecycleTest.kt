@@ -1106,9 +1106,9 @@ class FragmentLifecycleTest {
     class RemoveHelloInOnResume : Fragment() {
         override fun onResume() {
             super.onResume()
-            val fragment = fragmentManager!!.findFragmentByTag("Hello")
+            val fragment = parentFragmentManager.findFragmentByTag("Hello")
             if (fragment != null) {
-                fragmentManager!!.beginTransaction().remove(fragment).commit()
+                parentFragmentManager.beginTransaction().remove(fragment).commit()
             }
         }
     }

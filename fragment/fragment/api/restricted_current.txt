@@ -40,7 +40,7 @@ package androidx.fragment.app {
     method public androidx.lifecycle.ViewModelProvider.Factory getDefaultViewModelProviderFactory();
     method public Object? getEnterTransition();
     method public Object? getExitTransition();
-    method public final androidx.fragment.app.FragmentManager? getFragmentManager();
+    method @Deprecated public final androidx.fragment.app.FragmentManager? getFragmentManager();
     method public final Object? getHost();
     method public final int getId();
     method public final android.view.LayoutInflater getLayoutInflater();
@@ -48,6 +48,7 @@ package androidx.fragment.app {
     method public androidx.lifecycle.Lifecycle getLifecycle();
     method @Deprecated public androidx.loader.app.LoaderManager getLoaderManager();
     method public final androidx.fragment.app.Fragment? getParentFragment();
+    method public final androidx.fragment.app.FragmentManager getParentFragmentManager();
     method public Object? getReenterTransition();
     method public final android.content.res.Resources getResources();
     method public final boolean getRetainInstance();
@@ -122,7 +123,7 @@ package androidx.fragment.app {
     method public final androidx.fragment.app.FragmentActivity requireActivity();
     method public final android.os.Bundle requireArguments();
     method public final android.content.Context requireContext();
-    method public final androidx.fragment.app.FragmentManager requireFragmentManager();
+    method @Deprecated public final androidx.fragment.app.FragmentManager requireFragmentManager();
     method public final Object requireHost();
     method public final androidx.fragment.app.Fragment requireParentFragment();
     method public final android.view.View requireView();

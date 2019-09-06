@@ -301,7 +301,7 @@ class FragmentScenarioDialogFragmentTest {
                 assertThat(fragment.dialog).isNotNull()
                 assertThat(fragment.requireDialog().isShowing).isTrue()
                 fragment.dismiss()
-                fragment.requireFragmentManager().executePendingTransactions()
+                fragment.parentFragmentManager.executePendingTransactions()
                 assertThat(fragment.dialog).isNull()
             }
         }

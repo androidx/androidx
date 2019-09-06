@@ -726,8 +726,9 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
         // but there's a snag: people do set target fragments before fragments get added.
         // We'll have the FragmentManager check that for validity when we move
         // the fragments to a valid state.
-        final FragmentManager mine = getFragmentManager();
-        final FragmentManager theirs = fragment != null ? fragment.getFragmentManager() : null;
+        final FragmentManager mine = mFragmentManager;
+        final FragmentManager theirs = fragment != null ? fragment.mFragmentManager :
+                null;
         if (mine != null && theirs != null && mine != theirs) {
             throw new IllegalArgumentException("Fragment " + fragment
                     + " must share the same FragmentManager to be set as a target fragment");
@@ -910,9 +911,14 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * <p>If this Fragment is a child of another Fragment, the FragmentManager
      * returned here will be the parent's {@link #getChildFragmentManager()}.
      *
-     * @see #requireFragmentManager()
+     * @see #getParentFragmentManager()
+     * @deprecated This has been removed in favor of <code>getParentFragmentManager()</code> which
+     * throws an {@link IllegalStateException} if the FragmentManager is null. Check if
+     * {@link #isAdded()} returns <code>false</code> to determine if the FragmentManager is
+     * <code>null</code>.
      */
     @Nullable
+    @Deprecated
     final public FragmentManager getFragmentManager() {
         return mFragmentManager;
     }
@@ -928,16 +934,37 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * returned here will be the parent's {@link #getChildFragmentManager()}.
      *
      * @throws IllegalStateException if not associated with a transaction or host.
-     * @see #getFragmentManager()
      */
     @NonNull
-    public final FragmentManager requireFragmentManager() {
-        FragmentManager fragmentManager = getFragmentManager();
+    public final FragmentManager getParentFragmentManager() {
+        FragmentManager fragmentManager = mFragmentManager;
         if (fragmentManager == null) {
             throw new IllegalStateException(
                     "Fragment " + this + " not associated with a fragment manager.");
         }
         return fragmentManager;
+    }
+
+    /**
+     * Return the FragmentManager for interacting with fragments associated
+     * with this fragment's activity.  Note that this will available slightly
+     * before {@link #getActivity()}, during the time from when the fragment is
+     * placed in a {@link FragmentTransaction} until it is committed and
+     * attached to its activity.
+     *
+     * <p>If this Fragment is a child of another Fragment, the FragmentManager
+     * returned here will be the parent's {@link #getChildFragmentManager()}.
+     *
+     * @throws IllegalStateException if not associated with a transaction or host.
+     * @see #getParentFragmentManager()
+     * @deprecated This has been renamed to <code>getParentFragmentManager()</code> to make it
+     * clear that you are accessing the FragmentManager that contains this Fragment and not the
+     * FragmentManager associated with child Fragments.
+     */
+    @NonNull
+    @Deprecated
+    public final FragmentManager requireFragmentManager() {
+        return getParentFragmentManager();
     }
 
     /**
@@ -1860,7 +1887,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
 
     /**
      * Callback for when the primary navigation state of this Fragment has changed. This can be
-     * the result of the {@link #getFragmentManager() containing FragmentManager} having its
+     * the result of the {@link #getParentFragmentManager()}  containing FragmentManager} having its
      * primary navigation fragment changed via
      * {@link androidx.fragment.app.FragmentTransaction#setPrimaryNavigationFragment} or due to
      * the primary navigation fragment changing in a parent FragmentManager.
