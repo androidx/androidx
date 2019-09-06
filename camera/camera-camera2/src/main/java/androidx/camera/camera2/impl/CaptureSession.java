@@ -354,14 +354,24 @@ final class CaptureSession {
                     if (mCameraCaptureSession != null) {
                         if (abortInFlightCaptures) {
                             try {
+                                // Abort and set the state to releasing. The session will be
+                                // closed in onReady() when the abort is done to avoid a
+                                // race condition(b/139448807).
+                                // It's safe to close the session in onReady() because currently
+                                // abortCaptures() is always followed by an onReady(). We
+                                // will have to revisit this if framework's behavior changes in the
+                                // future.
                                 mCameraCaptureSession.abortCaptures();
+                                mState = State.RELEASING;
                             } catch (CameraAccessException e) {
                                 // We couldn't abort the captures, but we should continue on to
                                 // release the session.
                                 Log.e(TAG, "Unable to abort captures.", e);
+                                mCameraCaptureSession.close();
                             }
+                        } else {
+                            mCameraCaptureSession.close();
                         }
-                        mCameraCaptureSession.close();
                     }
                     // Fall through
                 case OPENING:
@@ -738,9 +748,17 @@ final class CaptureSession {
                     case UNINITIALIZED:
                         throw new IllegalStateException(
                                 "onReady() should not be possible in state: " + mState);
+                    case RELEASING:
+                        if (mCameraCaptureSession == null) {
+                            // No-op for releasing an unopened session.
+                            break;
+                        }
+                        // The abortCaptures() called in release() has successfully finished.
+                        mCameraCaptureSession.close();
+                        break;
                     default:
                 }
-                Log.d(TAG, "CameraCaptureSession.onReady()");
+                Log.d(TAG, "CameraCaptureSession.onReady() " + mState);
             }
         }
 
@@ -785,7 +803,7 @@ final class CaptureSession {
                         mState = State.RELEASING;
                         session.close();
                 }
-                Log.e(TAG, "CameraCaptureSession.onConfiguredFailed()");
+                Log.e(TAG, "CameraCaptureSession.onConfiguredFailed() " + mState);
             }
         }
     }
