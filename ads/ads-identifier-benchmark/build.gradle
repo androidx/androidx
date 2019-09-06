@@ -15,45 +15,24 @@
  */
 
 import static androidx.build.dependencies.DependenciesKt.*
-import androidx.build.LibraryGroups
-import androidx.build.LibraryVersions
-import androidx.build.Publish
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
+    id("androidx.benchmark")
 }
 
 dependencies {
-    api("androidx.annotation:annotation:1.1.0")
-    implementation("androidx.core:core:1.1.0")
-    implementation(AUTO_VALUE_ANNOTATIONS)
-    annotationProcessor(AUTO_VALUE)
-    api(GUAVA_LISTENABLE_FUTURE)
-    implementation("androidx.concurrent:concurrent-futures:1.0.0-rc01")
-
-    implementation(project(":ads-identifier-common"))
-
+    androidTestImplementation(project(":benchmark:benchmark-junit4"))
+    androidTestImplementation(project(":ads-identifier-common"))
+    androidTestImplementation(project(":ads-identifier"))
+    androidTestImplementation(project(":ads-identifier-provider"))
     androidTestImplementation(project(":ads-identifier-testing"))
+    androidTestImplementation(project(':work:work-runtime'))
     androidTestImplementation(JUNIT)
     androidTestImplementation(TRUTH)
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
     androidTestImplementation(ANDROIDX_TEST_CORE)
     androidTestImplementation(ANDROIDX_TEST_RUNNER)
     androidTestImplementation(ANDROIDX_TEST_RULES)
-}
-
-android {
-    defaultConfig {
-        minSdkVersion 14
-    }
-}
-
-androidx {
-    name = "AndroidX Ads Identifier"
-    publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenVersion = LibraryVersions.ADS_IDENTIFIER
-    mavenGroup = LibraryGroups.ADS
-    inceptionYear = "2019"
-    description = "AndroidX Ads Identifier"
 }
