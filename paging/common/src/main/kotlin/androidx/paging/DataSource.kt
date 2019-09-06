@@ -560,14 +560,6 @@ internal constructor(internal val type: KeyType) {
 
     internal abstract fun getKeyInternal(item: Value): Key
 
-    /**
-     * Determine whether an error passed to a loading method is retryable.
-     *
-     * @param error Throwable returned from an attempted load from this DataSource.
-     * @return `true` if the error is retryable, otherwise false.
-     */
-    open fun isRetryableError(error: Throwable) = false
-
     internal companion object {
         internal fun <A, B> convert(
             function: Function<List<A>, List<B>>,

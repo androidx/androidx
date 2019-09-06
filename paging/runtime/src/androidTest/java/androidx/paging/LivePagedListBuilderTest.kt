@@ -103,8 +103,8 @@ class LivePagedListBuilderTest {
 
         var throwable: Throwable? = null
 
-        fun enqueueRetryableError() {
-            throwable = RETRYABLE_EXCEPTION
+        fun enqueueError() {
+            throwable = EXCEPTION
         }
 
         private inner class MockPagedSource : PagedSource<Int, String>() {
@@ -114,8 +114,6 @@ class LivePagedListBuilderTest {
                 LoadType.REFRESH -> loadInitial(params)
                 else -> loadRange()
             }
-
-            override fun isRetryableError(error: Throwable) = error === RETRYABLE_EXCEPTION
 
             private fun loadInitial(params: LoadParams<Int>): LoadResult<Int, String> {
                 assertEquals(2, params.pageSize)
@@ -174,7 +172,7 @@ class LivePagedListBuilderTest {
     @Test
     fun failedLoad() {
         val factory = MockDataSourceFactory()
-        factory.enqueueRetryableError()
+        factory.enqueueError()
 
         val livePagedList = LivePagedListBuilder(factory::create, 2)
             .setFetchExecutor(backgroundExecutor)
@@ -209,7 +207,7 @@ class LivePagedListBuilderTest {
             listOf(
                 LoadState(REFRESH, Idle),
                 LoadState(REFRESH, Loading),
-                LoadState(REFRESH, Error(RETRYABLE_EXCEPTION, true))
+                LoadState(REFRESH, Error(EXCEPTION))
             ), loadStates
         )
 
@@ -226,7 +224,7 @@ class LivePagedListBuilderTest {
             listOf(
                 LoadState(REFRESH, Idle),
                 LoadState(REFRESH, Loading),
-                LoadState(REFRESH, Error(RETRYABLE_EXCEPTION, true)),
+                LoadState(REFRESH, Error(EXCEPTION)),
                 LoadState(REFRESH, Loading)
             ), loadStates
         )
@@ -238,7 +236,7 @@ class LivePagedListBuilderTest {
             listOf(
                 LoadState(REFRESH, Idle),
                 LoadState(REFRESH, Loading),
-                LoadState(REFRESH, Error(RETRYABLE_EXCEPTION, true)),
+                LoadState(REFRESH, Error(EXCEPTION)),
                 LoadState(REFRESH, Loading),
                 LoadState(REFRESH, Idle)
             ),
@@ -255,6 +253,6 @@ class LivePagedListBuilderTest {
     }
 
     companion object {
-        val RETRYABLE_EXCEPTION = Exception("retryable")
+        val EXCEPTION = Exception("")
     }
 }

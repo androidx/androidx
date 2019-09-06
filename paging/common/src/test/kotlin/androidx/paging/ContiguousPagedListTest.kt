@@ -68,8 +68,6 @@ class ContiguousPagedListTest(private val placeholdersEnabled: Boolean) {
             }
         }
 
-        override fun isRetryableError(error: Throwable) = true
-
         fun enqueueErrorForIndex(index: Int) {
             errorIndices.add(index)
         }
@@ -605,7 +603,7 @@ class ContiguousPagedListTest(private val placeholdersEnabled: Boolean) {
         // load now in error state
         drain()
         assertEquals(
-            listOf(StateChange(LoadType.END, LoadState.Error(EXCEPTION, true))),
+            listOf(StateChange(LoadType.END, LoadState.Error(EXCEPTION))),
             states.getAllAndClear()
         )
         verifyRange(0, 60, pagedList)
@@ -660,7 +658,7 @@ class ContiguousPagedListTest(private val placeholdersEnabled: Boolean) {
         assertEquals(
             listOf(
                 StateChange(LoadType.START, LoadState.Loading),
-                StateChange(LoadType.START, LoadState.Error(EXCEPTION, true))
+                StateChange(LoadType.START, LoadState.Error(EXCEPTION))
             ),
             states.getAllAndClear()
         )
@@ -708,7 +706,7 @@ class ContiguousPagedListTest(private val placeholdersEnabled: Boolean) {
         assertEquals(
             listOf(
                 StateChange(LoadType.END, LoadState.Loading),
-                StateChange(LoadType.END, LoadState.Error(EXCEPTION, true))
+                StateChange(LoadType.END, LoadState.Error(EXCEPTION))
             ),
             states.getAllAndClear()
         )
@@ -741,7 +739,7 @@ class ContiguousPagedListTest(private val placeholdersEnabled: Boolean) {
             listOf(
                 StateChange(LoadType.END, LoadState.Idle),
                 StateChange(LoadType.END, LoadState.Loading),
-                StateChange(LoadType.END, LoadState.Error(EXCEPTION, true))
+                StateChange(LoadType.END, LoadState.Error(EXCEPTION))
             ),
             states.getAllAndClear()
         )

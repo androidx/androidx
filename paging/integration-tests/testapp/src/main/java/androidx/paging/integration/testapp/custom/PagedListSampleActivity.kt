@@ -99,7 +99,7 @@ class PagedListSampleActivity : AppCompatActivity() {
                 }
                 is Error -> {
                     button.text = "Error"
-                    button.isEnabled = state.retryable
+                    button.isEnabled = true
                 }
             }
         }

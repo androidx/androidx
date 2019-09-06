@@ -42,16 +42,11 @@ sealed class LoadState {
     object Done : LoadState()
 
     /**
-     * Loading hit an error, which may be retryable.
+     * Loading hit an error.
      *
      * @param error [Throwable] that caused the load operation to generate this error state.
-     * @param retryable `true if the load operation that generated this error state can be
-     * retried, `false` otherwise.
      *
      * @see androidx.paging.PagedList.retry
      */
-    data class Error(
-        val error: Throwable,
-        @get:JvmName("isRetryable") val retryable: Boolean
-    ) : LoadState()
+    data class Error(val error: Throwable) : LoadState()
 }

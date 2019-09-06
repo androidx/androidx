@@ -59,10 +59,6 @@ internal class ItemDataSource : PagedSource<Int, Item>() {
         return items
     }
 
-    override fun isRetryableError(error: Throwable): Boolean {
-        return error is RetryableItemError
-    }
-
     companion object {
         private const val COUNT = 60
 

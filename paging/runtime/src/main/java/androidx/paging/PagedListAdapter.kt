@@ -231,7 +231,7 @@ abstract class PagedListAdapter<T : Any, VH : RecyclerView.ViewHolder> : Recycle
      * can be used to drive loading spinner items in the Adapter.
      *
      * @param type [LoadType] Can be START, END, or REFRESH
-     * @param state [LoadState] IDLE, LOADING, DONE, or ERROR - which may be retryable.
+     * @param state [LoadState] Idle, Loading, Done, or Error.
      */
     open fun onLoadStateChanged(type: LoadType, state: LoadState) {
     }
