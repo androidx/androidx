@@ -149,6 +149,7 @@ public class Processor implements ExecutionListener, ForegroundProcessor {
                     workSpecId));
             if (mForegroundLock == null) {
                 mForegroundLock = WakeLocks.newWakeLock(mAppContext, FOREGROUND_WAKELOCK_TAG);
+                mForegroundLock.acquire();
             }
             WorkerWrapper wrapper = mEnqueuedWorkMap.remove(workSpecId);
             if (wrapper != null) {
