@@ -18,6 +18,7 @@ package androidx.work;
 
 import static androidx.work.impl.Scheduler.MAX_SCHEDULER_LIMIT;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Build;
 import android.util.Log;
@@ -46,6 +47,7 @@ public final class Configuration {
      * The minimum number of system requests which can be enqueued by {@link WorkManager}
      * when using {@link android.app.job.JobScheduler} or {@link android.app.AlarmManager}.
      */
+    @SuppressLint("MinMaxConstant")
     public static final int MIN_SCHEDULER_LIMIT = 20;
 
     // Synthetic access

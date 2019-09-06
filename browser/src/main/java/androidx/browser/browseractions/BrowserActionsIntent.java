@@ -19,6 +19,7 @@ package androidx.browser.browseractions;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
+import android.annotation.SuppressLint;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
@@ -117,6 +118,7 @@ public class BrowserActionsIntent {
     /**
      * The maximum allowed number of custom items.
      */
+    @SuppressLint("MinMaxConstant")
     public static final int MAX_CUSTOM_ITEMS = 5;
 
     /**

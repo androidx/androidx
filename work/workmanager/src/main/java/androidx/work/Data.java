@@ -16,6 +16,7 @@
 
 package androidx.work;
 
+import android.annotation.SuppressLint;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -57,6 +58,7 @@ public final class Data {
      * The maximum number of bytes for Data when it is serialized (converted to a byte array).
      * Please see the class-level Javadoc for more information.
      */
+    @SuppressLint("MinMaxConstant")
     public static final int MAX_DATA_BYTES = 10 * 1024;    // 10KB
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
