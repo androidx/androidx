@@ -103,4 +103,19 @@ public class BuildCompat {
     public static boolean isAtLeastQ() {
         return VERSION.SDK_INT >= 29;
     }
+
+    /**
+     * Checks if the device is running on a pre-release version of Android R or newer.
+     * <p>
+     * <strong>Note:</strong> This method will return {@code false} on devices running release
+     * versions of Android. When Android R is finalized for release, this method will be deprecated
+     * and all calls should be replaced with {@code Build.VERSION.SDK_INT >= Build.VERSION_CODES.R}.
+     *
+     * @return {@code true} if R APIs are available for use, {@code false} otherwise
+     */
+    public static boolean isAtLeastR() {
+        return VERSION.CODENAME.length() == 1
+                && VERSION.CODENAME.charAt(0) >= 'R'
+                && VERSION.CODENAME.charAt(0) <= 'Z';
+    }
 }
