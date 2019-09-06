@@ -471,18 +471,22 @@ package androidx.appcompat.widget {
     method public void setTextAppearance(android.content.Context!, int);
   }
 
-  public class AppCompatButton extends android.widget.Button implements androidx.core.widget.AutoSizeableTextView androidx.core.view.TintableBackgroundView {
+  public class AppCompatButton extends android.widget.Button implements androidx.core.widget.AutoSizeableTextView androidx.core.view.TintableBackgroundView androidx.core.widget.TintableCompoundDrawablesView {
     ctor public AppCompatButton(android.content.Context);
     ctor public AppCompatButton(android.content.Context, android.util.AttributeSet?);
     ctor public AppCompatButton(android.content.Context, android.util.AttributeSet?, int);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public android.content.res.ColorStateList? getSupportBackgroundTintList();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public android.graphics.PorterDuff.Mode? getSupportBackgroundTintMode();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public android.content.res.ColorStateList? getSupportCompoundDrawablesTintList();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public android.graphics.PorterDuff.Mode? getSupportCompoundDrawablesTintMode();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void setAutoSizeTextTypeUniformWithConfiguration(int, int, int, int) throws java.lang.IllegalArgumentException;
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void setAutoSizeTextTypeUniformWithPresetSizes(int[], int) throws java.lang.IllegalArgumentException;
     method public void setBackgroundDrawable(android.graphics.drawable.Drawable!);
     method public void setSupportAllCaps(boolean);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void setSupportBackgroundTintList(android.content.res.ColorStateList?);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void setSupportBackgroundTintMode(android.graphics.PorterDuff.Mode?);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void setSupportCompoundDrawablesTintList(android.content.res.ColorStateList?);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void setSupportCompoundDrawablesTintMode(android.graphics.PorterDuff.Mode?);
     method public void setTextAppearance(android.content.Context!, int);
   }
 
