@@ -181,7 +181,6 @@ package androidx.car.uxrestrictions {
     method public int getMaxContentDepth();
     method public int getMaxCumulativeContentItems();
     method public int getMaxRestrictedStringLength();
-    method public long getTimestamp();
     method public boolean hasSameRestrictionsAs(androidx.car.uxrestrictions.CarUxRestrictions!);
     method public boolean isDistractionOptimizationRequired();
     field public static final int UX_RESTRICTIONS_BASELINE = 0; // 0x0
@@ -198,7 +197,7 @@ package androidx.car.uxrestrictions {
   }
 
   public static final class CarUxRestrictions.Builder {
-    ctor public CarUxRestrictions.Builder(boolean, int, long);
+    ctor public CarUxRestrictions.Builder(boolean, int);
     method public androidx.car.uxrestrictions.CarUxRestrictions build();
     method public androidx.car.uxrestrictions.CarUxRestrictions.Builder setMaxContentDepth(int);
     method public androidx.car.uxrestrictions.CarUxRestrictions.Builder setMaxCumulativeContentItems(int);
@@ -496,7 +495,7 @@ package androidx.car.widget {
     method public boolean isAlphaJumpShown();
     method public boolean isAtEnd();
     method public boolean isAtStart();
-    method public final boolean isScrollBarEnabled();
+    method public final boolean isScrollBarVisibleIfNeeded();
     method public boolean isScrollbarThumbEnabled();
     method public void onLayout(boolean, int, int, int, int);
     method public void onRestoreInstanceState(android.os.Parcelable!);
@@ -525,9 +524,10 @@ package androidx.car.widget {
     method public void setScrollBarButtonRippleBackground(@DrawableRes int);
     method public void setScrollBarButtonTintColor(@ColorRes int);
     method public void setScrollBarContainerWidth(@Px int);
-    method public final void setScrollBarEnabled(boolean);
+    method @Deprecated public final void setScrollBarEnabled(boolean);
     method public void setScrollBarGravity(int);
     method public void setScrollBarTopMargin(int);
+    method public final void setScrollBarVisibleIfNeeded(boolean);
     method public void setScrollbarThumbColor(@ColorRes int);
     method public void setScrollbarThumbEnabled(boolean);
     method public void setUpButtonIcon(android.graphics.drawable.Drawable!);
