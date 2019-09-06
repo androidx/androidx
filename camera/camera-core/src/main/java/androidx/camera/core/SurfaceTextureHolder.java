@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 The Android Open Source Project
+ * Copyright 2019 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,31 +16,27 @@
 
 package androidx.camera.core;
 
-import android.view.Surface;
+import android.graphics.SurfaceTexture;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
-import androidx.camera.core.impl.utils.futures.Futures;
-
-import com.google.common.util.concurrent.ListenableFuture;
 
 /**
- * A {@link DeferrableSurface} which always returns immediately.
- *
+ * A class that holds a {@link SurfaceTexture}.
  * @hide
  */
 @RestrictTo(Scope.LIBRARY_GROUP)
-public final class ImmediateSurface extends DeferrableSurface {
-    private final Surface mSurface;
-
-    public ImmediateSurface(@NonNull Surface surface) {
-        mSurface = surface;
-    }
-
-    @Override
+interface SurfaceTextureHolder {
+    /** Returns the held {@link SurfaceTexture}. */
     @NonNull
-    public ListenableFuture<Surface> provideSurface() {
-        return Futures.immediateFuture(mSurface);
-    }
+    SurfaceTexture getSurfaceTexture();
+
+    /**
+     * Release the object, including the {@link SurfaceTexture}.
+     *
+     * <p>Once this has been called the {@link SurfaceTexture} obtained via {@link
+     * #getSurfaceTexture()} should no longer be used.
+     */
+    void release();
 }

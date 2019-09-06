@@ -508,28 +508,44 @@ public class SessionConfigTest {
     }
 
     @Test
+    public void builderAddErrorListener() {
+        SessionConfig.Builder builder = new SessionConfig.Builder();
+        SessionConfig.ErrorListener callback = mock(SessionConfig.ErrorListener.class);
+
+        builder.addErrorListener(callback);
+
+        SessionConfig config = builder.build();
+
+        assertThat(config.getErrorListeners()).contains(callback);
+    }
+
+    @Test
     public void combineTwoSessionsCallbacks() {
         SessionConfig.Builder builder0 = new SessionConfig.Builder();
         CameraCaptureSession.StateCallback sessionCallback0 =
                 mock(CameraCaptureSession.StateCallback.class);
-        CameraDevice.StateCallback deviceCallback0 =  mock(CameraDevice.StateCallback.class);
-        CameraCaptureCallback repeatingCallback0 =  mock(CameraCaptureCallback.class);
+        CameraDevice.StateCallback deviceCallback0 = mock(CameraDevice.StateCallback.class);
+        CameraCaptureCallback repeatingCallback0 = mock(CameraCaptureCallback.class);
         CameraCaptureCallback cameraCallback0 = mock(CameraCaptureCallback.class);
+        SessionConfig.ErrorListener errorListener0 = mock(SessionConfig.ErrorListener.class);
         builder0.addSessionStateCallback(sessionCallback0);
         builder0.addDeviceStateCallback(deviceCallback0);
         builder0.addRepeatingCameraCaptureCallback(repeatingCallback0);
         builder0.addCameraCaptureCallback(cameraCallback0);
+        builder0.addErrorListener(errorListener0);
 
         SessionConfig.Builder builder1 = new SessionConfig.Builder();
         CameraCaptureSession.StateCallback sessionCallback1 =
                 mock(CameraCaptureSession.StateCallback.class);
-        CameraDevice.StateCallback deviceCallback1 =  mock(CameraDevice.StateCallback.class);
-        CameraCaptureCallback repeatingCallback1 =  mock(CameraCaptureCallback.class);
+        CameraDevice.StateCallback deviceCallback1 = mock(CameraDevice.StateCallback.class);
+        CameraCaptureCallback repeatingCallback1 = mock(CameraCaptureCallback.class);
         CameraCaptureCallback cameraCallback1 = mock(CameraCaptureCallback.class);
+        SessionConfig.ErrorListener errorListener1 = mock(SessionConfig.ErrorListener.class);
         builder1.addSessionStateCallback(sessionCallback1);
         builder1.addDeviceStateCallback(deviceCallback1);
         builder1.addRepeatingCameraCaptureCallback(repeatingCallback1);
         builder1.addCameraCaptureCallback(cameraCallback1);
+        builder1.addErrorListener(errorListener1);
 
         SessionConfig.ValidatingBuilder validatingBuilder = new SessionConfig.ValidatingBuilder();
         validatingBuilder.add(builder0.build());
@@ -546,5 +562,7 @@ public class SessionConfigTest {
                         repeatingCallback0, cameraCallback0, repeatingCallback1, cameraCallback1);
         assertThat(sessionConfig.getSingleCameraCaptureCallbacks())
                 .containsExactly(cameraCallback0, cameraCallback1);
+        assertThat(sessionConfig.getErrorListeners()).containsExactly(errorListener0,
+                errorListener1);
     }
 }

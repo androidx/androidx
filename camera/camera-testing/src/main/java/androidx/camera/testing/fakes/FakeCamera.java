@@ -317,9 +317,6 @@ public class FakeCamera implements BaseCamera {
         if (mSessionConfig != null) {
             List<DeferrableSurface> surfaces = mSessionConfig.getSurfaces();
 
-            // Before creating capture session, some surfaces may need to refresh.
-            DeferrableSurfaces.refresh(surfaces);
-
             mConfiguredDeferrableSurfaces = new ArrayList<>(surfaces);
 
             List<Surface> configuredSurfaces = new ArrayList<>(

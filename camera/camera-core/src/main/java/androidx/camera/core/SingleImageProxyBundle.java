@@ -17,6 +17,7 @@
 package androidx.camera.core;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
 import androidx.camera.core.impl.utils.futures.Futures;
 
 import com.google.common.util.concurrent.ListenableFuture;
@@ -26,8 +27,11 @@ import java.util.List;
 
 /**
  * An {@link ImageProxyBundle} that contains a single {@link ImageProxy}.
+ *
+ * @hide
  */
-final class SingleImageProxyBundle implements ImageProxyBundle {
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public final class SingleImageProxyBundle implements ImageProxyBundle {
     private final int mCaptureId;
     private final ImageProxy mImageProxy;
 
@@ -37,7 +41,7 @@ final class SingleImageProxyBundle implements ImageProxyBundle {
      *
      * @throws IllegalArgumentException if the ImageProxy doesn't contain a tag
      */
-    SingleImageProxyBundle(@NonNull ImageProxy imageProxy) {
+    public SingleImageProxyBundle(@NonNull ImageProxy imageProxy) {
         ImageInfo imageInfo = imageProxy.getImageInfo();
 
         if (imageInfo == null) {
