@@ -48,6 +48,12 @@ public class TestCustomTabsCallback extends CustomTabsCallback {
         }
 
         @Override
+        public Bundle extraCallbackWithResult(String callbackName, Bundle args)
+                throws RemoteException {
+            return null;
+        }
+
+        @Override
         public void onPostMessage(final String message, final Bundle extras)
                 throws RemoteException {
             TestCustomTabsCallback.this.onPostMessage(message, extras);
