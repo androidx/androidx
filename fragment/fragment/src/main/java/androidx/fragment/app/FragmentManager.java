@@ -84,16 +84,24 @@ import java.util.concurrent.atomic.AtomicInteger;
  * {@link FragmentActivity#getSupportFragmentManager}.
  */
 public abstract class FragmentManager {
-    static boolean DEBUG = false;
+    private static boolean DEBUG = false;
     static final String TAG = "FragmentManager";
 
     /**
      * Control whether the framework's internal fragment manager debugging
      * logs are turned on.  If enabled, you will see output in logcat as
      * the framework performs fragment operations.
+     * @deprecated FragmentManager now respects {@link Log#isLoggable(String, int)} for debug
+     * logging, allowing you to use <code>adb shell setprop log.tag.FragmentManager VERBOSE</code>.
+     * @see Log#isLoggable(String, int)
      */
+    @Deprecated
     public static void enableDebugLogging(boolean enabled) {
         FragmentManager.DEBUG = enabled;
+    }
+
+    static boolean isLoggingEnabled(int level) {
+        return DEBUG || Log.isLoggable(TAG, level);
     }
 
     /**
@@ -871,26 +879,26 @@ public abstract class FragmentManager {
 
     void addRetainedFragment(@NonNull Fragment f) {
         if (isStateSaved()) {
-            if (FragmentManager.DEBUG) {
+            if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
                 Log.v(TAG, "Ignoring addRetainedFragment as the state is already saved");
             }
             return;
         }
         boolean added = mNonConfig.addRetainedFragment(f);
-        if (added && FragmentManager.DEBUG) {
+        if (added && FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
             Log.v(TAG, "Updating retained Fragments: Added " + f);
         }
     }
 
     void removeRetainedFragment(@NonNull Fragment f) {
         if (isStateSaved()) {
-            if (FragmentManager.DEBUG) {
+            if (isLoggingEnabled(Log.VERBOSE)) {
                 Log.v(TAG, "Ignoring removeRetainedFragment as the state is already saved");
             }
             return;
         }
         boolean removed = mNonConfig.removeRetainedFragment(f);
-        if (removed && FragmentManager.DEBUG) {
+        if (removed && isLoggingEnabled(Log.VERBOSE)) {
             Log.v(TAG, "Updating retained Fragments: Removed " + f);
         }
     }
@@ -1244,7 +1252,7 @@ public abstract class FragmentManager {
             switch (f.mState) {
                 case Fragment.INITIALIZING:
                     if (newState > Fragment.INITIALIZING) {
-                        if (DEBUG) Log.v(TAG, "moveto ATTACHED: " + f);
+                        if (isLoggingEnabled(Log.DEBUG)) Log.d(TAG, "moveto ATTACHED: " + f);
                         if (fragmentStateManager != null) {
                             fragmentStateManager.restoreState(mHost.getContext().getClassLoader());
                         }
@@ -1300,7 +1308,7 @@ public abstract class FragmentManager {
                     // fall through
                 case Fragment.ATTACHED:
                     if (newState > Fragment.ATTACHED) {
-                        if (DEBUG) Log.v(TAG, "moveto CREATED: " + f);
+                        if (isLoggingEnabled(Log.DEBUG)) Log.d(TAG, "moveto CREATED: " + f);
                         if (!f.mIsCreated) {
                             mLifecycleCallbacksDispatcher.dispatchOnFragmentPreCreated(
                                     f, f.mSavedFragmentState, false);
@@ -1322,7 +1330,9 @@ public abstract class FragmentManager {
                     }
 
                     if (newState > Fragment.CREATED) {
-                        if (DEBUG) Log.v(TAG, "moveto ACTIVITY_CREATED: " + f);
+                        if (isLoggingEnabled(Log.DEBUG)) {
+                            Log.d(TAG, "moveto ACTIVITY_CREATED: " + f);
+                        }
                         if (!f.mFromLayout) {
                             ViewGroup container = null;
                             if (f.mContainerId != 0) {
@@ -1381,14 +1391,14 @@ public abstract class FragmentManager {
                     // fall through
                 case Fragment.ACTIVITY_CREATED:
                     if (newState > Fragment.ACTIVITY_CREATED) {
-                        if (DEBUG) Log.v(TAG, "moveto STARTED: " + f);
+                        if (isLoggingEnabled(Log.DEBUG)) Log.d(TAG, "moveto STARTED: " + f);
                         f.performStart();
                         mLifecycleCallbacksDispatcher.dispatchOnFragmentStarted(f, false);
                     }
                     // fall through
                 case Fragment.STARTED:
                     if (newState > Fragment.STARTED) {
-                        if (DEBUG) Log.v(TAG, "moveto RESUMED: " + f);
+                        if (isLoggingEnabled(Log.DEBUG)) Log.d(TAG, "moveto RESUMED: " + f);
                         f.performResume();
                         mLifecycleCallbacksDispatcher.dispatchOnFragmentResumed(f, false);
                         f.mSavedFragmentState = null;
@@ -1399,21 +1409,23 @@ public abstract class FragmentManager {
             switch (f.mState) {
                 case Fragment.RESUMED:
                     if (newState < Fragment.RESUMED) {
-                        if (DEBUG) Log.v(TAG, "movefrom RESUMED: " + f);
+                        if (isLoggingEnabled(Log.DEBUG)) Log.d(TAG, "movefrom RESUMED: " + f);
                         f.performPause();
                         mLifecycleCallbacksDispatcher.dispatchOnFragmentPaused(f, false);
                     }
                     // fall through
                 case Fragment.STARTED:
                     if (newState < Fragment.STARTED) {
-                        if (DEBUG) Log.v(TAG, "movefrom STARTED: " + f);
+                        if (isLoggingEnabled(Log.DEBUG)) Log.d(TAG, "movefrom STARTED: " + f);
                         f.performStop();
                         mLifecycleCallbacksDispatcher.dispatchOnFragmentStopped(f, false);
                     }
                     // fall through
                 case Fragment.ACTIVITY_CREATED:
                     if (newState < Fragment.ACTIVITY_CREATED) {
-                        if (DEBUG) Log.v(TAG, "movefrom ACTIVITY_CREATED: " + f);
+                        if (isLoggingEnabled(Log.DEBUG)) {
+                            Log.d(TAG, "movefrom ACTIVITY_CREATED: " + f);
+                        }
                         if (f.mView != null) {
                             // Need to save the current view state if not
                             // done already.
@@ -1472,7 +1484,9 @@ public abstract class FragmentManager {
                             f.setStateAfterAnimating(newState);
                             newState = Fragment.CREATED;
                         } else {
-                            if (DEBUG) Log.v(TAG, "movefrom CREATED: " + f);
+                            if (isLoggingEnabled(Log.DEBUG)) {
+                                Log.d(TAG, "movefrom CREATED: " + f);
+                            }
                             boolean beingRemoved = f.mRemoving && !f.isInBackStack();
                             if (beingRemoved || mNonConfig.shouldDestroy(f)) {
                                 boolean shouldClear;
@@ -1498,7 +1512,9 @@ public abstract class FragmentManager {
                     // fall through
                 case Fragment.ATTACHED:
                     if (newState < Fragment.ATTACHED) {
-                        if (DEBUG) Log.v(TAG, "movefrom ATTACHED: " + f);
+                        if (isLoggingEnabled(Log.DEBUG)) {
+                            Log.d(TAG, "movefrom ATTACHED: " + f);
+                        }
                         boolean beingRemoved = f.mRemoving && !f.isInBackStack();
                         f.performDetach();
                         mLifecycleCallbacksDispatcher.dispatchOnFragmentDetached(
@@ -1723,8 +1739,8 @@ public abstract class FragmentManager {
             return;
         }
         if (!mActive.containsKey(f.mWho)) {
-            if (DEBUG) {
-                Log.v(TAG, "Ignoring moving " + f + " to state " + mCurState
+            if (isLoggingEnabled(Log.DEBUG)) {
+                Log.d(TAG, "Ignoring moving " + f + " to state " + mCurState
                         + "since it is not added to " + this);
             }
             return;
@@ -1838,7 +1854,7 @@ public abstract class FragmentManager {
             }
             f.mRetainInstanceChangedWhileDetached = false;
         }
-        if (DEBUG) Log.v(TAG, "Added fragment to active set " + f);
+        if (isLoggingEnabled(Log.VERBOSE)) Log.v(TAG, "Added fragment to active set " + f);
     }
 
     private void makeInactive(Fragment f) {
@@ -1846,7 +1862,7 @@ public abstract class FragmentManager {
             return;
         }
 
-        if (DEBUG) Log.v(TAG, "Removed fragment from active set " + f);
+        if (isLoggingEnabled(Log.VERBOSE)) Log.v(TAG, "Removed fragment from active set " + f);
         // Ensure that any Fragment that had this Fragment as its
         // target Fragment retains a reference to the Fragment
         for (FragmentStateManager fragmentStateManager : mActive.values()) {
@@ -1872,7 +1888,7 @@ public abstract class FragmentManager {
     }
 
     void addFragment(Fragment fragment) {
-        if (DEBUG) Log.v(TAG, "add: " + fragment);
+        if (isLoggingEnabled(Log.VERBOSE)) Log.v(TAG, "add: " + fragment);
         makeActive(fragment);
         if (!fragment.mDetached) {
             if (mAdded.contains(fragment)) {
@@ -1893,7 +1909,9 @@ public abstract class FragmentManager {
     }
 
     void removeFragment(Fragment fragment) {
-        if (DEBUG) Log.v(TAG, "remove: " + fragment + " nesting=" + fragment.mBackStackNesting);
+        if (isLoggingEnabled(Log.VERBOSE)) {
+            Log.v(TAG, "remove: " + fragment + " nesting=" + fragment.mBackStackNesting);
+        }
         final boolean inactive = !fragment.isInBackStack();
         if (!fragment.mDetached || inactive) {
             synchronized (mAdded) {
@@ -1915,7 +1933,7 @@ public abstract class FragmentManager {
      * @param fragment The fragment to be shown.
      */
     void hideFragment(Fragment fragment) {
-        if (DEBUG) Log.v(TAG, "hide: " + fragment);
+        if (isLoggingEnabled(Log.VERBOSE)) Log.v(TAG, "hide: " + fragment);
         if (!fragment.mHidden) {
             fragment.mHidden = true;
             // Toggle hidden changed so that if a fragment goes through show/hide/show
@@ -1932,7 +1950,7 @@ public abstract class FragmentManager {
      * @param fragment The fragment to be shown.
      */
     void showFragment(Fragment fragment) {
-        if (DEBUG) Log.v(TAG, "show: " + fragment);
+        if (isLoggingEnabled(Log.VERBOSE)) Log.v(TAG, "show: " + fragment);
         if (fragment.mHidden) {
             fragment.mHidden = false;
             // Toggle hidden changed so that if a fragment goes through show/hide/show
@@ -1942,12 +1960,12 @@ public abstract class FragmentManager {
     }
 
     void detachFragment(Fragment fragment) {
-        if (DEBUG) Log.v(TAG, "detach: " + fragment);
+        if (isLoggingEnabled(Log.VERBOSE)) Log.v(TAG, "detach: " + fragment);
         if (!fragment.mDetached) {
             fragment.mDetached = true;
             if (fragment.mAdded) {
                 // We are not already in back stack, so need to remove the fragment.
-                if (DEBUG) Log.v(TAG, "remove from detach: " + fragment);
+                if (isLoggingEnabled(Log.VERBOSE)) Log.v(TAG, "remove from detach: " + fragment);
                 synchronized (mAdded) {
                     mAdded.remove(fragment);
                 }
@@ -1961,14 +1979,14 @@ public abstract class FragmentManager {
     }
 
     void attachFragment(Fragment fragment) {
-        if (DEBUG) Log.v(TAG, "attach: " + fragment);
+        if (isLoggingEnabled(Log.VERBOSE)) Log.v(TAG, "attach: " + fragment);
         if (fragment.mDetached) {
             fragment.mDetached = false;
             if (!fragment.mAdded) {
                 if (mAdded.contains(fragment)) {
                     throw new IllegalStateException("Fragment already added: " + fragment);
                 }
-                if (DEBUG) Log.v(TAG, "add from attach: " + fragment);
+                if (isLoggingEnabled(Log.VERBOSE)) Log.v(TAG, "add from attach: " + fragment);
                 synchronized (mAdded) {
                     mAdded.add(fragment);
                 }
@@ -2813,14 +2831,14 @@ public abstract class FragmentManager {
                 FragmentState fs = fragmentStateManager.saveState();
                 active.add(fs);
 
-                if (DEBUG) {
+                if (isLoggingEnabled(Log.VERBOSE)) {
                     Log.v(TAG, "Saved state of " + f + ": " + fs.mSavedFragmentState);
                 }
             }
         }
 
         if (!haveFragments) {
-            if (DEBUG) Log.v(TAG, "saveAllState: no fragments!");
+            if (isLoggingEnabled(Log.VERBOSE)) Log.v(TAG, "saveAllState: no fragments!");
             return null;
         }
 
@@ -2838,7 +2856,7 @@ public abstract class FragmentManager {
                             "Failure saving state: active " + f
                                     + " was removed from the FragmentManager"));
                 }
-                if (DEBUG) {
+                if (isLoggingEnabled(Log.VERBOSE)) {
                     Log.v(TAG, "saveAllState: adding fragment (" + f.mWho
                             + "): " + f);
                 }
@@ -2852,7 +2870,7 @@ public abstract class FragmentManager {
                 backStack = new BackStackState[size];
                 for (int i = 0; i < size; i++) {
                     backStack[i] = new BackStackState(mBackStack.get(i));
-                    if (DEBUG) {
+                    if (isLoggingEnabled(Log.VERBOSE)) {
                         Log.v(TAG, "saveAllState: adding back stack #" + i
                                 + ": " + mBackStack.get(i));
                     }
@@ -2894,7 +2912,7 @@ public abstract class FragmentManager {
                 FragmentStateManager fragmentStateManager;
                 Fragment retainedFragment = mNonConfig.findRetainedFragmentByWho(fs.mWho);
                 if (retainedFragment != null) {
-                    if (DEBUG) {
+                    if (isLoggingEnabled(Log.VERBOSE)) {
                         Log.v(TAG, "restoreSaveState: re-attaching retained "
                                 + retainedFragment);
                     }
@@ -2906,7 +2924,9 @@ public abstract class FragmentManager {
                 }
                 Fragment f = fragmentStateManager.getFragment();
                 f.mFragmentManager = this;
-                if (DEBUG) Log.v(TAG, "restoreSaveState: active (" + f.mWho + "): " + f);
+                if (isLoggingEnabled(Log.VERBOSE)) {
+                    Log.v(TAG, "restoreSaveState: active (" + f.mWho + "): " + f);
+                }
                 mActive.put(f.mWho, fragmentStateManager);
             }
         }
@@ -2915,7 +2935,7 @@ public abstract class FragmentManager {
         // This can happen if a retained fragment is added after the state is saved
         for (Fragment f : mNonConfig.getRetainedFragments()) {
             if (!mActive.containsKey(f.mWho)) {
-                if (DEBUG) {
+                if (isLoggingEnabled(Log.VERBOSE)) {
                     Log.v(TAG, "Discarding retained Fragment " + f
                             + " that was not found in the set of active Fragments " + fms.mActive);
                 }
@@ -2938,7 +2958,9 @@ public abstract class FragmentManager {
                             "No instantiated fragment for (" + who + ")"));
                 }
                 f.mAdded = true;
-                if (DEBUG) Log.v(TAG, "restoreSaveState: added (" + who + "): " + f);
+                if (isLoggingEnabled(Log.VERBOSE)) {
+                    Log.v(TAG, "restoreSaveState: added (" + who + "): " + f);
+                }
                 if (mAdded.contains(f)) {
                     throw new IllegalStateException("Already added " + f);
                 }
@@ -2953,7 +2975,7 @@ public abstract class FragmentManager {
             mBackStack = new ArrayList<>(fms.mBackStack.length);
             for (int i = 0; i < fms.mBackStack.length; i++) {
                 BackStackRecord bse = fms.mBackStack[i].instantiate(this);
-                if (DEBUG) {
+                if (isLoggingEnabled(Log.VERBOSE)) {
                     Log.v(TAG, "restoreAllState: back stack #" + i
                             + " (index " + bse.mIndex + "): " + bse);
                     LogWriter logw = new LogWriter(TAG);
