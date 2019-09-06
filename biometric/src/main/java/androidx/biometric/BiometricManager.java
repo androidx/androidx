@@ -111,20 +111,19 @@ public class BiometricManager {
     }
 
     /**
-     * Determines if biometrics can be used, or in other words, whether {@link BiometricPrompt}
-     * can be expected to be shown (hardware available, templates enrolled, user-enabled).
+     * Determines if biometrics can be used, or equivalently, whether {@link BiometricPrompt} can
+     * be shown (hardware available, templates enrolled, user-enabled).
      *
      * @return {@link #BIOMETRIC_SUCCESS} if a biometric can currently be used (enrolled and
      * available), {@link #BIOMETRIC_ERROR_NONE_ENROLLED} if the user does not have any enrolled,
-     * or {@link #BIOMETRIC_ERROR_HW_UNAVAILABLE} or {@link #BIOMETRIC_ERROR_NO_HARDWARE} if none
-     * are currently enabled/supported.
+     * or {@link #BIOMETRIC_ERROR_NO_HARDWARE} if none are currently enabled/supported.
      */
     public @BiometricError int canAuthenticate() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             return Api29Impl.canAuthenticate(mBiometricManager);
         } else {
             if (!mFingerprintManager.isHardwareDetected()) {
-                return BIOMETRIC_ERROR_HW_UNAVAILABLE;
+                return BIOMETRIC_ERROR_NO_HARDWARE;
             } else if (!mFingerprintManager.hasEnrolledFingerprints()) {
                 return BIOMETRIC_ERROR_NONE_ENROLLED;
             } else {
