@@ -16,6 +16,9 @@
 
 package androidx.autofill;
 
+import androidx.annotation.NonNull;
+import androidx.core.util.Preconditions;
+
 /**
  * Contains all the officially supported autofill hint constants.
  *
@@ -551,8 +554,7 @@ public final class HintConstants {
      * should be <code>{@value #AUTOFILL_HINT_SMS_OTP}</code>).
      *
      * <p>When annotating OTP code fields which map to a single digit of the code consider using
-     * <code>{@value #AUTOFILL_HINT_SMS_OTP_1}</code> through <code>
-     * {@value #AUTOFILL_HINT_SMS_OTP_8}</code>
+     * <code>{@link #generateSmsOtpHintForCharacterPosition}</code>
      *
      * <p>See {@link android.view.View#setAutofillHints(String...)} for more info about autofill
      * hints.
@@ -560,106 +562,22 @@ public final class HintConstants {
     public static final String AUTOFILL_HINT_SMS_OTP = "smsOTPCode";
 
     /**
-     * Hint indicating that this view can be autofilled with the first character/digit of a SMS One
-     * Time Password (OTP).
+     * Generates the corresponding hint that indicates that this view can be autofilled with the
+     * {@code characterPosition}'th character/digit of a SMS One Time Password (OTP).
      *
      * <p>Can be used with either {@link android.view.View#setAutofillHints(String[])} or <a
      * href="#attr_android:autofillHint">{@code android:autofillHint}</a> (in which case the value
-     * should be <code>{@value #AUTOFILL_HINT_SMS_OTP_1}</code>).
+     * should be <code>smsOTPCode{characterPosition}</code>).
      *
      * <p>See {@link android.view.View#setAutofillHints(String...)} for more info about autofill
      * hints.
+     *
+     * @param characterPosition value between 1 and 8 representing the character position of the OTP
+     *     code that the service should autofill in the associated view.
      */
-    public static final String AUTOFILL_HINT_SMS_OTP_1 = "smsOTPCode1";
-
-    /**
-     * Hint indicating that this view can be autofilled with the second character/digit of a SMS One
-     * Time Password (OTP).
-     *
-     * <p>Can be used with either {@link android.view.View#setAutofillHints(String[])} or <a
-     * href="#attr_android:autofillHint">{@code android:autofillHint}</a> (in which case the value
-     * should be <code>{@value #AUTOFILL_HINT_SMS_OTP_2}</code>).
-     *
-     * <p>See {@link android.view.View#setAutofillHints(String...)} for more info about autofill
-     * hints.
-     */
-    public static final String AUTOFILL_HINT_SMS_OTP_2 = "smsOTPCode2";
-
-    /**
-     * Hint indicating that this view can be autofilled with the third character/digit of a SMS One
-     * Time Password (OTP).
-     *
-     * <p>Can be used with either {@link android.view.View#setAutofillHints(String[])} or <a
-     * href="#attr_android:autofillHint">{@code android:autofillHint}</a> (in which case the value
-     * should be <code>{@value #AUTOFILL_HINT_SMS_OTP_3}</code>).
-     *
-     * <p>See {@link android.view.View#setAutofillHints(String...)} for more info about autofill
-     * hints.
-     */
-    public static final String AUTOFILL_HINT_SMS_OTP_3 = "smsOTPCode3";
-
-    /**
-     * Hint indicating that this view can be autofilled with the fourth character/digit of a SMS One
-     * Time Password (OTP).
-     *
-     * <p>Can be used with either {@link android.view.View#setAutofillHints(String[])} or <a
-     * href="#attr_android:autofillHint">{@code android:autofillHint}</a> (in which case the value
-     * should be <code>{@value #AUTOFILL_HINT_SMS_OTP_4}</code>).
-     *
-     * <p>See {@link android.view.View#setAutofillHints(String...)} for more info about autofill
-     * hints.
-     */
-    public static final String AUTOFILL_HINT_SMS_OTP_4 = "smsOTPCode4";
-
-    /**
-     * Hint indicating that this view can be autofilled with the fifth character/digit of a SMS One
-     * Time Password (OTP).
-     *
-     * <p>Can be used with either {@link android.view.View#setAutofillHints(String[])} or <a
-     * href="#attr_android:autofillHint">{@code android:autofillHint}</a> (in which case the value
-     * should be <code>{@value #AUTOFILL_HINT_SMS_OTP_5}</code>).
-     *
-     * <p>See {@link android.view.View#setAutofillHints(String...)} for more info about autofill
-     * hints.
-     */
-    public static final String AUTOFILL_HINT_SMS_OTP_5 = "smsOTPCode5";
-
-    /**
-     * Hint indicating that this view can be autofilled with the sixth character/digit of a SMS One
-     * Time Password (OTP).
-     *
-     * <p>Can be used with either {@link android.view.View#setAutofillHints(String[])} or <a
-     * href="#attr_android:autofillHint">{@code android:autofillHint}</a> (in which case the value
-     * should be <code>{@value #AUTOFILL_HINT_SMS_OTP_6}</code>).
-     *
-     * <p>See {@link android.view.View#setAutofillHints(String...)} for more info about autofill
-     * hints.
-     */
-    public static final String AUTOFILL_HINT_SMS_OTP_6 = "smsOTPCode6";
-
-    /**
-     * Hint indicating that this view can be autofilled with the seventh character/digit of a SMS
-     * One Time Password (OTP).
-     *
-     * <p>Can be used with either {@link android.view.View#setAutofillHints(String[])} or <a
-     * href="#attr_android:autofillHint">{@code android:autofillHint}</a> (in which case the value
-     * should be <code>{@value #AUTOFILL_HINT_SMS_OTP_7}</code>).
-     *
-     * <p>See {@link android.view.View#setAutofillHints(String...)} for more info about autofill
-     * hints.
-     */
-    public static final String AUTOFILL_HINT_SMS_OTP_7 = "smsOTPCode7";
-
-    /**
-     * Hint indicating that this view can be autofilled with the eighth character/digit of a SMS One
-     * Time Password (OTP).
-     *
-     * <p>Can be used with either {@link android.view.View#setAutofillHints(String[])} or <a
-     * href="#attr_android:autofillHint">{@code android:autofillHint}</a> (in which case the value
-     * should be <code>{@value #AUTOFILL_HINT_SMS_OTP_8}</code>).
-     *
-     * <p>See {@link android.view.View#setAutofillHints(String...)} for more info about autofill
-     * hints.
-     */
-    public static final String AUTOFILL_HINT_SMS_OTP_8 = "smsOTPCode8";
+    @NonNull
+    public static String generateSmsOtpHintForCharacterPosition(int characterPosition) {
+        Preconditions.checkArgumentInRange(characterPosition, 1, 8, "characterPosition");
+        return ("smsOTPCode" + characterPosition).intern();
+    }
 }
