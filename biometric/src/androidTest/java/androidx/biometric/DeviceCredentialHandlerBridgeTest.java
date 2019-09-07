@@ -21,6 +21,7 @@ import static com.google.common.truth.Truth.assertThat;
 import android.content.DialogInterface;
 import android.os.Build;
 
+import androidx.annotation.NonNull;
 import androidx.biometric.DeviceCredentialHandlerBridge.DeviceCredentialResult;
 import androidx.test.annotation.UiThreadTest;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -40,10 +41,17 @@ public class DeviceCredentialHandlerBridgeTest {
             new BiometricPrompt.AuthenticationCallback() {
             };
 
-    private static final DialogInterface.OnClickListener CLICK_LISTENER = (dialog, which) -> {
-    };
+    private static final DialogInterface.OnClickListener CLICK_LISTENER =
+            new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                }
+            };
 
-    private static final Executor EXECUTOR = runnable -> {
+    private static final Executor EXECUTOR = new Executor() {
+        @Override
+        public void execute(@NonNull Runnable runnable) {
+        }
     };
 
     @After

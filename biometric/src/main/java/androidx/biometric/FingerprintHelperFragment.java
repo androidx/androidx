@@ -78,8 +78,9 @@ public class FingerprintHelperFragment extends Fragment {
     // Also created once and retained.
     @SuppressWarnings("deprecation")
     private final androidx.core.hardware.fingerprint.FingerprintManagerCompat.AuthenticationCallback
-            mAuthenticationCallback = new androidx.core.hardware.fingerprint
-            .FingerprintManagerCompat.AuthenticationCallback() {
+            mAuthenticationCallback =
+            new androidx.core.hardware.fingerprint.FingerprintManagerCompat
+                    .AuthenticationCallback() {
 
                 private void dismissAndForwardResult(final int errMsgId,
                         final CharSequence errString) {
@@ -87,8 +88,13 @@ public class FingerprintHelperFragment extends Fragment {
                             .sendToTarget();
                     if (!mConfirmingDeviceCredential) {
                         mExecutor.execute(
-                                () -> mClientAuthenticationCallback.onAuthenticationError(errMsgId,
-                                        errString));
+                                new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        mClientAuthenticationCallback
+                                                .onAuthenticationError(errMsgId, errString);
+                                    }
+                                });
                     }
                 }
 
@@ -121,9 +127,21 @@ public class FingerprintHelperFragment extends Fragment {
                         mHandler.obtainMessage(FingerprintDialogFragment.MSG_SHOW_ERROR,
                                 errMsgIdToSend, 0, errStringNonNull).sendToTarget();
                         if (!mConfirmingDeviceCredential) {
-                            mHandler.postDelayed(() -> mExecutor.execute(
-                                    () -> mClientAuthenticationCallback.onAuthenticationError(
-                                            errMsgIdToSend, errStringNonNull)),
+                            mHandler.postDelayed(
+                                    new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            mExecutor.execute(new Runnable() {
+                                                @Override
+                                                public void run() {
+                                                    mClientAuthenticationCallback
+                                                            .onAuthenticationError(
+                                                                    errMsgIdToSend,
+                                                                    errStringNonNull);
+                                                }
+                                            });
+                                        }
+                                    },
                                     FingerprintDialogFragment.HIDE_DIALOG_DELAY);
                         }
                     }
@@ -144,9 +162,14 @@ public class FingerprintHelperFragment extends Fragment {
                     mHandler.obtainMessage(
                             FingerprintDialogFragment.MSG_DISMISS_DIALOG_AUTHENTICATED)
                             .sendToTarget();
-                    mExecutor.execute(() -> mClientAuthenticationCallback.onAuthenticationSucceeded(
-                            new BiometricPrompt.AuthenticationResult(
-                                    unwrapCryptoObject(result.getCryptoObject()))));
+                    mExecutor.execute(new Runnable() {
+                        @Override
+                        public void run() {
+                            mClientAuthenticationCallback.onAuthenticationSucceeded(
+                                    new BiometricPrompt.AuthenticationResult(
+                                            unwrapCryptoObject(result.getCryptoObject())));
+                        }
+                    });
                     cleanup();
                 }
 
@@ -155,7 +178,12 @@ public class FingerprintHelperFragment extends Fragment {
                     mHandler.obtainMessage(FingerprintDialogFragment.MSG_SHOW_HELP,
                             mContext.getResources().getString(R.string.fingerprint_not_recognized))
                             .sendToTarget();
-                    mExecutor.execute(mClientAuthenticationCallback::onAuthenticationFailed);
+                    mExecutor.execute(new Runnable() {
+                        @Override
+                        public void run() {
+                            mClientAuthenticationCallback.onAuthenticationFailed();
+                        }
+                    });
                 }
             };
 
@@ -235,6 +263,7 @@ public class FingerprintHelperFragment extends Fragment {
 
     /**
      * Cancel the authentication.
+     *
      * @param canceledFrom one of the USER_CANCELED_FROM* constants
      */
     void cancel(int canceledFrom) {
@@ -268,8 +297,8 @@ public class FingerprintHelperFragment extends Fragment {
      * if conditions are not met
      */
     @SuppressWarnings("deprecation")
-    private boolean handlePreAuthenticationErrors(androidx.core.hardware.fingerprint
-            .FingerprintManagerCompat fingerprintManager) {
+    private boolean handlePreAuthenticationErrors(
+            androidx.core.hardware.fingerprint.FingerprintManagerCompat fingerprintManager) {
         if (!fingerprintManager.isHardwareDetected()) {
             sendErrorToClient(BiometricPrompt.ERROR_HW_UNAVAILABLE);
             return true;
