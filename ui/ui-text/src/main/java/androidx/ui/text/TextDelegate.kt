@@ -165,13 +165,18 @@ class TextDelegate(
     private inline fun <T> assumeLayout(block: (LayoutResult) -> T) =
         block(layoutResult ?: throw AssertionError("layout must be called first"))
 
+    private inline fun <T> assumeIntrinsics(block: (MultiParagraphIntrinsics) -> T) =
+        block(paragraphIntrinsics
+            ?: throw AssertionError("layoutForIntrinsics must be called first")
+        )
+
     /**
      * The width for text if all soft wrap opportunities were taken.
      *
      * Valid only after [layout] has been called.
      */
     val minIntrinsicWidth: Float
-        get() = assumeLayout { it.multiParagraph.minIntrinsicWidth }
+        get() = assumeIntrinsics { it.minIntrinsicWidth }
 
     /**
      * The width at which increasing the width of the text no longer decreases the height.
@@ -179,7 +184,9 @@ class TextDelegate(
      * Valid only after [layout] has been called.
      */
     val maxIntrinsicWidth: Float
-        get() = assumeLayout { it.multiParagraph.maxIntrinsicWidth }
+        get() = assumeIntrinsics { it.maxIntrinsicWidth }
+
+    private var paragraphIntrinsics: MultiParagraphIntrinsics? = null
 
     /**
      * The horizontal space required to paint this text.
@@ -217,6 +224,21 @@ class TextDelegate(
         assert(maxLines == null || maxLines > 0)
     }
 
+    fun layoutIntrinsics(): MultiParagraphIntrinsics {
+        var intrinsics = paragraphIntrinsics ?: MultiParagraphIntrinsics(
+            annotatedString = text,
+            textStyle = textStyle,
+            paragraphStyle = paragraphStyle,
+            density = density,
+            layoutDirection = layoutDirection,
+            resourceLoader = resourceLoader
+        )
+
+        paragraphIntrinsics = intrinsics
+
+        return intrinsics
+    }
+
     /**
      * Computes the visual position of the glyphs for painting the text.
      *
@@ -225,14 +247,9 @@ class TextDelegate(
      */
     private fun layoutText(minWidth: Float, maxWidth: Float): MultiParagraph {
         val multiParagraph = MultiParagraph(
-            annotatedString = text,
-            textStyle = textStyle,
-            paragraphStyle = paragraphStyle,
+            intrinsics = layoutIntrinsics(),
             maxLines = maxLines,
-            ellipsis = overflow == TextOverflow.Ellipsis,
-            density = density,
-            layoutDirection = layoutDirection,
-            resourceLoader = resourceLoader
+            ellipsis = overflow == TextOverflow.Ellipsis
         )
 
         // if minWidth == maxWidth the width is fixed.

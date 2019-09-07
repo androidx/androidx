@@ -80,7 +80,7 @@ class TextDelegateIntegrationTest {
                 resourceLoader = resourceLoader,
                 layoutDirection = LayoutDirection.Ltr
             )
-            textDelegate.layout(Constraints())
+            textDelegate.layoutIntrinsics()
 
             assertThat(textDelegate.minIntrinsicWidth)
                 .isEqualTo(fontSize.toPx().value * text.length)
@@ -111,7 +111,7 @@ class TextDelegateIntegrationTest {
                 layoutDirection = LayoutDirection.Ltr
             )
 
-            textDelegate.layout(Constraints())
+            textDelegate.layoutIntrinsics()
 
             assertThat(
                 textDelegate.maxIntrinsicWidth).isEqualTo(fontSize.toPx().value * text.length

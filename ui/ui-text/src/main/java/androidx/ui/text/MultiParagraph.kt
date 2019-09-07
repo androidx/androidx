@@ -35,15 +35,40 @@ import kotlin.math.max
  * It's designed to support multiple [ParagraphStyle]s in single text widget.
  */
 internal class MultiParagraph(
-    val annotatedString: AnnotatedString,
-    private val textStyle: TextStyle = TextStyle(),
-    private val paragraphStyle: ParagraphStyle = ParagraphStyle(),
+    val intrinsics: MultiParagraphIntrinsics,
     val maxLines: Int? = null,
-    val ellipsis: Boolean? = null,
-    val density: Density,
-    val layoutDirection: LayoutDirection,
-    val resourceLoader: Font.ResourceLoader
+    ellipsis: Boolean? = null
 ) {
+
+    constructor(
+        annotatedString: AnnotatedString,
+        textStyle: TextStyle = TextStyle(),
+        paragraphStyle: ParagraphStyle = ParagraphStyle(),
+        maxLines: Int? = null,
+        ellipsis: Boolean? = null,
+        density: Density,
+        layoutDirection: LayoutDirection,
+        resourceLoader: Font.ResourceLoader
+    ) : this(
+        intrinsics = MultiParagraphIntrinsics(
+            annotatedString = annotatedString,
+            textStyle = textStyle,
+            paragraphStyle = paragraphStyle,
+            density = density,
+            layoutDirection = layoutDirection,
+            resourceLoader = resourceLoader
+        ),
+        maxLines = maxLines,
+        ellipsis = ellipsis
+    )
+
+    private val annotatedString get() = intrinsics.annotatedString
+    private val layoutDirection get() = intrinsics.layoutDirection
+    private val textStyle get() = intrinsics.textStyle
+    private val paragraphStyle get() = intrinsics.paragraphStyle
+    private val density get() = intrinsics.density
+    private val resourceLoader get() = intrinsics.resourceLoader
+
     /**
      * The width for text if all soft wrap opportunities were taken.
      */
@@ -141,35 +166,26 @@ internal class MultiParagraph(
     private val paragraphInfoList: List<ParagraphInfo>
 
     init {
-        val paragraphStyles = fillInParagraphRanges(annotatedString, this.paragraphStyle)
-        this.paragraphInfoList = paragraphStyles.map { (style, start, end) ->
-            // TODO(haoyuchang): Change substring to Paragraph receiving text and range.
-            val textInParagraph = if (start != end) {
-                annotatedString.text.substring(start, end)
-            } else {
-                ""
+        this.paragraphInfoList = annotatedString
+            .forEachParagraphStyle(paragraphStyle) { annotatedString, paragraphStyleItem ->
+                val paragraph = Paragraph(
+                    annotatedString.text,
+                    textStyle,
+                    paragraphStyleItem.style,
+                    annotatedString.textStyles,
+                    maxLines,
+                    ellipsis,
+                    density,
+                    layoutDirection,
+                    resourceLoader
+                )
+
+                ParagraphInfo(
+                    paragraph = paragraph,
+                    startIndex = paragraphStyleItem.start,
+                    endIndex = paragraphStyleItem.end
+                )
             }
-            val textStylesInParagraph = annotatedString.getLocalStyles(start, end)
-
-            // TODO(haoyuchang): remove the top and bottom padding between two paragraphs
-            val paragraph = Paragraph(
-                textInParagraph,
-                this.textStyle,
-                style,
-                textStylesInParagraph,
-                maxLines,
-                ellipsis,
-                density,
-                layoutDirection,
-                resourceLoader
-            )
-
-            ParagraphInfo(
-                paragraph = paragraph,
-                startIndex = start,
-                endIndex = end
-            )
-        }
     }
 
     /**
@@ -555,79 +571,6 @@ private fun findParagraphByLineIndex(paragraphInfoList: List<ParagraphInfo>, lin
             else -> 0
         }
     }
-}
-
-/**
- * A helper function used to determine the paragraph boundaries in [MultiParagraph].
- *
- * It reads paragraph information from [AnnotatedString.paragraphStyles] where only some parts of
- * text has [ParagraphStyle] specified, and unspecified parts(gaps between specified paragraphs)
- * are considered as default paragraph with default [ParagraphStyle].
- * For example, the following string with a specified paragraph denoted by "[]"
- *      "Hello WorldHi!"
- *      [          ]
- * The result paragraphs are "Hello World" and "Hi!".
- *
- * @param annotatedString: The [AnnotatedString] on which the paragraph boundaries need to be
- *  determined.
- * @param defaultParagraphStyle The default [ParagraphStyle]. It's used for both unspecified
- *  default paragraphs and specified paragraph. When a specified paragraph's [ParagraphStyle] has
- *  a null attribute, the default one will be used instead.
- */
-internal fun fillInParagraphRanges(
-    annotatedString: AnnotatedString,
-    defaultParagraphStyle: ParagraphStyle
-): List<AnnotatedString.Item<ParagraphStyle>> {
-    val length = annotatedString.text.length
-    val paragraphStyles = annotatedString.paragraphStyles
-
-    var lastOffset = 0
-    val result = mutableListOf<AnnotatedString.Item<ParagraphStyle>>()
-    for ((style, start, end) in paragraphStyles) {
-        if (start != lastOffset) {
-            result.add(AnnotatedString.Item(defaultParagraphStyle, lastOffset, start))
-        }
-        result.add(AnnotatedString.Item(defaultParagraphStyle.merge(style), start, end))
-        lastOffset = end
-    }
-    if (lastOffset != length) {
-        result.add(AnnotatedString.Item(defaultParagraphStyle, lastOffset, length))
-    }
-    // This is a corner case where annotatedString is an empty string without any ParagraphStyle.
-    // In this case, a dummy ParagraphStyle is created.
-    if (result.isEmpty()) {
-        result.add(AnnotatedString.Item(defaultParagraphStyle, 0, 0))
-    }
-    return result
-}
-
-/**
- * Helper function used to find the [TextStyle]s in the given paragraph range and also convert the
- * range of those [TextStyle]s to paragraph local range.
- *
- * @param start The start index of the paragraph range, inclusive.
- * @param end The end index of the paragraph range, exclusive.
- * @return The list of converted [TextStyle]s in the given paragraph range.
- */
-private fun AnnotatedString.getLocalStyles(
-    start: Int,
-    end: Int
-): List<AnnotatedString.Item<TextStyle>> {
-    if (start == end) {
-        return listOf()
-    }
-    // If the given range covers the whole AnnotatedString, return textStyles without conversion.
-    if (start == 0 && end >= this.text.length) {
-        return textStyles
-    }
-    return textStyles.filter { it.start < end && it.end > start }
-        .map {
-            AnnotatedString.Item(
-                it.style,
-                it.start.coerceIn(start, end) - start,
-                it.end.coerceIn(start, end) - start
-            )
-        }
 }
 
 /**
