@@ -53,8 +53,6 @@ import androidx.text.LayoutCompat.TEXT_DIRECTION_RTL
 import androidx.text.LayoutCompat.TextDirection
 import androidx.text.LayoutCompat.TextLayoutAlignment
 import androidx.text.style.BaselineShiftSpan
-import java.text.BreakIterator
-import java.util.PriorityQueue
 import kotlin.math.ceil
 
 /**
@@ -112,6 +110,9 @@ class TextLayout constructor(
 ) {
     val maxIntrinsicWidth: Float
         get() = layoutIntrinsics.maxIntrinsicWidth
+
+    val minIntrinsicWidth: Float
+        get() = layoutIntrinsics.minIntrinsicWidth
 
     val didExceedMaxLines: Boolean
 
@@ -237,50 +238,6 @@ class TextLayout constructor(
     fun paint(canvas: Canvas) {
         layout.draw(canvas)
     }
-}
-
-/**
- * Returns the word with the longest length. To calculate it in a performant way, it applies a heuristics where
- *  - it first finds a set of words with the longest length
- *  - finds the word with maximum width in that set
- *
- *  @hide
- */
-fun minIntrinsicWidth(text: CharSequence, paint: TextPaint): Float {
-    val iterator = BreakIterator.getLineInstance(paint.textLocale)
-    iterator.text = CharSequenceCharacterIterator(text, 0, text.length)
-
-    // 10 is just a random number that limits the size of the candidate list
-    val heapSize = 10
-    // min heap that will hold [heapSize] many words with max length
-    val longestWordCandidates = PriorityQueue<Pair<Int, Int>>(
-        heapSize,
-        Comparator<Pair<Int, Int>> { left, right ->
-            (left.second - left.first) - (right.second - right.first)
-        }
-    )
-
-    var start = 0
-    var end = iterator.next()
-    while (end != BreakIterator.DONE) {
-        if (longestWordCandidates.size < heapSize) {
-            longestWordCandidates.add(Pair(start, end))
-        } else {
-            longestWordCandidates.peek()?.let { minPair ->
-                if ((minPair.second - minPair.first) < (end - start)) {
-                    longestWordCandidates.poll()
-                    longestWordCandidates.add(Pair(start, end))
-                }
-            }
-        }
-
-        start = end
-        end = iterator.next()
-    }
-
-    return longestWordCandidates.map { pair ->
-        Layout.getDesiredWidth(text, pair.first, pair.second, paint)
-    }.max() ?: 0f
 }
 
 @RequiresApi(api = 18)

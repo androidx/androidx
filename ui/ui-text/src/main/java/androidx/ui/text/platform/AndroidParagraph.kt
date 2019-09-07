@@ -15,23 +15,8 @@
  */
 package androidx.ui.text.platform
 
-import android.graphics.Typeface
-import android.os.Build
-import android.os.LocaleList as AndroidLocaleList
-import android.text.SpannableString
-import android.text.Spanned
 import android.text.TextPaint
 import android.text.TextUtils
-import android.text.style.AbsoluteSizeSpan
-import android.text.style.BackgroundColorSpan
-import android.text.style.ForegroundColorSpan
-import android.text.style.LeadingMarginSpan
-import android.text.style.LocaleSpan
-import android.text.style.RelativeSizeSpan
-import android.text.style.ScaleXSpan
-import android.text.style.StrikethroughSpan
-import android.text.style.UnderlineSpan
-import androidx.annotation.RequiresApi
 import androidx.annotation.VisibleForTesting
 import androidx.text.LayoutCompat.ALIGN_CENTER
 import androidx.text.LayoutCompat.ALIGN_LEFT
@@ -43,72 +28,67 @@ import androidx.text.LayoutCompat.DEFAULT_JUSTIFICATION_MODE
 import androidx.text.LayoutCompat.DEFAULT_LINESPACING_MULTIPLIER
 import androidx.text.LayoutCompat.DEFAULT_MAX_LINES
 import androidx.text.LayoutCompat.JUSTIFICATION_MODE_INTER_WORD
-import androidx.text.LayoutCompat.TEXT_DIRECTION_FIRST_STRONG_LTR
-import androidx.text.LayoutCompat.TEXT_DIRECTION_FIRST_STRONG_RTL
-import androidx.text.LayoutCompat.TEXT_DIRECTION_LTR
-import androidx.text.LayoutCompat.TEXT_DIRECTION_RTL
-import androidx.text.LayoutIntrinsics
 import androidx.text.TextLayout
 import androidx.text.selection.WordBoundary
-import androidx.text.style.BaselineShiftSpan
-import androidx.text.style.FontFeatureSpan
-import androidx.text.style.LetterSpacingSpan
-import androidx.text.style.ShadowSpan
-import androidx.text.style.SkewXSpan
-import androidx.text.style.TypefaceSpan
 import androidx.ui.core.Density
 import androidx.ui.core.LayoutDirection
 import androidx.ui.core.PxPosition
-import androidx.ui.core.px
-import androidx.ui.core.withDensity
 import androidx.ui.engine.geometry.Rect
-import androidx.ui.graphics.toArgb
 import androidx.ui.painting.Canvas
 import androidx.ui.painting.Path
 import androidx.ui.text.AnnotatedString
-import androidx.ui.text.Locale
-import androidx.ui.text.LocaleList
 import androidx.ui.text.Paragraph
 import androidx.ui.text.ParagraphConstraints
 import androidx.ui.text.ParagraphStyle
 import androidx.ui.text.TextRange
 import androidx.ui.text.TextStyle
-import androidx.ui.text.font.FontStyle
-import androidx.ui.text.font.FontSynthesis
-import androidx.ui.text.font.FontWeight
 import androidx.ui.text.style.TextAlign
-import androidx.ui.text.style.TextDecoration
 import androidx.ui.text.style.TextDirection
-import androidx.ui.text.style.TextDirectionAlgorithm
-import androidx.ui.text.style.TextIndent
 import java.util.Locale as JavaLocale
-import kotlin.math.roundToInt
 
 /**
  * Android specific implementation for [Paragraph]
  */
 internal class AndroidParagraph constructor(
-    val text: String,
-    val style: TextStyle,
-    val paragraphStyle: ParagraphStyle,
-    val textStyles: List<AnnotatedString.Item<TextStyle>>,
+    val paragraphIntrinsics: AndroidParagraphIntrinsics,
     val maxLines: Int?,
-    val ellipsis: Boolean?,
-    val typefaceAdapter: TypefaceAdapter,
-    val density: Density,
-    val layoutDirection: LayoutDirection
+    val ellipsis: Boolean?
 ) : Paragraph {
 
-    @VisibleForTesting
-    internal val textPaint = TextPaint(android.graphics.Paint.ANTI_ALIAS_FLAG)
+    constructor(
+        text: String,
+        style: TextStyle,
+        paragraphStyle: ParagraphStyle,
+        textStyles: List<AnnotatedString.Item<TextStyle>>,
+        maxLines: Int?,
+        ellipsis: Boolean?,
+        typefaceAdapter: TypefaceAdapter,
+        density: Density,
+        layoutDirection: LayoutDirection
+    ) : this(
+        paragraphIntrinsics = AndroidParagraphIntrinsics(
+            text = text,
+            style = style,
+            paragraphStyle = paragraphStyle,
+            textStyles = textStyles,
+            typefaceAdapter = typefaceAdapter,
+            density = density,
+            layoutDirection = layoutDirection
+        ),
+        maxLines = maxLines,
+        ellipsis = ellipsis
+    )
 
+    /**
+     * Initialized when [layout] function is called.
+     */
     private var layout: TextLayout? = null
 
     override var width: Float = 0.0f
-        get() = layout?.let { field } ?: 0.0f
+        get() = ensureLayout.let { field }
 
     override val height: Float
-        get() = layout?.let {
+        get() = ensureLayout.let {
             // TODO(Migration/haoyuchang): Figure out a way to add bottomPadding properly
             val lineCount = it.lineCount
             if (maxLines != null &&
@@ -119,36 +99,30 @@ internal class AndroidParagraph constructor(
             } else {
                 it.height.toFloat()
             }
-        } ?: 0.0f
+        }
 
     override val maxIntrinsicWidth: Float
-        get() = layoutIntrinsics.maxIntrinsicWidth
+        get() = paragraphIntrinsics.maxIntrinsicWidth
 
     override val minIntrinsicWidth: Float
-        get() = layoutIntrinsics.minIntrinsicWidth
-
-    private val textDirectionHeuristic: Int
-        get() = resolveTextDirectionHeuristics(
-            layoutDirection,
-            paragraphStyle.textDirectionAlgorithm
-        )
+        get() = paragraphIntrinsics.minIntrinsicWidth
 
     override val firstBaseline: Float
-        get() = layout?.getLineBaseline(0) ?: 0.0f
+        get() = ensureLayout.getLineBaseline(0)
 
     override val lastBaseline: Float
         get() = if (maxLines != null && maxLines >= 0 && maxLines < lineCount) {
-            layout?.getLineBaseline(maxLines - 1) ?: 0.0f
+            ensureLayout.getLineBaseline(maxLines - 1)
         } else {
-            layout?.getLineBaseline(lineCount - 1) ?: 0.0f
+            ensureLayout.getLineBaseline(lineCount - 1)
         }
 
     override val didExceedMaxLines: Boolean
-        get() = layout?.didExceedMaxLines ?: false
+        get() = ensureLayout.didExceedMaxLines
 
     @VisibleForTesting
     internal val textLocale: JavaLocale
-        get() = textPaint.textLocale
+        get() = paragraphIntrinsics.textPaint.textLocale
 
     override val lineCount: Int
         get() = ensureLayout.lineCount
@@ -161,34 +135,15 @@ internal class AndroidParagraph constructor(
         }
 
     @VisibleForTesting
-    internal val underlyingText: CharSequence
-        get() = ensureLayout.text
+    internal val charSequence: CharSequence
+        get() = paragraphIntrinsics.charSequence
 
-    private val charSequence: CharSequence
-    private val layoutIntrinsics: LayoutIntrinsics
-
-    init {
-        val notAppliedStyle = textPaint.applyTextStyle(style, typefaceAdapter, density)
-
-        charSequence = createStyledText(
-            text = text,
-            textIndent = paragraphStyle.textIndent,
-            textStyles = listOf(
-                AnnotatedString.Item(
-                    notAppliedStyle,
-                    0,
-                    text.length
-                )
-            ) + textStyles,
-            density = density,
-            typefaceAdapter = typefaceAdapter
-        )
-
-        layoutIntrinsics = LayoutIntrinsics(charSequence, textPaint, textDirectionHeuristic)
-    }
+    @VisibleForTesting
+    internal val textPaint: TextPaint
+        get() = paragraphIntrinsics.textPaint
 
     override fun layout(constraints: ParagraphConstraints) {
-        val width = constraints.width
+        val paragraphStyle = paragraphIntrinsics.paragraphStyle
 
         val alignment = toLayoutAlign(paragraphStyle.textAlign)
 
@@ -207,18 +162,18 @@ internal class AndroidParagraph constructor(
         }
 
         layout = TextLayout(
-            charSequence = charSequence,
-            width = width,
+            charSequence = paragraphIntrinsics.charSequence,
+            width = constraints.width,
             textPaint = textPaint,
             ellipsize = ellipsize,
             alignment = alignment,
-            textDirectionHeuristic = textDirectionHeuristic,
+            textDirectionHeuristic = paragraphIntrinsics.textDirectionHeuristic,
             lineSpacingMultiplier = lineSpacingMultiplier,
             maxLines = maxLines,
             justificationMode = justificationMode,
-            layoutIntrinsics = layoutIntrinsics
+            layoutIntrinsics = paragraphIntrinsics.layoutIntrinsics
         )
-        this.width = width
+        this.width = constraints.width
     }
 
     override fun getOffsetForPosition(position: PxPosition): Int {
@@ -243,9 +198,10 @@ internal class AndroidParagraph constructor(
     }
 
     override fun getPathForRange(start: Int, end: Int): Path {
-        if (start !in 0..end || end > text.length) {
+        if (start !in 0..end || end > charSequence.length) {
             throw AssertionError(
-                "Start($start) or End($end) is out of Range(0..${text.length}), or start > end!"
+                "Start($start) or End($end) is out of Range(0..${charSequence.length})," +
+                        " or start > end!"
             )
         }
         val path = android.graphics.Path()
@@ -254,8 +210,8 @@ internal class AndroidParagraph constructor(
     }
 
     override fun getCursorRect(offset: Int): Rect {
-        if (offset !in 0..text.length) {
-            throw AssertionError("offset($offset) is out of bounds (0,${text.length}")
+        if (offset !in 0..charSequence.length) {
+            throw AssertionError("offset($offset) is out of bounds (0,${charSequence.length}")
         }
         // TODO(nona): Support cursor drawable.
         val cursorWidth = 4.0f
@@ -306,6 +262,7 @@ internal class AndroidParagraph constructor(
     override fun getBidiRunDirection(offset: Int): TextDirection {
         return if (ensureLayout.isRtlCharAt(offset)) TextDirection.Rtl else TextDirection.Ltr
     }
+
     /**
      * @return true if the given line is ellipsized, else false.
      */
@@ -325,296 +282,6 @@ internal class AndroidParagraph constructor(
     }
 }
 
-private fun createTypeface(style: TextStyle, typefaceAdapter: TypefaceAdapter): Typeface {
-    return typefaceAdapter.create(
-        fontFamily = style.fontFamily,
-        fontWeight = style.fontWeight ?: FontWeight.normal,
-        fontStyle = style.fontStyle ?: FontStyle.Normal,
-        fontSynthesis = style.fontSynthesis ?: FontSynthesis.All
-    )
-}
-
-private fun createStyledText(
-    text: String,
-    textIndent: TextIndent?,
-    textStyles: List<AnnotatedString.Item<TextStyle>>,
-    density: Density,
-    typefaceAdapter: TypefaceAdapter
-): CharSequence {
-    if (textStyles.isEmpty() && textIndent == null) return text
-    val spannableString = SpannableString(text)
-
-    textIndent?.let { indent ->
-        if (indent.firstLine == 0.px && indent.restLine == 0.px) return@let
-        spannableString.setSpan(
-            LeadingMarginSpan.Standard(
-                indent.firstLine.value.toInt(),
-                indent.restLine.value.toInt()
-            ),
-            0,
-            text.length,
-            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
-        )
-    }
-
-    for (textStyle in textStyles) {
-        val start = textStyle.start
-        val end = textStyle.end
-        val style = textStyle.style
-
-        if (start < 0 || start >= text.length || end <= start || end > text.length) continue
-
-        // Be aware that SuperscriptSpan needs to be applied before all other spans which
-        // affect FontMetrics
-        style.baselineShift?.let {
-            spannableString.setSpan(
-                BaselineShiftSpan(it.multiplier),
-                start,
-                end,
-                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
-            )
-        }
-
-        style.color?.let {
-            spannableString.setSpan(
-                ForegroundColorSpan(it.toArgb()),
-                start,
-                end,
-                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
-            )
-        }
-
-        style.decoration?.let {
-            if (it.contains(TextDecoration.Underline)) {
-                spannableString.setSpan(
-                    UnderlineSpan(),
-                    start,
-                    end,
-                    Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
-                )
-            }
-            if (it.contains(TextDecoration.LineThrough)) {
-                spannableString.setSpan(
-                    StrikethroughSpan(),
-                    start,
-                    end,
-                    Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
-                )
-            }
-        }
-
-        style.fontSize?.let {
-            withDensity(density) {
-                spannableString.setSpan(
-                    AbsoluteSizeSpan(it.toPx().value.roundToInt()),
-                    start,
-                    end,
-                    Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
-                )
-            }
-        }
-
-        // Be aware that fontSizeScale must be applied after fontSize.
-        style.fontSizeScale?.let {
-            spannableString.setSpan(
-                RelativeSizeSpan(it),
-                start,
-                end,
-                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
-            )
-        }
-
-        style.fontFeatureSettings?.let {
-            spannableString.setSpan(
-                FontFeatureSpan(it),
-                start,
-                end,
-                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
-            )
-        }
-
-        if (style.hasFontAttributes()) {
-            spannableString.setSpan(
-                TypefaceSpan(createTypeface(style, typefaceAdapter)),
-                start,
-                end,
-                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
-            )
-        }
-
-        // TODO(Migration/haoyuchang): implement textBaseLine
-        style.textGeometricTransform?.scaleX?.let {
-            spannableString.setSpan(
-                ScaleXSpan(it),
-                start,
-                end,
-                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
-            )
-        }
-
-        style.textGeometricTransform?.skewX?.let {
-            spannableString.setSpan(
-                SkewXSpan(it),
-                start,
-                end,
-                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
-            )
-        }
-
-        // TODO(Migration/haoyuchang): support letter spacing with pixel.
-        style.letterSpacing?.let {
-            spannableString.setSpan(
-                LetterSpacingSpan(it),
-                start,
-                end,
-                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
-            )
-        }
-        // TODO(Migration/haoyuchang): implement height
-        style.localeList?.let {
-            spannableString.setSpan(
-                if (Build.VERSION.SDK_INT >= 24) {
-                    LocaleSpan(it.toAndroidLocaleList())
-                } else {
-                    val locale = if (it.isEmpty()) Locale.current else it[0]
-                    LocaleSpan(locale.toJavaLocale())
-                },
-                start,
-                end,
-                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
-            )
-        }
-        // TODO(Migration/haoyuchang): framework only support background color now
-        style.background?.let {
-            spannableString.setSpan(
-                BackgroundColorSpan(it.toArgb()),
-                start,
-                end,
-                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
-            )
-        }
-        // TODO(Migration/haoyuchang): implement foreground or decide if we really need it
-        style.shadow?.let {
-            spannableString.setSpan(
-                ShadowSpan(it.color.toArgb(), it.offset.dx, it.offset.dy, it.blurRadius.value),
-                start,
-                end,
-                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
-            )
-        }
-    }
-    return spannableString
-}
-
-private fun TextPaint.applyTextStyle(
-    style: TextStyle,
-    typefaceAdapter: TypefaceAdapter,
-    density: Density
-): TextStyle {
-    // TODO(haoyuchang) remove this engine.ParagraphStyle
-    style.fontSize?.let {
-        withDensity(density) {
-            textSize = it.toPx().value
-        }
-    }
-
-    // fontSizeScale must be applied after fontSize is applied.
-    style.fontSizeScale?.let {
-        textSize *= it
-    }
-
-    // TODO(siyamed): This default values are problem here. If the user just gives a single font
-    // in the family, and does not provide any fontWeight, TypefaceAdapter will still get the
-    // call as FontWeight.normal (which is the default value)
-    if (style.hasFontAttributes()) {
-        typeface = createTypeface(style, typefaceAdapter)
-    }
-
-    style.localeList?.let {
-        if (Build.VERSION.SDK_INT >= 24) {
-            textLocales = it.toAndroidLocaleList()
-        } else {
-            val locale = if (it.isEmpty()) Locale.current else it[0]
-            textLocale = locale.toJavaLocale()
-        }
-    }
-
-    style.color?.let {
-        color = it.toArgb()
-    }
-
-    style.letterSpacing?.let {
-        letterSpacing = it
-    }
-
-    style.fontFeatureSettings?.let {
-        fontFeatureSettings = it
-    }
-
-    style.textGeometricTransform?.scaleX?.let {
-        textScaleX *= it
-    }
-
-    style.textGeometricTransform?.skewX?.let {
-        textSkewX += it
-    }
-
-    style.shadow?.let {
-        setShadowLayer(
-            it.blurRadius.value,
-            it.offset.dx,
-            it.offset.dy,
-            it.color.toArgb()
-        )
-    }
-
-    style.decoration?.let {
-        if (it.contains(TextDecoration.Underline)) {
-            isUnderlineText = true
-        }
-        if (it.contains(TextDecoration.LineThrough)) {
-            isStrikeThruText = true
-        }
-    }
-
-    // baselineShift and bgColor is reset in the Android Layout constructor.
-    // therefore we cannot apply them on paint, have to use spans.
-    return TextStyle(
-        background = style.background,
-        baselineShift = style.baselineShift
-    )
-}
-
-/**
- * For a given [TextDirectionAlgorithm] return [TextLayout] constants for text direction
- * heuristics.
- */
-internal fun resolveTextDirectionHeuristics(
-    layoutDirection: LayoutDirection,
-    textDirectionAlgorithm: TextDirectionAlgorithm?
-): Int {
-    if (textDirectionAlgorithm == null) {
-        return if (layoutDirection == LayoutDirection.Ltr) {
-            TEXT_DIRECTION_FIRST_STRONG_LTR
-        } else {
-            TEXT_DIRECTION_FIRST_STRONG_RTL
-        }
-    }
-
-    return when (textDirectionAlgorithm) {
-        TextDirectionAlgorithm.ContentOrLtr -> TEXT_DIRECTION_FIRST_STRONG_LTR
-        TextDirectionAlgorithm.ContentOrRtl -> TEXT_DIRECTION_FIRST_STRONG_RTL
-        TextDirectionAlgorithm.ForceLtr -> TEXT_DIRECTION_LTR
-        TextDirectionAlgorithm.ForceRtl -> TEXT_DIRECTION_RTL
-    }
-}
-/**
- * Returns true if this [TextStyle] contains any font style attributes set.
- */
-private fun TextStyle.hasFontAttributes(): Boolean {
-    return fontFamily != null || fontStyle != null || fontWeight != null
-}
-
 /**
  * Converts [TextAlign] into [TextLayout] alignment constants.
  */
@@ -626,9 +293,3 @@ private fun toLayoutAlign(align: TextAlign?): Int = when (align) {
     TextAlign.End -> ALIGN_OPPOSITE
     else -> DEFAULT_ALIGNMENT
 }
-
-private fun Locale.toJavaLocale(): JavaLocale = (platformLocale as AndroidLocale).javaLocale
-
-@RequiresApi(api = 24)
-private fun LocaleList.toAndroidLocaleList(): AndroidLocaleList =
-    AndroidLocaleList(*map { it.toJavaLocale() }.toTypedArray())
