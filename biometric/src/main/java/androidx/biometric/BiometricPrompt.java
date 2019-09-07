@@ -463,20 +463,24 @@ public class BiometricPrompt implements BiometricConstants {
             new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
-                    mExecutor.execute(() -> {
-                        if (usingBiometricFragment()) {
-                            final CharSequence errorText =
-                                    mBiometricFragment.getNegativeButtonText();
-                            mAuthenticationCallback.onAuthenticationError(
-                                    ERROR_NEGATIVE_BUTTON, errorText != null ? errorText : "");
-                            mBiometricFragment.cleanup();
-                        } else {
-                            final CharSequence errorText =
-                                    mFingerprintDialogFragment.getNegativeButtonText();
-                            mAuthenticationCallback.onAuthenticationError(
-                                    ERROR_NEGATIVE_BUTTON, errorText != null ? errorText : "");
-                            mFingerprintHelperFragment.cancel(
-                                    FingerprintHelperFragment.USER_CANCELED_FROM_NEGATIVE_BUTTON);
+                    mExecutor.execute(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (usingBiometricFragment()) {
+                                final CharSequence errorText =
+                                        mBiometricFragment.getNegativeButtonText();
+                                mAuthenticationCallback.onAuthenticationError(
+                                        ERROR_NEGATIVE_BUTTON, errorText != null ? errorText : "");
+                                mBiometricFragment.cleanup();
+                            } else {
+                                final CharSequence errorText =
+                                        mFingerprintDialogFragment.getNegativeButtonText();
+                                mAuthenticationCallback.onAuthenticationError(
+                                        ERROR_NEGATIVE_BUTTON, errorText != null ? errorText : "");
+                                mFingerprintHelperFragment.cancel(
+                                        FingerprintHelperFragment
+                                                .USER_CANCELED_FROM_NEGATIVE_BUTTON);
+                            }
                         }
                     });
                 }
