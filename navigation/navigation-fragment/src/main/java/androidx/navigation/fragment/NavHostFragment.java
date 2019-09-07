@@ -104,7 +104,7 @@ public class NavHostFragment extends Fragment implements NavHost {
             if (findFragment instanceof NavHostFragment) {
                 return ((NavHostFragment) findFragment).getNavController();
             }
-            Fragment primaryNavFragment = findFragment.requireFragmentManager()
+            Fragment primaryNavFragment = findFragment.getParentFragmentManager()
                     .getPrimaryNavigationFragment();
             if (primaryNavFragment instanceof NavHostFragment) {
                 return ((NavHostFragment) primaryNavFragment).getNavController();
@@ -193,7 +193,7 @@ public class NavHostFragment extends Fragment implements NavHost {
         // but it can stay here until we can add the necessary attr resources to
         // the fragment lib.
         if (mDefaultNavHost) {
-            requireFragmentManager().beginTransaction()
+            getParentFragmentManager().beginTransaction()
                     .setPrimaryNavigationFragment(this)
                     .commit();
         }
@@ -221,7 +221,7 @@ public class NavHostFragment extends Fragment implements NavHost {
             navState = savedInstanceState.getBundle(KEY_NAV_CONTROLLER_STATE);
             if (savedInstanceState.getBoolean(KEY_DEFAULT_NAV_HOST, false)) {
                 mDefaultNavHost = true;
-                requireFragmentManager().beginTransaction()
+                getParentFragmentManager().beginTransaction()
                         .setPrimaryNavigationFragment(this)
                         .commit();
             }

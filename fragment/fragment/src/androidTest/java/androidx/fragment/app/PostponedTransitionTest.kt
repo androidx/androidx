@@ -1123,7 +1123,7 @@ class PostponedTransitionTest {
         override fun onResume() {
             super.onResume()
             // This should throw because this happens during the execution
-            fragmentManager!!.beginTransaction()
+            parentFragmentManager.beginTransaction()
                 .add(R.id.fragmentContainer, PostponedFragment1())
                 .commitNow()
         }
