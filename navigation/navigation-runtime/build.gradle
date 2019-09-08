@@ -28,7 +28,7 @@ plugins {
 
 dependencies {
     api(project(":navigation:navigation-common"))
-    api(project(":activity:activity"))
+    api("androidx.activity:activity:1.1.0-alpha03")
     api(project(":lifecycle:lifecycle-viewmodel"))
     api("androidx.savedstate:savedstate:1.0.0-rc01")
     api(project(":lifecycle:lifecycle-viewmodel-savedstate"))

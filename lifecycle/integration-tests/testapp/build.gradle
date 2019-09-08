@@ -37,7 +37,7 @@ android {
 }
 
 dependencies {
-    implementation(project(":fragment:fragment"))
+    implementation("androidx.fragment:fragment:1.1.0")
     implementation(project(":lifecycle:lifecycle-process"))
     annotationProcessor(project(":lifecycle:lifecycle-compiler"))
 
