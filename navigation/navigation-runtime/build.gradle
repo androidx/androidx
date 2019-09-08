@@ -30,7 +30,7 @@ dependencies {
     api(project(":navigation:navigation-common"))
     api("androidx.activity:activity:1.1.0-alpha03")
     api(project(":lifecycle:lifecycle-viewmodel"))
-    api("androidx.savedstate:savedstate:1.0.0-rc01")
+    api("androidx.savedstate:savedstate:1.0.0")
     api(project(":lifecycle:lifecycle-viewmodel-savedstate"))
 
     androidTestImplementation(project(":navigation:navigation-testing"))
