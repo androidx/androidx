@@ -1239,6 +1239,7 @@ package androidx.core.math {
     method public static float clamp(float, float, float);
     method public static double clamp(double, double, double);
     method public static int clamp(int, int, int);
+    method public static long clamp(long, long, long);
   }
 
 }
