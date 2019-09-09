@@ -19,6 +19,7 @@ package androidx.lifecycle;
 import android.app.Activity;
 import android.app.Application;
 import android.content.Context;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 
@@ -159,7 +160,21 @@ public class ProcessLifecycleOwner implements LifecycleOwner {
         app.registerActivityLifecycleCallbacks(new EmptyActivityLifecycleCallbacks() {
             @Override
             public void onActivityCreated(Activity activity, Bundle savedInstanceState) {
-                ReportFragment.get(activity).setProcessListener(mInitializationListener);
+                // Only use ReportFragment pre API 29 - after that, we can use the
+                // onActivityPostStarted and onActivityPostResumed callbacks directly
+                if (Build.VERSION.SDK_INT < 29) {
+                    ReportFragment.get(activity).setProcessListener(mInitializationListener);
+                }
+            }
+
+            @Override
+            public void onActivityPostStarted(@NonNull Activity activity) {
+                activityStarted();
+            }
+
+            @Override
+            public void onActivityPostResumed(@NonNull Activity activity) {
+                activityResumed();
             }
 
             @Override
