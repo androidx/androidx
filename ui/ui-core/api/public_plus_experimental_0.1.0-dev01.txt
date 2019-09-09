@@ -471,8 +471,15 @@ package androidx.ui.core {
     method public androidx.ui.core.PxPosition globalToLocal(androidx.ui.core.PxPosition global);
     method public androidx.ui.core.PxPosition localToGlobal(androidx.ui.core.PxPosition local);
     method public androidx.ui.core.PxPosition localToRoot(androidx.ui.core.PxPosition local);
+    property public abstract androidx.ui.core.LayoutCoordinates? parentCoordinates;
     property public abstract androidx.ui.core.PxPosition position;
     property public abstract androidx.ui.core.PxSize size;
+  }
+
+  public final class LayoutCoordinatesKt {
+    ctor public LayoutCoordinatesKt();
+    method public static inline androidx.ui.core.PxPosition getGlobalPosition(androidx.ui.core.LayoutCoordinates);
+    method public static inline androidx.ui.core.PxPosition getPositionInRoot(androidx.ui.core.LayoutCoordinates);
   }
 
   public enum LayoutDirection {

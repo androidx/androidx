@@ -90,12 +90,6 @@ interface Owner {
     fun onEndLayout(layoutNode: LayoutNode)
 
     /**
-     * Queues a block to be ran at the end of the layout pass, after nodes
-     * have been positioned.
-     */
-    fun runAfterLayout(block: () -> Unit)
-
-    /**
      * Returns a position of the owner in its window.
      */
     fun calculatePosition(): PxPosition
@@ -608,6 +602,8 @@ class LayoutNode : ComponentNode(), Measurable, MeasureBlockScope {
         }
     }
 
+    internal val coordinates: LayoutCoordinates = LayoutNodeCoordinates(this)
+
     override fun attach(owner: Owner) {
         super.attach(owner)
         requestRemeasure()
@@ -678,45 +674,42 @@ class LayoutNode : ComponentNode(), Measurable, MeasureBlockScope {
     }
 
     fun placeChildren() {
-        if (!needsRelayout) return
+        if (needsRelayout) {
+            owner?.onStartLayout(this)
+            layoutChildren.forEach { child ->
+                child.visible = false
+                child.alignmentLinesRequired = alignmentLinesRequired
+                if (dirtyAlignmentLines) child.dirtyAlignmentLines = true
+            }
+            positionedDuringMeasurePass = parentLayoutNode?.isInMeasure ?: false ||
+                    parentLayoutNode?.positionedDuringMeasurePass ?: false
+            PositioningBlockScope.positioningBlock()
+            owner?.onEndLayout(this)
+            needsRelayout = false
 
-        owner?.onStartLayout(this)
-        layoutChildren.forEach { child ->
-            child.visible = false
-            child.alignmentLinesRequired = alignmentLinesRequired
-            if (dirtyAlignmentLines) child.dirtyAlignmentLines = true
-        }
-        positionedDuringMeasurePass = parentLayoutNode?.isInMeasure ?: false ||
-                parentLayoutNode?.positionedDuringMeasurePass ?: false
-        PositioningBlockScope.positioningBlock()
-        if (!positionedDuringMeasurePass) {
-            dispatchOnPositionedCallbacks()
-        } else {
-            // We need to dispatch OnPositioned callbacks only after all the
-            // ancestor layout nodes have been positioned.
-            owner?.runAfterLayout(dispatchOnPositionedCallbacks)
-        }
-        owner?.onEndLayout(this)
-        needsRelayout = false
-
-        if (!alignmentLinesRequired || !dirtyAlignmentLines) return
-        layoutChildren.forEach { child ->
-            if (!child.visible) return@forEach
-            child.alignmentLines.entries.forEach { (childLine, linePosition) ->
-                val linePositionInContainer = linePosition +
-                        if (childLine.horizontal) child.y else child.x
-                // If the line was already provided by a previous child, merge the two values.
-                alignmentLines[childLine] = if (childLine in alignmentLines) {
-                    childLine.merge(alignmentLines.getValue(childLine), linePositionInContainer)
-                } else {
-                    linePositionInContainer
+            if (alignmentLinesRequired && dirtyAlignmentLines) {
+                layoutChildren.forEach { child ->
+                    if (!child.visible) return@forEach
+                    child.alignmentLines.entries.forEach { (childLine, linePosition) ->
+                        val linePositionInContainer = linePosition +
+                                if (childLine.horizontal) child.y else child.x
+                        // If the line was already provided by a previous child, merge the two values.
+                        alignmentLines[childLine] = if (childLine in alignmentLines) {
+                            childLine.merge(
+                                alignmentLines.getValue(childLine),
+                                linePositionInContainer
+                            )
+                        } else {
+                            linePositionInContainer
+                        }
+                    }
                 }
+                dirtyAlignmentLines = false
             }
         }
-        dirtyAlignmentLines = false
     }
 
-    internal fun calculateAlignmentLines() : Map<AlignmentLine, IntPx> {
+    internal fun calculateAlignmentLines(): Map<AlignmentLine, IntPx> {
         alignmentLinesRequired = true
         if (dirtyAlignmentLines) placeChildren()
         return alignmentLines
@@ -748,15 +741,12 @@ class LayoutNode : ComponentNode(), Measurable, MeasureBlockScope {
      */
     fun requestRemeasure() = owner?.onRequestMeasure(this)
 
-    private val dispatchOnPositionedCallbacks = {
+    internal fun dispatchOnPositionedCallbacks() {
         // There are two types of callbacks:
         // a) when the Layout is positioned - `onPositioned`
         // b) when the child of the Layout is positioned - `onChildPositioned`
-        // To create LayoutNodeCoordinates only once here we will call callbacks from
-        // both `onPositioned` and 'onChildPositioned'.
-        val coordinates = LayoutNodeCoordinates(this)
-        walkOnPosition(this, coordinates)
-        walkOnChildPositioned(this, coordinates)
+        walkOnPosition(this, this.coordinates)
+        walkOnChildPositioned(this, this.coordinates)
     }
 
     internal companion object {
@@ -769,6 +759,10 @@ class LayoutNode : ComponentNode(), Measurable, MeasureBlockScope {
                         method(coordinates)
                     }
                     walkOnPosition(child, coordinates)
+                } else {
+                    if (!child.needsRelayout) {
+                        child.dispatchOnPositionedCallbacks()
+                    }
                 }
             }
         }
@@ -1080,6 +1074,8 @@ private class LayoutNodeCoordinates(
 
     override val size get() = PxSize(layoutNode.width, layoutNode.height)
 
+    override val parentCoordinates get() = layoutNode.parentLayoutNode?.coordinates
+
     override fun globalToLocal(global: PxPosition) = layoutNode.globalToLocal(global)
 
     override fun localToGlobal(local: PxPosition) = layoutNode.localToGlobal(local)
@@ -1091,10 +1087,5 @@ private class LayoutNodeCoordinates(
             throw IllegalArgumentException("Incorrect child provided.")
         }
         return layoutNode.childToLocal(child.layoutNode, childLocal)
-    }
-
-    override fun getParentCoordinates(): LayoutCoordinates? {
-        val parent = layoutNode.parentLayoutNode
-        return if (parent != null) LayoutNodeCoordinates(parent) else null
     }
 }
