@@ -16,6 +16,8 @@
 
 package androidx.ads.identifier.testing;
 
+import static androidx.ads.identifier.AdvertisingIdUtils.GET_AD_ID_ACTION;
+
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
@@ -44,8 +46,6 @@ import java.util.List;
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class MockPackageManagerHelper {
-
-    private static final String GET_AD_ID_ACTION = "androidx.ads.identifier.provider.GET_AD_ID";
 
     private static final String OPEN_SETTINGS_ACTION =
             "androidx.ads.identifier.provider.OPEN_SETTINGS";

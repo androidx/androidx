@@ -22,9 +22,9 @@ plugins {
 }
 
 dependencies {
+    implementation(project(":ads-identifier-common"))
     api("androidx.annotation:annotation:1.1.0")
     api(MOCKITO_CORE, libs.exclude_bytebuddy)
-    api(DEXMAKER_MOCKITO, libs.exclude_bytebuddy)
 }
 
 android {
