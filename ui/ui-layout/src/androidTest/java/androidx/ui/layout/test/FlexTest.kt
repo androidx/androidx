@@ -32,7 +32,7 @@ import androidx.ui.layout.AspectRatio
 import androidx.ui.layout.ConstrainedBox
 import androidx.ui.layout.CrossAxisAlignment
 import androidx.ui.layout.DpConstraints
-import androidx.ui.layout.FlexSize
+import androidx.ui.layout.LayoutSize
 import androidx.ui.layout.MainAxisAlignment
 import androidx.compose.Composable
 import androidx.compose.composer
@@ -644,7 +644,7 @@ class FlexTest : LayoutTest() {
         lateinit var rowSize: PxSize
         show {
             Center {
-                Row(mainAxisSize = FlexSize.Expand) {
+                Row(mainAxisSize = LayoutSize.Expand) {
                     FixedSpacer(width = sizeDp, height = sizeDp)
                     FixedSpacer(width = (sizeDp * 2), height = (sizeDp * 2))
 
@@ -674,7 +674,7 @@ class FlexTest : LayoutTest() {
         lateinit var rowSize: PxSize
         show {
             Center {
-                Row(mainAxisSize = FlexSize.Wrap) {
+                Row(mainAxisSize = LayoutSize.Wrap) {
                     FixedSpacer(width = sizeDp, height = sizeDp)
                     FixedSpacer(width = (sizeDp * 2), height = (sizeDp * 2))
 
@@ -704,7 +704,7 @@ class FlexTest : LayoutTest() {
         lateinit var rowSize: PxSize
         show {
             Center {
-                Row(crossAxisSize = FlexSize.Expand) {
+                Row(crossAxisSize = LayoutSize.Expand) {
                     FixedSpacer(width = sizeDp, height = sizeDp)
                     FixedSpacer(width = (sizeDp * 2), height = (sizeDp * 2))
 
@@ -734,7 +734,7 @@ class FlexTest : LayoutTest() {
         lateinit var rowSize: PxSize
         show {
             Center {
-                Row(crossAxisSize = FlexSize.Wrap) {
+                Row(crossAxisSize = LayoutSize.Wrap) {
                     FixedSpacer(width = sizeDp, height = sizeDp)
                     FixedSpacer(width = (sizeDp * 2), height = (sizeDp * 2))
 
@@ -766,7 +766,7 @@ class FlexTest : LayoutTest() {
         show {
             Center {
                 ConstrainedBox(constraints = DpConstraints(maxWidth = rowWidthDp)) {
-                    Row(mainAxisSize = FlexSize.Expand) {
+                    Row(mainAxisSize = LayoutSize.Expand) {
                         FixedSpacer(width = sizeDp, height = sizeDp)
                         FixedSpacer(width = sizeDp * 2, height = sizeDp * 2)
 
@@ -799,7 +799,7 @@ class FlexTest : LayoutTest() {
         show {
             Center {
                 ConstrainedBox(constraints = DpConstraints(minWidth = rowWidthDp)) {
-                    Row(mainAxisSize = FlexSize.Wrap) {
+                    Row(mainAxisSize = LayoutSize.Wrap) {
                         FixedSpacer(width = sizeDp, height = sizeDp)
                         FixedSpacer(width = sizeDp * 2, height = sizeDp * 2)
 
@@ -832,7 +832,7 @@ class FlexTest : LayoutTest() {
         show {
             Center {
                 ConstrainedBox(constraints = DpConstraints(maxHeight = rowHeightDp)) {
-                    Row(crossAxisSize = FlexSize.Expand) {
+                    Row(crossAxisSize = LayoutSize.Expand) {
                         FixedSpacer(width = sizeDp, height = sizeDp)
                         FixedSpacer(width = sizeDp * 2, height = sizeDp * 2)
 
@@ -865,7 +865,7 @@ class FlexTest : LayoutTest() {
         show {
             Center {
                 ConstrainedBox(constraints = DpConstraints(maxHeight = rowHeightDp)) {
-                    Row(crossAxisSize = FlexSize.Expand) {
+                    Row(crossAxisSize = LayoutSize.Expand) {
                         FixedSpacer(width = sizeDp, height = sizeDp)
                         FixedSpacer(width = sizeDp * 2, height = sizeDp * 2)
 
@@ -901,7 +901,7 @@ class FlexTest : LayoutTest() {
         show {
             Center {
                 ConstrainedBox(constraints = DpConstraints(minWidth = rowWidthDp)) {
-                    FlexRow(mainAxisSize = FlexSize.Wrap) {
+                    FlexRow(mainAxisSize = LayoutSize.Wrap) {
                         expanded(flex = 1f) {
                             Container(width = sizeDp, height = sizeDp) {
                                 OnPositioned(onPositioned = { coordinates ->
@@ -943,7 +943,7 @@ class FlexTest : LayoutTest() {
         lateinit var columnSize: PxSize
         show {
             Center {
-                Column(mainAxisSize = FlexSize.Expand) {
+                Column(mainAxisSize = LayoutSize.Expand) {
                     FixedSpacer(width = sizeDp, height = sizeDp)
                     FixedSpacer(width = (sizeDp * 2), height = (sizeDp * 2))
 
@@ -973,7 +973,7 @@ class FlexTest : LayoutTest() {
         lateinit var columnSize: PxSize
         show {
             Center {
-                Column(mainAxisSize = FlexSize.Wrap) {
+                Column(mainAxisSize = LayoutSize.Wrap) {
                     FixedSpacer(width = sizeDp, height = sizeDp)
                     FixedSpacer(width = (sizeDp * 2), height = (sizeDp * 2))
 
@@ -1003,7 +1003,7 @@ class FlexTest : LayoutTest() {
         lateinit var columnSize: PxSize
         show {
             Center {
-                Column(crossAxisSize = FlexSize.Expand) {
+                Column(crossAxisSize = LayoutSize.Expand) {
                     FixedSpacer(width = sizeDp, height = sizeDp)
                     FixedSpacer(width = (sizeDp * 2), height = (sizeDp * 2))
 
@@ -1033,7 +1033,7 @@ class FlexTest : LayoutTest() {
         lateinit var columnSize: PxSize
         show {
             Center {
-                Column(crossAxisSize = FlexSize.Wrap) {
+                Column(crossAxisSize = LayoutSize.Wrap) {
                     FixedSpacer(width = sizeDp, height = sizeDp)
                     FixedSpacer(width = (sizeDp * 2), height = (sizeDp * 2))
 
@@ -1065,7 +1065,7 @@ class FlexTest : LayoutTest() {
         show {
             Center {
                 ConstrainedBox(constraints = DpConstraints(maxHeight = columnHeightDp)) {
-                    Column(mainAxisSize = FlexSize.Expand) {
+                    Column(mainAxisSize = LayoutSize.Expand) {
                         FixedSpacer(width = sizeDp, height = sizeDp)
                         FixedSpacer(width = sizeDp * 2, height = sizeDp * 2)
 
@@ -1098,7 +1098,7 @@ class FlexTest : LayoutTest() {
         show {
             Center {
                 ConstrainedBox(constraints = DpConstraints(minHeight = columnHeightDp)) {
-                    Column(mainAxisSize = FlexSize.Wrap) {
+                    Column(mainAxisSize = LayoutSize.Wrap) {
                         FixedSpacer(width = sizeDp, height = sizeDp)
                         FixedSpacer(width = sizeDp * 2, height = sizeDp * 2)
 
@@ -1131,7 +1131,7 @@ class FlexTest : LayoutTest() {
         show {
             Center {
                 ConstrainedBox(constraints = DpConstraints(maxWidth = columnWidthDp)) {
-                    Column(crossAxisSize = FlexSize.Expand) {
+                    Column(crossAxisSize = LayoutSize.Expand) {
                         FixedSpacer(width = sizeDp, height = sizeDp)
                         FixedSpacer(width = sizeDp * 2, height = sizeDp * 2)
 
@@ -1164,7 +1164,7 @@ class FlexTest : LayoutTest() {
         show {
             Center {
                 ConstrainedBox(constraints = DpConstraints(minWidth = columnWidthDp)) {
-                    Column(crossAxisSize = FlexSize.Wrap) {
+                    Column(crossAxisSize = LayoutSize.Wrap) {
                         FixedSpacer(width = sizeDp, height = sizeDp)
                         FixedSpacer(width = sizeDp * 2, height = sizeDp * 2)
 
@@ -1200,7 +1200,7 @@ class FlexTest : LayoutTest() {
         show {
             Center {
                 ConstrainedBox(constraints = DpConstraints(minHeight = columnHeightDp)) {
-                    FlexColumn(mainAxisSize = FlexSize.Wrap) {
+                    FlexColumn(mainAxisSize = LayoutSize.Wrap) {
                         expanded(flex = 1f) {
                             Container(width = sizeDp, height = sizeDp) {
                                 OnPositioned(onPositioned = { coordinates ->
@@ -1806,7 +1806,7 @@ class FlexTest : LayoutTest() {
                 ConstrainedBox(DpConstraints.tightConstraints(50.dp, 40.dp)) { }
             }
         }, @Composable {
-            Row(mainAxisSize = FlexSize.Wrap) {
+            Row(mainAxisSize = LayoutSize.Wrap) {
                 AspectRatio(2f) { }
                 ConstrainedBox(DpConstraints.tightConstraints(50.dp, 40.dp)) { }
             }
@@ -1880,7 +1880,7 @@ class FlexTest : LayoutTest() {
                 ConstrainedBox(DpConstraints.tightConstraints(50.dp, 40.dp)) { }
             }
         }, @Composable {
-            Column(mainAxisSize = FlexSize.Wrap) {
+            Column(mainAxisSize = LayoutSize.Wrap) {
                 AspectRatio(2f) { }
                 ConstrainedBox(DpConstraints.tightConstraints(50.dp, 40.dp)) { }
             }
@@ -1964,7 +1964,7 @@ class FlexTest : LayoutTest() {
                 }
             }
         }, @Composable {
-            FlexRow(mainAxisSize = FlexSize.Wrap) {
+            FlexRow(mainAxisSize = LayoutSize.Wrap) {
                 expanded(flex = 3f) {
                     ConstrainedBox(DpConstraints.tightConstraints(20.dp, 30.dp)) { }
                 }
@@ -2146,7 +2146,7 @@ class FlexTest : LayoutTest() {
                 }
             }
         }, @Composable {
-            FlexColumn(mainAxisSize = FlexSize.Wrap) {
+            FlexColumn(mainAxisSize = LayoutSize.Wrap) {
                 expanded(flex = 3f) {
                     ConstrainedBox(DpConstraints.tightConstraints(30.dp, 20.dp)) { }
                 }
@@ -2319,7 +2319,7 @@ class FlexTest : LayoutTest() {
         show {
             Wrap {
                 Row(
-                    mainAxisSize = FlexSize.Wrap,
+                    mainAxisSize = LayoutSize.Wrap,
                     crossAxisAlignment = CrossAxisAlignment.AlignmentLine(TestAlignmentLine)
                 ) {
                     SaveLayoutInfo(rowSize, Ref(), layoutLatch)
@@ -2361,7 +2361,7 @@ class FlexTest : LayoutTest() {
         show {
             Wrap {
                 Column(
-                    mainAxisSize = FlexSize.Wrap,
+                    mainAxisSize = LayoutSize.Wrap,
                     crossAxisAlignment = CrossAxisAlignment.AlignmentLine(TestAlignmentLine)
                 ) {
                     SaveLayoutInfo(columnSize, Ref(), layoutLatch)
