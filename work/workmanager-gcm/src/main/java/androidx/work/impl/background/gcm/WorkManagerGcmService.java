@@ -19,6 +19,8 @@ package androidx.work.impl.background.gcm;
 
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
+import androidx.work.Logger;
+import androidx.work.impl.utils.WorkTimer;
 
 import com.google.android.gms.gcm.GcmTaskService;
 import com.google.android.gms.gcm.TaskParams;
@@ -28,17 +30,22 @@ import com.google.android.gms.gcm.TaskParams;
  * {@link androidx.work.WorkRequest}s.
  */
 public class WorkManagerGcmService extends GcmTaskService {
+
+    private static final String TAG = "WorkManagerGcmService";
+
+    private boolean mIsShutdown;
     private WorkManagerGcmDispatcher mGcmDispatcher;
 
     @Override
     public void onCreate() {
         super.onCreate();
-        mGcmDispatcher = new WorkManagerGcmDispatcher(getApplicationContext());
+        initializeDispatcher();
     }
 
     @Override
     @MainThread
     public void onInitializeTasks() {
+        checkDispatcher();
         // Reschedule all eligible work, as all tasks have been cleared in GCMNetworkManager.
         // This typically happens after an upgrade.
         mGcmDispatcher.onInitializeTasks();
@@ -46,6 +53,28 @@ public class WorkManagerGcmService extends GcmTaskService {
 
     @Override
     public int onRunTask(@NonNull TaskParams taskParams) {
+        checkDispatcher();
         return mGcmDispatcher.onRunTask(taskParams);
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        mIsShutdown = true;
+        mGcmDispatcher.onDestroy();
+    }
+
+    @MainThread
+    private void checkDispatcher() {
+        if (mIsShutdown) {
+            Logger.get().debug(TAG, "Re-initializing dispatcher after a request to shutdown");
+            initializeDispatcher();
+        }
+    }
+
+    @MainThread
+    private void initializeDispatcher() {
+        mIsShutdown = false;
+        mGcmDispatcher = new WorkManagerGcmDispatcher(getApplicationContext(), new WorkTimer());
     }
 }
