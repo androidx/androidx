@@ -33,7 +33,7 @@ import androidx.ui.core.setContent
 import androidx.ui.core.toRect
 import androidx.ui.framework.test.TestActivity
 import androidx.ui.graphics.Color
-import androidx.ui.painting.Paint
+import androidx.ui.graphics.Paint
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Before

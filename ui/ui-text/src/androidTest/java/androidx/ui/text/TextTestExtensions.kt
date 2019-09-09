@@ -30,7 +30,7 @@ fun Paragraph.bitmap(): Bitmap {
         ceil(this.height).toInt(),
         Bitmap.Config.ARGB_8888
     )
-    this.paint(androidx.ui.painting.Canvas(Canvas(bitmap)))
+    this.paint(androidx.ui.graphics.Canvas(Canvas(bitmap)))
     return bitmap
 }
 

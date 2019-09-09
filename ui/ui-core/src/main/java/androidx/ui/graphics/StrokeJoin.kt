@@ -14,21 +14,23 @@
  * limitations under the License.
  */
 
-package androidx.ui.painting
+package androidx.ui.graphics
 
-// Styles to use for line endings.
+// Styles to use for line joins.
 //
-// See [Paint.strokeCap].
-// These enum values must be kept in sync with SkPaint::Cap.
-enum class StrokeCap {
-    // Begin and end contours with a flat edge and no extension.
-    butt,
+// This only affects line joins for polygons drawn by [Canvas.drawPath] and
+// rectangles, not points drawn as lines with [Canvas.drawPoints].
+//
+// See [Paint.strokeJoin].
+// These enum values must be kept in sync with SkPaint::Join.
+enum class StrokeJoin {
+    // Joins between line segments form sharp corners.
+    miter,
 
-    // Begin and end contours with a semi-circle extension.
+    // Joins between line segments are semi-circular.
     round,
 
-    // Begin and end contours with a half square extension. This is
-    // similar to extending each contour by half the stroke width (as
-    // given by [Paint.strokeWidth]).
-    square
+    // Joins between line segments connect the corners of the butt ends of the
+    // line segments to give a beveled appearance.
+    bevel
 }

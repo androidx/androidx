@@ -24,8 +24,8 @@ import androidx.ui.core.Draw
 import androidx.ui.core.px
 import androidx.ui.engine.geometry.Rect
 import androidx.ui.graphics.Color
-import androidx.ui.painting.Paint
-import androidx.ui.painting.Path
+import androidx.ui.graphics.Paint
+import androidx.ui.graphics.Path
 import androidx.ui.text.style.TextDirection
 
 internal val HANDLE_WIDTH = 80.px

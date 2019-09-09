@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.ui.painting
+package androidx.ui.graphics
 
 /**
  * The format in which image bytes should be returned when using

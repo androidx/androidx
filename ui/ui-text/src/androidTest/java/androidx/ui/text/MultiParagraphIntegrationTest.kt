@@ -27,8 +27,8 @@ import androidx.ui.core.px
 import androidx.ui.core.sp
 import androidx.ui.core.withDensity
 import androidx.ui.engine.geometry.Rect
-import androidx.ui.painting.Path
-import androidx.ui.painting.PathOperation
+import androidx.ui.graphics.Path
+import androidx.ui.graphics.PathOperation
 import androidx.ui.text.FontTestData.Companion.BASIC_MEASURE_FONT
 import androidx.ui.text.font.FontFamily
 import androidx.ui.text.font.asFontFamily

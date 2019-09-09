@@ -18,7 +18,7 @@ package androidx.ui.material.demos
 
 import android.util.Log
 import androidx.compose.Composable
-import androidx.ui.painting.imageFromResource
+import androidx.ui.graphics.imageFromResource
 import androidx.compose.composer
 import androidx.ui.layout.Center
 import androidx.ui.layout.Column

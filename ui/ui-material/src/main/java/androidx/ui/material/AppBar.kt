@@ -54,9 +54,9 @@ import androidx.ui.layout.Wrap
 import androidx.ui.material.BottomAppBar.FabConfiguration
 import androidx.ui.material.BottomAppBar.FabPosition
 import androidx.ui.material.ripple.Ripple
-import androidx.ui.painting.Image
-import androidx.ui.painting.Path
-import androidx.ui.painting.PathOperation
+import androidx.ui.graphics.Image
+import androidx.ui.graphics.Path
+import androidx.ui.graphics.PathOperation
 import androidx.ui.semantics.Semantics
 import androidx.ui.text.TextStyle
 import kotlin.math.sqrt

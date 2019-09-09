@@ -20,8 +20,8 @@ import androidx.ui.core.Density
 import androidx.ui.core.LayoutDirection
 import androidx.ui.core.PxPosition
 import androidx.ui.engine.geometry.Rect
-import androidx.ui.painting.Canvas
-import androidx.ui.painting.Path
+import androidx.ui.graphics.Canvas
+import androidx.ui.graphics.Path
 import androidx.ui.text.font.Font
 import androidx.ui.text.platform.AndroidParagraph
 import androidx.ui.text.platform.AndroidParagraphIntrinsics

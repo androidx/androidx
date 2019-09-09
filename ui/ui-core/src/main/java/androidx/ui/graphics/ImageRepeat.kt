@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.ui.painting
+package androidx.ui.graphics
 
 /** How to paint any portions of a box not covered by an image. */
 enum class ImageRepeat {

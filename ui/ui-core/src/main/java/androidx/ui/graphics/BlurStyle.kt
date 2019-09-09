@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.ui.painting
+package androidx.ui.graphics
 
 // Styles to use for blurs in [MaskFilter] objects.
 // These enum values must be kept in sync with SkBlurStyle.

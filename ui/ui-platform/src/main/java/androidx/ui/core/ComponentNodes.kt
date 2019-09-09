@@ -17,7 +17,7 @@ package androidx.ui.core
 
 import androidx.compose.Emittable
 import androidx.ui.core.semantics.SemanticsConfiguration
-import androidx.ui.painting.Canvas
+import androidx.ui.graphics.Canvas
 import androidx.ui.engine.geometry.Shape
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty

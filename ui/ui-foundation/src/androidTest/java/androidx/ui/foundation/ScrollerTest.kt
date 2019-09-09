@@ -38,8 +38,8 @@ import androidx.ui.layout.Container
 import androidx.ui.layout.CrossAxisAlignment
 import androidx.ui.layout.DpConstraints
 import androidx.ui.graphics.Color
-import androidx.ui.painting.Paint
-import androidx.ui.painting.PaintingStyle
+import androidx.ui.graphics.Paint
+import androidx.ui.graphics.PaintingStyle
 import androidx.compose.composer
 import androidx.test.filters.SdkSuppress
 import androidx.ui.core.AndroidComposeView

@@ -35,7 +35,7 @@ import androidx.ui.core.px
 import androidx.ui.core.setContent
 import androidx.ui.engine.geometry.Rect
 import androidx.ui.graphics.Color
-import androidx.ui.painting.Paint
+import androidx.ui.graphics.Paint
 import androidx.ui.core.gesture.LongPressGestureDetector
 import androidx.compose.composer
 import androidx.ui.core.Draw

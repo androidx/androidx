@@ -14,12 +14,10 @@
  * limitations under the License.
  */
 
-package androidx.ui.painting
+package androidx.ui.graphics
 
 import android.graphics.BlurMaskFilter
 import android.graphics.PorterDuffColorFilter
-import androidx.ui.graphics.Color
-import androidx.ui.graphics.toArgb
 
 class Paint {
 

@@ -27,9 +27,9 @@ import androidx.ui.graphics.Color
 import androidx.ui.graphics.ShaderBrush
 import androidx.ui.graphics.SolidColor
 
-import androidx.ui.painting.Shader
-import androidx.ui.painting.StrokeCap
-import androidx.ui.painting.StrokeJoin
+import androidx.ui.graphics.Shader
+import androidx.ui.graphics.StrokeCap
+import androidx.ui.graphics.StrokeJoin
 import androidx.ui.graphics.vector.addPathNodes
 import androidx.ui.graphics.vector.DefaultPivotX
 import androidx.ui.graphics.vector.DefaultPivotY

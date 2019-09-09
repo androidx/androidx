@@ -29,8 +29,8 @@ import androidx.ui.core.sp
 import androidx.ui.core.withDensity
 import androidx.ui.engine.geometry.Rect
 import androidx.ui.graphics.Color
-import androidx.ui.painting.Canvas
-import androidx.ui.painting.Paint
+import androidx.ui.graphics.Canvas
+import androidx.ui.graphics.Paint
 import androidx.ui.text.FontTestData.Companion.BASIC_MEASURE_FONT
 import androidx.ui.text.font.asFontFamily
 import androidx.ui.text.matchers.equalToBitmap

@@ -29,7 +29,7 @@ import androidx.ui.text.font.FontFamily
 import androidx.ui.text.style.lerp
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.lerp
-import androidx.ui.painting.Shadow
+import androidx.ui.graphics.Shadow
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith

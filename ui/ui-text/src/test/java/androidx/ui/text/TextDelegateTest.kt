@@ -18,7 +18,7 @@ package androidx.ui.text
 
 import androidx.ui.core.Density
 import androidx.ui.core.LayoutDirection
-import androidx.ui.painting.Canvas
+import androidx.ui.graphics.Canvas
 import androidx.ui.text.font.Font
 import androidx.ui.text.style.TextOverflow
 import com.google.common.truth.Truth.assertThat

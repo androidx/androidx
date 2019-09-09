@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.ui.painting
+package androidx.ui.graphics
 
 import android.graphics.Matrix
 import androidx.ui.Vertices
@@ -48,9 +48,11 @@ import androidx.ui.vectormath64.isIdentity
     )
 }
 
-fun Canvas(c: android.graphics.Canvas): Canvas = AndroidCanvas(c)
+fun Canvas(c: android.graphics.Canvas): Canvas =
+    AndroidCanvas(c)
 
-private class AndroidCanvas(val internalCanvas: android.graphics.Canvas) : Canvas {
+private class AndroidCanvas(val internalCanvas: android.graphics.Canvas) :
+    Canvas {
 
     private val internalPath = Path()
 
@@ -199,7 +201,7 @@ private class AndroidCanvas(val internalCanvas: android.graphics.Canvas) : Canva
     }
 
     /**
-     * @see Canvas.drawDRRect
+     * @see Canvas.drawDoubleRoundRect
      */
     override fun drawRRect(rrect: RRect, paint: Paint) {
         internalPath.reset()
@@ -208,9 +210,9 @@ private class AndroidCanvas(val internalCanvas: android.graphics.Canvas) : Canva
     }
 
     /**
-     * @see Canvas.drawDRRect
+     * @see Canvas.drawDoubleRoundRect
      */
-    override fun drawDRRect(outer: RRect, inner: RRect, paint: Paint) {
+    override fun drawDoubleRoundRect(outer: RRect, inner: RRect, paint: Paint) {
         // TODO(Migration/njawad find better way to recreate functionality with Framework APIs
         // without creating temporary paths on each draw call
         val outerPath = Path()

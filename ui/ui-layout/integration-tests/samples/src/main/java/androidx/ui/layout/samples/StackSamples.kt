@@ -27,7 +27,7 @@ import androidx.ui.core.toRect
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Alignment
 import androidx.ui.layout.Stack
-import androidx.ui.painting.Paint
+import androidx.ui.graphics.Paint
 
 /**
  * Draws a rectangle of a specified dimension, or to its max incoming constraints if dimensions are

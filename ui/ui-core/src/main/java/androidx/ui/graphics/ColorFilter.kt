@@ -14,9 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.ui.painting
-
-import androidx.ui.graphics.Color
+package androidx.ui.graphics
 
 /**
  * A description of a color filter to apply when drawing a shape or compositing

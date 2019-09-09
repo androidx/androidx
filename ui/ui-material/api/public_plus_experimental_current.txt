@@ -13,7 +13,7 @@ package androidx.ui.material {
 
   public final class AppBarKt {
     ctor public AppBarKt();
-    method public static void AppBarIcon(androidx.ui.painting.Image icon, kotlin.jvm.functions.Function0<kotlin.Unit> onClick);
+    method public static void AppBarIcon(androidx.ui.graphics.Image icon, kotlin.jvm.functions.Function0<kotlin.Unit> onClick);
     method public static <T> void BottomAppBar(androidx.ui.graphics.Color color = +themeColor({ 
     primary
 }), kotlin.jvm.functions.Function0<kotlin.Unit>? navigationIcon = (kotlin.jvm.functions.Function0<? extends kotlin.Unit>)null, androidx.ui.material.BottomAppBar.FabConfiguration? fabConfiguration = null, java.util.List<? extends T>? contextualActions = null, kotlin.jvm.functions.Function1<? super T,kotlin.Unit> action = {});
@@ -113,10 +113,10 @@ package androidx.ui.material {
     method public static void FloatingActionButton(kotlin.jvm.functions.Function0<kotlin.Unit>? onClick = null, androidx.ui.core.Dp minSize = FabSize, androidx.ui.engine.geometry.Shape shape = CircleShape, androidx.ui.graphics.Color color = +themeColor({ 
     primary
 }), androidx.ui.core.Dp elevation = 6.dp, kotlin.jvm.functions.Function0<kotlin.Unit> children);
-    method public static void FloatingActionButton(androidx.ui.painting.Image icon, kotlin.jvm.functions.Function0<kotlin.Unit>? onClick = null, androidx.ui.engine.geometry.Shape shape = CircleShape, androidx.ui.graphics.Color color = +themeColor({ 
+    method public static void FloatingActionButton(androidx.ui.graphics.Image icon, kotlin.jvm.functions.Function0<kotlin.Unit>? onClick = null, androidx.ui.engine.geometry.Shape shape = CircleShape, androidx.ui.graphics.Color color = +themeColor({ 
     primary
 }), androidx.ui.core.Dp elevation = 6.dp);
-    method public static void FloatingActionButton(String text, androidx.ui.painting.Image? icon = null, androidx.ui.text.TextStyle? textStyle = null, kotlin.jvm.functions.Function0<kotlin.Unit>? onClick = null, androidx.ui.graphics.Color color = +themeColor({ 
+    method public static void FloatingActionButton(String text, androidx.ui.graphics.Image? icon = null, androidx.ui.text.TextStyle? textStyle = null, kotlin.jvm.functions.Function0<kotlin.Unit>? onClick = null, androidx.ui.graphics.Color color = +themeColor({ 
     primary
 }), androidx.ui.core.Dp elevation = 6.dp);
     method public static androidx.ui.core.Dp getExtendedFabHeight();
@@ -249,7 +249,7 @@ package androidx.ui.material {
 
   public final class TabKt {
     ctor public TabKt();
-    method public static void Tab(String? text = null, androidx.ui.painting.Image? icon = null, boolean selected, kotlin.jvm.functions.Function0<kotlin.Unit> onSelected);
+    method public static void Tab(String? text = null, androidx.ui.graphics.Image? icon = null, boolean selected, kotlin.jvm.functions.Function0<kotlin.Unit> onSelected);
     method public static <T> void TabRow(java.util.List<? extends T> items, int selectedIndex, kotlin.jvm.functions.Function1<? super java.util.List<androidx.ui.material.TabRow.TabPosition>,kotlin.Unit> indicatorContainer = { tabPositions -> TabRow.IndicatorContainer(tabPositions, selectedIndex, { 
     TabRow.Indicator()
 }) }, kotlin.jvm.functions.Function2<? super java.lang.Integer,? super T,kotlin.Unit> tab);
@@ -301,7 +301,7 @@ package androidx.ui.material.ripple {
   public abstract class RippleEffect {
     ctor public RippleEffect(androidx.ui.core.LayoutCoordinates coordinates, androidx.ui.core.LayoutCoordinates surfaceCoordinates, androidx.ui.graphics.Color color, kotlin.jvm.functions.Function0<kotlin.Unit> requestRedraw);
     method public abstract void dispose();
-    method protected abstract void drawEffect(androidx.ui.painting.Canvas canvas, androidx.ui.vectormath64.Matrix4 transform);
+    method protected abstract void drawEffect(androidx.ui.graphics.Canvas canvas, androidx.ui.vectormath64.Matrix4 transform);
     method public void finish(boolean canceled);
     method public final androidx.ui.graphics.Color getColor();
     method public final void setColor(androidx.ui.graphics.Color value);
