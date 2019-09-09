@@ -28,8 +28,8 @@ plugins {
 
 dependencies {
     api(project(":lifecycle:lifecycle-runtime"))
-    api("androidx.arch.core:core-common:2.1.0-rc01")
-    api("androidx.arch.core:core-runtime:2.1.0-rc01")
+    api("androidx.arch.core:core-common:2.1.0")
+    api("androidx.arch.core:core-runtime:2.1.0")
     api(project(":fragment:fragment"))
     api(project(":lifecycle:lifecycle-common"))
     api(project(":lifecycle:lifecycle-livedata"))
@@ -37,7 +37,7 @@ dependencies {
     api(project(":lifecycle:lifecycle-service"))
     api(project(":lifecycle:lifecycle-viewmodel"))
 
-    testImplementation("androidx.arch.core:core-testing:2.1.0-rc01")
+    testImplementation("androidx.arch.core:core-testing:2.1.0")
     testImplementation(JUNIT)
     testImplementation(MOCKITO_CORE)
 

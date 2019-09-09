@@ -34,7 +34,7 @@ android {
 
 dependencies {
     api("androidx.annotation:annotation:1.0.0")
-    api("androidx.savedstate:savedstate:1.0.0-rc01")
+    api("androidx.savedstate:savedstate:1.0.0")
     api(project(":lifecycle:lifecycle-livedata-core"))
     api(project(":lifecycle:lifecycle-viewmodel"))
 
