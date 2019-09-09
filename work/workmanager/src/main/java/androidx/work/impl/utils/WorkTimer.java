@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 The Android Open Source Project
+ * Copyright 2019 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.work.impl.background.systemalarm;
+package androidx.work.impl.utils;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
@@ -37,7 +37,7 @@ import java.util.concurrent.TimeUnit;
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-class WorkTimer {
+public class WorkTimer {
 
     private static final String TAG = Logger.tagWithPrefix("WorkTimer");
 
@@ -60,15 +60,25 @@ class WorkTimer {
     final Map<String, TimeLimitExceededListener> mListeners;
     final Object mLock;
 
-    WorkTimer() {
+    public WorkTimer() {
         mTimerMap = new HashMap<>();
         mListeners = new HashMap<>();
         mLock = new Object();
         mExecutorService = Executors.newSingleThreadScheduledExecutor(mBackgroundThreadFactory);
     }
 
+    /**
+     * Keeps track of execution time for a given {@link androidx.work.impl.model.WorkSpec}.
+     * The {@link TimeLimitExceededListener} is notified when the execution time exceeds {@code
+     * processingTimeMillis}.
+     *
+     * @param workSpecId           The {@link androidx.work.impl.model.WorkSpec} id
+     * @param processingTimeMillis The allocated time for execution in milliseconds
+     * @param listener             The listener which is notified when the execution time exceeds
+     *                             {@code processingTimeMillis}
+     */
     @SuppressWarnings("FutureReturnValueIgnored")
-    void startTimer(@NonNull final String workSpecId,
+    public void startTimer(@NonNull final String workSpecId,
             long processingTimeMillis,
             @NonNull TimeLimitExceededListener listener) {
 
@@ -83,7 +93,12 @@ class WorkTimer {
         }
     }
 
-    void stopTimer(@NonNull final String workSpecId) {
+    /**
+     * Stops tracking the execution time for a given {@link androidx.work.impl.model.WorkSpec}.
+     *
+     * @param workSpecId The {@link androidx.work.impl.model.WorkSpec} id
+     */
+    public void stopTimer(@NonNull final String workSpecId) {
         synchronized (mLock) {
             WorkTimerRunnable removed = mTimerMap.remove(workSpecId);
             if (removed != null) {
@@ -97,7 +112,7 @@ class WorkTimer {
      * This method needs to be idempotent. This could be called more than once, and therefore,
      * this method should only perform cleanup when necessary.
      */
-    void onDestroy() {
+    public void onDestroy() {
         if (!mExecutorService.isShutdown()) {
             // Calling shutdown() waits for pending scheduled WorkTimerRunnable's which is not
             // something we care about. Hence call shutdownNow().
@@ -106,24 +121,30 @@ class WorkTimer {
     }
 
     @VisibleForTesting
-    synchronized Map<String, WorkTimerRunnable> getTimerMap() {
+    @NonNull
+    public synchronized Map<String, WorkTimerRunnable> getTimerMap() {
         return mTimerMap;
     }
 
     @VisibleForTesting
-    synchronized Map<String, TimeLimitExceededListener> getListeners() {
+    @NonNull
+    public synchronized Map<String, TimeLimitExceededListener> getListeners() {
         return mListeners;
     }
 
     @VisibleForTesting
-    ScheduledExecutorService getExecutorService() {
+    @NonNull
+    public ScheduledExecutorService getExecutorService() {
         return mExecutorService;
     }
 
     /**
      * The actual runnable scheduled on the scheduled executor.
+     *
+     * @hide
      */
-    static class WorkTimerRunnable implements Runnable {
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static class WorkTimerRunnable implements Runnable {
         static final String TAG = "WrkTimerRunnable";
 
         private final WorkTimer mWorkTimer;
@@ -152,7 +173,17 @@ class WorkTimer {
         }
     }
 
-    interface TimeLimitExceededListener {
+    /**
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public interface TimeLimitExceededListener {
+        /**
+         * The time limit exceeded listener.
+         *
+         * @param workSpecId The {@link androidx.work.impl.model.WorkSpec} id for which time limit
+         *                   has exceeded.
+         */
         void onTimeLimitExceeded(@NonNull String workSpecId);
     }
 }
