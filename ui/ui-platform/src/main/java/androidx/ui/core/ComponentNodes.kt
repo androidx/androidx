@@ -449,9 +449,14 @@ class LayoutNode : ComponentNode(), Measurable, MeasureBlockScope {
         private set
 
     /**
-     * The alignment lines of this layout
+     * The alignment lines of this layout, inherited + intrinsic
      */
-    val alignmentLines: MutableMap<AlignmentLine, IntPx> = hashMapOf()
+    internal val alignmentLines: MutableMap<AlignmentLine, IntPx> = hashMapOf()
+
+    /**
+     * The alignment lines provided by this layout at the last measurement
+     */
+    internal val providedAlignmentLines: MutableMap<AlignmentLine, IntPx> = hashMapOf()
 
     /**
      * The horizontal position within the parent of this layout
@@ -688,12 +693,13 @@ class LayoutNode : ComponentNode(), Measurable, MeasureBlockScope {
             needsRelayout = false
 
             if (alignmentLinesRequired && dirtyAlignmentLines) {
+                alignmentLines.clear()
                 layoutChildren.forEach { child ->
                     if (!child.visible) return@forEach
                     child.alignmentLines.entries.forEach { (childLine, linePosition) ->
                         val linePositionInContainer = linePosition +
                                 if (childLine.horizontal) child.y else child.x
-                        // If the line was already provided by a previous child, merge the two values.
+                        // If the line was already provided by a previous child, merge the values.
                         alignmentLines[childLine] = if (childLine in alignmentLines) {
                             childLine.merge(
                                 alignmentLines.getValue(childLine),
@@ -704,6 +710,7 @@ class LayoutNode : ComponentNode(), Measurable, MeasureBlockScope {
                         }
                     }
                 }
+                alignmentLines += providedAlignmentLines
                 dirtyAlignmentLines = false
             }
         }
@@ -730,8 +737,8 @@ class LayoutNode : ComponentNode(), Measurable, MeasureBlockScope {
             this.height = height
             owner?.onSizeChange(this)
         }
-        this.alignmentLines.clear()
-        this.alignmentLines += alignmentLines
+        this.providedAlignmentLines.clear()
+        this.providedAlignmentLines += alignmentLines
         this.positioningBlock = positioningBlock
         return LayoutResult.Instance
     }
