@@ -33,6 +33,11 @@ interface LayoutCoordinates {
     val size: PxSize
 
     /**
+     * The coordinates of the parent layout. Null if there is no parent.
+     */
+    val parentCoordinates: LayoutCoordinates?
+
+    /**
      * Converts a global position into a local position within this layout.
      */
     fun globalToLocal(global: PxPosition): PxPosition
@@ -51,15 +56,14 @@ interface LayoutCoordinates {
      * Converts a child layout position into a local position within this layout.
      */
     fun childToLocal(child: LayoutCoordinates, childLocal: PxPosition): PxPosition
-
-    /**
-     * Returns a coordinates of the parent layout. If there is no parent returns null.
-     */
-    // TODO(Andrey): It could work a bit wrong right now, as we create this object at the moment
-    // of placing the current MeasureBox. Which means the parent MeasureBox is not yet placed.
-    // So x and y positions could be changed after it, so if we call getParentCoordinates
-    // right when we receive an object it could have outdated x and y values.
-    // Will work if we use it quite later, for example after a tap.
-    // We need to figure out how to solve it.
-    fun getParentCoordinates(): LayoutCoordinates?
 }
+
+/**
+ * The global position of this layout.
+ */
+inline val LayoutCoordinates.globalPosition: PxPosition get() = localToGlobal(PxPosition.Origin)
+
+/**
+ * The position of this layout inside the root widget.
+ */
+inline val LayoutCoordinates.positionInRoot: PxPosition get() = localToGlobal(PxPosition.Origin)

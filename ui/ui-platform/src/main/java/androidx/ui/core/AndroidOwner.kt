@@ -81,9 +81,6 @@ class AndroidComposeView constructor(context: Context)
     // Map from model to LayoutNodes that *only* need layout and not measure
     private val relayoutOnly = ObserverMap<Any, LayoutNode>()
 
-    // Blocks to execute after the layout pass ends.
-    private val afterLayout = mutableListOf<() -> Unit>()
-
     // Used by components that want to provide autofill semantic information.
     // TODO: Replace with SemanticsTree: Temporary hack until we have a semantics tree implemented.
     // TODO: Replace with SemanticsTree.
@@ -320,6 +317,7 @@ class AndroidComposeView constructor(context: Context)
         trace("AndroidOwner:measureAndLayout") {
             measureIteration++
             val frame = currentFrame()
+            val topNode = relayoutNodes.firstOrNull()
             frame.observeReads(frameReadObserver) {
                 relayoutNodes.forEach { layoutNode ->
                     if (layoutNode.needsRemeasure) {
@@ -337,13 +335,14 @@ class AndroidComposeView constructor(context: Context)
                         layoutNode.placeChildren()
                     }
                 }
-                repaintBoundaryChanges.forEach { node ->
-                    val parent = node.parentLayoutNode!!
-                    node.container.setSize(parent.width.value, parent.height.value)
-                }
-                relayoutNodes.clear()
-                repaintBoundaryChanges.clear()
             }
+            topNode?.dispatchOnPositionedCallbacks()
+            repaintBoundaryChanges.forEach { node ->
+                val parent = node.parentLayoutNode!!
+                node.container.setSize(parent.width.value, parent.height.value)
+            }
+            relayoutNodes.clear()
+            repaintBoundaryChanges.clear()
         }
     }
 
@@ -386,23 +385,9 @@ class AndroidComposeView constructor(context: Context)
         currentNode = layoutNode
     }
 
-    override fun runAfterLayout(block: () -> Unit) {
-        afterLayout += block
-    }
-
     override fun onLayout(changed: Boolean, l: Int, t: Int, r: Int, b: Int) {
-        trace("AndroidOwner:onLayout") {
-            val frame = currentFrame()
-            frame.observeReads(frameReadObserver) {
-                root.placeChildren()
-            }
-        }
+        relayoutNodes.add(root)
         measureAndLayout()
-
-        for (block in afterLayout) {
-            block()
-        }
-        afterLayout.clear()
     }
 
     override fun onDraw(canvas: android.graphics.Canvas) {

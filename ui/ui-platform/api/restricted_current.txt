@@ -38,7 +38,6 @@ package androidx.ui.core {
     method public void onSizeChange(androidx.ui.core.LayoutNode layoutNode);
     method public void onStartLayout(androidx.ui.core.LayoutNode layoutNode);
     method public void onStartMeasure(androidx.ui.core.LayoutNode layoutNode);
-    method public void runAfterLayout(kotlin.jvm.functions.Function0<kotlin.Unit> block);
     method public void sendEvent(android.view.MotionEvent event);
     method public void setCommitUnsubscribe(kotlin.jvm.functions.Function0<kotlin.Unit>? p);
     method public void setConfigurationChangeObserver(kotlin.jvm.functions.Function0<kotlin.Unit> p);
@@ -229,7 +228,6 @@ package androidx.ui.core {
     method public void onSizeChange(androidx.ui.core.LayoutNode layoutNode);
     method public void onStartLayout(androidx.ui.core.LayoutNode layoutNode);
     method public void onStartMeasure(androidx.ui.core.LayoutNode layoutNode);
-    method public void runAfterLayout(kotlin.jvm.functions.Function0<kotlin.Unit> block);
     property public abstract androidx.ui.core.Density density;
     property public abstract long measureIteration;
   }
