@@ -18,10 +18,8 @@ package androidx.biometric;
 
 import android.annotation.SuppressLint;
 import android.app.Dialog;
-import android.app.KeyguardManager;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.drawable.AnimatedVectorDrawable;
@@ -45,7 +43,7 @@ import androidx.annotation.VisibleForTesting;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.DialogFragment;
-import androidx.fragment.app.FragmentActivity;
+import androidx.fragment.app.FragmentManager;
 
 /**
  * This class implements a custom AlertDialog that prompts the user for fingerprint authentication.
@@ -147,11 +145,10 @@ public class FingerprintDialogFragment extends DialogFragment {
     DialogInterface.OnClickListener mNegativeButtonListener;
 
     // Also created once and retained.
-    @SuppressWarnings("deprecation")
     private final DialogInterface.OnClickListener mDeviceCredentialButtonListener =
             new DialogInterface.OnClickListener() {
                 @Override
-                public void onClick(DialogInterface dialog, int which) {
+                public void onClick(final DialogInterface dialog, int which) {
                     if (which == DialogInterface.BUTTON_NEGATIVE) {
                         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
                             Log.e(TAG, "Failed to check device credential."
@@ -159,57 +156,27 @@ public class FingerprintDialogFragment extends DialogFragment {
                             return;
                         }
 
-                        final FragmentActivity activity =
-                                FingerprintDialogFragment.this.getActivity();
-                        if (!(activity instanceof DeviceCredentialHandlerActivity)) {
-                            Log.e(TAG, "Failed to check device credential."
-                                    + " Parent handler not found.");
-                            return;
-                        }
+                        final Runnable onLaunch = new Runnable() {
+                            @Override
+                            public void run() {
+                                // Dismiss the fingerprint dialog without forwarding errors to
+                                // the client.
+                                final FragmentManager fragmentManager =
+                                        FingerprintDialogFragment.this.getFragmentManager();
+                                final String fragmentTag =
+                                        BiometricPrompt.FINGERPRINT_HELPER_FRAGMENT_TAG;
+                                final FingerprintHelperFragment fragment =
+                                        (FingerprintHelperFragment) fragmentManager
+                                                .findFragmentByTag(fragmentTag);
+                                if (fragment != null) {
+                                    fragment.setConfirmingDeviceCredential(true);
+                                }
+                                FingerprintDialogFragment.this.onCancel(dialog);
+                            }
+                        };
 
-                        final Object service = activity.getSystemService(Context.KEYGUARD_SERVICE);
-                        if (!(service instanceof KeyguardManager)) {
-                            Log.e(TAG, "Failed to check device credential."
-                                    + " KeyguardManager not found.");
-                            return;
-                        }
-                        final KeyguardManager km = (KeyguardManager) service;
-
-                        // Dismiss the fingerprint dialog without forwarding errors to the client.
-                        final FingerprintHelperFragment fingerprintHelperFragment =
-                                (FingerprintHelperFragment) FingerprintDialogFragment.this
-                                        .getFragmentManager()
-                                        .findFragmentByTag(
-                                                BiometricPrompt.FINGERPRINT_HELPER_FRAGMENT_TAG);
-                        if (fingerprintHelperFragment != null) {
-                            fingerprintHelperFragment.setConfirmingDeviceCredential(true);
-                        }
-                        FingerprintDialogFragment.this.onCancel(dialog);
-
-                        // Pass along the title and subtitle from the biometric prompt.
-                        final CharSequence title;
-                        final CharSequence subtitle;
-                        if (mBundle != null) {
-                            title = mBundle.getCharSequence(BiometricPrompt.KEY_TITLE);
-                            subtitle = mBundle.getCharSequence(BiometricPrompt.KEY_SUBTITLE);
-                        } else {
-                            title = null;
-                            subtitle = null;
-                        }
-
-                        // Prevent bridge from resetting until the confirmation activity finishes.
-                        DeviceCredentialHandlerBridge bridge =
-                                DeviceCredentialHandlerBridge.getInstanceIfNotNull();
-                        if (bridge != null) {
-                            bridge.startIgnoringReset();
-                        }
-
-                        // Launch a new instance of the confirm device credential Settings activity.
-                        final Intent intent =
-                                km.createConfirmDeviceCredentialIntent(title, subtitle);
-                        intent.setFlags(Intent.FLAG_ACTIVITY_MULTIPLE_TASK
-                                | Intent.FLAG_ACTIVITY_NEW_DOCUMENT);
-                        activity.startActivityForResult(intent, 0 /* requestCode */);
+                        Utils.launchDeviceCredentialConfirmation(TAG,
+                                FingerprintDialogFragment.this.getActivity(), mBundle, onLaunch);
                     }
                 }
             };

@@ -37,7 +37,7 @@ import java.util.concurrent.Executor;
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-class DeviceCredentialHandlerBridge {
+public class DeviceCredentialHandlerBridge {
     @Nullable
     private static DeviceCredentialHandlerBridge sInstance;
 
