@@ -139,7 +139,6 @@ package androidx.ui.core {
   public final class LayoutNode extends androidx.ui.core.ComponentNode implements androidx.ui.core.Measurable androidx.ui.core.MeasureBlockScope {
     ctor public LayoutNode();
     method public boolean getAffectsParentSize();
-    method public java.util.Map<androidx.ui.core.AlignmentLine,androidx.ui.core.IntPx> getAlignmentLines();
     method public boolean getAlignmentLinesRequired();
     method public androidx.ui.core.Constraints getConstraints();
     method public androidx.ui.core.Density getDensity();
@@ -186,7 +185,6 @@ package androidx.ui.core {
     method public void setPositionedDuringMeasurePass(boolean p);
     method public void setRef(androidx.ui.core.Ref<androidx.ui.core.LayoutNode>? value);
     property public final boolean affectsParentSize;
-    property public final java.util.Map<androidx.ui.core.AlignmentLine,androidx.ui.core.IntPx> alignmentLines;
     property public final boolean alignmentLinesRequired;
     property public final androidx.ui.core.Constraints constraints;
     property protected androidx.ui.core.LayoutNode? containingLayoutNode;
