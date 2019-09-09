@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.ui.painting
+package androidx.ui.graphics
 
 import androidx.ui.core.toFrameworkRect
 import androidx.ui.engine.geometry.Offset
@@ -137,6 +137,8 @@ class Path(private val internalPath: android.graphics.Path = android.graphics.Pa
      * weight w. If the weight is greater than 1, then the curve is a
      * hyperbola; if the weight equals 1, it's a parabola; and if it is
      * less than 1, it is an ellipse.
+     *
+     * Throws [UnsupportedOperationException] as Android framework does not support this API
      */
     @Suppress("UNUSED_PARAMETER")
     fun conicTo(x1: Float, y1: Float, x2: Float, y2: Float, w: Float) {
@@ -151,6 +153,8 @@ class Path(private val internalPath: android.graphics.Path = android.graphics.Pa
      * the weight w. If the weight is greater than 1, then the curve is
      * a hyperbola; if the weight equals 1, it's a parabola; and if it
      * is less than 1, it is an ellipse.
+     *
+     * Throws [UnsupportedOperationException] as Android framework does not support this API
      */
     @Suppress("UNUSED_PARAMETER")
     fun relativeConicTo(x1: Float, y1: Float, x2: Float, y2: Float, w: Float) {
@@ -235,6 +239,7 @@ class Path(private val internalPath: android.graphics.Path = android.graphics.Pa
      * point in the path is `arcEnd`. The radii are scaled to fit the last path
      * point if both are greater than zero but too small to describe an arc.
      *
+     * Throws [UnsupportedOperationException] as Android framework does not support this API
      */
     @Suppress("UNUSED_PARAMETER")
     fun arcToPoint(
@@ -627,6 +632,8 @@ class Path(private val internalPath: android.graphics.Path = android.graphics.Pa
          * The resulting path will be constructed from non-overlapping contours. The
          * curve order is reduced where possible so that cubics may be turned into
          * quadratics, and quadratics maybe turned into lines.
+         *
+         * Throws [IllegalArgumentException] as Android framework does not support this API
          */
         fun combine(
             operation: PathOperation,

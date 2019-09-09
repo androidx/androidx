@@ -48,7 +48,7 @@ import androidx.ui.text.matchers.equalToBitmap
 import androidx.ui.text.matchers.hasSpan
 import androidx.ui.text.matchers.hasSpanOnTop
 import androidx.ui.text.AnnotatedString
-import androidx.ui.painting.Shadow
+import androidx.ui.graphics.Shadow
 import androidx.ui.text.LocaleList
 import androidx.ui.text.ParagraphStyle
 import androidx.ui.text.TestFontResourceLoader

@@ -26,7 +26,7 @@ import androidx.ui.foundation.shape.border.Border
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Table
 import androidx.ui.layout.TableChildren
-import androidx.ui.painting.Paint
+import androidx.ui.graphics.Paint
 
 /**
  * Adds border drawing for a [Table] layout, when placed inside the [TableChildren] block.

@@ -18,8 +18,8 @@ package androidx.ui.core
 
 import androidx.test.filters.SmallTest
 import androidx.ui.graphics.colorspace.ColorSpaces
-import androidx.ui.painting.Image
-import androidx.ui.painting.ImageConfig
+import androidx.ui.graphics.Image
+import androidx.ui.graphics.ImageConfig
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Test

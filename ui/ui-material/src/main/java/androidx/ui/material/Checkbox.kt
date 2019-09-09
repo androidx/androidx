@@ -39,9 +39,9 @@ import androidx.ui.layout.Container
 import androidx.ui.layout.Padding
 import androidx.ui.layout.Wrap
 import androidx.ui.material.ripple.Ripple
-import androidx.ui.painting.Paint
-import androidx.ui.painting.PaintingStyle
-import androidx.ui.painting.StrokeCap
+import androidx.ui.graphics.Paint
+import androidx.ui.graphics.PaintingStyle
+import androidx.ui.graphics.StrokeCap
 
 /**
  * A TriStateCheckbox is a toggleable component that provides
@@ -182,7 +182,7 @@ private fun DrawBox(color: Color, innerRadiusFraction: Float) {
         // TODO(malkov): this radius formula is not in material spec
         val inner = innerSquared
             .withRadius(Radius.circular(innerSquared.width * squareMultiplier))
-        canvas.drawDRRect(outer, inner, paint)
+        canvas.drawDoubleRoundRect(outer, inner, paint)
     }
 }
 

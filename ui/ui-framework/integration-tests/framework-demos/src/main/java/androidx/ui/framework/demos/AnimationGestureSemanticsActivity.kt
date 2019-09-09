@@ -29,7 +29,7 @@ import androidx.ui.core.gesture.PressGestureDetector
 import androidx.ui.core.min
 import androidx.ui.engine.geometry.Offset
 import androidx.ui.graphics.Color
-import androidx.ui.painting.Paint
+import androidx.ui.graphics.Paint
 import androidx.compose.Composable
 import androidx.compose.composer
 import androidx.compose.state

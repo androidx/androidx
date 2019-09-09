@@ -31,7 +31,7 @@ import androidx.ui.input.TextInputService
 import androidx.ui.input.TransformedText
 import androidx.ui.input.VisualTransformation
 import androidx.ui.input.identityOffsetMap
-import androidx.ui.painting.Canvas
+import androidx.ui.graphics.Canvas
 import androidx.ui.text.AnnotatedString
 import androidx.ui.text.Paragraph
 import androidx.ui.text.ParagraphConstraints

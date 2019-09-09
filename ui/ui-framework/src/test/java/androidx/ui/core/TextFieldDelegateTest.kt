@@ -28,7 +28,7 @@ import androidx.ui.input.KeyboardType
 import androidx.ui.input.OffsetMap
 import androidx.ui.input.SetSelectionEditOp
 import androidx.ui.input.TextInputService
-import androidx.ui.painting.Canvas
+import androidx.ui.graphics.Canvas
 import androidx.ui.text.AnnotatedString
 import androidx.ui.text.TextDelegate
 import androidx.ui.text.TextRange

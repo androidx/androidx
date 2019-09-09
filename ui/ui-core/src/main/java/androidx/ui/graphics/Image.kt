@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.ui.painting
+package androidx.ui.graphics
 
 import androidx.ui.graphics.colorspace.ColorSpace
 

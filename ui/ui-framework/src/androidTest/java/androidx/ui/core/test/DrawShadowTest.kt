@@ -38,7 +38,7 @@ import androidx.ui.engine.geometry.Outline
 import androidx.ui.engine.geometry.Shape
 import androidx.ui.framework.test.TestActivity
 import androidx.ui.graphics.Color
-import androidx.ui.painting.Paint
+import androidx.ui.graphics.Paint
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertTrue

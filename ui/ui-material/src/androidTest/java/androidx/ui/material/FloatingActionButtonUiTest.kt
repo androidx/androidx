@@ -21,8 +21,8 @@ import androidx.test.filters.MediumTest
 import androidx.ui.core.dp
 import androidx.ui.core.round
 import androidx.ui.core.withDensity
-import androidx.ui.painting.Image
-import androidx.ui.painting.ImageConfig
+import androidx.ui.graphics.Image
+import androidx.ui.graphics.ImageConfig
 import androidx.ui.test.createComposeRule
 import com.google.common.truth.Truth
 import org.junit.Rule

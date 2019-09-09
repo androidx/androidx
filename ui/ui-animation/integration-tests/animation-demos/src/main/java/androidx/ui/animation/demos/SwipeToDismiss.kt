@@ -45,7 +45,7 @@ import androidx.ui.engine.geometry.Rect
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Column
 import androidx.ui.layout.Padding
-import androidx.ui.painting.Paint
+import androidx.ui.graphics.Paint
 import androidx.ui.text.TextStyle
 import kotlin.math.sign
 

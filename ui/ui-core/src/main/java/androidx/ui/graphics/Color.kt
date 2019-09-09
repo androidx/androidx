@@ -25,7 +25,7 @@ import androidx.ui.graphics.colorspace.ColorSpaces
 import androidx.ui.graphics.colorspace.ColorModel
 import androidx.ui.graphics.colorspace.Rgb
 import androidx.ui.graphics.colorspace.connect
-import androidx.ui.painting.Canvas
+import androidx.ui.graphics.Canvas
 import androidx.ui.lerp
 import androidx.ui.util.Float16
 import kotlin.math.max

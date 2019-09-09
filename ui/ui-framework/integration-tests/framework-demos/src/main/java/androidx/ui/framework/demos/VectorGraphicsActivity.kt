@@ -34,7 +34,7 @@ import androidx.ui.graphics.VerticalGradient
 import androidx.ui.layout.Center
 import androidx.ui.layout.Column
 import androidx.ui.layout.Container
-import androidx.ui.painting.TileMode
+import androidx.ui.graphics.TileMode
 import androidx.ui.core.setContent
 import androidx.ui.graphics.SolidColor
 import androidx.ui.graphics.vector.DrawVector

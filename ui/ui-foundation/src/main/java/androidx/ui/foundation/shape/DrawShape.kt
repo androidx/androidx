@@ -28,7 +28,7 @@ import androidx.ui.engine.geometry.drawOutline
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Brush
 import androidx.ui.graphics.SolidColor
-import androidx.ui.painting.Paint
+import androidx.ui.graphics.Paint
 
 /**
  * Draw the [shape] with the provided [color].

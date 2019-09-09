@@ -20,8 +20,8 @@ import androidx.compose.Composable
 import androidx.compose.composer
 import androidx.ui.core.Px
 import androidx.ui.graphics.Brush
-import androidx.ui.painting.StrokeCap
-import androidx.ui.painting.StrokeJoin
+import androidx.ui.graphics.StrokeCap
+import androidx.ui.graphics.StrokeJoin
 import java.util.Stack
 
 /**

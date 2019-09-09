@@ -40,9 +40,9 @@ import androidx.ui.core.milliseconds
 import androidx.ui.core.toOffset
 import androidx.ui.core.toRect
 import androidx.ui.core.withDensity
-import androidx.ui.painting.Canvas
+import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.Color
-import androidx.ui.painting.Paint
+import androidx.ui.graphics.Paint
 import androidx.ui.vectormath64.Matrix4
 import androidx.ui.vectormath64.getAsTranslation
 

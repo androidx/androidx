@@ -23,8 +23,8 @@ import androidx.ui.core.PxPosition
 import androidx.ui.core.px
 import androidx.ui.engine.geometry.Offset
 import androidx.ui.engine.geometry.Rect
-import androidx.ui.painting.Canvas
-import androidx.ui.painting.Path
+import androidx.ui.graphics.Canvas
+import androidx.ui.graphics.Path
 import androidx.ui.text.font.Font
 import androidx.ui.text.style.TextDirection
 import kotlin.math.max

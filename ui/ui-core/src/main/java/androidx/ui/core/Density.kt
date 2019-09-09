@@ -18,7 +18,7 @@ package androidx.ui.core
 
 import android.content.Context
 import androidx.ui.engine.geometry.Rect
-import androidx.ui.painting.Canvas
+import androidx.ui.graphics.Canvas
 
 /**
  * A density of the screen. Used for convert [Dp] to pixels.

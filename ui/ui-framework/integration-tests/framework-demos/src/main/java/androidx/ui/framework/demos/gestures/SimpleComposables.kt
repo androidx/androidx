@@ -26,10 +26,11 @@ import androidx.ui.core.Px
 import androidx.ui.core.dp
 import androidx.ui.core.ipx
 import androidx.ui.graphics.Color
-import androidx.ui.painting.Paint
+import androidx.ui.graphics.Paint
 import androidx.compose.composer
 import androidx.ui.core.Draw
 import androidx.ui.core.IntPx
+import androidx.ui.graphics.PaintingStyle
 
 /**
  * A simple layout composable that matches the size of it's parent layout.
@@ -115,7 +116,7 @@ internal fun Border(color: Color, width: Dp, children: @Composable() () -> Unit)
 
                 val backgroundPaint = Paint().apply {
                     this.color = color
-                    style = androidx.ui.painting.PaintingStyle.stroke
+                    style = PaintingStyle.stroke
                     strokeWidth = floatWidth
                 }
                 canvas.drawRect(

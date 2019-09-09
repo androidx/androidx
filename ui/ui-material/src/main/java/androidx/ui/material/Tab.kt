@@ -47,7 +47,7 @@ import androidx.ui.layout.Stack
 import androidx.ui.material.TabRow.TabPosition
 import androidx.ui.material.ripple.Ripple
 import androidx.ui.material.surface.Surface
-import androidx.ui.painting.Image
+import androidx.ui.graphics.Image
 
 /**
  * A TabRow contains a row of [Tab]s, and displays an indicator underneath the currently

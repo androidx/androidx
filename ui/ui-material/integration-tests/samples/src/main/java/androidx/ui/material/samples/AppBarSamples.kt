@@ -31,9 +31,9 @@ import androidx.ui.material.BottomAppBar
 import androidx.ui.material.BottomAppBar.FabConfiguration
 import androidx.ui.material.FloatingActionButton
 import androidx.ui.material.TopAppBar
+import androidx.ui.graphics.Image
 import androidx.ui.material.shape.CutCornerShape
 import androidx.ui.material.themeColor
-import androidx.ui.painting.Image
 import androidx.ui.text.TextStyle
 import kotlin.math.abs
 import kotlin.math.roundToInt

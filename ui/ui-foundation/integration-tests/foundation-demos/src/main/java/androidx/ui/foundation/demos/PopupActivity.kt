@@ -52,7 +52,7 @@ import androidx.ui.layout.FlexSize
 import androidx.ui.layout.HeightSpacer
 import androidx.ui.layout.MainAxisAlignment
 import androidx.ui.layout.Wrap
-import androidx.ui.painting.Paint
+import androidx.ui.graphics.Paint
 import androidx.ui.text.ParagraphStyle
 import androidx.ui.text.TextStyle
 import androidx.ui.text.style.TextAlign

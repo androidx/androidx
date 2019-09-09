@@ -14,14 +14,12 @@
  * limitations under the License.
  */
 
-package androidx.ui.painting
+package androidx.ui.graphics
 
 import androidx.ui.core.Px
 import androidx.ui.core.lerp
 import androidx.ui.core.px
 import androidx.ui.engine.geometry.Offset
-import androidx.ui.graphics.Color
-import androidx.ui.graphics.lerp
 
 /**
  * A single shadow.

@@ -18,11 +18,6 @@ package androidx.ui.graphics
 
 import androidx.ui.core.Px
 import androidx.ui.engine.geometry.Offset
-import androidx.ui.painting.LinearGradientShader
-import androidx.ui.painting.Paint
-import androidx.ui.painting.RadialGradientShader
-import androidx.ui.painting.Shader
-import androidx.ui.painting.TileMode
 
 interface Brush {
     fun applyTo(p: Paint)
@@ -296,13 +291,13 @@ data class LinearGradient internal constructor(
     private val endY: Px,
     private val tileMode: TileMode = TileMode.Clamp
 ) : ShaderBrush(
-        LinearGradientShader(
-            Offset(startX.value, startY.value),
-            Offset(endX.value, endY.value),
-            colors,
-            stops,
-            tileMode
-        )
+    LinearGradientShader(
+        Offset(startX.value, startY.value),
+        Offset(endX.value, endY.value),
+        colors,
+        stops,
+        tileMode
+    )
     )
 
 /**
@@ -316,13 +311,13 @@ data class RadialGradient internal constructor(
     private val radius: Float,
     private val tileMode: TileMode = TileMode.Clamp
 ) : ShaderBrush(
-        RadialGradientShader(
-            Offset(centerX, centerY),
-            radius,
-            colors,
-            stops,
-            tileMode
-        )
+    RadialGradientShader(
+        Offset(centerX, centerY),
+        radius,
+        colors,
+        stops,
+        tileMode
+    )
     )
 
 /**

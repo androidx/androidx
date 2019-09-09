@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.ui.painting
+package androidx.ui.graphics
 
 /**
  * Defines how a list of points is interpreted when drawing a set of points.

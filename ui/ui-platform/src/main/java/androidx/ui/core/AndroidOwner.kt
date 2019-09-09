@@ -39,8 +39,8 @@ import androidx.ui.core.pointerinput.PointerInputEventProcessor
 import androidx.ui.core.pointerinput.toPointerInputEvent
 import androidx.ui.engine.geometry.Outline
 import androidx.ui.input.TextInputService
-import androidx.ui.painting.Canvas
-import androidx.ui.painting.Path
+import androidx.ui.graphics.Canvas
+import androidx.ui.graphics.Path
 import androidx.compose.frames.FrameCommitObserver
 import androidx.compose.frames.FrameReadObserver
 import androidx.compose.frames.currentFrame

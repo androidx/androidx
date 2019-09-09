@@ -18,19 +18,16 @@ package androidx.ui.graphics.vector
 
 import android.graphics.Matrix
 import androidx.ui.engine.geometry.Offset
-import androidx.ui.painting.Canvas
-import androidx.ui.painting.Image
-import androidx.ui.painting.Paint
-import androidx.ui.painting.PaintingStyle
-import androidx.ui.painting.Path
-import androidx.ui.painting.StrokeCap
-import androidx.ui.painting.StrokeJoin
+import androidx.ui.graphics.Canvas
+import androidx.ui.graphics.Image
+import androidx.ui.graphics.Paint
+import androidx.ui.graphics.PaintingStyle
+import androidx.ui.graphics.Path
+import androidx.ui.graphics.StrokeCap
+import androidx.ui.graphics.StrokeJoin
 import androidx.ui.core.Px
 import androidx.ui.graphics.Brush
-import androidx.ui.graphics.vector.PathBuilder
-import androidx.ui.graphics.vector.PathNode
-import androidx.ui.graphics.vector.PathParser
-import androidx.ui.painting.withSave
+import androidx.ui.graphics.withSave
 import kotlin.math.ceil
 
 const val DefaultGroupName = ""

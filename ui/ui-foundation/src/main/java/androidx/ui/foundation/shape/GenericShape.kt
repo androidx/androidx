@@ -20,7 +20,7 @@ import androidx.ui.core.Density
 import androidx.ui.core.PxSize
 import androidx.ui.engine.geometry.Outline
 import androidx.ui.engine.geometry.Shape
-import androidx.ui.painting.Path
+import androidx.ui.graphics.Path
 
 /**
  * Creates [Shape] defined by applying the provided [builder] on a [Path].

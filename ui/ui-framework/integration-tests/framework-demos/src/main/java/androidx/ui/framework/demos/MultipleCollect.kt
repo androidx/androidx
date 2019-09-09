@@ -26,7 +26,7 @@ import androidx.ui.core.coerceIn
 import androidx.ui.core.ipx
 import androidx.ui.core.toRect
 import androidx.ui.graphics.Color
-import androidx.ui.painting.Paint
+import androidx.ui.graphics.Paint
 import androidx.compose.Composable
 import androidx.compose.composer
 import androidx.ui.graphics.Brush

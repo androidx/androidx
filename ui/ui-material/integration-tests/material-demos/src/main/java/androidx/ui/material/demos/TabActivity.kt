@@ -31,7 +31,7 @@ import androidx.ui.material.samples.FancyTabs
 import androidx.ui.material.samples.IconTabs
 import androidx.ui.material.samples.TextAndIconTabs
 import androidx.ui.material.samples.TextTabs
-import androidx.ui.painting.imageFromResource
+import androidx.ui.graphics.imageFromResource
 
 class TabActivity : MaterialDemoActivity() {
 

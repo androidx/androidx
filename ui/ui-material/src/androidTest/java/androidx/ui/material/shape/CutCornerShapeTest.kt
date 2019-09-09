@@ -22,8 +22,8 @@ import androidx.ui.core.PxSize
 import androidx.ui.core.px
 import androidx.ui.engine.geometry.Outline
 import androidx.ui.engine.geometry.Shape
-import androidx.ui.painting.Path
-import androidx.ui.painting.PathOperation
+import androidx.ui.graphics.Path
+import androidx.ui.graphics.PathOperation
 import com.google.common.truth.Truth.assertThat
 import org.junit.Assert
 import org.junit.Test

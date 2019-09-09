@@ -51,8 +51,8 @@ import androidx.ui.layout.HeightSpacer
 import androidx.ui.layout.Stack
 import androidx.ui.layout.Table
 import androidx.ui.layout.Wrap
-import androidx.ui.painting.Canvas
-import androidx.ui.painting.Paint
+import androidx.ui.graphics.Canvas
+import androidx.ui.graphics.Paint
 import androidx.ui.text.ParagraphStyle
 import androidx.ui.text.TextStyle
 

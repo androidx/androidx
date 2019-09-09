@@ -32,11 +32,11 @@ import androidx.ui.engine.geometry.Offset
 import androidx.ui.engine.geometry.Rect
 import androidx.ui.engine.geometry.Size
 import androidx.ui.graphics.Color
-import androidx.ui.painting.BlendMode
-import androidx.ui.painting.Canvas
-import androidx.ui.painting.LinearGradientShader
-import androidx.ui.painting.Paint
-import androidx.ui.painting.Shader
+import androidx.ui.graphics.BlendMode
+import androidx.ui.graphics.Canvas
+import androidx.ui.graphics.LinearGradientShader
+import androidx.ui.graphics.Paint
+import androidx.ui.graphics.Shader
 import androidx.ui.text.font.Font
 import androidx.ui.text.style.TextAlign
 import androidx.ui.text.style.TextDirection

@@ -25,10 +25,10 @@ import androidx.ui.core.WithDensity
 import androidx.ui.engine.geometry.Offset
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Container
-import androidx.ui.painting.BlendMode
-import androidx.ui.painting.ColorFilter
-import androidx.ui.painting.Image
-import androidx.ui.painting.Paint
+import androidx.ui.graphics.BlendMode
+import androidx.ui.graphics.ColorFilter
+import androidx.ui.graphics.Image
+import androidx.ui.graphics.Paint
 
 // TODO(Andrey) Temporary. Should be replaced with our proper Image component when it available
 @Composable
@@ -40,7 +40,12 @@ fun SimpleImage(
     WithDensity(block = {
         Container(width = image.width.toDp(), height = image.height.toDp()) {
             val paint = +memo { Paint() }
-            paint.colorFilter = tint?.let { ColorFilter(tint, BlendMode.srcIn) }
+            paint.colorFilter = tint?.let {
+                ColorFilter(
+                    tint,
+                    BlendMode.srcIn
+                )
+            }
             Draw { canvas, _ ->
                 canvas.drawImage(image, Offset.zero, paint)
             }

@@ -17,7 +17,7 @@
 package androidx.ui.graphics.vector
 
 import android.util.Log
-import androidx.ui.painting.Path
+import androidx.ui.graphics.Path
 
 private const val LOGTAG = "PathParser"
 
