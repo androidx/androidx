@@ -24,10 +24,14 @@ import androidx.annotation.NonNull;
  */
 public abstract class Inspector {
 
+    @NonNull
+    private Connection mConnection;
+
     /**
      * @param connection a connection object that allows to send events to studio
      */
     public Inspector(@NonNull Connection connection) {
+        mConnection = connection;
     }
 
     /**
@@ -48,6 +52,11 @@ public abstract class Inspector {
      * @param callback a callback to reply on the given command.
      */
     public abstract void onReceiveCommand(@NonNull byte[] data, @NonNull CommandCallback callback);
+
+    @NonNull
+    protected final Connection getConnection() {
+        return mConnection;
+    }
 
     /**
      * Callback to reply on an command from the studio
