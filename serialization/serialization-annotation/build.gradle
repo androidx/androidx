@@ -15,31 +15,27 @@
  */
 
 import static androidx.build.dependencies.DependenciesKt.*
+
+import androidx.build.CompilationTarget
 import androidx.build.LibraryGroups
 import androidx.build.LibraryVersions
 import androidx.build.Publish
 
 plugins {
-    id("AndroidXPlugin")
-    id("com.android.library")
-    id("kotlin-android")
+    id "AndroidXPlugin"
+    id "java"
 }
 
 dependencies {
-
-}
-
-android {
-    defaultConfig {
-        minSdkVersion 14
-    }
+    implementation(ANDROIDX_ANNOTATION)
 }
 
 androidx {
-    name = "AndroidX Serialization"
+    name = "AndroidX Serialization - Annotation"
     publish = Publish.NONE
+    compilationTarget = CompilationTarget.HOST
     mavenVersion = LibraryVersions.SERIALIZATION
     mavenGroup = LibraryGroups.SERIALIZATION
     inceptionYear = "2019"
-    description = "AndroidX Serialization Library"
+    description = "Annotations for AndroidX Serialization"
 }

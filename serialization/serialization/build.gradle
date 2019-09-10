@@ -14,29 +14,31 @@
  * limitations under the License.
  */
 
-import static androidx.build.dependencies.DependenciesKt.*
-
-import androidx.build.CompilationTarget
 import androidx.build.LibraryGroups
 import androidx.build.LibraryVersions
 import androidx.build.Publish
 
 plugins {
-    id "AndroidXPlugin"
-    id "kotlin"
+    id("AndroidXPlugin")
+    id("com.android.library")
 }
 
 dependencies {
-    implementation KOTLIN_STDLIB
-    testImplementation JUNIT
+    api project(":serialization:serialization-annotation")
+    lintPublish project(":serialization:serialization-lint")
+}
+
+android {
+    defaultConfig {
+        minSdkVersion 14
+    }
 }
 
 androidx {
-    name = "AndroidX Serialization - Schema"
+    name = "AndroidX Serialization"
     publish = Publish.NONE
-    compilationTarget = CompilationTarget.HOST
     mavenVersion = LibraryVersions.SERIALIZATION
     mavenGroup = LibraryGroups.SERIALIZATION
     inceptionYear = "2019"
-    description = "A model of an AndroidX Serialization schema"
+    description = "A lightweight serialization solution for AndroidX libraries"
 }
