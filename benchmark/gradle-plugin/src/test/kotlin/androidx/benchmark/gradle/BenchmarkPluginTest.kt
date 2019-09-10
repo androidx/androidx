@@ -435,7 +435,7 @@ class BenchmarkPluginTest {
     }
 
     @Test
-    fun applyPluginAndroidOldRunner() {
+    fun applyPluginAndroidOldRunner36() {
         buildFile.writeText(
             """
             plugins {
@@ -455,6 +455,43 @@ class BenchmarkPluginTest {
                 defaultConfig {
                     minSdkVersion $minSdkVersion
                     testInstrumentationRunner "androidx.benchmark.AndroidBenchmarkRunner"
+                    testInstrumentationRunnerArguments additionalTestOutputDir: "/fake_path/files"
+                }
+            }
+
+            dependencies {
+                androidTestImplementation "androidx.benchmark:benchmark:1.0.0-alpha04"
+            }
+        """.trimIndent()
+        )
+
+        assertFailsWith(UnexpectedBuildFailure::class) {
+            gradleRunner.withArguments("assemble").build()
+        }
+    }
+
+    @Test
+    fun applyPluginAndroidOldRunner35() {
+        buildFile.writeText(
+            """
+            plugins {
+                id('com.android.library')
+                id('androidx.benchmark')
+            }
+
+            repositories {
+                maven { url "$prebuiltsRepo/androidx/external" }
+                maven { url "$prebuiltsRepo/androidx/internal" }
+            }
+
+            android {
+                compileSdkVersion $compileSdkVersion
+                buildToolsVersion "$buildToolsVersion"
+
+                defaultConfig {
+                    minSdkVersion $minSdkVersion
+                    testInstrumentationRunner "androidx.benchmark.AndroidBenchmarkRunner"
+                    testInstrumentationRunnerArguments.remove("additionalTestOutputDir")
                 }
             }
 
