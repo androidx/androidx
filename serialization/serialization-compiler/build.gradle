@@ -15,31 +15,46 @@
  */
 
 import static androidx.build.dependencies.DependenciesKt.*
+
+import androidx.build.CompilationTarget
 import androidx.build.LibraryGroups
 import androidx.build.LibraryVersions
 import androidx.build.Publish
 
+import org.gradle.internal.jvm.Jvm
+
 plugins {
-    id("AndroidXPlugin")
-    id("com.android.library")
-    id("kotlin-android")
+    id "AndroidXPlugin"
+    id "kotlin"
 }
 
 dependencies {
+    implementation project(":serialization:serialization-annotation")
+    implementation project(":serialization:serialization-schema")
 
-}
+    implementation JAVAPOET
+    implementation KOTLINPOET
+    implementation KOTLIN_METADATA_JVM
+    implementation KOTLIN_STDLIB
 
-android {
-    defaultConfig {
-        minSdkVersion 14
-    }
+    testImplementation ANDROIDX_ANNOTATION
+    testImplementation ANDROIDX_COLLECTION
+    testImplementation GOOGLE_COMPILE_TESTING
+    testImplementation INTELLIJ_ANNOTATIONS
+    testImplementation JSR250
+    testImplementation JUNIT
+    testImplementation TRUTH
+
+    testImplementation files(Jvm.current().getToolsJar())
 }
 
 androidx {
     name = "AndroidX Serialization - Compiler"
     publish = Publish.NONE
+    toolingProject = true
+    compilationTarget = CompilationTarget.HOST
     mavenVersion = LibraryVersions.SERIALIZATION
     mavenGroup = LibraryGroups.SERIALIZATION
     inceptionYear = "2019"
-    description = "AndroidX Serialization Library"
+    description = "Annotation processor for AndroidX Serialization"
 }
