@@ -37,6 +37,15 @@ public class MathUtilsTest {
         assertEquals(7, MathUtils.clamp(7, 0, 7));
         assertEquals(7, MathUtils.clamp(8, -2, 7));
 
+        // Long
+        assertEquals(0L, MathUtils.clamp(-4L, 0L, 7L));
+        assertEquals(3L, MathUtils.clamp(3L, -2L, 7L));
+        assertEquals(0L, MathUtils.clamp(0L, 0L, 7L));
+        assertEquals(7L, MathUtils.clamp(7L, 0L, 7L));
+        assertEquals(7L, MathUtils.clamp(8L, -2L, 7L));
+        assertEquals(9220000000000000000L, MathUtils.clamp(9222000000000000000L, 0L,
+                9220000000000000000L));
+
         // Double
         assertEquals(0.0, MathUtils.clamp(-0.4, 0.0, 7.0), 0.0);
         assertEquals(3.0, MathUtils.clamp(3.0, 0.0, 7.0), 0.0);
