@@ -28,7 +28,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.time.Duration
-import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.experimental.ExperimentalTypeInference
@@ -101,24 +100,48 @@ internal class LiveDataScopeImpl<T>(
     }
 }
 
-internal fun <T> MediatorLiveData<T>.addDisposableSource(
+internal suspend fun <T> MediatorLiveData<T>.addDisposableSource(
     source: LiveData<T>
-): DisposableHandle {
-    val disposed = AtomicBoolean(false)
+): EmittedSource = withContext(Dispatchers.Main.immediate) {
     addSource(source) {
-        if (!disposed.get()) {
-            value = it
-        } else {
-            removeSource(source)
+        value = it
+    }
+    EmittedSource(
+        source = source,
+        mediator = this@addDisposableSource
+    )
+}
+
+/**
+ * Holder class that keeps track of the previously dispatched [LiveData].
+ * It implements [DisposableHandle] interface while also providing a suspend clear function
+ * that we can use internally.
+ */
+internal class EmittedSource(
+    private val source: LiveData<*>,
+    private val mediator: MediatorLiveData<*>
+) : DisposableHandle {
+    // @MainThread
+    private var disposed = false
+    /**
+     * Unlike [dispose] which cannot be sync because it not a coroutine (and we do not want to
+     * lock), this version is a suspend function and does not return until source is removed.
+     */
+    suspend fun disposeNow() = withContext(Dispatchers.Main.immediate) {
+        removeSource()
+    }
+
+    override fun dispose() {
+        CoroutineScope(Dispatchers.Main.immediate).launch {
+            removeSource()
         }
     }
-    return object : DisposableHandle {
-        override fun dispose() {
-            if (disposed.compareAndSet(false, true)) {
-                CoroutineScope(Dispatchers.Main.immediate).launch {
-                    removeSource(source)
-                }
-            }
+
+    @MainThread
+    private fun removeSource() {
+        if (!disposed) {
+            mediator.removeSource(source)
+            disposed = true
         }
     }
 }
@@ -178,7 +201,7 @@ internal class CoroutineLiveData<T>(
     block: Block<T>
 ) : MediatorLiveData<T>() {
     private var blockRunner: BlockRunner<T>?
-    private var emittedSource: DisposableHandle? = null
+    private var emittedSource: EmittedSource? = null
 
     init {
         // use an intermediate supervisor job so that if we cancel individual block runs due to losing
@@ -200,17 +223,15 @@ internal class CoroutineLiveData<T>(
         }
     }
 
-    @MainThread
-    internal fun emitSource(source: LiveData<T>): DisposableHandle {
+    internal suspend fun emitSource(source: LiveData<T>): DisposableHandle {
         clearSource()
         val newSource = addDisposableSource(source)
         emittedSource = newSource
         return newSource
     }
 
-    @MainThread
-    internal fun clearSource() {
-        emittedSource?.dispose()
+    internal suspend fun clearSource() {
+        emittedSource?.disposeNow()
         emittedSource = null
     }
 
