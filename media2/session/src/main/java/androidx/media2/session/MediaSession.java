@@ -755,7 +755,8 @@ public class MediaSession implements AutoCloseable {
         /**
          * Called when a controller called {@link MediaController#fastForward()}.
          * <p>
-         * It's recommended to increase the playback speed when this method is called.
+         * It can be implemented in many ways. For example, it can be implemented by seeking forward
+         * once, series of seeking forward, or increasing playback speed.
          *
          * @param session the session for this event
          * @param controller controller information
@@ -770,7 +771,8 @@ public class MediaSession implements AutoCloseable {
         /**
          * Called when a controller called {@link MediaController#rewind()}.
          * <p>
-         * It's recommended to decrease the playback speed when this method is called.
+         * It can be implemented in many ways. For example, it can be implemented by seeking
+         * backward once, series of seeking backward, or decreasing playback speed.
          *
          * @param session the session for this event
          * @param controller controller information
@@ -784,8 +786,9 @@ public class MediaSession implements AutoCloseable {
         /**
          * Called when a controller called {@link MediaController#skipForward()}.
          * <p>
-         * It's recommended to seek forward within the current media item when this method
-         * is called.
+         * It's recommended to seek forward within the current media item, but its detail may vary.
+         * For example, it can be implemented by seeking forward for the fixed amount of seconds, or
+         * seeking forward to the nearest bookmark.
          *
          * @param session the session for this event
          * @param controller controller information
@@ -800,8 +803,9 @@ public class MediaSession implements AutoCloseable {
         /**
          * Called when a controller called {@link MediaController#skipBackward()}.
          * <p>
-         * It's recommended to seek backward within the current media item when this method
-         * is called.
+         * It's recommended to seek backward within the current media item, but its detail may vary.
+         * For example, it can be implemented by seeking backward for the fixed amount of seconds,
+         * or seeking backward to the nearest bookmark.
          *
          * @param session the session for this event
          * @param controller controller information
