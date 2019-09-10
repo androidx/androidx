@@ -54,8 +54,6 @@ class PagedSourceWrapper<Key : Any, Value : Any>(
         return dataSource.load(dataSourceParams).toLoadResult()
     }
 
-    override fun isRetryableError(error: Throwable) = dataSource.isRetryableError(error)
-
     override fun invalidate() {
         super.invalidate()
         dataSource.invalidate()

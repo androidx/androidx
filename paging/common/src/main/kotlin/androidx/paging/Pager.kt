@@ -114,7 +114,7 @@ internal class Pager<K : Any, V : Any>(
         if (isDetached) return // abort!
 
         // TODO: handle nesting
-        val state = LoadState.Error(throwable, source.isRetryableError(throwable))
+        val state = LoadState.Error(throwable)
         loadStateManager.setState(type, state)
     }
 
@@ -197,10 +197,10 @@ internal class Pager<K : Any, V : Any>(
 
     fun retry() {
         loadStateManager.startState.run {
-            if (this is LoadState.Error && retryable) schedulePrepend()
+            if (this is LoadState.Error) schedulePrepend()
         }
         loadStateManager.endState.run {
-            if (this is LoadState.Error && retryable) scheduleAppend()
+            if (this is LoadState.Error) scheduleAppend()
         }
     }
 

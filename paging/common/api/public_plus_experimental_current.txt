@@ -7,7 +7,6 @@ package androidx.paging {
     method protected final java.util.concurrent.Executor getExecutor();
     method @AnyThread public void invalidate();
     method @WorkerThread public boolean isInvalid();
-    method public boolean isRetryableError(Throwable error);
     method public abstract suspend Object load$lintWithKotlin(androidx.paging.DataSource.Params<Key> params, kotlin.coroutines.Continuation<? super androidx.paging.DataSource.BaseResult<Value>> p);
     method public <ToValue> androidx.paging.DataSource<Key,ToValue> map(androidx.arch.core.util.Function<Value,ToValue> function);
     method public <ToValue> androidx.paging.DataSource<Key,ToValue> map(kotlin.jvm.functions.Function1<? super Value,? extends ToValue> function);
@@ -104,12 +103,10 @@ package androidx.paging {
   }
 
   public static final class LoadState.Error extends androidx.paging.LoadState {
-    ctor public LoadState.Error(Throwable error, boolean retryable);
+    ctor public LoadState.Error(Throwable error);
     method public Throwable component1();
-    method public boolean component2();
-    method public androidx.paging.LoadState.Error copy(Throwable error, boolean retryable);
+    method public androidx.paging.LoadState.Error copy(Throwable error);
     method public Throwable getError();
-    method public boolean isRetryable();
   }
 
   public static final class LoadState.Idle extends androidx.paging.LoadState {
@@ -257,7 +254,6 @@ package androidx.paging {
     method public final boolean getInvalid();
     method public androidx.paging.PagedSource.KeyProvider<Key,Value> getKeyProvider();
     method public void invalidate();
-    method public boolean isRetryableError(Throwable error);
     method public abstract suspend Object load(androidx.paging.PagedSource.LoadParams<Key> params, kotlin.coroutines.Continuation<? super androidx.paging.PagedSource.LoadResult<Key,Value>> p);
     method public final void registerInvalidatedCallback(kotlin.jvm.functions.Function0<kotlin.Unit> onInvalidatedCallback);
     method public final void unregisterInvalidatedCallback(kotlin.jvm.functions.Function0<kotlin.Unit> onInvalidatedCallback);
