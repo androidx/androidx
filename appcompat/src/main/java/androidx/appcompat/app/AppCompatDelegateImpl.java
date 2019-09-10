@@ -100,7 +100,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.appcompat.widget.VectorEnabledTintResources;
 import androidx.appcompat.widget.ViewStubCompat;
 import androidx.appcompat.widget.ViewUtils;
-import androidx.collection.ArrayMap;
+import androidx.collection.SimpleArrayMap;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.NavUtils;
 import androidx.core.view.KeyEventDispatcher;
@@ -118,7 +118,6 @@ import androidx.lifecycle.LifecycleOwner;
 import org.xmlpull.v1.XmlPullParser;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * @hide
@@ -127,7 +126,8 @@ import java.util.Map;
 class AppCompatDelegateImpl extends AppCompatDelegate
         implements MenuBuilder.Callback, LayoutInflater.Factory2 {
 
-    private static final Map<Class<?>, Integer> sLocalNightModes = new ArrayMap<>();
+    private static final SimpleArrayMap<Class<?>, Integer> sLocalNightModes =
+            new SimpleArrayMap<>();
 
     private static final boolean DEBUG = false;
     private static final boolean IS_PRE_LOLLIPOP = Build.VERSION.SDK_INT < 21;

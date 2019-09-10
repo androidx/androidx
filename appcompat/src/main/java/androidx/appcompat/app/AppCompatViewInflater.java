@@ -44,13 +44,12 @@ import androidx.appcompat.widget.AppCompatSpinner;
 import androidx.appcompat.widget.AppCompatTextView;
 import androidx.appcompat.widget.AppCompatToggleButton;
 import androidx.appcompat.widget.TintContextWrapper;
-import androidx.collection.ArrayMap;
+import androidx.collection.SimpleArrayMap;
 import androidx.core.view.ViewCompat;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.Map;
 
 /**
  * This class is responsible for manually inflating our tinted widgets.
@@ -72,8 +71,8 @@ public class AppCompatViewInflater {
 
     private static final String LOG_TAG = "AppCompatViewInflater";
 
-    private static final Map<String, Constructor<? extends View>> sConstructorMap
-            = new ArrayMap<>();
+    private static final SimpleArrayMap<String, Constructor<? extends View>> sConstructorMap =
+            new SimpleArrayMap<>();
 
     private final Object[] mConstructorArgs = new Object[2];
 
