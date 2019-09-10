@@ -123,24 +123,28 @@ class BenchmarkPlugin : Plugin<Project> {
         // extension variants have been resolved.
         var applied = false
         extensionVariants.all {
-            if (!applied && !testInstrumentationArgs.containsKey("additionalTestOutputDir")) {
+            if (!applied) {
                 applied = true
 
-                // Only enable pulling benchmark data through this plugin on older versions of AGP
-                // that do not yet enable this flag.
-                project.tasks.register("benchmarkReport", BenchmarkReportTask::class.java)
-                    .configure {
-                        it.adbPath.set(extension.adbExecutable.absolutePath)
-                        it.dependsOn(project.tasks.named("connectedAndroidTest"))
-                    }
+                if (!testInstrumentationArgs.containsKey("additionalTestOutputDir")) {
+                    // Only enable pulling benchmark data through this plugin on older versions of AGP
+                    // that do not yet enable this flag.
+                    project.tasks.register("benchmarkReport", BenchmarkReportTask::class.java)
+                        .configure {
+                            it.adbPath.set(extension.adbExecutable.absolutePath)
+                            it.dependsOn(project.tasks.named("connectedAndroidTest"))
+                        }
 
-                project.tasks.named("connectedAndroidTest").configure {
-                    // The task benchmarkReport must be registered by this point, and is responsible
-                    // for pulling report data from all connected devices onto host machine through
-                    // adb.
-                    it.finalizedBy("benchmarkReport")
+                    project.tasks.named("connectedAndroidTest").configure {
+                        // The task benchmarkReport must be registered by this point, and is responsible
+                        // for pulling report data from all connected devices onto host machine through
+                        // adb.
+                        it.finalizedBy("benchmarkReport")
+                    }
                 }
 
+                // Check for legacy runner to provide a more helpful error message as it would
+                // normally print "No tests found" otherwise.
                 val legacyRunner = "androidx.benchmark.AndroidBenchmarkRunner"
                 if (defaultConfig.testInstrumentationRunner == legacyRunner) {
                     throw StopExecutionException(
