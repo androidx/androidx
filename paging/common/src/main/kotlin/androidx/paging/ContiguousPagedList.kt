@@ -294,7 +294,7 @@ open class ContiguousPagedList<K : Any, V : Any>(
 
         pager.loadStateManager.refreshState.run {
             // If loading the next PagedList failed, signal the retry callback.
-            if (this is LoadState.Error && retryable) {
+            if (this is LoadState.Error) {
                 refreshRetryCallback?.run()
             }
         }

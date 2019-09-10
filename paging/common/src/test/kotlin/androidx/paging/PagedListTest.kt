@@ -52,8 +52,6 @@ class PagedListTest {
                     )
                     else -> throw NotImplementedError("Test should fail if we get here")
                 }
-
-            override fun isRetryableError(error: Throwable) = false
         }
     }
 
@@ -110,8 +108,6 @@ class PagedListTest {
             override suspend fun load(params: LoadParams<Int>): LoadResult<Int, String> {
                 throw Exception()
             }
-
-            override fun isRetryableError(error: Throwable) = false
         }
 
         val config = Config.Builder()
@@ -161,8 +157,8 @@ class PagedListTest {
             }
         }
 
-        loadStateManager.setState(REFRESH, LoadState.Error(EXCEPTION, true))
-        loadStateManager.setState(REFRESH, LoadState.Error(EXCEPTION, true))
+        loadStateManager.setState(REFRESH, LoadState.Error(EXCEPTION))
+        loadStateManager.setState(REFRESH, LoadState.Error(EXCEPTION))
 
         assertEquals(1, onStateChangeCalls)
     }

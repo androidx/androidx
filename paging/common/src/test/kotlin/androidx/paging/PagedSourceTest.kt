@@ -274,8 +274,6 @@ class PagedSourceTest {
             }
         }
 
-        override fun isRetryableError(error: Throwable) = false
-
         private fun loadInitial(params: LoadParams<Key>): LoadResult<Key, Item> {
             if (error) {
                 error = false

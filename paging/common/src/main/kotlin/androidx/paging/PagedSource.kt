@@ -244,12 +244,4 @@ abstract class PagedSource<Key : Any, Value : Any> {
      * Implement this method to trigger your async load (e.g. from database or network).
      */
     abstract suspend fun load(params: LoadParams<Key>): LoadResult<Key, Value>
-
-    /**
-     * Determine whether an error passed to a loading method is retryable.
-     *
-     * @param error Throwable returned from an attempted load from this [PagedSource].
-     * @return `false` if the observed error should never be retried, `true` otherwise.
-     */
-    open fun isRetryableError(error: Throwable): Boolean = true
 }

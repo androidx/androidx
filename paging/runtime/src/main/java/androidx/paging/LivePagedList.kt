@@ -62,8 +62,7 @@ internal class LivePagedList<Key : Any, Value : Any>(
     }
 
     private fun onError(throwable: Throwable) {
-        val loadState = Error(throwable, (currentData.pagedSource.isRetryableError(throwable)))
-        currentData.setInitialLoadState(REFRESH, loadState)
+        currentData.setInitialLoadState(REFRESH, Error(throwable))
     }
 
     private fun onSuccess(value: PagedList<Value>) {
