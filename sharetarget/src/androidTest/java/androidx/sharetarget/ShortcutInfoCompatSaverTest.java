@@ -30,6 +30,7 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.Icon;
 
+import androidx.annotation.NonNull;
 import androidx.core.app.Person;
 import androidx.core.content.pm.ShortcutInfoCompat;
 import androidx.core.content.pm.ShortcutInfoCompatSaver;
@@ -106,13 +107,14 @@ public class ShortcutInfoCompatSaverTest {
                 .setShortLabel("test short label 1")
                 .setLongLabel("test long label 1")
                 .setDisabledMessage("test disabled message 1")
-                .setLongLived()
+                .setLongLived(true)
                 .setPersons(testPersons)
                 .setCategories(testCategories)
                 .setActivity(new ComponentName("test package", "test class"))
                 .setAlwaysBadged()
                 .setIcon(mTestResourceIcon)
                 .setIntents(testIntents)
+                .setRank(3)
                 .build());
         mTestShortcuts.add(new ShortcutInfoCompat.Builder(mContext, ID_SHORTCUT_BITMAP_ICON)
                 .setShortLabel("test short label 2")
@@ -138,6 +140,7 @@ public class ShortcutInfoCompatSaverTest {
                 .setPerson(testPersons[0])
                 .setCategories(testCategories)
                 .setIntents(testIntents)
+                .setRank(8)
                 .build());
         mTestShortcuts.add(new ShortcutInfoCompat.Builder(mContext, "shortcut-no-category")
                 .setShortLabel("test short label 5")
@@ -194,6 +197,7 @@ public class ShortcutInfoCompatSaverTest {
         assertEquals(expected.getDisabledMessage(), actual.getDisabledMessage());
         assertEquals(expected.getLongLabel(), actual.getLongLabel());
         assertEquals(expected.getShortLabel(), actual.getShortLabel());
+        assertEquals(expected.getRank(), actual.getRank());
 
         if (expected.getActivity() == null) {
             assertNull(actual.getActivity());
@@ -231,7 +235,8 @@ public class ShortcutInfoCompatSaverTest {
 
     @Test
     public void testGetInstance() {
-        ShortcutInfoCompatSaver saver = ShortcutInfoCompatSaverImpl.getInstance(mContext);
+        ShortcutInfoCompatSaver<ListenableFuture<Void>> saver =
+                ShortcutInfoCompatSaverImpl.getInstance(mContext);
         assertNotNull(saver);
         assertEquals(saver, ShortcutInfoCompatSaverImpl.getInstance(mContext));
     }
@@ -410,7 +415,7 @@ public class ShortcutInfoCompatSaverTest {
             }
         }, new Executor() {
             @Override
-            public void execute(Runnable command) {
+            public void execute(@NonNull Runnable command) {
                 // Run in the current thread
                 command.run();
             }
