@@ -154,33 +154,22 @@ final class Camera implements BaseCamera {
     final Map<CaptureSession, ListenableFuture<Void>> mReleasedCaptureSessions = new HashMap<>();
 
     private final Observable<Integer> mAvailableCamerasObservable;
-    private final Observable.Observer<Integer> mAvailableCamerasObserver;
     private final CameraAvailability mCameraAvailability;
-    /**
-     * Tracks the number of cameras available for opening.
-     *
-     * <p>If there are no cameras available to open, the camera will wait until there is at least
-     * 1 camera available before opening a CameraDevice.
-     *
-     * <p>This number should be updated by mAvailableCamerasObserver.
-     */
-    @SuppressWarnings("WeakerAccess")
-    int mNumAvailableCameras = 0;
 
     /**
      * Constructor for a camera.
      *
-     * @param cameraManager the camera service used to retrieve a camera
-     * @param cameraId      the name of the camera as defined by the camera service
+     * @param cameraManager              the camera service used to retrieve a camera
+     * @param cameraId                   the name of the camera as defined by the camera service
      * @param availableCamerasObservable An observable updated with the current number of cameras
      *                                   that are available to be opened on the device.
-     * @param handler       the handler for the thread on which all camera operations run
+     * @param handler                    the handler for the thread on which all camera
+     *                                   operations run
      */
     Camera(CameraManagerCompat cameraManager, String cameraId,
             @NonNull Observable<Integer> availableCamerasObservable, Handler handler) {
         mCameraManager = cameraManager;
         mCameraId = cameraId;
-        mAvailableCamerasObserver = new AvailableCamerasObserver();
         mAvailableCamerasObservable = availableCamerasObservable;
         mHandler = handler;
         ScheduledExecutorService executorScheduler = CameraXExecutors.newHandlerExecutor(mHandler);
@@ -203,10 +192,10 @@ final class Camera implements BaseCamera {
         mCaptureSessionBuilder.setExecutor(mExecutor);
         mCaptureSession = mCaptureSessionBuilder.build();
 
-        // Register an observer to update the number of available cameras
-        mAvailableCamerasObservable.addObserver(mExecutor, mAvailableCamerasObserver);
-
         mCameraAvailability = new CameraAvailability(mCameraId);
+
+        // Register an observer to update the number of available cameras
+        mAvailableCamerasObservable.addObserver(mExecutor, mCameraAvailability);
         mCameraManager.registerAvailabilityCallback(mExecutor, mCameraAvailability);
     }
 
@@ -352,7 +341,7 @@ final class Camera implements BaseCamera {
 
             // After a camera is released, it cannot be reopened, so we don't need to listen for
             // available camera changes.
-            mAvailableCamerasObservable.removeObserver(mAvailableCamerasObserver);
+            mAvailableCamerasObservable.removeObserver(mCameraAvailability);
             mCameraManager.unregisterAvailabilityCallback(mCameraAvailability);
 
             if (mUserReleaseNotifier != null) {
@@ -835,7 +824,7 @@ final class Camera implements BaseCamera {
     void openCameraDevice() {
         // Check that we have an available camera to open here before attempting
         // to open the camera again.
-        if (mNumAvailableCameras <= 0) {
+        if (!mCameraAvailability.isCameraAvailable()) {
             Log.d(TAG, "No cameras available. Waiting for available camera before opening camera: "
                     + mCameraId);
             setState(InternalState.PENDING_OPEN);
@@ -1324,8 +1313,30 @@ final class Camera implements BaseCamera {
         }
     }
 
-    final class CameraAvailability extends CameraManager.AvailabilityCallback {
+    /**
+     * A class that listens to signals to determine whether a camera with a particular id is
+     * available for opening.
+     */
+    final class CameraAvailability extends CameraManager.AvailabilityCallback implements
+            Observable.Observer<Integer> {
         private final String mCameraId;
+
+        /**
+         * Availability as reported by the AvailabilityCallback. If this is true then the camera
+         * is available for open. If this is false, either another process holds the camera or
+         * this process. Potentially held by the Camera that is holding this instance of
+         * CameraAvailability.
+         */
+        private boolean mCameraAvailable = true;
+
+        /**
+         * Tracks the number of cameras available for opening.
+         *
+         * <p>If there are no cameras available to open, the camera will wait until there is at
+         * least
+         * 1 camera available before opening a CameraDevice.
+         */
+        private int mNumAvailableCameras = 0;
 
         CameraAvailability(String cameraId) {
             mCameraId = cameraId;
@@ -1338,6 +1349,8 @@ final class Camera implements BaseCamera {
                 return;
             }
 
+            mCameraAvailable = true;
+
             if (mState == InternalState.PENDING_OPEN) {
                 openCameraDevice();
             }
@@ -1349,10 +1362,10 @@ final class Camera implements BaseCamera {
                 // Ignore availability for other cameras
                 return;
             }
-        }
-    }
 
-    final class AvailableCamerasObserver implements Observable.Observer<Integer> {
+            mCameraAvailable = false;
+        }
+
 
         @Override
         public void onNewData(@Nullable Integer value) {
@@ -1369,6 +1382,13 @@ final class Camera implements BaseCamera {
         @Override
         public void onError(@NonNull Throwable t) {
             // No errors expected from available cameras yet. May need to be handled in the future.
+        }
+
+        /**
+         * True if a camera is potentially available.
+         */
+        boolean isCameraAvailable() {
+            return mCameraAvailable && mNumAvailableCameras > 0;
         }
     }
 }
