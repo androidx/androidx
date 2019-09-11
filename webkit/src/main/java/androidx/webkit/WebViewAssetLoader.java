@@ -58,24 +58,23 @@ import java.util.List;
  * <p>
  * A typical usage would be like:
  * <pre class="prettyprint">
- *     final WebViewAssetLoader assetLoader = new WebViewAssetLoader.Builder()
- *              .addPathHandler("/assets/", new AssetsPathHandler(this))
- *              .addPathHandler("/res/", new ResourcesPathHandler(this))
- *              .build();
+ * final WebViewAssetLoader assetLoader = new WebViewAssetLoader.Builder()
+ *          .addPathHandler("/assets/", new AssetsPathHandler(this))
+ *          .addPathHandler("/res/", new ResourcesPathHandler(this))
+ *          .build();
  *
- *     webView.setWebViewClient(new WebViewClient() {
- *         {@literal @}Override
- *         public WebResourceResponse shouldInterceptRequest(WebView view,
- *                                          WebResourceRequest request) {
- *             return assetLoader.shouldInterceptRequest(request.getUrl());
- *         }
- *     });
- *     // Assets are hosted under http(s)://appassets.androidplatform.net/assets/... .
- *     // If the application's assets are in the "main/assets" folder this will read the file
- *     // from "main/assets/www/index.html" and load it as if it were hosted on:
- *     // https://appassets.androidplatform.net/assets/www/index.html
- *     webview.loadUrl("https://appassets.androidplatform.net/assets/www/index.html");
- *
+ * webView.setWebViewClient(new WebViewClient() {
+ *     {@literal @}Override
+ *     public WebResourceResponse shouldInterceptRequest(WebView view,
+ *                                      WebResourceRequest request) {
+ *         return assetLoader.shouldInterceptRequest(request.getUrl());
+ *     }
+ * });
+ * // Assets are hosted under http(s)://appassets.androidplatform.net/assets/... .
+ * // If the application's assets are in the "main/assets" folder this will read the file
+ * // from "main/assets/www/index.html" and load it as if it were hosted on:
+ * // https://appassets.androidplatform.net/assets/www/index.html
+ * webview.loadUrl("https://appassets.androidplatform.net/assets/www/index.html");
  * </pre>
  */
 public final class WebViewAssetLoader {
@@ -236,12 +235,12 @@ public final class WebViewAssetLoader {
      * <p>
      * A typical usage would be like:
      * <pre class="prettyprint">
-     *     File publicDir = new File(context.getFilesDir(), "public");
-     *     // Host "files/public/" in app's data directory under:
-     *     // http://appassets.androidplatform.net/public/...
-     *     WebViewAssetLoader assetLoader = new WebViewAssetLoader.Builder()
-     *              .addPathHandler("/public/", new InternalStoragePathHandler(context, publicDir))
-     *              .build();
+     * File publicDir = new File(context.getFilesDir(), "public");
+     * // Host "files/public/" in app's data directory under:
+     * // http://appassets.androidplatform.net/public/...
+     * WebViewAssetLoader assetLoader = new WebViewAssetLoader.Builder()
+     *          .addPathHandler("/public/", new InternalStoragePathHandler(context, publicDir))
+     *          .build();
      * </pre>
      */
     public static final class InternalStoragePathHandler implements PathHandler {
