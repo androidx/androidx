@@ -66,42 +66,44 @@ public class AdvertisingIdUtils {
      * <p>Only system-level providers will be returned.
      */
     @NonNull
-    public static List<ResolveInfo> getAdvertisingIdProviderServices(
+    public static List<ServiceInfo> getAdvertisingIdProviderServices(
             @NonNull PackageManager packageManager) {
         Intent intent = new Intent(GET_AD_ID_ACTION);
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            List<ResolveInfo> resolveInfos =
-                    packageManager.queryIntentServices(intent, PackageManager.MATCH_SYSTEM_ONLY);
-            return resolveInfos != null ? resolveInfos : Collections.emptyList();
-        }
-
-        List<ResolveInfo> resolveInfos = packageManager.queryIntentServices(intent, 0);
+        List<ResolveInfo> resolveInfos =
+                packageManager.queryIntentServices(intent,
+                        Build.VERSION.SDK_INT >= Build.VERSION_CODES.N
+                                ? PackageManager.MATCH_SYSTEM_ONLY : 0);
         if (resolveInfos == null || resolveInfos.isEmpty()) {
             return Collections.emptyList();
         }
-        List<ResolveInfo> systemLevelResolveInfos = new ArrayList<>();
+        List<ServiceInfo> systemLevelServiceInfos = new ArrayList<>();
         for (ResolveInfo resolveInfo : resolveInfos) {
             ServiceInfo serviceInfo = resolveInfo.serviceInfo;
-            ApplicationInfo applicationInfo;
-            try {
-                applicationInfo = packageManager.getApplicationInfo(serviceInfo.packageName, 0);
-            } catch (PackageManager.NameNotFoundException ignored) {
-                // Ignore this provider if name not found.
-                continue;
-            }
-            if ((applicationInfo.flags & ApplicationInfo.FLAG_SYSTEM) != 0) {
-                systemLevelResolveInfos.add(resolveInfo);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N
+                    || isSystemByApplicationInfo(serviceInfo.packageName, packageManager)) {
+                systemLevelServiceInfos.add(serviceInfo);
             }
         }
-        return systemLevelResolveInfos;
+        return systemLevelServiceInfos;
+    }
+
+    private static boolean isSystemByApplicationInfo(
+            @NonNull String packageName, @NonNull PackageManager packageManager) {
+        try {
+            ApplicationInfo applicationInfo = packageManager.getApplicationInfo(packageName, 0);
+            return (applicationInfo.flags & ApplicationInfo.FLAG_SYSTEM) != 0;
+        } catch (PackageManager.NameNotFoundException ignored) {
+            // Ignore this provider if name not found.
+            return false;
+        }
     }
 
     /**
      * Selects the Service of an Advertising ID Provider which should be used by developer
      * library when requesting an Advertising ID.
      *
-     * <p>Note: This method should only be used with the {@link ResolveInfo}s from
+     * <p>Note: This method should only be used with the {@link ServiceInfo}s from
      * {@link #getAdvertisingIdProviderServices} method, this currently means that only
      * system-level Providers will be selected.
      * <p>It will return the same Advertising ID Provider for all apps which use the developer
@@ -116,19 +118,18 @@ public class AdvertisingIdUtils {
      * <li>First app by package name alphabetically sorted
      * </ol>
      *
-     * @return null if the input {@code resolveInfos} is null or empty, or non of the input
+     * @return null if the input {@code serviceInfos} is null or empty, or non of the input
      * package is found.
      */
     @Nullable
     public static ServiceInfo selectServiceByPriority(
-            @Nullable List<ResolveInfo> resolveInfos, @NonNull PackageManager packageManager) {
-        if (resolveInfos == null || resolveInfos.isEmpty()) {
+            @NonNull List<ServiceInfo> serviceInfos, @NonNull PackageManager packageManager) {
+        if (serviceInfos.isEmpty()) {
             return null;
         }
         ServiceInfo selectedServiceInfo = null;
         PackageInfo selectedPackageInfo = null;
-        for (ResolveInfo resolveInfo : resolveInfos) {
-            ServiceInfo serviceInfo = resolveInfo.serviceInfo;
+        for (ServiceInfo serviceInfo : serviceInfos) {
             PackageInfo packageInfo;
             try {
                 packageInfo =
