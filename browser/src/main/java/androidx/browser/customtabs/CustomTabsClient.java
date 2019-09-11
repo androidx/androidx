@@ -300,6 +300,14 @@ public class CustomTabsClient {
             }
 
             @Override
+            public Bundle extraCallbackWithResult(@NonNull String callbackName,
+                    @Nullable Bundle args)
+                    throws RemoteException {
+                if (callback == null) return null;
+                return callback.extraCallbackWithResult(callbackName, args);
+            }
+
+            @Override
             public void onMessageChannelReady(final Bundle extras)
                     throws RemoteException {
                 if (callback == null) return;

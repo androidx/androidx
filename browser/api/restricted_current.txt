@@ -82,6 +82,7 @@ package androidx.browser.customtabs {
   public class CustomTabsCallback {
     ctor public CustomTabsCallback();
     method public void extraCallback(String!, android.os.Bundle!);
+    method public android.os.Bundle? extraCallbackWithResult(String, android.os.Bundle?);
     method public void onMessageChannelReady(android.os.Bundle!);
     method public void onNavigationEvent(int, android.os.Bundle!);
     method public void onPostMessage(String!, android.os.Bundle!);
