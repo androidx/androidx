@@ -22,7 +22,7 @@ import android.os.IInterface;
 import android.os.Parcelable;
 
 import androidx.annotation.RestrictTo;
-import androidx.collection.ArrayMap;
+import androidx.collection.SimpleArrayMap;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
@@ -73,14 +73,14 @@ class VersionedParcelStream extends VersionedParcel {
     int mFieldSize = -1;
 
     public VersionedParcelStream(InputStream input, OutputStream output) {
-        this(input, output, new ArrayMap<String, Method>(), new ArrayMap<String, Method>(),
-                new ArrayMap<String, Class<?>>());
+        this(input, output, new SimpleArrayMap<String, Method>(),
+                new SimpleArrayMap<String, Method>(), new SimpleArrayMap<String, Class<?>>());
     }
 
     private VersionedParcelStream(InputStream input, OutputStream output,
-            ArrayMap<String, Method> readCache,
-            ArrayMap<String, Method> writeCache,
-            ArrayMap<String, Class<?>> parcelizerCache) {
+            SimpleArrayMap<String, Method> readCache,
+            SimpleArrayMap<String, Method> writeCache,
+            SimpleArrayMap<String, Class<?>> parcelizerCache) {
         super(readCache, writeCache, parcelizerCache);
         mMasterInput = input != null ? new DataInputStream(new FilterInputStream(input) {
             @Override

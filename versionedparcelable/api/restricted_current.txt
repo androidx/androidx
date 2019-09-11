@@ -28,7 +28,6 @@ package androidx.versionedparcelable {
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public abstract class VersionedParcel {
-    ctor public VersionedParcel(androidx.collection.ArrayMap<java.lang.String!,java.lang.reflect.Method!>!, androidx.collection.ArrayMap<java.lang.String!,java.lang.reflect.Method!>!, androidx.collection.ArrayMap<java.lang.String!,java.lang.Class<?>!>!);
     method protected abstract void closeField();
     method protected abstract androidx.versionedparcelable.VersionedParcel! createSubParcel();
     method protected static Throwable getRootCause(Throwable);
@@ -135,9 +134,6 @@ package androidx.versionedparcelable {
     method protected <T extends androidx.versionedparcelable.VersionedParcelable> void writeToParcel(T!, androidx.versionedparcelable.VersionedParcel!);
     method public void writeVersionedParcelable(androidx.versionedparcelable.VersionedParcelable!, int);
     method protected void writeVersionedParcelable(androidx.versionedparcelable.VersionedParcelable!);
-    field protected final androidx.collection.ArrayMap<java.lang.String!,java.lang.Class<?>!>! mParcelizerCache;
-    field protected final androidx.collection.ArrayMap<java.lang.String!,java.lang.reflect.Method!>! mReadCache;
-    field protected final androidx.collection.ArrayMap<java.lang.String!,java.lang.reflect.Method!>! mWriteCache;
   }
 
   public static class VersionedParcel.ParcelException extends java.lang.RuntimeException {

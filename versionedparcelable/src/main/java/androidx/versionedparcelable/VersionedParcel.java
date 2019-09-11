@@ -35,6 +35,7 @@ import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.collection.ArrayMap;
 import androidx.collection.ArraySet;
+import androidx.collection.SimpleArrayMap;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -77,13 +78,13 @@ public abstract class VersionedParcel {
     private static final int TYPE_INTEGER = 7;
     private static final int TYPE_FLOAT = 8;
 
-    protected final ArrayMap<String, Method> mReadCache;
-    protected final ArrayMap<String, Method> mWriteCache;
-    protected final ArrayMap<String, Class<?>> mParcelizerCache;
+    final SimpleArrayMap<String, Method> mReadCache;
+    final SimpleArrayMap<String, Method> mWriteCache;
+    final SimpleArrayMap<String, Class<?>> mParcelizerCache;
 
-    public VersionedParcel(ArrayMap<String, Method> readCache,
-            ArrayMap<String, Method> writeCache,
-            ArrayMap<String, Class<?>> parcelizerCache) {
+    VersionedParcel(SimpleArrayMap<String, Method> readCache,
+            SimpleArrayMap<String, Method> writeCache,
+            SimpleArrayMap<String, Class<?>> parcelizerCache) {
         mReadCache = readCache;
         mWriteCache = writeCache;
         mParcelizerCache = parcelizerCache;
