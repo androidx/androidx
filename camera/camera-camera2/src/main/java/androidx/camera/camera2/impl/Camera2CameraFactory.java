@@ -18,7 +18,6 @@ package androidx.camera.camera2.impl;
 
 import android.content.Context;
 import android.hardware.camera2.CameraAccessException;
-import android.hardware.camera2.CameraManager;
 import android.os.Handler;
 import android.os.HandlerThread;
 
@@ -26,6 +25,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
+import androidx.camera.camera2.impl.compat.CameraManagerCompat;
 import androidx.camera.core.BaseCamera;
 import androidx.camera.core.CameraFactory;
 import androidx.camera.core.CameraInfoUnavailableException;
@@ -59,10 +59,10 @@ public final class Camera2CameraFactory implements CameraFactory {
         sHandler = new Handler(sHandlerThread.getLooper());
     }
 
-    private final CameraManager mCameraManager;
+    private final CameraManagerCompat mCameraManager;
 
     public Camera2CameraFactory(@NonNull Context context) {
-        mCameraManager = (CameraManager) context.getSystemService(Context.CAMERA_SERVICE);
+        mCameraManager = CameraManagerCompat.from(context);
         mAvailabilityRegistry = new CameraAvailabilityRegistry(
                 DEFAULT_ALLOWED_CONCURRENT_OPEN_CAMERAS,
                 CameraXExecutors.newHandlerExecutor(sHandler));
@@ -82,7 +82,7 @@ public final class Camera2CameraFactory implements CameraFactory {
     public Set<String> getAvailableCameraIds() throws CameraInfoUnavailableException {
         List<String> camerasList = null;
         try {
-            camerasList = Arrays.asList(mCameraManager.getCameraIdList());
+            camerasList = Arrays.asList(mCameraManager.unwrap().getCameraIdList());
         } catch (CameraAccessException e) {
             throw new CameraInfoUnavailableException(
                     "Unable to retrieve list of cameras on device.", e);
@@ -108,6 +108,6 @@ public final class Camera2CameraFactory implements CameraFactory {
     @Override
     @NonNull
     public LensFacingCameraIdFilter getLensFacingCameraIdFilter(@NonNull LensFacing lensFacing) {
-        return new Camera2LensFacingCameraIdFilter(mCameraManager, lensFacing);
+        return new Camera2LensFacingCameraIdFilter(mCameraManager.unwrap(), lensFacing);
     }
 }

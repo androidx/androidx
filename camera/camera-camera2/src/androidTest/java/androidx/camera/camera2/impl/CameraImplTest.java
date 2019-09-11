@@ -36,6 +36,7 @@ import android.util.Size;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.camera.camera2.impl.compat.CameraManagerCompat;
 import androidx.camera.core.BaseCamera;
 import androidx.camera.core.CameraCaptureCallback;
 import androidx.camera.core.CameraCaptureResult;
@@ -133,8 +134,8 @@ public class CameraImplTest {
         mCameraHandler = new Handler(mCameraHandlerThread.getLooper());
         mSemaphore = new Semaphore(0);
         mAvailableCameras = new SettableObservable<>(DEFAULT_AVAILABLE_CAMERA_COUNT);
-        mCamera = new Camera(CameraUtil.getCameraManager(), mCameraId, mAvailableCameras,
-                mCameraHandler);
+        mCamera = new Camera(CameraManagerCompat.from(ApplicationProvider.getApplicationContext()),
+                mCameraId, mAvailableCameras, mCameraHandler);
     }
 
     @After
