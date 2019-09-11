@@ -300,7 +300,7 @@ public class FingerprintHelperFragment extends Fragment {
     private boolean handlePreAuthenticationErrors(
             androidx.core.hardware.fingerprint.FingerprintManagerCompat fingerprintManager) {
         if (!fingerprintManager.isHardwareDetected()) {
-            sendErrorToClient(BiometricPrompt.ERROR_HW_UNAVAILABLE);
+            sendErrorToClient(BiometricPrompt.ERROR_HW_NOT_PRESENT);
             return true;
         } else if (!fingerprintManager.hasEnrolledFingerprints()) {
             sendErrorToClient(BiometricPrompt.ERROR_NO_BIOMETRICS);
