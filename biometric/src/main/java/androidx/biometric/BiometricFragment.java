@@ -89,7 +89,8 @@ public class BiometricFragment extends Fragment {
     };
 
     // Also created once and retained.
-    private final android.hardware.biometrics.BiometricPrompt.AuthenticationCallback
+    @VisibleForTesting
+    final android.hardware.biometrics.BiometricPrompt.AuthenticationCallback
             mAuthenticationCallback =
             new android.hardware.biometrics.BiometricPrompt.AuthenticationCallback() {
                 @Override
@@ -121,13 +122,21 @@ public class BiometricFragment extends Fragment {
                 public void onAuthenticationSucceeded(
                         final android.hardware.biometrics.BiometricPrompt.AuthenticationResult
                                 result) {
+
+                    // Create a dummy result if necessary, since the framework result isn't
+                    // guaranteed to be non-null.
+                    final BiometricPrompt.AuthenticationResult promptResult =
+                            result != null
+                                    ? new BiometricPrompt.AuthenticationResult(
+                                            unwrapCryptoObject(result.getCryptoObject()))
+                                    : new BiometricPrompt.AuthenticationResult(null /* crypto */);
+
                     mClientExecutor.execute(
                             new Runnable() {
                                 @Override
                                 public void run() {
                                     mClientAuthenticationCallback.onAuthenticationSucceeded(
-                                            new BiometricPrompt.AuthenticationResult(
-                                                    unwrapCryptoObject(result.getCryptoObject())));
+                                            promptResult);
                                 }
                             });
                     cleanup();
