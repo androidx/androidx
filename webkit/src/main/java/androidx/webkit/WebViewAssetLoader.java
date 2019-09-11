@@ -110,6 +110,15 @@ public final class WebViewAssetLoader {
     public interface PathHandler {
         /**
          * Handles the requested URL by returning the appropriate response.
+         * <p>
+         * Returning a {@code null} value means that the handler decided not to handle this path.
+         * In this case, {@link WebViewAssetLoader} will try the next handler registered on this
+         * path or pass to WebView that will fall back to network to try to resolve the URL.
+         * <p>
+         * However, if the handler wants to save unnecessary processing either by another handler or
+         * by falling back to network, in cases like a file cannot be found, it may return a
+         * {@code new WebResourceResponse(null, null, null)} which is received as an
+         * HTTP response with status code {@code 404} and no body.
          *
          * @param path the suffix path to be handled.
          * @return {@link WebResourceResponse} for the requested path or {@code null} if it can't
