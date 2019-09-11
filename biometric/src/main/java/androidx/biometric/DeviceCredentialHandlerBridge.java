@@ -61,6 +61,8 @@ public class DeviceCredentialHandlerBridge {
     @Nullable
     private BiometricPrompt.AuthenticationCallback mAuthenticationCallback;
 
+    private boolean mConfirmingDeviceCredential;
+
     // Possible results from launching the confirm device credential Settings activity.
     static final int RESULT_NONE = 0;
     static final int RESULT_SUCCESS = 1;
@@ -163,7 +165,7 @@ public class DeviceCredentialHandlerBridge {
      * Registers dialog and authentication callbacks to the bridge, along with an executor that can
      * be used to run them.
      *
-     * If a {@link BiometricFragment} has been registered via
+     * <p>If a {@link BiometricFragment} has been registered via
      * {@link #setBiometricFragment(BiometricFragment)}, or if a {@link FingerprintDialogFragment}
      * and {@link FingerprintHelperFragment} have been registered via
      * {@link #setFingerprintFragments(FingerprintDialogFragment, FingerprintHelperFragment)}, then
@@ -232,6 +234,19 @@ public class DeviceCredentialHandlerBridge {
     }
 
     /**
+     * Sets a flag indicating whether the confirm device credential Settings activity is currently
+     * being shown.
+     */
+    void setConfirmingDeviceCredential(boolean confirmingDeviceCredential) {
+        mConfirmingDeviceCredential = confirmingDeviceCredential;
+    }
+
+    /** @return See {@link #setConfirmingDeviceCredential(boolean)}. */
+    boolean isConfirmingDeviceCredential() {
+        return mConfirmingDeviceCredential;
+    }
+
+    /**
      * Indicates that the bridge should ignore the next call to {@link #reset}. Calling this method
      * after {@link #startIgnoringReset()} but before {@link #stopIgnoringReset()} has no effect.
      */
@@ -260,7 +275,7 @@ public class DeviceCredentialHandlerBridge {
     /**
      * Clears all data associated with the bridge, returning it to its default state.
      *
-     * Note that calls to this method may be ignored if {@link #ignoreNextReset()} or
+     * <p>Note that calls to this method may be ignored if {@link #ignoreNextReset()} or
      * {@link #startIgnoringReset()} has been called without a corresponding call to
      * {@link #stopIgnoringReset()}.
      */
@@ -274,12 +289,16 @@ public class DeviceCredentialHandlerBridge {
             return;
         }
 
+        mClientThemeResId = 0;
         mBiometricFragment = null;
         mFingerprintDialogFragment = null;
         mFingerprintHelperFragment = null;
         mExecutor = null;
         mOnClickListener = null;
         mAuthenticationCallback = null;
+        mDeviceCredentialResult = RESULT_NONE;
+        mConfirmingDeviceCredential = false;
+
         sInstance = null;
     }
 }

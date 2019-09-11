@@ -16,6 +16,7 @@
 
 package androidx.biometric;
 
+import android.app.Activity;
 import android.app.KeyguardManager;
 import android.content.Context;
 import android.content.Intent;
@@ -69,7 +70,7 @@ class Utils {
      * @param loggingTag The tag to be used for logging events.
      * @param activity Activity that will launch the CDC activity and handle its result. Should be
      *                 {@link DeviceCredentialHandlerActivity}; all other activities will fail to
-     *                 launch the CDC activity and will instead log an error.
+     *                 launch the CDC activity and instead log an error.
      * @param bundle Bundle of extras forwarded from {@link BiometricPrompt}.
      * @param onLaunch Optional callback to be run before launching the new activity.
      */
@@ -81,15 +82,18 @@ class Utils {
             Log.e(loggingTag, "Failed to check device credential. Parent handler not found.");
             return;
         }
+        final DeviceCredentialHandlerActivity handlerActivity =
+                (DeviceCredentialHandlerActivity) activity;
 
         // Get the KeyguardManager service in whichever way the platform supports.
         final KeyguardManager keyguardManager;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            keyguardManager = activity.getSystemService(KeyguardManager.class);
+            keyguardManager = handlerActivity.getSystemService(KeyguardManager.class);
         } else {
-            final Object service = activity.getSystemService(Context.KEYGUARD_SERVICE);
+            final Object service = handlerActivity.getSystemService(Context.KEYGUARD_SERVICE);
             if (!(service instanceof KeyguardManager)) {
                 Log.e(loggingTag, "Failed to check device credential. KeyguardManager not found.");
+                handlerActivity.handleDeviceCredentialResult(Activity.RESULT_CANCELED);
                 return;
             }
             keyguardManager = (KeyguardManager) service;
@@ -97,12 +101,8 @@ class Utils {
 
         if (keyguardManager == null) {
             Log.e(loggingTag, "Failed to check device credential. KeyguardManager was null.");
+            handlerActivity.handleDeviceCredentialResult(Activity.RESULT_CANCELED);
             return;
-        }
-
-        // There's no longer a chance of returning early, so run the onLaunch callback.
-        if (onLaunch != null) {
-            onLaunch.run();
         }
 
         // Pass along the title and subtitle from the biometric prompt.
@@ -116,17 +116,27 @@ class Utils {
             subtitle = null;
         }
 
+        @SuppressWarnings("deprecation")
+        final Intent intent = keyguardManager.createConfirmDeviceCredentialIntent(title, subtitle);
+        if (intent == null) {
+            Log.e(loggingTag, "Failed to check device credential. Got null intent from Keyguard.");
+            handlerActivity.handleDeviceCredentialResult(Activity.RESULT_CANCELED);
+            return;
+        }
+
         // Prevent the bridge from resetting until the confirmation activity finishes.
-        DeviceCredentialHandlerBridge bridge = DeviceCredentialHandlerBridge.getInstanceIfNotNull();
-        if (bridge != null) {
-            bridge.startIgnoringReset();
+        final DeviceCredentialHandlerBridge bridge = DeviceCredentialHandlerBridge.getInstance();
+        bridge.setConfirmingDeviceCredential(true);
+        bridge.startIgnoringReset();
+
+        // Run callback after the CDC flag is set but before launching the activity.
+        if (onLaunch != null) {
+            onLaunch.run();
         }
 
         // Launch a new instance of the confirm device credential Settings activity.
-        @SuppressWarnings("deprecation")
-        final Intent intent = keyguardManager.createConfirmDeviceCredentialIntent(title, subtitle);
         intent.setFlags(Intent.FLAG_ACTIVITY_MULTIPLE_TASK | Intent.FLAG_ACTIVITY_NEW_DOCUMENT);
-        activity.startActivityForResult(intent, 0 /* requestCode */);
+        handlerActivity.startActivityForResult(intent, 0 /* requestCode */);
     }
 
     /**

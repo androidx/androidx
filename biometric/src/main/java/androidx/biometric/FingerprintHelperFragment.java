@@ -72,9 +72,6 @@ public class FingerprintHelperFragment extends Fragment {
     private int mCanceledFrom;
     private CancellationSignal mCancellationSignal;
 
-    // Whether this fragment is launching the confirm device credential Settings activity.
-    private boolean mConfirmingDeviceCredential;
-
     // Also created once and retained.
     @SuppressWarnings("deprecation")
     private final androidx.core.hardware.fingerprint.FingerprintManagerCompat.AuthenticationCallback
@@ -86,7 +83,7 @@ public class FingerprintHelperFragment extends Fragment {
                         final CharSequence errString) {
                     mHandler.obtainMessage(FingerprintDialogFragment.MSG_DISMISS_DIALOG_ERROR)
                             .sendToTarget();
-                    if (!mConfirmingDeviceCredential) {
+                    if (!isConfirmingDeviceCredential()) {
                         mExecutor.execute(
                                 new Runnable() {
                                     @Override
@@ -126,7 +123,7 @@ public class FingerprintHelperFragment extends Fragment {
 
                         mHandler.obtainMessage(FingerprintDialogFragment.MSG_SHOW_ERROR,
                                 errMsgIdToSend, 0, errStringNonNull).sendToTarget();
-                        if (!mConfirmingDeviceCredential) {
+                        if (!isConfirmingDeviceCredential()) {
                             mHandler.postDelayed(
                                     new Runnable() {
                                         @Override
@@ -254,14 +251,6 @@ public class FingerprintHelperFragment extends Fragment {
     }
 
     /**
-     * Indicates whether this fragment has or is about to launch the confirm device credential
-     * Settings activity and should therefore stop sending error signals back to the client.
-     */
-    void setConfirmingDeviceCredential(boolean confirmingDeviceCredential) {
-        mConfirmingDeviceCredential = confirmingDeviceCredential;
-    }
-
-    /**
      * Cancel the authentication.
      *
      * @param canceledFrom one of the USER_CANCELED_FROM* constants
@@ -287,7 +276,8 @@ public class FingerprintHelperFragment extends Fragment {
         if (getFragmentManager() != null) {
             getFragmentManager().beginTransaction().detach(this).commitAllowingStateLoss();
         }
-        if (!mConfirmingDeviceCredential) {
+
+        if (!isConfirmingDeviceCredential()) {
             Utils.maybeFinishHandler(activity);
         }
     }
@@ -316,7 +306,7 @@ public class FingerprintHelperFragment extends Fragment {
      * @param error The error code that will be sent to the client.
      */
     private void sendErrorToClient(final int error) {
-        if (!mConfirmingDeviceCredential) {
+        if (!isConfirmingDeviceCredential()) {
             mClientAuthenticationCallback.onAuthenticationError(error,
                     getErrorString(mContext, error));
         }
@@ -375,5 +365,10 @@ public class FingerprintHelperFragment extends Fragment {
         } else {
             return null;
         }
+    }
+
+    private static boolean isConfirmingDeviceCredential() {
+        DeviceCredentialHandlerBridge bridge = DeviceCredentialHandlerBridge.getInstanceIfNotNull();
+        return bridge != null && bridge.isConfirmingDeviceCredential();
     }
 }

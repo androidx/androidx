@@ -43,7 +43,6 @@ import androidx.annotation.VisibleForTesting;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.DialogFragment;
-import androidx.fragment.app.FragmentManager;
 
 /**
  * This class implements a custom AlertDialog that prompts the user for fingerprint authentication.
@@ -156,27 +155,15 @@ public class FingerprintDialogFragment extends DialogFragment {
                             return;
                         }
 
-                        final Runnable onLaunch = new Runnable() {
-                            @Override
-                            public void run() {
-                                // Dismiss the fingerprint dialog without forwarding errors to
-                                // the client.
-                                final FragmentManager fragmentManager =
-                                        FingerprintDialogFragment.this.getFragmentManager();
-                                final String fragmentTag =
-                                        BiometricPrompt.FINGERPRINT_HELPER_FRAGMENT_TAG;
-                                final FingerprintHelperFragment fragment =
-                                        (FingerprintHelperFragment) fragmentManager
-                                                .findFragmentByTag(fragmentTag);
-                                if (fragment != null) {
-                                    fragment.setConfirmingDeviceCredential(true);
-                                }
-                                FingerprintDialogFragment.this.onCancel(dialog);
-                            }
-                        };
-
-                        Utils.launchDeviceCredentialConfirmation(TAG,
-                                FingerprintDialogFragment.this.getActivity(), mBundle, onLaunch);
+                        Utils.launchDeviceCredentialConfirmation(
+                                TAG, FingerprintDialogFragment.this.getActivity(), mBundle,
+                                new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        // Dismiss the fingerprint dialog without forwarding errors.
+                                        FingerprintDialogFragment.this.onCancel(dialog);
+                                    }
+                                });
                     }
                 }
             };
