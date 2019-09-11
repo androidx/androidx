@@ -279,35 +279,38 @@ public final class WebViewAssetLoader {
          * @throws IllegalArgumentException if the directory is not allowed.
          */
         public InternalStoragePathHandler(@NonNull Context context, @NonNull File directory) {
-            if (!isAllowedInternalStorageDir(context, directory)) {
-                throw new IllegalArgumentException("The given directory \"" + directory
-                        + "\" doesn't exist under an allowed app internal storage directory");
+            try {
+                mDirectory = new File(AssetHelper.getCanonicalDirPath(directory));
+                if (!isAllowedInternalStorageDir(context)) {
+                    throw new IllegalArgumentException("The given directory \"" + directory
+                            + "\" doesn't exist under an allowed app internal storage directory");
+                }
+            } catch (IOException e) {
+                throw new IllegalArgumentException(
+                        "Failed to resolve the canonical path for the given directory: "
+                        + directory.getPath(), e);
             }
-            mDirectory = directory;
         }
 
-        private static boolean isAllowedInternalStorageDir(@NonNull Context context,
-                @NonNull File dir) {
-            try {
-                String dirPath = AssetHelper.getCanonicalPath(dir);
-                String cacheDirPath = AssetHelper.getCanonicalPath(context.getCacheDir());
-                String dataDirPath = AssetHelper.getCanonicalPath(AssetHelper.getDataDir(context));
-                // dir has to be a subdirectory of data or cache dir.
-                if (!dirPath.startsWith(cacheDirPath) && !dirPath.startsWith(dataDirPath)) {
-                    return false;
-                }
-                // dir cannot be the entire cache or data dir.
-                if (dirPath.equals(cacheDirPath) || dirPath.equals(dataDirPath)) {
-                    return false;
-                }
-                // dir cannot be a subdirectory of any forbidden data dir.
-                for (String forbiddenPath : FORBIDDEN_DATA_DIRS) {
-                    if (dirPath.startsWith(dataDirPath + forbiddenPath)) return false;
-                }
-                return true;
-            } catch (IOException e) {
+        private boolean isAllowedInternalStorageDir(@NonNull Context context) throws IOException {
+            String dir = AssetHelper.getCanonicalDirPath(mDirectory);
+            String cacheDir = AssetHelper.getCanonicalDirPath(context.getCacheDir());
+            String dataDir = AssetHelper.getCanonicalDirPath(AssetHelper.getDataDir(context));
+            // dir has to be a subdirectory of data or cache dir.
+            if (!dir.startsWith(cacheDir) && !dir.startsWith(dataDir)) {
                 return false;
             }
+            // dir cannot be the entire cache or data dir.
+            if (dir.equals(cacheDir) || dir.equals(dataDir)) {
+                return false;
+            }
+            // dir cannot be a subdirectory of any forbidden data dir.
+            for (String forbiddenPath : FORBIDDEN_DATA_DIRS) {
+                if (dir.startsWith(dataDir + forbiddenPath)) {
+                    return false;
+                }
+            }
+            return true;
         }
 
         /**
@@ -333,9 +336,9 @@ public final class WebViewAssetLoader {
         @WorkerThread
         @NonNull
         public WebResourceResponse handle(@NonNull String path) {
-            File file = new File(mDirectory, path);
             try {
-                if (AssetHelper.isCanonicalChildOf(mDirectory, file)) {
+                File file = AssetHelper.getCanonicalFileIfChild(mDirectory, path);
+                if (file != null) {
                     InputStream is = AssetHelper.openFile(file);
                     String mimeType = AssetHelper.guessMimeType(path);
                     return new WebResourceResponse(mimeType, null, is);
