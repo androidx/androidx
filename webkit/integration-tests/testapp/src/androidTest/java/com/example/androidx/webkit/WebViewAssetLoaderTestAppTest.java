@@ -46,7 +46,7 @@ import org.junit.runners.JUnit4;
  */
 @RunWith(JUnit4.class)
 @LargeTest
-public final class AssetLoaderActivitiesTest {
+public final class WebViewAssetLoaderTestAppTest {
 
     /**
      * A test rule to set up the tests for WebViewAssetLoader demo Activities.
