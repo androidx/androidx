@@ -27,17 +27,20 @@ plugins {
 dependencies {
     api("androidx.annotation:annotation:1.1.0")
 
-    testImplementation(ANDROIDX_TEST_CORE)
+    testImplementation(project(":ads-identifier-testing"))
     testImplementation(ANDROIDX_TEST_RUNNER)
     testImplementation(JUNIT)
     testImplementation(TRUTH)
     testImplementation(MOCKITO_CORE)
+    testImplementation(ROBOLECTRIC)
 }
 
 android {
     defaultConfig {
         minSdkVersion 14
     }
+
+    testOptions.unitTests.includeAndroidResources = true
 }
 
 androidx {

@@ -21,7 +21,6 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.content.pm.ResolveInfo;
 import android.content.pm.ServiceInfo;
 import android.os.RemoteException;
 
@@ -158,10 +157,10 @@ public class AdvertisingIdClient {
     private static ComponentName getProviderComponentName(Context context)
             throws AdvertisingIdNotAvailableException {
         PackageManager packageManager = context.getPackageManager();
-        List<ResolveInfo> resolveInfos =
+        List<ServiceInfo> serviceInfos =
                 AdvertisingIdUtils.getAdvertisingIdProviderServices(packageManager);
         ServiceInfo serviceInfo =
-                AdvertisingIdUtils.selectServiceByPriority(resolveInfos, packageManager);
+                AdvertisingIdUtils.selectServiceByPriority(serviceInfos, packageManager);
         if (serviceInfo == null) {
             throw new AdvertisingIdNotAvailableException(
                     "No compatible AndroidX Advertising ID Provider available.");

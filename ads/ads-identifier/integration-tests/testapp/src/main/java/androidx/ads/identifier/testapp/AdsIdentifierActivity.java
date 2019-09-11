@@ -20,7 +20,7 @@ import android.app.Activity;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
-import android.content.pm.ResolveInfo;
+import android.content.pm.ServiceInfo;
 import android.os.Bundle;
 import android.text.format.DateFormat;
 import android.view.View;
@@ -106,13 +106,12 @@ public class AdsIdentifierActivity extends Activity {
         TextView textView = findViewById(R.id.text);
         textView.setText("Services:\n");
 
-        List<ResolveInfo> resolveInfos =
+        List<ServiceInfo> serviceInfos =
                 AdvertisingIdUtils.getAdvertisingIdProviderServices(getPackageManager());
-        for (ResolveInfo resolveInfo : resolveInfos) {
-            String packageName = resolveInfo.serviceInfo.packageName;
+        for (ServiceInfo serviceInfo : serviceInfos) {
             PackageInfo packageInfo;
             try {
-                packageInfo = getPackageManager().getPackageInfo(packageName,
+                packageInfo = getPackageManager().getPackageInfo(serviceInfo.packageName,
                         PackageManager.GET_PERMISSIONS);
             } catch (PackageManager.NameNotFoundException e) {
                 continue;
