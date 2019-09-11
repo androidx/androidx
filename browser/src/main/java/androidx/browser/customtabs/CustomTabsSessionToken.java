@@ -58,6 +58,11 @@ public class CustomTabsSessionToken {
         public void extraCallback(String callbackName, Bundle args) {}
 
         @Override
+        public Bundle extraCallbackWithResult(String callbackName, Bundle args) {
+            return null;
+        }
+
+        @Override
         public void onMessageChannelReady(Bundle extras) {}
 
         @Override
@@ -127,6 +132,17 @@ public class CustomTabsSessionToken {
                     mCallbackBinder.extraCallback(callbackName, args);
                 } catch (RemoteException e) {
                     Log.e(TAG, "RemoteException during ICustomTabsCallback transaction");
+                }
+            }
+
+            @Override
+            public Bundle extraCallbackWithResult(@NonNull String callbackName,
+                    @Nullable Bundle args) {
+                try {
+                    return mCallbackBinder.extraCallbackWithResult(callbackName, args);
+                } catch (RemoteException e) {
+                    Log.e(TAG, "RemoteException during ICustomTabsCallback transaction");
+                    return null;
                 }
             }
 
