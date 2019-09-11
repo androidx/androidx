@@ -84,7 +84,7 @@ class FragmentLayoutInflaterFactory implements LayoutInflater.Factory2 {
             fragment = mFragmentManager.findFragmentById(containerId);
         }
 
-        if (FragmentManager.DEBUG) {
+        if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
             Log.v(TAG, "onCreateView: id=0x"
                     + Integer.toHexString(id) + " fname=" + fname
                     + " existing=" + fragment);

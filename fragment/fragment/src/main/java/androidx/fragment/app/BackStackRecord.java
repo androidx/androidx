@@ -31,7 +31,7 @@ import java.util.ArrayList;
  */
 final class BackStackRecord extends FragmentTransaction implements
         FragmentManager.BackStackEntry, FragmentManager.OpGenerator {
-    static final String TAG = FragmentManager.TAG;
+    private static final String TAG = FragmentManager.TAG;
 
     final FragmentManager mManager;
 
@@ -256,7 +256,7 @@ final class BackStackRecord extends FragmentTransaction implements
         if (!mAddToBackStack) {
             return;
         }
-        if (FragmentManager.DEBUG) {
+        if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
             Log.v(TAG, "Bump nesting in " + this + " by " + amt);
         }
         final int numOps = mOps.size();
@@ -264,7 +264,7 @@ final class BackStackRecord extends FragmentTransaction implements
             final Op op = mOps.get(opNum);
             if (op.mFragment != null) {
                 op.mFragment.mBackStackNesting += amt;
-                if (FragmentManager.DEBUG) {
+                if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
                     Log.v(TAG, "Bump nesting of "
                             + op.mFragment + " to " + op.mFragment.mBackStackNesting);
                 }
@@ -305,7 +305,7 @@ final class BackStackRecord extends FragmentTransaction implements
 
     int commitInternal(boolean allowStateLoss) {
         if (mCommitted) throw new IllegalStateException("commit already called");
-        if (FragmentManager.DEBUG) {
+        if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
             Log.v(TAG, "Commit: " + this);
             LogWriter logw = new LogWriter(TAG);
             PrintWriter pw = new PrintWriter(logw);
@@ -333,7 +333,7 @@ final class BackStackRecord extends FragmentTransaction implements
      */
     @Override
     public boolean generateOps(ArrayList<BackStackRecord> records, ArrayList<Boolean> isRecordPop) {
-        if (FragmentManager.DEBUG) {
+        if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
             Log.v(TAG, "Run: " + this);
         }
 
