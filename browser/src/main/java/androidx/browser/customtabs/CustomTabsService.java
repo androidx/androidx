@@ -74,6 +74,14 @@ public abstract class CustomTabsService extends Service {
             "androidx.browser.trusted.category.TrustedWebActivities";
 
     /**
+     * An Intent filter category to signify that the Trusted Web Activity provider supports
+     * sending shared data according to the Web Share Target v2 protocol defined in
+     * https://wicg.github.io/web-share-target/level-2/.
+     */
+    public static final String CATEGORY_WEB_SHARE_TARGET_V2 =
+            "androidx.browser.trusted.category.WebShareTargetV2";
+
+    /**
      * For {@link CustomTabsService#mayLaunchUrl} calls that wants to specify more than one url,
      * this key can be used with {@link Bundle#putParcelable(String, android.os.Parcelable)}
      * to insert a new url to each bundle inside list of bundles.
