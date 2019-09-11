@@ -19,6 +19,10 @@ AcronymName: androidx.sqlite.db.SupportSQLiteStatement:
     Acronyms should not be capitalized in class names: was `SupportSQLiteStatement`, should this be `SupportSqLiteStatement`?
 
 
+MissingBuild: androidx.sqlite.db.SupportSQLiteQueryBuilder:
+    Missing `build()` method in androidx.sqlite.db.SupportSQLiteQueryBuilder
+
+
 MissingNullability: androidx.sqlite.db.SimpleSQLiteQuery#SimpleSQLiteQuery(String) parameter #0:
     Missing nullability on parameter `query` in method `SimpleSQLiteQuery`
 MissingNullability: androidx.sqlite.db.SimpleSQLiteQuery#SimpleSQLiteQuery(String, Object[]) parameter #0:

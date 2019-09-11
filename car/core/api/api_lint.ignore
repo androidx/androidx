@@ -9,6 +9,16 @@ ListenerLast: androidx.car.widget.ActionListItem#setActions(String, boolean, and
     Listeners should always be at end of argument list (method `setActions`)
 
 
+MissingBuild: androidx.car.app.CarAlertDialog.Builder:
+    Missing `build()` method in androidx.car.app.CarAlertDialog.Builder
+MissingBuild: androidx.car.app.CarListDialog.Builder:
+    Missing `build()` method in androidx.car.app.CarListDialog.Builder
+MissingBuild: androidx.car.app.CarMultipleChoiceDialog.Builder:
+    Missing `build()` method in androidx.car.app.CarMultipleChoiceDialog.Builder
+MissingBuild: androidx.car.app.CarSingleChoiceDialog.Builder:
+    Missing `build()` method in androidx.car.app.CarSingleChoiceDialog.Builder
+
+
 MissingNullability: androidx.car.app.CarAlertDialog#onCreate(android.os.Bundle) parameter #0:
     Missing nullability on parameter `savedInstanceState` in method `onCreate`
 MissingNullability: androidx.car.app.CarAlertDialog#setTitle(CharSequence) parameter #0:
