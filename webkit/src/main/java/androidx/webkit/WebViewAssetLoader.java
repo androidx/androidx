@@ -17,6 +17,7 @@
 package androidx.webkit;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.net.Uri;
 import android.util.Log;
 import android.webkit.WebResourceResponse;
@@ -159,9 +160,14 @@ public final class WebViewAssetLoader {
         @WorkerThread
         @Nullable
         public WebResourceResponse handle(@NonNull String path) {
-            InputStream is = mAssetHelper.openAsset(path);
-            String mimeType = AssetHelper.guessMimeType(path);
-            return new WebResourceResponse(mimeType, null, is);
+            try {
+                InputStream is = mAssetHelper.openAsset(path);
+                String mimeType = AssetHelper.guessMimeType(path);
+                return new WebResourceResponse(mimeType, null, is);
+            } catch (IOException e) {
+                Log.e(TAG, "Error opening asset path: " + path, e);
+                return new WebResourceResponse(null, null, null);
+            }
         }
     }
 
@@ -205,11 +211,17 @@ public final class WebViewAssetLoader {
         @WorkerThread
         @Nullable
         public WebResourceResponse handle(@NonNull String path) {
-            InputStream is = mAssetHelper.openResource(path);
-            String mimeType = AssetHelper.guessMimeType(path);
-            return new WebResourceResponse(mimeType, null, is);
+            try {
+                InputStream is = mAssetHelper.openResource(path);
+                String mimeType = AssetHelper.guessMimeType(path);
+                return new WebResourceResponse(mimeType, null, is);
+            } catch (Resources.NotFoundException e) {
+                Log.e(TAG, "Resource not found from the path: " + path, e);
+            } catch (IOException e) {
+                Log.e(TAG, "Error opening resource from the path: " + path, e);
+            }
+            return new WebResourceResponse(null, null, null);
         }
-
     }
 
     /**
@@ -322,15 +334,20 @@ public final class WebViewAssetLoader {
         @NonNull
         public WebResourceResponse handle(@NonNull String path) {
             File file = new File(mDirectory, path);
-            InputStream is = null;
-            if (AssetHelper.isCanonicalChildOf(mDirectory, file)) {
-                is = AssetHelper.openFile(file);
-            } else {
-                Log.e(TAG, "The requested file: " + path + " is outside the mounted directory: "
-                         + mDirectory);
+            try {
+                if (AssetHelper.isCanonicalChildOf(mDirectory, file)) {
+                    InputStream is = AssetHelper.openFile(file);
+                    String mimeType = AssetHelper.guessMimeType(path);
+                    return new WebResourceResponse(mimeType, null, is);
+                } else {
+                    Log.e(TAG, String.format(
+                            "The requested file: %s is outside the mounted directory: %s", path,
+                                    mDirectory));
+                }
+            } catch (IOException e) {
+                Log.e(TAG, "Error opening the requested path: " + path, e);
             }
-            String mimeType = AssetHelper.guessMimeType(path);
-            return new WebResourceResponse(mimeType, null, is);
+            return new WebResourceResponse(null, null, null);
         }
     }
 
