@@ -35,6 +35,7 @@ import java.util.Map;
  * non configuration state
  */
 class FragmentManagerViewModel extends ViewModel {
+    private static final String TAG = FragmentManager.TAG;
 
     private static final ViewModelProvider.Factory FACTORY = new ViewModelProvider.Factory() {
         @NonNull
@@ -84,8 +85,8 @@ class FragmentManagerViewModel extends ViewModel {
 
     @Override
     protected void onCleared() {
-        if (FragmentManager.DEBUG) {
-            Log.d(FragmentManager.TAG, "onCleared called for " + this);
+        if (FragmentManager.isLoggingEnabled(Log.DEBUG)) {
+            Log.d(TAG, "onCleared called for " + this);
         }
         mHasBeenCleared = true;
     }
@@ -153,8 +154,8 @@ class FragmentManagerViewModel extends ViewModel {
     }
 
     void clearNonConfigState(@NonNull Fragment f) {
-        if (FragmentManager.DEBUG) {
-            Log.d(FragmentManager.TAG, "Clearing non-config state for " + f);
+        if (FragmentManager.isLoggingEnabled(Log.DEBUG)) {
+            Log.d(TAG, "Clearing non-config state for " + f);
         }
         // Clear and remove the Fragment's child non config state
         FragmentManagerViewModel childNonConfig = mChildNonConfigs.get(f.mWho);

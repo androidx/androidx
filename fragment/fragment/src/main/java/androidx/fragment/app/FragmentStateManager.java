@@ -27,6 +27,7 @@ import androidx.annotation.Nullable;
 import androidx.lifecycle.Lifecycle;
 
 class FragmentStateManager {
+    private static final String TAG = FragmentManager.TAG;
 
     private static final String TARGET_REQUEST_CODE_STATE_TAG = "android:target_req_state";
     private static final String TARGET_STATE_TAG = "android:target_state";
@@ -86,8 +87,8 @@ class FragmentStateManager {
             // when the Fragment is being restored
             mFragment.mSavedFragmentState = new Bundle();
         }
-        if (FragmentManager.DEBUG) {
-            Log.v(FragmentManager.TAG, "Instantiated fragment " + mFragment);
+        if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
+            Log.v(TAG, "Instantiated fragment " + mFragment);
         }
     }
 

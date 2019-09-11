@@ -274,7 +274,7 @@ package androidx.fragment.app {
     method public void addOnBackStackChangedListener(androidx.fragment.app.FragmentManager.OnBackStackChangedListener);
     method public androidx.fragment.app.FragmentTransaction beginTransaction();
     method public void dump(String, java.io.FileDescriptor?, java.io.PrintWriter, String![]?);
-    method public static void enableDebugLogging(boolean);
+    method @Deprecated public static void enableDebugLogging(boolean);
     method public boolean executePendingTransactions();
     method public static <F extends androidx.fragment.app.Fragment> F findFragment(android.view.View);
     method public androidx.fragment.app.Fragment? findFragmentById(@IdRes int);

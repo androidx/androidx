@@ -28,6 +28,8 @@ import java.util.ArrayList;
 
 @SuppressLint("BanParcelableUsage")
 final class BackStackState implements Parcelable {
+    private static final String TAG = FragmentManager.TAG;
+
     final int[] mOps;
     final ArrayList<String> mFragmentWhos;
     final int[] mOldMaxLifecycleStates;
@@ -102,8 +104,8 @@ final class BackStackState implements Parcelable {
         while (pos < mOps.length) {
             BackStackRecord.Op op = new BackStackRecord.Op();
             op.mCmd = mOps[pos++];
-            if (FragmentManager.DEBUG) {
-                Log.v(FragmentManager.TAG, "Instantiate " + bse
+            if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
+                Log.v(TAG, "Instantiate " + bse
                         + " op #" + num + " base fragment #" + mOps[pos]);
             }
             String fWho = mFragmentWhos.get(num);
