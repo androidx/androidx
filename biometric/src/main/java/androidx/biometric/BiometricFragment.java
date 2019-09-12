@@ -17,10 +17,8 @@
 package androidx.biometric;
 
 import android.annotation.SuppressLint;
-import android.app.KeyguardManager;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.CancellationSignal;
@@ -156,50 +154,13 @@ public class BiometricFragment extends Fragment {
             };
 
     // Also created once and retained.
-    @SuppressWarnings("deprecation")
     private final DialogInterface.OnClickListener mDeviceCredentialButtonListener =
             new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     if (which == DialogInterface.BUTTON_NEGATIVE) {
-                        final FragmentActivity activity = BiometricFragment.this.getActivity();
-                        if (!(activity instanceof DeviceCredentialHandlerActivity)) {
-                            Log.e(TAG, "Failed to check device credential."
-                                    + " Parent handler not found.");
-                            return;
-                        }
-
-                        final KeyguardManager km = activity.getSystemService(KeyguardManager.class);
-                        if (km == null) {
-                            Log.e(TAG, "Failed to check device credential."
-                                    + " KeyguardManager was null.");
-                            return;
-                        }
-
-                        // Pass along the title and subtitle from the biometric prompt.
-                        final CharSequence title;
-                        final CharSequence subtitle;
-                        if (mBundle != null) {
-                            title = mBundle.getCharSequence(BiometricPrompt.KEY_TITLE);
-                            subtitle = mBundle.getCharSequence(BiometricPrompt.KEY_SUBTITLE);
-                        } else {
-                            title = null;
-                            subtitle = null;
-                        }
-
-                        // Prevent bridge from resetting until the confirmation activity finishes.
-                        DeviceCredentialHandlerBridge bridge =
-                                DeviceCredentialHandlerBridge.getInstanceIfNotNull();
-                        if (bridge != null) {
-                            bridge.startIgnoringReset();
-                        }
-
-                        // Launch a new instance of the confirm device credential Settings activity.
-                        final Intent intent =
-                                km.createConfirmDeviceCredentialIntent(title, subtitle);
-                        intent.setFlags(Intent.FLAG_ACTIVITY_MULTIPLE_TASK
-                                | Intent.FLAG_ACTIVITY_NEW_DOCUMENT);
-                        activity.startActivityForResult(intent, 0 /* requestCode */);
+                        Utils.launchDeviceCredentialConfirmation(TAG,
+                                BiometricFragment.this.getActivity(), mBundle, null /* onLaunch */);
                     }
                 }
             };
