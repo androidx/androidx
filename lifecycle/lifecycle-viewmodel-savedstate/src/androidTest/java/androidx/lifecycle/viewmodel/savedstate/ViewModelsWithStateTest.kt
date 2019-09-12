@@ -97,6 +97,33 @@ class ViewModelsWithStateTest(private val mode: String) {
         assertThat(vm.mLiveData.value).isEqualTo(newValue)
     }
 
+    @Test
+    @Throws(Throwable::class)
+    fun testFirstAccessAfterOnStop() {
+        val newValue = "newValue"
+        val state = with(ActivityScenario.launch(FakingSavedStateActivity::class.java)) {
+            moveToState(Lifecycle.State.CREATED)
+            val escapedVM = withActivity {
+                val escapedVM = vmProvider(this).get(VM::class.java)
+                escapedVM.mLiveData.value = newValue
+                escapedVM
+            }
+            recreate()
+            val vm = withActivity { vmProvider(this).get(VM::class.java) }
+            assertThat(vm).isEqualTo(escapedVM)
+            moveToState(Lifecycle.State.CREATED)
+            val state = withActivity { savedState }
+            assertThat(state.isEmpty).isFalse()
+            moveToState(Lifecycle.State.DESTROYED)
+            state
+        }
+        val intent = createIntent(state)
+        val vm = ActivityScenario.launch<FakingSavedStateActivity>(intent).withActivity {
+            vmProvider(this).get(VM::class.java)
+        }
+        assertThat(vm.mLiveData.value).isEqualTo(newValue)
+    }
+
     private fun vmProvider(activity: FakingSavedStateActivity): ViewModelProvider {
         if (FRAGMENT_MODE == mode) {
             val fragment = activity.fragment

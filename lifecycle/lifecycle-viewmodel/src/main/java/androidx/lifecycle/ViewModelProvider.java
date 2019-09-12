@@ -51,13 +51,18 @@ public class ViewModelProvider {
         <T extends ViewModel> T create(@NonNull Class<T> modelClass);
     }
 
+    static class OnRequeryFactory {
+        void onRequery(@NonNull ViewModel viewModel) {
+        }
+    }
+
     /**
      * Implementations of {@code Factory} interface are responsible to instantiate ViewModels.
      * <p>
      * This is more advanced version of {@link Factory} that receives a key specified for requested
      * {@link ViewModel}.
      */
-    abstract static class KeyedFactory implements Factory {
+    abstract static class KeyedFactory extends OnRequeryFactory implements Factory {
         /**
          * Creates a new instance of the given {@code Class}.
          *
@@ -166,6 +171,9 @@ public class ViewModelProvider {
         ViewModel viewModel = mViewModelStore.get(key);
 
         if (modelClass.isInstance(viewModel)) {
+            if (mFactory instanceof OnRequeryFactory) {
+                ((OnRequeryFactory) mFactory).onRequery(viewModel);
+            }
             return (T) viewModel;
         } else {
             //noinspection StatementWithEmptyBody
