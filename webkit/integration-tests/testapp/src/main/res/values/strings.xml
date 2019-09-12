@@ -56,4 +56,10 @@
     <string name="multi_process_enabled">Multi Process is enabled</string>
     <string name="multi_process_disabled">Multi Process is disabled</string>
     <string name="multi_process_query_unavailable">Multi Process query not available</string>
+    <string name="tracing_controller_activity_title">Tracing Controller Demo</string>
+    <string name="tracing_controller_start_tracing">Start tracing</string>
+    <string name="tracing_controller_stop_tracing">Stop tracing</string>
+    <string name="tracing_controller_invalid_log">Log is invalid</string>
+    <string name="tracing_controller_log_path">Wrote log to %1$s. This file can be loaded in
+        chrome://tracing for further analysis.</string>>
 </resources>
