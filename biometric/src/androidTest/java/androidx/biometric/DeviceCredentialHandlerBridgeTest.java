@@ -176,6 +176,15 @@ public class DeviceCredentialHandlerBridgeTest {
     }
 
     @Test
+    public void testConfirmingDeviceCredential_CanSetAndGet() {
+        final DeviceCredentialHandlerBridge bridge = DeviceCredentialHandlerBridge.getInstance();
+        assertThat(bridge.isConfirmingDeviceCredential()).isFalse();
+
+        bridge.setConfirmingDeviceCredential(true);
+        assertThat(bridge.isConfirmingDeviceCredential()).isTrue();
+    }
+
+    @Test
     @UiThreadTest
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.P)
     public void testReset_ClearsBiometricFragment_WhenNotIgnoringReset() {
@@ -187,17 +196,25 @@ public class DeviceCredentialHandlerBridgeTest {
 
     @Test
     @UiThreadTest
-    public void testReset_ClearsMostState_WhenNotIgnoringReset() {
+    public void testReset_ClearsState_WhenNotIgnoringReset() {
         final DeviceCredentialHandlerBridge bridge = DeviceCredentialHandlerBridge.getInstance();
+        bridge.setClientThemeResId(1);
         bridge.setFingerprintFragments(
                 FingerprintDialogFragment.newInstance(), FingerprintHelperFragment.newInstance());
         bridge.setCallbacks(EXECUTOR, CLICK_LISTENER, AUTH_CALLBACK);
+        bridge.setDeviceCredentialResult(DeviceCredentialHandlerBridge.RESULT_SUCCESS);
+        bridge.setConfirmingDeviceCredential(true);
+
         bridge.reset();
+        assertThat(bridge.getClientThemeResId()).isEqualTo(0);
         assertThat(bridge.getFingerprintDialogFragment()).isNull();
         assertThat(bridge.getFingerprintHelperFragment()).isNull();
         assertThat(bridge.getExecutor()).isNull();
         assertThat(bridge.getOnClickListener()).isNull();
         assertThat(bridge.getAuthenticationCallback()).isNull();
+        assertThat(bridge.getDeviceCredentialResult()).isEqualTo(
+                DeviceCredentialHandlerBridge.RESULT_NONE);
+        assertThat(bridge.isConfirmingDeviceCredential()).isFalse();
         assertThat(DeviceCredentialHandlerBridge.getInstanceIfNotNull()).isNull();
     }
 

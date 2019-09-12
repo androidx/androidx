@@ -39,15 +39,12 @@ public class DeviceCredentialHandlerActivity extends AppCompatActivity {
 
     static final String EXTRA_PROMPT_INFO_BUNDLE = "prompt_info_bundle";
 
-    @Nullable
-    private DeviceCredentialHandlerBridge mBridge;
-
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
+        final DeviceCredentialHandlerBridge bridge = DeviceCredentialHandlerBridge.getInstance();
+
         // Apply the client activity's theme to ensure proper dialog styling.
-        DeviceCredentialHandlerBridge bridge =
-                DeviceCredentialHandlerBridge.getInstanceIfNotNull();
-        if (bridge != null && bridge.getClientThemeResId() != 0) {
+        if (bridge.getClientThemeResId() != 0) {
             setTheme(bridge.getClientThemeResId());
             getTheme().applyStyle(R.style.TransparentStyle, true /* force */);
         }
@@ -57,13 +54,12 @@ public class DeviceCredentialHandlerActivity extends AppCompatActivity {
         setTitle(null);
         setContentView(R.layout.device_credential_handler_activity);
 
-        mBridge = DeviceCredentialHandlerBridge.getInstance();
-        if (mBridge.getExecutor() == null || mBridge.getAuthenticationCallback() == null) {
+        if (bridge.getExecutor() == null || bridge.getAuthenticationCallback() == null) {
             Log.e(TAG, "onCreate: Executor and/or callback was null!");
         } else {
             // (Re)connect to and launch a biometric prompt within this activity.
             final BiometricPrompt biometricPrompt = new BiometricPrompt(this,
-                    mBridge.getExecutor(), mBridge.getAuthenticationCallback());
+                    bridge.getExecutor(), bridge.getAuthenticationCallback());
             final Bundle infoBundle = getIntent().getBundleExtra(EXTRA_PROMPT_INFO_BUNDLE);
             final BiometricPrompt.PromptInfo info = new BiometricPrompt.PromptInfo(infoBundle);
             biometricPrompt.authenticate(info);
@@ -75,24 +71,38 @@ public class DeviceCredentialHandlerActivity extends AppCompatActivity {
         super.onPause();
 
         // Prevent the client from resetting the bridge in onPause if just changing configuration.
-        if (isChangingConfigurations() && mBridge != null) {
-            mBridge.ignoreNextReset();
+        final DeviceCredentialHandlerBridge bridge =
+                DeviceCredentialHandlerBridge.getInstanceIfNotNull();
+        if (isChangingConfigurations() && bridge != null) {
+            bridge.ignoreNextReset();
         }
     }
 
-    // Handles the result of startActivity invoked by the attached BiometricPrompt.
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        handleDeviceCredentialResult(resultCode);
+    }
 
-        // Handle result from ConfirmDeviceCredentialActivity.
-        if (mBridge == null || mBridge.getAuthenticationCallback() == null) {
+    /**
+     * Handles a result from the confirm device credential Settings activity.
+     *
+     * @param resultCode The (actual or simulated) result code from the device credential
+     *                   Settings activity. Typically, either {@link android.app.Activity#RESULT_OK}
+     *                   or {@link android.app.Activity#RESULT_CANCELED}.
+     */
+    void handleDeviceCredentialResult(int resultCode) {
+        final DeviceCredentialHandlerBridge bridge =
+                DeviceCredentialHandlerBridge.getInstanceIfNotNull();
+        if (bridge == null) {
             Log.e(TAG, "onActivityResult: Bridge or callback was null!");
         } else if (resultCode == RESULT_OK) {
-            mBridge.setDeviceCredentialResult(DeviceCredentialHandlerBridge.RESULT_SUCCESS);
+            bridge.setDeviceCredentialResult(DeviceCredentialHandlerBridge.RESULT_SUCCESS);
+            bridge.setConfirmingDeviceCredential(false);
         } else {
             // Treat any non-OK result as a user cancellation.
-            mBridge.setDeviceCredentialResult(DeviceCredentialHandlerBridge.RESULT_ERROR);
+            bridge.setDeviceCredentialResult(DeviceCredentialHandlerBridge.RESULT_ERROR);
+            bridge.setConfirmingDeviceCredential(false);
         }
 
         finish();

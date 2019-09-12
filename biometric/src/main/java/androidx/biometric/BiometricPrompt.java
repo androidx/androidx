@@ -301,10 +301,10 @@ public class BiometricPrompt implements BiometricConstants {
              * will be returned in
              * {@link AuthenticationCallback#onAuthenticationError(int, CharSequence)}.
              *
-             * Note that {@link Builder#setNegativeButtonText(CharSequence)} should not be set
+             * <p>Note that {@link Builder#setNegativeButtonText(CharSequence)} should not be set
              * if this is set to true.
              *
-             * On versions P and below, once the device credential prompt is shown,
+             * <p>On versions P and below, once the device credential prompt is shown,
              * {@link #cancelAuthentication()} will not work, since the library internally launches
              * {@link android.app.KeyguardManager#createConfirmDeviceCredentialIntent(CharSequence,
              * CharSequence)}, which does not have a public API for cancellation.
@@ -664,10 +664,37 @@ public class BiometricPrompt implements BiometricConstants {
 
     private void authenticateInternal(@NonNull PromptInfo info, @Nullable CryptoObject crypto) {
         mIsHandlingDeviceCredential = info.isHandlingDeviceCredentialResult();
-        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.P && info.isDeviceCredentialAllowed()
-                && !mIsHandlingDeviceCredential) {
-            launchDeviceCredentialHandler(info);
-            return;
+        if (info.isDeviceCredentialAllowed() && Build.VERSION.SDK_INT <= Build.VERSION_CODES.P) {
+            // Launch handler activity to support device credential on older versions.
+            if (!mIsHandlingDeviceCredential) {
+                launchDeviceCredentialHandler(info);
+                return;
+            }
+
+            // Fall back to device credential immediately if no biometrics are enrolled.
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                final FragmentActivity activity = getActivity();
+                if (activity == null) {
+                    Log.e(TAG, "Failed to authenticate with device credential. Activity was null.");
+                    return;
+                }
+
+                final DeviceCredentialHandlerBridge bridge =
+                        DeviceCredentialHandlerBridge.getInstanceIfNotNull();
+                if (bridge == null) {
+                    Log.e(TAG, "Failed to authenticate with device credential. Bridge was null.");
+                    return;
+                }
+
+                if (!bridge.isConfirmingDeviceCredential()) {
+                    final BiometricManager biometricManager = BiometricManager.from(activity);
+                    if (biometricManager.canAuthenticate() != BiometricManager.BIOMETRIC_SUCCESS) {
+                        Utils.launchDeviceCredentialConfirmation(
+                                TAG, activity, info.getBundle(), null /* onLaunch */);
+                        return;
+                    }
+                }
+            }
         }
 
         final Bundle bundle = info.getBundle();
@@ -757,8 +784,8 @@ public class BiometricPrompt implements BiometricConstants {
      * Cancels the biometric authentication, and dismisses the dialog upon confirmation from the
      * biometric service.
      *
-     * On P or below, calling this method when the device credential prompt is shown will NOT work
-     * as expected. See {@link PromptInfo.Builder#setDeviceCredentialAllowed(boolean)} for more
+     * <p>On P or below, calling this method when the device credential prompt is shown will NOT
+     * work as expected. See {@link PromptInfo.Builder#setDeviceCredentialAllowed(boolean)} for more
      * details.
      */
     public void cancelAuthentication() {
