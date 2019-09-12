@@ -134,7 +134,8 @@ final class Camera implements BaseCamera {
     private CaptureSession.Builder mCaptureSessionBuilder = new CaptureSession.Builder();
 
     /** The configured session which handles issuing capture requests. */
-    private CaptureSession mCaptureSession;
+    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+    CaptureSession mCaptureSession;
     /** The session configuration of camera control. */
     private SessionConfig mCameraControlSessionConfig = SessionConfig.defaultEmptySessionConfig();
 
@@ -274,6 +275,7 @@ final class Camera implements BaseCamera {
                 // camera is not yet opening.
                 Preconditions.checkState(mCameraDevice == null);
                 setState(InternalState.INITIALIZED);
+                break;
             default:
                 Log.d(TAG, "close() ignored due to being in state: " + mState);
         }
@@ -392,6 +394,7 @@ final class Camera implements BaseCamera {
         captureSession.close();
         ListenableFuture<Void> releaseFuture = captureSession.release(abortInFlightCaptures);
 
+        Log.d(TAG, "releasing session in state " + mState.name());
         mReleasedCaptureSessions.put(captureSession, releaseFuture);
 
         // Add a callback to clear the future and notify if the camera and all capture sessions
@@ -919,7 +922,7 @@ final class Camera implements BaseCamera {
      * closing that session.
      */
     @WorkerThread
-    private void resetCaptureSession(boolean abortInFlightCaptures) {
+    void resetCaptureSession(boolean abortInFlightCaptures) {
         Preconditions.checkState(mCaptureSession != null);
         Log.d(TAG, "Resetting Capture Session");
         CaptureSession oldCaptureSession = mCaptureSession;
@@ -1218,27 +1221,18 @@ final class Camera implements BaseCamera {
         public void onDisconnected(CameraDevice cameraDevice) {
             Log.d(TAG, "CameraDevice.onDisconnected(): " + cameraDevice.getId());
 
-            // onDisconnected could be called before onOpened if the camera becomes disconnected
-            // during initialization, so keep track of it here.
-            mCameraDevice = cameraDevice;
-
-            switch (mState) {
-                case REOPENING:
-                case OPENED:
-                case OPENING:
-                    // TODO: Create a "DISCONNECTED" state so camera can recover once available.
-                    setState(InternalState.RELEASING);
-                    break;
-                case RELEASING:
-                    // State will be set to RELEASED once camera finishes closing.
-                    break;
-                default:
-                    throw new IllegalStateException(
-                            "onDisconnected() should not be possible from state: " + mState);
+            // TODO(b/140955560) Need to force close the CaptureSessions, because onDisconnected
+            //  () callback causes condition where CameraCaptureSession won't receive the
+            //  onClosed() callback.
+            for (CaptureSession captureSession : mReleasedCaptureSessions.keySet()) {
+                captureSession.forceClose();
             }
-            // Not to close the in flight captures since the capture session has already been
-            // closed.
-            closeCamera(/*abortInFlightCaptures=*/false);
+
+            mCaptureSession.forceClose();
+
+            // Can be treated the same as camera in use because in both situations the
+            // CameraDevice needs to be closed before it can be safely reopened and used.
+            onError(cameraDevice, CameraDevice.StateCallback.ERROR_CAMERA_IN_USE);
         }
 
         @Override

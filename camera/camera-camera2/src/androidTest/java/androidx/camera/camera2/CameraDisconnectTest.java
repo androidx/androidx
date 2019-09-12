@@ -20,14 +20,8 @@ package androidx.camera.camera2;
 import static org.junit.Assume.assumeNotNull;
 import static org.junit.Assume.assumeTrue;
 
-import android.content.ComponentName;
 import android.content.Intent;
-import android.content.pm.ActivityInfo;
-import android.content.pm.PackageManager;
-import android.content.pm.ResolveInfo;
-import android.provider.MediaStore;
 
-import androidx.camera.core.CameraX;
 import androidx.camera.testing.CameraUtil;
 import androidx.camera.testing.CoreAppTestUtil;
 import androidx.camera.testing.activity.Camera2TestActivity;
@@ -37,7 +31,6 @@ import androidx.test.espresso.Espresso;
 import androidx.test.espresso.IdlingRegistry;
 import androidx.test.espresso.IdlingResource;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.filters.FlakyTest;
 import androidx.test.filters.LargeTest;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.ActivityTestRule;
@@ -50,11 +43,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.util.List;
-
 @RunWith(AndroidJUnit4.class)
 @LargeTest
-@FlakyTest
 public class CameraDisconnectTest {
 
     private static final int DISMISS_LOCK_SCREEN_CODE = 82;
@@ -95,40 +85,6 @@ public class CameraDisconnectTest {
     public void tearDown() {
         mCameraXTestActivityRule.finishActivity();
         mCamera2ActivityRule.finishActivity();
-    }
-
-    @Test
-    public void testDisconnect_launchNativeCameraApp() throws InterruptedException {
-        waitFor(mCameraXTestActivity.mPreviewReady);
-
-        Intent intent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
-        if (mCameraXTestActivity.mLensFacing == CameraX.LensFacing.FRONT) {
-            intent.putExtra("android.intent.extras.LENS_FACING_FRONT", 1);
-            intent.putExtra("android.intent.extra.USE_FRONT_CAMERA", true);
-        }
-        PackageManager packageManager = mCameraXTestActivity.getPackageManager();
-        List<ResolveInfo> activities = packageManager.queryIntentActivities(intent,
-                PackageManager.MATCH_DEFAULT_ONLY);
-
-        // Only continue the test when the device contains app which can record the video.
-        assumeTrue(activities.size() > 0);
-
-        if (activities.size() > 1) {
-            // When the available app > 1, launch the first app directly instead of the
-            // Intent chooser.
-            ActivityInfo info = activities.get(0).activityInfo;
-            intent.setComponent(new ComponentName(info.packageName, info.name));
-        }
-        mCameraXTestActivity.startActivity(intent);
-
-        // Wait for the app start and opening the camera.
-        Thread.sleep(3000);
-
-        // Returning to CameraX activity by press the back key.
-        mDevice.pressBack();
-
-        // Verify the CameraX Preview can resume successfully.
-        waitFor(mCameraXTestActivity.mPreviewReady);
     }
 
     @Test

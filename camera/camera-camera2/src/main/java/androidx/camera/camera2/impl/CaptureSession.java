@@ -428,6 +428,14 @@ final class CaptureSession {
         return Futures.immediateFuture(null);
     }
 
+    // Force the onClosed() callback to be made. This is necessary because the onClosed()
+    // callback never gets called if CameraDevice.StateCallback.onDisconnected() is called. See
+    // TODO(b/140955560) If the issue is fixed then on OS releases with the fix this should not
+    //  be called and instead onClosed() should be called by the framework instead.
+    void forceClose() {
+        mCaptureSessionStateCallback.onClosed(mCameraCaptureSession);
+    }
+
     // Notify the surface is attached to a new capture session.
     void notifySurfaceAttached() {
         synchronized (mConfiguredDeferrableSurfaces) {
@@ -790,6 +798,12 @@ final class CaptureSession {
                 if (mState == State.UNINITIALIZED) {
                     throw new IllegalStateException(
                             "onClosed() should not be possible in state: " + mState);
+                }
+
+                if (mState == State.RELEASED) {
+                    // If released then onClosed() has already been called, but it can be ignored
+                    // since a session can be forceClosed.
+                    return;
                 }
 
                 Log.d(TAG, "CameraCaptureSession.onClosed()");
