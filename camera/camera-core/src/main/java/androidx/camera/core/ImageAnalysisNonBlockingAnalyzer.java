@@ -106,6 +106,7 @@ final class ImageAnalysisNonBlockingAnalyzer extends ImageAnalysisAbstractAnalyz
      */
     private synchronized void analyze(@NonNull ImageProxy imageProxy) {
         if (isClosed()) {
+            imageProxy.close();
             return;
         }
         long postedImageTimestamp = mPostedImageTimestamp.get();
