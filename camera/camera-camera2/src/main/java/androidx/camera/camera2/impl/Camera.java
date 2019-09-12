@@ -1285,6 +1285,7 @@ final class Camera implements BaseCamera {
                     // A fatal error occurred. The device should be reopened.
                     // Fall through.
                 case CameraDevice.StateCallback.ERROR_MAX_CAMERAS_IN_USE:
+                case CameraDevice.StateCallback.ERROR_CAMERA_IN_USE:
                     // Attempt to reopen the camera again. If there are no cameras available,
                     // this will wait for the next available camera.
                     reopenCameraAfterError();
