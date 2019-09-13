@@ -62,6 +62,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Observer;
+import androidx.test.espresso.IdlingResource;
 import androidx.test.espresso.idling.CountingIdlingResource;
 
 import java.io.File;
@@ -117,9 +118,17 @@ public class CameraXActivity extends AppCompatActivity
     CountingIdlingResource mAnalysisIdlingResource =
             new CountingIdlingResource("analysis");
     @VisibleForTesting
-    CountingIdlingResource mImageSavedIdlingResource =
+    final CountingIdlingResource mImageSavedIdlingResource =
             new CountingIdlingResource("imagesaved");
-
+    /**
+     * Retrieve idling resource that waits for capture to complete (save or error).
+     * @return idline resource for image capture
+     */
+    @VisibleForTesting
+    @NonNull
+    public IdlingResource getImageSavedIdlingResource() {
+        return mImageSavedIdlingResource;
+    }
 
     /**
      * Creates a view finder use case.
@@ -496,8 +505,11 @@ public class CameraXActivity extends AppCompatActivity
                                     @Override
                                     public void onImageSaved(@NonNull File file) {
                                         Log.d(TAG, "Saved image to " + file);
-                                        if (!mImageSavedIdlingResource.isIdleNow()) {
+                                        try {
                                             mImageSavedIdlingResource.decrement();
+                                        } catch (IllegalStateException e) {
+                                            Log.e(TAG, "Error: unexpected onImageSaved "
+                                                    + "callback received. Continuing.");
                                         }
 
                                         long duration =
@@ -518,8 +530,11 @@ public class CameraXActivity extends AppCompatActivity
                                             @NonNull String message,
                                             Throwable cause) {
                                         Log.e(TAG, "Failed to save image.", cause);
-                                        if (!mImageSavedIdlingResource.isIdleNow()) {
+                                        try {
                                             mImageSavedIdlingResource.decrement();
+                                        } catch (IllegalStateException e) {
+                                            Log.e(TAG, "Error: unexpected onImageSaved "
+                                                    + "callback received. Continuing.");
                                         }
                                     }
                                 });
