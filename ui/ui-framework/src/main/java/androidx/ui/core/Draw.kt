@@ -23,14 +23,11 @@ import androidx.compose.composer
 /**
  * Use Draw to get a [Canvas] to paint into the parent.
  *
- *     Draw { canvas, parentSize ->
- *         val paint = Paint()
- *         paint.color = Color(0xFF000000)
- *         canvas.drawRect(Rect(0.0f, 0.0f, parentSize.width, parentSize.height, paint)
- *     }
+ * Example usage:
+ * @sample androidx.ui.framework.samples.DrawSample
  *
  *  The [onPaint] lambda uses a [DensityReceiver] receiver scope, to allow easy translation
- *  between [Dp], [Sp], and [Px]. The [parentSize] parameter indicates the layout size of
+ *  between [Dp], [Sp], and [Px]. The `parentSize` parameter indicates the layout size of
  *  the parent.
  */
 @Composable
@@ -47,14 +44,8 @@ fun Draw(
  * If the [onPaint] does not call [DrawReceiver.drawChildren] then it will be called
  * after the lambda.
  *
- *     Draw(children) { canvas, parentSize ->
- *         canvas.save()
- *         val circle = Path()
- *         circle.addOval(parentSize.toRect())
- *         canvas.clipPath(circle)
- *         drawChildren()
- *         canvas.restore()
- *     }
+ * Example usage:
+ * @sample androidx.ui.framework.samples.DrawWithChildrenSample
  */
 @Composable
 fun Draw(
