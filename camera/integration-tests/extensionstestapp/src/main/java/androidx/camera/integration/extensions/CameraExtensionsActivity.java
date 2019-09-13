@@ -310,7 +310,7 @@ public class CameraExtensionsActivity extends AppCompatActivity
                                                 + mCurrentImageCaptureType.name()
                                                 + ".jpg"),
                                 CameraXExecutors.mainThreadExecutor(),
-                                new ImageCapture.OnImageSavedListener() {
+                                new ImageCapture.OnImageSavedCallback() {
                                     @Override
                                     public void onImageSaved(@NonNull File file) {
                                         Log.d(TAG, "Saved image to " + file);

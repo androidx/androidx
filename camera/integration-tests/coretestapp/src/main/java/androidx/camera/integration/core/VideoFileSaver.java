@@ -22,7 +22,7 @@ import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.camera.core.VideoCapture;
-import androidx.camera.core.VideoCapture.OnVideoSavedListener;
+import androidx.camera.core.VideoCapture.OnVideoSavedCallback;
 import androidx.camera.core.VideoCapture.VideoCaptureError;
 
 import java.io.File;
@@ -35,7 +35,7 @@ import java.util.Locale;
 /**
  * Basic functionality required for interfacing the {@link VideoCapture}.
  */
-public class VideoFileSaver implements OnVideoSavedListener {
+public class VideoFileSaver implements OnVideoSavedCallback {
     private static final String TAG = "VideoFileSaver";
     private final Format mFormatter = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss", Locale.ENGLISH);
     private final Object mLock = new Object();

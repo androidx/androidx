@@ -32,7 +32,7 @@ import android.graphics.Rect;
 import android.util.Base64;
 
 import androidx.annotation.Nullable;
-import androidx.camera.core.ImageSaver.OnImageSavedListener;
+import androidx.camera.core.ImageSaver.OnImageSavedCallback;
 import androidx.camera.core.ImageSaver.SaveError;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
@@ -100,20 +100,20 @@ public class ImageSaverTest {
             ByteBuffer.wrap(Base64.decode(JPEG_IMAGE_DATA_BASE_64, Base64.DEFAULT));
 
     private final Semaphore mSemaphore = new Semaphore(0);
-    private final ImageSaver.OnImageSavedListener mMockListener =
-            mock(ImageSaver.OnImageSavedListener.class);
-    private final ImageSaver.OnImageSavedListener mSyncListener =
-            new OnImageSavedListener() {
+    private final ImageSaver.OnImageSavedCallback mMockCallback =
+            mock(ImageSaver.OnImageSavedCallback.class);
+    private final ImageSaver.OnImageSavedCallback mSyncCallback =
+            new OnImageSavedCallback() {
                 @Override
                 public void onImageSaved(File file) {
-                    mMockListener.onImageSaved(file);
+                    mMockCallback.onImageSaved(file);
                     mSemaphore.release();
                 }
 
                 @Override
                 public void onError(
                         SaveError saveError, String message, @Nullable Throwable cause) {
-                    mMockListener.onError(saveError, message, cause);
+                    mMockCallback.onError(saveError, message, cause);
                     mSemaphore.release();
                 }
             };
@@ -169,7 +169,7 @@ public class ImageSaverTest {
                 /*reversedVertical=*/ false,
                 /*location=*/ null,
                 mBackgroundExecutor,
-                mSyncListener);
+                mSyncCallback);
     }
 
     @Test
@@ -183,7 +183,7 @@ public class ImageSaverTest {
 
         mSemaphore.acquire();
 
-        verify(mMockListener).onImageSaved(any(File.class));
+        verify(mMockCallback).onImageSaved(any(File.class));
     }
 
     @Test
@@ -197,7 +197,7 @@ public class ImageSaverTest {
 
         mSemaphore.acquire();
 
-        verify(mMockListener).onImageSaved(any(File.class));
+        verify(mMockCallback).onImageSaved(any(File.class));
     }
 
     @Test
@@ -211,7 +211,7 @@ public class ImageSaverTest {
 
         mSemaphore.acquire();
 
-        verify(mMockListener).onError(eq(SaveError.FILE_IO_FAILED), anyString(),
+        verify(mMockCallback).onError(eq(SaveError.FILE_IO_FAILED), anyString(),
                 any(Throwable.class));
     }
 
@@ -256,7 +256,7 @@ public class ImageSaverTest {
                         /*reversedVertical=*/ false,
                         /*location=*/ null,
                         mBackgroundExecutor,
-                        mSyncListener);
+                        mSyncCallback);
         imageSaver.run();
 
         mSemaphore.acquire();

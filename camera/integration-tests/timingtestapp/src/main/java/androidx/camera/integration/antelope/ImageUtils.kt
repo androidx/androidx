@@ -277,7 +277,7 @@ class CameraXImageAvailableListener(
     internal val activity: MainActivity,
     internal var params: CameraParams,
     internal val testConfig: TestConfig
-) : ImageCapture.OnImageCapturedListener() {
+) : ImageCapture.OnImageCapturedCallback() {
 
     /** Image was captured successfully */
     override fun onCaptureSuccess(image: ImageProxy?, rotationDegrees: Int) {

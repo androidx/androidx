@@ -851,7 +851,7 @@ public final class ImageCaptureConfig
 
         /**
          * Sets the {@link ImageFormat} of the {@link ImageProxy} returned by the
-         * {@link ImageCapture.OnImageCapturedListener}.
+         * {@link ImageCapture.OnImageCapturedCallback}.
          *
          * <p>Warning. This could lead to an invalid configuration as image format support is per
          * device. Also, setting the buffer format in conjuncture with image capture extensions will

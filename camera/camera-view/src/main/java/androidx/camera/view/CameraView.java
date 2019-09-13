@@ -58,11 +58,11 @@ import androidx.camera.core.CameraX.LensFacing;
 import androidx.camera.core.FlashMode;
 import androidx.camera.core.FocusMeteringAction;
 import androidx.camera.core.FocusMeteringAction.MeteringMode;
-import androidx.camera.core.ImageCapture.OnImageCapturedListener;
-import androidx.camera.core.ImageCapture.OnImageSavedListener;
+import androidx.camera.core.ImageCapture.OnImageCapturedCallback;
+import androidx.camera.core.ImageCapture.OnImageSavedCallback;
 import androidx.camera.core.ImageProxy;
 import androidx.camera.core.MeteringPoint;
-import androidx.camera.core.VideoCapture.OnVideoSavedListener;
+import androidx.camera.core.VideoCapture.OnVideoSavedCallback;
 import androidx.lifecycle.LifecycleOwner;
 
 import java.io.File;
@@ -70,9 +70,9 @@ import java.util.concurrent.Executor;
 
 /**
  * A {@link View} that displays a preview of the camera with methods {@link
- * #takePicture(Executor, OnImageCapturedListener)},
- * {@link #takePicture(File, Executor, OnImageSavedListener)},
- * {@link #startRecording(File, Executor, OnVideoSavedListener)} and {@link #stopRecording()}.
+ * #takePicture(Executor, OnImageCapturedCallback)},
+ * {@link #takePicture(File, Executor, OnImageSavedCallback)},
+ * {@link #startRecording(File, Executor, OnVideoSavedCallback)} and {@link #stopRecording()}.
  *
  * <p>Because the Camera is a limited resource and consumes a high amount of power, CameraView must
  * be opened/closed. CameraView will handle opening/closing automatically through use of a {@link
@@ -602,7 +602,7 @@ public final class CameraView extends ViewGroup {
     }
 
     /**
-     * Sets the maximum video duration before {@link OnVideoSavedListener#onVideoSaved(File)} is
+     * Sets the maximum video duration before {@link OnVideoSavedCallback#onVideoSaved(File)} is
      * called automatically. Use {@link #INDEFINITE_VIDEO_DURATION} to disable the timeout.
      */
     private void setMaxVideoDuration(long duration) {
@@ -618,7 +618,7 @@ public final class CameraView extends ViewGroup {
     }
 
     /**
-     * Sets the maximum video size in bytes before {@link OnVideoSavedListener#onVideoSaved(File)}
+     * Sets the maximum video size in bytes before {@link OnVideoSavedCallback#onVideoSaved(File)}
      * is called automatically. Use {@link #INDEFINITE_VIDEO_SIZE} to disable the size restriction.
      */
     private void setMaxVideoSize(long size) {
@@ -626,41 +626,41 @@ public final class CameraView extends ViewGroup {
     }
 
     /**
-     * Takes a picture, and calls {@link OnImageCapturedListener#onCaptureSuccess(ImageProxy, int)}
+     * Takes a picture, and calls {@link OnImageCapturedCallback#onCaptureSuccess(ImageProxy, int)}
      * once when done.
      *
-     * @param executor The executor in which the listener callback methods will be run.
-     * @param listener Listener which will receive success or failure callbacks.
+     * @param executor The executor in which the callback methods will be run.
+     * @param callback Callback which will receive success or failure callbacks.
      */
     @SuppressLint("LambdaLast") // Maybe remove after https://issuetracker.google.com/135275901
-    public void takePicture(@NonNull Executor executor, @NonNull OnImageCapturedListener listener) {
-        mCameraModule.takePicture(executor, listener);
+    public void takePicture(@NonNull Executor executor, @NonNull OnImageCapturedCallback callback) {
+        mCameraModule.takePicture(executor, callback);
     }
 
     /**
-     * Takes a picture and calls {@link OnImageSavedListener#onImageSaved(File)} when done.
+     * Takes a picture and calls {@link OnImageSavedCallback#onImageSaved(File)} when done.
      *
      * @param file     The destination.
-     * @param executor The executor in which the listener callback methods will be run.
-     * @param listener Listener which will receive success or failure callbacks.
+     * @param executor The executor in which the callback methods will be run.
+     * @param callback Callback which will receive success or failure.
      */
     @SuppressLint("LambdaLast") // Maybe remove after https://issuetracker.google.com/135275901
     public void takePicture(@NonNull File file, @NonNull Executor executor,
-            @NonNull OnImageSavedListener listener) {
-        mCameraModule.takePicture(file, executor, listener);
+            @NonNull OnImageSavedCallback callback) {
+        mCameraModule.takePicture(file, executor, callback);
     }
 
     /**
-     * Takes a video and calls the OnVideoSavedListener when done.
+     * Takes a video and calls the OnVideoSavedCallback when done.
      *
      * @param file The destination.
-     * @param executor The executor in which the listener callback methods will be run.
-     * @param listener Listener which will receive success or failure callbacks.
+     * @param executor The executor in which the callback methods will be run.
+     * @param callback Callback which will receive success or failure.
      */
     @SuppressLint("LambdaLast") // Maybe remove after https://issuetracker.google.com/135275901
     public void startRecording(@NonNull File file, @NonNull Executor executor,
-            @NonNull OnVideoSavedListener listener) {
-        mCameraModule.startRecording(file, executor, listener);
+            @NonNull OnVideoSavedCallback callback) {
+        mCameraModule.startRecording(file, executor, callback);
     }
 
     /** Stops an in progress video. */
