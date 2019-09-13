@@ -24,8 +24,8 @@ plugins {
 }
 
 dependencies {
-    api project(":serialization:serialization-annotation")
-    lintPublish project(":serialization:serialization-lint")
+    compileOnly(project(":serialization:serialization-annotation"))
+    lintPublish(project(":serialization:serialization-lint"))
 }
 
 android {

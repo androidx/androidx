@@ -22,19 +22,19 @@ import androidx.build.LibraryVersions
 import androidx.build.Publish
 
 plugins {
-    id "AndroidXPlugin"
-    id "kotlin"
+    id("AndroidXPlugin")
+    id("kotlin")
 }
 
 dependencies {
-    compileOnly project(":serialization:serialization-schema")
+    compileOnly(project(":serialization:serialization-schema"))
 
-    compileOnly KOTLIN_STDLIB
-    compileOnly LINT_API_LATEST
+    compileOnly(KOTLIN_STDLIB)
+    compileOnly(LINT_API_LATEST)
 
-    testImplementation KOTLIN_STDLIB
-    testImplementation LINT_CORE
-    testImplementation LINT_TESTS
+    testImplementation(KOTLIN_STDLIB)
+    testImplementation(LINT_CORE)
+    testImplementation(LINT_TESTS)
 }
 
 androidx {

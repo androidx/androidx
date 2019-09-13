@@ -24,28 +24,28 @@ import androidx.build.Publish
 import org.gradle.internal.jvm.Jvm
 
 plugins {
-    id "AndroidXPlugin"
-    id "kotlin"
+    id("AndroidXPlugin")
+    id("kotlin")
 }
 
 dependencies {
-    implementation project(":serialization:serialization-annotation")
-    implementation project(":serialization:serialization-schema")
+    implementation(project(":serialization:serialization-annotation"))
+    implementation(project(":serialization:serialization-schema"))
 
-    implementation JAVAPOET
-    implementation KOTLINPOET
-    implementation KOTLIN_METADATA_JVM
-    implementation KOTLIN_STDLIB
+    implementation(JAVAPOET)
+    implementation(KOTLINPOET)
+    implementation(KOTLIN_METADATA_JVM)
+    implementation(KOTLIN_STDLIB)
 
-    testImplementation ANDROIDX_ANNOTATION
-    testImplementation ANDROIDX_COLLECTION
-    testImplementation GOOGLE_COMPILE_TESTING
-    testImplementation INTELLIJ_ANNOTATIONS
-    testImplementation JSR250
-    testImplementation JUNIT
-    testImplementation TRUTH
+    testImplementation(ANDROIDX_ANNOTATION)
+    testImplementation(ANDROIDX_COLLECTION)
+    testImplementation(GOOGLE_COMPILE_TESTING)
+    testImplementation(INTELLIJ_ANNOTATIONS)
+    testImplementation(JSR250)
+    testImplementation(JUNIT)
+    testImplementation(TRUTH)
 
-    testImplementation files(Jvm.current().getToolsJar())
+    testImplementation(files(Jvm.current().getToolsJar()))
 }
 
 androidx {

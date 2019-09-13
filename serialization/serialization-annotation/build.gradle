@@ -22,12 +22,12 @@ import androidx.build.LibraryVersions
 import androidx.build.Publish
 
 plugins {
-    id "AndroidXPlugin"
-    id "java"
+    id("AndroidXPlugin")
+    id("java")
 }
 
 dependencies {
-    implementation(ANDROIDX_ANNOTATION)
+    compileOnly(ANDROIDX_ANNOTATION)
 }
 
 androidx {
