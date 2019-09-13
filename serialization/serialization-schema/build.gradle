@@ -22,13 +22,13 @@ import androidx.build.LibraryVersions
 import androidx.build.Publish
 
 plugins {
-    id "AndroidXPlugin"
-    id "kotlin"
+    id("AndroidXPlugin")
+    id("kotlin")
 }
 
 dependencies {
-    implementation KOTLIN_STDLIB
-    testImplementation JUNIT
+    implementation(KOTLIN_STDLIB)
+    testImplementation(JUNIT)
 }
 
 androidx {
