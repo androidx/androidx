@@ -37,8 +37,8 @@ dependencies {
 
     api project(":ui:ui-animation-core")
 
-    implementation project(":compose:compose-runtime")
-    implementation project(":ui:ui-core")
+    api project(":compose:compose-runtime")
+    api project(":ui:ui-core")
 
     testImplementation(ANDROIDX_TEST_RULES)
     testImplementation(ANDROIDX_TEST_RUNNER)

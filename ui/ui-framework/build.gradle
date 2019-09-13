@@ -36,7 +36,7 @@ dependencies {
     // TODO: Non-Kotlin dependency, move to Android-specific code
     implementation "androidx.core:core:1.0.2"
 
-    implementation project(":compose:compose-runtime")
+    api project(":compose:compose-runtime")
     api project(":ui:ui-core")
     implementation project(":ui:ui-platform")
     api project(":ui:ui-text")
