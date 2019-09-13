@@ -25,6 +25,7 @@ import android.media.MediaCodec.BufferInfo;
 import android.media.MediaCodec.CodecException;
 import android.media.MediaCodecInfo;
 import android.media.MediaCodecInfo.CodecCapabilities;
+import android.media.MediaCodecList;
 import android.media.MediaFormat;
 import android.opengl.GLES20;
 import android.os.Handler;
@@ -72,6 +73,9 @@ public final class HeifEncoder implements AutoCloseable,
     private static final int GRID_HEIGHT = 512;
     private static final double MAX_COMPRESS_RATIO = 0.25f;
     private static final int INPUT_BUFFER_POOL_SIZE = 2;
+
+    private static final MediaCodecList sMCL =
+            new MediaCodecList(MediaCodecList.REGULAR_CODECS);
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     MediaCodec mEncoder;
@@ -211,7 +215,7 @@ public final class HeifEncoder implements AutoCloseable,
             }
             useHeicEncoder = true;
         } catch (Exception e) {
-            mEncoder = MediaCodec.createEncoderByType(MediaFormat.MIMETYPE_VIDEO_HEVC);
+            mEncoder = MediaCodec.createByCodecName(findHevcFallback());
             caps = mEncoder.getCodecInfo().getCapabilitiesForType(MediaFormat.MIMETYPE_VIDEO_HEVC);
             // Always enable grid if the size is too large for the HEVC encoder
             useGrid |= !caps.getVideoCapabilities().isSizeSupported(width, height);
@@ -363,6 +367,38 @@ public final class HeifEncoder implements AutoCloseable,
         mSrcRect = new Rect();
     }
 
+    private String findHevcFallback() {
+        String hevc = null; // first HEVC encoder
+        String hevcCq = null; // first non-hw HEVC encoder with CQ support
+        for (MediaCodecInfo info : sMCL.getCodecInfos()) {
+            if (!info.isEncoder()) {
+                continue;
+            }
+            MediaCodecInfo.CodecCapabilities caps = null;
+            try {
+                caps = info.getCapabilitiesForType(MediaFormat.MIMETYPE_VIDEO_HEVC);
+            } catch (IllegalArgumentException e) { // mime is not supported
+                continue;
+            }
+            if (!caps.getVideoCapabilities().isSizeSupported(GRID_WIDTH, GRID_HEIGHT)) {
+                continue;
+            }
+            if (caps.getEncoderCapabilities().isBitrateModeSupported(
+                    MediaCodecInfo.EncoderCapabilities.BITRATE_MODE_CQ)) {
+                if (info.isHardwareAccelerated()) {
+                    // the ideal one we're looking for, can return now.
+                    return info.getName();
+                }
+                if (hevcCq == null) {
+                    hevcCq = info.getName();
+                }
+            }
+            if (hevc == null) {
+                hevc = info.getName();
+            }
+        }
+        return (hevcCq != null) ? hevcCq : hevc;
+    }
     /**
      * Copies from source frame to encoder inputs using GL. The source could be either
      * client's input surface, or the input bitmap loaded to texture.
