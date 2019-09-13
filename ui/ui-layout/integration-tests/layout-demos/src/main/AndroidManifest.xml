@@ -45,5 +45,14 @@
                 <category android:name="androidx.ui.demos.SAMPLE_CODE" />
             </intent-filter>
         </activity>
+
+        <activity android:name=".FlowActivity"
+            android:configChanges="orientation|screenSize"
+            android:label="Layout/Flow layout">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="androidx.ui.demos.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
     </application>
 </manifest>

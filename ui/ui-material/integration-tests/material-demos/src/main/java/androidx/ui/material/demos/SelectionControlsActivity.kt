@@ -28,7 +28,7 @@ import androidx.ui.graphics.Color
 import androidx.ui.layout.Column
 import androidx.ui.layout.CrossAxisAlignment
 import androidx.ui.layout.EdgeInsets
-import androidx.ui.layout.FlexSize
+import androidx.ui.layout.LayoutSize
 import androidx.ui.layout.MainAxisAlignment
 import androidx.ui.layout.Padding
 import androidx.ui.layout.Row
@@ -97,7 +97,7 @@ class SelectionControlsActivity : MaterialDemoActivity() {
         val textStyle = +themeTextStyle { subtitle1 }
 
         RadioGroup {
-            Row(mainAxisSize = FlexSize.Wrap) {
+            Row(mainAxisSize = LayoutSize.Wrap) {
                 radioOptions.forEach { text ->
                     val selected = text == selectedOption
                     RadioGroupItem(
@@ -152,7 +152,7 @@ class SelectionControlsActivity : MaterialDemoActivity() {
     fun SwitchDemo() {
         Row(
             mainAxisAlignment = MainAxisAlignment.SpaceAround,
-            mainAxisSize = FlexSize.Wrap
+            mainAxisSize = LayoutSize.Wrap
         ) {
             val (checked, onChecked) = +state { false }
             val (checked2, onChecked2) = +state { false }
@@ -169,7 +169,7 @@ class SelectionControlsActivity : MaterialDemoActivity() {
     fun RadioButtonDemo() {
         Row(
             mainAxisAlignment = MainAxisAlignment.SpaceAround,
-            mainAxisSize = FlexSize.Wrap
+            mainAxisSize = LayoutSize.Wrap
         ) {
             RadioButton(selected = true, onSelect = null)
             RadioButton(selected = false, onSelect = null)

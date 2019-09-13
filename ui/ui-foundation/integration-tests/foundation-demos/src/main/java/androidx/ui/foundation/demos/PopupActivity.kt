@@ -48,8 +48,8 @@ import androidx.ui.layout.Container
 import androidx.ui.layout.DpConstraints
 import androidx.ui.layout.EdgeInsets
 import androidx.ui.layout.FlexRow
-import androidx.ui.layout.FlexSize
 import androidx.ui.layout.HeightSpacer
+import androidx.ui.layout.LayoutSize
 import androidx.ui.layout.MainAxisAlignment
 import androidx.ui.layout.Wrap
 import androidx.ui.graphics.Paint
@@ -65,9 +65,9 @@ class PopupActivity : Activity() {
             val exampleIndex = +state { 0 }
             val totalExamples = 8
 
-            Column(mainAxisSize = FlexSize.Wrap) {
+            Column(mainAxisSize = LayoutSize.Wrap) {
                 FlexRow(
-                    mainAxisSize = FlexSize.Expand,
+                    mainAxisSize = LayoutSize.Expand,
                     mainAxisAlignment = MainAxisAlignment.SpaceBetween
                 ) {
                     inflexible {
