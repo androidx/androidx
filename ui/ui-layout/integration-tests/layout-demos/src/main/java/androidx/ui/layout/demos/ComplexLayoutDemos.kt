@@ -58,7 +58,7 @@ import androidx.ui.layout.AspectRatio
 import androidx.ui.layout.Container
 import androidx.ui.layout.CrossAxisAlignment
 import androidx.ui.layout.EdgeInsets
-import androidx.ui.layout.FlexSize
+import androidx.ui.layout.LayoutSize
 import androidx.ui.layout.Wrap
 import androidx.ui.layout.samples.DrawRectangle
 import androidx.ui.layout.samples.SizedRectangle
@@ -397,7 +397,7 @@ fun PositionUsingAlignmentLine() {
 fun RowBaselineAlignment() {
     Row(crossAxisAlignment = CrossAxisAlignment.AlignmentLine(FirstBaseline)) {
         Text("First text")
-        Column(mainAxisSize = FlexSize.Wrap) {
+        Column(mainAxisSize = LayoutSize.Wrap) {
             SizedRectangle(Color.Blue, width = 10.dp, height = 50.dp)
             Padding(30.dp) {
                 Text("Second text", style = TextStyle(fontSize = 45.sp))

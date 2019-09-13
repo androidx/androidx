@@ -121,15 +121,22 @@ package androidx.ui.layout {
 
   public final class FlexKt {
     ctor public FlexKt();
-    method public static void Column(androidx.ui.layout.MainAxisAlignment mainAxisAlignment = MainAxisAlignment.Start, androidx.ui.layout.FlexSize mainAxisSize = FlexSize.Expand, androidx.ui.layout.CrossAxisAlignment crossAxisAlignment = CrossAxisAlignment.Start, androidx.ui.layout.FlexSize crossAxisSize = FlexSize.Wrap, kotlin.jvm.functions.Function0<kotlin.Unit> block);
-    method public static void FlexColumn(androidx.ui.layout.MainAxisAlignment mainAxisAlignment = MainAxisAlignment.Start, androidx.ui.layout.FlexSize mainAxisSize = FlexSize.Expand, androidx.ui.layout.CrossAxisAlignment crossAxisAlignment = CrossAxisAlignment.Start, androidx.ui.layout.FlexSize crossAxisSize = FlexSize.Wrap, kotlin.jvm.functions.Function1<? super androidx.ui.layout.FlexChildren,kotlin.Unit> block);
-    method public static void FlexRow(androidx.ui.layout.MainAxisAlignment mainAxisAlignment = MainAxisAlignment.Start, androidx.ui.layout.FlexSize mainAxisSize = FlexSize.Expand, androidx.ui.layout.CrossAxisAlignment crossAxisAlignment = CrossAxisAlignment.Start, androidx.ui.layout.FlexSize crossAxisSize = FlexSize.Wrap, kotlin.jvm.functions.Function1<? super androidx.ui.layout.FlexChildren,kotlin.Unit> block);
-    method public static void Row(androidx.ui.layout.MainAxisAlignment mainAxisAlignment = MainAxisAlignment.Start, androidx.ui.layout.FlexSize mainAxisSize = FlexSize.Expand, androidx.ui.layout.CrossAxisAlignment crossAxisAlignment = CrossAxisAlignment.Start, androidx.ui.layout.FlexSize crossAxisSize = FlexSize.Wrap, kotlin.jvm.functions.Function0<kotlin.Unit> block);
+    method public static void Column(androidx.ui.layout.MainAxisAlignment mainAxisAlignment = MainAxisAlignment.Start, androidx.ui.layout.LayoutSize mainAxisSize = LayoutSize.Expand, androidx.ui.layout.CrossAxisAlignment crossAxisAlignment = CrossAxisAlignment.Start, androidx.ui.layout.LayoutSize crossAxisSize = LayoutSize.Wrap, kotlin.jvm.functions.Function0<kotlin.Unit> block);
+    method public static void FlexColumn(androidx.ui.layout.MainAxisAlignment mainAxisAlignment = MainAxisAlignment.Start, androidx.ui.layout.LayoutSize mainAxisSize = LayoutSize.Expand, androidx.ui.layout.CrossAxisAlignment crossAxisAlignment = CrossAxisAlignment.Start, androidx.ui.layout.LayoutSize crossAxisSize = LayoutSize.Wrap, kotlin.jvm.functions.Function1<? super androidx.ui.layout.FlexChildren,kotlin.Unit> block);
+    method public static void FlexRow(androidx.ui.layout.MainAxisAlignment mainAxisAlignment = MainAxisAlignment.Start, androidx.ui.layout.LayoutSize mainAxisSize = LayoutSize.Expand, androidx.ui.layout.CrossAxisAlignment crossAxisAlignment = CrossAxisAlignment.Start, androidx.ui.layout.LayoutSize crossAxisSize = LayoutSize.Wrap, kotlin.jvm.functions.Function1<? super androidx.ui.layout.FlexChildren,kotlin.Unit> block);
+    method public static void Row(androidx.ui.layout.MainAxisAlignment mainAxisAlignment = MainAxisAlignment.Start, androidx.ui.layout.LayoutSize mainAxisSize = LayoutSize.Expand, androidx.ui.layout.CrossAxisAlignment crossAxisAlignment = CrossAxisAlignment.Start, androidx.ui.layout.LayoutSize crossAxisSize = LayoutSize.Wrap, kotlin.jvm.functions.Function0<kotlin.Unit> block);
   }
 
-  public enum FlexSize {
-    enum_constant public static final androidx.ui.layout.FlexSize Expand;
-    enum_constant public static final androidx.ui.layout.FlexSize Wrap;
+  public enum FlowCrossAxisAlignment {
+    enum_constant public static final androidx.ui.layout.FlowCrossAxisAlignment Center;
+    enum_constant public static final androidx.ui.layout.FlowCrossAxisAlignment End;
+    enum_constant public static final androidx.ui.layout.FlowCrossAxisAlignment Start;
+  }
+
+  public final class FlowKt {
+    ctor public FlowKt();
+    method public static void FlowColumn(androidx.ui.layout.LayoutSize mainAxisSize = LayoutSize.Expand, androidx.ui.layout.MainAxisAlignment mainAxisAlignment = FlowMainAxisAlignment.Start, androidx.ui.core.Dp mainAxisSpacing = 0.dp, androidx.ui.layout.FlowCrossAxisAlignment crossAxisAlignment = FlowCrossAxisAlignment.Start, androidx.ui.core.Dp crossAxisSpacing = 0.dp, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method public static void FlowRow(androidx.ui.layout.LayoutSize mainAxisSize = LayoutSize.Expand, androidx.ui.layout.MainAxisAlignment mainAxisAlignment = FlowMainAxisAlignment.Start, androidx.ui.core.Dp mainAxisSpacing = 0.dp, androidx.ui.layout.FlowCrossAxisAlignment crossAxisAlignment = FlowCrossAxisAlignment.Start, androidx.ui.core.Dp crossAxisSpacing = 0.dp, kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
 
   public final class IntrinsicKt {
@@ -138,6 +145,11 @@ package androidx.ui.layout {
     method public static void MaxIntrinsicWidth(kotlin.jvm.functions.Function0<kotlin.Unit> children);
     method public static void MinIntrinsicHeight(kotlin.jvm.functions.Function0<kotlin.Unit> children);
     method public static void MinIntrinsicWidth(kotlin.jvm.functions.Function0<kotlin.Unit> children);
+  }
+
+  public enum LayoutSize {
+    enum_constant public static final androidx.ui.layout.LayoutSize Expand;
+    enum_constant public static final androidx.ui.layout.LayoutSize Wrap;
   }
 
   public enum MainAxisAlignment {

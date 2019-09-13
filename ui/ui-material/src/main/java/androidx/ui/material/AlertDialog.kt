@@ -29,7 +29,7 @@ import androidx.ui.layout.Column
 import androidx.ui.layout.Container
 import androidx.ui.layout.CrossAxisAlignment
 import androidx.ui.layout.EdgeInsets
-import androidx.ui.layout.FlexSize
+import androidx.ui.layout.LayoutSize
 import androidx.ui.layout.HeightSpacer
 import androidx.ui.layout.MainAxisAlignment
 import androidx.ui.layout.Row
@@ -81,7 +81,7 @@ fun AlertDialog(
         MaterialTheme(colors = currentColors, typography = currentTypography) {
             Surface(shape = AlertDialogShape) {
                 Container(width = AlertDialogWidth) {
-                    Column(mainAxisSize = FlexSize.Wrap,
+                    Column(mainAxisSize = LayoutSize.Wrap,
                         crossAxisAlignment = CrossAxisAlignment.Start) {
                         if (title != null) {
                             Container(
@@ -140,7 +140,7 @@ private fun AlertDialogButtonLayout(
         if (buttonLayout == AlertDialogButtonLayout.SideBySide) {
             Row(
                 mainAxisAlignment = MainAxisAlignment.End,
-                mainAxisSize = FlexSize.Wrap
+                mainAxisSize = LayoutSize.Wrap
             ) {
                 if (dismissButton != null) {
                     dismissButton()
