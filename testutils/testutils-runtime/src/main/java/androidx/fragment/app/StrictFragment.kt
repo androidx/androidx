@@ -19,7 +19,6 @@ package androidx.fragment.app
 import android.content.Context
 import android.os.Bundle
 import androidx.annotation.LayoutRes
-import com.google.common.truth.Truth.assertWithMessage
 
 /**
  * This fragment watches its primary lifecycle events and throws IllegalStateException
@@ -46,9 +45,9 @@ open class StrictFragment(@LayoutRes contentLayoutId: Int = 0) : Fragment(conten
     }
 
     fun checkGetActivity() {
-        assertWithMessage("getActivity() returned null at unexpected time")
-            .that(activity)
-            .isNotNull()
+        checkNotNull(activity) {
+            "getActivity() returned null at unexpected time"
+        }
     }
 
     fun checkState(caller: String, vararg expected: State) {

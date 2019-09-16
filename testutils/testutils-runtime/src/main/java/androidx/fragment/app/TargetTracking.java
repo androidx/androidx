@@ -18,10 +18,29 @@ package androidx.fragment.app;
 import android.graphics.Rect;
 import android.view.View;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import java.util.ArrayList;
 
+/**
+ * Used in testing to keep track of view Targets
+ */
 public interface TargetTracking {
+    /**
+     * Return tracked targets in a list
+     */
+    @NonNull
     ArrayList<View> getTrackedTargets();
+
+    /**
+     * Clear all tracked targets
+     */
     void clearTargets();
+
+    /**
+     * Get the captured epicenter.
+     */
+    @Nullable
     Rect getCapturedEpicenter();
 }
