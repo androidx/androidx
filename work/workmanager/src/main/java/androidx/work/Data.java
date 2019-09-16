@@ -30,6 +30,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -475,6 +476,26 @@ public final class Data {
     @Override
     public int hashCode() {
         return 31 * mValues.hashCode();
+    }
+
+    @NonNull
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder("Data {");
+        if (!mValues.isEmpty()) {
+            for (String key : mValues.keySet()) {
+                sb.append(key).append(" : ");
+                Object value = mValues.get(key);
+                if (value instanceof Object[]) {
+                    sb.append(Arrays.toString((Object[]) value));
+                } else {
+                    sb.append(value);
+                }
+                sb.append(", ");
+            }
+        }
+        sb.append("}");
+        return sb.toString();
     }
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
