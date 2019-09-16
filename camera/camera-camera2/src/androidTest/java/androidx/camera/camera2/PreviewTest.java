@@ -27,8 +27,6 @@ import android.content.Context;
 import android.graphics.Rect;
 import android.graphics.SurfaceTexture;
 import android.os.Build;
-import android.os.Handler;
-import android.os.Looper;
 import android.util.Size;
 import android.view.Surface;
 
@@ -65,7 +63,6 @@ import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;
-import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -415,45 +412,6 @@ public final class PreviewTest {
                 .isEqualTo(latestPreviewOutput.get().getSurfaceTexture());
         assertThat(initialOutput.getRotationDegrees())
                 .isNotEqualTo(latestPreviewOutput.get().getRotationDegrees());
-    }
-
-    // Must not run on main thread
-    @FlakyTest
-    @Test
-    public void previewOutput_isResetByReleasedSurface()
-            throws InterruptedException, ExecutionException {
-        final Preview useCase = new Preview(mDefaultConfig);
-        Handler mainHandler = new Handler(Looper.getMainLooper());
-        final Semaphore semaphore = new Semaphore(0);
-
-        mainHandler.post(
-                new Runnable() {
-                    @Override
-                    public void run() {
-                        useCase.updateSuggestedResolution(
-                                Collections.singletonMap(mCameraId, DEFAULT_RESOLUTION));
-
-                        useCase.setOnPreviewOutputUpdateListener(
-                                new Preview.OnPreviewOutputUpdateListener() {
-                                    @Override
-                                    public void onUpdated(@NonNull PreviewOutput previewOutput) {
-                                        // Release the surface texture
-                                        previewOutput.getSurfaceTexture().release();
-
-                                        semaphore.release();
-                                    }
-                                });
-                    }
-                });
-
-        // Wait for the surface texture to be released
-        semaphore.acquire();
-
-        // Cause the surface to reset
-        useCase.getSessionConfig(mCameraId).getSurfaces().get(0).getSurface().get();
-
-        // Wait for the surface to reset
-        semaphore.acquire();
     }
 
     @Test
