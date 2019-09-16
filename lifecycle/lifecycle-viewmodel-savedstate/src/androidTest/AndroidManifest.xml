@@ -20,7 +20,7 @@
 
     <application>
         <activity
-            android:name="androidx.lifecycle.viewmodel.savedstate.activity.FakingSavedStateActivity"/>
+            android:name="androidx.lifecycle.viewmodel.savedstate.FakingSavedStateActivity"/>
         <activity
             android:name="androidx.lifecycle.viewmodel.savedstate.SavedStateFactoryTest$MyActivity"/>
     </application>
