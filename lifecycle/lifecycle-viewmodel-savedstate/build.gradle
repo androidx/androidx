@@ -40,10 +40,14 @@ dependencies {
 
     androidTestImplementation project(":fragment:fragment"), {
         exclude group: 'androidx.lifecycle', module: 'lifecycle-viewmodel-savedstate'
+        exclude group: 'androidx.lifecycle', module: 'lifecycle-viewmodel'
+    }
+    androidTestImplementation project(":internal-testutils-runtime"), {
+        exclude group: 'androidx.lifecycle', module: 'lifecycle-viewmodel-savedstate'
+        exclude group: 'androidx.lifecycle', module: 'lifecycle-viewmodel'
     }
     androidTestImplementation(TRUTH)
     androidTestImplementation(KOTLIN_STDLIB)
-    androidTestImplementation(ESPRESSO_CORE)
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
     androidTestImplementation(ANDROIDX_TEST_CORE)
     androidTestImplementation(ANDROIDX_TEST_RUNNER)
