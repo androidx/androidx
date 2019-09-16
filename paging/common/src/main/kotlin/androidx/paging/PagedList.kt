@@ -19,7 +19,6 @@ package androidx.paging
 import androidx.annotation.IntRange
 import androidx.annotation.MainThread
 import androidx.annotation.RestrictTo
-import androidx.annotation.WorkerThread
 import androidx.paging.PagedList.Callback
 import androidx.paging.PagedList.Config
 import androidx.paging.PagedList.Config.Builder
@@ -167,7 +166,7 @@ abstract class PagedList<T : Any> internal constructor(
     companion object {
         /**
          * Create a [PagedList] which loads data from the provided data source on a background
-         * thread,posting updates to the main thread.
+         * thread, posting updates to the main thread.
          *
          * @param pagedSource [PagedSource] providing data to the [PagedList]
          * @param notifyDispatcher [CoroutineDispatcher] that will use and consume data from the
@@ -186,12 +185,12 @@ abstract class PagedList<T : Any> internal constructor(
          */
         @JvmStatic
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        suspend fun <K : Any, T : Any> create(
+        fun <K : Any, T : Any> create(
             pagedSource: PagedSource<K, T>,
+            initialPage: PagedSource.LoadResult.Page<K, T>?,
             coroutineScope: CoroutineScope,
             notifyDispatcher: CoroutineDispatcher,
             fetchDispatcher: CoroutineDispatcher,
-            initialFetchDispatcher: CoroutineDispatcher,
             boundaryCallback: BoundaryCallback<T>?,
             config: Config,
             key: K?
@@ -201,18 +200,29 @@ abstract class PagedList<T : Any> internal constructor(
                 else -> ContiguousPagedList.LAST_LOAD_UNSPECIFIED
             }
 
-            val params = PagedSource.LoadParams(
-                LoadType.REFRESH,
-                key,
-                config.initialLoadSizeHint,
-                config.enablePlaceholders,
-                config.pageSize
-            )
-
-            val initialResult = withContext(initialFetchDispatcher) {
-                pagedSource.load(params)
+            val resolvedInitialPage = when (initialPage) {
+                null -> {
+                    // Compatibility codepath - perform the initial load immediately, since caller
+                    // hasn't done it. We block in this case, but it's only used in the legacy path.
+                    val params = PagedSource.LoadParams(
+                        LoadType.REFRESH,
+                        key,
+                        config.initialLoadSizeHint,
+                        config.enablePlaceholders,
+                        config.pageSize
+                    )
+                    runBlocking {
+                        val initialResult = withContext(DirectDispatcher) {
+                            pagedSource.load(params)
+                        }
+                        when (initialResult) {
+                            is PagedSource.LoadResult.Page -> initialResult
+                            is PagedSource.LoadResult.Error -> throw initialResult.throwable
+                        }
+                    }
+                }
+                else -> initialPage
             }
-
             return ContiguousPagedList(
                 pagedSource,
                 coroutineScope,
@@ -220,7 +230,7 @@ abstract class PagedList<T : Any> internal constructor(
                 fetchDispatcher,
                 boundaryCallback,
                 config,
-                initialResult,
+                resolvedInitialPage,
                 lastLoad
             )
         }
@@ -275,6 +285,7 @@ abstract class PagedList<T : Any> internal constructor(
      */
     class Builder<Key : Any, Value : Any> {
         private val pagedSource: PagedSource<Key, Value>
+        private val initialPage: PagedSource.LoadResult.Page<Key, Value>?
         private val config: Config
         private var coroutineScope: CoroutineScope = GlobalScope
         private var notifyDispatcher: CoroutineDispatcher? = null
@@ -291,6 +302,7 @@ abstract class PagedList<T : Any> internal constructor(
         @Deprecated("DataSource is deprecated and has been replaced by PagedSource")
         constructor(dataSource: DataSource<Key, Value>, config: Config) {
             this.pagedSource = PagedSourceWrapper(dataSource)
+            this.initialPage = null
             this.config = config
         }
 
@@ -315,31 +327,49 @@ abstract class PagedList<T : Any> internal constructor(
         )
 
         /**
-         * Create a [PagedList.Builder] with the provided [PagedSource] and [Config].
+         * Create a [PagedList.Builder] with the provided [PagedSource],
+         * initial [PagedSource.LoadResult.Page], and [Config].
          *
          * @param pagedSource [PagedSource] the [PagedList] will load from.
+         * @param initialPage Initial page loaded from the [PagedSource].
          * @param config [Config] that defines how the [PagedList] loads data from its
          * [PagedSource].
          */
-        constructor(pagedSource: PagedSource<Key, Value>, config: Config) {
+        constructor(
+            pagedSource: PagedSource<Key, Value>,
+            initialPage: PagedSource.LoadResult.Page<Key, Value>,
+            config: Config
+        ) {
             this.pagedSource = pagedSource
+            this.initialPage = initialPage
             this.config = config
         }
 
         /**
-         * Create a [PagedList.Builder] with the provided [PagedSource] and page size.
+         * Create a [PagedList.Builder] with the provided [PagedSource],
+         * initial [PagedSource.LoadResult.Page], and page size.
          *
          * This method is a convenience for:
          * ```
-         * PagedList.Builder(pagedSource, PagedList.Config.Builder().setPageSize(pageSize).build())
+         * PagedList.Builder(
+         *     pagedSource,
+         *     page,
+         *     PagedList.Config.Builder().setPageSize(pageSize).build()
+         * )
          * ```
          *
          * @param pagedSource [PagedSource] the [PagedList] will load from.
+         * @param initialPage Initial page loaded from the [PagedSource].
          * @param pageSize [Config] that defines how the [PagedList] loads data from its
          * [PagedSource].
          */
-        constructor(pagedSource: PagedSource<Key, Value>, pageSize: Int) : this(
+        constructor(
+            pagedSource: PagedSource<Key, Value>,
+            initialPage: PagedSource.LoadResult.Page<Key, Value>,
+            pageSize: Int
+        ) : this(
             pagedSource,
+            initialPage,
             PagedList.Config.Builder().setPageSize(pageSize).build()
         )
 
@@ -450,6 +480,8 @@ abstract class PagedList<T : Any> internal constructor(
         /**
          * Creates a [PagedList] with the given parameters.
          *
+         * TODO DOCS
+         *
          * This call will dispatch the [androidx.paging.PagedSource]'s loadInitial method
          * immediately on the current thread, and block the current on the result. This method
          * should always be called on a worker thread to prevent blocking the main thread.
@@ -471,39 +503,13 @@ abstract class PagedList<T : Any> internal constructor(
          *
          * @return The newly constructed [PagedList]
          */
-        @WorkerThread
-        @Deprecated(
-            message = "This method has no means of handling errors encountered during initial " +
-                    "load, and blocks on the initial load result.",
-            replaceWith = ReplaceWith("buildAsync()")
-        )
-        fun build(): PagedList<Value> = runBlocking {
-            create(DirectDispatcher)
-        }
-
-        /**
-         * Creates a [PagedList] asynchronously with the given parameters.
-         *
-         * This call will dispatch [PagedSource.load] immediately with
-         * [LoadType.REFRESH], and return a [PagedList] once it completes, triggering
-         * [loadStateListeners].
-         *
-         * @throws IllegalArgumentException if [notifyDispatcher] or [fetchDispatcher] are not set.
-         *
-         * @return The newly constructed [PagedList]
-         */
-        @Suppress("unused") // Public API
-        suspend fun buildAsync(): PagedList<Value> {
-            return create(fetchDispatcher ?: Dispatchers.IO)
-        }
-
-        private suspend fun create(initialFetchDispatcher: CoroutineDispatcher): PagedList<Value> {
+        fun build(): PagedList<Value> {
             return create(
                 pagedSource,
+                initialPage,
                 coroutineScope,
                 notifyDispatcher ?: Dispatchers.Main.immediate,
                 fetchDispatcher ?: Dispatchers.IO,
-                initialFetchDispatcher,
                 boundaryCallback,
                 config,
                 initialKey

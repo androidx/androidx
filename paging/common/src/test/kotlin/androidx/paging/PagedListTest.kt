@@ -25,14 +25,13 @@ import androidx.paging.futures.DirectDispatcher
 import androidx.testutils.TestDispatcher
 import androidx.testutils.TestExecutor
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import kotlin.coroutines.EmptyCoroutineContext
-import kotlin.test.assertFails
+import kotlin.test.assertFailsWith
 
 @RunWith(JUnit4::class)
 class PagedListTest {
@@ -45,7 +44,7 @@ class PagedListTest {
 
             override suspend fun load(params: LoadParams<Int>): LoadResult<Int, String> =
                 when (params.loadType) {
-                    REFRESH -> LoadResult(
+                    REFRESH -> LoadResult.Page(
                         data = listOf("a"),
                         itemsBefore = 0,
                         itemsAfter = 0
@@ -71,78 +70,70 @@ class PagedListTest {
     }
 
     @Test
-    fun createAsync() {
-        val config = Config.Builder()
-            .setPageSize(10)
-            .setEnablePlaceholders(false)
-            .build()
-        var success = false
-
-        val job = testCoroutineScope.async(backgroundThread) {
-            val pagedList = PagedList.create(
-                PagedSourceWrapper(ListDataSource(ITEMS)),
-                testCoroutineScope,
-                mainThread,
-                backgroundThread,
-                backgroundThread,
-                null,
-                config,
-                0
-            )
-
-            assertEquals(ITEMS.subList(0, 30), pagedList)
-            success = true
+    fun createNoInitialPageThrow() {
+        runBlocking {
+            val pagedSource = object : PagedSource<Int, String>() {
+                override val keyProvider = KeyProvider.Positional
+                override suspend fun load(params: LoadParams<Int>): LoadResult<Int, String> {
+                    throw IllegalStateException()
+                }
+            }
+            assertFailsWith<IllegalStateException> {
+                PagedList.create(
+                    pagedSource,
+                    null,
+                    testCoroutineScope,
+                    DirectDispatcher,
+                    DirectDispatcher,
+                    null,
+                    Config(10),
+                    0
+                )
+            }
         }
-
-        backgroundThread.executeAll()
-        runBlocking { job.await() }
-
-        assert(success)
     }
 
     @Test
-    fun createAsyncThrow() {
-        val pagedSource = object : PagedSource<Int, String>() {
-            override val keyProvider = KeyProvider.Positional
-
-            override suspend fun load(params: LoadParams<Int>): LoadResult<Int, String> {
-                throw Exception()
+    fun createNoInitialPageError() {
+        runBlocking {
+            val exception = IllegalStateException()
+            val pagedSource = object : PagedSource<Int, String>() {
+                override val keyProvider = KeyProvider.Positional
+                override suspend fun load(params: LoadParams<Int>): LoadResult<Int, String> {
+                    return LoadResult.Error(exception)
+                }
             }
-        }
 
-        val config = Config.Builder()
-            .setPageSize(10)
-            .setEnablePlaceholders(false)
-            .build()
-        var success = false
-        assertFails {
-            val job = testCoroutineScope.async(backgroundThread) {
+            // create doesn't differentiate between throw vs error runnable, which is why
+            // PagedList.Builder without the initial page is deprecated
+            assertFailsWith<IllegalStateException> {
                 PagedList.create(
                     pagedSource,
-                    testCoroutineScope,
-                    mainThread,
-                    backgroundThread,
-                    backgroundThread,
                     null,
-                    config,
+                    testCoroutineScope,
+                    DirectDispatcher,
+                    DirectDispatcher,
+                    null,
+                    Config(10),
                     0
                 )
-
-                success = true
             }
-
-            backgroundThread.executeAll()
-            runBlocking { job.await() }
         }
-        assert(!success)
     }
 
     @Test
     fun defaults() = runBlocking {
-        val pagedList = Builder(pagedSource, config)
+        val initialPage = pagedSource.load(PagedSource.LoadParams(
+            REFRESH,
+            key = null,
+            loadSize = 10,
+            placeholdersEnabled = false,
+            pageSize = 10
+        )) as PagedSource.LoadResult.Page
+        val pagedList = Builder(pagedSource, initialPage, config)
             .setNotifyDispatcher(DirectDispatcher)
             .setFetchDispatcher(DirectDispatcher)
-            .buildAsync()
+            .build()
 
         assertEquals(pagedSource, pagedList.pagedSource)
         assertEquals(config, pagedList.config)

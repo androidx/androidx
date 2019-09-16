@@ -200,10 +200,9 @@ package androidx.paging {
   public static final class PagedList.Builder<Key, Value> {
     ctor @Deprecated public PagedList.Builder(androidx.paging.DataSource<Key,Value> dataSource, androidx.paging.PagedList.Config config);
     ctor @Deprecated public PagedList.Builder(androidx.paging.DataSource<Key,Value> dataSource, int pageSize);
-    ctor public PagedList.Builder(androidx.paging.PagedSource<Key,Value> pagedSource, androidx.paging.PagedList.Config config);
-    ctor public PagedList.Builder(androidx.paging.PagedSource<Key,Value> pagedSource, int pageSize);
-    method @Deprecated @WorkerThread public androidx.paging.PagedList<Value> build();
-    method public suspend Object buildAsync(kotlin.coroutines.Continuation<? super androidx.paging.PagedList<Value>> p);
+    ctor public PagedList.Builder(androidx.paging.PagedSource<Key,Value> pagedSource, androidx.paging.PagedSource.LoadResult.Page<Key,Value> initialPage, androidx.paging.PagedList.Config config);
+    ctor public PagedList.Builder(androidx.paging.PagedSource<Key,Value> pagedSource, androidx.paging.PagedSource.LoadResult.Page<Key,Value> initialPage, int pageSize);
+    method public androidx.paging.PagedList<Value> build();
     method public androidx.paging.PagedList.Builder<Key,Value> setBoundaryCallback(androidx.paging.PagedList.BoundaryCallback<Value>? boundaryCallback);
     method public androidx.paging.PagedList.Builder<Key,Value> setCoroutineScope(kotlinx.coroutines.CoroutineScope coroutineScope);
     method public androidx.paging.PagedList.Builder<Key,Value> setFetchDispatcher(kotlinx.coroutines.CoroutineDispatcher fetchDispatcher);
@@ -292,24 +291,34 @@ package androidx.paging {
     method public boolean getPlaceholdersEnabled();
   }
 
-  public static final class PagedSource.LoadResult<Key, Value> {
-    ctor public PagedSource.LoadResult(java.util.List<? extends Value> data, @IntRange(from=null) int itemsBefore, @IntRange(from=null) int itemsAfter, Key? nextKey, Key? prevKey);
+  public abstract static sealed class PagedSource.LoadResult<Key, Value> {
+  }
+
+  public static final class PagedSource.LoadResult.Error<Key, Value> extends androidx.paging.PagedSource.LoadResult<Key,Value> {
+    ctor public PagedSource.LoadResult.Error(Throwable throwable);
+    method public Throwable component1();
+    method public androidx.paging.PagedSource.LoadResult.Error<Key,Value> copy(Throwable throwable);
+    method public Throwable getThrowable();
+  }
+
+  public static final class PagedSource.LoadResult.Page<Key, Value> extends androidx.paging.PagedSource.LoadResult<Key,Value> {
+    ctor public PagedSource.LoadResult.Page(java.util.List<? extends Value> data, @IntRange(from=null) int itemsBefore, @IntRange(from=null) int itemsAfter, Key? nextKey, Key? prevKey);
     method public java.util.List<Value> component1();
     method public int component2();
     method public int component3();
     method public Key? component4();
     method public Key? component5();
-    method public androidx.paging.PagedSource.LoadResult<Key,Value> copy(java.util.List<? extends Value> data, int itemsBefore, int itemsAfter, Key? nextKey, Key? prevKey);
+    method public androidx.paging.PagedSource.LoadResult.Page<Key,Value> copy(java.util.List<? extends Value> data, int itemsBefore, int itemsAfter, Key? nextKey, Key? prevKey);
     method public java.util.List<Value> getData();
     method public int getItemsAfter();
     method public int getItemsBefore();
     method public Key? getNextKey();
     method public Key? getPrevKey();
     field public static final int COUNT_UNDEFINED = -1; // 0xffffffff
-    field public static final androidx.paging.PagedSource.LoadResult.Companion! Companion;
+    field public static final androidx.paging.PagedSource.LoadResult.Page.Companion! Companion;
   }
 
-  public static final class PagedSource.LoadResult.Companion {
+  public static final class PagedSource.LoadResult.Page.Companion {
   }
 
   public final class PagedSourceKt {

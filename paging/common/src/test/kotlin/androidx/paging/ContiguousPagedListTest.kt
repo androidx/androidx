@@ -28,7 +28,6 @@ import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
 import com.nhaarman.mockitokotlin2.verifyZeroInteractions
 import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertSame
 import org.junit.Assert.assertTrue
@@ -36,6 +35,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 import kotlin.test.assertFailsWith
+import kotlin.test.assertNotSame
 
 @RunWith(Parameterized::class)
 class ContiguousPagedListTest(private val placeholdersEnabled: Boolean) {
@@ -80,26 +80,26 @@ class ContiguousPagedListTest(private val placeholdersEnabled: Boolean) {
 
             val result = getClampedRange(start, start + params.loadSize)
             return when {
-                result == null -> throw EXCEPTION
-                placeholdersEnabled -> LoadResult(
+                result == null -> LoadResult.Error(EXCEPTION)
+                placeholdersEnabled -> LoadResult.Page(
                     data = result,
                     itemsBefore = start,
                     itemsAfter = listData.size - result.size - start
                 )
-                else -> LoadResult(result)
+                else -> LoadResult.Page(result)
             }
         }
 
         private fun loadAfter(params: LoadParams<Int>): LoadResult<Int, Item> {
             val result = getClampedRange(params.key!! + 1, params.key!! + 1 + params.loadSize)
-                ?: throw EXCEPTION
-            return LoadResult(result)
+                ?: return LoadResult.Error(EXCEPTION)
+            return LoadResult.Page(result)
         }
 
         private fun loadBefore(params: LoadParams<Int>): LoadResult<Int, Item> {
             val result = getClampedRange(params.key!! - params.loadSize, params.key!!)
-                ?: throw EXCEPTION
-            return LoadResult(result)
+                ?: return LoadResult.Error(EXCEPTION)
+            return LoadResult.Page(result)
         }
 
         private fun getClampedRange(startInc: Int, endExc: Int): List<Item>? {
@@ -119,6 +119,7 @@ class ContiguousPagedListTest(private val placeholdersEnabled: Boolean) {
 
     private fun <E> MutableList<E>.getAllAndClear(): List<E> {
         val data = this.toList()
+        assertNotSame(data, this)
         this.clear()
         return data
     }
@@ -170,28 +171,22 @@ class ContiguousPagedListTest(private val placeholdersEnabled: Boolean) {
         boundaryCallback: BoundaryCallback<Item>? = null,
         maxSize: Int = Config.MAX_SIZE_UNBOUNDED,
         pagedSource: PagedSource<Int, Item> = TestPagedSource(listData)
-    ): ContiguousPagedList<Int, Item> {
-        val ret = runBlocking {
-            PagedList.create(
-                pagedSource,
-                GlobalScope,
-                mainThread,
-                backgroundThread,
-                DirectDispatcher,
-                boundaryCallback,
-                Config.Builder()
-                    .setPageSize(pageSize)
-                    .setInitialLoadSizeHint(initLoadSize)
-                    .setPrefetchDistance(prefetchDistance)
-                    .setMaxSize(maxSize)
-                    .setEnablePlaceholders(placeholdersEnabled)
-                    .build(),
-                initialPosition
-            )
-        }
-        @Suppress("UNCHECKED_CAST")
-        return ret as ContiguousPagedList<Int, Item>
-    }
+    ): PagedList<Item> = PagedList.create(
+        pagedSource,
+        null,
+        GlobalScope,
+        mainThread,
+        backgroundThread,
+        boundaryCallback,
+        Config.Builder()
+            .setPageSize(pageSize)
+            .setInitialLoadSizeHint(initLoadSize)
+            .setPrefetchDistance(prefetchDistance)
+            .setMaxSize(maxSize)
+            .setEnablePlaceholders(placeholdersEnabled)
+            .build(),
+        initialPosition
+    )
 
     @Test
     fun construct() {
@@ -206,18 +201,16 @@ class ContiguousPagedListTest(private val placeholdersEnabled: Boolean) {
         @Suppress("DEPRECATION")
         assertFailsWith<IllegalStateException> { pagedListWithPagedSource.dataSource }
 
-        val pagedListWithDataSource = runBlocking {
-            PagedList.create(
-                PagedSourceWrapper(ItemDataSource()),
-                GlobalScope,
-                FailDispatcher(),
-                DirectDispatcher,
-                DirectDispatcher,
-                null,
-                Config.Builder().setPageSize(10).build(),
-                null
-            )
-        }
+        val pagedListWithDataSource = PagedList.create(
+            PagedSourceWrapper(ItemDataSource()),
+            null,
+            GlobalScope,
+            FailDispatcher(),
+            DirectDispatcher,
+            null,
+            Config.Builder().setPageSize(10).build(),
+            null
+        )
 
         @Suppress("DEPRECATION")
         assertTrue(pagedListWithDataSource.dataSource is ItemDataSource)

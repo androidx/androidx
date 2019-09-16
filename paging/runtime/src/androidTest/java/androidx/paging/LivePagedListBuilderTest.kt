@@ -120,11 +120,11 @@ class LivePagedListBuilderTest {
 
                 throwable?.let { error ->
                     throwable = null
-                    throw error
+                    return LoadResult.Error(error)
                 }
 
                 val data = listOf("a", "b")
-                return LoadResult(
+                return LoadResult.Page(
                     data = data,
                     itemsBefore = 0,
                     itemsAfter = 4 - data.size
@@ -132,7 +132,7 @@ class LivePagedListBuilderTest {
             }
 
             private fun loadRange(): LoadResult<Int, String> {
-                return LoadResult(listOf("c", "d"))
+                return LoadResult.Page(listOf("c", "d"))
             }
         }
     }
