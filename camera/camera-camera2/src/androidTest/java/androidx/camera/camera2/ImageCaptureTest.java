@@ -230,7 +230,8 @@ public final class ImageCaptureTest {
         ImageCapture useCase = new ImageCapture(config);
         Map<String, Size> suggestedResolutionMap = new HashMap<>();
         suggestedResolutionMap.put(mCameraId, DEFAULT_RESOLUTION);
-        useCase.updateSuggestedResolution(suggestedResolutionMap);
+        mInstrumentation.runOnMainSync(
+                () -> useCase.updateSuggestedResolution(suggestedResolutionMap));
         CameraUtil.openCameraWithUseCase(mCameraId, mCamera, useCase, mRepeatingUseCase);
         useCase.addStateChangeListener(mCamera);
 
@@ -248,7 +249,8 @@ public final class ImageCaptureTest {
         ImageCapture useCase = new ImageCapture(mDefaultConfig);
         Map<String, Size> suggestedResolutionMap = new HashMap<>();
         suggestedResolutionMap.put(mCameraId, DEFAULT_RESOLUTION);
-        useCase.updateSuggestedResolution(suggestedResolutionMap);
+        mInstrumentation.runOnMainSync(
+                () -> useCase.updateSuggestedResolution(suggestedResolutionMap));
         CameraUtil.openCameraWithUseCase(mCameraId, mCamera, useCase, mRepeatingUseCase);
         useCase.addStateChangeListener(mCamera);
 
@@ -284,7 +286,8 @@ public final class ImageCaptureTest {
         ImageCapture useCase = new ImageCapture(config);
         Map<String, Size> suggestedResolutionMap = new HashMap<>();
         suggestedResolutionMap.put(mCameraId, DEFAULT_RESOLUTION);
-        useCase.updateSuggestedResolution(suggestedResolutionMap);
+        mInstrumentation.runOnMainSync(
+                () -> useCase.updateSuggestedResolution(suggestedResolutionMap));
         CameraUtil.openCameraWithUseCase(mCameraId, mCamera, useCase, mRepeatingUseCase);
         useCase.addStateChangeListener(mCamera);
 
@@ -316,7 +319,8 @@ public final class ImageCaptureTest {
         ImageCapture useCase = new ImageCapture(mDefaultConfig);
         Map<String, Size> suggestedResolutionMap = new HashMap<>();
         suggestedResolutionMap.put(mCameraId, DEFAULT_RESOLUTION);
-        useCase.updateSuggestedResolution(suggestedResolutionMap);
+        mInstrumentation.runOnMainSync(
+                () -> useCase.updateSuggestedResolution(suggestedResolutionMap));
         CameraUtil.openCameraWithUseCase(mCameraId, mCamera, useCase, mRepeatingUseCase);
         useCase.addStateChangeListener(mCamera);
 
@@ -336,7 +340,8 @@ public final class ImageCaptureTest {
         ImageCapture useCase = new ImageCapture(mDefaultConfig);
         Map<String, Size> suggestedResolutionMap = new HashMap<>();
         suggestedResolutionMap.put(mCameraId, DEFAULT_RESOLUTION);
-        useCase.updateSuggestedResolution(suggestedResolutionMap);
+        mInstrumentation.runOnMainSync(
+                () -> useCase.updateSuggestedResolution(suggestedResolutionMap));
         CameraUtil.openCameraWithUseCase(mCameraId, mCamera, useCase, mRepeatingUseCase);
         useCase.addStateChangeListener(mCamera);
 
@@ -364,7 +369,8 @@ public final class ImageCaptureTest {
         ImageCapture useCase = new ImageCapture(createNonRotatedConfiguration());
         Map<String, Size> suggestedResolutionMap = new HashMap<>();
         suggestedResolutionMap.put(mCameraId, DEFAULT_RESOLUTION);
-        useCase.updateSuggestedResolution(suggestedResolutionMap);
+        mInstrumentation.runOnMainSync(
+                () -> useCase.updateSuggestedResolution(suggestedResolutionMap));
         CameraUtil.openCameraWithUseCase(mCameraId, mCamera, useCase, mRepeatingUseCase);
         useCase.addStateChangeListener(mCamera);
 
@@ -390,7 +396,8 @@ public final class ImageCaptureTest {
         ImageCapture useCase = new ImageCapture(createNonRotatedConfiguration());
         Map<String, Size> suggestedResolutionMap = new HashMap<>();
         suggestedResolutionMap.put(mCameraId, DEFAULT_RESOLUTION);
-        useCase.updateSuggestedResolution(suggestedResolutionMap);
+        mInstrumentation.runOnMainSync(
+                () -> useCase.updateSuggestedResolution(suggestedResolutionMap));
         CameraUtil.openCameraWithUseCase(mCameraId, mCamera, useCase, mRepeatingUseCase);
         useCase.addStateChangeListener(mCamera);
 
@@ -413,7 +420,8 @@ public final class ImageCaptureTest {
         ImageCapture useCase = new ImageCapture(mDefaultConfig);
         Map<String, Size> suggestedResolutionMap = new HashMap<>();
         suggestedResolutionMap.put(mCameraId, DEFAULT_RESOLUTION);
-        useCase.updateSuggestedResolution(suggestedResolutionMap);
+        mInstrumentation.runOnMainSync(
+                () -> useCase.updateSuggestedResolution(suggestedResolutionMap));
         CameraUtil.openCameraWithUseCase(mCameraId, mCamera, useCase, mRepeatingUseCase);
         useCase.addStateChangeListener(mCamera);
 
@@ -437,7 +445,8 @@ public final class ImageCaptureTest {
         ImageCapture useCase = new ImageCapture(mDefaultConfig);
         Map<String, Size> suggestedResolutionMap = new HashMap<>();
         suggestedResolutionMap.put(mCameraId, DEFAULT_RESOLUTION);
-        useCase.updateSuggestedResolution(suggestedResolutionMap);
+        mInstrumentation.runOnMainSync(
+                () -> useCase.updateSuggestedResolution(suggestedResolutionMap));
         CameraUtil.openCameraWithUseCase(mCameraId, mCamera, useCase, mRepeatingUseCase);
         useCase.addStateChangeListener(mCamera);
 
@@ -460,7 +469,8 @@ public final class ImageCaptureTest {
         ImageCapture useCase = new ImageCapture(mDefaultConfig);
         Map<String, Size> suggestedResolutionMap = new HashMap<>();
         suggestedResolutionMap.put(mCameraId, DEFAULT_RESOLUTION);
-        useCase.updateSuggestedResolution(suggestedResolutionMap);
+        mInstrumentation.runOnMainSync(
+                () -> useCase.updateSuggestedResolution(suggestedResolutionMap));
         CameraUtil.openCameraWithUseCase(mCameraId, mCamera, useCase, mRepeatingUseCase);
         useCase.addStateChangeListener(mCamera);
 
@@ -512,7 +522,8 @@ public final class ImageCaptureTest {
         ImageCapture useCase = new ImageCapture(configBuilder.build());
         Map<String, Size> suggestedResolutionMap = new HashMap<>();
         suggestedResolutionMap.put(mCameraId, DEFAULT_RESOLUTION);
-        useCase.updateSuggestedResolution(suggestedResolutionMap);
+        mInstrumentation.runOnMainSync(
+                () -> useCase.updateSuggestedResolution(suggestedResolutionMap));
         CameraUtil.openCameraWithUseCase(mCameraId, mCamera, useCase, mRepeatingUseCase);
         useCase.addStateChangeListener(mCamera);
 
@@ -556,7 +567,8 @@ public final class ImageCaptureTest {
         ImageCapture useCase = new ImageCapture(config);
         Map<String, Size> suggestedResolutionMap = new HashMap<>();
         suggestedResolutionMap.put(mCameraId, resolution);
-        useCase.updateSuggestedResolution(suggestedResolutionMap);
+        mInstrumentation.runOnMainSync(
+                () -> useCase.updateSuggestedResolution(suggestedResolutionMap));
         CameraUtil.openCameraWithUseCase(mCameraId, mCamera, useCase, mRepeatingUseCase);
         useCase.addStateChangeListener(mCamera);
 
