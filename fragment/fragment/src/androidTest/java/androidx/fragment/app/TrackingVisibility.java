@@ -22,6 +22,8 @@ import android.transition.Visibility;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.annotation.NonNull;
+
 import java.util.ArrayList;
 
 /**
@@ -58,6 +60,7 @@ public class TrackingVisibility extends Visibility implements TargetTracking {
         return null;
     }
 
+    @NonNull
     @Override
     public ArrayList<View> getTrackedTargets() {
         return targets;

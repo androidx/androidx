@@ -238,7 +238,7 @@ class FragmentAnimationTest {
         activityRule.executePendingTransactions(parent.childFragmentManager)
 
         val childContainer = child.mContainer
-        val childView = child.mView
+        val childView = child.requireView()
 
         fm.beginTransaction()
             .setCustomAnimations(ENTER, EXIT, POP_ENTER, POP_EXIT)
@@ -276,10 +276,10 @@ class FragmentAnimationTest {
         activityRule.executePendingTransactions(child.childFragmentManager)
 
         val childContainer = child.mContainer
-        val childView = child.mView
+        val childView = child.requireView()
 
         val grandChildContainer = grandChild.mContainer
-        val grandChildView = grandChild.mView
+        val grandChildView = grandChild.requireView()
 
         fm.beginTransaction()
             .setCustomAnimations(ENTER, EXIT, POP_ENTER, POP_EXIT)
