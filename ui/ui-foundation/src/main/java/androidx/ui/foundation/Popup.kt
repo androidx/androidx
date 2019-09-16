@@ -17,13 +17,13 @@
 package androidx.ui.foundation
 
 import android.app.Activity
-import android.graphics.Color
-import android.graphics.drawable.ColorDrawable
+import android.graphics.PixelFormat
 import android.view.Gravity
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
+import android.view.WindowManager
 import android.widget.FrameLayout
-import android.widget.PopupWindow
 import androidx.compose.Composable
 import androidx.compose.Compose
 import androidx.compose.Context
@@ -64,36 +64,49 @@ import androidx.ui.layout.Alignment
  */
 @Composable
 fun Popup(
-    alignment: Alignment,
+    alignment: Alignment = Alignment.TopLeft,
     offset: IntPxPosition = IntPxPosition(IntPx.Zero, IntPx.Zero),
     popupProperties: PopupProperties = PopupProperties(),
+    children: @Composable() () -> Unit
+) {
+    // Memoize the object, but change the value of the properties if a recomposition happens
+    val popupPositionProperties = +memo {
+        PopupPositionProperties(
+            alignment = alignment,
+            offset = offset
+        )
+    }
+    popupPositionProperties.alignment = alignment
+    popupPositionProperties.offset = offset
+
+    Popup(
+        popupProperties = popupProperties,
+        popupPositionProperties = popupPositionProperties,
+        calculatePopupPosition = { calculatePopupGlobalPosition(it) },
+        children = children
+    )
+}
+
+@Composable
+private fun Popup(
+    popupProperties: PopupProperties,
+    popupPositionProperties: PopupPositionProperties,
+    calculatePopupPosition: ((PopupPositionProperties) -> IntPxPosition),
     children: @Composable() () -> Unit
 ) {
     val context = +ambient(ContextAmbient)
     // TODO(b/139866476): Decide if we want to expose the AndroidComposeView
     val composeView = +ambient(AndroidComposeViewAmbient)
 
-    val popupPositionProperties = +memo {
-        PopupPositionProperties(
-            alignment = alignment,
-            offset = offset,
-            composeView = composeView
+    val popupLayout = +memo(popupProperties) {
+        PopupLayout(
+            context = context,
+            composeView = composeView,
+            popupProperties = popupProperties,
+            popupPositionProperties = popupPositionProperties,
+            calculatePopupPosition = calculatePopupPosition
         )
     }
-    popupPositionProperties.alignment = alignment
-    popupPositionProperties.offset = offset
-
-    val frameLayout = +memo { FrameLayout(context) }
-    val popup = +memo {
-        PopupWrapper(context).apply {
-            contentView = frameLayout
-            setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-        }
-    }
-
-    // Set popup properties
-    popup.isFocusable = popupProperties.isFocusable
-    popup.onDismissRequest = popupProperties.onDismissRequest
 
     // Get the parent's global position and size
     OnPositioned { coordinates ->
@@ -101,17 +114,21 @@ fun Popup(
         val layoutPosition = coordinates.localToGlobal(PxPosition.Origin)
         val layoutSize = coordinates.size
 
-        popupPositionProperties.parentPosition = layoutPosition
-        popupPositionProperties.parentSize = layoutSize
+        popupLayout.popupPositionProperties.parentPosition = layoutPosition
+        popupLayout.popupPositionProperties.parentSize = layoutSize
 
-        updatePopup(popup, popupPositionProperties)
+        // Update the popup's position
+        popupLayout.updatePosition()
     }
 
     +onCommit {
-        frameLayout.setContent {
+        popupLayout.setContent {
             OnChildPositioned({
-                popupPositionProperties.childrenSize = it.size
-                updatePopup(popup, popupPositionProperties)
+                // Get the size of the content
+                popupLayout.popupPositionProperties.childrenSize = it.size
+
+                // Update the popup's position
+                popupLayout.updatePosition()
             }) {
                 children()
             }
@@ -119,23 +136,117 @@ fun Popup(
     }
 
     +onDispose {
-        frameLayout.disposeComposition()
-        // Call the dismiss method of the PopupWindow which actually dismisses the popup
-        popup.dismissWithoutNotifying()
+        popupLayout.disposeComposition()
+        // Remove the window
+        popupLayout.dismiss()
     }
 }
 
-private class PopupWrapper(context: Context) : PopupWindow(context) {
-    var onDismissRequest: (() -> Unit)? = null
+/**
+ * The layout the popup uses to display its content.
+ *
+ * @param context The application context.
+ * @param composeView The parent view of the popup which is the AndroidComposeView.
+ * @param popupProperties Properties of the popup.
+ * @param calculatePopupPosition The logic of positioning the popup relative to its parent.
+ */
+private class PopupLayout(
+    context: Context,
+    val composeView: View,
+    val popupProperties: PopupProperties,
+    var popupPositionProperties: PopupPositionProperties,
+    val calculatePopupPosition: ((PopupPositionProperties) -> IntPxPosition)
+) : FrameLayout(context) {
+    val windowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
+    val params = createLayoutParams()
+    var viewAdded: Boolean = false
 
-    override fun dismiss() {
-        // Invoke the onDismissRequest and prevent the PopupWindow from dismissing itself
-        onDismissRequest?.invoke()
+    init {
+        updateLayoutParams()
     }
 
-    fun dismissWithoutNotifying() {
-        // Dismiss the PopupWindow
-        super.dismiss()
+    /**
+     * Shows the popup at a position given by the method which calculates the coordinates
+     * relative to its parent.
+     */
+    fun updatePosition() {
+        val popupGlobalPosition = calculatePopupPosition(popupPositionProperties)
+
+        params.x = popupGlobalPosition.x.value
+        params.y = popupGlobalPosition.y.value
+
+        if (!viewAdded) {
+            windowManager.addView(this, params)
+            viewAdded = true
+        } else {
+            windowManager.updateViewLayout(this, params)
+        }
+    }
+
+    /**
+     * Update the LayoutParams using the popup's properties.
+     */
+    fun updateLayoutParams() {
+        if (!popupProperties.isFocusable) {
+            this.params.flags = this.params.flags or
+                    WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
+        }
+    }
+
+    /**
+     * Remove the view from the [WindowManager].
+     */
+    fun dismiss() {
+        windowManager.removeViewImmediate(this)
+    }
+
+    /**
+     * Handles touch screen motion events and calls [PopupProperties.onDismissRequest] when the
+     * users clicks outside the popup.
+     */
+    override fun onTouchEvent(event: MotionEvent?): Boolean {
+        if ((event?.action == MotionEvent.ACTION_DOWN) &&
+            ((event.x < 0) || (event.x >= width) || (event.y < 0) || (event.y >= height))) {
+            popupProperties.onDismissRequest?.invoke()
+
+            return true
+        } else if (event?.action == MotionEvent.ACTION_OUTSIDE) {
+            popupProperties.onDismissRequest?.invoke()
+
+            return true
+        }
+
+        return super.onTouchEvent(event)
+    }
+
+    /**
+     * Initialize the LayoutParams specific to [android.widget.PopupWindow].
+     */
+    private fun createLayoutParams(): WindowManager.LayoutParams {
+        return WindowManager.LayoutParams().apply {
+            // Start to position the popup in the top left corner, a new position will be calculated
+            gravity = Gravity.START or Gravity.TOP
+
+            // Flags specific to android.widget.PopupWindow
+            flags = flags and (WindowManager.LayoutParams.FLAG_IGNORE_CHEEK_PRESSES or
+                    WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
+                    WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE or
+                    WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH or
+                    WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS or
+                    WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM or
+                    WindowManager.LayoutParams.FLAG_SPLIT_TOUCH).inv()
+
+            type = WindowManager.LayoutParams.TYPE_APPLICATION_PANEL
+
+            // Get the Window token from the parent view
+            token = composeView.applicationWindowToken
+
+            // Wrap the frame layout which contains composable content
+            width = WindowManager.LayoutParams.WRAP_CONTENT
+            height = WindowManager.LayoutParams.WRAP_CONTENT
+
+            format = PixelFormat.TRANSLUCENT
+        }
     }
 }
 
@@ -153,36 +264,9 @@ data class PopupProperties(
     val onDismissRequest: (() -> Unit)? = null
 )
 
-private fun updatePopup(popup: PopupWindow, popupPositionProperties: PopupPositionProperties) {
-    val popupGlobalPosition = calculatePopupGlobalPosition(
-        popupPositionProperties.parentPosition,
-        popupPositionProperties.alignment,
-        popupPositionProperties.offset,
-        popupPositionProperties.parentSize,
-        popupPositionProperties.childrenSize
-    )
-
-    if (!popup.isShowing) {
-        popup.showAtLocation(
-            popupPositionProperties.composeView,
-            Gravity.NO_GRAVITY,
-            popupGlobalPosition.x.value,
-            popupGlobalPosition.y.value
-        )
-    } else {
-        popup.update(
-            popupGlobalPosition.x.value,
-            popupGlobalPosition.y.value,
-            /*updateIgnoreWidth = */ -1,
-            /*updateIgnoreHeight = */ -1
-        )
-    }
-}
-
-private data class PopupPositionProperties(
-    var alignment: Alignment,
-    var offset: IntPxPosition,
-    val composeView: View
+internal data class PopupPositionProperties(
+    var alignment: Alignment? = null,
+    var offset: IntPxPosition
 ) {
     var parentPosition = PxPosition.Origin
     var parentSize = PxSize.Zero
@@ -190,26 +274,31 @@ private data class PopupPositionProperties(
 }
 
 internal fun calculatePopupGlobalPosition(
-    parentPos: PxPosition,
-    alignment: Alignment,
-    offset: IntPxPosition,
-    parentSize: PxSize,
-    popupSize: PxSize
+    popupPositionProperties: PopupPositionProperties
 ): IntPxPosition {
     // TODO: Decide which is the best way to round to result without reimplementing Alignment.align
     var popupGlobalPosition = IntPxPosition(IntPx.Zero, IntPx.Zero)
 
     // Get the aligned point inside the parent
-    val parentAlignmentPoint = alignment.align(
-        IntPxSize(parentSize.width.round(), parentSize.height.round())
+    val parentAlignmentPoint = popupPositionProperties.alignment!!.align(
+        IntPxSize(
+            popupPositionProperties.parentSize.width.round(),
+            popupPositionProperties.parentSize.height.round()
+        )
     )
     // Get the aligned point inside the child
-    val relativePopupPos = alignment.align(
-        IntPxSize(popupSize.width.round(), popupSize.height.round())
+    val relativePopupPos = popupPositionProperties.alignment!!.align(
+        IntPxSize(
+            popupPositionProperties.childrenSize.width.round(),
+            popupPositionProperties.childrenSize.height.round()
+        )
     )
 
     // Add the global position of the parent
-    popupGlobalPosition += IntPxPosition(parentPos.x.round(), parentPos.y.round())
+    popupGlobalPosition += IntPxPosition(
+        popupPositionProperties.parentPosition.x.round(),
+        popupPositionProperties.parentPosition.y.round()
+    )
 
     // Add the distance between the parent's top left corner and the alignment point
     popupGlobalPosition += parentAlignmentPoint
@@ -218,7 +307,7 @@ internal fun calculatePopupGlobalPosition(
     popupGlobalPosition -= IntPxPosition(relativePopupPos.x, relativePopupPos.y)
 
     // Add the user offset
-    popupGlobalPosition += offset
+    popupGlobalPosition += popupPositionProperties.offset
 
     return popupGlobalPosition
 }
