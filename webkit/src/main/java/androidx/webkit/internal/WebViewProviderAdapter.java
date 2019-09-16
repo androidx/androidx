@@ -21,6 +21,8 @@ import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.webkit.WebMessageCompat;
 import androidx.webkit.WebMessagePortCompat;
 import androidx.webkit.WebViewCompat;
@@ -59,6 +61,7 @@ public class WebViewProviderAdapter {
     /**
      * Adapter method for {@link WebViewCompat#createWebMessageChannel(WebView)}.
      */
+    @NonNull
     public WebMessagePortCompat[] createWebMessageChannel() {
         InvocationHandler[] invocationHandlers = mImpl.createWebMessageChannel();
         WebMessagePortCompat[] messagePorts = new WebMessagePortCompat[invocationHandlers.length];
@@ -101,6 +104,7 @@ public class WebViewProviderAdapter {
     /**
      * Adapter method for {@link WebViewCompat#getWebViewRendererClient()}.
      */
+    @Nullable
     public WebViewRenderProcessClient getWebViewRenderProcessClient() {
         InvocationHandler handler = mImpl.getWebViewRendererClient();
         if (handler == null) return null;

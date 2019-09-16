@@ -22,6 +22,7 @@ import android.webkit.WebMessage;
 import android.webkit.WebMessagePort;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.webkit.WebMessageCompat;
 import androidx.webkit.WebMessagePortCompat;
@@ -162,6 +163,7 @@ public class WebMessagePortImpl extends WebMessagePortCompat {
      * Convert an array of {@link WebMessagePort} objects into an array containing objects of the
      * corresponding support library class {@link WebMessagePortCompat}.
      */
+    @Nullable
     public static WebMessagePortCompat[] portsToCompat(WebMessagePort[] ports) {
         if (ports == null) return null;
         WebMessagePortCompat[] compatPorts = new WebMessagePortCompat[ports.length];
@@ -176,6 +178,7 @@ public class WebMessagePortImpl extends WebMessagePortCompat {
      * the corresponding framework class {@link WebMessagePort}.
      */
     @RequiresApi(23)
+    @Nullable
     public static WebMessagePort[] compatToPorts(WebMessagePortCompat[] compatPorts) {
         if (compatPorts == null) return null;
         WebMessagePort[] ports = new WebMessagePort[compatPorts.length];
@@ -189,6 +192,7 @@ public class WebMessagePortImpl extends WebMessagePortCompat {
      * Convert a {@link WebMessageCompat} into the corresponding framework class {@link WebMessage}.
      */
     @RequiresApi(23)
+    @NonNull
     public static WebMessage compatToFrameworkMessage(WebMessageCompat message) {
         return new WebMessage(
                 message.getData(),
@@ -200,6 +204,7 @@ public class WebMessagePortImpl extends WebMessagePortCompat {
      * {@link WebMessageCompat}.
      */
     @RequiresApi(23)
+    @NonNull
     public static WebMessageCompat frameworkMessageToCompat(WebMessage message) {
         return new WebMessageCompat(
                 message.getData(),
