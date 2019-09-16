@@ -2627,7 +2627,11 @@ public abstract class FragmentManager {
         // FragmentActivity's fragmentManager, adding a child fragment to a parent that has a view),
         // it should be true.
         if (mContainer.onHasView()) {
-            return (ViewGroup) mContainer.onFindViewById(f.mContainerId);
+            View view = mContainer.onFindViewById(f.mContainerId);
+            // We should handle the case where the container may not be a ViewGroup
+            if (view instanceof ViewGroup) {
+                return (ViewGroup) view;
+            }
         }
         return null;
     }
