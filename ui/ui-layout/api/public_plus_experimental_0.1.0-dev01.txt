@@ -3,21 +3,8 @@ package androidx.ui.layout {
 
   public final class AlignKt {
     ctor public AlignKt();
-    method public static void Align(androidx.ui.layout.Alignment alignment, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method public static void Align(androidx.ui.core.Alignment alignment, kotlin.jvm.functions.Function0<kotlin.Unit> children);
     method public static void Center(kotlin.jvm.functions.Function0<kotlin.Unit> children);
-  }
-
-  public enum Alignment {
-    method public final androidx.ui.core.IntPxPosition align(androidx.ui.core.IntPxSize size);
-    enum_constant public static final androidx.ui.layout.Alignment BottomCenter;
-    enum_constant public static final androidx.ui.layout.Alignment BottomLeft;
-    enum_constant public static final androidx.ui.layout.Alignment BottomRight;
-    enum_constant public static final androidx.ui.layout.Alignment Center;
-    enum_constant public static final androidx.ui.layout.Alignment CenterLeft;
-    enum_constant public static final androidx.ui.layout.Alignment CenterRight;
-    enum_constant public static final androidx.ui.layout.Alignment TopCenter;
-    enum_constant public static final androidx.ui.layout.Alignment TopLeft;
-    enum_constant public static final androidx.ui.layout.Alignment TopRight;
   }
 
   public final class AlignmentLineKt {
@@ -38,7 +25,7 @@ package androidx.ui.layout {
 
   public final class ContainerKt {
     ctor public ContainerKt();
-    method public static void Container(androidx.ui.layout.EdgeInsets padding = androidx.ui.layout.EdgeInsets(0.dp), androidx.ui.layout.Alignment alignment = Alignment.Center, boolean expanded = false, androidx.ui.layout.DpConstraints constraints = androidx.ui.layout.DpConstraints(), androidx.ui.core.Dp? width = null, androidx.ui.core.Dp? height = null, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method public static void Container(androidx.ui.layout.EdgeInsets padding = androidx.ui.layout.EdgeInsets(0.dp), androidx.ui.core.Alignment alignment = Alignment.Center, boolean expanded = false, androidx.ui.layout.DpConstraints constraints = androidx.ui.layout.DpConstraints(), androidx.ui.core.Dp? width = null, androidx.ui.core.Dp? height = null, kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
 
   public final class CrossAxisAlignment {
@@ -177,9 +164,9 @@ package androidx.ui.layout {
 
   public final class StackChildren {
     ctor public StackChildren();
-    method public void aligned(androidx.ui.layout.Alignment alignment, boolean loose = true, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method public void aligned(androidx.ui.core.Alignment alignment, boolean loose = true, kotlin.jvm.functions.Function0<kotlin.Unit> children);
     method public void expanded(kotlin.jvm.functions.Function0<kotlin.Unit> children);
-    method public void positioned(androidx.ui.core.Dp? leftInset = null, androidx.ui.core.Dp? topInset = null, androidx.ui.core.Dp? rightInset = null, androidx.ui.core.Dp? bottomInset = null, androidx.ui.layout.Alignment fallbackAlignment = Alignment.Center, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method public void positioned(androidx.ui.core.Dp? leftInset = null, androidx.ui.core.Dp? topInset = null, androidx.ui.core.Dp? rightInset = null, androidx.ui.core.Dp? bottomInset = null, androidx.ui.core.Alignment fallbackAlignment = Alignment.Center, kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
 
   public final class StackKt {
@@ -250,7 +237,7 @@ package androidx.ui.layout {
 
   public final class TableKt {
     ctor public TableKt();
-    method public static void Table(int columns, androidx.ui.layout.Alignment childAlignment = Alignment.TopLeft, kotlin.jvm.functions.Function1<? super java.lang.Integer,? extends androidx.ui.layout.TableColumnWidth> columnWidth = { TableColumnWidth.<init>(1.0) }, kotlin.jvm.functions.Function1<? super androidx.ui.layout.TableChildren,kotlin.Unit> block);
+    method public static void Table(int columns, androidx.ui.core.Alignment childAlignment = Alignment.TopLeft, kotlin.jvm.functions.Function1<? super java.lang.Integer,? extends androidx.ui.layout.TableColumnWidth> columnWidth = { TableColumnWidth.<init>(1.0) }, kotlin.jvm.functions.Function1<? super androidx.ui.layout.TableChildren,kotlin.Unit> block);
   }
 
   public final class TableMeasurable {
@@ -265,7 +252,7 @@ package androidx.ui.layout {
 
   public final class WrapKt {
     ctor public WrapKt();
-    method public static void Wrap(androidx.ui.layout.Alignment alignment = Alignment.TopLeft, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method public static void Wrap(androidx.ui.core.Alignment alignment = Alignment.TopLeft, kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
 
 }

@@ -24,6 +24,7 @@ import androidx.compose.composer
 import androidx.compose.memo
 import androidx.compose.state
 import androidx.compose.unaryPlus
+import androidx.ui.core.Alignment
 import androidx.ui.core.Draw
 import androidx.ui.core.PxSize
 import androidx.ui.core.Text
@@ -43,7 +44,6 @@ import androidx.ui.layout.Row
 import androidx.ui.foundation.ScrollerPosition
 import androidx.ui.foundation.shape.DrawShape
 import androidx.ui.foundation.shape.RectangleShape
-import androidx.ui.layout.Alignment
 import androidx.ui.layout.Container
 import androidx.ui.layout.EdgeInsets
 import androidx.ui.layout.FlexColumn

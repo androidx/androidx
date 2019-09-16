@@ -20,6 +20,7 @@ import androidx.compose.composer
 import androidx.compose.state
 import androidx.compose.unaryPlus
 import androidx.test.filters.LargeTest
+import androidx.ui.core.Alignment
 import androidx.ui.core.LayoutCoordinates
 import androidx.ui.core.OnChildPositioned
 import androidx.ui.core.PxPosition
@@ -28,7 +29,6 @@ import androidx.ui.core.toPx
 import androidx.ui.core.withDensity
 import androidx.ui.foundation.ColoredRect
 import androidx.ui.graphics.Color
-import androidx.ui.layout.Alignment
 import androidx.ui.layout.Container
 import androidx.ui.material.samples.TextTabs
 import androidx.ui.material.surface.Surface

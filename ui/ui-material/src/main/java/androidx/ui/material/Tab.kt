@@ -28,6 +28,7 @@ import androidx.compose.composer
 import androidx.compose.memo
 import androidx.compose.unaryPlus
 import androidx.ui.animation.Transition
+import androidx.ui.core.Alignment
 import androidx.ui.core.Dp
 import androidx.ui.core.WithConstraints
 import androidx.ui.core.hasBoundedWidth
@@ -36,7 +37,6 @@ import androidx.ui.foundation.ColoredRect
 import androidx.ui.foundation.SimpleImage
 import androidx.ui.foundation.selection.MutuallyExclusiveSetItem
 import androidx.ui.graphics.Color
-import androidx.ui.layout.Alignment
 import androidx.ui.layout.Column
 import androidx.ui.layout.Container
 import androidx.ui.layout.CrossAxisAlignment

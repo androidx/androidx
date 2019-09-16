@@ -26,6 +26,7 @@ import androidx.test.espresso.matcher.BoundedMatcher
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.filters.FlakyTest
 import androidx.test.filters.MediumTest
+import androidx.ui.core.Alignment
 import androidx.ui.core.AndroidComposeView
 import androidx.ui.core.IntPx
 import androidx.ui.core.IntPxPosition
@@ -36,7 +37,6 @@ import androidx.ui.core.toPxPosition
 import androidx.ui.core.toPxSize
 import androidx.ui.core.withDensity
 import androidx.ui.layout.Align
-import androidx.ui.layout.Alignment
 import androidx.ui.layout.Container
 import androidx.ui.test.createComposeRule
 import com.google.common.truth.Truth

@@ -28,6 +28,7 @@ import androidx.ui.core.looseMin
 import androidx.ui.core.max
 import androidx.compose.Composable
 import androidx.compose.composer
+import androidx.ui.core.Alignment
 import androidx.ui.core.coerceAtLeast
 import androidx.ui.core.ipx
 import androidx.ui.core.isFinite

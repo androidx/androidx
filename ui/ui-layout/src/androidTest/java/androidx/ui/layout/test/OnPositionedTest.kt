@@ -21,6 +21,7 @@ import androidx.compose.Composable
 import androidx.compose.Model
 import androidx.test.filters.SmallTest
 import androidx.compose.composer
+import androidx.ui.core.Alignment
 import androidx.ui.core.Layout
 import androidx.ui.core.LayoutCoordinates
 import androidx.ui.core.OnChildPositioned
@@ -34,7 +35,6 @@ import androidx.ui.core.px
 import androidx.ui.core.setContent
 import androidx.ui.core.withDensity
 import androidx.ui.layout.Align
-import androidx.ui.layout.Alignment
 import androidx.ui.layout.Center
 import androidx.ui.layout.Container
 import androidx.ui.layout.Padding

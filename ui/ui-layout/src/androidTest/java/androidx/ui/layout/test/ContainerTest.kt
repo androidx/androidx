@@ -32,7 +32,6 @@ import androidx.ui.core.round
 import androidx.ui.core.toPx
 import androidx.ui.core.withDensity
 import androidx.ui.layout.Align
-import androidx.ui.layout.Alignment
 import androidx.ui.layout.ConstrainedBox
 import androidx.ui.layout.Container
 import androidx.ui.layout.DpConstraints
@@ -43,6 +42,7 @@ import androidx.ui.layout.Wrap
 import androidx.compose.Composable
 import androidx.compose.Model
 import androidx.compose.composer
+import androidx.ui.core.Alignment
 import androidx.ui.core.IntPx
 import androidx.ui.core.ipx
 import org.junit.Assert.assertEquals

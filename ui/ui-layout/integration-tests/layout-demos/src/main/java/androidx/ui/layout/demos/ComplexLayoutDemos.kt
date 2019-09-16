@@ -30,7 +30,6 @@ import androidx.ui.core.ipx
 import androidx.ui.core.max
 import androidx.ui.core.toRect
 import androidx.ui.layout.Align
-import androidx.ui.layout.Alignment
 import androidx.ui.layout.Center
 import androidx.ui.layout.Column
 import androidx.ui.layout.ConstrainedBox
@@ -48,6 +47,7 @@ import androidx.compose.composer
 import androidx.compose.effectOf
 import androidx.compose.memo
 import androidx.compose.onCommit
+import androidx.ui.core.Alignment
 import androidx.ui.core.FirstBaseline
 import androidx.ui.core.HorizontalAlignmentLine
 import androidx.ui.core.Text
