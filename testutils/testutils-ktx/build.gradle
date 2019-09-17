@@ -23,7 +23,7 @@ plugins {
 
 dependencies {
     api(KOTLIN_STDLIB)
-    api(KOTLIN_COROUTINES)
+    api(KOTLIN_COROUTINES_CORE)
 }
 
 androidx {
