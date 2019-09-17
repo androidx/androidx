@@ -19,6 +19,7 @@ package androidx.ui.layout.test
 import androidx.compose.Composable
 import androidx.compose.composer
 import androidx.test.filters.SmallTest
+import androidx.ui.core.Alignment
 import androidx.ui.core.ComplexLayout
 import androidx.ui.core.Dp
 import androidx.ui.core.OnChildPositioned
@@ -31,7 +32,6 @@ import androidx.ui.core.ipx
 import androidx.ui.core.px
 import androidx.ui.core.withDensity
 import androidx.ui.layout.Align
-import androidx.ui.layout.Alignment
 import androidx.ui.layout.ConstrainedBox
 import androidx.ui.layout.DpConstraints
 import androidx.ui.layout.MaxIntrinsicHeight

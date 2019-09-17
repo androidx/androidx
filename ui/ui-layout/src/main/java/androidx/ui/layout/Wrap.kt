@@ -23,6 +23,7 @@ import androidx.ui.core.looseMin
 import androidx.ui.core.max
 import androidx.compose.Composable
 import androidx.compose.composer
+import androidx.ui.core.Alignment
 
 /**
  * A layout that expects a child and places it within itself. The child will be measured

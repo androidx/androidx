@@ -20,11 +20,11 @@ import androidx.compose.Composable
 import androidx.compose.composer
 import androidx.compose.ambient
 import androidx.compose.unaryPlus
+import androidx.ui.core.Alignment
 import androidx.ui.core.CurrentTextStyleProvider
 import androidx.ui.core.dp
 import androidx.ui.foundation.Dialog
 import androidx.ui.foundation.shape.corner.RoundedCornerShape
-import androidx.ui.layout.Alignment
 import androidx.ui.layout.Column
 import androidx.ui.layout.Container
 import androidx.ui.layout.CrossAxisAlignment

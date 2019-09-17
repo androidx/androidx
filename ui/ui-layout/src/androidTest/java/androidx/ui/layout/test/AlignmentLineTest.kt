@@ -19,6 +19,7 @@ package androidx.ui.layout.test
 import androidx.compose.Children
 import androidx.compose.composer
 import androidx.test.filters.SmallTest
+import androidx.ui.core.Alignment
 import androidx.ui.core.Constraints
 import androidx.ui.core.HorizontalAlignmentLine
 import androidx.ui.core.IntPx
@@ -38,7 +39,6 @@ import androidx.ui.core.round
 import androidx.ui.core.toPx
 import androidx.ui.core.withDensity
 import androidx.ui.layout.Align
-import androidx.ui.layout.Alignment
 import androidx.ui.layout.AlignmentLineOffset
 import androidx.ui.layout.AspectRatio
 import androidx.ui.layout.CenterAlignmentLine

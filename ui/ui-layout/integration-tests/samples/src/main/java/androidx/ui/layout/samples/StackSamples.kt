@@ -19,13 +19,13 @@ package androidx.ui.layout.samples
 import androidx.annotation.Sampled
 import androidx.compose.Composable
 import androidx.compose.composer
+import androidx.ui.core.Alignment
 import androidx.ui.core.Dp
 import androidx.ui.core.Draw
 import androidx.ui.core.Layout
 import androidx.ui.core.dp
 import androidx.ui.core.toRect
 import androidx.ui.graphics.Color
-import androidx.ui.layout.Alignment
 import androidx.ui.layout.Stack
 import androidx.ui.graphics.Paint
 

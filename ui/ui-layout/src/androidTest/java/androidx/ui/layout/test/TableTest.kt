@@ -19,6 +19,7 @@ package androidx.ui.layout.test
 import androidx.compose.Composable
 import androidx.compose.composer
 import androidx.test.filters.SmallTest
+import androidx.ui.core.Alignment
 import androidx.ui.core.Density
 import androidx.ui.core.IntPx
 import androidx.ui.core.OnChildPositioned
@@ -31,7 +32,6 @@ import androidx.ui.core.max
 import androidx.ui.core.min
 import androidx.ui.core.withDensity
 import androidx.ui.layout.Align
-import androidx.ui.layout.Alignment
 import androidx.ui.layout.AspectRatio
 import androidx.ui.layout.ConstrainedBox
 import androidx.ui.layout.Container

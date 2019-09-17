@@ -19,6 +19,7 @@ import androidx.compose.Composable
 import androidx.compose.composer
 import androidx.compose.state
 import androidx.compose.unaryPlus
+import androidx.ui.core.Alignment
 import androidx.ui.core.CurrentTextStyleProvider
 import androidx.ui.core.Density
 import androidx.ui.core.Dp
@@ -48,7 +49,6 @@ import androidx.ui.layout.Row
 import androidx.ui.layout.WidthSpacer
 import androidx.ui.material.surface.Surface
 import androidx.ui.graphics.Color
-import androidx.ui.layout.Alignment
 import androidx.ui.layout.EdgeInsets
 import androidx.ui.layout.Wrap
 import androidx.ui.material.BottomAppBar.FabConfiguration

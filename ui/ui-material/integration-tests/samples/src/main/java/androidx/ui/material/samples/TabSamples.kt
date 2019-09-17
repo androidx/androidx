@@ -26,6 +26,7 @@ import androidx.compose.memo
 import androidx.compose.state
 import androidx.compose.unaryPlus
 import androidx.ui.animation.Transition
+import androidx.ui.core.Alignment
 import androidx.ui.core.Text
 import androidx.ui.core.dp
 import androidx.ui.foundation.ColoredRect
@@ -34,7 +35,6 @@ import androidx.ui.foundation.shape.border.Border
 import androidx.ui.foundation.shape.border.DrawBorder
 import androidx.ui.foundation.shape.corner.RoundedCornerShape
 import androidx.ui.graphics.Color
-import androidx.ui.layout.Alignment
 import androidx.ui.layout.Center
 import androidx.ui.layout.Column
 import androidx.ui.layout.Container
