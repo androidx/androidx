@@ -43,8 +43,7 @@ import androidx.ui.core.withDensity
  * Collects information about the children of a [Table] when
  * its body is executed with a [TableChildren] as argument.
  */
-class TableChildren internal constructor(private val columnCount: Int) {
-
+class TableChildren internal constructor() {
     internal val tableChildren = mutableListOf<@Composable() () -> Unit>()
     internal val tableDecorationsOverlay = mutableListOf<TableDecoration>()
     internal val tableDecorationsUnderlay = mutableListOf<TableDecoration>()
@@ -52,14 +51,10 @@ class TableChildren internal constructor(private val columnCount: Int) {
     /**
      * Creates a new row in the [Table] with the specified content.
      */
-    fun tableRow(children: @Composable() (columnIndex: Int) -> Unit) {
+    fun tableRow(children: @Composable() () -> Unit) {
         val rowIndex = tableChildren.size
         tableChildren += {
-            ParentData(data = TableChildData(rowIndex)) {
-                for (j in 0 until columnCount) {
-                    children(j)
-                }
-            }
+            ParentData(data = TableChildData(rowIndex), children = children)
         }
     }
 
@@ -490,7 +485,7 @@ fun Table(
     val verticalOffsets = +state { emptyArray<IntPx>() }
     val horizontalOffsets = +state { emptyArray<IntPx>() }
 
-    val tableChildren: @Composable() () -> Unit = with(TableChildren(columns)) {
+    val tableChildren: @Composable() () -> Unit = with(TableChildren()) {
         apply(block)
         val composable = @Composable {
             if (tableDecorationsUnderlay.isNotEmpty()) {
@@ -518,9 +513,9 @@ fun Table(
 
     ComplexLayout(tableChildren) {
         measure { children, constraints ->
-            val measurables =
-                children.filter { it.rowIndex != null }.groupBy { it.rowIndex }.values.toList()
+            val measurables = children.filter { it.rowIndex != null }.groupBy { it.rowIndex }
             val rows = measurables.size
+            fun measurableAt(row: Int, column: Int) = measurables[row]?.getOrNull(column)
             val placeables = Array(rows) { arrayOfNulls<Placeable>(columns) }
 
             // Compute column widths and collect flex information.
@@ -534,11 +529,15 @@ fun Table(
                     TableMeasurable(
                         preferredWidth = {
                             placeables[row][column]?.width
-                                ?: measurables[row][column].measure(Constraints())
-                                    .also { placeables[row][column] = it }.width
+                                ?: measurableAt(row, column)?.measure(Constraints())
+                                    ?.also { placeables[row][column] = it }?.width ?: IntPx.Zero
                         },
-                        minIntrinsicWidth = { measurables[row][column].minIntrinsicWidth(it) },
-                        maxIntrinsicWidth = { measurables[row][column].maxIntrinsicWidth(it) }
+                        minIntrinsicWidth = {
+                            measurableAt(row, column)?.minIntrinsicWidth(it) ?: IntPx.Zero
+                        },
+                        maxIntrinsicWidth = {
+                            measurableAt(row, column)?.maxIntrinsicWidth(it) ?: IntPx.Zero
+                        }
                     )
                 }
                 columnWidths[column] = spec.preferredWidth(cells, constraints.maxWidth, density)
@@ -561,11 +560,12 @@ fun Table(
             for (row in 0 until rows) {
                 for (column in 0 until columns) {
                     if (placeables[row][column] == null) {
-                        placeables[row][column] = measurables[row][column].measure(
+                        placeables[row][column] = measurableAt(row, column)?.measure(
                             Constraints(minWidth = IntPx.Zero, maxWidth = columnWidths[column])
                         )
                     }
-                    rowHeights[row] = max(rowHeights[row], placeables[row][column]!!.height)
+                    rowHeights[row] =
+                        max(rowHeights[row], placeables[row][column]?.height ?: IntPx.Zero)
                 }
             }
 
@@ -597,17 +597,18 @@ fun Table(
                     ?.place(IntPx.Zero, IntPx.Zero)
                 for (row in 0 until rows) {
                     for (column in 0 until columns) {
-                        val placeable = placeables[row][column]!!
-                        val position = childAlignment.align(
-                            IntPxSize(
-                                width = columnWidths[column] - placeable.width,
-                                height = rowHeights[row] - placeable.height
+                        placeables[row][column]?.let {
+                            val position = childAlignment.align(
+                                IntPxSize(
+                                    width = columnWidths[column] - it.width,
+                                    height = rowHeights[row] - it.height
+                                )
                             )
-                        )
-                        placeable.place(
-                            x = columnOffsets[column] + position.x,
-                            y = rowOffsets[row] + position.y
-                        )
+                            it.place(
+                                x = columnOffsets[column] + position.x,
+                                y = rowOffsets[row] + position.y
+                            )
+                        }
                     }
                 }
                 if (children.size > 1) {
@@ -623,9 +624,9 @@ fun Table(
             availableHeight: IntPx,
             minimise: Boolean
         ): IntPx {
-            val measurables =
-                children.filter { it.rowIndex != null }.groupBy { it.rowIndex }.values.toList()
+            val measurables = children.filter { it.rowIndex != null }.groupBy { it.rowIndex }
             val rows = measurables.size
+            fun measurableAt(row: Int, column: Int) = measurables[row]?.getOrNull(column)
 
             var totalFlex = 0f
             var flexibleSpace = IntPx.Zero
@@ -636,8 +637,12 @@ fun Table(
                 val cells = List(rows) { row ->
                     TableMeasurable(
                         preferredWidth = { IntPx.Zero },
-                        minIntrinsicWidth = { measurables[row][column].minIntrinsicWidth(it) },
-                        maxIntrinsicWidth = { measurables[row][column].maxIntrinsicWidth(it) }
+                        minIntrinsicWidth = {
+                            measurableAt(row, column)?.minIntrinsicWidth(it) ?: IntPx.Zero
+                        },
+                        maxIntrinsicWidth = {
+                            measurableAt(row, column)?.maxIntrinsicWidth(it) ?: IntPx.Zero
+                        }
                     )
                 }
                 val width = if (minimise) {
@@ -660,9 +665,9 @@ fun Table(
             availableWidth: IntPx,
             intrinsicHeight: IntrinsicMeasurable.(IntPx) -> IntPx
         ): IntPx {
-            val measurables =
-                children.filter { it.rowIndex != null }.groupBy { it.rowIndex }.values.toList()
+            val measurables = children.filter { it.rowIndex != null }.groupBy { it.rowIndex }
             val rows = measurables.size
+            fun measurableAt(row: Int, column: Int) = measurables[row]?.getOrNull(column)
 
             // Compute column widths and collect flex information.
             var totalFlex = 0f
@@ -673,8 +678,12 @@ fun Table(
                 val cells = List(rows) { row ->
                     TableMeasurable(
                         preferredWidth = { IntPx.Zero },
-                        minIntrinsicWidth = { measurables[row][column].minIntrinsicWidth(it) },
-                        maxIntrinsicWidth = { measurables[row][column].maxIntrinsicWidth(it) }
+                        minIntrinsicWidth = {
+                            measurableAt(row, column)?.minIntrinsicWidth(it) ?: IntPx.Zero
+                        },
+                        maxIntrinsicWidth = {
+                            measurableAt(row, column)?.maxIntrinsicWidth(it) ?: IntPx.Zero
+                        }
                     )
                 }
                 columnWidths[column] =
@@ -696,7 +705,11 @@ fun Table(
             // Calculate row heights and table height.
             return (0 until rows).fold(IntPx.Zero) { tableHeight, row ->
                 val rowHeight = (0 until columns).fold(IntPx.Zero) { rowHeight, column ->
-                    max(rowHeight, measurables[row][column].intrinsicHeight(columnWidths[column]))
+                    max(
+                        rowHeight,
+                        measurableAt(row, column)?.intrinsicHeight(columnWidths[column])
+                            ?: IntPx.Zero
+                    )
                 }
                 tableHeight + rowHeight
             }

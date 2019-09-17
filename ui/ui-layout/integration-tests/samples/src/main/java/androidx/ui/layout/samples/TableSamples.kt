@@ -36,8 +36,10 @@ fun SimpleTable() {
         Table(columns = 8) {
             for (i in 0 until 8) {
                 tableRow {
-                    Padding(2.dp) {
-                        SizedSquare(color = Color.Magenta)
+                    for (j in 0 until 8) {
+                        Padding(2.dp) {
+                            SizedSquare(color = Color.Magenta)
+                        }
                     }
                 }
             }
@@ -58,8 +60,10 @@ fun TableWithDecorations() {
             }
             for (i in 0 until 8) {
                 tableRow {
-                    Padding(2.dp) {
-                        SizedSquare(color = Color.Magenta)
+                    for (j in 0 until 8) {
+                        Padding(2.dp) {
+                            SizedSquare(color = Color.Magenta)
+                        }
                     }
                 }
             }
@@ -84,11 +88,12 @@ fun TableWithDifferentColumnWidths() {
             }
         ) {
             for (i in 0 until 8) {
-                tableRow { j ->
+                tableRow {
                     Padding(2.dp) {
-                        if (j == 0) {
-                            SizedRectangle(color = Color.Magenta, width = 25.dp, height = 25.dp)
-                        } else {
+                        SizedRectangle(color = Color.Magenta, width = 25.dp, height = 25.dp)
+                    }
+                    for (j in 1 until 5) {
+                        Padding(2.dp) {
                             SizedRectangle(color = Color.Magenta, height = 25.dp)
                         }
                     }
