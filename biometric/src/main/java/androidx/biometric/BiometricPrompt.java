@@ -697,9 +697,14 @@ public class BiometricPrompt implements BiometricConstants {
             }
         }
 
-        final Bundle bundle = info.getBundle();
+        // Don't launch prompt if state has already been saved (potential for state loss).
         final FragmentManager fragmentManager = getFragmentManager();
+        if (fragmentManager.isStateSaved()) {
+            Log.w(TAG, "Not launching prompt. authenticate() called after onSaveInstanceState()");
+            return;
+        }
 
+        final Bundle bundle = info.getBundle();
         mPausedOnce = false;
 
         if (usingBiometricFragment()) {
@@ -722,10 +727,11 @@ public class BiometricPrompt implements BiometricConstants {
                 // If the fragment hasn't been added before, add it. It will also start the
                 // authentication.
                 fragmentManager.beginTransaction().add(mBiometricFragment, BIOMETRIC_FRAGMENT_TAG)
-                        .commit();
+                        .commitAllowingStateLoss();
             } else if (mBiometricFragment.isDetached()) {
                 // If it's been added before, just re-attach it.
-                fragmentManager.beginTransaction().attach(mBiometricFragment).commit();
+                fragmentManager.beginTransaction().attach(mBiometricFragment)
+                        .commitAllowingStateLoss();
             }
         } else {
             // Create the UI
@@ -743,7 +749,8 @@ public class BiometricPrompt implements BiometricConstants {
             if (fingerprintDialogFragment == null) {
                 mFingerprintDialogFragment.show(fragmentManager, DIALOG_FRAGMENT_TAG);
             } else if (mFingerprintDialogFragment.isDetached()) {
-                fragmentManager.beginTransaction().attach(mFingerprintDialogFragment).commit();
+                fragmentManager.beginTransaction().attach(mFingerprintDialogFragment)
+                        .commitAllowingStateLoss();
             }
 
             // Create the connection to FingerprintManager
@@ -768,10 +775,12 @@ public class BiometricPrompt implements BiometricConstants {
                 // If the fragment hasn't been added before, add it. It will also start the
                 // authentication.
                 fragmentManager.beginTransaction()
-                        .add(mFingerprintHelperFragment, FINGERPRINT_HELPER_FRAGMENT_TAG).commit();
+                        .add(mFingerprintHelperFragment, FINGERPRINT_HELPER_FRAGMENT_TAG)
+                        .commitAllowingStateLoss();
             } else if (mFingerprintHelperFragment.isDetached()) {
                 // If it's been added before, just re-attach it.
-                fragmentManager.beginTransaction().attach(mFingerprintHelperFragment).commit();
+                fragmentManager.beginTransaction().attach(mFingerprintHelperFragment)
+                        .commitAllowingStateLoss();
             }
         }
 
