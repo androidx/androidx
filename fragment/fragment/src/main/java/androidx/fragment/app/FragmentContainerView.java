@@ -18,6 +18,7 @@ package androidx.fragment.app;
 
 import android.animation.LayoutTransition;
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.os.Bundle;
 import android.util.AttributeSet;
@@ -30,6 +31,7 @@ import android.widget.FrameLayout;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.fragment.R;
 
 import java.util.ArrayList;
 /**
@@ -68,6 +70,10 @@ import java.util.ArrayList;
  */
 public final class FragmentContainerView extends FrameLayout {
 
+    private final String mName;
+    private final String mTag;
+    private final AttributeSet mAttributeSet;
+
     private ArrayList<View> mDisappearingFragmentChildren;
 
     private ArrayList<View> mTransitioningFragmentViews;
@@ -89,6 +95,11 @@ public final class FragmentContainerView extends FrameLayout {
             @Nullable AttributeSet attrs,
             int defStyleAttr) {
         super(context, attrs, defStyleAttr);
+        TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.FragmentContainerView);
+        mName = a.getString(R.styleable.FragmentContainerView_android_name);
+        mTag = a.getString(R.styleable.FragmentContainerView_android_tag);
+        a.recycle();
+        mAttributeSet = attrs;
     }
 
     /**
@@ -125,6 +136,25 @@ public final class FragmentContainerView extends FrameLayout {
             child.dispatchApplyWindowInsets(new WindowInsets(insets));
         }
         return insets;
+    }
+
+    @Override
+    protected void onAttachedToWindow() {
+        super.onAttachedToWindow();
+        FragmentManager fm = FragmentManager.findFragmentManager(this);
+        if (fm.findFragmentById(getId()) != null) {
+            return;
+        }
+        // If there is a name we should add an inflated Fragment to the view.
+        if (mName != null) {
+            Fragment inflatedFragment =
+                    fm.getFragmentFactory().instantiate(getContext().getClassLoader(), mName);
+            inflatedFragment.onInflate(getContext(), mAttributeSet, null);
+            fm.beginTransaction()
+                    .setReorderingAllowed(true)
+                    .add(getId(), inflatedFragment, mTag)
+                    .commitNow();
+        }
     }
 
     @Override
@@ -281,7 +311,4 @@ public final class FragmentContainerView extends FrameLayout {
             mDisappearingFragmentChildren.add(v);
         }
     }
-
-
-
 }
