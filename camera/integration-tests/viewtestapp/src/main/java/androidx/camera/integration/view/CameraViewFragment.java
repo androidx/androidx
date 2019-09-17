@@ -16,6 +16,7 @@
 
 package androidx.camera.integration.view;
 
+import android.app.Activity;
 import android.content.pm.PackageManager;
 import android.graphics.Rect;
 import android.os.Bundle;
@@ -41,8 +42,8 @@ import java.io.IOException;
 import java.io.PrintStream;
 
 /** The main camera fragment. */
-public class MainFragment extends Fragment {
-    private static final String TAG = "MainFragment";
+public class CameraViewFragment extends Fragment {
+    private static final String TAG = "CameraViewFragment";
 
     // Possible values for this intent key are the name values of CameraX.LensFacing encoded as
     // strings (case-insensitive): "back", "front".
@@ -118,7 +119,7 @@ public class MainFragment extends Fragment {
         }
 
         // Set the lifecycle that will be used to control the camera
-        mCameraView.bindToLifecycle(getActivity());
+        mCameraView.bindToLifecycle(CameraViewFragment.this);
 
         mCameraView.setPinchToZoomEnabled(true);
         mCaptureView.setOnTouchListener(new CaptureViewOnTouchListener(mCameraView));
@@ -169,7 +170,7 @@ public class MainFragment extends Fragment {
                         public void onClick(View view) {
                             if (mCameraView.isRecording()) {
                                 Toast.makeText(
-                                        MainFragment.this.getContext(),
+                                        CameraViewFragment.this.getContext(),
                                         "Can not switch mode during video recording.",
                                         Toast.LENGTH_SHORT)
                                         .show();
@@ -184,7 +185,7 @@ public class MainFragment extends Fragment {
                                 mCameraView.setCaptureMode(CaptureMode.MIXED);
                             }
 
-                            MainFragment.this.updateModeButtonIcon();
+                            CameraViewFragment.this.updateModeButtonIcon();
                         }
                     });
         }
@@ -214,6 +215,11 @@ public class MainFragment extends Fragment {
                         new ViewTreeObserver.OnGlobalLayoutListener() {
                             @Override
                             public void onGlobalLayout() {
+                                Activity activity = getActivity();
+                                if (activity == null) {
+                                    // The fragment has been detached from the parent Activity.
+                                    return;
+                                }
                                 Rect rect = new Rect();
                                 view.getGlobalVisibleRect(rect);
                                 Log.d(
@@ -224,7 +230,7 @@ public class MainFragment extends Fragment {
                                                 + rect.centerX()
                                                 + " "
                                                 + rect.centerY());
-                                File externalDir = getActivity().getExternalFilesDir(null);
+                                File externalDir = activity.getExternalFilesDir(null);
                                 File logFile =
                                         new File(externalDir, name + "_button_coordinates.txt");
                                 try (PrintStream stream = new PrintStream(logFile)) {
