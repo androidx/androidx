@@ -21,6 +21,8 @@ import androidx.compose.Composable
 import androidx.compose.composer
 import androidx.ui.core.Alignment
 import androidx.ui.core.dp
+import androidx.ui.foundation.DropDownAlignment
+import androidx.ui.foundation.DropdownPopup
 import androidx.ui.foundation.Popup
 import androidx.ui.foundation.shape.DrawShape
 import androidx.ui.foundation.shape.corner.RoundedCornerShape
@@ -36,6 +38,26 @@ fun PopupSample() {
         val cornerSize = 16.dp
 
         Popup(alignment = Alignment.Center) {
+            // Draw a rectangle shape with rounded corners inside the popup
+            Container(width = popupWidth, height = popupHeight) {
+                DrawShape(RoundedCornerShape(cornerSize), Color.White)
+            }
+        }
+    }
+}
+
+@Sampled
+@Composable
+fun DropdownPopupSample() {
+    val parentWidth = 400.dp
+    val parentHeight = 200.dp
+    Container(width = parentWidth, height = parentHeight) {
+        val popupWidth = 200.dp
+        val popupHeight = 50.dp
+        val cornerSize = 16.dp
+
+        // The popup will appear below the parent
+        DropdownPopup(dropDownAlignment = DropDownAlignment.Left) {
             // Draw a rectangle shape with rounded corners inside the popup
             Container(width = popupWidth, height = popupHeight) {
                 DrawShape(RoundedCornerShape(cornerSize), Color.White)

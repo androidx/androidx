@@ -31,6 +31,8 @@ import androidx.ui.core.dp
 import androidx.ui.core.setContent
 import androidx.ui.core.toRect
 import androidx.ui.foundation.Clickable
+import androidx.ui.foundation.DropDownAlignment
+import androidx.ui.foundation.DropdownPopup
 import androidx.ui.foundation.Popup
 import androidx.ui.foundation.PopupProperties
 import androidx.ui.foundation.VerticalScroller
@@ -49,10 +51,11 @@ import androidx.ui.layout.DpConstraints
 import androidx.ui.layout.EdgeInsets
 import androidx.ui.layout.FlexRow
 import androidx.ui.layout.HeightSpacer
-import androidx.ui.layout.LayoutSize
 import androidx.ui.layout.MainAxisAlignment
 import androidx.ui.layout.Wrap
 import androidx.ui.graphics.Paint
+import androidx.ui.layout.CrossAxisAlignment
+import androidx.ui.layout.LayoutSize
 import androidx.ui.text.ParagraphStyle
 import androidx.ui.text.TextStyle
 import androidx.ui.text.style.TextAlign
@@ -63,9 +66,9 @@ class PopupActivity : Activity() {
 
         setContent {
             val exampleIndex = +state { 0 }
-            val totalExamples = 8
+            val totalExamples = 9
 
-            Column(mainAxisSize = LayoutSize.Wrap) {
+            Column(mainAxisSize = LayoutSize.Wrap, crossAxisAlignment = CrossAxisAlignment.Center) {
                 FlexRow(
                     mainAxisSize = LayoutSize.Expand,
                     mainAxisAlignment = MainAxisAlignment.SpaceBetween
@@ -97,15 +100,16 @@ class PopupActivity : Activity() {
                                     1 -> "Different content for the popup"
                                     2 -> "Popup's behavior when the parent's size or position " +
                                             "changes"
-                                    3 -> "Aligning the popup inside a parent"
-                                    4 -> "Insert an email in the popup and then click outside to " +
+                                    3 -> "Aligning the popup below the parent"
+                                    4 -> "Aligning the popup inside a parent"
+                                    5 -> "Insert an email in the popup and then click outside to " +
                                             "dismiss"
-                                    5 -> "[bug] Undesired visual effect caused by" +
+                                    6 -> "[bug] Undesired visual effect caused by" +
                                             " having a new size content displayed at the old" +
                                             " position, until the new one is calculated"
-                                    6 -> "[bug] The popup is not aligning to its " +
-                                            "parent when the parent is inside a Scroller"
-                                    7 -> "[bug] The popup is not repositioned " +
+                                    7 -> "The popup is aligning to its parent when the parent is" +
+                                            " inside a Scroller"
+                                    8 -> "[bug] The popup is not repositioned " +
                                             "when the parent is moved by the keyboard"
                                     else -> "Demo description here"
                                 }
@@ -134,11 +138,12 @@ class PopupActivity : Activity() {
                     0 -> PopupToggle()
                     1 -> PopupWithChangingContent()
                     2 -> PopupWithChangingParent()
-                    3 -> PopupAlignmentDemo()
-                    4 -> PopupWithEditText()
-                    5 -> PopupWithChangingSize()
-                    6 -> PopupInsideScroller()
-                    7 -> PopupOnKeyboardUp()
+                    3 -> PopupDropdownAlignment()
+                    4 -> PopupAlignmentDemo()
+                    5 -> PopupWithEditText()
+                    6 -> PopupWithChangingSize()
+                    7 -> PopupInsideScroller()
+                    8 -> PopupOnKeyboardUp()
                 }
             }
         }
@@ -155,34 +160,39 @@ class PopupActivity : Activity() {
 @Composable
 fun PopupToggle() {
     val showPopup = +state { true }
+    val containerSize = 100.dp
 
-    if (showPopup.value) {
-        Popup(alignment = Alignment.Center) {
-            Wrap {
-                DrawShape(CircleShape, Color.Green)
-                Container(width = 70.dp, height = 70.dp) {
-                    Text(
-                        text = "This is a popup!",
-                        paragraphStyle = ParagraphStyle(textAlign = TextAlign.Center)
-                    )
+    Column(crossAxisAlignment = CrossAxisAlignment.Center) {
+        Container(width = containerSize, height = containerSize) {
+            if (showPopup.value) {
+                Popup(alignment = Alignment.Center) {
+                    Wrap {
+                        DrawShape(CircleShape, Color.Green)
+                        Container(width = 70.dp, height = 70.dp) {
+                            Text(
+                                text = "This is a popup!",
+                                paragraphStyle = ParagraphStyle(textAlign = TextAlign.Center)
+                            )
+                        }
+                    }
                 }
             }
         }
-    }
 
-    ClickableTextWithBackground(
-        text = "Toggle Popup",
-        color = Color.Cyan,
-        onClick = {
-            showPopup.value = !showPopup.value
-        }
-    )
+        ClickableTextWithBackground(
+            text = "Toggle Popup",
+            color = Color.Cyan,
+            onClick = {
+                showPopup.value = !showPopup.value
+            }
+        )
+    }
 }
 
 @Composable
 fun PopupWithChangingContent() {
     Container {
-        Column {
+        Column(crossAxisAlignment = CrossAxisAlignment.Center) {
             val heightSize = 120.dp
             val widthSize = 160.dp
             val popupContentState = +state { 0 }
@@ -234,7 +244,7 @@ fun PopupWithChangingParent() {
     val parentHeight = +state { 60.dp }
     val parentSizeChanged = +state { false }
 
-    Column {
+    Column(crossAxisAlignment = CrossAxisAlignment.Center) {
         Container(
             height = containerHeight,
             width = containerWidth,
@@ -283,6 +293,47 @@ fun PopupWithChangingParent() {
 }
 
 @Composable
+fun PopupDropdownAlignment() {
+    Container {
+        Column(crossAxisAlignment = CrossAxisAlignment.Center) {
+            val heightSize = 120.dp
+            val widthSize = 160.dp
+            val dropDownAlignment = +state { DropDownAlignment.Left }
+
+            ClickableTextWithBackground(
+                text = "Change alignment",
+                color = Color.Cyan,
+                onClick = {
+                    dropDownAlignment.value =
+                        if (dropDownAlignment.value == DropDownAlignment.Left)
+                            DropDownAlignment.Right
+                        else
+                            DropDownAlignment.Left
+                }
+            )
+
+            HeightSpacer(10.dp)
+
+            ColoredContainer(
+                height = heightSize,
+                width = widthSize,
+                color = Color.Gray
+            ) {
+                DropdownPopup(
+                    dropDownAlignment = dropDownAlignment.value
+                ) {
+                    ColoredContainer(
+                        width = 70.dp,
+                        height = 40.dp,
+                        color = Color.Blue
+                    ) {}
+                }
+            }
+        }
+    }
+}
+
+@Composable
 fun PopupAlignmentDemo() {
     Container(alignment = Alignment.Center) {
         val heightSize = 200.dp
@@ -290,7 +341,7 @@ fun PopupAlignmentDemo() {
         val counter = +state { 0 }
         val popupAlignment = +state { Alignment.TopLeft }
 
-        Column {
+        Column(crossAxisAlignment = CrossAxisAlignment.Center) {
             ColoredContainer(
                 height = heightSize,
                 width = widthSize,
@@ -330,7 +381,7 @@ fun PopupAlignmentDemo() {
 @Composable
 fun PopupWithEditText() {
     Container {
-        Column {
+        Column(crossAxisAlignment = CrossAxisAlignment.Center) {
             val widthSize = 190.dp
             val heightSize = 120.dp
             val editLineSize = 150.dp
@@ -377,7 +428,7 @@ fun PopupWithEditText() {
 @Composable
 fun PopupWithChangingSize() {
     Container {
-        Column {
+        Column(crossAxisAlignment = CrossAxisAlignment.Center) {
             val showPopup = +state { true }
             val heightSize = 120.dp
             val widthSize = 160.dp
@@ -434,7 +485,7 @@ fun PopupInsideScroller() {
     val widthSize = 200.dp
     Container(width = widthSize, height = heightSize) {
         VerticalScroller {
-            Column {
+            Column(crossAxisAlignment = CrossAxisAlignment.Center) {
                 ColoredContainer(
                     width = 80.dp,
                     height = 160.dp,
@@ -456,7 +507,7 @@ fun PopupInsideScroller() {
 @Composable
 fun PopupOnKeyboardUp() {
     Container {
-        Column {
+        Column(crossAxisAlignment = CrossAxisAlignment.Center) {
             val widthSize = 190.dp
             val heightSize = 120.dp
 
