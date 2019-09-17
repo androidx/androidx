@@ -44,7 +44,7 @@ android {
 dependencies {
     api project(':work:work-runtime')
     api(KOTLIN_STDLIB)
-    api(KOTLIN_COROUTINES)
+    api(KOTLIN_COROUTINES_ANDROID)
 
     androidTestImplementation project(':concurrent:concurrent-futures'), {
     	exclude group: 'androidx.annotation'
