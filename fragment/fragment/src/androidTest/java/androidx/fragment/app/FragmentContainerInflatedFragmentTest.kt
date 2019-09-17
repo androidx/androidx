@@ -45,6 +45,25 @@ class FragmentContainerInflatedFragmentTest {
     }
 
     @Test
+    fun testContentViewWithNoID() {
+        with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+            withActivity {
+                try {
+                    setContentView(R.layout.fragment_container_view_no_id)
+                } catch (e: Exception) {
+                    assertThat(e)
+                        .hasMessageThat()
+                        .contains(
+                            "FragmentContainerView must have an android:id to add Fragment " +
+                                    "androidx.fragment.app.StrictViewFragment with tag " +
+                                    "no_id_fragment."
+                        )
+                }
+            }
+        }
+    }
+
+    @Test
     fun addInflatedFragmentToParentChildFragmentManager() {
         with(ActivityScenario.launch(InflatedContainerActivity::class.java)) {
             val parent = InflatedParentFragment()
