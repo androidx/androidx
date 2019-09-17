@@ -252,7 +252,7 @@ fun Text(
                 ) {}
             }
             minIntrinsicWidth { _, _ ->
-                textDelegate.layout(Constraints(0.ipx, IntPx.Infinity, 0.ipx, IntPx.Infinity))
+                textDelegate.layoutIntrinsics()
                 textDelegate.minIntrinsicWidth.px.round()
             }
             minIntrinsicHeight { _, width ->
@@ -260,8 +260,8 @@ fun Text(
                 textDelegate.layout(Constraints(0.ipx, width, 0.ipx, IntPx.Infinity))
                 textDelegate.height.px.round()
             }
-            maxIntrinsicWidth { _, height ->
-                textDelegate.layout(Constraints(0.ipx, IntPx.Infinity, 0.ipx, height))
+            maxIntrinsicWidth { _, _ ->
+                textDelegate.layoutIntrinsics()
                 textDelegate.maxIntrinsicWidth.px.round()
             }
             maxIntrinsicHeight { _, width ->

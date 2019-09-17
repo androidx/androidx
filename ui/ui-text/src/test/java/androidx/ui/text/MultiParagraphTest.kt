@@ -32,7 +32,7 @@ class MultiParagraphTest {
         val annotatedString = AnnotatedString(text = text, paragraphStyles = paragraphStyles)
         val defaultParagraphStyle = ParagraphStyle(lineHeight = 2.0f)
 
-        val paragraphs = fillInParagraphRanges(annotatedString, defaultParagraphStyle)
+        val paragraphs = annotatedString.normalizedParagraphStyles(defaultParagraphStyle)
 
         assertThat(paragraphs.size).isEqualTo(2)
 
@@ -51,7 +51,7 @@ class MultiParagraphTest {
         val annotatedString = AnnotatedString(text = text)
         val defaultParagraphStyle = ParagraphStyle(lineHeight = 2.0f)
 
-        val paragraphs = fillInParagraphRanges(annotatedString, defaultParagraphStyle)
+        val paragraphs = annotatedString.normalizedParagraphStyles(defaultParagraphStyle)
 
         assertThat(paragraphs.size).isEqualTo(1)
 
@@ -66,7 +66,7 @@ class MultiParagraphTest {
         val annotatedString = AnnotatedString(text = text)
         val defaultParagraphStyle = ParagraphStyle(lineHeight = 2.0f)
 
-        val paragraphs = fillInParagraphRanges(annotatedString, defaultParagraphStyle)
+        val paragraphs = annotatedString.normalizedParagraphStyles(defaultParagraphStyle)
 
         assertThat(paragraphs.size).isEqualTo(1)
 
@@ -81,7 +81,7 @@ class MultiParagraphTest {
         val annotatedString = AnnotatedString(text = text)
         val defaultParagraphStyle = ParagraphStyle(lineHeight = 2.0f)
 
-        val paragraphs = fillInParagraphRanges(annotatedString, defaultParagraphStyle)
+        val paragraphs = annotatedString.normalizedParagraphStyles(defaultParagraphStyle)
 
         assertThat(paragraphs.size).isEqualTo(1)
 
@@ -96,7 +96,7 @@ class MultiParagraphTest {
         val annotatedString = AnnotatedString(text = text)
         val defaultParagraphStyle = ParagraphStyle(lineHeight = 2.0f)
 
-        val paragraphs = fillInParagraphRanges(annotatedString, defaultParagraphStyle)
+        val paragraphs = annotatedString.normalizedParagraphStyles(defaultParagraphStyle)
 
         assertThat(paragraphs.size).isEqualTo(1)
 

@@ -102,6 +102,10 @@ package androidx.ui.text {
     method public T! getStyle();
   }
 
+  public final class AnnotatedStringKt {
+    ctor public AnnotatedStringKt();
+  }
+
   public final class Locale {
     ctor public Locale(String languageTag);
     method public String getLanguage();

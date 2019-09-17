@@ -116,6 +116,10 @@ package androidx.ui.text {
     method public T! getStyle();
   }
 
+  public final class AnnotatedStringKt {
+    ctor public AnnotatedStringKt();
+  }
+
   public final class Locale {
     ctor public Locale(String languageTag);
     method public String getLanguage();
@@ -153,6 +157,20 @@ package androidx.ui.text {
   public static final class LocaleList.Companion {
     method public androidx.ui.text.LocaleList getCurrent();
     property public final androidx.ui.text.LocaleList current;
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class MultiParagraphIntrinsics implements androidx.ui.text.ParagraphIntrinsics {
+    ctor public MultiParagraphIntrinsics(androidx.ui.text.AnnotatedString annotatedString, androidx.ui.text.TextStyle textStyle, androidx.ui.text.ParagraphStyle paragraphStyle, androidx.ui.core.Density density, androidx.ui.core.LayoutDirection layoutDirection, androidx.ui.text.font.Font.ResourceLoader resourceLoader);
+    method public androidx.ui.text.AnnotatedString getAnnotatedString();
+    method public androidx.ui.core.Density getDensity();
+    method public androidx.ui.core.LayoutDirection getLayoutDirection();
+    method public float getMaxIntrinsicWidth();
+    method public float getMinIntrinsicWidth();
+    method public androidx.ui.text.ParagraphStyle getParagraphStyle();
+    method public androidx.ui.text.font.Font.ResourceLoader getResourceLoader();
+    method public androidx.ui.text.TextStyle getTextStyle();
+    property public float maxIntrinsicWidth;
+    property public float minIntrinsicWidth;
   }
 
   public final class MultiParagraphKt {
