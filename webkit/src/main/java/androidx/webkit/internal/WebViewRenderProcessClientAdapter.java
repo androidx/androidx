@@ -55,6 +55,7 @@ class WebViewRenderProcessClientAdapter implements WebViewRendererClientBoundary
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     @Override
+    @NonNull
     public final String[] getSupportedFeatures() {
         return sSupportedFeatures;
     }
