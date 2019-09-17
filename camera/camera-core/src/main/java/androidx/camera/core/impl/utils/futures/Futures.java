@@ -16,6 +16,8 @@
 
 package androidx.camera.core.impl.utils.futures;
 
+import static androidx.core.util.Preconditions.checkNotNull;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.arch.core.util.Function;
@@ -25,6 +27,7 @@ import androidx.core.util.Preconditions;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.CancellationException;
@@ -99,7 +102,9 @@ public final class Futures {
             @NonNull ListenableFuture<I> input,
             @NonNull AsyncFunction<? super I, ? extends O> function,
             @NonNull Executor executor) {
-        return AbstractTransformFuture.create(input, function, executor);
+        ChainingListenableFuture<I, O> output = new ChainingListenableFuture<I, O>(function, input);
+        input.addListener(output, executor);
+        return output;
     }
 
     /**
@@ -115,9 +120,17 @@ public final class Futures {
      */
     @NonNull
     public static <I, O> ListenableFuture<O> transform(
-            @NonNull ListenableFuture<I> input, @NonNull Function<? super I, ? extends O> function,
+            @NonNull ListenableFuture<I> input,
+            @NonNull Function<? super I, ? extends O> function,
             @NonNull Executor executor) {
-        return AbstractTransformFuture.create(input, function, executor);
+        checkNotNull(function);
+        return transformAsync(input, new AsyncFunction<I, O>() {
+
+            @Override
+            public ListenableFuture<O> apply(I input) {
+                return immediateFuture(function.apply(input));
+            }
+        }, executor);
     }
 
     private static final Function<?, ?> IDENTITY_FUNCTION = new Function<Object, Object>() {
@@ -210,7 +223,8 @@ public final class Futures {
     @NonNull
     public static <V> ListenableFuture<List<V>> successfulAsList(
             @NonNull Collection<? extends ListenableFuture<? extends V>> futures) {
-        return new CollectionFuture.ListFuture<V>(futures, false);
+        return new ListFuture<V>(new ArrayList<>(futures), false,
+                CameraXExecutors.directExecutor());
     }
 
     /**
@@ -228,7 +242,7 @@ public final class Futures {
     @NonNull
     public static <V> ListenableFuture<List<V>> allAsList(
             @NonNull Collection<? extends ListenableFuture<? extends V>> futures) {
-        return new CollectionFuture.ListFuture<V>(futures, true);
+        return new ListFuture<V>(new ArrayList<>(futures), true, CameraXExecutors.directExecutor());
     }
 
     /**
