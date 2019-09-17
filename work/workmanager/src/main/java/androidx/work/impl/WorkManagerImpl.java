@@ -584,7 +584,17 @@ public class WorkManagerImpl extends WorkManager {
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public void stopWork(@NonNull String workSpecId) {
-        mWorkTaskExecutor.executeOnBackgroundThread(new StopWorkRunnable(this, workSpecId));
+        mWorkTaskExecutor.executeOnBackgroundThread(new StopWorkRunnable(this, workSpecId, false));
+    }
+
+    /**
+     * @param workSpecId The {@link WorkSpec} id to stop when running in the context of a
+     *                   foreground service.
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public void stopForegroundWork(@NonNull String workSpecId) {
+        mWorkTaskExecutor.executeOnBackgroundThread(new StopWorkRunnable(this, workSpecId, true));
     }
 
     /**

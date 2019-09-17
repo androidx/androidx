@@ -27,7 +27,19 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.work.Logger;
 import androidx.work.NotificationMetadata;
+import androidx.work.impl.ExecutionListener;
+import androidx.work.impl.WorkDatabase;
 import androidx.work.impl.WorkManagerImpl;
+import androidx.work.impl.constraints.WorkConstraintsCallback;
+import androidx.work.impl.constraints.WorkConstraintsTracker;
+import androidx.work.impl.model.WorkSpec;
+import androidx.work.impl.utils.taskexecutor.TaskExecutor;
+
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Handles requests for executing {@link androidx.work.WorkRequest}s on behalf of
@@ -36,7 +48,7 @@ import androidx.work.impl.WorkManagerImpl;
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class SystemForegroundDispatcher {
+public class SystemForegroundDispatcher implements WorkConstraintsCallback, ExecutionListener {
     // Synthetic access
     static final String TAG = Logger.tagWithPrefix("SystemFgDispatcher");
 
@@ -45,6 +57,7 @@ public class SystemForegroundDispatcher {
     private static final String KEY_NOTIFICATION_ID = "KEY_NOTIFICATION_ID";
     private static final String KEY_NOTIFICATION_TYPE = "KEY_NOTIFICATION_TYPE";
     private static final String KEY_NOTIFICATION_TAG = "KEY_NOTIFICATION_TAG";
+    private static final String KEY_WORKSPEC_ID = "KEY_WORKSPEC_ID";
 
     // actions
     private static final String ACTION_START_FOREGROUND = "ACTION_START_FOREGROUND";
@@ -53,13 +66,49 @@ public class SystemForegroundDispatcher {
 
     private Context mContext;
     private WorkManagerImpl mWorkManagerImpl;
+    private final TaskExecutor mTaskExecutor;
+
+
+    @SuppressWarnings("WeakerAccess") // Synthetic access
+    final Object mLock;
+
+    @SuppressWarnings("WeakerAccess") // Synthetic access
+    final Map<String, WorkSpec> mWorkSpecById;
+
+    @SuppressWarnings("WeakerAccess") // Synthetic access
+    final Set<WorkSpec> mTrackedWorkSpecs;
+
+    @SuppressWarnings("WeakerAccess") // Synthetic access
+    final WorkConstraintsTracker mConstraintsTracker;
 
     @Nullable
     private Callback mCallback;
 
     SystemForegroundDispatcher(@NonNull Context context) {
         mContext = context;
+        mLock = new Object();
         mWorkManagerImpl = WorkManagerImpl.getInstance(mContext);
+        mTaskExecutor = mWorkManagerImpl.getWorkTaskExecutor();
+        mTrackedWorkSpecs = new HashSet<>();
+        mWorkSpecById = new HashMap<>();
+        mConstraintsTracker = new WorkConstraintsTracker(mContext, mTaskExecutor, this);
+        mWorkManagerImpl.getProcessor().addExecutionListener(this);
+    }
+
+    @MainThread
+    @Override
+    public void onExecuted(@NonNull String workSpecId, boolean needsReschedule) {
+        boolean removed = false;
+        synchronized (mLock) {
+            WorkSpec workSpec = mWorkSpecById.remove(workSpecId);
+            if (workSpec != null) {
+                removed = mTrackedWorkSpecs.remove(workSpec);
+            }
+        }
+        if (removed) {
+            // Stop tracking
+            mConstraintsTracker.replace(mTrackedWorkSpecs);
+        }
     }
 
     @MainThread
@@ -89,11 +138,28 @@ public class SystemForegroundDispatcher {
     @MainThread
     void onDestroy() {
         mCallback = null;
+        mConstraintsTracker.reset();
+        mWorkManagerImpl.getProcessor().removeExecutionListener(this);
     }
 
     @MainThread
     private void handleStartForeground(@NonNull Intent intent) {
         Logger.get().info(TAG, String.format("Started foreground service %s", intent));
+        final String workSpecId = intent.getStringExtra(KEY_WORKSPEC_ID);
+        final WorkDatabase database = mWorkManagerImpl.getWorkDatabase();
+        mTaskExecutor.executeOnBackgroundThread(new Runnable() {
+            @Override
+            public void run() {
+                WorkSpec workSpec = database.workSpecDao().getWorkSpec(workSpecId);
+                if (workSpec != null) {
+                    synchronized (mLock) {
+                        mWorkSpecById.put(workSpecId, workSpec);
+                        mTrackedWorkSpecs.add(workSpec);
+                    }
+                    mConstraintsTracker.replace(mTrackedWorkSpecs);
+                }
+            }
+        });
     }
 
     @MainThread
@@ -115,16 +181,37 @@ public class SystemForegroundDispatcher {
         }
     }
 
+    @Override
+    public void onAllConstraintsMet(@NonNull List<String> workSpecIds) {
+        // Do nothing
+    }
+
+    @Override
+    public void onAllConstraintsNotMet(@NonNull List<String> workSpecIds) {
+        if (!workSpecIds.isEmpty()) {
+            for (String workSpecId : workSpecIds) {
+                Logger.get().debug(TAG,
+                        String.format("Constraints unmet for WorkSpec %s", workSpecId));
+                mWorkManagerImpl.stopForegroundWork(workSpecId);
+            }
+        }
+    }
+
     /**
      * The {@link Intent} is used to start a foreground {@link android.app.Service}.
      *
-     * @param context   The application {@link Context}
+     * @param context    The application {@link Context}
+     * @param workSpecId The WorkSpec id of the Worker being executed in the context of the
+     *                   foreground service
      * @return The {@link Intent}
      */
     @NonNull
-    public static Intent createStartForegroundIntent(@NonNull Context context) {
+    public static Intent createStartForegroundIntent(
+            @NonNull Context context,
+            @NonNull String workSpecId) {
         Intent intent = new Intent(context, SystemForegroundService.class);
         intent.setAction(ACTION_START_FOREGROUND);
+        intent.putExtra(KEY_WORKSPEC_ID, workSpecId);
         return intent;
     }
 
@@ -152,7 +239,7 @@ public class SystemForegroundDispatcher {
     }
 
     /**
-     * The {@link Intent} is used to start a foreground {@link android.app.Service}.
+     * The {@link Intent} is used to stop a foreground {@link android.app.Service}.
      *
      * @param context   The application {@link Context}
      * @return The {@link Intent}
