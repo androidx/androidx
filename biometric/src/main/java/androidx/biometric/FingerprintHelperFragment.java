@@ -53,6 +53,38 @@ public class FingerprintHelperFragment extends Fragment {
     static final int USER_CANCELED_FROM_USER = 1;
     static final int USER_CANCELED_FROM_NEGATIVE_BUTTON = 2;
 
+    /**
+     * Pass-through class for obtaining and sending messages without directly invoking the
+     * corresponding {@link Handler} methods. Intended to be faked for testing.
+     */
+    @VisibleForTesting
+    static class MessageRouter {
+        private final Handler mHandler;
+
+        @VisibleForTesting
+        MessageRouter(Handler handler) {
+            mHandler = handler;
+        }
+
+        @VisibleForTesting
+        void sendMessage(int what) {
+            mHandler.obtainMessage(what).sendToTarget();
+        }
+
+        @VisibleForTesting
+        void sendMessage(int what, Object obj) {
+            mHandler.obtainMessage(what, obj).sendToTarget();
+        }
+
+        @VisibleForTesting
+        void sendMessage(int what, int arg1, int arg2, Object obj) {
+            mHandler.obtainMessage(what, arg1, arg2, obj).sendToTarget();
+        }
+    }
+
+    @VisibleForTesting
+    MessageRouter mMessageRouter;
+
     // Re-set by the application, through BiometricPromptCompat upon orientation changes.
     @VisibleForTesting
     Executor mExecutor;
@@ -73,16 +105,16 @@ public class FingerprintHelperFragment extends Fragment {
     private CancellationSignal mCancellationSignal;
 
     // Also created once and retained.
+    @VisibleForTesting
     @SuppressWarnings("deprecation")
-    private final androidx.core.hardware.fingerprint.FingerprintManagerCompat.AuthenticationCallback
+    final androidx.core.hardware.fingerprint.FingerprintManagerCompat.AuthenticationCallback
             mAuthenticationCallback =
             new androidx.core.hardware.fingerprint.FingerprintManagerCompat
                     .AuthenticationCallback() {
 
                 private void dismissAndForwardResult(final int errMsgId,
                         final CharSequence errString) {
-                    mHandler.obtainMessage(FingerprintDialogFragment.MSG_DISMISS_DIALOG_ERROR)
-                            .sendToTarget();
+                    mMessageRouter.sendMessage(FingerprintDialogFragment.MSG_DISMISS_DIALOG_ERROR);
                     if (!isConfirmingDeviceCredential()) {
                         mExecutor.execute(
                                 new Runnable() {
@@ -121,8 +153,8 @@ public class FingerprintHelperFragment extends Fragment {
                         final int errMsgIdToSend = Utils.isUnknownError(errMsgId)
                                 ? BiometricPrompt.ERROR_VENDOR : errMsgId;
 
-                        mHandler.obtainMessage(FingerprintDialogFragment.MSG_SHOW_ERROR,
-                                errMsgIdToSend, 0, errStringNonNull).sendToTarget();
+                        mMessageRouter.sendMessage(FingerprintDialogFragment.MSG_SHOW_ERROR,
+                                errMsgIdToSend, 0, errStringNonNull);
                         if (!isConfirmingDeviceCredential()) {
                             mHandler.postDelayed(
                                     new Runnable() {
@@ -148,33 +180,39 @@ public class FingerprintHelperFragment extends Fragment {
                 @Override
                 public void onAuthenticationHelp(final int helpMsgId,
                         final CharSequence helpString) {
-                    mHandler.obtainMessage(FingerprintDialogFragment.MSG_SHOW_HELP, helpString)
-                            .sendToTarget();
+                    mMessageRouter.sendMessage(FingerprintDialogFragment.MSG_SHOW_HELP, helpString);
                     // Don't forward the result to the client, since the dialog takes care of it.
                 }
 
                 @Override
                 public void onAuthenticationSucceeded(final androidx.core.hardware.fingerprint
                         .FingerprintManagerCompat.AuthenticationResult result) {
-                    mHandler.obtainMessage(
-                            FingerprintDialogFragment.MSG_DISMISS_DIALOG_AUTHENTICATED)
-                            .sendToTarget();
+
+                    mMessageRouter.sendMessage(
+                            FingerprintDialogFragment.MSG_DISMISS_DIALOG_AUTHENTICATED);
+
+                    // Create a dummy result if necessary, since the framework result isn't
+                    // guaranteed to be non-null.
+                    final BiometricPrompt.AuthenticationResult promptResult =
+                            result != null
+                                    ? new BiometricPrompt.AuthenticationResult(
+                                            unwrapCryptoObject(result.getCryptoObject()))
+                                    : new BiometricPrompt.AuthenticationResult(null /* crypto */);
+
                     mExecutor.execute(new Runnable() {
                         @Override
                         public void run() {
-                            mClientAuthenticationCallback.onAuthenticationSucceeded(
-                                    new BiometricPrompt.AuthenticationResult(
-                                            unwrapCryptoObject(result.getCryptoObject())));
+                            mClientAuthenticationCallback.onAuthenticationSucceeded(promptResult);
                         }
                     });
+
                     cleanup();
                 }
 
                 @Override
                 public void onAuthenticationFailed() {
-                    mHandler.obtainMessage(FingerprintDialogFragment.MSG_SHOW_HELP,
-                            mContext.getResources().getString(R.string.fingerprint_not_recognized))
-                            .sendToTarget();
+                    mMessageRouter.sendMessage(FingerprintDialogFragment.MSG_SHOW_HELP,
+                            mContext.getResources().getString(R.string.fingerprint_not_recognized));
                     mExecutor.execute(new Runnable() {
                         @Override
                         public void run() {
@@ -217,8 +255,7 @@ public class FingerprintHelperFragment extends Fragment {
             androidx.core.hardware.fingerprint.FingerprintManagerCompat fingerprintManagerCompat =
                     androidx.core.hardware.fingerprint.FingerprintManagerCompat.from(mContext);
             if (handlePreAuthenticationErrors(fingerprintManagerCompat)) {
-                mHandler.obtainMessage(
-                        FingerprintDialogFragment.MSG_DISMISS_DIALOG_ERROR).sendToTarget();
+                mMessageRouter.sendMessage(FingerprintDialogFragment.MSG_DISMISS_DIALOG_ERROR);
                 cleanup();
             } else {
                 fingerprintManagerCompat.authenticate(
@@ -248,6 +285,12 @@ public class FingerprintHelperFragment extends Fragment {
      */
     void setHandler(Handler handler) {
         mHandler = handler;
+        mMessageRouter = new MessageRouter(mHandler);
+    }
+
+    @VisibleForTesting
+    void setMessageRouter(MessageRouter messageRouter) {
+        mMessageRouter = messageRouter;
     }
 
     /**
