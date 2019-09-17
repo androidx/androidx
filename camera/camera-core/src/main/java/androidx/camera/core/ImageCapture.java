@@ -47,8 +47,8 @@ import androidx.camera.core.ImageOutputConfig.RotationValue;
 import androidx.camera.core.impl.utils.Threads;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.impl.utils.futures.AsyncFunction;
-import androidx.camera.core.impl.utils.futures.FluentFuture;
 import androidx.camera.core.impl.utils.futures.FutureCallback;
+import androidx.camera.core.impl.utils.futures.FutureChain;
 import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
 
@@ -611,7 +611,7 @@ public class ImageCapture extends UseCase {
     private void takePictureInternal() {
         final TakePictureState state = new TakePictureState();
 
-        FluentFuture.from(preTakePicture(state))
+        FutureChain.from(preTakePicture(state))
                 .transformAsync(new AsyncFunction<Void, Void>() {
                     @Override
                     public ListenableFuture<Void> apply(Void v) throws Exception {
@@ -755,7 +755,7 @@ public class ImageCapture extends UseCase {
      * <p>For example, trigger 3A scan, open torch and check 3A converged if necessary.
      */
     private ListenableFuture<Void> preTakePicture(final TakePictureState state) {
-        return FluentFuture.from(getPreCaptureStateIfNeeded())
+        return FutureChain.from(getPreCaptureStateIfNeeded())
                 .transformAsync(
                         new AsyncFunction<CameraCaptureResult, Boolean>() {
                             @Override
