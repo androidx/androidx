@@ -51,3 +51,7 @@ RegistrationName: androidx.paging.PagedList#addWeakCallback(androidx.paging.Page
     Callback methods should be named register/unregister; was addWeakCallback
 RegistrationName: androidx.paging.PagedList#removeWeakCallback(androidx.paging.PagedList.Callback):
     Callback methods should be named register/unregister; was removeWeakCallback
+
+
+SetterReturnsThis: androidx.paging.PagedList.Builder:
+    Methods must return the builder object (return type Builder instead of androidx.paging.PagedList.Builder<Key,Value>): method androidx.paging.PagedList.Builder.setCoroutineScope(kotlinx.coroutines.CoroutineScope)

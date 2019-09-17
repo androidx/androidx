@@ -17,3 +17,7 @@ MissingNullability: androidx.room.RoomDatabase.Builder#fallbackToDestructiveMigr
 
 RegistrationName: androidx.room.RoomDatabase.Builder#addCallback(androidx.room.RoomDatabase.Callback):
     Callback methods should be named register/unregister; was addCallback
+
+
+SetterReturnsThis: androidx.room.RoomDatabase.Builder:
+    Methods must return the builder object (return type Builder instead of androidx.room.RoomDatabase.Builder<T>): method androidx.room.RoomDatabase.Builder.setJournalMode(androidx.room.RoomDatabase.JournalMode)
