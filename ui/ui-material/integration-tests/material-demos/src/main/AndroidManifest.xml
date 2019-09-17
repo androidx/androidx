@@ -147,6 +147,15 @@
             </intent-filter>
         </activity>
 
+        <activity android:name=".DataTableActivity"
+                  android:configChanges="orientation|screenSize"
+                  android:label="Material/Data tables">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="androidx.ui.demos.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
         <activity android:name=".MaterialSettingsActivity"
                   android:label="Material Theme Settings"
                   android:theme="@style/Theme.AppCompat.Light.DarkActionBar">

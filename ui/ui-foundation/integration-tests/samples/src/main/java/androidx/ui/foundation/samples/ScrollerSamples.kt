@@ -155,7 +155,7 @@ private fun Square(index: Int) {
 @Composable
 private fun ScrollControl(position: ScrollerPosition, scrollable: State<Boolean>) {
     Padding(top = 20.dp) {
-        Table(3, childAlignment = Alignment.Center) {
+        Table(3, alignment = { Alignment.Center }) {
             tableRow {
                 Text("Scroll")
                 SquareButton("< -", Color.Red) {
