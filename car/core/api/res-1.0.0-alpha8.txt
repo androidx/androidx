@@ -300,6 +300,8 @@ attr pagedListViewStyle
 attr pagedScrollBarViewStyle
 attr scrollBarColor
 attr scrollBarContainerWidth
+attr scrollBarDividerVisibleIfNeeded
+attr scrollBarDividerWidth
 attr scrollBarEnabled
 attr scrollBarGravity
 attr scrollBarTopMargin

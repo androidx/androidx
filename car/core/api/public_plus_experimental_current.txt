@@ -492,9 +492,12 @@ package androidx.car.widget {
     method public androidx.recyclerview.widget.RecyclerView getRecyclerView();
     method public int getRowsPerPage();
     method @Px public int getScrollBarContainerWidth();
+    method @ColorInt public int getScrollBarDividerColor();
+    method @Px public int getScrollBarDividerWidth();
     method public boolean isAlphaJumpShown();
     method public boolean isAtEnd();
     method public boolean isAtStart();
+    method public boolean isScrollBarDividerVisibleIfNeeded();
     method public final boolean isScrollBarVisibleIfNeeded();
     method public boolean isScrollbarThumbEnabled();
     method public void onLayout(boolean, int, int, int, int);
@@ -524,6 +527,9 @@ package androidx.car.widget {
     method public void setScrollBarButtonRippleBackground(@DrawableRes int);
     method public void setScrollBarButtonTintColor(@ColorRes int);
     method public void setScrollBarContainerWidth(@Px int);
+    method public void setScrollBarDividerColor(@ColorInt int);
+    method public void setScrollBarDividerVisibleIfNeeded(boolean);
+    method public void setScrollBarDividerWidth(@Px int);
     method @Deprecated public final void setScrollBarEnabled(boolean);
     method public void setScrollBarGravity(int);
     method public void setScrollBarTopMargin(int);
