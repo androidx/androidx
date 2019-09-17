@@ -124,14 +124,15 @@ class ContiguousPagedListTest(private val placeholdersEnabled: Boolean) {
     }
 
     private fun <E : Any> PagedList<E>.addLoadStateCapture(desiredType: LoadType):
-            MutableList<StateChange> {
+            Pair<Any, MutableList<StateChange>> {
         val list = mutableListOf<StateChange>()
-        this.addWeakLoadStateListener { type, state ->
+        val listener: LoadStateListener = { type, state ->
             if (type == desiredType) {
                 list.add(StateChange(type, state))
             }
         }
-        return list
+        addWeakLoadStateListener(listener)
+        return Pair(listener, list)
     }
 
     private fun verifyRange(start: Int, count: Int, actual: PagedStorage<Item>) {
@@ -563,7 +564,8 @@ class ContiguousPagedListTest(private val placeholdersEnabled: Boolean) {
     @Test
     fun loadingListenerAppend() {
         val pagedList = createCountedPagedList(0)
-        val states = pagedList.addLoadStateCapture(LoadType.END)
+        val capture = pagedList.addLoadStateCapture(LoadType.END)
+        val states = capture.second
 
         // No loading going on currently
         assertEquals(
@@ -635,7 +637,8 @@ class ContiguousPagedListTest(private val placeholdersEnabled: Boolean) {
             prefetchDistance = 1,
             maxSize = 3
         )
-        val states = pagedList.addLoadStateCapture(LoadType.START)
+        val capture = pagedList.addLoadStateCapture(LoadType.START)
+        val states = capture.second
 
         // load 3 pages - 2nd, 3rd, 4th
         pagedList.loadAround(if (placeholdersEnabled) 2 else 0)
@@ -683,7 +686,8 @@ class ContiguousPagedListTest(private val placeholdersEnabled: Boolean) {
             prefetchDistance = 1,
             maxSize = 3
         )
-        val states = pagedList.addLoadStateCapture(LoadType.END)
+        val capture = pagedList.addLoadStateCapture(LoadType.END)
+        val states = capture.second
 
         // load 3 pages - 2nd, 3rd, 4th
         pagedList.loadAround(if (placeholdersEnabled) 2 else 0)
@@ -725,12 +729,8 @@ class ContiguousPagedListTest(private val placeholdersEnabled: Boolean) {
     fun errorIntoDrop() {
         // have an error, move loading range, error goes away
         val pagedList = createCountedPagedList(0)
-        val states = mutableListOf<StateChange>()
-        pagedList.addWeakLoadStateListener { type, state ->
-            if (type == LoadType.END) {
-                states.add(StateChange(type, state))
-            }
-        }
+        val capture = pagedList.addLoadStateCapture(LoadType.END)
+        val states = capture.second
 
         pagedList.pagedSource.enqueueErrorForIndex(45)
         pagedList.loadAround(35)
