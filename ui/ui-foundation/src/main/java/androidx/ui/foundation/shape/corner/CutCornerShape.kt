@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.ui.material.shape
+package androidx.ui.foundation.shape.corner
 
 import androidx.annotation.IntRange
 import androidx.ui.core.Dp
@@ -23,8 +23,6 @@ import androidx.ui.core.PxSize
 import androidx.ui.core.dp
 import androidx.ui.core.px
 import androidx.ui.engine.geometry.Outline
-import androidx.ui.foundation.shape.corner.CornerBasedShape
-import androidx.ui.foundation.shape.corner.CornerSize
 import androidx.ui.graphics.Path
 
 /**
