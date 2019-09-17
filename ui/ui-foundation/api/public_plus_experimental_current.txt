@@ -32,8 +32,6 @@ package androidx.ui.foundation {
     method public void allHorizontal(androidx.ui.foundation.shape.border.Border border = defaultBorder);
     method public void allVertical(androidx.ui.foundation.shape.border.Border border = defaultBorder);
     method public void bottom(androidx.ui.foundation.shape.border.Border border = defaultBorder);
-    method public int getColumnCount();
-    method public int getRowCount();
     method public void horizontal(int row, kotlin.ranges.IntRange columns = 0 <other> columnCount, androidx.ui.foundation.shape.border.Border border = defaultBorder);
     method public void left(androidx.ui.foundation.shape.border.Border border = defaultBorder);
     method public void outer(androidx.ui.foundation.shape.border.Border border = defaultBorder);
