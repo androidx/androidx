@@ -478,7 +478,7 @@ data class TableMeasurable internal constructor(
 @Composable
 fun Table(
     columns: Int,
-    childAlignment: Alignment = Alignment.TopLeft,
+    alignment: (columnIndex: Int) -> Alignment = { Alignment.TopLeft },
     columnWidth: (columnIndex: Int) -> TableColumnWidth = { TableColumnWidth.Flex(1f) },
     block: TableChildren.() -> Unit
 ) {
@@ -598,7 +598,7 @@ fun Table(
                 for (row in 0 until rows) {
                     for (column in 0 until columns) {
                         placeables[row][column]?.let {
-                            val position = childAlignment.align(
+                            val position = alignment(column).align(
                                 IntPxSize(
                                     width = columnWidths[column] - it.width,
                                     height = rowHeights[row] - it.height
