@@ -125,6 +125,32 @@ public class DataTest {
     }
 
     @Test
+    @SuppressWarnings("ConstantConditions")
+    public void testEquals_nullValues() {
+        Data first = createData();
+        Data second = null;
+        assertThat(first.equals(second), is(false));
+    }
+
+    @Test
+    public void testEquals_sameKeysDifferentValues() {
+        Data first = createData();
+        Data second = new Data.Builder()
+                .putAll(first)
+                .put("byte", (byte) 100)
+                .build();
+
+        assertThat(first.equals(second), is(false));
+    }
+
+    @Test
+    public void testEquals_deepEquals() {
+        Data first = createData();
+        Data second = createData();
+        assertThat(first.equals(second), is(true));
+    }
+
+    @Test
     public void testPutAll() {
         Data data = createData();
         assertThat(data.getByte("byte", (byte) 0), is((byte) 1));

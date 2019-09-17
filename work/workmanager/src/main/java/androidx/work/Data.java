@@ -34,6 +34,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * A persistable set of key/value pairs which are used as inputs and outputs for
@@ -469,8 +470,30 @@ public final class Data {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
+
         Data other = (Data) o;
-        return mValues.equals(other.mValues);
+        Set<String> keys = mValues.keySet();
+        if (!keys.equals(other.mValues.keySet())) {
+            return false;
+        }
+
+        for (String key : keys) {
+            Object value = mValues.get(key);
+            Object otherValue = other.mValues.get(key);
+            boolean equal;
+            if (value == null || otherValue == null) {
+                equal = value == otherValue;
+            } else if (value instanceof Object[] && otherValue instanceof Object[]) {
+                equal = Arrays.deepEquals((Object[]) value, (Object[]) otherValue);
+            } else {
+                equal = value.equals(otherValue);
+            }
+
+            if (!equal) {
+                return false;
+            }
+        }
+        return true;
     }
 
     @Override
