@@ -208,3 +208,108 @@ data class AnnotatedString(
         }
     }
 }
+
+/**
+ * A helper function used to determine the paragraph boundaries in [MultiParagraph].
+ *
+ * It reads paragraph information from [AnnotatedString.paragraphStyles] where only some parts of
+ * text has [ParagraphStyle] specified, and unspecified parts(gaps between specified paragraphs)
+ * are considered as default paragraph with default [ParagraphStyle].
+ * For example, the following string with a specified paragraph denoted by "[]"
+ *      "Hello WorldHi!"
+ *      [          ]
+ * The result paragraphs are "Hello World" and "Hi!".
+ *
+ * @param defaultParagraphStyle The default [ParagraphStyle]. It's used for both unspecified
+ *  default paragraphs and specified paragraph. When a specified paragraph's [ParagraphStyle] has
+ *  a null attribute, the default one will be used instead.
+ */
+internal fun AnnotatedString.normalizedParagraphStyles(
+    defaultParagraphStyle: ParagraphStyle
+): List<AnnotatedString.Item<ParagraphStyle>> {
+    val length = text.length
+    val paragraphStyles = paragraphStyles
+
+    var lastOffset = 0
+    val result = mutableListOf<AnnotatedString.Item<ParagraphStyle>>()
+    for ((style, start, end) in paragraphStyles) {
+        if (start != lastOffset) {
+            result.add(AnnotatedString.Item(defaultParagraphStyle, lastOffset, start))
+        }
+        result.add(AnnotatedString.Item(defaultParagraphStyle.merge(style), start, end))
+        lastOffset = end
+    }
+    if (lastOffset != length) {
+        result.add(AnnotatedString.Item(defaultParagraphStyle, lastOffset, length))
+    }
+    // This is a corner case where annotatedString is an empty string without any ParagraphStyle.
+    // In this case, a dummy ParagraphStyle is created.
+    if (result.isEmpty()) {
+        result.add(AnnotatedString.Item(defaultParagraphStyle, 0, 0))
+    }
+    return result
+}
+
+/**
+ * Helper function used to find the [TextStyle]s in the given paragraph range and also convert the
+ * range of those [TextStyle]s to paragraph local range.
+ *
+ * @param start The start index of the paragraph range, inclusive.
+ * @param end The end index of the paragraph range, exclusive.
+ * @return The list of converted [TextStyle]s in the given paragraph range.
+ */
+private fun AnnotatedString.getLocalStyles(
+    start: Int,
+    end: Int
+): List<AnnotatedString.Item<TextStyle>> {
+    if (start == end) {
+        return listOf()
+    }
+    // If the given range covers the whole AnnotatedString, return textStyles without conversion.
+    if (start == 0 && end >= this.text.length) {
+        return textStyles
+    }
+    return textStyles.filter { it.start < end && it.end > start }
+        .map {
+            AnnotatedString.Item(
+                it.style,
+                it.start.coerceIn(start, end) - start,
+                it.end.coerceIn(start, end) - start
+            )
+        }
+}
+
+/**
+ * Helper function used to return another AnnotatedString that is a substring from [start] to
+ * [end]. This will ignore the [ParagraphStyle]s and the resulting [AnnotatedString] will have no
+ * [ParagraphStyle]s.
+ *
+ * @param start The start index of the paragraph range, inclusive.
+ * @param end The end index of the paragraph range, exclusive.
+ * @return The list of converted [TextStyle]s in the given paragraph range.
+ */
+private fun AnnotatedString.substringWithoutParagraphStyles(
+    start: Int,
+    end: Int
+): AnnotatedString {
+    return AnnotatedString(
+        text = if (start != end) text.substring(start, end) else "",
+        textStyles = getLocalStyles(start, end)
+    )
+}
+
+internal fun <T> AnnotatedString.forEachParagraphStyle(
+    defaultParagraphStyle: ParagraphStyle,
+    block: (
+        annotatedString: AnnotatedString,
+        paragraphStyle: AnnotatedString.Item<ParagraphStyle>
+    ) -> T
+): List<T> {
+    return normalizedParagraphStyles(defaultParagraphStyle).map { paragraphStyleItem ->
+        val annotatedString = substringWithoutParagraphStyles(
+            paragraphStyleItem.start,
+            paragraphStyleItem.end
+        )
+        block(annotatedString, paragraphStyleItem)
+    }
+}
