@@ -38,7 +38,7 @@ dependencies {
     api(project(":lifecycle:lifecycle-livedata"))
     api(ANDROIDX_RECYCLERVIEW)
     api(KOTLIN_STDLIB)
-    api(KOTLIN_COROUTINES)
+    api(KOTLIN_COROUTINES_ANDROID)
 
     androidTestImplementation project(':internal-testutils-common')
     androidTestImplementation project(':internal-testutils-ktx')
