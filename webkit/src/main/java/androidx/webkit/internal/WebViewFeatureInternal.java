@@ -415,6 +415,7 @@ public enum WebViewFeatureInternal {
                         Arrays.asList(WebViewGlueCommunicator.getFactory().getWebViewFeatures()));
     }
 
+    @NonNull
     public static Set<String> getWebViewApkFeaturesForTesting() {
         return LAZY_HOLDER.WEBVIEW_APK_FEATURES;
     }
@@ -423,6 +424,7 @@ public enum WebViewFeatureInternal {
      * Utility method for throwing an exception explaining that the feature the app trying to use
      * isn't supported.
      */
+    @NonNull
     public static UnsupportedOperationException getUnsupportedOperationException() {
         return new UnsupportedOperationException("This method is not supported by the current "
                 + "version of the framework and the current WebView APK");

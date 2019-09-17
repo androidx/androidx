@@ -19,6 +19,7 @@ package androidx.webkit.internal;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebResourceResponse;
 
+import androidx.annotation.NonNull;
 import androidx.webkit.ServiceWorkerClientCompat;
 
 import org.chromium.support_lib_boundary.ServiceWorkerClientBoundaryInterface;
@@ -42,6 +43,7 @@ public class ServiceWorkerClientAdapter implements ServiceWorkerClientBoundaryIn
     }
 
     @Override
+    @NonNull
     public String[] getSupportedFeatures() {
         return new String[] { Features.SERVICE_WORKER_SHOULD_INTERCEPT_REQUEST };
     }

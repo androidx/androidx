@@ -23,6 +23,7 @@ import android.webkit.WebResourceError;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebSettings;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.webkit.SafeBrowsingResponseCompat;
 import androidx.webkit.WebResourceErrorCompat;
@@ -51,6 +52,7 @@ public class WebkitToCompatConverter {
      * objects affect the other object. That WebSettingsAdapter can be used to implement
      * {@link androidx.webkit.WebSettingsCompat}.
      */
+    @NonNull
     public WebSettingsAdapter convertSettings(WebSettings webSettings) {
         return new WebSettingsAdapter(BoundaryInterfaceReflectionUtil.castToSuppLibClass(
                 WebSettingsBoundaryInterface.class, mImpl.convertSettings(webSettings)));
@@ -60,6 +62,7 @@ public class WebkitToCompatConverter {
      * Return a {@link WebResourceRequestAdapter} linked to the given {@link WebResourceRequest} so
      * that calls on either of those objects affect the other object.
      */
+    @NonNull
     public WebResourceRequestAdapter convertWebResourceRequest(WebResourceRequest request) {
         return new WebResourceRequestAdapter(BoundaryInterfaceReflectionUtil.castToSuppLibClass(
                 WebResourceRequestBoundaryInterface.class,
