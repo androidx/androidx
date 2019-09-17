@@ -35,6 +35,7 @@ import androidx.compose.memo
 import androidx.compose.onCommit
 import androidx.compose.onDispose
 import androidx.compose.unaryPlus
+import androidx.ui.core.Alignment
 import androidx.ui.core.AndroidComposeView
 import androidx.ui.core.AndroidComposeViewAmbient
 import androidx.ui.core.ContextAmbient
@@ -47,7 +48,6 @@ import androidx.ui.core.PxPosition
 import androidx.ui.core.PxSize
 import androidx.ui.core.round
 import androidx.ui.core.setContent
-import androidx.ui.layout.Alignment
 
 /**
  * Opens a popup with the given content.

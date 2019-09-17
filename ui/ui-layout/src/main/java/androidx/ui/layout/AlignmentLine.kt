@@ -18,6 +18,7 @@ package androidx.ui.layout
 
 import androidx.compose.Composable
 import androidx.compose.composer
+import androidx.ui.core.Alignment
 import androidx.ui.core.AlignmentLine
 import androidx.ui.core.Dp
 import androidx.ui.core.HorizontalAlignmentLine

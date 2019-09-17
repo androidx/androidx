@@ -69,6 +69,19 @@ package androidx.ui.autofill {
 
 package androidx.ui.core {
 
+  public enum Alignment {
+    method public final androidx.ui.core.IntPxPosition align(androidx.ui.core.IntPxSize size);
+    enum_constant public static final androidx.ui.core.Alignment BottomCenter;
+    enum_constant public static final androidx.ui.core.Alignment BottomLeft;
+    enum_constant public static final androidx.ui.core.Alignment BottomRight;
+    enum_constant public static final androidx.ui.core.Alignment Center;
+    enum_constant public static final androidx.ui.core.Alignment CenterLeft;
+    enum_constant public static final androidx.ui.core.Alignment CenterRight;
+    enum_constant public static final androidx.ui.core.Alignment TopCenter;
+    enum_constant public static final androidx.ui.core.Alignment TopLeft;
+    enum_constant public static final androidx.ui.core.Alignment TopRight;
+  }
+
   public abstract sealed class AlignmentLine {
     method public final boolean getHorizontal();
   }

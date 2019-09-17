@@ -19,6 +19,7 @@ package androidx.ui.layout.test
 import androidx.test.filters.SmallTest
 import androidx.compose.Composable
 import androidx.compose.composer
+import androidx.ui.core.Alignment
 import androidx.ui.core.Constraints
 import androidx.ui.core.IntPx
 import androidx.ui.core.IntPxPosition
@@ -32,7 +33,6 @@ import androidx.ui.core.ipx
 import androidx.ui.core.px
 import androidx.ui.core.withDensity
 import androidx.ui.layout.Align
-import androidx.ui.layout.Alignment
 import androidx.ui.layout.AspectRatio
 import androidx.ui.layout.Container
 import org.junit.Assert.assertEquals

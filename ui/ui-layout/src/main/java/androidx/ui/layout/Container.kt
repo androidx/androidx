@@ -16,6 +16,8 @@
 
 package androidx.ui.layout
 
+
+import androidx.ui.core.Alignment
 import androidx.ui.core.Constraints
 import androidx.ui.core.Dp
 import androidx.ui.core.IntPxSize

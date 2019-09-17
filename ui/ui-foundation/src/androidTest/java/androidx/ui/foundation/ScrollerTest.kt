@@ -31,7 +31,6 @@ import androidx.ui.core.px
 import androidx.ui.core.toRect
 import androidx.ui.core.withDensity
 import androidx.ui.layout.Align
-import androidx.ui.layout.Alignment
 import androidx.ui.layout.Column
 import androidx.ui.layout.ConstrainedBox
 import androidx.ui.layout.Container
@@ -42,6 +41,7 @@ import androidx.ui.graphics.Paint
 import androidx.ui.graphics.PaintingStyle
 import androidx.compose.composer
 import androidx.test.filters.SdkSuppress
+import androidx.ui.core.Alignment
 import androidx.ui.core.AndroidComposeView
 import androidx.ui.core.setContent
 import androidx.ui.graphics.toArgb

@@ -22,6 +22,7 @@ import androidx.compose.composer
 import androidx.compose.memo
 import androidx.compose.unaryPlus
 import androidx.ui.animation.animatedFloat
+import androidx.ui.core.Alignment
 import androidx.ui.core.dp
 import androidx.ui.core.withDensity
 import androidx.ui.foundation.ColoredRect
@@ -32,7 +33,6 @@ import androidx.ui.foundation.gestures.Draggable
 import androidx.ui.foundation.shape.DrawShape
 import androidx.ui.foundation.shape.RectangleShape
 import androidx.ui.graphics.Color
-import androidx.ui.layout.Alignment
 import androidx.ui.layout.Container
 import androidx.ui.layout.Padding
 
