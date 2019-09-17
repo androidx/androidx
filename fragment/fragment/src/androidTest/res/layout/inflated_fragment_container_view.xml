@@ -14,14 +14,16 @@
   See the License for the specific language governing permissions and
   limitations under the License.
   -->
-<resources>
-    <declare-styleable name="Fragment">
-        <attr name="android:name" />
-        <attr name="android:id" />
-        <attr name="android:tag" />
-    </declare-styleable>
-    <declare-styleable name="FragmentContainerView">
-        <attr name="android:name" />
-        <attr name="android:tag" />
-    </declare-styleable>
-</resources>
+
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/inflated_container_parent"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <androidx.fragment.app.FragmentContainerView
+        android:id="@+id/fragment_container_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:name="androidx.fragment.app.StrictViewFragment"
+        android:tag="fragment1"/>
+</FrameLayout>
