@@ -517,4 +517,19 @@ class RecordingInputConnectionTest {
         assertEquals(1, editOps.size)
         assertEquals(CommitTextEditOp("1", 1), editOps[0])
     }
+
+    @Test
+    fun do_not_callback_empty_edit_ops() {
+        ic.beginBatchEdit()
+        ic.endBatchEdit()
+        verify(listener, never()).onEditOperations(any())
+    }
+
+    @Test
+    fun do_not_callback_if_only_readonly_ops() {
+        ic.beginBatchEdit()
+        ic.getSelectedText(1)
+        ic.endBatchEdit()
+        verify(listener, never()).onEditOperations(any())
+    }
 }
