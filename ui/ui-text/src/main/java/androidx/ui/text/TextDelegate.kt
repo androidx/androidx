@@ -450,18 +450,18 @@ private fun TextDelegate.createOverflowShader(
     layoutResult: TextDelegate.LayoutResult
 ): Shader? {
     return if (layoutResult.hasVisualOverflow && overflow == TextOverflow.Fade) {
-        val paragraph = MultiParagraph(
-            annotatedString = AnnotatedString(text = "\u2026", textStyles = listOf()),
-            textStyle = textStyle,
+        val paragraph = Paragraph(
+            text = "\u2026", // horizontal ellipsis
+            style = textStyle,
             paragraphStyle = paragraphStyle,
+            textStyles = listOf(),
             density = density,
             resourceLoader = resourceLoader,
             layoutDirection = layoutDirection
         )
-
         paragraph.layout(ParagraphConstraints(Float.POSITIVE_INFINITY))
 
-        val fadeWidth = paragraph.width
+        val fadeWidth = paragraph.maxIntrinsicWidth
         val fadeHeight = paragraph.height
         if (layoutResult.didOverflowWidth) {
             // FIXME: Should only fade the last line, i.e., should use last line's direction.

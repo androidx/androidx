@@ -295,6 +295,9 @@ class TextDelegateIntegrationTest {
         textDelegate.layout(Constraints())
 
         assertThat(textDelegate.layoutResult?.hasVisualOverflow).isFalse()
+
+        // paint should not throw exception
+        textDelegate.paint(Canvas(android.graphics.Canvas()))
     }
 
     @Test
@@ -322,6 +325,9 @@ class TextDelegateIntegrationTest {
         textDelegate.layout(Constraints(maxWidth = 100.ipx))
 
         assertThat(textDelegate.layoutResult?.hasVisualOverflow).isTrue()
+
+        // paint should not throw exception
+        textDelegate.paint(Canvas(android.graphics.Canvas()))
     }
 
     @Test
@@ -348,6 +354,9 @@ class TextDelegateIntegrationTest {
         textDelegate.layout(Constraints(maxWidth = 100.ipx))
 
         assertThat(textDelegate.layoutResult?.hasVisualOverflow).isTrue()
+
+        // paint should not throw exception
+        textDelegate.paint(Canvas(android.graphics.Canvas()))
     }
 
     @Test
