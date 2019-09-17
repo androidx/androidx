@@ -42,7 +42,7 @@ class TableRecompositionTestCase(
         MaterialTheme {
             Surface {
                 Table(columns = numberOfCells) {
-                    addDecoration { _, _ -> }
+                    tableDecoration(overlay = false) { }
                     repeat(numberOfCells) {
                         tableRow {
                             Padding(2.dp) {

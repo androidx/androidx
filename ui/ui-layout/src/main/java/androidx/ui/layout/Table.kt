@@ -32,6 +32,7 @@ import androidx.ui.core.IntPxSize
 import androidx.ui.core.IntrinsicMeasurable
 import androidx.ui.core.ParentData
 import androidx.ui.core.Placeable
+import androidx.ui.core.WithConstraints
 import androidx.ui.core.constrain
 import androidx.ui.core.isFinite
 import androidx.ui.core.max
@@ -45,8 +46,12 @@ import androidx.ui.core.withDensity
 class TableChildren internal constructor(private val columnCount: Int) {
 
     internal val tableChildren = mutableListOf<@Composable() () -> Unit>()
-    internal val tableDecorations = mutableListOf<TableDecoration>()
+    internal val tableDecorationsOverlay = mutableListOf<TableDecoration>()
+    internal val tableDecorationsUnderlay = mutableListOf<TableDecoration>()
 
+    /**
+     * Creates a new row in the [Table] with the specified content.
+     */
     fun tableRow(children: @Composable() (columnIndex: Int) -> Unit) {
         val rowIndex = tableChildren.size
         tableChildren += {
@@ -58,13 +63,37 @@ class TableChildren internal constructor(private val columnCount: Int) {
         }
     }
 
-    fun addDecoration(decoration: TableDecoration) {
-        tableDecorations += decoration
+    /**
+     * Adds a decoration which will be placed either above or below the content of the [Table].
+     * This can be either a component, such as Layout or SizedRectangle, or a Draw composable.
+     * Note that decorations are measured with tight constraints to fill the size of the [Table],
+     * and the offsets of each row and column of the [Table] are available inside the body of this.
+     *
+     * Example usage:
+     *
+     * @sample androidx.ui.layout.samples.TableWithDecorations
+     *
+     * @param overlay Whether the decoration is placed above (true) or below (false) the content.
+     */
+    fun tableDecoration(overlay: Boolean, decoration: TableDecoration) {
+        if (overlay) {
+            tableDecorationsOverlay += decoration
+        } else {
+            tableDecorationsUnderlay += decoration
+        }
     }
 }
 
-typealias TableDecoration =
-        @Composable() (verticalOffsets: Array<IntPx>, horizontalOffsets: Array<IntPx>) -> Unit
+/**
+ * Collects the vertical/horizontal offsets of each row/column of a [Table] that are available
+ * to a [TableDecoration] when its body is executed on a [TableDecorationChildren] instance.
+ */
+data class TableDecorationChildren internal constructor(
+    val verticalOffsets: List<IntPx>,
+    val horizontalOffsets: List<IntPx>
+)
+
+typealias TableDecoration = @Composable TableDecorationChildren.() -> Unit
 
 /**
  * Parent data associated with children to assign a row group.
@@ -464,9 +493,24 @@ fun Table(
     val tableChildren: @Composable() () -> Unit = with(TableChildren(columns)) {
         apply(block)
         val composable = @Composable {
+            if (tableDecorationsUnderlay.isNotEmpty()) {
+                WithConstraints {
+                    val scope = TableDecorationChildren(
+                        verticalOffsets = verticalOffsets.value.toList(),
+                        horizontalOffsets = horizontalOffsets.value.toList()
+                    )
+                    tableDecorationsUnderlay.forEach { scope.it() }
+                }
+            }
             tableChildren.forEach { it() }
-            tableDecorations.forEach { decoration ->
-                decoration(verticalOffsets.value, horizontalOffsets.value)
+            if (tableDecorationsOverlay.isNotEmpty()) {
+                WithConstraints {
+                    val scope = TableDecorationChildren(
+                        verticalOffsets = verticalOffsets.value.toList(),
+                        horizontalOffsets = horizontalOffsets.value.toList()
+                    )
+                    tableDecorationsOverlay.forEach { scope.it() }
+                }
             }
         }
         composable
@@ -548,6 +592,9 @@ fun Table(
                 constraints.constrain(IntPxSize(columnOffsets[columns], rowOffsets[rows]))
 
             layout(tableSize.width, tableSize.height) {
+                children.first().takeIf { it.rowIndex == null }
+                    ?.measure(Constraints.tightConstraints(tableSize.width, tableSize.height))
+                    ?.place(IntPx.Zero, IntPx.Zero)
                 for (row in 0 until rows) {
                     for (column in 0 until columns) {
                         val placeable = placeables[row][column]!!
@@ -562,6 +609,11 @@ fun Table(
                             y = rowOffsets[row] + position.y
                         )
                     }
+                }
+                if (children.size > 1) {
+                    children.last().takeIf { it.rowIndex == null }
+                        ?.measure(Constraints.tightConstraints(tableSize.width, tableSize.height))
+                        ?.place(IntPx.Zero, IntPx.Zero)
                 }
             }
         }

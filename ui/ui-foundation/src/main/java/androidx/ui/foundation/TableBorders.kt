@@ -33,7 +33,7 @@ import androidx.ui.graphics.Paint
  *
  * Example usage:
  *
- * @sample androidx.ui.foundation.samples.SimpleTableWithBorders
+ * @sample androidx.ui.foundation.samples.TableWithBorders
  *
  * @param defaultBorder The default style used for borders that do not specify a style.
  */
@@ -41,7 +41,7 @@ fun TableChildren.drawBorders(
     defaultBorder: Border = Border(color = Color.Black, width = Dp.Hairline),
     block: DrawBordersReceiver.() -> Unit
 ) {
-    addDecoration { verticalOffsets, horizontalOffsets ->
+    tableDecoration(overlay = true) {
         val paint = +memo { Paint() }
         Draw { canvas, _ ->
             val borders = DrawBordersReceiver(
@@ -76,8 +76,8 @@ fun TableChildren.drawBorders(
  * when its body is executed with a [DrawBordersReceiver] instance as argument.
  */
 class DrawBordersReceiver internal constructor(
-    val rowCount: Int,
-    val columnCount: Int,
+    private val rowCount: Int,
+    private val columnCount: Int,
     private val defaultBorder: Border
 ) {
     internal val borders = mutableListOf<BorderInfo>()

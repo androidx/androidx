@@ -175,7 +175,7 @@ package androidx.ui.layout {
   }
 
   public final class TableChildren {
-    method public void addDecoration(kotlin.jvm.functions.Function2<? super androidx.ui.core.IntPx[],? super androidx.ui.core.IntPx[],kotlin.Unit> decoration);
+    method public void tableDecoration(boolean overlay, kotlin.jvm.functions.Function1<? super androidx.ui.layout.TableDecorationChildren,kotlin.Unit> decoration);
     method public void tableRow(kotlin.jvm.functions.Function1<? super java.lang.Integer,kotlin.Unit> children);
   }
 
@@ -233,6 +233,14 @@ package androidx.ui.layout {
   public static final class TableColumnWidth.Wrap extends androidx.ui.layout.TableColumnWidth.Inflexible {
     method public androidx.ui.core.IntPx preferredWidth(java.util.List<androidx.ui.layout.TableMeasurable> cells, androidx.ui.core.IntPx containerWidth, androidx.ui.core.Density density);
     field public static final androidx.ui.layout.TableColumnWidth.Wrap! INSTANCE;
+  }
+
+  public final class TableDecorationChildren {
+    method public java.util.List<androidx.ui.core.IntPx> component1();
+    method public java.util.List<androidx.ui.core.IntPx> component2();
+    method public androidx.ui.layout.TableDecorationChildren copy(java.util.List<androidx.ui.core.IntPx> verticalOffsets, java.util.List<androidx.ui.core.IntPx> horizontalOffsets);
+    method public java.util.List<androidx.ui.core.IntPx> getHorizontalOffsets();
+    method public java.util.List<androidx.ui.core.IntPx> getVerticalOffsets();
   }
 
   public final class TableKt {

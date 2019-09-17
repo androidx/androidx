@@ -39,6 +39,7 @@ import androidx.ui.layout.DpConstraints
 import androidx.ui.layout.Table
 import androidx.ui.layout.TableColumnWidth
 import androidx.ui.layout.TableMeasurable
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -1171,6 +1172,91 @@ class TableTest : LayoutTest() {
                 PxPosition(tableWidth / 2, size * i),
                 childPosition[i][4].value
             )
+        }
+    }
+
+    @Ignore("b/141173380")
+    @Test
+    fun testTable_withDecorations() = withDensity(density) {
+        val rows = 8
+        val columns = 8
+        val decorations = 3
+
+        val size = 64.ipx
+        val sizeDp = size.toDp()
+        val tableWidth = 256.ipx
+        val tableWidthDp = tableWidth.toDp()
+
+        val tableSize = Ref<PxSize>()
+        val decorationSize = Array(decorations) { Ref<PxSize>() }
+        val decorationPosition = Array(decorations) { Ref<PxPosition>() }
+        val childSize = Array(rows) { Array(columns) { Ref<PxSize>() } }
+        val childPosition = Array(rows) { Array(columns) { Ref<PxPosition>() } }
+        val positionedLatch = CountDownLatch(rows * columns + decorations + 1)
+
+        show {
+            Align(Alignment.TopLeft) {
+                ConstrainedBox(constraints = DpConstraints(maxWidth = tableWidthDp)) {
+                    OnChildPositioned(onPositioned = { coordinates ->
+                        tableSize.value = coordinates.size
+                        positionedLatch.countDown()
+                    }) {
+                        Table(columns = columns) {
+                            for (i in 0 until decorations) {
+                                tableDecoration(overlay = true) {
+                                    Container {
+                                        SaveLayoutInfo(
+                                            size = decorationSize[i],
+                                            position = decorationPosition[i],
+                                            positionedLatch = positionedLatch
+                                        )
+                                    }
+                                }
+                            }
+                            for (i in 0 until rows) {
+                                tableRow { j ->
+                                    Container(height = sizeDp, expanded = true) {
+                                        SaveLayoutInfo(
+                                            size = childSize[i][j],
+                                            position = childPosition[i][j],
+                                            positionedLatch = positionedLatch
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        positionedLatch.await(1, TimeUnit.SECONDS)
+
+        assertEquals(
+            PxSize(tableWidth, size * rows),
+            tableSize.value
+        )
+        for (i in 0 until decorations) {
+            assertEquals(
+                PxSize(tableWidth, size * rows),
+                decorationSize[i].value
+            )
+            assertEquals(
+                PxPosition(IntPx.Zero, IntPx.Zero),
+                decorationPosition[i].value
+            )
+        }
+        for (i in 0 until rows) {
+            for (j in 0 until columns) {
+                assertEquals(
+                    PxSize(tableWidth / columns, size),
+                    childSize[i][j].value
+                )
+                assertEquals(
+                    PxPosition(tableWidth * j / columns, size * i),
+                    childPosition[i][j].value
+                )
+            }
         }
     }
 
