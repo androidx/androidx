@@ -16,6 +16,8 @@
 
 package androidx.biometric;
 
+import static com.google.common.truth.Truth.assertThat;
+
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -58,6 +60,29 @@ public class UtilsTest {
             bridge.stopIgnoringReset();
             bridge.reset();
         }
+    }
+
+    @Test
+    public void testIsUnknownError_ReturnsFalse_ForKnownErrors() {
+        assertThat(Utils.isUnknownError(BiometricPrompt.ERROR_HW_UNAVAILABLE)).isFalse();
+        assertThat(Utils.isUnknownError(BiometricPrompt.ERROR_UNABLE_TO_PROCESS)).isFalse();
+        assertThat(Utils.isUnknownError(BiometricPrompt.ERROR_TIMEOUT)).isFalse();
+        assertThat(Utils.isUnknownError(BiometricPrompt.ERROR_NO_SPACE)).isFalse();
+        assertThat(Utils.isUnknownError(BiometricPrompt.ERROR_CANCELED)).isFalse();
+        assertThat(Utils.isUnknownError(BiometricPrompt.ERROR_LOCKOUT)).isFalse();
+        assertThat(Utils.isUnknownError(BiometricPrompt.ERROR_VENDOR)).isFalse();
+        assertThat(Utils.isUnknownError(BiometricPrompt.ERROR_LOCKOUT_PERMANENT)).isFalse();
+        assertThat(Utils.isUnknownError(BiometricPrompt.ERROR_USER_CANCELED)).isFalse();
+        assertThat(Utils.isUnknownError(BiometricPrompt.ERROR_NO_BIOMETRICS)).isFalse();
+        assertThat(Utils.isUnknownError(BiometricPrompt.ERROR_HW_NOT_PRESENT)).isFalse();
+        assertThat(Utils.isUnknownError(BiometricPrompt.ERROR_NEGATIVE_BUTTON)).isFalse();
+        assertThat(Utils.isUnknownError(BiometricPrompt.ERROR_NO_DEVICE_CREDENTIAL)).isFalse();
+    }
+
+    @Test
+    public void testIsUnknownError_ReturnsTrue_ForUnknownErrors() {
+        assertThat(Utils.isUnknownError(-1)).isTrue();
+        assertThat(Utils.isUnknownError(1337)).isTrue();
     }
 
     @Test
@@ -179,6 +204,38 @@ public class UtilsTest {
                 null /* onLaunch */);
 
         verify(handlerActivity).startActivityForResult(eq(intent), anyInt());
+    }
+
+    @Test
+    public void testMaybeFinishHandler_FinishesActivity_WhenHandlerActivityNotFinishing() {
+        final DeviceCredentialHandlerActivity handlerActivity =
+                mock(DeviceCredentialHandlerActivity.class);
+        when(handlerActivity.isFinishing()).thenReturn(false);
+
+        Utils.maybeFinishHandler(handlerActivity);
+
+        verify(handlerActivity).finish();
+    }
+
+    @Test
+    public void testMaybeFinishHandler_DoesNotFinishActivity_WhenHandlerActivityIsFinishing() {
+        final DeviceCredentialHandlerActivity handlerActivity =
+                mock(DeviceCredentialHandlerActivity.class);
+        when(handlerActivity.isFinishing()).thenReturn(true);
+
+        Utils.maybeFinishHandler(handlerActivity);
+
+        verify(handlerActivity, never()).finish();
+    }
+
+    @Test
+    public void testMaybeFinishHandler_DoesNotFinishActivity_WhenGivenNonHandlerActivity() {
+        final FragmentActivity activity = mock(FragmentActivity.class);
+        when(activity.isFinishing()).thenReturn(false);
+
+        Utils.maybeFinishHandler(activity);
+
+        verify(activity, never()).finish();
     }
 
     private static void mockKeyguardManagerForHandlerActivity(
