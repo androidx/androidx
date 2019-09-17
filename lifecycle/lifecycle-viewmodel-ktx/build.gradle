@@ -36,7 +36,7 @@ android {
 dependencies {
     api(project(":lifecycle:lifecycle-viewmodel"))
     api(KOTLIN_STDLIB)
-    api(KOTLIN_COROUTINES)
+    api(KOTLIN_COROUTINES_ANDROID)
 
     testImplementation(JUNIT)
     testImplementation(TRUTH)

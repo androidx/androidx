@@ -30,7 +30,7 @@ dependencies {
     api(project(":room:room-common"))
     api(project(":room:room-runtime"))
     api(KOTLIN_STDLIB)
-    api(KOTLIN_COROUTINES)
+    api(KOTLIN_COROUTINES_ANDROID)
     testImplementation(JUNIT)
     testImplementation(MOCKITO_CORE)
     testImplementation(TRUTH)

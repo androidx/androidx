@@ -59,7 +59,7 @@ dependencies {
         exclude group: "androidx.camera", module: "camera-core"
     }
     androidTestImplementation(KOTLIN_STDLIB)
-    androidTestImplementation(KOTLIN_COROUTINES)
+    androidTestImplementation(KOTLIN_COROUTINES_ANDROID)
     androidTestImplementation(KOTLIN_COROUTINES_GUAVA)
     androidTestImplementation(project(":internal-testutils-truth"))
 }

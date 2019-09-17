@@ -39,7 +39,7 @@ dependencies {
     androidTestImplementation(ANDROIDX_TEST_RUNNER)
     androidTestImplementation(ESPRESSO_CORE)
     androidTestImplementation(KOTLIN_STDLIB)
-    androidTestImplementation(KOTLIN_COROUTINES)
+    androidTestImplementation(KOTLIN_COROUTINES_ANDROID)
 }
 
 androidx {

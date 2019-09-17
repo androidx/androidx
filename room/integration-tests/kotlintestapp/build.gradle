@@ -47,7 +47,7 @@ dependencies {
     implementation(project(":arch:core-runtime"))
     implementation(project(":lifecycle:lifecycle-livedata"))
     implementation(KOTLIN_STDLIB)
-    implementation(KOTLIN_COROUTINES)
+    implementation(KOTLIN_COROUTINES_ANDROID)
     kaptAndroidTest project(":room:room-compiler")
 
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
