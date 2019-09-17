@@ -239,6 +239,7 @@ public final class HeifEncoder implements AutoCloseable,
                 (inputMode == INPUT_MODE_SURFACE) || (inputMode == INPUT_MODE_BITMAP);
         int colorFormat = useSurfaceInternally ? CodecCapabilities.COLOR_FormatSurface :
                 CodecCapabilities.COLOR_FormatYUV420Flexible;
+        boolean copyTiles = (useGrid && !useHeicEncoder) || (inputMode == INPUT_MODE_BITMAP);
 
         mWidth = width;
         mHeight = height;
@@ -290,7 +291,20 @@ public final class HeifEncoder implements AutoCloseable,
         codecFormat.setInteger(MediaFormat.KEY_I_FRAME_INTERVAL, 0);
         codecFormat.setInteger(MediaFormat.KEY_COLOR_FORMAT, colorFormat);
         codecFormat.setInteger(MediaFormat.KEY_FRAME_RATE, mNumTiles);
-        codecFormat.setInteger(MediaFormat.KEY_CAPTURE_RATE, mNumTiles * 30);
+
+        // When we're doing tiles, set the operating rate higher as the size
+        // is small, otherwise set to the normal 30fps.
+        if (mNumTiles > 1) {
+            codecFormat.setInteger(MediaFormat.KEY_OPERATING_RATE, 120);
+        } else {
+            codecFormat.setInteger(MediaFormat.KEY_OPERATING_RATE, 30);
+        }
+
+        if (useSurfaceInternally && !copyTiles) {
+            // Use fixed PTS gap and disable backward frame drop
+            Log.d(TAG, "Setting fixed pts gap");
+            codecFormat.setLong(MediaFormat.KEY_MAX_PTS_GAP_TO_ENCODER, -1000000);
+        }
 
         MediaCodecInfo.EncoderCapabilities encoderCaps = caps.getEncoderCapabilities();
 
@@ -328,7 +342,6 @@ public final class HeifEncoder implements AutoCloseable,
         if (useSurfaceInternally) {
             mEncoderSurface = mEncoder.createInputSurface();
 
-            boolean copyTiles = (useGrid && !useHeicEncoder) || (inputMode == INPUT_MODE_BITMAP);
             mEOSTracker = new SurfaceEOSTracker(copyTiles);
 
             if (copyTiles) {
