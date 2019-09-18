@@ -63,11 +63,6 @@ internal class MultiParagraph(
     )
 
     private val annotatedString get() = intrinsics.annotatedString
-    private val layoutDirection get() = intrinsics.layoutDirection
-    private val textStyle get() = intrinsics.textStyle
-    private val paragraphStyle get() = intrinsics.paragraphStyle
-    private val density get() = intrinsics.density
-    private val resourceLoader get() = intrinsics.resourceLoader
 
     /**
      * The width for text if all soft wrap opportunities were taken.
@@ -166,26 +161,17 @@ internal class MultiParagraph(
     private val paragraphInfoList: List<ParagraphInfo>
 
     init {
-        this.paragraphInfoList = annotatedString
-            .forEachParagraphStyle(paragraphStyle) { annotatedString, paragraphStyleItem ->
-                val paragraph = Paragraph(
-                    annotatedString.text,
-                    textStyle,
-                    paragraphStyleItem.style,
-                    annotatedString.textStyles,
+        this.paragraphInfoList = intrinsics.infoList.map {
+            ParagraphInfo(
+                paragraph = Paragraph(
+                    it.intrinsics,
                     maxLines,
-                    ellipsis,
-                    density,
-                    layoutDirection,
-                    resourceLoader
-                )
-
-                ParagraphInfo(
-                    paragraph = paragraph,
-                    startIndex = paragraphStyleItem.start,
-                    endIndex = paragraphStyleItem.end
-                )
-            }
+                    ellipsis
+                ),
+                startIndex = it.startIndex,
+                endIndex = it.endIndex
+            )
+        }
     }
 
     /**

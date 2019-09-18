@@ -298,9 +298,9 @@ private fun AnnotatedString.substringWithoutParagraphStyles(
     )
 }
 
-internal fun <T> AnnotatedString.forEachParagraphStyle(
+internal inline fun <T> AnnotatedString.mapEachParagraphStyle(
     defaultParagraphStyle: ParagraphStyle,
-    block: (
+    crossinline block: (
         annotatedString: AnnotatedString,
         paragraphStyle: AnnotatedString.Item<ParagraphStyle>
     ) -> T
