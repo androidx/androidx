@@ -25,6 +25,7 @@ import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.annotation.VisibleForTesting;
 import androidx.work.Logger;
 import androidx.work.NotificationMetadata;
 import androidx.work.impl.ExecutionListener;
@@ -95,6 +96,18 @@ public class SystemForegroundDispatcher implements WorkConstraintsCallback, Exec
         mWorkManagerImpl.getProcessor().addExecutionListener(this);
     }
 
+    @VisibleForTesting
+    SystemForegroundDispatcher(@NonNull Context context, @NonNull WorkConstraintsTracker tracker) {
+        mContext = context;
+        mLock = new Object();
+        mWorkManagerImpl = WorkManagerImpl.getInstance(mContext);
+        mTaskExecutor = mWorkManagerImpl.getWorkTaskExecutor();
+        mTrackedWorkSpecs = new HashSet<>();
+        mWorkSpecById = new HashMap<>();
+        mConstraintsTracker = tracker;
+        mWorkManagerImpl.getProcessor().addExecutionListener(this);
+    }
+
     @MainThread
     @Override
     public void onExecuted(@NonNull String workSpecId, boolean needsReschedule) {
@@ -151,7 +164,9 @@ public class SystemForegroundDispatcher implements WorkConstraintsCallback, Exec
             @Override
             public void run() {
                 WorkSpec workSpec = database.workSpecDao().getWorkSpec(workSpecId);
-                if (workSpec != null) {
+                // Only track constraints if there are constraints that need to be tracked
+                // (constraints are immutable)
+                if (workSpec != null && workSpec.hasConstraints()) {
                     synchronized (mLock) {
                         mWorkSpecById.put(workSpecId, workSpec);
                         mTrackedWorkSpecs.add(workSpec);
