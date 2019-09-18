@@ -25,7 +25,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.camera.core.BaseCamera;
 import androidx.camera.core.CameraControlInternal;
-import androidx.camera.core.CameraInfo;
+import androidx.camera.core.CameraInfoInternal;
 import androidx.camera.core.CaptureConfig;
 import androidx.camera.core.DeferrableSurface;
 import androidx.camera.core.DeferrableSurfaces;
@@ -53,7 +53,7 @@ public class FakeCamera implements BaseCamera {
     private final LiveDataObservable<BaseCamera.State> mObservableState =
             new LiveDataObservable<>();
     private final CameraControlInternal mCameraControlInternal;
-    private final CameraInfo mCameraInfo;
+    private final CameraInfoInternal mCameraInfoInternal;
     private String mCameraId;
     private UseCaseAttachState mUseCaseAttachState;
     private State mState = State.CLOSED;
@@ -67,22 +67,21 @@ public class FakeCamera implements BaseCamera {
     private List<DeferrableSurface> mConfiguredDeferrableSurfaces = Collections.emptyList();
 
     public FakeCamera() {
-        this(DEFAULT_CAMERA_ID, new FakeCameraInfo(), /*cameraControl=*/null);
+        this(DEFAULT_CAMERA_ID, /*cameraControl=*/null, new FakeCameraInfoInternal());
     }
 
     public FakeCamera(@NonNull String cameraId) {
-        this(cameraId, new FakeCameraInfo(), /*cameraControl=*/null);
+        this(cameraId, /*cameraControl=*/null, new FakeCameraInfoInternal());
     }
 
-    public FakeCamera(@NonNull CameraInfo cameraInfo,
-            @Nullable CameraControlInternal cameraControl) {
-        this(DEFAULT_CAMERA_ID, cameraInfo, cameraControl);
+    public FakeCamera(@Nullable CameraControlInternal cameraControl,
+            @NonNull CameraInfoInternal cameraInfo) {
+        this(DEFAULT_CAMERA_ID, cameraControl, cameraInfo);
     }
 
-    public FakeCamera(@NonNull String cameraId,
-            @NonNull CameraInfo cameraInfo,
-            @Nullable CameraControlInternal cameraControl) {
-        mCameraInfo = cameraInfo;
+    public FakeCamera(@NonNull String cameraId, @Nullable CameraControlInternal cameraControl,
+            @NonNull CameraInfoInternal cameraInfo) {
+        mCameraInfoInternal = (CameraInfoInternal) cameraInfo;
         mCameraId = cameraId;
         mUseCaseAttachState = new UseCaseAttachState(cameraId);
         mCameraControlInternal = cameraControl == null ? new FakeCameraControl(this)
@@ -258,8 +257,8 @@ public class FakeCamera implements BaseCamera {
 
     @NonNull
     @Override
-    public CameraInfo getCameraInfo() {
-        return mCameraInfo;
+    public CameraInfoInternal getCameraInfoInternal() {
+        return mCameraInfoInternal;
     }
 
     @Override

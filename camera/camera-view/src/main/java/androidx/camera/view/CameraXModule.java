@@ -182,7 +182,6 @@ final class CameraXModule {
 
         final int cameraOrientation;
         try {
-            String cameraId;
             Set<LensFacing> available = getAvailableCameraLensFacing();
 
             if (available.isEmpty()) {
@@ -207,13 +206,10 @@ final class CameraXModule {
             if (mCameraLensFacing == null) {
                 return;
             }
-
-            cameraId = CameraX.getCameraWithLensFacing(mCameraLensFacing);
-            if (cameraId == null) {
-                return;
-            }
-            CameraInfo cameraInfo = CameraX.getCameraInfo(cameraId);
+            CameraInfo cameraInfo = CameraX.getCameraInfo(getLensFacing());
             cameraOrientation = cameraInfo.getSensorRotationDegrees();
+        } catch (CameraInfoUnavailableException e) {
+            throw new IllegalStateException("Unable to get Camera Info.", e);
         } catch (Exception e) {
             throw new IllegalStateException("Unable to bind to lifecycle.", e);
         }
@@ -540,17 +536,17 @@ final class CameraXModule {
     }
 
     int getRelativeCameraOrientation(boolean compensateForMirroring) {
-        int rotationDegrees;
+        int rotationDegrees = 0;
         try {
-            String cameraId = CameraX.getCameraWithLensFacing(getLensFacing());
-            CameraInfo cameraInfo = CameraX.getCameraInfo(cameraId);
+            CameraInfo cameraInfo = CameraX.getCameraInfo(getLensFacing());
             rotationDegrees = cameraInfo.getSensorRotationDegrees(getDisplaySurfaceRotation());
             if (compensateForMirroring) {
                 rotationDegrees = (360 - rotationDegrees) % 360;
             }
+        } catch (CameraInfoUnavailableException e) {
+            Log.e(TAG, "Failed to get CameraInfo", e);
         } catch (Exception e) {
             Log.e(TAG, "Failed to query camera", e);
-            rotationDegrees = 0;
         }
 
         return rotationDegrees;

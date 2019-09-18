@@ -45,7 +45,7 @@ import androidx.camera.testing.CameraUtil;
 import androidx.camera.testing.fakes.FakeCamera;
 import androidx.camera.testing.fakes.FakeCameraDeviceSurfaceManager;
 import androidx.camera.testing.fakes.FakeCameraFactory;
-import androidx.camera.testing.fakes.FakeCameraInfo;
+import androidx.camera.testing.fakes.FakeCameraInfoInternal;
 import androidx.camera.testing.fakes.FakeUseCaseConfig;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -108,8 +108,8 @@ public final class ExtensionsErrorListenerTest {
 
         FakeCameraFactory cameraFactory = new FakeCameraFactory();
         cameraFactory.insertCamera(LensFacing.BACK, "0",
-                () -> new FakeCamera(new FakeCameraInfo(0, LensFacing.BACK),
-                        mock(CameraControlInternal.class)));
+                () -> new FakeCamera(mock(CameraControlInternal.class),
+                        new FakeCameraInfoInternal(0, LensFacing.BACK)));
 
         AppConfig.Builder appConfigBuilder =
                 new AppConfig.Builder()

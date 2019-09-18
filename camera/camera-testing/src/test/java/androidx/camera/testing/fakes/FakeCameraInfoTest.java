@@ -40,11 +40,11 @@ public final class FakeCameraInfoTest {
     private static final int SENSOR_ROTATION_DEGREES = 90;
     private static final CameraX.LensFacing LENS_FACING = CameraX.LensFacing.FRONT;
 
-    private FakeCameraInfo mFakeCameraInfo;
+    private FakeCameraInfoInternal mFakeCameraInfo;
 
     @Before
     public void setUp() {
-        mFakeCameraInfo = new FakeCameraInfo(SENSOR_ROTATION_DEGREES, LENS_FACING);
+        mFakeCameraInfo = new FakeCameraInfoInternal(SENSOR_ROTATION_DEGREES, LENS_FACING);
     }
 
     @Test

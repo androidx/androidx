@@ -39,7 +39,7 @@ import androidx.annotation.WorkerThread;
 import androidx.camera.core.BaseCamera;
 import androidx.camera.core.CameraControlInternal;
 import androidx.camera.core.CameraDeviceStateCallbacks;
-import androidx.camera.core.CameraInfo;
+import androidx.camera.core.CameraInfoInternal;
 import androidx.camera.core.CameraInfoUnavailableException;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.CaptureConfig;
@@ -122,7 +122,7 @@ final class Camera implements BaseCamera {
     // Nullable because this is lazily instantiated
     @GuardedBy("mCameraInfoLock")
     @Nullable
-    private CameraInfo mCameraInfo;
+    private CameraInfoInternal mCameraInfoInternal;
     /** The handle to the opened camera. */
     @Nullable
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
@@ -368,7 +368,7 @@ final class Camera implements BaseCamera {
 
         boolean isLegacyDevice = false;
         try {
-            Camera2CameraInfo camera2CameraInfo = (Camera2CameraInfo) getCameraInfo();
+            Camera2CameraInfo camera2CameraInfo = (Camera2CameraInfo) getCameraInfoInternal();
             isLegacyDevice = camera2CameraInfo.getSupportedHardwareLevel()
                     == CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY;
         } catch (CameraInfoUnavailableException e) {
@@ -811,14 +811,14 @@ final class Camera implements BaseCamera {
     /** Returns an interface to retrieve characteristics of the camera. */
     @NonNull
     @Override
-    public CameraInfo getCameraInfo() throws CameraInfoUnavailableException {
+    public CameraInfoInternal getCameraInfoInternal() throws CameraInfoUnavailableException {
         synchronized (mCameraInfoLock) {
-            if (mCameraInfo == null) {
+            if (mCameraInfoInternal == null) {
                 // Lazily instantiate camera info
-                mCameraInfo = new Camera2CameraInfo(mCameraManager, mCameraId);
+                mCameraInfoInternal = new Camera2CameraInfo(mCameraManager, mCameraId);
             }
 
-            return mCameraInfo;
+            return mCameraInfoInternal;
         }
     }
 

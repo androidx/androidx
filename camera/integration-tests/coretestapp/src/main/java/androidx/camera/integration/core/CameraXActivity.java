@@ -43,6 +43,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.VisibleForTesting;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.camera.core.CameraInfo;
 import androidx.camera.core.CameraInfoUnavailableException;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.CameraX.LensFacing;
@@ -60,6 +61,7 @@ import androidx.camera.core.VideoCaptureConfig;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Observer;
 import androidx.test.espresso.idling.CountingIdlingResource;
@@ -561,7 +563,17 @@ public class CameraXActivity extends AppCompatActivity
     private void refreshFlashButtonIcon() {
         ImageButton flashToggle = findViewById(R.id.flash_toggle);
         if (mImageCapture != null) {
-            flashToggle.setVisibility(View.VISIBLE);
+
+            try {
+                CameraInfo cameraInfo = CameraX.getCameraInfo(mCurrentCameraLensFacing);
+                LiveData<Boolean> isFlashAvailable = cameraInfo.isFlashAvailable();
+                flashToggle.setVisibility(
+                        isFlashAvailable.getValue() ? View.VISIBLE : View.INVISIBLE);
+            } catch (CameraInfoUnavailableException e) {
+                Log.w(TAG, "Cannot get flash available information", e);
+                flashToggle.setVisibility(View.VISIBLE);
+            }
+
             flashToggle.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {

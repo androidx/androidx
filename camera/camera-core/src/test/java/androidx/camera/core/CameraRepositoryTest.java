@@ -20,7 +20,9 @@ import static com.google.common.truth.Truth.assertThat;
 
 import android.os.Build;
 
+import androidx.camera.testing.fakes.FakeCamera;
 import androidx.camera.testing.fakes.FakeCameraFactory;
+import androidx.camera.testing.fakes.FakeCameraInfoInternal;
 import androidx.test.filters.SmallTest;
 
 import com.google.common.util.concurrent.ListenableFuture;
@@ -44,12 +46,23 @@ import java.util.concurrent.ExecutionException;
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 public final class CameraRepositoryTest {
 
+    private static final String CAMERA_ID_0 = "0";
+    private static final String CAMERA_ID_1 = "1";
     private CameraRepository mCameraRepository;
 
     @Before
     public void setUp() {
         mCameraRepository = new CameraRepository();
-        mCameraRepository.init(new FakeCameraFactory());
+        FakeCameraFactory fakeCameraFactory = new FakeCameraFactory();
+
+        fakeCameraFactory.insertCamera(CameraX.LensFacing.BACK, CAMERA_ID_0,
+                () -> new FakeCamera(null, new FakeCameraInfoInternal(0,
+                CameraX.LensFacing.BACK)));
+        fakeCameraFactory.insertCamera(CameraX.LensFacing.FRONT, CAMERA_ID_1,
+                () -> new FakeCamera(null, new FakeCameraInfoInternal(0,
+                CameraX.LensFacing.FRONT)));
+
+        mCameraRepository.init(fakeCameraFactory);
     }
 
     @Test
