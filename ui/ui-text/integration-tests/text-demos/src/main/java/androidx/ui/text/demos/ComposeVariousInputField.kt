@@ -35,6 +35,7 @@ import androidx.ui.input.ImeAction
 import androidx.ui.input.KeyboardType
 import androidx.ui.layout.Column
 import androidx.ui.layout.CrossAxisAlignment
+import androidx.ui.layout.LayoutSize
 import androidx.ui.foundation.VerticalScroller
 import androidx.ui.text.AnnotatedString
 import androidx.ui.text.Locale
@@ -176,7 +177,10 @@ private val emailFilter = object : VisualTransformation {
 @Composable
 fun VariousInputFieldDemo() {
     VerticalScroller {
-        Column(crossAxisAlignment = CrossAxisAlignment.Start) {
+        Column(
+            mainAxisSize = LayoutSize.Expand,
+            crossAxisAlignment = CrossAxisAlignment.Start
+        ) {
             TagLine(tag = "Capitalization")
             VariousEditLine(
                 keyboardType = KeyboardType.Ascii,

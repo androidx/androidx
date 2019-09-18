@@ -26,6 +26,7 @@ import androidx.ui.core.dp
 import androidx.ui.core.setContent
 import androidx.ui.layout.Column
 import androidx.ui.layout.HeightSpacer
+import androidx.ui.layout.LayoutSize
 import androidx.ui.layout.Padding
 import androidx.ui.layout.Row
 import androidx.ui.material.studies.Scaffold
@@ -55,7 +56,7 @@ class RallyActivity : Activity() {
     @Composable
     fun RallyAppBar() {
         // TODO: Transform to tabs
-        Row {
+        Row(mainAxisSize = LayoutSize.Expand) {
             // Icon()
             Text(text = "Overview", style = +themeTextStyle{ h4 })
             // TODO: Other items
@@ -66,7 +67,7 @@ class RallyActivity : Activity() {
 @Composable
 fun RallyBody() {
     Padding(padding = 16.dp) {
-        Column {
+        Column(mainAxisSize = LayoutSize.Expand) {
             // TODO: scrolling container
             RallyAlertCard()
             HeightSpacer(height = 10.dp)

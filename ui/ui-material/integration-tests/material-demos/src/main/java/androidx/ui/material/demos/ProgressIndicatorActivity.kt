@@ -18,6 +18,7 @@ package androidx.ui.material.demos
 
 import android.os.Handler
 import androidx.ui.layout.FlexColumn
+import androidx.ui.layout.LayoutSize
 import androidx.ui.layout.MainAxisAlignment.SpaceEvenly
 import androidx.ui.layout.Row
 import androidx.ui.material.CircularProgressIndicator
@@ -86,12 +87,18 @@ private fun ProgressIndicatorDemo(state: ProgressState = ProgressState()) {
 
     FlexColumn {
         expanded(flex = 1f) {
-            Row(mainAxisAlignment = SpaceEvenly) {
+            Row(
+                mainAxisSize = LayoutSize.Expand,
+                mainAxisAlignment = SpaceEvenly
+            ) {
                 // Determinate indicators
                 LinearProgressIndicator(progress = state.progress)
                 CircularProgressIndicator(progress = state.progress)
             }
-            Row(mainAxisAlignment = SpaceEvenly) {
+            Row(
+                mainAxisSize = LayoutSize.Expand,
+                mainAxisAlignment = SpaceEvenly
+            ) {
                 // Fancy colours!
                 LinearProgressIndicator(progress = (state.progress), color = state.generateColor())
                 CircularProgressIndicator(
@@ -99,7 +106,10 @@ private fun ProgressIndicatorDemo(state: ProgressState = ProgressState()) {
                     color = state.generateColor()
                 )
             }
-            Row(mainAxisAlignment = SpaceEvenly) {
+            Row(
+                mainAxisSize = LayoutSize.Expand,
+                mainAxisAlignment = SpaceEvenly
+            ) {
                 // Indeterminate indicators
                 LinearProgressIndicator()
                 CircularProgressIndicator()
