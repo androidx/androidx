@@ -657,4 +657,33 @@ class TextDelegateIntegrationTest {
             Assert.assertThat(actualBitmap, equalToBitmap(expectedBitmap))
         }
     }
+
+    @Test
+    fun multiParagraphIntrinsics_isReused() {
+        val textDelegate = TextDelegate(
+            text = AnnotatedString(text = "abc"),
+            density = density,
+            resourceLoader = resourceLoader,
+            layoutDirection = LayoutDirection.Ltr
+        )
+
+        // create the intrinsics object
+        textDelegate.layoutIntrinsics()
+        val multiParagraphIntrinsics = textDelegate.paragraphIntrinsics
+
+        // layout should create the MultiParagraph. The final MultiParagraph is expected to use
+        // the previously calculated intrinsics
+        textDelegate.layout(Constraints())
+        val layoutIntrinsics = textDelegate.layoutResult?.multiParagraph?.intrinsics
+
+        // primary assertions to make sure that the objects are not null
+        assertThat(layoutIntrinsics?.infoList?.get(0)).isNotNull()
+        assertThat(multiParagraphIntrinsics?.infoList?.get(0)).isNotNull()
+
+        // the intrinsics passed to multi paragraph should be the same instance
+        assertThat(layoutIntrinsics).isSameInstanceAs(multiParagraphIntrinsics)
+        // the ParagraphIntrinsic in the MultiParagraphIntrinsic should be the same instance
+        assertThat(layoutIntrinsics?.infoList?.get(0))
+            .isSameInstanceAs(multiParagraphIntrinsics?.infoList?.get(0))
+    }
 }

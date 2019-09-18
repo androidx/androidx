@@ -31,32 +31,53 @@ import androidx.ui.text.font.Font
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class MultiParagraphIntrinsics(
     val annotatedString: AnnotatedString,
-    val textStyle: TextStyle = TextStyle(),
-    val paragraphStyle: ParagraphStyle = ParagraphStyle(),
-    val density: Density,
-    val layoutDirection: LayoutDirection,
-    val resourceLoader: Font.ResourceLoader
+    textStyle: TextStyle = TextStyle(),
+    paragraphStyle: ParagraphStyle = ParagraphStyle(),
+    density: Density,
+    layoutDirection: LayoutDirection,
+    resourceLoader: Font.ResourceLoader
 ) : ParagraphIntrinsics {
 
     override val minIntrinsicWidth: Float
 
     override val maxIntrinsicWidth: Float
 
+    /**
+     * [ParagraphIntrinsics] for each paragraph included in the [annotatedString]. For empty string
+     * there will be a single empty paragraph intrinsics info.
+     */
+    internal val infoList: List<ParagraphIntrinsicInfo>
+
     init {
-        val paragraphIntrinsicsList = annotatedString
-            .forEachParagraphStyle(paragraphStyle) { annotatedString, paragraphStyleItem ->
-                ParagraphIntrinsics(
-                    text = annotatedString.text,
-                    paragraphStyle = paragraphStyleItem.style,
-                    textStyles = annotatedString.textStyles,
-                    style = textStyle,
-                    density = density,
-                    layoutDirection = layoutDirection,
-                    resourceLoader = resourceLoader
+        infoList = annotatedString
+            .mapEachParagraphStyle(paragraphStyle) { annotatedString, paragraphStyleItem ->
+                ParagraphIntrinsicInfo(
+                    intrinsics = ParagraphIntrinsics(
+                        text = annotatedString.text,
+                        paragraphStyle = paragraphStyleItem.style,
+                        textStyles = annotatedString.textStyles,
+                        style = textStyle,
+                        density = density,
+                        layoutDirection = layoutDirection,
+                        resourceLoader = resourceLoader
+                    ),
+                    startIndex = paragraphStyleItem.start,
+                    endIndex = paragraphStyleItem.end
                 )
             }
 
-        minIntrinsicWidth = paragraphIntrinsicsList.map { it.minIntrinsicWidth }.max() ?: 0f
-        maxIntrinsicWidth = paragraphIntrinsicsList.map { it.maxIntrinsicWidth }.max() ?: 0f
+        minIntrinsicWidth = infoList.maxBy {
+            it.intrinsics.minIntrinsicWidth
+        }?.intrinsics?.minIntrinsicWidth ?: 0f
+
+        maxIntrinsicWidth = infoList.maxBy {
+            it.intrinsics.maxIntrinsicWidth
+        }?.intrinsics?.maxIntrinsicWidth ?: 0f
     }
 }
+
+internal data class ParagraphIntrinsicInfo(
+    val intrinsics: ParagraphIntrinsics,
+    val startIndex: Int,
+    val endIndex: Int
+)

@@ -186,7 +186,8 @@ class TextDelegate(
     val maxIntrinsicWidth: Float
         get() = assumeIntrinsics { it.maxIntrinsicWidth }
 
-    private var paragraphIntrinsics: MultiParagraphIntrinsics? = null
+    @VisibleForTesting
+    internal var paragraphIntrinsics: MultiParagraphIntrinsics? = null
 
     /**
      * The horizontal space required to paint this text.
