@@ -17,6 +17,7 @@
 package androidx.lifecycle;
 
 import static androidx.lifecycle.AbstractSavedStateViewModelFactory.TAG_SAVED_STATE_HANDLE_CONTROLLER;
+import static androidx.lifecycle.SavedStateHandleController.attachHandleIfNeeded;
 
 import android.annotation.SuppressLint;
 import android.app.Application;
@@ -153,5 +154,10 @@ public final class SavedStateViewModelFactory extends ViewModelProvider.KeyedFac
             }
         }
         return null;
+    }
+
+    @Override
+    void onRequery(@NonNull ViewModel viewModel) {
+        attachHandleIfNeeded(viewModel, mSavedStateRegistry, mLifecycle);
     }
 }
