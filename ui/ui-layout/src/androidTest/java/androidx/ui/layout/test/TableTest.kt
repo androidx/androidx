@@ -1209,7 +1209,6 @@ class TableTest : LayoutTest() {
         }
     }
 
-    @Ignore("b/141173380")
     @Test
     fun testTable_withDecorations() = withDensity(density) {
         val rows = 8
