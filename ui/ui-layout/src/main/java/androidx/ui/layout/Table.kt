@@ -482,8 +482,8 @@ fun Table(
     columnWidth: (columnIndex: Int) -> TableColumnWidth = { TableColumnWidth.Flex(1f) },
     block: TableChildren.() -> Unit
 ) {
-    val verticalOffsets = +state { emptyArray<IntPx>() }
-    val horizontalOffsets = +state { emptyArray<IntPx>() }
+    var verticalOffsets: Array<IntPx>? = null
+    var horizontalOffsets: Array<IntPx>? = null
 
     val tableChildren: @Composable() () -> Unit = with(TableChildren()) {
         apply(block)
@@ -491,8 +491,8 @@ fun Table(
             if (tableDecorationsUnderlay.isNotEmpty()) {
                 WithConstraints {
                     val scope = TableDecorationChildren(
-                        verticalOffsets = verticalOffsets.value.toList(),
-                        horizontalOffsets = horizontalOffsets.value.toList()
+                        verticalOffsets = verticalOffsets!!.toList(),
+                        horizontalOffsets = horizontalOffsets!!.toList()
                     )
                     tableDecorationsUnderlay.forEach { scope.it() }
                 }
@@ -501,8 +501,8 @@ fun Table(
             if (tableDecorationsOverlay.isNotEmpty()) {
                 WithConstraints {
                     val scope = TableDecorationChildren(
-                        verticalOffsets = verticalOffsets.value.toList(),
-                        horizontalOffsets = horizontalOffsets.value.toList()
+                        verticalOffsets = verticalOffsets!!.toList(),
+                        horizontalOffsets = horizontalOffsets!!.toList()
                     )
                     tableDecorationsOverlay.forEach { scope.it() }
                 }
@@ -578,14 +578,8 @@ fun Table(
             for (column in 0 until columns) {
                 columnOffsets[column + 1] = columnOffsets[column] + columnWidths[column]
             }
-
-            // Force recomposition of decorations.
-            if (!verticalOffsets.value.contentEquals(rowOffsets)) {
-                verticalOffsets.value = rowOffsets
-            }
-            if (!horizontalOffsets.value.contentEquals(columnOffsets)) {
-                horizontalOffsets.value = columnOffsets
-            }
+            verticalOffsets = rowOffsets
+            horizontalOffsets = columnOffsets
 
             // TODO(calintat): Do something when these do not satisfy constraints.
             val tableSize =
