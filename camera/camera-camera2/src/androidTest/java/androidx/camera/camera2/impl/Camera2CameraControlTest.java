@@ -73,7 +73,6 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ScheduledExecutorService;
 
@@ -139,14 +138,14 @@ public final class Camera2CameraControlTest {
         assertThat(repeatingConfig.getCaptureRequestOption(CaptureRequest.SCALER_CROP_REGION, null))
                 .isEqualTo(rect);
 
-        Camera2Config singleConfig = new Camera2Config(mCamera2CameraControl.getSharedOptions());
+        Camera2Config singleConfig = new Camera2Config(mCamera2CameraControl.getSessionOptions());
         assertThat(singleConfig.getCaptureRequestOption(CaptureRequest.SCALER_CROP_REGION, null))
                 .isEqualTo(rect);
     }
 
     @Test
     public void defaultAFAWBMode_ShouldBeCAFWhenNotFocusLocked() {
-        Camera2Config singleConfig = new Camera2Config(mCamera2CameraControl.getSharedOptions());
+        Camera2Config singleConfig = new Camera2Config(mCamera2CameraControl.getSessionOptions());
         assertThat(
                 singleConfig.getCaptureRequestOption(
                         CaptureRequest.CONTROL_MODE, CaptureRequest.CONTROL_MODE_OFF))
@@ -356,31 +355,7 @@ public final class Camera2CameraControlTest {
     }
 
     @Test
-    public void submitCaptureRequest_overrideBySharedOptions() throws InterruptedException {
-        CaptureConfig.Builder builder = new CaptureConfig.Builder();
-        Camera2Config.Builder configBuilder = new Camera2Config.Builder();
-        configBuilder.setCaptureRequestOption(CaptureRequest.CONTROL_AF_MODE,
-                CaptureRequest.CONTROL_AF_MODE_MACRO);
-        builder.setImplementationOptions(configBuilder.build());
-        mCamera2CameraControl.submitCaptureRequests(Collections.singletonList(builder.build()));
-
-        HandlerUtil.waitForLooperToIdle(mHandler);
-
-        verify(mControlUpdateListener).onCameraControlCaptureRequests(
-                mCaptureConfigArgumentCaptor.capture());
-        CaptureConfig captureConfig = mCaptureConfigArgumentCaptor.getValue().get(0);
-        Camera2Config resultCaptureConfig =
-                new Camera2Config(captureConfig.getImplementationOptions());
-
-        Camera2Config sharedOptions =
-                new Camera2Config(mCamera2CameraControl.getSharedOptions());
-
-        assertAfMode(resultCaptureConfig,
-                sharedOptions.getCaptureRequestOption(CaptureRequest.CONTROL_AF_MODE, null));
-    }
-
-    @Test
-    public void startFocusAndMetering_3ARegionsUpdatedInSessionAndSharedOptions()
+    public void startFocusAndMetering_3ARegionsUpdatedInSessionAndSessionOptions()
             throws InterruptedException {
         SensorOrientedMeteringPointFactory factory = new SensorOrientedMeteringPointFactory(1.0f,
                 1.0f);
@@ -408,7 +383,7 @@ public final class Camera2CameraControlTest {
                         CaptureRequest.CONTROL_AWB_REGIONS, null)).hasLength(1);
 
 
-        Camera2Config singleConfig = new Camera2Config(mCamera2CameraControl.getSharedOptions());
+        Camera2Config singleConfig = new Camera2Config(mCamera2CameraControl.getSessionOptions());
         assertThat(
                 singleConfig.getCaptureRequestOption(
                         CaptureRequest.CONTROL_AF_REGIONS, null)).hasLength(1);
@@ -487,7 +462,7 @@ public final class Camera2CameraControlTest {
                         CaptureRequest.CONTROL_AWB_REGIONS, null)).isNull();
 
 
-        Camera2Config singleConfig = new Camera2Config(mCamera2CameraControl.getSharedOptions());
+        Camera2Config singleConfig = new Camera2Config(mCamera2CameraControl.getSessionOptions());
         assertThat(
                 singleConfig.getCaptureRequestOption(
                         CaptureRequest.CONTROL_AF_REGIONS, null)).isNull();
@@ -560,13 +535,13 @@ public final class Camera2CameraControlTest {
         mCamera2CameraControl.startFocusAndMetering(action);
         HandlerUtil.waitForLooperToIdle(mHandler);
 
-        Camera2Config singleConfig = new Camera2Config(mCamera2CameraControl.getSharedOptions());
+        Camera2Config singleConfig = new Camera2Config(mCamera2CameraControl.getSessionOptions());
         assertAfMode(singleConfig, CaptureRequest.CONTROL_AF_MODE_AUTO);
 
         mCamera2CameraControl.cancelFocusAndMetering();
         HandlerUtil.waitForLooperToIdle(mHandler);
 
-        Camera2Config singleConfig2 = new Camera2Config(mCamera2CameraControl.getSharedOptions());
+        Camera2Config singleConfig2 = new Camera2Config(mCamera2CameraControl.getSessionOptions());
         assertAfMode(singleConfig2, CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE);
     }
 
