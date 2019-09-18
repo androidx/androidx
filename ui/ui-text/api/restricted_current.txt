@@ -162,13 +162,8 @@ package androidx.ui.text {
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class MultiParagraphIntrinsics implements androidx.ui.text.ParagraphIntrinsics {
     ctor public MultiParagraphIntrinsics(androidx.ui.text.AnnotatedString annotatedString, androidx.ui.text.TextStyle textStyle, androidx.ui.text.ParagraphStyle paragraphStyle, androidx.ui.core.Density density, androidx.ui.core.LayoutDirection layoutDirection, androidx.ui.text.font.Font.ResourceLoader resourceLoader);
     method public androidx.ui.text.AnnotatedString getAnnotatedString();
-    method public androidx.ui.core.Density getDensity();
-    method public androidx.ui.core.LayoutDirection getLayoutDirection();
     method public float getMaxIntrinsicWidth();
     method public float getMinIntrinsicWidth();
-    method public androidx.ui.text.ParagraphStyle getParagraphStyle();
-    method public androidx.ui.text.font.Font.ResourceLoader getResourceLoader();
-    method public androidx.ui.text.TextStyle getTextStyle();
     property public float maxIntrinsicWidth;
     property public float minIntrinsicWidth;
   }

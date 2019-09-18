@@ -23,9 +23,9 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
-class MultiParagraphTest {
+class AnnotatedStringTest {
     @Test
-    fun `test fillInParagraphRanges`() {
+    fun `test normalizedParagraphStyles`() {
         val text = "Hello World"
         val paragraphStyle = ParagraphStyle(textAlign = TextAlign.Center)
         val paragraphStyles = listOf(AnnotatedString.Item(paragraphStyle, 0, 5))
@@ -46,7 +46,7 @@ class MultiParagraphTest {
     }
 
     @Test
-    fun `test fillInParagraphRanges only string`() {
+    fun `test normalizedParagraphStyles only string`() {
         val text = "Hello World"
         val annotatedString = AnnotatedString(text = text)
         val defaultParagraphStyle = ParagraphStyle(lineHeight = 2.0f)
@@ -61,7 +61,7 @@ class MultiParagraphTest {
     }
 
     @Test
-    fun `test fillInParagraphRanges empty string`() {
+    fun `test normalizedParagraphStyles empty string`() {
         val text = ""
         val annotatedString = AnnotatedString(text = text)
         val defaultParagraphStyle = ParagraphStyle(lineHeight = 2.0f)
@@ -76,7 +76,7 @@ class MultiParagraphTest {
     }
 
     @Test
-    fun `test fillInParagraphRanges with newLine`() {
+    fun `test normalizedParagraphStyles with newLine`() {
         val text = "Hello\nWorld"
         val annotatedString = AnnotatedString(text = text)
         val defaultParagraphStyle = ParagraphStyle(lineHeight = 2.0f)
@@ -91,7 +91,7 @@ class MultiParagraphTest {
     }
 
     @Test
-    fun `test fillInParagraphRanges with only lineFeed`() {
+    fun `test normalizedParagraphStyles with only lineFeed`() {
         val text = "\n"
         val annotatedString = AnnotatedString(text = text)
         val defaultParagraphStyle = ParagraphStyle(lineHeight = 2.0f)
