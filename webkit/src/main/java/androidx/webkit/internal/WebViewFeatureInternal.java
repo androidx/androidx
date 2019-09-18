@@ -339,6 +339,13 @@ public enum WebViewFeatureInternal {
      */
     FORCE_DARK(WebViewFeature.FORCE_DARK, Features.FORCE_DARK),
 
+    /**
+     * This feature covers
+     * {@link androidx.webkit.WebSettingsCompat#setForceDarkStrategy(WebSettings, int)} and
+     * {@link androidx.webkit.WebSettingsCompat#getForceDarkStrategy(WebSettings)}.
+     */
+    FORCE_DARK_STRATEGY(WebViewFeature.FORCE_DARK_STRATEGY, Features.FORCE_DARK_BEHAVIOR),
+
     ;  // This semicolon ends the enum. Add new features with a trailing comma above this line.
 
     private static final int NOT_SUPPORTED_BY_FRAMEWORK = -1;
