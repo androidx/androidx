@@ -361,7 +361,9 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 OneTimeWorkRequest request =
                         new OneTimeWorkRequest.Builder(ForegroundWorker.class)
-                                .setRunInForeground(true)
+                                .setConstraints(new Constraints.Builder()
+                                        .setRequiredNetworkType(NetworkType.CONNECTED).build()
+                                ).setRunInForeground(true)
                                 .build();
 
                 WorkManager.getInstance(MainActivity.this).enqueue(request);
