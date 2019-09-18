@@ -36,6 +36,7 @@ import androidx.core.graphics.ColorUtils;
  */
 @RestrictTo(LIBRARY)
 public class ThemeUtils {
+    private static final String TAG = "ThemeUtils";
 
     private static final ThreadLocal<TypedValue> TL_TYPED_VALUE = new ThreadLocal<>();
 
@@ -162,9 +163,10 @@ public class ThemeUtils {
 
         try {
             // Same check as in AppCompatDelegateImpl - do not allow using AppCompat widgets
-            // without a top-level AppCompat theme (or its descendant).
+            // without a top-level AppCompat theme (or its descendant). For now flag this as
+            // an error-level log message.
             if (!a.hasValue(R.styleable.AppCompatTheme_windowActionBar)) {
-                throw new IllegalStateException("View " + view.getClass()
+                android.util.Log.e(TAG, "View " + view.getClass()
                         + " is an AppCompat widget that can only be used with a "
                         + "Theme.AppCompat theme (or descendant).");
             }
