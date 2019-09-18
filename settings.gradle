@@ -167,6 +167,7 @@ includeProject(":navigation:navigation-common-ktx", "navigation/navigation-commo
 includeProject(":navigation:navigation-dynamic-feature", "navigation/dynamic-feature-navigator")
 includeProject(":navigation:navigation-runtime", "navigation/navigation-runtime")
 includeProject(":navigation:navigation-runtime-ktx", "navigation/navigation-runtime-ktx")
+includeProject(":navigation:navigation-runtime-truth", "navigation/navigation-runtime-truth")
 includeProject(":navigation:navigation-testing", "navigation/navigation-testing")
 includeProject(":navigation:navigation-fragment", "navigation/navigation-fragment")
 includeProject(":navigation:navigation-fragment-ktx", "navigation/navigation-fragment-ktx")
