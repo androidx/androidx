@@ -41,10 +41,10 @@ import androidx.room.solver.query.result.SingleEntityQueryResultAdapter
 import androidx.room.testing.TestInvocation
 import androidx.room.testing.TestProcessor
 import androidx.room.vo.Field
-import androidx.room.vo.WriteQueryMethod
 import androidx.room.vo.QueryMethod
 import androidx.room.vo.ReadQueryMethod
 import androidx.room.vo.Warning
+import androidx.room.vo.WriteQueryMethod
 import com.google.auto.common.MoreElements
 import com.google.auto.common.MoreTypes
 import com.google.common.truth.Truth.assertAbout
@@ -865,19 +865,37 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
                 ))
     }
 
+    @Test
+    fun pojo_expandProjection() {
+        if (!enableVerification) return
+        pojoTest("""
+                String uid;
+                String name;
+            """,
+            listOf("*"),
+            options = listOf("-Aroom.expandProjection=true")
+        ) { adapter, _, _ ->
+            adapter!!
+            assertThat(adapter.mapping.unusedColumns.size, `is`(0))
+            assertThat(adapter.mapping.unusedFields.size, `is`(0))
+        }!!.compilesWithoutWarnings()
+    }
+
     fun pojoTest(
         pojoFields: String,
         queryColumns: List<String>,
+        options: List<String> = emptyList(),
         handler: (PojoRowAdapter?, QueryMethod, TestInvocation) -> Unit
     ): CompileTester? {
         val assertion = singleQueryMethod<ReadQueryMethod>(
-                """
+            """
                 static class Pojo {
                     $pojoFields
                 }
                 @Query("SELECT ${queryColumns.joinToString(", ")} from User LIMIT 1")
                 abstract MyClass.Pojo getNameAndLastNames();
-                """
+            """,
+            options = options
         ) { parsedQuery, invocation ->
             val adapter = parsedQuery.queryResultBinder.adapter
             if (enableVerification) {
@@ -902,6 +920,7 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
     private fun <T : QueryMethod> singleQueryMethod(
         vararg input: String,
         jfos: Iterable<JavaFileObject> = emptyList(),
+        options: List<String> = emptyList(),
         handler: (T, TestInvocation) -> Unit
     ): CompileTester {
         return assertAbout(JavaSourcesSubjectFactory.javaSources())
@@ -913,6 +932,7 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
                     ), COMMON.LIVE_DATA, COMMON.COMPUTABLE_LIVE_DATA, COMMON.USER, COMMON.BOOK
                 ) + jfos
             )
+            .withCompilerOptions(options)
             .processedWith(TestProcessor.builder()
                 .forAnnotations(
                     Query::class, Dao::class, ColumnInfo::class,

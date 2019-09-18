@@ -98,6 +98,16 @@ class QueryMethodProcessor(
             }
         }
 
+        query.resultInfo?.let { resultInfo ->
+            if (!isPreparedQuery) {
+                val readQueryMethod = queryMethod as ReadQueryMethod
+                val adapter = readQueryMethod.queryResultBinder.adapter?.rowAdapter
+                if (adapter is PojoRowAdapter) {
+                    adapter.verifyMapping(context, resultInfo)
+                }
+            }
+        }
+
         val missing = queryMethod.sectionToParamMapping
                 .filter { it.second == null }
                 .map { it.first.text }
