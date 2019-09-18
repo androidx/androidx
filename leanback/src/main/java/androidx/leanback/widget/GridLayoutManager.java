@@ -1090,7 +1090,11 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
     }
 
     protected View getViewForPosition(int position) {
-        return mRecycler.getViewForPosition(position);
+        View v = mRecycler.getViewForPosition(position);
+        LayoutParams lp = (LayoutParams) v.getLayoutParams();
+        RecyclerView.ViewHolder vh = mBaseGridView.getChildViewHolder(v);
+        lp.setItemAlignmentFacet((ItemAlignmentFacet) getFacet(vh, ItemAlignmentFacet.class));
+        return v;
     }
 
     final int getOpticalLeft(View v) {
@@ -1622,8 +1626,6 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
             View v = getViewForPosition(index - mPositionDeltaInPreLayout);
             if (TRACE) TraceCompat.endSection();
             LayoutParams lp = (LayoutParams) v.getLayoutParams();
-            RecyclerView.ViewHolder vh = mBaseGridView.getChildViewHolder(v);
-            lp.setItemAlignmentFacet((ItemAlignmentFacet)getFacet(vh, ItemAlignmentFacet.class));
             // See recyclerView docs:  we don't need re-add scraped view if it was removed.
             if (!lp.isItemRemoved()) {
                 if (TRACE) TraceCompat.beginSection("addView");
