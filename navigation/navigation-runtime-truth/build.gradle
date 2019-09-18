@@ -40,6 +40,13 @@ dependencies {
     api(project(":navigation:navigation-runtime-ktx"))
     api(TRUTH)
     api(KOTLIN_STDLIB)
+    androidTestImplementation(project(":internal-testutils-truth"))
+    androidTestImplementation(project(":navigation:navigation-testing"))
+    androidTestImplementation(TRUTH)
+    androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
+    androidTestImplementation(ANDROIDX_TEST_CORE)
+    androidTestImplementation(ANDROIDX_TEST_RUNNER)
+    androidTestImplementation(ANDROIDX_TEST_RULES)
 }
 
 androidx {
