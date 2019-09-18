@@ -39,7 +39,6 @@ import androidx.camera.core.FocusMeteringAction;
 import androidx.camera.core.SessionConfig;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -234,31 +233,15 @@ public final class Camera2CameraControl implements CameraControlInternal {
         });
     }
 
-    /**
-     * Creates a CaptureConfig.Builder contains shared options.
-     *
-     * @return a {@link CaptureConfig.Builder} contains shared options.
-     */
-    private CaptureConfig.Builder createCaptureBuilderWithSharedOptions() {
-        CaptureConfig.Builder builder = new CaptureConfig.Builder();
-        builder.addImplementationOptions(getSharedOptions());
-        return builder;
-    }
-
     @WorkerThread
     private int getDefaultTemplate() {
         return CameraDevice.TEMPLATE_PREVIEW;
     }
 
-    @WorkerThread
-    private void notifyCaptureRequests(final List<CaptureConfig> captureConfigs) {
-        mControlUpdateListener.onCameraControlCaptureRequests(captureConfigs);
-    }
-
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     @WorkerThread
     void updateSessionConfig() {
-        mSessionConfigBuilder.setImplementationOptions(getSharedOptions());
+        mSessionConfigBuilder.setImplementationOptions(getSessionOptions());
         mControlUpdateListener.onCameraControlUpdateSessionConfig(mSessionConfigBuilder.build());
     }
 
@@ -300,7 +283,7 @@ public final class Camera2CameraControl implements CameraControlInternal {
     void enableTorchInternal(boolean torch) {
         if (!torch) {
             // Send capture request with AE_MODE_ON + FLASH_MODE_OFF to turn off torch.
-            CaptureConfig.Builder singleRequestBuilder = createCaptureBuilderWithSharedOptions();
+            CaptureConfig.Builder singleRequestBuilder = new CaptureConfig.Builder();
             singleRequestBuilder.setTemplateType(getDefaultTemplate());
             singleRequestBuilder.setUseRepeatingSurface(true);
             Camera2Config.Builder configBuilder = new Camera2Config.Builder();
@@ -309,7 +292,7 @@ public final class Camera2CameraControl implements CameraControlInternal {
             configBuilder.setCaptureRequestOption(CaptureRequest.FLASH_MODE,
                     CaptureRequest.FLASH_MODE_OFF);
             singleRequestBuilder.addImplementationOptions(configBuilder.build());
-            notifyCaptureRequests(Collections.singletonList(singleRequestBuilder.build()));
+            submitCaptureRequestsInternal(Collections.singletonList(singleRequestBuilder.build()));
         }
         updateSessionConfig();
     }
@@ -318,25 +301,18 @@ public final class Camera2CameraControl implements CameraControlInternal {
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     @WorkerThread
     void submitCaptureRequestsInternal(final List<CaptureConfig> captureConfigs) {
-        List<CaptureConfig> captureConfigsWithImpl = new ArrayList<>();
-        for (CaptureConfig captureConfig : captureConfigs) {
-            CaptureConfig.Builder builder = CaptureConfig.Builder.from(captureConfig);
-            // Always override options by shared options for the capture request from outside.
-            builder.addImplementationOptions(getSharedOptions());
-            captureConfigsWithImpl.add(builder.build());
-        }
-        notifyCaptureRequests(captureConfigsWithImpl);
+        mControlUpdateListener.onCameraControlCaptureRequests(captureConfigs);
     }
 
     /**
-     * Gets shared options by current status.
+     * Gets session options by current status.
      *
-     * <p>The shared options are based on the current torch status, flash mode, focus area, crop
-     * area, etc... They should be appended to the repeat request and each single capture request.
+     * <p>The session options are based on the current torch status, flash mode, focus area, crop
+     * area, etc... They should be appended to the repeat request.
      */
     @VisibleForTesting
     @WorkerThread
-    Config getSharedOptions() {
+    Config getSessionOptions() {
         Camera2Config.Builder builder = new Camera2Config.Builder();
         builder.setCaptureRequestOption(
                 CaptureRequest.CONTROL_MODE, CaptureRequest.CONTROL_MODE_AUTO);
