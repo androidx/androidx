@@ -141,18 +141,28 @@ public final class FragmentContainerView extends FrameLayout {
     @Override
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
-        FragmentManager fm = FragmentManager.findFragmentManager(this);
-        if (fm.findFragmentById(getId()) != null) {
-            return;
-        }
         // If there is a name we should add an inflated Fragment to the view.
         if (mName != null) {
+            int id = getId();
+            if (id <= 0) {
+                final String tagMessage = mTag == null
+                        ? "."
+                        : " with tag " + mTag + ".";
+                throw new IllegalStateException("FragmentContainerView must have an android:id to "
+                        + "add Fragment " + mName + tagMessage);
+            }
+
+            FragmentManager fm = FragmentManager.findFragmentManager(this);
+            if (fm.findFragmentById(id) != null) {
+                return;
+            }
+
             Fragment inflatedFragment =
                     fm.getFragmentFactory().instantiate(getContext().getClassLoader(), mName);
             inflatedFragment.onInflate(getContext(), mAttributeSet, null);
             fm.beginTransaction()
                     .setReorderingAllowed(true)
-                    .add(getId(), inflatedFragment, mTag)
+                    .add(id, inflatedFragment, mTag)
                     .commitNow();
         }
     }
