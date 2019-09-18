@@ -127,5 +127,5 @@ public interface BaseCamera extends UseCase.StateChangeListener,
 
     /** Returns an interface to retrieve characteristics of the camera. */
     @NonNull
-    CameraInfo getCameraInfo() throws CameraInfoUnavailableException;
+    CameraInfoInternal getCameraInfoInternal() throws CameraInfoUnavailableException;
 }

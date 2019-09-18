@@ -298,9 +298,9 @@ public class VideoCapture extends UseCase {
         // Get the relative rotation or default to 0 if the camera info is unavailable
         int relativeRotation = 0;
         try {
-            CameraInfo cameraInfo = CameraX.getCameraInfo(cameraId);
+            CameraInfoInternal cameraInfoInternal = CameraX.getCameraInfo(cameraId);
             relativeRotation =
-                    cameraInfo.getSensorRotationDegrees(
+                    cameraInfoInternal.getSensorRotationDegrees(
                             ((ImageOutputConfig) getUseCaseConfig())
                                     .getTargetRotation(Surface.ROTATION_0));
         } catch (CameraInfoUnavailableException e) {

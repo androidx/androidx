@@ -34,7 +34,7 @@ import androidx.camera.core.CameraX.LensFacing;
 import androidx.camera.testing.fakes.FakeCamera;
 import androidx.camera.testing.fakes.FakeCameraDeviceSurfaceManager;
 import androidx.camera.testing.fakes.FakeCameraFactory;
-import androidx.camera.testing.fakes.FakeCameraInfo;
+import androidx.camera.testing.fakes.FakeCameraInfoInternal;
 import androidx.camera.testing.fakes.FakeLifecycleOwner;
 import androidx.camera.testing.fakes.FakeUseCase;
 import androidx.camera.testing.fakes.FakeUseCaseConfig;
@@ -94,8 +94,8 @@ public final class CameraXTest {
                     }
                 });
         FakeCameraFactory cameraFactory = new FakeCameraFactory();
-        mCamera = new FakeCamera(new FakeCameraInfo(0, CAMERA_LENS_FACING),
-                mock(CameraControlInternal.class));
+        mCamera = new FakeCamera(mock(CameraControlInternal.class), new FakeCameraInfoInternal(0,
+                CAMERA_LENS_FACING));
         cameraFactory.insertCamera(CAMERA_LENS_FACING, CAMERA_ID, () -> mCamera);
         cameraFactory.setDefaultCameraIdForLensFacing(CAMERA_LENS_FACING, CAMERA_ID);
         AppConfig.Builder appConfigBuilder =
@@ -274,9 +274,9 @@ public final class CameraXTest {
     @Test
     public void canRetrieveCameraInfo() throws CameraInfoUnavailableException {
         String cameraId = CameraX.getCameraWithLensFacing(CAMERA_LENS_FACING);
-        CameraInfo cameraInfo = CameraX.getCameraInfo(cameraId);
-        assertThat(cameraInfo).isNotNull();
-        assertThat(cameraInfo.getLensFacing()).isEqualTo(CAMERA_LENS_FACING);
+        CameraInfoInternal cameraInfoInternal = CameraX.getCameraInfo(cameraId);
+        assertThat(cameraInfoInternal).isNotNull();
+        assertThat(cameraInfoInternal.getLensFacing()).isEqualTo(CAMERA_LENS_FACING);
     }
 
     @Test
@@ -311,6 +311,13 @@ public final class CameraXTest {
         String cameraId = CameraX.getCameraWithCameraDeviceConfig(fakeConfigBuilder.build());
 
         assertThat(cameraId).isEqualTo(mCameraId);
+    }
+
+    @Test(expected = CameraInfoUnavailableException.class)
+    public void cameraInfo_returnFlashAvailableFailed_forFrontCamera()
+            throws CameraInfoUnavailableException {
+        CameraInfo cameraInfo = CameraX.getCameraInfo(CameraX.LensFacing.FRONT);
+        cameraInfo.isFlashAvailable();
     }
 
     private static class CountingErrorListener implements ErrorListener {

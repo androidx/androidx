@@ -37,7 +37,7 @@ import androidx.camera.core.MeteringPointFactory;
 import androidx.camera.testing.fakes.FakeCamera;
 import androidx.camera.testing.fakes.FakeCameraDeviceSurfaceManager;
 import androidx.camera.testing.fakes.FakeCameraFactory;
-import androidx.camera.testing.fakes.FakeCameraInfo;
+import androidx.camera.testing.fakes.FakeCameraInfoInternal;
 import androidx.camera.testing.fakes.FakeUseCaseConfig;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.filters.SmallTest;
@@ -72,9 +72,11 @@ public class DisplayOrientedMeteringPointFactoryTest {
         // Init CameraX to inject our FakeCamera with FakeCameraInfo.
         FakeCameraFactory fakeCameraFactory = new FakeCameraFactory();
         fakeCameraFactory.insertDefaultBackCamera(BACK_CAMERA_ID,
-                () -> new FakeCamera(new FakeCameraInfo(90, CameraX.LensFacing.BACK), null));
+                () -> new FakeCamera(null,
+                        new FakeCameraInfoInternal(90, CameraX.LensFacing.BACK)));
         fakeCameraFactory.insertDefaultFrontCamera(FRONT_CAMERA_ID,
-                () -> new FakeCamera(new FakeCameraInfo(270, CameraX.LensFacing.FRONT), null));
+                () -> new FakeCamera(null,
+                        new FakeCameraInfoInternal(270, CameraX.LensFacing.FRONT)));
 
         CameraDeviceSurfaceManager surfaceManager = new FakeCameraDeviceSurfaceManager();
         ExtendableUseCaseConfigFactory defaultConfigFactory = new ExtendableUseCaseConfigFactory();

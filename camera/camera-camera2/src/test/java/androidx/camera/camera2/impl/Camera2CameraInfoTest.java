@@ -24,7 +24,7 @@ import android.hardware.camera2.CameraManager;
 import android.os.Build;
 import android.view.Surface;
 
-import androidx.camera.core.CameraInfo;
+import androidx.camera.core.CameraInfoInternal;
 import androidx.camera.core.CameraInfoUnavailableException;
 import androidx.camera.core.CameraX.LensFacing;
 import androidx.test.core.app.ApplicationProvider;
@@ -50,10 +50,12 @@ public class Camera2CameraInfoTest {
     private static final int CAMERA0_SENSOR_ORIENTATION = 90;
     private static final LensFacing CAMERA0_LENS_FACING_ENUM = LensFacing.BACK;
     private static final int CAMERA0_LENS_FACING_INT = CameraCharacteristics.LENS_FACING_BACK;
+    private static final boolean CAMERA0_FLASH_INFO_BOOLEAN = true;
 
     private static final String CAMERA1_ID = "1";
     private static final int CAMERA1_SENSOR_ORIENTATION = 0;
     private static final int CAMERA1_LENS_FACING_INT = CameraCharacteristics.LENS_FACING_FRONT;
+    private static final boolean CAMERA1_FLASH_INFO_BOOLEAN = false;
 
     private static final int FAKE_SUPPORTED_HARDWARE_LEVEL =
             CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_3;
@@ -63,6 +65,7 @@ public class Camera2CameraInfoTest {
     @Before
     public void setUp() {
         initCameras();
+
         mCameraManager =
                 (CameraManager) ApplicationProvider.getApplicationContext().getSystemService(
                         Context.CAMERA_SERVICE);
@@ -70,52 +73,69 @@ public class Camera2CameraInfoTest {
 
     @Test
     public void canCreateCameraInfo() throws CameraInfoUnavailableException {
-        CameraInfo cameraInfo = new Camera2CameraInfo(mCameraManager, CAMERA0_ID);
-        assertThat(cameraInfo).isNotNull();
+        CameraInfoInternal cameraInfoInternal = new Camera2CameraInfo(mCameraManager, CAMERA0_ID);
+        assertThat(cameraInfoInternal).isNotNull();
     }
 
     @Test
     public void cameraInfo_canReturnSensorOrientation() throws CameraInfoUnavailableException {
-        CameraInfo cameraInfo = new Camera2CameraInfo(mCameraManager, CAMERA0_ID);
-        assertThat(cameraInfo.getSensorRotationDegrees()).isEqualTo(CAMERA0_SENSOR_ORIENTATION);
+        CameraInfoInternal cameraInfoInternal = new Camera2CameraInfo(mCameraManager, CAMERA0_ID);
+        assertThat(cameraInfoInternal.getSensorRotationDegrees()).isEqualTo(
+                CAMERA0_SENSOR_ORIENTATION);
     }
 
     @Test
     public void cameraInfo_canCalculateCorrectRelativeRotation_forBackCamera()
             throws CameraInfoUnavailableException {
-        CameraInfo cameraInfo = new Camera2CameraInfo(mCameraManager, CAMERA0_ID);
+        CameraInfoInternal cameraInfoInternal = new Camera2CameraInfo(mCameraManager, CAMERA0_ID);
 
         // Note: these numbers depend on the camera being a back-facing camera.
-        assertThat(cameraInfo.getSensorRotationDegrees(Surface.ROTATION_0))
+        assertThat(cameraInfoInternal.getSensorRotationDegrees(Surface.ROTATION_0))
                 .isEqualTo(CAMERA0_SENSOR_ORIENTATION);
-        assertThat(cameraInfo.getSensorRotationDegrees(Surface.ROTATION_90))
+        assertThat(cameraInfoInternal.getSensorRotationDegrees(Surface.ROTATION_90))
                 .isEqualTo((CAMERA0_SENSOR_ORIENTATION - 90 + 360) % 360);
-        assertThat(cameraInfo.getSensorRotationDegrees(Surface.ROTATION_180))
+        assertThat(cameraInfoInternal.getSensorRotationDegrees(Surface.ROTATION_180))
                 .isEqualTo((CAMERA0_SENSOR_ORIENTATION - 180 + 360) % 360);
-        assertThat(cameraInfo.getSensorRotationDegrees(Surface.ROTATION_270))
+        assertThat(cameraInfoInternal.getSensorRotationDegrees(Surface.ROTATION_270))
                 .isEqualTo((CAMERA0_SENSOR_ORIENTATION - 270 + 360) % 360);
     }
 
     @Test
     public void cameraInfo_canCalculateCorrectRelativeRotation_forFrontCamera()
             throws CameraInfoUnavailableException {
-        CameraInfo cameraInfo = new Camera2CameraInfo(mCameraManager, CAMERA1_ID);
+        CameraInfoInternal cameraInfoInternal = new Camera2CameraInfo(mCameraManager, CAMERA1_ID);
 
         // Note: these numbers depend on the camera being a front-facing camera.
-        assertThat(cameraInfo.getSensorRotationDegrees(Surface.ROTATION_0))
+        assertThat(cameraInfoInternal.getSensorRotationDegrees(Surface.ROTATION_0))
                 .isEqualTo(CAMERA1_SENSOR_ORIENTATION);
-        assertThat(cameraInfo.getSensorRotationDegrees(Surface.ROTATION_90))
+        assertThat(cameraInfoInternal.getSensorRotationDegrees(Surface.ROTATION_90))
                 .isEqualTo((CAMERA1_SENSOR_ORIENTATION + 90) % 360);
-        assertThat(cameraInfo.getSensorRotationDegrees(Surface.ROTATION_180))
+        assertThat(cameraInfoInternal.getSensorRotationDegrees(Surface.ROTATION_180))
                 .isEqualTo((CAMERA1_SENSOR_ORIENTATION + 180) % 360);
-        assertThat(cameraInfo.getSensorRotationDegrees(Surface.ROTATION_270))
+        assertThat(cameraInfoInternal.getSensorRotationDegrees(Surface.ROTATION_270))
                 .isEqualTo((CAMERA1_SENSOR_ORIENTATION + 270) % 360);
     }
 
     @Test
     public void cameraInfo_canReturnLensFacing() throws CameraInfoUnavailableException {
-        CameraInfo cameraInfo = new Camera2CameraInfo(mCameraManager, CAMERA0_ID);
-        assertThat(cameraInfo.getLensFacing()).isEqualTo(CAMERA0_LENS_FACING_ENUM);
+        CameraInfoInternal cameraInfoInternal = new Camera2CameraInfo(mCameraManager, CAMERA0_ID);
+        assertThat(cameraInfoInternal.getLensFacing()).isEqualTo(CAMERA0_LENS_FACING_ENUM);
+    }
+
+    @Test
+    public void cameraInfo_canReturnFlashAvailable_forBackCamera()
+            throws CameraInfoUnavailableException {
+        CameraInfoInternal cameraInfoInternal = new Camera2CameraInfo(mCameraManager, CAMERA0_ID);
+        assertThat(cameraInfoInternal.isFlashAvailable().getValue().booleanValue()).isEqualTo(
+                CAMERA0_FLASH_INFO_BOOLEAN);
+    }
+
+    @Test
+    public void cameraInfo_canReturnFlashAvailable_forFrontCamera()
+            throws CameraInfoUnavailableException {
+        CameraInfoInternal cameraInfoInternal = new Camera2CameraInfo(mCameraManager, CAMERA1_ID);
+        assertThat(cameraInfoInternal.isFlashAvailable().getValue().booleanValue()).isEqualTo(
+                CAMERA1_FLASH_INFO_BOOLEAN);
     }
 
     private void initCameras() {
@@ -134,6 +154,10 @@ public class Camera2CameraInfoTest {
         // Mock the sensor orientation
         shadowCharacteristics0.set(
                 CameraCharacteristics.SENSOR_ORIENTATION, CAMERA0_SENSOR_ORIENTATION);
+
+        // Mock the flash unit availability
+        shadowCharacteristics0.set(
+                CameraCharacteristics.FLASH_INFO_AVAILABLE, CAMERA0_FLASH_INFO_BOOLEAN);
 
         // Add the camera to the camera service
         ((ShadowCameraManager)
@@ -157,6 +181,10 @@ public class Camera2CameraInfoTest {
         // Mock the sensor orientation
         shadowCharacteristics1.set(
                 CameraCharacteristics.SENSOR_ORIENTATION, CAMERA1_SENSOR_ORIENTATION);
+
+        // Mock the flash unit availability
+        shadowCharacteristics1.set(
+                CameraCharacteristics.FLASH_INFO_AVAILABLE, CAMERA1_FLASH_INFO_BOOLEAN);
 
         // Add the camera to the camera service
         ((ShadowCameraManager)

@@ -495,9 +495,9 @@ public class Preview extends UseCase {
             // will rely on the updated UseCaseConfig to set the correct rotation in
             // onSuggestedResolutionUpdated()
             String cameraId = getCameraIdUnchecked(useCaseConfig);
-            CameraInfo cameraInfo = CameraX.getCameraInfo(cameraId);
+            CameraInfoInternal cameraInfoInternal = CameraX.getCameraInfo(cameraId);
             relativeRotation =
-                    cameraInfo.getSensorRotationDegrees(
+                    cameraInfoInternal.getSensorRotationDegrees(
                             useCaseConfig.getTargetRotation(Surface.ROTATION_0));
         } catch (CameraInfoUnavailableException e) {
             Log.e(TAG, "Unable to update output metadata: " + e);

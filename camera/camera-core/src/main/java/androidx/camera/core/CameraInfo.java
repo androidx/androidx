@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 The Android Open Source Project
+ * Copyright 2019 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,38 +18,21 @@ package androidx.camera.core;
 
 import android.view.Surface;
 
-import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
-import androidx.annotation.RestrictTo.Scope;
-import androidx.camera.core.CameraX.LensFacing;
-import androidx.camera.core.ImageOutputConfig.RotationValue;
+import androidx.annotation.NonNull;
+import androidx.lifecycle.LiveData;
 
 /**
  * An interface for retrieving camera information.
  *
- * <p>Contains methods for retrieving characteristics for a specific camera.
- *
- * @hide
+ * <p>Applications can retrieve an instance via {@link CameraX#getCameraInfo(CameraX.LensFacing)}.
  */
-@RestrictTo(Scope.LIBRARY_GROUP)
 public interface CameraInfo {
-
-    /**
-     * Returns the LensFacing of this camera.
-     *
-     * @return One of {@link LensFacing#FRONT}, {@link LensFacing#BACK}, or <code>null</code> if the
-     * LensFacing does not fall into one of these two categories.
-     */
-    // TODO(b/122975195): Remove @Nullable and null return type once we have a LensFacing type which
-    // can be used to represent non-BACK or FRONT facing lenses.
-    @Nullable
-    LensFacing getLensFacing();
 
     /**
      * Returns the sensor rotation, in degrees, relative to the device's "natural" rotation.
      *
      * @return The sensor orientation in degrees.
-     * @see Surface#ROTATION_0, the natural orientation of the device.
+     * @see Surface#ROTATION_0 the natural orientation of the device.
      */
     int getSensorRotationDegrees();
 
@@ -62,5 +45,9 @@ public interface CameraInfo {
      * @param relativeRotation The rotation relative to which the output will be calculated.
      * @return The sensor orientation in degrees.
      */
-    int getSensorRotationDegrees(@RotationValue int relativeRotation);
+    int getSensorRotationDegrees(@ImageOutputConfig.RotationValue int relativeRotation);
+
+    /** Returns if flash unit is available or not. */
+    @NonNull
+    LiveData<Boolean> isFlashAvailable();
 }

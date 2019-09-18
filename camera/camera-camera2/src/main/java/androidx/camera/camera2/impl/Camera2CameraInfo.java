@@ -22,19 +22,26 @@ import android.hardware.camera2.CameraManager;
 import android.util.Log;
 import android.view.Surface;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.camera.core.CameraInfo;
+import androidx.camera.core.CameraInfoInternal;
 import androidx.camera.core.CameraInfoUnavailableException;
 import androidx.camera.core.CameraOrientationUtil;
 import androidx.camera.core.CameraX.LensFacing;
 import androidx.camera.core.ImageOutputConfig.RotationValue;
 import androidx.core.util.Preconditions;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
 
-/** Implementation of the {@link CameraInfo} interface that exposes parameters through camera2. */
-final class Camera2CameraInfo implements CameraInfo {
+/**
+ * Implementation of the {@link CameraInfoInternal} interface that exposes parameters through
+ * camera2.
+ */
+final class Camera2CameraInfo implements CameraInfoInternal {
 
     private final CameraCharacteristics mCameraCharacteristics;
     private static final String TAG = "Camera2CameraInfo";
+    private MutableLiveData<Boolean> mFlashAvailability;
 
     Camera2CameraInfo(CameraManager cameraManager, String cameraId)
             throws CameraInfoUnavailableException {
@@ -45,6 +52,8 @@ final class Camera2CameraInfo implements CameraInfo {
                     "Unable to retrieve info for camera " + cameraId, e);
         }
 
+        mFlashAvailability = new MutableLiveData<>(
+                mCameraCharacteristics.get(CameraCharacteristics.FLASH_INFO_AVAILABLE));
         checkCharacteristicAvailable(
                 CameraCharacteristics.SENSOR_ORIENTATION, "Sensor orientation");
         checkCharacteristicAvailable(CameraCharacteristics.LENS_FACING, "Lens facing direction");
@@ -142,4 +151,11 @@ final class Camera2CameraInfo implements CameraInfo {
         }
         Log.i(TAG, "Device Level: " + levelString);
     }
+
+    @NonNull
+    @Override
+    public LiveData<Boolean> isFlashAvailable() {
+        return mFlashAvailability;
+    }
+
 }

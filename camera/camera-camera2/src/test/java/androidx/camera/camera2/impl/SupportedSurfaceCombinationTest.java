@@ -918,8 +918,8 @@ public final class SupportedSurfaceCombinationTest {
                         supportedFormats, mSupportedSizes));
 
         LensFacing lensFacingEnum = CameraUtil.getLensFacingEnumFromInt(lensFacing);
-        mCameraFactory.insertCamera(lensFacingEnum, cameraId, () -> new FakeCamera(cameraId,
-                new Camera2CameraInfo(cameraManager, cameraId), null));
+        mCameraFactory.insertCamera(lensFacingEnum, cameraId, () -> new FakeCamera(cameraId, null,
+                new Camera2CameraInfo(cameraManager, cameraId)));
     }
 
     private void initCameraX() {

@@ -115,7 +115,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 @MainThread
 public final class CameraX {
-
     private static final CameraX INSTANCE = new CameraX();
     final CameraRepository mCameraRepository = new CameraRepository();
     private final AtomicBoolean mInitialized = new AtomicBoolean(false);
@@ -402,11 +401,31 @@ public final class CameraX {
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
-    @Nullable
-    public static CameraInfo getCameraInfo(String cameraId) throws CameraInfoUnavailableException {
-        return INSTANCE.getCameraRepository().getCamera(cameraId).getCameraInfo();
+    @NonNull
+    public static CameraInfoInternal getCameraInfo(String cameraId)
+            throws CameraInfoUnavailableException {
+        return INSTANCE.getCameraRepository().getCamera(cameraId).getCameraInfoInternal();
     }
 
+    /**
+     * Returns the camera info for the camera with the given lens facing.
+     *
+     * @param lensFacing the lens facing of the camera
+     * @return the camera info if it can be retrieved for the given lens facing.
+     * @throws CameraInfoUnavailableException if unable to access cameras, perhaps due to
+     *                                        insufficient permissions.
+     */
+    @NonNull
+    public static CameraInfo getCameraInfo(@NonNull LensFacing lensFacing)
+            throws CameraInfoUnavailableException {
+        try {
+            String cameraId = getCameraWithLensFacing(lensFacing);
+            return INSTANCE.getCameraRepository().getCamera(cameraId).getCameraInfoInternal();
+        } catch (IllegalArgumentException e) {
+            throw new CameraInfoUnavailableException("Unable to retrieve info for camera with "
+                    + "lens facing: " + lensFacing, e);
+        }
+    }
 
     /**
      * Returns the camera control for the camera with the given lens facing.
