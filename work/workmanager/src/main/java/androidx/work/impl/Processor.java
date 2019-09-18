@@ -154,9 +154,23 @@ public class Processor implements ExecutionListener, ForegroundProcessor {
             WorkerWrapper wrapper = mEnqueuedWorkMap.remove(workSpecId);
             if (wrapper != null) {
                 mForegroundWorkMap.put(workSpecId, wrapper);
-                Intent intent = createStartForegroundIntent(mAppContext);
+                Intent intent = createStartForegroundIntent(mAppContext, workSpecId);
                 ContextCompat.startForegroundService(mAppContext, intent);
             }
+        }
+    }
+
+    /**
+     * Stops a unit of work running in the context of a foreground service.
+     *
+     * @param id The work id to stop
+     * @return {@code true} if the work was stopped successfully
+     */
+    public boolean stopForegroundWork(@NonNull String id) {
+        synchronized (mLock) {
+            Logger.get().debug(TAG, String.format("Processor stopping foreground work %s", id));
+            WorkerWrapper wrapper = mForegroundWorkMap.remove(id);
+            return interrupt(id, wrapper);
         }
     }
 
@@ -168,15 +182,9 @@ public class Processor implements ExecutionListener, ForegroundProcessor {
      */
     public boolean stopWork(@NonNull String id) {
         synchronized (mLock) {
-            Logger.get().debug(TAG, String.format("Processor stopping %s", id));
+            Logger.get().debug(TAG, String.format("Processor stopping background work %s", id));
             WorkerWrapper wrapper = mEnqueuedWorkMap.remove(id);
-            if (wrapper != null) {
-                wrapper.interrupt(false);
-                Logger.get().debug(TAG, String.format("WorkerWrapper stopped for %s", id));
-                return true;
-            }
-            Logger.get().debug(TAG, String.format("WorkerWrapper could not be found for %s", id));
-            return false;
+            return interrupt(id, wrapper);
         }
     }
 
@@ -190,14 +198,14 @@ public class Processor implements ExecutionListener, ForegroundProcessor {
         synchronized (mLock) {
             Logger.get().debug(TAG, String.format("Processor cancelling %s", id));
             mCancelledIds.add(id);
-            WorkerWrapper wrapper = mEnqueuedWorkMap.remove(id);
-            if (wrapper != null) {
-                wrapper.interrupt(true);
-                Logger.get().debug(TAG, String.format("WorkerWrapper cancelled for %s", id));
-                return true;
+            WorkerWrapper wrapper;
+            // Check if running in the context of a foreground service
+            wrapper = mForegroundWorkMap.remove(id);
+            if (wrapper == null) {
+                // Fallback to enqueued Work
+                wrapper = mEnqueuedWorkMap.remove(id);
             }
-            Logger.get().debug(TAG, String.format("WorkerWrapper could not be found for %s", id));
-            return false;
+            return interrupt(id, wrapper);
         }
     }
 
@@ -288,6 +296,24 @@ public class Processor implements ExecutionListener, ForegroundProcessor {
             for (ExecutionListener executionListener : mOuterListeners) {
                 executionListener.onExecuted(workSpecId, needsReschedule);
             }
+        }
+    }
+
+    /**
+     * Interrupts a unit of work.
+     *
+     * @param id      The {@link androidx.work.impl.model.WorkSpec} id
+     * @param wrapper The {@link WorkerWrapper}
+     * @return {@code true} if the work was stopped successfully
+     */
+    private static boolean interrupt(@NonNull String id, @Nullable WorkerWrapper wrapper) {
+        if (wrapper != null) {
+            wrapper.interrupt(false);
+            Logger.get().debug(TAG, String.format("WorkerWrapper interrupted for %s", id));
+            return true;
+        } else {
+            Logger.get().debug(TAG, String.format("WorkerWrapper could not be found for %s", id));
+            return false;
         }
     }
 

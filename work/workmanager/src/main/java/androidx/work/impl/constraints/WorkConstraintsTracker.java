@@ -83,7 +83,7 @@ public class WorkConstraintsTracker implements ConstraintController.OnConstraint
     @VisibleForTesting
     WorkConstraintsTracker(
             @Nullable WorkConstraintsCallback callback,
-            ConstraintController[] controllers) {
+            ConstraintController<?>[] controllers) {
 
         mCallback = callback;
         mConstraintControllers = controllers;
@@ -96,17 +96,17 @@ public class WorkConstraintsTracker implements ConstraintController.OnConstraint
      * @param workSpecs A list of {@link WorkSpec}s to monitor constraints for
      */
     @SuppressWarnings("unchecked")
-    public void replace(@NonNull List<WorkSpec> workSpecs) {
+    public void replace(@NonNull Iterable<WorkSpec> workSpecs) {
         synchronized (mLock) {
-            for (ConstraintController controller : mConstraintControllers) {
+            for (ConstraintController<?> controller : mConstraintControllers) {
                 controller.setCallback(null);
             }
 
-            for (ConstraintController controller : mConstraintControllers) {
+            for (ConstraintController<?> controller : mConstraintControllers) {
                 controller.replace(workSpecs);
             }
 
-            for (ConstraintController controller : mConstraintControllers) {
+            for (ConstraintController<?> controller : mConstraintControllers) {
                 controller.setCallback(this);
             }
         }
@@ -117,7 +117,7 @@ public class WorkConstraintsTracker implements ConstraintController.OnConstraint
      */
     public void reset() {
         synchronized (mLock) {
-            for (ConstraintController controller : mConstraintControllers) {
+            for (ConstraintController<?> controller : mConstraintControllers) {
                 controller.reset();
             }
         }
@@ -132,7 +132,7 @@ public class WorkConstraintsTracker implements ConstraintController.OnConstraint
      */
     public boolean areAllConstraintsMet(@NonNull String workSpecId) {
         synchronized (mLock) {
-            for (ConstraintController constraintController : mConstraintControllers) {
+            for (ConstraintController<?> constraintController : mConstraintControllers) {
                 if (constraintController.isWorkSpecConstrained(workSpecId)) {
                     Logger.get().debug(TAG, String.format("Work %s constrained by %s", workSpecId,
                             constraintController.getClass().getSimpleName()));
