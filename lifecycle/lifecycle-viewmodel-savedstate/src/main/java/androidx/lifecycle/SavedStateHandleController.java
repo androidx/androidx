@@ -16,6 +16,9 @@
 
 package androidx.lifecycle;
 
+import static androidx.lifecycle.Lifecycle.State.INITIALIZED;
+import static androidx.lifecycle.Lifecycle.State.STARTED;
+
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -65,7 +68,7 @@ final class SavedStateHandleController implements LifecycleEventObserver {
         SavedStateHandle handle = SavedStateHandle.createHandle(restoredState, defaultArgs);
         SavedStateHandleController controller = new SavedStateHandleController(key, handle);
         controller.attachToLifecycle(registry, lifecycle);
-        registry.runOnNextRecreation(OnRecreation.class);
+        tryToAddRecreator(registry, lifecycle);
         return controller;
     }
 
@@ -82,16 +85,39 @@ final class SavedStateHandleController implements LifecycleEventObserver {
             SavedStateRegistry savedStateRegistry = owner.getSavedStateRegistry();
             for (String key : viewModelStore.keys()) {
                 ViewModel viewModel = viewModelStore.get(key);
-                SavedStateHandleController controller = viewModel.getTag(
-                        TAG_SAVED_STATE_HANDLE_CONTROLLER);
-                if (controller != null && !controller.isAttached()) {
-                    controller.attachToLifecycle(owner.getSavedStateRegistry(),
-                            owner.getLifecycle());
-                }
+                attachHandleIfNeeded(viewModel, savedStateRegistry, owner.getLifecycle());
             }
             if (!viewModelStore.keys().isEmpty()) {
                 savedStateRegistry.runOnNextRecreation(OnRecreation.class);
             }
+        }
+    }
+
+    static void attachHandleIfNeeded(ViewModel viewModel, SavedStateRegistry registry,
+            Lifecycle lifecycle) {
+        SavedStateHandleController controller = viewModel.getTag(
+                TAG_SAVED_STATE_HANDLE_CONTROLLER);
+        if (controller != null && !controller.isAttached()) {
+            controller.attachToLifecycle(registry, lifecycle);
+            tryToAddRecreator(registry, lifecycle);
+        }
+    }
+
+    private static void tryToAddRecreator(SavedStateRegistry registry, Lifecycle lifecycle) {
+        Lifecycle.State currentState = lifecycle.getCurrentState();
+        if (currentState == INITIALIZED || currentState.isAtLeast(STARTED)) {
+            registry.runOnNextRecreation(OnRecreation.class);
+        } else {
+            lifecycle.addObserver(new LifecycleEventObserver() {
+                @Override
+                public void onStateChanged(@NonNull LifecycleOwner source,
+                        @NonNull Lifecycle.Event event) {
+                    if (event == Lifecycle.Event.ON_START) {
+                        lifecycle.removeObserver(this);
+                        registry.runOnNextRecreation(OnRecreation.class);
+                    }
+                }
+            });
         }
     }
 }
