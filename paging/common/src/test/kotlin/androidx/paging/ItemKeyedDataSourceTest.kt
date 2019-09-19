@@ -16,7 +16,6 @@
 
 package androidx.paging
 
-import androidx.paging.futures.DirectExecutor
 import androidx.paging.futures.DirectDispatcher
 import com.nhaarman.mockitokotlin2.capture
 import com.nhaarman.mockitokotlin2.mock
@@ -44,7 +43,6 @@ class ItemKeyedDataSourceTest {
         initialLoadSize: Int,
         enablePlaceholders: Boolean
     ): DataSource.BaseResult<Item> {
-        dataSource.initExecutor(DirectExecutor)
         return dataSource.loadInitial(
             ItemKeyedDataSource.LoadInitialParams(key, initialLoadSize, enablePlaceholders)
         )

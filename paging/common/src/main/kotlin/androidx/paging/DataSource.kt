@@ -17,13 +17,11 @@
 package androidx.paging
 
 import androidx.annotation.AnyThread
-import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
 import androidx.annotation.WorkerThread
 import androidx.arch.core.util.Function
 import androidx.paging.PagedSource.LoadResult.Page.Companion.COUNT_UNDEFINED
 import java.util.concurrent.CopyOnWriteArrayList
-import java.util.concurrent.Executor
 import java.util.concurrent.atomic.AtomicBoolean
 
 typealias OnInvalidated = () -> Unit
@@ -113,26 +111,6 @@ internal constructor(internal val type: KeyType) {
     open val isInvalid
         @WorkerThread
         get() = _invalid.get()
-
-    private var _executor: Executor? = null
-    /**
-     * `null` until `loadInitial` is called by [PagedList] construction.
-     *
-     * This backing variable is necessary for back-compatibility with paging-common:2.1.0 Java API,
-     * while still providing synthetic accessors for Kotlin API.
-     */
-    protected val executor: Executor
-        get() = _executor ?: throw IllegalStateException(
-            "This DataSource has not been passed to a PagedList, has no executor yet."
-        )
-
-    /**
-     * @hide
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    fun initExecutor(executor: Executor) {
-        _executor = executor
-    }
 
     /**
      * Factory for DataSources.
@@ -434,7 +412,7 @@ internal constructor(internal val type: KeyType) {
      * @param K Type of the key used to query the [DataSource].
      * @property key Can be `null` for init, otherwise non-null
      */
-    class Params<K : Any> internal constructor(
+    internal class Params<K : Any> internal constructor(
         internal val type: LoadType,
         val key: K?,
         val initialLoadSize: Int,
@@ -446,7 +424,7 @@ internal constructor(internal val type: KeyType) {
      * @param Value Type of the data produced by a [DataSource].
      * @property counted Set to true if the result is an initial load that is passed totalCount
      */
-    open class BaseResult<Value : Any> internal constructor(
+    internal open class BaseResult<Value : Any> internal constructor(
         @JvmField
         val data: List<Value>,
         val prevKey: Any?,
