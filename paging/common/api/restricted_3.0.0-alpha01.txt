@@ -5,8 +5,6 @@ package androidx.paging {
   public abstract class DataSource<Key, Value> {
     method @AnyThread public void addInvalidatedCallback(androidx.paging.DataSource.InvalidatedCallback onInvalidatedCallback);
     method @AnyThread public final void addInvalidatedCallback(kotlin.jvm.functions.Function0<kotlin.Unit> onInvalidatedCallback);
-    method protected final java.util.concurrent.Executor getExecutor();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final void initExecutor(java.util.concurrent.Executor executor);
     method @AnyThread public void invalidate();
     method @WorkerThread public boolean isInvalid();
     method public abstract suspend Object load$lintWithKotlin(androidx.paging.DataSource.Params<Key> params, kotlin.coroutines.Continuation<? super androidx.paging.DataSource.BaseResult<Value>> p);
@@ -16,18 +14,7 @@ package androidx.paging {
     method public <ToValue> androidx.paging.DataSource<Key,ToValue> mapByPage(kotlin.jvm.functions.Function1<? super java.util.List<? extends Value>,? extends java.util.List<? extends ToValue>> function);
     method @AnyThread public void removeInvalidatedCallback(androidx.paging.DataSource.InvalidatedCallback onInvalidatedCallback);
     method @AnyThread public final void removeInvalidatedCallback(kotlin.jvm.functions.Function0<kotlin.Unit> onInvalidatedCallback);
-    property protected final java.util.concurrent.Executor executor;
     property @WorkerThread public boolean isInvalid;
-  }
-
-  public static class DataSource.BaseResult<Value> {
-    method public final boolean getCounted();
-    method public final int getLeadingNulls();
-    method public final Object? getNextKey();
-    method public final int getOffset();
-    method public final Object? getPrevKey();
-    method public final int getTrailingNulls();
-    field public final java.util.List<Value> data;
   }
 
   public abstract static class DataSource.Factory<Key, Value> {
@@ -41,13 +28,6 @@ package androidx.paging {
 
   public static interface DataSource.InvalidatedCallback {
     method @AnyThread public void onInvalidated();
-  }
-
-  public static final class DataSource.Params<K> {
-    method public int getInitialLoadSize();
-    method public K? getKey();
-    method public int getPageSize();
-    method public boolean getPlaceholdersEnabled();
   }
 
   public final class DataSourceKt {
