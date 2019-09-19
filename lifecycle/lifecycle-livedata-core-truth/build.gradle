@@ -37,6 +37,10 @@ dependencies {
     api(project(":lifecycle:lifecycle-livedata-core-ktx"))
     api(TRUTH)
     api(KOTLIN_STDLIB)
+    testImplementation(TRUTH)
+    testImplementation(MOCKITO_CORE)
+    testImplementation("androidx.arch.core:core-testing:2.1.0")
+    testImplementation(project(":internal-testutils-truth"))
 }
 
 androidx {
