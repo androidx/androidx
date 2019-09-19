@@ -36,6 +36,7 @@ import android.util.Size;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.camera.camera2.impl.compat.CameraManagerCompat;
 import androidx.camera.core.BaseCamera;
 import androidx.camera.core.CameraCaptureCallback;
 import androidx.camera.core.CameraCaptureResult;
@@ -133,8 +134,8 @@ public class CameraImplTest {
         mCameraHandler = new Handler(mCameraHandlerThread.getLooper());
         mSemaphore = new Semaphore(0);
         mAvailableCameras = new SettableObservable<>(DEFAULT_AVAILABLE_CAMERA_COUNT);
-        mCamera = new Camera(CameraUtil.getCameraManager(), mCameraId, mAvailableCameras,
-                mCameraHandler);
+        mCamera = new Camera(CameraManagerCompat.from(ApplicationProvider.getApplicationContext()),
+                mCameraId, mAvailableCameras, mCameraHandler);
     }
 
     @After
@@ -246,11 +247,10 @@ public class CameraImplTest {
         // Surface is attached when (1) UseCase added to online (2) Camera session opened
         // So here we need to wait until camera close before we start to verify the attach count
         mCamera.close();
-        HandlerUtil.waitForLooperToIdle(mCameraHandler);
+        waitForCameraClose(mCamera);
 
         // Surface is only attached once.
         assertThat(getUseCaseSurface(useCase1).getAttachedCount()).isEqualTo(1);
-
 
         mCamera.removeOnlineUseCase(Arrays.asList(useCase1));
     }
@@ -301,7 +301,8 @@ public class CameraImplTest {
         assertThat(mCamera.isUseCaseOnline(useCase)).isTrue();
 
         mCamera.close();
-        HandlerUtil.waitForLooperToIdle(mCameraHandler);
+        waitForCameraClose(mCamera);
+
         assertThat(getUseCaseSurface(useCase).getAttachedCount()).isEqualTo(1);
 
         mCamera.removeOnlineUseCase(Arrays.asList(useCase));
@@ -364,11 +365,10 @@ public class CameraImplTest {
         // Surface is attached when (1) UseCase added to online (2) Camera session opened
         // So here we need to wait until camera close before we start to verify the attach count
         mCamera.close();
-        HandlerUtil.waitForLooperToIdle(mCameraHandler);
+        waitForCameraClose(mCamera);
 
         assertThat(getUseCaseSurface(useCase1).getAttachedCount()).isEqualTo(0);
         assertThat(getUseCaseSurface(useCase2).getAttachedCount()).isEqualTo(1);
-
 
         mCamera.removeOnlineUseCase(Arrays.asList(useCase2));
     }
@@ -393,7 +393,7 @@ public class CameraImplTest {
         // Surface is attached when (1) UseCase added to online (2) Camera session opened
         // So here we need to wait until camera close before we start to verify the attach count
         mCamera.close();
-        HandlerUtil.waitForLooperToIdle(mCameraHandler);
+        waitForCameraClose(mCamera);
 
         assertThat(getUseCaseSurface(useCase1).getAttachedCount()).isEqualTo(0);
 
@@ -784,6 +784,29 @@ public class CameraImplTest {
             attachToCamera(cameraId, builder.build());
             return suggestedResolutionMap;
         }
+    }
+
+    private void waitForCameraClose(Camera camera) throws InterruptedException {
+        Semaphore semaphore = new Semaphore(0);
+
+        Observable.Observer<BaseCamera.State> observer =
+                new Observable.Observer<BaseCamera.State>() {
+                    @Override
+                    public void onNewData(@Nullable BaseCamera.State value) {
+                        // Ignore any transient states.
+                        if (value == BaseCamera.State.CLOSED) {
+                            semaphore.release();
+                        }
+                    }
+
+                    @Override
+                    public void onError(@NonNull Throwable t) { /* Ignore any transient errors. */ }
+                };
+
+        camera.getCameraState().addObserver(CameraXExecutors.directExecutor(), observer);
+
+        // Wait until camera reaches closed state
+        semaphore.acquire();
     }
 
     private final class SettableObservable<T> implements Observable<T> {
