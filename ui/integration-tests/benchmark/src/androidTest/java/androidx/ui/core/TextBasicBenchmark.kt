@@ -28,7 +28,7 @@ import androidx.ui.benchmark.measureFirstLayout
 import androidx.ui.benchmark.measureFirstMeasure
 import androidx.ui.benchmark.measureLayoutPerf
 import androidx.ui.test.DisableTransitions
-import androidx.ui.test.RandomTextGeneratorTestRule
+import androidx.ui.test.TextBenchmarkTestRule
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -50,19 +50,19 @@ class TextBasicBenchmark(
     val disableAnimationRule = DisableTransitions()
 
     @get:Rule
-    val textGeneratorRule = RandomTextGeneratorTestRule()
+    val textBenchmarkRule = TextBenchmarkTestRule()
 
     private val activity: Activity get() = activityRule.activity
 
     companion object {
         @JvmStatic
         @Parameterized.Parameters(name = "length={0}")
-        fun initParameters(): Array<Any> = arrayOf(8, 16, 32, 64, 128, 256, 512, 1024)
+        fun initParameters(): Array<Any> = arrayOf(32, 128, 512)
     }
 
     @Test
     fun first_compose() {
-        textGeneratorRule.generator { textGenerator ->
+        textBenchmarkRule.generator { textGenerator ->
             benchmarkRule.measureFirstCompose(
                 activity,
                 TextBasicTestCase(activity, textLength, textGenerator)
@@ -72,7 +72,7 @@ class TextBasicBenchmark(
 
     @Test
     fun first_measure() {
-        textGeneratorRule.generator { textGenerator ->
+        textBenchmarkRule.generator { textGenerator ->
             benchmarkRule.measureFirstMeasure(
                 activity,
                 TextBasicTestCase(activity, textLength, textGenerator)
@@ -82,7 +82,7 @@ class TextBasicBenchmark(
 
     @Test
     fun first_layout() {
-        textGeneratorRule.generator { textGenerator ->
+        textBenchmarkRule.generator { textGenerator ->
             benchmarkRule.measureFirstLayout(
                 activity,
                 TextBasicTestCase(activity, textLength, textGenerator)
@@ -92,7 +92,7 @@ class TextBasicBenchmark(
 
     @Test
     fun first_draw() {
-        textGeneratorRule.generator { textGenerator ->
+        textBenchmarkRule.generator { textGenerator ->
             benchmarkRule.measureFirstDraw(
                 activity,
                 TextBasicTestCase(activity, textLength, textGenerator)
@@ -102,7 +102,7 @@ class TextBasicBenchmark(
 
     @Test
     fun layout() {
-        textGeneratorRule.generator { textGenerator ->
+        textBenchmarkRule.generator { textGenerator ->
             benchmarkRule.measureLayoutPerf(
                 activity,
                 TextBasicTestCase(activity, textLength, textGenerator)
@@ -112,7 +112,7 @@ class TextBasicBenchmark(
 
     @Test
     fun draw() {
-        textGeneratorRule.generator { textGenerator ->
+        textBenchmarkRule.generator { textGenerator ->
             benchmarkRule.measureDrawPerf(
                 activity,
                 TextBasicTestCase(activity, textLength, textGenerator)
