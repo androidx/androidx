@@ -34,12 +34,8 @@ class PagerTest {
     inner class ImmediateListDataSource(private val data: List<String>) :
         PositionalDataSource<String>() {
 
-        init {
-            initExecutor(testExecutor)
-        }
-
         override fun loadInitial(params: LoadInitialParams, callback: LoadInitialCallback<String>) {
-            executor.execute {
+            testExecutor.execute {
                 val totalCount = data.size
 
                 val position = computeInitialLoadPosition(params, totalCount)
@@ -51,7 +47,7 @@ class PagerTest {
         }
 
         override fun loadRange(params: LoadRangeParams, callback: LoadRangeCallback<String>) {
-            executor.execute {
+            testExecutor.execute {
                 val position = params.startPosition
                 val end = minOf(position + params.loadSize, data.size)
                 callback.onResult(data.subList(position, end))

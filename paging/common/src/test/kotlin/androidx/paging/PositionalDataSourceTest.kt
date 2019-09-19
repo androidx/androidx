@@ -16,7 +16,6 @@
 
 package androidx.paging
 
-import androidx.paging.futures.DirectExecutor
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -176,8 +175,6 @@ class PositionalDataSourceTest {
             .setPageSize(10)
             .setEnablePlaceholders(enablePlaceholders)
             .build()
-
-        dataSource.initExecutor(DirectExecutor)
 
         val params = PositionalDataSource.LoadInitialParams(
             0,
