@@ -24,8 +24,6 @@ import android.graphics.Matrix;
 import android.graphics.SurfaceTexture;
 import android.os.Bundle;
 import android.os.Environment;
-import android.os.Handler;
-import android.os.Looper;
 import android.os.StrictMode;
 import android.os.SystemClock;
 import android.util.Log;
@@ -387,7 +385,6 @@ public class CameraXActivity extends AppCompatActivity
                 new ImageAnalysisConfig.Builder()
                         .setLensFacing(mCurrentCameraLensFacing)
                         .setTargetName("ImageAnalysis")
-                        .setCallbackHandler(new Handler(Looper.getMainLooper()))
                         .build();
 
         mImageAnalysis = new ImageAnalysis(config);

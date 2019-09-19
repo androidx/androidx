@@ -23,8 +23,6 @@ import static org.junit.Assume.assumeTrue;
 import android.Manifest;
 import android.app.Instrumentation;
 import android.content.Context;
-import android.os.Handler;
-import android.os.Looper;
 
 import androidx.camera.core.AppConfig;
 import androidx.camera.core.CameraX;
@@ -193,7 +191,6 @@ public final class UseCaseCombinationTest {
                 new ImageAnalysisConfig.Builder()
                         .setLensFacing(DEFAULT_LENS_FACING)
                         .setTargetName("ImageAnalysis")
-                        .setCallbackHandler(new Handler(Looper.getMainLooper()))
                         .build();
         mImageAnalyzer =
                 new ImageAnalysis.Analyzer() {

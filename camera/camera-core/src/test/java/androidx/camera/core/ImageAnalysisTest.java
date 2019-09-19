@@ -197,7 +197,6 @@ public class ImageAnalysisTest {
 
     private void setUpImageAnalysisWithMode(ImageAnalysis.ImageReaderMode imageReaderMode) {
         mImageAnalysis = new ImageAnalysis(new ImageAnalysisConfig.Builder()
-                .setCallbackHandler(mCallbackHandler)
                 .setBackgroundExecutor(mBackgroundExecutor)
                 .setImageQueueDepth(QUEUE_DEPTH)
                 .setImageReaderMode(imageReaderMode)

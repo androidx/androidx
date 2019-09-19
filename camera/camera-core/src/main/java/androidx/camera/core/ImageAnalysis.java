@@ -17,8 +17,6 @@
 package androidx.camera.core;
 
 import android.media.ImageReader;
-import android.os.Handler;
-import android.os.Looper;
 import android.util.Log;
 import android.util.Size;
 import android.view.Display;
@@ -426,7 +424,6 @@ public final class ImageAnalysis extends UseCase {
     public static final class Defaults implements ConfigProvider<ImageAnalysisConfig> {
         private static final ImageReaderMode DEFAULT_IMAGE_READER_MODE =
                 ImageReaderMode.ACQUIRE_LATEST_IMAGE;
-        private static final Handler DEFAULT_HANDLER = new Handler(Looper.getMainLooper());
         private static final int DEFAULT_IMAGE_QUEUE_DEPTH = 6;
         private static final Size DEFAULT_TARGET_RESOLUTION = new Size(640, 480);
         private static final Size DEFAULT_MAX_RESOLUTION = new Size(1920, 1080);
@@ -438,7 +435,6 @@ public final class ImageAnalysis extends UseCase {
             ImageAnalysisConfig.Builder builder =
                     new ImageAnalysisConfig.Builder()
                             .setImageReaderMode(DEFAULT_IMAGE_READER_MODE)
-                            .setCallbackHandler(DEFAULT_HANDLER)
                             .setImageQueueDepth(DEFAULT_IMAGE_QUEUE_DEPTH)
                             .setTargetResolution(DEFAULT_TARGET_RESOLUTION)
                             .setMaxResolution(DEFAULT_MAX_RESOLUTION)

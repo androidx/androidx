@@ -21,7 +21,6 @@ import android.graphics.Rect;
 import android.graphics.SurfaceTexture;
 import android.os.Handler;
 import android.os.HandlerThread;
-import android.os.Looper;
 import android.util.Log;
 import android.util.Rational;
 import android.util.Size;
@@ -603,7 +602,6 @@ public class Preview extends UseCase {
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     public static final class Defaults implements ConfigProvider<PreviewConfig> {
-        private static final Handler DEFAULT_HANDLER = new Handler(Looper.getMainLooper());
         private static final Size DEFAULT_MAX_RESOLUTION =
                 CameraX.getSurfaceManager().getPreviewSize();
         private static final int DEFAULT_SURFACE_OCCUPANCY_PRIORITY = 2;
@@ -613,7 +611,6 @@ public class Preview extends UseCase {
         static {
             PreviewConfig.Builder builder =
                     new PreviewConfig.Builder()
-                            .setCallbackHandler(DEFAULT_HANDLER)
                             .setMaxResolution(DEFAULT_MAX_RESOLUTION)
                             .setSurfaceOccupancyPriority(DEFAULT_SURFACE_OCCUPANCY_PRIORITY);
             DEFAULT_CONFIG = builder.build();

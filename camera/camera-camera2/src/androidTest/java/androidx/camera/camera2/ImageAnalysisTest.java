@@ -191,9 +191,8 @@ public final class ImageAnalysisTest {
     private void analyzerAnalyzesImagesWithMode(ImageReaderMode imageReaderMode)
             throws InterruptedException, CameraInfoUnavailableException {
         final int imageFormat = ImageFormat.YUV_420_888;
-        ImageAnalysisConfig config =
-                new ImageAnalysisConfig.Builder().setImageReaderMode(
-                        imageReaderMode).setCallbackHandler(mHandler).build();
+        ImageAnalysisConfig config = new ImageAnalysisConfig.Builder().setImageReaderMode(
+                imageReaderMode).build();
         ImageAnalysis useCase = new ImageAnalysis(config);
         Map<String, Size> suggestedResolutionMap = new HashMap<>();
         suggestedResolutionMap.put(mCameraId, DEFAULT_RESOLUTION);
@@ -221,8 +220,7 @@ public final class ImageAnalysisTest {
     @Test
     @UiThreadTest
     public void analyzerDoesNotAnalyzeImages_whenCameraIsNotOpen() throws InterruptedException {
-        ImageAnalysisConfig config =
-                new ImageAnalysisConfig.Builder().setCallbackHandler(mHandler).build();
+        ImageAnalysisConfig config = new ImageAnalysisConfig.Builder().build();
         ImageAnalysis useCase = new ImageAnalysis(config);
         Map<String, Size> suggestedResolutionMap = new HashMap<>();
         suggestedResolutionMap.put(mCameraId, DEFAULT_RESOLUTION);
@@ -244,8 +242,7 @@ public final class ImageAnalysisTest {
         final int imageFormat = ImageFormat.YUV_420_888;
         final Size[] sizes = {SECONDARY_RESOLUTION, DEFAULT_RESOLUTION};
 
-        ImageAnalysisConfig config =
-                new ImageAnalysisConfig.Builder().setCallbackHandler(mHandler).build();
+        ImageAnalysisConfig config = new ImageAnalysisConfig.Builder().build();
         ImageAnalysis useCase = new ImageAnalysis(config);
         useCase.setAnalyzer(CameraXExecutors.newHandlerExecutor(mHandler), mAnalyzer);
 

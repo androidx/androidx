@@ -1171,7 +1171,6 @@ public class ImageCapture extends UseCase {
             implements ConfigProvider<ImageCaptureConfig> {
         private static final CaptureMode DEFAULT_CAPTURE_MODE = CaptureMode.MIN_LATENCY;
         private static final FlashMode DEFAULT_FLASH_MODE = FlashMode.OFF;
-        private static final Handler DEFAULT_HANDLER = new Handler(Looper.getMainLooper());
         private static final int DEFAULT_SURFACE_OCCUPANCY_PRIORITY = 4;
 
         private static final ImageCaptureConfig DEFAULT_CONFIG;
@@ -1181,7 +1180,6 @@ public class ImageCapture extends UseCase {
                     new ImageCaptureConfig.Builder()
                             .setCaptureMode(DEFAULT_CAPTURE_MODE)
                             .setFlashMode(DEFAULT_FLASH_MODE)
-                            .setCallbackHandler(DEFAULT_HANDLER)
                             .setSurfaceOccupancyPriority(DEFAULT_SURFACE_OCCUPANCY_PRIORITY);
 
             DEFAULT_CONFIG = builder.build();

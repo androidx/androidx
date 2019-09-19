@@ -16,7 +16,6 @@
 
 package androidx.camera.core;
 
-import android.os.Handler;
 import android.util.Rational;
 import android.util.Size;
 import android.view.Surface;
@@ -323,31 +322,6 @@ public final class PreviewConfig
     }
 
     // Implementations of ThreadConfig default methods
-
-    /**
-     * Returns the default handler that will be used for callbacks.
-     *
-     * @param valueIfMissing The value to return if this configuration option has not been set.
-     * @return The stored value or <code>valueIfMissing</code> if the value does not exist in this
-     * configuration.
-     */
-    @Override
-    @Nullable
-    public Handler getCallbackHandler(@Nullable Handler valueIfMissing) {
-        return retrieveOption(OPTION_CALLBACK_HANDLER, valueIfMissing);
-    }
-
-    /**
-     * Returns the default handler that will be used for callbacks.
-     *
-     * @return The stored value, if it exists in this configuration.
-     * @throws IllegalArgumentException if the option does not exist in this configuration.
-     */
-    @Override
-    @NonNull
-    public Handler getCallbackHandler() {
-        return retrieveOption(OPTION_CALLBACK_HANDLER);
-    }
 
     /**
      * Returns the executor that will be used for background tasks.
@@ -724,19 +698,6 @@ public final class PreviewConfig
         }
 
         // Implementations of ThreadConfig.Builder default methods
-
-        /**
-         * Sets the default handler that will be used for callbacks.
-         *
-         * @param handler The handler which will be used to post callbacks.
-         * @return the current Builder.
-         */
-        @Override
-        @NonNull
-        public Builder setCallbackHandler(@NonNull Handler handler) {
-            getMutableConfig().insertOption(OPTION_CALLBACK_HANDLER, handler);
-            return this;
-        }
 
         /**
          * Sets the default executor that will be used for background tasks.

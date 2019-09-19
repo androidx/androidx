@@ -22,8 +22,6 @@ import static org.junit.Assume.assumeTrue;
 
 import android.app.Instrumentation;
 import android.content.Context;
-import android.os.Handler;
-import android.os.Looper;
 import android.util.Rational;
 
 import androidx.camera.core.AppConfig;
@@ -113,7 +111,6 @@ public final class SensorOrientedMeteringPointFactoryTest {
                         .setLensFacing(CameraX.LensFacing.BACK)
                         .setTargetAspectRatio(new Rational(3, 4))
                         .setTargetName("ImageAnalysis")
-                        .setCallbackHandler(new Handler(Looper.getMainLooper()))
                         .build();
         ImageAnalysis imageAnalysis = new ImageAnalysis(imageAnalysisConfig);
         mInstrumentation.runOnMainSync(new Runnable() {
@@ -138,7 +135,6 @@ public final class SensorOrientedMeteringPointFactoryTest {
                         .setLensFacing(CameraX.LensFacing.BACK)
                         .setTargetAspectRatio(new Rational(3, 4))
                         .setTargetName("ImageAnalysis")
-                        .setCallbackHandler(new Handler(Looper.getMainLooper()))
                         .build();
         ImageAnalysis imageAnalysis = new ImageAnalysis(imageAnalysisConfig);
 
