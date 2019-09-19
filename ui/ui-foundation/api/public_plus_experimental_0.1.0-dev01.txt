@@ -196,6 +196,15 @@ package androidx.ui.foundation.selection {
     method public static void MutuallyExclusiveSetItem(boolean selected, kotlin.jvm.functions.Function0<kotlin.Unit> onClick, kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
 
+  public final class SelectionContainerKt {
+    ctor public SelectionContainerKt();
+    method public static void SelectionContainer(androidx.ui.core.selection.Selection? selection, kotlin.jvm.functions.Function1<? super androidx.ui.core.selection.Selection,kotlin.Unit> onSelectionChange, androidx.ui.core.selection.SelectionMode mode = SelectionMode.Vertical, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+  }
+
+  public final class SelectionHandlesKt {
+    ctor public SelectionHandlesKt();
+  }
+
   public final class ToggleableKt {
     ctor public ToggleableKt();
     method public static void Toggleable(androidx.ui.foundation.selection.ToggleableState value = ToggleableState.Checked, kotlin.jvm.functions.Function0<kotlin.Unit>? onToggle = null, kotlin.jvm.functions.Function0<kotlin.Unit> children);

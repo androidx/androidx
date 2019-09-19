@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.ui.core.selection
+package androidx.ui.foundation.selection
 
 import androidx.compose.Composable
 import androidx.compose.composer
@@ -29,6 +29,10 @@ import androidx.ui.core.gesture.PressIndicatorGestureDetector
 import androidx.ui.core.ipx
 import androidx.ui.core.px
 import androidx.ui.core.round
+import androidx.ui.core.selection.Selection
+import androidx.ui.core.selection.SelectionManager
+import androidx.ui.core.selection.SelectionMode
+import androidx.ui.core.selection.SelectionRegistrarAmbient
 import androidx.ui.text.style.TextDirection
 
 /**
@@ -119,11 +123,11 @@ fun SelectionContainer(
                     selection.endLayoutCoordinates != null
                 ) {
                     val startOffset = manager.containerLayoutCoordinates.childToLocal(
-                        selection.startLayoutCoordinates,
+                        selection.startLayoutCoordinates!!,
                         selection.startCoordinates
                     )
                     val endOffset = manager.containerLayoutCoordinates.childToLocal(
-                        selection.endLayoutCoordinates,
+                        selection.endLayoutCoordinates!!,
                         selection.endCoordinates
                     )
                     val startAdjustedDistance =

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.ui.core.selection
+package androidx.ui.foundation.selection
 
 import androidx.compose.Composable
 import androidx.compose.composer
@@ -22,6 +22,7 @@ import androidx.compose.memo
 import androidx.compose.unaryPlus
 import androidx.ui.core.Draw
 import androidx.ui.core.px
+import androidx.ui.core.selection.Selection
 import androidx.ui.engine.geometry.Rect
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Paint
