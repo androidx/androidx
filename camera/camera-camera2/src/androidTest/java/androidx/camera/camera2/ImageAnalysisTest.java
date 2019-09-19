@@ -30,6 +30,7 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.util.Size;
 
+import androidx.annotation.GuardedBy;
 import androidx.camera.core.AppConfig;
 import androidx.camera.core.BaseCamera;
 import androidx.camera.core.CameraFactory;
@@ -77,6 +78,8 @@ public final class ImageAnalysisTest {
     private final ImageAnalysisConfig mDefaultConfig = ImageAnalysis.DEFAULT_CONFIG.getConfig(null);
     private final StateChangeListener mMockListener = Mockito.mock(StateChangeListener.class);
     private final Analyzer mMockAnalyzer = Mockito.mock(Analyzer.class);
+    private final Object mAnalysisResultLock = new Object();
+    @GuardedBy("mAnalysisResultLock")
     private Set<ImageProperties> mAnalysisResults;
     private Analyzer mAnalyzer;
     private BaseCamera mCamera;
@@ -92,13 +95,17 @@ public final class ImageAnalysisTest {
     @Before
     public void setUp() {
         assumeTrue(CameraUtil.deviceHasCamera());
-        mAnalysisResults = new HashSet<>();
+        synchronized (mAnalysisResultLock) {
+            mAnalysisResults = new HashSet<>();
+        }
         mAnalysisResultsSemaphore = new Semaphore(/*permits=*/ 0);
         mAnalyzer =
                 new Analyzer() {
                     @Override
                     public void analyze(ImageProxy image, int rotationDegrees) {
-                        mAnalysisResults.add(new ImageProperties(image, rotationDegrees));
+                        synchronized (mAnalysisResultLock) {
+                            mAnalysisResults.add(new ImageProperties(image, rotationDegrees));
+                        }
                         mAnalysisResultsSemaphore.release();
                     }
                 };
@@ -210,10 +217,12 @@ public final class ImageAnalysisTest {
 
         int sensorRotation = CameraX.getCameraInfo(mCameraId).getSensorRotationDegrees();
         // The frames should have properties which match the configuration.
-        for (ImageProperties properties : mAnalysisResults) {
-            assertThat(properties.mResolution).isEqualTo(DEFAULT_RESOLUTION);
-            assertThat(properties.mFormat).isEqualTo(imageFormat);
-            assertThat(properties.mRotationDegrees).isEqualTo(sensorRotation);
+        synchronized (mAnalysisResultLock) {
+            for (ImageProperties properties : mAnalysisResults) {
+                assertThat(properties.mResolution).isEqualTo(DEFAULT_RESOLUTION);
+                assertThat(properties.mFormat).isEqualTo(imageFormat);
+                assertThat(properties.mRotationDegrees).isEqualTo(sensorRotation);
+            }
         }
     }
 
@@ -232,7 +241,9 @@ public final class ImageAnalysisTest {
         mAnalysisResultsSemaphore.tryAcquire(5, TimeUnit.SECONDS);
 
         // No frames should have been analyzed.
-        assertThat(mAnalysisResults).isEmpty();
+        synchronized (mAnalysisResultLock) {
+            assertThat(mAnalysisResults).isEmpty();
+        }
     }
 
     @Suppress // TODO(b/133171096): Remove once this no longer throws an IllegalStateException
@@ -255,14 +266,18 @@ public final class ImageAnalysisTest {
             CameraUtil.openCameraWithUseCase(mCameraId, mCamera, useCase);
 
             // Clear previous results
-            mAnalysisResults.clear();
+            synchronized (mAnalysisResultLock) {
+                mAnalysisResults.clear();
+            }
             // Wait a little while for frames to be analyzed.
             mAnalysisResultsSemaphore.tryAcquire(5, TimeUnit.SECONDS);
 
-            // The frames should have properties which match the configuration.
-            for (ImageProperties properties : mAnalysisResults) {
-                assertThat(properties.mResolution).isEqualTo(size);
-                assertThat(properties.mFormat).isEqualTo(imageFormat);
+            synchronized (mAnalysisResultLock) {
+                // The frames should have properties which match the configuration.
+                for (ImageProperties properties : mAnalysisResults) {
+                    assertThat(properties.mResolution).isEqualTo(size);
+                    assertThat(properties.mFormat).isEqualTo(imageFormat);
+                }
             }
 
             // Detach use case from camera device to run next resolution setting

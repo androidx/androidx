@@ -36,6 +36,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.annotation.WorkerThread;
+import androidx.camera.camera2.impl.compat.CameraManagerCompat;
 import androidx.camera.core.BaseCamera;
 import androidx.camera.core.CameraControlInternal;
 import androidx.camera.core.CameraDeviceStateCallbacks;
@@ -96,7 +97,7 @@ final class Camera implements BaseCamera {
     private final String mCameraId;
 
     /** Handle to the camera service. */
-    private final CameraManager mCameraManager;
+    private final CameraManagerCompat mCameraManager;
 
     private final Object mCameraInfoLock = new Object();
     /** The handler for camera callbacks and use case state management calls. */
@@ -133,7 +134,8 @@ final class Camera implements BaseCamera {
     private CaptureSession.Builder mCaptureSessionBuilder = new CaptureSession.Builder();
 
     /** The configured session which handles issuing capture requests. */
-    private CaptureSession mCaptureSession;
+    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+    CaptureSession mCaptureSession;
     /** The session configuration of camera control. */
     private SessionConfig mCameraControlSessionConfig = SessionConfig.defaultEmptySessionConfig();
 
@@ -153,32 +155,22 @@ final class Camera implements BaseCamera {
     final Map<CaptureSession, ListenableFuture<Void>> mReleasedCaptureSessions = new HashMap<>();
 
     private final Observable<Integer> mAvailableCamerasObservable;
-    private final Observable.Observer<Integer> mAvailableCamerasObserver;
-    /**
-     * Tracks the number of cameras available for opening.
-     *
-     * <p>If there are no cameras available to open, the camera will wait until there is at least
-     * 1 camera available before opening a CameraDevice.
-     *
-     * <p>This number should be updated by mAvailableCamerasObserver.
-     */
-    @SuppressWarnings("WeakerAccess")
-    int mNumAvailableCameras = 0;
+    private final CameraAvailability mCameraAvailability;
 
     /**
      * Constructor for a camera.
      *
-     * @param cameraManager the camera service used to retrieve a camera
-     * @param cameraId      the name of the camera as defined by the camera service
+     * @param cameraManager              the camera service used to retrieve a camera
+     * @param cameraId                   the name of the camera as defined by the camera service
      * @param availableCamerasObservable An observable updated with the current number of cameras
      *                                   that are available to be opened on the device.
-     * @param handler       the handler for the thread on which all camera operations run
+     * @param handler                    the handler for the thread on which all camera
+     *                                   operations run
      */
-    Camera(CameraManager cameraManager, String cameraId,
+    Camera(CameraManagerCompat cameraManager, String cameraId,
             @NonNull Observable<Integer> availableCamerasObservable, Handler handler) {
         mCameraManager = cameraManager;
         mCameraId = cameraId;
-        mAvailableCamerasObserver = new AvailableCamerasObserver();
         mAvailableCamerasObservable = availableCamerasObservable;
         mHandler = handler;
         ScheduledExecutorService executorScheduler = CameraXExecutors.newHandlerExecutor(mHandler);
@@ -188,7 +180,7 @@ final class Camera implements BaseCamera {
 
         try {
             CameraCharacteristics cameraCharacteristics =
-                    mCameraManager.getCameraCharacteristics(mCameraId);
+                    mCameraManager.unwrap().getCameraCharacteristics(mCameraId);
             mCameraControlInternal = new Camera2CameraControl(cameraCharacteristics,
                     this, executorScheduler, executorScheduler);
             @SuppressWarnings("ConstantConditions") /* characteristic on all devices */
@@ -201,8 +193,11 @@ final class Camera implements BaseCamera {
         mCaptureSessionBuilder.setExecutor(mExecutor);
         mCaptureSession = mCaptureSessionBuilder.build();
 
+        mCameraAvailability = new CameraAvailability(mCameraId);
+
         // Register an observer to update the number of available cameras
-        mAvailableCamerasObservable.addObserver(mExecutor, mAvailableCamerasObserver);
+        mAvailableCamerasObservable.addObserver(mExecutor, mCameraAvailability);
+        mCameraManager.registerAvailabilityCallback(mExecutor, mCameraAvailability);
     }
 
     /**
@@ -280,6 +275,7 @@ final class Camera implements BaseCamera {
                 // camera is not yet opening.
                 Preconditions.checkState(mCameraDevice == null);
                 setState(InternalState.INITIALIZED);
+                break;
             default:
                 Log.d(TAG, "close() ignored due to being in state: " + mState);
         }
@@ -347,7 +343,8 @@ final class Camera implements BaseCamera {
 
             // After a camera is released, it cannot be reopened, so we don't need to listen for
             // available camera changes.
-            mAvailableCamerasObservable.removeObserver(mAvailableCamerasObserver);
+            mAvailableCamerasObservable.removeObserver(mCameraAvailability);
+            mCameraManager.unregisterAvailabilityCallback(mCameraAvailability);
 
             if (mUserReleaseNotifier != null) {
                 mUserReleaseNotifier.set(null);
@@ -397,6 +394,7 @@ final class Camera implements BaseCamera {
         captureSession.close();
         ListenableFuture<Void> releaseFuture = captureSession.release(abortInFlightCaptures);
 
+        Log.d(TAG, "releasing session in state " + mState.name());
         mReleasedCaptureSessions.put(captureSession, releaseFuture);
 
         // Add a callback to clear the future and notify if the camera and all capture sessions
@@ -815,7 +813,7 @@ final class Camera implements BaseCamera {
         synchronized (mCameraInfoLock) {
             if (mCameraInfoInternal == null) {
                 // Lazily instantiate camera info
-                mCameraInfoInternal = new Camera2CameraInfo(mCameraManager, mCameraId);
+                mCameraInfoInternal = new Camera2CameraInfo(mCameraManager.unwrap(), mCameraId);
             }
 
             return mCameraInfoInternal;
@@ -829,7 +827,7 @@ final class Camera implements BaseCamera {
     void openCameraDevice() {
         // Check that we have an available camera to open here before attempting
         // to open the camera again.
-        if (mNumAvailableCameras <= 0) {
+        if (!mCameraAvailability.isCameraAvailable()) {
             Log.d(TAG, "No cameras available. Waiting for available camera before opening camera: "
                     + mCameraId);
             setState(InternalState.PENDING_OPEN);
@@ -841,7 +839,7 @@ final class Camera implements BaseCamera {
         Log.d(TAG, "Opening camera: " + mCameraId);
 
         try {
-            mCameraManager.openCamera(mCameraId, createDeviceStateCallback(), mHandler);
+            mCameraManager.openCamera(mCameraId, mExecutor, createDeviceStateCallback());
         } catch (CameraAccessException e) {
             Log.e(TAG, "Unable to open camera " + mCameraId + " due to " + e.getMessage());
             setState(InternalState.INITIALIZED);
@@ -924,7 +922,7 @@ final class Camera implements BaseCamera {
      * closing that session.
      */
     @WorkerThread
-    private void resetCaptureSession(boolean abortInFlightCaptures) {
+    void resetCaptureSession(boolean abortInFlightCaptures) {
         Preconditions.checkState(mCaptureSession != null);
         Log.d(TAG, "Resetting Capture Session");
         CaptureSession oldCaptureSession = mCaptureSession;
@@ -1123,6 +1121,7 @@ final class Camera implements BaseCamera {
 
     @WorkerThread
     void setState(InternalState state) {
+        Log.d(TAG, "Transitioning camera internal state: " + mState + " --> " + state);
         mState = state;
         // Convert the internal state to the publicly visible state
         switch (state) {
@@ -1222,28 +1221,18 @@ final class Camera implements BaseCamera {
         public void onDisconnected(CameraDevice cameraDevice) {
             Log.d(TAG, "CameraDevice.onDisconnected(): " + cameraDevice.getId());
 
-            // onDisconnected could be called before onOpened if the camera becomes disconnected
-            // during initialization, so keep track of it here.
-            mCameraDevice = cameraDevice;
-
-            switch (mState) {
-                case CLOSING:
-                case REOPENING:
-                case OPENED:
-                case OPENING:
-                    // TODO: Create a "DISCONNECTED" state so camera can recover once available.
-                    setState(InternalState.RELEASING);
-                    break;
-                case RELEASING:
-                    // State will be set to RELEASED once camera finishes closing.
-                    break;
-                default:
-                    throw new IllegalStateException(
-                            "onDisconnected() should not be possible from state: " + mState);
+            // TODO(b/140955560) Need to force close the CaptureSessions, because onDisconnected
+            //  () callback causes condition where CameraCaptureSession won't receive the
+            //  onClosed() callback.
+            for (CaptureSession captureSession : mReleasedCaptureSessions.keySet()) {
+                captureSession.forceClose();
             }
-            // Not to close the in flight captures since the capture session has already been
-            // closed.
-            closeCamera(/*abortInFlightCaptures=*/false);
+
+            mCaptureSession.forceClose();
+
+            // Can be treated the same as camera in use because in both situations the
+            // CameraDevice needs to be closed before it can be safely reopened and used.
+            onError(cameraDevice, CameraDevice.StateCallback.ERROR_CAMERA_IN_USE);
         }
 
         @Override
@@ -1285,6 +1274,7 @@ final class Camera implements BaseCamera {
                     // A fatal error occurred. The device should be reopened.
                     // Fall through.
                 case CameraDevice.StateCallback.ERROR_MAX_CAMERAS_IN_USE:
+                case CameraDevice.StateCallback.ERROR_CAMERA_IN_USE:
                     // Attempt to reopen the camera again. If there are no cameras available,
                     // this will wait for the next available camera.
                     reopenCameraAfterError();
@@ -1317,7 +1307,59 @@ final class Camera implements BaseCamera {
         }
     }
 
-    final class AvailableCamerasObserver implements Observable.Observer<Integer> {
+    /**
+     * A class that listens to signals to determine whether a camera with a particular id is
+     * available for opening.
+     */
+    final class CameraAvailability extends CameraManager.AvailabilityCallback implements
+            Observable.Observer<Integer> {
+        private final String mCameraId;
+
+        /**
+         * Availability as reported by the AvailabilityCallback. If this is true then the camera
+         * is available for open. If this is false, either another process holds the camera or
+         * this process. Potentially held by the Camera that is holding this instance of
+         * CameraAvailability.
+         */
+        private boolean mCameraAvailable = true;
+
+        /**
+         * Tracks the number of cameras available for opening.
+         *
+         * <p>If there are no cameras available to open, the camera will wait until there is at
+         * least
+         * 1 camera available before opening a CameraDevice.
+         */
+        private int mNumAvailableCameras = 0;
+
+        CameraAvailability(String cameraId) {
+            mCameraId = cameraId;
+        }
+
+        @Override
+        public void onCameraAvailable(@NonNull String cameraId) {
+            if (!mCameraId.equals(cameraId)) {
+                // Ignore availability for other cameras
+                return;
+            }
+
+            mCameraAvailable = true;
+
+            if (mState == InternalState.PENDING_OPEN) {
+                openCameraDevice();
+            }
+        }
+
+        @Override
+        public void onCameraUnavailable(@NonNull String cameraId) {
+            if (!mCameraId.equals(cameraId)) {
+                // Ignore availability for other cameras
+                return;
+            }
+
+            mCameraAvailable = false;
+        }
+
 
         @Override
         public void onNewData(@Nullable Integer value) {
@@ -1334,6 +1376,13 @@ final class Camera implements BaseCamera {
         @Override
         public void onError(@NonNull Throwable t) {
             // No errors expected from available cameras yet. May need to be handled in the future.
+        }
+
+        /**
+         * True if a camera is potentially available.
+         */
+        boolean isCameraAvailable() {
+            return mCameraAvailable && mNumAvailableCameras > 0;
         }
     }
 }
