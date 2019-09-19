@@ -51,7 +51,7 @@ public class GridModelTest {
 
     private GridModel<String> mModel;
     private TestHost mHost;
-    private TestAdapter mAdapter;
+    private TestAdapter<String> mAdapter;
     private Set<String> mLastSelection;
     private int mViewWidth;
 

@@ -107,14 +107,15 @@ public abstract class BandPredicate {
     public static final class NonDraggableArea extends BandPredicate {
 
         private final RecyclerView mRecyclerView;
-        private final ItemDetailsLookup mDetailsLookup;
+        private final ItemDetailsLookup<?> mDetailsLookup;
 
         /**
          * Creates a new instance.
          *
-         * @param recyclerView the owner RecyclerView
+         * @param recyclerView  the owner RecyclerView
          * @param detailsLookup provides access to item details.
          */
+        @SuppressWarnings("rawtypes")
         public NonDraggableArea(
                 @NonNull RecyclerView recyclerView, @NonNull ItemDetailsLookup detailsLookup) {
 
@@ -132,7 +133,8 @@ public abstract class BandPredicate {
                 return false;
             }
 
-            @Nullable ItemDetailsLookup.ItemDetails details = mDetailsLookup.getItemDetails(e);
+            @Nullable ItemDetailsLookup.ItemDetails<?> details =
+                    mDetailsLookup.getItemDetails(e);
             return (details == null) || !details.inDragRegion(e);
         }
     }

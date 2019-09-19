@@ -59,11 +59,11 @@ public class ToolHandlerRegistryTest {
         private static final String UNKNOWN = "unknown";
     }
 
-    private ToolHandlerRegistry mRegistry;
+    private ToolHandlerRegistry<String> mRegistry;
 
     @Before
     public void setUp() {
-        mRegistry = new ToolHandlerRegistry(Handlers.DEFAULT);
+        mRegistry = new ToolHandlerRegistry<>(Handlers.DEFAULT);
     }
 
     @Test

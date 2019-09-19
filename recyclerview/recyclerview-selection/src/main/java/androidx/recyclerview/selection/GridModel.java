@@ -63,7 +63,7 @@ final class GridModel<K> {
     private final ItemKeyProvider<K> mKeyProvider;
     private final SelectionPredicate<K> mSelectionPredicate;
 
-    private final List<SelectionObserver> mOnSelectionChangedListeners = new ArrayList<>();
+    private final List<SelectionObserver<K>> mOnSelectionChangedListeners = new ArrayList<>();
 
     // Map from the x-value of the left side of a SparseBooleanArray of adapter positions, keyed
     // by their y-offset. For example, if the first column of the view starts at an x-value of 5,
@@ -103,7 +103,7 @@ final class GridModel<K> {
 
     @SuppressWarnings("unchecked")
     GridModel(
-            GridHost host,
+            GridHost<K> host,
             ItemKeyProvider<K> keyProvider,
             SelectionPredicate<K> selectionPredicate) {
 
@@ -287,7 +287,7 @@ final class GridModel<K> {
      */
     @SuppressWarnings("unchecked")
     private void notifySelectionChanged() {
-        for (SelectionObserver listener : mOnSelectionChangedListeners) {
+        for (SelectionObserver<K> listener : mOnSelectionChangedListeners) {
             listener.onSelectionChanged(mSelection);
         }
     }
@@ -403,7 +403,7 @@ final class GridModel<K> {
         abstract void onSelectionChanged(Set<K> updatedSelection);
     }
 
-    void addOnSelectionChangedListener(SelectionObserver listener) {
+    void addOnSelectionChangedListener(SelectionObserver<K> listener) {
         mOnSelectionChangedListeners.add(listener);
     }
 

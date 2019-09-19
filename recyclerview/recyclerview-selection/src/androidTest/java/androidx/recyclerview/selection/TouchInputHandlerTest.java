@@ -48,12 +48,12 @@ public final class TouchInputHandlerTest {
 
     private static final List<String> ITEMS = TestData.createStringData(100);
 
-    private TouchInputHandler mInputDelegate;
-    private SelectionTracker mSelectionMgr;
-    private TestSelectionPredicate mSelectionPredicate;
+    private TouchInputHandler<String> mInputDelegate;
+    private SelectionTracker<String> mSelectionMgr;
+    private TestSelectionPredicate<String> mSelectionPredicate;
     private TestRunnable mGestureStarted;
     private TestRunnable mHapticPerformer;
-    private TestOnItemActivatedListener mActivationCallbacks;
+    private TestOnItemActivatedListener<String> mActivationCallbacks;
     private TestItemDetailsLookup mDetailsLookup;
     private SelectionProbe mSelection;
     private TestDragListener mDragInitiatedListener;
@@ -85,7 +85,7 @@ public final class TouchInputHandlerTest {
 
     @Test
     public void testTap_ActivatesWhenNoExistingSelection() {
-        ItemDetails doc = mDetailsLookup.initAt(11);
+        ItemDetails<String> doc = mDetailsLookup.initAt(11);
 
         mInputDelegate.onSingleTapUp(TAP);
 

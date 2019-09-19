@@ -54,9 +54,8 @@ import java.util.Set;
  * (which can be initiated by long pressing an unselected item while there is an
  * existing selection).
  *
- * @see MutableSelection
- *
  * @param <K> Selection key type. @see {@link StorageStrategy} for supported types.
+ * @see MutableSelection
  */
 public class Selection<K> implements Iterable<K> {
 
@@ -78,7 +77,6 @@ public class Selection<K> implements Iterable<K> {
     }
 
     /**
-     * @param key
      * @return true if the position is currently selected.
      */
     public boolean contains(@Nullable K key) {
@@ -114,12 +112,13 @@ public class Selection<K> implements Iterable<K> {
      * Sets the provisional selection, which is a temporary selection that can be saved,
      * canceled, or adjusted at a later time. When a new provision selection is applied, the old
      * one (if it exists) is abandoned.
+     *
      * @return Map of ids added or removed. Added ids have a value of true, removed are false.
      */
     Map<K, Boolean> setProvisionalSelection(@NonNull Set<K> newSelection) {
         Map<K, Boolean> delta = new LinkedHashMap<>();
 
-        for (K key: mProvisionalSelection) {
+        for (K key : mProvisionalSelection) {
             // Mark each item that used to be in the provisional selection
             // but is not in the new provisional selection.
             if (!newSelection.contains(key) && !mSelection.contains(key)) {
@@ -127,7 +126,7 @@ public class Selection<K> implements Iterable<K> {
             }
         }
 
-        for (K key: mSelection) {
+        for (K key : mSelection) {
             // Mark each item that in the selection but is not in the new
             // provisional selection.
             if (!newSelection.contains(key)) {
@@ -135,7 +134,7 @@ public class Selection<K> implements Iterable<K> {
             }
         }
 
-        for (K key: newSelection) {
+        for (K key : newSelection) {
             // Mark each item that was not previously in the selection but is in the new
             // provisional selection.
             if (!mSelection.contains(key) && !mProvisionalSelection.contains(key)) {
@@ -146,7 +145,7 @@ public class Selection<K> implements Iterable<K> {
         // Now, iterate through the changes and actually add/remove them to/from the current
         // selection. This could not be done in the previous loops because changing the size of
         // the selection mid-iteration changes iteration order erroneously.
-        for (Map.Entry<K, Boolean> entry: delta.entrySet()) {
+        for (Map.Entry<K, Boolean> entry : delta.entrySet()) {
             K key = entry.getKey();
             if (entry.getValue()) {
                 mProvisionalSelection.add(key);
@@ -221,11 +220,11 @@ public class Selection<K> implements Iterable<K> {
 
         StringBuilder buffer = new StringBuilder(size() * 28);
         buffer.append("Selection{")
-            .append("primary{size=" + mSelection.size())
-            .append(", entries=" + mSelection)
-            .append("}, provisional{size=" + mProvisionalSelection.size())
-            .append(", entries=" + mProvisionalSelection)
-            .append("}}");
+                .append("primary{size=" + mSelection.size())
+                .append(", entries=" + mSelection)
+                .append("}, provisional{size=" + mProvisionalSelection.size())
+                .append(", entries=" + mProvisionalSelection)
+                .append("}}");
         return buffer.toString();
     }
 
@@ -237,10 +236,10 @@ public class Selection<K> implements Iterable<K> {
     @Override
     public boolean equals(Object other) {
         return (this == other)
-                || (other instanceof Selection && isEqualTo((Selection) other));
+                || (other instanceof Selection && isEqualTo((Selection<?>) other));
     }
 
-    private boolean isEqualTo(Selection other) {
+    private boolean isEqualTo(Selection<?> other) {
         return mSelection.equals(other.mSelection)
                 && mProvisionalSelection.equals(other.mProvisionalSelection);
     }

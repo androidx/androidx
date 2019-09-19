@@ -36,7 +36,7 @@ public final class SelectionProbe {
 
     public SelectionProbe(SelectionTracker<String> mgr) {
         mMgr = mgr;
-        mSelectionListener = new TestSelectionObserver<String>();
+        mSelectionListener = new TestSelectionObserver<>();
         mMgr.addObserver(mSelectionListener);
     }
 

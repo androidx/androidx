@@ -44,7 +44,7 @@ public class DefaultSelectionTracker_SingleSelectTest {
     public void setUp() throws Exception {
         mItems = TestAdapter.createItemList(100);
         mListener = new TestSelectionObserver<>();
-        TestAdapter adapter = new TestAdapter();
+        TestAdapter<String> adapter = new TestAdapter<>();
         adapter.updateTestModelIds(mItems);
 
         ItemKeyProvider<String> keyProvider =
