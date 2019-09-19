@@ -21,7 +21,7 @@ import java.util.concurrent.ConcurrentLinkedQueue
 import kotlin.coroutines.CoroutineContext
 
 /**
- * [CoroutineDispatcher] which keeps track of all its queues jobs.
+ * [CoroutineDispatcher] which keeps track of all its queued jobs.
  */
 class TestDispatcher : CoroutineDispatcher() {
     val queue = ConcurrentLinkedQueue<Runnable>()
@@ -31,8 +31,9 @@ class TestDispatcher : CoroutineDispatcher() {
     }
 
     fun executeAll() {
-        while (queue.peek() != null) {
-            queue.poll()!!.run()
-        }
+        do {
+            val runnable = queue.poll()
+            runnable?.run()
+        } while (runnable != null)
     }
 }

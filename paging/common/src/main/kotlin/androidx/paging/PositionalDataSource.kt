@@ -365,7 +365,7 @@ abstract class PositionalDataSource<T : Any> : DataSource<Int, T>(POSITIONAL) {
      *
      * This method is called to load the initial page(s) from the DataSource.
      *
-     * Result list must be a multiple of pageSize to enable efficient tiling.
+     * LoadResult list must be a multiple of pageSize to enable efficient tiling.
      *
      * @param params Parameters for initial load, including requested start position, load size, and
      * page size.
@@ -434,7 +434,7 @@ abstract class PositionalDataSource<T : Any> : DataSource<Int, T>(POSITIONAL) {
      *
      * This method is called to load the initial page(s) from the [DataSource].
      *
-     * Result list must be a multiple of pageSize to enable efficient tiling.
+     * LoadResult list must be a multiple of pageSize to enable efficient tiling.
      *
      * @param params Parameters for initial load, including requested start position, load size, and
      * page size.
