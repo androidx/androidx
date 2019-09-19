@@ -116,13 +116,14 @@ public class GreedySchedulerTest extends WorkManagerTest {
 
     @Test
     @SmallTest
-    public void testGreedyScheduler_ignoresForegroundWork() {
+    public void testGreedyScheduler_startsForegroundWork() {
         OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(ForegroundWorker.class)
                 .setRunInForeground(true)
                 .build();
 
-        mGreedyScheduler.schedule(getWorkSpec(work));
-        verify(mMockWorkConstraintsTracker, never()).replace(ArgumentMatchers.<WorkSpec>anyList());
+        WorkSpec workSpec = getWorkSpec(work);
+        mGreedyScheduler.schedule(workSpec);
+        verify(mWorkManagerImpl).startWork(workSpec.id);
     }
 
     @Test
