@@ -852,7 +852,7 @@ abstract class PagedList<T : Any> internal constructor(
      * @param T Type loaded by the [PagedList].
      */
     @MainThread
-    abstract class BoundaryCallback<T> {
+    abstract class BoundaryCallback<T : Any> {
         /**
          * Called when zero items are returned from an initial load of the PagedList's data source.
          */
