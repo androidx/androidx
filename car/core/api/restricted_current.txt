@@ -611,6 +611,7 @@ package androidx.car.widget {
     method public void setDownButtonIcon(android.graphics.drawable.Drawable!);
     method public void setDownEnabled(boolean);
     method public void setOnAlphaJumpListener(androidx.car.widget.PagedScrollBarView.OnAlphaJumpListener?);
+    method public void setOnVisibilityChangedListener(androidx.car.widget.PagedScrollBarView.OnVisibilityChangedListener?);
     method public void setPaginationListener(androidx.car.widget.PagedScrollBarView.PaginationListener?);
     method public void setParameters(@IntRange(from=0) int, @IntRange(from=0) int, @IntRange(from=0) int, boolean);
     method public void setScrollbarThumbColor(@ColorRes int);
@@ -623,11 +624,18 @@ package androidx.car.widget {
     method public void onAlphaJump();
   }
 
+  public static interface PagedScrollBarView.OnVisibilityChangedListener {
+    method public void onVisibilityChanged(android.view.View, @androidx.car.widget.PagedScrollBarView.Visibility int);
+  }
+
   public static interface PagedScrollBarView.PaginationListener {
     method @Deprecated public default void onAlphaJump();
     method public void onPaginate(int);
     field public static final int PAGE_DOWN = 1; // 0x1
     field public static final int PAGE_UP = 0; // 0x0
+  }
+
+  @IntDef({android.view.View.VISIBLE, android.view.View.INVISIBLE, android.view.View.GONE}) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface PagedScrollBarView.Visibility {
   }
 
   public final class RadioButtonListItem extends androidx.car.widget.CompoundButtonListItem<androidx.car.widget.RadioButtonListItem.ViewHolder> {
