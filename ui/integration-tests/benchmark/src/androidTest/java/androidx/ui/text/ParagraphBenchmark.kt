@@ -24,7 +24,7 @@ import androidx.ui.core.LayoutDirection
 import androidx.ui.core.sp
 import androidx.ui.test.Alphabet
 import androidx.ui.test.RandomTextGenerator
-import androidx.ui.test.RandomTextGeneratorTestRule
+import androidx.ui.test.TextBenchmarkTestRule
 import androidx.ui.test.TextType
 import androidx.ui.test.cartesian
 import androidx.ui.text.font.Font
@@ -55,7 +55,7 @@ class ParagraphBenchmark(
     val benchmarkRule = BenchmarkRule()
 
     @get:Rule
-    val textGeneratorRule = RandomTextGeneratorTestRule(alphabet)
+    val textBenchmarkRule = TextBenchmarkTestRule(alphabet)
 
     // dummy object required to construct Paragraph
     private val resourceLoader = object : Font.ResourceLoader {
@@ -87,7 +87,7 @@ class ParagraphBenchmark(
     fun minIntrinsicWidth() {
         benchmarkRule.measureRepeated {
             val paragraph = runWithTimingDisabled {
-                textGeneratorRule.generator { textGenerator ->
+                textBenchmarkRule.generator { textGenerator ->
                     paragraph(textGenerator)
                 }
             }
@@ -100,7 +100,7 @@ class ParagraphBenchmark(
     fun layout() {
         benchmarkRule.measureRepeated {
             val pair = runWithTimingDisabled {
-                textGeneratorRule.generator { textGenerator ->
+                textBenchmarkRule.generator { textGenerator ->
                     val paragraph = paragraph(textGenerator)
                     paragraph.layout(ParagraphConstraints(Float.MAX_VALUE))
                     // create a new paragraph and use a smaller width to get
