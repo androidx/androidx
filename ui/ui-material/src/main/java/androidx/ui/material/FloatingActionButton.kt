@@ -144,7 +144,7 @@ fun FloatingActionButton(
             }
         } else {
             Padding(left = ExtendedFabIconPadding, right = ExtendedFabTextPadding) {
-                Row(mainAxisSize = LayoutSize.Wrap) {
+                Row {
                     SimpleImage(image = icon)
                     WidthSpacer(width = ExtendedFabIconPadding)
                     Text(text = text, style = textStyle)

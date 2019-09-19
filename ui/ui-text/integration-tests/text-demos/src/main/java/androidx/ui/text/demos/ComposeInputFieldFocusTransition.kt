@@ -31,12 +31,16 @@ import androidx.ui.input.EditorModel
 import androidx.ui.input.EditorStyle
 import androidx.ui.input.ImeAction
 import androidx.ui.layout.Column
+import androidx.ui.layout.LayoutSize
 import androidx.ui.text.TextStyle
 
 @Composable
 fun TextFieldFocusTransition() {
     VerticalScroller {
-        Column(crossAxisAlignment = CrossAxisAlignment.Start) {
+        Column(
+            mainAxisSize = LayoutSize.Expand,
+            crossAxisAlignment = CrossAxisAlignment.Start
+        ) {
             TextFiledWithFocusId("Focus 1", "Focus 2")
             TextFiledWithFocusId("Focus 2", "Focus 3")
             TextFiledWithFocusId("Focus 3", "Focus 4")

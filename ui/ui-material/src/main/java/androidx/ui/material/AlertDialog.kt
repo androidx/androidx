@@ -81,8 +81,7 @@ fun AlertDialog(
         MaterialTheme(colors = currentColors, typography = currentTypography) {
             Surface(shape = AlertDialogShape) {
                 Container(width = AlertDialogWidth) {
-                    Column(mainAxisSize = LayoutSize.Wrap,
-                        crossAxisAlignment = CrossAxisAlignment.Start) {
+                    Column(crossAxisAlignment = CrossAxisAlignment.Start) {
                         if (title != null) {
                             Container(
                                 alignment = Alignment.CenterLeft,
@@ -138,10 +137,7 @@ private fun AlertDialogButtonLayout(
 ) {
     Container(padding = ButtonsPadding, alignment = Alignment.CenterRight, expanded = true) {
         if (buttonLayout == AlertDialogButtonLayout.SideBySide) {
-            Row(
-                mainAxisAlignment = MainAxisAlignment.End,
-                mainAxisSize = LayoutSize.Wrap
-            ) {
+            Row(mainAxisAlignment = MainAxisAlignment.End) {
                 if (dismissButton != null) {
                     dismissButton()
                     WidthSpacer(ButtonsWidthSpace)
@@ -150,7 +146,7 @@ private fun AlertDialogButtonLayout(
                 confirmButton()
             }
         } else {
-            Column {
+            Column(mainAxisSize = LayoutSize.Expand) {
                 confirmButton()
 
                 if (dismissButton != null) {

@@ -50,6 +50,7 @@ import androidx.ui.layout.WidthSpacer
 import androidx.ui.material.surface.Surface
 import androidx.ui.graphics.Color
 import androidx.ui.layout.EdgeInsets
+import androidx.ui.layout.LayoutSize
 import androidx.ui.layout.Wrap
 import androidx.ui.material.BottomAppBar.FabConfiguration
 import androidx.ui.material.BottomAppBar.FabPosition
@@ -672,7 +673,7 @@ private fun <T> AppBarActions(
         it.index < actionsToDisplay
     }
 
-    Row {
+    Row(mainAxisSize = LayoutSize.Expand) {
         shownActions.forEach { (index, shownAction) ->
             action(shownAction)
             if (index != shownActions.lastIndex) {

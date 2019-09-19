@@ -23,6 +23,7 @@ import androidx.compose.composer
 import androidx.ui.layout.Center
 import androidx.ui.layout.Column
 import androidx.ui.layout.CrossAxisAlignment
+import androidx.ui.layout.LayoutSize
 import androidx.ui.layout.MainAxisAlignment
 import androidx.ui.material.FloatingActionButton
 
@@ -34,6 +35,7 @@ class FloatingActionButtonActivity : MaterialDemoActivity() {
         Center {
             val onClick: () -> Unit = { Log.e("FABDemo", "onClick") }
             Column(
+                mainAxisSize = LayoutSize.Expand,
                 mainAxisAlignment = MainAxisAlignment.SpaceEvenly,
                 crossAxisAlignment = CrossAxisAlignment.Center
             ) {
