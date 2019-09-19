@@ -556,11 +556,6 @@ public class MediaSessionCompat {
                     0/* requestCode, ignored */, mediaButtonIntent, 0/* flags */);
         }
 
-        if (doesBundleHaveCustomParcelable(sessionInfo)) {
-            throw new IllegalArgumentException("sessionInfo shouldn't contain any custom "
-                    + "parcelables");
-        }
-
         if (android.os.Build.VERSION.SDK_INT >= 21) {
             MediaSession sessionFwk = createFwkMediaSession(context, tag, sessionInfo);
             if (android.os.Build.VERSION.SDK_INT >= 29) {
@@ -1022,36 +1017,6 @@ public class MediaSessionCompat {
             impl = new MediaSessionImplApi21(mediaSession);
         }
         return new MediaSessionCompat(context, impl);
-    }
-
-
-    /**
-     * Returns whether the given bundle includes non-framework Parcelables.
-     */
-    static boolean doesBundleHaveCustomParcelable(@Nullable Bundle bundle) {
-        if (bundle == null) {
-            return false;
-        }
-
-        // Try writing the bundle to parcel, and read it with framework classloader.
-        Parcel parcel = null;
-        try {
-            parcel = Parcel.obtain();
-            parcel.writeBundle(bundle);
-            parcel.setDataPosition(0);
-            Bundle out = parcel.readBundle(null);
-
-            // Calling Bundle#isEmpty() will trigger Bundle#unparcel().
-            out.isEmpty();
-        } catch (BadParcelableException e) {
-            Log.d(TAG, "Custom parcelable in sessionInfo.", e);
-            return true;
-        } finally {
-            if (parcel != null) {
-                parcel.recycle();
-            }
-        }
-        return false;
     }
 
     /**

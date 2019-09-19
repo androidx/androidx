@@ -1774,9 +1774,7 @@ public final class MediaControllerCompat {
                 Log.d(TAG, "Dead object in getSessionInfo.", e);
             }
 
-            if (MediaSessionCompat.doesBundleHaveCustomParcelable(mSessionInfo)) {
-                mSessionInfo = Bundle.EMPTY;
-            }
+            mSessionInfo = MediaSessionCompat.unparcelWithClassLoader(mSessionInfo);
             return mSessionInfo == null ? Bundle.EMPTY : new Bundle(mSessionInfo);
         }
 
@@ -2271,9 +2269,7 @@ public final class MediaControllerCompat {
                 }
             }
 
-            if (MediaSessionCompat.doesBundleHaveCustomParcelable(mSessionInfo)) {
-                mSessionInfo = Bundle.EMPTY;
-            }
+            mSessionInfo = MediaSessionCompat.unparcelWithClassLoader(mSessionInfo);
             return mSessionInfo == null ? Bundle.EMPTY : new Bundle(mSessionInfo);
         }
 
