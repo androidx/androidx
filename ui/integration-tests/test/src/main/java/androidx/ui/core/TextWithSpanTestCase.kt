@@ -27,6 +27,9 @@ import androidx.ui.test.ComposeTestCase
 import androidx.ui.test.RandomTextGenerator
 import androidx.ui.text.TextStyle
 
+/**
+ * The benchmark test case for [Text], where the input is some [Span]s with [TextStyle]s on it.
+ */
 class TextWithSpanTestCase(
     activity: Activity,
     private val textLength: Int,
@@ -35,6 +38,10 @@ class TextWithSpanTestCase(
 
     private lateinit var textPieces: List<Pair<String, TextStyle>>
 
+    /**
+     * Trick to avoid the text word cache.
+     * @see TextBasicTestCase.setupContentInternal
+     */
     override fun setupContentInternal(activity: Activity): ViewGroup {
         textPieces = randomTextGenerator.nextStyledWordList(
             length = textLength,

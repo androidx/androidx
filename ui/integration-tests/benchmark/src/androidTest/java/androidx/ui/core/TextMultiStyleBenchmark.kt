@@ -35,6 +35,10 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
+/**
+ * The benchmark for [Text] widget with the input being a styled text in the form of
+ * AnnotatedString.
+ */
 @Suppress
 @LargeTest
 @RunWith(Parameterized::class)
@@ -65,6 +69,10 @@ class TextMultiStyleBenchmark(
             )
     }
 
+    /**
+     * Measure the time taken to compose a [Text] widget from scratch with styled text as input.
+     * This is the time taken to call the [Text] composable function.
+     */
     @Test
     fun first_compose() {
         textBenchmarkRule.generator { textGenerator ->
@@ -80,6 +88,10 @@ class TextMultiStyleBenchmark(
         }
     }
 
+    /**
+     * Measure the time taken by first time measure the Text widget with styled text as input.
+     * This is mainly the time used to measure all the [Measurable]s in the [Text] widget.
+     */
     @Test
     fun first_measure() {
         textBenchmarkRule.generator { textGenerator ->
@@ -95,6 +107,10 @@ class TextMultiStyleBenchmark(
         }
     }
 
+    /**
+     * Measure the time taken by first time layout the Text widget with styled text as input.
+     * This is mainly the time used to place [Placeable]s in [Text] widget.
+     */
     @Test
     fun first_layout() {
         textBenchmarkRule.generator { textGenerator ->
@@ -110,6 +126,10 @@ class TextMultiStyleBenchmark(
         }
     }
 
+    /**
+     * Measure the time taken by first time draw the Text widget with styled text
+     * as input.
+     */
     @Test
     fun first_draw() {
         textBenchmarkRule.generator { textGenerator ->
@@ -125,6 +145,11 @@ class TextMultiStyleBenchmark(
         }
     }
 
+    /**
+     * Measure the time taken by layout a Text widget with styled text input, when
+     * layout constrains changed.
+     * This is mainly the time used to re-measure and re-layout the widget.
+     */
     @Test
     fun layout() {
         textBenchmarkRule.generator { textGenerator ->
@@ -140,6 +165,9 @@ class TextMultiStyleBenchmark(
         }
     }
 
+    /**
+     * Measure the time taken by re-draw a Text widget with styled text input.
+     */
     @Test
     fun draw() {
         textBenchmarkRule.generator { textGenerator ->
