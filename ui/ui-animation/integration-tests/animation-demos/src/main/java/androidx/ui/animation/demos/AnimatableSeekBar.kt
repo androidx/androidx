@@ -38,6 +38,7 @@ import androidx.ui.engine.geometry.Rect
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Column
 import androidx.ui.layout.Container
+import androidx.ui.layout.LayoutSize
 import androidx.ui.layout.Padding
 import androidx.ui.graphics.Paint
 import androidx.ui.text.TextStyle
@@ -47,7 +48,7 @@ class AnimatableSeekBar : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            Column {
+            Column(mainAxisSize = LayoutSize.Expand) {
                 Padding(40.dp) {
                     Text("Drag or tap on the seek bar", style = TextStyle(fontSize = 8.sp))
                 }

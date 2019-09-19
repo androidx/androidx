@@ -84,7 +84,7 @@ class FlowTest : LayoutTest() {
         assertTrue(positionedLatch.await(1, TimeUnit.SECONDS))
 
         assertEquals(
-            PxSize(flowWidth, size * 3),
+            PxSize(width = size * 5, height = size * 3),
             flowSize.value
         )
         for (i in 0 until numberOfSquares) {
@@ -138,7 +138,7 @@ class FlowTest : LayoutTest() {
         assertTrue(positionedLatch.await(1, TimeUnit.SECONDS))
 
         assertEquals(
-            PxSize(size * 5, size * 3),
+            PxSize(width = size * 5, height = size * 3),
             flowSize.value
         )
         for (i in 0 until numberOfSquares) {
@@ -192,7 +192,7 @@ class FlowTest : LayoutTest() {
         assertTrue(positionedLatch.await(1, TimeUnit.SECONDS))
 
         assertEquals(
-            PxSize(flowWidth, size * 3),
+            PxSize(width = flowWidth, height = size * 3),
             flowSize.value
         )
         for (i in 0 until numberOfSquares) {
@@ -227,7 +227,10 @@ class FlowTest : LayoutTest() {
                     positionedLatch.countDown()
                 }) {
                     ConstrainedBox(constraints = DpConstraints(maxWidth = flowWidthDp)) {
-                        FlowRow(mainAxisAlignment = FlowMainAxisAlignment.Center) {
+                        FlowRow(
+                            mainAxisSize = LayoutSize.Expand,
+                            mainAxisAlignment = FlowMainAxisAlignment.Center
+                        ) {
                             for (i in 0 until numberOfSquares) {
                                 Container(width = sizeDp, height = sizeDp) {
                                     SaveLayoutInfo(
@@ -246,7 +249,7 @@ class FlowTest : LayoutTest() {
         assertTrue(positionedLatch.await(1, TimeUnit.SECONDS))
 
         assertEquals(
-            PxSize(flowWidth, size * 3),
+            PxSize(width = flowWidth, height = size * 3),
             flowSize.value
         )
         for (i in 0 until numberOfSquares) {
@@ -281,7 +284,10 @@ class FlowTest : LayoutTest() {
                     positionedLatch.countDown()
                 }) {
                     ConstrainedBox(constraints = DpConstraints(maxWidth = flowWidthDp)) {
-                        FlowRow(mainAxisAlignment = FlowMainAxisAlignment.Start) {
+                        FlowRow(
+                            mainAxisSize = LayoutSize.Expand,
+                            mainAxisAlignment = FlowMainAxisAlignment.Start
+                        ) {
                             for (i in 0 until numberOfSquares) {
                                 Container(width = sizeDp, height = sizeDp) {
                                     SaveLayoutInfo(
@@ -300,7 +306,7 @@ class FlowTest : LayoutTest() {
         assertTrue(positionedLatch.await(1, TimeUnit.SECONDS))
 
         assertEquals(
-            PxSize(flowWidth, size * 3),
+            PxSize(width = flowWidth, height = size * 3),
             flowSize.value
         )
         for (i in 0 until numberOfSquares) {
@@ -335,7 +341,10 @@ class FlowTest : LayoutTest() {
                     positionedLatch.countDown()
                 }) {
                     ConstrainedBox(constraints = DpConstraints(maxWidth = flowWidthDp)) {
-                        FlowRow(mainAxisAlignment = FlowMainAxisAlignment.End) {
+                        FlowRow(
+                            mainAxisSize = LayoutSize.Expand,
+                            mainAxisAlignment = FlowMainAxisAlignment.End
+                        ) {
                             for (i in 0 until numberOfSquares) {
                                 Container(width = sizeDp, height = sizeDp) {
                                     SaveLayoutInfo(
@@ -354,7 +363,7 @@ class FlowTest : LayoutTest() {
         assertTrue(positionedLatch.await(1, TimeUnit.SECONDS))
 
         assertEquals(
-            PxSize(flowWidth, size * 3),
+            PxSize(width = flowWidth, height = size * 3),
             flowSize.value
         )
         for (i in 0 until numberOfSquares) {
@@ -389,7 +398,10 @@ class FlowTest : LayoutTest() {
                     positionedLatch.countDown()
                 }) {
                     ConstrainedBox(constraints = DpConstraints(maxWidth = flowWidthDp)) {
-                        FlowRow(mainAxisAlignment = FlowMainAxisAlignment.SpaceEvenly) {
+                        FlowRow(
+                            mainAxisSize = LayoutSize.Expand,
+                            mainAxisAlignment = FlowMainAxisAlignment.SpaceEvenly
+                        ) {
                             for (i in 0 until numberOfSquares) {
                                 Container(width = sizeDp, height = sizeDp) {
                                     SaveLayoutInfo(
@@ -408,7 +420,7 @@ class FlowTest : LayoutTest() {
         assertTrue(positionedLatch.await(1, TimeUnit.SECONDS))
 
         assertEquals(
-            PxSize(flowWidth, size * 3),
+            PxSize(width = flowWidth, height = size * 3),
             flowSize.value
         )
         for (i in 0 until numberOfSquares) {
@@ -446,7 +458,10 @@ class FlowTest : LayoutTest() {
                     positionedLatch.countDown()
                 }) {
                     ConstrainedBox(constraints = DpConstraints(maxWidth = flowWidthDp)) {
-                        FlowRow(mainAxisAlignment = FlowMainAxisAlignment.SpaceBetween) {
+                        FlowRow(
+                            mainAxisSize = LayoutSize.Expand,
+                            mainAxisAlignment = FlowMainAxisAlignment.SpaceBetween
+                        ) {
                             for (i in 0 until numberOfSquares) {
                                 Container(width = sizeDp, height = sizeDp) {
                                     SaveLayoutInfo(
@@ -465,7 +480,7 @@ class FlowTest : LayoutTest() {
         assertTrue(positionedLatch.await(1, TimeUnit.SECONDS))
 
         assertEquals(
-            PxSize(flowWidth, size * 3),
+            PxSize(width = flowWidth, height = size * 3),
             flowSize.value
         )
         for (i in 0 until numberOfSquares) {
@@ -503,7 +518,10 @@ class FlowTest : LayoutTest() {
                     positionedLatch.countDown()
                 }) {
                     ConstrainedBox(constraints = DpConstraints(maxWidth = flowWidthDp)) {
-                        FlowRow(mainAxisAlignment = FlowMainAxisAlignment.SpaceAround) {
+                        FlowRow(
+                            mainAxisSize = LayoutSize.Expand,
+                            mainAxisAlignment = FlowMainAxisAlignment.SpaceAround
+                        ) {
                             for (i in 0 until numberOfSquares) {
                                 Container(width = sizeDp, height = sizeDp) {
                                     SaveLayoutInfo(
@@ -522,7 +540,7 @@ class FlowTest : LayoutTest() {
         assertTrue(positionedLatch.await(1, TimeUnit.SECONDS))
 
         assertEquals(
-            PxSize(flowWidth, size * 3),
+            PxSize(width = flowWidth, height = size * 3),
             flowSize.value
         )
         for (i in 0 until numberOfSquares) {
@@ -581,7 +599,7 @@ class FlowTest : LayoutTest() {
         assertTrue(positionedLatch.await(1, TimeUnit.SECONDS))
 
         assertEquals(
-            PxSize(flowWidth, size * 5),
+            PxSize(width = size * 3 + spacing * 2, height = size * 5),
             flowSize.value
         )
         for (i in 0 until numberOfSquares) {
@@ -638,7 +656,7 @@ class FlowTest : LayoutTest() {
         assertTrue(positionedLatch.await(1, TimeUnit.SECONDS))
 
         assertEquals(
-            PxSize(flowWidth, size * 6),
+            PxSize(width = size * 5, height = size * 6),
             flowSize.value
         )
         for (i in 0 until numberOfSquares) {
@@ -701,7 +719,7 @@ class FlowTest : LayoutTest() {
         assertTrue(positionedLatch.await(1, TimeUnit.SECONDS))
 
         assertEquals(
-            PxSize(flowWidth, size * 6),
+            PxSize(width = size * 5, height = size * 6),
             flowSize.value
         )
         for (i in 0 until numberOfSquares) {
@@ -761,7 +779,7 @@ class FlowTest : LayoutTest() {
         assertTrue(positionedLatch.await(1, TimeUnit.SECONDS))
 
         assertEquals(
-            PxSize(flowWidth, size * 6),
+            PxSize(width = size * 5, height = size * 6),
             flowSize.value
         )
         for (i in 0 until numberOfSquares) {
@@ -823,7 +841,7 @@ class FlowTest : LayoutTest() {
         assertTrue(positionedLatch.await(1, TimeUnit.SECONDS))
 
         assertEquals(
-            PxSize(flowWidth, size * 3 + spacing * 2),
+            PxSize(width = size * 5, height = size * 3 + spacing * 2),
             flowSize.value
         )
         for (i in 0 until numberOfSquares) {
@@ -877,7 +895,7 @@ class FlowTest : LayoutTest() {
         assertTrue(positionedLatch.await(1, TimeUnit.SECONDS))
 
         assertEquals(
-            PxSize(size * 3, flowHeight),
+            PxSize(width = size * 3, height = size * 5),
             flowSize.value
         )
         for (i in 0 until numberOfSquares) {
@@ -931,7 +949,7 @@ class FlowTest : LayoutTest() {
         assertTrue(positionedLatch.await(1, TimeUnit.SECONDS))
 
         assertEquals(
-            PxSize(size * 3, size * 5),
+            PxSize(width = size * 3, height = size * 5),
             flowSize.value
         )
         for (i in 0 until numberOfSquares) {
@@ -985,7 +1003,7 @@ class FlowTest : LayoutTest() {
         assertTrue(positionedLatch.await(1, TimeUnit.SECONDS))
 
         assertEquals(
-            PxSize(size * 3, flowHeight),
+            PxSize(width = size * 3, height = flowHeight),
             flowSize.value
         )
         for (i in 0 until numberOfSquares) {
@@ -1020,7 +1038,10 @@ class FlowTest : LayoutTest() {
                     positionedLatch.countDown()
                 }) {
                     ConstrainedBox(constraints = DpConstraints(maxHeight = flowHeightDp)) {
-                        FlowColumn(mainAxisAlignment = FlowMainAxisAlignment.Center) {
+                        FlowColumn(
+                            mainAxisSize = LayoutSize.Expand,
+                            mainAxisAlignment = FlowMainAxisAlignment.Center
+                        ) {
                             for (i in 0 until numberOfSquares) {
                                 Container(width = sizeDp, height = sizeDp) {
                                     SaveLayoutInfo(
@@ -1039,7 +1060,7 @@ class FlowTest : LayoutTest() {
         assertTrue(positionedLatch.await(1, TimeUnit.SECONDS))
 
         assertEquals(
-            PxSize(size * 3, flowHeight),
+            PxSize(width = size * 3, height = flowHeight),
             flowSize.value
         )
         for (i in 0 until numberOfSquares) {
@@ -1074,7 +1095,10 @@ class FlowTest : LayoutTest() {
                     positionedLatch.countDown()
                 }) {
                     ConstrainedBox(constraints = DpConstraints(maxHeight = flowHeightDp)) {
-                        FlowColumn(mainAxisAlignment = FlowMainAxisAlignment.Start) {
+                        FlowColumn(
+                            mainAxisSize = LayoutSize.Expand,
+                            mainAxisAlignment = FlowMainAxisAlignment.Start
+                        ) {
                             for (i in 0 until numberOfSquares) {
                                 Container(width = sizeDp, height = sizeDp) {
                                     SaveLayoutInfo(
@@ -1093,7 +1117,7 @@ class FlowTest : LayoutTest() {
         assertTrue(positionedLatch.await(1, TimeUnit.SECONDS))
 
         assertEquals(
-            PxSize(size * 3, flowHeight),
+            PxSize(width = size * 3, height = flowHeight),
             flowSize.value
         )
         for (i in 0 until numberOfSquares) {
@@ -1128,7 +1152,10 @@ class FlowTest : LayoutTest() {
                     positionedLatch.countDown()
                 }) {
                     ConstrainedBox(constraints = DpConstraints(maxHeight = flowHeightDp)) {
-                        FlowColumn(mainAxisAlignment = FlowMainAxisAlignment.End) {
+                        FlowColumn(
+                            mainAxisSize = LayoutSize.Expand,
+                            mainAxisAlignment = FlowMainAxisAlignment.End
+                        ) {
                             for (i in 0 until numberOfSquares) {
                                 Container(width = sizeDp, height = sizeDp) {
                                     SaveLayoutInfo(
@@ -1147,7 +1174,7 @@ class FlowTest : LayoutTest() {
         assertTrue(positionedLatch.await(1, TimeUnit.SECONDS))
 
         assertEquals(
-            PxSize(size * 3, flowHeight),
+            PxSize(width = size * 3, height = flowHeight),
             flowSize.value
         )
         for (i in 0 until numberOfSquares) {
@@ -1182,7 +1209,10 @@ class FlowTest : LayoutTest() {
                     positionedLatch.countDown()
                 }) {
                     ConstrainedBox(constraints = DpConstraints(maxHeight = flowHeightDp)) {
-                        FlowColumn(mainAxisAlignment = FlowMainAxisAlignment.SpaceEvenly) {
+                        FlowColumn(
+                            mainAxisSize = LayoutSize.Expand,
+                            mainAxisAlignment = FlowMainAxisAlignment.SpaceEvenly
+                        ) {
                             for (i in 0 until numberOfSquares) {
                                 Container(width = sizeDp, height = sizeDp) {
                                     SaveLayoutInfo(
@@ -1201,7 +1231,7 @@ class FlowTest : LayoutTest() {
         assertTrue(positionedLatch.await(1, TimeUnit.SECONDS))
 
         assertEquals(
-            PxSize(size * 3, flowHeight),
+            PxSize(width = size * 3, height = flowHeight),
             flowSize.value
         )
         for (i in 0 until numberOfSquares) {
@@ -1239,7 +1269,10 @@ class FlowTest : LayoutTest() {
                     positionedLatch.countDown()
                 }) {
                     ConstrainedBox(constraints = DpConstraints(maxHeight = flowHeightDp)) {
-                        FlowColumn(mainAxisAlignment = FlowMainAxisAlignment.SpaceBetween) {
+                        FlowColumn(
+                            mainAxisSize = LayoutSize.Expand,
+                            mainAxisAlignment = FlowMainAxisAlignment.SpaceBetween
+                        ) {
                             for (i in 0 until numberOfSquares) {
                                 Container(width = sizeDp, height = sizeDp) {
                                     SaveLayoutInfo(
@@ -1258,7 +1291,7 @@ class FlowTest : LayoutTest() {
         assertTrue(positionedLatch.await(1, TimeUnit.SECONDS))
 
         assertEquals(
-            PxSize(size * 3, flowHeight),
+            PxSize(width = size * 3, height = flowHeight),
             flowSize.value
         )
         for (i in 0 until numberOfSquares) {
@@ -1296,7 +1329,10 @@ class FlowTest : LayoutTest() {
                     positionedLatch.countDown()
                 }) {
                     ConstrainedBox(constraints = DpConstraints(maxHeight = flowHeightDp)) {
-                        FlowColumn(mainAxisAlignment = FlowMainAxisAlignment.SpaceAround) {
+                        FlowColumn(
+                            mainAxisSize = LayoutSize.Expand,
+                            mainAxisAlignment = FlowMainAxisAlignment.SpaceAround
+                        ) {
                             for (i in 0 until numberOfSquares) {
                                 Container(width = sizeDp, height = sizeDp) {
                                     SaveLayoutInfo(
@@ -1315,7 +1351,7 @@ class FlowTest : LayoutTest() {
         assertTrue(positionedLatch.await(1, TimeUnit.SECONDS))
 
         assertEquals(
-            PxSize(size * 3, flowHeight),
+            PxSize(width = size * 3, height = flowHeight),
             flowSize.value
         )
         for (i in 0 until numberOfSquares) {
@@ -1374,7 +1410,7 @@ class FlowTest : LayoutTest() {
         assertTrue(positionedLatch.await(1, TimeUnit.SECONDS))
 
         assertEquals(
-            PxSize(size * 5, flowHeight),
+            PxSize(width = size * 5, height = size * 3 + spacing * 2),
             flowSize.value
         )
         for (i in 0 until numberOfSquares) {
@@ -1431,7 +1467,7 @@ class FlowTest : LayoutTest() {
         assertTrue(positionedLatch.await(1, TimeUnit.SECONDS))
 
         assertEquals(
-            PxSize(size * 6, flowHeight),
+            PxSize(width = size * 6, height = size * 5),
             flowSize.value
         )
         for (i in 0 until numberOfSquares) {
@@ -1494,7 +1530,7 @@ class FlowTest : LayoutTest() {
         assertTrue(positionedLatch.await(1, TimeUnit.SECONDS))
 
         assertEquals(
-            PxSize(size * 6, flowHeight),
+            PxSize(width = size * 6, height = size * 5),
             flowSize.value
         )
         for (i in 0 until numberOfSquares) {
@@ -1551,7 +1587,7 @@ class FlowTest : LayoutTest() {
         assertTrue(positionedLatch.await(1, TimeUnit.SECONDS))
 
         assertEquals(
-            PxSize(size * 6, flowHeight),
+            PxSize(width = size * 6, height = size * 5),
             flowSize.value
         )
         for (i in 0 until numberOfSquares) {
@@ -1613,7 +1649,7 @@ class FlowTest : LayoutTest() {
         assertTrue(positionedLatch.await(1, TimeUnit.SECONDS))
 
         assertEquals(
-            PxSize(size * 3 + spacing * 2, flowHeight),
+            PxSize(width = size * 3 + spacing * 2, height = size * 5),
             flowSize.value
         )
         for (i in 0 until numberOfSquares) {

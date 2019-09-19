@@ -92,7 +92,7 @@ class FlexChildren internal constructor() {
  * @param mainAxisSize The size of the layout in the main axis dimension.
  * Default is [LayoutSize.Expand].
  * @param crossAxisAlignment The alignment of the layout's children in cross axis direction.
- * Default is [CrossAxisAlignment.Center].
+ * Default is [CrossAxisAlignment.Start].
  * @param crossAxisSize The size of the layout in the cross axis dimension.
  * Default is [LayoutSize.Wrap].
  */
@@ -135,7 +135,7 @@ fun FlexRow(
  * @param mainAxisSize The size of the layout in the main axis dimension.
  * Default is [LayoutSize.Expand].
  * @param crossAxisAlignment The alignment of the layout's children in cross axis direction.
- * Default is [CrossAxisAlignment.Center].
+ * Default is [CrossAxisAlignment.Start].
  * @param crossAxisSize The size of the layout in the cross axis dimension.
  * Default is [LayoutSize.Wrap].
  */
@@ -167,16 +167,16 @@ fun FlexColumn(
  * @param mainAxisAlignment The alignment of the layout's children in main axis direction.
  * Default is [MainAxisAlignment.Start].
  * @param mainAxisSize The size of the layout in the main axis dimension.
- * Default is [LayoutSize.Expand].
+ * Default is [LayoutSize.Wrap].
  * @param crossAxisAlignment The alignment of the layout's children in cross axis direction.
- * Default is [CrossAxisAlignment.Center].
+ * Default is [CrossAxisAlignment.Start].
  * @param crossAxisSize The size of the layout in the cross axis dimension.
  * Default is [LayoutSize.Wrap].
  */
 @Composable
 fun Row(
     mainAxisAlignment: MainAxisAlignment = MainAxisAlignment.Start,
-    mainAxisSize: LayoutSize = LayoutSize.Expand,
+    mainAxisSize: LayoutSize = LayoutSize.Wrap,
     crossAxisAlignment: CrossAxisAlignment = CrossAxisAlignment.Start,
     crossAxisSize: LayoutSize = LayoutSize.Wrap,
     block: @Composable() () -> Unit
@@ -203,16 +203,16 @@ fun Row(
  * @param mainAxisAlignment The alignment of the layout's children in main axis direction.
  * Default is [MainAxisAlignment.Start].
  * @param mainAxisSize The size of the layout in the main axis dimension.
- * Default is [LayoutSize.Expand].
+ * Default is [LayoutSize.Wrap].
  * @param crossAxisAlignment The alignment of the layout's children in cross axis direction.
- * Default is [CrossAxisAlignment.Center].
+ * Default is [CrossAxisAlignment.Start].
  * @param crossAxisSize The size of the layout in the cross axis dimension.
  * Default is [LayoutSize.Wrap].
  */
 @Composable
 fun Column(
     mainAxisAlignment: MainAxisAlignment = MainAxisAlignment.Start,
-    mainAxisSize: LayoutSize = LayoutSize.Expand,
+    mainAxisSize: LayoutSize = LayoutSize.Wrap,
     crossAxisAlignment: CrossAxisAlignment = CrossAxisAlignment.Start,
     crossAxisSize: LayoutSize = LayoutSize.Wrap,
     block: @Composable() () -> Unit
@@ -480,10 +480,10 @@ private val IntrinsicMeasurable.fit: FlexFit get() = (parentData as FlexInfo).fi
 @Composable
 private fun Flex(
     orientation: LayoutOrientation,
-    mainAxisSize: LayoutSize = LayoutSize.Expand,
-    mainAxisAlignment: MainAxisAlignment = MainAxisAlignment.Start,
-    crossAxisSize: LayoutSize = LayoutSize.Wrap,
-    crossAxisAlignment: CrossAxisAlignment = CrossAxisAlignment.Start,
+    mainAxisSize: LayoutSize,
+    mainAxisAlignment: MainAxisAlignment,
+    crossAxisSize: LayoutSize,
+    crossAxisAlignment: CrossAxisAlignment,
     block: FlexChildren.() -> Unit
 ) {
     fun Placeable.mainAxisSize() =

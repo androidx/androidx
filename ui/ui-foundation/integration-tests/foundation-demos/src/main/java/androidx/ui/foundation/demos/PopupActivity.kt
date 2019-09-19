@@ -68,7 +68,7 @@ class PopupActivity : Activity() {
             val exampleIndex = +state { 0 }
             val totalExamples = 9
 
-            Column(mainAxisSize = LayoutSize.Wrap, crossAxisAlignment = CrossAxisAlignment.Center) {
+            Column(crossAxisAlignment = CrossAxisAlignment.Center) {
                 FlexRow(
                     mainAxisSize = LayoutSize.Expand,
                     mainAxisAlignment = MainAxisAlignment.SpaceBetween
@@ -192,7 +192,10 @@ fun PopupToggle() {
 @Composable
 fun PopupWithChangingContent() {
     Container {
-        Column(crossAxisAlignment = CrossAxisAlignment.Center) {
+        Column(
+            mainAxisSize = LayoutSize.Expand,
+            crossAxisAlignment = CrossAxisAlignment.Center
+        ) {
             val heightSize = 120.dp
             val widthSize = 160.dp
             val popupContentState = +state { 0 }
@@ -244,7 +247,10 @@ fun PopupWithChangingParent() {
     val parentHeight = +state { 60.dp }
     val parentSizeChanged = +state { false }
 
-    Column(crossAxisAlignment = CrossAxisAlignment.Center) {
+    Column(
+        mainAxisSize = LayoutSize.Expand,
+        crossAxisAlignment = CrossAxisAlignment.Center
+    ) {
         Container(
             height = containerHeight,
             width = containerWidth,
@@ -295,7 +301,10 @@ fun PopupWithChangingParent() {
 @Composable
 fun PopupDropdownAlignment() {
     Container {
-        Column(crossAxisAlignment = CrossAxisAlignment.Center) {
+        Column(
+            mainAxisSize = LayoutSize.Expand,
+            crossAxisAlignment = CrossAxisAlignment.Center
+        ) {
             val heightSize = 120.dp
             val widthSize = 160.dp
             val dropDownAlignment = +state { DropDownAlignment.Left }
@@ -341,7 +350,10 @@ fun PopupAlignmentDemo() {
         val counter = +state { 0 }
         val popupAlignment = +state { Alignment.TopLeft }
 
-        Column(crossAxisAlignment = CrossAxisAlignment.Center) {
+        Column(
+            mainAxisSize = LayoutSize.Expand,
+            crossAxisAlignment = CrossAxisAlignment.Center
+        ) {
             ColoredContainer(
                 height = heightSize,
                 width = widthSize,
@@ -381,7 +393,10 @@ fun PopupAlignmentDemo() {
 @Composable
 fun PopupWithEditText() {
     Container {
-        Column(crossAxisAlignment = CrossAxisAlignment.Center) {
+        Column(
+            mainAxisSize = LayoutSize.Expand,
+            crossAxisAlignment = CrossAxisAlignment.Center
+        ) {
             val widthSize = 190.dp
             val heightSize = 120.dp
             val editLineSize = 150.dp
@@ -428,7 +443,10 @@ fun PopupWithEditText() {
 @Composable
 fun PopupWithChangingSize() {
     Container {
-        Column(crossAxisAlignment = CrossAxisAlignment.Center) {
+        Column(
+            mainAxisSize = LayoutSize.Expand,
+            crossAxisAlignment = CrossAxisAlignment.Center
+        ) {
             val showPopup = +state { true }
             val heightSize = 120.dp
             val widthSize = 160.dp
@@ -485,7 +503,10 @@ fun PopupInsideScroller() {
     val widthSize = 200.dp
     Container(width = widthSize, height = heightSize) {
         VerticalScroller {
-            Column(crossAxisAlignment = CrossAxisAlignment.Center) {
+            Column(
+                mainAxisSize = LayoutSize.Expand,
+                crossAxisAlignment = CrossAxisAlignment.Center
+            ) {
                 ColoredContainer(
                     width = 80.dp,
                     height = 160.dp,
@@ -507,7 +528,10 @@ fun PopupInsideScroller() {
 @Composable
 fun PopupOnKeyboardUp() {
     Container {
-        Column(crossAxisAlignment = CrossAxisAlignment.Center) {
+        Column(
+            mainAxisSize = LayoutSize.Expand,
+            crossAxisAlignment = CrossAxisAlignment.Center
+        ) {
             val widthSize = 190.dp
             val heightSize = 120.dp
 

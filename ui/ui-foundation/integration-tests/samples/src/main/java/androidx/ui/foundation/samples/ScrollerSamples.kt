@@ -48,6 +48,7 @@ import androidx.ui.layout.Container
 import androidx.ui.layout.EdgeInsets
 import androidx.ui.layout.FlexColumn
 import androidx.ui.layout.HeightSpacer
+import androidx.ui.layout.LayoutSize
 import androidx.ui.layout.Stack
 import androidx.ui.layout.Table
 import androidx.ui.layout.Wrap
@@ -104,7 +105,7 @@ fun VerticalScrollerSample() {
     // Scroller will be clipped to this padding
     Padding(padding = 10.dp) {
         VerticalScroller {
-            Column {
+            Column(mainAxisSize = LayoutSize.Expand) {
                 phrases.forEach { phrase ->
                     Text(text = phrase, style = style)
                 }
@@ -117,7 +118,7 @@ fun VerticalScrollerSample() {
 @Composable
 fun SimpleHorizontalScrollerSample() {
     HorizontalScroller {
-        Row {
+        Row(mainAxisSize = LayoutSize.Expand) {
             repeat(100) { index ->
                 Square(index)
             }
@@ -131,9 +132,9 @@ fun ControlledHorizontalScrollerSample() {
     // Create and own ScrollerPosition to call `smoothScrollTo` later
     val position = +memo { ScrollerPosition() }
     val scrollable = +state { true }
-    Column {
+    Column(mainAxisSize = LayoutSize.Expand) {
         HorizontalScroller(scrollerPosition = position, isScrollable = scrollable.value) {
-            Row {
+            Row(mainAxisSize = LayoutSize.Expand) {
                 repeat(1000) { index ->
                     Square(index)
                 }

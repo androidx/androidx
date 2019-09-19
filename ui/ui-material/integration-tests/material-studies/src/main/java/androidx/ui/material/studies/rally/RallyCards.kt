@@ -29,6 +29,7 @@ import androidx.ui.layout.CrossAxisAlignment
 import androidx.ui.layout.EdgeInsets
 import androidx.ui.layout.FixedSpacer
 import androidx.ui.layout.FlexRow
+import androidx.ui.layout.LayoutSize
 import androidx.ui.layout.MainAxisAlignment
 import androidx.ui.layout.Padding
 import androidx.ui.layout.Row
@@ -50,8 +51,11 @@ internal val cardInternalColor = Color(0xFF33333D)
 fun RallyAlertCard() {
     Card(color = cardInternalColor) {
         Padding(padding = 12.dp) {
-            Column {
-                Row(mainAxisAlignment = MainAxisAlignment.SpaceBetween) {
+            Column(mainAxisSize = LayoutSize.Expand) {
+                Row(
+                    mainAxisSize = LayoutSize.Expand,
+                    mainAxisAlignment = MainAxisAlignment.SpaceBetween
+                ) {
                     Text(text = "Alerts", style = +themeTextStyle { subtitle2 })
                     Button(text = "See All", onClick = { }, style = TextButtonStyle())
                 }
@@ -86,16 +90,16 @@ fun RallyAlertCard() {
 @Composable
 fun RallyAccountsCard() {
     Card(color = cardInternalColor) {
-        Column {
+        Column(mainAxisSize = LayoutSize.Expand) {
             Padding(padding = 12.dp) {
-                Column {
+                Column(mainAxisSize = LayoutSize.Expand) {
                     Text(text = "Accounts", style = +themeTextStyle { body1 })
                     Text(text = "$12,132.49", style = +themeTextStyle { h3 })
                 }
             }
             Divider(color = rallyGreen, height = 1.dp)
             Padding(padding = 12.dp) {
-                Column {
+                Column(mainAxisSize = LayoutSize.Expand) {
                     val colors = +ambient(Colors)
                     RallyAccountRow(
                         name = "Checking",
@@ -135,7 +139,10 @@ fun RallyAccountRow(name: String, number: String, amount: String, color: Color) 
             inflexible {
                 AccountIndicator(color = color)
                 WidthSpacer(width = 8.dp)
-                Column(crossAxisAlignment = CrossAxisAlignment.Start) {
+                Column(
+                    mainAxisSize = LayoutSize.Expand,
+                    crossAxisAlignment = CrossAxisAlignment.Start
+                ) {
                     Text(text = name, style = +themeTextStyle { body1 })
                     Text(text = "•••••$number", style = +themeTextStyle { subtitle1 })
                 }
@@ -164,9 +171,9 @@ fun AccountIndicator(color: Color) {
 @Composable
 fun RallyBillsCard() {
     Card(color = cardInternalColor) {
-        Column {
+        Column(mainAxisSize = LayoutSize.Expand) {
             Padding(padding = 12.dp) {
-                Column {
+                Column(mainAxisSize = LayoutSize.Expand) {
                     Text(text = "Bills", style = +themeTextStyle { subtitle2 })
                     Text(text = "$1,810.00", style = +themeTextStyle { h1 })
                 }

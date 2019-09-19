@@ -47,7 +47,7 @@ import androidx.ui.core.max
  */
 @Composable
 fun FlowRow(
-    mainAxisSize: LayoutSize = LayoutSize.Expand,
+    mainAxisSize: LayoutSize = LayoutSize.Wrap,
     mainAxisAlignment: FlowMainAxisAlignment = FlowMainAxisAlignment.Start,
     mainAxisSpacing: Dp = 0.dp,
     crossAxisAlignment: FlowCrossAxisAlignment = FlowCrossAxisAlignment.Start,
@@ -83,7 +83,7 @@ fun FlowRow(
  */
 @Composable
 fun FlowColumn(
-    mainAxisSize: LayoutSize = LayoutSize.Expand,
+    mainAxisSize: LayoutSize = LayoutSize.Wrap,
     mainAxisAlignment: FlowMainAxisAlignment = FlowMainAxisAlignment.Start,
     mainAxisSpacing: Dp = 0.dp,
     crossAxisAlignment: FlowCrossAxisAlignment = FlowCrossAxisAlignment.Start,
@@ -127,11 +127,11 @@ typealias FlowMainAxisAlignment = MainAxisAlignment
 @Composable
 private fun Flow(
     orientation: LayoutOrientation,
-    mainAxisSize: LayoutSize = LayoutSize.Expand,
-    mainAxisAlignment: FlowMainAxisAlignment = FlowMainAxisAlignment.Start,
-    mainAxisSpacing: Dp = 0.dp,
-    crossAxisAlignment: FlowCrossAxisAlignment = FlowCrossAxisAlignment.Start,
-    crossAxisSpacing: Dp = 0.dp,
+    mainAxisSize: LayoutSize,
+    mainAxisAlignment: FlowMainAxisAlignment,
+    mainAxisSpacing: Dp,
+    crossAxisAlignment: FlowCrossAxisAlignment,
+    crossAxisSpacing: Dp,
     children: @Composable() () -> Unit
 ) {
     fun Placeable.mainAxisSize() =

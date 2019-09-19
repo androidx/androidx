@@ -41,6 +41,7 @@ import androidx.ui.layout.Column
 import androidx.ui.layout.Container
 import androidx.ui.layout.CrossAxisAlignment
 import androidx.ui.layout.FlexRow
+import androidx.ui.layout.LayoutSize
 import androidx.ui.layout.MainAxisAlignment
 import androidx.ui.layout.Padding
 import androidx.ui.layout.Stack
@@ -363,6 +364,7 @@ private fun CombinedTab(
             Padding(top = SingleRowTextImagePadding, bottom = SingleRowTextBaselinePadding) {
                 TabTransition(color = tint, selected = selected) { tabTintColor ->
                     Column(
+                        mainAxisSize = LayoutSize.Expand,
                         mainAxisAlignment = MainAxisAlignment.SpaceBetween,
                         crossAxisAlignment = CrossAxisAlignment.Center
                     ) {

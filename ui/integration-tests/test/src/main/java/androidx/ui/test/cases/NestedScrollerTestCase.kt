@@ -31,6 +31,7 @@ import androidx.ui.graphics.Color
 import androidx.ui.layout.Column
 import androidx.ui.layout.CrossAxisAlignment
 import androidx.ui.layout.FlexColumn
+import androidx.ui.layout.LayoutSize
 import androidx.ui.foundation.HorizontalScroller
 import androidx.ui.layout.Row
 import androidx.ui.foundation.ScrollerPosition
@@ -54,7 +55,7 @@ class NestedScrollerTestCase(
         MaterialTheme {
             Surface {
                 VerticalScroller {
-                    Column {
+                    Column(mainAxisSize = LayoutSize.Expand) {
                         repeat(5) { index ->
                             SquareRow(index == 0)
                         }
@@ -73,7 +74,7 @@ class NestedScrollerTestCase(
     fun SquareRow(useScrollerPosition: Boolean) {
         val playStoreColor = Color(red = 0x00, green = 0x00, blue = 0x80)
         val content = @Composable {
-            Row {
+            Row(mainAxisSize = LayoutSize.Expand) {
                 repeat(6) {
                     WithDensity {
                         FlexColumn(crossAxisAlignment = CrossAxisAlignment.Start) {
@@ -92,7 +93,10 @@ class NestedScrollerTestCase(
                                     text = "Some title",
                                     style = TextStyle(Color.Black, 60.px.toSp())
                                 )
-                                Row(crossAxisAlignment = CrossAxisAlignment.Center) {
+                                Row(
+                                    mainAxisSize = LayoutSize.Expand,
+                                    crossAxisAlignment = CrossAxisAlignment.Center
+                                ) {
                                     Text("3.5 ★", TextStyle(fontSize = 40.px.toSp()))
                                     ColoredRect(
                                         width = 40.px.toDp(),

@@ -397,7 +397,7 @@ fun PositionUsingAlignmentLine() {
 fun RowBaselineAlignment() {
     Row(crossAxisAlignment = CrossAxisAlignment.AlignmentLine(FirstBaseline)) {
         Text("First text")
-        Column(mainAxisSize = LayoutSize.Wrap) {
+        Column {
             SizedRectangle(Color.Blue, width = 10.dp, height = 50.dp)
             Padding(30.dp) {
                 Text("Second text", style = TextStyle(fontSize = 45.sp))

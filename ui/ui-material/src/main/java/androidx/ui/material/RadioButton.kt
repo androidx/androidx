@@ -109,7 +109,7 @@ fun RadioGroup(
     textStyle: TextStyle? = null
 ) {
     RadioGroup {
-        Column(mainAxisSize = LayoutSize.Wrap) {
+        Column {
             options.forEach { text ->
                 RadioGroupTextItem(
                     selected = (text == selectedOption),

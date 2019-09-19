@@ -36,6 +36,7 @@ import androidx.ui.graphics.Color
 import androidx.ui.graphics.lerp
 import androidx.ui.layout.Column
 import androidx.ui.layout.CrossAxisAlignment
+import androidx.ui.layout.LayoutSize
 import androidx.ui.layout.Row
 import androidx.ui.foundation.VerticalScroller
 import androidx.ui.text.ParagraphStyle
@@ -61,7 +62,10 @@ val fontSize10: Sp = 30.sp
 @Composable
 fun TextDemo() {
     VerticalScroller {
-        Column(crossAxisAlignment = CrossAxisAlignment.Start) {
+        Column(
+            mainAxisSize = LayoutSize.Expand,
+            crossAxisAlignment = CrossAxisAlignment.Start
+        ) {
             TagLine(tag = "color, fontSize, fontWeight and fontStyle")
             TextDemoBasic()
             TagLine(tag = "Chinese, Arabic, and Hindi")
@@ -315,7 +319,7 @@ fun TextDemoBaselineShift() {
 @Composable
 fun TextDemoHeight() {
     // This group of text widgets show different height.
-    Row {
+    Row(mainAxisSize = LayoutSize.Expand) {
         Text {
             Span(
                 text = "$displayText\n$displayText   ",
@@ -406,7 +410,10 @@ fun TextDemoTextAlign() {
     for (i in 1..10) {
         text = "$text$displayText "
     }
-    Column(crossAxisAlignment = CrossAxisAlignment.Start) {
+    Column(
+        mainAxisSize = LayoutSize.Expand,
+        crossAxisAlignment = CrossAxisAlignment.Start
+    ) {
         SecondTagLine(tag = "textAlign = TextAlign.Left")
         Text(paragraphStyle = ParagraphStyle(textAlign = TextAlign.Left)) {
             Span(text = displayText, style = TextStyle(fontSize = fontSize8))
@@ -475,7 +482,10 @@ fun TextDemoSoftWrap() {
     val textStyle =
         TextStyle(fontSize = fontSize8, color = Color(0xFFFF0000))
 
-    Column(crossAxisAlignment = CrossAxisAlignment.Start) {
+    Column(
+        mainAxisSize = LayoutSize.Expand,
+        crossAxisAlignment = CrossAxisAlignment.Start
+    ) {
         Text {
             Span(text = text, style = textStyle)
         }
@@ -610,9 +620,9 @@ fun TextDemoSelection2DArrayVertical() {
     SelectionContainer(
         selection = selection.value,
         onSelectionChange = { selection.value = it }) {
-        Column {
+        Column(mainAxisSize = LayoutSize.Expand) {
             for (i in 0..2) {
-                Row {
+                Row(mainAxisSize = LayoutSize.Expand) {
                     for (j in 0..2) {
                         Text {
                             Span(
@@ -655,9 +665,9 @@ fun TextDemoSelection2DArrayHorizontal() {
         onSelectionChange = { selection.value = it },
         mode = SelectionMode.Horizontal
     ) {
-        Column {
+        Column(mainAxisSize = LayoutSize.Expand) {
             for (i in 0..2) {
-                Row {
+                Row(mainAxisSize = LayoutSize.Expand) {
                     for (j in 0..2) {
                         Text {
                             Span(
