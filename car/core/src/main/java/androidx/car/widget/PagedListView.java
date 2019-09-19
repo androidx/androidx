@@ -373,7 +373,8 @@ public class PagedListView extends FrameLayout {
                     a.getInt(R.styleable.PagedListView_scrollBarGravity, Gravity.LEFT);
         }
 
-        mScrollBarView.setVisibility(mIsScrollBarVisibleIfNeeded ? VISIBLE : GONE);
+        // Initially hide scrollbar view and make it visible when required.
+        mScrollBarView.setVisibility(GONE);
 
         if (mIsScrollBarVisibleIfNeeded) {
             // Use the top margin that is defined in the layout as the default value.
@@ -412,6 +413,9 @@ public class PagedListView extends FrameLayout {
             setGutter(Gutter.BOTH);
         }
 
+        // Upon scrollbar visibility changes, margins for gutters may need to be updated.
+        mScrollBarView.setOnVisibilityChangedListener(
+                (scrollbar, visibility) -> setGutter(mGutter));
         a.recycle();
     }
 
@@ -467,16 +471,18 @@ public class PagedListView extends FrameLayout {
         boolean isLTR = ViewCompat.getLayoutDirection(this) == ViewCompat.LAYOUT_DIRECTION_LTR;
         boolean isScrollBarGravityStart =
                 (scrollBarGravity == Gravity.START)
-                        || (scrollBarGravity == Gravity.LEFT && isLTR)
-                        || (scrollBarGravity == Gravity.RIGHT && !isLTR);
+                        || ((scrollBarGravity == Gravity.LEFT) && isLTR)
+                        || ((scrollBarGravity == Gravity.RIGHT) && !isLTR);
         boolean isScrollBarGravityEnd =
                 (scrollBarGravity == Gravity.END)
-                        || (scrollBarGravity == Gravity.RIGHT && isLTR)
-                        || (scrollBarGravity == Gravity.LEFT && !isLTR);
+                        || ((scrollBarGravity == Gravity.RIGHT) && isLTR)
+                        || ((scrollBarGravity == Gravity.LEFT) && !isLTR);
+
+        boolean isScrollbarVisible = mScrollBarView.getVisibility() == View.VISIBLE;
 
         // Default starting margin is either the width of the scroll bar, if present at the start,
         // or just flush to the edge.
-        int startMargin = mIsScrollBarVisibleIfNeeded && isScrollBarGravityStart
+        int startMargin = isScrollbarVisible && isScrollBarGravityStart
                 ? mScrollBarView.getLayoutParams().width : 0;
         if ((mGutter & Gutter.START) != 0) {
             // Ensure that the gutter value is large enough so that the RecyclerView does not
@@ -486,7 +492,7 @@ public class PagedListView extends FrameLayout {
 
         // Default end margin is either the width of the scroll bar, if present at the end, or
         // just flush to the edge.
-        int endMargin = mIsScrollBarVisibleIfNeeded && isScrollBarGravityEnd
+        int endMargin = isScrollbarVisible && isScrollBarGravityEnd
                 ? mScrollBarView.getLayoutParams().width : 0;
         if ((mGutter & Gutter.END) != 0) {
             // Ensure that the gutter value is large enough so that the RecyclerView does not
@@ -504,6 +510,12 @@ public class PagedListView extends FrameLayout {
         // If there's a gutter, set ClipToPadding to false so that CardView's shadow will still
         // appear outside of the padding.
         mRecyclerView.setClipToPadding(startMargin == 0 && endMargin == 0);
+
+        // If currently performing a layout pass, updated margins may not get applied until
+        // the next layout pass. Schedule another layout pass to ensure margins are updated.
+        if (isInLayout()) {
+            post(this::requestLayout);
+        }
     }
 
     /**
@@ -1262,7 +1274,7 @@ public class PagedListView extends FrameLayout {
         boolean isAtEnd = isAtEnd();
 
         if ((isAtStart && isAtEnd) || layoutManager.getItemCount() == 0) {
-            mScrollBarView.setVisibility(View.INVISIBLE);
+            mScrollBarView.setVisibility(View.GONE);
             return;
         }
 
@@ -1304,7 +1316,7 @@ public class PagedListView extends FrameLayout {
         RecyclerView.LayoutManager layoutManager = mRecyclerView.getLayoutManager();
 
         if ((isAtStart && isAtEnd) || layoutManager == null || layoutManager.getItemCount() == 0) {
-            mScrollBarView.setVisibility(View.INVISIBLE);
+            mScrollBarView.setVisibility(View.GONE);
         } else {
             mScrollBarView.setVisibility(VISIBLE);
         }

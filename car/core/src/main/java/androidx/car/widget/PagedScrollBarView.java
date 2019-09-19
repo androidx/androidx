@@ -33,10 +33,15 @@ import android.widget.TextView;
 
 import androidx.annotation.ColorRes;
 import androidx.annotation.DrawableRes;
+import androidx.annotation.IntDef;
 import androidx.annotation.IntRange;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.car.R;
 import androidx.core.content.ContextCompat;
+
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 
 /** A custom view to provide list scroll behaviour -- up/down buttons and scroll indicator. */
 public class PagedScrollBarView extends ViewGroup {
@@ -63,7 +68,8 @@ public class PagedScrollBarView extends ViewGroup {
          * @deprecated Use {@link OnAlphaJumpListener#onAlphaJump()} instead.
          */
         @Deprecated
-        default void onAlphaJump() {}
+        default void onAlphaJump() {
+        }
     }
 
     public interface OnAlphaJumpListener {
@@ -79,6 +85,24 @@ public class PagedScrollBarView extends ViewGroup {
         void onAlphaJump();
     }
 
+    @IntDef({View.VISIBLE, View.INVISIBLE, View.GONE})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface Visibility {
+    }
+
+    /** Listener for changes to the visibility of the scrollbar view. */
+    public interface OnVisibilityChangedListener {
+
+        /**
+         * Called when the visibility of the scrollbar view changes.
+         *
+         * @param view       A reference to the scrollbar for which the visibility changed.
+         * @param visibility The new visibility, one of {@code View.VISIBLE}, {@code View
+         * .INVISIBLE} or {@code View.GONE}
+         */
+        void onVisibilityChanged(@NonNull View view, @Visibility int visibility);
+    }
+
     private final ImageView mUpButton;
     private final PaginateButtonClickListener mUpButtonClickListener;
     private final ImageView mDownButton;
@@ -86,6 +110,7 @@ public class PagedScrollBarView extends ViewGroup {
     private final TextView mAlphaJumpButton;
     private final AlphaJumpButtonClickListener mAlphaJumpButtonClickListener;
     private final View mScrollThumb;
+    private OnVisibilityChangedListener mOnVisibilityChangedListener;
 
     private final int mSeparatingMargin;
     private final int mScrollBarThumbWidth;
@@ -196,6 +221,22 @@ public class PagedScrollBarView extends ViewGroup {
      */
     public void setOnAlphaJumpListener(@Nullable OnAlphaJumpListener listener) {
         mAlphaJumpButtonClickListener.setOnAlphaJumpListener(listener);
+    }
+
+    /**
+     * Sets the listener that will be notified when the visibility of the scrollbar changes.
+     *
+     * @param listener The listener to set.
+     */
+    public void setOnVisibilityChangedListener(@Nullable OnVisibilityChangedListener listener) {
+        mOnVisibilityChangedListener = listener;
+    }
+
+    @Override
+    protected void onVisibilityChanged(@NonNull View changedView, int visibility) {
+        if (mOnVisibilityChangedListener != null) {
+            mOnVisibilityChangedListener.onVisibilityChanged(this, visibility);
+        }
     }
 
     /** Returns {@code true} if the "up" button is pressed */
