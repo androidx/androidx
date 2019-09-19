@@ -28,7 +28,7 @@ import androidx.ui.benchmark.measureFirstLayout
 import androidx.ui.benchmark.measureFirstMeasure
 import androidx.ui.benchmark.measureLayoutPerf
 import androidx.ui.test.DisableTransitions
-import androidx.ui.test.RandomTextGeneratorTestRule
+import androidx.ui.test.TextBenchmarkTestRule
 import androidx.ui.test.cartesian
 import org.junit.Rule
 import org.junit.Test
@@ -53,7 +53,7 @@ class TextMultiStyleBenchmark(
     val disableAnimationRule = DisableTransitions()
 
     @get:Rule
-    val textGeneratorRule = RandomTextGeneratorTestRule()
+    val textBenchmarkRule = TextBenchmarkTestRule()
 
     private val activity: Activity get() = activityRule.activity
 
@@ -69,7 +69,7 @@ class TextMultiStyleBenchmark(
 
     @Test
     fun first_compose() {
-        textGeneratorRule.generator { textGenerator ->
+        textBenchmarkRule.generator { textGenerator ->
             benchmarkRule.measureFirstCompose(
                 activity,
                 TextMultiStyleTestCase(
@@ -85,7 +85,7 @@ class TextMultiStyleBenchmark(
 
     @Test
     fun first_measure() {
-        textGeneratorRule.generator { textGenerator ->
+        textBenchmarkRule.generator { textGenerator ->
             benchmarkRule.measureFirstMeasure(
                 activity,
                 TextMultiStyleTestCase(
@@ -101,7 +101,7 @@ class TextMultiStyleBenchmark(
 
     @Test
     fun first_layout() {
-        textGeneratorRule.generator { textGenerator ->
+        textBenchmarkRule.generator { textGenerator ->
             benchmarkRule.measureFirstLayout(
                 activity,
                 TextMultiStyleTestCase(
@@ -117,7 +117,7 @@ class TextMultiStyleBenchmark(
 
     @Test
     fun first_draw() {
-        textGeneratorRule.generator { textGenerator ->
+        textBenchmarkRule.generator { textGenerator ->
             benchmarkRule.measureFirstDraw(
                 activity,
                 TextMultiStyleTestCase(
@@ -133,7 +133,7 @@ class TextMultiStyleBenchmark(
 
     @Test
     fun layout() {
-        textGeneratorRule.generator { textGenerator ->
+        textBenchmarkRule.generator { textGenerator ->
             benchmarkRule.measureLayoutPerf(
                 activity,
                 TextMultiStyleTestCase(
@@ -149,7 +149,7 @@ class TextMultiStyleBenchmark(
 
     @Test
     fun draw() {
-        textGeneratorRule.generator { textGenerator ->
+        textBenchmarkRule.generator { textGenerator ->
             benchmarkRule.measureDrawPerf(
                 activity,
                 TextMultiStyleTestCase(
