@@ -38,6 +38,7 @@
                      android:layout_width="24dp"
                      android:layout_height="24dp"
                      android:layout_gravity="center_vertical"
+                     android:contentDescription="@string/mr_controller_close_description"
                      android:src="?attr/mediaRouteCloseDrawable"
                      android:background="?attr/selectableItemBackgroundBorderless" />
         <LinearLayout android:layout_width="match_parent"
