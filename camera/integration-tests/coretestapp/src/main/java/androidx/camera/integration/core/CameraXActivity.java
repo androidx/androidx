@@ -400,6 +400,7 @@ public class CameraXActivity extends AppCompatActivity
         }
 
         mImageAnalysis.setAnalyzer(
+                CameraXExecutors.mainThreadExecutor(),
                 new ImageAnalysis.Analyzer() {
                     @Override
                     public void analyze(ImageProxy image, int rotationDegrees) {

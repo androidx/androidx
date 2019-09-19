@@ -45,6 +45,7 @@ import androidx.camera.core.ImageAnalysisConfig;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCaptureConfig;
 import androidx.camera.core.ImageProxy;
+import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.testing.CameraUtil;
 import androidx.camera.testing.fakes.FakeLifecycleOwner;
 import androidx.lifecycle.MutableLiveData;
@@ -143,7 +144,7 @@ public final class Camera2ImplCameraXTest {
                 ImageAnalysis useCase = new ImageAnalysis(builder.build());
 
                 CameraX.bindToLifecycle(mLifecycle, useCase);
-                useCase.setAnalyzer(mImageAnalyzer);
+                useCase.setAnalyzer(CameraXExecutors.mainThreadExecutor(), mImageAnalyzer);
                 mAnalysisResult.observe(mLifecycle, mockObserver);
 
                 mLifecycle.startAndResume();
@@ -184,8 +185,8 @@ public final class Camera2ImplCameraXTest {
 
                 CameraX.bindToLifecycle(mLifecycle, useCase, useCase2);
 
-                useCase.setAnalyzer(mImageAnalyzer);
-                useCase2.setAnalyzer(mImageAnalyzer2);
+                useCase.setAnalyzer(CameraXExecutors.mainThreadExecutor(), mImageAnalyzer);
+                useCase2.setAnalyzer(CameraXExecutors.mainThreadExecutor(), mImageAnalyzer2);
                 mAnalysisResult.observe(mLifecycle, mockObserver);
                 mAnalysisResult2.observe(mLifecycle, mockObserver2);
 
@@ -216,7 +217,7 @@ public final class Camera2ImplCameraXTest {
                         .setSessionCaptureCallback(sessionCaptureCallback);
                 ImageAnalysis useCase = new ImageAnalysis(configBuilder.build());
                 CameraX.bindToLifecycle(mLifecycle, useCase);
-                useCase.setAnalyzer(mImageAnalyzer);
+                useCase.setAnalyzer(CameraXExecutors.mainThreadExecutor(), mImageAnalyzer);
                 mAnalysisResult.observe(mLifecycle, createCountIncrementingObserver(observedCount));
 
                 mLifecycle.startAndResume();
@@ -259,7 +260,7 @@ public final class Camera2ImplCameraXTest {
             @Override
             public void run() {
                 CameraX.bindToLifecycle(mLifecycle, useCase);
-                useCase.setAnalyzer(mImageAnalyzer);
+                useCase.setAnalyzer(CameraXExecutors.mainThreadExecutor(), mImageAnalyzer);
                 mLifecycle.startAndResume();
             }
         });
@@ -362,7 +363,7 @@ public final class Camera2ImplCameraXTest {
                 @Override
                 public void run() {
                     CameraX.bindToLifecycle(mLifecycle, useCase);
-                    useCase.setAnalyzer(mImageAnalyzer);
+                    useCase.setAnalyzer(CameraXExecutors.mainThreadExecutor(), mImageAnalyzer);
                 }
             });
 

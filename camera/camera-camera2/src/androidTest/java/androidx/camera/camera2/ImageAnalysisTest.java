@@ -42,6 +42,7 @@ import androidx.camera.core.ImageAnalysis.ImageReaderMode;
 import androidx.camera.core.ImageAnalysisConfig;
 import androidx.camera.core.ImageProxy;
 import androidx.camera.core.UseCase.StateChangeListener;
+import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.testing.CameraUtil;
 import androidx.test.annotation.UiThreadTest;
 import androidx.test.core.app.ApplicationProvider;
@@ -138,7 +139,7 @@ public final class ImageAnalysisTest {
 
         Analyzer initialAnalyzer = useCase.getAnalyzer();
 
-        useCase.setAnalyzer(mMockAnalyzer);
+        useCase.setAnalyzer(CameraXExecutors.newHandlerExecutor(mHandler), mMockAnalyzer);
 
         Analyzer retrievedAnalyzer = useCase.getAnalyzer();
 
@@ -156,7 +157,7 @@ public final class ImageAnalysisTest {
         useCase.updateSuggestedResolution(suggestedResolutionMap);
         useCase.addStateChangeListener(mMockListener);
 
-        useCase.setAnalyzer(mMockAnalyzer);
+        useCase.setAnalyzer(CameraXExecutors.newHandlerExecutor(mHandler), mMockAnalyzer);
 
         verify(mMockListener, times(1)).onUseCaseActive(useCase);
     }
@@ -169,7 +170,7 @@ public final class ImageAnalysisTest {
         suggestedResolutionMap.put(mCameraId, DEFAULT_RESOLUTION);
         useCase.updateSuggestedResolution(suggestedResolutionMap);
         useCase.addStateChangeListener(mMockListener);
-        useCase.setAnalyzer(mMockAnalyzer);
+        useCase.setAnalyzer(CameraXExecutors.newHandlerExecutor(mHandler), mMockAnalyzer);
         useCase.removeAnalyzer();
 
         verify(mMockListener, times(1)).onUseCaseInactive(useCase);
@@ -202,7 +203,7 @@ public final class ImageAnalysisTest {
         mInstrumentation.runOnMainSync(new Runnable() {
             @Override
             public void run() {
-                useCase.setAnalyzer(mAnalyzer);
+                useCase.setAnalyzer(CameraXExecutors.newHandlerExecutor(mHandler), mAnalyzer);
             }
         });
 
@@ -226,7 +227,7 @@ public final class ImageAnalysisTest {
         Map<String, Size> suggestedResolutionMap = new HashMap<>();
         suggestedResolutionMap.put(mCameraId, DEFAULT_RESOLUTION);
         useCase.updateSuggestedResolution(suggestedResolutionMap);
-        useCase.setAnalyzer(mAnalyzer);
+        useCase.setAnalyzer(CameraXExecutors.newHandlerExecutor(mHandler), mAnalyzer);
         // Keep the lifecycle in an inactive state.
         // Wait a little while for frames to be analyzed.
         mAnalysisResultsSemaphore.tryAcquire(5, TimeUnit.SECONDS);
@@ -246,7 +247,7 @@ public final class ImageAnalysisTest {
         ImageAnalysisConfig config =
                 new ImageAnalysisConfig.Builder().setCallbackHandler(mHandler).build();
         ImageAnalysis useCase = new ImageAnalysis(config);
-        useCase.setAnalyzer(mAnalyzer);
+        useCase.setAnalyzer(CameraXExecutors.newHandlerExecutor(mHandler), mAnalyzer);
 
         for (Size size : sizes) {
             Map<String, Size> suggestedResolutionMap = new HashMap<>();

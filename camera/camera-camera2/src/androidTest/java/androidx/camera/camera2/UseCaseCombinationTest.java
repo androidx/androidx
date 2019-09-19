@@ -36,6 +36,7 @@ import androidx.camera.core.ImageCaptureConfig;
 import androidx.camera.core.ImageProxy;
 import androidx.camera.core.Preview;
 import androidx.camera.core.PreviewConfig;
+import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.testing.CameraUtil;
 import androidx.camera.testing.fakes.FakeLifecycleOwner;
 import androidx.lifecycle.MutableLiveData;
@@ -144,7 +145,7 @@ public final class UseCaseCombinationTest {
             @Override
             public void run() {
                 CameraX.bindToLifecycle(mLifecycle, mPreview, mImageAnalysis);
-                mImageAnalysis.setAnalyzer(mImageAnalyzer);
+                mImageAnalysis.setAnalyzer(CameraXExecutors.mainThreadExecutor(), mImageAnalyzer);
                 mAnalysisResult.observe(mLifecycle,
                         createCountIncrementingObserver());
                 mLifecycle.startAndResume();
@@ -171,7 +172,7 @@ public final class UseCaseCombinationTest {
             @Override
             public void run() {
                 CameraX.bindToLifecycle(mLifecycle, mPreview, mImageAnalysis, mImageCapture);
-                mImageAnalysis.setAnalyzer(mImageAnalyzer);
+                mImageAnalysis.setAnalyzer(CameraXExecutors.mainThreadExecutor(), mImageAnalyzer);
                 mAnalysisResult.observe(mLifecycle,
                         createCountIncrementingObserver());
                 mLifecycle.startAndResume();
