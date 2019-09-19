@@ -173,8 +173,8 @@ package androidx.paging {
 
   @MainThread public abstract static class PagedList.BoundaryCallback<T> {
     ctor public PagedList.BoundaryCallback();
-    method public void onItemAtEndLoaded(T? itemAtEnd);
-    method public void onItemAtFrontLoaded(T? itemAtFront);
+    method public void onItemAtEndLoaded(T itemAtEnd);
+    method public void onItemAtFrontLoaded(T itemAtFront);
     method public void onZeroItemsLoaded();
   }
 
