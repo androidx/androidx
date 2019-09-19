@@ -282,9 +282,9 @@ public class WorkerWrapper implements Runnable {
                     // Notification intent
                     Intent intent = createNotifyIntent(mAppContext, metadata);
                     mAppContext.startService(intent);
-
-                    // Resolve background schedulers without the request to reschedule.
-                    mFuture.set(false);
+                    // Don't resolve mFuture at this point. This is because we want a backing job
+                    // available for as long as possible, so the OS can load-balance Workers
+                    // running in the context of a foreground service.
                 } else {
                     String message = String.format("Worker (%s) cannot be started in the "
                                     + "foreground as it does not implement a NotificationProvider",
