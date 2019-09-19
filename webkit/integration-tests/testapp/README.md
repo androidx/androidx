@@ -21,6 +21,9 @@ cd frameworks/support/
 # Check for Lint warnings
 ./gradlew :webkit:integration-tests:testapp:lintDebug
 
+# Run automated espresso tests
+./gradlew :webkit:integration-tests:testapp:connectedAndroidTest
+
 # Optional: launch the app via adb
 adb shell am start -n com.example.androidx.webkit/.MainActivity
 adb shell am start -n com.example.androidx.webkit/.ForceDarkActivity # or, any exported Activity
