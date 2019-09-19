@@ -20,6 +20,7 @@
     tools:ignore="GoogleAppIndexingWarning">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <application
         android:allowBackup="false"
@@ -91,6 +92,9 @@
             android:exported="true" />
         <activity
             android:name=".MultiProcessEnabledActivity"
+            android:exported="true" />
+        <activity
+            android:name=".TracingControllerActivity"
             android:exported="true" />
     </application>
 </manifest>
