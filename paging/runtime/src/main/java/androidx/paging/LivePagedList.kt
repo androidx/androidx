@@ -77,14 +77,30 @@ internal class LivePagedList<Key : Any, Value : Any>(
 
         currentJob?.cancel()
         currentJob = coroutineScope.launch(fetchDispatcher) {
-            try {
-                val pagedList = createPagedList()
-                withContext(notifyDispatcher) {
-                    onSuccess(pagedList)
-                }
-            } catch (throwable: Throwable) {
-                withContext(notifyDispatcher) {
-                    onError(throwable)
+            val pagedSource = pagedSourceFactory()
+            currentData.pagedSource.unregisterInvalidatedCallback(callback)
+            pagedSource.registerInvalidatedCallback(callback)
+
+            withContext(notifyDispatcher) {
+                currentData.setInitialLoadState(REFRESH, Loading)
+            }
+
+            @Suppress("UNCHECKED_CAST")
+            val lastKey = currentData.lastKey as Key?
+            val params = config.toRefreshLoadParams(lastKey)
+            when (val initialResult = pagedSource.load(params)) {
+                is PagedSource.LoadResult.Error -> onError(initialResult.throwable)
+                is PagedSource.LoadResult.Page -> {
+                    onSuccess(PagedList.create(
+                        pagedSource,
+                        initialResult,
+                        coroutineScope,
+                        notifyDispatcher,
+                        fetchDispatcher,
+                        boundaryCallback,
+                        config,
+                        lastKey
+                    ))
                 }
             }
         }
@@ -93,29 +109,6 @@ internal class LivePagedList<Key : Any, Value : Any>(
     private fun onItemUpdate(previous: PagedList<Value>, next: PagedList<Value>) {
         previous.setRetryCallback(null)
         next.setRetryCallback(refreshRetryCallback)
-    }
-
-    private suspend fun createPagedList(): PagedList<Value> {
-        val pagedSource = pagedSourceFactory()
-        currentData.pagedSource.unregisterInvalidatedCallback(callback)
-        pagedSource.registerInvalidatedCallback(callback)
-
-        withContext(notifyDispatcher) {
-            currentData.setInitialLoadState(REFRESH, Loading)
-        }
-
-        @Suppress("UNCHECKED_CAST") // getLastKey guaranteed to be of 'Key' type
-        val lastKey = currentData.lastKey as Key?
-        return PagedList.create(
-            pagedSource,
-            coroutineScope,
-            notifyDispatcher,
-            fetchDispatcher,
-            fetchDispatcher,
-            boundaryCallback,
-            config,
-            lastKey
-        )
     }
 }
 

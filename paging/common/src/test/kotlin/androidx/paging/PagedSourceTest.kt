@@ -18,7 +18,7 @@ package androidx.paging
 
 import androidx.paging.PagedSource.LoadParams
 import androidx.paging.PagedSource.LoadResult
-import androidx.paging.PagedSource.LoadResult.Companion.COUNT_UNDEFINED
+import androidx.paging.PagedSource.LoadResult.Page.Companion.COUNT_UNDEFINED
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertSame
@@ -56,7 +56,7 @@ class PagedSourceTest {
         runBlocking {
             val pagedSource = ItemDataSource()
             val key = pagedSource.keyProvider.getKey(ITEMS_BY_NAME_ID[49])
-            val result = loadInitial(pagedSource, key, 10, true)
+            val result = loadInitial(pagedSource, key, 10, true) as LoadResult.Page
 
             assertEquals(45, result.itemsBefore)
             assertEquals(ITEMS_BY_NAME_ID.subList(45, 55), result.data)
@@ -76,8 +76,9 @@ class PagedSourceTest {
         val pagedSource = ItemDataSource(items = ITEMS_BY_NAME_ID.subList(0, 1))
 
         // this is tricky, since load after and load before with the passed key will fail
-        val result =
-            loadInitial(pagedSource, pagedSource.keyProvider.getKey(ITEMS_BY_NAME_ID[0]), 20, true)
+        val result = loadInitial(
+            pagedSource, pagedSource.keyProvider.getKey(ITEMS_BY_NAME_ID[0]), 20, true
+        ) as LoadResult.Page
 
         assertEquals(0, result.itemsBefore)
         assertEquals(ITEMS_BY_NAME_ID.subList(0, 1), result.data)
@@ -90,7 +91,7 @@ class PagedSourceTest {
 
         // tricky, because load after key is empty, so another load before and load after required
         val key = pagedSource.keyProvider.getKey(ITEMS_BY_NAME_ID.last())
-        val result = loadInitial(pagedSource, key, 20, true)
+        val result = loadInitial(pagedSource, key, 20, true) as LoadResult.Page
 
         assertEquals(90, result.itemsBefore)
         assertEquals(ITEMS_BY_NAME_ID.subList(90, 100), result.data)
@@ -101,7 +102,7 @@ class PagedSourceTest {
     fun loadInitial_nullKey() = runBlocking {
         val dataSource = ItemDataSource()
 
-        val result = loadInitial(dataSource, null, 10, true)
+        val result = loadInitial(dataSource, null, 10, true) as LoadResult.Page
 
         assertEquals(0, result.itemsBefore)
         assertEquals(ITEMS_BY_NAME_ID.subList(0, 10), result.data)
@@ -114,7 +115,7 @@ class PagedSourceTest {
 
         // if key is past entire data set, should return last items in data set
         val key = Key("fz", 0)
-        val result = loadInitial(dataSource, key, 10, true)
+        val result = loadInitial(dataSource, key, 10, true) as LoadResult.Page
 
         // NOTE: ideally we'd load 10 items here, but it adds complexity and unpredictability to
         // do: load after was empty, so pass full size to load before, since this can incur larger
@@ -132,7 +133,7 @@ class PagedSourceTest {
 
         // dispatchLoadInitial(key, count) == null padding, loadAfter(key, count), null padding
         val key = dataSource.keyProvider.getKey(ITEMS_BY_NAME_ID[49])
-        val result = loadInitial(dataSource, key, 10, false)
+        val result = loadInitial(dataSource, key, 10, false) as LoadResult.Page
 
         assertEquals(COUNT_UNDEFINED, result.itemsBefore)
         assertEquals(ITEMS_BY_NAME_ID.subList(45, 55), result.data)
@@ -145,7 +146,7 @@ class PagedSourceTest {
 
         // dispatchLoadInitial(key, count) == null padding, loadAfter(key, count), null padding
         val key = dataSource.keyProvider.getKey(ITEMS_BY_NAME_ID[49])
-        val result = loadInitial(dataSource, key, 10, true)
+        val result = loadInitial(dataSource, key, 10, true) as LoadResult.Page
 
         assertEquals(COUNT_UNDEFINED, result.itemsBefore)
         assertEquals(ITEMS_BY_NAME_ID.subList(45, 55), result.data)
@@ -156,7 +157,7 @@ class PagedSourceTest {
     fun loadInitial_nullKey_uncounted() = runBlocking {
         val dataSource = ItemDataSource(counted = false)
 
-        val result = loadInitial(dataSource, null, 10, true)
+        val result = loadInitial(dataSource, null, 10, true) as LoadResult.Page
 
         assertEquals(COUNT_UNDEFINED, result.itemsBefore)
         assertEquals(ITEMS_BY_NAME_ID.subList(0, 10), result.data)
@@ -171,7 +172,7 @@ class PagedSourceTest {
 
         // dispatchLoadInitial(key, count) == null padding, loadAfter(key, count), null padding
         val key = dataSource.keyProvider.getKey(ITEMS_BY_NAME_ID[49])
-        val result = loadInitial(dataSource, key, 10, true)
+        val result = loadInitial(dataSource, key, 10, true) as LoadResult.Page
 
         assertEquals(0, result.itemsBefore)
         assertTrue(result.data.isEmpty())
@@ -181,7 +182,7 @@ class PagedSourceTest {
     @Test
     fun loadInitial_nullKey_empty() = runBlocking {
         val dataSource = ItemDataSource(items = ArrayList())
-        val result = loadInitial(dataSource, null, 10, true)
+        val result = loadInitial(dataSource, null, 10, true) as LoadResult.Page
 
         assertEquals(0, result.itemsBefore)
         assertTrue(result.data.isEmpty())
@@ -197,7 +198,7 @@ class PagedSourceTest {
         runBlocking {
             val key = dataSource.keyProvider.getKey(ITEMS_BY_NAME_ID[5])
             val params = LoadParams(LoadType.START, key, 5, false, 5)
-            val observed = dataSource.load(params).data
+            val observed = (dataSource.load(params) as LoadResult.Page).data
 
             assertEquals(ITEMS_BY_NAME_ID.subList(0, 5), observed)
 
@@ -217,7 +218,7 @@ class PagedSourceTest {
         runBlocking {
             val key = dataSource.keyProvider.getKey(ITEMS_BY_NAME_ID[5])
             val params = LoadParams(LoadType.END, key, 5, false, 5)
-            val observed = dataSource.load(params).data
+            val observed = (dataSource.load(params) as LoadResult.Page).data
 
             assertEquals(ITEMS_BY_NAME_ID.subList(6, 11), observed)
 
@@ -286,13 +287,13 @@ class PagedSourceTest {
 
             return if (params.placeholdersEnabled && counted) {
                 val data = items.subList(start, endExclusive)
-                LoadResult(
+                LoadResult.Page(
                     data = data,
                     itemsBefore = start,
                     itemsAfter = items.size - data.size - start
                 )
             } else {
-                LoadResult(items.subList(start, endExclusive))
+                LoadResult.Page(items.subList(start, endExclusive))
             }
         }
 
@@ -305,7 +306,7 @@ class PagedSourceTest {
             val start = findFirstIndexAfter(params.key!!)
             val endExclusive = minOf(start + params.loadSize, items.size)
 
-            return LoadResult(items.subList(start, endExclusive))
+            return LoadResult.Page(items.subList(start, endExclusive))
         }
 
         private fun loadBefore(params: LoadParams<Key>): LoadResult<Key, Item> {
@@ -318,7 +319,7 @@ class PagedSourceTest {
             val endExclusive = maxOf(0, firstIndexBefore + 1)
             val start = maxOf(0, firstIndexBefore - params.loadSize + 1)
 
-            return LoadResult(items.subList(start, endExclusive))
+            return LoadResult.Page(items.subList(start, endExclusive))
         }
 
         private fun findFirstIndexAfter(key: Key): Int {

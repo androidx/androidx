@@ -85,11 +85,8 @@ class PagerTest {
             return ret
         }
 
-        override fun onPageResult(
-            type: LoadType,
-            pageResult: LoadResult<*, String>
-        ): Boolean {
-            results.add(Result(type, pageResult))
+        override fun onPageResult(type: LoadType, page: LoadResult.Page<*, String>): Boolean {
+            results.add(Result(type, page))
             return false
         }
 
@@ -104,7 +101,7 @@ class PagerTest {
         end: Int = 10
     ): Pager<Int, String> {
         val initialData = data.subList(start, end)
-        val initialResult = LoadResult<Int, String>(
+        val initialResult = LoadResult.Page<Int, String>(
             data = initialData,
             itemsBefore = start,
             itemsAfter = data.size - initialData.size - start
@@ -231,7 +228,7 @@ class PagerTest {
 
         // Pager triggers an immediate empty response here, so we don't need to flush the executor
         assertEquals(
-            listOf(Result(LoadType.END, LoadResult.empty<Int, String>())),
+            listOf(Result(LoadType.END, LoadResult.Page.empty<Int, String>())),
             consumer.takeResults()
         )
         assertEquals(
@@ -249,7 +246,7 @@ class PagerTest {
 
         // Pager triggers an immediate empty response here, so we don't need to flush the executor
         assertEquals(
-            listOf(Result(LoadType.START, LoadResult.empty<Int, String>())),
+            listOf(Result(LoadType.START, LoadResult.Page.empty<Int, String>())),
             consumer.takeResults()
         )
         assertEquals(

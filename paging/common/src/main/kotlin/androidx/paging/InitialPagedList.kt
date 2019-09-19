@@ -41,7 +41,7 @@ class InitialPagedList<K : Any, V : Any>(
     DirectDispatcher,
     null,
     config,
-    PagedSource.LoadResult.empty(),
+    PagedSource.LoadResult.Page.empty(),
     0 // no previous load, so pass 0
 ) {
     override val lastKey = initialKey

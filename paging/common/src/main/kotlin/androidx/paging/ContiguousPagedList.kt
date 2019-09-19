@@ -25,7 +25,7 @@ import androidx.paging.LoadType.START
 import androidx.paging.LoadState.Idle
 import androidx.paging.LoadState.Loading
 import androidx.paging.PagedSource.KeyProvider
-import androidx.paging.PagedSource.LoadResult.Companion.COUNT_UNDEFINED
+import androidx.paging.PagedSource.LoadResult.Page.Companion.COUNT_UNDEFINED
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -41,7 +41,7 @@ open class ContiguousPagedList<K : Any, V : Any>(
     internal val backgroundDispatcher: CoroutineDispatcher,
     internal val boundaryCallback: BoundaryCallback<V>?,
     config: Config,
-    initialResult: PagedSource.LoadResult<K, V>,
+    initialPage: PagedSource.LoadResult.Page<K, V>,
     lastLoad: Int
 ) : PagedList<V>(
     pagedSource,
@@ -90,7 +90,7 @@ open class ContiguousPagedList<K : Any, V : Any>(
         notifyDispatcher,
         backgroundDispatcher,
         this,
-        initialResult,
+        initialPage,
         storage
     )
 
@@ -113,10 +113,10 @@ open class ContiguousPagedList<K : Any, V : Any>(
      */
     override fun onPageResult(
         type: LoadType,
-        pageResult: PagedSource.LoadResult<*, V>
+        page: PagedSource.LoadResult.Page<*, V>
     ): Boolean {
         var continueLoading = false
-        val page = pageResult.data
+        val list = page.data
 
         // if we end up trimming, we trim from side that's furthest from most recent access
         val trimFromFront = lastLoad > storage.middleOfLoadedRange
@@ -125,7 +125,7 @@ open class ContiguousPagedList<K : Any, V : Any>(
         val skipNewPage = shouldTrim && storage.shouldPreTrimNewPage(
             config.maxSize,
             requiredRemainder,
-            page.size
+            list.size
         )
 
         if (type == END) {
@@ -133,9 +133,9 @@ open class ContiguousPagedList<K : Any, V : Any>(
                 // don't append this data, drop it
                 appendItemsRequested = 0
             } else {
-                storage.appendPage(page, this@ContiguousPagedList)
-                appendItemsRequested -= page.size
-                if (appendItemsRequested > 0 && page.isNotEmpty()) {
+                storage.appendPage(list, this@ContiguousPagedList)
+                appendItemsRequested -= list.size
+                if (appendItemsRequested > 0 && list.isNotEmpty()) {
                     continueLoading = true
                 }
             }
@@ -144,9 +144,9 @@ open class ContiguousPagedList<K : Any, V : Any>(
                 // don't append this data, drop it
                 prependItemsRequested = 0
             } else {
-                storage.prependPage(page, this@ContiguousPagedList)
-                prependItemsRequested -= page.size
-                if (prependItemsRequested > 0 && page.isNotEmpty()) {
+                storage.prependPage(list, this@ContiguousPagedList)
+                prependItemsRequested -= list.size
+                if (prependItemsRequested > 0 && list.isNotEmpty()) {
                     continueLoading = true
                 }
             }
@@ -186,7 +186,7 @@ open class ContiguousPagedList<K : Any, V : Any>(
             }
         }
 
-        triggerBoundaryCallback(type, page)
+        triggerBoundaryCallback(type, list)
         return continueLoading
     }
 
@@ -305,9 +305,9 @@ open class ContiguousPagedList<K : Any, V : Any>(
         if (config.enablePlaceholders) {
             // Placeholders enabled, pass raw data to storage init
             storage.init(
-                if (initialResult.itemsBefore != COUNT_UNDEFINED) initialResult.itemsBefore else 0,
-                initialResult.data,
-                if (initialResult.itemsAfter != COUNT_UNDEFINED) initialResult.itemsAfter else 0,
+                if (initialPage.itemsBefore != COUNT_UNDEFINED) initialPage.itemsBefore else 0,
+                initialPage.data,
+                if (initialPage.itemsAfter != COUNT_UNDEFINED) initialPage.itemsAfter else 0,
                 0,
                 this
             )
@@ -316,9 +316,9 @@ open class ContiguousPagedList<K : Any, V : Any>(
             // may have passed them anyway.
             storage.init(
                 0,
-                initialResult.data,
+                initialPage.data,
                 0,
-                if (initialResult.itemsBefore != COUNT_UNDEFINED) initialResult.itemsBefore else 0,
+                if (initialPage.itemsBefore != COUNT_UNDEFINED) initialPage.itemsBefore else 0,
                 this
             )
         }
@@ -327,10 +327,10 @@ open class ContiguousPagedList<K : Any, V : Any>(
             // Because the ContiguousPagedList wasn't initialized with a last load position,
             // initialize it to the middle of the initial load
             val itemsBefore =
-                if (initialResult.itemsBefore != COUNT_UNDEFINED) initialResult.itemsBefore else 0
-            this.lastLoad = itemsBefore + initialResult.data.size / 2
+                if (initialPage.itemsBefore != COUNT_UNDEFINED) initialPage.itemsBefore else 0
+            this.lastLoad = itemsBefore + initialPage.data.size / 2
         }
-        triggerBoundaryCallback(REFRESH, initialResult.data)
+        triggerBoundaryCallback(REFRESH, initialPage.data)
     }
 
     override fun dispatchCurrentLoadState(callback: LoadStateListener) {

@@ -17,6 +17,7 @@
 package androidx.paging
 
 import androidx.annotation.IntRange
+import androidx.annotation.RestrictTo
 import androidx.paging.PagedSource.KeyProvider
 import androidx.paging.PagedSource.KeyProvider.ItemKey
 import androidx.paging.PagedSource.KeyProvider.PageKey
@@ -34,6 +35,19 @@ import java.util.concurrent.atomic.AtomicBoolean
  * @param Value Type of items in the list loaded by the PagedSources.
  */
 typealias PagedSourceFactory<Key, Value> = () -> PagedSource<Key, Value>
+
+/**
+ * @hide
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+fun <Key : Any> PagedList.Config.toRefreshLoadParams(key: Key?): PagedSource.LoadParams<Key> =
+    PagedSource.LoadParams(
+        LoadType.REFRESH,
+        key,
+        initialLoadSizeHint,
+        enablePlaceholders,
+        pageSize
+    )
 
 /**
  * Base class for an abstraction of pageable static data from some source, where loading pages data
@@ -124,45 +138,51 @@ abstract class PagedSource<Key : Any, Value : Any> {
         val pageSize: Int
     )
 
-    /**
-     * Result object for a generic load request on a [PagedSource].
-     *
-     * TODO: Builder for Java (also consider @JvmOverloads)
-     */
-    data class LoadResult<Key : Any, Value : Any>(
-        /**
-         * Loaded data
-         */
-        val data: List<Value>,
-        /**
-         * Optional count of items before the loaded data.
-         */
-        @IntRange(from = COUNT_UNDEFINED.toLong())
-        val itemsBefore: Int = COUNT_UNDEFINED,
-        /**
-         * Optional count of items after the loaded data.
-         */
-        @IntRange(from = COUNT_UNDEFINED.toLong())
-        val itemsAfter: Int = COUNT_UNDEFINED,
-        /**
-         * Key for next page - ignored unless you're using [KeyProvider.PageKey]
-         */
-        val nextKey: Key? = null,
-        /**
-         * Key for previous page - ignored unless you're using [KeyProvider.PageKey]
-         */
-        val prevKey: Key? = null
-    ) {
-        internal val counted = itemsBefore != COUNT_UNDEFINED && itemsAfter != COUNT_UNDEFINED
+    sealed class LoadResult<Key : Any, Value : Any> {
+        data class Error<Key : Any, Value : Any>(
+            val throwable: Throwable
+        ) : LoadResult<Key, Value>()
 
-        companion object {
-            const val COUNT_UNDEFINED = -1
+        /**
+         * Success result object for [PagedSource.load]
+         *
+         * TODO: Builder for Java (also consider @JvmOverloads)
+         */
+        data class Page<Key : Any, Value : Any>(
+            /**
+             * Loaded data
+             */
+            val data: List<Value>,
+            /**
+             * Optional count of items before the loaded data.
+             */
+            @IntRange(from = COUNT_UNDEFINED.toLong())
+            val itemsBefore: Int = COUNT_UNDEFINED,
+            /**
+             * Optional count of items after the loaded data.
+             */
+            @IntRange(from = COUNT_UNDEFINED.toLong())
+            val itemsAfter: Int = COUNT_UNDEFINED,
+            /**
+             * Key for next page - ignored unless you're using [KeyProvider.PageKey]
+             */
+            val nextKey: Key? = null,
+            /**
+             * Key for previous page - ignored unless you're using [KeyProvider.PageKey]
+             */
+            val prevKey: Key? = null
+        ) : LoadResult<Key, Value>() {
+            internal val counted = itemsBefore != COUNT_UNDEFINED && itemsAfter != COUNT_UNDEFINED
 
-            @Suppress("MemberVisibilityCanBePrivate") // Prevent synthetic accessor generation.
-            internal val EMPTY = LoadResult(emptyList(), 0, 0, null, null)
+            companion object {
+                const val COUNT_UNDEFINED = -1
 
-            @Suppress("UNCHECKED_CAST") // Can safely ignore, since the list is empty.
-            internal fun <Key : Any, Value : Any> empty() = EMPTY as LoadResult<Key, Value>
+                @Suppress("MemberVisibilityCanBePrivate") // Prevent synthetic accessor generation.
+                internal val EMPTY = Page(emptyList(), 0, 0, null, null)
+
+                @Suppress("UNCHECKED_CAST") // Can safely ignore, since the list is empty.
+                internal fun <Key : Any, Value : Any> empty() = EMPTY as Page<Key, Value>
+            }
         }
     }
 

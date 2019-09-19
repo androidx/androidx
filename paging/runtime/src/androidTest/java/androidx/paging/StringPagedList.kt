@@ -27,12 +27,15 @@ private class FakeSource<Value : Any>(
 ) : PagedSource<Any, Value>() {
     override suspend fun load(params: LoadParams<Any>): LoadResult<Any, Value> {
         if (params.loadType == LoadType.REFRESH) {
-            return LoadResult(
+            return LoadResult.Page(
                 data = data,
                 itemsBefore = leadingNulls,
                 itemsAfter = trailingNulls)
         }
-        throw IllegalArgumentException("This test source only supports initial load")
+        // TODO: prevent null-key load start/end
+        return LoadResult.Error(
+            IllegalArgumentException("This test source only supports initial load")
+        )
     }
 }
 
@@ -44,10 +47,10 @@ fun StringPagedList(
 ): PagedList<String> = runBlocking {
     PagedList.create(
         pagedSource = FakeSource(leadingNulls, trailingNulls, items.toList()),
+        initialPage = null,
         coroutineScope = GlobalScope,
         notifyDispatcher = DirectDispatcher,
         fetchDispatcher = DirectDispatcher,
-        initialFetchDispatcher = DirectDispatcher,
         boundaryCallback = null,
         config = Config(1, prefetchDistance = 0),
         key = null

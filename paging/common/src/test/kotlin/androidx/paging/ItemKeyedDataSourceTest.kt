@@ -288,20 +288,18 @@ class ItemKeyedDataSourceTest {
             }
         }
 
-        runBlocking {
-            PagedList.create(
-                PagedSourceWrapper(dataSource),
-                GlobalScope,
-                FailDispatcher(),
-                DirectDispatcher,
-                DirectDispatcher,
-                null,
-                PagedList.Config.Builder()
-                    .setPageSize(10)
-                    .build(),
-                ""
-            )
-        }
+        PagedList.create(
+            PagedSourceWrapper(dataSource),
+            null,
+            GlobalScope,
+            FailDispatcher(),
+            DirectDispatcher,
+            null,
+            PagedList.Config.Builder()
+                .setPageSize(10)
+                .build(),
+            ""
+        )
     }
 
     @Test

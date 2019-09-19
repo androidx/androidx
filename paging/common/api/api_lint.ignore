@@ -35,8 +35,8 @@ MissingNullability: androidx.paging.LoadState.Loading#INSTANCE:
     Missing nullability on field `INSTANCE` in class `class androidx.paging.LoadState.Loading`
 MissingNullability: androidx.paging.PagedSource.KeyProvider.Positional#INSTANCE:
     Missing nullability on field `INSTANCE` in class `class androidx.paging.PagedSource.KeyProvider.Positional`
-MissingNullability: androidx.paging.PagedSource.LoadResult#Companion:
-    Missing nullability on field `Companion` in class `class androidx.paging.PagedSource.LoadResult`
+MissingNullability: androidx.paging.PagedSource.LoadResult.Page#Companion:
+    Missing nullability on field `Companion` in class `class androidx.paging.PagedSource.LoadResult.Page`
 
 
 RegistrationName: androidx.paging.DataSource#addInvalidatedCallback(androidx.paging.DataSource.InvalidatedCallback):

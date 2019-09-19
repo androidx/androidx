@@ -101,16 +101,20 @@ internal class ItemDataSource : PagedSource<Int, Item>() {
     private fun loadInitial(params: LoadParams<Int>): LoadResult<Int, Item> {
         val position = computeStartPosition(params)
         val loadSize = minOf(COUNT - position, params.loadSize)
-        val data = loadRangeInternal(position, loadSize)
-        return LoadResult(
-            data = data,
-            itemsBefore = position,
-            itemsAfter = COUNT - data.size - position
-        )
+        return try {
+            val data = loadRangeInternal(position, loadSize)
+            LoadResult.Page(
+                data = data,
+                itemsBefore = position,
+                itemsAfter = COUNT - data.size - position
+            )
+        } catch (e: RetryableItemError) {
+            LoadResult.Error(e)
+        }
     }
 
     private fun loadRange(params: LoadParams<Int>): LoadResult<Int, Item> {
         val data = loadRangeInternal(params.key ?: 0, params.loadSize)
-        return LoadResult(data)
+        return LoadResult.Page(data)
     }
 }

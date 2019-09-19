@@ -18,8 +18,7 @@ package androidx.paging
 
 import androidx.paging.PagedSource.KeyProvider
 import androidx.paging.PagedSource.LoadParams
-import androidx.paging.PagedSource.LoadResult
-import androidx.paging.PagedSource.LoadResult.Companion.COUNT_UNDEFINED
+import androidx.paging.PagedSource.LoadResult.Page.Companion.COUNT_UNDEFINED
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -32,7 +31,7 @@ internal class Pager<K : Any, V : Any>(
     private val notifyDispatcher: CoroutineDispatcher,
     private val fetchDispatcher: CoroutineDispatcher,
     val pageConsumer: PageConsumer<V>,
-    result: LoadResult<K, V>,
+    result: PagedSource.LoadResult.Page<K, V>,
     private val adjacentProvider: AdjacentProvider<V> = SimpleAdjacentProvider()
 ) {
     private val totalCount: Int
@@ -63,28 +62,25 @@ internal class Pager<K : Any, V : Any>(
     private fun scheduleLoad(type: LoadType, params: LoadParams<K>) {
         // Listen on the BG thread if the paged source is invalid, since it can be expensive.
         pagedListScope.launch(fetchDispatcher) {
-            try {
-                val value = source.load(params)
+            val value = source.load(params)
 
-                // if invalid, drop result on the floor
-                if (source.invalid) {
-                    detach()
-                    return@launch
-                }
+            // if invalid, drop result on the floor
+            if (source.invalid) {
+                detach()
+                return@launch
+            }
 
-                // Source has been verified to be valid after producing data, so sent data to UI
-                launch(notifyDispatcher) {
-                    onLoadSuccess(type, value)
-                }
-            } catch (throwable: Throwable) {
-                launch(notifyDispatcher) {
-                    onLoadError(type, throwable)
+            // Source has been verified to be valid after producing data, so sent data to UI
+            launch(notifyDispatcher) {
+                when (value) {
+                    is PagedSource.LoadResult.Page -> onLoadSuccess(type, value)
+                    is PagedSource.LoadResult.Error -> onLoadError(type, value.throwable)
                 }
             }
         }
     }
 
-    private fun onLoadSuccess(type: LoadType, value: LoadResult<K, V>) {
+    private fun onLoadSuccess(type: LoadType, value: PagedSource.LoadResult.Page<K, V>) {
         if (isDetached) return // abort!
 
         adjacentProvider.onPageResultResolution(type, value)
@@ -113,7 +109,6 @@ internal class Pager<K : Any, V : Any>(
     private fun onLoadError(type: LoadType, throwable: Throwable) {
         if (isDetached) return // abort!
 
-        // TODO: handle nesting
         val state = LoadState.Error(throwable)
         loadStateManager.setState(type, state)
     }
@@ -142,7 +137,7 @@ internal class Pager<K : Any, V : Any>(
 
     private fun schedulePrepend() {
         if (!canPrepend()) {
-            onLoadSuccess(LoadType.START, LoadResult.empty())
+            onLoadSuccess(LoadType.START, PagedSource.LoadResult.Page.empty())
             return
         }
 
@@ -169,7 +164,7 @@ internal class Pager<K : Any, V : Any>(
 
     private fun scheduleAppend() {
         if (!canAppend()) {
-            onLoadSuccess(LoadType.END, LoadResult.empty())
+            onLoadSuccess(LoadType.END, PagedSource.LoadResult.Page.empty())
             return
         }
 
@@ -210,7 +205,7 @@ internal class Pager<K : Any, V : Any>(
         /**
          * @return `true` if we need to fetch more
          */
-        fun onPageResult(type: LoadType, pageResult: LoadResult<*, V>): Boolean
+        fun onPageResult(type: LoadType, page: PagedSource.LoadResult.Page<*, V>): Boolean
 
         fun onStateChanged(type: LoadType, state: LoadState)
     }
@@ -228,7 +223,7 @@ internal class Pager<K : Any, V : Any>(
          * implementation of the AdjacentProvider to handle this (generally by ignoring this call if
          * dropping is supported).
          */
-        fun onPageResultResolution(type: LoadType, result: LoadResult<*, V>)
+        fun onPageResultResolution(type: LoadType, result: PagedSource.LoadResult.Page<*, V>)
     }
 
     internal class SimpleAdjacentProvider<V : Any> : AdjacentProvider<V> {
@@ -245,7 +240,10 @@ internal class Pager<K : Any, V : Any>(
         private var leadingUnloadedCount: Int = 0
         private var trailingUnloadedCount: Int = 0
 
-        override fun onPageResultResolution(type: LoadType, result: LoadResult<*, V>) {
+        override fun onPageResultResolution(
+            type: LoadType,
+            result: PagedSource.LoadResult.Page<*, V>
+        ) {
             if (result.data.isEmpty()) return
 
             if (type == LoadType.START) {
