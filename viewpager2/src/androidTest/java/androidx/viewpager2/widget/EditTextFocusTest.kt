@@ -35,6 +35,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.viewpager2.widget.ViewPager2.ORIENTATION_HORIZONTAL
 import org.hamcrest.CoreMatchers.allOf
+import org.junit.Assert.assertFalse
 import org.junit.Test
 import org.junit.runner.RunWith
 import java.util.concurrent.TimeUnit.SECONDS
@@ -81,25 +82,24 @@ class EditTextFocusTest : BaseTest() {
         test_notCurrentPage_requestFocus(true)
     }
 
-    /** Verifies we navigate to another page if focus is requested on its element. */
+    /** Verifies we don't navigate to another page if focus is requested on its element. */
     private fun test_notCurrentPage_requestFocus(wrapEditTextInViewGroup: Boolean) {
         val pageCount = 3
         setUpTest(pageCount, wrapEditTextInViewGroup).apply {
-            repeat(pageCount) {
+            (0 until pageCount).forEach { targetPage ->
                 // given
-                val currentItem = viewPager.currentItem
-                assertBasicState(currentItem, null)
-                val targetPage = (currentItem + 1) % pageCount
-                val editText = editTextForPage(
-                    viewPager.linearLayoutManager.findViewByPosition
-                        (targetPage)!!
-                )
+                viewPager.setCurrentItemSync(targetPage, false, 2, SECONDS)
+                assertBasicState(targetPage, null)
+
+                val otherPage = (targetPage + 1) % pageCount
+                val editText =
+                    editTextForPage(viewPager.linearLayoutManager.findViewByPosition(otherPage)!!)
 
                 // when
                 closeSoftKeyboard() // setCurrentItem ignored otherwise; TODO: check if on purpose
-                val latch = viewPager.addWaitForScrolledLatch(targetPage)
+                val latch = viewPager.addWaitForFirstScrollEventLatch()
                 runOnUiThreadSync { editText.requestFocus() }
-                latch.await(2, SECONDS)
+                assertFalse(latch.await(1, SECONDS)) // TODO: replace with Robolectric
 
                 // then
                 assertBasicState(targetPage, null)
