@@ -277,11 +277,13 @@ package androidx.core.app {
 
   public static class NotificationCompat.Action {
     ctor public NotificationCompat.Action(int, CharSequence!, android.app.PendingIntent!);
+    ctor public NotificationCompat.Action(androidx.core.graphics.drawable.IconCompat?, CharSequence?, android.app.PendingIntent?);
     method public android.app.PendingIntent! getActionIntent();
     method public boolean getAllowGeneratedReplies();
     method public androidx.core.app.RemoteInput![]! getDataOnlyRemoteInputs();
     method public android.os.Bundle! getExtras();
-    method public int getIcon();
+    method @Deprecated public int getIcon();
+    method public androidx.core.graphics.drawable.IconCompat? getIconCompat();
     method public androidx.core.app.RemoteInput![]! getRemoteInputs();
     method @androidx.core.app.NotificationCompat.Action.SemanticAction public int getSemanticAction();
     method public boolean getShowsUserInterface();
@@ -299,11 +301,12 @@ package androidx.core.app {
     field public static final int SEMANTIC_ACTION_THUMBS_UP = 8; // 0x8
     field public static final int SEMANTIC_ACTION_UNMUTE = 7; // 0x7
     field public android.app.PendingIntent! actionIntent;
-    field public int icon;
+    field @Deprecated public int icon;
     field public CharSequence! title;
   }
 
   public static final class NotificationCompat.Action.Builder {
+    ctor public NotificationCompat.Action.Builder(androidx.core.graphics.drawable.IconCompat?, CharSequence?, android.app.PendingIntent?);
     ctor public NotificationCompat.Action.Builder(int, CharSequence!, android.app.PendingIntent!);
     ctor public NotificationCompat.Action.Builder(androidx.core.app.NotificationCompat.Action!);
     method public androidx.core.app.NotificationCompat.Action.Builder! addExtras(android.os.Bundle!);
