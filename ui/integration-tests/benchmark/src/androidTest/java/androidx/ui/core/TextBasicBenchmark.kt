@@ -19,7 +19,6 @@ package androidx.ui.core
 import android.app.Activity
 import androidx.benchmark.junit4.BenchmarkRule
 import androidx.test.filters.LargeTest
-import androidx.test.filters.Suppress
 import androidx.test.rule.ActivityTestRule
 import androidx.ui.benchmark.measureDrawPerf
 import androidx.ui.benchmark.measureFirstCompose
@@ -34,7 +33,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
-@Suppress
 @LargeTest
 @RunWith(Parameterized::class)
 class TextBasicBenchmark(
@@ -57,7 +55,7 @@ class TextBasicBenchmark(
     companion object {
         @JvmStatic
         @Parameterized.Parameters(name = "length={0}")
-        fun initParameters(): Array<Any> = arrayOf(32, 128, 512)
+        fun initParameters(): Array<Any> = arrayOf(32, 512)
     }
 
     @Test
