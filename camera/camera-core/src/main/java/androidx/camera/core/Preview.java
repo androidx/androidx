@@ -20,6 +20,7 @@ import android.graphics.ImageFormat;
 import android.graphics.Rect;
 import android.graphics.SurfaceTexture;
 import android.os.Handler;
+import android.os.HandlerThread;
 import android.os.Looper;
 import android.util.Log;
 import android.util.Rational;
@@ -82,7 +83,10 @@ public class Preview extends UseCase {
     private static final String TAG = "Preview";
     private static final String CONFLICTING_SURFACE_API_ERROR_MESSAGE =
             "PreviewSurfaceCallback cannot be used with OnPreviewOutputUpdateListener.";
-    private final Handler mMainHandler = new Handler(Looper.getMainLooper());
+    @Nullable
+    private HandlerThread mProcessingPreviewThread;
+    @Nullable
+    private Handler mProcessingPreviewHandler;
 
     private final PreviewConfig.Builder mUseCaseConfigBuilder;
     @Nullable
@@ -116,13 +120,20 @@ public class Preview extends UseCase {
         final CaptureProcessor captureProcessor = config.getCaptureProcessor(null);
         if (captureProcessor != null) {
             CaptureStage captureStage = new CaptureStage.DefaultCaptureStage();
+            // TODO: To allow user to use an Executor for the processing.
+
+            if (mProcessingPreviewHandler == null) {
+                mProcessingPreviewThread = new HandlerThread("ProcessingSurfaceTexture");
+                mProcessingPreviewThread.start();
+                mProcessingPreviewHandler = new Handler(mProcessingPreviewThread.getLooper());
+            }
 
             ProcessingSurfaceTexture processingSurfaceTexture =
                     new ProcessingSurfaceTexture(
                             resolution.getWidth(),
                             resolution.getHeight(),
                             ImageFormat.YUV_420_888,
-                            config.getCallbackHandler(),
+                            mProcessingPreviewHandler,
                             captureStage,
                             captureProcessor);
 
@@ -181,6 +192,14 @@ public class Preview extends UseCase {
         mSurfaceTextureHolder = null;
         if (surfaceTextureHolder != null) {
             surfaceTextureHolder.release();
+        }
+
+        // The handler no longer used by the ProcessingSurfaceTexture, we can close the
+        // handlerTread after the ProcessingSurfaceTexture was released.
+        if (mProcessingPreviewHandler != null) {
+            mProcessingPreviewThread.quitSafely();
+            mProcessingPreviewThread = null;
+            mProcessingPreviewHandler = null;
         }
     }
 
