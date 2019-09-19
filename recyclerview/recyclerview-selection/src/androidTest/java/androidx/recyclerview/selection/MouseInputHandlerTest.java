@@ -51,15 +51,15 @@ import org.junit.runner.RunWith;
 @SmallTest
 public final class MouseInputHandlerTest {
 
-    private MouseInputHandler mInputDelegate;
+    private MouseInputHandler<String> mInputDelegate;
 
     private TestOnContextClickListener mMouseCallbacks;
-    private TestOnItemActivatedListener mActivationCallbacks;
-    private TestFocusDelegate mFocusCallbacks;
+    private TestOnItemActivatedListener<String> mActivationCallbacks;
+    private TestFocusDelegate<String> mFocusCallbacks;
 
     private TestItemDetailsLookup mDetailsLookup;
     private SelectionProbe mSelection;
-    private SelectionTracker mSelectionMgr;
+    private SelectionTracker<String> mSelectionMgr;
 
     private TestEvents.Builder mEvent;
 

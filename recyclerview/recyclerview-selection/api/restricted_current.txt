@@ -95,7 +95,7 @@ package androidx.recyclerview.selection {
 
   public abstract class SelectionTracker<K> {
     ctor public SelectionTracker();
-    method public abstract void addObserver(androidx.recyclerview.selection.SelectionTracker.SelectionObserver!);
+    method public abstract void addObserver(androidx.recyclerview.selection.SelectionTracker.SelectionObserver<K!>);
     method public abstract boolean clearSelection();
     method public abstract void copySelection(androidx.recyclerview.selection.MutableSelection<K!>);
     method public abstract boolean deselect(K);

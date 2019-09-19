@@ -50,8 +50,8 @@ public class DefaultSelectionTrackerTest {
 
     private List<String> mItems;
     private Set<String> mIgnored;
-    private TestAdapter mAdapter;
-    private SelectionPredicate mSelectionPredicate;
+    private TestAdapter<String> mAdapter;
+    private SelectionPredicate<String> mSelectionPredicate;
     private ItemKeyProvider<String> mKeyProvider;
     private DefaultSelectionTracker<String> mTracker;
     private TestSelectionObserver<String> mListener;
@@ -83,7 +83,7 @@ public class DefaultSelectionTrackerTest {
             }
         };
 
-        mKeyProvider = new TestItemKeyProvider<String>(ItemKeyProvider.SCOPE_MAPPED, mAdapter);
+        mKeyProvider = new TestItemKeyProvider<>(ItemKeyProvider.SCOPE_MAPPED, mAdapter);
 
         mTracker = new DefaultSelectionTracker<>(
                 SELECTION_ID,

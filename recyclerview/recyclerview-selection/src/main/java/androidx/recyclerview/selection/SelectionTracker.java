@@ -110,7 +110,7 @@ public abstract class SelectionTracker<K> {
      * may use an observer to control the enabled status of menu items,
      * or to initiate {@link android.view.ActionMode}.
      */
-    public abstract void addObserver(SelectionObserver observer);
+    public abstract void addObserver(@NonNull SelectionObserver<K> observer);
 
     /** @return true if has a selection */
     public abstract boolean hasSelection();
@@ -703,7 +703,7 @@ public abstract class SelectionTracker<K> {
 
             // GestureRouter is responsible for routing GestureDetector events
             // to tool-type specific handlers.
-            GestureRouter<MotionInputHandler> gestureRouter = new GestureRouter<>();
+            GestureRouter<MotionInputHandler<K>> gestureRouter = new GestureRouter<>();
             GestureDetector gestureDetector = new GestureDetector(mContext, gestureRouter);
 
             // GestureSelectionHelper provides logic that interprets a combination
@@ -758,7 +758,7 @@ public abstract class SelectionTracker<K> {
 
             // Provides high level glue for binding touch events
             // and gestures to selection framework.
-            TouchInputHandler<K> touchHandler = new TouchInputHandler<K>(
+            TouchInputHandler<K> touchHandler = new TouchInputHandler<>(
                     tracker,
                     mKeyProvider,
                     mDetailsLookup,
@@ -800,7 +800,7 @@ public abstract class SelectionTracker<K> {
                 gestureRouter.register(toolType, mouseHandler);
             }
 
-            @Nullable BandSelectionHelper bandHelper = null;
+            @Nullable BandSelectionHelper<K> bandHelper = null;
 
             // Band selection not supported in single select mode, or when key access
             // is limited to anything less than the entire corpus.

@@ -58,7 +58,7 @@ public class BandSelectionHelperTest {
     public void setup() throws Exception {
         mItems = TestData.createStringData(10);
         mIsActive = false;
-        mAdapter = new TestAdapter<String>();
+        mAdapter = new TestAdapter<>();
         mAdapter.updateTestModelIds(mItems);
         mBandHost = new TestBandHost();
         mBandPredicate = new TestBandPredicate();
@@ -66,7 +66,7 @@ public class BandSelectionHelperTest {
                 new TestItemKeyProvider<>(ItemKeyProvider.SCOPE_MAPPED, mAdapter);
         OperationMonitor operationMonitor = new OperationMonitor();
 
-        SelectionTracker<String> helper = new DefaultSelectionTracker<String>(
+        SelectionTracker<String> helper = new DefaultSelectionTracker<>(
                 "band-selection-test",
                 keyProvider,
                 SelectionPredicates.createSelectAnything(),

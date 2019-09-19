@@ -57,7 +57,7 @@ public class DefaultSelectionTracker<K> extends SelectionTracker<K> {
     private static final String EXTRA_SELECTION_PREFIX = "androidx.recyclerview.selection";
 
     private final Selection<K> mSelection = new Selection<>();
-    private final List<SelectionObserver> mObservers = new ArrayList<>(1);
+    private final List<SelectionObserver<K>> mObservers = new ArrayList<>(1);
     private final ItemKeyProvider<K> mKeyProvider;
     private final SelectionPredicate<K> mSelectionPredicate;
     private final StorageStrategy<K> mStorage;
@@ -79,8 +79,8 @@ public class DefaultSelectionTracker<K> extends SelectionTracker<K> {
      */
     public DefaultSelectionTracker(
             @NonNull String selectionId,
-            @NonNull ItemKeyProvider keyProvider,
-            @NonNull SelectionPredicate selectionPredicate,
+            @NonNull ItemKeyProvider<K> keyProvider,
+            @NonNull SelectionPredicate<K> selectionPredicate,
             @NonNull StorageStrategy<K> storage) {
 
         checkArgument(selectionId != null);
@@ -102,7 +102,7 @@ public class DefaultSelectionTracker<K> extends SelectionTracker<K> {
     }
 
     @Override
-    public void addObserver(@NonNull SelectionObserver callback) {
+    public void addObserver(@NonNull SelectionObserver<K> callback) {
         checkArgument(callback != null);
         mObservers.add(callback);
     }
@@ -113,12 +113,12 @@ public class DefaultSelectionTracker<K> extends SelectionTracker<K> {
     }
 
     @Override
-    public Selection getSelection() {
+    public Selection<K> getSelection() {
         return mSelection;
     }
 
     @Override
-    public void copySelection(@NonNull MutableSelection dest) {
+    public void copySelection(@NonNull MutableSelection<K> dest) {
         dest.copyFrom(mSelection);
     }
 
@@ -128,7 +128,7 @@ public class DefaultSelectionTracker<K> extends SelectionTracker<K> {
     }
 
     @Override
-    protected void restoreSelection(@NonNull Selection other) {
+    protected void restoreSelection(@NonNull Selection<K> other) {
         checkArgument(other != null);
         setItemsSelectedQuietly(other.mSelection, true);
         // NOTE: We intentionally don't restore provisional selection. It's provisional.
@@ -172,7 +172,7 @@ public class DefaultSelectionTracker<K> extends SelectionTracker<K> {
             return;
         }
 
-        Selection prev = clearSelectionQuietly();
+        Selection<K> prev = clearSelectionQuietly();
         notifySelectionCleared(prev);
         notifySelectionChanged();
     }
@@ -182,10 +182,10 @@ public class DefaultSelectionTracker<K> extends SelectionTracker<K> {
      * Returns items in previous selection. Callers are responsible for notifying
      * listeners about changes.
      */
-    private Selection clearSelectionQuietly() {
+    private Selection<K> clearSelectionQuietly() {
         mRange = null;
 
-        MutableSelection prevSelection = new MutableSelection();
+        MutableSelection<K> prevSelection = new MutableSelection();
         if (hasSelection()) {
             copySelection(prevSelection);
             mSelection.clear();
@@ -209,7 +209,7 @@ public class DefaultSelectionTracker<K> extends SelectionTracker<K> {
 
         // Enforce single selection policy.
         if (mSingleSelect && hasSelection()) {
-            Selection prev = clearSelectionQuietly();
+            Selection<K> prev = clearSelectionQuietly();
             notifySelectionCleared(prev);
         }
 
