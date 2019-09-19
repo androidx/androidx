@@ -1013,14 +1013,7 @@ public final class ViewPager2 extends ViewGroup {
         public boolean requestChildRectangleOnScreen(@NonNull RecyclerView parent,
                 @NonNull View child, @NonNull Rect rect, boolean immediate,
                 boolean focusedChildVisible) {
-            int position = getPosition(child);
-            if (getCurrentItem() == position) {
-                return false;
-            }
-
-            boolean smoothScroll = !immediate;
-            setCurrentItem(position, smoothScroll);
-            return smoothScroll;
+            return false; // users should use setCurrentItem instead
         }
     }
 
