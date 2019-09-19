@@ -32,6 +32,7 @@ import android.util.SparseArray;
 import android.widget.RemoteViews;
 
 import androidx.annotation.RestrictTo;
+import androidx.core.graphics.drawable.IconCompat;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -260,8 +261,16 @@ class NotificationCompatBuilder implements NotificationBuilderWithBuilderAccesso
 
     private void addAction(NotificationCompat.Action action) {
         if (Build.VERSION.SDK_INT >= 20) {
-            Notification.Action.Builder actionBuilder = new Notification.Action.Builder(
-                    action.getIcon(), action.getTitle(), action.getActionIntent());
+            Notification.Action.Builder actionBuilder;
+            if (Build.VERSION.SDK_INT >= 23) {
+                IconCompat iconCompat = action.getIconCompat();
+                actionBuilder = new Notification.Action.Builder(
+                        iconCompat == null ? null : iconCompat.toIcon(), action.getTitle(),
+                                action.getActionIntent());
+            } else {
+                actionBuilder = new Notification.Action.Builder(
+                        action.getIcon(), action.getTitle(), action.getActionIntent());
+            }
             if (action.getRemoteInputs() != null) {
                 for (android.app.RemoteInput remoteInput : RemoteInput.fromCompat(
                         action.getRemoteInputs())) {

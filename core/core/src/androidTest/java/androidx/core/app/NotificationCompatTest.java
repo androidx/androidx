@@ -173,6 +173,17 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
     }
 
     @Test
+    public void testNotificationActionBuilder_copiesIcon() {
+        NotificationCompat.Action a = new NotificationCompat.Action.Builder(
+                R.drawable.notification_action_background, "title", null).build();
+        assertEquals(R.drawable.notification_action_background, a.getIconCompat().getResId());
+
+        NotificationCompat.Action aCopy = new NotificationCompat.Action.Builder(a).build();
+
+        assertEquals(R.drawable.notification_action_background, aCopy.getIconCompat().getResId());
+    }
+
+    @Test
     public void testNotificationActionBuilder_copiesRemoteInputs() throws Throwable {
         NotificationCompat.Action a = newActionBuilder()
                 .addRemoteInput(new RemoteInput("a", "b", null, false,
@@ -246,6 +257,20 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
                 .setShowsUserInterface(false).build();
 
         assertFalse(action.getShowsUserInterface());
+    }
+
+    @SdkSuppress(minSdkVersion = 20)
+    @Test
+    public void testGetActionCompatFromAction_sameIconResourceId() {
+        NotificationCompat.Action action = new NotificationCompat.Action.Builder(
+                R.drawable.notification_bg, "title", null).build();
+        assertEquals(R.drawable.notification_bg, action.getIconCompat().getResId());
+        Notification notification = newNotificationBuilder().addAction(action).build();
+
+        NotificationCompat.Action result =
+                NotificationCompat.getActionCompatFromAction(notification.actions[0]);
+
+        assertEquals(R.drawable.notification_bg, result.getIconCompat().getResId());
     }
 
     @SdkSuppress(minSdkVersion = 20)
@@ -906,14 +931,14 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
     @Test
     public void action_builder_hasDefault() {
         NotificationCompat.Action action =
-                new NotificationCompat.Action.Builder(0, "Test Title", null).build();
+                newActionBuilder().build();
         assertEquals(NotificationCompat.Action.SEMANTIC_ACTION_NONE, action.getSemanticAction());
     }
 
     @Test
     public void action_builder_setSemanticAction() {
         NotificationCompat.Action action =
-                new NotificationCompat.Action.Builder(0, "Test Title", null)
+                newActionBuilder()
                         .setSemanticAction(NotificationCompat.Action.SEMANTIC_ACTION_REPLY)
                         .build();
         assertEquals(NotificationCompat.Action.SEMANTIC_ACTION_REPLY, action.getSemanticAction());
@@ -923,7 +948,7 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
     @SdkSuppress(minSdkVersion = 20)
     public void action_semanticAction_toAndFromNotification() {
         NotificationCompat.Action action =
-                new NotificationCompat.Action.Builder(0, "Test Title", null)
+                newActionBuilder()
                         .setSemanticAction(NotificationCompat.Action.SEMANTIC_ACTION_REPLY)
                         .build();
         Notification notification = newNotificationBuilder().addAction(action).build();
@@ -933,7 +958,7 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
     }
 
     private static final NotificationCompat.Action TEST_INVISIBLE_ACTION =
-            new NotificationCompat.Action.Builder(0, "Test Title", null)
+            newActionBuilder()
                     .setSemanticAction(NotificationCompat.Action.SEMANTIC_ACTION_MUTE)
                     .setShowsUserInterface(false)
                     .build();
@@ -969,9 +994,7 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
 
     @Test
     public void action_builder_defaultNotContextual() {
-        NotificationCompat.Action action =
-                new NotificationCompat.Action.Builder(0, "Test Title", null)
-                        .build();
+        NotificationCompat.Action action = newActionBuilder().build();
         assertFalse(action.isContextual());
     }
 
@@ -989,9 +1012,7 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
 
     @Test
     public void action_builder_contextual_invalidIntentCausesNpe() {
-        NotificationCompat.Action.Builder builder =
-                new NotificationCompat.Action.Builder(0, "Test Title", null)
-                        .setContextual(true);
+        NotificationCompat.Action.Builder builder = newActionBuilder().setContextual(true);
         try {
             builder.build();
             fail("Creating a contextual Action with a null PendingIntent should cause a "
@@ -1008,8 +1029,8 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
         // Without a PendingIntent the Action.Builder class throws an NPE when building a contextual
         // action.
         PendingIntent pendingIntent = PendingIntent.getActivity(mContext, 0, new Intent(), 0);
-        NotificationCompat.Action action =
-                new NotificationCompat.Action.Builder(0, "Test Title", pendingIntent)
+        NotificationCompat.Action action = new NotificationCompat.Action.Builder(
+                R.drawable.notification_bg, "Test Title", pendingIntent)
                         .setContextual(true)
                         .build();
         Notification notification = newNotificationBuilder().addAction(action).build();

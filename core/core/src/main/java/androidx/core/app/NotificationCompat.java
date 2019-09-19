@@ -36,6 +36,7 @@ import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.Icon;
 import android.media.AudioAttributes;
 import android.media.AudioManager;
 import android.net.Uri;
@@ -1970,15 +1971,31 @@ public class NotificationCompat {
         }
 
         /**
+         * Create a bitmap using the given icon together with a color filter created from the given
+         * color.
+         *
          * @hide
          */
         @RestrictTo(LIBRARY_GROUP_PREFIX)
         public Bitmap createColoredBitmap(int iconId, int color) {
-            return createColoredBitmap(iconId, color, 0);
+            return createColoredBitmap(iconId, color, 0 /* size */);
+        }
+
+        /**
+         * Create a bitmap using the given icon together with a color filter created from the given
+         * color.
+         */
+        Bitmap createColoredBitmap(IconCompat icon, int color) {
+            return createColoredBitmap(icon, color, 0 /* size */);
         }
 
         private Bitmap createColoredBitmap(int iconId, int color, int size) {
-            Drawable drawable = mBuilder.mContext.getResources().getDrawable(iconId);
+            return createColoredBitmap(IconCompat.createWithResource(mBuilder.mContext, iconId),
+                    color, size);
+        }
+
+        private Bitmap createColoredBitmap(IconCompat icon, int color, int size) {
+            Drawable drawable = icon.loadDrawable(mBuilder.mContext);
             int width = size == 0 ? drawable.getIntrinsicWidth() : size;
             int height = size == 0 ? drawable.getIntrinsicHeight() : size;
             Bitmap resultBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
@@ -3138,7 +3155,7 @@ public class NotificationCompat {
                     tombstone ? R.layout.notification_action_tombstone
                             : R.layout.notification_action);
             button.setImageViewBitmap(R.id.action_image,
-                    createColoredBitmap(action.getIcon(), mBuilder.mContext.getResources()
+                    createColoredBitmap(action.getIconCompat(), mBuilder.mContext.getResources()
                             .getColor(R.color.notification_action_color_filter)));
             button.setTextViewText(R.id.action_text, action.title);
             if (!tombstone) {
@@ -3227,6 +3244,7 @@ public class NotificationCompat {
         static final String EXTRA_SEMANTIC_ACTION = "android.support.action.semanticAction";
 
         final Bundle mExtras;
+        @Nullable private IconCompat mIcon;
         private final RemoteInput[] mRemoteInputs;
 
         /**
@@ -3249,7 +3267,10 @@ public class NotificationCompat {
 
         /**
          * Small icon representing the action.
+         *
+         * @deprecated Use {@link #getIconCompat()} instead.
          */
+        @Deprecated
         public int icon;
         /**
          * Title of the action.
@@ -3262,15 +3283,38 @@ public class NotificationCompat {
         public PendingIntent actionIntent;
 
         public Action(int icon, CharSequence title, PendingIntent intent) {
+            this(icon == 0 ? null : IconCompat.createWithResource(null, "", icon), title, intent);
+        }
+
+        /**
+         * <strong>Note:</strong> For devices running an Android version strictly lower than API
+         * level 23 this constructor only supports resource-ID based IconCompat objects.
+         */
+        public Action(@Nullable IconCompat icon, @Nullable CharSequence title,
+                @Nullable PendingIntent intent) {
             this(icon, title, intent, new Bundle(), null, null, true, SEMANTIC_ACTION_NONE, true,
-                false /* isContextual */);
+                    false /* isContextual */);
         }
 
         Action(int icon, CharSequence title, PendingIntent intent, Bundle extras,
                 RemoteInput[] remoteInputs, RemoteInput[] dataOnlyRemoteInputs,
                 boolean allowGeneratedReplies, @SemanticAction int semanticAction,
                 boolean showsUserInterface, boolean isContextual) {
-            this.icon = icon;
+            this(icon == 0 ? null : IconCompat.createWithResource(null, "", icon), title,
+                    intent, extras, remoteInputs, dataOnlyRemoteInputs, allowGeneratedReplies,
+                    semanticAction, showsUserInterface, isContextual);
+        }
+
+        // Package private access to avoid adding a SyntheticAccessor for the Action.Builder class.
+        Action(@Nullable IconCompat icon, CharSequence title, PendingIntent intent,
+                Bundle extras,
+                RemoteInput[] remoteInputs, RemoteInput[] dataOnlyRemoteInputs,
+                boolean allowGeneratedReplies, @SemanticAction int semanticAction,
+                boolean showsUserInterface, boolean isContextual) {
+            this.mIcon = icon;
+            if (icon != null && icon.getType() == Icon.TYPE_RESOURCE) {
+                this.icon = icon.getResId();
+            }
             this.title = NotificationCompat.Builder.limitCharSequenceLength(title);
             this.actionIntent = intent;
             this.mExtras = extras != null ? extras : new Bundle();
@@ -3282,8 +3326,22 @@ public class NotificationCompat {
             this.mIsContextual = isContextual;
         }
 
+        /**
+         * @deprecated use {@link #getIconCompat()} instead.
+         */
+        @Deprecated
         public int getIcon() {
             return icon;
+        }
+
+        /**
+         * Return the icon associated with this Action.
+         */
+        public @Nullable IconCompat getIconCompat() {
+            if (mIcon == null && icon != 0) {
+                mIcon = IconCompat.createWithResource(null, "", icon);
+            }
+            return mIcon;
         }
 
         public CharSequence getTitle() {
@@ -3364,7 +3422,7 @@ public class NotificationCompat {
          * Builder class for {@link Action} objects.
          */
         public static final class Builder {
-            private final int mIcon;
+            private final IconCompat mIcon;
             private final CharSequence mTitle;
             private final PendingIntent mIntent;
             private boolean mAllowGeneratedReplies = true;
@@ -3376,12 +3434,33 @@ public class NotificationCompat {
 
             /**
              * Construct a new builder for {@link Action} object.
+             *
+             * <p><strong>Note:</strong> For devices running an Android version strictly lower than
+             * API level 23 this constructor only supports resource-ID based IconCompat objects.
+             * @param icon icon to show for this action
+             * @param title the title of the action
+             * @param intent the {@link PendingIntent} to fire when users trigger this action
+             */
+            public Builder(@Nullable IconCompat icon, @Nullable CharSequence title,
+                    @Nullable PendingIntent intent) {
+                this(icon, title, intent, new Bundle(), null, true, SEMANTIC_ACTION_NONE, true,
+                        false /* isContextual */);
+            }
+
+            /**
+             * Construct a new builder for {@link Action} object.
              * @param icon icon to show for this action
              * @param title the title of the action
              * @param intent the {@link PendingIntent} to fire when users trigger this action
              */
             public Builder(int icon, CharSequence title, PendingIntent intent) {
-                this(icon, title, intent, new Bundle(), null, true, SEMANTIC_ACTION_NONE, true,
+                this(icon == 0 ? null : IconCompat.createWithResource(null, "", icon), title,
+                        intent,
+                        new Bundle(),
+                        null,
+                        true,
+                        SEMANTIC_ACTION_NONE,
+                        true,
                         false /* isContextual */);
             }
 
@@ -3391,13 +3470,15 @@ public class NotificationCompat {
              * @param action the action to read fields from.
              */
             public Builder(Action action) {
-                this(action.icon, action.title, action.actionIntent, new Bundle(action.mExtras),
+                this(action.getIconCompat(), action.title, action.actionIntent,
+                        new Bundle(action.mExtras),
                         action.getRemoteInputs(), action.getAllowGeneratedReplies(),
                         action.getSemanticAction(), action.mShowsUserInterface,
                         action.isContextual());
             }
 
-            private Builder(int icon, CharSequence title, PendingIntent intent, Bundle extras,
+            private Builder(@Nullable IconCompat icon, CharSequence title, PendingIntent intent,
+                    Bundle extras,
                     RemoteInput[] remoteInputs, boolean allowGeneratedReplies,
                     @SemanticAction int semanticAction, boolean showsUserInterface,
                     boolean isContextual) {
@@ -4172,9 +4253,17 @@ public class NotificationCompat {
 
         @RequiresApi(20)
         private static Notification.Action getActionFromActionCompat(Action actionCompat) {
-            Notification.Action.Builder actionBuilder = new Notification.Action.Builder(
-                    actionCompat.getIcon(), actionCompat.getTitle(),
-                    actionCompat.getActionIntent());
+            Notification.Action.Builder actionBuilder;
+            if (Build.VERSION.SDK_INT >= 23) {
+                IconCompat iconCompat = actionCompat.getIconCompat();
+                actionBuilder = new Notification.Action.Builder(
+                        iconCompat == null ? null : iconCompat.toIcon(), actionCompat.getTitle(),
+                        actionCompat.getActionIntent());
+            } else {
+                actionBuilder = new Notification.Action.Builder(
+                        actionCompat.getIcon(), actionCompat.getTitle(),
+                        actionCompat.getActionIntent());
+            }
             Bundle actionExtras;
             if (actionCompat.getExtras() != null) {
                 actionExtras = new Bundle(actionCompat.getExtras());
