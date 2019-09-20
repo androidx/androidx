@@ -19,7 +19,7 @@ package androidx.fragment.app
 import androidx.fragment.app.test.FragmentTestActivity
 import androidx.test.annotation.UiThreadTest
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.filters.LargeTest
+import androidx.test.filters.MediumTest
 import androidx.test.rule.ActivityTestRule
 import androidx.testutils.runOnUiThreadRethrow
 import com.google.common.truth.Truth.assertWithMessage
@@ -29,7 +29,7 @@ import org.junit.runner.RunWith
 
 @Suppress("DEPRECATION")
 @RunWith(AndroidJUnit4::class)
-@LargeTest
+@MediumTest
 class UserVisibleHintTest {
 
     @get:Rule
@@ -62,6 +62,7 @@ class UserVisibleHintTest {
             .isSameInstanceAs(fragment)
     }
 
+    @UiThreadTest
     @Test
     fun startOrderingAfterSave() {
         var firstStartedFragment: Fragment? = null
