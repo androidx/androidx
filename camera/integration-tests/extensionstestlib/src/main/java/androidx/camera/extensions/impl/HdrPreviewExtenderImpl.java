@@ -20,11 +20,14 @@ import android.content.Context;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.TotalCaptureResult;
 import android.media.Image;
+import android.util.Pair;
 import android.util.Size;
 import android.view.Surface;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+
+import java.util.List;
 
 /**
  * Implementation for HDR preview use case.
@@ -67,6 +70,11 @@ public final class HdrPreviewExtenderImpl implements PreviewExtenderImpl {
     @Override
     public ProcessorImpl getProcessor() {
         return mProcessor;
+    }
+
+    @Override
+    public List<Pair<Integer, Size[]>> getSupportedResolutions() {
+        return null;
     }
 
     private PreviewImageProcessorImpl mProcessor = new PreviewImageProcessorImpl() {

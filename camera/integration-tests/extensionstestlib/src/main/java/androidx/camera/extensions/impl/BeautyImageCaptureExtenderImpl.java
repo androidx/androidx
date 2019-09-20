@@ -16,9 +16,11 @@
 package androidx.camera.extensions.impl;
 
 import android.content.Context;
+import android.graphics.ImageFormat;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.TotalCaptureResult;
+import android.hardware.camera2.params.StreamConfigurationMap;
 import android.media.Image;
 import android.media.ImageWriter;
 import android.os.Build;
@@ -45,12 +47,14 @@ public final class BeautyImageCaptureExtenderImpl implements ImageCaptureExtende
     private static final String TAG = "BeautyICExtender";
     private static final int DEFAULT_STAGE_ID = 0;
     private static final int SESSION_STAGE_ID = 101;
+    private CameraCharacteristics mCameraCharacteristics;
 
     public BeautyImageCaptureExtenderImpl() {
     }
 
     @Override
     public void init(String cameraId, CameraCharacteristics cameraCharacteristics) {
+        mCameraCharacteristics = cameraCharacteristics;
     }
 
     @Override
@@ -175,5 +179,31 @@ public final class BeautyImageCaptureExtenderImpl implements ImageCaptureExtende
     @Override
     public int getMaxCaptureStage() {
         return 3;
+    }
+
+    @Override
+    public List<Pair<Integer, Size[]>> getSupportedResolutions() {
+        List<Pair<Integer, Size[]>> formatResolutionsPairList = new ArrayList<>();
+
+        StreamConfigurationMap map =
+                mCameraCharacteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
+
+        if (map != null) {
+            // The sample implementation only retrieves originally supported resolutions from
+            // CameraCharacteristics for JPEG and YUV_420_888 formats to return.
+            Size[] outputSizes = map.getOutputSizes(ImageFormat.JPEG);
+
+            if (outputSizes != null) {
+                formatResolutionsPairList.add(Pair.create(ImageFormat.JPEG, outputSizes));
+            }
+
+            outputSizes = map.getOutputSizes(ImageFormat.YUV_420_888);
+
+            if (outputSizes != null) {
+                formatResolutionsPairList.add(Pair.create(ImageFormat.YUV_420_888, outputSizes));
+            }
+        }
+
+        return formatResolutionsPairList;
     }
 }

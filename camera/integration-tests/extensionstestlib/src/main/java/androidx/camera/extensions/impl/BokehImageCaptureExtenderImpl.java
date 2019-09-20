@@ -178,4 +178,9 @@ public final class BokehImageCaptureExtenderImpl implements ImageCaptureExtender
         return 3;
     }
 
+    @Override
+    public List<Pair<Integer, Size[]>> getSupportedResolutions() {
+        return null;
+    }
+
 }
