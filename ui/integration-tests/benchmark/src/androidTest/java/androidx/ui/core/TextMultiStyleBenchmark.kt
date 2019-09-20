@@ -40,8 +40,7 @@ import org.junit.runners.Parameterized
 @RunWith(Parameterized::class)
 class TextMultiStyleBenchmark(
     private val textLength: Int,
-    private val styleCount: Int,
-    private val hasMetricAffectingStyle: Boolean
+    private val styleCount: Int
 ) {
     @get:Rule
     val benchmarkRule = BenchmarkRule()
@@ -59,11 +58,10 @@ class TextMultiStyleBenchmark(
 
     companion object {
         @JvmStatic
-        @Parameterized.Parameters(name = "length={0} styleCount={1} hasMetricAffectingStyle={2}")
+        @Parameterized.Parameters(name = "length={0} styleCount={1}")
         fun initParameters() = cartesian(
-                arrayOf(8, 64, 512),
-                arrayOf(8, 64, 512),
-                arrayOf(true, false)
+                arrayOf(32, 512),
+                arrayOf(32, 512)
             )
     }
 
@@ -76,7 +74,6 @@ class TextMultiStyleBenchmark(
                     activity,
                     textLength,
                     styleCount,
-                    hasMetricAffectingStyle,
                     textGenerator
                 )
             )
@@ -92,7 +89,6 @@ class TextMultiStyleBenchmark(
                     activity,
                     textLength,
                     styleCount,
-                    hasMetricAffectingStyle,
                     textGenerator
                 )
             )
@@ -108,7 +104,6 @@ class TextMultiStyleBenchmark(
                     activity,
                     textLength,
                     styleCount,
-                    hasMetricAffectingStyle,
                     textGenerator
                 )
             )
@@ -124,7 +119,6 @@ class TextMultiStyleBenchmark(
                     activity,
                     textLength,
                     styleCount,
-                    hasMetricAffectingStyle,
                     textGenerator
                 )
             )
@@ -140,7 +134,6 @@ class TextMultiStyleBenchmark(
                     activity,
                     textLength,
                     styleCount,
-                    hasMetricAffectingStyle,
                     textGenerator
                 )
             )
@@ -156,7 +149,6 @@ class TextMultiStyleBenchmark(
                     activity,
                     textLength,
                     styleCount,
-                    hasMetricAffectingStyle,
                     textGenerator
                 )
             )

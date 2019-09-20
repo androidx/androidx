@@ -30,7 +30,6 @@ import androidx.ui.text.TextStyle
 class TextWithSpanTestCase(
     activity: Activity,
     private val textLength: Int,
-    private val hasMetricAffectingStyle: Boolean,
     private val randomTextGenerator: RandomTextGenerator
 ) : ComposeTestCase(activity) {
 
@@ -39,7 +38,7 @@ class TextWithSpanTestCase(
     override fun setupContentInternal(activity: Activity): ViewGroup {
         textPieces = randomTextGenerator.nextStyledWordList(
             length = textLength,
-            hasMetricAffectingStyle = hasMetricAffectingStyle
+            hasMetricAffectingStyle = true
         )
         return super.setupContentInternal(activity)
     }

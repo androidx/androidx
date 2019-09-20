@@ -39,8 +39,7 @@ import org.junit.runners.Parameterized
 @LargeTest
 @RunWith(Parameterized::class)
 class TextWithSpanBenchmark(
-    private val textLength: Int,
-    private val hasMetricAffectingStyle: Boolean
+    private val textLength: Int
 ) {
     @get:Rule
     val benchmarkRule = BenchmarkRule()
@@ -58,10 +57,9 @@ class TextWithSpanBenchmark(
 
     companion object {
         @JvmStatic
-        @Parameterized.Parameters(name = "length={0} hasMetricAffectingStyle={1}")
+        @Parameterized.Parameters(name = "length={0}")
         fun initParameters() = cartesian(
-            arrayOf(8, 64, 512),
-            arrayOf(true, false)
+            arrayOf(32, 512)
         )
     }
 
@@ -73,7 +71,6 @@ class TextWithSpanBenchmark(
                 TextWithSpanTestCase(
                     activity,
                     textLength,
-                    hasMetricAffectingStyle,
                     textGenerator
                 )
             )
@@ -88,7 +85,6 @@ class TextWithSpanBenchmark(
                 TextWithSpanTestCase(
                     activity,
                     textLength,
-                    hasMetricAffectingStyle,
                     textGenerator
                 )
             )
@@ -103,7 +99,6 @@ class TextWithSpanBenchmark(
                 TextWithSpanTestCase(
                     activity,
                     textLength,
-                    hasMetricAffectingStyle,
                     textGenerator
                 )
             )
@@ -118,7 +113,6 @@ class TextWithSpanBenchmark(
                 TextWithSpanTestCase(
                     activity,
                     textLength,
-                    hasMetricAffectingStyle,
                     textGenerator
                 )
             )
@@ -133,7 +127,6 @@ class TextWithSpanBenchmark(
                 TextWithSpanTestCase(
                     activity,
                     textLength,
-                    hasMetricAffectingStyle,
                     textGenerator
                 )
             )
@@ -148,7 +141,6 @@ class TextWithSpanBenchmark(
                 TextWithSpanTestCase(
                     activity,
                     textLength,
-                    hasMetricAffectingStyle,
                     textGenerator
                 )
             )

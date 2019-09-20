@@ -32,7 +32,6 @@ class TextMultiStyleTestCase(
     activity: Activity,
     private val textLength: Int,
     private val styleCount: Int,
-    private val hasMetricAffectingStyle: Boolean,
     private val randomTextGenerator: RandomTextGenerator
 ) : ComposeTestCase(activity) {
 
@@ -42,7 +41,7 @@ class TextMultiStyleTestCase(
         text = randomTextGenerator.nextAnnotatedString(
             length = textLength,
             styleCount = styleCount,
-            hasMetricAffectingStyle = hasMetricAffectingStyle
+            hasMetricAffectingStyle = true
         )
         return super.setupContentInternal(activity)
     }
