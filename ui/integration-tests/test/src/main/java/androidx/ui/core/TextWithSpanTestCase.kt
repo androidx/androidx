@@ -20,7 +20,9 @@ import android.app.Activity
 import android.view.ViewGroup
 import androidx.compose.composer
 import androidx.ui.graphics.Color
-import androidx.ui.material.MaterialTheme
+import androidx.ui.layout.ConstrainedBox
+import androidx.ui.layout.DpConstraints
+import androidx.ui.layout.Wrap
 import androidx.ui.test.ComposeTestCase
 import androidx.ui.test.RandomTextGenerator
 import androidx.ui.text.TextStyle
@@ -43,10 +45,12 @@ class TextWithSpanTestCase(
     }
 
     override fun setComposeContent(activity: Activity) = activity.setContent {
-        MaterialTheme {
-            Text(style = TextStyle(color = Color.Black, fontSize = 14.sp)) {
-                textPieces.forEach { (text, style) ->
-                    Span(text = text, style = style)
+        Wrap {
+            ConstrainedBox(constraints = DpConstraints.tightConstraintsForWidth(160.dp)) {
+                Text(style = TextStyle(color = Color.Black, fontSize = 8.sp)) {
+                    textPieces.forEach { (text, style) ->
+                        Span(text = text, style = style)
+                    }
                 }
             }
         }
