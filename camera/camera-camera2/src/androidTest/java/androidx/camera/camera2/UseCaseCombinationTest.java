@@ -23,8 +23,6 @@ import static org.junit.Assume.assumeTrue;
 import android.Manifest;
 import android.app.Instrumentation;
 import android.content.Context;
-import android.os.Handler;
-import android.os.Looper;
 
 import androidx.camera.core.AppConfig;
 import androidx.camera.core.CameraX;
@@ -36,6 +34,7 @@ import androidx.camera.core.ImageCaptureConfig;
 import androidx.camera.core.ImageProxy;
 import androidx.camera.core.Preview;
 import androidx.camera.core.PreviewConfig;
+import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.testing.CameraUtil;
 import androidx.camera.testing.fakes.FakeLifecycleOwner;
 import androidx.lifecycle.MutableLiveData;
@@ -144,7 +143,7 @@ public final class UseCaseCombinationTest {
             @Override
             public void run() {
                 CameraX.bindToLifecycle(mLifecycle, mPreview, mImageAnalysis);
-                mImageAnalysis.setAnalyzer(mImageAnalyzer);
+                mImageAnalysis.setAnalyzer(CameraXExecutors.mainThreadExecutor(), mImageAnalyzer);
                 mAnalysisResult.observe(mLifecycle,
                         createCountIncrementingObserver());
                 mLifecycle.startAndResume();
@@ -171,7 +170,7 @@ public final class UseCaseCombinationTest {
             @Override
             public void run() {
                 CameraX.bindToLifecycle(mLifecycle, mPreview, mImageAnalysis, mImageCapture);
-                mImageAnalysis.setAnalyzer(mImageAnalyzer);
+                mImageAnalysis.setAnalyzer(CameraXExecutors.mainThreadExecutor(), mImageAnalyzer);
                 mAnalysisResult.observe(mLifecycle,
                         createCountIncrementingObserver());
                 mLifecycle.startAndResume();
@@ -192,7 +191,6 @@ public final class UseCaseCombinationTest {
                 new ImageAnalysisConfig.Builder()
                         .setLensFacing(DEFAULT_LENS_FACING)
                         .setTargetName("ImageAnalysis")
-                        .setCallbackHandler(new Handler(Looper.getMainLooper()))
                         .build();
         mImageAnalyzer =
                 new ImageAnalysis.Analyzer() {

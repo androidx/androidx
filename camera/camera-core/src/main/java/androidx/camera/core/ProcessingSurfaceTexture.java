@@ -18,6 +18,7 @@ package androidx.camera.core;
 
 import android.graphics.PixelFormat;
 import android.graphics.SurfaceTexture;
+import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
@@ -219,7 +220,7 @@ final class ProcessingSurfaceTexture extends DeferrableSurface implements Surfac
                             }
                         }
                     },
-                    mImageReaderHandler
+                    AsyncTask.THREAD_POOL_EXECUTOR
             );
 
             // Need to wait for Surface has been detached before closing it

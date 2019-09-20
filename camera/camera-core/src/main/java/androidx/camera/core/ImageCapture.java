@@ -22,6 +22,7 @@ import android.location.Location;
 import android.media.Image;
 import android.media.ImageReader;
 import android.os.Handler;
+import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.SystemClock;
 import android.util.Log;
@@ -55,12 +56,13 @@ import androidx.concurrent.futures.CallbackToFutureAdapter;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import java.io.File;
-import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Deque;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -101,10 +103,13 @@ public class ImageCapture extends UseCase {
     private static final Metadata EMPTY_METADATA = new Metadata();
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     final Handler mMainHandler = new Handler(Looper.getMainLooper());
+    @Nullable
+    private HandlerThread mProcessingImageResultThread;
+    @Nullable
+    private Handler mProcessingImageResultHandler;
+
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-    final ArrayDeque<ImageCaptureRequest> mImageCaptureRequests = new ArrayDeque<>();
-    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-    final Handler mHandler;
+    final Deque<ImageCaptureRequest> mImageCaptureRequests = new ConcurrentLinkedDeque<>();
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     SessionConfig.Builder mSessionConfigBuilder;
     private final CaptureConfig mCaptureConfig;
@@ -197,11 +202,6 @@ public class ImageCapture extends UseCase {
             mEnableCheck3AConverged = false; // skip 3A convergence in MIN_LATENCY mode
         }
 
-        mHandler = mConfig.getCallbackHandler(null);
-        if (mHandler == null) {
-            throw new IllegalStateException("No default handler specified.");
-        }
-
         CaptureConfig.Builder captureBuilder = CaptureConfig.Builder.createFrom(mConfig);
         mCaptureConfig = captureBuilder.build();
     }
@@ -212,20 +212,27 @@ public class ImageCapture extends UseCase {
         SessionConfig.Builder sessionConfigBuilder = SessionConfig.Builder.createFrom(config);
         sessionConfigBuilder.addRepeatingCameraCaptureCallback(mSessionCallbackChecker);
 
+        mProcessingImageResultThread = new HandlerThread("OnImageAvailableHandlerThread");
+        mProcessingImageResultThread.start();
+        mProcessingImageResultHandler = new Handler(mProcessingImageResultThread.getLooper());
+
         // Setup the ImageReader to do processing
         if (mCaptureProcessor != null) {
+            // TODO: To allow user to use an Executor for the image processing.
             ProcessingImageReader processingImageReader =
                     new ProcessingImageReader(
                             resolution.getWidth(),
                             resolution.getHeight(),
                             getImageFormat(), mMaxCaptureStages,
-                            mHandler, getCaptureBundle(CaptureBundles.singleDefaultCaptureBundle()),
+                            mProcessingImageResultHandler,
+                            getCaptureBundle(CaptureBundles.singleDefaultCaptureBundle()),
                             mCaptureProcessor);
             mMetadataMatchingCaptureCallback = processingImageReader.getCameraCaptureCallback();
             mImageReader = processingImageReader;
         } else {
             MetadataImageReader metadataImageReader = new MetadataImageReader(resolution.getWidth(),
-                    resolution.getHeight(), getImageFormat(), MAX_IMAGES, mHandler);
+                    resolution.getHeight(), getImageFormat(), MAX_IMAGES,
+                    mProcessingImageResultHandler);
             mMetadataMatchingCaptureCallback = metadataImageReader.getCameraCaptureCallback();
             mImageReader = metadataImageReader;
         }
@@ -256,7 +263,7 @@ public class ImageCapture extends UseCase {
                         }
                     }
                 },
-                mMainHandler);
+                mProcessingImageResultHandler);
 
         mDeferrableSurface = new ImmediateSurface(mImageReader.getSurface());
         sessionConfigBuilder.addNonRepeatingSurface(mDeferrableSurface);
@@ -285,6 +292,7 @@ public class ImageCapture extends UseCase {
         mDeferrableSurface = null;
         ImageReaderProxy imageReaderProxy = mImageReader;
         mImageReader = null;
+        HandlerThread handlerThread = mProcessingImageResultThread;
 
         if (deferrableSurface != null) {
             deferrableSurface.setOnSurfaceDetachedListener(
@@ -295,6 +303,9 @@ public class ImageCapture extends UseCase {
                             if (imageReaderProxy != null) {
                                 imageReaderProxy.close();
                             }
+
+                            // Close the handlerThread after the ImageReader was closed.
+                            handlerThread.quitSafely();
                         }
                     });
         }
@@ -1160,7 +1171,6 @@ public class ImageCapture extends UseCase {
             implements ConfigProvider<ImageCaptureConfig> {
         private static final CaptureMode DEFAULT_CAPTURE_MODE = CaptureMode.MIN_LATENCY;
         private static final FlashMode DEFAULT_FLASH_MODE = FlashMode.OFF;
-        private static final Handler DEFAULT_HANDLER = new Handler(Looper.getMainLooper());
         private static final int DEFAULT_SURFACE_OCCUPANCY_PRIORITY = 4;
 
         private static final ImageCaptureConfig DEFAULT_CONFIG;
@@ -1170,7 +1180,6 @@ public class ImageCapture extends UseCase {
                     new ImageCaptureConfig.Builder()
                             .setCaptureMode(DEFAULT_CAPTURE_MODE)
                             .setFlashMode(DEFAULT_FLASH_MODE)
-                            .setCallbackHandler(DEFAULT_HANDLER)
                             .setSurfaceOccupancyPriority(DEFAULT_SURFACE_OCCUPANCY_PRIORITY);
 
             DEFAULT_CONFIG = builder.build();

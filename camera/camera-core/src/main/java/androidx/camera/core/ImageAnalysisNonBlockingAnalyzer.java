@@ -16,7 +16,6 @@
 
 package androidx.camera.core;
 
-import android.os.Handler;
 import android.util.Log;
 
 import androidx.annotation.GuardedBy;
@@ -52,8 +51,9 @@ final class ImageAnalysisNonBlockingAnalyzer extends ImageAnalysisAbstractAnalyz
     private final AtomicLong mFinishedImageTimestamp;
 
     ImageAnalysisNonBlockingAnalyzer(AtomicReference<ImageAnalysis.Analyzer> subscribedAnalyzer,
-            AtomicInteger relativeRotation, Handler userHandler, Executor executor) {
-        super(subscribedAnalyzer, relativeRotation, userHandler);
+            AtomicInteger relativeRotation, AtomicReference<Executor> userExecutor,
+            Executor executor) {
+        super(subscribedAnalyzer, relativeRotation, userExecutor);
         mBackgroundExecutor = executor;
         mPostedImageTimestamp = new AtomicLong();
         mFinishedImageTimestamp = new AtomicLong();
@@ -128,26 +128,31 @@ final class ImageAnalysisNonBlockingAnalyzer extends ImageAnalysisAbstractAnalyz
         }
 
         mPostedImageTimestamp.set(imageProxy.getTimestamp());
-        try {
-            mUserHandler.post(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        analyzeImage(imageProxy);
-                    } finally {
-                        finishImage(imageProxy);
-                        mBackgroundExecutor.execute(new Runnable() {
-                            @Override
-                            public void run() {
-                                analyzeCachedImage();
-                            }
-                        });
+        Executor executor = mUserExecutor.get();
+        if (executor != null) {
+            try {
+                executor.execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            analyzeImage(imageProxy);
+                        } finally {
+                            finishImage(imageProxy);
+                            mBackgroundExecutor.execute(new Runnable() {
+                                @Override
+                                public void run() {
+                                    analyzeCachedImage();
+                                }
+                            });
+                        }
                     }
-                }
-            });
-        } catch (RuntimeException e) {
-            // Unblock if fails to post to user thread.
-            Log.e(TAG, "Error calling user callback", e);
+                });
+            } catch (RuntimeException e) {
+                // Unblock if fails to post to user thread.
+                Log.e(TAG, "Error calling user callback", e);
+                finishImage(imageProxy);
+            }
+        } else {
             finishImage(imageProxy);
         }
     }

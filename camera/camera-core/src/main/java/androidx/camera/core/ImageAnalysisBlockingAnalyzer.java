@@ -16,8 +16,7 @@
 
 package androidx.camera.core;
 
-import android.os.Handler;
-
+import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -30,8 +29,8 @@ final class ImageAnalysisBlockingAnalyzer extends ImageAnalysisAbstractAnalyzer 
 
     ImageAnalysisBlockingAnalyzer(
             AtomicReference<ImageAnalysis.Analyzer> subscribedAnalyzer,
-            AtomicInteger relativeRotation, Handler userHandler) {
-        super(subscribedAnalyzer, relativeRotation, userHandler);
+            AtomicInteger relativeRotation, AtomicReference<Executor> userExecutor) {
+        super(subscribedAnalyzer, relativeRotation, userExecutor);
     }
 
     @Override
@@ -40,18 +39,23 @@ final class ImageAnalysisBlockingAnalyzer extends ImageAnalysisAbstractAnalyzer 
         if (image == null) {
             return;
         }
-        try {
-            mUserHandler.post(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        analyzeImage(image);
-                    } finally {
-                        image.close();
+        Executor executor = mUserExecutor.get();
+        if (executor != null) {
+            try {
+                executor.execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            analyzeImage(image);
+                        } finally {
+                            image.close();
+                        }
                     }
-                }
-            });
-        } catch (RuntimeException e) {
+                });
+            } catch (RuntimeException e) {
+                image.close();
+            }
+        } else {
             image.close();
         }
     }
