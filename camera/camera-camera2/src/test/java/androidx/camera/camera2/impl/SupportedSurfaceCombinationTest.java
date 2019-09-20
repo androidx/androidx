@@ -37,6 +37,7 @@ import android.view.WindowManager;
 
 import androidx.camera.camera2.Camera2AppConfig;
 import androidx.camera.core.AppConfig;
+import androidx.camera.core.AspectRatio;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.CameraX.LensFacing;
 import androidx.camera.core.ImageAnalysis;
@@ -92,9 +93,10 @@ public final class SupportedSurfaceCombinationTest {
     private static final String LEVEL3_CAMERA_ID = "4";
     private static final int DEFAULT_SENSOR_ORIENTATION = 90;
     private static final Rational ASPECT_RATIO_4_3 = new Rational(4, 3);
-    private final Size mDisplaySize = new Size(1280, 720);
+    private static final Rational ASPECT_RATIO_16_9 = new Rational(16, 9);
+    private final Size mDisplaySize = new Size(720, 1280);
     private final Size mAnalysisSize = new Size(640, 480);
-    private final Size mPreviewSize = mDisplaySize;
+    private final Size mPreviewSize = new Size(1280, 720);
     private final Size mRecordSize = new Size(3840, 2160);
     private final Size mMaximumSize = new Size(4032, 3024);
     private final Size mMaximumVideoSize = new Size(1920, 1080);
@@ -132,6 +134,7 @@ public final class SupportedSurfaceCombinationTest {
                     new Size(1280, 720),
                     new Size(1280, 720), // duplicate the size since Nexus 5X emulator has the case.
                     new Size(960, 544), // a mod16 version of resolution with 16:9 aspect ratio.
+                    new Size(800, 450),
                     new Size(640, 480),
                     new Size(320, 240),
                     new Size(320, 180)
@@ -463,33 +466,41 @@ public final class SupportedSurfaceCombinationTest {
         Rational targetAspectRatio = new Rational(9, 16);
         PreviewConfig.Builder previewConfigBuilder = new PreviewConfig.Builder();
 
-        previewConfigBuilder.setTargetAspectRatio(targetAspectRatio);
+        previewConfigBuilder.setTargetAspectRatio(AspectRatio.RATIO_16_9);
         previewConfigBuilder.setLensFacing(LensFacing.FRONT);
         Preview preview = new Preview(previewConfigBuilder.build());
 
         PreviewConfig config = (PreviewConfig) preview.getUseCaseConfig();
-        Rational previewAspectRatio = config.getTargetAspectRatio();
+        Rational previewAspectRatio = config.getTargetAspectRatioCustom();
 
-        Rational resultAspectRatio = supportedSurfaceCombination.getCorrectedAspectRatio(config);
+        Rational correctedAspectRatio = supportedSurfaceCombination.getCorrectedAspectRatio(config);
 
         Size maxJpegSize = supportedSurfaceCombination.getMaxOutputSizeByFormat(ImageFormat.JPEG);
         Rational maxJpegAspectRatio = new Rational(maxJpegSize.getHeight(), maxJpegSize.getWidth());
+
+        List<UseCase> useCases = new ArrayList<>();
+        useCases.add(preview);
+        Map<UseCase, Size> suggestedResolutionMap =
+                supportedSurfaceCombination.getSuggestedResolutions(null, useCases);
+        Size previewSize = suggestedResolutionMap.get(preview);
+        Rational resultAspectRatio = new Rational(previewSize.getHeight(), previewSize.getWidth());
 
         if (Build.VERSION.SDK_INT == 21) {
             // Checks targetAspectRatio and maxJpegAspectRatio, which is the ratio of maximum size
             // in the mSupportedSizes, are not equal to make sure this test case is valid.
             assertFalse(targetAspectRatio.equals(maxJpegAspectRatio));
             assertTrue(previewAspectRatio.equals(maxJpegAspectRatio));
+            assertTrue(correctedAspectRatio.equals(maxJpegAspectRatio));
             assertTrue(resultAspectRatio.equals(maxJpegAspectRatio));
         } else {
             // Checks no correction is needed.
-            assertThat(resultAspectRatio).isNull();
-            assertTrue(previewAspectRatio.equals(targetAspectRatio));
+            assertThat(correctedAspectRatio).isNull();
+            assertTrue(resultAspectRatio.equals(targetAspectRatio));
         }
     }
 
     @Test
-    public void checkDefaultAspectRatioForMixedUseCase() {
+    public void checkDefaultAspectRatioAndResolutionForMixedUseCase() {
         setupCamera(/* supportsRaw= */ false);
         SupportedSurfaceCombination supportedSurfaceCombination =
                 new SupportedSurfaceCombination(
@@ -524,9 +535,13 @@ public final class SupportedSurfaceCombinationTest {
         Rational imageAnalysisAspectRatio = new Rational(imageAnalysisSize.getWidth(),
                 imageAnalysisSize.getHeight());
 
+        // Checks the default aspect ratio.
         assertTrue(previewAspectRatio.equals(ASPECT_RATIO_4_3));
         assertTrue(imageCaptureAspectRatio.equals(ASPECT_RATIO_4_3));
         assertTrue(imageAnalysisAspectRatio.equals(ASPECT_RATIO_4_3));
+
+        // Checks the default resolution.
+        assertTrue(imageAnalysisSize.equals(mAnalysisSize));
     }
 
     @Test
@@ -564,14 +579,13 @@ public final class SupportedSurfaceCombinationTest {
                 new SupportedSurfaceCombination(
                         mContext, LEGACY_CAMERA_ID, mMockCamcorderProfileHelper);
 
-        Rational aspectRatio = new Rational(16, 9);
         PreviewConfig.Builder previewConfigBuilder = new PreviewConfig.Builder();
         VideoCaptureConfig.Builder videoCaptureConfigBuilder = new VideoCaptureConfig.Builder();
         ImageCaptureConfig.Builder imageCaptureConfigBuilder = new ImageCaptureConfig.Builder();
 
-        previewConfigBuilder.setTargetAspectRatio(aspectRatio);
-        videoCaptureConfigBuilder.setTargetAspectRatio(aspectRatio);
-        imageCaptureConfigBuilder.setTargetAspectRatio(aspectRatio);
+        previewConfigBuilder.setTargetAspectRatio(AspectRatio.RATIO_16_9);
+        videoCaptureConfigBuilder.setTargetAspectRatio(AspectRatio.RATIO_16_9);
+        imageCaptureConfigBuilder.setTargetAspectRatio(AspectRatio.RATIO_16_9);
 
         imageCaptureConfigBuilder.setLensFacing(LensFacing.FRONT);
         ImageCapture imageCapture = new ImageCapture(imageCaptureConfigBuilder.build());
@@ -597,14 +611,13 @@ public final class SupportedSurfaceCombinationTest {
                 new SupportedSurfaceCombination(
                         mContext, LIMITED_CAMERA_ID, mMockCamcorderProfileHelper);
 
-        Rational aspectRatio = new Rational(9, 16);
         PreviewConfig.Builder previewConfigBuilder = new PreviewConfig.Builder();
         VideoCaptureConfig.Builder videoCaptureConfigBuilder = new VideoCaptureConfig.Builder();
         ImageCaptureConfig.Builder imageCaptureConfigBuilder = new ImageCaptureConfig.Builder();
 
-        previewConfigBuilder.setTargetAspectRatio(aspectRatio);
-        videoCaptureConfigBuilder.setTargetAspectRatio(aspectRatio);
-        imageCaptureConfigBuilder.setTargetAspectRatio(aspectRatio);
+        previewConfigBuilder.setTargetAspectRatio(AspectRatio.RATIO_16_9);
+        videoCaptureConfigBuilder.setTargetAspectRatio(AspectRatio.RATIO_16_9);
+        imageCaptureConfigBuilder.setTargetAspectRatio(AspectRatio.RATIO_16_9);
 
         imageCaptureConfigBuilder.setLensFacing(LensFacing.BACK);
         ImageCapture imageCapture = new ImageCapture(imageCaptureConfigBuilder.build());
@@ -638,7 +651,6 @@ public final class SupportedSurfaceCombinationTest {
         1. There are duplicated two 1280x720 supported sizes for ImageCapture and Preview.
         2. supportedOutputSizes for ImageCapture and Preview in
         SupportedSurfaceCombination#getAllPossibleSizeArrangements are the same.
-        3. Target aspect ratio is 3:4.
         */
         ImageCaptureConfig.Builder imageCaptureConfigBuilder = new ImageCaptureConfig.Builder();
         PreviewConfig.Builder previewConfigBuilder = new PreviewConfig.Builder();
@@ -646,9 +658,9 @@ public final class SupportedSurfaceCombinationTest {
 
         imageCaptureConfigBuilder.setTargetResolution(mDisplaySize);
         ImageCapture imageCapture = new ImageCapture(imageCaptureConfigBuilder.build());
-        previewConfigBuilder.setTargetAspectRatio(new Rational(3, 4)).setTargetResolution(
-                mDisplaySize).setLensFacing(LensFacing.BACK);
+        previewConfigBuilder.setTargetResolution(mDisplaySize).setLensFacing(LensFacing.BACK);
         Preview preview = new Preview(previewConfigBuilder.build());
+        imageAnalysisConfigBuilder.setTargetResolution(mDisplaySize).setLensFacing(LensFacing.BACK);
         ImageAnalysis imageAnalysis = new ImageAnalysis(imageAnalysisConfigBuilder.build());
 
         List<UseCase> useCases = new ArrayList<>();
@@ -658,9 +670,91 @@ public final class SupportedSurfaceCombinationTest {
         Map<UseCase, Size> suggestedResolutionMap =
                 supportedSurfaceCombination.getSuggestedResolutions(null, useCases);
 
-        assertThat(suggestedResolutionMap).containsEntry(imageCapture, mMaximumSize);
-        assertThat(suggestedResolutionMap).containsEntry(preview, mAnalysisSize);
-        assertThat(suggestedResolutionMap).containsEntry(imageAnalysis, mAnalysisSize);
+        assertThat(suggestedResolutionMap).containsEntry(imageCapture, mPreviewSize);
+        assertThat(suggestedResolutionMap).containsEntry(preview, mPreviewSize);
+        assertThat(suggestedResolutionMap).containsEntry(imageAnalysis, mPreviewSize);
+    }
+
+    @Test
+    public void setTargetAspectRatioForMixedUseCases() {
+        setupCamera(/* supportsRaw= */ false);
+        SupportedSurfaceCombination supportedSurfaceCombination =
+                new SupportedSurfaceCombination(
+                        mContext, FULL_CAMERA_ID, mMockCamcorderProfileHelper);
+
+        PreviewConfig.Builder previewConfigBuilder = new PreviewConfig.Builder();
+        ImageCaptureConfig.Builder imageCaptureConfigBuilder = new ImageCaptureConfig.Builder();
+        ImageAnalysisConfig.Builder imageAnalysisConfigBuilder = new ImageAnalysisConfig.Builder();
+
+        previewConfigBuilder.setTargetAspectRatio(AspectRatio.RATIO_16_9);
+        imageCaptureConfigBuilder.setTargetAspectRatio(AspectRatio.RATIO_16_9);
+        imageAnalysisConfigBuilder.setTargetAspectRatio(AspectRatio.RATIO_16_9);
+
+        Preview preview = new Preview(previewConfigBuilder.build());
+        ImageCapture imageCapture = new ImageCapture(imageCaptureConfigBuilder.build());
+        ImageAnalysis imageAnalysis = new ImageAnalysis(imageAnalysisConfigBuilder.build());
+
+        List<UseCase> useCases = new ArrayList<>();
+        useCases.add(imageCapture);
+        useCases.add(preview);
+        useCases.add(imageAnalysis);
+        Map<UseCase, Size> suggestedResolutionMap =
+                supportedSurfaceCombination.getSuggestedResolutions(null, useCases);
+
+        Size previewSize = suggestedResolutionMap.get(preview);
+        Size imageCaptureSize = suggestedResolutionMap.get(imageCapture);
+        Size imageAnalysisSize = suggestedResolutionMap.get(imageAnalysis);
+
+        Rational previewAspectRatio = new Rational(previewSize.getWidth(), previewSize.getHeight());
+        Rational imageCaptureAspectRatio = new Rational(imageCaptureSize.getWidth(),
+                imageCaptureSize.getHeight());
+        Rational imageAnalysisAspectRatio = new Rational(imageAnalysisSize.getWidth(),
+                imageAnalysisSize.getHeight());
+
+        assertTrue(previewAspectRatio.equals(ASPECT_RATIO_16_9));
+        assertTrue(imageCaptureAspectRatio.equals(ASPECT_RATIO_16_9));
+        assertTrue(imageAnalysisAspectRatio.equals(ASPECT_RATIO_16_9));
+    }
+
+    @Test
+    public void throwsWhenSetBothTargetResolutionAndAspectRatioForDifferentUseCases() {
+        setupCamera(/* supportsRaw= */ false);
+
+        boolean previewExceptionHappened = false;
+        PreviewConfig.Builder previewConfigBuilder = new PreviewConfig.Builder()
+                .setLensFacing(LensFacing.BACK)
+                .setTargetResolution(mDisplaySize)
+                .setTargetAspectRatio(AspectRatio.RATIO_16_9);
+        try {
+            previewConfigBuilder.build();
+        } catch (IllegalArgumentException e) {
+            previewExceptionHappened = true;
+        }
+        assertTrue(previewExceptionHappened);
+
+        boolean imageCaptureExceptionHappened = false;
+        ImageCaptureConfig.Builder imageCaptureConfigBuilder = new ImageCaptureConfig.Builder()
+                .setLensFacing(LensFacing.BACK)
+                .setTargetResolution(mDisplaySize)
+                .setTargetAspectRatio(AspectRatio.RATIO_16_9);
+        try {
+            imageCaptureConfigBuilder.build();
+        } catch (IllegalArgumentException e) {
+            imageCaptureExceptionHappened = true;
+        }
+        assertTrue(imageCaptureExceptionHappened);
+
+        boolean imageAnalysisExceptionHappened = false;
+        ImageAnalysisConfig.Builder imageAnalysisConfigBuilder = new ImageAnalysisConfig.Builder()
+                .setLensFacing(LensFacing.BACK)
+                .setTargetResolution(mDisplaySize)
+                .setTargetAspectRatio(AspectRatio.RATIO_16_9);
+        try {
+            imageAnalysisConfigBuilder.build();
+        } catch (IllegalArgumentException e) {
+            imageAnalysisExceptionHappened = true;
+        }
+        assertTrue(imageAnalysisExceptionHappened);
     }
 
     @Test
@@ -826,18 +920,17 @@ public final class SupportedSurfaceCombinationTest {
                 new SupportedSurfaceCombination(
                         mContext, LEGACY_CAMERA_ID, mMockCamcorderProfileHelper);
 
-        Rational aspectRatio = new Rational(9, 16);
         PreviewConfig.Builder previewConfigBuilder = new PreviewConfig.Builder();
         ImageCaptureConfig.Builder imageCaptureConfigBuilder = new ImageCaptureConfig.Builder();
 
         previewConfigBuilder.setLensFacing(LensFacing.BACK);
         imageCaptureConfigBuilder.setLensFacing(LensFacing.BACK);
 
-        previewConfigBuilder.setTargetAspectRatio(aspectRatio);
-        imageCaptureConfigBuilder.setTargetAspectRatio(aspectRatio);
+        previewConfigBuilder.setTargetAspectRatio(AspectRatio.RATIO_16_9);
+        imageCaptureConfigBuilder.setTargetAspectRatio(AspectRatio.RATIO_16_9);
 
-        previewConfigBuilder.setTargetResolution(mMod16Size);
-        imageCaptureConfigBuilder.setTargetResolution(mMod16Size);
+        previewConfigBuilder.setDefaultResolution(mMod16Size);
+        imageCaptureConfigBuilder.setDefaultResolution(mMod16Size);
 
         Preview preview = new Preview(previewConfigBuilder.build());
         ImageCapture imageCapture = new ImageCapture(imageCaptureConfigBuilder.build());
