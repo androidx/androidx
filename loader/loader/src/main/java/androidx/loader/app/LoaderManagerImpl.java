@@ -40,6 +40,10 @@ class LoaderManagerImpl extends LoaderManager {
     private static final String TAG = "LoaderManager";
     static boolean DEBUG = false;
 
+    static boolean isLoggingEnabled(int level) {
+        return DEBUG || Log.isLoggable(TAG, level);
+    }
+
     /**
      * Class which manages the state of a {@link Loader} and its associated
      * {@link LoaderCallbacks}
@@ -72,13 +76,13 @@ class LoaderManagerImpl extends LoaderManager {
 
         @Override
         protected void onActive() {
-            if (DEBUG) Log.v(TAG, "  Starting: " + LoaderInfo.this);
+            if (isLoggingEnabled(Log.VERBOSE)) Log.v(TAG, "  Starting: " + LoaderInfo.this);
             mLoader.startLoading();
         }
 
         @Override
         protected void onInactive() {
-            if (DEBUG) Log.v(TAG, "  Stopping: " + LoaderInfo.this);
+            if (isLoggingEnabled(Log.VERBOSE)) Log.v(TAG, "  Stopping: " + LoaderInfo.this);
             mLoader.stopLoading();
         }
 
@@ -145,7 +149,7 @@ class LoaderManagerImpl extends LoaderManager {
          */
         @MainThread
         Loader<D> destroy(boolean reset) {
-            if (DEBUG) Log.v(TAG, "  Destroying: " + this);
+            if (isLoggingEnabled(Log.DEBUG)) Log.d(TAG, "  Destroying: " + this);
             // First tell the Loader that we don't need it anymore
             mLoader.cancelLoad();
             mLoader.abandon();
@@ -168,15 +172,15 @@ class LoaderManagerImpl extends LoaderManager {
 
         @Override
         public void onLoadComplete(@NonNull Loader<D> loader, @Nullable D data) {
-            if (DEBUG) Log.v(TAG, "onLoadComplete: " + this);
+            if (isLoggingEnabled(Log.VERBOSE)) Log.v(TAG, "onLoadComplete: " + this);
             if (Looper.myLooper() == Looper.getMainLooper()) {
                 setValue(data);
             } else {
                 // The Loader#deliverResult method that calls this should
                 // only be called on the main thread, so this should never
                 // happen, but we don't want to lose the data
-                if (DEBUG) {
-                    Log.w(TAG, "onLoadComplete was incorrectly called on a "
+                if (isLoggingEnabled(Log.INFO)) {
+                    Log.i(TAG, "onLoadComplete was incorrectly called on a "
                             + "background thread");
                 }
                 postValue(data);
@@ -246,7 +250,7 @@ class LoaderManagerImpl extends LoaderManager {
 
         @Override
         public void onChanged(@Nullable D data) {
-            if (DEBUG) {
+            if (isLoggingEnabled(Log.VERBOSE)) {
                 Log.v(TAG, "  onLoadFinished in " + mLoader + ": "
                         + mLoader.dataToString(data));
             }
@@ -261,7 +265,7 @@ class LoaderManagerImpl extends LoaderManager {
         @MainThread
         void reset() {
             if (mDeliveredData) {
-                if (DEBUG) Log.v(TAG, "  Resetting: " + mLoader);
+                if (isLoggingEnabled(Log.VERBOSE)) Log.v(TAG, "  Resetting: " + mLoader);
                 mCallback.onLoaderReset(mLoader);
             }
         }
@@ -397,7 +401,7 @@ class LoaderManagerImpl extends LoaderManager {
                         + loader);
             }
             info = new LoaderInfo<>(id, args, loader, priorLoader);
-            if (DEBUG) Log.v(TAG, "  Created new loader " + info);
+            if (isLoggingEnabled(Log.DEBUG)) Log.d(TAG, "  Created new loader " + info);
             mLoaderViewModel.putLoader(id, info);
         } finally {
             mLoaderViewModel.finishCreatingLoader();
@@ -419,13 +423,13 @@ class LoaderManagerImpl extends LoaderManager {
 
         LoaderInfo<D> info = mLoaderViewModel.getLoader(id);
 
-        if (DEBUG) Log.v(TAG, "initLoader in " + this + ": args=" + args);
+        if (isLoggingEnabled(Log.VERBOSE)) Log.v(TAG, "initLoader in " + this + ": args=" + args);
 
         if (info == null) {
             // Loader doesn't already exist; create.
             return createAndInstallLoader(id, args, callback, null);
         } else {
-            if (DEBUG) Log.v(TAG, "  Re-using existing loader " + info);
+            if (isLoggingEnabled(Log.DEBUG)) Log.d(TAG, "  Re-using existing loader " + info);
             return info.setCallback(mLifecycleOwner, callback);
         }
     }
@@ -442,7 +446,9 @@ class LoaderManagerImpl extends LoaderManager {
             throw new IllegalStateException("restartLoader must be called on the main thread");
         }
 
-        if (DEBUG) Log.v(TAG, "restartLoader in " + this + ": args=" + args);
+        if (isLoggingEnabled(Log.VERBOSE)) {
+            Log.v(TAG, "restartLoader in " + this + ": args=" + args);
+        }
         LoaderInfo<D> info = mLoaderViewModel.getLoader(id);
         Loader<D> priorLoader = null;
         if (info != null) {
@@ -462,7 +468,9 @@ class LoaderManagerImpl extends LoaderManager {
             throw new IllegalStateException("destroyLoader must be called on the main thread");
         }
 
-        if (DEBUG) Log.v(TAG, "destroyLoader in " + this + " of " + id);
+        if (isLoggingEnabled(Log.VERBOSE)) {
+            Log.v(TAG, "destroyLoader in " + this + " of " + id);
+        }
         LoaderInfo info = mLoaderViewModel.getLoader(id);
         if (info != null) {
             info.destroy(true);

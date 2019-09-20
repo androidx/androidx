@@ -5,7 +5,7 @@ package androidx.loader.app {
     ctor public LoaderManager();
     method @MainThread public abstract void destroyLoader(int);
     method @Deprecated public abstract void dump(String!, java.io.FileDescriptor!, java.io.PrintWriter!, String![]!);
-    method public static void enableDebugLogging(boolean);
+    method @Deprecated public static void enableDebugLogging(boolean);
     method public static <T extends androidx.lifecycle.LifecycleOwner & androidx.lifecycle.ViewModelStoreOwner> androidx.loader.app.LoaderManager getInstance(T);
     method public abstract <D> androidx.loader.content.Loader<D!>? getLoader(int);
     method public boolean hasRunningLoaders();
