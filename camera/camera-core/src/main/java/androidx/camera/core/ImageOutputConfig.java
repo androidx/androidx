@@ -16,6 +16,8 @@
 
 package androidx.camera.core;
 
+import android.graphics.ImageFormat;
+import android.util.Pair;
 import android.util.Rational;
 import android.util.Size;
 import android.view.Surface;
@@ -29,6 +31,7 @@ import androidx.camera.core.Config.Option;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.util.List;
 
 /**
  * Configuration containing options for configuring the output image data of a pipeline.
@@ -98,6 +101,14 @@ public interface ImageOutputConfig {
     @RestrictTo(Scope.LIBRARY_GROUP)
     Option<Size> OPTION_MAX_RESOLUTION =
             Option.create("camerax.core.imageOutput.maxResolution", Size.class);
+    /**
+     * Option: camerax.core.imageOutput.supportedResolutions
+     *
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    Option<List<Pair<Integer, Size[]>>> OPTION_SUPPORTED_RESOLUTIONS =
+            Option.create("camerax.core.imageOutput.supportedResolutions", List.class);
 
     // *********************************************************************************************
 
@@ -250,6 +261,38 @@ public interface ImageOutputConfig {
     Size getMaxResolution();
 
     /**
+     * Retrieves the supported resolutions can be used by the target from this configuration.
+     *
+     * <p>Pair list is composed with {@link ImageFormat} and {@link Size} array. The returned
+     * {@link Size} array should be subset of the complete supported sizes list for the camera
+     * device.
+     *
+     * @param valueIfMissing The value to return if this configuration option has not been set.
+     * @return The stored value or <code>valueIfMissing</code> if the value does not exist in this
+     * configuration.
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @Nullable
+    List<Pair<Integer, Size[]>> getSupportedResolutions(
+            @Nullable List<Pair<Integer, Size[]>> valueIfMissing);
+
+    /**
+     * Retrieves the supported resolutions can be used by the target from this configuration.
+     *
+     * <p>Pair list is composed with {@link ImageFormat} and {@link Size} array. The returned
+     * {@link Size} array should be subset of the complete supported sizes list for the camera
+     * device.
+     *
+     * @return The stored value, if it exists in this configuration.
+     * @throws IllegalArgumentException if the option does not exist in this configuration.
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @NonNull
+    List<Pair<Integer, Size[]>> getSupportedResolutions();
+
+    /**
      * Builder for a {@link ImageOutputConfig}.
      *
      * @param <B> The top level builder type for which this builder is composed with.
@@ -344,6 +387,21 @@ public interface ImageOutputConfig {
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         B setMaxResolution(@NonNull Size resolution);
+
+        /**
+         * Sets the supported resolutions can be used by target from this configuration.
+         *
+         * <p>Pair list is composed with {@link ImageFormat} and {@link Size} array. The
+         * {@link Size} array should be subset of the complete supported sizes list for the camera
+         * device.
+         *
+         * @param resolutionsList The resolutions can be supported for image formats.
+         * @return The current Builder.
+         * @hide
+         */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        B setSupportedResolutions(@NonNull List<Pair<Integer, Size[]>> resolutionsList);
     }
 
     /**

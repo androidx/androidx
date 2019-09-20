@@ -17,6 +17,7 @@
 package androidx.camera.core;
 
 import android.graphics.ImageFormat;
+import android.util.Pair;
 import android.util.Rational;
 import android.util.Size;
 import android.view.Surface;
@@ -27,6 +28,7 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.camera.core.ImageCapture.CaptureMode;
 
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.Executor;
@@ -543,6 +545,23 @@ public final class ImageCaptureConfig
         return retrieveOption(OPTION_MAX_RESOLUTION);
     }
 
+    /** @hide */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @Override
+    @Nullable
+    public List<Pair<Integer, Size[]>> getSupportedResolutions(
+            @Nullable List<Pair<Integer, Size[]>> valueIfMissing) {
+        return retrieveOption(OPTION_SUPPORTED_RESOLUTIONS, valueIfMissing);
+    }
+
+    /** @hide */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @Override
+    @NonNull
+    public List<Pair<Integer, Size[]>> getSupportedResolutions() {
+        return retrieveOption(OPTION_SUPPORTED_RESOLUTIONS);
+    }
+
     // Implementations of ThreadConfig default methods
 
     /**
@@ -830,6 +849,15 @@ public final class ImageCaptureConfig
         @NonNull
         public Builder setMaxCaptureStages(int maxCaptureStages) {
             getMutableConfig().insertOption(OPTION_MAX_CAPTURE_STAGES, maxCaptureStages);
+            return this;
+        }
+
+        /** @hide */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @Override
+        @NonNull
+        public Builder setSupportedResolutions(@NonNull List<Pair<Integer, Size[]>> resolutions) {
+            getMutableConfig().insertOption(OPTION_SUPPORTED_RESOLUTIONS, resolutions);
             return this;
         }
 
