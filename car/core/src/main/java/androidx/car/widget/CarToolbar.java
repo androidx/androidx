@@ -795,7 +795,8 @@ public class CarToolbar extends ViewGroup {
 
         List<CarListDialog.Item> titles = new ArrayList<>();
         for (CarMenuItem item : mOverflowMenuItems) {
-            titles.add(new CarListDialog.Item(item.getTitle()));
+            CharSequence itemText = item.getTitle() != null ? item.getTitle() : "";
+            titles.add(new CarListDialog.Item.Builder(itemText).build());
         }
 
         mOverflowDialog = new CarListDialog.Builder(getContext())
