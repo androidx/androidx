@@ -19,13 +19,12 @@ package androidx.ui.material
 import androidx.animation.ColorPropKey
 import androidx.animation.DpPropKey
 import androidx.animation.transitionDefinition
-import androidx.compose.Children
 import androidx.compose.Composable
 import androidx.compose.composer
 import androidx.compose.memo
 import androidx.compose.unaryPlus
 import androidx.ui.animation.Transition
-import androidx.ui.core.DensityReceiver
+import androidx.ui.core.DensityScope
 import androidx.ui.core.Dp
 import androidx.ui.core.Draw
 import androidx.ui.core.PxSize
@@ -245,7 +244,7 @@ private fun DrawRadioButton(color: Color, outerRadius: Dp, innerRadius: Dp, gap:
     }
 }
 
-private fun DensityReceiver.drawRadio(
+private fun DensityScope.drawRadio(
     canvas: Canvas,
     parentSize: PxSize,
     color: Color,

@@ -62,7 +62,7 @@ fun TextButtonSample(onClick: () -> Unit) {
 @Composable
 fun ButtonSample(onClick: () -> Unit) {
     Button(onClick) {
-        Text("Custom text style", TextStyle(color = Color.Green))
+        Text("Custom text style", style = TextStyle(color = Color.Green))
     }
 }
 

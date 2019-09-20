@@ -13,7 +13,7 @@ package androidx.ui.autofill {
 
 package androidx.ui.core {
 
-  public final class AndroidComposeView extends android.view.ViewGroup implements androidx.ui.core.DensityReceiver androidx.ui.core.Owner androidx.ui.core.SemanticsTreeProvider {
+  public final class AndroidComposeView extends android.view.ViewGroup implements androidx.ui.core.DensityScope androidx.ui.core.Owner androidx.ui.core.SemanticsTreeProvider {
     ctor public AndroidComposeView(android.content.Context context);
     method public androidx.ui.core.PxPosition calculatePosition();
     method public void callDraw(androidx.ui.graphics.Canvas canvas, androidx.ui.core.ComponentNode node, androidx.ui.core.PxSize parentSize);
@@ -125,43 +125,47 @@ package androidx.ui.core {
   public final class DrawNode extends androidx.ui.core.ComponentNode {
     ctor public DrawNode();
     method public boolean getNeedsPaint();
-    method public kotlin.jvm.functions.Function3<androidx.ui.core.DensityReceiver,androidx.ui.graphics.Canvas,androidx.ui.core.PxSize,kotlin.Unit>? getOnPaint();
+    method public kotlin.jvm.functions.Function3<androidx.ui.core.DensityScope,androidx.ui.graphics.Canvas,androidx.ui.core.PxSize,kotlin.Unit>? getOnPaint();
     method public kotlin.jvm.functions.Function3<androidx.ui.core.DrawReceiver,androidx.ui.graphics.Canvas,androidx.ui.core.PxSize,kotlin.Unit>? getOnPaintWithChildren();
     method public void invalidate();
     method public void setNeedsPaint(boolean p);
-    method public void setOnPaint(kotlin.jvm.functions.Function3<? super androidx.ui.core.DensityReceiver,? super androidx.ui.graphics.Canvas,? super androidx.ui.core.PxSize,kotlin.Unit>? value);
+    method public void setOnPaint(kotlin.jvm.functions.Function3<? super androidx.ui.core.DensityScope,? super androidx.ui.graphics.Canvas,? super androidx.ui.core.PxSize,kotlin.Unit>? value);
     method public void setOnPaintWithChildren(kotlin.jvm.functions.Function3<? super androidx.ui.core.DrawReceiver,? super androidx.ui.graphics.Canvas,? super androidx.ui.core.PxSize,kotlin.Unit>? value);
     property public final boolean needsPaint;
-    property public final kotlin.jvm.functions.Function3<androidx.ui.core.DensityReceiver,androidx.ui.graphics.Canvas,androidx.ui.core.PxSize,kotlin.Unit>? onPaint;
+    property public final kotlin.jvm.functions.Function3<androidx.ui.core.DensityScope,androidx.ui.graphics.Canvas,androidx.ui.core.PxSize,kotlin.Unit>? onPaint;
     property public final kotlin.jvm.functions.Function3<androidx.ui.core.DrawReceiver,androidx.ui.graphics.Canvas,androidx.ui.core.PxSize,kotlin.Unit>? onPaintWithChildren;
   }
 
-  public final class LayoutNode extends androidx.ui.core.ComponentNode implements androidx.ui.core.Measurable androidx.ui.core.MeasureBlockScope {
+  public final class LayoutNode extends androidx.ui.core.ComponentNode implements androidx.ui.core.Measurable androidx.ui.core.MeasureScope {
     ctor public LayoutNode();
     method public boolean getAffectsParentSize();
     method public boolean getAlignmentLinesRequired();
     method public androidx.ui.core.Constraints getConstraints();
+    method public androidx.ui.core.IntPxPosition getContentPosition();
+    method public androidx.ui.core.IntPxSize getContentSize();
     method public androidx.ui.core.Density getDensity();
     method public boolean getDirtyAlignmentLines();
     method public androidx.ui.core.IntPx getHeight();
     method public java.util.List<androidx.ui.core.LayoutNode> getLayoutChildren();
-    method public kotlin.jvm.functions.Function3<androidx.ui.core.DensityReceiver,java.util.List<? extends androidx.ui.core.IntrinsicMeasurable>,androidx.ui.core.IntPx,androidx.ui.core.IntPx> getMaxIntrinsicHeightBlock();
-    method public kotlin.jvm.functions.Function3<androidx.ui.core.DensityReceiver,java.util.List<? extends androidx.ui.core.IntrinsicMeasurable>,androidx.ui.core.IntPx,androidx.ui.core.IntPx> getMaxIntrinsicWidthBlock();
-    method public kotlin.jvm.functions.Function3<androidx.ui.core.MeasureBlockScope,java.util.List<? extends androidx.ui.core.Measurable>,androidx.ui.core.Constraints,androidx.ui.core.LayoutResult> getMeasureBlock();
-    method public kotlin.jvm.functions.Function3<androidx.ui.core.DensityReceiver,java.util.List<? extends androidx.ui.core.IntrinsicMeasurable>,androidx.ui.core.IntPx,androidx.ui.core.IntPx> getMinIntrinsicHeightBlock();
-    method public kotlin.jvm.functions.Function3<androidx.ui.core.DensityReceiver,java.util.List<? extends androidx.ui.core.IntrinsicMeasurable>,androidx.ui.core.IntPx,androidx.ui.core.IntPx> getMinIntrinsicWidthBlock();
+    method public kotlin.jvm.functions.Function3<androidx.ui.core.DensityScope,java.util.List<? extends androidx.ui.core.IntrinsicMeasurable>,androidx.ui.core.IntPx,androidx.ui.core.IntPx> getMaxIntrinsicHeightBlock();
+    method public kotlin.jvm.functions.Function3<androidx.ui.core.DensityScope,java.util.List<? extends androidx.ui.core.IntrinsicMeasurable>,androidx.ui.core.IntPx,androidx.ui.core.IntPx> getMaxIntrinsicWidthBlock();
+    method public kotlin.jvm.functions.Function3<androidx.ui.core.MeasureScope,java.util.List<? extends androidx.ui.core.Measurable>,androidx.ui.core.Constraints,androidx.ui.core.MeasureScope.LayoutResult> getMeasureBlock();
+    method public kotlin.jvm.functions.Function3<androidx.ui.core.DensityScope,java.util.List<? extends androidx.ui.core.IntrinsicMeasurable>,androidx.ui.core.IntPx,androidx.ui.core.IntPx> getMinIntrinsicHeightBlock();
+    method public kotlin.jvm.functions.Function3<androidx.ui.core.DensityScope,java.util.List<? extends androidx.ui.core.IntrinsicMeasurable>,androidx.ui.core.IntPx,androidx.ui.core.IntPx> getMinIntrinsicWidthBlock();
+    method public androidx.ui.core.IntPxPosition getModifiedPosition();
+    method public androidx.ui.core.IntPxSize getModifiedSize();
+    method public androidx.ui.core.Modifier getModifier();
     method public boolean getNeedsRelayout();
     method public boolean getNeedsRemeasure();
     method public Object? getParentData();
-    method public androidx.ui.core.Placeable getPlaceable();
     method public boolean getPositionedDuringMeasurePass();
     method public androidx.ui.core.Ref<androidx.ui.core.LayoutNode>? getRef();
-    method public boolean getVisible();
     method public androidx.ui.core.IntPx getWidth();
     method public androidx.ui.core.IntPx getX();
     method public androidx.ui.core.IntPx getY();
-    method public boolean isInMeasure();
-    method public androidx.ui.core.LayoutResult layout(androidx.ui.core.IntPx width, androidx.ui.core.IntPx height, kotlin.Pair<? extends androidx.ui.core.AlignmentLine,androidx.ui.core.IntPx>![] alignmentLines, kotlin.jvm.functions.Function1<? super androidx.ui.core.PositioningBlockScope,kotlin.Unit> positioningBlock);
+    method public boolean isMeasuring();
+    method public boolean isPlaced();
+    method public androidx.ui.core.MeasureScope.LayoutResult layout(androidx.ui.core.IntPx width, androidx.ui.core.IntPx height, kotlin.Pair<? extends androidx.ui.core.AlignmentLine,androidx.ui.core.IntPx>![] alignmentLines, kotlin.jvm.functions.Function1<? super androidx.ui.core.Placeable.PlacementScope,kotlin.Unit> placementBlock);
     method public androidx.ui.core.IntPx maxIntrinsicHeight(androidx.ui.core.IntPx width);
     method public androidx.ui.core.IntPx maxIntrinsicWidth(androidx.ui.core.IntPx height);
     method public androidx.ui.core.Placeable measure(androidx.ui.core.Constraints constraints);
@@ -169,17 +173,18 @@ package androidx.ui.core {
     method public androidx.ui.core.IntPx minIntrinsicWidth(androidx.ui.core.IntPx height);
     method public void place(androidx.ui.core.IntPx x, androidx.ui.core.IntPx y);
     method public void placeChildren();
-    method public kotlin.Unit? requestRemeasure();
+    method public void requestRemeasure();
     method public void setAffectsParentSize(boolean p);
     method public void setAlignmentLinesRequired(boolean p);
     method public void setConstraints(androidx.ui.core.Constraints p);
     method public void setDirtyAlignmentLines(boolean p);
-    method public void setInMeasure(boolean p);
-    method public void setMaxIntrinsicHeightBlock(kotlin.jvm.functions.Function3<? super androidx.ui.core.DensityReceiver,? super java.util.List<? extends androidx.ui.core.IntrinsicMeasurable>,? super androidx.ui.core.IntPx,androidx.ui.core.IntPx> value);
-    method public void setMaxIntrinsicWidthBlock(kotlin.jvm.functions.Function3<? super androidx.ui.core.DensityReceiver,? super java.util.List<? extends androidx.ui.core.IntrinsicMeasurable>,? super androidx.ui.core.IntPx,androidx.ui.core.IntPx> value);
-    method public void setMeasureBlock(kotlin.jvm.functions.Function3<? super androidx.ui.core.MeasureBlockScope,? super java.util.List<? extends androidx.ui.core.Measurable>,? super androidx.ui.core.Constraints,androidx.ui.core.LayoutResult> value);
-    method public void setMinIntrinsicHeightBlock(kotlin.jvm.functions.Function3<? super androidx.ui.core.DensityReceiver,? super java.util.List<? extends androidx.ui.core.IntrinsicMeasurable>,? super androidx.ui.core.IntPx,androidx.ui.core.IntPx> value);
-    method public void setMinIntrinsicWidthBlock(kotlin.jvm.functions.Function3<? super androidx.ui.core.DensityReceiver,? super java.util.List<? extends androidx.ui.core.IntrinsicMeasurable>,? super androidx.ui.core.IntPx,androidx.ui.core.IntPx> value);
+    method public void setMaxIntrinsicHeightBlock(kotlin.jvm.functions.Function3<? super androidx.ui.core.DensityScope,? super java.util.List<? extends androidx.ui.core.IntrinsicMeasurable>,? super androidx.ui.core.IntPx,androidx.ui.core.IntPx> value);
+    method public void setMaxIntrinsicWidthBlock(kotlin.jvm.functions.Function3<? super androidx.ui.core.DensityScope,? super java.util.List<? extends androidx.ui.core.IntrinsicMeasurable>,? super androidx.ui.core.IntPx,androidx.ui.core.IntPx> value);
+    method public void setMeasureBlock(kotlin.jvm.functions.Function3<? super androidx.ui.core.MeasureScope,? super java.util.List<? extends androidx.ui.core.Measurable>,? super androidx.ui.core.Constraints,androidx.ui.core.MeasureScope.LayoutResult> value);
+    method public void setMeasuring(boolean p);
+    method public void setMinIntrinsicHeightBlock(kotlin.jvm.functions.Function3<? super androidx.ui.core.DensityScope,? super java.util.List<? extends androidx.ui.core.IntrinsicMeasurable>,? super androidx.ui.core.IntPx,androidx.ui.core.IntPx> value);
+    method public void setMinIntrinsicWidthBlock(kotlin.jvm.functions.Function3<? super androidx.ui.core.DensityScope,? super java.util.List<? extends androidx.ui.core.IntrinsicMeasurable>,? super androidx.ui.core.IntPx,androidx.ui.core.IntPx> value);
+    method public void setModifier(androidx.ui.core.Modifier value);
     method public void setNeedsRelayout$lintWithKotlin(boolean p);
     method public void setNeedsRemeasure$lintWithKotlin(boolean p);
     method public void setPositionedDuringMeasurePass(boolean p);
@@ -188,24 +193,28 @@ package androidx.ui.core {
     property public final boolean alignmentLinesRequired;
     property public final androidx.ui.core.Constraints constraints;
     property protected androidx.ui.core.LayoutNode? containingLayoutNode;
+    property public final androidx.ui.core.IntPxPosition contentPosition;
+    property public final androidx.ui.core.IntPxSize contentSize;
     property public androidx.ui.core.Density density;
     property public final boolean dirtyAlignmentLines;
     property public final androidx.ui.core.IntPx height;
-    property public final boolean isInMeasure;
+    property public final boolean isMeasuring;
+    property public final boolean isPlaced;
     property public final java.util.List<androidx.ui.core.LayoutNode> layoutChildren;
-    property public final kotlin.jvm.functions.Function3<androidx.ui.core.DensityReceiver,java.util.List<? extends androidx.ui.core.IntrinsicMeasurable>,androidx.ui.core.IntPx,androidx.ui.core.IntPx> maxIntrinsicHeightBlock;
-    property public final kotlin.jvm.functions.Function3<androidx.ui.core.DensityReceiver,java.util.List<? extends androidx.ui.core.IntrinsicMeasurable>,androidx.ui.core.IntPx,androidx.ui.core.IntPx> maxIntrinsicWidthBlock;
-    property public final kotlin.jvm.functions.Function3<androidx.ui.core.MeasureBlockScope,java.util.List<? extends androidx.ui.core.Measurable>,androidx.ui.core.Constraints,androidx.ui.core.LayoutResult> measureBlock;
-    property public final kotlin.jvm.functions.Function3<androidx.ui.core.DensityReceiver,java.util.List<? extends androidx.ui.core.IntrinsicMeasurable>,androidx.ui.core.IntPx,androidx.ui.core.IntPx> minIntrinsicHeightBlock;
-    property public final kotlin.jvm.functions.Function3<androidx.ui.core.DensityReceiver,java.util.List<? extends androidx.ui.core.IntrinsicMeasurable>,androidx.ui.core.IntPx,androidx.ui.core.IntPx> minIntrinsicWidthBlock;
+    property public final kotlin.jvm.functions.Function3<androidx.ui.core.DensityScope,java.util.List<? extends androidx.ui.core.IntrinsicMeasurable>,androidx.ui.core.IntPx,androidx.ui.core.IntPx> maxIntrinsicHeightBlock;
+    property public final kotlin.jvm.functions.Function3<androidx.ui.core.DensityScope,java.util.List<? extends androidx.ui.core.IntrinsicMeasurable>,androidx.ui.core.IntPx,androidx.ui.core.IntPx> maxIntrinsicWidthBlock;
+    property public final kotlin.jvm.functions.Function3<androidx.ui.core.MeasureScope,java.util.List<? extends androidx.ui.core.Measurable>,androidx.ui.core.Constraints,androidx.ui.core.MeasureScope.LayoutResult> measureBlock;
+    property public final kotlin.jvm.functions.Function3<androidx.ui.core.DensityScope,java.util.List<? extends androidx.ui.core.IntrinsicMeasurable>,androidx.ui.core.IntPx,androidx.ui.core.IntPx> minIntrinsicHeightBlock;
+    property public final kotlin.jvm.functions.Function3<androidx.ui.core.DensityScope,java.util.List<? extends androidx.ui.core.IntrinsicMeasurable>,androidx.ui.core.IntPx,androidx.ui.core.IntPx> minIntrinsicWidthBlock;
+    property public final androidx.ui.core.IntPxPosition modifiedPosition;
+    property public final androidx.ui.core.IntPxSize modifiedSize;
+    property public final androidx.ui.core.Modifier modifier;
     property public final boolean needsRelayout;
     property public final boolean needsRemeasure;
     property public Object? parentData;
     property public androidx.ui.core.LayoutNode? parentLayoutNode;
-    property public final androidx.ui.core.Placeable placeable;
     property public final boolean positionedDuringMeasurePass;
     property public final androidx.ui.core.Ref<androidx.ui.core.LayoutNode>? ref;
-    property public final boolean visible;
     property public final androidx.ui.core.IntPx width;
     property public final androidx.ui.core.IntPx x;
     property public final androidx.ui.core.IntPx y;

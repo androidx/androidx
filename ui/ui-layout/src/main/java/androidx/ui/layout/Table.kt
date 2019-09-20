@@ -25,7 +25,7 @@ import androidx.ui.core.Alignment
 import androidx.ui.core.ComplexLayout
 import androidx.ui.core.Constraints
 import androidx.ui.core.Density
-import androidx.ui.core.DensityReceiver
+import androidx.ui.core.DensityScope
 import androidx.ui.core.Dp
 import androidx.ui.core.IntPx
 import androidx.ui.core.IntPxSize
@@ -613,7 +613,7 @@ fun Table(
             }
         }
 
-        fun DensityReceiver.intrinsicWidth(
+        fun DensityScope.intrinsicWidth(
             children: List<IntrinsicMeasurable>,
             availableHeight: IntPx,
             minimise: Boolean
@@ -654,7 +654,7 @@ fun Table(
             return flexibleSpace * totalFlex + inflexibleSpace
         }
 
-        fun DensityReceiver.intrinsicHeight(
+        fun DensityScope.intrinsicHeight(
             children: List<IntrinsicMeasurable>,
             availableWidth: IntPx,
             intrinsicHeight: IntrinsicMeasurable.(IntPx) -> IntPx

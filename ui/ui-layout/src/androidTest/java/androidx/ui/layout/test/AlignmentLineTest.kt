@@ -16,16 +16,11 @@
 
 package androidx.ui.layout.test
 
-import androidx.compose.Children
 import androidx.compose.composer
 import androidx.test.filters.SmallTest
-import androidx.ui.core.Alignment
 import androidx.ui.core.Constraints
 import androidx.ui.core.HorizontalAlignmentLine
-import androidx.ui.core.IntPx
 import androidx.ui.core.Layout
-import androidx.ui.core.OnChildPositioned
-import androidx.ui.core.PositioningBlockScope.place
 import androidx.ui.core.PxPosition
 import androidx.ui.core.PxSize
 import androidx.ui.core.Ref
@@ -35,25 +30,17 @@ import androidx.ui.core.dp
 import androidx.ui.core.ipx
 import androidx.ui.core.min
 import androidx.ui.core.px
-import androidx.ui.core.round
 import androidx.ui.core.toPx
 import androidx.ui.core.withDensity
-import androidx.ui.layout.Align
 import androidx.ui.layout.AlignmentLineOffset
-import androidx.ui.layout.AspectRatio
 import androidx.ui.layout.CenterAlignmentLine
 import androidx.ui.layout.ConstrainedBox
-import androidx.ui.layout.Container
 import androidx.ui.layout.DpConstraints
 import androidx.ui.layout.Wrap
 import org.junit.Assert
-import org.junit.Assert.assertNotNull
-import org.junit.Assert.assertNull
-import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import java.lang.IllegalArgumentException
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 

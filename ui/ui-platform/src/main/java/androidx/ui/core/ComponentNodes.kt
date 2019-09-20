@@ -148,7 +148,7 @@ sealed class ComponentNode : Emittable {
      * root [LayoutNode].
      */
     open val parentLayoutNode: LayoutNode?
-            get() = containingLayoutNode
+        get() = containingLayoutNode
 
     /**
      * Protected method to find the parent's layout node. LayoutNode returns itself, but
@@ -342,7 +342,7 @@ class DrawNode : ComponentNode() {
             invalidate()
         }
 
-    var onPaint: (DensityReceiver.(canvas: Canvas, parentSize: PxSize) -> Unit)? = null
+    var onPaint: (DensityScope.(canvas: Canvas, parentSize: PxSize) -> Unit)? = null
         set(value) {
             field = value
             invalidate()
@@ -370,16 +370,22 @@ class DrawNode : ComponentNode() {
     }
 }
 
+private val Unmeasured = IntPxSize(IntPx.Zero, IntPx.Zero)
+private val Origin = IntPxPosition(IntPx.Zero, IntPx.Zero)
+
 /**
  * Backing node for Layout component.
+ *
+ * Measuring a [LayoutNode] as a [Measurable] will measure the node's content as adjusted by
+ * [modifier]. All layout state such as [modifiedSize] and [modifiedPosition] also reflect the modified
+ * state of the node.
  */
-class LayoutNode : ComponentNode(), Measurable, MeasureBlockScope {
+class LayoutNode : ComponentNode(), Measurable, MeasureScope {
     /**
-     * The lambda used to measure the child. It must call [MeasureBlockScope.layout] before
+     * The lambda used to measure the child. It must call [MeasureScope.layout] before
      * completing.
      */
-    var measureBlock:
-            MeasureBlockScope.(List<Measurable>, Constraints) -> LayoutResult = ErrorMeasureBlock
+    var measureBlock: MeasureFunction = ErrorMeasureBlock
         set(value) {
             field = value
             requestRemeasure()
@@ -389,7 +395,7 @@ class LayoutNode : ComponentNode(), Measurable, MeasureBlockScope {
      * The lambda used to calculate [IntrinsicMeasurable.minIntrinsicWidth].
      */
     var minIntrinsicWidthBlock:
-            DensityReceiver.(List<IntrinsicMeasurable>, IntPx) -> IntPx = ErrorIntrinsicBlock
+            DensityScope.(List<IntrinsicMeasurable>, IntPx) -> IntPx = ErrorIntrinsicBlock
         set(value) {
             field = value
             requestRemeasure()
@@ -399,7 +405,7 @@ class LayoutNode : ComponentNode(), Measurable, MeasureBlockScope {
      * The lambda used to calculate [IntrinsicMeasurable.maxIntrinsicWidth].
      */
     var maxIntrinsicWidthBlock:
-            DensityReceiver.(List<IntrinsicMeasurable>, IntPx) -> IntPx = ErrorIntrinsicBlock
+            DensityScope.(List<IntrinsicMeasurable>, IntPx) -> IntPx = ErrorIntrinsicBlock
         set(value) {
             field = value
             requestRemeasure()
@@ -409,7 +415,7 @@ class LayoutNode : ComponentNode(), Measurable, MeasureBlockScope {
      * The lambda used to calculate [IntrinsicMeasurable.minIntrinsicHeight].
      */
     var minIntrinsicHeightBlock:
-            DensityReceiver.(List<IntrinsicMeasurable>, IntPx) -> IntPx = ErrorIntrinsicBlock
+            DensityScope.(List<IntrinsicMeasurable>, IntPx) -> IntPx = ErrorIntrinsicBlock
         set(value) {
             field = value
             requestRemeasure()
@@ -419,7 +425,7 @@ class LayoutNode : ComponentNode(), Measurable, MeasureBlockScope {
      * The lambda used to calculate [IntrinsicMeasurable.maxIntrinsicHeight].
      */
     var maxIntrinsicHeightBlock:
-            DensityReceiver.(List<IntrinsicMeasurable>, IntPx) -> IntPx = ErrorIntrinsicBlock
+            DensityScope.(List<IntrinsicMeasurable>, IntPx) -> IntPx = ErrorIntrinsicBlock
         set(value) {
             field = value
             requestRemeasure()
@@ -430,6 +436,10 @@ class LayoutNode : ComponentNode(), Measurable, MeasureBlockScope {
      */
     var constraints: Constraints = Constraints.tightConstraints(IntPx.Zero, IntPx.Zero)
 
+    /**
+     * Implementation oddity around composition; used to capture a reference to this
+     * [LayoutNode] when composed. This is a reverse property that mutates its right-hand side.
+     */
     var ref: Ref<LayoutNode>?
         get() = null
         set(value) {
@@ -437,16 +447,14 @@ class LayoutNode : ComponentNode(), Measurable, MeasureBlockScope {
         }
 
     /**
-     * The width of this layout
+     * The measured width of this layout and all of its [modifier]s. Shortcut for `size.width`.
      */
-    var width = IntPx.Zero
-        private set
+    val width: IntPx get() = modifiedSize.width
 
     /**
-     * The height of this layout
+     * The measured height of this layout and all of its [modifier]s. Shortcut for `size.height`.
      */
-    var height = IntPx.Zero
-        private set
+    val height: IntPx get() = modifiedSize.height
 
     /**
      * The alignment lines of this layout, inherited + intrinsic
@@ -459,21 +467,39 @@ class LayoutNode : ComponentNode(), Measurable, MeasureBlockScope {
     internal val providedAlignmentLines: MutableMap<AlignmentLine, IntPx> = hashMapOf()
 
     /**
-     * The horizontal position within the parent of this layout
+     * The measured size of this layout and all of its [modifier]s.
      */
-    var x = IntPx.Zero
-        private set
+    val modifiedSize: IntPxSize get() = layoutNodeWrapper.size
 
     /**
-     * The vertical position within the parent of this layout
+     * The horizontal position of this layout and all of its [modifier]s within its parent.
      */
-    var y = IntPx.Zero
-        private set
+    val x: IntPx get() = modifiedPosition.x
+
+    /**
+     * The vertical position of this layout and all of its [modifier]s within its parent.
+     */
+    val y: IntPx get() = modifiedPosition.y
+
+    /**
+     * The position of this layout and all of its [modifier] within its parent.
+     */
+    val modifiedPosition: IntPxPosition get() = layoutNodeWrapper.position
+
+    /**
+     * The position of the inner layout node content
+     */
+    val contentPosition: IntPxPosition get() = innerLayoutNodeWrapper.position
+
+    /**
+     * The size of the inner layout node content
+     */
+    val contentSize: IntPxSize get() = innerLayoutNodeWrapper.size
 
     /**
      * Whether or not this has been placed in the hierarchy.
      */
-    var visible = true
+    var isPlaced = true
         private set
 
     /**
@@ -482,9 +508,9 @@ class LayoutNode : ComponentNode(), Measurable, MeasureBlockScope {
     var affectsParentSize: Boolean = true
 
     /**
-     * `true` when called inside [measure]
+     * `true` when inside [measure]
      */
-    var isInMeasure: Boolean = false
+    var isMeasuring: Boolean = false
 
     /**
      * `true` when the current node is positioned during the measure pass,
@@ -524,10 +550,10 @@ class LayoutNode : ComponentNode(), Measurable, MeasureBlockScope {
         get() = this
 
     /**
-     * This is the lambda that is passed to [MeasureBlockScope.layout] to
+     * This is the lambda that is passed to [MeasureScope.layout] to
      * position children.
      */
-    private var positioningBlock: PositioningBlockScope.() -> Unit = {}
+    private var positioningBlock: Placeable.PlacementScope.() -> Unit = {}
 
     /**
      * A local version of [Owner.measureIteration] to ensure that [measureBlock]
@@ -547,7 +573,7 @@ class LayoutNode : ComponentNode(), Measurable, MeasureBlockScope {
     private val _layoutChildren = mutableListOf<LayoutNode>()
 
     /**
-     * All first level [LayoutNode] descendents. All LayoutNodes in the List
+     * All first level [LayoutNode] descendants. All LayoutNodes in the List
      * will have this as [parentLayoutNode].
      */
     val layoutChildren: List<LayoutNode>
@@ -566,6 +592,7 @@ class LayoutNode : ComponentNode(), Measurable, MeasureBlockScope {
      */
     private var parentDataDirty = false
 
+    // TODO: let the ModifiedLayoutNode wrapper provide this and return null here
     override val parentData: Any?
         get() = parentDataNode?.value
 
@@ -590,20 +617,148 @@ class LayoutNode : ComponentNode(), Measurable, MeasureBlockScope {
             }
             return field
         }
-        private set
 
     override val density: Density
         get() = owner?.density ?: Density(1f)
 
-    val placeable = object : Placeable() {
-        override val width: IntPx
-            get() = this@LayoutNode.width
-        override val height: IntPx
-            get() = this@LayoutNode.height
-        override fun get(line: AlignmentLine): IntPx? = calculateAlignmentLines()[line]
+    private val innerLayoutNodeWrapper: LayoutNodeWrapper = InnerPlaceable()
+    private var layoutNodeWrapper = innerLayoutNodeWrapper
 
-        override fun place(x: IntPx, y: IntPx) {
-            this@LayoutNode.place(x, y)
+    /**
+     * The [Modifier] currently applied to this node.
+     */
+    var modifier: Modifier = Modifier.None
+        set(value) {
+            if (value == field) return
+            field = value
+
+            // Rebuild layoutNodeWrapper
+            val oldPlaceable = layoutNodeWrapper
+            layoutNodeWrapper = modifier.foldOut(innerLayoutNodeWrapper) { mod, toWrap ->
+                if (mod is LayoutModifier) ModifiedLayoutNode(toWrap, mod, density) else toWrap
+            }
+            // Optimize the case where the layout itself is not modified. A common reason for
+            // this is if no wrapping actually occurs above because no LayoutModifiers are
+            // present in the modifier chain.
+            if (oldPlaceable != layoutNodeWrapper) {
+                requestRemeasure()
+            }
+        }
+
+    /**
+     * Measurable and Placeable type that has a position.
+     */
+    private abstract class LayoutNodeWrapper : Placeable(), Measurable {
+        var position = Origin
+
+        /**
+         * Assigns a layout size to this [LayoutNodeWrapper] given the assigned innermost size
+         * from the call to [MeasureScope.layout]. Assigns and returns [modifiedSize].
+         */
+        abstract fun layoutSize(innermostSize: IntPxSize): IntPxSize
+    }
+
+    private inner class InnerPlaceable : LayoutNodeWrapper(), DensityScope {
+        override fun measure(constraints: Constraints): Placeable {
+            measureBlock(layoutChildren, constraints)
+            return this
+        }
+
+        override val parentData: Any?
+            get() = this@LayoutNode.parentData
+
+        override fun minIntrinsicWidth(height: IntPx): IntPx =
+            minIntrinsicWidthBlock(this, layoutChildren, height)
+
+        override fun maxIntrinsicWidth(height: IntPx): IntPx =
+            maxIntrinsicWidthBlock(this, layoutChildren, height)
+
+        override fun minIntrinsicHeight(width: IntPx): IntPx =
+            minIntrinsicHeightBlock(this, layoutChildren, width)
+
+        override fun maxIntrinsicHeight(width: IntPx): IntPx =
+            maxIntrinsicHeightBlock(this, layoutChildren, width)
+
+        override var size: IntPxSize = Unmeasured
+            private set
+
+        override fun performPlace(position: IntPxPosition) {
+            isPlaced = true
+            if (position != this.position) {
+                this.position = position
+                owner?.onPositionChange(this@LayoutNode)
+            }
+            placeChildren()
+        }
+
+        override val density: Density get() = this@LayoutNode.density
+
+        override fun layoutSize(innermostSize: IntPxSize): IntPxSize {
+            size = innermostSize
+            return innermostSize
+        }
+
+        override fun get(line: AlignmentLine): IntPx? = calculateAlignmentLines()[line]
+    }
+
+    private data class ModifiedLayoutNode(
+        val wrapped: LayoutNodeWrapper,
+        val layoutModifier: LayoutModifier,
+        override val density: Density
+    ) : LayoutNodeWrapper(), DensityScope {
+
+        /**
+         * The [Placeable] returned by measuring [wrapped] in [measure].
+         * Used to avoid creating more wrapper objects than necessary since [ModifiedLayoutNode]
+         * also
+         */
+        private var measuredPlaceable: Placeable? = null
+
+        // TODO change this once modifiers can take over for parentData
+        override val parentData: Any?
+            get() = wrapped.parentData
+
+        override fun measure(constraints: Constraints): Placeable = with(layoutModifier) {
+            val measureResult = wrapped.measure(modifyConstraints(constraints))
+            measuredPlaceable = measureResult
+            this@ModifiedLayoutNode
+        }
+
+        override fun minIntrinsicWidth(height: IntPx): IntPx = with(layoutModifier) {
+            minIntrinsicWidthOf(wrapped, height)
+        }
+
+        override fun maxIntrinsicWidth(height: IntPx): IntPx = with(layoutModifier) {
+            maxIntrinsicWidthOf(wrapped, height)
+        }
+
+        override fun minIntrinsicHeight(width: IntPx): IntPx = with(layoutModifier) {
+            minIntrinsicHeightOf(wrapped, width)
+        }
+
+        override fun maxIntrinsicHeight(width: IntPx): IntPx = with(layoutModifier) {
+            maxIntrinsicHeightOf(wrapped, width)
+        }
+
+        override var size: IntPxSize = Unmeasured
+            private set
+
+        override fun performPlace(position: IntPxPosition) {
+            val placeable = measuredPlaceable ?: error("Placeable not measured")
+
+            val offset = with(layoutModifier) {
+                modifyPosition(placeable.size, size)
+            }
+
+            placeable.place(position + offset)
+        }
+
+        override fun get(line: AlignmentLine): IntPx? = with(layoutModifier) {
+            modifyAlignmentLine(line, wrapped[line])
+        }
+
+        override fun layoutSize(innermostSize: IntPxSize): IntPxSize = with(layoutModifier) {
+            modifySize(wrapped.layoutSize(innermostSize)).also { size = it }
         }
     }
 
@@ -625,77 +780,77 @@ class LayoutNode : ComponentNode(), Measurable, MeasureBlockScope {
 
     override fun measure(constraints: Constraints): Placeable {
         val owner = owner
+        // The more idiomatic `val iteration = owner?.measureIteration ?: 0L` causes boxing.
+        @Suppress("IfThenToElvis")
         val iteration = if (owner == null) 0L else owner.measureIteration
-        if (measureIteration == iteration) {
-            throw IllegalStateException("measure() may not be called multiple times " +
-                    "on the same Measurable")
+        check(measureIteration != iteration) {
+            "measure() may not be called multiple times on the same Measurable"
         }
         measureIteration = iteration
         if (this.constraints == constraints && !needsRemeasure) {
             val parent = parentLayoutNode
-            if (parent != null && parent.isInMeasure) {
+            if (parent != null && parent.isMeasuring) {
                 affectsParentSize = true
             }
-            return placeable // we're already measured to this size, don't do anything
+            return layoutNodeWrapper // we're already measured to this size, don't do anything
         }
 
-        isInMeasure = true
+        isMeasuring = true
         dirtyAlignmentLines = true
         layoutChildren.forEach { child ->
             child.affectsParentSize = false
             child.alignmentLinesRequired = false
         }
         owner?.onStartMeasure(this)
-        this.constraints = constraints
+        try {
+            this.constraints = constraints
 
-        this.measureBlock(layoutChildren, constraints)
-        owner?.onEndMeasure(this)
-        isInMeasure = false
+            layoutNodeWrapper.measure(constraints)
+        } finally {
+            owner?.onEndMeasure(this)
+            isMeasuring = false
+        }
         needsRemeasure = false
         needsRelayout = true
-        return placeable
+        return layoutNodeWrapper
     }
 
     override fun minIntrinsicWidth(height: IntPx): IntPx =
-        minIntrinsicWidthBlock(this, layoutChildren, height)
+        layoutNodeWrapper.minIntrinsicWidth(height)
 
     override fun maxIntrinsicWidth(height: IntPx): IntPx =
-        maxIntrinsicWidthBlock(this, layoutChildren, height)
+        layoutNodeWrapper.maxIntrinsicWidth(height)
 
     override fun minIntrinsicHeight(width: IntPx): IntPx =
-        minIntrinsicHeightBlock(this, layoutChildren, width)
+        layoutNodeWrapper.minIntrinsicHeight(width)
 
     override fun maxIntrinsicHeight(width: IntPx): IntPx =
-        maxIntrinsicHeightBlock(this, layoutChildren, width)
+        layoutNodeWrapper.maxIntrinsicHeight(width)
 
     fun place(x: IntPx, y: IntPx) {
-        visible = true
-        if (x != this.x || y != this.y) {
-            this.x = x
-            this.y = y
-            owner?.onPositionChange(this)
+        with(Placeable.PlacementScope) {
+            layoutNodeWrapper.place(x, y)
         }
-        placeChildren()
     }
 
     fun placeChildren() {
         if (needsRelayout) {
             owner?.onStartLayout(this)
             layoutChildren.forEach { child ->
-                child.visible = false
+                child.isPlaced = false
                 child.alignmentLinesRequired = alignmentLinesRequired
                 if (dirtyAlignmentLines) child.dirtyAlignmentLines = true
             }
-            positionedDuringMeasurePass = parentLayoutNode?.isInMeasure ?: false ||
+            positionedDuringMeasurePass = parentLayoutNode?.isMeasuring ?: false ||
                     parentLayoutNode?.positionedDuringMeasurePass ?: false
-            PositioningBlockScope.positioningBlock()
+            Placeable.positioningBlock()
             owner?.onEndLayout(this)
             needsRelayout = false
 
             if (alignmentLinesRequired && dirtyAlignmentLines) {
                 alignmentLines.clear()
                 layoutChildren.forEach { child ->
-                    if (!child.visible) return@forEach
+                    if (!child.isPlaced) return@forEach
                     child.alignmentLines.entries.forEach { (childLine, linePosition) ->
                         val linePositionInContainer = linePosition +
                                 if (childLine.horizontal) child.y else child.x
@@ -726,27 +881,33 @@ class LayoutNode : ComponentNode(), Measurable, MeasureBlockScope {
         width: IntPx,
         height: IntPx,
         vararg alignmentLines: Pair<AlignmentLine, IntPx>,
-        positioningBlock: PositioningBlockScope.() -> Unit
-    ): LayoutResult {
+        placementBlock: Placeable.PlacementScope.() -> Unit
+    ): MeasureScope.LayoutResult {
+        val oldSize = modifiedSize
+        val outerSize = layoutNodeWrapper.layoutSize(IntPxSize(width, height))
+
+        // The more idiomatic, `if (parentLayoutNode?.isMeasuring == true)` causes boxing
         val parent = parentLayoutNode
-        if (parent != null && parent.isInMeasure) {
+        @Suppress("SimplifyBooleanWithConstants")
+        if (parent != null && parent.isMeasuring == true) {
             affectsParentSize = true
         }
-        if (width != this.width || height != this.height) {
-            this.width = width
-            this.height = height
-            owner?.onSizeChange(this)
+        if (oldSize != outerSize) {
+            // TODO this may also need to be updated when the modifier chain size changes
+            owner?.onSizeChange(this@LayoutNode)
         }
         this.providedAlignmentLines.clear()
         this.providedAlignmentLines += alignmentLines
-        this.positioningBlock = positioningBlock
-        return LayoutResult.Instance
+        this.positioningBlock = placementBlock
+        return MeasureScope.LayoutResult
     }
 
     /**
      * Used by `ComplexLayoutState` to request a new measurement + layout pass from the owner.
      */
-    fun requestRemeasure() = owner?.onRequestMeasure(this)
+    fun requestRemeasure() {
+        owner?.onRequestMeasure(this)
+    }
 
     internal fun dispatchOnPositionedCallbacks() {
         // There are two types of callbacks:
@@ -786,13 +947,12 @@ class LayoutNode : ComponentNode(), Measurable, MeasureBlockScope {
             }
         }
 
-        private val ErrorMeasureBlock:
-                MeasureBlockScope.(List<Measurable>, Constraints) -> LayoutResult = { _, _ ->
-            throw IllegalStateException("Undefined measure and it is required")
+        private val ErrorMeasureBlock: MeasureFunction = { _, _ ->
+            error("Undefined measure and it is required")
         }
         private val ErrorIntrinsicBlock:
-                DensityReceiver.(List<IntrinsicMeasurable>, IntPx) -> IntPx = { _, _ ->
-            throw IllegalStateException("Undefined intrinsics block and it is required")
+                DensityScope.(List<IntrinsicMeasurable>, IntPx) -> IntPx = { _, _ ->
+            error("Undefined intrinsics block and it is required")
         }
 
         private fun addLayoutChildren(node: ComponentNode, list: MutableList<LayoutNode>) {
@@ -823,28 +983,6 @@ private class InvalidatingProperty<T>(private var value: T) :
         }
         this.value = value
         thisRef.markNeedsSemanticsUpdate()
-    }
-}
-
-private class InvalidatingCallbackProperty<T>(private var value: T) :
-    ReadWriteProperty<SemanticsComponentNode, T> {
-    override fun getValue(thisRef: SemanticsComponentNode, property: KProperty<*>): T {
-        return value
-    }
-
-    override fun setValue(
-        thisRef: SemanticsComponentNode,
-        property: KProperty<*>,
-        value: T
-    ) {
-        if (this.value == value) {
-            return
-        }
-        val hadValue = this.value != null
-        this.value = value
-        if ((value != null) != hadValue) {
-            thisRef.markNeedsSemanticsUpdate()
-        }
     }
 }
 
@@ -944,8 +1082,9 @@ fun LayoutNode.globalToLocal(global: PxPosition, withOwnerOffset: Boolean = true
     var y: Px = global.y
     var node: LayoutNode? = this
     while (node != null) {
-        x -= node.x.toPx()
-        y -= node.y.toPx()
+        val pos = node.contentPosition
+        x -= pos.x.toPx()
+        y -= pos.y.toPx()
         node = node.parentLayoutNode
     }
     if (withOwnerOffset) {
@@ -964,8 +1103,9 @@ fun LayoutNode.localToGlobal(local: PxPosition, withOwnerOffset: Boolean = true)
     var y: Px = local.y
     var node: LayoutNode? = this
     while (node != null) {
-        x += node.x.toPx()
-        y += node.y.toPx()
+        val pos = node.modifiedPosition
+        x += pos.x.toPx()
+        y += pos.y.toPx()
         node = node.parentLayoutNode
     }
     if (withOwnerOffset) {
@@ -987,14 +1127,12 @@ fun LayoutNode.childToLocal(child: LayoutNode, childLocal: PxPosition): PxPositi
     var y: Px = childLocal.y
     var node: LayoutNode? = child
     while (true) {
-        if (node == null) {
-            throw IllegalStateException(
-                "Current layout is not an ancestor of the provided" +
-                        "child layout"
-            )
+        checkNotNull(node) {
+            "Current layout is not an ancestor of the provided child layout"
         }
-        x += node.x.toPx()
-        y += node.y.toPx()
+        val pos = node.modifiedPosition
+        x += pos.x.toPx()
+        y += pos.y.toPx()
         node = node.parentLayoutNode
         if (node === this) {
             // found the node

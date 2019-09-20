@@ -21,14 +21,15 @@ import androidx.compose.Composable
 import androidx.compose.composer
 import androidx.ui.core.Alignment
 import androidx.ui.core.AlignmentLine
+import androidx.ui.core.ComplexLayout
 import androidx.ui.core.Constraints
 import androidx.ui.core.IntPx
 import androidx.ui.core.IntPxSize
 import androidx.ui.core.Placeable
 import androidx.ui.core.ipx
 import androidx.ui.core.max
-import androidx.ui.core.ComplexLayout
 import androidx.ui.core.IntrinsicMeasurable
+import androidx.ui.core.Modifier
 import androidx.ui.core.ParentData
 import androidx.ui.core.isFinite
 import androidx.ui.core.px
@@ -98,6 +99,7 @@ class FlexChildren internal constructor() {
  */
 @Composable
 fun FlexRow(
+    modifier: Modifier = Modifier.None,
     mainAxisAlignment: MainAxisAlignment = MainAxisAlignment.Start,
     mainAxisSize: LayoutSize = LayoutSize.Expand,
     crossAxisAlignment: CrossAxisAlignment = CrossAxisAlignment.Start,
@@ -110,6 +112,7 @@ fun FlexRow(
         mainAxisSize = mainAxisSize,
         crossAxisAlignment = crossAxisAlignment,
         crossAxisSize = crossAxisSize,
+        modifier = modifier,
         block = block
     )
 }
@@ -141,6 +144,7 @@ fun FlexRow(
  */
 @Composable
 fun FlexColumn(
+    modifier: Modifier = Modifier.None,
     mainAxisAlignment: MainAxisAlignment = MainAxisAlignment.Start,
     mainAxisSize: LayoutSize = LayoutSize.Expand,
     crossAxisAlignment: CrossAxisAlignment = CrossAxisAlignment.Start,
@@ -153,6 +157,7 @@ fun FlexColumn(
         mainAxisSize = mainAxisSize,
         crossAxisAlignment = crossAxisAlignment,
         crossAxisSize = crossAxisSize,
+        modifier = modifier,
         block = block
     )
 }
@@ -175,6 +180,7 @@ fun FlexColumn(
  */
 @Composable
 fun Row(
+    modifier: Modifier = Modifier.None,
     mainAxisAlignment: MainAxisAlignment = MainAxisAlignment.Start,
     mainAxisSize: LayoutSize = LayoutSize.Wrap,
     crossAxisAlignment: CrossAxisAlignment = CrossAxisAlignment.Start,
@@ -185,7 +191,8 @@ fun Row(
         mainAxisAlignment = mainAxisAlignment,
         mainAxisSize = mainAxisSize,
         crossAxisAlignment = crossAxisAlignment,
-        crossAxisSize = crossAxisSize
+        crossAxisSize = crossAxisSize,
+        modifier = modifier
     ) {
         inflexible {
             block()
@@ -211,6 +218,7 @@ fun Row(
  */
 @Composable
 fun Column(
+    modifier: Modifier = Modifier.None,
     mainAxisAlignment: MainAxisAlignment = MainAxisAlignment.Start,
     mainAxisSize: LayoutSize = LayoutSize.Wrap,
     crossAxisAlignment: CrossAxisAlignment = CrossAxisAlignment.Start,
@@ -221,7 +229,8 @@ fun Column(
         mainAxisAlignment = mainAxisAlignment,
         mainAxisSize = mainAxisSize,
         crossAxisAlignment = crossAxisAlignment,
-        crossAxisSize = crossAxisSize
+        crossAxisSize = crossAxisSize,
+        modifier = modifier
     ) {
         inflexible {
             block()
@@ -480,6 +489,7 @@ private val IntrinsicMeasurable.fit: FlexFit get() = (parentData as FlexInfo).fi
 @Composable
 private fun Flex(
     orientation: LayoutOrientation,
+    modifier: Modifier = Modifier.None,
     mainAxisSize: LayoutSize,
     mainAxisAlignment: MainAxisAlignment,
     crossAxisSize: LayoutSize,
@@ -498,7 +508,7 @@ private fun Flex(
         }
         composable
     }
-    ComplexLayout(flexChildren) {
+    ComplexLayout(flexChildren, modifier) {
         measure { children, outerConstraints ->
             val constraints = OrientationIndependentConstraints(outerConstraints, orientation)
 

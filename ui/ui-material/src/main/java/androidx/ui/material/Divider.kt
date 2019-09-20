@@ -20,10 +20,11 @@ import androidx.compose.Composable
 import androidx.compose.composer
 import androidx.compose.unaryPlus
 import androidx.ui.core.Dp
+import androidx.ui.core.Modifier
 import androidx.ui.core.dp
 import androidx.ui.foundation.ColoredRect
 import androidx.ui.graphics.Color
-import androidx.ui.layout.Padding
+import androidx.ui.layout.absolutePadding
 
 /**
  * A divider is a thin line that groups content in lists and layouts
@@ -34,11 +35,11 @@ import androidx.ui.layout.Padding
  */
 @Composable
 fun Divider(
+    modifier: Modifier = Modifier.None,
     color: Color = +themeColor { onSurface },
     height: Dp = 1.dp,
     indent: Dp = 0.dp
 ) {
-    Padding(left = indent) {
-        ColoredRect(height = height, color = color)
-    }
+    val indentMod = if (indent.value != 0f) absolutePadding(left = indent) else Modifier.None
+    ColoredRect(color, modifier wraps indentMod, height = height)
 }
