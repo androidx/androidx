@@ -225,10 +225,19 @@ public final class ViewPager2 extends ViewGroup {
             }
         };
 
+        // Prevents focus from remaining on a no-longer visible page
+        final OnPageChangeCallback focusClearer = new OnPageChangeCallback() {
+            @Override
+            public void onPageSelected(int position) {
+                clearFocus();
+            }
+        };
+
         // Add currentItemUpdater before mExternalPageChangeCallbacks, because we need to update
         // internal state first
         mPageChangeEventDispatcher.addOnPageChangeCallback(currentItemUpdater);
-        // Allow a11y to register its listeners just after currentItemUpdater (so it has the
+        mPageChangeEventDispatcher.addOnPageChangeCallback(focusClearer);
+        // Allow a11y to register its listeners after currentItemUpdater (so it has the
         // right data). TODO: replace ordering comments with a test.
         mAccessibilityProvider.onInitialize(mPageChangeEventDispatcher, mRecyclerView);
         mPageChangeEventDispatcher.addOnPageChangeCallback(mExternalPageChangeCallbacks);
