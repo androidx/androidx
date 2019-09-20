@@ -53,22 +53,13 @@ internal class LivePagedList<Key : Any, Value : Any>(
             config,
             initialKey
         )
-        onSuccess(currentData)
+        currentData.setRetryCallback(refreshRetryCallback)
+        value = currentData
     }
 
     override fun onActive() {
         super.onActive()
         invalidate(false)
-    }
-
-    private fun onError(throwable: Throwable) {
-        currentData.setInitialLoadState(REFRESH, Error(throwable))
-    }
-
-    private fun onSuccess(value: PagedList<Value>) {
-        onItemUpdate(currentData, value)
-        currentData = value
-        setValue(value)
     }
 
     private fun invalidate(force: Boolean) {
@@ -77,8 +68,8 @@ internal class LivePagedList<Key : Any, Value : Any>(
 
         currentJob?.cancel()
         currentJob = coroutineScope.launch(fetchDispatcher) {
-            val pagedSource = pagedSourceFactory()
             currentData.pagedSource.unregisterInvalidatedCallback(callback)
+            val pagedSource = pagedSourceFactory()
             pagedSource.registerInvalidatedCallback(callback)
 
             withContext(notifyDispatcher) {
@@ -89,9 +80,11 @@ internal class LivePagedList<Key : Any, Value : Any>(
             val lastKey = currentData.lastKey as Key?
             val params = config.toRefreshLoadParams(lastKey)
             when (val initialResult = pagedSource.load(params)) {
-                is PagedSource.LoadResult.Error -> onError(initialResult.throwable)
+                is PagedSource.LoadResult.Error -> {
+                    currentData.setInitialLoadState(REFRESH, Error(initialResult.throwable))
+                }
                 is PagedSource.LoadResult.Page -> {
-                    onSuccess(PagedList.create(
+                    val pagedList = PagedList.create(
                         pagedSource,
                         initialResult,
                         coroutineScope,
@@ -100,7 +93,10 @@ internal class LivePagedList<Key : Any, Value : Any>(
                         boundaryCallback,
                         config,
                         lastKey
-                    ))
+                    )
+                    onItemUpdate(currentData, pagedList)
+                    currentData = pagedList
+                    postValue(pagedList)
                 }
             }
         }
