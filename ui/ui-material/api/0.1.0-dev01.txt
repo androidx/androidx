@@ -370,35 +370,6 @@ package androidx.ui.material.ripple {
 
 }
 
-package androidx.ui.material.shape {
-
-  public final class CutCornerShape extends androidx.ui.foundation.shape.corner.CornerBasedShape {
-    ctor public CutCornerShape(androidx.ui.foundation.shape.corner.CornerSize topLeft, androidx.ui.foundation.shape.corner.CornerSize topRight, androidx.ui.foundation.shape.corner.CornerSize bottomRight, androidx.ui.foundation.shape.corner.CornerSize bottomLeft);
-    method public androidx.ui.foundation.shape.corner.CornerSize component1();
-    method public androidx.ui.foundation.shape.corner.CornerSize component2();
-    method public androidx.ui.foundation.shape.corner.CornerSize component3();
-    method public androidx.ui.foundation.shape.corner.CornerSize component4();
-    method public androidx.ui.material.shape.CutCornerShape copy(androidx.ui.foundation.shape.corner.CornerSize topLeft, androidx.ui.foundation.shape.corner.CornerSize topRight, androidx.ui.foundation.shape.corner.CornerSize bottomRight, androidx.ui.foundation.shape.corner.CornerSize bottomLeft);
-    method public androidx.ui.engine.geometry.Outline.Generic createOutline(androidx.ui.core.PxSize size, androidx.ui.core.Px topLeft, androidx.ui.core.Px topRight, androidx.ui.core.Px bottomRight, androidx.ui.core.Px bottomLeft);
-    method public androidx.ui.foundation.shape.corner.CornerSize getBottomLeft();
-    method public androidx.ui.foundation.shape.corner.CornerSize getBottomRight();
-    method public androidx.ui.foundation.shape.corner.CornerSize getTopLeft();
-    method public androidx.ui.foundation.shape.corner.CornerSize getTopRight();
-  }
-
-  public final class CutCornerShapeKt {
-    ctor public CutCornerShapeKt();
-    method public static androidx.ui.material.shape.CutCornerShape CutCornerShape(androidx.ui.foundation.shape.corner.CornerSize corner);
-    method public static androidx.ui.material.shape.CutCornerShape CutCornerShape(androidx.ui.core.Dp size);
-    method public static androidx.ui.material.shape.CutCornerShape CutCornerShape(androidx.ui.core.Px size);
-    method public static androidx.ui.material.shape.CutCornerShape CutCornerShape(int percent);
-    method public static androidx.ui.material.shape.CutCornerShape CutCornerShape(androidx.ui.core.Dp topLeft = 0.dp, androidx.ui.core.Dp topRight = 0.dp, androidx.ui.core.Dp bottomRight = 0.dp, androidx.ui.core.Dp bottomLeft = 0.dp);
-    method public static androidx.ui.material.shape.CutCornerShape CutCornerShape(androidx.ui.core.Px topLeft = 0.px, androidx.ui.core.Px topRight = 0.px, androidx.ui.core.Px bottomRight = 0.px, androidx.ui.core.Px bottomLeft = 0.px);
-    method public static androidx.ui.material.shape.CutCornerShape CutCornerShape(@IntRange(from=0, to=50) int topLeftPercent = 0, @IntRange(from=0, to=50) int topRightPercent = 0, @IntRange(from=0, to=50) int bottomRightPercent = 0, @IntRange(from=0, to=50) int bottomLeftPercent = 0);
-  }
-
-}
-
 package androidx.ui.material.surface {
 
   public final class CardKt {

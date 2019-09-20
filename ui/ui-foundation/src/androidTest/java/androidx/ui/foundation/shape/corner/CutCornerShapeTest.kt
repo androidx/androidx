@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.ui.material.shape
+package androidx.ui.foundation.shape.corner
 
 import androidx.test.filters.SmallTest
 import androidx.ui.core.Density
