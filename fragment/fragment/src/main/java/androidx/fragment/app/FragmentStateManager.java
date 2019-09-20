@@ -126,6 +126,44 @@ class FragmentStateManager {
         return mFragment;
     }
 
+    /**
+     * Compute the maximum state that the Fragment should be in given the internal
+     * state of the Fragment.
+     *
+     * @return the maximum state that the Fragment should be in
+     */
+    int computeMaxState() {
+        // Assume the Fragment can go all the way to resumed by default
+        int maxState = Fragment.RESUMED;
+
+        // Fragments that are not currently added will sit in the CREATED state.
+        if (!mFragment.mAdded) {
+            maxState = Math.min(maxState, Fragment.CREATED);
+        }
+        if (mFragment.mRemoving) {
+            if (mFragment.isInBackStack()) {
+                // Fragments on the back stack shouldn't go higher than CREATED
+                maxState = Math.min(maxState, Fragment.CREATED);
+            } else {
+                // While removing a fragment, we always move to INITIALIZING
+                maxState = Math.min(maxState, Fragment.INITIALIZING);
+            }
+        }
+        // Defer start if requested; don't allow it to move to STARTED or higher
+        // if it's not already started.
+        if (mFragment.mDeferStart && mFragment.mState < Fragment.STARTED) {
+            maxState = Math.min(maxState, Fragment.ACTIVITY_CREATED);
+        }
+        // Don't allow the Fragment to go above its max lifecycle state
+        // Ensure that Fragments are capped at CREATED instead of ACTIVITY_CREATED.
+        if (mFragment.mMaxState == Lifecycle.State.CREATED) {
+            maxState = Math.min(maxState, Fragment.CREATED);
+        } else {
+            maxState = Math.min(maxState, mFragment.mMaxState.ordinal());
+        }
+        return maxState;
+    }
+
     void ensureInflatedView() {
         if (mFragment.mFromLayout && !mFragment.mPerformedCreateView) {
             mFragment.performCreateView(mFragment.performGetLayoutInflater(
