@@ -132,6 +132,63 @@ fun DefaultDataTablePagination(
 }
 
 /**
+ * Sorting configuration for a [DataTable].
+ */
+data class DataTableSorting(
+    /**
+     * The index of the current column, if any, by which the data is sorted.
+     *
+     * When this is null, it implies that the table's sort order does not correspond to any of the
+     * columns. Setting this to a non-null value will display a sort indicator next to that column.
+     */
+    val column: Int?,
+
+    /**
+     * Whether the column specified by [column], if non-null, is sorted in ascending order.
+     */
+    val ascending: Boolean,
+
+    /**
+     * The columns by which the data can be sorted.
+     *
+     * The current value of [column], if non-null, must be in this set.
+     */
+    val sortableColumns: Set<Int>,
+
+    /**
+     * Called when the user asks to sort the table.
+     */
+    val onSortChange: (column: Int, ascending: Boolean) -> Unit
+)
+
+/**
+ * Creates a sorting configuration for [DataTable] with the given initial values.
+ *
+ * Example usage:
+ *
+ * @sample androidx.ui.material.samples.DataTableWithSorting
+ */
+fun DefaultDataTableSorting(
+    initialColumn: Int? = null,
+    initialAscending: Boolean = true,
+    sortableColumns: Set<Int>,
+    onSortRequest: (column: Int, ascending: Boolean) -> Unit
+): DataTableSorting {
+    val column = +state { initialColumn }
+    val ascending = +state { initialAscending }
+    return DataTableSorting(
+        column = column.value,
+        ascending = ascending.value,
+        sortableColumns = sortableColumns,
+        onSortChange = { newColumn, newAscending ->
+            column.value = newColumn
+            ascending.value = newAscending
+            onSortRequest(newColumn, newAscending)
+        }
+    )
+}
+
+/**
  * Data tables display information in a grid-like format of rows and columns. They organize
  * information in a way that’s easy to scan, so that users can look for patterns and insights.
  *
@@ -142,6 +199,10 @@ fun DefaultDataTablePagination(
  * To make a data table paginated, you must provide a [pagination] configuration:
  *
  * @sample androidx.ui.material.samples.DataTableWithPagination
+ *
+ * To enable sorting when clicking on the column headers, provide a [sorting] configuration:
+ *
+ * @sample androidx.ui.material.samples.DataTableWithSorting
  *
  * @param rows The data to show in each row (excluding the header row).
  * @param columns The number of columns in the table.
@@ -154,6 +215,7 @@ fun DefaultDataTablePagination(
  * @param selectedColor The color used to indicate selected rows.
  * @param onSelectAll Called when the user selects or unselects every row using the 'all' checkbox.
  * @param pagination Contains the pagination configuration. To disable pagination, set this to null.
+ * @param sorting Contains the sorting configuration. To disable sorting, set this to null.
  */
 @Composable
 fun DataTable(
@@ -167,7 +229,8 @@ fun DataTable(
     border: Border = Border(color = BorderColor, width = BorderWidth),
     selectedColor: Color = +themeColor { primary.copy(alpha = 0.08f) },
     onSelectAll: (Boolean) -> Unit = { rows.forEach { row -> row.onSelectedChange?.invoke(it) } },
-    pagination: DataTablePagination? = null
+    pagination: DataTablePagination? = null,
+    sorting: DataTableSorting? = null
 ) {
     val selectableRows = rows.filter { it.onSelectedChange != null }
     val showCheckboxes = selectableRows.isNotEmpty()
@@ -217,8 +280,37 @@ fun DataTable(
                 }
                 for (j in 0 until columns) {
                     Container(height = headerHeight, padding = cellSpacing) {
-                        CurrentTextStyleProvider(value = TextStyle(fontWeight = FontWeight.W500)) {
-                            header(index = j)
+                        var fontWeight = FontWeight.W500
+                        var onSort = null as (() -> Unit)?
+                        var headerDecoration = null as (@Composable() () -> Unit)?
+
+                        if (sorting != null && sorting.sortableColumns.contains(j)) {
+                            if (sorting.column == j) {
+                                fontWeight = FontWeight.Bold
+                                onSort = {
+                                    sorting.onSortChange(j, !sorting.ascending)
+                                }
+                                headerDecoration = {
+                                    // TODO(calintat): Replace with animated arrow icons.
+                                    Text(text = if (sorting.ascending) "↑" else "↓")
+                                    WidthSpacer(2.dp)
+                                }
+                            } else {
+                                onSort = {
+                                    sorting.onSortChange(j, true)
+                                }
+                            }
+                        }
+
+                        CurrentTextStyleProvider(TextStyle(fontWeight = fontWeight)) {
+                            Ripple(bounded = true) {
+                                Clickable(onClick = onSort) {
+                                    Row {
+                                        headerDecoration?.invoke()
+                                        header(index = j)
+                                    }
+                                }
+                            }
                         }
                     }
                 }

@@ -24,6 +24,7 @@ import androidx.ui.core.Text
 import androidx.ui.material.DataRow
 import androidx.ui.material.DataTable
 import androidx.ui.material.DefaultDataTablePagination
+import androidx.ui.material.DefaultDataTableSorting
 
 @Model
 private data class Dessert(
@@ -123,6 +124,19 @@ private val extraDesserts = listOf(
     Dessert("Coconut slice and KitKat", 677, 41.0, 72, 8.5, 63, 12, 12)
 )
 
+private val mutableDesserts = mutableListOf(
+    Dessert("Frozen yogurt", 159, 6.0, 24, 4.0, 87, 14, 1),
+    Dessert("Ice cream sandwich", 237, 9.0, 37, 4.3, 129, 8, 1),
+    Dessert("Eclair", 262, 16.0, 24, 6.0, 337, 6, 7),
+    Dessert("Cupcake", 305, 3.7, 67, 4.3, 413, 3, 8),
+    Dessert("Gingerbread", 356, 16.0, 49, 3.9, 327, 7, 16),
+    Dessert("Jelly bean", 375, 0.0, 94, 0.0, 50, 0, 0),
+    Dessert("Lollipop", 392, 0.2, 98, 0.0, 38, 0, 2),
+    Dessert("Honeycomb", 408, 3.2, 87, 6.5, 562, 0, 45),
+    Dessert("Donut", 452, 25.0, 51, 4.9, 326, 2, 22),
+    Dessert("KitKat", 518, 26.0, 65, 7.0, 54, 12, 6)
+)
+
 @Sampled
 @Composable
 fun SimpleDataTable() {
@@ -184,6 +198,56 @@ fun DataTableWithPagination() {
             initialPage = 1,
             initialRowsPerPage = 7,
             availableRowsPerPage = listOf(7, 14, 28)
+        )
+    )
+}
+
+@Sampled
+@Composable
+fun DataTableWithSorting() {
+    DataTable(
+        columns = headers.size,
+        header = { j -> Text(text = headers[j]) },
+        numeric = { j -> j != 0 },
+        rows = mutableDesserts.map { dessert ->
+            DataRow(
+                children = { j ->
+                    Text(
+                        text = when (j) {
+                            0 -> dessert.name
+                            1 -> dessert.calories.toString()
+                            2 -> dessert.fat.toString()
+                            3 -> dessert.carbs.toString()
+                            4 -> dessert.protein.toString()
+                            5 -> dessert.sodium.toString()
+                            6 -> dessert.calcium.toString() + "%"
+                            else -> dessert.iron.toString() + "%"
+                        }
+                    )
+                },
+                selected = dessert.selected,
+                onSelectedChange = { dessert.onSelectedChange(it) }
+            )
+        },
+        sorting = DefaultDataTableSorting(
+            sortableColumns = setOf(1, 2, 3, 4, 5, 6, 7),
+            onSortRequest = { sortColumn, ascending ->
+                mutableDesserts.sortWith(object : Comparator<Dessert> {
+                    override fun compare(p0: Dessert, p1: Dessert): Int {
+                        val comparison = when (sortColumn) {
+                            0 -> compareValues(p0.name, p1.name)
+                            1 -> compareValues(p0.calories, p1.calories)
+                            2 -> compareValues(p0.fat, p1.fat)
+                            3 -> compareValues(p0.carbs, p1.carbs)
+                            4 -> compareValues(p0.protein, p1.protein)
+                            5 -> compareValues(p0.sodium, p1.sodium)
+                            6 -> compareValues(p0.calcium, p1.calcium)
+                            else -> compareValues(p0.iron, p1.iron)
+                        }
+                        return if (ascending) comparison else -comparison
+                    }
+                })
+            }
         )
     )
 }
