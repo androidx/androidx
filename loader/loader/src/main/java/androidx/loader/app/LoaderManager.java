@@ -17,6 +17,7 @@
 package androidx.loader.app;
 
 import android.os.Bundle;
+import android.util.Log;
 
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
@@ -230,7 +231,11 @@ public abstract class LoaderManager {
      * Control whether the framework's internal loader manager debugging
      * logs are turned on.  If enabled, you will see output in logcat as
      * the framework performs loader operations.
+     * @deprecated LoaderManager now respects {@link Log#isLoggable(String, int)} for debug
+     * logging, allowing you to use <code>adb shell setprop log.tag.LoaderManager VERBOSE</code>.
+     * @see Log#isLoggable(String, int)
      */
+    @Deprecated
     public static void enableDebugLogging(boolean enabled) {
         LoaderManagerImpl.DEBUG = enabled;
     }
