@@ -23,7 +23,9 @@ import android.transition.TransitionSet;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
+import androidx.core.os.CancellationSignal;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -242,6 +244,39 @@ class FragmentTransitionCompat21 extends FragmentTransitionImpl {
             @Override
             public void onTransitionResume(Transition transition) {
             }
+        });
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * If either exitingViews or SharedElementsOut contain a view, an
+     * {@link Transition.TransitionListener#onTransitionEnd} listener is added that calls
+     * {@link Runnable#run()} once the Transition ends.
+     *
+     * Destroying the view of the Fragment is how the Transition gets canceled.
+     */
+    @Override
+    public void setListenerForTransitionEnd(@NonNull final Fragment outFragment,
+            @NonNull Object transition, @NonNull final CancellationSignal signal,
+            @NonNull final Runnable transitionCompleteRunnable) {
+        ((Transition) transition).addListener(new Transition.TransitionListener() {
+            @Override
+            public void onTransitionStart(Transition transition) { }
+
+            @Override
+            public void onTransitionEnd(Transition transition) {
+                transitionCompleteRunnable.run();
+            }
+
+            @Override
+            public void onTransitionCancel(Transition transition) { }
+
+            @Override
+            public void onTransitionPause(Transition transition) { }
+
+            @Override
+            public void onTransitionResume(Transition transition) { }
         });
     }
 
