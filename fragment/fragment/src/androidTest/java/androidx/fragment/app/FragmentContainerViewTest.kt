@@ -29,7 +29,7 @@ import android.view.animation.Animation
 import androidx.fragment.app.test.FragmentTestActivity
 import androidx.fragment.test.R
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.filters.MediumTest
+import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.rule.ActivityTestRule
 import androidx.testutils.waitForExecution
@@ -42,7 +42,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import java.util.concurrent.CountDownLatch
 
-@MediumTest
+@LargeTest
 @RunWith(AndroidJUnit4::class)
 class FragmentContainerViewTest {
     @get:Rule
