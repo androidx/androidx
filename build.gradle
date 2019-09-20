@@ -47,4 +47,3 @@ apply from: "buildSrc/out.gradle"
 init.chooseOutDir()
 
 apply plugin: AndroidXPlugin
-

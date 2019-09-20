@@ -24,4 +24,4 @@ apply from: "buildSrc/dependencies.gradle"
 apply from: "buildSrc/out.gradle"
 init.chooseOutDir("/ui")
 
-apply plugin: androidx.build.AndroidXPlugin
+apply plugin: AndroidXPlugin
