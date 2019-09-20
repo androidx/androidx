@@ -335,10 +335,17 @@ final class SupportedSurfaceCombination {
         // result.
         Arrays.sort(outputSizes, new CompareSizesByArea(true));
 
-        // Filter out the ones that exceed the maximum size
+        // Get the minimum size according to min(DEFAULT_SIZE, TARGET_RESOLUTION).
+        Size targetSize = config.getTargetResolution(ZERO_SIZE);
+        Size minSize = DEFAULT_SIZE;
+        if (!targetSize.equals(ZERO_SIZE) && getArea(targetSize) < getArea(DEFAULT_SIZE)) {
+            minSize = targetSize;
+        }
+
+        // Filter out the ones that exceed the maximum size and the minimum size.
         for (Size outputSize : outputSizes) {
-            if (outputSize.getWidth() * outputSize.getHeight()
-                    <= maxSize.getWidth() * maxSize.getHeight()) {
+            if (getArea(outputSize) <= getArea(maxSize)
+                    && getArea(outputSize) >= getArea(minSize)) {
                 outputSizeCandidates.add(outputSize);
             }
         }
@@ -396,13 +403,11 @@ final class SupportedSurfaceCombination {
         // Check whether the desired default resolution is included in the original supported list
         boolean isDefaultResolutionSupported = outputSizeCandidates.contains(DEFAULT_SIZE);
 
-        // If the target resolution is set, use it to find the minimum one from big enough items
-        Size targetSize = config.getTargetResolution(ZERO_SIZE);
-
         // Check the default resolution if the target resolution is not set
         targetSize = (targetSize.equals(ZERO_SIZE)) ? config.getDefaultResolution(ZERO_SIZE)
                 : targetSize;
 
+        // If the target resolution is set, use it to find the minimum one from big enough items
         if (!targetSize.equals(ZERO_SIZE)) {
             removeSupportedSizesByTargetSize(sizesMatchAspectRatio, targetSize);
             removeSupportedSizesByTargetSize(sizesNotMatchAspectRatio, targetSize);
@@ -483,6 +488,10 @@ final class SupportedSurfaceCombination {
         return false;
     }
 
+    private int getArea(Size size) {
+        return size.getWidth() * size.getHeight();
+    }
+
     private boolean ratioIntersectsMod16Segment(int height, int mod16Width, Rational aspectRatio) {
         Preconditions.checkArgument(mod16Width % 16 == 0);
         double aspectRatioWidth =
@@ -498,8 +507,7 @@ final class SupportedSurfaceCombination {
             // Get the index of the item that is big enough for the view size in matched list
             for (int i = 0; i < supportedSizesList.size(); i++) {
                 Size outputSize = supportedSizesList.get(i);
-                if (outputSize.getWidth() * outputSize.getHeight()
-                        >= targetSize.getWidth() * targetSize.getHeight()) {
+                if (getArea(outputSize) >= getArea(targetSize)) {
                     indexBigEnough = i;
                 } else {
                     break;
@@ -509,8 +517,7 @@ final class SupportedSurfaceCombination {
             Size bigEnoughSize = supportedSizesList.get(indexBigEnough);
             List<Size> removeSizes = new ArrayList<>();
             for (Size size : supportedSizesList) {
-                if (size.getWidth() * size.getHeight()
-                        > bigEnoughSize.getWidth() * bigEnoughSize.getHeight()) {
+                if (getArea(size) > getArea(bigEnoughSize)) {
                     removeSizes.add(size);
                 }
             }
