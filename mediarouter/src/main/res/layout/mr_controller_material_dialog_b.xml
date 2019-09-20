@@ -40,6 +40,7 @@
                       android:singleLine="true"
                       android:ellipsize="end"
                       android:textAlignment="viewStart"
+                      android:importantForAccessibility="no"
                       android:textAppearance="@style/TextAppearance.MediaRouter.Title" />
             <ImageButton android:id="@+id/mr_close"
                          android:layout_width="48dp"
