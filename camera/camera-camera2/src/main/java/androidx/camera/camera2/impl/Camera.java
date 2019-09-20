@@ -841,8 +841,9 @@ final class Camera implements BaseCamera {
         try {
             mCameraManager.openCamera(mCameraId, mExecutor, createDeviceStateCallback());
         } catch (CameraAccessException e) {
-            Log.e(TAG, "Unable to open camera " + mCameraId + " due to " + e.getMessage());
-            setState(InternalState.INITIALIZED);
+            // Camera2 will call the onError() callback with the specific error code that caused
+            // this failure. No need to do anything here.
+            Log.d(TAG, "Unable to open camera " + mCameraId + " due to " + e.getMessage());
         }
     }
 
