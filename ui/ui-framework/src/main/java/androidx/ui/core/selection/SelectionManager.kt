@@ -22,7 +22,10 @@ import androidx.ui.core.PxPosition
 import androidx.ui.core.gesture.DragObserver
 import androidx.ui.core.px
 
-internal class SelectionManager : SelectionRegistrar {
+/**
+ * A bridge class between user interaction to the text widgets for text selection.
+ */
+class SelectionManager : SelectionRegistrar {
     /**
      * The current selection.
      */
@@ -185,5 +188,7 @@ internal class SelectionManager : SelectionRegistrar {
     }
 }
 
-/** Ambient of SelectionRegistrar for SelectionManager. */
-internal val SelectionRegistrarAmbient = Ambient.of<SelectionRegistrar> { SelectionManager() }
+/**
+ * Ambient of SelectionRegistrar for SelectionManager.
+ */
+val SelectionRegistrarAmbient = Ambient.of<SelectionRegistrar> { SelectionManager() }

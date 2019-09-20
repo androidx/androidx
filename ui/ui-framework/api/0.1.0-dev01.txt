@@ -273,26 +273,49 @@ package androidx.ui.core.selection {
     method public androidx.ui.core.LayoutCoordinates? getStartLayoutCoordinates();
   }
 
-  public final class SelectionContainerKt {
-    ctor public SelectionContainerKt();
-    method public static void SelectionContainer(androidx.ui.core.selection.Selection? selection, kotlin.jvm.functions.Function1<? super androidx.ui.core.selection.Selection,kotlin.Unit> onSelectionChange, androidx.ui.core.selection.SelectionMode mode = SelectionMode.Vertical, kotlin.jvm.functions.Function0<kotlin.Unit> children);
-  }
-
-  public final class SelectionHandlesKt {
-    ctor public SelectionHandlesKt();
-  }
-
   public final class SelectionKt {
     ctor public SelectionKt();
   }
 
+  public final class SelectionManager implements androidx.ui.core.selection.SelectionRegistrar {
+    ctor public SelectionManager();
+    method public androidx.ui.core.PxPosition getAdjustedCoordinates(androidx.ui.core.PxPosition p);
+    method public androidx.ui.core.LayoutCoordinates getContainerLayoutCoordinates();
+    method public androidx.ui.core.selection.SelectionMode getMode();
+    method public kotlin.jvm.functions.Function1<androidx.ui.core.selection.Selection,kotlin.Unit> getOnSelectionChange();
+    method public androidx.ui.core.selection.Selection? getSelection();
+    method public androidx.ui.core.gesture.DragObserver handleDragObserver(boolean dragStartHandle);
+    method public void onPress(androidx.ui.core.PxPosition position);
+    method public void setContainerLayoutCoordinates(androidx.ui.core.LayoutCoordinates p);
+    method public void setMode(androidx.ui.core.selection.SelectionMode p);
+    method public void setOnSelectionChange(kotlin.jvm.functions.Function1<? super androidx.ui.core.selection.Selection,kotlin.Unit> p);
+    method public void setSelection(androidx.ui.core.selection.Selection? p);
+    method public Object subscribe(androidx.ui.core.selection.TextSelectionHandler handler);
+    method public void unsubscribe(Object key);
+    property public final androidx.ui.core.LayoutCoordinates containerLayoutCoordinates;
+    property public final androidx.ui.core.selection.SelectionMode mode;
+    property public final kotlin.jvm.functions.Function1<androidx.ui.core.selection.Selection,kotlin.Unit> onSelectionChange;
+    property public final androidx.ui.core.selection.Selection? selection;
+    field public androidx.ui.core.LayoutCoordinates containerLayoutCoordinates;
+  }
+
   public final class SelectionManagerKt {
     ctor public SelectionManagerKt();
+    method public static androidx.compose.Ambient<androidx.ui.core.selection.SelectionRegistrar> getSelectionRegistrarAmbient();
   }
 
   public enum SelectionMode {
     enum_constant public static final androidx.ui.core.selection.SelectionMode Horizontal;
     enum_constant public static final androidx.ui.core.selection.SelectionMode Vertical;
+  }
+
+  public interface SelectionRegistrar {
+    method public Object subscribe(androidx.ui.core.selection.TextSelectionHandler handler);
+    method public void unsubscribe(Object key);
+  }
+
+  public interface TextSelectionHandler {
+    method public androidx.ui.core.selection.Selection? getSelection(kotlin.Pair<androidx.ui.core.PxPosition,androidx.ui.core.PxPosition> selectionCoordinates, androidx.ui.core.LayoutCoordinates containerLayoutCoordinates, androidx.ui.core.selection.SelectionMode mode);
   }
 
 }
