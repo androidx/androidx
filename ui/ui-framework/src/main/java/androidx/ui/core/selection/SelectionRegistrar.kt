@@ -20,7 +20,7 @@ package androidx.ui.core.selection
  *  An interface allowing a Text composable to "register" and "unregister" itself with the class
  *  implementing the interface.
  */
-internal interface SelectionRegistrar {
+interface SelectionRegistrar {
     // TODO(qqd): Replace Any with a type in future.
     fun subscribe(handler: TextSelectionHandler): Any
 
