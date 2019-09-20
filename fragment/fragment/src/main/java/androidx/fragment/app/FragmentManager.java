@@ -1249,8 +1249,8 @@ public abstract class FragmentManager {
     @SuppressWarnings("ReferenceEquality")
     void moveToState(Fragment f, int newState) {
         // Fragments that are not currently added will sit in the onCreate() state.
-        if ((!f.mAdded || f.mDetached) && newState > Fragment.CREATED) {
-            newState = Fragment.CREATED;
+        if (!f.mAdded) {
+            newState = Math.min(newState, Fragment.CREATED);
         }
         FragmentStateManager fragmentStateManager = mActive.get(f.mWho);
         if (f.mRemoving) {
@@ -1856,7 +1856,7 @@ public abstract class FragmentManager {
         for (FragmentStateManager fragmentStateManager : mActive.values()) {
             if (fragmentStateManager != null) {
                 Fragment f = fragmentStateManager.getFragment();
-                if ((f.mRemoving || f.mDetached) && !f.mIsNewlyAdded) {
+                if (!f.mIsNewlyAdded) {
                     moveFragmentToExpectedState(f);
                 }
             }
