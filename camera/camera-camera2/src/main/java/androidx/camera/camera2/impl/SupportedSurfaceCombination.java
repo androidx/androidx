@@ -26,11 +26,13 @@ import android.hardware.camera2.CameraManager;
 import android.hardware.camera2.params.StreamConfigurationMap;
 import android.media.CamcorderProfile;
 import android.os.Build;
+import android.util.Pair;
 import android.util.Rational;
 import android.util.Size;
 import android.view.Surface;
 import android.view.WindowManager;
 
+import androidx.annotation.Nullable;
 import androidx.camera.core.AspectRatio;
 import androidx.camera.core.CameraDeviceConfig;
 import androidx.camera.core.CameraInfoUnavailableException;
@@ -326,7 +328,7 @@ final class SupportedSurfaceCombination {
 
     private List<Size> getSupportedOutputSizes(UseCase useCase) {
         int imageFormat = useCase.getImageFormat();
-        Size[] outputSizes = getAllOutputSizesByFormat(imageFormat);
+        Size[] outputSizes = getAllOutputSizesByFormat(imageFormat, useCase);
         List<Size> outputSizeCandidates = new ArrayList<>();
         ImageOutputConfig config = (ImageOutputConfig) useCase.getUseCaseConfig();
         Size maxSize = config.getMaxResolution(getMaxOutputSizeByFormat(imageFormat));
@@ -580,32 +582,58 @@ final class SupportedSurfaceCombination {
         return allPossibleSizeArrangements;
     }
 
+    @Nullable
     private Size[] getAllOutputSizesByFormat(int imageFormat) {
-        if (mCharacteristics == null) {
-            throw new IllegalStateException("CameraCharacteristics is null.");
+        return getAllOutputSizesByFormat(imageFormat, null);
+    }
+
+    @Nullable
+    private Size[] getAllOutputSizesByFormat(int imageFormat, @Nullable UseCase useCase) {
+        Size[] outputSizes = null;
+
+        // Try to retrieve customized supported resolutions from config.
+        List<Pair<Integer, Size[]>> formatResolutionsPairList = null;
+
+        if (useCase != null) {
+            ImageOutputConfig imageOutputConfig = (ImageOutputConfig) useCase.getUseCaseConfig();
+
+            formatResolutionsPairList = imageOutputConfig.getSupportedResolutions(null);
         }
 
-        StreamConfigurationMap map =
-                mCharacteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
-
-        if (map == null) {
-            throw new IllegalArgumentException(
-                    "Can not get supported output size for the format: " + imageFormat);
+        if (formatResolutionsPairList != null) {
+            for (Pair<Integer, Size[]> formatResolutionPair : formatResolutionsPairList) {
+                if (formatResolutionPair.first == imageFormat) {
+                    outputSizes = formatResolutionPair.second;
+                    break;
+                }
+            }
         }
 
-        Size[] outputSizes;
-        if (Build.VERSION.SDK_INT < 23
-                && imageFormat == ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE) {
-            // This is a little tricky that 0x22 that is internal defined in
-            // StreamConfigurationMap.java
-            // to be equal to ImageFormat.PRIVATE that is public after Android level 23 but not
-            // public in
-            // Android L. Use {@link SurfaceTexture} or {@link MediaCodec} will finally mapped to
-            // 0x22 in
-            // StreamConfigurationMap to retrieve the output sizes information.
-            outputSizes = map.getOutputSizes(SurfaceTexture.class);
-        } else {
-            outputSizes = map.getOutputSizes(imageFormat);
+        // Try to retrieve supported resolutions if there is no customization.
+        if (outputSizes == null) {
+            if (mCharacteristics == null) {
+                throw new IllegalStateException("CameraCharacteristics is null.");
+            }
+
+            StreamConfigurationMap map =
+                    mCharacteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
+
+            if (map == null) {
+                throw new IllegalArgumentException(
+                        "Can not get supported output size for the format: " + imageFormat);
+            }
+
+            if (Build.VERSION.SDK_INT < 23
+                    && imageFormat == ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE) {
+                // This is a little tricky that 0x22 that is internal defined in
+                // StreamConfigurationMap.java to be equal to ImageFormat.PRIVATE that is public
+                // after Android level 23 but not public in Android L. Use {@link SurfaceTexture}
+                // or {@link MediaCodec} will finally mapped to 0x22 in StreamConfigurationMap to
+                // retrieve the output sizes information.
+                outputSizes = map.getOutputSizes(SurfaceTexture.class);
+            } else {
+                outputSizes = map.getOutputSizes(imageFormat);
+            }
         }
 
         if (outputSizes == null) {

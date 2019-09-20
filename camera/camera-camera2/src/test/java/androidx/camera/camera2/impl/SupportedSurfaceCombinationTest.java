@@ -31,6 +31,7 @@ import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CameraManager;
 import android.hardware.camera2.CameraMetadata;
 import android.os.Build;
+import android.util.Pair;
 import android.util.Rational;
 import android.util.Size;
 import android.view.WindowManager;
@@ -822,6 +823,48 @@ public final class SupportedSurfaceCombinationTest {
             imageAnalysisExceptionHappened = true;
         }
         assertTrue(imageAnalysisExceptionHappened);
+    }
+
+    @Test
+    public void getSuggestedResolutionsForCustomizedSupportedResolutions() {
+        setupCamera(/* supportsRaw= */ false);
+        SupportedSurfaceCombination supportedSurfaceCombination =
+                new SupportedSurfaceCombination(
+                        mContext, LIMITED_CAMERA_ID, mMockCamcorderProfileHelper);
+
+        PreviewConfig.Builder previewConfigBuilder = new PreviewConfig.Builder();
+        VideoCaptureConfig.Builder videoCaptureConfigBuilder = new VideoCaptureConfig.Builder();
+        ImageCaptureConfig.Builder imageCaptureConfigBuilder = new ImageCaptureConfig.Builder();
+
+        List<Pair<Integer, Size[]>> formatResolutionsPairList = new ArrayList<>();
+        formatResolutionsPairList.add(Pair.create(ImageFormat.JPEG, new Size[]{mAnalysisSize}));
+        formatResolutionsPairList.add(
+                Pair.create(ImageFormat.YUV_420_888, new Size[]{mAnalysisSize}));
+        formatResolutionsPairList.add(Pair.create(ImageFormat.PRIVATE, new Size[]{mAnalysisSize}));
+
+        // Sets customized supported resolutions to 640x480 only.
+        imageCaptureConfigBuilder.setSupportedResolutions(formatResolutionsPairList);
+        videoCaptureConfigBuilder.setSupportedResolutions(formatResolutionsPairList);
+        previewConfigBuilder.setSupportedResolutions(formatResolutionsPairList);
+
+        imageCaptureConfigBuilder.setLensFacing(LensFacing.BACK);
+        ImageCapture imageCapture = new ImageCapture(imageCaptureConfigBuilder.build());
+        videoCaptureConfigBuilder.setLensFacing(LensFacing.BACK);
+        VideoCapture videoCapture = new VideoCapture(videoCaptureConfigBuilder.build());
+        previewConfigBuilder.setLensFacing(LensFacing.BACK);
+        Preview preview = new Preview(previewConfigBuilder.build());
+
+        List<UseCase> useCases = new ArrayList<>();
+        useCases.add(imageCapture);
+        useCases.add(videoCapture);
+        useCases.add(preview);
+        Map<UseCase, Size> suggestedResolutionMap =
+                supportedSurfaceCombination.getSuggestedResolutions(null, useCases);
+
+        // Checks all suggested resolutions will become 640x480.
+        assertThat(suggestedResolutionMap).containsEntry(imageCapture, mAnalysisSize);
+        assertThat(suggestedResolutionMap).containsEntry(videoCapture, mAnalysisSize);
+        assertThat(suggestedResolutionMap).containsEntry(preview, mAnalysisSize);
     }
 
     @Test
