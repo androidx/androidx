@@ -921,7 +921,6 @@ public class VideoCapture extends UseCase {
         static {
             VideoCaptureConfig.Builder builder =
                     new VideoCaptureConfig.Builder()
-                            .setCallbackHandler(DEFAULT_HANDLER)
                             .setVideoFrameRate(DEFAULT_VIDEO_FRAME_RATE)
                             .setBitRate(DEFAULT_BIT_RATE)
                             .setIFrameInterval(DEFAULT_INTRA_FRAME_INTERVAL)

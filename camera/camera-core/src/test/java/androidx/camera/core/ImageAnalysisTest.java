@@ -197,18 +197,18 @@ public class ImageAnalysisTest {
 
     private void setUpImageAnalysisWithMode(ImageAnalysis.ImageReaderMode imageReaderMode) {
         mImageAnalysis = new ImageAnalysis(new ImageAnalysisConfig.Builder()
-                .setCallbackHandler(mCallbackHandler)
                 .setBackgroundExecutor(mBackgroundExecutor)
                 .setImageQueueDepth(QUEUE_DEPTH)
                 .setImageReaderMode(imageReaderMode)
                 .build());
 
-        mImageAnalysis.setAnalyzer(new ImageAnalysis.Analyzer() {
-            @Override
-            public void analyze(ImageProxy image, int rotationDegrees) {
-                mImagesReceived.add(image.getImage());
-            }
-        });
+        mImageAnalysis.setAnalyzer(CameraXExecutors.newHandlerExecutor(mCallbackHandler),
+                new ImageAnalysis.Analyzer() {
+                    @Override
+                    public void analyze(ImageProxy image, int rotationDegrees) {
+                        mImagesReceived.add(image.getImage());
+                    }
+                });
 
         Map<String, Size> suggestedResolutionMap = new HashMap<>();
         suggestedResolutionMap.put(ShadowCameraX.DEFAULT_CAMERA_ID, DEFAULT_RESOLUTION);

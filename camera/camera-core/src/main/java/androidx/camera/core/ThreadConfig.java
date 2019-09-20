@@ -16,8 +16,6 @@
 
 package androidx.camera.core;
 
-import android.os.Handler;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
@@ -38,16 +36,6 @@ interface ThreadConfig {
     // *********************************************************************************************
 
     /**
-     * Option: camerax.core.thread.callbackHandler
-     *
-     * @hide
-     */
-    @RestrictTo(Scope.LIBRARY_GROUP)
-    Option<Handler> OPTION_CALLBACK_HANDLER =
-            Option.create("camerax.core.thread.callbackHandler", Handler.class);
-
-
-    /**
      * Option: camerax.core.thread.backgroundExecutor
      *
      * @hide
@@ -57,25 +45,6 @@ interface ThreadConfig {
             Option.create("camerax.core.thread.backgroundExecutor", Executor.class);
 
     // *********************************************************************************************
-
-    /**
-     * Returns the default handler that will be used for callbacks.
-     *
-     * @param valueIfMissing The value to return if this configuration option has not been set.
-     * @return The stored value or <code>valueIfMissing</code> if the value does not exist in this
-     * configuration.
-     */
-    @Nullable
-    Handler getCallbackHandler(@Nullable Handler valueIfMissing);
-
-    /**
-     * Returns the default handler that will be used for callbacks.
-     *
-     * @return The stored value, if it exists in this configuration.
-     * @throws IllegalArgumentException if the option does not exist in this configuration.
-     */
-    @NonNull
-    Handler getCallbackHandler();
 
     /**
      * Returns the executor that will be used for background tasks.
@@ -106,15 +75,6 @@ interface ThreadConfig {
 
     @RestrictTo(Scope.LIBRARY_GROUP)
     interface Builder<B> {
-
-        /**
-         * Sets the default handler that will be used for callbacks.
-         *
-         * @param handler The handler which will be used to post callbacks.
-         * @return the current Builder.
-         */
-        @NonNull
-        B setCallbackHandler(@NonNull Handler handler);
 
         /**
          * Sets the default executor that will be used for background tasks.

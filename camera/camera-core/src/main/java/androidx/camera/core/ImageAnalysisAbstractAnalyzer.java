@@ -16,8 +16,7 @@
 
 package androidx.camera.core;
 
-import android.os.Handler;
-
+import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
@@ -34,16 +33,16 @@ abstract class ImageAnalysisAbstractAnalyzer implements ImageReaderProxy.OnImage
     // Member variables from ImageAnalysis.
     private final AtomicReference<ImageAnalysis.Analyzer> mSubscribedAnalyzer;
     private final AtomicInteger mRelativeRotation;
-    final Handler mUserHandler;
+    final AtomicReference<Executor> mUserExecutor;
 
     // Flag that reflects the state of ImageAnalysis.
     private AtomicBoolean mIsClosed;
 
     ImageAnalysisAbstractAnalyzer(AtomicReference<ImageAnalysis.Analyzer> subscribedAnalyzer,
-            AtomicInteger relativeRotation, Handler userHandler) {
+            AtomicInteger relativeRotation, AtomicReference<Executor> userExecutor) {
         mSubscribedAnalyzer = subscribedAnalyzer;
         mRelativeRotation = relativeRotation;
-        mUserHandler = userHandler;
+        mUserExecutor = userExecutor;
         mIsClosed = new AtomicBoolean(false);
     }
 

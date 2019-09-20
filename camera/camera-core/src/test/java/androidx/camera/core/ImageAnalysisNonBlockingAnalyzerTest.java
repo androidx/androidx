@@ -23,8 +23,6 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import android.os.Build;
-import android.os.Handler;
-import android.os.Looper;
 
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.test.filters.SmallTest;
@@ -62,7 +60,7 @@ public class ImageAnalysisNonBlockingAnalyzerTest {
         mImageAnalysisNonBlockingAnalyzer = new ImageAnalysisNonBlockingAnalyzer(
                 new AtomicReference<ImageAnalysis.Analyzer>(mAnalyzer),
                 ROTATION,
-                new Handler(Looper.getMainLooper()),
+                new AtomicReference<>(CameraXExecutors.mainThreadExecutor()),
                 CameraXExecutors.directExecutor()
         );
     }

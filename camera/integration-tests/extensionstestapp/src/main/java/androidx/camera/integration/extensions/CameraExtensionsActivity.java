@@ -23,8 +23,6 @@ import android.graphics.SurfaceTexture;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
-import android.os.Handler;
-import android.os.HandlerThread;
 import android.os.StrictMode;
 import android.util.Log;
 import android.view.TextureView;
@@ -88,8 +86,6 @@ public class CameraExtensionsActivity extends AppCompatActivity
     private Preview mPreview;
     private ImageCapture mImageCapture;
     private ImageCaptureType mCurrentImageCaptureType = ImageCaptureType.IMAGE_CAPTURE_TYPE_HDR;
-
-    private HandlerThread mHandlerThread = new HandlerThread("CameraExtensionsActivityHandler");
 
     // Espresso testing variables
     @VisibleForTesting
@@ -249,7 +245,6 @@ public class CameraExtensionsActivity extends AppCompatActivity
                         builder);
                 if (hdrImageCaptureExtender.isExtensionAvailable()) {
                     hdrImageCaptureExtender.enableExtension();
-                    builder.setCallbackHandler(new Handler(mHandlerThread.getLooper()));
                 }
                 break;
             case IMAGE_CAPTURE_TYPE_BOKEH:
@@ -394,8 +389,6 @@ public class CameraExtensionsActivity extends AppCompatActivity
                 new StrictMode.VmPolicy.Builder().detectAll().penaltyLog().build();
         StrictMode.setVmPolicy(policy);
 
-        mHandlerThread.start();
-
         // Get params from adb extra string
         Bundle bundle = getIntent().getExtras();
         if (bundle != null) {
@@ -414,12 +407,6 @@ public class CameraExtensionsActivity extends AppCompatActivity
                 })
                 .start();
         setupPermissions();
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        mHandlerThread.quitSafely();
     }
 
     private void setupCamera() {

@@ -17,8 +17,6 @@
 package androidx.camera.core;
 
 import android.media.ImageReader;
-import android.os.Handler;
-import android.os.Looper;
 import android.util.Log;
 import android.util.Size;
 import android.view.Display;
@@ -62,8 +60,8 @@ public final class ImageAnalysis extends UseCase {
     private static final int NON_BLOCKING_IMAGE_DEPTH = 4;
 
     final AtomicReference<Analyzer> mSubscribedAnalyzer;
+    final AtomicReference<Executor> mAnalyzerExecutor;
     final AtomicInteger mRelativeRotation = new AtomicInteger();
-    final Handler mHandler;
     private final ImageAnalysisConfig.Builder mUseCaseConfigBuilder;
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     final ImageAnalysisBlockingAnalyzer mImageAnalysisBlockingAnalyzer;
@@ -86,18 +84,15 @@ public final class ImageAnalysis extends UseCase {
         // Get the combined configuration with defaults
         ImageAnalysisConfig combinedConfig = (ImageAnalysisConfig) getUseCaseConfig();
         mSubscribedAnalyzer = new AtomicReference<>();
-        mHandler = combinedConfig.getCallbackHandler(null);
-        if (mHandler == null) {
-            throw new IllegalStateException("No default mHandler specified.");
-        }
+        mAnalyzerExecutor = new AtomicReference<>();
         setImageFormat(ImageReaderFormatRecommender.chooseCombo().imageAnalysisFormat());
         // Init both instead of lazy loading to void synchronization.
         mImageAnalysisBlockingAnalyzer = new ImageAnalysisBlockingAnalyzer(mSubscribedAnalyzer,
                 mRelativeRotation,
-                mHandler);
+                mAnalyzerExecutor);
         mImageAnalysisNonBlockingAnalyzer = new ImageAnalysisNonBlockingAnalyzer(
                 mSubscribedAnalyzer, mRelativeRotation,
-                mHandler, config.getBackgroundExecutor(
+                mAnalyzerExecutor, config.getBackgroundExecutor(
                 CameraXExecutors.highPriorityExecutor()));
     }
 
@@ -184,15 +179,17 @@ public final class ImageAnalysis extends UseCase {
     /**
      * Removes a previously set analyzer.
      *
-     * <p>This is equivalent to calling {@code setAnalyzer(null)}.  This will stop data from
-     * streaming to the {@link ImageAnalysis}.
+     * <p>This will stop data from streaming to the {@link ImageAnalysis}.
      *
      * @throws IllegalStateException If not called on main thread.
      */
     @UiThread
     public void removeAnalyzer() {
         Threads.checkMainThread();
-        setAnalyzer(null);
+        mAnalyzerExecutor.set(null);
+        if (mSubscribedAnalyzer.getAndSet(null) != null) {
+            notifyInactive();
+        }
     }
 
     /**
@@ -266,8 +263,7 @@ public final class ImageAnalysis extends UseCase {
      * Sets an analyzer to receive and analyze images.
      *
      * <p>Setting an analyzer will signal to the camera that it should begin sending data. The
-     * stream of data can be stopped by setting the analyzer to {@code null} or by calling {@link
-     * #removeAnalyzer()}.
+     * stream of data can be stopped by calling {@link #removeAnalyzer()}.
      *
      * <p>Applications can process or copy the image by implementing the {@link Analyzer}.  If
      * frames should be skipped (no analysis), the analyzer function should return, instead of
@@ -276,18 +272,18 @@ public final class ImageAnalysis extends UseCase {
      * <p>Setting an analyzer function replaces any previous analyzer.  Only one analyzer can be
      * set at any time.
      *
-     * @param analyzer of the images or {@code null} to stop data streaming to
-     *                 {@link ImageAnalysis}.
+     * @param executor The executor in which the
+     * {@link ImageAnalysis.Analyzer#analyze(ImageProxy, int)} will be run.
+     * @param analyzer of the images.
      * @throws IllegalStateException If not called on main thread.
      */
     @UiThread
-    public void setAnalyzer(@Nullable Analyzer analyzer) {
+    public void setAnalyzer(@NonNull Executor executor, @NonNull Analyzer analyzer) {
         Threads.checkMainThread();
+        mAnalyzerExecutor.set(executor);
         Analyzer previousAnalyzer = mSubscribedAnalyzer.getAndSet(analyzer);
         if (previousAnalyzer == null && analyzer != null) {
             notifyActive();
-        } else if (previousAnalyzer != null && analyzer == null) {
-            notifyInactive();
         }
     }
 
@@ -385,8 +381,8 @@ public final class ImageAnalysis extends UseCase {
     /**
      * Interface for analyzing images.
      *
-     * <p>Implement Analyzer and pass it to {@link ImageAnalysis#setAnalyzer(Analyzer)} to receive
-     * images and perform custom processing by implementing the
+     * <p>Implement Analyzer and pass it to {@link ImageAnalysis#setAnalyzer(Executor, Analyzer)}
+     * to receive images and perform custom processing by implementing the
      * {@link ImageAnalysis.Analyzer#analyze(ImageProxy, int)} function.
      */
     public interface Analyzer {
@@ -428,7 +424,6 @@ public final class ImageAnalysis extends UseCase {
     public static final class Defaults implements ConfigProvider<ImageAnalysisConfig> {
         private static final ImageReaderMode DEFAULT_IMAGE_READER_MODE =
                 ImageReaderMode.ACQUIRE_LATEST_IMAGE;
-        private static final Handler DEFAULT_HANDLER = new Handler(Looper.getMainLooper());
         private static final int DEFAULT_IMAGE_QUEUE_DEPTH = 6;
         private static final Size DEFAULT_TARGET_RESOLUTION = new Size(640, 480);
         private static final Size DEFAULT_MAX_RESOLUTION = new Size(1920, 1080);
@@ -440,7 +435,6 @@ public final class ImageAnalysis extends UseCase {
             ImageAnalysisConfig.Builder builder =
                     new ImageAnalysisConfig.Builder()
                             .setImageReaderMode(DEFAULT_IMAGE_READER_MODE)
-                            .setCallbackHandler(DEFAULT_HANDLER)
                             .setImageQueueDepth(DEFAULT_IMAGE_QUEUE_DEPTH)
                             .setDefaultResolution(DEFAULT_TARGET_RESOLUTION)
                             .setMaxResolution(DEFAULT_MAX_RESOLUTION)
