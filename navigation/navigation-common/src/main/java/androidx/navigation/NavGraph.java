@@ -284,4 +284,26 @@ public class NavGraph extends NavDestination implements Iterable<NavDestination>
         }
         return mStartDestIdName;
     }
+
+    @NonNull
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(super.toString());
+        sb.append(" startDestination=");
+        NavDestination startDestination = findNode(getStartDestination());
+        if (startDestination == null) {
+            if (mStartDestIdName == null) {
+                sb.append("0x");
+                sb.append(Integer.toHexString(mStartDestId));
+            } else {
+                sb.append(mStartDestIdName);
+            }
+        } else {
+            sb.append("{");
+            sb.append(startDestination.toString());
+            sb.append("}");
+        }
+        return sb.toString();
+    }
 }

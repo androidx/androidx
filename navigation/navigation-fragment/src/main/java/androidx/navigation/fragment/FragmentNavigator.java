@@ -343,6 +343,20 @@ public class FragmentNavigator extends Navigator<FragmentNavigator.Destination> 
             }
             return mClassName;
         }
+
+        @NonNull
+        @Override
+        public String toString() {
+            StringBuilder sb = new StringBuilder();
+            sb.append(super.toString());
+            sb.append(" class=");
+            if (mClassName == null) {
+                sb.append("null");
+            } else {
+                sb.append(mClassName);
+            }
+            return sb.toString();
+        }
     }
 
     /**
