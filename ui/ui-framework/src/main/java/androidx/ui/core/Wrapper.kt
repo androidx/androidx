@@ -270,10 +270,10 @@ fun ambientDensity() =
  */
 @CheckResult(suggest = "+")
 // can't make this inline as tests are failing with "DensityKt.$jacocoInit()' is inaccessible"
-/*inline*/ fun <R> withDensity(/*crossinline*/ block: DensityReceiver.() -> R) =
+/*inline*/ fun <R> withDensity(/*crossinline*/ block: DensityScope.() -> R) =
     effectOf<R> {
         @Suppress("USELESS_CAST")
-        withDensity(+ambientDensity(), block as DensityReceiver.() -> R)
+        withDensity(+ambientDensity(), block as DensityScope.() -> R)
     }
 
 /**
@@ -288,6 +288,6 @@ fun ambientDensity() =
  *   }
  */
 @Composable
-fun WithDensity(block: @Composable DensityReceiver.() -> Unit) {
-    DensityReceiverImpl(+ambientDensity()).block()
+fun WithDensity(block: @Composable DensityScope.() -> Unit) {
+    DensityScope(+ambientDensity()).block()
 }

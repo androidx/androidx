@@ -53,7 +53,7 @@ class DeterminateProgressTest {
             .setContent {
                 TestTag(tag = tag) {
                     DeterminateProgressIndicator(progress = state.progress) {
-                        ColoredRect(Color.Cyan, 50.dp, 50.dp)
+                        ColoredRect(Color.Cyan, width = 50.dp, height = 50.dp)
                     }
                 }
             }

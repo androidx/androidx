@@ -166,10 +166,11 @@ package androidx.ui.core {
   public final class DensityKt {
     ctor public DensityKt();
     method public static androidx.ui.core.Density Density(android.content.Context context);
-    method public static <R> R! withDensity(androidx.ui.core.Density density, kotlin.jvm.functions.Function1<? super androidx.ui.core.DensityReceiver,? extends R> block);
+    method public static androidx.ui.core.DensityScope DensityScope(androidx.ui.core.Density density);
+    method public static <R> R! withDensity(androidx.ui.core.Density density, kotlin.jvm.functions.Function1<? super androidx.ui.core.DensityScope,? extends R> block);
   }
 
-  public interface DensityReceiver {
+  public interface DensityScope {
     method public androidx.ui.core.Density getDensity();
     method public default androidx.ui.core.Dp toDp(androidx.ui.core.Sp);
     method public default androidx.ui.core.Dp toDp(androidx.ui.core.Px);
@@ -188,11 +189,6 @@ package androidx.ui.core {
     method public default androidx.ui.core.Sp toSp(float);
     method public default androidx.ui.core.Sp toSp(int);
     property public abstract androidx.ui.core.Density density;
-  }
-
-  public final class DensityReceiverImpl implements androidx.ui.core.DensityReceiver {
-    ctor public DensityReceiverImpl(androidx.ui.core.Density density);
-    method public androidx.ui.core.Density getDensity();
   }
 
   public enum Direction {
@@ -314,7 +310,7 @@ package androidx.ui.core {
     method public static String toString-impl(float p);
   }
 
-  public interface DrawReceiver extends androidx.ui.core.DensityReceiver {
+  public interface DrawReceiver extends androidx.ui.core.DensityScope {
     method public void drawChildren();
   }
 
@@ -500,31 +496,69 @@ package androidx.ui.core {
     enum_constant public static final androidx.ui.core.LayoutDirection Rtl;
   }
 
-  public final class LayoutResult {
-    field public static final androidx.ui.core.LayoutResult.Companion! Companion;
-  }
-
-  public static final class LayoutResult.Companion {
-    method public androidx.ui.core.LayoutResult getInstance();
-    property public final androidx.ui.core.LayoutResult Instance;
+  public interface LayoutModifier extends androidx.ui.core.Modifier.Element {
+    method public androidx.ui.core.IntPx maxIntrinsicHeightOf(androidx.ui.core.DensityScope, androidx.ui.core.Measurable measurable, androidx.ui.core.IntPx width);
+    method public androidx.ui.core.IntPx maxIntrinsicWidthOf(androidx.ui.core.DensityScope, androidx.ui.core.Measurable measurable, androidx.ui.core.IntPx height);
+    method public androidx.ui.core.IntPx minIntrinsicHeightOf(androidx.ui.core.DensityScope, androidx.ui.core.Measurable measurable, androidx.ui.core.IntPx width);
+    method public androidx.ui.core.IntPx minIntrinsicWidthOf(androidx.ui.core.DensityScope, androidx.ui.core.Measurable measurable, androidx.ui.core.IntPx height);
+    method public androidx.ui.core.IntPx? modifyAlignmentLine(androidx.ui.core.DensityScope, androidx.ui.core.AlignmentLine line, androidx.ui.core.IntPx? value);
+    method public androidx.ui.core.Constraints modifyConstraints(androidx.ui.core.DensityScope, androidx.ui.core.Constraints constraints);
+    method public androidx.ui.core.IntPxPosition modifyPosition(androidx.ui.core.DensityScope, androidx.ui.core.IntPxSize childSize, androidx.ui.core.IntPxSize containerSize);
+    method public androidx.ui.core.IntPxSize modifySize(androidx.ui.core.DensityScope, androidx.ui.core.IntPxSize childSize);
   }
 
   public interface Measurable extends androidx.ui.core.IntrinsicMeasurable {
     method public androidx.ui.core.Placeable measure(androidx.ui.core.Constraints constraints);
   }
 
-  public interface MeasureBlockScope extends androidx.ui.core.DensityReceiver {
-    method public androidx.ui.core.LayoutResult layout(androidx.ui.core.IntPx width, androidx.ui.core.IntPx height, kotlin.Pair<? extends androidx.ui.core.AlignmentLine,androidx.ui.core.IntPx>![] alignmentLines, kotlin.jvm.functions.Function1<? super androidx.ui.core.PositioningBlockScope,kotlin.Unit> positioningBlock);
+  public interface MeasureScope extends androidx.ui.core.DensityScope {
+    method public androidx.ui.core.MeasureScope.LayoutResult layout(androidx.ui.core.IntPx width, androidx.ui.core.IntPx height, kotlin.Pair<? extends androidx.ui.core.AlignmentLine,androidx.ui.core.IntPx>![] alignmentLines, kotlin.jvm.functions.Function1<? super androidx.ui.core.Placeable.PlacementScope,kotlin.Unit> placementBlock);
+  }
+
+  public static final class MeasureScope.LayoutResult {
+    field public static final androidx.ui.core.MeasureScope.LayoutResult! INSTANCE;
+  }
+
+  public final class MeasureScopeKt {
+    ctor public MeasureScopeKt();
+  }
+
+  public interface Modifier {
+    method public <R> R! foldIn(R? initial, kotlin.jvm.functions.Function2<? super R,? super androidx.ui.core.Modifier.Element,? extends R> operation);
+    method public <R> R! foldOut(R? initial, kotlin.jvm.functions.Function2<? super androidx.ui.core.Modifier.Element,? super R,? extends R> operation);
+    method public default infix androidx.ui.core.Modifier wraps(androidx.ui.core.Modifier other);
+  }
+
+  public static interface Modifier.Element extends androidx.ui.core.Modifier {
+    method public default <R> R! foldIn(R? initial, kotlin.jvm.functions.Function2<? super R,? super androidx.ui.core.Modifier.Element,? extends R> operation);
+    method public default <R> R! foldOut(R? initial, kotlin.jvm.functions.Function2<? super androidx.ui.core.Modifier.Element,? super R,? extends R> operation);
+  }
+
+  public static final class Modifier.None implements androidx.ui.core.Modifier {
+    method public <R> R! foldIn(R? initial, kotlin.jvm.functions.Function2<? super R,? super androidx.ui.core.Modifier.Element,? extends R> operation);
+    method public <R> R! foldOut(R? initial, kotlin.jvm.functions.Function2<? super androidx.ui.core.Modifier.Element,? super R,? extends R> operation);
+    method public androidx.ui.core.Modifier wraps(androidx.ui.core.Modifier other);
+    field public static final androidx.ui.core.Modifier.None! INSTANCE;
   }
 
   public abstract class Placeable {
     ctor public Placeable();
     method public abstract operator androidx.ui.core.IntPx? get(androidx.ui.core.AlignmentLine line);
-    method public abstract androidx.ui.core.IntPx getHeight();
-    method public abstract androidx.ui.core.IntPx getWidth();
-    method protected abstract void place(androidx.ui.core.IntPx x, androidx.ui.core.IntPx y);
-    property public abstract androidx.ui.core.IntPx height;
-    property public abstract androidx.ui.core.IntPx width;
+    method public final androidx.ui.core.IntPx getHeight();
+    method public abstract androidx.ui.core.IntPxSize getSize();
+    method public final androidx.ui.core.IntPx getWidth();
+    method protected abstract void performPlace(androidx.ui.core.IntPxPosition position);
+    property public final androidx.ui.core.IntPx height;
+    property public abstract androidx.ui.core.IntPxSize size;
+    property public final androidx.ui.core.IntPx width;
+    field public static final androidx.ui.core.Placeable.PlacementScope! PlacementScope;
+  }
+
+  public static final class Placeable.PlacementScope {
+    method public void place(androidx.ui.core.Placeable, androidx.ui.core.IntPxPosition position);
+    method public void place(androidx.ui.core.Placeable, androidx.ui.core.PxPosition position);
+    method public void place(androidx.ui.core.Placeable, androidx.ui.core.IntPx x, androidx.ui.core.IntPx y);
+    method public void place(androidx.ui.core.Placeable, androidx.ui.core.Px x, androidx.ui.core.Px y);
   }
 
   public enum PointerEventPass {
@@ -584,12 +618,6 @@ package androidx.ui.core {
     method public androidx.ui.core.Dp getY();
     method public inline operator androidx.ui.core.Position minus(androidx.ui.core.Position other);
     method public inline operator androidx.ui.core.Position plus(androidx.ui.core.Position other);
-  }
-
-  public final class PositioningBlockScope {
-    method public void place(androidx.ui.core.Placeable, androidx.ui.core.IntPx x, androidx.ui.core.IntPx y);
-    method public void place(androidx.ui.core.Placeable, androidx.ui.core.Px x, androidx.ui.core.Px y);
-    field public static final androidx.ui.core.PositioningBlockScope! INSTANCE;
   }
 
   public final class Px {
@@ -690,6 +718,7 @@ package androidx.ui.core {
     method public static androidx.ui.core.PxPosition lerp(androidx.ui.core.PxPosition a, androidx.ui.core.PxPosition b, float t);
     method public static inline androidx.ui.core.Px max(androidx.ui.core.Px a, androidx.ui.core.Px b);
     method public static inline androidx.ui.core.Px min(androidx.ui.core.Px a, androidx.ui.core.Px b);
+    method public static inline androidx.ui.core.IntPxPosition round(androidx.ui.core.PxPosition);
     method public static inline operator androidx.ui.core.Px times(float, androidx.ui.core.Px other);
     method public static inline operator androidx.ui.core.Px times(double, androidx.ui.core.Px other);
     method public static inline operator androidx.ui.core.Px times(int, androidx.ui.core.Px other);

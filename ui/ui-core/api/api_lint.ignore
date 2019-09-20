@@ -91,10 +91,6 @@ DocumentExceptions: androidx.ui.vectormath64.Vector4#set(int, float):
     Method Vector4.set appears to be throwing java.lang.IllegalArgumentException; this should be listed in the documentation; see https://android.github.io/kotlin-guides/interop.html#document-exceptions
 
 
-EndsWithImpl: androidx.ui.core.DensityReceiverImpl:
-    Don't expose your implementation details: `DensityReceiverImpl` ends with `Impl`
-
-
 KotlinOperator: androidx.ui.engine.geometry.RRect#contains(androidx.ui.engine.geometry.Offset):
     Note that adding the `operator` keyword would allow calling this method using operator syntax
 KotlinOperator: androidx.ui.engine.geometry.Rect#contains(androidx.ui.engine.geometry.Offset):
@@ -133,10 +129,12 @@ MissingNullability: androidx.ui.core.Duration#Companion:
     Missing nullability on field `Companion` in class `class androidx.ui.core.Duration`
 MissingNullability: androidx.ui.core.IntPx#Companion:
     Missing nullability on field `Companion` in class `class androidx.ui.core.IntPx`
-MissingNullability: androidx.ui.core.LayoutResult#Companion:
-    Missing nullability on field `Companion` in class `class androidx.ui.core.LayoutResult`
-MissingNullability: androidx.ui.core.PositioningBlockScope#INSTANCE:
-    Missing nullability on field `INSTANCE` in class `class androidx.ui.core.PositioningBlockScope`
+MissingNullability: androidx.ui.core.MeasureScope.LayoutResult#INSTANCE:
+    Missing nullability on field `INSTANCE` in class `class androidx.ui.core.MeasureScope.LayoutResult`
+MissingNullability: androidx.ui.core.Modifier.None#INSTANCE:
+    Missing nullability on field `INSTANCE` in class `class androidx.ui.core.Modifier.None`
+MissingNullability: androidx.ui.core.Placeable#PlacementScope:
+    Missing nullability on field `PlacementScope` in class `class androidx.ui.core.Placeable`
 MissingNullability: androidx.ui.core.Px#Companion:
     Missing nullability on field `Companion` in class `class androidx.ui.core.Px`
 MissingNullability: androidx.ui.core.PxCubed#equals(Object) parameter #0:

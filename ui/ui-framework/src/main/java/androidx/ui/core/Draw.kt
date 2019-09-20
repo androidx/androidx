@@ -16,7 +16,6 @@
 package androidx.ui.core
 
 import androidx.ui.graphics.Canvas
-import androidx.compose.Children
 import androidx.compose.Composable
 import androidx.compose.composer
 
@@ -26,13 +25,13 @@ import androidx.compose.composer
  * Example usage:
  * @sample androidx.ui.framework.samples.DrawSample
  *
- *  The [onPaint] lambda uses a [DensityReceiver] receiver scope, to allow easy translation
+ *  The [onPaint] lambda uses a [DensityScope] receiver scope, to allow easy translation
  *  between [Dp], [Sp], and [Px]. The `parentSize` parameter indicates the layout size of
  *  the parent.
  */
 @Composable
 fun Draw(
-    onPaint: DensityReceiver.(canvas: Canvas, parentSize: PxSize) -> Unit
+    onPaint: DensityScope.(canvas: Canvas, parentSize: PxSize) -> Unit
 ) {
     // Hide the internals of DrawNode
     <DrawNode onPaint=onPaint/>

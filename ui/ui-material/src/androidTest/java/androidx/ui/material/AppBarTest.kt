@@ -567,5 +567,5 @@ class AppBarTest {
 
     // Render a red rectangle to simulate an icon
     @Composable
-    private fun FakeIcon() = ColoredRect(Color.Red, 24.dp, 24.dp)
+    private fun FakeIcon() = ColoredRect(Color.Red, width = 24.dp, height = 24.dp)
 }

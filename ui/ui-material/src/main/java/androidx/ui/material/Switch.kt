@@ -20,7 +20,7 @@ import androidx.animation.TweenBuilder
 import androidx.compose.Composable
 import androidx.compose.composer
 import androidx.compose.unaryPlus
-import androidx.ui.core.DensityReceiver
+import androidx.ui.core.DensityScope
 import androidx.ui.core.Draw
 import androidx.ui.core.PxSize
 import androidx.ui.core.dp
@@ -111,7 +111,7 @@ private fun DrawSwitch(checked: Boolean, checkedThumbColor: Color, thumbPosition
     }
 }
 
-private fun DensityReceiver.drawTrack(
+private fun DensityScope.drawTrack(
     canvas: Canvas,
     parentSize: PxSize,
     trackColor: Color
@@ -133,7 +133,7 @@ private fun DensityReceiver.drawTrack(
     )
 }
 
-private fun DensityReceiver.drawThumb(
+private fun DensityScope.drawThumb(
     canvas: Canvas,
     parentSize: PxSize,
     position: Float,

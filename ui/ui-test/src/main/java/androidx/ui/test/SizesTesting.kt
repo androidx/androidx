@@ -19,7 +19,7 @@ package androidx.ui.test
 import androidx.compose.Composable
 import androidx.compose.composer
 import androidx.ui.core.Density
-import androidx.ui.core.DensityReceiver
+import androidx.ui.core.DensityScope
 import androidx.ui.core.Dp
 import androidx.ui.core.IntPx
 import androidx.ui.core.OnChildPositioned
@@ -82,7 +82,7 @@ fun ComposeTestRule.setContentAndCollectSizes(
 
 /**
  * Small utility class to provide convenient assertion for width and height for some [PxSize].
- * It also provides [DensityReceiver] while asserting.
+ * It also provides [DensityScope] while asserting.
  *
  * @see ComposeTestRule.setContentAndCollectSizes
  */
@@ -95,7 +95,7 @@ class CollectedSizes(private val size: PxSize, private val density: Density) {
 
     fun assertIsSquareWithSize(expectedSize: Dp) = assertIsSquareWithSize { expectedSize.toIntPx() }
 
-    fun assertWidthEqualsTo(expectedWidthPx: DensityReceiver.() -> IntPx): CollectedSizes {
+    fun assertWidthEqualsTo(expectedWidthPx: DensityScope.() -> IntPx): CollectedSizes {
         val widthPx = withDensity(density) {
             expectedWidthPx()
         }
@@ -103,7 +103,7 @@ class CollectedSizes(private val size: PxSize, private val density: Density) {
         return this
     }
 
-    fun assertHeightEqualsTo(expectedHeightPx: DensityReceiver.() -> IntPx): CollectedSizes {
+    fun assertHeightEqualsTo(expectedHeightPx: DensityScope.() -> IntPx): CollectedSizes {
         val heightPx = withDensity(density) {
             expectedHeightPx()
         }
@@ -111,7 +111,7 @@ class CollectedSizes(private val size: PxSize, private val density: Density) {
         return this
     }
 
-    fun assertIsSquareWithSize(expectedSquarePx: DensityReceiver.() -> IntPx): CollectedSizes {
+    fun assertIsSquareWithSize(expectedSquarePx: DensityScope.() -> IntPx): CollectedSizes {
         val squarePx = withDensity(density) {
             expectedSquarePx()
         }

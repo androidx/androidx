@@ -112,7 +112,7 @@ package androidx.ui.material {
 
   public final class DividerKt {
     ctor public DividerKt();
-    method public static void Divider(androidx.ui.graphics.Color color = +themeColor({ 
+    method public static void Divider(androidx.ui.core.Modifier modifier = Modifier.None, androidx.ui.graphics.Color color = +themeColor({ 
     onSurface
 }), androidx.ui.core.Dp height = 1.dp, androidx.ui.core.Dp indent = 0.dp);
   }

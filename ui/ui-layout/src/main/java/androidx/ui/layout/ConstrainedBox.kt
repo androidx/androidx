@@ -21,6 +21,7 @@ import androidx.compose.composer
 import androidx.ui.core.Constraints
 import androidx.ui.core.ComplexLayout
 import androidx.ui.core.IntPx
+import androidx.ui.core.Modifier
 import androidx.ui.core.coerceIn
 import androidx.ui.core.enforce
 import androidx.ui.core.ipx
@@ -37,9 +38,10 @@ import androidx.ui.core.ipx
 @Composable
 fun ConstrainedBox(
     constraints: DpConstraints,
+    modifier: Modifier = Modifier.None,
     children: @Composable() () -> Unit
 ) {
-    ComplexLayout(children) {
+    ComplexLayout(children, modifier) {
         measure { measurables, incomingConstraints ->
             val measurable = measurables.firstOrNull()
             val childConstraints = Constraints(constraints).enforce(incomingConstraints)

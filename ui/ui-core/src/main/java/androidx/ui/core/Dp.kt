@@ -103,6 +103,8 @@ data /*inline*/ class Dp(val value: Float) {
      */
     inline operator fun compareTo(other: Dp) = value.compareTo(other.value)
 
+    override fun toString() = "$value.dp"
+
     companion object {
         /**
          * A dimension used to represent a hairline drawing element. Hairline elements take up no

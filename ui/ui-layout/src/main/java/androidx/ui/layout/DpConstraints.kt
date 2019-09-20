@@ -17,13 +17,12 @@
 package androidx.ui.layout
 
 import androidx.ui.core.Constraints
-import androidx.ui.core.DensityReceiver
+import androidx.ui.core.DensityScope
 import androidx.ui.core.Dp
 import androidx.ui.core.coerceAtLeast
 import androidx.ui.core.coerceIn
 import androidx.ui.core.dp
 import androidx.ui.core.isFinite
-import androidx.ui.core.toPx
 
 /**
  * Similar to [Constraints], but with constraint values expressed in [Dp].
@@ -179,7 +178,7 @@ fun DpConstraints.offset(horizontal: Dp = 0.dp, vertical: Dp = 0.dp) = DpConstra
 /**
  * Creates the [Constraints] corresponding to the current [DpConstraints].
  */
-fun DensityReceiver.Constraints(dpConstraints: DpConstraints) = Constraints(
+fun DensityScope.Constraints(dpConstraints: DpConstraints) = Constraints(
     minWidth = dpConstraints.minWidth.toIntPx(),
     maxWidth = dpConstraints.maxWidth.toIntPx(),
     minHeight = dpConstraints.minHeight.toIntPx(),
@@ -189,7 +188,7 @@ fun DensityReceiver.Constraints(dpConstraints: DpConstraints) = Constraints(
 /**
  * Creates the [DpConstraints] corresponding to the current [Constraints].
  */
-fun DensityReceiver.DpConstraints(constraints: Constraints) = DpConstraints(
+fun DensityScope.DpConstraints(constraints: Constraints) = DpConstraints(
     minWidth = constraints.minWidth.toDp(),
     maxWidth = constraints.maxWidth.toDp(),
     minHeight = constraints.minHeight.toDp(),

@@ -97,7 +97,7 @@ class NestedScrollerTestCase(
                                     mainAxisSize = LayoutSize.Expand,
                                     crossAxisAlignment = CrossAxisAlignment.Center
                                 ) {
-                                    Text("3.5 ★", TextStyle(fontSize = 40.px.toSp()))
+                                    Text("3.5 ★", style = TextStyle(fontSize = 40.px.toSp()))
                                     ColoredRect(
                                         width = 40.px.toDp(),
                                         height = 40.px.toDp(),

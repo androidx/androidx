@@ -21,7 +21,7 @@ package androidx.ui.core
  * a [Canvas] should be modified for the children. [DrawReceiver] is the receiver scope for
  * the `onPaint` to give access to [drawChildren].
  */
-interface DrawReceiver : DensityReceiver {
+interface DrawReceiver : DensityScope {
     /**
      * Causes child drawing operations to run during the `onPaint` lambda.
      */

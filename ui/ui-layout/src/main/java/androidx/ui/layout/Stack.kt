@@ -20,15 +20,16 @@ import androidx.ui.core.Constraints
 import androidx.ui.core.Dp
 import androidx.ui.core.IntPx
 import androidx.ui.core.IntPxSize
-import androidx.ui.core.Layout
 import androidx.ui.core.Measurable
-import androidx.ui.core.ParentData
 import androidx.ui.core.Placeable
 import androidx.ui.core.looseMin
 import androidx.ui.core.max
 import androidx.compose.Composable
 import androidx.compose.composer
 import androidx.ui.core.Alignment
+import androidx.ui.core.Layout
+import androidx.ui.core.Modifier
+import androidx.ui.core.ParentData
 import androidx.ui.core.coerceAtLeast
 import androidx.ui.core.ipx
 import androidx.ui.core.isFinite
@@ -131,6 +132,7 @@ class StackChildren {
  */
 @Composable
 fun Stack(
+    modifier: Modifier = Modifier.None,
     block: StackChildren.() -> Unit
 ) {
     val children: @Composable() () -> Unit = with(StackChildren()) {
@@ -142,7 +144,7 @@ fun Stack(
         }
         composable
     }
-    Layout(children) { measurables, constraints ->
+    Layout(children, modifier = modifier) { measurables, constraints ->
         val placeables = arrayOfNulls<Placeable>(measurables.size)
         // First measure aligned children to get the size of the layout.
         (0 until measurables.size).filter { i -> !measurables[i].positioned }.forEach { i ->

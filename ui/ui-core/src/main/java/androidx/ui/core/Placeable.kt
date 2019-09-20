@@ -25,35 +25,64 @@ package androidx.ui.core
 abstract class Placeable {
     /**
      * The width, in pixels, of the measured layout. This is the `width`
-     * value passed into [MeasureBlockScope.layout].
+     * value passed into [MeasureScope.layout].
      */
-    abstract val width: IntPx
+    val width: IntPx get() = size.width
 
     /**
      * The height, in pixels, of the measured layout. This is the `height`
-     * value passed into [MeasureBlockScope.layout].
+     * value passed into [MeasureScope.layout].
      */
-    abstract val height: IntPx
+    val height: IntPx get() = size.height
 
     /**
      * Returns the position of an [alignment line][AlignmentLine],
-     * or [null] if the line is not provided.
+     * or `null` if the line is not provided.
      */
     abstract operator fun get(line: AlignmentLine): IntPx?
 
     /**
-     * Positions the layout within its parent. This must be called or the
-     * layout won't be shown within its parent. This should be called within
-     * the [MeasureBlockScope.layout]'s lambda. Public access to this method
-     * is available within the [MeasureBlockScope.layout] `positioningBlock`
-     * lambda.
+     * The measured size of this Placeable.
      */
-    protected abstract fun place(x: IntPx, y: IntPx)
+    abstract val size: IntPxSize
 
     /**
-     * Called from [PositioningBlockScope] to place a Placeable.
+     * Positions the [Placeable] at [position] in its parent's coordinate system.
      */
-    internal fun placeInternal(x: IntPx, y: IntPx) {
-        this.place(x, y)
+    protected abstract fun performPlace(position: IntPxPosition)
+
+    /**
+     * Receiver scope that permits explicit placement of a [Placeable].
+     *
+     * While a [Placeable] may be placed at any time, this explicit receiver scope is used
+     * to discourage placement outside of [MeasureScope.layout] positioning blocks.
+     * This permits Compose UI to perform additional layout optimizations allowing repositioning
+     * a [Placeable] without remeasuring its original [Measurable] if factors contributing to its
+     * potential measurement have not changed.
+     */
+    companion object PlacementScope {
+        /**
+         * Place a [Placeable] at [position] in its parent's coordinate system.
+         */
+        fun Placeable.place(position: IntPxPosition) {
+            performPlace(position)
+        }
+
+        /**
+         * Place a [Placeable] at [position] in its parent's coordinate system.
+         */
+        fun Placeable.place(position: PxPosition) {
+            performPlace(position.round())
+        }
+
+        /**
+         * Place a [Placeable] at [x], [y] in its parent's coordinate system.
+         */
+        fun Placeable.place(x: IntPx, y: IntPx) = place(IntPxPosition(x, y))
+
+        /**
+         * Place a [Placeable] at [x], [y] in its parent's coordinate system.
+         */
+        fun Placeable.place(x: Px, y: Px) = place(IntPxPosition(x.round(), y.round()))
     }
 }

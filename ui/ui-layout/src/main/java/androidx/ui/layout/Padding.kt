@@ -17,12 +17,93 @@
 package androidx.ui.layout
 
 import androidx.ui.core.Dp
-import androidx.ui.core.Layout
 import androidx.ui.core.dp
 import androidx.ui.core.min
 import androidx.ui.core.offset
 import androidx.compose.Composable
 import androidx.compose.composer
+import androidx.ui.core.AlignmentLine
+import androidx.ui.core.Constraints
+import androidx.ui.core.DensityScope
+import androidx.ui.core.IntPx
+import androidx.ui.core.IntPxPosition
+import androidx.ui.core.IntPxSize
+import androidx.ui.core.Layout
+import androidx.ui.core.LayoutModifier
+import androidx.ui.core.Measurable
+import androidx.ui.core.withDensity
+
+/**
+ * Padding on all sides.
+ */
+fun absolutePadding(
+    left: Dp = 0.dp,
+    top: Dp = 0.dp,
+    right: Dp = 0.dp,
+    bottom: Dp = 0.dp
+) = AbsolutePadding(left = left, top = top, right = right, bottom = bottom)
+
+/**
+ * Padding with [all] dp on each side.
+ */
+fun padding(all: Dp = 0.dp) = AbsolutePadding(left = all, top = all, right = all, bottom = all)
+
+/**
+ * Padding with [horizontal] dp of padding on the left and right and [vertical] dp of padding
+ * on the top and bottom.
+ */
+fun padding(
+    horizontal: Dp = 0.dp,
+    vertical: Dp = 0.dp
+) = AbsolutePadding(left = horizontal, top = vertical, right = horizontal, bottom = vertical)
+
+/**
+ * A [LayoutModifier] that adds [left], [top], [right] and [bottom] padding
+ * to the wrapped UI element.
+ */
+data class AbsolutePadding(
+    val left: Dp = 0.dp,
+    val top: Dp = 0.dp,
+    val right: Dp = 0.dp,
+    val bottom: Dp = 0.dp
+) : LayoutModifier {
+    override fun DensityScope.minIntrinsicWidthOf(measurable: Measurable, height: IntPx): IntPx =
+        measurable.minIntrinsicWidth(height - (top + bottom).toIntPx())
+
+    override fun DensityScope.maxIntrinsicWidthOf(measurable: Measurable, height: IntPx): IntPx =
+        measurable.maxIntrinsicWidth(height - (top + bottom).toIntPx())
+
+    override fun DensityScope.minIntrinsicHeightOf(measurable: Measurable, width: IntPx): IntPx =
+        measurable.minIntrinsicHeight(width - (left + right).toIntPx())
+
+    override fun DensityScope.maxIntrinsicHeightOf(measurable: Measurable, width: IntPx): IntPx =
+        measurable.maxIntrinsicHeight(width - (left + right).toIntPx())
+
+    override fun DensityScope.modifyConstraints(
+        constraints: Constraints
+    ) = constraints.offset(
+        horizontal = -left.toIntPx() - right.toIntPx(),
+        vertical = -top.toIntPx() - bottom.toIntPx()
+    )
+
+    override fun DensityScope.modifySize(
+        childSize: IntPxSize
+    ) = IntPxSize(
+        left.toIntPx() + childSize.width + right.toIntPx(),
+        top.toIntPx() + childSize.height + bottom.toIntPx()
+    )
+
+    override fun DensityScope.modifyPosition(
+        childSize: IntPxSize,
+        containerSize: IntPxSize
+    ) = IntPxPosition(left.toIntPx(), top.toIntPx())
+
+    override fun DensityScope.modifyAlignmentLine(line: AlignmentLine, value: IntPx?): IntPx? {
+        if (value == null) return null
+
+        return if (line.horizontal) value + left.toIntPx() else value + top.toIntPx()
+    }
+}
 
 /**
  * Describes a set of offsets from each of the four sides of a box. For example,
