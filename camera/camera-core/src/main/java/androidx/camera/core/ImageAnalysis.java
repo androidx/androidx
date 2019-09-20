@@ -442,7 +442,7 @@ public final class ImageAnalysis extends UseCase {
                             .setImageReaderMode(DEFAULT_IMAGE_READER_MODE)
                             .setCallbackHandler(DEFAULT_HANDLER)
                             .setImageQueueDepth(DEFAULT_IMAGE_QUEUE_DEPTH)
-                            .setTargetResolution(DEFAULT_TARGET_RESOLUTION)
+                            .setDefaultResolution(DEFAULT_TARGET_RESOLUTION)
                             .setMaxResolution(DEFAULT_MAX_RESOLUTION)
                             .setSurfaceOccupancyPriority(DEFAULT_SURFACE_OCCUPANCY_PRIORITY);
 

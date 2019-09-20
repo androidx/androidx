@@ -85,7 +85,7 @@ public final class VideoCaptureConfigProvider implements ConfigProvider<VideoCap
                     targetRotation);
             boolean isRotateNeeded = (rotationDegrees == 90 || rotationDegrees == 270);
             builder.setTargetRotation(targetRotation);
-            builder.setTargetAspectRatio(
+            builder.setTargetAspectRatioCustom(
                     isRotateNeeded ? DEFAULT_ASPECT_RATIO_9_16 : DEFAULT_ASPECT_RATIO_16_9);
         } catch (Exception e) {
             Log.w(TAG, "Unable to determine default lens facing for VideoCapture.", e);

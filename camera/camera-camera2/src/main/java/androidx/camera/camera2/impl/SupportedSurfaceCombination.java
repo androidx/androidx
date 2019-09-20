@@ -31,6 +31,7 @@ import android.util.Size;
 import android.view.Surface;
 import android.view.WindowManager;
 
+import androidx.camera.core.AspectRatio;
 import androidx.camera.core.CameraDeviceConfig;
 import androidx.camera.core.CameraInfoUnavailableException;
 import androidx.camera.core.CameraX;
@@ -71,6 +72,10 @@ final class SupportedSurfaceCombination {
     private static final Size QUALITY_720P_SIZE = new Size(1280, 720);
     private static final Size QUALITY_480P_SIZE = new Size(720, 480);
     private static final int ALIGN16 = 16;
+    private static final Rational ASPECT_RATIO_4_3 = new Rational(4, 3);
+    private static final Rational ASPECT_RATIO_3_4 = new Rational(3, 4);
+    private static final Rational ASPECT_RATIO_16_9 = new Rational(16, 9);
+    private static final Rational ASPECT_RATIO_9_16 = new Rational(9, 16);
     private final List<SurfaceCombination> mSurfaceCombinations = new ArrayList<>();
     private final Map<Integer, Size> mMaxSizeCache = new HashMap<>();
     private String mCameraId;
@@ -350,9 +355,28 @@ final class SupportedSurfaceCombination {
         List<Size> sizesMatchAspectRatio = new ArrayList<>();
         List<Size> sizesNotMatchAspectRatio = new ArrayList<>();
 
-        Rational aspectRatio = config.getTargetAspectRatio(null);
-        int targetRotation = config.getTargetRotation(Surface.ROTATION_0);
-        aspectRatio = rotateAspectRatioByRotation(aspectRatio, targetRotation);
+        Rational aspectRatio = null;
+        AspectRatio targetAspectRatio = config.getTargetAspectRatio(null);
+        if (targetAspectRatio != null) {
+            // Checks the sensor orientation.
+            boolean isSensorLandscapeOrientation = isRotationNeeded(Surface.ROTATION_0);
+            switch (targetAspectRatio) {
+                case RATIO_4_3:
+                    aspectRatio =
+                            isSensorLandscapeOrientation ? ASPECT_RATIO_4_3 : ASPECT_RATIO_3_4;
+                    break;
+                case RATIO_16_9:
+                    aspectRatio =
+                            isSensorLandscapeOrientation ? ASPECT_RATIO_16_9 : ASPECT_RATIO_9_16;
+                    break;
+                default:
+                    // Unhandled event.
+            }
+        } else {
+            aspectRatio = config.getTargetAspectRatioCustom(null);
+            int targetRotation = config.getTargetRotation(Surface.ROTATION_0);
+            aspectRatio = rotateAspectRatioByRotation(aspectRatio, targetRotation);
+        }
 
         for (Size outputSize : outputSizeCandidates) {
             // If target aspect ratio is set, moves the matched results to the front of the list.
@@ -374,6 +398,10 @@ final class SupportedSurfaceCombination {
 
         // If the target resolution is set, use it to find the minimum one from big enough items
         Size targetSize = config.getTargetResolution(ZERO_SIZE);
+
+        // Check the default resolution if the target resolution is not set
+        targetSize = (targetSize.equals(ZERO_SIZE)) ? config.getDefaultResolution(ZERO_SIZE)
+                : targetSize;
 
         if (!targetSize.equals(ZERO_SIZE)) {
             removeSupportedSizesByTargetSize(sizesMatchAspectRatio, targetSize);
@@ -405,6 +433,16 @@ final class SupportedSurfaceCombination {
     // Use target rotation to calibrate the aspect ratio.
     private Rational rotateAspectRatioByRotation(Rational aspectRatio, int targetRotation) {
         Rational outputRatio = aspectRatio;
+        // Calibrates the aspect ratio with the display and sensor rotation degrees values.
+        // Otherwise, retrieves default aspect ratio for the target use case.
+        if (aspectRatio != null && isRotationNeeded(targetRotation)) {
+            outputRatio = new Rational(aspectRatio.getDenominator(),
+                    aspectRatio.getNumerator());
+        }
+        return outputRatio;
+    }
+
+    private boolean isRotationNeeded(int targetRotation) {
         int sensorRotationDegrees;
         try {
             sensorRotationDegrees = CameraX.getCameraInfo(mCameraId).getSensorRotationDegrees(
@@ -412,13 +450,7 @@ final class SupportedSurfaceCombination {
         } catch (CameraInfoUnavailableException e) {
             throw new IllegalArgumentException("Unable to retrieve camera sensor orientation.", e);
         }
-        // Calibrates the aspect ratio with the display and sensor rotation degrees values.
-        // Otherwise, retrieves default aspect ratio for the target use case.
-        if (aspectRatio != null && (sensorRotationDegrees == 90 || sensorRotationDegrees == 270)) {
-            outputRatio = new Rational(aspectRatio.getDenominator(),
-                    aspectRatio.getNumerator());
-        }
-        return outputRatio;
+        return sensorRotationDegrees == 90 || sensorRotationDegrees == 270;
     }
 
     private boolean hasMatchingAspectRatio(Size resolution, Rational aspectRatio) {
