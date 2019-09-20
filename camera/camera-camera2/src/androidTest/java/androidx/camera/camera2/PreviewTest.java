@@ -20,12 +20,15 @@ import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
 
 import static org.junit.Assume.assumeTrue;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 
 import android.content.Context;
 import android.graphics.Rect;
 import android.graphics.SurfaceTexture;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.util.Size;
 import android.view.Surface;
@@ -45,6 +48,7 @@ import androidx.camera.core.PreviewConfig;
 import androidx.camera.core.SessionConfig;
 import androidx.camera.testing.CameraUtil;
 import androidx.camera.testing.fakes.FakeCameraControl;
+import androidx.camera.testing.fakes.FakeLifecycleOwner;
 import androidx.test.annotation.UiThreadTest;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -62,11 +66,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executor;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicReference;
 
 @SmallTest
 @RunWith(AndroidJUnit4.class)
@@ -212,6 +215,7 @@ public final class PreviewTest {
         final SurfaceTextureCallable surfaceTextureCallable0 = new SurfaceTextureCallable();
         final FutureTask<SurfaceTexture> future0 = new FutureTask<>(surfaceTextureCallable0);
         useCase.setOnPreviewOutputUpdateListener(
+                AsyncTask.SERIAL_EXECUTOR,
                 new OnPreviewOutputUpdateListener() {
                     @Override
                     public void onUpdated(@NonNull Preview.PreviewOutput previewOutput) {
@@ -228,6 +232,7 @@ public final class PreviewTest {
         final SurfaceTextureCallable surfaceTextureCallable1 = new SurfaceTextureCallable();
         final FutureTask<SurfaceTexture> future1 = new FutureTask<>(surfaceTextureCallable1);
         useCase.setOnPreviewOutputUpdateListener(
+                AsyncTask.SERIAL_EXECUTOR,
                 new OnPreviewOutputUpdateListener() {
                     @Override
                     public void onUpdated(@NonNull Preview.PreviewOutput previewOutput) {
@@ -256,6 +261,7 @@ public final class PreviewTest {
         final FutureTask<SurfaceTexture> future = new FutureTask<>(surfaceTextureCallable);
 
         useCase.setOnPreviewOutputUpdateListener(
+                AsyncTask.SERIAL_EXECUTOR,
                 new OnPreviewOutputUpdateListener() {
                     @Override
                     public void onUpdated(@NonNull Preview.PreviewOutput previewOutput) {
@@ -282,6 +288,7 @@ public final class PreviewTest {
         final SurfaceTextureCallable surfaceTextureCallable0 = new SurfaceTextureCallable();
         final FutureTask<SurfaceTexture> future0 = new FutureTask<>(surfaceTextureCallable0);
         useCase.setOnPreviewOutputUpdateListener(
+                AsyncTask.SERIAL_EXECUTOR,
                 new OnPreviewOutputUpdateListener() {
                     @Override
                     public void onUpdated(@NonNull PreviewOutput previewOutput) {
@@ -297,6 +304,7 @@ public final class PreviewTest {
         final SurfaceTextureCallable surfaceTextureCallable1 = new SurfaceTextureCallable();
         final FutureTask<SurfaceTexture> future1 = new FutureTask<>(surfaceTextureCallable1);
         useCase.setOnPreviewOutputUpdateListener(
+                AsyncTask.SERIAL_EXECUTOR,
                 new Preview.OnPreviewOutputUpdateListener() {
                     @Override
                     public void onUpdated(@NonNull Preview.PreviewOutput previewOutput) {
@@ -367,24 +375,30 @@ public final class PreviewTest {
         Preview useCase = new Preview(mDefaultConfig);
         useCase.updateSuggestedResolution(Collections.singletonMap(mCameraId, DEFAULT_RESOLUTION));
 
-        final AtomicInteger calledCount = new AtomicInteger(0);
-        useCase.setOnPreviewOutputUpdateListener(
-                new Preview.OnPreviewOutputUpdateListener() {
-                    @Override
-                    public void onUpdated(@NonNull Preview.PreviewOutput previewOutput) {
-                        calledCount.incrementAndGet();
-                    }
-                });
-
-        int initialCount = calledCount.get();
+        useCase.setOnPreviewOutputUpdateListener(AsyncTask.SERIAL_EXECUTOR, mMockListener);
+        verify(mMockListener, timeout(3000)).onUpdated(any(PreviewOutput.class));
 
         useCase.updateSuggestedResolution(
                 Collections.singletonMap(mCameraId, SECONDARY_RESOLUTION));
 
-        int countAfterUpdate = calledCount.get();
+        verify(mMockListener, timeout(3000).times(2)).onUpdated(any(PreviewOutput.class));
+    }
 
-        assertThat(initialCount).isEqualTo(1);
-        assertThat(countAfterUpdate).isEqualTo(2);
+    @Test
+    @UiThreadTest
+    public void previewOutput_invokedByExecutor() {
+        Executor mockExecutor = mock(Executor.class);
+
+        Preview useCase = new Preview(mDefaultConfig);
+
+        FakeLifecycleOwner lifecycleOwner = new FakeLifecycleOwner();
+        lifecycleOwner.startAndResume();
+        CameraX.bindToLifecycle(lifecycleOwner, useCase);
+
+        useCase.setOnPreviewOutputUpdateListener(mockExecutor,
+                mock(OnPreviewOutputUpdateListener.class));
+
+        verify(mockExecutor, timeout(1000)).execute(any(Runnable.class));
     }
 
     @Test
@@ -394,24 +408,21 @@ public final class PreviewTest {
         useCase.setTargetRotation(Surface.ROTATION_0);
         useCase.updateSuggestedResolution(Collections.singletonMap(mCameraId, DEFAULT_RESOLUTION));
 
-        final AtomicReference<PreviewOutput> latestPreviewOutput = new AtomicReference<>();
-        useCase.setOnPreviewOutputUpdateListener(
-                new OnPreviewOutputUpdateListener() {
-                    @Override
-                    public void onUpdated(@NonNull Preview.PreviewOutput previewOutput) {
-                        latestPreviewOutput.set(previewOutput);
-                    }
-                });
-
-        Preview.PreviewOutput initialOutput = latestPreviewOutput.get();
+        ArgumentCaptor<PreviewOutput> previewOutput = ArgumentCaptor.forClass(PreviewOutput.class);
+        useCase.setOnPreviewOutputUpdateListener(AsyncTask.SERIAL_EXECUTOR, mMockListener);
 
         useCase.setTargetRotation(Surface.ROTATION_90);
 
+        verify(mMockListener, timeout(3000).times(2)).onUpdated(previewOutput.capture());
+        assertThat(previewOutput.getAllValues()).hasSize(2);
+        Preview.PreviewOutput initialOutput = previewOutput.getAllValues().get(0);
+        Preview.PreviewOutput latestPreviewOutput = previewOutput.getAllValues().get(1);
+
         assertThat(initialOutput).isNotNull();
         assertThat(initialOutput.getSurfaceTexture())
-                .isEqualTo(latestPreviewOutput.get().getSurfaceTexture());
+                .isEqualTo(latestPreviewOutput.getSurfaceTexture());
         assertThat(initialOutput.getRotationDegrees())
-                .isNotEqualTo(latestPreviewOutput.get().getRotationDegrees());
+                .isNotEqualTo(latestPreviewOutput.getRotationDegrees());
     }
 
     @Test
@@ -423,6 +434,7 @@ public final class PreviewTest {
         final SurfaceTextureCallable surfaceTextureCallable0 = new SurfaceTextureCallable();
         final FutureTask<SurfaceTexture> future0 = new FutureTask<>(surfaceTextureCallable0);
         useCase.setOnPreviewOutputUpdateListener(
+                AsyncTask.SERIAL_EXECUTOR,
                 new OnPreviewOutputUpdateListener() {
                     @Override
                     public void onUpdated(@NonNull Preview.PreviewOutput previewOutput) {
@@ -449,6 +461,7 @@ public final class PreviewTest {
         useCase.updateSuggestedResolution(Collections.singletonMap(mCameraId, DEFAULT_RESOLUTION));
 
         useCase.setOnPreviewOutputUpdateListener(
+                AsyncTask.SERIAL_EXECUTOR,
                 new Preview.OnPreviewOutputUpdateListener() {
                     @Override
                     public void onUpdated(@NonNull PreviewOutput previewOutput) {
