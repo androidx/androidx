@@ -619,7 +619,4 @@ public abstract class Visibility extends Transition {
             }
         }
     }
-
-    // TODO: Implement API 23; isTransitionRequired
-
 }
