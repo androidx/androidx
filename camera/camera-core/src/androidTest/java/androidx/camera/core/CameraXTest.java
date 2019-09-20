@@ -18,6 +18,8 @@ package androidx.camera.core;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static junit.framework.Assert.assertFalse;
+
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 
@@ -192,6 +194,25 @@ public final class CameraXTest {
         mLifecycle.destroy();
 
         CameraX.bindToLifecycle(mLifecycle, useCase);
+    }
+
+    @Test
+    @UiThreadTest
+    public void noException_bindUseCases_withDifferentLensFacing() {
+        FakeUseCaseConfig config0 =
+                new FakeUseCaseConfig.Builder().setLensFacing(LensFacing.FRONT).build();
+        FakeUseCase fakeUseCase = new FakeUseCase(config0);
+        FakeOtherUseCaseConfig config1 =
+                new FakeOtherUseCaseConfig.Builder().setLensFacing(LensFacing.BACK).build();
+        FakeOtherUseCase fakeOtherUseCase = new FakeOtherUseCase(config1);
+
+        boolean hasException = false;
+        try {
+            CameraX.bindToLifecycle(mLifecycle, fakeUseCase, fakeOtherUseCase);
+        } catch (IllegalArgumentException e) {
+            hasException = true;
+        }
+        assertFalse(hasException);
     }
 
     @Test
