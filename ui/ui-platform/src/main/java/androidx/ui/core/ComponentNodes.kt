@@ -499,7 +499,7 @@ class LayoutNode : ComponentNode(), Measurable, MeasureScope {
     /**
      * Whether or not this has been placed in the hierarchy.
      */
-    var isPlaced = true
+    var isPlaced = false
         private set
 
     /**

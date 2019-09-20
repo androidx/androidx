@@ -258,15 +258,8 @@ class AndroidComposeView constructor(context: Context)
 
     private fun requestMeasure(layoutNode: LayoutNode, isNodeChange: Boolean) {
         trace("AndroidOwner:onRequestMeasure") {
-            // If we have already marked this layoutNode, we know that it is already
-            // set to be remeasured. If we're doing this during the measure/layout
-            // then we shouldn't affect the relayoutNodes. This can happen in rare
-            // cases when using subcomposition, where the measure lambda is set during
-            // measurement.
-            if (layoutNode.needsRemeasure || duringMeasureLayout) {
-                check(isNodeChange || !duringMeasureLayout) {
-                    "onRequestMeasure called during measure/layout"
-                }
+            if (layoutNode.needsRemeasure) {
+                // requestMeasure has already been called for this node
                 return
             }
             layoutNode.needsRemeasure = true
@@ -274,7 +267,7 @@ class AndroidComposeView constructor(context: Context)
             // find root of layout request:
             var layout = layoutNode
             while (layout.parentLayoutNode != null && layout.parentLayoutNode != root &&
-                layout.affectsParentSize
+                layout.affectsParentSize && !layout.isMeasuring
             ) {
                 layout = layout.parentLayoutNode!!
                 if (layout.needsRemeasure) {
@@ -285,7 +278,14 @@ class AndroidComposeView constructor(context: Context)
             }
 
             val parent = layout.parentLayoutNode
-            if (parent == null) {
+
+            // If we're doing this during the measure/layout
+            // then we shouldn't affect the relayoutNodes. This can happen in rare
+            // cases when using subcomposition, where the measure lambda is set during
+            // measurement.
+            if (duringMeasureLayout) {
+                check(isNodeChange) { "onRequest called during measure/layout" }
+            } else if (parent == null) {
                 requestRelayout(layout)
             } else {
                 requestRelayout(parent)
