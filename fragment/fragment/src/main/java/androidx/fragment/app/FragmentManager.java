@@ -1248,31 +1248,9 @@ public abstract class FragmentManager {
 
     @SuppressWarnings("ReferenceEquality")
     void moveToState(Fragment f, int newState) {
-        // Fragments that are not currently added will sit in the onCreate() state.
-        if (!f.mAdded) {
-            newState = Math.min(newState, Fragment.CREATED);
-        }
         FragmentStateManager fragmentStateManager = mActive.get(f.mWho);
-        if (f.mRemoving) {
-            if (f.isInBackStack()) {
-                // Fragments on the back stack shouldn't go higher than CREATED
-                newState = Math.min(newState, Fragment.CREATED);
-            } else {
-                // While removing a fragment, we always move to INITIALIZING
-                newState = Fragment.INITIALIZING;
-            }
-        }
-        // Defer start if requested; don't allow it to move to STARTED or higher
-        // if it's not already started.
-        if (f.mDeferStart && f.mState < Fragment.STARTED && newState > Fragment.ACTIVITY_CREATED) {
-            newState = Fragment.ACTIVITY_CREATED;
-        }
-        // Don't allow the Fragment to go above its max lifecycle state
-        // Ensure that Fragments are capped at CREATED instead of ACTIVITY_CREATED.
-        if (f.mMaxState == Lifecycle.State.CREATED) {
-            newState = Math.min(newState, Fragment.CREATED);
-        } else {
-            newState = Math.min(newState, f.mMaxState.ordinal());
+        if (fragmentStateManager != null) {
+            newState = Math.min(newState, fragmentStateManager.computeMaxState());
         }
         if (f.mState <= newState) {
             // For fragments that are created from a layout, when restoring from
