@@ -296,6 +296,7 @@ package androidx.ui.material {
   public final class TextKt {
     ctor public TextKt();
     method public static androidx.compose.Effect<androidx.ui.graphics.Color> textColorForBackground(androidx.ui.graphics.Color background);
+    method public static androidx.ui.text.TextStyle withOpacity(androidx.ui.text.TextStyle, @FloatRange(from=0.0, to=1.0) float opacity);
   }
 
 }
