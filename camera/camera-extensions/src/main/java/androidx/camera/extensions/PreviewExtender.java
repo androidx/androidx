@@ -19,6 +19,9 @@ package androidx.camera.extensions;
 import android.hardware.camera2.CameraCharacteristics;
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
+import android.util.Pair;
+import android.util.Size;
 
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
@@ -40,12 +43,14 @@ import androidx.camera.extensions.impl.PreviewExtenderImpl;
 import androidx.camera.extensions.impl.PreviewImageProcessorImpl;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 
 /**
  * Class for using an OEM provided extension on preview.
  */
 public abstract class PreviewExtender {
+    private static final String TAG = "PreviewExtender";
     static final Config.Option<EffectMode> OPTION_PREVIEW_EXTENDER_MODE = Config.Option.create(
             "camerax.extensions.previewExtender.mode", EffectMode.class);
 
@@ -135,6 +140,21 @@ public abstract class PreviewExtender {
                 new CameraEventCallbacks(previewExtenderAdapter));
         mBuilder.setUseCaseEventListener(previewExtenderAdapter);
         mBuilder.getMutableConfig().insertOption(OPTION_PREVIEW_EXTENDER_MODE, mEffectMode);
+        setSupportedResolutions();
+    }
+
+    private void setSupportedResolutions() {
+        List<Pair<Integer, Size[]>> supportedResolutions = null;
+
+        try {
+            supportedResolutions = mImpl.getSupportedResolutions();
+        } catch (NoSuchMethodError e) {
+            Log.e(TAG, "getSupportedResolution interface is not implemented in vendor library.");
+        }
+
+        if (supportedResolutions != null) {
+            mBuilder.setSupportedResolutions(supportedResolutions);
+        }
     }
 
     static void checkImageCaptureEnabled(EffectMode effectMode,
