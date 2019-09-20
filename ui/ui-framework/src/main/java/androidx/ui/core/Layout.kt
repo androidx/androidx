@@ -22,7 +22,6 @@ import androidx.compose.composer
 import androidx.compose.ambient
 import androidx.compose.compositionReference
 import androidx.compose.memo
-import androidx.compose.trace
 import androidx.compose.unaryPlus
 
 typealias IntrinsicFunction = (DensityScope.(List<IntrinsicMeasurable>, IntPx) -> IntPx)
@@ -30,13 +29,13 @@ typealias IntrinsicFunction = (DensityScope.(List<IntrinsicMeasurable>, IntPx) -
 /**
  * Receiver scope for the [ComplexLayout] lambda.
  */
-class ComplexLayoutScope internal constructor() {
-    internal val layoutNodeRef = Ref<LayoutNode>()
-    internal var measureBlock: MeasureFunction? = null
-    internal var minIntrinsicWidthBlock: IntrinsicFunction? = null
-    internal var maxIntrinsicWidthBlock: IntrinsicFunction? = null
-    internal var minIntrinsicHeightBlock: IntrinsicFunction? = null
-    internal var maxIntrinsicHeightBlock: IntrinsicFunction? = null
+class ComplexLayoutScope internal @PublishedApi constructor() {
+    @PublishedApi internal val layoutNodeRef = Ref<LayoutNode>()
+    @PublishedApi internal var measureBlock: MeasureFunction? = null
+    @PublishedApi internal var minIntrinsicWidthBlock: IntrinsicFunction? = null
+    @PublishedApi internal var maxIntrinsicWidthBlock: IntrinsicFunction? = null
+    @PublishedApi internal var minIntrinsicHeightBlock: IntrinsicFunction? = null
+    @PublishedApi internal var maxIntrinsicHeightBlock: IntrinsicFunction? = null
 
     fun measure(measureBlock: MeasureFunction) {
         this.measureBlock = measureBlock
@@ -54,6 +53,7 @@ class ComplexLayoutScope internal constructor() {
         this.maxIntrinsicHeightBlock = maxIntrinsicHeightBlock
     }
 
+    @PublishedApi
     internal fun runBlock(block: ComplexLayoutScope.() -> Unit) {
         measureBlock = null
         minIntrinsicWidthBlock = null
@@ -85,10 +85,10 @@ class ComplexLayoutScope internal constructor() {
  * @see WithConstraints
  */
 @Composable
-fun ComplexLayout(
-    children: @Composable() () -> Unit,
+inline fun ComplexLayout(
+    crossinline children: @Composable() () -> Unit,
     modifier: Modifier = Modifier.None,
-    block: ComplexLayoutScope.() -> Unit
+    noinline block: ComplexLayoutScope.() -> Unit
 ) {
     val scope = +memo { ComplexLayoutScope() }
 
@@ -118,14 +118,16 @@ private class DummyPlaceable(width: IntPx, height: IntPx) : Placeable() {
 /**
  * Identifies an [IntrinsicMeasurable] as a min or max intrinsic measurement.
  */
-private enum class IntrinsicMinMax {
+@PublishedApi
+internal enum class IntrinsicMinMax {
     Min, Max
 }
 
 /**
  * Identifies an [IntrinsicMeasurable] as a width or height intrinsic measurement.
  */
-private enum class IntrinsicWidthHeight {
+@PublishedApi
+internal enum class IntrinsicWidthHeight {
     Width, Height
 }
 
@@ -135,7 +137,8 @@ private enum class IntrinsicWidthHeight {
  * by using the [ComplexLayoutScope.measure], substituting the intrinsics gathering method
  * for the [Measurable.measure] call.
  */
-private class DefaultIntrinsicMeasurable(
+@PublishedApi
+internal class DefaultIntrinsicMeasurable(
     val measurable: IntrinsicMeasurable,
     val minMax: IntrinsicMinMax,
     val widthHeight: IntrinsicWidthHeight
@@ -180,7 +183,8 @@ private class DefaultIntrinsicMeasurable(
 /**
  * Receiver scope for [Layout]'s layout lambda when used in an intrinsics call.
  */
-private class IntrinsicsMeasureScope (
+@PublishedApi
+internal class IntrinsicsMeasureScope (
     val layoutNode: LayoutNode,
     val widthHeight: IntrinsicWidthHeight
 ) : MeasureScope {
@@ -216,53 +220,51 @@ fun Layout(
     modifier: Modifier = Modifier.None,
     measureBlock: MeasureFunction
 ) {
-    trace("UI:Layout") {
-        ComplexLayout(children, modifier) {
-            measure(measureBlock)
+    ComplexLayout(children, modifier) {
+        measure(measureBlock)
 
-            minIntrinsicWidth { measurables, h ->
-                val mapped = measurables.map {
-                    DefaultIntrinsicMeasurable(it, IntrinsicMinMax.Min, IntrinsicWidthHeight.Width)
-                }
-                val constraints = Constraints(maxHeight = h)
-                val layoutReceiver = IntrinsicsMeasureScope(layoutNodeRef.value!!,
-                    IntrinsicWidthHeight.Width)
-                layoutReceiver.measureBlock(mapped, constraints)
-                layoutReceiver.measuredValue
+        minIntrinsicWidth { measurables, h ->
+            val mapped = measurables.map {
+                DefaultIntrinsicMeasurable(it, IntrinsicMinMax.Min, IntrinsicWidthHeight.Width)
             }
+            val constraints = Constraints(maxHeight = h)
+            val layoutReceiver = IntrinsicsMeasureScope(layoutNodeRef.value!!,
+                IntrinsicWidthHeight.Width)
+            layoutReceiver.measureBlock(mapped, constraints)
+            layoutReceiver.measuredValue
+        }
 
-            maxIntrinsicWidth { measurables, h ->
-                val mapped = measurables.map {
-                    DefaultIntrinsicMeasurable(it, IntrinsicMinMax.Max, IntrinsicWidthHeight.Width)
-                }
-                val constraints = Constraints(maxHeight = h)
-                val layoutReceiver = IntrinsicsMeasureScope(layoutNodeRef.value!!,
-                    IntrinsicWidthHeight.Width)
-                layoutReceiver.measureBlock(mapped, constraints)
-                layoutReceiver.measuredValue
+        maxIntrinsicWidth { measurables, h ->
+            val mapped = measurables.map {
+                DefaultIntrinsicMeasurable(it, IntrinsicMinMax.Max, IntrinsicWidthHeight.Width)
             }
+            val constraints = Constraints(maxHeight = h)
+            val layoutReceiver = IntrinsicsMeasureScope(layoutNodeRef.value!!,
+                IntrinsicWidthHeight.Width)
+            layoutReceiver.measureBlock(mapped, constraints)
+            layoutReceiver.measuredValue
+        }
 
-            minIntrinsicHeight { measurables, w ->
-                val mapped = measurables.map {
-                    DefaultIntrinsicMeasurable(it, IntrinsicMinMax.Min, IntrinsicWidthHeight.Height)
-                }
-                val constraints = Constraints(maxWidth = w)
-                val layoutReceiver = IntrinsicsMeasureScope(layoutNodeRef.value!!,
-                    IntrinsicWidthHeight.Height)
-                layoutReceiver.measureBlock(mapped, constraints)
-                layoutReceiver.measuredValue
+        minIntrinsicHeight { measurables, w ->
+            val mapped = measurables.map {
+                DefaultIntrinsicMeasurable(it, IntrinsicMinMax.Min, IntrinsicWidthHeight.Height)
             }
+            val constraints = Constraints(maxWidth = w)
+            val layoutReceiver = IntrinsicsMeasureScope(layoutNodeRef.value!!,
+                IntrinsicWidthHeight.Height)
+            layoutReceiver.measureBlock(mapped, constraints)
+            layoutReceiver.measuredValue
+        }
 
-            maxIntrinsicHeight { measurables, w ->
-                val mapped = measurables.map {
-                    DefaultIntrinsicMeasurable(it, IntrinsicMinMax.Max, IntrinsicWidthHeight.Height)
-                }
-                val constraints = Constraints(maxWidth = w)
-                val layoutReceiver = IntrinsicsMeasureScope(layoutNodeRef.value!!,
-                    IntrinsicWidthHeight.Height)
-                layoutReceiver.measureBlock(mapped, constraints)
-                layoutReceiver.measuredValue
+        maxIntrinsicHeight { measurables, w ->
+            val mapped = measurables.map {
+                DefaultIntrinsicMeasurable(it, IntrinsicMinMax.Max, IntrinsicWidthHeight.Height)
             }
+            val constraints = Constraints(maxWidth = w)
+            val layoutReceiver = IntrinsicsMeasureScope(layoutNodeRef.value!!,
+                IntrinsicWidthHeight.Height)
+            layoutReceiver.measureBlock(mapped, constraints)
+            layoutReceiver.measuredValue
         }
     }
 }
@@ -438,8 +440,9 @@ fun WithConstraints(children: @Composable() (Constraints) -> Unit) {
  *     }
  */
 @Composable
-fun OnPositioned(
-    onPositioned: (coordinates: LayoutCoordinates) -> Unit
+@Suppress("NOTHING_TO_INLINE")
+inline fun OnPositioned(
+    noinline onPositioned: (coordinates: LayoutCoordinates) -> Unit
 ) {
     <DataNode key=OnPositionedKey value=onPositioned/>
 }
@@ -459,11 +462,11 @@ fun OnPositioned(
  * }
  */
 @Composable
-fun OnChildPositioned(
-    onPositioned: (coordinates: LayoutCoordinates) -> Unit,
-    children: @Composable() () -> Unit
+inline fun OnChildPositioned(
+    noinline onPositioned: (coordinates: LayoutCoordinates) -> Unit,
+    crossinline children: @Composable() () -> Unit
 ) {
     <DataNode key=OnChildPositionedKey value=onPositioned>
-        <children/>
+        children()
     </DataNode>
 }
