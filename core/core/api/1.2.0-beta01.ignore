@@ -1,0 +1,3 @@
+// Baseline format: 1.0
+ChangedStatic: androidx.core.content.pm.ShortcutManagerCompat#removeDynamicShortcuts(android.content.Context, java.util.List<java.lang.String>):
+    Method androidx.core.content.pm.ShortcutManagerCompat.removeDynamicShortcuts has changed 'static' qualifier
