@@ -290,10 +290,7 @@ public class WebSettingsCompat {
      * automatically darkened.
      *
      * @see #setForceDark
-     * TODO(amalova): unhide
-     * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final int FORCE_DARK_OFF = WebSettings.FORCE_DARK_OFF;
 
     /**
@@ -304,23 +301,15 @@ public class WebSettingsCompat {
      * be inverted.
      *
      * @see #setForceDark
-     * TODO(amalova): unhide
-     * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final int FORCE_DARK_AUTO = WebSettings.FORCE_DARK_AUTO;
 
     /**
-     * Used with {@link #setForceDark}
-     *
      * Unconditionally enable force dark. In this mode WebView content will always be rendered so
      * as to emulate a dark theme.
      *
      * @see #setForceDark
-     * TODO(amalova): unhide
-     * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final int FORCE_DARK_ON = WebSettings.FORCE_DARK_ON;
 
     /**
@@ -345,11 +334,8 @@ public class WebSettingsCompat {
      * returns true for {@link WebViewFeature#FORCE_DARK}.
      *
      * @param forceDarkMode the force dark mode to set.
-     *
-     * TODO(amalova): unhide
-     * @hide
+     * @see #getForceDark
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @SuppressLint("NewApi")
     @RequiresFeature(name = WebViewFeature.FORCE_DARK,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
@@ -370,7 +356,7 @@ public class WebSettingsCompat {
      * Get the force dark mode for this WebView.
      *
      * <p>
-     * The default force dark mode is {@link #FORCE_DARK_AUTO}
+     * The default force dark mode is {@link #FORCE_DARK_AUTO}.
      *
      * <p>
      * This method should only be called if
@@ -378,11 +364,8 @@ public class WebSettingsCompat {
      * returns true for {@link WebViewFeature#FORCE_DARK}.
      *
      * @return the currently set force dark mode.
-     *
-     * TODO(amalova): unhide
-     * @hide
+     * @see #setForceDark
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @SuppressLint("NewApi")
     @RequiresFeature(name = WebViewFeature.FORCE_DARK,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
