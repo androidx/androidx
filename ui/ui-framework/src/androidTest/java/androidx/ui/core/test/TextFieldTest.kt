@@ -39,6 +39,7 @@ import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.argumentCaptor
 import com.nhaarman.mockitokotlin2.atLeastOnce
+import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.times
 import com.nhaarman.mockitokotlin2.verify
@@ -94,11 +95,14 @@ class TextFieldTest {
     fun textField_commitTexts() {
         val focusManager = mock<FocusManager>()
         val textInputService = mock<TextInputService>()
+        val inputSessionToken = 10 // any positive number is fine.
 
         // Always give focus to the passed node.
         whenever(focusManager.requestFocus(any())).thenAnswer {
             (it.arguments[0] as FocusManager.FocusNode).onFocus()
         }
+        whenever(textInputService.startInput(any(), any(), any(), any(), any()))
+            .thenReturn(inputSessionToken)
 
         composeTestRule.setContent {
             FocusManagerAmbient.Provider(value = focusManager) {
@@ -141,7 +145,8 @@ class TextFieldTest {
 
         composeTestRule.runOnUiThread {
             val stateCaptor = argumentCaptor<EditorModel>()
-            verify(textInputService, atLeastOnce()).onStateUpdated(stateCaptor.capture())
+            verify(textInputService, atLeastOnce())
+                .onStateUpdated(eq(inputSessionToken), stateCaptor.capture())
 
             // Don't care about the intermediate state update. It should eventually be "1a2b3".
             assertThat(stateCaptor.lastValue.text).isEqualTo("1a2b3")
@@ -165,11 +170,14 @@ class TextFieldTest {
     fun textField_commitTexts_state_may_not_set() {
         val focusManager = mock<FocusManager>()
         val textInputService = mock<TextInputService>()
+        val inputSessionToken = 10 // any positive number is fine.
 
         // Always give focus to the passed node.
         whenever(focusManager.requestFocus(any())).thenAnswer {
             (it.arguments[0] as FocusManager.FocusNode).onFocus()
         }
+        whenever(textInputService.startInput(any(), any(), any(), any(), any()))
+            .thenReturn(inputSessionToken)
 
         composeTestRule.setContent {
             FocusManagerAmbient.Provider(value = focusManager) {
@@ -212,7 +220,8 @@ class TextFieldTest {
 
         composeTestRule.runOnUiThread {
             val stateCaptor = argumentCaptor<EditorModel>()
-            verify(textInputService, atLeastOnce()).onStateUpdated(stateCaptor.capture())
+            verify(textInputService, atLeastOnce())
+                .onStateUpdated(eq(inputSessionToken), stateCaptor.capture())
 
             // Don't care about the intermediate state update. It should eventually be "123" since
             // the rejects if the incoming model contains alphabets.
