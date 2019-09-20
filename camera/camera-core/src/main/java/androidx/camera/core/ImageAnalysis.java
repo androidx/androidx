@@ -109,6 +109,7 @@ public final class ImageAnalysis extends UseCase {
 
         mImageReader =
                 ImageReaderProxys.createCompatibleReader(
+                        CameraX.getSurfaceManager(),
                         cameraId,
                         resolution.getWidth(),
                         resolution.getHeight(),
