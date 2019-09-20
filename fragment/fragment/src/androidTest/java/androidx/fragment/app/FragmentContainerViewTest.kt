@@ -29,7 +29,7 @@ import android.view.animation.Animation
 import androidx.fragment.app.test.FragmentTestActivity
 import androidx.fragment.test.R
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.filters.LargeTest
+import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.rule.ActivityTestRule
 import androidx.testutils.waitForExecution
@@ -42,7 +42,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import java.util.concurrent.CountDownLatch
 
-@LargeTest
+@MediumTest
 @RunWith(AndroidJUnit4::class)
 class FragmentContainerViewTest {
     @get:Rule
@@ -311,6 +311,7 @@ class FragmentContainerViewTest {
         val frag1View = fragment1.mView as ChildView
         // wait for the first draw to finish
         drawnFirstCountDownLatch.await()
+        frag1View.onAnimationEndLatch.await()
 
         // reset the first drawn view for the transaction we care about.
         drawnFirst = null
@@ -540,6 +541,7 @@ class FragmentContainerViewTest {
     class ChildView(context: Context?) : View(context) {
         var getAnimationCount = 0
         var onDetachFromWindowLatch = CountDownLatch(1)
+        var onAnimationEndLatch = CountDownLatch(1)
 
         override fun onDraw(canvas: Canvas?) {
             super.onDraw(canvas)
@@ -554,6 +556,11 @@ class FragmentContainerViewTest {
         override fun onDetachedFromWindow() {
             onDetachFromWindowLatch.countDown()
             super.onDetachedFromWindow()
+        }
+
+        override fun onAnimationEnd() {
+            onAnimationEndLatch.countDown()
+            super.onAnimationEnd()
         }
     }
 
