@@ -24,6 +24,7 @@ import android.view.ViewGroup;
 
 import androidx.collection.ArrayMap;
 import androidx.core.app.SharedElementCallback;
+import androidx.core.os.CancellationSignal;
 import androidx.core.view.OneShotPreDrawListener;
 import androidx.core.view.ViewCompat;
 
@@ -277,18 +278,16 @@ class FragmentTransition {
     /**
      * Set a listener for Transition end events.
      *
-     * If either exitingViews or SharedElementsOut contain a view, a
-     * {@link FragmentManager.ExitAnimationCompleteMarker} will added to the
-     * given FragmentManager. The FragmentManager will check for the
-     * {@link FragmentManager.ExitAnimationCompleteMarker} to determine if the transition has
-     * finished.
+     * If either exitingViews or SharedElementsOut contain a view, a {@link CancellationSignal}
+     * will added to the given FragmentManager. The FragmentManager will check for the
+     * {@link CancellationSignal} to determine if the transition has finished.
      *
      * An {@link Transition.TransitionListener#onTransitionEnd} listener is added that removes
-     * the {@link FragmentManager.ExitAnimationCompleteMarker} from the given FragmentManager and
-     * that indicates to the FragmentManager that it should properly handle the out going Fragment.
+     * the {@link CancellationSignal} from the given FragmentManager and that indicates to the
+     * FragmentManager that it should properly handle the out going Fragment.
      *
      * If the FragmentManager wishes to cancel the transition, it removes the
-     * {@link FragmentManager.ExitAnimationCompleteMarker} and destroys the view of the Fragment.
+     * {@link CancellationSignal} and destroys the view of the Fragment.
      *
      * @param fragmentManager The executing FragmentManager
      * @param outFragment The first fragment that is exiting
@@ -297,13 +296,8 @@ class FragmentTransition {
     private static void setListenerForTransitionEnd(final FragmentManager fragmentManager,
             final Fragment outFragment, Object transition) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            final FragmentManager.ExitAnimationCompleteMarker marker =
-                    new FragmentManager.ExitAnimationCompleteMarker() {
-                @Override
-                // Transitions do not need to do anything on cancel
-                public void cancel() { }
-            };
-            fragmentManager.addExitAnimationCompleteMarker(outFragment, marker);
+            final CancellationSignal signal = new CancellationSignal();
+            fragmentManager.addCancellationSignal(outFragment, signal);
             ((Transition) transition).addListener(new Transition.TransitionListener() {
                 @Override
                 public void onTransitionStart(Transition transition) { }
@@ -312,7 +306,7 @@ class FragmentTransition {
                 public void onTransitionEnd(Transition transition) {
                     if (outFragment.mView != null && outFragment.mState <= Fragment.CREATED
                             && (outFragment.mRemoving || outFragment.isDetached())) {
-                        fragmentManager.removeExitAnimationComplete(outFragment, marker);
+                        fragmentManager.removeCancellationSignal(outFragment, signal);
                     }
                 }
 
