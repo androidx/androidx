@@ -42,7 +42,6 @@ import androidx.ui.test.doClick
 import androidx.ui.test.findAll
 import androidx.ui.test.isInMutuallyExclusiveGroup
 import com.google.common.truth.Truth
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -104,7 +103,6 @@ class TabTest {
             .assertHeightEqualsTo(ExpectedLargeTabHeight)
     }
 
-    @Ignore("b/140292836")
     @Test
     fun tabRow_indicatorPosition() {
         val indicatorHeight = 1.dp
