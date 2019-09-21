@@ -64,53 +64,98 @@ class ParagraphBenchmark(
         }
     }
 
-    private fun paragraph(textGenerator: RandomTextGenerator): Paragraph {
+    private fun text(textGenerator: RandomTextGenerator): AnnotatedString {
         val text = textGenerator.nextParagraph(textLength)
-
-        val styles = if (textType == TextType.StyledText) {
+        val textStyles = if (textType == TextType.StyledText) {
             textGenerator.createStyles(text)
         } else {
             listOf()
         }
+        return AnnotatedString(text = text, textStyles = textStyles)
+    }
+
+    private fun paragraph(
+        text: String,
+        textStyles: List<AnnotatedString.Item<TextStyle>>,
+        constraints: ParagraphConstraints
+    ): Paragraph {
         return Paragraph(
+            paragraphIntrinsics = paragraphIntrinsics(text, textStyles),
+            constraints = constraints
+        )
+    }
+
+    private fun paragraphIntrinsics(
+        textGenerator: RandomTextGenerator
+    ): ParagraphIntrinsics {
+        val annotatedString = text(textGenerator)
+        return paragraphIntrinsics(
+            text = annotatedString.text,
+            textStyles = annotatedString.textStyles
+        )
+    }
+
+    private fun paragraphIntrinsics(
+        text: String,
+        textStyles: List<AnnotatedString.Item<TextStyle>>
+    ): ParagraphIntrinsics {
+        return ParagraphIntrinsics(
             text = text,
             density = Density(density = 1f),
             style = TextStyle(fontSize = 12.sp),
             paragraphStyle = ParagraphStyle(),
             resourceLoader = resourceLoader,
-            textStyles = styles,
+            textStyles = textStyles,
             layoutDirection = LayoutDirection.Ltr
         )
     }
 
     @Test
     fun minIntrinsicWidth() {
-        benchmarkRule.measureRepeated {
-            val paragraph = runWithTimingDisabled {
-                textBenchmarkRule.generator { textGenerator ->
-                    paragraph(textGenerator)
+        textBenchmarkRule.generator { textGenerator ->
+            benchmarkRule.measureRepeated {
+                val intrinsics = runWithTimingDisabled {
+                    paragraphIntrinsics(textGenerator)
                 }
-            }
 
-            paragraph.minIntrinsicWidth
+                intrinsics.minIntrinsicWidth
+            }
         }
     }
 
     @Test
-    fun layout() {
-        benchmarkRule.measureRepeated {
-            val pair = runWithTimingDisabled {
-                textBenchmarkRule.generator { textGenerator ->
-                    val paragraph = paragraph(textGenerator)
-                    paragraph.layout(ParagraphConstraints(Float.MAX_VALUE))
+    fun maxIntrinsicWidth() {
+        textBenchmarkRule.generator { textGenerator ->
+            benchmarkRule.measureRepeated {
+                val intrinsics = runWithTimingDisabled {
+                    paragraphIntrinsics(textGenerator)
+                }
+
+                intrinsics.maxIntrinsicWidth
+            }
+        }
+    }
+
+    @Test
+    fun construct() {
+        textBenchmarkRule.generator { textGenerator ->
+            benchmarkRule.measureRepeated {
+                val textAndWidth = runWithTimingDisabled {
+                    val intrinsics = paragraphIntrinsics(textGenerator)
                     // create a new paragraph and use a smaller width to get
                     // some line breaking in the result
-                    Pair(paragraph(textGenerator), paragraph.maxIntrinsicWidth / 4f)
+                    Pair(
+                        text(textGenerator),
+                        intrinsics.maxIntrinsicWidth / 4f
+                    )
                 }
-                // measure an approximate max intrinsic width
-            }
 
-            pair.first.layout(ParagraphConstraints(pair.second))
+                paragraph(
+                    text = textAndWidth.first.text,
+                    textStyles = textAndWidth.first.textStyles,
+                    constraints = ParagraphConstraints(textAndWidth.second)
+                )
+            }
         }
     }
 }
