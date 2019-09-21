@@ -61,6 +61,7 @@ import androidx.ui.graphics.Color
 import androidx.ui.graphics.toArgb
 import androidx.ui.graphics.Paint
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertSame
 import org.junit.Assert.assertTrue
@@ -1346,6 +1347,85 @@ class AndroidLayoutDrawTest {
         composeSquaresWithConstraints()
 
         validateSquareColors(outerColor = Color.Yellow, innerColor = Color.Red, size = 10)
+    }
+
+    @Test
+    fun testLayoutBeforeDraw_forRecomposingNodesNotAffectingRootSize() {
+        val model = OffsetModel(0.ipx)
+        var latch = CountDownLatch(1)
+        var laidOut = false
+        activityTestRule.runOnUiThreadIR {
+            activity.setContentInFrameLayout {
+                val container = @Composable { children: @Composable() () -> Unit ->
+                    // This simulates a Container optimisation, when the child does not
+                    // affect parent size.
+                    Layout(children) { measurables, constraints ->
+                        layout(30.ipx, 30.ipx) {
+                            measurables[0].measure(constraints).place(0.ipx, 0.ipx)
+                        }
+                    }
+                }
+                val recomposingChild = @Composable { children: @Composable() (IntPx) -> Unit ->
+                    // This simulates a child that recomposes, for example due to a transition.
+                    children(model.offset)
+                }
+                val assumeLayoutBeforeDraw = @Composable {
+                    // This assumes a layout was done before the draw pass.
+                    Layout({
+                        Draw { _, _ ->
+                            assertTrue(laidOut)
+                            latch.countDown()
+                        }
+                    }) { _, _ ->
+                        laidOut = true
+                        layout(0.ipx, 0.ipx) {}
+                    }
+                }
+
+                container {
+                    recomposingChild {
+                        assumeLayoutBeforeDraw()
+                    }
+                }
+            }
+        }
+
+        assertTrue(latch.await(1, TimeUnit.SECONDS))
+        latch = CountDownLatch(1)
+        activityTestRule.runOnUiThreadIR {
+            model.offset = 10.ipx
+        }
+        assertTrue(latch.await(1, TimeUnit.SECONDS))
+    }
+
+    @Test
+    fun testDrawWithLayoutNotPlaced() {
+        var latch = CountDownLatch(1)
+        var drawn = false
+        activityTestRule.runOnUiThreadIR {
+            activity.setContentInFrameLayout {
+                Layout(children = {
+                    AtLeastSize(30.ipx) {
+                        Draw { _, _ ->
+                            drawn = true
+                        }
+                    }
+                    Draw { _, _ ->
+                        drawLatch.countDown()
+                    }
+                }) { _, _ ->
+                    // don't measure or place the AtLeastSize
+                    latch.countDown()
+                    layout(20.ipx, 20.ipx) {}
+                }
+            }
+        }
+
+        assertTrue(latch.await(1, TimeUnit.SECONDS))
+        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
+        activityTestRule.runOnUiThreadIR {
+            assertFalse(drawn)
+        }
     }
 
     private fun composeSquares(model: SquareModel) {
