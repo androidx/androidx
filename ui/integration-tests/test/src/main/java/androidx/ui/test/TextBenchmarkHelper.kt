@@ -209,10 +209,17 @@ enum class TextType {
 }
 
 /**
+ * Given a list of Arrays and make cartesian product each of them with the [array].
+ */
+fun List<Array<Any>>.cartesian(vararg array: Any): List<Array<Any>> {
+    return flatMap { row -> array.map { row + it } }
+}
+
+/**
  * Creates a cartesian product of the given arrays.
  */
-fun cartesian(vararg lists: Array<Any>): List<Array<Any>> {
-    return lists.fold(listOf(arrayOf())) { acc, list ->
+fun cartesian(vararg arrays: Array<Any>): List<Array<Any>> {
+    return arrays.fold(listOf(arrayOf())) { acc, list ->
         // add items from the current list
         // to each list that was accumulated
         acc.flatMap { accListItem -> list.map { accListItem + it } }
