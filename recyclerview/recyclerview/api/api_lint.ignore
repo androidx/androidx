@@ -57,6 +57,12 @@ ListenerInterface: androidx.recyclerview.widget.RecyclerView.SimpleOnItemTouchLi
     Listeners should be an interface, or otherwise renamed Callback: SimpleOnItemTouchListener
 
 
+ListenerLast: androidx.recyclerview.widget.AsyncListDiffer#AsyncListDiffer(androidx.recyclerview.widget.ListUpdateCallback, androidx.recyclerview.widget.AsyncDifferConfig<T>) parameter #1:
+    Listeners should always be at end of argument list (method `AsyncListDiffer`)
+ListenerLast: androidx.recyclerview.widget.DiffUtil#calculateDiff(androidx.recyclerview.widget.DiffUtil.Callback, boolean) parameter #1:
+    Listeners should always be at end of argument list (method `calculateDiff`)
+
+
 MethodNameUnits: androidx.recyclerview.widget.OrientationHelper#getTotalSpace():
     Expected method name units to be `Bytes`, was `Space` in `getTotalSpace`
 
