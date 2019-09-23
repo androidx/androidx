@@ -28,6 +28,24 @@
             </intent-filter>
         </activity>
 
+        <activity android:name=".ComposeTextSelectionActivity"
+            android:configChanges="orientation|screenSize"
+            android:label="Text/Text Selection">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="androidx.ui.demos.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
+        <activity android:name=".ComposeMultiParagraphActivity"
+            android:configChanges="orientation|screenSize"
+            android:label="Text/Multi Paragraph">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="androidx.ui.demos.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
         <activity android:name=".ComposeInputFieldActivity"
             android:configChanges="orientation|screenSize"
             android:label="Text/Input Field/Input Field Demo">
