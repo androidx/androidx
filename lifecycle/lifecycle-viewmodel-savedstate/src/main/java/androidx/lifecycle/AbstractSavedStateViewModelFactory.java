@@ -16,6 +16,8 @@
 
 package androidx.lifecycle;
 
+import static androidx.lifecycle.SavedStateHandleController.attachHandleIfNeeded;
+
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -64,7 +66,6 @@ public abstract class AbstractSavedStateViewModelFactory extends ViewModelProvid
     public final <T extends ViewModel> T create(@NonNull String key, @NonNull Class<T> modelClass) {
         SavedStateHandleController controller = SavedStateHandleController.create(
                 mSavedStateRegistry, mLifecycle, key, mDefaultArgs);
-        controller.attachToLifecycle(mSavedStateRegistry, mLifecycle);
         T viewmodel = create(key, modelClass, controller.getHandle());
         viewmodel.setTagIfAbsent(TAG_SAVED_STATE_HANDLE_CONTROLLER, controller);
         return viewmodel;
@@ -97,5 +98,9 @@ public abstract class AbstractSavedStateViewModelFactory extends ViewModelProvid
     protected abstract <T extends ViewModel> T create(@NonNull String key,
             @NonNull Class<T> modelClass, @NonNull SavedStateHandle handle);
 
+    @Override
+    void onRequery(@NonNull ViewModel viewModel) {
+        attachHandleIfNeeded(viewModel, mSavedStateRegistry, mLifecycle);
+    }
 }
 

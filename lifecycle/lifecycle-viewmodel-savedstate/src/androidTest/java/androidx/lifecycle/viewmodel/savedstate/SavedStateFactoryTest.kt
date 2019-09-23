@@ -18,6 +18,7 @@ package androidx.lifecycle.viewmodel.savedstate
 
 import android.app.Application
 import androidx.fragment.app.FragmentActivity
+import androidx.lifecycle.AbstractSavedStateViewModelFactory
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.SavedStateViewModelFactory
@@ -47,6 +48,24 @@ class SavedStateFactoryTest {
         val vm = ViewModelProvider(ViewModelStore(), savedStateVMFactory)
         assertThat(vm.get(MyAndroidViewModel::class.java).handle).isNotNull()
         assertThat(vm.get(MyViewModel::class.java).handle).isNotNull()
+    }
+
+    @Test
+    fun testCreateAndroidAbstractVM() {
+        val activity = activityRule.activity
+        val app = activity.application
+        val savedStateVMFactory = object : AbstractSavedStateViewModelFactory(
+            activity, null) {
+            override fun <T : ViewModel?> create(
+                key: String,
+                modelClass: Class<T>,
+                handle: SavedStateHandle
+            ): T {
+                return modelClass.cast(MyAndroidViewModel(app, handle))!!
+            }
+        }
+        val vm = ViewModelProvider(ViewModelStore(), savedStateVMFactory)
+        assertThat(vm.get(MyAndroidViewModel::class.java).handle).isNotNull()
     }
 
     internal class MyAndroidViewModel(app: Application, val handle: SavedStateHandle) :
