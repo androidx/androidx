@@ -16,6 +16,9 @@
 
 package androidx.paging
 
+import androidx.paging.LoadState.Error
+import androidx.paging.LoadState.Idle
+import androidx.paging.LoadState.Loading
 import io.reactivex.Observable
 import io.reactivex.observers.TestObserver
 import io.reactivex.schedulers.TestScheduler
@@ -27,6 +30,10 @@ import kotlin.test.assertTrue
 
 @RunWith(JUnit4::class)
 class RxPagedListBuilderTest {
+    private data class LoadState(
+        val type: LoadType,
+        val state: androidx.paging.LoadState
+    )
 
     /**
      * Creates a data source that will sequentially supply the passed lists
@@ -42,9 +49,56 @@ class RxPagedListBuilderTest {
         }
     }
 
+    class MockDataSourceFactory {
+        fun create(): PagedSource<Int, String> {
+            return MockPagedSource()
+        }
+
+        var throwable: Throwable? = null
+
+        fun enqueueError() {
+            throwable = EXCEPTION
+        }
+
+        private inner class MockPagedSource : PagedSource<Int, String>() {
+            override val keyProvider = KeyProvider.Positional
+
+            override suspend fun load(params: LoadParams<Int>) = when (params.loadType) {
+                LoadType.REFRESH -> loadInitial(params)
+                else -> loadRange()
+            }
+
+            private fun loadInitial(params: LoadParams<Int>): LoadResult<Int, String> {
+                assertEquals(2, params.pageSize)
+
+                throwable?.let { error ->
+                    throwable = null
+                    return LoadResult.Error(error)
+                }
+
+                val data = listOf("a", "b")
+                return LoadResult.Page(
+                    data = data,
+                    itemsBefore = 0,
+                    itemsAfter = 4 - data.size
+                )
+            }
+
+            private fun loadRange(): LoadResult<Int, String> {
+                return LoadResult.Page(listOf("c", "d"))
+            }
+        }
+    }
+
     @Test
     fun basic() {
-        val factory = testDataSourceSequence(listOf(listOf("a", "b"), listOf("c", "d")))
+        val factory = testDataSourceSequence(
+            listOf(
+                listOf(), // first used by InitialPagedList
+                listOf("a", "b"),
+                listOf("c", "d")
+            )
+        )
         val scheduler = TestScheduler()
         val observable = RxPagedListBuilder(factory, 10)
             .setFetchScheduler(scheduler)
@@ -60,15 +114,16 @@ class RxPagedListBuilderTest {
 
         // load first item
         scheduler.triggerActions()
-        observer.assertValueCount(1)
-        assertEquals(listOf("a", "b"), observer.values().first())
+        observer.assertValueCount(2)
+        assertEquals(listOf<String>(), observer.values().first())
+        assertEquals(listOf("a", "b"), observer.values().last())
 
         // invalidate triggers second load
         @Suppress("DEPRECATION")
-        observer.values().first().dataSource.invalidate()
+        observer.values().last().dataSource.invalidate()
         scheduler.triggerActions()
-        observer.assertValueCount(2)
-        assertTrue { observer.values().first().pagedSource.invalid }
+        observer.assertValueCount(3)
+        assertTrue { observer.values()[1].pagedSource.invalid }
         assertEquals(listOf("c", "d"), observer.values().last())
     }
 
@@ -77,9 +132,7 @@ class RxPagedListBuilderTest {
         val factory = testDataSourceSequence(listOf(listOf("a", "b"), listOf("c", "d")))
         val notifyScheduler = TestScheduler()
         val fetchScheduler = TestScheduler()
-        val observable: Observable<PagedList<String>> = RxPagedListBuilder(
-            factory, 10
-        )
+        val observable: Observable<PagedList<String>> = RxPagedListBuilder(factory, 10)
             .setFetchScheduler(fetchScheduler)
             .setNotifyScheduler(notifyScheduler)
             .buildObservable()
@@ -97,5 +150,93 @@ class RxPagedListBuilderTest {
         // now notify reveals item
         notifyScheduler.triggerActions()
         observer.assertValueCount(1)
+    }
+
+    @Test
+    fun failedLoad() {
+        val factory = MockDataSourceFactory()
+        factory.enqueueError()
+
+        // NOTE: we use two test schedulers here to inspect state during different stages of the
+        // initial load - if we used one, we wouldn't be able to see the initial Loading state
+        val notifyScheduler = TestScheduler()
+        val fetchScheduler = TestScheduler()
+        val observable = RxPagedListBuilder(factory::create, 2)
+            .setFetchScheduler(fetchScheduler)
+            .setNotifyScheduler(notifyScheduler)
+            .buildObservable()
+
+        val observer = TestObserver<PagedList<String>>()
+        observable.subscribe(observer)
+
+        factory.enqueueError()
+
+        fetchScheduler.triggerActions()
+        notifyScheduler.triggerActions()
+        observer.assertValueCount(1)
+
+        val initPagedList = observer.values()[0]!!
+        assertTrue(initPagedList is InitialPagedList<*, *>)
+
+        val loadStates = mutableListOf<LoadState>()
+
+        // initial load failed, check that we're in error state
+        val loadStateChangedCallback: LoadStateListener = { type, state ->
+            if (type == LoadType.REFRESH) {
+                loadStates.add(LoadState(type, state))
+            }
+        }
+        initPagedList.addWeakLoadStateListener(loadStateChangedCallback)
+        assertEquals(
+            listOf(
+                LoadState(LoadType.REFRESH, Loading)
+            ), loadStates
+        )
+
+        fetchScheduler.triggerActions()
+        notifyScheduler.triggerActions()
+        observer.assertValueCount(1)
+
+        assertEquals(
+            listOf(
+                LoadState(LoadType.REFRESH, Loading),
+                LoadState(LoadType.REFRESH, Error(EXCEPTION))
+            ), loadStates
+        )
+
+        initPagedList.retry()
+        fetchScheduler.triggerActions()
+        notifyScheduler.triggerActions()
+
+        assertEquals(
+            listOf(
+                LoadState(LoadType.REFRESH, Loading),
+                LoadState(LoadType.REFRESH, Error(EXCEPTION)),
+                LoadState(LoadType.REFRESH, Loading)
+            ), loadStates
+        )
+        // flush loadInitial, should succeed now
+        fetchScheduler.triggerActions()
+        notifyScheduler.triggerActions()
+        observer.assertValueCount(2)
+
+        val newPagedList = observer.values().last()
+        initPagedList.removeWeakLoadStateListener(loadStateChangedCallback)
+        newPagedList.addWeakLoadStateListener(loadStateChangedCallback)
+
+        assertEquals(listOf("a", "b", null, null), observer.values().last())
+
+        assertEquals(
+            listOf(
+                LoadState(LoadType.REFRESH, Loading),
+                LoadState(LoadType.REFRESH, Error(EXCEPTION)),
+                LoadState(LoadType.REFRESH, Loading),
+                LoadState(LoadType.REFRESH, Idle)
+            ), loadStates
+        )
+    }
+
+    companion object {
+        val EXCEPTION = Exception("")
     }
 }
