@@ -16,6 +16,7 @@
 
 package androidx.media2.common;
 
+import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 import static androidx.media2.common.BaseResult.RESULT_ERROR_NOT_SUPPORTED;
@@ -464,21 +465,14 @@ public abstract class SessionPlayer implements AutoCloseable {
      * The {@link PlayerCallback} can be registered via {@link #registerPlayerCallback} to
      * receive a notification {@link PlayerCallback#onVideoSizeChanged(SessionPlayer, VideoSize)}
      * when the size is available.
-     *
-     * @hide
      */
-    // TODO: Change this into getVideoSize
-    @RestrictTo(LIBRARY_GROUP)
     @NonNull
-    public VideoSize getVideoSizeInternal() {
-        throw new UnsupportedOperationException("getVideoSizeInternal is internal use only");
+    public VideoSize getVideoSize() {
+        throw new UnsupportedOperationException("getVideoSize is not implemented");
     }
 
     /**
      * Sets the {@link Surface} to be used as the sink for the video portion of the media.
-     * <p>
-     * The default implementation returns {@link PlayerResult} with the result code
-     * {@link BaseResult#RESULT_ERROR_NOT_SUPPORTED}.
      * <p>
      * A null surface will reset any Surface and result in only the audio track being played.
      * <p>
@@ -489,14 +483,10 @@ public abstract class SessionPlayer implements AutoCloseable {
      * @return a {@link ListenableFuture} which represents the pending completion of the command.
      * {@link SessionPlayer.PlayerResult} will be delivered when the command
      * completed.
-     *
-     * @hide
      */
-    // TODO: Change this into setSurface
-    @RestrictTo(LIBRARY_GROUP)
     @NonNull
-    public ListenableFuture<PlayerResult> setSurfaceInternal(@Nullable Surface surface) {
-        return PlayerResult.createFuture(BaseResult.RESULT_ERROR_NOT_SUPPORTED);
+    public ListenableFuture<PlayerResult> setSurface(@Nullable Surface surface) {
+        throw new UnsupportedOperationException("setSurface is not implemented");
     }
 
     /**
@@ -654,10 +644,7 @@ public abstract class SessionPlayer implements AutoCloseable {
     @NonNull
     public ListenableFuture<PlayerResult> movePlaylistItem(
             @IntRange(from = 0) int fromIndex, @IntRange(from = 0) int toIndex) {
-        ResolvableFuture<PlayerResult> future = ResolvableFuture.<PlayerResult>create();
-        future.set(new PlayerResult(RESULT_ERROR_NOT_SUPPORTED, getCurrentMediaItem()));
-        return future;
-
+        throw new UnsupportedOperationException("movePlaylistItem is not implemented");
     }
 
     /**
@@ -928,15 +915,11 @@ public abstract class SessionPlayer implements AutoCloseable {
      * @see TrackInfo#MEDIA_TRACK_TYPE_AUDIO
      * @see TrackInfo#MEDIA_TRACK_TYPE_SUBTITLE
      * @see TrackInfo#MEDIA_TRACK_TYPE_METADATA
-     *
-     * TODO: Change this into getTrackInfo() (b/132928418)
-     * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
     @NonNull
-    public List<TrackInfo> getTrackInfoInternal() {
-        throw new UnsupportedOperationException("getTrackInfoInternal is for internal use only");
-    };
+    public List<TrackInfo> getTracks() {
+        throw new UnsupportedOperationException("getTracks is not implemented");
+    }
 
     /**
      * Selects a track.
@@ -944,21 +927,20 @@ public abstract class SessionPlayer implements AutoCloseable {
      * Generally one track will be selected for each track type.
      * <p>
      * The types of tracks supported may vary based on player implementation.
+     * <p>
+     * Note: {@link #getTracks()} returns the list of tracks that can be selected, but the
+     * list may be invalidated when {@link PlayerCallback#onTracksChanged(SessionPlayer, List)}
+     * is called.
      *
      * @see TrackInfo#MEDIA_TRACK_TYPE_VIDEO
      * @see TrackInfo#MEDIA_TRACK_TYPE_AUDIO
      * @see TrackInfo#MEDIA_TRACK_TYPE_SUBTITLE
      * @see TrackInfo#MEDIA_TRACK_TYPE_METADATA
      * @see PlayerCallback#onTrackSelected(SessionPlayer, TrackInfo)
-     *
-     * TODO: Change this into selectTrack(TrackInfo) (b/132928418)
-     * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
     @NonNull
-    public ListenableFuture<PlayerResult> selectTrackInternal(
-            @NonNull TrackInfo trackInfo) {
-        throw new UnsupportedOperationException("selectTrackInternal is for internal use only");
+    public ListenableFuture<PlayerResult> selectTrack(@NonNull TrackInfo trackInfo) {
+        throw new UnsupportedOperationException("selectTrack is not implemented");
     }
 
     /**
@@ -968,21 +950,20 @@ public abstract class SessionPlayer implements AutoCloseable {
      * tracks should not be deselected.
      * <p>
      * The types of tracks supported may vary based on player implementation.
+     * <p>
+     * Note: {@link #getSelectedTrack(int)} returns the currently selected track per track type that
+     * can be deselected, but the list may be invalidated when
+     * {@link PlayerCallback#onTracksChanged(SessionPlayer, List)} is called.
      *
      * @see TrackInfo#MEDIA_TRACK_TYPE_VIDEO
      * @see TrackInfo#MEDIA_TRACK_TYPE_AUDIO
      * @see TrackInfo#MEDIA_TRACK_TYPE_SUBTITLE
      * @see TrackInfo#MEDIA_TRACK_TYPE_METADATA
      * @see PlayerCallback#onTrackDeselected(SessionPlayer, TrackInfo)
-     *
-     * TODO: Change this into deselectTrack(TrackInfo) (b/132928418)
-     * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
     @NonNull
-    public ListenableFuture<PlayerResult> deselectTrackInternal(
-            @NonNull TrackInfo trackInfo) {
-        throw new UnsupportedOperationException("deselectTrackInternal is for internal use only");
+    public ListenableFuture<PlayerResult> deselectTrack(@NonNull TrackInfo trackInfo) {
+        throw new UnsupportedOperationException("deselectTrack is not implemented");
     }
 
     /**
@@ -992,25 +973,30 @@ public abstract class SessionPlayer implements AutoCloseable {
      * @see TrackInfo#MEDIA_TRACK_TYPE_AUDIO
      * @see TrackInfo#MEDIA_TRACK_TYPE_SUBTITLE
      * @see TrackInfo#MEDIA_TRACK_TYPE_METADATA
-     *
-     * TODO: Change this into getSelectedTrack(int) (b/132928418)
-     * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
     @Nullable
-    public TrackInfo getSelectedTrackInternal(@TrackInfo.MediaTrackType int trackType) {
+    public TrackInfo getSelectedTrack(@TrackInfo.MediaTrackType int trackType) {
         throw new UnsupportedOperationException(
-                "getSelectedTrackInternal is for internal use only.");
+                "getSelectedTrack is not implemented");
     }
 
     /**
-     * Internal use only.
-     * @see #getTrackInfoInternal
-     * @hide
+     * Class for the player to return each audio/video/subtitle track's metadata.
+     *
+     * Note: TrackInfo holds a MediaFormat instance, but only the following key-values will be
+     * supported when sending it over different processes:
+     * <ul>
+     * <li>{@link MediaFormat#KEY_LANGUAGE}</li>
+     * <li>{@link MediaFormat#KEY_MIME}</li>
+     * <li>{@link MediaFormat#KEY_IS_FORCED_SUBTITLE}</li>
+     * <li>{@link MediaFormat#KEY_IS_AUTOSELECT}</li>
+     * <li>{@link MediaFormat#KEY_IS_DEFAULT}</li>
+     * </ul>
+     *
+     * @see #getTracks
      */
-    @RestrictTo(LIBRARY_GROUP)
     @VersionedParcelize(isCustom = true)
-    public static final class TrackInfo extends CustomVersionedParcelable {
+    public static class TrackInfo extends CustomVersionedParcelable {
         public static final int MEDIA_TRACK_TYPE_UNKNOWN = 0;
         public static final int MEDIA_TRACK_TYPE_VIDEO = 1;
         public static final int MEDIA_TRACK_TYPE_AUDIO = 2;
@@ -1052,6 +1038,13 @@ public abstract class SessionPlayer implements AutoCloseable {
             // no-op
         }
 
+        /**
+         * Constructor to create a TrackInfo instance.
+         *
+         * @param id id of track unique across {@link MediaItem}s
+         * @param type type of track. Can be video, audio or subtitle.
+         * @param format format of track
+         */
         public TrackInfo(int id, int type, @Nullable MediaFormat format) {
             mId = id;
             mTrackType = type;
@@ -1086,16 +1079,13 @@ public abstract class SessionPlayer implements AutoCloseable {
          */
         @Nullable
         public MediaFormat getFormat() {
-            if (mTrackType == MEDIA_TRACK_TYPE_SUBTITLE) {
-                return mFormat;
-            }
-            return null;
+            return mFormat;
         }
 
         /**
          * Gets the id of the track.
-         * The id is used by {@link #selectTrackInternal(TrackInfo)} and
-         * {@link #deselectTrackInternal(TrackInfo)} to identify the track to be (de)selected.
+         * The id is used by {@link #selectTrack(TrackInfo)} and {@link #deselectTrack(TrackInfo)}
+         * to identify the track to be (de)selected.
          * So, it's highly recommended to ensure that the id of each track is unique across
          * {@link MediaItem}s to avoid potential mis-selection when a stale {@link TrackInfo} is
          * used.
@@ -1107,6 +1097,7 @@ public abstract class SessionPlayer implements AutoCloseable {
         }
 
         @Override
+        @NonNull
         public String toString() {
             StringBuilder out = new StringBuilder(128);
             out.append(getClass().getName());
@@ -1140,7 +1131,7 @@ public abstract class SessionPlayer implements AutoCloseable {
         }
 
         @Override
-        public boolean equals(Object obj) {
+        public boolean equals(@Nullable Object obj) {
             if (this == obj) {
                 return true;
             }
@@ -1151,6 +1142,11 @@ public abstract class SessionPlayer implements AutoCloseable {
             return mId == other.mId;
         }
 
+        /**
+         * @hide
+         * @param isStream
+         */
+        @RestrictTo(LIBRARY)
         @Override
         public void onPreParceling(boolean isStream) {
             if (mFormat != null) {
@@ -1163,6 +1159,10 @@ public abstract class SessionPlayer implements AutoCloseable {
             }
         }
 
+        /**
+         * @hide
+         */
+        @RestrictTo(LIBRARY)
         @Override
         public void onPostParceling() {
             if (mParcelledFormat != null) {
@@ -1348,16 +1348,6 @@ public abstract class SessionPlayer implements AutoCloseable {
         }
 
         /**
-         * @deprecated Use {@link #onVideoSizeChanged(SessionPlayer, VideoSize)} instead.
-         * @hide
-         */
-        @Deprecated
-        @RestrictTo(LIBRARY_GROUP)
-        public void onVideoSizeChangedInternal(
-                @NonNull SessionPlayer player, @NonNull MediaItem item, @NonNull VideoSize size) {
-        }
-
-        /**
          * Called to indicate the video size
          * <p>
          * The video size (width and height) could be 0 if there was no video,
@@ -1369,12 +1359,8 @@ public abstract class SessionPlayer implements AutoCloseable {
          *
          * @param player the player associated with this callback
          * @param size the size of the video
-         * @see #getVideoSizeInternal()
-         *
-         * @hide
+         * @see #getVideoSize()
          */
-        // TODO: Unhide this method (b/132928418)
-        @RestrictTo(LIBRARY_GROUP)
         public void onVideoSizeChanged(@NonNull SessionPlayer player, @NonNull VideoSize size) {
         }
 
@@ -1384,10 +1370,7 @@ public abstract class SessionPlayer implements AutoCloseable {
          * @param item the MediaItem of this media item
          * @param track the track that has the subtitle data
          * @param data the subtitle data
-         *
-         * @hide
          */
-        @RestrictTo(LIBRARY_GROUP)
         public void onSubtitleData(@NonNull SessionPlayer player, @NonNull MediaItem item,
                 @NonNull TrackInfo track, @NonNull SubtitleData data) {
         }
@@ -1399,17 +1382,15 @@ public abstract class SessionPlayer implements AutoCloseable {
          * 3) when the current media item is changed.
          * <p>
          * When it's called, you should invalidate previous track information and use the new
-         * tracks to call {@link #selectTrackInternal(SessionPlayer.TrackInfo)} or
-         * {@link #deselectTrackInternal(SessionPlayer.TrackInfo)}.
+         * tracks to call {@link #selectTrack(TrackInfo)} or
+         * {@link #deselectTrack(TrackInfo)}.
          *
          * @param player the player associated with this callback
-         * @param trackInfos the list of tracks. It can be empty.
-         * @see #getTrackInfoInternal()
-         * @hide
+         * @param tracks the list of tracks. It can be empty.
+         * @see #getTracks()
          */
-        @RestrictTo(LIBRARY_GROUP)
-        public void onTrackInfoChanged(@NonNull SessionPlayer player,
-                @NonNull List<TrackInfo> trackInfos) {
+        public void onTracksChanged(@NonNull SessionPlayer player,
+                @NonNull List<TrackInfo> tracks) {
         }
 
         /**
@@ -1417,10 +1398,8 @@ public abstract class SessionPlayer implements AutoCloseable {
          *
          * @param player the player associated with this callback
          * @param trackInfo the selected track
-         * @see #selectTrackInternal(TrackInfo)
-         * @hide
+         * @see #selectTrack(TrackInfo)
          */
-        @RestrictTo(LIBRARY_GROUP)
         public void onTrackSelected(@NonNull SessionPlayer player, @NonNull TrackInfo trackInfo) {
         }
 
@@ -1428,14 +1407,12 @@ public abstract class SessionPlayer implements AutoCloseable {
          * Called when a track is deselected.
          * <p>
          * This callback will generally be called only after calling
-         * {@link #deselectTrackInternal(TrackInfo)}.
+         * {@link #deselectTrack(TrackInfo)}.
          *
          * @param player the player associated with this callback
          * @param trackInfo the deselected track
-         * @see #deselectTrackInternal(TrackInfo)
-         * @hide
+         * @see #deselectTrack(TrackInfo)
          */
-        @RestrictTo(LIBRARY_GROUP)
         public void onTrackDeselected(@NonNull SessionPlayer player, @NonNull TrackInfo trackInfo) {
         }
     }
@@ -1497,6 +1474,7 @@ public abstract class SessionPlayer implements AutoCloseable {
          * @hide
          */
         @RestrictTo(LIBRARY_GROUP)
+        @NonNull
         public static ListenableFuture<PlayerResult> createFuture(int resultCode) {
             ResolvableFuture<PlayerResult> result = ResolvableFuture.create();
             result.set(new PlayerResult(resultCode, null));

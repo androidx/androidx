@@ -101,7 +101,7 @@ import java.util.Map;
         void onPrepared(MediaItem mediaItem);
 
         /** Called when the list of available tracks changes. */
-        void onTrackInfoChanged(@NonNull List<TrackInfo> tracks);
+        void onTracksChanged(@NonNull List<TrackInfo> tracks);
 
         /** Called when a seek request has completed. */
         void onSeekCompleted();
@@ -375,8 +375,8 @@ import java.util.Map;
         return mPlayer.getVolume();
     }
 
-    public List<TrackInfo> getTrackInfo() {
-        return mTrackSelector.getTrackInfos();
+    public List<TrackInfo> getTracks() {
+        return mTrackSelector.getTracks();
     }
 
     public TrackInfo getSelectedTrack(int trackType) {
@@ -545,7 +545,7 @@ import java.util.Map;
     void handleTextRendererChannelAvailable(int type, int channel) {
         mTrackSelector.handleTextRendererChannelAvailable(type, channel);
         if (mTrackSelector.hasPendingTracksUpdate()) {
-            mListener.onTrackInfoChanged(getTrackInfo());
+            mListener.onTracksChanged(getTracks());
         }
     }
 
@@ -554,7 +554,7 @@ import java.util.Map;
         MediaItem currentMediaItem = getCurrentMediaItem();
         mTrackSelector.handlePlayerTracksChanged(currentMediaItem, trackSelections);
         if (mTrackSelector.hasPendingTracksUpdate()) {
-            mListener.onTrackInfoChanged(getTrackInfo());
+            mListener.onTracksChanged(getTracks());
         }
     }
 

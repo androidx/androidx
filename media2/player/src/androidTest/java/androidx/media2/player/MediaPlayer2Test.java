@@ -1687,7 +1687,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
         mVideoTrackInfos.clear();
         mAudioTrackInfos.clear();
         mSubtitleTrackInfos.clear();
-        List<TrackInfo> trackInfos = mPlayer.getTrackInfo();
+        List<TrackInfo> trackInfos = mPlayer.getTracks();
         assertNotNull(trackInfos);
         for (TrackInfo trackInfo : trackInfos) {
             assertNotNull(trackInfo);
@@ -1755,7 +1755,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
             }
 
             @Override
-            public void onTrackInfoChanged(@NonNull MediaPlayer2 mp,
+            public void onTracksChanged(@NonNull MediaPlayer2 mp,
                     @NonNull List<TrackInfo> tracks) {
                 assertNotNull(tracks);
                 if (tracks.size() < 3) {
@@ -1842,7 +1842,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
             }
 
             @Override
-            public void onTrackInfoChanged(@NonNull MediaPlayer2 mp,
+            public void onTracksChanged(@NonNull MediaPlayer2 mp,
                     @NonNull List<TrackInfo> tracks) {
                 assertNotNull(tracks);
                 if (tracks.size() < 3) {
@@ -1917,7 +1917,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
             }
 
             @Override
-            public void onTrackInfoChanged(@NonNull MediaPlayer2 mp,
+            public void onTracksChanged(@NonNull MediaPlayer2 mp,
                     @NonNull List<TrackInfo> tracks) {
                 assertNotNull(tracks);
                 if (tracks.size() < 3) {

@@ -519,10 +519,10 @@ public class RemoteMediaSession {
             return mBinder.surfaceExists(mSessionId);
         }
 
-        public void notifyTrackInfoChanged(List<SessionPlayer.TrackInfo> trackInfos) {
+        public void notifyTracksChanged(List<SessionPlayer.TrackInfo> tracks) {
             try {
                 mBinder.notifyTrackInfoChanged(mSessionId,
-                        MediaParcelUtils.toParcelableList(trackInfos));
+                        MediaParcelUtils.toParcelableList(tracks));
             } catch (RemoteException ex) {
                 Log.e(TAG, "Failed to call notifyTrackInfoChanged()");
             }

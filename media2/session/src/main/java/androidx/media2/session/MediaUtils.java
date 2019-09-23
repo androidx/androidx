@@ -70,6 +70,8 @@ import androidx.media2.common.MediaParcelUtils;
 import androidx.media2.common.ParcelImplListSlice;
 import androidx.media2.common.Rating;
 import androidx.media2.common.SessionPlayer;
+import androidx.media2.common.SessionPlayer.TrackInfo;
+import androidx.media2.common.VideoSize;
 import androidx.media2.session.MediaLibraryService.LibraryParams;
 import androidx.media2.session.MediaSession.CommandButton;
 import androidx.versionedparcelable.ParcelImpl;
@@ -137,7 +139,8 @@ public class MediaUtils {
      * @return
      */
     // TODO(b/139255697): Provide the functionality in the media2-common.
-    public static MediaItem upcastForPreparceling(MediaItem item) {
+    @Nullable
+    public static MediaItem upcastForPreparceling(@Nullable MediaItem item) {
         if (item == null || item.getClass() == MediaItem.class) {
             return item;
         }
@@ -148,12 +151,65 @@ public class MediaUtils {
     }
 
     /**
+     * Upcasts a {@link VideoSize} subclass to the {@link MediaItem} type for pre-parceling.
+     * Note that {@link VideoSize}'s subclass object cannot be parceled due to security issue
+     * and the issue that remote apps may not have the subclass.
+     *
+     * @param size
+     * @return
+     */
+    @Nullable
+    public static VideoSize upcastForPreparceling(@Nullable VideoSize size) {
+        if (size == null || size.getClass() == VideoSize.class) {
+            return size;
+        }
+        return new VideoSize(size.getWidth(), size.getHeight());
+    }
+
+    /**
+     * Upcasts a {@link TrackInfo} subclass to the {@link TrackInfo} type for pre-parceling.
+     * Note that {@link TrackInfo}'s subclass object cannot be parceled due to security issue
+     * and the issue that remote apps may not have the subclass.
+     *
+     * @param track
+     * @return
+     */
+    @Nullable
+    public static TrackInfo upcastForPreparceling(@Nullable TrackInfo track) {
+        if (track == null || track.getClass() == TrackInfo.class) {
+            return track;
+        }
+        return new TrackInfo(track.getId(), track.getTrackType(), track.getFormat());
+    }
+
+    /**
+     * Upcasts a list of {@link TrackInfo} subclass objects to a List of {@link TrackInfo} type
+     * for pre-parceling. Note that {@link TrackInfo}'s subclass object cannot be parceled due
+     * to security issue and the issue that remote apps may not have the subclass.
+     *
+     * @param tracks
+     * @return
+     */
+    @Nullable
+    public static List<TrackInfo> upcastForPreparceling(@Nullable List<TrackInfo> tracks) {
+        if (tracks == null) {
+            return tracks;
+        }
+        List<TrackInfo> upcastTracks = new ArrayList<>();
+        for (int i = 0; i < tracks.size(); i++) {
+            upcastTracks.add(upcastForPreparceling(tracks.get(i)));
+        }
+        return upcastTracks;
+    }
+
+    /**
      * Creates a {@link MediaBrowserCompat.MediaItem} from the {@link MediaItem}.
      *
      * @param item2 an item.
      * @return The newly created media item.
      */
-    public static MediaBrowserCompat.MediaItem convertToMediaItem(MediaItem item2) {
+    @Nullable
+    public static MediaBrowserCompat.MediaItem convertToMediaItem(@Nullable MediaItem item2) {
         if (item2 == null) {
             return null;
         }
@@ -203,7 +259,9 @@ public class MediaUtils {
     /**
      * Convert a list of {@link MediaItem} to a list of {@link MediaBrowserCompat.MediaItem}.
      */
-    public static List<MediaBrowserCompat.MediaItem> convertToMediaItemList(List<MediaItem> items) {
+    @Nullable
+    public static List<MediaBrowserCompat.MediaItem> convertToMediaItemList(
+            @Nullable List<MediaItem> items) {
         if (items == null) {
             return null;
         }
@@ -755,7 +813,9 @@ public class MediaUtils {
      * @param legacyBundle
      * @return new LibraryParams
      */
-    public static LibraryParams convertToLibraryParams(Context context, Bundle legacyBundle) {
+    @Nullable
+    public static LibraryParams convertToLibraryParams(@NonNull Context context,
+            @Nullable Bundle legacyBundle) {
         if (legacyBundle == null) {
             return null;
         }
@@ -778,7 +838,8 @@ public class MediaUtils {
      * @param params
      * @return new root hints
      */
-    public static Bundle convertToRootHints(LibraryParams params) {
+    @Nullable
+    public static Bundle convertToRootHints(@Nullable LibraryParams params) {
         if (params == null) {
             return null;
         }
@@ -796,6 +857,7 @@ public class MediaUtils {
      * @param list
      * @return
      */
+    @Nullable
     public static <T> List<T> removeNullElements(@Nullable List<T> list) {
         if (list == null) {
             return null;

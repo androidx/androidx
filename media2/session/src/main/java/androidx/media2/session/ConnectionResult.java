@@ -87,7 +87,7 @@ class ConnectionResult extends CustomVersionedParcelable {
     @ParcelField(18)
     VideoSize mVideoSize;
     @ParcelField(19)
-    List<TrackInfo> mTrackInfos;
+    List<TrackInfo> mTracks;
     // TODO: Reduce parceling / un-parceling cost by using track id. (b/131873726)
     @ParcelField(20)
     TrackInfo mSelectedVideoTrack;
@@ -121,7 +121,7 @@ class ConnectionResult extends CustomVersionedParcelable {
         mNextMediaItemIndex = sessionImpl.getNextMediaItemIndex();
         mTokenExtras = sessionImpl.getToken().getExtras();
         mVideoSize = sessionImpl.getVideoSize();
-        mTrackInfos = sessionImpl.getTrackInfo();
+        mTracks = sessionImpl.getTracks();
         mSelectedVideoTrack = sessionImpl.getSelectedTrack(TrackInfo.MEDIA_TRACK_TYPE_VIDEO);
         mSelectedAudioTrack = sessionImpl.getSelectedTrack(TrackInfo.MEDIA_TRACK_TYPE_AUDIO);
         mSelectedSubtitleTrack = sessionImpl.getSelectedTrack(TrackInfo.MEDIA_TRACK_TYPE_SUBTITLE);
@@ -214,8 +214,8 @@ class ConnectionResult extends CustomVersionedParcelable {
     }
 
     @NonNull
-    public List<TrackInfo> getTrackInfo() {
-        return (mTrackInfos == null) ? Collections.emptyList() : mTrackInfos;
+    public List<TrackInfo> getTracks() {
+        return (mTracks == null) ? Collections.emptyList() : mTracks;
     }
 
     public TrackInfo getSelectedVideoTrack() {

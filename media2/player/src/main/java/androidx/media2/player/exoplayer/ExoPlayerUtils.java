@@ -16,14 +16,15 @@
 
 package androidx.media2.player.exoplayer;
 
+import static android.media.MediaFormat.MIMETYPE_TEXT_CEA_608;
+import static android.media.MediaFormat.MIMETYPE_TEXT_CEA_708;
+
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 import static androidx.media2.common.SessionPlayer.TrackInfo.MEDIA_TRACK_TYPE_AUDIO;
 import static androidx.media2.common.SessionPlayer.TrackInfo.MEDIA_TRACK_TYPE_METADATA;
 import static androidx.media2.common.SessionPlayer.TrackInfo.MEDIA_TRACK_TYPE_SUBTITLE;
 import static androidx.media2.common.SessionPlayer.TrackInfo.MEDIA_TRACK_TYPE_UNKNOWN;
 import static androidx.media2.common.SessionPlayer.TrackInfo.MEDIA_TRACK_TYPE_VIDEO;
-import static androidx.media2.common.SubtitleData.MIMETYPE_TEXT_CEA_608;
-import static androidx.media2.common.SubtitleData.MIMETYPE_TEXT_CEA_708;
 import static androidx.media2.player.MediaPlayer2.MEDIA_ERROR_IO;
 import static androidx.media2.player.MediaPlayer2.MEDIA_ERROR_MALFORMED;
 import static androidx.media2.player.MediaPlayer2.MEDIA_ERROR_TIMED_OUT;

@@ -17,6 +17,7 @@
 package androidx.media2.test.client.tests;
 
 import static android.media.AudioAttributes.CONTENT_TYPE_MUSIC;
+import static android.media.MediaFormat.MIMETYPE_TEXT_CEA_608;
 
 import static androidx.media.VolumeProviderCompat.VOLUME_CONTROL_ABSOLUTE;
 import static androidx.media2.session.SessionResult.RESULT_SUCCESS;
@@ -892,7 +893,7 @@ public class MediaControllerCallbackTest extends MediaSessionTestBase {
     }
 
     @Test
-    public void testOnTrackInfoChanged() throws InterruptedException {
+    public void testOnTracksChanged() throws InterruptedException {
         prepareLooper();
         final List<SessionPlayer.TrackInfo> testTracks = MediaTestUtils.createTrackInfoList();
 
@@ -900,15 +901,15 @@ public class MediaControllerCallbackTest extends MediaSessionTestBase {
         final MediaController.ControllerCallback callback =
                 new MediaController.ControllerCallback() {
                     @Override
-                    public void onTrackInfoChanged(@NonNull MediaController controller,
-                            @NonNull List<SessionPlayer.TrackInfo> trackInfos) {
-                        assertEquals(testTracks, trackInfos);
+                    public void onTracksChanged(@NonNull MediaController controller,
+                            @NonNull List<TrackInfo> tracks) {
+                        assertEquals(testTracks, tracks);
                         latch.countDown();
                     }
                 };
         MediaController controller = createController(mRemoteSession2.getToken(), true, null,
                 callback);
-        mRemoteSession2.getMockPlayer().notifyTrackInfoChanged(testTracks);
+        mRemoteSession2.getMockPlayer().notifyTracksChanged(testTracks);
         assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
     }
 
@@ -962,7 +963,7 @@ public class MediaControllerCallbackTest extends MediaSessionTestBase {
 
         MediaFormat format = new MediaFormat();
         format.setString(MediaFormat.KEY_LANGUAGE, "und");
-        format.setString(MediaFormat.KEY_MIME, SubtitleData.MIMETYPE_TEXT_CEA_608);
+        format.setString(MediaFormat.KEY_MIME, MIMETYPE_TEXT_CEA_608);
         MediaMetadata metadata = new MediaMetadata.Builder()
                 .putString(MediaMetadata.METADATA_KEY_MEDIA_ID, "onSubtitleData").build();
         final MediaItem testItem = new MediaItem.Builder().setMetadata(metadata).build();

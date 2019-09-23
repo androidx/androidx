@@ -817,7 +817,7 @@ class MediaControllerImplLegacy implements MediaController.MediaControllerImpl {
 
     @Override
     @NonNull
-    public List<TrackInfo> getTrackInfo() {
+    public List<TrackInfo> getTracks() {
         Log.w(TAG, "Session doesn't support getting TrackInfo");
         return Collections.emptyList();
     }

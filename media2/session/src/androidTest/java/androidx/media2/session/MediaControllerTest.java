@@ -16,6 +16,8 @@
 
 package androidx.media2.session;
 
+import static android.media.MediaFormat.MIMETYPE_TEXT_CEA_608;
+
 import static androidx.media2.session.SessionResult.RESULT_SUCCESS;
 
 import static org.junit.Assert.assertEquals;
@@ -1717,26 +1719,26 @@ public class MediaControllerTest extends MediaSessionTestBase {
     }
 
     @Test
-    public void testGetTrackInfo() throws InterruptedException {
+    public void testGetTracks() throws InterruptedException {
         prepareLooper();
         final CountDownLatch latch = new CountDownLatch(1);
         final List<TrackInfo> testTracks = TestUtils.createTrackInfoList();
 
         final ControllerCallback callback = new ControllerCallback() {
             @Override
-            public void onTrackInfoChanged(@NonNull MediaController controller,
-                    @NonNull List<TrackInfo> trackInfos) {
-                assertEquals(testTracks.size(), trackInfos.size());
+            public void onTracksChanged(@NonNull MediaController controller,
+                    @NonNull List<TrackInfo> tracks) {
+                assertEquals(testTracks.size(), tracks.size());
                 for (int i = 0; i < testTracks.size(); i++) {
-                    assertEquals(testTracks.get(i), trackInfos.get(i));
+                    assertEquals(testTracks.get(i), tracks.get(i));
                 }
                 latch.countDown();
             }
         };
         MediaController controller = createController(mSession.getToken(), true, null, callback);
-        mPlayer.notifyTrackInfoChanged(testTracks);
+        mPlayer.notifyTracksChanged(testTracks);
         assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
-        List<TrackInfo> tracks = controller.getTrackInfo();
+        List<TrackInfo> tracks = controller.getTracks();
         assertEquals(testTracks.size(), tracks.size());
         for (int i = 0; i < testTracks.size(); i++) {
             assertEquals(testTracks.get(i), tracks.get(i));
@@ -1785,7 +1787,7 @@ public class MediaControllerTest extends MediaSessionTestBase {
         prepareLooper();
         MediaFormat format = new MediaFormat();
         format.setString(MediaFormat.KEY_LANGUAGE, "und");
-        format.setString(MediaFormat.KEY_MIME, SubtitleData.MIMETYPE_TEXT_CEA_608);
+        format.setString(MediaFormat.KEY_MIME, MIMETYPE_TEXT_CEA_608);
         final MediaItem testItem = TestUtils.createMediaItem("onSubtitleData");
         final TrackInfo testTrack = new TrackInfo(1, TrackInfo.MEDIA_TRACK_TYPE_SUBTITLE, format);
         final SubtitleData testData = new SubtitleData(123, 456,

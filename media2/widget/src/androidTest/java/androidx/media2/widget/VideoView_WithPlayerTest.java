@@ -342,8 +342,8 @@ public class VideoView_WithPlayerTest extends MediaWidgetTestBase {
 
         final PlayerWrapper playerWrapper = createPlayerWrapper(new PlayerWrapper.PlayerCallback() {
             @Override
-            void onVideoSizeChanged(@NonNull PlayerWrapper player, @NonNull MediaItem item,
-                    @NonNull VideoSize videoSize) {
+            void onVideoSizeChanged(@NonNull PlayerWrapper player, @NonNull VideoSize videoSize) {
+                MediaItem item = player.getCurrentMediaItem();
                 if (item == null) {
                     return;
                 }

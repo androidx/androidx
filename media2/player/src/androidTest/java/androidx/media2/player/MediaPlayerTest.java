@@ -46,8 +46,8 @@ import androidx.media2.common.MediaItem;
 import androidx.media2.common.MediaMetadata;
 import androidx.media2.common.SessionPlayer;
 import androidx.media2.common.SessionPlayer.PlayerResult;
+import androidx.media2.common.SessionPlayer.TrackInfo;
 import androidx.media2.common.SubtitleData;
-import androidx.media2.player.MediaPlayer.TrackInfo;
 import androidx.media2.player.TestUtils.Monitor;
 import androidx.media2.player.test.R;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -600,21 +600,21 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
         mVideoTrackInfos.clear();
         mAudioTrackInfos.clear();
         mSubtitleTrackInfos.clear();
-        List<MediaPlayer.TrackInfo> trackInfos = mPlayer.getTrackInfo();
+        List<TrackInfo> trackInfos = mPlayer.getTracks();
         if (trackInfos == null || trackInfos.size() == 0) {
             return;
         }
 
-        for (MediaPlayer.TrackInfo track : trackInfos) {
+        for (TrackInfo track : trackInfos) {
             assertNotNull(track);
             switch (track.getTrackType()) {
-                case MediaPlayer.TrackInfo.MEDIA_TRACK_TYPE_VIDEO:
+                case TrackInfo.MEDIA_TRACK_TYPE_VIDEO:
                     mVideoTrackInfos.add(track);
                     break;
-                case MediaPlayer.TrackInfo.MEDIA_TRACK_TYPE_AUDIO:
+                case TrackInfo.MEDIA_TRACK_TYPE_AUDIO:
                     mAudioTrackInfos.add(track);
                     break;
-                case MediaPlayer.TrackInfo.MEDIA_TRACK_TYPE_SUBTITLE:
+                case TrackInfo.MEDIA_TRACK_TYPE_SUBTITLE:
                     mSubtitleTrackInfos.add(track);
                     break;
             }
@@ -656,15 +656,15 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
         MediaPlayer.PlayerCallback callback = new MediaPlayer.PlayerCallback() {
             @Override
             public void onSubtitleData(@NonNull SessionPlayer player, @NonNull MediaItem item,
-                    @NonNull SessionPlayer.TrackInfo track, @NonNull SubtitleData data) {
+                    @NonNull TrackInfo track, @NonNull SubtitleData data) {
                 if (track != null && data != null && data.getData() != null) {
                     mOnSubtitleDataCalled.signal();
                 }
             }
 
             @Override
-            public void onTrackInfoChanged(@NonNull SessionPlayer player,
-                    @NonNull List<SessionPlayer.TrackInfo> tracks) {
+            public void onTracksChanged(@NonNull SessionPlayer player,
+                    @NonNull List<TrackInfo> tracks) {
                 assertNotNull(tracks);
                 if (tracks.size() < 3) {
                     // This callback can be called before tracks are available after setMediaItem.
@@ -717,15 +717,15 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
         MediaPlayer.PlayerCallback callback = new MediaPlayer.PlayerCallback() {
             @Override
             public void onSubtitleData(@NonNull SessionPlayer player, @NonNull MediaItem item,
-                    @NonNull SessionPlayer.TrackInfo track, @NonNull SubtitleData data) {
+                    @NonNull TrackInfo track, @NonNull SubtitleData data) {
                 if (track != null && data != null && data.getData() != null) {
                     mOnSubtitleDataCalled.signal();
                 }
             }
 
             @Override
-            public void onTrackInfoChanged(@NonNull SessionPlayer player,
-                    @NonNull List<SessionPlayer.TrackInfo> tracks) {
+            public void onTracksChanged(@NonNull SessionPlayer player,
+                    @NonNull List<TrackInfo> tracks) {
                 assertNotNull(tracks);
                 if (tracks.size() < 3) {
                     // This callback can be called before tracks are available after setMediaItem.
@@ -767,15 +767,15 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
     @Test
     @LargeTest
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
-    public void testGetTrackInfoForVideoWithSubtitleTracks() throws Throwable {
+    public void testGetTracksForVideoWithSubtitleTracks() throws Throwable {
         if (!loadResource(R.raw.testvideo_with_2_subtitle_tracks)) {
             fail();
         }
 
         MediaPlayer.PlayerCallback callback = new MediaPlayer.PlayerCallback() {
             @Override
-            public void onTrackInfoChanged(@NonNull SessionPlayer player,
-                    @NonNull List<SessionPlayer.TrackInfo> tracks) {
+            public void onTracksChanged(@NonNull SessionPlayer player,
+                    @NonNull List<TrackInfo> tracks) {
                 assertNotNull(tracks);
                 if (tracks.size() < 3) {
                     // This callback can be called before tracks are available after setMediaItem.
@@ -808,15 +808,15 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
     @Test
     @LargeTest
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
-    public void testGetTrackInfoForVideoWithoutSubtitleTracks() throws Throwable {
+    public void testGetTracksForVideoWithoutSubtitleTracks() throws Throwable {
         if (!loadResource(R.raw.testvideo)) {
             fail();
         }
 
         MediaPlayer.PlayerCallback callback = new MediaPlayer.PlayerCallback() {
             @Override
-            public void onTrackInfoChanged(@NonNull SessionPlayer player,
-                    @NonNull List<SessionPlayer.TrackInfo> tracks) {
+            public void onTracksChanged(@NonNull SessionPlayer player,
+                    @NonNull List<TrackInfo> tracks) {
                 assertNotNull(tracks);
                 if (tracks.size() < 2) {
                     // This callback can be called before tracks are available after setMediaItem.

@@ -677,15 +677,14 @@ public class VideoView extends SelectiveLayout {
         }
 
         @Override
-        void onVideoSizeChanged(@NonNull PlayerWrapper player, @NonNull MediaItem item,
-                @NonNull VideoSize videoSize) {
+        void onVideoSizeChanged(@NonNull PlayerWrapper player, @NonNull VideoSize videoSize) {
             if (DEBUG) {
                 Log.d(TAG, "onVideoSizeChanged(): size: " + videoSize);
             }
             if (shouldIgnoreCallback(player)) return;
             if (mVideoTrackCount == 0 && videoSize.getHeight() > 0 && videoSize.getWidth() > 0) {
                 if (isMediaPrepared()) {
-                    List<TrackInfo> trackInfos = player.getTrackInfo();
+                    List<TrackInfo> trackInfos = player.getTracks();
                     if (trackInfos != null) {
                         updateTracks(player, trackInfos);
                     }
@@ -740,13 +739,12 @@ public class VideoView extends SelectiveLayout {
         }
 
         @Override
-        void onTrackInfoChanged(@NonNull PlayerWrapper player,
-                @NonNull List<TrackInfo> trackInfos) {
+        void onTracksChanged(@NonNull PlayerWrapper player, @NonNull List<TrackInfo> tracks) {
             if (DEBUG) {
-                Log.d(TAG, "onTrackInfoChanged(): tracks: " + trackInfos);
+                Log.d(TAG, "onTrackInfoChanged(): tracks: " + tracks);
             }
             if (shouldIgnoreCallback(player)) return;
-            updateTracks(player, trackInfos);
+            updateTracks(player, tracks);
             updateMusicView(player.getCurrentMediaItem());
         }
 

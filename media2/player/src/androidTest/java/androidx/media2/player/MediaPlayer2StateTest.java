@@ -78,7 +78,7 @@ public class MediaPlayer2StateTest extends MediaPlayer2TestBase {
     private static final String LOG_TAG = "MediaPlayer2StateTest";
 
     // TODO: Underlying MediaPlayer1 implementation does not report an error when an operation is
-    // triggered in an invalid state. e.g. MediaPlayer.getTrackInfo in the error state. Check the
+    // triggered in an invalid state. e.g. MediaPlayer.getTracks in the error state. Check the
     // cause and update javadoc of MediaPlayer1 or change the test case.
     private static final boolean CHECK_INVALID_STATE = false;
 
@@ -640,7 +640,7 @@ public class MediaPlayer2StateTest extends MediaPlayer2TestBase {
     private static final PlayerOperation sGetTrackInfoOperation = new PlayerOperation() {
         @Override
         public void doOperation(MediaPlayer2 player) {
-            player.getTrackInfo();
+            player.getTracks();
         }
 
         @Override
@@ -650,7 +650,7 @@ public class MediaPlayer2StateTest extends MediaPlayer2TestBase {
 
         @Override
         public String toString() {
-            return "getTrackInfo()";
+            return "getTracks()";
         }
     };
     private static final PlayerOperation sGetSelectedTrackOperation = new PlayerOperation() {
