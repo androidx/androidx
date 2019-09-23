@@ -264,6 +264,7 @@ package androidx.core.app {
     field public static final int GROUP_ALERT_ALL = 0; // 0x0
     field public static final int GROUP_ALERT_CHILDREN = 2; // 0x2
     field public static final int GROUP_ALERT_SUMMARY = 1; // 0x1
+    field public static final String GROUP_KEY_SILENT = "silent";
     field public static final int PRIORITY_DEFAULT = 0; // 0x0
     field public static final int PRIORITY_HIGH = 1; // 0x1
     field public static final int PRIORITY_LOW = -1; // 0xffffffff
@@ -428,6 +429,7 @@ package androidx.core.app {
     method public androidx.core.app.NotificationCompat.Builder! setLargeIcon(android.graphics.Bitmap!);
     method public androidx.core.app.NotificationCompat.Builder! setLights(@ColorInt int, int, int);
     method public androidx.core.app.NotificationCompat.Builder! setLocalOnly(boolean);
+    method public androidx.core.app.NotificationCompat.Builder setNotificationSilent();
     method public androidx.core.app.NotificationCompat.Builder! setNumber(int);
     method public androidx.core.app.NotificationCompat.Builder! setOngoing(boolean);
     method public androidx.core.app.NotificationCompat.Builder! setOnlyAlertOnce(boolean);
