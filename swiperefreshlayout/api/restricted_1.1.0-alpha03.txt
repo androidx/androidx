@@ -63,6 +63,7 @@ package androidx.swiperefreshlayout.widget {
     method public void setColorSchemeColors(@ColorInt int...);
     method public void setColorSchemeResources(@ColorRes int...);
     method public void setDistanceToTriggerSync(int);
+    method @Deprecated public void setLegacyRequestDisallowInterceptTouchEventEnabled(boolean);
     method public void setOnChildScrollUpCallback(androidx.swiperefreshlayout.widget.SwipeRefreshLayout.OnChildScrollUpCallback?);
     method public void setOnRefreshListener(androidx.swiperefreshlayout.widget.SwipeRefreshLayout.OnRefreshListener?);
     method @Deprecated public void setProgressBackgroundColor(int);
