@@ -278,6 +278,8 @@ public abstract class WorkRequest {
 
         /**
          * Specifies that the {@link WorkRequest} should create and run in a foreground service.
+         * <p>
+         * This cannot be combined with {@link Constraints#requiresDeviceIdle()}.
          *
          * Throws an {@link IllegalStateException} if the {@link ListenableWorker} does not
          * implement the {@link NotificationProvider} interface.
