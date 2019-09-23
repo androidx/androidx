@@ -186,6 +186,6 @@
 
     <style name="PreferenceCategoryTitleTextStyle">
         <item name="android:textAppearance">?attr/preferenceCategoryTitleTextAppearance</item>
-        <item name="android:textColor">@color/preference_fallback_accent_color</item>
+        <item name="android:textColor">?attr/preferenceCategoryTitleTextColor</item>
     </style>
 </resources>

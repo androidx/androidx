@@ -19,9 +19,4 @@
     <style name="PreferenceSummaryTextStyle">
         <item name="android:textAppearance">?android:attr/textAppearanceListItemSecondary</item>
     </style>
-
-    <style name="PreferenceCategoryTitleTextStyle">
-        <item name="android:textAppearance">?attr/preferenceCategoryTitleTextAppearance</item>
-        <item name="android:textColor">?android:attr/colorAccent</item>
-    </style>
 </resources>

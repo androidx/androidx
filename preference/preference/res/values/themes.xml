@@ -16,7 +16,13 @@
   -->
 
 <resources>
-    <style name="PreferenceThemeOverlay">
+    <style name="PreferenceThemeOverlay" parent="BasePreferenceThemeOverlay">
+        <!-- When binding the view we attempt to resolve colorAccent and set that instead - we only
+        end up using this color if we are not inside an AppCompat theme. -->
+        <item name="preferenceCategoryTitleTextColor">@color/preference_fallback_accent_color</item>
+    </style>
+
+    <style name="BasePreferenceThemeOverlay">
         <item name="android:scrollbars">vertical</item>
         <item name="checkBoxPreferenceStyle">@style/Preference.CheckBoxPreference.Material</item>
         <item name="dialogPreferenceStyle">@style/Preference.DialogPreference.Material</item>
