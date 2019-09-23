@@ -17,11 +17,11 @@ package androidx.fragment.app;
 
 import android.graphics.Rect;
 import android.os.Build;
-import android.transition.Transition;
 import android.util.SparseArray;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.annotation.NonNull;
 import androidx.collection.ArrayMap;
 import androidx.core.app.SharedElementCallback;
 import androidx.core.os.CancellationSignal;
@@ -57,6 +57,21 @@ class FragmentTransition {
             BackStackRecord.OP_SET_PRIMARY_NAV,     // inverse of OP_UNSET_PRIMARY_NAV
             BackStackRecord.OP_SET_MAX_LIFECYCLE
     };
+
+    /**
+     * Interface to watch Fragment Transitions
+     */
+    interface Callback {
+        /**
+         * Called whenever an transition started
+         */
+        void onStart(@NonNull Fragment fragment, @NonNull CancellationSignal signal);
+
+        /**
+         * Called whenever an transition is complete
+         */
+        void onComplete(@NonNull Fragment fragment, @NonNull CancellationSignal signal);
+    }
 
     private static final FragmentTransitionImpl PLATFORM_IMPL = Build.VERSION.SDK_INT >= 21
             ? new FragmentTransitionCompat21()
@@ -105,7 +120,7 @@ class FragmentTransition {
      */
     static void startTransitions(FragmentManager fragmentManager,
             ArrayList<BackStackRecord> records, ArrayList<Boolean> isRecordPop,
-            int startIndex, int endIndex, boolean isReordered) {
+            int startIndex, int endIndex, boolean isReordered, Callback callback) {
         if (fragmentManager.mCurState < Fragment.CREATED) {
             return;
         }
@@ -135,10 +150,10 @@ class FragmentTransition {
 
                 if (isReordered) {
                     configureTransitionsReordered(fragmentManager, containerId,
-                            containerTransition, nonExistentView, nameOverrides);
+                            containerTransition, nonExistentView, nameOverrides, callback);
                 } else {
                     configureTransitionsOrdered(fragmentManager, containerId,
-                            containerTransition, nonExistentView, nameOverrides);
+                            containerTransition, nonExistentView, nameOverrides, callback);
                 }
             }
         }
@@ -212,7 +227,7 @@ class FragmentTransition {
      */
     private static void configureTransitionsReordered(FragmentManager fragmentManager,
             int containerId, FragmentContainerTransition fragments,
-            View nonExistentView, ArrayMap<String, String> nameOverrides) {
+            View nonExistentView, ArrayMap<String, String> nameOverrides, final Callback callback) {
         ViewGroup sceneRoot = null;
         if (fragmentManager.mContainer.onHasView()) {
             sceneRoot = (ViewGroup) fragmentManager.mContainer.onFindViewById(containerId);
@@ -256,7 +271,14 @@ class FragmentTransition {
 
         if (outFragment != null && exitingViews != null
                 && (exitingViews.size() > 0 || sharedElementsOut.size() > 0)) {
-            setListenerForTransitionEnd(fragmentManager, outFragment, transition);
+            final CancellationSignal signal = new CancellationSignal();
+            callback.onStart(outFragment, signal);
+            impl.setListenerForTransitionEnd(outFragment, transition, signal, new Runnable() {
+                @Override
+                public void run() {
+                    callback.onComplete(outFragment, signal);
+                }
+            });
         }
 
         if (transition != null) {
@@ -272,53 +294,6 @@ class FragmentTransition {
             setViewVisibility(enteringViews, View.VISIBLE);
             impl.swapSharedElementTargets(sharedElementTransition,
                     sharedElementsOut, sharedElementsIn);
-        }
-    }
-
-    /**
-     * Set a listener for Transition end events.
-     *
-     * If either exitingViews or SharedElementsOut contain a view, a {@link CancellationSignal}
-     * will added to the given FragmentManager. The FragmentManager will check for the
-     * {@link CancellationSignal} to determine if the transition has finished.
-     *
-     * An {@link Transition.TransitionListener#onTransitionEnd} listener is added that removes
-     * the {@link CancellationSignal} from the given FragmentManager and that indicates to the
-     * FragmentManager that it should properly handle the out going Fragment.
-     *
-     * If the FragmentManager wishes to cancel the transition, it removes the
-     * {@link CancellationSignal} and destroys the view of the Fragment.
-     *
-     * @param fragmentManager The executing FragmentManager
-     * @param outFragment The first fragment that is exiting
-     * @param transition all transitions to be executed on a single container
-     */
-    private static void setListenerForTransitionEnd(final FragmentManager fragmentManager,
-            final Fragment outFragment, Object transition) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            final CancellationSignal signal = new CancellationSignal();
-            fragmentManager.addCancellationSignal(outFragment, signal);
-            ((Transition) transition).addListener(new Transition.TransitionListener() {
-                @Override
-                public void onTransitionStart(Transition transition) { }
-
-                @Override
-                public void onTransitionEnd(Transition transition) {
-                    if (outFragment.mView != null && outFragment.mState <= Fragment.CREATED
-                            && (outFragment.mRemoving || outFragment.isDetached())) {
-                        fragmentManager.removeCancellationSignal(outFragment, signal);
-                    }
-                }
-
-                @Override
-                public void onTransitionCancel(Transition transition) { }
-
-                @Override
-                public void onTransitionPause(Transition transition) { }
-
-                @Override
-                public void onTransitionResume(Transition transition) { }
-            });
         }
     }
 
@@ -362,7 +337,7 @@ class FragmentTransition {
      */
     private static void configureTransitionsOrdered(FragmentManager fragmentManager,
             int containerId, FragmentContainerTransition fragments,
-            View nonExistentView, ArrayMap<String, String> nameOverrides) {
+            View nonExistentView, ArrayMap<String, String> nameOverrides, final Callback callback) {
         ViewGroup sceneRoot = null;
         if (fragmentManager.mContainer.onHasView()) {
             sceneRoot = (ViewGroup) fragmentManager.mContainer.onFindViewById(containerId);
@@ -410,7 +385,14 @@ class FragmentTransition {
 
         if (outFragment != null && exitingViews != null
                 && (exitingViews.size() > 0 || sharedElementsOut.size() > 0)) {
-            setListenerForTransitionEnd(fragmentManager, outFragment, transition);
+            final CancellationSignal signal = new CancellationSignal();
+            callback.onStart(outFragment, signal);
+            impl.setListenerForTransitionEnd(outFragment, transition, signal, new Runnable() {
+                @Override
+                public void run() {
+                    callback.onComplete(outFragment, signal);
+                }
+            });
         }
 
         if (transition != null) {

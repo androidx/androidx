@@ -48,7 +48,7 @@ import org.junit.runners.Parameterized;
 
 @MediumTest
 @RunWith(Parameterized.class)
-public class FragmentTransitionTest extends BaseTest {
+public class FragmentTransitionSupportTest extends BaseTest {
 
     @Parameterized.Parameters
     public static Object[] data() {
@@ -59,7 +59,7 @@ public class FragmentTransitionTest extends BaseTest {
 
     private final boolean mReorderingAllowed;
 
-    public FragmentTransitionTest(boolean reorderingAllowed) {
+    public FragmentTransitionSupportTest(boolean reorderingAllowed) {
         mReorderingAllowed = reorderingAllowed;
     }
 

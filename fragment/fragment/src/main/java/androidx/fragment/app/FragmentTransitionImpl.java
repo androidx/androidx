@@ -25,6 +25,7 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
+import androidx.core.os.CancellationSignal;
 import androidx.core.view.OneShotPreDrawListener;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.ViewGroupCompat;
@@ -258,6 +259,23 @@ public abstract class FragmentTransitionImpl {
             Object enterTransition, ArrayList<View> enteringViews,
             Object exitTransition, ArrayList<View> exitingViews,
             Object sharedElementTransition, ArrayList<View> sharedElementsIn);
+
+
+    /**
+     * Set a listener for Transition end events. The default behavior immediately completes the
+     * transition.
+     *
+     * @param outFragment The first fragment that is exiting
+     * @param transition all transitions to be executed on a single container
+     * @param signal used indicate the desired behavior on transition cancellation
+     * @param transitionCompleteRunnable used to notify the FragmentManager when a transition is
+     *                                   complete
+     */
+    public void setListenerForTransitionEnd(@NonNull final Fragment outFragment,
+            @NonNull Object transition, @NonNull CancellationSignal signal,
+            @NonNull Runnable transitionCompleteRunnable) {
+        transitionCompleteRunnable.run();
+    }
 
     /**
      * Swap the targets for the shared element transition from those Views in sharedElementsOut
