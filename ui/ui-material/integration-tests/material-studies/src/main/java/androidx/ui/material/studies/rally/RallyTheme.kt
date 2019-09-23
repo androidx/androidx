@@ -38,8 +38,10 @@ val rallyBlue = Color(0xFF72DEFF)
 fun RallyTheme(children: @Composable() () -> Unit) {
     val colors = MaterialColors(
         primary = rallyGreen,
-        surface = Color(0xFF26282F),
-        onSurface = Color.White
+        surface = Color(0xFF33333D),
+        onSurface = Color.White,
+        background = Color(0xFF26282F),
+        onBackground = Color.White
     )
     val typography = MaterialTypography(
         h1 = TextStyle(fontFamily = FontFamily("RobotoCondensed"),
