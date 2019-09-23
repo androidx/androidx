@@ -139,12 +139,10 @@ package androidx.ui.core {
   public final class LayoutNode extends androidx.ui.core.ComponentNode implements androidx.ui.core.Measurable androidx.ui.core.MeasureScope {
     ctor public LayoutNode();
     method public boolean getAffectsParentSize();
-    method public boolean getAlignmentLinesRequired();
     method public androidx.ui.core.Constraints getConstraints();
     method public androidx.ui.core.IntPxPosition getContentPosition();
     method public androidx.ui.core.IntPxSize getContentSize();
     method public androidx.ui.core.Density getDensity();
-    method public boolean getDirtyAlignmentLines();
     method public androidx.ui.core.IntPx getHeight();
     method public java.util.List<androidx.ui.core.LayoutNode> getLayoutChildren();
     method public kotlin.jvm.functions.Function3<androidx.ui.core.DensityScope,java.util.List<? extends androidx.ui.core.IntrinsicMeasurable>,androidx.ui.core.IntPx,androidx.ui.core.IntPx> getMaxIntrinsicHeightBlock();
@@ -175,9 +173,7 @@ package androidx.ui.core {
     method public void placeChildren();
     method public void requestRemeasure();
     method public void setAffectsParentSize(boolean p);
-    method public void setAlignmentLinesRequired(boolean p);
     method public void setConstraints(androidx.ui.core.Constraints p);
-    method public void setDirtyAlignmentLines(boolean p);
     method public void setMaxIntrinsicHeightBlock(kotlin.jvm.functions.Function3<? super androidx.ui.core.DensityScope,? super java.util.List<? extends androidx.ui.core.IntrinsicMeasurable>,? super androidx.ui.core.IntPx,androidx.ui.core.IntPx> value);
     method public void setMaxIntrinsicWidthBlock(kotlin.jvm.functions.Function3<? super androidx.ui.core.DensityScope,? super java.util.List<? extends androidx.ui.core.IntrinsicMeasurable>,? super androidx.ui.core.IntPx,androidx.ui.core.IntPx> value);
     method public void setMeasureBlock(kotlin.jvm.functions.Function3<? super androidx.ui.core.MeasureScope,? super java.util.List<? extends androidx.ui.core.Measurable>,? super androidx.ui.core.Constraints,androidx.ui.core.MeasureScope.LayoutResult> value);
@@ -190,13 +186,11 @@ package androidx.ui.core {
     method public void setPositionedDuringMeasurePass(boolean p);
     method public void setRef(androidx.ui.core.Ref<androidx.ui.core.LayoutNode>? value);
     property public final boolean affectsParentSize;
-    property public final boolean alignmentLinesRequired;
     property public final androidx.ui.core.Constraints constraints;
     property protected androidx.ui.core.LayoutNode? containingLayoutNode;
     property public final androidx.ui.core.IntPxPosition contentPosition;
     property public final androidx.ui.core.IntPxSize contentSize;
     property public androidx.ui.core.Density density;
-    property public final boolean dirtyAlignmentLines;
     property public final androidx.ui.core.IntPx height;
     property public final boolean isMeasuring;
     property public final boolean isPlaced;

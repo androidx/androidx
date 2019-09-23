@@ -140,10 +140,8 @@ package androidx.ui.core {
   public final class LayoutNode extends androidx.ui.core.ComponentNode implements androidx.ui.core.Measurable androidx.ui.core.MeasureBlockScope {
     ctor public LayoutNode();
     method public boolean getAffectsParentSize();
-    method public boolean getAlignmentLinesRequired();
     method public androidx.ui.core.Constraints getConstraints();
     method public androidx.ui.core.Density getDensity();
-    method public boolean getDirtyAlignmentLines();
     method public androidx.ui.core.IntPx getHeight();
     method public java.util.List<androidx.ui.core.LayoutNode> getLayoutChildren();
     method public kotlin.jvm.functions.Function3<androidx.ui.core.DensityReceiver,java.util.List<? extends androidx.ui.core.IntrinsicMeasurable>,androidx.ui.core.IntPx,androidx.ui.core.IntPx> getMaxIntrinsicHeightBlock();
@@ -172,9 +170,7 @@ package androidx.ui.core {
     method public void placeChildren();
     method public kotlin.Unit? requestRemeasure();
     method public void setAffectsParentSize(boolean p);
-    method public void setAlignmentLinesRequired(boolean p);
     method public void setConstraints(androidx.ui.core.Constraints p);
-    method public void setDirtyAlignmentLines(boolean p);
     method public void setInMeasure(boolean p);
     method public void setMaxIntrinsicHeightBlock(kotlin.jvm.functions.Function3<? super androidx.ui.core.DensityReceiver,? super java.util.List<? extends androidx.ui.core.IntrinsicMeasurable>,? super androidx.ui.core.IntPx,androidx.ui.core.IntPx> value);
     method public void setMaxIntrinsicWidthBlock(kotlin.jvm.functions.Function3<? super androidx.ui.core.DensityReceiver,? super java.util.List<? extends androidx.ui.core.IntrinsicMeasurable>,? super androidx.ui.core.IntPx,androidx.ui.core.IntPx> value);
@@ -186,11 +182,9 @@ package androidx.ui.core {
     method public void setPositionedDuringMeasurePass(boolean p);
     method public void setRef(androidx.ui.core.Ref<androidx.ui.core.LayoutNode>? value);
     property public final boolean affectsParentSize;
-    property public final boolean alignmentLinesRequired;
     property public final androidx.ui.core.Constraints constraints;
     property protected androidx.ui.core.LayoutNode? containingLayoutNode;
     property public androidx.ui.core.Density density;
-    property public final boolean dirtyAlignmentLines;
     property public final androidx.ui.core.IntPx height;
     property public final boolean isInMeasure;
     property public final java.util.List<androidx.ui.core.LayoutNode> layoutChildren;
