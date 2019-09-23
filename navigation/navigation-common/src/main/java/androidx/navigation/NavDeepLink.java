@@ -55,7 +55,7 @@ class NavDeepLink {
         if (mIsParameterizedQuery) {
             Matcher matcher = Pattern.compile("(\\?)").matcher(uri);
             if (matcher.find()) {
-                uriRegex.append(Pattern.quote(uri.substring(0, matcher.start())));
+                buildPathRegex(uri.substring(0, matcher.start()), uriRegex, fillInPattern);
                 uriRegex.append("(.+)?");
             }
             mExactDeepLink = false;
@@ -82,30 +82,35 @@ class NavDeepLink {
                 mParamArgMap.put(paramName, param);
             }
         } else {
-            Matcher matcher = fillInPattern.matcher(uri);
-            int appendPos = 0;
-            // Track whether this is an exact deep link
-            boolean exactDeepLink = !uri.contains(".*");
-            while (matcher.find()) {
-                String argName = matcher.group(1);
-                mArguments.add(argName);
-                // Use Pattern.quote() to treat the input string as a literal
-                uriRegex.append(Pattern.quote(uri.substring(appendPos, matcher.start())));
-                uriRegex.append("(.+?)");
-                appendPos = matcher.end();
-                exactDeepLink = false;
-            }
-            if (appendPos < uri.length()) {
-                // Use Pattern.quote() to treat the input string as a literal
-                uriRegex.append(Pattern.quote(uri.substring(appendPos)));
-            }
-            mExactDeepLink = exactDeepLink;
+            mExactDeepLink = buildPathRegex(uri, uriRegex, fillInPattern);
         }
         // Since we've used Pattern.quote() above, we need to
         // specifically escape any .* instances to ensure
         // they are still treated as wildcards in our final regex
         String finalRegex = uriRegex.toString().replace(".*", "\\E.*\\Q");
         mPattern = Pattern.compile(finalRegex);
+    }
+
+    private boolean buildPathRegex(@NonNull String uri, StringBuilder uriRegex,
+            Pattern fillInPattern) {
+        Matcher matcher = fillInPattern.matcher(uri);
+        int appendPos = 0;
+        // Track whether this is an exact deep link
+        boolean exactDeepLink = !uri.contains(".*");
+        while (matcher.find()) {
+            String argName = matcher.group(1);
+            mArguments.add(argName);
+            // Use Pattern.quote() to treat the input string as a literal
+            uriRegex.append(Pattern.quote(uri.substring(appendPos, matcher.start())));
+            uriRegex.append("(.+?)");
+            appendPos = matcher.end();
+            exactDeepLink = false;
+        }
+        if (appendPos < uri.length()) {
+            // Use Pattern.quote() to treat the input string as a literal
+            uriRegex.append(Pattern.quote(uri.substring(appendPos)));
+        }
+        return exactDeepLink;
     }
 
     boolean matches(@NonNull Uri deepLink) {
@@ -124,6 +129,15 @@ class NavDeepLink {
             return null;
         }
         Bundle bundle = new Bundle();
+        int size = mArguments.size();
+        for (int index = 0; index < size; index++) {
+            String argumentName = mArguments.get(index);
+            String value = Uri.decode(matcher.group(index + 1));
+            NavArgument argument = arguments.get(argumentName);
+            if (parseArgument(bundle, argumentName, value, argument)) {
+                return null;
+            }
+        }
         if (mIsParameterizedQuery) {
             for (String paramName : mParamArgMap.keySet()) {
                 Matcher argMatcher = null;
@@ -156,16 +170,6 @@ class NavDeepLink {
                     if (parseArgument(bundle, argName, value, argument)) {
                         return null;
                     }
-                }
-            }
-        } else {
-            int size = mArguments.size();
-            for (int index = 0; index < size; index++) {
-                String argumentName = mArguments.get(index);
-                String value = Uri.decode(matcher.group(index + 1));
-                NavArgument argument = arguments.get(argumentName);
-                if (parseArgument(bundle, argumentName, value, argument)) {
-                    return null;
                 }
             }
         }
