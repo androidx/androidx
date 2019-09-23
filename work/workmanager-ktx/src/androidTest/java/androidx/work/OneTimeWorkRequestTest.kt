@@ -17,6 +17,7 @@
 package androidx.work
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.work.workers.TestNotificationWorker
 import androidx.work.workers.TestWorker
@@ -58,6 +59,19 @@ class OneTimeWorkRequestTest {
     fun testSetRunInForeground_withInvalidWorker() {
         OneTimeWorkRequestBuilder<TestWorker>()
             .setRunInForeground(true)
+            .build()
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    @SdkSuppress(minSdkVersion = 23)
+    fun testSetRunInForeground_withInvalidConstraints() {
+        OneTimeWorkRequestBuilder<TestNotificationWorker>()
+            .setRunInForeground(true)
+            .setConstraints(
+                Constraints.Builder()
+                    .setRequiresDeviceIdle(true)
+                    .build()
+            )
             .build()
     }
 }
