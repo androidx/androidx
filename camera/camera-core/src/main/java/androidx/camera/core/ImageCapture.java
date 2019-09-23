@@ -126,6 +126,8 @@ public class ImageCapture extends UseCase {
                                     CameraXThreads.TAG + "image_capture_" + mId.getAndIncrement());
                         }
                     });
+    @NonNull
+    final Executor mIoExecutor;
     private final CaptureCallbackChecker mSessionCallbackChecker = new CaptureCallbackChecker();
     private final CaptureMode mCaptureMode;
 
@@ -195,6 +197,8 @@ public class ImageCapture extends UseCase {
         }
 
         mCaptureBundle = mConfig.getCaptureBundle(CaptureBundles.singleDefaultCaptureBundle());
+
+        mIoExecutor = mConfig.getIoExecutor(CameraXExecutors.ioExecutor());
 
         if (mCaptureMode == CaptureMode.MAX_QUALITY) {
             mEnableCheck3AConverged = true; // check 3A convergence in MAX_QUALITY mode
@@ -545,17 +549,16 @@ public class ImageCapture extends UseCase {
                 new OnImageCapturedListener() {
                     @Override
                     public void onCaptureSuccess(ImageProxy image, int rotationDegrees) {
-                        CameraXExecutors.ioExecutor()
-                                .execute(
-                                        new ImageSaver(
-                                                image,
-                                                saveLocation,
-                                                rotationDegrees,
-                                                metadata.isReversedHorizontal,
-                                                metadata.isReversedVertical,
-                                                metadata.location,
-                                                executor,
-                                                imageSavedListenerWrapper));
+                        mIoExecutor.execute(
+                                new ImageSaver(
+                                        image,
+                                        saveLocation,
+                                        rotationDegrees,
+                                        metadata.isReversedHorizontal,
+                                        metadata.isReversedVertical,
+                                        metadata.location,
+                                        executor,
+                                        imageSavedListenerWrapper));
                     }
 
                     @Override
