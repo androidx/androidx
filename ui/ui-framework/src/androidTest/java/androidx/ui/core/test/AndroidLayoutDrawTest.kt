@@ -392,14 +392,65 @@ class AndroidLayoutDrawTest {
         assertTrue(countDownLatch.await(1, TimeUnit.SECONDS))
 
         val expectedPaddedConstraints = Constraints(
-            topConstraints.value!!.minWidth - size * 2,
+            0.ipx,
             topConstraints.value!!.maxWidth - size * 2,
-            topConstraints.value!!.minHeight - size * 2,
+            0.ipx,
             topConstraints.value!!.maxHeight - size * 2
         )
         assertEquals(expectedPaddedConstraints, paddedConstraints.value)
         assertEquals(paddedConstraints.value, firstChildConstraints.value)
         assertEquals(paddedConstraints.value, secondChildConstraints.value)
+    }
+
+    @Suppress("UNUSED_ANONYMOUS_PARAMETER")
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun withConstraints_layoutListener() {
+        val green = Color.Green
+        val white = Color.White
+        val model = SquareModel(size = 20.ipx, outerColor = green, innerColor = white)
+
+        activityTestRule.runOnUiThreadIR {
+            activity.setContentInFrameLayout {
+                WithConstraints { constraints ->
+                    Layout(children = {
+                        Draw { canvas, parentSize ->
+                            val paint = Paint()
+                            paint.color = model.outerColor
+                            canvas.drawRect(parentSize.toRect(), paint)
+                        }
+                        Layout(children = {
+                            Draw { canvas, parentSize ->
+                                drawLatch.countDown()
+                                val paint = Paint()
+                                paint.color = model.innerColor
+                                canvas.drawRect(parentSize.toRect(), paint)
+                            }
+                        }) { measurables, constraints2 ->
+                            layout(model.size, model.size) {}
+                        }
+                    }) { measurables, constraints3 ->
+                        val placeable = measurables[0].measure(
+                            Constraints.tightConstraints(
+                                model.size,
+                                model.size
+                            )
+                        )
+                        layout(model.size * 3, model.size * 3) {
+                            placeable.place(model.size, model.size)
+                        }
+                    }
+                }
+            }
+        }
+        validateSquareColors(outerColor = green, innerColor = white, size = 20)
+
+        drawLatch = CountDownLatch(1)
+        activityTestRule.runOnUiThreadIR {
+            model.size = 10.ipx
+        }
+
+        validateSquareColors(outerColor = green, innerColor = white, size = 10)
     }
 
     // Tests that calling measure multiple times on the same Measurable causes an exception
@@ -2009,6 +2060,8 @@ fun ActivityTestRule<*>.waitAndScreenShot(): Bitmap {
 fun Activity.setContentInFrameLayout(children: @Composable() () -> Unit) {
     val content = findViewById<ViewGroup>(android.R.id.content)
     val frameLayout = FrameLayout(this)
-    content.addView(frameLayout)
+    content.addView(frameLayout,
+        ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
+            ViewGroup.LayoutParams.WRAP_CONTENT))
     frameLayout.setContent(children)
 }

@@ -381,7 +381,7 @@ fun WithConstraints(children: @Composable() (Constraints) -> Unit) {
         measure { _, constraints ->
             val root = layoutNodeRef.value!!
             // Start subcomposition from the current node.
-            Compose.composeInto(
+            Compose.subcomposeInto(
                 root,
                 context,
                 ref
