@@ -7,6 +7,7 @@ import static androidx.build.dependencies.DependenciesKt.*
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
+    id("kotlin-android")
 }
 
 dependencies {
@@ -18,14 +19,20 @@ dependencies {
     // necessary for IJ to resolve dependencies.
     api("androidx.lifecycle:lifecycle-runtime:2.2.0-alpha04")
 
+    androidTestImplementation(KOTLIN_STDLIB)
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
     androidTestImplementation(ANDROIDX_TEST_CORE)
     androidTestImplementation(ANDROIDX_TEST_RUNNER)
     androidTestImplementation(ANDROIDX_TEST_RULES)
+    androidTestImplementation(TRUTH)
     androidTestImplementation(ESPRESSO_CORE, libs.exclude_for_espresso)
     androidTestImplementation(MOCKITO_CORE, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
     androidTestImplementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
-    androidTestImplementation("androidx.appcompat:appcompat:1.0.1")
+    androidTestImplementation project(":fragment:fragment")
+    androidTestImplementation("androidx.appcompat:appcompat:1.1.0-rc01")
+    androidTestImplementation project(':internal-testutils-runtime'), {
+        exclude group: 'androidx.fragment', module: 'fragment'
+    }
 }
 
 android {

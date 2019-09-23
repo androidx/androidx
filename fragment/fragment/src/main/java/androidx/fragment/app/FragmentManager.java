@@ -371,6 +371,21 @@ public abstract class FragmentManager {
     private ArrayList<OnBackStackChangedListener> mBackStackChangeListeners;
     private HashMap<Fragment, HashSet<CancellationSignal>>
             mExitAnimationCancellationSignals = new HashMap<>();
+    private final FragmentTransition.Callback mFragmentTransitionCallback =
+            new FragmentTransition.Callback() {
+                @Override
+                public void onStart(@NonNull Fragment fragment,
+                        @NonNull CancellationSignal signal) {
+                    addCancellationSignal(fragment, signal);
+                }
+
+                @Override
+                public void onComplete(@NonNull Fragment f, @NonNull CancellationSignal signal) {
+                    if (!signal.isCanceled()) {
+                        removeCancellationSignal(f, signal);
+                    }
+                }
+            };
     private final FragmentLifecycleCallbacksDispatcher mLifecycleCallbacksDispatcher =
             new FragmentLifecycleCallbacksDispatcher(this);
 
@@ -723,9 +738,13 @@ public abstract class FragmentManager {
     void removeCancellationSignal(@NonNull Fragment f, @NonNull CancellationSignal signal) {
         HashSet<CancellationSignal> signals = mExitAnimationCancellationSignals.get(f);
         if (signals != null && signals.remove(signal) && signals.isEmpty()) {
-            destroyFragmentView(f);
             mExitAnimationCancellationSignals.remove(f);
-            moveToState(f, f.getStateAfterAnimating());
+            // The Fragment state must be below STARTED before destroying the view to ensure we
+            // support hide/show
+            if (f.mState < Fragment.STARTED) {
+                destroyFragmentView(f);
+                moveToState(f, f.getStateAfterAnimating());
+            }
         }
     }
 
@@ -2386,7 +2405,7 @@ public abstract class FragmentManager {
 
         if (!allowReordering) {
             FragmentTransition.startTransitions(this, records, isRecordPop, startIndex, endIndex,
-                    false);
+                    false, mFragmentTransitionCallback);
         }
         executeOps(records, isRecordPop, startIndex, endIndex);
 
@@ -2402,7 +2421,7 @@ public abstract class FragmentManager {
         if (postponeIndex != startIndex && allowReordering) {
             // need to run something now
             FragmentTransition.startTransitions(this, records, isRecordPop, startIndex,
-                    postponeIndex, true);
+                    postponeIndex, true, mFragmentTransitionCallback);
             moveToState(mCurState, true);
         }
 
@@ -2517,7 +2536,8 @@ public abstract class FragmentManager {
         records.add(record);
         isRecordPop.add(isPop);
         if (runTransitions) {
-            FragmentTransition.startTransitions(this, records, isRecordPop, 0, 1, true);
+            FragmentTransition.startTransitions(this, records, isRecordPop, 0, 1, true,
+                    mFragmentTransitionCallback);
         }
         if (moveToState) {
             moveToState(mCurState, true);
