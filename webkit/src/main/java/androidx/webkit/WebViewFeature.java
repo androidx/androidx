@@ -48,7 +48,7 @@ public class WebViewFeature {
     /**
      * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     @StringDef(value = {
             VISUAL_STATE_CALLBACK,
             OFF_SCREEN_PRERASTER,
