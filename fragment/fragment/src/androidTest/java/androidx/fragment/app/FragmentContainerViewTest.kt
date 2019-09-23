@@ -62,6 +62,7 @@ class FragmentContainerViewTest {
 
         try {
             layout.layoutTransition = LayoutTransition()
+            fail("setLayoutTransition should throw UnsupportedOperationException")
         } catch (e: UnsupportedOperationException) {
             assertThat(e)
                 .hasMessageThat()
