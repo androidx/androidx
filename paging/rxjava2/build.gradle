@@ -31,6 +31,7 @@ dependencies {
     api(project(":arch:core-runtime"))
     api(RX_JAVA)
     implementation(KOTLIN_STDLIB)
+    implementation(KOTLIN_COROUTINES_RX2)
 
     testImplementation project(':internal-testutils-common')
     testImplementation(JUNIT)
