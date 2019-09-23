@@ -106,7 +106,6 @@ public class GreedyScheduler implements Scheduler, WorkConstraintsCallback, Exec
         List<String> constrainedWorkSpecIds = new ArrayList<>();
         for (WorkSpec workSpec : workSpecs) {
             if (workSpec.state == WorkInfo.State.ENQUEUED
-                    && !workSpec.runInForeground
                     && !workSpec.isPeriodic()
                     && workSpec.initialDelay == 0L
                     && !workSpec.isBackedOff()) {
