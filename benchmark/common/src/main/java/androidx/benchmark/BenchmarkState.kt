@@ -206,6 +206,10 @@ class BenchmarkState {
     }
 
     private fun beginWarmup() {
+        // Run GC to avoid memory pressure from previous run from affecting this one.
+        // Note, we don't use System.gc() because it doesn't always have consistent behavior
+        Runtime.getRuntime().gc()
+
         startTimeNs = System.nanoTime()
         warmupIteration = 0
         state = WARMUP
