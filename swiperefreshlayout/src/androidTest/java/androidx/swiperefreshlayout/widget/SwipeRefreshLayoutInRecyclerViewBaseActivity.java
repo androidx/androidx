@@ -20,7 +20,6 @@ import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 
 import static androidx.recyclerview.widget.RecyclerView.HORIZONTAL;
 
-import android.content.Context;
 import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
@@ -31,47 +30,30 @@ import androidx.fragment.app.FragmentActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-public class SwipeRefreshLayoutInRecyclerViewActivity extends FragmentActivity {
+public abstract class SwipeRefreshLayoutInRecyclerViewBaseActivity extends FragmentActivity {
 
-    RecyclerViewImpl mRecyclerView;
+    RequestDisallowInterceptRecordingRecyclerView mRecyclerView;
     SwipeRefreshLayout mSwipeRefreshLayout;
+
+    protected abstract View populateSwipeRefreshLayout(@NonNull SwipeRefreshLayout parent);
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mRecyclerView = new RecyclerViewImpl(this);
+        mRecyclerView = new RequestDisallowInterceptRecordingRecyclerView(this);
         mRecyclerView.setLayoutParams(matchParent());
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this, HORIZONTAL, false));
         mRecyclerView.setAdapter(new Adapter());
         setContentView(mRecyclerView);
     }
 
-    private static ViewGroup.LayoutParams matchParent() {
+    protected static ViewGroup.LayoutParams matchParent() {
         return new ViewGroup.LayoutParams(MATCH_PARENT, MATCH_PARENT);
     }
 
     private static class ViewHolder extends RecyclerView.ViewHolder {
         ViewHolder(@NonNull View itemView) {
             super(itemView);
-        }
-    }
-
-    public static class RecyclerViewImpl extends RecyclerView {
-        public boolean mRequestDisallowInterceptTrueCalled;
-        public boolean mRequestDisallowInterceptFalseCalled;
-
-        public RecyclerViewImpl(@NonNull Context context) {
-            super(context);
-        }
-
-        @Override
-        public void requestDisallowInterceptTouchEvent(boolean disallowIntercept) {
-            super.requestDisallowInterceptTouchEvent(disallowIntercept);
-            if (disallowIntercept) {
-                mRequestDisallowInterceptTrueCalled = true;
-            } else {
-                mRequestDisallowInterceptFalseCalled = true;
-            }
         }
     }
 
@@ -108,10 +90,10 @@ public class SwipeRefreshLayoutInRecyclerViewActivity extends FragmentActivity {
         }
 
         private ViewHolder createSrlItem(@NonNull ViewGroup parent) {
-            View child = new View(parent.getContext());
-            child.setBackgroundColor(0xFF0000FF);
             mSwipeRefreshLayout = new SwipeRefreshLayout(parent.getContext());
             mSwipeRefreshLayout.setLayoutParams(matchParent());
+            View child = populateSwipeRefreshLayout(mSwipeRefreshLayout);
+            child.setBackgroundColor(0xFF0000FF);
             mSwipeRefreshLayout.addView(child);
             return new ViewHolder(mSwipeRefreshLayout);
         }
