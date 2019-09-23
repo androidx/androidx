@@ -19,19 +19,22 @@ package androidx.ui.foundation.text
 import androidx.compose.Composable
 import androidx.compose.memo
 import androidx.compose.unaryPlus
-import androidx.ui.core.Constraints
+import androidx.ui.core.Alignment
 import androidx.ui.core.IntPx
-import androidx.ui.core.Layout
+import androidx.ui.core.IntPxPosition
 import androidx.ui.core.OnPositioned
 import androidx.ui.core.gesture.LongPressDragGestureDetector
 import androidx.ui.core.gesture.PressGestureDetector
 import androidx.ui.core.gesture.TouchSlopDragGestureDetector
 import androidx.ui.core.ipx
-import androidx.ui.core.px
 import androidx.ui.core.selection.Selection
 import androidx.ui.core.selection.SelectionMode
 import androidx.ui.core.selection.SelectionRegistrarAmbient
+import androidx.ui.foundation.Popup
+import androidx.ui.layout.Container
 import androidx.ui.text.style.TextDirection
+import kotlin.math.ceil
+import kotlin.math.roundToInt
 
 /**
  * Selection Composable.
@@ -56,85 +59,75 @@ fun SelectionContainer(
     manager.mode = mode
 
     SelectionRegistrarAmbient.Provider(value = registrarImpl) {
-        val content = @Composable {
-            val content = @Composable() {
-                // Get the layout coordinates of the selection container. This is for hit test of
-                // cross-composable selection.
-                OnPositioned(onPositioned = { manager.containerLayoutCoordinates = it })
-                PressGestureDetector(onRelease = { manager.onRelease() }) {
-                    LongPressDragGestureDetector(manager.longPressDragObserver) {
-                        children()
-                    }
-                }
-            }
-            Layout(content) { measurables, constraints ->
-                val placeable = measurables.firstOrNull()?.measure(constraints)
-                val width = placeable?.width ?: constraints.minWidth
-                val height = placeable?.height ?: constraints.minHeight
-                layout(width, height) {
-                    placeable?.place(0.ipx, 0.ipx)
+        val content = @Composable() {
+            // Get the layout coordinates of the selection container. This is for hit test of
+            // cross-composable selection.
+            OnPositioned(onPositioned = { manager.containerLayoutCoordinates = it })
+            PressGestureDetector(onRelease = { manager.onRelease() }) {
+                LongPressDragGestureDetector(manager.longPressDragObserver) {
+                    children()
                 }
             }
         }
-        val startHandle = @Composable {
-            TouchSlopDragGestureDetector(
-                dragObserver = manager.handleDragObserver(isStartHandle = true)
-            ) {
-                Layout(children = { StartSelectionHandle(selection) }) { _, constraints ->
-                    layout(constraints.minWidth, constraints.minHeight) {}
-                }
-            }
+        Container {
+            Container(children = content)
+            DrawHandles(
+                manager = manager,
+                selection = selection,
+                startHandle = { StartSelectionHandle(selection = selection) },
+                endHandle = { EndSelectionHandle(selection = selection) })
         }
-        val endHandle = @Composable {
-            TouchSlopDragGestureDetector(
-                dragObserver = manager.handleDragObserver(isStartHandle = false)
-            ) {
-                Layout(children = { EndSelectionHandle(selection) }) { _, constraints ->
-                    layout(constraints.minWidth, constraints.minHeight) {}
-                }
-            }
-        }
-        Layout(content, startHandle, endHandle) { measurables, constraints ->
-            val placeable = measurables[0].measure(constraints)
-            val width = placeable.width
-            val height = placeable.height
-            val start = measurables[startHandle].first().measure(
-                Constraints.tightConstraints(
-                    HANDLE_WIDTH.toIntPx(),
-                    HANDLE_HEIGHT.toIntPx()
-                )
-            )
-            val end = measurables[endHandle].first().measure(
-                Constraints.tightConstraints(
-                    HANDLE_WIDTH.toIntPx(),
-                    HANDLE_HEIGHT.toIntPx()
-                )
-            )
-            layout(width, height) {
-                placeable.place(IntPx.Zero, IntPx.Zero)
+    }
+}
 
-                val startLayoutCoordinates = selection?.start?.layoutCoordinates
-                val endLayoutCoordinates = selection?.end?.layoutCoordinates
-                if (startLayoutCoordinates != null && endLayoutCoordinates != null) {
-                    val startOffset = manager.containerLayoutCoordinates.childToLocal(
-                        startLayoutCoordinates,
-                        selection.start.coordinates
-                    )
-                    val endOffset = manager.containerLayoutCoordinates.childToLocal(
-                        endLayoutCoordinates,
-                        selection.end.coordinates
-                    )
-                    val startAdjustedDistance =
-                        if (selection.start.direction == TextDirection.Ltr) -HANDLE_WIDTH.toPx()
-                        else 0.px
-                    val endAdjustedDistance =
-                        if (selection.end.direction == TextDirection.Ltr) 0.px
-                        else -HANDLE_WIDTH.toPx()
+@Composable
+private fun DrawHandles(
+    manager: SelectionManager,
+    selection: Selection?,
+    startHandle: @Composable() () -> Unit,
+    endHandle: @Composable() () -> Unit
+) {
+    if (selection != null &&
+        selection.start.layoutCoordinates != null &&
+        selection.end.layoutCoordinates != null
+    ) {
+        val startOffset = manager.containerLayoutCoordinates.childToLocal(
+            selection.start.layoutCoordinates!!,
+            selection.start.coordinates
+        )
+        val endOffset = manager.containerLayoutCoordinates.childToLocal(
+            selection.end.layoutCoordinates!!,
+            selection.end.coordinates
+        )
 
-                    start.place(startOffset.x + startAdjustedDistance, startOffset.y)
-                    end.place(endOffset.x + endAdjustedDistance, endOffset.y)
-                }
+        Container {
+            Popup(
+                alignment =
+                if (selection.start.direction == TextDirection.Ltr) Alignment.TopRight
+                else Alignment.TopLeft,
+                offset = IntPxPosition(startOffset.x.value.toIntPx(), startOffset.y.value.toIntPx())
+            ) {
+                TouchSlopDragGestureDetector(
+                    dragObserver = manager.handleDragObserver(isStartHandle = true),
+                    children = startHandle
+                )
+            }
+        }
+
+        Container {
+            Popup(
+                alignment =
+                if (selection.end.direction == TextDirection.Ltr) Alignment.TopLeft
+                else Alignment.TopRight,
+                offset = IntPxPosition(endOffset.x.value.toIntPx(), endOffset.y.value.toIntPx())
+            ) {
+                TouchSlopDragGestureDetector(
+                    dragObserver = manager.handleDragObserver(isStartHandle = false),
+                    children = endHandle
+                )
             }
         }
     }
 }
+
+private fun Float.toIntPx(): IntPx = ceil(this).roundToInt().ipx
