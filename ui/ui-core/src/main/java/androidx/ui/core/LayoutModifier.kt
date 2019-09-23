@@ -26,9 +26,10 @@ interface LayoutModifier : Modifier.Element {
     fun DensityScope.modifyConstraints(constraints: Constraints): Constraints
 
     /**
-     * Returns the container size of a modified layout element.
+     * Returns the container size of a modified layout element given the original container
+     * measurement [constraints] and the measured [childSize].
      */
-    fun DensityScope.modifySize(childSize: IntPxSize): IntPxSize
+    fun DensityScope.modifySize(constraints: Constraints, childSize: IntPxSize): IntPxSize
 
     /**
      * Determines the modified minimum intrinsic width of [measurable].
@@ -55,10 +56,11 @@ interface LayoutModifier : Modifier.Element {
     fun DensityScope.maxIntrinsicHeightOf(measurable: Measurable, width: IntPx): IntPx
 
     /**
-     * Returns the position offset of a modified child of size [childSize] within a container of
+     * Returns the position of a modified child of size [childSize] within a container of
      * size [containerSize].
      */
     fun DensityScope.modifyPosition(
+        childPosition: IntPxPosition,
         childSize: IntPxSize,
         containerSize: IntPxSize
     ): IntPxPosition
