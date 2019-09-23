@@ -108,7 +108,11 @@ public class SystemForegroundService extends LifecycleService implements
         mHandler.post(new Runnable() {
             @Override
             public void run() {
-                startForeground(notificationId, notification);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    startForeground(notificationId, notification, notificationType);
+                } else {
+                    startForeground(notificationId, notification);
+                }
             }
         });
     }
