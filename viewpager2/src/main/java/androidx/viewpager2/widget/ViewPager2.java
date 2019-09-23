@@ -182,6 +182,7 @@ public final class ViewPager2 extends ViewGroup {
 
         mRecyclerView = new RecyclerViewImpl(context);
         mRecyclerView.setId(ViewCompat.generateViewId());
+        mRecyclerView.setDescendantFocusability(FOCUS_BEFORE_DESCENDANTS);
 
         mLayoutManager = new LinearLayoutManagerImpl(context);
         mRecyclerView.setLayoutManager(mLayoutManager);
@@ -230,6 +231,9 @@ public final class ViewPager2 extends ViewGroup {
             @Override
             public void onPageSelected(int position) {
                 clearFocus();
+                if (hasFocus()) { // if clear focus did not succeed
+                    mRecyclerView.requestFocus(View.FOCUS_FORWARD);
+                }
             }
         };
 
