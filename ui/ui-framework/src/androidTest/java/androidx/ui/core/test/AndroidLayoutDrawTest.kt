@@ -1383,7 +1383,7 @@ class AndroidLayoutDrawTest {
             activity.setContent {
                 val child = @Composable {
                     Layout({}) { _, _ ->
-                        layout(0.ipx, 0.ipx,TestLine to 10.ipx) {
+                        layout(0.ipx, 0.ipx, TestLine to 10.ipx) {
                             model.offset // To ensure relayout.
                             ++childLayouts
                         }
@@ -1447,6 +1447,7 @@ class AndroidLayoutDrawTest {
      * WithConstraints will cause a requestLayout during layout in some circumstances.
      * The test here is the minimal example from a bug.
      */
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun requestLayoutDuringLayout() {
         composeSquaresWithConstraints()
