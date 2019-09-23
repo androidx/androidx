@@ -58,7 +58,7 @@ public final class ProxyConfig {
      */
     public static final String MATCH_ALL_SCHEMES = "*";
     /** @hide */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     @StringDef({MATCH_HTTP, MATCH_HTTPS, MATCH_ALL_SCHEMES})
     @Retention(RetentionPolicy.SOURCE)
     public @interface ProxyScheme {}
@@ -72,7 +72,7 @@ public final class ProxyConfig {
     /**
      * @hide Internal use only
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     public ProxyConfig(@NonNull List<ProxyRule> proxyRules, @NonNull List<String> bypassRules) {
         mProxyRules = proxyRules;
         mBypassRules = bypassRules;

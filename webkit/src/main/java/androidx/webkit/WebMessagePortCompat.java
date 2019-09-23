@@ -83,7 +83,7 @@ public abstract class WebMessagePortCompat {
     /**
      * @hide disallow app devs to extend this class.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     public WebMessagePortCompat() { }
 
     /**
@@ -152,7 +152,7 @@ public abstract class WebMessagePortCompat {
      * @hide
      */
     @RequiresApi(23)
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     @NonNull
     public abstract WebMessagePort getFrameworkPort();
 
@@ -163,7 +163,7 @@ public abstract class WebMessagePortCompat {
      * @hide
      */
     @NonNull
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     public abstract InvocationHandler getInvocationHandler();
 
 }
