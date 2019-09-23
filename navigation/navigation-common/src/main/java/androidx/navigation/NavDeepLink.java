@@ -125,11 +125,6 @@ class NavDeepLink {
         }
         Bundle bundle = new Bundle();
         if (mIsParameterizedQuery) {
-            // If there are query params that do not exists for this Deep Link we should throw
-            if (!mParamArgMap.keySet().containsAll(deepLink.getQueryParameterNames())) {
-                throw new IllegalArgumentException("Please ensure the given query parameters are a"
-                        + " subset of those in NavDeepLink " + this);
-            }
             for (String paramName : mParamArgMap.keySet()) {
                 Matcher argMatcher = null;
                 ParamQuery storedParam = mParamArgMap.get(paramName);

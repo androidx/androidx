@@ -23,7 +23,6 @@ import androidx.navigation.test.stringArgument
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
-import org.junit.Assert.fail
 import org.junit.Test
 import java.io.UnsupportedEncodingException
 
@@ -336,29 +335,59 @@ class NavDeepLinkTest {
             .isEqualTo("@null")
     }
 
+    // Make sure we allow extra params that may not been part of the given deep link
     @Test
     fun deepLinkQueryParamArgumentMatchExtraParam() {
         val deepLinkArgument = "$DEEP_LINK_EXACT_HTTPS/users?id={id}"
         val deepLink = NavDeepLink(deepLinkArgument)
 
         val id = 2
-        try {
-            deepLink.getMatchingArguments(
-                Uri.parse("$DEEP_LINK_EXACT_HTTPS/users?id={id}&invalid={invalid}"
-                    .replace("{id}", id.toString())),
-                mapOf("id" to intArgument(),
-                    "invalid" to nullableStringArgument()))
-            fail(
-                "Adding parameter that does not exists in the NavDeepLink should throw " +
-                        "IllegalArgumentException"
-            )
-        } catch (e: IllegalArgumentException) {
-            assertThat(e)
-                .hasMessageThat().contains(
-                    "Please ensure the given query parameters are a subset of those in " +
-                            "NavDeepLink $deepLink"
-                )
-        }
+        val matchArgs = deepLink.getMatchingArguments(
+            Uri.parse("$DEEP_LINK_EXACT_HTTPS/users?id={id}&extraParam={extraParam}"
+                .replace("{id}", id.toString())),
+            mapOf("id" to intArgument()))
+
+        assertWithMessage("Args should not be null")
+            .that(matchArgs)
+            .isNotNull()
+        assertWithMessage("Args should contain the id")
+            .that(matchArgs?.getInt("id"))
+            .isEqualTo(id)
+    }
+
+    @Test
+    fun deepLinkQueryParamArgumentMatchExtraParamOptionalDefault() {
+        val deepLinkArgument = "$DEEP_LINK_EXACT_HTTPS/users?id={id}"
+        val deepLink = NavDeepLink(deepLinkArgument)
+
+        val id = 2
+        val matchArgs = deepLink.getMatchingArguments(
+            Uri.parse("$DEEP_LINK_EXACT_HTTPS/users&extraParam={extraParam}"),
+            mapOf("id" to intArgument(id))
+        )
+        assertWithMessage("Args should not be null")
+            .that(matchArgs)
+            .isNotNull()
+        assertWithMessage("Args should contain the id")
+            .that(matchArgs?.getInt("id"))
+            .isEqualTo(id)
+    }
+
+    @Test
+    fun deepLinkQueryParamArgumentMatchExtraParamOptionalNullable() {
+        val deepLinkArgument = "$DEEP_LINK_EXACT_HTTPS/users?myarg={myarg}"
+        val deepLink = NavDeepLink(deepLinkArgument)
+
+        val matchArgs = deepLink.getMatchingArguments(
+            Uri.parse("$DEEP_LINK_EXACT_HTTPS/users?id={id}&extraParam={extraParam}"),
+            mapOf("myarg" to nullableStringArgument())
+        )
+        assertWithMessage("Args should not be null")
+            .that(matchArgs)
+            .isNotNull()
+        assertWithMessage("Args should contain the argument and it should be null")
+            .that(matchArgs?.getString("myarg"))
+            .isEqualTo("@null")
     }
 
     @Test
