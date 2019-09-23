@@ -22,7 +22,6 @@
         <!-- Preference styles   -->
         <!-- =================== -->
         <eat-comment />
-
         <!-- Theme for inflating Preference objects -->
         <attr name="preferenceTheme" format="reference" />
 
@@ -30,6 +29,10 @@
         This is needed as there are no relevant android: attributes we can use for this as we
         do with other text appearance styles. -->
         <attr name="preferenceCategoryTitleTextAppearance" format="reference" />
+        <!-- The preferred color for the title displayed in a PreferenceCategory.
+        If this is not specified by a developer, we use ?android:attr/colorAccent above
+        Lollipop, and ?attr/colorAccent below Lollipop (when using an AppCompat theme). -->
+        <attr name="preferenceCategoryTitleTextColor" format="color|reference" />
 
         <!-- Default style for PreferenceScreen. -->
         <attr name="preferenceScreenStyle" format="reference" />
