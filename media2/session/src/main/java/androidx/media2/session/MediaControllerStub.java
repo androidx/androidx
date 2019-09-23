@@ -313,7 +313,7 @@ class MediaControllerStub extends IMediaController.Stub {
                     result.getRepeatMode(), result.getShuffleMode(), itemList,
                     result.getSessionActivity(), result.getCurrentMediaItemIndex(),
                     result.getPreviousMediaItemIndex(), result.getNextMediaItemIndex(),
-                    result.getTokenExtras(), result.getVideoSize(), result.getTrackInfo(),
+                    result.getTokenExtras(), result.getVideoSize(), result.getTracks(),
                     result.getSelectedVideoTrack(), result.getSelectedAudioTrack(),
                     result.getSelectedSubtitleTrack(), result.getSelectedMetadataTrack());
         } finally {
@@ -413,7 +413,7 @@ class MediaControllerStub extends IMediaController.Stub {
                         MediaParcelUtils.fromParcelable(selectedSubtitleParcel);
                 TrackInfo selectedMetadataTrack =
                         MediaParcelUtils.fromParcelable(selectedMetadataParcel);
-                controller.notifyTrackInfoChanged(seq, trackInfos, selectedVideoTrack,
+                controller.notifyTracksChanged(seq, trackInfos, selectedVideoTrack,
                         selectedAudioTrack, selectedSubtitleTrack, selectedMetadataTrack);
             }
         });

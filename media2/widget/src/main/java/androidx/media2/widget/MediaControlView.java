@@ -2191,15 +2191,14 @@ public class MediaControlView extends MediaViewGroup {
         }
 
         @Override
-        void onTrackInfoChanged(@NonNull PlayerWrapper player,
-                @NonNull List<TrackInfo> trackInfos) {
+        void onTracksChanged(@NonNull PlayerWrapper player, @NonNull List<TrackInfo> tracks) {
             if (player != mPlayer) return;
 
             if (DEBUG) {
-                Log.d(TAG, "onTrackInfoChanged(): " + trackInfos);
+                Log.d(TAG, "onTrackInfoChanged(): " + tracks);
             }
 
-            updateTracks(player, trackInfos);
+            updateTracks(player, tracks);
             updateTimeViews(player.getCurrentMediaItem());
             updateTitleView(player.getCurrentMediaItem());
         }
@@ -2265,15 +2264,14 @@ public class MediaControlView extends MediaViewGroup {
         }
 
         @Override
-        void onVideoSizeChanged(@NonNull PlayerWrapper player, @NonNull MediaItem item,
-                @NonNull VideoSize videoSize) {
+        void onVideoSizeChanged(@NonNull PlayerWrapper player, @NonNull VideoSize videoSize) {
             if (player != mPlayer) return;
 
             if (DEBUG) {
                 Log.d(TAG, "onVideoSizeChanged(): " + videoSize);
             }
             if (mVideoTrackCount == 0 && videoSize.getHeight() > 0 && videoSize.getWidth() > 0) {
-                List<TrackInfo> tracks = player.getTrackInfo();
+                List<TrackInfo> tracks = player.getTracks();
                 if (tracks != null) {
                     updateTracks(player, tracks);
                 }

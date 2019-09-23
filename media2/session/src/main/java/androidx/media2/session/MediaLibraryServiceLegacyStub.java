@@ -497,7 +497,7 @@ class MediaLibraryServiceLegacyStub extends MediaSessionServiceLegacyStub {
         }
 
         @Override
-        void onTrackInfoChanged(int seq, List<TrackInfo> trackInfos,
+        void onTracksChanged(int seq, List<TrackInfo> tracks,
                 TrackInfo selectedVideoTrack, TrackInfo selectedAudioTrack,
                 TrackInfo selectedSubtitleTrack, TrackInfo selectedMetadataTrack)
                 throws RemoteException {

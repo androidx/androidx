@@ -195,9 +195,9 @@ public class TestBrowserCallback extends BrowserCallback
     }
 
     @Override
-    public void onTrackInfoChanged(@NonNull MediaController controller,
-            @NonNull List<SessionPlayer.TrackInfo> trackInfos) {
-        mCallbackProxy.onTrackInfoChanged(controller, trackInfos);
+    public void onTracksChanged(@NonNull MediaController controller,
+            @NonNull List<SessionPlayer.TrackInfo> tracks) {
+        mCallbackProxy.onTracksChanged(controller, tracks);
     }
 
     @Override

@@ -1442,11 +1442,11 @@ class MediaSessionStub extends IMediaSession.Stub {
         }
 
         @Override
-        void onTrackInfoChanged(int seq, List<TrackInfo> trackInfos,
+        void onTracksChanged(int seq, List<TrackInfo> tracks,
                 TrackInfo selectedVideoTrack, TrackInfo selectedAudioTrack,
                 TrackInfo selectedSubtitleTrack, TrackInfo selectedMetadataTrack)
                 throws RemoteException {
-            List<ParcelImpl> trackInfoList = MediaParcelUtils.toParcelableList(trackInfos);
+            List<ParcelImpl> trackInfoList = MediaParcelUtils.toParcelableList(tracks);
             mIControllerCallback.onTrackInfoChanged(seq, trackInfoList,
                     MediaParcelUtils.toParcelable(selectedVideoTrack),
                     MediaParcelUtils.toParcelable(selectedAudioTrack),

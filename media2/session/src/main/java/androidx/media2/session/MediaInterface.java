@@ -81,7 +81,7 @@ class MediaInterface {
     interface SessionPlayer extends SessionPlaybackControl, SessionPlaylistControl {
         VideoSize getVideoSize();
         ListenableFuture<PlayerResult> setSurface(Surface surface);
-        List<TrackInfo> getTrackInfo();
+        List<TrackInfo> getTracks();
         ListenableFuture<PlayerResult> selectTrack(TrackInfo trackInfo);
         ListenableFuture<PlayerResult> deselectTrack(TrackInfo trackInfo);
         TrackInfo getSelectedTrack(int trackType);

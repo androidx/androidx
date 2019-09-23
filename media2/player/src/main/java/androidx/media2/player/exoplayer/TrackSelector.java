@@ -263,7 +263,7 @@ import java.util.List;
         }
     }
 
-    public List<TrackInfo> getTrackInfos() {
+    public List<TrackInfo> getTracks() {
         ArrayList<TrackInfo> externalTracks = new ArrayList<>();
         for (SparseArray<? extends InternalTrackInfo> tracks : Arrays.asList(
                 mAudioTracks, mVideoTracks, mMetadataTracks, mTextTracks)) {

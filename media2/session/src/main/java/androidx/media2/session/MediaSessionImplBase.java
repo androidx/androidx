@@ -892,7 +892,7 @@ class MediaSessionImplBase implements MediaSession.MediaSessionImpl {
         return dispatchPlayerTask(new PlayerTask<VideoSize>() {
             @Override
             public VideoSize run(@NonNull SessionPlayer player) {
-                return player.getVideoSizeInternal();
+                return MediaUtils.upcastForPreparceling(player.getVideoSize());
             }
         }, new VideoSize(0, 0));
     }
@@ -902,17 +902,17 @@ class MediaSessionImplBase implements MediaSession.MediaSessionImpl {
         return dispatchPlayerTask(new PlayerTask<ListenableFuture<PlayerResult>>() {
             @Override
             public ListenableFuture<PlayerResult> run(@NonNull SessionPlayer player) {
-                return player.setSurfaceInternal(surface);
+                return player.setSurface(surface);
             }
         });
     }
 
     @Override
-    public List<TrackInfo> getTrackInfo() {
+    public List<TrackInfo> getTracks() {
         return dispatchPlayerTask(new PlayerTask<List<TrackInfo>>() {
             @Override
             public List<TrackInfo> run(@NonNull SessionPlayer player) throws Exception {
-                return player.getTrackInfoInternal();
+                return MediaUtils.upcastForPreparceling(player.getTracks());
             }
         }, null);
     }
@@ -923,7 +923,7 @@ class MediaSessionImplBase implements MediaSession.MediaSessionImpl {
             @Override
             public ListenableFuture<PlayerResult> run(@NonNull SessionPlayer player)
                     throws Exception {
-                return player.selectTrackInternal(trackInfo);
+                return player.selectTrack(trackInfo);
             }
         });
     }
@@ -934,7 +934,7 @@ class MediaSessionImplBase implements MediaSession.MediaSessionImpl {
             @Override
             public ListenableFuture<PlayerResult> run(@NonNull SessionPlayer player)
                     throws Exception {
-                return player.deselectTrackInternal(trackInfo);
+                return player.deselectTrack(trackInfo);
             }
         });
     }
@@ -944,7 +944,7 @@ class MediaSessionImplBase implements MediaSession.MediaSessionImpl {
         return dispatchPlayerTask(new PlayerTask<TrackInfo>() {
             @Override
             public TrackInfo run(@NonNull SessionPlayer player) throws Exception {
-                return player.getSelectedTrackInternal(trackType);
+                return MediaUtils.upcastForPreparceling(player.getSelectedTrack(trackType));
             }
         }, null);
     }
@@ -1539,29 +1539,27 @@ class MediaSessionImplBase implements MediaSession.MediaSessionImpl {
             dispatchRemoteControllerTask(player, new RemoteControllerTask() {
                 @Override
                 public void run(ControllerCb callback, int seq) throws RemoteException {
-                    callback.onVideoSizeChanged(seq, size);
+                    callback.onVideoSizeChanged(seq, MediaUtils.upcastForPreparceling(size));
                 }
             });
         }
 
         @Override
-        public void onVideoSizeChangedInternal(@NonNull final SessionPlayer player,
-                @NonNull final MediaItem item, @NonNull final VideoSize videoSize) {
-            onVideoSizeChanged(player, videoSize);
-        }
-
-        @Override
-        public void onTrackInfoChanged(@NonNull SessionPlayer player,
-                @NonNull final List<TrackInfo> trackInfos) {
+        public void onTracksChanged(@NonNull SessionPlayer player,
+                @NonNull List<TrackInfo> tracks) {
             final MediaSessionImplBase session = getSession();
             dispatchRemoteControllerTask(player, new RemoteControllerTask() {
                 @Override
                 public void run(ControllerCb callback, int seq) throws RemoteException {
-                    callback.onTrackInfoChanged(seq, trackInfos,
-                            session.getSelectedTrack(TrackInfo.MEDIA_TRACK_TYPE_VIDEO),
-                            session.getSelectedTrack(TrackInfo.MEDIA_TRACK_TYPE_AUDIO),
-                            session.getSelectedTrack(TrackInfo.MEDIA_TRACK_TYPE_SUBTITLE),
-                            session.getSelectedTrack(TrackInfo.MEDIA_TRACK_TYPE_METADATA));
+                    callback.onTracksChanged(seq, MediaUtils.upcastForPreparceling(tracks),
+                            MediaUtils.upcastForPreparceling(
+                                    session.getSelectedTrack(TrackInfo.MEDIA_TRACK_TYPE_VIDEO)),
+                            MediaUtils.upcastForPreparceling(
+                                    session.getSelectedTrack(TrackInfo.MEDIA_TRACK_TYPE_AUDIO)),
+                            MediaUtils.upcastForPreparceling(
+                                    session.getSelectedTrack(TrackInfo.MEDIA_TRACK_TYPE_SUBTITLE)),
+                            MediaUtils.upcastForPreparceling(
+                                    session.getSelectedTrack(TrackInfo.MEDIA_TRACK_TYPE_METADATA)));
                 }
             });
         }
@@ -1572,7 +1570,7 @@ class MediaSessionImplBase implements MediaSession.MediaSessionImpl {
             dispatchRemoteControllerTask(player, new RemoteControllerTask() {
                 @Override
                 public void run(ControllerCb callback, int seq) throws RemoteException {
-                    callback.onTrackSelected(seq, trackInfo);
+                    callback.onTrackSelected(seq, MediaUtils.upcastForPreparceling(trackInfo));
                 }
             });
         }
@@ -1583,7 +1581,7 @@ class MediaSessionImplBase implements MediaSession.MediaSessionImpl {
             dispatchRemoteControllerTask(player, new RemoteControllerTask() {
                 @Override
                 public void run(ControllerCb callback, int seq) throws RemoteException {
-                    callback.onTrackDeselected(seq, trackInfo);
+                    callback.onTrackDeselected(seq, MediaUtils.upcastForPreparceling(trackInfo));
                 }
             });
         }

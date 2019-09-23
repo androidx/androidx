@@ -194,7 +194,7 @@ import java.util.concurrent.Executor;
  * <tr><td>getCurrentPosition</td> <td>{Idle}</td></tr>
  * <tr><td>getDuration</td> <td>{Idle}</td></tr>
  * <tr><td>getBufferedPosition</td> <td>{Idle}</td></tr>
- * <tr><td>getTrackInfo</td> <td>{Idle}</td></tr>
+ * <tr><td>getTracks</td> <td>{Idle}</td></tr>
  * <tr><td>getSelectedTrack</td> <td>{Idle}</td></tr>
  * <tr><td>selectTrack</td> <td>{Idle}</td></tr>
  * <tr><td>deselectTrack</td> <td>{Idle}</td></tr>
@@ -736,11 +736,11 @@ public abstract class MediaPlayer2 {
      * @return List of track info. The total number of tracks is the array length.
      */
     @NonNull
-    public abstract List<TrackInfo> getTrackInfo();
+    public abstract List<TrackInfo> getTracks();
 
     /**
      * Returns the metadata of the audio, video, or subtitle track currently selected for playback,
-     * The return value is an item of the array returned by {@link #getTrackInfo()}.
+     * The return value is an item of the array returned by {@link #getTracks()}.
      *
      * @param trackType should be one of {@link TrackInfo#MEDIA_TRACK_TYPE_VIDEO},
      * {@link TrackInfo#MEDIA_TRACK_TYPE_AUDIO}, or
@@ -750,7 +750,7 @@ public abstract class MediaPlayer2 {
      * when {@code trackType} is not one of audio, video, or subtitle.
      * @throws IllegalStateException if called after {@link #close()}
      *
-     * @see #getTrackInfo()
+     * @see #getTracks()
      */
     @Nullable
     public abstract TrackInfo getSelectedTrack(int trackType);
@@ -776,12 +776,12 @@ public abstract class MediaPlayer2 {
      * Currently, only subtitle tracks or audio tracks can be selected via this method.
      * </p>
      * @param trackId the id of the track to be selected. The id can be obtained by calling
-     * {@link TrackInfo#getId()} to an {@link TrackInfo} returned by {@link #getTrackInfo()}.
+     * {@link TrackInfo#getId()} to an {@link TrackInfo} returned by {@link #getTracks()}.
      * Note that the {@link TrackInfo}s may become invalid when
-     * {@link EventCallback#onTrackInfoChanged} is called.
+     * {@link EventCallback#onTracksChanged} is called.
      *
      * @see TrackInfo#getId()
-     * @see #getTrackInfo
+     * @see #getTracks
      * @return a token which can be used to cancel the operation later with {@link #cancel}.
      */
     // This is an asynchronous call.
@@ -796,12 +796,12 @@ public abstract class MediaPlayer2 {
      * selected before, it throws an exception.
      * </p>
      * @param trackId the id of the track to be deselected. The id can be obtained by calling
-     * {@link TrackInfo#getId()} to an {@link TrackInfo} returned by {@link #getTrackInfo()} or
+     * {@link TrackInfo#getId()} to an {@link TrackInfo} returned by {@link #getTracks()} or
      * {@link #getSelectedTrack(int)}. Note that the {@link TrackInfo}s may become invalid when
-     * {@link EventCallback#onTrackInfoChanged} is called.
+     * {@link EventCallback#onTracksChanged} is called.
      *
      * @see TrackInfo#getId()
-     * @see #getTrackInfo
+     * @see #getTracks
      * @see #getSelectedTrack(int)
      * @return a token which can be used to cancel the operation later with {@link #cancel}.
      */
@@ -936,7 +936,7 @@ public abstract class MediaPlayer2 {
          * @param mp the player associated with this callback
          * @param tracks the list of tracks. It can be empty.
          */
-        public void onTrackInfoChanged(@NonNull MediaPlayer2 mp,
+        public void onTracksChanged(@NonNull MediaPlayer2 mp,
                 @NonNull List<TrackInfo> tracks) { }
     }
 

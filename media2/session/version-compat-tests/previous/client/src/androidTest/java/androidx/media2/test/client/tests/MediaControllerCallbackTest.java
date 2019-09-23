@@ -34,7 +34,6 @@ import static org.junit.Assert.assertTrue;
 
 import android.graphics.Bitmap;
 import android.media.AudioManager;
-import android.media.MediaFormat;
 import android.os.Build;
 import android.os.Bundle;
 
@@ -43,8 +42,6 @@ import androidx.media.AudioAttributesCompat;
 import androidx.media2.common.MediaItem;
 import androidx.media2.common.MediaMetadata;
 import androidx.media2.common.SessionPlayer;
-import androidx.media2.common.SessionPlayer.TrackInfo;
-import androidx.media2.common.SubtitleData;
 import androidx.media2.common.VideoSize;
 import androidx.media2.session.MediaController;
 import androidx.media2.session.MediaController.PlaybackInfo;

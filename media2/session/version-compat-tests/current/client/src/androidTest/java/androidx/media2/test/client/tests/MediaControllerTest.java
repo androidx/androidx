@@ -382,7 +382,7 @@ public class MediaControllerTest extends MediaSessionTestBase {
     }
 
     @Test
-    public void testGetTrackInfo() throws Exception {
+    public void testGetTracks() throws Exception {
         prepareLooper();
 
         final List<SessionPlayer.TrackInfo> testTracks = MediaTestUtils.createTrackInfoList();
@@ -391,7 +391,7 @@ public class MediaControllerTest extends MediaSessionTestBase {
         mRemoteSession.updatePlayer(playerConfig);
 
         MediaController controller = createController(mRemoteSession.getToken());
-        List<SessionPlayer.TrackInfo> testTracksFromController = controller.getTrackInfo();
+        List<SessionPlayer.TrackInfo> testTracksFromController = controller.getTracks();
         assertEquals(testTracks.size(), testTracksFromController.size());
         for (int i = 0; i < testTracks.size(); i++) {
             assertEquals(testTracks.get(i), testTracksFromController.get(i));
