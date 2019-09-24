@@ -41,6 +41,7 @@ import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 import java.util.concurrent.TimeUnit.SECONDS
 import kotlin.math.roundToInt
+import kotlin.math.sign
 
 /** Number of pages */
 private const val pageCount = 25
@@ -48,6 +49,8 @@ private const val pageCount = 25
 private const val initialPage = 0
 /** Page where we smooth scroll to */
 private const val targetPage = 20
+
+private const val removeCountHead = 2
 
 /** Id of the mark we make when modifying the dataset */
 private const val modificationMark = 1
@@ -105,6 +108,9 @@ class AdapterDataSetChangeWhileSmoothScrollTest(private val config: TestConfig) 
     @Test
     fun test() {
         tryNTimes(3, resetBlock = { test.resetViewPagerTo(initialPage) }) {
+            // given
+            test.assertBasicState(initialPage, dataSet[initialPage])
+
             // when we are scrolling to the target
             val recorder = test.viewPager.addNewRecordingCallback()
             val idleLatch = test.viewPager.addWaitForIdleLatch()
@@ -142,15 +148,19 @@ class AdapterDataSetChangeWhileSmoothScrollTest(private val config: TestConfig) 
                 val scrollsAfterMarker = scrollEventsAfter(removeItemMarkIx)
                 listOf(scrollsBeforeMarker, scrollsAfterMarker).forEach {
                     it.assertPositionSorted(SortOrder.ASC)
-                    it.assertOffsetSorted(SortOrder.ASC)
-                    it.assertValueSanity(0, targetPage, test.viewPager.pageSize)
+                    it.assertValueSanity(0, targetPage + removeCountHead, test.viewPager.pageSize)
                 }
+                // Only check assertOffsetSorted on scroll events _before_ the marker:
+                //   after the data set change, it can overshoot and reverse direction
+                scrollsBeforeMarker.assertOffsetSorted(SortOrder.ASC)
                 // Only check assertMaxShownPages on scroll events _before_ the marker:
                 //   after the data set change, it can scroll an arbitrary number of pages
                 scrollsBeforeMarker.assertMaxShownPages()
                 // Only check assertLastCorrect on scroll events _after_ the marker:
                 //   the target is not reached before the data set change
                 scrollsAfterMarker.assertLastCorrect(expectedFinalPosition)
+                // On scroll events _after_ the marker, allow it to overshoot and reverse direction
+                scrollsAfterMarker.assertOffsetSortedWithOvershoot(SortOrder.ASC)
             }
         }
     }
@@ -224,8 +234,8 @@ class AdapterDataSetChangeWhileSmoothScrollTest(private val config: TestConfig) 
 
     private fun removeFirstPages() {
         // Remove first items (including the first visible item)
-        repeat(2) { dataSet.removeAt(0) }
-        test.viewPager.adapter!!.notifyItemRangeRemoved(0, 2)
+        repeat(removeCountHead) { dataSet.removeAt(0) }
+        test.viewPager.adapter!!.notifyItemRangeRemoved(0, removeCountHead)
     }
 
     private fun ViewPager2.addNewRecordingCallback(): RecordingCallback {
@@ -312,6 +322,18 @@ class AdapterDataSetChangeWhileSmoothScrollTest(private val config: TestConfig) 
 
     private fun List<OnPageScrolledEvent>.assertOffsetSorted(sortOrder: SortOrder) {
         map { it.position + it.positionOffset.toDouble() }.assertSorted { it * sortOrder.sign }
+    }
+
+    private fun List<OnPageScrolledEvent>.assertOffsetSortedWithOvershoot(sortOrder: SortOrder) {
+        assertThat(
+            map { it.position + it.positionOffset.toDouble() }
+                .zipWithNext { a, b -> sign(b - a).toInt() }
+                // got list with signs, first k should be sortOrder, last l should be !sortOrder
+                .dropWhile { it == sortOrder.sign }
+                .dropWhile { it != sortOrder.sign }
+                .size,
+            equalTo(0)
+        )
     }
 
     private fun List<OnPageScrolledEvent>.assertMaxShownPages() {
