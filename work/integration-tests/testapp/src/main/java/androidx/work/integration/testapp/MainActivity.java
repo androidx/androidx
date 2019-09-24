@@ -370,6 +370,14 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        findViewById(R.id.cancel_foreground_worker).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                WorkManager.getInstance(MainActivity.this)
+                        .cancelAllWorkByTag(ForegroundWorker.class.getName());
+            }
+        });
+
         findViewById(R.id.crash_app).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
