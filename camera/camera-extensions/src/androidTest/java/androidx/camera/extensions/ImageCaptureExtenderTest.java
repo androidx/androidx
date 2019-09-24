@@ -46,6 +46,7 @@ import androidx.camera.core.CameraX;
 import androidx.camera.core.CaptureProcessor;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCaptureConfig;
+import androidx.camera.extensions.ExtensionsManager.EffectMode;
 import androidx.camera.extensions.impl.BeautyImageCaptureExtenderImpl;
 import androidx.camera.extensions.impl.CaptureStageImpl;
 import androidx.camera.extensions.impl.ImageCaptureExtenderImpl;
@@ -209,6 +210,7 @@ public class ImageCaptureExtenderTest {
             throws CameraInfoUnavailableException, CameraAccessException {
         CameraX.LensFacing lensFacing = CameraX.LensFacing.BACK;
         assumeTrue(CameraUtil.hasCameraWithLensFacing(lensFacing));
+        assumeTrue(ExtensionsManager.isExtensionAvailable(EffectMode.BEAUTY, lensFacing));
         ImageCaptureConfig.Builder configBuilder = new ImageCaptureConfig.Builder().setLensFacing(
                 lensFacing);
 
