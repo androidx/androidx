@@ -974,7 +974,7 @@ public class BiometricPrompt implements BiometricConstants {
     private static void dismissFingerprintFragments(
             @NonNull FingerprintDialogFragment fingerprintDialogFragment,
             @NonNull FingerprintHelperFragment fingerprintHelperFragment) {
-        fingerprintDialogFragment.dismiss();
+        fingerprintDialogFragment.dismissSafely();
         fingerprintHelperFragment.cancel(FingerprintHelperFragment.USER_CANCELED_FROM_NONE);
     }
 }
