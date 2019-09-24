@@ -143,7 +143,7 @@ public final class CameraDeviceCompatDeviceTest {
     // This test should not run on the main thread since it will block the main thread and
     // deadlock on API <= 28.
     @Test
-    public void canConfigureCaptureSession() throws CameraAccessException, InterruptedException {
+    public void canConfigureCaptureSession() throws InterruptedException, CameraAccessException {
         OutputConfigurationCompat outputConfig = new OutputConfigurationCompat(mSurface);
 
         final Semaphore configureSemaphore = new Semaphore(0);
@@ -168,7 +168,17 @@ public final class CameraDeviceCompatDeviceTest {
                 Collections.singletonList(outputConfig), AsyncTask.THREAD_POOL_EXECUTOR,
                 stateCallback);
 
-        CameraDeviceCompat.createCaptureSession(mCameraDevice, sessionConfig);
+        try {
+            CameraDeviceCompat.createCaptureSession(mCameraDevice, sessionConfig);
+        } catch (CameraAccessException e) {
+            // If the camera has been disconnected during the test (likely due to another process
+            // stealing the camera), then we will skip the test.
+            Assume.assumeTrue("Camera disconnected during test.",
+                    e.getReason() != CameraAccessException.CAMERA_DISCONNECTED);
+
+            // This is not an error we expect should reasonably happen. Rethrow the exception.
+            throw e;
+        }
         configureSemaphore.acquire();
 
         assertThat(configureSucceeded.get()).isTrue();
