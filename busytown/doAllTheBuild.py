@@ -28,43 +28,52 @@ outDirArg = "OUT_DIR=out"
 androidHomeArg = "ANDROID_HOME=prebuilts/fullsdk-linux"
 
 androidxGradleCommand = " ".join([outDirArg, androidHomeArg, gradlew, tasks, projectDirArg])
-composeGradleCommand  = " ".join([outDirArg + ui, androidHomeArg, gradlewC, tasks, projectDirArg + ui])
-
+composeGradleCommand  = " ".join([outDirArg + ui, androidHomeArg, gradlewC, tasks,
+                                projectDirArg + ui])
+# the DIST_DIR arg
 distargs = [arg for arg in sys.argv if "DIST_DIR=" in arg]
-distDir = "out/dist" if len(distargs) == 0 else distargs[0][8:]
+distDir = "out/dist" if len(distargs) == 0 else distargs[0][9:]
 distarg = "" if len(distargs) == 0 else " " + distargs[0]
 distargC = "" if len(distargs) == 0 else " " + distargs[0] + ui
-preargs = " ".join([arg for arg in sys.argv if '=' in arg and arg not in distargs]) # args of the form VAR=thing
-postargs = " ".join([arg for arg in sys.argv if ".py" not in arg and arg not in distargs and arg not in preargs])
+# args of the form VAR=thing
+preargs = " ".join([arg for arg in sys.argv if '=' in arg and arg not in distargs])
+postargs = " ".join([arg for arg in sys.argv if ".py" not in arg and arg not in distargs
+                                                            and arg not in preargs])
 # remove "doAllTheBuild.py"
 
 def runGradleBuilds():
-    os.system(" ".join([preargs + distarg, androidxGradleCommand, postargs]))
-    os.system(" ".join([preargs + distargC, composeGradleCommand, postargs]))
+    result1 = os.system(" ".join([preargs + distarg, androidxGradleCommand, postargs]))
+    assert os.WEXITSTATUS(result1) == 0  # assert the first command succeeded
+    result2 = os.system(" ".join([preargs + distargC, composeGradleCommand, postargs]))
+    assert os.WEXITSTATUS(result2) == 0  # assert the second command succeeded
 
 def mergeAggregateBuildInfoFiles() :
-    N_COMMON_ARTIFACTS = 2 #the number of artifacts in both androidx and compose
-    #benchmark-common and benchmark-junit4
     androidxBuildInfo = json.load(open("androidx_aggregate_build_info.txt"))["artifacts"]
     nitemsA = len(androidxBuildInfo)
     composeBuildInfo = json.load(open("ui/androidx_aggregate_build_info.txt"))["artifacts"]
     nitemsC = len(composeBuildInfo)
-    resultJson = {"artifacts":androidxBuildInfo + composeBuildInfo}
-    #assert len(androidxBuildInfo) == nitemsA + nitemsC - N_COMMON_ARTIFACTS
-    #TODO: make this actually work, and properly
+    duplicatecheckingdict = {}
+    for buildinfo in androidxBuildInfo + composeBuildInfo:
+        artifactId, groupId, sha = buildinfo["artifactId"], buildinfo["groupId"], buildinfo["sha"]
+        # artifactid and groupid is the unique identifier for libraries
+        if (artifactId, groupId) not in duplicatecheckingdict:
+            duplicatecheckingdict[(artifactId, groupId)] = (sha, buildinfo)
+        else: assert duplicatecheckingdict[(artifactId, groupId)][0] == sha
+        # androidx and compose requiring two different versions of the same lib breaks everything
+    resultJson = {"artifacts":[buildinfo for sha,buildinfo in duplicatecheckingdict.values()]}
 
     with open("all_aggregate_build_info.txt", 'w') as outfile:
         json.dump(resultJson, outfile, sort_keys=True, indent=4, separators=(',', ': '))
 
 def mergeBuildInfoFolders():
-    os.system("cp -au ui/build-info/. build-info/") 
+    os.system("cp -a ui/build-info/. build-info/")
                         # -a = all in directory; -u = overwrite iff newer
 
 runGradleBuilds()
 
-def doThingsInDistDir():
+def doMergesInDistDir():
     os.chdir(distDir)
     mergeAggregateBuildInfoFiles()
     mergeBuildInfoFolders()
 
-doThingsInDistDir()
+doMergesInDistDir()
