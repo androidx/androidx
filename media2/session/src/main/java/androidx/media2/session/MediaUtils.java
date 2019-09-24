@@ -19,6 +19,7 @@ package androidx.media2.session;
 import static android.support.v4.media.MediaDescriptionCompat.EXTRA_BT_FOLDER_TYPE;
 import static android.support.v4.media.session.MediaSessionCompat.FLAG_HANDLES_QUEUE_COMMANDS;
 
+import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import static androidx.media2.common.MediaMetadata.BROWSABLE_TYPE_MIXED;
 import static androidx.media2.common.MediaMetadata.BROWSABLE_TYPE_NONE;
 import static androidx.media2.common.MediaMetadata.METADATA_KEY_ADVERTISEMENT;
@@ -61,7 +62,6 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
-import androidx.annotation.VisibleForTesting;
 import androidx.media.AudioAttributesCompat;
 import androidx.media.MediaBrowserServiceCompat.BrowserRoot;
 import androidx.media2.common.MediaItem;
@@ -85,8 +85,7 @@ import java.util.concurrent.Executor;
 /**
  * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-@VisibleForTesting(otherwise = VisibleForTesting.PACKAGE_PRIVATE)
+@RestrictTo(LIBRARY)
 public class MediaUtils {
     public static final String TAG = "MediaUtils";
     public static final int TRANSACTION_SIZE_LIMIT_IN_BYTES = 256 * 1024; // 256KB

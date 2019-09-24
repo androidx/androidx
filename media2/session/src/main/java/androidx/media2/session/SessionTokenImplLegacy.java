@@ -16,7 +16,6 @@
 
 package androidx.media2.session;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import static androidx.media2.session.SessionToken.TYPE_BROWSER_SERVICE_LEGACY;
 import static androidx.media2.session.SessionToken.TYPE_LIBRARY_SERVICE;
 import static androidx.media2.session.SessionToken.TYPE_SESSION;
@@ -29,7 +28,6 @@ import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
 import androidx.core.util.ObjectsCompat;
 import androidx.media2.session.SessionToken.SessionTokenImpl;
 import androidx.versionedparcelable.CustomVersionedParcelable;
@@ -92,9 +90,7 @@ final class SessionTokenImplLegacy extends CustomVersionedParcelable implements 
 
     /**
      * Used for {@link VersionedParcelable}
-     * @hide
      */
-    @RestrictTo(LIBRARY)
     SessionTokenImplLegacy() {
         // Do nothing.
     }

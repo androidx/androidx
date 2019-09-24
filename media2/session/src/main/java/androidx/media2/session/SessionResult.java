@@ -17,7 +17,6 @@
 package androidx.media2.session;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.os.Bundle;
 import android.os.SystemClock;
@@ -77,7 +76,7 @@ public class SessionResult extends CustomVersionedParcelable implements RemoteRe
             RESULT_ERROR_SESSION_SKIP_LIMIT_REACHED,
             RESULT_ERROR_SESSION_SETUP_REQUIRED})
     @Retention(RetentionPolicy.SOURCE)
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RestrictTo(LIBRARY)
     public @interface ResultCode {}
 
     @ParcelField(1)
