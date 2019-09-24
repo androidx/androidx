@@ -26,6 +26,7 @@ import androidx.test.filters.LargeTest
 import androidx.work.Configuration
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkInfo
+import androidx.work.impl.WorkDatabasePathHelper
 import androidx.work.impl.WorkDatabase
 import androidx.work.impl.WorkManagerImpl
 import androidx.work.impl.utils.SerialExecutor
@@ -42,6 +43,7 @@ class InitializeBenchmark {
 
     @get:Rule
     val benchmarkRule = BenchmarkRule()
+    private lateinit var databasePath: String
     private lateinit var context: Context
     private lateinit var executor: DispatchingExecutor
     private lateinit var taskExecutor: TaskExecutor
@@ -50,6 +52,7 @@ class InitializeBenchmark {
     @Before
     fun setUp() {
         context = ApplicationProvider.getApplicationContext()
+        databasePath = WorkDatabasePathHelper.getDatabasePath(context).path
 
         // Use a DispatchingExecutor to avoid having to wait for all the tasks to be done
         // in the actual benchmark.
@@ -90,7 +93,7 @@ class InitializeBenchmark {
             runWithTimingDisabled {
                 executor.runAllCommands()
                 database.close()
-                context.deleteDatabase(WorkDatabase.DB_NAME)
+                context.deleteDatabase(databasePath)
             }
         }
     }
@@ -118,7 +121,7 @@ class InitializeBenchmark {
                     workSpecDao().pruneFinishedWorkWithZeroDependentsIgnoringKeepForAtLeast()
                     close()
                 }
-                context.deleteDatabase(WorkDatabase.DB_NAME)
+                context.deleteDatabase(databasePath)
             }
         }
     }
