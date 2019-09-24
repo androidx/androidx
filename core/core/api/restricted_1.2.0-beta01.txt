@@ -1378,6 +1378,7 @@ package androidx.core.graphics.drawable {
     method public static androidx.core.graphics.drawable.IconCompat? createFromBundle(android.os.Bundle);
     method @RequiresApi(23) public static androidx.core.graphics.drawable.IconCompat? createFromIcon(android.content.Context, android.graphics.drawable.Icon);
     method @RequiresApi(23) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static androidx.core.graphics.drawable.IconCompat? createFromIcon(android.graphics.drawable.Icon);
+    method @RequiresApi(23) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static androidx.core.graphics.drawable.IconCompat? createFromIconOrNullIfZeroResId(android.graphics.drawable.Icon);
     method public static androidx.core.graphics.drawable.IconCompat! createWithAdaptiveBitmap(android.graphics.Bitmap!);
     method public static androidx.core.graphics.drawable.IconCompat! createWithBitmap(android.graphics.Bitmap!);
     method public static androidx.core.graphics.drawable.IconCompat! createWithContentUri(String!);

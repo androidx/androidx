@@ -905,6 +905,21 @@ public class IconCompat extends CustomVersionedParcelable {
     }
 
     /**
+     * Creates an IconCompat from an Icon, or returns null if the given Icon is created from
+     * resource 0.
+     * @hide
+     */
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RequiresApi(23)
+    @Nullable
+    public static IconCompat createFromIconOrNullIfZeroResId(@NonNull Icon icon) {
+        if (getType(icon) == TYPE_RESOURCE && getResId(icon) == 0) {
+            return null;
+        }
+        return createFromIcon(icon);
+    }
+
+    /**
      * Gets the type of the icon provided.
      * <p>
      * Note that new types may be added later, so callers should guard against other
