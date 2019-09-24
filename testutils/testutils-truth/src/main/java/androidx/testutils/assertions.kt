@@ -16,8 +16,10 @@
 
 package androidx.testutils
 
+import com.google.common.truth.ExpectFailure
 import com.google.common.truth.ThrowableSubject
 import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.TruthFailureSubject
 
 inline fun <reified T : Throwable> assertThrows(body: () -> Unit): ThrowableSubject {
     try {
@@ -29,6 +31,18 @@ inline fun <reified T : Throwable> assertThrows(body: () -> Unit): ThrowableSubj
         throw e
     }
     throw AssertionError("Body completed successfully. Expected ${T::class.java.simpleName}.")
+}
+
+inline fun assertThrows(body: () -> Unit): TruthFailureSubject {
+    try {
+        body()
+    } catch (e: Throwable) {
+        if (e is AssertionError) {
+            return ExpectFailure.assertThat(e)
+        }
+        throw e
+    }
+    throw AssertionError("Body completed successfully. Expected AssertionError")
 }
 
 fun fail(message: String? = null): Nothing = throw AssertionError(message)
