@@ -14,16 +14,8 @@
   See the License for the specific language governing permissions and
   limitations under the License.
   -->
-<navigation
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    app:startDestination="@+id/start_test"
-    android:id="@+id/test_graph"
-    android:label="test_label">
 
-    <test android:id="@+id/start_test">
-        <action android:id="@+id/second" app:destination="@+id/second_test" />
-    </test>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto" android:id="@+id/second_test_graph">
 
-    <test android:id="@+id/second_test" />
 </navigation>

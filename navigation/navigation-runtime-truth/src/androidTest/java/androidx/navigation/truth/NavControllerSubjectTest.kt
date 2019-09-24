@@ -57,4 +57,23 @@ class NavControllerSubjectTest {
                 .isEqualTo(navController.currentDestination.toString())
         }
     }
+
+    @Test
+    fun testIsGraph() {
+        assertThat(navController).isGraph(R.id.test_graph)
+    }
+
+    @Test
+    fun testIsGraphFailure() {
+        with(assertThrows {
+            assertThat(navController).isGraph(R.id.second_test_graph)
+        }) {
+            factValue("expected id")
+                .isEqualTo("0x${R.id.second_test_graph.toString(16)}")
+            factValue("but was")
+                .isEqualTo("0x${navController.graph.id.toString(16)}")
+            factValue("current graph is")
+                .isEqualTo(navController.graph.toString())
+        }
+    }
 }

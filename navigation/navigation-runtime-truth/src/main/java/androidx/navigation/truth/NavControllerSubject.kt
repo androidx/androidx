@@ -49,6 +49,23 @@ class NavControllerSubject private constructor(
         }
     }
 
+    /**
+     * Assert that the {@link NavController} has the given {@link NavGraph} as
+     * its current graph.
+     *
+     * @param navGraph The ID resource of a {@link NavGraph}
+     */
+    fun isGraph(@IdRes navGraph: Int) {
+        val actualGraph = actual.graph.id
+        if (actualGraph != navGraph) {
+            failWithoutActual(
+                fact("expected id", "0x${navGraph.toString(16)}"),
+                fact("but was", "0x${actualGraph.toString(16)}"),
+                fact("current graph is", actual.graph)
+            )
+        }
+    }
+
     companion object {
         @SuppressLint("MemberVisibilityCanBePrivate")
         val factory = Factory<NavControllerSubject, NavController> {
