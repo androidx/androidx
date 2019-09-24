@@ -22,9 +22,7 @@ import static org.junit.Assert.assertTrue;
 
 import android.content.Context;
 import android.net.Uri;
-import android.os.RemoteException;
 
-import androidx.annotation.Nullable;
 import androidx.browser.customtabs.EnableComponentsTestRule;
 import androidx.browser.customtabs.TestActivity;
 import androidx.test.core.app.ApplicationProvider;
@@ -39,6 +37,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @RunWith(AndroidJUnit4.class)
 @SmallTest
@@ -76,36 +75,29 @@ public class TrustedWebActivityServiceConnectionManagerTest {
     public void testConnection() {
         final AtomicBoolean connected = new AtomicBoolean();
         boolean delegated = mManager.execute(GOOD_SCOPE, ORIGIN,
-                new TrustedWebActivityServiceConnectionManager.ExecutionCallback() {
-                    @Override
-                    public void onConnected(@Nullable TrustedWebActivityServiceWrapper service)
-                            throws RemoteException {
-                        assertEquals(TestTrustedWebActivityService.SMALL_ICON_ID,
-                                service.getSmallIconId());
-                        connected.set(true);
-                    }
+                service -> {
+                    assertEquals(TestTrustedWebActivityService.SMALL_ICON_ID,
+                            service.getSmallIconId());
+                    connected.set(true);
                 });
         assertTrue(delegated);
 
-        PollingCheck.waitFor(new PollingCheck.PollingCheckCondition() {
-            @Override
-            public boolean canProceed() {
-                return connected.get();
-            }
-        });
+        PollingCheck.waitFor(connected::get);
     }
-
-
 
     @Test
     public void testNoService() {
-        boolean delegated = mManager.execute(BAD_SCOPE, ORIGIN,
-                new TrustedWebActivityServiceConnectionManager.ExecutionCallback() {
-                    @Override
-                    public void onConnected(@Nullable TrustedWebActivityServiceWrapper service)
-                            throws RemoteException {
-                    }
-                });
+        boolean delegated = mManager.execute(BAD_SCOPE, ORIGIN, service -> { });
         assertFalse(delegated);
+    }
+
+    @Test
+    public void testMultipleExecutions() {
+        final AtomicInteger count = new AtomicInteger();
+
+        mManager.execute(GOOD_SCOPE, ORIGIN, service -> count.incrementAndGet());
+        mManager.execute(GOOD_SCOPE, ORIGIN, service -> count.incrementAndGet());
+
+        PollingCheck.waitFor(() -> count.get() == 2);
     }
 }
