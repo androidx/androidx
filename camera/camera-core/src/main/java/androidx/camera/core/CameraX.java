@@ -677,7 +677,7 @@ public final class CameraX {
                                     originalCameraIdUseCaseMap.get(cameraId),
                                     newCameraIdUseCaseMap.get(cameraId));
 
-            for (UseCase useCase : useCases) {
+            for (UseCase useCase : newCameraIdUseCaseMap.get(cameraId)) {
                 Size resolution = suggestResolutionsMap.get(useCase);
                 Map<String, Size> suggestedCameraSurfaceResolutionMap = new HashMap<>();
                 suggestedCameraSurfaceResolutionMap.put(cameraId, resolution);
