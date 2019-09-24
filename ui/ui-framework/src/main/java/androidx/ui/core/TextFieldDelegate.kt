@@ -39,6 +39,7 @@ import androidx.ui.text.ParagraphStyle
 import androidx.ui.text.TextDelegate
 import androidx.ui.text.TextStyle
 import androidx.ui.text.font.Font
+import androidx.ui.text.style.TextDirectionAlgorithm
 import kotlin.math.roundToInt
 
 // -5185306 = 0xFFB0E0E6 = A(0xFF), R(0xB0), G(0xE0), B(0xE6)
@@ -67,12 +68,13 @@ private fun computeLineHeightForEmptyText(
     return Paragraph(
         text = "H", // No meaning: just a reference character.
         style = textStyle,
-        paragraphStyle = ParagraphStyle(),
+        paragraphStyle = ParagraphStyle(
+            textDirectionAlgorithm = TextDirectionAlgorithm.ContentOrLtr
+        ),
         textStyles = listOf(),
         maxLines = 1,
         ellipsis = false,
         density = density,
-        layoutDirection = LayoutDirection.Ltr,
         resourceLoader = resourceLoader,
         constraints = ParagraphConstraints(width = Float.POSITIVE_INFINITY)
     ).height.roundToInt().ipx

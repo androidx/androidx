@@ -20,7 +20,6 @@ import android.graphics.Paint
 import android.text.TextPaint
 import androidx.text.LayoutIntrinsics
 import androidx.ui.core.Density
-import androidx.ui.core.LayoutDirection
 import androidx.ui.text.AnnotatedString
 import androidx.ui.text.ParagraphIntrinsics
 import androidx.ui.text.ParagraphStyle
@@ -32,9 +31,7 @@ internal class AndroidParagraphIntrinsics(
     val paragraphStyle: ParagraphStyle,
     val textStyles: List<AnnotatedString.Item<TextStyle>>,
     val typefaceAdapter: TypefaceAdapter,
-    val density: Density,
-    // TODO(siyamed) move layoutDirection and text direction resolve to TextDelegate
-    val layoutDirection: LayoutDirection
+    val density: Density
 ) : ParagraphIntrinsics {
 
     internal val textPaint = TextPaint(Paint.ANTI_ALIAS_FLAG)
@@ -49,9 +46,10 @@ internal class AndroidParagraphIntrinsics(
     override val minIntrinsicWidth: Float
         get() = layoutIntrinsics.minIntrinsicWidth
 
-    internal val textDirectionHeuristic = resolveTextDirectionHeuristics(
-        layoutDirection,
-        paragraphStyle.textDirectionAlgorithm
+    internal val textDirectionHeuristic = paragraphStyle.textDirectionAlgorithm?.let {
+        resolveTextDirectionHeuristics(paragraphStyle.textDirectionAlgorithm)
+    } ?: throw IllegalArgumentException(
+        "ParagraphStyle.textDirectionAlgorithm should not be null"
     )
 
     init {

@@ -17,7 +17,6 @@
 package androidx.ui.text
 
 import androidx.ui.core.Density
-import androidx.ui.core.LayoutDirection
 import androidx.ui.core.Px
 import androidx.ui.core.PxPosition
 import androidx.ui.core.px
@@ -55,7 +54,6 @@ internal class MultiParagraph(
      * @param ellipsis whether to ellipsize text, applied only when [maxLines] is set
      * @param constraints how wide the text is allowed to be
      * @param density density of the device
-     * @param layoutDirection the layout direction of the widget
      * @param resourceLoader [Font.ResourceLoader] to be used to load the font given in [TextStyle]s
      */
     constructor(
@@ -66,7 +64,6 @@ internal class MultiParagraph(
         ellipsis: Boolean? = null,
         constraints: ParagraphConstraints,
         density: Density,
-        layoutDirection: LayoutDirection,
         resourceLoader: Font.ResourceLoader
     ) : this(
         intrinsics = MultiParagraphIntrinsics(
@@ -74,7 +71,6 @@ internal class MultiParagraph(
             textStyle = textStyle,
             paragraphStyle = paragraphStyle,
             density = density,
-            layoutDirection = layoutDirection,
             resourceLoader = resourceLoader
         ),
         maxLines = maxLines,

@@ -20,7 +20,6 @@ import androidx.test.filters.SmallTest
 import androidx.test.filters.Suppress
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.ui.core.Density
-import androidx.ui.core.LayoutDirection
 import androidx.ui.core.PxPosition
 import androidx.ui.core.Sp
 import androidx.ui.core.px
@@ -1553,10 +1552,11 @@ class ParagraphIntegrationTest {
                         fontSize = fontSize,
                         localeList = localeList
                     ),
-                    paragraphStyle = ParagraphStyle(),
+                    paragraphStyle = ParagraphStyle(
+                        textDirectionAlgorithm = TextDirectionAlgorithm.ContentOrLtr
+                    ),
                     density = defaultDensity,
                     resourceLoader = resourceLoader,
-                    layoutDirection = LayoutDirection.Ltr,
                     // just have 10x font size to have a bitmap
                     constraints = ParagraphConstraints(width = fontSizeInPx * 10)
                 )
@@ -1572,28 +1572,22 @@ class ParagraphIntegrationTest {
         }
     }
 
-    @Test
-    fun maxLines_withMaxLineEqualsZero() {
-        val text = "a\na\na"
-        val maxLines = 0
-        val paragraph = simpleParagraph(
-            text = text,
-            fontSize = 100.sp,
-            maxLines = maxLines,
+    @Test(expected = java.lang.IllegalArgumentException::class)
+    fun maxLines_withMaxLineEqualsZero_throwsException() {
+        simpleParagraph(
+            text = "",
+            fontSize = 10.sp,
+            maxLines = 0,
             constraints = ParagraphConstraints(width = Float.MAX_VALUE)
         )
-
-        assertThat(paragraph.height).isZero()
     }
 
     @Test(expected = java.lang.IllegalArgumentException::class)
     fun maxLines_withMaxLineNegative_throwsException() {
-        val text = "a\na\na"
-        val maxLines = -1
         simpleParagraph(
-            text = text,
-            fontSize = 100.sp,
-            maxLines = maxLines,
+            text = "",
+            fontSize = 10.sp,
+            maxLines = -1,
             constraints = ParagraphConstraints(width = Float.MAX_VALUE)
         )
     }
@@ -3169,10 +3163,11 @@ class ParagraphIntegrationTest {
                     fontSize = fontSize,
                     fontFamily = fontFamilyMeasureFont
                 ),
-                paragraphStyle = ParagraphStyle(),
+                paragraphStyle = ParagraphStyle(
+                    textDirectionAlgorithm = TextDirectionAlgorithm.ContentOrLtr
+                ),
                 textStyles = listOf(),
                 density = defaultDensity,
-                layoutDirection = LayoutDirection.Ltr,
                 resourceLoader = TestFontResourceLoader(context)
             )
 
@@ -3184,6 +3179,24 @@ class ParagraphIntegrationTest {
             assertThat(paragraph.maxIntrinsicWidth).isEqualTo(paragraphIntrinsics.maxIntrinsicWidth)
             assertThat(paragraph.width).isEqualTo(fontSizeInPx * text.length)
         }
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun nullTextDirectionAlgorithm_throwsException() {
+        simpleParagraph(
+            text = "",
+            textDirectionAlgorithm = null,
+            constraints = ParagraphConstraints(Float.MAX_VALUE)
+        )
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun negativeMaxLines_throwsException() {
+        simpleParagraph(
+            text = "",
+            maxLines = -1,
+            constraints = ParagraphConstraints(Float.MAX_VALUE)
+        )
     }
 
     private fun simpleParagraph(
@@ -3198,8 +3211,7 @@ class ParagraphIntegrationTest {
         localeList: LocaleList? = null,
         textStyle: TextStyle? = null,
         density: Density? = null,
-        textDirectionAlgorithm: TextDirectionAlgorithm? = null,
-        layoutDirection: LayoutDirection = LayoutDirection.Ltr,
+        textDirectionAlgorithm: TextDirectionAlgorithm? = TextDirectionAlgorithm.ContentOrLtr,
         constraints: ParagraphConstraints
     ): Paragraph {
         return Paragraph(
@@ -3219,7 +3231,6 @@ class ParagraphIntegrationTest {
             maxLines = maxLines,
             constraints = constraints,
             density = density ?: defaultDensity,
-            layoutDirection = layoutDirection,
             resourceLoader = TestFontResourceLoader(context)
         )
     }

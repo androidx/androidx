@@ -17,7 +17,6 @@ package androidx.ui.text
 
 import androidx.annotation.RestrictTo
 import androidx.ui.core.Density
-import androidx.ui.core.LayoutDirection
 import androidx.ui.core.PxPosition
 import androidx.ui.engine.geometry.Rect
 import androidx.ui.graphics.Canvas
@@ -191,7 +190,6 @@ interface Paragraph {
  * @param ellipsis whether to ellipsize text, applied only when [maxLines] is set
  * @param constraints how wide the text is allowed to be
  * @param density density of the device
- * @param layoutDirection the layout direction of the widget
  * @param resourceLoader [Font.ResourceLoader] to be used to load the font given in [TextStyle]s
  */
 /* actual */ fun Paragraph(
@@ -203,7 +201,6 @@ interface Paragraph {
     ellipsis: Boolean? = null,
     constraints: ParagraphConstraints,
     density: Density,
-    layoutDirection: LayoutDirection,
     resourceLoader: Font.ResourceLoader
 ): Paragraph {
     return AndroidParagraph(
@@ -217,14 +214,13 @@ interface Paragraph {
         typefaceAdapter = TypefaceAdapter(
             resourceLoader = resourceLoader
         ),
-        density = density,
-        layoutDirection = layoutDirection
+        density = density
     )
 }
 
 /**
- * Lays out a given [text] with the given constraints. A paragraph is a text that has a single
- * [ParagraphStyle].
+ * Lays out the text in [ParagraphIntrinsics] with the given constraints. A paragraph is a text
+ * that has a single [ParagraphStyle].
  *
  * @param paragraphIntrinsics [ParagraphIntrinsics] instance
  * @param maxLines the maximum number of lines that the text can have

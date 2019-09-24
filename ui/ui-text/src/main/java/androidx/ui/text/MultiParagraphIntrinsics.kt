@@ -18,7 +18,6 @@ package androidx.ui.text
 
 import androidx.annotation.RestrictTo
 import androidx.ui.core.Density
-import androidx.ui.core.LayoutDirection
 import androidx.ui.text.font.Font
 
 /**
@@ -34,7 +33,6 @@ class MultiParagraphIntrinsics(
     textStyle: TextStyle = TextStyle(),
     paragraphStyle: ParagraphStyle = ParagraphStyle(),
     density: Density,
-    layoutDirection: LayoutDirection,
     resourceLoader: Font.ResourceLoader
 ) : ParagraphIntrinsics {
 
@@ -58,7 +56,6 @@ class MultiParagraphIntrinsics(
                         textStyles = annotatedString.textStyles,
                         style = textStyle,
                         density = density,
-                        layoutDirection = layoutDirection,
                         resourceLoader = resourceLoader
                     ),
                     startIndex = paragraphStyleItem.start,

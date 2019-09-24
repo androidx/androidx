@@ -20,7 +20,6 @@ import androidx.benchmark.junit4.BenchmarkRule
 import androidx.benchmark.junit4.measureRepeated
 import androidx.test.filters.LargeTest
 import androidx.ui.core.Density
-import androidx.ui.core.LayoutDirection
 import androidx.ui.core.sp
 import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.Image
@@ -108,8 +107,7 @@ class ParagraphBenchmark(
             style = TextStyle(fontSize = 12.sp),
             paragraphStyle = ParagraphStyle(),
             resourceLoader = resourceLoader,
-            textStyles = textStyles,
-            layoutDirection = LayoutDirection.Ltr
+            textStyles = textStyles
         )
     }
 

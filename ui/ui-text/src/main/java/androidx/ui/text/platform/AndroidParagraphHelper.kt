@@ -41,7 +41,6 @@ import androidx.text.style.ShadowSpan
 import androidx.text.style.SkewXSpan
 import androidx.text.style.TypefaceSpan
 import androidx.ui.core.Density
-import androidx.ui.core.LayoutDirection
 import androidx.ui.core.px
 import androidx.ui.core.withDensity
 import androidx.ui.graphics.toArgb
@@ -330,17 +329,8 @@ private fun createTypeface(style: TextStyle, typefaceAdapter: TypefaceAdapter): 
  * heuristics.
  */
 internal fun resolveTextDirectionHeuristics(
-    layoutDirection: LayoutDirection,
-    textDirectionAlgorithm: TextDirectionAlgorithm?
+    textDirectionAlgorithm: TextDirectionAlgorithm
 ): Int {
-    if (textDirectionAlgorithm == null) {
-        return if (layoutDirection == LayoutDirection.Ltr) {
-            LayoutCompat.TEXT_DIRECTION_FIRST_STRONG_LTR
-        } else {
-            LayoutCompat.TEXT_DIRECTION_FIRST_STRONG_RTL
-        }
-    }
-
     return when (textDirectionAlgorithm) {
         TextDirectionAlgorithm.ContentOrLtr -> LayoutCompat.TEXT_DIRECTION_FIRST_STRONG_LTR
         TextDirectionAlgorithm.ContentOrRtl -> LayoutCompat.TEXT_DIRECTION_FIRST_STRONG_RTL
