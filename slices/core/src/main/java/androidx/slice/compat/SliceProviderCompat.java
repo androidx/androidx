@@ -483,22 +483,20 @@ public class SliceProviderCompat {
      */
     public static void unpinSlice(@NonNull Context context, @NonNull Uri uri,
             @NonNull Set<SliceSpec> supportedSpecs) {
-        if (getPinnedSlices(context).contains(uri)) {
-            ProviderHolder holder = acquireClient(context.getContentResolver(), uri);
-            if (holder.mProvider == null) {
-                throw new IllegalArgumentException("Unknown URI " + uri);
-            }
-            try {
-                Bundle extras = new Bundle();
-                extras.putParcelable(EXTRA_BIND_URI, uri);
-                extras.putString(EXTRA_PKG, context.getPackageName());
-                addSpecs(extras, supportedSpecs);
-                holder.mProvider.call(METHOD_UNPIN, ARG_SUPPORTS_VERSIONED_PARCELABLE, extras);
-            } catch (RemoteException e) {
-                Log.e(TAG, "Unable to unpin slice", e);
-            } finally {
-                holder.close();
-            }
+        ProviderHolder holder = acquireClient(context.getContentResolver(), uri);
+        if (holder.mProvider == null) {
+            throw new IllegalArgumentException("Unknown URI " + uri);
+        }
+        try {
+            Bundle extras = new Bundle();
+            extras.putParcelable(EXTRA_BIND_URI, uri);
+            extras.putString(EXTRA_PKG, context.getPackageName());
+            addSpecs(extras, supportedSpecs);
+            holder.mProvider.call(METHOD_UNPIN, ARG_SUPPORTS_VERSIONED_PARCELABLE, extras);
+        } catch (RemoteException e) {
+            Log.e(TAG, "Unable to unpin slice", e);
+        } finally {
+            holder.close();
         }
     }
 
