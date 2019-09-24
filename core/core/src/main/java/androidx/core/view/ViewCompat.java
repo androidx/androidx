@@ -476,6 +476,13 @@ public class ViewCompat {
 
     private static ThreadLocal<Rect> sThreadLocalRect;
 
+    /**
+     * False when linking of the hidden setLeftTopRightBottom method has previously failed.
+     */
+    private static boolean sTryHiddenSetLeftTopRightBottom = true;
+    private static Method sSetFrameMethod;
+    private static boolean sSetFrameFetched;
+
     private static Rect getEmptyTempRect() {
         if (sThreadLocalRect == null) {
             sThreadLocalRect = new ThreadLocal<>();
@@ -2332,6 +2339,54 @@ public class ViewCompat {
             return null;
         }
         return sTransitionNameMap.get(view);
+    }
+
+    /**
+     * Assign a size and position to this view. This method is meant to be used in animations only
+     * as it applies this position and size for the view only temporary and it can be changed back
+     * at any time by the layout.
+     *
+     * @param left   Left position, relative to parent
+     * @param top    Top position, relative to parent
+     * @param right  Right position, relative to parent
+     * @param bottom Bottom position, relative to parent
+     */
+    @SuppressLint("NewApi")
+    public static void setLeftTopRightBottom(@NonNull View view,
+            int left, int top, int right, int bottom) {
+        if (Build.VERSION.SDK_INT >= 29) {
+            view.setLeftTopRightBottom(left, top, right, bottom);
+        } else if (Build.VERSION.SDK_INT >= 22) {
+            if (sTryHiddenSetLeftTopRightBottom) {
+                // Since this was an @hide method made public, we can link directly against it with
+                // a try/catch for its absence instead of doing the same through reflection.
+                try {
+                    view.setLeftTopRightBottom(left, top, right, bottom);
+                } catch (NoSuchMethodError e) {
+                    sTryHiddenSetLeftTopRightBottom = false;
+                }
+            }
+        } else {
+            if (!sSetFrameFetched) {
+                try {
+                    sSetFrameMethod = View.class.getDeclaredMethod("setFrame",
+                            int.class, int.class, int.class, int.class);
+                    sSetFrameMethod.setAccessible(true);
+                } catch (NoSuchMethodException e) {
+                    Log.i(TAG, "Failed to retrieve setFrame method", e);
+                }
+                sSetFrameFetched = true;
+            }
+            if (sSetFrameMethod != null) {
+                try {
+                    sSetFrameMethod.invoke(view, left, top, right, bottom);
+                } catch (IllegalAccessException e) {
+                    // Do nothing
+                } catch (InvocationTargetException e) {
+                    throw new RuntimeException(e.getCause());
+                }
+            }
+        }
     }
 
     /**

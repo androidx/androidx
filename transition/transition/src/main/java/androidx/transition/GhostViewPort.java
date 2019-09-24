@@ -136,7 +136,7 @@ class GhostViewPort extends ViewGroup implements GhostView {
     }
 
     static void copySize(View from, View to) {
-        ViewUtils.setLeftTopRightBottom(to,
+        ViewCompat.setLeftTopRightBottom(to,
                 to.getLeft(),
                 to.getTop(),
                 to.getLeft() + from.getWidth(),
