@@ -30,22 +30,41 @@ import androidx.ui.text.style.TextDirection
 import kotlin.math.max
 
 /**
- * The class that renders multiple paragraphs at once.
+ * Lays out and renders multiple paragraphs at once. Unlike [Paragraph], supports multiple
+ * [ParagraphStyle]s in a given text.
  *
- * It's designed to support multiple [ParagraphStyle]s in single text widget.
+ * @param intrinsics previously calculated text intrinsics
+ * @param maxLines the maximum number of lines that the text can have
+ * @param ellipsis whether to ellipsize text, applied only when [maxLines] is set
  */
 internal class MultiParagraph(
     val intrinsics: MultiParagraphIntrinsics,
     val maxLines: Int? = null,
-    ellipsis: Boolean? = null
+    ellipsis: Boolean? = null,
+    constraints: ParagraphConstraints
 ) {
 
+    /**
+     *  Lays out a given [annotatedString] with the given constraints. Unlike a [Paragraph],
+     *  [MultiParagraph] can handle a text what has multiple paragraph styles.
+     *
+     * @param annotatedString the text to be laid out
+     * @param textStyle the [TextStyle] to be applied to the whole text
+     * @param paragraphStyle the [ParagraphStyle] to be applied to the whole text
+     * @param maxLines the maximum number of lines that the text can have
+     * @param ellipsis whether to ellipsize text, applied only when [maxLines] is set
+     * @param constraints how wide the text is allowed to be
+     * @param density density of the device
+     * @param layoutDirection the layout direction of the widget
+     * @param resourceLoader [Font.ResourceLoader] to be used to load the font given in [TextStyle]s
+     */
     constructor(
         annotatedString: AnnotatedString,
         textStyle: TextStyle = TextStyle(),
         paragraphStyle: ParagraphStyle = ParagraphStyle(),
         maxLines: Int? = null,
         ellipsis: Boolean? = null,
+        constraints: ParagraphConstraints,
         density: Density,
         layoutDirection: LayoutDirection,
         resourceLoader: Font.ResourceLoader
@@ -59,7 +78,8 @@ internal class MultiParagraph(
             resourceLoader = resourceLoader
         ),
         maxLines = maxLines,
-        ellipsis = ellipsis
+        ellipsis = ellipsis,
+        constraints = constraints
     )
 
     private val annotatedString get() = intrinsics.annotatedString
@@ -89,36 +109,19 @@ internal class MultiParagraph(
      *
      * See the discussion of the `maxLines` and `ellipsis` arguments at [ParagraphStyle].
      */
-    var didExceedMaxLines: Boolean = false
-        private set
-        get() {
-            assertNeedLayout()
-            return field
-        }
+    val didExceedMaxLines: Boolean
 
     /**
      * The amount of horizontal space this paragraph occupies.
-     *
-     * Valid only after [layout] has been called.
      */
-    var width: Float = 0f
-        private set
-        get() {
-            assertNeedLayout()
-            return field
-        }
+    val width: Float
 
     /**
      * The amount of vertical space this paragraph occupies.
      *
      * Valid only after [layout] has been called.
      */
-    var height: Float = 0f
-        private set
-        get() {
-            assertNeedLayout()
-            return field
-        }
+    val height: Float
 
     /**
      * The distance from the top of the paragraph to the alphabetic
@@ -126,7 +129,6 @@ internal class MultiParagraph(
      */
     val firstBaseline: Float
         get() {
-            assertNeedLayout()
             return if (paragraphInfoList.isEmpty()) {
                 0f
             } else {
@@ -140,7 +142,6 @@ internal class MultiParagraph(
      */
     val lastBaseline: Float
         get() {
-            assertNeedLayout()
             return if (paragraphInfoList.isEmpty()) {
                 0f
             } else {
@@ -149,47 +150,32 @@ internal class MultiParagraph(
         }
 
     /** The total number of lines in the text. */
-    var lineCount: Int = 0
-        private set
-        get() {
-            assertNeedLayout()
-            return field
-        }
-
-    private var needLayout = true
+    val lineCount: Int
 
     private val paragraphInfoList: List<ParagraphInfo>
 
     init {
+        // create sub paragraphs and layouts
         this.paragraphInfoList = intrinsics.infoList.map {
             ParagraphInfo(
                 paragraph = Paragraph(
                     it.intrinsics,
                     maxLines,
-                    ellipsis
+                    ellipsis,
+                    constraints
                 ),
                 startIndex = it.startIndex,
                 endIndex = it.endIndex
             )
         }
-    }
 
-    /**
-     * Computes the size and position of each glyph in the paragraph.
-     *
-     * The [ParagraphConstraints] control how wide the text is allowed to be.
-     */
-    fun layout(constraints: ParagraphConstraints) {
-        this.needLayout = false
-        this.width = constraints.width
-        this.didExceedMaxLines = false
-
+        // final layout
+        var didExceedMaxLines = false
         var currentLineCount = 0
         var currentHeight = 0f
 
         for ((index, paragraphInfo) in paragraphInfoList.withIndex()) {
             val paragraph = paragraphInfo.paragraph
-            paragraph.layout(constraints)
 
             paragraphInfo.startLineIndex = currentLineCount
             paragraphInfo.endLineIndex = currentLineCount + paragraph.lineCount
@@ -204,18 +190,18 @@ internal class MultiParagraph(
             if (paragraph.didExceedMaxLines ||
                 (currentLineCount == maxLines && index != this.paragraphInfoList.lastIndex)
             ) {
-                this.didExceedMaxLines = true
+                didExceedMaxLines = true
                 break
             }
         }
+        this.didExceedMaxLines = didExceedMaxLines
         this.lineCount = currentLineCount
         this.height = currentHeight
+        this.width = constraints.width
     }
 
     /** Paint the paragraphs to canvas. */
     fun paint(canvas: Canvas) {
-        assertNeedLayout()
-
         canvas.save()
         paragraphInfoList.forEach {
             it.paragraph.paint(canvas)
@@ -232,7 +218,6 @@ internal class MultiParagraph(
                         " or start > end!"
             )
         }
-        assertNeedLayout()
 
         if (start == end) return Path()
 
@@ -257,7 +242,6 @@ internal class MultiParagraph(
 
     /** Returns the character offset closest to the given graphical position. */
     fun getOffsetForPosition(position: PxPosition): Int {
-        assertNeedLayout()
         val paragraphIndex = when {
             position.y.value <= 0f -> 0
             position.y.value >= height -> paragraphInfoList.lastIndex
@@ -277,7 +261,6 @@ internal class MultiParagraph(
      * includes the top, bottom, left and right of a character.
      */
     fun getBoundingBox(offset: Int): Rect {
-        assertNeedLayout()
         assertIndexInRange(offset)
 
         val paragraphIndex = findParagraphByIndex(paragraphInfoList, offset)
@@ -288,7 +271,6 @@ internal class MultiParagraph(
 
     /** Get the primary horizontal position for the specified text offset. */
     fun getPrimaryHorizontal(offset: Int): Float {
-        assertNeedLayout()
         if (offset !in 0..annotatedString.text.length) {
             throw AssertionError("offset($offset) is out of bounds " +
                     "(0,${annotatedString.text.length}")
@@ -307,7 +289,6 @@ internal class MultiParagraph(
 
     /** Get the secondary horizontal position for the specified text offset. */
     fun getSecondaryHorizontal(offset: Int): Float {
-        assertNeedLayout()
         if (offset !in 0..annotatedString.text.length) {
             throw AssertionError("offset($offset) is out of bounds " +
                     "(0,${annotatedString.text.length}")
@@ -328,7 +309,6 @@ internal class MultiParagraph(
      * Get the text direction of the paragraph containing the given offset.
      */
     fun getParagraphDirection(offset: Int): TextDirection {
-        assertNeedLayout()
         if (offset !in 0..annotatedString.text.length) {
             throw AssertionError("offset($offset) is out of bounds " +
                     "(0,${annotatedString.text.length}")
@@ -349,7 +329,6 @@ internal class MultiParagraph(
      * Get the text direction of the character at the given offset.
      */
     fun getBidiRunDirection(offset: Int): TextDirection {
-        assertNeedLayout()
         if (offset !in 0..annotatedString.text.length) {
             throw AssertionError("offset($offset) is out of bounds " +
                     "(0,${annotatedString.text.length}")
@@ -374,7 +353,6 @@ internal class MultiParagraph(
      * http://www.unicode.org/reports/tr29/#Word_Boundaries
      */
     fun getWordBoundary(offset: Int): TextRange {
-        assertNeedLayout()
         assertIndexInRange(offset)
 
         val paragraphIndex = findParagraphByIndex(paragraphInfoList, offset)
@@ -386,7 +364,6 @@ internal class MultiParagraph(
 
     /** Returns rectangle of the cursor area. */
     fun getCursorRect(offset: Int): Rect {
-        assertNeedLayout()
         if (offset !in 0..annotatedString.text.length) {
             throw AssertionError("offset($offset) is out of bounds " +
                     "(0,${annotatedString.text.length}")
@@ -409,7 +386,6 @@ internal class MultiParagraph(
      * beyond the end of the text, you get the last line.
      */
     fun getLineForOffset(offset: Int): Int {
-        assertNeedLayout()
         assertIndexInRange(offset)
 
         val paragraphIndex = findParagraphByIndex(paragraphInfoList, offset)
@@ -420,7 +396,6 @@ internal class MultiParagraph(
 
     /** Returns the left x Coordinate of the given line. */
     fun getLineLeft(lineIndex: Int): Float {
-        assertNeedLayout()
         assertLineIndexInRange(lineIndex)
 
         val paragraphIndex = findParagraphByLineIndex(paragraphInfoList, lineIndex)
@@ -432,7 +407,6 @@ internal class MultiParagraph(
 
     /** Returns the right x Coordinate of the given line. */
     fun getLineRight(lineIndex: Int): Float {
-        assertNeedLayout()
         assertLineIndexInRange(lineIndex)
 
         val paragraphIndex = findParagraphByLineIndex(paragraphInfoList, lineIndex)
@@ -444,7 +418,6 @@ internal class MultiParagraph(
 
     /** Returns the bottom y coordinate of the given line. */
     fun getLineBottom(lineIndex: Int): Float {
-        assertNeedLayout()
         assertLineIndexInRange(lineIndex)
 
         val paragraphIndex = findParagraphByLineIndex(paragraphInfoList, lineIndex)
@@ -456,7 +429,6 @@ internal class MultiParagraph(
 
     /** Returns the height of the given line. */
     fun getLineHeight(lineIndex: Int): Float {
-        assertNeedLayout()
         assertLineIndexInRange(lineIndex)
 
         val paragraphIndex = findParagraphByLineIndex(paragraphInfoList, lineIndex)
@@ -468,19 +440,12 @@ internal class MultiParagraph(
 
     /** Returns the width of the given line. */
     fun getLineWidth(lineIndex: Int): Float {
-        assertNeedLayout()
         assertLineIndexInRange(lineIndex)
 
         val paragraphIndex = findParagraphByLineIndex(paragraphInfoList, lineIndex)
 
         return with(paragraphInfoList[paragraphIndex]) {
             paragraph.getLineWidth(lineIndex.toLocalLineIndex())
-        }
-    }
-
-    private fun assertNeedLayout() {
-        if (needLayout) {
-            throw IllegalStateException("")
         }
     }
 

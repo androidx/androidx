@@ -18,7 +18,7 @@ package androidx.ui.text
 /**
  * Layout constraints for [Paragraph] objects.
  *
- * Instances of this class are typically used with [Paragraph.layout].
+ * Instances of this class are typically used with [Paragraph].
  *
  * The only constraint that can be specified is the [width]. See the discussion
  * at [width] for more details.
