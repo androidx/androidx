@@ -62,7 +62,7 @@ def mergeAggregateBuildInfoFiles() :
         # androidx and compose requiring two different versions of the same lib breaks everything
     resultJson = {"artifacts":[buildinfo for sha,buildinfo in duplicatecheckingdict.values()]}
 
-    with open("all_aggregate_build_info.txt", 'w') as outfile:
+    with open("androidx_aggregate_build_info.txt", 'w') as outfile:
         json.dump(resultJson, outfile, sort_keys=True, indent=4, separators=(',', ': '))
 
 def mergeBuildInfoFolders():
