@@ -32,8 +32,8 @@ import androidx.ui.engine.geometry.RRect
 import androidx.ui.engine.geometry.Radius
 import androidx.ui.engine.geometry.shrink
 import androidx.ui.engine.geometry.withRadius
-import androidx.ui.foundation.selection.Toggleable
 import androidx.ui.foundation.selection.ToggleableState
+import androidx.ui.foundation.selection.TriStateToggleable
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Container
 import androidx.ui.layout.Padding
@@ -92,7 +92,7 @@ fun TriStateCheckbox(
 ) {
     Wrap {
         Ripple(bounded = false) {
-            Toggleable(value = value, onToggle = onClick) {
+            TriStateToggleable(value = value, onToggle = onClick) {
                 Padding(padding = CheckboxDefaultPadding) {
                     Container(width = CheckboxSize, height = CheckboxSize) {
                         DrawCheckbox(value = value, activeColor = color)
