@@ -314,6 +314,8 @@ fun Text(
                         return Selection(
                             startCoordinates = textSelectionProcessor.startCoordinates,
                             endCoordinates = textSelectionProcessor.endCoordinates,
+                            startOffset = textSelectionProcessor.startOffset,
+                            endOffset = textSelectionProcessor.endOffset,
                             startDirection = textSelectionProcessor.startDirection,
                             endDirection = textSelectionProcessor.endDirection,
                             startLayoutCoordinates =
