@@ -109,7 +109,7 @@ public class FingerprintDialogFragment extends DialogFragment {
                     handleDismissDialogError();
                     break;
                 case MSG_DISMISS_DIALOG_AUTHENTICATED:
-                    dismissAllowingStateLoss();
+                    dismissSafely();
                     break;
                 case MSG_RESET_MESSAGE:
                     handleResetMessage();
@@ -311,7 +311,16 @@ public class FingerprintDialogFragment extends DialogFragment {
         return mHandler;
     }
 
-    boolean isDeviceCredentialAllowed() {
+    /** Attempts to dismiss this fragment while avoiding potential crashes. */
+    void dismissSafely() {
+        if (getFragmentManager() == null) {
+            Log.e(TAG, "Failed to dismiss fingerprint dialog fragment. Fragment manager was null.");
+            return;
+        }
+        dismissAllowingStateLoss();
+    }
+
+    private boolean isDeviceCredentialAllowed() {
         return mBundle.getBoolean(BiometricPrompt.KEY_ALLOW_DEVICE_CREDENTIAL);
     }
 
@@ -399,14 +408,14 @@ public class FingerprintDialogFragment extends DialogFragment {
         mHandler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                FingerprintDialogFragment.this.dismissAllowingStateLoss();
+                FingerprintDialogFragment.this.dismissSafely();
             }
         }, HIDE_DIALOG_DELAY);
     }
 
     private void handleDismissDialogError() {
         if (mDismissInstantly) {
-            dismissAllowingStateLoss();
+            dismissSafely();
         } else {
             dismissAfterDelay();
         }
