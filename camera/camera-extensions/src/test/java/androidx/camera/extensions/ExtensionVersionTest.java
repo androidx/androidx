@@ -33,7 +33,6 @@ import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 import org.robolectric.annotation.Implementation;
 import org.robolectric.annotation.Implements;
-import org.robolectric.annotation.RealObject;
 import org.robolectric.annotation.internal.DoNotInstrument;
 
 import java.lang.reflect.Field;
@@ -41,11 +40,12 @@ import java.lang.reflect.Field;
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
 @Config(
-        sdk = Build.VERSION_CODES.LOLLIPOP,
+        minSdk = Build.VERSION_CODES.LOLLIPOP,
         manifest = Config.NONE,
         shadows = {
                 ExtensionVersionTest.ShadowExtenderVersioningImpl.class,
-                ExtensionVersionTest.ShadowBuildConfig.class})
+                ExtensionVersionTest.ShadowVersionName.class
+        })
 public class ExtensionVersionTest {
 
     @Test
@@ -132,15 +132,18 @@ public class ExtensionVersionTest {
     }
 
     /**
-     * A Shadow of {@link BuildConfig} which include a fake CAMERA_VERSION for testing.
+     * A Shadow of {@link VersionName} which changes the current version for testing.
      */
     @Implements(
-            value = BuildConfig.class,
+            value = VersionName.class,
             minSdk = 21
     )
-    static final class ShadowBuildConfig {
+    static class ShadowVersionName {
+        private static VersionName sCurrentVersion = new VersionName("1.1.0");
 
-        @RealObject
-        public static final String CAMERA_VERSION = "1.1.0-alpha02";
+        @Implementation
+        public static VersionName getCurrentVersion() {
+            return sCurrentVersion;
+        }
     }
 }

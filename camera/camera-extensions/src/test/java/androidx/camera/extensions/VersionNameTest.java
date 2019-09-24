@@ -23,6 +23,6 @@ import org.junit.Test;
 public class VersionNameTest {
     @Test
     public void testCurrentVersion_shouldNotEmpty() {
-        assertNotNull(VersionName.CURRENT.getVersion());
+        assertNotNull(VersionName.getCurrentVersion().getVersion());
     }
 }
