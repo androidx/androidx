@@ -16,6 +16,8 @@
 
 package androidx.camera.extensions.impl;
 
+import android.util.Log;
+
 /**
  * Implementation for extension version check.
  *
@@ -23,6 +25,8 @@ package androidx.camera.extensions.impl;
  * don't need to implement this, unless this is used for related testing usage.
  */
 public class ExtensionVersionImpl {
+    private static final String TAG = "ExtenderVersionImpl";
+    private static final String VERSION = "1.1.0";
     public ExtensionVersionImpl() {
     }
 
@@ -50,6 +54,7 @@ public class ExtensionVersionImpl {
      * should be used.
      */
     public String checkApiVersion(String version) {
-        return "1.0.0-alpha02";
+        Log.d(TAG, "Extension device library version " + VERSION);
+        return VERSION;
     }
 }
