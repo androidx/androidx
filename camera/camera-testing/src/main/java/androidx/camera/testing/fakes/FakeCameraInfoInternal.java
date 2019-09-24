@@ -36,17 +36,21 @@ public final class FakeCameraInfoInternal implements CameraInfoInternal {
 
     private final int mSensorRotation;
     private final LensFacing mLensFacing;
-    private MutableLiveData<Boolean> mFlashAvailability;
+    private MutableLiveData<Boolean> mFlashAvailability = new MutableLiveData<>(Boolean.TRUE);
+    private MutableLiveData<Float> mMaxZoom = new MutableLiveData<>(4.0f);
+    private MutableLiveData<Float> mMinZoom = new MutableLiveData<>(1.0f);
+    private MutableLiveData<Float> mZoomRatio = new MutableLiveData<>(1.0f);
+    private MutableLiveData<Float> mZoomPerecentage = new MutableLiveData<>(0f);
+
+
 
     public FakeCameraInfoInternal() {
         this(/*sensorRotation=*/ 0, /*lensFacing=*/ LensFacing.BACK);
-        mFlashAvailability = new MutableLiveData<>(Boolean.TRUE);
     }
 
     public FakeCameraInfoInternal(int sensorRotation, @NonNull LensFacing lensFacing) {
         mSensorRotation = sensorRotation;
         mLensFacing = lensFacing;
-        mFlashAvailability = new MutableLiveData<>(Boolean.TRUE);
     }
 
     @Nullable
@@ -78,5 +82,29 @@ public final class FakeCameraInfoInternal implements CameraInfoInternal {
     @Override
     public LiveData<Boolean> isFlashAvailable() {
         return mFlashAvailability;
+    }
+
+    @NonNull
+    @Override
+    public LiveData<Float> getZoomRatio() {
+        return mZoomRatio;
+    }
+
+    @NonNull
+    @Override
+    public LiveData<Float> getMaxZoomRatio() {
+        return mMaxZoom;
+    }
+
+    @NonNull
+    @Override
+    public LiveData<Float> getMinZoomRatio() {
+        return mMinZoom;
+    }
+
+    @NonNull
+    @Override
+    public LiveData<Float> getZoomPercentage() {
+        return mZoomPerecentage;
     }
 }

@@ -23,6 +23,7 @@ import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertTrue;
 
 import static org.mockito.Matchers.anyInt;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import android.content.Context;
@@ -1122,7 +1123,7 @@ public final class SupportedSurfaceCombinationTest {
 
         LensFacing lensFacingEnum = CameraUtil.getLensFacingEnumFromInt(lensFacing);
         mCameraFactory.insertCamera(lensFacingEnum, cameraId, () -> new FakeCamera(cameraId, null,
-                new Camera2CameraInfo(cameraManager, cameraId)));
+                new Camera2CameraInfo(cameraManager, cameraId, mock(ZoomControl.class))));
     }
 
     private void initCameraX() {

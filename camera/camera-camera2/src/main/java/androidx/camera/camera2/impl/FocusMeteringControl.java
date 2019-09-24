@@ -23,6 +23,7 @@ import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.CaptureResult;
 import android.hardware.camera2.params.MeteringRectangle;
 import android.os.Build;
+import android.util.Log;
 import android.util.Rational;
 
 import androidx.annotation.NonNull;
@@ -61,11 +62,14 @@ import java.util.concurrent.TimeUnit;
  * construct the 3A regions and append them to all repeating requests and single requests.
  */
 class FocusMeteringControl {
+    private static final String TAG = "FocusMeteringControl";
     private final Camera2CameraControl mCameraControl;
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     @CameraExecutor
     final Executor mExecutor;
     private final ScheduledExecutorService mScheduler;
+
+    private volatile boolean mIsActive = false;
 
     //******************** Should only be accessed by executor (WorkThread) ****************//
     private FocusMeteringAction mCurrentFocusMeteringAction;
@@ -99,6 +103,25 @@ class FocusMeteringControl {
     }
 
     /**
+     * Set current active state. Set active if it is ready to accept focus/metering operations.
+     *
+     * <p> In inactive state, startFocusAndMetering does nothing while cancelFocusAndMetering
+     * still works to cancel current operation. cancelFocusAndMetering is performed automatically
+     * when active state is changed to false.
+     */
+    void setActive(boolean isActive) {
+        if (isActive == mIsActive) {
+            return;
+        }
+
+        mIsActive = isActive;
+
+        if (!mIsActive) {
+            mExecutor.execute(() -> cancelFocusAndMetering());
+        }
+    }
+
+    /**
      * Called by {@link Camera2CameraControl} to append the 3A regions to the shared options. It
      * applies to all repeating requests and single requests.
      */
@@ -110,7 +133,6 @@ class FocusMeteringControl {
 
         configBuilder.setCaptureRequestOption(
                 CaptureRequest.CONTROL_AF_MODE, mCameraControl.getSupportedAfMode(afMode));
-
 
         if (mAfRects.length != 0) {
             configBuilder.setCaptureRequestOption(
@@ -193,6 +215,11 @@ class FocusMeteringControl {
     @WorkerThread
     void startFocusAndMetering(@NonNull FocusMeteringAction action,
             @Nullable Rational defaultAspectRatio) {
+        if (!mIsActive) {
+            Log.e(TAG, "Ignore startFocusAndMetering because camera is not active.");
+            return;
+        }
+
         if (mCurrentFocusMeteringAction != null) {
             cancelFocusAndMetering();
         }
@@ -251,6 +278,10 @@ class FocusMeteringControl {
 
     @WorkerThread
     void triggerAf() {
+        if (!mIsActive) {
+            return;
+        }
+
         CaptureConfig.Builder builder = new CaptureConfig.Builder();
         builder.setTemplateType(getDefaultTemplate());
         builder.setUseRepeatingSurface(true);
@@ -263,6 +294,10 @@ class FocusMeteringControl {
 
     @WorkerThread
     void triggerAePrecapture() {
+        if (!mIsActive) {
+            return;
+        }
+
         CaptureConfig.Builder builder = new CaptureConfig.Builder();
         builder.setTemplateType(getDefaultTemplate());
         builder.setUseRepeatingSurface(true);
@@ -276,6 +311,10 @@ class FocusMeteringControl {
     @WorkerThread
     void cancelAfAeTrigger(final boolean cancelAfTrigger,
             final boolean cancelAePrecaptureTrigger) {
+        if (!mIsActive) {
+            return;
+        }
+
         CaptureConfig.Builder builder = new CaptureConfig.Builder();
         builder.setUseRepeatingSurface(true);
         builder.setTemplateType(getDefaultTemplate());

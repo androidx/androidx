@@ -40,10 +40,13 @@ import androidx.lifecycle.MutableLiveData;
 final class Camera2CameraInfo implements CameraInfoInternal {
 
     private final CameraCharacteristics mCameraCharacteristics;
+    private final ZoomControl mZoomControl;
     private static final String TAG = "Camera2CameraInfo";
     private MutableLiveData<Boolean> mFlashAvailability;
 
-    Camera2CameraInfo(CameraManager cameraManager, String cameraId)
+
+    Camera2CameraInfo(@NonNull CameraManager cameraManager, @NonNull String cameraId,
+            @NonNull ZoomControl zoomControl)
             throws CameraInfoUnavailableException {
         try {
             mCameraCharacteristics = cameraManager.getCameraCharacteristics(cameraId);
@@ -52,6 +55,7 @@ final class Camera2CameraInfo implements CameraInfoInternal {
                     "Unable to retrieve info for camera " + cameraId, e);
         }
 
+        mZoomControl = zoomControl;
         mFlashAvailability = new MutableLiveData<>(
                 mCameraCharacteristics.get(CameraCharacteristics.FLASH_INFO_AVAILABLE));
         checkCharacteristicAvailable(
@@ -158,4 +162,27 @@ final class Camera2CameraInfo implements CameraInfoInternal {
         return mFlashAvailability;
     }
 
+    @NonNull
+    @Override
+    public LiveData<Float> getZoomRatio() {
+        return mZoomControl.getZoomRatio();
+    }
+
+    @NonNull
+    @Override
+    public LiveData<Float> getMaxZoomRatio() {
+        return mZoomControl.getMaxZoomRatio();
+    }
+
+    @NonNull
+    @Override
+    public LiveData<Float> getMinZoomRatio() {
+        return mZoomControl.getMinZoomRatio();
+    }
+
+    @NonNull
+    @Override
+    public LiveData<Float> getZoomPercentage() {
+        return mZoomControl.getZoomPercentage();
+    }
 }

@@ -40,6 +40,8 @@ import androidx.camera.core.FocusMeteringAction;
 import androidx.camera.core.SessionConfig;
 import androidx.core.util.Preconditions;
 
+import com.google.common.util.concurrent.ListenableFuture;
+
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -65,9 +67,11 @@ public final class Camera2CameraControl implements CameraControlInternal {
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     volatile Rational mPreviewAspectRatio = null;
     private final FocusMeteringControl mFocusMeteringControl;
+    private final ZoomControl mZoomControl;
     // use volatile modifier to make these variables in sync in all threads.
     private volatile boolean mIsTorchOn = false;
     private volatile FlashMode mFlashMode = FlashMode.OFF;
+    private volatile boolean mIsActive = false;
 
     //******************** Should only be accessed by executor *****************************//
     private Rect mCropRect = null;
@@ -98,11 +102,30 @@ public final class Camera2CameraControl implements CameraControlInternal {
                 CaptureCallbackContainer.create(mSessionCallback));
 
         mFocusMeteringControl = new FocusMeteringControl(this, scheduler, mExecutor);
+        mZoomControl = new ZoomControl(this, mCameraCharacteristics);
 
         // Initialize the session config
         mExecutor.execute(this::updateSessionConfig);
     }
 
+    @NonNull
+    public ZoomControl getZoomControl() {
+        return mZoomControl;
+    }
+
+    /**
+     * Set current active state. Set active if it is ready to trigger camera control operation.
+     *
+     * <p>Most operations during inactive state do nothing. Some states are reset to default
+     * once it is changed to inactive state.
+     */
+    void setActive(boolean isActive) {
+        mIsActive = isActive;
+        mFocusMeteringControl.setActive(isActive);
+        mZoomControl.setActive(isActive);
+    }
+
+    @WorkerThread
     public void setPreviewAspectRatio(@Nullable Rational previewAspectRatio) {
         mPreviewAspectRatio = previewAspectRatio;
     }
@@ -116,6 +139,18 @@ public final class Camera2CameraControl implements CameraControlInternal {
     @Override
     public void cancelFocusAndMetering() {
         mExecutor.execute(mFocusMeteringControl::cancelFocusAndMetering);
+    }
+
+    @NonNull
+    @Override
+    public ListenableFuture<Void> setZoomRatio(float ratio) {
+        return mZoomControl.setZoomRatio(ratio);
+    }
+
+    @NonNull
+    @Override
+    public ListenableFuture<Void> setZoomPercentage(float percentage) {
+        return mZoomControl.setZoomPercentage(percentage);
     }
 
     /** {@inheritDoc} */

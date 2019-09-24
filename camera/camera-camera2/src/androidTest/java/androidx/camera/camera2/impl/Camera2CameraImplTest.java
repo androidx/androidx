@@ -44,6 +44,7 @@ import androidx.annotation.Nullable;
 import androidx.camera.camera2.impl.compat.CameraManagerCompat;
 import androidx.camera.core.CameraCaptureCallback;
 import androidx.camera.core.CameraCaptureResult;
+import androidx.camera.core.CameraControl;
 import androidx.camera.core.CameraDeviceConfig;
 import androidx.camera.core.CameraFactory;
 import androidx.camera.core.CameraInternal;
@@ -88,6 +89,8 @@ import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
@@ -846,6 +849,51 @@ public final class Camera2CameraImplTest {
         verify(useCase1, times(1)).onStateOffline(eq(mCameraId));
         verify(useCase2, times(1)).onStateOffline(eq(mCameraId));
         verify(useCase3, times(0)).onStateOffline(eq(mCameraId));
+    }
+
+    private boolean isCameraControlActive(Camera2CameraControl camera2CameraControl) {
+        ListenableFuture<Void> listenableFuture = camera2CameraControl.setZoomRatio(2.0f);
+        try {
+            // setZoom() will fail immediately when Cameracontrol is not active.
+            listenableFuture.get(50, TimeUnit.MILLISECONDS);
+        } catch (ExecutionException e) {
+            if (e.getCause() instanceof CameraControl.OperationCanceledException) {
+                return false;
+            }
+        } catch (InterruptedException | TimeoutException e) {
+        }
+        return true;
+    }
+
+    @Test
+    public void activateCameraControl_whenExsitsOnlineUseCases() throws InterruptedException {
+        Camera2CameraControl camera2CameraControl =
+                (Camera2CameraControl) mCamera2CameraImpl.getCameraControlInternal();
+
+        assertThat(isCameraControlActive(camera2CameraControl)).isFalse();
+
+        UseCase useCase1 = createUseCase();
+
+        mCamera2CameraImpl.addOnlineUseCase(Arrays.asList(useCase1));
+        HandlerUtil.waitForLooperToIdle(mCameraHandler);
+
+        assertThat(isCameraControlActive(camera2CameraControl)).isTrue();
+    }
+
+    @Test
+    public void deactivateCameraControl_whenNoOnlineUseCases() throws InterruptedException {
+        Camera2CameraControl camera2CameraControl =
+                (Camera2CameraControl) mCamera2CameraImpl.getCameraControlInternal();
+        UseCase useCase1 = createUseCase();
+
+        mCamera2CameraImpl.addOnlineUseCase(Arrays.asList(useCase1));
+        HandlerUtil.waitForLooperToIdle(mCameraHandler);
+        assertThat(isCameraControlActive(camera2CameraControl)).isTrue();
+
+        mCamera2CameraImpl.removeOnlineUseCase(Arrays.asList(useCase1));
+        HandlerUtil.waitForLooperToIdle(mCameraHandler);
+
+        assertThat(isCameraControlActive(camera2CameraControl)).isFalse();
     }
 
     private DeferrableSurface getUseCaseSurface(UseCase useCase) {
