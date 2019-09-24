@@ -2525,7 +2525,6 @@ package androidx.core.view {
     method public static void setLayerPaint(android.view.View, android.graphics.Paint!);
     method @Deprecated public static void setLayerType(android.view.View!, int, android.graphics.Paint!);
     method public static void setLayoutDirection(android.view.View, int);
-    method public static void setLeftTopRightBottom(android.view.View, int, int, int, int);
     method public static void setNestedScrollingEnabled(android.view.View, boolean);
     method public static void setNextClusterForwardId(android.view.View, int);
     method public static void setOnApplyWindowInsetsListener(android.view.View, androidx.core.view.OnApplyWindowInsetsListener!);

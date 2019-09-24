@@ -29,6 +29,7 @@ import android.view.animation.LinearInterpolator;
 import android.widget.FrameLayout;
 
 import androidx.annotation.NonNull;
+import androidx.test.annotation.UiThreadTest;
 import androidx.test.filters.LargeTest;
 import androidx.transition.test.R;
 
@@ -66,6 +67,19 @@ public class ChangeBoundsTest extends BaseTransitionTest {
         final ViewHolder endHolder = new ViewHolder(rule.getActivity());
         assertThat(endHolder.green, is(atTop()));
         assertThat(endHolder.red, is(below(endHolder.green)));
+    }
+
+    @UiThreadTest
+    @Test
+    public void testApplyingBounds() {
+        View view = new View(rule.getActivity());
+
+        ViewUtils.setLeftTopRightBottom(view, 10, 20, 30, 40);
+
+        assertThat(view.getLeft(), is(10));
+        assertThat(view.getTop(), is(20));
+        assertThat(view.getRight(), is(30));
+        assertThat(view.getBottom(), is(40));
     }
 
     @Test
