@@ -24,7 +24,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 
 @RequiresApi(23)
-class ViewUtilsApi23 extends ViewUtilsApi22 {
+class ViewUtilsApi23 extends ViewUtilsApi21 {
 
     /**
      * False when linking of the hidden setLeftTopRightBottom method has previously failed.
