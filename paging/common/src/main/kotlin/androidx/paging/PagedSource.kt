@@ -175,7 +175,7 @@ abstract class PagedSource<Key : Any, Value : Any> {
             internal val counted = itemsBefore != COUNT_UNDEFINED && itemsAfter != COUNT_UNDEFINED
 
             companion object {
-                const val COUNT_UNDEFINED = -1
+                const val COUNT_UNDEFINED = Int.MIN_VALUE
 
                 @Suppress("MemberVisibilityCanBePrivate") // Prevent synthetic accessor generation.
                 internal val EMPTY = Page(emptyList(), 0, 0, null, null)

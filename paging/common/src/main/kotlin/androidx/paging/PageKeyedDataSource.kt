@@ -18,7 +18,6 @@ package androidx.paging
 
 import androidx.arch.core.util.Function
 import androidx.paging.DataSource.KeyType.PAGE_KEYED
-import androidx.paging.PageKeyedDataSource.Result
 import kotlinx.coroutines.CancellableContinuation
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlin.coroutines.resume
@@ -70,42 +69,6 @@ abstract class PageKeyedDataSource<Key : Any, Value : Any> : DataSource<Key, Val
      * data source where the backend defines page size.
      */
     open class LoadParams<Key : Any>(@JvmField val key: Key, @JvmField val requestedLoadSize: Int)
-
-    /**
-     * Type produced by [loadInitial] to represent initially loaded data.
-     *
-     * @param Key Type of key used to identify pages.
-     * @param Value Type of items being loaded by the [DataSource].
-     */
-    internal class InitialResult<Key : Any, Value : Any> : BaseResult<Value> {
-        constructor(
-            data: List<Value>,
-            position: Int,
-            totalCount: Int,
-            previousPageKey: Key?,
-            nextPageKey: Key?
-        ) : super(
-            data,
-            previousPageKey,
-            nextPageKey,
-            position,
-            totalCount - data.size - position,
-            position,
-            true
-        )
-
-        constructor(data: List<Value>, previousPageKey: Key?, nextPageKey: Key?) :
-                super(data, previousPageKey, nextPageKey, 0, 0, 0, false)
-    }
-
-    /**
-     * Type produced by [loadBefore] and [loadAfter] to represent a page of loaded data.
-     *
-     * @param Key Type of key used to identify pages.
-     * @param Value Type of items being loaded by the [DataSource].
-     */
-    internal class Result<Key : Any, Value : Any>(data: List<Value>, adjacentPageKey: Key?) :
-        DataSource.BaseResult<Value>(data, adjacentPageKey, adjacentPageKey, 0, 0, 0, false)
 
     /**
      * Callback for [loadInitial] to return data and, optionally, position/count information.
@@ -224,7 +187,7 @@ abstract class PageKeyedDataSource<Key : Any, Value : Any> : DataSource<Key, Val
     }
 
     private suspend fun loadInitial(params: LoadInitialParams<Key>) =
-        suspendCancellableCoroutine<InitialResult<Key, Value>> { cont ->
+        suspendCancellableCoroutine<BaseResult<Value>> { cont ->
             loadInitial(params, object : LoadInitialCallback<Key, Value>() {
                 override fun onResult(
                     data: List<Value>,
@@ -233,25 +196,44 @@ abstract class PageKeyedDataSource<Key : Any, Value : Any> : DataSource<Key, Val
                     previousPageKey: Key?,
                     nextPageKey: Key?
                 ) {
-                    val initialResult =
-                        InitialResult(data, position, totalCount, previousPageKey, nextPageKey)
-                    cont.resume(initialResult)
+                    cont.resume(
+                        BaseResult(
+                            data = data,
+                            prevKey = previousPageKey,
+                            nextKey = nextPageKey,
+                            itemsBefore = position,
+                            itemsAfter = totalCount - data.size - position
+                        )
+                    )
                 }
 
                 override fun onResult(data: List<Value>, previousPageKey: Key?, nextPageKey: Key?) {
-                    cont.resume(InitialResult(data, previousPageKey, nextPageKey))
+                    cont.resume(BaseResult(data, previousPageKey, nextPageKey))
                 }
             })
         }
 
     private suspend fun loadBefore(params: LoadParams<Key>) =
-        suspendCancellableCoroutine<Result<Key, Value>> { cont ->
-            loadBefore(params, cont.asCallback())
+        suspendCancellableCoroutine<BaseResult<Value>> { cont ->
+            loadBefore(params, cont.asCallback(false))
         }
 
     private suspend fun loadAfter(params: LoadParams<Key>) =
-        suspendCancellableCoroutine<Result<Key, Value>> { cont ->
-            loadAfter(params, cont.asCallback())
+        suspendCancellableCoroutine<BaseResult<Value>> { cont ->
+            loadAfter(params, cont.asCallback(true))
+        }
+
+    private fun CancellableContinuation<BaseResult<Value>>.asCallback(isAppend: Boolean) =
+        object : PageKeyedDataSource.LoadCallback<Key, Value>() {
+            override fun onResult(data: List<Value>, adjacentPageKey: Key?) {
+                resume(
+                    BaseResult(
+                        data = data,
+                        prevKey = if (isAppend) null else adjacentPageKey,
+                        nextKey = if (isAppend) adjacentPageKey else null
+                    )
+                )
+            }
         }
 
     /**
@@ -337,10 +319,3 @@ abstract class PageKeyedDataSource<Key : Any, Value : Any> : DataSource<Key, Val
         function: (Value) -> ToValue
     ): PageKeyedDataSource<Key, ToValue> = mapByPage(Function { list -> list.map(function) })
 }
-
-private fun <Key : Any, Value : Any> CancellableContinuation<Result<Key, Value>>.asCallback() =
-    object : PageKeyedDataSource.LoadCallback<Key, Value>() {
-        override fun onResult(data: List<Value>, adjacentPageKey: Key?) {
-            resume(Result(data, adjacentPageKey))
-        }
-    }

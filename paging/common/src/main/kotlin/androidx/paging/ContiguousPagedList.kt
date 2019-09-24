@@ -326,8 +326,12 @@ open class ContiguousPagedList<K : Any, V : Any>(
         if (this.lastLoad == LAST_LOAD_UNSPECIFIED) {
             // Because the ContiguousPagedList wasn't initialized with a last load position,
             // initialize it to the middle of the initial load
-            val itemsBefore =
-                if (initialPage.itemsBefore != COUNT_UNDEFINED) initialPage.itemsBefore else 0
+            val itemsBefore = if (initialPage.itemsBefore != COUNT_UNDEFINED) {
+                initialPage.itemsBefore
+            } else {
+                // Undefined, so map to zero
+                0
+            }
             this.lastLoad = itemsBefore + initialPage.data.size / 2
         }
         triggerBoundaryCallback(REFRESH, initialPage.data)
