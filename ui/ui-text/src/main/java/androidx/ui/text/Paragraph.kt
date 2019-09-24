@@ -29,10 +29,7 @@ import androidx.ui.text.platform.TypefaceAdapter
 import androidx.ui.text.style.TextDirection
 
 /**
- * A paragraph of text.
- *
- * A paragraph retains the size and position of each glyph in the text and can
- * be efficiently resized and painted.
+ * A paragraph of text that is laid out.
  *
  * Paragraphs can be displayed on a [Canvas] using the [paint] method.
  */
@@ -97,13 +94,6 @@ interface Paragraph {
      */
     val lineCount: Int
 
-    /**
-     * Computes the size and position of each glyph in the paragraph.
-     *
-     * The [ParagraphConstraints] control how wide the text is allowed to be.
-     */
-    fun layout(constraints: ParagraphConstraints)
-
     /** Returns path that enclose the given text range. */
     fun getPathForRange(start: Int, end: Int): Path
 
@@ -118,10 +108,8 @@ interface Paragraph {
 
     /**
      * Returns the bottom y coordinate of the given line.
-     *
-     * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    // TODO(qqd) add tests
     fun getLineBottom(lineIndex: Int): Float
 
     /** Returns the height of the given line. */
@@ -192,7 +180,19 @@ interface Paragraph {
 }
 
 /**
- * @see Paragraph
+ * Lays out a given [text] with the given constraints. A paragraph is a text that has a single
+ * [ParagraphStyle].
+ *
+ * @param text the text to be laid out
+ * @param style the [TextStyle] to be applied to the whole text
+ * @param paragraphStyle the [ParagraphStyle] to be applied to the whole text
+ * @param textStyles [TextStyle]s to be applied to parts of text
+ * @param maxLines the maximum number of lines that the text can have
+ * @param ellipsis whether to ellipsize text, applied only when [maxLines] is set
+ * @param constraints how wide the text is allowed to be
+ * @param density density of the device
+ * @param layoutDirection the layout direction of the widget
+ * @param resourceLoader [Font.ResourceLoader] to be used to load the font given in [TextStyle]s
  */
 /* actual */ fun Paragraph(
     text: String,
@@ -201,6 +201,7 @@ interface Paragraph {
     textStyles: List<AnnotatedString.Item<TextStyle>>,
     maxLines: Int? = null,
     ellipsis: Boolean? = null,
+    constraints: ParagraphConstraints,
     density: Density,
     layoutDirection: LayoutDirection,
     resourceLoader: Font.ResourceLoader
@@ -212,6 +213,7 @@ interface Paragraph {
         textStyles = textStyles,
         maxLines = maxLines,
         ellipsis = ellipsis,
+        constraints = constraints,
         typefaceAdapter = TypefaceAdapter(
             resourceLoader = resourceLoader
         ),
@@ -220,14 +222,25 @@ interface Paragraph {
     )
 }
 
+/**
+ * Lays out a given [text] with the given constraints. A paragraph is a text that has a single
+ * [ParagraphStyle].
+ *
+ * @param paragraphIntrinsics [ParagraphIntrinsics] instance
+ * @param maxLines the maximum number of lines that the text can have
+ * @param ellipsis whether to ellipsize text, applied only when [maxLines] is set
+ * @param constraints how wide the text is allowed to be
+ */
 /* actual */ fun Paragraph(
     paragraphIntrinsics: ParagraphIntrinsics,
     maxLines: Int? = null,
-    ellipsis: Boolean? = null
+    ellipsis: Boolean? = null,
+    constraints: ParagraphConstraints
 ): Paragraph {
     return AndroidParagraph(
         paragraphIntrinsics = paragraphIntrinsics as AndroidParagraphIntrinsics,
         maxLines = maxLines,
-        ellipsis = ellipsis
+        ellipsis = ellipsis,
+        constraints = constraints
     )
 }

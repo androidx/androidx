@@ -247,11 +247,7 @@ class TextDelegate(
      * while still being greater than or equal to `minWidth` and less than or equal to `maxWidth`.
      */
     private fun layoutText(minWidth: Float, maxWidth: Float): MultiParagraph {
-        val multiParagraph = MultiParagraph(
-            intrinsics = layoutIntrinsics(),
-            maxLines = maxLines,
-            ellipsis = overflow == TextOverflow.Ellipsis
-        )
+        val paragraphIntrinsics = layoutIntrinsics()
 
         // if minWidth == maxWidth the width is fixed.
         //    therefore we can pass that value to our paragraph and use it
@@ -265,12 +261,15 @@ class TextDelegate(
         val width = if (minWidth == maxWidth) {
             maxWidth
         } else {
-            multiParagraph.maxIntrinsicWidth.coerceIn(minWidth, maxWidth)
+            paragraphIntrinsics.maxIntrinsicWidth.coerceIn(minWidth, maxWidth)
         }
 
-        multiParagraph.layout(ParagraphConstraints(width = width))
-
-        return multiParagraph
+        return MultiParagraph(
+            intrinsics = paragraphIntrinsics,
+            maxLines = maxLines,
+            ellipsis = overflow == TextOverflow.Ellipsis,
+            constraints = ParagraphConstraints(width = width)
+        )
     }
 
     fun layout(constraints: Constraints) {
@@ -475,9 +474,9 @@ private fun TextDelegate.createOverflowShader(
             textStyles = listOf(),
             density = density,
             resourceLoader = resourceLoader,
-            layoutDirection = layoutDirection
+            layoutDirection = layoutDirection,
+            constraints = ParagraphConstraints(Float.POSITIVE_INFINITY)
         )
-        paragraph.layout(ParagraphConstraints(Float.POSITIVE_INFINITY))
 
         val fadeWidth = paragraph.maxIntrinsicWidth
         val fadeHeight = paragraph.height

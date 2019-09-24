@@ -73,10 +73,9 @@ private fun computeLineHeightForEmptyText(
         ellipsis = false,
         density = density,
         layoutDirection = LayoutDirection.Ltr,
-        resourceLoader = resourceLoader
-    ).apply {
-        layout(ParagraphConstraints(width = Float.POSITIVE_INFINITY))
-    }.height.roundToInt().ipx
+        resourceLoader = resourceLoader,
+        constraints = ParagraphConstraints(width = Float.POSITIVE_INFINITY)
+    ).height.roundToInt().ipx
 }
 
 internal class TextFieldDelegate {
