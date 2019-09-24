@@ -39,6 +39,8 @@ class ViewUtils {
             IMPL = new ViewUtilsApi29();
         } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             IMPL = new ViewUtilsApi23();
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
+            IMPL = new ViewUtilsApi22();
         } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             IMPL = new ViewUtilsApi21();
         } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
@@ -183,6 +185,18 @@ class ViewUtils {
      */
     static void setAnimationMatrix(@NonNull View v, @Nullable Matrix m) {
         IMPL.setAnimationMatrix(v, m);
+    }
+
+    /**
+     * Assign a size and position to this view.
+     *
+     * @param left   Left position, relative to parent
+     * @param top    Top position, relative to parent
+     * @param right  Right position, relative to parent
+     * @param bottom Bottom position, relative to parent
+     */
+    static void setLeftTopRightBottom(@NonNull View v, int left, int top, int right, int bottom) {
+        IMPL.setLeftTopRightBottom(v, left, top, right, bottom);
     }
 
     private ViewUtils() {
