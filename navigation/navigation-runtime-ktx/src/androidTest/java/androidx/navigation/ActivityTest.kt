@@ -75,6 +75,22 @@ class ActivityTest {
         assertThat(activityRule.activity.args.bundle["test"])
             .isEqualTo("test")
     }
+
+    @Test fun navArgsLazyNoExtras() {
+        // Normally, this would be set by using an <activity> destination to
+        // start the Activity, but we'll fake it here in the test
+        activityRule.activity.intent = Intent(
+            activityRule.activity, TestActivity::class.java
+        )
+        try {
+            activityRule.activity.args
+            fail("by navArgs() should throw an IllegalStateException when there are no extras")
+        } catch (e: IllegalStateException) {
+            assertThat(e).hasMessageThat().isEqualTo(
+                "Activity ${activityRule.activity} has null extras in " +
+                        activityRule.activity.intent)
+        }
+    }
 }
 
 private const val VIEW_ID = 1

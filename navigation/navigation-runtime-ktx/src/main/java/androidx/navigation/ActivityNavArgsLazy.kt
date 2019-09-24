@@ -38,7 +38,7 @@ import androidx.annotation.MainThread
  */
 @MainThread
 inline fun <reified Args : NavArgs> Activity.navArgs() = NavArgsLazy(Args::class) {
-    intent?.run {
-        extras ?: throw IllegalStateException("Activity $this has null extras in $this")
+    intent?.let { intent ->
+        intent.extras ?: throw IllegalStateException("Activity $this has null extras in $intent")
     } ?: throw IllegalStateException("Activity $this has a null Intent")
 }
