@@ -14,15 +14,12 @@
  * limitations under the License.
  */
 
-package androidx.media2.player.exoplayer;
-
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
+package androidx.media2.player;
 
 import android.annotation.SuppressLint;
 import android.os.Parcel;
 
 import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
 import androidx.media2.exoplayer.external.Format;
 import androidx.media2.exoplayer.external.metadata.Metadata;
 import androidx.media2.exoplayer.external.util.Util;
@@ -31,10 +28,7 @@ import java.util.Arrays;
 
 /**
  * Metadata entry consisting of an ID3 frame as a byte array.
- *
- * @hide
  */
-@RestrictTo(LIBRARY_GROUP_PREFIX)
 @SuppressLint("RestrictedApi") // TODO(b/68398926): Remove once RestrictedApi checks are fixed.
 /* package */ final class ByteArrayFrame implements Metadata.Entry {
 

@@ -14,16 +14,13 @@
  * limitations under the License.
  */
 
-package androidx.media2.player.exoplayer;
-
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
+package androidx.media2.player;
 
 import android.annotation.SuppressLint;
 import android.os.Handler;
 import android.os.Looper;
 
 import androidx.annotation.IntDef;
-import androidx.annotation.RestrictTo;
 import androidx.core.util.Preconditions;
 import androidx.media2.exoplayer.external.BaseRenderer;
 import androidx.media2.exoplayer.external.C;
@@ -44,10 +41,7 @@ import java.util.TreeMap;
  * Outputs encoded text data from a selected text type and channel.
  *
  * <p>The decoding process implemented here should match NuPlayer2CCDecoder.cpp in the framework.
- *
- * @hide
  */
-@RestrictTo(LIBRARY_GROUP_PREFIX)
 @SuppressLint("RestrictedApi") // TODO(b/68398926): Remove once RestrictedApi checks are fixed.
 /* package */ class TextRenderer extends BaseRenderer {
 

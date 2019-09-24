@@ -14,16 +14,13 @@
  * limitations under the License.
  */
 
-package androidx.media2.player.exoplayer;
-
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
+package androidx.media2.player;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Handler;
 
 import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
 import androidx.media2.exoplayer.external.Renderer;
 import androidx.media2.exoplayer.external.audio.AudioRendererEventListener;
 import androidx.media2.exoplayer.external.audio.AudioSink;
@@ -39,10 +36,7 @@ import androidx.media2.exoplayer.external.video.VideoRendererEventListener;
 
 /**
  * Factory for renderers for {@link ExoPlayerWrapper}.
- *
- * @hide
  */
-@RestrictTo(LIBRARY_GROUP_PREFIX)
 @SuppressLint("RestrictedApi") // TODO(b/68398926): Remove once RestrictedApi checks are fixed.
 /* package */ final class RenderersFactory
         implements androidx.media2.exoplayer.external.RenderersFactory {

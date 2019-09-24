@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-package androidx.media2.player.exoplayer;
+package androidx.media2.player;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 import static androidx.media2.player.MediaPlayer2.MEDIA_ERROR_UNKNOWN;
 
 import android.annotation.SuppressLint;
@@ -31,7 +30,6 @@ import android.view.Surface;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
-import androidx.annotation.RestrictTo;
 import androidx.core.util.Preconditions;
 import androidx.media.AudioAttributesCompat;
 import androidx.media2.common.CallbackMediaItem;
@@ -66,10 +64,6 @@ import androidx.media2.exoplayer.external.upstream.DefaultDataSourceFactory;
 import androidx.media2.exoplayer.external.util.MimeTypes;
 import androidx.media2.exoplayer.external.util.Util;
 import androidx.media2.exoplayer.external.video.VideoRendererEventListener;
-import androidx.media2.player.MediaPlayer2;
-import androidx.media2.player.MediaTimestamp;
-import androidx.media2.player.PlaybackParams;
-import androidx.media2.player.TimedMetaData;
 
 import java.io.FileDescriptor;
 import java.io.IOException;
@@ -85,10 +79,7 @@ import java.util.Map;
  * Wraps an ExoPlayer instance and provides methods and notifies events like those in the
  * {@link MediaPlayer2} API. {@link #getLooper()} returns the looper on which all other method calls
  * must be made.
- *
- * @hide
  */
-@RestrictTo(LIBRARY_GROUP_PREFIX)
 @SuppressLint("RestrictedApi") // TODO(b/68398926): Remove once RestrictedApi checks are fixed.
 /* package */ final class ExoPlayerWrapper {
 

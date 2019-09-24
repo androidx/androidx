@@ -16,7 +16,7 @@
 
 package androidx.media2.player;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
@@ -41,7 +41,7 @@ public class TimedMetaData {
      * @hide
      */
     @RequiresApi(23)
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RestrictTo(LIBRARY)
     public TimedMetaData(android.media.TimedMetaData timedMetaData) {
         mTimestampUs = timedMetaData.getTimestamp();
         mMetaData = timedMetaData.getMetaData();
@@ -50,7 +50,7 @@ public class TimedMetaData {
     /**
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RestrictTo(LIBRARY)
     public TimedMetaData(long timestampUs, byte[] metaData) {
         mTimestampUs = timestampUs;
         mMetaData = metaData;

@@ -14,9 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.media2.player.exoplayer;
-
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
+package androidx.media2.player;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -32,7 +30,6 @@ import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
-import androidx.annotation.RestrictTo;
 import androidx.concurrent.futures.ResolvableFuture;
 import androidx.core.util.ObjectsCompat;
 import androidx.core.util.Preconditions;
@@ -41,10 +38,6 @@ import androidx.media2.common.MediaItem;
 import androidx.media2.common.SessionPlayer.TrackInfo;
 import androidx.media2.common.SubtitleData;
 import androidx.media2.exoplayer.external.Player;
-import androidx.media2.player.MediaPlayer2;
-import androidx.media2.player.MediaTimestamp;
-import androidx.media2.player.PlaybackParams;
-import androidx.media2.player.TimedMetaData;
 
 import java.io.IOException;
 import java.util.ArrayDeque;
@@ -58,12 +51,9 @@ import java.util.concurrent.RejectedExecutionException;
 
 /**
  * An implementation of {@link MediaPlayer2} based on a repackaged version of ExoPlayer.
- *
- * @hide
  */
-@RestrictTo(LIBRARY_GROUP_PREFIX)
 @SuppressLint("RestrictedApi") // TODO(b/68398926): Remove once RestrictedApi checks are fixed.
-public final class ExoPlayerMediaPlayer2Impl extends MediaPlayer2
+/* package */ final class ExoPlayerMediaPlayer2Impl extends MediaPlayer2
         implements ExoPlayerWrapper.Listener {
 
     private static final String TAG = "ExoPlayerMediaPlayer2";
@@ -92,7 +82,7 @@ public final class ExoPlayerMediaPlayer2Impl extends MediaPlayer2
     private HandlerThread mHandlerThread;
 
     /** Creates a new ExoPlayer wrapper using the specified context. */
-    public ExoPlayerMediaPlayer2Impl(@NonNull Context context) {
+    ExoPlayerMediaPlayer2Impl(@NonNull Context context) {
         mHandlerThread = new HandlerThread("ExoMediaPlayer2Thread");
         mHandlerThread.start();
         mPlayer = new ExoPlayerWrapper(

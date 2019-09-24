@@ -164,7 +164,7 @@ public class MediaPlayer_AudioFocusTest extends MediaPlayerTestBase {
         // We cannot use Context.sendBroadcast() because it throws SecurityException for such
         // framework related intent.
         Intent intent = new Intent(AudioManager.ACTION_AUDIO_BECOMING_NOISY);
-        player.getAudioFocusHandler().sendIntent(intent);
+        player.mAudioFocusHandler.sendIntent(intent);
     }
 
     private void initPlayer(AudioAttributesCompat attr) throws Exception {

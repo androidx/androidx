@@ -14,29 +14,27 @@
  * limitations under the License.
  */
 
-package androidx.media2.player.exoplayer;
+package androidx.media2.player;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 import static androidx.media2.common.SessionPlayer.TrackInfo.MEDIA_TRACK_TYPE_AUDIO;
 import static androidx.media2.common.SessionPlayer.TrackInfo.MEDIA_TRACK_TYPE_METADATA;
 import static androidx.media2.common.SessionPlayer.TrackInfo.MEDIA_TRACK_TYPE_SUBTITLE;
 import static androidx.media2.common.SessionPlayer.TrackInfo.MEDIA_TRACK_TYPE_UNKNOWN;
 import static androidx.media2.common.SessionPlayer.TrackInfo.MEDIA_TRACK_TYPE_VIDEO;
-import static androidx.media2.player.exoplayer.RenderersFactory.AUDIO_RENDERER_INDEX;
-import static androidx.media2.player.exoplayer.RenderersFactory.METADATA_RENDERER_INDEX;
-import static androidx.media2.player.exoplayer.RenderersFactory.TEXT_RENDERER_INDEX;
-import static androidx.media2.player.exoplayer.RenderersFactory.VIDEO_RENDERER_INDEX;
-import static androidx.media2.player.exoplayer.TextRenderer.TRACK_TYPE_CEA608;
-import static androidx.media2.player.exoplayer.TextRenderer.TRACK_TYPE_CEA708;
-import static androidx.media2.player.exoplayer.TextRenderer.TRACK_TYPE_WEBVTT;
-import static androidx.media2.player.exoplayer.TrackSelector.InternalTextTrackInfo.UNSET;
+import static androidx.media2.player.RenderersFactory.AUDIO_RENDERER_INDEX;
+import static androidx.media2.player.RenderersFactory.METADATA_RENDERER_INDEX;
+import static androidx.media2.player.RenderersFactory.TEXT_RENDERER_INDEX;
+import static androidx.media2.player.RenderersFactory.VIDEO_RENDERER_INDEX;
+import static androidx.media2.player.TextRenderer.TRACK_TYPE_CEA608;
+import static androidx.media2.player.TextRenderer.TRACK_TYPE_CEA708;
+import static androidx.media2.player.TextRenderer.TRACK_TYPE_WEBVTT;
+import static androidx.media2.player.TrackSelector.InternalTextTrackInfo.UNSET;
 
 import android.annotation.SuppressLint;
 import android.media.MediaFormat;
 import android.util.SparseArray;
 
 import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
 import androidx.core.util.Preconditions;
 import androidx.media2.common.MediaItem;
 import androidx.media2.common.SessionPlayer.TrackInfo;
@@ -56,10 +54,7 @@ import java.util.List;
 
 /**
  * Manages track selection for {@link ExoPlayerWrapper}.
- *
- * @hide
  */
-@RestrictTo(LIBRARY_GROUP_PREFIX)
 @SuppressLint("RestrictedApi") // TODO(b/68398926): Remove once RestrictedApi checks are fixed.
 /* package */ final class TrackSelector {
 

@@ -14,14 +14,11 @@
  * limitations under the License.
  */
 
-package androidx.media2.player.exoplayer;
+package androidx.media2.player;
 
-
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.annotation.SuppressLint;
 
-import androidx.annotation.RestrictTo;
 import androidx.media2.exoplayer.external.Format;
 import androidx.media2.exoplayer.external.metadata.Metadata;
 import androidx.media2.exoplayer.external.metadata.MetadataDecoder;
@@ -33,10 +30,7 @@ import java.util.Arrays;
 
 /**
  * Factory for metadata decoders that provide raw ID3 data in {@link ByteArrayFrame}s.
- *
- * @hide
  */
-@RestrictTo(LIBRARY_GROUP_PREFIX)
 @SuppressLint("RestrictedApi") // TODO(b/68398926): Remove once RestrictedApi checks are fixed.
 /* package */ final class Id3MetadataDecoderFactory implements MetadataDecoderFactory {
 

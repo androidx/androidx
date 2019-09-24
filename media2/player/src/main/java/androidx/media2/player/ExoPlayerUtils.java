@@ -14,12 +14,11 @@
  * limitations under the License.
  */
 
-package androidx.media2.player.exoplayer;
+package androidx.media2.player;
 
 import static android.media.MediaFormat.MIMETYPE_TEXT_CEA_608;
 import static android.media.MediaFormat.MIMETYPE_TEXT_CEA_708;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 import static androidx.media2.common.SessionPlayer.TrackInfo.MEDIA_TRACK_TYPE_AUDIO;
 import static androidx.media2.common.SessionPlayer.TrackInfo.MEDIA_TRACK_TYPE_METADATA;
 import static androidx.media2.common.SessionPlayer.TrackInfo.MEDIA_TRACK_TYPE_SUBTITLE;
@@ -36,7 +35,6 @@ import android.content.Context;
 import android.media.MediaFormat;
 import android.net.Uri;
 
-import androidx.annotation.RestrictTo;
 import androidx.core.util.Preconditions;
 import androidx.media.AudioAttributesCompat;
 import androidx.media2.common.CallbackMediaItem;
@@ -62,18 +60,13 @@ import androidx.media2.exoplayer.external.upstream.HttpDataSource;
 import androidx.media2.exoplayer.external.upstream.RawResourceDataSource;
 import androidx.media2.exoplayer.external.util.MimeTypes;
 import androidx.media2.exoplayer.external.util.Util;
-import androidx.media2.player.MediaPlayer2;
-import androidx.media2.player.PlaybackParams;
 
 import java.io.IOException;
 import java.net.SocketTimeoutException;
 
 /**
  * Utility methods for translating between the MediaPlayer2 and ExoPlayer APIs.
- *
- * @hide
  */
-@RestrictTo(LIBRARY_GROUP_PREFIX)
 @SuppressLint("RestrictedApi") // TODO(b/68398926): Remove once RestrictedApi checks are fixed.
 /* package */ class ExoPlayerUtils {
 
