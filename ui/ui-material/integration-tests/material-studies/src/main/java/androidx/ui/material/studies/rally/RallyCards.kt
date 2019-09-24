@@ -40,10 +40,10 @@ import androidx.ui.layout.Stack
 import androidx.ui.layout.WidthSpacer
 import androidx.ui.material.Button
 import androidx.ui.material.Divider
+import androidx.ui.material.MaterialTheme
 import androidx.ui.material.TextButtonStyle
 import androidx.ui.material.ripple.Ripple
 import androidx.ui.material.surface.Card
-import androidx.ui.material.themeColor
 import androidx.ui.material.themeTextStyle
 import java.util.Locale
 
@@ -81,7 +81,7 @@ fun RallyAlertCard() {
             }
             Divider(
                 Spacing(left = 12.dp, right = 12.dp),
-                color = +themeColor { background },
+                color = (+MaterialTheme.colors()).background,
                 height = 2.dp
             )
             Ripple(bounded = true) {
@@ -235,7 +235,7 @@ fun AccountIndicator(color: Color) {
 
 /**
  * The Bills card within the Rally Overview screen.
-*/
+ */
 @Composable
 fun RallyBillsOverviewCard() {
     Card {
@@ -285,7 +285,8 @@ fun RallyBillsCard() {
                 aligned(alignment = Alignment.Center) {
                     val accountsProportion = listOf(0.65f, 0.25f, 0.03f, 0.05f)
                     val colors = listOf(0xFF1EB980, 0xFF005D57, 0xFF04B97F, 0xFF37EFBA).map {
-                        Color(it) }
+                        Color(it)
+                    }
                     Container(height = 300.dp, expanded = true) {
                         DrawAnimatedCircle(accountsProportion, colors)
                     }
@@ -333,4 +334,4 @@ fun RallyBillsCard() {
 }
 
 @Composable
-fun RallyDivider() = Divider(color = +themeColor { background }, height = 2.dp)
+fun RallyDivider() = Divider(color = (+MaterialTheme.colors()).background, height = 2.dp)

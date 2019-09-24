@@ -162,7 +162,7 @@ fun ListItem(
     }
 
     if (onClick != null) {
-        val rippleColor = (+themeColor { onSurface }).copy(alpha = RippleOpacity)
+        val rippleColor = (+MaterialTheme.colors()).onSurface.copy(alpha = RippleOpacity)
         Ripple(bounded = true, color = rippleColor) {
             Clickable(onClick = onClick, children = item)
         }
@@ -470,7 +470,7 @@ private fun OffsetToBaselineOrCenter(offset: Dp, children: @Composable() () -> U
 
 private data class ListItemTextStyle(
     val style: MaterialTypography.() -> TextStyle,
-    val color: MaterialColors.() -> Color,
+    val color: ColorPalette.() -> Color,
     val opacity: Float
 )
 
@@ -480,7 +480,8 @@ private fun applyTextStyle(
 ): @Composable() (() -> Unit)? {
     if (children == null) return null
     return {
-        val textColor = (+themeColor(textStyle.color)).copy(alpha = textStyle.opacity)
+        val colors = +MaterialTheme.colors()
+        val textColor = textStyle.color(colors).copy(alpha = textStyle.opacity)
         val appliedTextStyle = (+themeTextStyle(textStyle.style)).copy(color = textColor)
         CurrentTextStyleProvider(appliedTextStyle, children)
     }

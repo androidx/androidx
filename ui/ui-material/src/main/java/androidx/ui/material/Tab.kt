@@ -129,7 +129,7 @@ fun <T> TabRow(
     },
     tab: @Composable() (Int, T) -> Unit
 ) {
-    Surface(color = +themeColor { primary }) {
+    Surface(color = (+MaterialTheme.colors()).primary) {
         val divider = TabRow.Divider
 
         val tabs = @Composable {
@@ -367,7 +367,7 @@ object TabRow {
      */
     @Composable
     fun Indicator() {
-        ColoredRect(color = +themeColor { onPrimary }, height = IndicatorHeight)
+        ColoredRect(color = (+MaterialTheme.colors()).onPrimary, height = IndicatorHeight)
     }
 
     /**
@@ -412,14 +412,14 @@ object TabRow {
     }
 
     internal val Divider = @Composable {
-        val onPrimary = +themeColor { onPrimary }
+        val onPrimary = (+MaterialTheme.colors()).primary
         Divider(color = (onPrimary.copy(alpha = DividerOpacity)))
     }
 }
 
 /**
  * A Tab represents a single page of content using a text label and/or image. It represents its
- * selected state by tinting the text label and/or image with [MaterialColors.onPrimary].
+ * selected state by tinting the text label and/or image with [ColorPalette.onPrimary].
  *
  * This should typically be used inside of a [TabRow], see the corresponding documentation for
  * example usage.
@@ -431,7 +431,7 @@ object TabRow {
  */
 @Composable
 fun Tab(text: String? = null, icon: Image? = null, selected: Boolean, onSelected: () -> Unit) {
-    val tint = +themeColor { onPrimary }
+    val tint = (+MaterialTheme.colors()).onPrimary
     when {
         text != null && icon != null -> CombinedTab(text, icon, selected, onSelected, tint)
         text != null -> TextTab(text, selected, onSelected, tint)

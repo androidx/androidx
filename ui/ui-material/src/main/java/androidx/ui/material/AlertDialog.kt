@@ -111,7 +111,7 @@ fun AlertDialog(
     buttons: @Composable() () -> Unit
 ) {
     // TODO: Find a cleaner way to pass the properties of the MaterialTheme
-    val currentColors = +ambient(Colors)
+    val currentColors: ColorPalette = +MaterialTheme.colors()
     val currentTypography = +ambient(Typography)
     Dialog(onCloseRequest = onCloseRequest) {
         MaterialTheme(colors = currentColors, typography = currentTypography) {

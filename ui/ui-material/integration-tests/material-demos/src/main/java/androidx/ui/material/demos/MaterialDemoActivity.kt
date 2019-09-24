@@ -32,15 +32,15 @@ import androidx.preference.PreferenceManager.getDefaultSharedPreferences
 import androidx.ui.core.setContent
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.toArgb
-import androidx.ui.material.MaterialColors
+import androidx.ui.material.ColorPalette
 import androidx.ui.material.MaterialTheme
+import androidx.ui.material.demos.MaterialSettingsActivity.SettingsFragment
 import kotlin.random.Random
 import kotlin.reflect.full.memberProperties
-import kotlin.reflect.full.primaryConstructor
 
 @Model
-class CurrentMaterialColors {
-    var colors = MaterialColors()
+class CurrentColorPalette {
+    var colors: ColorPalette = ColorPalette()
 }
 
 /**
@@ -49,7 +49,7 @@ class CurrentMaterialColors {
  */
 abstract class MaterialDemoActivity : Activity() {
 
-    private val currentColors = CurrentMaterialColors()
+    private val currentColors = CurrentColorPalette()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -81,7 +81,7 @@ abstract class MaterialDemoActivity : Activity() {
         when (item.itemId) {
             SETTINGS -> startActivity(Intent(this, MaterialSettingsActivity::class.java))
             SHUFFLE -> {
-                val colors = generateMaterialColors()
+                val colors = generateColorPalette(currentColors.colors)
                 colors.saveColors()
                 currentColors.colors = colors
             }
@@ -91,11 +91,19 @@ abstract class MaterialDemoActivity : Activity() {
                 val newOnPrimary = currentColors.colors.primary
                 val newSecondary = currentColors.colors.onSecondary
                 val newOnSecondary = currentColors.colors.secondary
-                val colors = currentColors.colors.copy(
+                val colors = ColorPalette(
                     primary = newPrimary,
-                    onPrimary = newOnPrimary,
+                    primaryVariant = currentColors.colors.primaryVariant,
                     secondary = newSecondary,
-                    onSecondary = newOnSecondary
+                    secondaryVariant = currentColors.colors.secondaryVariant,
+                    background = currentColors.colors.background,
+                    surface = currentColors.colors.surface,
+                    error = currentColors.colors.error,
+                    onPrimary = newOnPrimary,
+                    onSecondary = newOnSecondary,
+                    onBackground = currentColors.colors.onBackground,
+                    onSurface = currentColors.colors.onSurface,
+                    onError = currentColors.colors.onError
                 )
                 colors.saveColors()
                 currentColors.colors = colors
@@ -110,14 +118,14 @@ abstract class MaterialDemoActivity : Activity() {
     }
 
     /**
-     * Returns [MaterialColors] from the values saved to [SharedPreferences]. If a given color is
-     * not present in the [SharedPreferences], its default value as defined in [MaterialColors]
+     * Returns [ColorPalette] from the values saved to [SharedPreferences]. If a given color is
+     * not present in the [SharedPreferences], its default value as defined in [ColorPalette]
      * will be returned.
      */
-    private fun getColorsFromSharedPreferences(): MaterialColors {
+    private fun getColorsFromSharedPreferences(): ColorPalette {
         val sharedPreferences = getDefaultSharedPreferences(this)
-        val constructor = MaterialColors::class.primaryConstructor!!
-        val parametersToSet = constructor.parameters.mapNotNull { parameter ->
+        val function = ::ColorPalette
+        val parametersToSet = function.parameters.mapNotNull { parameter ->
             val savedValue = sharedPreferences.getString(parameter.name, "")
             if (savedValue.isNullOrBlank()) {
                 null
@@ -126,13 +134,14 @@ abstract class MaterialDemoActivity : Activity() {
                 parameter to parsedColor
             }
         }.toMap()
-        return MaterialColors::class.primaryConstructor!!.callBy(parametersToSet)
+        if (parametersToSet.isEmpty()) return ColorPalette()
+        return ::ColorPalette.callBy(parametersToSet)
     }
 
     /**
-     * Persists the current [MaterialColors] to [SharedPreferences].
+     * Persists the current [ColorPalette] to [SharedPreferences].
      */
-    private fun MaterialColors.saveColors() {
+    private fun ColorPalette.saveColors() {
         forEachColorProperty { name, color ->
             getDefaultSharedPreferences(this@MaterialDemoActivity)
                 .edit()
@@ -142,18 +151,26 @@ abstract class MaterialDemoActivity : Activity() {
     }
 
     /**
-     * Generates random colors for [MaterialColors.primary], [MaterialColors.onPrimary],
-     * [MaterialColors.secondary] and [MaterialColors.onSecondary] as dark-on-light or light-on-dark
+     * Generates random colors for [ColorPalette.primary], [ColorPalette.onPrimary],
+     * [ColorPalette.secondary] and [ColorPalette.onSecondary] as dark-on-light or light-on-dark
      * pairs.
      */
-    private fun generateMaterialColors(): MaterialColors {
+    private fun generateColorPalette(currentColors: ColorPalette): ColorPalette {
         val (primary, onPrimary) = generateColorPair()
         val (secondary, onSecondary) = generateColorPair()
-        return MaterialColors(
+        return ColorPalette(
             primary = primary,
-            onPrimary = onPrimary,
+            primaryVariant = currentColors.primaryVariant,
             secondary = secondary,
-            onSecondary = onSecondary
+            secondaryVariant = currentColors.secondaryVariant,
+            background = currentColors.background,
+            surface = currentColors.surface,
+            error = currentColors.error,
+            onPrimary = onPrimary,
+            onSecondary = onSecondary,
+            onBackground = currentColors.onBackground,
+            onSurface = currentColors.onSurface,
+            onError = currentColors.onError
         )
     }
 
@@ -448,12 +465,12 @@ class MaterialSettingsActivity : AppCompatActivity() {
         override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
             val context = preferenceManager.context
             val screen = preferenceManager.createPreferenceScreen(context)
-            // Create new MaterialColors to resolve defaults
-            MaterialColors().forEachColorProperty { name, color ->
+            // Create new ColorPalette to resolve defaults
+            ColorPalette().forEachColorProperty { name, color ->
                 val preference = EditTextPreference(context)
                 preference.key = name
                 preference.title = name
-                // set the default value to be the default for MaterialColors
+                // set the default value to be the default for ColorPalette
                 preference.setDefaultValue(Integer.toHexString(color.toArgb()))
                 preference.summaryProvider = EditTextPreference.SimpleSummaryProvider.getInstance()
                 screen.addPreference(preference)
@@ -464,14 +481,14 @@ class MaterialSettingsActivity : AppCompatActivity() {
 }
 
 /**
- * Iterates over each color present in a given [MaterialColors].
+ * Iterates over each color present in a given [ColorPalette].
  *
- * @param action the action to take on each property, where [name] is the name of the property,
- * such as 'primary' for [MaterialColors.primary], and [color] is the resolved [Color] of the
+ * @param action the action to take on each property, where name is the name of the property,
+ * such as 'primary' for [ColorPalette.primary], and color is the resolved [Color] of the
  * property.
  */
-private fun MaterialColors.forEachColorProperty(action: (name: String, color: Color) -> Unit) {
-    MaterialColors::class.memberProperties.forEach { property ->
+private fun ColorPalette.forEachColorProperty(action: (name: String, color: Color) -> Unit) {
+    ColorPalette::class.memberProperties.forEach { property ->
         val name = property.name
         val color = property.get(this) as Color
         action(name, color)

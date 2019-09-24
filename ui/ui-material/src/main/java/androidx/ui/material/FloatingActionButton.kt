@@ -51,7 +51,7 @@ import androidx.ui.text.TextStyle
  * @param minSize Minimum size of the button. Defaults to [FabSize]
  * @param shape Defines the Button's shape as well its shadow. When null is provided it uses
  *  the [Shapes.button] from [CurrentShapeAmbient].
- * @param color The background color. [MaterialColors.primary] is used by default.
+ * @param color The background color
  * @param elevation The z-coordinate at which to place this button. This controls the size
  *  of the shadow below the button.
  */
@@ -60,7 +60,7 @@ fun FloatingActionButton(
     onClick: (() -> Unit)? = null,
     minSize: Dp = FabSize,
     shape: Shape = CircleShape,
-    color: Color = +themeColor { primary },
+    color: Color = (+MaterialTheme.colors()).primary,
     elevation: Dp = 6.dp,
     children: @Composable() () -> Unit
 ) {
@@ -87,7 +87,7 @@ fun FloatingActionButton(
  * @param icon Image to draw in the center.
  * @param onClick will be called when user clicked on the button. The button will be disabled
  *  when it is null.
- * @param color The background color. [MaterialColors.primary] is used by default.
+ * @param color The background color
  * @param elevation The z-coordinate at which to place this button. This controls the size
  *  of the shadow below the button.
  */
@@ -96,7 +96,7 @@ fun FloatingActionButton(
     icon: Image,
     onClick: (() -> Unit)? = null,
     shape: Shape = CircleShape,
-    color: Color = +themeColor { primary },
+    color: Color = (+MaterialTheme.colors()).primary,
     elevation: Dp = 6.dp
 ) {
     FloatingActionButton(onClick = onClick, shape = shape, color = color, elevation = elevation) {
@@ -116,7 +116,7 @@ fun FloatingActionButton(
  * @param textStyle Optional [TextStyle] to apply for a [text]
  * @param onClick will be called when user clicked on the button. The button will be disabled
  *  when it is null.
- * @param color The background color. [MaterialColors.primary] is used by default.
+ * @param color The background color
  * @param elevation The z-coordinate at which to place this button. This controls the size
  *  of the shadow below the button.
  */
@@ -126,7 +126,7 @@ fun FloatingActionButton(
     icon: Image? = null,
     textStyle: TextStyle? = null,
     onClick: (() -> Unit)? = null,
-    color: Color = +themeColor { primary },
+    color: Color = (+MaterialTheme.colors()).primary,
     elevation: Dp = 6.dp
 ) {
     FloatingActionButton(

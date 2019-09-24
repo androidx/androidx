@@ -36,7 +36,6 @@ import androidx.ui.graphics.luminance
 import androidx.ui.material.ripple.CurrentRippleTheme
 import androidx.ui.material.ripple.DefaultRippleEffectFactory
 import androidx.ui.material.ripple.RippleTheme
-import androidx.ui.material.surface.Card
 import androidx.ui.material.surface.CurrentBackground
 import androidx.ui.text.font.FontWeight
 import androidx.ui.text.font.FontFamily
@@ -52,19 +51,22 @@ import androidx.ui.text.TextStyle
  * It defines colors as specified in the [Material Color theme creation spec](https://material.io/design/color/the-color-system.html#color-theme-creation)
  * and the typography defined in the [Material Type Scale spec](https://material.io/design/typography/the-type-system.html#type-scale).
  *
- * All values may be set by providing this component with the [colors][MaterialColors] and
+ * All values may be set by providing this component with the [colors][ColorPalette] and
  * [typography][MaterialTypography] attributes. Use this to configure the overall theme of your
  * application.
  *
  * @sample androidx.ui.material.samples.MaterialThemeSample
+ *
+ * @param colors A complete definition of the Material Color theme for this hierarchy
+ * @param typography A set of text styles to be used as this hierarchy's typography system
  */
 @Composable
 fun MaterialTheme(
-    colors: MaterialColors = MaterialColors(),
+    colors: ColorPalette = ColorPalette(),
     typography: MaterialTypography = MaterialTypography(),
     children: @Composable() () -> Unit
 ) {
-    Colors.Provider(value = colors) {
+    ProvideColorPalette(colors) {
         Typography.Provider(value = typography) {
             CurrentTextStyleProvider(value = typography.body1) {
                 MaterialRippleTheme {
@@ -75,15 +77,14 @@ fun MaterialTheme(
     }
 }
 
-/**
- * This Ambient holds on to the current definition of colors for this application as described
- * by the Material spec. You can read the values in it when creating custom components that want
- * to use Material colors, as well as override the values when you want to re-style a part of your
- * hierarchy.
- *
- * To access values within this ambient, use [themeColor].
- */
-val Colors = Ambient.of<MaterialColors> { error("No colors found!") }
+object MaterialTheme {
+    /**
+     * Retrieves the current [ColorPalette] at the call site's position in the hierarchy.
+     *
+     * @sample androidx.ui.material.samples.ThemeColorSample
+     */
+    fun colors() = ambient(Colors)
+}
 
 /**
  * This Ambient holds on to the current definition of typography for this application as described
@@ -95,69 +96,6 @@ val Colors = Ambient.of<MaterialColors> { error("No colors found!") }
  * To access values within this ambient, use [themeTextStyle].
  */
 val Typography = Ambient.of<MaterialTypography> { error("No typography found!") }
-
-/**
- * Data class holding color values as defined by the [Material color specification](https://material.io/design/color/the-color-system.html#color-theme-creation).
- */
-data class MaterialColors(
-    /**
-     * The primary color is the color displayed most frequently across your app’s screens and
-     * components.
-     */
-    val primary: Color = Color(0xFF6200EE),
-    /**
-     * The primary variant color is used to distinguish two elements of the app using the primary
-     * color, such as the top app bar and the system bar.
-     */
-    val primaryVariant: Color = Color(0xFF3700B3),
-    /**
-     * The secondary color provides more ways to accent and distinguish your product.
-     * Secondary colors are best for:
-     * - Floating action buttons
-     * - Selection controls, like sliders and switches
-     * - Highlighting selected text
-     * - Progress bars
-     * - Links and headlines
-     */
-    val secondary: Color = Color(0xFF03DAC6),
-    /**
-     * The secondary variant color is used to distinguish two elements of the app using the
-     * secondary color.
-     */
-    val secondaryVariant: Color = Color(0xFF018786),
-    /**
-     * The background color appears behind scrollable content.
-     */
-    val background: Color = Color.White,
-    /**
-     * The surface color is used on surfaces of components, such as cards, sheets and menus.
-     */
-    val surface: Color = Color.White,
-    /**
-     * The error color is used to indicate error within components, such as text fields.
-     */
-    val error: Color = Color(0xFFB00020),
-    /**
-     * Color used for text and icons displayed on top of the primary color.
-     */
-    val onPrimary: Color = Color.White,
-    /**
-     * Color used for text and icons displayed on top of the secondary color.
-     */
-    val onSecondary: Color = Color.Black,
-    /**
-     * Color used for text and icons displayed on top of the background color.
-     */
-    val onBackground: Color = Color.Black,
-    /**
-     * Color used for text and icons displayed on top of the surface color.
-     */
-    val onSurface: Color = Color.Black,
-    /**
-     * Color used for text and icons displayed on top of the error color.
-     */
-    val onError: Color = Color.White
-)
 
 /**
  * Data class holding typography definitions as defined by the [Material typography specification](https://material.io/design/typography/the-type-system.html#type-scale).
@@ -240,23 +178,13 @@ private fun MaterialRippleTheme(children: @Composable() () -> Unit) {
                 }
             },
             opacity = effectOf {
-                val isDarkTheme = (+themeColor { surface }).luminance() < 0.5f
+                val isDarkTheme = (+MaterialTheme.colors()).surface.luminance() < 0.5f
                 if (isDarkTheme) 0.24f else 0.12f
             }
         )
     }
     CurrentRippleTheme.Provider(value = defaultTheme, children = children)
 }
-
-/**
- * Helper effect that resolves [Color]s from the [Colors] ambient by applying [choosingBlock].
- *
- * @sample androidx.ui.material.samples.ThemeColorSample
- */
-@CheckResult(suggest = "+")
-fun themeColor(
-    choosingBlock: MaterialColors.() -> Color
-) = effectOf<Color> { (+ambient(Colors)).choosingBlock() }
 
 /**
  * Helper effect that resolves [TextStyle]s from the [Typography] ambient by applying
@@ -284,7 +212,7 @@ data class Shapes(
      */
     val button: Shape,
     /**
-     * Shape used for [Card]
+     * Shape used for [androidx.ui.material.surface.Card]
      */
     val card: Shape
     // TODO(Andrey): Add shapes for other surfaces? will see what we need.

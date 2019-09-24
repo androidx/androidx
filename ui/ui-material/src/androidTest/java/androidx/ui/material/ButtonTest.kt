@@ -200,7 +200,9 @@ class ButtonTest {
         composeTestRule.setMaterialContent {
             Button(onClick = {}, style = ContainedButtonStyle()) {
                 Truth.assertThat(+currentTextStyle())
-                    .isEqualTo(+themeTextStyle { button.copy(color = +themeColor { onPrimary }) })
+                    .isEqualTo(+themeTextStyle {
+                        button.copy(color = (+MaterialTheme.colors()).onPrimary)
+                    })
             }
         }
     }
@@ -210,7 +212,9 @@ class ButtonTest {
         composeTestRule.setMaterialContent {
             Button(onClick = {}, style = OutlinedButtonStyle()) {
                 Truth.assertThat(+currentTextStyle())
-                    .isEqualTo(+themeTextStyle { button.copy(color = +themeColor { primary }) })
+                    .isEqualTo(+themeTextStyle {
+                        button.copy(color = (+MaterialTheme.colors()).primary)
+                    })
             }
         }
     }
@@ -220,7 +224,9 @@ class ButtonTest {
         composeTestRule.setMaterialContent {
             Button(onClick = {}, style = OutlinedButtonStyle()) {
                 Truth.assertThat(+currentTextStyle())
-                    .isEqualTo(+themeTextStyle { button.copy(color = +themeColor { primary }) })
+                    .isEqualTo(+themeTextStyle {
+                        button.copy(color = (+MaterialTheme.colors()).primary)
+                    })
             }
         }
     }

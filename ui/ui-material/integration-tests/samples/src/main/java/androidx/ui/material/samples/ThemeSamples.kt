@@ -23,45 +23,49 @@ import androidx.ui.core.Text
 import androidx.ui.core.sp
 import androidx.ui.foundation.ColoredRect
 import androidx.ui.graphics.Color
-import androidx.ui.material.MaterialColors
+import androidx.ui.material.ColorPalette
+import androidx.ui.material.FloatingActionButton
 import androidx.ui.material.MaterialTheme
 import androidx.ui.material.MaterialTypography
-import androidx.ui.material.themeColor
 import androidx.ui.material.themeTextStyle
 import androidx.ui.text.TextStyle
 import androidx.ui.text.font.FontFamily
 import androidx.ui.text.font.FontWeight
 
+// TODO: add shape theme
 @Sampled
 @Composable
 fun MaterialThemeSample() {
-    val colors = MaterialColors(
+    val colors = ColorPalette(
         primary = Color(0xFF1EB980.toInt()),
         surface = Color(0xFF26282F.toInt()),
         onSurface = Color.White
     )
+
     val typography = MaterialTypography(
         h1 = TextStyle(fontFamily = FontFamily("RobotoCondensed"),
             fontWeight = FontWeight.W100,
             fontSize = 96.sp),
-        h2 = TextStyle(fontFamily = FontFamily("RobotoCondensed"),
-            fontWeight = FontWeight.W100,
-            fontSize = 60.sp)
+        button = TextStyle(fontFamily = FontFamily("RobotoCondensed"),
+            fontWeight = FontWeight.W600,
+            fontSize = 14.sp)
 
     )
+
     MaterialTheme(colors = colors, typography = typography) {
-        // Your app content goes here
+        FloatingActionButton("FAB with text style and color from theme", onClick = {})
     }
 }
 
 @Sampled
 @Composable
 fun ThemeColorSample() {
-    ColoredRect(color = +themeColor { primary })
+    val colors = +MaterialTheme.colors()
+    ColoredRect(color = colors.primary)
 }
 
 @Sampled
 @Composable
 fun ThemeTextStyleSample() {
-    Text(text = "Styled text", style = +themeTextStyle { h1 })
+    Text(text = "H4 styled text", style = +themeTextStyle { h4 })
 }

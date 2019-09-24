@@ -22,8 +22,7 @@ import androidx.compose.unaryPlus
 import androidx.ui.core.em
 import androidx.ui.core.sp
 import androidx.ui.graphics.Color
-import androidx.ui.material.Colors
-import androidx.ui.material.MaterialColors
+import androidx.ui.material.ColorPalette
 import androidx.ui.material.MaterialTheme
 import androidx.ui.material.MaterialTypography
 import androidx.ui.material.Typography
@@ -40,9 +39,9 @@ val rallyBlue = Color(0xFF72DEFF)
 
 @Composable
 fun RallyTheme(children: @Composable() () -> Unit) {
-    val colors = MaterialColors(
+    val colors = ColorPalette(
         primary = rallyGreen,
-        surface = Color(0xFF33333D),
+        surface = Color(0xFF26282F.toInt()),
         onSurface = Color.White,
         background = Color(0xFF26282F),
         onBackground = Color.White
@@ -94,7 +93,7 @@ fun RallyTheme(children: @Composable() () -> Unit) {
 
 @Composable
 fun RallyDialogThemeOverlay(children: @Composable() () -> Unit) {
-    val dialogColors = (+ambient(Colors)).copy(
+    val dialogColors = ColorPalette(
         primary = Color.White,
         surface = Color(0xFF1E1E1E),
         onSurface = Color.White

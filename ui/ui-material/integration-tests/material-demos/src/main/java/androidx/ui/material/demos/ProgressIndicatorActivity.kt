@@ -17,18 +17,19 @@
 package androidx.ui.material.demos
 
 import android.os.Handler
-import androidx.ui.layout.FlexColumn
-import androidx.ui.layout.MainAxisAlignment.SpaceEvenly
-import androidx.ui.layout.Row
-import androidx.ui.material.CircularProgressIndicator
-import androidx.ui.material.LinearProgressIndicator
-import androidx.ui.graphics.Color
 import androidx.compose.Composable
 import androidx.compose.Model
 import androidx.compose.onActive
 import androidx.compose.onDispose
 import androidx.compose.unaryPlus
+import androidx.ui.graphics.Color
 import androidx.ui.layout.ExpandedWidth
+import androidx.ui.layout.FlexColumn
+import androidx.ui.layout.MainAxisAlignment
+import androidx.ui.layout.MainAxisAlignment.SpaceEvenly
+import androidx.ui.layout.Row
+import androidx.ui.material.CircularProgressIndicator
+import androidx.ui.material.LinearProgressIndicator
 
 class ProgressIndicatorActivity : MaterialDemoActivity() {
 
@@ -84,7 +85,7 @@ private fun ProgressIndicatorDemo(state: ProgressState = ProgressState()) {
     +onActive { state.start() }
     +onDispose { state.stop() }
 
-    FlexColumn {
+    FlexColumn(mainAxisAlignment = MainAxisAlignment.Center) {
         expanded(flex = 1f) {
             Row(
                 ExpandedWidth,

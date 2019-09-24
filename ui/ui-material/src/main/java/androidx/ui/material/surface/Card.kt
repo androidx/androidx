@@ -23,7 +23,7 @@ import androidx.ui.core.dp
 import androidx.ui.engine.geometry.Shape
 import androidx.ui.foundation.shape.border.Border
 import androidx.ui.graphics.Color
-import androidx.ui.material.themeColor
+import androidx.ui.material.MaterialTheme
 import androidx.ui.material.themeShape
 
 /**
@@ -39,7 +39,7 @@ import androidx.ui.material.themeShape
 @Composable
 fun Card(
     shape: Shape = +themeShape { card },
-    color: Color = +themeColor { surface },
+    color: Color = (+MaterialTheme.colors()).surface,
     border: Border? = null,
     elevation: Dp = 1.dp,
     children: @Composable() () -> Unit

@@ -84,7 +84,7 @@ data class ButtonStyle(
  * If null is provided the color will be calculated by [RippleTheme.defaultColor].
  */
 fun ContainedButtonStyle(
-    color: Color = +themeColor { primary },
+    color: Color = (+MaterialTheme.colors()).primary,
     shape: Shape = +themeShape { button },
     elevation: Dp = 2.dp,
     rippleColor: Color? = null
@@ -118,11 +118,14 @@ fun ContainedButtonStyle(
  * @param contentColor The color used by text and Ripple.
  */
 fun OutlinedButtonStyle(
-    border: Border = Border(+themeColor { onSurface.copy(alpha = OutlinedStrokeOpacity) }, 1.dp),
-    color: Color = +themeColor { surface },
+    border: Border = Border(
+        (+MaterialTheme.colors()).onSurface.copy(alpha = OutlinedStrokeOpacity),
+        1.dp
+    ),
+    color: Color = (+MaterialTheme.colors()).surface,
     shape: Shape = +themeShape { button },
     elevation: Dp = 0.dp,
-    contentColor: Color? = +themeColor { primary }
+    contentColor: Color? = (+MaterialTheme.colors()).primary
 ) = ButtonStyle(
     color = color,
     shape = shape,
@@ -149,7 +152,7 @@ fun OutlinedButtonStyle(
  */
 fun TextButtonStyle(
     shape: Shape = +themeShape { button },
-    contentColor: Color? = +themeColor { primary }
+    contentColor: Color? = (+MaterialTheme.colors()).primary
 ) = ButtonStyle(
     color = Color.Transparent,
     shape = shape,
@@ -166,7 +169,7 @@ fun TextButtonStyle(
  *
  * The default text style for internal [Text] components will be set to [MaterialTypography.button]. Text color will
  * try to match the correlated color for the background color. For example if the background color is set to
- * [MaterialColors.primary] then the text will by default use [MaterialColors.onPrimary].
+ * [ColorPalette.primary] then the text will by default use [ColorPalette.onPrimary].
  *
  * @sample androidx.ui.material.samples.ButtonSample
  *
@@ -207,7 +210,7 @@ fun Button(
  *
  * The default text style for internal [Text] components will be set to [MaterialTypography.button]. Text color will
  * try to match the correlated color for the background color. For example if the background color is set to
- * [MaterialColors.primary] then the text will by default use [MaterialColors.onPrimary].
+ * [ColorPalette.primary] then the text will by default use [ColorPalette.onPrimary].
  *
  * @sample androidx.ui.material.samples.ButtonWithTextSample
  *
