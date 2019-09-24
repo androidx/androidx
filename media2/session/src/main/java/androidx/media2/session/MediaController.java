@@ -1152,6 +1152,7 @@ public class MediaController implements AutoCloseable {
      * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
+    @NonNull
     public ListenableFuture<SessionResult> setSurface(@Nullable Surface surface) {
         if (isConnected()) {
             return getImpl().setSurface(surface);
