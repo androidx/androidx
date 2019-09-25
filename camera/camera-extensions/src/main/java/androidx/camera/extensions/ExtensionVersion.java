@@ -80,10 +80,13 @@ abstract class ExtensionVersion {
 
         VendorExtenderVersioning() {
             mImpl = new ExtensionVersionImpl();
-            String vendorVersion = mImpl.checkApiVersion(VersionName.CURRENT.toVersionString());
+
+            String vendorVersion = mImpl.checkApiVersion(
+                    VersionName.getCurrentVersion().toVersionString());
             Version vendorVersionObj = Version.parse(vendorVersion);
-            if (vendorVersionObj != null && VersionName.CURRENT.getVersion().compareTo(
-                    vendorVersionObj.getMajor()) == 0) {
+            if (vendorVersionObj != null
+                    && VersionName.getCurrentVersion().getVersion().getMajor()
+                    == vendorVersionObj.getMajor()) {
                 mRuntimeVersion = vendorVersionObj;
             }
 

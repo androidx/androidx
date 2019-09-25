@@ -20,12 +20,20 @@ import android.os.Looper;
 import android.util.Log;
 
 import androidx.annotation.GuardedBy;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.camera.core.CameraX;
 import androidx.camera.core.CameraX.LensFacing;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCaptureConfig;
 import androidx.camera.core.Preview;
 import androidx.camera.core.PreviewConfig;
+import androidx.camera.core.impl.utils.executor.CameraXExecutors;
+import androidx.camera.core.impl.utils.futures.Futures;
+import androidx.camera.extensions.impl.InitializerImpl;
+import androidx.concurrent.futures.CallbackToFutureAdapter;
+
+import com.google.common.util.concurrent.ListenableFuture;
 
 /**
  * Provides interfaces for third party app developers to get capabilities info of extension
@@ -33,6 +41,7 @@ import androidx.camera.core.PreviewConfig;
  */
 public final class ExtensionsManager {
     private static final String TAG = "ExtensionsManager";
+
     /** The effect mode options applied on the bound use cases */
     public enum EffectMode {
         /** Normal mode without any specific effect applied. */
@@ -61,12 +70,77 @@ public final class ExtensionsManager {
         AUTO
     }
 
+    public enum ExtensionsAvailability {
+        /**
+         * The device extensions library exists and has been correctly loaded.
+         */
+        LIBRARY_AVAILABLE,
+        /**
+         * The device extensions library exists. However, there was some error loading the library.
+         */
+        LIBRARY_UNAVAILABLE_ERROR_LOADING,
+        /**
+         * The device extensions library exists. However, the library is missing implementations.
+         */
+        LIBRARY_UNAVAILABLE_MISSING_IMPLEMENTATION,
+        /**
+         * There are no extensions available on this device.
+         */
+        NONE
+    }
+
     private static final Object ERROR_LOCK = new Object();
 
     @GuardedBy("ERROR_LOCK")
     private static final Handler DEFAULT_HANDLER = new Handler(Looper.getMainLooper());
     @GuardedBy("ERROR_LOCK")
     private static volatile ExtensionsErrorListener sExtensionsErrorListener = null;
+
+    /**
+     * Initialize the extensions asynchronously.
+     *
+     * <p>This should be the first call to the extensions module. An application must wait until the
+     * {@link ListenableFuture} completes before making any other calls to the extensions module.
+     */
+    @NonNull
+    public static ListenableFuture<ExtensionsAvailability> init() {
+        if (ExtensionVersion.getRuntimeVersion() == null) {
+            return Futures.immediateFuture(ExtensionsAvailability.NONE);
+        }
+
+        if (ExtensionVersion.getRuntimeVersion().compareTo(Version.VERSION_1_1) < 0) {
+            return Futures.immediateFuture(
+                    ExtensionsAvailability.LIBRARY_AVAILABLE);
+        }
+
+        return CallbackToFutureAdapter.getFuture(completer -> {
+            try {
+                InitializerImpl.init(VersionName.getCurrentVersion().toVersionString(),
+                        CameraX.getContext(),
+                        new InitializerImpl.OnExtensionsInitializedCallback() {
+                            @Override
+                            public void onSuccess() {
+                                Log.d(TAG, "Successfully initialized extensions");
+                                completer.set(
+                                        ExtensionsAvailability.LIBRARY_AVAILABLE);
+                            }
+
+                            @Override
+                            public void onFailure(int error) {
+                                Log.d(TAG, "Failed to initialize extensions");
+                                completer.set(
+                                        ExtensionsAvailability.LIBRARY_UNAVAILABLE_ERROR_LOADING);
+                            }
+                        },
+                        CameraXExecutors.mainThreadExecutor());
+            } catch (NoSuchMethodError | NoClassDefFoundError e) {
+                completer.set(
+                        ExtensionsAvailability.LIBRARY_UNAVAILABLE_MISSING_IMPLEMENTATION);
+            }
+
+            return "Initialize extensions";
+        });
+    }
 
     /**
      * Indicates whether the camera device with the {@link LensFacing} can support the specific
