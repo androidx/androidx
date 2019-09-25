@@ -29,6 +29,7 @@ import androidx.ui.core.dp
 import androidx.ui.core.sp
 import androidx.ui.core.withDensity
 import androidx.ui.engine.geometry.Shape
+import androidx.ui.foundation.shape.RectangleShape
 import androidx.ui.foundation.shape.corner.RoundedCornerShape
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.luminance
@@ -67,7 +68,7 @@ fun MaterialTheme(
         Typography.Provider(value = typography) {
             CurrentTextStyleProvider(value = typography.body1) {
                 MaterialRippleTheme {
-                    MaterialButtonShapeTheme(children = children)
+                    MaterialShapeTheme(children = children)
                 }
             }
         }
@@ -280,14 +281,18 @@ data class Shapes(
     /**
      * Shape used for [Button]
      */
-    val button: Shape
-    // TODO(Andrey): Add shapes for Card, other surfaces? will see what we need.
+    val button: Shape,
+    /**
+     * Shape used for [Card]
+     */
+    val card: Shape
+    // TODO(Andrey): Add shapes for other surfaces? will see what we need.
 )
 
 /**
  * Ambient used to specify the default shapes for the surfaces.
  *
- * @see [MaterialButtonShapeTheme] for the default Material Design value
+ * @see [MaterialShapeTheme] for the default Material Design value
  */
 val CurrentShapeAmbient = Ambient.of<Shapes> {
     throw IllegalStateException("No default shapes provided.")
@@ -297,10 +302,11 @@ val CurrentShapeAmbient = Ambient.of<Shapes> {
  * Applies the default [Shape]s for all the surfaces.
  */
 @Composable
-fun MaterialButtonShapeTheme(children: @Composable() () -> Unit) {
+fun MaterialShapeTheme(children: @Composable() () -> Unit) {
     val value = +withDensity {
         Shapes(
-            button = RoundedCornerShape(4.dp)
+            button = RoundedCornerShape(4.dp),
+            card = RectangleShape
         )
     }
     CurrentShapeAmbient.Provider(value = value, children = children)

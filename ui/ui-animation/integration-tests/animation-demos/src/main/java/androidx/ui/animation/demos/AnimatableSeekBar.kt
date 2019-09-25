@@ -84,9 +84,10 @@ class AnimatableSeekBar : Activity() {
 
     @Composable
     fun DrawSeekBar(x: Float) {
-        var paint = +memo { Paint() }
+        val paint = +memo { Paint() }
         Draw { canvas, parentSize ->
             val centerY = parentSize.height.value / 2
+            val xConstraint = x.coerceIn(0f, parentSize.width.value)
             // draw bar
             paint.color = Color.Gray
             canvas.drawRect(
@@ -95,12 +96,13 @@ class AnimatableSeekBar : Activity() {
             )
             paint.color = Color.Magenta
             canvas.drawRect(
-                Rect(0f, centerY - 5, x, centerY + 5),
+                Rect(0f, centerY - 5, xConstraint, centerY + 5),
                 paint
             )
+
             // draw ticker
             canvas.drawCircle(
-                Offset(x, centerY), 40f, paint
+                Offset(xConstraint, centerY), 40f, paint
             )
         }
     }

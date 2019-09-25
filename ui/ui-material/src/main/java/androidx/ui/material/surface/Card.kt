@@ -22,11 +22,11 @@ import androidx.compose.unaryPlus
 import androidx.ui.core.Dp
 import androidx.ui.core.dp
 import androidx.ui.engine.geometry.Shape
-import androidx.ui.foundation.shape.RectangleShape
 import androidx.ui.foundation.shape.border.Border
 import androidx.ui.graphics.Color
 import androidx.ui.material.MaterialColors
 import androidx.ui.material.themeColor
+import androidx.ui.material.themeShape
 
 /**
  * Cards are [Surface]s that display content and actions on a single topic.
@@ -44,7 +44,7 @@ import androidx.ui.material.themeColor
  */
 @Composable
 fun Card(
-    shape: Shape = RectangleShape, // TODO (Andrey: Take the default shape from the theme)
+    shape: Shape = +themeShape { card },
     color: Color = +themeColor { surface },
     border: Border? = null,
     elevation: Dp = 1.dp,
