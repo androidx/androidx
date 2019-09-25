@@ -525,6 +525,40 @@ class RawDragGestureDetectorTest {
         assertThat(result.first().consumed.downChange).isTrue()
     }
 
+    @Test
+    fun pointerInputHandler_move_onStartCalledWithDownPosition() {
+        val down = down(x = 3f, y = 4f)
+        recognizer.pointerInputHandler.invokeOverAllPasses(down)
+        dragStartBlocked = false
+
+        val move = down.moveBy(Duration(milliseconds = 10), 1f, 0f)
+        recognizer.pointerInputHandler.invokeOverAllPasses(move)
+
+        assertThat(log.first { it.methodName == "onStart" }.pxPosition)
+            .isEqualTo(PxPosition(3.px, 4.px))
+    }
+
+    @Test
+    fun pointerInputHandler_3PointsMove_onStartCalledWithDownPositions() {
+        var pointer1 = down(id = 1, x = 1f, y = 2f)
+        var pointer2 = down(id = 2, x = 5f, y = 4f)
+        var pointer3 = down(id = 3, x = 3f, y = 6f)
+        recognizer.pointerInputHandler.invokeOverAllPasses(pointer1, pointer2, pointer3)
+        dragStartBlocked = false
+
+        pointer1 = pointer1.moveBy(100.milliseconds, 1f, 0f)
+        pointer2 = pointer2.moveBy(100.milliseconds, 0f, 0f)
+        pointer3 = pointer3.moveBy(100.milliseconds, 0f, 0f)
+
+        // Act
+
+        recognizer.pointerInputHandler.invokeOverAllPasses(pointer1, pointer2, pointer3)
+
+        assertThat(log.first { it.methodName == "onStart" }.pxPosition)
+            // average position
+            .isEqualTo(PxPosition(3.px, 4.px))
+    }
+
     data class LogItem(
         val methodName: String,
         val direction: Direction? = null,
@@ -536,9 +570,9 @@ class RawDragGestureDetectorTest {
         var dragConsume: PxPosition? = null
     ) : DragObserver {
 
-        override fun onStart() {
-            log.add(LogItem("onStart"))
-            super.onStart()
+        override fun onStart(downPosition: PxPosition) {
+            log.add(LogItem("onStart", pxPosition = downPosition))
+            super.onStart(downPosition)
         }
 
         override fun onDrag(dragDistance: PxPosition): PxPosition {

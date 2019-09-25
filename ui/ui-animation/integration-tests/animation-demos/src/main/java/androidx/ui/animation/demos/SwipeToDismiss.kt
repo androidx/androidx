@@ -75,7 +75,7 @@ class SwipeToDismiss : Activity() {
         val itemWidth = +state { 0f }
         val isFlinging = +state { false }
         RawDragGestureDetector(dragObserver = object : DragObserver {
-            override fun onStart() {
+            override fun onStart(downPosition: PxPosition) {
                 itemBottom.setBounds(0f, height)
                 if (isFlinging.value && itemBottom.targetValue < 100f) {
                     reset()
