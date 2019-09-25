@@ -125,6 +125,14 @@ public class TrustedWebActivityServiceConnectionManager {
                 callback.onConnected(mService);
             }
         }
+
+        public void cancel() {
+            for (WrappedCallback callback : mCallbacks) {
+                callback.onConnected(null);
+            }
+            mCallbacks.clear();
+            mConnections.remove(mScope);
+        }
     }
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
@@ -259,33 +267,32 @@ public class TrustedWebActivityServiceConnectionManager {
 
         final Connection newConnection = new Connection(scope);
         newConnection.addCallback(wrappedCallback);
+        mConnections.put(scope, newConnection);
 
         // Create a new connection.
-        new AsyncTask<Void, Void, Connection>() {
+        new AsyncTask<Void, Void, Boolean>() {
             @Override
-            protected Connection doInBackground(Void... voids) {
+            protected Boolean doInBackground(Void... voids) {
                 try {
                     // We can pass newConnection to bindService here on a background thread because
                     // bindService assures us it will use newConnection on the UI thread.
                     if (mContext.bindService(bindServiceIntent, newConnection,
                             Context.BIND_AUTO_CREATE)) {
-                        return newConnection;
+                        return true;
                     }
 
                     mContext.unbindService(newConnection);
-                    return null;
+                    return false;
                 } catch (SecurityException e) {
                     Log.w(TAG, "SecurityException while binding.", e);
-                    return null;
+                    return false;
                 }
             }
 
             @Override
-            protected void onPostExecute(Connection newConnection) {
-                if (newConnection == null) {
-                    wrappedCallback.onConnected(null);
-                } else {
-                    mConnections.put(scope, newConnection);
+            protected void onPostExecute(Boolean success) {
+                if (!success) {
+                    newConnection.cancel();
                 }
             }
         }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
