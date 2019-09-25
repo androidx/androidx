@@ -528,4 +528,24 @@ public class NavDestination {
         }
         return defaultArgs;
     }
+
+    @NonNull
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(getClass().getSimpleName());
+        sb.append("(");
+        if (mIdName == null) {
+            sb.append("0x");
+            sb.append(Integer.toHexString(mId));
+        } else {
+            sb.append(mIdName);
+        }
+        sb.append(")");
+        if (mLabel != null) {
+            sb.append(" label=");
+            sb.append(mLabel);
+        }
+        return sb.toString();
+    }
 }

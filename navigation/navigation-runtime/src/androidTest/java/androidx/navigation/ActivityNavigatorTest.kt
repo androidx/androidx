@@ -30,6 +30,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.rule.ActivityTestRule
+import com.google.common.truth.Truth.assertThat
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
@@ -59,6 +60,7 @@ class ActivityNavigatorTest {
         const val TARGET_DATA_PATTERN = "http://www.example.com/{$TARGET_ARGUMENT_NAME}"
         const val TARGET_ARGUMENT_VALUE = "data_pattern"
         const val TARGET_ARGUMENT_INT_VALUE = 1
+        const val TARGET_LABEL = "test_label"
     }
 
     @get:Rule
@@ -274,6 +276,40 @@ class ActivityNavigatorTest {
         verify(context).startActivity(argThat { intent ->
             intent.flags and flags != 0
         }, refEq(activityOptions.toBundle()))
+    }
+
+    @Test
+    fun testToString() {
+        val targetDestination = activityNavigator.createDestination().apply {
+            id = TARGET_ID
+            label = TARGET_LABEL
+            setComponentName(ComponentName(activityRule.activity, TargetActivity::class.java))
+        }
+        val expected = "Destination(0x${TARGET_ID.toString(16)}) label=$TARGET_LABEL " +
+                "class=${TargetActivity::class.java.name}"
+        assertThat(targetDestination.toString()).isEqualTo(expected)
+    }
+
+    @Test
+    fun testToStringNoClass() {
+        val targetDestination = activityNavigator.createDestination().apply {
+            id = TARGET_ID
+            label = TARGET_LABEL
+            action = TARGET_ACTION
+        }
+        val expected = "Destination(0x${TARGET_ID.toString(16)}) label=$TARGET_LABEL " +
+                "action=$TARGET_ACTION"
+        assertThat(targetDestination.toString()).isEqualTo(expected)
+    }
+
+    @Test
+    fun testToStringNoClassOrAction() {
+        val targetDestination = activityNavigator.createDestination().apply {
+            id = TARGET_ID
+            label = TARGET_LABEL
+        }
+        val expected = "Destination(0x${TARGET_ID.toString(16)}) label=$TARGET_LABEL"
+        assertThat(targetDestination.toString()).isEqualTo(expected)
     }
 
     private fun waitForActivity(): TargetActivity {

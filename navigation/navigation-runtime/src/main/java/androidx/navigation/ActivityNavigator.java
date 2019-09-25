@@ -414,6 +414,25 @@ public class ActivityNavigator extends Navigator<ActivityNavigator.Destination> 
         boolean supportsActions() {
             return false;
         }
+
+        @NonNull
+        @Override
+        public String toString() {
+            ComponentName componentName = getComponent();
+            StringBuilder sb = new StringBuilder();
+            sb.append(super.toString());
+            if (componentName != null) {
+                sb.append(" class=");
+                sb.append(componentName.getClassName());
+            } else {
+                String action = getAction();
+                if (action != null) {
+                    sb.append(" action=");
+                    sb.append(action);
+                }
+            }
+            return sb.toString();
+        }
     }
 
     /**
