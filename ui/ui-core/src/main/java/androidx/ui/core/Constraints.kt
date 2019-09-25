@@ -45,18 +45,18 @@ data class Constraints(
 ) {
     init {
         // TODO(mount/popam): This verification is costly. Can we avoid it sometimes or at least on production?
-        require(minWidth.isFinite()) { "Constraints#minWidth should be finite" }
-        require(minHeight.isFinite()) { "Constraints#minHeight should be finite" }
+        require(minWidth.isFinite()) { "minWidth $minWidth should be finite" }
+        require(minHeight.isFinite()) { "minHeight $minHeight should be finite" }
         require(minWidth <= maxWidth) {
-            "Constraints should be satisfiable, but minWidth > maxWidth"
+            "Constraints should be satisfiable, but minWidth($minWidth) > maxWidth($maxWidth)"
         }
         require(minHeight <= maxHeight) {
-            "Constraints should be satisfiable, but minHeight > maxHeight"
+            "Constraints should be satisfiable, but minHeight($minHeight) > maxHeight($maxHeight)"
         }
-        require(minWidth >= IntPx.Zero) { "Constraints#minWidth should be non-negative" }
-        require(maxWidth >= IntPx.Zero) { "Constraints#maxWidth should be non-negative" }
-        require(minHeight >= IntPx.Zero) { "Constraints#minHeight should be non-negative" }
-        require(maxHeight >= IntPx.Zero) { "Constraints#maxHeight should be non-negative" }
+        require(minWidth >= IntPx.Zero) { "minWidth $minWidth should be non-negative" }
+        require(maxWidth >= IntPx.Zero) { "maxWidth $maxWidth should be non-negative" }
+        require(minHeight >= IntPx.Zero) { "minHeight $minHeight should be non-negative" }
+        require(maxHeight >= IntPx.Zero) { "maxHeight $maxHeight should be non-negative" }
     }
 
     companion object {

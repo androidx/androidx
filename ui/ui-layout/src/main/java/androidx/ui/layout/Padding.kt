@@ -31,7 +31,9 @@ import androidx.ui.core.IntPxSize
 import androidx.ui.core.Layout
 import androidx.ui.core.LayoutModifier
 import androidx.ui.core.Measurable
-import androidx.ui.core.withDensity
+import androidx.ui.core.coerceAtLeast
+import androidx.ui.core.coerceIn
+import androidx.ui.core.ipx
 
 /**
  * Padding on all sides.
@@ -68,16 +70,20 @@ data class AbsolutePadding(
     val bottom: Dp = 0.dp
 ) : LayoutModifier {
     override fun DensityScope.minIntrinsicWidthOf(measurable: Measurable, height: IntPx): IntPx =
-        measurable.minIntrinsicWidth(height - (top + bottom).toIntPx())
+        measurable.minIntrinsicWidth((height - (top + bottom).toIntPx()).coerceAtLeast(0.ipx)) +
+                (left + right).toIntPx()
 
     override fun DensityScope.maxIntrinsicWidthOf(measurable: Measurable, height: IntPx): IntPx =
-        measurable.maxIntrinsicWidth(height - (top + bottom).toIntPx())
+        measurable.maxIntrinsicWidth((height - (top + bottom).toIntPx()).coerceAtLeast(0.ipx)) +
+                (left + right).toIntPx()
 
     override fun DensityScope.minIntrinsicHeightOf(measurable: Measurable, width: IntPx): IntPx =
-        measurable.minIntrinsicHeight(width - (left + right).toIntPx())
+        measurable.minIntrinsicHeight((width - (left + right).toIntPx()).coerceAtLeast(0.ipx)) +
+                (top + bottom).toIntPx()
 
     override fun DensityScope.maxIntrinsicHeightOf(measurable: Measurable, width: IntPx): IntPx =
-        measurable.maxIntrinsicHeight(width - (left + right).toIntPx())
+        measurable.maxIntrinsicHeight((width - (left + right).toIntPx()).coerceAtLeast(0.ipx)) +
+                (top + bottom).toIntPx()
 
     override fun DensityScope.modifyConstraints(
         constraints: Constraints
@@ -87,16 +93,20 @@ data class AbsolutePadding(
     )
 
     override fun DensityScope.modifySize(
+        constraints: Constraints,
         childSize: IntPxSize
     ) = IntPxSize(
-        left.toIntPx() + childSize.width + right.toIntPx(),
-        top.toIntPx() + childSize.height + bottom.toIntPx()
+        (left.toIntPx() + childSize.width + right.toIntPx())
+            .coerceIn(constraints.minWidth, constraints.maxWidth),
+        (top.toIntPx() + childSize.height + bottom.toIntPx())
+            .coerceIn(constraints.minHeight, constraints.maxHeight)
     )
 
     override fun DensityScope.modifyPosition(
+        childPosition: IntPxPosition,
         childSize: IntPxSize,
         containerSize: IntPxSize
-    ) = IntPxPosition(left.toIntPx(), top.toIntPx())
+    ) = IntPxPosition(left.toIntPx() + childPosition.x, top.toIntPx() + childPosition.y)
 
     override fun DensityScope.modifyAlignmentLine(line: AlignmentLine, value: IntPx?): IntPx? {
         if (value == null) return null

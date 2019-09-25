@@ -652,7 +652,7 @@ class LayoutNode : ComponentNode(), Measurable, MeasureScope {
             // Rebuild layoutNodeWrapper
             val oldPlaceable = layoutNodeWrapper
             layoutNodeWrapper = modifier.foldOut(innerLayoutNodeWrapper) { mod, toWrap ->
-                if (mod is LayoutModifier) ModifiedLayoutNode(toWrap, mod, density) else toWrap
+                if (mod is LayoutModifier) ModifiedLayoutNode(toWrap, mod) else toWrap
             }
             // Optimize the case where the layout itself is not modified. A common reason for
             // this is if no wrapping actually occurs above because no LayoutModifiers are
@@ -718,11 +718,10 @@ class LayoutNode : ComponentNode(), Measurable, MeasureScope {
         override fun get(line: AlignmentLine): IntPx? = calculateAlignmentLines()[line]
     }
 
-    private data class ModifiedLayoutNode(
+    private inner class ModifiedLayoutNode(
         val wrapped: LayoutNodeWrapper,
-        val layoutModifier: LayoutModifier,
-        override val density: Density
-    ) : LayoutNodeWrapper(), DensityScope {
+        val layoutModifier: LayoutModifier
+    ) : LayoutNodeWrapper() {
 
         /**
          * The [Placeable] returned by measuring [wrapped] in [measure].
@@ -731,12 +730,33 @@ class LayoutNode : ComponentNode(), Measurable, MeasureScope {
          */
         private var measuredPlaceable: Placeable? = null
 
+        /**
+         * The [Constraints] used in the current measurement of this modified node wrapper.
+         * See [withMeasuredConstraints]
+         */
+        private var measuredConstraints: Constraints? = null
+
+        /**
+         * Sets [measuredConstraints] for the duration of [block].
+         */
+        private inline fun <R> withMeasuredConstraints(
+            constraints: Constraints,
+            block: () -> R
+        ): R = try {
+            measuredConstraints = constraints
+            block()
+        } finally {
+            measuredConstraints = null
+        }
+
         // TODO change this once modifiers can take over for parentData
         override val parentData: Any?
             get() = wrapped.parentData
 
         override fun measure(constraints: Constraints): Placeable = with(layoutModifier) {
-            val measureResult = wrapped.measure(modifyConstraints(constraints))
+            val measureResult = withMeasuredConstraints(constraints) {
+                wrapped.measure(modifyConstraints(constraints))
+            }
             measuredPlaceable = measureResult
             this@ModifiedLayoutNode
         }
@@ -762,12 +782,7 @@ class LayoutNode : ComponentNode(), Measurable, MeasureScope {
 
         override fun performPlace(position: IntPxPosition) {
             val placeable = measuredPlaceable ?: error("Placeable not measured")
-
-            val offset = with(layoutModifier) {
-                modifyPosition(placeable.size, size)
-            }
-
-            placeable.place(position + offset)
+            placeable.place(with(layoutModifier) { modifyPosition(position, placeable.size, size) })
         }
 
         override fun get(line: AlignmentLine): IntPx? = with(layoutModifier) {
@@ -775,7 +790,8 @@ class LayoutNode : ComponentNode(), Measurable, MeasureScope {
         }
 
         override fun layoutSize(innermostSize: IntPxSize): IntPxSize = with(layoutModifier) {
-            modifySize(wrapped.layoutSize(innermostSize)).also { size = it }
+            val constraints = measuredConstraints ?: error("must be called during measurement")
+            modifySize(constraints, wrapped.layoutSize(innermostSize)).also { size = it }
         }
     }
 
@@ -1131,7 +1147,7 @@ fun LayoutNode.localToGlobal(local: PxPosition, withOwnerOffset: Boolean = true)
     var y: Px = local.y
     var node: LayoutNode? = this
     while (node != null) {
-        val pos = node.modifiedPosition
+        val pos = node.contentPosition
         x += pos.x.toPx()
         y += pos.y.toPx()
         node = node.parentLayoutNode
@@ -1158,7 +1174,7 @@ fun LayoutNode.childToLocal(child: LayoutNode, childLocal: PxPosition): PxPositi
         checkNotNull(node) {
             "Current layout is not an ancestor of the provided child layout"
         }
-        val pos = node.modifiedPosition
+        val pos = node.contentPosition
         x += pos.x.toPx()
         y += pos.y.toPx()
         node = node.parentLayoutNode
@@ -1243,9 +1259,9 @@ private class LayoutNodeCoordinates(
     private val layoutNode: LayoutNode
 ) : LayoutCoordinates {
 
-    override val position get() = PxPosition(layoutNode.x, layoutNode.y)
+    override val position get() = layoutNode.contentPosition.toPxPosition()
 
-    override val size get() = PxSize(layoutNode.width, layoutNode.height)
+    override val size get() = layoutNode.contentSize.toPxSize()
 
     override val parentCoordinates get() = layoutNode.parentLayoutNode?.coordinates
 
