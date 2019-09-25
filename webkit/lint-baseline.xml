@@ -41,7 +41,7 @@
         errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/webkit/internal/WebViewProviderAdapter.java"
-            line="120"
+            line="123"
             column="32"/>
     </issue>
 
@@ -1009,7 +1009,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/webkit/internal/WebViewFeatureInternal.java"
-            line="383"
+            line="390"
             column="19"/>
     </issue>
 
@@ -1071,44 +1071,11 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public WebViewClient getWebViewClient() {"
-        errorLine2="           ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/webkit/internal/WebViewProviderAdapter.java"
-            line="86"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public WebChromeClient getWebChromeClient() {"
-        errorLine2="           ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/webkit/internal/WebViewProviderAdapter.java"
-            line="93"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public WebViewRenderProcess getWebViewRenderProcess() {"
-        errorLine2="           ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/webkit/internal/WebViewProviderAdapter.java"
-            line="100"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="            Executor executor, WebViewRenderProcessClient webViewRenderProcessClient) {"
         errorLine2="            ~~~~~~~~">
         <location
             file="src/main/java/androidx/webkit/internal/WebViewProviderAdapter.java"
-            line="120"
+            line="123"
             column="13"/>
     </issue>
 
@@ -1119,7 +1086,7 @@
         errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/webkit/internal/WebViewProviderAdapter.java"
-            line="120"
+            line="123"
             column="32"/>
     </issue>
 
