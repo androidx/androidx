@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Copyright (C) 2018 The Android Open Source Project
+<!-- Copyright 2018 The Android Open Source Project
 
      Licensed under the Apache License, Version 2.0 (the "License");
      you may not use this file except in compliance with the License.
@@ -61,5 +61,12 @@
     <string name="tracing_controller_stop_tracing">Stop tracing</string>
     <string name="tracing_controller_invalid_log">Log is invalid</string>
     <string name="tracing_controller_log_path">Wrote log to %1$s. This file can be loaded in
-        chrome://tracing for further analysis.</string>>
+        chrome://tracing for further analysis.</string>
+    <string name="renderer_termination_activity_title">Renderer Termination Demo</string>
+    <string name="renderer_termination_button_terminate_text">Terminate</string>
+    <string name="renderer_termination_button_block_text">Block</string>
+    <string name="renderer_termination_button_block_transient_text">Block (10 sec)</string>
+    <string name="renderer_termination_button_unblock_text">Unblock</string>
+    <string name="renderer_terminated_description">WebView renderer was terminated.</string>
+    <string name="renderer_unresponsive_description">WebView renderer has become unresponsive.</string>
 </resources>
