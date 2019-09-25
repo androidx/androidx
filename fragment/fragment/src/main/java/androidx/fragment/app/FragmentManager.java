@@ -1565,8 +1565,10 @@ public abstract class FragmentManager {
         }
 
         if (f.mState != newState) {
-            Log.w(TAG, "moveToState: Fragment state for " + f + " not updated inline; "
-                    + "expected state " + newState + " found " + f.mState);
+            if (isLoggingEnabled(Log.DEBUG)) {
+                Log.d(TAG, "moveToState: Fragment state for " + f + " not updated inline; "
+                        + "expected state " + newState + " found " + f.mState);
+            }
             f.mState = newState;
         }
     }
