@@ -956,7 +956,9 @@ public final class ImageCaptureConfig
          * @param aspectRatio A {@link Rational} representing the ratio of the target's width and
          *                    height.
          * @return The current Builder.
+         * @hide
          */
+        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         @Override
         public Builder setTargetAspectRatioCustom(@NonNull Rational aspectRatio) {
