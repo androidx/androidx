@@ -21,6 +21,7 @@ import static java.lang.annotation.RetentionPolicy.SOURCE;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.PointF;
+import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
@@ -103,8 +104,10 @@ public class PagedListView extends FrameLayout {
 
     private final RecyclerView mRecyclerView;
     private final PagedSnapHelper mSnapHelper;
+    private final View mDividerView;
     final Handler mHandler = new Handler();
     private boolean mIsScrollBarVisibleIfNeeded;
+    private boolean mIsScrollBarDividerVisibleIfNeeded;
     @VisibleForTesting
     PagedScrollBarView mScrollBarView;
 
@@ -247,6 +250,7 @@ public class PagedListView extends FrameLayout {
         TypedArray a = context.obtainStyledAttributes(
                 attrs, R.styleable.PagedListView, defStyleAttrs, defStyleRes);
         mRecyclerView = findViewById(R.id.recycler_view);
+        mDividerView = findViewById(R.id.divider);
 
         RecyclerView.LayoutManager layoutManager =
                 new LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false);
@@ -338,6 +342,14 @@ public class PagedListView extends FrameLayout {
                 scrollBarEnabled);
 
         mScrollBarView = findViewById(R.id.paged_scroll_view);
+        mIsScrollBarDividerVisibleIfNeeded =
+                a.getBoolean(R.styleable.PagedListView_scrollBarDividerVisibleIfNeeded, false);
+        int carDividerWidth =
+                getResources().getDimensionPixelSize(R.dimen.car_vertical_line_divider_width);
+        mDividerView.getLayoutParams().width =
+                a.getDimensionPixelSize(R.styleable.PagedListView_scrollBarDividerWidth,
+                        carDividerWidth);
+
         mScrollBarView.setPaginationListener(new PagedScrollBarView.PaginationListener() {
             @Override
             public void onPaginate(int direction) {
@@ -414,8 +426,12 @@ public class PagedListView extends FrameLayout {
         }
 
         // Upon scrollbar visibility changes, margins for gutters may need to be updated.
-        mScrollBarView.setOnVisibilityChangedListener(
-                (scrollbar, visibility) -> setGutter(mGutter));
+        mScrollBarView.setOnVisibilityChangedListener((view, visibility) -> {
+            mDividerView.setVisibility((visibility == VISIBLE) && mIsScrollBarDividerVisibleIfNeeded
+                    ? VISIBLE
+                    : GONE);
+            setGutter(mGutter);
+        });
         a.recycle();
     }
 
@@ -478,12 +494,14 @@ public class PagedListView extends FrameLayout {
                         || ((scrollBarGravity == Gravity.RIGHT) && isLTR)
                         || ((scrollBarGravity == Gravity.LEFT) && !isLTR);
 
-        boolean isScrollbarVisible = mScrollBarView.getVisibility() == View.VISIBLE;
+        boolean isScrollbarVisible = mScrollBarView.getVisibility() == VISIBLE;
+        int scrollBarDividerWidth =
+                mIsScrollBarDividerVisibleIfNeeded ? mDividerView.getLayoutParams().width : 0;
 
         // Default starting margin is either the width of the scroll bar, if present at the start,
         // or just flush to the edge.
         int startMargin = isScrollbarVisible && isScrollBarGravityStart
-                ? mScrollBarView.getLayoutParams().width : 0;
+                ? mScrollBarView.getLayoutParams().width + scrollBarDividerWidth : 0;
         if ((mGutter & Gutter.START) != 0) {
             // Ensure that the gutter value is large enough so that the RecyclerView does not
             // overlap the scroll bar, if it's enabled.
@@ -493,7 +511,7 @@ public class PagedListView extends FrameLayout {
         // Default end margin is either the width of the scroll bar, if present at the end, or
         // just flush to the edge.
         int endMargin = isScrollbarVisible && isScrollBarGravityEnd
-                ? mScrollBarView.getLayoutParams().width : 0;
+                ? mScrollBarView.getLayoutParams().width + scrollBarDividerWidth : 0;
         if ((mGutter & Gutter.END) != 0) {
             // Ensure that the gutter value is large enough so that the RecyclerView does not
             // overlap the scroll bar, if it's enabled.
@@ -650,6 +668,61 @@ public class PagedListView extends FrameLayout {
      */
     public final boolean isScrollBarVisibleIfNeeded() {
         return mIsScrollBarVisibleIfNeeded;
+    }
+
+    /**
+     * Sets whether a divider is shown between the scroll bar and list content. The divider can
+     * only be rendered when the scroll bar is present.
+     *
+     * If {@code true}, a divider will be shown when the scroll bar is present.
+     *
+     * @param isVisible {@code true} to show the scroll bar divider.
+     */
+    public void setScrollBarDividerVisibleIfNeeded(boolean isVisible) {
+        mIsScrollBarDividerVisibleIfNeeded = isVisible;
+        setGutter(mGutter);
+    }
+
+    /**
+     * Returns {@code true} if the scroll bar divider is shown when the scroll bar is present.
+     */
+    public boolean isScrollBarDividerVisibleIfNeeded() {
+        return mIsScrollBarDividerVisibleIfNeeded;
+    }
+
+    /**
+     * Sets the color that should be used for the scroll bar divider.
+     *
+     * @param dividerColor The packed color int for the divider color.
+     */
+    public void setScrollBarDividerColor(@ColorInt int dividerColor) {
+        mDividerView.setBackgroundColor(dividerColor);
+    }
+
+    /**
+     * Returns the color of the scrollbar divider.
+     */
+    @ColorInt
+    public int getScrollBarDividerColor() {
+        return ((ColorDrawable) mDividerView.getBackground()).getColor();
+    }
+
+    /**
+     * Sets the width for the scroll bar divider.
+     *
+     * @param width The width to set for the scroll bar divider.
+     */
+    public void setScrollBarDividerWidth(@Px int width) {
+        mDividerView.getLayoutParams().width = width;
+        setGutter(mGutter);
+    }
+
+    /**
+     * Returns the width of the scrollbar divider.
+     */
+    @Px
+    public int getScrollBarDividerWidth() {
+        return mDividerView.getLayoutParams().width;
     }
 
     /**
@@ -1293,6 +1366,32 @@ public class PagedListView extends FrameLayout {
                     mRecyclerView.computeHorizontalScrollOffset(),
                     mRecyclerView.computeHorizontalScrollExtent());
         }
+
+        if (mDividerView.getVisibility() != GONE) {
+            FrameLayout.LayoutParams scrollBarViewLayoutParams =
+                    (FrameLayout.LayoutParams) mScrollBarView.getLayoutParams();
+            int scrollBarGravity = scrollBarViewLayoutParams.gravity;
+            boolean isLTR = ViewCompat.getLayoutDirection(this) == ViewCompat.LAYOUT_DIRECTION_LTR;
+            boolean isScrollBarGravityLeft =
+                    (scrollBarGravity == Gravity.LEFT)
+                            || ((scrollBarGravity == Gravity.START) && isLTR)
+                            || ((scrollBarGravity == Gravity.END) && !isLTR);
+
+            int width = right - left;
+
+            if (isScrollBarGravityLeft) {
+                mDividerView.layout(
+                        mScrollBarView.getMeasuredWidth() - mDividerView.getMeasuredWidth(), 0,
+                        mScrollBarView.getMeasuredWidth(),
+                        mDividerView.getMeasuredHeight());
+            } else {
+                mDividerView.layout(
+                        width - mScrollBarView.getMeasuredWidth(),
+                        0,
+                        width - mScrollBarView.getMeasuredWidth() + mDividerView.getMeasuredWidth(),
+                        mDividerView.getMeasuredHeight());
+            }
+        }
     }
 
     /**
@@ -1320,6 +1419,7 @@ public class PagedListView extends FrameLayout {
         } else {
             mScrollBarView.setVisibility(VISIBLE);
         }
+
         mScrollBarView.setUpEnabled(!isAtStart);
         mScrollBarView.setDownEnabled(!isAtEnd);
 

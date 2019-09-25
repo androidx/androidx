@@ -26,6 +26,8 @@
     <!-- @deprecated Use scrollBarVisibleIfNeeded instead -->
     <public type="attr" name="scrollBarEnabled" />
     <public type="attr" name="scrollBarVisibleIfNeeded" />
+    <public type="attr" name="scrollBarDividerVisibleIfNeeded" />
+    <public type="attr" name="scrollBarDividerWidth" />
     <public type="attr" name="scrollBarTopMargin" />
     <public type="attr" name="scrollBarContainerWidth" />
     <public type="attr" name="scrollBarGravity" />
