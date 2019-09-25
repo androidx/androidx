@@ -15,11 +15,7 @@
  */
 package androidx.ui.text.style
 
-import org.hamcrest.CoreMatchers.`is`
-import org.hamcrest.CoreMatchers.equalTo
-import org.junit.Assert.assertFalse
-import org.junit.Assert.assertThat
-import org.junit.Assert.assertTrue
+import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -30,8 +26,8 @@ class TextDecorationTest {
     @Test
     fun `contains with single decoration`() {
         val textDecoration = TextDecoration.None
-        assertTrue(textDecoration.contains(TextDecoration.None))
-        assertFalse(textDecoration.contains(TextDecoration.LineThrough))
+        assertThat(textDecoration.contains(TextDecoration.None)).isTrue()
+        assertThat(textDecoration.contains(TextDecoration.LineThrough)).isFalse()
     }
 
     @Test
@@ -43,52 +39,39 @@ class TextDecorationTest {
                     TextDecoration.LineThrough
                 )
             )
-        assertTrue(textDecoration.contains(TextDecoration.Underline))
-        assertTrue(textDecoration.contains(TextDecoration.LineThrough))
+        assertThat(textDecoration.contains(TextDecoration.Underline)).isTrue()
+        assertThat(textDecoration.contains(TextDecoration.LineThrough)).isTrue()
         // since 0 is always included
-        assertTrue(textDecoration.contains(TextDecoration.None))
+        assertThat(textDecoration.contains(TextDecoration.None)).isTrue()
     }
 
     @Test
     fun `combine with empty list returns none`() {
-        assertThat(
-            TextDecoration.combine(listOf()), `is`(equalTo(
-                TextDecoration.None
-            )))
+        assertThat(TextDecoration.combine(listOf())).isEqualTo(TextDecoration.None)
     }
 
     @Test
     fun `combine with single element`() {
-        assertThat(
-            TextDecoration.combine(listOf(TextDecoration.Underline)),
-            `is`(equalTo(TextDecoration.Underline))
-        )
+        assertThat(TextDecoration.combine(listOf(TextDecoration.Underline)))
+            .isEqualTo(TextDecoration.Underline)
     }
 
     @Test
     fun `toString with single decoration`() {
-        assertThat(TextDecoration.None.toString(), `is`(equalTo("TextDecoration.None")))
-        assertThat(TextDecoration.Underline.toString(), `is`(equalTo("TextDecoration.Underline")))
-        assertThat(
-            TextDecoration.LineThrough.toString(),
-            `is`(equalTo("TextDecoration.LineThrough"))
-        )
+        assertThat(TextDecoration.None.toString()).isEqualTo("TextDecoration.None")
+        assertThat(TextDecoration.Underline.toString()).isEqualTo("TextDecoration.Underline")
+        assertThat(TextDecoration.LineThrough.toString()).isEqualTo("TextDecoration.LineThrough")
     }
 
     @Test
     fun `toString with empty combined`() {
-        assertThat(
-            TextDecoration.combine(listOf()).toString(),
-            `is`(equalTo("TextDecoration.None"))
-        )
+        assertThat(TextDecoration.combine(listOf()).toString()).isEqualTo("TextDecoration.None")
     }
 
     @Test
     fun `toString with single combined`() {
-        assertThat(
-            TextDecoration.combine(listOf(TextDecoration.LineThrough)).toString(),
-            `is`(equalTo("TextDecoration.LineThrough"))
-        )
+        assertThat(TextDecoration.combine(listOf(TextDecoration.LineThrough)).toString())
+            .isEqualTo("TextDecoration.LineThrough")
     }
 
     @Test
@@ -99,8 +82,7 @@ class TextDecorationTest {
                     TextDecoration.Underline,
                     TextDecoration.LineThrough
                 )
-            ).toString(),
-            `is`(equalTo("TextDecoration.combine([Underline, LineThrough])"))
-        )
+            ).toString()
+        ).isEqualTo("TextDecoration.combine([Underline, LineThrough])")
     }
 }

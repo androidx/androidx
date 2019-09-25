@@ -17,9 +17,7 @@ package androidx.ui.text
 
 import androidx.ui.engine.geometry.Rect
 import androidx.ui.text.style.TextDirection
-import org.hamcrest.CoreMatchers.`is`
-import org.hamcrest.CoreMatchers.equalTo
-import org.junit.Assert.assertThat
+import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -36,7 +34,7 @@ class TextBoxTest {
             4.0f,
             TextDirection.Ltr
         )
-        assertThat(textBox.toRect(), `is`(equalTo(Rect.fromLTRB(1.0f, 2.0f, 3.0f, 4.0f))))
+        assertThat(textBox.toRect()).isEqualTo(Rect.fromLTRB(1.0f, 2.0f, 3.0f, 4.0f))
     }
 
     @Test
@@ -48,7 +46,7 @@ class TextBoxTest {
             4.0f,
             TextDirection.Ltr
         )
-        assertThat(textBox.start(), `is`(equalTo(1.0f)))
+        assertThat(textBox.start()).isEqualTo(1.0f)
     }
 
     @Test
@@ -60,7 +58,7 @@ class TextBoxTest {
             4.0f,
             TextDirection.Rtl
         )
-        assertThat(textBox.start(), `is`(equalTo(3.0f)))
+        assertThat(textBox.start()).isEqualTo(3.0f)
     }
 
     @Test
@@ -72,7 +70,7 @@ class TextBoxTest {
             4.0f,
             TextDirection.Ltr
         )
-        assertThat(textBox.end(), `is`(equalTo(3.0f)))
+        assertThat(textBox.end()).isEqualTo(3.0f)
     }
 
     @Test
@@ -84,7 +82,7 @@ class TextBoxTest {
             4.0f,
             TextDirection.Rtl
         )
-        assertThat(textBox.end(), `is`(equalTo(1.0f)))
+        assertThat(textBox.end()).isEqualTo(1.0f)
     }
 
     @Test
@@ -96,8 +94,8 @@ class TextBoxTest {
             4.0f,
             TextDirection.Ltr
         )
-        assertThat(textBox.toRect(), `is`(equalTo(Rect.fromLTRB(1.0f, 2.0f, 3.0f, 4.0f))))
-        assertThat(textBox.direction, `is`(equalTo(TextDirection.Ltr)))
+        assertThat(textBox.toRect()).isEqualTo(Rect.fromLTRB(1.0f, 2.0f, 3.0f, 4.0f))
+        assertThat(textBox.direction).isEqualTo(TextDirection.Ltr)
     }
 
     @Test
@@ -109,9 +107,7 @@ class TextBoxTest {
             4.0f,
             TextDirection.Ltr
         )
-        assertThat(
-            textBox.toString(),
-            `is`(equalTo("TextBox.fromLTRBD(1.0, 2.0, 3.0, 4.0, ${TextDirection.Ltr})"))
-        )
+        assertThat(textBox.toString())
+            .isEqualTo("TextBox.fromLTRBD(1.0, 2.0, 3.0, 4.0, ${TextDirection.Ltr})")
     }
 }
