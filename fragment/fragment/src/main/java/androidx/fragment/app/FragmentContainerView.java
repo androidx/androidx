@@ -20,6 +20,7 @@ import android.animation.LayoutTransition;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
@@ -59,10 +60,10 @@ import java.util.ArrayList;
  * {@link Fragment#onCreateView(LayoutInflater, ViewGroup, Bundle)}. Attempting to add any other
  * view will result in an {@link IllegalStateException}.
  *
- * <p>Layout animations and transitions are disabled for FragmentContainerView. Animations should be
- * done through {@link FragmentTransaction#setCustomAnimations(int, int, int, int)}. If
- * animateLayoutChanges is set to <code>true</code> or
- * {@link #setLayoutTransition(LayoutTransition)} is called directly an
+ * <p>Layout animations and transitions are disabled for FragmentContainerView for APIs above 17.
+ * Otherwise, Animations should be done through
+ * {@link FragmentTransaction#setCustomAnimations(int, int, int, int)}. IfanimateLayoutChanges is
+ * set to <code>true</code> or {@link #setLayoutTransition(LayoutTransition)} is called directly an
  * {@link UnsupportedOperationException} will be thrown.
  *
  * <p>Fragments using exit animations are drawn before all others for FragmentContainerView. This
@@ -103,11 +104,13 @@ public final class FragmentContainerView extends FrameLayout {
     }
 
     /**
-     * When called, this method throws a {@link UnsupportedOperationException}. This can be called
-     * either explicitly, or implicitly by setting animateLayoutChanges to <code>true</code>.
+     * When called, this method throws a {@link UnsupportedOperationException} on APIs above 17.
+     * On APIs 17 and below, it calls {@link FrameLayout#setLayoutTransition(LayoutTransition)}
+     * This can be called either explicitly, or implicitly by setting animateLayoutChanges to
+     * <code>true</code>.
      *
-     * <p>View animations and transitions are disabled for FragmentContainerView. Use
-     * {@link FragmentTransaction#setCustomAnimations(int, int, int, int)} and
+     * <p>View animations and transitions are disabled for FragmentContainerView for APIs above 17.
+     * Use {@link FragmentTransaction#setCustomAnimations(int, int, int, int)} and
      * {@link FragmentTransaction#setTransition(int)}.
      *
      * @param transition The LayoutTransition object that will animated changes in layout. A value
@@ -116,6 +119,14 @@ public final class FragmentContainerView extends FrameLayout {
      */
     @Override
     public void setLayoutTransition(@Nullable LayoutTransition transition) {
+        if (Build.VERSION.SDK_INT < 18) {
+            // Transitions on APIs below 18 are using an empty LayoutTransition as a replacement
+            // for suppressLayout(true) and null LayoutTransition to then unsuppress it. If the
+            // API is below 18, we should allow FrameLayout to handle this call.
+            super.setLayoutTransition(transition);
+            return;
+        }
+
         throw new UnsupportedOperationException(
                 "FragmentContainerView does not support Layout Transitions or "
                         + "animateLayoutChanges=\"true\".");

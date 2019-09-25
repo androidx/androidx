@@ -55,6 +55,7 @@ class FragmentContainerViewTest {
         context = activityRule.activity.applicationContext
     }
 
+    @SdkSuppress(minSdkVersion = 18) // androidx.transition needs setLayoutTransition for API < 18
     @Test
     fun setLayoutTransitionUnsupported() {
         val activity = activityRule.activity
@@ -69,6 +70,20 @@ class FragmentContainerViewTest {
                 .contains("FragmentContainerView does not support Layout Transitions or " +
                         "animateLayoutChanges=\"true\".")
         }
+    }
+
+    @SdkSuppress(maxSdkVersion = 17) // androidx.transition needs setLayoutTransition for API < 18
+    @Test
+    fun setLayoutTransitionAllowed() {
+        val emptyLayoutTransition = LayoutTransition()
+        emptyLayoutTransition.setAnimator(LayoutTransition.APPEARING, null)
+        emptyLayoutTransition.setAnimator(LayoutTransition.CHANGE_APPEARING, null)
+        emptyLayoutTransition.setAnimator(LayoutTransition.CHANGE_DISAPPEARING, null)
+        emptyLayoutTransition.setAnimator(LayoutTransition.DISAPPEARING, null)
+        emptyLayoutTransition.setAnimator(4 /*LayoutTransition.Changing*/, null)
+
+        val containerView = FragmentContainerView(context)
+        containerView.layoutTransition = emptyLayoutTransition
     }
 
     // If view sets animateLayoutChanges to true, throw UnsupportedOperationException
