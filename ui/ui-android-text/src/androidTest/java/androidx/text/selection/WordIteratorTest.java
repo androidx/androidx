@@ -16,10 +16,7 @@
 
 package androidx.text.selection;
 
-import static junit.framework.TestCase.assertTrue;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
+import static com.google.common.truth.Truth.assertThat;
 
 import androidx.test.filters.SmallTest;
 
@@ -90,39 +87,39 @@ public class WordIteratorTest {
 
         // The word is "abc".
         currentOffset = wordIterator.nextBoundary(currentOffset);
-        assertEquals(text.indexOf('c') + 1, currentOffset);
+        assertThat(currentOffset).isEqualTo(text.indexOf('c') + 1);
 
         // The word is space.
         currentOffset = wordIterator.nextBoundary(currentOffset);
-        assertEquals(text.indexOf('d'), currentOffset);
+        assertThat(currentOffset).isEqualTo(text.indexOf('d'));
 
         // The word is "def".
         currentOffset = wordIterator.nextBoundary(currentOffset);
-        assertEquals(text.indexOf('f') + 1, currentOffset);
+        assertThat(currentOffset).isEqualTo(text.indexOf('f') + 1);
 
         // The word is "-".
         currentOffset = wordIterator.nextBoundary(currentOffset);
-        assertEquals(text.indexOf('g'), currentOffset);
+        assertThat(currentOffset).isEqualTo(text.indexOf('g'));
 
         // The word is "ghi".
         currentOffset = wordIterator.nextBoundary(currentOffset);
-        assertEquals(text.indexOf('i') + 1, currentOffset);
+        assertThat(currentOffset).isEqualTo(text.indexOf('i') + 1);
 
         // The word is ".".
         currentOffset = wordIterator.nextBoundary(currentOffset);
-        assertEquals(text.indexOf('.') + 1, currentOffset);
+        assertThat(currentOffset).isEqualTo(text.indexOf('.') + 1);
 
         // The word is space.
         currentOffset = wordIterator.nextBoundary(currentOffset);
-        assertEquals(text.indexOf('j'), currentOffset);
+        assertThat(currentOffset).isEqualTo(text.indexOf('j'));
 
         // The word is "jkl".
         currentOffset = wordIterator.nextBoundary(currentOffset);
-        assertEquals(text.length(), currentOffset);
+        assertThat(currentOffset).isEqualTo(text.length());
 
         // WordIterator reaches the end.
         currentOffset = wordIterator.nextBoundary(currentOffset);
-        assertEquals(BreakIterator.DONE, currentOffset);
+        assertThat(currentOffset).isEqualTo(BreakIterator.DONE);
     }
 
     @Test
@@ -137,39 +134,39 @@ public class WordIteratorTest {
 
         // The word is "\u05d0\u05d1\u05d2"("אבג")
         currentOffset = wordIterator.nextBoundary(currentOffset);
-        assertEquals(text.indexOf('\u05d2') + 1, currentOffset);
+        assertThat(currentOffset).isEqualTo(text.indexOf('\u05d2') + 1);
 
         // The word is space.
         currentOffset = wordIterator.nextBoundary(currentOffset);
-        assertEquals(text.indexOf('\u05d3'), currentOffset);
+        assertThat(currentOffset).isEqualTo(text.indexOf('\u05d3'));
 
         // The word is "\u05d3\u05d4"("דה")
         currentOffset = wordIterator.nextBoundary(currentOffset);
-        assertEquals(text.indexOf('-'), currentOffset);
+        assertThat(currentOffset).isEqualTo(text.indexOf('-'));
 
         // The word is "-".
         currentOffset = wordIterator.nextBoundary(currentOffset);
-        assertEquals(text.indexOf('\u05d5'), currentOffset);
+        assertThat(currentOffset).isEqualTo(text.indexOf('\u05d5'));
 
         // The word is "\u05d5\u05d6("וז")
         currentOffset = wordIterator.nextBoundary(currentOffset);
-        assertEquals(text.indexOf('.'), currentOffset);
+        assertThat(currentOffset).isEqualTo(text.indexOf('.'));
 
         // The word is ".".
         currentOffset = wordIterator.nextBoundary(currentOffset);
-        assertEquals(text.indexOf('.') + 1, currentOffset);
+        assertThat(currentOffset).isEqualTo(text.indexOf('.') + 1);
 
         // The word is space.
         currentOffset = wordIterator.nextBoundary(currentOffset);
-        assertEquals(text.indexOf('\u05d7'), currentOffset);
+        assertThat(currentOffset).isEqualTo(text.indexOf('\u05d7'));
 
         // The word is "\u05d7\u05d8"("חט")
         currentOffset = wordIterator.nextBoundary(currentOffset);
-        assertEquals(text.length(), currentOffset);
+        assertThat(currentOffset).isEqualTo(text.length());
 
         // WordIterator reaches the end.
         currentOffset = wordIterator.nextBoundary(currentOffset);
-        assertEquals(BreakIterator.DONE, currentOffset);
+        assertThat(currentOffset).isEqualTo(BreakIterator.DONE);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -198,39 +195,39 @@ public class WordIteratorTest {
 
         // The word is "jkl".
         currentOffset = wordIterator.prevBoundary(currentOffset);
-        assertEquals(text.indexOf('j'), currentOffset);
+        assertThat(currentOffset).isEqualTo(text.indexOf('j'));
 
         // The word is space.
         currentOffset = wordIterator.prevBoundary(currentOffset);
-        assertEquals(text.indexOf('.') + 1, currentOffset);
+        assertThat(currentOffset).isEqualTo(text.indexOf('.') + 1);
 
         // The word is ".".
         currentOffset = wordIterator.prevBoundary(currentOffset);
-        assertEquals(text.indexOf('i') + 1, currentOffset);
+        assertThat(currentOffset).isEqualTo(text.indexOf('i') + 1);
 
         // The word is "ghi".
         currentOffset = wordIterator.prevBoundary(currentOffset);
-        assertEquals(text.indexOf('g'), currentOffset);
+        assertThat(currentOffset).isEqualTo(text.indexOf('g'));
 
         // The word is "-".
         currentOffset = wordIterator.prevBoundary(currentOffset);
-        assertEquals(text.indexOf('f') + 1, currentOffset);
+        assertThat(currentOffset).isEqualTo(text.indexOf('f') + 1);
 
         // The word is "def".
         currentOffset = wordIterator.prevBoundary(currentOffset);
-        assertEquals(text.indexOf('d'), currentOffset);
+        assertThat(currentOffset).isEqualTo(text.indexOf('d'));
 
         // The word is space.
         currentOffset = wordIterator.prevBoundary(currentOffset);
-        assertEquals(text.indexOf('c') + 1, currentOffset);
+        assertThat(currentOffset).isEqualTo(text.indexOf('c') + 1);
 
         // The word is "abc".
         currentOffset = wordIterator.prevBoundary(currentOffset);
-        assertEquals(text.indexOf('a'), currentOffset);
+        assertThat(currentOffset).isEqualTo(text.indexOf('a'));
 
         // WordIterator reaches the beginning.
         currentOffset = wordIterator.prevBoundary(currentOffset);
-        assertEquals(BreakIterator.DONE, currentOffset);
+        assertThat(currentOffset).isEqualTo(BreakIterator.DONE);
     }
 
     @Test
@@ -245,39 +242,39 @@ public class WordIteratorTest {
 
         // The word is "\u05d7\u05d8"("חט")
         currentOffset = wordIterator.prevBoundary(currentOffset);
-        assertEquals(text.indexOf('\u05d7'), currentOffset);
+        assertThat(currentOffset).isEqualTo(text.indexOf('\u05d7'));
 
         // The word is space.
         currentOffset = wordIterator.prevBoundary(currentOffset);
-        assertEquals(text.indexOf('.') + 1, currentOffset);
+        assertThat(currentOffset).isEqualTo(text.indexOf('.') + 1);
 
         // The word is '.'.
         currentOffset = wordIterator.prevBoundary(currentOffset);
-        assertEquals(text.indexOf('.'), currentOffset);
+        assertThat(currentOffset).isEqualTo(text.indexOf('.'));
 
         // The word is "\u05d5\u05d6("וז")
         currentOffset = wordIterator.prevBoundary(currentOffset);
-        assertEquals(text.indexOf('\u05d5'), currentOffset);
+        assertThat(currentOffset).isEqualTo(text.indexOf('\u05d5'));
 
         // The word is "-".
         currentOffset = wordIterator.prevBoundary(currentOffset);
-        assertEquals(text.indexOf('-'), currentOffset);
+        assertThat(currentOffset).isEqualTo(text.indexOf('-'));
 
         // The word is "\u05d3\u05d4"("דה")
         currentOffset = wordIterator.prevBoundary(currentOffset);
-        assertEquals(text.indexOf('\u05d3'), currentOffset);
+        assertThat(currentOffset).isEqualTo(text.indexOf('\u05d3'));
 
         // The word is space.
         currentOffset = wordIterator.prevBoundary(currentOffset);
-        assertEquals(text.indexOf(' '), currentOffset);
+        assertThat(currentOffset).isEqualTo(text.indexOf(' '));
 
         // The word is "\u05d0\u05d1\u05d2"("אבג")
         currentOffset = wordIterator.prevBoundary(currentOffset);
-        assertEquals(text.indexOf('\u05d0'), currentOffset);
+        assertThat(currentOffset).isEqualTo(text.indexOf('\u05d0'));
 
         // WordIterator reaches the beginning.
         currentOffset = wordIterator.prevBoundary(currentOffset);
-        assertEquals(BreakIterator.DONE, currentOffset);
+        assertThat(currentOffset).isEqualTo(BreakIterator.DONE);
     }
 
 
@@ -302,7 +299,8 @@ public class WordIteratorTest {
         final String text = "";
         WordIterator wordIterator = new WordIterator(text, 0, text.length(), Locale.ENGLISH);
 
-        assertEquals(BreakIterator.DONE, wordIterator.getPrevWordBeginningOnTwoWordsBoundary(0));
+        assertThat(wordIterator.getPrevWordBeginningOnTwoWordsBoundary(0))
+                .isEqualTo(BreakIterator.DONE);
     }
 
     @Test
@@ -310,20 +308,21 @@ public class WordIteratorTest {
         final String text = "abc def-ghi. jkl";
         WordIterator wordIterator = new WordIterator(text, 0, text.length(), Locale.ENGLISH);
 
-        assertEquals(text.indexOf('a'),
-                wordIterator.getPrevWordBeginningOnTwoWordsBoundary(text.indexOf('a')));
-        assertEquals(text.indexOf('a'),
-                wordIterator.getPrevWordBeginningOnTwoWordsBoundary(text.indexOf('c')));
-        assertEquals(text.indexOf('d'),
-                wordIterator.getPrevWordBeginningOnTwoWordsBoundary(text.indexOf('d')));
-        assertEquals(text.indexOf('d'),
-                wordIterator.getPrevWordBeginningOnTwoWordsBoundary(text.indexOf('f')));
-        assertEquals(text.indexOf('d'),
-                wordIterator.getPrevWordBeginningOnTwoWordsBoundary(text.indexOf('-')));
-        assertEquals(text.indexOf('g'),
-                wordIterator.getPrevWordBeginningOnTwoWordsBoundary(text.indexOf('g')));
-        assertEquals(text.indexOf('g'),
-                wordIterator.getPrevWordBeginningOnTwoWordsBoundary(text.indexOf('.')));
+        assertThat(wordIterator.getPrevWordBeginningOnTwoWordsBoundary(text.indexOf('a')))
+                .isEqualTo(text.indexOf('a'));
+
+        assertThat(wordIterator.getPrevWordBeginningOnTwoWordsBoundary(text.indexOf('c')))
+                .isEqualTo(text.indexOf('a'));
+        assertThat(wordIterator.getPrevWordBeginningOnTwoWordsBoundary(text.indexOf('d')))
+                .isEqualTo(text.indexOf('d'));
+        assertThat(wordIterator.getPrevWordBeginningOnTwoWordsBoundary(text.indexOf('f')))
+                .isEqualTo(text.indexOf('d'));
+        assertThat(wordIterator.getPrevWordBeginningOnTwoWordsBoundary(text.indexOf('-')))
+                .isEqualTo(text.indexOf('d'));
+        assertThat(wordIterator.getPrevWordBeginningOnTwoWordsBoundary(text.indexOf('g')))
+                .isEqualTo(text.indexOf('g'));
+        assertThat(wordIterator.getPrevWordBeginningOnTwoWordsBoundary(text.indexOf('.')))
+                .isEqualTo(text.indexOf('g'));
     }
 
     @Test
@@ -332,14 +331,14 @@ public class WordIteratorTest {
         final String text = "\u3042\u30A2\u30A3\u30A4";
         WordIterator wordIterator = new WordIterator(text, 0, text.length(), Locale.JAPANESE);
 
-        assertEquals(text.indexOf('\u3042'),
-                wordIterator.getPrevWordBeginningOnTwoWordsBoundary(text.indexOf('\u3042')));
-        assertEquals(text.indexOf('\u3042'),
-                wordIterator.getPrevWordBeginningOnTwoWordsBoundary(text.indexOf('\u30A2')));
-        assertEquals(text.indexOf('\u30A2'),
-                wordIterator.getPrevWordBeginningOnTwoWordsBoundary(text.indexOf('\u30A4')));
-        assertEquals(text.indexOf('\u30A2'),
-                wordIterator.getPrevWordBeginningOnTwoWordsBoundary(text.length()));
+        assertThat(wordIterator.getPrevWordBeginningOnTwoWordsBoundary(text.indexOf('\u3042')))
+                .isEqualTo(text.indexOf('\u3042'));
+        assertThat(wordIterator.getPrevWordBeginningOnTwoWordsBoundary(text.indexOf('\u30A2')))
+                .isEqualTo(text.indexOf('\u3042'));
+        assertThat(wordIterator.getPrevWordBeginningOnTwoWordsBoundary(text.indexOf('\u30A4')))
+                .isEqualTo(text.indexOf('\u30A2'));
+        assertThat(wordIterator.getPrevWordBeginningOnTwoWordsBoundary(text.length()))
+                .isEqualTo(text.indexOf('\u30A2'));
     }
 
     @Test
@@ -348,18 +347,18 @@ public class WordIteratorTest {
         final String text = "isn't he";
         WordIterator wordIterator = new WordIterator(text, 0, text.length(), Locale.ENGLISH);
 
-        assertEquals(text.indexOf('i'),
-                wordIterator.getPrevWordBeginningOnTwoWordsBoundary(text.indexOf('i')));
-        assertEquals(text.indexOf('i'),
-                wordIterator.getPrevWordBeginningOnTwoWordsBoundary(text.indexOf('n')));
-        assertEquals(text.indexOf('i'),
-                wordIterator.getPrevWordBeginningOnTwoWordsBoundary(text.indexOf('\'')));
-        assertEquals(text.indexOf('i'),
-                wordIterator.getPrevWordBeginningOnTwoWordsBoundary(text.indexOf('t')));
-        assertEquals(text.indexOf('i'),
-                wordIterator.getPrevWordBeginningOnTwoWordsBoundary(text.indexOf('t') + 1));
-        assertEquals(text.indexOf('h'),
-                wordIterator.getPrevWordBeginningOnTwoWordsBoundary(text.indexOf('h')));
+        assertThat(wordIterator.getPrevWordBeginningOnTwoWordsBoundary(text.indexOf('i')))
+                .isEqualTo(text.indexOf('i'));
+        assertThat(wordIterator.getPrevWordBeginningOnTwoWordsBoundary(text.indexOf('n')))
+                .isEqualTo(text.indexOf('i'));
+        assertThat(wordIterator.getPrevWordBeginningOnTwoWordsBoundary(text.indexOf('\'')))
+                .isEqualTo(text.indexOf('i'));
+        assertThat(wordIterator.getPrevWordBeginningOnTwoWordsBoundary(text.indexOf('t')))
+                .isEqualTo(text.indexOf('i'));
+        assertThat(wordIterator.getPrevWordBeginningOnTwoWordsBoundary(text.indexOf('t') + 1))
+                .isEqualTo(text.indexOf('i'));
+        assertThat(wordIterator.getPrevWordBeginningOnTwoWordsBoundary(text.indexOf('h')))
+                .isEqualTo(text.indexOf('h'));
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -383,7 +382,7 @@ public class WordIteratorTest {
         final String text = "";
         WordIterator wordIterator = new WordIterator(text, 0, text.length(), Locale.ENGLISH);
 
-        assertEquals(BreakIterator.DONE, wordIterator.getNextWordEndOnTwoWordBoundary(0));
+        assertThat(wordIterator.getNextWordEndOnTwoWordBoundary(0)).isEqualTo(BreakIterator.DONE);
     }
 
     @Test
@@ -391,16 +390,16 @@ public class WordIteratorTest {
         final String text = "abc def-ghi. jkl";
         WordIterator wordIterator = new WordIterator(text, 0, text.length(), Locale.ENGLISH);
 
-        assertEquals(text.indexOf(' '),
-                wordIterator.getNextWordEndOnTwoWordBoundary(text.indexOf('a')));
-        assertEquals(text.indexOf(' '),
-                wordIterator.getNextWordEndOnTwoWordBoundary(text.indexOf('c')));
-        assertEquals(text.indexOf('-'),
-                wordIterator.getNextWordEndOnTwoWordBoundary(text.indexOf('d')));
-        assertEquals(text.indexOf('-'),
-                wordIterator.getNextWordEndOnTwoWordBoundary(text.indexOf('f')));
-        assertEquals(text.indexOf('-'),
-                wordIterator.getNextWordEndOnTwoWordBoundary(text.indexOf('-')));
+        assertThat(wordIterator.getNextWordEndOnTwoWordBoundary(text.indexOf('a')))
+                .isEqualTo(text.indexOf(' '));
+        assertThat(wordIterator.getNextWordEndOnTwoWordBoundary(text.indexOf('c')))
+                .isEqualTo(text.indexOf(' '));
+        assertThat(wordIterator.getNextWordEndOnTwoWordBoundary(text.indexOf('d')))
+                .isEqualTo(text.indexOf('-'));
+        assertThat(wordIterator.getNextWordEndOnTwoWordBoundary(text.indexOf('f')))
+                .isEqualTo(text.indexOf('-'));
+        assertThat(wordIterator.getNextWordEndOnTwoWordBoundary(text.indexOf('-')))
+                .isEqualTo(text.indexOf('-'));
     }
 
     @Test
@@ -409,14 +408,14 @@ public class WordIteratorTest {
         final String text = "\u3042\u30A2\u30A3\u30A4";
         WordIterator wordIterator = new WordIterator(text, 0, text.length(), Locale.JAPANESE);
 
-        assertEquals(text.indexOf('\u3042') + 1,
-                wordIterator.getNextWordEndOnTwoWordBoundary(text.indexOf('\u3042')));
-        assertEquals(text.indexOf('\u30A4') + 1,
-                wordIterator.getNextWordEndOnTwoWordBoundary(text.indexOf('\u30A2')));
-        assertEquals(text.indexOf('\u30A4') + 1,
-                wordIterator.getNextWordEndOnTwoWordBoundary(text.indexOf('\u30A4')));
-        assertEquals(text.indexOf('\u30A4') + 1,
-                wordIterator.getNextWordEndOnTwoWordBoundary(text.indexOf('\u30A4') + 1));
+        assertThat(wordIterator.getNextWordEndOnTwoWordBoundary(text.indexOf('\u3042')))
+                .isEqualTo(text.indexOf('\u3042') + 1);
+        assertThat(wordIterator.getNextWordEndOnTwoWordBoundary(text.indexOf('\u30A2')))
+                .isEqualTo(text.indexOf('\u30A4') + 1);
+        assertThat(wordIterator.getNextWordEndOnTwoWordBoundary(text.indexOf('\u30A4')))
+                .isEqualTo(text.indexOf('\u30A4') + 1);
+        assertThat(wordIterator.getNextWordEndOnTwoWordBoundary(text.indexOf('\u30A4') + 1))
+                .isEqualTo(text.indexOf('\u30A4') + 1);
     }
 
     @Test
@@ -425,16 +424,16 @@ public class WordIteratorTest {
         final String text = "isn't he";
         WordIterator wordIterator = new WordIterator(text, 0, text.length(), Locale.ENGLISH);
 
-        assertEquals(text.indexOf('t') + 1,
-                wordIterator.getNextWordEndOnTwoWordBoundary(text.indexOf('i')));
-        assertEquals(text.indexOf('t') + 1,
-                wordIterator.getNextWordEndOnTwoWordBoundary(text.indexOf('n')));
-        assertEquals(text.indexOf('t') + 1,
-                wordIterator.getNextWordEndOnTwoWordBoundary(text.indexOf('\'')));
-        assertEquals(text.indexOf('t') + 1,
-                wordIterator.getNextWordEndOnTwoWordBoundary(text.indexOf('t')));
-        assertEquals(text.indexOf('e') + 1,
-                wordIterator.getNextWordEndOnTwoWordBoundary(text.indexOf('h')));
+        assertThat(wordIterator.getNextWordEndOnTwoWordBoundary(text.indexOf('i')))
+                .isEqualTo(text.indexOf('t') + 1);
+        assertThat(wordIterator.getNextWordEndOnTwoWordBoundary(text.indexOf('n')))
+                .isEqualTo(text.indexOf('t') + 1);
+        assertThat(wordIterator.getNextWordEndOnTwoWordBoundary(text.indexOf('\'')))
+                .isEqualTo(text.indexOf('t') + 1);
+        assertThat(wordIterator.getNextWordEndOnTwoWordBoundary(text.indexOf('t')))
+                .isEqualTo(text.indexOf('t') + 1);
+        assertThat(wordIterator.getNextWordEndOnTwoWordBoundary(text.indexOf('h')))
+                .isEqualTo(text.indexOf('e') + 1);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -466,14 +465,20 @@ public class WordIteratorTest {
         final String text = "abc!? (^^;) def";
         WordIterator wordIterator = new WordIterator(text, 0, text.length(), Locale.ENGLISH);
 
-        assertEquals(BreakIterator.DONE, wordIterator.getPunctuationBeginning(text.indexOf('a')));
-        assertEquals(BreakIterator.DONE, wordIterator.getPunctuationBeginning(text.indexOf('c')));
-        assertEquals(text.indexOf('!'), wordIterator.getPunctuationBeginning(text.indexOf('!')));
-        assertEquals(text.indexOf('!'),
-                wordIterator.getPunctuationBeginning(text.indexOf('?') + 1));
-        assertEquals(text.indexOf(';'), wordIterator.getPunctuationBeginning(text.indexOf(';')));
-        assertEquals(text.indexOf(';'), wordIterator.getPunctuationBeginning(text.indexOf(')')));
-        assertEquals(text.indexOf(';'), wordIterator.getPunctuationBeginning(text.length()));
+        assertThat(wordIterator.getPunctuationBeginning(text.indexOf('a')))
+                .isEqualTo(BreakIterator.DONE);
+        assertThat(wordIterator.getPunctuationBeginning(text.indexOf('c')))
+                .isEqualTo(BreakIterator.DONE);
+        assertThat(wordIterator.getPunctuationBeginning(text.indexOf('!')))
+                .isEqualTo(text.indexOf('!'));
+        assertThat(wordIterator.getPunctuationBeginning(text.indexOf('?') + 1))
+                .isEqualTo(text.indexOf('!'));
+        assertThat(wordIterator.getPunctuationBeginning(text.indexOf(';')))
+                .isEqualTo(text.indexOf(';'));
+        assertThat(wordIterator.getPunctuationBeginning(text.indexOf(')')))
+                .isEqualTo(text.indexOf(';'));
+        assertThat(wordIterator.getPunctuationBeginning(text.length()))
+                .isEqualTo(text.indexOf(';'));
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -505,13 +510,20 @@ public class WordIteratorTest {
         final String text = "abc!? (^^;) def";
         WordIterator wordIterator = new WordIterator(text, 0, text.length(), Locale.ENGLISH);
 
-        assertEquals(text.indexOf('?') + 1, wordIterator.getPunctuationEnd(text.indexOf('a')));
-        assertEquals(text.indexOf('?') + 1, wordIterator.getPunctuationEnd(text.indexOf('?') + 1));
-        assertEquals(text.indexOf('(') + 1, wordIterator.getPunctuationEnd(text.indexOf('(')));
-        assertEquals(text.indexOf(')') + 1, wordIterator.getPunctuationEnd(text.indexOf('(') + 2));
-        assertEquals(text.indexOf(')') + 1, wordIterator.getPunctuationEnd(text.indexOf(')') + 1));
-        assertEquals(BreakIterator.DONE, wordIterator.getPunctuationEnd(text.indexOf('d')));
-        assertEquals(BreakIterator.DONE, wordIterator.getPunctuationEnd(text.length()));
+        assertThat(wordIterator.getPunctuationEnd(text.indexOf('a')))
+                .isEqualTo(text.indexOf('?') + 1);
+        assertThat(wordIterator.getPunctuationEnd(text.indexOf('?') + 1))
+                .isEqualTo(text.indexOf('?') + 1);
+        assertThat(wordIterator.getPunctuationEnd(text.indexOf('(')))
+                .isEqualTo(text.indexOf('(') + 1);
+        assertThat(wordIterator.getPunctuationEnd(text.indexOf('(') + 2))
+                .isEqualTo(text.indexOf(')') + 1);
+        assertThat(wordIterator.getPunctuationEnd(text.indexOf(')') + 1))
+                .isEqualTo(text.indexOf(')') + 1);
+        assertThat(wordIterator.getPunctuationEnd(text.indexOf('d')))
+                .isEqualTo(BreakIterator.DONE);
+        assertThat(wordIterator.getPunctuationEnd(text.length()))
+                .isEqualTo(BreakIterator.DONE);
     }
 
     @Test
@@ -519,14 +531,14 @@ public class WordIteratorTest {
         final String text = "abc!? (^^;) def";
         WordIterator wordIterator = new WordIterator(text, 0, text.length(), Locale.ENGLISH);
 
-        assertFalse(wordIterator.isAfterPunctuation(text.indexOf('a')));
-        assertFalse(wordIterator.isAfterPunctuation(text.indexOf('!')));
-        assertTrue(wordIterator.isAfterPunctuation(text.indexOf('?')));
-        assertTrue(wordIterator.isAfterPunctuation(text.indexOf('?') + 1));
-        assertFalse(wordIterator.isAfterPunctuation(text.indexOf('d')));
+        assertThat(wordIterator.isAfterPunctuation(text.indexOf('a'))).isFalse();
+        assertThat(wordIterator.isAfterPunctuation(text.indexOf('!'))).isFalse();
+        assertThat(wordIterator.isAfterPunctuation(text.indexOf('?'))).isTrue();
+        assertThat(wordIterator.isAfterPunctuation(text.indexOf('?') + 1)).isTrue();
+        assertThat(wordIterator.isAfterPunctuation(text.indexOf('d'))).isFalse();
 
-        assertFalse(wordIterator.isAfterPunctuation(BreakIterator.DONE));
-        assertFalse(wordIterator.isAfterPunctuation(text.length() + 1));
+        assertThat(wordIterator.isAfterPunctuation(BreakIterator.DONE)).isFalse();
+        assertThat(wordIterator.isAfterPunctuation(text.length() + 1)).isFalse();
     }
 
     @Test
@@ -534,17 +546,17 @@ public class WordIteratorTest {
         final String text = "abc!? (^^;) def";
         WordIterator wordIterator = new WordIterator(text, 0, text.length(), Locale.ENGLISH);
 
-        assertFalse(wordIterator.isOnPunctuation(text.indexOf('a')));
-        assertTrue(wordIterator.isOnPunctuation(text.indexOf('!')));
-        assertTrue(wordIterator.isOnPunctuation(text.indexOf('?')));
-        assertFalse(wordIterator.isOnPunctuation(text.indexOf('?') + 1));
-        assertTrue(wordIterator.isOnPunctuation(text.indexOf(')')));
-        assertFalse(wordIterator.isOnPunctuation(text.indexOf(')') + 1));
-        assertFalse(wordIterator.isOnPunctuation(text.indexOf('d')));
+        assertThat(wordIterator.isOnPunctuation(text.indexOf('a'))).isFalse();
+        assertThat(wordIterator.isOnPunctuation(text.indexOf('!'))).isTrue();
+        assertThat(wordIterator.isOnPunctuation(text.indexOf('?'))).isTrue();
+        assertThat(wordIterator.isOnPunctuation(text.indexOf('?') + 1)).isFalse();
+        assertThat(wordIterator.isOnPunctuation(text.indexOf(')'))).isTrue();
+        assertThat(wordIterator.isOnPunctuation(text.indexOf(')') + 1)).isFalse();
+        assertThat(wordIterator.isOnPunctuation(text.indexOf('d'))).isFalse();
 
-        assertFalse(wordIterator.isOnPunctuation(BreakIterator.DONE));
-        assertFalse(wordIterator.isOnPunctuation(text.length()));
-        assertFalse(wordIterator.isOnPunctuation(text.length() + 1));
+        assertThat(wordIterator.isOnPunctuation(BreakIterator.DONE)).isFalse();
+        assertThat(wordIterator.isOnPunctuation(text.length())).isFalse();
+        assertThat(wordIterator.isOnPunctuation(text.length() + 1)).isFalse();
     }
 
     @Test
@@ -632,8 +644,8 @@ public class WordIteratorTest {
             int surrogateIndex) {
         for (int i = beginning; i <= end; i++) {
             if (i == surrogateIndex) continue;
-            assertEquals(beginning, wordIterator.getPrevWordBeginningOnTwoWordsBoundary(i));
-            assertEquals(end, wordIterator.getNextWordEndOnTwoWordBoundary(i));
+            assertThat(wordIterator.getPrevWordBeginningOnTwoWordsBoundary(i)).isEqualTo(beginning);
+            assertThat(wordIterator.getNextWordEndOnTwoWordBoundary(i)).isEqualTo(end);
         }
     }
 
@@ -643,9 +655,10 @@ public class WordIteratorTest {
 
     private void verifyIsNotWord(WordIterator wordIterator, int beginning, int end) {
         for (int i = beginning; i <= end; i++) {
-            assertEquals(BreakIterator.DONE,
-                    wordIterator.getPrevWordBeginningOnTwoWordsBoundary(i));
-            assertEquals(BreakIterator.DONE, wordIterator.getNextWordEndOnTwoWordBoundary(i));
+            assertThat(wordIterator.getPrevWordBeginningOnTwoWordsBoundary(i))
+                    .isEqualTo(BreakIterator.DONE);
+            assertThat(wordIterator.getNextWordEndOnTwoWordBoundary(i))
+                    .isEqualTo(BreakIterator.DONE);
         }
     }
 }
