@@ -103,6 +103,24 @@ class ScrollerTest {
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
+    fun verticalScroller_SmallContent_Unscrollable() {
+        var max = Px.Infinity
+
+        // latch to wait for a new max to come
+        val newMaxLatch = CountDownLatch(1)
+
+        composeVerticalScroller(
+            onScrollChanged = { _, newMax ->
+                max = newMax
+                newMaxLatch.countDown()
+            }
+        )
+        newMaxLatch.await(1, TimeUnit.SECONDS)
+        assertTrue(max == 0.px)
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
     fun verticalScroller_LargeContent_NoScroll() {
         composeVerticalScroller(height = 30.ipx)
 
