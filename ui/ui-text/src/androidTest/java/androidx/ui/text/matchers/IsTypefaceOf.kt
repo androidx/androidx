@@ -52,26 +52,28 @@ class IsTypefaceOf(
     val fontStyle: FontStyle
 ) : BaseMatcher<Typeface>() {
 
-    private val DEFINED_CHARACTERS = arrayOf(
-        CharacterInfo('a', FontWeight.w100, FontStyle.Italic),
-        CharacterInfo('b', FontWeight.w100, FontStyle.Normal),
-        CharacterInfo('c', FontWeight.w200, FontStyle.Italic),
-        CharacterInfo('d', FontWeight.w200, FontStyle.Normal),
-        CharacterInfo('e', FontWeight.w300, FontStyle.Italic),
-        CharacterInfo('f', FontWeight.w300, FontStyle.Normal),
-        CharacterInfo('g', FontWeight.w400, FontStyle.Italic),
-        CharacterInfo('h', FontWeight.w400, FontStyle.Normal),
-        CharacterInfo('i', FontWeight.w500, FontStyle.Italic),
-        CharacterInfo('j', FontWeight.w500, FontStyle.Normal),
-        CharacterInfo('k', FontWeight.w600, FontStyle.Italic),
-        CharacterInfo('l', FontWeight.w600, FontStyle.Normal),
-        CharacterInfo('m', FontWeight.w700, FontStyle.Italic),
-        CharacterInfo('n', FontWeight.w700, FontStyle.Normal),
-        CharacterInfo('o', FontWeight.w800, FontStyle.Italic),
-        CharacterInfo('p', FontWeight.w800, FontStyle.Normal),
-        CharacterInfo('q', FontWeight.w900, FontStyle.Italic),
-        CharacterInfo('r', FontWeight.w900, FontStyle.Normal)
-    )
+    companion object {
+        internal val DEFINED_CHARACTERS = arrayOf(
+            CharacterInfo('a', FontWeight.w100, FontStyle.Italic),
+            CharacterInfo('b', FontWeight.w100, FontStyle.Normal),
+            CharacterInfo('c', FontWeight.w200, FontStyle.Italic),
+            CharacterInfo('d', FontWeight.w200, FontStyle.Normal),
+            CharacterInfo('e', FontWeight.w300, FontStyle.Italic),
+            CharacterInfo('f', FontWeight.w300, FontStyle.Normal),
+            CharacterInfo('g', FontWeight.w400, FontStyle.Italic),
+            CharacterInfo('h', FontWeight.w400, FontStyle.Normal),
+            CharacterInfo('i', FontWeight.w500, FontStyle.Italic),
+            CharacterInfo('j', FontWeight.w500, FontStyle.Normal),
+            CharacterInfo('k', FontWeight.w600, FontStyle.Italic),
+            CharacterInfo('l', FontWeight.w600, FontStyle.Normal),
+            CharacterInfo('m', FontWeight.w700, FontStyle.Italic),
+            CharacterInfo('n', FontWeight.w700, FontStyle.Normal),
+            CharacterInfo('o', FontWeight.w800, FontStyle.Italic),
+            CharacterInfo('p', FontWeight.w800, FontStyle.Normal),
+            CharacterInfo('q', FontWeight.w900, FontStyle.Italic),
+            CharacterInfo('r', FontWeight.w900, FontStyle.Normal)
+        )
+    }
 
     private val FONT_SIZE = 10f
 
@@ -131,7 +133,7 @@ class IsTypefaceOf(
     }
 }
 
-private class CharacterInfo(
+internal class CharacterInfo(
     val character: Char,
     val fontWeight: FontWeight,
     val fontStyle: FontStyle
@@ -141,6 +143,6 @@ private class CharacterInfo(
     }
 }
 
-private fun toString(fontWeight: FontWeight, fontStyle: FontStyle): String {
+internal fun toString(fontWeight: FontWeight, fontStyle: FontStyle): String {
     return "{fontWeight: $fontWeight, fontStyle: $fontStyle}"
 }
