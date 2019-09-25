@@ -27,6 +27,8 @@ import androidx.webkit.internal.WebSettingsAdapter;
 import androidx.webkit.internal.WebViewFeatureInternal;
 import androidx.webkit.internal.WebViewGlueCommunicator;
 
+import org.chromium.support_lib_boundary.WebSettingsBoundaryInterface;
+
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -375,6 +377,114 @@ public class WebSettingsCompat {
         if (webViewFeature.isSupportedByFramework()) {
             return settings.getForceDark();
         } else if (webViewFeature.isSupportedByWebView()) {
+            return getAdapter(settings).getForceDark();
+        } else {
+            throw WebViewFeatureInternal.getUnsupportedOperationException();
+        }
+    }
+
+    /**
+     * In this mode WebView content will be darkened by a user agent and it will ignore the
+     * web page's dark theme if it exists.
+     *
+     * @see #setForceDarkStrategy
+     * TODO(amalova): unhide
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static final int USER_AGENT_DARKENING_ONLY =
+            WebSettingsBoundaryInterface.ForceDarkBehavior.FORCE_DARK_ONLY;
+
+    /**
+     * In this mode WebView content will always be darkened using dark theme provided by web page.
+     * If web page does not provide dark theme support WebView content will be rendered with a
+     * default theme.
+     *
+     * @see #setForceDarkStrategy
+     * TODO(amalova): unhide
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static final int WEB_THEME_DARKENING_ONLY =
+            WebSettingsBoundaryInterface.ForceDarkBehavior.MEDIA_QUERY_ONLY;
+
+    /**
+     * In this mode WebView content will be darkened by a user agent unless web page supports dark
+     * theme.
+     *
+     * @see #setForceDarkStrategy
+     * TODO(amalova): unhide
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static final int PREFER_WEB_THEME_OVER_USER_AGENT_DARKENING =
+            WebSettingsBoundaryInterface.ForceDarkBehavior.PREFER_MEDIA_QUERY_OVER_FORCE_DARK;
+
+    /**
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @IntDef(value = {
+            USER_AGENT_DARKENING_ONLY,
+            WEB_THEME_DARKENING_ONLY,
+            PREFER_WEB_THEME_OVER_USER_AGENT_DARKENING,
+    })
+    @Retention(RetentionPolicy.SOURCE)
+    @Target({ElementType.PARAMETER, ElementType.METHOD})
+    public @interface ForceDarkStrategy {}
+
+    /**
+     * Set how WebView content should be darkened.
+     *
+     * <p>
+     * This method should only be called if
+     * {@link WebViewFeature#isFeatureSupported(String)}
+     * returns true for {@link WebViewFeature#FORCE_DARK_STRATEGY}.
+     *
+     * @param forceDarkBehavior
+     *
+     * TODO(amalova): unhide
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @SuppressLint("NewApi")
+    @RequiresFeature(name = WebViewFeature.FORCE_DARK_STRATEGY,
+            enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
+    public static void setForceDarkStrategy(@NonNull WebSettings settings,
+            @ForceDarkStrategy int forceDarkBehavior) {
+        WebViewFeatureInternal webViewFeature =
+                WebViewFeatureInternal.getFeature(WebViewFeature.FORCE_DARK_STRATEGY);
+        if (webViewFeature.isSupportedByWebView()) {
+            getAdapter(settings).setForceDarkStrategy(forceDarkBehavior);
+        } else {
+            throw WebViewFeatureInternal.getUnsupportedOperationException();
+        }
+    }
+
+    /**
+     * Get how content is darkened for this WebView.
+     *
+     * <p>
+     * The default force dark mode is {@link #PREFER_WEB_THEME_OVER_USER_AGENT_DARKENING}
+     *
+     * <p>
+     * This method should only be called if
+     * {@link WebViewFeature#isFeatureSupported(String)}
+     * returns true for {@link WebViewFeature#FORCE_DARK_STRATEGY}.
+     *
+     * @return todo
+     *
+     * TODO(amalova): unhide
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @SuppressLint("NewApi")
+    @RequiresFeature(name = WebViewFeature.FORCE_DARK_STRATEGY,
+            enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
+    public static @ForceDarkStrategy int getForceDarkStrategy(@NonNull WebSettings settings) {
+        WebViewFeatureInternal webViewFeature =
+                WebViewFeatureInternal.getFeature(WebViewFeature.FORCE_DARK_STRATEGY);
+        if (webViewFeature.isSupportedByWebView()) {
             return getAdapter(settings).getForceDark();
         } else {
             throw WebViewFeatureInternal.getUnsupportedOperationException();

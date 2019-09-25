@@ -89,6 +89,7 @@ public class WebViewFeature {
             SUPPRESS_ERROR_PAGE,
             MULTI_PROCESS_QUERY,
             FORCE_DARK,
+            FORCE_DARK_STRATEGY,
     })
     @Retention(RetentionPolicy.SOURCE)
     @Target({ElementType.PARAMETER, ElementType.METHOD})
@@ -411,6 +412,18 @@ public class WebViewFeature {
      * {@link WebSettingsCompat#getForceDark(WebSettings)}.
      */
     public static final String FORCE_DARK = "FORCE_DARK";
+
+    /**
+     * Feature for {@link #isFeatureSupported(String)}.
+     * This feature covers
+     * {@link WebSettingsCompat#setForceDarkStrategy(WebSettings, int)} and
+     * {@link WebSettingsCompat#getForceDarkStrategy(WebSettings)}.
+     *
+     * TODO(amalova): unhide
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static final String FORCE_DARK_STRATEGY = "FORCE_DARK_STRATEGY";
 
     /**
      * Return whether a feature is supported at run-time. On devices running Android version {@link

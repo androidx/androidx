@@ -21,6 +21,7 @@ import static org.junit.Assert.assertTrue;
 
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.util.Base64;
 import android.view.ViewGroup;
 import android.webkit.WebView;
 
@@ -30,6 +31,7 @@ import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -39,13 +41,34 @@ import java.util.Map;
 
 @RunWith(AndroidJUnit4.class)
 public class WebSettingsCompatForceDarkTest {
+    private final String mNoDarkThemeSupport = Base64.encodeToString((
+                      "<html>\n"
+                    + "  <head>"
+                    + "  </head>"
+                    + "  <body>"
+                    + "  </body>"
+                    + "</html>").getBytes(), Base64.NO_PADDING);
+    private final String mDarkThemeSupport = Base64.encodeToString((
+                      "<html>"
+                    + "  <head>"
+                    + "    <meta name=\"color-scheme\" content=\"light dark\">"
+                    + "    <style>"
+                    + "      @media (prefers-color-scheme: dark) {"
+                    + "      body {background-color: green; }"
+                    + "    </style>"
+                    + "  </head>"
+                    + "  <body>"
+                    + "  </body>"
+                    + "</html>"
+
+    ).getBytes(), Base64.NO_PADDING);
+
     // LayoutParams are null until WebView has a parent Activity.
     // Test testForceDark_rendersDark requires LayoutParams to define
     // width and height of WebView to capture its bitmap representation.
     @Rule
     public final ActivityTestRule<WebViewTestActivity> mActivityRule =
             new ActivityTestRule<>(WebViewTestActivity.class);
-
     private WebViewOnUiThread mWebViewOnUiThread;
 
     @Before
@@ -85,8 +108,6 @@ public class WebSettingsCompatForceDarkTest {
     public void testForceDark_rendersDark() throws Throwable {
         WebkitUtils.checkFeature(WebViewFeature.FORCE_DARK);
         setWebViewSize(64, 64);
-        Map<Integer, Integer> histogram;
-        Integer[] colourValues;
 
         // Loading about:blank into a force-dark-on webview should result in a dark background
         WebSettingsCompat.setForceDark(
@@ -96,10 +117,7 @@ public class WebSettingsCompatForceDarkTest {
                 WebSettingsCompat.FORCE_DARK_ON);
 
         mWebViewOnUiThread.loadUrlAndWaitForCompletion("about:blank");
-        histogram = getBitmapHistogram(mWebViewOnUiThread.captureBitmap(), 0, 0, 64, 64);
-        assertEquals("Bitmap should have a single colour", histogram.size(), 1);
-        colourValues = histogram.keySet().toArray(new Integer[0]);
-        assertTrue("Bitmap colour should be dark", Color.luminance(colourValues[0]) < 0.5f);
+        assertTrue("Bitmap colour should be dark", Color.luminance(getWebPageColor()) < 0.5f);
 
         // Loading about:blank into a force-dark-off webview should result in a light background
         WebSettingsCompat.setForceDark(
@@ -109,12 +127,91 @@ public class WebSettingsCompatForceDarkTest {
                 WebSettingsCompat.FORCE_DARK_OFF);
 
         mWebViewOnUiThread.loadUrlAndWaitForCompletion("about:blank");
-        histogram = getBitmapHistogram(
-                mWebViewOnUiThread.captureBitmap(), 0, 0, 64, 64);
-        assertEquals("Bitmap should have a single colour", histogram.size(), 1);
-        colourValues = histogram.keySet().toArray(new Integer[0]);
         assertTrue("Bitmap colour should be light",
-                Color.luminance(colourValues[0]) > 0.5f);
+                Color.luminance(getWebPageColor()) > 0.5f);
+    }
+
+    /**
+     * Test to exercise USER_AGENT_DARKENING_ONLY option,
+     * i.e. web contents are always darkened by a user agent.
+     */
+    @Test
+    @SmallTest
+    public void testForceDark_userAgentDarkeningOnly() {
+        WebkitUtils.checkFeature(WebViewFeature.FORCE_DARK);
+        WebkitUtils.checkFeature(WebViewFeature.FORCE_DARK_STRATEGY);
+        setWebViewSize(64, 64);
+
+        // Loading empty page with or without dark theme support into a force-dark-on webview with
+        // force dark only algorithm should result in a dark background.
+        WebSettingsCompat.setForceDark(
+                mWebViewOnUiThread.getSettings(), WebSettingsCompat.FORCE_DARK_ON);
+        WebSettingsCompat.setForceDarkStrategy(mWebViewOnUiThread.getSettings(),
+                WebSettingsCompat.USER_AGENT_DARKENING_ONLY);
+
+        mWebViewOnUiThread.loadDataAndWaitForCompletion(mNoDarkThemeSupport, "text/html", "base64");
+        assertTrue("Bitmap colour should be dark", Color.luminance(getWebPageColor()) < 0.5f);
+
+        mWebViewOnUiThread.loadDataAndWaitForCompletion(mDarkThemeSupport, "text/html", "base64");
+        assertTrue("Bitmap colour should be dark", Color.luminance(getWebPageColor()) < 0.5f);
+    }
+
+    /**
+     * Test to exercise WEB_THEME_DARKENING_ONLY option,
+     * i.e. web contents are darkened only by web theme.
+     */
+    // TODO(amalova): Enable test when meta-tag is supported by WV
+    @Test
+    @SmallTest
+    @Ignore
+    public void testForceDark_webThemeDarkeningOnly() {
+        WebkitUtils.checkFeature(WebViewFeature.FORCE_DARK);
+        WebkitUtils.checkFeature(WebViewFeature.FORCE_DARK_STRATEGY);
+        setWebViewSize(64, 64);
+
+        WebSettingsCompat.setForceDark(
+                mWebViewOnUiThread.getSettings(), WebSettingsCompat.FORCE_DARK_ON);
+        WebSettingsCompat.setForceDarkStrategy(mWebViewOnUiThread.getSettings(),
+                WebSettingsCompat.WEB_THEME_DARKENING_ONLY);
+
+        // Loading a page without dark-theme support should result in a light background as web
+        // page is not darken by a user agent
+        mWebViewOnUiThread.loadDataAndWaitForCompletion(mNoDarkThemeSupport, "text/html", "base64");
+        assertTrue("Bitmap colour should be light", Color.luminance(getWebPageColor()) > 0.5f);
+
+        // Loading a page with dark-theme support should result in a green background (as
+        // specified in media-query)
+        mWebViewOnUiThread.loadDataAndWaitForCompletion(mDarkThemeSupport, "text/html", "base64");
+        assertTrue("Bitmap colour should be green", Color.GREEN  == getWebPageColor());
+    }
+
+    /**
+     * Test to exercise PREFER_WEB_THEME_OVER_USER_AGENT_DARKENING option,
+     * i.e. web contents are darkened by a user agent if there is no dark web theme.
+     */
+    // TODO(amalova): Enable test when meta-tag is supported by WV
+    @Test
+    @SmallTest
+    @Ignore
+    public void testForceDark_preferWebThemeOverUADarkening() {
+        WebkitUtils.checkFeature(WebViewFeature.FORCE_DARK);
+        WebkitUtils.checkFeature(WebViewFeature.FORCE_DARK_STRATEGY);
+        setWebViewSize(64, 64);
+
+        WebSettingsCompat.setForceDark(
+                mWebViewOnUiThread.getSettings(), WebSettingsCompat.FORCE_DARK_ON);
+        WebSettingsCompat.setForceDarkStrategy(mWebViewOnUiThread.getSettings(),
+                WebSettingsCompat.PREFER_WEB_THEME_OVER_USER_AGENT_DARKENING);
+
+        // Loading a page without dark-theme support should result in a dark background as
+        // web page is darken by a user agent
+        mWebViewOnUiThread.loadDataAndWaitForCompletion(mNoDarkThemeSupport, "text/html", "base64");
+        assertTrue("Bitmap colour should be dark", Color.luminance(getWebPageColor()) < 0.5f);
+
+        // Loading a page with dark-theme support should result in a green background (as
+        // specified in media-query)
+        mWebViewOnUiThread.loadDataAndWaitForCompletion(mDarkThemeSupport, "text/html", "base64");
+        assertTrue("Bitmap colour should be green", Color.GREEN == getWebPageColor());
     }
 
     private void setWebViewSize(final int width, final int height) {
@@ -125,6 +222,17 @@ public class WebSettingsCompatForceDarkTest {
             params.width = width;
             webView.setLayoutParams(params);
         });
+    }
+
+    private int getWebPageColor() {
+        Map<Integer, Integer> histogram;
+        Integer[] colourValues;
+
+        histogram = getBitmapHistogram(mWebViewOnUiThread.captureBitmap(), 0, 0, 64, 64);
+        assertEquals("Bitmap should have a single colour", histogram.size(), 1);
+        colourValues = histogram.keySet().toArray(new Integer[0]);
+
+        return colourValues[0];
     }
 
     private Map<Integer, Integer> getBitmapHistogram(
