@@ -59,7 +59,26 @@ internal class TypefaceSubject private constructor(
         internal val SUBJECT_FACTORY: Factory<TypefaceSubject?, Typeface?> =
             Factory { failureMetadata, subject -> TypefaceSubject(failureMetadata, subject) }
 
-        private val DEFINED_CHARACTERS = IsTypefaceOf.DEFINED_CHARACTERS
+        internal val DEFINED_CHARACTERS = arrayOf(
+            CharacterInfo('a', FontWeight.w100, FontStyle.Italic),
+            CharacterInfo('b', FontWeight.w100, FontStyle.Normal),
+            CharacterInfo('c', FontWeight.w200, FontStyle.Italic),
+            CharacterInfo('d', FontWeight.w200, FontStyle.Normal),
+            CharacterInfo('e', FontWeight.w300, FontStyle.Italic),
+            CharacterInfo('f', FontWeight.w300, FontStyle.Normal),
+            CharacterInfo('g', FontWeight.w400, FontStyle.Italic),
+            CharacterInfo('h', FontWeight.w400, FontStyle.Normal),
+            CharacterInfo('i', FontWeight.w500, FontStyle.Italic),
+            CharacterInfo('j', FontWeight.w500, FontStyle.Normal),
+            CharacterInfo('k', FontWeight.w600, FontStyle.Italic),
+            CharacterInfo('l', FontWeight.w600, FontStyle.Normal),
+            CharacterInfo('m', FontWeight.w700, FontStyle.Italic),
+            CharacterInfo('n', FontWeight.w700, FontStyle.Normal),
+            CharacterInfo('o', FontWeight.w800, FontStyle.Italic),
+            CharacterInfo('p', FontWeight.w800, FontStyle.Normal),
+            CharacterInfo('q', FontWeight.w900, FontStyle.Italic),
+            CharacterInfo('r', FontWeight.w900, FontStyle.Normal)
+        )
     }
 
     private fun getPaint(typeface: Typeface): TextPaint {
@@ -84,7 +103,7 @@ internal class TypefaceSubject private constructor(
      * @param [fontStyle] expected [FontStyle]
      */
     fun isTypefaceOf(fontWeight: FontWeight, fontStyle: FontStyle) {
-        check("").that(subject).isNotNull()
+        check("isNotNull()").that(subject).isNotNull()
         val typeface = subject as Typeface
         val charInfo = DEFINED_CHARACTERS.find {
             it.fontWeight == fontWeight && it.fontStyle == fontStyle
@@ -93,12 +112,13 @@ internal class TypefaceSubject private constructor(
         val isSelectedFont = isSelectedFont(typeface, charInfo.character)
 
         if (Build.VERSION.SDK_INT >= 28) {
-            check("").that(isSelectedFont && typeface.weight == fontWeight.weight).isTrue()
+            check("sameTypeface()")
+                .that(isSelectedFont && typeface.weight == fontWeight.weight).isTrue()
             // cannot check typeface.isItalic == (fontStyle == FontStyle.Italic) since it is for
             // fake italic, and for cases where synthesis is disable this does not give correct
             // signal
         } else {
-            check("").that(isSelectedFont).isTrue()
+            check("sameTypeface()").that(isSelectedFont).isTrue()
         }
     }
 
@@ -110,4 +130,18 @@ internal class TypefaceSubject private constructor(
             super.actualCustomStringRepresentation()
         }
     }
+}
+
+internal class CharacterInfo(
+    val character: Char,
+    val fontWeight: FontWeight,
+    val fontStyle: FontStyle
+) {
+    override fun toString(): String {
+        return toString(fontWeight, fontStyle)
+    }
+}
+
+internal fun toString(fontWeight: FontWeight, fontStyle: FontStyle): String {
+    return "{fontWeight: $fontWeight, fontStyle: $fontStyle}"
 }

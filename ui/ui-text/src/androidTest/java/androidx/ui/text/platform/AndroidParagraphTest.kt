@@ -102,7 +102,7 @@ class AndroidParagraphTest {
                 )
                     .setEllipsizedWidth(ceil(paragraphAndroid.width).toInt())
                     .build()
-                assertThat(paragraphAndroid.bitmap()).isEqualTo(staticLayout.bitmap())
+                assertThat(paragraphAndroid.bitmap()).isEqualToBitmap(staticLayout.bitmap())
             }
         }
     }
@@ -1102,7 +1102,7 @@ class AndroidParagraphTest {
             constraints = ParagraphConstraints(width = 0.0f)
         )
 
-        assertThat(paragraph.textPaint.isUnderlineText).isEqualTo(true)
+        assertThat(paragraph.textPaint.isUnderlineText).isTrue()
     }
 
     @Test
@@ -1113,7 +1113,7 @@ class AndroidParagraphTest {
             constraints = ParagraphConstraints(width = 0.0f)
         )
 
-        assertThat(paragraph.textPaint.isStrikeThruText).isEqualTo(true)
+        assertThat(paragraph.textPaint.isStrikeThruText).isTrue()
     }
 
     @Test

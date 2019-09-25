@@ -114,7 +114,7 @@ class TypefaceAdapterTest {
 
         assertThat(typefaceSans).isNotNull()
         assertThat(typefaceSans).isNotNull()
-        assertThat(typefaceSans.bitmap()).isNotEqualTo(typefaceSerif.bitmap())
+        assertThat(typefaceSans.bitmap()).isNotEqualToBitmap(typefaceSerif.bitmap())
     }
 
     @Test
@@ -243,7 +243,7 @@ class TypefaceAdapterTest {
         val typeface = TypefaceAdapter().create(fontFamily = fontFamily)
 
         assertThat(typeface).isNotNull()
-        assertThat(typeface.bitmap()).isNotEqualTo(defaultTypeface.bitmap())
+        assertThat(typeface.bitmap()).isNotEqualToBitmap(defaultTypeface.bitmap())
         assertThat(typeface.isItalic).isFalse()
         assertThat(typeface.isBold).isFalse()
     }
@@ -261,7 +261,7 @@ class TypefaceAdapterTest {
         )
 
         assertThat(typeface).isNotNull()
-        assertThat(typeface.bitmap()).isNotEqualTo(defaultTypeface.bitmap())
+        assertThat(typeface.bitmap()).isNotEqualToBitmap(defaultTypeface.bitmap())
         assertThat(typeface.isItalic).isTrue()
         assertThat(typeface.isBold).isTrue()
     }
