@@ -260,7 +260,7 @@ private fun ScrollerLayout(
             val scrollHeight = childHeight - height.toPx()
             val scrollWidth = childWidth - width.toPx()
             val side = if (isVertical) scrollHeight else scrollWidth
-            if (side != 0.px && side != maxPosition) {
+            if (side != maxPosition) {
                 onMaxPositionChanged(side)
             }
             val xOffset = if (isVertical) 0.ipx else -scrollerPosition.value.round()
