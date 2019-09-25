@@ -27,7 +27,7 @@ import androidx.ui.engine.geometry.Shape
  * @param shape the [Shape] used for clipping.
  */
 @Composable
-fun Clip(shape: Shape, children: @Composable() () -> Unit) {
+inline fun Clip(shape: Shape, crossinline children: @Composable() () -> Unit) {
     <RepaintBoundaryNode name=null shape=shape clipToShape=true>
         children()
     </RepaintBoundaryNode>

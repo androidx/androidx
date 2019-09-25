@@ -32,6 +32,7 @@ import androidx.ui.engine.geometry.Shape
  * @param shape Defines a shape of the physical object
  */
 @Composable
-fun DrawShadow(shape: Shape, elevation: Dp) {
+@Suppress("NOTHING_TO_INLINE")
+inline fun DrawShadow(shape: Shape, elevation: Dp) {
     <RepaintBoundaryNode name=null shape=shape elevation=elevation/>
 }

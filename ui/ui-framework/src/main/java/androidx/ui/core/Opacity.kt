@@ -31,9 +31,9 @@ import androidx.compose.composer
  * @param opacity the fraction of children's alpha value.
  */
 @Composable
-fun Opacity(
+inline fun Opacity(
     @FloatRange(from = 0.0, to = 1.0) opacity: Float,
-    children: @Composable() () -> Unit
+    crossinline children: @Composable() () -> Unit
 ) {
     <RepaintBoundaryNode name=null opacity=opacity>
         children()

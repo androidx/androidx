@@ -29,9 +29,10 @@ import androidx.compose.composer
  *  between [Dp], [Sp], and [Px]. The `parentSize` parameter indicates the layout size of
  *  the parent.
  */
+@Suppress("NOTHING_TO_INLINE")
 @Composable
-fun Draw(
-    onPaint: DensityScope.(canvas: Canvas, parentSize: PxSize) -> Unit
+inline fun Draw(
+    noinline onPaint: DensityScope.(canvas: Canvas, parentSize: PxSize) -> Unit
 ) {
     // Hide the internals of DrawNode
     <DrawNode onPaint=onPaint/>
@@ -47,9 +48,9 @@ fun Draw(
  * @sample androidx.ui.framework.samples.DrawWithChildrenSample
  */
 @Composable
-fun Draw(
-    children: @Composable() () -> Unit,
-    onPaint: DrawReceiver.(canvas: Canvas, parentSize: PxSize) -> Unit
+inline fun Draw(
+    crossinline children: @Composable() () -> Unit,
+    noinline onPaint: DrawReceiver.(canvas: Canvas, parentSize: PxSize) -> Unit
 ) {
     // Hide the internals of DrawNode
     <DrawNode onPaintWithChildren=onPaint>

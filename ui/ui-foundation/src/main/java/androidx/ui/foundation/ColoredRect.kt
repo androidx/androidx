@@ -50,10 +50,8 @@ fun ColoredRect(
     width: Dp? = null,
     height: Dp? = null
 ) {
-    trace("UI:ColoredRect") {
-        Container(modifier = modifier, width = width, height = height, expanded = true) {
-            DrawFillRect(brush = brush)
-        }
+    Container(modifier = modifier, width = width, height = height, expanded = true) {
+        DrawShape(RectangleShape, brush)
     }
 }
 
@@ -74,9 +72,4 @@ fun ColoredRect(
     height: Dp? = null
 ) {
     ColoredRect(brush = SolidColor(color), modifier = modifier, width = width, height = height)
-}
-
-@Composable
-private fun DrawFillRect(brush: Brush) {
-    DrawShape(RectangleShape, brush)
 }
