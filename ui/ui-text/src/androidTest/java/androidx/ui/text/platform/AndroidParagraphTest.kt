@@ -30,30 +30,29 @@ import androidx.ui.core.px
 import androidx.ui.core.sp
 import androidx.ui.core.withDensity
 import androidx.ui.engine.geometry.Offset
-import androidx.ui.text.style.BaselineShift
-import androidx.ui.text.font.FontStyle
-import androidx.ui.text.font.FontSynthesis
-import androidx.ui.text.FontTestData.Companion.BASIC_MEASURE_FONT
-import androidx.ui.text.font.FontWeight
-import androidx.ui.text.ParagraphConstraints
-import androidx.ui.text.style.TextAlign
-import androidx.ui.text.style.TextDecoration
-import androidx.ui.text.style.TextGeometricTransform
-import androidx.ui.text.style.TextIndent
-import androidx.ui.text.font.FontFamily
-import androidx.ui.text.font.asFontFamily
 import androidx.ui.graphics.Color
-import androidx.ui.graphics.toArgb
-import androidx.ui.text.matchers.equalToBitmap
-import androidx.ui.text.matchers.hasSpan
-import androidx.ui.text.matchers.hasSpanOnTop
-import androidx.ui.text.AnnotatedString
 import androidx.ui.graphics.Shadow
+import androidx.ui.graphics.toArgb
+import androidx.ui.text.AnnotatedString
+import androidx.ui.text.FontTestData.Companion.BASIC_MEASURE_FONT
 import androidx.ui.text.LocaleList
+import androidx.ui.text.ParagraphConstraints
 import androidx.ui.text.ParagraphStyle
 import androidx.ui.text.TestFontResourceLoader
 import androidx.ui.text.TextStyle
+import androidx.ui.text.font.FontFamily
+import androidx.ui.text.font.FontStyle
+import androidx.ui.text.font.FontSynthesis
+import androidx.ui.text.font.FontWeight
+import androidx.ui.text.font.asFontFamily
+import androidx.ui.text.matchers.assertThat
+import androidx.ui.text.style.BaselineShift
+import androidx.ui.text.style.TextAlign
+import androidx.ui.text.style.TextDecoration
 import androidx.ui.text.style.TextDirectionAlgorithm
+import androidx.ui.text.style.TextGeometricTransform
+import androidx.ui.text.style.TextIndent
+import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
@@ -61,13 +60,6 @@ import com.nhaarman.mockitokotlin2.never
 import com.nhaarman.mockitokotlin2.spy
 import com.nhaarman.mockitokotlin2.times
 import com.nhaarman.mockitokotlin2.verify
-import org.hamcrest.Matchers.equalTo
-import org.hamcrest.Matchers.not
-import org.hamcrest.Matchers.nullValue
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
-import org.junit.Assert.assertThat
-import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -110,7 +102,7 @@ class AndroidParagraphTest {
                 )
                     .setEllipsizedWidth(ceil(paragraphAndroid.width).toInt())
                     .build()
-                assertThat(paragraphAndroid.bitmap(), equalToBitmap(staticLayout.bitmap()))
+                assertThat(paragraphAndroid.bitmap()).isEqualTo(staticLayout.bitmap())
             }
         }
     }
@@ -126,7 +118,7 @@ class AndroidParagraphTest {
             constraints = ParagraphConstraints(width = 100.0f)
         )
 
-        assertThat(paragraph.charSequence, hasSpan(ForegroundColorSpan::class, 0, text.length))
+        assertThat(paragraph.charSequence).hasSpan(ForegroundColorSpan::class, 0, text.length)
     }
 
     @Test
@@ -140,7 +132,7 @@ class AndroidParagraphTest {
             constraints = ParagraphConstraints(width = 100.0f)
         )
 
-        assertThat(paragraph.charSequence, hasSpan(ForegroundColorSpan::class, 0, "abc".length))
+        assertThat(paragraph.charSequence).hasSpan(ForegroundColorSpan::class, 0, "abc".length)
     }
 
     @Test
@@ -158,12 +150,9 @@ class AndroidParagraphTest {
             constraints = ParagraphConstraints(width = 100.0f)
         )
 
-        assertThat(paragraph.charSequence, hasSpan(ForegroundColorSpan::class, 0, text.length))
-        assertThat(paragraph.charSequence, hasSpan(ForegroundColorSpan::class, 0, "abc".length))
-        assertThat(
-            paragraph.charSequence,
-            hasSpanOnTop(ForegroundColorSpan::class, 0, "abc".length)
-        )
+        assertThat(paragraph.charSequence).hasSpan(ForegroundColorSpan::class, 0, text.length)
+        assertThat(paragraph.charSequence).hasSpan(ForegroundColorSpan::class, 0, "abc".length)
+        assertThat(paragraph.charSequence).hasSpanOnTop(ForegroundColorSpan::class, 0, "abc".length)
     }
 
     @Test
@@ -177,8 +166,8 @@ class AndroidParagraphTest {
             constraints = ParagraphConstraints(width = 100.0f)
         )
 
-        assertThat(paragraph.charSequence.toString(), equalTo(text))
-        assertThat(paragraph.charSequence, hasSpan(StrikethroughSpan::class, 0, text.length))
+        assertThat(paragraph.charSequence.toString()).isEqualTo(text)
+        assertThat(paragraph.charSequence).hasSpan(StrikethroughSpan::class, 0, text.length)
     }
 
     @Test
@@ -192,8 +181,8 @@ class AndroidParagraphTest {
             constraints = ParagraphConstraints(width = 100.0f)
         )
 
-        assertThat(paragraph.charSequence.toString(), equalTo(text))
-        assertThat(paragraph.charSequence, hasSpan(UnderlineSpan::class, 0, text.length))
+        assertThat(paragraph.charSequence.toString()).isEqualTo(text)
+        assertThat(paragraph.charSequence).hasSpan(UnderlineSpan::class, 0, text.length)
     }
 
     @Test
@@ -207,8 +196,8 @@ class AndroidParagraphTest {
             constraints = ParagraphConstraints(width = 100.0f)
         )
 
-        assertThat(paragraph.charSequence.toString(), equalTo(text))
-        assertThat(paragraph.charSequence, hasSpan(StrikethroughSpan::class, 0, "abc".length))
+        assertThat(paragraph.charSequence.toString()).isEqualTo(text)
+        assertThat(paragraph.charSequence).hasSpan(StrikethroughSpan::class, 0, "abc".length)
     }
 
     @Test
@@ -222,8 +211,8 @@ class AndroidParagraphTest {
             constraints = ParagraphConstraints(width = 100.0f)
         )
 
-        assertThat(paragraph.charSequence.toString(), equalTo(text))
-        assertThat(paragraph.charSequence, hasSpan(UnderlineSpan::class, 0, "abc".length))
+        assertThat(paragraph.charSequence.toString()).isEqualTo(text)
+        assertThat(paragraph.charSequence).hasSpan(UnderlineSpan::class, 0, "abc".length)
     }
 
     @Test
@@ -241,9 +230,9 @@ class AndroidParagraphTest {
             constraints = ParagraphConstraints(width = 100.0f)
         )
 
-        assertThat(paragraph.charSequence.toString(), equalTo(text))
-        assertThat(paragraph.charSequence, hasSpan(UnderlineSpan::class, 0, "abc".length))
-        assertThat(paragraph.charSequence, hasSpan(StrikethroughSpan::class, 0, "abc".length))
+        assertThat(paragraph.charSequence.toString()).isEqualTo(text)
+        assertThat(paragraph.charSequence).hasSpan(UnderlineSpan::class, 0, "abc".length)
+        assertThat(paragraph.charSequence).hasSpan(StrikethroughSpan::class, 0, "abc".length)
     }
 
     @Test
@@ -260,7 +249,7 @@ class AndroidParagraphTest {
                 constraints = ParagraphConstraints(width = paragraphWidth)
             )
 
-            assertThat(paragraph.charSequence, hasSpan(AbsoluteSizeSpan::class, 0, text.length))
+            assertThat(paragraph.charSequence).hasSpan(AbsoluteSizeSpan::class, 0, text.length)
         }
     }
 
@@ -278,7 +267,7 @@ class AndroidParagraphTest {
                 constraints = ParagraphConstraints(width = paragraphWidth)
             )
 
-            assertThat(paragraph.charSequence, hasSpan(AbsoluteSizeSpan::class, 0, "abc".length))
+            assertThat(paragraph.charSequence).hasSpan(AbsoluteSizeSpan::class, 0, "abc".length)
         }
     }
 
@@ -301,12 +290,10 @@ class AndroidParagraphTest {
                 constraints = ParagraphConstraints(width = paragraphWidth)
             )
 
-            assertThat(paragraph.charSequence, hasSpan(AbsoluteSizeSpan::class, 0, text.length))
-            assertThat(paragraph.charSequence, hasSpan(AbsoluteSizeSpan::class, 0, "abc".length))
-            assertThat(
-                paragraph.charSequence,
-                hasSpanOnTop(AbsoluteSizeSpan::class, 0, "abc".length)
-            )
+            assertThat(paragraph.charSequence).hasSpan(AbsoluteSizeSpan::class, 0, text.length)
+            assertThat(paragraph.charSequence).hasSpan(AbsoluteSizeSpan::class, 0, "abc".length)
+            assertThat(paragraph.charSequence)
+                .hasSpanOnTop(AbsoluteSizeSpan::class, 0, "abc".length)
         }
     }
 
@@ -322,12 +309,9 @@ class AndroidParagraphTest {
             constraints = ParagraphConstraints(width = 100.0f)
         )
 
-        assertThat(
-            paragraph.charSequence,
-            hasSpan(RelativeSizeSpan::class, 0, text.length) {
-                it.sizeChange == fontSizeScale
-            }
-        )
+        assertThat(paragraph.charSequence).hasSpan(RelativeSizeSpan::class, 0, text.length) {
+            it.sizeChange == fontSizeScale
+        }
     }
 
     @Test
@@ -342,12 +326,9 @@ class AndroidParagraphTest {
             constraints = ParagraphConstraints(width = 100.0f)
         )
 
-        assertThat(
-            paragraph.charSequence,
-            hasSpan(RelativeSizeSpan::class, 0, "abc".length) {
-                it.sizeChange == fontSizeScale
-            }
-        )
+        assertThat(paragraph.charSequence).hasSpan(RelativeSizeSpan::class, 0, "abc".length) {
+            it.sizeChange == fontSizeScale
+        }
     }
 
     @Test
@@ -362,8 +343,8 @@ class AndroidParagraphTest {
             constraints = ParagraphConstraints(width = 100.0f)
         )
 
-        assertThat(paragraph.charSequence.toString(), equalTo(text))
-        assertThat(paragraph.charSequence, hasSpan(LetterSpacingSpan::class, 0, text.length))
+        assertThat(paragraph.charSequence.toString()).isEqualTo(text)
+        assertThat(paragraph.charSequence).hasSpan(LetterSpacingSpan::class, 0, text.length)
     }
 
     @Test
@@ -377,8 +358,8 @@ class AndroidParagraphTest {
             constraints = ParagraphConstraints(width = 100.0f)
         )
 
-        assertThat(paragraph.charSequence.toString(), equalTo(text))
-        assertThat(paragraph.charSequence, hasSpan(LetterSpacingSpan::class, 0, "abc".length))
+        assertThat(paragraph.charSequence.toString()).isEqualTo(text)
+        assertThat(paragraph.charSequence).hasSpan(LetterSpacingSpan::class, 0, "abc".length)
     }
 
     @Test
@@ -396,13 +377,10 @@ class AndroidParagraphTest {
             constraints = ParagraphConstraints(width = 100.0f)
         )
 
-        assertThat(paragraph.charSequence.toString(), equalTo(text))
-        assertThat(paragraph.charSequence, hasSpan(LetterSpacingSpan::class, 0, text.length))
-        assertThat(paragraph.charSequence, hasSpan(LetterSpacingSpan::class, 0, "abc".length))
-        assertThat(
-            paragraph.charSequence,
-            hasSpanOnTop(LetterSpacingSpan::class, 0, "abc".length)
-        )
+        assertThat(paragraph.charSequence.toString()).isEqualTo(text)
+        assertThat(paragraph.charSequence).hasSpan(LetterSpacingSpan::class, 0, text.length)
+        assertThat(paragraph.charSequence).hasSpan(LetterSpacingSpan::class, 0, "abc".length)
+        assertThat(paragraph.charSequence).hasSpanOnTop(LetterSpacingSpan::class, 0, "abc".length)
     }
 
     @Test
@@ -417,12 +395,11 @@ class AndroidParagraphTest {
             constraints = ParagraphConstraints(width = 100.0f)
         )
 
-        assertThat(paragraph.charSequence.toString(), equalTo(text))
-        assertThat(paragraph.charSequence,
-            hasSpan(BackgroundColorSpan::class, 0, text.length) { span ->
+        assertThat(paragraph.charSequence.toString()).isEqualTo(text)
+        assertThat(paragraph.charSequence)
+            .hasSpan(BackgroundColorSpan::class, 0, text.length) { span ->
                 span.backgroundColor == color.toArgb()
             }
-        )
     }
 
     @Test
@@ -437,12 +414,11 @@ class AndroidParagraphTest {
             constraints = ParagraphConstraints(width = 100.0f)
         )
 
-        assertThat(paragraph.charSequence.toString(), equalTo(text))
-        assertThat(paragraph.charSequence,
-            hasSpan(BackgroundColorSpan::class, 0, "abc".length) { span ->
+        assertThat(paragraph.charSequence.toString()).isEqualTo(text)
+        assertThat(paragraph.charSequence)
+            .hasSpan(BackgroundColorSpan::class, 0, "abc".length) { span ->
                 span.backgroundColor == color.toArgb()
             }
-        )
     }
 
     @Test
@@ -462,23 +438,19 @@ class AndroidParagraphTest {
             constraints = ParagraphConstraints(width = 100.0f)
         )
 
-        assertThat(paragraph.charSequence.toString(), equalTo(text))
-        assertThat(paragraph.charSequence,
-            hasSpan(BackgroundColorSpan::class, 0, text.length) { span ->
+        assertThat(paragraph.charSequence.toString()).isEqualTo(text)
+        assertThat(paragraph.charSequence)
+            .hasSpan(BackgroundColorSpan::class, 0, text.length) { span ->
                 span.backgroundColor == color.toArgb()
             }
-        )
-        assertThat(paragraph.charSequence,
-            hasSpan(BackgroundColorSpan::class, 0, "abc".length) { span ->
+        assertThat(paragraph.charSequence)
+            .hasSpan(BackgroundColorSpan::class, 0, "abc".length) { span ->
                 span.backgroundColor == colorOverwrite.toArgb()
             }
-        )
-        assertThat(
-            paragraph.charSequence,
-            hasSpanOnTop(BackgroundColorSpan::class, 0, "abc".length) { span ->
+        assertThat(paragraph.charSequence)
+            .hasSpanOnTop(BackgroundColorSpan::class, 0, "abc".length) { span ->
                 span.backgroundColor == colorOverwrite.toArgb()
             }
-        )
     }
 
     @Test
@@ -493,7 +465,7 @@ class AndroidParagraphTest {
             constraints = ParagraphConstraints(width = 100.0f)
         )
 
-        assertThat(paragraph.charSequence, hasSpan(LocaleSpan::class, 0, text.length))
+        assertThat(paragraph.charSequence).hasSpan(LocaleSpan::class, 0, text.length)
     }
 
     @Test
@@ -508,7 +480,7 @@ class AndroidParagraphTest {
             constraints = ParagraphConstraints(width = 100.0f)
         )
 
-        assertThat(paragraph.charSequence, hasSpan(LocaleSpan::class, 0, "abc".length))
+        assertThat(paragraph.charSequence).hasSpan(LocaleSpan::class, 0, "abc".length)
     }
 
     @Test
@@ -526,12 +498,9 @@ class AndroidParagraphTest {
             constraints = ParagraphConstraints(width = 100.0f)
         )
 
-        assertThat(paragraph.charSequence, hasSpan(LocaleSpan::class, 0, text.length))
-        assertThat(paragraph.charSequence, hasSpan(LocaleSpan::class, 0, "abc".length))
-        assertThat(
-            paragraph.charSequence,
-            hasSpanOnTop(LocaleSpan::class, 0, "abc".length)
-        )
+        assertThat(paragraph.charSequence).hasSpan(LocaleSpan::class, 0, text.length)
+        assertThat(paragraph.charSequence).hasSpan(LocaleSpan::class, 0, "abc".length)
+        assertThat(paragraph.charSequence).hasSpanOnTop(LocaleSpan::class, 0, "abc".length)
     }
 
     @Test
@@ -545,7 +514,7 @@ class AndroidParagraphTest {
             constraints = ParagraphConstraints(width = 100.0f) // width is not important
         )
 
-        assertThat(paragraph.charSequence, hasSpan(BaselineShiftSpan::class, 0, text.length))
+        assertThat(paragraph.charSequence).hasSpan(BaselineShiftSpan::class, 0, text.length)
     }
 
     @Test
@@ -559,7 +528,7 @@ class AndroidParagraphTest {
             constraints = ParagraphConstraints(width = 100.0f) // width is not important
         )
 
-        assertThat(paragraph.charSequence, hasSpan(BaselineShiftSpan::class, 0, "abc".length))
+        assertThat(paragraph.charSequence).hasSpan(BaselineShiftSpan::class, 0, "abc".length)
     }
 
     @Test
@@ -578,12 +547,9 @@ class AndroidParagraphTest {
             constraints = ParagraphConstraints(width = 100.0f) // width is not important
         )
 
-        assertThat(paragraph.charSequence, hasSpan(BaselineShiftSpan::class, 0, text.length))
-        assertThat(paragraph.charSequence, hasSpan(BaselineShiftSpan::class, 0, "abc".length))
-        assertThat(
-            paragraph.charSequence,
-            hasSpanOnTop(BaselineShiftSpan::class, 0, "abc".length)
-        )
+        assertThat(paragraph.charSequence).hasSpan(BaselineShiftSpan::class, 0, text.length)
+        assertThat(paragraph.charSequence).hasSpan(BaselineShiftSpan::class, 0, "abc".length)
+        assertThat(paragraph.charSequence).hasSpanOnTop(BaselineShiftSpan::class, 0, "abc".length)
     }
 
     @Test
@@ -602,8 +568,8 @@ class AndroidParagraphTest {
             constraints = ParagraphConstraints(width = 100.0f) // width is not important
         )
 
-        assertThat(paragraph.charSequence, not(hasSpan(ScaleXSpan::class, 0, text.length)))
-        assertThat(paragraph.charSequence, not(hasSpan(SkewXSpan::class, 0, text.length)))
+        assertThat(paragraph.charSequence).spans(ScaleXSpan::class).isEmpty()
+        assertThat(paragraph.charSequence).spans(SkewXSpan::class).isEmpty()
     }
 
     @Test
@@ -623,11 +589,10 @@ class AndroidParagraphTest {
             constraints = ParagraphConstraints(width = 100.0f) // width is not important
         )
 
-        assertThat(
-            paragraph.charSequence,
-            hasSpan(ScaleXSpan::class, 0, text.length) { it.scaleX == scaleX }
-        )
-        assertThat(paragraph.charSequence, not(hasSpan(SkewXSpan::class, 0, text.length)))
+        assertThat(paragraph.charSequence).hasSpan(ScaleXSpan::class, 0, text.length) {
+            it.scaleX == scaleX
+        }
+        assertThat(paragraph.charSequence).spans(SkewXSpan::class).isEmpty()
     }
 
     @Test
@@ -647,11 +612,10 @@ class AndroidParagraphTest {
             constraints = ParagraphConstraints(width = 100.0f) // width is not important
         )
 
-        assertThat(
-            paragraph.charSequence,
-            hasSpan(SkewXSpan::class, 0, text.length) { it.skewX == skewX }
-        )
-        assertThat(paragraph.charSequence, not(hasSpan(ScaleXSpan::class, 0, text.length)))
+        assertThat(paragraph.charSequence).hasSpan(SkewXSpan::class, 0, text.length) {
+            it.skewX == skewX
+        }
+        assertThat(paragraph.charSequence).spans(ScaleXSpan::class).isEmpty()
     }
 
     @Test
@@ -666,12 +630,10 @@ class AndroidParagraphTest {
             constraints = ParagraphConstraints(width = 100.0f) // width is not important
         )
 
-        assertThat(
-            paragraph.charSequence,
-            hasSpan(LeadingMarginSpan.Standard::class, 0, text.length) {
+        assertThat(paragraph.charSequence)
+            .hasSpan(LeadingMarginSpan.Standard::class, 0, text.length) {
                 it.getLeadingMargin(true) == firstLine && it.getLeadingMargin(false) == restLine
             }
-        )
     }
 
     @Test
@@ -690,15 +652,13 @@ class AndroidParagraphTest {
             constraints = ParagraphConstraints(width = 100.0f) // width is not important
         )
 
-        assertThat(
-            paragraph.charSequence,
-            hasSpan(ShadowSpan::class, start = 0, end = text.length) {
+        assertThat(paragraph.charSequence)
+            .hasSpan(ShadowSpan::class, start = 0, end = text.length) {
                 return@hasSpan it.color == color.toArgb() &&
                         it.offsetX == offset.dx &&
                         it.offsetY == offset.dy &&
                         it.radius == radius.value
             }
-        )
     }
 
     @Test
@@ -725,24 +685,20 @@ class AndroidParagraphTest {
             constraints = ParagraphConstraints(width = 100.0f) // width is not important
         )
 
-        assertThat(
-            paragraph.charSequence,
-            hasSpan(ShadowSpan::class, start = 0, end = text.length) {
+        assertThat(paragraph.charSequence)
+            .hasSpan(ShadowSpan::class, start = 0, end = text.length) {
                 return@hasSpan it.color == color.toArgb() &&
                         it.offsetX == offset.dx &&
                         it.offsetY == offset.dy &&
                         it.radius == radius.value
             }
-        )
-        assertThat(
-            paragraph.charSequence,
-            hasSpanOnTop(ShadowSpan::class, start = 0, end = "abc".length) {
+        assertThat(paragraph.charSequence)
+            .hasSpanOnTop(ShadowSpan::class, start = 0, end = "abc".length) {
                 return@hasSpanOnTop it.color == colorOverwrite.toArgb() &&
                         it.offsetX == offsetOverwrite.dx &&
                         it.offsetY == offsetOverwrite.dy &&
                         it.radius == radiusOverwrite.value
             }
-        )
     }
 
     @Test
@@ -773,12 +729,11 @@ class AndroidParagraphTest {
             constraints = ParagraphConstraints(width = 100.0f)
         )
 
-        assertThat(paragraph.charSequence.toString(), equalTo(text))
-        assertThat(
-            paragraph.charSequence,
-            hasSpan(TypefaceSpan::class, expectedStart, expectedEnd) { span ->
+        assertThat(paragraph.charSequence.toString()).isEqualTo(text)
+        assertThat(paragraph.charSequence)
+            .hasSpan(TypefaceSpan::class, expectedStart, expectedEnd) { span ->
                 span.typeface == expectedTypeface
-            })
+            }
     }
 
     @Test
@@ -811,12 +766,11 @@ class AndroidParagraphTest {
             constraints = ParagraphConstraints(width = 100.0f)
         )
 
-        assertThat(paragraph.charSequence.toString(), equalTo(text))
-        assertThat(
-            paragraph.charSequence,
-            hasSpan(TypefaceSpan::class, expectedStart, expectedEnd) { span ->
+        assertThat(paragraph.charSequence.toString()).isEqualTo(text)
+        assertThat(paragraph.charSequence)
+            .hasSpan(TypefaceSpan::class, expectedStart, expectedEnd) { span ->
                 span.typeface == expectedTypeface
-            })
+            }
     }
 
     @Test
@@ -831,11 +785,9 @@ class AndroidParagraphTest {
             constraints = ParagraphConstraints(width = 100.0f) // width is not important
         )
 
-        assertThat(
-            paragraph.charSequence,
-            hasSpan(FontFeatureSpan::class, 0, "abc".length) {
-                it.fontFeatureSettings == fontFeatureSettings
-            })
+        assertThat(paragraph.charSequence).hasSpan(FontFeatureSpan::class, 0, "abc".length) {
+            it.fontFeatureSettings == fontFeatureSettings
+        }
     }
 
     @Test
@@ -853,7 +805,7 @@ class AndroidParagraphTest {
             fontStyle = any(),
             fontSynthesis = any()
         )
-        assertThat(paragraph.textPaint.typeface, nullValue())
+        assertThat(paragraph.textPaint.typeface).isNull()
     }
 
     @Test
@@ -878,9 +830,9 @@ class AndroidParagraphTest {
         )
 
         val typeface = paragraph.textPaint.typeface
-        assertThat(typeface, not(nullValue()))
-        assertThat(typeface.isBold, equalTo(true))
-        assertThat(typeface.isItalic, equalTo(false))
+        assertThat(typeface).isNotNull()
+        assertThat(typeface.isBold).isTrue()
+        assertThat(typeface.isItalic).isFalse()
     }
 
     @Test
@@ -904,9 +856,9 @@ class AndroidParagraphTest {
         )
 
         val typeface = paragraph.textPaint.typeface
-        assertThat(typeface, not(nullValue()))
-        assertThat(typeface.isBold, equalTo(false))
-        assertThat(typeface.isItalic, equalTo(true))
+        assertThat(typeface).isNotNull()
+        assertThat(typeface.isBold).isFalse()
+        assertThat(typeface.isItalic).isTrue()
     }
 
     @Test
@@ -931,9 +883,9 @@ class AndroidParagraphTest {
         )
 
         val typeface = paragraph.textPaint.typeface
-        assertThat(typeface, not(nullValue()))
-        assertThat(typeface.isBold, equalTo(false))
-        assertThat(typeface.isItalic, equalTo(false))
+        assertThat(typeface).isNotNull()
+        assertThat(typeface.isBold).isFalse()
+        assertThat(typeface.isItalic).isFalse()
     }
 
     @Test
@@ -955,8 +907,8 @@ class AndroidParagraphTest {
             fontSynthesis = eq(FontSynthesis.All)
         )
         val typeface = paragraph.textPaint.typeface
-        assertThat(typeface.isBold, equalTo(false))
-        assertThat(typeface.isItalic, equalTo(false))
+        assertThat(typeface.isBold).isFalse()
+        assertThat(typeface.isItalic).isFalse()
     }
 
     @Test
@@ -976,7 +928,7 @@ class AndroidParagraphTest {
             )
 
             for (i in 0 until paragraph.lineCount) {
-                assertFalse(paragraph.isEllipsisApplied(i))
+                assertThat(paragraph.isEllipsisApplied(i)).isFalse()
             }
         }
     }
@@ -999,7 +951,7 @@ class AndroidParagraphTest {
                 constraints = ParagraphConstraints(width = paragraphWidth)
             )
 
-            assertTrue(paragraph.isEllipsisApplied(0))
+            assertThat(paragraph.isEllipsisApplied(0)).isTrue()
         }
     }
 
@@ -1022,7 +974,7 @@ class AndroidParagraphTest {
             )
 
             for (i in 0 until paragraph.lineCount) {
-                assertFalse(paragraph.isEllipsisApplied(i))
+                assertThat(paragraph.isEllipsisApplied(i)).isFalse()
             }
         }
     }
@@ -1037,7 +989,7 @@ class AndroidParagraphTest {
                 constraints = ParagraphConstraints(width = 0.0f)
             )
 
-            assertThat(paragraph.textPaint.textSize, equalTo(fontSize.toPx().value))
+            assertThat(paragraph.textPaint.textSize).isEqualTo(fontSize.toPx().value)
         }
     }
 
@@ -1055,7 +1007,7 @@ class AndroidParagraphTest {
                 constraints = ParagraphConstraints(width = 0.0f)
             )
 
-            assertThat(paragraph.textPaint.textSize, equalTo(fontSize.toPx().value * fontSizeScale))
+            assertThat(paragraph.textPaint.textSize).isEqualTo(fontSize.toPx().value *fontSizeScale)
         }
     }
 
@@ -1070,8 +1022,8 @@ class AndroidParagraphTest {
             constraints = ParagraphConstraints(width = 0.0f)
         )
 
-        assertThat(paragraph.textPaint.textLocale.language, equalTo(platformLocale.language))
-        assertThat(paragraph.textPaint.textLocale.country, equalTo(platformLocale.country))
+        assertThat(paragraph.textPaint.textLocale.language).isEqualTo(platformLocale.language)
+        assertThat(paragraph.textPaint.textLocale.country).isEqualTo(platformLocale.country)
     }
 
     @Test
@@ -1083,7 +1035,7 @@ class AndroidParagraphTest {
             constraints = ParagraphConstraints(width = 0.0f)
         )
 
-        assertThat(paragraph.textPaint.color, equalTo(color.toArgb()))
+        assertThat(paragraph.textPaint.color).isEqualTo(color.toArgb())
     }
 
     @Test
@@ -1095,7 +1047,7 @@ class AndroidParagraphTest {
             constraints = ParagraphConstraints(width = 0.0f)
         )
 
-        assertThat(paragraph.textPaint.letterSpacing, equalTo(letterSpacing))
+        assertThat(paragraph.textPaint.letterSpacing).isEqualTo((letterSpacing))
     }
 
     @Test
@@ -1107,7 +1059,7 @@ class AndroidParagraphTest {
             constraints = ParagraphConstraints(width = 0.0f)
         )
 
-        assertThat(paragraph.textPaint.fontFeatureSettings, equalTo(fontFeatureSettings))
+        assertThat(paragraph.textPaint.fontFeatureSettings).isEqualTo(fontFeatureSettings)
     }
 
     @Test
@@ -1123,7 +1075,7 @@ class AndroidParagraphTest {
             constraints = ParagraphConstraints(width = 0.0f)
         )
 
-        assertThat(paragraph.textPaint.textScaleX, equalTo(scaleX))
+        assertThat(paragraph.textPaint.textScaleX).isEqualTo(scaleX)
     }
 
     @Test
@@ -1139,7 +1091,7 @@ class AndroidParagraphTest {
             constraints = ParagraphConstraints(width = 0.0f)
         )
 
-        assertThat(paragraph.textPaint.textSkewX, equalTo(skewX))
+        assertThat(paragraph.textPaint.textSkewX).isEqualTo(skewX)
     }
 
     @Test
@@ -1150,7 +1102,7 @@ class AndroidParagraphTest {
             constraints = ParagraphConstraints(width = 0.0f)
         )
 
-        assertThat(paragraph.textPaint.isUnderlineText, equalTo(true))
+        assertThat(paragraph.textPaint.isUnderlineText).isEqualTo(true)
     }
 
     @Test
@@ -1161,7 +1113,7 @@ class AndroidParagraphTest {
             constraints = ParagraphConstraints(width = 0.0f)
         )
 
-        assertThat(paragraph.textPaint.isStrikeThruText, equalTo(true))
+        assertThat(paragraph.textPaint.isStrikeThruText).isEqualTo(true)
     }
 
     @Test
@@ -1176,11 +1128,10 @@ class AndroidParagraphTest {
             constraints = ParagraphConstraints(width = 0.0f)
         )
 
-        assertThat(paragraph.charSequence,
-            hasSpan(BackgroundColorSpan::class, 0, text.length) { span ->
+        assertThat(paragraph.charSequence)
+            .hasSpan(BackgroundColorSpan::class, 0, text.length) { span ->
                 span.backgroundColor == color.toArgb()
             }
-        )
     }
 
     @Test
@@ -1195,12 +1146,10 @@ class AndroidParagraphTest {
             constraints = ParagraphConstraints(width = 0.0f)
         )
 
-        assertThat(
-            paragraph.charSequence,
-            hasSpan(BaselineShiftSpan::class, 0, text.length) { span ->
+        assertThat(paragraph.charSequence)
+            .hasSpan(BaselineShiftSpan::class, 0, text.length) { span ->
                 span.multiplier == BaselineShift.Subscript.multiplier
             }
-        )
     }
 
     @Test
@@ -1211,10 +1160,8 @@ class AndroidParagraphTest {
             constraints = ParagraphConstraints(width = Float.MAX_VALUE)
         )
 
-        assertThat(
-            paragraph.textLocale.toLanguageTag(),
-            equalTo(java.util.Locale.getDefault().toLanguageTag())
-        )
+        assertThat(paragraph.textLocale.toLanguageTag())
+            .isEqualTo(java.util.Locale.getDefault().toLanguageTag())
     }
 
     @Test
@@ -1227,7 +1174,7 @@ class AndroidParagraphTest {
             constraints = ParagraphConstraints(width = Float.MAX_VALUE)
         )
 
-        assertThat(paragraph.textLocale.toLanguageTag(), equalTo("en-US"))
+        assertThat(paragraph.textLocale.toLanguageTag()).isEqualTo("en-US")
     }
 
     @Test
@@ -1240,7 +1187,7 @@ class AndroidParagraphTest {
             constraints = ParagraphConstraints(width = Float.MAX_VALUE)
         )
 
-        assertThat(paragraph.textLocale.toLanguageTag(), equalTo("ja-JP"))
+        assertThat(paragraph.textLocale.toLanguageTag()).isEqualTo("ja-JP")
     }
 
     @Test
@@ -1253,34 +1200,30 @@ class AndroidParagraphTest {
             constraints = ParagraphConstraints(width = Float.MAX_VALUE)
         )
 
-        assertThat(paragraph.textLocale.toLanguageTag(), equalTo("ja"))
+        assertThat(paragraph.textLocale.toLanguageTag()).isEqualTo("ja")
     }
 
     @Test
     fun resolveTextDirectionHeuristics_null() {
-        assertEquals(
-            TEXT_DIRECTION_FIRST_STRONG_LTR,
+        assertThat(TEXT_DIRECTION_FIRST_STRONG_LTR).isEqualTo(
             resolveTextDirectionHeuristics(LayoutDirection.Ltr, null)
         )
 
-        assertEquals(
-            TEXT_DIRECTION_FIRST_STRONG_RTL,
+        assertThat(TEXT_DIRECTION_FIRST_STRONG_RTL).isEqualTo(
             resolveTextDirectionHeuristics(LayoutDirection.Rtl, null)
         )
     }
 
     @Test
     fun resolveTextDirectionHeuristics_DefaultLtr() {
-        assertEquals(
-            TEXT_DIRECTION_FIRST_STRONG_LTR,
+        assertThat(TEXT_DIRECTION_FIRST_STRONG_LTR).isEqualTo(
             resolveTextDirectionHeuristics(
                 LayoutDirection.Ltr,
                 TextDirectionAlgorithm.ContentOrLtr
             )
         )
 
-        assertEquals(
-            TEXT_DIRECTION_FIRST_STRONG_LTR,
+        assertThat(TEXT_DIRECTION_FIRST_STRONG_LTR).isEqualTo(
             resolveTextDirectionHeuristics(
                 LayoutDirection.Rtl,
                 TextDirectionAlgorithm.ContentOrLtr
@@ -1290,16 +1233,14 @@ class AndroidParagraphTest {
 
     @Test
     fun resolveTextDirectionHeuristics_DefaultRtl() {
-        assertEquals(
-            TEXT_DIRECTION_FIRST_STRONG_RTL,
+        assertThat(TEXT_DIRECTION_FIRST_STRONG_RTL).isEqualTo(
             resolveTextDirectionHeuristics(
                 LayoutDirection.Ltr,
                 TextDirectionAlgorithm.ContentOrRtl
             )
         )
 
-        assertEquals(
-            TEXT_DIRECTION_FIRST_STRONG_RTL,
+        assertThat(TEXT_DIRECTION_FIRST_STRONG_RTL).isEqualTo(
             resolveTextDirectionHeuristics(
                 LayoutDirection.Rtl,
                 TextDirectionAlgorithm.ContentOrRtl
@@ -1309,16 +1250,14 @@ class AndroidParagraphTest {
 
     @Test
     fun resolveTextDirectionHeuristics_Ltr() {
-        assertEquals(
-            TEXT_DIRECTION_LTR,
+        assertThat(TEXT_DIRECTION_LTR).isEqualTo(
             resolveTextDirectionHeuristics(
                 LayoutDirection.Ltr,
                 TextDirectionAlgorithm.ForceLtr
             )
         )
 
-        assertEquals(
-            TEXT_DIRECTION_LTR,
+        assertThat(TEXT_DIRECTION_LTR).isEqualTo(
             resolveTextDirectionHeuristics(
                 LayoutDirection.Rtl,
                 TextDirectionAlgorithm.ForceLtr
@@ -1328,16 +1267,14 @@ class AndroidParagraphTest {
 
     @Test
     fun resolveTextDirectionHeuristics_Rtl() {
-        assertEquals(
-            TEXT_DIRECTION_RTL,
+        assertThat(TEXT_DIRECTION_RTL).isEqualTo(
             resolveTextDirectionHeuristics(
                 LayoutDirection.Ltr,
                 TextDirectionAlgorithm.ForceRtl
             )
         )
 
-        assertEquals(
-            TEXT_DIRECTION_RTL,
+        assertThat(TEXT_DIRECTION_RTL).isEqualTo(
             resolveTextDirectionHeuristics(
                 LayoutDirection.Rtl,
                 TextDirectionAlgorithm.ForceRtl
@@ -1353,7 +1290,7 @@ class AndroidParagraphTest {
             constraints = ParagraphConstraints(floatWidth)
         )
 
-        assertEquals(floatWidth, paragraph.width)
+        assertThat(floatWidth).isEqualTo(paragraph.width)
     }
 
     private fun simpleParagraph(

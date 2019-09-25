@@ -18,8 +18,7 @@ package androidx.ui.text.matchers
 
 import android.graphics.Bitmap
 import android.graphics.Typeface
-import androidx.ui.text.font.FontStyle
-import androidx.ui.text.font.FontWeight
+import com.google.common.truth.Truth.assertAbout
 import org.hamcrest.Matcher
 import kotlin.reflect.KClass
 
@@ -56,47 +55,14 @@ fun <T : Any> hasSpan(
     return HasSpan(spanClazz, start, end, predicate)
 }
 
-/**
- * Returns a matcher to check if the given text doesn't contain any span matching the given class
- * in the given range.
- *
- * @param spanClazz the class of the checked span
- * @param start the start range checked range
- * @param end the end of the checked range
- * @see HasSpan
- */
-fun <T : Any> notHasSpan(
-    spanClazz: KClass<out T>,
-    start: Int,
-    end: Int
-): Matcher<CharSequence> {
-    return NotHasSpan(spanClazz, start, end)
+internal fun assertThat(bitmap: Bitmap?): BitmapSubject {
+    return assertAbout(BitmapSubject.SUBJECT_FACTORY).that(bitmap)!!
 }
 
-/**
- * Similar to [hasSpan], and the returned matcher will also check that the span is not covered by
- * other spans.
- *
- * @param spanClazz the class of the expected span
- * @param start start position of the expected span
- * @param end end position of the expected span
- * @see HasSpanOnTop
- */
-fun <T : Any> hasSpanOnTop(
-    spanClazz: KClass<out T>,
-    start: Int,
-    end: Int,
-    predicate: ((T) -> Boolean)? = null
-): Matcher<CharSequence> {
-    return HasSpanOnTop(spanClazz, start, end, predicate)
+internal fun assertThat(typeface: Typeface?): TypefaceSubject {
+    return assertAbout(TypefaceSubject.SUBJECT_FACTORY).that(typeface)!!
 }
 
-/**
- * Verifies that [Typeface] object has the given [FontWeight] and [FontStyle].
- *
- * @param [fontWeight] expected [FontWeight]
- * @param [fontStyle] expected [FontStyle]
- */
-fun isTypefaceOf(fontWeight: FontWeight, fontStyle: FontStyle): Matcher<Typeface> {
-    return IsTypefaceOf(fontWeight, fontStyle)
+internal fun assertThat(charSequence: CharSequence?): CharSequenceSubject {
+    return assertAbout(CharSequenceSubject.SUBJECT_FACTORY).that(charSequence)!!
 }

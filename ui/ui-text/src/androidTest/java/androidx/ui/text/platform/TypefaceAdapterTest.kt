@@ -46,8 +46,7 @@ import androidx.ui.text.font.Font
 import androidx.ui.text.font.FontFamily
 import androidx.ui.text.font.FontMatcher
 import androidx.ui.text.font.asFontFamily
-import androidx.ui.text.matchers.equalToBitmap
-import androidx.ui.text.matchers.isTypefaceOf
+import androidx.ui.text.matchers.assertThat
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.eq
@@ -55,8 +54,6 @@ import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.times
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
-import org.hamcrest.CoreMatchers.not
-import org.junit.Assert
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.junit.MockitoJUnitRunner
@@ -117,7 +114,7 @@ class TypefaceAdapterTest {
 
         assertThat(typefaceSans).isNotNull()
         assertThat(typefaceSans).isNotNull()
-        Assert.assertThat(typefaceSans.bitmap(), not(equalToBitmap(typefaceSerif.bitmap())))
+        assertThat(typefaceSans.bitmap()).isNotEqualTo(typefaceSerif.bitmap())
     }
 
     @Test
@@ -246,8 +243,7 @@ class TypefaceAdapterTest {
         val typeface = TypefaceAdapter().create(fontFamily = fontFamily)
 
         assertThat(typeface).isNotNull()
-        Assert.assertThat(typeface.bitmap(), not(equalToBitmap(defaultTypeface.bitmap())))
-
+        assertThat(typeface.bitmap()).isNotEqualTo(defaultTypeface.bitmap())
         assertThat(typeface.isItalic).isFalse()
         assertThat(typeface.isBold).isFalse()
     }
@@ -265,7 +261,7 @@ class TypefaceAdapterTest {
         )
 
         assertThat(typeface).isNotNull()
-        Assert.assertThat(typeface.bitmap(), not(equalToBitmap(defaultTypeface.bitmap())))
+        assertThat(typeface.bitmap()).isNotEqualTo(defaultTypeface.bitmap())
         assertThat(typeface.isItalic).isTrue()
         assertThat(typeface.isBold).isTrue()
     }
@@ -302,10 +298,7 @@ class TypefaceAdapterTest {
                 )
 
                 assertThat(typeface).isNotNull()
-                Assert.assertThat(
-                    typeface,
-                    isTypefaceOf(fontWeight = fontWeight, fontStyle = fontStyle)
-                )
+                assertThat(typeface).isTypefaceOf(fontWeight = fontWeight, fontStyle = fontStyle)
             }
         }
     }
