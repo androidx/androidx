@@ -49,6 +49,7 @@ class FragmentNavigatorTest {
         private const val SECOND_FRAGMENT = 2
         private const val THIRD_FRAGMENT = 3
         private const val FOURTH_FRAGMENT = 4
+        private const val TEST_LABEL = "test_label"
     }
 
     @get:Rule
@@ -608,6 +609,31 @@ class FragmentNavigatorTest {
         val popped = fragmentNavigator.popBackStack()
         fragmentManager.executePendingTransactions()
         assertTrue("FragmentNavigator should return true when popping the third fragment", popped)
+    }
+
+    @Test
+    fun testToString() {
+        val fragmentNavigator = FragmentNavigator(emptyActivity, fragmentManager, R.id.container)
+        val destination = fragmentNavigator.createDestination().apply {
+            id = INITIAL_FRAGMENT
+            className = EmptyFragment::class.java.name
+            label = TEST_LABEL
+        }
+        val expected = "Destination(0x${INITIAL_FRAGMENT.toString(16)}) label=test_label " +
+                "class=${EmptyFragment::class.java.name}"
+        assertThat(destination.toString()).isEqualTo(expected)
+    }
+
+    @Test
+    fun testToStringNoClassName() {
+        val fragmentNavigator = FragmentNavigator(emptyActivity, fragmentManager, R.id.container)
+        val destination = fragmentNavigator.createDestination().apply {
+            id = INITIAL_FRAGMENT
+            label = TEST_LABEL
+        }
+        val expected = "Destination(0x${INITIAL_FRAGMENT.toString(16)}) label=test_label " +
+                "class=null"
+        assertThat(destination.toString()).isEqualTo(expected)
     }
 }
 
