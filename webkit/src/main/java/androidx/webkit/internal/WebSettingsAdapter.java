@@ -99,4 +99,18 @@ public class WebSettingsAdapter {
     public int getForceDark() {
         return mBoundaryInterface.getForceDark();
     }
+
+    /**
+     * Adapter method for {@link androidx.webkit.WebSettingsCompat#setForceDarkStrategy}.
+     */
+    public void setForceDarkStrategy(int forceDarkStrategy) {
+        mBoundaryInterface.setForceDarkBehavior(forceDarkStrategy);
+    }
+
+    /**
+     * Adapter method for {@link androidx.webkit.WebSettingsCompat#getForceDarkStrategy}.
+     */
+    public int getForceDarkStrategy() {
+        return mBoundaryInterface.getForceDarkBehavior();
+    }
 }
