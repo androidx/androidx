@@ -178,7 +178,7 @@ package androidx.ui.material {
 
   public final class MaterialThemeKt {
     ctor public MaterialThemeKt();
-    method public static void MaterialButtonShapeTheme(kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method public static void MaterialShapeTheme(kotlin.jvm.functions.Function0<kotlin.Unit> children);
     method public static void MaterialTheme(androidx.ui.material.MaterialColors colors = androidx.ui.material.MaterialColors(), androidx.ui.material.MaterialTypography typography = androidx.ui.material.MaterialTypography(), kotlin.jvm.functions.Function0<kotlin.Unit> children);
     method public static androidx.compose.Ambient<androidx.ui.material.MaterialColors> getColors();
     method public static androidx.compose.Ambient<androidx.ui.material.Shapes> getCurrentShapeAmbient();
@@ -255,10 +255,12 @@ package androidx.ui.material {
   }
 
   public final class Shapes {
-    ctor public Shapes(androidx.ui.engine.geometry.Shape button);
+    ctor public Shapes(androidx.ui.engine.geometry.Shape button, androidx.ui.engine.geometry.Shape card);
     method public androidx.ui.engine.geometry.Shape component1();
-    method public androidx.ui.material.Shapes copy(androidx.ui.engine.geometry.Shape button);
+    method public androidx.ui.engine.geometry.Shape component2();
+    method public androidx.ui.material.Shapes copy(androidx.ui.engine.geometry.Shape button, androidx.ui.engine.geometry.Shape card);
     method public androidx.ui.engine.geometry.Shape getButton();
+    method public androidx.ui.engine.geometry.Shape getCard();
   }
 
   public final class SwitchKt {
@@ -374,7 +376,9 @@ package androidx.ui.material.surface {
 
   public final class CardKt {
     ctor public CardKt();
-    method public static void Card(androidx.ui.engine.geometry.Shape shape = RectangleShape, androidx.ui.graphics.Color color = +themeColor({ 
+    method public static void Card(androidx.ui.engine.geometry.Shape shape = +themeShape({ 
+    card
+}), androidx.ui.graphics.Color color = +themeColor({ 
     surface
 }), androidx.ui.foundation.shape.border.Border? border = null, androidx.ui.core.Dp elevation = 1.dp, kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
