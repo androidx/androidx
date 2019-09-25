@@ -58,7 +58,11 @@ class PagerTest {
     val data = List(9) { "$it" }
 
     private fun rangeResult(start: Int, end: Int) =
-        PositionalDataSource.RangeResult(data.subList(start, end)).toLoadResult<Int>()
+        DataSource.BaseResult(
+            data = data.subList(start, end),
+            prevKey = start - 1,
+            nextKey = end
+        ).toLoadResult<Int>()
 
     private data class Result(
         val type: LoadType,

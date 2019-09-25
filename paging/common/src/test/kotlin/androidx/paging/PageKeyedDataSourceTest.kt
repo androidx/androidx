@@ -102,9 +102,6 @@ class PageKeyedDataSourceTest {
             null
         )
 
-        // backgroundThread.executeAll()
-        // val pagedList = runBlocking { pagedListJob.await() }
-
         // validate initial load
         assertEquals(PAGE_MAP[INIT_KEY]!!.data, pagedList)
 

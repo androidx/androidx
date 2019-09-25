@@ -21,6 +21,7 @@ import androidx.annotation.VisibleForTesting
 import androidx.annotation.WorkerThread
 import androidx.arch.core.util.Function
 import androidx.paging.DataSource.KeyType.POSITIONAL
+import androidx.paging.PagedSource.LoadResult.Page.Companion.COUNT_UNDEFINED
 import androidx.paging.PositionalDataSource.LoadInitialCallback
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlin.coroutines.resume
@@ -100,38 +101,6 @@ abstract class PositionalDataSource<T : Any> : DataSource<Int, T>(POSITIONAL) {
         @JvmField
         val loadSize: Int
     )
-
-    /**
-     * Type produced by [loadInitial] to represent initially loaded data.
-     *
-     * @param V The type of the data loaded.
-     */
-    internal class InitialResult<V : Any> : BaseResult<V> {
-        constructor(data: List<V>, position: Int, totalCount: Int) :
-                super(data, null, null, position, totalCount - data.size - position, 0, true) {
-            if (data.isEmpty() && position != 0) {
-                throw IllegalArgumentException(
-                    "Initial result cannot be empty if items are present in data set."
-                )
-            }
-        }
-
-        constructor(data: List<V>, position: Int) : super(data, null, null, 0, 0, position, false) {
-            if (data.isEmpty() && position != 0) {
-                throw IllegalArgumentException(
-                    "Initial result cannot be empty if items are present in data set."
-                )
-            }
-        }
-    }
-
-    /**
-     * Type produced by [loadRange] to represent a page of loaded data.
-     *
-     * @param V The type of the data loaded.
-     */
-    internal class RangeResult<V : Any>(data: List<V>) :
-        BaseResult<V>(data, null, null, 0, 0, 0, false)
 
     /**
      * Callback for [loadInitial] to return data, position, and count.
@@ -366,22 +335,24 @@ abstract class PositionalDataSource<T : Any> : DataSource<Int, T>(POSITIONAL) {
      * This method is called to load the initial page(s) from the DataSource.
      *
      * LoadResult list must be a multiple of pageSize to enable efficient tiling.
-     *
-     * @param params Parameters for initial load, including requested start position, load size, and
-     * page size.
-     * @return [InitialResult] The loaded data.
      */
     @VisibleForTesting
     internal suspend fun loadInitial(params: LoadInitialParams) =
-        suspendCancellableCoroutine<InitialResult<T>> { cont ->
+        suspendCancellableCoroutine<BaseResult<T>> { cont ->
             loadInitial(params, object : LoadInitialCallback<T>() {
                 override fun onResult(data: List<T>, position: Int, totalCount: Int) {
                     if (isInvalid) {
                         // NOTE: this isInvalid check works around
                         // https://issuetracker.google.com/issues/124511903
-                        cont.resume(InitialResult(emptyList(), 0, 0))
+                        cont.resume(BaseResult.empty())
                     } else {
-                        resume(params, InitialResult(data, position, totalCount))
+                        resume(params, BaseResult(
+                            data = data,
+                            prevKey = position - 1,
+                            nextKey = position + data.size,
+                            itemsBefore = position,
+                            itemsAfter = totalCount - data.size - position
+                        ))
                     }
                 }
 
@@ -389,13 +360,20 @@ abstract class PositionalDataSource<T : Any> : DataSource<Int, T>(POSITIONAL) {
                     if (isInvalid) {
                         // NOTE: this isInvalid check works around
                         // https://issuetracker.google.com/issues/124511903
-                        cont.resume(InitialResult(emptyList(), 0))
+                        cont.resume(BaseResult.empty())
                     } else {
-                        resume(params, InitialResult(data, position))
+                        resume(params, BaseResult(
+                            data = data,
+                            prevKey = if (position > 0) position - 1 else null,
+                            // always pass a nextKey, since we don't know how far to load
+                            nextKey = position + data.size,
+                            itemsBefore = position,
+                            itemsAfter = COUNT_UNDEFINED
+                        ))
                     }
                 }
 
-                private fun resume(params: LoadInitialParams, result: InitialResult<T>) {
+                private fun resume(params: LoadInitialParams, result: BaseResult<T>) {
                     if (params.placeholdersEnabled) {
                         result.validateForInitialTiling(params.pageSize)
                     }
@@ -413,17 +391,18 @@ abstract class PositionalDataSource<T : Any> : DataSource<Int, T>(POSITIONAL) {
      *
      * Unlike [ItemKeyedDataSource.loadInitial], this method must return the number of items
      * requested, at the position requested.
-     *
-     * @param params Parameters for load, including start position and load size.
-     * @return [RangeResult] The loaded data.
      */
     private suspend fun loadRange(params: LoadRangeParams) =
-        suspendCancellableCoroutine<RangeResult<T>> { cont ->
+        suspendCancellableCoroutine<BaseResult<T>> { cont ->
             loadRange(params, object : LoadRangeCallback<T>() {
                 override fun onResult(data: List<T>) {
                     when {
-                        isInvalid -> cont.resume(RangeResult(emptyList()))
-                        else -> cont.resume(RangeResult(data))
+                        isInvalid -> cont.resume(BaseResult.empty())
+                        else -> cont.resume(BaseResult(
+                            data = data,
+                            prevKey = params.startPosition - 1,
+                            nextKey = params.startPosition + data.size
+                        ))
                     }
                 }
             })

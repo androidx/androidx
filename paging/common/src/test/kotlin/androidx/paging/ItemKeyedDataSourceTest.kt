@@ -16,6 +16,7 @@
 
 package androidx.paging
 
+import androidx.paging.PagedSource.LoadResult.Page.Companion.COUNT_UNDEFINED
 import androidx.paging.futures.DirectDispatcher
 import com.nhaarman.mockitokotlin2.capture
 import com.nhaarman.mockitokotlin2.mock
@@ -53,9 +54,9 @@ class ItemKeyedDataSourceTest {
         val dataSource = ItemDataSource()
         val result = loadInitial(dataSource, dataSource.getKey(ITEMS_BY_NAME_ID[49]), 10, true)
 
-        assertEquals(45, result.leadingNulls)
+        assertEquals(45, result.itemsBefore)
         assertEquals(ITEMS_BY_NAME_ID.subList(45, 55), result.data)
-        assertEquals(45, result.trailingNulls)
+        assertEquals(45, result.itemsAfter)
     }
 
     @Test
@@ -65,9 +66,9 @@ class ItemKeyedDataSourceTest {
         // this is tricky, since load after and load before with the passed key will fail
         val result = loadInitial(dataSource, dataSource.getKey(ITEMS_BY_NAME_ID[0]), 20, true)
 
-        assertEquals(0, result.leadingNulls)
+        assertEquals(0, result.itemsBefore)
         assertEquals(ITEMS_BY_NAME_ID.subList(0, 1), result.data)
-        assertEquals(0, result.trailingNulls)
+        assertEquals(0, result.itemsAfter)
     }
 
     @Test
@@ -78,9 +79,9 @@ class ItemKeyedDataSourceTest {
         val key = dataSource.getKey(ITEMS_BY_NAME_ID.last())
         val result = loadInitial(dataSource, key, 20, true)
 
-        assertEquals(90, result.leadingNulls)
+        assertEquals(90, result.itemsBefore)
         assertEquals(ITEMS_BY_NAME_ID.subList(90, 100), result.data)
-        assertEquals(0, result.trailingNulls)
+        assertEquals(0, result.itemsAfter)
     }
 
     @Test
@@ -89,9 +90,9 @@ class ItemKeyedDataSourceTest {
 
         val result = loadInitial(dataSource, null, 10, true)
 
-        assertEquals(0, result.leadingNulls)
+        assertEquals(0, result.itemsBefore)
         assertEquals(ITEMS_BY_NAME_ID.subList(0, 10), result.data)
-        assertEquals(90, result.trailingNulls)
+        assertEquals(90, result.itemsAfter)
     }
 
     @Test
@@ -105,9 +106,9 @@ class ItemKeyedDataSourceTest {
         // NOTE: ideally we'd load 10 items here, but it adds complexity and unpredictability to
         // do: load after was empty, so pass full size to load before, since this can incur larger
         // loads than requested (see keyMatchesLastItem test)
-        assertEquals(95, result.leadingNulls)
+        assertEquals(95, result.itemsBefore)
         assertEquals(ITEMS_BY_NAME_ID.subList(95, 100), result.data)
-        assertEquals(0, result.trailingNulls)
+        assertEquals(0, result.itemsAfter)
     }
 
     // ----- UNCOUNTED -----
@@ -120,9 +121,9 @@ class ItemKeyedDataSourceTest {
         val key = dataSource.getKey(ITEMS_BY_NAME_ID[49])
         val result = loadInitial(dataSource, key, 10, false)
 
-        assertEquals(0, result.leadingNulls)
+        assertEquals(COUNT_UNDEFINED, result.itemsBefore)
         assertEquals(ITEMS_BY_NAME_ID.subList(45, 55), result.data)
-        assertEquals(0, result.trailingNulls)
+        assertEquals(COUNT_UNDEFINED, result.itemsAfter)
     }
 
     @Test
@@ -133,9 +134,9 @@ class ItemKeyedDataSourceTest {
         val key = dataSource.getKey(ITEMS_BY_NAME_ID[49])
         val result = loadInitial(dataSource, key, 10, true)
 
-        assertEquals(0, result.leadingNulls)
+        assertEquals(COUNT_UNDEFINED, result.itemsBefore)
         assertEquals(ITEMS_BY_NAME_ID.subList(45, 55), result.data)
-        assertEquals(0, result.trailingNulls)
+        assertEquals(COUNT_UNDEFINED, result.itemsAfter)
     }
 
     @Test
@@ -145,9 +146,9 @@ class ItemKeyedDataSourceTest {
         // dispatchLoadInitial(null, count) == dispatchLoadInitial(count)
         val result = loadInitial(dataSource, null, 10, true)
 
-        assertEquals(0, result.leadingNulls)
+        assertEquals(COUNT_UNDEFINED, result.itemsBefore)
         assertEquals(ITEMS_BY_NAME_ID.subList(0, 10), result.data)
-        assertEquals(0, result.trailingNulls)
+        assertEquals(COUNT_UNDEFINED, result.itemsAfter)
     }
 
     // ----- EMPTY -----
@@ -160,9 +161,9 @@ class ItemKeyedDataSourceTest {
         val key = dataSource.getKey(ITEMS_BY_NAME_ID[49])
         val result = loadInitial(dataSource, key, 10, true)
 
-        assertEquals(0, result.leadingNulls)
+        assertEquals(0, result.itemsBefore)
         assertTrue(result.data.isEmpty())
-        assertEquals(0, result.trailingNulls)
+        assertEquals(0, result.itemsAfter)
     }
 
     @Test
@@ -170,9 +171,9 @@ class ItemKeyedDataSourceTest {
         val dataSource = ItemDataSource(items = ArrayList())
         val result = loadInitial(dataSource, null, 10, true)
 
-        assertEquals(0, result.leadingNulls)
+        assertEquals(0, result.itemsBefore)
         assertTrue(result.data.isEmpty())
-        assertEquals(0, result.trailingNulls)
+        assertEquals(0, result.itemsAfter)
     }
 
     // ----- Other behavior -----
