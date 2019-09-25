@@ -35,6 +35,7 @@ import androidx.ui.test.createComposeRule
 import androidx.ui.test.doClick
 import androidx.ui.test.findByTag
 import androidx.ui.test.waitForIdleCompose
+import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.argumentCaptor
 import com.nhaarman.mockitokotlin2.atLeastOnce
@@ -42,8 +43,6 @@ import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.times
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNotNull
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -124,9 +123,9 @@ class TextFieldTest {
             onEditCommand = onEditCommandCaptor.capture(),
             onImeActionPerformed = any()
         )
-        assertEquals(1, onEditCommandCaptor.allValues.size)
+        assertThat(onEditCommandCaptor.allValues.size).isEqualTo(1)
         val onEditCommandCallback = onEditCommandCaptor.firstValue
-        assertNotNull(onEditCommandCallback)
+        assertThat(onEditCommandCallback).isNotNull()
 
         // Performs input events "1", "a", "2", "b", "3". Only numbers should remain.
         arrayOf(
@@ -145,7 +144,7 @@ class TextFieldTest {
             verify(textInputService, atLeastOnce()).onStateUpdated(stateCaptor.capture())
 
             // Don't care about the intermediate state update. It should eventually be "1a2b3".
-            assertEquals("1a2b3", stateCaptor.lastValue.text)
+            assertThat(stateCaptor.lastValue.text).isEqualTo("1a2b3")
         }
     }
 
@@ -195,9 +194,9 @@ class TextFieldTest {
             onEditCommand = onEditCommandCaptor.capture(),
             onImeActionPerformed = any()
         )
-        assertEquals(1, onEditCommandCaptor.allValues.size)
+        assertThat(onEditCommandCaptor.allValues.size).isEqualTo(1)
         val onEditCommandCallback = onEditCommandCaptor.firstValue
-        assertNotNull(onEditCommandCallback)
+        assertThat(onEditCommandCallback).isNotNull()
 
         // Performs input events "1", "a", "2", "b", "3". Only numbers should remain.
         arrayOf(
@@ -217,7 +216,7 @@ class TextFieldTest {
 
             // Don't care about the intermediate state update. It should eventually be "123" since
             // the rejects if the incoming model contains alphabets.
-            assertEquals("123", stateCaptor.lastValue.text)
+            assertThat(stateCaptor.lastValue.text).isEqualTo("123")
         }
     }
 }

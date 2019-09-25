@@ -22,7 +22,7 @@ import androidx.test.platform.app.InstrumentationRegistry
 import androidx.ui.core.ContextAmbient
 import androidx.ui.framework.test.R
 import androidx.ui.test.createComposeRule
-import org.junit.Assert.assertEquals
+import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -56,10 +56,7 @@ class ResourcesTest {
 
         composeTestRule.setContent {
             ContextAmbient.Provider(value = context) {
-                assertEquals(
-                    NotLocalizedText,
-                    +stringResource(R.string.not_localized)
-                )
+                assertThat(+stringResource(R.string.not_localized)).isEqualTo(NotLocalizedText)
             }
         }
 
@@ -71,10 +68,7 @@ class ResourcesTest {
 
         composeTestRule.setContent {
             ContextAmbient.Provider(value = spanishContext) {
-                assertEquals(
-                    NotLocalizedText,
-                    +stringResource(R.string.not_localized)
-                )
+                assertThat(+stringResource(R.string.not_localized)).isEqualTo(NotLocalizedText)
             }
         }
     }
@@ -86,10 +80,8 @@ class ResourcesTest {
 
         composeTestRule.setContent {
             ContextAmbient.Provider(value = context) {
-                assertEquals(
-                    DefaultLocalizedText,
-                    +stringResource(R.string.localized)
-                )
+                assertThat(+stringResource(R.string.localized))
+                    .isEqualTo(DefaultLocalizedText)
             }
         }
 
@@ -101,10 +93,8 @@ class ResourcesTest {
 
         composeTestRule.setContent {
             ContextAmbient.Provider(value = spanishContext) {
-                assertEquals(
-                    SpanishLocalizedText,
-                    +stringResource(R.string.localized)
-                )
+                assertThat(+stringResource(R.string.localized))
+                    .isEqualTo(SpanishLocalizedText)
             }
         }
     }
@@ -116,10 +106,8 @@ class ResourcesTest {
 
         composeTestRule.setContent {
             ContextAmbient.Provider(value = context) {
-                assertEquals(
-                    NotLocalizedFormatText,
-                    +stringResource(R.string.not_localized_format, FormatValue)
-                )
+                assertThat(+stringResource(R.string.not_localized_format, FormatValue))
+                    .isEqualTo(NotLocalizedFormatText)
             }
         }
 
@@ -131,10 +119,8 @@ class ResourcesTest {
 
         composeTestRule.setContent {
             ContextAmbient.Provider(value = spanishContext) {
-                assertEquals(
-                    NotLocalizedFormatText,
-                    +stringResource(R.string.not_localized_format, FormatValue)
-                )
+                assertThat(+stringResource(R.string.not_localized_format, FormatValue))
+                    .isEqualTo(NotLocalizedFormatText)
             }
         }
     }
@@ -146,10 +132,8 @@ class ResourcesTest {
 
         composeTestRule.setContent {
             ContextAmbient.Provider(value = context) {
-                assertEquals(
-                    DefaultLocalizedFormatText,
-                    +stringResource(R.string.localized_format, FormatValue)
-                )
+                assertThat(+stringResource(R.string.localized_format, FormatValue))
+                    .isEqualTo(DefaultLocalizedFormatText)
             }
         }
 
@@ -161,10 +145,8 @@ class ResourcesTest {
 
         composeTestRule.setContent {
             ContextAmbient.Provider(value = spanishContext) {
-                assertEquals(
-                    SpanishLocalizedFormatText,
-                    +stringResource(R.string.localized_format, FormatValue)
-                )
+                assertThat(+stringResource(R.string.localized_format, FormatValue))
+                    .isEqualTo(SpanishLocalizedFormatText)
             }
         }
     }
