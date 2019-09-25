@@ -132,7 +132,7 @@ private class LongPressDragGestureDetectorGlue {
 
         object : DragObserver {
 
-            override fun onStart() {
+            override fun onStart(downPosition: PxPosition) {
                 longPressDragObserver.onDragStart()
                 dragStarted = true
             }

@@ -43,10 +43,12 @@ interface DragObserver {
      * returns true) and the average distance the pointers have moved
      * are not 0 on both the x and y axes.
      *
+     * @param downPosition The pointer input position of the down event.
+     *
      * @see onDrag
      * @see onStop
      */
-    fun onStart() {}
+    fun onStart(downPosition: PxPosition) {}
 
     /**
      * Override to be notified when a distance has been dragged.
@@ -126,6 +128,7 @@ fun RawDragGestureDetector(
 
 internal class RawDragGestureRecognizer {
     private val velocityTrackers: MutableMap<Int, VelocityTracker> = mutableMapOf()
+    private val downPositions: MutableMap<Int, PxPosition> = mutableMapOf()
     private var started = false
     var canStartDragging: (() -> Boolean)? = null
     lateinit var dragObserver: DragObserver
@@ -167,6 +170,10 @@ internal class RawDragGestureRecognizer {
                         } else if (it.changedToUpIgnoreConsumed()) {
                             velocityTrackers.remove(it.id)
                         }
+                        // removing stored down position for the pointer.
+                        if (it.changedToUp()) {
+                            downPositions.remove(it.id)
+                        }
                     }
 
                     if (changesToReturn.all { it.changedToUpIgnoreConsumed() }) {
@@ -202,6 +209,7 @@ internal class RawDragGestureRecognizer {
                                         it.current.position!!
                                     )
                                 }
+                            downPositions[it.id] = it.current.position!!
                         }
                     }
                 }
@@ -258,7 +266,8 @@ internal class RawDragGestureRecognizer {
                         // and if we should, update our state and call onStart().
                         if (!started && canStart) {
                             started = true
-                            dragObserver.onStart()
+                            dragObserver.onStart(downPositions.values.averagePosition())
+                            downPositions.clear()
                         }
 
                         if (started) {
@@ -282,4 +291,14 @@ internal class RawDragGestureRecognizer {
 
             changesToReturn
         }
+}
+
+private fun Iterable<PxPosition>.averagePosition(): PxPosition {
+    var x = 0.px
+    var y = 0.px
+    forEach {
+        x += it.x
+        y += it.y
+    }
+    return PxPosition(x / count(), y / count())
 }

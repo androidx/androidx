@@ -114,7 +114,7 @@ class SelectionManager : SelectionRegistrar {
 
     fun handleDragObserver(dragStartHandle: Boolean): DragObserver {
         return object : DragObserver {
-            override fun onStart() {
+            override fun onStart(downPosition: PxPosition) {
                 // The LayoutCoordinates of the widget where the drag gesture should begin. This
                 // is used to convert the position of the beginning of the drag gesture from the
                 // widget coordinates to selection container coordinates.

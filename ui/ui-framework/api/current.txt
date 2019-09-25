@@ -174,7 +174,7 @@ package androidx.ui.core.gesture {
 
   public interface DragObserver {
     method public default androidx.ui.core.PxPosition onDrag(androidx.ui.core.PxPosition dragDistance);
-    method public default void onStart();
+    method public default void onStart(androidx.ui.core.PxPosition downPosition);
     method public default void onStop(androidx.ui.core.PxPosition velocity);
   }
 
