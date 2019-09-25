@@ -57,10 +57,9 @@ fun Switch(
     onCheckedChange: ((Boolean) -> Unit)?,
     color: Color = +themeColor { secondaryVariant }
 ) {
-    val value = if (checked) ToggleableState.Checked else ToggleableState.Unchecked
     Wrap {
         Ripple(bounded = false) {
-            Toggleable(value = value, onToggle = onCheckedChange?.let { { it(!checked) } }) {
+            Toggleable(checked = checked, onCheckedChange = onCheckedChange) {
                 Padding(padding = DefaultSwitchPadding) {
                     SwitchImpl(checked, onCheckedChange, color)
                 }

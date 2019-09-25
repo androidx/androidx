@@ -65,10 +65,10 @@ class SwitchUiTest {
         composeTestRule.setMaterialContent {
             Column {
                 TestTag(tag = "checked") {
-                    Switch(checked = true, onCheckedChange = null)
+                    Switch(checked = true, onCheckedChange = {})
                 }
                 TestTag(tag = "unchecked") {
-                    Switch(checked = false, onCheckedChange = null)
+                    Switch(checked = false, onCheckedChange = {})
                 }
             }
         }
