@@ -32,6 +32,7 @@ import android.widget.Button;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.camera.core.CameraX;
@@ -42,6 +43,8 @@ import androidx.camera.core.Preview;
 import androidx.camera.core.PreviewConfig;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
+import androidx.camera.core.impl.utils.futures.FutureCallback;
+import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.camera.extensions.AutoImageCaptureExtender;
 import androidx.camera.extensions.AutoPreviewExtender;
 import androidx.camera.extensions.BeautyImageCaptureExtender;
@@ -57,6 +60,8 @@ import androidx.camera.extensions.NightPreviewExtender;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.test.espresso.idling.CountingIdlingResource;
+
+import com.google.common.util.concurrent.ListenableFuture;
 
 import java.io.File;
 import java.text.Format;
@@ -437,14 +442,25 @@ public class CameraExtensionsActivity extends AppCompatActivity
 
         Log.d(TAG, "Using cameraId: " + mCurrentCameraId);
 
-        // Run this on the UI thread to manipulate the Textures & Views.
-        CameraExtensionsActivity.this.runOnUiThread(
-                new Runnable() {
+        ListenableFuture<ExtensionsManager.ExtensionsAvailability> availability =
+                ExtensionsManager.init();
+
+        Futures.addCallback(availability,
+                new FutureCallback<ExtensionsManager.ExtensionsAvailability>() {
                     @Override
-                    public void run() {
-                        createUseCases();
+                    public void onSuccess(
+                            @Nullable ExtensionsManager.ExtensionsAvailability availability) {
+                        // Run this on the UI thread to manipulate the Textures & Views.
+                        CameraExtensionsActivity.this.runOnUiThread(() -> createUseCases());
                     }
-                });
+
+                    @Override
+                    public void onFailure(Throwable throwable) {
+
+                    }
+                },
+                CameraXExecutors.mainThreadExecutor()
+        );
     }
 
     private void setupPermissions() {

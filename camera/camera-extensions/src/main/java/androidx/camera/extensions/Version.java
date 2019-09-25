@@ -32,6 +32,9 @@ import java.util.regex.Pattern;
  */
 @AutoValue
 abstract class Version implements Comparable<Version> {
+    static final Version VERSION_1_0 = Version.create(1, 0, 0, "");
+    static final Version VERSION_1_1 = Version.create(1, 1, 0, "");
+
     private static final Pattern VERSION_STRING_PATTERN =
             Pattern.compile("(\\d+)(?:\\.(\\d+))(?:\\.(\\d+))(?:\\-(.+))?");
 

@@ -16,6 +16,7 @@
 
 package androidx.camera.extensions;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 
 /**
@@ -24,10 +25,14 @@ import androidx.annotation.RestrictTo;
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public enum VersionName {
-
+public class VersionName {
     /* The current version of the CameraX extension. */
-    CURRENT(BuildConfig.CAMERA_VERSION);
+    private static final VersionName CURRENT = new VersionName(BuildConfig.CAMERA_VERSION);
+
+    @NonNull
+    static VersionName getCurrentVersion() {
+        return CURRENT;
+    }
 
     private final Version mVersion;
 
