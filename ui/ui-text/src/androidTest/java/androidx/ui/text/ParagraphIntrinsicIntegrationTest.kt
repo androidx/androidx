@@ -25,8 +25,6 @@ import androidx.ui.core.sp
 import androidx.ui.core.withDensity
 import androidx.ui.text.font.asFontFamily
 import com.google.common.truth.Truth.assertThat
-import org.hamcrest.Matchers
-import org.junit.Assert
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -114,7 +112,7 @@ class ParagraphIntrinsicIntegrationTest {
             // since "bb " is double font size, the whole width should be the text size, and the
             // additional width resulting from the "bb " length.
             val expectedWidth = (text.length + "bb ".length) * fontSize.toPx().value
-            Assert.assertThat(paragraph.maxIntrinsicWidth, Matchers.equalTo(expectedWidth))
+            assertThat(paragraph.maxIntrinsicWidth).isEqualTo(expectedWidth)
         }
     }
 
@@ -175,7 +173,7 @@ class ParagraphIntrinsicIntegrationTest {
 
             // +1 is for the white space
             val expectedWidth = (maxWordLength + 1) * fontSize.toPx().value
-            Assert.assertThat(paragraph.minIntrinsicWidth, Matchers.equalTo(expectedWidth))
+            assertThat(paragraph.minIntrinsicWidth).isEqualTo(expectedWidth)
         }
     }
 
@@ -198,7 +196,7 @@ class ParagraphIntrinsicIntegrationTest {
             )
 
             val expectedWidth = "bb ".length * styledFontSize.toPx().value
-            Assert.assertThat(paragraph.minIntrinsicWidth, Matchers.equalTo(expectedWidth))
+            assertThat(paragraph.minIntrinsicWidth).isEqualTo(expectedWidth)
         }
     }
 

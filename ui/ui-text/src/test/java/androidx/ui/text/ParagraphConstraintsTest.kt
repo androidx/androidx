@@ -15,9 +15,7 @@
  */
 package androidx.ui.text
 
-import org.hamcrest.CoreMatchers.`is`
-import org.hamcrest.CoreMatchers.equalTo
-import org.junit.Assert.assertThat
+import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -28,9 +26,6 @@ class ParagraphConstraintsTest {
     @Test
     fun `toString with values`() {
         val paragraphConstraints = ParagraphConstraints(width = 101.0f)
-        assertThat(
-            paragraphConstraints.toString(),
-            `is`(equalTo("ParagraphConstraints(width: 101.0)"))
-        )
+        assertThat(paragraphConstraints.toString()).isEqualTo("ParagraphConstraints(width: 101.0)")
     }
 }
