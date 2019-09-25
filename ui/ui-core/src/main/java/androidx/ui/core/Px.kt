@@ -17,6 +17,7 @@
 
 package androidx.ui.core
 
+import androidx.compose.Immutable
 import androidx.ui.engine.geometry.Offset
 import androidx.ui.engine.geometry.Rect
 import androidx.ui.lerp
@@ -36,6 +37,7 @@ import kotlin.math.sqrt
  *     val bottomMargin = 10.px
  */
 @Suppress("EXPERIMENTAL_FEATURE_WARNING")
+@Immutable
 data /*inline*/ class Px(val value: Float) {
     /**
      * Add two [Px]s together.
@@ -228,6 +230,7 @@ fun lerp(a: Px, b: Px, t: Float): Px {
  *     val width = oldWidth * newTotalWidth / oldTotalWidth
  */
 @Suppress("EXPERIMENTAL_FEATURE_WARNING")
+@Immutable
 inline class PxSquared(val value: Float) {
     /**
      * Add two DimensionSquares together.
@@ -293,6 +296,7 @@ inline class PxSquared(val value: Float) {
  *     val width = oldWidth * newTotalWidth / oldTotalWidth
  */
 @Suppress("EXPERIMENTAL_FEATURE_WARNING")
+@Immutable
 inline class PxCubed(val value: Float) {
     /**
      * Add two PxCubed together.
@@ -351,6 +355,7 @@ inline class PxCubed(val value: Float) {
  *     val width = oldWidth * newTotalWidth / oldTotalWidth
  */
 @Suppress("EXPERIMENTAL_FEATURE_WARNING")
+@Immutable
 inline class PxInverse(val value: Float) {
     /**
      * Add two PxInverse together.
@@ -407,7 +412,21 @@ inline class PxInverse(val value: Float) {
 /**
  * A two dimensional size using [Px] for units
  */
-data class PxSize(val width: Px, val height: Px) {
+@UseExperimental(ExperimentalUnsignedTypes::class)
+@Immutable
+data class PxSize @PublishedApi internal constructor(@PublishedApi internal val value: Long) {
+    /**
+     * The horizontal aspect of the size in [Px].
+     */
+    inline val width: Px
+        get() = unpackFloat1(value).px
+
+    /**
+     * The vertical aspect of the size in [Px].
+     */
+    inline val height: Px
+        get() = unpackFloat2(value).px
+
     /**
      * Returns a PxSize scaled by multiplying [width] and [height] by [other]
      */
@@ -451,6 +470,12 @@ data class PxSize(val width: Px, val height: Px) {
 }
 
 /**
+ * Constructs a [PxSize] from width and height [Px] values.
+ */
+@UseExperimental(ExperimentalUnsignedTypes::class)
+inline fun PxSize(width: Px, height: Px): PxSize = PxSize(packFloats(width.value, height.value))
+
+/**
  * Returns a [PxSize] with [size]'s [PxSize.width] and [PxSize.height] multiplied by [this]
  */
 inline operator fun Int.times(size: PxSize) = size * this
@@ -481,7 +506,21 @@ val PxSize.minDimension get() = min(width, height)
 /**
  * A two-dimensional position using [Px] for units
  */
-data class PxPosition(val x: Px, val y: Px) {
+@UseExperimental(ExperimentalUnsignedTypes::class)
+@Immutable
+data class PxPosition @PublishedApi internal constructor(@PublishedApi internal val value: Long) {
+    /**
+     * The horizontal aspect of the position in [Px]
+     */
+    inline val x: Px
+        get() = unpackFloat1(value).px
+
+    /**
+     * The vertical aspect of the position in [Px]
+     */
+    inline val y: Px
+        get() = unpackFloat2(value).px
+
     /**
      * Subtract a [PxPosition] from another one.
      */
@@ -517,6 +556,12 @@ data class PxPosition(val x: Px, val y: Px) {
 }
 
 /**
+ * Constructs a [PxPosition] from [x] and [y] position [Px] values.
+ */
+@UseExperimental(ExperimentalUnsignedTypes::class)
+inline fun PxPosition(x: Px, y: Px): PxPosition = PxPosition(packFloats(x.value, y.value))
+
+/**
  * The magnitude of the offset represented by this [PxPosition].
  */
 fun PxPosition.getDistance(): Px = Px(sqrt(x.value * x.value + y.value * y.value))
@@ -548,6 +593,7 @@ fun lerp(a: PxPosition, b: PxPosition, t: Float): PxPosition =
 /**
  * A four dimensional bounds using [Px] for units
  */
+@Immutable
 data class PxBounds(
     val left: Px,
     val top: Px,

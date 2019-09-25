@@ -591,7 +591,7 @@ internal data class ParagraphInfo(
      * relative to the [paragraph].
      */
     fun PxPosition.toLocal(): PxPosition {
-        return copy(y = y - top)
+        return PxPosition(x = x, y = y - top)
     }
 
     /**

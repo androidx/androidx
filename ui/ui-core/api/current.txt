@@ -263,6 +263,8 @@ package androidx.ui.core {
 
   public final class DpKt {
     ctor public DpKt();
+    method public static inline androidx.ui.core.Position Position(androidx.ui.core.Dp x, androidx.ui.core.Dp y);
+    method public static inline androidx.ui.core.Size Size(androidx.ui.core.Dp width, androidx.ui.core.Dp height);
     method public static androidx.ui.core.Position center(androidx.ui.core.Size);
     method public static inline androidx.ui.core.Dp coerceAtLeast(androidx.ui.core.Dp, androidx.ui.core.Dp minimumValue);
     method public static inline androidx.ui.core.Dp coerceAtMost(androidx.ui.core.Dp, androidx.ui.core.Dp maximumValue);
@@ -375,6 +377,16 @@ package androidx.ui.core {
     ctor public HorizontalAlignmentLine(kotlin.jvm.functions.Function2<? super androidx.ui.core.IntPx,? super androidx.ui.core.IntPx,androidx.ui.core.IntPx> merger);
   }
 
+  public final class InlineClassHelperKt {
+    ctor public InlineClassHelperKt();
+    method public static inline long packFloats(float val1, float val2);
+    method public static inline long packInts(int val1, int val2);
+    method public static inline float unpackFloat1(long value);
+    method public static inline float unpackFloat2(long value);
+    method public static inline int unpackInt1(long value);
+    method public static inline int unpackInt2(long value);
+  }
+
   public final class IntPx {
     ctor public IntPx(int value);
     method public inline operator int compareTo(androidx.ui.core.IntPx other);
@@ -416,6 +428,8 @@ package androidx.ui.core {
 
   public final class IntPxKt {
     ctor public IntPxKt();
+    method public static inline androidx.ui.core.IntPxPosition IntPxPosition(androidx.ui.core.IntPx x, androidx.ui.core.IntPx y);
+    method public static inline androidx.ui.core.IntPxSize IntPxSize(androidx.ui.core.IntPx width, androidx.ui.core.IntPx height);
     method public static inline androidx.ui.core.PxPosition PxPosition(androidx.ui.core.IntPx x, androidx.ui.core.IntPx y);
     method public static inline androidx.ui.core.PxSize PxSize(androidx.ui.core.IntPx width, androidx.ui.core.IntPx height);
     method public static androidx.ui.core.IntPxPosition center(androidx.ui.core.IntPxSize);
@@ -431,9 +445,9 @@ package androidx.ui.core {
     method public static inline androidx.ui.core.IntPx max(androidx.ui.core.IntPx a, androidx.ui.core.IntPx b);
     method public static inline androidx.ui.core.IntPx min(androidx.ui.core.IntPx a, androidx.ui.core.IntPx b);
     method public static inline androidx.ui.core.IntPx round(androidx.ui.core.Px);
-    method public static operator androidx.ui.core.IntPx times(float, androidx.ui.core.IntPx other);
-    method public static operator androidx.ui.core.IntPx times(double, androidx.ui.core.IntPx other);
-    method public static operator androidx.ui.core.IntPx times(int, androidx.ui.core.IntPx other);
+    method public static inline operator androidx.ui.core.IntPx times(float, androidx.ui.core.IntPx other);
+    method public static inline operator androidx.ui.core.IntPx times(double, androidx.ui.core.IntPx other);
+    method public static inline operator androidx.ui.core.IntPx times(int, androidx.ui.core.IntPx other);
     method public static inline operator androidx.ui.core.IntPxSize times(int, androidx.ui.core.IntPxSize size);
     method public static inline androidx.ui.core.Px toPx(androidx.ui.core.IntPx);
     method public static inline androidx.ui.core.PxPosition toPxPosition(androidx.ui.core.IntPxPosition);
@@ -442,25 +456,23 @@ package androidx.ui.core {
   }
 
   public final class IntPxPosition {
-    ctor public IntPxPosition(androidx.ui.core.IntPx x, androidx.ui.core.IntPx y);
-    method public androidx.ui.core.IntPx component1();
-    method public androidx.ui.core.IntPx component2();
-    method public androidx.ui.core.IntPxPosition copy(androidx.ui.core.IntPx x, androidx.ui.core.IntPx y);
-    method public androidx.ui.core.IntPx getX();
-    method public androidx.ui.core.IntPx getY();
+    method public androidx.ui.core.IntPxPosition copy(long value);
+    method public inline androidx.ui.core.IntPx getX();
+    method public inline androidx.ui.core.IntPx getY();
     method public inline operator androidx.ui.core.IntPxPosition minus(androidx.ui.core.IntPxPosition other);
     method public inline operator androidx.ui.core.IntPxPosition plus(androidx.ui.core.IntPxPosition other);
+    property public final inline androidx.ui.core.IntPx x;
+    property public final inline androidx.ui.core.IntPx y;
   }
 
   public final class IntPxSize {
-    ctor public IntPxSize(androidx.ui.core.IntPx width, androidx.ui.core.IntPx height);
-    method public androidx.ui.core.IntPx component1();
-    method public androidx.ui.core.IntPx component2();
-    method public androidx.ui.core.IntPxSize copy(androidx.ui.core.IntPx width, androidx.ui.core.IntPx height);
+    method public androidx.ui.core.IntPxSize copy(long value);
     method public inline operator androidx.ui.core.IntPxSize div(int other);
-    method public androidx.ui.core.IntPx getHeight();
-    method public androidx.ui.core.IntPx getWidth();
+    method public inline androidx.ui.core.IntPx getHeight();
+    method public inline androidx.ui.core.IntPx getWidth();
     method public inline operator androidx.ui.core.IntPxSize times(int other);
+    property public final inline androidx.ui.core.IntPx height;
+    property public final inline androidx.ui.core.IntPx width;
   }
 
   public interface IntrinsicMeasurable {
@@ -610,14 +622,13 @@ package androidx.ui.core {
   }
 
   public final class Position {
-    ctor public Position(androidx.ui.core.Dp x, androidx.ui.core.Dp y);
-    method public androidx.ui.core.Dp component1();
-    method public androidx.ui.core.Dp component2();
-    method public androidx.ui.core.Position copy(androidx.ui.core.Dp x, androidx.ui.core.Dp y);
-    method public androidx.ui.core.Dp getX();
-    method public androidx.ui.core.Dp getY();
+    method public androidx.ui.core.Position copy(long value);
+    method public inline androidx.ui.core.Dp getX();
+    method public inline androidx.ui.core.Dp getY();
     method public inline operator androidx.ui.core.Position minus(androidx.ui.core.Position other);
     method public inline operator androidx.ui.core.Position plus(androidx.ui.core.Position other);
+    property public final inline androidx.ui.core.Dp x;
+    property public final inline androidx.ui.core.Dp y;
   }
 
   public final class Px {
@@ -700,6 +711,8 @@ package androidx.ui.core {
 
   public final class PxKt {
     ctor public PxKt();
+    method public static inline androidx.ui.core.PxPosition PxPosition(androidx.ui.core.Px x, androidx.ui.core.Px y);
+    method public static inline androidx.ui.core.PxSize PxSize(androidx.ui.core.Px width, androidx.ui.core.Px height);
     method public static androidx.ui.core.PxPosition center(androidx.ui.core.PxSize);
     method public static inline androidx.ui.core.Px coerceAtLeast(androidx.ui.core.Px, androidx.ui.core.Px minimumValue);
     method public static inline androidx.ui.core.Px coerceAtMost(androidx.ui.core.Px, androidx.ui.core.Px maximumValue);
@@ -733,17 +746,16 @@ package androidx.ui.core {
   }
 
   public final class PxPosition {
-    ctor public PxPosition(androidx.ui.core.Px x, androidx.ui.core.Px y);
-    method public androidx.ui.core.Px component1();
-    method public androidx.ui.core.Px component2();
-    method public androidx.ui.core.PxPosition copy(androidx.ui.core.Px x, androidx.ui.core.Px y);
-    method public androidx.ui.core.Px getX();
-    method public androidx.ui.core.Px getY();
+    method public androidx.ui.core.PxPosition copy(long value);
+    method public inline androidx.ui.core.Px getX();
+    method public inline androidx.ui.core.Px getY();
     method public inline operator androidx.ui.core.PxPosition minus(androidx.ui.core.PxPosition other);
     method public inline operator androidx.ui.core.PxPosition minus(androidx.ui.core.IntPxPosition other);
     method public inline operator androidx.ui.core.PxPosition plus(androidx.ui.core.PxPosition other);
     method public inline operator androidx.ui.core.PxPosition plus(androidx.ui.core.IntPxPosition other);
     method public inline operator androidx.ui.core.PxPosition unaryMinus();
+    property public final inline androidx.ui.core.Px x;
+    property public final inline androidx.ui.core.Px y;
     field public static final androidx.ui.core.PxPosition.Companion! Companion;
   }
 
@@ -753,18 +765,17 @@ package androidx.ui.core {
   }
 
   public final class PxSize {
-    ctor public PxSize(androidx.ui.core.Px width, androidx.ui.core.Px height);
-    method public androidx.ui.core.Px component1();
-    method public androidx.ui.core.Px component2();
-    method public androidx.ui.core.PxSize copy(androidx.ui.core.Px width, androidx.ui.core.Px height);
+    method public androidx.ui.core.PxSize copy(long value);
     method public inline operator androidx.ui.core.PxSize div(int other);
     method public inline operator androidx.ui.core.PxSize div(float other);
     method public inline operator androidx.ui.core.PxSize div(double other);
-    method public androidx.ui.core.Px getHeight();
-    method public androidx.ui.core.Px getWidth();
+    method public inline androidx.ui.core.Px getHeight();
+    method public inline androidx.ui.core.Px getWidth();
     method public inline operator androidx.ui.core.PxSize times(int other);
     method public inline operator androidx.ui.core.PxSize times(float other);
     method public inline operator androidx.ui.core.PxSize times(double other);
+    property public final inline androidx.ui.core.Px height;
+    property public final inline androidx.ui.core.Px width;
     field public static final androidx.ui.core.PxSize.Companion! Companion;
   }
 
@@ -799,18 +810,17 @@ package androidx.ui.core {
   }
 
   public final class Size {
-    ctor public Size(androidx.ui.core.Dp width, androidx.ui.core.Dp height);
-    method public androidx.ui.core.Dp component1();
-    method public androidx.ui.core.Dp component2();
-    method public androidx.ui.core.Size copy(androidx.ui.core.Dp width, androidx.ui.core.Dp height);
+    method public androidx.ui.core.Size copy(long value);
     method public inline operator androidx.ui.core.Size div(int other);
     method public inline operator androidx.ui.core.Size div(float other);
     method public inline operator androidx.ui.core.Size div(double other);
-    method public androidx.ui.core.Dp getHeight();
-    method public androidx.ui.core.Dp getWidth();
+    method public inline androidx.ui.core.Dp getHeight();
+    method public inline androidx.ui.core.Dp getWidth();
     method public inline operator androidx.ui.core.Size times(int other);
     method public inline operator androidx.ui.core.Size times(float other);
     method public inline operator androidx.ui.core.Size times(double other);
+    property public final inline androidx.ui.core.Dp height;
+    property public final inline androidx.ui.core.Dp width;
   }
 
   public final class Sp {
