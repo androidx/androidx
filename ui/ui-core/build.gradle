@@ -29,7 +29,6 @@ plugins {
 }
 
 dependencies {
-    implementation(KOTLIN_COMPOSE_COROUTINES)
     implementation(KOTLIN_COMPOSE_STDLIB)
 
     implementation "androidx.annotation:annotation:1.1.0"
