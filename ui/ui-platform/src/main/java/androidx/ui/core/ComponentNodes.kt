@@ -894,7 +894,7 @@ class LayoutNode : ComponentNode(), Measurable, MeasureScope {
         }
     }
 
-    internal fun calculateAlignmentLines() : Map<AlignmentLine, IntPx> {
+    internal fun calculateAlignmentLines(): Map<AlignmentLine, IntPx> {
         alignmentLinesRead = true
         alignmentLinesQueryOwner = this
         alignmentLinesQueriedSinceLastLayout = true
