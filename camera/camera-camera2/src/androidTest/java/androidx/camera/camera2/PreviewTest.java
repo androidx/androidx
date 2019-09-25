@@ -25,6 +25,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 
+import android.app.Instrumentation;
 import android.content.Context;
 import android.graphics.Rect;
 import android.graphics.SurfaceTexture;
@@ -55,7 +56,9 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.FlakyTest;
 import androidx.test.filters.MediumTest;
 import androidx.test.filters.SmallTest;
+import androidx.test.platform.app.InstrumentationRegistry;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -85,6 +88,7 @@ public final class PreviewTest {
             MOCK_ON_PREVIEW_OUTPUT_UPDATE_LISTENER =
             mock(Preview.OnPreviewOutputUpdateListener.class);
 
+    private final Instrumentation mInstrumentation = InstrumentationRegistry.getInstrumentation();
     private PreviewConfig mDefaultConfig;
     @Mock
     private OnPreviewOutputUpdateListener mMockListener;
@@ -108,6 +112,14 @@ public final class PreviewTest {
 
         // init CameraX before creating Preview to get preview size with CameraX's context
         mDefaultConfig = Preview.DEFAULT_CONFIG.getConfig(LensFacing.BACK);
+    }
+
+    @After
+    public void tearDown() throws ExecutionException, InterruptedException {
+        mInstrumentation.runOnMainSync(CameraX::unbindAll);
+
+        // Ensure all cameras are released for the next test
+        CameraX.deinit().get();
     }
 
     @Test
