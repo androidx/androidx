@@ -28,6 +28,10 @@ import androidx.ui.test.RandomTextGenerator
 import androidx.ui.text.AnnotatedString
 import androidx.ui.text.TextStyle
 
+/**
+ * The benchmark test case for [Text], where the input is an [AnnotatedString] with [TextStyle]s
+ * on it.
+ */
 class TextMultiStyleTestCase(
     activity: Activity,
     private val textLength: Int,
@@ -37,6 +41,10 @@ class TextMultiStyleTestCase(
 
     private lateinit var text: AnnotatedString
 
+    /**
+     * Trick to avoid the text word cache.
+     * @see TextBasicTestCase.setupContentInternal
+     */
     override fun setupContentInternal(activity: Activity): ViewGroup {
         text = randomTextGenerator.nextAnnotatedString(
             length = textLength,

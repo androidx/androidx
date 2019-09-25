@@ -33,6 +33,9 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
+/**
+ * The benchmark for [Text] widget with the input being a plain string.
+ */
 @LargeTest
 @RunWith(Parameterized::class)
 class TextBasicBenchmark(
@@ -58,6 +61,10 @@ class TextBasicBenchmark(
         fun initParameters(): Array<Any> = arrayOf(32, 512)
     }
 
+    /**
+     * Measure the time taken to compose a [Text] widget from scratch with the given input.
+     * This is the time taken to call the [Text] composable function.
+     */
     @Test
     fun first_compose() {
         textBenchmarkRule.generator { textGenerator ->
@@ -68,6 +75,10 @@ class TextBasicBenchmark(
         }
     }
 
+    /**
+     * Measure the time taken by the first time measure the [Text] widget with the given input.
+     * This is mainly the time used to measure all the [Measurable]s in the [Text] widget.
+     */
     @Test
     fun first_measure() {
         textBenchmarkRule.generator { textGenerator ->
@@ -78,6 +89,10 @@ class TextBasicBenchmark(
         }
     }
 
+    /**
+     * Measure the time taken by the first time layout the [Text] widget with the given input.
+     * This is mainly the time used to place [Placeable]s in [Text] widget.
+     */
     @Test
     fun first_layout() {
         textBenchmarkRule.generator { textGenerator ->
@@ -88,6 +103,9 @@ class TextBasicBenchmark(
         }
     }
 
+    /**
+     * Measure the time taken by first time draw the [Text] widget with the given input.
+     */
     @Test
     fun first_draw() {
         textBenchmarkRule.generator { textGenerator ->
@@ -98,6 +116,10 @@ class TextBasicBenchmark(
         }
     }
 
+    /**
+     * Measure the time taken by layout the [Text] widget after the layout constrains changed.
+     * This is mainly the time used to re-measure and re-layout the widget.
+     */
     @Test
     fun layout() {
         textBenchmarkRule.generator { textGenerator ->
@@ -108,6 +130,9 @@ class TextBasicBenchmark(
         }
     }
 
+    /**
+     * Measure the time taken by redrawing the [Text] widget.
+     */
     @Test
     fun draw() {
         textBenchmarkRule.generator { textGenerator ->
