@@ -83,6 +83,7 @@ public class WebViewProviderAdapter {
     /**
      * Adapter method for {@link WebViewCompat#getWebViewClient()}.
      */
+    @NonNull
     public WebViewClient getWebViewClient() {
         return mImpl.getWebViewClient();
     }
@@ -90,6 +91,7 @@ public class WebViewProviderAdapter {
     /**
      * Adapter method for {@link WebViewCompat#getWebChromeClient()}.
      */
+    @Nullable
     public WebChromeClient getWebChromeClient() {
         return mImpl.getWebChromeClient();
     }
@@ -97,6 +99,7 @@ public class WebViewProviderAdapter {
     /**
      * Adapter method for {@link WebViewCompat#getWebViewRenderer()}.
      */
+    @Nullable
     public WebViewRenderProcess getWebViewRenderProcess() {
         return WebViewRenderProcessImpl.forInvocationHandler(mImpl.getWebViewRenderer());
     }
