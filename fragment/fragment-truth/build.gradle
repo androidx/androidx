@@ -37,7 +37,13 @@ dependencies {
     api(project(":fragment:fragment-ktx"))
     api(TRUTH)
     api(KOTLIN_STDLIB)
-    testImplementation(TRUTH)
+    androidTestImplementation(JUNIT)
+    androidTestImplementation(TRUTH)
+    androidTestImplementation(ANDROIDX_TEST_CORE)
+    androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
+    androidTestImplementation(ANDROIDX_TEST_RULES)
+    androidTestImplementation(ANDROIDX_TEST_RUNNER)
+    androidTestImplementation(project(":internal-testutils-truth"))
 }
 
 androidx {
