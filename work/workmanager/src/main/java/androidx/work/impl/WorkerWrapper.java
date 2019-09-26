@@ -97,6 +97,7 @@ public class WorkerWrapper implements Runnable {
     private WorkSpecDao mWorkSpecDao;
     private DependencyDao mDependencyDao;
     private WorkTagDao mWorkTagDao;
+    private boolean mRunInForeground;
 
     private List<String> mTags;
     private String mWorkDescription;
@@ -275,6 +276,8 @@ public class WorkerWrapper implements Runnable {
                 // This can happen when a developer refactor code, and your Worker no longer
                 // implements a NotificationProvider.
                 if (mWorker instanceof NotificationProvider) {
+                    // Eligible to run in the context of a Foreground Service
+                    mRunInForeground = true;
                     // Make sure the first notification is set up.
                     NotificationProvider provider = (NotificationProvider) mWorker;
                     final NotificationMetadata metadata = provider.getNotification();
@@ -469,7 +472,7 @@ public class WorkerWrapper implements Runnable {
                 PackageManagerHelper.setComponentEnabled(
                         mAppContext, RescheduleReceiver.class, false);
             }
-            if (mWorkSpec != null && mWorkSpec.runInForeground) {
+            if (mWorkSpec != null && mRunInForeground) {
                 if (needsReschedule) {
                     // Reset scheduled state so its picked up by background schedulers again.
                     mWorkSpecDao.markWorkSpecScheduled(mWorkSpecId, SCHEDULE_NOT_REQUESTED_YET);
