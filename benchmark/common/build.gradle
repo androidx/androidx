@@ -29,7 +29,7 @@ plugins {
 
 dependencies {
     implementation(KOTLIN_STDLIB)
-    implementation(SUPPORT_ANNOTATIONS)
+    implementation("androidx.annotation:annotation:1.0.0")
     api(project(":annotation:annotation-experimental"))
     implementation(ANDROIDX_TEST_MONITOR)
 
