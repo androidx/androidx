@@ -17,14 +17,14 @@
 package androidx.lifecycle
 
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 
 /**
  * [CoroutineScope] tied to this [LifecycleOwner]'s [Lifecycle].
  *
  * This scope will be cancelled when the [Lifecycle] is destroyed.
  *
- * This scope is bound to [Dispatchers.Main.immediate].
+ * This scope is bound to
+ * [Dispatchers.Main.immediate][kotlinx.coroutines.MainCoroutineDispatcher.immediate].
  */
 val LifecycleOwner.lifecycleScope: LifecycleCoroutineScope
     get() = lifecycle.coroutineScope

@@ -338,7 +338,8 @@ internal class CoroutineLiveData<T>(
  * ```
  *
  * @param context The CoroutineContext to run the given block in. Defaults to
- * [EmptyCoroutineContext] combined with [Dispatchers.Main.immediate]
+ * [EmptyCoroutineContext] combined with
+ * [Dispatchers.Main.immediate][kotlinx.coroutines.MainCoroutineDispatcher.immediate]
  * @param timeoutInMs The timeout in ms before cancelling the block if there are no active observers
  * ([LiveData.hasActiveObservers]. Defaults to [DEFAULT_TIMEOUT].
  * @param block The block to run when the [LiveData] has active observers.
@@ -442,7 +443,8 @@ fun <T> liveData(
  * ```
  *
  * * @param context The CoroutineContext to run the given block in. Defaults to
- * [EmptyCoroutineContext] combined with [Dispatchers.Main.immediate].
+ * [EmptyCoroutineContext] combined with
+ * [Dispatchers.Main.immediate][kotlinx.coroutines.MainCoroutineDispatcher.immediate].
  * @param timeout The timeout duration before cancelling the block if there are no active observers
  * ([LiveData.hasActiveObservers].
  * @param block The block to run when the [LiveData] has active observers.
