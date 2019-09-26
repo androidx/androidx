@@ -38,5 +38,14 @@ public final class CoreAppTestUtil {
 
     }
 
-
+    /**
+     * Throws the Exception for the devices which is not compatible to the testing.
+     */
+    public static void assumeCanTestCameraDisconnect() {
+        // TODO(b/141656413) Remove this when the issue is fixed.
+        if (Build.VERSION.SDK_INT == Build.VERSION_CODES.M
+                && (Build.MODEL.contains("Nexus 5") || Build.MODEL.contains("Pixel C"))) {
+            throw new AssumptionViolatedException("Known issue, b/141656413.");
+        }
+    }
 }
