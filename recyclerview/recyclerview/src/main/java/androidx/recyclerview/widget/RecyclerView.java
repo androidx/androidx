@@ -5377,7 +5377,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
 
                     postOnAnimation();
                     if (mGapWorker != null) {
-                        mGapWorker.postFromTraversal(RecyclerView.this, unconsumedX, unconsumedY);
+                        mGapWorker.postFromTraversal(RecyclerView.this, consumedX, consumedY);
                     }
                 }
             }
