@@ -29,7 +29,8 @@ private const val JOB_KEY = "androidx.lifecycle.ViewModelCoroutineScope.JOB_KEY"
  * [CoroutineScope] tied to this [ViewModel].
  * This scope will be canceled when ViewModel will be cleared, i.e [ViewModel.onCleared] is called
  *
- * This scope is bound to [Dispatchers.Main.immediate]
+ * This scope is bound to
+ * [Dispatchers.Main.immediate][kotlinx.coroutines.MainCoroutineDispatcher.immediate]
  */
 val ViewModel.viewModelScope: CoroutineScope
         get() {

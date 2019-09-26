@@ -29,7 +29,8 @@ import kotlin.coroutines.CoroutineContext
  *
  * This scope will be cancelled when the [Lifecycle] is destroyed.
  *
- * This scope is bound to [Dispatchers.Main.immediate]
+ * This scope is bound to
+ * [Dispatchers.Main.immediate][kotlinx.coroutines.MainCoroutineDispatcher.immediate]
  */
 val Lifecycle.coroutineScope: LifecycleCoroutineScope
     get() {
@@ -50,7 +51,8 @@ val Lifecycle.coroutineScope: LifecycleCoroutineScope
     }
 
 /**
- * [CoroutineScope] tied to a [Lifecycle] and [Dispatchers.Main.immediate]
+ * [CoroutineScope] tied to a [Lifecycle] and
+ * [Dispatchers.Main.immediate][kotlinx.coroutines.MainCoroutineDispatcher.immediate]
  *
  * This scope will be cancelled when the [Lifecycle] is destroyed.
  *
