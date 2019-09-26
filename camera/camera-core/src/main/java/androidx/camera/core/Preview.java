@@ -18,7 +18,6 @@ package androidx.camera.core;
 
 import android.annotation.SuppressLint;
 import android.graphics.ImageFormat;
-import android.graphics.Rect;
 import android.graphics.SurfaceTexture;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -430,20 +429,6 @@ public class Preview extends UseCase {
         PreviewConfig config = (PreviewConfig) getUseCaseConfig();
         String cameraId = getCameraIdUnchecked(config);
         return getCameraControl(cameraId);
-    }
-
-    /**
-     * Adjusts the preview to zoom to a local region.
-     *
-     * <p>Setting the zoom is equivalent to setting a scalar crop region (digital zoom), and zoom
-     * occurs about the center of the image.
-     *
-     * <p>Dimensions of the sensor coordinate frame can be found using Camera2.
-     *
-     * @param crop rectangle with dimensions in sensor coordinate frame for zooming
-     */
-    public void zoom(@Nullable Rect crop) {
-        getCurrentCameraControl().setCropRegion(crop);
     }
 
     /**

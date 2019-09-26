@@ -20,11 +20,7 @@ import android.Manifest.permission;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Matrix;
-import android.graphics.Rect;
 import android.graphics.SurfaceTexture;
-import android.hardware.camera2.CameraAccessException;
-import android.hardware.camera2.CameraCharacteristics;
-import android.hardware.camera2.CameraManager;
 import android.os.Looper;
 import android.util.Log;
 import android.util.Rational;
@@ -82,7 +78,6 @@ final class CameraXModule {
     private static final Rational ASPECT_RATIO_9_16 = new Rational(9, 16);
     private static final Rational ASPECT_RATIO_3_4 = new Rational(3, 4);
 
-    private final CameraManager mCameraManager;
     private final PreviewConfig.Builder mPreviewConfigBuilder;
     private final VideoCaptureConfig.Builder mVideoCaptureConfigBuilder;
     private final ImageCaptureConfig.Builder mImageCaptureConfigBuilder;
@@ -112,16 +107,11 @@ final class CameraXModule {
             };
     @Nullable
     private LifecycleOwner mNewLifecycle;
-    private float mZoomLevel = UNITY_ZOOM_SCALE;
-    @Nullable
-    private Rect mCropRegion;
     @Nullable
     private LensFacing mCameraLensFacing = LensFacing.BACK;
 
     CameraXModule(CameraView view) {
         this.mCameraView = view;
-
-        mCameraManager = (CameraManager) view.getContext().getSystemService(Context.CAMERA_SERVICE);
 
         mPreviewConfigBuilder = new PreviewConfig.Builder().setTargetName("Preview");
 
@@ -130,39 +120,6 @@ final class CameraXModule {
 
         mVideoCaptureConfigBuilder =
                 new VideoCaptureConfig.Builder().setTargetName("VideoCapture");
-    }
-
-    /**
-     * Rescales view rectangle with dimensions in [-1000, 1000] to a corresponding rectangle in the
-     * sensor coordinate frame.
-     */
-    private static Rect rescaleViewRectToSensorRect(Rect view, Rect sensor) {
-        // Scale width and height.
-        int newWidth = Math.round(view.width() * sensor.width() / (float) MAX_VIEW_DIMENSION);
-        int newHeight = Math.round(view.height() * sensor.height() / (float) MAX_VIEW_DIMENSION);
-
-        // Scale top/left corner.
-        int halfViewDimension = MAX_VIEW_DIMENSION / 2;
-        int leftOffset =
-                Math.round(
-                        (view.left + halfViewDimension)
-                                * sensor.width()
-                                / (float) MAX_VIEW_DIMENSION)
-                        + sensor.left;
-        int topOffset =
-                Math.round(
-                        (view.top + halfViewDimension)
-                                * sensor.height()
-                                / (float) MAX_VIEW_DIMENSION)
-                        + sensor.top;
-
-        // Now, produce the scaled rect.
-        Rect scaled = new Rect();
-        scaled.left = leftOffset;
-        scaled.top = topOffset;
-        scaled.right = scaled.left + newWidth;
-        scaled.bottom = scaled.top + newHeight;
-        return scaled;
     }
 
     @RequiresPermission(permission.CAMERA)
@@ -305,7 +262,7 @@ final class CameraXModule {
         } else {
             CameraX.bindToLifecycle(mCurrentLifecycle, mImageCapture, mVideoCapture, mPreview);
         }
-        setZoomLevel(mZoomLevel);
+        setZoomRatio(UNITY_ZOOM_SCALE);
         mCurrentLifecycle.getLifecycle().addObserver(mCurrentLifecycleObserver);
         // Enable flash setting in ImageCapture after use cases are created and binded.
         setFlash(getFlash());
@@ -463,93 +420,40 @@ final class CameraXModule {
         }
     }
 
-    public float getZoomLevel() {
-        return mZoomLevel;
-    }
-
-    public void setZoomLevel(float zoomLevel) {
-        // Set the zoom level in case it is set before binding to a lifecycle
-        this.mZoomLevel = zoomLevel;
-
-        if (mPreview == null) {
-            // Nothing to zoom on yet since we don't have a preview. Defer calculating crop
-            // region.
-            return;
-        }
-
-        Rect sensorSize;
+    public float getZoomRatio() {
         try {
-            sensorSize = getSensorSize(getActiveCamera());
-            if (sensorSize == null) {
-                Log.e(TAG, "Failed to get the sensor size.");
-                return;
-            }
-        } catch (Exception e) {
-            Log.e(TAG, "Failed to get the sensor size.", e);
-            return;
+            return CameraX.getCameraInfo(mCameraLensFacing).getZoomRatio().getValue();
+        } catch (CameraInfoUnavailableException e) {
+            return UNITY_ZOOM_SCALE;
         }
-
-        float minZoom = getMinZoomLevel();
-        float maxZoom = getMaxZoomLevel();
-
-        if (this.mZoomLevel < minZoom) {
-            Log.e(TAG, "Requested zoom level is less than minimum zoom level.");
-        }
-        if (this.mZoomLevel > maxZoom) {
-            Log.e(TAG, "Requested zoom level is greater than maximum zoom level.");
-        }
-        this.mZoomLevel = Math.max(minZoom, Math.min(maxZoom, this.mZoomLevel));
-
-        float zoomScaleFactor =
-                (maxZoom == minZoom) ? minZoom : (this.mZoomLevel - minZoom) / (maxZoom - minZoom);
-        int minWidth = Math.round(sensorSize.width() / maxZoom);
-        int minHeight = Math.round(sensorSize.height() / maxZoom);
-        int diffWidth = sensorSize.width() - minWidth;
-        int diffHeight = sensorSize.height() - minHeight;
-        float cropWidth = diffWidth * zoomScaleFactor;
-        float cropHeight = diffHeight * zoomScaleFactor;
-
-        Rect cropRegion =
-                new Rect(
-                        /*left=*/ (int) Math.ceil(cropWidth / 2 - 0.5f),
-                        /*top=*/ (int) Math.ceil(cropHeight / 2 - 0.5f),
-                        /*right=*/ (int) Math.floor(sensorSize.width() - cropWidth / 2 + 0.5f),
-                        /*bottom=*/ (int) Math.floor(sensorSize.height() - cropHeight / 2 + 0.5f));
-
-        if (cropRegion.width() < 50 || cropRegion.height() < 50) {
-            Log.e(TAG, "Crop region is too small to compute 3A stats, so ignoring further zoom.");
-            return;
-        }
-        this.mCropRegion = cropRegion;
-
-        mPreview.zoom(cropRegion);
     }
 
-    public float getMinZoomLevel() {
-        return UNITY_ZOOM_SCALE;
-    }
-
-    public float getMaxZoomLevel() {
+    public void setZoomRatio(float zoomRatio) {
         try {
-            CameraCharacteristics characteristics =
-                    mCameraManager.getCameraCharacteristics(getActiveCamera());
-            Float maxZoom =
-                    characteristics.get(CameraCharacteristics.SCALER_AVAILABLE_MAX_DIGITAL_ZOOM);
-            if (maxZoom == null) {
-                return ZOOM_NOT_SUPPORTED;
-            }
-            if (maxZoom == ZOOM_NOT_SUPPORTED) {
-                return ZOOM_NOT_SUPPORTED;
-            }
-            return maxZoom;
-        } catch (Exception e) {
-            Log.e(TAG, "Failed to get SCALER_AVAILABLE_MAX_DIGITAL_ZOOM.", e);
+            CameraX.getCameraControl(mCameraLensFacing).setZoomRatio(zoomRatio);
+        } catch (CameraInfoUnavailableException e) {
+            Log.e(TAG, "Failed to set zoom ratio", e);
         }
-        return ZOOM_NOT_SUPPORTED;
+    }
+
+    public float getMinZoomRatio() {
+        try {
+            return CameraX.getCameraInfo(mCameraLensFacing).getMinZoomRatio().getValue();
+        } catch (CameraInfoUnavailableException e) {
+            return UNITY_ZOOM_SCALE;
+        }
+    }
+
+    public float getMaxZoomRatio() {
+        try {
+            return CameraX.getCameraInfo(mCameraLensFacing).getMaxZoomRatio().getValue();
+        } catch (CameraInfoUnavailableException e) {
+            return ZOOM_NOT_SUPPORTED;
+        }
     }
 
     public boolean isZoomSupported() {
-        return getMaxZoomLevel() != ZOOM_NOT_SUPPORTED;
+        return getMaxZoomRatio() != ZOOM_NOT_SUPPORTED;
     }
 
     // TODO(b/124269166): Rethink how we can handle permissions here.
@@ -589,15 +493,6 @@ final class CameraXModule {
         }
 
         mCurrentLifecycle = null;
-    }
-
-    private Rect getSensorSize(String cameraId) throws CameraAccessException {
-        CameraCharacteristics characteristics = mCameraManager.getCameraCharacteristics(cameraId);
-        return characteristics.get(CameraCharacteristics.SENSOR_INFO_ACTIVE_ARRAY_SIZE);
-    }
-
-    String getActiveCamera() throws CameraInfoUnavailableException {
-        return CameraX.getCameraWithLensFacing(mCameraLensFacing);
     }
 
     @UiThread

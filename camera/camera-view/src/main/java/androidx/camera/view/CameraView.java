@@ -42,8 +42,6 @@ import android.view.TextureView;
 import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
-import android.view.animation.BaseInterpolator;
-import android.view.animation.DecelerateInterpolator;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -86,7 +84,7 @@ public final class CameraView extends ViewGroup {
     static final int INDEFINITE_VIDEO_SIZE = -1;
 
     private static final String EXTRA_SUPER = "super";
-    private static final String EXTRA_ZOOM_LEVEL = "zoom_level";
+    private static final String EXTRA_ZOOM_RATIO = "zoom_ratio";
     private static final String EXTRA_PINCH_TO_ZOOM_ENABLED = "pinch_to_zoom_enabled";
     private static final String EXTRA_FLASH = "flash";
     private static final String EXTRA_MAX_VIDEO_DURATION = "max_video_duration";
@@ -269,7 +267,7 @@ public final class CameraView extends ViewGroup {
         Bundle state = new Bundle();
         state.putParcelable(EXTRA_SUPER, super.onSaveInstanceState());
         state.putInt(EXTRA_SCALE_TYPE, getScaleType().getId());
-        state.putFloat(EXTRA_ZOOM_LEVEL, getZoomLevel());
+        state.putFloat(EXTRA_ZOOM_RATIO, getZoomRatio());
         state.putBoolean(EXTRA_PINCH_TO_ZOOM_ENABLED, isPinchToZoomEnabled());
         state.putString(EXTRA_FLASH, getFlash().name());
         state.putLong(EXTRA_MAX_VIDEO_DURATION, getMaxVideoDuration());
@@ -290,7 +288,7 @@ public final class CameraView extends ViewGroup {
             Bundle state = (Bundle) savedState;
             super.onRestoreInstanceState(state.getParcelable(EXTRA_SUPER));
             setScaleType(ScaleType.fromId(state.getInt(EXTRA_SCALE_TYPE)));
-            setZoomLevel(state.getFloat(EXTRA_ZOOM_LEVEL));
+            setZoomRatio(state.getFloat(EXTRA_ZOOM_RATIO));
             setPinchToZoomEnabled(state.getBoolean(EXTRA_PINCH_TO_ZOOM_ENABLED));
             setFlash(FlashMode.valueOf(state.getString(EXTRA_FLASH)));
             setMaxVideoDuration(state.getLong(EXTRA_MAX_VIDEO_DURATION));
@@ -846,47 +844,47 @@ public final class CameraView extends ViewGroup {
     }
 
     /**
-     * Returns the current zoom level.
+     * Returns the current zoom ratio.
      *
-     * @return The current zoom level.
+     * @return The current zoom ratio.
      */
-    public float getZoomLevel() {
-        return mCameraModule.getZoomLevel();
+    public float getZoomRatio() {
+        return mCameraModule.getZoomRatio();
     }
 
     /**
-     * Sets the current zoom level.
+     * Sets the current zoom ratio.
      *
-     * <p>Valid zoom values range from 1 to {@link #getMaxZoomLevel()}.
+     * <p>Valid zoom values range from {@link #getMinZoomRatio()} to {@link #getMaxZoomRatio()}.
      *
-     * @param zoomLevel The requested zoom level.
+     * @param zoomRatio The requested zoom ratio.
      */
-    public void setZoomLevel(float zoomLevel) {
-        mCameraModule.setZoomLevel(zoomLevel);
+    public void setZoomRatio(float zoomRatio) {
+        mCameraModule.setZoomRatio(zoomRatio);
     }
 
     /**
-     * Returns the minimum zoom level.
+     * Returns the minimum zoom ratio.
      *
-     * <p>For most cameras this should return a zoom level of 1. A zoom level of 1 corresponds to a
+     * <p>For most cameras this should return a zoom ratio of 1. A zoom ratio of 1 corresponds to a
      * non-zoomed image.
      *
-     * @return The minimum zoom level.
+     * @return The minimum zoom ratio.
      */
-    public float getMinZoomLevel() {
-        return mCameraModule.getMinZoomLevel();
+    public float getMinZoomRatio() {
+        return mCameraModule.getMinZoomRatio();
     }
 
     /**
-     * Returns the maximum zoom level.
+     * Returns the maximum zoom ratio.
      *
-     * <p>The zoom level corresponds to the ratio between both the widths and heights of a
+     * <p>The zoom ratio corresponds to the ratio between both the widths and heights of a
      * non-zoomed image and a maximally zoomed image for the selected camera.
      *
-     * @return The maximum zoom level.
+     * @return The maximum zoom ratio.
      */
-    public float getMaxZoomLevel() {
-        return mCameraModule.getMaxZoomLevel();
+    public float getMaxZoomRatio() {
+        return mCameraModule.getMaxZoomRatio();
     }
 
     /**
@@ -1002,14 +1000,9 @@ public final class CameraView extends ViewGroup {
 
     private class PinchToZoomGestureDetector extends ScaleGestureDetector
             implements ScaleGestureDetector.OnScaleGestureListener {
-        private static final float SCALE_MULTIPIER = 0.75f;
-        private final BaseInterpolator mInterpolator = new DecelerateInterpolator(2f);
-        private float mNormalizedScaleFactor = 0;
-
         PinchToZoomGestureDetector(Context context) {
             this(context, new S());
         }
-
         PinchToZoomGestureDetector(Context context, S s) {
             super(context, s);
             s.setRealGestureDetector(this);
@@ -1017,34 +1010,23 @@ public final class CameraView extends ViewGroup {
 
         @Override
         public boolean onScale(ScaleGestureDetector detector) {
-            mNormalizedScaleFactor += (detector.getScaleFactor() - 1f) * SCALE_MULTIPIER;
-            // Since the scale factor is normalized, it should always be in the range [0, 1]
-            mNormalizedScaleFactor = rangeLimit(mNormalizedScaleFactor, 1f, 0);
+            float scale = detector.getScaleFactor();
 
-            // Apply decelerate interpolation. This will cause the differences to seem less
-            // pronounced
-            // at higher zoom levels.
-            float transformedScale = mInterpolator.getInterpolation(mNormalizedScaleFactor);
+            // Speeding up the zoom by 2X.
+            if (scale > 1f) {
+                scale = 1.0f + (scale - 1.0f) * 2;
+            } else {
+                scale = 1.0f -  (1.0f - scale) * 2;
+            }
 
-            // Transform back from normalized coordinates to the zoom scale
-            float zoomLevel =
-                    (getMaxZoomLevel() == getMinZoomLevel())
-                            ? getMinZoomLevel()
-                            : getMinZoomLevel()
-                                    + transformedScale * (getMaxZoomLevel() - getMinZoomLevel());
-
-            setZoomLevel(rangeLimit(zoomLevel, getMaxZoomLevel(), getMinZoomLevel()));
+            float newRatio = getZoomRatio() * scale;
+            newRatio = rangeLimit(newRatio, getMaxZoomRatio(), getMinZoomRatio());
+            setZoomRatio(newRatio);
             return true;
         }
 
         @Override
         public boolean onScaleBegin(ScaleGestureDetector detector) {
-            float initialZoomLevel = getZoomLevel();
-            mNormalizedScaleFactor =
-                    (getMaxZoomLevel() == getMinZoomLevel())
-                            ? 0
-                            : (initialZoomLevel - getMinZoomLevel())
-                                    / (getMaxZoomLevel() - getMinZoomLevel());
             return true;
         }
 
