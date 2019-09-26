@@ -38,7 +38,8 @@ public final class ImageCaptureConfig
         implements UseCaseConfig<ImageCapture>,
         ImageOutputConfig,
         CameraDeviceConfig,
-        ThreadConfig {
+        ThreadConfig,
+        IoConfig {
 
     // Option Declarations:
     // *********************************************************************************************
@@ -589,6 +590,33 @@ public final class ImageCaptureConfig
         return retrieveOption(OPTION_BACKGROUND_EXECUTOR);
     }
 
+    // Implementations of IO default methods
+
+    /**
+     * Returns the executor that will be used for IO tasks.
+     *
+     * @param valueIfMissing The value to return if this configuration option has not been set.
+     * @return The stored value or <code>valueIfMissing</code> if the value does not exist in this
+     * configuration.
+     */
+    @Nullable
+    @Override
+    public Executor getIoExecutor(@Nullable Executor valueIfMissing) {
+        return retrieveOption(OPTION_IO_EXECUTOR, valueIfMissing);
+    }
+
+    /**
+     * Returns the executor that will be used for IO tasks.
+     *
+     * @return The stored value, if it exists in this configuration.
+     * @throws IllegalArgumentException if the option does not exist in this configuration.
+     */
+    @NonNull
+    @Override
+    public Executor getIoExecutor() {
+        return retrieveOption(OPTION_IO_EXECUTOR);
+    }
+
     // Implementations of UseCaseConfig default methods
 
     /** @hide */
@@ -695,7 +723,8 @@ public final class ImageCaptureConfig
             ImageCapture, ImageCaptureConfig, Builder>,
             ImageOutputConfig.Builder<Builder>,
             CameraDeviceConfig.Builder<Builder>,
-            ThreadConfig.Builder<Builder> {
+            ThreadConfig.Builder<Builder>,
+            IoConfig.Builder<Builder> {
 
         private final MutableOptionsBundle mMutableConfig;
 
@@ -1071,6 +1100,21 @@ public final class ImageCaptureConfig
         @NonNull
         public Builder setBackgroundExecutor(@NonNull Executor executor) {
             getMutableConfig().insertOption(OPTION_BACKGROUND_EXECUTOR, executor);
+            return this;
+        }
+
+        // Implementations of IoConfig.Builder default methods
+
+        /**
+         * Sets the default executor that will be used for IO tasks.
+         *
+         * @param executor The executor which will be used for IO tasks.
+         * @return the current Builder.
+         */
+        @Override
+        @NonNull
+        public Builder setIoExecutor(@NonNull Executor executor) {
+            getMutableConfig().insertOption(OPTION_IO_EXECUTOR, executor);
             return this;
         }
 
