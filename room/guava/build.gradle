@@ -30,7 +30,7 @@ dependencies {
     api(project(":room:room-runtime")) {
         exclude group: 'com.google.guava', module: 'listenablefuture'
     }
-    implementation(ARCH_CORE_RUNTIME)
+    implementation("androidx.arch.core:core-runtime:2.0.1")
     api("androidx.annotation:annotation:1.0.0")
     implementation("androidx.concurrent:concurrent-futures:1.0.0")
     androidTestImplementation(ANDROIDX_TEST_RUNNER)

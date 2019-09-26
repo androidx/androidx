@@ -31,7 +31,7 @@ dependencies {
     api("androidx.sqlite:sqlite:2.0.1")
     api("androidx.sqlite:sqlite-framework:2.0.1")
     api(project(":room:room-migration"))
-    implementation(ARCH_CORE_RUNTIME)
+    implementation("androidx.arch.core:core-runtime:2.0.1")
     api("androidx.legacy:legacy-support-core-utils:1.0.0")
     api(JUNIT)
 }

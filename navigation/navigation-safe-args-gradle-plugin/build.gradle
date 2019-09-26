@@ -48,6 +48,7 @@ dependencies {
 }
 
 task generateSdkResource() {
+    def NAVIGATION_COMMON = "androidx.navigation:navigation-common:2.0.0"
     inputs.property("prebuiltsRoot", prebuiltsRoot)
     inputs.property("compileSdkVersion", SupportConfig.COMPILE_SDK_VERSION)
     inputs.property("buildToolsVersion", SupportConfig.BUILD_TOOLS_VERSION)
