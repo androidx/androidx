@@ -22,6 +22,8 @@ import androidx.test.filters.LargeTest
 import androidx.ui.core.Density
 import androidx.ui.core.LayoutDirection
 import androidx.ui.core.sp
+import androidx.ui.graphics.Canvas
+import androidx.ui.graphics.Image
 import androidx.ui.test.Alphabet
 import androidx.ui.test.RandomTextGenerator
 import androidx.ui.test.TextBenchmarkTestRule
@@ -32,6 +34,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
+import kotlin.math.roundToInt
 
 @LargeTest
 @RunWith(Parameterized::class)
@@ -155,6 +158,51 @@ class ParagraphBenchmark(
                     textStyles = textAndWidth.first.textStyles,
                     constraints = ParagraphConstraints(textAndWidth.second)
                 )
+            }
+        }
+    }
+
+    /**
+     * The time taken to paint the [Paragraph] on [Canvas] for the first time.
+     */
+    @Test
+    fun first_paint() {
+        textBenchmarkRule.generator { textGenerator ->
+            val width = paragraphIntrinsics(textGenerator).maxIntrinsicWidth / 4f
+            benchmarkRule.measureRepeated {
+                val (paragraph, canvas) = runWithTimingDisabled {
+                    val (text, style) = text(textGenerator)
+                    // create a new paragraph and use a smaller width to get
+                    // some line breaking in the result
+                    val paragraph = paragraph(text, style, ParagraphConstraints(width))
+                    val canvas = Canvas(
+                        Image(paragraph.width.roundToInt(), paragraph.height.roundToInt())
+                    )
+                    Pair(paragraph, canvas)
+                }
+                paragraph.paint(canvas)
+            }
+        }
+    }
+
+    /**
+     * The time taken to repaint the [Paragraph] on [Canvas].
+     */
+    @Test
+    fun paint() {
+        textBenchmarkRule.generator { textGenerator ->
+            val width = paragraphIntrinsics(textGenerator).maxIntrinsicWidth / 4f
+            val (text, style) = text(textGenerator)
+            // create a new paragraph and use a smaller width to get
+            // some line breaking in the result
+            val paragraph = paragraph(text, style, ParagraphConstraints(width))
+            val canvas = Canvas(
+                Image(paragraph.width.roundToInt(), paragraph.height.roundToInt())
+            )
+            // Paint for the first time, so that we only benchmark repaint.
+            paragraph.paint(canvas)
+            benchmarkRule.measureRepeated {
+                paragraph.paint(canvas)
             }
         }
     }
