@@ -1227,7 +1227,7 @@ class AndroidLayoutDrawTest {
                 }
                 Layout(child) { measurables, constraints ->
                     ++measure
-                    layout(0.ipx, 0.ipx) {
+                    layout(1.ipx, 1.ipx) {
                         val placeable = measurables.first().measure(constraints)
                         linePosition = placeable[TestLine]
                         ++layout
@@ -1364,7 +1364,9 @@ class AndroidLayoutDrawTest {
                 }
                 Layout(inner) { measurables, constraints ->
                     val placeable = measurables.first().measure(constraints)
-                    layout(placeable.width, placeable.height) {
+                    val width = placeable.width.coerceAtLeast(10.ipx)
+                    val height = placeable.height.coerceAtLeast(10.ipx)
+                    layout(width, height) {
                         assertEquals(model.offset + 10.ipx, placeable[TestLine])
                         placeable.place(0.ipx, 0.ipx)
                         layoutLatch.countDown()
@@ -1452,7 +1454,9 @@ class AndroidLayoutDrawTest {
                 }
                 Layout(inner) { measurables, constraints ->
                     val placeable = measurables.first().measure(constraints)
-                    layout(placeable.width, placeable.height) {
+                    val width = placeable.width.coerceAtLeast(10.ipx)
+                    val height = placeable.height.coerceAtLeast(10.ipx)
+                    layout(width, height) {
                         model.offset // To ensure relayout.
                         placeable.place(0.ipx, 0.ipx)
                         layoutLatch.countDown()
@@ -1583,6 +1587,90 @@ class AndroidLayoutDrawTest {
         activityTestRule.runOnUiThreadIR {
             assertFalse(drawn)
         }
+    }
+
+    /**
+     * Because we use invalidate() to cause relayout when children
+     * are laid out, we want to ensure that when the View is 0-sized
+     * that it gets a relayout when it needs to change to non-0
+     */
+    @Test
+    fun testZeroSizeCanRelayout() {
+        var latch = CountDownLatch(1)
+        val model = SquareModel(size = 0.ipx)
+        activityTestRule.runOnUiThreadIR {
+            activity.setContentInFrameLayout {
+                Layout(children = { }) { _, _ ->
+                    latch.countDown()
+                    layout(model.size, model.size) {}
+                }
+            }
+        }
+
+        assertTrue(latch.await(1, TimeUnit.SECONDS))
+        latch = CountDownLatch(1)
+        activityTestRule.runOnUiThreadIR {
+            model.size = 10.ipx
+        }
+        assertTrue(latch.await(1, TimeUnit.SECONDS))
+    }
+
+    @Test
+    fun testZeroSizeCanRelayout_child() {
+        var latch = CountDownLatch(1)
+        val model = SquareModel(size = 0.ipx)
+        activityTestRule.runOnUiThreadIR {
+            activity.setContentInFrameLayout {
+                Layout(children = {
+                    Layout(children = {}) { _, _ ->
+                        latch.countDown()
+                        layout(model.size, model.size) {}
+                    }
+                }) { measurables, constraints ->
+                    val placeable = measurables[0].measure(constraints)
+                    layout(placeable.width, placeable.height) {
+                        placeable.place(0.ipx, 0.ipx)
+                    }
+                }
+            }
+        }
+
+        assertTrue(latch.await(1, TimeUnit.SECONDS))
+        latch = CountDownLatch(1)
+        activityTestRule.runOnUiThreadIR {
+            model.size = 10.ipx
+        }
+        assertTrue(latch.await(1, TimeUnit.SECONDS))
+    }
+
+    @Test
+    fun testZeroSizeCanRelayout_childRepaintBoundary() {
+        var latch = CountDownLatch(1)
+        val model = SquareModel(size = 0.ipx)
+        activityTestRule.runOnUiThreadIR {
+            activity.setContentInFrameLayout {
+                Layout(children = {
+                    RepaintBoundary {
+                        Layout(children = {}) { _, _ ->
+                            latch.countDown()
+                            layout(model.size, model.size) {}
+                        }
+                    }
+                }) { measurables, constraints ->
+                    val placeable = measurables[0].measure(constraints)
+                    layout(placeable.width, placeable.height) {
+                        placeable.place(0.ipx, 0.ipx)
+                    }
+                }
+            }
+        }
+
+        assertTrue(latch.await(1, TimeUnit.SECONDS))
+        latch = CountDownLatch(1)
+        activityTestRule.runOnUiThreadIR {
+            model.size = 10.ipx
+        }
+        assertTrue(latch.await(1, TimeUnit.SECONDS))
     }
 
     private fun composeSquares(model: SquareModel) {

@@ -22,7 +22,6 @@ import android.graphics.RenderNode
 import android.os.Build
 import android.os.Looper
 import android.util.SparseArray
-import android.view.Choreographer
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
@@ -298,9 +297,8 @@ class AndroidComposeView constructor(context: Context)
             requestLayout()
             layoutNode.needsRemeasure = true
         } else if (relayoutNodes.isEmpty()) {
-            Choreographer.getInstance().postFrameCallback {
-                measureAndLayout()
-            }
+            // Invalidate and catch measureAndLayout() in the dispatchDraw()
+            invalidateRepaintBoundary(layoutNode)
         }
 
         if (!layoutNode.alignmentLinesRequired) {
@@ -353,7 +351,10 @@ class AndroidComposeView constructor(context: Context)
     /**
      * Iterates through all LayoutNodes that have requested layout and measures and lays them out
      */
-    private fun measureAndLayout() {
+    internal fun measureAndLayout() {
+        if (relayoutNodes.isEmpty() && repaintBoundaryChanges.isEmpty()) {
+            return
+        }
         trace("AndroidOwner:measureAndLayout") {
             try {
                 duringMeasureLayout = true
@@ -524,6 +525,7 @@ class AndroidComposeView constructor(context: Context)
     }
 
     override fun dispatchDraw(canvas: android.graphics.Canvas) {
+        measureAndLayout()
         watchDraw(canvas, root)
     }
 
@@ -832,6 +834,7 @@ private class RepaintBoundaryView(
     }
 
     override fun dispatchDraw(canvas: android.graphics.Canvas) {
+        ownerView.measureAndLayout()
         val clipPath = clipPath
         if (clipPath != null) {
             canvas.save()
