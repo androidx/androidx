@@ -29,15 +29,15 @@ import androidx.ui.core.px
 import androidx.ui.core.sp
 import androidx.ui.foundation.Clickable
 import androidx.ui.foundation.HorizontalScroller
-import androidx.ui.foundation.VerticalScroller
-import androidx.ui.graphics.Color
-import androidx.ui.layout.Column
-import androidx.ui.layout.Padding
-import androidx.ui.layout.Row
 import androidx.ui.foundation.ScrollerPosition
+import androidx.ui.foundation.VerticalScroller
 import androidx.ui.foundation.shape.DrawShape
 import androidx.ui.foundation.shape.RectangleShape
+import androidx.ui.graphics.Color
+import androidx.ui.layout.Column
 import androidx.ui.layout.Container
+import androidx.ui.layout.Padding
+import androidx.ui.layout.Row
 import androidx.ui.layout.Table
 import androidx.ui.text.TextStyle
 
@@ -117,7 +117,10 @@ fun ControlledHorizontalScrollerSample() {
     val position = +memo { ScrollerPosition() }
     val scrollable = +state { true }
     Column {
-        HorizontalScroller(scrollerPosition = position, isScrollable = scrollable.value) {
+        HorizontalScroller(
+            scrollerPosition = position,
+            isScrollable = scrollable.value
+        ) {
             Row {
                 repeat(1000) { index ->
                     Square(index)

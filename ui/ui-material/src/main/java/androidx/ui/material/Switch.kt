@@ -23,6 +23,7 @@ import androidx.ui.core.DensityScope
 import androidx.ui.core.Draw
 import androidx.ui.core.PxSize
 import androidx.ui.core.ambientDensity
+import androidx.ui.foundation.ValueHolder
 import androidx.ui.core.dp
 import androidx.ui.core.px
 import androidx.ui.core.withDensity
@@ -81,19 +82,18 @@ private fun SwitchImpl(checked: Boolean, onCheckedChange: ((Boolean) -> Unit)?, 
         minValue = minBound,
         maxValue = maxBound
     ) { model ->
-        val thumbPosition = model.value
         Container(width = SwitchWidth, height = SwitchHeight, expanded = true) {
             DrawSwitch(
                 checked = checked,
                 checkedThumbColor = color,
-                thumbPosition = thumbPosition
+                thumbValue = model
             )
         }
     }
 }
 
 @Composable
-private fun DrawSwitch(checked: Boolean, checkedThumbColor: Color, thumbPosition: Float) {
+private fun DrawSwitch(checked: Boolean, checkedThumbColor: Color, thumbValue: ValueHolder<Float>) {
     val thumbColor = if (checked) checkedThumbColor else +themeColor { surface }
     val trackColor = if (checked) {
         checkedThumbColor.copy(alpha = CheckedTrackOpacity)
@@ -102,7 +102,7 @@ private fun DrawSwitch(checked: Boolean, checkedThumbColor: Color, thumbPosition
     }
     Draw { canvas, parentSize ->
         drawTrack(canvas, parentSize, trackColor)
-        drawThumb(canvas, parentSize, thumbPosition, thumbColor)
+        drawThumb(canvas, parentSize, thumbValue.value, thumbColor)
     }
 }
 

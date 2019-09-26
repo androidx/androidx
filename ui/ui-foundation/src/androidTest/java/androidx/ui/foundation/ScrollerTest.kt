@@ -22,33 +22,31 @@ import android.view.PixelCopy
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewTreeObserver
+import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
+import androidx.ui.core.Alignment
+import androidx.ui.core.AndroidComposeView
 import androidx.ui.core.Draw
 import androidx.ui.core.IntPx
-import androidx.ui.core.Px
 import androidx.ui.core.ipx
 import androidx.ui.core.px
+import androidx.ui.core.setContent
 import androidx.ui.core.toRect
 import androidx.ui.core.withDensity
+import androidx.ui.graphics.Color
+import androidx.ui.graphics.Paint
+import androidx.ui.graphics.PaintingStyle
+import androidx.ui.graphics.toArgb
 import androidx.ui.layout.Align
 import androidx.ui.layout.Column
 import androidx.ui.layout.ConstrainedBox
 import androidx.ui.layout.Container
 import androidx.ui.layout.CrossAxisAlignment
 import androidx.ui.layout.DpConstraints
-import androidx.ui.graphics.Color
-import androidx.ui.graphics.Paint
-import androidx.ui.graphics.PaintingStyle
-import androidx.test.filters.SdkSuppress
-import androidx.ui.core.Alignment
-import androidx.ui.core.AndroidComposeView
-import androidx.ui.core.setContent
-import androidx.ui.graphics.toArgb
 import androidx.ui.layout.Row
 import androidx.ui.test.android.AndroidComposeTestRule
 import androidx.ui.test.createComposeRule
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
@@ -103,19 +101,27 @@ class ScrollerTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun verticalScroller_SmallContent_Unscrollable() {
-        var max = Px.Infinity
+        val scrollerPosition = ScrollerPosition()
 
-        // latch to wait for a new max to come
+        // latch to wait for a new max to come on layout
         val newMaxLatch = CountDownLatch(1)
 
         composeVerticalScroller(
-            onScrollChanged = { _, newMax ->
-                max = newMax
+            scrollerPosition
+        )
+        val onGlobalLayout = object : ViewTreeObserver.OnGlobalLayoutListener {
+            override fun onGlobalLayout() {
                 newMaxLatch.countDown()
             }
-        )
-        newMaxLatch.await(1, TimeUnit.SECONDS)
-        assertTrue(max == 0.px)
+        }
+        composeTestRule.runOnUiThread {
+            activity.window.decorView.viewTreeObserver.addOnGlobalLayoutListener(onGlobalLayout)
+        }
+        assertTrue(newMaxLatch.await(1, TimeUnit.SECONDS))
+        composeTestRule.runOnUiThread {
+            activity.window.decorView.viewTreeObserver.removeOnGlobalLayoutListener(onGlobalLayout)
+            assertTrue(scrollerPosition.maxPosition == 0.px)
+        }
     }
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
@@ -131,8 +137,7 @@ class ScrollerTest {
     fun verticalScroller_LargeContent_ScrollToEnd() {
         val scrollerPosition = ScrollerPosition()
 
-        val changeListener = ScrollerChangeListener(scrollerPosition)
-        composeVerticalScroller(scrollerPosition, changeListener, height = 30.ipx)
+        composeVerticalScroller(scrollerPosition, height = 30.ipx)
 
         validateVerticalScroller(0, 30)
 
@@ -147,8 +152,8 @@ class ScrollerTest {
         }
         composeTestRule.runOnUiThread {
             activity.window.decorView.viewTreeObserver.addOnDrawListener(onDrawListener)
-            assertEquals(10.px, changeListener.maxPosition)
-            scrollerPosition.value = 10.px
+            assertEquals(10.px, scrollerPosition.maxPosition)
+            scrollerPosition.scrollTo(10.px)
         }
         assertTrue(latch.await(1, TimeUnit.SECONDS))
         composeTestRule.runOnUiThread {
@@ -178,8 +183,7 @@ class ScrollerTest {
     fun horizontalScroller_LargeContent_ScrollToEnd() {
         val scrollerPosition = ScrollerPosition()
 
-        val changeListener = ScrollerChangeListener(scrollerPosition)
-        composeHorizontalScroller(scrollerPosition, changeListener, width = 30.ipx)
+        composeHorizontalScroller(scrollerPosition, width = 30.ipx)
 
         validateHorizontalScroller(0, 30)
 
@@ -194,8 +198,8 @@ class ScrollerTest {
         }
         composeTestRule.runOnUiThread {
             activity.window.decorView.viewTreeObserver.addOnDrawListener(onDrawListener)
-            assertEquals(10.px, changeListener.maxPosition)
-            scrollerPosition.value = 10.px
+            assertEquals(10.px, scrollerPosition.maxPosition)
+            scrollerPosition.scrollTo(10.px)
         }
         assertTrue(latch.await(1, TimeUnit.SECONDS))
         composeTestRule.runOnUiThread {
@@ -206,9 +210,6 @@ class ScrollerTest {
 
     private fun composeVerticalScroller(
         scrollerPosition: ScrollerPosition = ScrollerPosition(),
-        onScrollChanged: (position: Px, max: Px) -> Unit = { position, _ ->
-            scrollerPosition.value = position
-        },
         height: IntPx = 40.ipx
     ) {
         // We assume that the height of the device is more than 45 px
@@ -218,10 +219,7 @@ class ScrollerTest {
                 activity.setContent {
                     Align(alignment = Alignment.TopLeft) {
                         ConstrainedBox(constraints = constraints) {
-                            VerticalScroller(
-                                scrollerPosition = scrollerPosition,
-                                onScrollPositionChanged = onScrollChanged
-                            ) {
+                            VerticalScroller(scrollerPosition = scrollerPosition) {
                                 Column(crossAxisAlignment = CrossAxisAlignment.Start) {
                                     colors.forEach { color ->
                                         Container(
@@ -250,9 +248,6 @@ class ScrollerTest {
 
     private fun composeHorizontalScroller(
         scrollerPosition: ScrollerPosition = ScrollerPosition(),
-        onScrollChanged: (position: Px, max: Px) -> Unit = { position, _ ->
-            scrollerPosition.value = position
-        },
         width: IntPx = 40.ipx
     ) {
         // We assume that the height of the device is more than 45 px
@@ -262,10 +257,7 @@ class ScrollerTest {
                 activity.setContent {
                     Align(alignment = Alignment.TopLeft) {
                         ConstrainedBox(constraints = constraints) {
-                            HorizontalScroller(
-                                scrollerPosition = scrollerPosition,
-                                onScrollPositionChanged = onScrollChanged
-                            ) {
+                            HorizontalScroller(scrollerPosition = scrollerPosition) {
                                 Row(crossAxisAlignment = CrossAxisAlignment.Start) {
                                     colors.forEach { color ->
                                         Container(
@@ -364,35 +356,6 @@ class ScrollerTest {
         assertTrue(latch.await(1, TimeUnit.SECONDS))
         assertEquals(PixelCopy.SUCCESS, copyResult)
         return dest
-    }
-
-    /**
-     * Listener that waits for changes to a [ScrollerPosition].
-     */
-    private class ScrollerChangeListener(val scrollerPosition: ScrollerPosition) :
-            (Px, Px) -> Unit {
-        private var changeCalls = 0
-        private val lock = Object()
-        var maxPosition: Px = 0.px
-
-        override fun invoke(position: Px, maxPosition: Px) {
-            synchronized(lock) {
-                changeCalls++
-                lock.notify()
-            }
-            scrollerPosition.value = position
-            this.maxPosition = maxPosition
-        }
-
-        fun waitForChange() {
-            synchronized(lock) {
-                if (changeCalls == 0) {
-                    lock.wait(1000)
-                    assertNotEquals(0, changeCalls)
-                }
-                changeCalls--
-            }
-        }
     }
 
     // TODO(malkov): ALL below is copypaste from LayoutTest as this test in ui-foundation now
