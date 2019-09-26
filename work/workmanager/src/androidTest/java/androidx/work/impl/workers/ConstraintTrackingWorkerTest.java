@@ -231,7 +231,7 @@ public class ConstraintTrackingWorkerTest extends DatabaseTest {
 
         Thread.sleep(TEST_TIMEOUT_IN_MS);
 
-        mWorkerWrapper.interrupt(true);
+        mWorkerWrapper.interrupt();
 
         assertThat(mWorker.isStopped(), is(true));
         assertThat(mWorker.getDelegate(), is(notNullValue()));

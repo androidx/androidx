@@ -401,7 +401,7 @@ public class WorkerWrapper implements Runnable {
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public void interrupt(boolean cancelled) {
+    public void interrupt() {
         mInterrupted = true;
         // Resolve WorkerWrapper's future so we do the right thing and setup a reschedule
         // if necessary. mInterrupted is always true here, we don't really care about the return
