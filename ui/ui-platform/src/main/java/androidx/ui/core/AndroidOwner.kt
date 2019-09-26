@@ -752,6 +752,7 @@ private class RepaintBoundaryView(
         // We can do that once the size of draw functions are well understood.
         clipChildren = false
         setWillNotDraw(false) // we WILL draw
+        id = View.generateViewId()
     }
     private val density = Density(context)
     private val outlineResolver = OutlineResolver(density)

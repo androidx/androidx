@@ -19,6 +19,7 @@ package androidx.ui.tooling
 import androidx.compose.SlotTable
 import androidx.compose.composer
 import androidx.test.filters.SmallTest
+import androidx.ui.core.DrawNode
 import androidx.ui.core.dp
 import androidx.ui.core.px
 import androidx.ui.foundation.ColoredRect
@@ -55,6 +56,25 @@ class InspectableTests : ToolingTest() {
         assertEquals(0.px, group.box.left)
         assertNotEquals(0.px, group.box.right)
         assertNotEquals(0.px, group.box.bottom)
+
+        // Now find the group containing the DrawNode
+        val nodeGroup = findDrawNodeGroup(group)
+        assertNotNull(nodeGroup)
+        val node = nodeGroup!!.node as DrawNode
+        val repaintBoundary = node.repaintBoundary
+        assertNotNull(repaintBoundary)
+        assertNotNull(repaintBoundary?.ownerData)
+    }
+
+    private fun findDrawNodeGroup(group: Group): NodeGroup? {
+        if (group is NodeGroup && group.node is DrawNode) return group
+        group.children.forEach { child ->
+            val childNodeGroup = findDrawNodeGroup(child)
+            if (childNodeGroup != null) {
+                return childNodeGroup
+            }
+        }
+        return null
     }
 
     @Test

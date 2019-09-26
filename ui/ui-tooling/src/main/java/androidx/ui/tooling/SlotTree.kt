@@ -22,6 +22,7 @@ import androidx.compose.isJoinedKey
 import androidx.compose.joinedKeyLeft
 import androidx.compose.joinedKeyRight
 import androidx.compose.keySourceInfoOf
+import androidx.ui.core.DrawNode
 import androidx.ui.core.LayoutNode
 import androidx.ui.core.PxBounds
 import androidx.ui.core.max
@@ -121,13 +122,8 @@ private fun SlotReader.getGroup(): Group {
 
     // Calculate bounding box
     val box = when (node) {
-        is LayoutNode -> {
-            val left = node.x.toPx()
-            val top = node.y.toPx()
-            val right = left + node.width.toPx()
-            val bottom = top + node.height.toPx()
-            PxBounds(left = left, top = top, right = right, bottom = bottom)
-        }
+        is LayoutNode -> boundsOfLayoutNode(node)
+        is DrawNode -> boundsOfLayoutNode(node.parentLayoutNode!!)
         else -> if (children.isEmpty()) emptyBox else
             children.map { g -> g.box }.reduce { acc, box -> box.union(acc) }
     }
@@ -139,6 +135,14 @@ private fun SlotReader.getGroup(): Group {
         children.toTypedArray()
     ) else
         CallGroup(key, box, data.toTypedArray(), children.toTypedArray())
+}
+
+private fun boundsOfLayoutNode(node: LayoutNode): PxBounds {
+    val left = node.x.toPx()
+    val top = node.y.toPx()
+    val right = left + node.width.toPx()
+    val bottom = top + node.height.toPx()
+    return PxBounds(left = left, top = top, right = right, bottom = bottom)
 }
 
 /**
