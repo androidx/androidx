@@ -17,7 +17,7 @@
 package androidx.text.selection;
 
 
-import static org.junit.Assert.assertEquals;
+import static com.google.common.truth.Truth.assertThat;
 
 import androidx.test.filters.SmallTest;
 
@@ -59,7 +59,7 @@ public class WordBoundaryTest {
     public void testGetWordStart_Empty_String() {
         WordBoundary wordBoundary = new WordBoundary(Locale.ENGLISH, "");
 
-        assertEquals(0, wordBoundary.getWordStart(0));
+        assertThat(wordBoundary.getWordStart(0)).isEqualTo(0);
     }
 
     @Test
@@ -67,12 +67,12 @@ public class WordBoundaryTest {
         final String text = "abc def-ghi. jkl";
         WordBoundary wordBoundary = new WordBoundary(Locale.ENGLISH, text);
 
-        assertEquals(text.indexOf('a'), wordBoundary.getWordStart(text.indexOf('a')));
-        assertEquals(text.indexOf('a'), wordBoundary.getWordStart(text.indexOf('c')));
-        assertEquals(text.indexOf('a'), wordBoundary.getWordStart(text.indexOf(' ')));
-        assertEquals(text.indexOf('d'), wordBoundary.getWordStart(text.indexOf('d')));
-        assertEquals(text.indexOf('g'), wordBoundary.getWordStart(text.indexOf('i')));
-        assertEquals(text.indexOf('j'), wordBoundary.getWordStart(text.indexOf('k')));
+        assertThat(wordBoundary.getWordStart(text.indexOf('a'))).isEqualTo(text.indexOf('a'));
+        assertThat(wordBoundary.getWordStart(text.indexOf('c'))).isEqualTo(text.indexOf('a'));
+        assertThat(wordBoundary.getWordStart(text.indexOf(' '))).isEqualTo(text.indexOf('a'));
+        assertThat(wordBoundary.getWordStart(text.indexOf('d'))).isEqualTo(text.indexOf('d'));
+        assertThat(wordBoundary.getWordStart(text.indexOf('i'))).isEqualTo(text.indexOf('g'));
+        assertThat(wordBoundary.getWordStart(text.indexOf('k'))).isEqualTo(text.indexOf('j'));
     }
 
     @Test
@@ -81,14 +81,22 @@ public class WordBoundaryTest {
         final String text = "\u05d0\u05d1\u05d2 \u05d3\u05d4-\u05d5\u05d6. \u05d7\u05d8";
         WordBoundary wordBoundary = new WordBoundary(new Locale("he", "IL"), text);
 
-        assertEquals(text.indexOf('\u05d0'), wordBoundary.getWordStart(text.indexOf('\u05d0')));
-        assertEquals(text.indexOf('\u05d0'), wordBoundary.getWordStart(text.indexOf('\u05d2')));
-        assertEquals(text.indexOf('\u05d0'), wordBoundary.getWordStart(text.indexOf(' ')));
-        assertEquals(text.indexOf('\u05d3'), wordBoundary.getWordStart(text.indexOf('\u05d4')));
-        assertEquals(text.indexOf('\u05d3'), wordBoundary.getWordStart(text.indexOf('-')));
-        assertEquals(text.indexOf('-'), wordBoundary.getWordStart(text.indexOf('\u05d5')));
-        assertEquals(text.indexOf('\u05d5'), wordBoundary.getWordStart(text.indexOf('\u05d6')));
-        assertEquals(text.indexOf('\u05d7'), wordBoundary.getWordStart(text.indexOf('\u05d7')));
+        assertThat(wordBoundary.getWordStart(text.indexOf('\u05d0')))
+                .isEqualTo(text.indexOf('\u05d0'));
+        assertThat(wordBoundary.getWordStart(text.indexOf('\u05d2')))
+                .isEqualTo(text.indexOf('\u05d0'));
+        assertThat(wordBoundary.getWordStart(text.indexOf(' ')))
+                .isEqualTo(text.indexOf('\u05d0'));
+        assertThat(wordBoundary.getWordStart(text.indexOf('\u05d4')))
+                .isEqualTo(text.indexOf('\u05d3'));
+        assertThat(wordBoundary.getWordStart(text.indexOf('-')))
+                .isEqualTo(text.indexOf('\u05d3'));
+        assertThat(wordBoundary.getWordStart(text.indexOf('\u05d5')))
+                .isEqualTo(text.indexOf('-'));
+        assertThat(wordBoundary.getWordStart(text.indexOf('\u05d6')))
+                .isEqualTo(text.indexOf('\u05d5'));
+        assertThat(wordBoundary.getWordStart(text.indexOf('\u05d7')))
+                .isEqualTo(text.indexOf('\u05d7'));
     }
 
     @Test
@@ -97,10 +105,14 @@ public class WordBoundaryTest {
         final String text = "\u3042\u30A2\u30A3\u30A4";
         WordBoundary wordBoundary = new WordBoundary(Locale.JAPANESE, text);
 
-        assertEquals(text.indexOf('\u3042'), wordBoundary.getWordStart(text.indexOf('\u3042')));
-        assertEquals(text.indexOf('\u3042'), wordBoundary.getWordStart(text.indexOf('\u30A2')));
-        assertEquals(text.indexOf('\u30A2'), wordBoundary.getWordStart(text.indexOf('\u30A4')));
-        assertEquals(text.indexOf('\u30A2'), wordBoundary.getWordStart(text.length()));
+        assertThat(wordBoundary.getWordStart(text.indexOf('\u3042')))
+                .isEqualTo(text.indexOf('\u3042'));
+        assertThat(wordBoundary.getWordStart(text.indexOf('\u30A2')))
+                .isEqualTo(text.indexOf('\u3042'));
+        assertThat(wordBoundary.getWordStart(text.indexOf('\u30A4')))
+                .isEqualTo(text.indexOf('\u30A2'));
+        assertThat(wordBoundary.getWordStart(text.length()))
+                .isEqualTo(text.indexOf('\u30A2'));
     }
 
     @Test
@@ -109,12 +121,12 @@ public class WordBoundaryTest {
         final String text = "isn't he";
         WordBoundary wordBoundary = new WordBoundary(Locale.ENGLISH, text);
 
-        assertEquals(text.indexOf('i'), wordBoundary.getWordStart(text.indexOf('i')));
-        assertEquals(text.indexOf('i'), wordBoundary.getWordStart(text.indexOf('n')));
-        assertEquals(text.indexOf('i'), wordBoundary.getWordStart(text.indexOf('\'')));
-        assertEquals(text.indexOf('i'), wordBoundary.getWordStart(text.indexOf('t')));
-        assertEquals(text.indexOf('i'), wordBoundary.getWordStart(text.indexOf('t') + 1));
-        assertEquals(text.indexOf('h'), wordBoundary.getWordStart(text.indexOf('h')));
+        assertThat(wordBoundary.getWordStart(text.indexOf('i'))).isEqualTo(text.indexOf('i'));
+        assertThat(wordBoundary.getWordStart(text.indexOf('n'))).isEqualTo(text.indexOf('i'));
+        assertThat(wordBoundary.getWordStart(text.indexOf('\''))).isEqualTo(text.indexOf('i'));
+        assertThat(wordBoundary.getWordStart(text.indexOf('t'))).isEqualTo(text.indexOf('i'));
+        assertThat(wordBoundary.getWordStart(text.indexOf('t') + 1)).isEqualTo(text.indexOf('i'));
+        assertThat(wordBoundary.getWordStart(text.indexOf('h'))).isEqualTo(text.indexOf('h'));
     }
 
     @Test
@@ -122,11 +134,11 @@ public class WordBoundaryTest {
         final String text = "abc!? (^^;) def";
         WordBoundary wordBoundary = new WordBoundary(Locale.ENGLISH, text);
 
-        assertEquals(text.indexOf('a'), wordBoundary.getWordStart(text.indexOf('!')));
-        assertEquals(text.indexOf('!'), wordBoundary.getWordStart(text.indexOf('?') + 1));
-        assertEquals(text.indexOf(';'), wordBoundary.getWordStart(text.indexOf(';')));
-        assertEquals(text.indexOf(';'), wordBoundary.getWordStart(text.indexOf(')')));
-        assertEquals(text.indexOf('d'), wordBoundary.getWordStart(text.length()));
+        assertThat(wordBoundary.getWordStart(text.indexOf('!'))).isEqualTo(text.indexOf('a'));
+        assertThat(wordBoundary.getWordStart(text.indexOf('?') + 1)).isEqualTo(text.indexOf('!'));
+        assertThat(wordBoundary.getWordStart(text.indexOf(';'))).isEqualTo(text.indexOf(';'));
+        assertThat(wordBoundary.getWordStart(text.indexOf(')'))).isEqualTo(text.indexOf(';'));
+        assertThat(wordBoundary.getWordStart(text.length())).isEqualTo(text.indexOf('d'));
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -157,7 +169,7 @@ public class WordBoundaryTest {
     public void testGetWordEnd_Empty_String() {
         WordBoundary wordBoundary = new WordBoundary(Locale.ENGLISH, "");
 
-        assertEquals(0, wordBoundary.getWordEnd(0));
+        assertThat(wordBoundary.getWordEnd(0)).isEqualTo(0);
     }
 
     @Test
@@ -165,12 +177,12 @@ public class WordBoundaryTest {
         final String text = "abc def-ghi. jkl";
         WordBoundary wordBoundary = new WordBoundary(Locale.ENGLISH, text);
 
-        assertEquals(text.indexOf(' '), wordBoundary.getWordEnd(text.indexOf('a')));
-        assertEquals(text.indexOf(' '), wordBoundary.getWordEnd(text.indexOf('c')));
-        assertEquals(text.indexOf(' '), wordBoundary.getWordEnd(text.indexOf(' ')));
-        assertEquals(text.indexOf('-'), wordBoundary.getWordEnd(text.indexOf('d')));
-        assertEquals(text.indexOf('.'), wordBoundary.getWordEnd(text.indexOf('i')));
-        assertEquals(text.indexOf('l') + 1, wordBoundary.getWordEnd(text.indexOf('k')));
+        assertThat(wordBoundary.getWordEnd(text.indexOf('a'))).isEqualTo(text.indexOf(' '));
+        assertThat(wordBoundary.getWordEnd(text.indexOf('c'))).isEqualTo(text.indexOf(' '));
+        assertThat(wordBoundary.getWordEnd(text.indexOf(' '))).isEqualTo(text.indexOf(' '));
+        assertThat(wordBoundary.getWordEnd(text.indexOf('d'))).isEqualTo(text.indexOf('-'));
+        assertThat(wordBoundary.getWordEnd(text.indexOf('i'))).isEqualTo(text.indexOf('.'));
+        assertThat(wordBoundary.getWordEnd(text.indexOf('k'))).isEqualTo(text.indexOf('l') + 1);
     }
 
     @Test
@@ -179,14 +191,14 @@ public class WordBoundaryTest {
         final String text = "\u05d0\u05d1\u05d2 \u05d3\u05d4-\u05d5\u05d6. \u05d7\u05d8";
         WordBoundary wordBoundary = new WordBoundary(new Locale("he", "IL"), text);
 
-        assertEquals(text.indexOf(' '), wordBoundary.getWordEnd(text.indexOf('\u05d0')));
-        assertEquals(text.indexOf(' '), wordBoundary.getWordEnd(text.indexOf('\u05d2')));
-        assertEquals(text.indexOf(' '), wordBoundary.getWordEnd(text.indexOf(' ')));
-        assertEquals(text.indexOf('-'), wordBoundary.getWordEnd(text.indexOf('\u05d4')));
-        assertEquals(text.indexOf('-') + 1, wordBoundary.getWordEnd(text.indexOf('-')));
-        assertEquals(text.indexOf('.'), wordBoundary.getWordEnd(text.indexOf('\u05d5')));
-        assertEquals(text.indexOf('.'), wordBoundary.getWordEnd(text.indexOf('\u05d6')));
-        assertEquals(text.length(), wordBoundary.getWordEnd(text.indexOf('\u05d7')));
+        assertThat(wordBoundary.getWordEnd(text.indexOf('\u05d0'))).isEqualTo(text.indexOf(' '));
+        assertThat(wordBoundary.getWordEnd(text.indexOf('\u05d2'))).isEqualTo(text.indexOf(' '));
+        assertThat(wordBoundary.getWordEnd(text.indexOf(' '))).isEqualTo(text.indexOf(' '));
+        assertThat(wordBoundary.getWordEnd(text.indexOf('\u05d4'))).isEqualTo(text.indexOf('-'));
+        assertThat(wordBoundary.getWordEnd(text.indexOf('-'))).isEqualTo(text.indexOf('-') + 1);
+        assertThat(wordBoundary.getWordEnd(text.indexOf('\u05d5'))).isEqualTo(text.indexOf('.'));
+        assertThat(wordBoundary.getWordEnd(text.indexOf('\u05d6'))).isEqualTo(text.indexOf('.'));
+        assertThat(wordBoundary.getWordEnd(text.indexOf('\u05d7'))).isEqualTo(text.length());
     }
 
     @Test
@@ -195,10 +207,14 @@ public class WordBoundaryTest {
         final String text = "\u3042\u30A2\u30A3\u30A4";
         WordBoundary wordBoundary = new WordBoundary(Locale.JAPANESE, text);
 
-        assertEquals(text.indexOf('\u3042') + 1, wordBoundary.getWordEnd(text.indexOf('\u3042')));
-        assertEquals(text.indexOf('\u30A4') + 1, wordBoundary.getWordEnd(text.indexOf('\u30A2')));
-        assertEquals(text.indexOf('\u30A4') + 1, wordBoundary.getWordEnd(text.indexOf('\u30A4')));
-        assertEquals(text.indexOf('\u30A4') + 1, wordBoundary.getWordEnd(text.length()));
+        assertThat(wordBoundary.getWordEnd(text.indexOf('\u3042')))
+                .isEqualTo(text.indexOf('\u3042') + 1);
+        assertThat(wordBoundary.getWordEnd(text.indexOf('\u30A2')))
+                .isEqualTo(text.indexOf('\u30A4') + 1);
+        assertThat(wordBoundary.getWordEnd(text.indexOf('\u30A4')))
+                .isEqualTo(text.indexOf('\u30A4') + 1);
+        assertThat(wordBoundary.getWordEnd(text.length()))
+                .isEqualTo(text.indexOf('\u30A4') + 1);
     }
 
     @Test
@@ -207,11 +223,11 @@ public class WordBoundaryTest {
         final String text = "isn't he";
         WordBoundary wordBoundary = new WordBoundary(Locale.ENGLISH, text);
 
-        assertEquals(text.indexOf('t') + 1, wordBoundary.getWordEnd(text.indexOf('i')));
-        assertEquals(text.indexOf('t') + 1, wordBoundary.getWordEnd(text.indexOf('n')));
-        assertEquals(text.indexOf('t') + 1, wordBoundary.getWordEnd(text.indexOf('\'')));
-        assertEquals(text.indexOf('t') + 1, wordBoundary.getWordEnd(text.indexOf('t')));
-        assertEquals(text.indexOf('e') + 1, wordBoundary.getWordEnd(text.indexOf('h')));
+        assertThat(wordBoundary.getWordEnd(text.indexOf('i'))).isEqualTo(text.indexOf('t') + 1);
+        assertThat(wordBoundary.getWordEnd(text.indexOf('n'))).isEqualTo(text.indexOf('t') + 1);
+        assertThat(wordBoundary.getWordEnd(text.indexOf('\''))).isEqualTo(text.indexOf('t') + 1);
+        assertThat(wordBoundary.getWordEnd(text.indexOf('t'))).isEqualTo(text.indexOf('t') + 1);
+        assertThat(wordBoundary.getWordEnd(text.indexOf('h'))).isEqualTo(text.indexOf('e') + 1);
     }
 
     @Test
@@ -219,12 +235,12 @@ public class WordBoundaryTest {
         final String text = "abc!? (^^;) def";
         WordBoundary wordBoundary = new WordBoundary(Locale.ENGLISH, text);
 
-        assertEquals(text.indexOf('!'), wordBoundary.getWordEnd(text.indexOf('a')));
-        assertEquals(text.indexOf('?') + 1, wordBoundary.getWordEnd(text.indexOf('?') + 1));
-        assertEquals(text.indexOf('(') + 1, wordBoundary.getWordEnd(text.indexOf('(')));
-        assertEquals(text.indexOf('(') + 2, wordBoundary.getWordEnd(text.indexOf('(') + 2));
-        assertEquals(text.indexOf(')') + 1, wordBoundary.getWordEnd(text.indexOf(')') + 1));
-        assertEquals(text.length(), wordBoundary.getWordEnd(text.indexOf('d')));
-        assertEquals(text.length(), wordBoundary.getWordEnd(text.length()));
+        assertThat(wordBoundary.getWordEnd(text.indexOf('a'))).isEqualTo(text.indexOf('!'));
+        assertThat(wordBoundary.getWordEnd(text.indexOf('?') + 1)).isEqualTo(text.indexOf('?') + 1);
+        assertThat(wordBoundary.getWordEnd(text.indexOf('('))).isEqualTo(text.indexOf('(') + 1);
+        assertThat(wordBoundary.getWordEnd(text.indexOf('(') + 2)).isEqualTo(text.indexOf('(') + 2);
+        assertThat(wordBoundary.getWordEnd(text.indexOf(')') + 1)).isEqualTo(text.indexOf(')') + 1);
+        assertThat(wordBoundary.getWordEnd(text.indexOf('d'))).isEqualTo(text.length());
+        assertThat(wordBoundary.getWordEnd(text.length())).isEqualTo(text.length());
     }
 }
