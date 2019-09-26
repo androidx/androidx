@@ -1415,34 +1415,24 @@ public abstract class FragmentManager {
                     // fall through
                 case Fragment.ACTIVITY_CREATED:
                     if (newState > Fragment.ACTIVITY_CREATED) {
-                        if (isLoggingEnabled(Log.DEBUG)) Log.d(TAG, "moveto STARTED: " + f);
-                        f.performStart();
-                        mLifecycleCallbacksDispatcher.dispatchOnFragmentStarted(f, false);
+                        fragmentStateManager.start();
                     }
                     // fall through
                 case Fragment.STARTED:
                     if (newState > Fragment.STARTED) {
-                        if (isLoggingEnabled(Log.DEBUG)) Log.d(TAG, "moveto RESUMED: " + f);
-                        f.performResume();
-                        mLifecycleCallbacksDispatcher.dispatchOnFragmentResumed(f, false);
-                        f.mSavedFragmentState = null;
-                        f.mSavedViewState = null;
+                        fragmentStateManager.resume();
                     }
             }
         } else if (f.mState > newState) {
             switch (f.mState) {
                 case Fragment.RESUMED:
                     if (newState < Fragment.RESUMED) {
-                        if (isLoggingEnabled(Log.DEBUG)) Log.d(TAG, "movefrom RESUMED: " + f);
-                        f.performPause();
-                        mLifecycleCallbacksDispatcher.dispatchOnFragmentPaused(f, false);
+                        fragmentStateManager.pause();
                     }
                     // fall through
                 case Fragment.STARTED:
                     if (newState < Fragment.STARTED) {
-                        if (isLoggingEnabled(Log.DEBUG)) Log.d(TAG, "movefrom STARTED: " + f);
-                        f.performStop();
-                        mLifecycleCallbacksDispatcher.dispatchOnFragmentStopped(f, false);
+                        fragmentStateManager.stop();
                     }
                     // fall through
                 case Fragment.ACTIVITY_CREATED:
