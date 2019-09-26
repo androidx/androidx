@@ -147,12 +147,12 @@ public class Processor implements ExecutionListener, ForegroundProcessor {
         synchronized (mLock) {
             Logger.get().info(TAG, String.format("Moving WorkSpec (%s) to the foreground",
                     workSpecId));
-            if (mForegroundLock == null) {
-                mForegroundLock = WakeLocks.newWakeLock(mAppContext, FOREGROUND_WAKELOCK_TAG);
-                mForegroundLock.acquire();
-            }
             WorkerWrapper wrapper = mEnqueuedWorkMap.remove(workSpecId);
             if (wrapper != null) {
+                if (mForegroundLock == null) {
+                    mForegroundLock = WakeLocks.newWakeLock(mAppContext, FOREGROUND_WAKELOCK_TAG);
+                    mForegroundLock.acquire();
+                }
                 mForegroundWorkMap.put(workSpecId, wrapper);
                 Intent intent = createStartForegroundIntent(mAppContext, workSpecId);
                 ContextCompat.startForegroundService(mAppContext, intent);

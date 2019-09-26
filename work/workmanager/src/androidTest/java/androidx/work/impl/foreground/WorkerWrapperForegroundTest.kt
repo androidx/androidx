@@ -27,6 +27,8 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.work.Configuration
 import androidx.work.OneTimeWorkRequest
+import androidx.work.impl.Processor
+import androidx.work.impl.Scheduler
 import androidx.work.impl.WorkDatabase
 import androidx.work.impl.WorkManagerImpl
 import androidx.work.impl.WorkerWrapper
@@ -43,6 +45,7 @@ import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.doReturn
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.spy
+import java.util.Collections
 import java.util.concurrent.Executor
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
@@ -55,8 +58,10 @@ class WorkerWrapperForegroundTest {
     private lateinit var config: Configuration
     private lateinit var executor: ExecutorService
     private lateinit var taskExecutor: TaskExecutor
-    private lateinit var workManager: WorkManagerImpl
     private lateinit var workDatabase: WorkDatabase
+    private lateinit var schedulers: List<Scheduler>
+    private lateinit var processor: Processor
+    private lateinit var workManager: WorkManagerImpl
     private lateinit var foregroundProcessor: ForegroundProcessor
 
     @Before
@@ -93,7 +98,13 @@ class WorkerWrapperForegroundTest {
 
             override fun getBackgroundExecutor() = serialExecutor
         }
-        workManager = spy(WorkManagerImpl(context, config, taskExecutor, true))
+
+        workDatabase = WorkDatabase.create(context, taskExecutor.backgroundExecutor, true)
+        val scheduler = mock(Scheduler::class.java)
+        schedulers = Collections.singletonList(scheduler)
+        processor = Processor(context, config, taskExecutor, workDatabase, schedulers)
+        workManager =
+            spy(WorkManagerImpl(context, config, taskExecutor, workDatabase, schedulers, processor))
         workDatabase = workManager.workDatabase
         WorkManagerImpl.setDelegate(workManager)
         // Foreground processor
