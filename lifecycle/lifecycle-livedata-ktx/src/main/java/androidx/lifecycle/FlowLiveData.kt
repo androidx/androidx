@@ -57,7 +57,8 @@ import kotlin.coroutines.EmptyCoroutineContext
  * to emit a helpful error object.
  *
  * @param context The CoroutineContext to collect the upstream flow in. Defaults to
- * [EmptyCoroutineContext] combined with [Dispatchers.Main.immediate]
+ * [EmptyCoroutineContext] combined with
+ * [Dispatchers.Main.immediate][kotlinx.coroutines.MainCoroutineDispatcher.immediate]
  * @param timeoutInMs The timeout in ms before cancelling the block if there are no active observers
  * ([LiveData.hasActiveObservers]. Defaults to [DEFAULT_TIMEOUT].
  */
@@ -125,7 +126,8 @@ fun <T> LiveData<T>.asFlow(): Flow<T> = flow {
  * to emit a helpful error object.
  *
  * @param context The CoroutineContext to collect the upstream flow in. Defaults to
- * [EmptyCoroutineContext] combined with [Dispatchers.Main]
+ * [EmptyCoroutineContext] combined with
+ * [Dispatchers.Main.immediate][kotlinx.coroutines.MainCoroutineDispatcher.immediate]
  * @param timeout The timeout in ms before cancelling the block if there are no active observers
  * ([LiveData.hasActiveObservers]. Defaults to [DEFAULT_TIMEOUT].
  */
