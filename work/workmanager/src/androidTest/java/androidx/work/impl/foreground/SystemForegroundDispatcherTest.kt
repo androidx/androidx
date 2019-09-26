@@ -27,6 +27,8 @@ import androidx.work.Constraints
 import androidx.work.NetworkType
 import androidx.work.NotificationMetadata
 import androidx.work.OneTimeWorkRequest
+import androidx.work.impl.Processor
+import androidx.work.impl.Scheduler
 import androidx.work.impl.WorkDatabase
 import androidx.work.impl.WorkManagerImpl
 import androidx.work.impl.constraints.WorkConstraintsCallback
@@ -58,6 +60,7 @@ class SystemForegroundDispatcherTest {
     private lateinit var taskExecutor: TaskExecutor
     private lateinit var workManager: WorkManagerImpl
     private lateinit var workDatabase: WorkDatabase
+    private lateinit var processor: Processor
     private lateinit var tracker: WorkConstraintsTracker
     private lateinit var constraintsCallback: WorkConstraintsCallback
     private lateinit var dispatcher: SystemForegroundDispatcher
@@ -71,15 +74,26 @@ class SystemForegroundDispatcherTest {
             .setMinimumLoggingLevel(Log.DEBUG)
             .build()
         taskExecutor = InstantWorkTaskExecutor()
-        workManager = spy(WorkManagerImpl(context, config, taskExecutor, true))
+        val scheduler = mock(Scheduler::class.java)
+        workDatabase = WorkDatabase.create(context, taskExecutor.backgroundExecutor, true)
+        processor = Processor(context, config, taskExecutor, workDatabase, listOf(scheduler))
+        workManager = spy(
+            WorkManagerImpl(
+                context,
+                config,
+                taskExecutor,
+                workDatabase,
+                listOf(scheduler),
+                processor
+            )
+        )
         workDatabase = workManager.workDatabase
-        WorkManagerImpl.setDelegate(workManager)
         // Initialize WorkConstraintsTracker
         constraintsCallback = mock(WorkConstraintsCallback::class.java)
         tracker = spy(WorkConstraintsTracker(context, taskExecutor, constraintsCallback))
         // Initialize dispatcher
         dispatcherCallback = mock(SystemForegroundDispatcher.Callback::class.java)
-        dispatcher = SystemForegroundDispatcher(context, tracker)
+        dispatcher = SystemForegroundDispatcher(context, workManager, tracker)
         dispatcher.setCallback(dispatcherCallback)
     }
 
