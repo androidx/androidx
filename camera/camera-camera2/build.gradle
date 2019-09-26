@@ -42,7 +42,6 @@ dependencies {
     testImplementation(MOCKITO_CORE)
     testImplementation(project(":camera:camera-testing"))
 
-    androidTestImplementation(ARCH_LIFECYCLE_LIVEDATA_CORE)
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
     androidTestImplementation(ANDROIDX_TEST_CORE)
     androidTestImplementation(ANDROIDX_TEST_RUNNER)
