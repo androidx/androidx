@@ -59,9 +59,6 @@ public class CameraDisconnectTest {
     public ActivityTestRule<Camera2TestActivity> mCamera2ActivityRule =
             new ActivityTestRule<>(Camera2TestActivity.class, true, false);
 
-    private final UiDevice mDevice =
-            UiDevice.getInstance(InstrumentationRegistry.getInstrumentation());
-
     private CameraXTestActivity mCameraXTestActivity;
 
     @Before
@@ -89,6 +86,9 @@ public class CameraDisconnectTest {
 
     @Test
     public void testDisconnect_launchCamera2App() {
+        // TODO(b/141656413): Remove after the issue fixed.
+        CoreAppTestUtil.assumeCanTestCameraDisconnect();
+
         waitFor(mCameraXTestActivity.mPreviewReady);
         String cameraId = mCameraXTestActivity.mCameraId;
         assumeNotNull(cameraId);
