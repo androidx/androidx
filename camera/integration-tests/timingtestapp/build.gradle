@@ -58,7 +58,7 @@ dependencies {
     // Android support library
     implementation(project(":fragment:fragment"))
     implementation(project(":appcompat"))
-    implementation(ANDROIDX_COLLECTION)
+    implementation("androidx.collection:collection:1.0.0")
     implementation(project(":preference:preference")) // Still in alpha
     implementation("androidx.exifinterface:exifinterface:1.0.0")
     implementation(CONSTRAINT_LAYOUT, { transitive = true })
