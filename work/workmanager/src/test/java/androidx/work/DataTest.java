@@ -144,6 +144,50 @@ public class DataTest {
     }
 
     @Test
+    public void testEquals_sameKeysNullValues() {
+        Data first = createData();
+        Data second = new Data.Builder()
+                .putAll(first)
+                .put("byte array", null)
+                .build();
+
+        assertThat(first.equals(second), is(false));
+    }
+
+    @Test
+    public void testEquals_sameKeysDifferentArrayValues() {
+        Data first = createData();
+        Data second = new Data.Builder()
+                .putAll(first)
+                .put("byte array", new byte[] { 11, 12, 13 })
+                .build();
+
+        assertThat(first.equals(second), is(false));
+    }
+
+    @Test
+    public void testEquals_sameKeysDifferentlyTypedArrayValues() {
+        Data first = createData();
+        Data second = new Data.Builder()
+                .putAll(first)
+                .put("byte array", new int[] { 11, 12, 13 })
+                .build();
+
+        assertThat(first.equals(second), is(false));
+    }
+
+    @Test
+    public void testEquals_sameKeysDifferentTypes() {
+        Data first = createData();
+        Data second = new Data.Builder()
+                .putAll(first)
+                .put("byte array", 11) // storing an int
+                .build();
+
+        assertThat(first.equals(second), is(false));
+    }
+
+    @Test
     public void testEquals_deepEquals() {
         Data first = createData();
         Data second = createData();
