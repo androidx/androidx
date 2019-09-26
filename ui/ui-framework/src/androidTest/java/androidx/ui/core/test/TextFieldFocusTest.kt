@@ -30,9 +30,8 @@ import androidx.ui.input.EditorModel
 import androidx.ui.input.TextInputService
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.waitForIdleCompose
+import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.mock
-import org.junit.Assert.assertFalse
-import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -86,22 +85,22 @@ class TextFieldFocusTest {
         composeTestRule.runOnUiThread { focusManager.requestFocusById(testDataList[0].id) }
         waitForIdleCompose()
 
-        assertTrue(testDataList[0].focused)
-        assertFalse(testDataList[1].focused)
-        assertFalse(testDataList[2].focused)
+        assertThat(testDataList[0].focused).isTrue()
+        assertThat(testDataList[1].focused).isFalse()
+        assertThat(testDataList[2].focused).isFalse()
 
         composeTestRule.runOnUiThread { focusManager.requestFocusById(testDataList[1].id) }
         waitForIdleCompose()
 
-        assertFalse(testDataList[0].focused)
-        assertTrue(testDataList[1].focused)
-        assertFalse(testDataList[2].focused)
+        assertThat(testDataList[0].focused).isFalse()
+        assertThat(testDataList[1].focused).isTrue()
+        assertThat(testDataList[2].focused).isFalse()
 
         composeTestRule.runOnUiThread { focusManager.requestFocusById(testDataList[2].id) }
         waitForIdleCompose()
 
-        assertFalse(testDataList[0].focused)
-        assertFalse(testDataList[1].focused)
-        assertTrue(testDataList[2].focused)
+        assertThat(testDataList[0].focused).isFalse()
+        assertThat(testDataList[1].focused).isFalse()
+        assertThat(testDataList[2].focused).isTrue()
     }
 }
