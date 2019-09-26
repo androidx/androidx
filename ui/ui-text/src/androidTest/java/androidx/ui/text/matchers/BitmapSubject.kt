@@ -39,10 +39,10 @@ internal class BitmapSubject private constructor(
      *
      * @param bitmap the [Bitmap] to be matched.
      */
-    fun isEqualTo(bitmap: Bitmap) {
+    fun isEqualToBitmap(bitmap: Bitmap) {
         if (subject == bitmap) return
-        check("").that(subject).isNotNull()
-        check("").that(subject!!.sameAs(bitmap)).isTrue()
+        check("isNotNull()").that(subject).isNotNull()
+        check("sameAs()").that(subject!!.sameAs(bitmap)).isTrue()
     }
 
     /**
@@ -50,9 +50,9 @@ internal class BitmapSubject private constructor(
      *
      * @param bitmap the [Bitmap] to be matched.
      */
-    fun isNotEqualTo(bitmap: Bitmap) {
+    fun isNotEqualToBitmap(bitmap: Bitmap) {
         if (subject != bitmap) return
-        check("").that(subject.sameAs(bitmap)).isFalse()
+        check("sameAs()").that(subject.sameAs(bitmap)).isFalse()
     }
 
     override fun actualCustomStringRepresentation(): String {
