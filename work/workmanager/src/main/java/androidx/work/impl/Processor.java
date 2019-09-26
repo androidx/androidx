@@ -308,7 +308,7 @@ public class Processor implements ExecutionListener, ForegroundProcessor {
      */
     private static boolean interrupt(@NonNull String id, @Nullable WorkerWrapper wrapper) {
         if (wrapper != null) {
-            wrapper.interrupt(false);
+            wrapper.interrupt();
             Logger.get().debug(TAG, String.format("WorkerWrapper interrupted for %s", id));
             return true;
         } else {

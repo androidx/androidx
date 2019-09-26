@@ -943,7 +943,7 @@ public class WorkerWrapperTest extends DatabaseTest {
                         .build();
         FutureListener listener = createAndAddFutureListener(workerWrapper);
         Executors.newSingleThreadExecutor().submit(workerWrapper);
-        workerWrapper.interrupt(false);
+        workerWrapper.interrupt();
         Thread.sleep(6000L);
         assertThat(listener.mResult, is(true));
     }
@@ -1019,7 +1019,7 @@ public class WorkerWrapperTest extends DatabaseTest {
                         .withWorker(worker)
                         .build();
         Executors.newSingleThreadExecutor().submit(workerWrapper);
-        workerWrapper.interrupt(false);
+        workerWrapper.interrupt();
         assertThat(worker.isStopped(), is(true));
     }
 
@@ -1052,7 +1052,7 @@ public class WorkerWrapperTest extends DatabaseTest {
                         .withWorker(worker)
                         .build();
         Executors.newSingleThreadExecutor().submit(workerWrapper);
-        workerWrapper.interrupt(true);
+        workerWrapper.interrupt();
         assertThat(worker.isStopped(), is(true));
     }
 
@@ -1173,7 +1173,7 @@ public class WorkerWrapperTest extends DatabaseTest {
         workerWrapper.run();
         assertThat(listener.mResult, is(false));
         assertThat(mWorkSpecDao.getState(work.getStringId()), is(SUCCEEDED));
-        workerWrapper.interrupt(true);
+        workerWrapper.interrupt();
         ListenableWorker worker = workerWrapper.mWorker;
         verify(worker, never()).onStopped();
     }

@@ -134,7 +134,7 @@ class WorkerWrapperForegroundTest {
             // Wait until all pending operations in the internal task executor are complete
         }
         assertThat(future.isDone, `is`(false))
-        wrapper.interrupt(true)
+        wrapper.interrupt()
         while (taskExecutor.backgroundExecutor.hasPendingTasks()) {
             // Wait until all pending operations in the internal task executor are complete
         }
