@@ -39,8 +39,8 @@ internal class CharSequenceSubject private constructor(
     }
 
     fun <T : Any> spans(spanClazz: KClass<out T>): SpanIterableSubject<T> {
-        check("").that(subject).isNotNull()
-        check("").that(subject).isInstanceOf(Spanned::class.java)
+        check("isNotNull()").that(subject).isNotNull()
+        check("instanceOf()").that(subject).isInstanceOf(Spanned::class.java)
         val spanned = subject as Spanned
         val spans = spanned.getSpans(0, spanned.length, spanClazz.java).map {
             SpanInfo(it, spanned.getSpanStart(it), spanned.getSpanEnd(it), spanned.getSpanFlags(it))

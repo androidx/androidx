@@ -32,12 +32,13 @@ import androidx.ui.graphics.PathOperation
 import androidx.ui.text.FontTestData.Companion.BASIC_MEASURE_FONT
 import androidx.ui.text.font.FontFamily
 import androidx.ui.text.font.asFontFamily
+import androidx.ui.text.matchers.isZero
 import androidx.ui.text.style.TextAlign
 import androidx.ui.text.style.TextDirection
 import androidx.ui.text.style.TextDirectionAlgorithm
 import androidx.ui.text.style.TextIndent
-import org.hamcrest.Matchers.equalTo
-import org.junit.Assert.assertThat
+import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -62,14 +63,14 @@ class MultiParagraphIntegrationTest {
                 constraints = ParagraphConstraints(width = 100.0f)
             )
 
-            assertThat(paragraph.width, equalTo(100.0f))
+            assertThat(paragraph.width).isEqualTo(100.0f)
 
-            assertThat(paragraph.height, equalTo(fontSizeInPx))
+            assertThat(paragraph.height).isEqualTo(fontSizeInPx)
             // defined in sample_font
-            assertThat(paragraph.firstBaseline, equalTo(fontSizeInPx * 0.8f))
-            assertThat(paragraph.lastBaseline, equalTo(fontSizeInPx * 0.8f))
-            assertThat(paragraph.maxIntrinsicWidth, equalTo(0.0f))
-            assertThat(paragraph.minIntrinsicWidth, equalTo(0.0f))
+            assertThat(paragraph.firstBaseline).isEqualTo(fontSizeInPx * 0.8f)
+            assertThat(paragraph.lastBaseline).isEqualTo(fontSizeInPx * 0.8f)
+            assertThat(paragraph.maxIntrinsicWidth).isZero()
+            assertThat(paragraph.minIntrinsicWidth).isZero()
         }
     }
 
@@ -87,20 +88,15 @@ class MultiParagraphIntegrationTest {
                     constraints = ParagraphConstraints(width = 200.0f)
                 )
 
-                assertThat(text, paragraph.width, equalTo(200.0f))
-                assertThat(text, paragraph.height, equalTo(fontSizeInPx))
+                assertWithMessage(text).that(paragraph.width).isEqualTo(200.0f)
+                assertWithMessage(text).that(paragraph.height).isEqualTo(fontSizeInPx)
                 // defined in sample_font
-                assertThat(text, paragraph.firstBaseline, equalTo(fontSizeInPx * 0.8f))
-                assertThat(text, paragraph.lastBaseline, equalTo(fontSizeInPx * 0.8f))
-                assertThat(
-                    text,
-                    paragraph.maxIntrinsicWidth,
-                    equalTo(fontSizeInPx * text.length)
-                )
-                assertThat(
-                    text, paragraph.minIntrinsicWidth,
-                    equalTo(text.length * fontSizeInPx)
-                )
+                assertWithMessage(text).that(paragraph.firstBaseline).isEqualTo(fontSizeInPx * 0.8f)
+                assertWithMessage(text).that(paragraph.lastBaseline).isEqualTo(fontSizeInPx * 0.8f)
+                assertWithMessage(text).that(paragraph.maxIntrinsicWidth)
+                    .isEqualTo(fontSizeInPx * text.length)
+                assertWithMessage(text).that(paragraph.minIntrinsicWidth)
+                    .isEqualTo(text.length * fontSizeInPx)
             }
         }
     }
@@ -120,26 +116,20 @@ class MultiParagraphIntegrationTest {
                 )
 
                 // 3 chars
-                assertThat(text, paragraph.width, equalTo(3 * fontSizeInPx))
+                assertWithMessage(text).that(paragraph.width)
+                    .isEqualTo(3 * fontSizeInPx)
                 // 2 lines, 1 line gap
-                assertThat(
-                    text,
-                    paragraph.height,
-                    equalTo(2 * fontSizeInPx + fontSizeInPx / 5.0f)
-                )
+                assertWithMessage(text).that(paragraph.height)
+                    .isEqualTo(2 * fontSizeInPx + fontSizeInPx / 5.0f)
                 // defined in sample_font
-                assertThat(text, paragraph.firstBaseline, equalTo(fontSizeInPx * 0.8f))
-                assertThat(
-                    text,
-                    paragraph.lastBaseline,
-                    equalTo(fontSizeInPx + fontSizeInPx / 5.0f + fontSizeInPx * 0.8f)
-                )
-                assertThat(
-                    text,
-                    paragraph.maxIntrinsicWidth,
-                    equalTo(fontSizeInPx * text.length)
-                )
-                assertThat(text, paragraph.minIntrinsicWidth, equalTo(text.length * fontSizeInPx))
+                assertWithMessage(text).that(paragraph.firstBaseline)
+                    .isEqualTo(fontSizeInPx * 0.8f)
+                assertWithMessage(text).that(paragraph.lastBaseline)
+                    .isEqualTo(fontSizeInPx + fontSizeInPx / 5.0f + fontSizeInPx * 0.8f)
+                assertWithMessage(text).that(paragraph.maxIntrinsicWidth)
+                    .isEqualTo(fontSizeInPx * text.length)
+                assertWithMessage(text).that(paragraph.minIntrinsicWidth)
+                    .isEqualTo(text.length * fontSizeInPx)
             }
         }
     }
@@ -154,7 +144,7 @@ class MultiParagraphIntegrationTest {
             constraints = ParagraphConstraints(width = Float.MAX_VALUE)
         )
 
-        assertThat(paragraph.didExceedMaxLines, equalTo(true))
+        assertThat(paragraph.didExceedMaxLines).isTrue()
     }
 
     @Test
@@ -167,7 +157,7 @@ class MultiParagraphIntegrationTest {
             constraints = ParagraphConstraints(width = Float.MAX_VALUE)
         )
 
-        assertThat(paragraph.didExceedMaxLines, equalTo(false))
+        assertThat(paragraph.didExceedMaxLines).isFalse()
     }
 
     @Test
@@ -180,7 +170,7 @@ class MultiParagraphIntegrationTest {
             constraints = ParagraphConstraints(width = Float.MAX_VALUE)
         )
 
-        assertThat(paragraph.didExceedMaxLines, equalTo(false))
+        assertThat(paragraph.didExceedMaxLines).isFalse()
     }
 
     @Test
@@ -198,7 +188,7 @@ class MultiParagraphIntegrationTest {
                 constraints = ParagraphConstraints(width = fontSizeInPx)
             )
 
-            assertThat(paragraph.didExceedMaxLines, equalTo(true))
+            assertThat(paragraph.didExceedMaxLines).isTrue()
         }
     }
 
@@ -213,7 +203,7 @@ class MultiParagraphIntegrationTest {
             constraints = ParagraphConstraints(width = Float.MAX_VALUE)
         )
 
-        assertThat(paragraph.didExceedMaxLines, equalTo(false))
+        assertThat(paragraph.didExceedMaxLines).isFalse()
     }
 
     @Test
@@ -231,7 +221,7 @@ class MultiParagraphIntegrationTest {
                 constraints = ParagraphConstraints(width = fontSizeInPx)
             )
 
-            assertThat(paragraph.didExceedMaxLines, equalTo(false))
+            assertThat(paragraph.didExceedMaxLines).isFalse()
         }
     }
 
@@ -251,11 +241,8 @@ class MultiParagraphIntegrationTest {
             for (i in 0..text.length) {
                 val position = PxPosition((i * fontSizeInPx + 1).px, (fontSizeInPx / 2).px)
                 val offset = paragraph.getOffsetForPosition(position)
-                assertThat(
-                    "offset at index $i, position $position does not match",
-                    offset,
-                    equalTo(i)
-                )
+                assertWithMessage("offset at index $i, position $position does not match")
+                    .that(offset).isEqualTo(i)
             }
         }
     }
@@ -276,11 +263,8 @@ class MultiParagraphIntegrationTest {
             for (i in 0..text.length) {
                 val position = PxPosition((i * fontSizeInPx + 1).px, (fontSizeInPx / 2).px)
                 val offset = paragraph.getOffsetForPosition(position)
-                assertThat(
-                    "offset at index $i, position $position does not match",
-                    offset,
-                    equalTo(text.length - i)
-                )
+                assertWithMessage("offset at index $i, position $position does not match")
+                    .that(offset).isEqualTo(text.length - i)
             }
         }
     }
@@ -304,11 +288,9 @@ class MultiParagraphIntegrationTest {
             for (i in 0..secondLine.length) {
                 val position = PxPosition((i * fontSizeInPx + 1).px, (fontSizeInPx * 1.5f).px)
                 val offset = paragraph.getOffsetForPosition(position)
-                assertThat(
-                    "offset at index $i, position $position, second line does not match",
-                    offset,
-                    equalTo(i + firstLine.length)
-                )
+                assertWithMessage(
+                    "offset at index $i, position $position, second line does not match"
+                ).that(offset).isEqualTo(i + firstLine.length)
             }
         }
     }
@@ -332,11 +314,9 @@ class MultiParagraphIntegrationTest {
             for (i in 0..secondLine.length) {
                 val position = PxPosition((i * fontSizeInPx + 1).px, (fontSizeInPx * 1.5f).px)
                 val offset = paragraph.getOffsetForPosition(position)
-                assertThat(
-                    "offset at index $i, position $position, second line does not match",
-                    offset,
-                    equalTo(text.length - i)
-                )
+                assertWithMessage(
+                    "offset at index $i, position $position, second line does not match"
+                ).that(offset).isEqualTo(text.length - i)
             }
         }
     }
@@ -356,12 +336,12 @@ class MultiParagraphIntegrationTest {
             // greater than width
             var position = PxPosition((fontSizeInPx * text.length * 2).px, (fontSizeInPx / 2).px)
             var offset = paragraph.getOffsetForPosition(position)
-            assertThat(offset, equalTo(text.length))
+            assertThat(offset).isEqualTo(text.length)
 
             // negative
             position = PxPosition((-1 * fontSizeInPx).px, (fontSizeInPx / 2).px)
             offset = paragraph.getOffsetForPosition(position)
-            assertThat(offset, equalTo(0))
+            assertThat(offset).isZero()
         }
     }
 
@@ -380,12 +360,12 @@ class MultiParagraphIntegrationTest {
             // greater than height
             var position = PxPosition((fontSizeInPx / 2).px, (fontSizeInPx * text.length * 2).px)
             var offset = paragraph.getOffsetForPosition(position)
-            assertThat(offset, equalTo(0))
+            assertThat(offset).isZero()
 
             // negative
             position = PxPosition((fontSizeInPx / 2).px, (-1 * fontSizeInPx).px)
             offset = paragraph.getOffsetForPosition(position)
-            assertThat(offset, equalTo(0))
+            assertThat(offset).isZero()
         }
     }
 
@@ -401,15 +381,11 @@ class MultiParagraphIntegrationTest {
                 constraints = ParagraphConstraints(width = text.length * fontSizeInPx)
             )
 
-            assertThat(
-                paragraph.getOffsetForPosition(PxPosition((3 * fontSizeInPx).px, 0.px)),
-                equalTo(3)
-            )
+            assertThat(paragraph.getOffsetForPosition(PxPosition((3 * fontSizeInPx).px, 0.px)))
+                .isEqualTo(3)
 
-            assertThat(
-                paragraph.getOffsetForPosition(PxPosition(0.px, (fontSizeInPx * 1.5f).px)),
-                equalTo(4)
-            )
+            assertThat(paragraph.getOffsetForPosition(PxPosition(0.px, (fontSizeInPx * 1.5f).px)))
+                .isEqualTo(4)
         }
     }
 
@@ -429,19 +405,16 @@ class MultiParagraphIntegrationTest {
             )
 
             for (i in 0 until 3) {
-                assertThat(
-                    paragraph.getOffsetForPosition(PxPosition((i * fontSizeInPx).px, 0.px)),
-                    equalTo(i)
-                )
+                assertThat(paragraph.getOffsetForPosition(PxPosition((i * fontSizeInPx).px, 0.px)))
+                    .isEqualTo(i)
             }
 
             for (i in 3 until 6) {
                 assertThat(
                     paragraph.getOffsetForPosition(
                         PxPosition(((i - 3) * fontSizeInPx).px, fontSizeInPx.px)
-                    ),
-                    equalTo(i)
-                )
+                    )
+                ).isEqualTo(i)
             }
         }
     }
@@ -460,10 +433,10 @@ class MultiParagraphIntegrationTest {
 
             for (i in text.indices) {
                 val box = paragraph.getBoundingBox(i)
-                assertThat(box.left, equalTo(i * fontSizeInPx))
-                assertThat(box.right, equalTo((i + 1) * fontSizeInPx))
-                assertThat(box.top, equalTo(0f))
-                assertThat(box.bottom, equalTo(fontSizeInPx))
+                assertThat(box.left).isEqualTo(i * fontSizeInPx)
+                assertThat(box.right).isEqualTo((i + 1) * fontSizeInPx)
+                assertThat(box.top).isZero()
+                assertThat(box.bottom).isEqualTo(fontSizeInPx)
             }
         }
     }
@@ -487,10 +460,10 @@ class MultiParagraphIntegrationTest {
             for (i in secondLine.indices) {
                 val textPosition = i + firstLine.length
                 val box = paragraph.getBoundingBox(textPosition)
-                assertThat(box.left, equalTo(i * fontSizeInPx))
-                assertThat(box.right, equalTo((i + 1) * fontSizeInPx))
-                assertThat(box.top, equalTo(fontSizeInPx))
-                assertThat(box.bottom, equalTo((2f + 1 / 5f) * fontSizeInPx))
+                assertThat(box.left).isEqualTo(i * fontSizeInPx)
+                assertThat(box.right).isEqualTo((i + 1) * fontSizeInPx)
+                assertThat(box.top).isEqualTo(fontSizeInPx)
+                assertThat(box.bottom).isEqualTo((2f + 1 / 5f) * fontSizeInPx)
             }
         }
     }
@@ -575,15 +548,12 @@ class MultiParagraphIntegrationTest {
             for (i in text.indices) {
                 val cursorRect = paragraph.getCursorRect(i)
                 val cursorXOffset = i * fontSizeInPx
-                assertThat(
-                    cursorRect,
-                    equalTo(
-                        Rect(
-                            left = cursorXOffset - cursorWidth / 2,
-                            top = 0f,
-                            right = cursorXOffset + cursorWidth / 2,
-                            bottom = fontSizeInPx
-                        )
+                assertThat(cursorRect).isEqualTo(
+                    Rect(
+                        left = cursorXOffset - cursorWidth / 2,
+                        top = 0f,
+                        right = cursorXOffset + cursorWidth / 2,
+                        bottom = fontSizeInPx
                     )
                 )
             }
@@ -605,30 +575,24 @@ class MultiParagraphIntegrationTest {
 
             for (i in 0 until charsPerLine) {
                 val cursorXOffset = i * fontSizeInPx
-                assertThat(
-                    paragraph.getCursorRect(i),
-                    equalTo(
-                        Rect(
-                            left = cursorXOffset - cursorWidth / 2,
-                            top = 0f,
-                            right = cursorXOffset + cursorWidth / 2,
-                            bottom = fontSizeInPx
-                        )
+                assertThat(paragraph.getCursorRect(i)).isEqualTo(
+                    Rect(
+                        left = cursorXOffset - cursorWidth / 2,
+                        top = 0f,
+                        right = cursorXOffset + cursorWidth / 2,
+                        bottom = fontSizeInPx
                     )
                 )
             }
 
             for (i in charsPerLine until text.length) {
                 val cursorXOffset = (i % charsPerLine) * fontSizeInPx
-                assertThat(
-                    paragraph.getCursorRect(i),
-                    equalTo(
-                        Rect(
-                            left = cursorXOffset - cursorWidth / 2,
-                            top = fontSizeInPx,
-                            right = cursorXOffset + cursorWidth / 2,
-                            bottom = fontSizeInPx * 2.2f
-                        )
+                assertThat(paragraph.getCursorRect(i)).isEqualTo(
+                    Rect(
+                        left = cursorXOffset - cursorWidth / 2,
+                        top = fontSizeInPx,
+                        right = cursorXOffset + cursorWidth / 2,
+                        bottom = fontSizeInPx * 2.2f
                     )
                 )
             }
@@ -649,15 +613,12 @@ class MultiParagraphIntegrationTest {
 
             for (i in text.indices) {
                 val cursorXOffset = (text.length - i) * fontSizeInPx
-                assertThat(
-                    paragraph.getCursorRect(i),
-                    equalTo(
-                        Rect(
-                            left = cursorXOffset - cursorWidth / 2,
-                            top = 0f,
-                            right = cursorXOffset + cursorWidth / 2,
-                            bottom = fontSizeInPx
-                        )
+                assertThat(paragraph.getCursorRect(i)).isEqualTo(
+                    Rect(
+                        left = cursorXOffset - cursorWidth / 2,
+                        top = 0f,
+                        right = cursorXOffset + cursorWidth / 2,
+                        bottom = fontSizeInPx
                     )
                 )
             }
@@ -679,30 +640,24 @@ class MultiParagraphIntegrationTest {
 
             for (i in 0 until charsPerLine) {
                 val cursorXOffset = (charsPerLine - i) * fontSizeInPx
-                assertThat(
-                    paragraph.getCursorRect(i),
-                    equalTo(
-                        Rect(
-                            left = cursorXOffset - cursorWidth / 2,
-                            top = 0f,
-                            right = cursorXOffset + cursorWidth / 2,
-                            bottom = fontSizeInPx
-                        )
+                assertThat(paragraph.getCursorRect(i)).isEqualTo(
+                    Rect(
+                        left = cursorXOffset - cursorWidth / 2,
+                        top = 0f,
+                        right = cursorXOffset + cursorWidth / 2,
+                        bottom = fontSizeInPx
                     )
                 )
             }
 
             for (i in charsPerLine until text.length) {
                 val cursorXOffset = (charsPerLine - i % charsPerLine) * fontSizeInPx
-                assertThat(
-                    paragraph.getCursorRect(i),
-                    equalTo(
-                        Rect(
-                            left = cursorXOffset - cursorWidth / 2,
-                            top = fontSizeInPx,
-                            right = cursorXOffset + cursorWidth / 2,
-                            bottom = fontSizeInPx * 2.2f
-                        )
+                assertThat(paragraph.getCursorRect(i)).isEqualTo(
+                    Rect(
+                        left = cursorXOffset - cursorWidth / 2,
+                        top = fontSizeInPx,
+                        right = cursorXOffset + cursorWidth / 2,
+                        bottom = fontSizeInPx * 2.2f
                     )
                 )
             }
@@ -722,10 +677,7 @@ class MultiParagraphIntegrationTest {
             )
 
             for (i in 0..text.length) {
-                assertThat(
-                    paragraph.getPrimaryHorizontal(i),
-                    equalTo(fontSizeInPx * i)
-                )
+                assertThat(paragraph.getPrimaryHorizontal(i)).isEqualTo(fontSizeInPx * i)
             }
         }
     }
@@ -744,10 +696,7 @@ class MultiParagraphIntegrationTest {
             )
 
             for (i in 0..text.length) {
-                assertThat(
-                    paragraph.getPrimaryHorizontal(i),
-                    equalTo(width - fontSizeInPx * i)
-                )
+                assertThat(paragraph.getPrimaryHorizontal(i)).isEqualTo(width - fontSizeInPx * i)
             }
         }
     }
@@ -768,23 +717,15 @@ class MultiParagraphIntegrationTest {
             )
 
             for (i in 0..ltrText.length) {
-                assertThat(
-                    paragraph.getPrimaryHorizontal(i),
-                    equalTo(fontSizeInPx * i)
-                )
+                assertThat(paragraph.getPrimaryHorizontal(i)).isEqualTo(fontSizeInPx * i)
             }
 
             for (i in 1 until rtlText.length) {
-                assertThat(
-                    paragraph.getPrimaryHorizontal(i + ltrText.length),
-                    equalTo(width - fontSizeInPx * i)
-                )
+                assertThat(paragraph.getPrimaryHorizontal(i + ltrText.length))
+                    .isEqualTo(width - fontSizeInPx * i)
             }
 
-            assertThat(
-                paragraph.getPrimaryHorizontal(text.length),
-                equalTo(width)
-            )
+            assertThat(paragraph.getPrimaryHorizontal(text.length)).isEqualTo(width)
         }
     }
 
@@ -802,16 +743,13 @@ class MultiParagraphIntegrationTest {
                 constraints = ParagraphConstraints(width)
             )
 
-            assertThat(paragraph.getPrimaryHorizontal(0), equalTo(width))
+            assertThat(paragraph.getPrimaryHorizontal(0)).isEqualTo(width)
 
             for (i in 1 until text.length) {
-                assertThat(
-                    paragraph.getPrimaryHorizontal(i),
-                    equalTo(fontSizeInPx * i)
-                )
+                assertThat(paragraph.getPrimaryHorizontal(i)).isEqualTo(fontSizeInPx * i)
             }
 
-            assertThat(paragraph.getPrimaryHorizontal(text.length), equalTo(0f))
+            assertThat(paragraph.getPrimaryHorizontal(text.length)).isZero()
         }
     }
 
@@ -829,16 +767,13 @@ class MultiParagraphIntegrationTest {
                 constraints = ParagraphConstraints(width)
             )
 
-            assertThat(paragraph.getPrimaryHorizontal(0), equalTo(0f))
+            assertThat(paragraph.getPrimaryHorizontal(0)).isZero()
 
             for (i in 1 until text.length) {
-                assertThat(
-                    paragraph.getPrimaryHorizontal(i),
-                    equalTo(width - fontSizeInPx * i)
-                )
+                assertThat(paragraph.getPrimaryHorizontal(i)).isEqualTo(width - fontSizeInPx * i)
             }
 
-            assertThat(paragraph.getPrimaryHorizontal(text.length), equalTo(width))
+            assertThat(paragraph.getPrimaryHorizontal(text.length)).isEqualTo(width)
         }
     }
 
@@ -859,23 +794,15 @@ class MultiParagraphIntegrationTest {
             )
 
             for (i in 0..ltrText.length) {
-                assertThat(
-                    paragraph.getPrimaryHorizontal(i),
-                    equalTo(fontSizeInPx * i)
-                )
+                assertThat(paragraph.getPrimaryHorizontal(i)).isEqualTo(fontSizeInPx * i)
             }
 
             for (i in 1 until rtlText.length) {
-                assertThat(
-                    paragraph.getPrimaryHorizontal(i + ltrText.length),
-                    equalTo(width - fontSizeInPx * i)
-                )
+                assertThat(paragraph.getPrimaryHorizontal(i + ltrText.length))
+                    .isEqualTo(width - fontSizeInPx * i)
             }
 
-            assertThat(
-                paragraph.getPrimaryHorizontal(text.length),
-                equalTo(width)
-            )
+            assertThat(paragraph.getPrimaryHorizontal(text.length)).isEqualTo(width)
         }
     }
 
@@ -895,20 +822,16 @@ class MultiParagraphIntegrationTest {
                 constraints = ParagraphConstraints(width)
             )
 
-            assertThat(paragraph.getPrimaryHorizontal(0), equalTo(width))
+            assertThat(paragraph.getPrimaryHorizontal(0)).isEqualTo(width)
             // Notice that abc is
             for (i in 1 until ltrText.length) {
-                assertThat(
-                    paragraph.getPrimaryHorizontal(i),
-                    equalTo(rtlText.length * fontSizeInPx + i * fontSizeInPx)
-                )
+                assertThat(paragraph.getPrimaryHorizontal(i))
+                    .isEqualTo(rtlText.length * fontSizeInPx + i * fontSizeInPx)
             }
 
             for (i in 0..rtlText.length) {
-                assertThat(
-                    paragraph.getPrimaryHorizontal(i + ltrText.length),
-                    equalTo(rtlText.length * fontSizeInPx - i * fontSizeInPx)
-                )
+                assertThat(paragraph.getPrimaryHorizontal(i + ltrText.length))
+                    .isEqualTo(rtlText.length * fontSizeInPx - i * fontSizeInPx)
             }
         }
     }
@@ -926,7 +849,7 @@ class MultiParagraphIntegrationTest {
                 constraints = ParagraphConstraints(width)
             )
 
-            assertThat(paragraph.getPrimaryHorizontal(text.length), equalTo(0f))
+            assertThat(paragraph.getPrimaryHorizontal(text.length)).isZero()
         }
     }
 
@@ -943,7 +866,7 @@ class MultiParagraphIntegrationTest {
                 constraints = ParagraphConstraints(width)
             )
 
-            assertThat(paragraph.getPrimaryHorizontal(text.length), equalTo(0f))
+            assertThat(paragraph.getPrimaryHorizontal(text.length)).isZero()
         }
     }
 
@@ -961,7 +884,7 @@ class MultiParagraphIntegrationTest {
                 constraints = ParagraphConstraints(width)
             )
 
-            assertThat(paragraph.getPrimaryHorizontal(text.length), equalTo(width))
+            assertThat(paragraph.getPrimaryHorizontal(text.length)).isEqualTo(width)
         }
     }
 
@@ -979,7 +902,7 @@ class MultiParagraphIntegrationTest {
                 constraints = ParagraphConstraints(width)
             )
 
-            assertThat(paragraph.getPrimaryHorizontal(text.length), equalTo(0f))
+            assertThat(paragraph.getPrimaryHorizontal(text.length)).isZero()
         }
     }
 
@@ -996,10 +919,7 @@ class MultiParagraphIntegrationTest {
             )
 
             for (i in 0..text.length) {
-                assertThat(
-                    paragraph.getSecondaryHorizontal(i),
-                    equalTo(fontSizeInPx * i)
-                )
+                assertThat(paragraph.getSecondaryHorizontal(i)).isEqualTo(fontSizeInPx * i)
             }
         }
     }
@@ -1018,10 +938,8 @@ class MultiParagraphIntegrationTest {
             )
 
             for (i in 0..text.length) {
-                assertThat(
-                    paragraph.getSecondaryHorizontal(i),
-                    equalTo(width - fontSizeInPx * i)
-                )
+                assertThat(paragraph.getSecondaryHorizontal(i))
+                    .isEqualTo(width - fontSizeInPx * i)
             }
         }
     }
@@ -1042,17 +960,12 @@ class MultiParagraphIntegrationTest {
             )
 
             for (i in ltrText.indices) {
-                assertThat(
-                    paragraph.getSecondaryHorizontal(i),
-                    equalTo(fontSizeInPx * i)
-                )
+                assertThat(paragraph.getSecondaryHorizontal(i)).isEqualTo(fontSizeInPx * i)
             }
 
             for (i in 0..rtlText.length) {
-                assertThat(
-                    paragraph.getSecondaryHorizontal(i + ltrText.length),
-                    equalTo(width - fontSizeInPx * i)
-                )
+                assertThat(paragraph.getSecondaryHorizontal(i + ltrText.length))
+                    .isEqualTo(width - fontSizeInPx * i)
             }
         }
     }
@@ -1071,16 +984,13 @@ class MultiParagraphIntegrationTest {
                 constraints = ParagraphConstraints(width)
             )
 
-            assertThat(paragraph.getSecondaryHorizontal(0), equalTo(0f))
+            assertThat(paragraph.getSecondaryHorizontal(0)).isZero()
 
             for (i in 1 until text.length) {
-                assertThat(
-                    paragraph.getSecondaryHorizontal(i),
-                    equalTo(fontSizeInPx * i)
-                )
+                assertThat(paragraph.getSecondaryHorizontal(i)).isEqualTo(fontSizeInPx * i)
             }
 
-            assertThat(paragraph.getSecondaryHorizontal(text.length), equalTo(width))
+            assertThat(paragraph.getSecondaryHorizontal(text.length)).isEqualTo(width)
         }
     }
 
@@ -1098,16 +1008,13 @@ class MultiParagraphIntegrationTest {
                 constraints = ParagraphConstraints(width)
             )
 
-            assertThat(paragraph.getSecondaryHorizontal(0), equalTo(width))
+            assertThat(paragraph.getSecondaryHorizontal(0)).isEqualTo(width)
 
             for (i in 1 until text.length) {
-                assertThat(
-                    paragraph.getSecondaryHorizontal(i),
-                    equalTo(width - fontSizeInPx * i)
-                )
+                assertThat(paragraph.getSecondaryHorizontal(i)).isEqualTo(width - fontSizeInPx * i)
             }
 
-            assertThat(paragraph.getSecondaryHorizontal(text.length), equalTo(0f))
+            assertThat(paragraph.getSecondaryHorizontal(text.length)).isZero()
         }
     }
 
@@ -1128,23 +1035,16 @@ class MultiParagraphIntegrationTest {
             )
 
             for (i in ltrText.indices) {
-                assertThat(
-                    paragraph.getSecondaryHorizontal(i),
-                    equalTo(fontSizeInPx * i)
-                )
+                assertThat(paragraph.getSecondaryHorizontal(i)).isEqualTo(fontSizeInPx * i)
             }
 
             for (i in rtlText.indices) {
-                assertThat(
-                    paragraph.getSecondaryHorizontal(i + ltrText.length),
-                    equalTo(width - fontSizeInPx * i)
-                )
+                assertThat(paragraph.getSecondaryHorizontal(i + ltrText.length))
+                    .isEqualTo(width - fontSizeInPx * i)
             }
 
-            assertThat(
-                paragraph.getSecondaryHorizontal(text.length),
-                equalTo(width - rtlText.length * fontSizeInPx)
-            )
+            assertThat(paragraph.getSecondaryHorizontal(text.length))
+                .isEqualTo(width - rtlText.length * fontSizeInPx)
         }
     }
 
@@ -1164,22 +1064,17 @@ class MultiParagraphIntegrationTest {
                 constraints = ParagraphConstraints(width)
             )
 
-            assertThat(
-                paragraph.getSecondaryHorizontal(0),
-                equalTo(width - ltrText.length * fontSizeInPx)
-            )
+            assertThat(paragraph.getSecondaryHorizontal(0))
+                .isEqualTo(width - ltrText.length * fontSizeInPx)
+
             for (i in 1..ltrText.length) {
-                assertThat(
-                    paragraph.getSecondaryHorizontal(i),
-                    equalTo(rtlText.length * fontSizeInPx + i * fontSizeInPx)
-                )
+                assertThat(paragraph.getSecondaryHorizontal(i))
+                    .isEqualTo(rtlText.length * fontSizeInPx + i * fontSizeInPx)
             }
 
             for (i in 1..rtlText.length) {
-                assertThat(
-                    paragraph.getSecondaryHorizontal(i + ltrText.length),
-                    equalTo(rtlText.length * fontSizeInPx - i * fontSizeInPx)
-                )
+                assertThat(paragraph.getSecondaryHorizontal(i + ltrText.length))
+                    .isEqualTo(rtlText.length * fontSizeInPx - i * fontSizeInPx)
             }
         }
     }
@@ -1197,7 +1092,7 @@ class MultiParagraphIntegrationTest {
                 constraints = ParagraphConstraints(width)
             )
 
-            assertThat(paragraph.getSecondaryHorizontal(text.length), equalTo(0f))
+            assertThat(paragraph.getSecondaryHorizontal(text.length)).isZero()
         }
     }
 
@@ -1214,7 +1109,7 @@ class MultiParagraphIntegrationTest {
                 constraints = ParagraphConstraints(width)
             )
 
-            assertThat(paragraph.getSecondaryHorizontal(text.length), equalTo(0f))
+            assertThat(paragraph.getSecondaryHorizontal(text.length)).isZero()
         }
     }
 
@@ -1232,7 +1127,7 @@ class MultiParagraphIntegrationTest {
                 constraints = ParagraphConstraints(width)
             )
 
-            assertThat(paragraph.getSecondaryHorizontal(text.length), equalTo(width))
+            assertThat(paragraph.getSecondaryHorizontal(text.length)).isEqualTo(width)
         }
     }
 
@@ -1250,7 +1145,7 @@ class MultiParagraphIntegrationTest {
                 constraints = ParagraphConstraints(width)
             )
 
-            assertThat(paragraph.getSecondaryHorizontal(text.length), equalTo(0f))
+            assertThat(paragraph.getSecondaryHorizontal(text.length)).isZero()
         }
     }
 
@@ -1268,7 +1163,7 @@ class MultiParagraphIntegrationTest {
             )
 
             for (i in 0..text.length) {
-                assertThat(paragraph.getParagraphDirection(i), equalTo(TextDirection.Ltr))
+                assertThat(paragraph.getParagraphDirection(i)).isEqualTo(TextDirection.Ltr)
             }
         }
     }
@@ -1288,7 +1183,7 @@ class MultiParagraphIntegrationTest {
             )
 
             for (i in 0..text.length) {
-                assertThat(paragraph.getParagraphDirection(i), equalTo(TextDirection.Rtl))
+                assertThat(paragraph.getParagraphDirection(i)).isEqualTo(TextDirection.Rtl)
             }
         }
     }
@@ -1307,7 +1202,7 @@ class MultiParagraphIntegrationTest {
             )
 
             for (i in text.indices) {
-                assertThat(paragraph.getParagraphDirection(i), equalTo(TextDirection.Rtl))
+                assertThat(paragraph.getParagraphDirection(i)).isEqualTo(TextDirection.Rtl)
             }
         }
     }
@@ -1327,7 +1222,7 @@ class MultiParagraphIntegrationTest {
             )
 
             for (i in 0..text.length) {
-                assertThat(paragraph.getParagraphDirection(i), equalTo(TextDirection.Ltr))
+                assertThat(paragraph.getParagraphDirection(i)).isEqualTo(TextDirection.Ltr)
             }
         }
     }
@@ -1348,7 +1243,7 @@ class MultiParagraphIntegrationTest {
             )
 
             for (i in 0..text.length) {
-                assertThat(paragraph.getParagraphDirection(i), equalTo(TextDirection.Ltr))
+                assertThat(paragraph.getParagraphDirection(i)).isEqualTo(TextDirection.Ltr)
             }
         }
     }
@@ -1370,7 +1265,7 @@ class MultiParagraphIntegrationTest {
             )
 
             for (i in 0..text.length) {
-                assertThat(paragraph.getParagraphDirection(i), equalTo(TextDirection.Ltr))
+                assertThat(paragraph.getParagraphDirection(i)).isEqualTo(TextDirection.Ltr)
             }
         }
     }
@@ -1392,7 +1287,7 @@ class MultiParagraphIntegrationTest {
             )
 
             for (i in 0..text.length) {
-                assertThat(paragraph.getParagraphDirection(i), equalTo(TextDirection.Rtl))
+                assertThat(paragraph.getParagraphDirection(i)).isEqualTo(TextDirection.Rtl)
             }
         }
     }
@@ -1411,7 +1306,7 @@ class MultiParagraphIntegrationTest {
             )
 
             for (i in 0..text.length) {
-                assertThat(paragraph.getBidiRunDirection(i), equalTo(TextDirection.Ltr))
+                assertThat(paragraph.getBidiRunDirection(i)).isEqualTo(TextDirection.Ltr)
             }
         }
     }
@@ -1431,7 +1326,7 @@ class MultiParagraphIntegrationTest {
             )
 
             for (i in 0..text.length) {
-                assertThat(paragraph.getBidiRunDirection(i), equalTo(TextDirection.Ltr))
+                assertThat(paragraph.getBidiRunDirection(i)).isEqualTo(TextDirection.Ltr)
             }
         }
     }
@@ -1450,7 +1345,7 @@ class MultiParagraphIntegrationTest {
             )
 
             for (i in text.indices) {
-                assertThat(paragraph.getBidiRunDirection(i), equalTo(TextDirection.Rtl))
+                assertThat(paragraph.getBidiRunDirection(i)).isEqualTo(TextDirection.Rtl)
             }
         }
     }
@@ -1470,9 +1365,9 @@ class MultiParagraphIntegrationTest {
             )
 
             for (i in 0 until text.length - 1) {
-                assertThat(paragraph.getBidiRunDirection(i), equalTo(TextDirection.Rtl))
+                assertThat(paragraph.getBidiRunDirection(i)).isEqualTo(TextDirection.Rtl)
             }
-            assertThat(paragraph.getBidiRunDirection(text.length - 1), equalTo(TextDirection.Ltr))
+            assertThat(paragraph.getBidiRunDirection(text.length - 1)).isEqualTo(TextDirection.Ltr)
         }
     }
 
@@ -1492,11 +1387,11 @@ class MultiParagraphIntegrationTest {
             )
 
             for (i in ltrText.indices) {
-                assertThat(paragraph.getBidiRunDirection(i), equalTo(TextDirection.Ltr))
+                assertThat(paragraph.getBidiRunDirection(i)).isEqualTo(TextDirection.Ltr)
             }
 
             for (i in ltrText.length until text.length) {
-                assertThat(paragraph.getBidiRunDirection(i), equalTo(TextDirection.Rtl))
+                assertThat(paragraph.getBidiRunDirection(i)).isEqualTo(TextDirection.Rtl)
             }
         }
     }
@@ -1518,11 +1413,11 @@ class MultiParagraphIntegrationTest {
             )
 
             for (i in ltrText.indices) {
-                assertThat(paragraph.getBidiRunDirection(i), equalTo(TextDirection.Ltr))
+                assertThat(paragraph.getBidiRunDirection(i)).isEqualTo(TextDirection.Ltr)
             }
 
             for (i in ltrText.length until text.length) {
-                assertThat(paragraph.getBidiRunDirection(i), equalTo(TextDirection.Rtl))
+                assertThat(paragraph.getBidiRunDirection(i)).isEqualTo(TextDirection.Rtl)
             }
         }
     }
@@ -1544,11 +1439,11 @@ class MultiParagraphIntegrationTest {
             )
 
             for (i in ltrText.indices) {
-                assertThat(paragraph.getBidiRunDirection(i), equalTo(TextDirection.Ltr))
+                assertThat(paragraph.getBidiRunDirection(i)).isEqualTo(TextDirection.Ltr)
             }
 
             for (i in ltrText.length until text.length) {
-                assertThat(paragraph.getBidiRunDirection(i), equalTo(TextDirection.Rtl))
+                assertThat(paragraph.getBidiRunDirection(i)).isEqualTo(TextDirection.Rtl)
             }
         }
     }
@@ -1567,7 +1462,7 @@ class MultiParagraphIntegrationTest {
             )
 
             for (i in 0..text.lastIndex) {
-                assertThat(paragraph.getLineForOffset(i), equalTo(0))
+                assertThat(paragraph.getLineForOffset(i)).isZero()
             }
         }
     }
@@ -1586,7 +1481,7 @@ class MultiParagraphIntegrationTest {
             )
 
             for (i in 0..text.lastIndex) {
-                assertThat(paragraph.getLineForOffset(i), equalTo(i / 2))
+                assertThat(paragraph.getLineForOffset(i)).isEqualTo(i / 2)
             }
         }
     }
@@ -1605,10 +1500,10 @@ class MultiParagraphIntegrationTest {
                 constraints = ParagraphConstraints(width)
             )
 
-            assertThat(paragraph.getLineForOffset(0), equalTo(0))
-            assertThat(paragraph.getLineForOffset(1), equalTo(0))
-            assertThat(paragraph.getLineForOffset(2), equalTo(1))
-            assertThat(paragraph.getLineForOffset(3), equalTo(1))
+            assertThat(paragraph.getLineForOffset(0)).isZero()
+            assertThat(paragraph.getLineForOffset(1)).isZero()
+            assertThat(paragraph.getLineForOffset(2)).isEqualTo(1)
+            assertThat(paragraph.getLineForOffset(3)).isEqualTo(1)
         }
     }
 
@@ -1626,11 +1521,11 @@ class MultiParagraphIntegrationTest {
                 constraints = ParagraphConstraints(width)
             )
 
-            assertThat(paragraph.getLineForOffset(0), equalTo(0))
-            assertThat(paragraph.getLineForOffset(1), equalTo(0))
+            assertThat(paragraph.getLineForOffset(0)).isZero()
+            assertThat(paragraph.getLineForOffset(1)).isZero()
             // The empty paragraph takes one line
-            assertThat(paragraph.getLineForOffset(2), equalTo(2))
-            assertThat(paragraph.getLineForOffset(3), equalTo(2))
+            assertThat(paragraph.getLineForOffset(2)).isEqualTo(2)
+            assertThat(paragraph.getLineForOffset(3)).isEqualTo(2)
         }
     }
 
@@ -1697,7 +1592,7 @@ class MultiParagraphIntegrationTest {
             val actualPath = paragraph.getPathForRange(0, 2)
 
             val diff = Path.combine(PathOperation.difference, expectedPath, actualPath).getBounds()
-            assertThat(diff, equalTo(Rect.zero))
+            assertThat(diff).isEqualTo(Rect.zero)
         }
     }
 
@@ -1740,7 +1635,7 @@ class MultiParagraphIntegrationTest {
             val actualPath = paragraph.getPathForRange(1, 6)
 
             val diff = Path.combine(PathOperation.difference, expectedPath, actualPath).getBounds()
-            assertThat(diff, equalTo(Rect.zero))
+            assertThat(diff).isEqualTo(Rect.zero)
         }
     }
 
@@ -1786,7 +1681,7 @@ class MultiParagraphIntegrationTest {
                 paragraph.getPathForRange(selectionLTRStart, textLTR.length + selectionRTLEnd)
 
             val diff = Path.combine(PathOperation.difference, expectedPath, actualPath).getBounds()
-            assertThat(diff, equalTo(Rect.zero))
+            assertThat(diff).isEqualTo(Rect.zero)
         }
     }
 
@@ -1802,7 +1697,7 @@ class MultiParagraphIntegrationTest {
 
         val actualPath = paragraph.getPathForRange(1, 1)
 
-        assertThat(actualPath.getBounds(), equalTo(Rect.zero))
+        assertThat(actualPath.getBounds()).isEqualTo(Rect.zero)
     }
 
     @Test
@@ -1817,7 +1712,7 @@ class MultiParagraphIntegrationTest {
 
         val actualPath = paragraph.getPathForRange(0, 0)
 
-        assertThat(actualPath.getBounds(), equalTo(Rect.zero))
+        assertThat(actualPath.getBounds()).isEqualTo(Rect.zero)
     }
 
     @Test
@@ -1841,7 +1736,7 @@ class MultiParagraphIntegrationTest {
             val actualPath = paragraph.getPathForRange(1, text.length)
 
             val diff = Path.combine(PathOperation.difference, expectedPath, actualPath).getBounds()
-            assertThat(diff, equalTo(Rect.zero))
+            assertThat(diff).isEqualTo(Rect.zero)
         }
     }
 
@@ -1866,7 +1761,7 @@ class MultiParagraphIntegrationTest {
             val actualPath = paragraph.getPathForRange(1, text.length - 1)
 
             val diff = Path.combine(PathOperation.difference, expectedPath, actualPath).getBounds()
-            assertThat(diff, equalTo(Rect.zero))
+            assertThat(diff).isEqualTo(Rect.zero)
         }
     }
 
@@ -1891,7 +1786,7 @@ class MultiParagraphIntegrationTest {
             val actualPath = paragraph.getPathForRange(1, 2)
 
             val diff = Path.combine(PathOperation.difference, expectedPath, actualPath).getBounds()
-            assertThat(diff, equalTo(Rect.zero))
+            assertThat(diff).isEqualTo(Rect.zero)
         }
     }
 
@@ -1924,7 +1819,7 @@ class MultiParagraphIntegrationTest {
             val actualPath = paragraph.getPathForRange(1, text.length - 1)
 
             val diff = Path.combine(PathOperation.difference, expectedPath, actualPath).getBounds()
-            assertThat(diff, equalTo(Rect.zero))
+            assertThat(diff).isEqualTo(Rect.zero)
         }
     }
 
@@ -1948,9 +1843,9 @@ class MultiParagraphIntegrationTest {
 
             val actualPath = paragraph.getPathForRange(0, 1)
 
-            assertThat(lineLeft, equalTo(lineRight))
+            assertThat(lineLeft).isEqualTo(lineRight)
             val diff = Path.combine(PathOperation.difference, expectedPath, actualPath).getBounds()
-            assertThat(diff, equalTo(Rect.zero))
+            assertThat(diff).isEqualTo(Rect.zero)
         }
     }
 
@@ -1974,9 +1869,9 @@ class MultiParagraphIntegrationTest {
 
             val actualPath = paragraph.getPathForRange(0, 1)
 
-            assertThat(lineLeft, equalTo(lineRight))
+            assertThat(lineLeft).isEqualTo(lineRight)
             val diff = Path.combine(PathOperation.difference, expectedPath, actualPath).getBounds()
-            assertThat(diff, equalTo(Rect.zero))
+            assertThat(diff).isEqualTo(Rect.zero)
         }
     }
 
@@ -1992,8 +1887,8 @@ class MultiParagraphIntegrationTest {
 
         val result = paragraph.getWordBoundary(text.indexOf('a'))
 
-        assertThat(result.start, equalTo(text.indexOf('a')))
-        assertThat(result.end, equalTo(text.indexOf(' ')))
+        assertThat(result.start).isEqualTo(text.indexOf('a'))
+        assertThat(result.end).isEqualTo(text.indexOf(' '))
     }
 
     @Test
@@ -2009,10 +1904,10 @@ class MultiParagraphIntegrationTest {
         val resultEnglish = paragraph.getWordBoundary(text.indexOf('a'))
         val resultHebrew = paragraph.getWordBoundary(text.indexOf('\u05d1'))
 
-        assertThat(resultEnglish.start, equalTo(text.indexOf('a')))
-        assertThat(resultEnglish.end, equalTo(text.indexOf(' ')))
-        assertThat(resultHebrew.start, equalTo(text.indexOf('\u05d0')))
-        assertThat(resultHebrew.end, equalTo(text.indexOf('\u05d2') + 1))
+        assertThat(resultEnglish.start).isEqualTo(text.indexOf('a'))
+        assertThat(resultEnglish.end).isEqualTo(text.indexOf(' '))
+        assertThat(resultHebrew.start).isEqualTo(text.indexOf('\u05d0'))
+        assertThat(resultHebrew.end).isEqualTo(text.indexOf('\u05d2') + 1)
     }
 
     @Test(expected = AssertionError::class)
@@ -2077,8 +1972,8 @@ class MultiParagraphIntegrationTest {
             )
 
             // When textAlign is TextAlign.start, LTR aligns to left, RTL aligns to right.
-            assertThat(paragraphLTR.getLineLeft(0), equalTo(0.0f))
-            assertThat(paragraphRTL.getLineRight(0), equalTo(layoutRTLWidth))
+            assertThat(paragraphLTR.getLineLeft(0)).isZero()
+            assertThat(paragraphRTL.getLineRight(0)).isEqualTo(layoutRTLWidth)
         }
     }
 
@@ -2098,7 +1993,7 @@ class MultiParagraphIntegrationTest {
                     constraints = ParagraphConstraints(width = layoutWidth)
                 )
 
-                assertThat(paragraph.getLineLeft(0), equalTo(0.0f))
+                assertThat(paragraph.getLineLeft(0)).isZero()
             }
         }
     }
@@ -2119,7 +2014,7 @@ class MultiParagraphIntegrationTest {
                     constraints = ParagraphConstraints(width = layoutWidth)
                 )
 
-                assertThat(paragraph.getLineRight(0), equalTo(layoutWidth))
+                assertThat(paragraph.getLineRight(0)).isEqualTo(layoutWidth)
             }
         }
     }
@@ -2141,14 +2036,8 @@ class MultiParagraphIntegrationTest {
                 )
 
                 val textWidth = text.length * fontSizeInPx
-                assertThat(
-                    paragraph.getLineLeft(0),
-                    equalTo(layoutWidth / 2 - textWidth / 2)
-                )
-                assertThat(
-                    paragraph.getLineRight(0),
-                    equalTo(layoutWidth / 2 + textWidth / 2)
-                )
+                assertThat(paragraph.getLineLeft(0)).isEqualTo(layoutWidth / 2 - textWidth / 2)
+                assertThat(paragraph.getLineRight(0)).isEqualTo(layoutWidth / 2 + textWidth / 2)
             }
         }
     }
@@ -2168,7 +2057,7 @@ class MultiParagraphIntegrationTest {
                 constraints = ParagraphConstraints(width = layoutWidth)
             )
 
-            assertThat(paragraph.getLineLeft(0), equalTo(0.0f))
+            assertThat(paragraph.getLineLeft(0)).isZero()
         }
     }
 
@@ -2187,7 +2076,7 @@ class MultiParagraphIntegrationTest {
                 constraints = ParagraphConstraints(width = layoutWidth)
             )
 
-            assertThat(paragraph.getLineRight(0), equalTo(layoutWidth))
+            assertThat(paragraph.getLineRight(0)).isEqualTo(layoutWidth)
         }
     }
 
@@ -2206,7 +2095,7 @@ class MultiParagraphIntegrationTest {
                 constraints = ParagraphConstraints(width = layoutWidth)
             )
 
-            assertThat(paragraph.getLineRight(0), equalTo(layoutWidth))
+            assertThat(paragraph.getLineRight(0)).isEqualTo(layoutWidth)
         }
     }
 
@@ -2225,7 +2114,7 @@ class MultiParagraphIntegrationTest {
                 constraints = ParagraphConstraints(width = layoutWidth)
             )
 
-            assertThat(paragraph.getLineLeft(0), equalTo(0.0f))
+            assertThat(paragraph.getLineLeft(0)).isZero()
         }
     }
 
@@ -2247,10 +2136,10 @@ class MultiParagraphIntegrationTest {
                 constraints = ParagraphConstraints(width = layoutWidth)
             )
 
-            assertThat(paragraph.getLineLeft(0), equalTo(0.0f))
-            assertThat(paragraph.getLineRight(0), equalTo(layoutWidth))
+            assertThat(paragraph.getLineLeft(0)).isZero()
+            assertThat(paragraph.getLineRight(0)).isEqualTo(layoutWidth)
             // Last line should align start
-            assertThat(paragraph.getLineLeft(1), equalTo(0.0f))
+            assertThat(paragraph.getLineLeft(1)).isZero()
         }
     }
 
@@ -2272,7 +2161,7 @@ class MultiParagraphIntegrationTest {
             // The position of the last character in display order.
             val position = PxPosition(("a.".length * fontSizeInPx + 1).px, (fontSizeInPx / 2).px)
             val charIndex = paragraph.getOffsetForPosition(position)
-            assertThat(charIndex, equalTo(2))
+            assertThat(charIndex).isEqualTo(2)
         }
     }
 
@@ -2294,7 +2183,7 @@ class MultiParagraphIntegrationTest {
             // The position of the first character in display order.
             val position = PxPosition((fontSizeInPx / 2 + 1).px, (fontSizeInPx / 2).px)
             val charIndex = paragraph.getOffsetForPosition(position)
-            assertThat(charIndex, equalTo(2))
+            assertThat(charIndex).isEqualTo(2)
         }
     }
 
@@ -2316,7 +2205,7 @@ class MultiParagraphIntegrationTest {
                 // The position of the i-th character in display order.
                 val position = PxPosition((i * fontSizeInPx + 1).px, (fontSizeInPx / 2).px)
                 val charIndex = paragraph.getOffsetForPosition(position)
-                assertThat(charIndex, equalTo(i))
+                assertThat(charIndex).isEqualTo(i)
             }
         }
     }
@@ -2339,7 +2228,7 @@ class MultiParagraphIntegrationTest {
                 // The position of the i-th character in display order.
                 val position = PxPosition((i * fontSizeInPx + 1).px, (fontSizeInPx / 2).px)
                 val charIndex = paragraph.getOffsetForPosition(position)
-                assertThat(charIndex, equalTo(i))
+                assertThat(charIndex).isEqualTo(i)
             }
         }
     }
@@ -2361,7 +2250,7 @@ class MultiParagraphIntegrationTest {
             // The first character in display order should be '.'
             val position = PxPosition((fontSizeInPx / 2 + 1).px, (fontSizeInPx / 2).px)
             val index = paragraph.getOffsetForPosition(position)
-            assertThat(index, equalTo(2))
+            assertThat(index).isEqualTo(2)
         }
     }
 
@@ -2382,18 +2271,15 @@ class MultiParagraphIntegrationTest {
                 constraints = ParagraphConstraints(width = layoutWidth)
             )
 
-            assertThat(paragraph.lineCount, equalTo(4))
+            assertThat(paragraph.lineCount).isEqualTo(4)
             // TODO(Migration/haoyuchang): Due to bug b/120530738, the height of the first line is
             // wrong in the framework. Will fix it when the lineHeight in TextSpan is implemented.
             for (i in 1 until paragraph.lineCount - 1) {
                 val actualHeight = paragraph.getLineHeight(i)
                 // In the sample_font.ttf, the height of the line should be
                 // fontSize + 0.2f * fontSize(line gap)
-                assertThat(
-                    "line number $i",
-                    actualHeight,
-                    equalTo(1.2f * fontSizeInPx * lineHeight)
-                )
+                assertWithMessage("line number $i").that(actualHeight)
+                    .isEqualTo(1.2f * fontSizeInPx * lineHeight)
             }
         }
     }
@@ -2417,7 +2303,7 @@ class MultiParagraphIntegrationTest {
             val lastLine = paragraph.lineCount - 1
             // In the sample_font.ttf, the height of the line should be
             // fontSize + 0.2 * fontSize(line gap)
-            assertThat(paragraph.getLineHeight(lastLine), equalTo(1.2f * fontSizeInPx))
+            assertThat(paragraph.getLineHeight(lastLine)).isEqualTo(1.2f * fontSizeInPx)
         }
     }
 
@@ -2441,7 +2327,7 @@ class MultiParagraphIntegrationTest {
             // Otherwise this position will point to the second character 'b'.
             val position = PxPosition((indent + 1).px, (fontSizeInPx / 2).px)
             // The offset corresponding to the position should be the first char 'a'.
-            assertThat(paragraph.getOffsetForPosition(position), equalTo(0))
+            assertThat(paragraph.getOffsetForPosition(position)).isZero()
         }
     }
 
@@ -2462,12 +2348,12 @@ class MultiParagraphIntegrationTest {
                 constraints = ParagraphConstraints(width = paragraphWidth)
             )
 
-            assertThat(paragraph.lineCount, equalTo(2))
+            assertThat(paragraph.lineCount).isEqualTo(2)
             // This position should point to the first character of the first line if indent is
             // applied. Otherwise this position will point to the second character of the second line.
             val position = PxPosition((indent + 1).px, (fontSizeInPx / 2).px)
             // The offset corresponding to the position should be the first char 'a'.
-            assertThat(paragraph.getOffsetForPosition(position), equalTo(0))
+            assertThat(paragraph.getOffsetForPosition(position)).isZero()
         }
     }
 
@@ -2495,10 +2381,7 @@ class MultiParagraphIntegrationTest {
             // applied. Otherwise this position will point to the second character of the second line.
             val position = PxPosition((indent + 1).px, (fontSizeInPx / 2 + fontSizeInPx).px)
             // The offset corresponding to the position should be the 'd' in the second line.
-            assertThat(
-                paragraph.getOffsetForPosition(position),
-                equalTo("abcd".length - 1)
-            )
+            assertThat(paragraph.getOffsetForPosition(position)).isEqualTo("abcd".length - 1)
         }
     }
 

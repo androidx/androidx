@@ -28,15 +28,15 @@ import androidx.ui.core.px
 import androidx.ui.core.sp
 import androidx.ui.core.withDensity
 import androidx.ui.engine.geometry.Rect
-import androidx.ui.graphics.Color
 import androidx.ui.graphics.Canvas
+import androidx.ui.graphics.Color
 import androidx.ui.graphics.Paint
 import androidx.ui.text.FontTestData.Companion.BASIC_MEASURE_FONT
 import androidx.ui.text.font.asFontFamily
-import androidx.ui.text.matchers.equalToBitmap
+import androidx.ui.text.matchers.assertThat
+import androidx.ui.text.matchers.isZero
 import androidx.ui.text.style.TextOverflow
 import com.google.common.truth.Truth.assertThat
-import org.junit.Assert
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -113,9 +113,8 @@ class TextDelegateIntegrationTest {
 
             textDelegate.layoutIntrinsics()
 
-            assertThat(
-                textDelegate.maxIntrinsicWidth).isEqualTo(fontSize.toPx().value * text.length
-            )
+            assertThat(textDelegate.maxIntrinsicWidth)
+                .isEqualTo(fontSize.toPx().value * text.length)
         }
     }
 
@@ -240,7 +239,7 @@ class TextDelegateIntegrationTest {
 
         val selection = textDelegate.getOffsetForPosition(PxPosition.Origin)
 
-        assertThat(selection).isEqualTo(0)
+        assertThat(selection).isZero()
     }
 
     @Test
@@ -432,7 +431,7 @@ class TextDelegateIntegrationTest {
             )
 
             // Assert.
-            Assert.assertThat(actualBitmap, equalToBitmap(expectedBitmap))
+            assertThat(actualBitmap).isEqualToBitmap(expectedBitmap)
         }
     }
 
@@ -501,7 +500,7 @@ class TextDelegateIntegrationTest {
             )
 
             // Assert
-            Assert.assertThat(actualBitmap, equalToBitmap(expectedBitmap))
+            assertThat(actualBitmap).isEqualToBitmap(expectedBitmap)
         }
     }
 
@@ -585,7 +584,7 @@ class TextDelegateIntegrationTest {
             )
 
             // Assert
-            Assert.assertThat(actualBitmap, equalToBitmap(expectedBitmap))
+            assertThat(actualBitmap).isEqualToBitmap(expectedBitmap)
         }
     }
 
@@ -654,7 +653,7 @@ class TextDelegateIntegrationTest {
             )
 
             // Assert
-            Assert.assertThat(actualBitmap, equalToBitmap(expectedBitmap))
+            assertThat(actualBitmap).isEqualToBitmap(expectedBitmap)
         }
     }
 
