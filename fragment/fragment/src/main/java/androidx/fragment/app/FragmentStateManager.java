@@ -200,6 +200,40 @@ class FragmentStateManager {
         }
     }
 
+    void start() {
+        if (FragmentManager.isLoggingEnabled(Log.DEBUG)) {
+            Log.d(TAG, "moveto STARTED: " + mFragment);
+        }
+        mFragment.performStart();
+        mDispatcher.dispatchOnFragmentStarted(mFragment, false);
+    }
+
+    void resume() {
+        if (FragmentManager.isLoggingEnabled(Log.DEBUG)) {
+            Log.d(TAG, "moveto RESUMED: " + mFragment);
+        }
+        mFragment.performResume();
+        mDispatcher.dispatchOnFragmentResumed(mFragment, false);
+        mFragment.mSavedFragmentState = null;
+        mFragment.mSavedViewState = null;
+    }
+
+    void pause() {
+        if (FragmentManager.isLoggingEnabled(Log.DEBUG)) {
+            Log.d(TAG, "movefrom RESUMED: " + mFragment);
+        }
+        mFragment.performPause();
+        mDispatcher.dispatchOnFragmentPaused(mFragment, false);
+    }
+
+    void stop() {
+        if (FragmentManager.isLoggingEnabled(Log.DEBUG)) {
+            Log.d(TAG, "movefrom STARTED: " + mFragment);
+        }
+        mFragment.performStop();
+        mDispatcher.dispatchOnFragmentStopped(mFragment, false);
+    }
+
     @NonNull
     FragmentState saveState() {
         FragmentState fs = new FragmentState(mFragment);
