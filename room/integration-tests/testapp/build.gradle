@@ -55,8 +55,8 @@ dependencies {
 
     // FINDBUGS dependency resolves an app/testapp version conflict.
     implementation(FINDBUGS)
-    implementation(SUPPORT_RECYCLERVIEW)
-    implementation(SUPPORT_APPCOMPAT)
+    implementation("androidx.recyclerview:recyclerview:1.0.0")
+    implementation("androidx.appcompat:appcompat:1.0.0")
     annotationProcessor project(":room:room-compiler")
     androidTestAnnotationProcessor project(":room:room-compiler")
 

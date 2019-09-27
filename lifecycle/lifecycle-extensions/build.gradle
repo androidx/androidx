@@ -48,7 +48,7 @@ dependencies {
     androidTestImplementation(ANDROIDX_TEST_RUNNER)
     androidTestImplementation(ANDROIDX_TEST_RULES)
     androidTestImplementation(ESPRESSO_CORE)
-    androidTestImplementation(SUPPORT_APPCOMPAT)
+    androidTestImplementation("androidx.appcompat:appcompat:1.0.0")
     androidTestImplementation(project(":internal-testutils-runtime"))
 }
 
