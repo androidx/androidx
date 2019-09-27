@@ -28,6 +28,7 @@ import androidx.ui.core.Density
 import androidx.ui.core.Dp
 import androidx.ui.core.Draw
 import androidx.ui.core.DrawShadow
+import androidx.ui.core.Opacity
 import androidx.ui.core.PxSize
 import androidx.ui.core.RepaintBoundary
 import androidx.ui.core.dp
@@ -39,6 +40,7 @@ import androidx.ui.engine.geometry.Shape
 import androidx.ui.framework.test.TestActivity
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Paint
+import androidx.ui.graphics.luminance
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertTrue
@@ -122,6 +124,33 @@ class DrawShadowTest {
 
         takeScreenShot(12).apply {
             assertEquals(color(5, 11), Color.White)
+        }
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun opacityAppliedForTheShadow() {
+        rule.runOnUiThreadIR {
+            activity.setContent {
+                AtLeastSize(size = 12.ipx) {
+                    FillColor(Color.White)
+                    Opacity(0.1f) {
+                        AtLeastSize(size = 10.ipx) {
+                            DrawShadow(rectShape, 4.dp)
+                        }
+                    }
+                }
+            }
+        }
+
+        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
+        takeScreenShot(12).apply {
+            val shadowColor = color(width / 2, height - 1)
+            // assert the shadow is still visible
+            assertNotEquals(shadowColor, Color.White)
+            // but the shadow is not as dark as it would be without opacity.
+            // with full opacity it is around 0.85, with 10% opacity it is 0.98
+            assertTrue(shadowColor.luminance() > 0.95f)
         }
     }
 
