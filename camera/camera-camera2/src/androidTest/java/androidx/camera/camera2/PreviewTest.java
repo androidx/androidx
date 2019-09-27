@@ -25,6 +25,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 
+import android.Manifest;
 import android.app.Instrumentation;
 import android.content.Context;
 import android.graphics.Rect;
@@ -36,6 +37,7 @@ import android.view.Surface;
 
 import androidx.annotation.NonNull;
 import androidx.camera.core.AppConfig;
+import androidx.camera.core.BaseCamera;
 import androidx.camera.core.CameraControlInternal;
 import androidx.camera.core.CameraFactory;
 import androidx.camera.core.CameraX;
@@ -47,19 +49,25 @@ import androidx.camera.core.Preview.OnPreviewOutputUpdateListener;
 import androidx.camera.core.Preview.PreviewOutput;
 import androidx.camera.core.PreviewConfig;
 import androidx.camera.core.SessionConfig;
+import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.camera.testing.CameraUtil;
 import androidx.camera.testing.fakes.FakeCameraControl;
 import androidx.camera.testing.fakes.FakeLifecycleOwner;
 import androidx.test.annotation.UiThreadTest;
 import androidx.test.core.app.ApplicationProvider;
+import androidx.test.espresso.core.internal.deps.guava.base.Preconditions;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.FlakyTest;
+import androidx.test.filters.LargeTest;
 import androidx.test.filters.MediumTest;
-import androidx.test.filters.SmallTest;
 import androidx.test.platform.app.InstrumentationRegistry;
+import androidx.test.rule.GrantPermissionRule;
+
+import com.google.common.util.concurrent.ListenableFuture;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
@@ -71,12 +79,18 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.FutureTask;
+import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-@SmallTest
+@LargeTest
 @RunWith(AndroidJUnit4.class)
 public final class PreviewTest {
+
+    @Rule
+    public GrantPermissionRule mRuntimePermissionRule = GrantPermissionRule.grant(
+            Manifest.permission.CAMERA);
+
     // Use most supported resolution for different supported hardware level devices,
     // especially for legacy devices.
     private static final Size DEFAULT_RESOLUTION = new Size(640, 480);
@@ -89,10 +103,32 @@ public final class PreviewTest {
             mock(Preview.OnPreviewOutputUpdateListener.class);
 
     private final Instrumentation mInstrumentation = InstrumentationRegistry.getInstrumentation();
+
+    private BaseCamera mCamera;
+
     private PreviewConfig mDefaultConfig;
     @Mock
     private OnPreviewOutputUpdateListener mMockListener;
     private String mCameraId;
+    private Semaphore mSurfaceFutureSemaphore;
+    private Preview.PreviewSurfaceCallback mPreviewSurfaceCallbackWithFrameAvailableListener =
+            new Preview.PreviewSurfaceCallback() {
+                @NonNull
+                @Override
+                public ListenableFuture<Surface> getSurface(@NonNull Size resolution,
+                        int imageFormat) {
+                    Preconditions.checkNotNull(mSurfaceFutureSemaphore);
+                    SurfaceTexture surfaceTexture = new SurfaceTexture(0);
+                    surfaceTexture.setDefaultBufferSize(resolution.getWidth(),
+                            resolution.getHeight());
+                    surfaceTexture.detachFromGLContext();
+                    surfaceTexture.setOnFrameAvailableListener(
+                            surfaceTexture1 -> mSurfaceFutureSemaphore.release());
+                    mSurface = new Surface(surfaceTexture);
+                    return Futures.immediateFuture(mSurface);
+                }
+            };
+    private Surface mSurface;
 
     @Before
     public void setUp() {
@@ -109,6 +145,7 @@ public final class PreviewTest {
                     "Unable to attach to camera with LensFacing " + LensFacing.BACK, e);
         }
         CameraX.init(context, appConfig);
+        mCamera = cameraFactory.getCamera(mCameraId);
 
         // init CameraX before creating Preview to get preview size with CameraX's context
         mDefaultConfig = Preview.DEFAULT_CONFIG.getConfig(LensFacing.BACK);
@@ -120,6 +157,12 @@ public final class PreviewTest {
 
         // Ensure all cameras are released for the next test
         CameraX.deinit().get();
+        if (mCamera != null) {
+            mCamera.release().get();
+        }
+        if (mSurface != null) {
+            mSurface.release();
+        }
     }
 
     @Test
@@ -411,6 +454,44 @@ public final class PreviewTest {
                 mock(OnPreviewOutputUpdateListener.class));
 
         verify(mockExecutor, timeout(1000)).execute(any(Runnable.class));
+    }
+
+    @Test
+    public void updateSuggestedResolution_getsFrame() throws InterruptedException {
+        mSurfaceFutureSemaphore = new Semaphore(/*permits=*/ 0);
+
+        mInstrumentation.runOnMainSync(() -> {
+            // Arrange.
+            Preview preview = new Preview(mDefaultConfig);
+            preview.setPreviewSurfaceCallback(mPreviewSurfaceCallbackWithFrameAvailableListener);
+
+            // Act.
+            preview.updateSuggestedResolution(
+                    Collections.singletonMap(mCameraId, DEFAULT_RESOLUTION));
+            CameraUtil.openCameraWithUseCase(mCameraId, mCamera, preview);
+
+        });
+
+        // Assert.
+        assertThat(mSurfaceFutureSemaphore.tryAcquire(10, TimeUnit.SECONDS)).isTrue();
+    }
+
+    @Test
+    public void setPreviewSurfaceCallback_getsFrame() throws InterruptedException {
+        mSurfaceFutureSemaphore = new Semaphore(/*permits=*/ 0);
+        mInstrumentation.runOnMainSync(() -> {
+            // Arrange.
+            Preview preview = new Preview(mDefaultConfig);
+            preview.updateSuggestedResolution(
+                    Collections.singletonMap(mCameraId, DEFAULT_RESOLUTION));
+
+            // Act.
+            preview.setPreviewSurfaceCallback(mPreviewSurfaceCallbackWithFrameAvailableListener);
+            CameraUtil.openCameraWithUseCase(mCameraId, mCamera, preview);
+        });
+
+        // Assert.
+        assertThat(mSurfaceFutureSemaphore.tryAcquire(10, TimeUnit.SECONDS)).isTrue();
     }
 
     @Test
