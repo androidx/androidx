@@ -150,6 +150,13 @@ public class FindAddressTest {
     }
 
     @Test
+    public void testUnicodeNumbersNotAllowed() {
+        Assert.assertNull(FindAddress.findAddress(
+                "80\uD835\uDFEF \uD835\uDFEF\uD835\uDFEFth Avenue Sunnyvale, CA 94089"));
+    }
+
+
+    @Test
     public void testNumberPrefixCases() {
         Assert.assertEquals(
                 FindAddress.findAddress("Cafe 21\n750 Fifth Ave. San Diego, California 92101"),
