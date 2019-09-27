@@ -37,8 +37,8 @@ dependencies {
     implementation(KOTLIN_METADATA_JVM)
     implementation(KOTLIN_STDLIB)
 
-    testImplementation(ANDROIDX_ANNOTATION)
-    testImplementation(ANDROIDX_COLLECTION)
+    testImplementation("androidx.annotation:annotation:1.1.0")
+    testImplementation("androidx.collection:collection:1.0.0")
     testImplementation(GOOGLE_COMPILE_TESTING)
     testImplementation(INTELLIJ_ANNOTATIONS)
     testImplementation(JSR250)

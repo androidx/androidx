@@ -36,7 +36,7 @@ dependencies {
     api(project(":arch:core-runtime"))
     api(ARCH_LIFECYCLE_RUNTIME)
     api(project(":lifecycle:lifecycle-livedata"))
-    api(ANDROIDX_RECYCLERVIEW)
+    api("androidx.recyclerview:recyclerview:1.0.0")
     api(KOTLIN_STDLIB)
     api(KOTLIN_COROUTINES_ANDROID)
 

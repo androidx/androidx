@@ -63,7 +63,7 @@ dependencies {
     androidTestImplementation(WORK_ARCH_ROOM_TESTING)
     api(GUAVA_LISTENABLE_FUTURE)
     api(ARCH_LIFECYCLE_LIVEDATA)
-    implementation(ANDROIDX_CORE)
+    implementation("androidx.core:core:1.0.0")
     implementation(ARCH_LIFECYCLE_SERVICE)
     androidTestImplementation(KOTLIN_STDLIB)
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
