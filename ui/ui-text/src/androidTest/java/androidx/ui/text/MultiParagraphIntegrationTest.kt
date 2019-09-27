@@ -139,8 +139,7 @@ class MultiParagraphIntegrationTest {
         val maxLines = text.lines().size - 1
         val paragraph = simpleMultiParagraph(
             text = text,
-            maxLines = maxLines,
-            constraints = ParagraphConstraints(width = Float.MAX_VALUE)
+            maxLines = maxLines
         )
 
         assertThat(paragraph.didExceedMaxLines).isTrue()
@@ -152,8 +151,7 @@ class MultiParagraphIntegrationTest {
         val maxLines = text.lines().size
         val paragraph = simpleMultiParagraph(
             text = text,
-            maxLines = maxLines,
-            constraints = ParagraphConstraints(width = Float.MAX_VALUE)
+            maxLines = maxLines
         )
 
         assertThat(paragraph.didExceedMaxLines).isFalse()
@@ -165,8 +163,7 @@ class MultiParagraphIntegrationTest {
         val maxLines = text.lines().size + 1
         val paragraph = simpleMultiParagraph(
             text = text,
-            maxLines = maxLines,
-            constraints = ParagraphConstraints(width = Float.MAX_VALUE)
+            maxLines = maxLines
         )
 
         assertThat(paragraph.didExceedMaxLines).isFalse()
@@ -198,8 +195,7 @@ class MultiParagraphIntegrationTest {
         val paragraph = simpleMultiParagraph(
             text = text,
             fontSize = 50.sp,
-            maxLines = maxLines,
-            constraints = ParagraphConstraints(width = Float.MAX_VALUE)
+            maxLines = maxLines
         )
 
         assertThat(paragraph.didExceedMaxLines).isFalse()
@@ -1593,8 +1589,7 @@ class MultiParagraphIntegrationTest {
             val paragraph = simpleMultiParagraph(
                 text = text,
                 fontFamily = fontFamilyMeasureFont,
-                fontSize = fontSize,
-                constraints = ParagraphConstraints(width = Float.MAX_VALUE)
+                fontSize = fontSize
             )
 
             val expectedPath = Path()
@@ -1626,8 +1621,7 @@ class MultiParagraphIntegrationTest {
             val paragraph = simpleMultiParagraph(
                 text = text,
                 fontFamily = fontFamilyMeasureFont,
-                fontSize = fontSize,
-                constraints = ParagraphConstraints(width = Float.MAX_VALUE)
+                fontSize = fontSize
             )
 
             val expectedPath = Path()
@@ -1673,8 +1667,7 @@ class MultiParagraphIntegrationTest {
             val paragraph = simpleMultiParagraph(
                 text = text,
                 fontFamily = fontFamilyMeasureFont,
-                fontSize = fontSize,
-                constraints = ParagraphConstraints(width = Float.MAX_VALUE)
+                fontSize = fontSize
             )
 
             val expectedPath = Path()
@@ -1712,8 +1705,7 @@ class MultiParagraphIntegrationTest {
         val paragraph = simpleMultiParagraph(
             text = text,
             fontFamily = fontFamilyMeasureFont,
-            fontSize = 20.sp,
-            constraints = ParagraphConstraints(width = Float.MAX_VALUE)
+            fontSize = 20.sp
         )
 
         val actualPath = paragraph.getPathForRange(1, 1)
@@ -1727,8 +1719,7 @@ class MultiParagraphIntegrationTest {
         val paragraph = simpleMultiParagraph(
             text = text,
             fontFamily = fontFamilyMeasureFont,
-            fontSize = 20.sp,
-            constraints = ParagraphConstraints(width = Float.MAX_VALUE)
+            fontSize = 20.sp
         )
 
         val actualPath = paragraph.getPathForRange(0, 0)
@@ -1745,8 +1736,7 @@ class MultiParagraphIntegrationTest {
             val paragraph = simpleMultiParagraph(
                 text = text,
                 fontFamily = fontFamilyMeasureFont,
-                fontSize = fontSize,
-                constraints = ParagraphConstraints(width = Float.MAX_VALUE)
+                fontSize = fontSize
             )
 
             val expectedPath = Path()
@@ -1770,8 +1760,7 @@ class MultiParagraphIntegrationTest {
             val paragraph = simpleMultiParagraph(
                 text = text,
                 fontFamily = fontFamilyMeasureFont,
-                fontSize = fontSize,
-                constraints = ParagraphConstraints(width = Float.MAX_VALUE)
+                fontSize = fontSize
             )
 
             val expectedPath = Path()
@@ -1795,8 +1784,7 @@ class MultiParagraphIntegrationTest {
             val paragraph = simpleMultiParagraph(
                 text = text,
                 fontFamily = fontFamilyMeasureFont,
-                fontSize = fontSize,
-                constraints = ParagraphConstraints(width = Float.MAX_VALUE)
+                fontSize = fontSize
             )
 
             val expectedPath = Path()
@@ -1820,8 +1808,7 @@ class MultiParagraphIntegrationTest {
             val paragraph = simpleMultiParagraph(
                 text = text,
                 fontFamily = fontFamilyMeasureFont,
-                fontSize = fontSize,
-                constraints = ParagraphConstraints(width = Float.MAX_VALUE)
+                fontSize = fontSize
             )
 
             val expectedPath = Path()
@@ -1853,8 +1840,7 @@ class MultiParagraphIntegrationTest {
             val paragraph = simpleMultiParagraph(
                 text = text,
                 fontFamily = fontFamilyMeasureFont,
-                fontSize = fontSize,
-                constraints = ParagraphConstraints(width = Float.MAX_VALUE)
+                fontSize = fontSize
             )
 
             val expectedPath = Path()
@@ -1879,8 +1865,7 @@ class MultiParagraphIntegrationTest {
             val paragraph = simpleMultiParagraph(
                 text = text,
                 fontFamily = fontFamilyMeasureFont,
-                fontSize = fontSize,
-                constraints = ParagraphConstraints(width = Float.MAX_VALUE)
+                fontSize = fontSize
             )
 
             val expectedPath = Path()
@@ -1902,8 +1887,7 @@ class MultiParagraphIntegrationTest {
         val paragraph = simpleMultiParagraph(
             text = text,
             fontFamily = fontFamilyMeasureFont,
-            fontSize = 20.sp,
-            constraints = ParagraphConstraints(width = Float.MAX_VALUE)
+            fontSize = 20.sp
         )
 
         val result = paragraph.getWordBoundary(text.indexOf('a'))
@@ -1918,8 +1902,7 @@ class MultiParagraphIntegrationTest {
         val paragraph = simpleMultiParagraph(
             text = text,
             fontFamily = fontFamilyMeasureFont,
-            fontSize = 20.sp,
-            constraints = ParagraphConstraints(width = Float.MAX_VALUE)
+            fontSize = 20.sp
         )
 
         val resultEnglish = paragraph.getWordBoundary(text.indexOf('a'))
@@ -1936,10 +1919,7 @@ class MultiParagraphIntegrationTest {
         val text = "ab"
         val textStart = 0
         val textEnd = text.length
-        val paragraph = simpleMultiParagraph(
-            text = text,
-            constraints = ParagraphConstraints(Float.MAX_VALUE)
-        )
+        val paragraph = simpleMultiParagraph(text = text)
 
         paragraph.getPathForRange(textEnd, textStart)
     }
@@ -1949,10 +1929,7 @@ class MultiParagraphIntegrationTest {
         val text = "ab"
         val textStart = 0
         val textEnd = text.length
-        val paragraph = simpleMultiParagraph(
-            text = text,
-            constraints = ParagraphConstraints(Float.MAX_VALUE)
-        )
+        val paragraph = simpleMultiParagraph(text = text)
 
         paragraph.getPathForRange(textStart - 2, textEnd - 1)
     }
@@ -1962,10 +1939,7 @@ class MultiParagraphIntegrationTest {
         val text = "ab"
         val textStart = 0
         val textEnd = text.length
-        val paragraph = simpleMultiParagraph(
-            text = text,
-            constraints = ParagraphConstraints(Float.MAX_VALUE)
-        )
+        val paragraph = simpleMultiParagraph(text = text)
 
         paragraph.getPathForRange(textStart, textEnd + 1)
     }
@@ -2340,8 +2314,7 @@ class MultiParagraphIntegrationTest {
                 text = text,
                 textIndent = TextIndent(firstLine = indent.px),
                 fontSize = fontSize,
-                fontFamily = fontFamilyMeasureFont,
-                constraints = ParagraphConstraints(width = Float.MAX_VALUE)
+                fontFamily = fontFamilyMeasureFont
             )
 
             // This position should point to the first character 'a' if indent is applied.
@@ -2418,7 +2391,7 @@ class MultiParagraphIntegrationTest {
         fontFamily: FontFamily = fontFamilyMeasureFont,
         localeList: LocaleList? = null,
         textStyle: TextStyle? = null,
-        constraints: ParagraphConstraints,
+        constraints: ParagraphConstraints = ParagraphConstraints(width = Float.MAX_VALUE),
         density: Density? = null,
         textDirectionAlgorithm: TextDirectionAlgorithm? = TextDirectionAlgorithm.ContentOrLtr
     ): MultiParagraph {

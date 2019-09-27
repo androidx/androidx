@@ -554,8 +554,7 @@ class ParagraphIntegrationTest {
             val fontSizeInPx = fontSize.toPx().value
             val paragraph = simpleParagraph(
                 text = text,
-                fontSize = fontSize,
-                constraints = ParagraphConstraints(width = Float.MAX_VALUE)
+                fontSize = fontSize
             )
 
             // Cursor before '\n'
@@ -588,8 +587,7 @@ class ParagraphIntegrationTest {
             val fontSizeInPx = fontSize.toPx().value
             val paragraph = simpleParagraph(
                 text = text,
-                fontSize = fontSize,
-                constraints = ParagraphConstraints(width = Float.MAX_VALUE)
+                fontSize = fontSize
             )
 
             // Cursor before '\n'
@@ -1577,8 +1575,7 @@ class ParagraphIntegrationTest {
         simpleParagraph(
             text = "",
             fontSize = 10.sp,
-            maxLines = 0,
-            constraints = ParagraphConstraints(width = Float.MAX_VALUE)
+            maxLines = 0
         )
     }
 
@@ -1587,8 +1584,7 @@ class ParagraphIntegrationTest {
         simpleParagraph(
             text = "",
             fontSize = 10.sp,
-            maxLines = -1,
-            constraints = ParagraphConstraints(width = Float.MAX_VALUE)
+            maxLines = -1
         )
     }
 
@@ -1603,8 +1599,7 @@ class ParagraphIntegrationTest {
             val paragraph = simpleParagraph(
                 text = text,
                 fontSize = fontSize,
-                maxLines = maxLines,
-                constraints = ParagraphConstraints(width = Float.MAX_VALUE)
+                maxLines = maxLines
             )
 
             val expectHeight = (maxLines + (maxLines - 1) * 0.2f) * fontSizeInPx
@@ -1623,8 +1618,7 @@ class ParagraphIntegrationTest {
             val paragraph = simpleParagraph(
                 text = text,
                 fontSize = fontSize,
-                maxLines = maxLines,
-                constraints = ParagraphConstraints(width = Float.MAX_VALUE)
+                maxLines = maxLines
             )
 
             val expectFirstBaseline = 0.8f * fontSizeInPx
@@ -1645,8 +1639,7 @@ class ParagraphIntegrationTest {
             val paragraph = simpleParagraph(
                 text = text,
                 fontSize = fontSize,
-                maxLines = maxLines,
-                constraints = ParagraphConstraints(width = Float.MAX_VALUE)
+                maxLines = maxLines
             )
 
             val expectHeight = (maxLines + (maxLines - 1) * 0.2f) * fontSizeInPx
@@ -1722,8 +1715,7 @@ class ParagraphIntegrationTest {
         val maxLines = text.lines().size - 1
         val paragraph = simpleParagraph(
             text = text,
-            maxLines = maxLines,
-            constraints = ParagraphConstraints(width = Float.MAX_VALUE)
+            maxLines = maxLines
         )
 
         assertThat(paragraph.didExceedMaxLines).isTrue()
@@ -1735,8 +1727,7 @@ class ParagraphIntegrationTest {
         val maxLines = text.lines().size
         val paragraph = simpleParagraph(
             text = text,
-            maxLines = maxLines,
-            constraints = ParagraphConstraints(width = Float.MAX_VALUE)
+            maxLines = maxLines
         )
 
         assertThat(paragraph.didExceedMaxLines).isFalse()
@@ -1748,8 +1739,7 @@ class ParagraphIntegrationTest {
         val maxLines = text.lines().size + 1
         val paragraph = simpleParagraph(
             text = text,
-            maxLines = maxLines,
-            constraints = ParagraphConstraints(width = Float.MAX_VALUE)
+            maxLines = maxLines
         )
 
         assertThat(paragraph.didExceedMaxLines).isFalse()
@@ -1781,8 +1771,7 @@ class ParagraphIntegrationTest {
         val paragraph = simpleParagraph(
             text = text,
             fontSize = 50.sp,
-            maxLines = maxLines,
-            constraints = ParagraphConstraints(width = Float.MAX_VALUE)
+            maxLines = maxLines
         )
 
         assertThat(paragraph.didExceedMaxLines).isFalse()
@@ -2256,8 +2245,7 @@ class ParagraphIntegrationTest {
             val paragraph = simpleParagraph(
                 text = text,
                 textStyles = listOf(AnnotatedString.Item(textStyle, 0, text.length)),
-                fontSize = fontSize,
-                constraints = ParagraphConstraints(width = Float.MAX_VALUE)
+                fontSize = fontSize
             )
 
             assertThat(paragraph.getLineRight(0))
@@ -2283,8 +2271,7 @@ class ParagraphIntegrationTest {
                     AnnotatedString.Item(textStyle, 0, text.length),
                     AnnotatedString.Item(textStyleNested, 0, text.length)
                 ),
-                fontSize = fontSize,
-                constraints = ParagraphConstraints(width = Float.MAX_VALUE)
+                fontSize = fontSize
             )
 
             assertThat(paragraph.getLineRight(0))
@@ -2311,8 +2298,7 @@ class ParagraphIntegrationTest {
                     AnnotatedString.Item(fontSizeStyle, 0, text.length),
                     AnnotatedString.Item(fontSizeScaleStyle, 0, text.length)
                 ),
-                fontSize = paragraphFontSize,
-                constraints = ParagraphConstraints(width = Float.MAX_VALUE)
+                fontSize = paragraphFontSize
             )
 
             assertThat(paragraph.getLineRight(0))
@@ -2339,8 +2325,7 @@ class ParagraphIntegrationTest {
                     AnnotatedString.Item(fontSizeScaleStyle, 0, text.length),
                     AnnotatedString.Item(fontSizeStyle, 0, text.length)
                 ),
-                fontSize = paragraphFontSize,
-                constraints = ParagraphConstraints(width = Float.MAX_VALUE)
+                fontSize = paragraphFontSize
             )
 
             assertThat(paragraph.getLineRight(0)).isEqualTo(text.length * fontSizeInPx)
@@ -2370,8 +2355,7 @@ class ParagraphIntegrationTest {
                     AnnotatedString.Item(fontSizeStyle, 0, text.length),
                     AnnotatedString.Item(fontSizeScaleStyle2, 0, text.length)
                 ),
-                fontSize = paragraphFontSize,
-                constraints = ParagraphConstraints(width = Float.MAX_VALUE)
+                fontSize = paragraphFontSize
             )
 
             assertThat(paragraph.getLineRight(0))
@@ -2474,8 +2458,7 @@ class ParagraphIntegrationTest {
                 text = text,
                 textIndent = TextIndent(firstLine = indent.px),
                 fontSize = fontSize,
-                fontFamily = fontFamilyMeasureFont,
-                constraints = ParagraphConstraints(width = Float.MAX_VALUE)
+                fontFamily = fontFamilyMeasureFont
             )
 
             // This position should point to the first character 'a' if indent is applied.
@@ -2562,8 +2545,7 @@ class ParagraphIntegrationTest {
                     AnnotatedString.Item(textStyle, "a".length, text.length)
                 ),
                 fontSize = fontSize,
-                fontFamily = fontFamilyCustom100,
-                constraints = ParagraphConstraints(width = Float.MAX_VALUE)
+                fontFamily = fontFamilyCustom100
             )
 
             assertThat(paragraph.lineCount).isEqualTo(1)
@@ -2586,8 +2568,7 @@ class ParagraphIntegrationTest {
                     AnnotatedString.Item(textStyle, 0, "aA".length)
                 ),
                 fontSize = fontSize,
-                fontFamily = fontFamilyKernFont,
-                constraints = ParagraphConstraints(width = Float.MAX_VALUE)
+                fontFamily = fontFamilyKernFont
             )
 
             // Two characters are kerning, so minus 0.4 * fontSize
@@ -2671,8 +2652,7 @@ class ParagraphIntegrationTest {
             val paragraph = simpleParagraph(
                 text = text,
                 textStyle = textStyle,
-                fontSize = fontSize,
-                constraints = ParagraphConstraints(Float.MAX_VALUE)
+                fontSize = fontSize
             )
 
             assertThat(paragraph.getLineRight(0))
@@ -2689,8 +2669,7 @@ class ParagraphIntegrationTest {
             val paragraph = simpleParagraph(
                 text = text,
                 fontFamily = fontFamilyMeasureFont,
-                fontSize = fontSize,
-                constraints = ParagraphConstraints(width = Float.MAX_VALUE)
+                fontSize = fontSize
             )
 
             val expectedPath = Path()
@@ -2722,8 +2701,7 @@ class ParagraphIntegrationTest {
             val paragraph = simpleParagraph(
                 text = text,
                 fontFamily = fontFamilyMeasureFont,
-                fontSize = fontSize,
-                constraints = ParagraphConstraints(width = Float.MAX_VALUE)
+                fontSize = fontSize
             )
 
             val expectedPath = Path()
@@ -2769,8 +2747,7 @@ class ParagraphIntegrationTest {
             val paragraph = simpleParagraph(
                 text = text,
                 fontFamily = fontFamilyMeasureFont,
-                fontSize = fontSize,
-                constraints = ParagraphConstraints(width = Float.MAX_VALUE)
+                fontSize = fontSize
             )
 
             val expectedPath = Path()
@@ -2808,8 +2785,7 @@ class ParagraphIntegrationTest {
         val paragraph = simpleParagraph(
             text = text,
             fontFamily = fontFamilyMeasureFont,
-            fontSize = 20.sp,
-            constraints = ParagraphConstraints(width = Float.MAX_VALUE)
+            fontSize = 20.sp
         )
 
         val actualPath = paragraph.getPathForRange(1, 1)
@@ -2823,8 +2799,7 @@ class ParagraphIntegrationTest {
         val paragraph = simpleParagraph(
             text = text,
             fontFamily = fontFamilyMeasureFont,
-            fontSize = 20.sp,
-            constraints = ParagraphConstraints(width = Float.MAX_VALUE)
+            fontSize = 20.sp
         )
 
         val actualPath = paragraph.getPathForRange(0, 0)
@@ -2841,8 +2816,7 @@ class ParagraphIntegrationTest {
             val paragraph = simpleParagraph(
                 text = text,
                 fontFamily = fontFamilyMeasureFont,
-                fontSize = fontSize,
-                constraints = ParagraphConstraints(width = Float.MAX_VALUE)
+                fontSize = fontSize
             )
 
             val expectedPath = Path()
@@ -2866,8 +2840,7 @@ class ParagraphIntegrationTest {
             val paragraph = simpleParagraph(
                 text = text,
                 fontFamily = fontFamilyMeasureFont,
-                fontSize = fontSize,
-                constraints = ParagraphConstraints(width = Float.MAX_VALUE)
+                fontSize = fontSize
             )
 
             val expectedPath = Path()
@@ -2891,8 +2864,7 @@ class ParagraphIntegrationTest {
             val paragraph = simpleParagraph(
                 text = text,
                 fontFamily = fontFamilyMeasureFont,
-                fontSize = fontSize,
-                constraints = ParagraphConstraints(width = Float.MAX_VALUE)
+                fontSize = fontSize
             )
 
             val expectedPath = Path()
@@ -2916,8 +2888,7 @@ class ParagraphIntegrationTest {
             val paragraph = simpleParagraph(
                 text = text,
                 fontFamily = fontFamilyMeasureFont,
-                fontSize = fontSize,
-                constraints = ParagraphConstraints(width = Float.MAX_VALUE)
+                fontSize = fontSize
             )
 
             val expectedPath = Path()
@@ -2949,8 +2920,7 @@ class ParagraphIntegrationTest {
             val paragraph = simpleParagraph(
                 text = text,
                 fontFamily = fontFamilyMeasureFont,
-                fontSize = fontSize,
-                constraints = ParagraphConstraints(width = Float.MAX_VALUE)
+                fontSize = fontSize
             )
 
             val expectedPath = Path()
@@ -2975,8 +2945,7 @@ class ParagraphIntegrationTest {
             val paragraph = simpleParagraph(
                 text = text,
                 fontFamily = fontFamilyMeasureFont,
-                fontSize = fontSize,
-                constraints = ParagraphConstraints(width = Float.MAX_VALUE)
+                fontSize = fontSize
             )
 
             val expectedPath = Path()
@@ -2998,8 +2967,7 @@ class ParagraphIntegrationTest {
         val paragraph = simpleParagraph(
             text = text,
             fontFamily = fontFamilyMeasureFont,
-            fontSize = 20.sp,
-            constraints = ParagraphConstraints(width = Float.MAX_VALUE)
+            fontSize = 20.sp
         )
 
         val result = paragraph.getWordBoundary(text.indexOf('a'))
@@ -3014,8 +2982,7 @@ class ParagraphIntegrationTest {
         val paragraph = simpleParagraph(
             text = text,
             fontFamily = fontFamilyMeasureFont,
-            fontSize = 20.sp,
-            constraints = ParagraphConstraints(width = Float.MAX_VALUE)
+            fontSize = 20.sp
         )
 
         val resultEnglish = paragraph.getWordBoundary(text.indexOf('a'))
@@ -3036,15 +3003,13 @@ class ParagraphIntegrationTest {
         val paragraph = simpleParagraph(
             text = text,
             textStyle = TextStyle(fontSize = fontSize),
-            density = Density(density = 1f, fontScale = 1f),
-            constraints = ParagraphConstraints(width = Float.MAX_VALUE)
+            density = Density(density = 1f, fontScale = 1f)
         )
 
         val doubleFontSizeParagraph = simpleParagraph(
             text = text,
             textStyle = TextStyle(fontSize = fontSize),
-            density = Density(density = 1f, fontScale = densityMultiplier),
-            constraints = ParagraphConstraints(width = Float.MAX_VALUE)
+            density = Density(density = 1f, fontScale = densityMultiplier)
         )
 
         assertThat(doubleFontSizeParagraph.maxIntrinsicWidth)
@@ -3059,8 +3024,7 @@ class ParagraphIntegrationTest {
             val text = "b "
             val paragraph = simpleParagraph(
                 text = text,
-                textStyle = TextStyle(fontSize = fontSize),
-                constraints = ParagraphConstraints(Float.MAX_VALUE)
+                textStyle = TextStyle(fontSize = fontSize)
             )
 
             val expectedWidth = text.length * fontSize.toPx().value
@@ -3079,8 +3043,7 @@ class ParagraphIntegrationTest {
             val fontSize = 12.sp
             val paragraph = simpleParagraph(
                 text = text,
-                textStyle = TextStyle(fontSize = fontSize),
-                constraints = ParagraphConstraints(Float.MAX_VALUE)
+                textStyle = TextStyle(fontSize = fontSize)
             )
 
             // +1 is for the white space
@@ -3102,8 +3065,7 @@ class ParagraphIntegrationTest {
                     AnnotatedString.Item(
                         TextStyle(fontSize = styledFontSize), "a".length, "a bb ".length
                     )
-                ),
-                constraints = ParagraphConstraints(Float.MAX_VALUE)
+                )
             )
 
             val expectedWidth = "bb ".length * styledFontSize.toPx().value
@@ -3116,10 +3078,7 @@ class ParagraphIntegrationTest {
         val text = "ab"
         val textStart = 0
         val textEnd = text.length
-        val paragraph = simpleParagraph(
-            text = text,
-            constraints = ParagraphConstraints(Float.MAX_VALUE)
-        )
+        val paragraph = simpleParagraph(text = text)
 
         paragraph.getPathForRange(textEnd, textStart)
     }
@@ -3129,10 +3088,7 @@ class ParagraphIntegrationTest {
         val text = "ab"
         val textStart = 0
         val textEnd = text.length
-        val paragraph = simpleParagraph(
-            text = text,
-            constraints = ParagraphConstraints(Float.MAX_VALUE)
-        )
+        val paragraph = simpleParagraph(text = text)
 
         paragraph.getPathForRange(textStart - 2, textEnd - 1)
     }
@@ -3142,10 +3098,7 @@ class ParagraphIntegrationTest {
         val text = "ab"
         val textStart = 0
         val textEnd = text.length
-        val paragraph = simpleParagraph(
-            text = text,
-            constraints = ParagraphConstraints(Float.MAX_VALUE)
-        )
+        val paragraph = simpleParagraph(text = text)
 
         paragraph.getPathForRange(textStart, textEnd + 1)
     }
@@ -3212,7 +3165,7 @@ class ParagraphIntegrationTest {
         textStyle: TextStyle? = null,
         density: Density? = null,
         textDirectionAlgorithm: TextDirectionAlgorithm? = TextDirectionAlgorithm.ContentOrLtr,
-        constraints: ParagraphConstraints
+        constraints: ParagraphConstraints = ParagraphConstraints(Float.MAX_VALUE)
     ): Paragraph {
         return Paragraph(
             text = text,
