@@ -46,9 +46,7 @@ dependencies {
     api(KOTLIN_STDLIB)
     api(KOTLIN_COROUTINES_ANDROID)
 
-    androidTestImplementation project(':concurrent:concurrent-futures'), {
-    	exclude group: 'androidx.annotation'
-    }
+    androidTestImplementation("androidx.concurrent:concurrent-futures:1.0.0")
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
     androidTestImplementation(ANDROIDX_TEST_CORE)
     androidTestImplementation(ANDROIDX_TEST_RUNNER)
