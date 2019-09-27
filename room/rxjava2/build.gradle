@@ -29,7 +29,6 @@ dependencies {
     api(project(":room:room-common"))
     api(project(":room:room-runtime"))
     implementation("androidx.arch.core:core-runtime:2.0.1")
-    api("androidx.legacy:legacy-support-core-utils:1.0.0")
     api(RX_JAVA)
 
     testImplementation(JUNIT)
