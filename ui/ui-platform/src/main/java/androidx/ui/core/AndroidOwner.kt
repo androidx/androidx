@@ -887,7 +887,9 @@ private class RepaintBoundaryRenderNode(
             }
             field = value
         }
-    val renderNode = RenderNode(repaintBoundaryNode.name)
+    val renderNode = RenderNode(repaintBoundaryNode.name).apply {
+        setHasOverlappingRendering(true)
+    }
     private val outline = android.graphics.Outline()
     private val density = Density(ownerView.context)
     private val outlineResolver = OutlineResolver(density)
