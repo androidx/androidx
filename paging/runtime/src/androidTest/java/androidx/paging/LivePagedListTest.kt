@@ -85,7 +85,7 @@ class LivePagedListTest {
             }
         }
 
-        private val pagedSource = PagedSourceWrapper(dataSource)
+        private val pagedSource = LegacyPagedSource(dataSource)
 
         private val pagedSourceFactory = { pagedSource }
 

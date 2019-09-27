@@ -48,11 +48,11 @@ import kotlinx.coroutines.withContext
  * @param Value Item type being presented.
  *
  * @constructor Creates a [RxPagedListBuilder] with required parameters.
- * @param pageSourceFactory DataSource factory providing DataSource generations.
+ * @param pagedSourceFactory DataSource factory providing DataSource generations.
  * @param config Paging configuration.
  */
 class RxPagedListBuilder<Key : Any, Value : Any>(
-    private val pageSourceFactory: PagedSourceFactory<Key, Value>,
+    private val pagedSourceFactory: PagedSourceFactory<Key, Value>,
     private val config: PagedList.Config
 ) {
     private var initialLoadKey: Key? = null
@@ -87,7 +87,7 @@ class RxPagedListBuilder<Key : Any, Value : Any>(
      * @param config Paging configuration.
      */
     constructor(dataSourceFactory: DataSource.Factory<Key, Value>, config: PagedList.Config) : this(
-        { PagedSourceWrapper(dataSourceFactory.create()) },
+        dataSourceFactory.asPagedSourceFactory(),
         config
     )
 
@@ -205,7 +205,7 @@ class RxPagedListBuilder<Key : Any, Value : Any>(
                     initialLoadKey,
                     config,
                     boundaryCallback,
-                    pageSourceFactory,
+                    pagedSourceFactory,
                     notifyDispatcher!!,
                     fetchDispatcher!!
                 )
@@ -228,7 +228,7 @@ class RxPagedListBuilder<Key : Any, Value : Any>(
     }
 
     internal class PagingObservableOnSubscribe<Key : Any, Value : Any>(
-        private val initialLoadKey: Key?,
+        initialLoadKey: Key?,
         private val config: PagedList.Config,
         private val boundaryCallback: PagedList.BoundaryCallback<Value>?,
         private val pagedSourceFactory: PagedSourceFactory<Key, Value>,

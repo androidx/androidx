@@ -350,7 +350,7 @@ open class AsyncPagedListDiffer<T : Any> {
                         newSnapshot,
                         result,
                         recordingCallback,
-                        oldSnapshot.lastLoad,
+                        oldSnapshot.lastLoad(),
                         commitCallback
                     )
                 }

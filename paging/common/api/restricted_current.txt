@@ -19,6 +19,7 @@ package androidx.paging {
 
   public abstract static class DataSource.Factory<Key, Value> {
     ctor public DataSource.Factory();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final kotlin.jvm.functions.Function0<androidx.paging.PagedSource<Key,Value>> asPagedSourceFactory();
     method public abstract androidx.paging.DataSource<Key,Value> create();
     method public <ToValue> androidx.paging.DataSource.Factory<Key,ToValue> map(androidx.arch.core.util.Function<Value,ToValue> function);
     method public <ToValue> androidx.paging.DataSource.Factory<Key,ToValue> map(kotlin.jvm.functions.Function1<? super Value,? extends ToValue> function);
@@ -72,6 +73,11 @@ package androidx.paging {
     ctor public ItemKeyedDataSource.LoadParams(Key key, int requestedLoadSize);
     field public final Key key;
     field public final int requestedLoadSize;
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class LegacyPagedSource<Key, Value> extends androidx.paging.PagedSource<Key,Value> {
+    ctor public LegacyPagedSource(internal androidx.paging.DataSource<Key,Value> dataSource);
+    method public suspend Object load(androidx.paging.PagedSource.LoadParams<Key> params, kotlin.coroutines.Continuation<? super androidx.paging.PagedSource.LoadResult<Key,Value>> p);
   }
 
   public abstract sealed class LoadState {
@@ -165,6 +171,7 @@ package androidx.paging {
     method public int getSize();
     method public abstract boolean isDetached();
     method public boolean isImmutable();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final int lastLoad();
     method public final void loadAround(int index);
     method public final void removeWeakCallback(androidx.paging.PagedList.Callback callback);
     method public final void removeWeakLoadStateListener(kotlin.jvm.functions.Function2<? super androidx.paging.LoadType,? super androidx.paging.LoadState,kotlin.Unit> listener);
@@ -260,29 +267,12 @@ package androidx.paging {
   public abstract class PagedSource<Key, Value> {
     ctor public PagedSource();
     method public final boolean getInvalid();
-    method public androidx.paging.PagedSource.KeyProvider<Key,Value> getKeyProvider();
+    method public Key? getRefreshKeyFromPage(int indexInPage, androidx.paging.PagedSource.LoadResult.Page<Key,Value> page);
     method public void invalidate();
     method public abstract suspend Object load(androidx.paging.PagedSource.LoadParams<Key> params, kotlin.coroutines.Continuation<? super androidx.paging.PagedSource.LoadResult<Key,Value>> p);
     method public final void registerInvalidatedCallback(kotlin.jvm.functions.Function0<kotlin.Unit> onInvalidatedCallback);
     method public final void unregisterInvalidatedCallback(kotlin.jvm.functions.Function0<kotlin.Unit> onInvalidatedCallback);
     property public final boolean invalid;
-    property public androidx.paging.PagedSource.KeyProvider<Key,Value> keyProvider;
-  }
-
-  public abstract static sealed class PagedSource.KeyProvider<Key, Value> {
-  }
-
-  public abstract static class PagedSource.KeyProvider.ItemKey<Key, Value> extends androidx.paging.PagedSource.KeyProvider<Key,Value> {
-    ctor public PagedSource.KeyProvider.ItemKey();
-    method public abstract Key getKey(Value item);
-  }
-
-  public static final class PagedSource.KeyProvider.PageKey<Key, Value> extends androidx.paging.PagedSource.KeyProvider<Key,Value> {
-    ctor public PagedSource.KeyProvider.PageKey();
-  }
-
-  public static final class PagedSource.KeyProvider.Positional extends androidx.paging.PagedSource.KeyProvider<java.lang.Integer,java.lang.Object> {
-    field public static final androidx.paging.PagedSource.KeyProvider.Positional! INSTANCE;
   }
 
   public static final class PagedSource.LoadParams<Key> {
@@ -311,13 +301,13 @@ package androidx.paging {
   }
 
   public static final class PagedSource.LoadResult.Page<Key, Value> extends androidx.paging.PagedSource.LoadResult<Key,Value> {
-    ctor public PagedSource.LoadResult.Page(java.util.List<? extends Value> data, @IntRange(from=null) int itemsBefore, @IntRange(from=null) int itemsAfter, Key? nextKey, Key? prevKey);
+    ctor public PagedSource.LoadResult.Page(java.util.List<? extends Value> data, Key? prevKey, Key? nextKey, @IntRange(from=null) int itemsBefore, @IntRange(from=null) int itemsAfter);
     method public java.util.List<Value> component1();
-    method public int component2();
-    method public int component3();
-    method public Key? component4();
-    method public Key? component5();
-    method public androidx.paging.PagedSource.LoadResult.Page<Key,Value> copy(java.util.List<? extends Value> data, int itemsBefore, int itemsAfter, Key? nextKey, Key? prevKey);
+    method public Key? component2();
+    method public Key? component3();
+    method public int component4();
+    method public int component5();
+    method public androidx.paging.PagedSource.LoadResult.Page<Key,Value> copy(java.util.List<? extends Value> data, Key? prevKey, Key? nextKey, int itemsBefore, int itemsAfter);
     method public java.util.List<Value> getData();
     method public int getItemsAfter();
     method public int getItemsBefore();
@@ -333,12 +323,6 @@ package androidx.paging {
   public final class PagedSourceKt {
     ctor public PagedSourceKt();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static <Key> androidx.paging.PagedSource.LoadParams<Key> toRefreshLoadParams(androidx.paging.PagedList.Config, Key? key);
-  }
-
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class PagedSourceWrapper<Key, Value> extends androidx.paging.PagedSource<Key,Value> {
-    ctor public PagedSourceWrapper(internal androidx.paging.DataSource<Key,Value> dataSource);
-    method public suspend Object load(androidx.paging.PagedSource.LoadParams<Key> params, kotlin.coroutines.Continuation<? super androidx.paging.PagedSource.LoadResult<Key,Value>> p);
-    property public androidx.paging.PagedSource.KeyProvider<Key,Value> keyProvider;
   }
 
   public abstract class PositionalDataSource<T> extends androidx.paging.DataSource<java.lang.Integer,T> {

@@ -108,10 +108,8 @@ class LivePagedListBuilderTest {
         }
 
         private inner class MockPagedSource : PagedSource<Int, String>() {
-            override val keyProvider = KeyProvider.Positional
-
             override suspend fun load(params: LoadParams<Int>) = when (params.loadType) {
-                LoadType.REFRESH -> loadInitial(params)
+                REFRESH -> loadInitial(params)
                 else -> loadRange()
             }
 
@@ -126,13 +124,20 @@ class LivePagedListBuilderTest {
                 val data = listOf("a", "b")
                 return LoadResult.Page(
                     data = data,
+                    prevKey = null,
+                    nextKey = 2,
                     itemsBefore = 0,
-                    itemsAfter = 4 - data.size
+                    itemsAfter = 2
                 )
             }
 
             private fun loadRange(): LoadResult<Int, String> {
-                return LoadResult.Page(listOf("c", "d"))
+                val data = listOf("c", "d")
+                return LoadResult.Page(
+                    data = data,
+                    prevKey = 2,
+                    nextKey = null
+                )
             }
         }
     }

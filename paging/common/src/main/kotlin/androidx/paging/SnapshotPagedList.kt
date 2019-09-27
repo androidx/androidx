@@ -21,10 +21,6 @@ internal class SnapshotPagedList<T : Any>(private val pagedList: PagedList<T>) :
     pagedList.storage.snapshot(),
     pagedList.config
 ) {
-    init {
-        lastLoad = pagedList.lastLoad
-    }
-
     override val isImmutable = true
 
     override val lastKey

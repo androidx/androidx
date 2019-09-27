@@ -21,13 +21,11 @@ import androidx.paging.PagedSource.LoadResult
 import androidx.paging.PagedSource.LoadResult.Page.Companion.COUNT_UNDEFINED
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertSame
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import kotlin.test.assertFailsWith
-import kotlin.test.fail
 
 @RunWith(JUnit4::class)
 class PagedSourceTest {
@@ -55,7 +53,7 @@ class PagedSourceTest {
     fun loadInitial() {
         runBlocking {
             val pagedSource = ItemDataSource()
-            val key = pagedSource.keyProvider.getKey(ITEMS_BY_NAME_ID[49])
+            val key = ITEMS_BY_NAME_ID[49].key()
             val result = loadInitial(pagedSource, key, 10, true) as LoadResult.Page
 
             assertEquals(45, result.itemsBefore)
@@ -76,9 +74,8 @@ class PagedSourceTest {
         val pagedSource = ItemDataSource(items = ITEMS_BY_NAME_ID.subList(0, 1))
 
         // this is tricky, since load after and load before with the passed key will fail
-        val result = loadInitial(
-            pagedSource, pagedSource.keyProvider.getKey(ITEMS_BY_NAME_ID[0]), 20, true
-        ) as LoadResult.Page
+        val result =
+            loadInitial(pagedSource, ITEMS_BY_NAME_ID[0].key(), 20, true) as LoadResult.Page
 
         assertEquals(0, result.itemsBefore)
         assertEquals(ITEMS_BY_NAME_ID.subList(0, 1), result.data)
@@ -90,7 +87,7 @@ class PagedSourceTest {
         val pagedSource = ItemDataSource()
 
         // tricky, because load after key is empty, so another load before and load after required
-        val key = pagedSource.keyProvider.getKey(ITEMS_BY_NAME_ID.last())
+        val key = ITEMS_BY_NAME_ID.last().key()
         val result = loadInitial(pagedSource, key, 20, true) as LoadResult.Page
 
         assertEquals(90, result.itemsBefore)
@@ -132,7 +129,7 @@ class PagedSourceTest {
         val dataSource = ItemDataSource()
 
         // dispatchLoadInitial(key, count) == null padding, loadAfter(key, count), null padding
-        val key = dataSource.keyProvider.getKey(ITEMS_BY_NAME_ID[49])
+        val key = ITEMS_BY_NAME_ID[49].key()
         val result = loadInitial(dataSource, key, 10, false) as LoadResult.Page
 
         assertEquals(COUNT_UNDEFINED, result.itemsBefore)
@@ -145,7 +142,7 @@ class PagedSourceTest {
         val dataSource = ItemDataSource(counted = false)
 
         // dispatchLoadInitial(key, count) == null padding, loadAfter(key, count), null padding
-        val key = dataSource.keyProvider.getKey(ITEMS_BY_NAME_ID[49])
+        val key = ITEMS_BY_NAME_ID[49].key()
         val result = loadInitial(dataSource, key, 10, true) as LoadResult.Page
 
         assertEquals(COUNT_UNDEFINED, result.itemsBefore)
@@ -171,7 +168,7 @@ class PagedSourceTest {
         val dataSource = ItemDataSource(items = ArrayList())
 
         // dispatchLoadInitial(key, count) == null padding, loadAfter(key, count), null padding
-        val key = dataSource.keyProvider.getKey(ITEMS_BY_NAME_ID[49])
+        val key = ITEMS_BY_NAME_ID[49].key()
         val result = loadInitial(dataSource, key, 10, true) as LoadResult.Page
 
         assertEquals(0, result.itemsBefore)
@@ -196,7 +193,7 @@ class PagedSourceTest {
         val dataSource = ItemDataSource()
 
         runBlocking {
-            val key = dataSource.keyProvider.getKey(ITEMS_BY_NAME_ID[5])
+            val key = ITEMS_BY_NAME_ID[5].key()
             val params = LoadParams(LoadType.START, key, 5, false, 5)
             val observed = (dataSource.load(params) as LoadResult.Page).data
 
@@ -216,7 +213,7 @@ class PagedSourceTest {
         val dataSource = ItemDataSource()
 
         runBlocking {
-            val key = dataSource.keyProvider.getKey(ITEMS_BY_NAME_ID[5])
+            val key = ITEMS_BY_NAME_ID[5].key()
             val params = LoadParams(LoadType.END, key, 5, false, 5)
             val observed = (dataSource.load(params) as LoadResult.Page).data
 
@@ -231,41 +228,43 @@ class PagedSourceTest {
         }
     }
 
-    @Test
-    fun defaultKeyProviderInstance() {
-        fun pagedSource(): PagedSource<Int, String> {
-            return object : PagedSource<Int, String>() {
-                override suspend fun load(params: LoadParams<Int>): LoadResult<Int, String> {
-                    fail("load not expected")
-                }
-            }
-        }
+    data class Key(val name: String, val id: Int)
 
-        val source = pagedSource()
-        // assert calling method doesn't allocate new
-        assertSame(source.keyProvider, source.keyProvider)
-        // assert reused across instances
-        assertSame(source.keyProvider, pagedSource().keyProvider)
-    }
-
-    internal data class Key(val name: String, val id: Int)
-
-    internal data class Item(
+    data class Item(
         val name: String,
         val id: Int,
         val balance: Double,
         val address: String
     )
 
+    fun Item.key() = Key(name, id)
+
     internal class ItemDataSource(
         private val counted: Boolean = true,
         private val items: List<Item> = ITEMS_BY_NAME_ID
     ) : PagedSource<Key, Item>() {
-        private var error = false
+        fun Item.key() = Key(name, id)
 
-        override val keyProvider = object : KeyProvider.ItemKey<Key, Item>() {
-            override fun getKey(item: Item) = Key(item.name, item.id)
+        private fun List<Item>.asPage(
+            itemsBefore: Int = COUNT_UNDEFINED,
+            itemsAfter: Int = COUNT_UNDEFINED
+        ): LoadResult.Page<Key, Item> = LoadResult.Page(
+            data = this,
+            prevKey = firstOrNull()?.key(),
+            nextKey = lastOrNull()?.key(),
+            itemsBefore = itemsBefore,
+            itemsAfter = itemsAfter
+        )
+
+        override fun getRefreshKeyFromPage(
+            indexInPage: Int,
+            page: LoadResult.Page<Key, Item>
+        ): Key? {
+            val item = page.data[indexInPage]
+            return Key(item.name, item.id)
         }
+
+        private var error = false
 
         override suspend fun load(params: LoadParams<Key>): LoadResult<Key, Item> {
             return when (params.loadType) {
@@ -287,13 +286,9 @@ class PagedSourceTest {
 
             return if (params.placeholdersEnabled && counted) {
                 val data = items.subList(start, endExclusive)
-                LoadResult.Page(
-                    data = data,
-                    itemsBefore = start,
-                    itemsAfter = items.size - data.size - start
-                )
+                data.asPage(start, items.size - data.size - start)
             } else {
-                LoadResult.Page(items.subList(start, endExclusive))
+                items.subList(start, endExclusive).asPage()
             }
         }
 
@@ -306,7 +301,7 @@ class PagedSourceTest {
             val start = findFirstIndexAfter(params.key!!)
             val endExclusive = minOf(start + params.loadSize, items.size)
 
-            return LoadResult.Page(items.subList(start, endExclusive))
+            return items.subList(start, endExclusive).asPage()
         }
 
         private fun loadBefore(params: LoadParams<Key>): LoadResult<Key, Item> {
@@ -318,19 +313,18 @@ class PagedSourceTest {
             val firstIndexBefore = findFirstIndexBefore(params.key!!)
             val endExclusive = maxOf(0, firstIndexBefore + 1)
             val start = maxOf(0, firstIndexBefore - params.loadSize + 1)
-
-            return LoadResult.Page(items.subList(start, endExclusive))
+            return items.subList(start, endExclusive).asPage()
         }
 
         private fun findFirstIndexAfter(key: Key): Int {
             return items.indices.firstOrNull {
-                KEY_COMPARATOR.compare(key, keyProvider.getKey(items[it])) < 0
+                KEY_COMPARATOR.compare(key, items[it].key()) < 0
             } ?: items.size
         }
 
         private fun findFirstIndexBefore(key: Key): Int {
             return items.indices.reversed().firstOrNull {
-                KEY_COMPARATOR.compare(key, keyProvider.getKey(items[it])) > 0
+                KEY_COMPARATOR.compare(key, items[it].key()) > 0
             } ?: -1
         }
 

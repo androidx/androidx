@@ -19,7 +19,6 @@ package androidx.paging
 import androidx.paging.futures.DirectDispatcher
 import androidx.testutils.TestDispatcher
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.GlobalScope
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -91,16 +90,12 @@ class PageKeyedDataSourceTest {
     fun loadFullVerify() {
         // validate paging entire ItemDataSource results in full, correctly ordered data
         val testCoroutineScope = CoroutineScope(EmptyCoroutineContext)
-        val pagedList = PagedList.create(
-            PagedSourceWrapper(ItemDataSource()),
-            null,
-            testCoroutineScope,
-            mainThread,
-            DirectDispatcher,
-            null,
-            PagedList.Config.Builder().setPageSize(100).build(),
-            null
-        )
+
+        val pagedList = PagedList.Builder(ItemDataSource(), 100)
+            .setCoroutineScope(testCoroutineScope)
+            .setNotifyDispatcher(mainThread)
+            .setFetchDispatcher(DirectDispatcher)
+            .build()
 
         // validate initial load
         assertEquals(PAGE_MAP[INIT_KEY]!!.data, pagedList)
@@ -148,18 +143,10 @@ class PageKeyedDataSourceTest {
             }
         }
 
-        PagedList.create(
-            PagedSourceWrapper(dataSource),
-            null,
-            GlobalScope,
-            FailDispatcher(),
-            DirectDispatcher,
-            null,
-            PagedList.Config.Builder()
-                .setPageSize(10)
-                .build(),
-            ""
-        )
+        PagedList.Builder(dataSource, 10)
+            .setNotifyDispatcher(FailDispatcher())
+            .setFetchDispatcher(DirectDispatcher)
+            .build()
     }
 
     @Test
@@ -253,18 +240,13 @@ class PageKeyedDataSourceTest {
         val dispatcher = TestDispatcher()
 
         val testCoroutineScope = CoroutineScope(EmptyCoroutineContext)
-        val pagedList = PagedList.create(
-            PagedSourceWrapper(dataSource),
-            null,
-            testCoroutineScope,
-            dispatcher,
-            dispatcher,
-            boundaryCallback,
-            PagedList.Config.Builder()
-                .setPageSize(10)
-                .build(),
-            ""
-        )
+        val pagedList = PagedList.Builder(dataSource, 10)
+            .setBoundaryCallback(boundaryCallback)
+            .setCoroutineScope(testCoroutineScope)
+            .setFetchDispatcher(dispatcher)
+            .setNotifyDispatcher(dispatcher)
+            .build()
+
         pagedList.loadAround(0)
 
         verifyZeroInteractions(boundaryCallback)
@@ -309,18 +291,13 @@ class PageKeyedDataSourceTest {
         val dispatcher = TestDispatcher()
 
         val testCoroutineScope = CoroutineScope(EmptyCoroutineContext)
-        val pagedList = PagedList.create(
-            PagedSourceWrapper(dataSource),
-            null,
-            testCoroutineScope,
-            dispatcher,
-            dispatcher,
-            boundaryCallback,
-            PagedList.Config.Builder()
-                .setPageSize(10)
-                .build(),
-            ""
-        )
+        val pagedList = PagedList.Builder(dataSource, 10)
+            .setBoundaryCallback(boundaryCallback)
+            .setCoroutineScope(testCoroutineScope)
+            .setFetchDispatcher(dispatcher)
+            .setNotifyDispatcher(dispatcher)
+            .build()
+
         pagedList.loadAround(0)
 
         verifyZeroInteractions(boundaryCallback)

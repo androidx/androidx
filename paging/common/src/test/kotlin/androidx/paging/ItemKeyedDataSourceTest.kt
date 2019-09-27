@@ -20,7 +20,6 @@ import androidx.paging.PagedSource.LoadResult.Page.Companion.COUNT_UNDEFINED
 import androidx.paging.futures.DirectDispatcher
 import com.nhaarman.mockitokotlin2.capture
 import com.nhaarman.mockitokotlin2.mock
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -287,18 +286,11 @@ class ItemKeyedDataSourceTest {
             }
         }
 
-        PagedList.create(
-            PagedSourceWrapper(dataSource),
-            null,
-            GlobalScope,
-            FailDispatcher(),
-            DirectDispatcher,
-            null,
-            PagedList.Config.Builder()
-                .setPageSize(10)
-                .build(),
-            ""
-        )
+        PagedList.Builder(dataSource, 10)
+            .setNotifyDispatcher(FailDispatcher())
+            .setFetchDispatcher(DirectDispatcher)
+            .setInitialKey("")
+            .build()
     }
 
     @Test

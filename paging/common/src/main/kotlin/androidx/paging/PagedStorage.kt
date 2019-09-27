@@ -17,7 +17,7 @@
 package androidx.paging
 
 import androidx.annotation.RestrictTo
-import androidx.paging.PagedSource.LoadResult
+import androidx.paging.PagedSource.LoadResult.Page
 import java.util.AbstractList
 
 /**
@@ -26,9 +26,14 @@ import java.util.AbstractList
  * This class only holds data, and does not have any notion of the ideas of async loads, or
  * prefetching.
  */
-internal class PagedStorage<T : Any> : AbstractList<T>, Pager.AdjacentProvider<T>,
+internal class PagedStorage<T : Any> : AbstractList<T>, Pager.KeyProvider<Any>,
     NullPaddedList<T> {
-    private val pages: ArrayList<List<T>>
+    private val pages = mutableListOf<Page<*, T>>()
+
+    internal val firstLoadedItem: T
+        get() = pages.first().data.first()
+    internal val lastLoadedItem: T
+        get() = pages.last().data.last()
 
     override var leadingNullCount: Int = 0
         private set
@@ -38,73 +43,63 @@ internal class PagedStorage<T : Any> : AbstractList<T>, Pager.AdjacentProvider<T
 
     var positionOffset: Int = 0
         private set
+
+    private var counted = true
+
     /**
      * Number of loaded items held by [pages].
      */
     override var storageCount: Int = 0
         private set
 
-    var numberPrepended: Int = 0
-        private set
-    var numberAppended: Int = 0
-        private set
+    /**
+     * Last accessed index for loadAround in storage space
+     */
+    private var lastLoadAroundLocalIndex: Int = 0
+    var lastLoadAroundIndex: Int
+        get() = leadingNullCount + lastLoadAroundLocalIndex
+        set(value) {
+            lastLoadAroundLocalIndex = (value - leadingNullCount).coerceIn(0, storageCount)
+        }
 
-    val middleOfLoadedRange
-        get() = leadingNullCount + positionOffset + storageCount / 2
+    val middleOfLoadedRange: Int
+        get() = leadingNullCount + storageCount / 2
 
-    // ------------- Adjacent Provider interface ------------------
+    constructor()
 
-    override val firstLoadedItem
-        // guaranteed to have pages, and every page is non-empty, so this is safe
-        get() = pages.first().first()
-
-    override val lastLoadedItem
-        // guaranteed to have pages, and every page is non-empty, so this is safe
-        get() = pages.last().last()
-
-    override val firstLoadedItemIndex
-        get() = leadingNullCount + positionOffset
-
-    override val lastLoadedItemIndex
-        get() = leadingNullCount + storageCount - 1 + positionOffset
-
-    constructor() {
-        leadingNullCount = 0
-        pages = ArrayList()
-        trailingNullCount = 0
-        positionOffset = 0
-        storageCount = 0
-        numberPrepended = 0
-        numberAppended = 0
-    }
-
-    constructor(leadingNulls: Int, page: List<T>, trailingNulls: Int) : this() {
-        init(leadingNulls, page, trailingNulls, 0)
+    constructor(leadingNulls: Int, page: Page<*, T>, trailingNulls: Int) : this() {
+        init(leadingNulls, page, trailingNulls, 0, true)
     }
 
     private constructor(other: PagedStorage<T>) {
+        pages.addAll(other.pages)
         leadingNullCount = other.leadingNullCount
-        pages = ArrayList(other.pages)
         trailingNullCount = other.trailingNullCount
         positionOffset = other.positionOffset
+        counted = other.counted
         storageCount = other.storageCount
-        numberPrepended = other.numberPrepended
-        numberAppended = other.numberAppended
+        lastLoadAroundLocalIndex = other.lastLoadAroundLocalIndex
     }
 
     fun snapshot() = PagedStorage(this)
 
-    private fun init(leadingNulls: Int, page: List<T>, trailingNulls: Int, positionOffset: Int) {
+    private fun init(
+        leadingNulls: Int,
+        page: Page<*, T>,
+        trailingNulls: Int,
+        positionOffset: Int,
+        counted: Boolean
+    ) {
         leadingNullCount = leadingNulls
         pages.clear()
         pages.add(page)
         trailingNullCount = trailingNulls
 
         this.positionOffset = positionOffset
-        storageCount = page.size
+        storageCount = page.data.size
+        this.counted = counted
 
-        numberPrepended = 0
-        numberAppended = 0
+        lastLoadAroundLocalIndex = page.data.size / 2
     }
 
     /**
@@ -113,23 +108,48 @@ internal class PagedStorage<T : Any> : AbstractList<T>, Pager.AdjacentProvider<T
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     fun init(
         leadingNulls: Int,
-        page: List<T>,
+        page: Page<*, T>,
         trailingNulls: Int,
         positionOffset: Int,
-        callback: Callback
+        callback: Callback,
+        counted: Boolean = true
     ) {
-        init(leadingNulls, page, trailingNulls, positionOffset)
+        init(leadingNulls, page, trailingNulls, positionOffset, counted)
         callback.onInitialized(size)
     }
 
-    override fun getFromStorage(localIndex: Int): T {
+    // ------------- Adjacent Provider interface ------------------
+
+    override val prevKey: Any?
+        get() = if (!counted || leadingNullCount + positionOffset > 0) {
+            pages.first().prevKey
+        } else {
+            null
+        }
+
+    override val nextKey: Any?
+        get() = if (!counted || trailingNullCount > 0) {
+            pages.last().nextKey
+        } else {
+            null
+        }
+
+    /**
+     * Traverse to the page and pageInternalIndex of localIndex.
+     *
+     * Bounds check (between 0 and storageCount) must be performed  before calling this function.
+     */
+    private inline fun <V> traversePages(
+        localIndex: Int,
+        crossinline onLastPage: (page: Page<*, T>, pageInternalIndex: Int) -> V
+    ): V {
         var localPageIndex = 0
         var pageInternalIndex: Int = localIndex
 
         // Since we don't know if page sizes are regular, we walk to correct page.
         val localPageCount = pages.size
         while (localPageIndex < localPageCount) {
-            val pageSize = pages[localPageIndex].size
+            val pageSize = pages[localPageIndex].data.size
             if (pageSize > pageInternalIndex) {
                 // stop, found the page
                 break
@@ -137,18 +157,37 @@ internal class PagedStorage<T : Any> : AbstractList<T>, Pager.AdjacentProvider<T
             pageInternalIndex -= pageSize
             localPageIndex++
         }
-        return pages[localPageIndex][pageInternalIndex]
+        return onLastPage(pages[localPageIndex], pageInternalIndex)
+    }
+
+    /**
+     * Walk through the list of pages to find the data at local index
+     */
+    override fun getFromStorage(localIndex: Int): T =
+            traversePages(localIndex) { page, pageInternalIndex ->
+        page.data[pageInternalIndex]
+    }
+
+    /**
+     * Walk through the list of pages to find the page and local index for the last loadAround call
+     */
+    fun getLastPageAndIndex(): Pair<Page<*, T>, Int>? = if (isNotEmpty()) {
+        traversePages(lastLoadAroundLocalIndex) { page, pageInternalIndex ->
+            Pair(page, pageInternalIndex)
+        }
+    } else {
+        null
     }
 
     override fun get(index: Int): T? {
         // is it definitely outside 'pages'?
         val localIndex = index - leadingNullCount
 
-        when {
+        return when {
             index < 0 || index >= size ->
                 throw IndexOutOfBoundsException("Index: $index, Size: $size")
-            localIndex < 0 || localIndex >= storageCount -> return null
-            else -> return getFromStorage(localIndex)
+            localIndex < 0 || localIndex >= storageCount -> null
+            else -> getFromStorage(localIndex)
         }
     }
 
@@ -181,7 +220,7 @@ internal class PagedStorage<T : Any> : AbstractList<T>, Pager.AdjacentProvider<T
         val page = pages[localPageIndex]
         return storageCount > maxSize &&
                 pages.size > 2 &&
-                storageCount - page.size >= requiredRemaining
+                storageCount - page.data.size >= requiredRemaining
     }
 
     fun needsTrimFromFront(maxSize: Int, requiredRemaining: Int) =
@@ -204,10 +243,11 @@ internal class PagedStorage<T : Any> : AbstractList<T>, Pager.AdjacentProvider<T
         var totalRemoved = 0
         while (needsTrimFromFront(maxSize, requiredRemaining)) {
             val page = pages.removeAt(0)
-            val removed = page.size
+            val removed = page.data.size
             totalRemoved += removed
             storageCount -= removed
         }
+        lastLoadAroundLocalIndex = (lastLoadAroundLocalIndex - totalRemoved).coerceAtLeast(0)
 
         if (totalRemoved > 0) {
             if (insertNulls) {
@@ -233,10 +273,11 @@ internal class PagedStorage<T : Any> : AbstractList<T>, Pager.AdjacentProvider<T
         var totalRemoved = 0
         while (needsTrimFromEnd(maxSize, requiredRemaining)) {
             val page = pages.removeAt(pages.size - 1)
-            val removed = page.size
+            val removed = page.data.size
             totalRemoved += removed
             storageCount -= removed
         }
+        lastLoadAroundLocalIndex = lastLoadAroundLocalIndex.coerceAtMost(storageCount - 1)
 
         if (totalRemoved > 0) {
             val newEndPosition = leadingNullCount + storageCount
@@ -254,8 +295,8 @@ internal class PagedStorage<T : Any> : AbstractList<T>, Pager.AdjacentProvider<T
 
     // ---------------- Contiguous API -------------------
 
-    internal fun prependPage(page: List<T>, callback: Callback) {
-        val count = page.size
+    internal fun prependPage(page: Page<*, T>, callback: Callback? = null) {
+        val count = page.data.size
         if (count == 0) {
             // Nothing returned from source, nothing to do
             return
@@ -271,13 +312,11 @@ internal class PagedStorage<T : Any> : AbstractList<T>, Pager.AdjacentProvider<T
             leadingNullCount -= changedCount
         }
         positionOffset -= addedCount
-        numberPrepended += count
-
-        callback.onPagePrepended(leadingNullCount, changedCount, addedCount)
+        callback?.onPagePrepended(leadingNullCount, changedCount, addedCount)
     }
 
-    internal fun appendPage(page: List<T>, callback: Callback) {
-        val count = page.size
+    internal fun appendPage(page: Page<*, T>, callback: Callback? = null) {
+        val count = page.data.size
         if (count == 0) {
             // Nothing returned from source, nothing to do
             return
@@ -292,15 +331,11 @@ internal class PagedStorage<T : Any> : AbstractList<T>, Pager.AdjacentProvider<T
         if (changedCount != 0) {
             trailingNullCount -= changedCount
         }
-        numberAppended += count
-        callback.onPageAppended(
+
+        callback?.onPageAppended(
             leadingNullCount + storageCount - count,
             changedCount, addedCount
         )
-    }
-
-    override fun onPageResultResolution(type: LoadType, result: LoadResult.Page<*, T>) {
-        // ignored
     }
 
     override fun toString(): String =

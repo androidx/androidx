@@ -256,7 +256,7 @@ class AsyncPagedListDifferTest {
         val callback = mock<ListUpdateCallback>()
         val differ = createDiffer(callback)
 
-        differ.submitList(createPagedListFromListAndPos(config, ALPHABET_LIST, 2))
+        differ.submitList(createPagedListFromListAndPos(config, ALPHABET_LIST, 4))
         verify(callback).onInserted(0, ALPHABET_LIST.size)
         verifyNoMoreInteractions(callback)
         drain()
@@ -266,7 +266,7 @@ class AsyncPagedListDifferTest {
 
         // trigger page loading
         differ.getItem(10)
-        differ.submitList(createPagedListFromListAndPos(config, ALPHABET_LIST, 2))
+        differ.submitList(createPagedListFromListAndPos(config, ALPHABET_LIST, 4))
         verifyNoMoreInteractions(callback)
 
         // drain page fetching, but list became immutable, page will be ignored
