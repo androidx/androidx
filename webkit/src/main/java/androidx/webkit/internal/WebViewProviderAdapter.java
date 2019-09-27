@@ -44,15 +44,15 @@ import java.util.concurrent.Executor;
 public class WebViewProviderAdapter {
     WebViewProviderBoundaryInterface mImpl;
 
-    public WebViewProviderAdapter(WebViewProviderBoundaryInterface impl) {
+    public WebViewProviderAdapter(@NonNull WebViewProviderBoundaryInterface impl) {
         mImpl = impl;
     }
 
     /**
      * Adapter method WebViewCompat.insertVisualStateCallback().
      */
-    public void insertVisualStateCallback(long requestId,
-            WebViewCompat.VisualStateCallback callback) {
+    public void insertVisualStateCallback(
+            long requestId, @NonNull WebViewCompat.VisualStateCallback callback) {
         mImpl.insertVisualStateCallback(requestId,
                 BoundaryInterfaceReflectionUtil.createInvocationHandlerFor(
                         new VisualStateCallbackAdapter(callback)));
@@ -74,7 +74,7 @@ public class WebViewProviderAdapter {
     /**
      * Adapter method for {@link WebViewCompat#postWebMessage(WebView, WebMessageCompat, Uri)}.
      */
-    public void postWebMessage(WebMessageCompat message, Uri targetOrigin) {
+    public void postWebMessage(@NonNull WebMessageCompat message, @NonNull Uri targetOrigin) {
         mImpl.postMessageToMainFrame(
                 BoundaryInterfaceReflectionUtil.createInvocationHandlerFor(
                         new WebMessageAdapter(message)), targetOrigin);
@@ -119,8 +119,8 @@ public class WebViewProviderAdapter {
     /**
      * Adapter method for {@link WebViewCompat#setWebViewRendererClient(WebViewRendererClient)}.
      */
-    public void setWebViewRenderProcessClient(
-            Executor executor, WebViewRenderProcessClient webViewRenderProcessClient) {
+    public void setWebViewRenderProcessClient(@Nullable Executor executor,
+            @Nullable WebViewRenderProcessClient webViewRenderProcessClient) {
         mImpl.setWebViewRendererClient(
                 BoundaryInterfaceReflectionUtil.createInvocationHandlerFor(
                       new WebViewRenderProcessClientAdapter(executor, webViewRenderProcessClient)));
