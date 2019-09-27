@@ -97,10 +97,14 @@ public class SystemForegroundDispatcher implements WorkConstraintsCallback, Exec
     }
 
     @VisibleForTesting
-    SystemForegroundDispatcher(@NonNull Context context, @NonNull WorkConstraintsTracker tracker) {
+    SystemForegroundDispatcher(
+            @NonNull Context context,
+            @NonNull WorkManagerImpl workManagerImpl,
+            @NonNull WorkConstraintsTracker tracker) {
+
         mContext = context;
         mLock = new Object();
-        mWorkManagerImpl = WorkManagerImpl.getInstance(mContext);
+        mWorkManagerImpl = workManagerImpl;
         mTaskExecutor = mWorkManagerImpl.getWorkTaskExecutor();
         mTrackedWorkSpecs = new HashSet<>();
         mWorkSpecById = new HashMap<>();
