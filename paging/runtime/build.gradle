@@ -34,7 +34,7 @@ dependencies {
     api(project(":paging:paging-common-ktx"))
 
     api(project(":arch:core-runtime"))
-    api(ARCH_LIFECYCLE_RUNTIME)
+    api("androidx.lifecycle:lifecycle-runtime:2.0.0")
     api(project(":lifecycle:lifecycle-livedata"))
     api("androidx.recyclerview:recyclerview:1.0.0")
     api(KOTLIN_STDLIB)
@@ -45,7 +45,7 @@ dependencies {
     androidTestImplementation(ANDROIDX_TEST_CORE)
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
     androidTestImplementation(ANDROIDX_TEST_RUNNER)
-    androidTestImplementation(ARCH_CORE_TESTING)
+    androidTestImplementation("androidx.arch.core:core-testing:2.0.1")
     androidTestImplementation(KOTLIN_COROUTINES_TEST)
     androidTestImplementation(JUNIT)
     androidTestImplementation(MOCKITO_CORE, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker

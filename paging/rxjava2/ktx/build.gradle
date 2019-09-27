@@ -43,7 +43,7 @@ dependencies {
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
     androidTestImplementation(ANDROIDX_TEST_CORE)
     androidTestImplementation(ANDROIDX_TEST_RUNNER)
-    androidTestImplementation(ARCH_CORE_TESTING)
+    androidTestImplementation("androidx.arch.core:core-testing:2.0.1")
     androidTestImplementation(ESPRESSO_CORE)
 }
 

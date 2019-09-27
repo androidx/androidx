@@ -40,7 +40,7 @@ dependencies {
     androidTestAnnotationProcessor(AUTO_VALUE_PARCEL)
 
     androidTestImplementation(project(":room:room-testing"))
-    androidTestImplementation(ARCH_CORE_TESTING)
+    androidTestImplementation("androidx.arch.core:core-testing:2.0.1")
     androidTestImplementation(AUTO_VALUE_ANNOTATIONS)
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
     androidTestImplementation(ANDROIDX_TEST_CORE)

@@ -31,15 +31,15 @@ plugins {
 }
 
 dependencies {
-    implementation(ARCH_CORE_RUNTIME)
-    implementation(ARCH_ROOM_RUNTIME)
-    implementation(ARCH_ROOM_RXJAVA)
+    implementation("androidx.arch.core:core-runtime:2.0.1")
+    implementation("androidx.room:room-runtime:2.0.0")
+    implementation("androidx.room:room-rxjava2:2.0.0")
 
     implementation(project(":paging:paging-common-ktx"))
     implementation(project(":paging:paging-runtime"))
     implementation(project(":paging:paging-rxjava2"))
 
-    kapt(ARCH_ROOM_COMPILER)
+    kapt("androidx.room:room-compiler:2.0.0")
 
     implementation(MULTIDEX)
     implementation("androidx.recyclerview:recyclerview:1.0.0")

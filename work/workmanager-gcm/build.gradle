@@ -51,9 +51,9 @@ dependencies {
         implementation(project(":room:room-runtime"))
         androidTestImplementation(project(":room:room-testing"))
     } else {
-        annotationProcessor(ARCH_ROOM_COMPILER)
-        implementation(ARCH_ROOM_RUNTIME)
-        androidTestImplementation(ARCH_ROOM_TESTING)
+        annotationProcessor("androidx.room:room-compiler:2.0.0")
+        implementation("androidx.room:room-runtime:2.0.0")
+        androidTestImplementation("androidx.room:room-testing:2.0.0")
     }
 
     androidTestImplementation(project(":work:work-runtime-ktx"))
