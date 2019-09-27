@@ -55,6 +55,6 @@ dependencies {
     implementation project(':work:work-runtime-ktx')
     implementation (project(':work:work-gcm'))
     implementation(WORK_ARCH_CORE_RUNTIME)
-    implementation(ANDROIDX_RECYCLERVIEW)
+    implementation("androidx.recyclerview:recyclerview:1.0.0")
     implementation(MATERIAL)
 }

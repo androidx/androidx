@@ -56,7 +56,7 @@ dependencies {
     implementation(project(":camera:camera-core"))
     implementation(project(":lifecycle:lifecycle-extensions"))
     implementation(GUAVA_LISTENABLE_FUTURE)
-    implementation(ANDROIDX_CONCURRENT_FUTURES)
+    implementation("androidx.concurrent:concurrent-futures:1.0.0")
 
     // Android Support Library
     api(CONSTRAINT_LAYOUT, { transitive = true })

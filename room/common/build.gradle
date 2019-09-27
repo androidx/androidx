@@ -26,7 +26,7 @@ plugins {
 }
 
 dependencies {
-    compile(ANDROIDX_ANNOTATION)
+    compile("androidx.annotation:annotation:1.1.0")
     testCompile(KOTLIN_STDLIB)
     testCompile(JUNIT)
     testCompile(MOCKITO_CORE)

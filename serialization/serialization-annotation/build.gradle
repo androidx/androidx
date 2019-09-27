@@ -27,7 +27,7 @@ plugins {
 }
 
 dependencies {
-    compileOnly(ANDROIDX_ANNOTATION)
+    compileOnly("androidx.annotation:annotation:1.1.0")
 }
 
 androidx {
