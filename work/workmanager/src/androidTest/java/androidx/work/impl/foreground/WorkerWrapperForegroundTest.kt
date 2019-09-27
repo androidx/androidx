@@ -36,6 +36,7 @@ import androidx.work.impl.utils.SerialExecutor
 import androidx.work.impl.utils.futures.SettableFuture
 import androidx.work.impl.utils.taskexecutor.TaskExecutor
 import androidx.work.worker.StopAwareForegroundWorker
+import androidx.work.worker.TestForegroundWorker
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Before
@@ -46,9 +47,11 @@ import org.mockito.Mockito.doReturn
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.spy
 import java.util.Collections
+import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executor
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
 
 @RunWith(AndroidJUnit4::class)
 @LargeTest
@@ -139,5 +142,37 @@ class WorkerWrapperForegroundTest {
             // Wait until all pending operations in the internal task executor are complete
         }
         assertThat(future.isDone, `is`(true))
+    }
+
+    @Test
+    fun testWorkerWrapper_resolvesBackingJob_whenWorkerCompletes() {
+        val request = OneTimeWorkRequest.Builder(TestForegroundWorker::class.java)
+            .setRunInForeground(true)
+            .build()
+
+        workDatabase.workSpecDao().insertWorkSpec(request.workSpec)
+        val wrapper = WorkerWrapper.Builder(
+            context,
+            config,
+            taskExecutor,
+            foregroundProcessor,
+            workDatabase,
+            request.stringId
+        ).build()
+
+        wrapper.run()
+        val future = wrapper.future as SettableFuture<Boolean>
+        while (taskExecutor.backgroundExecutor.hasPendingTasks()) {
+            // Wait until all pending operations in the internal task executor are complete
+        }
+
+        val latch = CountDownLatch(1)
+        future.addListener(Runnable {
+            assertThat(future.isDone, `is`(true))
+            latch.countDown()
+        }, executor)
+
+        latch.await(5, TimeUnit.SECONDS)
+        assertThat(latch.count, `is`(0L))
     }
 }
