@@ -32,7 +32,7 @@ dependencies {
     testImplementation(ROBOLECTRIC)
     testImplementation(MOCKITO_CORE)
 
-    androidTestImplementation(SUPPORT_APPCOMPAT)
+    androidTestImplementation("androidx.appcompat:appcompat:1.0.0")
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
     androidTestImplementation(ANDROIDX_TEST_CORE)
     androidTestImplementation(ANDROIDX_TEST_RUNNER)

@@ -26,7 +26,7 @@ plugins {
 }
 
 dependencies {
-    api(SUPPORT_ANNOTATIONS)
+    api("androidx.annotation:annotation:1.0.0")
     testImplementation(JUNIT)
     testImplementation(MOCKITO_CORE)
 }
