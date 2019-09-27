@@ -25,28 +25,6 @@
 
     <issue
         id="LambdaLast"
-        message="Functional interface parameters (such as parameter 2, &quot;executor&quot;, in androidx.webkit.WebViewCompat.setWebViewRenderProcessClient) should be last to improve Kotlin interoperability; see https://kotlinlang.org/docs/reference/java-interop.html#sam-conversions"
-        errorLine1="            @NonNull WebViewRenderProcessClient webViewRenderProcessClient) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/webkit/WebViewCompat.java"
-            line="550"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="LambdaLast"
-        message="Functional interface parameters (such as parameter 1, &quot;executor&quot;, in androidx.webkit.internal.WebViewProviderAdapter.setWebViewRenderProcessClient) should be last to improve Kotlin interoperability; see https://kotlinlang.org/docs/reference/java-interop.html#sam-conversions"
-        errorLine1="            @Nullable WebViewRenderProcessClient webViewRenderProcessClient) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/webkit/internal/WebViewProviderAdapter.java"
-            line="123"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="LambdaLast"
         message="Functional interface parameters (such as parameter 1, &quot;message&quot;, in org.chromium.support_lib_boundary.WebViewProviderBoundaryInterface.postMessageToMainFrame) should be last to improve Kotlin interoperability; see https://kotlinlang.org/docs/reference/java-interop.html#sam-conversions"
         errorLine1="    void postMessageToMainFrame(/* WebMessage */ InvocationHandler message, Uri targetOrigin);"
         errorLine2="                                                                            ~~~~~~~~~~~~~~~~">
