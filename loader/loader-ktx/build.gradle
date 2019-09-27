@@ -35,13 +35,13 @@ android {
 
 dependencies {
     api(project(":loader:loader"))
-    api(ARCH_LIFECYCLE_VIEWMODEL_KTX) {
+    api("androidx.lifecycle:lifecycle-viewmodel-ktx:2.0.0") {
         because 'Mirror loader dependency graph for -ktx artifacts'
     }
     api(KOTLIN_STDLIB)
 
     androidTestImplementation(TRUTH)
-    androidTestImplementation(ARCH_LIFECYCLE_RUNTIME)
+    androidTestImplementation("androidx.lifecycle:lifecycle-runtime:2.0.0")
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
     androidTestImplementation(ANDROIDX_TEST_CORE)
     androidTestImplementation(ANDROIDX_TEST_RUNNER)

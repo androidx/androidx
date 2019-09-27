@@ -47,14 +47,14 @@ dependencies {
         annotationProcessor(project(":room:room-compiler"))
         implementation(project(":room:room-runtime"))
     } else {
-        annotationProcessor(ARCH_ROOM_COMPILER)
-        implementation(ARCH_ROOM_RUNTIME)
+        annotationProcessor("androidx.room:room-compiler:2.0.0")
+        implementation("androidx.room:room-runtime:2.0.0")
     }
 
     implementation(CONSTRAINT_LAYOUT, { transitive = true })
     implementation project(':work:work-runtime-ktx')
     implementation (project(':work:work-gcm'))
-    implementation(WORK_ARCH_CORE_RUNTIME)
+    implementation("androidx.arch.core:core-runtime:2.0.0")
     implementation("androidx.recyclerview:recyclerview:1.0.0")
     implementation(MATERIAL)
 }

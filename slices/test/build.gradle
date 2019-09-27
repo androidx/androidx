@@ -28,7 +28,7 @@ dependencies {
     implementation(project(":slice-core"))
     implementation(project(":slice-builders"))
     implementation(project(":recyclerview:recyclerview"))
-    api(ARCH_LIFECYCLE_LIVEDATA_CORE)
+    api("androidx.lifecycle:lifecycle-livedata-core:2.0.0")
 
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
     androidTestImplementation(ANDROIDX_TEST_CORE)

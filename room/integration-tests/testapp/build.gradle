@@ -63,8 +63,8 @@ dependencies {
     androidTestImplementation(project(":room:room-testing"))
     androidTestImplementation(project(":room:room-rxjava2"))
     androidTestImplementation(project(":room:room-guava"))
-    androidTestImplementation(ARCH_CORE_TESTING)
-    androidTestImplementation(ARCH_PAGING_RUNTIME)
+    androidTestImplementation("androidx.arch.core:core-testing:2.0.1")
+    androidTestImplementation("androidx.paging:paging-runtime:2.0.0")
 
     // FINDBUGS dependency resolves an app/testapp version conflict.
     androidTestImplementation(FINDBUGS)

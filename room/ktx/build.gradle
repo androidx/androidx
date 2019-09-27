@@ -34,7 +34,7 @@ dependencies {
     testImplementation(JUNIT)
     testImplementation(MOCKITO_CORE)
     testImplementation(TRUTH)
-    testImplementation(ARCH_LIFECYCLE_LIVEDATA_CORE)
+    testImplementation("androidx.lifecycle:lifecycle-livedata-core:2.0.0")
 }
 
 androidx {
