@@ -323,6 +323,17 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    void postMessage(String message);"
+        errorLine2="                     ~~~~~~">
+        <location
+            file="../../../external/webview_support_interfaces/src/org/chromium/support_lib_boundary/JsReplyProxyBoundaryInterface.java"
+            line="11"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="            String[][] proxyRules, String[] bypassRules, Runnable listener, Executor executor);"
         errorLine2="            ~~~~~~~~~~">
         <location
@@ -681,6 +692,50 @@
             file="../../../external/webview_support_interfaces/src/org/chromium/support_lib_boundary/WebMessageCallbackBoundaryInterface.java"
             line="14"
             column="30"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    void onPostMessage(WebView view, /* WebMessage */ InvocationHandler message, Uri sourceOrigin,"
+        errorLine2="                       ~~~~~~~">
+        <location
+            file="../../../external/webview_support_interfaces/src/org/chromium/support_lib_boundary/WebMessageListenerBoundaryInterface.java"
+            line="16"
+            column="24"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    void onPostMessage(WebView view, /* WebMessage */ InvocationHandler message, Uri sourceOrigin,"
+        errorLine2="                                                      ~~~~~~~~~~~~~~~~~">
+        <location
+            file="../../../external/webview_support_interfaces/src/org/chromium/support_lib_boundary/WebMessageListenerBoundaryInterface.java"
+            line="16"
+            column="55"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    void onPostMessage(WebView view, /* WebMessage */ InvocationHandler message, Uri sourceOrigin,"
+        errorLine2="                                                                                 ~~~">
+        <location
+            file="../../../external/webview_support_interfaces/src/org/chromium/support_lib_boundary/WebMessageListenerBoundaryInterface.java"
+            line="16"
+            column="82"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            boolean isMainFrame, /* JsReplyProxy */ InvocationHandler replyProxy);"
+        errorLine2="                                                    ~~~~~~~~~~~~~~~~~">
+        <location
+            file="../../../external/webview_support_interfaces/src/org/chromium/support_lib_boundary/WebMessageListenerBoundaryInterface.java"
+            line="17"
+            column="53"/>
     </issue>
 
     <issue
@@ -1137,11 +1192,55 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    void addWebMessageListener(String jsObjectName, String[] allowedOriginRules,"
+        errorLine2="                               ~~~~~~">
+        <location
+            file="../../../external/webview_support_interfaces/src/org/chromium/support_lib_boundary/WebViewProviderBoundaryInterface.java"
+            line="20"
+            column="32"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    void addWebMessageListener(String jsObjectName, String[] allowedOriginRules,"
+        errorLine2="                                                    ~~~~~~~~">
+        <location
+            file="../../../external/webview_support_interfaces/src/org/chromium/support_lib_boundary/WebViewProviderBoundaryInterface.java"
+            line="20"
+            column="53"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            /* WebMessageListener */ InvocationHandler listener);"
+        errorLine2="                                     ~~~~~~~~~~~~~~~~~">
+        <location
+            file="../../../external/webview_support_interfaces/src/org/chromium/support_lib_boundary/WebViewProviderBoundaryInterface.java"
+            line="21"
+            column="38"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    void removeWebMessageListener(String jsObjectName);"
+        errorLine2="                                  ~~~~~~">
+        <location
+            file="../../../external/webview_support_interfaces/src/org/chromium/support_lib_boundary/WebViewProviderBoundaryInterface.java"
+            line="22"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    WebViewClient getWebViewClient();"
         errorLine2="    ~~~~~~~~~~~~~">
         <location
             file="../../../external/webview_support_interfaces/src/org/chromium/support_lib_boundary/WebViewProviderBoundaryInterface.java"
-            line="20"
+            line="23"
             column="5"/>
     </issue>
 
@@ -1152,7 +1251,7 @@
         errorLine2="    ~~~~~~~~~~~~~~~">
         <location
             file="../../../external/webview_support_interfaces/src/org/chromium/support_lib_boundary/WebViewProviderBoundaryInterface.java"
-            line="21"
+            line="24"
             column="5"/>
     </issue>
 
@@ -1163,7 +1262,7 @@
         errorLine2="                          ~~~~~~~~~~~~~~~~~">
         <location
             file="../../../external/webview_support_interfaces/src/org/chromium/support_lib_boundary/WebViewProviderBoundaryInterface.java"
-            line="22"
+            line="25"
             column="27"/>
     </issue>
 
@@ -1174,7 +1273,7 @@
         errorLine2="                                ~~~~~~~~~~~~~~~~~">
         <location
             file="../../../external/webview_support_interfaces/src/org/chromium/support_lib_boundary/WebViewProviderBoundaryInterface.java"
-            line="23"
+            line="26"
             column="33"/>
     </issue>
 
@@ -1185,7 +1284,7 @@
         errorLine2="                                        ~~~~~~~~~~~~~~~~~">
         <location
             file="../../../external/webview_support_interfaces/src/org/chromium/support_lib_boundary/WebViewProviderBoundaryInterface.java"
-            line="25"
+            line="28"
             column="41"/>
     </issue>
 
