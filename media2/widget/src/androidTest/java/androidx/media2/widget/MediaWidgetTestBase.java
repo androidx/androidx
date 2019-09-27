@@ -34,6 +34,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.media2.common.MediaItem;
+import androidx.media2.common.MediaMetadata;
 import androidx.media2.common.SessionPlayer;
 import androidx.media2.common.UriMediaItem;
 import androidx.media2.player.MediaPlayer;
@@ -130,7 +131,16 @@ public class MediaWidgetTestBase extends MediaTestBase {
     }
 
     MediaItem createTestMediaItem(Uri uri) {
-        return new UriMediaItem.Builder(uri).build();
+        return createTestMediaItem(uri, "defaultMediaId");
+    }
+
+    MediaItem createTestMediaItem(Uri uri, String mediaId) {
+        MediaMetadata metadata = new MediaMetadata.Builder()
+                .putText(MediaMetadata.METADATA_KEY_MEDIA_ID, mediaId)
+                .build();
+        return new UriMediaItem.Builder(uri)
+                .setMetadata(metadata)
+                .build();
     }
 
     List<MediaItem> createTestPlaylist() {
