@@ -28,7 +28,7 @@ dependencies {
     implementation(ANDROIDX_TEST_CORE)
     implementation("androidx.annotation:annotation:1.0.0")
     implementation(GUAVA_LISTENABLE_FUTURE)
-    implementation(project(":appcompat"))
+    implementation("androidx.appcompat:appcompat:1.1.0")
     implementation(project(":camera:camera-core"))
     implementation("androidx.core:core:1.1.0")
     implementation("androidx.concurrent:concurrent-futures:1.0.0-alpha03")
