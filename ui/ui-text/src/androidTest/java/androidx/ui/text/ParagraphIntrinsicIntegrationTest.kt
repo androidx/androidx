@@ -19,11 +19,11 @@ package androidx.ui.text
 import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.ui.core.Density
-import androidx.ui.core.LayoutDirection
 import androidx.ui.core.Sp
 import androidx.ui.core.sp
 import androidx.ui.core.withDensity
 import androidx.ui.text.font.asFontFamily
+import androidx.ui.text.style.TextDirectionAlgorithm
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -213,9 +213,10 @@ class ParagraphIntrinsicIntegrationTest {
                 fontFamily = fontFamilyMeasureFont,
                 fontSize = fontSize
             ).merge(style),
-            paragraphStyle = ParagraphStyle(),
+            paragraphStyle = ParagraphStyle(
+                textDirectionAlgorithm = TextDirectionAlgorithm.ContentOrLtr
+            ),
             density = defaultDensity,
-            layoutDirection = LayoutDirection.Ltr,
             resourceLoader = TestFontResourceLoader(context)
         )
     }

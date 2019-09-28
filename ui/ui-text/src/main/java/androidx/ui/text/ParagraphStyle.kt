@@ -60,7 +60,7 @@ data class ParagraphStyle constructor(
             lineHeight = other.lineHeight ?: this.lineHeight,
             textIndent = other.textIndent ?: this.textIndent,
             textAlign = other.textAlign ?: this.textAlign,
-            textDirectionAlgorithm = other.textDirectionAlgorithm ?: this.textDirectionAlgorithm
+            textDirectionAlgorithm = other.textDirectionAlgorithm
         )
     }
 }

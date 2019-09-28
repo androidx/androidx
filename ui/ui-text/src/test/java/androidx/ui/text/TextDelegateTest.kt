@@ -20,6 +20,7 @@ import androidx.ui.core.Density
 import androidx.ui.core.LayoutDirection
 import androidx.ui.graphics.Canvas
 import androidx.ui.text.font.Font
+import androidx.ui.text.style.TextDirectionAlgorithm
 import androidx.ui.text.style.TextOverflow
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.mock
@@ -142,5 +143,87 @@ class TextDelegateTest() {
         val canvas = mock<Canvas>()
 
         textDelegate.paint(canvas)
+    }
+
+    @Test
+    fun resolveTextDirectionHeuristics_null() {
+        assertThat(
+            resolveTextDirectionAlgorithm(
+                LayoutDirection.Ltr,
+                null)
+        ).isEqualTo(TextDirectionAlgorithm.ContentOrLtr)
+
+        assertThat(
+            resolveTextDirectionAlgorithm(
+                LayoutDirection.Rtl,
+                null)
+        ).isEqualTo(TextDirectionAlgorithm.ContentOrRtl)
+    }
+
+    @Test
+    fun resolveTextDirectionHeuristics_DefaultLtr() {
+        assertThat(
+            resolveTextDirectionAlgorithm(
+                LayoutDirection.Ltr,
+                TextDirectionAlgorithm.ContentOrLtr
+            )
+        ).isEqualTo(TextDirectionAlgorithm.ContentOrLtr)
+
+        assertThat(
+            resolveTextDirectionAlgorithm(LayoutDirection.Rtl,
+                TextDirectionAlgorithm.ContentOrLtr
+            )
+        ).isEqualTo(TextDirectionAlgorithm.ContentOrLtr)
+    }
+
+    @Test
+    fun resolveTextDirectionHeuristics_DefaultRtl() {
+        assertThat(
+            resolveTextDirectionAlgorithm(
+                LayoutDirection.Ltr,
+                TextDirectionAlgorithm.ContentOrRtl
+            )
+        ).isEqualTo(TextDirectionAlgorithm.ContentOrRtl)
+
+        assertThat(
+            resolveTextDirectionAlgorithm(
+                LayoutDirection.Rtl,
+                TextDirectionAlgorithm.ContentOrRtl
+            )
+        ).isEqualTo(TextDirectionAlgorithm.ContentOrRtl)
+    }
+
+    @Test
+    fun resolveTextDirectionHeuristics_Ltr() {
+        assertThat(
+            resolveTextDirectionAlgorithm(
+                LayoutDirection.Ltr,
+                TextDirectionAlgorithm.ForceLtr
+            )
+        ).isEqualTo(TextDirectionAlgorithm.ForceLtr)
+
+        assertThat(
+            resolveTextDirectionAlgorithm(
+                LayoutDirection.Rtl,
+                TextDirectionAlgorithm.ForceLtr
+            )
+        ).isEqualTo(TextDirectionAlgorithm.ForceLtr)
+    }
+
+    @Test
+    fun resolveTextDirectionHeuristics_Rtl() {
+        assertThat(
+            resolveTextDirectionAlgorithm(
+                LayoutDirection.Ltr,
+                TextDirectionAlgorithm.ForceRtl
+            )
+        ).isEqualTo(TextDirectionAlgorithm.ForceRtl)
+
+        assertThat(
+            resolveTextDirectionAlgorithm(
+                LayoutDirection.Rtl,
+                TextDirectionAlgorithm.ForceRtl
+            )
+        ).isEqualTo(TextDirectionAlgorithm.ForceRtl)
     }
 }

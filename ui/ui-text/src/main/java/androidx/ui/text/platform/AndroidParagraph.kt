@@ -31,7 +31,6 @@ import androidx.text.LayoutCompat.JUSTIFICATION_MODE_INTER_WORD
 import androidx.text.TextLayout
 import androidx.text.selection.WordBoundary
 import androidx.ui.core.Density
-import androidx.ui.core.LayoutDirection
 import androidx.ui.core.PxPosition
 import androidx.ui.engine.geometry.Rect
 import androidx.ui.graphics.Canvas
@@ -65,8 +64,7 @@ internal class AndroidParagraph constructor(
         ellipsis: Boolean?,
         constraints: ParagraphConstraints,
         typefaceAdapter: TypefaceAdapter,
-        density: Density,
-        layoutDirection: LayoutDirection
+        density: Density
     ) : this(
         paragraphIntrinsics = AndroidParagraphIntrinsics(
             text = text,
@@ -74,8 +72,7 @@ internal class AndroidParagraph constructor(
             paragraphStyle = paragraphStyle,
             textStyles = textStyles,
             typefaceAdapter = typefaceAdapter,
-            density = density,
-            layoutDirection = layoutDirection
+            density = density
         ),
         maxLines = maxLines,
         ellipsis = ellipsis,
@@ -87,6 +84,10 @@ internal class AndroidParagraph constructor(
     override val width: Float
 
     init {
+        maxLines?.let {
+            require(it >= 1) { "maxLines should be greater than 0" }
+        }
+
         val paragraphStyle = paragraphIntrinsics.paragraphStyle
 
         val alignment = toLayoutAlign(paragraphStyle.textAlign)

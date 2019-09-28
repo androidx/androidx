@@ -17,7 +17,6 @@
 package androidx.ui.text
 
 import androidx.ui.core.Density
-import androidx.ui.core.LayoutDirection
 import androidx.ui.text.font.Font
 import androidx.ui.text.platform.AndroidParagraphIntrinsics
 import androidx.ui.text.platform.TypefaceAdapter
@@ -47,7 +46,6 @@ interface ParagraphIntrinsics {
     paragraphStyle: ParagraphStyle,
     textStyles: List<AnnotatedString.Item<TextStyle>>,
     density: Density,
-    layoutDirection: LayoutDirection,
     resourceLoader: Font.ResourceLoader
 ): ParagraphIntrinsics {
     return AndroidParagraphIntrinsics(
@@ -58,7 +56,6 @@ interface ParagraphIntrinsics {
             resourceLoader = resourceLoader
         ),
         textStyles = textStyles,
-        density = density,
-        layoutDirection = layoutDirection
+        density = density
     )
 }

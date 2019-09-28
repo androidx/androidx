@@ -20,7 +20,6 @@ import androidx.test.filters.SmallTest
 import androidx.test.filters.Suppress
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.ui.core.Density
-import androidx.ui.core.LayoutDirection
 import androidx.ui.core.PxPosition
 import androidx.ui.core.Sp
 import androidx.ui.core.px
@@ -399,7 +398,13 @@ class MultiParagraphIntegrationTest {
                 text = text,
                 fontSize = fontSize,
                 paragraphStyles = listOf(
-                    AnnotatedString.Item(ParagraphStyle(), 0, 3)
+                    AnnotatedString.Item(
+                        style = ParagraphStyle(
+                            textDirectionAlgorithm = TextDirectionAlgorithm.ContentOrLtr
+                        ),
+                        start = 0,
+                        end = 3
+                    )
                 ),
                 constraints = ParagraphConstraints(width = text.length * fontSizeInPx)
             )
@@ -1496,7 +1501,15 @@ class MultiParagraphIntegrationTest {
             val paragraph = simpleMultiParagraph(
                 text = text,
                 fontSize = fontSize,
-                paragraphStyles = listOf(AnnotatedString.Item(ParagraphStyle(), 0, 2)),
+                paragraphStyles = listOf(
+                    AnnotatedString.Item(
+                        style = ParagraphStyle(
+                            textDirectionAlgorithm = TextDirectionAlgorithm.ContentOrLtr
+                        ),
+                        start = 0,
+                        end = 2
+                    )
+                ),
                 constraints = ParagraphConstraints(width)
             )
 
@@ -1517,7 +1530,15 @@ class MultiParagraphIntegrationTest {
             val paragraph = simpleMultiParagraph(
                 text = text,
                 fontSize = fontSize,
-                paragraphStyles = listOf(AnnotatedString.Item(ParagraphStyle(), 2, 2)),
+                paragraphStyles = listOf(
+                    AnnotatedString.Item(
+                        style = ParagraphStyle(
+                            textDirectionAlgorithm = TextDirectionAlgorithm.ContentOrLtr
+                        ),
+                        start = 2,
+                        end = 2
+                    )
+                ),
                 constraints = ParagraphConstraints(width)
             )
 
@@ -2399,8 +2420,7 @@ class MultiParagraphIntegrationTest {
         textStyle: TextStyle? = null,
         constraints: ParagraphConstraints,
         density: Density? = null,
-        layoutDirection: LayoutDirection = LayoutDirection.Ltr,
-        textDirectionAlgorithm: TextDirectionAlgorithm? = null
+        textDirectionAlgorithm: TextDirectionAlgorithm? = TextDirectionAlgorithm.ContentOrLtr
     ): MultiParagraph {
         return MultiParagraph(
             annotatedString = AnnotatedString(
@@ -2422,7 +2442,6 @@ class MultiParagraphIntegrationTest {
             maxLines = maxLines,
             constraints = constraints,
             density = density ?: defaultDensity,
-            layoutDirection = layoutDirection,
             resourceLoader = TestFontResourceLoader(context)
         )
     }
