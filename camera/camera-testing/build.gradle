@@ -31,7 +31,7 @@ dependencies {
     implementation(project(":appcompat"))
     implementation(project(":camera:camera-core"))
     implementation("androidx.core:core:1.1.0")
-    implementation("androidx.concurrent:concurrent-futures:1.0.0-alpha03")
+    implementation("androidx.concurrent:concurrent-futures:1.0.0")
     implementation("androidx.test.espresso:espresso-idling-resource:3.1.0")
     implementation(JUNIT)
 
