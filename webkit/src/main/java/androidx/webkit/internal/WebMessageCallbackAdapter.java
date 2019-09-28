@@ -32,7 +32,7 @@ import java.lang.reflect.InvocationHandler;
 public class WebMessageCallbackAdapter implements WebMessageCallbackBoundaryInterface {
     WebMessageCallbackCompat mImpl;
 
-    WebMessageCallbackAdapter(WebMessageCallbackCompat impl) {
+    public WebMessageCallbackAdapter(@NonNull WebMessageCallbackCompat impl) {
         mImpl = impl;
     }
 
