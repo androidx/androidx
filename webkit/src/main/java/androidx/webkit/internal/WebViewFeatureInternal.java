@@ -387,6 +387,7 @@ public enum WebViewFeatureInternal {
     /**
      * Return the {@link WebViewFeatureInternal} corresponding to {@param feature}.
      */
+    @NonNull
     public static WebViewFeatureInternal getFeature(@NonNull @WebViewFeature.WebViewSupportFeature
             String publicFeatureValue) {
         for (WebViewFeatureInternal internalFeature : WebViewFeatureInternal.values()) {

@@ -37,8 +37,8 @@
     <issue
         id="LambdaLast"
         message="Functional interface parameters (such as parameter 1, &quot;executor&quot;, in androidx.webkit.internal.WebViewProviderAdapter.setWebViewRenderProcessClient) should be last to improve Kotlin interoperability; see https://kotlinlang.org/docs/reference/java-interop.html#sam-conversions"
-        errorLine1="            @NonNull WebViewRenderProcessClient webViewRenderProcessClient) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="            @Nullable WebViewRenderProcessClient webViewRenderProcessClient) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/webkit/internal/WebViewProviderAdapter.java"
             line="123"
@@ -609,28 +609,6 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public String getData() {"
-        errorLine2="           ~~~~~~">
-        <location
-            file="src/main/java/androidx/webkit/internal/WebMessageAdapter.java"
-            line="41"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="            WebMessageBoundaryInterface boundaryInterface) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/webkit/internal/WebMessageAdapter.java"
-            line="75"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    String getData();"
         errorLine2="    ~~~~~~">
         <location
@@ -1055,17 +1033,6 @@
             file="../../../external/webview_support_interfaces/src/org/chromium/support_lib_boundary/WebViewClientBoundaryInterface.java"
             line="24"
             column="52"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static WebViewFeatureInternal getFeature(@NonNull @WebViewFeature.WebViewSupportFeature"
-        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/webkit/internal/WebViewFeatureInternal.java"
-            line="390"
-            column="19"/>
     </issue>
 
     <issue
