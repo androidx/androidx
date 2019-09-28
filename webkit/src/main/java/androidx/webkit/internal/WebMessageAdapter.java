@@ -33,11 +33,12 @@ import java.lang.reflect.InvocationHandler;
 public class WebMessageAdapter implements WebMessageBoundaryInterface {
     private WebMessageCompat mWebMessageCompat;
 
-    WebMessageAdapter(WebMessageCompat webMessage) {
+    public WebMessageAdapter(@NonNull WebMessageCompat webMessage) {
         this.mWebMessageCompat = webMessage;
     }
 
     @Override
+    @Nullable
     public String getData() {
         return mWebMessageCompat.getData();
     }
@@ -72,7 +73,7 @@ public class WebMessageAdapter implements WebMessageBoundaryInterface {
      */
     @NonNull
     public static WebMessageCompat webMessageCompatFromBoundaryInterface(
-            WebMessageBoundaryInterface boundaryInterface) {
+            @NonNull WebMessageBoundaryInterface boundaryInterface) {
         return new WebMessageCompat(boundaryInterface.getData(),
                 toWebMessagePortCompats(boundaryInterface.getPorts()));
     }
