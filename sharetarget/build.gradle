@@ -28,7 +28,7 @@ dependencies {
     api("androidx.core:core:1.1.0")
     implementation("androidx.collection:collection:1.0.0")
     api(GUAVA_LISTENABLE_FUTURE)
-    implementation("androidx.concurrent:concurrent-futures:1.0.0-beta01")
+    implementation("androidx.concurrent:concurrent-futures:1.0.0")
 
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
     androidTestImplementation(ANDROIDX_TEST_CORE)
