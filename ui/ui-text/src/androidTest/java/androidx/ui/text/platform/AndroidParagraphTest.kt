@@ -13,10 +13,6 @@ import android.text.style.StrikethroughSpan
 import android.text.style.UnderlineSpan
 import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
-import androidx.text.LayoutCompat.TEXT_DIRECTION_FIRST_STRONG_LTR
-import androidx.text.LayoutCompat.TEXT_DIRECTION_FIRST_STRONG_RTL
-import androidx.text.LayoutCompat.TEXT_DIRECTION_LTR
-import androidx.text.LayoutCompat.TEXT_DIRECTION_RTL
 import androidx.text.StaticLayoutCompat
 import androidx.text.style.BaselineShiftSpan
 import androidx.text.style.FontFeatureSpan
@@ -25,7 +21,6 @@ import androidx.text.style.ShadowSpan
 import androidx.text.style.SkewXSpan
 import androidx.text.style.TypefaceSpan
 import androidx.ui.core.Density
-import androidx.ui.core.LayoutDirection
 import androidx.ui.core.px
 import androidx.ui.core.sp
 import androidx.ui.core.withDensity
@@ -1204,85 +1199,6 @@ class AndroidParagraphTest {
     }
 
     @Test
-    fun resolveTextDirectionHeuristics_null() {
-        assertThat(TEXT_DIRECTION_FIRST_STRONG_LTR).isEqualTo(
-            resolveTextDirectionHeuristics(LayoutDirection.Ltr, null)
-        )
-
-        assertThat(TEXT_DIRECTION_FIRST_STRONG_RTL).isEqualTo(
-            resolveTextDirectionHeuristics(LayoutDirection.Rtl, null)
-        )
-    }
-
-    @Test
-    fun resolveTextDirectionHeuristics_DefaultLtr() {
-        assertThat(TEXT_DIRECTION_FIRST_STRONG_LTR).isEqualTo(
-            resolveTextDirectionHeuristics(
-                LayoutDirection.Ltr,
-                TextDirectionAlgorithm.ContentOrLtr
-            )
-        )
-
-        assertThat(TEXT_DIRECTION_FIRST_STRONG_LTR).isEqualTo(
-            resolveTextDirectionHeuristics(
-                LayoutDirection.Rtl,
-                TextDirectionAlgorithm.ContentOrLtr
-            )
-        )
-    }
-
-    @Test
-    fun resolveTextDirectionHeuristics_DefaultRtl() {
-        assertThat(TEXT_DIRECTION_FIRST_STRONG_RTL).isEqualTo(
-            resolveTextDirectionHeuristics(
-                LayoutDirection.Ltr,
-                TextDirectionAlgorithm.ContentOrRtl
-            )
-        )
-
-        assertThat(TEXT_DIRECTION_FIRST_STRONG_RTL).isEqualTo(
-            resolveTextDirectionHeuristics(
-                LayoutDirection.Rtl,
-                TextDirectionAlgorithm.ContentOrRtl
-            )
-        )
-    }
-
-    @Test
-    fun resolveTextDirectionHeuristics_Ltr() {
-        assertThat(TEXT_DIRECTION_LTR).isEqualTo(
-            resolveTextDirectionHeuristics(
-                LayoutDirection.Ltr,
-                TextDirectionAlgorithm.ForceLtr
-            )
-        )
-
-        assertThat(TEXT_DIRECTION_LTR).isEqualTo(
-            resolveTextDirectionHeuristics(
-                LayoutDirection.Rtl,
-                TextDirectionAlgorithm.ForceLtr
-            )
-        )
-    }
-
-    @Test
-    fun resolveTextDirectionHeuristics_Rtl() {
-        assertThat(TEXT_DIRECTION_RTL).isEqualTo(
-            resolveTextDirectionHeuristics(
-                LayoutDirection.Ltr,
-                TextDirectionAlgorithm.ForceRtl
-            )
-        )
-
-        assertThat(TEXT_DIRECTION_RTL).isEqualTo(
-            resolveTextDirectionHeuristics(
-                LayoutDirection.Rtl,
-                TextDirectionAlgorithm.ForceRtl
-            )
-        )
-    }
-
-    @Test
     fun floatingWidth() {
         val floatWidth = 1.3f
         val paragraph = simpleParagraph(
@@ -1298,11 +1214,11 @@ class AndroidParagraphTest {
         textStyles: List<AnnotatedString.Item<TextStyle>> = listOf(),
         textIndent: TextIndent? = null,
         textAlign: TextAlign? = null,
+        textDirectionAlgorithm: TextDirectionAlgorithm? = TextDirectionAlgorithm.ContentOrLtr,
         ellipsis: Boolean? = null,
         maxLines: Int? = null,
         constraints: ParagraphConstraints,
         textStyle: TextStyle? = null,
-        layoutDirection: LayoutDirection = LayoutDirection.Ltr,
         typefaceAdapter: TypefaceAdapter = TypefaceAdapter()
     ): AndroidParagraph {
         return AndroidParagraph(
@@ -1312,13 +1228,13 @@ class AndroidParagraphTest {
             style = TextStyle().merge(textStyle),
             paragraphStyle = ParagraphStyle(
                 textAlign = textAlign,
-                textIndent = textIndent
+                textIndent = textIndent,
+                textDirectionAlgorithm = textDirectionAlgorithm
             ),
             maxLines = maxLines,
             ellipsis = ellipsis,
             constraints = constraints,
-            density = Density(density = 1f),
-            layoutDirection = layoutDirection
+            density = Density(density = 1f)
         )
     }
 

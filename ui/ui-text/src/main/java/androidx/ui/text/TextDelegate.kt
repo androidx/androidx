@@ -31,15 +31,16 @@ import androidx.ui.core.sp
 import androidx.ui.engine.geometry.Offset
 import androidx.ui.engine.geometry.Rect
 import androidx.ui.engine.geometry.Size
-import androidx.ui.graphics.Color
 import androidx.ui.graphics.BlendMode
 import androidx.ui.graphics.Canvas
+import androidx.ui.graphics.Color
 import androidx.ui.graphics.LinearGradientShader
 import androidx.ui.graphics.Paint
 import androidx.ui.graphics.Shader
 import androidx.ui.text.font.Font
 import androidx.ui.text.style.TextAlign
 import androidx.ui.text.style.TextDirection
+import androidx.ui.text.style.TextDirectionAlgorithm
 import androidx.ui.text.style.TextOverflow
 
 /** The default font size if none is specified. */
@@ -152,7 +153,15 @@ class TextDelegate(
      *
      * If null is passed to constructor, use default paragraph style.
      */
-    val paragraphStyle: ParagraphStyle = paragraphStyle ?: ParagraphStyle()
+    val paragraphStyle: ParagraphStyle = when {
+        paragraphStyle == null -> ParagraphStyle(
+            textDirectionAlgorithm = resolveTextDirectionAlgorithm(layoutDirection, null)
+        )
+        paragraphStyle.textDirectionAlgorithm == null -> paragraphStyle.copy(
+            textDirectionAlgorithm = resolveTextDirectionAlgorithm(layoutDirection, null)
+        )
+        else -> paragraphStyle
+    }
 
     /**
      * The text layout result. null if text layout is not computed.
@@ -231,7 +240,6 @@ class TextDelegate(
             textStyle = textStyle,
             paragraphStyle = paragraphStyle,
             density = density,
-            layoutDirection = layoutDirection,
             resourceLoader = resourceLoader
         )
 
@@ -474,7 +482,6 @@ private fun TextDelegate.createOverflowShader(
             textStyles = listOf(),
             density = density,
             resourceLoader = resourceLoader,
-            layoutDirection = layoutDirection,
             constraints = ParagraphConstraints(Float.POSITIVE_INFINITY)
         )
 
@@ -505,4 +512,20 @@ private fun TextDelegate.createOverflowShader(
     } else {
         null
     }
+}
+
+/**
+ * If [textDirectionAlgorithm] is null returns a [TextDirectionAlgorithm] based on
+ * [layoutDirection].
+ */
+@VisibleForTesting
+internal fun resolveTextDirectionAlgorithm(
+    layoutDirection: LayoutDirection,
+    textDirectionAlgorithm: TextDirectionAlgorithm?
+): TextDirectionAlgorithm {
+    return textDirectionAlgorithm
+        ?: when (layoutDirection) {
+            LayoutDirection.Ltr -> TextDirectionAlgorithm.ContentOrLtr
+            LayoutDirection.Rtl -> TextDirectionAlgorithm.ContentOrRtl
+        }
 }
