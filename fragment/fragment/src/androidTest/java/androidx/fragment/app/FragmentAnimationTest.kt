@@ -65,7 +65,7 @@ class FragmentAnimationTest {
 
     // Ensure that adding and popping a Fragment uses the enter and popExit animators
     @Test
-    fun addAnimators() {
+    fun addAnimations() {
         waitForAnimationReady()
         val fm = activityRule.activity.supportFragmentManager
 
@@ -82,7 +82,7 @@ class FragmentAnimationTest {
 
     // Ensure that removing and popping a Fragment uses the exit and popEnter animators
     @Test
-    fun removeAnimators() {
+    fun removeAnimations() {
         waitForAnimationReady()
         val fm = activityRule.activity.supportFragmentManager
 
@@ -102,7 +102,7 @@ class FragmentAnimationTest {
 
     // Ensure that showing and popping a Fragment uses the enter and popExit animators
     @Test
-    fun showAnimators() {
+    fun showAnimations() {
         waitForAnimationReady()
         val fm = activityRule.activity.supportFragmentManager
 
@@ -122,7 +122,7 @@ class FragmentAnimationTest {
 
     // Ensure that hiding and popping a Fragment uses the exit and popEnter animators
     @Test
-    fun hideAnimators() {
+    fun hideAnimations() {
         waitForAnimationReady()
         val fm = activityRule.activity.supportFragmentManager
 
@@ -142,7 +142,7 @@ class FragmentAnimationTest {
 
     // Ensure that attaching and popping a Fragment uses the enter and popExit animators
     @Test
-    fun attachAnimators() {
+    fun attachAnimations() {
         waitForAnimationReady()
         val fm = activityRule.activity.supportFragmentManager
 
@@ -162,7 +162,7 @@ class FragmentAnimationTest {
 
     // Ensure that detaching and popping a Fragment uses the exit and popEnter animators
     @Test
-    fun detachAnimators() {
+    fun detachAnimations() {
         waitForAnimationReady()
         val fm = activityRule.activity.supportFragmentManager
 
@@ -183,7 +183,7 @@ class FragmentAnimationTest {
     // Replace should exit the existing fragments and enter the added fragment, then
     // popping should popExit the removed fragment and popEnter the added fragments
     @Test
-    fun replaceAnimators() {
+    fun replaceAnimations() {
         waitForAnimationReady()
         val fm = activityRule.activity.supportFragmentManager
 
@@ -295,7 +295,7 @@ class FragmentAnimationTest {
     // Ensure that adding and popping a Fragment uses the enter and popExit animators,
     // but the animators are delayed when an entering Fragment is postponed.
     @Test
-    fun postponedAddAnimators() {
+    fun postponedAddAnimations() {
         waitForAnimationReady()
         val fm = activityRule.activity.supportFragmentManager
 
@@ -319,7 +319,7 @@ class FragmentAnimationTest {
     // Ensure that removing and popping a Fragment uses the exit and popEnter animators,
     // but the animators are delayed when an entering Fragment is postponed.
     @Test
-    fun postponedRemoveAnimators() {
+    fun postponedRemoveAnimations() {
         waitForAnimationReady()
         val fm = activityRule.activity.supportFragmentManager
 
