@@ -272,7 +272,7 @@ internal class RawDragGestureRecognizer {
 
                         if (started) {
 
-                            val (consumedDx, consumedDy) = dragObserver.onDrag(
+                            val consumed = dragObserver.onDrag(
                                 PxPosition(
                                     (totalDx / changesToReturn.size).px,
                                     (totalDy / changesToReturn.size).px
@@ -280,7 +280,7 @@ internal class RawDragGestureRecognizer {
                             )
 
                             movedChanges = movedChanges.map {
-                                it.consumePositionChange(consumedDx, consumedDy)
+                                it.consumePositionChange(consumed.x, consumed.y)
                             }
                         }
                     }

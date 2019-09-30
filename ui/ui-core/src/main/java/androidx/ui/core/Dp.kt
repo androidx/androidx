@@ -408,8 +408,21 @@ inline class DpInverse(val value: Float) {
 /**
  * A two dimensional size using [Dp] for units
  */
+@UseExperimental(ExperimentalUnsignedTypes::class)
 @Immutable
-data class Size(val width: Dp, val height: Dp) {
+data class Size @PublishedApi internal constructor(@PublishedApi internal val value: Long) {
+    /**
+     * The horizontal aspect of the size in [Dp].
+     */
+    inline val width: Dp
+        get() = unpackFloat1(value).dp
+
+    /**
+     * The vertical aspect of the size in [Dp].
+     */
+    inline val height: Dp
+        get() = unpackFloat2(value).dp
+
     /**
      * Scales the Size by multiplying [width] and [height] by [other]
      */
@@ -447,6 +460,12 @@ data class Size(val width: Dp, val height: Dp) {
 }
 
 /**
+ * Constructs a [Size] from width and height [Dp] values.
+ */
+@UseExperimental(ExperimentalUnsignedTypes::class)
+inline fun Size(width: Dp, height: Dp): Size = Size(packFloats(width.value, height.value))
+
+/**
  * Returns a [Size] with [size]'s [Size.width] and [Size.height] multiplied by [this]
  */
 inline operator fun Int.times(size: Size) = size * this
@@ -472,8 +491,21 @@ fun Size.center(): Position {
 /**
  * A two-dimensional position using [Dp] for units
  */
+@UseExperimental(ExperimentalUnsignedTypes::class)
 @Immutable
-data class Position(val x: Dp, val y: Dp) {
+data class Position @PublishedApi internal constructor(@PublishedApi internal val value: Long) {
+    /**
+     * The horizontal aspect of the position in [Dp]
+     */
+    inline val x: Dp
+        get() = unpackFloat1(value).dp
+
+    /**
+     * The vertical aspect of the position in [Dp]
+     */
+    inline val y: Dp
+        get() = unpackFloat2(value).dp
+
     /**
      * Subtract a [Position] from another one.
      */
@@ -486,6 +518,12 @@ data class Position(val x: Dp, val y: Dp) {
     inline operator fun plus(other: Position) =
         Position(x + other.x, y + other.y)
 }
+
+/**
+ * Constructs a [Position] from [x] and [y] position [Dp] values.
+ */
+@UseExperimental(ExperimentalUnsignedTypes::class)
+inline fun Position(x: Dp, y: Dp): Position = Position(packFloats(x.value, y.value))
 
 /**
  * The magnitude of the offset represented by this [Position].
