@@ -126,7 +126,9 @@ class BrowserActionsFallbackMenuAdapter extends BaseAdapter {
     }
 
     static class ViewHolderItem {
+        @SuppressWarnings("NullAway") // TODO: b/141869399
         ImageView mIcon;
+        @SuppressWarnings("NullAway") // TODO: b/141869399
         TextView mText;
     }
 }

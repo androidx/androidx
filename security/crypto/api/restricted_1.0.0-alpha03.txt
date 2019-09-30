@@ -41,7 +41,6 @@ package androidx.security.crypto {
   }
 
   public final class MasterKeys {
-    ctor public MasterKeys();
     method public static String getOrCreate(android.security.keystore.KeyGenParameterSpec) throws java.security.GeneralSecurityException, java.io.IOException;
     field public static final android.security.keystore.KeyGenParameterSpec AES256_GCM_SPEC;
   }

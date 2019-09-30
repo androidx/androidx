@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 3.5.0-beta04" client="gradle" variant="debug" version="3.5.0-beta04">
+<issues format="5" by="lint 3.6.0-alpha12" client="gradle" variant="debug" version="3.6.0-alpha12">
 
     <issue
         id="UnknownNullness"
@@ -8,7 +8,7 @@
         errorLine2="                                             ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/coordinatorlayout/widget/CoordinatorLayout.java"
-            line="252"
+            line="258"
             column="46"/>
     </issue>
 
@@ -19,7 +19,7 @@
         errorLine2="                                     ~~~~~~~~">
         <location
             file="src/main/java/androidx/coordinatorlayout/widget/CoordinatorLayout.java"
-            line="342"
+            line="348"
             column="38"/>
     </issue>
 
@@ -30,7 +30,7 @@
         errorLine2="                 ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/coordinatorlayout/widget/CoordinatorLayout.java"
-            line="394"
+            line="400"
             column="18"/>
     </issue>
 
@@ -41,7 +41,7 @@
         errorLine2="                                         ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/coordinatorlayout/widget/CoordinatorLayout.java"
-            line="523"
+            line="531"
             column="42"/>
     </issue>
 
@@ -52,7 +52,7 @@
         errorLine2="                                ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/coordinatorlayout/widget/CoordinatorLayout.java"
-            line="541"
+            line="550"
             column="33"/>
     </issue>
 
@@ -63,7 +63,7 @@
         errorLine2="                               ~~~~">
         <location
             file="src/main/java/androidx/coordinatorlayout/widget/CoordinatorLayout.java"
-            line="752"
+            line="758"
             column="32"/>
     </issue>
 
@@ -74,7 +74,7 @@
         errorLine2="                       ~~~~~~">
         <location
             file="src/main/java/androidx/coordinatorlayout/widget/CoordinatorLayout.java"
-            line="916"
+            line="925"
             column="24"/>
     </issue>
 
@@ -85,7 +85,7 @@
         errorLine2="                                ~~~~~~">
         <location
             file="src/main/java/androidx/coordinatorlayout/widget/CoordinatorLayout.java"
-            line="1242"
+            line="1252"
             column="33"/>
     </issue>
 
@@ -96,7 +96,7 @@
         errorLine2="                                               ~~~~">
         <location
             file="src/main/java/androidx/coordinatorlayout/widget/CoordinatorLayout.java"
-            line="1242"
+            line="1252"
             column="48"/>
     </issue>
 
@@ -107,7 +107,7 @@
         errorLine2="           ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/coordinatorlayout/widget/CoordinatorLayout.java"
-            line="1724"
+            line="1739"
             column="12"/>
     </issue>
 
@@ -118,7 +118,7 @@
         errorLine2="                                             ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/coordinatorlayout/widget/CoordinatorLayout.java"
-            line="1724"
+            line="1739"
             column="46"/>
     </issue>
 
@@ -129,7 +129,7 @@
         errorLine2="              ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/coordinatorlayout/widget/CoordinatorLayout.java"
-            line="1729"
+            line="1744"
             column="15"/>
     </issue>
 
@@ -140,7 +140,7 @@
         errorLine2="                                                ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/coordinatorlayout/widget/CoordinatorLayout.java"
-            line="1729"
+            line="1744"
             column="49"/>
     </issue>
 
@@ -151,7 +151,7 @@
         errorLine2="              ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/coordinatorlayout/widget/CoordinatorLayout.java"
-            line="1739"
+            line="1754"
             column="15"/>
     </issue>
 
@@ -162,7 +162,7 @@
         errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/coordinatorlayout/widget/CoordinatorLayout.java"
-            line="1744"
+            line="1759"
             column="41"/>
     </issue>
 
@@ -173,7 +173,7 @@
         errorLine2="                                       ~~~~">
         <location
             file="src/main/java/androidx/coordinatorlayout/widget/CoordinatorLayout.java"
-            line="1749"
+            line="1764"
             column="40"/>
     </issue>
 
@@ -184,7 +184,7 @@
         errorLine2="                                                   ~~~~">
         <location
             file="src/main/java/androidx/coordinatorlayout/widget/CoordinatorLayout.java"
-            line="1749"
+            line="1764"
             column="52"/>
     </issue>
 
@@ -195,7 +195,7 @@
         errorLine2="                                       ~~~~">
         <location
             file="src/main/java/androidx/coordinatorlayout/widget/CoordinatorLayout.java"
-            line="1754"
+            line="1770"
             column="40"/>
     </issue>
 
@@ -206,7 +206,7 @@
         errorLine2="                                                   ~~~~">
         <location
             file="src/main/java/androidx/coordinatorlayout/widget/CoordinatorLayout.java"
-            line="1754"
+            line="1770"
             column="52"/>
     </issue>
 
@@ -217,7 +217,7 @@
         errorLine2="                                       ~~~~">
         <location
             file="src/main/java/androidx/coordinatorlayout/widget/CoordinatorLayout.java"
-            line="1779"
+            line="1795"
             column="40"/>
     </issue>
 
@@ -228,7 +228,7 @@
         errorLine2="                                                   ~~~~">
         <location
             file="src/main/java/androidx/coordinatorlayout/widget/CoordinatorLayout.java"
-            line="1779"
+            line="1795"
             column="52"/>
     </issue>
 
@@ -239,7 +239,7 @@
         errorLine2="                                       ~~~~">
         <location
             file="src/main/java/androidx/coordinatorlayout/widget/CoordinatorLayout.java"
-            line="1784"
+            line="1801"
             column="40"/>
     </issue>
 
@@ -250,7 +250,7 @@
         errorLine2="                                                   ~~~~">
         <location
             file="src/main/java/androidx/coordinatorlayout/widget/CoordinatorLayout.java"
-            line="1784"
+            line="1801"
             column="52"/>
     </issue>
 
@@ -261,7 +261,7 @@
         errorLine2="                                   ~~~~">
         <location
             file="src/main/java/androidx/coordinatorlayout/widget/CoordinatorLayout.java"
-            line="1805"
+            line="1822"
             column="36"/>
     </issue>
 
@@ -272,7 +272,7 @@
         errorLine2="                                   ~~~~">
         <location
             file="src/main/java/androidx/coordinatorlayout/widget/CoordinatorLayout.java"
-            line="1810"
+            line="1828"
             column="36"/>
     </issue>
 
@@ -283,7 +283,7 @@
         errorLine2="                               ~~~~">
         <location
             file="src/main/java/androidx/coordinatorlayout/widget/CoordinatorLayout.java"
-            line="1832"
+            line="1850"
             column="32"/>
     </issue>
 
@@ -294,7 +294,7 @@
         errorLine2="                               ~~~~">
         <location
             file="src/main/java/androidx/coordinatorlayout/widget/CoordinatorLayout.java"
-            line="1839"
+            line="1857"
             column="32"/>
     </issue>
 
@@ -305,7 +305,7 @@
         errorLine2="                                  ~~~~">
         <location
             file="src/main/java/androidx/coordinatorlayout/widget/CoordinatorLayout.java"
-            line="1893"
+            line="1912"
             column="35"/>
     </issue>
 
@@ -316,7 +316,7 @@
         errorLine2="                                                               ~~~~~">
         <location
             file="src/main/java/androidx/coordinatorlayout/widget/CoordinatorLayout.java"
-            line="1893"
+            line="1912"
             column="64"/>
     </issue>
 
@@ -327,7 +327,7 @@
         errorLine2="                                  ~~~~">
         <location
             file="src/main/java/androidx/coordinatorlayout/widget/CoordinatorLayout.java"
-            line="1898"
+            line="1918"
             column="35"/>
     </issue>
 
@@ -338,7 +338,7 @@
         errorLine2="                                                               ~~~~~">
         <location
             file="src/main/java/androidx/coordinatorlayout/widget/CoordinatorLayout.java"
-            line="1898"
+            line="1918"
             column="64"/>
     </issue>
 
@@ -349,7 +349,7 @@
         errorLine2="                                 ~~~~">
         <location
             file="src/main/java/androidx/coordinatorlayout/widget/CoordinatorLayout.java"
-            line="1940"
+            line="1961"
             column="34"/>
     </issue>
 
@@ -360,7 +360,7 @@
         errorLine2="                                    ~~~~">
         <location
             file="src/main/java/androidx/coordinatorlayout/widget/CoordinatorLayout.java"
-            line="1969"
+            line="1991"
             column="37"/>
     </issue>
 
@@ -371,7 +371,7 @@
         errorLine2="                        ~~~~~~~">
         <location
             file="src/main/java/androidx/coordinatorlayout/widget/CoordinatorLayout.java"
-            line="2080"
+            line="2102"
             column="25"/>
     </issue>
 
@@ -382,7 +382,7 @@
         errorLine2="                                         ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/coordinatorlayout/widget/CoordinatorLayout.java"
-            line="2080"
+            line="2102"
             column="42"/>
     </issue>
 
@@ -393,7 +393,7 @@
         errorLine2="                            ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/coordinatorlayout/widget/CoordinatorLayout.java"
-            line="2885"
+            line="2907"
             column="29"/>
     </issue>
 
@@ -404,7 +404,7 @@
         errorLine2="                            ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/coordinatorlayout/widget/CoordinatorLayout.java"
-            line="2889"
+            line="2911"
             column="29"/>
     </issue>
 
@@ -415,7 +415,7 @@
         errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/coordinatorlayout/widget/CoordinatorLayout.java"
-            line="2893"
+            line="2915"
             column="29"/>
     </issue>
 
@@ -426,7 +426,7 @@
         errorLine2="                                          ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/coordinatorlayout/widget/CoordinatorLayout.java"
-            line="3215"
+            line="3240"
             column="43"/>
     </issue>
 
@@ -437,7 +437,7 @@
         errorLine2="              ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/coordinatorlayout/widget/CoordinatorLayout.java"
-            line="3242"
+            line="3268"
             column="15"/>
     </issue>
 
@@ -448,7 +448,7 @@
         errorLine2="                                                 ~~~~">
         <location
             file="src/main/java/androidx/coordinatorlayout/widget/CoordinatorLayout.java"
-            line="3265"
+            line="3292"
             column="50"/>
     </issue>
 
@@ -459,7 +459,7 @@
         errorLine2="                                                             ~~~~">
         <location
             file="src/main/java/androidx/coordinatorlayout/widget/CoordinatorLayout.java"
-            line="3265"
+            line="3292"
             column="62"/>
     </issue>
 

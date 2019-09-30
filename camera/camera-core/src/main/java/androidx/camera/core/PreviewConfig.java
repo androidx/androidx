@@ -495,12 +495,14 @@ public final class PreviewConfig
 
     /** @hide */
     @RestrictTo(Scope.LIBRARY_GROUP)
+    @Override
     public int getSurfaceOccupancyPriority(int valueIfMissing) {
         return retrieveOption(OPTION_SURFACE_OCCUPANCY_PRIORITY, valueIfMissing);
     }
 
     /** @hide */
     @RestrictTo(Scope.LIBRARY_GROUP)
+    @Override
     public int getSurfaceOccupancyPriority() {
         return retrieveOption(OPTION_SURFACE_OCCUPANCY_PRIORITY);
     }
@@ -625,6 +627,7 @@ public final class PreviewConfig
          * @return A {@link PreviewConfig} populated with the current state.
          */
         @NonNull
+        @Override
         public PreviewConfig build() {
             // Error at runtime for using both setTargetResolution and setTargetAspectRatio on
             // the same config.

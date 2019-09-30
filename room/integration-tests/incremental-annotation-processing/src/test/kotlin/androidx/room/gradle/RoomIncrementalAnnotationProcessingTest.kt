@@ -123,6 +123,11 @@ class RoomIncrementalAnnotationProcessingTest(private val withIncrementalRoom: B
         // copy test project
         File("src/test/data/simple-project").copyRecursively(projectRoot)
 
+        // setup gradle.properties
+        File(projectRoot, "gradle.properties").writeText(
+            "android.useAndroidX=true"
+        )
+
         // set up build file
         File(projectRoot, "build.gradle").writeText(
             """

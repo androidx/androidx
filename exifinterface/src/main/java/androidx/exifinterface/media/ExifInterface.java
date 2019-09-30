@@ -5318,7 +5318,7 @@ public class ExifInterface {
                     length = 0;
 
                     if (startsWith(bytes, IDENTIFIER_EXIF_APP1)) {
-                        final long offset = start + IDENTIFIER_EXIF_APP1.length;
+                        final int offset = start + IDENTIFIER_EXIF_APP1.length;
                         final byte[] value = Arrays.copyOfRange(bytes, IDENTIFIER_EXIF_APP1.length,
                                 bytes.length);
 
@@ -5328,7 +5328,7 @@ public class ExifInterface {
                         mExifOffset = (int) offset;
                     } else if (startsWith(bytes, IDENTIFIER_XMP_APP1)) {
                         // See XMP Specification Part 3: Storage in Files, 1.1.3 JPEG, Table 6
-                        final long offset = start + IDENTIFIER_XMP_APP1.length;
+                        final int offset = start + IDENTIFIER_XMP_APP1.length;
                         final byte[] value = Arrays.copyOfRange(bytes,
                                 IDENTIFIER_XMP_APP1.length, bytes.length);
 
@@ -6433,7 +6433,7 @@ public class ExifInterface {
                     if ((photometricInterpretationValue == PHOTOMETRIC_INTERPRETATION_BLACK_IS_ZERO
                             && Arrays.equals(bitsPerSampleValue, BITS_PER_SAMPLE_GREYSCALE_2))
                             || ((photometricInterpretationValue == PHOTOMETRIC_INTERPRETATION_YCBCR)
-                            && (Arrays.equals(bitsPerSampleValue, BITS_PER_SAMPLE_RGB)))) {
+                            && Arrays.equals(bitsPerSampleValue, BITS_PER_SAMPLE_RGB))) {
                         return true;
                     } else {
                         // TODO: Add support for lossless Huffman JPEG data
@@ -6970,9 +6970,9 @@ public class ExifInterface {
                 throw new EOFException();
             }
             if (mByteOrder == LITTLE_ENDIAN) {
-                return (short) ((ch2 << 8) + (ch1));
+                return (short) ((ch2 << 8) + ch1);
             } else if (mByteOrder == BIG_ENDIAN) {
-                return (short) ((ch1 << 8) + (ch2));
+                return (short) ((ch1 << 8) + ch2);
             }
             throw new IOException("Invalid byte order: " + mByteOrder);
         }
@@ -7021,9 +7021,9 @@ public class ExifInterface {
                 throw new EOFException();
             }
             if (mByteOrder == LITTLE_ENDIAN) {
-                return ((ch2 << 8) + (ch1));
+                return ((ch2 << 8) + ch1);
             } else if (mByteOrder == BIG_ENDIAN) {
-                return ((ch1 << 8) + (ch2));
+                return ((ch1 << 8) + ch2);
             }
             throw new IOException("Invalid byte order: " + mByteOrder);
         }

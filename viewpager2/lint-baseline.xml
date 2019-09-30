@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 3.5.0-beta04" client="gradle" variant="debug" version="3.5.0-beta04">
+<issues format="5" by="lint 3.6.0-alpha12" client="gradle" variant="debug" version="3.6.0-alpha12">
 
     <issue
         id="UnknownNullness"
@@ -8,7 +8,18 @@
         errorLine2="           ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/viewpager2/widget/ViewPager2.java"
-            line="251"
+            line="284"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public CharSequence getAccessibilityClassName() {"
+        errorLine2="           ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/viewpager2/widget/ViewPager2.java"
+            line="284"
             column="12"/>
     </issue>
 
@@ -19,7 +30,18 @@
         errorLine2="                                          ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/viewpager2/widget/ViewPager2.java"
-            line="293"
+            line="327"
+            column="43"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected void onRestoreInstanceState(Parcelable state) {"
+        errorLine2="                                          ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/viewpager2/widget/ViewPager2.java"
+            line="327"
             column="43"/>
     </issue>
 
@@ -30,7 +52,18 @@
         errorLine2="                                                ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/viewpager2/widget/ViewPager2.java"
-            line="328"
+            line="362"
+            column="49"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected void dispatchRestoreInstanceState(SparseArray&lt;Parcelable> container) {"
+        errorLine2="                                                ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/viewpager2/widget/ViewPager2.java"
+            line="362"
             column="49"/>
     </issue>
 
@@ -41,7 +74,18 @@
         errorLine2="                            ~~~~">
         <location
             file="src/main/java/androidx/viewpager2/widget/ViewPager2.java"
-            line="435"
+            line="486"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void onViewAdded(View child) {"
+        errorLine2="                            ~~~~">
+        <location
+            file="src/main/java/androidx/viewpager2/widget/ViewPager2.java"
+            line="486"
             column="29"/>
     </issue>
 
@@ -52,7 +96,18 @@
         errorLine2="                                                  ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/viewpager2/widget/ViewPager2.java"
-            line="841"
+            line="938"
+            column="51"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void onInitializeAccessibilityNodeInfo(AccessibilityNodeInfo info) {"
+        errorLine2="                                                  ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/viewpager2/widget/ViewPager2.java"
+            line="938"
             column="51"/>
     </issue>
 
@@ -63,7 +118,18 @@
         errorLine2="                                                          ~~~~~~">
         <location
             file="src/main/java/androidx/viewpager2/widget/ViewPager2.java"
-            line="847"
+            line="945"
+            column="59"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public boolean performAccessibilityAction(int action, Bundle arguments) {"
+        errorLine2="                                                          ~~~~~~">
+        <location
+            file="src/main/java/androidx/viewpager2/widget/ViewPager2.java"
+            line="945"
             column="59"/>
     </issue>
 

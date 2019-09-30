@@ -25,8 +25,6 @@ MissingNullability: androidx.recyclerview.selection.SelectionPredicates#createSe
     Missing nullability on method `createSelectAnything` return
 MissingNullability: androidx.recyclerview.selection.SelectionPredicates#createSelectSingleAnything():
     Missing nullability on method `createSelectSingleAnything` return
-MissingNullability: androidx.recyclerview.selection.SelectionTracker#addObserver(androidx.recyclerview.selection.SelectionTracker.SelectionObserver) parameter #0:
-    Missing nullability on parameter `observer` in method `addObserver`
 MissingNullability: androidx.recyclerview.selection.SelectionTracker#getSelection():
     Missing nullability on method `getSelection` return
 MissingNullability: androidx.recyclerview.selection.SelectionTracker.Builder#build():

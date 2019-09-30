@@ -74,6 +74,7 @@ public final class TrustedWebActivityServiceConnectionPool {
      * @param origin The origin that was previously used with {@link #registerClient}.
      * @return A set of package names. This set is safe to be modified.
      */
+    @SuppressWarnings("NullAway") // TODO: b/141869399
     public static @NonNull Set<String> getVerifiedPackages(@NonNull Context context,
             @NonNull String origin) {
         // Loading preferences is on the critical path for this class - we need to synchronously
@@ -319,6 +320,7 @@ public final class TrustedWebActivityServiceConnectionPool {
         possiblePackages.add(clientPackage);
 
         // sSharedPreferences won't be null after a call to getVerifiedPackages.
+        @SuppressWarnings("NullAway") // TODO: b/141869399
         SharedPreferences.Editor editor = sSharedPreferences.get().edit();
         editor.putStringSet(origin, possiblePackages);
         editor.apply();

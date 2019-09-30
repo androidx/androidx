@@ -144,6 +144,8 @@ public final class FakeImageProxy implements ImageProxy {
             if (mReleaseFuture == null) {
                 mReleaseFuture = CallbackToFutureAdapter.getFuture(
                         new CallbackToFutureAdapter.Resolver<Void>() {
+                            // TODO(b/141957748): Suppressed during upgrade to AGP 3.6.
+                            @SuppressWarnings("GuardedBy")
                             @Override
                             public Object attachCompleter(@NonNull
                                     CallbackToFutureAdapter.Completer<Void> completer) {

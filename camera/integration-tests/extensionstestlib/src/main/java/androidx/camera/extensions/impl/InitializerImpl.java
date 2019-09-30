@@ -29,6 +29,9 @@ import java.util.concurrent.Executors;
  * Used for initializing the extensions library.
  */
 public class InitializerImpl {
+    private InitializerImpl() {
+    }
+
     private static final String TAG = "InitializerImpl";
 
     /**

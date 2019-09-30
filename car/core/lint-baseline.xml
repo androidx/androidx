@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 3.5.0-beta04" client="gradle" variant="debug" version="3.5.0-beta04">
+<issues format="5" by="lint 3.6.0-alpha12" client="gradle" variant="debug" version="3.6.0-alpha12">
 
     <issue
         id="KotlinPropertyAccess"
@@ -8,19 +8,8 @@
         errorLine2="                 ~~~~~~~~">
         <location
             file="src/main/java/androidx/car/drawer/CarDrawerAdapter.java"
-            line="128"
+            line="129"
             column="18"/>
-    </issue>
-
-    <issue
-        id="KotlinPropertyAccess"
-        message="This getter should be public such that `scrollbarThumbColor` can be accessed as a property from Kotlin; see https://android.github.io/kotlin-guides/interop.html#property-prefixes"
-        errorLine1="    int getScrollbarThumbColor() {"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/car/widget/PagedScrollBarView.java"
-            line="496"
-            column="9"/>
     </issue>
 
     <issue
@@ -96,7 +85,7 @@
         errorLine2="                             ~~~~~~~~">
         <location
             file="src/main/java/androidx/car/widget/AlphaJumpBucketer.java"
-            line="52"
+            line="53"
             column="30"/>
     </issue>
 
@@ -107,7 +96,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/car/widget/AlphaJumpBucketer.java"
-            line="59"
+            line="60"
             column="12"/>
     </issue>
 
@@ -118,7 +107,7 @@
         errorLine2="                                               ~~~~~~~~">
         <location
             file="src/main/java/androidx/car/widget/AlphaJumpBucketer.java"
-            line="59"
+            line="60"
             column="48"/>
     </issue>
 
@@ -129,7 +118,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/car/widget/AlphaJumpBucketer.java"
-            line="67"
+            line="68"
             column="12"/>
     </issue>
 
@@ -140,7 +129,7 @@
         errorLine2="                                               ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/car/widget/AlphaJumpBucketer.java"
-            line="67"
+            line="68"
             column="48"/>
     </issue>
 
@@ -151,7 +140,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/car/widget/AlphaJumpBucketer.java"
-            line="75"
+            line="76"
             column="12"/>
     </issue>
 
@@ -162,7 +151,7 @@
         errorLine2="                                               ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/car/widget/AlphaJumpBucketer.java"
-            line="75"
+            line="76"
             column="48"/>
     </issue>
 
@@ -173,7 +162,7 @@
         errorLine2="               ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/car/widget/AlphaJumpBucketer.java"
-            line="146"
+            line="147"
             column="16"/>
     </issue>
 
@@ -224,55 +213,11 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public Bundle getBundle() {"
-        errorLine2="           ~~~~~~">
-        <location
-            file="src/main/java/androidx/car/navigation/utils/BundleMarshaller.java"
-            line="89"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void setBundle(Bundle bundle) {"
-        errorLine2="                          ~~~~~~">
-        <location
-            file="src/main/java/androidx/car/navigation/utils/BundleMarshaller.java"
-            line="105"
-            column="27"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public Bundle getDelta() {"
-        errorLine2="           ~~~~~~">
-        <location
-            file="src/main/java/androidx/car/navigation/utils/BundleMarshaller.java"
-            line="113"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void applyDelta(Bundle delta) {"
-        errorLine2="                           ~~~~~~">
-        <location
-            file="src/main/java/androidx/car/navigation/utils/BundleMarshaller.java"
-            line="125"
-            column="28"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    public void setTitle(CharSequence title) {"
         errorLine2="                         ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/car/app/CarAlertDialog.java"
-            line="99"
+            line="93"
             column="26"/>
     </issue>
 
@@ -283,7 +228,7 @@
         errorLine2="                            ~~~~~~">
         <location
             file="src/main/java/androidx/car/app/CarAlertDialog.java"
-            line="108"
+            line="102"
             column="29"/>
     </issue>
 
@@ -294,7 +239,7 @@
         errorLine2="                               ~~~~~~~">
         <location
             file="src/main/java/androidx/car/drawer/CarDrawerAdapter.java"
-            line="103"
+            line="104"
             column="32"/>
     </issue>
 
@@ -305,7 +250,7 @@
         errorLine2="                 ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/car/drawer/CarDrawerAdapter.java"
-            line="199"
+            line="200"
             column="18"/>
     </issue>
 
@@ -316,7 +261,7 @@
         errorLine2="                                                         ~~~~~~~~~">
         <location
             file="src/main/java/androidx/car/drawer/CarDrawerAdapter.java"
-            line="199"
+            line="200"
             column="58"/>
     </issue>
 
@@ -327,7 +272,7 @@
         errorLine2="                                       ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/car/drawer/CarDrawerAdapter.java"
-            line="205"
+            line="206"
             column="40"/>
     </issue>
 
@@ -338,7 +283,7 @@
         errorLine2="                                               ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/car/drawer/CarDrawerAdapter.java"
-            line="231"
+            line="232"
             column="48"/>
     </issue>
 
@@ -382,7 +327,7 @@
         errorLine2="                         ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/car/app/CarListDialog.java"
-            line="88"
+            line="96"
             column="26"/>
     </issue>
 
@@ -393,41 +338,8 @@
         errorLine2="                            ~~~~~~">
         <location
             file="src/main/java/androidx/car/app/CarListDialog.java"
-            line="106"
+            line="114"
             column="29"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public Builder(Context context) {"
-        errorLine2="                       ~~~~~~~">
-        <location
-            file="src/main/java/androidx/car/app/CarListDialog.java"
-            line="321"
-            column="24"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public Builder setTitle(CharSequence title) {"
-        errorLine2="                                ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/car/app/CarListDialog.java"
-            line="345"
-            column="33"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public CarListDialog create() {"
-        errorLine2="               ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/car/app/CarListDialog.java"
-            line="493"
-            column="16"/>
     </issue>
 
     <issue
@@ -437,7 +349,7 @@
         errorLine2="                     ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/car/widget/CarMenuItem.java"
-            line="59"
+            line="57"
             column="22"/>
     </issue>
 
@@ -448,7 +360,7 @@
         errorLine2="                         ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/car/app/CarMultipleChoiceDialog.java"
-            line="88"
+            line="89"
             column="26"/>
     </issue>
 
@@ -459,7 +371,7 @@
         errorLine2="                            ~~~~~~">
         <location
             file="src/main/java/androidx/car/app/CarMultipleChoiceDialog.java"
-            line="106"
+            line="107"
             column="29"/>
     </issue>
 
@@ -470,7 +382,7 @@
         errorLine2="                         ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/car/app/CarSingleChoiceDialog.java"
-            line="90"
+            line="91"
             column="26"/>
     </issue>
 
@@ -481,7 +393,7 @@
         errorLine2="                            ~~~~~~">
         <location
             file="src/main/java/androidx/car/app/CarSingleChoiceDialog.java"
-            line="108"
+            line="109"
             column="29"/>
     </issue>
 
@@ -492,7 +404,7 @@
         errorLine2="                      ~~~~~~~">
         <location
             file="src/main/java/androidx/car/widget/CarToolbar.java"
-            line="135"
+            line="137"
             column="23"/>
     </issue>
 
@@ -503,7 +415,7 @@
         errorLine2="                      ~~~~~~~">
         <location
             file="src/main/java/androidx/car/widget/CarToolbar.java"
-            line="139"
+            line="141"
             column="23"/>
     </issue>
 
@@ -514,7 +426,7 @@
         errorLine2="                                       ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/car/widget/CarToolbar.java"
-            line="139"
+            line="141"
             column="40"/>
     </issue>
 
@@ -525,7 +437,7 @@
         errorLine2="                      ~~~~~~~">
         <location
             file="src/main/java/androidx/car/widget/CarToolbar.java"
-            line="143"
+            line="145"
             column="23"/>
     </issue>
 
@@ -536,7 +448,7 @@
         errorLine2="                                       ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/car/widget/CarToolbar.java"
-            line="143"
+            line="145"
             column="40"/>
     </issue>
 
@@ -547,7 +459,7 @@
         errorLine2="                      ~~~~~~~">
         <location
             file="src/main/java/androidx/car/widget/CarToolbar.java"
-            line="147"
+            line="149"
             column="23"/>
     </issue>
 
@@ -558,7 +470,7 @@
         errorLine2="                                       ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/car/widget/CarToolbar.java"
-            line="147"
+            line="149"
             column="40"/>
     </issue>
 
@@ -569,7 +481,7 @@
         errorLine2="           ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/car/widget/CarToolbar.java"
-            line="575"
+            line="579"
             column="12"/>
     </issue>
 
@@ -580,7 +492,7 @@
         errorLine2="           ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/car/widget/CarToolbar.java"
-            line="850"
+            line="854"
             column="12"/>
     </issue>
 
@@ -591,7 +503,7 @@
         errorLine2="                                             ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/car/widget/CarToolbar.java"
-            line="850"
+            line="854"
             column="46"/>
     </issue>
 
@@ -602,7 +514,7 @@
         errorLine2="              ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/car/widget/CarToolbar.java"
-            line="855"
+            line="859"
             column="15"/>
     </issue>
 
@@ -613,7 +525,7 @@
         errorLine2="              ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/car/widget/CarToolbar.java"
-            line="860"
+            line="864"
             column="15"/>
     </issue>
 
@@ -624,7 +536,7 @@
         errorLine2="                                                          ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/car/widget/CarToolbar.java"
-            line="860"
+            line="864"
             column="59"/>
     </issue>
 
@@ -635,7 +547,7 @@
         errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/car/widget/CarToolbar.java"
-            line="865"
+            line="869"
             column="41"/>
     </issue>
 
@@ -646,7 +558,7 @@
         errorLine2="                             ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/car/uxrestrictions/CarUxRestrictions.java"
-            line="331"
+            line="319"
             column="30"/>
     </issue>
 
@@ -657,7 +569,7 @@
         errorLine2="                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/car/uxrestrictions/CarUxRestrictions.java"
-            line="348"
+            line="335"
             column="30"/>
     </issue>
 
@@ -668,7 +580,7 @@
         errorLine2="                                         ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/car/uxrestrictions/CarUxRestrictions.java"
-            line="406"
+            line="389"
             column="42"/>
     </issue>
 
@@ -899,7 +811,7 @@
         errorLine2="                                    ~~~~">
         <location
             file="src/main/java/androidx/car/util/DropShadowScrollListener.java"
-            line="47"
+            line="48"
             column="37"/>
     </issue>
 
@@ -910,7 +822,7 @@
         errorLine2="                           ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/car/util/DropShadowScrollListener.java"
-            line="54"
+            line="55"
             column="28"/>
     </issue>
 
@@ -1031,7 +943,7 @@
         errorLine2="                                   ~~">
         <location
             file="src/main/java/androidx/car/widget/ListItem.java"
-            line="146"
+            line="147"
             column="36"/>
     </issue>
 
@@ -1042,7 +954,7 @@
         errorLine2="                                    ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/car/widget/ListItem.java"
-            line="156"
+            line="157"
             column="37"/>
     </issue>
 
@@ -1053,7 +965,7 @@
         errorLine2="                                    ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/car/widget/ListItem.java"
-            line="187"
+            line="188"
             column="37"/>
     </issue>
 
@@ -1064,7 +976,7 @@
         errorLine2="                                    ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/car/widget/ListItem.java"
-            line="201"
+            line="202"
             column="37"/>
     </issue>
 
@@ -1075,7 +987,7 @@
         errorLine2="                  ~~">
         <location
             file="src/main/java/androidx/car/widget/ListItem.java"
-            line="215"
+            line="216"
             column="19"/>
     </issue>
 
@@ -1086,7 +998,7 @@
         errorLine2="                          ~~~~">
         <location
             file="src/main/java/androidx/car/widget/ListItem.java"
-            line="225"
+            line="226"
             column="27"/>
     </issue>
 
@@ -1097,7 +1009,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/car/widget/ListItemAdapter.java"
-            line="272"
+            line="273"
             column="13"/>
     </issue>
 
@@ -1108,7 +1020,7 @@
         errorLine2="                                         ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/car/widget/ListItemAdapter.java"
-            line="296"
+            line="297"
             column="42"/>
     </issue>
 
@@ -1119,7 +1031,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/car/widget/ListItemAdapter.java"
-            line="309"
+            line="310"
             column="12"/>
     </issue>
 
@@ -1130,7 +1042,7 @@
         errorLine2="                                                  ~~~~~~~~~">
         <location
             file="src/main/java/androidx/car/widget/ListItemAdapter.java"
-            line="309"
+            line="310"
             column="51"/>
     </issue>
 
@@ -1141,7 +1053,7 @@
         errorLine2="                                 ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/car/widget/ListItemAdapter.java"
-            line="359"
+            line="361"
             column="34"/>
     </issue>
 
@@ -1174,7 +1086,7 @@
         errorLine2="                         ~~~~~~~">
         <location
             file="src/main/java/androidx/car/widget/PagedListView.java"
-            line="223"
+            line="232"
             column="26"/>
     </issue>
 
@@ -1185,7 +1097,7 @@
         errorLine2="                         ~~~~~~~">
         <location
             file="src/main/java/androidx/car/widget/PagedListView.java"
-            line="227"
+            line="236"
             column="26"/>
     </issue>
 
@@ -1196,7 +1108,7 @@
         errorLine2="                                          ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/car/widget/PagedListView.java"
-            line="227"
+            line="236"
             column="43"/>
     </issue>
 
@@ -1207,7 +1119,7 @@
         errorLine2="                         ~~~~~~~">
         <location
             file="src/main/java/androidx/car/widget/PagedListView.java"
-            line="231"
+            line="240"
             column="26"/>
     </issue>
 
@@ -1218,7 +1130,7 @@
         errorLine2="                                          ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/car/widget/PagedListView.java"
-            line="231"
+            line="240"
             column="43"/>
     </issue>
 
@@ -1229,7 +1141,7 @@
         errorLine2="                         ~~~~~~~">
         <location
             file="src/main/java/androidx/car/widget/PagedListView.java"
-            line="235"
+            line="244"
             column="26"/>
     </issue>
 
@@ -1240,7 +1152,7 @@
         errorLine2="                                          ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/car/widget/PagedListView.java"
-            line="235"
+            line="244"
             column="43"/>
     </issue>
 
@@ -1251,7 +1163,7 @@
         errorLine2="                                ~~~~~~~~">
         <location
             file="src/main/java/androidx/car/widget/PagedListView.java"
-            line="715"
+            line="894"
             column="33"/>
     </issue>
 
@@ -1262,7 +1174,7 @@
         errorLine2="                                  ~~~~~~~~">
         <location
             file="src/main/java/androidx/car/widget/PagedListView.java"
-            line="720"
+            line="899"
             column="35"/>
     </issue>
 
@@ -1273,7 +1185,7 @@
         errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/car/widget/PagedListView.java"
-            line="745"
+            line="934"
             column="45"/>
     </issue>
 
@@ -1284,7 +1196,7 @@
         errorLine2="                                    ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/car/widget/PagedListView.java"
-            line="898"
+            line="1115"
             column="37"/>
     </issue>
 
@@ -1295,7 +1207,7 @@
         errorLine2="           ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/car/widget/PagedListView.java"
-            line="1273"
+            line="1517"
             column="12"/>
     </issue>
 
@@ -1306,7 +1218,7 @@
         errorLine2="                                       ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/car/widget/PagedListView.java"
-            line="1285"
+            line="1529"
             column="40"/>
     </issue>
 
@@ -1317,7 +1229,7 @@
         errorLine2="                                             ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/car/widget/PagedListView.java"
-            line="1299"
+            line="1543"
             column="46"/>
     </issue>
 
@@ -1328,7 +1240,7 @@
         errorLine2="                                                ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/car/widget/PagedListView.java"
-            line="1309"
+            line="1553"
             column="49"/>
     </issue>
 
@@ -1339,7 +1251,7 @@
         errorLine2="                               ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/car/widget/PagedListView.java"
-            line="1415"
+            line="1654"
             column="32"/>
     </issue>
 
@@ -1350,7 +1262,7 @@
         errorLine2="                                         ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/car/widget/PagedListView.java"
-            line="1419"
+            line="1658"
             column="42"/>
     </issue>
 
@@ -1361,7 +1273,7 @@
         errorLine2="                              ~~~~~~~">
         <location
             file="src/main/java/androidx/car/widget/PagedScrollBarView.java"
-            line="85"
+            line="126"
             column="31"/>
     </issue>
 
@@ -1372,7 +1284,7 @@
         errorLine2="                              ~~~~~~~">
         <location
             file="src/main/java/androidx/car/widget/PagedScrollBarView.java"
-            line="90"
+            line="131"
             column="31"/>
     </issue>
 
@@ -1383,7 +1295,7 @@
         errorLine2="                                               ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/car/widget/PagedScrollBarView.java"
-            line="90"
+            line="131"
             column="48"/>
     </issue>
 
@@ -1394,7 +1306,7 @@
         errorLine2="                              ~~~~~~~">
         <location
             file="src/main/java/androidx/car/widget/PagedScrollBarView.java"
-            line="94"
+            line="135"
             column="31"/>
     </issue>
 
@@ -1405,7 +1317,7 @@
         errorLine2="                                               ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/car/widget/PagedScrollBarView.java"
-            line="94"
+            line="135"
             column="48"/>
     </issue>
 
@@ -1416,7 +1328,7 @@
         errorLine2="            ~~~~~~~">
         <location
             file="src/main/java/androidx/car/widget/PagedScrollBarView.java"
-            line="99"
+            line="140"
             column="13"/>
     </issue>
 
@@ -1427,7 +1339,7 @@
         errorLine2="                             ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/car/widget/PagedScrollBarView.java"
-            line="99"
+            line="140"
             column="30"/>
     </issue>
 
@@ -1438,7 +1350,7 @@
         errorLine2="                                ~~~~~~~~">
         <location
             file="src/main/java/androidx/car/widget/PagedScrollBarView.java"
-            line="156"
+            line="197"
             column="33"/>
     </issue>
 
@@ -1449,19 +1361,8 @@
         errorLine2="                                  ~~~~~~~~">
         <location
             file="src/main/java/androidx/car/widget/PagedScrollBarView.java"
-            line="161"
+            line="202"
             column="35"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void setPaginationListener(PaginationListener listener) {"
-        errorLine2="                                      ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/car/widget/PagedScrollBarView.java"
-            line="170"
-            column="39"/>
     </issue>
 
     <issue
@@ -1493,7 +1394,7 @@
         errorLine2="                          ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/car/widget/SeekbarListItem.java"
-            line="215"
+            line="216"
             column="27"/>
     </issue>
 
@@ -1504,7 +1405,7 @@
         errorLine2="                                             ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/car/widget/SeekbarListItem.java"
-            line="465"
+            line="466"
             column="46"/>
     </issue>
 
@@ -1515,7 +1416,7 @@
         errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/car/widget/SeekbarListItem.java"
-            line="504"
+            line="505"
             column="45"/>
     </issue>
 
@@ -1526,7 +1427,7 @@
         errorLine2="                          ~~~~">
         <location
             file="src/main/java/androidx/car/widget/SeekbarListItem.java"
-            line="541"
+            line="542"
             column="27"/>
     </issue>
 
@@ -1537,7 +1438,7 @@
         errorLine2="                                            ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/car/widget/SeekbarListItem.java"
-            line="577"
+            line="578"
             column="45"/>
     </issue>
 
@@ -1559,7 +1460,7 @@
         errorLine2="                          ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/car/widget/SubheaderListItem.java"
-            line="135"
+            line="136"
             column="27"/>
     </issue>
 
@@ -1570,7 +1471,7 @@
         errorLine2="                          ~~~~">
         <location
             file="src/main/java/androidx/car/widget/SubheaderListItem.java"
-            line="179"
+            line="180"
             column="27"/>
     </issue>
 
@@ -1581,7 +1482,7 @@
         errorLine2="                                            ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/car/widget/SubheaderListItem.java"
-            line="192"
+            line="193"
             column="45"/>
     </issue>
 
@@ -1603,7 +1504,7 @@
         errorLine2="                       ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/car/widget/TextListItem.java"
-            line="194"
+            line="195"
             column="24"/>
     </issue>
 
@@ -1614,7 +1515,7 @@
         errorLine2="                                   ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/car/widget/TextListItem.java"
-            line="524"
+            line="525"
             column="36"/>
     </issue>
 
@@ -1625,7 +1526,7 @@
         errorLine2="                         ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/car/widget/TextListItem.java"
-            line="588"
+            line="589"
             column="26"/>
     </issue>
 
@@ -1636,7 +1537,7 @@
         errorLine2="                        ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/car/widget/TextListItem.java"
-            line="600"
+            line="601"
             column="25"/>
     </issue>
 
@@ -1647,7 +1548,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/car/widget/TextListItem.java"
-            line="646"
+            line="647"
             column="13"/>
     </issue>
 
@@ -1658,7 +1559,7 @@
         errorLine2="                                    ~~~~~~~~">
         <location
             file="src/main/java/androidx/car/widget/TextListItem.java"
-            line="659"
+            line="660"
             column="37"/>
     </issue>
 
@@ -1669,7 +1570,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/car/widget/TextListItem.java"
-            line="660"
+            line="661"
             column="13"/>
     </issue>
 
@@ -1680,7 +1581,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/car/widget/TextListItem.java"
-            line="680"
+            line="681"
             column="13"/>
     </issue>
 
@@ -1691,7 +1592,7 @@
         errorLine2="                          ~~~~">
         <location
             file="src/main/java/androidx/car/widget/TextListItem.java"
-            line="734"
+            line="735"
             column="27"/>
     </issue>
 
@@ -1702,7 +1603,7 @@
         errorLine2="                                            ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/car/widget/TextListItem.java"
-            line="782"
+            line="783"
             column="45"/>
     </issue>
 

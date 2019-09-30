@@ -27,6 +27,9 @@ import java.util.concurrent.Executor;
  * Used for initializing the extensions library.
  */
 public class InitializerImpl {
+    private InitializerImpl() {
+    }
+
     /**
      * An unknown error has occurred.
      */

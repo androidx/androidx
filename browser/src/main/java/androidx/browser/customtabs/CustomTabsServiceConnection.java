@@ -30,6 +30,7 @@ import androidx.annotation.RestrictTo;
  * connection like rebinding on disconnect.
  */
 public abstract class CustomTabsServiceConnection implements ServiceConnection {
+    @SuppressWarnings("NullAway") // TODO: b/141869399
     private Context mApplicationContext;
 
     /** @hide */

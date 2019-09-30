@@ -35,6 +35,7 @@ import androidx.fragment.app.FragmentActivity;
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 class Utils {
+    private Utils() { }
 
     /**
      * Determines if the given ID fails to match any known error message.

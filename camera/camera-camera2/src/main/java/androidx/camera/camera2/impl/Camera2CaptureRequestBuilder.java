@@ -37,6 +37,9 @@ import java.util.Map;
  * This class is used to build a camera2 {@link CaptureRequest} from a {@link CaptureConfig}
  */
 public class Camera2CaptureRequestBuilder {
+    private Camera2CaptureRequestBuilder() {
+    }
+
     private static final String TAG = "CaptureRequestBuilder";
 
     /**

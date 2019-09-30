@@ -105,7 +105,8 @@ final class GLImage2SurfaceRenderer {
                     + "  gl_FragColor = vec4(y,y,y, 1.0);"
                     + "}";
 
-
+    // TODO(b/141961733): Suppressed during upgrade to AGP 3.6.
+    @SuppressWarnings("ReferenceEquality")
     GLImage2SurfaceRenderer() {
         // Initialize
         mEGLDisplay = EGL14.eglGetDisplay(EGL_DEFAULT_DISPLAY);
@@ -196,6 +197,8 @@ final class GLImage2SurfaceRenderer {
         mInputSize = size;
     }
 
+    // TODO(b/141961733): Suppressed during upgrade to AGP 3.6.
+    @SuppressWarnings("ReferenceEquality")
     void setWindowSurface(Surface surface, int width, int height) {
         // Destroy previously connected surface
         destroySurface();

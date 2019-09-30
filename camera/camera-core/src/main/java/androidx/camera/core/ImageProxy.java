@@ -33,6 +33,7 @@ public interface ImageProxy extends AutoCloseable {
      *
      * <p>@see {@link android.media.Image#close()}.
      */
+    @Override
     void close();
 
     /**
