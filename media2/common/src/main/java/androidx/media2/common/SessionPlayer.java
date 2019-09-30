@@ -18,7 +18,6 @@ package androidx.media2.common;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 import static androidx.media2.common.BaseResult.RESULT_ERROR_NOT_SUPPORTED;
 
 import android.media.MediaFormat;
@@ -162,7 +161,7 @@ public abstract class SessionPlayer implements AutoCloseable {
     /**
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RestrictTo(LIBRARY_GROUP)
     @IntDef({
             PLAYER_STATE_IDLE,
             PLAYER_STATE_PAUSED,
@@ -175,7 +174,7 @@ public abstract class SessionPlayer implements AutoCloseable {
     /**
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RestrictTo(LIBRARY_GROUP)
     @IntDef({
             BUFFERING_STATE_UNKNOWN,
             BUFFERING_STATE_BUFFERING_AND_PLAYABLE,
@@ -232,7 +231,7 @@ public abstract class SessionPlayer implements AutoCloseable {
     /**
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RestrictTo(LIBRARY_GROUP)
     @IntDef({REPEAT_MODE_NONE, REPEAT_MODE_ONE, REPEAT_MODE_ALL,
             REPEAT_MODE_GROUP})
     @Retention(RetentionPolicy.SOURCE)
@@ -264,7 +263,7 @@ public abstract class SessionPlayer implements AutoCloseable {
     /**
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RestrictTo(LIBRARY_GROUP)
     @IntDef({SHUFFLE_MODE_NONE, SHUFFLE_MODE_ALL, SHUFFLE_MODE_GROUP})
     @Retention(RetentionPolicy.SOURCE)
     public @interface ShuffleMode {
@@ -1006,7 +1005,7 @@ public abstract class SessionPlayer implements AutoCloseable {
         /**
          * @hide
          */
-        @IntDef(flag = false, /*prefix = "PLAYER_ERROR",*/ value = {
+        @IntDef(flag = false, /*prefix = "MEDIA_TRACK_TYPE",*/ value = {
                 MEDIA_TRACK_TYPE_UNKNOWN,
                 MEDIA_TRACK_TYPE_VIDEO,
                 MEDIA_TRACK_TYPE_AUDIO,
@@ -1434,7 +1433,7 @@ public abstract class SessionPlayer implements AutoCloseable {
         /**
          * @hide
          */
-        @IntDef(flag = false, /*prefix = "RESULT_CODE",*/ value = {
+        @IntDef(flag = false, /*prefix = "RESULT",*/ value = {
                 RESULT_SUCCESS,
                 RESULT_ERROR_UNKNOWN,
                 RESULT_ERROR_INVALID_STATE,
@@ -1444,7 +1443,7 @@ public abstract class SessionPlayer implements AutoCloseable {
                 RESULT_ERROR_NOT_SUPPORTED,
                 RESULT_INFO_SKIPPED})
         @Retention(RetentionPolicy.SOURCE)
-        @RestrictTo(LIBRARY_GROUP_PREFIX)
+        @RestrictTo(LIBRARY)
         public @interface ResultCode {}
 
         private final int mResultCode;
