@@ -17,7 +17,10 @@ package androidx.ui.core
 
 import androidx.ui.graphics.Canvas
 import androidx.compose.Composable
+import androidx.compose.ambient
 import androidx.compose.composer
+import androidx.compose.unaryPlus
+import androidx.ui.tooling.InspectionMode
 
 /**
  * Use Draw to get a [Canvas] to paint into the parent.
@@ -35,7 +38,13 @@ inline fun Draw(
     noinline onPaint: DensityScope.(canvas: Canvas, parentSize: PxSize) -> Unit
 ) {
     // Hide the internals of DrawNode
-    <DrawNode onPaint=onPaint/>
+    if (+ambient(InspectionMode)) {
+        <RepaintBoundaryNode name=null>
+            <DrawNode onPaint=onPaint/>
+        </RepaintBoundaryNode>
+    } else {
+        <DrawNode onPaint=onPaint/>
+    }
 }
 
 /**
@@ -53,7 +62,15 @@ inline fun Draw(
     noinline onPaint: DrawReceiver.(canvas: Canvas, parentSize: PxSize) -> Unit
 ) {
     // Hide the internals of DrawNode
-    <DrawNode onPaintWithChildren=onPaint>
-        children()
-    </DrawNode>
+    if (+ambient(InspectionMode)) {
+        <RepaintBoundaryNode name=null>
+            <DrawNode onPaintWithChildren=onPaint>
+                children()
+            </DrawNode>
+        </RepaintBoundaryNode>
+    } else {
+        <DrawNode onPaintWithChildren=onPaint>
+            children()
+        </DrawNode>
+    }
 }

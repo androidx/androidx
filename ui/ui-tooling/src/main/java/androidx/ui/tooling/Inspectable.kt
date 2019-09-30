@@ -16,7 +16,6 @@
 
 package androidx.ui.tooling
 
-import androidx.compose.Ambient
 import androidx.compose.Children
 import androidx.compose.Composable
 import androidx.compose.SlotTable
@@ -25,11 +24,6 @@ import androidx.compose.composer
 import androidx.compose.unaryPlus
 import java.util.Collections
 import java.util.WeakHashMap
-
-/**
- * Inspectable mode ambient. True if the the composition is composed inside a Inspectable component.
- */
-val InspectionMode = Ambient.of("Inspection Mode") { false }
 
 /**
  * A wrapper for compositions in inspection mode. The composition inside the Inspectable component

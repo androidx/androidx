@@ -16,7 +16,6 @@ package androidx.ui.tooling {
     ctor public InspectableKt();
     method public static void InInspectionModeOnly(kotlin.jvm.functions.Function0<kotlin.Unit> children);
     method public static void Inspectable(kotlin.jvm.functions.Function0<kotlin.Unit> children);
-    method public static androidx.compose.Ambient<java.lang.Boolean> getInspectionMode();
     method public static java.util.Set<androidx.compose.SlotTable>! getTables();
   }
 

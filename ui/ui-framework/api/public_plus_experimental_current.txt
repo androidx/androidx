@@ -478,3 +478,12 @@ package androidx.ui.semantics {
 
 }
 
+package androidx.ui.tooling {
+
+  public final class InspectionModeKt {
+    ctor public InspectionModeKt();
+    method public static androidx.compose.Ambient<java.lang.Boolean> getInspectionMode();
+  }
+
+}
+
