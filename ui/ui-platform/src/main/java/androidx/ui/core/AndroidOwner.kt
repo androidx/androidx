@@ -338,6 +338,7 @@ class AndroidComposeView constructor(context: Context)
             }
             node.ownerData = ownerData
             ownerData.attach(node.parent?.repaintBoundary?.container)
+            repaintBoundaryChanges += node
         }
     }
 
@@ -764,6 +765,7 @@ private class RepaintBoundaryView(
         }
     }
     private var clipPath: android.graphics.Path? = null
+    private var hasSize = false
     override var dirty: Boolean = true
         set(value) {
             if (value && !field) {
@@ -797,7 +799,11 @@ private class RepaintBoundaryView(
             measure(widthSpec, heightSpec)
             layout(0, 0, width, height)
             onParamsChange()
+        } else if (!hasSize) {
+            // we need to update params after attaching even if size has not been changed
+            onParamsChange()
         }
+        hasSize = true
     }
 
     override fun onLayout(changed: Boolean, l: Int, t: Int, r: Int, b: Int) {
@@ -835,6 +841,7 @@ private class RepaintBoundaryView(
 
     override fun dispatchDraw(canvas: android.graphics.Canvas) {
         ownerView.measureAndLayout()
+        check(hasSize) { "setSize() should be called before drawing the RepaintBoundary" }
         val clipPath = clipPath
         if (clipPath != null) {
             canvas.save()
@@ -860,6 +867,7 @@ private class RepaintBoundaryView(
         } else {
             ownerView.addView(this)
         }
+        hasSize = false
     }
 
     override fun onParamsChange() {
@@ -898,16 +906,21 @@ private class RepaintBoundaryRenderNode(
     private val density = Density(ownerView.context)
     private val outlineResolver = OutlineResolver(density)
     private var clipPath: android.graphics.Path? = null
+    private var hasSize = false
 
     override fun setSize(width: Int, height: Int) {
         if (width != renderNode.width || height != renderNode.height) {
             renderNode.setPosition(0, 0, width, height)
             onParamsChange()
+        } else if (!hasSize) {
+            // we need to update params after attaching even if size has not been changed
+            onParamsChange()
         }
+        hasSize = true
     }
 
     override fun attach(parent: RepaintBoundary?) {
-        // nothing needs to be done
+        hasSize = false
     }
 
     override fun detach() {
@@ -915,6 +928,7 @@ private class RepaintBoundaryRenderNode(
     }
 
     override fun callDraw(canvas: Canvas) {
+        check(hasSize) { "setSize() should be called before drawing the RepaintBoundary" }
         if (renderNode.alpha > 0f) {
             val androidCanvas = canvas.nativeCanvas
             if (androidCanvas.isHardwareAccelerated) {
