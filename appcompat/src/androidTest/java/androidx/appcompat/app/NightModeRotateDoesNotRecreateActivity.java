@@ -16,4 +16,4 @@
 
 package androidx.appcompat.app;
 
-public class NightModeOrientationConfigChangesActivity extends NightModeActivity {}
+public class NightModeRotateDoesNotRecreateActivity extends NightModeActivity {}

@@ -16,21 +16,23 @@
 
 package androidx.appcompat.app
 
+import androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_NO
 import androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_YES
 import androidx.appcompat.testutils.NightModeUtils.assertConfigurationNightModeEquals
+import androidx.appcompat.testutils.NightModeUtils.setNightModeAndWait
 import androidx.appcompat.testutils.NightModeUtils.setNightModeAndWaitForRecreate
 
-import android.content.res.Configuration
-import androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_NO
+import org.junit.Assert.assertNotSame
 
+import android.content.res.Configuration
+import android.os.Build
+
+import androidx.appcompat.testutils.NightModeUtils
 import androidx.appcompat.testutils.NightModeUtils.NightSetMode
-import androidx.appcompat.testutils.NightModeUtils.setNightModeAndWait
-import androidx.lifecycle.Lifecycle
 import androidx.test.filters.LargeTest
 import androidx.test.rule.ActivityTestRule
-import androidx.testutils.LifecycleOwnerUtils
-import org.junit.After
 
+import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -39,11 +41,12 @@ import org.junit.runners.Parameterized
 
 @LargeTest
 @RunWith(Parameterized::class)
-class NightModePreventOverrideConfigTestCase(private val setMode: NightSetMode) {
+class NightModeRotateRecreatesActivityWithConfigTestCase(private val setMode: NightSetMode) {
 
     @get:Rule
     val activityRule = ActivityTestRule(
-        NightModePreventOverrideConfigActivity::class.java,
+        // Use the basic DayNight-themed activity.
+        NightModeActivity::class.java,
         false,
         false
     )
@@ -61,34 +64,41 @@ class NightModePreventOverrideConfigTestCase(private val setMode: NightSetMode) 
     }
 
     @Test
-    fun testActivityRecreate() {
-        // Activity should be able to reach fully resumed state in default NIGHT_NO.
-        LifecycleOwnerUtils.waitUntilState(activityRule, Lifecycle.State.RESUMED)
-        assertConfigurationNightModeEquals(
-            Configuration.UI_MODE_NIGHT_NO,
-            activityRule.activity.resources.configuration
-        )
+    fun testRotateRecreatesActivityWithConfig() {
+        // Don't run this test on SDK 26 because it has issues with setRequestedOrientation.
+        if (Build.VERSION.SDK_INT == 26) {
+            return
+        }
 
-        // Simulate the user setting night mode, which should force an activity recreate().
-        setNightModeAndWaitForRecreate(
-            activityRule,
-            MODE_NIGHT_YES,
-            setMode
-        )
+        // Set local night mode to YES
+        setNightModeAndWaitForRecreate(activityRule, MODE_NIGHT_YES, setMode)
 
-        // Activity should be able to reach fully resumed state again.
-        LifecycleOwnerUtils.waitUntilState(activityRule, Lifecycle.State.RESUMED)
+        val activity = activityRule.activity
+        val config = activity.resources.configuration
 
-        // The requested night mode value should have been set by
-        // updateResourcesConfigurationForNightMode().
-        assertConfigurationNightModeEquals(
-            Configuration.UI_MODE_NIGHT_YES,
-            activityRule.activity.resources.configuration
-        )
+        // On API level 26 and below, the configuration object is going to be identical
+        // across configuration changes, so we need to pull the orientation value now.
+        val orientation = config.orientation
+
+        // Assert that the current Activity is 'dark'
+        assertConfigurationNightModeEquals(Configuration.UI_MODE_NIGHT_YES, config)
+
+        NightModeUtils.rotateAndWaitForRecreate(activityRule)
+
+        // Assert that we got a new activity.
+        val activity2 = activityRule.activity
+        val config2 = activity2.resources.configuration
+
+        // And assert that we have a different 'dark' Activity in a new orientation
+        assertNotSame(activity, activity2)
+        assertNotSame(orientation, config2.orientation)
+        assertConfigurationNightModeEquals(Configuration.UI_MODE_NIGHT_YES, config2)
+
+        // Reset the requested orientation and wait for it to apply.
+        NightModeUtils.resetRotateAndWaitForRecreate(activityRule)
     }
 
     @After
-    @Throws(Throwable::class)
     fun cleanup() {
         activityRule.finishActivity()
 

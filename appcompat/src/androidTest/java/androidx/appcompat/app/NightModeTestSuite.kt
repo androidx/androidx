@@ -22,10 +22,11 @@ import org.junit.runners.Suite
 @RunWith(Suite::class)
 @Suite.SuiteClasses(
     NightModeTestCase::class,
-    NightModeOrientationConfigChangesTestCase::class,
+    NightModeRotateDoesNotRecreateActivityTestCase::class,
+    NightModeRotateRecreatesActivityWithConfigTestCase::class,
     NightModeLateOnCreateTestCase::class,
     NightModePreventOverrideConfigTestCase::class,
     NightModeUiModeConfigChangesTestCase::class,
-    NightModeCustomFontScaleTestCase::class
+    NightModeCustomConfigurationContextTestCase::class
 )
 class NightModeTestSuite

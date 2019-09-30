@@ -28,7 +28,6 @@ import androidx.test.filters.LargeTest
 import androidx.testutils.withActivity
 import org.junit.After
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Before
 import org.junit.Test
@@ -58,8 +57,7 @@ class NightModeUiModeConfigChangesTestCase(private val setMode: NightSetMode) {
         // Assert that the onConfigurationChange was called with a new correct config
         scenario.onActivity {
             val lastConfig = it.lastConfigurationChangeAndClear
-            assertNotNull(lastConfig)
-            assertConfigurationNightModeEquals(Configuration.UI_MODE_NIGHT_YES, lastConfig)
+            assertConfigurationNightModeEquals(Configuration.UI_MODE_NIGHT_YES, lastConfig!!)
         }
 
         // Set local night mode back to NO
@@ -67,8 +65,7 @@ class NightModeUiModeConfigChangesTestCase(private val setMode: NightSetMode) {
         // Assert that the onConfigurationChange was called with a new correct config
         scenario.onActivity {
             val lastConfig = it.lastConfigurationChangeAndClear
-            assertNotNull(lastConfig)
-            assertConfigurationNightModeEquals(Configuration.UI_MODE_NIGHT_NO, lastConfig)
+            assertConfigurationNightModeEquals(Configuration.UI_MODE_NIGHT_NO, lastConfig!!)
         }
     }
 

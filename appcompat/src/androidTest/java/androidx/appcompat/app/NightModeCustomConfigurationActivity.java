@@ -19,8 +19,11 @@ package androidx.appcompat.app;
 import android.content.Context;
 import android.content.res.Configuration;
 
+import androidx.annotation.RequiresApi;
+
 import java.util.Locale;
 
+@RequiresApi(17)
 public class NightModeCustomConfigurationActivity extends NightModeActivity {
     public static final float CUSTOM_FONT_SCALE = 4.24f;
     public static final Locale CUSTOM_LOCALE = Locale.CANADA_FRENCH;
