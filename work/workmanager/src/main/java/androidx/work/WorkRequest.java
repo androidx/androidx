@@ -277,10 +277,20 @@ public abstract class WorkRequest {
         }
 
         /**
-         * Specifies that the {@link WorkRequest} should create and run in a foreground service.
+         * If {@code runInForeground} is {@code true}, specifies that the {@link WorkRequest} is
+         * long-running or otherwise important.  In this case, WorkManager provides a signal to the
+         * OS that the process should be kept alive if possible while this work is executing.  The
+         * {@link ListenableWorker} should implement {@link NotificationProvider} so that
+         * WorkManager can inform the end-user about this work.
          * <p>
-         * This cannot be combined with {@link Constraints#requiresDeviceIdle()}.
-         *
+         * Under the hood, WorkManager manages and runs a foreground service on your behalf to
+         * execute this WorkRequest, showing the notification returned by the
+         * {@link NotificationProvider}.
+         * <p>
+         * The default value for {@code runInForeground} is {@code false}.  A WorkRequest that is
+         * set to run in foreground cannot have a device idle constraint through
+         * {@link Constraints#requiresDeviceIdle()}.
+         * <p>
          * Throws an {@link IllegalStateException} if the {@link ListenableWorker} does not
          * implement the {@link NotificationProvider} interface.
          *

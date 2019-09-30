@@ -19,19 +19,22 @@ package androidx.work;
 import androidx.annotation.NonNull;
 
 /**
- * An interface which helps surface user visible notifications for a
- * {@link androidx.work.WorkRequest} when running in the context of a foreground
- * {@link android.app.Service}.
+ * An interface which helps surface user-visible notifications for a
+ * {@link androidx.work.WorkRequest} when {@link WorkRequest.Builder#setRunInForeground(boolean)}
+ * is set to {@code true}.
  */
 public interface NotificationProvider {
 
-    /***
-     * @return The {@link NotificationMetadata} which can be used to surface user visible
-     * notifications associated with a {@link androidx.work.WorkRequest}.
+    /**
+     * @return The {@link NotificationMetadata} which can be used to surface user-visible
+     * notifications associated with a {@link androidx.work.WorkRequest} when
+     * {@link WorkRequest.Builder#setRunInForeground(boolean)} is set to {@code true}.
      * <p>
      * {@link androidx.work.WorkManager} will request {@link NotificationMetadata} when it starts
      * executing a {@link androidx.work.WorkRequest} and once per progress update when running in
-     * the context of a foreground {@link android.app.Service}.
+     * foreground mode.  Please keep in mind that a {@link ListenableWorker} may be used for
+     * multiple WorkRequests and will not be asked to show notifications if
+     * {@link WorkRequest.Builder#setRunInForeground(boolean)} is set to {@code false}.
      * <p>
      * All processing in this method should be lightweight. There are no contractual guarantees
      * about which thread will invoke this call, so this should not be a long-running or blocking
