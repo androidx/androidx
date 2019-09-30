@@ -17,7 +17,6 @@
 package androidx.media2.session;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.content.ComponentName;
 import android.os.Bundle;
@@ -52,9 +51,7 @@ final class SessionTokenImplBase implements SessionToken.SessionTokenImpl {
     /**
      * Constructor for the token. You can only create token for session service or library service
      * to use by {@link MediaController} or {@link MediaBrowser}.
-     * @hide
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
     SessionTokenImplBase(@NonNull ComponentName serviceComponent, int uid, int type) {
         if (serviceComponent == null) {
             throw new NullPointerException("serviceComponent shouldn't be null");
@@ -68,10 +65,6 @@ final class SessionTokenImplBase implements SessionToken.SessionTokenImpl {
         mExtras = null;
     }
 
-    /**
-     * @hide
-     */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
     SessionTokenImplBase(int uid, int type, String packageName, IMediaSession iSession,
             Bundle tokenExtras) {
         mUid = uid;
@@ -85,9 +78,7 @@ final class SessionTokenImplBase implements SessionToken.SessionTokenImpl {
 
     /**
      * Used for {@link VersionedParcelize}.
-     * @hide
      */
-    @RestrictTo(LIBRARY)
     SessionTokenImplBase() {
         // Do nothing.
     }
@@ -143,7 +134,7 @@ final class SessionTokenImplBase implements SessionToken.SessionTokenImpl {
      * @hide
      * @return component name of this session token. Can be null for TYPE_SESSION.
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RestrictTo(LIBRARY)
     @Override
     public ComponentName getComponentName() {
         return mComponentName;

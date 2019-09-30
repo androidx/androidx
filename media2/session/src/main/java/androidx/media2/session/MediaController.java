@@ -16,8 +16,8 @@
 
 package androidx.media2.session;
 
+import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 import static androidx.media2.common.SessionPlayer.BUFFERING_STATE_UNKNOWN;
 import static androidx.media2.common.SessionPlayer.PLAYER_STATE_IDLE;
 import static androidx.media2.common.SessionPlayer.REPEAT_MODE_NONE;
@@ -42,7 +42,6 @@ import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
-import androidx.annotation.VisibleForTesting;
 import androidx.core.util.ObjectsCompat;
 import androidx.core.util.Pair;
 import androidx.media.AudioAttributesCompat;
@@ -114,7 +113,7 @@ public class MediaController implements AutoCloseable {
     /**
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RestrictTo(LIBRARY)
     @IntDef({AudioManager.ADJUST_LOWER, AudioManager.ADJUST_RAISE, AudioManager.ADJUST_SAME,
             AudioManager.ADJUST_MUTE, AudioManager.ADJUST_UNMUTE, AudioManager.ADJUST_TOGGLE_MUTE})
     @Retention(RetentionPolicy.SOURCE)
@@ -123,7 +122,7 @@ public class MediaController implements AutoCloseable {
     /**
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RestrictTo(LIBRARY)
     @IntDef(value = {AudioManager.FLAG_SHOW_UI, AudioManager.FLAG_ALLOW_RINGER_MODES,
             AudioManager.FLAG_PLAY_SOUND, AudioManager.FLAG_REMOVE_SOUND_AND_VIBRATE,
             AudioManager.FLAG_VIBRATE}, flag = true)
@@ -414,7 +413,7 @@ public class MediaController implements AutoCloseable {
      *               to be played
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RestrictTo(LIBRARY)
     @NonNull
     public ListenableFuture<SessionResult> playFromMediaId(@NonNull String mediaId,
             @Nullable Bundle extras) {
@@ -434,7 +433,7 @@ public class MediaController implements AutoCloseable {
      * @param extras optional extras that can include extra information about the query
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RestrictTo(LIBRARY)
     @NonNull
     public ListenableFuture<SessionResult> playFromSearch(@NonNull String query,
             @Nullable Bundle extras) {
@@ -455,7 +454,7 @@ public class MediaController implements AutoCloseable {
      *               to be played
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RestrictTo(LIBRARY)
     @NonNull
     public ListenableFuture<SessionResult> playFromUri(@NonNull Uri uri,
             @Nullable Bundle extras) {
@@ -482,7 +481,7 @@ public class MediaController implements AutoCloseable {
      *               to be prepared
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RestrictTo(LIBRARY)
     @NonNull
     public ListenableFuture<SessionResult> prepareFromMediaId(@NonNull String mediaId,
             @Nullable Bundle extras) {
@@ -508,7 +507,7 @@ public class MediaController implements AutoCloseable {
      * @param extras optional extras that can include extra information about the query
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RestrictTo(LIBRARY)
     @NonNull
     public ListenableFuture<SessionResult> prepareFromSearch(@NonNull String query,
             @Nullable Bundle extras) {
@@ -535,7 +534,7 @@ public class MediaController implements AutoCloseable {
      *               to be prepared
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RestrictTo(LIBRARY)
     @NonNull
     public ListenableFuture<SessionResult> prepareFromUri(@NonNull Uri uri,
             @Nullable Bundle extras) {
@@ -1153,6 +1152,7 @@ public class MediaController implements AutoCloseable {
      * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
+    @NonNull
     public ListenableFuture<SessionResult> setSurface(@Nullable Surface surface) {
         if (isConnected()) {
             return getImpl().setSurface(surface);
@@ -1239,7 +1239,7 @@ public class MediaController implements AutoCloseable {
      *
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RestrictTo(LIBRARY)
     public void setTimeDiff(Long timeDiff) {
         mTimeDiff = timeDiff;
     }
@@ -1309,8 +1309,7 @@ public class MediaController implements AutoCloseable {
     }
 
     /** @hide */
-    @VisibleForTesting(otherwise = VisibleForTesting.PACKAGE_PRIVATE)
-    @RestrictTo(LIBRARY_GROUP) // TODO: LIBRARY_GROUP -> LIBRARY (b/131782509)
+    @RestrictTo(LIBRARY)
     @NonNull
     public List<Pair<ControllerCallback, Executor>> getExtraCallbacks() {
         List<Pair<ControllerCallback, Executor>> extraCallbacks;
@@ -1343,8 +1342,7 @@ public class MediaController implements AutoCloseable {
     }
 
     /** @hide */
-    @VisibleForTesting(otherwise = VisibleForTesting.PACKAGE_PRIVATE)
-    @RestrictTo(LIBRARY_GROUP) // TODO: LIBRARY_GROUP -> LIBRARY (b/131782509)
+    @RestrictTo(LIBRARY)
     public void notifyControllerCallback(final ControllerCallbackRunnable callbackRunnable) {
         if (mCallback != null && mCallbackExecutor != null) {
             mCallbackExecutor.execute(new Runnable() {
@@ -1378,8 +1376,7 @@ public class MediaController implements AutoCloseable {
     }
 
     /** @hide */
-    @VisibleForTesting(otherwise = VisibleForTesting.PACKAGE_PRIVATE)
-    @RestrictTo(LIBRARY_GROUP) // TODO: LIBRARY_GROUP -> LIBRARY (b/131782509)
+    @RestrictTo(LIBRARY)
     public interface ControllerCallbackRunnable {
         void run(@NonNull ControllerCallback callback);
     }
@@ -1548,7 +1545,7 @@ public class MediaController implements AutoCloseable {
      *              T, U, C extends androidx.media2.MediaController.ControllerCallback>, C></pre>
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RestrictTo(LIBRARY)
     abstract static class BuilderBase<T extends MediaController, U extends BuilderBase<T, U, C>,
             C extends ControllerCallback> {
         final Context mContext;
@@ -1903,7 +1900,7 @@ public class MediaController implements AutoCloseable {
          * @deprecated Use {@link #onVideoSizeChanged(MediaController, VideoSize)} instead.
          * @hide
          */
-        @RestrictTo(LIBRARY_GROUP)
+        @RestrictTo(LIBRARY)
         @Deprecated
         public void onVideoSizeChanged(@NonNull MediaController controller, @NonNull MediaItem item,
                 @NonNull VideoSize videoSize) {}
