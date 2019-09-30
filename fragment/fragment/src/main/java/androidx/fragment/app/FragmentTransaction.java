@@ -503,6 +503,19 @@ public abstract class FragmentTransaction {
      * entering and exiting in this transaction. These animations will not be
      * played when popping the back stack.
      *
+     * <p>This method applies the custom animations to all future fragment operations; previous
+     * operations are unaffected. Fragment operations in the same {@link FragmentTransaction} can
+     * set different animations by called this method prior to each operation, e.g:
+     *
+     * <pre class="prettyprint">
+     *  fragmentManager.beingTransaction()
+     *      .setCustomAnimations(enter1, exit1)
+     *      .add(MyFragmentClass, args, tag1) // this fragment gets the first animations
+     *      .setCustomAnimations(enter2, exit2)
+     *      .add(MyFragmentClass, args, tag2) // this fragment gets the second animations
+     *      .commit()
+     * </pre>
+     *
      * @param enter An animation or animator resource ID used for the enter animation on the
      *              view of the fragment being added or attached.
      * @param exit An animation or animator resource ID used for the exit animation on the
@@ -519,6 +532,19 @@ public abstract class FragmentTransaction {
      * entering and exiting in this transaction. The <code>popEnter</code>
      * and <code>popExit</code> animations will be played for enter/exit
      * operations specifically when popping the back stack.
+     *
+     * <p>This method applies the custom animations to all future fragment operations; previous
+     * operations are unaffected. Fragment operations in the same {@link FragmentTransaction} can
+     * set different animations by called this method prior to each operation, e.g:
+     *
+     * <pre class="prettyprint">
+     *  fragmentManager.beingTransaction()
+     *      .setCustomAnimations(enter1, exit1, popEnter1, popExit1)
+     *      .add(MyFragmentClass, args, tag1) // this fragment gets the first animations
+     *      .setCustomAnimations(enter2, exit2, popEnter2, popExit2)
+     *      .add(MyFragmentClass, args, tag2) // this fragment gets the second animations
+     *      .commit()
+     * </pre>
      *
      * @param enter An animation or animator resource ID used for the enter animation on the
      *              view of the fragment being added or attached.
