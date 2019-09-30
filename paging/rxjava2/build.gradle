@@ -28,7 +28,7 @@ plugins {
 
 dependencies {
     api(project(":paging:paging-common"))
-    api(project(":arch:core-runtime"))
+    api("androidx.arch.core:core-runtime:2.1.0")
     api(RX_JAVA)
     implementation(KOTLIN_STDLIB)
     implementation(KOTLIN_COROUTINES_RX2)

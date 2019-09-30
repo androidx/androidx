@@ -44,6 +44,6 @@ dependencies {
     implementation(MULTIDEX)
     implementation("androidx.recyclerview:recyclerview:1.0.0")
     implementation(project(":fragment:fragment-ktx"))
-    implementation(project(":appcompat"))
+    implementation("androidx.appcompat:appcompat:1.1.0")
     implementation(KOTLIN_STDLIB)
 }

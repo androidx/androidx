@@ -57,9 +57,9 @@ dependencies {
 
     // Android support library
     implementation(project(":fragment:fragment"))
-    implementation(project(":appcompat"))
+    implementation("androidx.appcompat:appcompat:1.1.0")
     implementation("androidx.collection:collection:1.0.0")
-    implementation(project(":preference:preference")) // Still in alpha
+    implementation("androidx.preference:preference:1.1.0")
     implementation("androidx.exifinterface:exifinterface:1.0.0")
     implementation(CONSTRAINT_LAYOUT, { transitive = true })
     implementation(KOTLIN_STDLIB)
