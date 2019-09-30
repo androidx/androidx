@@ -103,16 +103,16 @@ public class ReportFragment extends Fragment {
                         public void onActivityDestroyed(@NonNull Activity activity) {
                         }
                     });
-        } else {
-            // ProcessLifecycleOwner should always correctly work and some activities may not
-            // extend FragmentActivity from support lib, so we use framework fragments for
-            // activities prior to API 29 so as to get the correct timing of Lifecycle events
-            android.app.FragmentManager manager = activity.getFragmentManager();
-            if (manager.findFragmentByTag(REPORT_FRAGMENT_TAG) == null) {
-                manager.beginTransaction().add(new ReportFragment(), REPORT_FRAGMENT_TAG).commit();
-                // Hopefully, we are the first to make a transaction.
-                manager.executePendingTransactions();
-            }
+        }
+        // Prior to API 29 and to maintain compatibility with older versions of
+        // ProcessLifecycleOwner (which may not be updated when lifecycle-runtime is updated and
+        // need to support activities that don't extend from FragmentActivity from support lib),
+        // use a framework fragment to get the correct timing of Lifecycle events
+        android.app.FragmentManager manager = activity.getFragmentManager();
+        if (manager.findFragmentByTag(REPORT_FRAGMENT_TAG) == null) {
+            manager.beginTransaction().add(new ReportFragment(), REPORT_FRAGMENT_TAG).commit();
+            // Hopefully, we are the first to make a transaction.
+            manager.executePendingTransactions();
         }
     }
 
@@ -160,41 +160,50 @@ public class ReportFragment extends Fragment {
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         dispatchCreate(mProcessListener);
-        dispatch(getActivity(), Lifecycle.Event.ON_CREATE);
+        dispatch(Lifecycle.Event.ON_CREATE);
     }
 
     @Override
     public void onStart() {
         super.onStart();
         dispatchStart(mProcessListener);
-        dispatch(getActivity(), Lifecycle.Event.ON_START);
+        dispatch(Lifecycle.Event.ON_START);
     }
 
     @Override
     public void onResume() {
         super.onResume();
         dispatchResume(mProcessListener);
-        dispatch(getActivity(), Lifecycle.Event.ON_RESUME);
+        dispatch(Lifecycle.Event.ON_RESUME);
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        dispatch(getActivity(), Lifecycle.Event.ON_PAUSE);
+        dispatch(Lifecycle.Event.ON_PAUSE);
     }
 
     @Override
     public void onStop() {
         super.onStop();
-        dispatch(getActivity(), Lifecycle.Event.ON_STOP);
+        dispatch(Lifecycle.Event.ON_STOP);
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        dispatch(getActivity(), Lifecycle.Event.ON_DESTROY);
+        dispatch(Lifecycle.Event.ON_DESTROY);
         // just want to be sure that we won't leak reference to an activity
         mProcessListener = null;
+    }
+
+    private void dispatch(@NonNull Lifecycle.Event event) {
+        if (Build.VERSION.SDK_INT < 29) {
+            // Only dispatch events from ReportFragment on API levels prior
+            // to API 29. On API 29+, this is handled by the ActivityLifecycleCallbacks
+            // added in ReportFragment.injectIfNeededIn
+            dispatch(getActivity(), event);
+        }
     }
 
     void setProcessListener(ActivityInitializationListener processListener) {
