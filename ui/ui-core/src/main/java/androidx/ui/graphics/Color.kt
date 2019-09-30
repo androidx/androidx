@@ -114,16 +114,18 @@ import kotlin.math.min
  * for RGB colors. Please refer to the documentation of the various
  * [color spaces][ColorSpaces] for the exact ranges.
  */
-@UseExperimental(kotlin.ExperimentalUnsignedTypes::class)
 @Immutable
-class Color(val value: ULong) {
+class Color @PublishedApi internal constructor(
+    val value: Long,
+    @Suppress("UNUSED_PARAMETER") unused: Boolean
+) {
     /**
      * Returns this color's color space.
      *
      * @return A non-null instance of [ColorSpace]
      */
     val colorSpace: ColorSpace
-        get() = ColorSpaces.getColorSpace((value and 0x3fUL).toInt())
+        get() = ColorSpaces.getColorSpace((value and 0x3fL).toInt())
 
     /**
      * Converts this color from its color space to the specified color space.
@@ -164,10 +166,10 @@ class Color(val value: ULong) {
      */
     val red: Float
         get() {
-            return if ((value and 0x3fUL) == 0UL) {
-                ((value shr 48) and 0xffUL).toFloat() / 255.0f
+            return if ((value and 0x3fL) == 0L) {
+                ((value shr 48) and 0xffL).toFloat() / 255.0f
             } else {
-                Float16(((value shr 48) and 0xffffUL).toShort()).toFloat()
+                Float16(((value shr 48) and 0xffffL).toShort()).toFloat()
             }
         }
 
@@ -185,10 +187,10 @@ class Color(val value: ULong) {
      */
     val green: Float
         get() {
-            return if ((value and 0x3fUL) == 0UL) {
-                ((value shr 40) and 0xffUL).toFloat() / 255.0f
+            return if ((value and 0x3fL) == 0L) {
+                ((value shr 40) and 0xffL).toFloat() / 255.0f
             } else {
-                Float16(((value shr 32) and 0xffffUL).toShort()).toFloat()
+                Float16(((value shr 32) and 0xffffL).toShort()).toFloat()
             }
         }
 
@@ -206,10 +208,10 @@ class Color(val value: ULong) {
      */
     val blue: Float
         get() {
-            return if ((value and 0x3fUL) == 0UL) {
-                ((value shr 32) and 0xffUL).toFloat() / 255.0f
+            return if ((value and 0x3fL) == 0L) {
+                ((value shr 32) and 0xffL).toFloat() / 255.0f
             } else {
-                Float16(((value shr 16) and 0xffffUL).toShort()).toFloat()
+                Float16(((value shr 16) and 0xffffL).toShort()).toFloat()
             }
         }
 
@@ -222,10 +224,10 @@ class Color(val value: ULong) {
      */
     val alpha: Float
         get() {
-            return if ((value and 0x3fUL) == 0UL) {
-                ((value shr 56) and 0xffUL).toFloat() / 255.0f
+            return if ((value and 0x3fL) == 0L) {
+                ((value shr 56) and 0xffL).toFloat() / 255.0f
             } else {
-                ((value shr 6) and 0x3ffUL).toFloat() / 1023.0f
+                ((value shr 6) and 0x3ffL).toFloat() / 1023.0f
             }
         }
 
@@ -296,7 +298,6 @@ class Color(val value: ULong) {
  * the default [alpha] is `1.0` (opaque). [colorSpace] must have a [ColorSpace.componentCount] of
  * 3.
  */
-@UseExperimental(ExperimentalUnsignedTypes::class)
 fun Color(
     red: Float,
     green: Float,
@@ -304,22 +305,20 @@ fun Color(
     alpha: Float = 1f,
     colorSpace: ColorSpace = ColorSpaces.Srgb
 ): Color {
-    if (colorSpace.componentCount != 3) {
-        throw IllegalArgumentException("Color only works with ColorSpaces with 3 components")
+    require(colorSpace.componentCount == 3) {
+        "Color only works with ColorSpaces with 3 components"
     }
     if (colorSpace.isSrgb) {
         val argb = (((alpha * 255.0f + 0.5f).toInt() shl 24) or
                 ((red * 255.0f + 0.5f).toInt() shl 16) or
                 ((green * 255.0f + 0.5f).toInt() shl 8) or
                 (blue * 255.0f + 0.5f).toInt())
-        return Color(value = (argb.toULong() and 0xffffffffUL) shl 32)
+        return Color(value = (argb.toLong() and 0xffffffffL) shl 32, unused = false)
     }
 
     val id = colorSpace.id
-    if (id == ColorSpace.MinId) {
-        throw IllegalArgumentException(
-                "Unknown color space, please use a color space in ColorSpaces"
-        )
+    require(id != ColorSpace.MinId) {
+        "Unknown color space, please use a color space in ColorSpaces"
     }
 
     val r = Float16(red)
@@ -333,7 +332,8 @@ fun Color(
             (g.halfValue.toLong() and 0xffffL) shl 32) or (
             (b.halfValue.toLong() and 0xffffL) shl 16) or (
             (a.toLong() and 0x3ffL) shl 6) or (
-            id.toLong() and 0x3fL)).toULong())
+            id.toLong() and 0x3fL)),
+        unused = false)
 }
 
 /**
@@ -344,9 +344,8 @@ fun Color(
  * @param color The ARGB color int to create a <code>Color</code> from.
  * @return A non-null instance of {@link Color}
  */
-@UseExperimental(ExperimentalUnsignedTypes::class)
 fun Color(@ColorInt color: Int): Color {
-    return Color(value = (color.toULong() and 0xffffffffUL) shl 32)
+    return Color(value = color.toLong() shl 32, unused = false)
 }
 
 /**
@@ -361,9 +360,8 @@ fun Color(@ColorInt color: Int): Color {
  * from
  * @return A non-null instance of {@link Color}
  */
-@UseExperimental(ExperimentalUnsignedTypes::class)
 fun Color(color: Long): Color {
-    return Color(value = (color.toULong() and 0xffffffffUL) shl 32)
+    return Color(value = (color and 0xffffffff) shl 32, unused = false)
 }
 
 /**
@@ -373,7 +371,6 @@ fun Color(color: Long): Color {
  *
  * @return A non-null instance of {@link Color}
  */
-@UseExperimental(ExperimentalUnsignedTypes::class)
 fun Color(
     @IntRange(from = 0, to = 0xFF) red: Int,
     @IntRange(from = 0, to = 0xFF) green: Int,
@@ -438,11 +435,9 @@ private fun Color.getComponents(): FloatArray = floatArrayOf(red, green, blue, a
  */
 fun Color.luminance(): Float {
     val colorSpace = colorSpace
-    if (colorSpace.model != ColorModel.Rgb) {
-        throw IllegalArgumentException(
-            ("The specified color must be encoded in an RGB " +
-                    "color space. The supplied color space is " + colorSpace.model)
-        )
+    require(colorSpace.model === ColorModel.Rgb) {
+        "The specified color must be encoded in an RGB color space. " +
+                "The supplied color space is ${colorSpace.model}"
     }
 
     val eotf = (colorSpace as Rgb).eotf
@@ -464,7 +459,6 @@ private fun saturate(v: Float): Float {
  *
  * @return An ARGB color in the sRGB color space
  */
-@UseExperimental(kotlin.ExperimentalUnsignedTypes::class)
 @ColorInt
 fun Color.toArgb(): Int {
     val colorSpace = colorSpace
@@ -481,4 +475,3 @@ fun Color.toArgb(): Int {
             ((color[1] * 255.0f + 0.5f).toInt() shl 8) or
             (color[2] * 255.0f + 0.5f).toInt()
 }
-
