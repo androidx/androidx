@@ -17,6 +17,7 @@
 
 package androidx.ui.core
 
+import androidx.compose.Immutable
 import androidx.ui.core.IntPx.Companion.Infinity
 import androidx.ui.lerp
 import kotlin.math.max
@@ -28,6 +29,7 @@ import kotlin.math.roundToInt
  * pixels. Operations with an [Infinity] IntPx result in [Infinity].
  */
 @Suppress("EXPERIMENTAL_FEATURE_WARNING")
+@Immutable
 data /*inline*/ class IntPx(val value: Int) {
     /**
      * Add two [IntPx]s together. Any operation on an
@@ -123,11 +125,13 @@ data /*inline*/ class IntPx(val value: Int) {
  */
 inline fun IntPx.isFinite(): Boolean = value != Int.MAX_VALUE
 
-private inline fun IntPx.keepInfinity(other: IntPx, noInfinityValue: IntPx): IntPx {
+@PublishedApi
+internal inline fun IntPx.keepInfinity(other: IntPx, noInfinityValue: IntPx): IntPx {
     return if (!isFinite() || !other.isFinite()) Infinity else noInfinityValue
 }
 
-private inline fun IntPx.keepInfinity(noInfinityValue: IntPx): IntPx {
+@PublishedApi
+internal inline fun IntPx.keepInfinity(noInfinityValue: IntPx): IntPx {
     return if (!isFinite()) this else noInfinityValue
 }
 
@@ -144,21 +148,21 @@ inline val Int.ipx: IntPx get() = IntPx(value = this)
  * Multiply an IntPx by a Float and round the result to an IntPx. Any operation on an
  * [IntPx.Infinity] results in [IntPx.Infinity]
  */
-operator fun Float.times(other: IntPx): IntPx =
+inline operator fun Float.times(other: IntPx): IntPx =
     other.keepInfinity(IntPx(value = (other.value.toFloat() * this).roundToInt()))
 
 /**
  * Multiply an IntPx by a Double and round the result to an IntPx. Any operation on an
  * [IntPx.Infinity] results in [IntPx.Infinity]
  */
-operator fun Double.times(other: IntPx): IntPx =
+inline operator fun Double.times(other: IntPx): IntPx =
     other.keepInfinity(IntPx(value = (other.value.toDouble() * this).roundToInt()))
 
 /**
  * Multiply an IntPx by a Double to result in an IntPx. Any operation on an
  * [IntPx.Infinity] results in [IntPx.Infinity]
  */
-operator fun Int.times(other: IntPx): IntPx =
+inline operator fun Int.times(other: IntPx): IntPx =
     other.keepInfinity(IntPx(value = other.value * this))
 
 /**
@@ -222,7 +226,7 @@ fun lerp(a: IntPx, b: IntPx, t: Float): IntPx {
  * Rounds a [Px] size to the nearest Int pixel value.
  */
 inline fun Px.round(): IntPx =
-    if (value.isInfinite()) IntPx.Infinity else IntPx(value.roundToInt())
+    if (value.isInfinite()) Infinity else IntPx(value.roundToInt())
 
 inline fun IntPx.toPx(): Px = value.px
 
@@ -233,7 +237,21 @@ inline fun IntPx.toPx(): Px = value.px
 /**
  * A two dimensional size using [IntPx] for units
  */
-/*inline*/ data class IntPxSize(val width: IntPx, val height: IntPx) {
+@UseExperimental(ExperimentalUnsignedTypes::class)
+@Immutable
+data class IntPxSize @PublishedApi internal constructor(@PublishedApi internal val value: Long) {
+    /**
+     * The horizontal aspect of the size in [IntPx].
+     */
+    inline val width: IntPx
+        get() = unpackInt1(value).ipx
+
+    /**
+     * The vertical aspect of the size in [IntPx].
+     */
+    inline val height: IntPx
+        get() = unpackInt2(value).ipx
+
     /**
      * Returns an IntPxSize scaled by multiplying [width] and [height] by [other]
      */
@@ -246,6 +264,13 @@ inline fun IntPx.toPx(): Px = value.px
     inline operator fun div(other: Int): IntPxSize =
         IntPxSize(width = width / other, height = height / other)
 }
+
+/**
+ * Constructs an [IntPxSize] from width and height [IntPx] values.
+ */
+@UseExperimental(ExperimentalUnsignedTypes::class)
+inline fun IntPxSize(width: IntPx, height: IntPx): IntPxSize =
+    IntPxSize(packInts(width.value, height.value))
 
 /**
  * Returns an [IntPxSize] with [size]'s [IntPxSize.width] and [IntPxSize.height]
@@ -264,7 +289,23 @@ fun IntPxSize.center(): IntPxPosition {
 /**
  * A two-dimensional position using [IntPx] for units
  */
-/*inline*/ data class IntPxPosition(val x: IntPx, val y: IntPx) {
+@UseExperimental(ExperimentalUnsignedTypes::class)
+@Immutable
+data class IntPxPosition @PublishedApi internal constructor(
+    @PublishedApi internal val value: Long
+) {
+    /**
+     * The horizontal aspect of the position in [IntPx]
+     */
+    inline val x: IntPx
+        get() = unpackInt1(value).ipx
+
+    /**
+     * The vertical aspect of the position in [IntPx]
+     */
+    inline val y: IntPx
+        get() = unpackInt2(value).ipx
+
     /**
      * Subtract a [IntPxPosition] from another one.
      */
@@ -277,6 +318,13 @@ fun IntPxSize.center(): IntPxPosition {
     inline operator fun plus(other: IntPxPosition) =
         IntPxPosition(x + other.x, y + other.y)
 }
+
+/**
+ * Constructs a [IntPxPosition] from [x] and [y] position [IntPx] values.
+ */
+@UseExperimental(ExperimentalUnsignedTypes::class)
+inline fun IntPxPosition(x: IntPx, y: IntPx): IntPxPosition =
+    IntPxPosition(packInts(x.value, y.value))
 
 /**
  * Linearly interpolate between two [IntPxPosition]s.
