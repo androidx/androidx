@@ -17,7 +17,6 @@
 package androidx.media2.session;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.annotation.SuppressLint;
 import android.content.ComponentName;
@@ -76,7 +75,7 @@ public final class SessionToken implements VersionedParcelable {
     /**
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RestrictTo(LIBRARY)
     @Retention(RetentionPolicy.SOURCE)
     @IntDef(value = {TYPE_SESSION, TYPE_SESSION_SERVICE, TYPE_LIBRARY_SERVICE})
     public @interface TokenType {
@@ -150,19 +149,13 @@ public final class SessionToken implements VersionedParcelable {
         }
     }
 
-    /**
-     * @hide
-     */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
     SessionToken(SessionTokenImpl impl) {
         mImpl = impl;
     }
 
     /**
      * Used for {@link VersionedParcelable}
-     * @hide
      */
-    @RestrictTo(LIBRARY)
     SessionToken() {
         // do nothing
     }
@@ -213,7 +206,7 @@ public final class SessionToken implements VersionedParcelable {
      * @hide
      * @return component name of the session. Can be {@code null} for {@link #TYPE_SESSION}.
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RestrictTo(LIBRARY)
     public ComponentName getComponentName() {
         return mImpl.getComponentName();
     }
@@ -245,7 +238,7 @@ public final class SessionToken implements VersionedParcelable {
     /**
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RestrictTo(LIBRARY)
     public boolean isLegacySession() {
         return mImpl.isLegacySession();
     }
@@ -253,7 +246,7 @@ public final class SessionToken implements VersionedParcelable {
     /**
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RestrictTo(LIBRARY)
     public Object getBinder() {
         return mImpl.getBinder();
     }
@@ -263,7 +256,7 @@ public final class SessionToken implements VersionedParcelable {
      * When the SessionToken is ready, OnSessionTokenCreateListener will be called.
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RestrictTo(LIBRARY)
     public static void createSessionToken(@NonNull final Context context,
             @NonNull final MediaSessionCompat.Token compatToken, @NonNull final Executor executor,
             @NonNull final OnSessionTokenCreatedListener listener) {
@@ -422,7 +415,7 @@ public final class SessionToken implements VersionedParcelable {
      *
      * @see #createSessionToken
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RestrictTo(LIBRARY)
     public interface OnSessionTokenCreatedListener {
         /**
          * Called when SessionToken object is created.

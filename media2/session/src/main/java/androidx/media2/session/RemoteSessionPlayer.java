@@ -16,7 +16,7 @@
 
 package androidx.media2.session;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
@@ -39,7 +39,7 @@ public abstract class RemoteSessionPlayer extends SessionPlayer {
     /**
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RestrictTo(LIBRARY)
     @IntDef({VOLUME_CONTROL_FIXED, VOLUME_CONTROL_RELATIVE, VOLUME_CONTROL_ABSOLUTE})
     @Retention(RetentionPolicy.SOURCE)
     public @interface VolumeControlType {}

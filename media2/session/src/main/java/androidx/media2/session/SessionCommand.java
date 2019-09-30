@@ -16,8 +16,8 @@
 
 package androidx.media2.session;
 
+import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.annotation.SuppressLint;
 import android.net.Uri;
@@ -78,13 +78,13 @@ public final class SessionCommand implements VersionedParcelable {
     /**
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RestrictTo(LIBRARY)
     public static final int COMMAND_VERSION_CURRENT = COMMAND_VERSION_2;
 
     /**
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RestrictTo(LIBRARY)
     @SuppressLint("UniqueConstants")
     @IntDef({COMMAND_VERSION_1, COMMAND_VERSION_2, COMMAND_VERSION_CURRENT})
     @Retention(RetentionPolicy.SOURCE)
@@ -93,7 +93,7 @@ public final class SessionCommand implements VersionedParcelable {
     /**
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RestrictTo(LIBRARY)
     @IntDef({COMMAND_CODE_CUSTOM,
             COMMAND_CODE_PLAYER_PLAY,
             COMMAND_CODE_PLAYER_PAUSE,
@@ -378,7 +378,7 @@ public final class SessionCommand implements VersionedParcelable {
      *
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY)
     public static final int COMMAND_CODE_PLAYER_SET_SURFACE = 11000;
 
     /**
@@ -501,7 +501,7 @@ public final class SessionCommand implements VersionedParcelable {
      * Code version is {@link #COMMAND_VERSION_1}.
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RestrictTo(LIBRARY)
     public static final int COMMAND_CODE_SESSION_PLAY_FROM_MEDIA_ID = 40004;
 
     /**
@@ -510,7 +510,7 @@ public final class SessionCommand implements VersionedParcelable {
      * Code version is {@link #COMMAND_VERSION_1}.
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RestrictTo(LIBRARY)
     public static final int COMMAND_CODE_SESSION_PLAY_FROM_SEARCH = 40005;
 
     /**
@@ -519,7 +519,7 @@ public final class SessionCommand implements VersionedParcelable {
      * Code version is {@link #COMMAND_VERSION_1}.
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RestrictTo(LIBRARY)
     public static final int COMMAND_CODE_SESSION_PLAY_FROM_URI = 40006;
 
     /**
@@ -528,7 +528,7 @@ public final class SessionCommand implements VersionedParcelable {
      * Code version is {@link #COMMAND_VERSION_1}.
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RestrictTo(LIBRARY)
     public static final int COMMAND_CODE_SESSION_PREPARE_FROM_MEDIA_ID = 40007;
 
     /**
@@ -537,7 +537,7 @@ public final class SessionCommand implements VersionedParcelable {
      * Code version is {@link #COMMAND_VERSION_1}.
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RestrictTo(LIBRARY)
     public static final int COMMAND_CODE_SESSION_PREPARE_FROM_SEARCH = 40008;
 
     /**
@@ -546,7 +546,7 @@ public final class SessionCommand implements VersionedParcelable {
      * Code version is {@link #COMMAND_VERSION_1}.
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RestrictTo(LIBRARY)
     public static final int COMMAND_CODE_SESSION_PREPARE_FROM_URI = 40009;
 
     /**
