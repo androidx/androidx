@@ -187,12 +187,7 @@ public class LinearSnapHelper extends SnapHelper {
         }
 
         View closestChild = null;
-        final int center;
-        if (layoutManager.getClipToPadding()) {
-            center = helper.getStartAfterPadding() + helper.getTotalSpace() / 2;
-        } else {
-            center = helper.getEnd() / 2;
-        }
+        final int center = helper.getStartAfterPadding() + helper.getTotalSpace() / 2;
         int absClosest = Integer.MAX_VALUE;
 
         for (int i = 0; i < childCount; i++) {

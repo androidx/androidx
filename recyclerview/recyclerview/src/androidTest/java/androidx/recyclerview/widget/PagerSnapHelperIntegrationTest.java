@@ -51,7 +51,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 @LargeTest
 @RunWith(Parameterized.class)
-public class PagerSnapHelperTest extends BaseLinearLayoutManagerTest {
+public class PagerSnapHelperIntegrationTest extends BaseLinearLayoutManagerTest {
 
     private static final int RECYCLERVIEW_SIZE = 1000;
 
@@ -71,7 +71,7 @@ public class PagerSnapHelperTest extends BaseLinearLayoutManagerTest {
     private final ChildSize mChildSize;
     private final boolean mApplyPadding;
 
-    public PagerSnapHelperTest(Config config, boolean reverseScroll, ChildSize childSize,
+    public PagerSnapHelperIntegrationTest(Config config, boolean reverseScroll, ChildSize childSize,
             boolean applyPadding) {
         mConfig = config;
         mReverseScroll = reverseScroll;
