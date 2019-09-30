@@ -82,6 +82,25 @@ public class WebViewProviderAdapter {
     }
 
     /**
+     * Adapter method for {@link WebViewCompat#addWebMessageListener(android.webkit.WebView,
+     * String, List<String>, androidx.webkit.WebViewCompat.WebMessageListener)}.
+     */
+    public void addWebMessageListener(@NonNull String jsObjectName,
+            @NonNull String[] allowedOriginRules,
+            @NonNull WebViewCompat.WebMessageListener listener) {
+        mImpl.addWebMessageListener(jsObjectName, allowedOriginRules,
+                BoundaryInterfaceReflectionUtil.createInvocationHandlerFor(
+                        new WebMessageListenerAdapter(listener)));
+    }
+
+    /**
+     * Adapter method for {@link WebViewCompat#removeWebMessageListener(String)}.
+     */
+    public void removeWebMessageListener(@NonNull String jsObjectName) {
+        mImpl.removeWebMessageListener(jsObjectName);
+    }
+
+    /**
      * Adapter method for {@link WebViewCompat#getWebViewClient()}.
      */
     @NonNull

@@ -90,6 +90,7 @@ public class WebViewFeature {
             MULTI_PROCESS_QUERY,
             FORCE_DARK,
             FORCE_DARK_STRATEGY,
+            WEB_MESSAGE_LISTENER,
     })
     @Retention(RetentionPolicy.SOURCE)
     @Target({ElementType.PARAMETER, ElementType.METHOD})
@@ -424,6 +425,19 @@ public class WebViewFeature {
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final String FORCE_DARK_STRATEGY = "FORCE_DARK_STRATEGY";
+
+    /**
+     * Feature for {@link #isFeatureSupported(String)}.
+     * This feature covers
+     * {@link androidx.webkit.WebViewCompat#setWebMessageListener(android.webkit.WebView,
+     * androidx.webkit.WebViewCompat.WebMessageListener, String, String[])}
+     * {@link androidx.webkit.WebViewCompat#removeWebMessageListener()}
+     *
+     * TODO(ctzsm): unhide
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static final String WEB_MESSAGE_LISTENER = "WEB_MESSAGE_LISTENER";
 
     /**
      * Return whether a feature is supported at run-time. On devices running Android version {@link
