@@ -16,6 +16,7 @@
 
 package androidx.webkit.internal;
 
+import android.annotation.SuppressLint;
 import android.net.Uri;
 import android.webkit.WebChromeClient;
 import android.webkit.WebView;
@@ -119,6 +120,9 @@ public class WebViewProviderAdapter {
     /**
      * Adapter method for {@link WebViewCompat#setWebViewRendererClient(WebViewRendererClient)}.
      */
+    // WebViewRenderProcessClient is a callback class, so it should be last. See
+    // https://issuetracker.google.com/issues/139770271.
+    @SuppressLint("LambdaLast")
     public void setWebViewRenderProcessClient(@Nullable Executor executor,
             @Nullable WebViewRenderProcessClient webViewRenderProcessClient) {
         mImpl.setWebViewRendererClient(

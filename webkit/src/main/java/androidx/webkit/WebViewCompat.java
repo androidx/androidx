@@ -542,6 +542,9 @@ public class WebViewCompat {
      * @param webViewRenderProcessClient the {@link WebViewRenderProcessClient} to set for
      *                                   callbacks.
      */
+    // WebViewRenderProcessClient is a callback class, so it should be last. See
+    // https://issuetracker.google.com/issues/139770271.
+    @SuppressLint("LambdaLast")
     @RequiresFeature(name = WebViewFeature.WEB_VIEW_RENDERER_CLIENT_BASIC_USAGE,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public static void setWebViewRenderProcessClient(
