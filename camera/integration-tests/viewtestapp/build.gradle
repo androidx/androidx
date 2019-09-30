@@ -54,9 +54,9 @@ dependencies {
     implementation(project(":camera:camera-view"))
 
     // Lifecycle and LiveData
-    implementation(project(":lifecycle:lifecycle-livedata"))
+    implementation("androidx.lifecycle:lifecycle-livedata:2.1.0")
 
     // Android Support Library
-    implementation(project(":appcompat"))
+    implementation("androidx.appcompat:appcompat:1.1.0")
 }
 

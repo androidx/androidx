@@ -33,7 +33,7 @@ dependencies {
     // Ensure that the -ktx dependency graph mirrors the Java dependency graph
     api(project(":paging:paging-common-ktx"))
 
-    api(project(":arch:core-runtime"))
+    api("androidx.arch.core:core-runtime:2.1.0")
     api("androidx.lifecycle:lifecycle-runtime:2.0.0")
     api(project(":lifecycle:lifecycle-livedata"))
     api("androidx.recyclerview:recyclerview:1.0.0")

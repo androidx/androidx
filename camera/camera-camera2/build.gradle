@@ -51,7 +51,7 @@ dependencies {
     androidTestImplementation(ESPRESSO_CORE)
     androidTestImplementation(MOCKITO_CORE, libs.exclude_bytebuddy) // DexMaker has it's own MockMaker
     androidTestImplementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy) // DexMaker has it's own MockMaker
-    androidTestImplementation(project(":appcompat"))
+    androidTestImplementation("androidx.appcompat:appcompat:1.1.0")
     androidTestImplementation(project(":camera:camera-testing"))
 }
 android {
