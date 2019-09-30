@@ -32,7 +32,7 @@ import static org.junit.Assert.fail;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.filters.MediumTest;
+import androidx.test.filters.SmallTest;
 
 import org.hamcrest.CoreMatchers;
 import org.junit.Test;
@@ -47,7 +47,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * Includes tests for the new RecyclerView animations API (v2).
  */
-@MediumTest
+@SmallTest
 @RunWith(AndroidJUnit4.class)
 public class ItemAnimatorV2ApiTest extends BaseRecyclerViewAnimationsTest {
     @Override
