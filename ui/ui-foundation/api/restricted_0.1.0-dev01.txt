@@ -45,6 +45,12 @@ package androidx.ui.foundation {
     enum_constant public static final androidx.ui.foundation.DropDownAlignment Right;
   }
 
+  public final class ImageKt {
+    ctor public ImageKt();
+    method public static void DrawImage(androidx.ui.graphics.Image image, androidx.ui.graphics.Color? tint = null);
+    method public static void SimpleImage(androidx.ui.graphics.Image image, androidx.ui.graphics.Color? tint = null);
+  }
+
   public final class PopupKt {
     ctor public PopupKt();
     method public static void DropdownPopup(androidx.ui.foundation.DropDownAlignment dropDownAlignment = DropDownAlignment.Left, androidx.ui.core.IntPxPosition offset = IntPxPosition(IntPx.Zero, IntPx.Zero), androidx.ui.foundation.PopupProperties popupProperties = androidx.ui.foundation.PopupProperties(), kotlin.jvm.functions.Function0<kotlin.Unit> children);
@@ -81,11 +87,6 @@ package androidx.ui.foundation {
     method public void smoothScrollBy(androidx.ui.core.Px value, kotlin.jvm.functions.Function2<? super androidx.animation.AnimationEndReason,? super java.lang.Float,kotlin.Unit> onEnd = { _, _ ->  });
     method public void smoothScrollTo(androidx.ui.core.Px value, kotlin.jvm.functions.Function2<? super androidx.animation.AnimationEndReason,? super java.lang.Float,kotlin.Unit> onEnd = { _, _ ->  });
     property public final androidx.ui.core.Px value;
-  }
-
-  public final class SimpleImageKt {
-    ctor public SimpleImageKt();
-    method public static void SimpleImage(androidx.ui.graphics.Image image, androidx.ui.graphics.Color? tint = null);
   }
 
   public final class Strings {
