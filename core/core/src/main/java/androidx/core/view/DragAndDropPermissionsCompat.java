@@ -29,6 +29,12 @@ import androidx.annotation.RestrictTo;
 /**
  * Helper for accessing features in {@link android.view.DragAndDropPermissions} a backwards
  * compatible fashion.
+ *
+ * <p>
+ * Learn more in the guide to using
+ * <a href="/guide/topics/ui/drag-drop#DragPermissionsMultiWindow">drag permissions in multi-window
+ * mode</a>.
+ * </p>
  */
 public final class DragAndDropPermissionsCompat {
     private Object mDragAndDropPermissions;
