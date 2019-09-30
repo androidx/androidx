@@ -285,16 +285,12 @@ package androidx.browser.trusted {
     field public static final int SMALL_ICON_NOT_SET = -1; // 0xffffffff
   }
 
-  public class TrustedWebActivityServiceConnectionManager {
+  public final class TrustedWebActivityServiceConnectionManager {
     ctor public TrustedWebActivityServiceConnectionManager(android.content.Context);
-    method @MainThread public boolean execute(android.net.Uri, String, androidx.browser.trusted.TrustedWebActivityServiceConnectionManager.ExecutionCallback);
+    method @MainThread public com.google.common.util.concurrent.ListenableFuture<androidx.browser.trusted.TrustedWebActivityServiceWrapper!> connect(android.net.Uri, String, java.util.concurrent.Executor);
     method public static java.util.Set<java.lang.String!> getVerifiedPackages(android.content.Context, String);
     method public static void registerClient(android.content.Context, String, String);
     method @MainThread public boolean serviceExistsForScope(android.net.Uri, String);
-  }
-
-  public static interface TrustedWebActivityServiceConnectionManager.ExecutionCallback {
-    method public void onConnected(androidx.browser.trusted.TrustedWebActivityServiceWrapper?) throws android.os.RemoteException;
   }
 
   public class TrustedWebActivityServiceWrapper {

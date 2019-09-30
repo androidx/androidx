@@ -19,6 +19,7 @@ android {
 dependencies {
     api("androidx.core:core:1.1.0")
     api("androidx.annotation:annotation:1.1.0")
+    api(GUAVA_LISTENABLE_FUTURE)
 
     implementation("androidx.collection:collection:1.1.0")
     implementation("androidx.concurrent:concurrent-futures:1.0.0")
