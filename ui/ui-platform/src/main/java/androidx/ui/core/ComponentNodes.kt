@@ -1263,6 +1263,8 @@ private class LayoutNodeCoordinates(
 
     override val size get() = layoutNode.contentSize.toPxSize()
 
+    override val providedAlignmentLines get() = layoutNode.providedAlignmentLines
+
     override val parentCoordinates get() = layoutNode.parentLayoutNode?.coordinates
 
     override fun globalToLocal(global: PxPosition) = layoutNode.globalToLocal(global)
