@@ -71,6 +71,29 @@ public class WebViewCompat {
     }
 
     /**
+     * WebMessageListener callback interface. This is used to listen messages from the injected
+     * JavaScript object. See also {@link #addWebMessageListener()}.
+     *
+     * TODO(ctzsm): unhide.
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public interface WebMessageListener {
+        /**
+         * Receives JavaScript {@code postMessage()} call information from the JavaScript object.
+         *
+         * @param view The {@link WebView} issued this message.
+         * @param message The {@link WebMessageCompat} message from JavaScript.
+         * @param sourceOrigin The origin of the frame where the message is from.
+         * @param isMainFrame If the message is from a main frame.
+         * @param replyProxy Used for reply message to the injected JavaScript object.
+         */
+        @UiThread
+        void onPostMessage(@NonNull WebView view, @NonNull WebMessageCompat message,
+                @NonNull Uri sourceOrigin, boolean isMainFrame, @NonNull JsReplyProxy replyProxy);
+    }
+
+    /**
      * Posts a {@link VisualStateCallback}, which will be called when
      * the current state of the WebView is ready to be drawn.
      *
@@ -423,6 +446,77 @@ public class WebViewCompat {
                     targetOrigin);
         } else if (feature.isSupportedByWebView()) {
             getProvider(webview).postWebMessage(message, targetOrigin);
+        } else {
+            throw WebViewFeatureInternal.getUnsupportedOperationException();
+        }
+    }
+
+    /**
+     * Adds a {@link WebMessageListener} to the {@android.webkit.WebView} and inject a JavaScript
+     * object that the {@link WebMessageListener} will listener on.
+     *
+     * <p>
+     * The injected JavaScript will be named as {@code jsObjectName}. We will inject the JavaScript
+     * object if the frame's origin matches any of the {@code allowedOriginRules} for every
+     * navigation after this call, the JavaScript object will be available immediately after the
+     * page loads.
+     *
+     * <p>
+     * This method could be called multiple times so multiple JavaScript objects will be injected.
+     *
+     * <p>
+     * Note that this is a powerful API, the JavaScript object will be injected when the frame's
+     * origin matches any one of the allowed origins. If a wildcard {@code "*"} is provided, it will
+     * inject JavaScript object to all frames. App should try to void to use the wildcard as much as
+     * possible, instead, passing rules that only matches trusted URLs is highly recommended.
+     *
+     * @param jsObjectName The name for the injected JavaScript object for this {@link
+     *         WebMessageListener}.
+     * @param allowedOriginRules A list of matching rules for the allowed origins.
+     * @param listener The {@link WebMessageListener} to be called when received onPostMessage().
+     *
+     * @throws IllegalArgumentException If one of the {@code allowedOriginRules} is invalid.
+     *
+     * //TODO(ctzsm): unhide
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @RequiresFeature(name = WebViewFeature.WEB_MESSAGE_LISTENER,
+            enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
+    public static void addWebMessageListener(@NonNull WebView webview, @NonNull String jsObjectName,
+            @NonNull List<String> allowedOriginRules, @NonNull WebMessageListener listener) {
+        final WebViewFeatureInternal feature =
+                WebViewFeatureInternal.getFeature(WebViewFeature.WEB_MESSAGE_LISTENER);
+        if (feature.isSupportedByWebView()) {
+            getProvider(webview).addWebMessageListener(
+                    jsObjectName, allowedOriginRules.toArray(new String[0]), listener);
+        } else {
+            throw WebViewFeatureInternal.getUnsupportedOperationException();
+        }
+    }
+
+    /**
+     * Removes the {@link WebMessageListener} associated with the {@code jsObjectName}.
+     *
+     * <p>
+     * Note that after this call, the injected JavaScript object is still in the JavaScript context,
+     * however any message send after this call won't reach to the {@link WebMessageListener}.
+     *
+     * @param jsObjectName The JavaScript object's name that passed to {@link
+     *         #addWebMessageListener()} previously.
+     *
+     * //TODO(ctzsm): unhide
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @RequiresFeature(name = WebViewFeature.WEB_MESSAGE_LISTENER,
+            enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
+    public static void removeWebMessageListener(
+            @NonNull WebView webview, @NonNull String jsObjectName) {
+        final WebViewFeatureInternal feature =
+                WebViewFeatureInternal.getFeature(WebViewFeature.WEB_MESSAGE_LISTENER);
+        if (feature.isSupportedByWebView()) {
+            getProvider(webview).removeWebMessageListener(jsObjectName);
         } else {
             throw WebViewFeatureInternal.getUnsupportedOperationException();
         }

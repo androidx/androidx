@@ -346,6 +346,14 @@ public enum WebViewFeatureInternal {
      */
     FORCE_DARK_STRATEGY(WebViewFeature.FORCE_DARK_STRATEGY, Features.FORCE_DARK_BEHAVIOR),
 
+    /**
+     * This feature covers
+     * {@link androidx.webkit.WebViewCompat#setWebMessageListener(android.webkit.WebView,
+     * androidx.webkit.WebViewCompat.WebMessageListener, String, String[])} and
+     * {@link androidx.webkit.WebViewCompat#removeWebMessageListener()}
+     */
+    WEB_MESSAGE_LISTENER(WebViewFeature.WEB_MESSAGE_LISTENER, Features.WEB_MESSAGE_LISTENER),
+
     ;  // This semicolon ends the enum. Add new features with a trailing comma above this line.
 
     private static final int NOT_SUPPORTED_BY_FRAMEWORK = -1;
