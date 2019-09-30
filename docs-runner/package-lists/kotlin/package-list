@@ -165,6 +165,9 @@ $dokka.location:kotlin.text$toRegex(java.util.regex.Pattern)kotlin.text/java.ut
 $dokka.location:kotlin.text.Appendablekotlin.text/-appendable/index.html
 $dokka.location:kotlin.text.CharacterCodingExceptionkotlin.text/-character-coding-exception/index.html
 $dokka.location:kotlin.text.StringBuilderkotlin.text/-string-builder/index.html
+$dokka.location:kotlin.time$toKotlinDuration(java.time.Duration)kotlin.time/java.time.-duration/to-kotlin-duration.html
+$dokka.location:kotlin.time.DurationUnitkotlin.time/-duration-unit/index.html
+$dokka.location:kotlin.time.MonoClockkotlin.time/-mono-clock/index.html
 kotlin
 kotlin.annotation
 kotlin.browser
@@ -195,6 +198,7 @@ kotlin.sequences
 kotlin.streams
 kotlin.system
 kotlin.text
+kotlin.time
 kotlinx.cinterop
 kotlinx.cinterop.internal
 kotlinx.wasm.jsinterop
