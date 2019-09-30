@@ -23,7 +23,7 @@ import androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_YES
 import androidx.appcompat.testutils.NightModeUtils.assertConfigurationNightModeEquals
 import androidx.appcompat.testutils.NightModeUtils.isSystemNightThemeEnabled
 import androidx.appcompat.testutils.NightModeUtils.setNightModeAndWait
-import androidx.appcompat.testutils.NightModeUtils.setNightModeAndWaitForDestroy
+import androidx.appcompat.testutils.NightModeUtils.setNightModeAndWaitForRecreate
 import androidx.appcompat.testutils.TestUtilsMatchers.isBackground
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.assertion.ViewAssertions.matches
@@ -82,7 +82,7 @@ class NightModeTestCase(private val setMode: NightSetMode) {
         onView(withId(R.id.text_night_mode)).check(matches(withText(STRING_DAY)))
 
         // Now force the local night mode to be yes (aka night mode)
-        setNightModeAndWaitForDestroy(rule, MODE_NIGHT_YES, setMode)
+        setNightModeAndWaitForRecreate(rule, MODE_NIGHT_YES, setMode)
 
         // Assert that the new local night mode is returned
         assertEquals(MODE_NIGHT_YES, rule.activity.delegate.localNightMode)
@@ -99,7 +99,7 @@ class NightModeTestCase(private val setMode: NightSetMode) {
                 rule.activity.applicationContext.resources.configuration)
 
             // Force the night mode to be yes (aka night mode)
-            setNightModeAndWaitForDestroy(rule, MODE_NIGHT_YES, setMode)
+            setNightModeAndWaitForRecreate(rule, MODE_NIGHT_YES, setMode)
 
             assertConfigurationNightModeEquals(Configuration.UI_MODE_NIGHT_NO,
                 rule.activity.applicationContext.resources.configuration)
@@ -111,11 +111,11 @@ class NightModeTestCase(private val setMode: NightSetMode) {
         // This test is only useful when the dark system theme is enabled
         if (!isSystemNightThemeEnabled(rule.activity)) {
             // Now force the night mode to be YES, so we're in dark theme
-            setNightModeAndWaitForDestroy(rule, MODE_NIGHT_YES, setMode)
+            setNightModeAndWaitForRecreate(rule, MODE_NIGHT_YES, setMode)
             onView(withId(R.id.text_night_mode)).check(matches(withText(STRING_NIGHT)))
 
             // Now force the local night mode to be FOLLOW_SYSTEM (which we know is dark)
-            setNightModeAndWaitForDestroy(rule, MODE_NIGHT_FOLLOW_SYSTEM, setMode)
+            setNightModeAndWaitForRecreate(rule, MODE_NIGHT_FOLLOW_SYSTEM, setMode)
             onView(withId(R.id.text_night_mode)).check(matches(withText(STRING_DAY)))
         }
     }
@@ -125,11 +125,11 @@ class NightModeTestCase(private val setMode: NightSetMode) {
         // This test is only useful when the dark system theme is enabled
         if (isSystemNightThemeEnabled(rule.activity)) {
             // Now force the night mode to be NO, so we're in light theme
-            setNightModeAndWaitForDestroy(rule, MODE_NIGHT_NO, setMode)
+            setNightModeAndWaitForRecreate(rule, MODE_NIGHT_NO, setMode)
             onView(withId(R.id.text_night_mode)).check(matches(withText(STRING_DAY)))
 
             // Now force the night mode to be FOLLOW_SYSTEM (which we know is dark)
-            setNightModeAndWaitForDestroy(rule, MODE_NIGHT_FOLLOW_SYSTEM, setMode)
+            setNightModeAndWaitForRecreate(rule, MODE_NIGHT_FOLLOW_SYSTEM, setMode)
             onView(withId(R.id.text_night_mode)).check(matches(withText(STRING_NIGHT)))
         }
     }
@@ -145,11 +145,11 @@ class NightModeTestCase(private val setMode: NightSetMode) {
         // cache for the issue to happen
         for (i in 0 until 5) {
             // First force it to be night mode and assert the color
-            setNightModeAndWaitForDestroy(rule, MODE_NIGHT_YES, setMode)
+            setNightModeAndWaitForRecreate(rule, MODE_NIGHT_YES, setMode)
             onView(withId(R.id.view_background)).check(matches(isBackground(nightColor)))
 
             // Now force the local night mode to be no (aka day mode) and assert the color
-            setNightModeAndWaitForDestroy(rule, MODE_NIGHT_NO, setMode)
+            setNightModeAndWaitForRecreate(rule, MODE_NIGHT_NO, setMode)
             onView(withId(R.id.view_background)).check(matches(isBackground(dayColor)))
         }
     }
@@ -228,7 +228,7 @@ class NightModeTestCase(private val setMode: NightSetMode) {
     @Test
     fun testDialogDoesNotOverrideActivityConfiguration() {
         // Set Activity local night mode to YES
-        setNightModeAndWaitForDestroy(rule, MODE_NIGHT_YES, setMode)
+        setNightModeAndWaitForRecreate(rule, MODE_NIGHT_YES, setMode)
 
         // Assert that the uiMode is as expected
         assertConfigurationNightModeEquals(Configuration.UI_MODE_NIGHT_YES, rule.activity)
@@ -245,7 +245,7 @@ class NightModeTestCase(private val setMode: NightSetMode) {
     @Test
     fun testLoadingWebViewMaintainsConfiguration() {
         // Set night mode and wait for the new Activity
-        setNightModeAndWaitForDestroy(rule, MODE_NIGHT_YES, setMode)
+        setNightModeAndWaitForRecreate(rule, MODE_NIGHT_YES, setMode)
 
         // Assert that the context still has a night themed configuration
         assertConfigurationNightModeEquals(Configuration.UI_MODE_NIGHT_YES, rule.activity)

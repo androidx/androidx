@@ -23,6 +23,7 @@ import android.app.Activity;
 import android.app.Instrumentation;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleEventObserver;
 import androidx.lifecycle.LifecycleOwner;
@@ -100,10 +101,11 @@ public class LifecycleOwnerUtils {
      * the new instance is resumed.
      */
     @SuppressWarnings("unchecked")
+    @NonNull
     public static <T extends Activity & LifecycleOwner> T waitForRecreation(
-            final ActivityTestRule<T> activityRule
+            @NonNull final ActivityTestRule<T> activityRule
     ) throws Throwable {
-        return waitForRecreation(activityRule.getActivity(), activityRule);
+        return waitForRecreation(activityRule.getActivity(), activityRule, null);
     }
 
     /**
@@ -111,14 +113,20 @@ public class LifecycleOwnerUtils {
      * the new instance is resumed.
      */
     @SuppressWarnings("unchecked")
+    @NonNull
     public static <T extends Activity & LifecycleOwner> T waitForRecreation(
-            final T activity,
-            final ActivityTestRule<?> activityRule
+            @NonNull final T activity,
+            @NonNull final ActivityTestRule<?> activityRule,
+            @Nullable final Runnable actionOnUiThread
     ) throws Throwable {
         Instrumentation.ActivityMonitor monitor = new Instrumentation.ActivityMonitor(
                 activity.getClass().getCanonicalName(), null, false);
         Instrumentation instrumentation = InstrumentationRegistry.getInstrumentation();
         instrumentation.addMonitor(monitor);
+
+        if (actionOnUiThread != null) {
+            activityRule.runOnUiThread(actionOnUiThread);
+        }
 
         T result;
 

@@ -58,8 +58,6 @@ public abstract class BaseTestActivity extends RecreatedAppCompatActivity {
         final LocaleTestUtils locale = new LocaleTestUtils(this);
         if (getIntent().hasExtra(EXTRA_LANGUAGE)) {
             locale.setLocale(LocaleTestUtils.RTL_LANGUAGE);
-        } else {
-            locale.setLocale(LocaleTestUtils.DEFAULT_TEST_LANGUAGE);
         }
 
         overridePendingTransition(0, 0);

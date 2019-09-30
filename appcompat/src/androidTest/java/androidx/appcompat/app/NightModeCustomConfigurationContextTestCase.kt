@@ -19,10 +19,12 @@ package androidx.appcompat.app
 import androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_NO
 import androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_YES
 import androidx.appcompat.app.NightModeCustomConfigurationActivity.CUSTOM_FONT_SCALE
-import androidx.appcompat.testutils.NightModeUtils
+import androidx.appcompat.app.NightModeCustomConfigurationActivity.CUSTOM_LOCALE
 import androidx.appcompat.testutils.NightModeUtils.NightSetMode
-import androidx.appcompat.testutils.NightModeUtils.setNightModeAndWaitForDestroy
+import androidx.appcompat.testutils.NightModeUtils.setNightModeAndWait
+import androidx.appcompat.testutils.NightModeUtils.setNightModeAndWaitForRecreate
 import androidx.test.filters.LargeTest
+import androidx.test.filters.SdkSuppress
 import androidx.test.rule.ActivityTestRule
 import org.junit.After
 import org.junit.Assert.assertEquals
@@ -33,42 +35,75 @@ import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
 @LargeTest
+@SdkSuppress(minSdkVersion = 17)
 @RunWith(Parameterized::class)
-class NightModeCustomFontScaleTestCase(private val setMode: NightSetMode) {
+class NightModeCustomConfigurationContextTestCase(private val setMode: NightSetMode) {
+
     @get:Rule
-    val rule = ActivityTestRule(NightModeCustomConfigurationActivity::class.java, false, false)
+    val activityRule = ActivityTestRule(
+        NightModeCustomConfigurationActivity::class.java,
+        false,
+        false
+    )
 
     @Before
     fun setup() {
         // By default we'll set the night mode to NO, which allows us to make better
-        // assumptions in the tests below
-        AppCompatDelegate.setDefaultNightMode(MODE_NIGHT_NO)
+        // assumptions in the test below.
+        activityRule.runOnUiThread {
+            AppCompatDelegate.setDefaultNightMode(MODE_NIGHT_NO)
+        }
+
         // Launch the test activity
-        rule.launchActivity(null)
+        activityRule.launchActivity(null)
+    }
+
+    @Test
+    @Suppress("DEPRECATION")
+    fun testLocaleIsMaintained() {
+        // Check that the custom configuration properties are maintained
+        val config = activityRule.activity.resources.configuration
+        assertEquals(CUSTOM_LOCALE, config.locale)
+    }
+
+    @Test
+    @Suppress("DEPRECATION")
+    fun testLocaleIsMaintainedInDarkTheme() {
+        // Set local night mode to YES
+        setNightModeAndWaitForRecreate(activityRule, MODE_NIGHT_YES, setMode)
+
+        // Check that the custom configuration properties are maintained
+        val config = activityRule.activity.resources.configuration
+        assertEquals(CUSTOM_LOCALE, config.locale)
     }
 
     @Test
     fun testFontScaleIsMaintained() {
         // Check that the custom configuration properties are maintained
-        val config = rule.activity.resources.configuration
+        val config = activityRule.activity.resources.configuration
         assertEquals(CUSTOM_FONT_SCALE, config.fontScale)
     }
 
     @Test
     fun testFontScaleIsMaintainedInDarkTheme() {
         // Set local night mode to YES
-        setNightModeAndWaitForDestroy(rule, MODE_NIGHT_YES, setMode)
+        setNightModeAndWaitForRecreate(activityRule, MODE_NIGHT_YES, setMode)
 
         // Check that the custom configuration properties are maintained
-        val config = rule.activity.resources.configuration
+        val config = activityRule.activity.resources.configuration
         assertEquals(CUSTOM_FONT_SCALE, config.fontScale)
     }
 
     @After
     fun cleanup() {
-        rule.finishActivity()
+        activityRule.finishActivity()
+
         // Reset the default night mode
-        NightModeUtils.setNightModeAndWait(rule, MODE_NIGHT_NO, NightSetMode.DEFAULT)
+        setNightModeAndWait(
+            activityRule,
+            MODE_NIGHT_NO,
+            NightSetMode.DEFAULT
+        )
     }
 
     companion object {
