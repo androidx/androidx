@@ -335,7 +335,6 @@ public class MediaItem extends CustomVersionedParcelable {
 
     /**
      * @hide
-     * @param isStream
      */
     @RestrictTo(LIBRARY)
     @Override

@@ -17,7 +17,6 @@
 package androidx.media2.common;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.os.ParcelFileDescriptor;
 import android.util.Log;
@@ -25,7 +24,6 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
-import androidx.annotation.VisibleForTesting;
 import androidx.core.util.Preconditions;
 import androidx.versionedparcelable.NonParcelField;
 import androidx.versionedparcelable.ParcelUtils;
@@ -112,7 +110,7 @@ public class FileMediaItem extends MediaItem {
      * Increases reference count for underlying ParcelFileDescriptor.
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RestrictTo(LIBRARY_GROUP)
     public void increaseRefCount() {
         synchronized (mRefCount) {
             if (mClosed) {
@@ -128,7 +126,7 @@ public class FileMediaItem extends MediaItem {
      * be closed when the count becomes zero.
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RestrictTo(LIBRARY_GROUP)
     public void decreaseRefCount() {
         synchronized (mRefCount) {
             if (mClosed) {
@@ -164,7 +162,6 @@ public class FileMediaItem extends MediaItem {
      * Close the {@link ParcelFileDescriptor} of this {@link FileMediaItem}.
      * @hide
      */
-    @VisibleForTesting
     @RestrictTo(LIBRARY_GROUP)
     public void close() throws IOException {
         synchronized (mRefCount) {

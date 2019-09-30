@@ -16,6 +16,8 @@
 
 package androidx.media2.common;
 
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+
 import android.annotation.SuppressLint;
 
 import androidx.annotation.NonNull;
@@ -31,7 +33,7 @@ import java.util.List;
 /**
  * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@RestrictTo(LIBRARY_GROUP)
 public class MediaParcelUtils {
     public static final String TAG = "MediaParcelUtils";
 

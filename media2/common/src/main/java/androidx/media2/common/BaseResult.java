@@ -16,6 +16,8 @@
 
 package androidx.media2.common;
 
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 
@@ -34,7 +36,7 @@ import androidx.annotation.RestrictTo;
  * 1000 <= |code|       : Custom session player result code.
  * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@RestrictTo(LIBRARY_GROUP)
 public interface BaseResult {
     /**
      * Result code representing that the command is successfully completed.
