@@ -18,13 +18,15 @@ package androidx.ui.material.ripple
 
 import androidx.ui.graphics.Color
 import androidx.compose.Ambient
+import androidx.compose.Effect
+import androidx.ui.material.MaterialTheme
 
 /**
- * Defines the appearance and the behavior for [RippleEffect]s. Used for customisation of [Ripple].
+ * Defines the appearance and the behavior for [Ripple]s.
  *
  * To change some parameter and apply it to descendants modify the [CurrentRippleTheme] ambient.
  *
- * To apply the default values based on the Material Design guidelines use [androidx.ui.material.MaterialTheme].
+ * To apply the default values based on the Material Design guidelines use [MaterialTheme].
  */
 data class RippleTheme(
     /**
@@ -32,16 +34,16 @@ data class RippleTheme(
      */
     val factory: RippleEffectFactory,
     /**
-     * The callback which returns the backgroundColor to be used by [RippleEffect].
+     * The effect that will be used to calculate the [Ripple] color when it is not explicitly
+     * set in a [Ripple].
      */
-    val colorCallback: RippleColorCallback
+    val defaultColor: Effect<Color>,
+    /**
+     * The effect that will be used to calculate the opacity applied to the [Ripple] color.
+     * For example, it can be different in dark and light modes.
+     */
+    val opacity: Effect<Float>
 )
-
-// TODO(Andrey: We are having the background backgroundColor as a parameter as a temporary solution)
-// By specification the ripple backgroundColor is taken from the text or iconography in the component.
-// Opacity is 12% on light theme and 24% on dark theme.
-// To be implemented in b/124500407
-typealias RippleColorCallback = (background: Color?) -> (Color)
 
 val CurrentRippleTheme = Ambient.of<RippleTheme> {
     error("No RippleTheme provided. Please add MaterialTheme as an ancestor.")
