@@ -129,7 +129,6 @@ public class RecyclerViewAccessibilityDelegate extends AccessibilityDelegateComp
 
         @Override
         public void onInitializeAccessibilityNodeInfo(View host, AccessibilityNodeInfoCompat info) {
-            super.onInitializeAccessibilityNodeInfo(host, info);
             if (!mRecyclerViewDelegate.shouldIgnore()
                     && mRecyclerViewDelegate.mRecyclerView.getLayoutManager() != null) {
                 mRecyclerViewDelegate.mRecyclerView.getLayoutManager()
@@ -137,7 +136,11 @@ public class RecyclerViewAccessibilityDelegate extends AccessibilityDelegateComp
                 AccessibilityDelegateCompat originalDelegate = mOriginalItemDelegates.get(host);
                 if (originalDelegate != null) {
                     originalDelegate.onInitializeAccessibilityNodeInfo(host, info);
+                } else {
+                    super.onInitializeAccessibilityNodeInfo(host, info);
                 }
+            } else {
+                super.onInitializeAccessibilityNodeInfo(host, info);
             }
         }
 

@@ -169,6 +169,8 @@
     <string name="checkbox_layout_dir">Layout Dir</string>
     <string name="checkbox_stack_from_end">Stack From End</string>
     <string name="checkbox_snap">Snap</string>
+    <string name="checkbox_accessibility_custom_actions">Accessibility Custom Action</string>
+    <string name="arbitrary_action_label">Arbitrary Action</string>
     <string name="enableAnimations">Animate</string>
     <string name="enablePredictiveAnimations">Predictive</string>
     <string name="enableInPlaceChange">In Place Change</string>

@@ -913,12 +913,16 @@ abstract public class BaseRecyclerViewInstrumentationTest {
             assertNotNull(holder.mOwnerRecyclerView);
             assertEquals(position, holder.getAdapterPosition());
             final Item item = mItems.get(position);
-            ((TextView) (holder.itemView)).setText(item.getDisplayText());
+            getTextViewInHolder(holder).setText(item.getDisplayText());
             holder.itemView.setBackgroundColor(position % 2 == 0 ? 0xFFFF0000 : 0xFF0000FF);
             holder.mBoundItem = item;
             if (mLayoutParams != null) {
                 holder.itemView.setLayoutParams(new RecyclerView.LayoutParams(mLayoutParams));
             }
+        }
+
+        protected TextView getTextViewInHolder(TestViewHolder holder) {
+            return (TextView) holder.itemView;
         }
 
         public Item getItemAt(int position) {
