@@ -16,6 +16,7 @@
 
 package androidx.fragment.app;
 
+import android.app.Activity;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.util.Log;
@@ -25,6 +26,7 @@ import android.view.View;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.Lifecycle;
+import androidx.lifecycle.ViewModelStoreOwner;
 
 class FragmentStateManager {
     private static final String TAG = FragmentManager.TAG;
@@ -198,6 +200,42 @@ class FragmentStateManager {
             mFragment.mUserVisibleHint = mFragment.mSavedFragmentState.getBoolean(
                     USER_VISIBLE_HINT_TAG, true);
         }
+        if (!mFragment.mUserVisibleHint) {
+            mFragment.mDeferStart = true;
+        }
+    }
+
+    void attach(@NonNull FragmentHostCallback<?> host, @NonNull FragmentManager fragmentManager,
+            @Nullable Fragment parentFragment) {
+        mFragment.mHost = host;
+        mFragment.mParentFragment = parentFragment;
+        mFragment.mFragmentManager = fragmentManager;
+        mDispatcher.dispatchOnFragmentPreAttached(
+                mFragment, host.getContext(), false);
+        mFragment.performAttach();
+        if (mFragment.mParentFragment == null) {
+            host.onAttachFragment(mFragment);
+        } else {
+            mFragment.mParentFragment.onAttachFragment(mFragment);
+        }
+        mDispatcher.dispatchOnFragmentAttached(
+                mFragment, host.getContext(), false);
+    }
+
+    void create() {
+        if (FragmentManager.isLoggingEnabled(Log.DEBUG)) {
+            Log.d(TAG, "moveto CREATED: " + mFragment);
+        }
+        if (!mFragment.mIsCreated) {
+            mDispatcher.dispatchOnFragmentPreCreated(
+                    mFragment, mFragment.mSavedFragmentState, false);
+            mFragment.performCreate(mFragment.mSavedFragmentState);
+            mDispatcher.dispatchOnFragmentCreated(
+                    mFragment, mFragment.mSavedFragmentState, false);
+        } else {
+            mFragment.restoreChildFragmentState(mFragment.mSavedFragmentState);
+            mFragment.mState = Fragment.CREATED;
+        }
     }
 
     void start() {
@@ -309,5 +347,45 @@ class FragmentStateManager {
         if (mStateArray.size() > 0) {
             mFragment.mSavedViewState = mStateArray;
         }
+    }
+
+    void destroy(@NonNull FragmentHostCallback<?> host,
+            @NonNull FragmentManagerViewModel nonConfig) {
+        if (FragmentManager.isLoggingEnabled(Log.DEBUG)) {
+            Log.d(TAG, "movefrom CREATED: " + mFragment);
+        }
+        boolean beingRemoved = mFragment.mRemoving && !mFragment.isInBackStack();
+        boolean shouldDestroy = beingRemoved || nonConfig.shouldDestroy(mFragment);
+        if (shouldDestroy) {
+            boolean shouldClear;
+            if (host instanceof ViewModelStoreOwner) {
+                shouldClear = nonConfig.isCleared();
+            } else if (host.getContext() instanceof Activity) {
+                Activity activity = (Activity) host.getContext();
+                shouldClear = !activity.isChangingConfigurations();
+            } else {
+                shouldClear = true;
+            }
+            if (beingRemoved || shouldClear) {
+                nonConfig.clearNonConfigState(mFragment);
+            }
+            mFragment.performDestroy();
+            mDispatcher.dispatchOnFragmentDestroyed(mFragment, false);
+        } else {
+            mFragment.mState = Fragment.ATTACHED;
+        }
+    }
+
+    void detach() {
+        if (FragmentManager.isLoggingEnabled(Log.DEBUG)) {
+            Log.d(TAG, "movefrom ATTACHED: " + mFragment);
+        }
+        mFragment.performDetach();
+        mDispatcher.dispatchOnFragmentDetached(
+                mFragment, false);
+        mFragment.mState = Fragment.INITIALIZING;
+        mFragment.mHost = null;
+        mFragment.mParentFragment = null;
+        mFragment.mFragmentManager = null;
     }
 }
