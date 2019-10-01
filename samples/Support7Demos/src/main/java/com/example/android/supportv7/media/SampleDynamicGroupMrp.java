@@ -25,6 +25,7 @@ import android.media.AudioManager;
 import android.media.MediaRouter;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
 import androidx.mediarouter.media.MediaRouteDescriptor;
 import androidx.mediarouter.media.MediaRouteProvider;
 import androidx.mediarouter.media.MediaRouteProviderDescriptor;
@@ -73,7 +74,7 @@ final class SampleDynamicGroupMrp extends SampleMediaRouteProvider {
 
     @Override
     public DynamicGroupRouteController onCreateDynamicGroupRouteController(
-            String initialMemberRouteId) {
+            @NonNull String initialMemberRouteId) {
         MediaRouteDescriptor initMemberDescriptor = mRouteDescriptors.get(initialMemberRouteId);
         if (initMemberDescriptor == null || !initMemberDescriptor.isValid()) {
             Log.w(TAG, "initial route doesn't exist or isn't valid : " + initialMemberRouteId);
@@ -323,7 +324,7 @@ final class SampleDynamicGroupMrp extends SampleMediaRouteProvider {
         }
 
         @Override
-        public void onAddMemberRoute(String routeId) {
+        public void onAddMemberRoute(@NonNull String routeId) {
             DynamicRouteDescriptor dynamicDescriptor = mDynamicRouteDescriptors.get(routeId);
             if (dynamicDescriptor == null) {
                 Log.w(TAG, "onAddMemberRoute: Ignored for routeId: " + routeId);
@@ -406,7 +407,7 @@ final class SampleDynamicGroupMrp extends SampleMediaRouteProvider {
         }
 
         @Override
-        public void onRemoveMemberRoute(String routeId) {
+        public void onRemoveMemberRoute(@NonNull String routeId) {
             DynamicRouteDescriptor dynamicDescriptor = mDynamicRouteDescriptors.get(routeId);
             if (dynamicDescriptor == null || !dynamicDescriptor.isUnselectable()
                     || !mMemberRouteIds.remove(routeId)) {

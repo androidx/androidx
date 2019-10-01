@@ -76,6 +76,7 @@ import android.os.RemoteException;
 import android.util.Log;
 import android.util.SparseArray;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.VisibleForTesting;
 import androidx.core.content.ContextCompat;
 import androidx.core.util.ObjectsCompat;
@@ -638,7 +639,7 @@ public abstract class MediaRouteProviderService extends Service {
         }
 
         @Override
-        public void onDescriptorChanged(MediaRouteProvider provider,
+        public void onDescriptorChanged(@NonNull MediaRouteProvider provider,
                 MediaRouteProviderDescriptor descriptor) {
             sendDescriptorChanged(descriptor);
         }
@@ -657,8 +658,9 @@ public abstract class MediaRouteProviderService extends Service {
                 new DynamicGroupRouteController.OnDynamicRoutesChangedListener() {
                     @Override
                     public void onRoutesChanged(
-                            DynamicGroupRouteController controller,
-                            Collection<DynamicGroupRouteController.DynamicRouteDescriptor> routes) {
+                            @NonNull DynamicGroupRouteController controller,
+                            @NonNull Collection<DynamicGroupRouteController.DynamicRouteDescriptor>
+                                    routes) {
                         sendDynamicRouteDescriptors(controller, routes);
                     }
                 };
