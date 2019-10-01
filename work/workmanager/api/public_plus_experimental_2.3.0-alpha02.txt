@@ -64,7 +64,6 @@ package androidx.work {
 
   public final class Data {
     ctor public Data(androidx.work.Data);
-    method public <T> boolean containsKey(String, Class<T!>);
     method public static androidx.work.Data fromByteArray(byte[]);
     method public boolean getBoolean(String, boolean);
     method public boolean[]? getBooleanArray(String);
@@ -81,6 +80,7 @@ package androidx.work {
     method public long[]? getLongArray(String);
     method public String? getString(String);
     method public String![]? getStringArray(String);
+    method public <T> boolean hasKeyWithValueOfType(String, Class<T!>);
     method public byte[] toByteArray();
     field public static final androidx.work.Data! EMPTY;
     field public static final int MAX_DATA_BYTES = 10240; // 0x2800

@@ -357,7 +357,7 @@ public final class Data {
      * @return {@code true} If the instance of {@link Data} has a value for the given
      * {@link String} key with the expected type.
      */
-    public <T> boolean containsKey(@NonNull String key, @NonNull Class<T> klass) {
+    public <T> boolean hasKeyWithValueOfType(@NonNull String key, @NonNull Class<T> klass) {
         Object value = mValues.get(key);
         return value != null && klass.isAssignableFrom(value.getClass());
     }
