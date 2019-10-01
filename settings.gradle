@@ -64,6 +64,7 @@ includeProject(":animation:integration-tests:testapp", "animation/integration-te
 includeProject(":appcompat", "appcompat")
 includeProject(":appcompat-benchmark", "appcompat/benchmark")
 includeProject(":appcompat:appcompat-resources", "appcompat/resources")
+includeProject(":appsearch:appsearch", "appsearch/appsearch")
 includeProject(":arch:core-common", "arch/core-common")
 includeProject(":arch:core-testing", "arch/core-testing")
 includeProject(":arch:core-runtime", "arch/core-runtime")
