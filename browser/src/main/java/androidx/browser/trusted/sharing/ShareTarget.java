@@ -27,6 +27,7 @@ import androidx.annotation.StringDef;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -73,10 +74,18 @@ public final class ShareTarget  {
     @Retention(RetentionPolicy.SOURCE)
     public @interface EncodingType {}
 
-    /** See {@link #encodingType} */
+    /**
+     * An encoding type to be used with POST requests (see {@link #encodingType}) corresponding to
+     * {@code application/x-www-form-urlencoded} of the HTTP POST standard [1].
+     *
+     * [1]: https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/POST
+     */
     public static final String ENCODING_TYPE_URL_ENCODED = "application/x-www-form-urlencoded";
 
-    /** See {@link #encodingType} */
+    /**
+     * An encoding type to be used with POST requests (see {@link #encodingType}) corresponding to
+     * {@code multipart/form-data} of the HTTP POST standard [1].
+     */
     public static final String ENCODING_TYPE_MULTIPART = "multipart/form-data";
 
     /**
@@ -110,7 +119,13 @@ public final class ShareTarget  {
     @NonNull
     public final Params params;
 
-    /** Constructor, see field descriptions above. */
+    /**
+     * Creates a {@link ShareTarget} with the given parameters.
+     * @param action The {@link #action}.
+     * @param method The {@link #method}.
+     * @param encodingType The {@link #encodingType}.
+     * @param params The {@link #params}.
+     */
     public ShareTarget(@NonNull String action, @Nullable @RequestMethod String method,
             @Nullable @EncodingType String encodingType, @NonNull Params params) {
         this.action = action;
@@ -173,7 +188,12 @@ public final class ShareTarget  {
         @Nullable
         public final List<FileFormField> files;
 
-        /** Constructor, see field descriptions above. */
+        /**
+         * Creates a {@link Params} with the given parameters.
+         * @param title The {@link #title}.
+         * @param text The {@link #text}.
+         * @param files The {@link #files}.
+         */
         public Params(@Nullable String title, @Nullable String text,
                 @Nullable List<FileFormField> files) {
             this.title = title;
@@ -218,7 +238,7 @@ public final class ShareTarget  {
     }
 
     /** Defines a form field for sharing files. */
-    public static class FileFormField {
+    public static final class FileFormField {
         /** Bundle key for {@link #name}. */
         public static final String KEY_NAME = "androidx.browser.trusted.sharing.KEY_FILE_NAME";
 
@@ -238,10 +258,14 @@ public final class ShareTarget  {
         @NonNull
         public final List<String> acceptedTypes;
 
-        /** Constructor, see field descriptions above. */
+        /**
+         * Creates a {@link FileFormField} with the given parameters.
+         * @param name The {@link #name}.
+         * @param acceptedTypes The {@link #acceptedTypes}.
+         */
         public FileFormField(@NonNull String name, @NonNull List<String> acceptedTypes) {
             this.name = name;
-            this.acceptedTypes = acceptedTypes;
+            this.acceptedTypes = Collections.unmodifiableList(acceptedTypes);
         }
 
         @SuppressWarnings("WeakerAccess") /* synthetic access */

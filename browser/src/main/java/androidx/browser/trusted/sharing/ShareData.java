@@ -51,7 +51,12 @@ public final class ShareData {
     @Nullable
     public final List<Uri> uris;
 
-    /** Constructor. */
+    /**
+     * Creates a {@link ShareData} with the given parameters.
+     * @param title The {@link #title}.
+     * @param text The {@link #text}.
+     * @param uris The {@link #uris}.
+     */
     public ShareData(@Nullable String title, @Nullable String text, @Nullable List<Uri> uris) {
         this.title = title;
         this.text = text;
