@@ -564,40 +564,46 @@ class FakeDragTest(private val config: TestConfig) : BaseTest() {
     private class RecordingCallback : ViewPager2.OnPageChangeCallback() {
         private val events = mutableListOf<Event>()
 
-        val allEvents get() = events.toList()
-        val scrollEvents get() = events.mapNotNull { it as? OnPageScrolledEvent }
-        val stateEvents get() = events.mapNotNull { it as? OnPageScrollStateChangedEvent }
-        val selectEvents get() = events.mapNotNull { it as? OnPageSelectedEvent }
+        val scrollEvents get() = eventsCopy.mapNotNull { it as? OnPageScrolledEvent }
+        val stateEvents get() = eventsCopy.mapNotNull { it as? OnPageScrollStateChangedEvent }
+        val selectEvents get() = eventsCopy.mapNotNull { it as? OnPageSelectedEvent }
 
-        val eventCount get() = events.size
-        val firstEvent get() = events.firstOrNull()
-        val lastEvent get() = events.lastOrNull()
+        val eventCount get() = eventsCopy.size
+        val firstEvent get() = eventsCopy.firstOrNull()
+        val lastEvent get() = eventsCopy.lastOrNull()
+
+        private fun addEvent(e: Event) {
+            synchronized(events) {
+                events.add(e)
+            }
+        }
+
+        val eventsCopy: List<Event>
+            get() = synchronized(events) {
+                return mutableListOf<Event>().apply {
+                    addAll(events)
+                }
+            }
 
         override fun onPageScrolled(
             position: Int,
             positionOffset: Float,
             positionOffsetPixels: Int
         ) {
-            synchronized(events) {
-                events.add(OnPageScrolledEvent(position, positionOffset, positionOffsetPixels))
-            }
+                addEvent(OnPageScrolledEvent(position, positionOffset, positionOffsetPixels))
         }
 
         override fun onPageSelected(position: Int) {
-            synchronized(events) {
-                events.add(OnPageSelectedEvent(position))
-            }
+                addEvent(OnPageSelectedEvent(position))
         }
 
         override fun onPageScrollStateChanged(state: Int) {
-            synchronized(events) {
-                events.add(OnPageScrollStateChangedEvent(state))
-            }
+                addEvent(OnPageScrollStateChangedEvent(state))
         }
 
         fun expectSettlingAfterState(state: Int): Boolean {
             val changeToStateEvent = OnPageScrollStateChangedEvent(state)
-            val lastScrollEvent = events
+            val lastScrollEvent = eventsCopy
                 .dropWhile { it != changeToStateEvent }
                 .dropWhile { it !is OnPageScrolledEvent }
                 .takeWhile { it is OnPageScrolledEvent }
@@ -606,7 +612,7 @@ class FakeDragTest(private val config: TestConfig) : BaseTest() {
         }
 
         fun dumpEvents(): String {
-            return events.joinToString("\n- ", "\n(${scrollStateGlossary()})\n- ")
+                return eventsCopy.joinToString("\n- ", "\n(${scrollStateGlossary()})\n- ")
         }
     }
 
@@ -636,7 +642,7 @@ class FakeDragTest(private val config: TestConfig) : BaseTest() {
 
         val settleEvent = OnPageScrollStateChangedEvent(SETTLING)
         val idleEvent = OnPageScrollStateChangedEvent(IDLE)
-        val events = allEvents
+        val events = eventsCopy
         events.forEachIndexed { i, event ->
             if (event is OnPageSelectedEvent) {
                 assertThat("OnPageSelectedEvents cannot be the first or last event: " +
