@@ -35,7 +35,9 @@ public interface ProgressUpdater {
      * @param id      The {@link UUID} identifying the {@link ListenableWorker}
      * @param data    The progress {@link Data}
      * @return The {@link ListenableFuture} which resolves after progress is persisted.
-     * Cancelling this future is a no-op.
+     * <p>
+     * Cancelling this {@link ListenableFuture} does not cancel the writes to the database
+     * to update progress.
      */
     @NonNull
     ListenableFuture<Void> updateProgress(
