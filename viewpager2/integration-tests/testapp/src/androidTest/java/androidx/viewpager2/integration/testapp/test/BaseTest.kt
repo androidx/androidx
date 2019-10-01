@@ -34,6 +34,7 @@ import androidx.viewpager2.integration.testapp.test.util.onCurrentPage
 import androidx.viewpager2.integration.testapp.test.util.onViewPager
 import androidx.viewpager2.integration.testapp.test.util.swipeNext
 import androidx.viewpager2.integration.testapp.test.util.swipePrevious
+import androidx.viewpager2.integration.testapp.test.util.waitForInjectMotionEvents
 import androidx.viewpager2.widget.ViewPager2
 import androidx.viewpager2.widget.ViewPager2.ORIENTATION_HORIZONTAL
 import androidx.viewpager2.widget.ViewPager2.ORIENTATION_VERTICAL
@@ -66,6 +67,7 @@ abstract class BaseTest<T : FragmentActivity>(clazz: Class<T>) {
     open fun setUp() {
         viewPager = activityTestRule.activity.findViewById(layoutId)
         idleWatcher = ViewPagerIdleWatcher(viewPager)
+        onView(withId(layoutId)).perform(waitForInjectMotionEvents())
     }
 
     @After
