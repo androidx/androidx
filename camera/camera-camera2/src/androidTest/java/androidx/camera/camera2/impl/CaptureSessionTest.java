@@ -237,16 +237,6 @@ public final class CaptureSessionTest {
     }
 
     @Test
-    public void releaseUnopenedSessionWithAbortInFlightCaptures() {
-        CaptureSession captureSession = createCaptureSession(mTestParameters0);
-        captureSession.setSessionConfig(mTestParameters0.mSessionConfig);
-
-        captureSession.release(/*abortInFlightCaptures=*/true);
-
-        assertThat(captureSession.getState()).isEqualTo(State.RELEASED);
-    }
-
-    @Test
     public void closeOpenedSession()
             throws CameraAccessException, InterruptedException, ExecutionException,
             DeferrableSurface.SurfaceClosedException {
