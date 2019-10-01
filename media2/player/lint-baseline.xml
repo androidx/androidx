@@ -1,38 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 3.5.0-beta05" client="gradle" variant="debug" version="3.5.0-beta05">
-
-    <issue
-        id="KotlinPropertyAccess"
-        message="This method should be called `getMediaItem` such that `mediaItem` can be accessed as a property from Kotlin; see https://android.github.io/kotlin-guides/interop.html#property-prefixes"
-        errorLine1="    public abstract @Nullable MediaItem getCurrentMediaItem();"
-        errorLine2="                                        ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/MediaPlayer2.java"
-            line="415"
-            column="41"/>
-    </issue>
-
-    <issue
-        id="LambdaLast"
-        message="Functional interface parameters (such as parameter 1, &quot;executor&quot;, in androidx.media2.player.exoplayer.ExoPlayerMediaPlayer2Impl.setEventCallback) should be last to improve Kotlin interoperability; see https://kotlinlang.org/docs/reference/java-interop.html#sam-conversions"
-        errorLine1="    public void setEventCallback(@NonNull Executor executor, @NonNull EventCallback eventCallback) {"
-        errorLine2="                                                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/exoplayer/ExoPlayerMediaPlayer2Impl.java"
-            line="160"
-            column="62"/>
-    </issue>
-
-    <issue
-        id="LambdaLast"
-        message="Functional interface parameters (such as parameter 1, &quot;executor&quot;, in androidx.media2.player.exoplayer.ExoPlayerMediaPlayer2Impl.setDrmEventCallback) should be last to improve Kotlin interoperability; see https://kotlinlang.org/docs/reference/java-interop.html#sam-conversions"
-        errorLine1="            @NonNull DrmEventCallback eventCallback) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/exoplayer/ExoPlayerMediaPlayer2Impl.java"
-            line="177"
-            column="13"/>
-    </issue>
+<issues format="5" by="lint 3.5.0" client="gradle" variant="debug" version="3.5.0">
 
     <issue
         id="LambdaLast"
@@ -41,613 +8,8 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/MediaPlayer.java"
-            line="2395"
+            line="2411"
             column="13"/>
-    </issue>
-
-    <issue
-        id="LambdaLast"
-        message="Functional interface parameters (such as parameter 1, &quot;executor&quot;, in androidx.media2.player.MediaPlayer2.setEventCallback) should be last to improve Kotlin interoperability; see https://kotlinlang.org/docs/reference/java-interop.html#sam-conversions"
-        errorLine1="            @NonNull Executor executor, @NonNull EventCallback eventCallback);"
-        errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/MediaPlayer2.java"
-            line="939"
-            column="41"/>
-    </issue>
-
-    <issue
-        id="LambdaLast"
-        message="Functional interface parameters (such as parameter 1, &quot;executor&quot;, in androidx.media2.player.MediaPlayer2.setDrmEventCallback) should be last to improve Kotlin interoperability; see https://kotlinlang.org/docs/reference/java-interop.html#sam-conversions"
-        errorLine1="                                             @NonNull DrmEventCallback eventCallback);"
-        errorLine2="                                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/MediaPlayer2.java"
-            line="1494"
-            column="46"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void sendIntent(Intent intent) {"
-        errorLine2="                           ~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/AudioFocusHandler.java"
-            line="105"
-            column="28"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public DataSourceCallbackDataSource(DataSourceCallback dataSourceCallback) {"
-        errorLine2="                                        ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/exoplayer/DataSourceCallbackDataSource.java"
-            line="69"
-            column="41"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public long open(DataSpec dataSpec) throws IOException {"
-        errorLine2="                     ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/exoplayer/DataSourceCallbackDataSource.java"
-            line="75"
-            column="22"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public int read(byte[] buffer, int offset, int readLength) throws IOException {"
-        errorLine2="                    ~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/exoplayer/DataSourceCallbackDataSource.java"
-            line="93"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public Uri getUri() {"
-        errorLine2="           ~~~">
-        <location
-            file="src/main/java/androidx/media2/player/exoplayer/DataSourceCallbackDataSource.java"
-            line="117"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public Object notifyWhenCommandLabelReached(@NonNull final Object label) {"
-        errorLine2="           ~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/exoplayer/ExoPlayerMediaPlayer2Impl.java"
-            line="113"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public boolean cancel(Object token) {"
-        errorLine2="                          ~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/exoplayer/ExoPlayerMediaPlayer2Impl.java"
-            line="135"
-            column="27"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public Object setAudioSessionId(final int sessionId) {"
-        errorLine2="           ~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/exoplayer/ExoPlayerMediaPlayer2Impl.java"
-            line="218"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public Object setMediaItem(@NonNull final MediaItem item) {"
-        errorLine2="           ~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/exoplayer/ExoPlayerMediaPlayer2Impl.java"
-            line="228"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public MediaItem getCurrentMediaItem() {"
-        errorLine2="           ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/exoplayer/ExoPlayerMediaPlayer2Impl.java"
-            line="238"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public Object prepare() {"
-        errorLine2="           ~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/exoplayer/ExoPlayerMediaPlayer2Impl.java"
-            line="248"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public Object play() {"
-        errorLine2="           ~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/exoplayer/ExoPlayerMediaPlayer2Impl.java"
-            line="258"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public Object pause() {"
-        errorLine2="           ~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/exoplayer/ExoPlayerMediaPlayer2Impl.java"
-            line="268"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public Object seekTo(final long msec, final int mode) {"
-        errorLine2="           ~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/exoplayer/ExoPlayerMediaPlayer2Impl.java"
-            line="278"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public Object loopCurrent(final boolean loop) {"
-        errorLine2="           ~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/exoplayer/ExoPlayerMediaPlayer2Impl.java"
-            line="328"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public Object skipToNext() {"
-        errorLine2="           ~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/exoplayer/ExoPlayerMediaPlayer2Impl.java"
-            line="338"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public Object setNextMediaItem(@NonNull final MediaItem item) {"
-        errorLine2="           ~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/exoplayer/ExoPlayerMediaPlayer2Impl.java"
-            line="348"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public Object setNextMediaItems(@NonNull final List&lt;MediaItem> items) {"
-        errorLine2="           ~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/exoplayer/ExoPlayerMediaPlayer2Impl.java"
-            line="358"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public Object setAudioAttributes(@NonNull final AudioAttributesCompat attributes) {"
-        errorLine2="           ~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/exoplayer/ExoPlayerMediaPlayer2Impl.java"
-            line="368"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public AudioAttributesCompat getAudioAttributes() {"
-        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/exoplayer/ExoPlayerMediaPlayer2Impl.java"
-            line="378"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public Object attachAuxEffect(final int effectId) {"
-        errorLine2="           ~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/exoplayer/ExoPlayerMediaPlayer2Impl.java"
-            line="398"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public Object setAuxEffectSendLevel(final float auxEffectSendLevel) {"
-        errorLine2="           ~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/exoplayer/ExoPlayerMediaPlayer2Impl.java"
-            line="408"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public Object setPlaybackParams(@NonNull final PlaybackParams params) {"
-        errorLine2="           ~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/exoplayer/ExoPlayerMediaPlayer2Impl.java"
-            line="418"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public Object setSurface(final Surface surface) {"
-        errorLine2="           ~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/exoplayer/ExoPlayerMediaPlayer2Impl.java"
-            line="459"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public Object setSurface(final Surface surface) {"
-        errorLine2="                                   ~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/exoplayer/ExoPlayerMediaPlayer2Impl.java"
-            line="459"
-            column="36"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public Object setPlayerVolume(final float volume) {"
-        errorLine2="           ~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/exoplayer/ExoPlayerMediaPlayer2Impl.java"
-            line="469"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public PersistableBundle getMetrics() {"
-        errorLine2="           ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/exoplayer/ExoPlayerMediaPlayer2Impl.java"
-            line="534"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public MediaTimestamp getTimestamp() {"
-        errorLine2="           ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/exoplayer/ExoPlayerMediaPlayer2Impl.java"
-            line="544"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void setOnDrmConfigHelper(OnDrmConfigHelper listener) {"
-        errorLine2="                                     ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/exoplayer/ExoPlayerMediaPlayer2Impl.java"
-            line="605"
-            column="38"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public DrmInfo getDrmInfo() {"
-        errorLine2="           ~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/exoplayer/ExoPlayerMediaPlayer2Impl.java"
-            line="610"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public Object prepareDrm(@NonNull final UUID uuid) {"
-        errorLine2="           ~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/exoplayer/ExoPlayerMediaPlayer2Impl.java"
-            line="615"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public MediaDrm.KeyRequest getDrmKeyRequest(byte[] keySetId, byte[] initData, String mimeType,"
-        errorLine2="                                                ~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/exoplayer/ExoPlayerMediaPlayer2Impl.java"
-            line="626"
-            column="49"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public MediaDrm.KeyRequest getDrmKeyRequest(byte[] keySetId, byte[] initData, String mimeType,"
-        errorLine2="                                                                 ~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/exoplayer/ExoPlayerMediaPlayer2Impl.java"
-            line="626"
-            column="66"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public MediaDrm.KeyRequest getDrmKeyRequest(byte[] keySetId, byte[] initData, String mimeType,"
-        errorLine2="                                                                                  ~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/exoplayer/ExoPlayerMediaPlayer2Impl.java"
-            line="626"
-            column="83"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="            int keyType, Map&lt;String, String> optionalParameters) {"
-        errorLine2="                         ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/exoplayer/ExoPlayerMediaPlayer2Impl.java"
-            line="627"
-            column="26"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public byte[] provideDrmKeyResponse(@Nullable byte[] keySetId, @NonNull byte[] response) {"
-        errorLine2="           ~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/exoplayer/ExoPlayerMediaPlayer2Impl.java"
-            line="632"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void onPrepared(MediaItem mediaItem) {"
-        errorLine2="                           ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/exoplayer/ExoPlayerMediaPlayer2Impl.java"
-            line="655"
-            column="28"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void onMetadataChanged(MediaItem mediaItem) {"
-        errorLine2="                                  ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/exoplayer/ExoPlayerMediaPlayer2Impl.java"
-            line="670"
-            column="35"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void onBufferingStarted(MediaItem mediaItem) {"
-        errorLine2="                                   ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/exoplayer/ExoPlayerMediaPlayer2Impl.java"
-            line="688"
-            column="36"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void onBufferingEnded(MediaItem mediaItem) {"
-        errorLine2="                                 ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/exoplayer/ExoPlayerMediaPlayer2Impl.java"
-            line="693"
-            column="34"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void onBufferingUpdate(MediaItem mediaItem, int bufferingPercentage) {"
-        errorLine2="                                  ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/exoplayer/ExoPlayerMediaPlayer2Impl.java"
-            line="698"
-            column="35"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void onBandwidthSample(MediaItem mediaItem, int bitrateKbps) {"
-        errorLine2="                                  ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/exoplayer/ExoPlayerMediaPlayer2Impl.java"
-            line="703"
-            column="35"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void onVideoRenderingStart(MediaItem mediaItem) {"
-        errorLine2="                                      ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/exoplayer/ExoPlayerMediaPlayer2Impl.java"
-            line="708"
-            column="39"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void onVideoSizeChanged(final MediaItem mediaItem, final int width, final int height) {"
-        errorLine2="                                         ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/exoplayer/ExoPlayerMediaPlayer2Impl.java"
-            line="713"
-            column="42"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void onTimedMetadata(final MediaItem mediaItem, final TimedMetaData timedMetaData) {"
-        errorLine2="                                      ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/exoplayer/ExoPlayerMediaPlayer2Impl.java"
-            line="739"
-            column="39"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void onTimedMetadata(final MediaItem mediaItem, final TimedMetaData timedMetaData) {"
-        errorLine2="                                                                 ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/exoplayer/ExoPlayerMediaPlayer2Impl.java"
-            line="739"
-            column="66"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void onMediaItemStartedAsNext(MediaItem mediaItem) {"
-        errorLine2="                                         ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/exoplayer/ExoPlayerMediaPlayer2Impl.java"
-            line="750"
-            column="42"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void onMediaItemEnded(MediaItem mediaItem) {"
-        errorLine2="                                 ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/exoplayer/ExoPlayerMediaPlayer2Impl.java"
-            line="755"
-            column="34"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void onLoop(MediaItem mediaItem) {"
-        errorLine2="                       ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/exoplayer/ExoPlayerMediaPlayer2Impl.java"
-            line="760"
-            column="24"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="            final MediaItem mediaItem, final MediaTimestamp mediaTimestamp) {"
-        errorLine2="                  ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/exoplayer/ExoPlayerMediaPlayer2Impl.java"
-            line="766"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="            final MediaItem mediaItem, final MediaTimestamp mediaTimestamp) {"
-        errorLine2="                                             ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/exoplayer/ExoPlayerMediaPlayer2Impl.java"
-            line="766"
-            column="46"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void onPlaybackEnded(MediaItem mediaItem) {"
-        errorLine2="                                ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/exoplayer/ExoPlayerMediaPlayer2Impl.java"
-            line="777"
-            column="33"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void onError(final MediaItem mediaItem, final int what) {"
-        errorLine2="                              ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/exoplayer/ExoPlayerMediaPlayer2Impl.java"
-            line="782"
-            column="31"/>
     </issue>
 
     <issue
@@ -656,20 +18,9 @@
         errorLine1="        void onPrepared(MediaItem mediaItem);"
         errorLine2="                        ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/media2/player/exoplayer/ExoPlayerWrapper.java"
-            line="104"
+            file="src/main/java/androidx/media2/player/ExoPlayerWrapper.java"
+            line="92"
             column="25"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        void onMetadataChanged(MediaItem mediaItem);"
-        errorLine2="                               ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/exoplayer/ExoPlayerWrapper.java"
-            line="107"
-            column="32"/>
     </issue>
 
     <issue
@@ -678,8 +29,8 @@
         errorLine1="        void onBufferingStarted(MediaItem mediaItem);"
         errorLine2="                                ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/media2/player/exoplayer/ExoPlayerWrapper.java"
-            line="113"
+            file="src/main/java/androidx/media2/player/ExoPlayerWrapper.java"
+            line="101"
             column="33"/>
     </issue>
 
@@ -689,8 +40,8 @@
         errorLine1="        void onBufferingEnded(MediaItem mediaItem);"
         errorLine2="                              ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/media2/player/exoplayer/ExoPlayerWrapper.java"
-            line="116"
+            file="src/main/java/androidx/media2/player/ExoPlayerWrapper.java"
+            line="104"
             column="31"/>
     </issue>
 
@@ -700,8 +51,8 @@
         errorLine1="        void onBufferingUpdate(MediaItem mediaItem, int bufferingPercentage);"
         errorLine2="                               ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/media2/player/exoplayer/ExoPlayerWrapper.java"
-            line="119"
+            file="src/main/java/androidx/media2/player/ExoPlayerWrapper.java"
+            line="107"
             column="32"/>
     </issue>
 
@@ -711,8 +62,8 @@
         errorLine1="        void onBandwidthSample(MediaItem mediaItem2, int bitrateKbps);"
         errorLine2="                               ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/media2/player/exoplayer/ExoPlayerWrapper.java"
-            line="122"
+            file="src/main/java/androidx/media2/player/ExoPlayerWrapper.java"
+            line="110"
             column="32"/>
     </issue>
 
@@ -722,8 +73,8 @@
         errorLine1="        void onVideoRenderingStart(MediaItem mediaItem);"
         errorLine2="                                   ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/media2/player/exoplayer/ExoPlayerWrapper.java"
-            line="125"
+            file="src/main/java/androidx/media2/player/ExoPlayerWrapper.java"
+            line="113"
             column="36"/>
     </issue>
 
@@ -733,8 +84,8 @@
         errorLine1="        void onVideoSizeChanged(MediaItem mediaItem, int width, int height);"
         errorLine2="                                ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/media2/player/exoplayer/ExoPlayerWrapper.java"
-            line="128"
+            file="src/main/java/androidx/media2/player/ExoPlayerWrapper.java"
+            line="116"
             column="33"/>
     </issue>
 
@@ -744,8 +95,8 @@
         errorLine1="        void onTimedMetadata(MediaItem mediaItem, TimedMetaData timedMetaData);"
         errorLine2="                             ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/media2/player/exoplayer/ExoPlayerWrapper.java"
-            line="135"
+            file="src/main/java/androidx/media2/player/ExoPlayerWrapper.java"
+            line="123"
             column="30"/>
     </issue>
 
@@ -755,8 +106,8 @@
         errorLine1="        void onTimedMetadata(MediaItem mediaItem, TimedMetaData timedMetaData);"
         errorLine2="                                                  ~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/media2/player/exoplayer/ExoPlayerWrapper.java"
-            line="135"
+            file="src/main/java/androidx/media2/player/ExoPlayerWrapper.java"
+            line="123"
             column="51"/>
     </issue>
 
@@ -766,8 +117,8 @@
         errorLine1="        void onMediaItemStartedAsNext(MediaItem mediaItem);"
         errorLine2="                                      ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/media2/player/exoplayer/ExoPlayerWrapper.java"
-            line="138"
+            file="src/main/java/androidx/media2/player/ExoPlayerWrapper.java"
+            line="126"
             column="39"/>
     </issue>
 
@@ -777,8 +128,8 @@
         errorLine1="        void onMediaItemEnded(MediaItem mediaItem);"
         errorLine2="                              ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/media2/player/exoplayer/ExoPlayerWrapper.java"
-            line="141"
+            file="src/main/java/androidx/media2/player/ExoPlayerWrapper.java"
+            line="129"
             column="31"/>
     </issue>
 
@@ -788,8 +139,8 @@
         errorLine1="        void onLoop(MediaItem mediaItem);"
         errorLine2="                    ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/media2/player/exoplayer/ExoPlayerWrapper.java"
-            line="144"
+            file="src/main/java/androidx/media2/player/ExoPlayerWrapper.java"
+            line="132"
             column="21"/>
     </issue>
 
@@ -799,8 +150,8 @@
         errorLine1="        void onMediaTimeDiscontinuity(MediaItem mediaItem, MediaTimestamp mediaTimestamp);"
         errorLine2="                                      ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/media2/player/exoplayer/ExoPlayerWrapper.java"
-            line="147"
+            file="src/main/java/androidx/media2/player/ExoPlayerWrapper.java"
+            line="135"
             column="39"/>
     </issue>
 
@@ -810,8 +161,8 @@
         errorLine1="        void onMediaTimeDiscontinuity(MediaItem mediaItem, MediaTimestamp mediaTimestamp);"
         errorLine2="                                                           ~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/media2/player/exoplayer/ExoPlayerWrapper.java"
-            line="147"
+            file="src/main/java/androidx/media2/player/ExoPlayerWrapper.java"
+            line="135"
             column="60"/>
     </issue>
 
@@ -821,8 +172,8 @@
         errorLine1="        void onPlaybackEnded(MediaItem mediaItem);"
         errorLine2="                             ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/media2/player/exoplayer/ExoPlayerWrapper.java"
-            line="150"
+            file="src/main/java/androidx/media2/player/ExoPlayerWrapper.java"
+            line="138"
             column="30"/>
     </issue>
 
@@ -832,20 +183,9 @@
         errorLine1="        void onError(MediaItem mediaItem, int what);"
         errorLine2="                     ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/media2/player/exoplayer/ExoPlayerWrapper.java"
-            line="153"
+            file="src/main/java/androidx/media2/player/ExoPlayerWrapper.java"
+            line="141"
             column="22"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public AudioFocusHandler getAudioFocusHandler() {"
-        errorLine2="           ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/MediaPlayer.java"
-            line="1691"
-            column="12"/>
     </issue>
 
     <issue
@@ -855,228 +195,8 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/MediaPlayer.java"
-            line="1899"
+            line="1946"
             column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public abstract boolean cancel(Object token);"
-        errorLine2="                                   ~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/MediaPlayer2.java"
-            line="251"
-            column="36"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public abstract Object play();"
-        errorLine2="                    ~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/MediaPlayer2.java"
-            line="284"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public abstract Object prepare();"
-        errorLine2="                    ~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/MediaPlayer2.java"
-            line="295"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public abstract Object pause();"
-        errorLine2="                    ~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/MediaPlayer2.java"
-            line="302"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public abstract Object skipToNext();"
-        errorLine2="                    ~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/MediaPlayer2.java"
-            line="309"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public Object seekTo(long msec) {"
-        errorLine2="           ~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/MediaPlayer2.java"
-            line="319"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public abstract Object setAudioAttributes(@NonNull AudioAttributesCompat attributes);"
-        errorLine2="                    ~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/MediaPlayer2.java"
-            line="365"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public abstract Object setMediaItem(@NonNull MediaItem item);"
-        errorLine2="                    ~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/MediaPlayer2.java"
-            line="383"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public abstract Object setNextMediaItem(@NonNull MediaItem item);"
-        errorLine2="                    ~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/MediaPlayer2.java"
-            line="396"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public abstract Object setNextMediaItems(@NonNull List&lt;MediaItem> items);"
-        errorLine2="                    ~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/MediaPlayer2.java"
-            line="408"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public abstract Object loopCurrent(boolean loop);"
-        errorLine2="                    ~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/MediaPlayer2.java"
-            line="423"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public abstract Object setPlayerVolume(float volume);"
-        errorLine2="                    ~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/MediaPlayer2.java"
-            line="436"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public abstract Object notifyWhenCommandLabelReached(@NonNull Object label);"
-        errorLine2="                    ~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/MediaPlayer2.java"
-            line="465"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public abstract Object setSurface(@Nullable Surface surface);"
-        errorLine2="                    ~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/MediaPlayer2.java"
-            line="488"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public abstract PersistableBundle getMetrics();"
-        errorLine2="                    ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/MediaPlayer2.java"
-            line="544"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public abstract Object setPlaybackParams(@NonNull PlaybackParams params);"
-        errorLine2="                    ~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/MediaPlayer2.java"
-            line="558"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public abstract Object seekTo(long msec, @SeekMode int mode);"
-        errorLine2="                    ~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/MediaPlayer2.java"
-            line="639"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public abstract Object setAudioSessionId(int sessionId);"
-        errorLine2="                    ~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/MediaPlayer2.java"
-            line="687"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public abstract Object attachAuxEffect(int effectId);"
-        errorLine2="                    ~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/MediaPlayer2.java"
-            line="714"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public abstract Object setAuxEffectSendLevel(float level);"
-        errorLine2="                    ~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/MediaPlayer2.java"
-            line="731"
-            column="21"/>
     </issue>
 
     <issue
@@ -1086,7 +206,7 @@
         errorLine2="                ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/MediaPlayer2.java"
-            line="831"
+            line="827"
             column="17"/>
     </issue>
 
@@ -1097,7 +217,7 @@
         errorLine2="                                 ~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/MediaPlayer2.java"
-            line="831"
+            line="827"
             column="34"/>
     </issue>
 
@@ -1108,7 +228,7 @@
         errorLine2="                ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/MediaPlayer2.java"
-            line="851"
+            line="847"
             column="17"/>
     </issue>
 
@@ -1119,7 +239,7 @@
         errorLine2="                                 ~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/MediaPlayer2.java"
-            line="851"
+            line="847"
             column="34"/>
     </issue>
 
@@ -1130,7 +250,7 @@
         errorLine2="                                                 ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/MediaPlayer2.java"
-            line="851"
+            line="847"
             column="50"/>
     </issue>
 
@@ -1141,7 +261,7 @@
         errorLine2="                ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/MediaPlayer2.java"
-            line="863"
+            line="859"
             column="17"/>
     </issue>
 
@@ -1152,7 +272,7 @@
         errorLine2="                                 ~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/MediaPlayer2.java"
-            line="863"
+            line="859"
             column="34"/>
     </issue>
 
@@ -1163,7 +283,7 @@
         errorLine2="                           ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/MediaPlayer2.java"
-            line="874"
+            line="870"
             column="28"/>
     </issue>
 
@@ -1174,7 +294,7 @@
         errorLine2="                                            ~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/MediaPlayer2.java"
-            line="874"
+            line="870"
             column="45"/>
     </issue>
 
@@ -1185,7 +305,7 @@
         errorLine2="                ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/MediaPlayer2.java"
-            line="885"
+            line="881"
             column="17"/>
     </issue>
 
@@ -1196,7 +316,7 @@
         errorLine2="                                 ~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/MediaPlayer2.java"
-            line="885"
+            line="881"
             column="34"/>
     </issue>
 
@@ -1207,7 +327,7 @@
         errorLine2="                ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/MediaPlayer2.java"
-            line="909"
+            line="905"
             column="17"/>
     </issue>
 
@@ -1218,7 +338,7 @@
         errorLine2="                                 ~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/MediaPlayer2.java"
-            line="909"
+            line="905"
             column="34"/>
     </issue>
 
@@ -1229,7 +349,7 @@
         errorLine2="                                                 ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/MediaPlayer2.java"
-            line="909"
+            line="905"
             column="50"/>
     </issue>
 
@@ -1240,7 +360,7 @@
         errorLine2="                                          ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/MediaPlayer2.java"
-            line="918"
+            line="914"
             column="43"/>
     </issue>
 
@@ -1251,7 +371,7 @@
         errorLine2="                         ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/MediaPlayer2.java"
-            line="1445"
+            line="1455"
             column="26"/>
     </issue>
 
@@ -1262,19 +382,8 @@
         errorLine2="                                          ~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/MediaPlayer2.java"
-            line="1445"
+            line="1455"
             column="43"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public abstract void setOnDrmConfigHelper(OnDrmConfigHelper listener);"
-        errorLine2="                                              ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/MediaPlayer2.java"
-            line="1457"
-            column="47"/>
     </issue>
 
     <issue
@@ -1284,7 +393,7 @@
         errorLine2="                              ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/MediaPlayer2.java"
-            line="1472"
+            line="1482"
             column="31"/>
     </issue>
 
@@ -1295,7 +404,7 @@
         errorLine2="                                               ~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/MediaPlayer2.java"
-            line="1472"
+            line="1482"
             column="48"/>
     </issue>
 
@@ -1306,7 +415,7 @@
         errorLine2="                                                               ~~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/MediaPlayer2.java"
-            line="1472"
+            line="1482"
             column="64"/>
     </issue>
 
@@ -1317,7 +426,7 @@
         errorLine2="                ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/MediaPlayer2.java"
-            line="1483"
+            line="1493"
             column="17"/>
     </issue>
 
@@ -1328,41 +437,8 @@
         errorLine2="                                 ~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/MediaPlayer2.java"
-            line="1483"
+            line="1493"
             column="34"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public abstract DrmInfo getDrmInfo();"
-        errorLine2="                    ~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/MediaPlayer2.java"
-            line="1553"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public abstract Object prepareDrm(@NonNull UUID uuid);"
-        errorLine2="                    ~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/MediaPlayer2.java"
-            line="1579"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public abstract byte[] provideDrmKeyResponse("
-        errorLine2="                    ~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/MediaPlayer2.java"
-            line="1657"
-            column="21"/>
     </issue>
 
     <issue
@@ -1372,7 +448,7 @@
         errorLine2="                        ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/MediaPlayer2.java"
-            line="1707"
+            line="1717"
             column="25"/>
     </issue>
 
@@ -1383,7 +459,7 @@
         errorLine2="                        ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/MediaPlayer2.java"
-            line="1714"
+            line="1724"
             column="25"/>
     </issue>
 
@@ -1394,7 +470,7 @@
         errorLine2="                                    ~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/MediaPlayer2.java"
-            line="1722"
+            line="1732"
             column="37"/>
     </issue>
 
@@ -1426,8 +502,8 @@
         errorLine1="        void onCcData(byte[] data, long timeUs);"
         errorLine2="                      ~~~~~~">
         <location
-            file="src/main/java/androidx/media2/player/exoplayer/TextRenderer.java"
-            line="59"
+            file="src/main/java/androidx/media2/player/TextRenderer.java"
+            line="53"
             column="23"/>
     </issue>
 
