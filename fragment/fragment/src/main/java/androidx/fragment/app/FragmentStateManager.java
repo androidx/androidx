@@ -198,6 +198,9 @@ class FragmentStateManager {
             mFragment.mUserVisibleHint = mFragment.mSavedFragmentState.getBoolean(
                     USER_VISIBLE_HINT_TAG, true);
         }
+        if (!mFragment.mUserVisibleHint) {
+            mFragment.mDeferStart = true;
+        }
     }
 
     void start() {

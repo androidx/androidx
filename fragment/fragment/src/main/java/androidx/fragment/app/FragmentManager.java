@@ -1277,15 +1277,6 @@ public abstract class FragmentManager {
                 case Fragment.INITIALIZING:
                     if (newState > Fragment.INITIALIZING) {
                         if (isLoggingEnabled(Log.DEBUG)) Log.d(TAG, "moveto ATTACHED: " + f);
-                        if (fragmentStateManager != null) {
-                            fragmentStateManager.restoreState(mHost.getContext().getClassLoader());
-                        }
-                        if (!f.mUserVisibleHint) {
-                            f.mDeferStart = true;
-                            if (newState > Fragment.ACTIVITY_CREATED) {
-                                newState = Fragment.ACTIVITY_CREATED;
-                            }
-                        }
 
                         f.mHost = mHost;
                         f.mParentFragment = mParent;
@@ -1861,7 +1852,11 @@ public abstract class FragmentManager {
             return;
         }
 
-        mActive.put(f.mWho, new FragmentStateManager(mLifecycleCallbacksDispatcher, f));
+        FragmentStateManager fragmentStateManager =
+                new FragmentStateManager(mLifecycleCallbacksDispatcher, f);
+        // Restore state any state set via setInitialSavedState()
+        fragmentStateManager.restoreState(mHost.getContext().getClassLoader());
+        mActive.put(f.mWho, fragmentStateManager);
         if (f.mRetainInstanceChangedWhileDetached) {
             if (f.mRetainInstance) {
                 addRetainedFragment(f);
@@ -2952,6 +2947,7 @@ public abstract class FragmentManager {
                 if (isLoggingEnabled(Log.VERBOSE)) {
                     Log.v(TAG, "restoreSaveState: active (" + f.mWho + "): " + f);
                 }
+                fragmentStateManager.restoreState(mHost.getContext().getClassLoader());
                 mActive.put(f.mWho, fragmentStateManager);
             }
         }
