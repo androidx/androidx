@@ -39,6 +39,8 @@ import androidx.sqlite.db.SupportSQLiteDatabase;
 import androidx.work.Data;
 import androidx.work.impl.model.Dependency;
 import androidx.work.impl.model.DependencyDao;
+import androidx.work.impl.model.Preference;
+import androidx.work.impl.model.PreferenceDao;
 import androidx.work.impl.model.SystemIdInfo;
 import androidx.work.impl.model.SystemIdInfoDao;
 import androidx.work.impl.model.WorkName;
@@ -66,8 +68,9 @@ import java.util.concurrent.TimeUnit;
         WorkTag.class,
         SystemIdInfo.class,
         WorkName.class,
-        WorkProgress.class},
-        version = 9)
+        WorkProgress.class,
+        Preference.class},
+        version = 10)
 @TypeConverters(value = {Data.class, WorkTypeConverters.class})
 public abstract class WorkDatabase extends RoomDatabase {
     // Delete rows in the workspec table that...
@@ -113,14 +116,17 @@ public abstract class WorkDatabase extends RoomDatabase {
                 .addCallback(generateCleanupCallback())
                 .addMigrations(WorkDatabaseMigrations.MIGRATION_1_2)
                 .addMigrations(
-                        new WorkDatabaseMigrations.WorkMigration(context, VERSION_2, VERSION_3))
+                        new WorkDatabaseMigrations.RescheduleMigration(context, VERSION_2,
+                                VERSION_3))
                 .addMigrations(MIGRATION_3_4)
                 .addMigrations(MIGRATION_4_5)
                 .addMigrations(
-                        new WorkDatabaseMigrations.WorkMigration(context, VERSION_5, VERSION_6))
+                        new WorkDatabaseMigrations.RescheduleMigration(context, VERSION_5,
+                                VERSION_6))
                 .addMigrations(MIGRATION_6_7)
                 .addMigrations(MIGRATION_7_8)
                 .addMigrations(MIGRATION_8_9)
+                .addMigrations(new WorkDatabaseMigrations.WorkMigration9To10(context))
                 .fallbackToDestructiveMigration()
                 .build();
     }
@@ -188,4 +194,10 @@ public abstract class WorkDatabase extends RoomDatabase {
      */
     @NonNull
     public abstract WorkProgressDao workProgressDao();
+
+    /**
+     * @return The Data Access Object for {@link Preference}.
+     */
+    @NonNull
+    public abstract PreferenceDao preferenceDao();
 }

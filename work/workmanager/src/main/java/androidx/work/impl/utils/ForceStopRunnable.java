@@ -86,7 +86,7 @@ public class ForceStopRunnable implements Runnable {
             Logger.get().debug(TAG, "Rescheduling Workers.");
             mWorkManager.rescheduleEligibleWork();
             // Mark the jobs as migrated.
-            mWorkManager.getPreferences().setNeedsReschedule(false);
+            mWorkManager.getPreferenceUtils().setNeedsReschedule(false);
         } else if (isForceStopped()) {
             Logger.get().debug(TAG, "Application was force-stopped, rescheduling.");
             mWorkManager.rescheduleEligibleWork();
@@ -168,7 +168,7 @@ public class ForceStopRunnable implements Runnable {
      */
     @VisibleForTesting
     boolean shouldRescheduleWorkers() {
-        return mWorkManager.getPreferences().needsReschedule();
+        return mWorkManager.getPreferenceUtils().getNeedsReschedule();
     }
 
     /**

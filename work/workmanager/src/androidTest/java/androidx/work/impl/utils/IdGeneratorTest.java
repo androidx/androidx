@@ -17,46 +17,36 @@
 package androidx.work.impl.utils;
 
 import static androidx.work.impl.utils.IdGenerator.INITIAL_ID;
+import static androidx.work.impl.utils.IdGenerator.NEXT_JOB_SCHEDULER_ID_KEY;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 import static java.lang.Integer.MAX_VALUE;
 
-import android.content.Context;
 import android.content.SharedPreferences;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
+import androidx.work.DatabaseTest;
 import androidx.work.impl.WorkManagerImpl;
+import androidx.work.impl.model.Preference;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 
 @SmallTest
 @RunWith(AndroidJUnit4.class)
 @SdkSuppress(minSdkVersion = WorkManagerImpl.MIN_JOB_SCHEDULER_API_LEVEL)
-public class IdGeneratorTest {
-    private Integer mMockSharedPrefsNextId;
+public class IdGeneratorTest extends DatabaseTest {
+
     private IdGenerator mIdGenerator;
 
     @Before
     public void setUp() {
-        Context mMockContext = mock(Context.class);
-        SharedPreferences.Editor mockEditor = createMockSharedPreferencesEditor();
-        SharedPreferences mockSharedPrefs = createMockSharedPreferences(mockEditor);
-        when(mMockContext.getSharedPreferences(
-                eq(IdGenerator.PREFERENCE_FILE_KEY), anyInt()))
-                .thenReturn(mockSharedPrefs);
-        mIdGenerator = new IdGenerator(mMockContext);
+        mIdGenerator = new IdGenerator(mDatabase);
     }
 
     @Test
@@ -68,7 +58,7 @@ public class IdGeneratorTest {
     @Test
     public void testNextId_returnsStoredNextId() {
         int expectedId = 100;
-        storeNextIdInSharedPrefs(expectedId);
+        storeNextId(expectedId);
         int nextId = mIdGenerator.nextJobSchedulerIdWithRange(INITIAL_ID, MAX_VALUE);
         assertThat(nextId, is(expectedId));
     }
@@ -76,7 +66,7 @@ public class IdGeneratorTest {
     @Test
     public void testNextId_returnsInitialIdAfterReturningMaxInteger() {
         int expectedId = MAX_VALUE;
-        storeNextIdInSharedPrefs(expectedId);
+        storeNextId(expectedId);
         int nextId = mIdGenerator.nextJobSchedulerIdWithRange(INITIAL_ID, MAX_VALUE);
         assertThat(nextId, is(MAX_VALUE));
         nextId = mIdGenerator.nextJobSchedulerIdWithRange(INITIAL_ID, MAX_VALUE);
@@ -85,25 +75,25 @@ public class IdGeneratorTest {
 
     @Test
     public void testNextId_belowMinRange() {
-        storeNextIdInSharedPrefs(2);
+        storeNextId(2);
         assertThat(mIdGenerator.nextJobSchedulerIdWithRange(10, 100), is(10));
     }
 
     @Test
     public void testNextId_aboveMaxRange() {
-        storeNextIdInSharedPrefs(100);
+        storeNextId(100);
         assertThat(mIdGenerator.nextJobSchedulerIdWithRange(10, 100), is(100));
     }
 
     @Test
     public void testNextId_aboveMaxRange2() {
-        storeNextIdInSharedPrefs(110);
+        storeNextId(110);
         assertThat(mIdGenerator.nextJobSchedulerIdWithRange(10, 100), is(10));
     }
 
     @Test
     public void testNextId_withinRange() {
-        storeNextIdInSharedPrefs(20);
+        storeNextId(20);
         assertThat(mIdGenerator.nextJobSchedulerIdWithRange(10, 100), is(20));
     }
 
@@ -112,35 +102,8 @@ public class IdGeneratorTest {
      *
      * @param nextId The next ID to store in {@link SharedPreferences}.
      */
-    private void storeNextIdInSharedPrefs(int nextId) {
-        mMockSharedPrefsNextId = nextId;
-    }
-
-    private SharedPreferences createMockSharedPreferences(SharedPreferences.Editor mockEditor) {
-        final SharedPreferences mockSharedPreferences = mock(SharedPreferences.class);
-        when(mockSharedPreferences.edit()).thenReturn(mockEditor);
-        when(mockSharedPreferences.getInt(eq(IdGenerator.NEXT_JOB_SCHEDULER_ID_KEY), anyInt()))
-                .thenAnswer(new Answer<Integer>() {
-                    @Override
-                    public Integer answer(InvocationOnMock invocation) throws Throwable {
-                        int defValue = invocation.getArgument(1);
-                        return (mMockSharedPrefsNextId == null) ? defValue : mMockSharedPrefsNextId;
-                    }
-                });
-        return mockSharedPreferences;
-    }
-
-    private SharedPreferences.Editor createMockSharedPreferencesEditor() {
-        final SharedPreferences.Editor mockEditor = mock(SharedPreferences.Editor.class);
-        when(mockEditor.putInt(eq(IdGenerator.NEXT_JOB_SCHEDULER_ID_KEY), anyInt())).thenAnswer(
-                new Answer<SharedPreferences.Editor>() {
-                    @Override
-                    public SharedPreferences.Editor answer(InvocationOnMock invocation)
-                            throws Throwable {
-                        mMockSharedPrefsNextId = invocation.getArgument(1);
-                        return mockEditor;
-                    }
-                });
-        return mockEditor;
+    private void storeNextId(int nextId) {
+        mDatabase.preferenceDao()
+                .insertPreference(new Preference(NEXT_JOB_SCHEDULER_ID_KEY, nextId));
     }
 }

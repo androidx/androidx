@@ -16,16 +16,24 @@
 
 package androidx.work.impl;
 
+import static android.content.Context.MODE_PRIVATE;
+
+import static androidx.work.impl.utils.PreferenceUtils.KEY_RESCHEDULE_NEEDED;
+import static androidx.work.impl.utils.PreferenceUtils.PREFERENCES_FILE_NAME;
+
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Build;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.room.migration.Migration;
 import androidx.sqlite.db.SupportSQLiteDatabase;
+import androidx.work.impl.model.Preference;
 import androidx.work.impl.model.WorkSpec;
 import androidx.work.impl.model.WorkTypeConverters;
-import androidx.work.impl.utils.Preferences;
+import androidx.work.impl.utils.IdGenerator;
+import androidx.work.impl.utils.PreferenceUtils;
 
 /**
  * Migration helpers for {@link androidx.work.impl.WorkDatabase}.
@@ -49,6 +57,7 @@ public class WorkDatabaseMigrations {
     public static final int VERSION_7 = 7;
     public static final int VERSION_8 = 8;
     public static final int VERSION_9 = 9;
+    public static final int VERSION_10 = 10;
 
     private static final String CREATE_SYSTEM_ID_INFO =
             "CREATE TABLE IF NOT EXISTS `SystemIdInfo` (`work_spec_id` TEXT NOT NULL, `system_id`"
@@ -87,6 +96,15 @@ public class WorkDatabaseMigrations {
     private static final String CREATE_RUN_IN_FOREGROUND =
             "ALTER TABLE workspec ADD COLUMN `run_in_foreground` INTEGER NOT NULL DEFAULT 0";
 
+    public static final String INSERT_PREFERENCE =
+            "INSERT OR REPLACE INTO `Preference`"
+                    + " (`key`, `long_value`) VALUES"
+                    + " (@key, @long_value)";
+
+    private static final String CREATE_PREFERENCE =
+            "CREATE TABLE IF NOT EXISTS `Preference` (`key` TEXT NOT NULL, `long_value` INTEGER, "
+                    + "PRIMARY KEY(`key`))";
+
     /**
      * Removes the {@code alarmInfo} table and substitutes it for a more general
      * {@code SystemIdInfo} table.
@@ -107,18 +125,28 @@ public class WorkDatabaseMigrations {
     /**
      * A {@link WorkDatabase} migration that reschedules all eligible Workers.
      */
-    public static class WorkMigration extends Migration {
+    public static class RescheduleMigration extends Migration {
         final Context mContext;
 
-        public WorkMigration(@NonNull Context context, int startVersion, int endVersion) {
+        public RescheduleMigration(@NonNull Context context, int startVersion, int endVersion) {
             super(startVersion, endVersion);
             mContext = context;
         }
 
         @Override
         public void migrate(@NonNull SupportSQLiteDatabase database) {
-            Preferences preferences = new Preferences(mContext);
-            preferences.setNeedsReschedule(true);
+            if (endVersion >= VERSION_10) {
+                database.execSQL(INSERT_PREFERENCE, new Object[]{KEY_RESCHEDULE_NEEDED, 1});
+            } else {
+                SharedPreferences preferences =
+                        mContext.getSharedPreferences(PREFERENCES_FILE_NAME, MODE_PRIVATE);
+
+                // Mutate the shared preferences directly, and eventually they will get
+                // migrated to the data store post v10.
+                preferences.edit()
+                        .putBoolean(KEY_RESCHEDULE_NEEDED, true)
+                        .apply();
+            }
         }
     }
 
@@ -180,4 +208,23 @@ public class WorkDatabaseMigrations {
             database.execSQL(CREATE_RUN_IN_FOREGROUND);
         }
     };
+
+    /**
+     * Adds the {@link Preference} table.
+     */
+    public static class WorkMigration9To10 extends Migration {
+        final Context mContext;
+
+        public WorkMigration9To10(@NonNull Context context) {
+            super(VERSION_9, VERSION_10);
+            mContext = context;
+        }
+
+        @Override
+        public void migrate(@NonNull SupportSQLiteDatabase database) {
+            database.execSQL(CREATE_PREFERENCE);
+            PreferenceUtils.migrateLegacyPreferences(mContext, database);
+            IdGenerator.migrateLegacyIdGenerator(mContext, database);
+        }
+    }
 }
