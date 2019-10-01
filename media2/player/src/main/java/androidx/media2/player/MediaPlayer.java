@@ -2973,15 +2973,11 @@ public final class MediaPlayer extends SessionPlayer {
                     break;
                 case MediaPlayer2.CALL_COMPLETED_SET_DATA_SOURCE:
                 case MediaPlayer2.CALL_COMPLETED_SKIP_TO_NEXT:
-                    final List<SessionPlayer.TrackInfo> tracks = mp.getTracks();
-                    final androidx.media2.common.VideoSize videoSize = getVideoSize();
                     notifySessionPlayerCallback(new SessionPlayerCallbackNotifier() {
                         @Override
                         public void callCallback(
                                 SessionPlayer.PlayerCallback callback) {
                             callback.onCurrentMediaItemChanged(MediaPlayer.this, item);
-                            callback.onVideoSizeChanged(MediaPlayer.this, videoSize);
-                            callback.onTracksChanged(MediaPlayer.this, tracks);
                         }
                     });
                     break;

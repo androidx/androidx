@@ -333,9 +333,16 @@ public class MediaControlView_WithPlayerTest extends MediaWidgetTestBase {
     public void testSetMetadataForNonMusicFile() throws Throwable {
         final String title = "BigBuckBunny";
         final CountDownLatch latch = new CountDownLatch(1);
-        final MediaMetadata metadata = new MediaMetadata.Builder()
-                .putString(MediaMetadata.METADATA_KEY_TITLE, title).build();
+
+        MediaMetadata existingMetadata = mFileSchemeMediaItem.getMetadata();
+        MediaMetadata.Builder metadataBuilder = existingMetadata == null
+                ? new MediaMetadata.Builder()
+                : new MediaMetadata.Builder(existingMetadata);
+        MediaMetadata metadata = metadataBuilder
+                .putString(MediaMetadata.METADATA_KEY_TITLE, title)
+                .build();
         mFileSchemeMediaItem.setMetadata(metadata);
+
         final PlayerWrapper playerWrapper = createPlayerWrapper(new PlayerWrapper.PlayerCallback() {
             @Override
             public void onCurrentMediaItemChanged(@NonNull PlayerWrapper player,
