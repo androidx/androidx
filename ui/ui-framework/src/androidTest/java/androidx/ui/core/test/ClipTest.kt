@@ -319,6 +319,38 @@ class ClipTest {
         }
     }
 
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun emitClipLater() {
+        val model = DoDraw(false)
+
+        rule.runOnUiThreadIR {
+            activity.setContent {
+                FillColor(Color.Green)
+                Padding(size = 10.ipx) {
+                    AtLeastSize(size = 10.ipx) {
+                        if (model.value) {
+                            Clip(rectShape) {
+                                FillColor(Color.Cyan)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        Assert.assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
+
+        drawLatch = CountDownLatch(1)
+        rule.runOnUiThreadIR {
+            model.value = true
+        }
+
+        takeScreenShot(30).apply {
+            assertRect(Color.Cyan, size = 10)
+            assertRect(Color.Green, holeSize = 10)
+        }
+    }
+
     @Composable
     private fun FillColor(color: Color) {
         Draw { canvas, parentSize ->

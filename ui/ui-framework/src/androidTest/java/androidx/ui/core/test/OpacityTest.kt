@@ -153,6 +153,35 @@ class OpacityTest {
         }
     }
 
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun emitDrawWithOpacityLater() {
+        val model = DoDraw(false)
+
+        rule.runOnUiThreadIR {
+            activity.setContent {
+                AtLeastSize(size = 10.ipx) {
+                    FillColor(Color.White)
+                    if (model.value) {
+                        Opacity(opacity = 0f) {
+                            FillColor(Color.Green)
+                        }
+                    }
+                }
+            }
+        }
+        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
+
+        drawLatch = CountDownLatch(1)
+        rule.runOnUiThreadIR {
+            model.value = true
+        }
+
+        takeScreenShot(10).apply {
+            assertRect(Color.White)
+        }
+    }
+
     @Composable
     private fun FillColor(color: Color) {
         Draw { canvas, parentSize ->
