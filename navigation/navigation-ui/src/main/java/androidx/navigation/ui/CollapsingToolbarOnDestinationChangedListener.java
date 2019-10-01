@@ -80,9 +80,10 @@ class CollapsingToolbarOnDestinationChangedListener
             @StringRes int contentDescription) {
         Toolbar toolbar = mToolbarWeakReference.get();
         if (toolbar != null) {
+            boolean useTransition = icon == null && toolbar.getNavigationIcon() != null;
             toolbar.setNavigationIcon(icon);
             toolbar.setNavigationContentDescription(contentDescription);
-            if (icon == null) {
+            if (useTransition) {
                 TransitionManager.beginDelayedTransition(toolbar);
             }
         }
