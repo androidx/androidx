@@ -371,8 +371,7 @@ final class CaptureSession {
                 case OPENED:
                 case CLOSED:
                     if (mCameraCaptureSession != null) {
-                        if (abortInFlightCaptures && !mIsLegacyDevice) {
-                            // Do not call abortCaptures() for LEGACY devices. See b/140527066.
+                        if (abortInFlightCaptures) {
                             try {
                                 mCameraCaptureSession.abortCaptures();
                             } catch (CameraAccessException e) {
