@@ -13,7 +13,7 @@ package androidx.work {
 
   public final class DataKt {
     ctor public DataKt();
-    method public static inline <reified T> boolean containsKey(androidx.work.Data, String key);
+    method public static inline <reified T> boolean hasKeyWithValueOfType(androidx.work.Data, String key);
     method public static inline androidx.work.Data workDataOf(kotlin.Pair<java.lang.String,?>... pairs);
   }
 

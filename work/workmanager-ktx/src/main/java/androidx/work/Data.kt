@@ -39,4 +39,5 @@ inline fun workDataOf(vararg pairs: Pair<String, Any?>): Data {
  * Returns true if the instance of [Data] has a value corresponding to the given [key] with an
  * expected type [T].
  */
-inline fun <reified T : Any> Data.containsKey(key: String) = containsKey(key, T::class.java)
+inline fun <reified T : Any> Data.hasKeyWithValueOfType(key: String) =
+    hasKeyWithValueOfType(key, T::class.java)
