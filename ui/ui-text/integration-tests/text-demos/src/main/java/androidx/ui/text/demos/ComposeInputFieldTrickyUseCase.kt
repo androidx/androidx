@@ -26,7 +26,6 @@ import androidx.ui.layout.Column
 import androidx.ui.layout.CrossAxisAlignment
 import androidx.ui.layout.LayoutSize
 import androidx.ui.foundation.VerticalScroller
-import androidx.ui.input.EditorModel
 import androidx.ui.input.EditorStyle
 import androidx.ui.input.KeyboardType
 import androidx.ui.text.TextStyle
@@ -49,12 +48,12 @@ fun InputFieldTrickyUseCase() {
 
 @Composable
 private fun RejectNonDigits() {
-    val state = +state { EditorModel() }
+    val state = +state { "" }
     TextField(
         value = state.value,
         editorStyle = EditorStyle(textStyle = TextStyle(fontSize = 32.sp)),
         onValueChange = {
-            if (it.text.all { it.isDigit() }) {
+            if (it.all { it.isDigit() }) {
                 state.value = it
             }
         },
@@ -64,12 +63,12 @@ private fun RejectNonDigits() {
 
 @Composable
 private fun RejectComposition() {
-    val state = +state { EditorModel() }
+    val state = +state { "" }
     TextField(
         value = state.value,
         editorStyle = EditorStyle(textStyle = TextStyle(fontSize = 32.sp)),
         onValueChange = {
-            state.value = EditorModel(text = it.text, selection = it.selection)
+            state.value = it
         }
     )
 }

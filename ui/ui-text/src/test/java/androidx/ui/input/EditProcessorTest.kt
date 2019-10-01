@@ -41,10 +41,10 @@ class EditProcessorTest {
         val tis: TextInputService = mock()
         val dummyInputSessionToken = 10 // We are not using this value in this test. Just dummy.
 
-        val model = EditorModel("ABCDE", TextRange(0, 0))
+        val model = InputState("ABCDE", TextRange(0, 0))
         proc.onNewState(model, tis, dummyInputSessionToken)
-        assertEquals(model, proc.mPreviousModel)
-        val captor = argumentCaptor<EditorModel>()
+        assertEquals(model, proc.mPreviousState)
+        val captor = argumentCaptor<InputState>()
         verify(tis, times(1)).onStateUpdated(eq(dummyInputSessionToken), captor.capture())
         assertEquals(1, captor.allValues.size)
         assertEquals("ABCDE", captor.firstValue.text)

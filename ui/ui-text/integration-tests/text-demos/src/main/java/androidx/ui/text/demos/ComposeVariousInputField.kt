@@ -29,7 +29,6 @@ import androidx.ui.input.TransformedText
 import androidx.ui.input.VisualTransformation
 import androidx.ui.core.ipx
 import androidx.ui.graphics.Color
-import androidx.ui.input.EditorModel
 import androidx.ui.input.EditorStyle
 import androidx.ui.input.ImeAction
 import androidx.ui.input.KeyboardType
@@ -185,7 +184,7 @@ fun VariousInputFieldDemo() {
             VariousEditLine(
                 keyboardType = KeyboardType.Ascii,
                 onValueChange = { old, new ->
-                    if (new.text.any { !it.isLetterOrDigit() }) old else new
+                    if (new.any { !it.isLetterOrDigit() }) old else new
                 },
                 visualTransformation = CapitalizeTransformation()
             )
@@ -194,7 +193,7 @@ fun VariousInputFieldDemo() {
             VariousEditLine(
                 keyboardType = KeyboardType.Ascii,
                 onValueChange = { old, new ->
-                    if (new.text.any { !it.isLetterOrDigit() }) old else new
+                    if (new.any { !it.isLetterOrDigit() }) old else new
                 },
                 visualTransformation = CapitalizeTransformation(LocaleList("tr"))
             )
@@ -203,7 +202,7 @@ fun VariousInputFieldDemo() {
             VariousEditLine(
                 keyboardType = KeyboardType.Password,
                 onValueChange = { old, new ->
-                    if (new.text.any { !it.isLetterOrDigit() }) old else new
+                    if (new.any { !it.isLetterOrDigit() }) old else new
                 },
                 visualTransformation = PasswordVisualTransformation()
             )
@@ -212,7 +211,7 @@ fun VariousInputFieldDemo() {
             VariousEditLine(
                 keyboardType = KeyboardType.Number,
                 onValueChange = { old, new ->
-                    if (new.text.length > 10 || new.text.any { !it.isDigit() }) old else new
+                    if (new.length > 10 || new.any { !it.isDigit() }) old else new
                 },
                 visualTransformation = phoneNumberFilter
             )
@@ -221,7 +220,7 @@ fun VariousInputFieldDemo() {
             VariousEditLine(
                 keyboardType = KeyboardType.Number,
                 onValueChange = { old, new ->
-                    if (new.text.length > 16 || new.text.any { !it.isDigit() }) old else new
+                    if (new.length > 16 || new.any { !it.isDigit() }) old else new
                 },
                 visualTransformation = creditCardFilter
             )
@@ -250,10 +249,10 @@ fun VariousInputFieldDemo() {
 fun VariousEditLine(
     keyboardType: KeyboardType = KeyboardType.Text,
     imeAction: ImeAction = ImeAction.Unspecified,
-    onValueChange: (EditorModel, EditorModel) -> EditorModel = { _, new -> new },
+    onValueChange: (String, String) -> String = { _, new -> new },
     visualTransformation: VisualTransformation
 ) {
-    val state = +state { EditorModel() }
+    val state = +state { "" }
     TextField(
         value = state.value,
         keyboardType = keyboardType,
@@ -266,7 +265,7 @@ fun VariousEditLine(
 
 @Composable
 fun HintEditText(hintText: @Composable() () -> Unit) {
-    val state = +state { EditorModel() }
+    val state = +state { "" }
 
     val inputField = @Composable {
         TextField(
@@ -276,7 +275,7 @@ fun HintEditText(hintText: @Composable() () -> Unit) {
         )
     }
 
-    if (state.value.text.isNotEmpty()) {
+    if (state.value.isNotEmpty()) {
         inputField()
     } else {
         Layout(inputField, hintText) { measurable, constraints ->

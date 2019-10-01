@@ -17,62 +17,15 @@
 package androidx.ui.core.input
 
 import android.view.inputmethod.ExtractedText
-import androidx.ui.text.TextRange
-import androidx.ui.text.substring
+import androidx.ui.input.InputState
 
-/**
- * Stores an input state for IME
- *
- * IME can request editor state with calling getTextBeforeCursor, getSelectedText, etc.
- * This class stores a snapshot of the input state of the edit buffer and provide utility functions
- * for answering these information retrieval requests.
- */
-internal data class InputState(
-    /**
-     * A text visible to IME
-     */
-    val text: String,
-
-    /**
-     * A selection range visible to IME.
-     * The selection range must be valid range in the given text.
-     */
-    val selection: TextRange,
-
-    /**
-     * A composition range visible to IME.
-     * If null, there is no composition range.
-     * If non-null, the composition range must be valid range in the given text.
-     */
-    val composition: TextRange? = null
-) {
-
-    /**
-     * Helper function for getting text before selection range.
-     */
-    fun getTextBeforeSelection(maxChars: Int): String =
-        text.substring(Math.max(0, selection.min - maxChars), selection.min)
-
-    /**
-     * Helper function for getting text after selection range.
-     */
-    fun getTextAfterSelection(maxChars: Int): String =
-        text.substring(selection.max, Math.min(selection.max + maxChars, text.length))
-
-    /**
-     * Helper function for getting text currently selected.
-     */
-    fun getSelectedText(): String = text.substring(selection)
-
-    /**
-     * Make to ExtractedText
-     */
-    fun toExtractedText(): ExtractedText = ExtractedText().apply {
-        text = this@InputState.text
-        partialEndOffset = this@InputState.text.length
-        partialStartOffset = -1 // -1 means full text
-        selectionStart = selection.min
-        selectionEnd = selection.max
-        flags = ExtractedText.FLAG_SINGLE_LINE // TODO(nona): Support multiline text.
-    }
+internal fun InputState.toExtractedText(): ExtractedText {
+    val res = ExtractedText()
+    res.text = text
+    res.partialEndOffset = text.length
+    res.partialStartOffset = -1 // -1 means full text
+    res.selectionStart = selection.min
+    res.selectionEnd = selection.max
+    res.flags = ExtractedText.FLAG_SINGLE_LINE // TODO(nona): Support multiline text.
+    return res
 }

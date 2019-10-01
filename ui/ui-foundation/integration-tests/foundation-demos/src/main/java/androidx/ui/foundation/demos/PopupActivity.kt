@@ -41,7 +41,6 @@ import androidx.ui.foundation.shape.DrawShape
 import androidx.ui.foundation.shape.RectangleShape
 import androidx.ui.foundation.shape.corner.CircleShape
 import androidx.ui.graphics.Color
-import androidx.ui.input.EditorModel
 import androidx.ui.input.EditorStyle
 import androidx.ui.input.ImeAction
 import androidx.ui.input.KeyboardType
@@ -429,7 +428,7 @@ fun PopupWithEditText() {
                                 initialText = "",
                                 color = Color.White,
                                 onValueChange = {
-                                    email.value = it.text
+                                    email.value = it
                                 }
                             )
                         }
@@ -599,11 +598,11 @@ fun ColoredContainer(
 fun EditLine(
     keyboardType: KeyboardType = KeyboardType.Text,
     imeAction: ImeAction = ImeAction.Unspecified,
-    onValueChange: (EditorModel) -> Unit = {},
+    onValueChange: (String) -> Unit = {},
     initialText: String = "",
     color: Color = Color.White
 ) {
-    val state = +state { EditorModel(text = initialText) }
+    val state = +state { initialText }
     Wrap {
         val paint = Paint()
         paint.color = color

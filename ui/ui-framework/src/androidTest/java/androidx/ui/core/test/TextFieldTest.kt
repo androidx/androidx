@@ -28,8 +28,9 @@ import androidx.ui.core.TextInputServiceAmbient
 import androidx.ui.core.input.FocusManager
 import androidx.ui.input.CommitTextEditOp
 import androidx.ui.input.EditOperation
-import androidx.ui.input.EditorModel
 import androidx.ui.input.EditorStyle
+import androidx.ui.input.InputState
+import androidx.ui.input.SetComposingRegionEditOp
 import androidx.ui.input.TextInputService
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.doClick
@@ -39,8 +40,10 @@ import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.argumentCaptor
 import com.nhaarman.mockitokotlin2.atLeastOnce
+import com.nhaarman.mockitokotlin2.clearInvocations
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.never
 import com.nhaarman.mockitokotlin2.times
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
@@ -60,7 +63,7 @@ class TextFieldTest {
         val focusManager = mock<FocusManager>()
         val inputService = mock<TextInputService>()
         composeTestRule.setContent {
-            val state = +state { EditorModel() }
+            val state = +state { "" }
             FocusManagerAmbient.Provider(value = focusManager) {
                 TextInputServiceAmbient.Provider(value = inputService) {
                     TestTag(tag = "textField") {
@@ -82,7 +85,7 @@ class TextFieldTest {
 
     @Composable
     private fun TextFieldApp() {
-        val state = +state { EditorModel() }
+        val state = +state { "" }
         TextField(
             value = state.value,
             onValueChange = {
@@ -144,7 +147,7 @@ class TextFieldTest {
         }
 
         composeTestRule.runOnUiThread {
-            val stateCaptor = argumentCaptor<EditorModel>()
+            val stateCaptor = argumentCaptor<InputState>()
             verify(textInputService, atLeastOnce())
                 .onStateUpdated(eq(inputSessionToken), stateCaptor.capture())
 
@@ -155,11 +158,11 @@ class TextFieldTest {
 
     @Composable
     private fun OnlyDigitsApp() {
-        val state = +state { EditorModel() }
+        val state = +state { "" }
         TextField(
             value = state.value,
             onValueChange = {
-                if (it.text.all { it.isDigit() }) {
+                if (it.all { it.isDigit() }) {
                     state.value = it
                 }
             }
@@ -219,7 +222,7 @@ class TextFieldTest {
         }
 
         composeTestRule.runOnUiThread {
-            val stateCaptor = argumentCaptor<EditorModel>()
+            val stateCaptor = argumentCaptor<InputState>()
             verify(textInputService, atLeastOnce())
                 .onStateUpdated(eq(inputSessionToken), stateCaptor.capture())
 

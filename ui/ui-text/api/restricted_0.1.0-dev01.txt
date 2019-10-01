@@ -8,16 +8,6 @@ package androidx.ui.input {
 
 
 
-  public final class EditorModel {
-    ctor public EditorModel(String text, androidx.ui.text.TextRange selection);
-    method public androidx.ui.text.TextRange? getComposition();
-    method public androidx.ui.text.TextRange getSelection();
-    method public String getText();
-    property public final androidx.ui.text.TextRange? composition;
-    property public final androidx.ui.text.TextRange selection;
-    property public final String text;
-  }
-
   public final class EditorStyle {
     ctor public EditorStyle(androidx.ui.text.TextStyle? textStyle, androidx.ui.graphics.Color? selectionColor);
     ctor public EditorStyle();
@@ -39,6 +29,7 @@ package androidx.ui.input {
     enum_constant public static final androidx.ui.input.ImeAction Send;
     enum_constant public static final androidx.ui.input.ImeAction Unspecified;
   }
+
 
 
   public enum KeyboardType {

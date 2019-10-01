@@ -26,7 +26,6 @@ import androidx.ui.core.TestTag
 import androidx.ui.core.TextField
 import androidx.ui.core.TextInputServiceAmbient
 import androidx.ui.core.input.FocusManager
-import androidx.ui.input.EditorModel
 import androidx.ui.input.TextInputService
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.waitForIdleCompose
@@ -50,7 +49,7 @@ class TextFieldFocusTest {
     @Composable
     private fun TextFieldApp(dataList: List<FocusTestData>) {
         for (data in dataList) {
-            val editor = +state { EditorModel() }
+            val editor = +state { "" }
             TextField(
                 value = editor.value,
                 onValueChange = {
