@@ -27,6 +27,8 @@ import androidx.ui.text.TextStyle
 /**
  * Tries to match the background color to correlated text color. For example,
  * on [MaterialColors.primary] background [MaterialColors.onPrimary] will be used.
+ * If the background is not from the [MaterialColors] the text color will not be
+ * automatically resolved.
  */
 fun textColorForBackground(background: Color) = effectOf<Color?> {
     with(+ambient(Colors)) {
