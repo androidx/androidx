@@ -32,7 +32,6 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.ParcelFileDescriptor;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.PixelCopy;
 import android.view.SurfaceView;
@@ -43,7 +42,6 @@ import androidx.annotation.Nullable;
 import androidx.media2.common.FileMediaItem;
 import androidx.media2.common.MediaItem;
 import androidx.media2.common.SessionPlayer;
-import androidx.media2.common.UriMediaItem;
 import androidx.media2.common.VideoSize;
 import androidx.media2.session.MediaController;
 import androidx.media2.widget.test.R;
@@ -330,6 +328,8 @@ public class VideoView_WithPlayerTest extends MediaWidgetTestBase {
                 + R.raw.testvideo_with_2_subtitle_tracks);
         final Uri musicUri = Uri.parse("android.resource://" + mContext.getPackageName() + "/"
                 + R.raw.test_music);
+        final String nonMusicMediaId = "nonMusic";
+        final String musicMediaId = "music";
         final VideoSize nonMusicVideoSize = new VideoSize(160, 90);
         final VideoSize musicVideoSize = new VideoSize(0, 0);
 
@@ -337,8 +337,8 @@ public class VideoView_WithPlayerTest extends MediaWidgetTestBase {
         final CountDownLatch latchForMusicItem = new CountDownLatch(1);
 
         List<MediaItem> playlist = new ArrayList<>();
-        playlist.add(createTestMediaItem(nonMusicUri));
-        playlist.add(createTestMediaItem(musicUri));
+        playlist.add(createTestMediaItem(nonMusicUri, nonMusicMediaId));
+        playlist.add(createTestMediaItem(musicUri, musicMediaId));
 
         final PlayerWrapper playerWrapper = createPlayerWrapper(new PlayerWrapper.PlayerCallback() {
             @Override
@@ -347,16 +347,19 @@ public class VideoView_WithPlayerTest extends MediaWidgetTestBase {
                 if (item == null) {
                     return;
                 }
-                if (TextUtils.equals(((UriMediaItem) item).getUri().toString(),
-                        nonMusicUri.toString())) {
-                    if (nonMusicVideoSize.equals(videoSize)) {
-                        latchForNonMusicItem.countDown();
+                String mediaId = item.getMediaId();
+                if (nonMusicMediaId.equals(mediaId)) {
+                    if (player.mController != null
+                            && videoSize.getHeight() == 0 && videoSize.getWidth() == 0) {
+                        // PlayerWrapper could notify onVideoSizeChanged with VideoSize of (0, 0)
+                        // right after its MediaController is connected. Ignore this case.
+                        return;
                     }
-                } else if (TextUtils.equals(((UriMediaItem) item).getUri().toString(),
-                        musicUri.toString())) {
-                    if (musicVideoSize.equals(videoSize)) {
-                        latchForMusicItem.countDown();
-                    }
+                    assertEquals(nonMusicVideoSize, videoSize);
+                    latchForNonMusicItem.countDown();
+                } else if (musicMediaId.equals(mediaId)) {
+                    assertEquals(musicVideoSize, videoSize);
+                    latchForMusicItem.countDown();
                 }
             }
         }, null, playlist);
