@@ -43,8 +43,6 @@ import androidx.ui.core.withDensity
 import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Paint
-import androidx.ui.vectormath64.Matrix4
-import androidx.ui.vectormath64.getAsTranslation
 
 internal fun getRippleStartRadius(size: PxSize) =
     max(size.width, size.height) * 0.3f
@@ -59,23 +57,19 @@ object DefaultRippleEffectFactory : RippleEffectFactory {
 
     override fun create(
         coordinates: LayoutCoordinates,
-        surfaceCoordinates: LayoutCoordinates,
-        touchPosition: PxPosition,
-        color: Color,
+        startPosition: PxPosition,
         density: Density,
         radius: Dp?,
-        bounded: Boolean,
+        clipped: Boolean,
         requestRedraw: (() -> Unit),
         onAnimationFinished: ((RippleEffect) -> Unit)
     ): RippleEffect {
         return DefaultRippleEffect(
             coordinates,
-            surfaceCoordinates,
-            touchPosition,
-            color,
+            startPosition,
             density,
             radius,
-            bounded,
+            clipped,
             requestRedraw,
             onAnimationFinished
         )
@@ -83,7 +77,7 @@ object DefaultRippleEffectFactory : RippleEffectFactory {
 }
 
 /**
- * A visual reaction on a piece of [RippleSurface] to user input.
+ * [RippleEffect]s are drawn as part of [Ripple] as a visual indicator for a pressed state.
  *
  * Use [Ripple] to add an animation for your component.
  *
@@ -94,34 +88,28 @@ object DefaultRippleEffectFactory : RippleEffectFactory {
  * animates to the center of its target layout for the bounded version
  * and stays in the center for the unbounded one.
  *
- * @param coordinates The layout coordinates of the target layout.
- * @param surfaceCoordinates The surface layout coordinates.
- * @param touchPosition The position the animation will start from.
- * @param color The color for this [RippleEffect].
+ * @param coordinates The coordinates of the target layout.
+ * @param startPosition The position the animation will start from.
  * @param density The [Density] object to convert the dimensions.
- * @param radius Effects grow up to this size. By default the size is
- *  determined from the size of the layout itself.
- * @param bounded If true, then the ripple will be sized to fit the bounds of the target
- *  layout, then clipped to it when drawn. If false, then the ripple is clipped only
- *  to the edges of the surface.
+ * @param radius Effects grow up to this size.
+ * @param clipped If true the effect should be clipped by the target layout bounds.
  * @param requestRedraw Call when the ripple should be redrawn to display the next frame.
  * @param onAnimationFinished Call when the effect animation has been finished.
  */
 private class DefaultRippleEffect(
     private val coordinates: LayoutCoordinates,
-    surfaceCoordinates: LayoutCoordinates,
-    touchPosition: PxPosition,
-    color: Color,
+    startPosition: PxPosition,
     density: Density,
     radius: Dp? = null,
-    private val bounded: Boolean = false,
+    private val clipped: Boolean,
     private val requestRedraw: (() -> Unit),
     private val onAnimationFinished: ((RippleEffect) -> Unit)
-) : RippleEffect(coordinates, surfaceCoordinates, color, requestRedraw) {
+) : RippleEffect {
 
     private val animation: TransitionAnimation<RippleTransition.State>
     private var transitionState = RippleTransition.State.Initial
     private var finishRequested = false
+    private val paint = Paint()
 
     init {
         val surfaceSize = coordinates.size
@@ -132,10 +120,9 @@ private class DefaultRippleEffect(
 
         val center = coordinates.size.center()
         animation = RippleTransition.definition(
-            revealedAlpha = color.alpha,
             startRadius = startRadius,
             endRadius = targetRadius,
-            startCenter = if (bounded) touchPosition else center,
+            startCenter = startPosition,
             endCenter = center
         ).createAnimation()
         animation.onUpdate = requestRedraw
@@ -154,39 +141,26 @@ private class DefaultRippleEffect(
         animation.toState(RippleTransition.State.Finished)
     }
 
-    override fun drawEffect(canvas: Canvas, transform: Matrix4) {
+    override fun draw(canvas: Canvas, color: Color) {
         val alpha = if (transitionState == RippleTransition.State.Initial && finishRequested) {
             // if we still fading-in we should immediately switch to the final alpha.
-            color.alpha
+            1f
         } else {
             animation[RippleTransition.Alpha]
         }
-        val radius = animation[RippleTransition.Radius].value
+        paint.color = color.copy(alpha = color.alpha * alpha)
+
+        if (clipped) {
+            canvas.save()
+            canvas.clipRect(coordinates.size.toRect())
+        }
+
         val centerOffset = animation[RippleTransition.Center].toOffset()
-        val paint = Paint()
-        paint.color = color.copy(alpha = alpha)
-        val originOffset = transform.getAsTranslation()
-        val clipRect = if (bounded) coordinates.size.toRect() else null
-        if (originOffset == null) {
-            // TODO (njawad) replace with save lambda when multi children DrawNodes are supported
-            canvas.nativeCanvas.save()
-            canvas.concat(transform)
-            if (clipRect != null) {
-                canvas.clipRect(clipRect)
-            }
-            canvas.drawCircle(centerOffset, radius, paint)
-            // TODO (njawad) replace with save lambda when multi children DrawNodes are supported
-            canvas.nativeCanvas.restore()
-        } else {
-            if (clipRect != null) {
-                canvas.save()
-                canvas.clipRect(clipRect.shift(originOffset))
-            }
-            canvas.drawCircle(centerOffset + originOffset, radius, paint)
-            if (clipRect != null) {
-                // TODO (njawad) replace with save lambda when multi children DrawNodes are supported
-                canvas.nativeCanvas.restore()
-            }
+        val radius = animation[RippleTransition.Radius].value
+        canvas.drawCircle(centerOffset, radius, paint)
+
+        if (clipped) {
+            canvas.restore()
         }
     }
 
@@ -218,7 +192,6 @@ private object RippleTransition {
     val Center = PxPositionPropKey()
 
     fun definition(
-        revealedAlpha: Float,
         startRadius: Px,
         endRadius: Px,
         startCenter: PxPosition,
@@ -230,7 +203,7 @@ private object RippleTransition {
             this[Center] = startCenter
         }
         state(State.Revealed) {
-            this[Alpha] = revealedAlpha
+            this[Alpha] = 1f
             this[Radius] = endRadius
             this[Center] = endCenter
         }

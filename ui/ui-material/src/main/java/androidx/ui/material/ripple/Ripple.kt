@@ -16,45 +16,38 @@
 
 package androidx.ui.material.ripple
 
-import androidx.ui.core.Density
-import androidx.ui.core.LayoutCoordinates
-import androidx.ui.core.OnChildPositioned
-import androidx.ui.core.PxPosition
-import androidx.ui.core.ambientDensity
-import androidx.ui.core.gesture.PressIndicatorGestureDetector
-import androidx.compose.Children
 import androidx.compose.Composable
+import androidx.compose.Recompose
 import androidx.compose.ambient
 import androidx.compose.composer
 import androidx.compose.memo
 import androidx.compose.onDispose
 import androidx.compose.unaryPlus
+import androidx.ui.animation.transitionsEnabled
+import androidx.ui.core.Density
 import androidx.ui.core.Dp
+import androidx.ui.core.Draw
+import androidx.ui.core.LayoutCoordinates
+import androidx.ui.core.OnChildPositioned
+import androidx.ui.core.PxPosition
+import androidx.ui.core.ambientDensity
+import androidx.ui.core.center
+import androidx.ui.core.gesture.PressIndicatorGestureDetector
+import androidx.ui.material.surface.CurrentBackground
 
 /**
- * An area of a [RippleSurface] that responds to touch.
+ * Ripple is a visual indicator for a pressed state.
  *
- * A [Ripple] widget responds to a tap by starting a new [RippleEffect]
- * animation. For creating an effect it uses the [RippleTheme.factory].
+ * A [Ripple] component responds to a tap by starting a new [RippleEffect] animation.
+ * For creating an effect it uses the [RippleTheme.factory].
  *
- * The [Ripple] widget must have a [RippleSurface] ancestor as the
- * [RippleSurface] is where the [Ripple]s are actually drawn.
+ * @sample androidx.ui.material.samples.RippleSample
  *
- * Example:
- *
- *     Card { // Card will provide RippleSurface
- *        Ripple(bounded = true) {
- *            Clickable(onClick) {
- *                Icon(image)
- *            }
- *        }
- *     }
- *
- * @param bounded If true, ripples are clipped by the bounds of the target layout.
-    Unbounded ripples always animate from the center position, bounded ripples
-    animate from the touch position.
- * @param radius Effects grow up to this size. By default the size is
- *  determined from the size of the layout itself.
+ * @param bounded If true, ripples are clipped by the bounds of the target layout. Unbounded
+ * ripples always animate from the target layout center, bounded ripples animate from the touch
+ * position.
+ * @param radius Effects grow up to this size. If null is provided the size would be calculated
+ * based on the target layout size
  */
 @Composable
 fun Ripple(
@@ -63,18 +56,28 @@ fun Ripple(
     children: @Composable() () -> Unit
 ) {
     val density = +ambientDensity()
-    val rippleSurface = +ambientRippleSurface()
     val state = +memo { RippleState() }
-
     val theme = +ambient(CurrentRippleTheme)
-    state.currentEffect?.color = theme.colorCallback.invoke(
-        rippleSurface.backgroundColor
-    )
+
+    Recompose { recompose ->
+        state.recompose = recompose
+        val color = theme.colorCallback.invoke(+ambient(CurrentBackground))
+        Draw { canvas, _ ->
+            if (state.effects.isNotEmpty()) {
+                val position = state.coordinates!!.position
+                canvas.translate(position.x.value, position.y.value)
+                state.effects.forEach { it.draw(canvas, color) }
+                canvas.translate(-position.x.value, -position.y.value)
+            }
+        }
+    }
 
     OnChildPositioned(onPositioned = { state.coordinates = it }) {
         PressIndicatorGestureDetector(
             onStart = { position ->
-                state.handleStart(position, rippleSurface, theme, density, bounded, radius)
+                if (transitionsEnabled) {
+                    state.handleStart(position, theme.factory, density, bounded, radius)
+                }
             },
             onStop = { state.handleFinish(false) },
             onCancel = { state.handleFinish(true) },
@@ -92,43 +95,40 @@ fun Ripple(
 private class RippleState {
 
     var coordinates: LayoutCoordinates? = null
-    var effects = mutableSetOf<RippleEffect>()
+    var effects = mutableListOf<RippleEffect>()
     var currentEffect: RippleEffect? = null
+    var recompose: () -> Unit = {}
 
     fun handleStart(
-        position: PxPosition,
-        rippleSurface: RippleSurfaceOwner,
-        theme: RippleTheme,
+        touchPosition: PxPosition,
+        factory: RippleEffectFactory,
         density: Density,
         bounded: Boolean,
         radius: Dp?
     ) {
-        val coordinates = coordinates ?: throw IllegalStateException(
+        val coordinates = checkNotNull(coordinates) {
             "handleStart() called before the layout coordinates were provided!"
-        )
-        val color = theme.colorCallback.invoke(rippleSurface.backgroundColor)
+        }
+        val position = if (bounded) touchPosition else coordinates.size.center()
         val onAnimationFinished = { effect: RippleEffect ->
             effects.remove(effect)
             if (currentEffect == effect) {
                 currentEffect = null
             }
         }
-
-        val effect = theme.factory.create(
+        val effect = factory.create(
             coordinates,
-            rippleSurface.layoutCoordinates,
             position,
-            color,
             density,
             radius,
             bounded,
-            rippleSurface::requestRedraw,
+            { recompose() },
             onAnimationFinished
         )
 
-        rippleSurface.addEffect(effect)
         effects.add(effect)
         currentEffect = effect
+        recompose()
     }
 
     fun handleFinish(canceled: Boolean) {

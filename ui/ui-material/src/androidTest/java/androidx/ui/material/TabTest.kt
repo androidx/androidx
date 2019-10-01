@@ -19,6 +19,7 @@ import androidx.compose.Composable
 import androidx.compose.composer
 import androidx.compose.state
 import androidx.compose.unaryPlus
+import androidx.test.filters.FlakyTest
 import androidx.test.filters.LargeTest
 import androidx.ui.core.Alignment
 import androidx.ui.core.LayoutCoordinates
@@ -103,6 +104,7 @@ class TabTest {
             .assertHeightEqualsTo(ExpectedLargeTabHeight)
     }
 
+    @FlakyTest(bugId = 141741358, detail = "Fails with No static method tabRow_indicatorPosition")
     @Test
     fun tabRow_indicatorPosition() {
         val indicatorHeight = 1.dp

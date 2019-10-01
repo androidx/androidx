@@ -16,69 +16,33 @@
 
 package androidx.ui.material.ripple
 
-import androidx.ui.core.LayoutCoordinates
-import androidx.ui.core.PxPosition
-import androidx.ui.core.px
-import androidx.ui.graphics.Color
-import androidx.ui.material.surface.Surface
 import androidx.ui.graphics.Canvas
-import androidx.ui.vectormath64.Matrix4
-import androidx.ui.vectormath64.Vector3
+import androidx.ui.graphics.Color
 
 /**
- * A visual reaction on a [RippleSurface].
+ * [RippleEffect]s are drawn as part of [Ripple] as a visual indicator for a pressed state.
  *
- * To add an [RippleEffect] to a piece of [Surface], obtain the [RippleSurfaceOwner] via
- * [ambientRippleSurface] and call [RippleSurfaceOwner.addEffect].
- * @param coordinates The layout coordinates of the target layout.
- * @param surfaceCoordinates The surface layout coordinates.
- * @param color The color for this [RippleEffect].
- * @param requestRedraw Call when the ripple should be redrawn to display the next frame.
+ * Use [Ripple] to add an animation for your component.
  */
-abstract class RippleEffect(
-    private val coordinates: LayoutCoordinates,
-    private val surfaceCoordinates: LayoutCoordinates,
-    color: Color,
-    private val requestRedraw: (() -> Unit)
-) {
-
-    internal fun draw(canvas: Canvas) {
-        val offset = surfaceCoordinates
-            .childToLocal(coordinates, PxPosition(0.px, 0.px))
-        val transform = Matrix4.translation(Vector3(
-            offset.x.value,
-            offset.y.value,
-            0f
-        ))
-        drawEffect(canvas, transform)
-    }
+interface RippleEffect {
 
     /**
      * Override this method to draw the ripple.
      *
-     * The transform argument gives the coordinate conversion from the coordinate
-     * system of the canvas to the coordinate system of the target layout.
+     * @param canvas The [Canvas] to draw on.
+     * @param color The [Color] for this [RippleEffect].
      */
-    protected abstract fun drawEffect(canvas: Canvas, transform: Matrix4)
+    fun draw(canvas: Canvas, color: Color)
 
     /**
-     * Called when the user input that triggered this ripple's appearance was confirmed or canceled.
+     * Called when the user input that triggered this effect was confirmed or canceled.
      *
      * Typically causes the ripple to start disappearance animation.
      */
-    open fun finish(canceled: Boolean) {}
+    fun finish(canceled: Boolean)
 
     /**
      * Free up the resources associated with this ripple.
      */
-    abstract fun dispose()
-
-    /** The ripple's color. */
-    var color: Color = color
-        set(value) {
-            if (value == field)
-                return
-            field = value
-            requestRedraw()
-        }
+    fun dispose()
 }

@@ -16,7 +16,9 @@
 
 package androidx.ui.material.surface
 
+import androidx.compose.Ambient
 import androidx.compose.Composable
+import androidx.compose.ambient
 import androidx.compose.composer
 import androidx.compose.unaryPlus
 import androidx.ui.core.Clip
@@ -34,10 +36,6 @@ import androidx.ui.foundation.shape.RectangleShape
 import androidx.ui.foundation.shape.border.DrawBorder
 import androidx.ui.graphics.Color
 import androidx.ui.material.MaterialColors
-import androidx.ui.material.ripple.RippleEffect
-import androidx.ui.material.ripple.RippleSurface
-import androidx.ui.material.ripple.RippleSurfaceOwner
-import androidx.ui.material.ripple.ambientRippleSurface
 import androidx.ui.material.textColorForBackground
 import androidx.ui.material.themeColor
 import androidx.ui.text.TextStyle
@@ -50,29 +48,22 @@ import androidx.ui.text.TextStyle
  * 2) Elevation: Surface elevates its children on the Z axis by [elevation] pixels,
  *   and draws the appropriate shadow.
  *
- * 3) Ripple effects: Surface shows [RippleEffect]s below its children.
- *
- * 4) Borders: If [shape] has a border, then it will also be drawn.
+ * 3) Borders: If [shape] has a border, then it will also be drawn.
  *
  *
  * Material surface is the central metaphor in material design. Each surface
  * exists at a given elevation, which influences how that piece of surface
  * visually relates to other surfaces and how that surface casts shadows.
  *
- * Most user interface elements are either conceptually printed on a surface
- * or themselves made of surface. Surface reacts to user input using [RippleEffect] effects.
- * To trigger a reaction on the surface, use a [RippleSurfaceOwner] obtained via
- * [ambientRippleSurface].
- *
- * The text color for internal [Text] components will try to match the correlated color
+ * The text color for inner [Text] components will try to match the correlated color
  * for the background [color]. For example, on [MaterialColors.surface] background
  * [MaterialColors.onSurface] will be used for text. To modify these default style
  * values use [CurrentTextStyleProvider] or provide direct styling to your components.
+ * @see textColorForBackground
  *
  * @param shape Defines the surface's shape as well its shadow. A shadow is only
  *  displayed if the [elevation] is greater than zero.
- * @param color The background color. [MaterialColors.surface] is used when null
- *  is provided. Use [TransparentSurface] to have no color.
+ * @param color The background color. Use [Color.Transparent] to have no color.
  * @param border Optional border to draw on top of the shape.
  * @param elevation The z-coordinate at which to place this surface. This controls
  *  the size of the shadow below the surface.
@@ -91,7 +82,8 @@ fun Surface(
         }
         DrawShape(shape = shape, color = color)
         Clip(shape = shape) {
-            RippleSurface(color = color) {
+            val background = if (color.alpha > 0f) color else +ambient(CurrentBackground)
+            CurrentBackground.Provider(background) {
                 CurrentTextStyleProvider(
                     value = TextStyle(color = +textColorForBackground(color)),
                     children = children
@@ -103,6 +95,14 @@ fun Surface(
         }
     }
 }
+
+/**
+ * An ambient to store the current background. Usually provided by [Surface] component.
+ *
+ * Other components can read it to apply some logic to automatically change icons, text
+ * or Ripple color based on the current background.
+ */
+val CurrentBackground = Ambient.of { Color.Transparent }
 
 /**
  * A simple layout which just reserves a space for a [Surface].
