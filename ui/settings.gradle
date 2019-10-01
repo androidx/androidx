@@ -59,6 +59,7 @@ includeProject(":ui:ui-platform", "ui-platform")
 includeProject(":ui:ui-test", "ui-test")
 includeProject(":ui:ui-text", "ui-text")
 includeProject(":ui:ui-text:integration-tests:ui-text-demos", "ui-text/integration-tests/text-demos")
+includeProject(":ui:ui-text:integration-tests:ui-text-samples", "ui-text/integration-tests/samples")
 includeProject(":ui:ui-tooling", "ui-tooling")
 includeProject(":ui:ui-vector", "ui-vector")
 
