@@ -22,24 +22,31 @@ import androidx.ui.text.platform.PlatformLocale
 import androidx.ui.text.platform.platformLocaleDelegate
 
 /**
- * A locale object
+ * A `Locale` object represents a specific geographical, political, or cultural region. An
+ * operation that requires a `Locale` to perform its task is called _locale-sensitive_ and uses the
+ * `Locale` to tailor information for the user. For example, displaying a number is a
+ * locale-sensitive operation— the number should be formatted according to the customs and
+ * conventions of the user's native country, region, or culture.
+ *
+ * @see [TextStyle]
  */
 class Locale internal constructor(internal val platformLocale: PlatformLocale) {
     companion object {
         /**
-         * Returns Locale object which represents current locale
+         * Returns a [Locale] object which represents current locale
          */
         // TODO: invalidate current locale with onConfigurationChanged
         val current: Locale get() = Locale(platformLocaleDelegate.current[0])
     }
 
     /**
-     * Create Locale object from language tag.
+     * Create Locale object from a language tag.
      *
-     * @param languageTag A IETF BCP47 compliant language tag.
+     * @param languageTag A [IETF BCP47](https://tools.ietf.org/html/bcp47) compliant language tag.
+     *
      * @return a locale object
      */
-    constructor(languageTag: String): this(platformLocaleDelegate.parseLanguageTag(languageTag))
+    constructor(languageTag: String) : this(platformLocaleDelegate.parseLanguageTag(languageTag))
 
     /**
      * The ISO 639 compliant language code.
@@ -74,5 +81,6 @@ class Locale internal constructor(internal val platformLocale: PlatformLocale) {
 
     // We don't use data class since we cannot offer copy function here.
     override fun hashCode(): Int = toLanguageTag().hashCode()
+
     override fun toString(): String = toLanguageTag()
 }

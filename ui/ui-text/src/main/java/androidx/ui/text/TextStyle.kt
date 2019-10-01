@@ -18,23 +18,25 @@ package androidx.ui.text
 
 import androidx.ui.core.Sp
 import androidx.ui.core.sp
-import androidx.ui.text.style.BaselineShift
+import androidx.ui.graphics.Color
+import androidx.ui.graphics.Shadow
+import androidx.ui.graphics.lerp
+import androidx.ui.lerp
+import androidx.ui.text.font.FontFamily
 import androidx.ui.text.font.FontStyle
 import androidx.ui.text.font.FontSynthesis
 import androidx.ui.text.font.FontWeight
+import androidx.ui.text.style.BaselineShift
 import androidx.ui.text.style.TextDecoration
 import androidx.ui.text.style.TextGeometricTransform
-import androidx.ui.text.font.FontFamily
 import androidx.ui.text.style.lerp
-import androidx.ui.graphics.Color
-import androidx.ui.graphics.lerp
-import androidx.ui.lerp
-import androidx.ui.graphics.Shadow
 
 /**
- * Configuration object to define the text style.
+ * Styling configuration for a `Text`.
  *
- * @param color The color to use when painting the text.
+ * @sample androidx.ui.text.samples.TextStyleSample
+ *
+ * @param color The text color.
  * @param fontSize The size of glyphs (in logical pixels) to use when painting the text.
  * @param fontSizeScale The scale factor of the font size. When [fontSize] is also given in this
  *  TextStyle, the final fontSize will be the [fontSize] times this value.
@@ -43,18 +45,19 @@ import androidx.ui.graphics.Shadow
  * @param fontStyle The typeface variant to use when drawing the letters (e.g., italic).
  * @param fontSynthesis Whether to synthesize font weight and/or style when the requested weight or
  *  style cannot be found in the provided custom font family.
- * @param fontFamily font family to be used when rendering the text.
+ * @param fontFamily The font family to be used when rendering the text.
  * @param fontFeatureSettings The advanced typography settings provided by font. The format is the
  *  same as the CSS font-feature-settings attribute:
  *  https://www.w3.org/TR/css-fonts-3/#font-feature-settings-prop
  * @param letterSpacing The amount of space (in logical pixels) to add between each letter.
- * @param baselineShift This parameter specifies how much the baseline is shifted from the current
- *  position.
+ * @param baselineShift The amount by which the text is shifted up from the current baseline.
  * @param textGeometricTransform The geometric transformation applied the text.
  * @param localeList The locale list used to select region-specific glyphs.
  * @param background The background color for the text.
  * @param decoration The decorations to paint near the text (e.g., an underline).
  * @param shadow The shadow effect applied on the text.
+ *
+ *  @see [AnnotatedString]
  */
 data class TextStyle(
     val color: Color? = null,
