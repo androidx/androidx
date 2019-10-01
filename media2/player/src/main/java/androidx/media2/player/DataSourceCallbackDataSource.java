@@ -14,15 +14,12 @@
  * limitations under the License.
  */
 
-package androidx.media2.player.exoplayer;
-
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
+package androidx.media2.player;
 
 import android.annotation.SuppressLint;
 import android.net.Uri;
 
 import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
 import androidx.core.util.Preconditions;
 import androidx.media2.common.DataSourceCallback;
 import androidx.media2.exoplayer.external.C;
@@ -35,13 +32,10 @@ import java.io.IOException;
 
 /**
  * An ExoPayer {@link DataSource} for reading from a {@link DataSourceCallback}.
- *
- * @hide
  */
-@RestrictTo(LIBRARY_GROUP_PREFIX)
 @SuppressWarnings("unchecked")
 @SuppressLint("RestrictedApi") // TODO(b/68398926): Remove once RestrictedApi checks are fixed.
-public final class DataSourceCallbackDataSource extends BaseDataSource {
+/* package */ final class DataSourceCallbackDataSource extends BaseDataSource {
 
     /**
      * Returns a factory for {@link DataSourceCallbackDataSource}s.
@@ -66,7 +60,7 @@ public final class DataSourceCallbackDataSource extends BaseDataSource {
     private long mBytesRemaining;
     private boolean mOpened;
 
-    public DataSourceCallbackDataSource(DataSourceCallback dataSourceCallback) {
+    DataSourceCallbackDataSource(DataSourceCallback dataSourceCallback) {
         super(/* isNetwork= */ false);
         mDataSourceCallback = Preconditions.checkNotNull(dataSourceCallback);
     }

@@ -16,7 +16,7 @@
 
 package androidx.media2.player;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
 import android.content.Context;
 import android.graphics.SurfaceTexture;
@@ -37,7 +37,6 @@ import androidx.media2.common.FileMediaItem;
 import androidx.media2.common.MediaItem;
 import androidx.media2.common.SessionPlayer.TrackInfo;
 import androidx.media2.common.SubtitleData;
-import androidx.media2.player.exoplayer.ExoPlayerMediaPlayer2Impl;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -223,11 +222,8 @@ import java.util.concurrent.Executor;
  * <p>In order for callbacks to work, your app must create
  * MediaPlayer2 objects on a thread that has its own running Looper. This can be done on the main UI
  * thread, which has a Looper.</p>
- *
- * @hide
  */
-@RestrictTo(LIBRARY_GROUP_PREFIX)
-public abstract class MediaPlayer2 {
+/* package */ abstract class MediaPlayer2 {
 
     /**
      * Create a MediaPlayer2 object.
@@ -606,7 +602,7 @@ public abstract class MediaPlayer2 {
     public static final int SEEK_CLOSEST          = 0x03;
 
     /** @hide */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RestrictTo(LIBRARY)
     @IntDef(flag = false, /*prefix = "SEEK",*/ value = {
             SEEK_PREVIOUS_SYNC,
             SEEK_NEXT_SYNC,
@@ -986,7 +982,7 @@ public abstract class MediaPlayer2 {
     public static final int PLAYER_STATE_ERROR = 1005;
 
     /** @hide */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RestrictTo(LIBRARY)
     @IntDef(flag = false, value = {
             PLAYER_STATE_IDLE,
             PLAYER_STATE_PREPARED,
@@ -1035,7 +1031,7 @@ public abstract class MediaPlayer2 {
     /**
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RestrictTo(LIBRARY)
     @IntDef(flag = false, /*prefix = "MEDIA_ERROR",*/ value = {
             MEDIA_ERROR_UNKNOWN,
             MEDIA_ERROR_IO,
@@ -1193,7 +1189,7 @@ public abstract class MediaPlayer2 {
     /**
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RestrictTo(LIBRARY)
     @IntDef(flag = false, /*prefix = "MEDIA_INFO",*/ value = {
             MEDIA_INFO_UNKNOWN,
             MEDIA_INFO_DATA_SOURCE_START,
@@ -1351,7 +1347,7 @@ public abstract class MediaPlayer2 {
     /**
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RestrictTo(LIBRARY)
     @IntDef(flag = false, /*prefix = "CALL_COMPLETED",*/ value = {
             CALL_COMPLETED_ATTACH_AUX_EFFECT,
             CALL_COMPLETED_DESELECT_TRACK,
@@ -1423,7 +1419,7 @@ public abstract class MediaPlayer2 {
     /**
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RestrictTo(LIBRARY)
     @IntDef(flag = false, /*prefix = "CALL_STATUS",*/ value = {
             CALL_STATUS_NO_ERROR,
             CALL_STATUS_ERROR_UNKNOWN,
@@ -1545,7 +1541,7 @@ public abstract class MediaPlayer2 {
     public static final int PREPARE_DRM_STATUS_RESOURCE_BUSY = 5;
 
     /** @hide */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RestrictTo(LIBRARY)
     @IntDef(flag = false, /*prefix = "PREPARE_DRM_STATUS",*/ value = {
             PREPARE_DRM_STATUS_SUCCESS,
             PREPARE_DRM_STATUS_PROVISIONING_NETWORK_ERROR,

@@ -14,9 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.media2.player.exoplayer;
-
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
+package androidx.media2.player;
 
 import android.annotation.SuppressLint;
 import android.os.Build;
@@ -26,7 +24,6 @@ import android.system.OsConstants;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
-import androidx.annotation.RestrictTo;
 
 import java.io.FileDescriptor;
 import java.io.IOException;
@@ -35,10 +32,7 @@ import java.lang.reflect.Method;
 
 /**
  * Utility methods for handling file descriptors.
- *
- * @hide
  */
-@RestrictTo(LIBRARY_GROUP_PREFIX)
 @SuppressLint("RestrictedApi") // TODO(b/68398926): Remove once RestrictedApi checks are fixed.
 /* package */ final class FileDescriptorUtil {
 

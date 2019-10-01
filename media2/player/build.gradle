@@ -48,5 +48,4 @@ androidx {
     description = "Media2 Player"
     // TODO: Remove these (b/130838274)
     failOnDeprecationWarnings = false
-    trackRestrictedAPIs = false // TODO: Remove it (b/131561173)
 }
