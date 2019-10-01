@@ -21,7 +21,6 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 import android.animation.Animator;
 import android.animation.AnimatorInflater;
 import android.animation.AnimatorListenerAdapter;
-import android.app.Activity;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.res.Configuration;
@@ -1256,9 +1255,14 @@ public abstract class FragmentManager {
     @SuppressWarnings("ReferenceEquality")
     void moveToState(Fragment f, int newState) {
         FragmentStateManager fragmentStateManager = mActive.get(f.mWho);
-        if (fragmentStateManager != null) {
-            newState = Math.min(newState, fragmentStateManager.computeMaxState());
+        if (fragmentStateManager == null) {
+            // Ideally, we only call moveToState() on active Fragments. However,
+            // in restoreSaveState() we can call moveToState() on retained Fragments
+            // just to clean them up without them ever being added to mActive.
+            // For these cases, a brand new FragmentStateManager is enough.
+            fragmentStateManager = new FragmentStateManager(mLifecycleCallbacksDispatcher, f);
         }
+        newState = Math.min(newState, fragmentStateManager.computeMaxState());
         if (f.mState <= newState) {
             // For fragments that are created from a layout, when restoring from
             // state we don't want to allow them to be created until they are
@@ -1323,24 +1327,14 @@ public abstract class FragmentManager {
                     // fall through
                 case Fragment.ATTACHED:
                     if (newState > Fragment.ATTACHED) {
-                        if (isLoggingEnabled(Log.DEBUG)) Log.d(TAG, "moveto CREATED: " + f);
-                        if (!f.mIsCreated) {
-                            mLifecycleCallbacksDispatcher.dispatchOnFragmentPreCreated(
-                                    f, f.mSavedFragmentState, false);
-                            f.performCreate(f.mSavedFragmentState);
-                            mLifecycleCallbacksDispatcher.dispatchOnFragmentCreated(
-                                    f, f.mSavedFragmentState, false);
-                        } else {
-                            f.restoreChildFragmentState(f.mSavedFragmentState);
-                            f.mState = Fragment.CREATED;
-                        }
+                        fragmentStateManager.create();
                     }
                     // fall through
                 case Fragment.CREATED:
                     // We want to unconditionally run this anytime we do a moveToState that
                     // moves the Fragment above INITIALIZING, including cases such as when
                     // we move from CREATED => CREATED as part of the case fall through above.
-                    if (newState > Fragment.INITIALIZING && fragmentStateManager != null) {
+                    if (newState > Fragment.INITIALIZING) {
                         fragmentStateManager.ensureInflatedView();
                     }
 
@@ -1489,29 +1483,7 @@ public abstract class FragmentManager {
                             f.setStateAfterAnimating(newState);
                             newState = Fragment.CREATED;
                         } else {
-                            if (isLoggingEnabled(Log.DEBUG)) {
-                                Log.d(TAG, "movefrom CREATED: " + f);
-                            }
-                            boolean beingRemoved = f.mRemoving && !f.isInBackStack();
-                            if (beingRemoved || mNonConfig.shouldDestroy(f)) {
-                                boolean shouldClear;
-                                if (mHost instanceof ViewModelStoreOwner) {
-                                    shouldClear = mNonConfig.isCleared();
-                                } else if (mHost.getContext() instanceof Activity) {
-                                    Activity activity = (Activity) mHost.getContext();
-                                    shouldClear = !activity.isChangingConfigurations();
-                                } else {
-                                    shouldClear = true;
-                                }
-                                if (beingRemoved || shouldClear) {
-                                    mNonConfig.clearNonConfigState(f);
-                                }
-                                f.performDestroy();
-                                mLifecycleCallbacksDispatcher.dispatchOnFragmentDestroyed(
-                                        f, false);
-                            } else {
-                                f.mState = Fragment.ATTACHED;
-                            }
+                            fragmentStateManager.destroy(mHost, mNonConfig);
                         }
                     }
                     // fall through

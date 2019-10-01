@@ -16,6 +16,7 @@
 
 package androidx.fragment.app;
 
+import android.app.Activity;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.util.Log;
@@ -25,6 +26,7 @@ import android.view.View;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.Lifecycle;
+import androidx.lifecycle.ViewModelStoreOwner;
 
 class FragmentStateManager {
     private static final String TAG = FragmentManager.TAG;
@@ -203,6 +205,22 @@ class FragmentStateManager {
         }
     }
 
+    void create() {
+        if (FragmentManager.isLoggingEnabled(Log.DEBUG)) {
+            Log.d(TAG, "moveto CREATED: " + mFragment);
+        }
+        if (!mFragment.mIsCreated) {
+            mDispatcher.dispatchOnFragmentPreCreated(
+                    mFragment, mFragment.mSavedFragmentState, false);
+            mFragment.performCreate(mFragment.mSavedFragmentState);
+            mDispatcher.dispatchOnFragmentCreated(
+                    mFragment, mFragment.mSavedFragmentState, false);
+        } else {
+            mFragment.restoreChildFragmentState(mFragment.mSavedFragmentState);
+            mFragment.mState = Fragment.CREATED;
+        }
+    }
+
     void start() {
         if (FragmentManager.isLoggingEnabled(Log.DEBUG)) {
             Log.d(TAG, "moveto STARTED: " + mFragment);
@@ -311,6 +329,33 @@ class FragmentStateManager {
         mFragment.mView.saveHierarchyState(mStateArray);
         if (mStateArray.size() > 0) {
             mFragment.mSavedViewState = mStateArray;
+        }
+    }
+
+    void destroy(@NonNull FragmentHostCallback<?> host,
+            @NonNull FragmentManagerViewModel nonConfig) {
+        if (FragmentManager.isLoggingEnabled(Log.DEBUG)) {
+            Log.d(TAG, "movefrom CREATED: " + mFragment);
+        }
+        boolean beingRemoved = mFragment.mRemoving && !mFragment.isInBackStack();
+        boolean shouldDestroy = beingRemoved || nonConfig.shouldDestroy(mFragment);
+        if (shouldDestroy) {
+            boolean shouldClear;
+            if (host instanceof ViewModelStoreOwner) {
+                shouldClear = nonConfig.isCleared();
+            } else if (host.getContext() instanceof Activity) {
+                Activity activity = (Activity) host.getContext();
+                shouldClear = !activity.isChangingConfigurations();
+            } else {
+                shouldClear = true;
+            }
+            if (beingRemoved || shouldClear) {
+                nonConfig.clearNonConfigState(mFragment);
+            }
+            mFragment.performDestroy();
+            mDispatcher.dispatchOnFragmentDestroyed(mFragment, false);
+        } else {
+            mFragment.mState = Fragment.ATTACHED;
         }
     }
 }
