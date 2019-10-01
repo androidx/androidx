@@ -1282,11 +1282,6 @@ public abstract class FragmentManager {
                     if (newState > Fragment.INITIALIZING) {
                         if (isLoggingEnabled(Log.DEBUG)) Log.d(TAG, "moveto ATTACHED: " + f);
 
-                        f.mHost = mHost;
-                        f.mParentFragment = mParent;
-                        f.mFragmentManager = mParent != null
-                                ? mParent.mChildFragmentManager : mHost.mFragmentManager;
-
                         // If we have a target fragment, push it along to at least CREATED
                         // so that this one can rely on it as an initialized dependency.
                         if (f.mTarget != null) {
@@ -1313,16 +1308,7 @@ public abstract class FragmentManager {
                             }
                         }
 
-                        mLifecycleCallbacksDispatcher.dispatchOnFragmentPreAttached(
-                                f, mHost.getContext(), false);
-                        f.performAttach();
-                        if (f.mParentFragment == null) {
-                            mHost.onAttachFragment(f);
-                        } else {
-                            f.mParentFragment.onAttachFragment(f);
-                        }
-                        mLifecycleCallbacksDispatcher.dispatchOnFragmentAttached(
-                                f, mHost.getContext(), false);
+                        fragmentStateManager.attach(mHost, this, mParent);
                     }
                     // fall through
                 case Fragment.ATTACHED:
@@ -1489,20 +1475,11 @@ public abstract class FragmentManager {
                     // fall through
                 case Fragment.ATTACHED:
                     if (newState < Fragment.ATTACHED) {
-                        if (isLoggingEnabled(Log.DEBUG)) {
-                            Log.d(TAG, "movefrom ATTACHED: " + f);
-                        }
                         boolean beingRemoved = f.mRemoving && !f.isInBackStack();
-                        f.performDetach();
-                        mLifecycleCallbacksDispatcher.dispatchOnFragmentDetached(
-                                f, false);
+                        fragmentStateManager.detach();
                         if (beingRemoved || mNonConfig.shouldDestroy(f)) {
                             makeInactive(f);
                         } else {
-                            f.mState = Fragment.INITIALIZING;
-                            f.mHost = null;
-                            f.mParentFragment = null;
-                            f.mFragmentManager = null;
                             if (f.mTargetWho != null) {
                                 Fragment target = findActiveFragment(f.mTargetWho);
                                 if (target != null && target.getRetainInstance()) {

@@ -205,6 +205,23 @@ class FragmentStateManager {
         }
     }
 
+    void attach(@NonNull FragmentHostCallback<?> host, @NonNull FragmentManager fragmentManager,
+            @Nullable Fragment parentFragment) {
+        mFragment.mHost = host;
+        mFragment.mParentFragment = parentFragment;
+        mFragment.mFragmentManager = fragmentManager;
+        mDispatcher.dispatchOnFragmentPreAttached(
+                mFragment, host.getContext(), false);
+        mFragment.performAttach();
+        if (mFragment.mParentFragment == null) {
+            host.onAttachFragment(mFragment);
+        } else {
+            mFragment.mParentFragment.onAttachFragment(mFragment);
+        }
+        mDispatcher.dispatchOnFragmentAttached(
+                mFragment, host.getContext(), false);
+    }
+
     void create() {
         if (FragmentManager.isLoggingEnabled(Log.DEBUG)) {
             Log.d(TAG, "moveto CREATED: " + mFragment);
@@ -357,5 +374,18 @@ class FragmentStateManager {
         } else {
             mFragment.mState = Fragment.ATTACHED;
         }
+    }
+
+    void detach() {
+        if (FragmentManager.isLoggingEnabled(Log.DEBUG)) {
+            Log.d(TAG, "movefrom ATTACHED: " + mFragment);
+        }
+        mFragment.performDetach();
+        mDispatcher.dispatchOnFragmentDetached(
+                mFragment, false);
+        mFragment.mState = Fragment.INITIALIZING;
+        mFragment.mHost = null;
+        mFragment.mParentFragment = null;
+        mFragment.mFragmentManager = null;
     }
 }
