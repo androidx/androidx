@@ -5837,9 +5837,22 @@ public class NotificationCompat {
 
         final boolean isContextual = Build.VERSION.SDK_INT >= 29 ? action.isContextual() : false;
 
-        return new Action(action.icon, action.title, action.actionIntent,
-                action.getExtras(), remoteInputs, null, allowGeneratedReplies,
-                semanticAction, showsUserInterface, isContextual);
+        if (Build.VERSION.SDK_INT >= 23) {
+            if (action.getIcon() == null && action.icon != 0) {
+                return new Action(action.icon, action.title, action.actionIntent,
+                        action.getExtras(), remoteInputs, null, allowGeneratedReplies,
+                        semanticAction, showsUserInterface, isContextual);
+            }
+            IconCompat icon = action.getIcon() == null
+                    ? null : IconCompat.createFromIconOrNullIfZeroResId(action.getIcon());
+            return new Action(icon, action.title, action.actionIntent, action.getExtras(),
+                    remoteInputs, null, allowGeneratedReplies, semanticAction, showsUserInterface,
+                    isContextual);
+        } else {
+            return new Action(action.icon, action.title, action.actionIntent, action.getExtras(),
+                    remoteInputs, null, allowGeneratedReplies, semanticAction, showsUserInterface,
+                    isContextual);
+        }
     }
 
     /** Returns the invisible actions contained within the given notification. */
