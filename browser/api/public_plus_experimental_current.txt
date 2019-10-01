@@ -340,7 +340,7 @@ package androidx.browser.trusted.sharing {
     field public final androidx.browser.trusted.sharing.ShareTarget.Params params;
   }
 
-  public static class ShareTarget.FileFormField {
+  public static final class ShareTarget.FileFormField {
     ctor public ShareTarget.FileFormField(String, java.util.List<java.lang.String!>);
     field public static final String KEY_ACCEPTED_TYPES = "androidx.browser.trusted.sharing.KEY_ACCEPTED_TYPES";
     field public static final String KEY_NAME = "androidx.browser.trusted.sharing.KEY_FILE_NAME";
