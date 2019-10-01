@@ -48,6 +48,7 @@ import androidx.annotation.Nullable;
 import androidx.camera.camera2.impl.util.FakeRepeatingUseCase;
 import androidx.camera.core.AppConfig;
 import androidx.camera.core.BaseCamera;
+import androidx.camera.core.CameraControlInternal;
 import androidx.camera.core.CameraFactory;
 import androidx.camera.core.CameraInfoUnavailableException;
 import androidx.camera.core.CameraX;
@@ -65,6 +66,7 @@ import androidx.camera.core.ImageCapture.OnImageSavedCallback;
 import androidx.camera.core.ImageCaptureConfig;
 import androidx.camera.core.ImageProxy;
 import androidx.camera.testing.CameraUtil;
+import androidx.camera.testing.fakes.FakeCameraControl;
 import androidx.camera.testing.fakes.FakeCaptureStage;
 import androidx.camera.testing.fakes.FakeLifecycleOwner;
 import androidx.camera.testing.fakes.FakeUseCaseConfig;
@@ -82,6 +84,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.ArgumentMatcher;
 
 import java.io.File;
@@ -92,16 +95,17 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
 
 @FlakyTest
 @LargeTest
 @RunWith(AndroidJUnit4.class)
 public final class ImageCaptureTest {
-
     @Rule
     public GrantPermissionRule mRuntimePermissionRule = GrantPermissionRule.grant(
             Manifest.permission.CAMERA);
@@ -117,8 +121,8 @@ public final class ImageCaptureTest {
     private ExecutorService mListenerExecutor;
     private BaseCamera mCamera;
     private ImageCaptureConfig mDefaultConfig;
-    private ImageCapture.OnImageCapturedCallback mOnImageCapturedCallback;
-    private ImageCapture.OnImageCapturedCallback mMockImageCapturedListener;
+    private OnImageCapturedCallback mOnImageCapturedCallback;
+    private OnImageCapturedCallback mMockImageCapturedListener;
     private ImageCapture.OnImageSavedCallback mOnImageSavedCallback;
     private ImageCapture.OnImageSavedCallback mMockImageSavedCallback;
     private ImageProxy mCapturedImage;
@@ -159,7 +163,7 @@ public final class ImageCaptureTest {
     }
 
     @Before
-    public void setUp()  {
+    public void setUp() {
         assumeTrue(CameraUtil.deviceHasCamera());
         mListenerExecutor = Executors.newSingleThreadExecutor();
         Context context = ApplicationProvider.getApplicationContext();
@@ -260,7 +264,7 @@ public final class ImageCaptureTest {
         for (int i = 0; i < numImages; ++i) {
             useCase.takePicture(
                     mListenerExecutor,
-                    new ImageCapture.OnImageCapturedCallback() {
+                    new OnImageCapturedCallback() {
                         @Override
                         public void onCaptureSuccess(ImageProxy image, int rotationDegrees) {
                             mMockImageCapturedListener.onCaptureSuccess(image, rotationDegrees);
@@ -297,7 +301,7 @@ public final class ImageCaptureTest {
         for (int i = 0; i < numImages; ++i) {
             useCase.takePicture(
                     mListenerExecutor,
-                    new ImageCapture.OnImageCapturedCallback() {
+                    new OnImageCapturedCallback() {
                         @Override
                         public void onCaptureSuccess(ImageProxy image, int rotationDegrees) {
                             mMockImageCapturedListener.onCaptureSuccess(image, rotationDegrees);
@@ -586,9 +590,9 @@ public final class ImageCaptureTest {
     public void constructor_withBufferFormatAndCaptureProcessor_throwsException() {
         ImageCaptureConfig config =
                 new ImageCaptureConfig.Builder()
-                .setBufferFormat(ImageFormat.RAW_SENSOR)
-                .setCaptureProcessor(mock(CaptureProcessor.class))
-                .build();
+                        .setBufferFormat(ImageFormat.RAW_SENSOR)
+                        .setCaptureProcessor(mock(CaptureProcessor.class))
+                        .build();
         new ImageCapture(config);
     }
 
@@ -661,12 +665,9 @@ public final class ImageCaptureTest {
                 .build();
         ImageCapture imageCapture = new ImageCapture(config);
 
-        mInstrumentation.runOnMainSync(new Runnable() {
-            @Override
-            public void run() {
-                CameraX.bindToLifecycle(lifecycle, imageCapture);
-                lifecycle.startAndResume();
-            }
+        mInstrumentation.runOnMainSync(() -> {
+            CameraX.bindToLifecycle(lifecycle, imageCapture);
+            lifecycle.startAndResume();
         });
 
         // Add an additional capture stage to test the case
@@ -683,11 +684,76 @@ public final class ImageCaptureTest {
         verify(mockOnImageCaptureListener, timeout(3000).times(2)).onError(
                 any(ImageCaptureError.class), anyString(), any(IllegalArgumentException.class));
 
-        mInstrumentation.runOnMainSync(new Runnable() {
-            @Override
-            public void run() {
-                CameraX.unbind(imageCapture);
-            }
+        mInstrumentation.runOnMainSync(() -> CameraX.unbind(imageCapture));
+    }
+
+    @Test
+    public void onCaptureCancelled_onErrorCAMERA_CLOSED()
+            throws InterruptedException {
+        FakeLifecycleOwner lifecycle = new FakeLifecycleOwner();
+        ImageCaptureConfig config = new ImageCaptureConfig.Builder()
+                .setLensFacing(BACK_LENS_FACING)
+                .build();
+        ImageCapture imageCapture = new ImageCapture(config);
+        mInstrumentation.runOnMainSync(() -> {
+            CameraX.bindToLifecycle(lifecycle, imageCapture);
+            lifecycle.startAndResume();
         });
+
+        FakeCameraControl fakeCameraControl = new FakeCameraControl(mock(
+                CameraControlInternal.ControlUpdateListener.class));
+        imageCapture.attachCameraControl(mCameraId, fakeCameraControl);
+        CountDownLatch captureSubmittedLatch = new CountDownLatch(1);
+        OnImageCapturedCallback onImageCapturedCallback = mock(OnImageCapturedCallback.class);
+
+        imageCapture.takePicture(mListenerExecutor, onImageCapturedCallback);
+
+        captureSubmittedLatch.await(500, TimeUnit.MILLISECONDS);
+        fakeCameraControl.notifyAllRequestOnCaptureCancelled();
+
+        ArgumentCaptor<ImageCaptureError> errorCaptor =
+                ArgumentCaptor.forClass(ImageCaptureError.class);
+        verify(onImageCapturedCallback, timeout(500).times(1)).onError(errorCaptor.capture(),
+                any(String.class),
+                any(Throwable.class));
+        assertThat(errorCaptor.getValue()).isEqualTo(ImageCaptureError.CAMERA_CLOSED);
+
+        mInstrumentation.runOnMainSync(() -> CameraX.unbind(imageCapture));
+    }
+
+    @Test
+    public void onRequestFailed_OnErrorCAPTURE_FAILED() throws InterruptedException {
+        FakeLifecycleOwner lifecycle = new FakeLifecycleOwner();
+        ImageCaptureConfig config = new ImageCaptureConfig.Builder()
+                .setLensFacing(BACK_LENS_FACING)
+                .build();
+        ImageCapture imageCapture = new ImageCapture(config);
+        mInstrumentation.runOnMainSync(() -> {
+            CameraX.bindToLifecycle(lifecycle, imageCapture);
+            lifecycle.startAndResume();
+        });
+
+        FakeCameraControl fakeCameraControl = new FakeCameraControl(mock(
+                CameraControlInternal.ControlUpdateListener.class));
+        imageCapture.attachCameraControl(mCameraId, fakeCameraControl);
+        CountDownLatch captureSubmittedLatch = new CountDownLatch(1);
+        OnImageCapturedCallback onImageCapturedCallback = mock(OnImageCapturedCallback.class);
+        fakeCameraControl.setOnNewCaptureRequestListener(captureConfigs -> {
+            captureSubmittedLatch.countDown();
+        });
+
+        imageCapture.takePicture(mListenerExecutor, onImageCapturedCallback);
+
+        captureSubmittedLatch.await(500, TimeUnit.MILLISECONDS);
+        fakeCameraControl.notifyAllRequestsOnCaptureFailed();
+
+        ArgumentCaptor<ImageCaptureError> errorCaptor =
+                ArgumentCaptor.forClass(ImageCaptureError.class);
+        verify(onImageCapturedCallback, timeout(500).times(1)).onError(errorCaptor.capture(),
+                any(String.class),
+                any(Throwable.class));
+        assertThat(errorCaptor.getValue()).isEqualTo(ImageCaptureError.CAPTURE_FAILED);
+
+        mInstrumentation.runOnMainSync(() -> CameraX.unbind(imageCapture));
     }
 }
