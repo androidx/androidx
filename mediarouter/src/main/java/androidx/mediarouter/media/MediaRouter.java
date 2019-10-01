@@ -2858,8 +2858,9 @@ public final class MediaRouter {
                 new DynamicGroupRouteController.OnDynamicRoutesChangedListener() {
                     @Override
                     public void onRoutesChanged(
-                            DynamicGroupRouteController controller,
-                            Collection<DynamicGroupRouteController.DynamicRouteDescriptor> routes) {
+                            @NonNull DynamicGroupRouteController controller,
+                            @NonNull Collection<DynamicGroupRouteController.DynamicRouteDescriptor>
+                                    routes) {
                         if (controller == mSelectedRouteController) {
                             mSelectedRoute.updateDescriptors(routes);
                         }
@@ -2989,7 +2990,7 @@ public final class MediaRouter {
             }
 
             @Override
-            public void onDescriptorChanged(MediaRouteProvider provider,
+            public void onDescriptorChanged(@NonNull MediaRouteProvider provider,
                     MediaRouteProviderDescriptor descriptor) {
                 updateProviderDescriptor(provider, descriptor);
             }
