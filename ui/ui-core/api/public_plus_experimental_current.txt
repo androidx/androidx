@@ -352,6 +352,11 @@ package androidx.ui.core {
     method public static androidx.ui.core.Duration getMinutes(int);
     method public static androidx.ui.core.Duration getNanoseconds(long);
     method public static androidx.ui.core.Duration getNanoseconds(int);
+    method public static long getNanosecondsPerDay();
+    method public static long getNanosecondsPerHour();
+    method public static long getNanosecondsPerMillisecond();
+    method public static long getNanosecondsPerMinute();
+    method public static long getNanosecondsPerSecond();
     method public static androidx.ui.core.Duration getSeconds(long);
     method public static androidx.ui.core.Duration getSeconds(int);
     method public static long inDays(androidx.ui.core.Duration);
@@ -364,12 +369,7 @@ package androidx.ui.core {
     field public static final long MicrosecondsPerMillisecond = 1000L; // 0x3e8L
     field public static final long MillisecondsPerSecond = 1000L; // 0x3e8L
     field public static final long MinutesPerHour = 60L; // 0x3cL
-    field public static final long NanosecondsPerDay = 86400000000000L; // 0x4e94914f0000L
-    field public static final long NanosecondsPerHour = 3600000000000L; // 0x34630b8a000L
     field public static final long NanosecondsPerMicrosecond = 1000L; // 0x3e8L
-    field public static final long NanosecondsPerMillisecond = 1000000L; // 0xf4240L
-    field public static final long NanosecondsPerMinute = 60000000000L; // 0xdf8475800L
-    field public static final long NanosecondsPerSecond = 1000000000L; // 0x3b9aca00L
     field public static final long SecondsPerMinute = 60L; // 0x3cL
   }
 

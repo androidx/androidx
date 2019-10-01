@@ -25,7 +25,6 @@ import androidx.ui.graphics.colorspace.ColorSpaces
 import androidx.ui.graphics.colorspace.ColorModel
 import androidx.ui.graphics.colorspace.Rgb
 import androidx.ui.graphics.colorspace.connect
-import androidx.ui.graphics.Canvas
 import androidx.ui.lerp
 import androidx.ui.util.Float16
 import kotlin.math.max
@@ -317,7 +316,8 @@ fun Color(
     }
 
     val id = colorSpace.id
-    require(id != ColorSpace.MinId) {
+    // TODO(mount): restore MinId when const vals work in IR module
+    require(id != -1 /*ColorSpace.MinId*/) {
         "Unknown color space, please use a color space in ColorSpaces"
     }
 
