@@ -209,33 +209,40 @@ class DragWhileSmoothScrollTest(private val config: TestConfig) : BaseTest() {
     private class RecordingCallback : ViewPager2.OnPageChangeCallback() {
         private val events = mutableListOf<Event>()
 
-        val stateEvents get() = events.mapNotNull { it as? OnPageScrollStateChangedEvent }
-        val selectEvents get() = events.mapNotNull { it as? OnPageSelectedEvent }
+        val stateEvents get() = eventsCopy.mapNotNull { it as? OnPageScrollStateChangedEvent }
+        val selectEvents get() = eventsCopy.mapNotNull { it as? OnPageSelectedEvent }
+
+        private fun addEvent(e: Event) {
+            synchronized(events) {
+                events.add(e)
+            }
+        }
+
+        private val eventsCopy: List<Event>
+            get() = synchronized(events) {
+                return mutableListOf<Event>().apply {
+                    addAll(events)
+                }
+            }
 
         override fun onPageScrolled(
             position: Int,
             positionOffset: Float,
             positionOffsetPixels: Int
         ) {
-            synchronized(events) {
-                events.add(OnPageScrolledEvent(position, positionOffset, positionOffsetPixels))
-            }
+            addEvent(OnPageScrolledEvent(position, positionOffset, positionOffsetPixels))
         }
 
         override fun onPageSelected(position: Int) {
-            synchronized(events) {
-                events.add(OnPageSelectedEvent(position))
-            }
+            addEvent(OnPageSelectedEvent(position))
         }
 
         override fun onPageScrollStateChanged(state: Int) {
-            synchronized(events) {
-                events.add(OnPageScrollStateChangedEvent(state))
-            }
+            addEvent(OnPageScrollStateChangedEvent(state))
         }
 
         fun expectIdleAfterDrag(): Boolean {
-            val lastScrollEvent = events
+            val lastScrollEvent = eventsCopy
                 .dropWhile { it != OnPageScrollStateChangedEvent(SCROLL_STATE_DRAGGING) }.drop(1)
                 .takeWhile { it is OnPageScrolledEvent }
                 .lastOrNull() as? OnPageScrolledEvent
@@ -243,7 +250,7 @@ class DragWhileSmoothScrollTest(private val config: TestConfig) : BaseTest() {
         }
 
         fun dumpEvents(): String {
-            return events.joinToString("\n- ", "\n(${scrollStateGlossary()})\n- ")
+            return eventsCopy.joinToString("\n- ", "\n(${scrollStateGlossary()})\n- ")
         }
     }
 }
