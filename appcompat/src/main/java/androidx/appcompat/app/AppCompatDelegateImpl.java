@@ -43,6 +43,7 @@ import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.LocaleList;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.os.PowerManager;
@@ -103,6 +104,7 @@ import androidx.appcompat.widget.ViewUtils;
 import androidx.collection.SimpleArrayMap;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.NavUtils;
+import androidx.core.util.ObjectsCompat;
 import androidx.core.view.KeyEventDispatcher;
 import androidx.core.view.LayoutInflaterCompat;
 import androidx.core.view.OnApplyWindowInsetsListener;
@@ -3152,10 +3154,12 @@ class AppCompatDelegateImpl extends AppCompatDelegate
             delta.mnc = change.mnc;
         }
 
-        // Locale lists are not supported.
-
-        if (base.locale != change.locale) {
-            delta.locale = change.locale;
+        if (Build.VERSION.SDK_INT >= 24) {
+            ConfigurationImplApi24.generateConfigDelta_locale(base, change, delta);
+        } else {
+            if (!ObjectsCompat.equals(base.locale, change.locale)) {
+                delta.locale = change.locale;
+            }
         }
 
         if (base.touchscreen != change.touchscreen) {
@@ -3202,7 +3206,9 @@ class AppCompatDelegateImpl extends AppCompatDelegate
             delta.screenLayout |= change.screenLayout & Configuration.SCREENLAYOUT_ROUND_MASK;
         }
 
-        // Color mode is not supported.
+        if (Build.VERSION.SDK_INT >= 26) {
+            ConfigurationImplApi26.generateConfigDelta_colorMode(base, change, delta);
+        }
 
         if ((base.uiMode & Configuration.UI_MODE_TYPE_MASK)
                 != (change.uiMode & Configuration.UI_MODE_TYPE_MASK)) {
@@ -3226,8 +3232,8 @@ class AppCompatDelegateImpl extends AppCompatDelegate
             delta.smallestScreenWidthDp = change.smallestScreenWidthDp;
         }
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-            ConfigurationImplApi17.generateConfigDelta(base, change, delta);
+        if (Build.VERSION.SDK_INT >= 17) {
+            ConfigurationImplApi17.generateConfigDelta_densityDpi(base, change, delta);
         }
 
         // Assets sequence and window configuration are not supported.
@@ -3237,10 +3243,40 @@ class AppCompatDelegateImpl extends AppCompatDelegate
 
     @RequiresApi(17)
     static class ConfigurationImplApi17 {
-        static void generateConfigDelta(Configuration base, Configuration change,
-                Configuration delta) {
+        static void generateConfigDelta_densityDpi(@NonNull Configuration base,
+                @NonNull Configuration change, @NonNull Configuration delta) {
             if (base.densityDpi != change.densityDpi) {
                 delta.densityDpi = change.densityDpi;
+            }
+        }
+    }
+
+    @RequiresApi(24)
+    static class ConfigurationImplApi24 {
+        static void generateConfigDelta_locale(@NonNull Configuration base,
+                @NonNull Configuration change, @NonNull Configuration delta) {
+            final LocaleList baseLocales = base.getLocales();
+            final LocaleList changeLocales = change.getLocales();
+            if (!baseLocales.equals(changeLocales)) {
+                delta.setLocales(changeLocales);
+                delta.locale = change.locale;
+            }
+        }
+    }
+
+    @RequiresApi(26)
+    static class ConfigurationImplApi26 {
+        static void generateConfigDelta_colorMode(@NonNull Configuration base,
+                @NonNull Configuration change, @NonNull Configuration delta) {
+            if ((base.colorMode & Configuration.COLOR_MODE_WIDE_COLOR_GAMUT_MASK)
+                    != (change.colorMode & Configuration.COLOR_MODE_WIDE_COLOR_GAMUT_MASK)) {
+                delta.colorMode |=
+                        change.colorMode & Configuration.COLOR_MODE_WIDE_COLOR_GAMUT_MASK;
+            }
+
+            if ((base.colorMode & Configuration.COLOR_MODE_HDR_MASK)
+                    != (change.colorMode & Configuration.COLOR_MODE_HDR_MASK)) {
+                delta.colorMode |= change.colorMode & Configuration.COLOR_MODE_HDR_MASK;
             }
         }
     }
