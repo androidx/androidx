@@ -58,7 +58,9 @@ public final class NotificationMetadata {
     }
 
     /**
-     * @return The Foreground service notification type
+     * @return The Foreground service notification type.
+     * <p>
+     * For more information see {@link android.app.Service#startForeground(int, Notification, int)}.
      */
     public int getNotificationType() {
         return mNotificationType;
