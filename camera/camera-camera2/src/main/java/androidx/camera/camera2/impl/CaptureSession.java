@@ -101,10 +101,9 @@ final class CaptureSession {
     private Map<DeferrableSurface, Surface> mConfiguredSurfaceMap = new HashMap<>();
 
     /**
-     * Whether the configured {@link DeferrableSurface} should be closed when the CaptureSession is
-     * closed.
+     * Whether the device is LEGACY.
      */
-    private final boolean mCloseSurfacesOnSessionClose;
+    private final boolean mIsLegacyDevice;
     /** The list of DeferrableSurface used to notify surface detach events */
     @GuardedBy("mConfiguredDeferrableSurfaces")
     List<DeferrableSurface> mConfiguredDeferrableSurfaces = Collections.emptyList();
@@ -122,11 +121,9 @@ final class CaptureSession {
      * Constructor for CaptureSession.
      *
      * @param executor The executor is responsible for queuing up callbacks from capture requests.
-     * @param closeSurfacesOnSessionClose If true, then when the CaptureSession closes it will
-     *                                    also close all the {@link DeferrableSurface} that it was
-     *                                    configured with.
+     * @param isLegacyDevice whether the device is LEGACY.
      */
-    CaptureSession(@NonNull Executor executor, boolean closeSurfacesOnSessionClose) {
+    CaptureSession(@NonNull Executor executor, boolean isLegacyDevice) {
         mState = State.INITIALIZED;
 
         // Ensure tasks posted to the executor are executed sequentially.
@@ -135,7 +132,7 @@ final class CaptureSession {
         } else {
             mExecutor = CameraXExecutors.newSequentialExecutor(executor);
         }
-        mCloseSurfacesOnSessionClose = closeSurfacesOnSessionClose;
+        mIsLegacyDevice = isLegacyDevice;
     }
 
     /**
@@ -374,26 +371,17 @@ final class CaptureSession {
                 case OPENED:
                 case CLOSED:
                     if (mCameraCaptureSession != null) {
-                        if (abortInFlightCaptures) {
+                        if (abortInFlightCaptures && !mIsLegacyDevice) {
+                            // Do not call abortCaptures() for LEGACY devices. See b/140527066.
                             try {
-                                // Abort and set the state to releasing. The session will be
-                                // closed in onReady() when the abort is done to avoid a
-                                // race condition(b/139448807).
-                                // It's safe to close the session in onReady() because currently
-                                // abortCaptures() is always followed by an onReady(). We
-                                // will have to revisit this if framework's behavior changes in the
-                                // future.
                                 mCameraCaptureSession.abortCaptures();
-                                mState = State.RELEASING;
                             } catch (CameraAccessException e) {
                                 // We couldn't abort the captures, but we should continue on to
                                 // release the session.
                                 Log.e(TAG, "Unable to abort captures.", e);
-                                mCameraCaptureSession.close();
                             }
-                        } else {
-                            mCameraCaptureSession.close();
                         }
+                        mCameraCaptureSession.close();
                     }
                     // Fall through
                 case OPENING:
@@ -778,14 +766,6 @@ final class CaptureSession {
                     case UNINITIALIZED:
                         throw new IllegalStateException(
                                 "onReady() should not be possible in state: " + mState);
-                    case RELEASING:
-                        if (mCameraCaptureSession == null) {
-                            // No-op for releasing an unopened session.
-                            break;
-                        }
-                        // The abortCaptures() called in release() has successfully finished.
-                        mCameraCaptureSession.close();
-                        break;
                     default:
                 }
                 Log.d(TAG, "CameraCaptureSession.onReady() " + mState);
@@ -848,7 +828,9 @@ final class CaptureSession {
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     void closeConfiguredDeferrableSurfaces() {
-        if (!mCloseSurfacesOnSessionClose) {
+        if (!mIsLegacyDevice) {
+            // Do not close for non-LEGACY devices. Reusing {@link DeferrableSurface} is only a
+            // problem for LEGACY devices. See: b/135050586.
             return;
         }
 
@@ -887,17 +869,12 @@ final class CaptureSession {
         private int mSupportedHardwareLevel = -1;
 
         CaptureSession build() {
-            boolean closeSurfaceOnClose = false;
-            if (mSupportedHardwareLevel
-                    == CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY) {
-                closeSurfaceOnClose = true;
-            }
-
             if (mExecutor == null) {
                 mExecutor = CameraXExecutors.myLooperExecutor();
             }
 
-            return new CaptureSession(mExecutor, closeSurfaceOnClose);
+            return new CaptureSession(mExecutor, mSupportedHardwareLevel
+                    == CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY);
         }
 
         void setExecutor(@NonNull Executor executor) {
