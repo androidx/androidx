@@ -355,6 +355,7 @@ internal constructor(
      *  * The OETF is null or the EOTF is null.
      *  * The minimum valid value is >= the maximum valid value.
      */
+    // TODO(mount): restore MinId after const vals work with IR module
     constructor(
         @Size(min = 1) name: String,
         @Size(9) toXYZ: FloatArray,
@@ -370,7 +371,7 @@ internal constructor(
         0.0f,
         1.0f,
         null,
-        MinId
+        -1 /*MinId*/
     )
 
     /**
@@ -406,6 +407,7 @@ internal constructor(
      *  * The OETF is null or the EOTF is null.
      *  * The minimum valid value is >= the maximum valid value.
      */
+    // TODO(mount): restore MinId after const vals work with IR module
     constructor(
         @Size(min = 1) name: String,
         @Size(min = 6, max = 9) primaries: FloatArray,
@@ -414,7 +416,7 @@ internal constructor(
         eotf: (Double) -> Double,
         min: Float,
         max: Float
-    ) : this(name, primaries, whitePoint, null, oetf, eotf, min, max, null, MinId)
+    ) : this(name, primaries, whitePoint, null, oetf, eotf, min, max, null, -1 /*MinId*/)
 
     /**
      * Creates a new RGB color space using a 3x3 column-major transform matrix.
@@ -432,11 +434,12 @@ internal constructor(
      *  * The name is null or has a length of 0.
      *  * Gamma is negative.
      */
+    // TODO(mount): restore MinId after const vals work with IR module
     constructor(
         @Size(min = 1) name: String,
         @Size(9) toXYZ: FloatArray,
         function: TransferParameters
-    ) : this(name, computePrimaries(toXYZ), computeWhitePoint(toXYZ), function, MinId)
+    ) : this(name, computePrimaries(toXYZ), computeWhitePoint(toXYZ), function, -1 /*MinId*/)
 
     /**
      * Creates a new RGB color space using a specified set of primaries
@@ -467,12 +470,13 @@ internal constructor(
      *  * The white point array is null or has a length that is neither 2 or 3.
      *  * The transfer parameters are invalid.
      */
+    // TODO(mount): restore MinId after const vals work with IR module
     constructor(
         @Size(min = 1) name: String,
         @Size(min = 6, max = 9) primaries: FloatArray,
         whitePoint: WhitePoint,
         function: TransferParameters
-    ) : this(name, primaries, whitePoint, function, MinId)
+    ) : this(name, primaries, whitePoint, function, -1 /*MinId*/)
 
     /**
      * Creates a new RGB color space using a specified set of primaries
@@ -566,11 +570,13 @@ internal constructor(
      *
      * @see get
      */
+    // TODO(mount): restore MinId after const vals work with IR module
     constructor(
         @Size(min = 1) name: String,
         @Size(9) toXYZ: FloatArray,
         gamma: Double
-    ) : this(name, computePrimaries(toXYZ), computeWhitePoint(toXYZ), gamma, 0.0f, 1.0f, MinId)
+    ) : this(name, computePrimaries(toXYZ), computeWhitePoint(toXYZ), gamma, 0.0f, 1.0f,
+        -1 /*MinId*/)
 
     /**
      * Creates a new RGB color space using a specified set of primaries
@@ -603,12 +609,13 @@ internal constructor(
      *
      * @see get
      */
+    // TODO(mount): restore MinId after const vals work with IR module
     constructor(
         @Size(min = 1) name: String,
         @Size(min = 6, max = 9) primaries: FloatArray,
         whitePoint: WhitePoint,
         gamma: Double
-    ) : this(name, primaries, whitePoint, gamma, 0.0f, 1.0f, MinId)
+    ) : this(name, primaries, whitePoint, gamma, 0.0f, 1.0f, -1 /*MinId*/)
 
     /**
      * Creates a new RGB color space using a specified set of primaries
@@ -672,6 +679,7 @@ internal constructor(
      *
      * @param colorSpace The color space to create a copy of
      */
+    // TODO(mount): restore MinId after const vals work with IR module
     internal constructor(
         colorSpace: Rgb,
         @Size(9) transform: FloatArray,
@@ -680,7 +688,7 @@ internal constructor(
         colorSpace.name, colorSpace.primaries, whitePoint, transform,
         colorSpace.oetfOrig, colorSpace.eotfOrig, colorSpace.min, colorSpace.max,
         colorSpace.transferParameters,
-        MinId
+        -1 /*MinId*/
     )
 
     /**

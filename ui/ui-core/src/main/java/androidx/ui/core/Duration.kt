@@ -31,11 +31,13 @@ const val SecondsPerMinute = 60L
 const val MinutesPerHour = 60L
 const val HoursPerDay = 24L
 
-const val NanosecondsPerMillisecond = NanosecondsPerMicrosecond * MicrosecondsPerMillisecond
-const val NanosecondsPerSecond = NanosecondsPerMillisecond * MillisecondsPerSecond
-const val NanosecondsPerMinute = NanosecondsPerSecond * SecondsPerMinute
-const val NanosecondsPerHour = NanosecondsPerMinute * MinutesPerHour
-const val NanosecondsPerDay = NanosecondsPerHour * HoursPerDay
+// TODO(mount): these should be "const val", but that doesn't work right
+// now with the IR compiler.
+val NanosecondsPerMillisecond = NanosecondsPerMicrosecond * MicrosecondsPerMillisecond
+val NanosecondsPerSecond = NanosecondsPerMillisecond * MillisecondsPerSecond
+val NanosecondsPerMinute = NanosecondsPerSecond * SecondsPerMinute
+val NanosecondsPerHour = NanosecondsPerMinute * MinutesPerHour
+val NanosecondsPerDay = NanosecondsPerHour * HoursPerDay
 
 /** Only used by this implementation */
 private const val MicrosecondsPerSecond = MicrosecondsPerMillisecond * MillisecondsPerSecond
