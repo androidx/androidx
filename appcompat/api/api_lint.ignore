@@ -13,6 +13,10 @@ ForbiddenSuperClass: androidx.appcompat.app.AppCompatActivity:
     AppCompatActivity should not extend `Activity`. Activity subclasses are impossible to compose. Expose a composable API instead.
 
 
+ListenerLast: androidx.appcompat.app.AlertDialog.Builder#setCursor(android.database.Cursor, android.content.DialogInterface.OnClickListener, String) parameter #2:
+    Listeners should always be at end of argument list (method `setCursor`)
+
+
 MissingNullability: androidx.appcompat.app.ActionBar#addOnMenuVisibilityListener(androidx.appcompat.app.ActionBar.OnMenuVisibilityListener) parameter #0:
     Missing nullability on parameter `listener` in method `addOnMenuVisibilityListener`
 MissingNullability: androidx.appcompat.app.ActionBar#addTab(androidx.appcompat.app.ActionBar.Tab) parameter #0:
