@@ -154,6 +154,35 @@ class DrawShadowTest {
         }
     }
 
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun emitShadowLater() {
+        val model = DoDraw(false)
+
+        rule.runOnUiThreadIR {
+            activity.setContent {
+                AtLeastSize(size = 12.ipx) {
+                    FillColor(Color.White)
+                    AtLeastSize(size = 10.ipx) {
+                        if (model.value) {
+                            DrawShadow(rectShape, 8.dp)
+                        }
+                    }
+                }
+            }
+        }
+        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
+
+        drawLatch = CountDownLatch(1)
+        rule.runOnUiThreadIR {
+            model.value = true
+        }
+
+        takeScreenShot(12).apply {
+            hasShadow()
+        }
+    }
+
     @Composable
     private fun ShadowContainer(elevation: Dp = 8.dp) {
         AtLeastSize(size = 12.ipx) {
