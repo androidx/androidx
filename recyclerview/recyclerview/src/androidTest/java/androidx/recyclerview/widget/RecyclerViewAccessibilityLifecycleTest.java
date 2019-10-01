@@ -31,6 +31,8 @@ import android.os.Build;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.accessibility.AccessibilityNodeInfo;
+import android.widget.FrameLayout;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.core.view.AccessibilityDelegateCompat;
@@ -331,8 +333,94 @@ public class RecyclerViewAccessibilityLifecycleTest extends BaseRecyclerViewInst
         });
     }
 
+    @Test
+    public void onInitNodeInfoWithNestedDelegateDoesntAddChildrenTwice() throws Throwable {
+        final RecyclerView recyclerView = new RecyclerView(getActivity()) {
+            @Override
+            boolean isAccessibilityEnabled() {
+                return true;
+            }
+        };
+        final int[] layoutStart = new int[] {0};
+        final int layoutCount = 5;
+        final TestLayoutManager layoutManager = new TestLayoutManager() {
+            @Override
+            public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state) {
+                detachAndScrapAttachedViews(recycler);
+                removeAndRecycleScrapInt(recycler);
+                layoutRange(recycler, layoutStart[0], layoutStart[0] + layoutCount);
+                if (layoutLatch != null) {
+                    layoutLatch.countDown();
+                }
+            }
+        };
+        final AccessibilityDelegateCompat delegateCompat = new AccessibilityDelegateCompat() {
+            @Override
+            public void onInitializeAccessibilityNodeInfo(View host,
+                    AccessibilityNodeInfoCompat info) {
+                super.onInitializeAccessibilityNodeInfo(host, info);
+                info.setChecked(true);
+            }
+        };
+        final TestAdapter adapter = new TestAdapterWithItemsWithChildren(100) {
+            @Override
+            public TestViewHolder onCreateViewHolder(@NonNull ViewGroup parent,
+                    int viewType) {
+                TestViewHolder vh = super.onCreateViewHolder(parent, viewType);
+                ViewCompat.setAccessibilityDelegate(vh.itemView, delegateCompat);
+                return vh;
+            }
+        };
+        layoutManager.expectLayouts(1);
+        recyclerView.getRecycledViewPool().setMaxRecycledViews(0, 100);
+        recyclerView.setItemViewCacheSize(0); // no cache, directly goes to pool
+        recyclerView.setLayoutManager(layoutManager);
+        setRecyclerView(recyclerView);
+        mActivityRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                recyclerView.setAdapter(adapter);
+            }
+        });
+        layoutManager.waitForLayout(1);
+
+        mActivityRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                ViewGroup itemView = (ViewGroup) recyclerView.getChildAt(0);
+                AccessibilityNodeInfoCompat info =
+                        AccessibilityNodeInfoCompat.wrap(itemView.createAccessibilityNodeInfo());
+                assertEquals(1, info.getChildCount());
+            }
+        });
+
+    }
+
     private boolean accessibiltyDelegateIsItemDelegate(RecyclerView rc, View item) {
         return rc.getCompatAccessibilityDelegate().getItemDelegate()
                 .equals(ViewCompat.getAccessibilityDelegate(item));
+    }
+
+    private class TestAdapterWithItemsWithChildren extends TestAdapter {
+
+        TestAdapterWithItemsWithChildren(int count) {
+            super(count);
+        }
+
+        @Override
+        public TestViewHolder onCreateViewHolder(@NonNull ViewGroup parent,
+                int viewType) {
+            FrameLayout fl = new FrameLayout(parent.getContext());
+            TextView textView = new TextView(parent.getContext());
+            textView.setFocusableInTouchMode(true);
+            textView.setFocusable(true);
+            fl.addView(textView);
+            return new TestViewHolder(fl);
+        }
+
+        @Override
+        protected TextView getTextViewInHolder(TestViewHolder holder) {
+            return (TextView) ((ViewGroup) holder.itemView).getChildAt(0);
+        }
     }
 }
