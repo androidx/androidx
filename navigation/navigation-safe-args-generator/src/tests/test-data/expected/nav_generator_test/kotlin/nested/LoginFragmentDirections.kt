@@ -6,9 +6,9 @@ import foo.LoginDirections
 import foo.R
 
 class LoginFragmentDirections private constructor() {
-    companion object {
-        fun register(): NavDirections = ActionOnlyNavDirections(R.id.register)
+  companion object {
+    fun register(): NavDirections = ActionOnlyNavDirections(R.id.register)
 
-        fun actionDone(): NavDirections = LoginDirections.actionDone()
-    }
+    fun actionDone(): NavDirections = LoginDirections.actionDone()
+  }
 }
