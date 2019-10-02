@@ -17,9 +17,11 @@
 package androidx.paging
 
 import androidx.annotation.AnyThread
+import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
 import androidx.annotation.WorkerThread
 import androidx.arch.core.util.Function
+import androidx.paging.PagedSource.LoadResult.Page
 import androidx.paging.PagedSource.LoadResult.Page.Companion.COUNT_UNDEFINED
 import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.atomic.AtomicBoolean
@@ -148,6 +150,7 @@ internal constructor(internal val type: KeyType) {
          *
          * @return the new DataSource.
          */
+        @Suppress("KDocUnresolvedReference")
         abstract fun create(): DataSource<Key, Value>
 
         /**
@@ -226,6 +229,14 @@ internal constructor(internal val type: KeyType) {
         open fun <ToValue : Any> mapByPage(
             function: (List<Value>) -> List<ToValue>
         ): Factory<Key, ToValue> = mapByPage(Function { function(it) })
+
+        /**
+         * @hide
+         */
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        fun asPagedSourceFactory(): PagedSourceFactory<Key, Value> = {
+            LegacyPagedSource(create())
+        }
     }
 
     /**
@@ -418,7 +429,13 @@ internal constructor(internal val type: KeyType) {
         val initialLoadSize: Int,
         val placeholdersEnabled: Boolean,
         val pageSize: Int
-    )
+    ) {
+        init {
+            if (type != LoadType.REFRESH && key == null) {
+                throw IllegalArgumentException("Key must be non-null for prepend/append")
+            }
+        }
+    }
 
     /**
      * @param Value Type of the data produced by a [DataSource].
@@ -436,7 +453,7 @@ internal constructor(internal val type: KeyType) {
                 throw IllegalArgumentException("Position must be non-negative")
             }
             if (data.isEmpty() && (itemsBefore > 0 || itemsAfter > 0)) {
-                // If non-initial, itemsBefore = itemsAfter = -1
+                // If non-initial, itemsBefore, itemsAfter are COUNT_UNDEFINED
                 throw IllegalArgumentException(
                     "Initial result cannot be empty if items are present in data set."
                 )
@@ -448,7 +465,11 @@ internal constructor(internal val type: KeyType) {
             }
         }
 
-        // TODO: Delete now that tiling is gone?
+        /**
+         * While it may seem unnecessary to do this validation now that tiling is gone, we do
+         * this to ensure consistency with 2.1, and to ensure all loadRanges have the same page
+         * size.
+         */
         internal fun validateForInitialTiling(pageSize: Int) {
             if (itemsBefore == COUNT_UNDEFINED || itemsAfter == COUNT_UNDEFINED) {
                 throw IllegalStateException(
@@ -457,7 +478,7 @@ internal constructor(internal val type: KeyType) {
                             " PagedList.Config"
                 )
             }
-            // know below that before / after are set
+
             if (itemsAfter > 0 && data.size % pageSize != 0) {
                 val totalCount = itemsBefore + data.size + itemsAfter
                 throw IllegalArgumentException(
@@ -479,12 +500,12 @@ internal constructor(internal val type: KeyType) {
          * in [PagedSource.LoadResult].
          */
         @Suppress("UNCHECKED_CAST") // Guaranteed to be the correct Key type.
-        internal fun <Key : Any> toLoadResult() = PagedSource.LoadResult.Page(
+        internal fun <Key : Any> toLoadResult(): Page<Key, Value> = Page(
             data,
-            itemsBefore,
-            itemsAfter,
+            prevKey as Key?,
             nextKey as Key?,
-            prevKey as Key?
+            itemsBefore,
+            itemsAfter
         )
 
         override fun equals(other: Any?) = when (other) {

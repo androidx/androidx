@@ -48,6 +48,7 @@ import kotlin.coroutines.resume
  * @param T Type of items being loaded by the [PositionalDataSource].
  */
 abstract class PositionalDataSource<T : Any> : DataSource<Int, T>(POSITIONAL) {
+
     /**
      * Holder object for inputs to [loadInitial].
      */
@@ -322,8 +323,9 @@ abstract class PositionalDataSource<T : Any> : DataSource<Int, T>(POSITIONAL) {
             var startIndex = params.key!!
             var loadSize = params.pageSize
             if (params.type == LoadType.START) {
-                loadSize = minOf(loadSize, startIndex + 1)
-                startIndex = startIndex - loadSize + 1
+                // clamp load size to positive indices only, and shift start index by load size
+                loadSize = minOf(loadSize, startIndex)
+                startIndex -= loadSize
             }
             return loadRange(LoadRangeParams(startIndex, loadSize))
         }
@@ -348,7 +350,7 @@ abstract class PositionalDataSource<T : Any> : DataSource<Int, T>(POSITIONAL) {
                     } else {
                         resume(params, BaseResult(
                             data = data,
-                            prevKey = position - 1,
+                            prevKey = position,
                             nextKey = position + data.size,
                             itemsBefore = position,
                             itemsAfter = totalCount - data.size - position
@@ -362,10 +364,10 @@ abstract class PositionalDataSource<T : Any> : DataSource<Int, T>(POSITIONAL) {
                         // https://issuetracker.google.com/issues/124511903
                         cont.resume(BaseResult.empty())
                     } else {
+                        // always pass prevKey/nextKey, since we let position
                         resume(params, BaseResult(
                             data = data,
-                            prevKey = if (position > 0) position - 1 else null,
-                            // always pass a nextKey, since we don't know how far to load
+                            prevKey = position,
                             nextKey = position + data.size,
                             itemsBefore = position,
                             itemsAfter = COUNT_UNDEFINED
@@ -400,7 +402,7 @@ abstract class PositionalDataSource<T : Any> : DataSource<Int, T>(POSITIONAL) {
                         isInvalid -> cont.resume(BaseResult.empty())
                         else -> cont.resume(BaseResult(
                             data = data,
-                            prevKey = params.startPosition - 1,
+                            prevKey = params.startPosition,
                             nextKey = params.startPosition + data.size
                         ))
                     }

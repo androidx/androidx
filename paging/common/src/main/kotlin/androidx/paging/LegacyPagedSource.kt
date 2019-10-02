@@ -17,33 +17,26 @@
 package androidx.paging
 
 import androidx.annotation.RestrictTo
+import androidx.paging.DataSource.KeyType.ITEM_KEYED
+import androidx.paging.DataSource.KeyType.PAGE_KEYED
+import androidx.paging.DataSource.KeyType.POSITIONAL
+import androidx.paging.DataSource.Params
 
 /**
- * TODO: Move all call-sites dependent on this to use [PagedSource] directly.
- *
  * A wrapper around [DataSource] which adapts it to the [PagedSource] API.
  *
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-class PagedSourceWrapper<Key : Any, Value : Any>(
+class LegacyPagedSource<Key : Any, Value : Any>(
     internal val dataSource: DataSource<Key, Value>
 ) : PagedSource<Key, Value>() {
     init {
         dataSource.addInvalidatedCallback { invalidate() }
     }
 
-    @Suppress("UNCHECKED_CAST")
-    override val keyProvider = when (dataSource.type) {
-        DataSource.KeyType.POSITIONAL -> KeyProvider.Positional as KeyProvider<Key, Value>
-        DataSource.KeyType.PAGE_KEYED -> KeyProvider.PageKeyGlobal()
-        DataSource.KeyType.ITEM_KEYED -> object : KeyProvider.ItemKey<Key, Value>() {
-            override fun getKey(item: Value) = dataSource.getKeyInternal(item)
-        }
-    }
-
     override suspend fun load(params: LoadParams<Key>): LoadResult<Key, Value> {
-        val dataSourceParams = DataSource.Params(
+        val dataSourceParams = Params(
             params.loadType,
             params.key,
             params.loadSize,
@@ -57,5 +50,15 @@ class PagedSourceWrapper<Key : Any, Value : Any>(
     override fun invalidate() {
         super.invalidate()
         dataSource.invalidate()
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    override fun getRefreshKeyFromPage(
+        indexInPage: Int,
+        page: LoadResult.Page<Key, Value>
+    ): Key? = when (dataSource.type) {
+        POSITIONAL -> (page.prevKey as Int + indexInPage) as Key
+        PAGE_KEYED -> null
+        ITEM_KEYED -> dataSource.getKeyInternal(page.data[indexInPage])
     }
 }

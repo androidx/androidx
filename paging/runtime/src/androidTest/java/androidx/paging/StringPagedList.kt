@@ -16,6 +16,8 @@
 
 package androidx.paging
 
+import androidx.paging.PagedSource.LoadResult.Error
+import androidx.paging.PagedSource.LoadResult.Page
 import androidx.testutils.DirectDispatcher
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.runBlocking
@@ -27,13 +29,16 @@ private class FakeSource<Value : Any>(
 ) : PagedSource<Any, Value>() {
     override suspend fun load(params: LoadParams<Any>): LoadResult<Any, Value> {
         if (params.loadType == LoadType.REFRESH) {
-            return LoadResult.Page(
+            return Page(
                 data = data,
+                prevKey = null,
+                nextKey = null,
                 itemsBefore = leadingNulls,
-                itemsAfter = trailingNulls)
+                itemsAfter = trailingNulls
+            )
         }
         // TODO: prevent null-key load start/end
-        return LoadResult.Error(
+        return Error(
             IllegalArgumentException("This test source only supports initial load")
         )
     }
@@ -46,8 +51,14 @@ fun StringPagedList(
     vararg items: String
 ): PagedList<String> = runBlocking {
     PagedList.create(
+        initialPage = Page<Any, String>(
+            data = items.toList(),
+            prevKey = null,
+            nextKey = null,
+            itemsBefore = leadingNulls,
+            itemsAfter = trailingNulls
+        ),
         pagedSource = FakeSource(leadingNulls, trailingNulls, items.toList()),
-        initialPage = null,
         coroutineScope = GlobalScope,
         notifyDispatcher = DirectDispatcher,
         fetchDispatcher = DirectDispatcher,
