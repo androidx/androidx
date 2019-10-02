@@ -45,7 +45,11 @@ class EditProcessor {
      * This method updates the internal editing buffer with the given editor model.
      * This method may tell the IME about the selection offset changes or extracted text changes.
      */
-    fun onNewState(model: EditorModel, textInputService: TextInputService?) {
+    fun onNewState(
+        model: EditorModel,
+        textInputService: TextInputService?,
+        token: InputSessionToken
+    ) {
         if (mPreviousModel !== model) {
             mBuffer = EditingBuffer(
                 initialText = model.text,
@@ -53,7 +57,7 @@ class EditProcessor {
         }
 
         mPreviousModel = model
-        textInputService?.onStateUpdated(model)
+        textInputService?.onStateUpdated(token, model)
     }
 
     /**

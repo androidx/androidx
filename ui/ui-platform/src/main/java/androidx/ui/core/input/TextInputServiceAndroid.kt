@@ -28,6 +28,7 @@ import androidx.ui.input.EditorModel
 import androidx.ui.input.ImeAction
 import androidx.ui.input.InputEventListener
 import androidx.ui.input.KeyboardType
+import androidx.ui.input.PlatformTextInputService
 import androidx.ui.input.TextInputService
 import androidx.ui.text.TextRange
 import kotlin.math.roundToInt
@@ -35,7 +36,7 @@ import kotlin.math.roundToInt
 /**
  * Provide Android specific input service with the Operating System.
  */
-internal class TextInputServiceAndroid(val view: View) : TextInputService {
+internal class TextInputServiceAndroid(val view: View) : PlatformTextInputService {
     /** True if the currently editable widget has connected */
     private var editorHasFocus = false
 

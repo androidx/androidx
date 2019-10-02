@@ -69,6 +69,11 @@ package androidx.ui.input {
 
 
 
+
+  public final class TextInputServiceKt {
+    ctor public TextInputServiceKt();
+  }
+
   public final class TransformedText {
     ctor public TransformedText(androidx.ui.text.AnnotatedString transformedText, androidx.ui.input.OffsetMap offsetMap);
     method public androidx.ui.text.AnnotatedString component1();

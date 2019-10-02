@@ -32,6 +32,8 @@ import androidx.ui.input.TransformedText
 import androidx.ui.input.VisualTransformation
 import androidx.ui.input.identityOffsetMap
 import androidx.ui.graphics.Canvas
+import androidx.ui.input.INVALID_SESSION
+import androidx.ui.input.InputSessionToken
 import androidx.ui.text.AnnotatedString
 import androidx.ui.text.Paragraph
 import androidx.ui.text.ParagraphConstraints
@@ -158,6 +160,14 @@ internal class TextFieldDelegate {
          * Notify system that focused input area.
          *
          * System is typically scrolled up not to be covered by keyboard.
+         *
+         * @param value The editor model
+         * @param textDelegate The text delegate
+         * @param layoutCoordinates The layout coordinates
+         * @param textInputService The text input service
+         * @param token The current input session token.
+         * @param hasFocus True if focus is gained.
+         * @param offsetMap The mapper from/to editing buffer to/from visible text.
          */
         @JvmStatic
         fun notifyFocusedRect(
@@ -165,6 +175,7 @@ internal class TextFieldDelegate {
             textDelegate: TextDelegate,
             layoutCoordinates: LayoutCoordinates,
             textInputService: TextInputService,
+            token: InputSessionToken,
             hasFocus: Boolean,
             offsetMap: OffsetMap
         ) {
@@ -188,6 +199,7 @@ internal class TextFieldDelegate {
             val globalLT = layoutCoordinates.localToRoot(PxPosition(bbox.left.px, bbox.top.px))
 
             textInputService.notifyFocusedRect(
+                token,
                 Rect.fromLTWH(
                     globalLT.x.value,
                     globalLT.y.value,
@@ -233,6 +245,7 @@ internal class TextFieldDelegate {
          * @param offsetMap The offset map
          * @param onValueChange The callback called when the new editor state arrives.
          * @param textInputService The text input service
+         * @param token The current input session token.
          * @param hasFocus True if the widget has input focus, otherwise false.
          */
         @JvmStatic
@@ -243,9 +256,10 @@ internal class TextFieldDelegate {
             offsetMap: OffsetMap,
             onValueChange: (EditorModel) -> Unit,
             textInputService: TextInputService?,
+            token: InputSessionToken,
             hasFocus: Boolean
         ) {
-            textInputService?.showSoftwareKeyboard()
+            textInputService?.showSoftwareKeyboard(token)
             if (hasFocus) {
                 val offset = offsetMap.transformedToOriginal(
                     textDelegate.getOffsetForPosition(position))
@@ -275,30 +289,32 @@ internal class TextFieldDelegate {
             imeAction: ImeAction,
             onValueChange: (EditorModel) -> Unit,
             onImeActionPerformed: (ImeAction) -> Unit
-        ) {
-            textInputService?.startInput(
+        ): InputSessionToken {
+            return textInputService?.startInput(
                 initModel = value,
                 keyboardType = keyboardType,
                 imeAction = imeAction,
                 onEditCommand = { onEditCommand(it, editProcessor, onValueChange) },
-                onImeActionPerformed = onImeActionPerformed)
+                onImeActionPerformed = onImeActionPerformed) ?: INVALID_SESSION
         }
 
         /**
          * Called when the widget loses input focus
          *
          * @param textInputService The text input service
+         * @param token The current input session token.
          * @param editProcessor The edit processor
          * @param onValueChange The callback called when the new editor state arrives.
          */
         @JvmStatic
         fun onBlur(
             textInputService: TextInputService?,
+            token: InputSessionToken,
             editProcessor: EditProcessor,
             onValueChange: (EditorModel) -> Unit
         ) {
             onEditCommand(listOf(FinishComposingTextEditOp()), editProcessor, onValueChange)
-            textInputService?.stopInput()
+            textInputService?.stopInput(token)
         }
 
         /**
