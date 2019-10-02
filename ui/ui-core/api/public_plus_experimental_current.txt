@@ -488,12 +488,14 @@ package androidx.ui.core {
     method public androidx.ui.core.PxPosition childToLocal(androidx.ui.core.LayoutCoordinates child, androidx.ui.core.PxPosition childLocal);
     method public androidx.ui.core.LayoutCoordinates? getParentCoordinates();
     method public androidx.ui.core.PxPosition getPosition();
+    method public java.util.Map<androidx.ui.core.AlignmentLine,androidx.ui.core.IntPx> getProvidedAlignmentLines();
     method public androidx.ui.core.PxSize getSize();
     method public androidx.ui.core.PxPosition globalToLocal(androidx.ui.core.PxPosition global);
     method public androidx.ui.core.PxPosition localToGlobal(androidx.ui.core.PxPosition local);
     method public androidx.ui.core.PxPosition localToRoot(androidx.ui.core.PxPosition local);
     property public abstract androidx.ui.core.LayoutCoordinates? parentCoordinates;
     property public abstract androidx.ui.core.PxPosition position;
+    property public abstract java.util.Map<androidx.ui.core.AlignmentLine,androidx.ui.core.IntPx> providedAlignmentLines;
     property public abstract androidx.ui.core.PxSize size;
   }
 

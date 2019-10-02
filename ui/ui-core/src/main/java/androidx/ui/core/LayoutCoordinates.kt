@@ -33,6 +33,12 @@ interface LayoutCoordinates {
     val size: PxSize
 
     /**
+     * The alignment lines provided for this layout, relative to the current layout.
+     * This map does not contain inherited lines.
+     */
+    val providedAlignmentLines: Map<AlignmentLine, IntPx>
+
+    /**
      * The coordinates of the parent layout. Null if there is no parent.
      */
     val parentCoordinates: LayoutCoordinates?
