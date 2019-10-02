@@ -1,11 +1,11 @@
 package a.b
 
+import `fun`.`is`.`in`.R
 import androidx.navigation.ActionOnlyNavDirections
 import androidx.navigation.NavDirections
-import `fun`.`is`.`in`.R
 
 class FunFragmentDirections private constructor() {
-    companion object {
-        fun next(): NavDirections = ActionOnlyNavDirections(R.id.next)
-    }
+  companion object {
+    fun next(): NavDirections = ActionOnlyNavDirections(R.id.next)
+  }
 }
