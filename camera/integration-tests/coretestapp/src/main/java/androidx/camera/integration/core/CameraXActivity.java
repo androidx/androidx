@@ -200,8 +200,6 @@ public class CameraXActivity extends AppCompatActivity
             return;
         }
 
-        transformPreview();
-
         textureView.setSurfaceTextureListener(mTextureViewSurfaceTextureListener);
     }
 
@@ -951,6 +949,7 @@ public class CameraXActivity extends AppCompatActivity
                 mCompleter.set(mSurface);
                 mCompleter = null;
                 mSurface = null;
+                transformPreview();
             }
         }
 
