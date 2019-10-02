@@ -16,34 +16,30 @@
 
 package androidx.browser.trusted;
 
-import android.annotation.SuppressLint;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
-import android.os.IBinder;
-import android.os.RemoteException;
 import android.os.StrictMode;
-import android.os.TransactionTooLargeException;
-import android.support.customtabs.trusted.ITrustedWebActivityService;
 import android.util.Log;
 
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.google.common.util.concurrent.ListenableFuture;
+
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
@@ -55,92 +51,18 @@ import java.util.concurrent.atomic.AtomicReference;
  * Note, the origins are essentially keys to a map of origin to package name - while they
  * semantically are web origins, they aren't used that way.
  * <p>
- * To interact with a {@link TrustedWebActivityService}, call {@link #execute}.
+ * To interact with a {@link TrustedWebActivityService}, call {@link #connect}.
  */
-public class TrustedWebActivityServiceConnectionManager {
+public final class TrustedWebActivityServiceConnectionManager {
     private static final String TAG = "TWAConnectionManager";
     private static final String PREFS_FILE = "TrustedWebActivityVerifiedPackages";
-
-    /**
-     * A callback to be executed once a connection to a {@link TrustedWebActivityService} is open.
-     */
-    public interface ExecutionCallback {
-        /**
-         * Is run when a connection is open. See {@link #execute} for more information.
-         * @param service A {@link TrustedWebActivityServiceWrapper} wrapping the connected
-         *                {@link TrustedWebActivityService}.
-         *                It may be null if the connection failed.
-         * @throws RemoteException May be thrown by {@link TrustedWebActivityServiceWrapper}'s
-         *                         methods. If the developer does not want to catch them, they will
-         *                         be caught gracefully by {@link #execute}.
-         */
-        @SuppressLint("RethrowRemoteException")  // We're accepting RemoteExceptions not throwing.
-        void onConnected(@Nullable TrustedWebActivityServiceWrapper service) throws RemoteException;
-    }
-
-    /** The callback used internally that will wrap an ExecutionCallback. */
-    private interface WrappedCallback {
-        void onConnected(@Nullable TrustedWebActivityServiceWrapper service);
-    }
-
-    /**
-     * Holds a connection to a TrustedWebActivityService.
-     * It should only be used on the UI Thread.
-     */
-    private class Connection implements ServiceConnection {
-        private TrustedWebActivityServiceWrapper mService;
-        private List<WrappedCallback> mCallbacks = new LinkedList<>();
-        private final Uri mScope;
-
-        Connection(Uri scope) {
-            mScope = scope;
-        }
-
-        public TrustedWebActivityServiceWrapper getService() {
-            return mService;
-        }
-
-        /** This method will be called on the UI Thread by the Android Framework. */
-        @Override
-        public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
-            mService = new TrustedWebActivityServiceWrapper(
-                    ITrustedWebActivityService.Stub.asInterface(iBinder), componentName);
-            for (WrappedCallback callback : mCallbacks) {
-                callback.onConnected(mService);
-            }
-            mCallbacks.clear();
-        }
-
-        /** This method will be called on the UI Thread by the Android Framework. */
-        @Override
-        public void onServiceDisconnected(ComponentName componentName) {
-            mService = null;
-            mConnections.remove(mScope);
-        }
-
-        public void addCallback(WrappedCallback callback) {
-            if (mService == null) {
-                mCallbacks.add(callback);
-            } else {
-                callback.onConnected(mService);
-            }
-        }
-
-        public void cancel() {
-            for (WrappedCallback callback : mCallbacks) {
-                callback.onConnected(null);
-            }
-            mCallbacks.clear();
-            mConnections.remove(mScope);
-        }
-    }
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     final Context mContext;
 
     /** Map from ServiceWorker scope to Connection. */
     @SuppressWarnings("WeakerAccess") /* synthetic access */
-    Map<Uri, Connection> mConnections = new HashMap<>();
+    Map<Uri, ConnectionHolder> mConnections = new HashMap<>();
 
     private static AtomicReference<SharedPreferences> sSharedPreferences = new AtomicReference<>();
 
@@ -157,7 +79,7 @@ public class TrustedWebActivityServiceConnectionManager {
         // Loading preferences is on the critical path for this class - we need to synchronously
         // inform the client whether or not an notification can be handled by a TWA.
         // I considered loading the preferences into a cache on a background thread when this class
-        // was created, but ultimately if that load hadn't completed by the time {@link #execute} or
+        // was created, but ultimately if that load hadn't completed by the time {@link #connect} or
         // {@link #registerClient} were called, we'd still need to block for it to complete.
         // Therefore we attempt to asynchronously load the preferences in the constructor, but if
         // they aren't loaded by the time they are needed, we disable StrictMode and read them on
@@ -198,29 +120,6 @@ public class TrustedWebActivityServiceConnectionManager {
         });
     }
 
-    private static WrappedCallback wrapCallback(final ExecutionCallback callback) {
-        return new WrappedCallback() {
-            @Override
-            public void onConnected(@Nullable final TrustedWebActivityServiceWrapper service) {
-                AsyncTask.THREAD_POOL_EXECUTOR.execute(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            callback.onConnected(service);
-                        } catch (TransactionTooLargeException e) {
-                            Log.w(TAG,
-                                    "TransactionTooLargeException from TrustedWebActivityService, "
-                                            + "possibly due to large size of small icon.", e);
-                        } catch (RemoteException | RuntimeException e) {
-                            Log.w(TAG,
-                                    "Exception while trying to use TrustedWebActivityService.", e);
-                        }
-                    }
-                });
-            }
-        };
-    }
-
     /**
      * Connects to the appropriate {@link TrustedWebActivityService} or uses an existing connection
      * if available and runs code once connected.
@@ -238,71 +137,82 @@ public class TrustedWebActivityServiceConnectionManager {
      *              {@link TrustedWebActivityService}.
      * @param origin An origin that the {@link TrustedWebActivityService} package must be registered
      *               to.
-     * @param callback A {@link ExecutionCallback} that will be run with a connection.
-     *                 It will be run on a background thread from the ThreadPool as most methods
-     *                 from {@link TrustedWebActivityServiceWrapper} require this.
-     *                 Any {@link RemoteException} or {@link RuntimeException} exceptions thrown by
-     *                 the callback will be swallowed.
-     *                 This is to allow users to deal with exceptions thrown by
-     *                 {@link TrustedWebActivityServiceWrapper} if they wish, but to fail
-     *                 gracefully if they don't.
-     * @return Whether a {@link TrustedWebActivityService} was found.
+     * @param executor The {@link Executor} to connect to the Service on if a new connection is
+     *                 required.
+     * @return A {@link ListenableFuture} for the resulting
+     *         {@link TrustedWebActivityServiceWrapper}. This may be set to an
+     *         {@link IllegalArgumentException} if no service exists for the scope (you can check
+     *         for this beforehand by calling {@link #serviceExistsForScope(Uri, String)}. It may
+     *         be set to a {@link SecurityException} if the Service does not accept connections from
+     *         this app. It may be set to an {@link IllegalStateException} if connecting to the
+     *         Service fails.
      */
-    @SuppressLint("StaticFieldLeak")
     @MainThread
-    public boolean execute(@NonNull final Uri scope, @NonNull String origin,
-            @NonNull final ExecutionCallback callback) {
-        final WrappedCallback wrappedCallback = wrapCallback(callback);
-
+    @NonNull
+    public ListenableFuture<TrustedWebActivityServiceWrapper> connect(
+            @NonNull final Uri scope, @NonNull String origin, @NonNull Executor executor) {
         // If we have an existing connection, use it.
-        Connection connection = mConnections.get(scope);
+        ConnectionHolder connection = mConnections.get(scope);
         if (connection != null) {
-            connection.addCallback(wrappedCallback);
-            return true;
+            return connection.getServiceWrapper();
         }
 
         // Check that this is a notification we want to handle.
         final Intent bindServiceIntent = createServiceIntent(mContext, scope, origin, true);
-        if (bindServiceIntent == null) return false;
+        if (bindServiceIntent == null) {
+            return FutureUtils.immediateFailedFuture(
+                    new IllegalArgumentException("No service exists for scope"));
+        }
 
-        final Connection newConnection = new Connection(scope);
-        newConnection.addCallback(wrappedCallback);
+        ConnectionHolder newConnection = new ConnectionHolder(() -> mConnections.remove(scope));
         mConnections.put(scope, newConnection);
 
         // Create a new connection.
-        new AsyncTask<Void, Void, Boolean>() {
-            @Override
-            protected Boolean doInBackground(Void... voids) {
-                try {
-                    // We can pass newConnection to bindService here on a background thread because
-                    // bindService assures us it will use newConnection on the UI thread.
-                    if (mContext.bindService(bindServiceIntent, newConnection,
-                            Context.BIND_AUTO_CREATE)) {
-                        return true;
-                    }
+        new BindToServiceAsyncTask(mContext, bindServiceIntent, newConnection)
+                .executeOnExecutor(executor);
 
-                    mContext.unbindService(newConnection);
-                    return false;
-                } catch (SecurityException e) {
-                    Log.w(TAG, "SecurityException while binding.", e);
-                    return false;
+        return newConnection.getServiceWrapper();
+    }
+
+    static class BindToServiceAsyncTask extends AsyncTask<Void, Void, Exception> {
+        private final Context mAppContext;
+        private final Intent mIntent;
+        private final ConnectionHolder mConnection;
+
+        BindToServiceAsyncTask(Context context, Intent intent, ConnectionHolder connection) {
+            mAppContext = context.getApplicationContext();
+            mIntent = intent;
+            mConnection = connection;
+        }
+
+        @Nullable
+        @Override
+        protected Exception doInBackground(Void... voids) {
+            try {
+                // We can pass newConnection to bindService here on a background thread because
+                // bindService assures us it will use newConnection on the UI thread.
+                if (mAppContext.bindService(mIntent, mConnection, Context.BIND_AUTO_CREATE)) {
+                    return null;
                 }
-            }
 
-            @Override
-            protected void onPostExecute(Boolean success) {
-                if (!success) {
-                    newConnection.cancel();
-                }
+                mAppContext.unbindService(mConnection);
+                // TODO: Find a better exception to use here.
+                return new IllegalStateException("Could not bind to the service");
+            } catch (SecurityException e) {
+                Log.w(TAG, "SecurityException while binding.", e);
+                return e;
             }
-        }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+        }
 
-        return true;
+        @Override
+        protected void onPostExecute(Exception bindingException) {
+            if (bindingException != null) mConnection.cancel(bindingException);
+        }
     }
 
     /**
      * Checks if a TrustedWebActivityService exists to handle requests for the given scope and
-     * origin. The value will be the same as that returned from {@link #execute} so calling that
+     * origin. The value will be the same as that returned from {@link #connect} so calling that
      * and checking the return may be more convenient.
      *
      * This method should be called on the UI thread.
@@ -325,7 +235,7 @@ public class TrustedWebActivityServiceConnectionManager {
      * Unbinds all open connections to Trusted Web Activity clients.
      */
     void unbindAllConnections() {
-        for (Connection connection : mConnections.values()) {
+        for (ConnectionHolder connection : mConnections.values()) {
             mContext.unbindService(connection);
         }
         mConnections.clear();

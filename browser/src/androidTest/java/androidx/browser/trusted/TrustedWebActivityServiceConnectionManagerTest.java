@@ -19,16 +19,20 @@ package androidx.browser.trusted;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import android.content.Context;
 import android.net.Uri;
+import android.os.AsyncTask;
 
 import androidx.browser.customtabs.EnableComponentsTestRule;
 import androidx.browser.customtabs.TestActivity;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.filters.SmallTest;
+import androidx.test.filters.MediumTest;
 import androidx.testutils.PollingCheck;
+
+import com.google.common.util.concurrent.ListenableFuture;
 
 import org.junit.After;
 import org.junit.Before;
@@ -36,11 +40,12 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @RunWith(AndroidJUnit4.class)
-@SmallTest
+@MediumTest
 public class TrustedWebActivityServiceConnectionManagerTest {
     private static final String ORIGIN = "https://localhost:3080";
     private static final Uri GOOD_SCOPE = Uri.parse("https://www.example.com/notifications");
@@ -48,6 +53,8 @@ public class TrustedWebActivityServiceConnectionManagerTest {
 
     private TrustedWebActivityServiceConnectionManager mManager;
     private Context mContext;
+
+    // TODO: Test security exception.
 
     @Rule
     public final VerifiedProviderTestRule mVerifiedProvider = new VerifiedProviderTestRule();
@@ -74,29 +81,48 @@ public class TrustedWebActivityServiceConnectionManagerTest {
     @Test
     public void testConnection() {
         final AtomicBoolean connected = new AtomicBoolean();
-        boolean delegated = mManager.execute(GOOD_SCOPE, ORIGIN,
-                service -> {
-                    assertEquals(TestTrustedWebActivityService.SMALL_ICON_ID,
-                            service.getSmallIconId());
-                    connected.set(true);
-                });
-        assertTrue(delegated);
+
+        ListenableFuture<TrustedWebActivityServiceWrapper> serviceFuture =
+                mManager.connect(GOOD_SCOPE, ORIGIN, AsyncTask.THREAD_POOL_EXECUTOR);
+
+        serviceFuture.addListener(() -> {
+            try {
+                assertEquals(TestTrustedWebActivityService.SMALL_ICON_ID,
+                        serviceFuture.get().getSmallIconId());
+                connected.set(true);
+            } catch (ExecutionException | InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        }, AsyncTask.THREAD_POOL_EXECUTOR);
 
         PollingCheck.waitFor(connected::get);
     }
 
     @Test
     public void testNoService() {
-        boolean delegated = mManager.execute(BAD_SCOPE, ORIGIN, service -> { });
-        assertFalse(delegated);
+        assertFalse(mManager.serviceExistsForScope(BAD_SCOPE, ORIGIN));
+
+        ListenableFuture<TrustedWebActivityServiceWrapper> serviceFuture =
+                mManager.connect(BAD_SCOPE, ORIGIN, AsyncTask.THREAD_POOL_EXECUTOR);
+
+        try {
+            serviceFuture.get();
+            fail();
+        } catch (ExecutionException e) {
+            assertTrue(e.getCause() instanceof IllegalArgumentException);
+        } catch (InterruptedException e) {
+            fail();
+        }
     }
 
     @Test
     public void testMultipleExecutions() {
         final AtomicInteger count = new AtomicInteger();
 
-        mManager.execute(GOOD_SCOPE, ORIGIN, service -> count.incrementAndGet());
-        mManager.execute(GOOD_SCOPE, ORIGIN, service -> count.incrementAndGet());
+        mManager.connect(GOOD_SCOPE, ORIGIN, AsyncTask.THREAD_POOL_EXECUTOR)
+                .addListener(count::incrementAndGet, AsyncTask.THREAD_POOL_EXECUTOR);
+        mManager.connect(GOOD_SCOPE, ORIGIN, AsyncTask.THREAD_POOL_EXECUTOR)
+                .addListener(count::incrementAndGet, AsyncTask.THREAD_POOL_EXECUTOR);
 
         PollingCheck.waitFor(() -> count.get() == 2);
     }
