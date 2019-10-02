@@ -609,17 +609,11 @@ class AndroidComposeView constructor(context: Context)
         onTouchEvent(event)
     }
 
-    /**
-     * @hide
-     */
-    val textInputService: TextInputService
-        /**
-         * @hide
-         */
-        @RestrictTo(RestrictTo.Scope.LIBRARY)
-        get() = textInputServiceAndroid
-
     private val textInputServiceAndroid = TextInputServiceAndroid(this)
+
+    /** @hide */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    val textInputService = TextInputService(textInputServiceAndroid)
 
     override fun onCheckIsTextEditor(): Boolean = textInputServiceAndroid.isEditorFocused()
 

@@ -31,6 +31,7 @@ import androidx.ui.input.EditorModel
 import androidx.ui.input.EditorStyle
 import androidx.ui.input.ImeAction
 import androidx.ui.input.KeyboardType
+import androidx.ui.input.NO_SESSION
 import androidx.ui.input.VisualTransformation
 import androidx.ui.semantics.Semantics
 import androidx.ui.semantics.onClick
@@ -139,14 +140,15 @@ fun TextField(
         // States
         val hasFocus = +state { false }
         val coords = +state<LayoutCoordinates?> { null }
+        val inputSession = +state { NO_SESSION }
 
-        processor.onNewState(value, textInputService)
+        processor.onNewState(value, textInputService, inputSession.value)
         TextInputEventObserver(
             focusIdentifier = focusIdentifier,
             onPress = { },
             onFocus = {
                 hasFocus.value = true
-                TextFieldDelegate.onFocus(
+                inputSession.value = TextFieldDelegate.onFocus(
                     textInputService,
                     value,
                     processor,
@@ -161,6 +163,7 @@ fun TextField(
                             textDelegate,
                             coords,
                             textInputService,
+                            inputSession.value,
                             hasFocus.value,
                             offsetMap
                         )
@@ -172,6 +175,7 @@ fun TextField(
                 hasFocus.value = false
                 TextFieldDelegate.onBlur(
                     textInputService,
+                    inputSession.value,
                     processor,
                     onValueChangeWrapper)
                 onBlur()
@@ -185,6 +189,7 @@ fun TextField(
                     offsetMap,
                     onValueChangeWrapper,
                     textInputService,
+                    inputSession.value,
                     hasFocus.value)
             }
         ) {
@@ -200,6 +205,7 @@ fun TextField(
                                 textDelegate,
                                 it,
                                 textInputService,
+                                inputSession.value,
                                 hasFocus.value,
                                 offsetMap
                             )

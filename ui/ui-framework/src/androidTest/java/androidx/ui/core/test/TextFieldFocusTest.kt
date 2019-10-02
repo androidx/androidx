@@ -32,6 +32,8 @@ import androidx.ui.test.createComposeRule
 import androidx.ui.test.waitForIdleCompose
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.whenever
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -64,7 +66,10 @@ class TextFieldFocusTest {
     @Test
     fun requestFocus() {
         val focusManager = FocusManager()
+        val inputSessionToken = 10
         val textInputService = mock<TextInputService>()
+        whenever(textInputService.startInput(any(), any(), any(), any(), any()))
+            .thenReturn(inputSessionToken)
 
         val testDataList = listOf(
             FocusTestData("ID1"),
