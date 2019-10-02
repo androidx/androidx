@@ -16,22 +16,23 @@
 package androidx.ui.foundation
 
 import android.view.View
+import androidx.compose.ambient
 import androidx.compose.composer
+import androidx.compose.unaryPlus
 import androidx.test.espresso.Espresso
 import androidx.test.espresso.Root
-import androidx.test.espresso.UiController
-import androidx.test.espresso.ViewAction
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.BoundedMatcher
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
-import androidx.test.filters.FlakyTest
 import androidx.test.filters.MediumTest
 import androidx.ui.core.Alignment
 import androidx.ui.core.AndroidComposeView
+import androidx.ui.core.AndroidComposeViewAmbient
 import androidx.ui.core.IntPx
 import androidx.ui.core.IntPxPosition
 import androidx.ui.core.IntPxSize
 import androidx.ui.core.OnPositioned
+import androidx.ui.core.TestTag
 import androidx.ui.core.Text
 import androidx.ui.core.toPxPosition
 import androidx.ui.core.toPxSize
@@ -39,6 +40,7 @@ import androidx.ui.core.withDensity
 import androidx.ui.layout.Align
 import androidx.ui.layout.Container
 import androidx.ui.test.createComposeRule
+import androidx.ui.test.waitForIdleCompose
 import com.google.common.truth.Truth
 import org.hamcrest.CoreMatchers.instanceOf
 import org.hamcrest.Description
@@ -57,6 +59,7 @@ class PopupTest {
     @get:Rule
     val composeTestRule = createComposeRule(disableTransitions = true)
     private val popupText = "popupText"
+    private val testTag = "testedPopup"
 
     private val parentGlobalPosition = IntPxPosition(IntPx(50), IntPx(50))
     private val offset = IntPxPosition(IntPx(10), IntPx(10))
@@ -75,89 +78,63 @@ class PopupTest {
             val parentHeightDp = parentSize.height.toDp()
 
             composeTestRule.setContent {
+                // Get the compose view position on screen
+                val composeView = +ambient(AndroidComposeViewAmbient)
+                val positionArray = IntArray(2)
+                composeView.getLocationOnScreen(positionArray)
+                composeViewAbsolutePosition = IntPxPosition(
+                    IntPx(positionArray[0]),
+                    IntPx(positionArray[1])
+                )
+
                 // Align the parent of the popup on the TopLeft corner, this results in the global
                 // position of the parent to be (0, 0)
                 Align(alignment = Alignment.TopLeft) {
                     Container(width = parentWidthDp, height = parentHeightDp) {
-                        Popup(alignment = alignment, offset = offset) {
-                            // This is called after the OnChildPosition method in Popup() which
-                            // updates the popup to its final position
-                            OnPositioned {
-                                measureLatch.countDown()
+                        TestTag(testTag) {
+                            Popup(alignment = alignment, offset = offset) {
+                                // This is called after the OnChildPosition method in Popup() which
+                                // updates the popup to its final position
+                                OnPositioned {
+                                    measureLatch.countDown()
+                                }
+                                Container(width = popupWidthDp, height = popupHeightDp) {}
                             }
-                            Container(width = popupWidthDp, height = popupHeightDp) {}
                         }
                     }
                 }
             }
         }
 
-        provideAndroidComposeViewOffset()
+        waitForIdleCompose()
     }
 
+    // TODO(b/139861182): Remove all of this and provide helpers on ComposeTestRule
     private fun popupMatches(viewMatcher: Matcher<in View>) {
         Espresso.onView(instanceOf(AndroidComposeView::class.java))
             .inRoot(PopupLayoutMatcher())
             .check(matches(viewMatcher))
     }
 
-    private class PopupLayoutMatcher : TypeSafeMatcher<Root>() {
+    private inner class PopupLayoutMatcher : TypeSafeMatcher<Root>() {
         override fun describeTo(description: Description?) {
             description?.appendText("PopupLayoutMatcher")
         }
 
         // TODO(b/141101446): Find a way to match the window used by the popup
         override fun matchesSafely(item: Root?): Boolean {
-            return true
+            return item != null && isPopupLayout(item.decorView, testTag)
         }
-    }
-
-    private fun isNotPopupLayout(): TypeSafeMatcher<Root> {
-        return object : TypeSafeMatcher<Root>() {
-            override fun describeTo(description: Description?) {
-                description?.appendText("isNotPopupPlatform")
-            }
-
-            override fun matchesSafely(item: Root?): Boolean {
-                return !PopupLayoutMatcher().matches(item)
-            }
-        }
-    }
-
-    private fun saveAndroidComposeViewOffset(): ViewAction {
-        return object : ViewAction {
-            override fun getDescription(): String {
-                return "Get AndroidComposeView offset"
-            }
-
-            override fun getConstraints(): Matcher<View> {
-                return matchesAndroidComposeView()
-            }
-
-            override fun perform(uiController: UiController?, view: View?) {
-                val positionArray = IntArray(2)
-                view?.getLocationOnScreen(positionArray)
-
-                composeViewAbsolutePosition = IntPxPosition(
-                    IntPx(positionArray[0]),
-                    IntPx(positionArray[1])
-                )
-            }
-        }
-    }
-
-    private fun provideAndroidComposeViewOffset() {
-        Espresso.onView(instanceOf(AndroidComposeView::class.java))
-            .inRoot(isNotPopupLayout())
-            .perform(saveAndroidComposeViewOffset())
     }
 
     @Test
     fun popup_isShowing() {
         composeTestRule.setContent {
             Container {
-                Popup(alignment = Alignment.Center) {
-                    Text(popupText)
+                TestTag(testTag) {
+                    Popup(alignment = Alignment.Center) {
+                        Text(popupText)
+                    }
                 }
             }
         }
@@ -176,8 +153,10 @@ class PopupTest {
 
         composeTestRule.setContent {
             Container {
-                Popup(alignment = Alignment.Center) {
-                    Container(width = popupWidthDp, height = popupHeightDp) {}
+                TestTag(testTag) {
+                    Popup(alignment = Alignment.Center) {
+                        Container(width = popupWidthDp, height = popupHeightDp) {}
+                    }
                 }
             }
         }
@@ -185,7 +164,6 @@ class PopupTest {
         popupMatches(matchesSize(popupSize.width.value, popupSize.height.value))
     }
 
-    @FlakyTest(bugId = 140549636, detail = "Final position might not be updated before check")
     @Test
     fun popup_correctPosition_alignmentTopLeft() {
         /* Expected TopLeft Position
@@ -201,7 +179,6 @@ class PopupTest {
         popupMatches(matchesPosition(composeViewAbsolutePosition + expectedPositionTopLeft))
     }
 
-    @FlakyTest(bugId = 140549636, detail = "Final position might not be updated before check")
     @Test
     fun popup_correctPosition_alignmentTopCenter() {
         /* Expected TopCenter Position
@@ -217,7 +194,6 @@ class PopupTest {
         popupMatches(matchesPosition(composeViewAbsolutePosition + expectedPositionTopCenter))
     }
 
-    @FlakyTest(bugId = 140549636, detail = "Final position might not be updated before check")
     @Test
     fun popup_correctPosition_alignmentTopRight() {
         /* Expected TopRight Position
@@ -233,7 +209,6 @@ class PopupTest {
         popupMatches(matchesPosition(composeViewAbsolutePosition + expectedPositionTopRight))
     }
 
-    @FlakyTest(bugId = 140549636, detail = "Final position might not be updated before check")
     @Test
     fun popup_correctPosition_alignmentCenterRight() {
         /* Expected CenterRight Position
@@ -249,7 +224,6 @@ class PopupTest {
         popupMatches(matchesPosition(composeViewAbsolutePosition + expectedPositionCenterRight))
     }
 
-    @FlakyTest(bugId = 140549636, detail = "Final position might not be updated before check")
     @Test
     fun popup_correctPosition_alignmentBottomRight() {
         /* Expected BottomRight Position
@@ -265,7 +239,6 @@ class PopupTest {
         popupMatches(matchesPosition(composeViewAbsolutePosition + expectedPositionBottomRight))
     }
 
-    @FlakyTest(bugId = 140549636, detail = "Final position might not be updated before check")
     @Test
     fun popup_correctPosition_alignmentBottomCenter() {
         /* Expected BottomCenter Position
@@ -284,7 +257,6 @@ class PopupTest {
         popupMatches(matchesPosition(composeViewAbsolutePosition + expectedPositionBottomCenter))
     }
 
-    @FlakyTest(bugId = 140549636, detail = "Final position might not be updated before check")
     @Test
     fun popup_correctPosition_alignmentBottomLeft() {
         /* Expected BottomLeft Position
@@ -300,7 +272,6 @@ class PopupTest {
         popupMatches(matchesPosition(composeViewAbsolutePosition + expectedPositionBottomLeft))
     }
 
-    @FlakyTest(bugId = 140549636, detail = "Final position might not be updated before check")
     @Test
     fun popup_correctPosition_alignmentCenterLeft() {
         /* Expected CenterLeft Position
@@ -316,7 +287,6 @@ class PopupTest {
         popupMatches(matchesPosition(composeViewAbsolutePosition + expectedPositionCenterLeft))
     }
 
-    @FlakyTest(bugId = 140549636, detail = "Final position might not be updated before check")
     @Test
     fun popup_correctPosition_alignmentCenter() {
         /* Expected Center Position

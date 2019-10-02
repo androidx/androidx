@@ -56,6 +56,7 @@ package androidx.ui.foundation {
     method public static void DropdownPopup(androidx.ui.foundation.DropDownAlignment dropDownAlignment = DropDownAlignment.Left, androidx.ui.core.IntPxPosition offset = IntPxPosition(IntPx.Zero, IntPx.Zero), androidx.ui.foundation.PopupProperties popupProperties = androidx.ui.foundation.PopupProperties(), kotlin.jvm.functions.Function0<kotlin.Unit> children);
     method public static void Popup(androidx.ui.core.Alignment alignment = Alignment.TopLeft, androidx.ui.core.IntPxPosition offset = IntPxPosition(IntPx.Zero, IntPx.Zero), androidx.ui.foundation.PopupProperties popupProperties = androidx.ui.foundation.PopupProperties(), kotlin.jvm.functions.Function0<kotlin.Unit> children);
     method public static void disposeActivityComposition(android.app.Activity activity);
+    method public static boolean isPopupLayout(android.view.View view, String? testTag = null);
   }
 
   public final class PopupProperties {
