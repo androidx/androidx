@@ -42,39 +42,45 @@ package androidx.ui.material {
     primary
 }), androidx.ui.engine.geometry.Shape shape = RectangleShape, androidx.ui.foundation.shape.border.Border? border = null, androidx.ui.core.Dp elevation = 0.dp, androidx.ui.text.TextStyle textStyle = +themeTextStyle({ 
     button
-}), kotlin.jvm.functions.Function0<kotlin.Unit> children);
+}), androidx.ui.graphics.Color? rippleColor = null, kotlin.jvm.functions.Function0<kotlin.Unit> children);
     method public static void Button(kotlin.jvm.functions.Function0<kotlin.Unit>? onClick = null, androidx.ui.material.ButtonStyle style = ContainedButtonStyle(), kotlin.jvm.functions.Function0<kotlin.Unit> children);
     method public static void Button(String text, kotlin.jvm.functions.Function0<kotlin.Unit>? onClick = null, androidx.ui.material.ButtonStyle style = ContainedButtonStyle());
     method public static androidx.ui.material.ButtonStyle ContainedButtonStyle(androidx.ui.graphics.Color color = +themeColor({ 
     primary
 }), androidx.ui.engine.geometry.Shape shape = +themeShape({ 
     button
-}), androidx.ui.core.Dp elevation = 2.dp);
+}), androidx.ui.core.Dp elevation = 2.dp, androidx.ui.graphics.Color? rippleColor = null);
     method public static androidx.ui.material.ButtonStyle OutlinedButtonStyle(androidx.ui.foundation.shape.border.Border border = Border(+themeColor({ 
     onSurface.copy(OutlinedStrokeOpacity)
 }), 1.dp), androidx.ui.graphics.Color color = +themeColor({ 
     surface
 }), androidx.ui.engine.geometry.Shape shape = +themeShape({ 
     button
-}), androidx.ui.core.Dp elevation = 0.dp);
+}), androidx.ui.core.Dp elevation = 0.dp, androidx.ui.graphics.Color? contentColor = +themeColor({ 
+    primary
+}));
     method public static androidx.ui.material.ButtonStyle TextButtonStyle(androidx.ui.engine.geometry.Shape shape = +themeShape({ 
     button
+}), androidx.ui.graphics.Color? contentColor = +themeColor({ 
+    primary
 }));
   }
 
   public final class ButtonStyle {
-    ctor public ButtonStyle(androidx.ui.graphics.Color color, androidx.ui.engine.geometry.Shape shape, androidx.ui.foundation.shape.border.Border? border, androidx.ui.core.Dp elevation, androidx.ui.layout.EdgeInsets paddings, androidx.ui.text.TextStyle? textStyle);
+    ctor public ButtonStyle(androidx.ui.graphics.Color color, androidx.ui.engine.geometry.Shape shape, androidx.ui.foundation.shape.border.Border? border, androidx.ui.core.Dp elevation, androidx.ui.layout.EdgeInsets paddings, androidx.ui.text.TextStyle? textStyle, androidx.ui.graphics.Color? rippleColor);
     method public androidx.ui.graphics.Color component1();
     method public androidx.ui.engine.geometry.Shape component2();
     method public androidx.ui.foundation.shape.border.Border? component3();
     method public androidx.ui.core.Dp component4();
     method public androidx.ui.layout.EdgeInsets component5();
     method public androidx.ui.text.TextStyle? component6();
-    method public androidx.ui.material.ButtonStyle copy(androidx.ui.graphics.Color color, androidx.ui.engine.geometry.Shape shape, androidx.ui.foundation.shape.border.Border? border, androidx.ui.core.Dp elevation, androidx.ui.layout.EdgeInsets paddings, androidx.ui.text.TextStyle? textStyle);
+    method public androidx.ui.graphics.Color? component7();
+    method public androidx.ui.material.ButtonStyle copy(androidx.ui.graphics.Color color, androidx.ui.engine.geometry.Shape shape, androidx.ui.foundation.shape.border.Border? border, androidx.ui.core.Dp elevation, androidx.ui.layout.EdgeInsets paddings, androidx.ui.text.TextStyle? textStyle, androidx.ui.graphics.Color? rippleColor);
     method public androidx.ui.foundation.shape.border.Border? getBorder();
     method public androidx.ui.graphics.Color getColor();
     method public androidx.ui.core.Dp getElevation();
     method public androidx.ui.layout.EdgeInsets getPaddings();
+    method public androidx.ui.graphics.Color? getRippleColor();
     method public androidx.ui.engine.geometry.Shape getShape();
     method public androidx.ui.text.TextStyle? getTextStyle();
   }
@@ -334,16 +340,18 @@ package androidx.ui.material.ripple {
 
   public final class RippleKt {
     ctor public RippleKt();
-    method public static void Ripple(boolean bounded, androidx.ui.core.Dp? radius = null, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method public static void Ripple(boolean bounded, androidx.ui.core.Dp? radius = null, androidx.ui.graphics.Color? color = null, kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
 
   public final class RippleTheme {
-    ctor public RippleTheme(androidx.ui.material.ripple.RippleEffectFactory factory, kotlin.jvm.functions.Function1<? super androidx.ui.graphics.Color,androidx.ui.graphics.Color> colorCallback);
+    ctor public RippleTheme(androidx.ui.material.ripple.RippleEffectFactory factory, androidx.compose.Effect<androidx.ui.graphics.Color> defaultColor, androidx.compose.Effect<java.lang.Float> opacity);
     method public androidx.ui.material.ripple.RippleEffectFactory component1();
-    method public kotlin.jvm.functions.Function1<androidx.ui.graphics.Color,androidx.ui.graphics.Color> component2();
-    method public androidx.ui.material.ripple.RippleTheme copy(androidx.ui.material.ripple.RippleEffectFactory factory, kotlin.jvm.functions.Function1<? super androidx.ui.graphics.Color,androidx.ui.graphics.Color> colorCallback);
-    method public kotlin.jvm.functions.Function1<androidx.ui.graphics.Color,androidx.ui.graphics.Color> getColorCallback();
+    method public androidx.compose.Effect<androidx.ui.graphics.Color> component2();
+    method public androidx.compose.Effect<java.lang.Float> component3();
+    method public androidx.ui.material.ripple.RippleTheme copy(androidx.ui.material.ripple.RippleEffectFactory factory, androidx.compose.Effect<androidx.ui.graphics.Color> defaultColor, androidx.compose.Effect<java.lang.Float> opacity);
+    method public androidx.compose.Effect<androidx.ui.graphics.Color> getDefaultColor();
     method public androidx.ui.material.ripple.RippleEffectFactory getFactory();
+    method public androidx.compose.Effect<java.lang.Float> getOpacity();
   }
 
   public final class RippleThemeKt {

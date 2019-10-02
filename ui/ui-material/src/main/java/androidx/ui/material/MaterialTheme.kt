@@ -36,6 +36,8 @@ import androidx.ui.graphics.luminance
 import androidx.ui.material.ripple.CurrentRippleTheme
 import androidx.ui.material.ripple.DefaultRippleEffectFactory
 import androidx.ui.material.ripple.RippleTheme
+import androidx.ui.material.surface.Card
+import androidx.ui.material.surface.CurrentBackground
 import androidx.ui.text.font.FontWeight
 import androidx.ui.text.font.FontFamily
 import androidx.ui.text.TextStyle
@@ -229,18 +231,21 @@ data class MaterialTypography(
  */
 @Composable
 private fun MaterialRippleTheme(children: @Composable() () -> Unit) {
-    val materialColors = +ambient(Colors)
     val defaultTheme = +memo {
         RippleTheme(
             factory = DefaultRippleEffectFactory,
-            colorCallback = { background ->
-                if (background == null || background.alpha == 0f ||
-                    background.luminance() >= 0.5
-                ) { // light bg
-                    materialColors.primary.copy(alpha = 0.12f)
-                } else { // dark bg
-                    Color.White.copy(alpha = 0.24f)
+            defaultColor = effectOf {
+                val background = +ambient(CurrentBackground)
+                val textColor = +textColorForBackground(background)
+                when {
+                    textColor != null -> textColor
+                    background.alpha == 0f || background.luminance() >= 0.5 -> Color.Black
+                    else -> Color.White
                 }
+            },
+            opacity = effectOf {
+                val isDarkTheme = (+themeColor { surface }).luminance() < 0.5f
+                if (isDarkTheme) 0.24f else 0.12f
             }
         )
     }

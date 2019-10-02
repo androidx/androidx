@@ -33,7 +33,7 @@ import androidx.ui.core.PxPosition
 import androidx.ui.core.ambientDensity
 import androidx.ui.core.center
 import androidx.ui.core.gesture.PressIndicatorGestureDetector
-import androidx.ui.material.surface.CurrentBackground
+import androidx.ui.graphics.Color
 
 /**
  * Ripple is a visual indicator for a pressed state.
@@ -47,12 +47,15 @@ import androidx.ui.material.surface.CurrentBackground
  * ripples always animate from the target layout center, bounded ripples animate from the touch
  * position.
  * @param radius Effects grow up to this size. If null is provided the size would be calculated
- * based on the target layout size
+ * based on the target layout size.
+ * @param color The Ripple color is usually the same color used by the text or iconography in the
+ * component. If null is provided the color will be calculated by [RippleTheme.defaultColor].
  */
 @Composable
 fun Ripple(
     bounded: Boolean,
     radius: Dp? = null,
+    color: Color? = null,
     children: @Composable() () -> Unit
 ) {
     val density = +ambientDensity()
@@ -61,12 +64,12 @@ fun Ripple(
 
     Recompose { recompose ->
         state.recompose = recompose
-        val color = theme.colorCallback.invoke(+ambient(CurrentBackground))
+        val finalColor = (color ?: +theme.defaultColor).copy(alpha = +theme.opacity)
         Draw { canvas, _ ->
             if (state.effects.isNotEmpty()) {
                 val position = state.coordinates!!.position
                 canvas.translate(position.x.value, position.y.value)
-                state.effects.forEach { it.draw(canvas, color) }
+                state.effects.forEach { it.draw(canvas, finalColor) }
                 canvas.translate(-position.x.value, -position.y.value)
             }
         }
