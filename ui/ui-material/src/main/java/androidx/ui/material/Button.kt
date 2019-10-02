@@ -259,12 +259,8 @@ fun BaseButton(
 ) {
     Surface(shape, color, border, elevation) {
         CurrentTextStyleProvider(value = textStyle) {
-            if (onClick != null) {
-                Ripple(bounded = true, color = rippleColor) {
-                    Clickable(onClick = onClick, children = children)
-                }
-            } else {
-                Clickable(children = children)
+            Ripple(bounded = true, color = rippleColor, enabled = onClick != null) {
+                Clickable(onClick = onClick, children = children)
             }
         }
     }
