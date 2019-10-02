@@ -43,6 +43,7 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
+import androidx.test.filters.SdkSuppress;
 
 import org.jetbrains.annotations.NotNull;
 import org.junit.Before;
@@ -110,12 +111,16 @@ public class NestedScrollViewNestedScrollingA11yScrollTest extends
         testContentView.awaitLayouts(2);
     }
 
+    // minSdkVersion = 16 because View.performAccessibilityAction wasn't available till then.
     @Test
+    @SdkSuppress(minSdkVersion = 16)
     public void a11yActionScrollForward_fullyParticipatesInNestedScrolling() throws Throwable {
         a11yScroll_fullyParticipatesInNestedScrolling(true);
     }
 
+    // minSdkVersion = 16 because View.performAccessibilityAction wasn't available till then.
     @Test
+    @SdkSuppress(minSdkVersion = 16)
     public void a11yActionScrollBackward_fullyParticipatesInNestedScrolling() throws Throwable {
         a11yScroll_fullyParticipatesInNestedScrolling(false);
     }
