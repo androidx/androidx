@@ -153,7 +153,7 @@ import java.util.List;
                     ExoPlayerUtils.getMediaFormat(trackGroup.getFormat(0)),
                     mNextTrackId++);
             mAudioTracks.put(track.mExternalTrackInfo.getId(), track);
-            if (trackGroup == selectedAudioTrackGroup) {
+            if (trackGroup.equals(selectedAudioTrackGroup)) {
                 mSelectedAudioTrack = track;
             }
         }
@@ -166,7 +166,7 @@ import java.util.List;
                     ExoPlayerUtils.getMediaFormat(trackGroup.getFormat(0)),
                     mNextTrackId++);
             mVideoTracks.put(track.mExternalTrackInfo.getId(), track);
-            if (trackGroup == selectedVideoTrackGroup) {
+            if (trackGroup.equals(selectedVideoTrackGroup)) {
                 mSelectedVideoTrack = track;
             }
         }
@@ -180,7 +180,7 @@ import java.util.List;
                     ExoPlayerUtils.getMediaFormat(trackGroup.getFormat(0)),
                     mNextTrackId++);
             mMetadataTracks.put(track.mExternalTrackInfo.getId(), track);
-            if (trackGroup == selectedMetadataTrackGroup) {
+            if (trackGroup.equals(selectedMetadataTrackGroup)) {
                 mSelectedMetadataTrack = track;
             }
         }
@@ -195,7 +195,7 @@ import java.util.List;
             InternalTextTrackInfo textTrack = new InternalTextTrackInfo(
                     i, type, format, UNSET, mNextTrackId++);
             mTextTracks.put(textTrack.mExternalTrackInfo.getId(), textTrack);
-            if (trackGroup == selectedTextTrackGroup) {
+            if (trackGroup.equals(selectedTextTrackGroup)) {
                 mPlayerTextTrackIndex = i;
             }
         }
