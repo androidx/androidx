@@ -21,6 +21,7 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 import android.os.ParcelFileDescriptor;
 import android.util.Log;
 
+import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
@@ -60,10 +61,17 @@ public class FileMediaItem extends MediaItem {
     @NonParcelField
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     long mFDLength = FD_LENGTH_UNKNOWN;
+
     @NonParcelField
-    Integer mRefCount = new Integer(0);
+    private final Object mLock = new Object();
+
     @NonParcelField
-    boolean mClosed;
+    @GuardedBy("mLock")
+    private int mRefCount;
+
+    @NonParcelField
+    @GuardedBy("mLock")
+    private boolean mClosed;
 
     /**
      * Used for VersionedParcelable
@@ -112,7 +120,7 @@ public class FileMediaItem extends MediaItem {
      */
     @RestrictTo(LIBRARY_GROUP)
     public void increaseRefCount() {
-        synchronized (mRefCount) {
+        synchronized (mLock) {
             if (mClosed) {
                 Log.w(TAG, "ParcelFileDescriptorClient is already closed.");
                 return;
@@ -128,7 +136,7 @@ public class FileMediaItem extends MediaItem {
      */
     @RestrictTo(LIBRARY_GROUP)
     public void decreaseRefCount() {
-        synchronized (mRefCount) {
+        synchronized (mLock) {
             if (mClosed) {
                 Log.w(TAG, "ParcelFileDescriptorClient is already closed.");
                 return;
@@ -153,7 +161,7 @@ public class FileMediaItem extends MediaItem {
      */
     @RestrictTo(LIBRARY_GROUP)
     public boolean isClosed() {
-        synchronized (mRefCount) {
+        synchronized (mLock) {
             return mClosed;
         }
     }
@@ -164,7 +172,7 @@ public class FileMediaItem extends MediaItem {
      */
     @RestrictTo(LIBRARY_GROUP)
     public void close() throws IOException {
-        synchronized (mRefCount) {
+        synchronized (mLock) {
             if (mPFD != null) {
                 mPFD.close();
             }
