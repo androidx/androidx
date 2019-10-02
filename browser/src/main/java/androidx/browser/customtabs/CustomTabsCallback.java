@@ -94,7 +94,8 @@ public class CustomTabsCallback {
     public void extraCallback(String callbackName, Bundle args) {}
 
     /**
-     * Similar to {@link #extraCallback}, but with a return value.
+     * The same as {@link #extraCallback}, except that this method allows the custom tabs provider
+     * to return a result
      */
     @Nullable
     public Bundle extraCallbackWithResult(@NonNull String callbackName, @Nullable Bundle args) {
