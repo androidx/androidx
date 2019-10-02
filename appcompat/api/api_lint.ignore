@@ -17,6 +17,10 @@ ListenerLast: androidx.appcompat.app.AlertDialog.Builder#setCursor(android.datab
     Listeners should always be at end of argument list (method `setCursor`)
 
 
+MissingBuild: androidx.appcompat.app.AlertDialog.Builder:
+    Missing `build()` method in androidx.appcompat.app.AlertDialog.Builder
+
+
 MissingNullability: androidx.appcompat.app.ActionBar#addOnMenuVisibilityListener(androidx.appcompat.app.ActionBar.OnMenuVisibilityListener) parameter #0:
     Missing nullability on parameter `listener` in method `addOnMenuVisibilityListener`
 MissingNullability: androidx.appcompat.app.ActionBar#addTab(androidx.appcompat.app.ActionBar.Tab) parameter #0:

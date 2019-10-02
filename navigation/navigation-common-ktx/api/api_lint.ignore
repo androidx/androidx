@@ -5,6 +5,16 @@ DocumentExceptions: androidx.navigation.NavGraphBuilder#build():
     Method NavGraphBuilder.build appears to be throwing java.lang.IllegalStateException; this should be listed in the documentation; see https://android.github.io/kotlin-guides/interop.html#document-exceptions
 
 
+MissingBuild: androidx.navigation.AnimBuilder:
+    Missing `build()` method in androidx.navigation.AnimBuilder
+MissingBuild: androidx.navigation.NavActionBuilder:
+    Missing `build()` method in androidx.navigation.NavActionBuilder
+MissingBuild: androidx.navigation.NavOptionsBuilder:
+    Missing `build()` method in androidx.navigation.NavOptionsBuilder
+MissingBuild: androidx.navigation.PopUpToBuilder:
+    Missing `build()` method in androidx.navigation.PopUpToBuilder
+
+
 SetterReturnsThis: androidx.navigation.AnimBuilder:
     Methods must return the builder object (return type AnimBuilder instead of void): method androidx.navigation.AnimBuilder.setEnter(int)
 SetterReturnsThis: androidx.navigation.NavActionBuilder:

@@ -109,6 +109,10 @@ MethodNameUnits: androidx.ui.core.Durations#inSeconds(androidx.ui.core.Duration)
     Returned time values must be in milliseconds, was `inSeconds`
 
 
+MissingBuild: androidx.ui.graphics.vector.PathBuilder:
+    Missing `build()` method in androidx.ui.graphics.vector.PathBuilder
+
+
 MissingNullability: androidx.ui.core.Constraints#Companion:
     Missing nullability on field `Companion` in class `class androidx.ui.core.Constraints`
 MissingNullability: androidx.ui.core.Dp#Companion:

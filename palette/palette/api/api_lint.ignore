@@ -1,0 +1,3 @@
+// Baseline format: 1.0
+MissingBuild: androidx.palette.graphics.Palette.Builder:
+    Missing `build()` method in androidx.palette.graphics.Palette.Builder

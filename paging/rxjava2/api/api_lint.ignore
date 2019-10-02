@@ -1,3 +1,7 @@
 // Baseline format: 1.0
+MissingBuild: androidx.paging.RxPagedListBuilder:
+    Missing `build()` method in androidx.paging.RxPagedListBuilder
+
+
 SetterReturnsThis: androidx.paging.RxPagedListBuilder:
     Methods must return the builder object (return type RxPagedListBuilder instead of androidx.paging.RxPagedListBuilder<Key,Value>): method androidx.paging.RxPagedListBuilder.setInitialLoadKey(Key)
