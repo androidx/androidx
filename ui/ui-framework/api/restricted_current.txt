@@ -69,7 +69,7 @@ package androidx.ui.core {
 
   public final class PointerInputWrapperKt {
     ctor public PointerInputWrapperKt();
-    method public static inline void PointerInputWrapper(kotlin.jvm.functions.Function2<? super java.util.List<androidx.ui.core.PointerInputChange>,? super androidx.ui.core.PointerEventPass,? extends java.util.List<androidx.ui.core.PointerInputChange>> pointerInputHandler = { event, _ -> event }, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method public static inline void PointerInputWrapper(kotlin.jvm.functions.Function3<? super java.util.List<androidx.ui.core.PointerInputChange>,? super androidx.ui.core.PointerEventPass,? super androidx.ui.core.IntPxSize,? extends java.util.List<androidx.ui.core.PointerInputChange>> pointerInputHandler = { event, _, _ -> event }, kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
 
   public final class RepaintBoundaryKt {
@@ -236,6 +236,11 @@ package androidx.ui.core.gesture {
 }
 
 package androidx.ui.core.gesture.util {
+
+  public final class GestureUtilsKt {
+    ctor public GestureUtilsKt();
+    method public static boolean anyPointersInBounds(java.util.List<androidx.ui.core.PointerInputChange>, androidx.ui.core.IntPxSize bounds);
+  }
 
   public final class PolyFitLeastSquaresKt {
     ctor public PolyFitLeastSquaresKt();

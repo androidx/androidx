@@ -25,6 +25,7 @@ import androidx.compose.memo
 import androidx.compose.unaryPlus
 import androidx.ui.core.changedToUp
 import androidx.ui.core.CoroutineContextAmbient
+import androidx.ui.core.IntPxSize
 import androidx.ui.core.PointerInputWrapper
 import androidx.ui.core.PxPosition
 import androidx.ui.core.anyPositionChangeConsumed
@@ -77,7 +78,7 @@ internal class DoubleTapGestureRecognizer(
     private var job: Job? = null
 
     val pointerInputHandler =
-        { changes: List<PointerInputChange>, pass: PointerEventPass ->
+        { changes: List<PointerInputChange>, pass: PointerEventPass, _: IntPxSize ->
 
             var changesToReturn = changes
 

@@ -238,9 +238,9 @@ package androidx.ui.core {
 
   public final class PointerInputNode extends androidx.ui.core.ComponentNode {
     ctor public PointerInputNode();
-    method public kotlin.jvm.functions.Function2<java.util.List<androidx.ui.core.PointerInputChange>,androidx.ui.core.PointerEventPass,java.util.List<androidx.ui.core.PointerInputChange>> getPointerInputHandler();
-    method public void setPointerInputHandler(kotlin.jvm.functions.Function2<? super java.util.List<androidx.ui.core.PointerInputChange>,? super androidx.ui.core.PointerEventPass,? extends java.util.List<androidx.ui.core.PointerInputChange>> p);
-    property public final kotlin.jvm.functions.Function2<java.util.List<androidx.ui.core.PointerInputChange>,androidx.ui.core.PointerEventPass,java.util.List<androidx.ui.core.PointerInputChange>> pointerInputHandler;
+    method public kotlin.jvm.functions.Function3<java.util.List<androidx.ui.core.PointerInputChange>,androidx.ui.core.PointerEventPass,androidx.ui.core.IntPxSize,java.util.List<androidx.ui.core.PointerInputChange>> getPointerInputHandler();
+    method public void setPointerInputHandler(kotlin.jvm.functions.Function3<? super java.util.List<androidx.ui.core.PointerInputChange>,? super androidx.ui.core.PointerEventPass,? super androidx.ui.core.IntPxSize,? extends java.util.List<androidx.ui.core.PointerInputChange>> p);
+    property public final kotlin.jvm.functions.Function3<java.util.List<androidx.ui.core.PointerInputChange>,androidx.ui.core.PointerEventPass,androidx.ui.core.IntPxSize,java.util.List<androidx.ui.core.PointerInputChange>> pointerInputHandler;
   }
 
   public final class Ref<T> {

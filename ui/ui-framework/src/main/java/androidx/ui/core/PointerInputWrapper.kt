@@ -20,7 +20,7 @@ import androidx.compose.Composable
 // TODO: Rename
 @Composable
 inline fun PointerInputWrapper(
-    noinline pointerInputHandler: PointerInputHandler = { event, _ -> event },
+    noinline pointerInputHandler: PointerInputHandler = { event, _, _ -> event },
     crossinline children: @Composable() () -> Unit
 ) {
     // Hide the internals of PointerInputNode

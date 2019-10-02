@@ -17,6 +17,7 @@
 package androidx.ui.core.pointerinput
 
 import androidx.ui.core.IntPxPosition
+import androidx.ui.core.IntPxSize
 import androidx.ui.core.LayoutNode
 import androidx.ui.core.PointerEventPass
 import androidx.ui.core.PointerInputChange
@@ -27,6 +28,7 @@ import androidx.ui.core.positionRelativeToRoot
 import androidx.ui.core.isAttached
 import androidx.ui.core.visitLayoutChildren
 import kotlin.math.min
+import kotlin.math.max
 
 /**
  * Organizes pointers and the [PointerInputNode]s that they hit into a hierarchy such that
@@ -120,7 +122,7 @@ internal class HitPathTracker {
      * least one descendant LayoutNode.
      */
     fun refreshOffsets() {
-        root.refreshOffsets()
+        root.refreshPositionInformation()
     }
 
     /**
@@ -147,6 +149,9 @@ internal class Node(
     // PointerInputNode, or relative to the compose root if it has no parent PointerInputNode.
     var offset: IntPxPosition = IntPxPosition.Origin
 
+    // Stores the associated PointerInputNode's virtual size.
+    var size = IntPxSize(0.ipx, 0.ipx)
+
     fun dispatchChanges(
         pointerInputChanges: MutableMap<Int, PointerInputChange>,
         downPass: PointerEventPass,
@@ -166,13 +171,13 @@ internal class Node(
         //  2. dispatch the change on the down pass,
         //  3. update it in relevantChanges.
         if (pointerInputNode != null) {
-            relevantChanges.run {
+            relevantChanges.let {
                 // TODO(shepshapard): would be nice if we didn't have to subtract and then add
                 // offsets.  This is currently done because the calculated offsets are currently
                 // global, not relative to eachother.
-                subtractOffset(offset)
-                dispatchToPointerInputNode(pointerInputNode, downPass)
-                addOffset(offset)
+                it.subtractOffset(offset)
+                it.dispatchToPointerInputNode(pointerInputNode, downPass, size)
+                it.addOffset(offset)
             }
         }
 
@@ -184,10 +189,10 @@ internal class Node(
         //  2. add the offset,
         //  3. update it in  relevant changes.
         if (pointerInputNode != null && upPass != null) {
-            relevantChanges.run {
-                subtractOffset(offset)
-                dispatchToPointerInputNode(pointerInputNode, upPass)
-                addOffset(offset)
+            relevantChanges.let {
+                it.subtractOffset(offset)
+                it.dispatchToPointerInputNode(pointerInputNode, upPass, size)
+                it.addOffset(offset)
             }
         }
 
@@ -226,17 +231,22 @@ internal class Node(
     }
 
     // TODO(b/124960509): Make this much more efficient.
-    fun refreshOffsets() {
+    fun refreshPositionInformation() {
         children.forEach { child ->
-            var minX: Int = Int.MAX_VALUE
-            var minY: Int = Int.MAX_VALUE
+            var minX = Int.MAX_VALUE
+            var minY = Int.MAX_VALUE
+            var maxX = Int.MIN_VALUE
+            var maxY = Int.MIN_VALUE
             child.pointerInputNode?.visitLayoutChildren { layoutChild ->
                 val globalPosition = layoutChild.positionRelativeToRoot()
                 minX = min(minX, globalPosition.x.value)
                 minY = min(minY, globalPosition.y.value)
+                maxX = max(maxX, globalPosition.x.value + layoutChild.width.value)
+                maxY = max(maxY, globalPosition.y.value + layoutChild.height.value)
             }
             child.offset = IntPxPosition(minX.ipx, minY.ipx)
-            child.refreshOffsets()
+            child.size = IntPxSize((maxX - minX).ipx, (maxY - minY).ipx)
+            child.refreshPositionInformation()
         }
     }
 
@@ -247,9 +257,10 @@ internal class Node(
 
     private fun MutableMap<Int, PointerInputChange>.dispatchToPointerInputNode(
         node: PointerInputNode,
-        pass: PointerEventPass
+        pass: PointerEventPass,
+        size: IntPxSize
     ) {
-        node.pointerInputHandler(values.toList(), pass).forEach {
+        node.pointerInputHandler(values.toList(), pass, size).forEach {
             this[it.id] = it
         }
     }

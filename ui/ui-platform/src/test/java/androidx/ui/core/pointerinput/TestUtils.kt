@@ -19,6 +19,8 @@ package androidx.ui.core.pointerinput
 import androidx.ui.core.AlignmentLine
 import androidx.ui.core.IntPx
 import androidx.ui.core.IntPxPosition
+import androidx.ui.core.IntPxSize
+import androidx.ui.core.LayoutNode
 import androidx.ui.core.MeasureScope
 import androidx.ui.core.Placeable
 import androidx.ui.core.PointerEventPass
@@ -38,20 +40,16 @@ open class MyPointerInputHandler : PointerInputHandler {
     var modifyBlock: PointerInputHandler? = null
     override fun invoke(
         p1: List<PointerInputChange>,
-        p2: PointerEventPass
+        p2: PointerEventPass,
+        p3: IntPxSize
     ): List<PointerInputChange> {
-        return modifyBlock?.invoke(p1, p2) ?: p1
+        return modifyBlock?.invoke(p1, p2, p3) ?: p1
     }
 }
 
 internal fun LayoutNode(x: Int, y: Int, x2: Int, y2: Int) =
-    androidx.ui.core.LayoutNode().apply {
-        handleLayoutResult(object : MeasureScope.LayoutResult {
-            override val width: IntPx = x2.ipx - x.ipx
-            override val height: IntPx = y2.ipx - y.ipx
-            override val alignmentLines: Map<AlignmentLine, IntPx> = emptyMap()
-            override fun placeChildren(placementScope: Placeable.PlacementScope) { }
-        })
+    LayoutNode().apply {
+        resize(x2.ipx - x.ipx, y2.ipx - y.ipx)
         place(x.ipx, y.ipx)
     }
 
@@ -59,6 +57,23 @@ internal fun LayoutNode(position: IntPxPosition) =
     androidx.ui.core.LayoutNode().apply {
         place(position.x, position.y)
     }
+
+internal fun LayoutNode(position: IntPxPosition, size: IntPxSize) =
+    LayoutNode().apply {
+        resize(size.width, size.height)
+        place(position.x, position.y)
+    }
+
+internal fun LayoutNode.resize(width: IntPx, height: IntPx) {
+    handleLayoutResult(
+        object : MeasureScope.LayoutResult {
+            override val width: IntPx = width
+            override val height: IntPx = height
+            override val alignmentLines: Map<AlignmentLine, IntPx> = emptyMap()
+            override fun placeChildren(placementScope: Placeable.PlacementScope) {}
+        }
+    )
+}
 
 internal fun PointerInputEventData(
     id: Int,
