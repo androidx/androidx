@@ -300,6 +300,7 @@ fun <T> BottomAppBar(
     }
 }
 
+// TODO: cleanup when expanded width layouts are supported natively b/140408477
 /**
  * Helper layout that takes up the full width of the app bar, with height equal to the [fab] height.
  * This allows us to use [OnChildPositioned] to get the fab position relative to the app bar, so

@@ -17,7 +17,7 @@
 package androidx.ui.material.samples
 
 import androidx.animation.ColorPropKey
-import androidx.animation.DpPropKey
+import androidx.animation.PxPropKey
 import androidx.animation.transitionDefinition
 import androidx.annotation.Sampled
 import androidx.compose.Composable
@@ -29,6 +29,8 @@ import androidx.ui.animation.Transition
 import androidx.ui.core.Alignment
 import androidx.ui.core.Text
 import androidx.ui.core.dp
+import androidx.ui.core.toPx
+import androidx.ui.core.withDensity
 import androidx.ui.foundation.ColoredRect
 import androidx.ui.foundation.selection.MutuallyExclusiveSetItem
 import androidx.ui.foundation.shape.border.Border
@@ -109,6 +111,29 @@ fun TextAndIconTabs(image: Image) {
             Center {
                 Text(
                     text = "Text and icon tab ${state.value + 1} selected",
+                    style = +themeTextStyle { body1 }
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun ScrollingTextTabs() {
+    val state = +state { 0 }
+    val titles = listOf(
+        "TAB 1", "TAB 2", "TAB 3", "TAB 4", "TAB 5", "TAB 6", "TAB 7", "TAB 8", "TAB 9", "TAB 10"
+    )
+    FlexColumn {
+        inflexible {
+            TabRow(items = titles, selectedIndex = state.value, scrollable = true) { index, text ->
+                Tab(text = text, selected = state.value == index) { state.value = index }
+            }
+        }
+        flexible(flex = 1f) {
+            Center {
+                Text(
+                    text = "Scrolling text tab ${state.value + 1} selected",
                     style = +themeTextStyle { body1 }
                 )
             }
@@ -207,6 +232,39 @@ fun FancyIndicatorContainerTabs() {
     }
 }
 
+@Composable
+fun ScrollingFancyIndicatorContainerTabs() {
+    val state = +state { 0 }
+    val titles = listOf(
+        "TAB 1", "TAB 2", "TAB 3", "TAB 4", "TAB 5", "TAB 6", "TAB 7", "TAB 8", "TAB 9", "TAB 10"
+    )
+
+    val indicatorContainer = @Composable { tabPositions: List<TabRow.TabPosition> ->
+        FancyIndicatorContainer(tabPositions = tabPositions, selectedIndex = state.value)
+    }
+
+    FlexColumn {
+        inflexible {
+            TabRow(
+                items = titles,
+                selectedIndex = state.value,
+                indicatorContainer = indicatorContainer,
+                scrollable = true
+            ) { index, text ->
+                Tab(text = text, selected = state.value == index) { state.value = index }
+            }
+        }
+        flexible(flex = 1f) {
+            Center {
+                Text(
+                    text = "Scrolling fancy transition tab ${state.value + 1} selected",
+                    style = +themeTextStyle { body1 }
+                )
+            }
+        }
+    }
+}
+
 // TODO: make this use our base tab when it's exposed and available to use
 @Sampled
 @Composable
@@ -242,19 +300,19 @@ fun FancyIndicator(color: Color) {
 @Sampled
 @Composable
 fun FancyIndicatorContainer(tabPositions: List<TabRow.TabPosition>, selectedIndex: Int) {
-    val indicatorStart = +memo { DpPropKey() }
-    val indicatorEnd = +memo { DpPropKey() }
+    val indicatorStart = +memo { PxPropKey() }
+    val indicatorEnd = +memo { PxPropKey() }
     val indicatorColor = +memo { ColorPropKey() }
 
     val colors = listOf(Color.Yellow, Color.Red, Color.Green)
     val transitionDefinition =
-        +memo {
+        +memo(tabPositions) {
             transitionDefinition {
                 tabPositions.forEachIndexed { index, position ->
                     state(index) {
-                        this[indicatorStart] = position.xOffset
-                        this[indicatorEnd] = position.xOffset + position.width
-                        this[indicatorColor] = colors[index]
+                        this[indicatorStart] = position.left.toPx()
+                        this[indicatorEnd] = position.right.toPx()
+                        this[indicatorColor] = colors[index % colors.size]
                     }
                 }
                 repeat(tabPositions.size) { from ->
@@ -285,8 +343,8 @@ fun FancyIndicatorContainer(tabPositions: List<TabRow.TabPosition>, selectedInde
     // Padding to set the 'offset'
     Container(expanded = true, alignment = Alignment.BottomLeft) {
         Transition(transitionDefinition, selectedIndex) { state ->
-            val offset = state[indicatorStart]
-            val width = state[indicatorEnd] - state[indicatorStart]
+            val offset = +withDensity { state[indicatorStart].toDp() }
+            val width = +withDensity { (state[indicatorEnd] - state[indicatorStart]).toDp() }
             Padding(left = offset) {
                 Container(width = width) {
                     // Pass the current color to the indicator
