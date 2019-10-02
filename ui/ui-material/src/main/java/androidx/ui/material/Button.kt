@@ -27,7 +27,6 @@ import androidx.ui.core.Text
 import androidx.ui.core.dp
 import androidx.ui.engine.geometry.Shape
 import androidx.ui.foundation.Clickable
-import androidx.ui.foundation.shape.RectangleShape
 import androidx.ui.foundation.shape.border.Border
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Container
@@ -172,8 +171,6 @@ fun TextButtonStyle(
  *
  * @sample androidx.ui.material.samples.ButtonSample
  *
- * @see BaseButton for the lower level variant of this component that does not provide an internal padded container.
- *
  * @param onClick Will be called when the user clicks the button. The button will be disabled if it is null.
  * @param style Contains the styling parameters for the button.
  */
@@ -183,16 +180,17 @@ fun Button(
     style: ButtonStyle = ContainedButtonStyle(),
     children: @Composable() () -> Unit
 ) {
-    BaseButton(
-        onClick = onClick,
-        color = style.color,
-        shape = style.shape,
-        border = style.border,
-        elevation = style.elevation,
-        textStyle = +themeTextStyle { button.merge(style.textStyle) },
-        rippleColor = style.rippleColor
-    ) {
-        Container(constraints = ButtonConstraints, padding = style.paddings, children = children)
+    Surface(style.shape, style.color, style.border, style.elevation) {
+        Ripple(bounded = true, color = style.rippleColor, enabled = onClick != null) {
+            Clickable(onClick = onClick) {
+                Container(constraints = ButtonConstraints, padding = style.paddings) {
+                    CurrentTextStyleProvider(
+                        value = +themeTextStyle { button.merge(style.textStyle) },
+                        children = children
+                    )
+                }
+            }
+        }
     }
 }
 
@@ -223,46 +221,6 @@ fun Button(
 ) {
     Button(style = style, onClick = onClick) {
         Text(text = text)
-    }
-}
-
-/**
- * A basic Button with no internal content. Content can be provided via the children lambda parameter.
- *
- * To make a button clickable, you must provide an onClick. If no onClick is provided, this button will display
- * itself as disabled.
- *
- * @sample androidx.ui.material.samples.BaseButtonSample
- *
- * For a Material styled button, see [Button].
- *
- * @param onClick Will be called when the user clicks the button. The button will be disabled if it is null.
- * @param color The background color. Provide [Color.Transparent] to have no color.
- * @param shape Defines the Button's shape as well its shadow.
- * @param border Optional border to draw on top of the button.
- * @param elevation The z-coordinate at which to place this button. This controls the size
- *  of the shadow below the button.
- * @param textStyle The text style to apply for the children [Text] components.
- * @param rippleColor The Ripple color is usually the same color used by the text or iconography in
- * the component. If null is provided the color will be calculated by [RippleTheme.colorFallback].
- */
-@Composable
-fun BaseButton(
-    onClick: (() -> Unit)? = null,
-    color: Color = +themeColor { primary },
-    shape: Shape = RectangleShape,
-    border: Border? = null,
-    elevation: Dp = 0.dp,
-    textStyle: TextStyle = +themeTextStyle { button },
-    rippleColor: Color? = null,
-    children: @Composable() () -> Unit
-) {
-    Surface(shape, color, border, elevation) {
-        CurrentTextStyleProvider(value = textStyle) {
-            Ripple(bounded = true, color = rippleColor, enabled = onClick != null) {
-                Clickable(onClick = onClick, children = children)
-            }
-        }
     }
 }
 
