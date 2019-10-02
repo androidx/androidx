@@ -19,9 +19,12 @@ package androidx.benchmark.gradle
 import com.android.build.gradle.AppExtension
 import com.android.build.gradle.LibraryExtension
 import com.android.build.gradle.TestedExtension
+import com.android.ddmlib.Log
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.tasks.StopExecutionException
+
+private const val ADDITIONAL_TEST_OUTPUT_KEY = "android.enableAdditionalTestOutput"
 
 class BenchmarkPlugin : Plugin<Project> {
     private var foundAndroidPlugin = false
@@ -87,7 +90,7 @@ class BenchmarkPlugin : Plugin<Project> {
                     "true"
                 )
 
-                if (!testInstrumentationArgs.containsKey("additionalTestOutputDir")) {
+                if (!project.properties[ADDITIONAL_TEST_OUTPUT_KEY].toString().toBoolean()) {
                     defaultConfig.testInstrumentationRunnerArgument("no-isolated-storage", "1")
                 }
             }
@@ -126,7 +129,7 @@ class BenchmarkPlugin : Plugin<Project> {
             if (!applied) {
                 applied = true
 
-                if (!testInstrumentationArgs.containsKey("additionalTestOutputDir")) {
+                if (!project.properties[ADDITIONAL_TEST_OUTPUT_KEY].toString().toBoolean()) {
                     // Only enable pulling benchmark data through this plugin on older versions of AGP
                     // that do not yet enable this flag.
                     project.tasks.register("benchmarkReport", BenchmarkReportTask::class.java)
@@ -140,6 +143,17 @@ class BenchmarkPlugin : Plugin<Project> {
                         // for pulling report data from all connected devices onto host machine through
                         // adb.
                         it.finalizedBy("benchmarkReport")
+                    }
+                } else {
+                    project.tasks.named("connectedAndroidTest").configure {
+                        it.doLast {
+                            Log.logAndDisplay(
+                                Log.LogLevel.INFO,
+                                "Benchmark",
+                                "Benchmark report files generated at ${project.buildDir}" +
+                                        "/outputs/connected_android_test_additional_output"
+                            )
+                        }
                     }
                 }
 
