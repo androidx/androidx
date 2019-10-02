@@ -28,8 +28,10 @@ import androidx.ui.core.OnChildPositioned
 import androidx.ui.core.OnPositioned
 import androidx.ui.core.Px
 import androidx.ui.core.PxPosition
+import androidx.ui.core.VerticalAlignmentLine
 import androidx.ui.core.dp
 import androidx.ui.core.ipx
+import androidx.ui.core.min
 import androidx.ui.core.positionInRoot
 import androidx.ui.core.px
 import androidx.ui.core.setContent
@@ -40,6 +42,8 @@ import androidx.ui.layout.Container
 import androidx.ui.layout.Padding
 import androidx.ui.layout.Row
 import com.google.common.truth.Truth.assertThat
+import org.junit.Assert
+import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -283,6 +287,26 @@ class OnPositionedTest : LayoutTest() {
         withDensity(density) {
             assertThat(realLeft).isEqualTo(40.dp.toPx())
         }
+    }
+
+    @Test
+    fun testAlignmentLinesArePresent() {
+        val latch = CountDownLatch(1)
+        val line = VerticalAlignmentLine(::min)
+        val lineValue = 10.ipx
+        show {
+            val onPositioned = @Composable {
+                OnPositioned { coordinates ->
+                    Assert.assertEquals(1, coordinates.providedAlignmentLines.size)
+                    Assert.assertEquals(lineValue, coordinates.providedAlignmentLines[line])
+                    latch.countDown()
+                }
+            }
+            Layout(onPositioned) { _, _ ->
+                layout(0.ipx, 0.ipx, line to lineValue) { }
+            }
+        }
+        assertTrue(latch.await(1, TimeUnit.SECONDS))
     }
 
     @Composable
