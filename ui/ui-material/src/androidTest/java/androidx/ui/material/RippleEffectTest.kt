@@ -16,8 +16,10 @@
 package androidx.ui.material
 
 import androidx.compose.Composable
+import androidx.compose.Effect
 import androidx.compose.Model
 import androidx.compose.composer
+import androidx.compose.effectOf
 import androidx.test.filters.MediumTest
 import androidx.ui.core.Density
 import androidx.ui.core.Dp
@@ -41,6 +43,7 @@ import androidx.ui.material.surface.Card
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.doClick
 import androidx.ui.test.findByTag
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
@@ -182,8 +185,61 @@ class RippleEffectTest {
         assertTrue(disposeLatch.await(1, TimeUnit.SECONDS))
     }
 
-    private fun RippleButton(size: Dp? = null) {
-        Ripple(bounded = false) {
+    @Test
+    fun rippleColorAndOpacityAreTakenFromTheme() {
+        val drawLatch = CountDownLatch(1)
+        val color = Color.Yellow
+        val opacity = 0.2f
+        composeTestRule.setMaterialContent {
+            RippleCallback(
+                defaultColor = effectOf { color },
+                opacityCallback = effectOf { opacity },
+                onRippleDrawn = { actualColor ->
+                    assertEquals(color.copy(alpha = opacity), actualColor)
+                    drawLatch.countDown()
+                }
+            ) {
+                TestTag(tag = "ripple") {
+                    RippleButton(10.dp)
+                }
+            }
+        }
+
+        findByTag("ripple")
+            .doClick()
+
+        // wait for drawEffect to be called
+        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
+    }
+
+    @Test
+    fun rippleOpacityIsTakenFromTheme() {
+        val drawLatch = CountDownLatch(1)
+        val color = Color.Green
+        val opacity = 0.2f
+        composeTestRule.setMaterialContent {
+            RippleCallback(
+                opacityCallback = effectOf { opacity },
+                onRippleDrawn = { actualColor ->
+                    assertEquals(color.copy(alpha = opacity), actualColor)
+                    drawLatch.countDown()
+                }
+            ) {
+                TestTag(tag = "ripple") {
+                    RippleButton(10.dp, color)
+                }
+            }
+        }
+
+        findByTag("ripple")
+            .doClick()
+
+        // wait for drawEffect to be called
+        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
+    }
+
+    private fun RippleButton(size: Dp? = null, color: Color? = null) {
+        Ripple(bounded = false, color = color) {
             Clickable(onClick = {}) {
                 Container(width = size, height = size) {}
             }
@@ -192,16 +248,22 @@ class RippleEffectTest {
 
     @Composable
     private fun RippleCallback(
-        onRippleDrawn: () -> Unit = {},
+        onRippleDrawn: (Color) -> Unit = {},
         onDispose: () -> Unit = {},
+        defaultColor: Effect<Color> = effectOf { Color(0) },
+        opacityCallback: Effect<Float> = effectOf { 1f },
         children: @Composable() () -> Unit
     ) {
-        val theme = RippleTheme(testRippleEffect(onRippleDrawn, onDispose)) { Color(0) }
+        val theme = RippleTheme(
+            testRippleEffect(onRippleDrawn, onDispose),
+            defaultColor,
+            opacityCallback
+        )
         CurrentRippleTheme.Provider(value = theme, children = children)
     }
 
     private fun testRippleEffect(
-        onDraw: () -> Unit,
+        onDraw: (Color) -> Unit,
         onDispose: () -> Unit
     ): RippleEffectFactory =
         object : RippleEffectFactory {
@@ -220,7 +282,7 @@ class RippleEffectTest {
 
                     override fun draw(canvas: Canvas, color: Color) {
                         if (!onDrawCalled) {
-                            onDraw()
+                            onDraw(color)
                             onDrawCalled = true
                         }
                     }
