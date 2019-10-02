@@ -340,7 +340,7 @@ package androidx.ui.material.ripple {
 
   public final class RippleKt {
     ctor public RippleKt();
-    method public static void Ripple(boolean bounded, androidx.ui.core.Dp? radius = null, androidx.ui.graphics.Color? color = null, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method public static void Ripple(boolean bounded, androidx.ui.core.Dp? radius = null, androidx.ui.graphics.Color? color = null, boolean enabled = true, kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
 
   public final class RippleTheme {
