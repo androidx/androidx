@@ -19,20 +19,23 @@ package androidx.ui.material
 import androidx.compose.Composable
 import androidx.compose.composer
 import androidx.compose.unaryPlus
+import androidx.ui.core.CurrentTextStyleProvider
 import androidx.ui.core.Dp
 import androidx.ui.core.Text
 import androidx.ui.core.dp
 import androidx.ui.engine.geometry.Shape
+import androidx.ui.foundation.Clickable
 import androidx.ui.foundation.SimpleImage
 import androidx.ui.foundation.shape.corner.CircleShape
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Container
 import androidx.ui.layout.DpConstraints
-import androidx.ui.layout.LayoutSize
 import androidx.ui.layout.Padding
 import androidx.ui.layout.Row
 import androidx.ui.layout.WidthSpacer
 import androidx.ui.graphics.Image
+import androidx.ui.material.ripple.Ripple
+import androidx.ui.material.surface.Surface
 import androidx.ui.text.TextStyle
 
 /**
@@ -65,14 +68,13 @@ fun FloatingActionButton(
     elevation: Dp = 6.dp,
     children: @Composable() () -> Unit
 ) {
-    BaseButton(
-        color = color,
-        shape = shape,
-        elevation = elevation,
-        onClick = onClick
-    ) {
-        Container(constraints = DpConstraints(minWidth = minSize, minHeight = minSize)) {
-            children()
+    Surface(shape = shape, color = color, elevation = elevation) {
+        Ripple(bounded = true, enabled = onClick != null) {
+            Clickable(onClick) {
+                Container(constraints = DpConstraints(minWidth = minSize, minHeight = minSize)) {
+                    CurrentTextStyleProvider(+themeTextStyle { button }, children)
+                }
+            }
         }
     }
 }
