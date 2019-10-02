@@ -50,12 +50,14 @@ import androidx.ui.graphics.Color
  * based on the target layout size.
  * @param color The Ripple color is usually the same color used by the text or iconography in the
  * component. If null is provided the color will be calculated by [RippleTheme.defaultColor].
+ * @param enabled The ripple effect will not start if false is provided.
  */
 @Composable
 fun Ripple(
     bounded: Boolean,
     radius: Dp? = null,
     color: Color? = null,
+    enabled: Boolean = true,
     children: @Composable() () -> Unit
 ) {
     val density = +ambientDensity()
@@ -78,7 +80,7 @@ fun Ripple(
     OnChildPositioned(onPositioned = { state.coordinates = it }) {
         PressIndicatorGestureDetector(
             onStart = { position ->
-                if (transitionsEnabled) {
+                if (enabled && transitionsEnabled) {
                     state.handleStart(position, theme.factory, density, bounded, radius)
                 }
             },

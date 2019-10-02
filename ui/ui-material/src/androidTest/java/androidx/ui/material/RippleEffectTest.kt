@@ -44,6 +44,7 @@ import androidx.ui.test.createComposeRule
 import androidx.ui.test.doClick
 import androidx.ui.test.findByTag
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
@@ -238,8 +239,32 @@ class RippleEffectTest {
         assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
     }
 
-    private fun RippleButton(size: Dp? = null, color: Color? = null) {
-        Ripple(bounded = false, color = color) {
+    @Test
+    fun disabledRippleDoesntCreateEffects() {
+        val createdLatch = CountDownLatch(1)
+
+        composeTestRule.setMaterialContent {
+            RippleCallback(
+                onEffectCreated = { createdLatch.countDown() }
+            ) {
+                Card {
+                    TestTag(tag = "ripple") {
+                        RippleButton(enabled = false)
+                    }
+                }
+            }
+        }
+
+        // create two effects
+        findByTag("ripple")
+            .doClick()
+
+        // assert no effects has been created
+        assertFalse(createdLatch.await(500, TimeUnit.MILLISECONDS))
+    }
+
+    private fun RippleButton(size: Dp? = null, color: Color? = null, enabled: Boolean = true) {
+        Ripple(bounded = false, color = color, enabled = enabled) {
             Clickable(onClick = {}) {
                 Container(width = size, height = size) {}
             }
@@ -250,12 +275,13 @@ class RippleEffectTest {
     private fun RippleCallback(
         onRippleDrawn: (Color) -> Unit = {},
         onDispose: () -> Unit = {},
+        onEffectCreated: () -> Unit = {},
         defaultColor: Effect<Color> = effectOf { Color(0) },
         opacityCallback: Effect<Float> = effectOf { 1f },
         children: @Composable() () -> Unit
     ) {
         val theme = RippleTheme(
-            testRippleEffect(onRippleDrawn, onDispose),
+            testRippleEffect(onRippleDrawn, onDispose, onEffectCreated),
             defaultColor,
             opacityCallback
         )
@@ -264,7 +290,8 @@ class RippleEffectTest {
 
     private fun testRippleEffect(
         onDraw: (Color) -> Unit,
-        onDispose: () -> Unit
+        onDispose: () -> Unit,
+        onEffectCreated: () -> Unit
     ): RippleEffectFactory =
         object : RippleEffectFactory {
             override fun create(
@@ -276,6 +303,7 @@ class RippleEffectTest {
                 requestRedraw: () -> Unit,
                 onAnimationFinished: (RippleEffect) -> Unit
             ): RippleEffect {
+                onEffectCreated()
                 return object : RippleEffect {
 
                     private var onDrawCalled: Boolean = false
