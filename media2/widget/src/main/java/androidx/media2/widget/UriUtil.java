@@ -30,4 +30,7 @@ class UriUtil {
         return scheme.equals("http") || scheme.equals("https") || scheme.equals("rtsp");
     }
 
+    private UriUtil() {
+    }
+
 }
