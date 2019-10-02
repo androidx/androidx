@@ -453,7 +453,6 @@ class TypeAdapterStore private constructor(
                     ).process()
                     PojoRowAdapter(
                             context = subContext,
-                            info = resultInfo,
                             pojo = pojo,
                             out = typeMirror)
                 }
@@ -470,11 +469,6 @@ class TypeAdapterStore private constructor(
                             element = MoreElements.asType(asElement)
                     ).process())
                 }
-            }
-
-            if (rowAdapter != null && rowAdapterLogs?.hasErrors() != true) {
-                rowAdapterLogs?.writeTo(context.processingEnv)
-                return rowAdapter
             }
 
             if ((resultInfo?.columns?.size ?: 1) == 1) {
@@ -500,7 +494,6 @@ class TypeAdapterStore private constructor(
                 ).process()
                 return PojoRowAdapter(
                         context = context,
-                        info = null,
                         pojo = pojo,
                         out = typeMirror)
             }
