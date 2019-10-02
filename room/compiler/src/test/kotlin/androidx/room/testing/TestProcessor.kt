@@ -16,6 +16,7 @@
 
 package androidx.room.testing
 
+import androidx.room.processor.Context
 import javax.annotation.processing.AbstractProcessor
 import javax.annotation.processing.RoundEnvironment
 import javax.annotation.processing.SupportedSourceVersion
@@ -39,6 +40,10 @@ class TestProcessor(
 
     override fun getSupportedAnnotationTypes(): MutableSet<String> {
         return annotations
+    }
+
+    override fun getSupportedOptions(): MutableSet<String> {
+        return Context.ARG_OPTIONS.toMutableSet()
     }
 
     class Builder {
