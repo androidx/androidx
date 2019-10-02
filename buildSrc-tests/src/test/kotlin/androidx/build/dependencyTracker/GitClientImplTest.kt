@@ -103,7 +103,34 @@ class GitClientImplTest {
     }
 
     @Test
-    fun parseAPICommitWithDefaultDelimiters() {
+    fun parseMalformattedReleaseNoteLine() {
+        val projectDir: String = "group/artifact"
+        val commitWithABugFixString: String =
+            """
+                _CommitStart
+                Here is an explanation of my commit that changes a kotlin file
+
+                Release notes: "Missing close quote in the release note block.
+                This is the second line of the release notes.  It should not be included in the
+                release notes because this commit is missing the closing quote.
+
+                Bug: 111111, 222222
+                Test: ./gradlew buildOnServer
+                Change-Id: myChangeId
+                $projectDir/a.java
+            """
+        val commitWithABugFix: Commit = Commit(
+            commitWithABugFixString,
+            projectDir
+        )
+        assertEquals(
+            "Missing close quote in the release note block.",
+            commitWithABugFix.releaseNote
+        )
+    }
+
+    @Test
+    fun parseAPICommitWithMultiLineReleaseNote() {
         val commitWithApiChangeString: String =
             """
                 _CommitStart
@@ -114,6 +141,14 @@ class GitClientImplTest {
                 _Body:Also fixed some other bugs
 
                 Here is an explanation of my commit
+
+                "This is a quote about why it's great!"
+
+                Release Notes: "Added a new API that does something awesome and does a whole bunch
+                 of other things that are also awesome and I just can't elaborate enough how
+                 incredible this API is"
+
+                "This is an extra set of quoted text"
 
                 Bug: 123456
                 Bug: b/1234567
@@ -145,6 +180,62 @@ class GitClientImplTest {
             ),
             commitWithApiChange.files
         )
+        assertEquals(
+            "Added a new API that does something awesome and does a whole bunch\n" +
+            "                 of other things that are also awesome and I just can't elaborate " +
+            "enough how\n                 incredible this API is",
+            commitWithApiChange.releaseNote
+        )
+    }
+
+    @Test
+    fun parseAPICommitWithDefaultDelimiters() {
+        val commitWithApiChangeString: String =
+            """
+                _CommitStart
+                _CommitSHA:mySha
+                _Author:anemail@google.com
+                _Date:Tue Aug 6 15:05:55 2019 -0700
+                _Subject:Added a new API!
+                _Body:Also fixed some other bugs
+
+                Here is an explanation of my commit
+
+                "This is a quote about why it's great!"
+
+                Bug: 123456
+                Bug: b/1234567
+                Fixes: 123123
+                Test: ./gradlew buildOnServer
+
+                Release Notes: Added an awesome new API!
+
+                Change-Id: myChangeId
+
+                projectdir/a.java
+                projectdir/b.java
+                projectdir/androidTest/c.java
+                projectdir/api/some_api_file.txt
+                projectdir/api/current.txt
+            """
+        val commitWithApiChange: Commit = Commit(commitWithApiChangeString, "/projectdir/")
+        assertEquals("mySha", commitWithApiChange.sha)
+        assertEquals("anemail@google.com", commitWithApiChange.authorEmail)
+        assertEquals("myChangeId", commitWithApiChange.changeId)
+        assertEquals("Added a new API!", commitWithApiChange.summary)
+        assertEquals(CommitType.API_CHANGE, commitWithApiChange.type)
+        assertEquals(mutableListOf(123456, 1234567, 123123), commitWithApiChange.bugs)
+        assertEquals(
+            mutableListOf(
+                "projectdir/a.java",
+                "projectdir/b.java",
+                "projectdir/androidTest/c.java",
+                "projectdir/api/some_api_file.txt",
+                "projectdir/api/current.txt"
+            ),
+            commitWithApiChange.files
+        )
+        assertEquals("Added an awesome new API!", commitWithApiChange.releaseNote)
     }
 
     @Test
@@ -163,6 +254,8 @@ class GitClientImplTest {
                 _Body:Also fixed some other bugs
 
                 Here is an explanation of my commit that changes a kotlin file
+
+                Release notes: "Fixed a critical bug"
 
                 Bug: 111111, 222222
                 Test: ./gradlew buildOnServer
@@ -194,6 +287,7 @@ class GitClientImplTest {
             ),
             commitWithABugFix.files
         )
+        assertEquals("Fixed a critical bug", commitWithABugFix.releaseNote)
     }
 
     @Test
@@ -212,6 +306,8 @@ class GitClientImplTest {
                 _Body:Also fixed some other bugs
 
                 Here is an explanation of my commit that changes a java file
+
+                release notes: Added a new compat API!
 
                 Bug: 111111, 222222
                 Test: ./gradlew buildOnServer
@@ -247,6 +343,7 @@ class GitClientImplTest {
             ),
             commitFromExternalContributor.files
         )
+        assertEquals("Added a new compat API!", commitFromExternalContributor.releaseNote)
     }
 
     @Test
