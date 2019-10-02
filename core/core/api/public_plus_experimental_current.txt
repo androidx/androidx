@@ -2067,6 +2067,7 @@ package androidx.core.view {
     method @Deprecated public static float getScaleX(android.view.View!);
     method @Deprecated public static float getScaleY(android.view.View!);
     method public static int getScrollIndicators(android.view.View);
+    method @UiThread public static final CharSequence? getStateDescription(android.view.View);
     method public static java.util.List<android.graphics.Rect!> getSystemGestureExclusionRects(android.view.View);
     method public static String? getTransitionName(android.view.View);
     method @Deprecated public static float getTranslationX(android.view.View!);
@@ -2156,6 +2157,7 @@ package androidx.core.view {
     method @UiThread public static void setScreenReaderFocusable(android.view.View!, boolean);
     method public static void setScrollIndicators(android.view.View, int);
     method public static void setScrollIndicators(android.view.View, int, int);
+    method @UiThread public static void setStateDescription(android.view.View, CharSequence?);
     method public static void setSystemGestureExclusionRects(android.view.View, java.util.List<android.graphics.Rect!>);
     method public static void setTooltipText(android.view.View, CharSequence?);
     method public static void setTransitionName(android.view.View, String!);
@@ -2365,6 +2367,7 @@ package androidx.core.view.accessibility {
     field public static final int CONTENT_CHANGE_TYPE_PANE_APPEARED = 16; // 0x10
     field public static final int CONTENT_CHANGE_TYPE_PANE_DISAPPEARED = 32; // 0x20
     field public static final int CONTENT_CHANGE_TYPE_PANE_TITLE = 8; // 0x8
+    field public static final int CONTENT_CHANGE_TYPE_STATE_DESCRIPTION = 64; // 0x40
     field public static final int CONTENT_CHANGE_TYPE_SUBTREE = 1; // 0x1
     field public static final int CONTENT_CHANGE_TYPE_TEXT = 2; // 0x2
     field public static final int CONTENT_CHANGE_TYPE_UNDEFINED = 0; // 0x0
@@ -2448,6 +2451,7 @@ package androidx.core.view.accessibility {
     method public androidx.core.view.accessibility.AccessibilityNodeInfoCompat! getParent();
     method public androidx.core.view.accessibility.AccessibilityNodeInfoCompat.RangeInfoCompat! getRangeInfo();
     method public CharSequence? getRoleDescription();
+    method public CharSequence? getStateDescription();
     method public CharSequence! getText();
     method public int getTextSelectionEnd();
     method public int getTextSelectionStart();
@@ -2537,6 +2541,7 @@ package androidx.core.view.accessibility {
     method public void setShowingHintText(boolean);
     method public void setSource(android.view.View!);
     method public void setSource(android.view.View!, int);
+    method public void setStateDescription(CharSequence?);
     method public void setText(CharSequence!);
     method public void setTextEntryKey(boolean);
     method public void setTextSelection(int, int);

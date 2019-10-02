@@ -29,6 +29,7 @@
     <item name="tag_accessibility_pane_title" type="id"/>
     <item name="tag_accessibility_clickable_spans" type="id"/>
     <item name="tag_accessibility_actions" type="id"/>
+    <item name="tag_state_description" type="id"/>
     <item name="accessibility_custom_action_0" type="id"/>
     <item name="accessibility_custom_action_1" type="id"/>
     <item name="accessibility_custom_action_2" type="id"/>

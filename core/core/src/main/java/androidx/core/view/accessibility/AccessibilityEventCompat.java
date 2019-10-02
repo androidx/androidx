@@ -16,9 +16,18 @@
 
 package androidx.core.view.accessibility;
 
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
+
 import android.os.Build;
 import android.view.accessibility.AccessibilityEvent;
+import android.view.accessibility.AccessibilityNodeInfo;
 import android.view.accessibility.AccessibilityRecord;
+
+import androidx.annotation.IntDef;
+import androidx.annotation.RestrictTo;
+
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 
 /**
  * Helper for accessing features in {@link AccessibilityEvent}.
@@ -181,6 +190,13 @@ public final class AccessibilityEventCompat {
     public static final int CONTENT_CHANGE_TYPE_PANE_DISAPPEARED = 0x00000020;
 
     /**
+     * Change type for {@link AccessibilityEvent#TYPE_WINDOW_CONTENT_CHANGED} event:
+     * state description of the node as returned by
+     * {@link AccessibilityNodeInfo#getStateDescription} was changed.
+     */
+    public static final int CONTENT_CHANGE_TYPE_STATE_DESCRIPTION = 0x00000040;
+
+    /**
      * Mask for {@link AccessibilityEvent} all types.
      *
      * @see AccessibilityEvent#TYPE_VIEW_CLICKED
@@ -208,6 +224,20 @@ public final class AccessibilityEventCompat {
      * @see #TYPE_ASSIST_READING_CONTEXT
      */
     public static final int TYPES_ALL_MASK = 0xFFFFFFFF;
+
+    /** @hide */
+    @IntDef(
+            flag = true,
+            value = {
+                    CONTENT_CHANGE_TYPE_CONTENT_DESCRIPTION,
+                    CONTENT_CHANGE_TYPE_STATE_DESCRIPTION,
+                    CONTENT_CHANGE_TYPE_SUBTREE,
+                    CONTENT_CHANGE_TYPE_TEXT,
+                    CONTENT_CHANGE_TYPE_UNDEFINED
+            })
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface ContentChangeType {}
 
     /*
      * Hide constructor from clients.
@@ -284,7 +314,8 @@ public final class AccessibilityEventCompat {
      * @throws IllegalStateException If called from an AccessibilityService.
      * @see #getContentChangeTypes(AccessibilityEvent)
      */
-    public static void setContentChangeTypes(AccessibilityEvent event, int changeTypes) {
+    public static void setContentChangeTypes(AccessibilityEvent event,
+            @ContentChangeType int changeTypes) {
         if (Build.VERSION.SDK_INT >= 19) {
             event.setContentChangeTypes(changeTypes);
         }
@@ -298,11 +329,13 @@ public final class AccessibilityEventCompat {
      * @return The bit mask of change types. One or more of:
      *         <ul>
      *         <li>{@link AccessibilityEvent#CONTENT_CHANGE_TYPE_CONTENT_DESCRIPTION}
+     *         <li>{@link AccessibilityEvent#CONTENT_CHANGE_TYPE_STATE_DESCRIPTION}
      *         <li>{@link AccessibilityEvent#CONTENT_CHANGE_TYPE_SUBTREE}
      *         <li>{@link AccessibilityEvent#CONTENT_CHANGE_TYPE_TEXT}
      *         <li>{@link AccessibilityEvent#CONTENT_CHANGE_TYPE_UNDEFINED}
      *         </ul>
      */
+    @ContentChangeType
     public static int getContentChangeTypes(AccessibilityEvent event) {
         if (Build.VERSION.SDK_INT >= 19) {
             return event.getContentChangeTypes();
