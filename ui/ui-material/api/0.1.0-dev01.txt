@@ -38,11 +38,6 @@ package androidx.ui.material {
 
   public final class ButtonKt {
     ctor public ButtonKt();
-    method public static void BaseButton(kotlin.jvm.functions.Function0<kotlin.Unit>? onClick = null, androidx.ui.graphics.Color color = +themeColor({ 
-    primary
-}), androidx.ui.engine.geometry.Shape shape = RectangleShape, androidx.ui.foundation.shape.border.Border? border = null, androidx.ui.core.Dp elevation = 0.dp, androidx.ui.text.TextStyle textStyle = +themeTextStyle({ 
-    button
-}), androidx.ui.graphics.Color? rippleColor = null, kotlin.jvm.functions.Function0<kotlin.Unit> children);
     method public static void Button(kotlin.jvm.functions.Function0<kotlin.Unit>? onClick = null, androidx.ui.material.ButtonStyle style = ContainedButtonStyle(), kotlin.jvm.functions.Function0<kotlin.Unit> children);
     method public static void Button(String text, kotlin.jvm.functions.Function0<kotlin.Unit>? onClick = null, androidx.ui.material.ButtonStyle style = ContainedButtonStyle());
     method public static androidx.ui.material.ButtonStyle ContainedButtonStyle(androidx.ui.graphics.Color color = +themeColor({ 
