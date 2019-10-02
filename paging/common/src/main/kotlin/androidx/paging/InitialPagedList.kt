@@ -33,7 +33,7 @@ class InitialPagedList<K : Any, V : Any>(
     pagedSource: PagedSource<K, V>,
     coroutineScope: CoroutineScope,
     config: Config,
-    initialKey: K?
+    initialLastKey: K?
 ) : ContiguousPagedList<K, V>(
     pagedSource,
     coroutineScope,
@@ -42,7 +42,5 @@ class InitialPagedList<K : Any, V : Any>(
     null,
     config,
     PagedSource.LoadResult.Page.empty(),
-    0 // no previous load, so pass 0
-) {
-    override val lastKey = initialKey
-}
+    initialLastKey
+)

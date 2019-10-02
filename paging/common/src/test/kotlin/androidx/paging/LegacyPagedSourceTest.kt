@@ -16,15 +16,17 @@
 
 package androidx.paging
 
+import androidx.paging.PagedSource.LoadResult.Page
 import org.junit.Assert
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
+import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 @RunWith(JUnit4::class)
-class PagedSourceWrapperTest {
+class LegacyPagedSourceTest {
     @Test
     fun item() {
         val dataSource = object : ItemKeyedDataSource<Int, String>() {
@@ -45,8 +47,14 @@ class PagedSourceWrapperTest {
 
             override fun getKey(item: String) = item.hashCode()
         }
-        val pagedSource = PagedSourceWrapper(dataSource)
-        assertTrue { pagedSource.keyProvider is PagedSource.KeyProvider.ItemKey }
+        val pagedSource = LegacyPagedSource(dataSource)
+        val lastPage = Page<Int, String>(
+            data = listOf("fakeData"),
+            prevKey = null,
+            nextKey = null
+        )
+        val refreshKey = pagedSource.getRefreshKeyFromPage(0, lastPage)
+        assertEquals("fakeData".hashCode(), refreshKey)
 
         assertFalse { pagedSource.invalid }
         assertFalse { dataSource.isInvalid }
@@ -75,8 +83,14 @@ class PagedSourceWrapperTest {
                 Assert.fail("loadAfter not expected")
             }
         }
-        val pagedSource = PagedSourceWrapper(dataSource)
-        assertTrue { pagedSource.keyProvider is PagedSource.KeyProvider.PageKey }
+        val pagedSource = LegacyPagedSource(dataSource)
+        val lastPage = Page<Int, String>(
+            data = listOf("fakeData"),
+            prevKey = null,
+            nextKey = null
+        )
+        val refreshKey = pagedSource.getRefreshKeyFromPage(0, lastPage)
+        assertEquals(refreshKey, null)
 
         assertFalse { pagedSource.invalid }
         assertFalse { dataSource.isInvalid }
@@ -90,14 +104,22 @@ class PagedSourceWrapperTest {
     @Test
     fun positional() {
         val dataSource = createTestPositionalDataSource()
-        val pagedSource = PagedSourceWrapper(dataSource)
-        assertTrue { pagedSource.keyProvider is PagedSource.KeyProvider.Positional }
+        val pagedSource = LegacyPagedSource(dataSource)
+
+        val lastPageCounted = Page(
+            data = listOf("fakeData"),
+            prevKey = 3,
+            nextKey = 8
+        )
+
+        assertEquals(3, pagedSource.getRefreshKeyFromPage(0, lastPageCounted))
+        assertEquals(4, pagedSource.getRefreshKeyFromPage(1, lastPageCounted))
     }
 
     @Test
     fun invalidateFromPagedSource() {
         val dataSource = createTestPositionalDataSource()
-        val pagedSource = PagedSourceWrapper(dataSource)
+        val pagedSource = LegacyPagedSource(dataSource)
 
         assertFalse { pagedSource.invalid }
         assertFalse { dataSource.isInvalid }
@@ -111,7 +133,7 @@ class PagedSourceWrapperTest {
     @Test
     fun invalidateFromDataSource() {
         val dataSource = createTestPositionalDataSource()
-        val pagedSource = PagedSourceWrapper(dataSource)
+        val pagedSource = LegacyPagedSource(dataSource)
 
         assertFalse { pagedSource.invalid }
         assertFalse { dataSource.isInvalid }

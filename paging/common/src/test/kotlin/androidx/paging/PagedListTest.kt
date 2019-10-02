@@ -19,10 +19,8 @@ package androidx.paging
 import androidx.paging.ContiguousPagedListTest.Companion.EXCEPTION
 import androidx.paging.LoadType.REFRESH
 import androidx.paging.PagedList.Builder
-import androidx.paging.PagedList.Config
 import androidx.paging.PagedList.LoadStateManager
 import androidx.paging.futures.DirectDispatcher
-import androidx.testutils.TestDispatcher
 import androidx.testutils.TestExecutor
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.runBlocking
@@ -40,14 +38,12 @@ class PagedListTest {
         private val config = Config(10)
 
         private val pagedSource = object : PagedSource<Int, String>() {
-            override val keyProvider = KeyProvider.Positional
-
             override suspend fun load(params: LoadParams<Int>): LoadResult<Int, String> =
                 when (params.loadType) {
                     REFRESH -> LoadResult.Page(
                         data = listOf("a"),
-                        itemsBefore = 0,
-                        itemsAfter = 0
+                        prevKey = null,
+                        nextKey = null
                     )
                     else -> throw NotImplementedError("Test should fail if we get here")
                 }
@@ -55,8 +51,6 @@ class PagedListTest {
     }
 
     private val testCoroutineScope = CoroutineScope(EmptyCoroutineContext)
-    private val mainThread = TestDispatcher()
-    private val backgroundThread = TestDispatcher()
 
     @Test
     fun createLegacy() {
@@ -73,7 +67,6 @@ class PagedListTest {
     fun createNoInitialPageThrow() {
         runBlocking {
             val pagedSource = object : PagedSource<Int, String>() {
-                override val keyProvider = KeyProvider.Positional
                 override suspend fun load(params: LoadParams<Int>): LoadResult<Int, String> {
                     throw IllegalStateException()
                 }
@@ -98,7 +91,6 @@ class PagedListTest {
         runBlocking {
             val exception = IllegalStateException()
             val pagedSource = object : PagedSource<Int, String>() {
-                override val keyProvider = KeyProvider.Positional
                 override suspend fun load(params: LoadParams<Int>): LoadResult<Int, String> {
                     return LoadResult.Error(exception)
                 }
@@ -123,13 +115,15 @@ class PagedListTest {
 
     @Test
     fun defaults() = runBlocking {
-        val initialPage = pagedSource.load(PagedSource.LoadParams(
-            REFRESH,
-            key = null,
-            loadSize = 10,
-            placeholdersEnabled = false,
-            pageSize = 10
-        )) as PagedSource.LoadResult.Page
+        val initialPage = pagedSource.load(
+            PagedSource.LoadParams(
+                REFRESH,
+                key = null,
+                loadSize = 10,
+                placeholdersEnabled = false,
+                pageSize = 10
+            )
+        ) as PagedSource.LoadResult.Page
         val pagedList = Builder(pagedSource, initialPage, config)
             .setNotifyDispatcher(DirectDispatcher)
             .setFetchDispatcher(DirectDispatcher)

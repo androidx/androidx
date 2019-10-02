@@ -52,7 +52,7 @@ class LivePagedListBuilder<Key : Any, Value : Any> {
      */
     @Deprecated("DataSource is deprecated and has been replaced by PagedSource")
     constructor(dataSourceFactory: DataSource.Factory<Key, Value>, config: PagedList.Config) {
-        this.pagedSourceFactory = { PagedSourceWrapper(dataSourceFactory.create()) }
+        this.pagedSourceFactory = dataSourceFactory.asPagedSourceFactory()
         this.config = config
     }
 

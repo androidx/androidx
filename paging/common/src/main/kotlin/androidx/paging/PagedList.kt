@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("KDocUnresolvedReference")
+
 package androidx.paging
 
 import androidx.annotation.IntRange
@@ -23,7 +25,6 @@ import androidx.paging.PagedList.Callback
 import androidx.paging.PagedList.Config
 import androidx.paging.PagedList.Config.Builder
 import androidx.paging.PagedList.Config.Companion.MAX_SIZE_UNBOUNDED
-import androidx.paging.PagedSource.KeyProvider
 import androidx.paging.futures.DirectDispatcher
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
@@ -119,7 +120,8 @@ typealias LoadStateListener = (type: LoadType, state: LoadState) -> Unit
  * on your [PagedSource].
  *
  * Placeholders are enabled by default, but can be disabled in two ways. They are disabled if the
- * [PagedSource] does not count its data set in its initial load, or if  `false` is passed to * [Config.Builder.setEnablePlaceholders] when building a [Config].
+ * [PagedSource] does not count its data set in its initial load, or if  `false` is passed to
+ * [Config.Builder.setEnablePlaceholders] when building a [Config].
  *
  * <h4>Mutability and Snapshots</h4>
  *
@@ -148,7 +150,7 @@ abstract class PagedList<T : Any> internal constructor(
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    val pagedSource: PagedSource<*, T>,
+    open val pagedSource: PagedSource<*, T>,
 
     internal val storage: PagedStorage<T>,
 
@@ -195,11 +197,6 @@ abstract class PagedList<T : Any> internal constructor(
             config: Config,
             key: K?
         ): PagedList<T> {
-            val lastLoad = when {
-                pagedSource.keyProvider is KeyProvider.Positional && key != null -> key as Int
-                else -> ContiguousPagedList.LAST_LOAD_UNSPECIFIED
-            }
-
             val resolvedInitialPage = when (initialPage) {
                 null -> {
                     // Compatibility codepath - perform the initial load immediately, since caller
@@ -231,7 +228,7 @@ abstract class PagedList<T : Any> internal constructor(
                 boundaryCallback,
                 config,
                 resolvedInitialPage,
-                lastLoad
+                key
             )
         }
 
@@ -301,7 +298,7 @@ abstract class PagedList<T : Any> internal constructor(
          */
         @Deprecated("DataSource is deprecated and has been replaced by PagedSource")
         constructor(dataSource: DataSource<Key, Value>, config: Config) {
-            this.pagedSource = PagedSourceWrapper(dataSource)
+            this.pagedSource = LegacyPagedSource(dataSource)
             this.initialPage = null
             this.config = config
         }
@@ -322,8 +319,8 @@ abstract class PagedList<T : Any> internal constructor(
         @Suppress("DEPRECATION")
         @Deprecated("DataSource is deprecated and has been replaced by PagedSource")
         constructor(dataSource: DataSource<Key, Value>, pageSize: Int) : this(
-            dataSource,
-            PagedList.Config.Builder().setPageSize(pageSize).build()
+            dataSource = dataSource,
+            config = PagedList.Config.Builder().setPageSize(pageSize).build()
         )
 
         /**
@@ -368,9 +365,9 @@ abstract class PagedList<T : Any> internal constructor(
             initialPage: PagedSource.LoadResult.Page<Key, Value>,
             pageSize: Int
         ) : this(
-            pagedSource,
-            initialPage,
-            PagedList.Config.Builder().setPageSize(pageSize).build()
+            pagedSource = pagedSource,
+            initialPage = initialPage,
+            config = PagedList.Config.Builder().setPageSize(pageSize).build()
         )
 
         /**
@@ -479,8 +476,6 @@ abstract class PagedList<T : Any> internal constructor(
 
         /**
          * Creates a [PagedList] with the given parameters.
-         *
-         * TODO DOCS
          *
          * This call will dispatch the [androidx.paging.PagedSource]'s loadInitial method
          * immediately on the current thread, and block the current on the result. This method
@@ -592,8 +587,7 @@ abstract class PagedList<T : Any> internal constructor(
          * Defines the maximum number of items that may be loaded into this pagedList before pages
          * should be dropped.
          *
-         * [PagedSource.KeyProvider.PageKey] does not currently support dropping pages - when
-         * loading from a [PagedSource.KeyProvider.PageKey], this value is ignored.
+         * If set to [MAX_SIZE_UNBOUNDED], pages will never be dropped.
          *
          * @see MAX_SIZE_UNBOUNDED
          * @see Builder.setMaxSize
@@ -694,13 +688,9 @@ abstract class PagedList<T : Any> internal constructor(
              * This value is typically larger than page size, so on first load data there's a large
              * enough range of content loaded to cover small scrolls.
              *
-             * When using a [PagedSource.KeyProvider.Positional], the initial load size will be
-             * coerced to an integer multiple of [pageSize], to enable efficient tiling.
-             *
              * If not set, defaults to three times page size.
              *
-             * @param initialLoadSizeHint Number of items to load while initializing the
-             * [PagedList].
+             * @param initialLoadSizeHint Number of items to load while initializing the [PagedList]
              * @return this
              */
             fun setInitialLoadSizeHint(@IntRange(from = 1) initialLoadSizeHint: Int) = apply {
@@ -725,9 +715,6 @@ abstract class PagedList<T : Any> internal constructor(
              * two pages may be larger than expected.
              *  * Pages are never dropped if they are within a prefetch window (defined to be
              * `pageSize + (2 * prefetchDistance)`) of the most recent load.
-             *
-             * [PagedSource.KeyProvider.PageKey] does not currently support dropping pages - when
-             * loading from a [PagedSource.KeyProvider.PageKey], this value is ignored.
              *
              * If not set, defaults to [MAX_SIZE_UNBOUNDED], which disables page dropping.
              *
@@ -930,15 +917,14 @@ abstract class PagedList<T : Any> internal constructor(
     internal var refreshRetryCallback: Runnable? = null
 
     /**
-     * Last access location, in total position space (including offset).
+     * Last access location in list.
      *
-     * Used by positional data sources to initialize loading near viewport
+     * Used by list diffing to re-initialize loading near viewport.
      *
      * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // internal otherwise
-    var lastLoad = 0
-    internal var lastItem: T? = null
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    fun lastLoad(): Int = storage.lastLoadAroundIndex
 
     internal val requiredRemainder = config.prefetchDistance * 2 + config.pageSize
 
@@ -967,7 +953,11 @@ abstract class PagedList<T : Any> internal constructor(
     )
     val dataSource: DataSource<*, T>
         get() {
-            if (pagedSource is PagedSourceWrapper) return pagedSource.dataSource
+            val pagedSource = pagedSource
+            @Suppress("UNCHECKED_CAST")
+            if (pagedSource is LegacyPagedSource<*, *>) {
+                return pagedSource.dataSource as DataSource<*, T>
+            }
             throw IllegalStateException(
                 "Attempt to access dataSource on a PagedList that was instantiated with a " +
                         "${pagedSource::class.java.simpleName} instead of a DataSource"
@@ -1048,11 +1038,11 @@ abstract class PagedList<T : Any> internal constructor(
     /**
      * Position offset of the data in the list.
      *
-     * If data is supplied by a [PagedSource.KeyProvider.Positional], the item returned from
-     * `get(i)` has a position of `i + getPositionOffset()`.
+     * If the PagedSource backing this PagedList is counted, the item returned from `get(i)` has
+     * a position in the original data set of `i + getPositionOffset()`.
      *
-     * If the [PagedSource] has a [PagedSource.KeyProvider.ItemKey] or
-     * [PagedSource.KeyProvider.PageKey], it doesn't use positions, returns 0.
+     * If placeholders are enabled, this value is always `0`, since `get(i)` will return either
+     * the data in its original index, or null if it is not loaded.
      */
     val positionOffset: Int
         get() = storage.positionOffset
@@ -1101,7 +1091,7 @@ abstract class PagedList<T : Any> internal constructor(
      *
      * @see size
      */
-    override fun get(index: Int) = storage[index]?.also { item -> lastItem = item }
+    override fun get(index: Int) = storage[index]
 
     /**
      * Load adjacent items to passed index.
@@ -1112,6 +1102,7 @@ abstract class PagedList<T : Any> internal constructor(
         if (index < 0 || index >= size) {
             throw IndexOutOfBoundsException("Index: $index, Size: $size")
         }
+        storage.lastLoadAroundIndex = index
         loadAroundInternal(index)
     }
 
@@ -1176,9 +1167,11 @@ abstract class PagedList<T : Any> internal constructor(
      *
      * @see removeWeakCallback
      */
-    @Deprecated("Dispatching a diff since snapshot created is behavior that can be instead " +
-            "tracked by attaching a Callback to the PagedList that is mutating, and tracking " +
-            "changes since calling PagedList.snapshot().")
+    @Deprecated(
+        "Dispatching a diff since snapshot created is behavior that can be instead " +
+                "tracked by attaching a Callback to the PagedList that is mutating, and tracking " +
+                "changes since calling PagedList.snapshot()."
+    )
     fun addWeakCallback(previousSnapshot: List<T>?, callback: Callback) {
         if (previousSnapshot != null && previousSnapshot !== this) {
             dispatchNaiveUpdatesSinceSnapshot(size, previousSnapshot.size, callback)

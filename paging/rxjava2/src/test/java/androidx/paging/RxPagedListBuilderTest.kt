@@ -61,8 +61,6 @@ class RxPagedListBuilderTest {
         }
 
         private inner class MockPagedSource : PagedSource<Int, String>() {
-            override val keyProvider = KeyProvider.Positional
-
             override suspend fun load(params: LoadParams<Int>) = when (params.loadType) {
                 LoadType.REFRESH -> loadInitial(params)
                 else -> loadRange()
@@ -79,13 +77,15 @@ class RxPagedListBuilderTest {
                 val data = listOf("a", "b")
                 return LoadResult.Page(
                     data = data,
+                    prevKey = null,
+                    nextKey = data.size,
                     itemsBefore = 0,
                     itemsAfter = 4 - data.size
                 )
             }
 
             private fun loadRange(): LoadResult<Int, String> {
-                return LoadResult.Page(listOf("c", "d"))
+                return LoadResult.Page(listOf("c", "d"), 0, 0, 0, 0)
             }
         }
     }
