@@ -65,18 +65,7 @@ public final class WebkitUtils {
      * @return a {@link ListenableFuture} representing the result of {@code callable}.
      */
     public static <T> ListenableFuture<T> onMainThread(final Callable<T> callable)  {
-        final ResolvableFuture<T> future = ResolvableFuture.create();
-        sMainHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    future.set(callable.call());
-                } catch (Throwable t) {
-                    future.setException(t);
-                }
-            }
-        });
-        return future;
+        return onMainThreadDelayed(0, callable);
     }
 
     /**
@@ -85,7 +74,40 @@ public final class WebkitUtils {
      * @param runnable the {@link Runnable} to execute.
      */
     public static void onMainThread(final Runnable runnable)  {
-        sMainHandler.post(runnable);
+        onMainThreadDelayed(0, runnable);
+    }
+
+    /**
+     * Executes a callable on the main thread after a delay, returning a future for the result.
+     *
+     * @param delayMs the delay in milliseconds
+     * @param callable the {@link Callable} to execute.
+     * @return a {@link ListenableFuture} representing the result of {@code callable}.
+     */
+    public static <T> ListenableFuture<T> onMainThreadDelayed(
+            long delayMs, final Callable<T> callable)  {
+        final ResolvableFuture<T> future = ResolvableFuture.create();
+        sMainHandler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    future.set(callable.call());
+                } catch (Throwable t) {
+                    future.setException(t);
+                }
+            }
+        }, delayMs);
+        return future;
+    }
+
+    /**
+     * Executes a runnable asynchronously on the main thread after a delay.
+     *
+     * @param delayMs the delay in milliseconds
+     * @param runnable the {@link Runnable} to execute.
+     */
+    public static void onMainThreadDelayed(long delayMs, final Runnable runnable) {
+        sMainHandler.postDelayed(runnable, delayMs);
     }
 
     /**

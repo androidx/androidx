@@ -144,8 +144,10 @@ public class WebViewProviderAdapter {
     @SuppressLint("LambdaLast")
     public void setWebViewRenderProcessClient(@Nullable Executor executor,
             @Nullable WebViewRenderProcessClient webViewRenderProcessClient) {
-        mImpl.setWebViewRendererClient(
-                BoundaryInterfaceReflectionUtil.createInvocationHandlerFor(
-                      new WebViewRenderProcessClientAdapter(executor, webViewRenderProcessClient)));
+        InvocationHandler handler = webViewRenderProcessClient != null
+                ? BoundaryInterfaceReflectionUtil.createInvocationHandlerFor(
+                        new WebViewRenderProcessClientAdapter(executor, webViewRenderProcessClient))
+                : null;
+        mImpl.setWebViewRendererClient(handler);
     }
 }
