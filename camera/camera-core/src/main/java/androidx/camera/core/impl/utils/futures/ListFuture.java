@@ -37,6 +37,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -201,7 +202,12 @@ class ListFuture<V> implements ListenableFuture<List<V>> {
 
     @Override
     public boolean cancel(boolean mayInterruptIfRunning) {
-        // TODO: Consider to cancel the mFutures in the list.
+        if (mFutures != null) {
+            for (ListenableFuture<? extends V> f : mFutures) {
+                f.cancel(mayInterruptIfRunning);
+            }
+        }
+
         return mResult.cancel(mayInterruptIfRunning);
     }
 
@@ -226,8 +232,9 @@ class ListFuture<V> implements ListenableFuture<List<V>> {
     }
 
     @Override
-    public List<V> get(long timeout, @NonNull TimeUnit unit) {
-        throw new RuntimeException("Not supported.");
+    public List<V> get(long timeout, @NonNull TimeUnit unit)
+            throws InterruptedException, ExecutionException, TimeoutException {
+        return mResult.get(timeout, unit);
     }
 
     /**
