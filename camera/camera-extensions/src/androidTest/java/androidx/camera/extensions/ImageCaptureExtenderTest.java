@@ -31,23 +31,24 @@ import static org.mockito.Mockito.when;
 import android.Manifest;
 import android.app.Instrumentation;
 import android.content.Context;
-import android.hardware.camera2.CameraAccessException;
+import android.graphics.ImageFormat;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CaptureRequest;
+import android.hardware.camera2.params.StreamConfigurationMap;
 import android.util.Pair;
 import android.util.Size;
 
+import androidx.annotation.NonNull;
 import androidx.camera.camera2.Camera2AppConfig;
 import androidx.camera.camera2.Camera2Config;
 import androidx.camera.camera2.impl.CameraEventCallbacks;
-import androidx.camera.core.CameraDeviceConfig;
 import androidx.camera.core.CameraInfoUnavailableException;
 import androidx.camera.core.CameraX;
+import androidx.camera.core.CameraX.LensFacing;
 import androidx.camera.core.CaptureProcessor;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCaptureConfig;
 import androidx.camera.extensions.ExtensionsManager.EffectMode;
-import androidx.camera.extensions.impl.BeautyImageCaptureExtenderImpl;
 import androidx.camera.extensions.impl.CaptureStageImpl;
 import androidx.camera.extensions.impl.ImageCaptureExtenderImpl;
 import androidx.camera.testing.CameraUtil;
@@ -81,7 +82,9 @@ public class ImageCaptureExtenderTest {
     private final Instrumentation mInstrumentation = InstrumentationRegistry.getInstrumentation();
     private FakeLifecycleOwner mLifecycleOwner;
     private ImageCaptureExtenderImpl mMockImageCaptureExtenderImpl;
-    private ArrayList<CaptureStageImpl> mCaptureStages = new ArrayList<>(); {
+    private ArrayList<CaptureStageImpl> mCaptureStages = new ArrayList<>();
+
+    {
         mCaptureStages.add(new FakeCaptureStage());
     }
 
@@ -206,40 +209,27 @@ public class ImageCaptureExtenderTest {
 
     @Test
     @SmallTest
-    public void canSetSupportedResolutionsToConfigTest()
-            throws CameraInfoUnavailableException, CameraAccessException {
-        CameraX.LensFacing lensFacing = CameraX.LensFacing.BACK;
-        assumeTrue(CameraUtil.hasCameraWithLensFacing(lensFacing));
-        assumeTrue(ExtensionsManager.isExtensionAvailable(EffectMode.BEAUTY, lensFacing));
-        ImageCaptureConfig.Builder configBuilder = new ImageCaptureConfig.Builder().setLensFacing(
-                lensFacing);
-
-        String cameraId = androidx.camera.extensions.CameraUtil.getCameraId(
-                ((CameraDeviceConfig) configBuilder.build()));
-        CameraCharacteristics cameraCharacteristics =
-                CameraUtil.getCameraManager().getCameraCharacteristics(
-                        CameraX.getCameraWithLensFacing(lensFacing));
-
-        // Only BeautyImageCaptureExtenderImpl has sample implementation for ImageCapture.
-        // Retrieves the target format/resolutions pair list directly from
-        // BeautyImageCaptureExtenderImpl.
-        BeautyImageCaptureExtenderImpl impl = new BeautyImageCaptureExtenderImpl();
-
-        impl.init(cameraId, cameraCharacteristics);
+    public void canSetSupportedResolutionsToConfigTest() throws CameraInfoUnavailableException {
+        assumeTrue(CameraUtil.deviceHasCamera());
+        LensFacing lensFacing = CameraX.getDefaultLensFacing();
+        ImageCaptureConfig.Builder configBuilder =
+                new ImageCaptureConfig.Builder().setLensFacing(lensFacing);
+        when(mMockImageCaptureExtenderImpl.isExtensionAvailable(any(), any())).thenReturn(true);
         List<Pair<Integer, Size[]>> targetFormatResolutionsPairList =
-                impl.getSupportedResolutions();
+                generateImageCaptureSupportedResolutions(lensFacing);
+        when(mMockImageCaptureExtenderImpl.getSupportedResolutions()).thenReturn(
+                targetFormatResolutionsPairList);
 
-        assertThat(targetFormatResolutionsPairList).isNotNull();
+        ImageCaptureExtender fakeExtender = new FakeImageCaptureExtender(configBuilder,
+                mMockImageCaptureExtenderImpl);
 
-        // Retrieves the target format/resolutions pair list from builder after applying beauty
-        // mode.
-        BeautyImageCaptureExtender extender = BeautyImageCaptureExtender.create(configBuilder);
+        // Checks the config does not include supported resolutions before applying effect mode.
         assertThat(configBuilder.build().getSupportedResolutions(null)).isNull();
-        extender.enableExtension();
 
+        // Checks the config includes supported resolutions after applying effect mode.
+        fakeExtender.enableExtension();
         List<Pair<Integer, Size[]>> resultFormatResolutionsPairList =
                 configBuilder.build().getSupportedResolutions(null);
-
         assertThat(resultFormatResolutionsPairList).isNotNull();
 
         // Checks the result and target pair lists are the same
@@ -252,8 +242,46 @@ public class ImageCaptureExtenderTest {
                 }
             }
 
-            assertThat(Arrays.asList(resultPair.second).equals(
-                    Arrays.asList(targetSizes))).isTrue();
+            assertThat(
+                    Arrays.asList(resultPair.second).equals(Arrays.asList(targetSizes))).isTrue();
+        }
+    }
+
+    private List<Pair<Integer, Size[]>> generateImageCaptureSupportedResolutions(
+            @NonNull LensFacing lensFacing)
+            throws CameraInfoUnavailableException {
+        List<Pair<Integer, Size[]>> formatResolutionsPairList = new ArrayList<>();
+        String cameraId =
+                androidx.camera.extensions.CameraUtil.getCameraIdSetWithLensFacing(
+                        lensFacing).iterator().next();
+
+        StreamConfigurationMap map =
+                androidx.camera.extensions.CameraUtil.getCameraCharacteristics(cameraId).get(
+                        CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
+
+        if (map != null) {
+            // Retrieves originally supported resolutions from CameraCharacteristics for JPEG and
+            // YUV_420_888 formats to return.
+            Size[] outputSizes = map.getOutputSizes(ImageFormat.JPEG);
+
+            if (outputSizes != null) {
+                formatResolutionsPairList.add(Pair.create(ImageFormat.JPEG, outputSizes));
+            }
+
+            outputSizes = map.getOutputSizes(ImageFormat.YUV_420_888);
+
+            if (outputSizes != null) {
+                formatResolutionsPairList.add(Pair.create(ImageFormat.YUV_420_888, outputSizes));
+            }
+        }
+
+        return formatResolutionsPairList;
+    }
+
+    final class FakeImageCaptureExtender extends ImageCaptureExtender {
+        FakeImageCaptureExtender(ImageCaptureConfig.Builder builder,
+                ImageCaptureExtenderImpl impl) {
+            init(builder, impl, EffectMode.NORMAL);
         }
     }
 

@@ -29,26 +29,16 @@ import android.os.Build;
 import androidx.annotation.NonNull;
 import androidx.camera.camera2.Camera2AppConfig;
 import androidx.camera.core.AppConfig;
-import androidx.camera.core.CameraControlInternal;
-import androidx.camera.core.CameraDeviceSurfaceManager;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.CameraX.LensFacing;
-import androidx.camera.core.ConfigProvider;
-import androidx.camera.core.ExtendableUseCaseConfigFactory;
 import androidx.camera.core.ImageCapture;
-import androidx.camera.core.ImageCaptureConfig;
 import androidx.camera.core.Preview;
-import androidx.camera.core.PreviewConfig;
 import androidx.camera.core.UseCase;
 import androidx.camera.extensions.ExtensionsErrorListener.ExtensionsErrorCode;
+import androidx.camera.extensions.ExtensionsManager.EffectMode;
+import androidx.camera.extensions.util.ExtensionsTestUtil;
 import androidx.camera.testing.CameraUtil;
-import androidx.camera.testing.fakes.FakeCamera;
-import androidx.camera.testing.fakes.FakeCameraDeviceSurfaceManager;
-import androidx.camera.testing.fakes.FakeCameraFactory;
-import androidx.camera.testing.fakes.FakeCameraInfoInternal;
-import androidx.camera.testing.fakes.FakeUseCaseConfig;
 import androidx.test.core.app.ApplicationProvider;
-import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
@@ -59,8 +49,10 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
@@ -68,7 +60,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
 @SmallTest
-@RunWith(AndroidJUnit4.class)
+@RunWith(Parameterized.class)
 /**
  * Unit tests for {@link androidx.camera.extensions.ExtensionsErrorListener}.
  * */
@@ -78,6 +70,13 @@ public final class ExtensionsErrorListenerTest {
     public GrantPermissionRule mRuntimePermissionRule = GrantPermissionRule.grant(
             Manifest.permission.CAMERA);
 
+    @Parameterized.Parameters
+    public static Collection<Object[]> getParameters() {
+        return ExtensionsTestUtil.getAllEffectLensFacingCombinations();
+    }
+
+    private EffectMode mEffectMode;
+    private LensFacing mLensFacing;
     private CountDownLatch mLatch;
 
     final AtomicReference<ExtensionsErrorCode> mErrorCode = new AtomicReference<>();
@@ -89,40 +88,22 @@ public final class ExtensionsErrorListenerTest {
         }
     };
 
+    public ExtensionsErrorListenerTest(EffectMode effectMode, LensFacing lensFacing) {
+        mEffectMode = effectMode;
+        mLensFacing = lensFacing;
+    }
+
     @Before
     public void setUp() {
-        Context context = ApplicationProvider.getApplicationContext();
-        CameraDeviceSurfaceManager surfaceManager = new FakeCameraDeviceSurfaceManager();
-
-        // Pull out the Camera2 use case config factory because it provides correct defaults
-        ExtendableUseCaseConfigFactory defaultConfigFactory =
-                (ExtendableUseCaseConfigFactory) Camera2AppConfig.create(
-                        context).getUseCaseConfigRepository(null);
-        defaultConfigFactory.installDefaultProvider(FakeUseCaseConfig.class,
-                new ConfigProvider<FakeUseCaseConfig>() {
-                    @Override
-                    public FakeUseCaseConfig getConfig(CameraX.LensFacing lensFacing) {
-                        return new FakeUseCaseConfig.Builder().build();
-                    }
-                });
-
-        FakeCameraFactory cameraFactory = new FakeCameraFactory();
-        cameraFactory.insertCamera(LensFacing.BACK, "0",
-                () -> new FakeCamera(mock(CameraControlInternal.class),
-                        new FakeCameraInfoInternal(0, LensFacing.BACK)));
-
-        AppConfig.Builder appConfigBuilder =
-                new AppConfig.Builder()
-                        .setCameraFactory(cameraFactory)
-                        .setDeviceSurfaceManager(surfaceManager)
-                        .setUseCaseConfigFactory(defaultConfigFactory);
-
-        // CameraX.init will actually init just once across all test cases. However we need to get
-        // the real CameraFactory instance being injected into the init process.  So here we store
-        // the CameraFactory instance in static fields.
-        CameraX.init(context, appConfigBuilder.build());
-
         assumeTrue(CameraUtil.deviceHasCamera());
+
+        Context context = ApplicationProvider.getApplicationContext();
+        AppConfig appConfig = Camera2AppConfig.create(context);
+        CameraX.init(context, appConfig);
+
+        assumeTrue(CameraUtil.hasCameraWithLensFacing(mLensFacing));
+        assumeTrue(ExtensionsManager.isExtensionAvailable(mEffectMode, mLensFacing));
+
         mLatch = new CountDownLatch(1);
     }
 
@@ -136,21 +117,15 @@ public final class ExtensionsErrorListenerTest {
     public void receiveErrorCode_whenOnlyEnableImageCaptureExtender() throws InterruptedException {
         ExtensionsManager.setExtensionsErrorListener(mExtensionsErrorListener);
 
-        ImageCaptureConfig.Builder imageCaptureConfigBuilder =
-                new ImageCaptureConfig.Builder().setLensFacing(LensFacing.BACK);
-        HdrImageCaptureExtender imageCaptureExtender = HdrImageCaptureExtender.create(
-                imageCaptureConfigBuilder);
-        imageCaptureExtender.enableExtension();
-        ImageCapture imageCapture = new ImageCapture(imageCaptureConfigBuilder.build());
+        ImageCapture imageCapture = ExtensionsTestUtil.createImageCaptureWithEffect(mEffectMode,
+                mLensFacing);
+        Preview noEffectPreview = ExtensionsTestUtil.createPreviewWithEffect(EffectMode.NORMAL,
+                mLensFacing);
 
-        PreviewConfig.Builder previewConfigBuilder = new PreviewConfig.Builder().setLensFacing(
-                LensFacing.BACK);
-        Preview preview = new Preview(previewConfigBuilder.build());
-
-        List<UseCase> useCaseList = Arrays.asList(imageCapture, preview);
+        List<UseCase> useCaseList = Arrays.asList(imageCapture, noEffectPreview);
         mErrorCode.set(null);
-        ImageCaptureExtender.checkPreviewEnabled(ExtensionsManager.EffectMode.HDR, useCaseList);
-        PreviewExtender.checkImageCaptureEnabled(ExtensionsManager.EffectMode.HDR, useCaseList);
+        ImageCaptureExtender.checkPreviewEnabled(mEffectMode, useCaseList);
+        PreviewExtender.checkImageCaptureEnabled(mEffectMode, useCaseList);
 
         // Waits for one second to get error code.
         mLatch.await(1, TimeUnit.SECONDS);
@@ -161,20 +136,14 @@ public final class ExtensionsErrorListenerTest {
     public void receiveErrorCode_whenOnlyEnablePreviewExtender() throws InterruptedException {
         ExtensionsManager.setExtensionsErrorListener(mExtensionsErrorListener);
 
-        ImageCaptureConfig.Builder imageCaptureConfigBuilder =
-                new ImageCaptureConfig.Builder().setLensFacing(LensFacing.BACK);
-        ImageCapture imageCapture = new ImageCapture(imageCaptureConfigBuilder.build());
+        ImageCapture noEffectImageCapture =
+                ExtensionsTestUtil.createImageCaptureWithEffect(EffectMode.NORMAL, mLensFacing);
+        Preview preview = ExtensionsTestUtil.createPreviewWithEffect(mEffectMode, mLensFacing);
 
-        PreviewConfig.Builder previewConfigBuilder = new PreviewConfig.Builder().setLensFacing(
-                LensFacing.BACK);
-        HdrPreviewExtender previewExtender = HdrPreviewExtender.create(previewConfigBuilder);
-        previewExtender.enableExtension();
-        Preview preview = new Preview(previewConfigBuilder.build());
-
-        List<UseCase> useCaseList = Arrays.asList(imageCapture, preview);
+        List<UseCase> useCaseList = Arrays.asList(noEffectImageCapture, preview);
         mErrorCode.set(null);
-        ImageCaptureExtender.checkPreviewEnabled(ExtensionsManager.EffectMode.HDR, useCaseList);
-        PreviewExtender.checkImageCaptureEnabled(ExtensionsManager.EffectMode.HDR, useCaseList);
+        ImageCaptureExtender.checkPreviewEnabled(mEffectMode, useCaseList);
+        PreviewExtender.checkImageCaptureEnabled(mEffectMode, useCaseList);
 
         // Waits for one second to get error code.
         mLatch.await(1, TimeUnit.SECONDS);
@@ -189,22 +158,13 @@ public final class ExtensionsErrorListenerTest {
         ExtensionsErrorListener mockExtensionsErrorListener = mock(ExtensionsErrorListener.class);
         ExtensionsManager.setExtensionsErrorListener(mockExtensionsErrorListener);
 
-        ImageCaptureConfig.Builder imageCaptureConfigBuilder =
-                new ImageCaptureConfig.Builder().setLensFacing(LensFacing.BACK);
-        HdrImageCaptureExtender imageCaptureExtender = HdrImageCaptureExtender.create(
-                imageCaptureConfigBuilder);
-        imageCaptureExtender.enableExtension();
-        ImageCapture imageCapture = new ImageCapture(imageCaptureConfigBuilder.build());
-
-        PreviewConfig.Builder previewConfigBuilder = new PreviewConfig.Builder().setLensFacing(
-                LensFacing.BACK);
-        HdrPreviewExtender previewExtender = HdrPreviewExtender.create(previewConfigBuilder);
-        previewExtender.enableExtension();
-        Preview preview = new Preview(previewConfigBuilder.build());
+        ImageCapture imageCapture = ExtensionsTestUtil.createImageCaptureWithEffect(mEffectMode,
+                mLensFacing);
+        Preview preview = ExtensionsTestUtil.createPreviewWithEffect(mEffectMode, mLensFacing);
 
         List<UseCase> useCaseList = Arrays.asList(imageCapture, preview);
-        ImageCaptureExtender.checkPreviewEnabled(ExtensionsManager.EffectMode.HDR, useCaseList);
-        PreviewExtender.checkImageCaptureEnabled(ExtensionsManager.EffectMode.HDR, useCaseList);
+        ImageCaptureExtender.checkPreviewEnabled(mEffectMode, useCaseList);
+        PreviewExtender.checkImageCaptureEnabled(mEffectMode, useCaseList);
 
         // Waits for one second to get error code.
         mLatch.await(1, TimeUnit.SECONDS);
@@ -216,32 +176,38 @@ public final class ExtensionsErrorListenerTest {
             throws InterruptedException {
         ExtensionsManager.setExtensionsErrorListener(mExtensionsErrorListener);
 
-        ImageCaptureConfig.Builder imageCaptureConfigBuilder =
-                new ImageCaptureConfig.Builder().setLensFacing(LensFacing.BACK);
-        HdrImageCaptureExtender imageCaptureExtender = HdrImageCaptureExtender.create(
-                imageCaptureConfigBuilder);
-        imageCaptureExtender.enableExtension();
+        // Creates ImageCapture
+        ImageCapture imageCapture = ExtensionsTestUtil.createImageCaptureWithEffect(mEffectMode,
+                mLensFacing);
 
-        ImageCapture imageCapture = new ImageCapture(imageCaptureConfigBuilder.build());
+        // Creates mismatched Preview
+        EffectMode mismatchedEffectMode;
 
-        PreviewConfig.Builder previewConfigBuilder = new PreviewConfig.Builder().setLensFacing(
-                LensFacing.BACK);
-        BokehPreviewExtender previewExtender = BokehPreviewExtender.create(previewConfigBuilder);
-        previewExtender.enableExtension();
-        Preview preview = new Preview(previewConfigBuilder.build());
+        if (mEffectMode != EffectMode.BOKEH) {
+            assumeTrue(ExtensionsManager.isExtensionAvailable(EffectMode.BOKEH,
+                    mLensFacing));
+            mismatchedEffectMode = EffectMode.BOKEH;
+        } else {
+            assumeTrue(ExtensionsManager.isExtensionAvailable(EffectMode.HDR,
+                    mLensFacing));
+            mismatchedEffectMode = EffectMode.HDR;
+        }
+
+        Preview preview = ExtensionsTestUtil.createPreviewWithEffect(mismatchedEffectMode,
+                mLensFacing);
 
         List<UseCase> useCaseList = Arrays.asList(imageCapture, preview);
 
         mErrorCode.set(null);
         // ImageCaptureExtender will find mismatched PreviewExtender is enabled.
-        ImageCaptureExtender.checkPreviewEnabled(ExtensionsManager.EffectMode.HDR, useCaseList);
+        ImageCaptureExtender.checkPreviewEnabled(mEffectMode, useCaseList);
         mLatch.await(1, TimeUnit.SECONDS);
         assertThat(mErrorCode.get()).isEqualTo(ExtensionsErrorCode.MISMATCHED_EXTENSIONS_ENABLED);
 
         mLatch = new CountDownLatch(1);
         mErrorCode.set(null);
         // PreviewExtender will find mismatched ImageCaptureExtender is enabled.
-        PreviewExtender.checkImageCaptureEnabled(ExtensionsManager.EffectMode.BOKEH, useCaseList);
+        PreviewExtender.checkImageCaptureEnabled(mismatchedEffectMode, useCaseList);
         mLatch.await(1, TimeUnit.SECONDS);
         assertThat(mErrorCode.get()).isEqualTo(ExtensionsErrorCode.MISMATCHED_EXTENSIONS_ENABLED);
     }
