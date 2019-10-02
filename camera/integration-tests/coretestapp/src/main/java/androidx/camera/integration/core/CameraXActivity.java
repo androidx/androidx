@@ -576,7 +576,7 @@ public class CameraXActivity extends AppCompatActivity
                         isFlashAvailable.getValue() ? View.VISIBLE : View.INVISIBLE);
             } catch (CameraInfoUnavailableException e) {
                 Log.w(TAG, "Cannot get flash available information", e);
-                flashToggle.setVisibility(View.VISIBLE);
+                flashToggle.setVisibility(View.INVISIBLE);
             }
 
             flashToggle.setOnClickListener(new View.OnClickListener() {

@@ -18,6 +18,8 @@ package androidx.camera.integration.core;
 
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
+import static androidx.test.espresso.assertion.ViewAssertions.matches;
+import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 
 import static junit.framework.TestCase.assertNotNull;
@@ -47,6 +49,8 @@ import androidx.test.rule.GrantPermissionRule;
 import androidx.test.uiautomator.By;
 import androidx.test.uiautomator.UiDevice;
 import androidx.test.uiautomator.Until;
+
+import junit.framework.AssertionFailedError;
 
 import org.junit.After;
 import org.junit.Before;
@@ -106,7 +110,8 @@ public final class ToggleButtonUITest {
 
     @Test
     public void testFlashToggleButton() {
-        waitFor(new WaitForViewToShow(R.id.flash_toggle));
+        waitFor(new WaitForViewToShow(R.id.constraintLayout));
+        assumeTrue(detectButtonVisibility(R.id.flash_toggle));
 
         ImageCapture useCase = mActivityRule.getActivity().getImageCapture();
         assertNotNull(useCase);
@@ -195,5 +200,17 @@ public final class ToggleButtonUITest {
         mDevice.pressHome();
     }
 
+    private boolean detectButtonVisibility(int resource) {
+        try {
+            onView(withId(resource)).check(matches(isDisplayed()));
+            // View is in hierarchy
+            return true;
+        } catch (AssertionFailedError e) {
+            // View is not in hierarchy
+            return false;
+        } catch (Exception e) {
+            // View is not in hierarchy
+            return false;
+        }
+    }
 }
-
