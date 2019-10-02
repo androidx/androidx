@@ -273,6 +273,8 @@ class BenchmarkPluginTest {
         """.trimIndent()
         )
 
+        propertiesFile.appendText("android.enableAdditionalTestOutput=true")
+
         val output = gradleRunner.withArguments("tasks").build()
         assertTrue { output.output.contains("lockClocks - ") }
         assertTrue { output.output.contains("unlockClocks - ") }
@@ -464,6 +466,8 @@ class BenchmarkPluginTest {
             }
         """.trimIndent()
         )
+
+        propertiesFile.appendText("android.enableAdditionalTestOutput=true")
 
         assertFailsWith(UnexpectedBuildFailure::class) {
             gradleRunner.withArguments("assemble").build()
