@@ -64,11 +64,15 @@ import com.google.common.util.concurrent.ListenableFuture;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.CancellationException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -93,7 +97,8 @@ final class Camera2CameraImpl implements CameraInternal {
     private final UseCaseAttachState mUseCaseAttachState;
 
     /** The identifier for the {@link CameraDevice} */
-    private final String mCameraId;
+    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+    final String mCameraId;
 
     /** Handle to the camera service. */
     private final CameraManagerCompat mCameraManager;
@@ -154,7 +159,8 @@ final class Camera2CameraImpl implements CameraInternal {
     private final Observable<Integer> mAvailableCamerasObservable;
     private final CameraAvailability mCameraAvailability;
 
-    private boolean mIsConfiguringForClose = false;
+    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+    final Set<CaptureSession> mConfiguringForClose = new HashSet<>();
 
     /**
      * Constructor for a camera.
@@ -196,6 +202,7 @@ final class Camera2CameraImpl implements CameraInternal {
             throw new IllegalStateException("Cannot access camera", e);
         }
         mCaptureSessionBuilder.setExecutor(mExecutor);
+        mCaptureSessionBuilder.setScheduledExecutorService(executorScheduler);
         mCaptureSession = mCaptureSessionBuilder.build();
 
         mCameraAvailability = new CameraAvailability(mCameraId);
@@ -291,10 +298,11 @@ final class Camera2CameraImpl implements CameraInternal {
     @WorkerThread
     private void configAndClose(boolean abortInFlightCaptures) {
 
-        mIsConfiguringForClose = true;  // Make mCameraDevice is not closed and existed.
+        final CaptureSession dummySession = mCaptureSessionBuilder.build();
+
+        mConfiguringForClose.add(dummySession);  // Make mCameraDevice is not closed and existed.
         resetCaptureSession(abortInFlightCaptures);
 
-        final CaptureSession dummySession = mCaptureSessionBuilder.build();
         final SurfaceTexture surfaceTexture = new SurfaceTexture(0);
         surfaceTexture.setDefaultBufferSize(640, 480);
         final Surface surface = new Surface(surfaceTexture);
@@ -309,35 +317,36 @@ final class Camera2CameraImpl implements CameraInternal {
         SessionConfig.Builder builder = new SessionConfig.Builder();
         builder.addNonRepeatingSurface(new ImmediateSurface(surface));
         builder.setTemplateType(CameraDevice.TEMPLATE_PREVIEW);
-        try {
-            Log.d(TAG, "Start configAndClose.");
-            dummySession.open(builder.build(), mCameraDevice);
-            mIsConfiguringForClose = false;  // Exit the condition.
+        Log.d(TAG, "Start configAndClose.");
+        ListenableFuture<Void> openDummyCaptureSession = dummySession.open(builder.build(),
+                mCameraDevice);
+        Futures.addCallback(openDummyCaptureSession, new FutureCallback<Void>() {
+            @Override
+            public void onSuccess(@Nullable Void result) {
+                mConfiguringForClose.remove(dummySession);
+                resetCaptureSession(false);
 
-            // Don't need to abort captures since there are none submitted for this session.
-            ListenableFuture<Void> releaseFuture = releaseSession(
-                    dummySession, /*abortInFlightCaptures=*/false);
+                // Don't need to abort captures since there are none submitted for this session.
+                ListenableFuture<Void> releaseFuture = releaseSession(
+                        dummySession, /*abortInFlightCaptures=*/false);
 
-            // Add a listener to clear the dummy surfaces
-            releaseFuture.addListener(closeAndCleanupRunner,
-                    CameraXExecutors.directExecutor());
+                // Add a listener to clear the dummy surfaces
+                releaseFuture.addListener(closeAndCleanupRunner, CameraXExecutors.directExecutor());
+            }
 
-        } catch (CameraAccessException e) {
-            Log.d(TAG, "Unable to configure camera " + mCameraId + " due to "
-                    + e.getMessage());
-            closeAndCleanupRunner.run();
-        } catch (DeferrableSurface.SurfaceClosedException e) {
-            postSurfaceClosedError(e);
-        } finally {
-            mIsConfiguringForClose = false;
-            resetCaptureSession(false);
-        }
+            @Override
+            public void onFailure(Throwable t) {
+                Log.d(TAG, "Unable to configure camera " + mCameraId + " due to " + t.getMessage());
+                mConfiguringForClose.remove(dummySession);
+                resetCaptureSession(false);
+                closeAndCleanupRunner.run();
+            }
+        }, mExecutor);
     }
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     boolean isSessionCloseComplete() {
-        return mReleasedCaptureSessions.isEmpty()
-                && !mIsConfiguringForClose;
+        return mReleasedCaptureSessions.isEmpty() && mConfiguringForClose.isEmpty();
     }
 
     // This will notify futures of completion.
@@ -398,8 +407,9 @@ final class Camera2CameraImpl implements CameraInternal {
         mCaptureSession.cancelIssuedCaptureRequests();
     }
 
+    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     @WorkerThread
-    private ListenableFuture<Void> releaseSession(@NonNull final CaptureSession captureSession,
+    ListenableFuture<Void> releaseSession(@NonNull final CaptureSession captureSession,
             boolean abortInFlightCaptures) {
         captureSession.close();
         ListenableFuture<Void> releaseFuture = captureSession.release(abortInFlightCaptures);
@@ -915,13 +925,32 @@ final class Camera2CameraImpl implements CameraInternal {
             return;
         }
 
-        try {
-            mCaptureSession.open(validatingBuilder.build(), mCameraDevice);
-        } catch (CameraAccessException e) {
-            Log.d(TAG, "Unable to configure camera " + mCameraId + " due to " + e.getMessage());
-        } catch (DeferrableSurface.SurfaceClosedException e) {
-            postSurfaceClosedError(e);
-        }
+        ListenableFuture<Void> openCaptureSession = mCaptureSession.open(
+                validatingBuilder.build(), mCameraDevice);
+        Futures.addCallback(openCaptureSession, new FutureCallback<Void>() {
+            @Override
+            public void onSuccess(@Nullable Void result) {
+                // Nothing to do.
+            }
+
+            @Override
+            public void onFailure(Throwable t) {
+                if (t instanceof CameraAccessException) {
+                    Log.d(TAG, "Unable to configure camera " + mCameraId + " due to "
+                            + t.getMessage());
+                } else if (t instanceof CancellationException) {
+                    Log.d(TAG, "Unable to configure camera " + mCameraId + " cancelled");
+                } else if (t instanceof DeferrableSurface.SurfaceClosedException) {
+                    postSurfaceClosedError((DeferrableSurface.SurfaceClosedException) t);
+                } else if (t instanceof TimeoutException) {
+                    // TODO: Consider to handle the timeout error.
+                    Log.e(TAG, "Unable to configure camera " + mCameraId + ", timeout!");
+                } else {
+                    // Throw the unexpected error.
+                    throw new RuntimeException(t);
+                }
+            }
+        }, mExecutor);
     }
 
     @SuppressWarnings("GuardedBy") // TODO(b/141959507): Suppressed during upgrade to AGP 3.6.
