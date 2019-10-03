@@ -52,6 +52,7 @@ import androidx.camera.extensions.impl.CaptureStageImpl;
 import androidx.camera.extensions.impl.PreviewExtenderImpl;
 import androidx.camera.extensions.impl.PreviewImageProcessorImpl;
 import androidx.camera.extensions.impl.RequestUpdateProcessorImpl;
+import androidx.camera.extensions.util.ExtensionsTestUtil;
 import androidx.camera.testing.CameraUtil;
 import androidx.camera.testing.fakes.FakeLifecycleOwner;
 import androidx.test.core.app.ApplicationProvider;
@@ -73,6 +74,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeoutException;
 
 @RunWith(AndroidJUnit4.class)
 public class PreviewExtenderTest {
@@ -85,7 +87,7 @@ public class PreviewExtenderTest {
             Manifest.permission.CAMERA);
 
     @Before
-    public void setUp() {
+    public void setUp() throws InterruptedException, ExecutionException, TimeoutException {
         assumeTrue(CameraUtil.deviceHasCamera());
         assumeTrue(CameraUtil.hasCameraWithLensFacing(LensFacing.BACK));
 
@@ -94,6 +96,8 @@ public class PreviewExtenderTest {
 
         mFakeLifecycle = new FakeLifecycleOwner();
         mFakeLifecycle.startAndResume();
+
+        assumeTrue(ExtensionsTestUtil.initExtensions());
     }
 
     @After
@@ -148,7 +152,11 @@ public class PreviewExtenderTest {
                 any(CameraCharacteristics.class));
         verify(mockPreviewExtenderImpl, timeout(3000)).getProcessorType();
         verify(mockPreviewExtenderImpl, timeout(3000)).getProcessor();
-        verify(mockPreviewExtenderImpl, timeout(3000)).getSupportedResolutions();
+
+        // getSupportedResolutions supported since version 1.1
+        if (ExtensionVersion.getRuntimeVersion().compareTo(Version.VERSION_1_1) >= 0) {
+            verify(mockPreviewExtenderImpl, timeout(3000)).getSupportedResolutions();
+        }
 
         InOrder inOrder = inOrder(ignoreStubs(mockPreviewExtenderImpl));
 
@@ -272,6 +280,9 @@ public class PreviewExtenderTest {
     @SmallTest
     public void canSetSupportedResolutionsToConfigTest() throws CameraInfoUnavailableException {
         assumeTrue(CameraUtil.deviceHasCamera());
+        // getSupportedResolutions supported since version 1.1
+        assumeTrue(ExtensionVersion.getRuntimeVersion().compareTo(Version.VERSION_1_1) >= 0);
+
         LensFacing lensFacing = CameraX.getDefaultLensFacing();
         PreviewConfig.Builder configBuilder = new PreviewConfig.Builder().setLensFacing(lensFacing);
 

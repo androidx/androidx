@@ -68,6 +68,7 @@ import org.mockito.ArgumentCaptor;
 
 import java.util.Collection;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeoutException;
 
 @LargeTest
 @RunWith(Parameterized.class)
@@ -95,7 +96,7 @@ public class ExtensionTest {
     }
 
     @Before
-    public void setUp() {
+    public void setUp() throws InterruptedException, TimeoutException, ExecutionException {
         assumeTrue(CameraUtil.deviceHasCamera());
 
         Context context = ApplicationProvider.getApplicationContext();
@@ -103,6 +104,7 @@ public class ExtensionTest {
         CameraX.init(context, appConfig);
 
         assumeTrue(CameraUtil.hasCameraWithLensFacing(mLensFacing));
+        assumeTrue(ExtensionsTestUtil.initExtensions());
         assumeTrue(ExtensionsManager.isExtensionAvailable(mEffectMode, mLensFacing));
 
         mLifecycleOwner = new FakeLifecycleOwner();
