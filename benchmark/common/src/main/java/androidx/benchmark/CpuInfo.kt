@@ -65,11 +65,14 @@ internal object CpuInfo {
                 // scaling_min_freq, or -1 if can't access
                 currentMinFreq = readFileTextOrNull("$path/cpufreq/scaling_min_freq")?.toInt()
                     ?: -1,
-                maxFreqKhz = readFileTextOrNull("$path/cpuinfo_max_freq")?.toLong() ?: -1
+                maxFreqKhz = readFileTextOrNull("$path/cpuinfo_max_freq")?.toLong() ?: -1L
             )
         } ?: emptyList()
 
-        maxFreqHz = coreDirs.maxBy { it.maxFreqKhz }?.maxFreqKhz?.times(1000) ?: -1
+        maxFreqHz = coreDirs
+            .filter { it.maxFreqKhz != -1L }
+            .maxBy { it.maxFreqKhz }
+            ?.maxFreqKhz?.times(1000) ?: -1
 
         locked = isCpuLocked(coreDirs)
         if (!locked) {
