@@ -52,6 +52,7 @@ import androidx.work.WorkInfo;
 import androidx.work.WorkManagerTest;
 import androidx.work.impl.WorkDatabase;
 import androidx.work.impl.WorkManagerImpl;
+import androidx.work.impl.model.PreferenceDao;
 import androidx.work.impl.model.SystemIdInfoDao;
 import androidx.work.impl.model.WorkSpec;
 import androidx.work.impl.model.WorkSpecDao;
@@ -83,6 +84,7 @@ public class SystemJobSchedulerTest extends WorkManagerTest {
         Configuration configuration = new Configuration.Builder().build();
         WorkDatabase workDatabase = mock(WorkDatabase.class);
         SystemIdInfoDao systemIdInfoDao = mock(SystemIdInfoDao.class);
+        PreferenceDao preferenceDao = mock(PreferenceDao.class);
 
         mJobServiceComponent = new ComponentName(context, SystemJobService.class);
 
@@ -93,6 +95,7 @@ public class SystemJobSchedulerTest extends WorkManagerTest {
 
         when(mWorkManager.getConfiguration()).thenReturn(configuration);
         when(workDatabase.systemIdInfoDao()).thenReturn(systemIdInfoDao);
+        when(workDatabase.preferenceDao()).thenReturn(preferenceDao);
         when(workDatabase.workSpecDao()).thenReturn(mMockWorkSpecDao);
         when(mWorkManager.getWorkDatabase()).thenReturn(workDatabase);
 

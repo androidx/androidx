@@ -36,6 +36,7 @@ import androidx.annotation.VisibleForTesting;
 import androidx.work.Logger;
 import androidx.work.impl.Schedulers;
 import androidx.work.impl.WorkDatabase;
+import androidx.work.impl.WorkDatabasePathHelper;
 import androidx.work.impl.WorkManagerImpl;
 import androidx.work.impl.background.systemjob.SystemJobScheduler;
 import androidx.work.impl.model.WorkProgressDao;
@@ -74,6 +75,8 @@ public class ForceStopRunnable implements Runnable {
 
     @Override
     public void run() {
+        // Migrate the database to the no-backup directory if necessary.
+        WorkDatabasePathHelper.migrateDatabase(mContext);
         // Clean invalid jobs attributed to WorkManager, and Workers that might have been
         // interrupted because the application crashed (RUNNING state).
         Logger.get().debug(TAG, "Performing cleanup operations.");
@@ -83,7 +86,7 @@ public class ForceStopRunnable implements Runnable {
             Logger.get().debug(TAG, "Rescheduling Workers.");
             mWorkManager.rescheduleEligibleWork();
             // Mark the jobs as migrated.
-            mWorkManager.getPreferences().setNeedsReschedule(false);
+            mWorkManager.getPreferenceUtils().setNeedsReschedule(false);
         } else if (isForceStopped()) {
             Logger.get().debug(TAG, "Application was force-stopped, rescheduling.");
             mWorkManager.rescheduleEligibleWork();
@@ -165,7 +168,7 @@ public class ForceStopRunnable implements Runnable {
      */
     @VisibleForTesting
     boolean shouldRescheduleWorkers() {
-        return mWorkManager.getPreferences().needsReschedule();
+        return mWorkManager.getPreferenceUtils().getNeedsReschedule();
     }
 
     /**
