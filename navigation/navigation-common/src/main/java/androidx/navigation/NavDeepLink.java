@@ -196,7 +196,7 @@ class NavDeepLink {
     /**
      * Used to maintain query parameters and the mArguments they match with.
      */
-    private class ParamQuery {
+    private static class ParamQuery {
         private String mParamRegex;
         private ArrayList<String> mArguments;
 

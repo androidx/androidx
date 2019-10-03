@@ -241,11 +241,11 @@ public abstract class NavType<T> {
             return StringType;
         } else if (value instanceof String[]) {
             return StringArrayType;
-        } else if (value.getClass().isArray() && (
-                Parcelable.class.isAssignableFrom(value.getClass().getComponentType()))) {
+        } else if (value.getClass().isArray()
+                && Parcelable.class.isAssignableFrom(value.getClass().getComponentType())) {
             return new ParcelableArrayType(value.getClass().getComponentType());
-        } else if (value.getClass().isArray() && (
-                Serializable.class.isAssignableFrom(value.getClass().getComponentType()))) {
+        } else if (value.getClass().isArray()
+                && Serializable.class.isAssignableFrom(value.getClass().getComponentType())) {
             return new SerializableArrayType(value.getClass().getComponentType());
         } else if (value instanceof Parcelable) {
             return new ParcelableType(value.getClass());
@@ -843,7 +843,7 @@ public abstract class NavType<T> {
         @Override
         public boolean equals(Object o) {
             if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
+            if (!(o instanceof SerializableType)) return false;
 
             SerializableType<?> that = (SerializableType<?>) o;
 
