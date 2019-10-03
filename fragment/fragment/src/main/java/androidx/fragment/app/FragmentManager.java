@@ -539,7 +539,7 @@ public abstract class FragmentManager {
         // The parent Fragment needs to be the primary navigation Fragment
         // and, if it has a parent itself, that parent also needs to be
         // the primary navigation fragment, recursively up the stack
-        return parent == primaryNavigationFragment
+        return parent.equals(primaryNavigationFragment)
                 && isPrimaryNavigation(parentFragmentManager.mParent);
     }
 
@@ -801,7 +801,8 @@ public abstract class FragmentManager {
      * {@link Fragment}.
      */
     @NonNull
-    @SuppressWarnings("unchecked") // We should throw a ClassCast exception if the type is wrong
+    @SuppressWarnings({"unchecked", "TypeParameterUnusedInFormals"}) // We should throw a ClassCast
+    // exception if the type is wrong
     public static <F extends Fragment> F findFragment(@NonNull View view) {
         Fragment fragment = findViewFragment(view);
         if (fragment == null) {
@@ -1001,7 +1002,7 @@ public abstract class FragmentManager {
     @Nullable
     public Fragment.SavedState saveFragmentInstanceState(@NonNull Fragment fragment) {
         FragmentStateManager fragmentStateManager = mActive.get(fragment.mWho);
-        if (fragmentStateManager == null || fragmentStateManager.getFragment() != fragment) {
+        if (fragmentStateManager == null || !fragmentStateManager.getFragment().equals(fragment)) {
             throwException(new IllegalStateException("Fragment " + fragment
                     + " is not currently in the FragmentManager"));
         }
@@ -1586,12 +1587,10 @@ public abstract class FragmentManager {
         if (signals != null) {
             for (CancellationSignal signal: signals) {
                 signal.cancel();
-                signals.remove(signal);
-                if (signals.isEmpty()) {
-                    destroyFragmentView(f);
-                    mExitAnimationCancellationSignals.remove(f);
-                }
             }
+            signals.clear();
+            destroyFragmentView(f);
+            mExitAnimationCancellationSignals.remove(f);
         }
     }
 
@@ -3257,6 +3256,7 @@ public abstract class FragmentManager {
         return mPrimaryNav;
     }
 
+    @SuppressWarnings("ReferenceEquality")
     void setMaxLifecycle(Fragment f, Lifecycle.State state) {
         if ((findActiveFragment(f.mWho) != f
                 || (f.mHost != null && f.mFragmentManager != this))) {
@@ -3341,7 +3341,7 @@ public abstract class FragmentManager {
     }
 
     private boolean isMenuAvailable(Fragment f) {
-        return f.mHasMenu && f.mMenuVisible || f.mChildFragmentManager.checkForMenus();
+        return (f.mHasMenu && f.mMenuVisible) || f.mChildFragmentManager.checkForMenus();
     }
 
     static int reverseTransit(int transit) {

@@ -34,7 +34,7 @@ import java.util.Map;
  * FragmentManagerViewModel is the always up to date view of the Fragment's
  * non configuration state
  */
-class FragmentManagerViewModel extends ViewModel {
+final class FragmentManagerViewModel extends ViewModel {
     private static final String TAG = FragmentManager.TAG;
 
     private static final ViewModelProvider.Factory FACTORY = new ViewModelProvider.Factory() {
