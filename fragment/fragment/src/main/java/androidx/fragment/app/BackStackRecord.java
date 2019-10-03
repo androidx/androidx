@@ -332,7 +332,8 @@ final class BackStackRecord extends FragmentTransaction implements
      * @return true always because the records and isRecordPop will always be changed
      */
     @Override
-    public boolean generateOps(ArrayList<BackStackRecord> records, ArrayList<Boolean> isRecordPop) {
+    public boolean generateOps(@NonNull ArrayList<BackStackRecord> records,
+            @NonNull ArrayList<Boolean> isRecordPop) {
         if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
             Log.v(TAG, "Run: " + this);
         }
