@@ -50,3 +50,8 @@ interface IntrinsicMeasurable {
      */
     fun maxIntrinsicHeight(width: IntPx): IntPx
 }
+
+/**
+ * A function for performing intrinsic measurement.
+ */
+typealias IntrinsicMeasureBlock = (DensityScope.(List<IntrinsicMeasurable>, IntPx) -> IntPx)
