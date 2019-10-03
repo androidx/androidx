@@ -138,10 +138,12 @@ private fun SlotReader.getGroup(): Group {
 }
 
 private fun boundsOfLayoutNode(node: LayoutNode): PxBounds {
-    val left = node.x.toPx()
-    val top = node.y.toPx()
-    val right = left + node.width.toPx()
-    val bottom = top + node.height.toPx()
+    val position = node.contentPosition
+    val size = node.contentSize
+    val left = position.x.toPx()
+    val top = position.y.toPx()
+    val right = left + size.width.toPx()
+    val bottom = top + size.height.toPx()
     return PxBounds(left = left, top = top, right = right, bottom = bottom)
 }
 
