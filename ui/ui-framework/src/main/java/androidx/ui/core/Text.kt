@@ -246,36 +246,37 @@ fun Text(
                 textDelegate.paint(canvas)
             }
         }
-        ComplexLayout(children, modifier) {
-            measure { _, constraints ->
-                textDelegate.layout(constraints)
-                layout(
-                    textDelegate.width.px.round(),
-                    textDelegate.height.px.round(),
-                    // Provide values for the alignment lines defined by text - the first
-                    // and last baselines of the text. These can be used by parent layouts
-                    // to position this text or align this and other texts by baseline.
-                    FirstBaseline to textDelegate.firstBaseline.px.round(),
-                    LastBaseline to textDelegate.lastBaseline.px.round()
-                ) {}
-            }
-            minIntrinsicWidth { _, _ ->
+        Layout(
+            children = children,
+            modifier = modifier,
+            minIntrinsicWidthMeasureBlock = { _, _ ->
                 textDelegate.layoutIntrinsics()
                 textDelegate.minIntrinsicWidth.px.round()
-            }
-            minIntrinsicHeight { _, width ->
+            },
+            minIntrinsicHeightMeasureBlock = { _, width ->
                 // given the width constraint, determine the min height
                 textDelegate.layout(Constraints(0.ipx, width, 0.ipx, IntPx.Infinity))
                 textDelegate.height.px.round()
-            }
-            maxIntrinsicWidth { _, _ ->
+            },
+            maxIntrinsicWidthMeasureBlock = { _, _ ->
                 textDelegate.layoutIntrinsics()
                 textDelegate.maxIntrinsicWidth.px.round()
-            }
-            maxIntrinsicHeight { _, width ->
+            },
+            maxIntrinsicHeightMeasureBlock = { _, width ->
                 textDelegate.layout(Constraints(0.ipx, width, 0.ipx, IntPx.Infinity))
                 textDelegate.height.px.round()
             }
+        ) { _, constraints ->
+            textDelegate.layout(constraints)
+            layout(
+                textDelegate.width.px.round(),
+                textDelegate.height.px.round(),
+                // Provide values for the alignment lines defined by text - the first
+                // and last baselines of the text. These can be used by parent layouts
+                // to position this text or align this and other texts by baseline.
+                FirstBaseline to textDelegate.firstBaseline.px.round(),
+                LastBaseline to textDelegate.lastBaseline.px.round()
+            ) {}
         }
 
         +onCommit(

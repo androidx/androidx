@@ -21,7 +21,6 @@ import androidx.compose.Composable
 import androidx.compose.composer
 import androidx.ui.core.Alignment
 import androidx.ui.core.AlignmentLine
-import androidx.ui.core.ComplexLayout
 import androidx.ui.core.Constraints
 import androidx.ui.core.IntPx
 import androidx.ui.core.IntPxSize
@@ -29,6 +28,8 @@ import androidx.ui.core.Placeable
 import androidx.ui.core.ipx
 import androidx.ui.core.max
 import androidx.ui.core.IntrinsicMeasurable
+import androidx.ui.core.IntrinsicMeasureBlock
+import androidx.ui.core.Layout
 import androidx.ui.core.Modifier
 import androidx.ui.core.ParentData
 import androidx.ui.core.isFinite
@@ -507,205 +508,280 @@ private fun Flex(
         }
         composable
     }
-    ComplexLayout(flexChildren, modifier) {
-        measure { children, outerConstraints ->
-            val constraints = OrientationIndependentConstraints(outerConstraints, orientation)
+    Layout(
+        flexChildren,
+        modifier = modifier,
+        minIntrinsicWidthMeasureBlock = MinIntrinsicWidthMeasureBlock(orientation),
+        minIntrinsicHeightMeasureBlock = MinIntrinsicHeightMeasureBlock(orientation),
+        maxIntrinsicWidthMeasureBlock = MaxIntrinsicWidthMeasureBlock(orientation),
+        maxIntrinsicHeightMeasureBlock = MaxIntrinsicHeightMeasureBlock(orientation)
+    ) { children, outerConstraints ->
+        val constraints = OrientationIndependentConstraints(outerConstraints, orientation)
 
-            var totalFlex = 0f
-            var inflexibleSpace = IntPx.Zero
-            var crossAxisSpace = IntPx.Zero
-            var beforeCrossAxisAlignmentLine = IntPx.Zero
-            var afterCrossAxisAlignmentLine = IntPx.Zero
+        var totalFlex = 0f
+        var inflexibleSpace = IntPx.Zero
+        var crossAxisSpace = IntPx.Zero
+        var beforeCrossAxisAlignmentLine = IntPx.Zero
+        var afterCrossAxisAlignmentLine = IntPx.Zero
 
-            val placeables = arrayOfNulls<Placeable>(children.size)
-            // First measure children with zero flex.
-            for (i in 0 until children.size) {
-                val child = children[i]
-                val flex = child.flex
+        val placeables = arrayOfNulls<Placeable>(children.size)
+        // First measure children with zero flex.
+        for (i in 0 until children.size) {
+            val child = children[i]
+            val flex = child.flex
 
-                if (flex > 0f) {
-                    totalFlex += child.flex
-                } else {
-                    val placeable = child.measure(
-                        // Ask for preferred main axis size.
-                        constraints.looseMainAxis().let {
-                            if (crossAxisAlignment == CrossAxisAlignment.Stretch) {
-                                it.stretchCrossAxis()
-                            } else {
-                                it.copy(crossAxisMin = IntPx.Zero)
-                            }
-                        }.toBoxConstraints(orientation)
-                    )
-                    inflexibleSpace += placeable.mainAxisSize()
-                    crossAxisSpace = max(crossAxisSpace, placeable.crossAxisSize())
-                    if (crossAxisAlignment.alignmentLine != null) {
-                        val alignmentLinePosition = placeable[crossAxisAlignment.alignmentLine]
-                        beforeCrossAxisAlignmentLine = max(
-                            beforeCrossAxisAlignmentLine,
-                            alignmentLinePosition ?: 0.ipx
-                        )
-                        afterCrossAxisAlignmentLine = max(
-                            afterCrossAxisAlignmentLine,
-                            placeable.crossAxisSize() -
-                                    (alignmentLinePosition ?: placeable.crossAxisSize())
-                        )
-                    }
-                    placeables[i] = placeable
-                }
-            }
-
-            // Then measure the rest according to their flexes in the remaining main axis space.
-            val targetSpace = if (mainAxisSize == LayoutSize.Expand) {
-                constraints.mainAxisMax
+            if (flex > 0f) {
+                totalFlex += child.flex
             } else {
-                constraints.mainAxisMin
-            }
-
-            var flexibleSpace = IntPx.Zero
-
-            for (i in 0 until children.size) {
-                val child = children[i]
-                val flex = child.flex
-                if (flex > 0f) {
-                    val childMainAxisSize = max(
-                        IntPx.Zero,
-                        (targetSpace - inflexibleSpace) * child.flex / totalFlex
-                    )
-                    val placeable = child.measure(
-                        OrientationIndependentConstraints(
-                            if (child.fit == FlexFit.Tight && childMainAxisSize.isFinite()) {
-                                childMainAxisSize
-                            } else {
-                                IntPx.Zero
-                            },
-                            childMainAxisSize,
-                            if (crossAxisAlignment == CrossAxisAlignment.Stretch) {
-                                constraints.crossAxisMax
-                            } else {
-                                IntPx.Zero
-                            },
-                            constraints.crossAxisMax
-                        ).toBoxConstraints(orientation)
-                    )
-                    flexibleSpace += placeable.mainAxisSize()
-                    crossAxisSpace = max(crossAxisSpace, placeable.crossAxisSize())
-                    placeables[i] = placeable
-                }
-            }
-
-            // Compute the Flex size and position the children.
-            val mainAxisLayoutSize = if (constraints.mainAxisMax.isFinite() &&
-                mainAxisSize == LayoutSize.Expand
-            ) {
-                constraints.mainAxisMax
-            } else {
-                max(inflexibleSpace + flexibleSpace, constraints.mainAxisMin)
-            }
-            val crossAxisLayoutSize = if (constraints.crossAxisMax.isFinite() &&
-                crossAxisSize == LayoutSize.Expand
-            ) {
-                constraints.crossAxisMax
-            } else {
-                max(
-                    crossAxisSpace,
-                    max(
-                        constraints.crossAxisMin,
-                        beforeCrossAxisAlignmentLine + afterCrossAxisAlignmentLine
-                    )
+                val placeable = child.measure(
+                    // Ask for preferred main axis size.
+                    constraints.looseMainAxis().let {
+                        if (crossAxisAlignment == CrossAxisAlignment.Stretch) {
+                            it.stretchCrossAxis()
+                        } else {
+                            it.copy(crossAxisMin = IntPx.Zero)
+                        }
+                    }.toBoxConstraints(orientation)
                 )
-            }
-            val layoutWidth = if (orientation == LayoutOrientation.Horizontal) {
-                mainAxisLayoutSize
-            } else {
-                crossAxisLayoutSize
-            }
-            val layoutHeight = if (orientation == LayoutOrientation.Horizontal) {
-                crossAxisLayoutSize
-            } else {
-                mainAxisLayoutSize
-            }
-            layout(layoutWidth, layoutHeight) {
-                val childrenMainAxisSize = placeables.map { it!!.mainAxisSize() }
-                val mainAxisPositions = mainAxisAlignment.aligner
-                    .align(mainAxisLayoutSize, childrenMainAxisSize)
-                placeables.forEachIndexed { index, placeable ->
-                    placeable!!
-                    val crossAxis = when (crossAxisAlignment) {
-                        CrossAxisAlignment.Start -> IntPx.Zero
-                        CrossAxisAlignment.Stretch -> IntPx.Zero
-                        CrossAxisAlignment.End -> {
-                            crossAxisLayoutSize - placeable.crossAxisSize()
-                        }
-                        CrossAxisAlignment.Center -> {
-                            Alignment.Center.align(
-                                IntPxSize(
-                                    mainAxisLayoutSize - placeable.mainAxisSize(),
-                                    crossAxisLayoutSize - placeable.crossAxisSize()
-                                )
-                            ).y
-                        }
-                        else -> {
-                            val alignmentLinePosition =
-                                placeable[crossAxisAlignment.alignmentLine!!]
-                            if (alignmentLinePosition != null) {
-                                beforeCrossAxisAlignmentLine - alignmentLinePosition
-                            } else {
-                                IntPx.Zero
-                            }
-                        }
-                    }
-                    if (orientation == LayoutOrientation.Horizontal) {
-                        placeable.place(mainAxisPositions[index], crossAxis)
-                    } else {
-                        placeable.place(crossAxis, mainAxisPositions[index])
-                    }
+                inflexibleSpace += placeable.mainAxisSize()
+                crossAxisSpace = max(crossAxisSpace, placeable.crossAxisSize())
+                if (crossAxisAlignment.alignmentLine != null) {
+                    val alignmentLinePosition = placeable[crossAxisAlignment.alignmentLine]
+                    beforeCrossAxisAlignmentLine = max(
+                        beforeCrossAxisAlignmentLine,
+                        alignmentLinePosition ?: 0.ipx
+                    )
+                    afterCrossAxisAlignmentLine = max(
+                        afterCrossAxisAlignmentLine,
+                        placeable.crossAxisSize() -
+                                (alignmentLinePosition ?: placeable.crossAxisSize())
+                    )
                 }
+                placeables[i] = placeable
             }
         }
 
-        minIntrinsicWidth { children, availableHeight ->
-            intrinsicSize(
-                children,
-                { h -> minIntrinsicWidth(h) },
-                { w -> maxIntrinsicHeight(w) },
-                availableHeight,
-                orientation,
-                LayoutOrientation.Horizontal
+        // Then measure the rest according to their flexes in the remaining main axis space.
+        val targetSpace = if (mainAxisSize == LayoutSize.Expand) {
+            constraints.mainAxisMax
+        } else {
+            constraints.mainAxisMin
+        }
+
+        var flexibleSpace = IntPx.Zero
+
+        for (i in 0 until children.size) {
+            val child = children[i]
+            val flex = child.flex
+            if (flex > 0f) {
+                val childMainAxisSize = max(
+                    IntPx.Zero,
+                    (targetSpace - inflexibleSpace) * child.flex / totalFlex
+                )
+                val placeable = child.measure(
+                    OrientationIndependentConstraints(
+                        if (child.fit == FlexFit.Tight && childMainAxisSize.isFinite()) {
+                            childMainAxisSize
+                        } else {
+                            IntPx.Zero
+                        },
+                        childMainAxisSize,
+                        if (crossAxisAlignment == CrossAxisAlignment.Stretch) {
+                            constraints.crossAxisMax
+                        } else {
+                            IntPx.Zero
+                        },
+                        constraints.crossAxisMax
+                    ).toBoxConstraints(orientation)
+                )
+                flexibleSpace += placeable.mainAxisSize()
+                crossAxisSpace = max(crossAxisSpace, placeable.crossAxisSize())
+                placeables[i] = placeable
+            }
+        }
+
+        // Compute the Flex size and position the children.
+        val mainAxisLayoutSize = if (constraints.mainAxisMax.isFinite() &&
+            mainAxisSize == LayoutSize.Expand
+        ) {
+            constraints.mainAxisMax
+        } else {
+            max(inflexibleSpace + flexibleSpace, constraints.mainAxisMin)
+        }
+        val crossAxisLayoutSize = if (constraints.crossAxisMax.isFinite() &&
+            crossAxisSize == LayoutSize.Expand
+        ) {
+            constraints.crossAxisMax
+        } else {
+            max(
+                crossAxisSpace,
+                max(
+                    constraints.crossAxisMin,
+                    beforeCrossAxisAlignmentLine + afterCrossAxisAlignmentLine
+                )
             )
         }
+        val layoutWidth = if (orientation == LayoutOrientation.Horizontal) {
+            mainAxisLayoutSize
+        } else {
+            crossAxisLayoutSize
+        }
+        val layoutHeight = if (orientation == LayoutOrientation.Horizontal) {
+            crossAxisLayoutSize
+        } else {
+            mainAxisLayoutSize
+        }
+        layout(layoutWidth, layoutHeight) {
+            val childrenMainAxisSize = placeables.map { it!!.mainAxisSize() }
+            val mainAxisPositions = mainAxisAlignment.aligner
+                .align(mainAxisLayoutSize, childrenMainAxisSize)
+            placeables.forEachIndexed { index, placeable ->
+                placeable!!
+                val crossAxis = when (crossAxisAlignment) {
+                    CrossAxisAlignment.Start -> IntPx.Zero
+                    CrossAxisAlignment.Stretch -> IntPx.Zero
+                    CrossAxisAlignment.End -> {
+                        crossAxisLayoutSize - placeable.crossAxisSize()
+                    }
+                    CrossAxisAlignment.Center -> {
+                        Alignment.Center.align(
+                            IntPxSize(
+                                mainAxisLayoutSize - placeable.mainAxisSize(),
+                                crossAxisLayoutSize - placeable.crossAxisSize()
+                            )
+                        ).y
+                    }
+                    else -> {
+                        val alignmentLinePosition =
+                            placeable[crossAxisAlignment.alignmentLine!!]
+                        if (alignmentLinePosition != null) {
+                            beforeCrossAxisAlignmentLine - alignmentLinePosition
+                        } else {
+                            IntPx.Zero
+                        }
+                    }
+                }
+                if (orientation == LayoutOrientation.Horizontal) {
+                    placeable.place(mainAxisPositions[index], crossAxis)
+                } else {
+                    placeable.place(crossAxis, mainAxisPositions[index])
+                }
+            }
+        }
+    }
+}
 
-        minIntrinsicHeight { children, availableWidth ->
+private /*inline*/ fun MinIntrinsicWidthMeasureBlock(orientation: LayoutOrientation) =
+    if (orientation == LayoutOrientation.Horizontal) {
+        IntrinsicMeasureBlocks.HorizontalMinWidth
+    } else {
+        IntrinsicMeasureBlocks.VerticalMinWidth
+    }
+
+private /*inline*/ fun MinIntrinsicHeightMeasureBlock(orientation: LayoutOrientation) =
+    if (orientation == LayoutOrientation.Horizontal) {
+        IntrinsicMeasureBlocks.HorizontalMinHeight
+    } else {
+        IntrinsicMeasureBlocks.VerticalMinHeight
+    }
+
+private /*inline*/ fun MaxIntrinsicWidthMeasureBlock(orientation: LayoutOrientation) =
+    if (orientation == LayoutOrientation.Horizontal) {
+        IntrinsicMeasureBlocks.HorizontalMaxWidth
+    } else {
+        IntrinsicMeasureBlocks.VerticalMaxWidth
+    }
+
+private /*inline*/ fun MaxIntrinsicHeightMeasureBlock(orientation: LayoutOrientation) =
+    if (orientation == LayoutOrientation.Horizontal) {
+        IntrinsicMeasureBlocks.HorizontalMaxHeight
+    } else {
+        IntrinsicMeasureBlocks.VerticalMaxHeight
+    }
+
+private object IntrinsicMeasureBlocks {
+    val HorizontalMinWidth: IntrinsicMeasureBlock = { measurables, availableHeight: IntPx ->
+        intrinsicSize(
+            measurables,
+            { h -> minIntrinsicWidth(h) },
+            { w -> maxIntrinsicHeight(w) },
+            availableHeight,
+            LayoutOrientation.Horizontal,
+            LayoutOrientation.Horizontal
+        )
+    }
+    val VerticalMinWidth: IntrinsicMeasureBlock = { measurables, availableHeight ->
+        intrinsicSize(
+            measurables,
+            { h -> minIntrinsicWidth(h) },
+            { w -> maxIntrinsicHeight(w) },
+            availableHeight,
+            LayoutOrientation.Vertical,
+            LayoutOrientation.Horizontal
+        )
+    }
+    val HorizontalMinHeight: IntrinsicMeasureBlock = { measurables, availableWidth ->
+        intrinsicSize(
+            measurables,
+            { w -> minIntrinsicHeight(w) },
+            { h -> maxIntrinsicWidth(h) },
+            availableWidth,
+            LayoutOrientation.Horizontal,
+            LayoutOrientation.Vertical
+        )
+    }
+    val VerticalMinHeight by lazy(mode = LazyThreadSafetyMode.NONE) {
+        val block: IntrinsicMeasureBlock = { measurables, availableWidth ->
             intrinsicSize(
-                children,
+                measurables,
                 { w -> minIntrinsicHeight(w) },
                 { h -> maxIntrinsicWidth(h) },
                 availableWidth,
-                orientation,
+                LayoutOrientation.Vertical,
                 LayoutOrientation.Vertical
             )
         }
-
-        maxIntrinsicWidth { children, availableHeight ->
-            intrinsicSize(
-                children,
-                { h -> maxIntrinsicWidth(h) },
-                { w -> maxIntrinsicHeight(w) },
-                availableHeight,
-                orientation,
-                LayoutOrientation.Horizontal
-            )
-        }
-
-        maxIntrinsicHeight { children, availableWidth ->
-            intrinsicSize(
-                children,
-                { w -> maxIntrinsicHeight(w) },
-                { h -> maxIntrinsicWidth(h) },
-                availableWidth,
-                orientation,
-                LayoutOrientation.Vertical
-            )
-        }
+        block
+    }
+    val HorizontalMaxWidth: IntrinsicMeasureBlock = { measurables, availableHeight ->
+        intrinsicSize(
+            measurables,
+            { h -> maxIntrinsicWidth(h) },
+            { w -> maxIntrinsicHeight(w) },
+            availableHeight,
+            LayoutOrientation.Horizontal,
+            LayoutOrientation.Horizontal
+        )
+    }
+    val VerticalMaxWidth: IntrinsicMeasureBlock = { measurables, availableHeight ->
+        intrinsicSize(
+            measurables,
+            { h -> maxIntrinsicWidth(h) },
+            { w -> maxIntrinsicHeight(w) },
+            availableHeight,
+            LayoutOrientation.Vertical,
+            LayoutOrientation.Horizontal
+        )
+    }
+    val HorizontalMaxHeight: IntrinsicMeasureBlock = { measurables, availableWidth ->
+        intrinsicSize(
+            measurables,
+            { w -> maxIntrinsicHeight(w) },
+            { h -> maxIntrinsicWidth(h) },
+            availableWidth,
+            LayoutOrientation.Horizontal,
+            LayoutOrientation.Vertical
+        )
+    }
+    val VerticalMaxHeight: IntrinsicMeasureBlock = { measurables, availableWidth ->
+        intrinsicSize(
+            measurables,
+            { w -> maxIntrinsicHeight(w) },
+            { h -> maxIntrinsicWidth(h) },
+            availableWidth,
+            LayoutOrientation.Vertical,
+            LayoutOrientation.Vertical
+        )
     }
 }
 
