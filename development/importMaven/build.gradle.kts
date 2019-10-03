@@ -234,7 +234,7 @@ fun supportingArtifacts(
     val sourcesQuery = project.dependencies.createArtifactResolutionQuery()
     val sourcesQueryResult = sourcesQuery.forComponents(artifact.id.componentIdentifier)
         .withArtifacts(
-            MavenModule::class.java,
+            JvmLibrary::class.java,
             SourcesArtifact::class.java
         )
         .execute()
