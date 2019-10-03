@@ -89,7 +89,7 @@ public class AssetHelper {
             throws Resources.NotFoundException, IOException {
         path = removeLeadingSlash(path);
         // The path must be of the form "resource_type/resource_name.ext".
-        String[] pathSegments = path.split("/");
+        String[] pathSegments = path.split("/", -1);
         if (pathSegments.length != 2) {
             throw new IllegalArgumentException("Incorrect resource path: " + path);
         }
@@ -97,7 +97,10 @@ public class AssetHelper {
         String resourceName = pathSegments[1];
 
         // Drop the file extension.
-        resourceName = resourceName.split("\\.")[0];
+        int dotIndex = resourceName.lastIndexOf('.');
+        if (dotIndex != -1) {
+            resourceName = resourceName.substring(0, dotIndex);
+        }
         int fieldId = getFieldId(resourceType, resourceName);
         int valueType = getValueType(fieldId);
         if (valueType != TypedValue.TYPE_STRING) {
