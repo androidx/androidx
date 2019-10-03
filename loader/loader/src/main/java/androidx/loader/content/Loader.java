@@ -530,7 +530,7 @@ public class Loader<D> {
             Class<?> cls = data.getClass();
             sb.append(cls.getSimpleName());
             sb.append("{");
-            sb.append(Integer.toHexString(System.identityHashCode(cls)));
+            sb.append(Integer.toHexString(System.identityHashCode(data)));
             sb.append("}");
         }
         return sb.toString();
@@ -543,7 +543,7 @@ public class Loader<D> {
         Class<?> cls = getClass();
         sb.append(cls.getSimpleName());
         sb.append("{");
-        sb.append(Integer.toHexString(System.identityHashCode(cls)));
+        sb.append(Integer.toHexString(System.identityHashCode(this)));
         sb.append(" id=");
         sb.append(mId);
         sb.append("}");
