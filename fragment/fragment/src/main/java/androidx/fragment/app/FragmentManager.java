@@ -1260,7 +1260,6 @@ public abstract class FragmentManager {
         return mCurState >= state;
     }
 
-    @SuppressWarnings("ReferenceEquality")
     void moveToState(Fragment f, int newState) {
         FragmentStateManager fragmentStateManager = mActive.get(f.mWho);
         if (fragmentStateManager == null) {
@@ -1293,7 +1292,7 @@ public abstract class FragmentManager {
                         // If we have a target fragment, push it along to at least CREATED
                         // so that this one can rely on it as an initialized dependency.
                         if (f.mTarget != null) {
-                            if (findActiveFragment(f.mTarget.mWho) != f.mTarget) {
+                            if (!f.mTarget.equals(findActiveFragment(f.mTarget.mWho))) {
                                 throw new IllegalStateException("Fragment " + f
                                         + " declared target fragment " + f.mTarget
                                         + " that does not belong to this FragmentManager!");
@@ -3221,9 +3220,8 @@ public abstract class FragmentManager {
         }
     }
 
-    @SuppressWarnings("ReferenceEquality")
     void setPrimaryNavigationFragment(Fragment f) {
-        if (f != null && (findActiveFragment(f.mWho) != f
+        if (f != null && (!f.equals(findActiveFragment(f.mWho))
                 || (f.mHost != null && f.mFragmentManager != this))) {
             throw new IllegalArgumentException("Fragment " + f
                     + " is not an active fragment of FragmentManager " + this);
@@ -3235,7 +3233,7 @@ public abstract class FragmentManager {
     }
 
     private void dispatchParentPrimaryNavigationFragmentChanged(@Nullable Fragment f) {
-        if (f != null && findActiveFragment(f.mWho) == f) {
+        if (f != null && f.equals(findActiveFragment(f.mWho))) {
             f.performPrimaryNavigationFragmentChanged();
         }
     }
@@ -3263,9 +3261,8 @@ public abstract class FragmentManager {
         return mPrimaryNav;
     }
 
-    @SuppressWarnings("ReferenceEquality")
     void setMaxLifecycle(Fragment f, Lifecycle.State state) {
-        if ((findActiveFragment(f.mWho) != f
+        if (f == null || (!f.equals(findActiveFragment(f.mWho))
                 || (f.mHost != null && f.mFragmentManager != this))) {
             throw new IllegalArgumentException("Fragment " + f
                     + " is not an active fragment of FragmentManager " + this);
