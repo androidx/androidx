@@ -39,6 +39,8 @@ dependencies {
     androidTestImplementation project(':internal-testutils-runtime'), {
         exclude group: 'androidx.fragment', module: 'fragment'
     }
+
+    lintPublish(project(':fragment:fragment-lint'))
 }
 
 androidx {
