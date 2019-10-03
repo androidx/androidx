@@ -790,7 +790,7 @@ final class Camera implements BaseCamera {
             }
 
             if (mUseCaseAttachState.getOnlineUseCases().isEmpty()) {
-                resetCaptureSession(/*abortInFlightCaptures=*/true);
+                resetCaptureSession(/*abortInFlightCaptures=*/false);
                 close();
                 return;
             }
