@@ -30,7 +30,7 @@ plugins {
 dependencies {
     implementation(KOTLIN_STDLIB)
     implementation("androidx.annotation:annotation:1.0.0")
-    api(project(":annotation:annotation-experimental"))
+    implementation(project(":annotation:annotation-experimental"))
     implementation(ANDROIDX_TEST_MONITOR)
 
     androidTestImplementation(ANDROIDX_TEST_RULES)
