@@ -19,6 +19,8 @@ package androidx.work.impl.foreground;
 import android.app.Notification;
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
+import android.text.TextUtils;
 
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
@@ -40,6 +42,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 
 /**
  * Handles requests for executing {@link androidx.work.WorkRequest}s on behalf of
@@ -50,6 +53,7 @@ import java.util.Set;
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class SystemForegroundDispatcher implements WorkConstraintsCallback, ExecutionListener {
     // Synthetic access
+    @SuppressWarnings("WeakerAccess")
     static final String TAG = Logger.tagWithPrefix("SystemFgDispatcher");
 
     // keys
@@ -63,6 +67,7 @@ public class SystemForegroundDispatcher implements WorkConstraintsCallback, Exec
     private static final String ACTION_START_FOREGROUND = "ACTION_START_FOREGROUND";
     private static final String ACTION_NOTIFY = "ACTION_NOTIFY";
     private static final String ACTION_STOP_FOREGROUND = "ACTION_STOP_FOREGROUND";
+    private static final String ACTION_CANCEL_WORK = "ACTION_CANCEL_WORK";
 
     // constants
     @VisibleForTesting
@@ -152,6 +157,8 @@ public class SystemForegroundDispatcher implements WorkConstraintsCallback, Exec
             handleStop(intent);
         } else if (ACTION_NOTIFY.equals(action)) {
             handleNotify(intent);
+        } else if (ACTION_CANCEL_WORK.equals(action)) {
+            handleCancelWork(intent);
         }
     }
 
@@ -203,6 +210,15 @@ public class SystemForegroundDispatcher implements WorkConstraintsCallback, Exec
         }
     }
 
+    @MainThread
+    private void handleCancelWork(@NonNull Intent intent) {
+        Logger.get().info(TAG, String.format("Stopping foreground work for %s", intent));
+        String workSpecId = intent.getStringExtra(KEY_WORKSPEC_ID);
+        if (workSpecId != null && !TextUtils.isEmpty(workSpecId)) {
+            mWorkManagerImpl.cancelWorkById(UUID.fromString(workSpecId));
+        }
+    }
+
     @Override
     public void onAllConstraintsMet(@NonNull List<String> workSpecIds) {
         // Do nothing
@@ -233,6 +249,26 @@ public class SystemForegroundDispatcher implements WorkConstraintsCallback, Exec
             @NonNull String workSpecId) {
         Intent intent = new Intent(context, SystemForegroundService.class);
         intent.setAction(ACTION_START_FOREGROUND);
+        intent.putExtra(KEY_WORKSPEC_ID, workSpecId);
+        return intent;
+    }
+
+    /**
+     * The {@link Intent} is used to cancel foreground work for a given {@link String} workSpecId.
+     *
+     * @param context    The application {@link Context}
+     * @param workSpecId The WorkSpec id of the Worker being executed in the context of the
+     *                   foreground service
+     * @return The {@link Intent}
+     */
+    @NonNull
+    public static Intent createCancelWorkIntent(
+            @NonNull Context context,
+            @NonNull String workSpecId) {
+        Intent intent = new Intent(context, SystemForegroundService.class);
+        intent.setAction(ACTION_CANCEL_WORK);
+        // Set data to make it unique for filterEquals()
+        intent.setData(Uri.parse(String.format("workspec://%s", workSpecId)));
         intent.putExtra(KEY_WORKSPEC_ID, workSpecId);
         return intent;
     }
