@@ -271,13 +271,13 @@ package androidx.browser.trusted {
 
   public class TrustedWebActivityService extends android.app.Service {
     ctor public TrustedWebActivityService();
-    method public boolean areNotificationsEnabled(String);
-    method public void cancelNotification(String, int);
-    method public android.os.Bundle getSmallIconBitmap();
-    method public int getSmallIconId();
-    method public boolean notifyNotificationWithChannel(String, int, android.app.Notification, String);
-    method public final android.os.IBinder? onBind(android.content.Intent?);
-    method public final boolean onUnbind(android.content.Intent?);
+    method @BinderThread public boolean onAreNotificationsEnabled(String);
+    method @MainThread public final android.os.IBinder? onBind(android.content.Intent?);
+    method @BinderThread public void onCancelNotification(String, int);
+    method @BinderThread public android.os.Bundle onGetSmallIconBitmap();
+    method @BinderThread public int onGetSmallIconId();
+    method @BinderThread public boolean onNotifyNotificationWithChannel(String, int, android.app.Notification, String);
+    method @MainThread public final boolean onUnbind(android.content.Intent?);
     method public static final void setVerifiedProvider(android.content.Context, String?);
     field public static final String ACTION_TRUSTED_WEB_ACTIVITY_SERVICE = "android.support.customtabs.trusted.TRUSTED_WEB_ACTIVITY_SERVICE";
     field public static final String KEY_SMALL_ICON_BITMAP = "android.support.customtabs.trusted.SMALL_ICON_BITMAP";
@@ -285,21 +285,21 @@ package androidx.browser.trusted {
     field public static final int SMALL_ICON_NOT_SET = -1; // 0xffffffff
   }
 
-  public final class TrustedWebActivityServiceConnectionManager {
-    ctor public TrustedWebActivityServiceConnectionManager(android.content.Context);
-    method @MainThread public com.google.common.util.concurrent.ListenableFuture<androidx.browser.trusted.TrustedWebActivityServiceWrapper!> connect(android.net.Uri, String, java.util.concurrent.Executor);
-    method public static java.util.Set<java.lang.String!> getVerifiedPackages(android.content.Context, String);
-    method public static void registerClient(android.content.Context, String, String);
-    method @MainThread public boolean serviceExistsForScope(android.net.Uri, String);
-  }
-
-  public class TrustedWebActivityServiceWrapper {
+  public final class TrustedWebActivityServiceConnection {
     method public boolean areNotificationsEnabled(String);
     method public void cancel(String, int);
     method public android.content.ComponentName getComponentName();
     method public android.graphics.Bitmap? getSmallIconBitmap();
     method public int getSmallIconId();
     method public boolean notify(String, int, android.app.Notification, String);
+  }
+
+  public final class TrustedWebActivityServiceConnectionPool {
+    method @MainThread public com.google.common.util.concurrent.ListenableFuture<androidx.browser.trusted.TrustedWebActivityServiceConnection!> connect(android.net.Uri, String, java.util.concurrent.Executor);
+    method public static androidx.browser.trusted.TrustedWebActivityServiceConnectionPool create(android.content.Context);
+    method public static java.util.Set<java.lang.String!> getVerifiedPackages(android.content.Context, String);
+    method public static void registerClient(android.content.Context, String, String);
+    method @MainThread public boolean serviceExistsForScope(android.net.Uri, String);
   }
 
 }

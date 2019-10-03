@@ -20,6 +20,7 @@ import android.app.NotificationManager;
 import android.os.Build;
 import android.os.Parcelable;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 
@@ -40,6 +41,7 @@ public class NotificationApiHelperForM {
      * being verified on earlier Jellybean builds.
      */
     @RequiresApi(Build.VERSION_CODES.M)
+    @NonNull
     static Parcelable[] getActiveNotifications(NotificationManager manager) {
         return manager.getActiveNotifications();
     }

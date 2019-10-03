@@ -52,19 +52,19 @@ public class ConnectionHolderTest {
     private final TestWrapperFactory mWrapperFactory = new TestWrapperFactory();
 
     private static class TestWrapperFactory extends ConnectionHolder.WrapperFactory {
-        private final TrustedWebActivityServiceWrapper mService;
+        private final TrustedWebActivityServiceConnection mService;
 
         TestWrapperFactory() {
-            mService = Mockito.mock(TrustedWebActivityServiceWrapper.class);
+            mService = Mockito.mock(TrustedWebActivityServiceConnection.class);
         }
 
-        TrustedWebActivityServiceWrapper getService() {
+        TrustedWebActivityServiceConnection getService() {
             return mService;
         }
 
         @NonNull
         @Override
-        TrustedWebActivityServiceWrapper create(ComponentName name, IBinder iBinder) {
+        TrustedWebActivityServiceConnection create(ComponentName name, IBinder iBinder) {
             return mService;
         }
     }
@@ -74,8 +74,8 @@ public class ConnectionHolderTest {
         AtomicBoolean closed = new AtomicBoolean();
         ConnectionHolder holder = new ConnectionHolder(() -> closed.set(true), mWrapperFactory);
 
-        ListenableFuture<TrustedWebActivityServiceWrapper> future1 = holder.getServiceWrapper();
-        ListenableFuture<TrustedWebActivityServiceWrapper> future2 = holder.getServiceWrapper();
+        ListenableFuture<TrustedWebActivityServiceConnection> future1 = holder.getServiceWrapper();
+        ListenableFuture<TrustedWebActivityServiceConnection> future2 = holder.getServiceWrapper();
 
         assertFalse(future1.isDone());
         assertFalse(future2.isDone());
@@ -92,7 +92,7 @@ public class ConnectionHolderTest {
         AtomicBoolean closed = new AtomicBoolean();
         ConnectionHolder holder = new ConnectionHolder(() -> closed.set(true), mWrapperFactory);
 
-        ListenableFuture<TrustedWebActivityServiceWrapper> future = holder.getServiceWrapper();
+        ListenableFuture<TrustedWebActivityServiceConnection> future = holder.getServiceWrapper();
 
         assertFalse(future.isDone());
 
@@ -115,7 +115,7 @@ public class ConnectionHolderTest {
         AtomicBoolean closed = new AtomicBoolean();
         ConnectionHolder holder = new ConnectionHolder(() -> closed.set(true), mWrapperFactory);
 
-        ListenableFuture<TrustedWebActivityServiceWrapper> future = holder.getServiceWrapper();
+        ListenableFuture<TrustedWebActivityServiceConnection> future = holder.getServiceWrapper();
 
         assertFalse(future.isDone());
 
@@ -151,7 +151,7 @@ public class ConnectionHolderTest {
         });
 
         ConnectionHolder holder = new ConnectionHolder(() -> { }, mWrapperFactory);
-        ListenableFuture<TrustedWebActivityServiceWrapper> future = holder.getServiceWrapper();
+        ListenableFuture<TrustedWebActivityServiceConnection> future = holder.getServiceWrapper();
 
         holder.onServiceConnected(null, null);
 

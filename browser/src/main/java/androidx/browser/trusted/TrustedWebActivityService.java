@@ -35,15 +35,17 @@ import android.os.Parcelable;
 import android.os.StrictMode;
 import android.support.customtabs.trusted.ITrustedWebActivityService;
 
+import androidx.annotation.BinderThread;
 import androidx.annotation.CallSuper;
+import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
-import androidx.browser.trusted.TrustedWebActivityServiceWrapper.ActiveNotificationsArgs;
-import androidx.browser.trusted.TrustedWebActivityServiceWrapper.CancelNotificationArgs;
-import androidx.browser.trusted.TrustedWebActivityServiceWrapper.NotificationsEnabledArgs;
-import androidx.browser.trusted.TrustedWebActivityServiceWrapper.NotifyNotificationArgs;
-import androidx.browser.trusted.TrustedWebActivityServiceWrapper.ResultArgs;
+import androidx.browser.trusted.TrustedWebActivityServiceConnection.ActiveNotificationsArgs;
+import androidx.browser.trusted.TrustedWebActivityServiceConnection.CancelNotificationArgs;
+import androidx.browser.trusted.TrustedWebActivityServiceConnection.NotificationsEnabledArgs;
+import androidx.browser.trusted.TrustedWebActivityServiceConnection.NotifyNotificationArgs;
+import androidx.browser.trusted.TrustedWebActivityServiceConnection.ResultArgs;
 import androidx.core.app.NotificationManagerCompat;
 
 import java.util.Arrays;
@@ -81,13 +83,16 @@ import java.util.Locale;
  * Alternatively for greater customization, TrustedWebActivityService can be extended and
  * overridden. In this case the manifest entry should be updated to point to the extending class.
  * <p>
- * As this is an AIDL Service, calls to {@link #getSmallIconId},
- * {@link #notifyNotificationWithChannel} and {@link #cancelNotification} can occur on different
- * Binder threads, so overriding implementations need to be thread-safe.
+ * As this is an AIDL Service, calls may come in from different Binder threads, so overriding
+ * implementations need to be thread safe [1].
  * <p>
  * For security, the TrustedWebActivityService will check that whatever connects to it is the
  * Trusted Web Activity provider that it was previously verified with (through
  * {@link #setVerifiedProvider}).
+ * This is because we don't want to allow any app on the users device to connect to this Service
+ * be able to make it display notifications.
+ *
+ * [1]: https://developer.android.com/guide/components/aidl.html
  */
 public class TrustedWebActivityService extends Service {
     /** An Intent Action used by the provider to find the TrustedWebActivityService or subclass. */
@@ -102,11 +107,13 @@ public class TrustedWebActivityService extends Service {
     public static final String META_DATA_NAME_SMALL_ICON =
             "android.support.customtabs.trusted.SMALL_ICON";
 
-    /** The key to use to store a Bitmap to return from the {@link #getSmallIconBitmap()} method. */
+    /**
+     * The key to use to store a Bitmap to return from the {@link #onGetSmallIconBitmap()} method.
+     */
     public static final String KEY_SMALL_ICON_BITMAP =
             "android.support.customtabs.trusted.SMALL_ICON_BITMAP";
 
-    /** Used as a return value of {@link #getSmallIconId} when the icon is not provided. */
+    /** Used as a return value of {@link #onGetSmallIconId} when the icon is not provided. */
     public static final int SMALL_ICON_NOT_SET = -1;
 
     private static final String PREFS_FILE = "TrustedWebActivityVerifiedProvider";
@@ -125,7 +132,7 @@ public class TrustedWebActivityService extends Service {
 
             NotificationsEnabledArgs args = NotificationsEnabledArgs.fromBundle(bundle);
             boolean result =
-                    TrustedWebActivityService.this.areNotificationsEnabled(args.channelName);
+                    TrustedWebActivityService.this.onAreNotificationsEnabled(args.channelName);
 
             return new ResultArgs(result).toBundle();
         }
@@ -136,7 +143,7 @@ public class TrustedWebActivityService extends Service {
 
             NotifyNotificationArgs args = NotifyNotificationArgs.fromBundle(bundle);
 
-            boolean success = TrustedWebActivityService.this.notifyNotificationWithChannel(
+            boolean success = TrustedWebActivityService.this.onNotifyNotificationWithChannel(
                     args.platformTag, args.platformId, args.notification, args.channelName);
 
             return new ResultArgs(success).toBundle();
@@ -148,7 +155,7 @@ public class TrustedWebActivityService extends Service {
 
             CancelNotificationArgs args = CancelNotificationArgs.fromBundle(bundle);
 
-            TrustedWebActivityService.this.cancelNotification(args.platformTag, args.platformId);
+            TrustedWebActivityService.this.onCancelNotification(args.platformTag, args.platformId);
         }
 
         @Override
@@ -156,21 +163,21 @@ public class TrustedWebActivityService extends Service {
             checkCaller();
 
             return new ActiveNotificationsArgs(
-                    TrustedWebActivityService.this.getActiveNotifications()).toBundle();
+                    TrustedWebActivityService.this.onGetActiveNotifications()).toBundle();
         }
 
         @Override
         public int getSmallIconId() {
             checkCaller();
 
-            return TrustedWebActivityService.this.getSmallIconId();
+            return TrustedWebActivityService.this.onGetSmallIconId();
         }
 
         @Override
         public Bundle getSmallIconBitmap() {
             checkCaller();
 
-            return TrustedWebActivityService.this.getSmallIconBitmap();
+            return TrustedWebActivityService.this.onGetSmallIconBitmap();
         }
 
         private void checkCaller() {
@@ -206,6 +213,7 @@ public class TrustedWebActivityService extends Service {
      */
     @Override
     @CallSuper
+    @MainThread
     public void onCreate() {
         super.onCreate();
         mNotificationManager =
@@ -217,7 +225,8 @@ public class TrustedWebActivityService extends Service {
      * @param channelName The name of the notification channel to be used on Android O+.
      * @return Whether notifications are enabled.
      */
-    public boolean areNotificationsEnabled(@NonNull String channelName) {
+    @BinderThread
+    public boolean onAreNotificationsEnabled(@NonNull String channelName) {
         ensureOnCreateCalled();
 
         if (!NotificationManagerCompat.from(this).areNotificationsEnabled()) return false;
@@ -241,7 +250,8 @@ public class TrustedWebActivityService extends Service {
      * @return Whether the notification was successfully displayed (the channel/app may be blocked
      *         by the user).
      */
-    public boolean notifyNotificationWithChannel(@NonNull String platformTag, int platformId,
+    @BinderThread
+    public boolean onNotifyNotificationWithChannel(@NonNull String platformTag, int platformId,
             @NonNull Notification notification, @NonNull String channelName) {
         ensureOnCreateCalled();
 
@@ -268,7 +278,8 @@ public class TrustedWebActivityService extends Service {
      * @param platformId The notification id, see
      *                   {@link NotificationManager#cancel(String, int)}.
      */
-    public void cancelNotification(@NonNull String platformTag, int platformId) {
+    @BinderThread
+    public void onCancelNotification(@NonNull String platformTag, int platformId) {
         ensureOnCreateCalled();
         mNotificationManager.cancel(platformTag, platformId);
     }
@@ -281,13 +292,15 @@ public class TrustedWebActivityService extends Service {
      *
      * @hide
      */
+    @NonNull
+    @BinderThread
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    public Parcelable[] getActiveNotifications() {
+    public Parcelable[] onGetActiveNotifications() {
         ensureOnCreateCalled();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             return NotificationApiHelperForM.getActiveNotifications(mNotificationManager);
         }
-        throw new IllegalStateException("getActiveNotifications cannot be called pre-M.");
+        throw new IllegalStateException("onGetActiveNotifications cannot be called pre-M.");
     }
 
     /**
@@ -295,8 +308,9 @@ public class TrustedWebActivityService extends Service {
      * @return A Bundle that may contain a Bitmap contained with key {@link #KEY_SMALL_ICON_BITMAP}.
      *         The bundle may be empty if the client app does not provide a small icon.
      */
-    public @NonNull Bundle getSmallIconBitmap() {
-        int id = getSmallIconId();
+    @BinderThread
+    public @NonNull Bundle onGetSmallIconBitmap() {
+        int id = onGetSmallIconId();
         Bundle bundle = new Bundle();
         if (id == SMALL_ICON_NOT_SET) {
             return bundle;
@@ -315,7 +329,8 @@ public class TrustedWebActivityService extends Service {
      * service section of the manifest.
      * @return A resource id for the small icon, or {@link #SMALL_ICON_NOT_SET} if not found.
      */
-    public int getSmallIconId() {
+    @BinderThread
+    public int onGetSmallIconId() {
         try {
             ServiceInfo info = getPackageManager().getServiceInfo(
                     new ComponentName(this, getClass()), PackageManager.GET_META_DATA);
@@ -332,11 +347,13 @@ public class TrustedWebActivityService extends Service {
 
     @Override
     @Nullable
+    @MainThread
     public final IBinder onBind(@Nullable Intent intent) {
         return mBinder;
     }
 
     @Override
+    @MainThread
     public final boolean onUnbind(@Nullable Intent intent) {
         mVerifiedUid = -1;
 
@@ -379,7 +396,7 @@ public class TrustedWebActivityService extends Service {
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    public static final void setVerifiedProviderSynchronouslyForTesting(Context context,
+    public static final void setVerifiedProviderSynchronouslyForTesting(@NonNull Context context,
             @Nullable String provider) {
         String providerEmptyChecked = (provider == null || provider.isEmpty()) ? null : provider;
 

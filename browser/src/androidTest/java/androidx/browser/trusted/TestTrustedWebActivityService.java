@@ -25,22 +25,23 @@ public class TestTrustedWebActivityService extends TrustedWebActivityService {
     public static final int SMALL_ICON_ID = 666;
 
     @Override
-    public boolean notifyNotificationWithChannel(@NonNull String platformTag, int platformId,
+    public boolean onNotifyNotificationWithChannel(@NonNull String platformTag, int platformId,
             @NonNull Notification notification, @NonNull String channelName) {
         return true;
     }
 
     @Override
-    public void cancelNotification(@NonNull String platformTag, int platformId) {
+    public void onCancelNotification(@NonNull String platformTag, int platformId) {
     }
 
+    @NonNull
     @Override
-    public Parcelable[] getActiveNotifications() {
+    public Parcelable[] onGetActiveNotifications() {
         return new Parcelable[] { null };
     }
 
     @Override
-    public int getSmallIconId() {
+    public int onGetSmallIconId() {
         return SMALL_ICON_ID;
     }
 }
