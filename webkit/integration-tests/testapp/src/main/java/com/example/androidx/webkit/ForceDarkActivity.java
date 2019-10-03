@@ -16,6 +16,8 @@
 
 package com.example.androidx.webkit;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+
 import android.app.Activity;
 import android.os.Bundle;
 import android.util.Base64;
@@ -61,15 +63,15 @@ public class ForceDarkActivity extends AppCompatActivity {
         switch (forceDarkMode) {
             case WebSettingsCompat.FORCE_DARK_ON:
                 formatedDescription = Base64.encodeToString(
-                        String.format(DESCRIPTION, "ON").getBytes(), Base64.NO_PADDING);
+                        String.format(DESCRIPTION, "ON").getBytes(UTF_8), Base64.NO_PADDING);
                 break;
             case WebSettingsCompat.FORCE_DARK_OFF:
                 formatedDescription = Base64.encodeToString(
-                        String.format(DESCRIPTION, "OFF").getBytes(), Base64.NO_PADDING);
+                        String.format(DESCRIPTION, "OFF").getBytes(UTF_8), Base64.NO_PADDING);
                 break;
             case WebSettingsCompat.FORCE_DARK_AUTO:
                 formatedDescription = Base64.encodeToString(
-                        String.format(DESCRIPTION, "AUTO").getBytes(), Base64.NO_PADDING);
+                        String.format(DESCRIPTION, "AUTO").getBytes(UTF_8), Base64.NO_PADDING);
                 break;
             default:
                 throw new UnsupportedOperationException("Unknown force dark mode");

@@ -16,6 +16,8 @@
 
 package com.example.androidx.webkit;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+
 import android.app.Activity;
 import android.os.Bundle;
 import android.view.KeyEvent;
@@ -38,10 +40,11 @@ import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -134,7 +137,8 @@ public class TracingControllerActivity extends AppCompatActivity {
 
     private void verifyJSON() throws IOException, JSONException {
         StringBuilder builder = new StringBuilder();
-        BufferedReader br = new BufferedReader(new FileReader(mLogPath));
+        FileInputStream fis = new FileInputStream(mLogPath);
+        BufferedReader br = new BufferedReader(new InputStreamReader(fis, UTF_8));
         String sCurrentLine;
         while ((sCurrentLine = br.readLine()) != null) {
             builder.append(sCurrentLine).append("\n");
