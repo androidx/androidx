@@ -176,7 +176,7 @@ public class RendererTerminationActivity extends AppCompatActivity {
 
     private void blockWebViewRenderer(int durationMs) {
         mBlocker.beginBlocking();
-        (new Handler()).postDelayed(this::unblockWebViewRenderer, durationMs);
+        new Handler().postDelayed(this::unblockWebViewRenderer, durationMs);
     }
 
     private void blockWebViewRenderer() {

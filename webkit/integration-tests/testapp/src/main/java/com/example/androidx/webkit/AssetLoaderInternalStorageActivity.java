@@ -16,6 +16,8 @@
 
 package com.example.androidx.webkit;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+
 import android.app.Activity;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -113,7 +115,7 @@ public class AssetLoaderInternalStorageActivity extends AppCompatActivity {
     }
 
     // Writes to file asynchronously in the background thread.
-    private class WriteFileTask extends AsyncTask<Void, Void, Void> {
+    private static class WriteFileTask extends AsyncTask<Void, Void, Void> {
         @NonNull private final File mFile;
         @NonNull private final String mContent;
 
@@ -126,7 +128,7 @@ public class AssetLoaderInternalStorageActivity extends AppCompatActivity {
         protected Void doInBackground(Void... params) {
             mFile.getParentFile().mkdirs();
             try (FileOutputStream fos = new FileOutputStream(mFile)) {
-                fos.write(mContent.getBytes("utf-8"));
+                fos.write(mContent.getBytes(UTF_8));
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
