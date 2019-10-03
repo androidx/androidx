@@ -712,7 +712,6 @@ class ParagraphIntegrationTest {
     }
 
     @Test
-    @SdkSuppress(maxSdkVersion = 23)
     fun getCursorRect_rtl_newLine_last_char() {
         withDensity(defaultDensity) {
             val text = "\u05D0\u05D1\u05D2\n"
