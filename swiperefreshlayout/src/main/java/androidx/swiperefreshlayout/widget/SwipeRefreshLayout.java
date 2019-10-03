@@ -362,12 +362,11 @@ public class SwipeRefreshLayout extends ViewGroup implements NestedScrollingPare
     }
 
     /**
-     * Sets a custom slingshot distance.
+     * Sets the distance that the refresh indicator can be pulled beyond its resting position during
+     * a swipe gesture. The default is {@link #DEFAULT_SLINGSHOT_DISTANCE}.
      *
      * @param slingshotDistance The distance in pixels that the refresh indicator can be pulled
-     *                          beyond its resting position. Use
-     *                          {@link #DEFAULT_SLINGSHOT_DISTANCE} to reset to the default value.
-     *
+     *                          beyond its resting position.
      */
     public void setSlingshotDistance(@Px int slingshotDistance) {
         mCustomSlingshotDistance = slingshotDistance;
