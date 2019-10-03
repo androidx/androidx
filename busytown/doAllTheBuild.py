@@ -25,7 +25,7 @@ gradlew = "frameworks/support/gradlew"
 gradlewC = "frameworks/support/ui/gradlew"
 
 outDirArg = "OUT_DIR=out"
-androidHomeArg = "ANDROID_HOME=prebuilts/fullsdk-linux"
+androidHomeArg = "ANDROID_HOME=" + os.path.realpath("prebuilts/fullsdk-linux")
 
 androidxGradleCommand = " ".join([outDirArg, androidHomeArg, gradlew, tasks, projectDirArg])
 composeGradleCommand  = " ".join([outDirArg + ui, androidHomeArg, gradlewC, tasks,
