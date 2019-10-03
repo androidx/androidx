@@ -53,7 +53,6 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.StringRes;
 import androidx.collection.ArraySet;
 import androidx.core.os.CancellationSignal;
-import androidx.core.util.DebugUtils;
 import androidx.core.util.LogWriter;
 import androidx.core.view.OneShotPreDrawListener;
 import androidx.core.view.ViewCompat;
@@ -1024,9 +1023,17 @@ public abstract class FragmentManager {
         sb.append(Integer.toHexString(System.identityHashCode(this)));
         sb.append(" in ");
         if (mParent != null) {
-            DebugUtils.buildShortClassTag(mParent, sb);
+            Class<?> cls = mParent.getClass();
+            sb.append(cls.getSimpleName());
+            sb.append("{");
+            sb.append(Integer.toHexString(System.identityHashCode(mParent)));
+            sb.append("}");
         } else {
-            DebugUtils.buildShortClassTag(mHost, sb);
+            Class<?> cls = mHost.getClass();
+            sb.append(cls.getSimpleName());
+            sb.append("{");
+            sb.append(Integer.toHexString(System.identityHashCode(mHost)));
+            sb.append("}");
         }
         sb.append("}}");
         return sb.toString();
