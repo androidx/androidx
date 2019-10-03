@@ -209,7 +209,7 @@ class LoaderManagerImpl extends LoaderManager {
             Class<?> cls = mLoader.getClass();
             sb.append(cls.getSimpleName());
             sb.append("{");
-            sb.append(Integer.toHexString(System.identityHashCode(cls)));
+            sb.append(Integer.toHexString(System.identityHashCode(mLoader)));
             sb.append("}}");
             return sb.toString();
         }
@@ -501,10 +501,10 @@ class LoaderManagerImpl extends LoaderManager {
         sb.append("LoaderManager{");
         sb.append(Integer.toHexString(System.identityHashCode(this)));
         sb.append(" in ");
-        Class cls = mLifecycleOwner.getClass();
+        Class<?> cls = mLifecycleOwner.getClass();
         sb.append(cls.getSimpleName());
         sb.append("{");
-        sb.append(Integer.toHexString(System.identityHashCode(cls)));
+        sb.append(Integer.toHexString(System.identityHashCode(mLifecycleOwner)));
         sb.append("}}");
         return sb.toString();
     }
