@@ -59,7 +59,7 @@ public class ForceStopRunnableTest {
     private WorkDatabase mWorkDatabase;
     private WorkSpecDao mWorkSpecDao;
     private WorkProgressDao mWorkProgressDao;
-    private Preferences mPreferences;
+    private PreferenceUtils mPreferenceUtils;
     private ForceStopRunnable mRunnable;
 
     @Before
@@ -69,7 +69,7 @@ public class ForceStopRunnableTest {
         mWorkDatabase = mock(WorkDatabase.class);
         mWorkSpecDao = mock(WorkSpecDao.class);
         mWorkProgressDao = mock(WorkProgressDao.class);
-        mPreferences = mock(Preferences.class);
+        mPreferenceUtils = mock(PreferenceUtils.class);
         mScheduler = mock(Scheduler.class);
         mConfiguration = new Configuration.Builder().build();
 
@@ -77,7 +77,7 @@ public class ForceStopRunnableTest {
         when(mWorkManager.getSchedulers()).thenReturn(Collections.singletonList(mScheduler));
         when(mWorkDatabase.workSpecDao()).thenReturn(mWorkSpecDao);
         when(mWorkDatabase.workProgressDao()).thenReturn(mWorkProgressDao);
-        when(mWorkManager.getPreferences()).thenReturn(mPreferences);
+        when(mWorkManager.getPreferenceUtils()).thenReturn(mPreferenceUtils);
         when(mWorkManager.getConfiguration()).thenReturn(mConfiguration);
         mRunnable = new ForceStopRunnable(mContext, mWorkManager);
     }
@@ -116,7 +116,7 @@ public class ForceStopRunnableTest {
         ForceStopRunnable runnable = spy(mRunnable);
         when(runnable.shouldRescheduleWorkers()).thenReturn(true);
         runnable.run();
-        verify(mPreferences, times(1)).setNeedsReschedule(false);
+        verify(mPreferenceUtils, times(1)).setNeedsReschedule(false);
     }
 
     @Test

@@ -215,10 +215,10 @@ public abstract class CancelWorkRunnable implements Runnable {
                     for (String workSpecId : workSpecIds) {
                         cancel(workManagerImpl, workSpecId);
                     }
-                    workDatabase.setTransactionSuccessful();
-                    // Update the last cancelled time in Preferences.
-                    new Preferences(workManagerImpl.getApplicationContext())
+                    // Update the last cancelled time in Preference.
+                    new PreferenceUtils(workManagerImpl.getWorkDatabase())
                             .setLastCancelAllTimeMillis(System.currentTimeMillis());
+                    workDatabase.setTransactionSuccessful();
                 } finally {
                     workDatabase.endTransaction();
                 }

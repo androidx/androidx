@@ -45,7 +45,7 @@ import androidx.work.impl.model.WorkSpecDao;
 import androidx.work.impl.utils.CancelWorkRunnable;
 import androidx.work.impl.utils.ForceStopRunnable;
 import androidx.work.impl.utils.LiveDataUtils;
-import androidx.work.impl.utils.Preferences;
+import androidx.work.impl.utils.PreferenceUtils;
 import androidx.work.impl.utils.PruneWorkRunnable;
 import androidx.work.impl.utils.StartWorkRunnable;
 import androidx.work.impl.utils.StatusRunnable;
@@ -78,7 +78,7 @@ public class WorkManagerImpl extends WorkManager {
     private TaskExecutor mWorkTaskExecutor;
     private List<Scheduler> mSchedulers;
     private Processor mProcessor;
-    private Preferences mPreferences;
+    private PreferenceUtils mPreferenceUtils;
     private boolean mForceStopRunnableCompleted;
     private BroadcastReceiver.PendingResult mRescheduleReceiverResult;
 
@@ -339,12 +339,12 @@ public class WorkManagerImpl extends WorkManager {
     }
 
     /**
-     * @return the {@link Preferences} used by the instance of {@link WorkManager}.
+     * @return the {@link PreferenceUtils} used by the instance of {@link WorkManager}.
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public @NonNull Preferences getPreferences() {
-        return mPreferences;
+    public @NonNull PreferenceUtils getPreferenceUtils() {
+        return mPreferenceUtils;
     }
 
     @Override
@@ -452,19 +452,19 @@ public class WorkManagerImpl extends WorkManager {
 
     @Override
     public @NonNull LiveData<Long> getLastCancelAllTimeMillisLiveData() {
-        return mPreferences.getLastCancelAllTimeMillisLiveData();
+        return mPreferenceUtils.getLastCancelAllTimeMillisLiveData();
     }
 
     @Override
     public @NonNull ListenableFuture<Long> getLastCancelAllTimeMillis() {
         final SettableFuture<Long> future = SettableFuture.create();
         // Avoiding synthetic accessors.
-        final Preferences preferences = mPreferences;
+        final PreferenceUtils preferenceUtils = mPreferenceUtils;
         mWorkTaskExecutor.executeOnBackgroundThread(new Runnable() {
             @Override
             public void run() {
                 try {
-                    future.set(preferences.getLastCancelAllTimeMillis());
+                    future.set(preferenceUtils.getLastCancelAllTimeMillis());
                 } catch (Throwable throwable) {
                     future.setException(throwable);
                 }
@@ -677,7 +677,7 @@ public class WorkManagerImpl extends WorkManager {
         mWorkDatabase = workDatabase;
         mSchedulers = schedulers;
         mProcessor = processor;
-        mPreferences = new Preferences(mContext);
+        mPreferenceUtils = new PreferenceUtils(workDatabase);
         mForceStopRunnableCompleted = false;
 
         // Checks for app force stops.

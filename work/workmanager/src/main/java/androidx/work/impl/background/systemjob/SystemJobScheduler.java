@@ -58,7 +58,6 @@ public class SystemJobScheduler implements Scheduler {
     private final Context mContext;
     private final JobScheduler mJobScheduler;
     private final WorkManagerImpl mWorkManager;
-    private final IdGenerator mIdGenerator;
     private final SystemJobInfoConverter mSystemJobInfoConverter;
 
     public SystemJobScheduler(@NonNull Context context, @NonNull WorkManagerImpl workManager) {
@@ -77,13 +76,13 @@ public class SystemJobScheduler implements Scheduler {
         mContext = context;
         mWorkManager = workManager;
         mJobScheduler = jobScheduler;
-        mIdGenerator = new IdGenerator(context);
         mSystemJobInfoConverter = systemJobInfoConverter;
     }
 
     @Override
     public void schedule(@NonNull WorkSpec... workSpecs) {
         WorkDatabase workDatabase = mWorkManager.getWorkDatabase();
+        IdGenerator idGenerator = new IdGenerator(workDatabase);
 
         for (WorkSpec workSpec : workSpecs) {
             workDatabase.beginTransaction();
@@ -114,7 +113,7 @@ public class SystemJobScheduler implements Scheduler {
                 SystemIdInfo info = workDatabase.systemIdInfoDao()
                         .getSystemIdInfo(workSpec.id);
 
-                int jobId = info != null ? info.systemId : mIdGenerator.nextJobSchedulerIdWithRange(
+                int jobId = info != null ? info.systemId : idGenerator.nextJobSchedulerIdWithRange(
                         mWorkManager.getConfiguration().getMinJobSchedulerId(),
                         mWorkManager.getConfiguration().getMaxJobSchedulerId());
 
@@ -153,7 +152,7 @@ public class SystemJobScheduler implements Scheduler {
                             nextJobId = jobIds.get(0);
                         } else {
                             // Create a new jobId
-                            nextJobId = mIdGenerator.nextJobSchedulerIdWithRange(
+                            nextJobId = idGenerator.nextJobSchedulerIdWithRange(
                                     mWorkManager.getConfiguration().getMinJobSchedulerId(),
                                     mWorkManager.getConfiguration().getMaxJobSchedulerId());
                         }
