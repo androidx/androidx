@@ -57,7 +57,6 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.StringRes;
 import androidx.annotation.UiThread;
 import androidx.core.app.SharedElementCallback;
-import androidx.core.util.DebugUtils;
 import androidx.core.view.LayoutInflaterCompat;
 import androidx.lifecycle.HasDefaultViewModelProviderFactory;
 import androidx.lifecycle.Lifecycle;
@@ -607,7 +606,11 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder(128);
-        DebugUtils.buildShortClassTag(this, sb);
+        Class<?> cls = getClass();
+        sb.append(cls.getSimpleName());
+        sb.append("{");
+        sb.append(Integer.toHexString(System.identityHashCode(this)));
+        sb.append("}");
         sb.append(" (");
         sb.append(mWho);
         sb.append(")");
