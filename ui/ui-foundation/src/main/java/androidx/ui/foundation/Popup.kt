@@ -28,6 +28,7 @@ import androidx.compose.Composable
 import androidx.compose.Compose
 import androidx.compose.Context
 import androidx.compose.Immutable
+import androidx.compose.TestOnly
 import androidx.compose.ambient
 import androidx.compose.composer
 import androidx.compose.disposeComposition
@@ -46,6 +47,7 @@ import androidx.ui.core.OnChildPositioned
 import androidx.ui.core.OnPositioned
 import androidx.ui.core.PxPosition
 import androidx.ui.core.PxSize
+import androidx.ui.core.TestTagAmbient
 import androidx.ui.core.round
 import androidx.ui.core.setContent
 
@@ -131,6 +133,7 @@ private fun Popup(
     val context = +ambient(ContextAmbient)
     // TODO(b/139866476): Decide if we want to expose the AndroidComposeView
     val composeView = +ambient(AndroidComposeViewAmbient)
+    val providedTestTag = +ambient(TestTagAmbient)
 
     val popupLayout = +memo(popupProperties) {
         PopupLayout(
@@ -138,7 +141,8 @@ private fun Popup(
             composeView = composeView,
             popupProperties = popupProperties,
             popupPositionProperties = popupPositionProperties,
-            calculatePopupPosition = calculatePopupPosition
+            calculatePopupPosition = calculatePopupPosition,
+            testTag = providedTestTag
         )
     }
     popupLayout.calculatePopupPosition = calculatePopupPosition
@@ -190,7 +194,8 @@ private class PopupLayout(
     val composeView: View,
     val popupProperties: PopupProperties,
     var popupPositionProperties: PopupPositionProperties,
-    var calculatePopupPosition: ((PopupPositionProperties) -> IntPxPosition)
+    var calculatePopupPosition: ((PopupPositionProperties) -> IntPxPosition),
+    var testTag: String
 ) : FrameLayout(context) {
     val windowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
     val params = createLayoutParams()
@@ -403,3 +408,15 @@ fun disposeActivityComposition(activity: Activity) {
 
     Compose.disposeComposition(composeView.root, activity, null)
 }
+
+/**
+ * Returns whether the given view is an underlying decor view of a popup. If the given testTag is
+ * supplied it also verifies that the popup has such tag assigned.
+ *
+ * @param view View to verify.
+ * @param testTag If provided, tests that the given tag in defined on the popup.
+ */
+// TODO(b/139861182): Move this functionality to ComposeTestRule
+@TestOnly
+fun isPopupLayout(view: View, testTag: String? = null): Boolean =
+    view is PopupLayout && (testTag == null || testTag == view.testTag)
