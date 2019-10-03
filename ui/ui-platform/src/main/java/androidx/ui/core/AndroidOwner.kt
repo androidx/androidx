@@ -382,8 +382,8 @@ class AndroidComposeView constructor(context: Context)
                 }
                 topNode?.dispatchOnPositionedCallbacks()
                 repaintBoundaryChanges.forEach { node ->
-                    val parent = node.parentLayoutNode!!
-                    node.container.setSize(parent.width.value, parent.height.value)
+                    val parentSize = node.parentLayoutNode!!.contentSize
+                    node.container.setSize(parentSize.width.value, parentSize.height.value)
                 }
                 relayoutNodes.clear()
                 repaintBoundaryChanges.clear()
@@ -536,7 +536,7 @@ class AndroidComposeView constructor(context: Context)
      */
     internal fun callChildDraw(canvas: android.graphics.Canvas, node: ComponentNode) {
         val layoutNode = node as? LayoutNode ?: node.parentLayoutNode!!
-        val parentSize = PxSize(layoutNode.width, layoutNode.height)
+        val parentSize = layoutNode.contentSize.toPxSize()
         val uiCanvas = Canvas(canvas)
         node.visitChildren { child ->
             callDraw(uiCanvas, child, parentSize)

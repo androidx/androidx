@@ -34,15 +34,22 @@ import androidx.compose.unaryPlus
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.test.rule.ActivityTestRule
+import androidx.ui.core.AlignmentLine
 import androidx.ui.core.AndroidComposeView
 import androidx.ui.core.Constraints
 import androidx.ui.core.ContextAmbient
 import androidx.ui.core.Density
 import androidx.ui.core.DensityAmbient
+import androidx.ui.core.DensityScope
 import androidx.ui.core.Draw
 import androidx.ui.core.HorizontalAlignmentLine
 import androidx.ui.core.IntPx
+import androidx.ui.core.IntPxPosition
+import androidx.ui.core.IntPxSize
 import androidx.ui.core.Layout
+import androidx.ui.core.LayoutModifier
+import androidx.ui.core.Measurable
+import androidx.ui.core.Modifier
 import androidx.ui.core.ParentData
 import androidx.ui.core.Ref
 import androidx.ui.core.RepaintBoundary
@@ -53,6 +60,8 @@ import androidx.ui.core.coerceIn
 import androidx.ui.core.ipx
 import androidx.ui.core.max
 import androidx.ui.core.min
+import androidx.ui.core.offset
+import androidx.ui.core.px
 import androidx.ui.core.setContent
 import androidx.ui.core.toRect
 import androidx.ui.engine.geometry.Rect
@@ -1673,6 +1682,42 @@ class AndroidLayoutDrawTest {
         assertTrue(latch.await(1, TimeUnit.SECONDS))
     }
 
+    @Test
+    fun parentSizeForDrawIsProvidedWithoutPadding() {
+        val latch = CountDownLatch(1)
+        activityTestRule.runOnUiThreadIR {
+            activity.setContentInFrameLayout {
+                AtLeastSize(100.ipx, PaddingModifier(10.ipx)) {
+                    Draw { _, parentSize ->
+                        assertEquals(100.px, parentSize.width)
+                        assertEquals(100.px, parentSize.height)
+                        latch.countDown()
+                    }
+                }
+            }
+        }
+        assertTrue(latch.await(1, TimeUnit.SECONDS))
+    }
+
+    @Test
+    fun parentSizeForDrawInsideRepaintBoundaryIsProvidedWithoutPadding() {
+        val latch = CountDownLatch(1)
+        activityTestRule.runOnUiThreadIR {
+            activity.setContentInFrameLayout {
+                AtLeastSize(100.ipx, PaddingModifier(10.ipx)) {
+                    RepaintBoundary {
+                        Draw { _, parentSize ->
+                            assertEquals(100.px, parentSize.width)
+                            assertEquals(100.px, parentSize.height)
+                            latch.countDown()
+                        }
+                    }
+                }
+            }
+        }
+        assertTrue(latch.await(1, TimeUnit.SECONDS))
+    }
+
     private fun composeSquares(model: SquareModel) {
         activityTestRule.runOnUiThreadIR {
             activity.setContentInFrameLayout {
@@ -1837,7 +1882,11 @@ class AndroidLayoutDrawTest {
 }
 
 @Composable
-fun AtLeastSize(size: IntPx, children: @Composable() () -> Unit) {
+fun AtLeastSize(
+    size: IntPx,
+    modifier: Modifier = Modifier.None,
+    children: @Composable() () -> Unit
+) {
     Layout(
         measureBlock = { measurables, constraints ->
             val newConstraints = Constraints(
@@ -1860,7 +1909,9 @@ fun AtLeastSize(size: IntPx, children: @Composable() () -> Unit) {
                     child.place(0.ipx, 0.ipx)
                 }
             }
-        }, children = children
+        },
+        modifier = modifier,
+        children = children
     )
 }
 
@@ -2064,6 +2115,60 @@ class DrawCounterListener(private val view: View) :
             view.viewTreeObserver.removeOnPreDrawListener(this)
         }
         return true
+    }
+}
+
+fun PaddingModifier(padding: IntPx) = PaddingModifier(padding, padding, padding, padding)
+
+data class PaddingModifier(
+    val left: IntPx = 0.ipx,
+    val top: IntPx = 0.ipx,
+    val right: IntPx = 0.ipx,
+    val bottom: IntPx = 0.ipx
+) : LayoutModifier {
+
+    override fun DensityScope.minIntrinsicWidthOf(measurable: Measurable, height: IntPx): IntPx =
+        measurable.minIntrinsicWidth((height - (top + bottom)).coerceAtLeast(0.ipx)) +
+                (left + right)
+
+    override fun DensityScope.maxIntrinsicWidthOf(measurable: Measurable, height: IntPx): IntPx =
+        measurable.maxIntrinsicWidth((height - (top + bottom)).coerceAtLeast(0.ipx)) +
+                (left + right)
+
+    override fun DensityScope.minIntrinsicHeightOf(measurable: Measurable, width: IntPx): IntPx =
+        measurable.minIntrinsicHeight((width - (left + right)).coerceAtLeast(0.ipx)) +
+                (top + bottom)
+
+    override fun DensityScope.maxIntrinsicHeightOf(measurable: Measurable, width: IntPx): IntPx =
+        measurable.maxIntrinsicHeight((width - (left + right)).coerceAtLeast(0.ipx)) +
+                (top + bottom)
+
+    override fun DensityScope.modifyConstraints(
+        constraints: Constraints
+    ) = constraints.offset(
+        horizontal = -left - right,
+        vertical = -top - bottom
+    )
+
+    override fun DensityScope.modifySize(
+        constraints: Constraints,
+        childSize: IntPxSize
+    ) = IntPxSize(
+        (left + childSize.width + right)
+            .coerceIn(constraints.minWidth, constraints.maxWidth),
+        (top + childSize.height + bottom)
+            .coerceIn(constraints.minHeight, constraints.maxHeight)
+    )
+
+    override fun DensityScope.modifyPosition(
+        childPosition: IntPxPosition,
+        childSize: IntPxSize,
+        containerSize: IntPxSize
+    ) = IntPxPosition(left + childPosition.x, top + childPosition.y)
+
+    override fun DensityScope.modifyAlignmentLine(line: AlignmentLine, value: IntPx?): IntPx? {
+        if (value == null) return null
+        return if (line.horizontal) value + left else value + top
     }
 }
 

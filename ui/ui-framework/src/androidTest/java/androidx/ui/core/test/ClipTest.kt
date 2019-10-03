@@ -108,6 +108,26 @@ class ClipTest {
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
+    fun simpleRectClipWithModifiers() {
+        rule.runOnUiThreadIR {
+            activity.setContentInFrameLayout {
+                FillColor(Color.Green)
+                AtLeastSize(size = 10.ipx, modifier = PaddingModifier(10.ipx)) {
+                    Clip(rectShape) {
+                        FillColor(Color.Cyan)
+                    }
+                }
+            }
+        }
+
+        takeScreenShot(30).apply {
+            assertRect(Color.Cyan, size = 10)
+            assertRect(Color.Green, holeSize = 10)
+        }
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
     fun roundedUniformRectClip() {
         val shape = object : Shape {
             override fun createOutline(size: PxSize, density: Density): Outline =
