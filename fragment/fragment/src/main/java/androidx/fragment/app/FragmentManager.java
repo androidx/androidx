@@ -650,7 +650,7 @@ public abstract class FragmentManager {
      *
      * @return true if the pop operation did anything or false otherwise.
      */
-    private boolean popBackStackImmediate(String name, int id, int flags) {
+    private boolean popBackStackImmediate(@Nullable String name, int id, int flags) {
         execPendingActions(false);
         ensureExecReady(true);
 
@@ -1160,7 +1160,7 @@ public abstract class FragmentManager {
         }
     }
 
-    private AnimationOrAnimator loadAnimation(Fragment fragment, boolean enter) {
+    private AnimationOrAnimator loadAnimation(@NonNull Fragment fragment, boolean enter) {
         int transit = fragment.getNextTransition();
         int nextAnim = fragment.getNextAnim();
         // Clear the Fragment animation
@@ -1260,7 +1260,7 @@ public abstract class FragmentManager {
         return mCurState >= state;
     }
 
-    void moveToState(Fragment f, int newState) {
+    void moveToState(@NonNull Fragment f, int newState) {
         FragmentStateManager fragmentStateManager = mActive.get(f.mWho);
         if (fragmentStateManager == null) {
             // Ideally, we only call moveToState() on active Fragments. However,
@@ -1604,7 +1604,7 @@ public abstract class FragmentManager {
      * Allows for changing the draw order on a container, if the container is a
      * FragmentContainerView.
      */
-    void setExitAnimationOrder(Fragment f, boolean isPop) {
+    void setExitAnimationOrder(@NonNull Fragment f, boolean isPop) {
         ViewGroup container = getFragmentContainer(f);
         if (container != null) {
             if (container instanceof FragmentContainerView) {
@@ -1625,7 +1625,7 @@ public abstract class FragmentManager {
         fragment.mInLayout = false;
     }
 
-    void moveToState(Fragment f) {
+    void moveToState(@NonNull Fragment f) {
         moveToState(f, mCurState);
     }
 
@@ -1639,7 +1639,7 @@ public abstract class FragmentManager {
      * @param fragment The fragment with mHiddenChanged = true that should change its View's
      *                 visibility and start the show or hide animation.
      */
-    private void completeShowHideFragment(final Fragment fragment) {
+    private void completeShowHideFragment(@NonNull final Fragment fragment) {
         if (fragment.mView != null) {
             AnimationOrAnimator anim = loadAnimation(fragment, !fragment.mHidden);
             if (anim != null && anim.animator != null) {
@@ -1695,10 +1695,7 @@ public abstract class FragmentManager {
      *
      * @param f The fragment to change.
      */
-    void moveFragmentToExpectedState(Fragment f) {
-        if (f == null) {
-            return;
-        }
+    void moveFragmentToExpectedState(@NonNull Fragment f) {
         if (!mActive.containsKey(f.mWho)) {
             if (isLoggingEnabled(Log.DEBUG)) {
                 Log.d(TAG, "Ignoring moving " + f + " to state " + mCurState
@@ -1801,7 +1798,7 @@ public abstract class FragmentManager {
         }
     }
 
-    void makeActive(Fragment f) {
+    void makeActive(@NonNull Fragment f) {
         if (findActiveFragment(f.mWho) != null) {
             return;
         }
@@ -1822,7 +1819,7 @@ public abstract class FragmentManager {
         if (isLoggingEnabled(Log.VERBOSE)) Log.v(TAG, "Added fragment to active set " + f);
     }
 
-    private void makeInactive(Fragment f) {
+    private void makeInactive(@NonNull Fragment f) {
         if (findActiveFragment(f.mWho) == null) {
             return;
         }
@@ -1852,7 +1849,7 @@ public abstract class FragmentManager {
         f.initState();
     }
 
-    void addFragment(Fragment fragment) {
+    void addFragment(@NonNull Fragment fragment) {
         if (isLoggingEnabled(Log.VERBOSE)) Log.v(TAG, "add: " + fragment);
         makeActive(fragment);
         if (!fragment.mDetached) {
@@ -1873,7 +1870,7 @@ public abstract class FragmentManager {
         }
     }
 
-    void removeFragment(Fragment fragment) {
+    void removeFragment(@NonNull Fragment fragment) {
         if (isLoggingEnabled(Log.VERBOSE)) {
             Log.v(TAG, "remove: " + fragment + " nesting=" + fragment.mBackStackNesting);
         }
@@ -1897,7 +1894,7 @@ public abstract class FragmentManager {
      *
      * @param fragment The fragment to be shown.
      */
-    void hideFragment(Fragment fragment) {
+    void hideFragment(@NonNull Fragment fragment) {
         if (isLoggingEnabled(Log.VERBOSE)) Log.v(TAG, "hide: " + fragment);
         if (!fragment.mHidden) {
             fragment.mHidden = true;
@@ -1914,7 +1911,7 @@ public abstract class FragmentManager {
      *
      * @param fragment The fragment to be shown.
      */
-    void showFragment(Fragment fragment) {
+    void showFragment(@NonNull Fragment fragment) {
         if (isLoggingEnabled(Log.VERBOSE)) Log.v(TAG, "show: " + fragment);
         if (fragment.mHidden) {
             fragment.mHidden = false;
@@ -1924,7 +1921,7 @@ public abstract class FragmentManager {
         }
     }
 
-    void detachFragment(Fragment fragment) {
+    void detachFragment(@NonNull Fragment fragment) {
         if (isLoggingEnabled(Log.VERBOSE)) Log.v(TAG, "detach: " + fragment);
         if (!fragment.mDetached) {
             fragment.mDetached = true;
@@ -1943,7 +1940,7 @@ public abstract class FragmentManager {
         }
     }
 
-    void attachFragment(Fragment fragment) {
+    void attachFragment(@NonNull Fragment fragment) {
         if (isLoggingEnabled(Log.VERBOSE)) Log.v(TAG, "attach: " + fragment);
         if (fragment.mDetached) {
             fragment.mDetached = false;
@@ -2078,7 +2075,7 @@ public abstract class FragmentManager {
      * @param allowStateLoss whether to allow loss of state information
      * @throws IllegalStateException if the activity has been destroyed
      */
-    void enqueueAction(OpGenerator action, boolean allowStateLoss) {
+    void enqueueAction(@NonNull OpGenerator action, boolean allowStateLoss) {
         if (!allowStateLoss) {
             if (mHost == null) {
                 if (mDestroyed) {
@@ -2166,7 +2163,7 @@ public abstract class FragmentManager {
         }
     }
 
-    void execSingleAction(OpGenerator action, boolean allowStateLoss) {
+    void execSingleAction(@NonNull OpGenerator action, boolean allowStateLoss) {
         if (allowStateLoss && (mHost == null || mDestroyed)) {
             // This FragmentManager isn't attached, so drop the entire transaction.
             return;
@@ -2224,8 +2221,8 @@ public abstract class FragmentManager {
      * Complete the execution of transactions that have previously been postponed, but are
      * now ready.
      */
-    private void executePostponedTransaction(ArrayList<BackStackRecord> records,
-            ArrayList<Boolean> isRecordPop) {
+    private void executePostponedTransaction(@Nullable ArrayList<BackStackRecord> records,
+            @Nullable ArrayList<Boolean> isRecordPop) {
         int numPostponed = mPostponedTransactions == null ? 0 : mPostponedTransactions.size();
         for (int i = 0; i < numPostponed; i++) {
             StartEnterTransitionListener listener = mPostponedTransactions.get(i);
@@ -2271,13 +2268,13 @@ public abstract class FragmentManager {
      * @param records The records pending execution
      * @param isRecordPop The direction that these records are being run.
      */
-    private void removeRedundantOperationsAndExecute(ArrayList<BackStackRecord> records,
-            ArrayList<Boolean> isRecordPop) {
-        if (records == null || records.isEmpty()) {
+    private void removeRedundantOperationsAndExecute(@NonNull ArrayList<BackStackRecord> records,
+            @NonNull ArrayList<Boolean> isRecordPop) {
+        if (records.isEmpty()) {
             return;
         }
 
-        if (isRecordPop == null || records.size() != isRecordPop.size()) {
+        if (records.size() != isRecordPop.size()) {
             throw new IllegalStateException("Internal error with the back stack records");
         }
 
@@ -2321,8 +2318,8 @@ public abstract class FragmentManager {
      * @param startIndex The index of the first record in <code>records</code> to be executed
      * @param endIndex One more than the final record index in <code>records</code> to executed.
      */
-    private void executeOpsTogether(ArrayList<BackStackRecord> records,
-            ArrayList<Boolean> isRecordPop, int startIndex, int endIndex) {
+    private void executeOpsTogether(@NonNull ArrayList<BackStackRecord> records,
+            @NonNull ArrayList<Boolean> isRecordPop, int startIndex, int endIndex) {
         final boolean allowReordering = records.get(startIndex).mReorderingAllowed;
         boolean addToBackStack = false;
         if (mTmpAddedFragments == null) {
@@ -2386,7 +2383,7 @@ public abstract class FragmentManager {
      * @param fragments The fragments that were added during operation execution. Only the ones
      *                  that are no longer added will have their alpha changed.
      */
-    private void makeRemovedFragmentsInvisible(ArraySet<Fragment> fragments) {
+    private void makeRemovedFragmentsInvisible(@NonNull ArraySet<Fragment> fragments) {
         final int numAdded = fragments.size();
         for (int i = 0; i < numAdded; i++) {
             final Fragment fragment = fragments.valueAt(i);
@@ -2410,9 +2407,9 @@ public abstract class FragmentManager {
      * @return The index of the first postponed transaction or endIndex if no transaction was
      * postponed.
      */
-    private int postponePostponableTransactions(ArrayList<BackStackRecord> records,
-            ArrayList<Boolean> isRecordPop, int startIndex, int endIndex,
-            ArraySet<Fragment> added) {
+    private int postponePostponableTransactions(@NonNull ArrayList<BackStackRecord> records,
+            @NonNull ArrayList<Boolean> isRecordPop, int startIndex, int endIndex,
+            @NonNull ArraySet<Fragment> added) {
         int postponeIndex = endIndex;
         for (int i = endIndex - 1; i >= startIndex; i--) {
             final BackStackRecord record = records.get(i);
@@ -2465,7 +2462,7 @@ public abstract class FragmentManager {
      *                    transaction is popped.
      */
     @SuppressWarnings("WeakerAccess") /* synthetic access */
-    void completeExecute(BackStackRecord record, boolean isPop, boolean runTransitions,
+    void completeExecute(@NonNull BackStackRecord record, boolean isPop, boolean runTransitions,
             boolean moveToState) {
         if (isPop) {
             record.executePopOps(moveToState);
@@ -2521,7 +2518,7 @@ public abstract class FragmentManager {
      * @return The fragment with a View under f, if one exists or null if f has no View or
      * there are no fragments with Views in the same container.
      */
-    private Fragment findFragmentUnder(Fragment f) {
+    private Fragment findFragmentUnder(@NonNull Fragment f) {
         final ViewGroup container = f.mContainer;
         final View view = f.mView;
 
@@ -2548,8 +2545,8 @@ public abstract class FragmentManager {
      * @param startIndex The index of the first entry in records to run.
      * @param endIndex One past the index of the final entry in records to run.
      */
-    private static void executeOps(ArrayList<BackStackRecord> records,
-            ArrayList<Boolean> isRecordPop, int startIndex, int endIndex) {
+    private static void executeOps(@NonNull ArrayList<BackStackRecord> records,
+            @NonNull ArrayList<Boolean> isRecordPop, int startIndex, int endIndex) {
         for (int i = startIndex; i < endIndex; i++) {
             final BackStackRecord record = records.get(i);
             final boolean isPop = isRecordPop.get(i);
@@ -2572,7 +2569,7 @@ public abstract class FragmentManager {
      * Fragment has its exit animation updated to the correct exit animation (either exit or
      * pop_exit).
      */
-    private void setVisibleRemovingFragment(Fragment f) {
+    private void setVisibleRemovingFragment(@NonNull Fragment f) {
         ViewGroup container = getFragmentContainer(f);
         if (container != null) {
             if (container.getTag(R.id.visible_removing_fragment_view_tag) == null) {
@@ -2583,7 +2580,7 @@ public abstract class FragmentManager {
         }
     }
 
-    private ViewGroup getFragmentContainer(Fragment f) {
+    private ViewGroup getFragmentContainer(@NonNull Fragment f) {
         // If the fragment has no containerId we should return null immediately.
         if (f.mContainerId <= 0) {
             return null;
@@ -2608,7 +2605,7 @@ public abstract class FragmentManager {
      * postponed with {@link Fragment#postponeEnterTransition()}. They will later be made
      * invisible (by setting their alpha to 0) if they have been removed when postponed.
      */
-    private void addAddedFragments(ArraySet<Fragment> added) {
+    private void addAddedFragments(@NonNull ArraySet<Fragment> added) {
         if (mCurState < Fragment.CREATED) {
             return;
         }
@@ -2664,8 +2661,8 @@ public abstract class FragmentManager {
      *              an entry for each entry in records to indicate whether or not it is a
      *              pop action.
      */
-    private boolean generateOpsForPendingActions(ArrayList<BackStackRecord> records,
-            ArrayList<Boolean> isPop) {
+    private boolean generateOpsForPendingActions(@NonNull ArrayList<BackStackRecord> records,
+            @NonNull ArrayList<Boolean> isPop) {
         boolean didSomething = false;
         synchronized (mPendingActions) {
             if (mPendingActions.isEmpty()) {
@@ -2705,8 +2702,8 @@ public abstract class FragmentManager {
     }
 
     @SuppressWarnings({"unused", "WeakerAccess"}) /* synthetic access */
-    boolean popBackStackState(ArrayList<BackStackRecord> records,
-            ArrayList<Boolean> isRecordPop, String name, int id, int flags) {
+    boolean popBackStackState(@NonNull ArrayList<BackStackRecord> records,
+            @NonNull ArrayList<Boolean> isRecordPop, @Nullable String name, int id, int flags) {
         if (mBackStack == null) {
             return false;
         }
@@ -2863,7 +2860,7 @@ public abstract class FragmentManager {
         return fms;
     }
 
-    void restoreAllState(Parcelable state, FragmentManagerNonConfig nonConfig) {
+    void restoreAllState(@Nullable Parcelable state, @Nullable FragmentManagerNonConfig nonConfig) {
         if (mHost instanceof ViewModelStoreOwner) {
             throwException(new IllegalStateException("You must use restoreSaveState when your "
                     + "FragmentHostCallback implements ViewModelStoreOwner"));
@@ -2872,7 +2869,7 @@ public abstract class FragmentManager {
         restoreSaveState(state);
     }
 
-    void restoreSaveState(Parcelable state) {
+    void restoreSaveState(@Nullable Parcelable state) {
         // If there is no saved state at all, then there's nothing else to do
         if (state == null) return;
         FragmentManagerState fms = (FragmentManagerState) state;
@@ -3220,7 +3217,7 @@ public abstract class FragmentManager {
         }
     }
 
-    void setPrimaryNavigationFragment(Fragment f) {
+    void setPrimaryNavigationFragment(@Nullable Fragment f) {
         if (f != null && (!f.equals(findActiveFragment(f.mWho))
                 || (f.mHost != null && f.mFragmentManager != this))) {
             throw new IllegalArgumentException("Fragment " + f
@@ -3261,9 +3258,9 @@ public abstract class FragmentManager {
         return mPrimaryNav;
     }
 
-    void setMaxLifecycle(Fragment f, Lifecycle.State state) {
-        if (f == null || (!f.equals(findActiveFragment(f.mWho))
-                || (f.mHost != null && f.mFragmentManager != this))) {
+    void setMaxLifecycle(@NonNull Fragment f, @NonNull Lifecycle.State state) {
+        if (!f.equals(findActiveFragment(f.mWho))
+                || (f.mHost != null && f.mFragmentManager != this)) {
             throw new IllegalArgumentException("Fragment " + f
                     + " is not an active fragment of FragmentManager " + this);
         }
@@ -3344,7 +3341,7 @@ public abstract class FragmentManager {
         return false;
     }
 
-    private boolean isMenuAvailable(Fragment f) {
+    private boolean isMenuAvailable(@NonNull Fragment f) {
         return (f.mHasMenu && f.mMenuVisible) || f.mChildFragmentManager.checkForMenus();
     }
 
@@ -3403,7 +3400,8 @@ public abstract class FragmentManager {
          *                    a pop transaction.
          * @return true if something was added or false otherwise.
          */
-        boolean generateOps(ArrayList<BackStackRecord> records, ArrayList<Boolean> isRecordPop);
+        boolean generateOps(@NonNull ArrayList<BackStackRecord> records,
+                @NonNull ArrayList<Boolean> isRecordPop);
     }
 
     /**
@@ -3415,15 +3413,15 @@ public abstract class FragmentManager {
         final int mId;
         final int mFlags;
 
-        PopBackStackState(String name, int id, int flags) {
+        PopBackStackState(@Nullable String name, int id, int flags) {
             mName = name;
             mId = id;
             mFlags = flags;
         }
 
         @Override
-        public boolean generateOps(ArrayList<BackStackRecord> records,
-                ArrayList<Boolean> isRecordPop) {
+        public boolean generateOps(@NonNull ArrayList<BackStackRecord> records,
+                @NonNull ArrayList<Boolean> isRecordPop) {
             if (mPrimaryNav != null // We have a primary nav fragment
                     && mId < 0 // No valid id (since they're local)
                     && mName == null) { // no name to pop to (since they're local)
@@ -3449,7 +3447,7 @@ public abstract class FragmentManager {
         final BackStackRecord mRecord;
         private int mNumPostponed;
 
-        StartEnterTransitionListener(BackStackRecord record, boolean isBack) {
+        StartEnterTransitionListener(@NonNull BackStackRecord record, boolean isBack) {
             mIsBack = isBack;
             mRecord = record;
         }
@@ -3563,7 +3561,7 @@ public abstract class FragmentManager {
         }
 
         @Override
-        public boolean getTransformation(long currentTime, Transformation t) {
+        public boolean getTransformation(long currentTime, @NonNull Transformation t) {
             mAnimating = true;
             if (mEnded) {
                 return !mTransitionEnded;
@@ -3578,7 +3576,7 @@ public abstract class FragmentManager {
 
         @Override
         public boolean getTransformation(long currentTime,
-                Transformation outTransformation, float scale) {
+                @NonNull Transformation outTransformation, float scale) {
             mAnimating = true;
             if (mEnded) {
                 return !mTransitionEnded;
