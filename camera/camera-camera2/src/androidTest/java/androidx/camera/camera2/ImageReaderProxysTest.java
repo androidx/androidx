@@ -29,9 +29,9 @@ import android.util.Size;
 import androidx.annotation.NonNull;
 import androidx.camera.camera2.impl.Camera2CameraFactory;
 import androidx.camera.camera2.impl.Camera2DeviceSurfaceManager;
-import androidx.camera.core.BaseCamera;
 import androidx.camera.core.CameraDeviceSurfaceManager;
 import androidx.camera.core.CameraFactory;
+import androidx.camera.core.CameraInternal;
 import androidx.camera.core.ImageProxy;
 import androidx.camera.core.ImageReaderProxy;
 import androidx.camera.core.ImageReaderProxys;
@@ -76,7 +76,7 @@ public final class ImageReaderProxysTest {
     private static CameraFactory sCameraFactory;
     private static CameraDeviceSurfaceManager sCameraDeviceSurfaceManager;
 
-    private BaseCamera mCamera;
+    private CameraInternal mCameraInternal;
     private HandlerThread mHandlerThread;
     private Handler mHandler;
     private List<ImageReaderProxy> mReaders = new ArrayList<>();
@@ -113,15 +113,15 @@ public final class ImageReaderProxysTest {
         mReaders = new ArrayList<>();
 
         // Grab the camera so we can wait for release in tearDown()
-        mCamera = sCameraFactory.getCamera(CAMERA_ID);
+        mCameraInternal = sCameraFactory.getCamera(CAMERA_ID);
     }
 
     @After
     public void tearDown() throws ExecutionException, InterruptedException {
 
-        if (mCamera != null) {
+        if (mCameraInternal != null) {
             // Ensure all cameras are released for the next test
-            mCamera.release().get();
+            mCameraInternal.release().get();
         }
 
         for (ImageReaderProxy reader : mReaders) {
@@ -151,7 +151,7 @@ public final class ImageReaderProxysTest {
 
         FakeUseCaseConfig config = new FakeUseCaseConfig.Builder().setTargetName("UseCase").build();
         UseCase useCase = new UseCase(config, mReaders);
-        CameraUtil.openCameraWithUseCase(CAMERA_ID, mCamera, useCase);
+        CameraUtil.openCameraWithUseCase(CAMERA_ID, mCameraInternal, useCase);
 
         // Wait for a few frames to be observed.
         for (Semaphore semaphore : semaphores) {
@@ -175,7 +175,7 @@ public final class ImageReaderProxysTest {
 
         FakeUseCaseConfig config = new FakeUseCaseConfig.Builder().setTargetName("UseCase").build();
         UseCase useCase = new UseCase(config, mReaders);
-        CameraUtil.openCameraWithUseCase(CAMERA_ID, mCamera, useCase);
+        CameraUtil.openCameraWithUseCase(CAMERA_ID, mCameraInternal, useCase);
 
         // Wait for a few frames to be observed.
         for (Semaphore semaphore : semaphores) {

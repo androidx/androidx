@@ -36,11 +36,11 @@ import androidx.annotation.Nullable;
 import androidx.annotation.WorkerThread;
 import androidx.camera.camera2.impl.annotation.CameraExecutor;
 import androidx.camera.camera2.impl.compat.CameraManagerCompat;
-import androidx.camera.core.BaseCamera;
 import androidx.camera.core.CameraControlInternal;
 import androidx.camera.core.CameraDeviceStateCallbacks;
 import androidx.camera.core.CameraInfoInternal;
 import androidx.camera.core.CameraInfoUnavailableException;
+import androidx.camera.core.CameraInternal;
 import androidx.camera.core.CaptureConfig;
 import androidx.camera.core.DeferrableSurface;
 import androidx.camera.core.ImmediateSurface;
@@ -81,7 +81,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * <p>Capture requests will be issued only for use cases which are in both the online and active
  * state.
  */
-final class Camera2CameraImpl implements BaseCamera {
+final class Camera2CameraImpl implements CameraInternal {
     private static final String TAG = "Camera";
     private static final int ERROR_NONE = 0;
 
@@ -113,7 +113,7 @@ final class Camera2CameraImpl implements BaseCamera {
      */
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     volatile InternalState mState = InternalState.INITIALIZED;
-    private final LiveDataObservable<BaseCamera.State> mObservableState =
+    private final LiveDataObservable<CameraInternal.State> mObservableState =
             new LiveDataObservable<>();
     /** The camera control shared across all use cases bound to this Camera. */
     private final Camera2CameraControl mCameraControlInternal;
@@ -487,7 +487,7 @@ final class Camera2CameraImpl implements BaseCamera {
 
     @NonNull
     @Override
-    public Observable<BaseCamera.State> getCameraState() {
+    public Observable<CameraInternal.State> getCameraState() {
         return mObservableState;
     }
 

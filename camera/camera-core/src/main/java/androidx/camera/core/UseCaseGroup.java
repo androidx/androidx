@@ -35,7 +35,7 @@ import java.util.Set;
  * A collection of {@link UseCase}.
  *
  * <p>The group of {@link UseCase} instances have synchronized interactions with the {@link
- * BaseCamera}.
+ * CameraInternal}.
  *
  * @hide
  */
@@ -167,8 +167,8 @@ public final class UseCaseGroup {
          * Called when a {@link UseCaseGroup} becomes active.
          *
          * <p>When a UseCaseGroup is active then all the contained {@link UseCase} become
-         * online. This means that the {@link BaseCamera} should transition to a state as close as
-         * possible to producing, but prior to actually producing data for the use case.
+         * online. This means that the {@link CameraInternal} should transition to a state as
+         * close as possible to producing, but prior to actually producing data for the use case.
          */
         void onGroupActive(UseCaseGroup useCaseGroup);
 

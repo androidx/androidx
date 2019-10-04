@@ -36,7 +36,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * A collection of {@link BaseCamera} instances.
+ * A collection of {@link CameraInternal} instances.
  *
  * @hide
  */
@@ -47,9 +47,9 @@ public final class CameraRepository implements UseCaseGroup.StateChangeCallback 
     private final Object mCamerasLock = new Object();
 
     @GuardedBy("mCamerasLock")
-    private final Map<String, BaseCamera> mCameras = new HashMap<>();
+    private final Map<String, CameraInternal> mCameras = new HashMap<>();
     @GuardedBy("mCamerasLock")
-    private final Set<BaseCamera> mReleasingCameras = new HashSet<>();
+    private final Set<CameraInternal> mReleasingCameras = new HashSet<>();
     @GuardedBy("mCamerasLock")
     private ListenableFuture<Void> mDeinitFuture;
     @GuardedBy("mCamerasLock")
@@ -109,17 +109,17 @@ public final class CameraRepository implements UseCaseGroup.StateChangeCallback 
                 mDeinitFuture = currentFuture;
             }
 
-            for (final BaseCamera camera : mCameras.values()) {
+            for (final CameraInternal cameraInternal : mCameras.values()) {
                 // Release the camera and wait for it to complete. We keep track of which cameras
                 // are still releasing with mReleasingCameras.
-                mReleasingCameras.add(camera);
-                camera.release().addListener(() -> {
+                mReleasingCameras.add(cameraInternal);
+                cameraInternal.release().addListener(() -> {
                     synchronized (mCamerasLock) {
                         // When the camera has completed releasing, we can now remove it from
                         // mReleasingCameras. Any time a camera finishes releasing, we need to
                         // check if all cameras a finished so we can finish the future which is
                         // waiting for all cameras to release.
-                        mReleasingCameras.remove(camera);
+                        mReleasingCameras.remove(cameraInternal);
                         if (mReleasingCameras.isEmpty()) {
                             Preconditions.checkNotNull(mDeinitCompleter);
                             // Every camera has been released. Signal successful completion of
@@ -141,23 +141,23 @@ public final class CameraRepository implements UseCaseGroup.StateChangeCallback 
     }
 
     /**
-     * Gets a {@link BaseCamera} for the given id.
+     * Gets a {@link CameraInternal} for the given id.
      *
      * @param cameraId id for the camera
-     * @return a {@link BaseCamera} paired to this id
+     * @return a {@link CameraInternal} paired to this id
      * @throws IllegalArgumentException if there is no camera paired with the id
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
-    public BaseCamera getCamera(String cameraId) {
+    public CameraInternal getCamera(String cameraId) {
         synchronized (mCamerasLock) {
-            BaseCamera camera = mCameras.get(cameraId);
+            CameraInternal cameraInternal = mCameras.get(cameraId);
 
-            if (camera == null) {
+            if (cameraInternal == null) {
                 throw new IllegalArgumentException("Invalid camera: " + cameraId);
             }
 
-            return camera;
+            return cameraInternal;
         }
     }
 
@@ -183,16 +183,16 @@ public final class CameraRepository implements UseCaseGroup.StateChangeCallback 
             Map<String, Set<UseCase>> cameraIdToUseCaseMap = useCaseGroup.getCameraIdToUseCaseMap();
             for (Map.Entry<String, Set<UseCase>> cameraUseCaseEntry :
                     cameraIdToUseCaseMap.entrySet()) {
-                BaseCamera camera = getCamera(cameraUseCaseEntry.getKey());
-                attachUseCasesToCamera(camera, cameraUseCaseEntry.getValue());
+                CameraInternal cameraInternal = getCamera(cameraUseCaseEntry.getKey());
+                attachUseCasesToCamera(cameraInternal, cameraUseCaseEntry.getValue());
             }
         }
     }
 
     /** Attaches a set of use cases to a camera. */
     @GuardedBy("mCamerasLock")
-    private void attachUseCasesToCamera(BaseCamera camera, Set<UseCase> useCases) {
-        camera.addOnlineUseCase(useCases);
+    private void attachUseCasesToCamera(CameraInternal cameraInternal, Set<UseCase> useCases) {
+        cameraInternal.addOnlineUseCase(useCases);
     }
 
     /**
@@ -205,15 +205,15 @@ public final class CameraRepository implements UseCaseGroup.StateChangeCallback 
             Map<String, Set<UseCase>> cameraIdToUseCaseMap = useCaseGroup.getCameraIdToUseCaseMap();
             for (Map.Entry<String, Set<UseCase>> cameraUseCaseEntry :
                     cameraIdToUseCaseMap.entrySet()) {
-                BaseCamera camera = getCamera(cameraUseCaseEntry.getKey());
-                detachUseCasesFromCamera(camera, cameraUseCaseEntry.getValue());
+                CameraInternal cameraInternal = getCamera(cameraUseCaseEntry.getKey());
+                detachUseCasesFromCamera(cameraInternal, cameraUseCaseEntry.getValue());
             }
         }
     }
 
     /** Detaches a set of use cases from a camera. */
     @GuardedBy("mCamerasLock")
-    private void detachUseCasesFromCamera(BaseCamera camera, Set<UseCase> useCases) {
-        camera.removeOnlineUseCase(useCases);
+    private void detachUseCasesFromCamera(CameraInternal cameraInternal, Set<UseCase> useCases) {
+        cameraInternal.removeOnlineUseCase(useCases);
     }
 }

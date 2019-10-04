@@ -22,7 +22,7 @@ import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.WorkerThread;
-import androidx.camera.core.BaseCamera;
+import androidx.camera.core.CameraInternal;
 import androidx.camera.core.Observable;
 import androidx.camera.core.impl.LiveDataObservable;
 import androidx.core.util.Preconditions;
@@ -48,7 +48,7 @@ final class CameraAvailabilityRegistry {
 
     private final Object mLock = new Object();
     @GuardedBy("mLock")
-    private final Map<BaseCamera, BaseCamera.State> mCameraStates = new HashMap<>();
+    private final Map<CameraInternal, CameraInternal.State> mCameraStates = new HashMap<>();
 
 
     /**
@@ -70,21 +70,21 @@ final class CameraAvailabilityRegistry {
      * <p>Once registered, the state will be tracked until the camera is released. Once released,
      * the camera will be automatically unregistered.
      *
-     * @param camera The camera to register.
+     * @param cameraInternal The camera to register.
      */
-    void registerCamera(@NonNull final BaseCamera camera) {
+    void registerCamera(@NonNull final CameraInternal cameraInternal) {
         synchronized (mLock) {
-            if (!mCameraStates.containsKey(camera)) {
-                mCameraStates.put(camera, null);
+            if (!mCameraStates.containsKey(cameraInternal)) {
+                mCameraStates.put(cameraInternal, null);
 
-                camera.getCameraState().addObserver(mExecutor,
-                        new Observable.Observer<BaseCamera.State>() {
+                cameraInternal.getCameraState().addObserver(mExecutor,
+                        new Observable.Observer<CameraInternal.State>() {
                             @Override
-                            public void onNewData(@Nullable BaseCamera.State state) {
-                                if (state == BaseCamera.State.RELEASED) {
-                                    unregisterCamera(camera, this);
+                            public void onNewData(@Nullable CameraInternal.State state) {
+                                if (state == CameraInternal.State.RELEASED) {
+                                    unregisterCamera(cameraInternal, this);
                                 } else {
-                                    updateState(camera, state);
+                                    updateState(cameraInternal, state);
                                 }
                             }
 
@@ -112,11 +112,12 @@ final class CameraAvailabilityRegistry {
 
     @WorkerThread
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-    void unregisterCamera(BaseCamera camera, Observable.Observer<BaseCamera.State> observer) {
+    void unregisterCamera(CameraInternal cameraInternal,
+            Observable.Observer<CameraInternal.State> observer) {
         int availableCameras;
         synchronized (mLock) {
-            camera.getCameraState().removeObserver(observer);
-            if (mCameraStates.remove(camera) == null) {
+            cameraInternal.getCameraState().removeObserver(observer);
+            if (mCameraStates.remove(cameraInternal) == null) {
                 return;
             }
 
@@ -128,12 +129,13 @@ final class CameraAvailabilityRegistry {
 
     @WorkerThread
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-    void updateState(BaseCamera camera, BaseCamera.State state) {
+    void updateState(CameraInternal cameraInternal, CameraInternal.State state) {
         int availableCameras;
         synchronized (mLock) {
             // If mCameraStates does not contain the camera, it may have been unregistered.
             // Or, if the state has not been updated, ignore this update.
-            if (!mCameraStates.containsKey(camera) || mCameraStates.put(camera, state) == state) {
+            if (!mCameraStates.containsKey(cameraInternal) || mCameraStates.put(cameraInternal,
+                    state) == state) {
                 return;
             }
 
@@ -158,7 +160,7 @@ final class CameraAvailabilityRegistry {
         // has actually be open in these states. All cameras that are in a CLOSING or RELEASING
         // state may have previously been open, so we will count them as open.
         int openCount = 0;
-        for (Map.Entry<BaseCamera, BaseCamera.State> entry : mCameraStates.entrySet()) {
+        for (Map.Entry<CameraInternal, CameraInternal.State> entry : mCameraStates.entrySet()) {
             if (DEBUG) {
                 String stateString =
                         entry.getValue() != null ? entry.getValue().toString() : "UNKNOWN";
@@ -166,9 +168,9 @@ final class CameraAvailabilityRegistry {
                         entry.getKey().toString(),
                         stateString));
             }
-            if (entry.getValue() != BaseCamera.State.CLOSED
-                    && entry.getValue() != BaseCamera.State.OPENING
-                    && entry.getValue() != BaseCamera.State.PENDING_OPEN) {
+            if (entry.getValue() != CameraInternal.State.CLOSED
+                    && entry.getValue() != CameraInternal.State.OPENING
+                    && entry.getValue() != CameraInternal.State.PENDING_OPEN) {
                 openCount++;
             }
         }

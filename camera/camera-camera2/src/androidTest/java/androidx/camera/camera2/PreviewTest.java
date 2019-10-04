@@ -39,9 +39,9 @@ import android.view.Surface;
 
 import androidx.annotation.NonNull;
 import androidx.camera.core.AppConfig;
-import androidx.camera.core.BaseCamera;
 import androidx.camera.core.CameraControlInternal;
 import androidx.camera.core.CameraFactory;
+import androidx.camera.core.CameraInternal;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.CameraX.LensFacing;
 import androidx.camera.core.CaptureConfig;
@@ -103,7 +103,7 @@ public final class PreviewTest {
 
     private final Instrumentation mInstrumentation = InstrumentationRegistry.getInstrumentation();
 
-    private BaseCamera mCamera;
+    private CameraInternal mCameraInternal;
 
     private PreviewConfig mDefaultConfig;
     @Mock
@@ -140,7 +140,7 @@ public final class PreviewTest {
                     "Unable to attach to camera with LensFacing " + LensFacing.BACK, e);
         }
         CameraX.initialize(context, appConfig);
-        mCamera = cameraFactory.getCamera(mCameraId);
+        mCameraInternal = cameraFactory.getCamera(mCameraId);
 
         // init CameraX before creating Preview to get preview size with CameraX's context
         mDefaultConfig = Preview.DEFAULT_CONFIG.getConfig(LensFacing.BACK);
@@ -154,8 +154,8 @@ public final class PreviewTest {
 
         // Ensure all cameras are released for the next test
         CameraX.shutdown().get();
-        if (mCamera != null) {
-            mCamera.release().get();
+        if (mCameraInternal != null) {
+            mCameraInternal.release().get();
         }
     }
 
@@ -462,7 +462,7 @@ public final class PreviewTest {
             // Act.
             preview.updateSuggestedResolution(
                     Collections.singletonMap(mCameraId, DEFAULT_RESOLUTION));
-            CameraUtil.openCameraWithUseCase(mCameraId, mCamera, preview);
+            CameraUtil.openCameraWithUseCase(mCameraId, mCameraInternal, preview);
 
         });
 
@@ -481,7 +481,7 @@ public final class PreviewTest {
 
             // Act.
             preview.setPreviewSurfaceCallback(mPreviewSurfaceCallbackWithFrameAvailableListener);
-            CameraUtil.openCameraWithUseCase(mCameraId, mCamera, preview);
+            CameraUtil.openCameraWithUseCase(mCameraId, mCameraInternal, preview);
         });
 
         // Assert.

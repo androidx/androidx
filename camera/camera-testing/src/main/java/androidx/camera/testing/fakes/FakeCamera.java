@@ -23,9 +23,9 @@ import android.view.Surface;
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.camera.core.BaseCamera;
 import androidx.camera.core.CameraControlInternal;
 import androidx.camera.core.CameraInfoInternal;
+import androidx.camera.core.CameraInternal;
 import androidx.camera.core.CaptureConfig;
 import androidx.camera.core.DeferrableSurface;
 import androidx.camera.core.DeferrableSurfaces;
@@ -45,12 +45,12 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * A fake camera which will not produce any data, but provides a valid BaseCamera implementation.
+ * A fake camera which will not produce any data, but provides a valid Camera implementation.
  */
-public class FakeCamera implements BaseCamera {
+public class FakeCamera implements CameraInternal {
     private static final String TAG = "FakeCamera";
     private static final String DEFAULT_CAMERA_ID = "0";
-    private final LiveDataObservable<BaseCamera.State> mObservableState =
+    private final LiveDataObservable<CameraInternal.State> mObservableState =
             new LiveDataObservable<>();
     private final CameraControlInternal mCameraControlInternal;
     private final CameraInfoInternal mCameraInfoInternal;
@@ -181,7 +181,7 @@ public class FakeCamera implements BaseCamera {
 
     @NonNull
     @Override
-    public Observable<BaseCamera.State> getCameraState() {
+    public Observable<CameraInternal.State> getCameraState() {
         return mObservableState;
     }
 

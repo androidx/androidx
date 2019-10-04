@@ -753,42 +753,42 @@ public final class CameraX {
     }
 
     /**
-     * Registers the callbacks for the {@link BaseCamera} to the {@link UseCase}.
+     * Registers the callbacks for the {@link CameraInternal} to the {@link UseCase}.
      *
-     * @param cameraId the id for the {@link BaseCamera}
+     * @param cameraId the id for the {@link CameraInternal}
      * @param useCase  the use case to register the callback for
      */
     private static void attach(String cameraId, UseCase useCase) {
         CameraX cameraX = checkInitialized();
 
-        BaseCamera camera = cameraX.getCameraRepository().getCamera(cameraId);
-        if (camera == null) {
+        CameraInternal cameraInternal = cameraX.getCameraRepository().getCamera(cameraId);
+        if (cameraInternal == null) {
             throw new IllegalArgumentException("Invalid camera: " + cameraId);
         }
 
-        useCase.addStateChangeCallback(camera);
-        useCase.attachCameraControl(cameraId, camera.getCameraControlInternal());
+        useCase.addStateChangeCallback(cameraInternal);
+        useCase.attachCameraControl(cameraId, cameraInternal.getCameraControlInternal());
     }
 
     /**
-     * Removes the callbacks registered by the {@link BaseCamera} to the {@link UseCase}.
+     * Removes the callbacks registered by the {@link CameraInternal} to the {@link UseCase}.
      *
-     * @param cameraId the id for the {@link BaseCamera}
+     * @param cameraId the id for the {@link CameraInternal}
      * @param useCases the list of use case to remove the callback from.
      */
     private static void detach(String cameraId, List<UseCase> useCases) {
         CameraX cameraX = checkInitialized();
 
-        BaseCamera camera = cameraX.getCameraRepository().getCamera(cameraId);
-        if (camera == null) {
+        CameraInternal cameraInternal = cameraX.getCameraRepository().getCamera(cameraId);
+        if (cameraInternal == null) {
             throw new IllegalArgumentException("Invalid camera: " + cameraId);
         }
 
         for (UseCase useCase : useCases) {
-            useCase.removeStateChangeCallback(camera);
+            useCase.removeStateChangeCallback(cameraInternal);
             useCase.detachCameraControl(cameraId);
         }
-        camera.removeOnlineUseCase(useCases);
+        cameraInternal.removeOnlineUseCase(useCases);
     }
 
     private static void calculateSuggestedResolutions(LifecycleOwner lifecycleOwner,

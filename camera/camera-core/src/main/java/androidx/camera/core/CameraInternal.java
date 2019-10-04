@@ -25,12 +25,12 @@ import com.google.common.util.concurrent.ListenableFuture;
 import java.util.Collection;
 
 /**
- * The base camera interface. It is controlled by the change of state in use cases.
+ * The camera interface. It is controlled by the change of state in use cases.
  *
  * @hide
  */
 @RestrictTo(Scope.LIBRARY_GROUP)
-public interface BaseCamera extends UseCase.StateChangeCallback {
+public interface CameraInternal extends Camera, UseCase.StateChangeCallback {
     /**
      * The state of a camera within the process.
      *
