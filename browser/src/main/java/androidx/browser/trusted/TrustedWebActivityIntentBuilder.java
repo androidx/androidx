@@ -69,6 +69,9 @@ public class TrustedWebActivityIntentBuilder {
     /** Extra for the share data, see {@link #setShareParams}. */
     public static final String EXTRA_SHARE_DATA = "androidx.browser.trusted.extra.SHARE_DATA";
 
+    /** Extra for the {@link TrustedWebActivityDisplayMode}, see {@link #setDisplayMode}. */
+    public static final String EXTRA_DISPLAY_MODE = "androidx.browser.trusted.extra.DISPLAY_MODE";
+
     @NonNull private final Uri mUri;
     @NonNull private final CustomTabsIntent.Builder mIntentBuilder = new CustomTabsIntent.Builder();
 
@@ -77,6 +80,9 @@ public class TrustedWebActivityIntentBuilder {
 
     @Nullable private ShareData mShareData;
     @Nullable private ShareTarget mShareTarget;
+
+    @NonNull private TrustedWebActivityDisplayMode mDisplayMode =
+            new TrustedWebActivityDisplayMode.DefaultMode();
 
     /**
      * Creates a Builder given the required parameters.
@@ -192,6 +198,18 @@ public class TrustedWebActivityIntentBuilder {
     }
 
     /**
+     * Sets a {@link TrustedWebActivityDisplayMode}. This can be used e.g. to enable immersive mode
+     * (see {@link TrustedWebActivityDisplayMode.ImmersiveMode}. Not setting it means
+     * {@link TrustedWebActivityDisplayMode.DefaultMode} will be used.
+     */
+    @NonNull
+    public TrustedWebActivityIntentBuilder setDisplayMode(
+            @NonNull TrustedWebActivityDisplayMode displayMode) {
+        mDisplayMode = displayMode;
+        return this;
+    }
+
+    /**
      * Builds an instance of {@link TrustedWebActivityIntent].
      *
      * @param session The {@link CustomTabsSession} to use for launching a Trusted Web Activity.
@@ -222,6 +240,7 @@ public class TrustedWebActivityIntentBuilder {
                 sharedUris = mShareData.uris;
             }
         }
+        intent.putExtra(EXTRA_DISPLAY_MODE, mDisplayMode.toBundle());
         return new TrustedWebActivityIntent(intent, sharedUris);
     }
 
@@ -241,5 +260,13 @@ public class TrustedWebActivityIntentBuilder {
     @NonNull
     public Uri getUrl() {
         return mUri;
+    }
+
+    /**
+     * Returns {@link TrustedWebActivityDisplayMode} set on this Builder.
+     */
+    @Nullable
+    public TrustedWebActivityDisplayMode getDisplayMode() {
+        return mDisplayMode;
     }
 }
