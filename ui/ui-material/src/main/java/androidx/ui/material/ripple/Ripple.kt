@@ -64,19 +64,6 @@ fun Ripple(
     val state = +memo { RippleState() }
     val theme = +ambient(CurrentRippleTheme)
 
-    Recompose { recompose ->
-        state.recompose = recompose
-        val finalColor = (color ?: +theme.defaultColor).copy(alpha = +theme.opacity)
-        Draw { canvas, _ ->
-            if (state.effects.isNotEmpty()) {
-                val position = state.coordinates!!.position
-                canvas.translate(position.x.value, position.y.value)
-                state.effects.forEach { it.draw(canvas, finalColor) }
-                canvas.translate(-position.x.value, -position.y.value)
-            }
-        }
-    }
-
     OnChildPositioned(onPositioned = { state.coordinates = it }) {
         PressIndicatorGestureDetector(
             onStart = { position ->
@@ -88,6 +75,19 @@ fun Ripple(
             onCancel = { state.handleFinish(true) },
             children = children
         )
+    }
+
+    Recompose { recompose ->
+        state.recompose = recompose
+        val finalColor = (color ?: +theme.defaultColor).copy(alpha = +theme.opacity)
+        Draw { canvas, _ ->
+            if (state.effects.isNotEmpty()) {
+                val position = state.coordinates!!.position
+                canvas.translate(position.x.value, position.y.value)
+                state.effects.forEach { it.draw(canvas, finalColor) }
+                canvas.translate(-position.x.value, -position.y.value)
+            }
+        }
     }
 
     +onDispose {
