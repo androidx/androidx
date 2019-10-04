@@ -20,10 +20,10 @@ import androidx.animation.FastOutSlowInEasing
 import androidx.animation.FloatPropKey
 import androidx.animation.InterruptionHandling
 import androidx.animation.LinearEasing
-import androidx.animation.PxPositionPropKey
-import androidx.animation.PxPropKey
 import androidx.animation.TransitionAnimation
 import androidx.animation.transitionDefinition
+import androidx.ui.animation.PxPositionPropKey
+import androidx.ui.animation.PxPropKey
 import androidx.ui.core.Density
 import androidx.ui.core.DensityScope
 import androidx.ui.core.Dp

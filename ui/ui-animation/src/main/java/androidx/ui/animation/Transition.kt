@@ -20,7 +20,6 @@ import androidx.animation.PropKey
 import androidx.animation.TransitionAnimation
 import androidx.animation.TransitionDefinition
 import androidx.animation.TransitionState
-import androidx.compose.Children
 import androidx.compose.Composable
 import androidx.compose.Model
 import androidx.compose.composer
