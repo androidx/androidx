@@ -1690,7 +1690,7 @@ public class WorkManagerImplTest {
     }
 
     @Test
-    @MediumTest
+    @LargeTest
     @SdkSuppress(minSdkVersion = 26)
     public void testEnqueueApi26OrHigher_withStorageNotLowConstraint_expectsOriginalWorker()
             throws ExecutionException, InterruptedException {
