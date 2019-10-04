@@ -47,6 +47,8 @@ public class SettingsDirections {
             if (arguments.containsKey("enterReason")) {
                 String enterReason = (String) arguments.get("enterReason");
                 __result.putString("enterReason", enterReason);
+            } else {
+                __result.putString("enterReason", "DEFAULT");
             }
             return __result;
         }
@@ -122,6 +124,8 @@ public class SettingsDirections {
             if (arguments.containsKey("exitReason")) {
                 String exitReason = (String) arguments.get("exitReason");
                 __result.putString("exitReason", exitReason);
+            } else {
+                __result.putString("exitReason", "DEFAULT");
             }
             return __result;
         }

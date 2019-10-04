@@ -120,10 +120,14 @@ public static class Next implements NavDirections {
         if (arguments.containsKey("optional")) {
             String optional = (String) arguments.get("optional");
             __result.putString("optional", optional);
+        } else {
+            __result.putString("optional", "bla");
         }
         if (arguments.containsKey("optionalInt")) {
             int optionalInt = (int) arguments.get("optionalInt");
             __result.putInt("optionalInt", optionalInt);
+        } else {
+            __result.putInt("optionalInt", 239);
         }
         if (arguments.containsKey("optionalParcelable")) {
             ActivityInfo optionalParcelable = (ActivityInfo) arguments.get("optionalParcelable");
@@ -134,6 +138,8 @@ public static class Next implements NavDirections {
             } else {
                 throw new UnsupportedOperationException(ActivityInfo.class.getName() + " must implement Parcelable or Serializable or must be an Enum.");
             }
+        } else {
+            __result.putSerializable("optionalParcelable", null);
         }
         if (arguments.containsKey("parcelable")) {
             ActivityInfo parcelable = (ActivityInfo) arguments.get("parcelable");

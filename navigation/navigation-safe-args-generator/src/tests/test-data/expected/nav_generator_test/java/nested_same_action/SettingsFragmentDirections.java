@@ -43,6 +43,8 @@ public class SettingsFragmentDirections {
             if (arguments.containsKey("exitReason")) {
                 String exitReason = (String) arguments.get("exitReason");
                 __result.putString("exitReason", exitReason);
+            } else {
+                __result.putString("exitReason", "DIFFERENT");
             }
             return __result;
         }
