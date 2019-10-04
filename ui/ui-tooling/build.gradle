@@ -32,6 +32,9 @@ dependencies {
     kotlinPlugin project(path: ":compose:compose-compiler", configuration: "embeddablePlugin")
 
     implementation(KOTLIN_COMPOSE_STDLIB)
+
+    implementation "androidx.annotation:annotation:1.1.0"
+
     api(project(":compose:compose-runtime"))
     api(project(":ui:ui-core"))
     implementation(project(":ui:ui-framework"))
