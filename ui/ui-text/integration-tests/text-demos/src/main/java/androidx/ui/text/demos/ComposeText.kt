@@ -42,6 +42,10 @@ import androidx.ui.text.style.TextOverflow
 import androidx.ui.core.Sp
 import androidx.ui.core.sp
 import androidx.ui.text.LocaleList
+import androidx.ui.text.samples.FontFamilyCursiveSample
+import androidx.ui.text.samples.FontFamilyMonospaceSample
+import androidx.ui.text.samples.FontFamilySansSerifSample
+import androidx.ui.text.samples.FontFamilySerifSample
 
 val displayText = "Text Demo"
 val displayTextChinese = "文本演示"
@@ -63,8 +67,10 @@ fun TextDemo() {
             TextDemoBasic()
             TagLine(tag = "Chinese, Arabic, and Hindi")
             TextDemoLanguage()
-            TagLine(tag = "FontFamily: sans-serif, serif, and monospace")
+            TagLine(tag = "FontFamily generic names")
             TextDemoFontFamily()
+            TagLine(tag = "FontFamily default values")
+            TextDemoFontFamilyDefaultValues()
             TagLine(tag = "decoration, decorationColor and decorationStyle")
             TextDemoTextDecoration()
             TagLine(tag = "letterSpacing")
@@ -199,26 +205,35 @@ fun TextDemoFontFamily() {
     // This group of text widgets show different fontFamilies in English.
     Text {
         Span(
-            text = "$displayText   ", style = TextStyle(
+            text = "$displayText sans-serif\n", style = TextStyle(
                 fontSize = fontSize8,
                 fontFamily = FontFamily("sans-serif")
             )
         )
 
         Span(
-            text = "$displayText   ", style = TextStyle(
+            text = "$displayText serif\n", style = TextStyle(
                 fontSize = fontSize8,
                 fontFamily = FontFamily("serif")
             )
         )
 
         Span(
-            text = displayText, style = TextStyle(
+            text = "$displayText monospace", style = TextStyle(
                 fontSize = fontSize8,
                 fontFamily = FontFamily("monospace")
             )
         )
     }
+}
+
+@Composable
+fun TextDemoFontFamilyDefaultValues() {
+    // This group of text widgets show the default font families in English.
+    FontFamilySerifSample()
+    FontFamilySansSerifSample()
+    FontFamilyMonospaceSample()
+    FontFamilyCursiveSample()
 }
 
 @Composable
