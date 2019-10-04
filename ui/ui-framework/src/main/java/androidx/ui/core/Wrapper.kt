@@ -20,6 +20,7 @@ import android.content.Context
 import android.content.res.Configuration
 import android.view.ViewGroup
 import androidx.annotation.CheckResult
+import androidx.annotation.RestrictTo
 import androidx.ui.core.input.FocusManager
 import androidx.ui.input.TextInputService
 import androidx.compose.Ambient
@@ -242,7 +243,11 @@ val FocusManagerAmbient = Ambient.of<FocusManager>()
 
 internal val TextInputServiceAmbient = Ambient.of<TextInputService?>()
 
-internal val FontLoaderAmbient = Ambient.of<Font.ResourceLoader>()
+/**
+ * @hide
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+val FontLoaderAmbient = Ambient.of<Font.ResourceLoader>()
 
 /**
  * [ambient] to get a [Density] object from an internal [DensityAmbient].
