@@ -31,16 +31,16 @@ import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 
 /**
- * TrustedWebActivityServiceWrapper is used by a Trusted Web Activity provider to wrap calls to
+ * TrustedWebActivityServiceConnection is used by a Trusted Web Activity provider to wrap calls to
  * the {@link TrustedWebActivityService} in the client app.
  * All of these calls except {@link #getComponentName()} forward over IPC
  * to corresponding calls on {@link TrustedWebActivityService}, eg {@link #getSmallIconId()}
- * forwards to {@link TrustedWebActivityService#getSmallIconId()}.
+ * forwards to {@link TrustedWebActivityService#onGetSmallIconId()}.
  * <p>
  * These IPC calls are synchronous, though the {@link TrustedWebActivityService} method may hit the
  * disk. Therefore it is recommended to call them on a background thread (without StrictMode).
  */
-public class TrustedWebActivityServiceWrapper {
+public final class TrustedWebActivityServiceConnection {
     // Inputs.
     private static final String KEY_PLATFORM_TAG =
             "android.support.customtabs.trusted.PLATFORM_TAG";
@@ -65,7 +65,7 @@ public class TrustedWebActivityServiceWrapper {
     private final ITrustedWebActivityService mService;
     private final ComponentName mComponentName;
 
-    TrustedWebActivityServiceWrapper(@NonNull ITrustedWebActivityService service,
+    TrustedWebActivityServiceConnection(@NonNull ITrustedWebActivityService service,
             @NonNull ComponentName componentName) {
         mService = service;
         mComponentName = componentName;
@@ -133,6 +133,7 @@ public class TrustedWebActivityServiceWrapper {
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @RequiresApi(Build.VERSION_CODES.M)
+    @NonNull
     public Parcelable[] getActiveNotifications() {
         try {
             Bundle notifications = mService.getActiveNotifications();
@@ -158,7 +159,7 @@ public class TrustedWebActivityServiceWrapper {
     /**
      * Requests a bitmap of a small icon to be used for the notification
      * small icon. The bitmap is decoded on the side of Trusted Web Activity client using
-     * the resource id from {@link TrustedWebActivityService#getSmallIconId}.
+     * the resource id from {@link TrustedWebActivityService#onGetSmallIconId}.
      * @return A {@link Bitmap} to be used for the small icon.
      * @throws SecurityException If verification with the TrustedWebActivityService fails.
      */

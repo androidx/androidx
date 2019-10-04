@@ -46,16 +46,16 @@ class ConnectionHolder implements ServiceConnection {
     @NonNull private final WrapperFactory mWrapperFactory;
 
     private int mState = STATE_AWAITING_CONNECTION;
-    @Nullable private TrustedWebActivityServiceWrapper mService;
-    @NonNull private List<Completer<TrustedWebActivityServiceWrapper>> mCompleters =
+    @Nullable private TrustedWebActivityServiceConnection mService;
+    @NonNull private List<Completer<TrustedWebActivityServiceConnection>> mCompleters =
             new ArrayList<>();
     @Nullable private Exception mCancellationException;
 
-    /** A class that creates the TrustedWebActivityServiceWrapper. Allows mocking in tests. */
+    /** A class that creates the TrustedWebActivityServiceConnection. Allows mocking in tests. */
     static class WrapperFactory {
         @NonNull
-        TrustedWebActivityServiceWrapper create(ComponentName name, IBinder iBinder) {
-            return new TrustedWebActivityServiceWrapper(
+        TrustedWebActivityServiceConnection create(ComponentName name, IBinder iBinder) {
+            return new TrustedWebActivityServiceConnection(
                     ITrustedWebActivityService.Stub.asInterface(iBinder), name);
         }
     }
@@ -81,7 +81,7 @@ class ConnectionHolder implements ServiceConnection {
     @MainThread
     public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
         mService = mWrapperFactory.create(componentName, iBinder);
-        for (Completer<TrustedWebActivityServiceWrapper> completer : mCompleters) {
+        for (Completer<TrustedWebActivityServiceConnection> completer : mCompleters) {
             completer.set(mService);
         }
         mCompleters.clear();
@@ -105,7 +105,7 @@ class ConnectionHolder implements ServiceConnection {
      */
     @MainThread
     public void cancel(@NonNull Exception exception) {
-        for (Completer<TrustedWebActivityServiceWrapper> completer : mCompleters) {
+        for (Completer<TrustedWebActivityServiceConnection> completer : mCompleters) {
             completer.setException(exception);
         }
         mCompleters.clear();
@@ -117,12 +117,12 @@ class ConnectionHolder implements ServiceConnection {
     /**
      * Returns a future that will:
      * - be unset if a connection is still pending and set once open.
-     * - be set to a {@link TrustedWebActivityServiceWrapper} if a connection is open.
+     * - be set to a {@link TrustedWebActivityServiceConnection} if a connection is open.
      * - be set to an exception if the connection failed or has been closed.
      */
     @MainThread
     @NonNull
-    public ListenableFuture<TrustedWebActivityServiceWrapper> getServiceWrapper() {
+    public ListenableFuture<TrustedWebActivityServiceConnection> getServiceWrapper() {
         // Using CallbackToFutureAdapter and storing the completers gives us some additional safety
         // checks over using Futures ourselves (such as failing the Future if the completer is
         // garbage collected).
