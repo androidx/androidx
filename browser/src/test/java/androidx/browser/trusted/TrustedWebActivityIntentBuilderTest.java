@@ -16,6 +16,8 @@
 
 package androidx.browser.trusted;
 
+import static android.view.WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES;
+
 import static androidx.browser.customtabs.CustomTabsIntent.COLOR_SCHEME_DARK;
 import static androidx.browser.customtabs.TrustedWebUtils.EXTRA_LAUNCH_AS_TRUSTED_WEB_ACTIVITY;
 
@@ -31,6 +33,7 @@ import androidx.browser.customtabs.CustomTabColorSchemeParams;
 import androidx.browser.customtabs.CustomTabsIntent;
 import androidx.browser.customtabs.CustomTabsSession;
 import androidx.browser.customtabs.TestUtil;
+import androidx.browser.trusted.TrustedWebActivityDisplayMode.ImmersiveMode;
 import androidx.browser.trusted.sharing.ShareData;
 import androidx.browser.trusted.sharing.ShareTarget;
 import androidx.browser.trusted.splashscreens.SplashScreenParamKey;
@@ -76,6 +79,8 @@ public class TrustedWebActivityIntentBuilderTest {
 
         CustomTabsSession session = TestUtil.makeMockSession();
 
+        ImmersiveMode displayMode = new ImmersiveMode(true,
+                LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES);
         Intent intent = new TrustedWebActivityIntentBuilder(url)
                         .setToolbarColor(toolbarColor)
                         .setNavigationBarColor(navigationBarColor)
@@ -84,6 +89,7 @@ public class TrustedWebActivityIntentBuilderTest {
                         .setAdditionalTrustedOrigins(additionalTrustedOrigins)
                         .setSplashScreenParams(splashScreenParams)
                         .setShareParams(shareTarget, shareData)
+                        .setDisplayMode(displayMode)
                         .build(session)
                         .getIntent();
 
@@ -116,5 +122,13 @@ public class TrustedWebActivityIntentBuilderTest {
         ShareTarget shareTargetFromIntent = ShareTarget.fromBundle(intent.getBundleExtra(
                 TrustedWebActivityIntentBuilder.EXTRA_SHARE_TARGET));
         assertEquals(shareTarget.action, shareTargetFromIntent.action);
+
+        TrustedWebActivityDisplayMode displayModeFromIntent =
+                TrustedWebActivityDisplayMode.fromBundle(intent.getBundleExtra(
+                        TrustedWebActivityIntentBuilder.EXTRA_DISPLAY_MODE));
+
+        assertEquals(displayMode.isSticky(), ((ImmersiveMode) displayModeFromIntent).isSticky());
+        assertEquals(displayMode.layoutInDisplayCutoutMode(),
+                ((ImmersiveMode) displayModeFromIntent).layoutInDisplayCutoutMode());
     }
 }
