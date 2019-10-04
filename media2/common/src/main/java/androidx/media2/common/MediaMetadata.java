@@ -63,8 +63,7 @@ import java.util.Set;
  * <li><a href="#Duration">Duration</a>
  * <li><a href="#UserRating">User rating</a>
  * </ol>
- * <a name="MediaId"></a>
- * <h3>{@link MediaMetadata#METADATA_KEY_MEDIA_ID Media ID}</h3>
+ * <h3 id="MediaId">{@link MediaMetadata#METADATA_KEY_MEDIA_ID Media ID}</h3>
  * <p>
  * If set, the media ID must be the persistent key for the underlying media contents, so
  * {@link androidx.media2.session.MediaController} and {@link androidx.media2.session.MediaBrowser}
@@ -78,9 +77,7 @@ import java.util.Set;
  * The {@link androidx.media2.session.MediaLibraryService.MediaLibrarySession} would require it
  * for the library root, so {@link androidx.media2.session.MediaBrowser} can call subsequent
  * {@link androidx.media2.session.MediaBrowser#getChildren} with the ID.
- * <p>
- * <a name="Browsable"></a>
- * <h3>{@link MediaMetadata#METADATA_KEY_BROWSABLE Browsable type}</h3>
+ * <h3 id="Browsable">{@link MediaMetadata#METADATA_KEY_BROWSABLE Browsable type}</h3>
  * <p>
  * Browsable defines whether the media item has children and type of children if any. With this,
  * {@link androidx.media2.session.MediaBrowser} can know whether the subsequent
@@ -89,9 +86,7 @@ import java.util.Set;
  * The {@link androidx.media2.session.MediaLibraryService.MediaLibrarySession} would require
  * the explicit browsable type for the media items returned by the
  * {@link androidx.media2.session.MediaLibraryService.MediaLibrarySession.MediaLibrarySessionCallback}.
- * <p>
- * <a name="Playable"></a>
- * <h3>{@link MediaMetadata#METADATA_KEY_PLAYABLE Playable type}</h3>
+ * <h3 id="Playable">{@link MediaMetadata#METADATA_KEY_PLAYABLE Playable type}</h3>
  * <p>
  * Playable defines whether the media item can be played or not. It may be possible for a playlist
  * to contain a media item which isn't playable in order to show a disabled media item.
@@ -99,18 +94,14 @@ import java.util.Set;
  * The {@link androidx.media2.session.MediaLibraryService.MediaLibrarySession} would require
  * the explicit playable value for the media items returned by the
  * {@link androidx.media2.session.MediaLibraryService.MediaLibrarySession.MediaLibrarySessionCallback}.
- * <p>
- * <a name="Duration"></a>
- * <li><a href="#Duration">{@link MediaMetadata#METADATA_KEY_DURATION Duration}</a>
+ * <h3 id="Duration">{@link MediaMetadata#METADATA_KEY_DURATION Duration}</h3>
  * The duration is the length of the contents. The {@link androidx.media2.session.MediaController}
  * can only get the duration through the metadata. This tells when would the playback ends, and also
  * tells about the allowed range of {@link androidx.media2.session.MediaController#seekTo(long)}.
  * <p>
  * If it's not set by developer, {@link androidx.media2.session.MediaSession} would update
  * the duration in the metadata with the {@link SessionPlayer#getDuration()}.
- * <p>
- * <a name="UserRating"></a>
- * <li><a href="#UserRating">{@link MediaMetadata#METADATA_KEY_USER_RATING User rating}</a>
+ * <h3 id="UserRating">{@link MediaMetadata#METADATA_KEY_USER_RATING User rating}</h3>
  * <p>
  * Prefer to have unrated user rating instead of {@code null}, so
  * {@link androidx.media2.session.MediaController} can know the possible user rating type
