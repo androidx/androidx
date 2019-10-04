@@ -25,6 +25,6 @@
     android:clickable="true"
     android:contentDescription="@string/abc_action_mode_done"
     android:focusable="true"
-    android:paddingLeft="12dp"
-    android:paddingStart="12dp"
+    android:paddingLeft="8dp"
+    android:paddingStart="8dp"
     app:srcCompat="?attr/actionModeCloseDrawable" />
