@@ -20,6 +20,7 @@ import android.view.Surface;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.util.ObjectsCompat;
 import androidx.media2.common.BaseResult;
 import androidx.media2.common.MediaItem;
 import androidx.media2.common.MediaMetadata;
@@ -351,7 +352,7 @@ class PlayerWrapper {
 
         boolean allowedCommandsChanged = false;
         SessionCommandGroup allowedCommands = getAllowedCommands();
-        if (mAllowedCommands != allowedCommands) {
+        if (!ObjectsCompat.equals(mAllowedCommands, allowedCommands)) {
             mAllowedCommands = allowedCommands;
             allowedCommandsChanged = true;
         }
@@ -449,7 +450,7 @@ class PlayerWrapper {
         @Override
         public void onAllowedCommandsChanged(@NonNull MediaController controller,
                 @NonNull SessionCommandGroup commands) {
-            if (mAllowedCommands == commands) return;
+            if (ObjectsCompat.equals(mAllowedCommands, commands)) return;
             mAllowedCommands = commands;
             mWrapperCallback.onAllowedCommandsChanged(PlayerWrapper.this, commands);
         }
