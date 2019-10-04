@@ -277,37 +277,6 @@ public abstract class WorkRequest {
         }
 
         /**
-         * If {@code runInForeground} is {@code true}, specifies that the {@link WorkRequest} is
-         * long-running or otherwise important.  In this case, WorkManager provides a signal to the
-         * OS that the process should be kept alive if possible while this work is executing.  The
-         * {@link ListenableWorker} should implement {@link NotificationProvider} so that
-         * WorkManager can inform the end-user about this work.
-         * <p>
-         * Under the hood, WorkManager manages and runs a foreground service on your behalf to
-         * execute this WorkRequest, showing the notification returned by the
-         * {@link NotificationProvider}.
-         * <p>
-         * The default value for {@code runInForeground} is {@code false}.  A WorkRequest that is
-         * set to run in foreground cannot have a device idle constraint through
-         * {@link Constraints#requiresDeviceIdle()}.
-         * <p>
-         * Throws an {@link IllegalStateException} if the {@link ListenableWorker} does not
-         * implement the {@link NotificationProvider} interface.
-         *
-         * @return The current {@link Builder}
-         */
-        @NonNull
-        public B setRunInForeground(boolean runInForeground) {
-            if (runInForeground && !NotificationProvider.class.isAssignableFrom(mWorkerClass)) {
-                String message = String.format("%s must implement %s", mWorkerClass,
-                        NotificationProvider.class.getName());
-                throw new IllegalStateException(message);
-            }
-            mWorkSpec.runInForeground = runInForeground;
-            return getThis();
-        }
-
-        /**
          * Builds a {@link WorkRequest} based on this {@link Builder}.
          *
          * @return A {@link WorkRequest} based on this {@link Builder}

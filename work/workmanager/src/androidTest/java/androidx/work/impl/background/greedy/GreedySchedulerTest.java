@@ -37,7 +37,6 @@ import androidx.work.impl.WorkManagerImpl;
 import androidx.work.impl.constraints.WorkConstraintsTracker;
 import androidx.work.impl.model.WorkSpec;
 import androidx.work.impl.utils.taskexecutor.TaskExecutor;
-import androidx.work.worker.ForegroundWorker;
 import androidx.work.worker.TestWorker;
 
 import org.junit.Before;
@@ -112,18 +111,6 @@ public class GreedySchedulerTest extends WorkManagerTest {
                 .build();
         mGreedyScheduler.schedule(getWorkSpec(work));
         verify(mMockWorkConstraintsTracker, never()).replace(ArgumentMatchers.<WorkSpec>anyList());
-    }
-
-    @Test
-    @SmallTest
-    public void testGreedyScheduler_startsForegroundWork() {
-        OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(ForegroundWorker.class)
-                .setRunInForeground(true)
-                .build();
-
-        WorkSpec workSpec = getWorkSpec(work);
-        mGreedyScheduler.schedule(workSpec);
-        verify(mWorkManagerImpl).startWork(workSpec.id);
     }
 
     @Test

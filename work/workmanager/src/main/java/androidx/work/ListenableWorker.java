@@ -67,6 +67,7 @@ public abstract class ListenableWorker {
     private volatile boolean mStopped;
 
     private boolean mUsed;
+    private boolean mRunInForeground;
 
     /**
      * @param appContext The application {@link Context}
@@ -199,13 +200,28 @@ public abstract class ListenableWorker {
      */
     @NonNull
     public final ListenableFuture<Void> setProgressAsync(@NonNull Data data) {
-        NotificationProvider provider = null;
-        if (this instanceof NotificationProvider) {
-            provider = (NotificationProvider) this;
-        }
-
         return mWorkerParams.getProgressUpdater()
-                .updateProgress(getApplicationContext(), getId(), data, provider);
+                .updateProgress(getApplicationContext(), getId(), data);
+    }
+
+    /**
+     * This specifies that the {@link WorkRequest} is long-running or otherwise important.  In
+     * this case, WorkManager provides a signal to the OS that the process should be kept alive
+     * if possible while this work is executing.
+     * <p>
+     * Under the hood, WorkManager manages and runs a foreground service on your behalf to
+     * execute this WorkRequest, showing the notification provided in
+     * {@link ForegroundInfo}.
+     *
+     * @param foregroundInfo The {@link ForegroundInfo}
+     * @return A {@link ListenableFuture} which resolves after the {@link ListenableWorker}
+     * transitions to running in the context of a foreground {@link android.app.Service}.
+     */
+    @NonNull
+    public final ListenableFuture<Void> setForegroundAsync(@NonNull ForegroundInfo foregroundInfo) {
+        mRunInForeground = true;
+        return mWorkerParams.getForegroundUpdater()
+                .setForegroundAsync(getApplicationContext(), getId(), foregroundInfo);
     }
 
     /**
@@ -261,6 +277,16 @@ public abstract class ListenableWorker {
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public final void setUsed() {
         mUsed = true;
+    }
+
+    /**
+     * @return {@code true} if the {@link ListenableWorker} is running in the context of a
+     * foreground {@link android.app.Service}.
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public final boolean isRunInForeground() {
+        return mRunInForeground;
     }
 
     /**

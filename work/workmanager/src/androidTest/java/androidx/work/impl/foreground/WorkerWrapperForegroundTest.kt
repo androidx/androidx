@@ -117,7 +117,6 @@ class WorkerWrapperForegroundTest {
     @Test
     fun testWorkerWrapper_doesNotResolveBackingJobImmediately() {
         val request = OneTimeWorkRequest.Builder(StopAwareForegroundWorker::class.java)
-            .setRunInForeground(true)
             .build()
 
         workDatabase.workSpecDao().insertWorkSpec(request.workSpec)
@@ -147,7 +146,6 @@ class WorkerWrapperForegroundTest {
     @Test
     fun testWorkerWrapper_resolvesBackingJob_whenWorkerCompletes() {
         val request = OneTimeWorkRequest.Builder(TestForegroundWorker::class.java)
-            .setRunInForeground(true)
             .build()
 
         workDatabase.workSpecDao().insertWorkSpec(request.workSpec)

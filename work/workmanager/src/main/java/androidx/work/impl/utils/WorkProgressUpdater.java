@@ -16,18 +16,12 @@
 
 package androidx.work.impl.utils;
 
-import static androidx.work.impl.foreground.SystemForegroundDispatcher.createNotifyIntent;
-
 import android.content.Context;
-import android.content.Intent;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.work.Data;
 import androidx.work.Logger;
-import androidx.work.NotificationMetadata;
-import androidx.work.NotificationProvider;
 import androidx.work.ProgressUpdater;
 import androidx.work.WorkInfo.State;
 import androidx.work.impl.WorkDatabase;
@@ -48,12 +42,17 @@ import java.util.UUID;
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class WorkProgressUpdater implements ProgressUpdater {
+
     // Synthetic access
+    @SuppressWarnings("WeakerAccess")
     static final String TAG = Logger.tagWithPrefix("WorkProgressUpdater");
 
     // Synthetic access
+    @SuppressWarnings("WeakerAccess")
     final WorkDatabase mWorkDatabase;
+
     // Synthetic access
+    @SuppressWarnings("WeakerAccess")
     final TaskExecutor mTaskExecutor;
 
     public WorkProgressUpdater(
@@ -68,8 +67,7 @@ public class WorkProgressUpdater implements ProgressUpdater {
     public ListenableFuture<Void> updateProgress(
             @NonNull final Context context,
             @NonNull final UUID id,
-            @NonNull final Data data,
-            @Nullable final NotificationProvider notificationProvider) {
+            @NonNull final Data data) {
         final SettableFuture<Void> future = SettableFuture.create();
         mTaskExecutor.executeOnBackgroundThread(new Runnable() {
             @Override
@@ -86,14 +84,6 @@ public class WorkProgressUpdater implements ProgressUpdater {
                         if (state == State.RUNNING) {
                             WorkProgress progress = new WorkProgress(workSpecId, data);
                             mWorkDatabase.workProgressDao().insert(progress);
-                            // Update Notification
-                            if (workSpec.runInForeground && notificationProvider != null) {
-                                Logger.get().debug(TAG, "Updating notification");
-                                NotificationMetadata metadata =
-                                        notificationProvider.getNotification();
-                                Intent intent = createNotifyIntent(context, metadata);
-                                context.startService(intent);
-                            }
                         } else {
                             Logger.get().warning(TAG,
                                     String.format(

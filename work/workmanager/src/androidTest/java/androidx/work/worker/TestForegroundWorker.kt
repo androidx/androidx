@@ -18,34 +18,31 @@ package androidx.work.worker
 
 import android.content.Context
 import androidx.core.app.NotificationCompat
-import androidx.work.NotificationMetadata
-import androidx.work.NotificationProvider
+import androidx.work.ForegroundInfo
 import androidx.work.Worker
 import androidx.work.WorkerParameters
 
 class TestForegroundWorker(val context: Context, val parameters: WorkerParameters) :
-    Worker(context, parameters), NotificationProvider {
+    Worker(context, parameters) {
 
     override fun doWork(): Result {
+        setForegroundAsync(getNotification())
         return Result.success()
     }
 
-    override fun getNotification(): NotificationMetadata {
+    fun getNotification(): ForegroundInfo {
         val notification = NotificationCompat.Builder(context, ChannelId)
             .setOngoing(true)
             .setTicker(Ticker)
             .setContentText(Content)
             .build()
 
-        return NotificationMetadata.Builder(NotificationId, notification)
-            .build()
+        return ForegroundInfo(notification)
     }
 
     companion object {
         // Channel id
         private const val ChannelId = "Channel"
-        // The notification id
-        private const val NotificationId = 1
         // Ticker
         private const val Ticker = "StopAwareForegroundWorker"
         // Content

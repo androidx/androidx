@@ -17,9 +17,7 @@
 package androidx.work
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
-import androidx.work.workers.TestNotificationWorker
 import androidx.work.workers.TestWorker
 import org.junit.Assert.assertEquals
 import org.junit.Test
@@ -45,33 +43,5 @@ class OneTimeWorkRequestTest {
         assertEquals(request.workSpec.workerClassName, TestWorker::class.java.name)
         assertEquals(request.workSpec.inputMergerClassName,
                 OverwritingInputMerger::class.java.name)
-    }
-
-    @Test
-    fun testSetRunInForeground() {
-        val request = OneTimeWorkRequestBuilder<TestNotificationWorker>()
-            .setRunInForeground(true)
-            .build()
-        assertEquals(request.workSpec.runInForeground, true)
-    }
-
-    @Test(expected = IllegalStateException::class)
-    fun testSetRunInForeground_withInvalidWorker() {
-        OneTimeWorkRequestBuilder<TestWorker>()
-            .setRunInForeground(true)
-            .build()
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    @SdkSuppress(minSdkVersion = 23)
-    fun testSetRunInForeground_withInvalidConstraints() {
-        OneTimeWorkRequestBuilder<TestNotificationWorker>()
-            .setRunInForeground(true)
-            .setConstraints(
-                Constraints.Builder()
-                    .setRequiresDeviceIdle(true)
-                    .build()
-            )
-            .build()
     }
 }

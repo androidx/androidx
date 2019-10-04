@@ -22,12 +22,10 @@ import static androidx.work.WorkInfo.State.ENQUEUED;
 import static androidx.work.WorkInfo.State.FAILED;
 import static androidx.work.WorkInfo.State.RUNNING;
 import static androidx.work.WorkInfo.State.SUCCEEDED;
-import static androidx.work.impl.foreground.SystemForegroundDispatcher.createNotifyIntent;
 import static androidx.work.impl.model.WorkSpec.SCHEDULE_NOT_REQUESTED_YET;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.content.Intent;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -40,8 +38,6 @@ import androidx.work.InputMerger;
 import androidx.work.InputMergerFactory;
 import androidx.work.ListenableWorker;
 import androidx.work.Logger;
-import androidx.work.NotificationMetadata;
-import androidx.work.NotificationProvider;
 import androidx.work.WorkInfo;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
@@ -52,6 +48,7 @@ import androidx.work.impl.model.WorkSpec;
 import androidx.work.impl.model.WorkSpecDao;
 import androidx.work.impl.model.WorkTagDao;
 import androidx.work.impl.utils.PackageManagerHelper;
+import androidx.work.impl.utils.WorkForegroundUpdater;
 import androidx.work.impl.utils.WorkProgressUpdater;
 import androidx.work.impl.utils.futures.SettableFuture;
 import androidx.work.impl.utils.taskexecutor.TaskExecutor;
@@ -97,7 +94,6 @@ public class WorkerWrapper implements Runnable {
     private WorkSpecDao mWorkSpecDao;
     private DependencyDao mDependencyDao;
     private WorkTagDao mWorkTagDao;
-    private boolean mRunInForeground;
 
     private List<String> mTags;
     private String mWorkDescription;
@@ -237,7 +233,8 @@ public class WorkerWrapper implements Runnable {
                 mConfiguration.getExecutor(),
                 mWorkTaskExecutor,
                 mConfiguration.getWorkerFactory(),
-                new WorkProgressUpdater(mWorkDatabase, mWorkTaskExecutor));
+                new WorkProgressUpdater(mWorkDatabase, mWorkTaskExecutor),
+                new WorkForegroundUpdater(mForegroundProcessor, mWorkTaskExecutor));
 
         // Not always creating a worker here, as the WorkerWrapper.Builder can set a worker override
         // in test mode.
@@ -270,30 +267,6 @@ public class WorkerWrapper implements Runnable {
         if (trySetRunning()) {
             if (tryCheckForInterruptionAndResolve()) {
                 return;
-            }
-
-            if (mWorkSpec.runInForeground) {
-                // This can happen when a developer refactor code, and your Worker no longer
-                // implements a NotificationProvider.
-                if (mWorker instanceof NotificationProvider) {
-                    // Eligible to run in the context of a Foreground Service
-                    mRunInForeground = true;
-                    // Make sure the first notification is set up.
-                    NotificationProvider provider = (NotificationProvider) mWorker;
-                    final NotificationMetadata metadata = provider.getNotification();
-                    mForegroundProcessor.startForeground(mWorkSpecId);
-                    // Notification intent
-                    Intent intent = createNotifyIntent(mAppContext, metadata);
-                    mAppContext.startService(intent);
-                    // Don't resolve mFuture at this point. This is because we want a backing job
-                    // available for as long as possible, so the OS can load-balance Workers
-                    // running in the context of a foreground service.
-                } else {
-                    String message = String.format("Worker (%s) cannot be started in the "
-                                    + "foreground as it does not implement a NotificationProvider",
-                            mWorkDescription);
-                    Logger.get().error(TAG, message);
-                }
             }
 
             final SettableFuture<ListenableWorker.Result> future = SettableFuture.create();
@@ -472,7 +445,7 @@ public class WorkerWrapper implements Runnable {
                 PackageManagerHelper.setComponentEnabled(
                         mAppContext, RescheduleReceiver.class, false);
             }
-            if (mWorkSpec != null && mRunInForeground) {
+            if (mWorkSpec != null && mWorker != null && mWorker.isRunInForeground()) {
                 if (needsReschedule) {
                     // Reset scheduled state so its picked up by background schedulers again.
                     mWorkSpecDao.markWorkSpecScheduled(mWorkSpecId, SCHEDULE_NOT_REQUESTED_YET);
