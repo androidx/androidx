@@ -123,6 +123,13 @@ package androidx.ui.layout {
     method public androidx.ui.core.Dp getTop();
   }
 
+  public final class ExpandedModifierKt {
+    ctor public ExpandedModifierKt();
+    method public static androidx.ui.core.LayoutModifier getExpanded();
+    method public static androidx.ui.core.LayoutModifier getExpandedHeight();
+    method public static androidx.ui.core.LayoutModifier getExpandedWidth();
+  }
+
   public final class FlexChildren {
     method public void expanded(@FloatRange(from=0.0) float flex, kotlin.jvm.functions.Function0<kotlin.Unit> children);
     method public void flexible(@FloatRange(from=0.0) float flex, kotlin.jvm.functions.Function0<kotlin.Unit> children);
