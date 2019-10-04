@@ -24,6 +24,7 @@ package androidx.exifinterface.media {
     method public boolean hasAttribute(String);
     method public boolean hasThumbnail();
     method public boolean isFlipped();
+    method public static boolean isSupportedMimeType(String);
     method public boolean isThumbnailCompressed();
     method public void resetOrientation();
     method public void rotate(int);
