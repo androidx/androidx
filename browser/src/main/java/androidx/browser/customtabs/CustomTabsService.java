@@ -82,6 +82,13 @@ public abstract class CustomTabsService extends Service {
             "androidx.browser.trusted.category.WebShareTargetV2";
 
     /**
+     * An Intent filter category to signify that the Trusted Web Activity provider supports
+     * immersive mode.
+     */
+    public static final String CATEGORY_TRUSTED_WEB_ACTIVITY_IMMERSIVE_MODE =
+            "androidx.browser.trusted.category.ImmersiveMode";
+
+    /**
      * For {@link CustomTabsService#mayLaunchUrl} calls that wants to specify more than one url,
      * this key can be used with {@link Bundle#putParcelable(String, android.os.Parcelable)}
      * to insert a new url to each bundle inside list of bundles.

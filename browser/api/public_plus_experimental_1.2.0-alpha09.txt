@@ -175,6 +175,7 @@ package androidx.browser.customtabs {
     field public static final String ACTION_CUSTOM_TABS_CONNECTION = "android.support.customtabs.action.CustomTabsService";
     field public static final String CATEGORY_COLOR_SCHEME_CUSTOMIZATION = "androidx.browser.customtabs.category.ColorSchemeCustomization";
     field public static final String CATEGORY_NAVBAR_COLOR_CUSTOMIZATION = "androidx.browser.customtabs.category.NavBarColorCustomization";
+    field public static final String CATEGORY_TRUSTED_WEB_ACTIVITY_IMMERSIVE_MODE = "androidx.browser.trusted.category.ImmersiveMode";
     field public static final String CATEGORY_WEB_SHARE_TARGET_V2 = "androidx.browser.trusted.category.WebShareTargetV2";
     field public static final int FILE_PURPOSE_TRUSTED_WEB_ACTIVITY_SPLASH_IMAGE = 1; // 0x1
     field public static final String KEY_URL = "android.support.customtabs.otherurls.URL";
@@ -246,6 +247,26 @@ package androidx.browser.customtabs {
 
 package androidx.browser.trusted {
 
+  public interface TrustedWebActivityDisplayMode {
+    method public static androidx.browser.trusted.TrustedWebActivityDisplayMode fromBundle(android.os.Bundle);
+    method public android.os.Bundle toBundle();
+    field public static final String KEY_ID = "androidx.browser.trusted.displaymode.KEY_ID";
+  }
+
+  public static class TrustedWebActivityDisplayMode.DefaultMode implements androidx.browser.trusted.TrustedWebActivityDisplayMode {
+    ctor public TrustedWebActivityDisplayMode.DefaultMode();
+    method public android.os.Bundle toBundle();
+  }
+
+  public static class TrustedWebActivityDisplayMode.ImmersiveMode implements androidx.browser.trusted.TrustedWebActivityDisplayMode {
+    ctor public TrustedWebActivityDisplayMode.ImmersiveMode(boolean, int);
+    method public boolean isSticky();
+    method public int layoutInDisplayCutoutMode();
+    method public android.os.Bundle toBundle();
+    field public static final String KEY_CUTOUT_MODE = "androidx.browser.trusted.displaymode.KEY_CUTOUT_MODE";
+    field public static final String KEY_STICKY = "androidx.browser.trusted.displaymode.KEY_STICKY";
+  }
+
   public final class TrustedWebActivityIntent {
     method public android.content.Intent getIntent();
     method public void launchTrustedWebActivity(android.content.Context);
@@ -255,15 +276,18 @@ package androidx.browser.trusted {
     ctor public TrustedWebActivityIntentBuilder(android.net.Uri);
     method public androidx.browser.trusted.TrustedWebActivityIntent build(androidx.browser.customtabs.CustomTabsSession);
     method public androidx.browser.customtabs.CustomTabsIntent buildCustomTabsIntent();
+    method public androidx.browser.trusted.TrustedWebActivityDisplayMode? getDisplayMode();
     method public android.net.Uri getUrl();
     method public androidx.browser.trusted.TrustedWebActivityIntentBuilder setAdditionalTrustedOrigins(java.util.List<java.lang.String!>);
     method public androidx.browser.trusted.TrustedWebActivityIntentBuilder setColorScheme(int);
     method public androidx.browser.trusted.TrustedWebActivityIntentBuilder setColorSchemeParams(int, androidx.browser.customtabs.CustomTabColorSchemeParams);
+    method public androidx.browser.trusted.TrustedWebActivityIntentBuilder setDisplayMode(androidx.browser.trusted.TrustedWebActivityDisplayMode);
     method public androidx.browser.trusted.TrustedWebActivityIntentBuilder setNavigationBarColor(@ColorInt int);
     method public androidx.browser.trusted.TrustedWebActivityIntentBuilder setShareParams(androidx.browser.trusted.sharing.ShareTarget, androidx.browser.trusted.sharing.ShareData);
     method public androidx.browser.trusted.TrustedWebActivityIntentBuilder setSplashScreenParams(android.os.Bundle);
     method public androidx.browser.trusted.TrustedWebActivityIntentBuilder setToolbarColor(@ColorInt int);
     field public static final String EXTRA_ADDITIONAL_TRUSTED_ORIGINS = "android.support.customtabs.extra.ADDITIONAL_TRUSTED_ORIGINS";
+    field public static final String EXTRA_DISPLAY_MODE = "androidx.browser.trusted.extra.DISPLAY_MODE";
     field public static final String EXTRA_SHARE_DATA = "androidx.browser.trusted.extra.SHARE_DATA";
     field public static final String EXTRA_SHARE_TARGET = "androidx.browser.trusted.extra.SHARE_TARGET";
     field public static final String EXTRA_SPLASH_SCREEN_PARAMS = "androidx.browser.trusted.EXTRA_SPLASH_SCREEN_PARAMS";
