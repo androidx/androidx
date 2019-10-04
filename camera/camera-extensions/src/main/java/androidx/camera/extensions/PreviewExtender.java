@@ -144,6 +144,10 @@ public abstract class PreviewExtender {
     }
 
     private void setSupportedResolutions() {
+        if (ExtensionVersion.getRuntimeVersion().compareTo(Version.VERSION_1_1) < 0) {
+            return;
+        }
+
         List<Pair<Integer, Size[]>> supportedResolutions = null;
 
         try {
