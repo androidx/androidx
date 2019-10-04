@@ -390,6 +390,7 @@ package androidx.ui.core {
   public final class IntPx {
     ctor public IntPx(int value);
     method public inline operator int compareTo(androidx.ui.core.IntPx other);
+    method public inline operator int compareTo(androidx.ui.core.Px other);
     method public int component1();
     method public androidx.ui.core.IntPx copy(int value);
     method public operator androidx.ui.core.IntPx div(float other);
@@ -461,8 +462,15 @@ package androidx.ui.core {
     method public inline androidx.ui.core.IntPx getY();
     method public inline operator androidx.ui.core.IntPxPosition minus(androidx.ui.core.IntPxPosition other);
     method public inline operator androidx.ui.core.IntPxPosition plus(androidx.ui.core.IntPxPosition other);
+    method public inline operator androidx.ui.core.IntPxPosition unaryMinus();
     property public final inline androidx.ui.core.IntPx x;
     property public final inline androidx.ui.core.IntPx y;
+    field public static final androidx.ui.core.IntPxPosition.Companion! Companion;
+  }
+
+  public static final class IntPxPosition.Companion {
+    method public androidx.ui.core.IntPxPosition getOrigin();
+    property public final androidx.ui.core.IntPxPosition Origin;
   }
 
   public final class IntPxSize {
@@ -640,6 +648,7 @@ package androidx.ui.core {
   public final class Px {
     ctor public Px(float value);
     method public inline operator int compareTo(androidx.ui.core.Px other);
+    method public inline operator int compareTo(androidx.ui.core.IntPx other);
     method public float component1();
     method public androidx.ui.core.Px copy(float value);
     method public inline operator androidx.ui.core.Px div(float other);

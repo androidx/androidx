@@ -92,7 +92,7 @@ interface Owner {
     /**
      * Returns a position of the owner in its window.
      */
-    fun calculatePosition(): PxPosition
+    fun calculatePosition(): IntPxPosition
 
     /**
      * Called when some params of [RepaintBoundaryNode] are updated.
@@ -1119,7 +1119,12 @@ class Ref<T> {
 }
 
 /**
- * Converts a global position into a local position within this LayoutNode.
+ * Converts a [PxPosition] relative to a global context into a [PxPosition] that is relative
+ * to this [LayoutNode].
+ *
+ * If [withOwnerOffset] is true (which is the default), the [global] parameter is interpreted as
+ * being a position relative to the application window. Otherwise, the [global] parameter is
+ * interpreted to be relative to the root of the compose context.
  */
 fun LayoutNode.globalToLocal(global: PxPosition, withOwnerOffset: Boolean = true): PxPosition {
     var x: Px = global.x
@@ -1140,7 +1145,11 @@ fun LayoutNode.globalToLocal(global: PxPosition, withOwnerOffset: Boolean = true
 }
 
 /**
- * Converts a local position within this LayoutNode into a global one.
+ * Converts an [PxPosition] that is relative to this [LayoutNode] into one that is relative to
+ * a more global context.
+ *
+ * If [withOwnerOffset] is true (which is the default), the return value will be relative to the
+ * application window.  Otherwise, the location is relative to the root of the compose context.
  */
 fun LayoutNode.localToGlobal(local: PxPosition, withOwnerOffset: Boolean = true): PxPosition {
     var x: Px = local.x
@@ -1158,6 +1167,58 @@ fun LayoutNode.localToGlobal(local: PxPosition, withOwnerOffset: Boolean = true)
         y += ownerPosition.y
     }
     return PxPosition(x, y)
+}
+
+/**
+ * Converts a [IntPxPosition] relative to a global context into a [IntPxPosition] that is relative
+ * to this [LayoutNode].
+ *
+ * If [withOwnerOffset] is true (which is the default), the [global] parameter is interpreted as
+ * being a position relative to the application window. Otherwise, the [global] parameter is
+ * interpreted to be relative to the root of the compose context.
+ */
+fun LayoutNode.globalToLocal(global: IntPxPosition, withOwnerOffset: Boolean = true):
+        IntPxPosition {
+    var x: IntPx = global.x
+    var y: IntPx = global.y
+    var node: LayoutNode? = this
+    while (node != null) {
+        val pos = node.contentPosition
+        x -= pos.x
+        y -= pos.y
+        node = node.parentLayoutNode
+    }
+    if (withOwnerOffset) {
+        val ownerPosition = requireOwner().calculatePosition()
+        x -= ownerPosition.x
+        y -= ownerPosition.y
+    }
+    return IntPxPosition(x, y)
+}
+
+/**
+ * Converts an [IntPxPosition] that is relative to this [LayoutNode] into one that is relative to
+ * a more global context.
+ *
+ * If [withOwnerOffset] is true (which is the default), the return value will be relative to the
+ * app window.  Otherwise, the location is relative to the root of the compose context.
+ */
+fun LayoutNode.localToGlobal(local: IntPxPosition, withOwnerOffset: Boolean = true): IntPxPosition {
+    var x: IntPx = local.x
+    var y: IntPx = local.y
+    var node: LayoutNode? = this
+    while (node != null) {
+        val pos = node.contentPosition
+        x += pos.x
+        y += pos.y
+        node = node.parentLayoutNode
+    }
+    if (withOwnerOffset) {
+        val ownerPosition = requireOwner().calculatePosition()
+        x += ownerPosition.x
+        y += ownerPosition.y
+    }
+    return IntPxPosition(x, y)
 }
 
 /**
@@ -1189,7 +1250,7 @@ fun LayoutNode.childToLocal(child: LayoutNode, childLocal: PxPosition): PxPositi
 /**
  * Calculates the position of this [LayoutNode] relative to the root of the ui tree.
  */
-fun LayoutNode.positionRelativeToRoot() = localToGlobal(PxPosition.Origin, false)
+fun LayoutNode.positionRelativeToRoot() = localToGlobal(IntPxPosition.Origin, false)
 
 /**
  * Calculates the position of this [LayoutNode] relative to the provided ancestor.
