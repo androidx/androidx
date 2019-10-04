@@ -49,6 +49,7 @@ import androidx.lifecycle.testapp.TestEvent;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.filters.FlakyTest;
 import androidx.test.filters.LargeTest;
+import androidx.test.filters.SdkSuppress;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.ActivityTestRule;
 
@@ -66,6 +67,7 @@ import java.util.concurrent.ExecutionException;
  * assertions accordingly.
  */
 @SuppressWarnings("unchecked")
+@SdkSuppress(maxSdkVersion = 28) // framework issue for API 29: b/142125019
 @RunWith(Parameterized.class)
 @LargeTest
 public class PartiallyCoveredActivityTest {
