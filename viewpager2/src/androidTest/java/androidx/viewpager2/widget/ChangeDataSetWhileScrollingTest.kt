@@ -18,6 +18,7 @@ package androidx.viewpager2.widget
 
 import android.os.SystemClock.sleep
 import android.util.Log
+import android.view.View
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.testutils.PollingCheck
@@ -54,27 +55,59 @@ class ChangeDataSetWhileScrollingTest : BaseTest() {
                 viewPager.scrollState == SCROLL_STATE_IDLE && viewPager.currentItem == 0
             }
 
-            // investigating b/141486375 TODO: clean-up once investigation finished
             PollingCheck.waitFor {
-                val firstCompletelyVisible =
-                    viewPager.linearLayoutManager.findFirstCompletelyVisibleItemPosition()
-                val isStable = firstCompletelyVisible == 0
-
-                if (!isStable) {
-                    val isAnimating = viewPager.recyclerView.isAnimating
-                    val rvScrollState = viewPager.recyclerView.scrollState
-                    Log.d(
-                        "ChangeDataSetWhileScrollingTest",
-                        "rv.isAnimating:$isAnimating" +
-                                " | firstCompletelyVisible:$firstCompletelyVisible" +
-                                " | rv.scrollState:$rvScrollState"
-                    )
+                debugInfo.run {
+                    val isStable = firstCompletelyVisibleItemPosition == 0
+                    if (!isStable) {
+                        Log.d(
+                            "ChangeDataSetWhileScrollingTest",
+                            "Final item not reached despite VP2 idle. $debugInfo"
+                        )
+                    }
+                    isStable
                 }
-
-                isStable
             }
+
+            Log.d("ChangeDataSetWhileScrollingTest", "$debugInfo")
 
             assertBasicState(0, "49")
         }
     }
+
+    private data class DebugInfo(
+        val firstCompletelyVisibleItemPosition: Int,
+        val firstCompletelyVisibleItem: View?,
+        val rvX: Int,
+        val firstItemX: Int?,
+        val rvScrollState: Int,
+        val vpScrollState: Int,
+        val rvIsAnimating: Boolean
+    )
+
+    private val Context.debugInfo: DebugInfo
+        get() {
+            val recyclerView = viewPager.recyclerView
+            val linearLayoutManager = viewPager.linearLayoutManager
+
+            val firstCompletelyVisibleItemPosition =
+                linearLayoutManager.findFirstCompletelyVisibleItemPosition()
+            val firstCompletelyVisibleItem =
+                linearLayoutManager.findViewByPosition(firstCompletelyVisibleItemPosition)
+
+            return DebugInfo(
+                firstCompletelyVisibleItemPosition,
+                firstCompletelyVisibleItem,
+                recyclerView.locationOnScreenX,
+                firstCompletelyVisibleItem?.locationOnScreenX,
+                recyclerView.scrollState,
+                viewPager.scrollState,
+                recyclerView.isAnimating
+            )
+        }
+
+    private val View.locationOnScreenX: Int
+        get() = IntArray(2).let { result ->
+            getLocationOnScreen(result)
+            result[0]
+        }
 }
