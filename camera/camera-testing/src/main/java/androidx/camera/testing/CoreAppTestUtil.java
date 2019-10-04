@@ -22,6 +22,8 @@ import org.junit.AssumptionViolatedException;
 
 /** Utility functions of tests on CoreTestApp. */
 public final class CoreAppTestUtil {
+    private CoreAppTestUtil() {
+    }
 
     /**
      * Check if this is compatible device for test.

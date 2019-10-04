@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 3.5.0-beta04" client="gradle" variant="debug" version="3.5.0-beta04">
+<issues format="5" by="lint 3.6.0-alpha12" client="gradle" variant="debug" version="3.6.0-alpha12">
 
     <issue
         id="UnknownNullness"
@@ -41,7 +41,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/sharetarget/ShortcutInfoCompatSaverImpl.java"
-            line="96"
+            line="97"
             column="19"/>
     </issue>
 
@@ -52,7 +52,7 @@
         errorLine2="                                                          ~~~~~~~">
         <location
             file="src/main/java/androidx/sharetarget/ShortcutInfoCompatSaverImpl.java"
-            line="96"
+            line="97"
             column="59"/>
     </issue>
 
@@ -63,7 +63,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/sharetarget/ShortcutInfoCompatSaverImpl.java"
-            line="151"
+            line="152"
             column="12"/>
     </issue>
 
@@ -74,7 +74,7 @@
         errorLine2="                                                  ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/sharetarget/ShortcutInfoCompatSaverImpl.java"
-            line="151"
+            line="152"
             column="51"/>
     </issue>
 
@@ -85,7 +85,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/sharetarget/ShortcutInfoCompatSaverImpl.java"
-            line="172"
+            line="173"
             column="12"/>
     </issue>
 
@@ -96,7 +96,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/sharetarget/ShortcutInfoCompatSaverImpl.java"
-            line="192"
+            line="193"
             column="12"/>
     </issue>
 
@@ -107,7 +107,7 @@
         errorLine2="           ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/sharetarget/ShortcutInfoCompatSaverImpl.java"
-            line="206"
+            line="207"
             column="12"/>
     </issue>
 
@@ -118,7 +118,7 @@
         errorLine2="                                            ~~~~~~">
         <location
             file="src/main/java/androidx/sharetarget/ShortcutInfoCompatSaverImpl.java"
-            line="206"
+            line="207"
             column="45"/>
     </issue>
 
@@ -129,7 +129,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/sharetarget/ShortcutInfoCompatSaverImpl.java"
-            line="263"
+            line="264"
             column="12"/>
     </issue>
 
@@ -140,7 +140,7 @@
         errorLine2="                                               ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/sharetarget/ShortcutInfoCompatSaverImpl.java"
-            line="263"
+            line="264"
             column="48"/>
     </issue>
 

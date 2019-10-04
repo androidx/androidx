@@ -381,6 +381,7 @@ public abstract class NavType<T> {
         }
 
         @NonNull
+        @Override
         public Long parseValue(@NonNull String value) {
             //At runtime the L suffix is optional, contrary to the Safe Args plugin.
             //This is in order to be able to parse long numbers passed as deep link URL parameters

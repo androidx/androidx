@@ -38,8 +38,10 @@ class TransactionExecutor implements Executor {
         mExecutor = executor;
     }
 
+    @Override
     public synchronized void execute(final Runnable command) {
         mTasks.offer(new Runnable() {
+            @Override
             public void run() {
                 try {
                     command.run();

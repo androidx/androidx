@@ -44,6 +44,7 @@ public class AssetLoaderAjaxActivity extends AppCompatActivity {
             return false;
         }
 
+        @Override
         @RequiresApi(21)
         public WebResourceResponse shouldInterceptRequest(WebView view,
                                             WebResourceRequest request) {

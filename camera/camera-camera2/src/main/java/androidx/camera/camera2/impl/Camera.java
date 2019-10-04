@@ -891,6 +891,7 @@ final class Camera implements BaseCamera {
         }
     }
 
+    @SuppressWarnings("GuardedBy") // TODO(b/141959507): Suppressed during upgrade to AGP 3.6.
     void postSurfaceClosedError(DeferrableSurface.SurfaceClosedException e) {
         Executor executor = CameraXExecutors.mainThreadExecutor();
 

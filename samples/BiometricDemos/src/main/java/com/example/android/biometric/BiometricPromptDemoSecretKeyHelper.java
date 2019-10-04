@@ -42,6 +42,7 @@ import javax.crypto.SecretKey;
  */
 @RequiresApi(api = Build.VERSION_CODES.M)
 final class BiometricPromptDemoSecretKeyHelper {
+    private BiometricPromptDemoSecretKeyHelper() { }
 
     /**
      * Generates a key that requires the user to authenticate with a biometric before each use.

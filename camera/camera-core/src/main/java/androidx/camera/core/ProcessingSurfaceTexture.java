@@ -44,6 +44,8 @@ final class ProcessingSurfaceTexture extends DeferrableSurface implements Surfac
     // Callback when Image is ready from InputImageReader.
     private final ImageReaderProxy.OnImageAvailableListener mTransformedListener =
             new ImageReaderProxy.OnImageAvailableListener() {
+                // TODO(b/141958189): Suppressed during upgrade to AGP 3.6.
+                @SuppressWarnings("GuardedBy")
                 @Override
                 public void onImageAvailable(ImageReaderProxy reader) {
                     imageIncoming(reader);
@@ -145,6 +147,7 @@ final class ProcessingSurfaceTexture extends DeferrableSurface implements Surfac
         mCaptureStage = captureStage;
     }
 
+    @SuppressWarnings("GuardedBy") // TODO(b/141958189): Suppressed during upgrade to AGP 3.6.
     @Override
     @NonNull
     public ListenableFuture<Surface> provideSurface() {

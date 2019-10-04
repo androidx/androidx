@@ -1215,6 +1215,8 @@ public final class ViewPager2 extends ViewGroup {
         mRecyclerView.removeItemDecoration(decor);
     }
 
+    // TODO(b/141956012): Suppressed during upgrade to AGP 3.6.
+    @SuppressWarnings("ClassCanBeStatic")
     private abstract class AccessibilityProvider {
         void onInitialize(@NonNull CompositeOnPageChangeCallback pageChangeEventDispatcher,
                 @NonNull RecyclerView recyclerView) {

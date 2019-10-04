@@ -198,6 +198,7 @@ final class CaptureSession {
      * @param cameraDevice  the camera with which to generate the capture session
      * @throws CameraAccessException if the camera is in an invalid start state
      */
+    @SuppressWarnings("GuardedBy") // TODO(b/141959507): Suppressed during upgrade to AGP 3.6.
     void open(SessionConfig sessionConfig, CameraDevice cameraDevice)
             throws CameraAccessException, DeferrableSurface.SurfaceClosedException {
         synchronized (mStateLock) {
@@ -271,6 +272,8 @@ final class CaptureSession {
                                 config.getImplementationOptions());
                     }
 
+                    // TODO(b/141959507): Suppressed during upgrade to AGP 3.6.
+                    @SuppressWarnings("JdkObsolete")
                     List<OutputConfigurationCompat> outputConfigList = new LinkedList<>();
                     for (Surface surface : uniqueConfiguredSurface) {
                         outputConfigList.add(new OutputConfigurationCompat(surface));
@@ -309,6 +312,7 @@ final class CaptureSession {
      * <p>Once a session is closed it can no longer be opened again. After the session is closed all
      * method calls on it do nothing.
      */
+    @SuppressWarnings("FallThrough") // TODO(b/141959507): Suppressed during upgrade to AGP 3.6.
     void close() {
         synchronized (mStateLock) {
             switch (mState) {
@@ -390,6 +394,8 @@ final class CaptureSession {
                     if (mReleaseFuture == null) {
                         mReleaseFuture = CallbackToFutureAdapter.getFuture(
                                 new CallbackToFutureAdapter.Resolver<Void>() {
+                                    // TODO(b/141959507): Suppressed during upgrade to AGP 3.6.
+                                    @SuppressWarnings("GuardedBy")
                                     @Override
                                     public Object attachCompleter(@NonNull
                                             CallbackToFutureAdapter.Completer<Void> completer) {
@@ -424,6 +430,8 @@ final class CaptureSession {
     }
 
     // Notify the surface is attached to a new capture session.
+    // TODO(b/141959507): Suppressed during upgrade to AGP 3.6.
+    @SuppressWarnings("SynchronizeOnNonFinalField")
     void notifySurfaceAttached() {
         synchronized (mConfiguredDeferrableSurfaces) {
             for (DeferrableSurface deferrableSurface : mConfiguredDeferrableSurfaces) {
@@ -433,6 +441,8 @@ final class CaptureSession {
     }
 
     // Notify the surface is detached from current capture session.
+    // TODO(b/141959507): Suppressed during upgrade to AGP 3.6.
+    @SuppressWarnings("SynchronizeOnNonFinalField")
     void notifySurfaceDetached() {
         synchronized (mConfiguredDeferrableSurfaces) {
             for (DeferrableSurface deferredSurface : mConfiguredDeferrableSurfaces) {
@@ -825,7 +835,8 @@ final class CaptureSession {
         }
     }
 
-    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+    // TODO(b/141959507): GuardedBy suppressed during upgrade to AGP 3.6.
+    @SuppressWarnings({"GuardedBy", "WeakerAccess"}) /* synthetic accessor */
     void closeConfiguredDeferrableSurfaces() {
         if (!mIsLegacyDevice) {
             // Do not close for non-LEGACY devices. Reusing {@link DeferrableSurface} is only a

@@ -2209,6 +2209,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
      *
      * @param suppress true to suppress layout and scroll, false to re-enable.
      */
+    @Override
     public final void suppressLayout(boolean suppress) {
         if (suppress != mLayoutSuppressed) {
             assertNotInLayoutOrScroll("Do not suppressLayout in layout or scroll");
@@ -2236,6 +2237,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
      *
      * @return true if layout and scroll are currently suppressed, false otherwise.
      */
+    @Override
     public final boolean isLayoutSuppressed() {
         return mLayoutSuppressed;
     }

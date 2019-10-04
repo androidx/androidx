@@ -130,6 +130,7 @@ class MetadataImageReader implements ImageReaderProxy, ForwardingImageProxy.OnIm
         init(CameraXExecutors.newHandlerExecutor(handler));
     }
 
+    @SuppressWarnings("GuardedBy") // TODO(b/141958189): Suppressed during upgrade to AGP 3.6.
     private void init(Executor executor) {
         mExecutor = executor;
         mImageReaderProxy.setOnImageAvailableListener(mTransformedListener, executor);
@@ -274,6 +275,8 @@ class MetadataImageReader implements ImageReaderProxy, ForwardingImageProxy.OnIm
                     if (mExecutor != null) {
                         mExecutor.execute(
                                 new Runnable() {
+                                     // TODO(b/141958189): Suppressed during upgrade to AGP 3.6.
+                                    @SuppressWarnings("GuardedBy")
                                     @Override
                                     public void run() {
                                         mListener.onImageAvailable(MetadataImageReader.this);

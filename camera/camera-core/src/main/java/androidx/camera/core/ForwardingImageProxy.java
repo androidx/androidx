@@ -50,6 +50,7 @@ abstract class ForwardingImageProxy implements ImageProxy {
         mImage = image;
     }
 
+    @SuppressWarnings("GuardedBy") // TODO(b/141958189): Suppressed during upgrade to AGP 3.6.
     @Override
     public void close() {
         mImage.close();

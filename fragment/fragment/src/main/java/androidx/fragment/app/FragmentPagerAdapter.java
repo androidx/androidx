@@ -184,6 +184,8 @@ public abstract class FragmentPagerAdapter extends PagerAdapter {
         return fragment;
     }
 
+    // TODO(b/141958824): Suppressed during upgrade to AGP 3.6.
+    @SuppressWarnings("ReferenceEquality")
     @Override
     public void destroyItem(@NonNull ViewGroup container, int position, @NonNull Object object) {
         Fragment fragment = (Fragment) object;

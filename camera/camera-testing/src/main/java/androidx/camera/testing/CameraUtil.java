@@ -53,6 +53,9 @@ import java.util.concurrent.TimeoutException;
 
 /** Utility functions for obtaining instances of camera2 classes. */
 public final class CameraUtil {
+    private CameraUtil() {
+    }
+
     /** Amount of time to wait before timing out when trying to open a {@link CameraDevice}. */
     private static final int CAMERA_OPEN_TIMEOUT_SECONDS = 2;
 

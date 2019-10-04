@@ -35,6 +35,8 @@ import javax.crypto.KeyGenerator;
  *
  */
 public final class MasterKeys {
+    private MasterKeys() {
+    }
 
     private static final int KEY_SIZE = 256;
 
@@ -104,6 +106,7 @@ public final class MasterKeys {
         return keyGenParameterSpec.getKeystoreAlias();
     }
 
+    @SuppressWarnings("ArrayEquals") // TODO(b/141960406): Suppressed during upgrade to AGP 3.6.
     private static void validate(KeyGenParameterSpec spec) {
         if (spec.getKeySize() != KEY_SIZE) {
             throw new IllegalArgumentException(

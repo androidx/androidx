@@ -36,6 +36,8 @@ import java.util.Map;
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class WorkDatabasePathHelper {
+    private WorkDatabasePathHelper() {
+    }
 
     private static final String TAG = Logger.tagWithPrefix("WrkDbPathHelper");
 

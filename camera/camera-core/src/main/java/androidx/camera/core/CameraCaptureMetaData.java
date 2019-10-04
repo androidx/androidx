@@ -27,6 +27,8 @@ import androidx.annotation.RestrictTo.Scope;
  */
 @RestrictTo(Scope.LIBRARY_GROUP)
 public final class CameraCaptureMetaData {
+    private CameraCaptureMetaData() {
+    }
 
     /** Auto focus (AF) mode. */
     public enum AfMode {

@@ -166,6 +166,7 @@ public final class CameraManagerCompat {
         }
 
         @RequiresApi(29)
+        @Override
         public void onCameraAccessPrioritiesChanged() {
             mExecutor.execute(new Runnable() {
                 @Override
@@ -175,6 +176,7 @@ public final class CameraManagerCompat {
             });
         }
 
+        @Override
         public void onCameraAvailable(@NonNull final String cameraId) {
             mExecutor.execute(new Runnable() {
                 @Override
@@ -184,7 +186,7 @@ public final class CameraManagerCompat {
             });
         }
 
-
+        @Override
         public void onCameraUnavailable(@NonNull final String cameraId) {
             mExecutor.execute(new Runnable() {
                 @Override

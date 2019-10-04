@@ -234,6 +234,7 @@ public abstract class ImageCaptureExtender {
             if (mActive.get()) {
                 Handler handler = new Handler(Looper.getMainLooper());
                 handler.post(new Runnable() {
+                    @Override
                     public void run() {
                         checkPreviewEnabled(mEffectMode, CameraX.getActiveUseCases());
                     }

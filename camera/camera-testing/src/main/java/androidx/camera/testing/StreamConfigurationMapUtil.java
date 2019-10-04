@@ -29,6 +29,9 @@ import java.lang.reflect.InvocationTargetException;
 
 /** Utility functions to obtain fake {@link StreamConfigurationMap} for testing */
 public final class StreamConfigurationMapUtil {
+    private StreamConfigurationMapUtil() {
+    }
+
     /**
      * Generates fake StreamConfigurationMap for testing usage.
      *

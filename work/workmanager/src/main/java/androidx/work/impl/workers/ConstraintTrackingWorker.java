@@ -200,6 +200,7 @@ public class ConstraintTrackingWorker extends ListenableWorker implements WorkCo
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @VisibleForTesting
     @NonNull
+    @Override
     public TaskExecutor getTaskExecutor() {
         return WorkManagerImpl.getInstance(getApplicationContext()).getWorkTaskExecutor();
     }

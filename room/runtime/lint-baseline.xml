@@ -1,36 +1,69 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 3.5.0-beta04" client="gradle" variant="debug" version="3.5.0-beta04">
+<issues format="5" by="lint 3.6.0-alpha12" client="gradle" variant="debug" version="3.6.0-alpha12">
 
     <issue
         id="LambdaLast"
-        message="Functional interface parameters (such as parameter 8, &quot;queryExecutor&quot;, in androidx.room.DatabaseConfiguration.DatabaseConfiguration) should be last to improve Kotlin interoperability; see https://kotlinlang.org/docs/reference/java-interop.html#sam-conversions"
+        message="Functional interface parameters (such as parameter 3, &quot;sqliteOpenHelperFactory&quot;, in androidx.room.DatabaseConfiguration.DatabaseConfiguration) should be last to improve Kotlin interoperability; see https://kotlinlang.org/docs/reference/java-interop.html#sam-conversions"
         errorLine1="            @Nullable Set&lt;Integer> migrationNotRequiredFrom) {"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/room/DatabaseConfiguration.java"
-            line="172"
+            line="152"
             column="13"/>
     </issue>
 
     <issue
         id="LambdaLast"
-        message="Functional interface parameters (such as parameter 9, &quot;transactionExecutor&quot;, in androidx.room.DatabaseConfiguration.DatabaseConfiguration) should be last to improve Kotlin interoperability; see https://kotlinlang.org/docs/reference/java-interop.html#sam-conversions"
+        message="Functional interface parameters (such as parameter 3, &quot;sqliteOpenHelperFactory&quot;, in androidx.room.DatabaseConfiguration.DatabaseConfiguration) should be last to improve Kotlin interoperability; see https://kotlinlang.org/docs/reference/java-interop.html#sam-conversions"
         errorLine1="            @Nullable Set&lt;Integer> migrationNotRequiredFrom) {"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/room/DatabaseConfiguration.java"
-            line="216"
+            line="152"
             column="13"/>
     </issue>
 
     <issue
         id="LambdaLast"
-        message="Functional interface parameters (such as parameter 9, &quot;transactionExecutor&quot;, in androidx.room.DatabaseConfiguration.DatabaseConfiguration) should be last to improve Kotlin interoperability; see https://kotlinlang.org/docs/reference/java-interop.html#sam-conversions"
-        errorLine1="            @Nullable String copyFromPath) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        message="Functional interface parameters (such as parameter 3, &quot;sqliteOpenHelperFactory&quot;, in androidx.room.DatabaseConfiguration.DatabaseConfiguration) should be last to improve Kotlin interoperability; see https://kotlinlang.org/docs/reference/java-interop.html#sam-conversions"
+        errorLine1="            @Nullable Set&lt;Integer> migrationNotRequiredFrom) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/room/DatabaseConfiguration.java"
-            line="262"
+            line="196"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="LambdaLast"
+        message="Functional interface parameters (such as parameter 3, &quot;sqliteOpenHelperFactory&quot;, in androidx.room.DatabaseConfiguration.DatabaseConfiguration) should be last to improve Kotlin interoperability; see https://kotlinlang.org/docs/reference/java-interop.html#sam-conversions"
+        errorLine1="            @Nullable Set&lt;Integer> migrationNotRequiredFrom) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/DatabaseConfiguration.java"
+            line="196"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="LambdaLast"
+        message="Functional interface parameters (such as parameter 3, &quot;sqliteOpenHelperFactory&quot;, in androidx.room.DatabaseConfiguration.DatabaseConfiguration) should be last to improve Kotlin interoperability; see https://kotlinlang.org/docs/reference/java-interop.html#sam-conversions"
+        errorLine1="            @Nullable File copyFromFile) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/DatabaseConfiguration.java"
+            line="240"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="LambdaLast"
+        message="Functional interface parameters (such as parameter 3, &quot;sqliteOpenHelperFactory&quot;, in androidx.room.DatabaseConfiguration.DatabaseConfiguration) should be last to improve Kotlin interoperability; see https://kotlinlang.org/docs/reference/java-interop.html#sam-conversions"
+        errorLine1="            @Nullable File copyFromFile) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/DatabaseConfiguration.java"
+            line="240"
             column="13"/>
     </issue>
 
@@ -41,7 +74,18 @@
         errorLine2="                               ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/room/util/DBUtil.java"
-            line="53"
+            line="63"
+            column="32"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static Cursor query(RoomDatabase db, SupportSQLiteQuery sqLiteQuery, boolean maybeCopy) {"
+        errorLine2="                               ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/util/DBUtil.java"
+            line="63"
             column="32"/>
     </issue>
 
@@ -52,7 +96,18 @@
         errorLine2="                                                ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/room/util/DBUtil.java"
-            line="53"
+            line="63"
+            column="49"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static Cursor query(RoomDatabase db, SupportSQLiteQuery sqLiteQuery, boolean maybeCopy) {"
+        errorLine2="                                                ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/util/DBUtil.java"
+            line="63"
             column="49"/>
     </issue>
 
@@ -63,7 +118,18 @@
         errorLine2="                                           ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/room/util/DBUtil.java"
-            line="80"
+            line="109"
+            column="44"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static void dropFtsSyncTriggers(SupportSQLiteDatabase db) {"
+        errorLine2="                                           ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/util/DBUtil.java"
+            line="109"
             column="44"/>
     </issue>
 
@@ -74,7 +140,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/room/DatabaseConfiguration.java"
-            line="169"
+            line="149"
             column="13"/>
     </issue>
 
@@ -85,7 +151,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/room/DatabaseConfiguration.java"
-            line="210"
+            line="149"
             column="13"/>
     </issue>
 
@@ -96,7 +162,40 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/room/DatabaseConfiguration.java"
-            line="254"
+            line="190"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            RoomDatabase.JournalMode journalMode,"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/DatabaseConfiguration.java"
+            line="190"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            RoomDatabase.JournalMode journalMode,"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/DatabaseConfiguration.java"
+            line="232"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            RoomDatabase.JournalMode journalMode,"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/DatabaseConfiguration.java"
+            line="232"
             column="13"/>
     </issue>
 
@@ -109,6 +208,28 @@
             file="src/main/java/androidx/room/EntityDeletionOrUpdateAdapter.java"
             line="39"
             column="42"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public EntityDeletionOrUpdateAdapter(RoomDatabase database) {"
+        errorLine2="                                         ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/EntityDeletionOrUpdateAdapter.java"
+            line="39"
+            column="42"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected abstract String createQuery();"
+        errorLine2="                       ~~~~~~">
+        <location
+            file="src/main/java/androidx/room/EntityDeletionOrUpdateAdapter.java"
+            line="49"
+            column="24"/>
     </issue>
 
     <issue
@@ -137,6 +258,28 @@
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    protected abstract void bind(SupportSQLiteStatement statement, T entity);"
+        errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/EntityDeletionOrUpdateAdapter.java"
+            line="58"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected abstract void bind(SupportSQLiteStatement statement, T entity);"
+        errorLine2="                                                                   ~">
+        <location
+            file="src/main/java/androidx/room/EntityDeletionOrUpdateAdapter.java"
+            line="58"
+            column="68"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected abstract void bind(SupportSQLiteStatement statement, T entity);"
         errorLine2="                                                                   ~">
         <location
             file="src/main/java/androidx/room/EntityDeletionOrUpdateAdapter.java"
@@ -158,11 +301,44 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public final int handleMultiple(Iterable&lt;T> entities) {"
-        errorLine2="                                    ~~~~~~~~~~~">
+        errorLine1="    public final int handle(T entity) {"
+        errorLine2="                            ~">
+        <location
+            file="src/main/java/androidx/room/EntityDeletionOrUpdateAdapter.java"
+            line="66"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public final int handleMultiple(Iterable&lt;? extends T> entities) {"
+        errorLine2="                                    ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/room/EntityDeletionOrUpdateAdapter.java"
             line="82"
+            column="37"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public final int handleMultiple(Iterable&lt;? extends T> entities) {"
+        errorLine2="                                    ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/EntityDeletionOrUpdateAdapter.java"
+            line="82"
+            column="37"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public final int handleMultiple(T[] entities) {"
+        errorLine2="                                    ~~~">
+        <location
+            file="src/main/java/androidx/room/EntityDeletionOrUpdateAdapter.java"
+            line="102"
             column="37"/>
     </issue>
 
@@ -191,12 +367,45 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public EntityInsertionAdapter(RoomDatabase database) {"
+        errorLine2="                                  ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/EntityInsertionAdapter.java"
+            line="42"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    protected abstract void bind(SupportSQLiteStatement statement, T entity);"
         errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/room/EntityInsertionAdapter.java"
             line="53"
             column="34"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected abstract void bind(SupportSQLiteStatement statement, T entity);"
+        errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/EntityInsertionAdapter.java"
+            line="53"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected abstract void bind(SupportSQLiteStatement statement, T entity);"
+        errorLine2="                                                                   ~">
+        <location
+            file="src/main/java/androidx/room/EntityInsertionAdapter.java"
+            line="53"
+            column="68"/>
     </issue>
 
     <issue
@@ -224,6 +433,17 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public final void insert(T entity) {"
+        errorLine2="                             ~">
+        <location
+            file="src/main/java/androidx/room/EntityInsertionAdapter.java"
+            line="60"
+            column="30"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    public final void insert(T[] entities) {"
         errorLine2="                             ~~~">
         <location
@@ -235,8 +455,30 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public final void insert(Iterable&lt;T> entities) {"
-        errorLine2="                             ~~~~~~~~~~~">
+        errorLine1="    public final void insert(T[] entities) {"
+        errorLine2="                             ~~~">
+        <location
+            file="src/main/java/androidx/room/EntityInsertionAdapter.java"
+            line="75"
+            column="30"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public final void insert(Iterable&lt;? extends T> entities) {"
+        errorLine2="                             ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/EntityInsertionAdapter.java"
+            line="92"
+            column="30"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public final void insert(Iterable&lt;? extends T> entities) {"
+        errorLine2="                             ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/room/EntityInsertionAdapter.java"
             line="92"
@@ -257,7 +499,18 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public final long[] insertAndReturnIdsArray(Collection&lt;T> entities) {"
+        errorLine1="    public final long insertAndReturnId(T entity) {"
+        errorLine2="                                        ~">
+        <location
+            file="src/main/java/androidx/room/EntityInsertionAdapter.java"
+            line="110"
+            column="41"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public final long[] insertAndReturnIdsArray(Collection&lt;? extends T> entities) {"
         errorLine2="                 ~~~~~~">
         <location
             file="src/main/java/androidx/room/EntityInsertionAdapter.java"
@@ -268,12 +521,45 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public final long[] insertAndReturnIdsArray(Collection&lt;T> entities) {"
-        errorLine2="                                                ~~~~~~~~~~~~~">
+        errorLine1="    public final long[] insertAndReturnIdsArray(Collection&lt;? extends T> entities) {"
+        errorLine2="                 ~~~~~~">
+        <location
+            file="src/main/java/androidx/room/EntityInsertionAdapter.java"
+            line="126"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public final long[] insertAndReturnIdsArray(Collection&lt;? extends T> entities) {"
+        errorLine2="                                                ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/room/EntityInsertionAdapter.java"
             line="126"
             column="49"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public final long[] insertAndReturnIdsArray(Collection&lt;? extends T> entities) {"
+        errorLine2="                                                ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/EntityInsertionAdapter.java"
+            line="126"
+            column="49"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public final long[] insertAndReturnIdsArray(T[] entities) {"
+        errorLine2="                 ~~~~~~">
+        <location
+            file="src/main/java/androidx/room/EntityInsertionAdapter.java"
+            line="148"
+            column="18"/>
     </issue>
 
     <issue
@@ -301,7 +587,18 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public final Long[] insertAndReturnIdsArrayBox(Collection&lt;T> entities) {"
+        errorLine1="    public final long[] insertAndReturnIdsArray(T[] entities) {"
+        errorLine2="                                                ~~~">
+        <location
+            file="src/main/java/androidx/room/EntityInsertionAdapter.java"
+            line="148"
+            column="49"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public final Long[] insertAndReturnIdsArrayBox(Collection&lt;? extends T> entities) {"
         errorLine2="                 ~~~~~~">
         <location
             file="src/main/java/androidx/room/EntityInsertionAdapter.java"
@@ -312,8 +609,30 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public final Long[] insertAndReturnIdsArrayBox(Collection&lt;T> entities) {"
-        errorLine2="                                                   ~~~~~~~~~~~~~">
+        errorLine1="    public final Long[] insertAndReturnIdsArrayBox(Collection&lt;? extends T> entities) {"
+        errorLine2="                 ~~~~~~">
+        <location
+            file="src/main/java/androidx/room/EntityInsertionAdapter.java"
+            line="170"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public final Long[] insertAndReturnIdsArrayBox(Collection&lt;? extends T> entities) {"
+        errorLine2="                                                   ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/EntityInsertionAdapter.java"
+            line="170"
+            column="52"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public final Long[] insertAndReturnIdsArrayBox(Collection&lt;? extends T> entities) {"
+        errorLine2="                                                   ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/room/EntityInsertionAdapter.java"
             line="170"
@@ -329,6 +648,28 @@
             file="src/main/java/androidx/room/EntityInsertionAdapter.java"
             line="192"
             column="18"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public final Long[] insertAndReturnIdsArrayBox(T[] entities) {"
+        errorLine2="                 ~~~~~~">
+        <location
+            file="src/main/java/androidx/room/EntityInsertionAdapter.java"
+            line="192"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public final Long[] insertAndReturnIdsArrayBox(T[] entities) {"
+        errorLine2="                                                   ~~~">
+        <location
+            file="src/main/java/androidx/room/EntityInsertionAdapter.java"
+            line="192"
+            column="52"/>
     </issue>
 
     <issue
@@ -357,6 +698,17 @@
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    public final List&lt;Long> insertAndReturnIdsList(T[] entities) {"
+        errorLine2="                 ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/EntityInsertionAdapter.java"
+            line="214"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public final List&lt;Long> insertAndReturnIdsList(T[] entities) {"
         errorLine2="                                                   ~~~">
         <location
             file="src/main/java/androidx/room/EntityInsertionAdapter.java"
@@ -367,7 +719,18 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public final List&lt;Long> insertAndReturnIdsList(Collection&lt;T> entities) {"
+        errorLine1="    public final List&lt;Long> insertAndReturnIdsList(T[] entities) {"
+        errorLine2="                                                   ~~~">
+        <location
+            file="src/main/java/androidx/room/EntityInsertionAdapter.java"
+            line="214"
+            column="52"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public final List&lt;Long> insertAndReturnIdsList(Collection&lt;? extends T> entities) {"
         errorLine2="                 ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/room/EntityInsertionAdapter.java"
@@ -378,12 +741,45 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public final List&lt;Long> insertAndReturnIdsList(Collection&lt;T> entities) {"
-        errorLine2="                                                   ~~~~~~~~~~~~~">
+        errorLine1="    public final List&lt;Long> insertAndReturnIdsList(Collection&lt;? extends T> entities) {"
+        errorLine2="                 ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/EntityInsertionAdapter.java"
+            line="236"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public final List&lt;Long> insertAndReturnIdsList(Collection&lt;? extends T> entities) {"
+        errorLine2="                                                   ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/room/EntityInsertionAdapter.java"
             line="236"
             column="52"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public final List&lt;Long> insertAndReturnIdsList(Collection&lt;? extends T> entities) {"
+        errorLine2="                                                   ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/EntityInsertionAdapter.java"
+            line="236"
+            column="52"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public FtsTableInfo(String name, Set&lt;String> columns, Set&lt;String> options) {"
+        errorLine2="                        ~~~~~~">
+        <location
+            file="src/main/java/androidx/room/util/FtsTableInfo.java"
+            line="60"
+            column="25"/>
     </issue>
 
     <issue
@@ -406,6 +802,28 @@
             file="src/main/java/androidx/room/util/FtsTableInfo.java"
             line="60"
             column="38"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public FtsTableInfo(String name, Set&lt;String> columns, Set&lt;String> options) {"
+        errorLine2="                                     ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/util/FtsTableInfo.java"
+            line="60"
+            column="38"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public FtsTableInfo(String name, Set&lt;String> columns, Set&lt;String> options) {"
+        errorLine2="                                                          ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/util/FtsTableInfo.java"
+            line="60"
+            column="59"/>
     </issue>
 
     <issue
@@ -434,11 +852,44 @@
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    public FtsTableInfo(String name, Set&lt;String> columns, String createSql) {"
+        errorLine2="                        ~~~~~~">
+        <location
+            file="src/main/java/androidx/room/util/FtsTableInfo.java"
+            line="66"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public FtsTableInfo(String name, Set&lt;String> columns, String createSql) {"
         errorLine2="                                     ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/room/util/FtsTableInfo.java"
             line="66"
             column="38"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public FtsTableInfo(String name, Set&lt;String> columns, String createSql) {"
+        errorLine2="                                     ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/util/FtsTableInfo.java"
+            line="66"
+            column="38"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public FtsTableInfo(String name, Set&lt;String> columns, String createSql) {"
+        errorLine2="                                                          ~~~~~~">
+        <location
+            file="src/main/java/androidx/room/util/FtsTableInfo.java"
+            line="66"
+            column="59"/>
     </issue>
 
     <issue
@@ -467,11 +918,44 @@
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    public static FtsTableInfo read(SupportSQLiteDatabase database, String tableName) {"
+        errorLine2="                  ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/util/FtsTableInfo.java"
+            line="79"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static FtsTableInfo read(SupportSQLiteDatabase database, String tableName) {"
         errorLine2="                                    ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/room/util/FtsTableInfo.java"
             line="79"
             column="37"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static FtsTableInfo read(SupportSQLiteDatabase database, String tableName) {"
+        errorLine2="                                    ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/util/FtsTableInfo.java"
+            line="79"
+            column="37"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static FtsTableInfo read(SupportSQLiteDatabase database, String tableName) {"
+        errorLine2="                                                                    ~~~~~~">
+        <location
+            file="src/main/java/androidx/room/util/FtsTableInfo.java"
+            line="79"
+            column="69"/>
     </issue>
 
     <issue
@@ -500,6 +984,28 @@
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    public InvalidationTracker(RoomDatabase database, String... tableNames) {"
+        errorLine2="                               ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/InvalidationTracker.java"
+            line="121"
+            column="32"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public InvalidationTracker(RoomDatabase database, String... tableNames) {"
+        errorLine2="                                                      ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/InvalidationTracker.java"
+            line="121"
+            column="55"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public InvalidationTracker(RoomDatabase database, String... tableNames) {"
         errorLine2="                                                      ~~~~~~~~~">
         <location
             file="src/main/java/androidx/room/InvalidationTracker.java"
@@ -516,6 +1022,28 @@
             file="src/main/java/androidx/room/InvalidationTracker.java"
             line="133"
             column="32"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public InvalidationTracker(RoomDatabase database, Map&lt;String, String> shadowTablesMap,"
+        errorLine2="                               ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/InvalidationTracker.java"
+            line="133"
+            column="32"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public InvalidationTracker(RoomDatabase database, Map&lt;String, String> shadowTablesMap,"
+        errorLine2="                                                      ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/InvalidationTracker.java"
+            line="133"
+            column="55"/>
     </issue>
 
     <issue
@@ -544,6 +1072,28 @@
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="            Map&lt;String, Set&lt;String>> viewTables, String... tableNames) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/InvalidationTracker.java"
+            line="134"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            Map&lt;String, Set&lt;String>> viewTables, String... tableNames) {"
+        errorLine2="                                                 ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/InvalidationTracker.java"
+            line="134"
+            column="50"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            Map&lt;String, Set&lt;String>> viewTables, String... tableNames) {"
         errorLine2="                                                 ~~~~~~~~~">
         <location
             file="src/main/java/androidx/room/InvalidationTracker.java"
@@ -560,6 +1110,28 @@
             file="src/main/java/androidx/room/InvalidationTracker.java"
             line="320"
             column="33"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void addWeakObserver(Observer observer) {"
+        errorLine2="                                ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/InvalidationTracker.java"
+            line="320"
+            column="33"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void notifyObserversByTableNames(String... tables) {"
+        errorLine2="                                            ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/InvalidationTracker.java"
+            line="470"
+            column="45"/>
     </issue>
 
     <issue
@@ -588,11 +1160,44 @@
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    public &lt;T> LiveData&lt;T> createLiveData(String[] tableNames, Callable&lt;T> computeFunction) {"
+        errorLine2="               ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/InvalidationTracker.java"
+            line="559"
+            column="16"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public &lt;T> LiveData&lt;T> createLiveData(String[] tableNames, Callable&lt;T> computeFunction) {"
         errorLine2="                                          ~~~~~~~~">
         <location
             file="src/main/java/androidx/room/InvalidationTracker.java"
             line="559"
             column="43"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public &lt;T> LiveData&lt;T> createLiveData(String[] tableNames, Callable&lt;T> computeFunction) {"
+        errorLine2="                                          ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/InvalidationTracker.java"
+            line="559"
+            column="43"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public &lt;T> LiveData&lt;T> createLiveData(String[] tableNames, Callable&lt;T> computeFunction) {"
+        errorLine2="                                                               ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/InvalidationTracker.java"
+            line="559"
+            column="64"/>
     </issue>
 
     <issue
@@ -621,6 +1226,28 @@
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    public &lt;T> LiveData&lt;T> createLiveData(String[] tableNames, boolean inTransaction,"
+        errorLine2="               ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/InvalidationTracker.java"
+            line="579"
+            column="16"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public &lt;T> LiveData&lt;T> createLiveData(String[] tableNames, boolean inTransaction,"
+        errorLine2="                                          ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/InvalidationTracker.java"
+            line="579"
+            column="43"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public &lt;T> LiveData&lt;T> createLiveData(String[] tableNames, boolean inTransaction,"
         errorLine2="                                          ~~~~~~~~">
         <location
             file="src/main/java/androidx/room/InvalidationTracker.java"
@@ -637,6 +1264,28 @@
             file="src/main/java/androidx/room/InvalidationTracker.java"
             line="580"
             column="13"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            Callable&lt;T> computeFunction) {"
+        errorLine2="            ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/InvalidationTracker.java"
+            line="580"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        protected Observer(@NonNull String firstTable, String... rest) {"
+        errorLine2="                                                       ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/InvalidationTracker.java"
+            line="688"
+            column="56"/>
     </issue>
 
     <issue
@@ -665,11 +1314,44 @@
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    protected LimitOffsetDataSource(RoomDatabase db, SupportSQLiteQuery query,"
+        errorLine2="                                    ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/paging/LimitOffsetDataSource.java"
+            line="56"
+            column="37"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected LimitOffsetDataSource(RoomDatabase db, SupportSQLiteQuery query,"
         errorLine2="                                                     ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/room/paging/LimitOffsetDataSource.java"
             line="56"
             column="54"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected LimitOffsetDataSource(RoomDatabase db, SupportSQLiteQuery query,"
+        errorLine2="                                                     ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/paging/LimitOffsetDataSource.java"
+            line="56"
+            column="54"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            boolean inTransaction, String... tables) {"
+        errorLine2="                                   ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/paging/LimitOffsetDataSource.java"
+            line="57"
+            column="36"/>
     </issue>
 
     <issue
@@ -698,11 +1380,44 @@
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    protected LimitOffsetDataSource(RoomDatabase db, RoomSQLiteQuery query,"
+        errorLine2="                                    ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/paging/LimitOffsetDataSource.java"
+            line="61"
+            column="37"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected LimitOffsetDataSource(RoomDatabase db, RoomSQLiteQuery query,"
         errorLine2="                                                     ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/room/paging/LimitOffsetDataSource.java"
             line="61"
             column="54"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected LimitOffsetDataSource(RoomDatabase db, RoomSQLiteQuery query,"
+        errorLine2="                                                     ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/paging/LimitOffsetDataSource.java"
+            line="61"
+            column="54"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            boolean inTransaction, String... tables) {"
+        errorLine2="                                   ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/paging/LimitOffsetDataSource.java"
+            line="62"
+            column="36"/>
     </issue>
 
     <issue
@@ -731,6 +1446,28 @@
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    protected abstract List&lt;T> convertRows(Cursor cursor);"
+        errorLine2="                       ~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/paging/LimitOffsetDataSource.java"
+            line="106"
+            column="24"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected abstract List&lt;T> convertRows(Cursor cursor);"
+        errorLine2="                                           ~~~~~~">
+        <location
+            file="src/main/java/androidx/room/paging/LimitOffsetDataSource.java"
+            line="106"
+            column="44"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected abstract List&lt;T> convertRows(Cursor cursor);"
         errorLine2="                                           ~~~~~~">
         <location
             file="src/main/java/androidx/room/paging/LimitOffsetDataSource.java"
@@ -752,11 +1489,33 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public IBinder onBind(Intent intent) {"
+        errorLine2="                          ~~~~~~">
+        <location
+            file="src/main/java/androidx/room/MultiInstanceInvalidationService.java"
+            line="131"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    protected volatile SupportSQLiteDatabase mDatabase;"
         errorLine2="                       ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/room/RoomDatabase.java"
-            line="82"
+            line="83"
+            column="24"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected volatile SupportSQLiteDatabase mDatabase;"
+        errorLine2="                       ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/RoomDatabase.java"
+            line="83"
             column="24"/>
     </issue>
 
@@ -767,52 +1526,19 @@
         errorLine2="                                                                ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/room/RoomDatabase.java"
-            line="196"
+            line="201"
             column="65"/>
     </issue>
 
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public Cursor query(String query, @Nullable Object[] args) {"
-        errorLine2="           ~~~~~~">
+        errorLine1="    protected abstract SupportSQLiteOpenHelper createOpenHelper(DatabaseConfiguration config);"
+        errorLine2="                                                                ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/room/RoomDatabase.java"
-            line="293"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public Cursor query(String query, @Nullable Object[] args) {"
-        errorLine2="                        ~~~~~~">
-        <location
-            file="src/main/java/androidx/room/RoomDatabase.java"
-            line="293"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public Cursor query(SupportSQLiteQuery query) {"
-        errorLine2="           ~~~~~~">
-        <location
-            file="src/main/java/androidx/room/RoomDatabase.java"
-            line="303"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public Cursor query(SupportSQLiteQuery query) {"
-        errorLine2="                        ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/room/RoomDatabase.java"
-            line="303"
-            column="25"/>
+            line="201"
+            column="65"/>
     </issue>
 
     <issue
@@ -822,7 +1548,18 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/room/RoomDatabase.java"
-            line="315"
+            line="338"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public SupportSQLiteStatement compileStatement(@NonNull String sql) {"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/RoomDatabase.java"
+            line="338"
             column="12"/>
     </issue>
 
@@ -833,7 +1570,18 @@
         errorLine2="               ~">
         <location
             file="src/main/java/androidx/room/RoomDatabase.java"
-            line="405"
+            line="428"
+            column="16"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public &lt;V> V runInTransaction(@NonNull Callable&lt;V> body) {"
+        errorLine2="               ~">
+        <location
+            file="src/main/java/androidx/room/RoomDatabase.java"
+            line="428"
             column="16"/>
     </issue>
 
@@ -844,8 +1592,30 @@
         errorLine2="                                                             ~~~~~~">
         <location
             file="src/main/java/androidx/room/RoomDatabase.java"
-            line="829"
+            line="851"
             column="62"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public Builder&lt;T> fallbackToDestructiveMigrationFrom(int... startVersions) {"
+        errorLine2="                                                             ~~~~~~">
+        <location
+            file="src/main/java/androidx/room/RoomDatabase.java"
+            line="851"
+            column="62"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void onConfigure(SupportSQLiteDatabase db) {"
+        errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/RoomOpenHelper.java"
+            line="67"
+            column="29"/>
     </issue>
 
     <issue
@@ -873,11 +1643,33 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void onCreate(SupportSQLiteDatabase db) {"
+        errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/RoomOpenHelper.java"
+            line="72"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    public void onUpgrade(SupportSQLiteDatabase db, int oldVersion, int newVersion) {"
         errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/room/RoomOpenHelper.java"
-            line="88"
+            line="91"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void onUpgrade(SupportSQLiteDatabase db, int oldVersion, int newVersion) {"
+        errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/RoomOpenHelper.java"
+            line="91"
             column="27"/>
     </issue>
 
@@ -888,7 +1680,18 @@
         errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/room/RoomOpenHelper.java"
-            line="121"
+            line="128"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void onDowngrade(SupportSQLiteDatabase db, int oldVersion, int newVersion) {"
+        errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/RoomOpenHelper.java"
+            line="128"
             column="29"/>
     </issue>
 
@@ -899,7 +1702,18 @@
         errorLine2="                       ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/room/RoomOpenHelper.java"
-            line="126"
+            line="133"
+            column="24"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void onOpen(SupportSQLiteDatabase db) {"
+        errorLine2="                       ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/RoomOpenHelper.java"
+            line="133"
             column="24"/>
     </issue>
 
@@ -910,7 +1724,18 @@
         errorLine2="                                              ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/room/RoomOpenHelper.java"
-            line="203"
+            line="213"
+            column="47"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        protected abstract void dropAllTables(SupportSQLiteDatabase database);"
+        errorLine2="                                              ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/RoomOpenHelper.java"
+            line="213"
             column="47"/>
     </issue>
 
@@ -921,7 +1746,18 @@
         errorLine2="                                                ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/room/RoomOpenHelper.java"
-            line="205"
+            line="215"
+            column="49"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        protected abstract void createAllTables(SupportSQLiteDatabase database);"
+        errorLine2="                                                ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/RoomOpenHelper.java"
+            line="215"
             column="49"/>
     </issue>
 
@@ -932,7 +1768,18 @@
         errorLine2="                                       ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/room/RoomOpenHelper.java"
-            line="207"
+            line="217"
+            column="40"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        protected abstract void onOpen(SupportSQLiteDatabase database);"
+        errorLine2="                                       ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/RoomOpenHelper.java"
+            line="217"
             column="40"/>
     </issue>
 
@@ -943,19 +1790,41 @@
         errorLine2="                                         ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/room/RoomOpenHelper.java"
-            line="209"
+            line="219"
             column="42"/>
     </issue>
 
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        protected abstract void validateMigration(SupportSQLiteDatabase db);"
-        errorLine2="                                                  ~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="        protected abstract void onCreate(SupportSQLiteDatabase database);"
+        errorLine2="                                         ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/room/RoomOpenHelper.java"
-            line="216"
-            column="51"/>
+            line="219"
+            column="42"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        protected void validateMigration(SupportSQLiteDatabase db) {"
+        errorLine2="                                         ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/RoomOpenHelper.java"
+            line="229"
+            column="42"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        protected void validateMigration(SupportSQLiteDatabase db) {"
+        errorLine2="                                         ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/RoomOpenHelper.java"
+            line="229"
+            column="42"/>
     </issue>
 
     <issue
@@ -965,7 +1834,18 @@
         errorLine2="                                    ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/room/RoomOpenHelper.java"
-            line="223"
+            line="249"
+            column="37"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        protected void onPreMigrate(SupportSQLiteDatabase database) {"
+        errorLine2="                                    ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/RoomOpenHelper.java"
+            line="249"
             column="37"/>
     </issue>
 
@@ -976,7 +1856,18 @@
         errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/room/RoomOpenHelper.java"
-            line="231"
+            line="257"
+            column="38"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        protected void onPostMigrate(SupportSQLiteDatabase database) {"
+        errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/RoomOpenHelper.java"
+            line="257"
             column="38"/>
     </issue>
 
@@ -989,6 +1880,28 @@
             file="src/main/java/androidx/room/RoomSQLiteQuery.java"
             line="87"
             column="19"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static RoomSQLiteQuery copyFrom(SupportSQLiteQuery supportSQLiteQuery) {"
+        errorLine2="                  ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/RoomSQLiteQuery.java"
+            line="87"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static RoomSQLiteQuery copyFrom(SupportSQLiteQuery supportSQLiteQuery) {"
+        errorLine2="                                           ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/RoomSQLiteQuery.java"
+            line="87"
+            column="44"/>
     </issue>
 
     <issue
@@ -1017,11 +1930,44 @@
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    public static RoomSQLiteQuery acquire(String query, int argumentCount) {"
+        errorLine2="                  ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/RoomSQLiteQuery.java"
+            line="140"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static RoomSQLiteQuery acquire(String query, int argumentCount) {"
         errorLine2="                                          ~~~~~~">
         <location
             file="src/main/java/androidx/room/RoomSQLiteQuery.java"
             line="140"
             column="43"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static RoomSQLiteQuery acquire(String query, int argumentCount) {"
+        errorLine2="                                          ~~~~~~">
+        <location
+            file="src/main/java/androidx/room/RoomSQLiteQuery.java"
+            line="140"
+            column="43"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public String getSql() {"
+        errorLine2="           ~~~~~~">
+        <location
+            file="src/main/java/androidx/room/RoomSQLiteQuery.java"
+            line="200"
+            column="12"/>
     </issue>
 
     <issue
@@ -1049,12 +1995,45 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void bindTo(SupportSQLiteProgram program) {"
+        errorLine2="                       ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/RoomSQLiteQuery.java"
+            line="210"
+            column="24"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    public void bindString(int index, String value) {"
         errorLine2="                                      ~~~~~~">
         <location
             file="src/main/java/androidx/room/RoomSQLiteQuery.java"
             line="250"
             column="39"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void bindString(int index, String value) {"
+        errorLine2="                                      ~~~~~~">
+        <location
+            file="src/main/java/androidx/room/RoomSQLiteQuery.java"
+            line="250"
+            column="39"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void bindBlob(int index, byte[] value) {"
+        errorLine2="                                    ~~~~~~">
+        <location
+            file="src/main/java/androidx/room/RoomSQLiteQuery.java"
+            line="256"
+            column="37"/>
     </issue>
 
     <issue
@@ -1082,12 +2061,45 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void copyArgumentsFrom(RoomSQLiteQuery other) {"
+        errorLine2="                                  ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/RoomSQLiteQuery.java"
+            line="271"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    public SharedSQLiteStatement(RoomDatabase database) {"
         errorLine2="                                 ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/room/SharedSQLiteStatement.java"
             line="48"
             column="34"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public SharedSQLiteStatement(RoomDatabase database) {"
+        errorLine2="                                 ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/SharedSQLiteStatement.java"
+            line="48"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected abstract String createQuery();"
+        errorLine2="                       ~~~~~~">
+        <location
+            file="src/main/java/androidx/room/SharedSQLiteStatement.java"
+            line="57"
+            column="24"/>
     </issue>
 
     <issue
@@ -1115,12 +2127,45 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public SupportSQLiteStatement acquire() {"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/SharedSQLiteStatement.java"
+            line="85"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    public void release(SupportSQLiteStatement statement) {"
         errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/room/SharedSQLiteStatement.java"
             line="95"
             column="25"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void release(SupportSQLiteStatement statement) {"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/SharedSQLiteStatement.java"
+            line="95"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static StringBuilder newStringBuilder() {"
+        errorLine2="                  ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/util/StringUtil.java"
+            line="43"
+            column="19"/>
     </issue>
 
     <issue
@@ -1148,11 +2193,33 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static void appendPlaceholders(StringBuilder builder, int count) {"
+        errorLine2="                                          ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/util/StringUtil.java"
+            line="55"
+            column="43"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    public TableInfo(String name, Map&lt;String, Column> columns, Set&lt;ForeignKey> foreignKeys,"
         errorLine2="                     ~~~~~~">
         <location
             file="src/main/java/androidx/room/util/TableInfo.java"
-            line="73"
+            line="102"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public TableInfo(String name, Map&lt;String, Column> columns, Set&lt;ForeignKey> foreignKeys,"
+        errorLine2="                     ~~~~~~">
+        <location
+            file="src/main/java/androidx/room/util/TableInfo.java"
+            line="102"
             column="22"/>
     </issue>
 
@@ -1163,7 +2230,18 @@
         errorLine2="                                  ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/room/util/TableInfo.java"
-            line="73"
+            line="102"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public TableInfo(String name, Map&lt;String, Column> columns, Set&lt;ForeignKey> foreignKeys,"
+        errorLine2="                                  ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/util/TableInfo.java"
+            line="102"
             column="35"/>
     </issue>
 
@@ -1174,7 +2252,18 @@
         errorLine2="                                                               ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/room/util/TableInfo.java"
-            line="73"
+            line="102"
+            column="64"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public TableInfo(String name, Map&lt;String, Column> columns, Set&lt;ForeignKey> foreignKeys,"
+        errorLine2="                                                               ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/util/TableInfo.java"
+            line="102"
             column="64"/>
     </issue>
 
@@ -1185,7 +2274,18 @@
         errorLine2="            ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/room/util/TableInfo.java"
-            line="74"
+            line="103"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            Set&lt;Index> indices) {"
+        errorLine2="            ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/util/TableInfo.java"
+            line="103"
             column="13"/>
     </issue>
 
@@ -1196,7 +2296,18 @@
         errorLine2="                     ~~~~~~">
         <location
             file="src/main/java/androidx/room/util/TableInfo.java"
-            line="85"
+            line="114"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public TableInfo(String name, Map&lt;String, Column> columns, Set&lt;ForeignKey> foreignKeys) {"
+        errorLine2="                     ~~~~~~">
+        <location
+            file="src/main/java/androidx/room/util/TableInfo.java"
+            line="114"
             column="22"/>
     </issue>
 
@@ -1207,7 +2318,18 @@
         errorLine2="                                  ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/room/util/TableInfo.java"
-            line="85"
+            line="114"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public TableInfo(String name, Map&lt;String, Column> columns, Set&lt;ForeignKey> foreignKeys) {"
+        errorLine2="                                  ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/util/TableInfo.java"
+            line="114"
             column="35"/>
     </issue>
 
@@ -1218,7 +2340,18 @@
         errorLine2="                                                               ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/room/util/TableInfo.java"
-            line="85"
+            line="114"
+            column="64"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public TableInfo(String name, Map&lt;String, Column> columns, Set&lt;ForeignKey> foreignKeys) {"
+        errorLine2="                                                               ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/util/TableInfo.java"
+            line="114"
             column="64"/>
     </issue>
 
@@ -1229,7 +2362,18 @@
         errorLine2="                  ~~~~~~~~~">
         <location
             file="src/main/java/androidx/room/util/TableInfo.java"
-            line="139"
+            line="168"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static TableInfo read(SupportSQLiteDatabase database, String tableName) {"
+        errorLine2="                  ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/util/TableInfo.java"
+            line="168"
             column="19"/>
     </issue>
 
@@ -1240,7 +2384,18 @@
         errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/room/util/TableInfo.java"
-            line="139"
+            line="168"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static TableInfo read(SupportSQLiteDatabase database, String tableName) {"
+        errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/util/TableInfo.java"
+            line="168"
             column="34"/>
     </issue>
 
@@ -1251,7 +2406,18 @@
         errorLine2="                                                                 ~~~~~~">
         <location
             file="src/main/java/androidx/room/util/TableInfo.java"
-            line="139"
+            line="168"
+            column="66"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static TableInfo read(SupportSQLiteDatabase database, String tableName) {"
+        errorLine2="                                                                 ~~~~~~">
+        <location
+            file="src/main/java/androidx/room/util/TableInfo.java"
+            line="168"
             column="66"/>
     </issue>
 
@@ -1262,7 +2428,18 @@
         errorLine2="                      ~~~~~~">
         <location
             file="src/main/java/androidx/room/util/TableInfo.java"
-            line="357"
+            line="390"
+            column="23"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public Column(String name, String type, boolean notNull, int primaryKeyPosition) {"
+        errorLine2="                      ~~~~~~">
+        <location
+            file="src/main/java/androidx/room/util/TableInfo.java"
+            line="390"
             column="23"/>
     </issue>
 
@@ -1273,7 +2450,18 @@
         errorLine2="                                   ~~~~~~">
         <location
             file="src/main/java/androidx/room/util/TableInfo.java"
-            line="357"
+            line="390"
+            column="36"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public Column(String name, String type, boolean notNull, int primaryKeyPosition) {"
+        errorLine2="                                   ~~~~~~">
+        <location
+            file="src/main/java/androidx/room/util/TableInfo.java"
+            line="390"
             column="36"/>
     </issue>
 
@@ -1284,7 +2472,18 @@
         errorLine2="                      ~~~~~~">
         <location
             file="src/main/java/androidx/room/util/TableInfo.java"
-            line="362"
+            line="395"
+            column="23"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public Column(String name, String type, boolean notNull, int primaryKeyPosition,"
+        errorLine2="                      ~~~~~~">
+        <location
+            file="src/main/java/androidx/room/util/TableInfo.java"
+            line="395"
             column="23"/>
     </issue>
 
@@ -1295,18 +2494,40 @@
         errorLine2="                                   ~~~~~~">
         <location
             file="src/main/java/androidx/room/util/TableInfo.java"
-            line="362"
+            line="395"
             column="36"/>
     </issue>
 
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="                String defaultValue) {"
+        errorLine1="        public Column(String name, String type, boolean notNull, int primaryKeyPosition,"
+        errorLine2="                                   ~~~~~~">
+        <location
+            file="src/main/java/androidx/room/util/TableInfo.java"
+            line="395"
+            column="36"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="                String defaultValue, @CreatedFrom int createdFrom) {"
         errorLine2="                ~~~~~~">
         <location
             file="src/main/java/androidx/room/util/TableInfo.java"
-            line="363"
+            line="396"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="                String defaultValue, @CreatedFrom int createdFrom) {"
+        errorLine2="                ~~~~~~">
+        <location
+            file="src/main/java/androidx/room/util/TableInfo.java"
+            line="396"
             column="17"/>
     </issue>
 
@@ -1317,7 +2538,18 @@
         errorLine2="                     ~~~~~~">
         <location
             file="src/main/java/androidx/room/util/TableInfo.java"
-            line="569"
+            line="618"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public Index(String name, boolean unique, List&lt;String> columns) {"
+        errorLine2="                     ~~~~~~">
+        <location
+            file="src/main/java/androidx/room/util/TableInfo.java"
+            line="618"
             column="22"/>
     </issue>
 
@@ -1328,7 +2560,18 @@
         errorLine2="                                                  ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/room/util/TableInfo.java"
-            line="569"
+            line="618"
+            column="51"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public Index(String name, boolean unique, List&lt;String> columns) {"
+        errorLine2="                                                  ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/util/TableInfo.java"
+            line="618"
             column="51"/>
     </issue>
 
@@ -1341,6 +2584,28 @@
             file="src/main/java/androidx/room/util/ViewInfo.java"
             line="46"
             column="21"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public ViewInfo(String name, String sql) {"
+        errorLine2="                    ~~~~~~">
+        <location
+            file="src/main/java/androidx/room/util/ViewInfo.java"
+            line="46"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public ViewInfo(String name, String sql) {"
+        errorLine2="                                 ~~~~~~">
+        <location
+            file="src/main/java/androidx/room/util/ViewInfo.java"
+            line="46"
+            column="34"/>
     </issue>
 
     <issue
@@ -1369,11 +2634,44 @@
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    public static ViewInfo read(SupportSQLiteDatabase database, String viewName) {"
+        errorLine2="                  ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/util/ViewInfo.java"
+            line="83"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static ViewInfo read(SupportSQLiteDatabase database, String viewName) {"
         errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/room/util/ViewInfo.java"
             line="83"
             column="33"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static ViewInfo read(SupportSQLiteDatabase database, String viewName) {"
+        errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/util/ViewInfo.java"
+            line="83"
+            column="33"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static ViewInfo read(SupportSQLiteDatabase database, String viewName) {"
+        errorLine2="                                                                ~~~~~~">
+        <location
+            file="src/main/java/androidx/room/util/ViewInfo.java"
+            line="83"
+            column="65"/>
     </issue>
 
     <issue

@@ -47,6 +47,7 @@ public class VideoSurfaceView extends SurfaceView {
      * Overrides hidden method View.setTransitionVisibility() to disable visibility changes
      * in activity transition.
      */
+    @Override
     public void setTransitionVisibility(int visibility) {
     }
 

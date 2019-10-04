@@ -35,6 +35,9 @@ import java.util.List;
  */
 @RestrictTo(LIBRARY_GROUP)
 public class MediaParcelUtils {
+    private MediaParcelUtils() {
+    }
+
     public static final String TAG = "MediaParcelUtils";
 
     /**

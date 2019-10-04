@@ -158,6 +158,7 @@ public final class RadioButtonListItem extends
          * @return Icon view within this view holder's view.
          */
         @NonNull
+        @Override
         public ImageView getPrimaryIcon() {
             return mPrimaryIcon;
         }
@@ -168,6 +169,7 @@ public final class RadioButtonListItem extends
          * @return Title view within this view holder's view.
          */
         @NonNull
+        @Override
         public TextView getTitle() {
             return mTitle;
         }
@@ -178,6 +180,7 @@ public final class RadioButtonListItem extends
          * @return Body view within this view holder's view.
          */
         @NonNull
+        @Override
         public TextView getBody() {
             return mBody;
         }
@@ -188,6 +191,7 @@ public final class RadioButtonListItem extends
          * @return Compound button divider view within this view holder's view.
          */
         @NonNull
+        @Override
         public View getCompoundButtonDivider() {
             return mCompoundButtonDivider;
         }
@@ -198,16 +202,19 @@ public final class RadioButtonListItem extends
          * @return Compound button within this view holder's view.
          */
         @NonNull
+        @Override
         public CompoundButton getCompoundButton() {
             return mCompoundButton;
         }
 
         @NonNull
+        @Override
         Guideline getSupplementalGuideline() {
             return mSupplementalGuideline;
         }
 
         @NonNull
+        @Override
         View[] getWidgetViews() {
             return mWidgetViews;
         }
@@ -218,6 +225,7 @@ public final class RadioButtonListItem extends
          * @return Container layout of this view holder.
          */
         @NonNull
+        @Override
         public ViewGroup getContainerLayout() {
             return mContainerLayout;
         }

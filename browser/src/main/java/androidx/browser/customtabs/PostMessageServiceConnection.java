@@ -47,6 +47,7 @@ public abstract class PostMessageServiceConnection
     // true and we've connected to the {@link PostMessageService}.
     private boolean mMessageChannelCreated;
 
+    @SuppressWarnings("NullAway") // TODO: b/141869399
     public PostMessageServiceConnection(CustomTabsSessionToken session) {
         mSessionBinder = ICustomTabsCallback.Stub.asInterface(session.getCallbackBinder());
     }
@@ -100,6 +101,7 @@ public abstract class PostMessageServiceConnection
      * Unbinds this service connection from the given context.
      * @param context The context to be unbound from.
      */
+    @SuppressWarnings("NullAway") // TODO: b/141869399
     public void unbindFromContext(Context context) {
         if (isBoundToService()) {
             context.unbindService(this);
@@ -114,6 +116,7 @@ public abstract class PostMessageServiceConnection
     }
 
     @Override
+    @SuppressWarnings("NullAway") // TODO: b/141869399
     public final void onServiceDisconnected(ComponentName name) {
         mService = null;
         onPostMessageServiceDisconnected();
@@ -204,6 +207,7 @@ public abstract class PostMessageServiceConnection
     /**
      * Called when the {@link PostMessageService} connection is established.
      */
+    @SuppressWarnings("NullAway") // TODO: b/141869399
     public void onPostMessageServiceConnected() {
         if (mMessageChannelCreated) notifyMessageChannelReadyInternal(null);
     }

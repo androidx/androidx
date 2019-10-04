@@ -3243,6 +3243,8 @@ class AppCompatDelegateImpl extends AppCompatDelegate
 
     @RequiresApi(17)
     static class ConfigurationImplApi17 {
+        private ConfigurationImplApi17() { }
+
         static void generateConfigDelta_densityDpi(@NonNull Configuration base,
                 @NonNull Configuration change, @NonNull Configuration delta) {
             if (base.densityDpi != change.densityDpi) {
@@ -3253,6 +3255,8 @@ class AppCompatDelegateImpl extends AppCompatDelegate
 
     @RequiresApi(24)
     static class ConfigurationImplApi24 {
+        private ConfigurationImplApi24() { }
+
         static void generateConfigDelta_locale(@NonNull Configuration base,
                 @NonNull Configuration change, @NonNull Configuration delta) {
             final LocaleList baseLocales = base.getLocales();
@@ -3266,6 +3270,8 @@ class AppCompatDelegateImpl extends AppCompatDelegate
 
     @RequiresApi(26)
     static class ConfigurationImplApi26 {
+        private ConfigurationImplApi26() { }
+
         static void generateConfigDelta_colorMode(@NonNull Configuration base,
                 @NonNull Configuration change, @NonNull Configuration delta) {
             if ((base.colorMode & Configuration.COLOR_MODE_WIDE_COLOR_GAMUT_MASK)

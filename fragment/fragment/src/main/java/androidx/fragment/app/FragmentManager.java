@@ -2228,7 +2228,7 @@ public abstract class FragmentManager {
             StartEnterTransitionListener listener = mPostponedTransactions.get(i);
             if (records != null && !listener.mIsBack) {
                 int index = records.indexOf(listener.mRecord);
-                if (index != -1 && isRecordPop.get(index)) {
+                if (index != -1 && isRecordPop != null && isRecordPop.get(index)) {
                     mPostponedTransactions.remove(i);
                     i--;
                     numPostponed--;
@@ -2244,6 +2244,7 @@ public abstract class FragmentManager {
                 int index;
                 if (records != null && !listener.mIsBack
                         && (index = records.indexOf(listener.mRecord)) != -1
+                        && isRecordPop != null
                         && isRecordPop.get(index)) {
                     // This is popping a postponed transaction
                     listener.cancelTransaction();

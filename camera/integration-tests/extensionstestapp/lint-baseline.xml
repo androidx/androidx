@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="5" by="lint 3.6.0-alpha12" client="gradle" variant="debug" version="3.6.0-alpha12">
+
+    <issue
+        id="GradleDependency"
+        message="A newer version of androidx.test.espresso:espresso-idling-resource than 3.1.0 is available: 3.2.0"
+        errorLine1="    implementation &apos;androidx.test.espresso:espresso-idling-resource:3.1.0&apos;"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="build.gradle"
+            line="48"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="CameraX.getCameraWithLensFacing can only be called from within the same library group (groupId=androidx.camera)"
+        errorLine1="            mCurrentCameraId = CameraX.getCameraWithLensFacing(facing);"
+        errorLine2="            ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/extensions/CameraExtensionsActivity.java"
+            line="438"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="CameraX.getCameraWithLensFacing can only be called from within the same library group (groupId=androidx.camera)"
+        errorLine1="            mCurrentCameraId = CameraX.getCameraWithLensFacing(facing);"
+        errorLine2="                                       ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/extensions/CameraExtensionsActivity.java"
+            line="438"
+            column="40"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="FutureCallback can only be accessed from within the same library group (groupId=androidx.camera)"
+        errorLine1="                new FutureCallback&lt;ExtensionsManager.ExtensionsAvailability>() {"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/extensions/CameraExtensionsActivity.java"
+            line="449"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="AllowBackup"
+        message="On SDK version 23 and up, your app data will be automatically backed up and restored on app install. Consider adding the attribute `android:fullBackupContent` to specify an `@xml` resource which configures which files to backup. More info: https://developer.android.com/training/backup/autosyncapi.html"
+        errorLine1="    &lt;application"
+        errorLine2="     ~~~~~~~~~~~">
+        <location
+            file="src/main/AndroidManifest.xml"
+            line="26"
+            column="6"/>
+    </issue>
+
+    <issue
+        id="AllowBackup"
+        message="Should explicitly set `android:allowBackup` to `true` or `false` (it&apos;s `true` by default, and that can have some security implications for the application&apos;s data)"
+        errorLine1="    &lt;application"
+        errorLine2="     ~~~~~~~~~~~">
+        <location
+            file="src/main/AndroidManifest.xml"
+            line="26"
+            column="6"/>
+    </issue>
+
+    <issue
+        id="MissingApplicationIcon"
+        message="Should explicitly set `android:icon`, there is no default"
+        errorLine1="    &lt;application"
+        errorLine2="     ~~~~~~~~~~~">
+        <location
+            file="src/main/AndroidManifest.xml"
+            line="26"
+            column="6"/>
+    </issue>
+
+    <issue
+        id="HardcodedText"
+        message="Hardcoded string &quot;Take Picture&quot;, should use `@string` resource"
+        errorLine1="        android:text=&quot;Take Picture&quot;"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/activity_camera_extensions.xml"
+            line="57"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="HardcodedText"
+        message="Hardcoded string &quot;DEFAULT&quot;, should use `@string` resource"
+        errorLine1="        android:text=&quot;DEFAULT&quot;"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/activity_camera_extensions.xml"
+            line="71"
+            column="9"/>
+    </issue>
+
+</issues>

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 3.5.0-beta04" client="gradle" variant="debug" version="3.5.0-beta04">
+<issues format="5" by="lint 3.6.0-alpha12" client="gradle" variant="debug" version="3.6.0-alpha12">
 
     <issue
         id="LambdaLast"
@@ -8,7 +8,18 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/testutils/LifecycleOwnerUtils.java"
-            line="65"
+            line="66"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="LambdaLast"
+        message="Functional interface parameters (such as parameter 1, &quot;owner&quot;, in androidx.testutils.LifecycleOwnerUtils.waitUntilState) should be last to improve Kotlin interoperability; see https://kotlinlang.org/docs/reference/java-interop.html#sam-conversions"
+        errorLine1="            final Lifecycle.State state) throws Throwable {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/testutils/LifecycleOwnerUtils.java"
+            line="66"
             column="13"/>
     </issue>
 
@@ -19,7 +30,18 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/testutils/LifecycleOwnerUtils.java"
-            line="53"
+            line="54"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            final ActivityTestRule&lt;T> activityRule,"
+        errorLine2="                  ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/testutils/LifecycleOwnerUtils.java"
+            line="54"
             column="19"/>
     </issue>
 
@@ -30,7 +52,18 @@
         errorLine2="                  ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/testutils/LifecycleOwnerUtils.java"
-            line="54"
+            line="55"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            final Lifecycle.State state) throws Throwable {"
+        errorLine2="                  ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/testutils/LifecycleOwnerUtils.java"
+            line="55"
             column="19"/>
     </issue>
 
@@ -41,7 +74,18 @@
         errorLine2="                                            ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/testutils/LifecycleOwnerUtils.java"
-            line="63"
+            line="64"
+            column="45"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static void waitUntilState(final LifecycleOwner owner,"
+        errorLine2="                                            ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/testutils/LifecycleOwnerUtils.java"
+            line="64"
             column="45"/>
     </issue>
 
@@ -52,7 +96,18 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/testutils/LifecycleOwnerUtils.java"
-            line="64"
+            line="65"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            final ActivityTestRule&lt;?> activityRule,"
+        errorLine2="                  ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/testutils/LifecycleOwnerUtils.java"
+            line="65"
             column="19"/>
     </issue>
 
@@ -63,62 +118,18 @@
         errorLine2="                  ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/testutils/LifecycleOwnerUtils.java"
-            line="65"
+            line="66"
             column="19"/>
     </issue>
 
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static &lt;T extends Activity &amp; LifecycleOwner> T waitForRecreation("
-        errorLine2="                                                        ~">
+        errorLine1="            final Lifecycle.State state) throws Throwable {"
+        errorLine2="                  ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/testutils/LifecycleOwnerUtils.java"
-            line="102"
-            column="57"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="            final ActivityTestRule&lt;T> activityRule"
-        errorLine2="                  ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/testutils/LifecycleOwnerUtils.java"
-            line="103"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static &lt;T extends Activity &amp; LifecycleOwner> T waitForRecreation("
-        errorLine2="                                                        ~">
-        <location
-            file="src/main/java/androidx/testutils/LifecycleOwnerUtils.java"
-            line="113"
-            column="57"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="            final T activity,"
-        errorLine2="                  ~">
-        <location
-            file="src/main/java/androidx/testutils/LifecycleOwnerUtils.java"
-            line="114"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="            final ActivityTestRule&lt;?> activityRule"
-        errorLine2="                  ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/testutils/LifecycleOwnerUtils.java"
-            line="115"
+            line="66"
             column="19"/>
     </issue>
 
@@ -131,6 +142,28 @@
             file="src/main/java/androidx/testutils/PollingCheck.java"
             line="75"
             column="38"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static void waitFor(final PollingCheckCondition condition) {"
+        errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/testutils/PollingCheck.java"
+            line="75"
+            column="38"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static void waitFor(long timeout, final PollingCheckCondition condition) {"
+        errorLine2="                                                   ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/testutils/PollingCheck.java"
+            line="89"
+            column="52"/>
     </issue>
 
     <issue

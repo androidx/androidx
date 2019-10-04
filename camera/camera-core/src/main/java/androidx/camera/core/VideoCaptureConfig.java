@@ -307,6 +307,7 @@ public final class VideoCaptureConfig
 
     /** @hide */
     @RestrictTo(Scope.LIBRARY_GROUP)
+    @Override
     @Nullable
     public Class<VideoCapture> getTargetClass(
             @Nullable Class<VideoCapture> valueIfMissing) {
@@ -688,12 +689,14 @@ public final class VideoCaptureConfig
     }
 
     /** @hide */
+    @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     public int getSurfaceOccupancyPriority(int valueIfMissing) {
         return retrieveOption(OPTION_SURFACE_OCCUPANCY_PRIORITY, valueIfMissing);
     }
 
     /** @hide */
+    @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     public int getSurfaceOccupancyPriority() {
         return retrieveOption(OPTION_SURFACE_OCCUPANCY_PRIORITY);
@@ -778,6 +781,7 @@ public final class VideoCaptureConfig
          *
          * @return A {@link VideoCaptureConfig} populated with the current state.
          */
+        @Override
         @NonNull
         public VideoCaptureConfig build() {
             // Error at runtime for using both setTargetResolution and setTargetAspectRatio on

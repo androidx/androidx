@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 3.5.0-beta04" client="gradle" variant="debug" version="3.5.0-beta04">
+<issues format="5" by="lint 3.6.0-alpha12" client="gradle" variant="debug" version="3.6.0-alpha12">
 
     <issue
         id="UnknownNullness"
@@ -8,7 +8,7 @@
         errorLine2="           ~~~~~~">
         <location
             file="src/main/java/androidx/tvprovider/media/tv/BasePreviewProgram.java"
-            line="158"
+            line="159"
             column="12"/>
     </issue>
 
@@ -19,7 +19,7 @@
         errorLine2="           ~~~">
         <location
             file="src/main/java/androidx/tvprovider/media/tv/BasePreviewProgram.java"
-            line="166"
+            line="167"
             column="12"/>
     </issue>
 
@@ -30,7 +30,7 @@
         errorLine2="           ~~~">
         <location
             file="src/main/java/androidx/tvprovider/media/tv/BasePreviewProgram.java"
-            line="194"
+            line="195"
             column="12"/>
     </issue>
 
@@ -41,7 +41,7 @@
         errorLine2="           ~~~~~~">
         <location
             file="src/main/java/androidx/tvprovider/media/tv/BasePreviewProgram.java"
-            line="203"
+            line="204"
             column="12"/>
     </issue>
 
@@ -52,7 +52,7 @@
         errorLine2="           ~~~">
         <location
             file="src/main/java/androidx/tvprovider/media/tv/BasePreviewProgram.java"
-            line="257"
+            line="258"
             column="12"/>
     </issue>
 
@@ -63,7 +63,7 @@
         errorLine2="           ~~~~~~">
         <location
             file="src/main/java/androidx/tvprovider/media/tv/BasePreviewProgram.java"
-            line="275"
+            line="276"
             column="12"/>
     </issue>
 
@@ -74,7 +74,7 @@
         errorLine2="           ~~~~~~">
         <location
             file="src/main/java/androidx/tvprovider/media/tv/BasePreviewProgram.java"
-            line="283"
+            line="284"
             column="12"/>
     </issue>
 
@@ -85,7 +85,7 @@
         errorLine2="           ~~~~~~">
         <location
             file="src/main/java/androidx/tvprovider/media/tv/BasePreviewProgram.java"
-            line="291"
+            line="292"
             column="12"/>
     </issue>
 
@@ -96,7 +96,7 @@
         errorLine2="           ~~~~~~">
         <location
             file="src/main/java/androidx/tvprovider/media/tv/BasePreviewProgram.java"
-            line="335"
+            line="336"
             column="12"/>
     </issue>
 
@@ -107,7 +107,7 @@
         errorLine2="           ~~~~~~">
         <location
             file="src/main/java/androidx/tvprovider/media/tv/BasePreviewProgram.java"
-            line="352"
+            line="353"
             column="12"/>
     </issue>
 
@@ -118,7 +118,7 @@
         errorLine2="           ~~~~~~">
         <location
             file="src/main/java/androidx/tvprovider/media/tv/BasePreviewProgram.java"
-            line="362"
+            line="363"
             column="12"/>
     </issue>
 
@@ -129,7 +129,7 @@
         errorLine2="           ~~~~~~">
         <location
             file="src/main/java/androidx/tvprovider/media/tv/BasePreviewProgram.java"
-            line="370"
+            line="371"
             column="12"/>
     </issue>
 
@@ -140,7 +140,7 @@
         errorLine2="           ~~~">
         <location
             file="src/main/java/androidx/tvprovider/media/tv/BasePreviewProgram.java"
-            line="396"
+            line="397"
             column="12"/>
     </issue>
 
@@ -151,7 +151,7 @@
         errorLine2="           ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/tvprovider/media/tv/BasePreviewProgram.java"
-            line="414"
+            line="415"
             column="12"/>
     </issue>
 
@@ -162,7 +162,7 @@
         errorLine2="           ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/tvprovider/media/tv/BasePreviewProgram.java"
-            line="426"
+            line="427"
             column="12"/>
     </issue>
 
@@ -173,7 +173,7 @@
         errorLine2="                       ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/tvprovider/media/tv/BasePreviewProgram.java"
-            line="647"
+            line="648"
             column="24"/>
     </issue>
 
@@ -184,7 +184,7 @@
         errorLine2="               ~">
         <location
             file="src/main/java/androidx/tvprovider/media/tv/BasePreviewProgram.java"
-            line="659"
+            line="660"
             column="16"/>
     </issue>
 
@@ -195,7 +195,7 @@
         errorLine2="                                       ~~~~~~">
         <location
             file="src/main/java/androidx/tvprovider/media/tv/BasePreviewProgram.java"
-            line="659"
+            line="660"
             column="40"/>
     </issue>
 
@@ -206,7 +206,7 @@
         errorLine2="               ~">
         <location
             file="src/main/java/androidx/tvprovider/media/tv/BasePreviewProgram.java"
-            line="671"
+            line="672"
             column="16"/>
     </issue>
 
@@ -217,7 +217,7 @@
         errorLine2="                                    ~~~">
         <location
             file="src/main/java/androidx/tvprovider/media/tv/BasePreviewProgram.java"
-            line="671"
+            line="672"
             column="37"/>
     </issue>
 
@@ -228,7 +228,7 @@
         errorLine2="               ~">
         <location
             file="src/main/java/androidx/tvprovider/media/tv/BasePreviewProgram.java"
-            line="685"
+            line="686"
             column="16"/>
     </issue>
 
@@ -239,7 +239,7 @@
         errorLine2="               ~">
         <location
             file="src/main/java/androidx/tvprovider/media/tv/BasePreviewProgram.java"
-            line="697"
+            line="698"
             column="16"/>
     </issue>
 
@@ -250,7 +250,7 @@
         errorLine2="               ~">
         <location
             file="src/main/java/androidx/tvprovider/media/tv/BasePreviewProgram.java"
-            line="709"
+            line="710"
             column="16"/>
     </issue>
 
@@ -261,7 +261,7 @@
         errorLine2="                              ~~~">
         <location
             file="src/main/java/androidx/tvprovider/media/tv/BasePreviewProgram.java"
-            line="709"
+            line="710"
             column="31"/>
     </issue>
 
@@ -272,7 +272,7 @@
         errorLine2="               ~">
         <location
             file="src/main/java/androidx/tvprovider/media/tv/BasePreviewProgram.java"
-            line="721"
+            line="722"
             column="16"/>
     </issue>
 
@@ -283,7 +283,7 @@
         errorLine2="                           ~~~~~~">
         <location
             file="src/main/java/androidx/tvprovider/media/tv/BasePreviewProgram.java"
-            line="721"
+            line="722"
             column="28"/>
     </issue>
 
@@ -294,7 +294,7 @@
         errorLine2="               ~">
         <location
             file="src/main/java/androidx/tvprovider/media/tv/BasePreviewProgram.java"
-            line="732"
+            line="733"
             column="16"/>
     </issue>
 
@@ -305,7 +305,7 @@
         errorLine2="               ~">
         <location
             file="src/main/java/androidx/tvprovider/media/tv/BasePreviewProgram.java"
-            line="759"
+            line="760"
             column="16"/>
     </issue>
 
@@ -316,7 +316,7 @@
         errorLine2="               ~">
         <location
             file="src/main/java/androidx/tvprovider/media/tv/BasePreviewProgram.java"
-            line="782"
+            line="783"
             column="16"/>
     </issue>
 
@@ -327,7 +327,7 @@
         errorLine2="               ~">
         <location
             file="src/main/java/androidx/tvprovider/media/tv/BasePreviewProgram.java"
-            line="804"
+            line="805"
             column="16"/>
     </issue>
 
@@ -338,7 +338,7 @@
         errorLine2="               ~">
         <location
             file="src/main/java/androidx/tvprovider/media/tv/BasePreviewProgram.java"
-            line="816"
+            line="817"
             column="16"/>
     </issue>
 
@@ -349,7 +349,7 @@
         errorLine2="                            ~~~">
         <location
             file="src/main/java/androidx/tvprovider/media/tv/BasePreviewProgram.java"
-            line="816"
+            line="817"
             column="29"/>
     </issue>
 
@@ -360,7 +360,7 @@
         errorLine2="               ~">
         <location
             file="src/main/java/androidx/tvprovider/media/tv/BasePreviewProgram.java"
-            line="841"
+            line="842"
             column="16"/>
     </issue>
 
@@ -371,7 +371,7 @@
         errorLine2="               ~">
         <location
             file="src/main/java/androidx/tvprovider/media/tv/BasePreviewProgram.java"
-            line="853"
+            line="854"
             column="16"/>
     </issue>
 
@@ -382,7 +382,7 @@
         errorLine2="                                  ~~~~~~">
         <location
             file="src/main/java/androidx/tvprovider/media/tv/BasePreviewProgram.java"
-            line="853"
+            line="854"
             column="35"/>
     </issue>
 
@@ -393,7 +393,7 @@
         errorLine2="               ~">
         <location
             file="src/main/java/androidx/tvprovider/media/tv/BasePreviewProgram.java"
-            line="865"
+            line="866"
             column="16"/>
     </issue>
 
@@ -404,7 +404,7 @@
         errorLine2="                               ~~~~~~">
         <location
             file="src/main/java/androidx/tvprovider/media/tv/BasePreviewProgram.java"
-            line="865"
+            line="866"
             column="32"/>
     </issue>
 
@@ -415,7 +415,7 @@
         errorLine2="               ~">
         <location
             file="src/main/java/androidx/tvprovider/media/tv/BasePreviewProgram.java"
-            line="880"
+            line="881"
             column="16"/>
     </issue>
 
@@ -426,7 +426,7 @@
         errorLine2="                                ~~~~~~">
         <location
             file="src/main/java/androidx/tvprovider/media/tv/BasePreviewProgram.java"
-            line="880"
+            line="881"
             column="33"/>
     </issue>
 
@@ -437,7 +437,7 @@
         errorLine2="               ~">
         <location
             file="src/main/java/androidx/tvprovider/media/tv/BasePreviewProgram.java"
-            line="892"
+            line="893"
             column="16"/>
     </issue>
 
@@ -448,7 +448,7 @@
         errorLine2="                                ~~~~">
         <location
             file="src/main/java/androidx/tvprovider/media/tv/BasePreviewProgram.java"
-            line="892"
+            line="893"
             column="33"/>
     </issue>
 
@@ -459,7 +459,7 @@
         errorLine2="               ~">
         <location
             file="src/main/java/androidx/tvprovider/media/tv/BasePreviewProgram.java"
-            line="904"
+            line="905"
             column="16"/>
     </issue>
 
@@ -470,7 +470,7 @@
         errorLine2="               ~">
         <location
             file="src/main/java/androidx/tvprovider/media/tv/BasePreviewProgram.java"
-            line="916"
+            line="917"
             column="16"/>
     </issue>
 
@@ -481,7 +481,7 @@
         errorLine2="               ~">
         <location
             file="src/main/java/androidx/tvprovider/media/tv/BasePreviewProgram.java"
-            line="942"
+            line="943"
             column="16"/>
     </issue>
 
@@ -492,7 +492,7 @@
         errorLine2="               ~">
         <location
             file="src/main/java/androidx/tvprovider/media/tv/BasePreviewProgram.java"
-            line="954"
+            line="955"
             column="16"/>
     </issue>
 
@@ -503,7 +503,7 @@
         errorLine2="               ~">
         <location
             file="src/main/java/androidx/tvprovider/media/tv/BasePreviewProgram.java"
-            line="966"
+            line="967"
             column="16"/>
     </issue>
 
@@ -514,7 +514,7 @@
         errorLine2="                           ~~~~~~">
         <location
             file="src/main/java/androidx/tvprovider/media/tv/BasePreviewProgram.java"
-            line="966"
+            line="967"
             column="28"/>
     </issue>
 
@@ -525,7 +525,7 @@
         errorLine2="               ~">
         <location
             file="src/main/java/androidx/tvprovider/media/tv/BasePreviewProgram.java"
-            line="980"
+            line="981"
             column="16"/>
     </issue>
 
@@ -536,7 +536,7 @@
         errorLine2="               ~">
         <location
             file="src/main/java/androidx/tvprovider/media/tv/BasePreviewProgram.java"
-            line="992"
+            line="993"
             column="16"/>
     </issue>
 
@@ -547,7 +547,7 @@
         errorLine2="                              ~~~~~~">
         <location
             file="src/main/java/androidx/tvprovider/media/tv/BasePreviewProgram.java"
-            line="992"
+            line="993"
             column="31"/>
     </issue>
 
@@ -558,7 +558,7 @@
         errorLine2="               ~">
         <location
             file="src/main/java/androidx/tvprovider/media/tv/BasePreviewProgram.java"
-            line="1007"
+            line="1008"
             column="16"/>
     </issue>
 
@@ -569,7 +569,7 @@
         errorLine2="                                           ~~~~~~">
         <location
             file="src/main/java/androidx/tvprovider/media/tv/BasePreviewProgram.java"
-            line="1007"
+            line="1008"
             column="44"/>
     </issue>
 
@@ -580,7 +580,7 @@
         errorLine2="               ~">
         <location
             file="src/main/java/androidx/tvprovider/media/tv/BasePreviewProgram.java"
-            line="1019"
+            line="1020"
             column="16"/>
     </issue>
 
@@ -591,7 +591,7 @@
         errorLine2="                          ~~~~~~">
         <location
             file="src/main/java/androidx/tvprovider/media/tv/BasePreviewProgram.java"
-            line="1019"
+            line="1020"
             column="27"/>
     </issue>
 
@@ -602,7 +602,7 @@
         errorLine2="               ~">
         <location
             file="src/main/java/androidx/tvprovider/media/tv/BasePreviewProgram.java"
-            line="1032"
+            line="1033"
             column="16"/>
     </issue>
 
@@ -613,7 +613,7 @@
         errorLine2="               ~">
         <location
             file="src/main/java/androidx/tvprovider/media/tv/BasePreviewProgram.java"
-            line="1044"
+            line="1045"
             column="16"/>
     </issue>
 
@@ -624,7 +624,7 @@
         errorLine2="               ~">
         <location
             file="src/main/java/androidx/tvprovider/media/tv/BasePreviewProgram.java"
-            line="1056"
+            line="1057"
             column="16"/>
     </issue>
 
@@ -635,7 +635,7 @@
         errorLine2="                                    ~~~">
         <location
             file="src/main/java/androidx/tvprovider/media/tv/BasePreviewProgram.java"
-            line="1056"
+            line="1057"
             column="37"/>
     </issue>
 
@@ -646,7 +646,7 @@
         errorLine2="               ~">
         <location
             file="src/main/java/androidx/tvprovider/media/tv/BasePreviewProgram.java"
-            line="1068"
+            line="1069"
             column="16"/>
     </issue>
 
@@ -657,7 +657,7 @@
         errorLine2="              ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"
-            line="72"
+            line="73"
             column="15"/>
     </issue>
 
@@ -668,7 +668,7 @@
         errorLine2="           ~~~~~~">
         <location
             file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"
-            line="94"
+            line="95"
             column="12"/>
     </issue>
 
@@ -679,7 +679,7 @@
         errorLine2="           ~~~~~~">
         <location
             file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"
-            line="102"
+            line="103"
             column="12"/>
     </issue>
 
@@ -690,7 +690,7 @@
         errorLine2="           ~~~~~~">
         <location
             file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"
-            line="110"
+            line="111"
             column="12"/>
     </issue>
 
@@ -701,7 +701,7 @@
         errorLine2="           ~~~~~~">
         <location
             file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"
-            line="118"
+            line="119"
             column="12"/>
     </issue>
 
@@ -712,7 +712,7 @@
         errorLine2="           ~~~~~~">
         <location
             file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"
-            line="130"
+            line="131"
             column="12"/>
     </issue>
 
@@ -723,7 +723,7 @@
         errorLine2="           ~~~~~~">
         <location
             file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"
-            line="142"
+            line="143"
             column="12"/>
     </issue>
 
@@ -734,7 +734,7 @@
         errorLine2="           ~~~~~~">
         <location
             file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"
-            line="150"
+            line="151"
             column="12"/>
     </issue>
 
@@ -745,7 +745,7 @@
         errorLine2="                  ~~~~~~~~">
         <location
             file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"
-            line="176"
+            line="177"
             column="19"/>
     </issue>
 
@@ -756,7 +756,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"
-            line="184"
+            line="185"
             column="12"/>
     </issue>
 
@@ -767,7 +767,7 @@
         errorLine2="           ~~~">
         <location
             file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"
-            line="193"
+            line="194"
             column="12"/>
     </issue>
 
@@ -778,7 +778,7 @@
         errorLine2="           ~~~">
         <location
             file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"
-            line="202"
+            line="203"
             column="12"/>
     </issue>
 
@@ -789,7 +789,7 @@
         errorLine2="           ~~~~~~">
         <location
             file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"
-            line="211"
+            line="212"
             column="12"/>
     </issue>
 
@@ -800,7 +800,7 @@
         errorLine2="           ~~~~~~~~">
         <location
             file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"
-            line="219"
+            line="220"
             column="12"/>
     </issue>
 
@@ -811,7 +811,7 @@
         errorLine2="           ~~~~">
         <location
             file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"
-            line="237"
+            line="238"
             column="12"/>
     </issue>
 
@@ -822,7 +822,7 @@
         errorLine2="           ~~~~">
         <location
             file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"
-            line="245"
+            line="246"
             column="12"/>
     </issue>
 
@@ -833,7 +833,7 @@
         errorLine2="           ~~~~">
         <location
             file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"
-            line="253"
+            line="254"
             column="12"/>
     </issue>
 
@@ -844,7 +844,7 @@
         errorLine2="           ~~~~">
         <location
             file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"
-            line="261"
+            line="262"
             column="12"/>
     </issue>
 
@@ -855,7 +855,7 @@
         errorLine2="           ~~~~~~">
         <location
             file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"
-            line="269"
+            line="270"
             column="12"/>
     </issue>
 
@@ -866,7 +866,7 @@
         errorLine2="           ~~~~~~">
         <location
             file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"
-            line="286"
+            line="287"
             column="12"/>
     </issue>
 
@@ -877,7 +877,7 @@
         errorLine2="           ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"
-            line="312"
+            line="313"
             column="12"/>
     </issue>
 
@@ -888,7 +888,7 @@
         errorLine2="                  ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"
-            line="524"
+            line="525"
             column="19"/>
     </issue>
 
@@ -899,7 +899,7 @@
         errorLine2="                       ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"
-            line="537"
+            line="538"
             column="24"/>
     </issue>
 
@@ -910,7 +910,7 @@
         errorLine2="               ~">
         <location
             file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"
-            line="548"
+            line="549"
             column="16"/>
     </issue>
 
@@ -921,7 +921,7 @@
         errorLine2="               ~">
         <location
             file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"
-            line="562"
+            line="563"
             column="16"/>
     </issue>
 
@@ -932,7 +932,7 @@
         errorLine2="                                ~~~~~~">
         <location
             file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"
-            line="562"
+            line="563"
             column="33"/>
     </issue>
 
@@ -943,7 +943,7 @@
         errorLine2="               ~">
         <location
             file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"
-            line="574"
+            line="575"
             column="16"/>
     </issue>
 
@@ -954,7 +954,7 @@
         errorLine2="                          ~~~~~~">
         <location
             file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"
-            line="574"
+            line="575"
             column="27"/>
     </issue>
 
@@ -965,7 +965,7 @@
         errorLine2="               ~">
         <location
             file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"
-            line="586"
+            line="587"
             column="16"/>
     </issue>
 
@@ -976,7 +976,7 @@
         errorLine2="                                 ~~~~~~">
         <location
             file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"
-            line="586"
+            line="587"
             column="34"/>
     </issue>
 
@@ -987,7 +987,7 @@
         errorLine2="               ~">
         <location
             file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"
-            line="598"
+            line="599"
             column="16"/>
     </issue>
 
@@ -998,7 +998,7 @@
         errorLine2="               ~">
         <location
             file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"
-            line="614"
+            line="615"
             column="16"/>
     </issue>
 
@@ -1009,7 +1009,7 @@
         errorLine2="                                 ~~~~~~">
         <location
             file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"
-            line="614"
+            line="615"
             column="34"/>
     </issue>
 
@@ -1020,7 +1020,7 @@
         errorLine2="               ~">
         <location
             file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"
-            line="630"
+            line="631"
             column="16"/>
     </issue>
 
@@ -1031,7 +1031,7 @@
         errorLine2="               ~">
         <location
             file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"
-            line="646"
+            line="647"
             column="16"/>
     </issue>
 
@@ -1042,7 +1042,7 @@
         errorLine2="                                  ~~~~~~">
         <location
             file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"
-            line="646"
+            line="647"
             column="35"/>
     </issue>
 
@@ -1053,7 +1053,7 @@
         errorLine2="               ~">
         <location
             file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"
-            line="663"
+            line="664"
             column="16"/>
     </issue>
 
@@ -1064,7 +1064,7 @@
         errorLine2="                                ~~~~~~">
         <location
             file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"
-            line="663"
+            line="664"
             column="33"/>
     </issue>
 
@@ -1075,7 +1075,7 @@
         errorLine2="               ~">
         <location
             file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"
-            line="675"
+            line="676"
             column="16"/>
     </issue>
 
@@ -1086,7 +1086,7 @@
         errorLine2="                                    ~~~~~~">
         <location
             file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"
-            line="675"
+            line="676"
             column="37"/>
     </issue>
 
@@ -1097,7 +1097,7 @@
         errorLine2="               ~">
         <location
             file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"
-            line="687"
+            line="688"
             column="16"/>
     </issue>
 
@@ -1108,7 +1108,7 @@
         errorLine2="               ~">
         <location
             file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"
-            line="699"
+            line="700"
             column="16"/>
     </issue>
 
@@ -1119,7 +1119,7 @@
         errorLine2="               ~">
         <location
             file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"
-            line="713"
+            line="714"
             column="16"/>
     </issue>
 
@@ -1130,7 +1130,7 @@
         errorLine2="                                   ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"
-            line="713"
+            line="714"
             column="36"/>
     </issue>
 
@@ -1141,7 +1141,7 @@
         errorLine2="               ~">
         <location
             file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"
-            line="726"
+            line="727"
             column="16"/>
     </issue>
 
@@ -1152,7 +1152,7 @@
         errorLine2="                                 ~~~">
         <location
             file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"
-            line="726"
+            line="727"
             column="34"/>
     </issue>
 
@@ -1163,7 +1163,7 @@
         errorLine2="               ~">
         <location
             file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"
-            line="739"
+            line="740"
             column="16"/>
     </issue>
 
@@ -1174,7 +1174,7 @@
         errorLine2="                                 ~~~">
         <location
             file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"
-            line="739"
+            line="740"
             column="34"/>
     </issue>
 
@@ -1185,7 +1185,7 @@
         errorLine2="               ~">
         <location
             file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"
-            line="754"
+            line="755"
             column="16"/>
     </issue>
 
@@ -1196,7 +1196,7 @@
         errorLine2="                                           ~~~~~~~~">
         <location
             file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"
-            line="754"
+            line="755"
             column="44"/>
     </issue>
 
@@ -1207,7 +1207,7 @@
         errorLine2="               ~">
         <location
             file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"
-            line="766"
+            line="767"
             column="16"/>
     </issue>
 
@@ -1218,7 +1218,7 @@
         errorLine2="                                         ~~~~~~">
         <location
             file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"
-            line="766"
+            line="767"
             column="42"/>
     </issue>
 
@@ -1229,7 +1229,7 @@
         errorLine2="               ~">
         <location
             file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"
-            line="778"
+            line="779"
             column="16"/>
     </issue>
 
@@ -1240,7 +1240,7 @@
         errorLine2="                                   ~~~~~~~~">
         <location
             file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"
-            line="778"
+            line="779"
             column="36"/>
     </issue>
 
@@ -1251,7 +1251,7 @@
         errorLine2="               ~">
         <location
             file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"
-            line="791"
+            line="792"
             column="16"/>
     </issue>
 
@@ -1262,7 +1262,7 @@
         errorLine2="               ~">
         <location
             file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"
-            line="803"
+            line="804"
             column="16"/>
     </issue>
 
@@ -1273,7 +1273,7 @@
         errorLine2="               ~">
         <location
             file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"
-            line="815"
+            line="816"
             column="16"/>
     </issue>
 
@@ -1284,7 +1284,7 @@
         errorLine2="               ~">
         <location
             file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"
-            line="827"
+            line="828"
             column="16"/>
     </issue>
 
@@ -1295,7 +1295,7 @@
         errorLine2="               ~">
         <location
             file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"
-            line="839"
+            line="840"
             column="16"/>
     </issue>
 
@@ -1306,7 +1306,7 @@
         errorLine2="               ~">
         <location
             file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"
-            line="856"
+            line="857"
             column="16"/>
     </issue>
 
@@ -1317,7 +1317,7 @@
         errorLine2="               ~">
         <location
             file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"
-            line="881"
+            line="882"
             column="16"/>
     </issue>
 
@@ -1328,7 +1328,7 @@
         errorLine2="                                 ~~~~~~">
         <location
             file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"
-            line="881"
+            line="882"
             column="34"/>
     </issue>
 
@@ -1339,7 +1339,7 @@
         errorLine2="               ~">
         <location
             file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"
-            line="893"
+            line="894"
             column="16"/>
     </issue>
 
@@ -1350,7 +1350,7 @@
         errorLine2="                                ~~~~~~">
         <location
             file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"
-            line="893"
+            line="894"
             column="33"/>
     </issue>
 
@@ -2197,7 +2197,7 @@
         errorLine2="                      ~~~">
         <location
             file="src/main/java/androidx/tvprovider/media/tv/CollectionUtils.java"
-            line="36"
+            line="37"
             column="23"/>
     </issue>
 
@@ -2208,7 +2208,7 @@
         errorLine2="                                    ~~~">
         <location
             file="src/main/java/androidx/tvprovider/media/tv/CollectionUtils.java"
-            line="36"
+            line="37"
             column="37"/>
     </issue>
 
@@ -2219,7 +2219,7 @@
         errorLine2="                                               ~~~~~~">
         <location
             file="src/main/java/androidx/tvprovider/media/tv/CollectionUtils.java"
-            line="36"
+            line="37"
             column="48"/>
     </issue>
 

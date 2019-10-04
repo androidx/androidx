@@ -367,6 +367,8 @@ public abstract class FragmentStateAdapter extends
         // all Fragment views.
         mFragmentManager.registerFragmentLifecycleCallbacks(
                 new FragmentManager.FragmentLifecycleCallbacks() {
+                    // TODO(b/141956012): Suppressed during upgrade to AGP 3.6.
+                    @SuppressWarnings("ReferenceEquality")
                     @Override
                     public void onFragmentViewCreated(@NonNull FragmentManager fm,
                             @NonNull Fragment f, @NonNull View v,

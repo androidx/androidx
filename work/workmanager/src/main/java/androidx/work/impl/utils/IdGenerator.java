@@ -110,6 +110,8 @@ public class IdGenerator {
      *
      * @param context The application {@link Context}
      */
+    // TODO(b/141962522): Suppressed during upgrade to AGP 3.6.
+    @SuppressWarnings("IdentityBinaryExpression")
     public static void migrateLegacyIdGenerator(
             @NonNull Context context,
             @NonNull SupportSQLiteDatabase sqLiteDatabase) {
