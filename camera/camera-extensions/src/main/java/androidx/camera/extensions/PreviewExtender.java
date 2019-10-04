@@ -219,6 +219,7 @@ public abstract class PreviewExtender {
         }
 
         @Override
+        @SuppressWarnings("GuardedBy") // TODO(b/141956018): Suppressed during upgrade to AGP 3.6.
         public void onBind(@NonNull String cameraId) {
             if (mActive) {
                 CameraCharacteristics cameraCharacteristics =
@@ -255,6 +256,7 @@ public abstract class PreviewExtender {
                 if (mActive) {
                     Handler handler = new Handler(Looper.getMainLooper());
                     handler.post(new Runnable() {
+                        @Override
                         public void run() {
                             checkImageCaptureEnabled(mEffectMode, CameraX.getActiveUseCases());
                         }

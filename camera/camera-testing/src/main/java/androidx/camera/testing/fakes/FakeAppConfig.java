@@ -34,6 +34,8 @@ import androidx.camera.core.UseCaseConfigFactory;
  */
 @RestrictTo(Scope.LIBRARY_GROUP)
 public final class FakeAppConfig {
+    private FakeAppConfig() {
+    }
 
     private static final String CAMERA_ID_0 = "0";
     private static final String CAMERA_ID_1 = "1";

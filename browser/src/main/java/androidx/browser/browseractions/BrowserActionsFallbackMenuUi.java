@@ -73,6 +73,7 @@ class BrowserActionsFallbackMenuUi implements AdapterView.OnItemClickListener {
      * @param uri The uri which users click to trigger the menu.
      * @param customItems The custom menu items shown in the menu.
      */
+    @SuppressWarnings("NullAway") // TODO: b/141869399
     BrowserActionsFallbackMenuUi(Context context, Uri uri, List<BrowserActionItem> customItems) {
         mContext = context;
         mUri = uri;

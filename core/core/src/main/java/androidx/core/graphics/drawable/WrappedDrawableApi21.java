@@ -124,6 +124,7 @@ class WrappedDrawableApi21 extends WrappedDrawableApi14 {
      * This method is overriding hidden framework method in {@link Drawable}. It is used by the
      * system and thus it should not be removed.
      */
+    @Override
     public boolean isProjected() {
         if (mDrawable != null && sIsProjectedDrawableMethod != null) {
             try {

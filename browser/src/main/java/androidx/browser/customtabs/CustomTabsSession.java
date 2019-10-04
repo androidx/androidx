@@ -67,12 +67,14 @@ public final class CustomTabsSession {
      */
     @VisibleForTesting
     @NonNull
+    @SuppressWarnings("NullAway") // TODO: b/141869399
     public static CustomTabsSession createMockSessionForTesting(
             @NonNull ComponentName componentName) {
         return new CustomTabsSession(
                 null, new CustomTabsSessionToken.MockCallback(), componentName, null);
     }
 
+    @SuppressWarnings("NullAway") // TODO: b/141869399
     /* package */ CustomTabsSession(
             ICustomTabsService service, ICustomTabsCallback callback, ComponentName componentName,
             @Nullable PendingIntent sessionId) {
@@ -98,6 +100,7 @@ public final class CustomTabsSession {
      *                           {@link Bundle#putParcelable(String, android.os.Parcelable)}.
      * @return                   true for success.
      */
+    @SuppressWarnings("NullAway") // TODO: b/141869399
     public boolean mayLaunchUrl(@NonNull Uri url, @Nullable Bundle extras,
             @Nullable List<Bundle> otherLikelyBundles) {
         extras = createBundleWithId(extras);

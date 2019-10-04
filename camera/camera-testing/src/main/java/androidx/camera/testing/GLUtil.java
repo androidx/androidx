@@ -42,8 +42,12 @@ import android.opengl.GLES20;
  * <p> These utility methods are meant only for testing purposes.
  */
 public class GLUtil {
+    private GLUtil() {
+    }
 
     /** Set up a GL context so that GL calls requiring a context can be made. */
+    // TODO(b/141957748): Suppressed during upgrade to AGP 3.6.
+    @SuppressWarnings("ReferenceEquality")
     private static void setupGLContext() {
         EGLDisplay eglDisplay = EGL14.eglGetDisplay(EGL_DEFAULT_DISPLAY);
         if (eglDisplay == EGL_NO_DISPLAY) {

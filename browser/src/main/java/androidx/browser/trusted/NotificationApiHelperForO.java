@@ -22,6 +22,7 @@ import android.app.NotificationManager;
 import android.content.Context;
 import android.os.Build;
 
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 
@@ -43,8 +44,9 @@ class NotificationApiHelperForO {
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
-    static Notification copyNotificationOntoChannel(Context context, NotificationManager manager,
-            Notification notification, String channelId, String channelName) {
+    @Nullable static Notification copyNotificationOntoChannel(Context context,
+            NotificationManager manager, Notification notification, String channelId,
+            String channelName) {
         // Create the notification channel, (no-op if already created).
         manager.createNotificationChannel(new NotificationChannel(channelId,
                 channelName, NotificationManager.IMPORTANCE_DEFAULT));

@@ -1,5 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 3.5.0-beta04" client="gradle" variant="debug" version="3.5.0-beta04">
+<issues format="5" by="lint 3.6.0-alpha12" client="gradle" variant="debug" version="3.6.0-alpha12">
+
+    <issue
+        id="ObsoleteLintCustomCheck"
+        message="Lint found an issue registry (`androidx.build.lint.AndroidXIssueRegistry`) which did not specify the Lint API version it was compiled with.&#xA;&#xA;**This means that the lint checks are likely not compatible.**&#xA;&#xA;If you are the author of this lint check, make your lint `IssueRegistry` class contain&#xA;  override val api: Int = com.android.tools.lint.detector.api.CURRENT_API&#xA;or from Java,&#xA;  @Override public int getApi() { return com.android.tools.lint.detector.api.ApiKt.CURRENT_API; }&#xA;&#xA;If you are just using lint checks from a third party library you have no control over, you can disable these lint checks (if they misbehave) like this:&#xA;&#xA;    android {&#xA;        lintOptions {&#xA;            disable &quot;BanKeepAnnotation&quot;,&#xA;                    &quot;BanParcelableUsage&quot;,&#xA;                    &quot;BanTargetApiAnnotation&quot;,&#xA;                    &quot;EnforceSampledAnnotation&quot;,&#xA;                    &quot;EnforceSampledAnnotation&quot;,&#xA;                    &quot;EnforceSampledAnnotation&quot;,&#xA;                    &quot;EnforceSampledAnnotation&quot;,&#xA;                    &quot;EnforceSampledAnnotation&quot;,&#xA;                    &quot;EnforceSampledAnnotation&quot;,&#xA;                    &quot;MissingTestSizeAnnotation&quot;,&#xA;                    &quot;ObsoleteBuildCompat&quot;&#xA;        }&#xA;    }&#xA;">
+        <location
+            file="../../../../out/buildSrc/lint-checks/build/libs/lint-checks.jar"/>
+    </issue>
 
     <issue
         id="MissingSuperCall"
@@ -186,6 +193,17 @@
             file="src/main/AndroidManifest.xml"
             line="114"
             column="13"/>
+    </issue>
+
+    <issue
+        id="InflateParams"
+        message="Avoid passing `null` as the view root (needed to resolve layout parameters on the inflated layout&apos;s root element)"
+        errorLine1="        View view = getLayoutInflater().inflate(R.layout.horizontal_grid, null, false);"
+        errorLine2="                                                                          ~~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/HorizontalGridTestActivity.java"
+            line="55"
+            column="75"/>
     </issue>
 
     <issue
@@ -608,7 +626,7 @@
 
     <issue
         id="GradleDependency"
-        message="A newer version of com.google.code.gson:gson than 2.6.2 is available: 2.8.2"
+        message="A newer version of com.google.code.gson:gson than 2.6.2 is available: 2.8.5"
         errorLine1="    implementation &apos;com.google.code.gson:gson:2.6.2&apos;"
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -637,6 +655,160 @@
             file="src/main/AndroidManifest.xml"
             line="5"
             column="5"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="GuidedStepFragment.SLIDE_FROM_BOTTOM can only be accessed from within the same library group prefix (referenced groupId=`androidx.leanback` with prefix androidx from groupId=`androidx`)"
+        errorLine1="            setEntranceTransitionType(GuidedStepFragment.SLIDE_FROM_BOTTOM);"
+        errorLine2="                                                         ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/GuidedStepHalfScreenActivity.java"
+            line="76"
+            column="58"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="GuidedStepFragment.setEntranceTransitionType can only be called from within the same library group prefix (referenced groupId=`androidx.leanback` with prefix androidx from groupId=`androidx`)"
+        errorLine1="            setEntranceTransitionType(GuidedStepFragment.SLIDE_FROM_BOTTOM);"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/GuidedStepHalfScreenActivity.java"
+            line="76"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="GuidedStepSupportFragment.SLIDE_FROM_BOTTOM can only be accessed from within the same library group prefix (referenced groupId=`androidx.leanback` with prefix androidx from groupId=`androidx`)"
+        errorLine1="            setEntranceTransitionType(GuidedStepSupportFragment.SLIDE_FROM_BOTTOM);"
+        errorLine2="                                                                ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/GuidedStepSupportHalfScreenActivity.java"
+            line="79"
+            column="65"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="GuidedStepSupportFragment.setEntranceTransitionType can only be called from within the same library group prefix (referenced groupId=`androidx.leanback` with prefix androidx from groupId=`androidx`)"
+        errorLine1="            setEntranceTransitionType(GuidedStepSupportFragment.SLIDE_FROM_BOTTOM);"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/GuidedStepSupportHalfScreenActivity.java"
+            line="79"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="MediaPlayerGlue can only be called from within the same library group prefix (referenced groupId=`androidx.leanback` with prefix androidx from groupId=`androidx`)"
+        errorLine1="        MediaPlayerGlue mediaPlayerGlue = new MediaPlayerGlue(getActivity());"
+        errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/NewDetailsFragment.java"
+            line="83"
+            column="43"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="MediaPlayerGlue.setMode can only be called from within the same library group prefix (referenced groupId=`androidx.leanback` with prefix androidx from groupId=`androidx`)"
+        errorLine1="        mediaPlayerGlue.setMode(MediaPlayerGlue.REPEAT_ONE);"
+        errorLine2="                        ~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/NewDetailsFragment.java"
+            line="85"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="MediaPlayerGlue.setArtist can only be called from within the same library group prefix (referenced groupId=`androidx.leanback` with prefix androidx from groupId=`androidx`)"
+        errorLine1="        mediaPlayerGlue.setArtist(&quot;A Googler&quot;);"
+        errorLine2="                        ~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/NewDetailsFragment.java"
+            line="86"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="MediaPlayerGlue.setTitle can only be called from within the same library group prefix (referenced groupId=`androidx.leanback` with prefix androidx from groupId=`androidx`)"
+        errorLine1="        mediaPlayerGlue.setTitle(&quot;Diving with Sharks Trailer&quot;);"
+        errorLine2="                        ~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/NewDetailsFragment.java"
+            line="87"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="MediaPlayerGlue.setMediaSource can only be called from within the same library group prefix (referenced groupId=`androidx.leanback` with prefix androidx from groupId=`androidx`)"
+        errorLine1="        mediaPlayerGlue.setMediaSource(Uri.parse(&quot;android.resource://com.example.android.leanback/&quot;"
+        errorLine2="                        ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/NewDetailsFragment.java"
+            line="88"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="MediaPlayerGlue can only be called from within the same library group prefix (referenced groupId=`androidx.leanback` with prefix androidx from groupId=`androidx`)"
+        errorLine1="        MediaPlayerGlue mediaPlayerGlue = new MediaPlayerGlue(getActivity());"
+        errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/NewDetailsSupportFragment.java"
+            line="86"
+            column="43"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="MediaPlayerGlue.setMode can only be called from within the same library group prefix (referenced groupId=`androidx.leanback` with prefix androidx from groupId=`androidx`)"
+        errorLine1="        mediaPlayerGlue.setMode(MediaPlayerGlue.REPEAT_ONE);"
+        errorLine2="                        ~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/NewDetailsSupportFragment.java"
+            line="88"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="MediaPlayerGlue.setArtist can only be called from within the same library group prefix (referenced groupId=`androidx.leanback` with prefix androidx from groupId=`androidx`)"
+        errorLine1="        mediaPlayerGlue.setArtist(&quot;A Googler&quot;);"
+        errorLine2="                        ~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/NewDetailsSupportFragment.java"
+            line="89"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="MediaPlayerGlue.setTitle can only be called from within the same library group prefix (referenced groupId=`androidx.leanback` with prefix androidx from groupId=`androidx`)"
+        errorLine1="        mediaPlayerGlue.setTitle(&quot;Diving with Sharks Trailer&quot;);"
+        errorLine2="                        ~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/NewDetailsSupportFragment.java"
+            line="90"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="MediaPlayerGlue.setMediaSource can only be called from within the same library group prefix (referenced groupId=`androidx.leanback` with prefix androidx from groupId=`androidx`)"
+        errorLine1="        mediaPlayerGlue.setMediaSource(Uri.parse(&quot;android.resource://com.example.android.leanback/&quot;"
+        errorLine2="                        ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/NewDetailsSupportFragment.java"
+            line="91"
+            column="25"/>
     </issue>
 
     <issue
@@ -725,6 +897,138 @@
             file="src/main/java/com/example/android/leanback/MediaSessionService.java"
             line="87"
             column="19"/>
+    </issue>
+
+    <issue
+        id="MergeRootFrame"
+        message="This `&lt;FrameLayout>` can be replaced with a `&lt;merge>` tag"
+        errorLine1="&lt;FrameLayout xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
+        errorLine2="^">
+        <location
+            file="src/main/res/layout/browse.xml"
+            line="18"
+            column="1"/>
+    </issue>
+
+    <issue
+        id="MergeRootFrame"
+        message="This `&lt;FrameLayout>` can be replaced with a `&lt;merge>` tag"
+        errorLine1="&lt;FrameLayout xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
+        errorLine2="^">
+        <location
+            file="src/main/res/layout/browse_support.xml"
+            line="20"
+            column="1"/>
+    </issue>
+
+    <issue
+        id="MergeRootFrame"
+        message="This `&lt;FrameLayout>` can be replaced with a `&lt;merge>` tag"
+        errorLine1="&lt;FrameLayout xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
+        errorLine2="^">
+        <location
+            file="src/main/res/layout/date_picker.xml"
+            line="18"
+            column="1"/>
+    </issue>
+
+    <issue
+        id="MergeRootFrame"
+        message="This `&lt;FrameLayout>` can be replaced with a `&lt;merge>` tag"
+        errorLine1="&lt;FrameLayout xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
+        errorLine2="^">
+        <location
+            file="src/main/res/layout/details_activity.xml"
+            line="18"
+            column="1"/>
+    </issue>
+
+    <issue
+        id="MergeRootFrame"
+        message="This `&lt;FrameLayout>` can be replaced with a `&lt;merge>` tag"
+        errorLine1="&lt;FrameLayout xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
+        errorLine2="^">
+        <location
+            file="src/main/res/layout/guided_step_activity.xml"
+            line="19"
+            column="1"/>
+    </issue>
+
+    <issue
+        id="MergeRootFrame"
+        message="This `&lt;FrameLayout>` can be replaced with a `&lt;merge>` tag"
+        errorLine1="&lt;FrameLayout xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
+        errorLine2="^">
+        <location
+            file="src/main/res/layout/onboarding.xml"
+            line="18"
+            column="1"/>
+    </issue>
+
+    <issue
+        id="MergeRootFrame"
+        message="This `&lt;FrameLayout>` can be replaced with a `&lt;merge>` tag"
+        errorLine1="&lt;FrameLayout xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
+        errorLine2="^">
+        <location
+            file="src/main/res/layout/pin_picker.xml"
+            line="18"
+            column="1"/>
+    </issue>
+
+    <issue
+        id="MergeRootFrame"
+        message="This `&lt;FrameLayout>` can be replaced with a `&lt;merge>` tag"
+        errorLine1="&lt;FrameLayout xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
+        errorLine2="^">
+        <location
+            file="src/main/res/layout/playback_activity.xml"
+            line="17"
+            column="1"/>
+    </issue>
+
+    <issue
+        id="MergeRootFrame"
+        message="This `&lt;FrameLayout>` can be replaced with a `&lt;merge>` tag"
+        errorLine1="&lt;FrameLayout xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
+        errorLine2="^">
+        <location
+            file="src/main/res/layout/playback_activity_support.xml"
+            line="19"
+            column="1"/>
+    </issue>
+
+    <issue
+        id="MergeRootFrame"
+        message="This `&lt;FrameLayout>` can be replaced with a `&lt;merge>` tag"
+        errorLine1="&lt;FrameLayout xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
+        errorLine2="^">
+        <location
+            file="src/main/res/layout/playback_transportcontrol_activity.xml"
+            line="17"
+            column="1"/>
+    </issue>
+
+    <issue
+        id="MergeRootFrame"
+        message="This `&lt;FrameLayout>` can be replaced with a `&lt;merge>` tag"
+        errorLine1="&lt;FrameLayout xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
+        errorLine2="^">
+        <location
+            file="src/main/res/layout/playback_transportcontrol_activity_support.xml"
+            line="19"
+            column="1"/>
+    </issue>
+
+    <issue
+        id="MergeRootFrame"
+        message="This `&lt;FrameLayout>` can be replaced with a `&lt;merge>` tag"
+        errorLine1="&lt;FrameLayout xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
+        errorLine2="^">
+        <location
+            file="src/main/res/layout/time_picker.xml"
+            line="18"
+            column="1"/>
     </issue>
 
     <issue
@@ -1091,17 +1395,6 @@
         message="Missing density variation folders in `src/main/res`: drawable-xxhdpi">
         <location
             file="src/main/res"/>
-    </issue>
-
-    <issue
-        id="GoogleAppIndexingWarning"
-        message="App is not indexable by Google Search; consider adding at least one Activity with an ACTION-VIEW intent filter. See issue explanation for more details."
-        errorLine1="    &lt;application"
-        errorLine2="    ^">
-        <location
-            file="src/main/AndroidManifest.xml"
-            line="19"
-            column="5"/>
     </issue>
 
     <issue

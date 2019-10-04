@@ -83,6 +83,7 @@ public final class CameraRepository implements UseCaseGroup.StateChangeListener 
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
+    @SuppressWarnings("GuardedBy") // TODO(b/141958189): Suppressed during upgrade to AGP 3.6.
     @NonNull
     public ListenableFuture<Void> deinit() {
         synchronized (mCamerasLock) {

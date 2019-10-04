@@ -39,6 +39,7 @@ public class DelegatingWorkerFactory extends WorkerFactory {
     /**
      * Creates a new instance of the {@link DelegatingWorkerFactory}.
      */
+    @SuppressWarnings("JdkObsolete") // TODO(b/141962522): Suppressed during upgrade to AGP 3.6.
     public DelegatingWorkerFactory() {
         mFactories = new LinkedList<>();
     }

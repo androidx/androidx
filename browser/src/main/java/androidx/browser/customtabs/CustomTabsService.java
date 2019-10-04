@@ -160,11 +160,13 @@ public abstract class CustomTabsService extends Service {
         }
 
         @Override
+        @SuppressWarnings("NullAway") // TODO: b/141869399
         public boolean newSession(ICustomTabsCallback callback) {
             return newSessionInternal(callback, null);
         }
 
         @Override
+        @SuppressWarnings("NullAway") // TODO: b/141869399
         public boolean newSessionWithExtras(ICustomTabsCallback callback, Bundle extras) {
             return newSessionInternal(callback, getSessionIdFromBundle(extras));
         }
@@ -190,6 +192,7 @@ public abstract class CustomTabsService extends Service {
         }
 
         @Override
+        @SuppressWarnings("NullAway") // TODO: b/141869399
         public boolean mayLaunchUrl(@Nullable ICustomTabsCallback callback, @NonNull Uri url,
                 @Nullable Bundle extras, @Nullable List<Bundle> otherLikelyBundles) {
             return CustomTabsService.this.mayLaunchUrl(
@@ -269,6 +272,7 @@ public abstract class CustomTabsService extends Service {
      * @return Whether the clean up was successful. Multiple calls with two tokens holdings the
      * same binder will return false.
      */
+    @SuppressWarnings("NullAway") // TODO: b/141869399
     protected boolean cleanUpSession(CustomTabsSessionToken sessionToken) {
         try {
             synchronized (mDeathRecipientMap) {

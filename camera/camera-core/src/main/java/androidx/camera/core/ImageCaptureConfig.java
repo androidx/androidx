@@ -687,12 +687,14 @@ public final class ImageCaptureConfig
 
     /** @hide */
     @RestrictTo(Scope.LIBRARY_GROUP)
+    @Override
     public int getSurfaceOccupancyPriority(int valueIfMissing) {
         return retrieveOption(OPTION_SURFACE_OCCUPANCY_PRIORITY, valueIfMissing);
     }
 
     /** @hide */
     @RestrictTo(Scope.LIBRARY_GROUP)
+    @Override
     public int getSurfaceOccupancyPriority() {
         return retrieveOption(OPTION_SURFACE_OCCUPANCY_PRIORITY);
     }
@@ -777,6 +779,7 @@ public final class ImageCaptureConfig
          *
          * @return A {@link ImageCaptureConfig} populated with the current state.
          */
+        @Override
         @NonNull
         public ImageCaptureConfig build() {
             // Error at runtime for using both setTargetResolution and setTargetAspectRatio on

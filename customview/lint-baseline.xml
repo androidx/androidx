@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 3.5.0-beta04" client="gradle" variant="debug" version="3.5.0-beta04">
+<issues format="5" by="lint 3.6.0-alpha12" client="gradle" variant="debug" version="3.6.0-alpha12">
 
     <issue
         id="UnknownNullness"
@@ -19,7 +19,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/customview/widget/ExploreByTouchHelper.java"
-            line="156"
+            line="157"
             column="12"/>
     </issue>
 
@@ -30,7 +30,7 @@
         errorLine2="                                                                        ~~~~">
         <location
             file="src/main/java/androidx/customview/widget/ExploreByTouchHelper.java"
-            line="156"
+            line="157"
             column="73"/>
     </issue>
 
@@ -41,7 +41,7 @@
         errorLine2="                                               ~~~~">
         <location
             file="src/main/java/androidx/customview/widget/ExploreByTouchHelper.java"
-            line="661"
+            line="662"
             column="48"/>
     </issue>
 
@@ -52,7 +52,7 @@
         errorLine2="                                                          ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/customview/widget/ExploreByTouchHelper.java"
-            line="661"
+            line="662"
             column="59"/>
     </issue>
 
@@ -63,7 +63,7 @@
         errorLine2="                                                  ~~~~">
         <location
             file="src/main/java/androidx/customview/widget/ExploreByTouchHelper.java"
-            line="756"
+            line="757"
             column="51"/>
     </issue>
 
@@ -74,7 +74,7 @@
         errorLine2="                                                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/customview/widget/ExploreByTouchHelper.java"
-            line="756"
+            line="757"
             column="62"/>
     </issue>
 
@@ -85,7 +85,7 @@
         errorLine2="                                                   ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/customview/widget/ExploreByTouchHelper.java"
-            line="1084"
+            line="1085"
             column="52"/>
     </issue>
 

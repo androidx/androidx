@@ -120,6 +120,7 @@ class ConnectionHolder implements ServiceConnection {
      * - be set to a {@link TrustedWebActivityServiceConnection} if a connection is open.
      * - be set to an exception if the connection failed or has been closed.
      */
+    @SuppressWarnings("NullAway") // TODO: b/141869399
     @MainThread
     @NonNull
     public ListenableFuture<TrustedWebActivityServiceConnection> getServiceWrapper() {

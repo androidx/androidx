@@ -344,8 +344,11 @@ public final class CustomTabsIntent {
         private final Intent mIntent = new Intent(Intent.ACTION_VIEW);
         private final CustomTabColorSchemeParams.Builder mDefaultColorSchemeBuilder =
                 new CustomTabColorSchemeParams.Builder();
+        @SuppressWarnings("NullAway") // TODO: b/141869399
         private ArrayList<Bundle> mMenuItems = null;
+        @SuppressWarnings("NullAway") // TODO: b/141869399
         private Bundle mStartAnimationBundle = null;
+        @SuppressWarnings("NullAway") // TODO: b/141869399
         private ArrayList<Bundle> mActionButtons = null;
         private boolean mInstantAppsEnabled = true;
         @Nullable
@@ -633,6 +636,7 @@ public final class CustomTabsIntent {
          * @param exitResId Resource ID of the "exit" animation for the application.
          */
         @NonNull
+        @SuppressWarnings("NullAway") // TODO: b/141869399
         public Builder setStartAnimations(
                 @NonNull Context context, @AnimRes int enterResId, @AnimRes int exitResId) {
             mStartAnimationBundle = ActivityOptionsCompat.makeCustomAnimation(

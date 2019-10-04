@@ -91,6 +91,7 @@ class IncrementalAnnotationProcessingTest {
         projectRoot.mkdirs()
         setProperties()
         setupProjectBuildGradle()
+        setupProjectGradleProperties()
         setupAppBuildGradle()
         setupLocalProperties()
         setupSettingsGradle()
@@ -205,6 +206,13 @@ class IncrementalAnnotationProcessingTest {
     private fun setupLocalProperties() {
         val commonProperties = File("../../../local.properties")
         commonProperties.copyTo(File(projectRoot, "local.properties"), overwrite = true)
+    }
+
+    private fun setupProjectGradleProperties() {
+        addFileWithContent(
+            "gradle.properties",
+            "android.useAndroidX=true"
+        )
     }
 
     private fun setupProjectBuildGradle() {

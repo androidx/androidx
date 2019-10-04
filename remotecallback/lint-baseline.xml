@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 3.5.0-beta04" client="gradle" variant="debug" version="3.5.0-beta04">
+<issues format="5" by="lint 3.6.0-alpha12" client="gradle" variant="debug" version="3.6.0-alpha12">
 
     <issue
         id="LambdaLast"
@@ -8,7 +8,7 @@
         errorLine2="                                                                ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/remotecallback/CallbackHandlerRegistry.java"
-            line="199"
+            line="200"
             column="65"/>
     </issue>
 
@@ -448,7 +448,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/remotecallback/CallbackHandlerRegistry.java"
-            line="198"
+            line="199"
             column="19"/>
     </issue>
 
@@ -459,7 +459,7 @@
         errorLine2="                                                      ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/remotecallback/CallbackHandlerRegistry.java"
-            line="198"
+            line="199"
             column="55"/>
     </issue>
 
@@ -470,7 +470,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/remotecallback/CallbackHandlerRegistry.java"
-            line="199"
+            line="200"
             column="13"/>
     </issue>
 
@@ -481,7 +481,7 @@
         errorLine2="                                                   ~~~~~~">
         <location
             file="src/main/java/androidx/remotecallback/CallbackHandlerRegistry.java"
-            line="199"
+            line="200"
             column="52"/>
     </issue>
 
@@ -492,7 +492,7 @@
         errorLine2="                                                                ~~~~~~">
         <location
             file="src/main/java/androidx/remotecallback/CallbackHandlerRegistry.java"
-            line="199"
+            line="200"
             column="65"/>
     </issue>
 
@@ -503,7 +503,7 @@
         errorLine2="                             ~~~~~~~">
         <location
             file="src/main/java/androidx/remotecallback/CallbackHandlerRegistry.java"
-            line="234"
+            line="235"
             column="30"/>
     </issue>
 
@@ -514,7 +514,7 @@
         errorLine2="                                              ~">
         <location
             file="src/main/java/androidx/remotecallback/CallbackHandlerRegistry.java"
-            line="234"
+            line="235"
             column="47"/>
     </issue>
 
@@ -525,7 +525,7 @@
         errorLine2="                                                          ~~~~~~">
         <location
             file="src/main/java/androidx/remotecallback/CallbackHandlerRegistry.java"
-            line="234"
+            line="235"
             column="59"/>
     </issue>
 

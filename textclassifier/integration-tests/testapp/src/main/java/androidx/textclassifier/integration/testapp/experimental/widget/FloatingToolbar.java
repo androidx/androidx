@@ -83,6 +83,7 @@ public final class FloatingToolbar implements IFloatingToolbar {
 
     private final Comparator<SupportMenuItem> mMenuItemComparator =
             new Comparator<SupportMenuItem>() {
+                @Override
                 public int compare(SupportMenuItem menuItem1, SupportMenuItem menuItem2) {
                     int customOrder1 = getCustomOrder(menuItem1);
                     int customOrder2 = getCustomOrder(menuItem2);

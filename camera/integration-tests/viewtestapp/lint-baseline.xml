@@ -1,0 +1,231 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="5" by="lint 3.6.0-alpha12" client="gradle" variant="debug" version="3.6.0-alpha12">
+
+    <issue
+        id="ObsoleteLintCustomCheck"
+        message="Lint found an issue registry (`androidx.build.lint.AndroidXIssueRegistry`) which did not specify the Lint API version it was compiled with.&#xA;&#xA;**This means that the lint checks are likely not compatible.**&#xA;&#xA;If you are the author of this lint check, make your lint `IssueRegistry` class contain&#xA;  override val api: Int = com.android.tools.lint.detector.api.CURRENT_API&#xA;or from Java,&#xA;  @Override public int getApi() { return com.android.tools.lint.detector.api.ApiKt.CURRENT_API; }&#xA;&#xA;If you are just using lint checks from a third party library you have no control over, you can disable these lint checks (if they misbehave) like this:&#xA;&#xA;    android {&#xA;        lintOptions {&#xA;            disable &quot;BanKeepAnnotation&quot;,&#xA;                    &quot;BanParcelableUsage&quot;,&#xA;                    &quot;BanTargetApiAnnotation&quot;,&#xA;                    &quot;EnforceSampledAnnotation&quot;,&#xA;                    &quot;EnforceSampledAnnotation&quot;,&#xA;                    &quot;EnforceSampledAnnotation&quot;,&#xA;                    &quot;EnforceSampledAnnotation&quot;,&#xA;                    &quot;EnforceSampledAnnotation&quot;,&#xA;                    &quot;EnforceSampledAnnotation&quot;,&#xA;                    &quot;MissingTestSizeAnnotation&quot;,&#xA;                    &quot;ObsoleteBuildCompat&quot;&#xA;        }&#xA;    }&#xA;">
+        <location
+            file="../../../../../out/buildSrc/lint-checks/build/libs/lint-checks.jar"/>
+    </issue>
+
+    <issue
+        id="DefaultLocale"
+        message="Implicitly using the default locale is a common source of bugs: Use `toUpperCase(Locale)` instead. For strings meant to be internal use `Locale.ROOT`, otherwise `Locale.getDefault()`."
+        errorLine1="                LensFacing lensFacing = LensFacing.valueOf(cameraDirectionString.toUpperCase());"
+        errorLine2="                                                                                 ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/view/MainFragment.java"
+            line="99"
+            column="82"/>
+    </issue>
+
+    <issue
+        id="DefaultLocale"
+        message="Implicitly using the default locale is a common source of bugs: Use `toUpperCase(Locale)` instead. For strings meant to be internal use `Locale.ROOT`, otherwise `Locale.getDefault()`."
+        errorLine1="                CaptureMode captureMode = CaptureMode.valueOf(captureModeString.toUpperCase());"
+        errorLine2="                                                                                ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/view/MainFragment.java"
+            line="105"
+            column="81"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="CameraView.getMaxVideoDuration can only be called from within the same library group (groupId=androidx.camera)"
+        errorLine1="                            if (mCameraView.getMaxVideoDuration() > 0) {"
+        errorLine2="                                            ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/view/CaptureViewOnTouchListener.java"
+            line="81"
+            column="45"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="CameraView.getMaxVideoDuration can only be called from within the same library group (groupId=androidx.camera)"
+        errorLine1="                                sendEmptyMessageDelayed(RELEASE, mCameraView.getMaxVideoDuration());"
+        errorLine2="                                                                             ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/view/CaptureViewOnTouchListener.java"
+            line="82"
+            column="78"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="CameraView.getMaxVideoDuration can only be called from within the same library group (groupId=androidx.camera)"
+        errorLine1="                        &amp;&amp; (mCameraView.getMaxVideoDuration() &lt;= 0"
+        errorLine2="                                        ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/view/CaptureViewOnTouchListener.java"
+            line="148"
+            column="41"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="CameraView.getMaxVideoDuration can only be called from within the same library group (groupId=androidx.camera)"
+        errorLine1="                        || deltaSinceDownEvent() &lt; mCameraView.getMaxVideoDuration())) {"
+        errorLine2="                                                               ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/view/CaptureViewOnTouchListener.java"
+            line="149"
+            column="64"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="CameraView.getMaxVideoDuration can only be called from within the same library group (groupId=androidx.camera)"
+        errorLine1="                } else if ((mCameraView.getMaxVideoDuration() &lt;= 0"
+        errorLine2="                                        ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/view/CaptureViewOnTouchListener.java"
+            line="158"
+            column="41"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="CameraView.getMaxVideoDuration can only be called from within the same library group (groupId=androidx.camera)"
+        errorLine1="                        || deltaSinceDownEvent() &lt; mCameraView.getMaxVideoDuration())) {"
+        errorLine2="                                                               ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/view/CaptureViewOnTouchListener.java"
+            line="159"
+            column="64"/>
+    </issue>
+
+    <issue
+        id="AllowBackup"
+        message="On SDK version 23 and up, your app data will be automatically backed up and restored on app install. Consider adding the attribute `android:fullBackupContent` to specify an `@xml` resource which configures which files to backup. More info: https://developer.android.com/training/backup/autosyncapi.html"
+        errorLine1="    &lt;application"
+        errorLine2="     ~~~~~~~~~~~">
+        <location
+            file="src/main/AndroidManifest.xml"
+            line="24"
+            column="6"/>
+    </issue>
+
+    <issue
+        id="AllowBackup"
+        message="Should explicitly set `android:allowBackup` to `true` or `false` (it&apos;s `true` by default, and that can have some security implications for the application&apos;s data)"
+        errorLine1="    &lt;application"
+        errorLine2="     ~~~~~~~~~~~">
+        <location
+            file="src/main/AndroidManifest.xml"
+            line="24"
+            column="6"/>
+    </issue>
+
+    <issue
+        id="HandlerLeak"
+        message="This Handler class should be static or leaks might occur (anonymous android.os.Handler)"
+        errorLine1="            new Handler() {"
+        errorLine2="            ^">
+        <location
+            file="src/main/java/androidx/camera/integration/view/CaptureViewOnTouchListener.java"
+            line="72"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="MergeRootFrame"
+        message="This `&lt;FrameLayout>` can be replaced with a `&lt;merge>` tag"
+        errorLine1="&lt;FrameLayout xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
+        errorLine2="^">
+        <location
+            file="src/main/res/layout/activity_main.xml"
+            line="16"
+            column="1"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.preview` appears to be unused"
+        errorLine1="    &lt;string name=&quot;preview&quot;>Preview&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="20"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.btn_confirm` appears to be unused"
+        errorLine1="    &lt;string name=&quot;btn_confirm&quot;>Confirm&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="22"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.btn_cancel` appears to be unused"
+        errorLine1="    &lt;string name=&quot;btn_cancel&quot;>Cancel&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="23"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UselessParent"
+        message="This `LinearLayout` layout or its `FrameLayout` parent is possibly useless"
+        errorLine1="    &lt;LinearLayout"
+        errorLine2="     ~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout-land/fragment_main.xml"
+            line="21"
+            column="6"/>
+    </issue>
+
+    <issue
+        id="UselessParent"
+        message="This `LinearLayout` layout or its `FrameLayout` parent is possibly useless"
+        errorLine1="    &lt;LinearLayout"
+        errorLine2="     ~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/fragment_main.xml"
+            line="21"
+            column="6"/>
+    </issue>
+
+    <issue
+        id="MissingApplicationIcon"
+        message="Should explicitly set `android:icon`, there is no default"
+        errorLine1="    &lt;application"
+        errorLine2="     ~~~~~~~~~~~">
+        <location
+            file="src/main/AndroidManifest.xml"
+            line="24"
+            column="6"/>
+    </issue>
+
+    <issue
+        id="ClickableViewAccessibility"
+        message="`CaptureViewOnTouchListener#onTouch` should call `View#performClick` when a click is detected"
+        errorLine1="    public boolean onTouch(View view, MotionEvent event) {"
+        errorLine2="                   ~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/view/CaptureViewOnTouchListener.java"
+            line="129"
+            column="20"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Consider replacing `android:layout_marginRight` with `android:layout_marginEnd=&quot;15dp&quot;` to better support right-to-left layouts"
+        errorLine1="                android:layout_marginRight=&quot;15dp&quot;"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/fragment_main.xml"
+            line="60"
+            column="17"/>
+    </issue>
+
+</issues>

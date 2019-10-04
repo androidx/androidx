@@ -89,6 +89,7 @@ public abstract class CancelWorkRunnable implements Runnable {
         WorkSpecDao workSpecDao = workDatabase.workSpecDao();
         DependencyDao dependencyDao = workDatabase.dependencyDao();
 
+        @SuppressWarnings("JdkObsolete") // TODO(b/141962522): Suppressed during upgrade to AGP 3.6.
         LinkedList<String> idsToProcess = new LinkedList<>();
         idsToProcess.add(workSpecId);
         while (!idsToProcess.isEmpty()) {

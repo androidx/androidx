@@ -238,8 +238,8 @@ public class CustomTabsClient {
         return new CustomTabsSession.PendingSession(callback, sessionId);
     }
 
-    private @Nullable CustomTabsSession newSessionInternal(final CustomTabsCallback callback,
-                @Nullable PendingIntent sessionId) {
+    private @Nullable CustomTabsSession newSessionInternal(
+            @Nullable final CustomTabsCallback callback, @Nullable PendingIntent sessionId) {
         ICustomTabsCallback.Stub wrapper = createCallbackWrapper(callback);
 
         try {
@@ -264,6 +264,7 @@ public class CustomTabsClient {
      * Can be used as a channel between the Custom Tabs client and the provider to do something that
      * is not part of the API yet.
      */
+    @SuppressWarnings("NullAway") // TODO: b/141869399
     public @Nullable Bundle extraCommand(@NonNull String commandName, @Nullable Bundle args) {
         try {
             return mService.extraCommand(commandName, args);
@@ -272,7 +273,8 @@ public class CustomTabsClient {
         }
     }
 
-    private ICustomTabsCallback.Stub createCallbackWrapper(final CustomTabsCallback callback) {
+    private ICustomTabsCallback.Stub createCallbackWrapper(
+            @Nullable final CustomTabsCallback callback) {
         return new ICustomTabsCallback.Stub() {
             private Handler mHandler = new Handler(Looper.getMainLooper());
 
@@ -300,6 +302,7 @@ public class CustomTabsClient {
             }
 
             @Override
+            @SuppressWarnings("NullAway") // TODO: b/141869399
             public Bundle extraCallbackWithResult(@NonNull String callbackName,
                     @Nullable Bundle args)
                     throws RemoteException {
@@ -354,6 +357,7 @@ public class CustomTabsClient {
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @SuppressWarnings("NullAway") // TODO: b/141869399
     public CustomTabsSession attachSession(CustomTabsSession.PendingSession session) {
         return newSessionInternal(session.getCallback(), session.getId());
     }

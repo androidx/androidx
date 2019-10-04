@@ -352,6 +352,7 @@ public final class Palette {
         return mDominantSwatch != null ? mDominantSwatch.getRgb() : defaultColor;
     }
 
+    @SuppressWarnings("NullAway") // TODO(b/141959297): Suppressed during upgrade to AGP 3.6.
     void generate() {
         // We need to make sure that the scored targets are generated first. This is so that
         // inherited targets have something to inherit from

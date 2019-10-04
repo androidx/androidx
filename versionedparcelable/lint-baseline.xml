@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 3.5.0-beta04" client="gradle" variant="debug" version="3.5.0-beta04">
+<issues format="5" by="lint 3.6.0-alpha12" client="gradle" variant="debug" version="3.6.0-alpha12">
 
     <issue
         id="LambdaLast"
@@ -8,7 +8,7 @@
         errorLine2="                                                     ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
-            line="275"
+            line="276"
             column="54"/>
     </issue>
 
@@ -169,44 +169,11 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public VersionedParcel(ArrayMap&lt;String, Method> readCache,"
-        errorLine2="                           ~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
-            line="84"
-            column="28"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="            ArrayMap&lt;String, Method> writeCache,"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
-            line="85"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="            ArrayMap&lt;String, Class> parcelizerCache) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
-            line="86"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    protected abstract VersionedParcel createSubParcel();"
         errorLine2="                       ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
-            line="107"
+            line="108"
             column="24"/>
     </issue>
 
@@ -217,7 +184,7 @@
         errorLine2="                                           ~~~~~~">
         <location
             file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
-            line="114"
+            line="115"
             column="44"/>
     </issue>
 
@@ -228,7 +195,7 @@
         errorLine2="                                           ~~~~~~">
         <location
             file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
-            line="123"
+            line="124"
             column="44"/>
     </issue>
 
@@ -239,7 +206,7 @@
         errorLine2="                                              ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
-            line="128"
+            line="129"
             column="47"/>
     </issue>
 
@@ -250,7 +217,7 @@
         errorLine2="                                        ~~~~~~">
         <location
             file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
-            line="158"
+            line="159"
             column="41"/>
     </issue>
 
@@ -261,7 +228,7 @@
         errorLine2="                                              ~~~~~~~">
         <location
             file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
-            line="164"
+            line="165"
             column="47"/>
     </issue>
 
@@ -272,7 +239,7 @@
         errorLine2="                                            ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
-            line="173"
+            line="174"
             column="45"/>
     </issue>
 
@@ -283,7 +250,7 @@
         errorLine2="                                                 ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
-            line="185"
+            line="186"
             column="50"/>
     </issue>
 
@@ -294,7 +261,7 @@
         errorLine2="                                        ~~~~~~">
         <location
             file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
-            line="191"
+            line="192"
             column="41"/>
     </issue>
 
@@ -305,7 +272,7 @@
         errorLine2="                       ~~~~~~">
         <location
             file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
-            line="218"
+            line="219"
             column="24"/>
     </issue>
 
@@ -316,7 +283,7 @@
         errorLine2="                       ~~~~~~~">
         <location
             file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
-            line="223"
+            line="224"
             column="24"/>
     </issue>
 
@@ -327,7 +294,7 @@
         errorLine2="                       ~~~~~~">
         <location
             file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
-            line="228"
+            line="229"
             column="24"/>
     </issue>
 
@@ -338,7 +305,7 @@
         errorLine2="                       ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
-            line="233"
+            line="234"
             column="24"/>
     </issue>
 
@@ -349,7 +316,7 @@
         errorLine2="                                              ~">
         <location
             file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
-            line="238"
+            line="239"
             column="47"/>
     </issue>
 
@@ -360,7 +327,7 @@
         errorLine2="                       ~~~~~~">
         <location
             file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
-            line="245"
+            line="246"
             column="24"/>
     </issue>
 
@@ -371,7 +338,7 @@
         errorLine2="                                     ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
-            line="275"
+            line="276"
             column="38"/>
     </issue>
 
@@ -382,7 +349,7 @@
         errorLine2="                            ~~~~~~">
         <location
             file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
-            line="284"
+            line="285"
             column="29"/>
     </issue>
 
@@ -393,7 +360,7 @@
         errorLine2="                               ~~~~~~">
         <location
             file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
-            line="303"
+            line="304"
             column="32"/>
     </issue>
 
@@ -404,7 +371,7 @@
         errorLine2="                               ~~~~~~">
         <location
             file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
-            line="315"
+            line="316"
             column="32"/>
     </issue>
 
@@ -415,7 +382,7 @@
         errorLine2="                                  ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
-            line="324"
+            line="325"
             column="35"/>
     </issue>
 
@@ -426,7 +393,7 @@
         errorLine2="                            ~~~~~~">
         <location
             file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
-            line="369"
+            line="370"
             column="29"/>
     </issue>
 
@@ -437,7 +404,7 @@
         errorLine2="                                  ~~~~~~~">
         <location
             file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
-            line="378"
+            line="379"
             column="35"/>
     </issue>
 
@@ -448,7 +415,7 @@
         errorLine2="                                ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
-            line="390"
+            line="391"
             column="33"/>
     </issue>
 
@@ -459,7 +426,7 @@
         errorLine2="           ~~~~~~">
         <location
             file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
-            line="450"
+            line="451"
             column="12"/>
     </issue>
 
@@ -470,7 +437,7 @@
         errorLine2="                             ~~~~~~">
         <location
             file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
-            line="450"
+            line="451"
             column="30"/>
     </issue>
 
@@ -481,7 +448,7 @@
         errorLine2="           ~~~~~~~">
         <location
             file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
-            line="460"
+            line="461"
             column="12"/>
     </issue>
 
@@ -492,7 +459,7 @@
         errorLine2="                                    ~~~~~~~">
         <location
             file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
-            line="460"
+            line="461"
             column="37"/>
     </issue>
 
@@ -503,7 +470,7 @@
         errorLine2="           ~~~~~~">
         <location
             file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
-            line="471"
+            line="472"
             column="12"/>
     </issue>
 
@@ -514,7 +481,7 @@
         errorLine2="                                ~~~~~~">
         <location
             file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
-            line="471"
+            line="472"
             column="33"/>
     </issue>
 
@@ -525,7 +492,7 @@
         errorLine2="                                  ~">
         <location
             file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
-            line="480"
+            line="481"
             column="35"/>
     </issue>
 
@@ -536,7 +503,7 @@
         errorLine2="                                                   ~">
         <location
             file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
-            line="480"
+            line="481"
             column="52"/>
     </issue>
 
@@ -547,7 +514,7 @@
         errorLine2="           ~~~~~~">
         <location
             file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
-            line="492"
+            line="493"
             column="12"/>
     </issue>
 
@@ -558,7 +525,7 @@
         errorLine2="                             ~~~~~~">
         <location
             file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
-            line="492"
+            line="493"
             column="30"/>
     </issue>
 
@@ -569,7 +536,7 @@
         errorLine2="                          ~~~~">
         <location
             file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
-            line="513"
+            line="514"
             column="27"/>
     </issue>
 
@@ -580,7 +547,7 @@
         errorLine2="                           ~~~~~">
         <location
             file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
-            line="527"
+            line="528"
             column="28"/>
     </issue>
 
@@ -591,7 +558,7 @@
         errorLine2="                                        ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
-            line="538"
+            line="539"
             column="41"/>
     </issue>
 
@@ -602,7 +569,7 @@
         errorLine2="                                  ~~~~~~~~~">
         <location
             file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
-            line="556"
+            line="557"
             column="35"/>
     </issue>
 
@@ -613,7 +580,7 @@
         errorLine2="                                     ~~~~~~~~~">
         <location
             file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
-            line="563"
+            line="564"
             column="38"/>
     </issue>
 
@@ -624,7 +591,7 @@
         errorLine2="           ~~~~~~~~~">
         <location
             file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
-            line="577"
+            line="578"
             column="12"/>
     </issue>
 
@@ -635,7 +602,7 @@
         errorLine2="                                      ~~~~~~~~~">
         <location
             file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
-            line="577"
+            line="578"
             column="39"/>
     </issue>
 
@@ -646,7 +613,7 @@
         errorLine2="              ~~~~~~~~~">
         <location
             file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
-            line="586"
+            line="587"
             column="15"/>
     </issue>
 
@@ -657,7 +624,7 @@
         errorLine2="                               ~~~~~~">
         <location
             file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
-            line="600"
+            line="601"
             column="32"/>
     </issue>
 
@@ -668,7 +635,7 @@
         errorLine2="           ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
-            line="615"
+            line="616"
             column="12"/>
     </issue>
 
@@ -679,7 +646,7 @@
         errorLine2="                                         ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
-            line="615"
+            line="616"
             column="42"/>
     </issue>
 
@@ -690,7 +657,7 @@
         errorLine2="           ~~~~~~">
         <location
             file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
-            line="624"
+            line="625"
             column="12"/>
     </issue>
 
@@ -701,7 +668,7 @@
         errorLine2="                                ~~~~~~">
         <location
             file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
-            line="624"
+            line="625"
             column="33"/>
     </issue>
 
@@ -712,7 +679,7 @@
         errorLine2="                              ~~~~~">
         <location
             file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
-            line="641"
+            line="642"
             column="31"/>
     </issue>
 
@@ -723,7 +690,7 @@
         errorLine2="                                 ~~~~~">
         <location
             file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
-            line="648"
+            line="649"
             column="34"/>
     </issue>
 
@@ -734,7 +701,7 @@
         errorLine2="           ~~~~~">
         <location
             file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
-            line="662"
+            line="663"
             column="12"/>
     </issue>
 
@@ -745,7 +712,7 @@
         errorLine2="                              ~~~~~">
         <location
             file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
-            line="662"
+            line="663"
             column="31"/>
     </issue>
 
@@ -756,7 +723,7 @@
         errorLine2="              ~~~~~">
         <location
             file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
-            line="671"
+            line="672"
             column="15"/>
     </issue>
 
@@ -767,7 +734,7 @@
         errorLine2="                               ~~~~~~">
         <location
             file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
-            line="685"
+            line="686"
             column="32"/>
     </issue>
 
@@ -778,7 +745,7 @@
         errorLine2="                                  ~~~~~~">
         <location
             file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
-            line="692"
+            line="693"
             column="35"/>
     </issue>
 
@@ -789,7 +756,7 @@
         errorLine2="           ~~~~~~">
         <location
             file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
-            line="706"
+            line="707"
             column="12"/>
     </issue>
 
@@ -800,7 +767,7 @@
         errorLine2="                                ~~~~~~">
         <location
             file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
-            line="706"
+            line="707"
             column="33"/>
     </issue>
 
@@ -811,7 +778,7 @@
         errorLine2="              ~~~~~~">
         <location
             file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
-            line="715"
+            line="716"
             column="15"/>
     </issue>
 
@@ -822,7 +789,7 @@
         errorLine2="                                ~~~~~~~">
         <location
             file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
-            line="729"
+            line="730"
             column="33"/>
     </issue>
 
@@ -833,7 +800,7 @@
         errorLine2="                                   ~~~~~~~">
         <location
             file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
-            line="736"
+            line="737"
             column="36"/>
     </issue>
 
@@ -844,7 +811,7 @@
         errorLine2="           ~~~~~~~">
         <location
             file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
-            line="750"
+            line="751"
             column="12"/>
     </issue>
 
@@ -855,7 +822,7 @@
         errorLine2="                                  ~~~~~~~">
         <location
             file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
-            line="750"
+            line="751"
             column="35"/>
     </issue>
 
@@ -866,7 +833,7 @@
         errorLine2="              ~~~~~~~">
         <location
             file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
-            line="759"
+            line="760"
             column="15"/>
     </issue>
 
@@ -877,7 +844,7 @@
         errorLine2="                                 ~~~~~~~~">
         <location
             file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
-            line="773"
+            line="774"
             column="34"/>
     </issue>
 
@@ -888,7 +855,7 @@
         errorLine2="                                    ~~~~~~~~">
         <location
             file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
-            line="780"
+            line="781"
             column="37"/>
     </issue>
 
@@ -899,7 +866,7 @@
         errorLine2="           ~~~~~~~~">
         <location
             file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
-            line="794"
+            line="795"
             column="12"/>
     </issue>
 
@@ -910,7 +877,7 @@
         errorLine2="                                    ~~~~~~~~">
         <location
             file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
-            line="794"
+            line="795"
             column="37"/>
     </issue>
 
@@ -921,7 +888,7 @@
         errorLine2="              ~~~~~~~~">
         <location
             file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
-            line="803"
+            line="804"
             column="15"/>
     </issue>
 
@@ -932,7 +899,7 @@
         errorLine2="                             ~~~~~~">
         <location
             file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
-            line="825"
+            line="826"
             column="30"/>
     </issue>
 
@@ -943,7 +910,7 @@
         errorLine2="                              ~~~~~~~">
         <location
             file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
-            line="839"
+            line="840"
             column="31"/>
     </issue>
 
@@ -954,7 +921,7 @@
         errorLine2="                                ~~~~~~~~~">
         <location
             file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
-            line="853"
+            line="854"
             column="33"/>
     </issue>
 
@@ -965,7 +932,7 @@
         errorLine2="                               ~~~">
         <location
             file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
-            line="940"
+            line="941"
             column="32"/>
     </issue>
 
@@ -976,7 +943,7 @@
         errorLine2="                                  ~~~">
         <location
             file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
-            line="947"
+            line="948"
             column="35"/>
     </issue>
 
@@ -987,7 +954,7 @@
         errorLine2="                                         ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
-            line="1020"
+            line="1021"
             column="42"/>
     </issue>
 
@@ -998,7 +965,7 @@
         errorLine2="                                            ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
-            line="1027"
+            line="1028"
             column="45"/>
     </issue>
 
@@ -1009,7 +976,7 @@
         errorLine2="                                  ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
-            line="1056"
+            line="1057"
             column="35"/>
     </issue>
 
@@ -1020,7 +987,7 @@
         errorLine2="                               ~~~~~~~~~">
         <location
             file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
-            line="1106"
+            line="1107"
             column="32"/>
     </issue>
 
@@ -1031,7 +998,7 @@
         errorLine2="           ~~~~~~~~~">
         <location
             file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
-            line="1169"
+            line="1170"
             column="12"/>
     </issue>
 
@@ -1042,7 +1009,7 @@
         errorLine2="                                   ~~~~~~~~~">
         <location
             file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
-            line="1169"
+            line="1170"
             column="36"/>
     </issue>
 
@@ -1053,7 +1020,7 @@
         errorLine2="           ~~~~">
         <location
             file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
-            line="1255"
+            line="1256"
             column="12"/>
     </issue>
 
@@ -1064,7 +1031,7 @@
         errorLine2="                         ~~~~">
         <location
             file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
-            line="1255"
+            line="1256"
             column="26"/>
     </issue>
 
@@ -1075,7 +1042,7 @@
         errorLine2="           ~~~~~">
         <location
             file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
-            line="1271"
+            line="1272"
             column="12"/>
     </issue>
 
@@ -1086,7 +1053,7 @@
         errorLine2="                           ~~~~~">
         <location
             file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
-            line="1271"
+            line="1272"
             column="28"/>
     </issue>
 
@@ -1097,7 +1064,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
-            line="1288"
+            line="1289"
             column="12"/>
     </issue>
 
@@ -1108,7 +1075,7 @@
         errorLine2="                                                     ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
-            line="1288"
+            line="1289"
             column="54"/>
     </issue>
 
@@ -1119,7 +1086,7 @@
         errorLine2="               ~~~~~~">
         <location
             file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
-            line="1317"
+            line="1318"
             column="16"/>
     </issue>
 
@@ -1130,7 +1097,7 @@
         errorLine2="                              ~~~~~~">
         <location
             file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
-            line="1317"
+            line="1318"
             column="31"/>
     </issue>
 
@@ -1141,7 +1108,7 @@
         errorLine2="               ~~~~~~~">
         <location
             file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
-            line="1336"
+            line="1337"
             column="16"/>
     </issue>
 
@@ -1152,7 +1119,7 @@
         errorLine2="                                ~~~~~~~">
         <location
             file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
-            line="1336"
+            line="1337"
             column="33"/>
     </issue>
 
@@ -1163,7 +1130,7 @@
         errorLine2="                  ~~~~~~~~~">
         <location
             file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
-            line="1400"
+            line="1402"
             column="19"/>
     </issue>
 
@@ -1174,7 +1141,7 @@
         errorLine2="                                    ~~~~~~~~~">
         <location
             file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
-            line="1400"
+            line="1402"
             column="37"/>
     </issue>
 
@@ -1185,7 +1152,7 @@
         errorLine2="               ~~~">
         <location
             file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
-            line="1434"
+            line="1436"
             column="16"/>
     </issue>
 
@@ -1196,7 +1163,7 @@
         errorLine2="                             ~~~">
         <location
             file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
-            line="1434"
+            line="1436"
             column="30"/>
     </issue>
 
@@ -1207,7 +1174,7 @@
         errorLine2="                  ~~~">
         <location
             file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
-            line="1443"
+            line="1446"
             column="19"/>
     </issue>
 
@@ -1218,7 +1185,7 @@
         errorLine2="                                ~~~">
         <location
             file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
-            line="1443"
+            line="1446"
             column="33"/>
     </issue>
 
@@ -1229,7 +1196,7 @@
         errorLine2="                                           ~">
         <location
             file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
-            line="1492"
+            line="1495"
             column="44"/>
     </issue>
 
@@ -1240,7 +1207,7 @@
         errorLine2="                                                                     ~">
         <location
             file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
-            line="1492"
+            line="1495"
             column="70"/>
     </issue>
 
@@ -1251,7 +1218,7 @@
         errorLine2="                                              ~">
         <location
             file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
-            line="1508"
+            line="1511"
             column="47"/>
     </issue>
 
@@ -1262,7 +1229,7 @@
         errorLine2="              ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
-            line="1522"
+            line="1525"
             column="15"/>
     </issue>
 
@@ -1273,7 +1240,7 @@
         errorLine2="                                              ~">
         <location
             file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
-            line="1562"
+            line="1563"
             column="47"/>
     </issue>
 
@@ -1284,7 +1251,7 @@
         errorLine2="            ~~~~~~">
         <location
             file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
-            line="1563"
+            line="1564"
             column="13"/>
     </issue>
 
@@ -1295,7 +1262,7 @@
         errorLine2="                              ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
-            line="1563"
+            line="1564"
             column="31"/>
     </issue>
 
@@ -1306,7 +1273,7 @@
         errorLine2="                                                                 ~">
         <location
             file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
-            line="1583"
+            line="1588"
             column="66"/>
     </issue>
 
@@ -1317,7 +1284,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
-            line="1584"
+            line="1589"
             column="13"/>
     </issue>
 
@@ -1328,7 +1295,7 @@
         errorLine2="                               ~~~~~~~~~">
         <location
             file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
-            line="1641"
+            line="1648"
             column="32"/>
     </issue>
 

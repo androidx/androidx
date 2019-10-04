@@ -61,6 +61,8 @@ class ProcessingImageReader implements ImageReaderProxy {
     // Callback when Image is ready from OutputImageReader.
     private ImageReaderProxy.OnImageAvailableListener mImageProcessedListener =
             new ImageReaderProxy.OnImageAvailableListener() {
+                // TODO(b/141958189): Suppressed during upgrade to AGP 3.6.
+                @SuppressWarnings("GuardedBy")
                 @Override
                 public void onImageAvailable(ImageReaderProxy reader) {
                     // Callback the output OnImageAvailableListener.
@@ -84,6 +86,8 @@ class ProcessingImageReader implements ImageReaderProxy {
     // Callback when all the ImageProxies in SettableImageProxyBundle are ready.
     private FutureCallback<List<ImageProxy>> mCaptureStageReadyCallback =
             new FutureCallback<List<ImageProxy>>() {
+                // TODO(b/141958189): Suppressed during upgrade to AGP 3.6.
+                @SuppressWarnings("GuardedBy")
                 @Override
                 public void onSuccess(@Nullable List<ImageProxy> imageProxyList) {
                     mCaptureProcessor.process(mSettableImageProxyBundle);
@@ -165,6 +169,7 @@ class ProcessingImageReader implements ImageReaderProxy {
         init(CameraXExecutors.newHandlerExecutor(handler), captureBundle, captureProcessor);
     }
 
+    @SuppressWarnings("GuardedBy") // TODO(b/141958189): Suppressed during upgrade to AGP 3.6.
     private void init(@NonNull Executor executor, @NonNull CaptureBundle captureBundle,
             @NonNull CaptureProcessor captureProcessor) {
         mExecutor = executor;
@@ -286,6 +291,7 @@ class ProcessingImageReader implements ImageReaderProxy {
     }
 
     /** Returns necessary camera callbacks to retrieve metadata from camera result. */
+    @SuppressWarnings("GuardedBy") // TODO(b/141958189): Suppressed during upgrade to AGP 3.6.
     @Nullable
     CameraCaptureCallback getCameraCaptureCallback() {
         if (mInputImageReader instanceof MetadataImageReader) {
@@ -295,6 +301,7 @@ class ProcessingImageReader implements ImageReaderProxy {
         }
     }
 
+    @SuppressWarnings("GuardedBy") // TODO(b/141958189): Suppressed during upgrade to AGP 3.6.
     void setupSettableImageProxyBundleCallbacks() {
         List<ListenableFuture<ImageProxy>> futureList = new ArrayList<>();
         for (Integer id : mCaptureIdList) {
