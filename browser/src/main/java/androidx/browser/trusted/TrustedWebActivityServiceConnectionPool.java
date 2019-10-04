@@ -43,7 +43,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
- * A TrustedWebActivityServiceConnectionManager will be used by a Trusted Web Activity provider and
+ * A TrustedWebActivityServiceConnectionPool will be used by a Trusted Web Activity provider and
  * takes care of connecting to and communicating with {@link TrustedWebActivityService}s.
  * <p>
  * Trusted Web Activity client apps are registered with {@link #registerClient}, associating a
@@ -53,8 +53,8 @@ import java.util.concurrent.atomic.AtomicReference;
  * <p>
  * To interact with a {@link TrustedWebActivityService}, call {@link #connect}.
  */
-public final class TrustedWebActivityServiceConnectionManager {
-    private static final String TAG = "TWAConnectionManager";
+public final class TrustedWebActivityServiceConnectionPool {
+    private static final String TAG = "TWAConnectionPool";
     private static final String PREFS_FILE = "TrustedWebActivityVerifiedPackages";
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
@@ -104,11 +104,7 @@ public final class TrustedWebActivityServiceConnectionManager {
         }
     }
 
-    /**
-     * Creates a TrustedWebActivityServiceConnectionManager.
-     * @param context A Context used for accessing SharedPreferences.
-     */
-    public TrustedWebActivityServiceConnectionManager(@NonNull Context context) {
+    private TrustedWebActivityServiceConnectionPool(@NonNull Context context) {
         mContext = context.getApplicationContext();
 
         // Asynchronously try to load (and therefore cache) the preferences.
@@ -118,6 +114,15 @@ public final class TrustedWebActivityServiceConnectionManager {
                 ensurePreferencesOpened(context);
             }
         });
+    }
+
+    /**
+     * Creates a TrustedWebActivityServiceConnectionPool.
+     * @param context A Context used for accessing SharedPreferences.
+     */
+    @NonNull
+    public static TrustedWebActivityServiceConnectionPool create(@NonNull Context context) {
+        return new TrustedWebActivityServiceConnectionPool(context);
     }
 
     /**
@@ -140,7 +145,7 @@ public final class TrustedWebActivityServiceConnectionManager {
      * @param executor The {@link Executor} to connect to the Service on if a new connection is
      *                 required.
      * @return A {@link ListenableFuture} for the resulting
-     *         {@link TrustedWebActivityServiceWrapper}. This may be set to an
+     *         {@link TrustedWebActivityServiceConnection}. This may be set to an
      *         {@link IllegalArgumentException} if no service exists for the scope (you can check
      *         for this beforehand by calling {@link #serviceExistsForScope(Uri, String)}. It may
      *         be set to a {@link SecurityException} if the Service does not accept connections from
@@ -149,7 +154,7 @@ public final class TrustedWebActivityServiceConnectionManager {
      */
     @MainThread
     @NonNull
-    public ListenableFuture<TrustedWebActivityServiceWrapper> connect(
+    public ListenableFuture<TrustedWebActivityServiceConnection> connect(
             @NonNull final Uri scope, @NonNull String origin, @NonNull Executor executor) {
         // If we have an existing connection, use it.
         ConnectionHolder connection = mConnections.get(scope);

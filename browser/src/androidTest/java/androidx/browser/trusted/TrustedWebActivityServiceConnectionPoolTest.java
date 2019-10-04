@@ -46,12 +46,12 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 @RunWith(AndroidJUnit4.class)
 @MediumTest
-public class TrustedWebActivityServiceConnectionManagerTest {
+public class TrustedWebActivityServiceConnectionPoolTest {
     private static final String ORIGIN = "https://localhost:3080";
     private static final Uri GOOD_SCOPE = Uri.parse("https://www.example.com/notifications");
     private static final Uri BAD_SCOPE = Uri.parse("https://www.notexample.com");
 
-    private TrustedWebActivityServiceConnectionManager mManager;
+    private TrustedWebActivityServiceConnectionPool mManager;
     private Context mContext;
 
     // TODO: Test security exception.
@@ -67,9 +67,9 @@ public class TrustedWebActivityServiceConnectionManagerTest {
     @Before
     public void setUp() {
         mContext = ApplicationProvider.getApplicationContext();
-        mManager = new TrustedWebActivityServiceConnectionManager(mContext);
+        mManager = TrustedWebActivityServiceConnectionPool.create(mContext);
 
-        TrustedWebActivityServiceConnectionManager
+        TrustedWebActivityServiceConnectionPool
                 .registerClient(mContext, ORIGIN, mContext.getPackageName());
     }
 
@@ -82,7 +82,7 @@ public class TrustedWebActivityServiceConnectionManagerTest {
     public void testConnection() {
         final AtomicBoolean connected = new AtomicBoolean();
 
-        ListenableFuture<TrustedWebActivityServiceWrapper> serviceFuture =
+        ListenableFuture<TrustedWebActivityServiceConnection> serviceFuture =
                 mManager.connect(GOOD_SCOPE, ORIGIN, AsyncTask.THREAD_POOL_EXECUTOR);
 
         serviceFuture.addListener(() -> {
@@ -102,7 +102,7 @@ public class TrustedWebActivityServiceConnectionManagerTest {
     public void testNoService() {
         assertFalse(mManager.serviceExistsForScope(BAD_SCOPE, ORIGIN));
 
-        ListenableFuture<TrustedWebActivityServiceWrapper> serviceFuture =
+        ListenableFuture<TrustedWebActivityServiceConnection> serviceFuture =
                 mManager.connect(BAD_SCOPE, ORIGIN, AsyncTask.THREAD_POOL_EXECUTOR);
 
         try {
