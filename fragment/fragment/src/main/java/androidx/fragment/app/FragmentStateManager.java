@@ -157,11 +157,18 @@ class FragmentStateManager {
             maxState = Math.min(maxState, Fragment.ACTIVITY_CREATED);
         }
         // Don't allow the Fragment to go above its max lifecycle state
-        // Ensure that Fragments are capped at CREATED instead of ACTIVITY_CREATED.
-        if (mFragment.mMaxState == Lifecycle.State.CREATED) {
-            maxState = Math.min(maxState, Fragment.CREATED);
-        } else {
-            maxState = Math.min(maxState, mFragment.mMaxState.ordinal());
+        switch (mFragment.mMaxState) {
+            case RESUMED:
+                // maxState can't go any higher than RESUMED, so there's nothing to do here
+                break;
+            case STARTED:
+                maxState = Math.min(maxState, Fragment.STARTED);
+                break;
+            case CREATED:
+                maxState = Math.min(maxState, Fragment.CREATED);
+                break;
+            default:
+                maxState = Math.min(maxState, Fragment.INITIALIZING);
         }
         return maxState;
     }
