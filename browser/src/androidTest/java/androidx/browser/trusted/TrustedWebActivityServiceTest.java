@@ -77,7 +77,6 @@ public class TrustedWebActivityServiceTest {
     @After
     public void tearDown() {
         mServiceRule.unbindService();
-        TrustedWebActivityService.setVerifiedProvider(mContext, null);
     }
 
     // Our ServiceConnection doesn't need to do anything since the binder is returned by the
