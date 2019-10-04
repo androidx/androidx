@@ -362,6 +362,18 @@ package androidx.ui.text.font {
     method public java.util.ListIterator<androidx.ui.text.font.Font> listIterator();
     method public java.util.ListIterator<androidx.ui.text.font.Font> listIterator(int index);
     method public java.util.List<androidx.ui.text.font.Font> subList(int fromIndex, int toIndex);
+    field public static final androidx.ui.text.font.FontFamily.Companion! Companion;
+  }
+
+  public static final class FontFamily.Companion {
+    method public androidx.ui.text.font.FontFamily getCursive();
+    method public androidx.ui.text.font.FontFamily getMonospace();
+    method public androidx.ui.text.font.FontFamily getSansSerif();
+    method public androidx.ui.text.font.FontFamily getSerif();
+    property public final androidx.ui.text.font.FontFamily Cursive;
+    property public final androidx.ui.text.font.FontFamily Monospace;
+    property public final androidx.ui.text.font.FontFamily SansSerif;
+    property public final androidx.ui.text.font.FontFamily Serif;
   }
 
   public final class FontFamilyList implements kotlin.jvm.internal.markers.KMappedMarker java.util.List<androidx.ui.text.font.FontFamily> {
