@@ -20,7 +20,6 @@ import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
@@ -145,32 +144,29 @@ public class RendererTerminationActivity extends AppCompatActivity {
     }
 
     private class JSBlocker {
-        boolean mIsBlocked = false;
-        boolean mAwaitingBlock = false;
+        boolean mBlocked = false;
 
         JSBlocker() {
             updateButtonState(false);
         }
 
         synchronized void unblock() {
+            mBlocked = false;
             notify();
+            updateButtonState(false);
         }
 
         synchronized void beginBlocking() {
-            mAwaitingBlock = true;
+            mBlocked = true;
             mWebView.evaluateJavascript("__blocker__.block();", null);
             updateButtonState(true);
         }
 
         @JavascriptInterface
         public synchronized void block() throws Exception {
-            mAwaitingBlock = false;
-            mIsBlocked = true;
-            wait();
-            mIsBlocked = false;
-            new Handler(Looper.getMainLooper()).post(() -> {
-                updateButtonState(false);
-            });
+            while (mBlocked) {
+                wait();
+            }
         }
     }
 
