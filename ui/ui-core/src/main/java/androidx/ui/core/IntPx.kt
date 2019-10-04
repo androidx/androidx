@@ -208,18 +208,18 @@ inline fun IntPx.coerceAtMost(maximumValue: IntPx): IntPx =
 /**
  * Linearly interpolate between two [IntPx]s.
  *
- * The `t` argument represents position on the timeline, with 0.0 meaning
- * that the interpolation has not started, returning `a` (or something
- * equivalent to `a`), 1.0 meaning that the interpolation has finished,
- * returning `b` (or something equivalent to `b`), and values in between
+ * The [fraction] argument represents position on the timeline, with 0.0 meaning
+ * that the interpolation has not started, returning [start] (or something
+ * equivalent to [start]), 1.0 meaning that the interpolation has finished,
+ * returning [stop] (or something equivalent to [stop]), and values in between
  * meaning that the interpolation is at the relevant point on the timeline
- * between `a` and `b`. The interpolation can be extrapolated beyond 0.0 and
+ * between [start] and [stop]. The interpolation can be extrapolated beyond 0.0 and
  * 1.0, so negative values and values greater than 1.0 are valid.
  *
- * If [a] or [b] is [IntPx.Infinity], then [IntPx.Infinity] is returned.
+ * If [start] or [stop] is [IntPx.Infinity], then [IntPx.Infinity] is returned.
  */
-fun lerp(a: IntPx, b: IntPx, t: Float): IntPx {
-    return a.keepInfinity(b, IntPx(lerp(a.value, b.value, t).roundToInt()))
+fun lerp(start: IntPx, stop: IntPx, fraction: Float): IntPx {
+    return start.keepInfinity(stop, IntPx(lerp(start.value, stop.value, fraction)))
 }
 
 /**
@@ -329,16 +329,16 @@ inline fun IntPxPosition(x: IntPx, y: IntPx): IntPxPosition =
 /**
  * Linearly interpolate between two [IntPxPosition]s.
  *
- * The `t` argument represents position on the timeline, with 0.0 meaning
- * that the interpolation has not started, returning `a` (or something
- * equivalent to `a`), 1.0 meaning that the interpolation has finished,
- * returning `b` (or something equivalent to `b`), and values in between
+ * The [fraction] argument represents position on the timeline, with 0.0 meaning
+ * that the interpolation has not started, returning [start] (or something
+ * equivalent to [start]), 1.0 meaning that the interpolation has finished,
+ * returning [stop] (or something equivalent to [stop]), and values in between
  * meaning that the interpolation is at the relevant point on the timeline
- * between `a` and `b`. The interpolation can be extrapolated beyond 0.0 and
+ * between [start] and [stop]. The interpolation can be extrapolated beyond 0.0 and
  * 1.0, so negative values and values greater than 1.0 are valid.
  */
-fun lerp(a: IntPxPosition, b: IntPxPosition, t: Float): IntPxPosition =
-    IntPxPosition(lerp(a.x, b.x, t), lerp(a.y, b.y, t))
+fun lerp(start: IntPxPosition, stop: IntPxPosition, fraction: Float): IntPxPosition =
+    IntPxPosition(lerp(start.x, stop.x, fraction), lerp(start.y, stop.y, fraction))
 
 /**
  * A four dimensional bounds using [IntPx] for units

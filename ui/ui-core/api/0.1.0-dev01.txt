@@ -3,8 +3,8 @@ package androidx.ui {
 
   public final class MathHelpersKt {
     ctor public MathHelpersKt();
-    method public static float lerp(float a, float b, float t);
-    method public static float lerp(int a, int b, float t);
+    method public static float lerp(float start, float stop, float fraction);
+    method public static int lerp(int start, int stop, float fraction);
     method public static String toHexString(int);
     method public static String toStringAsFixed(float, int digits);
   }
@@ -279,8 +279,8 @@ package androidx.ui.core {
     method public static inline androidx.ui.core.Dp getHeight(androidx.ui.core.Bounds);
     method public static inline androidx.ui.core.Dp getWidth(androidx.ui.core.Bounds);
     method public static inline boolean isFinite(androidx.ui.core.Dp);
-    method public static androidx.ui.core.Dp lerp(androidx.ui.core.Dp a, androidx.ui.core.Dp b, float t);
-    method public static androidx.ui.core.Position lerp(androidx.ui.core.Position a, androidx.ui.core.Position b, float t);
+    method public static androidx.ui.core.Dp lerp(androidx.ui.core.Dp start, androidx.ui.core.Dp stop, float fraction);
+    method public static androidx.ui.core.Position lerp(androidx.ui.core.Position start, androidx.ui.core.Position stop, float fraction);
     method public static inline androidx.ui.core.Dp max(androidx.ui.core.Dp a, androidx.ui.core.Dp b);
     method public static inline androidx.ui.core.Dp min(androidx.ui.core.Dp a, androidx.ui.core.Dp b);
     method public static inline operator androidx.ui.core.Dp times(float, androidx.ui.core.Dp other);
@@ -440,8 +440,8 @@ package androidx.ui.core {
     method public static inline androidx.ui.core.IntPx getIpx(int);
     method public static inline androidx.ui.core.IntPx getWidth(androidx.ui.core.IntPxBounds);
     method public static inline boolean isFinite(androidx.ui.core.IntPx);
-    method public static androidx.ui.core.IntPx lerp(androidx.ui.core.IntPx a, androidx.ui.core.IntPx b, float t);
-    method public static androidx.ui.core.IntPxPosition lerp(androidx.ui.core.IntPxPosition a, androidx.ui.core.IntPxPosition b, float t);
+    method public static androidx.ui.core.IntPx lerp(androidx.ui.core.IntPx start, androidx.ui.core.IntPx stop, float fraction);
+    method public static androidx.ui.core.IntPxPosition lerp(androidx.ui.core.IntPxPosition start, androidx.ui.core.IntPxPosition stop, float fraction);
     method public static inline androidx.ui.core.IntPx max(androidx.ui.core.IntPx a, androidx.ui.core.IntPx b);
     method public static inline androidx.ui.core.IntPx min(androidx.ui.core.IntPx a, androidx.ui.core.IntPx b);
     method public static inline androidx.ui.core.IntPx round(androidx.ui.core.Px);
@@ -729,8 +729,8 @@ package androidx.ui.core {
     method public static inline androidx.ui.core.Px getPx(double);
     method public static inline androidx.ui.core.Px getPx(float);
     method public static inline androidx.ui.core.Px getWidth(androidx.ui.core.PxBounds);
-    method public static androidx.ui.core.Px lerp(androidx.ui.core.Px a, androidx.ui.core.Px b, float t);
-    method public static androidx.ui.core.PxPosition lerp(androidx.ui.core.PxPosition a, androidx.ui.core.PxPosition b, float t);
+    method public static androidx.ui.core.Px lerp(androidx.ui.core.Px start, androidx.ui.core.Px stop, float fraction);
+    method public static androidx.ui.core.PxPosition lerp(androidx.ui.core.PxPosition start, androidx.ui.core.PxPosition stop, float fraction);
     method public static inline androidx.ui.core.Px max(androidx.ui.core.Px a, androidx.ui.core.Px b);
     method public static inline androidx.ui.core.Px min(androidx.ui.core.Px a, androidx.ui.core.Px b);
     method public static inline androidx.ui.core.IntPxPosition round(androidx.ui.core.PxPosition);
@@ -855,7 +855,7 @@ package androidx.ui.core {
     method public static inline androidx.ui.core.Sp getSp(int);
     method public static inline androidx.ui.core.Sp getSp(double);
     method public static inline androidx.ui.core.Sp getSp(float);
-    method public static androidx.ui.core.Sp lerp(androidx.ui.core.Sp a, androidx.ui.core.Sp b, float t);
+    method public static androidx.ui.core.Sp lerp(androidx.ui.core.Sp start, androidx.ui.core.Sp stop, float fraction);
     method public static inline androidx.ui.core.Sp max(androidx.ui.core.Sp a, androidx.ui.core.Sp b);
     method public static inline androidx.ui.core.Sp min(androidx.ui.core.Sp a, androidx.ui.core.Sp b);
     method public static inline operator androidx.ui.core.Sp times(float, androidx.ui.core.Sp other);
@@ -936,7 +936,7 @@ package androidx.ui.engine.geometry {
     method public androidx.ui.engine.geometry.Offset getInfinite();
     method public androidx.ui.engine.geometry.Offset getZero();
     method public boolean isValid(androidx.ui.engine.geometry.Offset offset);
-    method public androidx.ui.engine.geometry.Offset? lerp(androidx.ui.engine.geometry.Offset a, androidx.ui.engine.geometry.Offset b, float t);
+    method public androidx.ui.engine.geometry.Offset? lerp(androidx.ui.engine.geometry.Offset start, androidx.ui.engine.geometry.Offset stop, float fraction);
     property public final androidx.ui.engine.geometry.Offset infinite;
     property public final androidx.ui.engine.geometry.Offset zero;
   }
@@ -1052,7 +1052,7 @@ package androidx.ui.engine.geometry {
     method public static boolean isFinite(androidx.ui.engine.geometry.RRect);
     method public static boolean isRect(androidx.ui.engine.geometry.RRect);
     method public static boolean isStadium(androidx.ui.engine.geometry.RRect);
-    method public static androidx.ui.engine.geometry.RRect? lerp(androidx.ui.engine.geometry.RRect? a, androidx.ui.engine.geometry.RRect? b, float t);
+    method public static androidx.ui.engine.geometry.RRect lerp(androidx.ui.engine.geometry.RRect start, androidx.ui.engine.geometry.RRect stop, float fraction);
     method public static androidx.ui.engine.geometry.Rect middleRect(androidx.ui.engine.geometry.RRect);
     method public static androidx.ui.engine.geometry.Rect outerRect(androidx.ui.engine.geometry.RRect);
     method public static androidx.ui.engine.geometry.Rect safeInnerRect(androidx.ui.engine.geometry.RRect);
@@ -1091,7 +1091,7 @@ package androidx.ui.engine.geometry {
 
   public final class RadiusKt {
     ctor public RadiusKt();
-    method public static androidx.ui.engine.geometry.Radius lerp(androidx.ui.engine.geometry.Radius a, androidx.ui.engine.geometry.Radius b, float t);
+    method public static androidx.ui.engine.geometry.Radius lerp(androidx.ui.engine.geometry.Radius start, androidx.ui.engine.geometry.Radius stop, float fraction);
   }
 
   public final class Rect {
@@ -1151,7 +1151,7 @@ package androidx.ui.engine.geometry {
 
   public final class RectKt {
     ctor public RectKt();
-    method public static androidx.ui.engine.geometry.Rect lerp(androidx.ui.engine.geometry.Rect a, androidx.ui.engine.geometry.Rect b, float t);
+    method public static androidx.ui.engine.geometry.Rect lerp(androidx.ui.engine.geometry.Rect start, androidx.ui.engine.geometry.Rect stop, float fraction);
   }
 
   public interface Shape {
@@ -1197,7 +1197,7 @@ package androidx.ui.engine.geometry {
     method public androidx.ui.engine.geometry.Size fromWidth(float width);
     method public androidx.ui.engine.geometry.Size getInfinite();
     method public androidx.ui.engine.geometry.Size getZero();
-    method public androidx.ui.engine.geometry.Size? lerp(androidx.ui.engine.geometry.Size a, androidx.ui.engine.geometry.Size b, float t);
+    method public androidx.ui.engine.geometry.Size? lerp(androidx.ui.engine.geometry.Size start, androidx.ui.engine.geometry.Size stop, float fraction);
     method public androidx.ui.engine.geometry.Size square(float dimension);
     property public final androidx.ui.engine.geometry.Size infinite;
     property public final androidx.ui.engine.geometry.Size zero;
@@ -1379,7 +1379,7 @@ package androidx.ui.graphics {
     method public static androidx.ui.graphics.Color Color(@ColorInt int color);
     method public static androidx.ui.graphics.Color Color(long color);
     method public static androidx.ui.graphics.Color Color(@IntRange(from=0, to=255) int red, @IntRange(from=0, to=255) int green, @IntRange(from=0, to=255) int blue, @IntRange(from=0, to=255) int alpha = 0xFF);
-    method public static androidx.ui.graphics.Color lerp(androidx.ui.graphics.Color a, androidx.ui.graphics.Color b, @FloatRange(from=0.0, to=1.0) float t);
+    method public static androidx.ui.graphics.Color lerp(androidx.ui.graphics.Color start, androidx.ui.graphics.Color stop, @FloatRange(from=0.0, to=1.0) float fraction);
     method public static float luminance(androidx.ui.graphics.Color);
     method @ColorInt public static int toArgb(androidx.ui.graphics.Color);
   }
@@ -1616,7 +1616,7 @@ package androidx.ui.graphics {
 
   public final class ShadowKt {
     ctor public ShadowKt();
-    method public static androidx.ui.graphics.Shadow lerp(androidx.ui.graphics.Shadow a, androidx.ui.graphics.Shadow b, float t);
+    method public static androidx.ui.graphics.Shadow lerp(androidx.ui.graphics.Shadow start, androidx.ui.graphics.Shadow stop, float fraction);
   }
 
   public final class SolidColor implements androidx.ui.graphics.Brush {

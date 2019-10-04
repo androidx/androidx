@@ -154,14 +154,14 @@ inline fun Sp.coerceAtMost(maximumValue: Sp): Sp =
 /**
  * Linearly interpolate between two [Dp]s.
  *
- * The `t` argument represents position on the timeline, with 0.0 meaning
- * that the interpolation has not started, returning `a` (or something
- * equivalent to `a`), 1.0 meaning that the interpolation has finished,
- * returning `b` (or something equivalent to `b`), and values in between
+ * The [fraction] argument represents position on the timeline, with 0.0 meaning
+ * that the interpolation has not started, returning [start] (or something
+ * equivalent to [start]), 1.0 meaning that the interpolation has finished,
+ * returning [stop] (or something equivalent to [stop]), and values in between
  * meaning that the interpolation is at the relevant point on the timeline
- * between `a` and `b`. The interpolation can be extrapolated beyond 0.0 and
+ * between [start] and [stop]. The interpolation can be extrapolated beyond 0.0 and
  * 1.0, so negative values and values greater than 1.0 are valid.
  */
-fun lerp(a: Sp, b: Sp, t: Float): Sp {
-    return Sp(androidx.ui.lerp(a.value, b.value, t))
+fun lerp(start: Sp, stop: Sp, fraction: Float): Sp {
+    return Sp(androidx.ui.lerp(start.value, stop.value, fraction))
 }

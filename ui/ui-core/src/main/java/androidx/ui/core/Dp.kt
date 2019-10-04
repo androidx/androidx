@@ -204,16 +204,16 @@ inline fun Dp.isFinite(): Boolean = value != Float.POSITIVE_INFINITY
 /**
  * Linearly interpolate between two [Dp]s.
  *
- * The `t` argument represents position on the timeline, with 0.0 meaning
- * that the interpolation has not started, returning `a` (or something
- * equivalent to `a`), 1.0 meaning that the interpolation has finished,
- * returning `b` (or something equivalent to `b`), and values in between
+ * The [fraction] argument represents position on the timeline, with 0.0 meaning
+ * that the interpolation has not started, returning [start] (or something
+ * equivalent to [start]), 1.0 meaning that the interpolation has finished,
+ * returning [stop] (or something equivalent to [stop]), and values in between
  * meaning that the interpolation is at the relevant point on the timeline
- * between `a` and `b`. The interpolation can be extrapolated beyond 0.0 and
+ * between [start] and [stop]. The interpolation can be extrapolated beyond 0.0 and
  * 1.0, so negative values and values greater than 1.0 are valid.
  */
-fun lerp(a: Dp, b: Dp, t: Float): Dp {
-    return Dp(lerp(a.value, b.value, t))
+fun lerp(start: Dp, stop: Dp, fraction: Float): Dp {
+    return Dp(lerp(start.value, stop.value, fraction))
 }
 
 /**
@@ -535,16 +535,16 @@ fun Position.getDistance(): Dp {
 /**
  * Linearly interpolate between two [Position]s.
  *
- * The `t` argument represents position on the timeline, with 0.0 meaning
- * that the interpolation has not started, returning `a` (or something
- * equivalent to `a`), 1.0 meaning that the interpolation has finished,
- * returning `b` (or something equivalent to `b`), and values in between
+ * The [fraction] argument represents position on the timeline, with 0.0 meaning
+ * that the interpolation has not started, returning [start] (or something
+ * equivalent to [start]), 1.0 meaning that the interpolation has finished,
+ * returning [stop] (or something equivalent to [stop]), and values in between
  * meaning that the interpolation is at the relevant point on the timeline
- * between `a` and `b`. The interpolation can be extrapolated beyond 0.0 and
+ * between [start] and [stop]. The interpolation can be extrapolated beyond 0.0 and
  * 1.0, so negative values and values greater than 1.0 are valid.
  */
-fun lerp(a: Position, b: Position, t: Float): Position =
-    Position(lerp(a.x, b.x, t), lerp(a.y, b.y, t))
+fun lerp(start: Position, stop: Position, fraction: Float): Position =
+    Position(lerp(start.x, stop.x, fraction), lerp(start.y, stop.y, fraction))
 
 /**
  * A four dimensional bounds using [Dp] for units

@@ -15,18 +15,20 @@
  */
 package androidx.ui
 
+import kotlin.math.roundToInt
+
 /**
- * Linearly interpolate between [a] and [b] with [t] fraction between them.
+ * Linearly interpolate between [start] and [stop] with [fraction] fraction between them.
  */
-fun lerp(a: Float, b: Float, t: Float): Float {
-    return a + (b - a) * t
+fun lerp(start: Float, stop: Float, fraction: Float): Float {
+    return start + (stop - start) * fraction
 }
 
 /**
- * Linearly interpolate between [a] and [b] with [t] fraction between them.
+ * Linearly interpolate between [start] and [stop] with [fraction] fraction between them.
  */
-fun lerp(a: Int, b: Int, t: Float): Float {
-    return a + (b - a) * t
+fun lerp(start: Int, stop: Int, fraction: Float): Int {
+    return start + ((stop - start) * fraction).roundToInt()
 }
 
 fun Float.toStringAsFixed(digits: Int) = String.format("%.${digits}f", this)

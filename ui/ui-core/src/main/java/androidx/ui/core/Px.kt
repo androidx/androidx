@@ -29,8 +29,8 @@ import kotlin.math.sqrt
  * Dimension value represented in pixels (px). Component APIs specify their
  * dimensions such as line thickness in DP with Dp objects, while drawing and layout are done
  * in pixel dimensions. When specific pixel dimensions are required, create a Px and convert
- * it to Dp using [toDp]. Px are normally defined using [px], which can be applied to [Int],
- * [Double], and [Float].
+ * it to Dp using [DensityScope.toDp]. Px are normally defined using [px], which can be applied to
+ * [Int], [Double], and [Float].
  *     val leftMargin = 10.px
  *     val rightMargin = 10f.px
  *     val topMargin = 20.0.px
@@ -208,16 +208,16 @@ inline fun Px.coerceAtMost(maximumValue: Px): Px =
 /**
  * Linearly interpolate between two [Px]s.
  *
- * The `t` argument represents position on the timeline, with 0.0 meaning
- * that the interpolation has not started, returning `a` (or something
- * equivalent to `a`), 1.0 meaning that the interpolation has finished,
- * returning `b` (or something equivalent to `b`), and values in between
+ * The [fraction] argument represents position on the timeline, with 0.0 meaning
+ * that the interpolation has not started, returning [start] (or something
+ * equivalent to [start]), 1.0 meaning that the interpolation has finished,
+ * returning [stop] (or something equivalent to [stop]), and values in between
  * meaning that the interpolation is at the relevant point on the timeline
- * between `a` and `b`. The interpolation can be extrapolated beyond 0.0 and
+ * between [start] and [stop]. The interpolation can be extrapolated beyond 0.0 and
  * 1.0, so negative values and values greater than 1.0 are valid.
  */
-fun lerp(a: Px, b: Px, t: Float): Px {
-    return Px(lerp(a.value, b.value, t))
+fun lerp(start: Px, stop: Px, fraction: Float): Px {
+    return Px(lerp(start.value, stop.value, fraction))
 }
 
 /**
@@ -579,16 +579,16 @@ inline fun PxPosition.round(): IntPxPosition = IntPxPosition(x.round(), y.round(
 /**
  * Linearly interpolate between two [PxPosition]s.
  *
- * The `t` argument represents position on the timeline, with 0.0 meaning
- * that the interpolation has not started, returning `a` (or something
- * equivalent to `a`), 1.0 meaning that the interpolation has finished,
- * returning `b` (or something equivalent to `b`), and values in between
+ * The [fraction] argument represents position on the timeline, with 0.0 meaning
+ * that the interpolation has not started, returning [start] (or something
+ * equivalent to [start]), 1.0 meaning that the interpolation has finished,
+ * returning [stop] (or something equivalent to [stop]), and values in between
  * meaning that the interpolation is at the relevant point on the timeline
- * between `a` and `b`. The interpolation can be extrapolated beyond 0.0 and
+ * between [start] and [stop]. The interpolation can be extrapolated beyond 0.0 and
  * 1.0, so negative values and values greater than 1.0 are valid.
  */
-fun lerp(a: PxPosition, b: PxPosition, t: Float): PxPosition =
-    PxPosition(lerp(a.x, b.x, t), lerp(a.y, b.y, t))
+fun lerp(start: PxPosition, stop: PxPosition, fraction: Float): PxPosition =
+    PxPosition(lerp(start.x, stop.x, fraction), lerp(start.y, stop.y, fraction))
 
 /**
  * A four dimensional bounds using [Px] for units

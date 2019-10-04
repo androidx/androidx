@@ -91,7 +91,7 @@ class FloatPropKey : PropKey<Float> {
  */
 class IntPropKey : PropKey<Int> {
     override fun interpolate(a: Int, b: Int, fraction: Float) =
-        lerp(a, b, fraction).toInt()
+        lerp(a, b, fraction)
 }
 
 /**

@@ -385,13 +385,14 @@ fun Color(
 }
 
 /**
- * Linear interpolate between two [Colors][Color], [a] and [b] with [t] fraction between
- * the two. The [ColorSpace] of the result is always the [ColorSpace][Color.colorSpace] of [b].
+ * Linear interpolate between two [Colors][Color], [start] and [stop] with [fraction] fraction
+ * between the two. The [ColorSpace] of the result is always the [ColorSpace][Color.colorSpace]
+ * of [stop].
  */
-fun lerp(a: Color, b: Color, @FloatRange(from = 0.0, to = 1.0) t: Float): Color {
+fun lerp(start: Color, stop: Color, @FloatRange(from = 0.0, to = 1.0) fraction: Float): Color {
     val linearColorSpace = ColorSpaces.LinearExtendedSrgb
-    val startColor = a.convert(linearColorSpace)
-    val endColor = b.convert(linearColorSpace)
+    val startColor = start.convert(linearColorSpace)
+    val endColor = stop.convert(linearColorSpace)
 
     val startA = startColor.alpha
     val startR = startColor.red
@@ -404,13 +405,13 @@ fun lerp(a: Color, b: Color, @FloatRange(from = 0.0, to = 1.0) t: Float): Color 
     val endB = endColor.blue
 
     val interpolated = Color(
-        alpha = lerp(startA, endA, t),
-        red = lerp(startR, endR, t),
-        green = lerp(startG, endG, t),
-        blue = lerp(startB, endB, t),
+        alpha = lerp(startA, endA, fraction),
+        red = lerp(startR, endR, fraction),
+        green = lerp(startG, endG, fraction),
+        blue = lerp(startB, endB, fraction),
         colorSpace = linearColorSpace
     )
-    return interpolated.convert(b.colorSpace)
+    return interpolated.convert(stop.colorSpace)
 }
 
 /**

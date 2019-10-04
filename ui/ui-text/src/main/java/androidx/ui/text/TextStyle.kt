@@ -30,7 +30,6 @@ import androidx.ui.graphics.Color
 import androidx.ui.graphics.lerp
 import androidx.ui.lerp
 import androidx.ui.graphics.Shadow
-import java.util.Locale
 
 /**
  * Configuration object to define the text style.
@@ -136,104 +135,111 @@ data class TextStyle(
          *
          * This will not work well if the styles don't set the same fields.
          *
-         * The `t` argument represents position on the timeline, with 0.0 meaning that the
-         * interpolation has not started, returning `a` (or something equivalent to `a`), 1.0
-         * meaning that the interpolation has finished, returning `b` (or something equivalent to
-         * `b`), and values in between meaning that the interpolation is at the relevant point on
-         * the timeline between `a` and `b`. The interpolation can be extrapolated beyond 0.0 and
+         * The [fraction] argument represents position on the timeline, with 0.0 meaning
+         * that the interpolation has not started, returning [start] (or something
+         * equivalent to [start]), 1.0 meaning that the interpolation has finished,
+         * returning [stop] (or something equivalent to [stop]), and values in between
+         * meaning that the interpolation is at the relevant point on the timeline
+         * between [start] and [stop]. The interpolation can be extrapolated beyond 0.0 and
          * 1.0, so negative values and values greater than 1.0 are valid.
          */
-        fun lerp(a: TextStyle? = null, b: TextStyle? = null, t: Float): TextStyle? {
-            val aIsNull = a == null
-            val bIsNull = b == null
+        // TODO(siyamed): This should not accept nullable values
+        // TODO(siyamed): This should be in the file level, not a companon function
+        fun lerp(start: TextStyle? = null, stop: TextStyle? = null, fraction: Float): TextStyle? {
+            val aIsNull = start == null
+            val bIsNull = stop == null
 
             if (aIsNull && bIsNull) return null
 
-            if (a == null) {
-                val newB = b?.copy() ?: TextStyle()
-                return if (t < 0.5) {
+            if (start == null) {
+                val newB = stop?.copy() ?: TextStyle()
+                return if (fraction < 0.5) {
                     TextStyle(
-                        color = lerpColor(null, newB.color, t),
-                        fontWeight = FontWeight.lerp(null, newB.fontWeight, t)
+                        color = lerpColor(null, newB.color, fraction),
+                        fontWeight = FontWeight.lerp(null, newB.fontWeight, fraction)
                     )
                 } else {
                     newB.copy(
-                        color = lerpColor(null, newB.color, t),
-                        fontWeight = FontWeight.lerp(null, newB.fontWeight, t)
+                        color = lerpColor(null, newB.color, fraction),
+                        fontWeight = FontWeight.lerp(null, newB.fontWeight, fraction)
                     )
                 }
             }
 
-            if (b == null) {
-                return if (t < 0.5) {
-                    a.copy(
-                        color = lerpColor(a.color, null, t),
-                        fontWeight = FontWeight.lerp(a.fontWeight, null, t)
+            if (stop == null) {
+                return if (fraction < 0.5) {
+                    start.copy(
+                        color = lerpColor(start.color, null, fraction),
+                        fontWeight = FontWeight.lerp(start.fontWeight, null, fraction)
                     )
                 } else {
                     TextStyle(
-                        color = lerpColor(a.color, null, t),
-                        fontWeight = FontWeight.lerp(a.fontWeight, null, t)
+                        color = lerpColor(start.color, null, fraction),
+                        fontWeight = FontWeight.lerp(start.fontWeight, null, fraction)
                     )
                 }
             }
 
             return TextStyle(
-                color = lerpColor(a.color, b.color, t),
+                color = lerpColor(start.color, stop.color, fraction),
                 fontFamily = lerpDiscrete(
-                    a.fontFamily,
-                    b.fontFamily,
-                    t
+                    start.fontFamily,
+                    stop.fontFamily,
+                    fraction
                 ),
-                fontSize = lerpSp(a.fontSize, b.fontSize, t),
+                fontSize = lerpSp(start.fontSize, stop.fontSize, fraction),
                 fontSizeScale = lerpFloat(
-                    a.fontSizeScale,
-                    b.fontSizeScale,
-                    t,
+                    start.fontSizeScale,
+                    stop.fontSizeScale,
+                    fraction,
                     1f
                 ),
-                fontWeight = FontWeight.lerp(a.fontWeight, b.fontWeight, t),
+                fontWeight = FontWeight.lerp(start.fontWeight, stop.fontWeight, fraction),
                 fontStyle = lerpDiscrete(
-                    a.fontStyle,
-                    b.fontStyle,
-                    t
+                    start.fontStyle,
+                    stop.fontStyle,
+                    fraction
                 ),
                 fontSynthesis = lerpDiscrete(
-                    a.fontSynthesis,
-                    b.fontSynthesis,
-                    t
+                    start.fontSynthesis,
+                    stop.fontSynthesis,
+                    fraction
                 ),
                 fontFeatureSettings = lerpDiscrete(
-                    a.fontFeatureSettings,
-                    b.fontFeatureSettings,
-                    t
+                    start.fontFeatureSettings,
+                    stop.fontFeatureSettings,
+                    fraction
                 ),
                 letterSpacing = lerpFloat(
-                    a.letterSpacing,
-                    b.letterSpacing,
-                    t
+                    start.letterSpacing,
+                    stop.letterSpacing,
+                    fraction
                 ),
-                baselineShift = BaselineShift.lerp(a.baselineShift, b.baselineShift, t),
+                baselineShift = BaselineShift.lerp(
+                    start.baselineShift,
+                    stop.baselineShift,
+                    fraction
+                ),
                 textGeometricTransform = lerp(
-                    a.textGeometricTransform ?: TextGeometricTransform.None,
-                    b.textGeometricTransform ?: TextGeometricTransform.None,
-                    t
+                    start.textGeometricTransform ?: TextGeometricTransform.None,
+                    stop.textGeometricTransform ?: TextGeometricTransform.None,
+                    fraction
                 ),
-                localeList = lerpDiscrete(a.localeList, b.localeList, t),
+                localeList = lerpDiscrete(start.localeList, stop.localeList, fraction),
                 background = lerpDiscrete(
-                    a.background,
-                    b.background,
-                    t
+                    start.background,
+                    stop.background,
+                    fraction
                 ),
                 decoration = lerpDiscrete(
-                    a.decoration,
-                    b.decoration,
-                    t
+                    start.decoration,
+                    stop.decoration,
+                    fraction
                 ),
                 shadow = lerp(
-                    a.shadow ?: Shadow(),
-                    b.shadow ?: Shadow(),
-                    t
+                    start.shadow ?: Shadow(),
+                    stop.shadow ?: Shadow(),
+                    fraction
                 )
             )
         }
