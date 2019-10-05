@@ -17,14 +17,18 @@
 package androidx.fragment.app;
 
 import android.app.Activity;
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.util.Log;
 import android.util.SparseArray;
 import android.view.View;
+import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.view.ViewCompat;
+import androidx.fragment.R;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.ViewModelStoreOwner;
 
@@ -175,6 +179,9 @@ class FragmentStateManager {
 
     void ensureInflatedView() {
         if (mFragment.mFromLayout && !mFragment.mPerformedCreateView) {
+            if (FragmentManager.isLoggingEnabled(Log.DEBUG)) {
+                Log.d(TAG, "moveto CREATE_VIEW: " + mFragment);
+            }
             mFragment.performCreateView(mFragment.performGetLayoutInflater(
                     mFragment.mSavedFragmentState), null, mFragment.mSavedFragmentState);
             if (mFragment.mView != null) {
@@ -243,6 +250,76 @@ class FragmentStateManager {
             mFragment.restoreChildFragmentState(mFragment.mSavedFragmentState);
             mFragment.mState = Fragment.CREATED;
         }
+    }
+
+    void createView(@NonNull FragmentContainer fragmentContainer) {
+        if (mFragment.mFromLayout) {
+            // This case is handled by ensureInflatedView(), so there's nothing
+            // else we need to do here.
+            return;
+        }
+        if (FragmentManager.isLoggingEnabled(Log.DEBUG)) {
+            Log.d(TAG, "moveto CREATE_VIEW: " + mFragment);
+        }
+        ViewGroup container = null;
+        if (mFragment.mContainerId != 0) {
+            if (mFragment.mContainerId == View.NO_ID) {
+                throw new IllegalArgumentException("Cannot create fragment " + mFragment
+                        + " for a container view with no id");
+            }
+            container = (ViewGroup) fragmentContainer.onFindViewById(mFragment.mContainerId);
+            if (container == null && !mFragment.mRestored) {
+                String resName;
+                try {
+                    resName = mFragment.getResources().getResourceName(mFragment.mContainerId);
+                } catch (Resources.NotFoundException e) {
+                    resName = "unknown";
+                }
+                throw new IllegalArgumentException("No view found for id 0x"
+                        + Integer.toHexString(mFragment.mContainerId) + " ("
+                        + resName + ") for fragment " + mFragment);
+            }
+        }
+        mFragment.mContainer = container;
+        mFragment.performCreateView(mFragment.performGetLayoutInflater(
+                mFragment.mSavedFragmentState), container, mFragment.mSavedFragmentState);
+        if (mFragment.mView != null) {
+            mFragment.mView.setSaveFromParentEnabled(false);
+            mFragment.mView.setTag(R.id.fragment_container_view_tag, mFragment);
+            if (container != null) {
+                container.addView(mFragment.mView);
+            }
+            if (mFragment.mHidden) {
+                mFragment.mView.setVisibility(View.GONE);
+            }
+            ViewCompat.requestApplyInsets(mFragment.mView);
+            mFragment.onViewCreated(mFragment.mView, mFragment.mSavedFragmentState);
+            mDispatcher.dispatchOnFragmentViewCreated(
+                    mFragment, mFragment.mView, mFragment.mSavedFragmentState, false);
+            // Only animate the view if it is visible. This is done after
+            // dispatchOnFragmentViewCreated in case visibility is changed
+            mFragment.mIsNewlyAdded = (mFragment.mView.getVisibility() == View.VISIBLE)
+                    && mFragment.mContainer != null;
+        }
+    }
+
+    void activityCreated() {
+        if (FragmentManager.isLoggingEnabled(Log.DEBUG)) {
+            Log.d(TAG, "moveto ACTIVITY_CREATED: " + mFragment);
+        }
+        mFragment.performActivityCreated(mFragment.mSavedFragmentState);
+        mDispatcher.dispatchOnFragmentActivityCreated(
+                mFragment, mFragment.mSavedFragmentState, false);
+    }
+
+    void restoreViewState() {
+        if (FragmentManager.isLoggingEnabled(Log.DEBUG)) {
+            Log.d(TAG, "moveto RESTORE_VIEW_STATE: " + mFragment);
+        }
+        if (mFragment.mView != null) {
+            mFragment.restoreViewState(mFragment.mSavedFragmentState);
+        }
+        mFragment.mSavedFragmentState = null;
     }
 
     void start() {

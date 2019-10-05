@@ -145,13 +145,12 @@ class FragmentContainerViewTest {
 
     @Test
     fun addView() {
-        val fm = activityRule.activity.supportFragmentManager
-
         val view = View(context)
         val fragment = Fragment()
         fragment.mView = view
 
-        fm.setViewTag(fragment)
+        // Mimic what FragmentStateManager.createView() does
+        fragment.mView.setTag(androidx.fragment.R.id.fragment_container_view_tag, fragment)
 
         val fragmentContainerView = FragmentContainerView(context)
 

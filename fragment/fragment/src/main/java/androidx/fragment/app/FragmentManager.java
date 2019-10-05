@@ -55,7 +55,6 @@ import androidx.collection.ArraySet;
 import androidx.core.os.CancellationSignal;
 import androidx.core.util.LogWriter;
 import androidx.core.view.OneShotPreDrawListener;
-import androidx.core.view.ViewCompat;
 import androidx.fragment.R;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleOwner;
@@ -843,16 +842,6 @@ public abstract class FragmentManager {
     }
 
     /**
-     * Used to store the Fragment inside of its view's tag. This is done after the fragment's view
-     * is created, but before the view is added to the container.
-     *
-     * @param fragment The fragment to be set as a tag on its view
-     */
-    void setViewTag(@NonNull Fragment fragment) {
-        fragment.mView.setTag(R.id.fragment_container_view_tag, fragment);
-    }
-
-    /**
      * Recurse up the view hierarchy, looking for a FragmentManager
      *
      * @param view the view to search from
@@ -1332,63 +1321,9 @@ public abstract class FragmentManager {
                     }
 
                     if (newState > Fragment.CREATED) {
-                        if (isLoggingEnabled(Log.DEBUG)) {
-                            Log.d(TAG, "moveto ACTIVITY_CREATED: " + f);
-                        }
-                        if (!f.mFromLayout) {
-                            ViewGroup container = null;
-                            if (f.mContainerId != 0) {
-                                if (f.mContainerId == View.NO_ID) {
-                                    throwException(new IllegalArgumentException(
-                                            "Cannot create fragment "
-                                                    + f
-                                                    + " for a container view with no id"));
-                                }
-                                container = (ViewGroup) mContainer.onFindViewById(f.mContainerId);
-                                if (container == null && !f.mRestored) {
-                                    String resName;
-                                    try {
-                                        resName = f.getResources().getResourceName(f.mContainerId);
-                                    } catch (Resources.NotFoundException e) {
-                                        resName = "unknown";
-                                    }
-                                    throwException(new IllegalArgumentException(
-                                            "No view found for id 0x"
-                                                    + Integer.toHexString(f.mContainerId) + " ("
-                                                    + resName
-                                                    + ") for fragment " + f));
-                                }
-                            }
-                            f.mContainer = container;
-                            f.performCreateView(f.performGetLayoutInflater(
-                                    f.mSavedFragmentState), container, f.mSavedFragmentState);
-                            if (f.mView != null) {
-                                f.mView.setSaveFromParentEnabled(false);
-                                setViewTag(f);
-                                if (container != null) {
-                                    container.addView(f.mView);
-                                }
-                                if (f.mHidden) {
-                                    f.mView.setVisibility(View.GONE);
-                                }
-                                ViewCompat.requestApplyInsets(f.mView);
-                                f.onViewCreated(f.mView, f.mSavedFragmentState);
-                                mLifecycleCallbacksDispatcher.dispatchOnFragmentViewCreated(
-                                        f, f.mView, f.mSavedFragmentState, false);
-                                // Only animate the view if it is visible. This is done after
-                                // dispatchOnFragmentViewCreated in case visibility is changed
-                                f.mIsNewlyAdded = (f.mView.getVisibility() == View.VISIBLE)
-                                        && f.mContainer != null;
-                            }
-                        }
-
-                        f.performActivityCreated(f.mSavedFragmentState);
-                        mLifecycleCallbacksDispatcher.dispatchOnFragmentActivityCreated(
-                                f, f.mSavedFragmentState, false);
-                        if (f.mView != null) {
-                            f.restoreViewState(f.mSavedFragmentState);
-                        }
-                        f.mSavedFragmentState = null;
+                        fragmentStateManager.createView(mContainer);
+                        fragmentStateManager.activityCreated();
+                        fragmentStateManager.restoreViewState();
                     }
                     // fall through
                 case Fragment.ACTIVITY_CREATED:
