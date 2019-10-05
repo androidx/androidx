@@ -27,7 +27,9 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 
+import android.content.Context;
 import android.os.Build;
+import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.accessibility.AccessibilityNodeInfo;
@@ -38,6 +40,8 @@ import androidx.annotation.NonNull;
 import androidx.core.view.AccessibilityDelegateCompat;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat;
+import androidx.core.view.accessibility.AccessibilityNodeProviderCompat;
+import androidx.recyclerview.test.R;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.MediumTest;
@@ -267,7 +271,7 @@ public class RecyclerViewAccessibilityLifecycleTest extends BaseRecyclerViewInst
             }
         };
         final int firstPassLayoutCount = 5;
-        final int[] layoutCount = new int[] {firstPassLayoutCount};
+        final int[] layoutCount = new int[]{firstPassLayoutCount};
         final TestLayoutManager layoutManager = new TestLayoutManager() {
             @Override
             public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state) {
@@ -335,6 +339,177 @@ public class RecyclerViewAccessibilityLifecycleTest extends BaseRecyclerViewInst
 
     @Test
     public void onInitNodeInfoWithNestedDelegateDoesntAddChildrenTwice() throws Throwable {
+        final AccessibilityDelegateCompat delegateCompat = new AccessibilityDelegateCompat() {
+            @Override
+            public void onInitializeAccessibilityNodeInfo(View host,
+                    AccessibilityNodeInfoCompat info) {
+                super.onInitializeAccessibilityNodeInfo(host, info);
+            }};
+        testCustomAccessibilityDelegateWithAdapter(
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        ViewGroup itemView = (ViewGroup) mRecyclerView.getChildAt(0);
+                        AccessibilityNodeInfoCompat info =
+                                AccessibilityNodeInfoCompat.wrap(
+                                        itemView.createAccessibilityNodeInfo());
+                        assertEquals(1, info.getChildCount());
+                    }
+                },
+                new TestAdapter(100) {
+                    @Override
+                    public TestViewHolder onCreateViewHolder(@NonNull ViewGroup parent,
+                            int viewType) {
+                        FrameLayout fl = new FrameLayout(parent.getContext());
+                        TextView textView = new TextView(parent.getContext());
+                        textView.setFocusableInTouchMode(true);
+                        textView.setFocusable(true);
+                        fl.addView(textView);
+                        ViewCompat.setAccessibilityDelegate(fl, delegateCompat);
+                        return new TestViewHolder(fl);
+                    }
+
+                    @Override
+                    protected TextView getTextViewInHolder(TestViewHolder holder) {
+                        return (TextView) ((ViewGroup) holder.itemView).getChildAt(0);
+                    }
+                });
+    }
+
+    @SdkSuppress(minSdkVersion = 16)
+    @Test
+    public void onInitNodeInfoWithNestedDelegateReturnsNodeProvider() throws Throwable {
+        final AccessibilityNodeProviderCompat expectedNodeProvider =
+                new AccessibilityNodeProviderCompat();
+        testCustomAccessibilityDelegate(new AccessibilityDelegateCompat() {
+                @Override
+                public AccessibilityNodeProviderCompat getAccessibilityNodeProvider(View host) {
+                    return expectedNodeProvider;
+                }},
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        View itemView = mRecyclerView.getChildAt(0);
+                        AccessibilityNodeProviderCompat actualNodeProvider =
+                                ViewCompat.getAccessibilityNodeProvider(itemView);
+                        assertEquals(actualNodeProvider.getProvider(),
+                                expectedNodeProvider.getProvider());
+                    }
+                });
+    }
+
+    @Test
+    public void onInitNodeInfoWithnestedDelegateEveryoneGetsToPopulate() throws Throwable {
+        testCustomAccessibilityDelegate(new AccessibilityDelegateCompat() {
+                @Override
+                public void onInitializeAccessibilityNodeInfo(View host,
+                        AccessibilityNodeInfoCompat info) {
+                    super.onInitializeAccessibilityNodeInfo(host, info);
+                    info.setCheckable(true);
+                }},
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        View itemView = mRecyclerView.getChildAt(0);
+
+                        AccessibilityNodeInfoCompat info =
+                                AccessibilityNodeInfoCompat.wrap(
+                                        itemView.createAccessibilityNodeInfo());
+                        assertTrue(info.isCheckable());
+                        assertTrue(info.isPassword());
+                    }
+                },
+                new TextViewCreator() {
+                    public TextView createView(Context context) {
+                        return new TextView(context) {
+                            public void onInitializeAccessibilityNodeInfo(
+                                    AccessibilityNodeInfo info) {
+                                super.onInitializeAccessibilityNodeInfo(info);
+                                info.setPassword(true);
+                            }
+                        };
+                    }
+                });
+    }
+
+    @SdkSuppress(minSdkVersion = 16)
+    @Test
+    public void performActionWithhNestedDelegate() throws Throwable {
+        final int expectedActionId = 42;
+        testCustomAccessibilityDelegate(new AccessibilityDelegateCompat() {
+                @Override
+                public boolean performAccessibilityAction(View host, int action, Bundle args) {
+                    return action == expectedActionId;
+                }},
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        View itemView = mRecyclerView.getChildAt(0);
+                        assertTrue(ViewCompat.performAccessibilityAction(itemView, 42, null));
+                    }
+                });
+    }
+
+    @SdkSuppress(minSdkVersion = 16)
+    @Test
+    public void performActionWithhNestedDelegateCallsView() throws Throwable {
+        final int expectedActionId = 42;
+        testCustomAccessibilityDelegate(new AccessibilityDelegateCompat() {
+                @Override
+                public boolean performAccessibilityAction(View host, int action, Bundle args) {
+                    return action < expectedActionId;
+                }},
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        View itemView = mRecyclerView.getChildAt(0);
+                        assertTrue(ViewCompat.performAccessibilityAction(itemView, 42, null));
+                    }
+                },
+                new TextViewCreator() {
+                    public TextView createView(Context context) {
+                        return new TextView(context) {
+                            public boolean performAccessibilityAction(int action,
+                                    Bundle arguments) {
+                                return expectedActionId == action;
+                            }
+                        };
+                    }
+                });
+    }
+
+    private void testCustomAccessibilityDelegate(final AccessibilityDelegateCompat delegateCompat,
+            Runnable runnable) throws Throwable {
+        testCustomAccessibilityDelegate(delegateCompat, runnable, null);
+    }
+
+    private void testCustomAccessibilityDelegate(final AccessibilityDelegateCompat delegateCompat,
+            Runnable runnable, final TextViewCreator viewCreator) throws Throwable {
+        testCustomAccessibilityDelegateWithAdapter(runnable, new TestAdapter(100) {
+                @Override
+                public TestViewHolder onCreateViewHolder(@NonNull ViewGroup parent,
+                        int viewType) {
+                    TestViewHolder vh;
+                    if (viewCreator == null) {
+                        vh = super.onCreateViewHolder(parent, viewType);
+                    } else {
+                        TextView textView = viewCreator.createView(parent.getContext());
+                        textView.setLayoutParams(new ViewGroup.LayoutParams(
+                                ViewGroup.LayoutParams.MATCH_PARENT,
+                                ViewGroup.LayoutParams.WRAP_CONTENT));
+                        textView.setFocusable(true);
+                        textView.setBackgroundResource(R.drawable.item_bg);
+                        vh = new TestViewHolder(textView);
+                    }
+                    ViewCompat.setAccessibilityDelegate(vh.itemView, delegateCompat);
+                    return vh;
+                }
+            });
+    }
+
+    private void testCustomAccessibilityDelegateWithAdapter(Runnable runnable,
+            final TestAdapter adapter)
+            throws Throwable {
         final RecyclerView recyclerView = new RecyclerView(getActivity()) {
             @Override
             boolean isAccessibilityEnabled() {
@@ -354,23 +529,6 @@ public class RecyclerViewAccessibilityLifecycleTest extends BaseRecyclerViewInst
                 }
             }
         };
-        final AccessibilityDelegateCompat delegateCompat = new AccessibilityDelegateCompat() {
-            @Override
-            public void onInitializeAccessibilityNodeInfo(View host,
-                    AccessibilityNodeInfoCompat info) {
-                super.onInitializeAccessibilityNodeInfo(host, info);
-                info.setChecked(true);
-            }
-        };
-        final TestAdapter adapter = new TestAdapterWithItemsWithChildren(100) {
-            @Override
-            public TestViewHolder onCreateViewHolder(@NonNull ViewGroup parent,
-                    int viewType) {
-                TestViewHolder vh = super.onCreateViewHolder(parent, viewType);
-                ViewCompat.setAccessibilityDelegate(vh.itemView, delegateCompat);
-                return vh;
-            }
-        };
         layoutManager.expectLayouts(1);
         recyclerView.getRecycledViewPool().setMaxRecycledViews(0, 100);
         recyclerView.setItemViewCacheSize(0); // no cache, directly goes to pool
@@ -383,44 +541,15 @@ public class RecyclerViewAccessibilityLifecycleTest extends BaseRecyclerViewInst
             }
         });
         layoutManager.waitForLayout(1);
+        mActivityRule.runOnUiThread(runnable);
+    }
 
-        mActivityRule.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                ViewGroup itemView = (ViewGroup) recyclerView.getChildAt(0);
-                AccessibilityNodeInfoCompat info =
-                        AccessibilityNodeInfoCompat.wrap(itemView.createAccessibilityNodeInfo());
-                assertEquals(1, info.getChildCount());
-            }
-        });
-
+    private interface TextViewCreator {
+        TextView createView(Context context);
     }
 
     private boolean accessibiltyDelegateIsItemDelegate(RecyclerView rc, View item) {
         return rc.getCompatAccessibilityDelegate().getItemDelegate()
                 .equals(ViewCompat.getAccessibilityDelegate(item));
-    }
-
-    private class TestAdapterWithItemsWithChildren extends TestAdapter {
-
-        TestAdapterWithItemsWithChildren(int count) {
-            super(count);
-        }
-
-        @Override
-        public TestViewHolder onCreateViewHolder(@NonNull ViewGroup parent,
-                int viewType) {
-            FrameLayout fl = new FrameLayout(parent.getContext());
-            TextView textView = new TextView(parent.getContext());
-            textView.setFocusableInTouchMode(true);
-            textView.setFocusable(true);
-            fl.addView(textView);
-            return new TestViewHolder(fl);
-        }
-
-        @Override
-        protected TextView getTextViewInHolder(TestViewHolder holder) {
-            return (TextView) ((ViewGroup) holder.itemView).getChildAt(0);
-        }
     }
 }
