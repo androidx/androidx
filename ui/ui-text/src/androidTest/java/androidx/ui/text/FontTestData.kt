@@ -28,7 +28,7 @@ class FontTestData {
         // 3. The fontMetrics passed to TextPaint has descend - ascend equal to 1.2 * fontSize.
         val BASIC_MEASURE_FONT = Font(
             name = "sample_font.ttf",
-            weight = FontWeight.normal,
+            weight = FontWeight.Normal,
             style = FontStyle.Normal
         )
 
@@ -38,115 +38,115 @@ class FontTestData {
         // 3. When kerning is on, it will reduce the space between two characters by 0.4 * width.
         val BASIC_KERN_FONT = Font(
             name = "kern_font.ttf",
-            weight = FontWeight.normal,
+            weight = FontWeight.Normal,
             style = FontStyle.Normal
         )
 
         val FONT_100_REGULAR = Font(
             name = "test_100_regular.ttf",
-            weight = FontWeight.w100,
+            weight = FontWeight.W100,
             style = FontStyle.Normal
         )
 
         val FONT_100_ITALIC = Font(
             name = "test_100_italic.ttf",
-            weight = FontWeight.w100,
+            weight = FontWeight.W100,
             style = FontStyle.Italic
         )
 
         val FONT_200_REGULAR = Font(
             name = "test_200_regular.ttf",
-            weight = FontWeight.w200,
+            weight = FontWeight.W200,
             style = FontStyle.Normal
         )
 
         val FONT_200_ITALIC = Font(
             name = "test_200_italic.ttf",
-            weight = FontWeight.w200,
+            weight = FontWeight.W200,
             style = FontStyle.Italic
         )
 
         val FONT_300_REGULAR = Font(
             name = "test_300_regular.ttf",
-            weight = FontWeight.w300,
+            weight = FontWeight.W300,
             style = FontStyle.Normal
         )
 
         val FONT_300_ITALIC = Font(
             name = "test_300_italic.ttf",
-            weight = FontWeight.w300,
+            weight = FontWeight.W300,
             style = FontStyle.Italic
         )
 
         val FONT_400_REGULAR = Font(
             name = "test_400_regular.ttf",
-            weight = FontWeight.w400,
+            weight = FontWeight.W400,
             style = FontStyle.Normal
         )
 
         val FONT_400_ITALIC = Font(
             name = "test_400_italic.ttf",
-            weight = FontWeight.w400,
+            weight = FontWeight.W400,
             style = FontStyle.Italic
         )
 
         val FONT_500_REGULAR = Font(
             name = "test_500_regular.ttf",
-            weight = FontWeight.w500,
+            weight = FontWeight.W500,
             style = FontStyle.Normal
         )
 
         val FONT_500_ITALIC = Font(
             name = "test_500_italic.ttf",
-            weight = FontWeight.w500,
+            weight = FontWeight.W500,
             style = FontStyle.Italic
         )
 
         val FONT_600_REGULAR = Font(
             name = "test_600_regular.ttf",
-            weight = FontWeight.w600,
+            weight = FontWeight.W600,
             style = FontStyle.Normal
         )
 
         val FONT_600_ITALIC = Font(
             name = "test_600_italic.ttf",
-            weight = FontWeight.w600,
+            weight = FontWeight.W600,
             style = FontStyle.Italic
         )
 
         val FONT_700_REGULAR = Font(
             name = "test_700_regular.ttf",
-            weight = FontWeight.w700,
+            weight = FontWeight.W700,
             style = FontStyle.Normal
         )
 
         val FONT_700_ITALIC = Font(
             name = "test_700_italic.ttf",
-            weight = FontWeight.w700,
+            weight = FontWeight.W700,
             style = FontStyle.Italic
         )
 
         val FONT_800_REGULAR = Font(
             name = "test_800_regular.ttf",
-            weight = FontWeight.w800,
+            weight = FontWeight.W800,
             style = FontStyle.Normal
         )
 
         val FONT_800_ITALIC = Font(
             name = "test_800_italic.ttf",
-            weight = FontWeight.w800,
+            weight = FontWeight.W800,
             style = FontStyle.Italic
         )
 
         val FONT_900_REGULAR = Font(
             name = "test_900_regular.ttf",
-            weight = FontWeight.w900,
+            weight = FontWeight.W900,
             style = FontStyle.Normal
         )
 
         val FONT_900_ITALIC = Font(
             name = "test_900_italic.ttf",
-            weight = FontWeight.w900,
+            weight = FontWeight.W900,
             style = FontStyle.Italic
         )
     }

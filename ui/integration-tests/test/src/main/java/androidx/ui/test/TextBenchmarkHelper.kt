@@ -47,7 +47,7 @@ class RandomTextGenerator(
     private val metricAffectingTextStyles = arrayOf(
         TextStyle(fontSize = 18.sp),
         TextStyle(fontSizeScale = 2f),
-        TextStyle(fontWeight = FontWeight.bold),
+        TextStyle(fontWeight = FontWeight.Bold),
         TextStyle(fontStyle = FontStyle.Italic),
         TextStyle(letterSpacing = 0.2f),
         TextStyle(baselineShift = BaselineShift.Subscript),

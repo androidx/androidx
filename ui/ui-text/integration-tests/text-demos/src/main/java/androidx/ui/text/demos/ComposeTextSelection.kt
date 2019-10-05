@@ -69,7 +69,7 @@ fun TextDemoSelection() {
                 style = TextStyle(
                     color = Color(0xFFFF0000),
                     fontSize = fontSize6,
-                    fontWeight = FontWeight.w200,
+                    fontWeight = FontWeight.W200,
                     fontStyle = FontStyle.Italic
                 )
             ) {
@@ -81,7 +81,7 @@ fun TextDemoSelection() {
                     style = TextStyle(
                         color = Color(0xFF0000FF),
                         fontSize = fontSize10,
-                        fontWeight = FontWeight.w800,
+                        fontWeight = FontWeight.W800,
                         fontStyle = FontStyle.Normal
                     )
                 )
@@ -110,7 +110,7 @@ fun TextDemoSelectionWithStringInput() {
             style = TextStyle(
                 color = Color(0xFFFF0000),
                 fontSize = fontSize6,
-                fontWeight = FontWeight.w200,
+                fontWeight = FontWeight.W200,
                 fontStyle = FontStyle.Italic
             )
         )

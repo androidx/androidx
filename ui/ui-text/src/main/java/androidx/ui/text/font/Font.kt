@@ -31,7 +31,7 @@ data class Font(
      * Weight of the font. Use while matching a font to a font request that is given in a
      * [TextStyle].
      */
-    val weight: FontWeight = FontWeight.normal,
+    val weight: FontWeight = FontWeight.Normal,
 
     /**
      * Style of the font. Use while matching a font to a font request that is given in a

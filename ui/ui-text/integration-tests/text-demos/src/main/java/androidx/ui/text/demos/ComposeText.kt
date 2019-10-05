@@ -136,7 +136,7 @@ fun TextDemoBasic() {
             style = TextStyle(
                 color = Color(0xFFFF0000),
                 fontSize = fontSize6,
-                fontWeight = FontWeight.w200,
+                fontWeight = FontWeight.W200,
                 fontStyle = FontStyle.Italic
             )
         )
@@ -146,7 +146,7 @@ fun TextDemoBasic() {
             style = TextStyle(
                 color = Color(0xFF00FF00),
                 fontSize = fontSize8,
-                fontWeight = FontWeight.w500,
+                fontWeight = FontWeight.W500,
                 fontStyle = FontStyle.Normal
             )
         )
@@ -156,7 +156,7 @@ fun TextDemoBasic() {
             style = TextStyle(
                 color = Color(0xFF0000FF),
                 fontSize = fontSize10,
-                fontWeight = FontWeight.w800,
+                fontWeight = FontWeight.W800,
                 fontStyle = FontStyle.Normal
             )
         )
@@ -173,7 +173,7 @@ fun TextDemoLanguage() {
             style = TextStyle(
                 color = Color(0xFFFF0000),
                 fontSize = fontSize6,
-                fontWeight = FontWeight.w200,
+                fontWeight = FontWeight.W200,
                 fontStyle = FontStyle.Italic
             )
         )
@@ -183,7 +183,7 @@ fun TextDemoLanguage() {
             style = TextStyle(
                 color = Color(0xFF00FF00),
                 fontSize = fontSize8,
-                fontWeight = FontWeight.w500,
+                fontWeight = FontWeight.W500,
                 fontStyle = FontStyle.Normal
             )
         )
@@ -193,7 +193,7 @@ fun TextDemoLanguage() {
             style = TextStyle(
                 color = Color(0xFF0000FF),
                 fontSize = fontSize10,
-                fontWeight = FontWeight.w800,
+                fontWeight = FontWeight.W800,
                 fontStyle = FontStyle.Normal
             )
         )

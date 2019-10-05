@@ -318,7 +318,7 @@ private fun TextStyle.hasFontAttributes(): Boolean {
 private fun createTypeface(style: TextStyle, typefaceAdapter: TypefaceAdapter): Typeface {
     return typefaceAdapter.create(
         fontFamily = style.fontFamily,
-        fontWeight = style.fontWeight ?: FontWeight.normal,
+        fontWeight = style.fontWeight ?: FontWeight.Normal,
         fontStyle = style.fontStyle ?: FontStyle.Normal,
         fontSynthesis = style.fontSynthesis ?: FontSynthesis.All
     )

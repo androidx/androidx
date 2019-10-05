@@ -88,7 +88,7 @@ class TypefaceAdapterTest {
 
     @Test
     fun fontWeightBoldCreatesBoldFont() {
-        val typeface = TypefaceAdapter().create(fontWeight = FontWeight.bold)
+        val typeface = TypefaceAdapter().create(fontWeight = FontWeight.Bold)
 
         assertThat(typeface).isNotNull()
         assertThat(typeface.isBold).isTrue()
@@ -99,7 +99,7 @@ class TypefaceAdapterTest {
     fun fontWeightBoldFontStyleItalicCreatesBoldItalicFont() {
         val typeface = TypefaceAdapter().create(
             fontStyle = FontStyle.Italic,
-            fontWeight = FontWeight.bold
+            fontWeight = FontWeight.Bold
         )
 
         assertThat(typeface).isNotNull()
@@ -120,11 +120,11 @@ class TypefaceAdapterTest {
     @Test
     fun getTypefaceStyleSnapToNormalFor100to500() {
         val fontWeights = arrayOf(
-            FontWeight.w100,
-            FontWeight.w200,
-            FontWeight.w300,
-            FontWeight.w400,
-            FontWeight.w500
+            FontWeight.W100,
+            FontWeight.W200,
+            FontWeight.W300,
+            FontWeight.W400,
+            FontWeight.W500
         )
 
         for (fontWeight in fontWeights) {
@@ -146,10 +146,10 @@ class TypefaceAdapterTest {
     @Test
     fun getTypefaceStyleSnapToBoldFor600to900() {
         val fontWeights = arrayOf(
-            FontWeight.w600,
-            FontWeight.w700,
-            FontWeight.w800,
-            FontWeight.w900
+            FontWeight.W600,
+            FontWeight.W700,
+            FontWeight.W800,
+            FontWeight.W900
         )
 
         for (fontWeight in fontWeights) {
@@ -172,11 +172,11 @@ class TypefaceAdapterTest {
     @SdkSuppress(maxSdkVersion = 27)
     fun fontWeights100To500SnapToNormalBeforeApi28() {
         val fontWeights = arrayOf(
-            FontWeight.w100,
-            FontWeight.w200,
-            FontWeight.w300,
-            FontWeight.w400,
-            FontWeight.w500
+            FontWeight.W100,
+            FontWeight.W200,
+            FontWeight.W300,
+            FontWeight.W400,
+            FontWeight.W500
         )
 
         for (fontWeight in fontWeights) {
@@ -197,10 +197,10 @@ class TypefaceAdapterTest {
     @SdkSuppress(maxSdkVersion = 27)
     fun fontWeights600To900SnapToBoldBeforeApi28() {
         val fontWeights = arrayOf(
-            FontWeight.w600,
-            FontWeight.w700,
-            FontWeight.w800,
-            FontWeight.w900
+            FontWeight.W600,
+            FontWeight.W700,
+            FontWeight.W800,
+            FontWeight.W900
         )
 
         for (fontWeight in fontWeights) {
@@ -257,7 +257,7 @@ class TypefaceAdapterTest {
         val typeface = TypefaceAdapter().create(
             fontFamily = fontFamily,
             fontStyle = FontStyle.Italic,
-            fontWeight = FontWeight.bold
+            fontWeight = FontWeight.Bold
         )
 
         assertThat(typeface).isNotNull()
@@ -308,7 +308,7 @@ class TypefaceAdapterTest {
         // customSingleFontFamilyExactMatch tests all the possible outcomes that FontMatcher
         // might return. Therefore for the best effort matching we just make sure that FontMatcher
         // is called.
-        val fontWeight = FontWeight.w300
+        val fontWeight = FontWeight.W300
         val fontStyle = FontStyle.Italic
         val fontFamily = FontFamily(FONT_200_ITALIC)
 
@@ -344,11 +344,11 @@ class TypefaceAdapterTest {
     @Test
     fun resultsNotSame_forDifferentFontWeight() {
         val typefaceAdapter = TypefaceAdapter()
-        val typeface = typefaceAdapter.create(fontWeight = FontWeight.normal)
+        val typeface = typefaceAdapter.create(fontWeight = FontWeight.Normal)
 
         // getting typeface with different parameters should not hit the cache
         // therefore return some other typeface
-        val otherTypeface = typefaceAdapter.create(fontWeight = FontWeight.bold)
+        val otherTypeface = typefaceAdapter.create(fontWeight = FontWeight.Bold)
 
         assertThat(typeface).isNotSameInstanceAs(otherTypeface)
     }
@@ -366,7 +366,7 @@ class TypefaceAdapterTest {
     @Test
     fun resultsAreCached_withCustomTypeface() {
         val fontFamily = FontFamily("sans-serif")
-        val fontWeight = FontWeight.normal
+        val fontWeight = FontWeight.Normal
         val fontStyle = FontStyle.Italic
 
         val typefaceAdapter = TypefaceAdapter()
@@ -410,7 +410,7 @@ class TypefaceAdapterTest {
 
         val typeface = TypefaceAdapter().create(
             fontFamily = fontFamily,
-            fontWeight = FontWeight.bold,
+            fontWeight = FontWeight.Bold,
             fontStyle = FontStyle.Italic,
             fontSynthesis = FontSynthesis.All
         )
@@ -427,7 +427,7 @@ class TypefaceAdapterTest {
 
         val typeface = TypefaceAdapter().create(
             fontFamily = fontFamily,
-            fontWeight = FontWeight.bold,
+            fontWeight = FontWeight.Bold,
             fontStyle = FontStyle.Italic,
             fontSynthesis = FontSynthesis.Style
         )
@@ -444,7 +444,7 @@ class TypefaceAdapterTest {
 
         val typeface = TypefaceAdapter().create(
             fontFamily = fontFamily,
-            fontWeight = FontWeight.bold,
+            fontWeight = FontWeight.Bold,
             fontStyle = FontStyle.Italic,
             fontSynthesis = FontSynthesis.Weight
         )
@@ -461,7 +461,7 @@ class TypefaceAdapterTest {
 
         val typeface = TypefaceAdapter().create(
             fontFamily = fontFamily,
-            fontWeight = FontWeight.w700,
+            fontWeight = FontWeight.W700,
             fontStyle = FontStyle.Italic,
             fontSynthesis = FontSynthesis.Style
         )
@@ -476,7 +476,7 @@ class TypefaceAdapterTest {
 
         val typeface = TypefaceAdapter().create(
             fontFamily = fontFamily,
-            fontWeight = FontWeight.w700,
+            fontWeight = FontWeight.W700,
             fontStyle = FontStyle.Italic,
             fontSynthesis = FontSynthesis.All
         )
@@ -499,7 +499,7 @@ class TypefaceAdapterTest {
 
         val typeface = TypefaceAdapter().create(
             fontFamily = fontFamily,
-            fontWeight = FontWeight.bold,
+            fontWeight = FontWeight.Bold,
             fontStyle = FontStyle.Italic,
             fontSynthesis = FontSynthesis.None
         )
@@ -515,13 +515,13 @@ class TypefaceAdapterTest {
         // Less than 600 is not synthesized
         val typeface500 = TypefaceAdapter().create(
             fontFamily = fontFamily,
-            fontWeight = FontWeight.w500,
+            fontWeight = FontWeight.W500,
             fontSynthesis = FontSynthesis.Weight
         )
         // 600 or more is synthesized
         val typeface600 = TypefaceAdapter().create(
             fontFamily = fontFamily,
-            fontWeight = FontWeight.w600,
+            fontWeight = FontWeight.W600,
             fontSynthesis = FontSynthesis.Weight
         )
 

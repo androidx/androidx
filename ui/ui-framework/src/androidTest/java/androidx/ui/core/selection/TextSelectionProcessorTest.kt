@@ -46,7 +46,7 @@ import org.junit.runners.JUnit4
 
 val BASIC_MEASURE_FONT = Font(
     name = "sample_font.ttf",
-    weight = FontWeight.normal,
+    weight = FontWeight.Normal,
     style = FontStyle.Normal
 )
 
