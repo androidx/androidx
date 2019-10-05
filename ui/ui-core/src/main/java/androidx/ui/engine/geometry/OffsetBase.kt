@@ -26,7 +26,7 @@ package androidx.ui.engine.geometry
  * The first argument sets the horizontal component, and the second the
  * vertical component.
  */
-// TODO(Migration/Filip): Made OffsetBase to be an interface so we can have ancestors as data classes.
+// TODO(Filip): Made OffsetBase to be an interface so we can have ancestors as data classes.
 interface OffsetBase {
 
     val dx: Float
@@ -43,7 +43,7 @@ interface OffsetBase {
      *
      *  * [isFinite], which is true if both components are finite (and not NaN).
      */
-    // TODO(Migration/Filip): Verify that this is valid in java world.
+    // TODO(Filip): Verify that this is valid in java world.
     fun isInfinite() = dx >= Float.POSITIVE_INFINITY || dy >= Float.POSITIVE_INFINITY
 
     /**
@@ -103,7 +103,7 @@ interface OffsetBase {
      */
     fun isGreaterOrEqThan(other: OffsetBase) = dx > other.dx && dy >= other.dy
 
-// TODO(Migration/Filip): Since all ancestors are data classes this should not be needed
+// TODO(Filip): Since all ancestors are data classes this should not be needed
 //    override fun equals(other: Any?): Boolean {
 //        if (other !is OffsetBase) {
 //            return false

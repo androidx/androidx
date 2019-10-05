@@ -485,7 +485,7 @@ fun TextDemoSoftWrap() {
     }
 }
 
-// TODO(Migration/qqd): Impelement text demo for overflow and maxLines.
+// TODO(qqd): Impelement text demo for overflow and maxLines.
 
 @Composable
 fun TexDemoTextOverflowFade() {

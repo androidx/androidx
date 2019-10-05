@@ -16,7 +16,7 @@
 
 package androidx.ui.text.font
 
-// TODO(Migration/siyamed): might need nullable defaults for FontWeight and FontStyle which
+// TODO(siyamed): might need nullable defaults for FontWeight and FontStyle which
 // would mean read the weight and style from the font.
 /**
  * Defines a Font file to be used while rendering text.
@@ -39,14 +39,14 @@ data class Font(
      */
     val style: FontStyle = FontStyle.Normal,
 
-    // TODO(Migration/siyamed): implement integration and add tests
+    // TODO(siyamed): implement integration and add tests
     /**
      * Sets the index of the font collection. If the font is not a font collection the value should
      * not be changed.
      */
     val ttcIndex: Int = 0,
 
-    // TODO(Migration/siyamed): implement integration and add tests
+    // TODO(siyamed): implement integration and add tests
     // https://docs.microsoft.com/en-us/typography/opentype/spec/otvaroverview
     // not sure if this would be here or in the widget properties similar to TextStyle.fontWeight
     // CSS says: "These descriptors define initial settings that apply when the font defined by an

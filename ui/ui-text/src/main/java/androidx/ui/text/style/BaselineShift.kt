@@ -22,7 +22,7 @@ import androidx.ui.lerp
  * The amount by which the text is shifted up from current baseline.
  * @constructor
  * @param multiplier shift the baseline by multiplier * (baseline - ascent)
- * TODO(Migration/haoyuchang): support baseline shift given by pixel and other multiplier reference
+ * TODO(haoyuchang): support baseline shift given by pixel and other multiplier reference
  */
 /*inline*/ data class BaselineShift constructor(
     val multiplier: Float

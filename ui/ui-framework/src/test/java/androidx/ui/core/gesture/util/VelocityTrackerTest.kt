@@ -30,7 +30,7 @@ import org.junit.runners.JUnit4
 @RunWith(JUnit4::class)
 class VelocityTrackerTest {
 
-    // TODO(Migration/shepshapard): This test needs to be broken up into smaller tests
+    // TODO(shepshapard): This test needs to be broken up into smaller tests
     // that make edge cases clearer.  Right now its just a bunch of inputs and outputs
     // and its impossible for the reader to know how well different cases are being tested.
     @Test

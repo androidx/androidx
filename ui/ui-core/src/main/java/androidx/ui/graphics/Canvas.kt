@@ -24,7 +24,7 @@ import androidx.ui.vectormath64.Matrix4
 import androidx.ui.vectormath64.degrees
 
 // TODO(mount/njawad): Separate the platform-independent API from the platform-dependent.
-// TODO(Migration/njawad): Copy the class here
+// TODO(njawad): Copy the class here
 /**
  * An interface for recording graphical operations.
  *

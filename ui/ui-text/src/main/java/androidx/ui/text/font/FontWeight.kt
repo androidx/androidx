@@ -27,7 +27,7 @@ import androidx.ui.lerp
     internal val weight: Int
 ) : Comparable<FontWeight> {
 
-    // TODO(Migration/siyamed): This is weird since it should actually be possible to create a font
+    // TODO(siyamed): This is weird since it should actually be possible to create a font
     // weight that is not one of the items here. This decision changes the lerp behavior.
     companion object {
         // Thin, the least thick

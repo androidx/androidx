@@ -337,7 +337,7 @@ public class StaticLayoutCompatTest {
                 .build();
     }
 
-    // TODO(Migration/haoyuchang): Hyphenation is not working proper before API 28, need to support
+    // TODO(haoyuchang): Hyphenation is not working proper before API 28, need to support
     @Test
     @SdkSuppress(minSdkVersion = 28)
     public void builder_setHyphenationFrequencyNone_isNotHyphenated() {

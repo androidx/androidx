@@ -34,7 +34,7 @@ import androidx.ui.text.font.FontWeight
  *
  * @param resourceLoader [Font.ResourceLoader] for Android.
  */
-// TODO(Migration/siyamed): font matcher should be at an upper layer such as Paragraph, whoever
+// TODO(siyamed): font matcher should be at an upper layer such as Paragraph, whoever
 // will call TypefaceAdapter can know about a single font
 internal open class TypefaceAdapter(
     val fontMatcher: FontMatcher = FontMatcher(),
@@ -122,7 +122,7 @@ internal open class TypefaceAdapter(
             return Typeface.DEFAULT
         }
 
-        // TODO(Migration/siyamed): ideally we should not have platform dependent if's here.
+        // TODO(siyamed): ideally we should not have platform dependent if's here.
         // will think more and move to ui-text later.
         val result = if (Build.VERSION.SDK_INT < 28) {
             val targetStyle = getTypefaceStyle(fontWeight, fontStyle)

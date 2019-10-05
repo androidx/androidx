@@ -118,7 +118,7 @@ class SemanticsConfiguration : SemanticsPropertyReceiver,
      */
     var isMergingSemanticsOfDescendants: Boolean = false
         set(value) {
-            // TODO(Migration/ryanmentley): Changed this, confirm it's correct
+            // TODO(ryanmentley): Changed this, confirm it's correct
             if (value) {
                 assert(isSemanticBoundary)
             }

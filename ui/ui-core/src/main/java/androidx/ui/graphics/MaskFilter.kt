@@ -21,7 +21,7 @@ package androidx.ui.graphics
 // color pixels.
 //
 // Instances of this class are used with [Paint.maskFilter] on [Paint] objects.
-// TODO(Migration/njawad: add support for framework's EmbossMaskFilter
+// TODO(njawad): add support for framework's EmbossMaskFilter
 data class MaskFilter(val style: BlurStyle, val sigma: Float) {
     // Creates a mask filter that takes the shape being drawn and blurs it.
     //
