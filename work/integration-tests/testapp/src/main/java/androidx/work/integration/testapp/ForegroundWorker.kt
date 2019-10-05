@@ -25,14 +25,13 @@ import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import androidx.work.CoroutineWorker
 import androidx.work.Data
-import androidx.work.NotificationMetadata
-import androidx.work.NotificationProvider
+import androidx.work.ForegroundInfo
 import androidx.work.WorkerParameters
 import androidx.work.workDataOf
 import kotlinx.coroutines.delay
 
 class ForegroundWorker(context: Context, parameters: WorkerParameters) :
-    CoroutineWorker(context, parameters), NotificationProvider {
+    CoroutineWorker(context, parameters) {
 
     private val notificationManager =
         context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
@@ -40,16 +39,20 @@ class ForegroundWorker(context: Context, parameters: WorkerParameters) :
     private var progress: Data = Data.EMPTY
 
     override suspend fun doWork(): Result {
+        // Run in the context of a Foreground service
+        setForeground(getNotification())
+
         val range = 20
         for (i in 1..range) {
             delay(1000)
             progress = workDataOf(Progress to i * (100 / range))
             setProgress(progress)
+            setForeground(getNotification())
         }
         return Result.success()
     }
 
-    override fun getNotification(): NotificationMetadata {
+    private fun getNotification(): ForegroundInfo {
         val percent = progress.getInt(Progress, 0)
         val id = applicationContext.getString(R.string.channel_id)
         val title = applicationContext.getString(R.string.notification_title)
@@ -66,7 +69,7 @@ class ForegroundWorker(context: Context, parameters: WorkerParameters) :
             .setOngoing(true)
             .build()
 
-        return NotificationMetadata.Builder(NotificationId, notification).build()
+        return ForegroundInfo(notification)
     }
 
     @RequiresApi(Build.VERSION_CODES.O)

@@ -20,9 +20,9 @@ import android.content.Context;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
-import androidx.work.Data;
+import androidx.work.ForegroundInfo;
+import androidx.work.ForegroundUpdater;
 import androidx.work.Logger;
-import androidx.work.ProgressUpdater;
 import androidx.work.impl.utils.futures.SettableFuture;
 
 import com.google.common.util.concurrent.ListenableFuture;
@@ -30,21 +30,23 @@ import com.google.common.util.concurrent.ListenableFuture;
 import java.util.UUID;
 
 /**
- * A {@link ProgressUpdater} which does nothing. Useful in the context of testing.
+ * A {@link ForegroundUpdater} which does nothing. Useful in the context of testing.
  *
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class TestProgressUpdater implements ProgressUpdater {
-    private static final String TAG = Logger.tagWithPrefix("TestProgressUpdater");
+public class TestForegroundUpdater implements ForegroundUpdater {
+
+    private static final String TAG = Logger.tagWithPrefix("TestForegroundUpdater");
 
     @NonNull
     @Override
-    public ListenableFuture<Void> updateProgress(
+    public ListenableFuture<Void> setForegroundAsync(
             @NonNull Context context,
             @NonNull UUID id,
-            @NonNull Data data) {
-        Logger.get().info(TAG, String.format("Updating progress for %s (%s)", id, data));
+            @NonNull ForegroundInfo foregroundInfo) {
+
+        Logger.get().info(TAG, String.format("setForegroundAsync for %s", id));
         SettableFuture<Void> future = SettableFuture.create();
         future.set(null);
         return future;

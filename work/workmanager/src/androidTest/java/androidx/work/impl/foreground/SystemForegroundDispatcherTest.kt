@@ -24,8 +24,8 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.work.Configuration
 import androidx.work.Constraints
+import androidx.work.ForegroundInfo
 import androidx.work.NetworkType
-import androidx.work.NotificationMetadata
 import androidx.work.OneTimeWorkRequest
 import androidx.work.impl.Processor
 import androidx.work.impl.Scheduler
@@ -33,6 +33,7 @@ import androidx.work.impl.WorkDatabase
 import androidx.work.impl.WorkManagerImpl
 import androidx.work.impl.constraints.WorkConstraintsCallback
 import androidx.work.impl.constraints.WorkConstraintsTracker
+import androidx.work.impl.foreground.SystemForegroundDispatcher.NOTIFICATION_ID
 import androidx.work.impl.foreground.SystemForegroundDispatcher.createNotifyIntent
 import androidx.work.impl.foreground.SystemForegroundDispatcher.createStartForegroundIntent
 import androidx.work.impl.foreground.SystemForegroundDispatcher.createStopForegroundIntent
@@ -128,15 +129,13 @@ class SystemForegroundDispatcherTest {
 
     @Test
     fun testHandleNotify() {
+        val workSpecId = "workSpecId"
         val notification = mock(Notification::class.java)
-        val metadata = NotificationMetadata.Builder(1, notification)
-            .setNotificationType(0)
-            .build()
-
-        val intent = createNotifyIntent(context, metadata)
+        val metadata = ForegroundInfo(notification)
+        val intent = createNotifyIntent(context, workSpecId, metadata)
         dispatcher.onStartCommand(intent)
         verify(dispatcherCallback, times(1))
-            .notify(eq(1), eq(0), any<String>(), any<Notification>())
+            .notify(eq(NOTIFICATION_ID), eq(0), eq(workSpecId), any<Notification>())
     }
 
     @Test

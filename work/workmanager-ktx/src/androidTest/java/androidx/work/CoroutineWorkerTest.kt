@@ -42,7 +42,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
-import org.mockito.ArgumentMatchers.eq
+import org.mockito.Mockito.mock
 import org.mockito.Mockito.spy
 import org.mockito.Mockito.times
 import org.mockito.Mockito.verify
@@ -58,6 +58,7 @@ class CoroutineWorkerTest {
     private lateinit var database: WorkDatabase
     private lateinit var workManagerImpl: WorkManagerImpl
     private lateinit var progressUpdater: ProgressUpdater
+    private lateinit var mForegroundUpdater: ForegroundUpdater
 
     @Before
     fun setUp() {
@@ -87,11 +88,12 @@ class CoroutineWorkerTest {
         WorkManagerImpl.setDelegate(workManagerImpl)
         database = workManagerImpl.workDatabase
         // No op
-        progressUpdater = ProgressUpdater { _, _, _, _ ->
+        progressUpdater = ProgressUpdater { _, _, _ ->
             val future = SettableFuture.create<Void>()
             future.set(null)
             future
         }
+        mForegroundUpdater = mock(ForegroundUpdater::class.java)
     }
 
     @After
@@ -115,7 +117,8 @@ class CoroutineWorkerTest {
                 configuration.executor,
                 workManagerImpl.workTaskExecutor,
                 workerFactory,
-                progressUpdater)) as SynchronousCoroutineWorker
+                progressUpdater,
+                mForegroundUpdater)) as SynchronousCoroutineWorker
 
         assertThat(worker.job.isCompleted, `is`(false))
 
@@ -145,7 +148,8 @@ class CoroutineWorkerTest {
                 configuration.executor,
                 workManagerImpl.workTaskExecutor,
                 workerFactory,
-                progressUpdater)) as SynchronousCoroutineWorker
+                progressUpdater,
+                mForegroundUpdater)) as SynchronousCoroutineWorker
 
         assertThat(worker.job.isCancelled, `is`(false))
         worker.future.cancel(true)
@@ -171,7 +175,8 @@ class CoroutineWorkerTest {
                 configuration.executor,
                 workManagerImpl.workTaskExecutor,
                 workerFactory,
-                progressUpdater
+                progressUpdater,
+                mForegroundUpdater
             )
         ) as ProgressUpdatingWorker
 
@@ -182,9 +187,7 @@ class CoroutineWorkerTest {
                 .updateProgress(
                     any(Context::class.java),
                     any(UUID::class.java),
-                    captor.capture(),
-                    eq(null)
-                )
+                    captor.capture())
             assertThat(result, `is`(instanceOf(ListenableWorker.Result.Success::class.java)))
             val recent = captor.allValues.lastOrNull()
             assertThat(recent?.getInt(ProgressUpdatingWorker.Progress, 0), `is`(100))
@@ -215,7 +218,8 @@ class CoroutineWorkerTest {
                 configuration.executor,
                 workManagerImpl.workTaskExecutor,
                 workerFactory,
-                progressUpdater
+                progressUpdater,
+                mForegroundUpdater
             )
         ) as ProgressUpdatingWorker
 
@@ -226,9 +230,7 @@ class CoroutineWorkerTest {
                 .updateProgress(
                     any(Context::class.java),
                     any(UUID::class.java),
-                    captor.capture(),
-                    eq(null)
-                )
+                    captor.capture())
             assertThat(result, `is`(instanceOf(ListenableWorker.Result.Success::class.java)))
             val recent = captor.allValues.lastOrNull()
             assertThat(recent?.getInt(ProgressUpdatingWorker.Progress, 0), `is`(100))

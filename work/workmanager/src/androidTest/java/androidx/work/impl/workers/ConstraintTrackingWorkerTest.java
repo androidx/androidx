@@ -36,6 +36,7 @@ import androidx.work.Configuration;
 import androidx.work.Constraints;
 import androidx.work.Data;
 import androidx.work.DatabaseTest;
+import androidx.work.ForegroundUpdater;
 import androidx.work.ListenableWorker;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.ProgressUpdater;
@@ -88,6 +89,7 @@ public class ConstraintTrackingWorkerTest extends DatabaseTest {
     private TaskExecutor mWorkTaskExecutor;
     private Scheduler mScheduler;
     private ProgressUpdater mProgressUpdater;
+    private ForegroundUpdater mForegroundUpdater;
     private ForegroundProcessor mForegroundProcessor;
     private Trackers mTracker;
     private BatteryChargingTracker mBatteryChargingTracker;
@@ -107,6 +109,7 @@ public class ConstraintTrackingWorkerTest extends DatabaseTest {
         mWorkManagerImpl = mock(WorkManagerImpl.class);
         mScheduler = mock(Scheduler.class);
         mProgressUpdater = mock(ProgressUpdater.class);
+        mForegroundUpdater = mock(ForegroundUpdater.class);
         mForegroundProcessor = mock(ForegroundProcessor.class);
         when(mWorkManagerImpl.getWorkDatabase()).thenReturn(mDatabase);
         when(mWorkManagerImpl.getWorkTaskExecutor()).thenReturn(mWorkTaskExecutor);
@@ -268,7 +271,8 @@ public class ConstraintTrackingWorkerTest extends DatabaseTest {
                         executor,
                         mWorkTaskExecutor,
                         workerFactory,
-                        mProgressUpdater));
+                        mProgressUpdater,
+                        mForegroundUpdater));
 
         assertThat(worker, is(notNullValue()));
         assertThat(worker,

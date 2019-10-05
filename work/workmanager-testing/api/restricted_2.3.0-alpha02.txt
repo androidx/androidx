@@ -12,10 +12,16 @@ package androidx.work.testing {
     method public void setPeriodDelayMet(java.util.UUID);
   }
 
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public class TestForegroundUpdater implements androidx.work.ForegroundUpdater {
+    ctor public TestForegroundUpdater();
+    method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void!> setForegroundAsync(android.content.Context, java.util.UUID, androidx.work.ForegroundInfo);
+  }
+
   public class TestListenableWorkerBuilder<W extends androidx.work.ListenableWorker> {
     method public W build();
     method public static androidx.work.testing.TestListenableWorkerBuilder from(android.content.Context, androidx.work.WorkRequest);
     method public static <W extends androidx.work.ListenableWorker> androidx.work.testing.TestListenableWorkerBuilder<W!> from(android.content.Context, Class<W!>);
+    method public androidx.work.testing.TestListenableWorkerBuilder setForegroundUpdater(androidx.work.ForegroundUpdater);
     method public androidx.work.testing.TestListenableWorkerBuilder setId(java.util.UUID);
     method public androidx.work.testing.TestListenableWorkerBuilder setInputData(androidx.work.Data);
     method @RequiresApi(28) public androidx.work.testing.TestListenableWorkerBuilder setNetwork(android.net.Network);
@@ -34,7 +40,7 @@ package androidx.work.testing {
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public class TestProgressUpdater implements androidx.work.ProgressUpdater {
     ctor public TestProgressUpdater();
-    method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void!> updateProgress(android.content.Context, java.util.UUID, androidx.work.Data, androidx.work.NotificationProvider?);
+    method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void!> updateProgress(android.content.Context, java.util.UUID, androidx.work.Data);
   }
 
   public class TestWorkerBuilder<W extends androidx.work.Worker> extends androidx.work.testing.TestListenableWorkerBuilder<W> {

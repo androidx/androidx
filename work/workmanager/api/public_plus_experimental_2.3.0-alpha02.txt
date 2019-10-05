@@ -124,6 +124,17 @@ package androidx.work {
     enum_constant public static final androidx.work.ExistingWorkPolicy REPLACE;
   }
 
+  public final class ForegroundInfo {
+    ctor public ForegroundInfo(android.app.Notification);
+    ctor public ForegroundInfo(android.app.Notification, int);
+    method public android.app.Notification getNotification();
+    method public int getNotificationType();
+  }
+
+  public interface ForegroundUpdater {
+    method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void!> setForegroundAsync(android.content.Context, java.util.UUID, androidx.work.ForegroundInfo);
+  }
+
   public abstract class InputMerger {
     ctor public InputMerger();
     method public abstract androidx.work.Data merge(java.util.List<androidx.work.Data!>);
@@ -146,6 +157,7 @@ package androidx.work {
     method @RequiresApi(24) public final java.util.List<android.net.Uri!> getTriggeredContentUris();
     method public final boolean isStopped();
     method public void onStopped();
+    method public final com.google.common.util.concurrent.ListenableFuture<java.lang.Void!> setForegroundAsync(androidx.work.ForegroundInfo);
     method public final com.google.common.util.concurrent.ListenableFuture<java.lang.Void!> setProgressAsync(androidx.work.Data);
     method @MainThread public abstract com.google.common.util.concurrent.ListenableFuture<androidx.work.ListenableWorker.Result!> startWork();
   }
@@ -164,24 +176,6 @@ package androidx.work {
     enum_constant public static final androidx.work.NetworkType NOT_REQUIRED;
     enum_constant public static final androidx.work.NetworkType NOT_ROAMING;
     enum_constant public static final androidx.work.NetworkType UNMETERED;
-  }
-
-  public final class NotificationMetadata {
-    method public android.app.Notification getNotification();
-    method public int getNotificationId();
-    method public String? getNotificationTag();
-    method public int getNotificationType();
-  }
-
-  public static final class NotificationMetadata.Builder {
-    ctor public NotificationMetadata.Builder(@IntRange(from=1) int, android.app.Notification);
-    method public androidx.work.NotificationMetadata build();
-    method public androidx.work.NotificationMetadata.Builder setNotificationTag(String);
-    method public androidx.work.NotificationMetadata.Builder setNotificationType(int);
-  }
-
-  public interface NotificationProvider {
-    method public androidx.work.NotificationMetadata getNotification();
   }
 
   public final class OneTimeWorkRequest extends androidx.work.WorkRequest {
@@ -231,7 +225,7 @@ package androidx.work {
   }
 
   public interface ProgressUpdater {
-    method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void!> updateProgress(android.content.Context, java.util.UUID, androidx.work.Data, androidx.work.NotificationProvider?);
+    method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void!> updateProgress(android.content.Context, java.util.UUID, androidx.work.Data);
   }
 
   public abstract class WorkContinuation {
@@ -309,7 +303,6 @@ package androidx.work {
     method public B setInitialDelay(long, java.util.concurrent.TimeUnit);
     method @RequiresApi(26) public B setInitialDelay(java.time.Duration);
     method public final B setInputData(androidx.work.Data);
-    method public B setRunInForeground(boolean);
   }
 
   public abstract class Worker extends androidx.work.ListenableWorker {
