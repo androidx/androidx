@@ -190,6 +190,8 @@ public class SanitizedMainFragmentDirections {
             if (arguments.containsKey("optional.arg")) {
                 String optionalArg = (String) arguments.get("optional.arg");
                 __result.putString("optional.arg", optionalArg);
+            } else {
+                __result.putString("optional.arg", "bla");
             }
             return __result;
         }

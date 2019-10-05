@@ -190,6 +190,8 @@ public class MainFragmentDirections {
             if (arguments.containsKey("optional")) {
                 String optional = (String) arguments.get("optional");
                 __result.putString("optional", optional);
+            } else {
+                __result.putString("optional", "bla");
             }
             return __result;
         }

@@ -42,6 +42,8 @@ public class SettingsDirections {
             if (arguments.containsKey("exitReason")) {
                 String exitReason = (String) arguments.get("exitReason");
                 __result.putString("exitReason", exitReason);
+            } else {
+                __result.putString("exitReason", "DEFAULT");
             }
             return __result;
         }
