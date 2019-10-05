@@ -18,12 +18,15 @@ package androidx.recyclerview.widget;
 
 import android.os.Bundle;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.accessibility.AccessibilityEvent;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.view.AccessibilityDelegateCompat;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat;
+import androidx.core.view.accessibility.AccessibilityNodeProviderCompat;
 
 import java.util.Map;
 import java.util.WeakHashMap;
@@ -146,21 +149,97 @@ public class RecyclerViewAccessibilityDelegate extends AccessibilityDelegateComp
 
         @Override
         public boolean performAccessibilityAction(View host, int action, Bundle args) {
-            if (super.performAccessibilityAction(host, action, args)) {
-                return true;
-            }
             if (!mRecyclerViewDelegate.shouldIgnore()
                     && mRecyclerViewDelegate.mRecyclerView.getLayoutManager() != null) {
                 AccessibilityDelegateCompat originalDelegate = mOriginalItemDelegates.get(host);
-                if (originalDelegate != null
-                        && originalDelegate.performAccessibilityAction(host, action, args)) {
+                if (originalDelegate != null) {
+                    if (originalDelegate.performAccessibilityAction(host, action, args)) {
+                        return true;
+                    }
+                } else if (super.performAccessibilityAction(host, action, args)) {
                     return true;
-                } else {
-                    return mRecyclerViewDelegate.mRecyclerView.getLayoutManager()
-                            .performAccessibilityActionForItem(host, action, args);
                 }
+                return mRecyclerViewDelegate.mRecyclerView.getLayoutManager()
+                        .performAccessibilityActionForItem(host, action, args);
+            } else {
+                return super.performAccessibilityAction(host, action, args);
             }
-            return false;
+        }
+
+        @Override
+        public void sendAccessibilityEvent(@NonNull View host, int eventType) {
+            AccessibilityDelegateCompat originalDelegate = mOriginalItemDelegates.get(host);
+            if (originalDelegate != null) {
+                originalDelegate.sendAccessibilityEvent(host, eventType);
+            } else {
+                super.sendAccessibilityEvent(host, eventType);
+            }
+        }
+
+        @Override
+        public void sendAccessibilityEventUnchecked(@NonNull View host,
+                @NonNull AccessibilityEvent event) {
+            AccessibilityDelegateCompat originalDelegate = mOriginalItemDelegates.get(host);
+            if (originalDelegate != null) {
+                originalDelegate.sendAccessibilityEventUnchecked(host, event);
+            } else {
+                super.sendAccessibilityEventUnchecked(host, event);
+            }
+        }
+
+        @Override
+        public boolean dispatchPopulateAccessibilityEvent(@NonNull View host,
+                @NonNull AccessibilityEvent event) {
+            AccessibilityDelegateCompat originalDelegate = mOriginalItemDelegates.get(host);
+            if (originalDelegate != null) {
+                return originalDelegate.dispatchPopulateAccessibilityEvent(host, event);
+            } else {
+                return super.dispatchPopulateAccessibilityEvent(host, event);
+            }
+        }
+
+        @Override
+        public void onPopulateAccessibilityEvent(@NonNull View host,
+                @NonNull AccessibilityEvent event) {
+            AccessibilityDelegateCompat originalDelegate = mOriginalItemDelegates.get(host);
+            if (originalDelegate != null) {
+                originalDelegate.onPopulateAccessibilityEvent(host, event);
+            } else {
+                super.onPopulateAccessibilityEvent(host, event);
+            }
+        }
+
+        @Override
+        public void onInitializeAccessibilityEvent(@NonNull View host,
+                @NonNull AccessibilityEvent event) {
+            AccessibilityDelegateCompat originalDelegate = mOriginalItemDelegates.get(host);
+            if (originalDelegate != null) {
+                originalDelegate.onInitializeAccessibilityEvent(host, event);
+            } else {
+                super.onInitializeAccessibilityEvent(host, event);
+            }
+        }
+
+        @Override
+        public boolean onRequestSendAccessibilityEvent(@NonNull ViewGroup host,
+                @NonNull View child, @NonNull AccessibilityEvent event) {
+            AccessibilityDelegateCompat originalDelegate = mOriginalItemDelegates.get(host);
+            if (originalDelegate != null) {
+                return originalDelegate.onRequestSendAccessibilityEvent(host, child, event);
+            } else {
+                return super.onRequestSendAccessibilityEvent(host, child, event);
+            }
+        }
+
+        @Override
+        @Nullable
+        public AccessibilityNodeProviderCompat getAccessibilityNodeProvider(@NonNull View host) {
+            AccessibilityDelegateCompat originalDelegate = mOriginalItemDelegates.get(host);
+            if (originalDelegate != null) {
+                return originalDelegate.getAccessibilityNodeProvider(host);
+            } else {
+                return super.getAccessibilityNodeProvider(host);
+            }
         }
     }
 }
