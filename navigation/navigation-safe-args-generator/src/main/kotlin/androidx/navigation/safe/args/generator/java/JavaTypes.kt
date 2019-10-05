@@ -174,6 +174,27 @@ internal fun NavType.addBundlePutStatement(
     )
 }
 
+internal fun NavType.addBundlePutStatement(
+    builder: MethodSpec.Builder,
+    arg: Argument,
+    bundle: String,
+    argValue: CodeBlock
+): MethodSpec.Builder = when (this) {
+    is ObjectType -> builder.apply {
+        addStatement(
+            "$N.$N($S, $L)",
+            bundle, "putSerializable", arg.name, argValue
+        )
+    }
+    else -> builder.addStatement(
+        "$N.$N($S, $L)",
+        bundle,
+        bundlePutMethod(),
+        arg.name,
+        argValue
+    )
+}
+
 internal fun NavType.typeName(): TypeName = when (this) {
     IntType -> TypeName.INT
     IntArrayType -> ArrayTypeName.of(TypeName.INT)

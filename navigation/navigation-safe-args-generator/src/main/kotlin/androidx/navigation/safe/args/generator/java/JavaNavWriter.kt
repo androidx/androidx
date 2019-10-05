@@ -376,6 +376,11 @@ private class ClassWithArgsSpecs(
                 )
                 arg.type.addBundlePutStatement(this, arg, result, arg.sanitizedName)
             }
+            if (arg.defaultValue != null) {
+                nextControlFlow("else").apply {
+                    arg.type.addBundlePutStatement(this, arg, result, arg.defaultValue.write())
+                }
+            }
             endControlFlow()
         }
         addStatement("return $N", result)

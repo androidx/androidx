@@ -196,18 +196,26 @@ public class MainFragmentArgs implements NavArgs {
         if (arguments.containsKey("optional")) {
             int optional = (int) arguments.get("optional");
             __result.putInt("optional", optional);
+        } else {
+            __result.putInt("optional", -1);
         }
         if (arguments.containsKey("reference")) {
             int reference = (int) arguments.get("reference");
             __result.putInt("reference", reference);
+        } else {
+            __result.putInt("reference", R.drawable.background);
         }
         if (arguments.containsKey("referenceZeroDefaultValue")) {
             int referenceZeroDefaultValue = (int) arguments.get("referenceZeroDefaultValue");
             __result.putInt("referenceZeroDefaultValue", referenceZeroDefaultValue);
+        } else {
+            __result.putInt("referenceZeroDefaultValue", 0);
         }
         if (arguments.containsKey("floatArg")) {
             float floatArg = (float) arguments.get("floatArg");
             __result.putFloat("floatArg", floatArg);
+        } else {
+            __result.putFloat("floatArg", 1F);
         }
         if (arguments.containsKey("floatArrayArg")) {
             float[] floatArrayArg = (float[]) arguments.get("floatArrayArg");
@@ -220,6 +228,8 @@ public class MainFragmentArgs implements NavArgs {
         if (arguments.containsKey("boolArg")) {
             boolean boolArg = (boolean) arguments.get("boolArg");
             __result.putBoolean("boolArg", boolArg);
+        } else {
+            __result.putBoolean("boolArg", true);
         }
         if (arguments.containsKey("optionalParcelable")) {
             ActivityInfo optionalParcelable = (ActivityInfo) arguments.get("optionalParcelable");
@@ -230,6 +240,8 @@ public class MainFragmentArgs implements NavArgs {
             } else {
                 throw new UnsupportedOperationException(ActivityInfo.class.getName() + " must implement Parcelable or Serializable or must be an Enum.");
             }
+        } else {
+            __result.putSerializable("optionalParcelable", null);
         }
         if (arguments.containsKey("enumArg")) {
             AccessMode enumArg = (AccessMode) arguments.get("enumArg");
@@ -240,6 +252,8 @@ public class MainFragmentArgs implements NavArgs {
             } else {
                 throw new UnsupportedOperationException(AccessMode.class.getName() + " must implement Parcelable or Serializable or must be an Enum.");
             }
+        } else {
+            __result.putSerializable("enumArg", AccessMode.READ);
         }
         return __result;
     }
