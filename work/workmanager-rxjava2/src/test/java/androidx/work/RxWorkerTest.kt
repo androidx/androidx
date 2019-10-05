@@ -117,7 +117,8 @@ class RxWorkerTest {
 
     private fun createWorkerParams(
         executor: Executor = SynchronousExecutor(),
-        progressUpdater: ProgressUpdater = mock(ProgressUpdater::class.java)
+        progressUpdater: ProgressUpdater = mock(ProgressUpdater::class.java),
+        foregroundUpdater: ForegroundUpdater = mock(ForegroundUpdater::class.java)
     ) = WorkerParameters(
         UUID.randomUUID(),
         Data.EMPTY,
@@ -127,7 +128,8 @@ class RxWorkerTest {
         executor,
         InstantWorkTaskExecutor(),
         WorkerFactory.getDefaultWorkerFactory(),
-        progressUpdater
+        progressUpdater,
+        foregroundUpdater
     )
 
     private fun Single<ListenableWorker.Result>.toWorker(

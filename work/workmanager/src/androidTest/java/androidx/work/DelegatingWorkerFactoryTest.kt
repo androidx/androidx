@@ -40,12 +40,14 @@ class DelegatingWorkerFactoryTest : DatabaseTest() {
     private lateinit var context: Context
     private lateinit var factory: DelegatingWorkerFactory
     private lateinit var progressUpdater: ProgressUpdater
+    private lateinit var mForegroundUpdater: ForegroundUpdater
 
     @Before
     fun setUp() {
         context = ApplicationProvider.getApplicationContext()
         factory = DelegatingWorkerFactory()
         progressUpdater = mock(ProgressUpdater::class.java)
+        mForegroundUpdater = mock(ForegroundUpdater::class.java)
     }
 
     @Test
@@ -55,7 +57,8 @@ class DelegatingWorkerFactoryTest : DatabaseTest() {
 
         val request = OneTimeWorkRequest.from(TestWorker::class.java)
         insertWork(request)
-        val params: WorkerParameters = newWorkerParams(factory, progressUpdater)
+        val params: WorkerParameters =
+            newWorkerParams(factory, progressUpdater, mForegroundUpdater)
         val worker = factory.createWorkerWithDefaultFallback(
             context,
             TestWorker::class.java.name,
@@ -71,7 +74,8 @@ class DelegatingWorkerFactoryTest : DatabaseTest() {
         factory = DelegatingWorkerFactory()
         val request = OneTimeWorkRequest.from(TestWorker::class.java)
         insertWork(request)
-        val params: WorkerParameters = newWorkerParams(factory, progressUpdater)
+        val params: WorkerParameters =
+            newWorkerParams(factory, progressUpdater, mForegroundUpdater)
         val worker = factory.createWorkerWithDefaultFallback(
             context,
             TestWorker::class.java.name,
@@ -82,8 +86,11 @@ class DelegatingWorkerFactoryTest : DatabaseTest() {
         assertThat(worker, instanceOf(TestWorker::class.java))
     }
 
-    private fun newWorkerParams(factory: WorkerFactory, updater: ProgressUpdater) =
-        WorkerParameters(
+    private fun newWorkerParams(
+        factory: WorkerFactory,
+        progressUpdater: ProgressUpdater,
+        foregroundUpdater: ForegroundUpdater
+    ) = WorkerParameters(
             UUID.randomUUID(),
             Data.EMPTY,
             listOf<String>(),
@@ -92,7 +99,8 @@ class DelegatingWorkerFactoryTest : DatabaseTest() {
             SynchronousExecutor(),
             WorkManagerTaskExecutor(SynchronousExecutor()),
             factory,
-            updater
+            progressUpdater,
+            foregroundUpdater
         )
 }
 

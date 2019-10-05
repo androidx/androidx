@@ -19,15 +19,14 @@ package androidx.work.impl.foreground;
 import android.app.Notification;
 import android.content.Context;
 import android.content.Intent;
-import android.text.TextUtils;
 
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
+import androidx.work.ForegroundInfo;
 import androidx.work.Logger;
-import androidx.work.NotificationMetadata;
 import androidx.work.impl.ExecutionListener;
 import androidx.work.impl.WorkDatabase;
 import androidx.work.impl.WorkManagerImpl;
@@ -64,6 +63,10 @@ public class SystemForegroundDispatcher implements WorkConstraintsCallback, Exec
     private static final String ACTION_START_FOREGROUND = "ACTION_START_FOREGROUND";
     private static final String ACTION_NOTIFY = "ACTION_NOTIFY";
     private static final String ACTION_STOP_FOREGROUND = "ACTION_STOP_FOREGROUND";
+
+    // constants
+    @VisibleForTesting
+    public static final int NOTIFICATION_ID = 42;
 
     private Context mContext;
     private WorkManagerImpl mWorkManagerImpl;
@@ -237,23 +240,23 @@ public class SystemForegroundDispatcher implements WorkConstraintsCallback, Exec
     /**
      * The {@link Intent} which is used to display a {@link Notification} via
      * {@link SystemForegroundService}.
-     *o
-     * @param context  The application {@link Context}
-     * @param metadata The {@link NotificationMetadata}
+     *
+     * @param context    The application {@link Context}
+     * @param workSpecId The {@link WorkSpec} id
+     * @param metadata   The {@link ForegroundInfo}
      * @return The {@link Intent}
      */
     @NonNull
     public static Intent createNotifyIntent(
             @NonNull Context context,
-            @NonNull NotificationMetadata metadata) {
+            @NonNull String workSpecId,
+            @NonNull ForegroundInfo metadata) {
         Intent intent = new Intent(context, SystemForegroundService.class);
         intent.setAction(ACTION_NOTIFY);
-        intent.putExtra(KEY_NOTIFICATION_ID, metadata.getNotificationId());
+        intent.putExtra(KEY_NOTIFICATION_ID, NOTIFICATION_ID);
         intent.putExtra(KEY_NOTIFICATION_TYPE, metadata.getNotificationType());
         intent.putExtra(KEY_NOTIFICATION, metadata.getNotification());
-        if (!TextUtils.isEmpty(metadata.getNotificationTag())) {
-            intent.putExtra(KEY_NOTIFICATION_TAG, metadata.getNotificationTag());
-        }
+        intent.putExtra(KEY_NOTIFICATION_TAG, workSpecId);
         return intent;
     }
 

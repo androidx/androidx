@@ -19,7 +19,6 @@ package androidx.work
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
-import androidx.work.workers.TestNotificationWorker
 import androidx.work.workers.TestWorker
 import org.junit.Assert.assertEquals
 import org.junit.Test
@@ -80,21 +79,5 @@ class PeriodicWorkRequestTest {
         assertEquals(workRequest.workSpec.isPeriodic, true)
         assertEquals(workRequest.workSpec.intervalDuration, repeatInterval.toMillis())
         assertEquals(workRequest.workSpec.flexDuration, flexInterval.toMillis())
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    @SdkSuppress(minSdkVersion = 23)
-    fun testSetRunInForeground_withInvalidConstraints() {
-        PeriodicWorkRequestBuilder<TestNotificationWorker>(
-            repeatInterval = 15L,
-            repeatIntervalTimeUnit = TimeUnit.MINUTES
-        )
-            .setRunInForeground(true)
-            .setConstraints(
-                Constraints.Builder()
-                    .setRequiresDeviceIdle(true)
-                    .build()
-            )
-            .build()
     }
 }

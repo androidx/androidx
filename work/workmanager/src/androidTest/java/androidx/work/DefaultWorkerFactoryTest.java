@@ -43,12 +43,14 @@ public class DefaultWorkerFactoryTest extends DatabaseTest {
     private Context mContext;
     private WorkerFactory mDefaultWorkerFactory;
     private ProgressUpdater mProgressUpdater;
+    private ForegroundUpdater mForegroundUpdater;
 
     @Before
     public void setUp() {
         mContext = ApplicationProvider.getApplicationContext();
         mDefaultWorkerFactory = WorkerFactory.getDefaultWorkerFactory();
         mProgressUpdater = mock(ProgressUpdater.class);
+        mForegroundUpdater = mock(ForegroundUpdater.class);
     }
 
     @Test
@@ -70,7 +72,8 @@ public class DefaultWorkerFactoryTest extends DatabaseTest {
                         executor,
                         new WorkManagerTaskExecutor(executor),
                         mDefaultWorkerFactory,
-                        mProgressUpdater));
+                        mProgressUpdater,
+                        mForegroundUpdater));
         assertThat(worker, is(notNullValue()));
         assertThat(worker,
                 is(CoreMatchers.<ListenableWorker>instanceOf(TestWorker.class)));

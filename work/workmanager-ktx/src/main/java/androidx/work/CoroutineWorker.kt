@@ -98,6 +98,17 @@ abstract class CoroutineWorker(
         setProgressAsync(data).await()
     }
 
+    /**
+     * Makes the [CoroutineWorker] run in the context of a foreground [android.app.Service]. This
+     * is a suspending function unlike the [setProgressAsync] API which returns a
+     * [ListenableFuture].
+     *
+     * @param foregroundInfo The [ForegroundInfo]
+     */
+    suspend fun setForeground(foregroundInfo: ForegroundInfo) {
+        setForegroundAsync(foregroundInfo).await()
+    }
+
     final override fun onStopped() {
         super.onStopped()
         future.cancel(false)

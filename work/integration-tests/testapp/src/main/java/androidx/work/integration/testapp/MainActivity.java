@@ -363,8 +363,7 @@ public class MainActivity extends AppCompatActivity {
                         new OneTimeWorkRequest.Builder(ForegroundWorker.class)
                                 .setConstraints(new Constraints.Builder()
                                         .setRequiredNetworkType(NetworkType.CONNECTED).build()
-                                ).setRunInForeground(true)
-                                .build();
+                                ).build();
 
                 WorkManager.getInstance(MainActivity.this).enqueue(request);
             }

@@ -14,39 +14,33 @@
  * limitations under the License.
  */
 
-package androidx.work.testing;
+package androidx.work;
 
 import android.content.Context;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RestrictTo;
-import androidx.work.Data;
-import androidx.work.Logger;
-import androidx.work.ProgressUpdater;
-import androidx.work.impl.utils.futures.SettableFuture;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.UUID;
 
 /**
- * A {@link ProgressUpdater} which does nothing. Useful in the context of testing.
- *
- * @hide
+ * Manages updating {@link android.app.Notification}s when a {@link ListenableWorker} transitions
+ * to running in the context of a foreground {@link android.app.Service}.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class TestProgressUpdater implements ProgressUpdater {
-    private static final String TAG = Logger.tagWithPrefix("TestProgressUpdater");
+public interface ForegroundUpdater {
 
+    /**
+     * @param context        The application {@link Context}.
+     * @param id             The {@link UUID} identifying the {@link ListenableWorker}
+     * @param foregroundInfo The {@link ForegroundInfo}
+     * @return @return The {@link ListenableFuture} which resolves after the
+     * {@link ListenableWorker} transitions to running in the context of a foreground
+     * {@link android.app.Service}.
+     */
     @NonNull
-    @Override
-    public ListenableFuture<Void> updateProgress(
+    ListenableFuture<Void> setForegroundAsync(
             @NonNull Context context,
             @NonNull UUID id,
-            @NonNull Data data) {
-        Logger.get().info(TAG, String.format("Updating progress for %s (%s)", id, data));
-        SettableFuture<Void> future = SettableFuture.create();
-        future.set(null);
-        return future;
-    }
+            @NonNull ForegroundInfo foregroundInfo);
 }

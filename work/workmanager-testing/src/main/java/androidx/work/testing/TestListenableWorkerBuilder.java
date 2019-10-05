@@ -16,6 +16,7 @@
 
 package androidx.work.testing;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.net.Network;
 import android.net.Uri;
@@ -24,6 +25,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.work.Data;
+import androidx.work.ForegroundUpdater;
 import androidx.work.ListenableWorker;
 import androidx.work.ProgressUpdater;
 import androidx.work.WorkRequest;
@@ -58,6 +60,7 @@ public class TestListenableWorkerBuilder<W extends ListenableWorker> {
     private TaskExecutor mTaskExecutor;
     private Executor mExecutor;
     private ProgressUpdater mProgressUpdater;
+    private ForegroundUpdater mForegroundUpdater;
 
     TestListenableWorkerBuilder(@NonNull Context context, @NonNull Class<W> workerClass) {
         mContext = context;
@@ -72,6 +75,7 @@ public class TestListenableWorkerBuilder<W extends ListenableWorker> {
         mTaskExecutor = new InstantWorkTaskExecutor();
         mExecutor = mTaskExecutor.getBackgroundExecutor();
         mProgressUpdater = new TestProgressUpdater();
+        mForegroundUpdater = new TestForegroundUpdater();
     }
 
     /**
@@ -163,10 +167,22 @@ public class TestListenableWorkerBuilder<W extends ListenableWorker> {
         return mExecutor;
     }
 
+    /**
+     * @return The {@link ProgressUpdater} associated with this unit of work.
+     */
     @NonNull
-    @SuppressWarnings("KotlinPropertyAccess")
+    @SuppressWarnings({"KotlinPropertyAccess", "WeakerAccess"})
     ProgressUpdater getProgressUpdater() {
         return mProgressUpdater;
+    }
+
+    /**
+     * @return The {@link ForegroundUpdater} associated with this unit of work.
+     */
+    @NonNull
+    @SuppressLint("KotlinPropertyAccess")
+    ForegroundUpdater getForegroundUpdater() {
+        return mForegroundUpdater;
     }
 
     /**
@@ -285,6 +301,20 @@ public class TestListenableWorkerBuilder<W extends ListenableWorker> {
     }
 
     /**
+     * Sets the {@link ForegroundUpdater} to be used to construct the
+     * {@link androidx.work.ListenableWorker}.
+     *
+     * @param updater The {@link ForegroundUpdater} which can handle notification updates.
+     * @return The current {@link TestListenableWorkerBuilder}
+     */
+    @NonNull
+    public TestListenableWorkerBuilder setForegroundUpdater(
+            @NonNull ForegroundUpdater updater) {
+        mForegroundUpdater = updater;
+        return this;
+    }
+
+    /**
      * Sets the {@link Executor} that can be used to execute this unit of work.
      *
      * @param executor The {@link Executor}
@@ -315,7 +345,8 @@ public class TestListenableWorkerBuilder<W extends ListenableWorker> {
                         getExecutor(),
                         getTaskExecutor(),
                         getWorkerFactory(),
-                        getProgressUpdater()
+                        getProgressUpdater(),
+                        getForegroundUpdater()
                 );
 
         WorkerFactory workerFactory = parameters.getWorkerFactory();
