@@ -97,17 +97,13 @@ package androidx.ui.text {
 
   public final class AnnotatedString {
     ctor public AnnotatedString(String text, java.util.List<androidx.ui.text.AnnotatedString.Item<androidx.ui.text.TextStyle>> textStyles, java.util.List<androidx.ui.text.AnnotatedString.Item<androidx.ui.text.ParagraphStyle>> paragraphStyles);
-    method public androidx.ui.text.AnnotatedString capitalize(androidx.ui.text.LocaleList localeList = LocaleList.current);
     method public String component1();
     method public java.util.List<androidx.ui.text.AnnotatedString.Item<androidx.ui.text.TextStyle>> component2();
     method public java.util.List<androidx.ui.text.AnnotatedString.Item<androidx.ui.text.ParagraphStyle>> component3();
     method public androidx.ui.text.AnnotatedString copy(String text, java.util.List<androidx.ui.text.AnnotatedString.Item<androidx.ui.text.TextStyle>> textStyles, java.util.List<androidx.ui.text.AnnotatedString.Item<androidx.ui.text.ParagraphStyle>> paragraphStyles);
-    method public androidx.ui.text.AnnotatedString decapitalize(androidx.ui.text.LocaleList localeList = LocaleList.current);
     method public java.util.List<androidx.ui.text.AnnotatedString.Item<androidx.ui.text.ParagraphStyle>> getParagraphStyles();
     method public String getText();
     method public java.util.List<androidx.ui.text.AnnotatedString.Item<androidx.ui.text.TextStyle>> getTextStyles();
-    method public androidx.ui.text.AnnotatedString toLowerCase(androidx.ui.text.LocaleList localeList = LocaleList.current);
-    method public androidx.ui.text.AnnotatedString toUpperCase(androidx.ui.text.LocaleList localeList = LocaleList.current);
   }
 
   public static final class AnnotatedString.Item<T> {
@@ -123,6 +119,10 @@ package androidx.ui.text {
 
   public final class AnnotatedStringKt {
     ctor public AnnotatedStringKt();
+    method public static androidx.ui.text.AnnotatedString capitalize(androidx.ui.text.AnnotatedString, androidx.ui.text.LocaleList localeList = LocaleList.current);
+    method public static androidx.ui.text.AnnotatedString decapitalize(androidx.ui.text.AnnotatedString, androidx.ui.text.LocaleList localeList = LocaleList.current);
+    method public static androidx.ui.text.AnnotatedString toLowerCase(androidx.ui.text.AnnotatedString, androidx.ui.text.LocaleList localeList = LocaleList.current);
+    method public static androidx.ui.text.AnnotatedString toUpperCase(androidx.ui.text.AnnotatedString, androidx.ui.text.LocaleList localeList = LocaleList.current);
   }
 
   public final class Locale {

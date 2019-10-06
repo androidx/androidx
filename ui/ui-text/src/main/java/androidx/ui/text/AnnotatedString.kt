@@ -56,157 +56,6 @@ data class AnnotatedString(
             }
         }
     }
-
-    /**
-     * Create upper case transformed [AnnotatedString]
-     *
-     * The uppercase sometimes maps different number of characters. This function adjusts the text
-     * style and paragraph style ranges to transformed offset.
-     *
-     * Note, if the style's offset is middle of the uppercase mapping context, this function won't
-     * transform the character, e.g. style starts from between base alphabet character and accent
-     * character.
-     *
-     * @param localeList A locale list used for upper case mapping. Only the first locale is
-     *                   effective. If empty locale list is passed, use the current locale instead.
-     * @return A uppercase transformed string.
-     */
-    fun toUpperCase(localeList: LocaleList = LocaleList.current): AnnotatedString {
-        return transform { str, start, end -> str.substring(start, end).toUpperCase(localeList) }
-    }
-
-    /**
-     * Create lower case transformed [AnnotatedString]
-     *
-     * The lowercase sometimes maps different number of characters. This function adjusts the text
-     * style and paragraph style ranges to transformed offset.
-     *
-     * Note, if the style's offset is middle of the lowercase mapping context, this function won't
-     * transform the character, e.g. style starts from between base alphabet character and accent
-     * character.
-     *
-     * @param localeList A locale list used for lower case mapping. Only the first locale is
-     *                   effective. If empty locale list is passed, use the current locale instead.
-     * @return A lowercase transformed string.
-     */
-    fun toLowerCase(localeList: LocaleList = LocaleList.current): AnnotatedString {
-        return transform { str, start, end -> str.substring(start, end).toLowerCase(localeList) }
-    }
-
-    /**
-     * Create capitalized [AnnotatedString]
-     *
-     * The capitalization sometimes maps different number of characters. This function adjusts the
-     * text style and paragraph style ranges to transformed offset.
-     *
-     * Note, if the style's offset is middle of the capitalization context, this function won't
-     * transform the character, e.g. style starts from between base alphabet character and accent
-     * character.
-     *
-     * @param localeList A locale list used for capitalize mapping. Only the first locale is
-     *                   effective. If empty locale list is passed, use the current locale instead.
-     *                   Note that, this locale is currently ignored since underlying Kotlin method
-     *                   is experimental.
-     * @return A capitalized string.
-     */
-    fun capitalize(localeList: LocaleList = LocaleList.current): AnnotatedString {
-        return transform { str, start, end ->
-            if (start == 0) {
-                str.substring(start, end).capitalize(localeList)
-            } else {
-                str.substring(start, end)
-            }
-        }
-    }
-
-    /**
-     * Create capitalized [AnnotatedString]
-     *
-     * The decapitalization sometimes maps different number of characters. This function adjusts
-     * the text style and paragraph style ranges to transformed offset.
-     *
-     * Note, if the style's offset is middle of the decapitalization context, this function won't
-     * transform the character, e.g. style starts from between base alphabet character and accent
-     * character.
-     *
-     * @param localeList A locale list used for decapitalize mapping. Only the first locale is
-     *                   effective. If empty locale list is passed, use the current locale instead.
-     *                   Note that, this locale is currently ignored since underlying Kotlin method
-     *                   is experimental.
-     * @return A decapitalized string.
-     */
-    fun decapitalize(localeList: LocaleList = LocaleList.current): AnnotatedString {
-        return transform { str, start, end ->
-            if (start == 0) {
-                str.substring(start, end).decapitalize(localeList)
-            } else {
-                str.substring(start, end)
-            }
-        }
-    }
-
-    /**
-     * The core function of [AnnotatedString] transformation.
-     *
-     * @param transform the transformation method
-     * @return newly allocated transformed AnnotatedString
-     */
-    private fun transform(transform: (String, Int, Int) -> String): AnnotatedString {
-        val transitions = sortedSetOf<Int>()
-        collectItemTransitions(textStyles, transitions)
-        collectItemTransitions(paragraphStyles, transitions)
-
-        var resultStr = ""
-        val offsetMap = mutableMapOf(0 to 0)
-        transitions.windowed(size = 2) { (start, end) ->
-            resultStr += transform(text, start, end)
-            offsetMap.put(end, resultStr.length)
-        }
-
-        val newTextStyles = mutableListOf<Item<TextStyle>>()
-        val newParaStyles = mutableListOf<Item<ParagraphStyle>>()
-
-        for (textStyle in textStyles) {
-            // The offset map must have mapping entry from all style start, end position.
-            newTextStyles.add(
-                Item(
-                    textStyle.style,
-                    offsetMap[textStyle.start]!!,
-                    offsetMap[textStyle.end]!!
-                )
-            )
-        }
-
-        for (paraStyle in paragraphStyles) {
-            newParaStyles.add(
-                Item(
-                    paraStyle.style,
-                    offsetMap[paraStyle.start]!!,
-                    offsetMap[paraStyle.end]!!
-                )
-            )
-        }
-
-        return AnnotatedString(
-            text = resultStr,
-            textStyles = newTextStyles,
-            paragraphStyles = newParaStyles)
-    }
-
-    /**
-     * Adds all [AnnotatedString.Item] transition points
-     *
-     * @param items The list of AnnotatedString.Item
-     * @param target The output list
-     */
-    private fun <T> collectItemTransitions(items: List<Item<T>>, target: SortedSet<Int>) {
-        items.fold(target) { acc, item ->
-            acc.apply {
-                add(item.start)
-                add(item.end)
-            }
-        }
-    }
 }
 
 /**
@@ -311,5 +160,159 @@ internal inline fun <T> AnnotatedString.mapEachParagraphStyle(
             paragraphStyleItem.end
         )
         block(annotatedString, paragraphStyleItem)
+    }
+}
+
+/**
+ * Create upper case transformed [AnnotatedString]
+ *
+ * The uppercase sometimes maps different number of characters. This function adjusts the text
+ * style and paragraph style ranges to transformed offset.
+ *
+ * Note, if the style's offset is middle of the uppercase mapping context, this function won't
+ * transform the character, e.g. style starts from between base alphabet character and accent
+ * character.
+ *
+ * @param localeList A locale list used for upper case mapping. Only the first locale is
+ *                   effective. If empty locale list is passed, use the current locale instead.
+ * @return A uppercase transformed string.
+ */
+fun AnnotatedString.toUpperCase(localeList: LocaleList = LocaleList.current): AnnotatedString {
+    return transform { str, start, end -> str.substring(start, end).toUpperCase(localeList) }
+}
+
+/**
+ * Create lower case transformed [AnnotatedString]
+ *
+ * The lowercase sometimes maps different number of characters. This function adjusts the text
+ * style and paragraph style ranges to transformed offset.
+ *
+ * Note, if the style's offset is middle of the lowercase mapping context, this function won't
+ * transform the character, e.g. style starts from between base alphabet character and accent
+ * character.
+ *
+ * @param localeList A locale list used for lower case mapping. Only the first locale is
+ *                   effective. If empty locale list is passed, use the current locale instead.
+ * @return A lowercase transformed string.
+ */
+fun AnnotatedString.toLowerCase(localeList: LocaleList = LocaleList.current): AnnotatedString {
+    return transform { str, start, end -> str.substring(start, end).toLowerCase(localeList) }
+}
+
+/**
+ * Create capitalized [AnnotatedString]
+ *
+ * The capitalization sometimes maps different number of characters. This function adjusts the
+ * text style and paragraph style ranges to transformed offset.
+ *
+ * Note, if the style's offset is middle of the capitalization context, this function won't
+ * transform the character, e.g. style starts from between base alphabet character and accent
+ * character.
+ *
+ * @param localeList A locale list used for capitalize mapping. Only the first locale is
+ *                   effective. If empty locale list is passed, use the current locale instead.
+ *                   Note that, this locale is currently ignored since underlying Kotlin method
+ *                   is experimental.
+ * @return A capitalized string.
+ */
+fun AnnotatedString.capitalize(localeList: LocaleList = LocaleList.current): AnnotatedString {
+    return transform { str, start, end ->
+        if (start == 0) {
+            str.substring(start, end).capitalize(localeList)
+        } else {
+            str.substring(start, end)
+        }
+    }
+}
+
+/**
+ * Create capitalized [AnnotatedString]
+ *
+ * The decapitalization sometimes maps different number of characters. This function adjusts
+ * the text style and paragraph style ranges to transformed offset.
+ *
+ * Note, if the style's offset is middle of the decapitalization context, this function won't
+ * transform the character, e.g. style starts from between base alphabet character and accent
+ * character.
+ *
+ * @param localeList A locale list used for decapitalize mapping. Only the first locale is
+ *                   effective. If empty locale list is passed, use the current locale instead.
+ *                   Note that, this locale is currently ignored since underlying Kotlin method
+ *                   is experimental.
+ * @return A decapitalized string.
+ */
+fun AnnotatedString.decapitalize(localeList: LocaleList = LocaleList.current): AnnotatedString {
+    return transform { str, start, end ->
+        if (start == 0) {
+            str.substring(start, end).decapitalize(localeList)
+        } else {
+            str.substring(start, end)
+        }
+    }
+}
+
+/**
+ * The core function of [AnnotatedString] transformation.
+ *
+ * @param transform the transformation method
+ * @return newly allocated transformed AnnotatedString
+ */
+private fun AnnotatedString.transform(transform: (String, Int, Int) -> String): AnnotatedString {
+    val transitions = sortedSetOf<Int>()
+    collectItemTransitions(textStyles, transitions)
+    collectItemTransitions(paragraphStyles, transitions)
+
+    var resultStr = ""
+    val offsetMap = mutableMapOf(0 to 0)
+    transitions.windowed(size = 2) { (start, end) ->
+        resultStr += transform(text, start, end)
+        offsetMap.put(end, resultStr.length)
+    }
+
+    val newTextStyles = mutableListOf<AnnotatedString.Item<TextStyle>>()
+    val newParaStyles = mutableListOf<AnnotatedString.Item<ParagraphStyle>>()
+
+    for (textStyle in textStyles) {
+        // The offset map must have mapping entry from all style start, end position.
+        newTextStyles.add(
+            AnnotatedString.Item(
+                textStyle.style,
+                offsetMap[textStyle.start]!!,
+                offsetMap[textStyle.end]!!
+            )
+        )
+    }
+
+    for (paraStyle in paragraphStyles) {
+        newParaStyles.add(
+            AnnotatedString.Item(
+                paraStyle.style,
+                offsetMap[paraStyle.start]!!,
+                offsetMap[paraStyle.end]!!
+            )
+        )
+    }
+
+    return AnnotatedString(
+        text = resultStr,
+        textStyles = newTextStyles,
+        paragraphStyles = newParaStyles)
+}
+
+/**
+ * Adds all [AnnotatedString.Item] transition points
+ *
+ * @param items The list of AnnotatedString.Item
+ * @param target The output list
+ */
+private fun <T> collectItemTransitions(
+    items: List<AnnotatedString.Item<T>>,
+    target: SortedSet<Int>
+) {
+    items.fold(target) { acc, item ->
+        acc.apply {
+            add(item.start)
+            add(item.end)
+        }
     }
 }
