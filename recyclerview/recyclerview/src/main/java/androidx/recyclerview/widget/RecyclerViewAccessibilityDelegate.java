@@ -43,7 +43,12 @@ public class RecyclerViewAccessibilityDelegate extends AccessibilityDelegateComp
 
     public RecyclerViewAccessibilityDelegate(@NonNull RecyclerView recyclerView) {
         mRecyclerView = recyclerView;
-        mItemDelegate = new ItemDelegate(this);
+        AccessibilityDelegateCompat itemDelegate = getItemDelegate();
+        if (itemDelegate != null && itemDelegate instanceof ItemDelegate) {
+            mItemDelegate = (ItemDelegate) itemDelegate;
+        } else {
+            mItemDelegate = new ItemDelegate(this);
+        }
     }
 
     boolean shouldIgnore() {

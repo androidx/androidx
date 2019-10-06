@@ -6311,7 +6311,8 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
                 // If there was already an a11y delegate set on the itemView, store it in the
                 // itemDelegate and then set the itemDelegate as the a11y delegate.
                 itemDelegate.saveOriginalDelegate(itemView);
-                ViewCompat.setAccessibilityDelegate(itemView, itemDelegate);
+                ViewCompat.setAccessibilityDelegate(itemView,
+                        mAccessibilityDelegate.getItemDelegate());
             }
         }
 

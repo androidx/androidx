@@ -478,6 +478,40 @@ public class RecyclerViewAccessibilityLifecycleTest extends BaseRecyclerViewInst
                 });
     }
 
+    @SdkSuppress(minSdkVersion = 16)
+    @Test
+    public void customItemDelegate() throws Throwable {
+        final RecyclerView recyclerView = new RecyclerView(getActivity()) {
+            @Override
+            boolean isAccessibilityEnabled() {
+                return true;
+            }
+        };
+        recyclerView.setAccessibilityDelegateCompat(
+                    new RecyclerViewAccessibilityDelegate(recyclerView) {
+                @Override
+                public AccessibilityDelegateCompat getItemDelegate() {
+                    return new RecyclerViewAccessibilityDelegate.ItemDelegate(this) {
+                        @Override
+                        public void onInitializeAccessibilityNodeInfo(View host,
+                                AccessibilityNodeInfoCompat info) {
+                            super.onInitializeAccessibilityNodeInfo(host, info);
+                            info.setChecked(true);
+                        }
+                    };
+                }
+            }
+        );
+        testRecyclerViewWithAdapter(
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        View itemView = mRecyclerView.getChildAt(0);
+                        assertTrue(itemView.createAccessibilityNodeInfo().isChecked());
+                    }
+                }, new TestAdapter(100), recyclerView);
+    }
+
     private void testCustomAccessibilityDelegate(final AccessibilityDelegateCompat delegateCompat,
             Runnable runnable) throws Throwable {
         testCustomAccessibilityDelegate(delegateCompat, runnable, null);
@@ -508,14 +542,18 @@ public class RecyclerViewAccessibilityLifecycleTest extends BaseRecyclerViewInst
     }
 
     private void testCustomAccessibilityDelegateWithAdapter(Runnable runnable,
-            final TestAdapter adapter)
-            throws Throwable {
-        final RecyclerView recyclerView = new RecyclerView(getActivity()) {
+            final TestAdapter adapter) throws Throwable {
+        testRecyclerViewWithAdapter(runnable, adapter, new RecyclerView(getActivity()) {
             @Override
             boolean isAccessibilityEnabled() {
                 return true;
             }
-        };
+        });
+    }
+
+    private void testRecyclerViewWithAdapter(Runnable runnable,
+            final TestAdapter adapter, final RecyclerView recyclerView)
+            throws Throwable {
         final int[] layoutStart = new int[] {0};
         final int layoutCount = 5;
         final TestLayoutManager layoutManager = new TestLayoutManager() {
