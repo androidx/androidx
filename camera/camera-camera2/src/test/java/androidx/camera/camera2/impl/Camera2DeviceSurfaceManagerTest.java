@@ -141,7 +141,7 @@ public final class Camera2DeviceSurfaceManagerTest {
 
     @After
     public void tearDown() throws ExecutionException, InterruptedException {
-        CameraX.deinit().get();
+        CameraX.shutdown().get();
     }
 
     @Test
@@ -585,7 +585,7 @@ public final class Camera2DeviceSurfaceManagerTest {
 
     private void initCameraX() {
         AppConfig appConfig = createFakeAppConfig();
-        CameraX.init(mContext, appConfig);
+        CameraX.initialize(mContext, appConfig);
         mSurfaceManager = CameraX.getSurfaceManager();
     }
 

@@ -27,6 +27,6 @@ public class CoreApplication extends Application {
     public void onCreate() {
         super.onCreate();
 
-        CameraX.init(this, Camera2AppConfig.create(this));
+        CameraX.initialize(this, Camera2AppConfig.create(this));
     }
 }

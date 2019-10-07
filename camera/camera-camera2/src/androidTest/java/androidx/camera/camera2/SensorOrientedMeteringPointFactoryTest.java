@@ -55,14 +55,14 @@ public final class SensorOrientedMeteringPointFactoryTest {
         Context context = ApplicationProvider.getApplicationContext();
         AppConfig config = Camera2AppConfig.create(context);
 
-        CameraX.init(context, config);
+        CameraX.initialize(context, config);
         mLifecycle = new FakeLifecycleOwner();
         mPointFactory = new SensorOrientedMeteringPointFactory(WIDTH, HEIGHT);
     }
 
     @After
     public void tearDown() throws ExecutionException, InterruptedException {
-        CameraX.deinit().get();
+        CameraX.shutdown().get();
     }
 
     @Test

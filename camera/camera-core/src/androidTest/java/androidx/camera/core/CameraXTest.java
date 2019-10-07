@@ -119,16 +119,16 @@ public final class CameraXTest {
             mInstrumentation.runOnMainSync(CameraX::unbindAll);
         }
 
-        CameraX.deinit().get();
+        CameraX.shutdown().get();
         mHandlerThread.quitSafely();
     }
 
     @Test
     public void initDeinit_success() throws ExecutionException, InterruptedException {
-        CameraX.init(mContext, mAppConfigBuilder.build()).get();
+        CameraX.initialize(mContext, mAppConfigBuilder.build()).get();
         assertThat(CameraX.isInitialized()).isTrue();
 
-        CameraX.deinit().get();
+        CameraX.shutdown().get();
         assertThat(CameraX.isInitialized()).isFalse();
     }
 
@@ -138,7 +138,7 @@ public final class CameraXTest {
         AppConfig appConfig = new AppConfig.Builder().build();
         Exception exception = null;
         try {
-            CameraX.init(mContext, appConfig).get();
+            CameraX.initialize(mContext, appConfig).get();
         } catch (ExecutionException e) {
             exception = e;
         }
@@ -148,13 +148,13 @@ public final class CameraXTest {
 
     @Test
     public void reinit_success() throws ExecutionException, InterruptedException {
-        CameraX.init(mContext, mAppConfigBuilder.build()).get();
+        CameraX.initialize(mContext, mAppConfigBuilder.build()).get();
         assertThat(CameraX.isInitialized()).isTrue();
 
-        CameraX.deinit().get();
+        CameraX.shutdown().get();
         assertThat(CameraX.isInitialized()).isFalse();
 
-        CameraX.init(mContext, mAppConfigBuilder.build()).get();
+        CameraX.initialize(mContext, mAppConfigBuilder.build()).get();
         assertThat(CameraX.isInitialized()).isTrue();
     }
 
@@ -164,13 +164,13 @@ public final class CameraXTest {
         AppConfig appConfig = new AppConfig.Builder().build();
         Exception exception = null;
         try {
-            CameraX.init(mContext, appConfig).get();
+            CameraX.initialize(mContext, appConfig).get();
         } catch (ExecutionException e) {
             exception = e;
         }
         assertThat(exception).isInstanceOf(ExecutionException.class);
 
-        CameraX.init(mContext, mAppConfigBuilder.build()).get();
+        CameraX.initialize(mContext, mAppConfigBuilder.build()).get();
         assertThat(CameraX.isInitialized()).isTrue();
     }
 
@@ -179,10 +179,10 @@ public final class CameraXTest {
         mAppConfigBuilder.setCameraExecutor(CameraXExecutors.directExecutor());
 
         // Don't call Future.get() because its behavior should be the same as synchronous call.
-        CameraX.init(mContext, mAppConfigBuilder.build());
+        CameraX.initialize(mContext, mAppConfigBuilder.build());
         assertThat(CameraX.isInitialized()).isTrue();
 
-        CameraX.deinit();
+        CameraX.shutdown();
         assertThat(CameraX.isInitialized()).isFalse();
     }
 
@@ -192,10 +192,10 @@ public final class CameraXTest {
         ExecutorService executorService = Executors.newFixedThreadPool(3);
         mAppConfigBuilder.setCameraExecutor(executorService);
 
-        CameraX.init(mContext, mAppConfigBuilder.build()).get();
+        CameraX.initialize(mContext, mAppConfigBuilder.build()).get();
         assertThat(CameraX.isInitialized()).isTrue();
 
-        CameraX.deinit().get();
+        CameraX.shutdown().get();
         assertThat(CameraX.isInitialized()).isFalse();
 
         executorService.shutdown();
@@ -207,14 +207,14 @@ public final class CameraXTest {
         FakeCameraFactory cameraFactory1 = new FakeCameraFactory();
 
         mAppConfigBuilder.setCameraFactory(cameraFactory0);
-        CameraX.init(mContext, mAppConfigBuilder.build());
+        CameraX.initialize(mContext, mAppConfigBuilder.build());
 
         assertThat(CameraX.getCameraFactory()).isEqualTo(cameraFactory0);
 
-        CameraX.deinit();
+        CameraX.shutdown();
 
         mAppConfigBuilder.setCameraFactory(cameraFactory1);
-        CameraX.init(mContext, mAppConfigBuilder.build());
+        CameraX.initialize(mContext, mAppConfigBuilder.build());
 
         assertThat(CameraX.getCameraFactory()).isEqualTo(cameraFactory1);
     }
@@ -445,7 +445,7 @@ public final class CameraXTest {
     }
 
     private void initCameraX() {
-        CameraX.init(mContext, mAppConfigBuilder.build());
+        CameraX.initialize(mContext, mAppConfigBuilder.build());
     }
 
     private static class CountingErrorListener implements ErrorListener {

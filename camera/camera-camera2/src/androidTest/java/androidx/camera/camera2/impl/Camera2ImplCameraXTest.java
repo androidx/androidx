@@ -113,7 +113,7 @@ public final class Camera2ImplCameraXTest {
     public void setUp() {
         assumeTrue(CameraUtil.deviceHasCamera());
         Context context = ApplicationProvider.getApplicationContext();
-        CameraX.init(context, Camera2AppConfig.create(context));
+        CameraX.initialize(context, Camera2AppConfig.create(context));
         mLifecycle = new FakeLifecycleOwner();
 
         mDeviceStateCallback = mock(CameraDevice.StateCallback.class);
@@ -121,15 +121,8 @@ public final class Camera2ImplCameraXTest {
 
     @After
     public void tearDown() throws InterruptedException, ExecutionException {
-        mInstrumentation.runOnMainSync(new Runnable() {
-            @Override
-            public void run() {
-                CameraX.unbindAll();
-            }
-        });
-
-        // Wait for CameraX to deinit
-        CameraX.deinit().get();
+        mInstrumentation.runOnMainSync(CameraX::unbindAll);
+        CameraX.shutdown().get();
     }
 
     @Test

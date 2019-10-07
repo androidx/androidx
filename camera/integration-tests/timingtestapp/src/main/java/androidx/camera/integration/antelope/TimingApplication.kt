@@ -24,6 +24,6 @@ class TimingApplication : Application() {
     override fun onCreate() {
         super.onCreate()
 
-        CameraX.init(this, Camera2AppConfig.create(this))
+        CameraX.initialize(this, Camera2AppConfig.create(this))
     }
 }

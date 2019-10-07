@@ -47,12 +47,12 @@ public final class UseCaseSurfaceOccupancyManagerTest {
     public void setUp() {
         Context context = ApplicationProvider.getApplicationContext();
         AppConfig appConfig = Camera2AppConfig.create(context);
-        CameraX.init(context, appConfig);
+        CameraX.initialize(context, appConfig);
     }
 
     @After
     public void tearDown() throws ExecutionException, InterruptedException {
-        CameraX.deinit().get();
+        CameraX.shutdown().get();
     }
 
     @Test(expected = IllegalArgumentException.class)

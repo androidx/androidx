@@ -66,12 +66,12 @@ public class UseCaseAttachStateTest {
             throw new IllegalArgumentException(
                     "Unable to attach to camera with LensFacing " + LensFacing.BACK, e);
         }
-        CameraX.init(ApplicationProvider.getApplicationContext(), appConfig);
+        CameraX.initialize(ApplicationProvider.getApplicationContext(), appConfig);
     }
 
     @After
     public void tearDown() throws ExecutionException, InterruptedException {
-        CameraX.deinit().get();
+        CameraX.shutdown().get();
     }
 
     @Test

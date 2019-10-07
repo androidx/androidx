@@ -129,26 +129,26 @@ public final class CameraX {
     private static final String TAG = "CameraX";
     private static final long WAIT_INITIALIZED_TIMEOUT = 3L;
 
-    static final Object sInitDeinitLock = new Object();
+    static final Object sInitializeLock = new Object();
 
-    @GuardedBy("sInitDeinitLock")
+    @GuardedBy("sInitializeLock")
     @Nullable
     static CameraX sInstance = null;
 
-    @GuardedBy("sInitDeinitLock")
+    @GuardedBy("sInitializeLock")
     private static boolean sTargetInitialized = false;
 
-    @GuardedBy("sInitDeinitLock")
+    @GuardedBy("sInitializeLock")
     @NonNull
-    private static ListenableFuture<Void> sInitFuture = Futures.immediateFailedFuture(
+    private static ListenableFuture<Void> sInitializeFuture = Futures.immediateFailedFuture(
             new IllegalStateException("CameraX is not initialized."));
 
-    @GuardedBy("sInitDeinitLock")
+    @GuardedBy("sInitializeLock")
     @NonNull
-    private static ListenableFuture<Void> sDeinitFuture = Futures.immediateFuture(null);
+    private static ListenableFuture<Void> sShutdownFuture = Futures.immediateFuture(null);
 
     final CameraRepository mCameraRepository = new CameraRepository();
-    private final Object mInitDeinitLock = new Object();
+    private final Object mInitializeLock = new Object();
     private final UseCaseGroupRepository mUseCaseGroupRepository = new UseCaseGroupRepository();
     private final ErrorHandler mErrorHandler = new ErrorHandler();
     private final Executor mCameraExecutor;
@@ -156,10 +156,10 @@ public final class CameraX {
     private CameraDeviceSurfaceManager mSurfaceManager;
     private UseCaseConfigFactory mDefaultConfigFactory;
     private Context mContext;
-    @GuardedBy("mInitDeinitLock")
+    @GuardedBy("mInitializeLock")
     private InternalInitState mInitState = InternalInitState.UNINITIALIZED;
-    @GuardedBy("mInitDeinitLock")
-    private ListenableFuture<Void> mDeinitInternalFuture = Futures.immediateFuture(null);
+    @GuardedBy("mInitializeLock")
+    private ListenableFuture<Void> mShutdownInternalFuture = Futures.immediateFuture(null);
 
     /** Prevents construction. */
     CameraX(@NonNull Executor executor) {
@@ -429,12 +429,12 @@ public final class CameraX {
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
     public static LensFacing getDefaultLensFacing() throws CameraInfoUnavailableException {
-        CameraX cameraX = checkInitialized();
+        checkInitialized();
 
         LensFacing lensFacingCandidate = null;
         List<LensFacing> lensFacingList = Arrays.asList(LensFacing.BACK, LensFacing.FRONT);
         for (LensFacing lensFacing : lensFacingList) {
-            String cameraId = cameraX.getCameraFactory().cameraIdForLensFacing(lensFacing);
+            String cameraId = getCameraFactory().cameraIdForLensFacing(lensFacing);
             if (cameraId != null) {
                 lensFacingCandidate = lensFacing;
                 break;
@@ -574,13 +574,13 @@ public final class CameraX {
      * @return A {@link ListenableFuture} representing the initialization task.
      */
     @NonNull
-    public static ListenableFuture<Void> init(@NonNull Context context,
+    public static ListenableFuture<Void> initialize(@NonNull Context context,
             @NonNull AppConfig appConfig) {
         Preconditions.checkNotNull(context);
         Preconditions.checkNotNull(appConfig);
 
-        synchronized (sInitDeinitLock) {
-            Preconditions.checkState(!sTargetInitialized, "Must call CameraX.deinit() first.");
+        synchronized (sInitializeLock) {
+            Preconditions.checkState(!sTargetInitialized, "Must call CameraX.shutdown() first.");
             sTargetInitialized = true;
 
             Executor executor = appConfig.getCameraExecutor(null);
@@ -592,11 +592,11 @@ public final class CameraX {
             CameraX cameraX = new CameraX(executor);
             sInstance = cameraX;
 
-            sInitFuture = CallbackToFutureAdapter.getFuture(completer -> {
-                synchronized (sInitDeinitLock) {
-                    // The deinitFuture should always be successful, otherwise it will not
+            sInitializeFuture = CallbackToFutureAdapter.getFuture(completer -> {
+                synchronized (sInitializeLock) {
+                    // The sShutdownFuture should always be successful, otherwise it will not
                     // propagate to transformAsync() due to the behavior of FutureChain.
-                    ListenableFuture<Void> future = FutureChain.from(sDeinitFuture)
+                    ListenableFuture<Void> future = FutureChain.from(sShutdownFuture)
                             .transformAsync(input -> cameraX.initInternal(context, appConfig),
                                     CameraXExecutors.directExecutor());
 
@@ -608,37 +608,37 @@ public final class CameraX {
 
                         @Override
                         public void onFailure(Throwable t) {
-                            Log.w(TAG, "CameraX init() failed", t);
-                            // Call deinit() automatically, if initialization fails.
-                            synchronized (sInitDeinitLock) {
+                            Log.w(TAG, "CameraX initialize() failed", t);
+                            // Call shutdown() automatically, if initialization fails.
+                            synchronized (sInitializeLock) {
                                 // Make sure it is the same instance to prevent reinitialization
                                 // during initialization.
                                 if (sInstance == cameraX) {
-                                    deinit();
+                                    shutdown();
                                 }
                             }
                             completer.setException(t);
                         }
                     }, CameraXExecutors.directExecutor());
-                    return "CameraX-init";
+                    return "CameraX-initialize";
                 }
             });
 
-            return sInitFuture;
+            return sInitializeFuture;
         }
     }
 
     /**
-     * Deinitializes CameraX so that it can be initialized again.
+     * Shutdown CameraX so that it can be initialized again.
      *
-     * @return A {@link ListenableFuture} representing the deinitialization task.
+     * @return A {@link ListenableFuture} representing the shutdown task.
      */
     @NonNull
-    public static ListenableFuture<Void> deinit() {
-        synchronized (sInitDeinitLock) {
+    public static ListenableFuture<Void> shutdown() {
+        synchronized (sInitializeLock) {
             if (!sTargetInitialized) {
-                // If it is already or will be deinitialized, return the future directly.
-                return sDeinitFuture;
+                // If it is already or will be shutdown, return the future directly.
+                return sShutdownFuture;
             }
             sTargetInitialized = false;
 
@@ -647,19 +647,19 @@ public final class CameraX {
 
             // Do not use FutureChain to chain the initFuture, because FutureChain.transformAsync()
             // will not propagate if the input initFuture is failed. We want to always
-            // deinitialize the CameraX instance to ensure that resources are freed.
-            sDeinitFuture = CallbackToFutureAdapter.getFuture(
+            // shutdown the CameraX instance to ensure that resources are freed.
+            sShutdownFuture = CallbackToFutureAdapter.getFuture(
                     completer -> {
-                        synchronized (sInitDeinitLock) {
-                            // Wait init complete
-                            sInitFuture.addListener(() -> {
-                                // Wait deinitInternal complete
-                                Futures.propagate(cameraX.deinitInternal(), completer);
+                        synchronized (sInitializeLock) {
+                            // Wait initialize complete
+                            sInitializeFuture.addListener(() -> {
+                                // Wait shutdownInternal complete
+                                Futures.propagate(cameraX.shutdownInternal(), completer);
                             }, CameraXExecutors.directExecutor());
-                            return "CameraX deinit";
+                            return "CameraX shutdown";
                         }
                     });
-            return sDeinitFuture;
+            return sShutdownFuture;
         }
     }
 
@@ -678,14 +678,14 @@ public final class CameraX {
     /**
      * Returns true if CameraX is initialized.
      *
-     * <p>Any previous call to {@link #init(Context, AppConfig)} would have initialized
+     * <p>Any previous call to {@link #initialize(Context, AppConfig)} would have initialized
      * CameraX.
      *
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     public static boolean isInitialized() {
-        synchronized (sInitDeinitLock) {
+        synchronized (sInitializeLock) {
             return sInstance != null && sInstance.isInitializedInternal();
         }
     }
@@ -735,7 +735,7 @@ public final class CameraX {
     }
 
     /**
-     * Wait for the initialize or deinitialize task finished and then check if it is initialized.
+     * Wait for the initialize or shutdown task finished and then check if it is initialized.
      *
      * @return CameraX instance
      * @throws IllegalStateException if it is not initialized
@@ -744,12 +744,12 @@ public final class CameraX {
     private static CameraX checkInitialized() {
         CameraX cameraX = waitInitialized();
         Preconditions.checkState(cameraX != null && cameraX.isInitializedInternal(),
-                "Must call CameraX.init() first");
+                "Must call CameraX.initialize() first");
         return cameraX;
     }
 
     /**
-     * Wait for the initialize or deinitialize task finished.
+     * Wait for the initialize or shutdown task finished.
      *
      * @throws IllegalStateException if the initialization is fail or timeout
      */
@@ -757,11 +757,11 @@ public final class CameraX {
     private static CameraX waitInitialized() {
         ListenableFuture<Void> future;
         CameraX cameraX;
-        synchronized (sInitDeinitLock) {
+        synchronized (sInitializeLock) {
             if (!sTargetInitialized) {
                 return null;
             }
-            future = sInitFuture;
+            future = sInitializeFuture;
             cameraX = sInstance;
         }
         if (!future.isDone()) {
@@ -903,7 +903,7 @@ public final class CameraX {
     }
 
     private ListenableFuture<Void> initInternal(Context context, AppConfig appConfig) {
-        synchronized (mInitDeinitLock) {
+        synchronized (mInitializeLock) {
             Preconditions.checkState(mInitState == InternalInitState.UNINITIALIZED,
                     "CameraX.initInternal() should only be called once per instance");
             mInitState = InternalInitState.INITIALIZING;
@@ -946,7 +946,7 @@ public final class CameraX {
 
                                 mCameraRepository.init(mCameraFactory);
                             } finally {
-                                synchronized (mInitDeinitLock) {
+                                synchronized (mInitializeLock) {
                                     mInitState = InternalInitState.INITIALIZED;
                                 }
                                 if (e != null) {
@@ -962,21 +962,21 @@ public final class CameraX {
     }
 
     @NonNull
-    private ListenableFuture<Void> deinitInternal() {
-        synchronized (mInitDeinitLock) {
+    private ListenableFuture<Void> shutdownInternal() {
+        synchronized (mInitializeLock) {
             switch (mInitState) {
                 case UNINITIALIZED:
-                    mInitState = InternalInitState.DEINITIALIZED;
+                    mInitState = InternalInitState.SHUTDOWN;
                     return Futures.immediateFuture(null);
 
                 case INITIALIZING:
                     throw new IllegalStateException(
-                            "CameraX could not be deinitialized when it is initializing.");
+                            "CameraX could not be shutdown when it is initializing.");
 
                 case INITIALIZED:
-                    mInitState = InternalInitState.DEINITIALIZED;
+                    mInitState = InternalInitState.SHUTDOWN;
 
-                    mDeinitInternalFuture = CallbackToFutureAdapter.getFuture(
+                    mShutdownInternalFuture = CallbackToFutureAdapter.getFuture(
                             completer -> {
                                 ListenableFuture<Void> future = mCameraRepository.deinit();
 
@@ -988,20 +988,20 @@ public final class CameraX {
                                     }
                                     completer.set(null);
                                 }, mCameraExecutor);
-                                return "CameraX deinitInternal";
+                                return "CameraX shutdownInternal";
                             }
                     );
                     // Fall through
-                case DEINITIALIZED:
+                case SHUTDOWN:
                     break;
             }
-            // Already deinitialized. Return the deinit future.
-            return mDeinitInternalFuture;
+            // Already shutdown. Return the shutdown future.
+            return mShutdownInternalFuture;
         }
     }
 
     private boolean isInitializedInternal() {
-        synchronized (mInitDeinitLock) {
+        synchronized (mInitializeLock) {
             return mInitState == InternalInitState.INITIALIZED;
         }
     }
@@ -1060,10 +1060,10 @@ public final class CameraX {
         INITIALIZED,
 
         /**
-         * The CameraX instance has been deinitialized.
+         * The CameraX instance has been shutdown.
          *
-         * <p>Once the CameraX instance has been deinitialized, it can't be used or re-initialized.
+         * <p>Once the CameraX instance has been shutdown, it can't be used or re-initialized.
          */
-        DEINITIALIZED
+        SHUTDOWN
     }
 }

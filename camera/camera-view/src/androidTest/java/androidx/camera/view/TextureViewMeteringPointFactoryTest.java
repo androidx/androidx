@@ -97,7 +97,7 @@ public class TextureViewMeteringPointFactoryTest {
 
         mContext = ApplicationProvider.getApplicationContext();
         AppConfig config = Camera2AppConfig.create(mContext);
-        CameraX.init(mContext, config);
+        CameraX.initialize(mContext, config);
         mLifecycle = new FakeLifecycleOwner();
         mLatchForFrameReady = new CountDownLatch(1);
         mTextureView = new TextureView(mContext);
@@ -107,7 +107,7 @@ public class TextureViewMeteringPointFactoryTest {
     @After
     public void tearDown() throws InterruptedException, ExecutionException {
         mInstrumentation.runOnMainSync(CameraX::unbindAll);
-        CameraX.deinit().get();
+        CameraX.shutdown().get();
     }
 
     @Test

@@ -95,12 +95,12 @@ public final class VideoCaptureTest {
             throw new IllegalArgumentException(
                     "Unable to attach to camera with LensFacing " + LensFacing.BACK, e);
         }
-        CameraX.init(context, appConfig);
+        CameraX.initialize(context, appConfig);
     }
 
     @After
     public void tearDown() throws ExecutionException, InterruptedException {
-        CameraX.deinit().get();
+        CameraX.shutdown().get();
     }
 
     @Test
