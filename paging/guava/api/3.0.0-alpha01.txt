@@ -1,0 +1,11 @@
+// Signature format: 3.0
+package androidx.paging {
+
+  public abstract class ListenableFuturePagedSource<Key, Value> extends androidx.paging.PagedSource<Key,Value> {
+    ctor public ListenableFuturePagedSource();
+    method public suspend Object load(androidx.paging.PagedSource.LoadParams<Key> p, kotlin.coroutines.Continuation<? super androidx.paging.PagedSource.LoadResult<Key,Value>> $completion);
+    method public abstract com.google.common.util.concurrent.ListenableFuture<androidx.paging.PagedSource.LoadResult<Key,Value>> loadFuture(androidx.paging.PagedSource.LoadParams<Key> params);
+  }
+
+}
+

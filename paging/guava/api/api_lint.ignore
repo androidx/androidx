@@ -1,0 +1,7 @@
+// Baseline format: 1.0
+DocumentExceptions: androidx.paging.ListenableFutureKt#await(com.google.common.util.concurrent.ListenableFuture<R>, kotlin.coroutines.Continuation<? super R>):
+    Method ListenableFutureKt.await appears to be throwing java.lang.Throwable; this should be recorded with a @Throws annotation; see https://android.github.io/kotlin-guides/interop.html#document-exceptions
+
+
+MissingNullability: androidx.paging.ListenableFutureKt#await(com.google.common.util.concurrent.ListenableFuture<R>, kotlin.coroutines.Continuation<? super R>):
+    Missing nullability on method `await` return
