@@ -18,6 +18,7 @@ package androidx.work.testing
 
 import android.content.Context
 import android.net.Uri
+import androidx.concurrent.futures.await
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
@@ -26,7 +27,6 @@ import androidx.work.ListenableWorker.Result
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkerFactory
 import androidx.work.WorkerParameters
-import androidx.work.await
 import androidx.work.testing.workers.TestListenableWorker
 import androidx.work.testing.workers.TestWorker
 import kotlinx.coroutines.runBlocking

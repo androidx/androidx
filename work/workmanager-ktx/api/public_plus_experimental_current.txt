@@ -18,10 +18,6 @@ package androidx.work {
     method public static inline androidx.work.Data workDataOf(kotlin.Pair<java.lang.String,?>... pairs);
   }
 
-  public final class ListenableFutureKt {
-    ctor public ListenableFutureKt();
-  }
-
   public final class OneTimeWorkRequestKt {
     ctor public OneTimeWorkRequestKt();
     method public static inline <reified W extends androidx.work.ListenableWorker> androidx.work.OneTimeWorkRequest.Builder OneTimeWorkRequestBuilder();

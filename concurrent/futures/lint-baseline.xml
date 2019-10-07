@@ -92,6 +92,17 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void execute(Runnable command) {"
+        errorLine2="                        ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/concurrent/futures/DirectExecutor.java"
+            line="34"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    public static &lt;V> ResolvableFuture&lt;V> create() {"
         errorLine2="                      ~~~~~~~~~~~~~~~~~~~">
         <location
