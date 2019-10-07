@@ -290,9 +290,7 @@ fun TextDemoHeight() {
             )
         }
         Text(
-            paragraphStyle = ParagraphStyle(
-                lineHeight = 2.0f
-            )
+            paragraphStyle = ParagraphStyle(lineHeight = 2.sp)
         ) {
             Span(
                 text = "$displayText\n$displayText   ",

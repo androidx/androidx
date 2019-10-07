@@ -107,6 +107,11 @@ package androidx.text.style {
     method public void updateMeasureState(android.text.TextPaint);
   }
 
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public class LineHeightSpan implements android.text.style.LineHeightSpan {
+    ctor public LineHeightSpan(@Px int);
+    method public void chooseHeight(CharSequence, int, int, int, int, android.graphics.Paint.FontMetricsInt);
+  }
+
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public class ShadowSpan extends android.text.style.CharacterStyle {
     ctor public ShadowSpan(@ColorInt int, float, float, float);
     method public int getColor();

@@ -21,6 +21,7 @@ import androidx.compose.Composable
 import androidx.compose.composer
 import androidx.ui.core.Text
 import androidx.ui.core.px
+import androidx.ui.core.sp
 import androidx.ui.text.AnnotatedString
 import androidx.ui.text.ParagraphStyle
 import androidx.ui.text.style.TextAlign
@@ -32,7 +33,7 @@ import androidx.ui.text.style.TextIndent
 fun ParagraphStyleSample() {
     val paragraphStyle = ParagraphStyle(
         textAlign = TextAlign.Justify,
-        lineHeight = 1.2f,
+        lineHeight = 20.sp,
         textIndent = TextIndent(firstLine = 50f.px, restLine = 5.px)
     )
     Text(
@@ -54,7 +55,7 @@ fun ParagraphStyleAnnotatedStringsSample() {
         textIndent = TextIndent(firstLine = 50f.px)
     )
     val paragraphStyle2 = ParagraphStyle(
-        lineHeight = 2.0f,
+        lineHeight = 30.sp,
         textDirectionAlgorithm = TextDirectionAlgorithm.ContentOrLtr
     )
     val paragraphTextStyle1 = AnnotatedString.Item(
