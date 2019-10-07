@@ -43,6 +43,7 @@ class BenchmarkPluginTest {
 
     private lateinit var buildFile: File
     private lateinit var propertiesFile: File
+    private lateinit var versionPropertiesFile: File
     private lateinit var gradleRunner: GradleRunner
 
     @Before
@@ -70,6 +71,9 @@ class BenchmarkPluginTest {
             props.setProperty("android.enableJetpack", "true")
             props.store(it, null)
         }
+
+        versionPropertiesFile = File(testProjectDir.root, "version.properties")
+        versionPropertiesFile.createNewFile()
 
         File("src/test/test-data", "app-project").copyRecursively(testProjectDir.root)
 
@@ -270,10 +274,15 @@ class BenchmarkPluginTest {
             dependencies {
                 androidTestImplementation "androidx.benchmark:benchmark:1.0.0-alpha01"
             }
+
+            tasks.register("printTestBuildType") {
+                println android.testBuildType
+            }
         """.trimIndent()
         )
 
         propertiesFile.appendText("android.enableAdditionalTestOutput=true")
+        versionPropertiesFile.writeText("buildVersion=3.6.0-alpha05")
 
         val output = gradleRunner.withArguments("tasks").build()
         assertTrue { output.output.contains("lockClocks - ") }
@@ -281,6 +290,9 @@ class BenchmarkPluginTest {
 
         // Should depend on AGP to pull benchmark reports via additionalTestOutputDir.
         assertFalse { output.output.contains("benchmarkReport - ") }
+
+        val testBuildTypeOutput = gradleRunner.withArguments("printTestBuildType").build()
+        assertTrue { testBuildTypeOutput.output.contains("release") }
     }
 
     @Test
@@ -315,8 +327,14 @@ class BenchmarkPluginTest {
             tasks.register("printInstrumentationArgs") {
                 println android.defaultConfig.testInstrumentationRunnerArguments
             }
+
+            tasks.register("printTestBuildType") {
+                println android.testBuildType
+            }
         """.trimIndent()
         )
+
+        versionPropertiesFile.writeText("buildVersion=3.5.0-rc03")
 
         val output = gradleRunner.withArguments("tasks").build()
         assertTrue { output.output.contains("lockClocks - ") }
@@ -327,6 +345,9 @@ class BenchmarkPluginTest {
 
         val argsOutput = gradleRunner.withArguments("printInstrumentationArgs").build()
         assertTrue { argsOutput.output.contains("no-isolated-storage:1") }
+
+        val testBuildTypeOutput = gradleRunner.withArguments("printTestBuildType").build()
+        assertTrue { testBuildTypeOutput.output.contains("release") }
     }
 
     @Test
