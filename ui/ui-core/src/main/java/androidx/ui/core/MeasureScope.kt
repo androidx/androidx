@@ -51,5 +51,4 @@ interface MeasureScope : DensityScope {
 /**
  * A function for performing layout measurement.
  */
-typealias MeasureFunction =
-        MeasureScope.(List<Measurable>, Constraints) -> MeasureScope.LayoutResult
+typealias MeasureBlock = MeasureScope.(List<Measurable>, Constraints) -> MeasureScope.LayoutResult

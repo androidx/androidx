@@ -24,32 +24,30 @@ import androidx.compose.compositionReference
 import androidx.compose.memo
 import androidx.compose.unaryPlus
 
-typealias IntrinsicFunction = (DensityScope.(List<IntrinsicMeasurable>, IntPx) -> IntPx)
-
 /**
  * Receiver scope for the [ComplexLayout] lambda.
  */
 class ComplexLayoutScope internal @PublishedApi constructor() {
     @PublishedApi internal val layoutNodeRef = Ref<LayoutNode>()
-    @PublishedApi internal var measureBlock: MeasureFunction? = null
-    @PublishedApi internal var minIntrinsicWidthBlock: IntrinsicFunction? = null
-    @PublishedApi internal var maxIntrinsicWidthBlock: IntrinsicFunction? = null
-    @PublishedApi internal var minIntrinsicHeightBlock: IntrinsicFunction? = null
-    @PublishedApi internal var maxIntrinsicHeightBlock: IntrinsicFunction? = null
+    @PublishedApi internal var measureBlock: MeasureBlock? = null
+    @PublishedApi internal var minIntrinsicWidthBlock: IntrinsicMeasureBlock? = null
+    @PublishedApi internal var maxIntrinsicWidthBlock: IntrinsicMeasureBlock? = null
+    @PublishedApi internal var minIntrinsicHeightBlock: IntrinsicMeasureBlock? = null
+    @PublishedApi internal var maxIntrinsicHeightBlock: IntrinsicMeasureBlock? = null
 
-    fun measure(measureBlock: MeasureFunction) {
+    fun measure(measureBlock: MeasureBlock) {
         this.measureBlock = measureBlock
     }
-    fun minIntrinsicWidth(minIntrinsicWidthBlock: IntrinsicFunction) {
+    fun minIntrinsicWidth(minIntrinsicWidthBlock: IntrinsicMeasureBlock) {
         this.minIntrinsicWidthBlock = minIntrinsicWidthBlock
     }
-    fun maxIntrinsicWidth(maxIntrinsicWidthBlock: IntrinsicFunction) {
+    fun maxIntrinsicWidth(maxIntrinsicWidthBlock: IntrinsicMeasureBlock) {
         this.maxIntrinsicWidthBlock = maxIntrinsicWidthBlock
     }
-    fun minIntrinsicHeight(minIntrinsicHeightBlock: IntrinsicFunction) {
+    fun minIntrinsicHeight(minIntrinsicHeightBlock: IntrinsicMeasureBlock) {
         this.minIntrinsicHeightBlock = minIntrinsicHeightBlock
     }
-    fun maxIntrinsicHeight(maxIntrinsicHeightBlock: IntrinsicFunction) {
+    fun maxIntrinsicHeight(maxIntrinsicHeightBlock: IntrinsicMeasureBlock) {
         this.maxIntrinsicHeightBlock = maxIntrinsicHeightBlock
     }
 
@@ -218,7 +216,7 @@ internal class IntrinsicsMeasureScope (
 fun Layout(
     children: @Composable() () -> Unit,
     modifier: Modifier = Modifier.None,
-    measureBlock: MeasureFunction
+    measureBlock: MeasureBlock
 ) {
     ComplexLayout(children, modifier) {
         measure(measureBlock)
@@ -308,7 +306,7 @@ class MultiComposableMeasurables internal constructor(private val layoutNode: La
     }
 }
 
-typealias MultiMeasureFunction =
+typealias MultiMeasureBlock =
         MeasureScope.(MultiComposableMeasurables, Constraints) -> MeasureScope.LayoutResult
 
 /**
@@ -332,7 +330,7 @@ typealias MultiMeasureFunction =
 fun Layout(
     vararg childrenArray: @Composable() () -> Unit,
     modifier: Modifier = Modifier.None,
-    measureBlock: MultiMeasureFunction
+    measureBlock: MultiMeasureBlock
 ) {
     val children: @Composable() () -> Unit = if (childrenArray.isEmpty()) {
         EmptyComposable

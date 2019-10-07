@@ -484,6 +484,10 @@ package androidx.ui.core {
     property public abstract Object? parentData;
   }
 
+  public final class IntrinsicMeasurableKt {
+    ctor public IntrinsicMeasurableKt();
+  }
+
   public interface LayoutCoordinates {
     method public androidx.ui.core.PxPosition childToLocal(androidx.ui.core.LayoutCoordinates child, androidx.ui.core.PxPosition childLocal);
     method public androidx.ui.core.LayoutCoordinates? getParentCoordinates();

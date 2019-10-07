@@ -385,7 +385,7 @@ class LayoutNode : ComponentNode(), Measurable, MeasureScope {
      * The lambda used to measure the child. It must call [MeasureScope.layout] before
      * completing.
      */
-    var measureBlock: MeasureFunction = ErrorMeasureBlock
+    var measureBlock: MeasureBlock = ErrorMeasureBlock
         set(value) {
             field = value
             requestRemeasure()
@@ -991,7 +991,7 @@ class LayoutNode : ComponentNode(), Measurable, MeasureScope {
             }
         }
 
-        private val ErrorMeasureBlock: MeasureFunction = { _, _ ->
+        private val ErrorMeasureBlock: MeasureBlock = { _, _ ->
             error("Undefined measure and it is required")
         }
         private val ErrorIntrinsicBlock:
