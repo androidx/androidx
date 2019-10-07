@@ -60,11 +60,11 @@ interface PropKey<T> {
     fun interpolate(a: T, b: T, fraction: Float): T
 }
 
-internal fun lerp(a: Float, b: Float, fraction: Float) =
-    (a * (1 - fraction) + b * fraction)
+internal fun lerp(start: Float, stop: Float, fraction: Float) =
+    (start * (1 - fraction) + stop * fraction)
 
-internal fun lerp(a: Int, b: Int, fraction: Float) =
-    (a * (1 - fraction) + b * fraction).toInt()
+internal fun lerp(start: Int, stop: Int, fraction: Float) =
+    (start * (1 - fraction) + stop * fraction).toInt()
 
 /**
  * Built-in property key for [Float] properties.
