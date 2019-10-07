@@ -48,9 +48,7 @@ fun TableWithBorders() {
                 tableRow {
                     repeat(8) {
                         Padding(2.dp) {
-                            AspectRatio(aspectRatio = 1f) {
-                                ColoredRect(color = Color.Magenta)
-                            }
+                            ColoredRect(color = Color.Magenta, modifier = AspectRatio(1f))
                         }
                     }
                 }

@@ -38,7 +38,7 @@ package androidx.ui.layout {
   public final class AspectRatioKt {
     ctor public AspectRatioKt();
     method public static androidx.ui.core.LayoutModifier AspectRatio(float value);
-    method public static void AspectRatio(float aspectRatio, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method @Deprecated public static void AspectRatio(float aspectRatio, kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
 
   public final class ConstrainedBoxKt {

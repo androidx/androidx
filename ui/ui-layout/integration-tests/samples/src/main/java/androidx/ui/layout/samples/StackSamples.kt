@@ -23,6 +23,7 @@ import androidx.ui.core.Alignment
 import androidx.ui.core.Dp
 import androidx.ui.core.Draw
 import androidx.ui.core.Layout
+import androidx.ui.core.Modifier
 import androidx.ui.core.dp
 import androidx.ui.core.toRect
 import androidx.ui.graphics.Color
@@ -34,8 +35,13 @@ import androidx.ui.graphics.Paint
  * not specified.
  */
 @Composable
-fun SizedRectangle(color: Color, width: Dp? = null, height: Dp? = null) {
-    Layout(children = { DrawRectangle(color = color) }) { _, constraints ->
+fun SizedRectangle(
+    modifier: Modifier = Modifier.None,
+    color: Color,
+    width: Dp? = null,
+    height: Dp? = null
+) {
+    Layout(children = { DrawRectangle(color = color) }, modifier = modifier) { _, constraints ->
         val widthPx = width?.toIntPx() ?: constraints.maxWidth
         val heightPx = height?.toIntPx() ?: constraints.maxHeight
         layout(widthPx, heightPx) {}

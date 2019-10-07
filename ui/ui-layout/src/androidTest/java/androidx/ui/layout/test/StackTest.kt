@@ -29,7 +29,6 @@ import androidx.ui.core.ipx
 import androidx.ui.core.px
 import androidx.ui.core.withDensity
 import androidx.ui.layout.Align
-import androidx.ui.layout.AspectRatio
 import androidx.ui.layout.ConstrainedBox
 import androidx.ui.layout.Container
 import androidx.ui.layout.DpConstraints
@@ -37,6 +36,7 @@ import androidx.ui.layout.Stack
 import androidx.compose.Composable
 import androidx.compose.composer
 import androidx.ui.core.Alignment
+import androidx.ui.layout.AspectRatio
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -408,7 +408,7 @@ class StackTest : LayoutTest() {
         testIntrinsics(@Composable {
             Stack {
                 aligned(Alignment.TopLeft) {
-                    AspectRatio(2f) { }
+                    Container(AspectRatio(2f)) { }
                 }
                 aligned(Alignment.BottomCenter) {
                     ConstrainedBox(DpConstraints.tightConstraints(testWidth, testHeight)) { }

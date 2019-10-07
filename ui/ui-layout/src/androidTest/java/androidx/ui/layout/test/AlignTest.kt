@@ -166,7 +166,7 @@ class AlignTest : LayoutTest() {
     fun testAlign_hasCorrectIntrinsicMeasurements() = withDensity(density) {
         testIntrinsics(@Composable {
             Align(alignment = Alignment.TopLeft) {
-                AspectRatio(2f) { }
+                Container(AspectRatio(2f)) { }
             }
         }) { minIntrinsicWidth, minIntrinsicHeight, maxIntrinsicWidth, maxIntrinsicHeight ->
             // Min width.

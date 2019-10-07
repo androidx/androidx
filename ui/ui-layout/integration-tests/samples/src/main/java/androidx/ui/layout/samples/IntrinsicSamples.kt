@@ -153,13 +153,13 @@ fun MatchParentDividerForAspectRatio() {
         MaxIntrinsicHeight {
             FlexRow(crossAxisAlignment = CrossAxisAlignment.Stretch) {
                 expanded(flex = 1f) {
-                    AspectRatio(2f) { DrawShape(RectangleShape, Color.Gray) }
+                    Container(AspectRatio(2f)) { DrawShape(RectangleShape, Color.Gray) }
                 }
                 inflexible {
                     Container(width = 1.dp) { DrawShape(RectangleShape, Color.Black) }
                 }
                 expanded(flex = 1f) {
-                    AspectRatio(1f) { DrawShape(RectangleShape, Color.Blue) }
+                    Container(AspectRatio(1f)) { DrawShape(RectangleShape, Color.Blue) }
                 }
             }
         }
