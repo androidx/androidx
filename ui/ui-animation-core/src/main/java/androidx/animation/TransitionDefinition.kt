@@ -16,7 +16,6 @@
 
 package androidx.animation
 
-import androidx.ui.graphics.Color
 import kotlin.experimental.ExperimentalTypeInference
 
 /**
@@ -256,7 +255,6 @@ private enum class ButtonState {
 
 private val alpha = FloatPropKey()
 private val radius = FloatPropKey()
-private val background = ColorPropKey()
 
 // TODO: Support states with only part of the props defined
 
@@ -283,19 +281,13 @@ private val example = transitionDefinition {
     state(ButtonState.Pressed) {
         this[alpha] = 0f
         this[radius] = 200f
-        this[background] = Color(alpha = 255, red = 255, green = 0, blue = 0)
     }
     state(ButtonState.Released) {
         this[alpha] = 0f
         this[radius] = 60f
-        this[background] = Color(alpha = 255, red = 0, green = 255, blue = 0)
     }
 
     transition(fromState = ButtonState.Released, toState = ButtonState.Pressed) {
-        background using tween {
-            easing = LinearEasing
-            duration = 75 // TODO: support time unit
-        }
         alpha using keyframes {
             duration = 375
             0f at 0 // ms  // Optional

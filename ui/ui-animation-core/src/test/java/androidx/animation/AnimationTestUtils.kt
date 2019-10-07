@@ -16,8 +16,6 @@
 
 package androidx.animation
 
-import androidx.ui.lerp
-
 internal fun Animation<Float>.at(time: Int): Float =
     getValue(time.toLong(), 0f, 1f, 0f, ::lerp)
 

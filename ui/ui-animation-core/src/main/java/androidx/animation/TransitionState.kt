@@ -16,14 +16,6 @@
 
 package androidx.animation
 
-import androidx.ui.core.Dp
-import androidx.ui.core.Px
-import androidx.ui.core.PxPosition
-import androidx.ui.core.lerp
-import androidx.ui.lerp
-import androidx.ui.graphics.Color
-import androidx.ui.graphics.lerp
-
 internal open class StateImpl<T>(val name: T) : MutableTransitionState, TransitionState {
 
     internal val props: MutableMap<PropKey<Any>, Any> = mutableMapOf()
@@ -68,14 +60,11 @@ interface PropKey<T> {
     fun interpolate(a: T, b: T, fraction: Float): T
 }
 
-/**
- * Built-in property key for [Color] properties.
- */
-class ColorPropKey : PropKey<Color> {
-    override fun interpolate(a: Color, b: Color, fraction: Float): Color {
-        return lerp(a, b, fraction)
-    }
-}
+internal fun lerp(a: Float, b: Float, fraction: Float) =
+    (a * (1 - fraction) + b * fraction)
+
+internal fun lerp(a: Int, b: Int, fraction: Float) =
+    (a * (1 - fraction) + b * fraction).toInt()
 
 /**
  * Built-in property key for [Float] properties.
@@ -91,29 +80,5 @@ class FloatPropKey : PropKey<Float> {
  */
 class IntPropKey : PropKey<Int> {
     override fun interpolate(a: Int, b: Int, fraction: Float) =
-        lerp(a, b, fraction)
-}
-
-/**
- * Built-in property key for [Px] properties.
- */
-class PxPropKey : PropKey<Px> {
-    override fun interpolate(a: Px, b: Px, fraction: Float): Px =
-        lerp(a, b, fraction)
-}
-
-/**
- * Built-in property key for [Dp] properties.
- */
-class DpPropKey : PropKey<Dp> {
-    override fun interpolate(a: Dp, b: Dp, fraction: Float): Dp =
-        lerp(a, b, fraction)
-}
-
-/**
- * Built-in property key for [PxPosition] properties.
- */
-class PxPositionPropKey : PropKey<PxPosition> {
-    override fun interpolate(a: PxPosition, b: PxPosition, fraction: Float): PxPosition =
         lerp(a, b, fraction)
 }

@@ -16,13 +16,13 @@
 
 package androidx.ui.material
 
-import androidx.animation.ColorPropKey
-import androidx.animation.DpPropKey
 import androidx.animation.transitionDefinition
 import androidx.compose.Composable
 import androidx.compose.composer
 import androidx.compose.memo
 import androidx.compose.unaryPlus
+import androidx.ui.animation.ColorPropKey
+import androidx.ui.animation.DpPropKey
 import androidx.ui.animation.Transition
 import androidx.ui.core.DensityScope
 import androidx.ui.core.Dp

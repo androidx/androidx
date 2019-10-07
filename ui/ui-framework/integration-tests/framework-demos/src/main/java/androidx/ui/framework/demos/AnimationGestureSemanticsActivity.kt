@@ -18,23 +18,23 @@ package androidx.ui.framework.demos
 
 import android.app.Activity
 import android.os.Bundle
-import androidx.animation.ColorPropKey
 import androidx.animation.FloatPropKey
 import androidx.animation.transitionDefinition
+import androidx.compose.Composable
+import androidx.compose.composer
+import androidx.compose.state
+import androidx.compose.unaryPlus
+import androidx.ui.animation.ColorPropKey
 import androidx.ui.animation.Transition
 import androidx.ui.core.Layout
 import androidx.ui.core.Draw
 import androidx.ui.core.PxPosition
 import androidx.ui.core.gesture.PressGestureDetector
 import androidx.ui.core.min
+import androidx.ui.core.setContent
 import androidx.ui.engine.geometry.Offset
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Paint
-import androidx.compose.Composable
-import androidx.compose.composer
-import androidx.compose.state
-import androidx.compose.unaryPlus
-import androidx.ui.core.setContent
 
 /* Demo app created to study the interaction of animations, gestures and semantics. */
 class AnimationGestureSemanticsActivity : Activity() {

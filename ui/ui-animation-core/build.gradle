@@ -34,8 +34,6 @@ dependencies {
     implementation "androidx.annotation:annotation:1.1.0"
     implementation "androidx.dynamicanimation:dynamicanimation:1.0.0"
 
-    api project(':ui:ui-core')
-
     testImplementation(ANDROIDX_TEST_RULES)
     testImplementation(ANDROIDX_TEST_RUNNER)
     testImplementation(JUNIT)
