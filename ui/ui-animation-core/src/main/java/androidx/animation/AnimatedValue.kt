@@ -61,7 +61,10 @@ sealed class BaseAnimatedValue<T>(private val valueHolder: ValueHolder<T>) :
     internal var internalVelocity: Float = 0f
     internal var onEnd: ((AnimationEndReason, T) -> Unit)? = null
     private lateinit var anim: AnimationWrapper<T>
-    private var startTime: Long = -1
+    private var startTime: Long = Unset
+    // last frame time only gets updated during the animation pulse. It will be reset at the
+    // end of the animation.
+    private var lastFrameTime: Long = Unset
 
     private var frameCallback = object : Choreographer.FrameCallback {
         override fun doFrame(frameTimeNanos: Long) {
@@ -70,6 +73,7 @@ sealed class BaseAnimatedValue<T>(private val valueHolder: ValueHolder<T>) :
         }
     }
 
+    // TODO: Need a test for animateTo(...) being called with the same target value
     override fun animateTo(targetValue: T) {
         toValueInternal(targetValue, null, PhysicsBuilder())
     }
@@ -134,13 +138,15 @@ sealed class BaseAnimatedValue<T>(private val valueHolder: ValueHolder<T>) :
     }
 
     internal open fun doAnimationFrame(time: Long) {
-        var playtime: Long
-        if (startTime == -1L) {
+        val playtime: Long
+        if (startTime == Unset) {
             startTime = time
             playtime = 0
         } else {
             playtime = time - startTime
         }
+
+        lastFrameTime = time
         value = anim.getValue(playtime)
         internalVelocity = anim.getVelocity(playtime)
         val animationFinished = anim.isFinished(playtime)
@@ -162,8 +168,18 @@ sealed class BaseAnimatedValue<T>(private val valueHolder: ValueHolder<T>) :
 
     internal fun startAnimation(anim: AnimationWrapper<T>) {
         this.anim = anim
-        startTime = -1
-        if (!isRunning) {
+        // Quick sanity check before officially starting
+        if (anim.isFinished(0)) {
+            // If the animation value & velocity is already meeting the finished condition before
+            // the animation even starts, end it now.
+            endAnimation()
+            return
+        }
+
+        if (isRunning) {
+            startTime = lastFrameTime
+        } else {
+            startTime = Unset
             isRunning = true
             Choreographer.getInstance().postFrameCallback(frameCallback)
         }
@@ -175,7 +191,8 @@ sealed class BaseAnimatedValue<T>(private val valueHolder: ValueHolder<T>) :
     internal fun endAnimation(endReason: AnimationEndReason = TargetReached) {
         Choreographer.getInstance().removeFrameCallback(frameCallback)
         isRunning = false
-        startTime = -1
+        startTime = Unset
+        lastFrameTime = Unset
         if (DEBUG) {
             Log.w("AnimValue", "end animation with reason $endReason")
         }
@@ -336,3 +353,5 @@ fun AnimatedFloat.fling(
         startAnimation(animWrapper)
     }
 }
+
+private const val Unset: Long = -1
