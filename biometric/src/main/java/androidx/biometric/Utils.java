@@ -35,7 +35,9 @@ import androidx.fragment.app.FragmentActivity;
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 class Utils {
-    private Utils() { }
+    // Private constructor to prevent instantiation.
+    private Utils() {
+    }
 
     /**
      * Determines if the given ID fails to match any known error message.
@@ -149,5 +151,33 @@ class Utils {
         if (activity instanceof DeviceCredentialHandlerActivity && !activity.isFinishing()) {
             activity.finish();
         }
+    }
+
+    /**
+     * Determines if the current device should explicitly fall back to using
+     * {@link FingerprintDialogFragment} and {@link FingerprintHelperFragment} when
+     * {@link BiometricPrompt#authenticate(BiometricPrompt.PromptInfo,
+     * BiometricPrompt.CryptoObject)} is called.
+     *
+     * @param context The application or activity context.
+     * @param deviceModel Model name of the current device.
+     * @return true if the current device should fall back to fingerprint for crypto-based
+     * authentication, or false otherwise.
+     */
+    static boolean shouldUseFingerprintForCrypto(@NonNull Context context, String deviceModel) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P
+                || Build.VERSION.SDK_INT > Build.VERSION_CODES.Q) {
+            // This workaround is only needed for Android P and Q.
+            return false;
+        }
+
+        final String[] models = context.getResources().getStringArray(
+                R.array.crypto_fingerprint_fallback_models);
+        for (final String model : models) {
+            if (model.equals(deviceModel)) {
+                return true;
+            }
+        }
+        return false;
     }
 }
