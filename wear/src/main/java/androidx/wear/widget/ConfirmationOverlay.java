@@ -37,6 +37,7 @@ import android.widget.TextView;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.MainThread;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
@@ -63,7 +64,7 @@ import java.util.Locale;
  *      .setType(ConfirmationOverlay.OPEN_ON_PHONE_ANIMATION)
  *      .setDuration(3000)
  *      .setMessage("Opening...")
- *      .setFinishedAnimationListener(new ConfirmationOverlay.OnAnimationFinishedListener() {
+ *      .setOnAnimationFinishedListener(new ConfirmationOverlay.OnAnimationFinishedListener() {
  *          {@literal @}Override
  *          public void onAnimationFinished() {
  *              // Finished animating and the content view has been removed from myActivity.
@@ -74,7 +75,7 @@ import java.util.Locale;
  *   new ConfirmationOverlay()
  *      .setType(ConfirmationOverlay.FAILURE_ANIMATION)
  *      .setMessage("Failed")
- *      .setFinishedAnimationListener(new ConfirmationOverlay.OnAnimationFinishedListener() {
+ *      .setOnAnimationFinishedListener(new ConfirmationOverlay.OnAnimationFinishedListener() {
  *          {@literal @}Override
  *          public void onAnimationFinished() {
  *              // Finished animating and the view has been removed from myView.getRootView().
@@ -120,13 +121,13 @@ public class ConfirmationOverlay {
     private int mType = SUCCESS_ANIMATION;
     private int mDurationMillis = DEFAULT_ANIMATION_DURATION_MS;
     @SuppressWarnings("WeakerAccess") /* synthetic access */
-    OnAnimationFinishedListener mListener;
-    private String mMessage;
+            OnAnimationFinishedListener mListener;
+    private CharSequence mMessage;
     @SuppressWarnings("WeakerAccess") /* synthetic access */
-    View mOverlayView;
+            View mOverlayView;
     private Drawable mOverlayDrawable;
     @SuppressWarnings("WeakerAccess") /* synthetic access */
-    boolean mIsShowing = false;
+            boolean mIsShowing = false;
 
     private final Handler mMainThreadHandler = new Handler(Looper.getMainLooper());
     private final Runnable mHideRunnable =
@@ -141,8 +142,22 @@ public class ConfirmationOverlay {
      * Sets a message which will be displayed at the same time as the animation.
      *
      * @return {@code this} object for method chaining.
+     * @deprecated Use {@link #setMessage(CharSequence)} instead.
      */
-    public ConfirmationOverlay setMessage(String message) {
+    @NonNull
+    @Deprecated
+    public ConfirmationOverlay setMessage(@NonNull String message) {
+        mMessage = message;
+        return this;
+    }
+
+    /**
+     * Sets a message which will be displayed at the same time as the animation.
+     *
+     * @return {@code this} object for method chaining.
+     */
+    @NonNull
+    public ConfirmationOverlay setMessage(@NonNull CharSequence message) {
         mMessage = message;
         return this;
     }
@@ -152,6 +167,7 @@ public class ConfirmationOverlay {
      *
      * @return {@code this} object for method chaining.
      */
+    @NonNull
     public ConfirmationOverlay setType(@OverlayType int type) {
         mType = type;
         return this;
@@ -163,6 +179,7 @@ public class ConfirmationOverlay {
      *
      * @return {@code this} object for method chaining.
      */
+    @NonNull
     public ConfirmationOverlay setDuration(int millis) {
         mDurationMillis = millis;
         return this;
@@ -173,8 +190,25 @@ public class ConfirmationOverlay {
      * longer visible.
      *
      * @return {@code this} object for method chaining.
+     * @deprecated Use
+     * {@link #setOnAnimationFinishedListener(OnAnimationFinishedListener)} instead.
      */
+    @NonNull
+    @Deprecated
     public ConfirmationOverlay setFinishedAnimationListener(
+            @Nullable OnAnimationFinishedListener listener) {
+        mListener = listener;
+        return this;
+    }
+
+    /**
+     * Sets the {@link OnAnimationFinishedListener} which will be invoked once the overlay is no
+     * longer visible.
+     *
+     * @return {@code this} object for method chaining.
+     */
+    @NonNull
+    public ConfirmationOverlay setOnAnimationFinishedListener(
             @Nullable OnAnimationFinishedListener listener) {
         mListener = listener;
         return this;
@@ -185,7 +219,7 @@ public class ConfirmationOverlay {
      * it is shown, all touches will be intercepted to prevent accidental taps on obscured views.
      */
     @MainThread
-    public void showAbove(View view) {
+    public void showAbove(@NonNull View view) {
         if (mIsShowing) {
             return;
         }
@@ -201,7 +235,7 @@ public class ConfirmationOverlay {
      * it is shown, all touches will be intercepted to prevent accidental taps on obscured views.
      */
     @MainThread
-    public void showOn(Activity activity) {
+    public void showOn(@NonNull Activity activity) {
         if (mIsShowing) {
             return;
         }
