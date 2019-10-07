@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package androidx.camera.extensions.impl;
 
 import android.content.Context;
@@ -27,24 +26,23 @@ import java.util.concurrent.Executors;
 
 /**
  * Used for initializing the extensions library.
+ *
+ * @since 1.1
  */
 public class InitializerImpl {
     private InitializerImpl() {
     }
 
     private static final String TAG = "InitializerImpl";
-
     /**
      * An unknown error has occurred.
      */
     public static final int ERROR_UNKNOWN = 0;
-
     /**
      * Error reported if the application version of extensions is incompatible with the on device
      * library version.
      */
     public static final int ERROR_INITIALIZE_VERSION_INCOMPATIBLE = 1;
-
     private static Executor sExecutor = Executors.newSingleThreadExecutor();
 
     /**
@@ -91,9 +89,7 @@ public class InitializerImpl {
      * Callback that gets called when the library has finished initializing and is ready for used.
      */
     public interface OnExtensionsInitializedCallback {
-        /**
-         * Called if the library successfully initializes.
-         */
+        /** Called if the library successfully initializes. */
         void onSuccess();
 
         /**
@@ -112,9 +108,7 @@ public class InitializerImpl {
      * again regardless of whether or not the deinitialization has succeeded or failed.
      */
     public interface OnExtensionsDeinitializedCallback {
-        /**
-         * Called if the library successfully deinitializes.
-         */
+        /** Called if the library successfully deinitializes. */
         void onSuccess();
 
         /**

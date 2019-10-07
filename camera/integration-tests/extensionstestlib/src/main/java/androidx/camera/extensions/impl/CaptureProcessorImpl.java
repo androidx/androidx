@@ -26,6 +26,8 @@ import java.util.Map;
 
 /**
  * The interface for processing a set of {@link Image}s that have captured.
+ *
+ * @since 1.0
  */
 public interface CaptureProcessorImpl {
     /**

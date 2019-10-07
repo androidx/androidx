@@ -41,6 +41,8 @@ import java.util.concurrent.TimeUnit;
  *
  * <p>This class should be implemented by OEM and deployed to the target devices. 3P developers
  * don't need to implement this, unless this is used for related testing usage.
+ *
+ * @since 1.0
  */
 public final class HdrImageCaptureExtenderImpl implements ImageCaptureExtenderImpl {
     private static final String TAG = "HdrImageCaptureExtender";

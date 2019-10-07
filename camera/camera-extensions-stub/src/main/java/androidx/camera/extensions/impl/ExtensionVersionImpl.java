@@ -20,6 +20,8 @@ package androidx.camera.extensions.impl;
  * Stub implementation for the extension version check.
  *
  * <p>This class should be implemented by OEM and deployed to the target devices.
+ *
+ * @since 1.0
  */
 public class ExtensionVersionImpl {
     public ExtensionVersionImpl() {

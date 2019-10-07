@@ -22,6 +22,8 @@ import android.media.Image;
 /**
  * Processing a single {@link Image} and {@link TotalCaptureResult} to produce an output to a
  * stream.
+ *
+ * @since 1.0
  */
 public interface PreviewImageProcessorImpl extends ProcessorImpl {
     /**

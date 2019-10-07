@@ -29,6 +29,8 @@ import java.util.List;
  * Stub implementation for beauty image capture use case.
  *
  * <p>This class should be implemented by OEM and deployed to the target devices.
+ *
+ * @since 1.0
  */
 public final class BeautyImageCaptureExtenderImpl implements ImageCaptureExtenderImpl {
     public BeautyImageCaptureExtenderImpl() {}

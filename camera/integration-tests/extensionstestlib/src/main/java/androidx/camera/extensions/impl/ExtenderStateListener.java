@@ -23,6 +23,8 @@ import android.hardware.camera2.CaptureRequest;
 
 /**
  * Provides interfaces that the OEM needs to implement to handle the state change.
+ *
+ * @since 1.0
  */
 public interface ExtenderStateListener {
 

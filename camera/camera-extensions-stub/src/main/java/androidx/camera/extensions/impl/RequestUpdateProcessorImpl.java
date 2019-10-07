@@ -20,6 +20,8 @@ import android.hardware.camera2.TotalCaptureResult;
 
 /**
  * Processes a {@link TotalCaptureResult} to update a CaptureStage.
+ *
+ * @since 1.0
  */
 public interface RequestUpdateProcessorImpl extends ProcessorImpl {
     /**
