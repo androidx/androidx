@@ -27,7 +27,6 @@ import androidx.ui.core.sp
 import androidx.ui.foundation.VerticalScroller
 import androidx.ui.layout.CrossAxisAlignment
 import androidx.ui.graphics.Color
-import androidx.ui.input.EditorModel
 import androidx.ui.input.EditorStyle
 import androidx.ui.input.ImeAction
 import androidx.ui.layout.Column
@@ -41,20 +40,20 @@ fun TextFieldFocusTransition() {
             mainAxisSize = LayoutSize.Expand,
             crossAxisAlignment = CrossAxisAlignment.Start
         ) {
-            TextFiledWithFocusId("Focus 1", "Focus 2")
-            TextFiledWithFocusId("Focus 2", "Focus 3")
-            TextFiledWithFocusId("Focus 3", "Focus 4")
-            TextFiledWithFocusId("Focus 4", "Focus 5")
-            TextFiledWithFocusId("Focus 5", "Focus 6")
-            TextFiledWithFocusId("Focus 6", "Focus 1")
+            TextFieldWithFocusId("Focus 1", "Focus 2")
+            TextFieldWithFocusId("Focus 2", "Focus 3")
+            TextFieldWithFocusId("Focus 3", "Focus 4")
+            TextFieldWithFocusId("Focus 4", "Focus 5")
+            TextFieldWithFocusId("Focus 5", "Focus 6")
+            TextFieldWithFocusId("Focus 6", "Focus 1")
         }
     }
 }
 
 @Composable
-private fun TextFiledWithFocusId(focusID: String, nextFocus: String) {
+private fun TextFieldWithFocusId(focusID: String, nextFocus: String) {
     val focusManager = +ambient(FocusManagerAmbient)
-    val state = +state { EditorModel(text = "Focus ID: $focusID") }
+    val state = +state { "Focus ID: $focusID" }
     val focused = +state { false }
     val color = if (focused.value) {
         Color.Red

@@ -24,12 +24,11 @@ import android.view.inputmethod.InputConnection
 import android.view.inputmethod.InputMethodManager
 import androidx.ui.engine.geometry.Rect
 import androidx.ui.input.EditOperation
-import androidx.ui.input.EditorModel
 import androidx.ui.input.ImeAction
 import androidx.ui.input.InputEventListener
+import androidx.ui.input.InputState
 import androidx.ui.input.KeyboardType
 import androidx.ui.input.PlatformTextInputService
-import androidx.ui.input.TextInputService
 import androidx.ui.text.TextRange
 import kotlin.math.roundToInt
 
@@ -86,7 +85,7 @@ internal class TextInputServiceAndroid(val view: View) : PlatformTextInputServic
     fun isEditorFocused(): Boolean = editorHasFocus
 
     override fun startInput(
-        initModel: EditorModel,
+        initModel: InputState,
         keyboardType: KeyboardType,
         imeAction: ImeAction,
         onEditCommand: (List<EditOperation>) -> Unit,
@@ -94,7 +93,7 @@ internal class TextInputServiceAndroid(val view: View) : PlatformTextInputServic
     ) {
         imm = view.context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
         editorHasFocus = true
-        state = initModel.toInputState()
+        state = initModel
         this.keyboardType = keyboardType
         this.imeAction = imeAction
         this.onEditCommand = onEditCommand
@@ -119,8 +118,8 @@ internal class TextInputServiceAndroid(val view: View) : PlatformTextInputServic
         imm.showSoftInput(view, 0)
     }
 
-    override fun onStateUpdated(model: EditorModel) {
-        this.state = model.toInputState()
+    override fun onStateUpdated(model: InputState) {
+        this.state = model
         ic?.updateInputState(this.state, imm, view)
     }
 
@@ -178,9 +177,3 @@ internal class TextInputServiceAndroid(val view: View) : PlatformTextInputServic
             outInfo.imeOptions or outInfo.imeOptions or EditorInfo.IME_FLAG_NO_FULLSCREEN
     }
 }
-
-private fun EditorModel.toInputState(): InputState =
-    InputState(
-        text = text, // TODO(nona): call toString once AnnotatedString is in use.
-        selection = selection,
-        composition = composition)

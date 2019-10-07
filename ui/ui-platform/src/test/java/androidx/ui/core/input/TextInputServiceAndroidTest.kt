@@ -22,7 +22,7 @@ import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import androidx.test.filters.SmallTest
-import androidx.ui.input.EditorModel
+import androidx.ui.input.InputState
 import androidx.ui.input.ImeAction
 import androidx.ui.input.KeyboardType
 import com.nhaarman.mockitokotlin2.eq
@@ -54,7 +54,7 @@ class TextInputServiceAndroidTest {
     @Test
     fun test_fill_editor_info_text() {
         textInputService.startInput(
-            EditorModel(""),
+            InputState(""),
             KeyboardType.Text,
             ImeAction.Unspecified,
             onEditCommand = {},
@@ -71,7 +71,7 @@ class TextInputServiceAndroidTest {
     @Test
     fun test_fill_editor_info_ascii() {
         textInputService.startInput(
-            EditorModel(""),
+            InputState(""),
             KeyboardType.Ascii,
             ImeAction.Unspecified,
             onEditCommand = {},
@@ -89,7 +89,7 @@ class TextInputServiceAndroidTest {
     @Test
     fun test_fill_editor_info_number() {
         textInputService.startInput(
-            EditorModel(""),
+            InputState(""),
             KeyboardType.Number,
             ImeAction.Unspecified,
             onEditCommand = {},
@@ -106,7 +106,7 @@ class TextInputServiceAndroidTest {
     @Test
     fun test_fill_editor_info_phone() {
         textInputService.startInput(
-            EditorModel(""),
+            InputState(""),
             KeyboardType.Phone,
             ImeAction.Unspecified,
             onEditCommand = {},
@@ -123,7 +123,7 @@ class TextInputServiceAndroidTest {
     @Test
     fun test_fill_editor_info_uri() {
         textInputService.startInput(
-            EditorModel(""),
+            InputState(""),
             KeyboardType.Uri,
             ImeAction.Unspecified,
             onEditCommand = {},
@@ -141,7 +141,7 @@ class TextInputServiceAndroidTest {
     @Test
     fun test_fill_editor_info_email() {
         textInputService.startInput(
-            EditorModel(""),
+            InputState(""),
             KeyboardType.Email,
             ImeAction.Unspecified,
             onEditCommand = {},
@@ -159,7 +159,7 @@ class TextInputServiceAndroidTest {
     @Test
     fun test_fill_editor_info_password() {
         textInputService.startInput(
-            EditorModel(""),
+            InputState(""),
             KeyboardType.Password,
             ImeAction.Unspecified,
             onEditCommand = {},
@@ -177,7 +177,7 @@ class TextInputServiceAndroidTest {
     @Test
     fun test_fill_editor_info_number_password() {
         textInputService.startInput(
-            EditorModel(""),
+            InputState(""),
             KeyboardType.NumberPassword,
             ImeAction.Unspecified,
             onEditCommand = {},
@@ -195,7 +195,7 @@ class TextInputServiceAndroidTest {
     @Test
     fun test_fill_editor_info_action_none() {
         textInputService.startInput(
-            EditorModel(""),
+            InputState(""),
             KeyboardType.Ascii,
             ImeAction.NoAction,
             onEditCommand = {},
@@ -213,7 +213,7 @@ class TextInputServiceAndroidTest {
     @Test
     fun test_fill_editor_info_action_go() {
         textInputService.startInput(
-            EditorModel(""),
+            InputState(""),
             KeyboardType.Ascii,
             ImeAction.Go,
             onEditCommand = {},
@@ -231,7 +231,7 @@ class TextInputServiceAndroidTest {
     @Test
     fun test_fill_editor_info_action_next() {
         textInputService.startInput(
-            EditorModel(""),
+            InputState(""),
             KeyboardType.Ascii,
             ImeAction.Next,
             onEditCommand = {},
@@ -249,7 +249,7 @@ class TextInputServiceAndroidTest {
     @Test
     fun test_fill_editor_info_action_previous() {
         textInputService.startInput(
-            EditorModel(""),
+            InputState(""),
             KeyboardType.Ascii,
             ImeAction.Previous,
             onEditCommand = {},
@@ -267,7 +267,7 @@ class TextInputServiceAndroidTest {
     @Test
     fun test_fill_editor_info_action_search() {
         textInputService.startInput(
-            EditorModel(""),
+            InputState(""),
             KeyboardType.Ascii,
             ImeAction.Search,
             onEditCommand = {},
@@ -285,7 +285,7 @@ class TextInputServiceAndroidTest {
     @Test
     fun test_fill_editor_info_action_send() {
         textInputService.startInput(
-            EditorModel(""),
+            InputState(""),
             KeyboardType.Ascii,
             ImeAction.Send,
             onEditCommand = {},
@@ -303,7 +303,7 @@ class TextInputServiceAndroidTest {
     @Test
     fun test_fill_editor_info_action_done() {
         textInputService.startInput(
-            EditorModel(""),
+            InputState(""),
             KeyboardType.Ascii,
             ImeAction.Done,
             onEditCommand = {},

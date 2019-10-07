@@ -37,7 +37,6 @@ import androidx.ui.core.OnChildPositioned
 import androidx.ui.core.PxPosition
 import androidx.ui.core.dp
 import androidx.ui.core.setContent
-import androidx.ui.input.EditorModel
 import androidx.ui.input.EditorStyle
 import androidx.ui.input.ImeAction
 import androidx.ui.input.KeyboardType
@@ -54,8 +53,8 @@ class ExplicitAutofillTypesActivity : Activity() {
             MaterialTheme {
                 Column(crossAxisAlignment = CrossAxisAlignment.Start) {
 
-                    val nameState = +state { EditorModel(text = "Enter name here") }
-                    val emailState = +state { EditorModel(text = "Enter email here") }
+                    val nameState = +state { "Enter name here" }
+                    val emailState = +state { "Enter email here" }
                     val autofill = +ambient(AutofillAmbient)
                     val labelStyle = +themeTextStyle { subtitle1.copy() }
                     val textStyle = +themeTextStyle { h6.copy() }
@@ -63,7 +62,7 @@ class ExplicitAutofillTypesActivity : Activity() {
                     Text("Name", style = labelStyle)
                     Autofill(
                         autofillTypes = listOf(AutofillType.Name),
-                        onFill = { nameState.value = EditorModel(it) }
+                        onFill = { nameState.value = it }
                     ) { autofillNode ->
                         TextField(
                             value = nameState.value,
@@ -81,7 +80,7 @@ class ExplicitAutofillTypesActivity : Activity() {
                     Text("Email", style = labelStyle)
                     Autofill(
                         autofillTypes = listOf(AutofillType.EmailAddress),
-                        onFill = { emailState.value = EditorModel(it) }
+                        onFill = { emailState.value = it }
                     ) { autofillNode ->
                         TextField(
                             value = emailState.value,

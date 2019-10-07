@@ -26,10 +26,6 @@ data class EditorStyle(
     /** The  editor text style */
     val textStyle: TextStyle? = null,
 
-    /**
-     *  The selection background color
-     *
-     *  @see EditorModel.selection
-     */
+    /**The selection background color */
     val selectionColor: Color? = null
 )

@@ -23,6 +23,7 @@ import android.view.inputmethod.InputMethodManager
 import androidx.test.filters.SmallTest
 import androidx.ui.text.TextRange
 import androidx.ui.input.InputEventListener
+import androidx.ui.input.InputState
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.argumentCaptor
 import com.nhaarman.mockitokotlin2.eq
