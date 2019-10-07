@@ -1867,4 +1867,499 @@ class PointerInputEventProcessorTest {
         verifyNoMoreInteractions(parentPointerInputNode.pointerInputHandler)
         verifyNoMoreInteractions(childPointerInputNode.pointerInputHandler)
     }
+
+    @Test
+    fun processCancel_noPointers_doesntCrash() {
+        pointerInputEventProcessor.processCancel()
+    }
+
+    @Test
+    fun processCancel_downThenCancel_pinOnlyReceivesCorrectDownThenCancel() {
+
+        // Arrange
+
+        val pointerInputNode: PointerInputNode = PointerInputNode().apply {
+            emitInsertAt(0, LayoutNode(0, 0, 500, 500))
+            pointerInputHandler = spy(MyPointerInputHandler())
+            cancelHandler = spy(MyCancelHandler())
+        }
+        root.emitInsertAt(0, pointerInputNode)
+
+        val pointerInputEvent =
+            PointerInputEvent(
+                7,
+                5L.millisecondsToTimestamp(),
+                PxPosition(250.px, 250.px),
+                true
+            )
+
+        val expectedChange =
+            PointerInputChange(
+                id = 7,
+                current = PointerInputData(
+                    5L.millisecondsToTimestamp(),
+                    PxPosition(250.px, 250.px),
+                    true
+                ),
+                previous = PointerInputData(null, null, false),
+                consumed = ConsumedData()
+            )
+
+        // Act
+
+        pointerInputEventProcessor.process(pointerInputEvent)
+        pointerInputEventProcessor.processCancel()
+
+        // Assert
+
+        inOrder(pointerInputNode.pointerInputHandler, pointerInputNode.cancelHandler) {
+            for (pass in PointerEventPass.values()) {
+                verify(pointerInputNode.pointerInputHandler).invoke(
+                    eq(listOf(expectedChange)),
+                    eq(pass),
+                    any()
+                )
+            }
+            verify(pointerInputNode.cancelHandler).invoke()
+        }
+        verifyNoMoreInteractions(
+            pointerInputNode.pointerInputHandler,
+            pointerInputNode.cancelHandler
+        )
+    }
+
+    @Test
+    fun processCancel_downDownOnSamePinThenCancel_pinOnlyReceivesCorrectChangesThenCancel() {
+
+        // Arrange
+
+        val pointerInputNode: PointerInputNode = PointerInputNode().apply {
+            emitInsertAt(0, LayoutNode(0, 0, 500, 500))
+            pointerInputHandler = spy(MyPointerInputHandler())
+            cancelHandler = spy(MyCancelHandler())
+        }
+        root.emitInsertAt(0, pointerInputNode)
+
+        val pointerInputEvent1 =
+            PointerInputEvent(
+                7,
+                5L.millisecondsToTimestamp(),
+                PxPosition(200.px, 200.px),
+                true
+            )
+
+        val pointerInputEvent2 =
+            PointerInputEvent(
+                10L.millisecondsToTimestamp(),
+                listOf(
+                    PointerInputEventData(
+                        7,
+                        10L.millisecondsToTimestamp(),
+                        PxPosition(200.px, 200.px),
+                        true
+                    ),
+                    PointerInputEventData(
+                        9,
+                        10L.millisecondsToTimestamp(),
+                        PxPosition(300.px, 300.px),
+                        true
+                    )
+                )
+            )
+
+        val expectedChanges1 =
+            listOf(
+                PointerInputChange(
+                    id = 7,
+                    current = PointerInputData(
+                        5L.millisecondsToTimestamp(),
+                        PxPosition(200.px, 200.px),
+                        true
+                    ),
+                    previous = PointerInputData(null, null, false),
+                    consumed = ConsumedData()
+                )
+            )
+
+        val expectedChanges2 =
+            listOf(
+                PointerInputChange(
+                    id = 7,
+                    current = PointerInputData(
+                        10L.millisecondsToTimestamp(),
+                        PxPosition(200.px, 200.px),
+                        true
+                    ),
+                    previous = PointerInputData(
+                        5L.millisecondsToTimestamp(),
+                        PxPosition(200.px, 200.px),
+                        true
+                    ),
+                    consumed = ConsumedData()
+                ),
+                PointerInputChange(
+                    id = 9,
+                    current = PointerInputData(
+                        10L.millisecondsToTimestamp(),
+                        PxPosition(300.px, 300.px),
+                        true
+                    ),
+                    previous = PointerInputData(null, null, false),
+                    consumed = ConsumedData()
+                )
+            )
+
+        // Act
+
+        pointerInputEventProcessor.process(pointerInputEvent1)
+        pointerInputEventProcessor.process(pointerInputEvent2)
+        pointerInputEventProcessor.processCancel()
+
+        // Assert
+
+        inOrder(pointerInputNode.pointerInputHandler, pointerInputNode.cancelHandler) {
+            for (pass in PointerEventPass.values()) {
+                verify(pointerInputNode.pointerInputHandler).invoke(
+                    eq(expectedChanges1),
+                    eq(pass),
+                    any()
+                )
+            }
+            for (pass in PointerEventPass.values()) {
+                verify(pointerInputNode.pointerInputHandler).invoke(
+                    eq(expectedChanges2),
+                    eq(pass),
+                    any()
+                )
+            }
+            verify(pointerInputNode.cancelHandler).invoke()
+        }
+        verifyNoMoreInteractions(
+            pointerInputNode.pointerInputHandler,
+            pointerInputNode.cancelHandler
+        )
+    }
+
+    @Test
+    fun processCancel_downOn2DifferentPinsThenCancel_pinsOnlyReceiveCorrectDownsThenCancel() {
+
+        // Arrange
+
+        val pointerInputNode1: PointerInputNode = PointerInputNode().apply {
+            emitInsertAt(0, LayoutNode(0, 0, 199, 199))
+            pointerInputHandler = spy(MyPointerInputHandler())
+            cancelHandler = spy(MyCancelHandler())
+        }
+        val pointerInputNode2: PointerInputNode = PointerInputNode().apply {
+            emitInsertAt(0, LayoutNode(200, 200, 399, 399))
+            pointerInputHandler = spy(MyPointerInputHandler())
+            cancelHandler = spy(MyCancelHandler())
+        }
+        root.emitInsertAt(0, pointerInputNode1)
+        root.emitInsertAt(1, pointerInputNode2)
+
+        val pointerInputEventData1 =
+            PointerInputEventData(
+                7,
+                5L.millisecondsToTimestamp(),
+                PxPosition(100.px, 100.px),
+                true
+            )
+
+        val pointerInputEventData2 =
+            PointerInputEventData(
+                9,
+                5L.millisecondsToTimestamp(),
+                PxPosition(300.px, 300.px),
+                true
+            )
+
+        val pointerInputEvent = PointerInputEvent(
+            5L.millisecondsToTimestamp(),
+            listOf(pointerInputEventData1, pointerInputEventData2)
+        )
+
+        val expectedChange1 =
+            PointerInputChange(
+                id = 7,
+                current = PointerInputData(
+                    5L.millisecondsToTimestamp(),
+                    PxPosition(100.px, 100.px),
+                    true
+                ),
+                previous = PointerInputData(null, null, false),
+                consumed = ConsumedData()
+            )
+
+        val expectedChange2 =
+            PointerInputChange(
+                id = 9,
+                current = PointerInputData(
+                    5L.millisecondsToTimestamp(),
+                    PxPosition(100.px, 100.px),
+                    true
+                ),
+                previous = PointerInputData(null, null, false),
+                consumed = ConsumedData()
+            )
+
+        // Act
+
+        pointerInputEventProcessor.process(pointerInputEvent)
+        pointerInputEventProcessor.processCancel()
+
+        // Assert
+
+        inOrder(pointerInputNode1.pointerInputHandler, pointerInputNode1.cancelHandler) {
+            for (pass in PointerEventPass.values()) {
+                verify(pointerInputNode1.pointerInputHandler).invoke(
+                    eq(listOf(expectedChange1)),
+                    eq(pass),
+                    any()
+                )
+            }
+            verify(pointerInputNode1.cancelHandler).invoke()
+        }
+        inOrder(pointerInputNode2.pointerInputHandler, pointerInputNode2.cancelHandler) {
+            for (pass in PointerEventPass.values()) {
+                verify(pointerInputNode2.pointerInputHandler).invoke(
+                    eq(listOf(expectedChange2)),
+                    eq(pass),
+                    any()
+                )
+            }
+            verify(pointerInputNode2.cancelHandler).invoke()
+        }
+        verifyNoMoreInteractions(
+            pointerInputNode1.pointerInputHandler,
+            pointerInputNode1.cancelHandler,
+            pointerInputNode2.pointerInputHandler,
+            pointerInputNode2.cancelHandler
+        )
+    }
+
+    @Test
+    fun processCancel_downMoveCancel_pinOnlyReceivesCorrectDownMoveCancel() {
+
+        // Arrange
+
+        val pointerInputNode: PointerInputNode = PointerInputNode().apply {
+            emitInsertAt(0, LayoutNode(0, 0, 500, 500))
+            pointerInputHandler = spy(MyPointerInputHandler())
+            cancelHandler = spy(MyCancelHandler())
+        }
+        root.emitInsertAt(0, pointerInputNode)
+
+        val down =
+            PointerInputEvent(
+                7,
+                5L.millisecondsToTimestamp(),
+                PxPosition(200.px, 200.px),
+                true
+            )
+
+        val move =
+            PointerInputEvent(
+                7,
+                10L.millisecondsToTimestamp(),
+                PxPosition(300.px, 300.px),
+                true
+            )
+
+        val expectedDown =
+            PointerInputChange(
+                id = 7,
+                current = PointerInputData(
+                    5L.millisecondsToTimestamp(),
+                    PxPosition(200.px, 200.px),
+                    true
+                ),
+                previous = PointerInputData(null, null, false),
+                consumed = ConsumedData()
+            )
+
+        val expectedMove =
+            PointerInputChange(
+                id = 7,
+                current = PointerInputData(
+                    10L.millisecondsToTimestamp(),
+                    PxPosition(300.px, 300.px),
+                    true
+                ),
+                previous = PointerInputData(
+                    5L.millisecondsToTimestamp(),
+                    PxPosition(200.px, 200.px),
+                    true
+                ),
+                consumed = ConsumedData()
+            )
+
+        // Act
+
+        pointerInputEventProcessor.process(down)
+        pointerInputEventProcessor.process(move)
+        pointerInputEventProcessor.processCancel()
+
+        // Assert
+
+        inOrder(pointerInputNode.pointerInputHandler, pointerInputNode.cancelHandler) {
+            for (pass in PointerEventPass.values()) {
+                verify(pointerInputNode.pointerInputHandler).invoke(
+                    eq(listOf(expectedDown)),
+                    eq(pass),
+                    any()
+                )
+            }
+            for (pass in PointerEventPass.values()) {
+                verify(pointerInputNode.pointerInputHandler).invoke(
+                    eq(listOf(expectedMove)),
+                    eq(pass),
+                    any()
+                )
+            }
+            verify(pointerInputNode.cancelHandler).invoke()
+        }
+        verifyNoMoreInteractions(
+            pointerInputNode.pointerInputHandler,
+            pointerInputNode.cancelHandler
+        )
+    }
+
+    @Test
+    fun processCancel_downCancelMoveUp_pinOnlyReceivesCorrectDownCancel() {
+
+        // Arrange
+
+        val pointerInputNode: PointerInputNode = PointerInputNode().apply {
+            emitInsertAt(0, LayoutNode(0, 0, 500, 500))
+            pointerInputHandler = spy(MyPointerInputHandler())
+            cancelHandler = spy(MyCancelHandler())
+        }
+        root.emitInsertAt(0, pointerInputNode)
+
+        val down =
+            PointerInputEvent(
+                7,
+                5L.millisecondsToTimestamp(),
+                PxPosition(200.px, 200.px),
+                true
+            )
+
+        val expectedDown =
+            PointerInputChange(
+                id = 7,
+                current = PointerInputData(
+                    5L.millisecondsToTimestamp(),
+                    PxPosition(200.px, 200.px),
+                    true
+                ),
+                previous = PointerInputData(null, null, false),
+                consumed = ConsumedData()
+            )
+
+        // Act
+
+        pointerInputEventProcessor.process(down)
+        pointerInputEventProcessor.processCancel()
+
+        // Assert
+
+        inOrder(pointerInputNode.pointerInputHandler, pointerInputNode.cancelHandler) {
+            for (pass in PointerEventPass.values()) {
+                verify(pointerInputNode.pointerInputHandler).invoke(
+                    eq(listOf(expectedDown)),
+                    eq(pass),
+                    any()
+                )
+            }
+            verify(pointerInputNode.cancelHandler).invoke()
+        }
+        verifyNoMoreInteractions(
+            pointerInputNode.pointerInputHandler,
+            pointerInputNode.cancelHandler
+        )
+    }
+
+    @Test
+    fun processCancel_downCancelDown_pinOnlyReceivesCorrectDownCancelDown() {
+
+        // Arrange
+
+        val pointerInputNode: PointerInputNode = PointerInputNode().apply {
+            emitInsertAt(0, LayoutNode(0, 0, 500, 500))
+            pointerInputHandler = spy(MyPointerInputHandler())
+            cancelHandler = spy(MyCancelHandler())
+        }
+        root.emitInsertAt(0, pointerInputNode)
+
+        val down1 =
+            PointerInputEvent(
+                7,
+                5L.millisecondsToTimestamp(),
+                PxPosition(200.px, 200.px),
+                true
+            )
+
+        val down2 =
+            PointerInputEvent(
+                7,
+                10L.millisecondsToTimestamp(),
+                PxPosition(200.px, 200.px),
+                true
+            )
+
+        val expectedDown1 =
+            PointerInputChange(
+                id = 7,
+                current = PointerInputData(
+                    5L.millisecondsToTimestamp(),
+                    PxPosition(200.px, 200.px),
+                    true
+                ),
+                previous = PointerInputData(null, null, false),
+                consumed = ConsumedData()
+            )
+
+        val expectedDown2 =
+            PointerInputChange(
+                id = 7,
+                current = PointerInputData(
+                    10L.millisecondsToTimestamp(),
+                    PxPosition(200.px, 200.px),
+                    true
+                ),
+                previous = PointerInputData(null, null, false),
+                consumed = ConsumedData()
+            )
+
+        // Act
+
+        pointerInputEventProcessor.process(down1)
+        pointerInputEventProcessor.processCancel()
+        pointerInputEventProcessor.process(down2)
+
+        // Assert
+
+        inOrder(pointerInputNode.pointerInputHandler, pointerInputNode.cancelHandler) {
+            for (pass in PointerEventPass.values()) {
+                verify(pointerInputNode.pointerInputHandler).invoke(
+                    eq(listOf(expectedDown1)),
+                    eq(pass),
+                    any()
+                )
+            }
+            verify(pointerInputNode.cancelHandler).invoke()
+            for (pass in PointerEventPass.values()) {
+                verify(pointerInputNode.pointerInputHandler).invoke(
+                    eq(listOf(expectedDown2)),
+                    eq(pass),
+                    any()
+                )
+            }
+        }
+        verifyNoMoreInteractions(
+            pointerInputNode.pointerInputHandler,
+            pointerInputNode.cancelHandler
+        )
+    }
 }

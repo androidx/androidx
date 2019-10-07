@@ -47,15 +47,14 @@ open class MyPointerInputHandler : PointerInputHandler {
     }
 }
 
+open class MyCancelHandler : () -> Unit {
+    override fun invoke() {}
+}
+
 internal fun LayoutNode(x: Int, y: Int, x2: Int, y2: Int) =
     LayoutNode().apply {
         resize(x2.ipx - x.ipx, y2.ipx - y.ipx)
         place(x.ipx, y.ipx)
-    }
-
-internal fun LayoutNode(position: IntPxPosition) =
-    androidx.ui.core.LayoutNode().apply {
-        place(position.x, position.y)
     }
 
 internal fun LayoutNode(position: IntPxPosition, size: IntPxSize) =
