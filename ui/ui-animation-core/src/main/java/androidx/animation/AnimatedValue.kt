@@ -21,7 +21,6 @@ import android.view.Choreographer
 import androidx.animation.AnimationEndReason.BoundReached
 import androidx.animation.AnimationEndReason.Interrupted
 import androidx.animation.AnimationEndReason.TargetReached
-import androidx.ui.lerp
 
 /**
  * This is the base class for [AnimatedValue]. It contains all the functionality of AnimatedValue.

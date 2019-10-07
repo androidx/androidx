@@ -16,25 +16,25 @@
 
 package androidx.ui.material
 
-import androidx.animation.ColorPropKey
 import androidx.animation.FastOutSlowInEasing
 import androidx.animation.LinearEasing
-import androidx.animation.PxPropKey
 import androidx.animation.transitionDefinition
-import androidx.ui.core.Text
-import androidx.ui.core.dp
 import androidx.compose.Composable
 import androidx.compose.composer
 import androidx.compose.memo
 import androidx.compose.state
 import androidx.compose.unaryPlus
+import androidx.ui.animation.ColorPropKey
+import androidx.ui.animation.PxPropKey
 import androidx.ui.animation.Transition
 import androidx.ui.core.Alignment
 import androidx.ui.core.IntPx
 import androidx.ui.core.Layout
 import androidx.ui.core.Placeable
 import androidx.ui.core.Px
+import androidx.ui.core.Text
 import androidx.ui.core.coerceIn
+import androidx.ui.core.dp
 import androidx.ui.core.toPx
 import androidx.ui.core.withDensity
 import androidx.ui.core.withTight

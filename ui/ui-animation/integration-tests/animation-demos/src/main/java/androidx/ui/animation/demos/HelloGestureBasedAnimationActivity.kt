@@ -18,21 +18,21 @@ package androidx.ui.animation.demos
 
 import android.app.Activity
 import android.os.Bundle
-import androidx.animation.ColorPropKey
 import androidx.animation.FloatPropKey
 import androidx.animation.transitionDefinition
-import androidx.ui.animation.Transition
-import androidx.ui.core.Layout
-import androidx.ui.core.Draw
-import androidx.ui.core.gesture.PressGestureDetector
-import androidx.ui.engine.geometry.Rect
-import androidx.ui.graphics.Color
-import androidx.ui.graphics.Paint
 import androidx.compose.Composable
 import androidx.compose.composer
 import androidx.compose.state
 import androidx.compose.unaryPlus
+import androidx.ui.animation.ColorPropKey
+import androidx.ui.animation.Transition
+import androidx.ui.core.Layout
+import androidx.ui.core.Draw
+import androidx.ui.core.gesture.PressGestureDetector
 import androidx.ui.core.setContent
+import androidx.ui.engine.geometry.Rect
+import androidx.ui.graphics.Color
+import androidx.ui.graphics.Paint
 
 class HelloGestureBasedAnimationActivity : Activity() {
 

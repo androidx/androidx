@@ -16,8 +16,6 @@
 
 package androidx.ui.material.samples
 
-import androidx.animation.ColorPropKey
-import androidx.animation.PxPropKey
 import androidx.animation.transitionDefinition
 import androidx.annotation.Sampled
 import androidx.compose.Composable
@@ -25,6 +23,8 @@ import androidx.compose.composer
 import androidx.compose.memo
 import androidx.compose.state
 import androidx.compose.unaryPlus
+import androidx.ui.animation.ColorPropKey
+import androidx.ui.animation.PxPropKey
 import androidx.ui.animation.Transition
 import androidx.ui.core.Alignment
 import androidx.ui.core.Text
