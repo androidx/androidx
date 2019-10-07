@@ -660,7 +660,7 @@ class AndroidComposeView constructor(context: Context)
     private fun autofillSupported() = Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
 
     internal companion object {
-        private val RootMeasureBlock: MeasureFunction = { measurables, constraints ->
+        private val RootMeasureBlock: MeasureBlock = { measurables, constraints ->
             when {
                 measurables.isEmpty() -> layout(IntPx.Zero, IntPx.Zero) {}
                 measurables.size == 1 -> {
