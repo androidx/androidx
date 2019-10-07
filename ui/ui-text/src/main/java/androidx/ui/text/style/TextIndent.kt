@@ -31,9 +31,9 @@ data class TextIndent(
     val restLine: Px = 0.px
 )
 
-fun lerp(a: TextIndent, b: TextIndent, t: Float): TextIndent {
+fun lerp(start: TextIndent, stop: TextIndent, fraction: Float): TextIndent {
     return TextIndent(
-        lerp(a.firstLine, b.firstLine, t),
-        lerp(a.restLine, b.restLine, t)
+        lerp(start.firstLine, stop.firstLine, fraction),
+        lerp(start.restLine, stop.restLine, fraction)
     )
 }
