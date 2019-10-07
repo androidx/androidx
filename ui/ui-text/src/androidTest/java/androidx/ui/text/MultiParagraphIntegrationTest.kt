@@ -2267,7 +2267,7 @@ class MultiParagraphIntegrationTest {
             )
 
             assertThat(paragraph.lineCount).isEqualTo(4)
-            // TODO(Migration/haoyuchang): Due to bug b/120530738, the height of the first line is
+            // TODO(haoyuchang): Due to bug b/120530738, the height of the first line is
             // wrong in the framework. Will fix it when the lineHeight in TextSpan is implemented.
             for (i in 1 until paragraph.lineCount - 1) {
                 val actualHeight = paragraph.getLineHeight(i)

@@ -244,7 +244,7 @@ data class Offset(override val dx: Float, override val dy: Float) : OffsetBase {
      * left-hand-side operand (an Offset) divided by the scalar right-hand-side
      * operand (a Float), rounded towards zero.
      */
-    // TODO(Migration/Filip): Original operator ~/ could not be overriden in Kotlin
+    // TODO(Filip): Original operator ~/ could not be overriden in Kotlin
     fun truncDiv(operand: Float) =
             Offset(truncate(dx / operand), truncate(dy / operand))
 
@@ -269,7 +269,7 @@ data class Offset(override val dx: Float, override val dy: Float) : OffsetBase {
      * // same as: new Rect.fromLTWH(0.0, 0.0, 100.0, 100.0)
      * ```
      */
-    // TODO(Migration/Filip): Original operator & could not be overriden in Kotlin
+    // TODO(Filip): Original operator & could not be overriden in Kotlin
     infix fun and(other: Size): Rect = Rect.fromLTWH(dx, dy, other.width, other.height)
 
     override fun toString() = "Offset(${dx.toStringAsFixed(1)}, ${dy.toStringAsFixed(1)})"

@@ -309,7 +309,7 @@ open class Size(val width: Float, val height: Float) : OffsetBase {
 
     override fun toString() = "Size(${width.toStringAsFixed(1)}, ${height.toStringAsFixed(1)})"
 
-    // TODO(Migration/Andrey): Can't use data class because of _DebugSize class extending this one.
+    // TODO(Andrey): Can't use data class because of _DebugSize class extending this one.
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is Size) return false

@@ -61,7 +61,7 @@ import org.mockito.junit.MockitoJUnitRunner
 @RunWith(MockitoJUnitRunner::class)
 @SmallTest
 class TypefaceAdapterTest {
-    // TODO(Migration/siyamed): These native calls should be removed after the
+    // TODO(siyamed): These native calls should be removed after the
     // counterparts are implemented in compose.
     private val context = InstrumentationRegistry.getInstrumentation().context
     private val resourceLoader = TestFontResourceLoader(context)
@@ -482,7 +482,7 @@ class TypefaceAdapterTest {
         )
         assertThat(typeface.isItalic).isFalse()
 
-        // TODO((Migration/siyamed)) ask this to Nona.
+        // TODO(siyamed) ask this to Nona.
         if (Build.VERSION.SDK_INT < 23) {
             assertThat(typeface.isBold).isFalse()
         } else if (Build.VERSION.SDK_INT < 28) {

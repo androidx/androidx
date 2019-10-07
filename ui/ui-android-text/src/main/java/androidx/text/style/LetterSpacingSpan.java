@@ -24,7 +24,7 @@ import android.text.style.MetricAffectingSpan;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 
-// TODO(Migration/haoyuchang): Should support passing pixel when framework is ready.
+// TODO(haoyuchang): Should support passing pixel when framework is ready.
 /**
  * Span used to adjust the letter spacing.
  * @hide

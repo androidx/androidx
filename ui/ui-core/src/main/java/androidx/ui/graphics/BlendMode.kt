@@ -549,7 +549,7 @@ enum class BlendMode(private val porterDuffMode: android.graphics.PorterDuff.Mod
 
     fun toPorterDuffMode(): android.graphics.PorterDuff.Mode {
         if (porterDuffMode == null) {
-            TODO("Migration/njawad: " + this + " does not have equivalent PorterDuff mode")
+            TODO("njawad: " + this + " does not have equivalent PorterDuff mode")
         } else {
             return porterDuffMode
         }

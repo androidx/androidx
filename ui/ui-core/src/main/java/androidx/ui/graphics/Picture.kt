@@ -24,7 +24,7 @@ class Picture(val frameworkPicture: android.graphics.Picture) {
      * Although the image is returned synchronously, the picture is actually
      * rasterized the first time the image is drawn and then cached.
      */
-    // TODO(Migration/Andrey): Native code. also needs Image class
+    // TODO(Andrey): Native code. also needs Image class
 //    fun toImage(width : Int, height : Int) : Image {
 //        native 'Picture_toImage';
 //    }

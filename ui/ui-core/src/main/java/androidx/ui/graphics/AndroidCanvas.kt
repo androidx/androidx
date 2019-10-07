@@ -213,7 +213,7 @@ private class AndroidCanvas(val internalCanvas: android.graphics.Canvas) :
      * @see Canvas.drawDoubleRoundRect
      */
     override fun drawDoubleRoundRect(outer: RRect, inner: RRect, paint: Paint) {
-        // TODO(Migration/njawad find better way to recreate functionality with Framework APIs
+        // TODO(njawad) find better way to recreate functionality with Framework APIs
         // without creating temporary paths on each draw call
         val outerPath = Path()
         val innerPath = Path()
@@ -416,19 +416,19 @@ private class AndroidCanvas(val internalCanvas: android.graphics.Canvas) :
     }
 
     override fun drawVertices(vertices: Vertices, blendMode: BlendMode, paint: Paint) {
-        // TODO(Migration/njawad align drawVertices blendMode parameter usage with framework
+        // TODO(njawad) align drawVertices blendMode parameter usage with framework
         // android.graphics.Canvas#drawVertices does not consume a blendmode argument
         internalCanvas.drawVertices(
             vertices.vertexMode.toFrameworkVertexMode(),
             vertices.positions.size,
             vertices.positions,
-            0, // TODO(Migration/njawad figure out proper vertOffset)
+            0, // TODO(njawad) figure out proper vertOffset)
             vertices.textureCoordinates,
-            0, // TODO(Migration/njawad figure out proper texOffset)
+            0, // TODO(njawad) figure out proper texOffset)
             vertices.colors,
-            0, // TODO(Migration/njawad figure out proper colorOffset)
+            0, // TODO(njawad) figure out proper colorOffset)
             vertices.indices,
-            0, // TODO(Migration/njawad figure out proper indexOffset)
+            0, // TODO(njawad) figure out proper indexOffset)
             vertices.indices.size,
             paint.asFrameworkPaint()
         )

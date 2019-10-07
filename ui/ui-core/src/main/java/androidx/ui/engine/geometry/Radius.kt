@@ -122,7 +122,7 @@ data class Radius(
         }
     }
 
-// TODO(Migration/Filip): I think data class handles this no need to re-implement
+// TODO(Filip): I think data class handles this no need to re-implement
 //    @override
 //    bool operator ==(dynamic other) {
 //        if (identical(this, other))

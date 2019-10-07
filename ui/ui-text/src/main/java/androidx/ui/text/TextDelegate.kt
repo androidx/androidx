@@ -334,7 +334,7 @@ class TextDelegate(
         //
         // If you remove this call, make sure that changing the textAlign still
         // works properly.
-        // TODO(Migration/qqd): Need to figure out where this constraints come from and how to make
+        // TODO(qqd): Need to figure out where this constraints come from and how to make
         // it non-null. For now Compose Text version does not need to layout text again. Comment it.
         // layoutTextWithConstraints(constraints!!)
 
