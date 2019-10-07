@@ -22,7 +22,7 @@ import androidx.annotation.RestrictTo;
 
 import java.util.Locale;
 
-// TODO(Migration/haoyuchang): Remove this class when we can use the androidx-core Precondition
+// TODO(haoyuchang): Remove this class when we can use the androidx-core Precondition
 
 /**
  * Simple static methods to be called at the start of your own methods to verify

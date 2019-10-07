@@ -154,7 +154,7 @@ class TextSpanTest {
         assertThat(textSpan.toPlainText()).isEqualTo(string1 + string2)
     }
 
-    // TODO(Migration/qqd): Figure out what to do with codeUnitAt.
+    // TODO(qqd): Figure out what to do with codeUnitAt.
 //    @Test
 //    fun `codeUnitAt with negative index`() {
 //        val textSpan = TextSpan(text = string1)

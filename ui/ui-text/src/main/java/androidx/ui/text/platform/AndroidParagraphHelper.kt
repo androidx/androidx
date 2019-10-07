@@ -244,7 +244,7 @@ internal fun createStyledText(
             )
         }
 
-        // TODO(Migration/haoyuchang): implement textBaseLine
+        // TODO(haoyuchang): implement textBaseLine
         style.textGeometricTransform?.scaleX?.let {
             spannableString.setSpan(
                 ScaleXSpan(it),
@@ -263,7 +263,7 @@ internal fun createStyledText(
             )
         }
 
-        // TODO(Migration/haoyuchang): support letter spacing with pixel.
+        // TODO(haoyuchang): support letter spacing with pixel.
         style.letterSpacing?.let {
             spannableString.setSpan(
                 LetterSpacingSpan(it),
@@ -272,7 +272,7 @@ internal fun createStyledText(
                 Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
             )
         }
-        // TODO(Migration/haoyuchang): implement height
+        // TODO(haoyuchang): implement height
         style.localeList?.let {
             spannableString.setSpan(
                 if (Build.VERSION.SDK_INT >= 24) {
@@ -286,7 +286,7 @@ internal fun createStyledText(
                 Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
             )
         }
-        // TODO(Migration/haoyuchang): framework only support background color now
+        // TODO(haoyuchang): framework only support background color now
         style.background?.let {
             spannableString.setSpan(
                 BackgroundColorSpan(it.toArgb()),
@@ -295,7 +295,7 @@ internal fun createStyledText(
                 Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
             )
         }
-        // TODO(Migration/haoyuchang): implement foreground or decide if we really need it
+        // TODO(haoyuchang): implement foreground or decide if we really need it
         style.shadow?.let {
             spannableString.setSpan(
                 ShadowSpan(it.color.toArgb(), it.offset.dx, it.offset.dy, it.blurRadius.value),

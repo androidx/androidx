@@ -142,7 +142,7 @@ class Path(private val internalPath: android.graphics.Path = android.graphics.Pa
      */
     @Suppress("UNUSED_PARAMETER")
     fun conicTo(x1: Float, y1: Float, x2: Float, y2: Float, w: Float) {
-        // TODO(Migration/njawad) figure out how to handle unsupported framework Path operations
+        // TODO(njawad) figure out how to handle unsupported framework Path operations
         throw UnsupportedOperationException("conicTo not supported in framework Path")
     }
 
@@ -158,7 +158,7 @@ class Path(private val internalPath: android.graphics.Path = android.graphics.Pa
      */
     @Suppress("UNUSED_PARAMETER")
     fun relativeConicTo(x1: Float, y1: Float, x2: Float, y2: Float, w: Float) {
-        // TODO(Migration/njawad) figure out how to handle unsupported framework Path operations
+        // TODO(njawad) figure out how to handle unsupported framework Path operations
         throw UnsupportedOperationException("relativeConicTo not supported in framework Path")
     }
 
@@ -249,7 +249,7 @@ class Path(private val internalPath: android.graphics.Path = android.graphics.Pa
         largeArc: Boolean = false,
         clockwise: Boolean = true
     ) {
-        // TODO(Migration/njawad) figure out how to handle unsupported framework Path operations
+        // TODO(njawad) figure out how to handle unsupported framework Path operations
         throw UnsupportedOperationException("arcToPoint not supported in framework Path")
     }
 
@@ -263,7 +263,7 @@ class Path(private val internalPath: android.graphics.Path = android.graphics.Pa
         largeArc: Boolean,
         clockwise: Boolean
     ) {
-        // TODO(Migration/njawad: figure out how to handle unsupported framework Path operations)
+        // TODO(njawad): figure out how to handle unsupported framework Path operations)
         TODO()
         // Flutter calls into native Path logic here
         // native 'Path_arcToPoint'
@@ -313,7 +313,7 @@ class Path(private val internalPath: android.graphics.Path = android.graphics.Pa
         largeArc: Boolean,
         clockwise: Boolean
     ) {
-        // TODO(Migration/njawad: figure out how to handle unsupported framework Path operations)
+        // TODO(njawad): figure out how to handle unsupported framework Path operations)
         TODO()
         // Flutter calls into native Path logic here
         // native 'Path_relativeArcToPoint';
@@ -326,7 +326,7 @@ class Path(private val internalPath: android.graphics.Path = android.graphics.Pa
     fun addRect(rect: Rect) {
         assert(_rectIsValid(rect))
         rectF.set(rect.toFrameworkRect())
-        // TODO(Migration/njawad) figure out what to do with Path Direction,
+        // TODO(njawad) figure out what to do with Path Direction,
         // Flutter does not use it, Platform does
         internalPath.addRect(rectF, android.graphics.Path.Direction.CCW)
     }
@@ -348,7 +348,7 @@ class Path(private val internalPath: android.graphics.Path = android.graphics.Pa
      */
     fun addOval(oval: Rect) {
         rectF.set(oval.toFrameworkRect())
-        // TODO(Migration/njawad: figure out what to do with Path Direction,
+        // TODO(njawad): figure out what to do with Path Direction,
         // Flutter does not use it, Platform does)
         internalPath.addOval(rectF, android.graphics.Path.Direction.CCW)
         // _addOval(oval.left, oval.top, oval.right, oval.bottom);
@@ -411,13 +411,13 @@ class Path(private val internalPath: android.graphics.Path = android.graphics.Pa
      */
     @Suppress("UNUSED_PARAMETER")
     fun addPolygon(points: List<Offset>, close: Boolean) {
-        // TODO(Migration/njawad) implement with sequence of "lineTo" calls
+        // TODO(njawad) implement with sequence of "lineTo" calls
         TODO()
     }
 
     @Suppress("UNUSED_PARAMETER")
     private fun _addPolygon(points: FloatArray, close: Boolean) {
-        // TODO(Migration/njawad: implement with sequence of "lineTo" calls)
+        // TODO(njawad): implement with sequence of "lineTo" calls)
         TODO()
         // Flutter calls into native code here
         // native 'Path_addPolygon'
@@ -457,7 +457,7 @@ class Path(private val internalPath: android.graphics.Path = android.graphics.Pa
      */
     fun addPath(path: Path, offset: Offset = Offset.zero, matrix: Matrix4? = null) {
         if (matrix != null) {
-            // TODO(Migration/njawad: update logic to convert Matrix4 -> framework
+            // TODO(njawad): update logic to convert Matrix4 -> framework
             // Matrix when ported)
             TODO("Refactor to convert Matrix4 to framework Matrix when Matrix4 is ported")
             // internalPath.addPath(path.toFrameworkPath(), matrix);
@@ -494,7 +494,7 @@ class Path(private val internalPath: android.graphics.Path = android.graphics.Pa
 
     @Suppress("UNUSED_PARAMETER")
     private fun _extendWithPath(path: Path, dx: Float, dy: Float) {
-        // TODO(Migration/njawad: figure out how to handle unsupported framework Path operations)
+        // TODO(njawad): figure out how to handle unsupported framework Path operations)
         TODO()
         // Flutter calls into native Path logic here
         // native 'Path_extendWithPath';
@@ -502,7 +502,7 @@ class Path(private val internalPath: android.graphics.Path = android.graphics.Pa
 
     @Suppress("UNUSED_PARAMETER")
     private fun _extendWithPathAndMatrix(path: Path, dx: Float, dy: Float, matrix: Matrix4) {
-        // TODO(Migration/njawad: figure out how to handle unsupported framework Path operations)
+        // TODO(njawad): figure out how to handle unsupported framework Path operations)
         TODO()
         // Flutter calls into native Path logic here
         // native 'Path_extendWithPathAndMatrix';
@@ -540,10 +540,10 @@ class Path(private val internalPath: android.graphics.Path = android.graphics.Pa
     }
 
     private fun _contains(offset: Offset): Boolean {
-        // TODO("Migration/njawad framework Path implementation does not have a contains method")
-        // TODO(Migration/njawad: figure out how to handle unsupported framework Path operations)
+        // TODO(njawad) framework Path implementation does not have a contains method")
+        // TODO(njawad): figure out how to handle unsupported framework Path operations)
 
-        // TODO(Migration/Andrey: temporary non-efficient implementation)
+        // TODO(Andrey): temporary non-efficient implementation)
         val path = android.graphics.Path()
         path.addRect(
             offset.dx - 0.01f,
@@ -575,7 +575,7 @@ class Path(private val internalPath: android.graphics.Path = android.graphics.Pa
      */
     @Suppress("UNUSED_PARAMETER")
     fun transform(matrix: Matrix4): Path {
-        // TODO(Migration/njawad: Update implementation with Matrix4 -> android.graphics.Matrix)
+        // TODO(njawad): Update implementation with Matrix4 -> android.graphics.Matrix)
         TODO("Update implementation with Matrix4 -> android.graphics.Matrix conversion")
         // internalPath.transform(matrix);
 //        return clone()
@@ -647,7 +647,7 @@ class Path(private val internalPath: android.graphics.Path = android.graphics.Pa
             }
             throw IllegalArgumentException("Path.combine() failed.  This may be due an invalid " +
                     "path; in particular, check for NaN values.")
-            // TODO(Migration/njawad) where do we put Dart's StateError or equivalent?
+            // TODO(njawad) where do we put Dart's StateError or equivalent?
             // throw StateError('Path.combine() failed.  This may be due an invalid path;
             // in particular, check for NaN values.');
         }
@@ -682,7 +682,7 @@ class Path(private val internalPath: android.graphics.Path = android.graphics.Pa
 //        }
     }
 
-    // TODO(Migration/njawad) figure out equivalent for PathMetrics for the framework based in Path
+    // TODO(njawad) figure out equivalent for PathMetrics for the framework based in Path
 //
 //    // / Creates a [PathMetrics] object for this path.
 //    // /

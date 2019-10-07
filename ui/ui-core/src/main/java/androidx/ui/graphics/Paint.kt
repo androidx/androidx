@@ -129,7 +129,7 @@ class Paint {
             }
         }
         set(value) {
-            // TODO(Migration/njawad: Platform also supports Paint.Style.FILL_AND_STROKE)
+            // TODO(njawad): Platform also supports Paint.Style.FILL_AND_STROKE)
             val style = when (value) {
                 PaintingStyle.stroke -> android.graphics.Paint.Style.STROKE
                 else -> android.graphics.Paint.Style.FILL
@@ -233,7 +233,7 @@ class Paint {
             }
 
             // radius is equivalent to roughly twice the sigma: radius = sigma * 2
-            // TODO(Migration/njawad: Add support for framework EmbossMaskFilter?)
+            // TODO(njawad): Add support for framework EmbossMaskFilter?)
             internalPaint.maskFilter = BlurMaskFilter((value.sigma * 2), blur)
         }
 
@@ -248,7 +248,7 @@ class Paint {
             if (!internalPaint.isFilterBitmap) {
                 FilterQuality.none
             } else {
-                // TODO(Migration/njawad: Align with Framework APIs)
+                // TODO(njawad): Align with Framework APIs)
                 // Framework only supports bilinear filtering which maps to FilterQuality.low
                 // FilterQuality.medium and FilterQuailty.high refer to a combination of
                 // bilinear interpolation, pyramidal parameteric prefiltering (mipmaps) as well as

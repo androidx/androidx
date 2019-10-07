@@ -45,9 +45,9 @@ enum class PathFillType {
      */
     evenOdd
 
-    // TODO(Migration/njawad: Android supports INVERSE_WINDING which is similar to nonZero but on
+    // TODO(njawad): Android supports INVERSE_WINDING which is similar to nonZero but on
     // the outside of the path)
-    // TODO(Migration/njawad: Android supports INVERSE_EVEN_ODD which is similar to evenOdd but on
+    // TODO(njawad): Android supports INVERSE_EVEN_ODD which is similar to evenOdd but on
     // the outside of the path)
     // Flutter does not support either of these, we should probably support them in Compose for
     // consistency

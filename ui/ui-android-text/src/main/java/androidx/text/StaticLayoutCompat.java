@@ -531,7 +531,7 @@ public class StaticLayoutCompat {
                 builder.setJustificationMode(mJustificationMode);
             }
 //            if (Build.VERSION.SDK_INT >= 28) {
-//                    TODO(Migration/siyamed): last line spacing is required for editable text,
+//                    TODO(siyamed): last line spacing is required for editable text,
 //                    otherwise we will need tricks
 //                    builder.setAddLastLineLineSpacing(builder.mAddLastLineLineSpacing);
 //                    builder.setUseLineSpacingFromFallbacks(mFallbackLineSpacing);

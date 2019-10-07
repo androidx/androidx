@@ -29,7 +29,7 @@ package androidx.ui.text.font
  * </code>
  */
 data class FontFamily private constructor(val genericFamily: String?, val fonts: List<Font>) :
-// TODO(migration/siyamed): ADD COMMON GENERIC FONT FAMILY NAMES ENUMS
+// TODO(siyamed): ADD COMMON GENERIC FONT FAMILY NAMES ENUMS
     List<Font> by fonts {
 
     /**

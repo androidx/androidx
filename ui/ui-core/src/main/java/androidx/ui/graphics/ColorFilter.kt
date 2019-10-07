@@ -42,7 +42,7 @@ data class ColorFilter(
     val blendMode: BlendMode
 ) {
 
-// TODO(Migration/Filip): Not needed for data class
+// TODO(Filip): Not needed for data class
 //    @override
 //    bool operator ==(dynamic other) {
 //        if (other is! ColorFilter)
