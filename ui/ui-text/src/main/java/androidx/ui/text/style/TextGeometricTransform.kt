@@ -39,19 +39,19 @@ data class TextGeometricTransform(
 }
 
 fun lerp(
-    a: TextGeometricTransform,
-    b: TextGeometricTransform,
-    t: Float
+    start: TextGeometricTransform,
+    stop: TextGeometricTransform,
+    fraction: Float
 ): TextGeometricTransform {
-    val scaleX = if (a.scaleX == null && b.scaleX == null) {
+    val scaleX = if (start.scaleX == null && stop.scaleX == null) {
         null
     } else {
-        lerp(a.scaleX ?: 1.0f, b.scaleX ?: 1.0f, t)
+        lerp(start.scaleX ?: 1.0f, stop.scaleX ?: 1.0f, fraction)
     }
-    val skewX = if (a.skewX == null && b.skewX == null) {
+    val skewX = if (start.skewX == null && stop.skewX == null) {
         null
     } else {
-        lerp(a.skewX ?: 0.0f, b.skewX ?: 0.0f, t)
+        lerp(start.skewX ?: 0.0f, stop.skewX ?: 0.0f, fraction)
     }
     return TextGeometricTransform(scaleX, skewX)
 }

@@ -432,7 +432,7 @@ package androidx.ui.text.font {
     method public androidx.ui.text.font.FontWeight getW700();
     method public androidx.ui.text.font.FontWeight getW800();
     method public androidx.ui.text.font.FontWeight getW900();
-    method public androidx.ui.text.font.FontWeight lerp(androidx.ui.text.font.FontWeight? a, androidx.ui.text.font.FontWeight? b, float t);
+    method public androidx.ui.text.font.FontWeight lerp(androidx.ui.text.font.FontWeight? start, androidx.ui.text.font.FontWeight? stop, float fraction);
     property public final androidx.ui.text.font.FontWeight bold;
     property public final androidx.ui.text.font.FontWeight normal;
     property public final java.util.List<androidx.ui.text.font.FontWeight> values;
@@ -478,7 +478,7 @@ package androidx.ui.text.style {
   public static final class BaselineShift.Companion {
     method public androidx.ui.text.style.BaselineShift getSubscript();
     method public androidx.ui.text.style.BaselineShift getSuperscript();
-    method public androidx.ui.text.style.BaselineShift? lerp(androidx.ui.text.style.BaselineShift? a, androidx.ui.text.style.BaselineShift? b, float t);
+    method public androidx.ui.text.style.BaselineShift? lerp(androidx.ui.text.style.BaselineShift? start, androidx.ui.text.style.BaselineShift? stop, float fraction);
     property public final androidx.ui.text.style.BaselineShift Subscript;
     property public final androidx.ui.text.style.BaselineShift Superscript;
   }
@@ -533,7 +533,7 @@ package androidx.ui.text.style {
 
   public final class TextGeometricTransformKt {
     ctor public TextGeometricTransformKt();
-    method public static androidx.ui.text.style.TextGeometricTransform lerp(androidx.ui.text.style.TextGeometricTransform a, androidx.ui.text.style.TextGeometricTransform b, float t);
+    method public static androidx.ui.text.style.TextGeometricTransform lerp(androidx.ui.text.style.TextGeometricTransform start, androidx.ui.text.style.TextGeometricTransform stop, float fraction);
   }
 
   public final class TextIndent {
@@ -548,7 +548,7 @@ package androidx.ui.text.style {
 
   public final class TextIndentKt {
     ctor public TextIndentKt();
-    method public static androidx.ui.text.style.TextIndent lerp(androidx.ui.text.style.TextIndent a, androidx.ui.text.style.TextIndent b, float t);
+    method public static androidx.ui.text.style.TextIndent lerp(androidx.ui.text.style.TextIndent start, androidx.ui.text.style.TextIndent stop, float fraction);
   }
 
   public enum TextOverflow {

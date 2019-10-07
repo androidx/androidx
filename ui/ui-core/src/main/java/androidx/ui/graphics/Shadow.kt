@@ -33,10 +33,10 @@ data class Shadow(
 /**
  * Linearly interpolate two [Shadow]s.
  */
-fun lerp(a: Shadow, b: Shadow, t: Float): Shadow {
+fun lerp(start: Shadow, stop: Shadow, fraction: Float): Shadow {
     return Shadow(
-        lerp(a.color, b.color, t),
-        Offset.lerp(a.offset, b.offset, t)!!,
-        lerp(a.blurRadius, b.blurRadius, t)
+        lerp(start.color, stop.color, fraction),
+        Offset.lerp(start.offset, stop.offset, fraction)!!,
+        lerp(start.blurRadius, stop.blurRadius, fraction)
     )
 }
