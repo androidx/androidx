@@ -315,12 +315,12 @@ package androidx.ui.core {
 
 package androidx.ui.core.input {
 
-  public final class RecordingInputConnectionKt {
-    ctor public RecordingInputConnectionKt();
+  public final class InputStateKt {
+    ctor public InputStateKt();
   }
 
-  public final class TextInputServiceAndroidKt {
-    ctor public TextInputServiceAndroidKt();
+  public final class RecordingInputConnectionKt {
+    ctor public RecordingInputConnectionKt();
   }
 
 }
