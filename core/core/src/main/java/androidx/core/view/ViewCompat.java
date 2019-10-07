@@ -4035,8 +4035,7 @@ public class ViewCompat {
                 // If we're here, we're guaranteed to be on v19+ (see the logic in
                 // extrasAvailable), so we can call notifyViewAccessibilityStateChangedIfNeeded
                 // which requires 19.
-                notifyViewAccessibilityStateChangedIfNeeded(view,
-                        AccessibilityEvent.CONTENT_CHANGE_TYPE_UNDEFINED);
+                notifyViewAccessibilityStateChangedIfNeeded(view, mContentChangeType);
             }
         }
 
