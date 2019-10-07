@@ -41,11 +41,14 @@ postargs = " ".join([arg for arg in sys.argv if ".py" not in arg and arg not in 
                                                             and arg not in preargs])
 # remove "doAllTheBuild.py"
 
+def runCommand(commandText):
+    print('Running "' + commandText + '"')
+    result = os.system(commandText)
+    assert(os.WEXITSTATUS(result)) == 0
+
 def runGradleBuilds():
-    result1 = os.system(" ".join([preargs + distarg, androidxGradleCommand, postargs]))
-    assert os.WEXITSTATUS(result1) == 0  # assert the first command succeeded
-    result2 = os.system(" ".join([preargs + distargC, composeGradleCommand, postargs]))
-    assert os.WEXITSTATUS(result2) == 0  # assert the second command succeeded
+    runCommand(" ".join([preargs + distarg, androidxGradleCommand, postargs]))
+    runCommand(" ".join([preargs + distargC, composeGradleCommand, postargs]))
 
 def mergeAggregateBuildInfoFiles() :
     androidxBuildInfo = json.load(open("androidx_aggregate_build_info.txt"))["artifacts"]
