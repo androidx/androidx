@@ -252,8 +252,8 @@ internal class AndroidSemanticsTreeInteraction internal constructor(
         }
     }
 
-    internal class RecomposeTimeOutException
-        : Throwable("Waiting for recompose has exceeded the timeout!")
+    internal class RecomposeTimeOutException :
+        Throwable("Waiting for recompose has exceeded the timeout!")
 
     private data class CollectedInfo(
         val context: Context,

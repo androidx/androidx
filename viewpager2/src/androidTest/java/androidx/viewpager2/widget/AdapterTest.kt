@@ -59,7 +59,7 @@ class AdapterTest : BaseTest() {
         test.assertBasicState(0)
 
         assertThat(recorder.allEvents, equalTo(
-            expectedEventsForPage(0)            // for setting the adapter
+            expectedEventsForPage(0) // for setting the adapter
                 .plus(expectedEventsForPage(1)) // for going to page 1
                 .plus(expectedEventsForPage(0)) // for setting it again
         ))
@@ -137,7 +137,7 @@ class AdapterTest : BaseTest() {
 
         // check events
         assertThat(recorder.allEvents, equalTo(
-            expectedEventsForPage(0)            // for setting the adapter
+            expectedEventsForPage(0) // for setting the adapter
                 .plus(expectedEventsForPage(0)) // for clearing it
         ))
     }
@@ -150,7 +150,7 @@ class AdapterTest : BaseTest() {
 
         // check events
         assertThat(recorder.allEvents, equalTo(
-            expectedEventsForPage(0)            // for setting the adapter
+            expectedEventsForPage(0) // for setting the adapter
                 .plus(expectedEventsForPage(1)) // for going to page 1
                 .plus(expectedEventsForPage(0)) // for clearing it
         ))
@@ -179,7 +179,7 @@ class AdapterTest : BaseTest() {
 
         // check events
         assertThat(recorder.allEvents, equalTo(
-            expectedEventsForPage(0)            // for setting the adapter
+            expectedEventsForPage(0) // for setting the adapter
                 .plus(expectedEventsForPage(0)) // for clearing it
                 .plus(expectedEventsForPage(0)) // for repopulating it
                 .plus(expectedEventsForPage(0)) // for clearing it again

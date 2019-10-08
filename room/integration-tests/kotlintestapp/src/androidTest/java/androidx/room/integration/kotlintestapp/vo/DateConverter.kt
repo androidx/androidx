@@ -17,7 +17,7 @@
 package androidx.room.integration.kotlintestapp.vo
 
 import androidx.room.TypeConverter
-import java.util.*
+import java.util.Date
 
 class DateConverter {
     @TypeConverter

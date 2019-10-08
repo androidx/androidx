@@ -41,13 +41,13 @@ data class LocaleList constructor(val localeList: List<Locale>) : Collection<Loc
      *
      * @param languageTags A comma separated IETF BCP47 compliant language tag.
      */
-    constructor(languageTags: String)
-            : this(languageTags.split(",").map { it.trim() }.map { Locale(it) })
+    constructor(languageTags: String) :
+            this(languageTags.split(",").map { it.trim() }.map { Locale(it) })
 
     /**
      * Creates LocaleList object from list of locales.
      */
-    constructor(vararg locales: Locale): this(locales.toList())
+    constructor(vararg locales: Locale) : this(locales.toList())
 
     operator fun get(i: Int) = localeList[i]
 

@@ -39,7 +39,7 @@ class Locale internal constructor(internal val platformLocale: PlatformLocale) {
      * @param languageTag A IETF BCP47 compliant language tag.
      * @return a locale object
      */
-    constructor(languageTag: String): this(platformLocaleDelegate.parseLanguageTag(languageTag))
+    constructor(languageTag: String) : this(platformLocaleDelegate.parseLanguageTag(languageTag))
 
     /**
      * The ISO 639 compliant language code.

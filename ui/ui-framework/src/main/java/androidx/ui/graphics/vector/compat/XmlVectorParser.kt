@@ -307,16 +307,16 @@ internal fun XmlPullParser.parsePath(
 
 @SuppressWarnings("RestrictedApi")
 private fun obtainBrushFromComplexColor(complexColor: ComplexColorCompat): Brush? =
-   if (complexColor.willDraw()) {
-       val shader = complexColor.shader
-       if (shader != null) {
-           ShaderBrush(Shader(shader))
-       } else {
-           SolidColor(Color(complexColor.color))
-       }
-   } else {
-       null
-   }
+    if (complexColor.willDraw()) {
+        val shader = complexColor.shader
+        if (shader != null) {
+            ShaderBrush(Shader(shader))
+        } else {
+            SolidColor(Color(complexColor.color))
+        }
+    } else {
+        null
+    }
 
 @SuppressWarnings("RestrictedApi")
 internal fun XmlPullParser.parseGroup(

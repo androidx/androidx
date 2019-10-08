@@ -38,6 +38,6 @@ fun AutoCompleteTextView.setData(data: Collection<Any>) {
     composeAdapter.items = data.toMutableList()
 }
 
-fun AutoCompleteTextView.setComposeItem(composeItem: @Composable() (Any)->Unit) {
+fun AutoCompleteTextView.setComposeItem(composeItem: @Composable() (Any) -> Unit) {
     composeAdapter.composable = composeItem
 }
