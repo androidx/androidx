@@ -52,6 +52,7 @@ import org.junit.runner.RunWith;
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.Closeable;
+import java.io.EOFException;
 import java.io.File;
 import java.io.FileDescriptor;
 import java.io.FileInputStream;
@@ -404,6 +405,13 @@ public class ExifInterfaceTest {
     @LargeTest
     public void testReadExifDataFromLgG4Iso800Jpg() throws Throwable {
         testExifInterfaceForJpeg(LG_G4_ISO_800_JPG, R.array.lg_g4_iso_800_jpg);
+    }
+
+    @Test
+    @LargeTest
+    public void testReadExifDataFromStandaloneData() throws Throwable {
+        testExifInterfaceForStandalone(EXIF_BYTE_ORDER_II_JPEG, R.array.exifbyteorderii_standalone);
+        testExifInterfaceForStandalone(EXIF_BYTE_ORDER_MM_JPEG, R.array.exifbyteordermm_standalone);
     }
 
     @Test
@@ -864,7 +872,27 @@ public class ExifInterfaceTest {
         } else {
             assertNull(exifInterface.getAttributeRange(ExifInterface.TAG_XMP));
         }
+    }
 
+    private void testExifInterfaceForStandalone(String fileName, int typedArrayResourceId)
+            throws IOException {
+        ExpectedValue expectedValue = new ExpectedValue(
+                getApplicationContext().getResources().obtainTypedArray(typedArrayResourceId));
+
+        File imageFile = new File(Environment.getExternalStorageDirectory(), fileName);
+        String verboseTag = imageFile.getName();
+
+        FileInputStream fis = new FileInputStream(imageFile);
+        // Skip the following marker bytes (0xff, 0xd8, 0xff, 0xe1)
+        fis.skip(4);
+        // Read the value of the length of the exif data
+        short length = readShort(fis);
+        byte[] exifBytes = new byte[length];
+        fis.read(exifBytes);
+
+        ByteArrayInputStream bin = new ByteArrayInputStream(exifBytes);
+        ExifInterface exifInterface = ExifInterface.fromStandalone(bin);
+        compareWithExpectedValue(exifInterface, expectedValue, verboseTag, true);
     }
 
     private void testExifInterfaceCommon(String fileName, ExpectedValue expectedValue)
@@ -876,7 +904,6 @@ public class ExifInterfaceTest {
         ExifInterface exifInterface = new ExifInterface(imageFile);
         assertNotNull(exifInterface);
         compareWithExpectedValue(exifInterface, expectedValue, verboseTag, true);
-
 
         // Creates via path.
         exifInterface = new ExifInterface(imageFile.getAbsolutePath());
@@ -1026,5 +1053,14 @@ public class ExifInterfaceTest {
         File image = File.createTempFile(TEST_TEMP_FILE_NAME, ".jpg");
         image.deleteOnExit();
         return new ExifInterface(image.getAbsolutePath());
+    }
+
+    private short readShort(InputStream is) throws IOException {
+        int ch1 = is.read();
+        int ch2 = is.read();
+        if ((ch1 | ch2) < 0) {
+            throw new EOFException();
+        }
+        return (short) ((ch1 << 8) + (ch2));
     }
 }

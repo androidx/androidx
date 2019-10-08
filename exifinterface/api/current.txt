@@ -8,6 +8,7 @@ package androidx.exifinterface.media {
     ctor public ExifInterface(java.io.InputStream) throws java.io.IOException;
     method public void flipHorizontally();
     method public void flipVertically();
+    method public static androidx.exifinterface.media.ExifInterface fromStandalone(java.io.InputStream) throws java.io.IOException;
     method public double getAltitude(double);
     method public String? getAttribute(String);
     method public byte[]? getAttributeBytes(String);
