@@ -2379,6 +2379,58 @@ class MultiParagraphIntegrationTest {
         }
     }
 
+    @Test(expected = IllegalArgumentException::class)
+    fun testConstructor_throwsException_ifTextDirectionAlgorithmIsNotSet() {
+        MultiParagraph(
+            annotatedString = AnnotatedString(""),
+            textStyle = TextStyle(),
+            paragraphStyle = ParagraphStyle(),
+            constraints = ParagraphConstraints(Float.MAX_VALUE),
+            density = defaultDensity,
+            resourceLoader = TestFontResourceLoader(context)
+        )
+    }
+
+    @Test
+    fun test_whenAnnotatedString_haveParagraphStyle_withoutTextDirection() {
+        val textDirectionAlgorithm = TextDirectionAlgorithm.ForceRtl
+        // Provide an LTR text
+        val text = AnnotatedString(
+            text = "ab",
+            paragraphStyles = listOf(
+                AnnotatedString.Item(
+                    style = ParagraphStyle(
+                        textDirectionAlgorithm = TextDirectionAlgorithm.ContentOrLtr
+                    ),
+                    start = 0,
+                    end = "a".length
+                ),
+                AnnotatedString.Item(
+                    // skip setting [TextDirectionAlgorithm] on purpose, should inherit from the
+                    // main [ParagraphStyle]
+                    style = ParagraphStyle(),
+                    start = "a".length,
+                    end = "ab".length
+                )
+            )
+        )
+
+        val paragraph = MultiParagraph(
+            annotatedString = text,
+            textStyle = TextStyle(),
+            paragraphStyle = ParagraphStyle(textDirectionAlgorithm = textDirectionAlgorithm),
+            constraints = ParagraphConstraints(Float.MAX_VALUE),
+            density = defaultDensity,
+            resourceLoader = TestFontResourceLoader(context)
+        )
+
+        // the first character uses TextDirectionAlgorithm.ContentOrLtr
+        assertThat(paragraph.getParagraphDirection(0)).isEqualTo(TextDirection.Ltr)
+        // the second character should use TextDirectionAlgorithm.ForceRtlsince it should inherit
+        // from main [ParagraphStyle]
+        assertThat(paragraph.getParagraphDirection(1)).isEqualTo(TextDirection.Rtl)
+    }
+
     private fun simpleMultiParagraph(
         text: String = "",
         textIndent: TextIndent? = null,

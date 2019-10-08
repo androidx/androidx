@@ -55,11 +55,13 @@ internal class MultiParagraph(
      * @param constraints how wide the text is allowed to be
      * @param density density of the device
      * @param resourceLoader [Font.ResourceLoader] to be used to load the font given in [TextStyle]s
+     *
+     * @throws IllegalArgumentException if [ParagraphStyle.textDirectionAlgorithm] is not set
      */
     constructor(
         annotatedString: AnnotatedString,
-        textStyle: TextStyle = TextStyle(),
-        paragraphStyle: ParagraphStyle = ParagraphStyle(),
+        textStyle: TextStyle,
+        paragraphStyle: ParagraphStyle,
         maxLines: Int? = null,
         ellipsis: Boolean? = null,
         constraints: ParagraphConstraints,
