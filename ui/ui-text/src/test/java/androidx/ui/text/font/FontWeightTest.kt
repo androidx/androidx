@@ -26,7 +26,7 @@ class FontWeightTest {
     @Test
     fun `lerp with null parameters`() {
         assertThat(FontWeight.lerp(null, null, 0.0f)).isEqualTo(
-            FontWeight.normal
+            FontWeight.Normal
         )
     }
 
@@ -34,82 +34,82 @@ class FontWeightTest {
     fun `lerp with one null parameter should use normal for null value`() {
         assertThat(
             FontWeight.lerp(
-                FontWeight.w200,
+                FontWeight.W200,
                 null,
                 0.5f
             )
-        ).isEqualTo(FontWeight.w300)
+        ).isEqualTo(FontWeight.W300)
         assertThat(
             FontWeight.lerp(
                 null,
-                FontWeight.w200,
+                FontWeight.W200,
                 0.5f
             )
-        ).isEqualTo(FontWeight.w300)
+        ).isEqualTo(FontWeight.W300)
     }
 
     @Test
     fun `lerp at start returns start value`() {
         assertThat(
             FontWeight.lerp(
-                FontWeight.w200,
-                FontWeight.w400,
+                FontWeight.W200,
+                FontWeight.W400,
                 0.0f
             )
-        ).isEqualTo(FontWeight.w200)
+        ).isEqualTo(FontWeight.W200)
     }
 
     @Test
     fun `lerp at end returns end value`() {
         assertThat(
             FontWeight.lerp(
-                FontWeight.w200,
-                FontWeight.w400,
+                FontWeight.W200,
+                FontWeight.W400,
                 1.0f
             )
-        ).isEqualTo(FontWeight.w400)
+        ).isEqualTo(FontWeight.W400)
     }
 
     @Test
     fun `lerp in the mid-time`() {
         assertThat(
             FontWeight.lerp(
-                FontWeight.w200,
-                FontWeight.w800,
+                FontWeight.W200,
+                FontWeight.W800,
                 0.5f
             )
-        ).isEqualTo(FontWeight.w500)
+        ).isEqualTo(FontWeight.W500)
     }
 
     @Test
     fun `lerp in the mid-time with odd distance should be rounded to up`() {
         assertThat(
             FontWeight.lerp(
-                FontWeight.w200,
-                FontWeight.w900,
+                FontWeight.W200,
+                FontWeight.W900,
                 0.5f
             )
-        ).isEqualTo(FontWeight.w600)
+        ).isEqualTo(FontWeight.W600)
     }
 
     @Test
     fun `toString return FontsWeight`() {
-        assertThat(FontWeight.w100.toString()).isEqualTo("FontWeight.w100")
-        assertThat(FontWeight.w900.toString()).isEqualTo("FontWeight.w900")
+        assertThat(FontWeight.W100.toString()).isEqualTo("FontWeight.W100")
+        assertThat(FontWeight.W900.toString()).isEqualTo("FontWeight.W900")
     }
 
     @Test
     fun `values return all weights`() {
         val expectedValues = listOf(
-            FontWeight.w100,
-            FontWeight.w200,
-            FontWeight.w300,
-            FontWeight.w400,
-            FontWeight.w500,
-            FontWeight.w600,
-            FontWeight.w700,
-            FontWeight.w800,
-            FontWeight.w900
+            FontWeight.W100,
+            FontWeight.W200,
+            FontWeight.W300,
+            FontWeight.W400,
+            FontWeight.W500,
+            FontWeight.W600,
+            FontWeight.W700,
+            FontWeight.W800,
+            FontWeight.W900
         )
         assertThat(FontWeight.values).isEqualTo(expectedValues)
     }
@@ -117,15 +117,15 @@ class FontWeightTest {
     @Test
     fun `weight returns collect values`() {
         val fontWeights = mapOf(
-            FontWeight.w100 to 100,
-            FontWeight.w200 to 200,
-            FontWeight.w300 to 300,
-            FontWeight.w400 to 400,
-            FontWeight.w500 to 500,
-            FontWeight.w600 to 600,
-            FontWeight.w700 to 700,
-            FontWeight.w800 to 800,
-            FontWeight.w900 to 900
+            FontWeight.W100 to 100,
+            FontWeight.W200 to 200,
+            FontWeight.W300 to 300,
+            FontWeight.W400 to 400,
+            FontWeight.W500 to 500,
+            FontWeight.W600 to 600,
+            FontWeight.W700 to 700,
+            FontWeight.W800 to 800,
+            FontWeight.W900 to 900
         )
 
         // TODO(b/130795950): IR compiler bug was here
@@ -137,8 +137,8 @@ class FontWeightTest {
 
     @Test
     fun `compareTo`() {
-        assertThat(FontWeight.w400.compareTo(FontWeight.w400)).isEqualTo(0)
-        assertThat(FontWeight.w400.compareTo(FontWeight.w300)).isEqualTo(1)
-        assertThat(FontWeight.w400.compareTo(FontWeight.w500)).isEqualTo(-1)
+        assertThat(FontWeight.W400.compareTo(FontWeight.W400)).isEqualTo(0)
+        assertThat(FontWeight.W400.compareTo(FontWeight.W300)).isEqualTo(1)
+        assertThat(FontWeight.W400.compareTo(FontWeight.W500)).isEqualTo(-1)
     }
 }

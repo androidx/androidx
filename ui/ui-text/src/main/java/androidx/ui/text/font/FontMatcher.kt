@@ -50,13 +50,13 @@ internal open class FontMatcher {
             if (it.isNotEmpty()) it else fontFamily.fonts
         }
 
-        val result = if (fontWeight < FontWeight.w400) {
+        val result = if (fontWeight < FontWeight.W400) {
             // If the desired weight is less than 400
             // - weights less than or equal to the desired weight are checked in descending order
             // - followed by weights above the desired weight in ascending order
             fonts.filter { it.weight <= fontWeight }.maxBy { it.weight }
                 ?: fonts.filter { it.weight > fontWeight }.minBy { it.weight }
-        } else if (fontWeight > FontWeight.w500) {
+        } else if (fontWeight > FontWeight.W500) {
             // If the desired weight is greater than 500
             // - weights greater than or equal to the desired weight are checked in ascending order
             // - followed by weights below the desired weight in descending order
@@ -68,10 +68,10 @@ internal open class FontMatcher {
             // until 500 is hit and checked,
             // - followed by weights less than the target weight in descending order,
             // - followed by weights greater than 500
-            fonts.filter { it.weight >= fontWeight && it.weight <= FontWeight.w500 }
+            fonts.filter { it.weight >= fontWeight && it.weight <= FontWeight.W500 }
                 .minBy { it.weight }
                 ?: fonts.filter { it.weight < fontWeight }.maxBy { it.weight }
-                ?: fonts.filter { it.weight > FontWeight.w500 }.minBy { it.weight }
+                ?: fonts.filter { it.weight > FontWeight.W500 }.minBy { it.weight }
         }
 
         return result ?: throw IllegalStateException("Cannot match any font")

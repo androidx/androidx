@@ -43,10 +43,10 @@ fun MaterialThemeSample() {
     )
     val typography = MaterialTypography(
         h1 = TextStyle(fontFamily = FontFamily("RobotoCondensed"),
-            fontWeight = FontWeight.w100,
+            fontWeight = FontWeight.W100,
             fontSize = 96.sp),
         h2 = TextStyle(fontFamily = FontFamily("RobotoCondensed"),
-            fontWeight = FontWeight.w100,
+            fontWeight = FontWeight.W100,
             fontSize = 60.sp)
 
     )

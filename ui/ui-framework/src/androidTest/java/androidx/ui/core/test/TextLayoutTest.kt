@@ -61,7 +61,7 @@ class TextLayoutTest {
     internal val activityTestRule = ActivityTestRule(TestActivity::class.java)
     private val fontFamily = Font(
         name = "sample_font.ttf",
-        weight = FontWeight.normal,
+        weight = FontWeight.Normal,
         style = FontStyle.Normal
     ).asFontFamily()
     private lateinit var activity: TestActivity
