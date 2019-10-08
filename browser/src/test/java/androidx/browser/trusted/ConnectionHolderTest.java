@@ -25,6 +25,7 @@ import static org.mockito.Mockito.when;
 import android.content.ComponentName;
 import android.os.AsyncTask;
 import android.os.IBinder;
+import android.os.RemoteException;
 
 import androidx.annotation.NonNull;
 import androidx.test.filters.SmallTest;
@@ -139,7 +140,7 @@ public class ConnectionHolderTest {
     }
 
     @Test
-    public void futureSetWithCorrectObject() throws InterruptedException {
+    public void futureSetWithCorrectObject() throws InterruptedException, RemoteException {
         final int smallIconId = 56;
 
         CountDownLatch methodCalledLatch = new CountDownLatch(1);
@@ -159,7 +160,7 @@ public class ConnectionHolderTest {
             try {
                 assertEquals(smallIconId, future.get().getSmallIconId());
                 noExceptionLatch.countDown();
-            } catch (ExecutionException | InterruptedException e) {
+            } catch (ExecutionException | InterruptedException | RemoteException e) {
                 e.printStackTrace();
             }
         }, AsyncTask.THREAD_POOL_EXECUTOR);
