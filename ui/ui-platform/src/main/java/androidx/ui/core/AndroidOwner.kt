@@ -620,10 +620,10 @@ class AndroidComposeView constructor(context: Context)
     override fun onCreateInputConnection(outAttrs: EditorInfo): InputConnection? =
         textInputServiceAndroid.createInputConnection(outAttrs)
 
-    override fun calculatePosition(): PxPosition {
+    override fun calculatePosition(): IntPxPosition {
         val positionArray = intArrayOf(0, 0)
         getLocationInWindow(positionArray)
-        return PxPosition(positionArray[0].ipx, positionArray[1].ipx)
+        return IntPxPosition(positionArray[0].ipx, positionArray[1].ipx)
     }
 
     override fun onConfigurationChanged(newConfig: Configuration?) {

@@ -102,6 +102,11 @@ data /*inline*/ class IntPx(val value: Int) {
      */
     inline operator fun compareTo(other: IntPx) = value.compareTo(other.value)
 
+    /**
+     * Compares this [IntPx] to another [Px]
+     */
+    inline operator fun compareTo(other: Px) = value.compareTo(other.value)
+
     override fun toString() = "$value.ipx"
 
     companion object {
@@ -317,6 +322,15 @@ data class IntPxPosition @PublishedApi internal constructor(
      */
     inline operator fun plus(other: IntPxPosition) =
         IntPxPosition(x + other.x, y + other.y)
+
+    /**
+     * Returns a new PxPosition representing the negation of this point.
+     */
+    inline operator fun unaryMinus() = IntPxPosition(-x, -y)
+
+    companion object {
+        val Origin = IntPxPosition(0.ipx, 0.ipx)
+    }
 }
 
 /**
