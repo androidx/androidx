@@ -350,7 +350,7 @@ public class NotificationCompat {
     /**
      * Notification extras key: whether the chronometer set on the notification should count down
      * instead of counting up. Is only relevant if key {@link #EXTRA_SHOW_CHRONOMETER} is present.
-     * This extra is a boolean. The default is false.
+     * This extra is a boolean. The default is (@code false).
      */
     public static final String EXTRA_CHRONOMETER_COUNT_DOWN = "android.chronometerCountDown";
 
@@ -828,9 +828,9 @@ public class NotificationCompat {
          * @see android.widget.Chronometer
          */
         @RequiresApi(24)
-        public @NonNull Builder setChronometerCountDown(boolean b) {
-            mChronometerCountDown = b;
-            mExtras.putBoolean(EXTRA_CHRONOMETER_COUNT_DOWN, b);
+        public @NonNull Builder setChronometerCountDown(boolean countsDown) {
+            mChronometerCountDown = countsDown;
+            mExtras.putBoolean(EXTRA_CHRONOMETER_COUNT_DOWN, countsDown);
             return this;
         }
 
