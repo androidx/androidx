@@ -528,7 +528,7 @@ class BenchmarkState {
         fun reportData(
             className: String,
             testName: String,
-            totalRunTimeNs: Long,
+            @IntRange(from = 0) totalRunTimeNs: Long,
             dataNs: List<Long>,
             @IntRange(from = 0) warmupIterations: Int,
             @IntRange(from = 0) thermalThrottleSleepSeconds: Long,
