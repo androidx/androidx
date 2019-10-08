@@ -479,7 +479,7 @@ public class CameraXActivity extends AppCompatActivity
                                         formatter.format(Calendar.getInstance().getTime())
                                                 + ".jpg"),
                                 CameraXExecutors.mainThreadExecutor(),
-                                new ImageCapture.OnImageSavedListener() {
+                                new ImageCapture.OnImageSavedCallback() {
                                     @Override
                                     public void onImageSaved(@NonNull File file) {
                                         Log.d(TAG, "Saved image to " + file);

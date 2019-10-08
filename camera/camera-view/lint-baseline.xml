@@ -169,61 +169,6 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void takePicture(OnImageCapturedListener listener) {"
-        errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/view/CameraView.java"
-            line="629"
-            column="29"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void takePicture(File file, OnImageSavedListener listener) {"
-        errorLine2="                            ~~~~">
-        <location
-            file="src/main/java/androidx/camera/view/CameraView.java"
-            line="639"
-            column="29"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void takePicture(File file, OnImageSavedListener listener) {"
-        errorLine2="                                       ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/view/CameraView.java"
-            line="639"
-            column="40"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void startRecording(File file, OnVideoSavedListener listener) {"
-        errorLine2="                               ~~~~">
-        <location
-            file="src/main/java/androidx/camera/view/CameraView.java"
-            line="648"
-            column="32"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void startRecording(File file, OnVideoSavedListener listener) {"
-        errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/view/CameraView.java"
-            line="648"
-            column="43"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    public boolean hasCameraWithLensFacing(LensFacing lensFacing) {"
         errorLine2="                                           ~~~~~~~~~~">
         <location

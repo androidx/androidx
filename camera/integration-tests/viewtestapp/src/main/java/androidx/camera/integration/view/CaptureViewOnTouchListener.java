@@ -33,9 +33,9 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.camera.core.ImageCapture.ImageCaptureError;
-import androidx.camera.core.ImageCapture.OnImageSavedListener;
+import androidx.camera.core.ImageCapture.OnImageSavedCallback;
 import androidx.camera.core.VideoCapture;
-import androidx.camera.core.VideoCapture.OnVideoSavedListener;
+import androidx.camera.core.VideoCapture.OnVideoSavedCallback;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.view.CameraView;
 import androidx.camera.view.CameraView.CaptureMode;
@@ -52,7 +52,7 @@ import java.util.Locale;
  * take-photo signal, while a long-press is interpreted as a record-video signal.
  */
 class CaptureViewOnTouchListener
-        implements View.OnTouchListener, OnImageSavedListener, OnVideoSavedListener {
+        implements View.OnTouchListener, OnImageSavedCallback, OnVideoSavedCallback {
     private static final String TAG = "ViewOnTouchListener";
 
     private static final String FILENAME = "yyyy-MM-dd-HH-mm-ss-SSS";

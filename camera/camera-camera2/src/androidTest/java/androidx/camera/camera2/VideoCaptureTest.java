@@ -33,7 +33,7 @@ import androidx.camera.core.CameraX.LensFacing;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.UseCase.StateChangeListener;
 import androidx.camera.core.VideoCapture;
-import androidx.camera.core.VideoCapture.OnVideoSavedListener;
+import androidx.camera.core.VideoCapture.OnVideoSavedCallback;
 import androidx.camera.core.VideoCaptureConfig;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.testing.CameraUtil;
@@ -73,8 +73,8 @@ public final class VideoCaptureTest {
     private final Context mContext = InstrumentationRegistry.getTargetContext();
     private final StateChangeListener mListener = Mockito.mock(StateChangeListener.class);
     private final ArgumentCaptor<UseCase> mUseCaseCaptor = ArgumentCaptor.forClass(UseCase.class);
-    private final OnVideoSavedListener mMockVideoSavedListener =
-            Mockito.mock(OnVideoSavedListener.class);
+    private final OnVideoSavedCallback mMockVideoSavedCallback =
+            Mockito.mock(OnVideoSavedCallback.class);
     private VideoCaptureConfig mDefaultConfig;
     private String mCameraId;
 
@@ -116,7 +116,7 @@ public final class VideoCaptureTest {
                         mContext.getFilesDir()
                                 + "/useCaseBecomesActive_whenStartingVideoRecording.mp4"),
                 CameraXExecutors.mainThreadExecutor(),
-                mMockVideoSavedListener);
+                mMockVideoSavedCallback);
 
         verify(mListener, times(1)).onUseCaseActive(mUseCaseCaptor.capture());
         assertThat(mUseCaseCaptor.getValue()).isSameInstanceAs(useCase);
@@ -135,7 +135,7 @@ public final class VideoCaptureTest {
                         mContext.getFilesDir()
                                 + "/useCaseBecomesInactive_whenStoppingVideoRecording.mp4"),
                 CameraXExecutors.mainThreadExecutor(),
-                mMockVideoSavedListener);
+                mMockVideoSavedCallback);
 
         try {
             useCase.stopRecording();
@@ -171,7 +171,7 @@ public final class VideoCaptureTest {
                         mContext.getFilesDir()
                                 + "/useCaseBecomesInactive_whenStoppingVideoRecording.mp4"),
                 CameraXExecutors.mainThreadExecutor(),
-                mMockVideoSavedListener);
+                mMockVideoSavedCallback);
 
         verify(mListener, times(1)).onUseCaseActive(mUseCaseCaptor.capture());
         assertThat(mUseCaseCaptor.getValue()).isSameInstanceAs(useCase);

@@ -146,8 +146,8 @@ public class ExtensionTest {
 
         Preview.OnPreviewOutputUpdateListener mockOnPreviewOutputUpdateListener = mock(
                 Preview.OnPreviewOutputUpdateListener.class);
-        ImageCapture.OnImageCapturedListener mockOnImageCapturedListener = mock(
-                ImageCapture.OnImageCapturedListener.class);
+        ImageCapture.OnImageCapturedCallback mockOnImageCapturedCallback = mock(
+                ImageCapture.OnImageCapturedCallback.class);
 
         // To test bind/unbind and take picture.
         ImageCapture imageCapture = new ImageCapture(mImageCaptureConfigBuilder.build());
@@ -159,17 +159,17 @@ public class ExtensionTest {
         preview.setOnPreviewOutputUpdateListener(mockOnPreviewOutputUpdateListener);
 
         imageCapture.takePicture(CameraXExecutors.mainThreadExecutor(),
-                mockOnImageCapturedListener);
+                mockOnImageCapturedCallback);
 
         // Verify the image captured.
         ArgumentCaptor<ImageProxy> imageProxy = ArgumentCaptor.forClass(ImageProxy.class);
-        verify(mockOnImageCapturedListener, timeout(3000)).onCaptureSuccess(
+        verify(mockOnImageCapturedCallback, timeout(3000)).onCaptureSuccess(
                 imageProxy.capture(), anyInt());
         assertNotNull(imageProxy.getValue());
         imageProxy.getValue().close(); // Close the image after verification.
 
         // Verify the take picture should not have any error happen.
-        verify(mockOnImageCapturedListener, never()).onError(
+        verify(mockOnImageCapturedCallback, never()).onError(
                 any(ImageCapture.ImageCaptureError.class), anyString(), any(Throwable.class));
     }
 
