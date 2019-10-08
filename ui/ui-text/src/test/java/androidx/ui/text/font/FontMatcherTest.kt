@@ -43,7 +43,7 @@ class FontMatcherTest {
     fun `family with single italic font matches`() {
         val font = FontMatcher().matchFont(
             FontFamily(FONT_100_ITALIC),
-            FontWeight.w100,
+            FontWeight.W100,
             FontStyle.Italic
         )
 
@@ -54,7 +54,7 @@ class FontMatcherTest {
     fun `family with single normal font matches`() {
         val font = FontMatcher().matchFont(
             FontFamily(FONT_100_REGULAR),
-            FontWeight.w100,
+            FontWeight.W100,
             FontStyle.Normal
         )
 
@@ -70,7 +70,7 @@ class FontMatcherTest {
                 FONT_200_REGULAR,
                 FONT_200_ITALIC
             ),
-            FontWeight.w200,
+            FontWeight.W200,
             FontStyle.Italic
         )
 
@@ -85,7 +85,7 @@ class FontMatcherTest {
                 FONT_200_REGULAR,
                 FONT_300_REGULAR
             ),
-            FontWeight.w200,
+            FontWeight.W200,
             FontStyle.Normal
         )
 
@@ -108,7 +108,7 @@ class FontMatcherTest {
                 FONT_400_REGULAR,
                 FONT_400_ITALIC
             ),
-            FontWeight.w300,
+            FontWeight.W300,
             FontStyle.Italic
         )
 
@@ -131,7 +131,7 @@ class FontMatcherTest {
                 FONT_400_REGULAR,
                 FONT_400_ITALIC
             ),
-            FontWeight.w200,
+            FontWeight.W200,
             FontStyle.Italic
         )
 
@@ -156,7 +156,7 @@ class FontMatcherTest {
                 FONT_800_REGULAR,
                 FONT_800_ITALIC
             ),
-            FontWeight.w600,
+            FontWeight.W600,
             FontStyle.Italic
         )
 
@@ -180,7 +180,7 @@ class FontMatcherTest {
                 FONT_600_REGULAR,
                 FONT_700_REGULAR
             ),
-            FontWeight.w600,
+            FontWeight.W600,
             FontStyle.Italic
         )
 
@@ -204,7 +204,7 @@ class FontMatcherTest {
                 FONT_500_ITALIC,
                 FONT_600_ITALIC
             ),
-            FontWeight.w400,
+            FontWeight.W400,
             FontStyle.Italic
         )
 
@@ -226,7 +226,7 @@ class FontMatcherTest {
                 FONT_500_REGULAR,
                 FONT_600_ITALIC
             ),
-            FontWeight.w400,
+            FontWeight.W400,
             FontStyle.Italic
         )
 
@@ -248,7 +248,7 @@ class FontMatcherTest {
                 FONT_500_REGULAR,
                 FONT_600_ITALIC
             ),
-            FontWeight.w500,
+            FontWeight.W500,
             FontStyle.Italic
         )
 
@@ -271,7 +271,7 @@ class FontMatcherTest {
                 FONT_500_REGULAR,
                 FONT_600_ITALIC
             ),
-            FontWeight.w400,
+            FontWeight.W400,
             FontStyle.Italic
         )
 
@@ -294,7 +294,7 @@ class FontMatcherTest {
                 FONT_500_REGULAR,
                 FONT_600_ITALIC
             ),
-            FontWeight.w500,
+            FontWeight.W500,
             FontStyle.Italic
         )
 
@@ -311,7 +311,7 @@ class FontMatcherTest {
                 FONT_500_REGULAR,
                 FONT_600_ITALIC
             ),
-            FontWeight.w100,
+            FontWeight.W100,
             FontStyle.Italic
         )
 
@@ -328,7 +328,7 @@ class FontMatcherTest {
                 FONT_500_REGULAR,
                 FONT_600_REGULAR
             ),
-            FontWeight.w600,
+            FontWeight.W600,
             FontStyle.Italic
         )
 
@@ -343,7 +343,7 @@ class FontMatcherTest {
                 FONT_300_REGULAR,
                 FONT_400_REGULAR
             ),
-            FontWeight.w300,
+            FontWeight.W300,
             FontStyle.Italic
         )
 
@@ -359,7 +359,7 @@ class FontMatcherTest {
                 FONT_600_REGULAR,
                 FONT_700_REGULAR
             ),
-            FontWeight.w600,
+            FontWeight.W600,
             FontStyle.Italic
         )
 

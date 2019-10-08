@@ -387,18 +387,18 @@ package androidx.ui.text.font {
     method public androidx.ui.text.font.FontWeight getW800();
     method public androidx.ui.text.font.FontWeight getW900();
     method public androidx.ui.text.font.FontWeight lerp(androidx.ui.text.font.FontWeight? start, androidx.ui.text.font.FontWeight? stop, float fraction);
-    property public final androidx.ui.text.font.FontWeight bold;
-    property public final androidx.ui.text.font.FontWeight normal;
+    property public final androidx.ui.text.font.FontWeight Bold;
+    property public final androidx.ui.text.font.FontWeight Normal;
+    property public final androidx.ui.text.font.FontWeight W100;
+    property public final androidx.ui.text.font.FontWeight W200;
+    property public final androidx.ui.text.font.FontWeight W300;
+    property public final androidx.ui.text.font.FontWeight W400;
+    property public final androidx.ui.text.font.FontWeight W500;
+    property public final androidx.ui.text.font.FontWeight W600;
+    property public final androidx.ui.text.font.FontWeight W700;
+    property public final androidx.ui.text.font.FontWeight W800;
+    property public final androidx.ui.text.font.FontWeight W900;
     property public final java.util.List<androidx.ui.text.font.FontWeight> values;
-    property public final androidx.ui.text.font.FontWeight w100;
-    property public final androidx.ui.text.font.FontWeight w200;
-    property public final androidx.ui.text.font.FontWeight w300;
-    property public final androidx.ui.text.font.FontWeight w400;
-    property public final androidx.ui.text.font.FontWeight w500;
-    property public final androidx.ui.text.font.FontWeight w600;
-    property public final androidx.ui.text.font.FontWeight w700;
-    property public final androidx.ui.text.font.FontWeight w800;
-    property public final androidx.ui.text.font.FontWeight w900;
   }
 
 }

@@ -31,7 +31,7 @@ class FontTest {
     @Test
     fun `default values`() {
         val font = Font(name = "fontName")
-        assertThat(font.weight).isEqualTo(FontWeight.normal)
+        assertThat(font.weight).isEqualTo(FontWeight.Normal)
         assertThat(font.style).isEqualTo(FontStyle.Normal)
         assertThat(font.ttcIndex).isEqualTo(0)
         assertThat(font.fontVariationSettings).isEmpty()
@@ -41,7 +41,7 @@ class FontTest {
     fun `two equal font declarations are equal`() {
         val font = Font(
             name = "fontName",
-            weight = FontWeight.w900,
+            weight = FontWeight.W900,
             style = FontStyle.Italic,
             ttcIndex = 1,
             fontVariationSettings = "'wdth' 150"
@@ -49,7 +49,7 @@ class FontTest {
 
         val otherFont = Font(
             name = "fontName",
-            weight = FontWeight.w900,
+            weight = FontWeight.W900,
             style = FontStyle.Italic,
             ttcIndex = 1,
             fontVariationSettings = "'wdth' 150"
@@ -62,7 +62,7 @@ class FontTest {
     fun `two non equal font declarations are not equal`() {
         val font = Font(
             name = "fontName",
-            weight = FontWeight.w900,
+            weight = FontWeight.W900,
             style = FontStyle.Italic,
             ttcIndex = 1,
             fontVariationSettings = "'wdth' 150"
@@ -70,7 +70,7 @@ class FontTest {
 
         val otherFont = Font(
             name = "fontName",
-            weight = FontWeight.w900,
+            weight = FontWeight.W900,
             style = FontStyle.Italic,
             ttcIndex = 1,
             fontVariationSettings = "'wdth' 151" // this is different
@@ -83,7 +83,7 @@ class FontTest {
     fun `asFontFamilyList returns a FontFamily`() {
         val font = Font(
             name = "fontName1",
-            weight = FontWeight.w900,
+            weight = FontWeight.W900,
             style = FontStyle.Italic
         )
 

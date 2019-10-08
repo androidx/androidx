@@ -32,7 +32,7 @@ class FontFamilyListTest {
     fun `two equal family list declarations are equal`() {
         val font = Font(
             name = "fontName",
-            weight = FontWeight.w900,
+            weight = FontWeight.W900,
             style = FontStyle.Italic,
             ttcIndex = 1,
             fontVariationSettings = "'wdth' 150"
@@ -50,7 +50,7 @@ class FontFamilyListTest {
     fun `two non equal family list declarations are not equal`() {
         val font = Font(
             name = "fontName",
-            weight = FontWeight.w900,
+            weight = FontWeight.W900,
             style = FontStyle.Italic,
             ttcIndex = 1,
             fontVariationSettings = "'wdth' 150"

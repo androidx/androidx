@@ -51,7 +51,7 @@ internal open class TypefaceAdapter(
     companion object {
         // Accept FontWeights at and above 600 to be bold. 600 comes from
         // FontFamily.cpp#computeFakery function in minikin
-        private val ANDROID_BOLD = FontWeight.w600
+        private val ANDROID_BOLD = FontWeight.W600
 
         // 16 is a random number and is not based on any strong logic
         val typefaceCache = LruCache<CacheKey, Typeface>(16)
@@ -67,7 +67,7 @@ internal open class TypefaceAdapter(
      */
     open fun create(
         fontFamily: FontFamily? = null,
-        fontWeight: FontWeight = FontWeight.normal,
+        fontWeight: FontWeight = FontWeight.Normal,
         fontStyle: FontStyle = FontStyle.Normal,
         fontSynthesis: FontSynthesis = FontSynthesis.All
     ): Typeface {
@@ -103,8 +103,8 @@ internal open class TypefaceAdapter(
      * to define the main family to create the Typeface such as serif, sans-serif.
      *
      * [fontWeight] is used to define the thickness of the Typeface. Before Android 28 font weight
-     * cannot be defined therefore this function assumes anything at and above [FontWeight.w600]
-     * is bold and any value less than [FontWeight.w600] is normal.
+     * cannot be defined therefore this function assumes anything at and above [FontWeight.W600]
+     * is bold and any value less than [FontWeight.W600] is normal.
      *
      * @param genericFontFamily generic font family name such as serif, sans-serif
      * @param fontWeight the font weight to create the typeface in
@@ -112,11 +112,11 @@ internal open class TypefaceAdapter(
      */
     private fun create(
         genericFontFamily: String? = null,
-        fontWeight: FontWeight = FontWeight.normal,
+        fontWeight: FontWeight = FontWeight.Normal,
         fontStyle: FontStyle = FontStyle.Normal
     ): Typeface {
         if (fontStyle == FontStyle.Normal &&
-            fontWeight == FontWeight.normal &&
+            fontWeight == FontWeight.Normal &&
             genericFontFamily.isNullOrEmpty()
         ) {
             return Typeface.DEFAULT
@@ -163,7 +163,7 @@ internal open class TypefaceAdapter(
      */
     private fun create(
         fontStyle: FontStyle = FontStyle.Normal,
-        fontWeight: FontWeight = FontWeight.normal,
+        fontWeight: FontWeight = FontWeight.Normal,
         fontFamily: FontFamily,
         fontSynthesis: FontSynthesis = FontSynthesis.All
     ): Typeface {

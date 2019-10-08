@@ -141,7 +141,7 @@ fun DataTable(
             }
             for (j in 0 until columns) {
                 Container(height = headerHeight, padding = cellSpacing) {
-                    CurrentTextStyleProvider(value = TextStyle(fontWeight = FontWeight.w500)) {
+                    CurrentTextStyleProvider(value = TextStyle(fontWeight = FontWeight.W500)) {
                         header(index = j)
                     }
                 }

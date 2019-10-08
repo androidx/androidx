@@ -33,7 +33,7 @@ class FontFamilyTest {
         val fontFamily = FontFamily(
             Font(
                 name = "fontName",
-                weight = FontWeight.w900,
+                weight = FontWeight.W900,
                 style = FontStyle.Italic,
                 ttcIndex = 1,
                 fontVariationSettings = "'wdth' 150"
@@ -43,7 +43,7 @@ class FontFamilyTest {
         val otherFontFamily = FontFamily(
             Font(
                 name = "fontName",
-                weight = FontWeight.w900,
+                weight = FontWeight.W900,
                 style = FontStyle.Italic,
                 ttcIndex = 1,
                 fontVariationSettings = "'wdth' 150"
@@ -58,7 +58,7 @@ class FontFamilyTest {
         val fontFamily = FontFamily(
             Font(
                 name = "fontName",
-                weight = FontWeight.w900,
+                weight = FontWeight.W900,
                 style = FontStyle.Italic,
                 ttcIndex = 1,
                 fontVariationSettings = "'wdth' 150"
@@ -68,7 +68,7 @@ class FontFamilyTest {
         val otherFontFamily = FontFamily(
             Font(
                 name = "fontName",
-                weight = FontWeight.w900,
+                weight = FontWeight.W900,
                 style = FontStyle.Italic,
                 ttcIndex = 1,
                 fontVariationSettings = "'wdth' 151" // this is different
@@ -83,12 +83,12 @@ class FontFamilyTest {
         FontFamily(
             Font(
                 name = "fontName1",
-                weight = FontWeight.w900,
+                weight = FontWeight.W900,
                 style = FontStyle.Italic
             ),
             Font(
                 name = "fontName2",
-                weight = FontWeight.w900,
+                weight = FontWeight.W900,
                 style = FontStyle.Italic
             )
         )

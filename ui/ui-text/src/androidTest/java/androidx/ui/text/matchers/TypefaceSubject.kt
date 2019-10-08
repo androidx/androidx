@@ -60,24 +60,24 @@ internal class TypefaceSubject private constructor(
             Factory { failureMetadata, subject -> TypefaceSubject(failureMetadata, subject) }
 
         internal val DEFINED_CHARACTERS = arrayOf(
-            CharacterInfo('a', FontWeight.w100, FontStyle.Italic),
-            CharacterInfo('b', FontWeight.w100, FontStyle.Normal),
-            CharacterInfo('c', FontWeight.w200, FontStyle.Italic),
-            CharacterInfo('d', FontWeight.w200, FontStyle.Normal),
-            CharacterInfo('e', FontWeight.w300, FontStyle.Italic),
-            CharacterInfo('f', FontWeight.w300, FontStyle.Normal),
-            CharacterInfo('g', FontWeight.w400, FontStyle.Italic),
-            CharacterInfo('h', FontWeight.w400, FontStyle.Normal),
-            CharacterInfo('i', FontWeight.w500, FontStyle.Italic),
-            CharacterInfo('j', FontWeight.w500, FontStyle.Normal),
-            CharacterInfo('k', FontWeight.w600, FontStyle.Italic),
-            CharacterInfo('l', FontWeight.w600, FontStyle.Normal),
-            CharacterInfo('m', FontWeight.w700, FontStyle.Italic),
-            CharacterInfo('n', FontWeight.w700, FontStyle.Normal),
-            CharacterInfo('o', FontWeight.w800, FontStyle.Italic),
-            CharacterInfo('p', FontWeight.w800, FontStyle.Normal),
-            CharacterInfo('q', FontWeight.w900, FontStyle.Italic),
-            CharacterInfo('r', FontWeight.w900, FontStyle.Normal)
+            CharacterInfo('a', FontWeight.W100, FontStyle.Italic),
+            CharacterInfo('b', FontWeight.W100, FontStyle.Normal),
+            CharacterInfo('c', FontWeight.W200, FontStyle.Italic),
+            CharacterInfo('d', FontWeight.W200, FontStyle.Normal),
+            CharacterInfo('e', FontWeight.W300, FontStyle.Italic),
+            CharacterInfo('f', FontWeight.W300, FontStyle.Normal),
+            CharacterInfo('g', FontWeight.W400, FontStyle.Italic),
+            CharacterInfo('h', FontWeight.W400, FontStyle.Normal),
+            CharacterInfo('i', FontWeight.W500, FontStyle.Italic),
+            CharacterInfo('j', FontWeight.W500, FontStyle.Normal),
+            CharacterInfo('k', FontWeight.W600, FontStyle.Italic),
+            CharacterInfo('l', FontWeight.W600, FontStyle.Normal),
+            CharacterInfo('m', FontWeight.W700, FontStyle.Italic),
+            CharacterInfo('n', FontWeight.W700, FontStyle.Normal),
+            CharacterInfo('o', FontWeight.W800, FontStyle.Italic),
+            CharacterInfo('p', FontWeight.W800, FontStyle.Normal),
+            CharacterInfo('q', FontWeight.W900, FontStyle.Italic),
+            CharacterInfo('r', FontWeight.W900, FontStyle.Normal)
         )
     }
 

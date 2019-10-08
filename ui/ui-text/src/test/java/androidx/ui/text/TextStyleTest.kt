@@ -72,7 +72,7 @@ class TextStyleTest {
 
     @Test
     fun `constructor with customized fontWeight`() {
-        val fontWeight = FontWeight.w500
+        val fontWeight = FontWeight.W500
 
         val textStyle = TextStyle(fontWeight = fontWeight)
 
@@ -222,7 +222,7 @@ class TextStyleTest {
 
     @Test
     fun `merge with other's fontWeight is null should use this' fontWeight`() {
-        val fontWeight = FontWeight.w300
+        val fontWeight = FontWeight.W300
         val textStyle = TextStyle(fontWeight = fontWeight)
         val otherTextStyle = TextStyle()
 
@@ -233,8 +233,8 @@ class TextStyleTest {
 
     @Test
     fun `merge with other's fontWeight is set should use other's fontWeight`() {
-        val fontWeight = FontWeight.w300
-        val otherFontWeight = FontWeight.w500
+        val fontWeight = FontWeight.W300
+        val otherFontWeight = FontWeight.W500
         val textStyle = TextStyle(fontWeight = fontWeight)
         val otherTextStyle = TextStyle(fontWeight = otherFontWeight)
 
@@ -701,7 +701,7 @@ class TextStyleTest {
 
     @Test
     fun `lerp fontWeight with a is Null and t is smaller than half`() {
-        val fontWeight = FontWeight.w700
+        val fontWeight = FontWeight.W700
         val t = 0.3f
         val textStyle = TextStyle(fontWeight = fontWeight)
 
@@ -712,7 +712,7 @@ class TextStyleTest {
 
     @Test
     fun `lerp fontWeight with a is Null and t is larger than half`() {
-        val fontWeight = FontWeight.w700
+        val fontWeight = FontWeight.W700
         val t = 0.8f
         val textStyle = TextStyle(fontWeight = fontWeight)
 
@@ -723,7 +723,7 @@ class TextStyleTest {
 
     @Test
     fun `lerp fontWeight with b is Null and t is smaller than half`() {
-        val fontWeight = FontWeight.w700
+        val fontWeight = FontWeight.W700
         val t = 0.3f
         val textStyle = TextStyle(fontWeight = fontWeight)
 
@@ -734,7 +734,7 @@ class TextStyleTest {
 
     @Test
     fun `lerp fontWeight with b is Null and t is larger than half`() {
-        val fontWeight = FontWeight.w700
+        val fontWeight = FontWeight.W700
         val t = 0.8f
         val textStyle = TextStyle(fontWeight = fontWeight)
 
@@ -745,8 +745,8 @@ class TextStyleTest {
 
     @Test
     fun `lerp fontWeight with a and b are not Null`() {
-        val fontWeight1 = FontWeight.w200
-        val fontWeight2 = FontWeight.w500
+        val fontWeight1 = FontWeight.W200
+        val fontWeight2 = FontWeight.W500
         val t = 0.8f
         val textStyle1 = TextStyle(fontWeight = fontWeight1)
         val textStyle2 = TextStyle(fontWeight = fontWeight2)
@@ -1371,7 +1371,7 @@ class TextStyleTest {
         val textStyle = TextStyle(
             color = null,
             fontSize = fontSize,
-            fontWeight = FontWeight.w800,
+            fontWeight = FontWeight.W800,
             fontStyle = FontStyle.Italic,
             fontFeatureSettings = fontFeatureSettings,
             letterSpacing = 1.0f,
@@ -1393,7 +1393,7 @@ class TextStyleTest {
         assertThat(textStyle.compareTo(textStyle.copy(fontSize = 20.sp)))
             .isEqualTo(RenderComparison.LAYOUT)
 
-        assertThat(textStyle.compareTo(textStyle.copy(fontWeight = FontWeight.w100)))
+        assertThat(textStyle.compareTo(textStyle.copy(fontWeight = FontWeight.W100)))
             .isEqualTo(RenderComparison.LAYOUT)
 
         assertThat(textStyle.compareTo(textStyle.copy(fontStyle = FontStyle.Normal)))
@@ -1431,7 +1431,7 @@ class TextStyleTest {
         val textStyle = TextStyle(
             color = color1,
             fontSize = fontSize,
-            fontWeight = FontWeight.w800,
+            fontWeight = FontWeight.W800,
             fontStyle = FontStyle.Italic,
             letterSpacing = 1.0f,
             baselineShift = BaselineShift.Superscript,
