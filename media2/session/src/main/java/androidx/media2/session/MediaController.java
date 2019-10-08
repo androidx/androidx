@@ -83,8 +83,7 @@ import java.util.concurrent.Executors;
  * <li><a href="#MediaSessionInTheSameProcess">Controlling the {@link MediaSession} in the same
  * process</a>
  * </ol>
- * <a name="ControllerLifeCycle"></a>
- * <h3>Controller Lifecycle</h3>
+ * <h3 id="ControllerLifeCycle">Controller Lifecycle</h3>
  * <p>
  * When a controller is created with the {@link SessionToken} for a {@link MediaSession} (i.e.
  * session token type is {@link SessionToken#TYPE_SESSION}), the controller will connect to the

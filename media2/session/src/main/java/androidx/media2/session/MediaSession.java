@@ -83,12 +83,10 @@ import java.util.concurrent.Executor;
  * Topics covered here:
  * <ol>
  * <li><a href="#SessionLifecycle">Session Lifecycle</a>
- * <li><a href="#AudioFocusAndNoisyIntent">Audio focus and noisy intent</a>
  * <li><a href="#Thread">Thread</a>
  * <li><a href="#KeyEvents">Media key events mapping</a>
  * </ol>
- * <a name="SessionLifecycle"></a>
- * <h3>Session Lifecycle</h3>
+ * <h3 id="SessionLifecycle">Session Lifecycle</h3>
  * <p>
  * A session can be obtained by {@link Builder}. The owner of the session may pass its session token
  * to other processes to allow them to create a {@link MediaController} to interact with the
@@ -101,13 +99,10 @@ import java.util.concurrent.Executor;
  * and notify any controllers. The app is responsible for closing the underlying player after
  * closing the session.
  * is closed.
- * <p>
- * <a name="Thread"></a>
- * <h3>Thread</h3>
+ * <h3 id="Thread">Thread</h3>
  * <p>
  * {@link MediaSession} objects are thread safe, but should be used on the thread on the looper.
- * <a name="KeyEvents"></a>
- * <h3>Media key events mapping</h3>
+ * <h3 id="KeyEvents">Media key events mapping</h3>
  * <p>
  * Here's the table of per key event.
  * <table>
