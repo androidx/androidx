@@ -103,6 +103,11 @@ data /*inline*/ class Px(val value: Float) {
     inline operator fun compareTo(other: Px) = value.compareTo(other.value)
 
     /**
+     * Compares this [Px] to another [IntPx]
+     */
+    inline operator fun compareTo(other: IntPx): Int = value.compareTo(other.value)
+
+    /**
      * Add an [IntPx] to this [Px].
      */
     inline operator fun plus(other: IntPx) =

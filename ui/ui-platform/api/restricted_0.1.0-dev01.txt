@@ -15,7 +15,7 @@ package androidx.ui.core {
 
   public final class AndroidComposeView extends android.view.ViewGroup implements androidx.ui.core.DensityScope androidx.ui.core.Owner androidx.ui.core.SemanticsTreeProvider {
     ctor public AndroidComposeView(android.content.Context context);
-    method public androidx.ui.core.PxPosition calculatePosition();
+    method public androidx.ui.core.IntPxPosition calculatePosition();
     method public void callDraw(androidx.ui.graphics.Canvas canvas, androidx.ui.core.ComponentNode node, androidx.ui.core.PxSize parentSize);
     method public java.util.List<androidx.ui.core.SemanticsTreeNode> getAllSemanticNodes();
     method public androidx.ui.autofill.Autofill? getAutofill();
@@ -96,11 +96,13 @@ package androidx.ui.core {
     method public static androidx.ui.core.DataNodeKey<kotlin.jvm.functions.Function1<androidx.ui.core.LayoutCoordinates,kotlin.Unit>> getOnPositionedKey();
     method public static androidx.ui.core.DataNodeKey<java.lang.Object> getParentDataKey();
     method public static androidx.ui.core.PxPosition globalToLocal(androidx.ui.core.LayoutNode, androidx.ui.core.PxPosition global, boolean withOwnerOffset = true);
+    method public static androidx.ui.core.IntPxPosition globalToLocal(androidx.ui.core.LayoutNode, androidx.ui.core.IntPxPosition global, boolean withOwnerOffset = true);
     method public static boolean hasNoLayoutDescendants(androidx.ui.core.ComponentNode);
     method public static boolean isAttached(androidx.ui.core.ComponentNode);
     method public static androidx.ui.core.PxPosition localToGlobal(androidx.ui.core.LayoutNode, androidx.ui.core.PxPosition local, boolean withOwnerOffset = true);
+    method public static androidx.ui.core.IntPxPosition localToGlobal(androidx.ui.core.LayoutNode, androidx.ui.core.IntPxPosition local, boolean withOwnerOffset = true);
     method public static androidx.ui.core.PxPosition positionRelativeToAncestor(androidx.ui.core.LayoutNode, androidx.ui.core.LayoutNode ancestor);
-    method public static androidx.ui.core.PxPosition positionRelativeToRoot(androidx.ui.core.LayoutNode);
+    method public static androidx.ui.core.IntPxPosition positionRelativeToRoot(androidx.ui.core.LayoutNode);
     method public static androidx.ui.core.Owner requireOwner(androidx.ui.core.ComponentNode);
     method public static void visitLayoutChildren(androidx.ui.core.ComponentNode, kotlin.jvm.functions.Function1<? super androidx.ui.core.LayoutNode,kotlin.Unit> block);
   }
@@ -215,7 +217,7 @@ package androidx.ui.core {
   }
 
   public interface Owner {
-    method public androidx.ui.core.PxPosition calculatePosition();
+    method public androidx.ui.core.IntPxPosition calculatePosition();
     method public androidx.ui.core.Density getDensity();
     method public long getMeasureIteration();
     method public void onAttach(androidx.ui.core.ComponentNode node);

@@ -448,7 +448,7 @@ class ComponentNodeTest {
     }
 
     @Test
-    fun testGlobalToLocal() {
+    fun testPxGlobalToLocal() {
         val node0 = LayoutNode()
         node0.attach(mockOwner())
         val node1 = LayoutNode()
@@ -473,7 +473,32 @@ class ComponentNodeTest {
     }
 
     @Test
-    fun testLocalToGlobal() {
+    fun testIntPxGlobalToLocal() {
+        val node0 = LayoutNode()
+        node0.attach(mockOwner())
+        val node1 = LayoutNode()
+        node0.emitInsertAt(0, node1)
+
+        val x0 = 100.ipx
+        val y0 = 10.ipx
+        val x1 = 50.ipx
+        val y1 = 80.ipx
+        node0.place(x0, y0)
+        node1.place(x1, y1)
+
+        val globalPosition = IntPxPosition(250.ipx, 300.ipx)
+
+        val expectedX = globalPosition.x - x0 - x1
+        val expectedY = globalPosition.y - y0 - y1
+        val expectedPosition = IntPxPosition(expectedX, expectedY)
+
+        val result = node1.globalToLocal(globalPosition)
+
+        assertEquals(expectedPosition, result)
+    }
+
+    @Test
+    fun testPxLocalToGlobal() {
         val node0 = LayoutNode()
         node0.attach(mockOwner())
         val node1 = LayoutNode()
@@ -498,14 +523,50 @@ class ComponentNodeTest {
     }
 
     @Test
-    fun testLocalToGlobalUsesOwnerPosition() {
+    fun testIntPxLocalToGlobal() {
+        val node0 = LayoutNode()
+        node0.attach(mockOwner())
+        val node1 = LayoutNode()
+        node0.emitInsertAt(0, node1)
+
+        val x0 = 100.ipx
+        val y0 = 10.ipx
+        val x1 = 50.ipx
+        val y1 = 80.ipx
+        node0.place(x0, y0)
+        node1.place(x1, y1)
+
+        val localPosition = IntPxPosition(5.ipx, 15.ipx)
+
+        val expectedX = localPosition.x + x0 + x1
+        val expectedY = localPosition.y + y0 + y1
+        val expectedPosition = IntPxPosition(expectedX, expectedY)
+
+        val result = node1.localToGlobal(localPosition)
+
+        assertEquals(expectedPosition, result)
+    }
+
+    @Test
+    fun testPxLocalToGlobalUsesOwnerPosition() {
         val node = LayoutNode()
-        node.attach(mockOwner(PxPosition(20.px, 20.px)))
+        node.attach(mockOwner(IntPxPosition(20.ipx, 20.ipx)))
         node.place(100.ipx, 10.ipx)
 
         val result = node.localToGlobal(PxPosition.Origin)
 
         assertEquals(PxPosition(120.px, 30.px), result)
+    }
+
+    @Test
+    fun testIntPxLocalToGlobalUsesOwnerPosition() {
+        val node = LayoutNode()
+        node.attach(mockOwner(IntPxPosition(20.ipx, 20.ipx)))
+        node.place(100.ipx, 10.ipx)
+
+        val result = node.localToGlobal(IntPxPosition.Origin)
+
+        assertEquals(IntPxPosition(120.ipx, 30.ipx), result)
     }
 
     @Test
@@ -573,20 +634,20 @@ class ComponentNodeTest {
 
         val actual = child.positionRelativeToRoot()
 
-        assertEquals(PxPosition(-50.px, 90.px), actual)
+        assertEquals(IntPxPosition(-50.ipx, 90.ipx), actual)
     }
 
     @Test
     fun testPositionRelativeToRootIsNotAffectedByOwnerPosition() {
         val parent = LayoutNode()
-        parent.attach(mockOwner(PxPosition(20.px, 20.px)))
+        parent.attach(mockOwner(IntPxPosition(20.ipx, 20.ipx)))
         val child = LayoutNode()
         parent.emitInsertAt(0, child)
         child.place(50.ipx, 80.ipx)
 
         val actual = child.positionRelativeToRoot()
 
-        assertEquals(PxPosition(50.px, 80.px), actual)
+        assertEquals(IntPxPosition(50.ipx, 80.ipx), actual)
     }
 
     @Test
@@ -697,7 +758,7 @@ class ComponentNodeTest {
         return Triple(layoutNode, child1, child2)
     }
 
-    private fun mockOwner(position: PxPosition = PxPosition.Origin): Owner =
+    private fun mockOwner(position: IntPxPosition = IntPxPosition.Origin): Owner =
         mock {
             on { calculatePosition() } doReturn position
         }

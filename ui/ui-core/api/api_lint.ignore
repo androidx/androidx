@@ -57,8 +57,6 @@ AutoBoxing: androidx.ui.vectormath64.Matrix4Kt#getAsScale(androidx.ui.vectormath
     Must avoid boxed primitives (`java.lang.Float`)
 
 
-DocumentExceptions: androidx.ui.graphics.ColorKt#Color(float, float, float, float, androidx.ui.graphics.colorspace.ColorSpace):
-    Method ColorKt.Color appears to be throwing java.lang.IllegalArgumentException; this should be listed in the documentation; see https://android.github.io/kotlin-guides/interop.html#document-exceptions
 DocumentExceptions: androidx.ui.vectormath64.Matrix2#get(androidx.ui.vectormath64.MatrixColumn):
     Method Matrix2.get appears to be throwing java.lang.IllegalArgumentException; this should be listed in the documentation; see https://android.github.io/kotlin-guides/interop.html#document-exceptions
 DocumentExceptions: androidx.ui.vectormath64.Matrix2#get(int):
@@ -133,6 +131,8 @@ MissingNullability: androidx.ui.core.Duration#Companion:
     Missing nullability on field `Companion` in class `class androidx.ui.core.Duration`
 MissingNullability: androidx.ui.core.IntPx#Companion:
     Missing nullability on field `Companion` in class `class androidx.ui.core.IntPx`
+MissingNullability: androidx.ui.core.IntPxPosition#Companion:
+    Missing nullability on field `Companion` in class `class androidx.ui.core.IntPxPosition`
 MissingNullability: androidx.ui.core.MeasureScope.LayoutResult#INSTANCE:
     Missing nullability on field `INSTANCE` in class `class androidx.ui.core.MeasureScope.LayoutResult`
 MissingNullability: androidx.ui.core.Modifier.None#INSTANCE:

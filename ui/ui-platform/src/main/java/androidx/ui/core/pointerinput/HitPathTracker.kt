@@ -16,15 +16,15 @@
 
 package androidx.ui.core.pointerinput
 
+import androidx.ui.core.IntPxPosition
 import androidx.ui.core.LayoutNode
 import androidx.ui.core.PointerEventPass
 import androidx.ui.core.PointerInputChange
 import androidx.ui.core.PointerInputNode
-import androidx.ui.core.PxPosition
 import androidx.ui.core.hasNoLayoutDescendants
+import androidx.ui.core.ipx
 import androidx.ui.core.positionRelativeToRoot
 import androidx.ui.core.isAttached
-import androidx.ui.core.px
 import androidx.ui.core.visitLayoutChildren
 import kotlin.math.min
 
@@ -145,7 +145,7 @@ internal class Node(
 
     // Stores the associated PointerInputNode's virtual position relative to it's parent
     // PointerInputNode, or relative to the compose root if it has no parent PointerInputNode.
-    var offset: PxPosition = PxPosition.Origin
+    var offset: IntPxPosition = IntPxPosition.Origin
 
     fun dispatchChanges(
         pointerInputChanges: MutableMap<Int, PointerInputChange>,
@@ -228,14 +228,14 @@ internal class Node(
     // TODO(b/124960509): Make this much more efficient.
     fun refreshOffsets() {
         children.forEach { child ->
-            var minX: Float = Float.MAX_VALUE
-            var minY: Float = Float.MAX_VALUE
+            var minX: Int = Int.MAX_VALUE
+            var minY: Int = Int.MAX_VALUE
             child.pointerInputNode?.visitLayoutChildren { layoutChild ->
                 val globalPosition = layoutChild.positionRelativeToRoot()
                 minX = min(minX, globalPosition.x.value)
                 minY = min(minY, globalPosition.y.value)
             }
-            child.offset = PxPosition(minX.px, minY.px)
+            child.offset = IntPxPosition(minX.ipx, minY.ipx)
             child.refreshOffsets()
         }
     }
@@ -254,19 +254,19 @@ internal class Node(
         }
     }
 
-    private fun MutableMap<Int, PointerInputChange>.addOffset(pxPosition: PxPosition) {
-        if (pxPosition != PxPosition.Origin) {
+    private fun MutableMap<Int, PointerInputChange>.addOffset(position: IntPxPosition) {
+        if (position != IntPxPosition.Origin) {
             replaceEverything {
                 it.copy(
-                    current = it.current.copy(position = it.current.position?.plus(pxPosition)),
-                    previous = it.previous.copy(position = it.previous.position?.plus(pxPosition))
+                    current = it.current.copy(position = it.current.position?.plus(position)),
+                    previous = it.previous.copy(position = it.previous.position?.plus(position))
                 )
             }
         }
     }
 
-    private fun MutableMap<Int, PointerInputChange>.subtractOffset(pxPosition: PxPosition) {
-        addOffset(-pxPosition)
+    private fun MutableMap<Int, PointerInputChange>.subtractOffset(position: IntPxPosition) {
+        addOffset(-position)
     }
 
     private inline fun <K, V> MutableMap<K, V>.replaceEverything(f: (V) -> V) {
