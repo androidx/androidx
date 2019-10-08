@@ -289,9 +289,6 @@ data class RelationCollector(
                     if (cursorReader == null) {
                         getDefaultRowAdapter()
                     } else {
-                        context.logger.d(relation.field.element, "Choosing cursor adapter for" +
-                                " the return value since the query returns only 1 or 2 columns" +
-                                " and there is a cursor adapter for the return type.")
                         SingleColumnRowAdapter(cursorReader)
                     }
                 } else {
