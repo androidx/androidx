@@ -65,6 +65,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
@@ -129,11 +130,12 @@ public final class ImageAnalysisTest {
     }
 
     @After
-    public void tearDown() {
+    public void tearDown() throws ExecutionException, InterruptedException {
         if (mHandlerThread != null && mCamera != null) {
             mHandlerThread.quitSafely();
             mCamera.release();
         }
+        CameraX.deinit().get();
     }
 
     @Test

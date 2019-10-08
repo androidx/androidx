@@ -152,13 +152,14 @@ public class FakeCamera implements BaseCamera {
     @Override
     @NonNull
     public ListenableFuture<Void> release() {
-        checkNotReleased();
         if (mState == State.OPEN) {
             close();
         }
 
-        mState = State.RELEASED;
-        mObservableState.postValue(State.RELEASED);
+        if (mState != State.RELEASED) {
+            mState = State.RELEASED;
+            mObservableState.postValue(State.RELEASED);
+        }
         return Futures.immediateFuture(null);
     }
 

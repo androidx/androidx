@@ -38,6 +38,11 @@ public final class FakeCameraDeviceSurfaceManager implements CameraDeviceSurface
     private static final Size PREVIEW_SIZE = new Size(1920, 1080);
 
     private Map<String, Map<Class<? extends UseCase>, Size>> mDefinedResolutions = new HashMap<>();
+    private boolean mInitialized = false;
+
+    public FakeCameraDeviceSurfaceManager() {
+        init();
+    }
 
     /**
      * Sets the given suggested resolutions for the specified camera Id and use case type.
@@ -51,6 +56,16 @@ public final class FakeCameraDeviceSurfaceManager implements CameraDeviceSurface
         }
 
         useCaseTypeToSizeMap.put(type, size);
+    }
+
+    @Override
+    public void init() {
+        mInitialized = true;
+    }
+
+    @Override
+    public boolean isInitialized() {
+        return mInitialized;
     }
 
     @Override

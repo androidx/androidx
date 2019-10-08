@@ -145,6 +145,15 @@ public final class Camera2DeviceSurfaceManagerTest {
     }
 
     @Test
+    public void checkInitialized() {
+        Camera2DeviceSurfaceManager manager = new Camera2DeviceSurfaceManager(mContext);
+        assertFalse(manager.isInitialized());
+
+        manager.init();
+        assertTrue(manager.isInitialized());
+    }
+
+    @Test
     public void checkLegacySurfaceCombinationSupportedInLegacyDevice() {
         SupportedSurfaceCombination supportedSurfaceCombination =
                 new SupportedSurfaceCombination(
@@ -576,8 +585,8 @@ public final class Camera2DeviceSurfaceManagerTest {
 
     private void initCameraX() {
         AppConfig appConfig = createFakeAppConfig();
-        mSurfaceManager = appConfig.getDeviceSurfaceManager(null);
         CameraX.init(mContext, appConfig);
+        mSurfaceManager = CameraX.getSurfaceManager();
     }
 
     private AppConfig createFakeAppConfig() {

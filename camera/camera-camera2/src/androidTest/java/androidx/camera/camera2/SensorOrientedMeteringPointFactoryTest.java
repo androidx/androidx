@@ -38,8 +38,11 @@ import androidx.lifecycle.LifecycleOwner;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.platform.app.InstrumentationRegistry;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.util.concurrent.ExecutionException;
 
 public final class SensorOrientedMeteringPointFactoryTest {
     private static final float WIDTH = 480;
@@ -55,6 +58,11 @@ public final class SensorOrientedMeteringPointFactoryTest {
         CameraX.init(context, config);
         mLifecycle = new FakeLifecycleOwner();
         mPointFactory = new SensorOrientedMeteringPointFactory(WIDTH, HEIGHT);
+    }
+
+    @After
+    public void tearDown() throws ExecutionException, InterruptedException {
+        CameraX.deinit().get();
     }
 
     @Test

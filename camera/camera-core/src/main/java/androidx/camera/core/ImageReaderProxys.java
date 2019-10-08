@@ -21,6 +21,7 @@ import android.media.ImageReader;
 import android.util.Log;
 import android.util.Size;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 
@@ -50,6 +51,7 @@ public final class ImageReaderProxys {
     /**
      * Creates an {@link ImageReaderProxy} which chooses a device-compatible implementation.
      *
+     * @param surfaceManager the camera device surface manager
      * @param cameraId  of the target camera
      * @param width     of the reader
      * @param height    of the reader
@@ -59,10 +61,11 @@ public final class ImageReaderProxys {
      * @return new {@link ImageReaderProxy} instance
      */
     static ImageReaderProxy createCompatibleReader(
-            String cameraId, int width, int height, int format, int maxImages,
-            Executor executor) {
+            CameraDeviceSurfaceManager surfaceManager, String cameraId,
+            int width, int height, int format, int maxImages, Executor executor) {
         if (inSharedReaderWhitelist(DeviceProperties.create())) {
-            return createSharedReader(cameraId, width, height, format, maxImages, executor);
+            return createSharedReader(surfaceManager, cameraId, width, height, format, maxImages,
+                    executor);
         } else {
             return createIsolatedReader(width, height, format, maxImages);
         }
@@ -86,6 +89,7 @@ public final class ImageReaderProxys {
     /**
      * Creates an {@link ImageReaderProxy} which shares an underlying {@link ImageReader}.
      *
+     * @param surfaceManager the camera device surface manager
      * @param cameraId  of the target camera
      * @param width     of the reader
      * @param height    of the reader
@@ -94,12 +98,12 @@ public final class ImageReaderProxys {
      * @param executor  for on-image-available callbacks
      * @return new {@link ImageReaderProxy} instance
      */
+    @NonNull
     public static ImageReaderProxy createSharedReader(
-            String cameraId, int width, int height, int format, int maxImages,
-            Executor executor) {
+            @NonNull CameraDeviceSurfaceManager surfaceManager, @NonNull String cameraId, int width,
+            int height, int format, int maxImages, @NonNull Executor executor) {
         if (sSharedImageReader == null) {
-            Size resolution =
-                    CameraX.getSurfaceManager().getMaxOutputSize(cameraId, SHARED_IMAGE_FORMAT);
+            Size resolution = surfaceManager.getMaxOutputSize(cameraId, SHARED_IMAGE_FORMAT);
             Log.d(TAG, "Resolution of base ImageReader: " + resolution);
             sSharedImageReader =
                     new AndroidImageReaderProxy(ImageReader.newInstance(

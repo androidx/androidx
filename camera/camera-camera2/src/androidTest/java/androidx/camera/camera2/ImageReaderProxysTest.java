@@ -26,7 +26,9 @@ import android.os.HandlerThread;
 import android.util.Size;
 
 import androidx.camera.camera2.impl.Camera2CameraFactory;
+import androidx.camera.camera2.impl.Camera2DeviceSurfaceManager;
 import androidx.camera.core.BaseCamera;
+import androidx.camera.core.CameraDeviceSurfaceManager;
 import androidx.camera.core.CameraFactory;
 import androidx.camera.core.ImageProxy;
 import androidx.camera.core.ImageReaderProxy;
@@ -63,6 +65,7 @@ public final class ImageReaderProxysTest {
     private static final String CAMERA_ID = "0";
 
     private static CameraFactory sCameraFactory;
+    private static CameraDeviceSurfaceManager sCameraDeviceSurfaceManager;
 
     private BaseCamera mCamera;
     private HandlerThread mHandlerThread;
@@ -84,9 +87,11 @@ public final class ImageReaderProxysTest {
     }
 
     @BeforeClass
-    public static void initializeFactory() {
+    public static void setUpClass() {
         Context context = ApplicationProvider.getApplicationContext();
         sCameraFactory = new Camera2CameraFactory(context);
+        sCameraDeviceSurfaceManager = new Camera2DeviceSurfaceManager(context);
+        sCameraDeviceSurfaceManager.init();
     }
 
     @Before
@@ -124,7 +129,8 @@ public final class ImageReaderProxysTest {
         for (int i = 0; i < 2; ++i) {
             ImageReaderProxy reader =
                     ImageReaderProxys.createSharedReader(
-                            CAMERA_ID, 640, 480, ImageFormat.YUV_420_888, 2,
+                            sCameraDeviceSurfaceManager, CAMERA_ID,
+                            640, 480, ImageFormat.YUV_420_888, 2,
                             CameraXExecutors.newHandlerExecutor(mHandler));
             Semaphore semaphore = new Semaphore(/*permits=*/ 0);
             reader.setOnImageAvailableListener(

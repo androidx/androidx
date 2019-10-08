@@ -17,6 +17,7 @@
 package androidx.camera.core;
 
 import androidx.annotation.NonNull;
+import androidx.camera.testing.fakes.FakeCameraDeviceSurfaceManager;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
@@ -63,6 +64,9 @@ public class ShadowCameraX {
         }
     };
 
+    private static final CameraDeviceSurfaceManager DEFAULT_DEVICE_SURFACE_MANAGER =
+            new FakeCameraDeviceSurfaceManager();
+
     /**
      * Shadow of {@link ShadowCameraX#getCameraWithCameraDeviceConfig(CameraDeviceConfig)}.
      */
@@ -89,4 +93,11 @@ public class ShadowCameraX {
         return (C) DEFAULT_IMAGE_ANALYSIS_CONFIG;
     }
 
+    /**
+     * Shadow of {@link CameraX#getSurfaceManager()}.
+     */
+    @Implementation
+    public static CameraDeviceSurfaceManager getSurfaceManager() {
+        return DEFAULT_DEVICE_SURFACE_MANAGER;
+    }
 }
