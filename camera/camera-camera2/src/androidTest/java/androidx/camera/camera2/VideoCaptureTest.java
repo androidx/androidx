@@ -43,6 +43,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 import androidx.test.rule.GrantPermissionRule;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -53,6 +54,7 @@ import org.mockito.Mockito;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
 /**
  * Minimal unit test for the VideoCapture because the {@link android.media.MediaRecorder}
@@ -94,6 +96,11 @@ public final class VideoCaptureTest {
                     "Unable to attach to camera with LensFacing " + LensFacing.BACK, e);
         }
         CameraX.init(context, appConfig);
+    }
+
+    @After
+    public void tearDown() throws ExecutionException, InterruptedException {
+        CameraX.deinit().get();
     }
 
     @Test

@@ -25,14 +25,12 @@ import android.app.Activity;
 import android.app.Instrumentation;
 import android.content.Context;
 import android.graphics.SurfaceTexture;
-import android.hardware.camera2.CameraDevice;
 import android.view.TextureView;
 import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.camera.camera2.Camera2AppConfig;
-import androidx.camera.camera2.Camera2Config;
 import androidx.camera.core.AppConfig;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.DisplayOrientedMeteringPointFactory;
@@ -59,6 +57,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 @LargeTest
@@ -86,7 +85,6 @@ public class TextureViewMeteringPointFactoryTest {
     private final Instrumentation mInstrumentation = InstrumentationRegistry.getInstrumentation();
     private FakeLifecycleOwner mLifecycle;
     private CountDownLatch mLatchForFrameReady;
-    private CountDownLatch mLatchForCameraClose;
     private Context mContext;
     private TextureView mTextureView;
     private int mWidth;
@@ -102,22 +100,14 @@ public class TextureViewMeteringPointFactoryTest {
         CameraX.init(mContext, config);
         mLifecycle = new FakeLifecycleOwner();
         mLatchForFrameReady = new CountDownLatch(1);
-        mLatchForCameraClose = new CountDownLatch(1);
         mTextureView = new TextureView(mContext);
         setContentView(mTextureView);
     }
 
     @After
-    public void tearDown() throws InterruptedException {
-        mInstrumentation.runOnMainSync(new Runnable() {
-            @Override
-            public void run() {
-                CameraX.unbindAll();
-            }
-        });
-        if (mLatchForCameraClose != null) {
-            mLatchForCameraClose.await(3, TimeUnit.SECONDS);
-        }
+    public void tearDown() throws InterruptedException, ExecutionException {
+        mInstrumentation.runOnMainSync(CameraX::unbindAll);
+        CameraX.deinit().get();
     }
 
     @Test
@@ -202,26 +192,6 @@ public class TextureViewMeteringPointFactoryTest {
         PreviewConfig.Builder previewConfigBuilder =
                 new PreviewConfig.Builder()
                         .setLensFacing(lensFacing);
-
-        new Camera2Config.Extender(previewConfigBuilder)
-                .setDeviceStateCallback(new CameraDevice.StateCallback() {
-                    @Override
-                    public void onOpened(@NonNull CameraDevice cameraDevice) {
-                    }
-
-                    @Override
-                    public void onClosed(@NonNull CameraDevice camera) {
-                        mLatchForCameraClose.countDown();
-                    }
-
-                    @Override
-                    public void onDisconnected(@NonNull CameraDevice cameraDevice) {
-                    }
-
-                    @Override
-                    public void onError(@NonNull CameraDevice cameraDevice, int i) {
-                    }
-                });
 
         Preview preview = new Preview(previewConfigBuilder.build());
         mInstrumentation.runOnMainSync(new Runnable() {

@@ -23,6 +23,7 @@ import androidx.annotation.RestrictTo.Scope;
 
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.Executor;
 
 /**
  * Configuration for adding implementation and user-specific behavior to CameraX.
@@ -47,6 +48,10 @@ public final class AppConfig implements TargetConfig<CameraX>, Config {
             Option.create(
                     "camerax.core.appConfig.useCaseConfigFactory",
                     UseCaseConfigFactory.class);
+    static final Option<Executor> OPTION_CAMERA_EXECUTOR =
+            Option.create(
+                    "camerax.core.appConfig.cameraExecutor",
+                    Executor.class);
 
     // *********************************************************************************************
 
@@ -91,6 +96,17 @@ public final class AppConfig implements TargetConfig<CameraX>, Config {
     public UseCaseConfigFactory getUseCaseConfigRepository(
             @Nullable UseCaseConfigFactory valueIfMissing) {
         return mConfig.retrieveOption(OPTION_USECASE_CONFIG_FACTORY, valueIfMissing);
+    }
+
+    /**
+     * Returns the camera executor.
+     *
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @Nullable
+    public Executor getCameraExecutor(@Nullable Executor valueIfMissing) {
+        return mConfig.retrieveOption(OPTION_CAMERA_EXECUTOR, valueIfMissing);
     }
 
     // Start of the default implementation of Config
@@ -258,6 +274,15 @@ public final class AppConfig implements TargetConfig<CameraX>, Config {
         @NonNull
         public Builder setUseCaseConfigFactory(@NonNull UseCaseConfigFactory repository) {
             getMutableConfig().insertOption(OPTION_USECASE_CONFIG_FACTORY, repository);
+            return this;
+        }
+
+        /**
+         * Sets the camera executor.
+         */
+        @NonNull
+        public Builder setCameraExecutor(@NonNull Executor executor) {
+            getMutableConfig().insertOption(OPTION_CAMERA_EXECUTOR, executor);
             return this;
         }
 

@@ -20,8 +20,11 @@ package androidx.camera.camera2;
 import static org.junit.Assume.assumeNotNull;
 import static org.junit.Assume.assumeTrue;
 
+import android.app.Instrumentation;
+import android.content.Context;
 import android.content.Intent;
 
+import androidx.camera.core.CameraX;
 import androidx.camera.testing.CameraUtil;
 import androidx.camera.testing.CoreAppTestUtil;
 import androidx.camera.testing.activity.Camera2TestActivity;
@@ -43,6 +46,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.concurrent.ExecutionException;
+
 @RunWith(AndroidJUnit4.class)
 @LargeTest
 public class CameraDisconnectTest {
@@ -59,6 +64,7 @@ public class CameraDisconnectTest {
     public ActivityTestRule<Camera2TestActivity> mCamera2ActivityRule =
             new ActivityTestRule<>(Camera2TestActivity.class, true, false);
 
+    private final Instrumentation mInstrumentation = InstrumentationRegistry.getInstrumentation();
     private CameraXTestActivity mCameraXTestActivity;
 
     @Before
@@ -66,9 +72,11 @@ public class CameraDisconnectTest {
         assumeTrue(CameraUtil.deviceHasCamera());
         CoreAppTestUtil.assumeCompatibleDevice();
 
+        Context context = ApplicationProvider.getApplicationContext();
+        CameraX.init(context, Camera2AppConfig.create(context));
+
         // In case the lock screen on top, the action to dismiss it.
-        UiDevice.getInstance(InstrumentationRegistry.getInstrumentation()).pressKeyCode(
-                DISMISS_LOCK_SCREEN_CODE);
+        UiDevice.getInstance(mInstrumentation).pressKeyCode(DISMISS_LOCK_SCREEN_CODE);
 
         // Close system dialogs first to avoid interrupt.
         ApplicationProvider.getApplicationContext().sendBroadcast(
@@ -79,9 +87,15 @@ public class CameraDisconnectTest {
     }
 
     @After
-    public void tearDown() {
+    public void tearDown() throws ExecutionException, InterruptedException {
         mCameraXTestActivityRule.finishActivity();
         mCamera2ActivityRule.finishActivity();
+
+        // Actively unbind all use cases to avoid lifecycle callback later to stop/clear use case
+        // after deinit() is complete.
+        mInstrumentation.runOnMainSync(CameraX::unbindAll);
+
+        CameraX.deinit().get();
     }
 
     @Test
