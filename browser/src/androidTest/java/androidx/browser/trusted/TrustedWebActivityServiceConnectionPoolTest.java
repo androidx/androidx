@@ -24,6 +24,7 @@ import static org.junit.Assert.fail;
 import android.content.Context;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.RemoteException;
 
 import androidx.browser.customtabs.EnableComponentsTestRule;
 import androidx.browser.customtabs.TestActivity;
@@ -90,7 +91,7 @@ public class TrustedWebActivityServiceConnectionPoolTest {
                 assertEquals(TestTrustedWebActivityService.SMALL_ICON_ID,
                         serviceFuture.get().getSmallIconId());
                 connected.set(true);
-            } catch (ExecutionException | InterruptedException e) {
+            } catch (RemoteException | ExecutionException | InterruptedException e) {
                 throw new RuntimeException(e);
             }
         }, AsyncTask.THREAD_POOL_EXECUTOR);
