@@ -19,7 +19,6 @@ package androidx.ui.core
 import android.app.Activity
 import androidx.benchmark.junit4.BenchmarkRule
 import androidx.test.filters.LargeTest
-import androidx.test.filters.Suppress
 import androidx.test.rule.ActivityTestRule
 import androidx.ui.benchmark.measureDrawPerf
 import androidx.ui.benchmark.measureFirstCompose
@@ -39,7 +38,6 @@ import org.junit.runners.Parameterized
  * The benchmark for [Text] widget with the input being a styled text in the form of
  * AnnotatedString.
  */
-@Suppress
 @LargeTest
 @RunWith(Parameterized::class)
 class TextMultiStyleBenchmark(
@@ -65,7 +63,7 @@ class TextMultiStyleBenchmark(
         @Parameterized.Parameters(name = "length={0} styleCount={1}")
         fun initParameters() = cartesian(
                 arrayOf(32, 512),
-                arrayOf(32, 512)
+                arrayOf(0, 32)
             )
     }
 
