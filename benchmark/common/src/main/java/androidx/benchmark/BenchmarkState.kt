@@ -93,7 +93,10 @@ class BenchmarkState {
     private var internalStats: Stats? = null
 
     // Individual duration in nano seconds.
-    private val results = ArrayList<Long>()
+    private val results = ArrayList<Long>().apply {
+        // avoid allocations during benchmark loop
+        ensureCapacity(REPEAT_COUNT)
+    }
 
     internal var performThrottleChecks = true
     private var throttleRemainingRetries = THROTTLE_MAX_RETRIES
@@ -260,6 +263,7 @@ class BenchmarkState {
                 if (ENABLE_PROFILING) {
                     Debug.stopMethodTracing()
                 }
+                warmupManager.logInfo()
                 internalStats = Stats(results)
                 state = FINISHED
                 totalRunTimeNs = System.nanoTime() - totalRunTimeStartNs
