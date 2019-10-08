@@ -38,8 +38,6 @@ import androidx.camera.core.CameraX.LensFacing;
 import androidx.camera.core.ImageOutputConfig.RotationValue;
 import androidx.camera.core.impl.utils.Threads;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
-import androidx.camera.core.impl.utils.futures.Futures;
-import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.core.util.Preconditions;
 
 import com.google.auto.value.AutoValue;
@@ -131,6 +129,11 @@ public class Preview extends UseCase {
         SessionConfig.Builder sessionConfigBuilder = SessionConfig.Builder.createFrom(config);
 
         final CaptureProcessor captureProcessor = config.getCaptureProcessor(null);
+
+        CallbackDeferrableSurface callbackDeferrableSurface =
+                isUsingPreviewSurfaceCallback() ? new CallbackDeferrableSurface(
+                        resolution, mPreviewSurfaceCallbackExecutor,
+                        mPreviewSurfaceCallback) : null;
         if (captureProcessor != null) {
             // TODO(b/117519540): Use {@link PreviewSurfaceCallback} for extensions too.
             Preconditions.checkState(!isUsingPreviewSurfaceCallback(),
@@ -176,30 +179,23 @@ public class Preview extends UseCase {
                 });
             }
 
-            if (isUsingPreviewSurfaceCallback()) {
-                PreviewSurfaceCallback previewSurfaceCallback = mPreviewSurfaceCallback;
-                Executor previewSurfaceCallbackExecutor = mPreviewSurfaceCallbackExecutor;
-                sessionConfigBuilder.addSurface(new DeferrableSurface() {
-                    @Override
-                    ListenableFuture<Surface> provideSurface() {
-                        return getPreviewSurfaceCallbackFuture(
-                                previewSurfaceCallbackExecutor, previewSurfaceCallback,
-                                resolution);
-                    }
-                });
+            if (callbackDeferrableSurface != null) {
+                mSurfaceTextureHolder = callbackDeferrableSurface;
+                sessionConfigBuilder.addSurface(callbackDeferrableSurface);
             } else {
                 CheckedSurfaceTexture checkedSurfaceTexture = new CheckedSurfaceTexture(resolution);
                 mSurfaceTextureHolder = checkedSurfaceTexture;
                 sessionConfigBuilder.addSurface(checkedSurfaceTexture);
             }
         }
-
         sessionConfigBuilder.addErrorListener(new SessionConfig.ErrorListener() {
             @Override
             public void onError(@NonNull SessionConfig sessionConfig,
                     @NonNull SessionConfig.SessionError error) {
-                if (!isUsingPreviewSurfaceCallback()) {
+                if (callbackDeferrableSurface == null) {
                     clearPipeline();
+                } else {
+                    callbackDeferrableSurface.release();
                 }
                 SessionConfig.Builder sessionConfigBuilder = createPipeline(config, resolution);
                 String cameraId = getCameraIdUnchecked(config);
@@ -214,27 +210,6 @@ public class Preview extends UseCase {
         return sessionConfigBuilder;
     }
 
-    /**
-     * Wraps a {@link PreviewSurfaceCallback#getSurface(Size, int)} call into a
-     * {@link ListenableFuture<Surface>}.
-     */
-    @SuppressWarnings("WeakerAccess") /* Synthetic Accessor */
-    @NonNull
-    static ListenableFuture<Surface> getPreviewSurfaceCallbackFuture(
-            Executor callbackExecutor,
-            PreviewSurfaceCallback previewSurfaceCallback,
-            Size resolution) {
-        return CallbackToFutureAdapter.getFuture(
-                completer -> {
-                    callbackExecutor.execute(() -> {
-                        // TODO(b/117519540): pass the image format to user.
-                        Futures.propagate(previewSurfaceCallback.getSurface(resolution, 0),
-                                completer);
-
-                    });
-                    return "GetSurfaceFutureWithExecutor";
-                });
-    }
 
     /**
      * Clear the internal pipeline so that the pipeline can be set up again.
@@ -245,7 +220,6 @@ public class Preview extends UseCase {
     @Deprecated
     void clearPipeline() {
         Threads.checkMainThread();
-        Preconditions.checkState(!isUsingPreviewSurfaceCallback());
         SurfaceTextureHolder surfaceTextureHolder = mSurfaceTextureHolder;
         mSurfaceTextureHolder = null;
         if (surfaceTextureHolder != null) {
@@ -406,7 +380,7 @@ public class Preview extends UseCase {
      * Sets a {@link PreviewSurfaceCallback} to provide Surface for Preview.
      *
      * <p> Setting the callback will signal to the camera that the use case is ready to receive
-     *   data. The callback will be triggered on main thread.
+     * data. The callback will be triggered on main thread.
      *
      * @param previewSurfaceCallback PreviewSurfaceCallback that provides a Preview.
      */
@@ -590,6 +564,7 @@ public class Preview extends UseCase {
             oldTexture.release();
         }
 
+        clearPipeline();
         super.clear();
     }
 
@@ -706,20 +681,31 @@ public class Preview extends UseCase {
     public interface PreviewSurfaceCallback {
 
         /**
-         * Get preview output Surface with the given resolution and format.
+         * Creates preview output Surface with the given resolution and format.
          *
          * <p> This is called when Preview needs a valid Surface. e.g. when the Preview is bound
-         * to lifecycle or the current Surface is no longer valid. When that happens, the
-         * implementation is required to create a Surface with the given resolution/format. If
-         * the {@link Surface} is backed by a {@link SurfaceTexture}, the {@link Surface} and the
-         * {@link SurfaceTexture} need to be recreated each time this is invoked.
+         * to lifecycle. If the {@link Surface} is backed by a {@link SurfaceTexture}, both the
+         * {@link Surface} and the {@link ListenableFuture} need to be recreated each time this
+         * is invoked.
          *
          * @param resolution  the resolution required by CameraX.
          * @param imageFormat the {@link ImageFormat} required by CameraX.
          * @return A ListenableFuture that contains the user created Surface.
          */
         @NonNull
-        ListenableFuture<Surface> getSurface(@NonNull Size resolution, int imageFormat);
+        ListenableFuture<Surface> createSurfaceFuture(@NonNull Size resolution, int imageFormat);
+
+        /**
+         * Called when the {@link Surface} is safe to release.
+         *
+         * <p> This method is called when the {@link Surface} previously
+         * returned from {@link #createSurfaceFuture(Size, int)} is no longer in use. If the
+         * {@link Surface} is backed by a {@link SurfaceTexture}, it should be released to avoid
+         * leak.
+         *
+         * @param surfaceFuture the {@link Surface} to release.
+         */
+        void onSafeToRelease(@NonNull ListenableFuture<Surface> surfaceFuture);
     }
 
     /**
