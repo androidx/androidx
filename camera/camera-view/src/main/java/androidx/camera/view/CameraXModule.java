@@ -42,13 +42,13 @@ import androidx.camera.core.CameraX;
 import androidx.camera.core.CameraX.LensFacing;
 import androidx.camera.core.FlashMode;
 import androidx.camera.core.ImageCapture;
-import androidx.camera.core.ImageCapture.OnImageCapturedListener;
-import androidx.camera.core.ImageCapture.OnImageSavedListener;
+import androidx.camera.core.ImageCapture.OnImageCapturedCallback;
+import androidx.camera.core.ImageCapture.OnImageSavedCallback;
 import androidx.camera.core.ImageCaptureConfig;
 import androidx.camera.core.Preview;
 import androidx.camera.core.PreviewConfig;
 import androidx.camera.core.VideoCapture;
-import androidx.camera.core.VideoCapture.OnVideoSavedListener;
+import androidx.camera.core.VideoCapture.OnVideoSavedCallback;
 import androidx.camera.core.VideoCaptureConfig;
 import androidx.camera.view.CameraView.CaptureMode;
 import androidx.lifecycle.Lifecycle;
@@ -287,7 +287,7 @@ final class CameraXModule {
                 "Explicit open/close of camera not yet supported. Use bindtoLifecycle() instead.");
     }
 
-    public void takePicture(Executor executor, OnImageCapturedListener listener) {
+    public void takePicture(Executor executor, OnImageCapturedCallback callback) {
         if (mImageCapture == null) {
             return;
         }
@@ -296,14 +296,14 @@ final class CameraXModule {
             throw new IllegalStateException("Can not take picture under VIDEO capture mode.");
         }
 
-        if (listener == null) {
-            throw new IllegalArgumentException("OnImageCapturedListener should not be empty");
+        if (callback == null) {
+            throw new IllegalArgumentException("OnImageCapturedCallback should not be empty");
         }
 
-        mImageCapture.takePicture(executor, listener);
+        mImageCapture.takePicture(executor, callback);
     }
 
-    public void takePicture(File saveLocation, Executor executor, OnImageSavedListener listener) {
+    public void takePicture(File saveLocation, Executor executor, OnImageSavedCallback callback) {
         if (mImageCapture == null) {
             return;
         }
@@ -312,16 +312,16 @@ final class CameraXModule {
             throw new IllegalStateException("Can not take picture under VIDEO capture mode.");
         }
 
-        if (listener == null) {
-            throw new IllegalArgumentException("OnImageSavedListener should not be empty");
+        if (callback == null) {
+            throw new IllegalArgumentException("OnImageSavedCallback should not be empty");
         }
 
         ImageCapture.Metadata metadata = new ImageCapture.Metadata();
         metadata.isReversedHorizontal = mCameraLensFacing == LensFacing.FRONT;
-        mImageCapture.takePicture(saveLocation, metadata, executor, listener);
+        mImageCapture.takePicture(saveLocation, metadata, executor, callback);
     }
 
-    public void startRecording(File file, Executor executor, final OnVideoSavedListener listener) {
+    public void startRecording(File file, Executor executor, final OnVideoSavedCallback callback) {
         if (mVideoCapture == null) {
             return;
         }
@@ -330,19 +330,19 @@ final class CameraXModule {
             throw new IllegalStateException("Can not record video under IMAGE capture mode.");
         }
 
-        if (listener == null) {
-            throw new IllegalArgumentException("OnVideoSavedListener should not be empty");
+        if (callback == null) {
+            throw new IllegalArgumentException("OnVideoSavedCallback should not be empty");
         }
 
         mVideoIsRecording.set(true);
         mVideoCapture.startRecording(
                 file,
                 executor,
-                new VideoCapture.OnVideoSavedListener() {
+                new VideoCapture.OnVideoSavedCallback() {
                     @Override
                     public void onVideoSaved(@NonNull File savedFile) {
                         mVideoIsRecording.set(false);
-                        listener.onVideoSaved(savedFile);
+                        callback.onVideoSaved(savedFile);
                     }
 
                     @Override
@@ -352,7 +352,7 @@ final class CameraXModule {
                             @Nullable Throwable cause) {
                         mVideoIsRecording.set(false);
                         Log.e(TAG, message, cause);
-                        listener.onError(videoCaptureError, message, cause);
+                        callback.onError(videoCaptureError, message, cause);
                     }
                 });
     }

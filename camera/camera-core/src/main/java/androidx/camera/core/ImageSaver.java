@@ -44,7 +44,7 @@ final class ImageSaver implements Runnable {
     // The executor to call back on
     private final Executor mExecutor;
     // The callback to call on completion
-    final OnImageSavedListener mListener;
+    final OnImageSavedCallback mCallback;
 
     ImageSaver(
             ImageProxy image,
@@ -54,13 +54,13 @@ final class ImageSaver implements Runnable {
             boolean reversedVertical,
             @Nullable Location location,
             Executor executor,
-            OnImageSavedListener listener) {
+            OnImageSavedCallback callback) {
         mImage = image;
         mFile = file;
         mOrientation = orientation;
         mIsReversedHorizontal = reversedHorizontal;
         mIsReversedVertical = reversedVertical;
-        mListener = listener;
+        mCallback = callback;
         mExecutor = executor;
         mLocation = location;
     }
@@ -123,7 +123,7 @@ final class ImageSaver implements Runnable {
         mExecutor.execute(new Runnable() {
             @Override
             public void run() {
-                mListener.onImageSaved(mFile);
+                mCallback.onImageSaved(mFile);
             }
         });
     }
@@ -133,7 +133,7 @@ final class ImageSaver implements Runnable {
         mExecutor.execute(new Runnable() {
             @Override
             public void run() {
-                mListener.onError(saveError, message, cause);
+                mCallback.onError(saveError, message, cause);
             }
         });
     }
@@ -149,7 +149,7 @@ final class ImageSaver implements Runnable {
         UNKNOWN
     }
 
-    public interface OnImageSavedListener {
+    public interface OnImageSavedCallback {
 
         void onImageSaved(File file);
 

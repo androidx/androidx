@@ -4,7 +4,7 @@
     <issue
         id="LambdaLast"
         message="Functional interface parameters (such as parameter 3, &quot;executor&quot;, in androidx.camera.camera2.impl.compat.CameraCaptureSessionCompat.captureBurstRequests) should be last to improve Kotlin interoperability; see https://kotlinlang.org/docs/reference/java-interop.html#sam-conversions"
-        errorLine1="            @NonNull CameraCaptureSession.CaptureCallback listener)"
+        errorLine1="            @NonNull CameraCaptureSession.CaptureCallback callback)"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/camera2/impl/compat/CameraCaptureSessionCompat.java"
@@ -15,7 +15,7 @@
     <issue
         id="LambdaLast"
         message="Functional interface parameters (such as parameter 3, &quot;executor&quot;, in androidx.camera.camera2.impl.compat.CameraCaptureSessionCompat.captureSingleRequest) should be last to improve Kotlin interoperability; see https://kotlinlang.org/docs/reference/java-interop.html#sam-conversions"
-        errorLine1="            @NonNull CameraCaptureSession.CaptureCallback listener)"
+        errorLine1="            @NonNull CameraCaptureSession.CaptureCallback callback)"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/camera2/impl/compat/CameraCaptureSessionCompat.java"
@@ -26,7 +26,7 @@
     <issue
         id="LambdaLast"
         message="Functional interface parameters (such as parameter 3, &quot;executor&quot;, in androidx.camera.camera2.impl.compat.CameraCaptureSessionCompat.setRepeatingBurstRequests) should be last to improve Kotlin interoperability; see https://kotlinlang.org/docs/reference/java-interop.html#sam-conversions"
-        errorLine1="            @NonNull CameraCaptureSession.CaptureCallback listener)"
+        errorLine1="            @NonNull CameraCaptureSession.CaptureCallback callback)"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/camera2/impl/compat/CameraCaptureSessionCompat.java"
@@ -37,7 +37,7 @@
     <issue
         id="LambdaLast"
         message="Functional interface parameters (such as parameter 3, &quot;executor&quot;, in androidx.camera.camera2.impl.compat.CameraCaptureSessionCompat.setSingleRepeatingRequest) should be last to improve Kotlin interoperability; see https://kotlinlang.org/docs/reference/java-interop.html#sam-conversions"
-        errorLine1="            @NonNull CameraCaptureSession.CaptureCallback listener)"
+        errorLine1="            @NonNull CameraCaptureSession.CaptureCallback callback)"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/camera2/impl/compat/CameraCaptureSessionCompat.java"

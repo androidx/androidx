@@ -85,7 +85,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * <p>Note that focus and exposure metering regions can be controlled via {@link Preview}.
  *
  * <p>When capturing to memory, the captured image is made available through an {@link ImageProxy}
- * via an {@link ImageCapture.OnImageCapturedListener}.
+ * via an {@link ImageCapture.OnImageCapturedCallback}.
  */
 @SuppressWarnings("ClassCanBeStatic") // TODO(b/141958189): Suppressed during upgrade to AGP 3.6.
 public class ImageCapture extends UseCase {
@@ -138,7 +138,7 @@ public class ImageCapture extends UseCase {
 
     /**
      * Processing that gets done to the mCaptureBundle to produce the final image that is produced
-     * by {@link #takePicture(Executor, OnImageCapturedListener)}
+     * by {@link #takePicture(Executor, OnImageCapturedCallback)}
      */
     private final CaptureProcessor mCaptureProcessor;
     private final ImageCaptureConfig.Builder mUseCaseConfigBuilder;
@@ -368,11 +368,11 @@ public class ImageCapture extends UseCase {
      * Sets target aspect ratio.
      *
      * <p>This sets the cropping rectangle returned by {@link ImageProxy#getCropRect()} returned
-     * from {@link ImageCapture#takePicture(Executor, OnImageCapturedListener)}.
+     * from {@link ImageCapture#takePicture(Executor, OnImageCapturedCallback)}.
      *
      * <p>This crops the saved image when calling
-     * {@link ImageCapture#takePicture(File, Executor, OnImageSavedListener)} or
-     * {@link ImageCapture#takePicture(File, Metadata, Executor, OnImageSavedListener)}.
+     * {@link ImageCapture#takePicture(File, Executor, OnImageSavedCallback)} or
+     * {@link ImageCapture#takePicture(File, Metadata, Executor, OnImageSavedCallback)}.
      *
      * <p>Cropping occurs around the center of the image and as though it were in the target
      * rotation.
@@ -395,7 +395,7 @@ public class ImageCapture extends UseCase {
      * Sets the desired rotation of the output image.
      *
      * <p>This will affect the EXIF rotation metadata in images saved by takePicture calls and the
-     * rotation value returned by {@link OnImageCapturedListener}.
+     * rotation value returned by {@link OnImageCapturedCallback}.
      *
      * <p>In most cases this should be set to the current rotation returned by {@link
      * Display#getRotation()}.  In that case, the output rotation from takePicture calls will be the
@@ -430,27 +430,27 @@ public class ImageCapture extends UseCase {
     /**
      * Captures a new still image for in memory access.
      *
-     * <p>The listener's callback will be called only once for every invocation of this method. The
-     * listener is responsible for calling {@link Image#close()} on the returned image.
+     * <p>The callback will be called only once for every invocation of this method. The listener
+     * is responsible for calling {@link Image#close()} on the returned image.
      *
-     * @param executor The executor in which the listener callback methods will be run.
-     * @param listener Listener to be called for the newly captured image
+     * @param executor The executor in which the callback methods will be run.
+     * @param callback Callback to be invoked for the newly captured image
      */
     @SuppressLint("LambdaLast") // Maybe remove after https://issuetracker.google.com/135275901
     public void takePicture(@NonNull Executor executor,
-            final @NonNull OnImageCapturedListener listener) {
+            final @NonNull OnImageCapturedCallback callback) {
         if (Looper.getMainLooper() != Looper.myLooper()) {
             mMainHandler.post(
                     new Runnable() {
                         @Override
                         public void run() {
-                            ImageCapture.this.takePicture(executor, listener);
+                            ImageCapture.this.takePicture(executor, callback);
                         }
                     });
             return;
         }
 
-        sendImageCaptureRequest(executor, listener);
+        sendImageCaptureRequest(executor, callback);
     }
 
     /**
@@ -465,14 +465,14 @@ public class ImageCapture extends UseCase {
     @SuppressLint("LambdaLast") // Maybe remove after https://issuetracker.google.com/135275901
     public void takePicture(@NonNull File saveLocation,
             @NonNull Executor executor,
-            @NonNull OnImageSavedListener imageSavedListener) {
+            @NonNull OnImageSavedCallback imageSavedListener) {
         takePicture(saveLocation, EMPTY_METADATA, executor, imageSavedListener);
     }
 
     /**
      * Captures a new still image and saves to a file along with application specified metadata.
      *
-     * <p>The listener's callback will be called only once for every invocation of this method.
+     * <p>The callback will be called only once for every invocation of this method.
      *
      * <p>This function accepts metadata as a parameter from application code.  For JPEGs, this
      * metadata will be included in the EXIF.
@@ -480,21 +480,21 @@ public class ImageCapture extends UseCase {
      * @param saveLocation       Location to store the newly captured image.
      * @param metadata           Metadata to be stored with the saved image. For JPEG this will
      *                           be included in the EXIF.
-     * @param executor           The executor in which the listener callback methods will be run.
-     * @param imageSavedListener Listener to be called for the newly captured image.
+     * @param executor           The executor in which the callback methods will be run.
+     * @param imageSavedCallback Callback to be called for the newly captured image.
      */
     @SuppressLint("LambdaLast") // Maybe remove after https://issuetracker.google.com/135275901
     public void takePicture(
             final @NonNull File saveLocation,
             final @NonNull Metadata metadata, @NonNull Executor executor,
-            final @NonNull OnImageSavedListener imageSavedListener) {
+            final @NonNull OnImageSavedCallback imageSavedCallback) {
         if (Looper.getMainLooper() != Looper.myLooper()) {
             mMainHandler.post(
                     new Runnable() {
                         @Override
                         public void run() {
                             ImageCapture.this.takePicture(saveLocation,
-                                    metadata, executor, imageSavedListener);
+                                    metadata, executor, imageSavedCallback);
                         }
                     });
             return;
@@ -506,7 +506,7 @@ public class ImageCapture extends UseCase {
          * +-----------------------+
          * |                       |
          * |ImageCapture.          |
-         * |OnImageCapturedListener|
+         * |OnImageCapturedCallback|
          * |                       |
          * +-----------+-----------+
          *             |
@@ -514,17 +514,17 @@ public class ImageCapture extends UseCase {
          * +-----------v-----------+      +----------------------+
          * |                       |      |                      |
          * | ImageSaver.           |      | ImageCapture.        |
-         * | OnImageSavedListener  +------> OnImageSavedListener |
+         * | OnImageSavedCallback  +------> OnImageSavedCallback |
          * |                       |      |                      |
          * +-----------------------+      +----------------------+
          */
 
-        // Convert the ImageSaver.OnImageSavedListener to ImageCapture.OnImageSavedListener
-        final ImageSaver.OnImageSavedListener imageSavedListenerWrapper =
-                new ImageSaver.OnImageSavedListener() {
+        // Convert the ImageSaver.OnImageSavedCallback to ImageCapture.OnImageSavedCallback
+        final ImageSaver.OnImageSavedCallback imageSavedCallbackWrapper =
+                new ImageSaver.OnImageSavedCallback() {
                     @Override
                     public void onImageSaved(File file) {
-                        imageSavedListener.onImageSaved(file);
+                        imageSavedCallback.onImageSaved(file);
                     }
 
                     @Override
@@ -540,14 +540,14 @@ public class ImageCapture extends UseCase {
                                 break;
                         }
 
-                        imageSavedListener.onError(imageCaptureError, message, cause);
+                        imageSavedCallback.onError(imageCaptureError, message, cause);
                     }
                 };
 
-        // Wrap the ImageCapture.OnImageSavedListener with an OnImageCapturedListener so it can
+        // Wrap the ImageCapture.OnImageSavedCallback with an OnImageCapturedCallback so it can
         // be put into the capture request queue
-        OnImageCapturedListener imageCaptureCallbackWrapper =
-                new OnImageCapturedListener() {
+        OnImageCapturedCallback imageCaptureCallbackWrapper =
+                new OnImageCapturedCallback() {
                     @Override
                     public void onCaptureSuccess(ImageProxy image, int rotationDegrees) {
                         mIoExecutor.execute(
@@ -559,14 +559,14 @@ public class ImageCapture extends UseCase {
                                         metadata.isReversedVertical,
                                         metadata.location,
                                         executor,
-                                        imageSavedListenerWrapper));
+                                        imageSavedCallbackWrapper));
                     }
 
                     @Override
                     public void onError(
                             @NonNull ImageCaptureError error, @NonNull String message,
                             @Nullable Throwable cause) {
-                        imageSavedListener.onError(error, message, cause);
+                        imageSavedCallback.onError(error, message, cause);
                     }
                 };
 
@@ -577,7 +577,7 @@ public class ImageCapture extends UseCase {
 
     @UiThread
     private void sendImageCaptureRequest(
-            @Nullable Executor listenerExecutor, OnImageCapturedListener listener) {
+            @Nullable Executor listenerExecutor, OnImageCapturedCallback callback) {
 
         String cameraId = getCameraIdUnchecked(mConfig);
 
@@ -596,7 +596,7 @@ public class ImageCapture extends UseCase {
         targetRatio = ImageUtil.rotate(targetRatio, relativeRotation);
 
         mImageCaptureRequests.offer(
-                new ImageCaptureRequest(relativeRotation, targetRatio, listenerExecutor, listener));
+                new ImageCaptureRequest(relativeRotation, targetRatio, listenerExecutor, callback));
         if (mImageCaptureRequests.size() == 1) {
             issueImageCaptureRequests();
         }
@@ -1071,10 +1071,10 @@ public class ImageCapture extends UseCase {
 
     /**
      * Describes the error that occurred during an image capture operation (such as {@link
-     * ImageCapture#takePicture(Executor, OnImageCapturedListener)}).
+     * ImageCapture#takePicture(Executor, OnImageCapturedCallback)}).
      *
      * <p>This is a parameter sent to the error callback functions set in listeners such as {@link
-     * ImageCapture.OnImageSavedListener#onError(ImageCaptureError, String, Throwable)}.
+     * ImageCapture.OnImageSavedCallback#onError(ImageCaptureError, String, Throwable)}.
      */
     public enum ImageCaptureError {
         /**
@@ -1109,7 +1109,7 @@ public class ImageCapture extends UseCase {
     }
 
     /** Listener containing callbacks for image file I/O events. */
-    public interface OnImageSavedListener {
+    public interface OnImageSavedCallback {
         /** Called when an image has been successfully saved. */
         void onImageSaved(@NonNull File file);
 
@@ -1121,9 +1121,9 @@ public class ImageCapture extends UseCase {
     }
 
     /**
-     * Listener called when an image capture has completed.
+     * Callback for when an image capture has completed.
      */
-    public abstract static class OnImageCapturedListener {
+    public abstract static class OnImageCapturedCallback {
         /**
          * Callback for when the image has been captured.
          *
@@ -1365,17 +1365,17 @@ public class ImageCapture extends UseCase {
         @NonNull
         Executor mListenerExecutor;
         @NonNull
-        OnImageCapturedListener mListener;
+        OnImageCapturedCallback mCallback;
 
         ImageCaptureRequest(
                 @RotationValue int rotationDegrees,
                 Rational targetRatio,
                 @NonNull Executor executor,
-                @NonNull OnImageCapturedListener listener) {
+                @NonNull OnImageCapturedCallback callback) {
             mRotationDegrees = rotationDegrees;
             mTargetRatio = targetRatio;
             mListenerExecutor = executor;
-            mListener = listener;
+            mCallback = callback;
         }
 
         void dispatchImage(final ImageProxy image) {
@@ -1390,7 +1390,7 @@ public class ImageCapture extends UseCase {
                                             mTargetRatio));
                         }
 
-                        mListener.onCaptureSuccess(image, mRotationDegrees);
+                        mCallback.onCaptureSuccess(image, mRotationDegrees);
                     }
                 });
             } catch (RejectedExecutionException e) {
@@ -1407,7 +1407,7 @@ public class ImageCapture extends UseCase {
                 mListenerExecutor.execute(new Runnable() {
                     @Override
                     public void run() {
-                        mListener.onError(imageCaptureError, message, cause);
+                        mCallback.onError(imageCaptureError, message, cause);
                     }
                 });
             } catch (RejectedExecutionException e) {
