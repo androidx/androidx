@@ -31,7 +31,7 @@ import androidx.annotation.AnimRes
 import androidx.fragment.app.test.FragmentTestActivity
 import androidx.fragment.test.R
 import androidx.lifecycle.Lifecycle
-import androidx.test.filters.MediumTest
+import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.rule.ActivityTestRule
 import androidx.testutils.waitForExecution
@@ -45,7 +45,7 @@ import org.junit.runners.Parameterized
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 
-@MediumTest
+@LargeTest
 @RunWith(Parameterized::class)
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
 class FragmentTransitionAnimTest(private val reorderingAllowed: Boolean) {
@@ -105,7 +105,7 @@ class FragmentTransitionAnimTest(private val reorderingAllowed: Boolean) {
         activityRule.waitForExecution()
 
         fragment.waitForTransition()
-        assertThat(fragment.exitAnimationLatch.await(1000, TimeUnit.MILLISECONDS)).isTrue()
+        assertThat(fragment.exitAnimationLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)).isTrue()
         assertThat(onBackStackChangedTimes).isEqualTo(2)
     }
 
@@ -144,7 +144,7 @@ class FragmentTransitionAnimTest(private val reorderingAllowed: Boolean) {
         activityRule.waitForExecution()
 
         fragment.waitForTransition()
-        assertThat(fragment.exitAnimationLatch.await(1000, TimeUnit.MILLISECONDS)).isTrue()
+        assertThat(fragment.exitAnimationLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)).isTrue()
         assertThat(onBackStackChangedTimes).isEqualTo(2)
     }
 
@@ -183,7 +183,7 @@ class FragmentTransitionAnimTest(private val reorderingAllowed: Boolean) {
         activityRule.waitForExecution()
 
         fragment.waitForTransition()
-        assertThat(fragment.exitAnimatorLatch.await(1000, TimeUnit.MILLISECONDS)).isTrue()
+        assertThat(fragment.exitAnimatorLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)).isTrue()
         assertThat(onBackStackChangedTimes).isEqualTo(2)
     }
 
@@ -222,7 +222,7 @@ class FragmentTransitionAnimTest(private val reorderingAllowed: Boolean) {
         activityRule.waitForExecution()
 
         fragment.waitForTransition()
-        assertThat(fragment.exitAnimatorLatch.await(1000, TimeUnit.MILLISECONDS)).isTrue()
+        assertThat(fragment.exitAnimatorLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)).isTrue()
         assertThat(onBackStackChangedTimes).isEqualTo(2)
     }
 
@@ -297,5 +297,7 @@ class FragmentTransitionAnimTest(private val reorderingAllowed: Boolean) {
         private val ENTER = 1
         @AnimRes
         private val EXIT = 2
+
+        private const val TIMEOUT = 5000L
     }
 }
