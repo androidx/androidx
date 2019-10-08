@@ -19,19 +19,22 @@ package androidx.ui.text
 import androidx.annotation.RestrictTo
 import androidx.ui.core.Density
 import androidx.ui.text.font.Font
+import androidx.ui.text.style.TextDirectionAlgorithm
 
 /**
  * Calculates and provides the intrinsic width and height of text that contains [ParagraphStyle].
  *
  * @see MultiParagraph
  *
+ * @throws IllegalArgumentException if [ParagraphStyle.textDirectionAlgorithm] is not set
+ *
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class MultiParagraphIntrinsics(
     val annotatedString: AnnotatedString,
-    textStyle: TextStyle = TextStyle(),
-    paragraphStyle: ParagraphStyle = ParagraphStyle(),
+    textStyle: TextStyle,
+    paragraphStyle: ParagraphStyle,
     density: Density,
     resourceLoader: Font.ResourceLoader
 ) : ParagraphIntrinsics {
@@ -47,12 +50,21 @@ class MultiParagraphIntrinsics(
     internal val infoList: List<ParagraphIntrinsicInfo>
 
     init {
+        if (paragraphStyle.textDirectionAlgorithm == null) {
+            throw IllegalArgumentException(
+                "ParagraphStyle.textDirectionAlgorithm should not be null"
+            )
+        }
+
         infoList = annotatedString
             .mapEachParagraphStyle(paragraphStyle) { annotatedString, paragraphStyleItem ->
                 ParagraphIntrinsicInfo(
                     intrinsics = ParagraphIntrinsics(
                         text = annotatedString.text,
-                        paragraphStyle = paragraphStyleItem.style,
+                        paragraphStyle = resolveTextDirection(
+                            paragraphStyleItem.style,
+                            paragraphStyle
+                        ),
                         textStyles = annotatedString.textStyles,
                         style = textStyle,
                         density = density,
@@ -70,6 +82,21 @@ class MultiParagraphIntrinsics(
         maxIntrinsicWidth = infoList.maxBy {
             it.intrinsics.maxIntrinsicWidth
         }?.intrinsics?.maxIntrinsicWidth ?: 0f
+    }
+
+    /**
+     * if the [style] does `not` have [TextDirectionAlgorithm] set, it will return a new
+     * [ParagraphStyle] where [TextDirectionAlgorithm] is set using the [defaultStyle]. Otherwise
+     * returns the same [style] object.
+     *
+     * @param style ParagraphStyle to be checked for [TextDirectionAlgorithm]
+     * @param defaultStyle [ParagraphStyle] passed to [MultiParagraphIntrinsics] as the main style
+     */
+    private fun resolveTextDirection(style: ParagraphStyle, defaultStyle: ParagraphStyle):
+            ParagraphStyle {
+        return style.textDirectionAlgorithm?.let { style } ?: style.copy(
+            textDirectionAlgorithm = defaultStyle.textDirectionAlgorithm
+        )
     }
 }
 

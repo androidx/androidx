@@ -191,6 +191,8 @@ interface Paragraph {
  * @param constraints how wide the text is allowed to be
  * @param density density of the device
  * @param resourceLoader [Font.ResourceLoader] to be used to load the font given in [TextStyle]s
+ *
+ * @throws IllegalArgumentException if [ParagraphStyle.textDirectionAlgorithm] is not set
  */
 /* actual */ fun Paragraph(
     text: String,
