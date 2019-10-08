@@ -19,12 +19,10 @@ package androidx.browser.trusted;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
-import android.os.StrictMode;
 import android.util.Log;
 
 import androidx.annotation.MainThread;
@@ -33,88 +31,32 @@ import androidx.annotation.Nullable;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Executor;
-import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * A TrustedWebActivityServiceConnectionPool will be used by a Trusted Web Activity provider and
  * takes care of connecting to and communicating with {@link TrustedWebActivityService}s.
+ * This is done through the {@link #connect} method.
  * <p>
- * Trusted Web Activity client apps are registered with {@link #registerClient}, associating a
- * package with an origin. There may be multiple packages associated with a single origin.
- * Note, the origins are essentially keys to a map of origin to package name - while they
- * semantically are web origins, they aren't used that way.
- * <p>
- * To interact with a {@link TrustedWebActivityService}, call {@link #connect}.
+ * Multiple Trusted Web Activity client apps may be suitable for a given scope.
+ * These are passed in to {@link #connect} and {@link #serviceExistsForScope} and the most
+ * appropriate one for the scope is chosen.
  */
 public final class TrustedWebActivityServiceConnectionPool {
     private static final String TAG = "TWAConnectionPool";
-    private static final String PREFS_FILE = "TrustedWebActivityVerifiedPackages";
 
-    @SuppressWarnings("WeakerAccess") /* synthetic access */
-    final Context mContext;
+    /** Application context, used to connect to the services. */
+    private final Context mContext;
 
     /** Map from ServiceWorker scope to Connection. */
-    @SuppressWarnings("WeakerAccess") /* synthetic access */
-    Map<Uri, ConnectionHolder> mConnections = new HashMap<>();
-
-    private static AtomicReference<SharedPreferences> sSharedPreferences = new AtomicReference<>();
-
-    /**
-     * Gets the verified packages for the given origin. This is safe to be called on any thread,
-     * however it may hit disk the first time it is called.
-     *
-     * @param context A Context to be used for accessing SharedPreferences.
-     * @param origin The origin that was previously used with {@link #registerClient}.
-     * @return A set of package names. This set is safe to be modified.
-     */
-    @SuppressWarnings("NullAway") // TODO: b/141869399
-    public static @NonNull Set<String> getVerifiedPackages(@NonNull Context context,
-            @NonNull String origin) {
-        // Loading preferences is on the critical path for this class - we need to synchronously
-        // inform the client whether or not an notification can be handled by a TWA.
-        // I considered loading the preferences into a cache on a background thread when this class
-        // was created, but ultimately if that load hadn't completed by the time {@link #connect} or
-        // {@link #registerClient} were called, we'd still need to block for it to complete.
-        // Therefore we attempt to asynchronously load the preferences in the constructor, but if
-        // they aren't loaded by the time they are needed, we disable StrictMode and read them on
-        // the main thread.
-        StrictMode.ThreadPolicy policy = StrictMode.allowThreadDiskReads();
-
-        try {
-            ensurePreferencesOpened(context);
-
-            return new HashSet<>(
-                    sSharedPreferences.get().getStringSet(origin, Collections.<String>emptySet()));
-        } finally {
-            StrictMode.setThreadPolicy(policy);
-        }
-    }
-
-    @SuppressWarnings("WeakerAccess") /* synthetic access */
-    static void ensurePreferencesOpened(@NonNull Context context) {
-        if (sSharedPreferences.get() == null) {
-            sSharedPreferences.compareAndSet(null,
-                    context.getSharedPreferences(PREFS_FILE, Context.MODE_PRIVATE));
-        }
-    }
+    private final Map<Uri, ConnectionHolder> mConnections = new HashMap<>();
 
     private TrustedWebActivityServiceConnectionPool(@NonNull Context context) {
         mContext = context.getApplicationContext();
-
-        // Asynchronously try to load (and therefore cache) the preferences.
-        AsyncTask.THREAD_POOL_EXECUTOR.execute(new Runnable() {
-            @Override
-            public void run() {
-                ensurePreferencesOpened(context);
-            }
-        });
     }
 
     /**
@@ -131,9 +73,10 @@ public final class TrustedWebActivityServiceConnectionPool {
      * if available and runs code once connected.
      * <p>
      * To find a Service to connect to, this method attempts to resolve an
-     * {@link Intent#ACTION_VIEW} Intent with the {@code scope} as data. The first of the resolved
-     * packages that is registered (through {@link #registerClient}) to {@code origin} will be
-     * chosen. Finally, an Intent with the action
+     * {@link Intent#ACTION_VIEW} Intent with the {@code scope} as data.
+     * The first of the resolved packages to be contained in the {@code possiblePackages} set will
+     * be chosen.
+     * Finally, an Intent with the action
      * {@link TrustedWebActivityService#ACTION_TRUSTED_WEB_ACTIVITY_SERVICE} will be used to find
      * the Service.
      * <p>
@@ -141,22 +84,26 @@ public final class TrustedWebActivityServiceConnectionPool {
      *
      * @param scope The scope used in an Intent to find packages that may have a
      *              {@link TrustedWebActivityService}.
-     * @param origin An origin that the {@link TrustedWebActivityService} package must be registered
-     *               to.
+     * @param possiblePackages A collection of packages to consider.
+     *                         These would be the packages that have previously launched a
+     *                         Trusted Web Activity for the origin.
      * @param executor The {@link Executor} to connect to the Service on if a new connection is
      *                 required.
      * @return A {@link ListenableFuture} for the resulting
-     *         {@link TrustedWebActivityServiceConnection}. This may be set to an
-     *         {@link IllegalArgumentException} if no service exists for the scope (you can check
-     *         for this beforehand by calling {@link #serviceExistsForScope(Uri, String)}. It may
-     *         be set to a {@link SecurityException} if the Service does not accept connections from
-     *         this app. It may be set to an {@link IllegalStateException} if connecting to the
-     *         Service fails.
+     *         {@link TrustedWebActivityServiceConnection}.
+     *         This may be set to an {@link IllegalArgumentException} if no service exists for
+     *         the scope (you can check for this beforehand by calling
+     *         {@link #serviceExistsForScope}).
+     *         It may be set to a {@link SecurityException} if the Service does not accept
+     *         connections from this app.
+     *         It may be set to an {@link IllegalStateException} if connecting to the Service fails.
      */
     @MainThread
     @NonNull
     public ListenableFuture<TrustedWebActivityServiceConnection> connect(
-            @NonNull final Uri scope, @NonNull String origin, @NonNull Executor executor) {
+            @NonNull final Uri scope,
+            @NonNull Set<Token> possiblePackages,
+            @NonNull Executor executor) {
         // If we have an existing connection, use it.
         ConnectionHolder connection = mConnections.get(scope);
         if (connection != null) {
@@ -164,7 +111,8 @@ public final class TrustedWebActivityServiceConnectionPool {
         }
 
         // Check that this is a notification we want to handle.
-        final Intent bindServiceIntent = createServiceIntent(mContext, scope, origin, true);
+        final Intent bindServiceIntent =
+                createServiceIntent(mContext, scope, possiblePackages, true);
         if (bindServiceIntent == null) {
             return FutureUtils.immediateFailedFuture(
                     new IllegalArgumentException("No service exists for scope"));
@@ -202,7 +150,6 @@ public final class TrustedWebActivityServiceConnectionPool {
                 }
 
                 mAppContext.unbindService(mConnection);
-                // TODO: Find a better exception to use here.
                 return new IllegalStateException("Could not bind to the service");
             } catch (SecurityException e) {
                 Log.w(TAG, "SecurityException while binding.", e);
@@ -218,23 +165,27 @@ public final class TrustedWebActivityServiceConnectionPool {
 
     /**
      * Checks if a TrustedWebActivityService exists to handle requests for the given scope and
-     * origin. The value will be the same as that returned from {@link #connect} so calling that
-     * and checking the return may be more convenient.
-     *
+     * origin.
+     * This method uses the same logic as {@link #connect}.
+     * If this method returns {@code false}, {@link #connect} will return a Future containing an
+     * {@link IllegalStateException}.
+     * <p>
      * This method should be called on the UI thread.
      *
      * @param scope The scope used in an Intent to find packages that may have a
      *              {@link TrustedWebActivityService}.
-     * @param origin An origin that the {@link TrustedWebActivityService} package must be registered
-     *               to.
+     * @param possiblePackages A collection of packages to consider.
+     *                         These would be the packages that have previously launched a
+     *                         Trusted Web Activity for the origin.
      * @return Whether a {@link TrustedWebActivityService} was found.
      */
     @MainThread
-    public boolean serviceExistsForScope(@NonNull Uri scope, @NonNull String origin) {
+    public boolean serviceExistsForScope(@NonNull Uri scope,
+            @NonNull Set<Token> possiblePackages) {
         // If we have an existing connection, we can deal with the scope.
         if (mConnections.get(scope) != null) return true;
 
-        return createServiceIntent(mContext, scope, origin, false) != null;
+        return createServiceIntent(mContext, scope, possiblePackages, false) != null;
     }
 
     /**
@@ -248,14 +199,12 @@ public final class TrustedWebActivityServiceConnectionPool {
     }
 
     /**
-
-     * Creates an Intent to launch the Service for the given scope and verified origin. Will
-     * return null if there is no applicable Service.
+     * Creates an Intent to launch the Service for the given scope and to an app contained in
+     * {@code possiblePackages}.
+     * Will return {@code null} if there is no applicable Service.
      */
-    private @Nullable Intent createServiceIntent(Context appContext, Uri scope, String origin,
-            boolean shouldLog) {
-        Set<String> possiblePackages = getVerifiedPackages(appContext, origin);
-
+    private @Nullable Intent createServiceIntent(Context appContext, Uri scope,
+            Set<Token> possiblePackages, boolean shouldLog) {
         if (possiblePackages == null || possiblePackages.size() == 0) {
             return null;
         }
@@ -264,8 +213,6 @@ public final class TrustedWebActivityServiceConnectionPool {
         Intent scopeResolutionIntent = new Intent();
         scopeResolutionIntent.setData(scope);
         scopeResolutionIntent.setAction(Intent.ACTION_VIEW);
-        // TODO(peconn): Do we want MATCH_ALL here.
-        // TODO(peconn): Do we need a category here?
         List<ResolveInfo> candidateActivities = appContext.getPackageManager()
                 .queryIntentActivities(scopeResolutionIntent, PackageManager.MATCH_DEFAULT_ONLY);
 
@@ -274,14 +221,16 @@ public final class TrustedWebActivityServiceConnectionPool {
         for (ResolveInfo info : candidateActivities) {
             String packageName = info.activityInfo.packageName;
 
-            if (possiblePackages.contains(packageName)) {
-                resolvedPackage = packageName;
-                break;
+            for (Token possiblePackage : possiblePackages) {
+                if (possiblePackage.matches(packageName, appContext.getPackageManager())) {
+                    resolvedPackage = packageName;
+                    break;
+                }
             }
         }
 
         if (resolvedPackage == null) {
-            if (shouldLog) Log.w(TAG, "No TWA candidates for " + origin + " have been registered.");
+            if (shouldLog) Log.w(TAG, "No TWA candidates for " + scope + " have been registered.");
             return null;
         }
 
@@ -299,30 +248,10 @@ public final class TrustedWebActivityServiceConnectionPool {
         }
 
         if (shouldLog) {
-            Log.i(TAG, "Found " + info.serviceInfo.name + " to handle request for " + origin);
+            Log.i(TAG, "Found " + info.serviceInfo.name + " to handle request for " + scope);
         }
         Intent finalIntent = new Intent();
         finalIntent.setComponent(new ComponentName(resolvedPackage, info.serviceInfo.name));
         return finalIntent;
-    }
-
-    /**
-     * Registers (and persists) a package to be used for an origin. This information is persisted
-     * in SharedPreferences. Although this method can be called on any thread, it may read
-     * SharedPreferences and hit the disk, so call it on a background thread if possible.
-     * @param context A Context to access SharedPreferences.
-     * @param origin The origin for which the package is relevant.
-     * @param clientPackage The packages to register.
-     */
-    public static void registerClient(@NonNull Context context, @NonNull String origin,
-            @NonNull String clientPackage) {
-        Set<String> possiblePackages = getVerifiedPackages(context, origin);
-        possiblePackages.add(clientPackage);
-
-        // sSharedPreferences won't be null after a call to getVerifiedPackages.
-        @SuppressWarnings("NullAway") // TODO: b/141869399
-        SharedPreferences.Editor editor = sSharedPreferences.get().edit();
-        editor.putStringSet(origin, possiblePackages);
-        editor.apply();
     }
 }

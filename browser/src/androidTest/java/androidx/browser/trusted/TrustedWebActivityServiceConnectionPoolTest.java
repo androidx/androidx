@@ -41,6 +41,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -48,12 +50,12 @@ import java.util.concurrent.atomic.AtomicInteger;
 @RunWith(AndroidJUnit4.class)
 @MediumTest
 public class TrustedWebActivityServiceConnectionPoolTest {
-    private static final String ORIGIN = "https://localhost:3080";
     private static final Uri GOOD_SCOPE = Uri.parse("https://www.example.com/notifications");
     private static final Uri BAD_SCOPE = Uri.parse("https://www.notexample.com");
 
+    private final Set<Token> mTrustedPackages = new HashSet<>();
+
     private TrustedWebActivityServiceConnectionPool mManager;
-    private Context mContext;
 
     // TODO: Test security exception.
 
@@ -67,11 +69,9 @@ public class TrustedWebActivityServiceConnectionPoolTest {
 
     @Before
     public void setUp() {
-        mContext = ApplicationProvider.getApplicationContext();
-        mManager = TrustedWebActivityServiceConnectionPool.create(mContext);
-
-        TrustedWebActivityServiceConnectionPool
-                .registerClient(mContext, ORIGIN, mContext.getPackageName());
+        Context context = ApplicationProvider.getApplicationContext();
+        mManager = TrustedWebActivityServiceConnectionPool.create(context);
+        mTrustedPackages.add(Token.create(context.getPackageName(), context.getPackageManager()));
     }
 
     @After
@@ -84,7 +84,7 @@ public class TrustedWebActivityServiceConnectionPoolTest {
         final AtomicBoolean connected = new AtomicBoolean();
 
         ListenableFuture<TrustedWebActivityServiceConnection> serviceFuture =
-                mManager.connect(GOOD_SCOPE, ORIGIN, AsyncTask.THREAD_POOL_EXECUTOR);
+                mManager.connect(GOOD_SCOPE, mTrustedPackages, AsyncTask.THREAD_POOL_EXECUTOR);
 
         serviceFuture.addListener(() -> {
             try {
@@ -101,10 +101,10 @@ public class TrustedWebActivityServiceConnectionPoolTest {
 
     @Test
     public void testNoService() {
-        assertFalse(mManager.serviceExistsForScope(BAD_SCOPE, ORIGIN));
+        assertFalse(mManager.serviceExistsForScope(BAD_SCOPE, mTrustedPackages));
 
         ListenableFuture<TrustedWebActivityServiceConnection> serviceFuture =
-                mManager.connect(BAD_SCOPE, ORIGIN, AsyncTask.THREAD_POOL_EXECUTOR);
+                mManager.connect(BAD_SCOPE, mTrustedPackages, AsyncTask.THREAD_POOL_EXECUTOR);
 
         try {
             serviceFuture.get();
@@ -120,9 +120,9 @@ public class TrustedWebActivityServiceConnectionPoolTest {
     public void testMultipleExecutions() {
         final AtomicInteger count = new AtomicInteger();
 
-        mManager.connect(GOOD_SCOPE, ORIGIN, AsyncTask.THREAD_POOL_EXECUTOR)
+        mManager.connect(GOOD_SCOPE, mTrustedPackages, AsyncTask.THREAD_POOL_EXECUTOR)
                 .addListener(count::incrementAndGet, AsyncTask.THREAD_POOL_EXECUTOR);
-        mManager.connect(GOOD_SCOPE, ORIGIN, AsyncTask.THREAD_POOL_EXECUTOR)
+        mManager.connect(GOOD_SCOPE, mTrustedPackages, AsyncTask.THREAD_POOL_EXECUTOR)
                 .addListener(count::incrementAndGet, AsyncTask.THREAD_POOL_EXECUTOR);
 
         PollingCheck.waitFor(() -> count.get() == 2);
