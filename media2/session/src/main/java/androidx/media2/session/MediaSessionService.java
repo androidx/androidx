@@ -68,8 +68,7 @@ import java.util.List;
  * <li><a href="#MultipleSessions">Supporting Multiple Sessions</a>
  * </ol>
  * <div>
- * <a name="ServiceLifecycle"></a>
- * <h3>Service Lifecycle</h3>
+ * <h3 id="ServiceLifecycle">Service Lifecycle</h3>
  * <p>
  * Session service is a bound service. When a {@link MediaController} is created for the
  * session service, the controller binds to the session service.
@@ -90,14 +89,12 @@ import java.util.List;
  * <p>
  * The service is destroyed when the all sessions are closed, or no media controller is binding to
  * the session while the service is not running as a foreground service.
- * <a name="Permissions"></a>
- * <h3>Permissions</h3>
+ * <h3 id="Permissions">Permissions</h3>
  * <p>
  * Any app can bind to the session service with controller, but the controller can be used only if
  * the session service accepted the connection request through
  * {@link MediaSession.SessionCallback#onConnect(MediaSession, MediaSession.ControllerInfo)}.
- * <a name="MultipleSessions"></a>
- * <h3>Supporting Multiple Sessions</h3>
+ * <h3 id="MultipleSessions">Supporting Multiple Sessions</h3>
  * You may want to keep multiple playback while the app is in the background, create multiple
  * sessions and add to this service with {@link #addSession(MediaSession)}.
  * <p>

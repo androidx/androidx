@@ -82,8 +82,7 @@ import java.util.concurrent.Executors;
  * <ol>
  * <li><a href="#AudioFocusAndNoisyIntent">Audio focus and noisy intent</a>
  * </ol>
- * <a name="AudioFocusAndNoisyIntent"></a>
- * <h3>Audio focus and noisy intent</h3>
+ * <h3 id="AudioFocusAndNoisyIntent">Audio focus and noisy intent</h3>
  * <p>
  * By default, {@link MediaPlayer} handles audio focus and noisy intent with
  * {@link AudioAttributesCompat} set to this player. You need to call
