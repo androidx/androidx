@@ -38,6 +38,8 @@ interface ParagraphIntrinsics {
 }
 
 /**
+ * @throws IllegalArgumentException if [ParagraphStyle.textDirectionAlgorithm] is not set
+ *
  * @see ParagraphIntrinsics
  */
 /* actual */ fun ParagraphIntrinsics(
