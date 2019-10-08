@@ -19,18 +19,14 @@ package androidx.ui.text.style
 import androidx.ui.lerp
 
 /**
- * Apply a geometric transformation on text.
+ * Define a geometric transformation on text.
+ *
+ * @param scaleX The scale of the text on the horizontal direction.
+ * @param skewX The shear of the text on the horizontal direction. A pixel at (x, y), where y is
+ * the distance above baseline, will be transformed to (x + y * skewX, y).
  */
 data class TextGeometricTransform(
-    /**
-     * Scale text in horizontal direction.
-     */
     val scaleX: Float? = null,
-    /**
-     * Shear the text in horizontal direction. A pixel at (x, y), where y is the distance above
-     * baseline, will be transformed to (x + y * skewX, y). Notice that paragraph won't consider
-     * the extra room caused by skewX, And text may be overlapped if skewX is too big.
-     */
     val skewX: Float? = null
 ) {
     companion object {

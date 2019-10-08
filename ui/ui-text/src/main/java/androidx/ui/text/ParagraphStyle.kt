@@ -21,17 +21,23 @@ import androidx.ui.text.style.TextDirectionAlgorithm
 import androidx.ui.text.style.TextIndent
 
 /**
- * Creates a new ParagraphStyle object.
+ * Paragraph styling configuration for a paragraph. The difference between [TextStyle] and
+ * `ParagraphStyle` is that, `ParagraphStyle` can be applied to a whole [Paragraph] while
+ * [TextStyle] can be applied at the character level.
+ * Once a portion of the text is marked with a `ParagraphStyle`, that portion will be separated from
+ * the remaining as if a line feed character was added.
+ *
+ * @sample androidx.ui.text.samples.ParagraphStyleSample
+ * @sample androidx.ui.text.samples.ParagraphStyleAnnotatedStringsSample
  *
  * @param textAlign The alignment of the text within the lines of the paragraph.
- *
- * @param textDirectionAlgorithm The directionality of the text, Left to Right (LTR) or Right
- * To Left (RTL). This controls the overall directionality of the paragraph, as well as the meaning
- * of [TextAlign.Start] and [TextAlign.End] in the [textAlign] field.
- *
- * @param textIndent Specify how much a paragraph is indented.
- *
+ * @param textDirectionAlgorithm The algorithm to be used to resolve the final text direction:
+ * Left To Right or Right To Left.
+ * @param textIndent The indentation of the paragraph.
  * @param lineHeight The minimum height of the line boxes, as a multiple of the font size.
+ *
+ * @see [Paragraph]
+ * @see [AnnotatedString]
  */
 data class ParagraphStyle constructor(
     val textAlign: TextAlign? = null,

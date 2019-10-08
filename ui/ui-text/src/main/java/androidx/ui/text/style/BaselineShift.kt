@@ -19,22 +19,25 @@ package androidx.ui.text.style
 import androidx.ui.lerp
 
 /**
- * The amount by which the text is shifted up from current baseline.
+ * The amount by which the text is shifted up or down from current the baseline.
  * @constructor
+ * @sample androidx.ui.text.samples.BaselineShiftSample
+ * @sample androidx.ui.text.samples.BaselineShiftAnnotatedStringSample
+ *
  * @param multiplier shift the baseline by multiplier * (baseline - ascent)
- * TODO(haoyuchang): support baseline shift given by pixel and other multiplier reference
  */
+// TODO(haoyuchang): support baseline shift given by pixel and other multiplier reference
 /*inline*/ data class BaselineShift constructor(
     val multiplier: Float
 ) {
     companion object {
         /**
-         * Default baselineShift for superscript.
+         * Default baseline shift for superscript.
          */
         val Superscript = BaselineShift(0.5f)
 
         /**
-         * Default baselineShift for subscript
+         * Default baseline shift for subscript
          */
         val Subscript = BaselineShift(-0.5f)
 

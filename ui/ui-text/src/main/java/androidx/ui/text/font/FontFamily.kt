@@ -20,16 +20,10 @@ package androidx.ui.text.font
  * Defines a font family. It can be constructed via a generic font family such as serif, sans-serif
  * (i.e. FontFamily("sans-serif"). It can also be constructed by a set of custom fonts.
  *
- * For example you can defined a [FontFamily] based on custom font files:
- * <code>
- * FontFamily(
- *      Font(name="my_font_400_regular.ttf", weight=400, style=FontStyle.Normal),
- *      Font(name="my_font_400_italic.ttf", weight=400, style=FontStyle.Italic)
- * )
- * </code>
+ * @sample androidx.ui.text.samples.FontFamilySansSerifSample
+ * @sample androidx.ui.text.samples.CustomFontFamilySample
  */
 data class FontFamily private constructor(val genericFamily: String?, val fonts: List<Font>) :
-// TODO(siyamed): ADD COMMON GENERIC FONT FAMILY NAMES ENUMS
     List<Font> by fonts {
 
     /**

@@ -15,21 +15,35 @@
  */
 package androidx.ui.text.style
 
-/** A linear decoration to draw near the text. */
+/**
+ * Defines a horizontal line to be drawn on the text.
+ */
 data class TextDecoration internal constructor(val mask: Int) {
 
     companion object {
         val None: TextDecoration = TextDecoration(0x0)
 
-        /** Draw a line underneath each line of text */
-        val Underline: TextDecoration =
-            TextDecoration(0x1)
+        /**
+         * Draws a horizontal line below the text.
+         *
+         * @sample androidx.ui.text.samples.TextDecorationUnderlineSample
+         */
+        val Underline: TextDecoration = TextDecoration(0x1)
 
-        /** Draw a line through each line of text */
-        val LineThrough: TextDecoration =
-            TextDecoration(0x2)
+        /**
+         * Draws a horizontal line over the text.
+         *
+         * @sample androidx.ui.text.samples.TextDecorationLineThroughSample
+         */
+        val LineThrough: TextDecoration = TextDecoration(0x2)
 
-        /** Creates a decoration that paints the union of all the given decorations. */
+        /**
+         * Creates a decoration that includes all the given decorations.
+         *
+         * @sample androidx.ui.text.samples.TextDecorationCombinedSample
+         *
+         * @param decorations The decorations to be added
+         */
         fun combine(decorations: List<TextDecoration>): TextDecoration {
             val mask = decorations.fold(0) { acc, decoration ->
                 acc or decoration.mask
@@ -38,7 +52,11 @@ data class TextDecoration internal constructor(val mask: Int) {
         }
     }
 
-    /** Whether this decoration will paint at least as much decoration as the given decoration. */
+    /**
+     * Check whether this [TextDecoration] contains the given decoration.
+     *
+     * @param other The [TextDecoration] to be checked.
+     */
     fun contains(other: TextDecoration): Boolean {
         return (mask or other.mask) == mask
     }

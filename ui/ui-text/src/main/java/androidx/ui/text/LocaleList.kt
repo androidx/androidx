@@ -21,12 +21,11 @@ import androidx.ui.text.platform.platformLocaleDelegate
 // TODO(nona): LocaleList should not be in text package.
 
 /**
- * A list of Locale object.
+ * Defines a list of [Locale] objects.
  *
- * The native LocaleList support has been supported from API24. On API23, the implementation will
- * fallback to use the first locale.
- * TODO(nona): We may need to reorder based on supported locale by the device.
+ * @see [TextStyle]
  */
+// TODO(nona): We may need to reorder based on supported locale by the device.
 data class LocaleList constructor(val localeList: List<Locale>) : Collection<Locale> {
     companion object {
         /**
@@ -37,17 +36,18 @@ data class LocaleList constructor(val localeList: List<Locale>) : Collection<Loc
     }
 
     /**
-     * Create Locale object from comma separated language tag.
+     * Create a [LocaleList] object from comma separated language tags.
      *
-     * @param languageTags A comma separated IETF BCP47 compliant language tag.
+     * @param languageTags A comma separated [IETF BCP47](https://tools.ietf.org/html/bcp47)
+     * compliant language tag.
      */
-    constructor(languageTags: String)
-            : this(languageTags.split(",").map { it.trim() }.map { Locale(it) })
+    constructor(languageTags: String) :
+            this(languageTags.split(",").map { it.trim() }.map { Locale(it) })
 
     /**
-     * Creates LocaleList object from list of locales.
+     * Creates a [LocaleList] object from a list of [Locale]s.
      */
-    constructor(vararg locales: Locale): this(locales.toList())
+    constructor(vararg locales: Locale) : this(locales.toList())
 
     operator fun get(i: Int) = localeList[i]
 

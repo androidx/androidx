@@ -17,54 +17,42 @@
 package androidx.ui.text.font
 
 // TODO(siyamed): might need nullable defaults for FontWeight and FontStyle which
-// would mean read the weight and style from the font.
+//  would mean read the weight and style from the font.
 /**
- * Defines a Font file to be used while rendering text.
+ * Defines a font to be used while rendering text.
+ *
+ * @sample androidx.ui.text.samples.CustomFontFamilySample
+ *
+ * @param name The name of the font file in font resources. i.e. "myfont.ttf".
+ * @param weight The weight of the font. The system uses this to match a font to a font request
+ * that is given in a `TextStyle`.
+ * @param style The style of the font, normal or italic. The system uses this to match a font to a
+ * font request that is given in a `TextStyle`.
+ * @param ttcIndex The index of the font collection. If the font file is not a font collection the
+ * value should not be changed
+ * @param fontVariationSettings The TrueType or OpenType font variation settings. Valid only when
+ * the font that is used is a variable font. The settings string is constructed from multiple
+ * pairs of axis tag and style values. The axis tag must contain four ASCII characters and must
+ * be wrapped with single quotes (U+0027) or double quotes (U+0022). Axis strings that are longer
+ * or shorter than four characters, or contain characters outside of U+0020..U+007E are invalid.
+ * If a specified axis name is not defined in the font, the settings will be ignored.
+ * Examples: to set font width to 150: "'wdth' 150", to set the font slant to 20 degrees and ask
+ * for italic style: "'slnt' 20, 'ital' 1".
+ *
+ * @see [FontFamily]
  */
 data class Font(
-    /**
-     * Name of the font file in font resources. i.e. "myfont.ttf".
-     */
     val name: String,
-
-    /**
-     * Weight of the font. Use while matching a font to a font request that is given in a
-     * [TextStyle].
-     */
     val weight: FontWeight = FontWeight.Normal,
-
-    /**
-     * Style of the font. Use while matching a font to a font request that is given in a
-     * [TextStyle].
-     */
     val style: FontStyle = FontStyle.Normal,
-
     // TODO(siyamed): implement integration and add tests
-    /**
-     * Sets the index of the font collection. If the font is not a font collection the value should
-     * not be changed.
-     */
     val ttcIndex: Int = 0,
-
     // TODO(siyamed): implement integration and add tests
     // https://docs.microsoft.com/en-us/typography/opentype/spec/otvaroverview
     // not sure if this would be here or in the widget properties similar to TextStyle.fontWeight
     // CSS says: "These descriptors define initial settings that apply when the font defined by an
     // @font-face rule is rendered. They do not affect font selection"
     // https://www.w3.org/TR/css-fonts-4/#ref-for-descdef-font-face-font-variation-settings
-    /**
-     * Sets TrueType or OpenType font variation settings. The settings string is constructed from
-     * multiple pairs of axis tag and style values. The axis tag must contain four ASCII characters
-     * and must be wrapped with single quotes (U+0027) or double quotes (U+0022). Axis strings that
-     * are longer or shorter than four characters, or contain characters outside of U+0020..U+007E
-     * are invalid. If a specified axis name is not defined in the font, the settings will be
-     * ignored.
-     *
-     * Examples:
-     *
-     * * Set font width to 150: "'wdth' 150"
-     * * Set the font slant to 20 degrees and ask for italic style: "'slnt' 20, 'ital' 1"
-     */
     val fontVariationSettings: String = ""
 ) {
     init {
@@ -87,7 +75,7 @@ data class Font(
 }
 
 /**
- * Create a [FontFamily] from this single font.
+ * Create a [FontFamily] from this single [Font].
  */
 fun Font.asFontFamily(): FontFamily {
     return FontFamily(this)
