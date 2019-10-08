@@ -21,7 +21,7 @@ import androidx.ui.core.px
 import androidx.ui.core.lerp
 
 /**
- * Specify how much a paragraph is indented.
+ * Specify the indentation of a paragraph.
  *
  * @param firstLine the amount of indentation applied to the first line.
  * @param restLine the amount of indentation applied to every line except the first line.
@@ -31,6 +31,11 @@ data class TextIndent(
     val restLine: Px = 0.px
 )
 
+/**
+ * Linearly interpolate between two [TextIndent]s.
+ *
+ * @see [lerp]
+ */
 fun lerp(start: TextIndent, stop: TextIndent, fraction: Float): TextIndent {
     return TextIndent(
         lerp(start.firstLine, stop.firstLine, fraction),

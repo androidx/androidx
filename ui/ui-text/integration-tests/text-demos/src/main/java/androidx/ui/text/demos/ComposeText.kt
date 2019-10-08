@@ -21,11 +21,9 @@ import androidx.ui.core.Span
 import androidx.ui.core.Text
 import androidx.ui.core.px
 import androidx.ui.engine.geometry.Offset
-import androidx.ui.text.style.BaselineShift
 import androidx.ui.text.font.FontStyle
 import androidx.ui.text.font.FontWeight
 import androidx.ui.text.style.TextAlign
-import androidx.ui.text.style.TextDecoration
 import androidx.ui.text.font.FontFamily
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.lerp
@@ -42,10 +40,17 @@ import androidx.ui.text.style.TextOverflow
 import androidx.ui.core.Sp
 import androidx.ui.core.sp
 import androidx.ui.text.LocaleList
+import androidx.ui.text.samples.BaselineShiftSample
 import androidx.ui.text.samples.FontFamilyCursiveSample
 import androidx.ui.text.samples.FontFamilyMonospaceSample
 import androidx.ui.text.samples.FontFamilySansSerifSample
 import androidx.ui.text.samples.FontFamilySerifSample
+import androidx.ui.text.samples.ParagraphStyleAnnotatedStringsSample
+import androidx.ui.text.samples.ParagraphStyleSample
+import androidx.ui.text.samples.TextDecorationCombinedSample
+import androidx.ui.text.samples.TextDecorationLineThroughSample
+import androidx.ui.text.samples.TextDecorationUnderlineSample
+import androidx.ui.text.samples.TextStyleSample
 
 val displayText = "Text Demo"
 val displayTextChinese = "文本演示"
@@ -65,6 +70,9 @@ fun TextDemo() {
         ) {
             TagLine(tag = "color, fontSize, fontWeight and fontStyle")
             TextDemoBasic()
+            TagLine(tag = "color, fontSize, fontWeight, fontFamily, fontStyle, letterSpacing, " +
+                    "background, decoration")
+            TextDemoComplexStyling()
             TagLine(tag = "Chinese, Arabic, and Hindi")
             TextDemoLanguage()
             TagLine(tag = "FontFamily generic names")
@@ -95,6 +103,8 @@ fun TextDemo() {
             TextDemoComposableTextSpan()
             TagLine(tag = "fontSizeScale")
             TextDemoFontSizeScale()
+            TagLine(tag = "complex paragraph styling")
+            TextDemoParagraphStyling()
         }
     }
 }
@@ -161,6 +171,11 @@ fun TextDemoBasic() {
             )
         )
     }
+}
+
+@Composable
+fun TextDemoComplexStyling() {
+    TextStyleSample()
 }
 
 @Composable
@@ -239,33 +254,9 @@ fun TextDemoFontFamilyDefaultValues() {
 @Composable
 fun TextDemoTextDecoration() {
     // This group of text widgets show different decoration, decorationColor and decorationStyle.
-    Text {
-        Span(
-            text = displayText, style = TextStyle(
-                fontSize = fontSize8,
-                decoration = TextDecoration.LineThrough
-            )
-        )
-
-        Span(
-            text = "$displayText\n", style = TextStyle(
-                fontSize = fontSize8,
-                decoration = TextDecoration.Underline
-            )
-        )
-
-        Span(
-            text = displayText, style = TextStyle(
-                fontSize = fontSize8,
-                decoration = TextDecoration.combine(
-                    listOf(
-                        TextDecoration.Underline,
-                        TextDecoration.LineThrough
-                    )
-                )
-            )
-        )
-    }
+    TextDecorationLineThroughSample()
+    TextDecorationUnderlineSample()
+    TextDecorationCombinedSample()
 }
 
 @Composable
@@ -285,25 +276,7 @@ fun TextDemoLetterSpacing() {
 
 @Composable
 fun TextDemoBaselineShift() {
-    Text {
-        Span(text = displayText, style = TextStyle(fontSize = fontSize8)) {
-            Span(
-                text = "superscript",
-                style = TextStyle(
-                    baselineShift = BaselineShift.Superscript,
-                    fontSize = fontSize4
-                )
-            ) {
-                Span(
-                    text = "subscript",
-                    style = TextStyle(
-                        baselineShift = BaselineShift.Subscript,
-                        fontSize = fontSize4
-                    )
-                )
-            }
-        }
-    }
+    BaselineShiftSample()
 }
 
 @Composable
@@ -550,4 +523,10 @@ fun TextDemoFontSizeScale() {
             }
         }
     }
+}
+
+@Composable
+fun TextDemoParagraphStyling() {
+    ParagraphStyleSample()
+    ParagraphStyleAnnotatedStringsSample()
 }

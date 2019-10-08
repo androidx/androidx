@@ -17,28 +17,30 @@
 package androidx.ui.text.style
 
 /**
- * The enum class represents the algorithm for determining paragraph direction from text contents.
+ * Defines the algorithm to be used while determining the text direction.
  */
 enum class TextDirectionAlgorithm {
     /**
-     * Determines the direction based on the text contents, then falling back to left to right if
-     * there is no strong signal of the text direction.
+     * This value indicates that the text direction depends on the first strong directional
+     * character in the text according to the Unicode Bidirectional Algorithm. If no strong
+     * directional character is present, then Left to Right will be used as the default direction.
      */
     ContentOrLtr,
 
     /**
-     * Determines the direction based on the text contents, then falling back to right to left if
-     * there is no strong signal of the text direction.
+     * This value indicates that the text direction depends on the first strong directional
+     * character in the text according to the Unicode Bidirectional Algorithm. If no strong
+     * directional character is present, then Right to Left will be used as the default direction.
      */
     ContentOrRtl,
 
     /**
-     * Regardless of contents, always decides that the direction is left to right.
+     * Always sets the text direction to be Left to Right.
      */
     ForceLtr,
 
     /**
-     * Regardless of contents, always decides that the direction is right to left.
+     * Always sets the text direction to be Right to Left.
      */
     ForceRtl,
 }

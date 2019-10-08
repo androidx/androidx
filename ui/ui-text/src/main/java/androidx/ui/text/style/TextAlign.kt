@@ -16,7 +16,8 @@
 package androidx.ui.text.style
 
 /**
- * Whether and how to align text horizontally.
+ * Defines how to align text horizontally. `TextAlign` controls how text aligns in the space it
+ * appears.
  */
 enum class TextAlign {
     /** Align the text on the left edge of the container. */
@@ -39,18 +40,18 @@ enum class TextAlign {
     /**
      * Align the text on the leading edge of the container.
      *
-     * For left-to-right text ([TextDirection.Ltr]), this is the left edge.
+     * For Left to Right text ([TextDirection.Ltr]), this is the left edge.
      *
-     * For right-to-left text ([TextDirection.Rtl]), this is the right edge.
+     * For Right to Left text ([TextDirection.Rtl]), like Arabic, this is the right edge.
      */
     Start,
 
     /**
      * Align the text on the trailing edge of the container.
      *
-     * For left-to-right text ([TextDirection.Ltr]), this is the right edge.
+     * For Left to Right text text ([TextDirection.Ltr]), this is the right edge.
      *
-     * For right-to-left text ([TextDirection.Rtl]), this is the left edge.
+     * For Right to Left text ([TextDirection.Rtl]), like Arabic, this is the left edge.
      */
     End
 }

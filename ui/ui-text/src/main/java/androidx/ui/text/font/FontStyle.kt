@@ -15,7 +15,12 @@
  */
 package androidx.ui.text.font
 
-/** Whether to slant the glyphs in the font */
+/**
+ *  Defines whether the font is [Italic] or [Normal].
+ *
+ *  @see [Font]
+ *  @see [FontFamily]
+ */
 enum class FontStyle {
 
     /** Use the upright glyphs */

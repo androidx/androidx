@@ -18,7 +18,10 @@ package androidx.ui.text.font
 import androidx.ui.lerp
 
 /**
- * The thickness of the glyphs used to draw the text.
+ * The thickness of the glyphs, in a range of [1, 1000].
+ *
+ * @see [Font]
+ * @see [FontFamily]
  */
 /* inline */ data class FontWeight private constructor(
     /**
@@ -28,32 +31,32 @@ import androidx.ui.lerp
 ) : Comparable<FontWeight> {
 
     // TODO(siyamed): This is weird since it should actually be possible to create a font
-    // weight that is not one of the items here. This decision changes the lerp behavior.
+    //  weight that is not one of the items here. This decision changes the lerp behavior.
     companion object {
-        // Thin, the least thick
+        /** Thin, the minimum thickness */
         val W100 = FontWeight(100)
-        // Extra-light
+        /** Extra-light */
         val W200 = FontWeight(200)
-        // Light
+        /** Light */
         val W300 = FontWeight(300)
-        // Normal / regular / plain
+        /** Normal / regular / plain */
         val W400 = FontWeight(400)
-        // Medium
+        /** Medium */
         val W500 = FontWeight(500)
-        // Semi-bold
+        /** Semi-bold */
         val W600 = FontWeight(600)
-        // Bold
+        /** Bold */
         val W700 = FontWeight(700)
-        // Extra-bold
+        /** Extra-bold */
         val W800 = FontWeight(800)
-        // Black, the most thick
+        /** Black, maximum thickness */
         val W900 = FontWeight(900)
-        // The default font weight.
+        /** The default font weight. */
         val Normal = W400
-        // A commonly used font weight that is heavier than normal.
+        /** A commonly used font weight that is heavier than normal. */
         val Bold = W700
 
-        // A list of all the font weights.
+        /** A list of all the font weights. */
         val values: List<FontWeight> = listOf(
             W100,
             W200,
