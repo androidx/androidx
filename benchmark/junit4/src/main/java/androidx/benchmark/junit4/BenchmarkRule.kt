@@ -20,6 +20,8 @@ import android.Manifest
 import android.util.Log
 import androidx.annotation.RestrictTo
 import androidx.benchmark.BenchmarkState
+import androidx.benchmark.beginTraceSection
+import androidx.benchmark.endTraceSection
 import androidx.test.rule.GrantPermissionRule
 import org.junit.Assert.assertTrue
 import org.junit.rules.RuleChain
@@ -192,7 +194,12 @@ class BenchmarkRule : TestRule {
                         invokeMethodName.substring(5)
             }
 
-            base.evaluate()
+            try {
+                beginTraceSection(description.displayName)
+                base.evaluate()
+            } finally {
+                endTraceSection()
+            }
 
             if (enableReport) {
                 internalState.report(

@@ -209,6 +209,7 @@ class BenchmarkState {
     }
 
     private fun beginWarmup() {
+        beginTraceSection("Warmup")
         // Run GC to avoid memory pressure from previous run from affecting this one.
         // Note, we don't use System.gc() because it doesn't always have consistent behavior
         Runtime.getRuntime().gc()
@@ -234,6 +235,7 @@ class BenchmarkState {
         repeatCount = 0
         thermalThrottleSleepSeconds = 0
         state = RUNNING
+        beginTraceSection("Benchmark")
         startTimeNs = System.nanoTime()
     }
 
@@ -259,14 +261,18 @@ class BenchmarkState {
                 results.clear()
                 repeatCount = 0
             } else {
-                // finished!
+                // Benchmark finished!
+                endTraceSection() // paired with start in beginBenchmark()
+
                 if (ENABLE_PROFILING) {
                     Debug.stopMethodTracing()
                 }
                 warmupManager.logInfo()
+
                 internalStats = Stats(results)
                 state = FINISHED
                 totalRunTimeNs = System.nanoTime() - totalRunTimeStartNs
+
                 return false
             }
         }
@@ -359,6 +365,7 @@ class BenchmarkState {
                 startTimeNs = time
                 throwIfPaused() // check each loop during warmup
                 if (warmupManager.onNextIteration(lastDuration)) {
+                    endTraceSection() // paired with start in beginWarmup()
                     beginBenchmark()
                 }
                 return true
