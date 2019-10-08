@@ -37,9 +37,9 @@ import androidx.ui.layout.CrossAxisAlignment
 import androidx.ui.layout.LayoutSize
 import androidx.ui.foundation.VerticalScroller
 import androidx.ui.text.AnnotatedString
-import androidx.ui.text.Locale
 import androidx.ui.text.LocaleList
 import androidx.ui.text.TextStyle
+import androidx.ui.text.toUpperCase
 
 /**
  * The offset translator used for credit card input field.
