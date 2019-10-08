@@ -409,13 +409,6 @@ package androidx.ui.graphics.vector {
 
 package androidx.ui.graphics.vector.compat {
 
-  public final class VectorResourceKt {
-    ctor public VectorResourceKt();
-    method public static void DrawVectorResource(int resId);
-    method public static androidx.ui.graphics.vector.VectorAsset loadVectorResource(android.content.res.Resources.Theme? theme = null, android.content.res.Resources res, int resId) throws org.xmlpull.v1.XmlPullParserException;
-    method @CheckResult(suggest="+") public static androidx.compose.Effect<androidx.ui.graphics.vector.VectorAsset> vectorResource(int resId);
-  }
-
   public final class XmlVectorParserKt {
     ctor public XmlVectorParserKt();
   }
@@ -424,10 +417,20 @@ package androidx.ui.graphics.vector.compat {
 
 package androidx.ui.res {
 
-  public final class ResourcesKt {
-    ctor public ResourcesKt();
+  public final class ImageResourcesKt {
+    ctor public ImageResourcesKt();
+    method @CheckResult(suggest="+") public static androidx.compose.Effect<androidx.ui.graphics.Image> imageResource(@DrawableRes int id);
+  }
+
+  public final class StringResourcesKt {
+    ctor public StringResourcesKt();
     method @CheckResult(suggest="+") public static androidx.compose.Effect<java.lang.String> stringResource(@StringRes int id);
     method @CheckResult(suggest="+") public static androidx.compose.Effect<java.lang.String> stringResource(@StringRes int id, java.lang.Object... formatArgs);
+  }
+
+  public final class VectorResourcesKt {
+    ctor public VectorResourcesKt();
+    method @CheckResult(suggest="+") public static androidx.compose.Effect<androidx.ui.graphics.vector.VectorAsset> vectorResource(@DrawableRes int resId);
   }
 
 }
