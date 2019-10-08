@@ -38,44 +38,40 @@ import androidx.ui.text.TextStyle
 import kotlin.math.abs
 import kotlin.math.roundToInt
 
-@Suppress("UNUSED_VARIABLE")
+@Sampled
 @Composable
-fun SimpleTopAppBar(getMyActionImage: () -> Image) {
-    val someActionImage: Image = getMyActionImage()
-    val contextualActions = listOf("Action 1" to someActionImage, "action 2" to someActionImage)
+fun SimpleTopAppBarNavIcon(getMyNavigationImage: () -> Image) {
+    val someNavigationImage: Image = getMyNavigationImage()
 
     TopAppBar(
         title = { Text("Simple TopAppBar") },
-        contextualActions = contextualActions
-    ) { actionData ->
-        val (actionTitle, actionImage) = actionData
-        AppBarIcon(actionImage) { /* doSomething()*/ }
-    }
+        navigationIcon = { AppBarIcon(someNavigationImage) { /* doSomething() */ } }
+    )
 }
 
-@Suppress("UNUSED_VARIABLE")
 @Sampled
 @Composable
-fun SimpleTopAppBarNavIcon(getMyActionImage: () -> Image, getMyNavigationImage: () -> Image) {
+fun SimpleTopAppBarNavIconWithActions(
+    getMyActionImage: () -> Image,
+    getMyNavigationImage: () -> Image
+) {
     val someActionImage: Image = getMyActionImage()
     val someNavigationImage: Image = getMyNavigationImage()
 
     val navigationIcon: @Composable() () -> Unit = {
         AppBarIcon(someNavigationImage) { /* doSomething()*/ }
     }
-    val contextualActions = listOf("Action 1" to someActionImage, "action 2" to someActionImage)
+    val actionData = listOf(someActionImage, someActionImage)
 
     TopAppBar(
         title = { Text("Simple TopAppBar") },
         navigationIcon = navigationIcon,
-        contextualActions = contextualActions
-    ) { actionData ->
-        val (actionTitle, actionImage) = actionData
+        actionData = actionData
+    ) { actionImage ->
         AppBarIcon(actionImage) { /* doSomething()*/ }
     }
 }
 
-@Suppress("UNUSED_VARIABLE")
 @Sampled
 @Composable
 fun SimpleBottomAppBarNoFab(getMyActionImage: () -> Image, getMyNavigationImage: () -> Image) {
@@ -85,18 +81,16 @@ fun SimpleBottomAppBarNoFab(getMyActionImage: () -> Image, getMyNavigationImage:
     val navigationIcon: @Composable() () -> Unit = {
         AppBarIcon(someNavigationImage) { /* doSomething()*/ }
     }
-    val contextualActions = listOf("Action 1" to someActionImage, "action 2" to someActionImage)
+    val actionData = listOf(someActionImage, someActionImage)
 
     BottomAppBar(
         navigationIcon = navigationIcon,
-        contextualActions = contextualActions
-    ) { actionData ->
-        val (actionTitle, actionImage) = actionData
+        actionData = actionData
+    ) { actionImage ->
         AppBarIcon(actionImage) { /* doSomething()*/ }
     }
 }
 
-@Suppress("UNUSED_VARIABLE")
 @Sampled
 @Composable
 fun SimpleBottomAppBarCenterFab(getMyActionImage: () -> Image, getMyNavigationImage: () -> Image) {
@@ -106,7 +100,7 @@ fun SimpleBottomAppBarCenterFab(getMyActionImage: () -> Image, getMyNavigationIm
     val navigationIcon: @Composable() () -> Unit = {
         AppBarIcon(someNavigationImage) { /* doSomething()*/ }
     }
-    val contextualActions = listOf("Action 1" to someActionImage, "action 2" to someActionImage)
+    val actionData = listOf(someActionImage, someActionImage)
 
     BottomAppBar(
         navigationIcon = navigationIcon,
@@ -116,19 +110,17 @@ fun SimpleBottomAppBarCenterFab(getMyActionImage: () -> Image, getMyNavigationIm
                 icon = someActionImage,
                 onClick = { /** doSomething() */ })
         },
-        contextualActions = contextualActions
-    ) { actionData ->
-        val (actionTitle, actionImage) = actionData
+        actionData = actionData
+    ) { actionImage ->
         AppBarIcon(actionImage) { /* doSomething()*/ }
     }
 }
 
-@Suppress("UNUSED_VARIABLE")
 @Sampled
 @Composable
 fun SimpleBottomAppBarEndFab(getMyActionImage: () -> Image) {
     val someActionImage: Image = getMyActionImage()
-    val contextualActions = listOf("Action 1" to someActionImage, "action 2" to someActionImage)
+    val actionData = listOf(someActionImage, someActionImage)
 
     BottomAppBar(
         fabConfiguration = FabConfiguration(fabPosition = BottomAppBar.FabPosition.End) {
@@ -137,14 +129,12 @@ fun SimpleBottomAppBarEndFab(getMyActionImage: () -> Image) {
                 icon = someActionImage,
                 onClick = { /** doSomething() */ })
         },
-        contextualActions = contextualActions
-    ) { actionData ->
-        val (actionTitle, actionImage) = actionData
+        actionData = actionData
+    ) { actionImage ->
         AppBarIcon(actionImage) { /* doSomething()*/ }
     }
 }
 
-@Suppress("UNUSED_VARIABLE")
 @Sampled
 @Composable
 fun SimpleBottomAppBarCutoutFab(
@@ -157,7 +147,7 @@ fun SimpleBottomAppBarCutoutFab(
     val navigationIcon: @Composable() () -> Unit = {
         AppBarIcon(someNavigationImage) { /* doSomething()*/ }
     }
-    val contextualActions = listOf("Action 1" to someActionImage, "action 2" to someActionImage)
+    val actionData = listOf(someActionImage, someActionImage)
 
     BottomAppBar(
         navigationIcon = navigationIcon,
@@ -167,14 +157,12 @@ fun SimpleBottomAppBarCutoutFab(
                 icon = someActionImage,
                 onClick = { /** doSomething() */ })
         },
-        contextualActions = contextualActions
-    ) { actionData ->
-        val (actionTitle, actionImage) = actionData
+        actionData = actionData
+    ) { actionImage ->
         AppBarIcon(actionImage) { /* doSomething()*/ }
     }
 }
 
-@Suppress("UNUSED_VARIABLE")
 @Sampled
 @Composable
 fun SimpleBottomAppBarExtendedCutoutFab(
@@ -187,7 +175,7 @@ fun SimpleBottomAppBarExtendedCutoutFab(
     val navigationIcon: @Composable() () -> Unit = {
         AppBarIcon(someNavigationImage) { /* doSomething()*/ }
     }
-    val contextualActions = listOf("Action 1" to someActionImage, "action 2" to someActionImage)
+    val actionData = listOf(someActionImage, someActionImage)
 
     BottomAppBar(
         navigationIcon = navigationIcon,
@@ -198,14 +186,12 @@ fun SimpleBottomAppBarExtendedCutoutFab(
                 textStyle = TextStyle(color = Color.White),
                 onClick = { /** doSomething() */ })
         },
-        contextualActions = contextualActions
-    ) { actionData ->
-        val (actionTitle, actionImage) = actionData
+        actionData = actionData
+    ) { actionImage ->
         AppBarIcon(actionImage) { /* doSomething()*/ }
     }
 }
 
-@Suppress("UNUSED_VARIABLE")
 @Sampled
 @Composable
 fun SimpleBottomAppBarFancyAnimatingCutoutFab(
@@ -218,7 +204,7 @@ fun SimpleBottomAppBarFancyAnimatingCutoutFab(
     val navigationIcon: @Composable() () -> Unit = {
         AppBarIcon(someNavigationImage) { /* doSomething()*/ }
     }
-    val contextualActions = listOf("Action 1" to someActionImage, "action 2" to someActionImage)
+    val actionData = listOf(someActionImage, someActionImage)
 
     // Consider negative values to mean 'cut corner' and positive values to mean 'round corner'
     val sharpEdgePercent = -50f
@@ -256,9 +242,8 @@ fun SimpleBottomAppBarFancyAnimatingCutoutFab(
                 shape = fabShape
             )
         },
-        contextualActions = contextualActions
-    ) { actionData ->
-        val (actionTitle, actionImage) = actionData
+        actionData = actionData
+    ) { actionImage ->
         AppBarIcon(actionImage) { /* doSomething()*/ }
     }
 }
