@@ -68,6 +68,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 /**
  * Allows an app to interact with an active {@link MediaSession} or a
@@ -79,6 +80,8 @@ import java.util.concurrent.Executor;
  * Topics covered here:
  * <ol>
  * <li><a href="#ControllerLifeCycle">Controller Lifecycle</a>
+ * <li><a href="#MediaSessionInTheSameProcess">Controlling the {@link MediaSession} in the same
+ * process</a>
  * </ol>
  * <a name="ControllerLifeCycle"></a>
  * <h3>Controller Lifecycle</h3>
@@ -103,6 +106,37 @@ import java.util.concurrent.Executor;
  * <p>
  * When you're done, use {@link #close()} to clean up resources. This also helps session service
  * to be destroyed when there's no controller associated with it.
+ * <p>
+ * <a name="MediaSessionInTheSameProcess"></a>
+ * <h3>Controlling the MediaSession in the same process</h3>
+ * When you control the {@link MediaSession} and its {@link SessionPlayer}, it's recommended to use
+ * them directly rather than creating {@link MediaController}. However, if you need to use
+ * {@link MediaController} in the same process, be careful not to block session callback executor's
+ * thread. Here's an example code that would never return due to the thread issue.
+ * <p>
+ * <pre>
+ * {@code
+ * // Code runs on the main thread.
+ * MediaSession session = new MediaSession.Builder(context, player)
+ *    .setSessionCallback(sessionCallback, Context.getMainExecutor(context)).build();
+ * MediaController controller = new MediaController.Builder(context)
+ *    .setSessionToken(session.getToken())
+ *    .setControllerCallback(Context.getMainExecutor(context), controllerCallback)
+ *    .build();
+ *
+ * // This will hang and never return.
+ * controller.play().get();}</pre>
+ *
+ * When a session gets a command from a controller, the session's
+ * {@link MediaSession.SessionCallback#onCommandRequest} would be executed on the session's
+ * callback executor to decide whether to ignore or handle the incoming command. To do so, the
+ * session's callback executor shouldn't be blocked to handle the incoming calls. However, if you
+ * call {@link ListenableFuture#get} on the thread for the session callback executor, then your
+ * call wouldn't be executed and never return.
+ * <p>
+ * To avoid such issue, don't block the session callback executor's thread. Creating a dedicated
+ * thread for the session callback executor would be helpful. See
+ * {@link Executors#newSingleThreadExecutor} for creating a new thread.
  *
  * @see MediaSession
  * @see MediaSessionService
