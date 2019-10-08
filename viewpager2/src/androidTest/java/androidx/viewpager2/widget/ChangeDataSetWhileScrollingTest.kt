@@ -70,6 +70,11 @@ class ChangeDataSetWhileScrollingTest : BaseTest() {
 
             Log.d("ChangeDataSetWhileScrollingTest", "$debugInfo")
 
+            // confirming if unfinished RV animations are the source of flakiness
+            PollingCheck.waitFor { !debugInfo.rvIsAnimating }
+
+            Log.d("ChangeDataSetWhileScrollingTest", "$debugInfo")
+
             assertBasicState(0, "49")
         }
     }
@@ -81,7 +86,8 @@ class ChangeDataSetWhileScrollingTest : BaseTest() {
         val firstItemX: Int?,
         val rvScrollState: Int,
         val vpScrollState: Int,
-        val rvIsAnimating: Boolean
+        val rvIsAnimating: Boolean,
+        val firstItemTranslationX: Float?
     )
 
     private val Context.debugInfo: DebugInfo
@@ -101,7 +107,8 @@ class ChangeDataSetWhileScrollingTest : BaseTest() {
                 firstCompletelyVisibleItem?.locationOnScreenX,
                 recyclerView.scrollState,
                 viewPager.scrollState,
-                recyclerView.isAnimating
+                recyclerView.isAnimating,
+                firstCompletelyVisibleItem?.translationX
             )
         }
 
