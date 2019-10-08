@@ -24,13 +24,16 @@ import androidx.ui.core.withDensity
 import androidx.ui.layout.Container
 import com.google.common.truth.Truth
 import androidx.compose.unaryPlus
+import androidx.ui.core.LastBaseline
 import androidx.ui.core.LayoutCoordinates
 import androidx.ui.core.OnChildPositioned
+import androidx.ui.core.Px
 import androidx.ui.core.PxPosition
 import androidx.ui.core.Text
 import androidx.ui.core.currentTextStyle
 import androidx.ui.core.ipx
 import androidx.ui.core.round
+import androidx.ui.core.sp
 import androidx.ui.core.toPx
 import androidx.ui.foundation.ColoredRect
 import androidx.ui.foundation.shape.corner.CircleShape
@@ -64,7 +67,7 @@ class AppBarTest {
         val dm = composeTestRule.displayMetrics
         composeTestRule
             .setMaterialContentAndCollectSizes {
-                TopAppBar<Nothing>()
+                TopAppBar(title = { Text("Title") })
             }
             .assertHeightEqualsTo(appBarHeight)
             .assertWidthEqualsTo { dm.widthPixels.ipx }
@@ -74,7 +77,7 @@ class AppBarTest {
     fun topAppBar_withTitle() {
         val title = "Title"
         composeTestRule.setMaterialContent {
-            TopAppBar<Nothing>(title = { Text(title) })
+            TopAppBar(title = { Text(title) })
         }
         findByText(title).assertIsVisible()
     }
@@ -84,6 +87,8 @@ class AppBarTest {
         var appBarCoords: LayoutCoordinates? = null
         var navigationIconCoords: LayoutCoordinates? = null
         var titleCoords: LayoutCoordinates? = null
+        // Position of the baseline relative to the top of the text
+        var titleLastBaselineRelativePosition: Px? = null
         var actionCoords: LayoutCoordinates? = null
         composeTestRule.setMaterialContent {
             Container {
@@ -101,15 +106,17 @@ class AppBarTest {
                         title = {
                             OnChildPositioned(onPositioned = { coords ->
                                 titleCoords = coords
+                                titleLastBaselineRelativePosition =
+                                    coords.providedAlignmentLines[LastBaseline]!!.toPx()
                             }) {
                                 Text("title")
                             }
                         },
-                        contextualActions = createImageList(1),
-                        action = {
+                        actionData = createImageList(1),
+                        action = { action ->
                             OnChildPositioned(onPositioned = { coords ->
                                 actionCoords = coords
-                            }) { it() }
+                            }) { action() }
                         }
                     )
                 }
@@ -126,6 +133,16 @@ class AppBarTest {
             val titlePositionX = titleCoords!!.localToGlobal(PxPosition.Origin).x
             val titleExpectedPositionX = 72.dp.toIntPx().toPx()
             Truth.assertThat(titlePositionX).isEqualTo(titleExpectedPositionX)
+
+            // Absolute position of the baseline
+            val titleLastBaselinePositionY = titleLastBaselineRelativePosition!! +
+                    titleCoords!!.localToGlobal(PxPosition.Origin).y
+            val appBarBottomEdgeY = appBarCoords!!.localToGlobal(PxPosition.Origin).y +
+                    appBarCoords!!.size.height
+            // Baseline should be 20.sp from the bottom of the app bar
+            val titleExpectedLastBaselinePositionY = appBarBottomEdgeY - 20.sp.toIntPx().toPx()
+            Truth.assertThat(titleLastBaselinePositionY)
+                .isEqualTo(titleExpectedLastBaselinePositionY)
 
             // Action should be placed at the end
             val actionPositionX = actionCoords!!.localToGlobal(PxPosition.Origin).x
@@ -153,11 +170,11 @@ class AppBarTest {
                                 Text("title")
                             }
                         },
-                        contextualActions = createImageList(1),
-                        action = {
+                        actionData = createImageList(1),
+                        action = { action ->
                             OnChildPositioned(onPositioned = { coords ->
                                 actionCoords = coords
-                            }) { it() }
+                            }) { action() }
                         }
                     )
                 }
@@ -185,7 +202,8 @@ class AppBarTest {
         composeTestRule.setMaterialContent {
             Container {
                 TopAppBar(
-                    contextualActions = createImageList(numberOfActions),
+                    title = { Text("Title") },
+                    actionData = createImageList(numberOfActions),
                     action = { action ->
                         Semantics(properties = { testTag = tag }) {
                             action()
@@ -206,7 +224,8 @@ class AppBarTest {
         composeTestRule.setMaterialContent {
             Container {
                 TopAppBar(
-                    contextualActions = createImageList(numberOfActions),
+                    title = { Text("Title") },
+                    actionData = createImageList(numberOfActions),
                     action = { action ->
                         Semantics(properties = { testTag = tag }) {
                             action()
@@ -225,8 +244,9 @@ class AppBarTest {
         var h6Style: TextStyle? = null
         composeTestRule.setMaterialContent {
             Container {
-                TopAppBar<Nothing>(
+                TopAppBar(
                     title = {
+                        Text("App Bar Title")
                         textStyle = +currentTextStyle()
                         h6Style = +themeTextStyle { h6 }
                     }
@@ -258,11 +278,11 @@ class AppBarTest {
                     appBarCoords = coords
                 }) {
                     BottomAppBar(
-                        contextualActions = createImageList(1),
-                        action = {
+                        actionData = createImageList(1),
+                        action = { action ->
                             OnChildPositioned(onPositioned = { coords ->
                                 actionCoords = coords
-                            }) { it() }
+                            }) { action() }
                         }
                     )
                 }
@@ -296,11 +316,11 @@ class AppBarTest {
                                 FakeIcon()
                             }
                         },
-                        contextualActions = createImageList(1),
-                        action = {
+                        actionData = createImageList(1),
+                        action = { action ->
                             OnChildPositioned(onPositioned = { coords ->
                                 actionCoords = coords
-                            }) { it() }
+                            }) { action() }
                         }
                     )
                 }
@@ -347,11 +367,11 @@ class AppBarTest {
                                 FakeIcon()
                             }
                         },
-                        contextualActions = createImageList(1),
-                        action = {
+                        actionData = createImageList(1),
+                        action = { action ->
                             OnChildPositioned(onPositioned = { coords ->
                                 actionCoords = coords
-                            }) { it() }
+                            }) { action() }
                         }
                     )
                 }
@@ -404,11 +424,11 @@ class AppBarTest {
                                 FakeIcon()
                             }
                         },
-                        contextualActions = createImageList(1),
-                        action = {
+                        actionData = createImageList(1),
+                        action = { action ->
                             OnChildPositioned(onPositioned = { coords ->
                                 actionCoords = coords
-                            }) { it() }
+                            }) { action() }
                         }
                     )
                 }
@@ -453,11 +473,11 @@ class AppBarTest {
                                 FakeIcon()
                             }
                         },
-                        contextualActions = createImageList(1),
-                        action = {
+                        actionData = createImageList(1),
+                        action = { action ->
                             OnChildPositioned(onPositioned = { coords ->
                                 actionCoords = coords
-                            }) { it() }
+                            }) { action() }
                         }
                     )
                 }
@@ -496,11 +516,11 @@ class AppBarTest {
                                 FakeIcon()
                             }
                         },
-                        contextualActions = createImageList(1),
-                        action = {
+                        actionData = createImageList(1),
+                        action = { action ->
                             OnChildPositioned(onPositioned = { coords ->
                                 actionCoords = coords
-                            }) { it() }
+                            }) { action() }
                         }
                     )
                 }
@@ -528,7 +548,7 @@ class AppBarTest {
         composeTestRule.setMaterialContent {
             Container {
                 BottomAppBar(
-                    contextualActions = createImageList(numberOfActions),
+                    actionData = createImageList(numberOfActions),
                     action = { action ->
                         Semantics(properties = { testTag = tag }) {
                             action()
@@ -549,7 +569,7 @@ class AppBarTest {
         composeTestRule.setMaterialContent {
             Container {
                 BottomAppBar(
-                    contextualActions = createImageList(numberOfActions),
+                    actionData = createImageList(numberOfActions),
                     action = { action ->
                         Semantics(properties = { testTag = tag }) {
                             action()

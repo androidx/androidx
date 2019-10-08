@@ -36,7 +36,7 @@ import androidx.ui.material.demos.AppBarActivity.BottomAppBarOption.EndFab
 import androidx.ui.material.demos.AppBarActivity.BottomAppBarOption.ExtendedCutoutFab
 import androidx.ui.material.demos.AppBarActivity.BottomAppBarOption.FancyAnimatingCutoutFab
 import androidx.ui.material.demos.AppBarActivity.BottomAppBarOption.NoFab
-import androidx.ui.material.demos.AppBarActivity.TopAppBarOption.NavIcon
+import androidx.ui.material.demos.AppBarActivity.TopAppBarOption.Actions
 import androidx.ui.material.demos.AppBarActivity.TopAppBarOption.Simple
 import androidx.ui.material.samples.SimpleBottomAppBarCutoutFab
 import androidx.ui.material.samples.SimpleBottomAppBarCenterFab
@@ -44,8 +44,8 @@ import androidx.ui.material.samples.SimpleBottomAppBarEndFab
 import androidx.ui.material.samples.SimpleBottomAppBarExtendedCutoutFab
 import androidx.ui.material.samples.SimpleBottomAppBarFancyAnimatingCutoutFab
 import androidx.ui.material.samples.SimpleBottomAppBarNoFab
-import androidx.ui.material.samples.SimpleTopAppBar
 import androidx.ui.material.samples.SimpleTopAppBarNavIcon
+import androidx.ui.material.samples.SimpleTopAppBarNavIconWithActions
 import androidx.ui.material.surface.Surface
 import androidx.ui.material.themeTextStyle
 import androidx.ui.graphics.imageFromResource
@@ -57,7 +57,7 @@ class AppBarActivity : MaterialDemoActivity() {
 
     private enum class TopAppBarOption(val description: String) {
         Simple("Simple"),
-        NavIcon("With Nav Icon")
+        Actions("With Actions")
     }
 
     private enum class BottomAppBarOption(val description: String) {
@@ -69,7 +69,7 @@ class AppBarActivity : MaterialDemoActivity() {
         FancyAnimatingCutoutFab("Fancy Animating Cutout FAB")
     }
 
-    private val topAppBarOptions = listOf(Simple, NavIcon)
+    private val topAppBarOptions = listOf(Simple, Actions)
     private val bottomAppBarOptions = listOf(
         NoFab, CenterFab, EndFab, CutoutFab, ExtendedCutoutFab, FancyAnimatingCutoutFab
     )
@@ -84,8 +84,11 @@ class AppBarActivity : MaterialDemoActivity() {
                 inflexible {
                     Container(height = 120.dp, alignment = Alignment.TopCenter) {
                         when (selectedTopAppBar) {
-                            Simple -> SimpleTopAppBar(favouriteImage)
-                            NavIcon -> SimpleTopAppBarNavIcon(favouriteImage, navigationImage)
+                            Simple -> SimpleTopAppBarNavIcon(navigationImage)
+                            Actions -> SimpleTopAppBarNavIconWithActions(
+                                favouriteImage,
+                                navigationImage
+                            )
                         }
                     }
                 }
