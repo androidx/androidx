@@ -31,5 +31,11 @@ package androidx.benchmark {
     property public final boolean resumed;
   }
 
+  public final class TraceCompatKt {
+    ctor public TraceCompatKt();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static void beginTraceSection(String sectionName);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static void endTraceSection();
+  }
+
 }
 

@@ -20,5 +20,9 @@ package androidx.benchmark {
   @kotlin.annotation.Retention(AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets=AnnotationTarget.FUNCTION) public static @interface BenchmarkState.Companion.ExperimentalExternalReport {
   }
 
+  public final class TraceCompatKt {
+    ctor public TraceCompatKt();
+  }
+
 }
 
