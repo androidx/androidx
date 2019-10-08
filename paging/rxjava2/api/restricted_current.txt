@@ -22,5 +22,11 @@ package androidx.paging {
     method public static <Key, Value> io.reactivex.Observable<androidx.paging.PagedList<Value>> toObservable(androidx.paging.DataSource.Factory<Key,Value>, int pageSize, Key? initialLoadKey = null, androidx.paging.PagedList.BoundaryCallback<Value>? boundaryCallback = null, io.reactivex.Scheduler? fetchScheduler = null, io.reactivex.Scheduler? notifyScheduler = null);
   }
 
+  public abstract class RxPagedSource<Key, Value> extends androidx.paging.PagedSource<Key,Value> {
+    ctor public RxPagedSource();
+    method public final suspend Object load(androidx.paging.PagedSource.LoadParams<Key> params, kotlin.coroutines.Continuation<? super androidx.paging.PagedSource.LoadResult<Key,Value>> p);
+    method public abstract io.reactivex.Single<androidx.paging.PagedSource.LoadResult<Key,Value>> loadSingle(androidx.paging.PagedSource.LoadParams<Key> params);
+  }
+
 }
 
