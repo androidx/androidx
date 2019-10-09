@@ -40,12 +40,12 @@ import androidx.ui.core.max
  * borders to the [AlignmentLine] of the child will be [before] and [after], respectively.
  * The [before] and [after] values will be interpreted as offsets on the axis corresponding to
  * the alignment line.
- * TODO(popam): consider RTL here
  *
  * @param alignmentLine the alignment line to be used for positioning the child
  * @param before the offset between the left or top container border and the alignment line
  * @param after the offset between the bottom or right container border and the alignment line
  */
+// TODO(popam): consider RTL here
 @Composable
 fun AlignmentLineOffset(
     alignmentLine: AlignmentLine,

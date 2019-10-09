@@ -107,9 +107,8 @@ val CurrentBackground = Ambient.of { Color.Transparent }
 /**
  * A simple layout which just reserves a space for a [Surface].
  * It positions the only child in the left top corner.
- *
- * TODO("Andrey: Should be replaced with some basic layout implementation when we have it")
  */
+// TODO("Andrey: Should be replaced with some basic layout implementation when we have it")
 @Composable
 private fun SurfaceLayout(children: @Composable() () -> Unit) {
     Layout(children) { measurables, constraints ->

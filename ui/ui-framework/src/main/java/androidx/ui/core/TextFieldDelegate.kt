@@ -59,9 +59,8 @@ internal const val DEFAULT_SELECTION_COLOR: Int = 0x6633B5E5
  * ascender/descender from the default font in Android.
  *
  * Until we have font metrics APIs, use the height of reference text as a workaround.
- *
- * TODO(nona): Add FontMetrics API and stop doing this workaround.
  */
+// TODO(nona): Add FontMetrics API and stop doing this workaround.
 private fun computeLineHeightForEmptyText(
     textStyle: TextStyle,
     density: Density,
