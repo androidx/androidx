@@ -33,7 +33,9 @@ open class BenchmarkReportTask : DefaultTask() {
         description = "Run benchmarks found in the current project and output reports to the " +
                 "benchmark_reports folder under the project's build directory."
 
-        benchmarkReportDir = File(project.buildDir, "benchmark_reports")
+        benchmarkReportDir = File(
+            "${project.buildDir}/outputs", "connected_android_test_additional_output"
+        )
         outputs.dir(benchmarkReportDir)
 
         // This task should mirror the upToDate behavior of connectedAndroidTest as we always want
