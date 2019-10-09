@@ -21,7 +21,6 @@ import static com.google.common.truth.Truth.assertThat;
 import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertNotNull;
 
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assume.assumeTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -34,9 +33,6 @@ import static org.mockito.Mockito.verify;
 import android.Manifest;
 import android.app.Instrumentation;
 import android.content.Context;
-import android.hardware.camera2.CameraAccessException;
-import android.hardware.camera2.CameraCharacteristics;
-import android.hardware.camera2.CaptureRequest;
 import android.os.Build;
 
 import androidx.camera.camera2.Camera2AppConfig;
@@ -44,19 +40,16 @@ import androidx.camera.camera2.Camera2Config;
 import androidx.camera.camera2.impl.CameraEventCallback;
 import androidx.camera.camera2.impl.CameraEventCallbacks;
 import androidx.camera.core.AppConfig;
-import androidx.camera.core.CameraInfoUnavailableException;
 import androidx.camera.core.CameraX;
+import androidx.camera.core.CameraX.LensFacing;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCaptureConfig;
 import androidx.camera.core.ImageProxy;
 import androidx.camera.core.Preview;
 import androidx.camera.core.PreviewConfig;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
-import androidx.camera.extensions.impl.AutoPreviewExtenderImpl;
-import androidx.camera.extensions.impl.BeautyPreviewExtenderImpl;
-import androidx.camera.extensions.impl.BokehPreviewExtenderImpl;
-import androidx.camera.extensions.impl.HdrPreviewExtenderImpl;
-import androidx.camera.extensions.impl.NightPreviewExtenderImpl;
+import androidx.camera.extensions.ExtensionsManager.EffectMode;
+import androidx.camera.extensions.util.ExtensionsTestUtil;
 import androidx.camera.testing.CameraUtil;
 import androidx.camera.testing.fakes.FakeLifecycleOwner;
 import androidx.test.core.app.ApplicationProvider;
@@ -73,12 +66,11 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.mockito.ArgumentCaptor;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.concurrent.ExecutionException;
 
-@RunWith(Parameterized.class)
 @LargeTest
+@RunWith(Parameterized.class)
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.M)
 public class ExtensionTest {
 
@@ -86,31 +78,18 @@ public class ExtensionTest {
     public GrantPermissionRule mRuntimePermissionRule = GrantPermissionRule.grant(
             Manifest.permission.CAMERA);
 
-    private final Instrumentation mInstrumentation = InstrumentationRegistry.getInstrumentation();
-    private FakeLifecycleOwner mLifecycleOwner;
-    private ExtensionsManager.EffectMode mEffectMode;
-    private CameraX.LensFacing mLensFacing;
-
-    private ImageCaptureConfig.Builder mImageCaptureConfigBuilder;
-    private PreviewConfig.Builder mPreviewConfigBuilder;
-
     @Parameterized.Parameters
     public static Collection<Object[]> getParameters() {
-        return Arrays.asList(new Object[][] {
-                { ExtensionsManager.EffectMode.BOKEH, CameraX.LensFacing.FRONT },
-                { ExtensionsManager.EffectMode.BOKEH, CameraX.LensFacing.BACK },
-                { ExtensionsManager.EffectMode.HDR, CameraX.LensFacing.FRONT },
-                { ExtensionsManager.EffectMode.HDR, CameraX.LensFacing.BACK },
-                { ExtensionsManager.EffectMode.BEAUTY, CameraX.LensFacing.FRONT },
-                { ExtensionsManager.EffectMode.BEAUTY, CameraX.LensFacing.BACK },
-                { ExtensionsManager.EffectMode.NIGHT, CameraX.LensFacing.FRONT },
-                { ExtensionsManager.EffectMode.NIGHT, CameraX.LensFacing.BACK },
-                { ExtensionsManager.EffectMode.AUTO, CameraX.LensFacing.FRONT },
-                { ExtensionsManager.EffectMode.AUTO, CameraX.LensFacing.BACK }
-        });
+        return ExtensionsTestUtil.getAllEffectLensFacingCombinations();
     }
 
-    public ExtensionTest(ExtensionsManager.EffectMode effectMode, CameraX.LensFacing lensFacing) {
+    private final Instrumentation mInstrumentation = InstrumentationRegistry.getInstrumentation();
+
+    private EffectMode mEffectMode;
+    private LensFacing mLensFacing;
+    private FakeLifecycleOwner mLifecycleOwner;
+
+    public ExtensionTest(EffectMode effectMode, LensFacing lensFacing) {
         mEffectMode = effectMode;
         mLensFacing = lensFacing;
     }
@@ -123,43 +102,40 @@ public class ExtensionTest {
         AppConfig appConfig = Camera2AppConfig.create(context);
         CameraX.init(context, appConfig);
 
+        assumeTrue(CameraUtil.hasCameraWithLensFacing(mLensFacing));
+        assumeTrue(ExtensionsManager.isExtensionAvailable(mEffectMode, mLensFacing));
+
         mLifecycleOwner = new FakeLifecycleOwner();
         mLifecycleOwner.startAndResume();
-
-        mImageCaptureConfigBuilder = new ImageCaptureConfig.Builder();
-        mPreviewConfigBuilder = new PreviewConfig.Builder();
     }
 
     @After
     public void cleanUp() throws InterruptedException, ExecutionException {
-        mInstrumentation.runOnMainSync(CameraX::unbindAll);
         CameraX.deinit().get();
     }
 
     @Test
     public void testCanBindToLifeCycleAndTakePicture() {
-        assumeTrue(CameraUtil.hasCameraWithLensFacing(mLensFacing));
-        assumeTrue(ExtensionsManager.isExtensionAvailable(mEffectMode, mLensFacing));
-        assumeTrue(supportAFMode(mLensFacing));
-
-        enableExtension(mEffectMode, mLensFacing);
-
         Preview.OnPreviewOutputUpdateListener mockOnPreviewOutputUpdateListener = mock(
                 Preview.OnPreviewOutputUpdateListener.class);
         ImageCapture.OnImageCapturedCallback mockOnImageCapturedCallback = mock(
                 ImageCapture.OnImageCapturedCallback.class);
 
         // To test bind/unbind and take picture.
-        ImageCapture imageCapture = new ImageCapture(mImageCaptureConfigBuilder.build());
-        Preview preview = new Preview(mPreviewConfigBuilder.build());
+        ImageCapture imageCapture = ExtensionsTestUtil.createImageCaptureWithEffect(mEffectMode,
+                mLensFacing);
+        Preview preview = ExtensionsTestUtil.createPreviewWithEffect(mEffectMode, mLensFacing);
 
-        CameraX.bindToLifecycle(mLifecycleOwner, preview, imageCapture);
+        mInstrumentation.runOnMainSync(
+                () -> {
+                    CameraX.bindToLifecycle(mLifecycleOwner, preview, imageCapture);
 
-        // To set the update listener and Preview will change to active state.
-        preview.setOnPreviewOutputUpdateListener(mockOnPreviewOutputUpdateListener);
+                    // To set the update listener and Preview will change to active state.
+                    preview.setOnPreviewOutputUpdateListener(mockOnPreviewOutputUpdateListener);
 
-        imageCapture.takePicture(CameraXExecutors.mainThreadExecutor(),
-                mockOnImageCapturedCallback);
+                    imageCapture.takePicture(CameraXExecutors.mainThreadExecutor(),
+                            mockOnImageCapturedCallback);
+                });
 
         // Verify the image captured.
         ArgumentCaptor<ImageProxy> imageProxy = ArgumentCaptor.forClass(ImageProxy.class);
@@ -175,13 +151,9 @@ public class ExtensionTest {
 
     @Test
     public void testEventCallbackInConfig() {
-        assumeTrue(CameraUtil.hasCameraWithLensFacing(mLensFacing));
-        assumeTrue(ExtensionsManager.isExtensionAvailable(mEffectMode, mLensFacing));
-
-        enableExtension(mEffectMode, mLensFacing);
-
         // Verify Preview config should have related callback.
-        PreviewConfig previewConfig = mPreviewConfigBuilder.build();
+        PreviewConfig previewConfig = ExtensionsTestUtil.createPreviewConfigWithEffect(mEffectMode,
+                mLensFacing);
         assertNotNull(previewConfig.getUseCaseEventListener());
         CameraEventCallbacks callback1 = new Camera2Config(previewConfig).getCameraEventCallback(
                 null);
@@ -190,7 +162,8 @@ public class ExtensionTest {
         assertThat(callback1.getAllItems().get(0)).isInstanceOf(CameraEventCallback.class);
 
         // Verify ImageCapture config should have related callback.
-        ImageCaptureConfig imageCaptureConfig = mImageCaptureConfigBuilder.build();
+        ImageCaptureConfig imageCaptureConfig =
+                ExtensionsTestUtil.createImageCaptureConfigWithEffect(mEffectMode, mLensFacing);
         assertNotNull(imageCaptureConfig.getUseCaseEventListener());
         assertNotNull(imageCaptureConfig.getCaptureBundle());
         CameraEventCallbacks callback2 = new Camera2Config(
@@ -198,93 +171,5 @@ public class ExtensionTest {
         assertNotNull(callback2);
         assertEquals(callback2.getAllItems().size(), 1);
         assertThat(callback2.getAllItems().get(0)).isInstanceOf(CameraEventCallback.class);
-    }
-
-    /**
-     * To invoke the enableExtension() method for different effect.
-     */
-    private void enableExtension(ExtensionsManager.EffectMode effectMode,
-            CameraX.LensFacing lensFacing) {
-
-        mImageCaptureConfigBuilder.setLensFacing(lensFacing);
-        mPreviewConfigBuilder.setLensFacing(lensFacing);
-
-        ImageCaptureExtender imageCaptureExtender = null;
-        PreviewExtender previewExtender = null;
-
-        switch (effectMode) {
-            case HDR:
-                imageCaptureExtender = HdrImageCaptureExtender.create(mImageCaptureConfigBuilder);
-                previewExtender = HdrPreviewExtender.create(mPreviewConfigBuilder);
-
-                // Make sure we are testing on the testlib/Vendor implementation.
-                assertThat(previewExtender.mImpl).isInstanceOf(HdrPreviewExtenderImpl.class);
-                break;
-            case BOKEH:
-                imageCaptureExtender = BokehImageCaptureExtender.create(
-                        mImageCaptureConfigBuilder);
-                previewExtender = BokehPreviewExtender.create(mPreviewConfigBuilder);
-
-                // Make sure we are testing on the testlib/Vendor implementation.
-                assertThat(previewExtender.mImpl).isInstanceOf(BokehPreviewExtenderImpl.class);
-                break;
-            case BEAUTY:
-                imageCaptureExtender = BeautyImageCaptureExtender.create(
-                        mImageCaptureConfigBuilder);
-                previewExtender = BeautyPreviewExtender.create(mPreviewConfigBuilder);
-
-                // Make sure we are testing on the testlib/Vendor implementation.
-                assertThat(previewExtender.mImpl).isInstanceOf(BeautyPreviewExtenderImpl.class);
-                break;
-            case NIGHT:
-                imageCaptureExtender = NightImageCaptureExtender.create(mImageCaptureConfigBuilder);
-                previewExtender = NightPreviewExtender.create(mPreviewConfigBuilder);
-
-                // Make sure we are testing on the testlib/Vendor implementation.
-                assertThat(previewExtender.mImpl).isInstanceOf(NightPreviewExtenderImpl.class);
-                break;
-            case AUTO:
-                imageCaptureExtender = AutoImageCaptureExtender.create(mImageCaptureConfigBuilder);
-                previewExtender = AutoPreviewExtender.create(mPreviewConfigBuilder);
-
-                // Make sure we are testing on the testlib/Vendor implementation.
-                assertThat(previewExtender.mImpl).isInstanceOf(AutoPreviewExtenderImpl.class);
-                break;
-        }
-
-        assertNotNull(imageCaptureExtender);
-        assertNotNull(previewExtender);
-
-        assertTrue(previewExtender.isExtensionAvailable());
-        previewExtender.enableExtension();
-        assertTrue(imageCaptureExtender.isExtensionAvailable());
-        imageCaptureExtender.enableExtension();
-    }
-
-    private static boolean supportAFMode(CameraX.LensFacing lensFacing) {
-        String cameraId = null;
-        try {
-            cameraId = CameraX.getCameraWithLensFacing(lensFacing);
-        } catch (CameraInfoUnavailableException e) {
-            return false;
-        }
-
-        CameraCharacteristics characteristics = null;
-        try {
-            characteristics = CameraUtil.getCameraManager().getCameraCharacteristics(cameraId);
-        } catch (CameraAccessException e) {
-            return false;
-        }
-
-        int[] afModes = characteristics.get(CameraCharacteristics.CONTROL_AF_AVAILABLE_MODES);
-
-        if (afModes == null) {
-            return false;
-        }
-
-        // CameraX will use CONTROL_AF_MODE_AUTO or CONTROL_AF_MODE_CONTINUOUS_PICTURE to take
-        // picture. To check if the camera can support the these AF modes.
-        return Arrays.asList(afModes).contains(CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE)
-                && Arrays.asList(afModes).contains(CaptureRequest.CONTROL_AF_MODE_AUTO);
     }
 }
