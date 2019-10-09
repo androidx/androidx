@@ -36,7 +36,6 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.annotation.UiThread;
-import androidx.arch.core.util.Function;
 import androidx.camera.core.CameraCaptureMetaData.AeState;
 import androidx.camera.core.CameraCaptureMetaData.AfMode;
 import androidx.camera.core.CameraCaptureMetaData.AfState;
@@ -47,7 +46,6 @@ import androidx.camera.core.ForwardingImageProxy.OnImageCloseListener;
 import androidx.camera.core.ImageOutputConfig.RotationValue;
 import androidx.camera.core.impl.utils.Threads;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
-import androidx.camera.core.impl.utils.futures.AsyncFunction;
 import androidx.camera.core.impl.utils.futures.FutureCallback;
 import androidx.camera.core.impl.utils.futures.FutureChain;
 import androidx.camera.core.impl.utils.futures.Futures;
@@ -102,8 +100,6 @@ public class ImageCapture extends UseCase {
     // Empty metadata object used as a placeholder for no user-supplied metadata.
     // Should be initialized to all default values.
     private static final Metadata EMPTY_METADATA = new Metadata();
-    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-    final Handler mMainHandler = new Handler(Looper.getMainLooper());
     @Nullable
     private HandlerThread mProcessingImageResultThread;
     @Nullable
@@ -212,7 +208,7 @@ public class ImageCapture extends UseCase {
     }
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-    SessionConfig.Builder createPipeline(ImageCaptureConfig config,  Size resolution) {
+    SessionConfig.Builder createPipeline(ImageCaptureConfig config, Size resolution) {
         Threads.checkMainThread();
         SessionConfig.Builder sessionConfigBuilder = SessionConfig.Builder.createFrom(config);
         sessionConfigBuilder.addRepeatingCameraCaptureCallback(mSessionCallbackChecker);
@@ -440,13 +436,7 @@ public class ImageCapture extends UseCase {
     public void takePicture(@NonNull Executor executor,
             final @NonNull OnImageCapturedCallback callback) {
         if (Looper.getMainLooper() != Looper.myLooper()) {
-            mMainHandler.post(
-                    new Runnable() {
-                        @Override
-                        public void run() {
-                            ImageCapture.this.takePicture(executor, callback);
-                        }
-                    });
+            CameraXExecutors.mainThreadExecutor().execute(() -> takePicture(executor, callback));
             return;
         }
 
@@ -489,14 +479,8 @@ public class ImageCapture extends UseCase {
             final @NonNull Metadata metadata, @NonNull Executor executor,
             final @NonNull OnImageSavedCallback imageSavedCallback) {
         if (Looper.getMainLooper() != Looper.myLooper()) {
-            mMainHandler.post(
-                    new Runnable() {
-                        @Override
-                        public void run() {
-                            ImageCapture.this.takePicture(saveLocation,
-                                    metadata, executor, imageSavedCallback);
-                        }
-                    });
+            CameraXExecutors.mainThreadExecutor().execute(
+                    () -> takePicture(saveLocation, metadata, executor, imageSavedCallback));
             return;
         }
 
@@ -627,60 +611,36 @@ public class ImageCapture extends UseCase {
         final TakePictureState state = new TakePictureState();
 
         FutureChain.from(preTakePicture(state))
-                .transformAsync(new AsyncFunction<Void, Void>() {
-                    @Override
-                    public ListenableFuture<Void> apply(Void v) throws Exception {
-                        return ImageCapture.this.issueTakePicture(state);
-                    }
-                }, mExecutor)
-                .transformAsync(new AsyncFunction<Void, Void>() {
-                    @Override
-                    public ListenableFuture<Void> apply(Void v) throws Exception {
-                        return ImageCapture.this.postTakePicture(state);
-                    }
-                }, mExecutor)
+                .transformAsync(v -> issueTakePicture(), mExecutor)
                 .addCallback(
                         new FutureCallback<Void>() {
                             @Override
                             public void onSuccess(Void result) {
-                                onTakePictureFinish(null);
+                                postTakePicture(state);
                             }
 
                             @Override
-                            public void onFailure(Throwable t) {
-                                Log.e(TAG, "takePictureInternal onFailure", t);
-                                onTakePictureFinish(t);
-                            }
+                            public void onFailure(Throwable throwable) {
+                                Log.e(TAG, "takePictureInternal onFailure", throwable);
+                                postTakePicture(state);
 
-                            private void onTakePictureFinish(Throwable t) {
-                                boolean failed = state.mCaptureSuccess.isEmpty()
-                                        || state.mCaptureSuccess.contains(null)
-                                        || state.mCaptureSuccess.contains(false);
+                                // To handle the error and issue the next capture request
+                                // when the capture stages have any fail.
+                                CameraXExecutors.mainThreadExecutor().execute(() -> {
+                                    ImageCaptureRequest request = mImageCaptureRequests.poll();
 
-                                if (failed) {
-                                    // To handle the error and issue the next capture request
-                                    // when the capture stages have any fail.
-                                    // TODO: Need to notify the ProcessingImageReader the capture
-                                    //  request was failed (if the CaptureProcessor exists)
-                                    final Throwable error = state.mError != null ? state.mError : t;
-                                    mMainHandler.post(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            ImageCaptureRequest request =
-                                                    mImageCaptureRequests.poll();
-                                            if (request != null) {
-                                                request.callbackError(
-                                                        ImageCaptureError.UNKNOWN_ERROR,
-                                                        (error != null) ? error.getMessage()
-                                                                : "Unknown error", error);
-                                                // Handle the next request.
-                                                issueImageCaptureRequests();
-                                            }
-                                        }
-                                    });
+                                    // It could happens if we clear the mImageCaptureRequests queue
+                                    // in the middle of takePicture.
+                                    if (request == null) {
+                                        return;
+                                    }
 
-
-                                }
+                                    request.notifyCallbackError(getError(throwable),
+                                            (throwable != null) ? throwable.getMessage()
+                                                    : "Unknown error", throwable);
+                                    // Handle the next request.
+                                    issueImageCaptureRequests();
+                                });
                             }
                         },
                         mExecutor);
@@ -690,6 +650,17 @@ public class ImageCapture extends UseCase {
     @Override
     public String toString() {
         return TAG + ":" + getName();
+    }
+
+    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+    ImageCaptureError getError(Throwable throwable) {
+        if (throwable instanceof CameraClosedException) {
+            return ImageCaptureError.CAMERA_CLOSED;
+        } else if (throwable instanceof CaptureFailedException) {
+            return ImageCaptureError.CAPTURE_FAILED;
+        } else {
+            return ImageCaptureError.UNKNOWN_ERROR;
+        }
     }
 
     /**
@@ -751,12 +722,7 @@ public class ImageCapture extends UseCase {
         @Override
         public void onImageClose(ImageProxy image) {
             if (Looper.getMainLooper() != Looper.myLooper()) {
-                mMainHandler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        onImageClose(image);
-                    }
-                });
+                CameraXExecutors.mainThreadExecutor().execute(() -> onImageClose(image));
                 return;
             }
             mImageCaptureRequests.poll();
@@ -771,29 +737,18 @@ public class ImageCapture extends UseCase {
      */
     private ListenableFuture<Void> preTakePicture(final TakePictureState state) {
         return FutureChain.from(getPreCaptureStateIfNeeded())
-                .transformAsync(
-                        new AsyncFunction<CameraCaptureResult, Boolean>() {
-                            @Override
-                            public ListenableFuture<Boolean> apply(
-                                    CameraCaptureResult captureResult) throws Exception {
-                                state.mPreCaptureState = captureResult;
-                                ImageCapture.this.triggerAfIfNeeded(state);
+                .transformAsync(captureResult -> {
+                    state.mPreCaptureState = captureResult;
+                    triggerAfIfNeeded(state);
 
-                                if (ImageCapture.this.isFlashRequired(state)) {
-                                    state.mIsFlashTriggered = true;
-                                    ImageCapture.this.triggerAePrecapture(state);
-                                }
-                                return ImageCapture.this.check3AConverged(state);
-                            }
-                        },
-                        mExecutor)
-                // Ignore the 3A convergence result.
-                .transform(new Function<Boolean, Void>() {
-                    @Override
-                    public Void apply(Boolean is3AConverged) {
-                        return null;
+                    if (isFlashRequired(state)) {
+                        state.mIsFlashTriggered = true;
+                        triggerAePrecapture(state);
                     }
-                }, mExecutor);
+                    return check3AConverged(state);
+                }, mExecutor)
+                // Ignore the 3A convergence result.
+                .transform(is3AConverged -> null, mExecutor);
     }
 
     /**
@@ -801,23 +756,8 @@ public class ImageCapture extends UseCase {
      *
      * <p>For example, cancel 3A scan, close torch if necessary.
      */
-    ListenableFuture<Void> postTakePicture(final TakePictureState state) {
-        final Executor executor = mExecutor;
-        return CallbackToFutureAdapter.getFuture(new CallbackToFutureAdapter.Resolver<Void>() {
-            @Override
-            public Object attachCompleter(
-                    @NonNull final CallbackToFutureAdapter.Completer<Void> completer) {
-
-                executor.execute(new Runnable() {
-                    @Override
-                    public void run() {
-                        ImageCapture.this.cancelAfAeTrigger(state);
-                        completer.set(null);
-                    }
-                });
-                return "postTakePicture[state=" + state + "]";
-            }
-        });
+    void postTakePicture(final TakePictureState state) {
+        mExecutor.execute(() -> ImageCapture.this.cancelAfAeTrigger(state));
     }
 
     /**
@@ -954,8 +894,8 @@ public class ImageCapture extends UseCase {
     }
 
     /** Issues a take picture request. */
-    ListenableFuture<Void> issueTakePicture(TakePictureState state) {
-        final List<ListenableFuture<Boolean>> futureList = new ArrayList<>();
+    ListenableFuture<Void> issueTakePicture() {
+        final List<ListenableFuture<Void>> futureList = new ArrayList<>();
         final List<CaptureConfig> captureConfigs = new ArrayList<>();
 
         CaptureBundle captureBundle;
@@ -965,24 +905,21 @@ public class ImageCapture extends UseCase {
             captureBundle = getCaptureBundle(null);
 
             if (captureBundle == null) {
-                state.mError = new IllegalArgumentException(
-                        "ImageCapture cannot set empty CaptureBundle.");
-                return Futures.immediateFuture(null);
+                return Futures.immediateFailedFuture(new IllegalArgumentException(
+                        "ImageCapture cannot set empty CaptureBundle."));
             }
 
             if (captureBundle.getCaptureStages().size() > mMaxCaptureStages) {
-                state.mError = new IllegalArgumentException(
-                        "ImageCapture has CaptureStages > Max CaptureStage size");
-                return Futures.immediateFuture(null);
+                return Futures.immediateFailedFuture(new IllegalArgumentException(
+                        "ImageCapture has CaptureStages > Max CaptureStage size"));
             }
 
             ((ProcessingImageReader) mImageReader).setCaptureBundle(captureBundle);
         } else {
             captureBundle = getCaptureBundle(CaptureBundles.singleDefaultCaptureBundle());
             if (captureBundle.getCaptureStages().size() > 1) {
-                state.mError = new IllegalArgumentException(
-                        "ImageCapture have no CaptureProcess set with CaptureBundle size > 1.");
-                return Futures.immediateFuture(null);
+                return Futures.immediateFailedFuture(new IllegalArgumentException(
+                        "ImageCapture have no CaptureProcess set with CaptureBundle size > 1."));
             }
         }
 
@@ -1000,65 +937,59 @@ public class ImageCapture extends UseCase {
             builder.setTag(captureStage.getCaptureConfig().getTag());
             builder.addCameraCaptureCallback(mMetadataMatchingCaptureCallback);
 
-            ListenableFuture<Boolean> future = CallbackToFutureAdapter.getFuture(
-                    new CallbackToFutureAdapter.Resolver<Boolean>() {
-                        @Override
-                        public Object attachCompleter(@NonNull final
-                                CallbackToFutureAdapter.Completer<Boolean> completer) {
-                                CameraCaptureCallback completerCallback =
-                                        new CameraCaptureCallback() {
-                                        @Override
-                                        public void onCaptureCompleted(
-                                                @NonNull CameraCaptureResult result) {
-                                            completer.set(true);
-                                        }
-
-                                        @Override
-                                        public void onCaptureFailed(
-                                                @NonNull CameraCaptureFailure failure) {
-                                            Log.e(TAG,
-                                                    "capture picture get onCaptureFailed with "
-                                                            + "reason "
-                                                            + failure.getReason());
-                                            completer.set(false);
-                                        }
-                                    };
-                                builder.addCameraCaptureCallback(completerCallback);
-
-                                captureConfigs.add(builder.build());
-                                return "issueTakePicture[stage=" + captureStage.getId() + "]";
+            ListenableFuture<Void> future = CallbackToFutureAdapter.getFuture(
+                    completer -> {
+                        CameraCaptureCallback completerCallback = new CameraCaptureCallback() {
+                            @Override
+                            public void onCaptureCompleted(
+                                    @NonNull CameraCaptureResult result) {
+                                completer.set(null);
                             }
+
+                            @Override
+                            public void onCaptureFailed(
+                                    @NonNull CameraCaptureFailure failure) {
+                                String msg = "Capture request failed with reason "
+                                        + failure.getReason();
+                                completer.setException(new CaptureFailedException(msg));
+                            }
+
+                            @Override
+                            public void onCaptureCancelled() {
+                                String msg = "Capture request is cancelled because "
+                                        + "camera is closed";
+                                completer.setException(new CameraClosedException(msg));
+                            }
+                        };
+                        builder.addCameraCaptureCallback(completerCallback);
+
+                        captureConfigs.add(builder.build());
+                        return "issueTakePicture[stage=" + captureStage.getId() + "]";
                     });
             futureList.add(future);
 
         }
 
         getCurrentCameraControl().submitCaptureRequests(captureConfigs);
-        return CallbackToFutureAdapter.getFuture(new CallbackToFutureAdapter.Resolver<Void>() {
-            @Override
-            public Object attachCompleter(
-                    @NonNull final CallbackToFutureAdapter.Completer<Void> completer) {
-                ListenableFuture<List<Boolean>> combinedFuture = Futures.successfulAsList(
-                        futureList);
-
-                Futures.addCallback(combinedFuture, new FutureCallback<List<Boolean>>() {
-                    @Override
-                    public void onSuccess(@Nullable List<Boolean> result) {
-                        state.mCaptureSuccess.addAll(result);
-                        completer.set(null);
-                    }
-
-                    @Override
-                    public void onFailure(Throwable t) {
-                        completer.setException(t);
-                    }
-                }, CameraXExecutors.directExecutor());
-
-
-                return "issueTakePicture";
-            }
-        });
+        return Futures.transform(Futures.allAsList(futureList),
+                input -> null, CameraXExecutors.directExecutor());
     }
+
+    /** This exception is thrown when request is failed (reported by framework) */
+    static final class CaptureFailedException extends RuntimeException {
+        /** @hide */
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        CaptureFailedException(String s, Throwable e) {
+            super(s, e);
+        }
+
+        /** @hide */
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        CaptureFailedException(String s) {
+            super(s);
+        }
+    }
+
 
     private CaptureBundle getCaptureBundle(CaptureBundle defaultCaptureBundle) {
         List<CaptureStage> captureStages = mCaptureBundle.getCaptureStages();
@@ -1087,7 +1018,17 @@ public class ImageCapture extends UseCase {
          * An error occurred while attempting to read or write a file, such as when saving an image
          * to a File.
          */
-        FILE_IO_ERROR
+        FILE_IO_ERROR,
+
+        /**
+         * An error reported by camera framework indicating the capture request is failed.
+         */
+        CAPTURE_FAILED,
+
+        /**
+         * An error indicating the request cannot be done due to camera is closed.
+         */
+        CAMERA_CLOSED,
     }
 
     /**
@@ -1218,8 +1159,6 @@ public class ImageCapture extends UseCase {
         boolean mIsAfTriggered = false;
         boolean mIsAePrecaptureTriggered = false;
         boolean mIsFlashTriggered = false;
-        final List<Boolean> mCaptureSuccess = new ArrayList<>();
-        Throwable mError = null;
     }
 
     /**
@@ -1276,31 +1215,27 @@ public class ImageCapture extends UseCase {
                     (timeoutInMs != NO_TIMEOUT) ? SystemClock.elapsedRealtime() : 0L;
 
             return CallbackToFutureAdapter.getFuture(
-                    new CallbackToFutureAdapter.Resolver<T>() {
-                        @Override
-                        public Object attachCompleter(
-                                @NonNull final CallbackToFutureAdapter.Completer<T> completer) {
-                            addListener(
-                                    new CaptureResultListener() {
-                                        @Override
-                                        public boolean onCaptureResult(
-                                                @NonNull CameraCaptureResult captureResult) {
-                                            T result = checker.check(captureResult);
-                                            if (result != null) {
-                                                completer.set(result);
-                                                return true;
-                                            } else if (startTimeInMs > 0
-                                                    && SystemClock.elapsedRealtime() - startTimeInMs
-                                                    > timeoutInMs) {
-                                                completer.set(defValue);
-                                                return true;
-                                            }
-                                            // Return false to continue check.
-                                            return false;
+                    completer -> {
+                        addListener(
+                                new CaptureResultListener() {
+                                    @Override
+                                    public boolean onCaptureResult(
+                                            @NonNull CameraCaptureResult captureResult) {
+                                        T result = checker.check(captureResult);
+                                        if (result != null) {
+                                            completer.set(result);
+                                            return true;
+                                        } else if (startTimeInMs > 0
+                                                && SystemClock.elapsedRealtime() - startTimeInMs
+                                                > timeoutInMs) {
+                                            completer.set(defValue);
+                                            return true;
                                         }
-                                    });
-                            return "checkCaptureResult";
-                        }
+                                        // Return false to continue check.
+                                        return false;
+                                    }
+                                });
+                        return "checkCaptureResult";
                     });
         }
 
@@ -1380,18 +1315,15 @@ public class ImageCapture extends UseCase {
 
         void dispatchImage(final ImageProxy image) {
             try {
-                mListenerExecutor.execute(new Runnable() {
-                    @Override
-                    public void run() {
-                        Size sourceSize = new Size(image.getWidth(), image.getHeight());
-                        if (ImageUtil.isAspectRatioValid(sourceSize, mTargetRatio)) {
-                            image.setCropRect(
-                                    ImageUtil.computeCropRectFromAspectRatio(sourceSize,
-                                            mTargetRatio));
-                        }
-
-                        mCallback.onCaptureSuccess(image, mRotationDegrees);
+                mListenerExecutor.execute(() -> {
+                    Size sourceSize = new Size(image.getWidth(), image.getHeight());
+                    if (ImageUtil.isAspectRatioValid(sourceSize, mTargetRatio)) {
+                        image.setCropRect(
+                                ImageUtil.computeCropRectFromAspectRatio(sourceSize,
+                                        mTargetRatio));
                     }
+
+                    mCallback.onCaptureSuccess(image, mRotationDegrees);
                 });
             } catch (RejectedExecutionException e) {
                 Log.e(TAG, "Unable to post to the supplied executor.");
@@ -1401,15 +1333,11 @@ public class ImageCapture extends UseCase {
             }
         }
 
-        void callbackError(final ImageCaptureError imageCaptureError, final String message,
+        void notifyCallbackError(final ImageCaptureError imageCaptureError, final String message,
                 final Throwable cause) {
             try {
-                mListenerExecutor.execute(new Runnable() {
-                    @Override
-                    public void run() {
-                        mCallback.onError(imageCaptureError, message, cause);
-                    }
-                });
+                mListenerExecutor.execute(
+                        () -> mCallback.onError(imageCaptureError, message, cause));
             } catch (RejectedExecutionException e) {
                 Log.e(TAG, "Unable to post to the supplied executor.");
             }

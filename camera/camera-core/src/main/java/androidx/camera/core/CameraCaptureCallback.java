@@ -22,6 +22,7 @@ import androidx.annotation.RestrictTo.Scope;
 
 /**
  * A callback object for tracking the progress of a capture request submitted to the camera device.
+ * Once one of the methods is called, other methods won't be called again on the same instance.
  *
  * @hide
  */
@@ -44,5 +45,14 @@ public abstract class CameraCaptureCallback {
      * @param failure The output failure from the capture, including the failure reason.
      */
     public void onCaptureFailed(@NonNull CameraCaptureFailure failure) {
+    }
+
+
+    /**
+     * This method is called when the capture request was not submitted to camera device. For
+     * Example, requests are cancelled when it is in an inappropriate state (such as closed). After
+     * onCaptureCancelled is called, other methods won't be called.
+     */
+    public void onCaptureCancelled() {
     }
 }

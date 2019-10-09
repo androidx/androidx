@@ -21,16 +21,21 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.camera.core.CameraCaptureCallback;
+import androidx.camera.core.CameraCaptureFailure;
+import androidx.camera.core.CameraCaptureResult;
 import androidx.camera.core.CameraControlInternal;
 import androidx.camera.core.CaptureConfig;
 import androidx.camera.core.FlashMode;
 import androidx.camera.core.FocusMeteringAction;
 import androidx.camera.core.SessionConfig;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
- * A fake implementation for the CameraControlInternal interface.
+ * A fake implementation for the CameraControlInternal interface which is capable of notifying
+ * submitted requests onCaptureCancelled/onCaptureCompleted/onCaptureFailed.
  */
 public final class FakeCameraControl implements CameraControlInternal {
     private static final String TAG = "FakeCameraControl";
@@ -38,11 +43,48 @@ public final class FakeCameraControl implements CameraControlInternal {
     private final SessionConfig.Builder mSessionConfigBuilder = new SessionConfig.Builder();
     private boolean mIsTorchOn = false;
     private FlashMode mFlashMode = FlashMode.OFF;
+    private ArrayList<CaptureConfig> mSubmittedCaptureRequests = new ArrayList<>();
+    private OnNewCaptureRequestListener mOnNewCaptureRequestListener;
 
     public FakeCameraControl(ControlUpdateListener controlUpdateListener) {
         mControlUpdateListener = controlUpdateListener;
         updateSessionConfig();
     }
+
+    /** Notifies all submitted requests onCaptureCancelled */
+    public void notifyAllRequestOnCaptureCancelled() {
+        for (CaptureConfig captureConfig : mSubmittedCaptureRequests) {
+            for (CameraCaptureCallback cameraCaptureCallback :
+                    captureConfig.getCameraCaptureCallbacks()) {
+                cameraCaptureCallback.onCaptureCancelled();
+            }
+        }
+        mSubmittedCaptureRequests.clear();
+    }
+
+    /** Notifies all submitted requests onCaptureFailed */
+    public void notifyAllRequestsOnCaptureFailed() {
+        for (CaptureConfig captureConfig : mSubmittedCaptureRequests) {
+            for (CameraCaptureCallback cameraCaptureCallback :
+                    captureConfig.getCameraCaptureCallbacks()) {
+                cameraCaptureCallback.onCaptureFailed(new CameraCaptureFailure(
+                        CameraCaptureFailure.Reason.ERROR));
+            }
+        }
+        mSubmittedCaptureRequests.clear();
+    }
+
+    /** Notifies all submitted requests onCaptureCompleted */
+    public void notifyAllRequestsOnCaptureCompleted(CameraCaptureResult result) {
+        for (CaptureConfig captureConfig : mSubmittedCaptureRequests) {
+            for (CameraCaptureCallback cameraCaptureCallback :
+                    captureConfig.getCameraCaptureCallbacks()) {
+                cameraCaptureCallback.onCaptureCompleted(result);
+            }
+        }
+        mSubmittedCaptureRequests.clear();
+    }
+
 
     @Override
     public void setCropRegion(@Nullable final Rect crop) {
@@ -91,7 +133,11 @@ public final class FakeCameraControl implements CameraControlInternal {
 
     @Override
     public void submitCaptureRequests(@NonNull List<CaptureConfig> captureConfigs) {
+        mSubmittedCaptureRequests.addAll(captureConfigs);
         mControlUpdateListener.onCameraControlCaptureRequests(captureConfigs);
+        if (mOnNewCaptureRequestListener != null) {
+            mOnNewCaptureRequestListener.onNewCaptureRequests(captureConfigs);
+        }
     }
 
     private void updateSessionConfig() {
@@ -99,10 +145,21 @@ public final class FakeCameraControl implements CameraControlInternal {
     }
 
     @Override
-    public void startFocusAndMetering(FocusMeteringAction action) {
+    public void startFocusAndMetering(@NonNull FocusMeteringAction action) {
     }
 
     @Override
     public void cancelFocusAndMetering() {
+    }
+
+    /** Sets a listener to be notified when there are new capture request submitted */
+    public void setOnNewCaptureRequestListener(@NonNull OnNewCaptureRequestListener listener) {
+        mOnNewCaptureRequestListener = listener;
+    }
+
+    /** A listener which are used to notify when there are new submitted capture requests */
+    public interface OnNewCaptureRequestListener {
+        /** Called when there are new submitted capture request */
+        void onNewCaptureRequests(@NonNull List<CaptureConfig> captureConfigs);
     }
 }
