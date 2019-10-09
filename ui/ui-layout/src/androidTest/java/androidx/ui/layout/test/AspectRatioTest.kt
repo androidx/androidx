@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-//AspectRatio composable is deprecated
+// AspectRatio composable is deprecated
 @file:Suppress("DEPRECATION")
 
 package androidx.ui.layout.test
