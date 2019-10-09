@@ -25,8 +25,8 @@ open class FocusManager internal constructor() {
 
     /**
      * An interface for focusable object
-     * TODO(nona): Consider making this public for custom text field.
      */
+    // TODO(nona): Consider making this public for custom text field.
     internal interface FocusNode {
         /** Called when this component gained the focus */
         fun onFocus()
@@ -63,26 +63,24 @@ open class FocusManager internal constructor() {
      * The caller must unregister when the focusable node is disposed.
      * This function overwrites if the focusable node is already registered.
      *
-     * TODO(nona): Consider making this public for custom text field.
      */
+    // TODO(nona): Consider making this public for custom text field.
     internal fun registerFocusNode(identifier: String, node: FocusNode) {
         focusMap[identifier] = node
     }
 
     /**
      * Unregister the focusable node associated with given identifier.
-     *
-     * TODO(nona): Consider making this public for custom text field.
      */
+    // TODO(nona): Consider making this public for custom text field.
     internal fun unregisterFocusNode(identifier: String) {
         focusMap.remove(identifier)
     }
 
     /**
      * Request the input focus
-     *
-     * TODO(nona): Consider making this public for custom text field.
      */
+    // TODO(nona): Consider making this public for custom text field.
     internal open fun requestFocus(client: FocusNode) {
         val currentFocus = focusedClient
         if (currentFocus == client) {

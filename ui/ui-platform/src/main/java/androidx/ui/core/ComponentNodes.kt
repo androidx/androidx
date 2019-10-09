@@ -1080,11 +1080,11 @@ class SemanticsComponentNode(
 
 /**
  * The key used in DataNode.
- * TODO(mount): Make this inline
  *
  * @param T Identifies the type used in the value
  * @property name A unique name identifying the type of the key.
  */
+// TODO(mount): Make this inline
 class DataNodeKey<T>(val name: String)
 
 /**

@@ -112,11 +112,10 @@ interface VisualTransformation {
      *  }
      *  </pre>
      *
-     * TODO(nona): Add paragraph direction argument for determining offset conversion.
-     *
      * @param text The original text
      * @return the pair of filtered text and offset translator.
      */
+    // TODO(nona): Add paragraph direction argument for determining offset conversion.
     fun filter(text: AnnotatedString): TransformedText
 }
 

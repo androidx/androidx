@@ -274,8 +274,8 @@ enum class MainAxisAlignment(internal val aligner: Aligner) {
     Center(MainAxisCenterAligner()),
     /**
      * Place children such that they are as close as possible to the start of the main axis.
-     * TODO(popam): Consider rtl directionality.
      */
+    // TODO(popam): Consider rtl directionality.
     Start(MainAxisStartAligner()),
     /**
      * Place children such that they are as close as possible to the end of the main axis.
@@ -393,9 +393,8 @@ enum class MainAxisAlignment(internal val aligner: Aligner) {
 
 /**
  * Used to specify the alignment of a layout's children, in cross axis direction.
- *
- * TODO(popam): refine this API surface with modifiers - add type safety for alignment orientation.
  */
+// TODO(popam): refine this API surface with modifiers - add type safety for alignment orientation.
 class CrossAxisAlignment private constructor(
     internal val alignmentLine: AlignmentLine?
 ) {

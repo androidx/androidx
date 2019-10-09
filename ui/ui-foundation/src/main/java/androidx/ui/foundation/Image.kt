@@ -50,11 +50,11 @@ fun SimpleImage(
  * The image will be clipped if the aspect ratios of the image and the parent don't match.
  *
  * This component has the same behavior as ImageView.ScaleType.CENTER_CROP currently.
- * TODO(Andrey, Matvei, Nader): Support other scale types b/141741141
  *
  * @param image The image to draw.
  * @param tint The tint color to apply for the image.
  */
+// TODO(Andrey, Matvei, Nader): Support other scale types b/141741141
 @Composable
 fun DrawImage(image: Image, tint: Color? = null) {
     val paint = +memo { Paint().apply {

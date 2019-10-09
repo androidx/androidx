@@ -32,9 +32,8 @@ import java.lang.IllegalArgumentException
 class EditingBuffer(
     /**
      * The initial text of this editing buffer
-     *
-     * TODO(nona): Change the argument to AnnotatedString once it is introduced
      */
+    // TODO(nona): Change the argument to AnnotatedString once it is introduced
     initialText: String,
 
     /**
