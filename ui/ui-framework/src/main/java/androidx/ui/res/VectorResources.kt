@@ -21,12 +21,10 @@ import android.content.res.Resources
 import android.util.Xml
 import androidx.annotation.CheckResult
 import androidx.annotation.DrawableRes
-import androidx.annotation.VisibleForTesting
-import androidx.compose.Composable
 import androidx.compose.ambient
 import androidx.compose.effectOf
 import androidx.compose.memo
-import androidx.compose.unaryPlus
+import androidx.compose.trace
 import androidx.ui.core.ContextAmbient
 import androidx.ui.graphics.vector.VectorAsset
 import androidx.ui.graphics.vector.compat.createVectorImageBuilder
@@ -44,12 +42,41 @@ import org.xmlpull.v1.XmlPullParserException
  * Note: This API is transient and will be likely removed for encouraging async resource loading.
  */
 @CheckResult(suggest = "+")
-fun vectorResource(@DrawableRes resId: Int) = effectOf<VectorAsset> {
+fun vectorResource(@DrawableRes id: Int) = effectOf<VectorAsset> {
     val context = +ambient(ContextAmbient)
     val res = context.resources
     val theme = context.theme
-    +memo(resId) {
-        loadVectorResource(theme, res, resId)
+    +memo(id) {
+        loadVectorResource(theme, res, id)
+    }
+}
+
+/**
+ * Load the vector drawable in background thread.
+ *
+ * Until resource loading complete, this function returns deferred vector drawable resource with
+ * [PendingResource]. Once the loading finishes, recompose is scheduled and this function will
+ * return deferred vector drawable resource with [LoadedResource] or [FailedResource].
+ *
+ * @param id the resource identifier
+ * @param pendingResource an optional resource to be used during loading instead.
+ * @param failedResource an optional resource to be used if resource loading failed.
+ * @return the deferred vector drawable resource.
+ */
+@CheckResult(suggest = "+")
+fun loadVectorResource(
+    id: Int,
+    pendingResource: VectorAsset? = null,
+    failedResource: VectorAsset? = null
+) = effectOf<DeferredResource<VectorAsset>> {
+    val context = +ambient(ContextAmbient)
+    val res = context.resources
+    val theme = context.theme
+
+    +loadResource(id, pendingResource, failedResource) {
+        trace("Vector Resource Loading") {
+            loadVectorResource(theme, res, id)
+        }
     }
 }
 

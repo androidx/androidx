@@ -24,23 +24,23 @@ import androidx.ui.core.Dp
 import androidx.ui.core.Px
 import androidx.ui.core.WithDensity
 import androidx.ui.core.dp
+import androidx.ui.core.setContent
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.HorizontalGradient
-import androidx.ui.graphics.vector.PathBuilder
 import androidx.ui.graphics.RadialGradient
-import androidx.ui.graphics.VerticalGradient
-import androidx.ui.layout.Center
-import androidx.ui.layout.Column
-import androidx.ui.layout.Container
-import androidx.ui.graphics.TileMode
-import androidx.ui.core.setContent
 import androidx.ui.graphics.SolidColor
+import androidx.ui.graphics.TileMode
+import androidx.ui.graphics.VerticalGradient
 import androidx.ui.graphics.vector.DrawVector
 import androidx.ui.graphics.vector.Group
 import androidx.ui.graphics.vector.Path
+import androidx.ui.graphics.vector.PathBuilder
 import androidx.ui.graphics.vector.PathData
 import androidx.ui.graphics.vector.VectorScope
-import androidx.ui.res.vectorResource
+import androidx.ui.layout.Center
+import androidx.ui.layout.Column
+import androidx.ui.layout.Container
+import androidx.ui.res.loadVectorResource
 
 class VectorGraphicsActivity : Activity() {
 
@@ -49,12 +49,14 @@ class VectorGraphicsActivity : Activity() {
 
         setContent {
             Column {
-                val vectorAsset = +vectorResource(R.drawable.ic_crane)
+                val vectorAsset = +loadVectorResource(R.drawable.ic_crane)
                 WithDensity {
-                    val width = vectorAsset.defaultWidth.toDp()
-                    val height = vectorAsset.defaultHeight.toDp()
-                    Container(width = width, height = height) {
-                        DrawVector(vectorAsset)
+                    vectorAsset.resource.resource?.let {
+                        val width = it.defaultWidth.toDp()
+                        val height = it.defaultHeight.toDp()
+                        Container(width = width, height = height) {
+                            DrawVector(it)
+                        }
                     }
                 }
 

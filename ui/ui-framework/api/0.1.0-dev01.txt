@@ -413,9 +413,20 @@ package androidx.ui.graphics.vector.compat {
 
 package androidx.ui.res {
 
+  public final class DeferredResource<T> {
+    ctor public DeferredResource();
+    method public T? getResource();
+    method public void setResource$lintWithKotlin(T? p);
+    property public final T? resource;
+  }
+
   public final class ImageResourcesKt {
     ctor public ImageResourcesKt();
     method @CheckResult(suggest="+") public static androidx.compose.Effect<androidx.ui.graphics.Image> imageResource(@DrawableRes int id);
+  }
+
+  public final class ResourcesKt {
+    ctor public ResourcesKt();
   }
 
   public final class StringResourcesKt {
@@ -426,6 +437,7 @@ package androidx.ui.res {
 
   public final class VectorResourcesKt {
     ctor public VectorResourcesKt();
+    method @CheckResult(suggest="+") public static androidx.compose.Effect<androidx.ui.res.DeferredResource<androidx.ui.graphics.vector.VectorAsset>> loadVectorResource(int id);
     method @CheckResult(suggest="+") public static androidx.compose.Effect<androidx.ui.graphics.vector.VectorAsset> vectorResource(@DrawableRes int resId);
   }
 
