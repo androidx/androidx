@@ -281,84 +281,34 @@ public final class Camera2CameraImplTest {
     }
 
     @Test
-    public void addOnline_OneUseCase() throws InterruptedException {
-        blockHandler();
-
+    public void addOnline_oneUseCase_isOnline() {
         UseCase useCase1 = createUseCase();
-        mCamera2CameraImpl.addOnlineUseCase(Arrays.asList(useCase1));
-
-        assertThat(getUseCaseSurface(useCase1).getUseCount()).isEqualTo(1);
-        assertThat(mCamera2CameraImpl.isUseCaseOnline(useCase1)).isFalse();
-
-        unblockHandler();
-        HandlerUtil.waitForLooperToIdle(mCameraHandler);
+        mCamera2CameraImpl.addOnlineUseCase(Collections.singletonList(useCase1));
 
         assertThat(mCamera2CameraImpl.isUseCaseOnline(useCase1)).isTrue();
 
-        mCamera2CameraImpl.removeOnlineUseCase(Arrays.asList(useCase1));
+        mCamera2CameraImpl.removeOnlineUseCase(Collections.singletonList(useCase1));
     }
 
     @Test
-    public void addOnline_SameUseCases() {
-        blockHandler();
-
+    public void addOnline_sameUseCases_staysOnline() {
         UseCase useCase1 = createUseCase();
-        mCamera2CameraImpl.addOnlineUseCase(Arrays.asList(useCase1));
-        mCamera2CameraImpl.addOnlineUseCase(Arrays.asList(useCase1));
+        mCamera2CameraImpl.addOnlineUseCase(Collections.singletonList(useCase1));
+        boolean onlineAfterFirstAdd = mCamera2CameraImpl.isUseCaseOnline(useCase1);
 
-        assertThat(getUseCaseSurface(useCase1).getUseCount()).isEqualTo(1);
-        assertThat(mCamera2CameraImpl.isUseCaseOnline(useCase1)).isFalse();
+        mCamera2CameraImpl.addOnlineUseCase(Collections.singletonList(useCase1));
 
-        mCamera2CameraImpl.removeOnlineUseCase(Arrays.asList(useCase1));
-
-        unblockHandler();
-    }
-
-
-    @Test
-    public void addOnline_alreadyOnline() throws InterruptedException {
-        blockHandler();
-
-        UseCase useCase1 = createUseCase();
-        mCamera2CameraImpl.addOnlineUseCase(Arrays.asList(useCase1));
-        assertThat(getUseCaseSurface(useCase1).getUseCount()).isEqualTo(1);
-        unblockHandler();
-        HandlerUtil.waitForLooperToIdle(mCameraHandler);
-
-        //Usecase1 is online now.
+        assertThat(onlineAfterFirstAdd).isTrue();
         assertThat(mCamera2CameraImpl.isUseCaseOnline(useCase1)).isTrue();
 
-        blockHandler();
-        mCamera2CameraImpl.addOnlineUseCase(Arrays.asList(useCase1));
-
-        unblockHandler();
-        // Surface is attached when (1) UseCase added to online (2) Camera session opened
-        // So here we need to wait until camera close before we start to verify the attach count
-        mCamera2CameraImpl.close();
-        waitForCameraClose(mCamera2CameraImpl);
-
-        // Surface is only attached once.
-        assertThat(getUseCaseSurface(useCase1).getUseCount()).isEqualTo(1);
-
-        mCamera2CameraImpl.removeOnlineUseCase(Arrays.asList(useCase1));
+        mCamera2CameraImpl.removeOnlineUseCase(Collections.singletonList(useCase1));
     }
 
     @Test
-    public void addOnline_twoUseCases() throws InterruptedException {
-        blockHandler();
-
+    public void addOnline_twoUseCases_bothComeOnline() {
         UseCase useCase1 = createUseCase();
-        mCamera2CameraImpl.addOnlineUseCase(Arrays.asList(useCase1));
         UseCase useCase2 = createUseCase();
-        mCamera2CameraImpl.addOnlineUseCase(Arrays.asList(useCase2));
-
-        assertThat(getUseCaseSurface(useCase1).getUseCount()).isEqualTo(1);
-        assertThat(getUseCaseSurface(useCase2).getUseCount()).isEqualTo(1);
-        assertThat(mCamera2CameraImpl.isUseCaseOnline(useCase1)).isFalse();
-        assertThat(mCamera2CameraImpl.isUseCaseOnline(useCase2)).isFalse();
-
-        unblockHandler();
-        HandlerUtil.waitForLooperToIdle(mCameraHandler);
+        mCamera2CameraImpl.addOnlineUseCase(Arrays.asList(useCase1, useCase2));
 
         assertThat(mCamera2CameraImpl.isUseCaseOnline(useCase1)).isTrue();
         assertThat(mCamera2CameraImpl.isUseCaseOnline(useCase2)).isTrue();
@@ -367,125 +317,45 @@ public final class Camera2CameraImplTest {
     }
 
     @Test
-    public void addOnline_fromPendingOffline() throws InterruptedException {
-        blockHandler();
-
-        // First make UseCase online
-        UseCase useCase = createUseCase();
-        mCamera2CameraImpl.addOnlineUseCase(Arrays.asList(useCase));
-        unblockHandler();
-        HandlerUtil.waitForLooperToIdle(mCameraHandler);
-
-        blockHandler();
-        // Then make it offline but pending for Camera thread to run it.
-        mCamera2CameraImpl.removeOnlineUseCase(Arrays.asList(useCase));
-
-        // Then add the same UseCase .
-        mCamera2CameraImpl.addOnlineUseCase(Arrays.asList(useCase));
-
-        unblockHandler();
-        HandlerUtil.waitForLooperToIdle(mCameraHandler);
-
-        assertThat(mCamera2CameraImpl.isUseCaseOnline(useCase)).isTrue();
-
-        mCamera2CameraImpl.close();
-        waitForCameraClose(mCamera2CameraImpl);
-
-        assertThat(getUseCaseSurface(useCase).getUseCount()).isEqualTo(1);
-
-        mCamera2CameraImpl.removeOnlineUseCase(Arrays.asList(useCase));
-    }
-
-    @Test
-    public void removeOnline_notOnline() throws InterruptedException {
-        blockHandler();
-
+    public void removeOnline_offlineUseCase_staysOffline() {
         UseCase useCase1 = createUseCase();
-        mCamera2CameraImpl.removeOnlineUseCase(Arrays.asList(useCase1));
-
-        unblockHandler();
-        HandlerUtil.waitForLooperToIdle(mCameraHandler);
-
-        // It should not be detached so the attached count should still be 0
-        assertThat(getUseCaseSurface(useCase1).getUseCount()).isEqualTo(0);
-    }
-
-    @Test
-    public void removeOnline_fromPendingOnline() throws InterruptedException {
-        blockHandler();
-
-        UseCase useCase1 = createUseCase();
-        mCamera2CameraImpl.addOnlineUseCase(Arrays.asList(useCase1));
-        assertThat(getUseCaseSurface(useCase1).getUseCount()).isEqualTo(1);
-
-        mCamera2CameraImpl.removeOnlineUseCase(Arrays.asList(useCase1));
-
-        unblockHandler();
-        HandlerUtil.waitForLooperToIdle(mCameraHandler);
+        mCamera2CameraImpl.removeOnlineUseCase(Collections.singletonList(useCase1));
 
         assertThat(mCamera2CameraImpl.isUseCaseOnline(useCase1)).isFalse();
-        assertThat(getUseCaseSurface(useCase1).getUseCount()).isEqualTo(0);
     }
 
     @Test
-    public void removeOnline_fromOnlineUseCases() throws InterruptedException {
-        blockHandler();
-
+    public void removeOneOnlineUseCase_fromOnlineUseCases_onlyTakesSingleUseCaseOffline() {
         UseCase useCase1 = createUseCase();
         UseCase useCase2 = createUseCase();
         mCamera2CameraImpl.addOnlineUseCase(Arrays.asList(useCase1, useCase2));
 
-        unblockHandler();
-        HandlerUtil.waitForLooperToIdle(mCameraHandler);
+        boolean useCase1isOnlineAfterFirstAdd = mCamera2CameraImpl.isUseCaseOnline(useCase1);
+        boolean useCase2isOnlineAfterFirstAdd = mCamera2CameraImpl.isUseCaseOnline(useCase2);
 
-        assertThat(mCamera2CameraImpl.isUseCaseOnline(useCase1)).isTrue();
-        assertThat(mCamera2CameraImpl.isUseCaseOnline(useCase2)).isTrue();
+        mCamera2CameraImpl.removeOnlineUseCase(Collections.singletonList(useCase1));
 
-        blockHandler();
-        mCamera2CameraImpl.removeOnlineUseCase(Arrays.asList(useCase1));
-
-        unblockHandler();
-        HandlerUtil.waitForLooperToIdle(mCameraHandler);
-
+        assertThat(useCase1isOnlineAfterFirstAdd).isTrue();
+        assertThat(useCase2isOnlineAfterFirstAdd).isTrue();
         assertThat(mCamera2CameraImpl.isUseCaseOnline(useCase1)).isFalse();
         assertThat(mCamera2CameraImpl.isUseCaseOnline(useCase2)).isTrue();
 
-        // Surface is attached when (1) UseCase added to online (2) Camera session opened
-        // So here we need to wait until camera close before we start to verify the attach count
-        mCamera2CameraImpl.close();
-        waitForCameraClose(mCamera2CameraImpl);
-
-        assertThat(getUseCaseSurface(useCase1).getUseCount()).isEqualTo(0);
-        assertThat(getUseCaseSurface(useCase2).getUseCount()).isEqualTo(1);
-
-        mCamera2CameraImpl.removeOnlineUseCase(Arrays.asList(useCase2));
+        mCamera2CameraImpl.removeOnlineUseCase(Collections.singletonList(useCase2));
     }
 
     @Test
-    public void removeOnline_twoSameUseCase() throws InterruptedException {
-        blockHandler();
-
+    public void removeSameOnlineUseCaseTwice_onlyTakesSameUseCaseOffline() {
         UseCase useCase1 = createUseCase();
         UseCase useCase2 = createUseCase();
         mCamera2CameraImpl.addOnlineUseCase(Arrays.asList(useCase1, useCase2));
 
-        unblockHandler();
-        HandlerUtil.waitForLooperToIdle(mCameraHandler);
+        mCamera2CameraImpl.removeOnlineUseCase(Collections.singletonList(useCase1));
+        mCamera2CameraImpl.removeOnlineUseCase(Collections.singletonList(useCase1));
 
-        // remove twice
-        blockHandler();
-        mCamera2CameraImpl.removeOnlineUseCase(Arrays.asList(useCase1));
-        mCamera2CameraImpl.removeOnlineUseCase(Arrays.asList(useCase1));
+        assertThat(mCamera2CameraImpl.isUseCaseOnline(useCase1)).isFalse();
+        assertThat(mCamera2CameraImpl.isUseCaseOnline(useCase2)).isTrue();
 
-        unblockHandler();
-        // Surface is attached when (1) UseCase added to online (2) Camera session opened
-        // So here we need to wait until camera close before we start to verify the attach count
-        mCamera2CameraImpl.close();
-        waitForCameraClose(mCamera2CameraImpl);
-
-        assertThat(getUseCaseSurface(useCase1).getUseCount()).isEqualTo(0);
-
-        mCamera2CameraImpl.removeOnlineUseCase(Arrays.asList(useCase2));
+        mCamera2CameraImpl.removeOnlineUseCase(Collections.singletonList(useCase2));
     }
 
     @Test
@@ -495,7 +365,7 @@ public final class Camera2CameraImplTest {
 
         UseCase useCase1 = createUseCase();
         mCamera2CameraImpl.addOnlineUseCase(Arrays.asList(useCase1));
-        DeferrableSurface surface1 = useCase1.getSessionConfig(mCameraId).getSurfaces().get(0);
+        DeferrableSurface surface1 = spy(useCase1.getSessionConfig(mCameraId).getSurfaces().get(0));
 
         unblockHandler();
         HandlerUtil.waitForLooperToIdle(mCameraHandler);
