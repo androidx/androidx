@@ -31,21 +31,23 @@ import static org.mockito.Mockito.when;
 import android.Manifest;
 import android.app.Instrumentation;
 import android.content.Context;
-import android.hardware.camera2.CameraAccessException;
+import android.graphics.ImageFormat;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.TotalCaptureResult;
+import android.hardware.camera2.params.StreamConfigurationMap;
 import android.media.Image;
 import android.util.Pair;
 import android.util.Size;
 
+import androidx.annotation.NonNull;
 import androidx.camera.camera2.Camera2AppConfig;
-import androidx.camera.core.CameraDeviceConfig;
 import androidx.camera.core.CameraInfoUnavailableException;
 import androidx.camera.core.CameraX;
+import androidx.camera.core.CameraX.LensFacing;
 import androidx.camera.core.Preview;
 import androidx.camera.core.PreviewConfig;
-import androidx.camera.extensions.impl.BeautyPreviewExtenderImpl;
+import androidx.camera.extensions.ExtensionsManager.EffectMode;
 import androidx.camera.extensions.impl.CaptureStageImpl;
 import androidx.camera.extensions.impl.PreviewExtenderImpl;
 import androidx.camera.extensions.impl.PreviewImageProcessorImpl;
@@ -85,7 +87,7 @@ public class PreviewExtenderTest {
     @Before
     public void setUp() {
         assumeTrue(CameraUtil.deviceHasCamera());
-        assumeTrue(CameraUtil.hasCameraWithLensFacing(CameraX.LensFacing.BACK));
+        assumeTrue(CameraUtil.hasCameraWithLensFacing(LensFacing.BACK));
 
         Context context = ApplicationProvider.getApplicationContext();
         CameraX.init(context, Camera2AppConfig.create(context));
@@ -119,7 +121,7 @@ public class PreviewExtenderTest {
                 any(CameraCharacteristics.class))).thenReturn(true);
 
         PreviewConfig.Builder configBuilder = new PreviewConfig.Builder().setLensFacing(
-                CameraX.LensFacing.BACK);
+                LensFacing.BACK);
 
         FakePreviewExtender fakePreviewExtender = new FakePreviewExtender(configBuilder,
                 mockPreviewExtenderImpl);
@@ -192,7 +194,7 @@ public class PreviewExtenderTest {
         when(mockPreviewExtenderImpl.getCaptureStage()).thenReturn(fakeCaptureStageImpl);
 
         PreviewConfig.Builder configBuilder = new PreviewConfig.Builder().setLensFacing(
-                CameraX.LensFacing.BACK);
+                LensFacing.BACK);
 
         FakePreviewExtender fakePreviewExtender = new FakePreviewExtender(configBuilder,
                 mockPreviewExtenderImpl);
@@ -245,7 +247,7 @@ public class PreviewExtenderTest {
                 any(CameraCharacteristics.class))).thenReturn(true);
 
         PreviewConfig.Builder configBuilder = new PreviewConfig.Builder().setLensFacing(
-                CameraX.LensFacing.BACK);
+                LensFacing.BACK);
         FakePreviewExtender fakePreviewExtender = new FakePreviewExtender(configBuilder,
                 mockPreviewExtenderImpl);
         fakePreviewExtender.enableExtension();
@@ -268,38 +270,31 @@ public class PreviewExtenderTest {
 
     @Test
     @SmallTest
-    public void canSetSupportedResolutionsToConfigTest()
-            throws CameraInfoUnavailableException, CameraAccessException {
-        CameraX.LensFacing lensFacing = CameraX.LensFacing.BACK;
-        assumeTrue(CameraUtil.hasCameraWithLensFacing(lensFacing));
+    public void canSetSupportedResolutionsToConfigTest() throws CameraInfoUnavailableException {
+        assumeTrue(CameraUtil.deviceHasCamera());
+        LensFacing lensFacing = CameraX.getDefaultLensFacing();
         PreviewConfig.Builder configBuilder = new PreviewConfig.Builder().setLensFacing(lensFacing);
 
-        String cameraId = androidx.camera.extensions.CameraUtil.getCameraId(
-                ((CameraDeviceConfig) configBuilder.build()));
-        CameraCharacteristics cameraCharacteristics =
-                CameraUtil.getCameraManager().getCameraCharacteristics(
-                        CameraX.getCameraWithLensFacing(lensFacing));
+        PreviewExtenderImpl mockPreviewExtenderImpl = mock(PreviewExtenderImpl.class);
+        when(mockPreviewExtenderImpl.isExtensionAvailable(any(), any())).thenReturn(true);
+        when(mockPreviewExtenderImpl.getProcessorType()).thenReturn(
+                PreviewExtenderImpl.ProcessorType.PROCESSOR_TYPE_NONE);
 
-        // Only BeautyPreviewExtenderImpl has sample implementation for Preview.
-        // Retrieves the target format/resolutions pair list directly from
-        // BeautyPreviewExtenderImpl.
-        BeautyPreviewExtenderImpl impl = new BeautyPreviewExtenderImpl();
-
-        impl.init(cameraId, cameraCharacteristics);
         List<Pair<Integer, Size[]>> targetFormatResolutionsPairList =
-                impl.getSupportedResolutions();
+                generatePreviewSupportedResolutions(lensFacing);
+        when(mockPreviewExtenderImpl.getSupportedResolutions()).thenReturn(
+                targetFormatResolutionsPairList);
 
-        assertThat(targetFormatResolutionsPairList).isNotNull();
+        PreviewExtender fakeExtender = new FakePreviewExtender(configBuilder,
+                mockPreviewExtenderImpl);
 
-        // Retrieves the target format/resolutions pair list from builder after applying beauty
-        // mode.
-        BeautyPreviewExtender extender = BeautyPreviewExtender.create(configBuilder);
+        // Checks the config does not include supported resolutions before applying effect mode.
         assertThat(configBuilder.build().getSupportedResolutions(null)).isNull();
-        extender.enableExtension();
 
+        // Checks the config includes supported resolutions after applying effect mode.
+        fakeExtender.enableExtension();
         List<Pair<Integer, Size[]>> resultFormatResolutionsPairList =
                 configBuilder.build().getSupportedResolutions(null);
-
         assertThat(resultFormatResolutionsPairList).isNotNull();
 
         // Checks the result and target pair lists are the same
@@ -312,14 +307,39 @@ public class PreviewExtenderTest {
                 }
             }
 
-            assertThat(Arrays.asList(resultPair.second).equals(
-                    Arrays.asList(targetSizes))).isTrue();
+            assertThat(
+                    Arrays.asList(resultPair.second).equals(Arrays.asList(targetSizes))).isTrue();
         }
+    }
+
+    private List<Pair<Integer, Size[]>> generatePreviewSupportedResolutions(
+            @NonNull LensFacing lensFacing)
+            throws CameraInfoUnavailableException {
+        List<Pair<Integer, Size[]>> formatResolutionsPairList = new ArrayList<>();
+        String cameraId =
+                androidx.camera.extensions.CameraUtil.getCameraIdSetWithLensFacing(
+                        lensFacing).iterator().next();
+
+        StreamConfigurationMap map =
+                androidx.camera.extensions.CameraUtil.getCameraCharacteristics(cameraId).get(
+                        CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
+
+        if (map != null) {
+            // Retrieves originally supported resolutions from CameraCharacteristics for PRIVATE
+            // format to return.
+            Size[] outputSizes = map.getOutputSizes(ImageFormat.PRIVATE);
+
+            if (outputSizes != null) {
+                formatResolutionsPairList.add(Pair.create(ImageFormat.PRIVATE, outputSizes));
+            }
+        }
+
+        return formatResolutionsPairList;
     }
 
     private class FakePreviewExtender extends PreviewExtender {
         FakePreviewExtender(PreviewConfig.Builder builder, PreviewExtenderImpl impl) {
-            init(builder, impl, ExtensionsManager.EffectMode.NORMAL);
+            init(builder, impl, EffectMode.NORMAL);
         }
     }
 
