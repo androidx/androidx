@@ -142,7 +142,7 @@ class ConstrainedBoxTest : LayoutTest() {
     fun testConstrainedBox_hasCorrectIntrinsicMeasurements() = withDensity(density) {
         testIntrinsics(@Composable {
             ConstrainedBox(constraints = DpConstraints(10.dp, 20.dp, 30.dp, 40.dp)) {
-                AspectRatio(1f) { }
+                Container(AspectRatio(1f)) { }
             }
         }) { minIntrinsicWidth, minIntrinsicHeight, maxIntrinsicWidth, maxIntrinsicHeight ->
             // Min width.

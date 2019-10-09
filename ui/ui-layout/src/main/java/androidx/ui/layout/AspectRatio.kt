@@ -133,6 +133,11 @@ private data class AspectRatioModifier(val aspectRatio: Float) : LayoutModifier 
  *     }
  * The AspectRatio widget will make the Container have the width twice its height.
  */
+@Deprecated(
+    "Use AspectRatio layout modifier instead.",
+    ReplaceWith("modifier = AspectRatio(aspectRatio)"),
+    DeprecationLevel.WARNING
+)
 @Composable
 fun AspectRatio(
     aspectRatio: Float,

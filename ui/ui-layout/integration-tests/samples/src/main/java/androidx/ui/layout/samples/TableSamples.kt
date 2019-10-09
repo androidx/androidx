@@ -105,7 +105,5 @@ fun TableWithDifferentColumnWidths() {
 
 @Composable
 private fun SizedSquare(color: Color, size: Dp? = null) {
-    AspectRatio(aspectRatio = 1f) {
-        SizedRectangle(color, width = size)
-    }
+    SizedRectangle(AspectRatio(1f), color = color, width = size)
 }

@@ -28,7 +28,6 @@ import androidx.ui.core.px
 import androidx.ui.core.round
 import androidx.ui.core.toPx
 import androidx.ui.core.withDensity
-import androidx.ui.layout.AspectRatio
 import androidx.ui.layout.ConstrainedBox
 import androidx.ui.layout.CrossAxisAlignment
 import androidx.ui.layout.DpConstraints
@@ -43,6 +42,7 @@ import androidx.ui.core.OnPositioned
 import androidx.ui.core.VerticalAlignmentLine
 import androidx.ui.core.min
 import androidx.ui.layout.Align
+import androidx.ui.layout.AspectRatio
 import androidx.ui.layout.Center
 import androidx.ui.layout.Column
 import androidx.ui.layout.Container
@@ -1839,12 +1839,12 @@ class FlexTest : LayoutTest() {
     fun testRow_hasCorrectIntrinsicMeasurements() = withDensity(density) {
         testIntrinsics(@Composable {
             Row {
-                AspectRatio(2f) { }
+                Container(AspectRatio(2f)) { }
                 ConstrainedBox(DpConstraints.tightConstraints(50.dp, 40.dp)) { }
             }
         }, @Composable {
             Row(mainAxisSize = LayoutSize.Expand) {
-                AspectRatio(2f) { }
+                Container(AspectRatio(2f)) { }
                 ConstrainedBox(DpConstraints.tightConstraints(50.dp, 40.dp)) { }
             }
         }, @Composable {
@@ -1853,7 +1853,7 @@ class FlexTest : LayoutTest() {
                 mainAxisAlignment = MainAxisAlignment.Start,
                 crossAxisAlignment = CrossAxisAlignment.Start
             ) {
-                AspectRatio(2f) { }
+                Container(AspectRatio(2f)) { }
                 ConstrainedBox(DpConstraints.tightConstraints(50.dp, 40.dp)) { }
             }
         }, @Composable {
@@ -1862,7 +1862,7 @@ class FlexTest : LayoutTest() {
                 mainAxisAlignment = MainAxisAlignment.Center,
                 crossAxisAlignment = CrossAxisAlignment.Center
             ) {
-                AspectRatio(2f) { }
+                Container(AspectRatio(2f)) { }
                 ConstrainedBox(DpConstraints.tightConstraints(50.dp, 40.dp)) { }
             }
         }, @Composable {
@@ -1871,7 +1871,7 @@ class FlexTest : LayoutTest() {
                 mainAxisAlignment = MainAxisAlignment.End,
                 crossAxisAlignment = CrossAxisAlignment.End
             ) {
-                AspectRatio(2f) { }
+                Container(AspectRatio(2f)) { }
                 ConstrainedBox(DpConstraints.tightConstraints(50.dp, 40.dp)) { }
             }
         }, @Composable {
@@ -1880,7 +1880,7 @@ class FlexTest : LayoutTest() {
                 mainAxisAlignment = MainAxisAlignment.SpaceAround,
                 crossAxisAlignment = CrossAxisAlignment.Stretch
             ) {
-                AspectRatio(2f) { }
+                Container(AspectRatio(2f)) { }
                 ConstrainedBox(DpConstraints.tightConstraints(50.dp, 40.dp)) { }
             }
         }, @Composable {
@@ -1888,7 +1888,7 @@ class FlexTest : LayoutTest() {
                 mainAxisSize = LayoutSize.Expand,
                 mainAxisAlignment = MainAxisAlignment.SpaceBetween
             ) {
-                AspectRatio(2f) { }
+                Container(AspectRatio(2f)) { }
                 ConstrainedBox(DpConstraints.tightConstraints(50.dp, 40.dp)) { }
             }
         }, @Composable {
@@ -1896,7 +1896,7 @@ class FlexTest : LayoutTest() {
                 mainAxisSize = LayoutSize.Expand,
                 mainAxisAlignment = MainAxisAlignment.SpaceEvenly
             ) {
-                AspectRatio(2f) { }
+                Container(AspectRatio(2f)) { }
                 ConstrainedBox(DpConstraints.tightConstraints(50.dp, 40.dp)) { }
             }
         }) { minIntrinsicWidth, minIntrinsicHeight, maxIntrinsicWidth, maxIntrinsicHeight ->
@@ -1923,12 +1923,12 @@ class FlexTest : LayoutTest() {
     fun testColumn_hasCorrectIntrinsicMeasurements() = withDensity(density) {
         testIntrinsics(@Composable {
             Column {
-                AspectRatio(2f) { }
+                Container(AspectRatio(2f)) { }
                 ConstrainedBox(DpConstraints.tightConstraints(50.dp, 40.dp)) { }
             }
         }, @Composable {
             Column(mainAxisSize = LayoutSize.Expand) {
-                AspectRatio(2f) { }
+                Container(AspectRatio(2f)) { }
                 ConstrainedBox(DpConstraints.tightConstraints(50.dp, 40.dp)) { }
             }
         }, @Composable {
@@ -1937,7 +1937,7 @@ class FlexTest : LayoutTest() {
                 mainAxisAlignment = MainAxisAlignment.Start,
                 crossAxisAlignment = CrossAxisAlignment.Start
             ) {
-                AspectRatio(2f) { }
+                Container(AspectRatio(2f)) { }
                 ConstrainedBox(DpConstraints.tightConstraints(50.dp, 40.dp)) { }
             }
         }, @Composable {
@@ -1946,7 +1946,7 @@ class FlexTest : LayoutTest() {
                 mainAxisAlignment = MainAxisAlignment.Center,
                 crossAxisAlignment = CrossAxisAlignment.Center
             ) {
-                AspectRatio(2f) { }
+                Container(AspectRatio(2f)) { }
                 ConstrainedBox(DpConstraints.tightConstraints(50.dp, 40.dp)) { }
             }
         }, @Composable {
@@ -1955,7 +1955,7 @@ class FlexTest : LayoutTest() {
                 mainAxisAlignment = MainAxisAlignment.End,
                 crossAxisAlignment = CrossAxisAlignment.End
             ) {
-                AspectRatio(2f) { }
+                Container(AspectRatio(2f)) { }
                 ConstrainedBox(DpConstraints.tightConstraints(50.dp, 40.dp)) { }
             }
         }, @Composable {
@@ -1964,7 +1964,7 @@ class FlexTest : LayoutTest() {
                 mainAxisAlignment = MainAxisAlignment.SpaceAround,
                 crossAxisAlignment = CrossAxisAlignment.Stretch
             ) {
-                AspectRatio(2f) { }
+                Container(AspectRatio(2f)) { }
                 ConstrainedBox(DpConstraints.tightConstraints(50.dp, 40.dp)) { }
             }
         }, @Composable {
@@ -1972,7 +1972,7 @@ class FlexTest : LayoutTest() {
                 mainAxisSize = LayoutSize.Expand,
                 mainAxisAlignment = MainAxisAlignment.SpaceBetween
             ) {
-                AspectRatio(2f) { }
+                Container(AspectRatio(2f)) { }
                 ConstrainedBox(DpConstraints.tightConstraints(50.dp, 40.dp)) { }
             }
         }, @Composable {
@@ -1980,7 +1980,7 @@ class FlexTest : LayoutTest() {
                 mainAxisSize = LayoutSize.Expand,
                 mainAxisAlignment = MainAxisAlignment.SpaceEvenly
             ) {
-                AspectRatio(2f) { }
+                Container(AspectRatio(2f)) { }
                 ConstrainedBox(DpConstraints.tightConstraints(50.dp, 40.dp)) { }
             }
         }) { minIntrinsicWidth, minIntrinsicHeight, maxIntrinsicWidth, maxIntrinsicHeight ->
@@ -2014,7 +2014,7 @@ class FlexTest : LayoutTest() {
                     ConstrainedBox(DpConstraints.tightConstraints(30.dp, 40.dp)) { }
                 }
                 expanded(flex = 2f) {
-                    AspectRatio(2f) { }
+                    Container(AspectRatio(2f)) { }
                 }
                 inflexible {
                     ConstrainedBox(DpConstraints.tightConstraints(20.dp, 30.dp)) { }
@@ -2029,7 +2029,7 @@ class FlexTest : LayoutTest() {
                     ConstrainedBox(DpConstraints.tightConstraints(30.dp, 40.dp)) { }
                 }
                 expanded(flex = 2f) {
-                    AspectRatio(2f) { }
+                    Container(AspectRatio(2f)) { }
                 }
                 inflexible {
                     ConstrainedBox(DpConstraints.tightConstraints(20.dp, 30.dp)) { }
@@ -2047,7 +2047,7 @@ class FlexTest : LayoutTest() {
                     ConstrainedBox(DpConstraints.tightConstraints(30.dp, 40.dp)) { }
                 }
                 expanded(flex = 2f) {
-                    AspectRatio(2f) { }
+                    Container(AspectRatio(2f)) { }
                 }
                 inflexible {
                     ConstrainedBox(DpConstraints.tightConstraints(20.dp, 30.dp)) { }
@@ -2065,7 +2065,7 @@ class FlexTest : LayoutTest() {
                     ConstrainedBox(DpConstraints.tightConstraints(30.dp, 40.dp)) { }
                 }
                 expanded(flex = 2f) {
-                    AspectRatio(2f) { }
+                    Container(AspectRatio(2f)) { }
                 }
                 inflexible {
                     ConstrainedBox(DpConstraints.tightConstraints(20.dp, 30.dp)) { }
@@ -2083,7 +2083,7 @@ class FlexTest : LayoutTest() {
                     ConstrainedBox(DpConstraints.tightConstraints(30.dp, 40.dp)) { }
                 }
                 expanded(flex = 2f) {
-                    AspectRatio(2f) { }
+                    Container(AspectRatio(2f)) { }
                 }
                 inflexible {
                     ConstrainedBox(DpConstraints.tightConstraints(20.dp, 30.dp)) { }
@@ -2101,7 +2101,7 @@ class FlexTest : LayoutTest() {
                     ConstrainedBox(DpConstraints.tightConstraints(30.dp, 40.dp)) { }
                 }
                 expanded(flex = 2f) {
-                    AspectRatio(2f) { }
+                    Container(AspectRatio(2f)) { }
                 }
                 inflexible {
                     ConstrainedBox(DpConstraints.tightConstraints(20.dp, 30.dp)) { }
@@ -2116,7 +2116,7 @@ class FlexTest : LayoutTest() {
                     ConstrainedBox(DpConstraints.tightConstraints(30.dp, 40.dp)) { }
                 }
                 expanded(flex = 2f) {
-                    AspectRatio(2f) { }
+                    Container(AspectRatio(2f)) { }
                 }
                 inflexible {
                     ConstrainedBox(DpConstraints.tightConstraints(20.dp, 30.dp)) { }
@@ -2131,7 +2131,7 @@ class FlexTest : LayoutTest() {
                     ConstrainedBox(DpConstraints.tightConstraints(30.dp, 40.dp)) { }
                 }
                 expanded(flex = 2f) {
-                    AspectRatio(2f) { }
+                    Container(AspectRatio(2f)) { }
                 }
                 inflexible {
                     ConstrainedBox(DpConstraints.tightConstraints(20.dp, 30.dp)) { }
@@ -2196,7 +2196,7 @@ class FlexTest : LayoutTest() {
                     ConstrainedBox(DpConstraints.tightConstraints(40.dp, 30.dp)) { }
                 }
                 expanded(flex = 2f) {
-                    AspectRatio(0.5f) { }
+                    Container(AspectRatio(0.5f)) { }
                 }
                 inflexible {
                     ConstrainedBox(DpConstraints.tightConstraints(30.dp, 20.dp)) { }
@@ -2211,7 +2211,7 @@ class FlexTest : LayoutTest() {
                     ConstrainedBox(DpConstraints.tightConstraints(40.dp, 30.dp)) { }
                 }
                 expanded(flex = 2f) {
-                    AspectRatio(0.5f) { }
+                    Container(AspectRatio(0.5f)) { }
                 }
                 inflexible {
                     ConstrainedBox(DpConstraints.tightConstraints(30.dp, 20.dp)) { }
@@ -2229,7 +2229,7 @@ class FlexTest : LayoutTest() {
                     ConstrainedBox(DpConstraints.tightConstraints(40.dp, 30.dp)) { }
                 }
                 expanded(flex = 2f) {
-                    AspectRatio(0.5f) { }
+                    Container(AspectRatio(0.5f)) { }
                 }
                 inflexible {
                     ConstrainedBox(DpConstraints.tightConstraints(30.dp, 20.dp)) { }
@@ -2247,7 +2247,7 @@ class FlexTest : LayoutTest() {
                     ConstrainedBox(DpConstraints.tightConstraints(40.dp, 30.dp)) { }
                 }
                 expanded(flex = 2f) {
-                    AspectRatio(0.5f) { }
+                    Container(AspectRatio(0.5f)) { }
                 }
                 inflexible {
                     ConstrainedBox(DpConstraints.tightConstraints(30.dp, 20.dp)) { }
@@ -2265,7 +2265,7 @@ class FlexTest : LayoutTest() {
                     ConstrainedBox(DpConstraints.tightConstraints(40.dp, 30.dp)) { }
                 }
                 expanded(flex = 2f) {
-                    AspectRatio(0.5f) { }
+                    Container(AspectRatio(0.5f)) { }
                 }
                 inflexible {
                     ConstrainedBox(DpConstraints.tightConstraints(30.dp, 20.dp)) { }
@@ -2283,7 +2283,7 @@ class FlexTest : LayoutTest() {
                     ConstrainedBox(DpConstraints.tightConstraints(40.dp, 30.dp)) { }
                 }
                 expanded(flex = 2f) {
-                    AspectRatio(0.5f) { }
+                    Container(AspectRatio(0.5f)) { }
                 }
                 inflexible {
                     ConstrainedBox(DpConstraints.tightConstraints(30.dp, 20.dp)) { }
@@ -2298,7 +2298,7 @@ class FlexTest : LayoutTest() {
                     ConstrainedBox(DpConstraints.tightConstraints(40.dp, 30.dp)) { }
                 }
                 expanded(flex = 2f) {
-                    AspectRatio(0.5f) { }
+                    Container(AspectRatio(0.5f)) { }
                 }
                 inflexible {
                     ConstrainedBox(DpConstraints.tightConstraints(30.dp, 20.dp)) { }
@@ -2313,7 +2313,7 @@ class FlexTest : LayoutTest() {
                     ConstrainedBox(DpConstraints.tightConstraints(40.dp, 30.dp)) { }
                 }
                 expanded(flex = 2f) {
-                    AspectRatio(0.5f) { }
+                    Container(AspectRatio(0.5f)) { }
                 }
                 inflexible {
                     ConstrainedBox(DpConstraints.tightConstraints(30.dp, 20.dp)) { }
