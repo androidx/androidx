@@ -65,7 +65,7 @@ class FragmentContainerInflatedFragmentTest {
 
     @Test
     fun addInflatedFragmentToParentChildFragmentManager() {
-        with(ActivityScenario.launch(InflatedContainerActivity::class.java)) {
+        with(ActivityScenario.launch(SimpleContainerActivity::class.java)) {
             val parent = InflatedParentFragment()
 
             withActivity {
@@ -82,7 +82,7 @@ class FragmentContainerInflatedFragmentTest {
 
     @Test
     fun addInflatedFragmentToGrandParentChildFragmentManager() {
-        with(ActivityScenario.launch(InflatedContainerActivity::class.java)) {
+        with(ActivityScenario.launch(SimpleContainerActivity::class.java)) {
             val grandParent = InflatedParentFragment()
             withActivity {
                 supportFragmentManager.beginTransaction()
@@ -107,7 +107,7 @@ class FragmentContainerInflatedFragmentTest {
 
     @Test
     fun addInflatedAfterRestore() {
-        with(ActivityScenario.launch(InflatedContainerActivity::class.java)) {
+        with(ActivityScenario.launch(SimpleContainerActivity::class.java)) {
             val parent = InflatedParentFragment()
 
             withActivity {
@@ -136,6 +136,6 @@ class FragmentContainerInflatedFragmentTest {
     }
 }
 
-class InflatedContainerActivity : FragmentActivity(R.layout.simple_container)
+class SimpleContainerActivity : FragmentActivity(R.layout.simple_container)
 
 class InflatedParentFragment : StrictViewFragment(R.layout.inflated_fragment_container_view)
