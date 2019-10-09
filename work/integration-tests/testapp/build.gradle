@@ -37,7 +37,19 @@ android {
             minifyEnabled = true
         }
     }
-    defaultConfig.vectorDrawables.useSupportLibrary = true
+    defaultConfig {
+        javaCompileOptions {
+            annotationProcessorOptions {
+                arguments = [
+                        "room.incremental"     : "true",
+                        "room.expandProjection": "true"
+                ]
+            }
+        }
+        vectorDrawables {
+            useSupportLibrary = true
+        }
+    }
 }
 
 dependencies {
@@ -47,14 +59,14 @@ dependencies {
         annotationProcessor(project(":room:room-compiler"))
         implementation(project(":room:room-runtime"))
     } else {
-        annotationProcessor("androidx.room:room-compiler:2.0.0")
-        implementation("androidx.room:room-runtime:2.0.0")
+        annotationProcessor("androidx.room:room-compiler:2.2.0")
+        implementation("androidx.room:room-runtime:2.2.0")
     }
 
     implementation(CONSTRAINT_LAYOUT, { transitive = true })
     implementation project(':work:work-runtime-ktx')
     implementation (project(':work:work-gcm'))
-    implementation("androidx.arch.core:core-runtime:2.0.0")
+    implementation("androidx.arch.core:core-runtime:2.1.0")
     implementation("androidx.recyclerview:recyclerview:1.0.0")
     implementation(MATERIAL)
 }
