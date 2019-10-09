@@ -20,7 +20,7 @@ os.chdir("../../../")
 
 projectDirArg = "-p frameworks/support"
 ui = "/ui"
-tasks = "buildOnServer"
+tasks = "buildOnServer ktlint"
 gradlew = "frameworks/support/gradlew"
 gradlewC = "frameworks/support/ui/gradlew"
 
