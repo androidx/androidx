@@ -182,12 +182,14 @@ class AndroidComposeView constructor(context: Context)
 
     private fun onModelsCommitted(models: Iterable<Any>) {
         modelToNodes[models].forEach { node ->
+            require(node.isAttached())
             when (node) {
                 is DrawNode -> node.invalidate()
                 is LayoutNode -> requestMeasure(node, false)
             }
         }
         relayoutOnly[models].forEach { node ->
+            require(node.isAttached())
             requestRelayout(node)
         }
     }
@@ -343,6 +345,7 @@ class AndroidComposeView constructor(context: Context)
     }
 
     override fun onDetach(node: ComponentNode) {
+        clearNodeModels(node)
         if (node is RepaintBoundaryNode) {
             node.container.detach()
             node.ownerData = null
@@ -635,6 +638,7 @@ class AndroidComposeView constructor(context: Context)
     private fun clearNodeModels(node: ComponentNode) {
         nodeToModels.remove(node).forEach { model ->
             modelToNodes.remove(model, node)
+            relayoutOnly.remove(model)
         }
     }
 
