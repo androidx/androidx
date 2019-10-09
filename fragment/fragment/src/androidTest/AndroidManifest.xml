@@ -45,7 +45,7 @@
         <activity android:name="androidx.fragment.app.OnResumeTestActivity" />
         <activity android:name="androidx.fragment.app.FragmentSavedStateActivity" />
         <activity android:name="androidx.fragment.app.FragmentFinishEarlyTestActivity" />
-        <activity android:name="androidx.fragment.app.InflatedContainerActivity" />
+        <activity android:name="androidx.fragment.app.SimpleContainerActivity" />
         <activity android:name="androidx.fragment.app.DialogActivity"
                   android:theme="@style/DialogTheme"/>
     </application>
