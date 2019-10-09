@@ -15,7 +15,8 @@ limitations under the License.
  -->
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2"
-    xmlns:tools="http://schemas.android.com/tools">
-    <string name="speed_bump_lockout_message" msgid="5405697774899378511">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‏‎‎‏‎‎‎‎‏‏‏‏‏‏‏‏‎‎‏‎‏‏‎‎‎‎‎‏‎‎‏‏‏‎‎‏‎‏‎‏‏‏‏‏‎‎‎‏‎‏‎‎‏‏‏‏‏‏‏‏‏‏‎‎‏‏‏‎‎‏‎‏‎‎‏‏‏‏‎Focus on the road‎‏‎‎‏‎"</string>
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="speed_bump_lockout_message" msgid="444412252084688703">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‎‏‎‎‏‎‎‎‎‏‏‏‏‎‏‏‏‏‎‎‎‏‎‏‎‏‎‏‏‎‏‏‏‏‎‏‎‎‏‎‏‏‎‏‎‏‏‎‎‏‏‎‏‎‏‎‏‏‎‏‏‎‏‎‏‏‏‎‎‏‏‏‏‏‏‎Focus on the road‎‏‎‎‏‎"</string>
+    <string name="scroll_bar_page_up_button" msgid="465102831431294180">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‎‏‎‎‏‎‎‎‎‏‏‏‏‎‏‏‏‏‎‎‏‏‏‎‏‎‎‎‏‏‎‎‎‎‎‏‎‎‎‏‏‏‏‏‎‎‏‏‎‏‏‎‏‏‏‏‏‎‏‏‎‎‏‏‏‎‎‏‏‏‎‎‏‎‎‎Scroll up‎‏‎‎‏‎"</string>
+    <string name="scroll_bar_page_down_button" msgid="635940284003824276">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‎‏‎‎‏‎‎‎‎‏‏‏‏‏‎‎‏‎‎‎‏‏‎‏‎‎‏‏‎‏‎‏‎‎‎‎‎‏‎‏‎‎‎‏‏‎‏‎‎‏‏‎‎‏‏‎‏‎‎‎‏‎‏‏‎‎‏‎‏‎‎‏‎‏‎‎‎Scroll down‎‏‎‎‏‎"</string>
 </resources>
