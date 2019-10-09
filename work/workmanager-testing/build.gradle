@@ -37,10 +37,10 @@ android {
 
 dependencies {
     implementation(project(':work:work-runtime-ktx'))
-    implementation("androidx.lifecycle:lifecycle-livedata-core:2.0.0")
-    implementation("androidx.room:room-runtime:2.1.0")
+    implementation("androidx.lifecycle:lifecycle-livedata-core:2.1.0")
+    implementation("androidx.room:room-runtime:2.2.0")
 
-    androidTestImplementation("androidx.arch.core:core-testing:2.0.0")
+    androidTestImplementation("androidx.arch.core:core-testing:2.1.0")
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
     androidTestImplementation(ANDROIDX_TEST_CORE)
     androidTestImplementation(ANDROIDX_TEST_RUNNER)

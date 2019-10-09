@@ -48,7 +48,11 @@ android {
     defaultConfig {
         javaCompileOptions {
             annotationProcessorOptions {
-                arguments = ["room.schemaLocation": "$projectDir/src/schemas".toString()]
+                arguments = [
+                        "room.incremental"     : "true",
+                        "room.expandProjection": "true",
+                        "room.schemaLocation"  : "$projectDir/src/schemas".toString()
+                ]
             }
         }
     }
@@ -58,17 +62,17 @@ android {
 }
 
 dependencies {
-    annotationProcessor("androidx.room:room-compiler:2.1.0")
-    implementation("androidx.room:room-runtime:2.1.0")
-    androidTestImplementation("androidx.room:room-testing:2.1.0")
+    annotationProcessor("androidx.room:room-compiler:2.2.0")
+    implementation("androidx.room:room-runtime:2.2.0")
+    androidTestImplementation("androidx.room:room-testing:2.2.0")
     api(GUAVA_LISTENABLE_FUTURE)
-    api("androidx.lifecycle:lifecycle-livedata:2.0.0")
-    implementation("androidx.core:core:1.0.0")
-    implementation("androidx.lifecycle:lifecycle-service:2.0.0")
+    api("androidx.lifecycle:lifecycle-livedata:2.1.0")
+    implementation("androidx.core:core:1.1.0")
+    implementation("androidx.lifecycle:lifecycle-service:2.1.0")
     androidTestImplementation(KOTLIN_STDLIB)
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
     androidTestImplementation(ANDROIDX_TEST_CORE)
-    androidTestImplementation("androidx.arch.core:core-testing:2.0.0")
+    androidTestImplementation("androidx.arch.core:core-testing:2.1.0")
     androidTestImplementation(ANDROIDX_TEST_RUNNER)
     androidTestImplementation(ESPRESSO_CORE)
     androidTestImplementation(MOCKITO_CORE, libs.exclude_bytebuddy) // DexMaker has its own MockMaker
