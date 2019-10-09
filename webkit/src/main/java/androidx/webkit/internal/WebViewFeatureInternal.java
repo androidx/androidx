@@ -287,9 +287,10 @@ public enum WebViewFeatureInternal {
     GET_WEB_CHROME_CLIENT(WebViewFeature.GET_WEB_CHROME_CLIENT, Features.GET_WEB_CHROME_CLIENT,
             Build.VERSION_CODES.O),
 
-    GET_WEB_VIEW_RENDERER(WebViewFeature.GET_WEB_VIEW_RENDERER, Features.GET_WEB_VIEW_RENDERER),
+    GET_WEB_VIEW_RENDERER(WebViewFeature.GET_WEB_VIEW_RENDERER, Features.GET_WEB_VIEW_RENDERER,
+            Build.VERSION_CODES.Q),
     WEB_VIEW_RENDERER_TERMINATE(WebViewFeature.WEB_VIEW_RENDERER_TERMINATE,
-            Features.WEB_VIEW_RENDERER_TERMINATE),
+            Features.WEB_VIEW_RENDERER_TERMINATE, Build.VERSION_CODES.Q),
 
     /**
      * This feature covers
@@ -309,7 +310,7 @@ public enum WebViewFeatureInternal {
      * {@link WebViewRenderProcessClient#onRenderProcessResponsive(WebView,WebViewRenderProcess)}
      */
     WEB_VIEW_RENDERER_CLIENT_BASIC_USAGE(WebViewFeature.WEB_VIEW_RENDERER_CLIENT_BASIC_USAGE,
-            Features.WEB_VIEW_RENDERER_CLIENT_BASIC_USAGE),
+            Features.WEB_VIEW_RENDERER_CLIENT_BASIC_USAGE, Build.VERSION_CODES.Q),
 
     /**
      * This feature covers

@@ -16,33 +16,43 @@
 
 package androidx.webkit.internal;
 
-import androidx.annotation.Nullable;
+import androidx.annotation.NonNull;
 import androidx.webkit.WebViewFeature;
 import androidx.webkit.WebViewRenderProcess;
 
 import org.chromium.support_lib_boundary.WebViewRendererBoundaryInterface;
 import org.chromium.support_lib_boundary.util.BoundaryInterfaceReflectionUtil;
 
+import java.lang.ref.WeakReference;
 import java.lang.reflect.InvocationHandler;
+import java.util.WeakHashMap;
 import java.util.concurrent.Callable;
 
 /**
  * Implementation of {@link WebViewRenderProcess}.
- * This class uses the WebView APK to implement
- * {@link WebViewRenderProcess} functionality.
+ * This class uses the framework's {@link android.webkit.WebViewRenderProcess} or the WebView APK to
+ * implement {@link WebViewRenderProcess} functionality.
  */
 public class WebViewRenderProcessImpl extends WebViewRenderProcess {
     private WebViewRendererBoundaryInterface mBoundaryInterface;
+    private WeakReference<android.webkit.WebViewRenderProcess> mFrameworkObject;
+    private static WeakHashMap<android.webkit.WebViewRenderProcess,
+            WebViewRenderProcessImpl> sFrameworkMap = new WeakHashMap<>();
 
-    public WebViewRenderProcessImpl(WebViewRendererBoundaryInterface boundaryInterface) {
+    public WebViewRenderProcessImpl(@NonNull WebViewRendererBoundaryInterface boundaryInterface) {
         mBoundaryInterface = boundaryInterface;
+    }
+
+    public WebViewRenderProcessImpl(
+                @NonNull android.webkit.WebViewRenderProcess frameworkRenderer) {
+        mFrameworkObject = new WeakReference<>(frameworkRenderer);
     }
 
     /**
      * Get a support library WebViewRenderProcess object that is 1:1 with the webview object.
      */
-    public static @Nullable WebViewRenderProcessImpl forInvocationHandler(
-            InvocationHandler invocationHandler) {
+    public static @NonNull WebViewRenderProcessImpl forInvocationHandler(
+            @NonNull InvocationHandler invocationHandler) {
         // Make a possibly temporary proxy object in order to call into WebView.
         final WebViewRendererBoundaryInterface boundaryInterface =
                 BoundaryInterfaceReflectionUtil.castToSuppLibClass(
@@ -60,11 +70,28 @@ public class WebViewRenderProcessImpl extends WebViewRenderProcess {
                 });
     }
 
+    /**
+     * Get a support library WebViewRenderProcess object that is 1:1 with the framework object.
+     */
+    public static @NonNull WebViewRenderProcessImpl forFrameworkObject(
+            @NonNull android.webkit.WebViewRenderProcess frameworkRenderer) {
+        WebViewRenderProcessImpl renderer = sFrameworkMap.get(frameworkRenderer);
+        if (renderer != null) {
+            return renderer;
+        }
+        renderer = new WebViewRenderProcessImpl(frameworkRenderer);
+        sFrameworkMap.put(frameworkRenderer, renderer);
+        return renderer;
+    }
+
     @Override
     public boolean terminate() {
         final WebViewFeatureInternal feature =
                 WebViewFeatureInternal.getFeature(WebViewFeature.WEB_VIEW_RENDERER_TERMINATE);
-        if (feature.isSupportedByWebView()) {
+        if (feature.isSupportedByFramework()) {
+            android.webkit.WebViewRenderProcess renderer = mFrameworkObject.get();
+            return renderer != null ? renderer.terminate() : false;
+        } else if (feature.isSupportedByWebView()) {
             return mBoundaryInterface.terminate();
         } else {
             throw WebViewFeatureInternal.getUnsupportedOperationException();

@@ -38,6 +38,8 @@ import androidx.webkit.internal.WebViewFeatureInternal;
 import androidx.webkit.internal.WebViewGlueCommunicator;
 import androidx.webkit.internal.WebViewProviderAdapter;
 import androidx.webkit.internal.WebViewProviderFactory;
+import androidx.webkit.internal.WebViewRenderProcessClientFrameworkAdapter;
+import androidx.webkit.internal.WebViewRenderProcessImpl;
 
 import org.chromium.support_lib_boundary.WebViewProviderBoundaryInterface;
 
@@ -599,7 +601,10 @@ public class WebViewCompat {
     public static @Nullable WebViewRenderProcess getWebViewRenderProcess(@NonNull WebView webview) {
         final WebViewFeatureInternal feature =
                 WebViewFeatureInternal.getFeature(WebViewFeature.GET_WEB_VIEW_RENDERER);
-        if (feature.isSupportedByWebView()) {
+        if (feature.isSupportedByFramework()) {
+            android.webkit.WebViewRenderProcess renderer = webview.getWebViewRenderProcess();
+            return renderer != null ? WebViewRenderProcessImpl.forFrameworkObject(renderer) : null;
+        } else if (feature.isSupportedByWebView()) {
             return getProvider(webview).getWebViewRenderProcess();
         } else {
             throw WebViewFeatureInternal.getUnsupportedOperationException();
@@ -647,7 +652,11 @@ public class WebViewCompat {
             @NonNull WebViewRenderProcessClient webViewRenderProcessClient) {
         final WebViewFeatureInternal feature = WebViewFeatureInternal.getFeature(
                 WebViewFeature.WEB_VIEW_RENDERER_CLIENT_BASIC_USAGE);
-        if (feature.isSupportedByWebView()) {
+        if (feature.isSupportedByFramework()) {
+            webview.setWebViewRenderProcessClient(executor, webViewRenderProcessClient != null
+                    ? new WebViewRenderProcessClientFrameworkAdapter(webViewRenderProcessClient)
+                    : null);
+        } else if (feature.isSupportedByWebView()) {
             getProvider(webview).setWebViewRenderProcessClient(
                     executor, webViewRenderProcessClient);
         } else {
@@ -681,7 +690,11 @@ public class WebViewCompat {
             @Nullable WebViewRenderProcessClient webViewRenderProcessClient) {
         final WebViewFeatureInternal feature = WebViewFeatureInternal.getFeature(
                 WebViewFeature.WEB_VIEW_RENDERER_CLIENT_BASIC_USAGE);
-        if (feature.isSupportedByWebView()) {
+        if (feature.isSupportedByFramework()) {
+            webview.setWebViewRenderProcessClient(webViewRenderProcessClient != null
+                    ? new WebViewRenderProcessClientFrameworkAdapter(webViewRenderProcessClient)
+                    : null);
+        } else if (feature.isSupportedByWebView()) {
             getProvider(webview).setWebViewRenderProcessClient(null, webViewRenderProcessClient);
         } else {
             throw WebViewFeatureInternal.getUnsupportedOperationException();
@@ -706,7 +719,16 @@ public class WebViewCompat {
             @NonNull WebView webview) {
         final WebViewFeatureInternal feature = WebViewFeatureInternal.getFeature(
                 WebViewFeature.WEB_VIEW_RENDERER_CLIENT_BASIC_USAGE);
-        if (feature.isSupportedByWebView()) {
+        if (feature.isSupportedByFramework()) {
+            android.webkit.WebViewRenderProcessClient renderer =
+                    webview.getWebViewRenderProcessClient();
+            if (renderer == null
+                    || !(renderer instanceof WebViewRenderProcessClientFrameworkAdapter)) {
+                return null;
+            }
+            return ((WebViewRenderProcessClientFrameworkAdapter) renderer)
+                .getFrameworkRenderProcessClient();
+        } else if (feature.isSupportedByWebView()) {
             return getProvider(webview).getWebViewRenderProcessClient();
         } else {
             throw WebViewFeatureInternal.getUnsupportedOperationException();
