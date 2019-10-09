@@ -56,11 +56,11 @@ public final class CameraCaptureCallbacks {
 
     static final class NoOpCameraCaptureCallback extends CameraCaptureCallback {
         @Override
-        public void onCaptureCompleted(CameraCaptureResult cameraCaptureResult) {
+        public void onCaptureCompleted(@NonNull CameraCaptureResult cameraCaptureResult) {
         }
 
         @Override
-        public void onCaptureFailed(CameraCaptureFailure failure) {
+        public void onCaptureFailed(@NonNull CameraCaptureFailure failure) {
         }
     }
 
@@ -81,16 +81,23 @@ public final class CameraCaptureCallbacks {
         }
 
         @Override
-        public void onCaptureCompleted(CameraCaptureResult result) {
+        public void onCaptureCompleted(@NonNull CameraCaptureResult result) {
             for (CameraCaptureCallback callback : mCallbacks) {
                 callback.onCaptureCompleted(result);
             }
         }
 
         @Override
-        public void onCaptureFailed(CameraCaptureFailure failure) {
+        public void onCaptureFailed(@NonNull CameraCaptureFailure failure) {
             for (CameraCaptureCallback callback : mCallbacks) {
                 callback.onCaptureFailed(failure);
+            }
+        }
+
+        @Override
+        public void onCaptureCancelled() {
+            for (CameraCaptureCallback callback : mCallbacks) {
+                callback.onCaptureCancelled();
             }
         }
 
