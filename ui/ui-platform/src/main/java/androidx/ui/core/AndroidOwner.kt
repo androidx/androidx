@@ -59,8 +59,8 @@ import androidx.ui.autofill.registerCallback
 import androidx.ui.autofill.unregisterCallback
 
 @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-class AndroidComposeView constructor(context: Context)
-    : ViewGroup(context), Owner, SemanticsTreeProvider, DensityScope {
+class AndroidComposeView constructor(context: Context) :
+    ViewGroup(context), Owner, SemanticsTreeProvider, DensityScope {
     override var density: Density = Density(context)
         private set
 

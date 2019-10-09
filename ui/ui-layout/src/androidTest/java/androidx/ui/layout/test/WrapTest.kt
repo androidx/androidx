@@ -168,17 +168,17 @@ class WrapTest : LayoutTest() {
             }
         }) { minIntrinsicWidth, minIntrinsicHeight, maxIntrinsicWidth, maxIntrinsicHeight ->
             // Min width.
-            assertEquals( 25.dp.toIntPx() * 2, minIntrinsicWidth(25.dp.toIntPx()))
-            assertEquals( 0.dp.toIntPx(), minIntrinsicWidth(IntPx.Infinity))
+            assertEquals(25.dp.toIntPx() * 2, minIntrinsicWidth(25.dp.toIntPx()))
+            assertEquals(0.dp.toIntPx(), minIntrinsicWidth(IntPx.Infinity))
             // Min height.
-            assertEquals( 50.dp.toIntPx() / 2, minIntrinsicHeight(50.dp.toIntPx()))
-            assertEquals( 0.dp.toIntPx(), minIntrinsicHeight(IntPx.Infinity))
+            assertEquals(50.dp.toIntPx() / 2, minIntrinsicHeight(50.dp.toIntPx()))
+            assertEquals(0.dp.toIntPx(), minIntrinsicHeight(IntPx.Infinity))
             // Max width.
-            assertEquals( 25.dp.toIntPx() * 2, maxIntrinsicWidth(25.dp.toIntPx()))
-            assertEquals( 0.dp.toIntPx(), maxIntrinsicWidth(IntPx.Infinity))
+            assertEquals(25.dp.toIntPx() * 2, maxIntrinsicWidth(25.dp.toIntPx()))
+            assertEquals(0.dp.toIntPx(), maxIntrinsicWidth(IntPx.Infinity))
             // Max height.
-            assertEquals( 50.dp.toIntPx() / 2, maxIntrinsicHeight(50.dp.toIntPx()))
-            assertEquals( 0.dp.toIntPx(), maxIntrinsicHeight(IntPx.Infinity))
+            assertEquals(50.dp.toIntPx() / 2, maxIntrinsicHeight(50.dp.toIntPx()))
+            assertEquals(0.dp.toIntPx(), maxIntrinsicHeight(IntPx.Infinity))
         }
     }
 
@@ -188,13 +188,13 @@ class WrapTest : LayoutTest() {
             Wrap { }
         }) { minIntrinsicWidth, minIntrinsicHeight, maxIntrinsicWidth, maxIntrinsicHeight ->
             // Min width.
-            assertEquals( 0.dp.toIntPx(), minIntrinsicWidth(25.dp.toIntPx()))
+            assertEquals(0.dp.toIntPx(), minIntrinsicWidth(25.dp.toIntPx()))
             // Min height.
-            assertEquals( 0.dp.toIntPx(), minIntrinsicHeight(25.dp.toIntPx()))
+            assertEquals(0.dp.toIntPx(), minIntrinsicHeight(25.dp.toIntPx()))
             // Max width.
-            assertEquals( 0.dp.toIntPx(), maxIntrinsicWidth(25.dp.toIntPx()))
+            assertEquals(0.dp.toIntPx(), maxIntrinsicWidth(25.dp.toIntPx()))
             // Max height.
-            assertEquals( 0.dp.toIntPx(), maxIntrinsicHeight(25.dp.toIntPx()))
+            assertEquals(0.dp.toIntPx(), maxIntrinsicHeight(25.dp.toIntPx()))
         }
     }
 }

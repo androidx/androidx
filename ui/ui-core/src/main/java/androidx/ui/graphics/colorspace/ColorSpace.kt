@@ -139,7 +139,7 @@ abstract class ColorSpace internal constructor(
      */
     internal val id: Int
 ) {
-    constructor(name: String, model: ColorModel): this(name, model, MinId)
+    constructor(name: String, model: ColorModel) : this(name, model, MinId)
     /**
      * Returns the number of components that form a color value according
      * to this color space's color model.

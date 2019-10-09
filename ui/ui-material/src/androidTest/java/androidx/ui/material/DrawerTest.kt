@@ -154,7 +154,7 @@ class DrawerTest {
         var bodyClicks = 0
         val drawerState = DrawerStateHolder(DrawerState.Closed)
         composeTestRule.setMaterialContent {
-            //emulate click on the screen
+            // emulate click on the screen
             TestTag("Drawer") {
                 Semantics(container = true) {
                     ModalDrawerLayout(drawerState.state, { drawerState.state = it },
@@ -188,7 +188,6 @@ class DrawerTest {
         findByTag("Drawer")
             .doClick()
 
-
         Truth.assertThat(drawerClicks).isEqualTo(1)
         Truth.assertThat(bodyClicks).isEqualTo(1)
     }
@@ -200,7 +199,7 @@ class DrawerTest {
         var bodyClicks = 0
         val drawerState = DrawerStateHolder(DrawerState.Closed)
         composeTestRule.setMaterialContent {
-            //emulate click on the screen
+            // emulate click on the screen
             TestTag("Drawer") {
                 Semantics(container = true) {
                     BottomDrawerLayout(drawerState.state, { drawerState.state = it },

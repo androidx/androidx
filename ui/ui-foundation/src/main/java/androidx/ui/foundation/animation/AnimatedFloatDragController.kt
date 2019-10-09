@@ -51,8 +51,8 @@ class AnimatedFloatDragController(
      * @param flingConfig sets behavior of the fling after drag has ended.
      * Default is null, which means no fling will occur no matter the velocity
      */
-    constructor(initialValue: Float, flingConfig: FlingConfig?)
-            : this(AnimatedFloat(AnimValueHolder(initialValue, ::lerp)), flingConfig)
+    constructor(initialValue: Float, flingConfig: FlingConfig?) :
+            this(AnimatedFloat(AnimValueHolder(initialValue, ::lerp)), flingConfig)
 
     override val currentValue
         get() = animatedFloat.value
