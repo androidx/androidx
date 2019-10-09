@@ -1357,28 +1357,6 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public WebViewRenderProcessImpl(WebViewRendererBoundaryInterface boundaryInterface) {"
-        errorLine2="                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/webkit/internal/WebViewRenderProcessImpl.java"
-            line="37"
-            column="37"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="            InvocationHandler invocationHandler) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/webkit/internal/WebViewRenderProcessImpl.java"
-            line="45"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    void onRendererUnresponsive(WebView view, /* WebViewRenderer */ InvocationHandler renderer);"
         errorLine2="                                ~~~~~~~">
         <location
