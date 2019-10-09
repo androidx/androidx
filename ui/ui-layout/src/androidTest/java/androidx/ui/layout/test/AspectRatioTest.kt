@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+//AspectRatio composable is deprecated
+@file:Suppress("DEPRECATION")
+
 package androidx.ui.layout.test
 
 import androidx.compose.Children

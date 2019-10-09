@@ -54,7 +54,6 @@ import androidx.ui.core.Text
 import androidx.ui.core.VerticalAlignmentLine
 import androidx.ui.core.sp
 import androidx.ui.layout.AlignmentLineOffset
-import androidx.ui.layout.AspectRatio
 import androidx.ui.layout.Container
 import androidx.ui.layout.CrossAxisAlignment
 import androidx.ui.layout.EdgeInsets
@@ -398,7 +397,7 @@ fun RowBaselineAlignment() {
     Row(crossAxisAlignment = CrossAxisAlignment.AlignmentLine(FirstBaseline)) {
         Text("First text")
         Column {
-            SizedRectangle(Color.Blue, width = 10.dp, height = 50.dp)
+            SizedRectangle(color = Color.Blue, width = 10.dp, height = 50.dp)
             Padding(30.dp) {
                 Text("Second text", style = TextStyle(fontSize = 45.sp))
             }

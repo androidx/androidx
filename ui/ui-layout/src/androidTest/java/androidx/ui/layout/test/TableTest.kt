@@ -39,7 +39,6 @@ import androidx.ui.layout.DpConstraints
 import androidx.ui.layout.Table
 import androidx.ui.layout.TableColumnWidth
 import androidx.ui.layout.TableMeasurable
-import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -1311,7 +1310,7 @@ class TableTest : LayoutTest() {
                     for (i in 0 until rows) {
                         tableRow {
                             for (j in 0 until columns) {
-                                AspectRatio(aspectRatio = 2f) { }
+                                Container(AspectRatio(2f)) { }
                             }
                         }
                     }
@@ -1356,7 +1355,7 @@ class TableTest : LayoutTest() {
                     for (i in 0 until rows) {
                         tableRow {
                             for (j in 0 until columns) {
-                                AspectRatio(aspectRatio = 2f) { }
+                                Container(AspectRatio(2f)) { }
                             }
                         }
                     }
@@ -1401,7 +1400,7 @@ class TableTest : LayoutTest() {
                     for (i in 0 until rows) {
                         tableRow {
                             for (j in 0 until columns) {
-                                AspectRatio(aspectRatio = 2f) { }
+                                Container(AspectRatio(2f)) { }
                             }
                         }
                     }
@@ -1446,7 +1445,7 @@ class TableTest : LayoutTest() {
                     for (i in 0 until rows) {
                         tableRow {
                             for (j in 0 until columns) {
-                                AspectRatio(aspectRatio = 2f) { }
+                                Container(AspectRatio(2f)) { }
                             }
                         }
                     }
@@ -1491,7 +1490,7 @@ class TableTest : LayoutTest() {
                     for (i in 0 until rows) {
                         tableRow {
                             for (j in 0 until columns) {
-                                AspectRatio(aspectRatio = 2f) { }
+                                Container(AspectRatio(2f)) { }
                             }
                         }
                     }
@@ -1538,7 +1537,7 @@ class TableTest : LayoutTest() {
                     for (i in 0 until rows) {
                         tableRow {
                             for (j in 0 until columns) {
-                                AspectRatio(aspectRatio = 2f) { }
+                                Container(AspectRatio(2f)) { }
                             }
                         }
                     }
@@ -1583,7 +1582,7 @@ class TableTest : LayoutTest() {
                     for (i in 0 until rows) {
                         tableRow {
                             for (j in 0 until columns) {
-                                AspectRatio(aspectRatio = 2f) { }
+                                Container(AspectRatio(2f)) { }
                             }
                         }
                     }

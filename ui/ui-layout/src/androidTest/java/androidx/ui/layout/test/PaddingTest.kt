@@ -283,7 +283,7 @@ class PaddingTest : LayoutTest() {
 
         testIntrinsics(@Composable {
             Padding(padding = padding) {
-                AspectRatio(2f) { }
+                Container(AspectRatio(2f)) { }
             }
         }) { minIntrinsicWidth, minIntrinsicHeight, maxIntrinsicWidth, maxIntrinsicHeight ->
             // Padding is applied on both sides of an axis
