@@ -332,8 +332,26 @@ class AppCompatDelegateImpl extends AppCompatDelegate
 
     @Override
     public void attachBaseContext(Context context) {
+        final Configuration appConfig =
+                context.getApplicationContext().getResources().getConfiguration();
+        final Configuration baseConfig = context.getResources().getConfiguration();
+        final Configuration configOverlay;
+        if (!appConfig.equals(baseConfig)) {
+            configOverlay = generateConfigDelta(appConfig, baseConfig);
+            if (DEBUG) {
+                Log.d(TAG,
+                        "Application config (" + appConfig + ") does not match base config ("
+                                + baseConfig + "), using overlay: " + configOverlay);
+            }
+        } else {
+            configOverlay = null;
+            if (DEBUG) {
+                Log.d(TAG, "Application config matches base context config, skipping overlay");
+            }
+        }
+
         // Activity.recreate() cannot be called before attach is complete.
-        applyDayNight(false, context.getResources().getConfiguration());
+        applyDayNight(false, configOverlay);
         mBaseContextAttached = true;
     }
 
@@ -2164,7 +2182,7 @@ class AppCompatDelegateImpl extends AppCompatDelegate
     }
 
     private boolean applyDayNight(final boolean allowRecreation,
-            @Nullable Configuration baseConfiguration) {
+            @Nullable Configuration configOverlay) {
         if (mIsDestroyed) {
             // If we're destroyed, ignore the call
             return false;
@@ -2172,7 +2190,7 @@ class AppCompatDelegateImpl extends AppCompatDelegate
 
         @NightMode final int nightMode = calculateNightMode();
         @ApplyableNightMode final int modeToApply = mapNightMode(nightMode);
-        final boolean applied = updateForNightMode(modeToApply, allowRecreation, baseConfiguration);
+        final boolean applied = updateForNightMode(modeToApply, allowRecreation, configOverlay);
 
         if (nightMode == MODE_NIGHT_AUTO_TIME) {
             getAutoTimeNightModeManager().setup();
@@ -2243,11 +2261,11 @@ class AppCompatDelegateImpl extends AppCompatDelegate
      *
      * @param mode The new night mode to apply
      * @param allowRecreation whether to attempt activity recreate
-     * @param baseConfig the base configuration to use, if any
+     * @param configOverlay the developer-provided configuration overlay to use, if any
      * @return true if an action has been taken (recreation, resources updating, etc)
      */
     private boolean updateForNightMode(@ApplyableNightMode final int mode,
-            final boolean allowRecreation, @Nullable Configuration baseConfig) {
+            final boolean allowRecreation, @Nullable Configuration configOverlay) {
         boolean handled = false;
 
         final Configuration appConfig = mContext.getApplicationContext()
@@ -2280,13 +2298,19 @@ class AppCompatDelegateImpl extends AppCompatDelegate
             final android.view.ContextThemeWrapper host = (android.view.ContextThemeWrapper) mHost;
 
             // If we're here then we can try and apply an override configuration on the Context.
-            final Configuration overrideConfig = generateConfigDelta(appConfig, baseConfig);
+            final Configuration overrideConfig;
+            if (configOverlay != null) {
+                overrideConfig = new Configuration(configOverlay);
+            } else {
+                overrideConfig = new Configuration();
+                overrideConfig.fontScale = 0;
+            }
             overrideConfig.uiMode =
                     newNightMode | (overrideConfig.uiMode & ~Configuration.UI_MODE_NIGHT_MASK);
 
             try {
                 if (DEBUG) {
-                    Log.d(TAG, "updateForNightMode. Applying override config");
+                    Log.d(TAG, "updateForNightMode. Applying override config: " + overrideConfig);
                 }
                 host.applyOverrideConfiguration(overrideConfig);
                 handled = true;
@@ -2331,7 +2355,7 @@ class AppCompatDelegateImpl extends AppCompatDelegate
                 Log.d(TAG, "updateForNightMode. Updating resources config");
             }
             updateResourcesConfigurationForNightMode(newNightMode, activityHandlingUiMode,
-                    baseConfig);
+                    configOverlay);
             handled = true;
         }
 
@@ -2350,13 +2374,13 @@ class AppCompatDelegateImpl extends AppCompatDelegate
 
     private void updateResourcesConfigurationForNightMode(
             final int uiModeNightModeValue, final boolean callOnConfigChange,
-            @Nullable Configuration baseConfiguration) {
+            @Nullable Configuration configOverlay) {
         // If the Activity is not set to handle uiMode config changes we will
         // update the Resources with a new Configuration with an updated UI Mode
         final Resources res = mContext.getResources();
         final Configuration conf = new Configuration(res.getConfiguration());
-        if (baseConfiguration != null) {
-            conf.updateFrom(baseConfiguration);
+        if (configOverlay != null) {
+            conf.updateFrom(configOverlay);
         }
         conf.uiMode = uiModeNightModeValue
                 | (res.getConfiguration().uiMode & ~Configuration.UI_MODE_NIGHT_MASK);
@@ -3135,9 +3159,12 @@ class AppCompatDelegateImpl extends AppCompatDelegate
      * <p>
      * This is fine for device configurations as no member is ever undefined.
      */
+    @NonNull
     private static Configuration generateConfigDelta(@NonNull Configuration base,
             @Nullable Configuration change) {
         final Configuration delta = new Configuration();
+        delta.fontScale = 0;
+
         if (change == null || base.diff(change) == 0) {
             return delta;
         }
