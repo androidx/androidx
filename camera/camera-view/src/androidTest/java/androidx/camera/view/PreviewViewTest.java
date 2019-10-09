@@ -22,32 +22,25 @@ import static org.junit.Assume.assumeTrue;
 
 import android.Manifest;
 import android.app.Activity;
-import android.app.Instrumentation;
 import android.content.Context;
 import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
-import androidx.camera.camera2.Camera2AppConfig;
-import androidx.camera.core.CameraX;
 import androidx.camera.testing.CameraUtil;
 import androidx.camera.testing.CoreAppTestUtil;
 import androidx.camera.testing.fakes.FakeActivity;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
-import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.ActivityTestRule;
 import androidx.test.rule.GrantPermissionRule;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import java.util.concurrent.ExecutionException;
 
 /**
  * Instrumented tests for {@link PreviewView}.
@@ -63,7 +56,6 @@ public class PreviewViewTest {
     public ActivityTestRule<FakeActivity> mActivityRule =
             new ActivityTestRule<>(FakeActivity.class);
 
-    private final Instrumentation mInstrumentation = InstrumentationRegistry.getInstrumentation();
     private Context mContext;
 
     @Before
@@ -72,13 +64,6 @@ public class PreviewViewTest {
         CoreAppTestUtil.assumeCompatibleDevice();
 
         mContext = ApplicationProvider.getApplicationContext();
-        CameraX.initialize(mContext, Camera2AppConfig.create(mContext));
-    }
-
-    @After
-    public void tearDown() throws ExecutionException, InterruptedException {
-        mInstrumentation.runOnMainSync(CameraX::unbindAll);
-        CameraX.shutdown().get();
     }
 
     @Test

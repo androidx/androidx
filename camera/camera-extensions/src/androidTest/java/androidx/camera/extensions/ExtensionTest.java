@@ -113,7 +113,9 @@ public class ExtensionTest {
 
     @After
     public void cleanUp() throws InterruptedException, ExecutionException {
-        mInstrumentation.runOnMainSync(CameraX::unbindAll);
+        if (CameraX.isInitialized()) {
+            mInstrumentation.runOnMainSync(CameraX::unbindAll);
+        }
         CameraX.shutdown().get();
     }
 
