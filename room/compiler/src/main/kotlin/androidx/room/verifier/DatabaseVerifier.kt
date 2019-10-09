@@ -25,8 +25,8 @@ import androidx.room.vo.Warning
 import columnInfo
 import org.sqlite.JDBC
 import java.io.File
+import java.nio.channels.FileChannel
 import java.sql.Connection
-import java.sql.DriverManager
 import java.sql.SQLException
 import java.util.UUID
 import java.util.regex.Pattern
@@ -44,6 +44,7 @@ class DatabaseVerifier private constructor(
 ) {
     companion object {
         private const val CONNECTION_URL = "jdbc:sqlite::memory:"
+        private val NATIVE_LIB_RELOAD_RETRY_CNT = 5
         /**
          * Taken from:
          * https://github.com/robolectric/robolectric/blob/master/shadows/framework/
@@ -56,18 +57,25 @@ class DatabaseVerifier private constructor(
         private val COLLATE_LOCALIZED_UNICODE_PATTERN = Pattern.compile(
                 "\\s+COLLATE\\s+(LOCALIZED|UNICODE)", Pattern.CASE_INSENSITIVE)
 
+        /**
+         * Native lib extensions for linux, mac and windows
+         */
+        private val SQLITE_NATIVE_LIB_EXTENSIONS = arrayOf(".so", ".jnilib", ".dll")
+
+        private val sqliteNativeLibDir: File
+
         init {
             // see: https://github.com/xerial/sqlite-jdbc/issues/97
             val tmpDir = System.getProperty("java.io.tmpdir")
-            if (tmpDir != null) {
-                val outDir = File(tmpDir, "room-${UUID.randomUUID()}")
-                outDir.mkdirs()
-                outDir.deleteOnExit()
-                System.setProperty("org.sqlite.tmpdir", outDir.absolutePath)
-                // dummy call to trigger JDBC initialization so that we can unregister it
-                JDBC.isValidURL(CONNECTION_URL)
-                unregisterDrivers()
+            checkNotNull(tmpDir) {
+                "Room needs java.io.tmpdir system property to be set to setup sqlite"
             }
+            sqliteNativeLibDir = File(tmpDir, "room-${UUID.randomUUID()}")
+            sqliteNativeLibDir.mkdirs()
+            sqliteNativeLibDir.deleteOnExit()
+            System.setProperty("org.sqlite.tmpdir", sqliteNativeLibDir.absolutePath)
+            // dummy call to trigger JDBC initialization so that we can unregister it
+            JDBC.isValidURL(CONNECTION_URL)
         }
 
         /**
@@ -79,30 +87,40 @@ class DatabaseVerifier private constructor(
             entities: List<Entity>,
             views: List<DatabaseView>
         ): DatabaseVerifier? {
-            return try {
-                val connection = JDBC.createConnection(CONNECTION_URL, java.util.Properties())
-                DatabaseVerifier(connection, context, entities, views)
-            } catch (ex: Exception) {
-                context.logger.w(Warning.CANNOT_CREATE_VERIFICATION_DATABASE, element,
+            repeat(NATIVE_LIB_RELOAD_RETRY_CNT) {
+                try {
+                    val connection = JDBC.createConnection(CONNECTION_URL, java.util.Properties())
+                    return DatabaseVerifier(connection, context, entities, views)
+                } catch (unsatisfied: UnsatisfiedLinkError) {
+                    // this is a workaround for an issue w/ sqlite where sometimes it fails to
+                    // load the SO. We can manually retry here
+                    FileChannel.open(sqliteNativeLibDir.toPath()).use {
+                        it.force(true)
+                    }
+                    val nativeLibs = sqliteNativeLibDir.listFiles { file ->
+                        SQLITE_NATIVE_LIB_EXTENSIONS.any { ext ->
+                            file.name.endsWith(ext)
+                        }
+                    }
+                    if (nativeLibs.isNotEmpty()) {
+                        nativeLibs.forEach {
+                            it.setExecutable(true)
+                            context.logger.d("reloading the sqlite native file: $it")
+                            System.load(it.absoluteFile.absolutePath)
+                        }
+                    } else {
+                        context.logger.w(Warning.CANNOT_CREATE_VERIFICATION_DATABASE, element,
+                            DatabaseVerificationErrors.cannotCreateConnection(unsatisfied))
+                        // no reason to retry if file is missing.
+                        return null
+                    }
+                } catch (ex: Exception) {
+                    context.logger.w(Warning.CANNOT_CREATE_VERIFICATION_DATABASE, element,
                         DatabaseVerificationErrors.cannotCreateConnection(ex))
-                null
-            }
-        }
-
-        /**
-         * Unregisters the JDBC driver. If we don't do this, we'll leak the driver which leaks a
-         * whole class loader.
-         * see: https://github.com/xerial/sqlite-jdbc/issues/267
-         * see: https://issuetracker.google.com/issues/62473121
-         */
-        private fun unregisterDrivers() {
-            try {
-                DriverManager.getDriver(CONNECTION_URL)?.let {
-                    DriverManager.deregisterDriver(it)
+                    return null
                 }
-            } catch (t: Throwable) {
-                System.err.println("Room: cannot unregister driver ${t.message}")
             }
+            return null
         }
     }
 
