@@ -389,11 +389,10 @@ class TextDelegate(
     /**
      * Draws the cursor at the given character offset.
      *
-     * TODO(nona): Make cursor customizable.
-     *
      * @param offset the cursor offset in the text.
      * @param canvas the target canvas.
      */
+    // TODO(nona): Make cursor customizable.
     fun paintCursor(offset: Int, canvas: Canvas) = assumeLayout { layoutResult ->
         val cursorRect = layoutResult.multiParagraph.getCursorRect(offset)
         canvas.drawRect(cursorRect, Paint().apply { this.color = Color.Black })

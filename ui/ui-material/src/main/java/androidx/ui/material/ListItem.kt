@@ -412,8 +412,8 @@ private object ThreeLine {
  * Layout that expects [Text] children, and positions them with specific offsets between the
  * top of the layout and the first text, as well as the last baseline and first baseline
  * for subsequent pairs of texts.
- * TODO(popam): consider making this a layout widget in ui-layout.
  */
+// TODO(popam): consider making this a layout widget in ui-layout.
 @Composable
 private fun BaselinesOffsetColumn(offsets: List<Dp>, children: @Composable() () -> Unit) {
     Layout(children) { measurables, constraints ->
@@ -449,8 +449,8 @@ private fun BaselinesOffsetColumn(offsets: List<Dp>, children: @Composable() () 
  * child is at a specific offset from the top of the container. If the child does not have
  * a first baseline, the layout will match the minHeight constraint and will center the
  * child.
- * TODO(popam): support fallback alignment in AlignmentLineOffset, and use that here.
  */
+// TODO(popam): support fallback alignment in AlignmentLineOffset, and use that here.
 @Composable
 private fun OffsetToBaselineOrCenter(offset: Dp, children: @Composable() () -> Unit) {
     Layout(children) { measurables, constraints ->
