@@ -26,7 +26,10 @@ import androidx.ui.graphics.Path
 import androidx.ui.graphics.StrokeCap
 import androidx.ui.graphics.StrokeJoin
 import androidx.ui.core.Px
+import androidx.ui.graphics.BlendMode
 import androidx.ui.graphics.Brush
+import androidx.ui.graphics.Color
+import androidx.ui.graphics.ColorFilter
 import androidx.ui.graphics.withSave
 import kotlin.math.ceil
 
@@ -60,6 +63,8 @@ const val DefaultStrokeLineMiter = 4.0f
 
 val DefaultStrokeLineCap = StrokeCap.butt
 val DefaultStrokeLineJoin = StrokeJoin.miter
+val DefaultTintBlendMode = BlendMode.srcIn
+val DefaultTintColor = Color.Transparent
 
 fun addPathNodes(pathStr: String?): Array<PathNode> =
     if (pathStr == null) {
@@ -87,6 +92,8 @@ class VectorComponent(
         scaleY = defaultHeight.value / viewportHeight
     }
 
+    private var tintPaint: Paint? = null
+
     /**
      * Cached Image of the Vector Graphic to be re-used across draw calls
      * if the Vector graphic is not dirty
@@ -97,7 +104,11 @@ class VectorComponent(
     val size: Int
         get() = root.size
 
-    override fun draw(canvas: Canvas) {
+    fun draw(
+        canvas: Canvas,
+        tintColor: Color = DefaultTintColor,
+        blendMode: BlendMode = DefaultTintBlendMode
+    ) {
         var targetImage = cachedImage
         if (targetImage == null) {
             targetImage = Image(
@@ -107,7 +118,11 @@ class VectorComponent(
             cachedImage = targetImage
             root.draw(Canvas(targetImage))
         }
-        canvas.drawImage(targetImage, Offset.zero, EmptyPaint)
+        canvas.drawImage(targetImage, Offset.zero, obtainTintPaint(tintColor, blendMode))
+    }
+
+    override fun draw(canvas: Canvas) {
+        draw(canvas, DefaultTintColor, DefaultTintBlendMode)
     }
 
     override fun toString(): String {
@@ -118,6 +133,22 @@ class VectorComponent(
             append("\theight: ").append(defaultHeight).append("\n")
             append("\tviewportWidth: ").append(viewportWidth).append("\n")
             append("\tviewportHeight: ").append(viewportHeight).append("\n")
+        }
+    }
+
+    private fun obtainTintPaint(
+        tintColor: Color,
+        blendMode: BlendMode = DefaultTintBlendMode
+    ): Paint {
+        return if (tintColor.alpha == 0.0f) {
+            EmptyPaint
+        } else {
+            val targetPaint = tintPaint ?: Paint().also { tintPaint = it }
+            val colorFilter = targetPaint.colorFilter
+            if (colorFilter?.color != tintColor || colorFilter.blendMode != blendMode) {
+                targetPaint.colorFilter = ColorFilter(tintColor, blendMode)
+            }
+            targetPaint
         }
     }
 }

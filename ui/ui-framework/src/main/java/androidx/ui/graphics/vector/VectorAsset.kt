@@ -19,7 +19,9 @@ package androidx.ui.graphics.vector
 import androidx.compose.Composable
 import androidx.compose.composer
 import androidx.ui.core.Px
+import androidx.ui.graphics.BlendMode
 import androidx.ui.graphics.Brush
+import androidx.ui.graphics.Color
 import androidx.ui.graphics.StrokeCap
 import androidx.ui.graphics.StrokeJoin
 import java.util.Stack
@@ -369,15 +371,23 @@ class VectorPath(
 /**
  * Composes a vector graphic into the composition tree based on the specification
  * provided by given [VectorAsset]
+ * @param[tintColor] Optional color used to tint this vector graphic
+ * @param[tintBlendMode] Optional blend mode used with [tintColor], default is [BlendMode.srcIn]
  */
 @Composable
-fun DrawVector(vectorImage: VectorAsset) {
+fun DrawVector(
+    vectorImage: VectorAsset,
+    tintColor: Color = Color.Transparent,
+    tintBlendMode: BlendMode = DefaultTintBlendMode
+) {
     DrawVector(
         name = vectorImage.name,
         viewportWidth = vectorImage.viewportWidth,
         viewportHeight = vectorImage.viewportHeight,
         defaultWidth = vectorImage.defaultWidth,
-        defaultHeight = vectorImage.defaultHeight
+        defaultHeight = vectorImage.defaultHeight,
+        tintColor = tintColor,
+        tintBlendMode = tintBlendMode
     ) { _, _ ->
         RenderVectorGroup(group = vectorImage.root)
     }

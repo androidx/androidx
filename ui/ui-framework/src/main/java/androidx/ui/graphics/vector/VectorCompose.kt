@@ -27,7 +27,9 @@ import androidx.ui.core.Dp
 import androidx.ui.core.Draw
 import androidx.ui.core.Px
 import androidx.ui.core.withDensity
+import androidx.ui.graphics.BlendMode
 import androidx.ui.graphics.Brush
+import androidx.ui.graphics.Color
 import androidx.ui.graphics.StrokeCap
 import androidx.ui.graphics.StrokeJoin
 
@@ -38,12 +40,16 @@ private const val unset: Float = -1.0f
 
 /**
  * Draw a vector graphic with the provided width, height and viewport dimensions
- * [defaultWidth] Intrinsic width of the Vector in [Dp]
- * [defaultHeight] Intrinsic height of hte Vector in [Dp]
- * [viewportWidth] Width of the viewport space. The viewport is the virtual canvas where paths are drawn on.
+ * @param[defaultWidth] Intrinsic width of the Vector in [Dp]
+ * @param[defaultHeight] Intrinsic height of hte Vector in [Dp]
+ * @param[viewportWidth] Width of the viewport space. The viewport is the virtual canvas where
+ * paths are drawn on.
  *  This parameter is optional. Not providing it will use the [defaultWidth] converted to [Px]
- * [viewportHeight] Height of hte viewport space. The viewport is the virtual canvas where paths are drawn on.
+ * @param[viewportHeight] Height of hte viewport space. The viewport is the virtual canvas where
+ * paths are drawn on.
  *  This parameter is optional. Not providing it will use the [defaultHeight] converted to [Px]
+ * @param[tintColor] Optional color used to tint this vector graphic
+ * @param[tintBlendMode] Optional blend mode used with [tintColor], default is [BlendMode.srcIn]
  */
 @Composable
 fun DrawVector(
@@ -51,6 +57,8 @@ fun DrawVector(
     defaultHeight: Dp,
     viewportWidth: Float = unset,
     viewportHeight: Float = unset,
+    tintColor: Color = DefaultTintColor,
+    tintBlendMode: BlendMode = DefaultTintBlendMode,
     name: String = "",
     @Children children: @Composable() VectorScope.(viewportWidth: Float, viewportHeight: Float) -> Unit
 ) {
@@ -59,17 +67,21 @@ fun DrawVector(
 
     val vpWidth = if (viewportWidth == unset) widthPx.value else viewportWidth
     val vpHeight = if (viewportHeight == unset) heightPx.value else viewportHeight
-    DrawVector(widthPx, heightPx, vpWidth, vpHeight, name, children)
+    DrawVector(widthPx, heightPx, vpWidth, vpHeight, tintColor, tintBlendMode, name, children)
 }
 
 /**
  * Draw a vector graphic with the provided width, height and viewport dimensions
- * [defaultWidth] Intrinsic width of the Vector in [Px]
- * [defaultHeight] Intrinsic height of hte Vector in [Px]
- * [viewportWidth] Width of the viewport space. The viewport is the virtual canvas where paths are drawn on.
- *  This parameter is optional. Not providing it will use the [defaultWidth]
- * [viewportHeight] Height of hte viewport space. The viewport is the virtual canvas where paths are drawn on.
- *  This parameter is optional. Not providing it will use the [defaultHeight]
+ * @param[defaultWidth] Intrinsic width of the Vector in [Px]
+ * @param[defaultHeight] Intrinsic height of hte Vector in [Px]
+ * @param[viewportWidth] Width of the viewport space. The viewport is the virtual canvas
+ *  where paths are drawn on. This parameter is optional. Not providing it will use the
+ *  [defaultWidth]
+ * @param[viewportHeight] Height of hte viewport space. The viewport is the virtual canvas
+ *  where paths are drawn on. This parameter is optional. Not providing it will use the
+ *  [defaultHeight]
+ * @param[tintColor] Optional color used to tint this vector graphic
+ * @param[tintBlendMode] Optional blend mode used with [tintColor], default is [BlendMode.srcIn]
  */
 @Composable
 fun DrawVector(
@@ -77,6 +89,8 @@ fun DrawVector(
     defaultHeight: Px,
     viewportWidth: Float = defaultWidth.value,
     viewportHeight: Float = defaultHeight.value,
+    tintColor: Color = DefaultTintColor,
+    tintBlendMode: BlendMode = DefaultTintBlendMode,
     name: String = "",
     @Children children: @Composable() VectorScope.(viewportWidth: Float, viewportHeight: Float) -> Unit
 ) {
@@ -100,7 +114,7 @@ fun DrawVector(
     }
 
     Draw { canvas, _ ->
-        vector.draw(canvas)
+        vector.draw(canvas, tintColor, tintBlendMode)
     }
 }
 

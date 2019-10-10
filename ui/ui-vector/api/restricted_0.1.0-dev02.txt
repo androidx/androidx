@@ -76,6 +76,7 @@ package androidx.ui.graphics.vector {
 
   public final class VectorComponent extends androidx.ui.graphics.vector.VNode {
     ctor public VectorComponent(String name, float viewportWidth, float viewportHeight, androidx.ui.core.Px defaultWidth, androidx.ui.core.Px defaultHeight);
+    method public void draw(androidx.ui.graphics.Canvas canvas, androidx.ui.graphics.Color tintColor = DefaultTintColor, androidx.ui.graphics.BlendMode blendMode = DefaultTintBlendMode);
     method public void draw(androidx.ui.graphics.Canvas canvas);
     method public androidx.ui.core.Px getDefaultHeight();
     method public androidx.ui.core.Px getDefaultWidth();
@@ -120,6 +121,8 @@ package androidx.ui.graphics.vector {
     method public static androidx.ui.graphics.vector.PathNode![] addPathNodes(String? pathStr);
     method public static androidx.ui.graphics.StrokeCap getDefaultStrokeLineCap();
     method public static androidx.ui.graphics.StrokeJoin getDefaultStrokeLineJoin();
+    method public static androidx.ui.graphics.BlendMode getDefaultTintBlendMode();
+    method public static androidx.ui.graphics.Color getDefaultTintColor();
     method public static androidx.ui.graphics.vector.PathNode![] getEmptyPath();
     field public static final float DefaultAlpha = 1.0f;
     field public static final String DefaultGroupName = "";
