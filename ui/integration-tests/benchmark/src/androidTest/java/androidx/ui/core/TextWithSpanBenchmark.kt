@@ -19,7 +19,6 @@ package androidx.ui.core
 import android.app.Activity
 import androidx.benchmark.junit4.BenchmarkRule
 import androidx.test.filters.LargeTest
-import androidx.test.filters.Suppress
 import androidx.test.rule.ActivityTestRule
 import androidx.ui.benchmark.measureDrawPerf
 import androidx.ui.benchmark.measureFirstCompose
@@ -38,7 +37,6 @@ import org.junit.runners.Parameterized
 /**
  * The benchmark for [Text] widget with the input being styled text in form of composable [Span]s.
  */
-@Suppress
 @LargeTest
 @RunWith(Parameterized::class)
 class TextWithSpanBenchmark(
