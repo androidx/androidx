@@ -169,7 +169,8 @@ class MediaSessionImplBase implements MediaSession.MediaSessionImpl {
         mSessionUri = new Uri.Builder().scheme(MediaSessionImplBase.class.getName()).appendPath(id)
                 .appendPath(String.valueOf(SystemClock.elapsedRealtime())).build();
         mSessionToken = new SessionToken(new SessionTokenImplBase(Process.myUid(),
-                SessionToken.TYPE_SESSION, context.getPackageName(), mSessionStub, tokenExtras));
+                SessionToken.TYPE_SESSION, context.getPackageName(), mSessionStub, tokenExtras,
+                MediaUtils.CURRENT_VERSION));
         String sessionCompatId = TextUtils.join(DEFAULT_MEDIA_SESSION_TAG_DELIM,
                 new String[] {DEFAULT_MEDIA_SESSION_TAG_PREFIX, id});
 
@@ -1032,9 +1033,9 @@ class MediaSessionImplBase implements MediaSession.MediaSessionImpl {
     }
 
     @Override
-    public void connectFromService(IMediaController caller, String packageName, int pid, int uid,
-            @Nullable Bundle connectionHints) {
-        mSessionStub.connect(caller, packageName, pid, uid, connectionHints);
+    public void connectFromService(IMediaController caller, int controllerVersion,
+            String packageName, int pid, int uid, @Nullable Bundle connectionHints) {
+        mSessionStub.connect(caller, controllerVersion, packageName, pid, uid, connectionHints);
     }
 
     /**

@@ -27,6 +27,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.core.util.ObjectsCompat;
+import androidx.versionedparcelable.NonParcelField;
 import androidx.versionedparcelable.ParcelField;
 import androidx.versionedparcelable.VersionedParcelize;
 
@@ -47,6 +48,8 @@ final class SessionTokenImplBase implements SessionToken.SessionTokenImpl {
     ComponentName mComponentName;
     @ParcelField(7)
     Bundle mExtras;
+    @NonParcelField // TODO(sungsoo): Change to @Parcelfield(8) once VersionedParcelable fixed.
+    int mSessionVersion;
 
     /**
      * Constructor for the token. You can only create token for session service or library service
@@ -63,10 +66,11 @@ final class SessionTokenImplBase implements SessionToken.SessionTokenImpl {
         mType = type;
         mISession = null;
         mExtras = null;
+        mSessionVersion = MediaUtils.VERSION_UNKNOWN;
     }
 
     SessionTokenImplBase(int uid, int type, String packageName, IMediaSession iSession,
-            Bundle tokenExtras) {
+            Bundle tokenExtras, int sessionVersion) {
         mUid = uid;
         mType = type;
         mPackageName = packageName;
@@ -74,6 +78,7 @@ final class SessionTokenImplBase implements SessionToken.SessionTokenImpl {
         mComponentName = null;
         mISession = iSession.asBinder();
         mExtras = tokenExtras;
+        mSessionVersion = sessionVersion;
     }
 
     /**
@@ -155,5 +160,10 @@ final class SessionTokenImplBase implements SessionToken.SessionTokenImpl {
     @Override
     public Object getBinder() {
         return mISession;
+    }
+
+    @Override
+    public int getSessionVersion() {
+        return mSessionVersion;
     }
 }

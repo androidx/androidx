@@ -398,9 +398,11 @@ public class MediaSession implements AutoCloseable {
      * @param uid controller uid
      * @param connectionHints controller connection hints
      */
-    void handleControllerConnectionFromService(IMediaController controller, String packageName,
-            int pid, int uid, @Nullable Bundle connectionHints) {
-        mImpl.connectFromService(controller, packageName, pid, uid, connectionHints);
+    void handleControllerConnectionFromService(IMediaController controller,
+            int controllerVersion, String packageName, int pid, int uid,
+            @Nullable Bundle connectionHints) {
+        mImpl.connectFromService(controller, controllerVersion, packageName, pid, uid,
+                connectionHints);
     }
 
     IBinder getLegacyBrowerServiceBinder() {
@@ -892,6 +894,7 @@ public class MediaSession implements AutoCloseable {
      * Information of a controller.
      */
     public static final class ControllerInfo {
+        private final int mControllerVersion;
         private final RemoteUserInfo mRemoteUserInfo;
         private final boolean mIsTrusted;
         private final ControllerCb mControllerCb;
@@ -899,6 +902,7 @@ public class MediaSession implements AutoCloseable {
 
         /**
          * @param remoteUserInfo remote user info
+         * @param version connected controller version
          * @param trusted {@code true} if trusted, {@code false} otherwise
          * @param cb ControllerCb. Can be {@code null} only when a MediaBrowserCompat connects to
          *           MediaSessionService and ControllerInfo is needed for
@@ -907,9 +911,10 @@ public class MediaSession implements AutoCloseable {
          *                        connection. The contents of this bundle may affect the
          *                        connection result.
          */
-        ControllerInfo(@NonNull RemoteUserInfo remoteUserInfo, boolean trusted,
+        ControllerInfo(@NonNull RemoteUserInfo remoteUserInfo, int version, boolean trusted,
                 @Nullable ControllerCb cb, @Nullable Bundle connectionHints) {
             mRemoteUserInfo = remoteUserInfo;
+            mControllerVersion = version;
             mIsTrusted = trusted;
             mControllerCb = cb;
             if (connectionHints == null
@@ -1252,8 +1257,8 @@ public class MediaSession implements AutoCloseable {
         PlaybackInfo getPlaybackInfo();
         PendingIntent getSessionActivity();
         IBinder getLegacyBrowserServiceBinder();
-        void connectFromService(IMediaController caller, String packageName, int pid, int uid,
-                @Nullable Bundle connectionHints);
+        void connectFromService(IMediaController caller, int controllerVersion, String packageName,
+                int pid, int uid, @Nullable Bundle connectionHints);
     }
 
     /**
