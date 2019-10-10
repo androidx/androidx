@@ -14,9 +14,6 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryGroups
-import androidx.build.LibraryVersions
-import androidx.build.Publish
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 import static androidx.build.dependencies.DependenciesKt.*
@@ -33,35 +30,17 @@ dependencies {
 
     implementation(KOTLIN_COMPOSE_STDLIB)
 
-    implementation "androidx.annotation:annotation:1.1.0"
+    implementation project(":annotation:annotation-sampled")
 
-    api project(":ui:ui-animation-core")
-
-    api project(":compose:compose-runtime")
-    api project(":ui:ui-core")
-    api project(":ui:ui-framework")
-    api project(":ui:ui-layout")
-
-    testImplementation(ANDROIDX_TEST_RULES)
-    testImplementation(ANDROIDX_TEST_RUNNER)
-    testImplementation(JUNIT)
-
-    androidTestImplementation(ANDROIDX_TEST_RULES)
-    androidTestImplementation(ANDROIDX_TEST_RUNNER)
-    androidTestImplementation(JUNIT)
+    implementation project(":compose:compose-runtime")
+    implementation project(":ui:ui-animation")
+    implementation project(":ui:ui-text")
 }
 
-androidx {
-    name = "Composables for Animation Lib"
-    publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenVersion = LibraryVersions.UI
-    mavenGroup = LibraryGroups.UI
-    inceptionYear = "2019"
-    description = "Composables for Declarative Animation library"
-}
-
-tasks.withType(KotlinCompile).configureEach {
-    kotlinOptions {
-        useIR = true
+android {
+    tasks.withType(KotlinCompile).configureEach {
+        kotlinOptions {
+            useIR = true
+        }
     }
 }
