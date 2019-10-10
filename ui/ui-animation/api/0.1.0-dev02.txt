@@ -13,6 +13,11 @@ package androidx.ui.animation {
     method public androidx.ui.graphics.Color interpolate(androidx.ui.graphics.Color a, androidx.ui.graphics.Color b, float fraction);
   }
 
+  public final class CrossfadeKt {
+    ctor public CrossfadeKt();
+    method public static <T> void Crossfade(T? current, kotlin.jvm.functions.Function1<? super T,kotlin.Unit> children);
+  }
+
   public final class DpPropKey implements androidx.animation.PropKey<androidx.ui.core.Dp> {
     ctor public DpPropKey();
     method public androidx.ui.core.Dp interpolate(androidx.ui.core.Dp a, androidx.ui.core.Dp b, float fraction);
