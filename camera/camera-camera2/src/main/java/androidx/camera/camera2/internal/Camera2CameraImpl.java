@@ -215,16 +215,11 @@ final class Camera2CameraImpl implements CameraInternal {
      */
     @Override
     public void open() {
-        if (Looper.myLooper() != mHandler.getLooper()) {
-            mHandler.post(new Runnable() {
-                @Override
-                public void run() {
-                    Camera2CameraImpl.this.open();
-                }
-            });
-            return;
-        }
+        mHandler.post(this::openInternal);
+    }
 
+    @ExecutedBy("mHandler")
+    private void openInternal() {
         switch (mState) {
             case INITIALIZED:
                 openCameraDevice();
@@ -712,7 +707,7 @@ final class Camera2CameraImpl implements CameraInternal {
         if (mState == InternalState.OPENED) {
             openCaptureSession();
         } else {
-            open();
+            openInternal();
         }
 
         updateCameraControlPreviewAspectRatio(useCasesChangedToOnline);
