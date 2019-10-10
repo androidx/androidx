@@ -25,7 +25,6 @@ import android.hardware.camera2.CameraManager;
 import android.hardware.camera2.CaptureRequest;
 import android.os.Build;
 import android.os.Handler;
-import android.os.Looper;
 import android.text.TextUtils;
 import android.util.Log;
 import android.util.Rational;
@@ -531,84 +530,55 @@ final class Camera2CameraImpl implements CameraInternal {
      * <p>The use case must also be online in order for it to issue capture requests.
      */
     @Override
-    public void onUseCaseActive(@NonNull final UseCase useCase) {
-        if (Looper.myLooper() != mHandler.getLooper()) {
-            mHandler.post(new Runnable() {
-                @Override
-                public void run() {
-                    Camera2CameraImpl.this.onUseCaseActive(useCase);
-                }
-            });
-            return;
-        }
+    public void onUseCaseActive(@NonNull UseCase useCase) {
+        Preconditions.checkNotNull(useCase);
+        mHandler.post(() -> {
+            Log.d(TAG, "Use case " + useCase + " ACTIVE for camera "
+                    + mCameraInfoInternal.getCameraId());
 
-        Log.d(TAG,
-                "Use case " + useCase + " ACTIVE for camera " + mCameraInfoInternal.getCameraId());
-
-        mUseCaseAttachState.setUseCaseActive(useCase);
-        mUseCaseAttachState.updateUseCase(useCase);
-        updateCaptureSessionConfig();
+            mUseCaseAttachState.setUseCaseActive(useCase);
+            mUseCaseAttachState.updateUseCase(useCase);
+            updateCaptureSessionConfig();
+        });
     }
+
 
     /** Removes the use case from a state of issuing capture requests. */
     @Override
-    public void onUseCaseInactive(@NonNull final UseCase useCase) {
-        if (Looper.myLooper() != mHandler.getLooper()) {
-            mHandler.post(new Runnable() {
-                @Override
-                public void run() {
-                    Camera2CameraImpl.this.onUseCaseInactive(useCase);
-                }
-            });
-            return;
-        }
-
-        Log.d(TAG, "Use case " + useCase + " INACTIVE for camera "
-                + mCameraInfoInternal.getCameraId());
-        mUseCaseAttachState.setUseCaseInactive(useCase);
-
-        updateCaptureSessionConfig();
+    public void onUseCaseInactive(@NonNull UseCase useCase) {
+        Preconditions.checkNotNull(useCase);
+        mHandler.post(() -> {
+            Log.d(TAG, "Use case " + useCase + " INACTIVE for camera "
+                    + mCameraInfoInternal.getCameraId());
+            mUseCaseAttachState.setUseCaseInactive(useCase);
+            updateCaptureSessionConfig();
+        });
     }
 
     /** Updates the capture requests based on the latest settings. */
     @Override
-    public void onUseCaseUpdated(@NonNull final UseCase useCase) {
-        if (Looper.myLooper() != mHandler.getLooper()) {
-            mHandler.post(new Runnable() {
-                @Override
-                public void run() {
-                    Camera2CameraImpl.this.onUseCaseUpdated(useCase);
-                }
-            });
-            return;
-        }
-
-        Log.d(TAG,
-                "Use case " + useCase + " UPDATED for camera " + mCameraInfoInternal.getCameraId());
-        mUseCaseAttachState.updateUseCase(useCase);
-
-        updateCaptureSessionConfig();
+    public void onUseCaseUpdated(@NonNull UseCase useCase) {
+        Preconditions.checkNotNull(useCase);
+        mHandler.post(() -> {
+            Log.d(TAG, "Use case " + useCase + " UPDATED for camera "
+                    + mCameraInfoInternal.getCameraId());
+            mUseCaseAttachState.updateUseCase(useCase);
+            updateCaptureSessionConfig();
+        });
     }
 
     @Override
-    public void onUseCaseReset(@NonNull final UseCase useCase) {
-        if (Looper.myLooper() != mHandler.getLooper()) {
-            mHandler.post(new Runnable() {
-                @Override
-                public void run() {
-                    Camera2CameraImpl.this.onUseCaseReset(useCase);
-                }
-            });
-            return;
-        }
+    public void onUseCaseReset(@NonNull UseCase useCase) {
+        Preconditions.checkNotNull(useCase);
+        mHandler.post(() -> {
+            Log.d(TAG, "Use case " + useCase + " RESET for camera "
+                    + mCameraInfoInternal.getCameraId());
+            mUseCaseAttachState.updateUseCase(useCase);
 
-        Log.d(TAG,
-                "Use case " + useCase + " RESET for camera " + mCameraInfoInternal.getCameraId());
-        mUseCaseAttachState.updateUseCase(useCase);
-
-        resetCaptureSession(/*abortInFlightCaptures=*/false);
-        updateCaptureSessionConfig();
-        openCaptureSession();
+            resetCaptureSession(/*abortInFlightCaptures=*/false);
+            updateCaptureSessionConfig();
+            openCaptureSession();
+        });
     }
 
     /**
@@ -701,9 +671,9 @@ final class Camera2CameraImpl implements CameraInternal {
     private void updateCameraControlPreviewAspectRatio(Collection<UseCase> useCases) {
         for (UseCase useCase : useCases) {
             if (useCase instanceof Preview) {
-                Size resolutoin = useCase.getAttachedSurfaceResolution(
+                Size resolution = useCase.getAttachedSurfaceResolution(
                         mCameraInfoInternal.getCameraId());
-                Rational aspectRatio = new Rational(resolutoin.getWidth(), resolutoin.getHeight());
+                Rational aspectRatio = new Rational(resolution.getWidth(), resolution.getHeight());
                 mCameraControlInternal.setPreviewAspectRatio(aspectRatio);
                 return;
             }
@@ -925,13 +895,8 @@ final class Camera2CameraImpl implements CameraInternal {
         if (!errorListeners.isEmpty()) {
             SessionConfig.ErrorListener errorListener = errorListeners.get(0);
             Log.d(TAG, "Posting surface closed", new Throwable());
-            executor.execute(new Runnable() {
-                @Override
-                public void run() {
-                    errorListener.onError(sessionConfigError,
-                            SessionConfig.SessionError.SESSION_ERROR_SURFACE_NEEDS_RESET);
-                }
-            });
+            executor.execute(() -> errorListener.onError(sessionConfigError,
+                    SessionConfig.SessionError.SESSION_ERROR_SURFACE_NEEDS_RESET));
         }
     }
 
@@ -942,7 +907,8 @@ final class Camera2CameraImpl implements CameraInternal {
      * explicitly released before calling this method so the camera can track the state of
      * closing that session.
      */
-    @SuppressWarnings("FutureReturnValueIgnored")
+    @SuppressWarnings({"WeakerAccess", /* synthetic accessor */
+            "FutureReturnValueIgnored"})
     @WorkerThread
     void resetCaptureSession(boolean abortInFlightCaptures) {
         Preconditions.checkState(mCaptureSession != null);
