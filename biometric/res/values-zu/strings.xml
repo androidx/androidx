@@ -17,13 +17,13 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="fingerprint_dialog_touch_sensor" msgid="5354590751262189738">"Thinta inzwa yesigxivizo somunwe"</string>
+    <string name="fingerprint_dialog_touch_sensor" msgid="5354590751262189738">"Thinta inzwa yezigxivizo zeminwe"</string>
     <string name="fingerprint_not_recognized" msgid="5491287833813257925">"Akwaziwa"</string>
     <string name="accessibility_fingerprint_dialog_help_area" msgid="6241458715391513061">"Indawo yosizo lomlayezo"</string>
-    <string name="fingerprint_error_hw_not_available" msgid="3976825677335166260">"Izingxenyekazi zekhompuyutha zezingxivizo zeminwe azitholakali."</string>
+    <string name="fingerprint_error_hw_not_available" msgid="3976825677335166260">"Izingxenyekazi zekhompuyutha zezigxivizo zeminwe azitholakali."</string>
     <string name="fingerprint_error_no_fingerprints" msgid="3350805046152877040">"Azikho izigxivizo zeminwe ezibhalisiwe."</string>
     <string name="fingerprint_error_hw_not_present" msgid="1176237289575184578">"Le divayisi ayinayo inzwa yezigxivizo zeminwe"</string>
-    <string name="fingerprint_error_user_canceled" msgid="3421037373085129417">"Umsebenzi wesigxivizo somunwe sikhanselwe umsebenzisi."</string>
+    <string name="fingerprint_error_user_canceled" msgid="3421037373085129417">"Umsebenzi wezigxivizo zeminwe ukhanselwe umsebenzisi."</string>
     <string name="fingerprint_error_lockout" msgid="1651062876313169162">"Imizamo eminingi kakhulu. Sicela uzame futhi ngokuhamba kwesikhathi."</string>
     <string name="default_error_msg" msgid="7497355367608150274">"Iphutha elingaziwe"</string>
     <string name="generic_error_user_canceled" msgid="7474799539658018076">"Ukugunyaza kukhanselwe umsebenzisi."</string>
