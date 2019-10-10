@@ -4446,6 +4446,10 @@ public class ExifInterface {
                         getRw2Attributes(inputStream);
                         break;
                     }
+                    case IMAGE_TYPE_PNG: {
+                        getPngAttributes(inputStream);
+                        break;
+                    }
                     case IMAGE_TYPE_ARW:
                     case IMAGE_TYPE_CR2:
                     case IMAGE_TYPE_DNG:
@@ -5460,7 +5464,7 @@ public class ExifInterface {
         updateImageSizeValues(in, IFD_TYPE_THUMBNAIL);
 
         // Check if each image data is in valid position.
-        validateImages(in);
+        validateImages();
 
         if (mMimeType == IMAGE_TYPE_PEF) {
             // PEF files contain a MakerNote data, which contains the data for ColorSpace tag.
@@ -5843,8 +5847,11 @@ public class ExifInterface {
         // 2.1. Integers and byte order
         in.setByteOrder(ByteOrder.BIG_ENDIAN);
 
+        int bytesRead = 0;
+
         // Skip the signature bytes
         in.seek(PNG_SIGNATURE.length);
+        bytesRead += PNG_SIGNATURE.length;
 
         try {
             while (true) {
@@ -5859,12 +5866,14 @@ public class ExifInterface {
                 // See PNG (Portable Network Graphics) Specification, Version 1.2,
                 // 3.2. Chunk layout
                 int length = in.readInt();
+                bytesRead += 4;
 
                 byte[] type = new byte[PNG_CHUNK_LENGTH_BYTE_LENGTH];
                 if (in.read(type) != type.length) {
                     throw new IOException("Encountered invalid length while parsing PNG chunk"
                             + "type");
                 }
+                bytesRead += PNG_CHUNK_LENGTH_BYTE_LENGTH;
 
                 if (Arrays.equals(type, PNG_CHUNK_TYPE_IEND)) {
                     // IEND marks the end of the image.
@@ -5877,12 +5886,17 @@ public class ExifInterface {
                                 + "type: " + byteArrayToHexString(type));
                     }
                     readExifSegment(data, IFD_TYPE_PRIMARY);
+
+                    validateImages();
                     break;
                 } else {
                     // Skip to next chunk
                     in.skipBytes(length + PNG_CHUNK_CRC_BYTE_LENGTH);
+                    bytesRead += length + PNG_CHUNK_CRC_BYTE_LENGTH;
                 }
             }
+            // Save offset values for handleThumbnailFromJfif() function
+            mExifOffset = bytesRead;
         } catch (EOFException e) {
             // Should not reach here. Will only reach here if the file is corrupted or
             // does not follow the PNG specifications
@@ -6384,7 +6398,7 @@ public class ExifInterface {
             int thumbnailLength = jpegInterchangeFormatLengthAttribute.getIntValue(mExifByteOrder);
 
             if (mMimeType == IMAGE_TYPE_JPEG || mMimeType == IMAGE_TYPE_RAF
-                    || mMimeType == IMAGE_TYPE_RW2) {
+                    || mMimeType == IMAGE_TYPE_RW2 || mMimeType == IMAGE_TYPE_PNG) {
                 thumbnailOffset += mExifOffset;
             } else if (mMimeType == IMAGE_TYPE_ORF) {
                 // Update offset value since RAF files have IFD data preceding MakerNote data.
@@ -6530,12 +6544,13 @@ public class ExifInterface {
     }
 
     // Validate primary, preview, thumbnail image data by comparing image size
-    private void validateImages(InputStream in) throws IOException {
+    private void validateImages() throws IOException {
         // Swap images based on size (primary > preview > thumbnail)
         swapBasedOnImageSize(IFD_TYPE_PRIMARY, IFD_TYPE_PREVIEW);
         swapBasedOnImageSize(IFD_TYPE_PRIMARY, IFD_TYPE_THUMBNAIL);
         swapBasedOnImageSize(IFD_TYPE_PREVIEW, IFD_TYPE_THUMBNAIL);
 
+        // TODO (b/142296453): Revise image width/height setting logic
         // Check if image has PixelXDimension/PixelYDimension tags, which contain valid image
         // sizes, excluding padding at the right end or bottom end of the image to make sure that
         // the values are multiples of 64. See JEITA CP-3451C Table 5 and Section 4.8.1. B.

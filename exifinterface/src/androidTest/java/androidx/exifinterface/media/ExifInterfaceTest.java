@@ -84,11 +84,13 @@ public class ExifInterfaceTest {
     private static final String EXIF_BYTE_ORDER_MM_JPEG = "image_exif_byte_order_mm.jpg";
     private static final String LG_G4_ISO_800_DNG = "lg_g4_iso_800_dng.dng";
     private static final String LG_G4_ISO_800_JPG = "lg_g4_iso_800_jpg.jpg";
+    private static final String EXIF_BYTE_ORDER_II_PNG = "image_exif_byte_order_ii_png.png";
     private static final int[] IMAGE_RESOURCES = new int[] {
             R.raw.image_exif_byte_order_ii, R.raw.image_exif_byte_order_mm, R.raw.lg_g4_iso_800_dng,
-            R.raw.lg_g4_iso_800_jpg};
+            R.raw.lg_g4_iso_800_jpg, R.raw.image_exif_byte_order_ii_png};
     private static final String[] IMAGE_FILENAMES = new String[] {
-            EXIF_BYTE_ORDER_II_JPEG, EXIF_BYTE_ORDER_MM_JPEG, LG_G4_ISO_800_DNG, LG_G4_ISO_800_JPG};
+            EXIF_BYTE_ORDER_II_JPEG, EXIF_BYTE_ORDER_MM_JPEG, LG_G4_ISO_800_DNG,
+            LG_G4_ISO_800_JPG, EXIF_BYTE_ORDER_II_PNG};
 
     private static final int USER_READ_WRITE = 0600;
     private static final String TEST_TEMP_FILE_NAME = "testImage";
@@ -398,7 +400,7 @@ public class ExifInterfaceTest {
     @Test
     @LargeTest
     public void testReadExifDataFromLgG4Iso800Dng() throws Throwable {
-        testExifInterfaceForRaw(LG_G4_ISO_800_DNG, R.array.lg_g4_iso_800_dng);
+        testExifInterface(LG_G4_ISO_800_DNG, R.array.lg_g4_iso_800_dng);
     }
 
     @Test
@@ -412,6 +414,12 @@ public class ExifInterfaceTest {
     public void testReadExifDataFromStandaloneData() throws Throwable {
         testExifInterfaceForStandalone(EXIF_BYTE_ORDER_II_JPEG, R.array.exifbyteorderii_standalone);
         testExifInterfaceForStandalone(EXIF_BYTE_ORDER_MM_JPEG, R.array.exifbyteordermm_standalone);
+    }
+
+    @Test
+    @LargeTest
+    public void testReadExifDataFromExifByteOrderIIPng() throws Throwable {
+        testExifInterface(EXIF_BYTE_ORDER_II_PNG, R.array.exifbyteorderii_png);
     }
 
     @Test
@@ -972,7 +980,7 @@ public class ExifInterfaceTest {
         testSaveAttributes_withFileName(fileName, expectedValue);
     }
 
-    private void testExifInterfaceForRaw(String fileName, int typedArrayResourceId)
+    private void testExifInterface(String fileName, int typedArrayResourceId)
             throws IOException {
         ExpectedValue expectedValue = new ExpectedValue(
                 getApplicationContext().getResources().obtainTypedArray(typedArrayResourceId));
@@ -980,8 +988,8 @@ public class ExifInterfaceTest {
         // Test for reading from external data storage.
         testExifInterfaceCommon(fileName, expectedValue);
 
-        // Since ExifInterface does not support for saving attributes for RAW files, do not test
-        // about writing back in here.
+        // Since ExifInterface does not support for saving attributes for non-JPEG files, do not
+        // test about writing back in here.
     }
 
     private void generateRandomExifTag(ByteBuffer buffer, int ifdType, Random random) {
