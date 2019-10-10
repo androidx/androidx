@@ -23,11 +23,11 @@ import androidx.build.Publish
 
 plugins {
     id("AndroidXPlugin")
-    id("java-library")
+    id("kotlin")
 }
 
 dependencies {
-    compileOnly("androidx.annotation:annotation:1.1.0")
+    compileOnly(KOTLIN_STDLIB)
 }
 
 androidx {
