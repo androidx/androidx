@@ -60,11 +60,45 @@ class NestedInflatedFragmentTest {
 
     @Test
     @UiThreadTest
+    fun inflatedChildFragmentWithFragmentContainerView() {
+        val activity = activityRule.activity
+        val fm = activity.supportFragmentManager
+
+        val parentFragment = ParentFragmentContainerView()
+        fm.beginTransaction().add(android.R.id.content, parentFragment).commitNow()
+
+        fm.beginTransaction()
+            .replace(android.R.id.content, SimpleFragment())
+            .addToBackStack(null)
+            .commit()
+        fm.executePendingTransactions()
+
+        fm.popBackStackImmediate()
+    }
+
+    @Test
+    @UiThreadTest
     fun inflatedChildFragmentHasAttributesOnInflate() {
         val activity = activityRule.activity
         val fm = activity.supportFragmentManager
 
         val parentFragment = ParentFragment()
+        fm.beginTransaction().add(android.R.id.content, parentFragment).commitNow()
+
+        val child = parentFragment.childFragmentManager.findFragmentById(R.id.child_fragment) as
+                InflatedChildFragment
+
+        assertThat(child.name).isEqualTo("androidx.fragment.app" +
+                ".NestedInflatedFragmentTest\$InflatedChildFragment")
+    }
+
+    @Test
+    @UiThreadTest
+    fun inflatedChildFragmentHasAttributesOnInflateWithFragmentContainerView() {
+        val activity = activityRule.activity
+        val fm = activity.supportFragmentManager
+
+        val parentFragment = ParentFragmentContainerView()
         fm.beginTransaction().add(android.R.id.content, parentFragment).commitNow()
 
         val child = parentFragment.childFragmentManager.findFragmentById(R.id.child_fragment) as
@@ -101,10 +135,54 @@ class NestedInflatedFragmentTest {
         fm.executePendingTransactions()
     }
 
+    @Test
+    @UiThreadTest
+    fun nestedSetUserVisibleHintWithFragmentContainerView() {
+        val fm = activityRule.activity.supportFragmentManager
+
+        // Add a UserVisibleHintParentFragment
+        var fragment = UserVisibleHintParentFragmentContainerView()
+        fm.beginTransaction().add(android.R.id.content, fragment).commit()
+        fm.executePendingTransactions()
+
+        fragment.userVisibleHint = false
+
+        val state = fm.saveFragmentInstanceState(fragment)
+        fm.beginTransaction().remove(fragment).commit()
+        fm.executePendingTransactions()
+
+        fragment = UserVisibleHintParentFragmentContainerView()
+        fragment.setInitialSavedState(state)
+        fragment.userVisibleHint = true
+
+        fm.beginTransaction().add(android.R.id.content, fragment).commit()
+        fm.executePendingTransactions()
+    }
+
     open class ParentFragment : Fragment(R.layout.nested_inflated_fragment_parent)
+
+    open class ParentFragmentContainerView :
+        Fragment(R.layout.nested_inflated_fragment_container_parent)
 
     @Suppress("OverridingDeprecatedMember", "DEPRECATION")
     class UserVisibleHintParentFragment : ParentFragment() {
+        override fun setUserVisibleHint(isVisibleToUser: Boolean) {
+            super.setUserVisibleHint(isVisibleToUser)
+            if (host != null) {
+                for (fragment in childFragmentManager.fragments) {
+                    fragment.userVisibleHint = isVisibleToUser
+                }
+            }
+        }
+
+        override fun onAttachFragment(childFragment: Fragment) {
+            super.onAttachFragment(childFragment)
+            childFragment.userVisibleHint = userVisibleHint
+        }
+    }
+
+    @Suppress("OverridingDeprecatedMember", "DEPRECATION")
+    class UserVisibleHintParentFragmentContainerView : ParentFragmentContainerView() {
         override fun setUserVisibleHint(isVisibleToUser: Boolean) {
             super.setUserVisibleHint(isVisibleToUser)
             if (host != null) {

@@ -15,15 +15,13 @@
   limitations under the License.
   -->
 
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/inflated_container_parent"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent">
-
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:orientation="vertical">
     <androidx.fragment.app.FragmentContainerView
-        android:id="@+id/fragment_container_view"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:name="androidx.fragment.app.InflatedFragment"
-        android:tag="fragment1"/>
-</FrameLayout>
+              android:name="androidx.fragment.app.FragmentLifecycleTest$RetainedInflatedChildFragment"
+              android:id="@+id/child_fragment"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent" />
+</LinearLayout>

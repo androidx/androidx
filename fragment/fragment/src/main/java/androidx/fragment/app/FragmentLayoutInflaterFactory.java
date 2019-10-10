@@ -47,6 +47,10 @@ class FragmentLayoutInflaterFactory implements LayoutInflater.Factory2 {
     @Override
     public View onCreateView(@Nullable View parent, @NonNull String name, @NonNull Context context,
             @NonNull AttributeSet attrs) {
+        if ("androidx.fragment.app.FragmentContainerView".equals(name)) {
+            return new FragmentContainerView(context, attrs, mFragmentManager);
+        }
+
         if (!"fragment".equals(name)) {
             return null;
         }

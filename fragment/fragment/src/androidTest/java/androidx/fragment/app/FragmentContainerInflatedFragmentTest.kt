@@ -16,6 +16,9 @@
 
 package androidx.fragment.app
 
+import android.content.Context
+import android.os.Bundle
+import android.util.AttributeSet
 import androidx.fragment.app.test.FragmentTestActivity
 import androidx.fragment.test.R
 import androidx.test.core.app.ActivityScenario
@@ -54,9 +57,7 @@ class FragmentContainerInflatedFragmentTest {
                     assertThat(e)
                         .hasMessageThat()
                         .contains(
-                            "FragmentContainerView must have an android:id to add Fragment " +
-                                    "androidx.fragment.app.StrictViewFragment with tag " +
-                                    "no_id_fragment."
+                            "Error inflating class androidx.fragment.app.FragmentContainerView"
                         )
                 }
             }
@@ -134,8 +135,44 @@ class FragmentContainerInflatedFragmentTest {
             assertThat(recreatedChild).isNotNull()
         }
     }
+
+    @Test
+    fun inflatedChildFragmentHasAttributesOnInflate() {
+        with(ActivityScenario.launch(SimpleContainerActivity::class.java)) {
+            val parent = InflatedParentFragment()
+
+            withActivity {
+                supportFragmentManager
+                    .beginTransaction()
+                    .add(android.R.id.content, parent)
+                    .commitNow()
+            }
+
+            val childFragmentManager = parent.childFragmentManager
+            val child = childFragmentManager.findFragmentByTag("fragment1") as InflatedFragment
+
+            assertThat(child.name).isEqualTo(
+                "androidx.fragment.app.InflatedFragment"
+            )
+        }
+    }
 }
 
 class SimpleContainerActivity : FragmentActivity(R.layout.simple_container)
 
 class InflatedParentFragment : StrictViewFragment(R.layout.inflated_fragment_container_view)
+
+class InflatedFragment() : StrictViewFragment() {
+    var name: String? = null
+
+    override fun onInflate(
+        context: Context,
+        attrs: AttributeSet,
+        savedInstanceState: Bundle?
+    ) {
+        val a = context.obtainStyledAttributes(attrs,
+            androidx.fragment.R.styleable.FragmentContainerView)
+        name = a.getString(androidx.fragment.R.styleable.FragmentContainerView_android_name)
+        a.recycle()
+    }
+}
