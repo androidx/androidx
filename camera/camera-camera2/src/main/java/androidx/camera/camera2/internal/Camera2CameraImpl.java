@@ -404,6 +404,74 @@ final class Camera2CameraImpl implements CameraInternal {
         mCaptureSession.cancelIssuedCaptureRequests();
     }
 
+    /**
+     * Release the camera.
+     *
+     * <p>Once the camera is released it is permanently closed. A new instance must be created to
+     * access the camera.
+     */
+    @NonNull
+    @Override
+    public ListenableFuture<Void> release() {
+        return CallbackToFutureAdapter.getFuture(
+                completer -> {
+                    mHandler.post(
+                            () -> Futures.propagate(releaseInternal(), completer));
+                    return "Release[request=" + mReleaseRequestCount.getAndIncrement() + "]";
+                });
+    }
+
+    @ExecutedBy("mHandler")
+    private ListenableFuture<Void> releaseInternal() {
+        ListenableFuture<Void> future = getOrCreateUserReleaseFuture();
+
+        switch (mState) {
+            case INITIALIZED:
+            case PENDING_OPEN:
+                Preconditions.checkState(mCameraDevice == null);
+                setState(InternalState.RELEASING);
+                Preconditions.checkState(isSessionCloseComplete());
+                finishClose();
+                break;
+            case OPENED:
+                setState(InternalState.RELEASING);
+                closeCamera(/*abortInFlightCaptures=*/true);
+                break;
+            case OPENING:
+            case CLOSING:
+            case REOPENING:
+            case RELEASING:
+                // Wait for the camera async callback to finish releasing
+                setState(InternalState.RELEASING);
+                break;
+            default:
+                Log.d(TAG, "release() ignored due to being in state: " + mState);
+        }
+
+        return future;
+    }
+
+    @ExecutedBy("mHandler")
+    private ListenableFuture<Void> getOrCreateUserReleaseFuture() {
+        if (mUserReleaseFuture == null) {
+            if (mState != InternalState.RELEASED) {
+                mUserReleaseFuture = CallbackToFutureAdapter.getFuture(
+                        completer -> {
+                            Preconditions.checkState(mUserReleaseNotifier == null,
+                                    "Camera can only be released once, so release completer "
+                                            + "should be null on creation.");
+                            mUserReleaseNotifier = completer;
+                            return "Release[camera=" + Camera2CameraImpl.this + "]";
+                        });
+            } else {
+                // Set to an immediately successful future if already in the released state.
+                mUserReleaseFuture = Futures.immediateFuture(null);
+            }
+        }
+
+        return mUserReleaseFuture;
+    }
+
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     @WorkerThread
     ListenableFuture<Void> releaseSession(@NonNull final CaptureSession captureSession,
@@ -451,102 +519,10 @@ final class Camera2CameraImpl implements CameraInternal {
         return releaseFuture;
     }
 
-    /**
-     * Release the camera.
-     *
-     * <p>Once the camera is released it is permanently closed. A new instance must be created to
-     * access the camera.
-     */
-    @NonNull
-    @Override
-    public ListenableFuture<Void> release() {
-        ListenableFuture<Void> releaseFuture = CallbackToFutureAdapter.getFuture(
-                new CallbackToFutureAdapter.Resolver<Void>() {
-                    @Override
-                    public Object attachCompleter(
-                            @NonNull final CallbackToFutureAdapter.Completer<Void> completer) {
-
-                        mHandler.post(new Runnable() {
-                            @Override
-                            public void run() {
-                                Futures.propagate(getOrCreateUserReleaseFuture(), completer);
-                            }
-                        });
-                        return "Release[request=" + mReleaseRequestCount.getAndIncrement() + "]";
-                    }
-                });
-
-        if (Looper.myLooper() != mHandler.getLooper()) {
-            mHandler.post(new Runnable() {
-                @Override
-                public void run() {
-                    Camera2CameraImpl.this.releaseInternal();
-                }
-            });
-        } else {
-            releaseInternal();
-        }
-
-        return releaseFuture;
-    }
-
     @NonNull
     @Override
     public Observable<CameraInternal.State> getCameraState() {
         return mObservableState;
-    }
-
-    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-    @WorkerThread
-    void releaseInternal() {
-        switch (mState) {
-            case INITIALIZED:
-            case PENDING_OPEN:
-                Preconditions.checkState(mCameraDevice == null);
-                setState(InternalState.RELEASING);
-                Preconditions.checkState(isSessionCloseComplete());
-                finishClose();
-                break;
-            case OPENED:
-                setState(InternalState.RELEASING);
-                closeCamera(/*abortInFlightCaptures=*/true);
-                break;
-            case OPENING:
-            case CLOSING:
-            case REOPENING:
-            case RELEASING:
-                // Wait for the camera async callback to finish releasing
-                setState(InternalState.RELEASING);
-                break;
-            default:
-                Log.d(TAG, "release() ignored due to being in state: " + mState);
-        }
-    }
-
-    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-    @WorkerThread
-    ListenableFuture<Void> getOrCreateUserReleaseFuture() {
-        if (mUserReleaseFuture == null) {
-            if (mState != InternalState.RELEASED) {
-                mUserReleaseFuture = CallbackToFutureAdapter.getFuture(
-                        new CallbackToFutureAdapter.Resolver<Void>() {
-                            @Override
-                            public Object attachCompleter(
-                                    @NonNull CallbackToFutureAdapter.Completer<Void> completer) {
-                                Preconditions.checkState(mUserReleaseNotifier == null,
-                                        "Camera can only be released once, so release completer "
-                                                + "should be null on creation.");
-                                mUserReleaseNotifier = completer;
-                                return "Release[camera=" + Camera2CameraImpl.this + "]";
-                            }
-                        });
-            } else {
-                // Set to an immediately successful future if already in the released state.
-                mUserReleaseFuture = Futures.immediateFuture(null);
-            }
-        }
-
-        return mUserReleaseFuture;
     }
 
     /**
@@ -902,14 +878,14 @@ final class Camera2CameraImpl implements CameraInternal {
         }, mExecutor);
     }
 
-    @SuppressWarnings("GuardedBy") // TODO(b/141959507): Suppressed during upgrade to AGP 3.6.
+    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     void closeStaleCaptureSessions(CaptureSession captureSession) {
         // Once the new CameraCaptureSession is created, the under closing
         // CameraCaptureSession can be treated as closed (more detail in b/144817309).
         // Trigger the CaptureSession#forceClose() to finish the session release flow.
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
             CaptureSession[] captureSessions = mReleasedCaptureSessions.keySet().toArray(
-                    new CaptureSession[mReleasedCaptureSessions.size()]);
+                    new CaptureSession[0]);
             for (CaptureSession releasingSession : captureSessions) {
                 // The new created CaptureSession might going to release before the previous
                 // CameraCaptureSession is configured.
