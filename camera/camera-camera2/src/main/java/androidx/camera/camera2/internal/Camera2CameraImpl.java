@@ -252,16 +252,11 @@ final class Camera2CameraImpl implements CameraInternal {
      */
     @Override
     public void close() {
-        if (Looper.myLooper() != mHandler.getLooper()) {
-            mHandler.post(new Runnable() {
-                @Override
-                public void run() {
-                    Camera2CameraImpl.this.close();
-                }
-            });
-            return;
-        }
+        mHandler.post(this::closeInternal);
+    }
 
+    @ExecutedBy("mHandler")
+    private void closeInternal() {
         Log.d(TAG, "Closing camera: " + mCameraInfoInternal.getCameraId());
         switch (mState) {
             case OPENED:
@@ -296,12 +291,9 @@ final class Camera2CameraImpl implements CameraInternal {
         final SurfaceTexture surfaceTexture = new SurfaceTexture(0);
         surfaceTexture.setDefaultBufferSize(640, 480);
         final Surface surface = new Surface(surfaceTexture);
-        final Runnable closeAndCleanupRunner = new Runnable() {
-            @Override
-            public void run() {
-                surface.release();
-                surfaceTexture.release();
-            }
+        final Runnable closeAndCleanupRunner = () -> {
+            surface.release();
+            surfaceTexture.release();
         };
 
         SessionConfig.Builder builder = new SessionConfig.Builder();
