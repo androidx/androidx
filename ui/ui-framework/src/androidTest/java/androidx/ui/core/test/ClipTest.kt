@@ -397,7 +397,7 @@ class ClipTest {
 }
 
 @Model
-private data class ShapeModel(var shape: Shape)
+private class ShapeModel(var shape: Shape)
 
 fun Bitmap.assertRect(
     color: Color,
