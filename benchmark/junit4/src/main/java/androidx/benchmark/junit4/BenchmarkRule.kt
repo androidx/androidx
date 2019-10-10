@@ -177,10 +177,7 @@ class BenchmarkRule : TestRule {
         Statement {
             applied = true
             var invokeMethodName = description.methodName
-            Log.i(
-                TAG,
-                "Running ${description.className}#$invokeMethodName"
-            )
+            Log.d(TAG, "-- Running ${description.className}#$invokeMethodName --")
 
             // validate and simplify the function name.
             // First, remove the "test" prefix which normally comes from CTS test.
@@ -211,7 +208,7 @@ class BenchmarkRule : TestRule {
         }
 
     internal companion object {
-        private const val TAG = "BenchmarkRule"
+        private const val TAG = "Benchmark"
     }
 }
 
