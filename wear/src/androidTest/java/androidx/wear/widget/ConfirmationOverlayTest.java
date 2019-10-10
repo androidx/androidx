@@ -92,7 +92,7 @@ public class ConfirmationOverlayTest {
                                 latch.countDown();
                             }
                         };
-                overlay.setFinishedAnimationListener(onAnimationFinishedListener);
+                overlay.setOnAnimationFinishedListener(onAnimationFinishedListener);
                 overlay.hide();
             }
         });
@@ -120,8 +120,8 @@ public class ConfirmationOverlayTest {
         final CountDownLatch latch = new CountDownLatch(1);
         final ConfirmationOverlay overlay = new ConfirmationOverlay()
                 .setType(ConfirmationOverlay.SUCCESS_ANIMATION)
-                .setFinishedAnimationListener(mOnAnimationFinishedListener)
-                .setMessage("Sent");
+                .setOnAnimationFinishedListener(mOnAnimationFinishedListener)
+                .setMessage((CharSequence) "Sent");
 
         mActivityRule.runOnUiThread(new Runnable() {
             @Override
@@ -137,7 +137,7 @@ public class ConfirmationOverlayTest {
                                 latch.countDown();
                             }
                         };
-                overlay.setFinishedAnimationListener(onAnimationFinishedListener);
+                overlay.setOnAnimationFinishedListener(onAnimationFinishedListener);
                 overlay.hide();
             }
         });
@@ -151,8 +151,8 @@ public class ConfirmationOverlayTest {
         final CountDownLatch latch = new CountDownLatch(1);
         final ConfirmationOverlay overlay = new ConfirmationOverlay()
                 .setType(ConfirmationOverlay.FAILURE_ANIMATION)
-                .setFinishedAnimationListener(mOnAnimationFinishedListener)
-                .setMessage("Failed");
+                .setOnAnimationFinishedListener(mOnAnimationFinishedListener)
+                .setMessage((CharSequence) "Failed");
 
         mActivityRule.runOnUiThread(new Runnable() {
             @Override
@@ -168,7 +168,7 @@ public class ConfirmationOverlayTest {
                                 latch.countDown();
                             }
                         };
-                overlay.setFinishedAnimationListener(onAnimationFinishedListener);
+                overlay.setOnAnimationFinishedListener(onAnimationFinishedListener);
                 overlay.hide();
             }
         });
@@ -182,8 +182,8 @@ public class ConfirmationOverlayTest {
         final CountDownLatch latch = new CountDownLatch(1);
         final ConfirmationOverlay overlay = new ConfirmationOverlay()
                 .setType(ConfirmationOverlay.OPEN_ON_PHONE_ANIMATION)
-                .setFinishedAnimationListener(mOnAnimationFinishedListener)
-                .setMessage("Opening...");
+                .setOnAnimationFinishedListener(mOnAnimationFinishedListener)
+                .setMessage((CharSequence) "Opening...");
 
         mActivityRule.runOnUiThread(new Runnable() {
             @Override
@@ -199,7 +199,7 @@ public class ConfirmationOverlayTest {
                                 latch.countDown();
                             }
                         };
-                overlay.setFinishedAnimationListener(onAnimationFinishedListener);
+                overlay.setOnAnimationFinishedListener(onAnimationFinishedListener);
                 overlay.hide();
             }
         });
@@ -241,7 +241,7 @@ public class ConfirmationOverlayTest {
                                 latch.countDown();
                             }
                         };
-                overlay.setFinishedAnimationListener(onAnimationFinishedListener);
+                overlay.setOnAnimationFinishedListener(onAnimationFinishedListener);
             }
         });
         latch.await(overlayDurationMillis - 1000, TimeUnit.MILLISECONDS);
@@ -270,7 +270,7 @@ public class ConfirmationOverlayTest {
                                 latch.countDown();
                             }
                         };
-                overlay.setFinishedAnimationListener(onAnimationFinishedListener);
+                overlay.setOnAnimationFinishedListener(onAnimationFinishedListener);
             }
         });
         latch.await(overlayDurationMillis + 100, TimeUnit.MILLISECONDS);

@@ -149,12 +149,14 @@ package androidx.wear.widget {
 
   public class ConfirmationOverlay {
     ctor public ConfirmationOverlay();
-    method public androidx.wear.widget.ConfirmationOverlay! setDuration(int);
-    method public androidx.wear.widget.ConfirmationOverlay! setFinishedAnimationListener(androidx.wear.widget.ConfirmationOverlay.OnAnimationFinishedListener?);
-    method public androidx.wear.widget.ConfirmationOverlay! setMessage(String!);
-    method public androidx.wear.widget.ConfirmationOverlay! setType(@androidx.wear.widget.ConfirmationOverlay.OverlayType int);
-    method @MainThread public void showAbove(android.view.View!);
-    method @MainThread public void showOn(android.app.Activity!);
+    method public androidx.wear.widget.ConfirmationOverlay setDuration(int);
+    method @Deprecated public androidx.wear.widget.ConfirmationOverlay setFinishedAnimationListener(androidx.wear.widget.ConfirmationOverlay.OnAnimationFinishedListener?);
+    method @Deprecated public androidx.wear.widget.ConfirmationOverlay setMessage(String);
+    method public androidx.wear.widget.ConfirmationOverlay setMessage(CharSequence);
+    method public androidx.wear.widget.ConfirmationOverlay setOnAnimationFinishedListener(androidx.wear.widget.ConfirmationOverlay.OnAnimationFinishedListener?);
+    method public androidx.wear.widget.ConfirmationOverlay setType(@androidx.wear.widget.ConfirmationOverlay.OverlayType int);
+    method @MainThread public void showAbove(android.view.View);
+    method @MainThread public void showOn(android.app.Activity);
     field public static final int DEFAULT_ANIMATION_DURATION_MS = 1000; // 0x3e8
     field public static final int FAILURE_ANIMATION = 1; // 0x1
     field public static final int OPEN_ON_PHONE_ANIMATION = 2; // 0x2
