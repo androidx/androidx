@@ -87,5 +87,14 @@
             </intent-filter>
         </activity>
 
+        <activity android:name=".CrossfadeActivity"
+            android:configChanges="orientation|screenSize"
+            android:label="Animation/Crossfade">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="androidx.ui.demos.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
     </application>
 </manifest>
