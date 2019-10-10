@@ -16,7 +16,9 @@
 
 package androidx.fragment.app
 
+import android.content.Context
 import android.os.Bundle
+import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.TextView
@@ -26,6 +28,7 @@ import androidx.test.annotation.UiThreadTest
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.rule.ActivityTestRule
+import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -53,6 +56,22 @@ class NestedInflatedFragmentTest {
         fm.executePendingTransactions()
 
         fm.popBackStackImmediate()
+    }
+
+    @Test
+    @UiThreadTest
+    fun inflatedChildFragmentHasAttributesOnInflate() {
+        val activity = activityRule.activity
+        val fm = activity.supportFragmentManager
+
+        val parentFragment = ParentFragment()
+        fm.beginTransaction().add(android.R.id.content, parentFragment).commitNow()
+
+        val child = parentFragment.childFragmentManager.findFragmentById(R.id.child_fragment) as
+                InflatedChildFragment
+
+        assertThat(child.name).isEqualTo("androidx.fragment.app" +
+                ".NestedInflatedFragmentTest\$InflatedChildFragment")
     }
 
     /**
@@ -101,7 +120,15 @@ class NestedInflatedFragmentTest {
         }
     }
 
-    class InflatedChildFragment : Fragment(R.layout.nested_inflated_fragment_child)
+    class InflatedChildFragment : Fragment(R.layout.nested_inflated_fragment_child) {
+        var name: String? = null
+        override fun onInflate(context: Context, attrs: AttributeSet, savedInstanceState: Bundle?) {
+            super.onInflate(context, attrs, savedInstanceState)
+            val a = context.obtainStyledAttributes(attrs, androidx.fragment.R.styleable.Fragment)
+            name = a.getString(androidx.fragment.R.styleable.Fragment_android_name)
+            a.recycle()
+        }
+    }
 
     class SimpleFragment : Fragment() {
         override fun onCreateView(
