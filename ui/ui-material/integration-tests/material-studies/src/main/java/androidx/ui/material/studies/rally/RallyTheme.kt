@@ -17,14 +17,19 @@
 package androidx.ui.material.studies.rally
 
 import androidx.compose.Composable
+import androidx.compose.ambient
+import androidx.compose.unaryPlus
+import androidx.ui.core.em
 import androidx.ui.core.sp
-import androidx.ui.text.font.FontWeight
-import androidx.ui.text.font.FontFamily
 import androidx.ui.graphics.Color
+import androidx.ui.material.Colors
 import androidx.ui.material.MaterialColors
 import androidx.ui.material.MaterialTheme
 import androidx.ui.material.MaterialTypography
+import androidx.ui.material.Typography
 import androidx.ui.text.TextStyle
+import androidx.ui.text.font.FontFamily
+import androidx.ui.text.font.FontWeight
 
 val rallyGreen = Color(0xFF1EB980)
 val rallyDarkGreen = Color(0xFF045D56)
@@ -84,7 +89,27 @@ fun RallyTheme(children: @Composable() () -> Unit) {
             fontSize = 10.sp)
 
     )
-    MaterialTheme(colors = colors, typography = typography) {
-        children()
-    }
+    MaterialTheme(colors = colors, typography = typography, children = children)
+}
+
+@Composable
+fun RallyDialogThemeOverlay(children: @Composable() () -> Unit) {
+    val dialogColors = (+ambient(Colors)).copy(
+        primary = Color.White,
+        surface = Color(0xFF1E1E1E),
+        onSurface = Color.White
+    )
+    val currentTypography = +ambient(Typography)
+    val dialogTypography = currentTypography.copy(
+        body1 = currentTypography.body1.copy(
+            fontFamily = FontFamily("RobotoCondensed"),
+            fontWeight = FontWeight.Normal,
+            fontSize = 20.sp
+        ),
+        button = currentTypography.button.copy(
+            fontWeight = FontWeight.Bold,
+            letterSpacing = 0.2.em
+        )
+    )
+    MaterialTheme(colors = dialogColors, typography = dialogTypography, children = children)
 }
