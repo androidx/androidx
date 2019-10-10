@@ -28,7 +28,7 @@ plugins {
 }
 
 dependencies {
-    compile("androidx.annotation:annotation:1.1.0")
+    api("androidx.annotation:annotation:1.1.0")
     api(project(":inspection:inspection"))
     implementation(KOTLIN_STDLIB)
     implementation(KOTLIN_COROUTINES_ANDROID)
