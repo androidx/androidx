@@ -38,7 +38,7 @@ import java.util.WeakHashMap;
  */
 public class RecyclerViewAccessibilityDelegate extends AccessibilityDelegateCompat {
     final RecyclerView mRecyclerView;
-    final ItemDelegate mItemDelegate;
+    private final ItemDelegate mItemDelegate;
 
 
     public RecyclerViewAccessibilityDelegate(@NonNull RecyclerView recyclerView) {
@@ -90,6 +90,9 @@ public class RecyclerViewAccessibilityDelegate extends AccessibilityDelegateComp
      * Gets the AccessibilityDelegate for an individual item in the RecyclerView.
      * A basic item delegate is provided by default, but you can override this
      * method to provide a custom per-item delegate.
+     * For now, returning an {@code AccessibilityDelegateCompat} as opposed to an
+     * {@code ItemDelegate} will prevent use of the {@code ViewCompat} accessibility API on
+     * item views.
      */
     @NonNull
     public AccessibilityDelegateCompat getItemDelegate() {

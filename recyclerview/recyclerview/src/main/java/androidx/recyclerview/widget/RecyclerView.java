@@ -6306,13 +6306,14 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
                 if (mAccessibilityDelegate == null) {
                     return;
                 }
-                RecyclerViewAccessibilityDelegate.ItemDelegate itemDelegate =
-                        mAccessibilityDelegate.mItemDelegate;
-                // If there was already an a11y delegate set on the itemView, store it in the
-                // itemDelegate and then set the itemDelegate as the a11y delegate.
-                itemDelegate.saveOriginalDelegate(itemView);
-                ViewCompat.setAccessibilityDelegate(itemView,
-                        mAccessibilityDelegate.getItemDelegate());
+                AccessibilityDelegateCompat itemDelegate = mAccessibilityDelegate.getItemDelegate();
+                if (itemDelegate instanceof RecyclerViewAccessibilityDelegate.ItemDelegate) {
+                    // If there was already an a11y delegate set on the itemView, store it in the
+                    // itemDelegate and then set the itemDelegate as the a11y delegate.
+                    ((RecyclerViewAccessibilityDelegate.ItemDelegate) itemDelegate)
+                            .saveOriginalDelegate(itemView);
+                }
+                ViewCompat.setAccessibilityDelegate(itemView, itemDelegate);
             }
         }
 
@@ -6523,8 +6524,13 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
             clearNestedRecyclerViewIfNotNested(holder);
             View itemView = holder.itemView;
             if (mAccessibilityDelegate != null) {
-                AccessibilityDelegateCompat originalDelegate = mAccessibilityDelegate
-                        .mItemDelegate.getAndRemoveOriginalDelegateForItem(itemView);
+                AccessibilityDelegateCompat itemDelegate = mAccessibilityDelegate.getItemDelegate();
+                AccessibilityDelegateCompat originalDelegate = null;
+                if (itemDelegate instanceof RecyclerViewAccessibilityDelegate.ItemDelegate) {
+                    originalDelegate =
+                            ((RecyclerViewAccessibilityDelegate.ItemDelegate) itemDelegate)
+                                    .getAndRemoveOriginalDelegateForItem(itemView);
+                }
                 // Set the a11y delegate back to whatever the original delegate was.
                 ViewCompat.setAccessibilityDelegate(itemView, originalDelegate);
             }
