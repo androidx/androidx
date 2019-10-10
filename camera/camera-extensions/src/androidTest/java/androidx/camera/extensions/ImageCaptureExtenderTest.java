@@ -114,7 +114,7 @@ public class ImageCaptureExtenderTest {
                 new ImageCaptureExtender.ImageCaptureAdapter(mockImageCaptureExtenderImpl, null);
         ImageCaptureConfig.Builder configBuilder =
                 new ImageCaptureConfig.Builder().setCaptureBundle(
-                        imageCaptureAdapter).setUseCaseEventListener(
+                        imageCaptureAdapter).setUseCaseEventCallback(
                         imageCaptureAdapter).setCaptureProcessor(
                         mock(CaptureProcessor.class));
 
@@ -165,7 +165,7 @@ public class ImageCaptureExtenderTest {
                 new ImageCaptureExtender.ImageCaptureAdapter(mockImageCaptureExtenderImpl, null);
         ImageCaptureConfig.Builder configBuilder =
                 new ImageCaptureConfig.Builder().setCaptureBundle(
-                        imageCaptureAdapter).setUseCaseEventListener(
+                        imageCaptureAdapter).setUseCaseEventCallback(
                         imageCaptureAdapter).setCaptureProcessor(
                         mock(CaptureProcessor.class));
         new Camera2Config.Extender(configBuilder).setCameraEventCallback(

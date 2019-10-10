@@ -31,7 +31,7 @@ import androidx.camera.core.CameraFactory;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.CameraX.LensFacing;
 import androidx.camera.core.UseCase;
-import androidx.camera.core.UseCase.StateChangeListener;
+import androidx.camera.core.UseCase.StateChangeCallback;
 import androidx.camera.core.VideoCapture;
 import androidx.camera.core.VideoCapture.OnVideoSavedCallback;
 import androidx.camera.core.VideoCaptureConfig;
@@ -71,7 +71,8 @@ public final class VideoCaptureTest {
     private static final Size DEFAULT_RESOLUTION = new Size(640, 480);
 
     private final Context mContext = InstrumentationRegistry.getTargetContext();
-    private final StateChangeListener mListener = Mockito.mock(StateChangeListener.class);
+    private final StateChangeCallback mMockStateChangeCallback =
+            Mockito.mock(StateChangeCallback.class);
     private final ArgumentCaptor<UseCase> mUseCaseCaptor = ArgumentCaptor.forClass(UseCase.class);
     private final OnVideoSavedCallback mMockVideoSavedCallback =
             Mockito.mock(OnVideoSavedCallback.class);
@@ -109,7 +110,7 @@ public final class VideoCaptureTest {
         Map<String, Size> suggestedResolutionMap = new HashMap<>();
         suggestedResolutionMap.put(mCameraId, DEFAULT_RESOLUTION);
         useCase.updateSuggestedResolution(suggestedResolutionMap);
-        useCase.addStateChangeListener(mListener);
+        useCase.addStateChangeCallback(mMockStateChangeCallback);
 
         useCase.startRecording(
                 new File(
@@ -118,7 +119,7 @@ public final class VideoCaptureTest {
                 CameraXExecutors.mainThreadExecutor(),
                 mMockVideoSavedCallback);
 
-        verify(mListener, times(1)).onUseCaseActive(mUseCaseCaptor.capture());
+        verify(mMockStateChangeCallback, times(1)).onUseCaseActive(mUseCaseCaptor.capture());
         assertThat(mUseCaseCaptor.getValue()).isSameInstanceAs(useCase);
     }
 
@@ -128,7 +129,7 @@ public final class VideoCaptureTest {
         Map<String, Size> suggestedResolutionMap = new HashMap<>();
         suggestedResolutionMap.put(mCameraId, DEFAULT_RESOLUTION);
         useCase.updateSuggestedResolution(suggestedResolutionMap);
-        useCase.addStateChangeListener(mListener);
+        useCase.addStateChangeCallback(mMockStateChangeCallback);
 
         useCase.startRecording(
                 new File(
@@ -148,7 +149,7 @@ public final class VideoCaptureTest {
             // TODO(b/112324530): The try-catch should be removed after the bug fix
         }
 
-        verify(mListener, times(1)).onUseCaseInactive(mUseCaseCaptor.capture());
+        verify(mMockStateChangeCallback, times(1)).onUseCaseInactive(mUseCaseCaptor.capture());
         assertThat(mUseCaseCaptor.getValue()).isSameInstanceAs(useCase);
     }
 
@@ -159,7 +160,7 @@ public final class VideoCaptureTest {
         Map<String, Size> suggestedResolutionMap = new HashMap<>();
         suggestedResolutionMap.put(mCameraId, DEFAULT_RESOLUTION);
         useCase.updateSuggestedResolution(suggestedResolutionMap);
-        useCase.addStateChangeListener(mListener);
+        useCase.addStateChangeCallback(mMockStateChangeCallback);
 
         // Recreate video encoder with new 640x480 resolution
         suggestedResolutionMap.put(mCameraId, new Size(640, 480));
@@ -173,7 +174,7 @@ public final class VideoCaptureTest {
                 CameraXExecutors.mainThreadExecutor(),
                 mMockVideoSavedCallback);
 
-        verify(mListener, times(1)).onUseCaseActive(mUseCaseCaptor.capture());
+        verify(mMockStateChangeCallback, times(1)).onUseCaseActive(mUseCaseCaptor.capture());
         assertThat(mUseCaseCaptor.getValue()).isSameInstanceAs(useCase);
     }
 }

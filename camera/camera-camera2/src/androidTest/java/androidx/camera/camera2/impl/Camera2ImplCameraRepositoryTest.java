@@ -134,7 +134,7 @@ public final class Camera2ImplCameraRepositoryTest {
 
     @Test
     public void cameraDeviceCallsAreForwardedToCallback() throws InterruptedException {
-        mUseCase.addStateChangeListener(
+        mUseCase.addStateChangeCallback(
                 mCameraRepository.getCamera(
                         getCameraIdForLensFacingUnchecked(mConfig.getLensFacing())));
         mUseCase.doNotifyActive();
@@ -151,7 +151,7 @@ public final class Camera2ImplCameraRepositoryTest {
 
     @Test
     public void cameraSessionCallsAreForwardedToCallback() throws InterruptedException {
-        mUseCase.addStateChangeListener(
+        mUseCase.addStateChangeCallback(
                 mCameraRepository.getCamera(
                         getCameraIdForLensFacingUnchecked(mConfig.getLensFacing())));
         mUseCase.doNotifyActive();

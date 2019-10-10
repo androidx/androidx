@@ -574,7 +574,7 @@ public final class PreviewTest {
     }
 
     private CameraControlInternal getFakeCameraControl() {
-        return new FakeCameraControl(new CameraControlInternal.ControlUpdateListener() {
+        return new FakeCameraControl(new CameraControlInternal.ControlUpdateCallback() {
             @Override
             public void onCameraControlUpdateSessionConfig(@NonNull SessionConfig sessionConfig) {
             }

@@ -201,15 +201,15 @@ public class FakeUseCaseConfig
 
     @Override
     @Nullable
-    public UseCase.EventListener getUseCaseEventListener(
-            @Nullable UseCase.EventListener valueIfMissing) {
-        return retrieveOption(OPTION_USE_CASE_EVENT_LISTENER, valueIfMissing);
+    public UseCase.EventCallback getUseCaseEventCallback(
+            @Nullable UseCase.EventCallback valueIfMissing) {
+        return retrieveOption(OPTION_USE_CASE_EVENT_CALLBACK, valueIfMissing);
     }
 
     @Override
     @NonNull
-    public UseCase.EventListener getUseCaseEventListener() {
-        return retrieveOption(OPTION_USE_CASE_EVENT_LISTENER);
+    public UseCase.EventCallback getUseCaseEventCallback() {
+        return retrieveOption(OPTION_USE_CASE_EVENT_CALLBACK);
     }
 
     // End of the default implementation of Config
@@ -321,8 +321,8 @@ public class FakeUseCaseConfig
 
         @Override
         @NonNull
-        public Builder setUseCaseEventListener(@NonNull UseCase.EventListener eventListener) {
-            getMutableConfig().insertOption(OPTION_USE_CASE_EVENT_LISTENER, eventListener);
+        public Builder setUseCaseEventCallback(@NonNull UseCase.EventCallback eventCallback) {
+            getMutableConfig().insertOption(OPTION_USE_CASE_EVENT_CALLBACK, eventCallback);
             return this;
         }
     }

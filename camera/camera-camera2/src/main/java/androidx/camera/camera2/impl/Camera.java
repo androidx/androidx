@@ -538,7 +538,7 @@ final class Camera implements BaseCamera {
      * <p>The use case must also be online in order for it to issue capture requests.
      */
     @Override
-    public void onUseCaseActive(final UseCase useCase) {
+    public void onUseCaseActive(@NonNull final UseCase useCase) {
         if (Looper.myLooper() != mHandler.getLooper()) {
             mHandler.post(new Runnable() {
                 @Override
@@ -561,7 +561,7 @@ final class Camera implements BaseCamera {
 
     /** Removes the use case from a state of issuing capture requests. */
     @Override
-    public void onUseCaseInactive(final UseCase useCase) {
+    public void onUseCaseInactive(@NonNull final UseCase useCase) {
         if (Looper.myLooper() != mHandler.getLooper()) {
             mHandler.post(new Runnable() {
                 @Override
@@ -582,7 +582,7 @@ final class Camera implements BaseCamera {
 
     /** Updates the capture requests based on the latest settings. */
     @Override
-    public void onUseCaseUpdated(final UseCase useCase) {
+    public void onUseCaseUpdated(@NonNull final UseCase useCase) {
         if (Looper.myLooper() != mHandler.getLooper()) {
             mHandler.post(new Runnable() {
                 @Override

@@ -80,7 +80,7 @@ import java.util.concurrent.ScheduledExecutorService;
 @RunWith(AndroidJUnit4.class)
 public final class Camera2CameraControlTest {
     private Camera2CameraControl mCamera2CameraControl;
-    private CameraControlInternal.ControlUpdateListener mControlUpdateListener;
+    private CameraControlInternal.ControlUpdateCallback mControlUpdateCallback;
     private ArgumentCaptor<SessionConfig> mSessionConfigArgumentCaptor =
             ArgumentCaptor.forClass(SessionConfig.class);
     @SuppressWarnings("unchecked")
@@ -102,20 +102,20 @@ public final class Camera2CameraControlTest {
         mCameraCharacteristics = cameraManager.getCameraCharacteristics(
                 camera2CameraFactory.cameraIdForLensFacing(CameraX.LensFacing.BACK));
 
-        mControlUpdateListener = mock(CameraControlInternal.ControlUpdateListener.class);
+        mControlUpdateCallback = mock(CameraControlInternal.ControlUpdateCallback.class);
         mHandlerThread = new HandlerThread("ControlThread");
         mHandlerThread.start();
         mHandler = HandlerCompat.createAsync(mHandlerThread.getLooper());
 
         ScheduledExecutorService executorService = CameraXExecutors.newHandlerExecutor(mHandler);
         mCamera2CameraControl = new Camera2CameraControl(mCameraCharacteristics,
-                mControlUpdateListener, executorService, executorService);
+                mControlUpdateCallback, executorService, executorService);
 
         HandlerUtil.waitForLooperToIdle(mHandler);
 
         // Reset the method call onCameraControlUpdateSessionConfig() in Camera2CameraControl
         // constructor.
-        reset(mControlUpdateListener);
+        reset(mControlUpdateCallback);
     }
 
     @After
@@ -133,7 +133,7 @@ public final class Camera2CameraControlTest {
 
         HandlerUtil.waitForLooperToIdle(mHandler);
 
-        verify(mControlUpdateListener, times(1)).onCameraControlUpdateSessionConfig(
+        verify(mControlUpdateCallback, times(1)).onCameraControlUpdateSessionConfig(
                 mSessionConfigArgumentCaptor.capture());
         SessionConfig sessionConfig = mSessionConfigArgumentCaptor.getValue();
         Camera2Config repeatingConfig = new Camera2Config(sessionConfig.getImplementationOptions());
@@ -163,7 +163,7 @@ public final class Camera2CameraControlTest {
 
         HandlerUtil.waitForLooperToIdle(mHandler);
 
-        verify(mControlUpdateListener, times(1)).onCameraControlUpdateSessionConfig(
+        verify(mControlUpdateCallback, times(1)).onCameraControlUpdateSessionConfig(
                 mSessionConfigArgumentCaptor.capture());
         SessionConfig sessionConfig = mSessionConfigArgumentCaptor.getValue();
         Camera2Config camera2Config = new Camera2Config(sessionConfig.getImplementationOptions());
@@ -178,7 +178,7 @@ public final class Camera2CameraControlTest {
 
         HandlerUtil.waitForLooperToIdle(mHandler);
 
-        verify(mControlUpdateListener, times(1)).onCameraControlUpdateSessionConfig(
+        verify(mControlUpdateCallback, times(1)).onCameraControlUpdateSessionConfig(
                 mSessionConfigArgumentCaptor.capture());
         SessionConfig sessionConfig = mSessionConfigArgumentCaptor.getValue();
         Camera2Config camera2Config = new Camera2Config(sessionConfig.getImplementationOptions());
@@ -194,7 +194,7 @@ public final class Camera2CameraControlTest {
 
         HandlerUtil.waitForLooperToIdle(mHandler);
 
-        verify(mControlUpdateListener, times(1)).onCameraControlUpdateSessionConfig(
+        verify(mControlUpdateCallback, times(1)).onCameraControlUpdateSessionConfig(
                 mSessionConfigArgumentCaptor.capture());
         SessionConfig sessionConfig = mSessionConfigArgumentCaptor.getValue();
         Camera2Config camera2Config = new Camera2Config(sessionConfig.getImplementationOptions());
@@ -210,7 +210,7 @@ public final class Camera2CameraControlTest {
 
         HandlerUtil.waitForLooperToIdle(mHandler);
 
-        verify(mControlUpdateListener, times(1)).onCameraControlUpdateSessionConfig(
+        verify(mControlUpdateCallback, times(1)).onCameraControlUpdateSessionConfig(
                 mSessionConfigArgumentCaptor.capture());
         SessionConfig sessionConfig = mSessionConfigArgumentCaptor.getValue();
         Camera2Config camera2Config = new Camera2Config(sessionConfig.getImplementationOptions());
@@ -231,7 +231,7 @@ public final class Camera2CameraControlTest {
 
         HandlerUtil.waitForLooperToIdle(mHandler);
 
-        verify(mControlUpdateListener, times(2)).onCameraControlUpdateSessionConfig(
+        verify(mControlUpdateCallback, times(2)).onCameraControlUpdateSessionConfig(
                 mSessionConfigArgumentCaptor.capture());
         SessionConfig sessionConfig = mSessionConfigArgumentCaptor.getAllValues().get(0);
         Camera2Config camera2Config = new Camera2Config(sessionConfig.getImplementationOptions());
@@ -242,7 +242,7 @@ public final class Camera2CameraControlTest {
                 .isEqualTo(-1);
         assertThat(mCamera2CameraControl.isTorchOn()).isFalse();
 
-        verify(mControlUpdateListener, times(1)).onCameraControlCaptureRequests(
+        verify(mControlUpdateCallback, times(1)).onCameraControlCaptureRequests(
                 mCaptureConfigArgumentCaptor.capture());
         CaptureConfig captureConfig = mCaptureConfigArgumentCaptor.getValue().get(0);
         Camera2Config resultCaptureConfig =
@@ -258,7 +258,7 @@ public final class Camera2CameraControlTest {
 
         HandlerUtil.waitForLooperToIdle(mHandler);
 
-        verify(mControlUpdateListener).onCameraControlCaptureRequests(
+        verify(mControlUpdateCallback).onCameraControlCaptureRequests(
                 mCaptureConfigArgumentCaptor.capture());
         CaptureConfig captureConfig = mCaptureConfigArgumentCaptor.getValue().get(0);
         Camera2Config resultCaptureConfig =
@@ -275,7 +275,7 @@ public final class Camera2CameraControlTest {
 
         HandlerUtil.waitForLooperToIdle(mHandler);
 
-        verify(mControlUpdateListener).onCameraControlCaptureRequests(
+        verify(mControlUpdateCallback).onCameraControlCaptureRequests(
                 mCaptureConfigArgumentCaptor.capture());
         CaptureConfig captureConfig = mCaptureConfigArgumentCaptor.getValue().get(0);
         Camera2Config resultCaptureConfig =
@@ -292,7 +292,7 @@ public final class Camera2CameraControlTest {
 
         HandlerUtil.waitForLooperToIdle(mHandler);
 
-        verify(mControlUpdateListener).onCameraControlCaptureRequests(
+        verify(mControlUpdateCallback).onCameraControlCaptureRequests(
                 mCaptureConfigArgumentCaptor.capture());
         CaptureConfig captureConfig = mCaptureConfigArgumentCaptor.getValue().get(0);
         Camera2Config resultCaptureConfig =
@@ -316,7 +316,7 @@ public final class Camera2CameraControlTest {
 
         HandlerUtil.waitForLooperToIdle(mHandler);
 
-        verify(mControlUpdateListener).onCameraControlCaptureRequests(
+        verify(mControlUpdateCallback).onCameraControlCaptureRequests(
                 mCaptureConfigArgumentCaptor.capture());
         CaptureConfig captureConfig = mCaptureConfigArgumentCaptor.getValue().get(0);
         Camera2Config resultCaptureConfig =
@@ -337,7 +337,7 @@ public final class Camera2CameraControlTest {
 
         HandlerUtil.waitForLooperToIdle(mHandler);
 
-        verify(mControlUpdateListener).onCameraControlCaptureRequests(
+        verify(mControlUpdateCallback).onCameraControlCaptureRequests(
                 mCaptureConfigArgumentCaptor.capture());
         CaptureConfig captureConfig = mCaptureConfigArgumentCaptor.getValue().get(0);
         Camera2Config resultCaptureConfig =
@@ -367,7 +367,7 @@ public final class Camera2CameraControlTest {
 
         HandlerUtil.waitForLooperToIdle(mHandler);
 
-        verify(mControlUpdateListener, times(1)).onCameraControlUpdateSessionConfig(
+        verify(mControlUpdateCallback, times(1)).onCameraControlUpdateSessionConfig(
                 mSessionConfigArgumentCaptor.capture());
         SessionConfig sessionConfig = mSessionConfigArgumentCaptor.getValue();
         Camera2Config repeatingConfig = new Camera2Config(sessionConfig.getImplementationOptions());
@@ -408,7 +408,7 @@ public final class Camera2CameraControlTest {
 
         verifyAfMode(CaptureRequest.CONTROL_AF_MODE_AUTO);
 
-        verify(mControlUpdateListener).onCameraControlCaptureRequests(
+        verify(mControlUpdateCallback).onCameraControlCaptureRequests(
                 mCaptureConfigArgumentCaptor.capture());
 
         CaptureConfig captureConfig = mCaptureConfigArgumentCaptor.getValue().get(0);
@@ -432,7 +432,7 @@ public final class Camera2CameraControlTest {
 
         verifyAfMode(CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE);
 
-        verify(mControlUpdateListener, never()).onCameraControlCaptureRequests(any());
+        verify(mControlUpdateCallback, never()).onCameraControlCaptureRequests(any());
     }
 
     @Test
@@ -443,12 +443,12 @@ public final class Camera2CameraControlTest {
                 .build();
         mCamera2CameraControl.startFocusAndMetering(action);
         HandlerUtil.waitForLooperToIdle(mHandler);
-        Mockito.reset(mControlUpdateListener);
+        Mockito.reset(mControlUpdateCallback);
 
         mCamera2CameraControl.cancelFocusAndMetering();
         HandlerUtil.waitForLooperToIdle(mHandler);
 
-        verify(mControlUpdateListener, times(1)).onCameraControlUpdateSessionConfig(
+        verify(mControlUpdateCallback, times(1)).onCameraControlUpdateSessionConfig(
                 mSessionConfigArgumentCaptor.capture());
         SessionConfig sessionConfig = mSessionConfigArgumentCaptor.getValue();
         Camera2Config repeatingConfig = new Camera2Config(sessionConfig.getImplementationOptions());
@@ -484,13 +484,13 @@ public final class Camera2CameraControlTest {
                 .build();
         mCamera2CameraControl.startFocusAndMetering(action);
         HandlerUtil.waitForLooperToIdle(mHandler);
-        Mockito.reset(mControlUpdateListener);
+        Mockito.reset(mControlUpdateCallback);
         mCamera2CameraControl.cancelFocusAndMetering();
         HandlerUtil.waitForLooperToIdle(mHandler);
 
         verifyAfMode(CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE);
 
-        verify(mControlUpdateListener).onCameraControlCaptureRequests(
+        verify(mControlUpdateCallback).onCameraControlCaptureRequests(
                 mCaptureConfigArgumentCaptor.capture());
 
         CaptureConfig captureConfig = mCaptureConfigArgumentCaptor.getValue().get(0);
@@ -503,7 +503,7 @@ public final class Camera2CameraControlTest {
     }
 
     private void verifyAfMode(int expectAfMode) {
-        verify(mControlUpdateListener, times(1)).onCameraControlUpdateSessionConfig(
+        verify(mControlUpdateCallback, times(1)).onCameraControlUpdateSessionConfig(
                 mSessionConfigArgumentCaptor.capture());
         SessionConfig sessionConfig = mSessionConfigArgumentCaptor.getValue();
         Camera2Config repeatingConfig = new Camera2Config(sessionConfig.getImplementationOptions());
@@ -519,11 +519,11 @@ public final class Camera2CameraControlTest {
                 .build();
         mCamera2CameraControl.startFocusAndMetering(action);
         HandlerUtil.waitForLooperToIdle(mHandler);
-        Mockito.reset(mControlUpdateListener);
+        Mockito.reset(mControlUpdateCallback);
         mCamera2CameraControl.cancelFocusAndMetering();
         HandlerUtil.waitForLooperToIdle(mHandler);
 
-        verify(mControlUpdateListener, never()).onCameraControlCaptureRequests(any());
+        verify(mControlUpdateCallback, never()).onCameraControlCaptureRequests(any());
 
         verifyAfMode(CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE);
     }

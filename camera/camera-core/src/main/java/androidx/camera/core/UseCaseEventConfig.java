@@ -20,20 +20,20 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 
-/** Configuration containing options pertaining to EventListener object. */
+/** Configuration containing options pertaining to EventCallback object. */
 public interface UseCaseEventConfig {
 
     /**
-     * Option: camerax.core.useCaseEventListener
+     * Option: camerax.core.useCaseEventCallback
      *
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    Config.Option<UseCase.EventListener> OPTION_USE_CASE_EVENT_LISTENER =
-            Config.Option.create("camerax.core.useCaseEventListener", UseCase.EventListener.class);
+    Config.Option<UseCase.EventCallback> OPTION_USE_CASE_EVENT_CALLBACK =
+            Config.Option.create("camerax.core.useCaseEventCallback", UseCase.EventCallback.class);
 
     /**
-     * Returns the EventListener.
+     * Returns the EventCallback.
      *
      * @param valueIfMissing The value to return if this configuration option has not been set.
      * @return The stored value or <code>valueIfMissing</code> if the value does not exist in this
@@ -42,17 +42,17 @@ public interface UseCaseEventConfig {
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @Nullable
-    UseCase.EventListener getUseCaseEventListener(@Nullable UseCase.EventListener valueIfMissing);
+    UseCase.EventCallback getUseCaseEventCallback(@Nullable UseCase.EventCallback valueIfMissing);
 
     /**
-     * Returns the EventListener.
+     * Returns the EventCallback.
      *
      * @return The stored value, if it exists in this configuration.
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @NonNull
-    UseCase.EventListener getUseCaseEventListener();
+    UseCase.EventCallback getUseCaseEventCallback();
 
     // Option Declarations:
     // *********************************************************************************************
@@ -65,14 +65,14 @@ public interface UseCaseEventConfig {
     interface Builder<B> {
 
         /**
-         * Sets the EventListener.
+         * Sets the EventCallback.
          *
-         * @param eventListener The EventListener.
+         * @param eventCallback The EventCallback.
          * @return the current Builder.
          * @hide
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @NonNull
-        B setUseCaseEventListener(@NonNull UseCase.EventListener eventListener);
+        B setUseCaseEventCallback(@NonNull UseCase.EventCallback eventCallback);
     }
 }

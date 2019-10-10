@@ -39,15 +39,15 @@ import java.util.List;
  */
 public final class FakeCameraControl implements CameraControlInternal {
     private static final String TAG = "FakeCameraControl";
-    private final ControlUpdateListener mControlUpdateListener;
+    private final ControlUpdateCallback mControlUpdateCallback;
     private final SessionConfig.Builder mSessionConfigBuilder = new SessionConfig.Builder();
     private boolean mIsTorchOn = false;
     private FlashMode mFlashMode = FlashMode.OFF;
     private ArrayList<CaptureConfig> mSubmittedCaptureRequests = new ArrayList<>();
     private OnNewCaptureRequestListener mOnNewCaptureRequestListener;
 
-    public FakeCameraControl(ControlUpdateListener controlUpdateListener) {
-        mControlUpdateListener = controlUpdateListener;
+    public FakeCameraControl(@NonNull ControlUpdateCallback controlUpdateCallback) {
+        mControlUpdateCallback = controlUpdateCallback;
         updateSessionConfig();
     }
 
@@ -134,14 +134,14 @@ public final class FakeCameraControl implements CameraControlInternal {
     @Override
     public void submitCaptureRequests(@NonNull List<CaptureConfig> captureConfigs) {
         mSubmittedCaptureRequests.addAll(captureConfigs);
-        mControlUpdateListener.onCameraControlCaptureRequests(captureConfigs);
+        mControlUpdateCallback.onCameraControlCaptureRequests(captureConfigs);
         if (mOnNewCaptureRequestListener != null) {
             mOnNewCaptureRequestListener.onNewCaptureRequests(captureConfigs);
         }
     }
 
     private void updateSessionConfig() {
-        mControlUpdateListener.onCameraControlUpdateSessionConfig(mSessionConfigBuilder.build());
+        mControlUpdateCallback.onCameraControlUpdateSessionConfig(mSessionConfigBuilder.build());
     }
 
     @Override

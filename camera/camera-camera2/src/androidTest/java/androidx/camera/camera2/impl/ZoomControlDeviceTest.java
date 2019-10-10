@@ -40,7 +40,7 @@ import androidx.camera.camera2.Camera2AppConfig;
 import androidx.camera.camera2.Camera2Config;
 import androidx.camera.core.AppConfig;
 import androidx.camera.core.CameraControl;
-import androidx.camera.core.CameraControlInternal.ControlUpdateListener;
+import androidx.camera.core.CameraControlInternal.ControlUpdateCallback;
 import androidx.camera.core.CameraInfoUnavailableException;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.CameraX.LensFacing;
@@ -79,7 +79,7 @@ public final class ZoomControlDeviceTest {
     private ZoomControl mZoomControl;
     private Camera2CameraControl mCamera2CameraControl;
     private HandlerThread mHandlerThread;
-    private ControlUpdateListener mControlUpdateListener;
+    private ControlUpdateCallback mControlUpdateCallback;
     private CameraCharacteristics mCameraCharacteristics;
     private Handler mHandler;
 
@@ -100,21 +100,21 @@ public final class ZoomControlDeviceTest {
 
         assumeTrue(getMaxDigitalZoom() >= 2.0);
 
-        mControlUpdateListener = mock(ControlUpdateListener.class);
+        mControlUpdateCallback = mock(ControlUpdateCallback.class);
         mHandlerThread = new HandlerThread("ControlThread");
         mHandlerThread.start();
         mHandler = HandlerCompat.createAsync(mHandlerThread.getLooper());
 
         ScheduledExecutorService executorService = CameraXExecutors.newHandlerExecutor(mHandler);
         mCamera2CameraControl = new Camera2CameraControl(mCameraCharacteristics,
-                mControlUpdateListener, executorService, executorService);
+                mControlUpdateCallback, executorService, executorService);
 
         mZoomControl = new ZoomControl(mCamera2CameraControl, mCameraCharacteristics);
         mZoomControl.setActive(true);
 
         // Await Camera2CameraControl updateSessionConfig to complete.
         HandlerUtil.waitForLooperToIdle(mHandler);
-        Mockito.reset(mControlUpdateListener);
+        Mockito.reset(mControlUpdateCallback);
     }
 
     @After
@@ -193,7 +193,7 @@ public final class ZoomControlDeviceTest {
         mZoomControl.setZoomRatio(1.0f);
         HandlerUtil.waitForLooperToIdle(mHandler);
 
-        Rect sessionCropRegion = getSessionCropRegion(mControlUpdateListener);
+        Rect sessionCropRegion = getSessionCropRegion(mControlUpdateCallback);
         assertThat(sessionCropRegion).isEqualTo(null);
     }
 
@@ -202,7 +202,7 @@ public final class ZoomControlDeviceTest {
         mZoomControl.setZoomRatio(2.0f);
         HandlerUtil.waitForLooperToIdle(mHandler);
 
-        Rect sessionCropRegion = getSessionCropRegion(mControlUpdateListener);
+        Rect sessionCropRegion = getSessionCropRegion(mControlUpdateCallback);
 
         Rect sensorRect = getSensorRect();
         int cropX = (sensorRect.width() / 4);
@@ -213,17 +213,17 @@ public final class ZoomControlDeviceTest {
     }
 
     @NonNull
-    private Rect getSessionCropRegion(ControlUpdateListener controlUpdateListener)
+    private Rect getSessionCropRegion(ControlUpdateCallback controlUpdateCallback)
             throws InterruptedException {
         ArgumentCaptor<SessionConfig> sessionConfigArgumentCaptor =
                 ArgumentCaptor.forClass(SessionConfig.class);
 
-        verify(controlUpdateListener, times(1)).onCameraControlUpdateSessionConfig(
+        verify(controlUpdateCallback, times(1)).onCameraControlUpdateSessionConfig(
                 sessionConfigArgumentCaptor.capture());
         SessionConfig sessionConfig = sessionConfigArgumentCaptor.getValue();
         Camera2Config camera2Config = new Camera2Config(sessionConfig.getImplementationOptions());
 
-        reset(controlUpdateListener);
+        reset(controlUpdateCallback);
         return camera2Config.getCaptureRequestOption(CaptureRequest.SCALER_CROP_REGION, null);
     }
 
@@ -256,13 +256,13 @@ public final class ZoomControlDeviceTest {
     public void setZoomPercentageBy0_5_isHalfCropWidth() throws InterruptedException {
         mZoomControl.setZoomPercentage(1f);
         HandlerUtil.waitForLooperToIdle(mHandler);
-        Rect cropRegionMaxZoom = getSessionCropRegion(mControlUpdateListener);
+        Rect cropRegionMaxZoom = getSessionCropRegion(mControlUpdateCallback);
 
         Rect cropRegionMinZoom = getSensorRect();
 
         mZoomControl.setZoomPercentage(0.5f);
         HandlerUtil.waitForLooperToIdle(mHandler);
-        Rect cropRegionHalfZoom = getSessionCropRegion(mControlUpdateListener);
+        Rect cropRegionHalfZoom = getSessionCropRegion(mControlUpdateCallback);
 
         Assert.assertEquals(cropRegionHalfZoom.width(),
                 (cropRegionMinZoom.width() + cropRegionMaxZoom.width()) / 2.0f, TOLERANCE);
@@ -279,7 +279,7 @@ public final class ZoomControlDeviceTest {
 
             mZoomControl.setZoomPercentage(percentage);
             HandlerUtil.waitForLooperToIdle(mHandler);
-            Rect cropRegion = getSessionCropRegion(mControlUpdateListener);
+            Rect cropRegion = getSessionCropRegion(mControlUpdateCallback);
 
             if (prevWidthDelta == 0) {
                 prevWidthDelta = prevCropRegion.width() - cropRegion.width();

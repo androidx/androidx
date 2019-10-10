@@ -59,7 +59,7 @@ public final class Camera2CameraControl implements CameraControlInternal {
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     final Executor mExecutor;
     private final CameraCharacteristics mCameraCharacteristics;
-    private final ControlUpdateListener mControlUpdateListener;
+    private final ControlUpdateCallback mControlUpdateCallback;
     private final ScheduledExecutorService mScheduler;
     private final SessionConfig.Builder mSessionConfigBuilder = new SessionConfig.Builder();
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
@@ -76,10 +76,10 @@ public final class Camera2CameraControl implements CameraControlInternal {
 
 
     public Camera2CameraControl(@NonNull CameraCharacteristics cameraCharacteristics,
-            @NonNull ControlUpdateListener controlUpdateListener,
+            @NonNull ControlUpdateCallback controlUpdateCallback,
             @NonNull ScheduledExecutorService scheduler, @NonNull Executor executor) {
         mCameraCharacteristics = cameraCharacteristics;
-        mControlUpdateListener = controlUpdateListener;
+        mControlUpdateCallback = controlUpdateCallback;
         if (CameraXExecutors.isSequentialExecutor(executor)) {
             mExecutor = executor;
         } else {
@@ -242,7 +242,7 @@ public final class Camera2CameraControl implements CameraControlInternal {
     @WorkerThread
     void updateSessionConfig() {
         mSessionConfigBuilder.setImplementationOptions(getSessionOptions());
-        mControlUpdateListener.onCameraControlUpdateSessionConfig(mSessionConfigBuilder.build());
+        mControlUpdateCallback.onCameraControlUpdateSessionConfig(mSessionConfigBuilder.build());
     }
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
@@ -301,7 +301,7 @@ public final class Camera2CameraControl implements CameraControlInternal {
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     @WorkerThread
     void submitCaptureRequestsInternal(final List<CaptureConfig> captureConfigs) {
-        mControlUpdateListener.onCameraControlCaptureRequests(captureConfigs);
+        mControlUpdateCallback.onCameraControlCaptureRequests(captureConfigs);
     }
 
     /**

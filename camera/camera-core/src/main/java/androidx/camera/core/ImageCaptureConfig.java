@@ -703,17 +703,17 @@ public final class ImageCaptureConfig
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
     @Nullable
-    public UseCase.EventListener getUseCaseEventListener(
-            @Nullable UseCase.EventListener valueIfMissing) {
-        return retrieveOption(OPTION_USE_CASE_EVENT_LISTENER, valueIfMissing);
+    public UseCase.EventCallback getUseCaseEventCallback(
+            @Nullable UseCase.EventCallback valueIfMissing) {
+        return retrieveOption(OPTION_USE_CASE_EVENT_CALLBACK, valueIfMissing);
     }
 
     /** @hide */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
     @NonNull
-    public UseCase.EventListener getUseCaseEventListener() {
-        return retrieveOption(OPTION_USE_CASE_EVENT_LISTENER);
+    public UseCase.EventCallback getUseCaseEventCallback() {
+        return retrieveOption(OPTION_USE_CASE_EVENT_CALLBACK);
     }
 
     // End of the default implementation of Config
@@ -1174,9 +1174,9 @@ public final class ImageCaptureConfig
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
         @NonNull
-        public Builder setUseCaseEventListener(
-                @NonNull UseCase.EventListener useCaseEventListener) {
-            getMutableConfig().insertOption(OPTION_USE_CASE_EVENT_LISTENER, useCaseEventListener);
+        public Builder setUseCaseEventCallback(
+                @NonNull UseCase.EventCallback useCaseEventCallback) {
+            getMutableConfig().insertOption(OPTION_USE_CASE_EVENT_CALLBACK, useCaseEventCallback);
             return this;
         }
     }

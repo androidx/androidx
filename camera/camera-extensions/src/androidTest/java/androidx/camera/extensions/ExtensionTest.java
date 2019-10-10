@@ -157,7 +157,7 @@ public class ExtensionTest {
         // Verify Preview config should have related callback.
         PreviewConfig previewConfig = ExtensionsTestUtil.createPreviewConfigWithEffect(mEffectMode,
                 mLensFacing);
-        assertNotNull(previewConfig.getUseCaseEventListener());
+        assertNotNull(previewConfig.getUseCaseEventCallback());
         CameraEventCallbacks callback1 = new Camera2Config(previewConfig).getCameraEventCallback(
                 null);
         assertNotNull(callback1);
@@ -167,7 +167,7 @@ public class ExtensionTest {
         // Verify ImageCapture config should have related callback.
         ImageCaptureConfig imageCaptureConfig =
                 ExtensionsTestUtil.createImageCaptureConfigWithEffect(mEffectMode, mLensFacing);
-        assertNotNull(imageCaptureConfig.getUseCaseEventListener());
+        assertNotNull(imageCaptureConfig.getUseCaseEventCallback());
         assertNotNull(imageCaptureConfig.getCaptureBundle());
         CameraEventCallbacks callback2 = new Camera2Config(
                 imageCaptureConfig).getCameraEventCallback(null);
