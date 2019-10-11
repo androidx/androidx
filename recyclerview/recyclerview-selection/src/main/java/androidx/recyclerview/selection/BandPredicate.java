@@ -115,9 +115,8 @@ public abstract class BandPredicate {
          * @param recyclerView  the owner RecyclerView
          * @param detailsLookup provides access to item details.
          */
-        @SuppressWarnings("rawtypes")
         public NonDraggableArea(
-                @NonNull RecyclerView recyclerView, @NonNull ItemDetailsLookup detailsLookup) {
+                @NonNull RecyclerView recyclerView, @NonNull ItemDetailsLookup<?> detailsLookup) {
 
             checkArgument(recyclerView != null);
             checkArgument(detailsLookup != null);
