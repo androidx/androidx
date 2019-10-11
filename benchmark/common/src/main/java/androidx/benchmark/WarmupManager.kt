@@ -17,7 +17,6 @@
 package androidx.benchmark
 
 import android.util.Log
-
 import java.util.concurrent.TimeUnit
 
 /**
@@ -85,13 +84,14 @@ internal class WarmupManager {
     fun logInfo() {
         if (iteration > 0) {
             Log.d(
-                "WarmupManager", String.format(
-                    "Complete: t=%.3f, iter=%d, fastAvg=%3.0f, slowAvg=%3.0f",
-                    totalDuration / 1e9,
-                    iteration,
-                    fastMovingAvg,
-                    slowMovingAvg
-                )
+                BenchmarkState.TAG,
+                "Warmup: t=%.3f, iter=%d, fastAvg=%3.0f, slowAvg=%3.0f"
+                    .format(
+                        totalDuration / 1e9,
+                        iteration,
+                        fastMovingAvg,
+                        slowMovingAvg
+                    )
             )
         }
     }
