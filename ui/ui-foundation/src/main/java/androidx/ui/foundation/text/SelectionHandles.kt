@@ -32,7 +32,6 @@ import androidx.ui.text.style.TextDirection
 internal val HANDLE_WIDTH = 25.dp
 internal val HANDLE_HEIGHT = 25.dp
 private val HANDLE_COLOR = Color(0xFF2B28F5.toInt())
-
 @Composable
 private fun SelectionHandle(left: Boolean) {
     val paint = +memo { Paint().also { it.isAntiAlias = true } }
@@ -74,15 +73,36 @@ private fun SelectionHandle(left: Boolean) {
 @Composable
 internal fun StartSelectionHandle(selection: Selection?) {
     selection?.let {
-        if (it.start.direction == TextDirection.Ltr) SelectionHandle(left = true)
-        else SelectionHandle(left = false)
+        if (isHandleLtrDirection(it.start.direction, it.handlesCrossed)) {
+            SelectionHandle(left = true)
+        } else {
+            SelectionHandle(left = false)
+        }
     }
 }
 
 @Composable
 internal fun EndSelectionHandle(selection: Selection?) {
     selection?.let {
-        if (it.end.direction == TextDirection.Ltr) SelectionHandle(left = false)
-        else SelectionHandle(left = true)
+        if (isHandleLtrDirection(it.end.direction, it.handlesCrossed)) {
+            SelectionHandle(left = false)
+        } else {
+            SelectionHandle(left = true)
+        }
     }
+}
+
+/**
+ * This method is to check if the selection handles should use the natural Ltr pointing
+ * direction.
+ * If the context is Ltr and the handles are not crossed, or if the context is Rtl and the handles
+ * are crossed, return true.
+ *
+ * In Ltr context, the start handle should point to the left, and the end handle should point to
+ * the right. However, in Rtl context or when handles are crossed, the start handle should point to
+ * the right, and the end handle should point to left.
+ */
+internal fun isHandleLtrDirection(direction: TextDirection, areHandlesCrossed: Boolean): Boolean {
+    return direction == TextDirection.Ltr && !areHandlesCrossed ||
+            direction == TextDirection.Rtl && areHandlesCrossed
 }

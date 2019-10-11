@@ -77,6 +77,10 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
      *
      * @param startPosition [PxPosition] for the start of the selection
      * @param endPosition [PxPosition] for the end of the selection
+     * @param wordSelectIfCollapsed This flag is ignored if the selection offsets anchors point
+     * different location. If the selection anchors point the same location and this is true, the
+     * result selection will be adjusted to word boundary. Otherwise, the selection will be adjusted
+     * to keep single character selected.
      * @param selection initial selection to start with
      *
      * @return [Selection] object which is constructed by combining all Composables that are
@@ -85,6 +89,7 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
     private fun mergeSelections(
         startPosition: PxPosition,
         endPosition: PxPosition,
+        wordSelectIfCollapsed: Boolean,
         selection: Selection? = null
     ): Selection? {
         val handlers = selectionRegistrar.handlers
@@ -96,7 +101,8 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
                     startPosition = startPosition,
                     endPosition = endPosition,
                     containerLayoutCoordinates = containerLayoutCoordinates,
-                    mode = mode
+                    mode = mode,
+                    wordSelectIfCollapsed = wordSelectIfCollapsed
                 )
             )
         }
@@ -106,35 +112,45 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
     fun onRelease() {
         // Call mergeSelections with an out of boundary input to inform all text widgets to
         // cancel their individual selection.
-        mergeSelections(PxPosition(-1.px, -1.px), PxPosition(-1.px, -1.px))
+        mergeSelections(
+            startPosition = PxPosition(-1.px, -1.px),
+            endPosition = PxPosition(-1.px, -1.px),
+            wordSelectIfCollapsed = false)
         onSelectionChange(null)
     }
 
-    val longPressDragObserver = object : LongPressDragObserver {
-        override fun onLongPress(pxPosition: PxPosition) {
-            if (draggingHandle) return
-            val selection = mergeSelections(pxPosition, pxPosition)
-            onSelectionChange(selection)
-            dragBeginPosition = pxPosition
-        }
+    val longPressDragObserver =
+        object : LongPressDragObserver {
+            override fun onLongPress(pxPosition: PxPosition) {
+                if (draggingHandle) return
+                val selection = mergeSelections(
+                    startPosition = pxPosition,
+                    endPosition = pxPosition,
+                    wordSelectIfCollapsed = true
+                )
+                onSelectionChange(selection)
+                dragBeginPosition = pxPosition
+            }
 
-        override fun onDragStart() {
-            super.onDragStart()
-            // Zero out the total distance that being dragged.
-            dragTotalDistance = PxPosition.Origin
-        }
+            override fun onDragStart() {
+                super.onDragStart()
 
-        override fun onDrag(dragDistance: PxPosition): PxPosition {
-            dragTotalDistance += dragDistance
+                // Zero out the total distance that being dragged.
+                dragTotalDistance = PxPosition.Origin
+            }
 
-            val selection = mergeSelections(
-                dragBeginPosition,
-                dragBeginPosition + dragTotalDistance
-            )
-            onSelectionChange(selection)
-            return dragDistance
+            override fun onDrag(dragDistance: PxPosition): PxPosition {
+                dragTotalDistance += dragDistance
+
+                val selection = mergeSelections(
+                    startPosition = dragBeginPosition,
+                    endPosition = dragBeginPosition + dragTotalDistance,
+                    wordSelectIfCollapsed = true
+                )
+                onSelectionChange(selection)
+                return dragDistance
+            }
         }
-    }
 
     /**
      * Adjust coordinates for given text offset.
@@ -204,7 +220,12 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
                     dragBeginPosition + dragTotalDistance
                 }
 
-                val finalSelection = mergeSelections(currentStart, currentEnd, selection)
+                val finalSelection = mergeSelections(
+                    startPosition = currentStart,
+                    endPosition = currentEnd,
+                    wordSelectIfCollapsed = false,
+                    selection = selection
+                )
                 onSelectionChange(finalSelection)
                 return dragDistance
             }

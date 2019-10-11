@@ -33,7 +33,17 @@ data class Selection(
     /**
      * Information about the end of the selection.
      */
-    val end: AnchorInfo
+    val end: AnchorInfo,
+    /**
+     * The flag to show that the selection handles are dragged across each other. After selection
+     * is initialized, if user drags one handle to cross the other handle, this is true, otherwise
+     * it's false.
+     */
+    // If selection happens in single widget, checking [TextRange.start] > [TextRange.end] is
+    // enough.
+    // But when selection happens across multiple widgets, this value needs more complicated
+    // calculation. To avoid repeated calculation, making it as a flag is cheaper.
+    val handlesCrossed: Boolean = false
 ) {
     /**
      * Contains information about an anchor (start/end) of selection.
@@ -80,6 +90,8 @@ data class Selection(
         other.end.layoutCoordinates?.let {
             selection = selection.copy(end = other.end)
         }
+
+        selection = selection.copy(handlesCrossed = other.handlesCrossed)
 
         return selection
     }

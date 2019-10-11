@@ -32,7 +32,6 @@ import androidx.ui.core.selection.SelectionMode
 import androidx.ui.core.selection.SelectionRegistrarAmbient
 import androidx.ui.foundation.Popup
 import androidx.ui.layout.Container
-import androidx.ui.text.style.TextDirection
 import kotlin.math.ceil
 import kotlin.math.roundToInt
 
@@ -103,8 +102,11 @@ private fun DrawHandles(
         Container {
             Popup(
                 alignment =
-                if (selection.start.direction == TextDirection.Ltr) Alignment.TopRight
-                else Alignment.TopLeft,
+                if (isHandleLtrDirection(selection.start.direction, selection.handlesCrossed)) {
+                    Alignment.TopRight
+                } else {
+                    Alignment.TopLeft
+                },
                 offset = IntPxPosition(startOffset.x.value.toIntPx(), startOffset.y.value.toIntPx())
             ) {
                 TouchSlopDragGestureDetector(
@@ -117,8 +119,11 @@ private fun DrawHandles(
         Container {
             Popup(
                 alignment =
-                if (selection.end.direction == TextDirection.Ltr) Alignment.TopLeft
-                else Alignment.TopRight,
+                if (isHandleLtrDirection(selection.end.direction, selection.handlesCrossed)) {
+                    Alignment.TopLeft
+                } else {
+                    Alignment.TopRight
+                },
                 offset = IntPxPosition(endOffset.x.value.toIntPx(), endOffset.y.value.toIntPx())
             ) {
                 TouchSlopDragGestureDetector(

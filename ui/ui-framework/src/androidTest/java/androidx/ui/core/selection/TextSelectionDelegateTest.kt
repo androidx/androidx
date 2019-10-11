@@ -79,7 +79,8 @@ class TextSelectionDelegateTest {
                 textDelegate = textDelegate,
                 selectionCoordinates = Pair(start, end),
                 mode = SelectionMode.Horizontal,
-                layoutCoordinates = mock()
+                layoutCoordinates = mock(),
+                wordSelectIfCollapsed = true
             )
 
             // Assert.
@@ -128,7 +129,8 @@ class TextSelectionDelegateTest {
                 textDelegate = textDelegate,
                 selectionCoordinates = Pair(start, end),
                 mode = SelectionMode.Horizontal,
-                layoutCoordinates = mock()
+                layoutCoordinates = mock(),
+                wordSelectIfCollapsed = true
             )
 
             // Assert.
@@ -180,7 +182,8 @@ class TextSelectionDelegateTest {
                 textDelegate = textDelegate,
                 selectionCoordinates = Pair(start, end),
                 mode = SelectionMode.Horizontal,
-                layoutCoordinates = mock()
+                layoutCoordinates = mock(),
+                wordSelectIfCollapsed = false
             )
 
             // Assert.
@@ -238,8 +241,8 @@ class TextSelectionDelegateTest {
                 textDelegate = textDelegate,
                 selectionCoordinates = Pair(start, end),
                 mode = SelectionMode.Horizontal,
-                layoutCoordinates = mock()
-
+                layoutCoordinates = mock(),
+                wordSelectIfCollapsed = false
             )
 
             // Assert.
@@ -302,7 +305,8 @@ class TextSelectionDelegateTest {
                 textDelegate = textDelegate,
                 selectionCoordinates = Pair(start, end),
                 mode = SelectionMode.Horizontal,
-                layoutCoordinates = mock()
+                layoutCoordinates = mock(),
+                wordSelectIfCollapsed = false
             )
 
             // Assert.
@@ -333,8 +337,506 @@ class TextSelectionDelegateTest {
         }
     }
 
-    // TODO(qqd) add tests for the case where selection is false (returned value is null)
-    // TODO(qqd) add tests for the case where layoutCoordinates is null
+    @Test
+    fun testTextSelectionProcessor_single_widget_handles_crossed_ltr() {
+        withDensity(defaultDensity) {
+            val text = "hello world\n"
+            val fontSize = 20.sp
+            val fontSizeInPx = fontSize.toPx().value
+            val textDelegate = simpleTextDelegate(
+                text = text,
+                fontSize = fontSize,
+                density = defaultDensity
+            )
+            // "llo wor" is selected.
+            val startOffset = text.indexOf("r") + 1
+            val endOffset = text.indexOf("l")
+            val start = PxPosition((fontSizeInPx * startOffset).px, (fontSizeInPx / 2).px)
+            val end = PxPosition((fontSizeInPx * endOffset).px, (fontSizeInPx / 2).px)
+            // Act.
+            val textSelectionInfo = getTextSelectionInfo(
+                selectionCoordinates = Pair(start, end),
+                mode = SelectionMode.Horizontal,
+                textDelegate = textDelegate,
+                layoutCoordinates = mock(),
+                wordSelectIfCollapsed = false
+            )
+            // Assert.
+            assertThat(textSelectionInfo).isNotNull()
+
+            assertThat(textSelectionInfo?.start).isNotNull()
+            textSelectionInfo?.start?.let {
+                assertThat(it.coordinates).isEqualTo(
+                    PxPosition((startOffset * fontSizeInPx).px, fontSizeInPx.px)
+                )
+                assertThat(it.direction).isEqualTo(TextDirection.Ltr)
+                assertThat(it.layoutCoordinates).isNotNull()
+                assertThat(it.offset).isEqualTo(startOffset)
+            }
+
+            assertThat(textSelectionInfo?.end).isNotNull()
+            textSelectionInfo?.end?.let {
+                assertThat(it.coordinates).isEqualTo(
+                    PxPosition((endOffset * fontSizeInPx).px, fontSizeInPx.px)
+                )
+                assertThat(it.direction).isEqualTo(TextDirection.Ltr)
+                assertThat(it.layoutCoordinates).isNotNull()
+                assertThat(it.offset).isEqualTo(endOffset)
+            }
+            assertThat(textSelectionInfo?.handlesCrossed).isTrue()
+        }
+    }
+
+    @Test
+    fun testTextSelectionProcessor_single_widget_handles_crossed_rtl() {
+        withDensity(defaultDensity) {
+            val text = "\u05D0\u05D1\u05D2 \u05D3\u05D4\u05D5\n"
+            val fontSize = 20.sp
+            val fontSizeInPx = fontSize.toPx().value
+            val textDelegate = simpleTextDelegate(
+                text = text,
+                fontSize = fontSize,
+                density = defaultDensity
+            )
+            // "\u05D1\u05D2 \u05D3" is selected.
+            val startOffset = text.indexOf("\u05D3") + 1
+            val endOffset = text.indexOf("\u05D1")
+            val start = PxPosition(
+                (fontSizeInPx * (text.length - 1 - startOffset)).px,
+                (fontSizeInPx / 2).px
+            )
+            val end = PxPosition(
+                (fontSizeInPx * (text.length - 1 - endOffset)).px,
+                (fontSizeInPx / 2).px
+            )
+
+            // Act.
+            val textSelectionInfo = getTextSelectionInfo(
+                selectionCoordinates = Pair(start, end),
+                mode = SelectionMode.Horizontal,
+                textDelegate = textDelegate,
+                layoutCoordinates = mock(),
+                wordSelectIfCollapsed = false
+            )
+            // Assert.
+            assertThat(textSelectionInfo).isNotNull()
+
+            assertThat(textSelectionInfo?.start).isNotNull()
+            textSelectionInfo?.start?.let {
+                assertThat(it.coordinates).isEqualTo(
+                    PxPosition(((text.length - 1 - startOffset) * fontSizeInPx).px, fontSizeInPx.px)
+                )
+                assertThat(it.direction).isEqualTo(TextDirection.Rtl)
+                assertThat(it.layoutCoordinates).isNotNull()
+                assertThat(it.offset).isEqualTo(startOffset)
+            }
+
+            assertThat(textSelectionInfo?.end).isNotNull()
+            textSelectionInfo?.end?.let {
+                assertThat(it.coordinates).isEqualTo(
+                    PxPosition(((text.length - 1 - endOffset) * fontSizeInPx).px, fontSizeInPx.px)
+                )
+                assertThat(it.direction).isEqualTo(TextDirection.Rtl)
+                assertThat(it.layoutCoordinates).isNotNull()
+                assertThat(it.offset).isEqualTo(endOffset)
+            }
+            assertThat(textSelectionInfo?.handlesCrossed).isTrue()
+        }
+    }
+
+    @Test
+    fun testTextSelectionProcessor_single_widget_handles_crossed_bidi() {
+        withDensity(defaultDensity) {
+            val textLtr = "Hello"
+            val textRtl = "\u05D0\u05D1\u05D2\u05D3\u05D4"
+            val text = textLtr + textRtl
+            val fontSize = 20.sp
+            val fontSizeInPx = fontSize.toPx().value
+            val textDelegate = simpleTextDelegate(
+                text = text,
+                fontSize = fontSize,
+                density = defaultDensity
+            )
+            // "llo"+"\u05D0\u05D1\u05D2" is selected
+            val startOffset = text.indexOf("\u05D2") + 1
+            val endOffset = text.indexOf("l")
+            val start = PxPosition(
+                (fontSizeInPx * (textLtr.length + text.length - startOffset)).px,
+                (fontSizeInPx / 2).px
+            )
+            val end = PxPosition(
+                (fontSizeInPx * endOffset).px,
+                (fontSizeInPx / 2).px
+            )
+
+            // Act.
+            val textSelectionInfo = getTextSelectionInfo(
+                selectionCoordinates = Pair(start, end),
+                mode = SelectionMode.Horizontal,
+                textDelegate = textDelegate,
+                layoutCoordinates = mock(),
+                wordSelectIfCollapsed = false
+            )
+            // Assert.
+            assertThat(textSelectionInfo).isNotNull()
+
+            assertThat(textSelectionInfo?.start).isNotNull()
+            textSelectionInfo?.start?.let {
+                assertThat(it.coordinates).isEqualTo(
+                    PxPosition(
+                        ((textLtr.length + text.length - startOffset) * fontSizeInPx).px,
+                        fontSizeInPx.px
+                    )
+                )
+                assertThat(it.direction).isEqualTo(TextDirection.Rtl)
+                assertThat(it.layoutCoordinates).isNotNull()
+                assertThat(it.offset).isEqualTo(startOffset)
+            }
+
+            assertThat(textSelectionInfo?.end).isNotNull()
+            textSelectionInfo?.end?.let {
+                assertThat(it.coordinates).isEqualTo(
+                    PxPosition((endOffset * fontSizeInPx).px, fontSizeInPx.px)
+                )
+                assertThat(it.direction).isEqualTo(TextDirection.Ltr)
+                assertThat(it.layoutCoordinates).isNotNull()
+                assertThat(it.offset).isEqualTo(endOffset)
+            }
+            assertThat(textSelectionInfo?.handlesCrossed).isTrue()
+        }
+    }
+
+    @Test
+    fun testTextSelectionProcessor_bound_to_one_character_ltr() {
+        withDensity(defaultDensity) {
+            val text = "hello world\n"
+            val fontSize = 20.sp
+            val fontSizeInPx = fontSize.toPx().value
+            val textDelegate = simpleTextDelegate(
+                text = text,
+                fontSize = fontSize,
+                density = defaultDensity
+            )
+            // "l" is selected.
+            val startOffset = text.indexOf("l")
+            val start = PxPosition((fontSizeInPx * startOffset).px, (fontSizeInPx / 2).px)
+            val end = PxPosition((fontSizeInPx * startOffset).px, (fontSizeInPx / 2).px)
+
+            // Act.
+            val textSelectionInfo = getTextSelectionInfo(
+                selectionCoordinates = Pair(start, end),
+                mode = SelectionMode.Horizontal,
+                textDelegate = textDelegate,
+                layoutCoordinates = mock(),
+                wordSelectIfCollapsed = false
+            )
+            // Assert.
+            assertThat(textSelectionInfo).isNotNull()
+
+            assertThat(textSelectionInfo?.start).isNotNull()
+            textSelectionInfo?.start?.let {
+                assertThat(it.coordinates).isEqualTo(
+                    PxPosition((startOffset * fontSizeInPx).px, fontSizeInPx.px)
+                )
+                assertThat(it.direction).isEqualTo(TextDirection.Ltr)
+                assertThat(it.layoutCoordinates).isNotNull()
+                assertThat(it.offset).isEqualTo(startOffset)
+            }
+
+            assertThat(textSelectionInfo?.end).isNotNull()
+            textSelectionInfo?.end?.let {
+                assertThat(it.coordinates).isEqualTo(
+                    PxPosition(((startOffset + 1) * fontSizeInPx).px, fontSizeInPx.px)
+                )
+                assertThat(it.direction).isEqualTo(TextDirection.Ltr)
+                assertThat(it.layoutCoordinates).isNotNull()
+                assertThat(it.offset).isEqualTo(startOffset + 1)
+            }
+        }
+    }
+
+    @Test
+    fun testTextSelectionProcessor_bound_to_one_character_rtl() {
+        withDensity(defaultDensity) {
+            val text = "\u05D0\u05D1\u05D2 \u05D3\u05D4\u05D5\n"
+            val fontSize = 20.sp
+            val fontSizeInPx = fontSize.toPx().value
+            val textDelegate = simpleTextDelegate(
+                text = text,
+                fontSize = fontSize,
+                density = defaultDensity
+            )
+            // "\u05D1" is selected.
+            val startOffset = text.indexOf("\u05D1")
+            val start = PxPosition(
+                (fontSizeInPx * (text.length - 1 - startOffset)).px,
+                (fontSizeInPx / 2).px
+            )
+            val end = PxPosition(
+                (fontSizeInPx * (text.length - 1 - startOffset)).px,
+                (fontSizeInPx / 2).px
+            )
+
+            // Act.
+            val textSelectionInfo = getTextSelectionInfo(
+                selectionCoordinates = Pair(start, end),
+                mode = SelectionMode.Horizontal,
+                textDelegate = textDelegate,
+                layoutCoordinates = mock(),
+                wordSelectIfCollapsed = false
+            )
+            // Assert.
+            assertThat(textSelectionInfo).isNotNull()
+
+            assertThat(textSelectionInfo?.start).isNotNull()
+            textSelectionInfo?.start?.let {
+                assertThat(it.coordinates).isEqualTo(
+                    PxPosition(((text.length - 1 - startOffset) * fontSizeInPx).px, fontSizeInPx.px)
+                )
+                assertThat(it.direction).isEqualTo(TextDirection.Rtl)
+                assertThat(it.layoutCoordinates).isNotNull()
+                assertThat(it.offset).isEqualTo(startOffset)
+            }
+
+            assertThat(textSelectionInfo?.end).isNotNull()
+            textSelectionInfo?.end?.let {
+                assertThat(it.coordinates).isEqualTo(
+                    PxPosition(
+                        ((text.length - 1 - (startOffset + 1)) * fontSizeInPx).px,
+                        fontSizeInPx.px
+                    )
+                )
+                assertThat(it.direction).isEqualTo(TextDirection.Rtl)
+                assertThat(it.layoutCoordinates).isNotNull()
+                assertThat(it.offset).isEqualTo(startOffset + 1)
+            }
+        }
+    }
+
+    @Test
+    fun testTextSelectionProcessor_cross_widget_not_contain_start() {
+        withDensity(defaultDensity) {
+            val text = "hello world\n"
+            val fontSize = 20.sp
+            val fontSizeInPx = fontSize.toPx().value
+            val textDelegate = simpleTextDelegate(
+                text = text,
+                fontSize = fontSize,
+                density = defaultDensity
+            )
+            // "hello w" is selected.
+            val endOffset = text.indexOf("w") + 1
+            val start = PxPosition(-50.px, -50.px)
+            val end = PxPosition((fontSizeInPx * endOffset).px, (fontSizeInPx / 2).px)
+
+            // Act.
+            val textSelectionInfo = getTextSelectionInfo(
+                selectionCoordinates = Pair(start, end),
+                mode = SelectionMode.Horizontal,
+                textDelegate = textDelegate,
+                layoutCoordinates = mock(),
+                wordSelectIfCollapsed = false
+            )
+            // Assert.
+            assertThat(textSelectionInfo).isNotNull()
+
+            assertThat(textSelectionInfo?.start).isNotNull()
+            textSelectionInfo?.start?.let {
+                assertThat(it.coordinates).isEqualTo(
+                    PxPosition(0.px, fontSizeInPx.px)
+                )
+                assertThat(it.direction).isEqualTo(TextDirection.Ltr)
+                assertThat(it.layoutCoordinates).isNull()
+                assertThat(it.offset).isEqualTo(0)
+            }
+
+            assertThat(textSelectionInfo?.end).isNotNull()
+            textSelectionInfo?.end?.let {
+                assertThat(it.coordinates).isEqualTo(
+                    PxPosition(((endOffset) * fontSizeInPx).px, fontSizeInPx.px)
+                )
+                assertThat(it.direction).isEqualTo(TextDirection.Ltr)
+                assertThat(it.layoutCoordinates).isNotNull()
+                assertThat(it.offset).isEqualTo(endOffset)
+            }
+        }
+    }
+
+    @Test
+    fun testTextSelectionProcessor_cross_widget_not_contain_end() {
+        withDensity(defaultDensity) {
+            val text = "hello world"
+            val fontSize = 20.sp
+            val fontSizeInPx = fontSize.toPx().value
+            val textDelegate = simpleTextDelegate(
+                text = text,
+                fontSize = fontSize,
+                density = defaultDensity
+            )
+            // "o world" is selected.
+            val startOffset = text.indexOf("o")
+            val start = PxPosition((fontSizeInPx * startOffset).px, (fontSizeInPx / 2).px)
+            val end = PxPosition((fontSizeInPx * text.length * 2).px, (fontSizeInPx * 2)
+                .px)
+
+            // Act.
+            val textSelectionInfo = getTextSelectionInfo(
+                selectionCoordinates = Pair(start, end),
+                mode = SelectionMode.Horizontal,
+                textDelegate = textDelegate,
+                layoutCoordinates = mock(),
+                wordSelectIfCollapsed = false
+            )
+            // Assert.
+            assertThat(textSelectionInfo).isNotNull()
+
+            assertThat(textSelectionInfo?.start).isNotNull()
+            textSelectionInfo?.start?.let {
+                assertThat(it.coordinates).isEqualTo(
+                    PxPosition((fontSizeInPx * startOffset).px, fontSizeInPx.px)
+                )
+                assertThat(it.direction).isEqualTo(TextDirection.Ltr)
+                assertThat(it.layoutCoordinates).isNotNull()
+                assertThat(it.offset).isEqualTo(startOffset)
+            }
+
+            assertThat(textSelectionInfo?.end).isNotNull()
+            textSelectionInfo?.end?.let {
+                assertThat(it.coordinates).isEqualTo(
+                    PxPosition((fontSizeInPx * (text.length - 1)).px, fontSizeInPx.px)
+                )
+                assertThat(it.direction).isEqualTo(TextDirection.Ltr)
+                assertThat(it.layoutCoordinates).isNull()
+                assertThat(it.offset).isEqualTo(text.length - 1)
+            }
+        }
+    }
+
+    @Test
+    fun testTextSelectionProcessor_cross_widget_not_contain_start_handles_crossed() {
+        withDensity(defaultDensity) {
+            val text = "hello world"
+            val fontSize = 20.sp
+            val fontSizeInPx = fontSize.toPx().value
+            val textDelegate = simpleTextDelegate(
+                text = text,
+                fontSize = fontSize,
+                density = defaultDensity
+            )
+            // "world" is selected.
+            val endOffset = text.indexOf("w")
+            val start =
+                PxPosition((fontSizeInPx * text.length * 2).px, (fontSizeInPx * 2).px)
+            val end = PxPosition((fontSizeInPx * endOffset).px, (fontSizeInPx / 2).px)
+
+            // Act.
+            val textSelectionInfo = getTextSelectionInfo(
+                selectionCoordinates = Pair(start, end),
+                mode = SelectionMode.Horizontal,
+                textDelegate = textDelegate,
+                layoutCoordinates = mock(),
+                wordSelectIfCollapsed = false
+            )
+            // Assert.
+            assertThat(textSelectionInfo).isNotNull()
+
+            assertThat(textSelectionInfo?.start).isNotNull()
+            textSelectionInfo?.start?.let {
+                assertThat(it.coordinates).isEqualTo(
+                    PxPosition(((text.length - 1) * fontSizeInPx).px, fontSizeInPx.px)
+                )
+                assertThat(it.direction).isEqualTo(TextDirection.Ltr)
+                assertThat(it.layoutCoordinates).isNull()
+                assertThat(it.offset).isEqualTo(text.length - 1)
+            }
+
+            assertThat(textSelectionInfo?.end).isNotNull()
+            textSelectionInfo?.end?.let {
+                assertThat(it.coordinates).isEqualTo(
+                    PxPosition(((endOffset) * fontSizeInPx).px, fontSizeInPx.px)
+                )
+                assertThat(it.direction).isEqualTo(TextDirection.Ltr)
+                assertThat(it.layoutCoordinates).isNotNull()
+                assertThat(it.offset).isEqualTo(endOffset)
+            }
+            assertThat(textSelectionInfo?.handlesCrossed).isTrue()
+        }
+    }
+
+    @Test
+    fun testTextSelectionProcessor_cross_widget_not_contain_end_handles_crossed() {
+        withDensity(defaultDensity) {
+            val text = "hello world"
+            val fontSize = 20.sp
+            val fontSizeInPx = fontSize.toPx().value
+            val textDelegate = simpleTextDelegate(
+                text = text,
+                fontSize = fontSize,
+                density = defaultDensity
+            )
+            // "hell" is selected.
+            val startOffset = text.indexOf("o")
+            val start =
+                PxPosition((fontSizeInPx * startOffset).px, (fontSizeInPx / 2).px)
+            val end = PxPosition(-50.px, -50.px)
+
+            // Act.
+            val textSelectionInfo = getTextSelectionInfo(
+                selectionCoordinates = Pair(start, end),
+                mode = SelectionMode.Horizontal,
+                textDelegate = textDelegate,
+                layoutCoordinates = mock(),
+                wordSelectIfCollapsed = false
+            )
+            // Assert.
+            assertThat(textSelectionInfo).isNotNull()
+
+            assertThat(textSelectionInfo?.start).isNotNull()
+            textSelectionInfo?.start?.let {
+                assertThat(it.coordinates).isEqualTo(
+                    PxPosition((startOffset * fontSizeInPx).px, fontSizeInPx.px)
+                )
+                assertThat(it.direction).isEqualTo(TextDirection.Ltr)
+                assertThat(it.layoutCoordinates).isNotNull()
+                assertThat(it.offset).isEqualTo(startOffset)
+            }
+
+            assertThat(textSelectionInfo?.end).isNotNull()
+            textSelectionInfo?.end?.let {
+                assertThat(it.coordinates).isEqualTo(
+                    PxPosition(0.px, fontSizeInPx.px)
+                )
+                assertThat(it.direction).isEqualTo(TextDirection.Ltr)
+                assertThat(it.layoutCoordinates).isNull()
+                assertThat(it.offset).isEqualTo(0)
+            }
+            assertThat(textSelectionInfo?.handlesCrossed).isTrue()
+        }
+    }
+
+    @Test
+    fun testTextSelectionProcessor_not_selected() {
+        withDensity(defaultDensity) {
+            val text = "hello world\n"
+            val fontSize = 20.sp
+            val textDelegate = simpleTextDelegate(
+                text = text,
+                fontSize = fontSize,
+                density = defaultDensity
+            )
+            val start = PxPosition(-50.px, -50.px)
+            val end = PxPosition(-20.px, -20.px)
+            // Act.
+            val textSelectionInfo = getTextSelectionInfo(
+                selectionCoordinates = Pair(start, end),
+                mode = SelectionMode.Horizontal,
+                textDelegate = textDelegate,
+                layoutCoordinates = mock(),
+                wordSelectIfCollapsed = true
+            )
+            assertThat(textSelectionInfo).isNull()
+        }
+    }
 
     private fun simpleTextDelegate(
         text: String = "",
