@@ -34,9 +34,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
-import android.view.animation.Animation;
-import android.view.animation.AnimationSet;
-import android.view.animation.Transformation;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.activity.OnBackPressedDispatcher;
@@ -50,7 +47,6 @@ import androidx.annotation.StringRes;
 import androidx.collection.ArraySet;
 import androidx.core.os.CancellationSignal;
 import androidx.core.util.LogWriter;
-import androidx.core.view.OneShotPreDrawListener;
 import androidx.fragment.R;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleOwner;
@@ -1287,7 +1283,8 @@ public abstract class FragmentManager {
                                 }
                                 f.mPostponedAlpha = 0;
                                 if (anim != null) {
-                                    animateRemoveFragment(f, anim);
+                                    FragmentAnim.animateRemoveFragment(f, anim,
+                                            mFragmentTransitionCallback);
                                 }
                                 f.mContainer.removeView(f.mView);
                             }
@@ -1355,82 +1352,6 @@ public abstract class FragmentManager {
                         + "expected state " + newState + " found " + f.mState);
             }
             f.mState = newState;
-        }
-    }
-
-    /**
-     * Animates the removal of a fragment with the given animator or animation. After animating,
-     * the fragment's view will be removed from the hierarchy.
-     *
-     * @param fragment The fragment to animate out
-     * @param anim The animator or animation to run on the fragment's view
-     */
-    private void animateRemoveFragment(@NonNull final Fragment fragment,
-            @NonNull FragmentAnim.AnimationOrAnimator anim) {
-        final View viewToAnimate = fragment.mView;
-        final ViewGroup container = fragment.mContainer;
-        container.startViewTransition(viewToAnimate);
-        final CancellationSignal signal = new CancellationSignal();
-        signal.setOnCancelListener(new CancellationSignal.OnCancelListener() {
-            @Override
-            public void onCancel() {
-                if (fragment.getAnimatingAway() != null) {
-                    View v = fragment.getAnimatingAway();
-                    fragment.setAnimatingAway(null);
-                    v.clearAnimation();
-                }
-                fragment.setAnimator(null);
-            }
-        });
-        addCancellationSignal(fragment, signal);
-        if (anim.animation != null) {
-            Animation animation =
-                    new EndViewTransitionAnimation(anim.animation, container, viewToAnimate);
-            fragment.setAnimatingAway(fragment.mView);
-            animation.setAnimationListener(new Animation.AnimationListener() {
-                @Override
-                public void onAnimationStart(Animation animation) {
-                }
-
-                @Override
-                public void onAnimationEnd(Animation animation) {
-                    // onAnimationEnd() comes during draw(), so there can still be some
-                    // draw events happening after this call. We don't want to detach
-                    // the view until after the onAnimationEnd()
-                    container.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            if (fragment.getAnimatingAway() != null) {
-                                fragment.setAnimatingAway(null);
-                                removeCancellationSignal(fragment, signal);
-                            }
-                        }
-                    });
-                }
-
-                @Override
-                public void onAnimationRepeat(Animation animation) {
-                }
-            });
-            fragment.mView.startAnimation(animation);
-        } else {
-            Animator animator = anim.animator;
-            fragment.setAnimator(anim.animator);
-            animator.addListener(new AnimatorListenerAdapter() {
-                @Override
-                public void onAnimationEnd(Animator anim) {
-                    container.endViewTransition(viewToAnimate);
-                    // If an animator ends immediately, we can just pretend there is no animation.
-                    // When that happens the the fragment's view won't have been removed yet.
-                    Animator animator = fragment.getAnimator();
-                    fragment.setAnimator(null);
-                    if (animator != null && container.indexOfChild(viewToAnimate) < 0) {
-                        removeCancellationSignal(fragment, signal);
-                    }
-                }
-            });
-            animator.setTarget(fragment.mView);
-            animator.start();
         }
     }
 
@@ -3343,72 +3264,6 @@ public abstract class FragmentManager {
          */
         void cancelTransaction() {
             mRecord.mManager.completeExecute(mRecord, mIsBack, false, false);
-        }
-    }
-
-    /**
-     * We must call endViewTransition() before the animation ends or else the parent doesn't
-     * get nulled out. We use both startViewTransition() and startAnimation() to solve a problem
-     * with Views remaining in the hierarchy as disappearing children after the view has been
-     * removed in some edge cases.
-     */
-    private static class EndViewTransitionAnimation extends AnimationSet implements Runnable {
-        private final ViewGroup mParent;
-        private final View mChild;
-        private boolean mEnded;
-        private boolean mTransitionEnded;
-        private boolean mAnimating = true;
-
-        EndViewTransitionAnimation(@NonNull Animation animation,
-                @NonNull ViewGroup parent, @NonNull View child) {
-            super(false);
-            mParent = parent;
-            mChild = child;
-            addAnimation(animation);
-            // We must call endViewTransition() even if the animation was never run or it
-            // is interrupted in a way that can't be detected easily (app put in background)
-            mParent.post(this);
-        }
-
-        @Override
-        public boolean getTransformation(long currentTime, @NonNull Transformation t) {
-            mAnimating = true;
-            if (mEnded) {
-                return !mTransitionEnded;
-            }
-            boolean more = super.getTransformation(currentTime, t);
-            if (!more) {
-                mEnded = true;
-                OneShotPreDrawListener.add(mParent, this);
-            }
-            return true;
-        }
-
-        @Override
-        public boolean getTransformation(long currentTime,
-                @NonNull Transformation outTransformation, float scale) {
-            mAnimating = true;
-            if (mEnded) {
-                return !mTransitionEnded;
-            }
-            boolean more = super.getTransformation(currentTime, outTransformation, scale);
-            if (!more) {
-                mEnded = true;
-                OneShotPreDrawListener.add(mParent, this);
-            }
-            return true;
-        }
-
-        @Override
-        public void run() {
-            if (!mEnded && mAnimating) {
-                mAnimating = false;
-                // Called while animating, so we'll check again on next cycle
-                mParent.post(this);
-            } else {
-                mParent.endViewTransition(mChild);
-                mTransitionEnded = true;
-            }
         }
     }
 }
