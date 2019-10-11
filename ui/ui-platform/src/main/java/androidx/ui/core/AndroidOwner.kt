@@ -65,7 +65,7 @@ class AndroidComposeView constructor(context: Context) :
         private set
 
     val root = LayoutNode().also {
-        it.measureBlock = RootMeasureBlock
+        it.measureBlocks = RootMeasureBlocks
     }
 
     // LayoutNodes that need measure and layout, the value is true when measure is needed
@@ -664,30 +664,60 @@ class AndroidComposeView constructor(context: Context) :
     private fun autofillSupported() = Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
 
     internal companion object {
-        private val RootMeasureBlock: MeasureBlock = { measurables, constraints ->
-            when {
-                measurables.isEmpty() -> layout(IntPx.Zero, IntPx.Zero) {}
-                measurables.size == 1 -> {
-                    val placeable = measurables[0].measure(constraints)
-                    layout(placeable.width, placeable.height) {
-                        placeable.place(IntPx.Zero, IntPx.Zero)
-                    }
-                }
-                else -> {
-                    val placeables = measurables.map { it.measure(constraints) }
-                    var maxWidth = IntPx.Zero
-                    var maxHeight = IntPx.Zero
-                    placeables.forEach { placeable ->
-                        maxWidth = max(placeable.width, maxWidth)
-                        maxHeight = max(placeable.height, maxHeight)
-                    }
-                    layout(maxWidth, maxHeight) {
-                        placeables.forEach { placeable ->
+        private val RootMeasureBlocks = object : LayoutNode.MeasureBlocks {
+            override fun measure(
+                measureScope: MeasureScope,
+                measurables: List<Measurable>,
+                constraints: Constraints
+            ): MeasureScope.LayoutResult {
+                return when {
+                    measurables.isEmpty() -> measureScope.layout(IntPx.Zero, IntPx.Zero) {}
+                    measurables.size == 1 -> {
+                        val placeable = measurables[0].measure(constraints)
+                        measureScope.layout(placeable.width, placeable.height) {
                             placeable.place(IntPx.Zero, IntPx.Zero)
+                        }
+                    }
+                    else -> {
+                        val placeables = measurables.map { it.measure(constraints) }
+                        var maxWidth = IntPx.Zero
+                        var maxHeight = IntPx.Zero
+                        placeables.forEach { placeable ->
+                            maxWidth = max(placeable.width, maxWidth)
+                            maxHeight = max(placeable.height, maxHeight)
+                        }
+                        measureScope.layout(maxWidth, maxHeight) {
+                            placeables.forEach { placeable ->
+                                placeable.place(IntPx.Zero, IntPx.Zero)
+                            }
                         }
                     }
                 }
             }
+
+            override fun minIntrinsicWidth(
+                densityScope: DensityScope,
+                measurables: List<IntrinsicMeasurable>,
+                h: IntPx
+            ) = error("Undefined intrinsics block and it is required")
+
+            override fun minIntrinsicHeight(
+                densityScope: DensityScope,
+                measurables: List<IntrinsicMeasurable>,
+                w: IntPx
+            ) = error("Undefined intrinsics block and it is required")
+
+            override fun maxIntrinsicWidth(
+                densityScope: DensityScope,
+                measurables: List<IntrinsicMeasurable>,
+                h: IntPx
+            ) = error("Undefined intrinsics block and it is required")
+
+            override fun maxIntrinsicHeight(
+                densityScope: DensityScope,
+                measurables: List<IntrinsicMeasurable>,
+                w: IntPx
+            ) = error("Undefined intrinsics block and it is required")
         }
     }
 }

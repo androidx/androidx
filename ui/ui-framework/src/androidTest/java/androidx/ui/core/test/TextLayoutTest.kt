@@ -20,7 +20,6 @@ import androidx.compose.Composable
 import androidx.compose.composer
 import androidx.test.filters.SmallTest
 import androidx.test.rule.ActivityTestRule
-import androidx.ui.core.ComplexLayout
 import androidx.ui.core.Constraints
 import androidx.ui.core.Density
 import androidx.ui.core.FirstBaseline
@@ -130,30 +129,30 @@ class TextLayoutTest {
             val text = @Composable {
                 Text("aa aa ", style = TextStyle(fontFamily = fontFamily))
             }
-            ComplexLayout(text) {
-                measure { measurables, _ ->
-                    val textMeasurable = measurables.first()
-                    // Min width.
-                    assertEquals(textWidth, textMeasurable.minIntrinsicWidth(0.ipx))
-                    // Min height.
-                    assertTrue(textMeasurable.minIntrinsicHeight(textWidth) > textHeight)
-                    assertEquals(textHeight, textMeasurable.minIntrinsicHeight(doubleTextWidth))
-                    assertEquals(textHeight, textMeasurable.minIntrinsicHeight(IntPx.Infinity))
-                    // Max width.
-                    assertEquals(doubleTextWidth, textMeasurable.maxIntrinsicWidth(0.ipx))
-                    // Max height.
-                    assertTrue(textMeasurable.maxIntrinsicHeight(textWidth) > textHeight)
-                    assertEquals(textHeight, textMeasurable.maxIntrinsicHeight(doubleTextWidth))
-                    assertEquals(textHeight, textMeasurable.maxIntrinsicHeight(IntPx.Infinity))
+            Layout(
+                text,
+                minIntrinsicWidthMeasureBlock = { _, _ -> 0.ipx },
+                minIntrinsicHeightMeasureBlock = { _, _ -> 0.ipx },
+                maxIntrinsicWidthMeasureBlock = { _, _ -> 0.ipx },
+                maxIntrinsicHeightMeasureBlock = { _, _ -> 0.ipx }
+            ) { measurables, _ ->
+                val textMeasurable = measurables.first()
+                // Min width.
+                assertEquals(textWidth, textMeasurable.minIntrinsicWidth(0.ipx))
+                // Min height.
+                assertTrue(textMeasurable.minIntrinsicHeight(textWidth) > textHeight)
+                assertEquals(textHeight, textMeasurable.minIntrinsicHeight(doubleTextWidth))
+                assertEquals(textHeight, textMeasurable.minIntrinsicHeight(IntPx.Infinity))
+                // Max width.
+                assertEquals(doubleTextWidth, textMeasurable.maxIntrinsicWidth(0.ipx))
+                // Max height.
+                assertTrue(textMeasurable.maxIntrinsicHeight(textWidth) > textHeight)
+                assertEquals(textHeight, textMeasurable.maxIntrinsicHeight(doubleTextWidth))
+                assertEquals(textHeight, textMeasurable.maxIntrinsicHeight(IntPx.Infinity))
 
-                    intrinsicsLatch.countDown()
+                intrinsicsLatch.countDown()
 
-                    layout(0.ipx, 0.ipx) {}
-                }
-                minIntrinsicWidth { _, _ -> 0.ipx }
-                minIntrinsicHeight { _, _ -> 0.ipx }
-                maxIntrinsicWidth { _, _ -> 0.ipx }
-                maxIntrinsicHeight { _, _ -> 0.ipx }
+                layout(0.ipx, 0.ipx) {}
             }
         }
         assertTrue(intrinsicsLatch.await(1, TimeUnit.SECONDS))

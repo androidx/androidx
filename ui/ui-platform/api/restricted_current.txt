@@ -147,11 +147,7 @@ package androidx.ui.core {
     method public androidx.ui.core.Density getDensity();
     method public androidx.ui.core.IntPx getHeight();
     method public java.util.List<androidx.ui.core.LayoutNode> getLayoutChildren();
-    method public kotlin.jvm.functions.Function3<androidx.ui.core.DensityScope,java.util.List<? extends androidx.ui.core.IntrinsicMeasurable>,androidx.ui.core.IntPx,androidx.ui.core.IntPx> getMaxIntrinsicHeightBlock();
-    method public kotlin.jvm.functions.Function3<androidx.ui.core.DensityScope,java.util.List<? extends androidx.ui.core.IntrinsicMeasurable>,androidx.ui.core.IntPx,androidx.ui.core.IntPx> getMaxIntrinsicWidthBlock();
-    method public kotlin.jvm.functions.Function3<androidx.ui.core.MeasureScope,java.util.List<? extends androidx.ui.core.Measurable>,androidx.ui.core.Constraints,androidx.ui.core.MeasureScope.LayoutResult> getMeasureBlock();
-    method public kotlin.jvm.functions.Function3<androidx.ui.core.DensityScope,java.util.List<? extends androidx.ui.core.IntrinsicMeasurable>,androidx.ui.core.IntPx,androidx.ui.core.IntPx> getMinIntrinsicHeightBlock();
-    method public kotlin.jvm.functions.Function3<androidx.ui.core.DensityScope,java.util.List<? extends androidx.ui.core.IntrinsicMeasurable>,androidx.ui.core.IntPx,androidx.ui.core.IntPx> getMinIntrinsicWidthBlock();
+    method public androidx.ui.core.LayoutNode.MeasureBlocks getMeasureBlocks();
     method public androidx.ui.core.IntPxPosition getModifiedPosition();
     method public androidx.ui.core.IntPxSize getModifiedSize();
     method public androidx.ui.core.Modifier getModifier();
@@ -176,12 +172,8 @@ package androidx.ui.core {
     method public void requestRemeasure();
     method public void setAffectsParentSize(boolean p);
     method public void setConstraints(androidx.ui.core.Constraints p);
-    method public void setMaxIntrinsicHeightBlock(kotlin.jvm.functions.Function3<? super androidx.ui.core.DensityScope,? super java.util.List<? extends androidx.ui.core.IntrinsicMeasurable>,? super androidx.ui.core.IntPx,androidx.ui.core.IntPx> value);
-    method public void setMaxIntrinsicWidthBlock(kotlin.jvm.functions.Function3<? super androidx.ui.core.DensityScope,? super java.util.List<? extends androidx.ui.core.IntrinsicMeasurable>,? super androidx.ui.core.IntPx,androidx.ui.core.IntPx> value);
-    method public void setMeasureBlock(kotlin.jvm.functions.Function3<? super androidx.ui.core.MeasureScope,? super java.util.List<? extends androidx.ui.core.Measurable>,? super androidx.ui.core.Constraints,androidx.ui.core.MeasureScope.LayoutResult> value);
+    method public void setMeasureBlocks(androidx.ui.core.LayoutNode.MeasureBlocks value);
     method public void setMeasuring(boolean p);
-    method public void setMinIntrinsicHeightBlock(kotlin.jvm.functions.Function3<? super androidx.ui.core.DensityScope,? super java.util.List<? extends androidx.ui.core.IntrinsicMeasurable>,? super androidx.ui.core.IntPx,androidx.ui.core.IntPx> value);
-    method public void setMinIntrinsicWidthBlock(kotlin.jvm.functions.Function3<? super androidx.ui.core.DensityScope,? super java.util.List<? extends androidx.ui.core.IntrinsicMeasurable>,? super androidx.ui.core.IntPx,androidx.ui.core.IntPx> value);
     method public void setModifier(androidx.ui.core.Modifier value);
     method public void setNeedsRelayout$lintWithKotlin(boolean p);
     method public void setNeedsRemeasure$lintWithKotlin(boolean p);
@@ -197,11 +189,7 @@ package androidx.ui.core {
     property public final boolean isMeasuring;
     property public final boolean isPlaced;
     property public final java.util.List<androidx.ui.core.LayoutNode> layoutChildren;
-    property public final kotlin.jvm.functions.Function3<androidx.ui.core.DensityScope,java.util.List<? extends androidx.ui.core.IntrinsicMeasurable>,androidx.ui.core.IntPx,androidx.ui.core.IntPx> maxIntrinsicHeightBlock;
-    property public final kotlin.jvm.functions.Function3<androidx.ui.core.DensityScope,java.util.List<? extends androidx.ui.core.IntrinsicMeasurable>,androidx.ui.core.IntPx,androidx.ui.core.IntPx> maxIntrinsicWidthBlock;
-    property public final kotlin.jvm.functions.Function3<androidx.ui.core.MeasureScope,java.util.List<? extends androidx.ui.core.Measurable>,androidx.ui.core.Constraints,androidx.ui.core.MeasureScope.LayoutResult> measureBlock;
-    property public final kotlin.jvm.functions.Function3<androidx.ui.core.DensityScope,java.util.List<? extends androidx.ui.core.IntrinsicMeasurable>,androidx.ui.core.IntPx,androidx.ui.core.IntPx> minIntrinsicHeightBlock;
-    property public final kotlin.jvm.functions.Function3<androidx.ui.core.DensityScope,java.util.List<? extends androidx.ui.core.IntrinsicMeasurable>,androidx.ui.core.IntPx,androidx.ui.core.IntPx> minIntrinsicWidthBlock;
+    property public final androidx.ui.core.LayoutNode.MeasureBlocks measureBlocks;
     property public final androidx.ui.core.IntPxPosition modifiedPosition;
     property public final androidx.ui.core.IntPxSize modifiedSize;
     property public final androidx.ui.core.Modifier modifier;
@@ -214,6 +202,14 @@ package androidx.ui.core {
     property public final androidx.ui.core.IntPx width;
     property public final androidx.ui.core.IntPx x;
     property public final androidx.ui.core.IntPx y;
+  }
+
+  public static interface LayoutNode.MeasureBlocks {
+    method public androidx.ui.core.IntPx maxIntrinsicHeight(androidx.ui.core.DensityScope densityScope, java.util.List<? extends androidx.ui.core.IntrinsicMeasurable> measurables, androidx.ui.core.IntPx w);
+    method public androidx.ui.core.IntPx maxIntrinsicWidth(androidx.ui.core.DensityScope densityScope, java.util.List<? extends androidx.ui.core.IntrinsicMeasurable> measurables, androidx.ui.core.IntPx h);
+    method public androidx.ui.core.MeasureScope.LayoutResult measure(androidx.ui.core.MeasureScope measureScope, java.util.List<? extends androidx.ui.core.Measurable> measurables, androidx.ui.core.Constraints constraints);
+    method public androidx.ui.core.IntPx minIntrinsicHeight(androidx.ui.core.DensityScope densityScope, java.util.List<? extends androidx.ui.core.IntrinsicMeasurable> measurables, androidx.ui.core.IntPx w);
+    method public androidx.ui.core.IntPx minIntrinsicWidth(androidx.ui.core.DensityScope densityScope, java.util.List<? extends androidx.ui.core.IntrinsicMeasurable> measurables, androidx.ui.core.IntPx h);
   }
 
   public interface Owner {
