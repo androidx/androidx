@@ -113,9 +113,10 @@ public final class PreviewTest {
     private Semaphore mSurfaceFutureSemaphore;
     private Preview.PreviewSurfaceCallback mPreviewSurfaceCallbackWithFrameAvailableListener =
             new Preview.PreviewSurfaceCallback() {
+
                 @NonNull
                 @Override
-                public ListenableFuture<Surface> getSurface(@NonNull Size resolution,
+                public ListenableFuture<Surface> createSurfaceFuture(@NonNull Size resolution,
                         int imageFormat) {
                     Preconditions.checkNotNull(mSurfaceFutureSemaphore);
                     SurfaceTexture surfaceTexture = new SurfaceTexture(0);
@@ -124,11 +125,18 @@ public final class PreviewTest {
                     surfaceTexture.detachFromGLContext();
                     surfaceTexture.setOnFrameAvailableListener(
                             surfaceTexture1 -> mSurfaceFutureSemaphore.release());
-                    mSurface = new Surface(surfaceTexture);
-                    return Futures.immediateFuture(mSurface);
+                    return Futures.immediateFuture(new Surface(surfaceTexture));
+                }
+
+                @Override
+                public void onSafeToRelease(@NonNull ListenableFuture<Surface> surfaceFuture) {
+                    try {
+                        surfaceFuture.get().release();
+                    } catch (ExecutionException | InterruptedException e) {
+                        throw new IllegalStateException("Failed to release Surface");
+                    }
                 }
             };
-    private Surface mSurface;
 
     @Before
     public void setUp() {
@@ -159,9 +167,6 @@ public final class PreviewTest {
         CameraX.deinit().get();
         if (mCamera != null) {
             mCamera.release().get();
-        }
-        if (mSurface != null) {
-            mSurface.release();
         }
     }
 

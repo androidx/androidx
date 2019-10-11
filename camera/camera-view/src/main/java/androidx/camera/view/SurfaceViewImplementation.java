@@ -29,6 +29,8 @@ import androidx.annotation.UiThread;
 import androidx.camera.core.Preview;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
 
+import com.google.common.util.concurrent.ListenableFuture;
+
 /**
  * The SurfaceView implementation for {@link PreviewView}.
  */
@@ -41,18 +43,32 @@ final class SurfaceViewImplementation implements PreviewView.Implementation {
     // TODO(b/17519540): subclass SurfaceView to allow matrix transform.
     SurfaceView mSurfaceView;
 
-    private final CompleterWithSizeCallback mCompleterWithSizeCallback  =
+    // Synthetic Accessor
+    @SuppressWarnings("WeakerAccess")
+    final CompleterWithSizeCallback mCompleterWithSizeCallback =
             new CompleterWithSizeCallback();
 
     private Preview.PreviewSurfaceCallback mPreviewSurfaceCallback =
-            (size, imageFormat) -> CallbackToFutureAdapter.getFuture(
-                    completer -> {
-                        // Post to UI thread for thread safety.
-                        mSurfaceView.post(
-                                () -> mCompleterWithSizeCallback.setCompleterAndSize(
-                                        completer, size));
-                        return "SurfaceViewSurfaceCreation";
-                    });
+            new Preview.PreviewSurfaceCallback() {
+                @NonNull
+                @Override
+                public ListenableFuture<Surface> createSurfaceFuture(@NonNull Size resolution,
+                        int imageFormat) {
+                    return CallbackToFutureAdapter.getFuture(
+                            completer -> {
+                                // Post to UI thread for thread safety.
+                                mSurfaceView.post(
+                                        () -> mCompleterWithSizeCallback.setCompleterAndSize(
+                                                completer, resolution));
+                                return "SurfaceViewSurfaceCreation";
+                            });
+                }
+
+                @Override
+                public void onSafeToRelease(@NonNull ListenableFuture<Surface> surfaceFuture) {
+                    // No-op. The Surface will be released by SurfaceView when it's done.
+                }
+            };
 
     /**
      * {@inheritDoc}

@@ -24,12 +24,22 @@ import androidx.annotation.RestrictTo.Scope;
 
 /**
  * A class that holds a {@link SurfaceTexture}.
+ *
+ * TODO(b/117519540): rename to SurfaceFutureHolder or merge it into DeferrableSurface.
+ *
  * @hide
  */
 @RestrictTo(Scope.LIBRARY_GROUP)
 interface SurfaceTextureHolder {
-    /** Returns the held {@link SurfaceTexture}. */
+    /**
+     * Returns the held {@link SurfaceTexture}.
+     *
+     * @deprecated TODO(b / 117519540): remove after
+     * {@link Preview.OnPreviewOutputUpdateListener} is
+     * removed.
+     */
     @NonNull
+    @Deprecated
     SurfaceTexture getSurfaceTexture();
 
     /**

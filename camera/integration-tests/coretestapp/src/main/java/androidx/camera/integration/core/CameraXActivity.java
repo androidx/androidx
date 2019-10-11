@@ -66,12 +66,15 @@ import androidx.lifecycle.Observer;
 import androidx.test.espresso.IdlingResource;
 import androidx.test.espresso.idling.CountingIdlingResource;
 
+import com.google.common.util.concurrent.ListenableFuture;
+
 import java.io.File;
 import java.math.BigDecimal;
 import java.text.Format;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
@@ -110,7 +113,8 @@ public class CameraXActivity extends AppCompatActivity
     private ImageCapture mImageCapture;
     private VideoCapture mVideoCapture;
     private ImageCapture.CaptureMode mCaptureMode = ImageCapture.CaptureMode.MIN_LATENCY;
-    private TextureViewSurfaceTextureListener mTextureViewSurfaceTextureListener =
+    private TextureView mTextureView;
+    TextureViewSurfaceTextureListener mTextureViewSurfaceTextureListener =
             new TextureViewSurfaceTextureListener();
 
     // Espresso testing variables
@@ -176,19 +180,33 @@ public class CameraXActivity extends AppCompatActivity
                         .build();
 
         mPreview = new Preview(config);
-        TextureView textureView = this.findViewById(R.id.textureView);
         Log.d(TAG, "enablePreview");
-        mPreview.setPreviewSurfaceCallback((resolution, imageFormat) -> {
-            Log.d(TAG, "Surface requested by CameraX Preview. Size: " + resolution);
-            return CallbackToFutureAdapter.getFuture(
-                    completer -> {
-                        textureView.getSurfaceTexture().setDefaultBufferSize(
-                                resolution.getWidth(), resolution.getHeight());
-                        // TODO(b/117519540): release the Surface when safe.
-                        mTextureViewSurfaceTextureListener.setCompleter(completer,
-                                new Surface(textureView.getSurfaceTexture()));
-                        return "GetTextureViewSurface";
-                    });
+        mPreview.setPreviewSurfaceCallback(new Preview.PreviewSurfaceCallback() {
+
+            @NonNull
+            @Override
+            public ListenableFuture<Surface> createSurfaceFuture(@NonNull Size resolution,
+                    int imageFormat) {
+                Log.d(TAG, "Surface requested by CameraX Preview. Size: " + resolution);
+                return CallbackToFutureAdapter.getFuture(
+                        completer -> {
+                            mTextureView.getSurfaceTexture().setDefaultBufferSize(
+                                    resolution.getWidth(), resolution.getHeight());
+                            mTextureViewSurfaceTextureListener.setCompleter(completer,
+                                    new Surface(mTextureView.getSurfaceTexture()));
+                            return "GetTextureViewSurface";
+                        });
+            }
+
+            @Override
+            public void onSafeToRelease(@NonNull ListenableFuture<Surface> surfaceFuture) {
+                Log.d(TAG, "Release Surface.");
+                try {
+                    surfaceFuture.get().release();
+                } catch (ExecutionException | InterruptedException e) {
+                    Log.e(TAG, "Failed to release Surface", e);
+                }
+            }
         });
 
         for (int i = 0; i < FRAMES_UNTIL_VIEW_IS_READY; i++) {
@@ -199,8 +217,6 @@ public class CameraXActivity extends AppCompatActivity
             mPreview = null;
             return;
         }
-
-        textureView.setSurfaceTextureListener(mTextureViewSurfaceTextureListener);
     }
 
     void transformPreview() {
@@ -227,18 +243,16 @@ public class CameraXActivity extends AppCompatActivity
             return;
         }
 
-        TextureView textureView = this.findViewById(R.id.textureView);
-
-        if (textureView.getWidth() == 0 || textureView.getHeight() == 0) {
+        if (mTextureView.getWidth() == 0 || mTextureView.getHeight() == 0) {
             return;
         }
 
         Matrix matrix = new Matrix();
 
-        int left = textureView.getLeft();
-        int right = textureView.getRight();
-        int top = textureView.getTop();
-        int bottom = textureView.getBottom();
+        int left = mTextureView.getLeft();
+        int right = mTextureView.getRight();
+        int top = mTextureView.getTop();
+        int bottom = mTextureView.getBottom();
 
         // Compute the preview ui size based on the available width, height, and ui orientation.
         int viewWidth = (right - left);
@@ -279,7 +293,7 @@ public class CameraXActivity extends AppCompatActivity
         int layoutL = centerX - (scaled.getWidth() / 2);
         int layoutT = centerY - (scaled.getHeight() / 2);
 
-        textureView.setTransform(matrix);
+        mTextureView.setTransform(matrix);
     }
 
     /** @return One of 0, 90, 180, 270. */
@@ -695,6 +709,10 @@ public class CameraXActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_camera_xmain);
+        mTextureView = findViewById(R.id.textureView);
+        // Set SurfaceTextureListener in onCreate() to make sure onSurfaceTextureAvailable() is
+        // triggered.
+        mTextureView.setSurfaceTextureListener(mTextureViewSurfaceTextureListener);
 
         StrictMode.VmPolicy policy =
                 new StrictMode.VmPolicy.Builder().detectAll().penaltyLog().build();
