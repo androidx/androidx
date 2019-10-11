@@ -17,6 +17,7 @@
 package androidx.ui.input
 
 import android.util.Log
+import androidx.annotation.RestrictTo
 
 /**
  * The gap buffer implementation
@@ -204,8 +205,10 @@ private class GapBuffer(initBuffer: CharArray, initGapStart: Int, initGapEnd: In
  * is requested, this class flush the buffer and create new String, then start new gap buffer.
  *
  * @param text The initial text
+ * @hide
  */
-internal class PartialGapBuffer(var text: String) {
+@RestrictTo(RestrictTo.Scope.LIBRARY)
+class PartialGapBuffer(var text: String) {
     internal companion object {
         const val BUF_SIZE = 255
         const val SURROUNDING_SIZE = 64
