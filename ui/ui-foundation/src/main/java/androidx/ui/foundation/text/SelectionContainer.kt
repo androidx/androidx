@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.ui.foundation.selection
+package androidx.ui.foundation.text
 
 import androidx.compose.Composable
 import androidx.compose.composer
@@ -131,9 +131,9 @@ fun SelectionContainer(
                         selection.endCoordinates
                     )
                     val startAdjustedDistance =
-                        if (selection.startDirection == TextDirection.Ltr) - HANDLE_WIDTH else 0.px
+                        if (selection.startDirection == TextDirection.Ltr) -HANDLE_WIDTH else 0.px
                     val endAdjustedDistance =
-                        if (selection.endDirection == TextDirection.Ltr) 0.px else - HANDLE_WIDTH
+                        if (selection.endDirection == TextDirection.Ltr) 0.px else -HANDLE_WIDTH
                     start.place(startOffset.x + startAdjustedDistance, startOffset.y)
                     end.place(endOffset.x + endAdjustedDistance, endOffset.y)
                 }
