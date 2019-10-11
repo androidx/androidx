@@ -37,10 +37,12 @@ import androidx.text.TextLayout
 import androidx.text.style.BaselineShiftSpan
 import androidx.text.style.FontFeatureSpan
 import androidx.text.style.LetterSpacingSpan
+import androidx.text.style.LineHeightSpan
 import androidx.text.style.ShadowSpan
 import androidx.text.style.SkewXSpan
 import androidx.text.style.TypefaceSpan
 import androidx.ui.core.Density
+import androidx.ui.core.Sp
 import androidx.ui.core.px
 import androidx.ui.core.withDensity
 import androidx.ui.graphics.toArgb
@@ -54,6 +56,7 @@ import androidx.ui.text.font.FontWeight
 import androidx.ui.text.style.TextDecoration
 import androidx.ui.text.style.TextDirectionAlgorithm
 import androidx.ui.text.style.TextIndent
+import kotlin.math.ceil
 import kotlin.math.roundToInt
 import java.util.Locale as JavaLocale
 
@@ -138,6 +141,7 @@ internal fun TextPaint.applyTextStyle(
 
 internal fun createStyledText(
     text: String,
+    lineHeight: Sp?,
     textIndent: TextIndent?,
     textStyles: List<AnnotatedString.Item<TextStyle>>,
     density: Density,
@@ -145,6 +149,17 @@ internal fun createStyledText(
 ): CharSequence {
     if (textStyles.isEmpty() && textIndent == null) return text
     val spannableString = SpannableString(text)
+
+    lineHeight?.let {
+        withDensity(density) {
+            spannableString.setSpan(
+                LineHeightSpan(ceil(it.toPx().value).toInt()),
+                0,
+                text.length,
+                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+            )
+        }
+    }
 
     textIndent?.let { indent ->
         if (indent.firstLine == 0.px && indent.restLine == 0.px) return@let

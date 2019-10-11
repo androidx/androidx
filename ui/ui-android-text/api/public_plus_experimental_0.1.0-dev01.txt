@@ -11,3 +11,12 @@ package androidx.text {
 
 }
 
+package androidx.text.style {
+
+  public class LineHeightSpan implements android.text.style.LineHeightSpan {
+    ctor public LineHeightSpan(int);
+    method public void chooseHeight(CharSequence!, int, int, int, int, android.graphics.Paint.FontMetricsInt!);
+  }
+
+}
+

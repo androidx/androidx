@@ -30,8 +30,8 @@ class AnnotatedStringTransformTest {
     private val TextStyle2 = TextStyle(fontSize = 16.sp)
     private val TextStyle3 = TextStyle(fontSize = 24.sp)
 
-    private val ParaStyle1 = ParagraphStyle(lineHeight = 1.0f)
-    private val ParaStyle2 = ParagraphStyle(lineHeight = 2.0f)
+    private val ParaStyle1 = ParagraphStyle(lineHeight = 10.sp)
+    private val ParaStyle2 = ParagraphStyle(lineHeight = 20.sp)
 
     /**
      * Helper function for creating AnnotatedString.Item with TextRange.

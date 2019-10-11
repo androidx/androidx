@@ -57,6 +57,7 @@ internal class AndroidParagraphIntrinsics(
 
         charSequence = createStyledText(
             text = text,
+            lineHeight = paragraphStyle.lineHeight,
             textIndent = paragraphStyle.textIndent,
             textStyles = listOf(
                 AnnotatedString.Item(
