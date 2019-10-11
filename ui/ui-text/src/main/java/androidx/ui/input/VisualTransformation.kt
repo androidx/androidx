@@ -79,38 +79,17 @@ interface VisualTransformation {
      * will call the offset translator for converting offsets for various reasons, cursor drawing
      * position, text selection by gesture, etc.
      *
+     * Example: The ASCII only password (replacing with '*' chars)
+     *  original text   : thisispassword
+     *  transformed text: **************
+     *
+     *  @sample androidx.ui.text.samples.passwordFilter
+     *
      * Example: Credit Card Visual Output (inserting hyphens each 4 digits)
      *  original text   : 1234567890123456
      *  transformed text: 1234-5678-9012-3456
      *
-     *  Then, the offset translator should ignore the hyphen characters, so conversion from
-     *  original offset to transformed text works like
-     *  - The 4th char of the original text is 5th char in the transformed text.
-     *  - The 13th char of the original text is 15th char in the transformed text.
-     *  Similarly, the reverse conversion works like
-     *  - The 5th char of the transformed text is 4th char in the original text.
-     *  - The 12th char of the transformed text is 10th char in the original text.
-     *
-     *  The reference implementation would be like as follows:
-     *  <pre>
-     *  val creditCardOffsetTranslator = object : OffsetMap {
-     *      override fun originalToTransformed(originalOffset: Int): Int {
-     *          if (originalOffset <= 3) return originalOffset
-     *          if (originalOffset <= 7) return originalOffset + 1
-     *          if (originalOffset <= 11) return originalOffset + 2
-     *          if (originalOffset <= 16) return originalOffset + 3
-     *          return 19
-     *      }
-     *
-     *      override fun transformedToOriginal(transformedOffset: Int): Int {
-     *          if (transformedOffset <= 4) return transformedOffset
-     *          if (transformedOffset <= 9) return transformedOffset - 1
-     *          if (transformedOffset <= 14) return transformedOffset - 2
-     *          if (transformedOffset <= 19) return transformedOffset - 3
-     *          return 16
-     *      }
-     *  }
-     *  </pre>
+     *  @sample androidx.ui.text.samples.creditCardFilter
      *
      * @param text The original text
      * @return the pair of filtered text and offset translator.
