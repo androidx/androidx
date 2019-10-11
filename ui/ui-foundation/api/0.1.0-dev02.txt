@@ -198,15 +198,6 @@ package androidx.ui.foundation.selection {
     method public static void MutuallyExclusiveSetItem(boolean selected, kotlin.jvm.functions.Function0<kotlin.Unit> onClick, kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
 
-  public final class SelectionContainerKt {
-    ctor public SelectionContainerKt();
-    method public static void SelectionContainer(androidx.ui.core.selection.Selection? selection, kotlin.jvm.functions.Function1<? super androidx.ui.core.selection.Selection,kotlin.Unit> onSelectionChange, androidx.ui.core.selection.SelectionMode mode = SelectionMode.Vertical, kotlin.jvm.functions.Function0<kotlin.Unit> children);
-  }
-
-  public final class SelectionHandlesKt {
-    ctor public SelectionHandlesKt();
-  }
-
   public final class ToggleableKt {
     ctor public ToggleableKt();
     method public static void Toggleable(boolean checked, kotlin.jvm.functions.Function1<? super java.lang.Boolean,kotlin.Unit>? onCheckedChange = null, kotlin.jvm.functions.Function0<kotlin.Unit> children);
@@ -360,6 +351,19 @@ package androidx.ui.foundation.shape.corner {
     method public static androidx.ui.foundation.shape.corner.RoundedCornerShape RoundedCornerShape(androidx.ui.core.Px topLeft = 0.px, androidx.ui.core.Px topRight = 0.px, androidx.ui.core.Px bottomRight = 0.px, androidx.ui.core.Px bottomLeft = 0.px);
     method public static androidx.ui.foundation.shape.corner.RoundedCornerShape RoundedCornerShape(@IntRange(from=0, to=50) int topLeftPercent = 0, @IntRange(from=0, to=50) int topRightPercent = 0, @IntRange(from=0, to=50) int bottomRightPercent = 0, @IntRange(from=0, to=50) int bottomLeftPercent = 0);
     method public static androidx.ui.foundation.shape.corner.RoundedCornerShape getCircleShape();
+  }
+
+}
+
+package androidx.ui.foundation.text {
+
+  public final class SelectionContainerKt {
+    ctor public SelectionContainerKt();
+    method public static void SelectionContainer(androidx.ui.core.selection.Selection? selection, kotlin.jvm.functions.Function1<? super androidx.ui.core.selection.Selection,kotlin.Unit> onSelectionChange, androidx.ui.core.selection.SelectionMode mode = SelectionMode.Vertical, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+  }
+
+  public final class SelectionHandlesKt {
+    ctor public SelectionHandlesKt();
   }
 
 }
