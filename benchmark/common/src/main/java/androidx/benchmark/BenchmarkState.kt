@@ -111,21 +111,17 @@ class BenchmarkState {
      */
     internal val stats: Stats
         get() {
-            if (state == NOT_STARTED) {
-                throw IllegalStateException(
-                    "The benchmark wasn't started! Every test in a class " +
-                            "with a BenchmarkRule must contain a benchmark. In Kotlin, call " +
-                            "benchmarkRule.measureRepeated {}, or in Java, call " +
-                            "benchmarkRule.getState().keepRunning() to run your benchmark."
-                )
+            check(state != NOT_STARTED) {
+                "The benchmark wasn't started! Every test in a class " +
+                        "with a BenchmarkRule must contain a benchmark. In Kotlin, call " +
+                        "benchmarkRule.measureRepeated {}, or in Java, call " +
+                        "benchmarkRule.getState().keepRunning() to run your benchmark."
             }
-            if (state != FINISHED) {
-                throw IllegalStateException(
-                    "The benchmark hasn't finished! In Java, use " +
-                            "while(BenchmarkState.keepRunning()) to ensure keepRunning() returns " +
-                            "false before ending your test. In Kotlin, just use " +
-                            "benchmarkRule.measureRepeated {} to avoid the problem."
-                )
+            check(state == FINISHED) {
+                "The benchmark hasn't finished! In Java, use " +
+                        "while(BenchmarkState.keepRunning()) to ensure keepRunning() returns " +
+                        "false before ending your test. In Kotlin, just use " +
+                        "benchmarkRule.measureRepeated {} to avoid the problem."
             }
             return internalStats!!
         }
@@ -163,11 +159,7 @@ class BenchmarkState {
      * @see resumeTiming
      */
     fun pauseTiming() {
-        if (paused) {
-            throw IllegalStateException(
-                "Unable to pause the benchmark. The benchmark has already paused."
-            )
-        }
+        check(!paused) { "Unable to pause the benchmark. The benchmark has already paused." }
         pausedTimeNs = System.nanoTime()
         paused = true
     }
@@ -198,11 +190,8 @@ class BenchmarkState {
      * @see pauseTiming
      */
     fun resumeTiming() {
-        if (!paused) {
-            throw IllegalStateException(
-                "Unable to resume the benchmark. The benchmark is already running."
-            )
-        }
+        check(paused) { "Unable to resume the benchmark. The benchmark is already running." }
+
         pausedDurationNs += System.nanoTime() - pausedTimeNs
         pausedTimeNs = 0
         paused = false
@@ -239,6 +228,28 @@ class BenchmarkState {
         startTimeNs = System.nanoTime()
     }
 
+    private fun endBenchmark() {
+        endTraceSection() // paired with start in beginBenchmark()
+        if (ENABLE_PROFILING) {
+            Debug.stopMethodTracing()
+        }
+        ThreadPriority.resetBumpedThread()
+        warmupManager.logInfo()
+        results.chunked(10).forEachIndexed { i, list ->
+            Log.d(
+                TAG, "Results[%2d:%2d]: %s".format(
+                    i * 10,
+                    (i + 1) * 10,
+                    list.joinToString()
+                )
+            )
+        }
+
+        internalStats = Stats(results)
+        state = FINISHED
+        totalRunTimeNs = System.nanoTime() - totalRunTimeStartNs
+    }
+
     private fun computeIterationsFromWarmup(): Int {
         val idealIterations =
             (TARGET_TEST_DURATION_NS / warmupManager.estimatedIterationTime).toInt()
@@ -262,17 +273,7 @@ class BenchmarkState {
                 repeatCount = 0
             } else {
                 // Benchmark finished!
-                endTraceSection() // paired with start in beginBenchmark()
-
-                if (ENABLE_PROFILING) {
-                    Debug.stopMethodTracing()
-                }
-                warmupManager.logInfo()
-
-                internalStats = Stats(results)
-                state = FINISHED
-                totalRunTimeNs = System.nanoTime() - totalRunTimeStartNs
-
+                endBenchmark()
                 return false
             }
         }
@@ -321,6 +322,17 @@ class BenchmarkState {
         return keepRunningInternal()
     }
 
+    /**
+     * Reimplementation of Kotlin check, which also resets thread priority, since we don't want
+     * to leave a thread with bumped thread priority
+     */
+    private inline fun check(value: Boolean, lazyMessage: () -> String) {
+        if (!value) {
+            ThreadPriority.resetBumpedThread()
+            throw IllegalStateException(lazyMessage())
+        }
+    }
+
     @PublishedApi
     internal fun keepRunningInternal(): Boolean {
         when (state) {
@@ -348,6 +360,8 @@ class BenchmarkState {
                 ) {
                     ThrottleDetector.computeThrottleBaseline()
                 }
+
+                ThreadPriority.bumpCurrentThreadPriority()
 
                 if (Arguments.dryRunMode || Arguments.startupMode) {
                     beginBenchmark()
@@ -477,7 +491,7 @@ class BenchmarkState {
     }
 
     companion object {
-        private const val TAG = "Benchmark"
+        internal const val TAG = "Benchmark"
         private const val STUDIO_OUTPUT_KEY_PREFIX = "android.studio.display."
         private const val STUDIO_OUTPUT_KEY_ID = "benchmark"
 

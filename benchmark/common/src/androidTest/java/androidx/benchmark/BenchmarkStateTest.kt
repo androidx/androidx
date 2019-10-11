@@ -18,8 +18,10 @@ package androidx.benchmark
 
 import android.Manifest
 import androidx.test.filters.LargeTest
+import androidx.test.filters.SdkSuppress
 import androidx.test.rule.GrantPermissionRule
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
@@ -35,7 +37,8 @@ class BenchmarkStateTest {
     private fun ms2ns(ms: Long): Long = TimeUnit.MILLISECONDS.toNanos(ms)
 
     @get:Rule
-    val writePermissionRule = GrantPermissionRule.grant(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+    val writePermissionRule =
+        GrantPermissionRule.grant(Manifest.permission.WRITE_EXTERNAL_STORAGE)!!
 
     @Test
     fun simple() {
@@ -52,6 +55,49 @@ class BenchmarkStateTest {
             "median $median should be between 2ms and 4ms",
             ms2ns(2) < median && median < ms2ns(4)
         )
+    }
+
+    @SdkSuppress(minSdkVersion = 21)
+    @Test
+    fun priorityJitThread() {
+        assertEquals(
+            "JIT priority should not yet be modified",
+            ThreadPriority.JIT_INITIAL_PRIORITY,
+            ThreadPriority.getJit()
+        )
+
+        // verify priority is only bumped during loop (NOTE: lower number means higher priority)
+        val state = BenchmarkState()
+        while (state.keepRunning()) {
+            val currentJitPriority = ThreadPriority.getJit()
+            assertTrue(
+                "JIT priority should be bumped," +
+                        " is $currentJitPriority vs ${ThreadPriority.JIT_INITIAL_PRIORITY}",
+                currentJitPriority < ThreadPriority.JIT_INITIAL_PRIORITY
+            )
+        }
+        assertEquals(ThreadPriority.JIT_INITIAL_PRIORITY, ThreadPriority.getJit())
+    }
+
+    @Test
+    fun priorityBenchThread() {
+        val initialPriority = ThreadPriority.get()
+        assertNotEquals(
+            "Priority should not be max",
+            ThreadPriority.HIGH_PRIORITY,
+            ThreadPriority.get()
+        )
+
+        // verify priority is only bumped during loop (NOTE: lower number means higher priority)
+        val state = BenchmarkState()
+        while (state.keepRunning()) {
+            val currentPriority = ThreadPriority.get()
+            assertTrue(
+                "Priority should be bumped, is $currentPriority",
+                currentPriority < initialPriority
+            )
+        }
+        assertEquals(initialPriority, ThreadPriority.get())
     }
 
     @Test
@@ -107,10 +153,12 @@ class BenchmarkStateTest {
 
     @Test
     fun notStarted() {
+        val initialPriority = ThreadPriority.get()
         try {
             BenchmarkState().stats
             fail("expected exception")
         } catch (e: IllegalStateException) {
+            assertEquals(initialPriority, ThreadPriority.get())
             assertTrue(e.message!!.contains("wasn't started"))
             assertTrue(e.message!!.contains("benchmarkRule.measureRepeated {}"))
         }
@@ -118,6 +166,7 @@ class BenchmarkStateTest {
 
     @Test
     fun notFinished() {
+        val initialPriority = ThreadPriority.get()
         try {
             BenchmarkState().run {
                 keepRunning()
@@ -125,6 +174,7 @@ class BenchmarkStateTest {
             }
             fail("expected exception")
         } catch (e: IllegalStateException) {
+            assertEquals(initialPriority, ThreadPriority.get())
             assertTrue(e.message!!.contains("hasn't finished"))
             assertTrue(e.message!!.contains("benchmarkRule.measureRepeated {}"))
         }
