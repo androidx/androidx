@@ -1045,6 +1045,39 @@ class FragmentLifecycleTest {
             .that(childFragment2.mOnInflateCount).isEqualTo(2)
     }
 
+    @Test
+    @UiThreadTest
+    fun retainInstanceLayoutOnInflateWithFragmentContainerView() {
+        val viewModelStore = ViewModelStore()
+        var fc = activityRule.startupFragmentController(viewModelStore)
+        var fm = fc.supportFragmentManager
+
+        var parentFragment = RetainedInflatedParentFragmentContainerView()
+
+        fm.beginTransaction().add(android.R.id.content, parentFragment).commit()
+        fm.executePendingTransactions()
+
+        val childFragment = parentFragment.childFragmentManager
+            .findFragmentById(R.id.child_fragment) as RetainedInflatedChildFragment
+
+        fm.beginTransaction().remove(parentFragment).addToBackStack(null).commit()
+
+        fc = fc.restart(activityRule, viewModelStore, false)
+        fm = fc.supportFragmentManager
+
+        fm.popBackStackImmediate()
+
+        parentFragment = fm.findFragmentById(android.R.id.content) as
+                RetainedInflatedParentFragmentContainerView
+        val childFragment2 = parentFragment.childFragmentManager
+            .findFragmentById(R.id.child_fragment) as RetainedInflatedChildFragment
+
+        assertWithMessage("Child Fragment should be retained")
+            .that(childFragment2).isEqualTo(childFragment)
+        assertWithMessage("Child Fragment should have onInflate called once")
+            .that(childFragment2.mOnInflateCount).isEqualTo(1)
+    }
+
     private fun executePendingTransactions(fm: FragmentManager) {
         activityRule.runOnUiThread { fm.executePendingTransactions() }
     }
@@ -1142,6 +1175,9 @@ class FragmentLifecycleTest {
 
     class RetainedInflatedParentFragment :
         Fragment(R.layout.nested_retained_inflated_fragment_parent)
+
+    class RetainedInflatedParentFragmentContainerView :
+        Fragment(R.layout.nested_retained_inflated_fragment_container_parent)
 
     class RetainedInflatedChildFragment : Fragment(R.layout.nested_inflated_fragment_child) {
         internal var mOnInflateCount = 0

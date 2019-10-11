@@ -53,6 +53,31 @@ import java.util.ArrayList;
  * &lt;/androidx.fragment.app.FragmentContainerView&gt;
  * </pre>
  *
+ * <p> FragmentContainerView can also be used to add a Fragment by using the
+ * <code>android:name</code> attribute. FragmentContainerView will perform a one time operation
+ * that:
+ *
+ * <ul>
+ * <li>Creates a new instance of the Fragment</li>
+ * <li>Calls {@link Fragment#onInflate(Context, AttributeSet, Bundle)}</li>
+ * <li>Executes a FragmentTransaction to add the Fragment to the appropriate FragmentManager</li>
+ * </ul>
+ *
+ * <p> You can optionally include an <code>android:tag</code> which allows you to use
+ * {@link FragmentManager#findFragmentByTag(String)} to retrieve the added Fragment.
+ *
+ * <pre class="prettyprint">
+ * &lt;androidx.fragment.app.FragmentContainerView
+ *        xmlns:android="http://schemas.android.com/apk/res/android"
+ *        xmlns:app="http://schemas.android.com/apk/res-auto"
+ *        android:id="@+id/fragment_container_view"
+ *        android:layout_width="match_parent"
+ *        android:layout_height="match_parent"
+ *        android:name="com.example.MyFragment"
+ *        android:tag="my_tag"&gt;
+ * &lt;/androidx.fragment.app.FragmentContainerView&gt;
+ * </pre>
+ *
  * <p>FragmentContainerView should not be used as a replacement for other ViewGroups (FrameLayout,
  * LinearLayout, etc) outside of Fragment use cases.
  *
@@ -71,9 +96,9 @@ import java.util.ArrayList;
  */
 public final class FragmentContainerView extends FrameLayout {
 
-    private final String mName;
     private final String mTag;
-    private final AttributeSet mAttributeSet;
+    private final FragmentManager mFragmentManager;
+    private final Fragment mContainerFragment;
 
     private ArrayList<View> mDisappearingFragmentChildren;
 
@@ -84,23 +109,65 @@ public final class FragmentContainerView extends FrameLayout {
     private boolean mDrawDisappearingViewsFirst = true;
 
     public FragmentContainerView(@NonNull Context context) {
-        this(context, null);
+        super(context);
+        mTag = null;
+        mFragmentManager = null;
+        mContainerFragment = null;
     }
 
+    /**
+     * Do not call this constructor directly. Doing so will result in an
+     * {@link UnsupportedOperationException}.
+     */
     public FragmentContainerView(@NonNull Context context, @Nullable AttributeSet attrs) {
-        this(context, attrs, 0);
+        super(context, attrs);
+        throw new UnsupportedOperationException("FragmentContainerView must be within a "
+                + "FragmentActivity to be instantiated from XML.");
     }
 
+    /**
+     * Do not call this constructor directly. Doing so will result in an
+     * {@link UnsupportedOperationException}.
+     */
     public FragmentContainerView(
             @NonNull Context context,
             @Nullable AttributeSet attrs,
             int defStyleAttr) {
         super(context, attrs, defStyleAttr);
+        throw new UnsupportedOperationException("FragmentContainerView must be within a "
+                + "FragmentActivity to be instantiated from XML.");
+    }
+
+    FragmentContainerView(
+            @NonNull Context context,
+            @Nullable AttributeSet attrs,
+            @NonNull FragmentManager fm) {
+        super(context, attrs);
+        mFragmentManager = fm;
+
         TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.FragmentContainerView);
-        mName = a.getString(R.styleable.FragmentContainerView_android_name);
+        String name = a.getString(R.styleable.FragmentContainerView_android_name);
         mTag = a.getString(R.styleable.FragmentContainerView_android_tag);
         a.recycle();
-        mAttributeSet = attrs;
+
+        int id = getId();
+        Fragment existingFragment = fm.findFragmentById(id);
+        // If there is a name and there is no existing fragment,
+        // we should add an inflated Fragment to the view.
+        if (name != null && existingFragment == null) {
+            if (id <= 0) {
+                final String tagMessage = mTag != null
+                        ? " with tag " + mTag
+                        : "";
+                throw new IllegalStateException("FragmentContainerView must have an android:id to "
+                        + "add Fragment " + name + tagMessage);
+            }
+            mContainerFragment =
+                    fm.getFragmentFactory().instantiate(getContext().getClassLoader(), name);
+            mContainerFragment.onInflate(getContext(), attrs, null);
+        } else {
+            mContainerFragment = null;
+        }
     }
 
     /**
@@ -152,28 +219,12 @@ public final class FragmentContainerView extends FrameLayout {
     @Override
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
-        // If there is a name we should add an inflated Fragment to the view.
-        if (mName != null) {
-            int id = getId();
-            if (id <= 0) {
-                final String tagMessage = mTag == null
-                        ? "."
-                        : " with tag " + mTag + ".";
-                throw new IllegalStateException("FragmentContainerView must have an android:id to "
-                        + "add Fragment " + mName + tagMessage);
-            }
-
-            FragmentManager fm = FragmentManager.findFragmentManager(this);
-            if (fm.findFragmentById(id) != null) {
-                return;
-            }
-
-            Fragment inflatedFragment =
-                    fm.getFragmentFactory().instantiate(getContext().getClassLoader(), mName);
-            inflatedFragment.onInflate(getContext(), mAttributeSet, null);
-            fm.beginTransaction()
+        // If we inflated a Fragment when this view was created, we should add it to the
+        // FragmentManager.
+        if (mContainerFragment != null) {
+            mFragmentManager.beginTransaction()
                     .setReorderingAllowed(true)
-                    .add(id, inflatedFragment, mTag)
+                    .add(getId(), mContainerFragment, mTag)
                     .commitNow();
         }
     }
