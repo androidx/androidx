@@ -21,9 +21,11 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.LayoutRes
 import androidx.fragment.test.R
+import androidx.test.core.app.ActivityScenario
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.ActivityTestRule
 import androidx.testutils.runOnUiThreadRethrow
+import androidx.testutils.withActivity
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import java.lang.ref.WeakReference
@@ -35,6 +37,12 @@ fun ActivityTestRule<out FragmentActivity>.executePendingTransactions(
     var ret = false
     runOnUiThreadRethrow { ret = fm.executePendingTransactions() }
     return ret
+}
+
+inline fun <reified A : FragmentActivity> ActivityScenario<A>.executePendingTransactions(
+    fm: FragmentManager = withActivity { supportFragmentManager }
+) {
+    onActivity { fm.executePendingTransactions() }
 }
 
 fun ActivityTestRule<out FragmentActivity>.popBackStackImmediate(): Boolean {

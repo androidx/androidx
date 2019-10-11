@@ -60,9 +60,7 @@ class OnBackPressedCallbackTest {
                 .add(R.id.content, fragment)
                 .addToBackStack(null)
                 .commit()
-            onActivity {
-                fragmentManager.executePendingTransactions()
-            }
+            executePendingTransactions()
             assertThat(fragmentManager.findFragmentById(R.id.content))
                 .isSameInstanceAs(fragment)
 
@@ -84,9 +82,7 @@ class OnBackPressedCallbackTest {
                 .add(R.id.content, fragment)
                 .addToBackStack(null)
                 .commit()
-            onActivity {
-                fragmentManager.executePendingTransactions()
-            }
+            executePendingTransactions()
             assertThat(fragmentManager.findFragmentById(R.id.content))
                 .isSameInstanceAs(fragment)
 
@@ -97,9 +93,7 @@ class OnBackPressedCallbackTest {
                 .add(R.id.content, supportFragment)
                 .addToBackStack(null)
                 .commit()
-            onActivity {
-                supportFragmentManager.executePendingTransactions()
-            }
+            executePendingTransactions()
             assertThat(supportFragmentManager.findFragmentById(R.id.content))
                 .isSameInstanceAs(supportFragment)
 
@@ -123,9 +117,7 @@ class OnBackPressedCallbackTest {
                 .add(R.id.content, fragment)
                 .addToBackStack(null)
                 .commit()
-            onActivity {
-                fragmentManager.executePendingTransactions()
-            }
+            executePendingTransactions()
             assertThat(fragmentManager.findFragmentById(R.id.content))
                 .isSameInstanceAs(fragment)
 
@@ -152,9 +144,7 @@ class OnBackPressedCallbackTest {
                 .replace(R.id.content, fragment)
                 .addToBackStack("back_stack")
                 .commit()
-            onActivity {
-                fragmentManager.executePendingTransactions()
-            }
+            executePendingTransactions()
             assertThat(fragmentManager.findFragmentById(R.id.content))
                 .isSameInstanceAs(fragment)
 
@@ -182,9 +172,7 @@ class OnBackPressedCallbackTest {
                 .replace(R.id.content, fragment)
                 .addToBackStack("back_stack")
                 .commit()
-            onActivity {
-                fragmentManager.executePendingTransactions()
-            }
+            executePendingTransactions()
             assertThat(fragmentManager.findFragmentById(R.id.content))
                 .isSameInstanceAs(fragment)
 

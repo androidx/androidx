@@ -70,8 +70,7 @@ class FragmentTransitionAnimTest(private val reorderingAllowed: Boolean) {
                 .add(R.id.fragmentContainer, fragment)
                 .addToBackStack(null)
                 .commit()
-
-            onActivity { fragmentManager.executePendingTransactions() }
+            executePendingTransactions()
 
             assertThat(onBackStackChangedTimes).isEqualTo(1)
 
@@ -96,8 +95,7 @@ class FragmentTransitionAnimTest(private val reorderingAllowed: Boolean) {
                 .remove(fragment)
                 .addToBackStack(null)
                 .commit()
-
-            onActivity { fragmentManager.executePendingTransactions() }
+            executePendingTransactions()
 
             fragment.waitForTransition()
             assertThat(fragment.exitAnimationLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)).isTrue()
@@ -122,7 +120,7 @@ class FragmentTransitionAnimTest(private val reorderingAllowed: Boolean) {
                 .add(R.id.fragmentContainer, fragment)
                 .addToBackStack(null)
                 .commit()
-            onActivity { fragmentManager.executePendingTransactions() }
+            executePendingTransactions()
 
             assertThat(onBackStackChangedTimes).isEqualTo(1)
 
@@ -147,7 +145,7 @@ class FragmentTransitionAnimTest(private val reorderingAllowed: Boolean) {
                 .remove(fragment)
                 .addToBackStack(null)
                 .commit()
-            onActivity { fragmentManager.executePendingTransactions() }
+            executePendingTransactions()
 
             fragment.waitForTransition()
             assertThat(fragment.exitAnimationLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)).isTrue()
@@ -173,7 +171,7 @@ class FragmentTransitionAnimTest(private val reorderingAllowed: Boolean) {
                 .add(R.id.fragmentContainer, fragment)
                 .addToBackStack(null)
                 .commit()
-            onActivity { fragmentManager.executePendingTransactions() }
+            executePendingTransactions()
 
             assertThat(onBackStackChangedTimes).isEqualTo(1)
             fragment.waitForTransition()
@@ -197,7 +195,7 @@ class FragmentTransitionAnimTest(private val reorderingAllowed: Boolean) {
                 .remove(fragment)
                 .addToBackStack(null)
                 .commit()
-            onActivity { fragmentManager.executePendingTransactions() }
+            executePendingTransactions()
 
             fragment.waitForTransition()
             assertThat(fragment.exitAnimatorLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)).isTrue()
@@ -223,7 +221,7 @@ class FragmentTransitionAnimTest(private val reorderingAllowed: Boolean) {
                 .add(R.id.fragmentContainer, fragment)
                 .addToBackStack(null)
                 .commit()
-            onActivity { fragmentManager.executePendingTransactions() }
+            executePendingTransactions()
 
             assertThat(onBackStackChangedTimes).isEqualTo(1)
             fragment.waitForTransition()
@@ -247,7 +245,7 @@ class FragmentTransitionAnimTest(private val reorderingAllowed: Boolean) {
                 .remove(fragment)
                 .addToBackStack(null)
                 .commit()
-            onActivity { fragmentManager.executePendingTransactions() }
+            executePendingTransactions()
 
             fragment.waitForTransition()
             assertThat(fragment.exitAnimatorLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)).isTrue()
