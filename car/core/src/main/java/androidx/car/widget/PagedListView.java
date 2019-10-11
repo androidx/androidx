@@ -495,13 +495,11 @@ public class PagedListView extends FrameLayout {
                         || ((scrollBarGravity == Gravity.LEFT) && !isLTR);
 
         boolean isScrollbarVisible = mScrollBarView.getVisibility() == VISIBLE;
-        int scrollBarDividerWidth =
-                mIsScrollBarDividerVisibleIfNeeded ? mDividerView.getLayoutParams().width : 0;
 
         // Default starting margin is either the width of the scroll bar, if present at the start,
         // or just flush to the edge.
         int startMargin = isScrollbarVisible && isScrollBarGravityStart
-                ? mScrollBarView.getLayoutParams().width + scrollBarDividerWidth : 0;
+                ? mScrollBarView.getLayoutParams().width : 0;
         if ((mGutter & Gutter.START) != 0) {
             // Ensure that the gutter value is large enough so that the RecyclerView does not
             // overlap the scroll bar, if it's enabled.
@@ -511,7 +509,7 @@ public class PagedListView extends FrameLayout {
         // Default end margin is either the width of the scroll bar, if present at the end, or
         // just flush to the edge.
         int endMargin = isScrollbarVisible && isScrollBarGravityEnd
-                ? mScrollBarView.getLayoutParams().width + scrollBarDividerWidth : 0;
+                ? mScrollBarView.getLayoutParams().width : 0;
         if ((mGutter & Gutter.END) != 0) {
             // Ensure that the gutter value is large enough so that the RecyclerView does not
             // overlap the scroll bar, if it's enabled.
