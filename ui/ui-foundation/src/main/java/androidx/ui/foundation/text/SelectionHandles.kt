@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.ui.foundation.selection
+package androidx.ui.foundation.text
 
 import androidx.compose.Composable
 import androidx.compose.composer
