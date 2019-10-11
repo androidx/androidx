@@ -559,6 +559,201 @@ class FlowTest : LayoutTest() {
     }
 
     @Test
+    fun testFlowRow_withLastLineMainAxisAlignment_justify_center() = withDensity(density) {
+        val numberOfSquares = 15
+        val size = 48.ipx
+        val sizeDp = size.toDp()
+        val flowWidth = 256.ipx
+        val flowWidthDp = flowWidth.toDp()
+
+        val flowSize = Ref<PxSize>()
+        val childSize = Array(numberOfSquares) { Ref<PxSize>() }
+        val childPosition = Array(numberOfSquares) { Ref<PxPosition>() }
+        val positionedLatch = CountDownLatch(numberOfSquares + 1)
+
+        show {
+            Align(Alignment.TopLeft) {
+                OnChildPositioned(onPositioned = { coordinates ->
+                    flowSize.value = coordinates.size
+                    positionedLatch.countDown()
+                }) {
+                    ConstrainedBox(constraints = DpConstraints(maxWidth = flowWidthDp)) {
+                        FlowRow(
+                            mainAxisSize = LayoutSize.Expand,
+                            mainAxisAlignment = FlowMainAxisAlignment.SpaceBetween,
+                            lastLineMainAxisAlignment = FlowMainAxisAlignment.Center
+                        ) {
+                            for (i in 0 until numberOfSquares) {
+                                Container(width = sizeDp, height = sizeDp) {
+                                    SaveLayoutInfo(
+                                        size = childSize[i],
+                                        position = childPosition[i],
+                                        positionedLatch = positionedLatch
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        assertTrue(positionedLatch.await(1, TimeUnit.SECONDS))
+
+        assertEquals(
+            PxSize(flowWidth, size * 3),
+            flowSize.value
+        )
+        for (i in 0 until numberOfSquares) {
+            assertEquals(
+                PxSize(width = size, height = size),
+                childSize[i].value
+            )
+            assertEquals(
+                PxPosition(
+                    x = if (i < 10) {
+                        (flowWidth - size * 5) * (i % 5) / 4 + size * (i % 5)
+                    } else {
+                        (flowWidth - size * 5) / 2 + size * (i % 5)
+                    },
+                    y = size * (i / 5)
+                ),
+                childPosition[i].value
+            )
+        }
+    }
+
+    @Test
+    fun testFlowRow_withLastLineMainAxisAlignment_justify_start() = withDensity(density) {
+        val numberOfSquares = 15
+        val size = 48.ipx
+        val sizeDp = size.toDp()
+        val flowWidth = 256.ipx
+        val flowWidthDp = flowWidth.toDp()
+
+        val flowSize = Ref<PxSize>()
+        val childSize = Array(numberOfSquares) { Ref<PxSize>() }
+        val childPosition = Array(numberOfSquares) { Ref<PxPosition>() }
+        val positionedLatch = CountDownLatch(numberOfSquares + 1)
+
+        show {
+            Align(Alignment.TopLeft) {
+                OnChildPositioned(onPositioned = { coordinates ->
+                    flowSize.value = coordinates.size
+                    positionedLatch.countDown()
+                }) {
+                    ConstrainedBox(constraints = DpConstraints(maxWidth = flowWidthDp)) {
+                        FlowRow(
+                            mainAxisSize = LayoutSize.Expand,
+                            mainAxisAlignment = FlowMainAxisAlignment.SpaceBetween,
+                            lastLineMainAxisAlignment = FlowMainAxisAlignment.Start
+                        ) {
+                            for (i in 0 until numberOfSquares) {
+                                Container(width = sizeDp, height = sizeDp) {
+                                    SaveLayoutInfo(
+                                        size = childSize[i],
+                                        position = childPosition[i],
+                                        positionedLatch = positionedLatch
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        assertTrue(positionedLatch.await(1, TimeUnit.SECONDS))
+
+        assertEquals(
+            PxSize(flowWidth, size * 3),
+            flowSize.value
+        )
+        for (i in 0 until numberOfSquares) {
+            assertEquals(
+                PxSize(width = size, height = size),
+                childSize[i].value
+            )
+            assertEquals(
+                PxPosition(
+                    x = if (i < 10) {
+                        (flowWidth - size * 5) * (i % 5) / 4 + size * (i % 5)
+                    } else {
+                        size * (i % 5)
+                    },
+                    y = size * (i / 5)
+                ),
+                childPosition[i].value
+            )
+        }
+    }
+
+    @Test
+    fun testFlowRow_withLastLineMainAxisAlignment_justify_end() = withDensity(density) {
+        val numberOfSquares = 15
+        val size = 48.ipx
+        val sizeDp = size.toDp()
+        val flowWidth = 256.ipx
+        val flowWidthDp = flowWidth.toDp()
+
+        val flowSize = Ref<PxSize>()
+        val childSize = Array(numberOfSquares) { Ref<PxSize>() }
+        val childPosition = Array(numberOfSquares) { Ref<PxPosition>() }
+        val positionedLatch = CountDownLatch(numberOfSquares + 1)
+
+        show {
+            Align(Alignment.TopLeft) {
+                OnChildPositioned(onPositioned = { coordinates ->
+                    flowSize.value = coordinates.size
+                    positionedLatch.countDown()
+                }) {
+                    ConstrainedBox(constraints = DpConstraints(maxWidth = flowWidthDp)) {
+                        FlowRow(
+                            mainAxisSize = LayoutSize.Expand,
+                            mainAxisAlignment = FlowMainAxisAlignment.SpaceBetween,
+                            lastLineMainAxisAlignment = FlowMainAxisAlignment.End
+                        ) {
+                            for (i in 0 until numberOfSquares) {
+                                Container(width = sizeDp, height = sizeDp) {
+                                    SaveLayoutInfo(
+                                        size = childSize[i],
+                                        position = childPosition[i],
+                                        positionedLatch = positionedLatch
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        assertTrue(positionedLatch.await(1, TimeUnit.SECONDS))
+
+        assertEquals(
+            PxSize(flowWidth, size * 3),
+            flowSize.value
+        )
+        for (i in 0 until numberOfSquares) {
+            assertEquals(
+                PxSize(width = size, height = size),
+                childSize[i].value
+            )
+            assertEquals(
+                PxPosition(
+                    x = if (i < 10) {
+                        (flowWidth - size * 5) * (i % 5) / 4 + size * (i % 5)
+                    } else {
+                        (flowWidth - size * 5) + size * (i % 5)
+                    },
+                    y = size * (i / 5)
+                ),
+                childPosition[i].value
+            )
+        }
+    }
+
+    @Test
     fun testFlowRow_withMainAxisSpacing() = withDensity(density) {
         val numberOfSquares = 15
         val size = 48.ipx
@@ -1363,6 +1558,201 @@ class FlowTest : LayoutTest() {
                 PxPosition(
                     x = size * (i / 5),
                     y = (flowHeight - size * 5) * (i % 5 + 0.5f) / 5 + size * (i % 5)
+                ),
+                childPosition[i].value
+            )
+        }
+    }
+
+    @Test
+    fun testFlowColumn_withLastLineMainAxisAlignment_justify_center() = withDensity(density) {
+        val numberOfSquares = 15
+        val size = 48.ipx
+        val sizeDp = size.toDp()
+        val flowHeight = 256.ipx
+        val flowHeightDp = flowHeight.toDp()
+
+        val flowSize = Ref<PxSize>()
+        val childSize = Array(numberOfSquares) { Ref<PxSize>() }
+        val childPosition = Array(numberOfSquares) { Ref<PxPosition>() }
+        val positionedLatch = CountDownLatch(numberOfSquares + 1)
+
+        show {
+            Align(Alignment.TopLeft) {
+                OnChildPositioned(onPositioned = { coordinates ->
+                    flowSize.value = coordinates.size
+                    positionedLatch.countDown()
+                }) {
+                    ConstrainedBox(constraints = DpConstraints(maxHeight = flowHeightDp)) {
+                        FlowColumn(
+                            mainAxisSize = LayoutSize.Expand,
+                            mainAxisAlignment = FlowMainAxisAlignment.SpaceBetween,
+                            lastLineMainAxisAlignment = FlowMainAxisAlignment.Center
+                        ) {
+                            for (i in 0 until numberOfSquares) {
+                                Container(width = sizeDp, height = sizeDp) {
+                                    SaveLayoutInfo(
+                                        size = childSize[i],
+                                        position = childPosition[i],
+                                        positionedLatch = positionedLatch
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        assertTrue(positionedLatch.await(1, TimeUnit.SECONDS))
+
+        assertEquals(
+            PxSize(size * 3, flowHeight),
+            flowSize.value
+        )
+        for (i in 0 until numberOfSquares) {
+            assertEquals(
+                PxSize(width = size, height = size),
+                childSize[i].value
+            )
+            assertEquals(
+                PxPosition(
+                    x = size * (i / 5),
+                    y = if (i < 10) {
+                        (flowHeight - size * 5) * (i % 5) / 4 + size * (i % 5)
+                    } else {
+                        (flowHeight - size * 5) / 2 + size * (i % 5)
+                    }
+                ),
+                childPosition[i].value
+            )
+        }
+    }
+
+    @Test
+    fun testFlowColumn_withLastLineMainAxisAlignment_justify_start() = withDensity(density) {
+        val numberOfSquares = 15
+        val size = 48.ipx
+        val sizeDp = size.toDp()
+        val flowHeight = 256.ipx
+        val flowHeightDp = flowHeight.toDp()
+
+        val flowSize = Ref<PxSize>()
+        val childSize = Array(numberOfSquares) { Ref<PxSize>() }
+        val childPosition = Array(numberOfSquares) { Ref<PxPosition>() }
+        val positionedLatch = CountDownLatch(numberOfSquares + 1)
+
+        show {
+            Align(Alignment.TopLeft) {
+                OnChildPositioned(onPositioned = { coordinates ->
+                    flowSize.value = coordinates.size
+                    positionedLatch.countDown()
+                }) {
+                    ConstrainedBox(constraints = DpConstraints(maxHeight = flowHeightDp)) {
+                        FlowColumn(
+                            mainAxisSize = LayoutSize.Expand,
+                            mainAxisAlignment = FlowMainAxisAlignment.SpaceBetween,
+                            lastLineMainAxisAlignment = FlowMainAxisAlignment.Start
+                        ) {
+                            for (i in 0 until numberOfSquares) {
+                                Container(width = sizeDp, height = sizeDp) {
+                                    SaveLayoutInfo(
+                                        size = childSize[i],
+                                        position = childPosition[i],
+                                        positionedLatch = positionedLatch
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        assertTrue(positionedLatch.await(1, TimeUnit.SECONDS))
+
+        assertEquals(
+            PxSize(size * 3, flowHeight),
+            flowSize.value
+        )
+        for (i in 0 until numberOfSquares) {
+            assertEquals(
+                PxSize(width = size, height = size),
+                childSize[i].value
+            )
+            assertEquals(
+                PxPosition(
+                    x = size * (i / 5),
+                    y = if (i < 10) {
+                        (flowHeight - size * 5) * (i % 5) / 4 + size * (i % 5)
+                    } else {
+                        size * (i % 5)
+                    }
+                ),
+                childPosition[i].value
+            )
+        }
+    }
+
+    @Test
+    fun testFlowColumn_withLastLineMainAxisAlignment_justify_end() = withDensity(density) {
+        val numberOfSquares = 15
+        val size = 48.ipx
+        val sizeDp = size.toDp()
+        val flowHeight = 256.ipx
+        val flowHeightDp = flowHeight.toDp()
+
+        val flowSize = Ref<PxSize>()
+        val childSize = Array(numberOfSquares) { Ref<PxSize>() }
+        val childPosition = Array(numberOfSquares) { Ref<PxPosition>() }
+        val positionedLatch = CountDownLatch(numberOfSquares + 1)
+
+        show {
+            Align(Alignment.TopLeft) {
+                OnChildPositioned(onPositioned = { coordinates ->
+                    flowSize.value = coordinates.size
+                    positionedLatch.countDown()
+                }) {
+                    ConstrainedBox(constraints = DpConstraints(maxHeight = flowHeightDp)) {
+                        FlowColumn(
+                            mainAxisSize = LayoutSize.Expand,
+                            mainAxisAlignment = FlowMainAxisAlignment.SpaceBetween,
+                            lastLineMainAxisAlignment = FlowMainAxisAlignment.End
+                        ) {
+                            for (i in 0 until numberOfSquares) {
+                                Container(width = sizeDp, height = sizeDp) {
+                                    SaveLayoutInfo(
+                                        size = childSize[i],
+                                        position = childPosition[i],
+                                        positionedLatch = positionedLatch
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        assertTrue(positionedLatch.await(1, TimeUnit.SECONDS))
+
+        assertEquals(
+            PxSize(size * 3, flowHeight),
+            flowSize.value
+        )
+        for (i in 0 until numberOfSquares) {
+            assertEquals(
+                PxSize(width = size, height = size),
+                childSize[i].value
+            )
+            assertEquals(
+                PxPosition(
+                    x = size * (i / 5),
+                    y = if (i < 10) {
+                        (flowHeight - size * 5) * (i % 5) / 4 + size * (i % 5)
+                    } else {
+                        (flowHeight - size * 5) + size * (i % 5)
+                    }
                 ),
                 childPosition[i].value
             )
