@@ -49,6 +49,7 @@ package androidx.ui.input {
     method public int transformedToOriginal(int offset);
   }
 
+
   public final class PasswordVisualTransformation implements androidx.ui.input.VisualTransformation {
     ctor public PasswordVisualTransformation(char mask);
     ctor public PasswordVisualTransformation();
