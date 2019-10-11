@@ -41,8 +41,8 @@ import androidx.ui.graphics.vector.DrawVector
 import androidx.ui.graphics.vector.Group
 import androidx.ui.graphics.vector.Path
 import androidx.ui.graphics.vector.PathData
-import androidx.ui.graphics.vector.compat.vectorResource
 import androidx.ui.graphics.vector.VectorScope
+import androidx.ui.res.vectorResource
 
 class VectorGraphicsActivity : Activity() {
 
