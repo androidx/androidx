@@ -21,12 +21,10 @@ import androidx.annotation.StringRes
 import androidx.compose.Composable
 import androidx.compose.ambient
 import androidx.compose.effectOf
-import androidx.compose.memo
-import androidx.compose.unaryPlus
 import androidx.ui.core.ContextAmbient
 
 /**
- * Load a string resource from Android context in ambient.
+ * Load a string resource.
  *
  * @param id the resource identifier
  * @return the string data associated with the resource
@@ -38,7 +36,7 @@ fun stringResource(@StringRes id: Int) = effectOf<String> {
 }
 
 /**
- * Load a string resource from Android context in ambient.
+ * Load a string resource with formatting.
  *
  * @param id the resource identifier
  * @param formatArgs the format arguments

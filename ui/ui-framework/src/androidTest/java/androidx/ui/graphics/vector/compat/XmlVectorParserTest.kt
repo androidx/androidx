@@ -26,6 +26,7 @@ import androidx.ui.graphics.Color
 import androidx.ui.graphics.SolidColor
 import androidx.ui.graphics.vector.PathCommand
 import androidx.ui.graphics.vector.PathNode
+import androidx.ui.res.loadVectorResource
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith

@@ -14,37 +14,37 @@
  * limitations under the License.
  */
 
-package androidx.ui.graphics.vector.compat
+package androidx.ui.res
 
 import android.annotation.SuppressLint
 import android.content.res.Resources
 import android.util.Xml
 import androidx.annotation.CheckResult
+import androidx.annotation.DrawableRes
+import androidx.annotation.VisibleForTesting
 import androidx.compose.Composable
-import androidx.compose.composer
 import androidx.compose.ambient
 import androidx.compose.effectOf
 import androidx.compose.memo
 import androidx.compose.unaryPlus
 import androidx.ui.core.ContextAmbient
-import androidx.ui.graphics.vector.DrawVector
 import androidx.ui.graphics.vector.VectorAsset
+import androidx.ui.graphics.vector.compat.createVectorImageBuilder
+import androidx.ui.graphics.vector.compat.isAtEnd
+import androidx.ui.graphics.vector.compat.parseCurrentVectorNode
+import androidx.ui.graphics.vector.compat.seekToStartTag
 import org.xmlpull.v1.XmlPullParserException
-
-/**
- * Convenience method to simultaneously load and draw a vector resource
- */
-@Composable
-fun DrawVectorResource(resId: Int) = DrawVector(vectorImage = +vectorResource(resId))
 
 /**
  * Effect used to load a [VectorAsset] from an Android resource id
  * This is useful for querying top level properties of the [VectorAsset]
  * such as it's intrinsic width and height to be able to size components
  * based off of it's dimensions appropriately
+ *
+ * Note: This API is transient and will be likely removed for encouraging async resource loading.
  */
 @CheckResult(suggest = "+")
-fun vectorResource(resId: Int) = effectOf<VectorAsset> {
+fun vectorResource(@DrawableRes resId: Int) = effectOf<VectorAsset> {
     val context = +ambient(ContextAmbient)
     val res = context.resources
     val theme = context.theme
@@ -55,7 +55,7 @@ fun vectorResource(resId: Int) = effectOf<VectorAsset> {
 
 @Throws(XmlPullParserException::class)
 @SuppressWarnings("RestrictedApi")
-fun loadVectorResource(
+internal fun loadVectorResource(
     theme: Resources.Theme? = null,
     res: Resources,
     resId: Int
