@@ -62,6 +62,11 @@ package androidx.ui.core {
     method public static inline void ParentData(Object data, kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
 
+  public final class PasswordTextFieldKt {
+    ctor public PasswordTextFieldKt();
+    method public static void PasswordTextField(String value, kotlin.jvm.functions.Function1<? super java.lang.String,kotlin.Unit> onValueChange = {}, androidx.ui.input.EditorStyle? editorStyle = null, char mask = '\u2022', androidx.ui.input.ImeAction imeAction = ImeAction.Unspecified, kotlin.jvm.functions.Function0<kotlin.Unit> onFocus = {}, kotlin.jvm.functions.Function0<kotlin.Unit> onBlur = {}, String? focusIdentifier = null, kotlin.jvm.functions.Function1<? super androidx.ui.input.ImeAction,kotlin.Unit> onImeActionPerformed = {});
+  }
+
   public final class PointerInputWrapperKt {
     ctor public PointerInputWrapperKt();
     method public static inline void PointerInputWrapper(kotlin.jvm.functions.Function2<? super java.util.List<androidx.ui.core.PointerInputChange>,? super androidx.ui.core.PointerEventPass,? extends java.util.List<androidx.ui.core.PointerInputChange>> pointerInputHandler = { event, _ -> event }, kotlin.jvm.functions.Function0<kotlin.Unit> children);
