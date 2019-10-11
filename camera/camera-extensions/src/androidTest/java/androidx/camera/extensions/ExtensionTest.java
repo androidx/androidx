@@ -16,6 +16,8 @@
 
 package androidx.camera.extensions;
 
+import static androidx.camera.core.PreviewUtil.createPreviewSurfaceCallback;
+
 import static com.google.common.truth.Truth.assertThat;
 
 import static junit.framework.TestCase.assertEquals;
@@ -33,8 +35,10 @@ import static org.mockito.Mockito.verify;
 import android.Manifest;
 import android.app.Instrumentation;
 import android.content.Context;
+import android.graphics.SurfaceTexture;
 import android.os.Build;
 
+import androidx.annotation.NonNull;
 import androidx.camera.camera2.Camera2AppConfig;
 import androidx.camera.camera2.Camera2Config;
 import androidx.camera.camera2.impl.CameraEventCallback;
@@ -47,6 +51,7 @@ import androidx.camera.core.ImageCaptureConfig;
 import androidx.camera.core.ImageProxy;
 import androidx.camera.core.Preview;
 import androidx.camera.core.PreviewConfig;
+import androidx.camera.core.PreviewUtil;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.extensions.ExtensionsManager.EffectMode;
 import androidx.camera.extensions.util.ExtensionsTestUtil;
@@ -121,8 +126,6 @@ public class ExtensionTest {
 
     @Test
     public void testCanBindToLifeCycleAndTakePicture() {
-        Preview.OnPreviewOutputUpdateListener mockOnPreviewOutputUpdateListener = mock(
-                Preview.OnPreviewOutputUpdateListener.class);
         ImageCapture.OnImageCapturedCallback mockOnImageCapturedCallback = mock(
                 ImageCapture.OnImageCapturedCallback.class);
 
@@ -133,10 +136,23 @@ public class ExtensionTest {
 
         mInstrumentation.runOnMainSync(
                 () -> {
-                    CameraX.bindToLifecycle(mLifecycleOwner, preview, imageCapture);
-
                     // To set the update listener and Preview will change to active state.
-                    preview.setOnPreviewOutputUpdateListener(mockOnPreviewOutputUpdateListener);
+                    preview.setPreviewSurfaceCallback(createPreviewSurfaceCallback(
+                            new PreviewUtil.SurfaceTextureCallback() {
+                                @Override
+                                public void onSurfaceTextureReady(
+                                        @NonNull SurfaceTexture surfaceTexture) {
+                                    // No-op.
+                                }
+
+                                @Override
+                                public void onSafeToRelease(
+                                        @NonNull SurfaceTexture surfaceTexture) {
+                                    // No-op.
+                                }
+                            }));
+
+                    CameraX.bindToLifecycle(mLifecycleOwner, preview, imageCapture);
 
                     imageCapture.takePicture(CameraXExecutors.mainThreadExecutor(),
                             mockOnImageCapturedCallback);
