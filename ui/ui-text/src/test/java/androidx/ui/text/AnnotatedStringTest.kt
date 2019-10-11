@@ -16,6 +16,7 @@
 
 package androidx.ui.text
 
+import androidx.ui.core.sp
 import androidx.ui.text.style.TextAlign
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
@@ -30,7 +31,7 @@ class AnnotatedStringTest {
         val paragraphStyle = ParagraphStyle(textAlign = TextAlign.Center)
         val paragraphStyles = listOf(AnnotatedString.Item(paragraphStyle, 0, 5))
         val annotatedString = AnnotatedString(text = text, paragraphStyles = paragraphStyles)
-        val defaultParagraphStyle = ParagraphStyle(lineHeight = 2.0f)
+        val defaultParagraphStyle = ParagraphStyle(lineHeight = 20.sp)
 
         val paragraphs = annotatedString.normalizedParagraphStyles(defaultParagraphStyle)
 
@@ -49,7 +50,7 @@ class AnnotatedStringTest {
     fun `test normalizedParagraphStyles only string`() {
         val text = "Hello World"
         val annotatedString = AnnotatedString(text = text)
-        val defaultParagraphStyle = ParagraphStyle(lineHeight = 2.0f)
+        val defaultParagraphStyle = ParagraphStyle(lineHeight = 20.sp)
 
         val paragraphs = annotatedString.normalizedParagraphStyles(defaultParagraphStyle)
 
@@ -64,7 +65,7 @@ class AnnotatedStringTest {
     fun `test normalizedParagraphStyles empty string`() {
         val text = ""
         val annotatedString = AnnotatedString(text = text)
-        val defaultParagraphStyle = ParagraphStyle(lineHeight = 2.0f)
+        val defaultParagraphStyle = ParagraphStyle(lineHeight = 20.sp)
 
         val paragraphs = annotatedString.normalizedParagraphStyles(defaultParagraphStyle)
 
@@ -79,7 +80,7 @@ class AnnotatedStringTest {
     fun `test normalizedParagraphStyles with newLine`() {
         val text = "Hello\nWorld"
         val annotatedString = AnnotatedString(text = text)
-        val defaultParagraphStyle = ParagraphStyle(lineHeight = 2.0f)
+        val defaultParagraphStyle = ParagraphStyle(lineHeight = 20.sp)
 
         val paragraphs = annotatedString.normalizedParagraphStyles(defaultParagraphStyle)
 
@@ -94,7 +95,7 @@ class AnnotatedStringTest {
     fun `test normalizedParagraphStyles with only lineFeed`() {
         val text = "\n"
         val annotatedString = AnnotatedString(text = text)
-        val defaultParagraphStyle = ParagraphStyle(lineHeight = 2.0f)
+        val defaultParagraphStyle = ParagraphStyle(lineHeight = 20.sp)
 
         val paragraphs = annotatedString.normalizedParagraphStyles(defaultParagraphStyle)
 

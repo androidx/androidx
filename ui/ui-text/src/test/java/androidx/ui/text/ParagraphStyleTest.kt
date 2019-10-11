@@ -16,6 +16,7 @@
 
 package androidx.ui.text
 
+import androidx.ui.core.sp
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -24,6 +25,6 @@ import org.junit.runners.JUnit4
 class ParagraphStyleTest {
     @Test(expected = AssertionError::class)
     fun `negative lineHeight throws AssertionError`() {
-        ParagraphStyle(lineHeight = -1.0f)
+        ParagraphStyle(lineHeight = -1.sp)
     }
 }

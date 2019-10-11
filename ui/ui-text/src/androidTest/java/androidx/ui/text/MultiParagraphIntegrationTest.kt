@@ -2257,7 +2257,7 @@ class MultiParagraphIntegrationTest {
             val fontSizeInPx = fontSize.toPx().value
             // Make the layout 4 lines
             val layoutWidth = text.length * fontSizeInPx / 4
-            val lineHeight = 1.5f
+            val lineHeight = 30.sp
 
             val paragraph = simpleMultiParagraph(
                 text = text,
@@ -2267,38 +2267,14 @@ class MultiParagraphIntegrationTest {
             )
 
             assertThat(paragraph.lineCount).isEqualTo(4)
-            // TODO(haoyuchang): Due to bug b/120530738, the height of the first line is
-            // wrong in the framework. Will fix it when the lineHeight in TextSpan is implemented.
+            // The first and last line will be different because of includePadding.
             for (i in 1 until paragraph.lineCount - 1) {
                 val actualHeight = paragraph.getLineHeight(i)
                 // In the sample_font.ttf, the height of the line should be
                 // fontSize + 0.2f * fontSize(line gap)
                 assertWithMessage("line number $i").that(actualHeight)
-                    .isEqualTo(1.2f * fontSizeInPx * lineHeight)
+                    .isEqualTo(lineHeight.toPx().value)
             }
-        }
-    }
-
-    @Test
-    fun lineHeight_hasNoEffectOnLastLine() {
-        withDensity(defaultDensity) {
-            val text = "abc"
-            val fontSize = 20.sp
-            val fontSizeInPx = fontSize.toPx().value
-            val layoutWidth = (text.length - 1) * fontSizeInPx
-            val lineHeight = 1.5f
-
-            val paragraph = simpleMultiParagraph(
-                text = text,
-                fontSize = fontSize,
-                lineHeight = lineHeight,
-                constraints = ParagraphConstraints(width = layoutWidth)
-            )
-
-            val lastLine = paragraph.lineCount - 1
-            // In the sample_font.ttf, the height of the line should be
-            // fontSize + 0.2 * fontSize(line gap)
-            assertThat(paragraph.getLineHeight(lastLine)).isEqualTo(1.2f * fontSizeInPx)
         }
     }
 
@@ -2437,7 +2413,7 @@ class MultiParagraphIntegrationTest {
         textAlign: TextAlign? = null,
         fontSize: Sp? = null,
         maxLines: Int? = null,
-        lineHeight: Float? = null,
+        lineHeight: Sp? = null,
         textStyles: List<AnnotatedString.Item<TextStyle>> = listOf(),
         paragraphStyles: List<AnnotatedString.Item<ParagraphStyle>> = listOf(),
         fontFamily: FontFamily = fontFamilyMeasureFont,

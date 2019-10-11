@@ -2110,7 +2110,7 @@ class ParagraphIntegrationTest {
             val fontSizeInPx = fontSize.toPx().value
             // Make the layout 4 lines
             val layoutWidth = text.length * fontSizeInPx / 4
-            val lineHeight = 1.5f
+            val lineHeight = 30.sp
 
             val paragraph = simpleParagraph(
                 text = text,
@@ -2127,31 +2127,8 @@ class ParagraphIntegrationTest {
                 // In the sample_font.ttf, the height of the line should be
                 // fontSize + 0.2f * fontSize(line gap)
                 assertWithMessage("line number $i")
-                    .that(actualHeight).isEqualTo(1.2f * fontSizeInPx * lineHeight)
+                    .that(actualHeight).isEqualTo(lineHeight.toPx().value)
             }
-        }
-    }
-
-    @Test
-    fun lineHeight_hasNoEffectOnLastLine() {
-        withDensity(defaultDensity) {
-            val text = "abc"
-            val fontSize = 20.sp
-            val fontSizeInPx = fontSize.toPx().value
-            val layoutWidth = (text.length - 1) * fontSizeInPx
-            val lineHeight = 1.5f
-
-            val paragraph = simpleParagraph(
-                text = text,
-                fontSize = fontSize,
-                lineHeight = lineHeight,
-                constraints = ParagraphConstraints(width = layoutWidth)
-            )
-
-            val lastLine = paragraph.lineCount - 1
-            // In the sample_font.ttf, the height of the line should be
-            // fontSize + 0.2 * fontSize(line gap)
-            assertThat(paragraph.getLineHeight(lastLine)).isEqualTo(1.2f * fontSizeInPx)
         }
     }
 
@@ -3159,7 +3136,7 @@ class ParagraphIntegrationTest {
         textAlign: TextAlign? = null,
         fontSize: Sp? = null,
         maxLines: Int? = null,
-        lineHeight: Float? = null,
+        lineHeight: Sp? = null,
         textStyles: List<AnnotatedString.Item<TextStyle>> = listOf(),
         fontFamily: FontFamily = fontFamilyMeasureFont,
         localeList: LocaleList? = null,

@@ -20,6 +20,7 @@ import androidx.compose.Composable
 import androidx.compose.composer
 import androidx.ui.core.Text
 import androidx.ui.core.px
+import androidx.ui.core.sp
 import androidx.ui.foundation.VerticalScroller
 import androidx.ui.layout.Column
 import androidx.ui.layout.CrossAxisAlignment
@@ -29,6 +30,9 @@ import androidx.ui.text.ParagraphStyle
 import androidx.ui.text.TextStyle
 import androidx.ui.text.style.TextAlign
 import androidx.ui.text.style.TextIndent
+
+val lorem = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas fermentum non" +
+        " diam sed pretium."
 
 @Composable
 fun MultiParagraphDemo() {
@@ -98,9 +102,9 @@ fun TextDemoParagraphTextAlign() {
 
 @Composable
 fun TextDemoParagraphLineHeight() {
-    val text1 = "LineHeight=1.0f LineHeight=1.0f LineHeight=1.0f LineHeight=1.0f"
-    val text2 = "LineHeight=1.5f LineHeight=1.5f LineHeight=1.5f LineHeight=1.5f"
-    val text3 = "LineHeight=3.0f LineHeight=3.0f LineHeight=3.0f LineHeight=3.0f"
+    val text1 = "LineHeight=30sp: $lorem"
+    val text2 = "LineHeight=40sp: $lorem"
+    val text3 = "LineHeight=50sp: $lorem"
 
     Text(
         text = AnnotatedString(
@@ -108,17 +112,17 @@ fun TextDemoParagraphLineHeight() {
             textStyles = listOf(),
             paragraphStyles = listOf(
                 AnnotatedString.Item(
-                    ParagraphStyle(lineHeight = 1.0f),
+                    ParagraphStyle(lineHeight = 30.sp),
                     0,
                     text1.length
                 ),
                 AnnotatedString.Item(
-                    ParagraphStyle(lineHeight = 1.5f),
+                    ParagraphStyle(lineHeight = 40.sp),
                     text1.length,
                     text1.length + text2.length
                 ),
                 AnnotatedString.Item(
-                    ParagraphStyle(lineHeight = 2f),
+                    ParagraphStyle(lineHeight = 50.sp),
                     text1.length + text2.length,
                     text1.length + text2.length + text3.length
                 )

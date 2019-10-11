@@ -16,6 +16,7 @@
 
 package androidx.ui.text
 
+import androidx.ui.core.Sp
 import androidx.ui.text.style.TextAlign
 import androidx.ui.text.style.TextDirectionAlgorithm
 import androidx.ui.text.style.TextIndent
@@ -34,7 +35,7 @@ import androidx.ui.text.style.TextIndent
  * @param textDirectionAlgorithm The algorithm to be used to resolve the final text direction:
  * Left To Right or Right To Left.
  * @param textIndent The indentation of the paragraph.
- * @param lineHeight The minimum height of the line boxes, as a multiple of the font size.
+ * @param lineHeight Line height for the [Paragraph] in [Sp] unit
  *
  * @see [Paragraph]
  * @see [AnnotatedString]
@@ -42,12 +43,13 @@ import androidx.ui.text.style.TextIndent
 data class ParagraphStyle constructor(
     val textAlign: TextAlign? = null,
     val textDirectionAlgorithm: TextDirectionAlgorithm? = null,
-    val lineHeight: Float? = null,
+    val lineHeight: Sp? = null,
     val textIndent: TextIndent? = null
 ) {
     init {
         lineHeight?.let {
-            assert(it >= 0f) {
+            // Since we are checking if it's negative, no need to convert Sp into Px at this point.
+            assert(it.value >= 0f) {
                 "lineHeight can't be negative ($it)"
             }
         }

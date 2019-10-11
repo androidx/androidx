@@ -98,8 +98,6 @@ internal class AndroidParagraph constructor(
             else -> DEFAULT_JUSTIFICATION_MODE
         }
 
-        val lineSpacingMultiplier = paragraphStyle.lineHeight ?: DEFAULT_LINESPACING_MULTIPLIER
-
         val ellipsize = if (ellipsis == true) {
             TextUtils.TruncateAt.END
         } else {
@@ -115,7 +113,7 @@ internal class AndroidParagraph constructor(
             ellipsize = ellipsize,
             alignment = alignment,
             textDirectionHeuristic = paragraphIntrinsics.textDirectionHeuristic,
-            lineSpacingMultiplier = lineSpacingMultiplier,
+            lineSpacingMultiplier = DEFAULT_LINESPACING_MULTIPLIER,
             maxLines = maxLines,
             justificationMode = justificationMode,
             layoutIntrinsics = paragraphIntrinsics.layoutIntrinsics
