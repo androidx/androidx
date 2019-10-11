@@ -43,6 +43,18 @@ data class Selection(
      */
     val endCoordinates: PxPosition,
     /**
+     * The character offset of the starting character in selection.
+     *
+     * This offset is within individual child text widget.
+     */
+    val startOffset: Int,
+    /**
+     * The character offset of the last character in selection.
+     *
+     * This offset is within individual child text widget.
+     */
+    val endOffset: Int,
+    /**
      * Text direction of the starting character in selection.
      */
     val startDirection: TextDirection,
@@ -71,14 +83,16 @@ data class Selection(
             currentSelection = currentSelection.copy(
                 startCoordinates = other.startCoordinates,
                 startLayoutCoordinates = other.startLayoutCoordinates,
-                startDirection = other.startDirection
+                startDirection = other.startDirection,
+                startOffset = other.startOffset
             )
         }
         if (other.endLayoutCoordinates != null) {
             currentSelection = currentSelection.copy(
                 endCoordinates = other.endCoordinates,
                 endLayoutCoordinates = other.endLayoutCoordinates,
-                endDirection = other.endDirection
+                endDirection = other.endDirection,
+                endOffset = other.endOffset
             )
         }
         return currentSelection
