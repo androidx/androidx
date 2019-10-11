@@ -56,7 +56,24 @@ internal class TextSelectionProcessor(
      * This coordinates is in child widget coordinates system.
      */
     internal var endCoordinates: PxPosition = PxPosition.Origin
+    /**
+     * The character offset of the starting character in selection.
+     */
+    internal var startOffset: Int = 0
+    /**
+     * The character offset of the last character in selection.
+     */
+    internal var endOffset: Int = 0
+    /**
+     * Text direction of the starting character in selection.
+     */
     internal var startDirection = TextDirection.Ltr
+    /**
+     * Text direction of the last character in selection.
+     *
+     * Note: The selection is inclusive-exclusive. But this is the text direction of the last
+     * character of the selection.
+     */
     internal var endDirection = TextDirection.Ltr
     /**
      * A flag to check if the text widget contains the whole selection's start.
@@ -106,6 +123,9 @@ internal class TextSelectionProcessor(
 
         startCoordinates = getSelectionHandleCoordinates(textSelectionStart, true)
         endCoordinates = getSelectionHandleCoordinates(textSelectionEnd, false)
+
+        startOffset = textSelectionStart
+        endOffset = textSelectionEnd
 
         startDirection = textDelegate.getBidiRunDirection(textSelectionStart)
         endDirection = textDelegate.getBidiRunDirection(Math.max(textSelectionEnd - 1, 0))

@@ -88,6 +88,8 @@ class TextSelectionProcessorTest {
                 .isEqualTo(PxPosition(0.px, fontSizeInPx.px))
             assertThat(textSelectionProcessor.endCoordinates)
                 .isEqualTo(PxPosition(("hello".length * fontSizeInPx).px, fontSizeInPx.px))
+            assertThat(textSelectionProcessor.startOffset).isEqualTo(0)
+            assertThat(textSelectionProcessor.endOffset).isEqualTo("hello".length)
             assertThat(textSelectionProcessor.startDirection).isEqualTo(TextDirection.Ltr)
             assertThat(textSelectionProcessor.endDirection).isEqualTo(TextDirection.Ltr)
             assertThat(textSelectionProcessor.containsWholeSelectionStart).isTrue()
@@ -128,6 +130,10 @@ class TextSelectionProcessorTest {
             )
             assertThat(textSelectionProcessor.endCoordinates).isEqualTo(
                 PxPosition(0.px, fontSizeInPx.px)
+            )
+            assertThat(textSelectionProcessor.startOffset).isEqualTo("\u05D0\u05D1\u05D2 ".length)
+            assertThat(textSelectionProcessor.endOffset).isEqualTo(
+                "\u05D0\u05D1\u05D2 \u05D3\u05D4\u05D5".length
             )
             assertThat(textSelectionProcessor.startDirection).isEqualTo(TextDirection.Rtl)
             assertThat(textSelectionProcessor.endDirection).isEqualTo(TextDirection.Rtl)
@@ -175,6 +181,8 @@ class TextSelectionProcessorTest {
             assertThat(textSelectionProcessor.endCoordinates).isEqualTo(
                 PxPosition((endOffset * fontSizeInPx).px, fontSizeInPx.px)
             )
+            assertThat(textSelectionProcessor.startOffset).isEqualTo(startOffset)
+            assertThat(textSelectionProcessor.endOffset).isEqualTo(endOffset)
             assertThat(textSelectionProcessor.startDirection).isEqualTo(TextDirection.Ltr)
             assertThat(textSelectionProcessor.endDirection).isEqualTo(TextDirection.Ltr)
             assertThat(textSelectionProcessor.containsWholeSelectionStart).isTrue()
@@ -225,6 +233,8 @@ class TextSelectionProcessorTest {
             assertThat(textSelectionProcessor.endCoordinates).isEqualTo(
                 PxPosition(((text.length - 1 - endOffset) * fontSizeInPx).px, fontSizeInPx.px)
             )
+            assertThat(textSelectionProcessor.startOffset).isEqualTo(startOffset)
+            assertThat(textSelectionProcessor.endOffset).isEqualTo(endOffset)
             assertThat(textSelectionProcessor.startDirection).isEqualTo(TextDirection.Rtl)
             assertThat(textSelectionProcessor.endDirection).isEqualTo(TextDirection.Rtl)
             assertThat(textSelectionProcessor.containsWholeSelectionStart).isTrue()
@@ -280,6 +290,8 @@ class TextSelectionProcessorTest {
                     fontSizeInPx.px
                 )
             )
+            assertThat(textSelectionProcessor.startOffset).isEqualTo(startOffset)
+            assertThat(textSelectionProcessor.endOffset).isEqualTo(endOffset)
             assertThat(textSelectionProcessor.startDirection).isEqualTo(TextDirection.Ltr)
             assertThat(textSelectionProcessor.endDirection).isEqualTo(TextDirection.Rtl)
             assertThat(textSelectionProcessor.containsWholeSelectionStart).isTrue()
