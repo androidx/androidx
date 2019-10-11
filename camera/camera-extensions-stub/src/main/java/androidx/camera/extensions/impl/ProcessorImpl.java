@@ -19,7 +19,11 @@ package androidx.camera.extensions.impl;
 import android.util.Size;
 import android.view.Surface;
 
-/** Processes an input image stream and produces an output image stream. */
+/**
+ * Processes an input image stream and produces an output image stream.
+ *
+ * @since 1.0
+ */
 public interface ProcessorImpl {
     /**
      * Updates where the ProcessorImpl should write the output to.

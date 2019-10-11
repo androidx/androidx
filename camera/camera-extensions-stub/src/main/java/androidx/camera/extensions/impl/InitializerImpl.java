@@ -25,14 +25,14 @@ import java.util.concurrent.Executor;
 
 /**
  * Used for initializing the extensions library.
+ *
+ * @since 1.1
  */
 public class InitializerImpl {
     private InitializerImpl() {
     }
 
-    /**
-     * An unknown error has occurred.
-     */
+    /** An unknown error has occurred. */
     public static final int ERROR_UNKNOWN = 0;
 
     /**
@@ -75,9 +75,7 @@ public class InitializerImpl {
      * Callback that gets called when the library has finished initializing and is ready for used.
      */
     public interface OnExtensionsInitializedCallback {
-        /**
-         * Called if the library successfully initializes.
-         */
+        /** Called if the library successfully initializes. */
         void onSuccess();
 
         /**

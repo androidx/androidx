@@ -28,6 +28,8 @@ import java.util.List;
 
 /**
  * Provides abstract methods that the OEM needs to implement to enable extensions in the preview.
+ *
+ * @since 1.0
  */
 public interface PreviewExtenderImpl extends ExtenderStateListener {
     /** The different types of the preview processing. */
@@ -79,8 +81,15 @@ public interface PreviewExtenderImpl extends ExtenderStateListener {
     /**
      * Returns a processor which only updates the {@link CaptureStageImpl}.
      *
-     * <p>The type of processor is dependent on the return of {@link #getProcessorType()}. If it
+     * <p>The type of processor is dependent on the return of {@link #getProcessorType()}. The
+     * type of ProcessorImpl returned will be according to the following table.
      *
+     * <table>
+     * <tr><th> ProcessorType </th> <th> ProcessorImpl </th> </tr>
+     * <tr><td> PROCESSOR_TYPE_REQUEST_UPDATE_ONLY </td> <td> RequestUpdateProcessorImpl </td> </tr>
+     * <tr><td> PROCESSOR_TYPE_IMAGE_PROCESSOR </td> <td> PreviewImageProcessorImpl </td> </tr>
+     * <tr><td> PROCESSOR_TYPE_NONE </td> <td> null </td> </tr>
+     * </table>
      */
     ProcessorImpl getProcessor();
 
