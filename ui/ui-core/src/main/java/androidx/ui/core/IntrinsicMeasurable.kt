@@ -27,8 +27,8 @@ interface IntrinsicMeasurable {
     val parentData: Any?
 
     /**
-     * Calculates the minimum width that the layout can be without failing
-     * to paint its contents within itself.
+     * Calculates the minimum width that the layout can be such that
+     * the content of the layout will be painted correctly.
      */
     fun minIntrinsicWidth(height: IntPx): IntPx
 
@@ -39,8 +39,8 @@ interface IntrinsicMeasurable {
     fun maxIntrinsicWidth(height: IntPx): IntPx
 
     /**
-     * Calculates the minimum height that the layout can be without failing
-     * to paint its contents within itself.
+     * Calculates the minimum height that the layout can be such that
+     * the content of the layout will be painted correctly.
      */
     fun minIntrinsicHeight(width: IntPx): IntPx
 
@@ -54,4 +54,4 @@ interface IntrinsicMeasurable {
 /**
  * A function for performing intrinsic measurement.
  */
-typealias IntrinsicMeasureBlock = (DensityScope.(List<IntrinsicMeasurable>, IntPx) -> IntPx)
+typealias IntrinsicMeasureBlock = DensityScope.(List<IntrinsicMeasurable>, IntPx) -> IntPx

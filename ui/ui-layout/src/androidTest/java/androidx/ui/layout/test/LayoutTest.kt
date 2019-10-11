@@ -32,7 +32,6 @@ import androidx.ui.core.px
 import androidx.compose.Composable
 import androidx.compose.composer
 import androidx.ui.core.AlignmentLine
-import androidx.ui.core.ComplexLayout
 import androidx.ui.core.IntPx
 import androidx.ui.core.Layout
 import androidx.ui.core.coerceIn
@@ -141,22 +140,22 @@ open class LayoutTest {
         layouts.forEach { layout ->
             val layoutLatch = CountDownLatch(1)
             show {
-                ComplexLayout(layout) {
-                    measure { measurables, _ ->
-                        val measurable = measurables.first()
-                        test(
-                            { h -> measurable.minIntrinsicWidth(h) },
-                            { w -> measurable.minIntrinsicHeight(w) },
-                            { h -> measurable.maxIntrinsicWidth(h) },
-                            { w -> measurable.maxIntrinsicHeight(w) }
-                        )
-                        layoutLatch.countDown()
-                        layout(0.ipx, 0.ipx) {}
-                    }
-                    minIntrinsicWidth { _, _ -> 0.ipx }
-                    maxIntrinsicWidth { _, _ -> 0.ipx }
-                    minIntrinsicHeight { _, _ -> 0.ipx }
-                    maxIntrinsicHeight { _, _ -> 0.ipx }
+                Layout(
+                    layout,
+                    minIntrinsicWidthMeasureBlock = { _, _ -> 0.ipx },
+                    minIntrinsicHeightMeasureBlock = { _, _ -> 0.ipx },
+                    maxIntrinsicWidthMeasureBlock = { _, _ -> 0.ipx },
+                    maxIntrinsicHeightMeasureBlock = { _, _ -> 0.ipx }
+                ) { measurables, _ ->
+                    val measurable = measurables.first()
+                    test(
+                        { h -> measurable.minIntrinsicWidth(h) },
+                        { w -> measurable.minIntrinsicHeight(w) },
+                        { h -> measurable.maxIntrinsicWidth(h) },
+                        { w -> measurable.maxIntrinsicHeight(w) }
+                    )
+                    layoutLatch.countDown()
+                    layout(0.ipx, 0.ipx) {}
                 }
             }
             assertTrue(layoutLatch.await(1, TimeUnit.SECONDS))

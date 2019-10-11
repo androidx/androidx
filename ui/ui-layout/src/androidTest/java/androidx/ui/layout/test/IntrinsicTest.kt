@@ -20,8 +20,8 @@ import androidx.compose.Composable
 import androidx.compose.composer
 import androidx.test.filters.SmallTest
 import androidx.ui.core.Alignment
-import androidx.ui.core.ComplexLayout
 import androidx.ui.core.Dp
+import androidx.ui.core.Layout
 import androidx.ui.core.OnChildPositioned
 import androidx.ui.core.PxPosition
 import androidx.ui.core.PxSize
@@ -502,16 +502,16 @@ private fun FixedIntrinsicsBox(
     maxIntrinsicHeight: Dp,
     children: @Composable() () -> Unit
 ) {
-    ComplexLayout(children) {
-        measure { _, constraints ->
-            layout(
-                width.toIntPx().coerceIn(constraints.minWidth, constraints.maxWidth),
-                height.toIntPx().coerceIn(constraints.minHeight, constraints.maxHeight)
-            ) { }
-        }
-        minIntrinsicWidth { _, _ -> minIntrinsicWidth.toIntPx() }
-        minIntrinsicHeight { _, _ -> minIntrinsicHeight.toIntPx() }
-        maxIntrinsicWidth { _, _ -> maxIntrinsicWidth.toIntPx() }
-        maxIntrinsicHeight { _, _ -> maxIntrinsicHeight.toIntPx() }
+    Layout(
+        children,
+        minIntrinsicWidthMeasureBlock = { _, _ -> minIntrinsicWidth.toIntPx() },
+        minIntrinsicHeightMeasureBlock = { _, _ -> minIntrinsicHeight.toIntPx() },
+        maxIntrinsicWidthMeasureBlock = { _, _ -> maxIntrinsicWidth.toIntPx() },
+        maxIntrinsicHeightMeasureBlock = { _, _ -> maxIntrinsicHeight.toIntPx() }
+    ) { _, constraints ->
+        layout(
+            width.toIntPx().coerceIn(constraints.minWidth, constraints.maxWidth),
+            height.toIntPx().coerceIn(constraints.minHeight, constraints.maxHeight)
+        ) {}
     }
 }

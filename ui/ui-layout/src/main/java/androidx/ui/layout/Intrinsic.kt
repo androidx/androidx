@@ -18,8 +18,8 @@ package androidx.ui.layout
 
 import androidx.compose.Composable
 import androidx.compose.composer
-import androidx.ui.core.ComplexLayout
 import androidx.ui.core.Constraints
+import androidx.ui.core.Layout
 import androidx.ui.core.enforce
 import androidx.ui.core.ipx
 
@@ -42,28 +42,28 @@ import androidx.ui.core.ipx
  */
 @Composable
 fun MinIntrinsicWidth(children: @Composable() () -> Unit) {
-    ComplexLayout(children) {
-        measure { measurables, constraints ->
-            val measurable = measurables.firstOrNull()
-            val width = measurable?.minIntrinsicWidth(constraints.maxHeight) ?: 0.ipx
-            val placeable = measurable?.measure(
-                Constraints.tightConstraintsForWidth(width).enforce(constraints)
-            )
-            layout(placeable?.width ?: 0.ipx, placeable?.height ?: 0.ipx) {
-                placeable?.place(0.ipx, 0.ipx)
-            }
-        }
-        minIntrinsicWidth { measurables, h ->
+    Layout(
+        children,
+        minIntrinsicWidthMeasureBlock = { measurables, h ->
             measurables.firstOrNull()?.minIntrinsicWidth(h) ?: 0.ipx
-        }
-        minIntrinsicHeight { measurables, w ->
+        },
+        minIntrinsicHeightMeasureBlock = { measurables, w ->
             measurables.firstOrNull()?.minIntrinsicHeight(w) ?: 0.ipx
-        }
-        maxIntrinsicWidth { measurables, h ->
+        },
+        maxIntrinsicWidthMeasureBlock = { measurables, h ->
             measurables.firstOrNull()?.minIntrinsicWidth(h) ?: 0.ipx
-        }
-        maxIntrinsicHeight { measurables, w ->
+        },
+        maxIntrinsicHeightMeasureBlock = { measurables, w ->
             measurables.firstOrNull()?.maxIntrinsicHeight(w) ?: 0.ipx
+        }
+    ) { measurables, constraints ->
+        val measurable = measurables.firstOrNull()
+        val width = measurable?.minIntrinsicWidth(constraints.maxHeight) ?: 0.ipx
+        val placeable = measurable?.measure(
+            Constraints.tightConstraintsForWidth(width).enforce(constraints)
+        )
+        layout(placeable?.width ?: 0.ipx, placeable?.height ?: 0.ipx) {
+            placeable?.place(0.ipx, 0.ipx)
         }
     }
 }
@@ -87,28 +87,28 @@ fun MinIntrinsicWidth(children: @Composable() () -> Unit) {
  */
 @Composable
 fun MinIntrinsicHeight(children: @Composable() () -> Unit) {
-    ComplexLayout(children) {
-        measure { measurables, constraints ->
-            val measurable = measurables.firstOrNull()
-            val height = measurable?.minIntrinsicHeight(constraints.maxWidth) ?: 0.ipx
-            val placeable = measurable?.measure(
-                Constraints.tightConstraintsForHeight(height).enforce(constraints)
-            )
-            layout(placeable?.width ?: 0.ipx, placeable?.height ?: 0.ipx) {
-                placeable?.place(0.ipx, 0.ipx)
-            }
-        }
-        minIntrinsicWidth { measurables, h ->
+    Layout(
+        children,
+        minIntrinsicWidthMeasureBlock = { measurables, h ->
             measurables.firstOrNull()?.minIntrinsicWidth(h) ?: 0.ipx
-        }
-        minIntrinsicHeight { measurables, w ->
+        },
+        minIntrinsicHeightMeasureBlock = { measurables, w ->
             measurables.firstOrNull()?.minIntrinsicHeight(w) ?: 0.ipx
-        }
-        maxIntrinsicWidth { measurables, h ->
+        },
+        maxIntrinsicWidthMeasureBlock = { measurables, h ->
             measurables.firstOrNull()?.maxIntrinsicWidth(h) ?: 0.ipx
-        }
-        maxIntrinsicHeight { measurables, w ->
+        },
+        maxIntrinsicHeightMeasureBlock = { measurables, w ->
             measurables.firstOrNull()?.minIntrinsicHeight(w) ?: 0.ipx
+        }
+    ) { measurables, constraints ->
+        val measurable = measurables.firstOrNull()
+        val height = measurable?.minIntrinsicHeight(constraints.maxWidth) ?: 0.ipx
+        val placeable = measurable?.measure(
+            Constraints.tightConstraintsForHeight(height).enforce(constraints)
+        )
+        layout(placeable?.width ?: 0.ipx, placeable?.height ?: 0.ipx) {
+            placeable?.place(0.ipx, 0.ipx)
         }
     }
 }
@@ -132,28 +132,28 @@ fun MinIntrinsicHeight(children: @Composable() () -> Unit) {
  */
 @Composable
 fun MaxIntrinsicWidth(children: @Composable() () -> Unit) {
-    ComplexLayout(children) {
-        measure { measurables, constraints ->
-            val measurable = measurables.firstOrNull()
-            val width = measurable?.maxIntrinsicWidth(constraints.maxHeight) ?: 0.ipx
-            val placeable = measurable?.measure(
-                Constraints.tightConstraintsForWidth(width).enforce(constraints)
-            )
-            layout(placeable?.width ?: 0.ipx, placeable?.height ?: 0.ipx) {
-                placeable?.place(0.ipx, 0.ipx)
-            }
-        }
-        minIntrinsicWidth { measurables, h ->
+    Layout(
+        children,
+        minIntrinsicWidthMeasureBlock = { measurables, h ->
             measurables.firstOrNull()?.maxIntrinsicWidth(h) ?: 0.ipx
-        }
-        minIntrinsicHeight { measurables, w ->
+        },
+        minIntrinsicHeightMeasureBlock = { measurables, w ->
             measurables.firstOrNull()?.minIntrinsicHeight(w) ?: 0.ipx
-        }
-        maxIntrinsicWidth { measurables, h ->
+        },
+        maxIntrinsicWidthMeasureBlock = { measurables, h ->
             measurables.firstOrNull()?.maxIntrinsicWidth(h) ?: 0.ipx
-        }
-        maxIntrinsicHeight { measurables, w ->
+        },
+        maxIntrinsicHeightMeasureBlock = { measurables, w ->
             measurables.firstOrNull()?.maxIntrinsicHeight(w) ?: 0.ipx
+        }
+    ) { measurables, constraints ->
+        val measurable = measurables.firstOrNull()
+        val width = measurable?.maxIntrinsicWidth(constraints.maxHeight) ?: 0.ipx
+        val placeable = measurable?.measure(
+            Constraints.tightConstraintsForWidth(width).enforce(constraints)
+        )
+        layout(placeable?.width ?: 0.ipx, placeable?.height ?: 0.ipx) {
+            placeable?.place(0.ipx, 0.ipx)
         }
     }
 }
@@ -177,28 +177,28 @@ fun MaxIntrinsicWidth(children: @Composable() () -> Unit) {
  */
 @Composable
 fun MaxIntrinsicHeight(children: @Composable() () -> Unit) {
-    ComplexLayout(children) {
-        measure { measurables, constraints ->
-            val measurable = measurables.firstOrNull()
-            val height = measurable?.maxIntrinsicHeight(constraints.maxWidth) ?: 0.ipx
-            val placeable = measurable?.measure(
-                Constraints.tightConstraintsForHeight(height).enforce(constraints)
-            )
-            layout(placeable?.width ?: 0.ipx, placeable?.height ?: 0.ipx) {
-                placeable?.place(0.ipx, 0.ipx)
-            }
-        }
-        minIntrinsicWidth { measurables, h ->
+    Layout(
+        children,
+        minIntrinsicWidthMeasureBlock = { measurables, h ->
             measurables.firstOrNull()?.minIntrinsicWidth(h) ?: 0.ipx
-        }
-        minIntrinsicHeight { measurables, w ->
+        },
+        minIntrinsicHeightMeasureBlock = { measurables, w ->
             measurables.firstOrNull()?.maxIntrinsicHeight(w) ?: 0.ipx
-        }
-        maxIntrinsicWidth { measurables, h ->
+        },
+        maxIntrinsicWidthMeasureBlock = { measurables, h ->
             measurables.firstOrNull()?.maxIntrinsicWidth(h) ?: 0.ipx
-        }
-        maxIntrinsicHeight { measurables, w ->
+        },
+        maxIntrinsicHeightMeasureBlock = { measurables, w ->
             measurables.firstOrNull()?.maxIntrinsicHeight(w) ?: 0.ipx
+        }
+    ) { measurables, constraints ->
+        val measurable = measurables.firstOrNull()
+        val height = measurable?.maxIntrinsicHeight(constraints.maxWidth) ?: 0.ipx
+        val placeable = measurable?.measure(
+            Constraints.tightConstraintsForHeight(height).enforce(constraints)
+        )
+        layout(placeable?.width ?: 0.ipx, placeable?.height ?: 0.ipx) {
+            placeable?.place(0.ipx, 0.ipx)
         }
     }
 }

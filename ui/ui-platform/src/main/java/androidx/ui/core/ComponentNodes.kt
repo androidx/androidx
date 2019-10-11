@@ -381,54 +381,56 @@ private val Origin = IntPxPosition(IntPx.Zero, IntPx.Zero)
  * state of the node.
  */
 class LayoutNode : ComponentNode(), Measurable, MeasureScope {
-    /**
-     * The lambda used to measure the child. It must call [MeasureScope.layout] before
-     * completing.
-     */
-    var measureBlock: MeasureBlock = ErrorMeasureBlock
-        set(value) {
-            field = value
-            requestRemeasure()
-        }
+    interface MeasureBlocks {
+        /**
+         * The function used to measure the child. It must call [MeasureScope.layout] before
+         * completing.
+         */
+        fun measure(
+            measureScope: MeasureScope,
+            measurables: List<Measurable>,
+            constraints: Constraints
+        ): MeasureScope.LayoutResult
+        /**
+         * The function used to calculate [IntrinsicMeasurable.minIntrinsicWidth].
+         */
+        fun minIntrinsicWidth(
+            densityScope: DensityScope,
+            measurables: List<IntrinsicMeasurable>,
+            h: IntPx
+        ): IntPx
+        /**
+         * The lambda used to calculate [IntrinsicMeasurable.minIntrinsicHeight].
+         */
+        fun minIntrinsicHeight(
+            densityScope: DensityScope,
+            measurables: List<IntrinsicMeasurable>,
+            w: IntPx
+        ): IntPx
+        /**
+         * The function used to calculate [IntrinsicMeasurable.maxIntrinsicWidth].
+         */
+        fun maxIntrinsicWidth(
+            densityScope: DensityScope,
+            measurables: List<IntrinsicMeasurable>,
+            h: IntPx
+        ): IntPx
+        /**
+         * The lambda used to calculate [IntrinsicMeasurable.maxIntrinsicHeight].
+         */
+        fun maxIntrinsicHeight(
+            densityScope: DensityScope,
+            measurables: List<IntrinsicMeasurable>,
+            w: IntPx
+        ): IntPx
+    }
 
-    /**
-     * The lambda used to calculate [IntrinsicMeasurable.minIntrinsicWidth].
-     */
-    var minIntrinsicWidthBlock:
-            DensityScope.(List<IntrinsicMeasurable>, IntPx) -> IntPx = ErrorIntrinsicBlock
+    var measureBlocks: MeasureBlocks = ErrorMeasureBlocks
         set(value) {
-            field = value
-            requestRemeasure()
-        }
-
-    /**
-     * The lambda used to calculate [IntrinsicMeasurable.maxIntrinsicWidth].
-     */
-    var maxIntrinsicWidthBlock:
-            DensityScope.(List<IntrinsicMeasurable>, IntPx) -> IntPx = ErrorIntrinsicBlock
-        set(value) {
-            field = value
-            requestRemeasure()
-        }
-
-    /**
-     * The lambda used to calculate [IntrinsicMeasurable.minIntrinsicHeight].
-     */
-    var minIntrinsicHeightBlock:
-            DensityScope.(List<IntrinsicMeasurable>, IntPx) -> IntPx = ErrorIntrinsicBlock
-        set(value) {
-            field = value
-            requestRemeasure()
-        }
-
-    /**
-     * The lambda used to calculate [IntrinsicMeasurable.maxIntrinsicHeight].
-     */
-    var maxIntrinsicHeightBlock:
-            DensityScope.(List<IntrinsicMeasurable>, IntPx) -> IntPx = ErrorIntrinsicBlock
-        set(value) {
-            field = value
-            requestRemeasure()
+            if (field != value) {
+                field = value
+                requestRemeasure()
+            }
         }
 
     /**
@@ -573,7 +575,7 @@ class LayoutNode : ComponentNode(), Measurable, MeasureScope {
     private var positioningBlock: Placeable.PlacementScope.() -> Unit = {}
 
     /**
-     * A local version of [Owner.measureIteration] to ensure that [measureBlock]
+     * A local version of [Owner.measureIteration] to ensure that [MeasureBlocks.measure]
      * is not called multiple times within a measure pass.
      */
     private var measureIteration = 0L
@@ -677,7 +679,7 @@ class LayoutNode : ComponentNode(), Measurable, MeasureScope {
 
     private inner class InnerPlaceable : LayoutNodeWrapper(), DensityScope {
         override fun measure(constraints: Constraints): Placeable {
-            measureBlock(layoutChildren, constraints)
+            measureBlocks.measure(this@LayoutNode, layoutChildren, constraints)
             return this
         }
 
@@ -685,16 +687,16 @@ class LayoutNode : ComponentNode(), Measurable, MeasureScope {
             get() = this@LayoutNode.parentData
 
         override fun minIntrinsicWidth(height: IntPx): IntPx =
-            minIntrinsicWidthBlock(this, layoutChildren, height)
-
-        override fun maxIntrinsicWidth(height: IntPx): IntPx =
-            maxIntrinsicWidthBlock(this, layoutChildren, height)
+            measureBlocks.minIntrinsicWidth(this@LayoutNode, layoutChildren, height)
 
         override fun minIntrinsicHeight(width: IntPx): IntPx =
-            minIntrinsicHeightBlock(this, layoutChildren, width)
+            measureBlocks.minIntrinsicHeight(this@LayoutNode, layoutChildren, width)
+
+        override fun maxIntrinsicWidth(height: IntPx): IntPx =
+            measureBlocks.maxIntrinsicWidth(this@LayoutNode, layoutChildren, height)
 
         override fun maxIntrinsicHeight(width: IntPx): IntPx =
-            maxIntrinsicHeightBlock(this, layoutChildren, width)
+            measureBlocks.maxIntrinsicHeight(this@LayoutNode, layoutChildren, width)
 
         override var size: IntPxSize = Unmeasured
             private set
@@ -991,12 +993,36 @@ class LayoutNode : ComponentNode(), Measurable, MeasureScope {
             }
         }
 
-        private val ErrorMeasureBlock: MeasureBlock = { _, _ ->
-            error("Undefined measure and it is required")
-        }
-        private val ErrorIntrinsicBlock:
-                DensityScope.(List<IntrinsicMeasurable>, IntPx) -> IntPx = { _, _ ->
-            error("Undefined intrinsics block and it is required")
+        private val ErrorMeasureBlocks = object : MeasureBlocks {
+            override fun measure(
+                measureScope: MeasureScope,
+                measurables: List<Measurable>,
+                constraints: Constraints
+            ) = error("Undefined measure and it is required")
+
+            override fun minIntrinsicWidth(
+                densityScope: DensityScope,
+                measurables: List<IntrinsicMeasurable>,
+                h: IntPx
+            ) = error("Undefined intrinsics block and it is required")
+
+            override fun minIntrinsicHeight(
+                densityScope: DensityScope,
+                measurables: List<IntrinsicMeasurable>,
+                w: IntPx
+            ) = error("Undefined intrinsics block and it is required")
+
+            override fun maxIntrinsicWidth(
+                densityScope: DensityScope,
+                measurables: List<IntrinsicMeasurable>,
+                h: IntPx
+            ) = error("Undefined intrinsics block and it is required")
+
+            override fun maxIntrinsicHeight(
+                densityScope: DensityScope,
+                measurables: List<IntrinsicMeasurable>,
+                w: IntPx
+            ) = error("Undefined intrinsics block and it is required")
         }
 
         private fun addLayoutChildren(node: ComponentNode, list: MutableList<LayoutNode>) {

@@ -6,14 +6,6 @@ package androidx.ui.core {
     method public static inline void Clip(androidx.ui.engine.geometry.Shape shape, kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
 
-  public final class ComplexLayoutScope {
-    method public void maxIntrinsicHeight(kotlin.jvm.functions.Function3<? super androidx.ui.core.DensityScope,? super java.util.List<? extends androidx.ui.core.IntrinsicMeasurable>,? super androidx.ui.core.IntPx,androidx.ui.core.IntPx> maxIntrinsicHeightBlock);
-    method public void maxIntrinsicWidth(kotlin.jvm.functions.Function3<? super androidx.ui.core.DensityScope,? super java.util.List<? extends androidx.ui.core.IntrinsicMeasurable>,? super androidx.ui.core.IntPx,androidx.ui.core.IntPx> maxIntrinsicWidthBlock);
-    method public void measure(kotlin.jvm.functions.Function3<? super androidx.ui.core.MeasureScope,? super java.util.List<? extends androidx.ui.core.Measurable>,? super androidx.ui.core.Constraints,androidx.ui.core.MeasureScope.LayoutResult> measureBlock);
-    method public void minIntrinsicHeight(kotlin.jvm.functions.Function3<? super androidx.ui.core.DensityScope,? super java.util.List<? extends androidx.ui.core.IntrinsicMeasurable>,? super androidx.ui.core.IntPx,androidx.ui.core.IntPx> minIntrinsicHeightBlock);
-    method public void minIntrinsicWidth(kotlin.jvm.functions.Function3<? super androidx.ui.core.DensityScope,? super java.util.List<? extends androidx.ui.core.IntrinsicMeasurable>,? super androidx.ui.core.IntPx,androidx.ui.core.IntPx> minIntrinsicWidthBlock);
-  }
-
   public final class DrawKt {
     ctor public DrawKt();
     method public static inline void Draw(kotlin.jvm.functions.Function3<? super androidx.ui.core.DensityScope,? super androidx.ui.graphics.Canvas,? super androidx.ui.core.PxSize,kotlin.Unit> onPaint);
@@ -37,7 +29,7 @@ package androidx.ui.core {
 
   public final class LayoutKt {
     ctor public LayoutKt();
-    method public static inline void ComplexLayout(kotlin.jvm.functions.Function0<kotlin.Unit> children, androidx.ui.core.Modifier modifier = Modifier.None, kotlin.jvm.functions.Function1<? super androidx.ui.core.ComplexLayoutScope,kotlin.Unit> block);
+    method public static void Layout(kotlin.jvm.functions.Function0<kotlin.Unit> children, kotlin.jvm.functions.Function3<? super androidx.ui.core.DensityScope,? super java.util.List<? extends androidx.ui.core.IntrinsicMeasurable>,? super androidx.ui.core.IntPx,androidx.ui.core.IntPx> minIntrinsicWidthMeasureBlock, kotlin.jvm.functions.Function3<? super androidx.ui.core.DensityScope,? super java.util.List<? extends androidx.ui.core.IntrinsicMeasurable>,? super androidx.ui.core.IntPx,androidx.ui.core.IntPx> minIntrinsicHeightMeasureBlock, kotlin.jvm.functions.Function3<? super androidx.ui.core.DensityScope,? super java.util.List<? extends androidx.ui.core.IntrinsicMeasurable>,? super androidx.ui.core.IntPx,androidx.ui.core.IntPx> maxIntrinsicWidthMeasureBlock, kotlin.jvm.functions.Function3<? super androidx.ui.core.DensityScope,? super java.util.List<? extends androidx.ui.core.IntrinsicMeasurable>,? super androidx.ui.core.IntPx,androidx.ui.core.IntPx> maxIntrinsicHeightMeasureBlock, androidx.ui.core.Modifier modifier = Modifier.None, kotlin.jvm.functions.Function3<? super androidx.ui.core.MeasureScope,? super java.util.List<? extends androidx.ui.core.Measurable>,? super androidx.ui.core.Constraints,androidx.ui.core.MeasureScope.LayoutResult> measureBlock);
     method public static void Layout(kotlin.jvm.functions.Function0<kotlin.Unit> children, androidx.ui.core.Modifier modifier = Modifier.None, kotlin.jvm.functions.Function3<? super androidx.ui.core.MeasureScope,? super java.util.List<? extends androidx.ui.core.Measurable>,? super androidx.ui.core.Constraints,androidx.ui.core.MeasureScope.LayoutResult> measureBlock);
     method public static void Layout(kotlin.jvm.functions.Function0<kotlin.Unit>![] childrenArray, androidx.ui.core.Modifier modifier = Modifier.None, kotlin.jvm.functions.Function3<? super androidx.ui.core.MeasureScope,? super androidx.ui.core.MultiComposableMeasurables,? super androidx.ui.core.Constraints,androidx.ui.core.MeasureScope.LayoutResult> measureBlock);
     method public static inline void OnChildPositioned(kotlin.jvm.functions.Function1<? super androidx.ui.core.LayoutCoordinates,kotlin.Unit> onPositioned, kotlin.jvm.functions.Function0<kotlin.Unit> children);
