@@ -33,12 +33,15 @@ import java.util.List;
  *
  * <p>This class should be implemented by OEM and deployed to the target devices. 3P developers
  * don't need to implement this, unless this is used for related testing usage.
+ *
+ * @since 1.0
  */
 public final class BokehPreviewExtenderImpl implements PreviewExtenderImpl {
     private static final int DEFAULT_STAGE_ID = 0;
     private static final int SESSION_STAGE_ID = 101;
 
     SettableCaptureStage mCaptureStage;
+
     public BokehPreviewExtenderImpl() {}
 
     @Override

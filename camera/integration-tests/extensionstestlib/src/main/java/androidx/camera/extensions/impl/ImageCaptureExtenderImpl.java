@@ -27,6 +27,8 @@ import java.util.List;
 
 /**
  * Provides abstract methods that the OEM needs to implement to enable extensions for image capture.
+ *
+ * @since 1.0
  */
 public interface ImageCaptureExtenderImpl extends ExtenderStateListener {
     /**

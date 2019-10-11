@@ -30,6 +30,8 @@ import java.util.List;
  * Stub implementation for HDR preview use case.
  *
  * <p>This class should be implemented by OEM and deployed to the target devices.
+ *
+ * @since 1.0
  */
 public final class HdrPreviewExtenderImpl implements PreviewExtenderImpl {
     public HdrPreviewExtenderImpl() {

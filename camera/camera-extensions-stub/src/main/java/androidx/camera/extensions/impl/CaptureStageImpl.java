@@ -23,6 +23,8 @@ import java.util.List;
 
 /**
  * The set of parameters that defines a single capture that will be sent to the camera.
+ *
+ * @since 1.0
  */
 public interface CaptureStageImpl {
     /** Returns the identifier for the {@link CaptureStageImpl}. */
