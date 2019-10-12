@@ -23,6 +23,7 @@ import androidx.compose.memo
 import androidx.compose.unaryPlus
 import androidx.ui.animation.animatedFloat
 import androidx.ui.core.Alignment
+import androidx.ui.core.ambientDensity
 import androidx.ui.core.dp
 import androidx.ui.core.withDensity
 import androidx.ui.foundation.ColoredRect
@@ -42,12 +43,12 @@ fun DraggableSample() {
     // Composable that users can drag over 300 dp.
     val max = 300.dp
     val min = 0.dp
-    val (minPx, maxPx) = +withDensity {
+    val (minPx, maxPx) = withDensity(+ambientDensity()) {
         min.toPx().value to max.toPx().value
     }
     Draggable(DragDirection.Horizontal, minPx, maxPx) { dragValue ->
         // dragValue is the current value in progress of dragging
-        val draggedDp = +withDensity {
+        val draggedDp = withDensity(+ambientDensity()) {
             dragValue.toDp()
         }
         val squareSize = 50.dp
@@ -70,7 +71,7 @@ fun AnchoredDraggableSample() {
     // and the value will gravitate to 0, 150 or 300 dp
     val max = 300.dp
     val min = 0.dp
-    val (minPx, maxPx) = +withDensity {
+    val (minPx, maxPx) = withDensity(+ambientDensity()) {
         min.toPx().value to max.toPx().value
     }
     // define anchors and related animation controller
@@ -86,7 +87,7 @@ fun AnchoredDraggableSample() {
     ) { dragValue ->
         // dragValue is the current value in progress
         // of dragging or animation
-        val draggedDp = +withDensity {
+        val draggedDp = withDensity(+ambientDensity()) {
             dragValue.toDp()
         }
         val squareSize = 50.dp

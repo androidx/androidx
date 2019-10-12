@@ -19,7 +19,7 @@
 
 package androidx.ui.layout.test
 
-import androidx.compose.Children
+import androidx.compose.Composable
 import androidx.test.filters.SmallTest
 import androidx.ui.core.Layout
 import androidx.ui.core.OnChildPositioned
@@ -137,7 +137,7 @@ class AspectRatioTest : LayoutTest() {
 
     @Test
     fun testAspectRatio_intrinsicDimensions() = withDensity(density) {
-        testIntrinsics(@Children {
+        testIntrinsics(@Composable {
             AspectRatio(2f) {
                 Container(width = 30.dp, height = 40.dp) { }
             }
@@ -159,7 +159,7 @@ class AspectRatioTest : LayoutTest() {
         val size = Ref<PxSize>()
         show {
             Align(alignment = Alignment.TopLeft) {
-                val children = @Children {
+                val children = @Composable {
                     AspectRatio(aspectRatio) {
                         SaveLayoutInfo(size, Ref<PxPosition>(), positionedLatch)
                     }

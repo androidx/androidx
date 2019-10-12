@@ -20,7 +20,6 @@ import androidx.animation.AnimatedFloat
 import androidx.animation.AnimationEndReason
 import androidx.animation.ExponentialDecay
 import androidx.animation.ValueHolder
-import androidx.compose.Children
 import androidx.compose.Composable
 import androidx.compose.composer
 import androidx.compose.Model
@@ -148,7 +147,7 @@ fun VerticalScroller(
         scrollerPosition.value = position
     },
     isScrollable: Boolean = true,
-    @Children child: @Composable() () -> Unit
+    child: @Composable() () -> Unit
 ) {
     Scroller(scrollerPosition, onScrollPositionChanged, true, isScrollable, child)
 }
@@ -181,7 +180,7 @@ fun HorizontalScroller(
         scrollerPosition.value = position
     },
     isScrollable: Boolean = true,
-    @Children child: @Composable() () -> Unit
+    child: @Composable() () -> Unit
 ) {
     Scroller(scrollerPosition, onScrollPositionChanged, false, isScrollable, child)
 }
@@ -192,7 +191,7 @@ private fun Scroller(
     onScrollPositionChanged: (position: Px, maxPosition: Px) -> Unit,
     isVertical: Boolean,
     isScrollable: Boolean,
-    @Children child: @Composable() () -> Unit
+    child: @Composable() () -> Unit
 ) {
     val maxPosition = +state { Px.Infinity }
     val direction = if (isVertical) DragDirection.Vertical else DragDirection.Horizontal

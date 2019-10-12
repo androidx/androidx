@@ -67,7 +67,7 @@ class FlexChildren internal constructor() {
     }
 
     fun inflexible(children: @Composable() () -> Unit) {
-        childrenList += {
+        childrenList += @Composable {
             ParentData(data = FlexInfo(flex = 0f, fit = FlexFit.Loose), children = children)
         }
     }

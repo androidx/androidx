@@ -16,7 +16,6 @@
 
 package androidx.ui.graphics.vector
 
-import androidx.compose.Children
 import androidx.compose.Composable
 import androidx.compose.composer
 import androidx.compose.compositionReference
@@ -26,6 +25,7 @@ import androidx.compose.unaryPlus
 import androidx.ui.core.Dp
 import androidx.ui.core.Draw
 import androidx.ui.core.Px
+import androidx.ui.core.ambientDensity
 import androidx.ui.core.withDensity
 import androidx.ui.graphics.Brush
 import androidx.ui.graphics.StrokeCap
@@ -52,10 +52,10 @@ fun DrawVector(
     viewportWidth: Float = unset,
     viewportHeight: Float = unset,
     name: String = "",
-    @Children children: @Composable() VectorScope.(viewportWidth: Float, viewportHeight: Float) -> Unit
+    children: @Composable() VectorScope.(viewportWidth: Float, viewportHeight: Float) -> Unit
 ) {
-    val widthPx = +withDensity { defaultWidth.toPx() }
-    val heightPx = +withDensity { defaultHeight.toPx() }
+    val widthPx = withDensity(+ambientDensity()) { defaultWidth.toPx() }
+    val heightPx = withDensity(+ambientDensity()) { defaultHeight.toPx() }
 
     val vpWidth = if (viewportWidth == unset) widthPx.value else viewportWidth
     val vpHeight = if (viewportHeight == unset) heightPx.value else viewportHeight
@@ -78,7 +78,7 @@ fun DrawVector(
     viewportWidth: Float = defaultWidth.value,
     viewportHeight: Float = defaultHeight.value,
     name: String = "",
-    @Children children: @Composable() VectorScope.(viewportWidth: Float, viewportHeight: Float) -> Unit
+    children: @Composable() VectorScope.(viewportWidth: Float, viewportHeight: Float) -> Unit
 ) {
     val vector =
         +memo(name, viewportWidth, viewportHeight) {
@@ -117,19 +117,19 @@ fun VectorScope.Group(
     clipPathData: Array<PathNode> = EmptyPath,
     children: @Composable() VectorScope.() -> Unit
 ) {
-    <GroupComponent
-        name = name
-        rotation = rotation
-        pivotX = pivotX
-        pivotY = pivotY
-        scaleX = scaleX
-        scaleY = scaleY
-        translationX = translationX
-        translationY = translationY
+    GroupComponent(
+        name = name,
+        rotation = rotation,
+        pivotX = pivotX,
+        pivotY = pivotY,
+        scaleX = scaleX,
+        scaleY = scaleY,
+        translationX = translationX,
+        translationY = translationY,
         clipPathData = clipPathData
-    >
+    ) {
         children()
-    </GroupComponent>
+    }
 }
 
 @Composable
@@ -145,16 +145,16 @@ fun VectorScope.Path(
     strokeLineJoin: StrokeJoin = DefaultStrokeLineJoin,
     strokeLineMiter: Float = DefaultStrokeLineMiter
 ) {
-    <PathComponent
-        name
-        pathData
-        fill
-        fillAlpha
-        stroke
-        strokeAlpha
-        strokeLineWidth
-        strokeLineJoin
-        strokeLineCap
-        strokeLineMiter
-    />
+    PathComponent(
+        name=name,
+        pathData=pathData,
+        fill=fill,
+        fillAlpha=fillAlpha,
+        stroke=stroke,
+        strokeAlpha=strokeAlpha,
+        strokeLineWidth=strokeLineWidth,
+        strokeLineJoin=strokeLineJoin,
+        strokeLineCap=strokeLineCap,
+        strokeLineMiter=strokeLineMiter
+    )
 }

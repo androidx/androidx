@@ -24,7 +24,6 @@ import androidx.animation.LinearEasing
 import androidx.animation.transitionDefinition
 import androidx.annotation.CheckResult
 import androidx.annotation.FloatRange
-import androidx.compose.Children
 import androidx.compose.Composable
 import androidx.compose.composer
 import androidx.compose.effectOf

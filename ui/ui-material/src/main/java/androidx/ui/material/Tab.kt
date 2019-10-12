@@ -33,6 +33,7 @@ import androidx.ui.core.Layout
 import androidx.ui.core.Placeable
 import androidx.ui.core.Px
 import androidx.ui.core.Text
+import androidx.ui.core.ambientDensity
 import androidx.ui.core.coerceIn
 import androidx.ui.core.dp
 import androidx.ui.core.toPx
@@ -191,7 +192,7 @@ private fun ScrollableTabRow(
     divider: @Composable() () -> Unit,
     indicatorContainer: @Composable() (tabPositions: List<TabPosition>) -> Unit
 ) {
-    val edgeOffset = +withDensity { ScrollableTabRowEdgeOffset.toIntPx() }
+    val edgeOffset = withDensity(+ambientDensity()) { ScrollableTabRowEdgeOffset.toIntPx() }
 
     // TODO: unfortunate 1f lag as we need to first calculate tab positions before drawing the
     // indicator container
@@ -361,11 +362,13 @@ object TabRow {
     ) {
         // TODO: should we animate the width of the indicator as it moves between tabs of different
         // sizes inside a scrollable tab row?
-        val currentTabWidth = +withDensity { tabPositions[selectedIndex].width.toDp() }
+        val currentTabWidth = withDensity(+ambientDensity()) {
+            tabPositions[selectedIndex].width.toDp()
+        }
 
         Container(expanded = true, alignment = Alignment.BottomLeft) {
             IndicatorTransition(tabPositions, selectedIndex) { indicatorOffset ->
-                Padding(left = +withDensity { indicatorOffset.toDp() }) {
+                Padding(left = withDensity(+ambientDensity()) { indicatorOffset.toDp() }) {
                     Container(width = currentTabWidth) {
                         indicator()
                     }
@@ -618,7 +621,7 @@ private fun TabIcon(icon: Image, tint: Color) {
 
 // TabRow specifications
 private val IndicatorHeight = 2.dp
-private const val DividerOpacity = 0.12f
+private val DividerOpacity = 0.12f
 // How far from the start and end of a scrollable TabRow should the first Tab be displayed
 private val ScrollableTabRowEdgeOffset = 52.dp
 private val ScrollableTabRowMinimumTabWidth = 90.dp
@@ -626,13 +629,13 @@ private val ScrollableTabRowMinimumTabWidth = 90.dp
 // Tab specifications
 private val SmallTabHeight = 48.dp
 private val LargeTabHeight = 72.dp
-private const val InactiveTabOpacity = 0.74f
-private const val MaxTitleLineCount = 2
+private val InactiveTabOpacity = 0.74f
+private val MaxTitleLineCount = 2
 
 // Tab transition specifications
-private const val TabFadeInAnimationDuration = 150
-private const val TabFadeInAnimationDelay = 100
-private const val TabFadeOutAnimationDuration = 100
+private val TabFadeInAnimationDuration = 150
+private val TabFadeInAnimationDelay = 100
+private val TabFadeOutAnimationDuration = 100
 
 // The horizontal padding on the left and right of text
 private val HorizontalTextPadding = 16.dp

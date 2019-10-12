@@ -54,7 +54,7 @@ import kotlin.coroutines.CoroutineContext
 fun ComposeView(children: @Composable() () -> Unit) {
     val rootRef = +memo { Ref<AndroidComposeView>() }
 
-    <AndroidComposeView ref=rootRef>
+    AndroidComposeView(ref=rootRef) {
         var reference: CompositionReference? = null
         var cc: CompositionContext? = null
 
@@ -89,12 +89,13 @@ fun ComposeView(children: @Composable() () -> Unit) {
         // If this value is inlined where it is used, an error that includes 'Precise Reference:
         // kotlinx.coroutines.Dispatchers' not instance of 'Precise Reference: androidx.compose.Ambient'.
         val coroutineContext = Dispatchers.Main
-        cc = Compose.composeInto(container = rootLayoutNode, context = context, parent = reference) {
-            WrapWithAmbients(rootRef.value!!, context, coroutineContext) {
-                children()
+        cc =
+            Compose.composeInto(container = rootLayoutNode, context = context, parent = reference) {
+                WrapWithAmbients(rootRef.value!!, context, coroutineContext) {
+                    children()
+                }
             }
-        }
-    </AndroidComposeView>
+    }
 }
 
 /**
@@ -257,29 +258,6 @@ val FontLoaderAmbient = Ambient.of<Font.ResourceLoader>()
 @CheckResult(suggest = "+")
 fun ambientDensity() =
     effectOf<Density> { +ambient(DensityAmbient) }
-
-/**
- * An effect to be able to convert dimensions between each other.
- * A [Density] object will be taken from an ambient.
- *
- * Usage examples:
- *
- *     +withDensity() {
- *        val pxHeight = DpHeight.toPx()
- *     }
- *
- * or
- *
- *     val pxHeight = +withDensity(density) { DpHeight.toPx() }
- *
- */
-@CheckResult(suggest = "+")
-// can't make this inline as tests are failing with "DensityKt.$jacocoInit()' is inaccessible"
-/*inline*/ fun <R> withDensity(/*crossinline*/ block: DensityScope.() -> R) =
-    effectOf<R> {
-        @Suppress("USELESS_CAST")
-        withDensity(+ambientDensity(), block as DensityScope.() -> R)
-    }
 
 /**
  * A component to be able to convert dimensions between each other.

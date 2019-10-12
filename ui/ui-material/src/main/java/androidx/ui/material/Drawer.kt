@@ -32,6 +32,7 @@ import androidx.ui.core.IntPx
 import androidx.ui.core.Layout
 import androidx.ui.core.Px
 import androidx.ui.core.RepaintBoundary
+import androidx.ui.core.ambientDensity
 import androidx.ui.core.dp
 import androidx.ui.core.hasBoundedHeight
 import androidx.ui.core.hasBoundedWidth
@@ -129,7 +130,7 @@ fun ModalDrawerLayout(
             if (!pxConstraints.hasBoundedWidth) {
                 throw IllegalStateException("Drawer shouldn't have infinite width")
             }
-            val constraints = +withDensity {
+            val constraints = withDensity(+ambientDensity()) {
                 DpConstraints(pxConstraints)
             }
             val minValue = -pxConstraints.maxWidth.value.toFloat()
@@ -199,7 +200,7 @@ fun BottomDrawerLayout(
             if (!pxConstraints.hasBoundedHeight) {
                 throw IllegalStateException("Drawer shouldn't have infinite height")
             }
-            val constraints = +withDensity {
+            val constraints = withDensity(+ambientDensity()) {
                 DpConstraints(pxConstraints)
             }
             val minValue = 0f

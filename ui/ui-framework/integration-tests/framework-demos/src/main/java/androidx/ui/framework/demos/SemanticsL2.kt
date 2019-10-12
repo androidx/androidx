@@ -16,7 +16,6 @@
 
 package androidx.ui.framework.demos
 
-import androidx.compose.Children
 import androidx.compose.Composable
 import androidx.compose.composer
 

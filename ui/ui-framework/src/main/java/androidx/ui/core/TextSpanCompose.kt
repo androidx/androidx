@@ -18,7 +18,6 @@ package androidx.ui.core
 
 import androidx.compose.Applier
 import androidx.compose.ApplyAdapter
-import androidx.compose.Children
 import androidx.compose.Component
 import androidx.compose.Composable
 import androidx.compose.Composer

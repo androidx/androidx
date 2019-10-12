@@ -19,7 +19,6 @@ package androidx.ui.framework.demos.autofill
 import android.app.Activity
 import android.graphics.Rect
 import android.os.Bundle
-import androidx.compose.Children
 import androidx.compose.Composable
 import androidx.compose.ambient
 import androidx.compose.composer
@@ -102,7 +101,7 @@ class ExplicitAutofillTypesActivity : Activity() {
 fun Autofill(
     autofillTypes: List<AutofillType>,
     onFill: ((String) -> Unit),
-    @Children children: @Composable() (AutofillNode) -> Unit
+    children: @Composable() (AutofillNode) -> Unit
 ) {
     val autofillNode = AutofillNode(onFill = onFill, autofillTypes = autofillTypes)
 

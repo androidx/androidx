@@ -18,7 +18,6 @@ package androidx.ui.framework.demos
 
 import android.app.Activity
 import android.os.Bundle
-import androidx.compose.Children
 import androidx.compose.Composable
 import androidx.compose.composer
 import androidx.compose.unaryPlus
