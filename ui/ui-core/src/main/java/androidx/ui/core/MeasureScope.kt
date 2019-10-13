@@ -37,7 +37,7 @@ interface MeasureScope : DensityScope {
     fun layout(
         width: IntPx,
         height: IntPx,
-        vararg alignmentLines: Pair<AlignmentLine, IntPx>,
+        alignmentLines: Map<AlignmentLine, IntPx> = emptyMap(),
         placementBlock: Placeable.PlacementScope.() -> Unit
     ): LayoutResult
 

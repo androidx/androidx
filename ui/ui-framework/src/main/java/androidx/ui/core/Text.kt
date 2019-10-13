@@ -274,8 +274,10 @@ fun Text(
                 // Provide values for the alignment lines defined by text - the first
                 // and last baselines of the text. These can be used by parent layouts
                 // to position this text or align this and other texts by baseline.
-                FirstBaseline to textDelegate.firstBaseline.px.round(),
-                LastBaseline to textDelegate.lastBaseline.px.round()
+                mapOf(
+                    FirstBaseline to textDelegate.firstBaseline.px.round(),
+                    LastBaseline to textDelegate.lastBaseline.px.round()
+                )
             ) {}
         }
 

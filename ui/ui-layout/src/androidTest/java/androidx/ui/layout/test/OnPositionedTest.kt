@@ -303,7 +303,7 @@ class OnPositionedTest : LayoutTest() {
                 }
             }
             Layout(onPositioned) { _, _ ->
-                layout(0.ipx, 0.ipx, line to lineValue) { }
+                layout(0.ipx, 0.ipx, mapOf(line to lineValue)) { }
             }
         }
         assertTrue(latch.await(1, TimeUnit.SECONDS))

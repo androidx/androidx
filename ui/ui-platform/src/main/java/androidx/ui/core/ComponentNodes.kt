@@ -377,8 +377,8 @@ private val Origin = IntPxPosition(IntPx.Zero, IntPx.Zero)
  * Backing node for Layout component.
  *
  * Measuring a [LayoutNode] as a [Measurable] will measure the node's content as adjusted by
- * [modifier]. All layout state such as [modifiedSize] and [modifiedPosition] also reflect the modified
- * state of the node.
+ * [modifier]. All layout state such as [modifiedSize] and [modifiedPosition] also reflect
+ * the modified state of the node.
  */
 class LayoutNode : ComponentNode(), Measurable, MeasureScope {
     interface MeasureBlocks {
@@ -926,7 +926,7 @@ class LayoutNode : ComponentNode(), Measurable, MeasureScope {
     override fun layout(
         width: IntPx,
         height: IntPx,
-        vararg alignmentLines: Pair<AlignmentLine, IntPx>,
+        alignmentLines: Map<AlignmentLine, IntPx>,
         placementBlock: Placeable.PlacementScope.() -> Unit
     ): MeasureScope.LayoutResult {
         val oldSize = modifiedSize

@@ -232,7 +232,7 @@ internal class IntrinsicsMeasureScope (
     override fun layout(
         width: IntPx,
         height: IntPx,
-        vararg alignmentLines: Pair<AlignmentLine, IntPx>,
+        alignmentLines: Map<AlignmentLine, IntPx>,
         placementBlock: Placeable.PlacementScope.() -> Unit
     ): MeasureScope.LayoutResult {
         measuredValue = if (widthHeight == IntrinsicWidthHeight.Width) width else height

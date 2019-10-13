@@ -64,7 +64,7 @@ class AlignmentLineTest : LayoutTest() {
                 AlignmentLineOffset(testLine, beforeDp, afterDp) {
                     SaveLayoutInfo(parentSize, Ref(), layoutLatch)
                     Layout({ SaveLayoutInfo(childSize, childPosition, layoutLatch) }) { _, _ ->
-                        layout(childDp.toIntPx(), 0.ipx, testLine to lineDp.toIntPx()) { }
+                        layout(childDp.toIntPx(), 0.ipx, mapOf(testLine to lineDp.toIntPx())) { }
                     }
                 }
             }
@@ -103,7 +103,7 @@ class AlignmentLineTest : LayoutTest() {
                 AlignmentLineOffset(testLine, beforeDp, afterDp) {
                     SaveLayoutInfo(parentSize, Ref(), layoutLatch)
                     Layout({ SaveLayoutInfo(childSize, childPosition, layoutLatch) }) { _, _ ->
-                        layout(0.ipx, childDp.toIntPx(), testLine to lineDp.toIntPx()) { }
+                        layout(0.ipx, childDp.toIntPx(), mapOf(testLine to lineDp.toIntPx())) { }
                     }
                 }
             }
@@ -142,7 +142,7 @@ class AlignmentLineTest : LayoutTest() {
                 AlignmentLineOffset(testLine, beforeDp, afterDp) {
                     SaveLayoutInfo(parentSize, Ref(), layoutLatch)
                     Layout({ SaveLayoutInfo(childSize, childPosition, layoutLatch) }) { _, _ ->
-                        layout(childDp.toIntPx(), 0.ipx, testLine to lineDp.toIntPx()) { }
+                        layout(childDp.toIntPx(), 0.ipx, mapOf(testLine to lineDp.toIntPx())) { }
                     }
                 }
             }
@@ -174,7 +174,7 @@ class AlignmentLineTest : LayoutTest() {
                 AlignmentLineOffset(testLine, beforeDp, afterDp) {
                     SaveLayoutInfo(parentSize, Ref(), layoutLatch)
                     Layout({ SaveLayoutInfo(childSize, childPosition, layoutLatch) }) { _, _ ->
-                        layout(0.ipx, childDp.toIntPx(), testLine to lineDp.toIntPx()) { }
+                        layout(0.ipx, childDp.toIntPx(), mapOf(testLine to lineDp.toIntPx())) { }
                     }
                 }
             }
@@ -208,7 +208,11 @@ class AlignmentLineTest : LayoutTest() {
                     AlignmentLineOffset(testLine, beforeDp, afterDp) {
                         SaveLayoutInfo(parentSize, Ref(), layoutLatch)
                         Layout({ SaveLayoutInfo(childSize, childPosition, layoutLatch) }) { _, _ ->
-                            layout(childDp.toIntPx(), 0.ipx, testLine to lineDp.toIntPx()) { }
+                            layout(
+                                childDp.toIntPx(),
+                                0.ipx,
+                                mapOf(testLine to lineDp.toIntPx())
+                            ) { }
                         }
                     }
                 }
@@ -244,7 +248,11 @@ class AlignmentLineTest : LayoutTest() {
                     AlignmentLineOffset(testLine, beforeDp, afterDp) {
                         SaveLayoutInfo(parentSize, Ref(), layoutLatch)
                         Layout({ SaveLayoutInfo(childSize, childPosition, layoutLatch) }) { _, _ ->
-                            layout(0.ipx, childDp.toIntPx(), testLine to lineDp.toIntPx()) { }
+                            layout(
+                                0.ipx,
+                                childDp.toIntPx(),
+                                mapOf(testLine to lineDp.toIntPx())
+                            ) { }
                         }
                     }
                 }
@@ -359,7 +367,7 @@ class AlignmentLineTest : LayoutTest() {
                         layout(
                             childWidth.toIntPx(),
                             childHeight.toIntPx(),
-                            testLine to lineDp.toIntPx()
+                            mapOf(testLine to lineDp.toIntPx())
                         ) { }
                     }
                 }
@@ -403,7 +411,7 @@ class AlignmentLineTest : LayoutTest() {
                         layout(
                             childWidth.toIntPx(),
                             childHeight.toIntPx(),
-                            testLine to lineDp.toIntPx()
+                            mapOf(testLine to lineDp.toIntPx())
                         ) { }
                     }
                 }
