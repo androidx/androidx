@@ -166,13 +166,13 @@ open class LayoutTest {
     internal fun FixedSizeLayout(
         width: IntPx,
         height: IntPx,
-        vararg alignmentLines: Pair<AlignmentLine, IntPx>
+        alignmentLines: Map<AlignmentLine, IntPx>
     ) {
         Layout({}) { _, constraints ->
             layout(
                 width.coerceIn(constraints.minWidth, constraints.maxWidth),
                 height.coerceIn(constraints.minHeight, constraints.maxHeight),
-                *alignmentLines
+                alignmentLines
             ) {}
         }
     }

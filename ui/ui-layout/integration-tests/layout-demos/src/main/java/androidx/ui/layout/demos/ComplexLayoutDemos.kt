@@ -363,7 +363,7 @@ fun PositionUsingAlignmentLine() {
     val childWithLines = @Composable {
         Wrap {
             Layout({}) { _, _ ->
-                layout(30.ipx, 50.ipx, DummyVertical to 15.ipx, DummyHorizontal to 25.ipx) {}
+                layout(30.ipx, 50.ipx, mapOf(DummyVertical to 15.ipx, DummyHorizontal to 25.ipx)) {}
             }
             DrawRectangle(Color.Blue)
         }

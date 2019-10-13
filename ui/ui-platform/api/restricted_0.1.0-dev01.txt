@@ -161,7 +161,7 @@ package androidx.ui.core {
     method public androidx.ui.core.IntPx getY();
     method public boolean isMeasuring();
     method public boolean isPlaced();
-    method public androidx.ui.core.MeasureScope.LayoutResult layout(androidx.ui.core.IntPx width, androidx.ui.core.IntPx height, kotlin.Pair<? extends androidx.ui.core.AlignmentLine,androidx.ui.core.IntPx>![] alignmentLines, kotlin.jvm.functions.Function1<? super androidx.ui.core.Placeable.PlacementScope,kotlin.Unit> placementBlock);
+    method public androidx.ui.core.MeasureScope.LayoutResult layout(androidx.ui.core.IntPx width, androidx.ui.core.IntPx height, java.util.Map<androidx.ui.core.AlignmentLine,androidx.ui.core.IntPx> alignmentLines, kotlin.jvm.functions.Function1<? super androidx.ui.core.Placeable.PlacementScope,kotlin.Unit> placementBlock);
     method public androidx.ui.core.IntPx maxIntrinsicHeight(androidx.ui.core.IntPx width);
     method public androidx.ui.core.IntPx maxIntrinsicWidth(androidx.ui.core.IntPx height);
     method public androidx.ui.core.Placeable measure(androidx.ui.core.Constraints constraints);

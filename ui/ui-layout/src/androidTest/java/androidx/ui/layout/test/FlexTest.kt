@@ -2381,19 +2381,19 @@ class FlexTest : LayoutTest() {
                         childPosition[0].value = coordinates.localToGlobal(PxPosition(0.px, 0.px))
                         layoutLatch.countDown()
                     }) {
-                        FixedSizeLayout(10.ipx, 30.ipx, TestAlignmentLine to 10.ipx)
+                        FixedSizeLayout(10.ipx, 30.ipx, mapOf(TestAlignmentLine to 10.ipx))
                     }
                     OnChildPositioned({ coordinates ->
                         childPosition[1].value = coordinates.localToGlobal(PxPosition(0.px, 0.px))
                         layoutLatch.countDown()
                     }) {
-                        FixedSizeLayout(10.ipx, 10.ipx)
+                        FixedSizeLayout(10.ipx, 10.ipx, mapOf())
                     }
                     OnChildPositioned({ coordinates ->
                         childPosition[2].value = coordinates.localToGlobal(PxPosition(0.px, 0.px))
                         layoutLatch.countDown()
                     }) {
-                        FixedSizeLayout(10.ipx, 30.ipx, TestAlignmentLine to 20.ipx)
+                        FixedSizeLayout(10.ipx, 30.ipx, mapOf(TestAlignmentLine to 20.ipx))
                     }
                 }
             }
@@ -2420,19 +2420,19 @@ class FlexTest : LayoutTest() {
                         childPosition[0].value = coordinates.localToGlobal(PxPosition(0.px, 0.px))
                         layoutLatch.countDown()
                     }) {
-                        FixedSizeLayout(30.ipx, 10.ipx, TestAlignmentLine to 10.ipx)
+                        FixedSizeLayout(30.ipx, 10.ipx, mapOf(TestAlignmentLine to 10.ipx))
                     }
                     OnChildPositioned({ coordinates ->
                         childPosition[1].value = coordinates.localToGlobal(PxPosition(0.px, 0.px))
                         layoutLatch.countDown()
                     }) {
-                        FixedSizeLayout(10.ipx, 10.ipx)
+                        FixedSizeLayout(10.ipx, 10.ipx, mapOf())
                     }
                     OnChildPositioned({ coordinates ->
                         childPosition[2].value = coordinates.localToGlobal(PxPosition(0.px, 0.px))
                         layoutLatch.countDown()
                     }) {
-                        FixedSizeLayout(30.ipx, 10.ipx, TestAlignmentLine to 20.ipx)
+                        FixedSizeLayout(30.ipx, 10.ipx, mapOf(TestAlignmentLine to 20.ipx))
                     }
                 }
             }
