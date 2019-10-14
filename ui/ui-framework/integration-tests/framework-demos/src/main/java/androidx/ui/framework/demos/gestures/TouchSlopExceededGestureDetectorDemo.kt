@@ -24,7 +24,6 @@ import androidx.ui.core.px
 import androidx.ui.core.setContent
 import androidx.ui.graphics.Color
 import androidx.ui.core.dp
-import androidx.compose.composer
 import androidx.ui.core.Direction
 import androidx.ui.core.gesture.TouchSlopExceededGestureDetector
 

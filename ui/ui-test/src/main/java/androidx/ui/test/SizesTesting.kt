@@ -17,7 +17,6 @@
 package androidx.ui.test
 
 import androidx.compose.Composable
-import androidx.compose.composer
 import androidx.ui.core.Density
 import androidx.ui.core.DensityScope
 import androidx.ui.core.Dp

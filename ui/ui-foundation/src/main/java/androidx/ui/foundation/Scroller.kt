@@ -21,7 +21,6 @@ import androidx.animation.AnimationEndReason
 import androidx.animation.ExponentialDecay
 import androidx.animation.ValueHolder
 import androidx.compose.Composable
-import androidx.compose.composer
 import androidx.compose.Model
 import androidx.compose.memo
 import androidx.compose.state

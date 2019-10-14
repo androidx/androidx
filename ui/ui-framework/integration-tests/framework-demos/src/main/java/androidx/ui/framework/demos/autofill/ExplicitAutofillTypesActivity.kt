@@ -21,7 +21,6 @@ import android.graphics.Rect
 import android.os.Bundle
 import androidx.compose.Composable
 import androidx.compose.ambient
-import androidx.compose.composer
 import androidx.compose.state
 import androidx.compose.unaryPlus
 import androidx.ui.autofill.AutofillNode

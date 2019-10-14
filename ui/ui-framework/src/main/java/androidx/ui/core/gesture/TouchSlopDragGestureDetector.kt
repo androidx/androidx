@@ -18,7 +18,6 @@ package androidx.ui.core.gesture
 
 import androidx.compose.Composable
 import androidx.compose.memo
-import androidx.compose.composer
 import androidx.compose.unaryPlus
 import androidx.ui.core.Direction
 import androidx.ui.core.PxPosition

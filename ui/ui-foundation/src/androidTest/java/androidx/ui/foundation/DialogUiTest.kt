@@ -17,7 +17,6 @@ package androidx.ui.foundation
 
 import androidx.test.filters.MediumTest
 import androidx.ui.test.createComposeRule
-import androidx.compose.composer
 import androidx.compose.state
 import androidx.compose.unaryPlus
 import androidx.test.platform.app.InstrumentationRegistry.getInstrumentation

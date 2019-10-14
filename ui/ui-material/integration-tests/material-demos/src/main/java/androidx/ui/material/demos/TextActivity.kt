@@ -20,7 +20,6 @@ import androidx.compose.Composable
 import androidx.ui.core.Text
 import androidx.ui.material.themeTextStyle
 import androidx.ui.graphics.Color
-import androidx.compose.composer
 import androidx.compose.unaryPlus
 
 open class TextActivity : MaterialDemoActivity() {

@@ -18,7 +18,6 @@ package androidx.ui.material
 
 import androidx.animation.PhysicsBuilder
 import androidx.compose.Composable
-import androidx.compose.composer
 import androidx.compose.ambient
 import androidx.compose.memo
 import androidx.compose.state

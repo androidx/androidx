@@ -18,7 +18,6 @@ package androidx.ui.animation.samples
 
 import androidx.annotation.Sampled
 import androidx.compose.Composable
-import androidx.compose.composer
 import androidx.ui.animation.Crossfade
 import androidx.ui.core.Text
 

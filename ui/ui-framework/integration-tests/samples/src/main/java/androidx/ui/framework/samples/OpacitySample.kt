@@ -18,7 +18,6 @@ package androidx.ui.framework.samples
 
 import androidx.annotation.Sampled
 import androidx.compose.Composable
-import androidx.compose.composer
 import androidx.ui.core.Opacity
 import androidx.ui.foundation.shape.DrawShape
 import androidx.ui.foundation.shape.RectangleShape

@@ -17,7 +17,6 @@
 package androidx.ui.test.cases
 
 import android.app.Activity
-import androidx.compose.composer
 import androidx.ui.core.Density
 import androidx.ui.core.Dp
 import androidx.ui.core.Px

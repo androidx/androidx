@@ -22,7 +22,6 @@ import androidx.compose.Composable
 import androidx.compose.state
 import androidx.compose.unaryPlus
 import androidx.ui.core.px
-import androidx.compose.composer
 import androidx.compose.memo
 import androidx.ui.core.Dp
 import androidx.ui.core.PxPosition

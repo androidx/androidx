@@ -19,7 +19,6 @@ package androidx.ui.material.ripple
 import androidx.compose.Composable
 import androidx.compose.Recompose
 import androidx.compose.ambient
-import androidx.compose.composer
 import androidx.compose.memo
 import androidx.compose.onDispose
 import androidx.compose.unaryPlus

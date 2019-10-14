@@ -17,7 +17,6 @@
 package androidx.ui.graphics.vector
 
 import androidx.compose.Composable
-import androidx.compose.composer
 import androidx.ui.core.Px
 import androidx.ui.graphics.Brush
 import androidx.ui.graphics.StrokeCap

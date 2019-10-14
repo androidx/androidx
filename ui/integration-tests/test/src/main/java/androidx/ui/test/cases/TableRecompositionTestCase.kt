@@ -17,7 +17,6 @@
 package androidx.ui.test.cases
 
 import android.app.Activity
-import androidx.compose.composer
 import androidx.compose.FrameManager
 import androidx.ui.foundation.ColoredRect
 import androidx.ui.core.dp

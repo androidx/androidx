@@ -33,7 +33,6 @@ import androidx.ui.layout.Wrap
 import androidx.ui.graphics.Color
 import androidx.ui.text.TextStyle
 import androidx.compose.Composable
-import androidx.compose.composer
 import androidx.ui.core.setContent
 import androidx.ui.core.sp
 import androidx.ui.layout.samples.DrawRectangle

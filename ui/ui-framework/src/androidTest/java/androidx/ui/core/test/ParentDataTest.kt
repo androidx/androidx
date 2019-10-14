@@ -27,7 +27,6 @@ import androidx.ui.framework.test.TestActivity
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Paint
 import androidx.compose.Composable
-import androidx.compose.composer
 import androidx.ui.core.setContent
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull

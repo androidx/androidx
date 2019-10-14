@@ -18,7 +18,6 @@ package androidx.ui.core
 
 import androidx.annotation.FloatRange
 import androidx.compose.Composable
-import androidx.compose.composer
 
 /**
  * Makes its children partially transparent.

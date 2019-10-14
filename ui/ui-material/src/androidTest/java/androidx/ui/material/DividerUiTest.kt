@@ -16,7 +16,6 @@
 
 package androidx.ui.material
 
-import androidx.compose.composer
 import androidx.test.filters.MediumTest
 import androidx.ui.core.dp
 import androidx.ui.core.ipx

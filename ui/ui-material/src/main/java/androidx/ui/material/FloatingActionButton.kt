@@ -17,7 +17,6 @@
 package androidx.ui.material
 
 import androidx.compose.Composable
-import androidx.compose.composer
 import androidx.compose.unaryPlus
 import androidx.ui.core.CurrentTextStyleProvider
 import androidx.ui.core.Dp

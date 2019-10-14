@@ -21,7 +21,6 @@ import android.os.Bundle
 import androidx.animation.FloatPropKey
 import androidx.animation.transitionDefinition
 import androidx.compose.Composable
-import androidx.compose.composer
 import androidx.compose.state
 import androidx.compose.unaryPlus
 import androidx.ui.animation.ColorPropKey

@@ -17,7 +17,6 @@ package androidx.ui.foundation
 
 import android.view.View
 import androidx.compose.ambient
-import androidx.compose.composer
 import androidx.compose.unaryPlus
 import androidx.test.espresso.Espresso
 import androidx.test.espresso.Root

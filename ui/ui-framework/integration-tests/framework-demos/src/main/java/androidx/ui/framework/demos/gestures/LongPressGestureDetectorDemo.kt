@@ -23,7 +23,6 @@ import androidx.compose.unaryPlus
 import androidx.ui.core.PxPosition
 import androidx.ui.core.px
 import androidx.ui.core.setContent
-import androidx.compose.composer
 import androidx.ui.core.dp
 import androidx.ui.core.gesture.LongPressGestureDetector
 

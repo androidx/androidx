@@ -17,7 +17,6 @@
 package androidx.ui.framework.demos
 
 import androidx.compose.Composable
-import androidx.compose.composer
 
 /**
  * This is a level 2 API. This component makes it easier to find/discover available properties.

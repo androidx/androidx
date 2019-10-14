@@ -16,7 +16,6 @@
 
 package androidx.ui.foundation
 
-import androidx.compose.composer
 import androidx.compose.memo
 import androidx.compose.unaryPlus
 import androidx.ui.core.Dp

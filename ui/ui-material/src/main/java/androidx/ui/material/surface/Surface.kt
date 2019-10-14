@@ -19,7 +19,6 @@ package androidx.ui.material.surface
 import androidx.compose.Ambient
 import androidx.compose.Composable
 import androidx.compose.ambient
-import androidx.compose.composer
 import androidx.compose.unaryPlus
 import androidx.ui.core.Clip
 import androidx.ui.core.CurrentTextStyleProvider

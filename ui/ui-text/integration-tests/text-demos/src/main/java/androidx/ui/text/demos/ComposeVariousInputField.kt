@@ -16,7 +16,6 @@
 
 package androidx.ui.text.demos
 
-import androidx.compose.composer
 import androidx.compose.Composable
 import androidx.compose.state
 import androidx.compose.unaryPlus

@@ -17,7 +17,6 @@
 package androidx.ui.framework.demos
 
 import androidx.compose.Composable
-import androidx.compose.composer
 
 /**
  * This is a level 3 API, where the user uses the [SemanticActionBuilder] to build the action.

@@ -17,7 +17,6 @@
 package androidx.ui.material
 
 import androidx.compose.Composable
-import androidx.compose.composer
 import androidx.ui.core.PxSize
 import androidx.ui.test.BigTestConstraints
 import androidx.ui.test.CollectedSizes

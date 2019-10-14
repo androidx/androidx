@@ -18,7 +18,6 @@ package androidx.ui.layout.samples
 
 import androidx.annotation.Sampled
 import androidx.compose.Composable
-import androidx.compose.composer
 import androidx.ui.core.Dp
 import androidx.ui.core.dp
 import androidx.ui.foundation.shape.DrawShape

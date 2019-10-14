@@ -28,7 +28,6 @@ import androidx.ui.core.toRect
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Paint
 import androidx.compose.Composable
-import androidx.compose.composer
 import androidx.ui.graphics.Brush
 import androidx.ui.graphics.SolidColor
 

@@ -17,7 +17,6 @@
 package androidx.ui.foundation.text
 
 import androidx.compose.Composable
-import androidx.compose.composer
 import androidx.compose.memo
 import androidx.compose.unaryPlus
 import androidx.ui.core.Constraints

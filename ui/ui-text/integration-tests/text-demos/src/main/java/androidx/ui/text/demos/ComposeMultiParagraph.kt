@@ -17,7 +17,6 @@
 package androidx.ui.text.demos
 
 import androidx.compose.Composable
-import androidx.compose.composer
 import androidx.ui.core.Text
 import androidx.ui.core.px
 import androidx.ui.core.sp

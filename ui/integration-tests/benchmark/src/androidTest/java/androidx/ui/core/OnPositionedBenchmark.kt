@@ -21,7 +21,6 @@ import androidx.benchmark.junit4.BenchmarkRule
 import androidx.compose.Composable
 import androidx.compose.FrameManager
 import androidx.compose.State
-import androidx.compose.composer
 import androidx.compose.state
 import androidx.compose.unaryPlus
 import androidx.test.filters.LargeTest

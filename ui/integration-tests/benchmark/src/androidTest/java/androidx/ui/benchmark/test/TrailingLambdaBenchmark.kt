@@ -22,7 +22,6 @@ import androidx.compose.Composable
 import androidx.compose.FrameManager
 import androidx.compose.State
 import androidx.test.filters.LargeTest
-import androidx.compose.composer
 import androidx.compose.state
 import androidx.compose.unaryPlus
 import androidx.test.rule.ActivityTestRule

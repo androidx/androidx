@@ -16,7 +16,6 @@
 package androidx.ui.core
 
 import androidx.compose.Composable
-import androidx.compose.composer
 
 // TODO: Rename
 @Composable
