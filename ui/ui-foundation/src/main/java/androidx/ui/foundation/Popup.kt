@@ -32,6 +32,7 @@ import androidx.compose.TestOnly
 import androidx.compose.ambient
 import androidx.compose.composer
 import androidx.compose.disposeComposition
+import androidx.compose.escapeCompose
 import androidx.compose.memo
 import androidx.compose.onCommit
 import androidx.compose.onDispose
@@ -136,14 +137,14 @@ private fun Popup(
     val providedTestTag = +ambient(TestTagAmbient)
 
     val popupLayout = +memo(popupProperties) {
-        PopupLayout(
+        escapeCompose { PopupLayout(
             context = context,
             composeView = composeView,
             popupProperties = popupProperties,
             popupPositionProperties = popupPositionProperties,
             calculatePopupPosition = calculatePopupPosition,
             testTag = providedTestTag
-        )
+        ) }
     }
     popupLayout.calculatePopupPosition = calculatePopupPosition
 

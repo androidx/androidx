@@ -31,6 +31,7 @@ import androidx.ui.core.OnChildPositioned
 import androidx.ui.core.PxPosition
 import androidx.ui.core.PxSize
 import androidx.ui.core.Text
+import androidx.ui.core.ambientDensity
 import androidx.ui.core.dp
 import androidx.ui.core.sp
 import androidx.ui.core.withDensity
@@ -172,7 +173,7 @@ private fun BaseTopAppBar(
                 Align(Alignment.BottomLeft) {
                     AlignmentLineOffset(
                         alignmentLine = LastBaseline,
-                        after = +withDensity { AppBarTitleBaselineOffset.toDp() }
+                        after = withDensity(+ambientDensity()) { AppBarTitleBaselineOffset.toDp() }
                     ) {
                         // TODO: AlignmentLineOffset requires a child, so in case title() is
                         // empty we just add an empty wrap here - should be fixed when we move to

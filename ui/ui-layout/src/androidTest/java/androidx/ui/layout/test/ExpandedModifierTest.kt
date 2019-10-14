@@ -17,7 +17,6 @@
 package androidx.ui.layout.test
 
 import android.content.res.Resources
-import androidx.compose.Children
 import androidx.compose.Composable
 import androidx.compose.composer
 import androidx.test.filters.SmallTest
@@ -89,7 +88,7 @@ class ExpandedModifierTest : LayoutTest() {
         val size = Ref<PxSize>()
         val position = Ref<PxPosition>()
         show {
-            Layout(@Children {
+            Layout(@Composable {
                 Align(alignment = Alignment.TopLeft) {
                     Container(modifier = modifier) {
                         Container(width = Width, height = Height) { }

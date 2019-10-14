@@ -34,5 +34,5 @@ import androidx.ui.engine.geometry.Shape
 @Composable
 @Suppress("NOTHING_TO_INLINE")
 inline fun DrawShadow(shape: Shape, elevation: Dp) {
-    <RepaintBoundaryNode name=null shape=shape elevation=elevation/>
+    RepaintBoundaryNode(name=null, shape=shape, elevation=elevation)
 }

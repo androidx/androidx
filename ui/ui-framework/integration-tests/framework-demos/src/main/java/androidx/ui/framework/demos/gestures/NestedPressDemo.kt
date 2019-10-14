@@ -18,7 +18,6 @@ package androidx.ui.framework.demos.gestures
 
 import android.app.Activity
 import android.os.Bundle
-import androidx.compose.Children
 import androidx.compose.Composable
 import androidx.compose.state
 import androidx.compose.unaryPlus
@@ -66,7 +65,7 @@ fun PressableContainer(
     paddingTop: Dp? = null,
     paddingRight: Dp? = null,
     paddingBottom: Dp? = null,
-    @Children children: (@Composable() () -> Unit)
+    children: (@Composable() () -> Unit)
 ) {
     val defaultColor = DefaultBackgroundColor
     val pressedColor = PressedColor

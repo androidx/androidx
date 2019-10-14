@@ -13,10 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package androidx.ui.core
 
-import androidx.compose.Children
 import androidx.compose.Composable
 import androidx.compose.composer
 
@@ -27,7 +25,7 @@ inline fun PointerInputWrapper(
     crossinline children: @Composable() () -> Unit
 ) {
     // Hide the internals of PointerInputNode
-    <PointerInputNode pointerInputHandler>
+    PointerInputNode(pointerInputHandler=pointerInputHandler) {
         children()
-    </PointerInputNode>
+    }
 }

@@ -25,6 +25,7 @@ import androidx.compose.effectOf
 import androidx.compose.memo
 import androidx.compose.unaryPlus
 import androidx.ui.core.CurrentTextStyleProvider
+import androidx.ui.core.ambientDensity
 import androidx.ui.core.dp
 import androidx.ui.core.sp
 import androidx.ui.core.withDensity
@@ -308,7 +309,7 @@ val CurrentShapeAmbient = Ambient.of<Shapes> {
  */
 @Composable
 fun MaterialShapeTheme(children: @Composable() () -> Unit) {
-    val value = +withDensity {
+    val value = withDensity(+ambientDensity()) {
         Shapes(
             button = RoundedCornerShape(4.dp),
             card = RectangleShape

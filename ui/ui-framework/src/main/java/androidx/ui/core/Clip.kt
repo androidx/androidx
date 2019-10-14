@@ -16,7 +16,6 @@
 
 package androidx.ui.core
 
-import androidx.compose.Children
 import androidx.compose.Composable
 import androidx.compose.composer
 import androidx.ui.engine.geometry.Shape
@@ -28,7 +27,7 @@ import androidx.ui.engine.geometry.Shape
  */
 @Composable
 inline fun Clip(shape: Shape, crossinline children: @Composable() () -> Unit) {
-    <RepaintBoundaryNode name=null shape=shape clipToShape=true>
+    RepaintBoundaryNode(name=null, shape=shape, clipToShape=true) {
         children()
-    </RepaintBoundaryNode>
+    }
 }
