@@ -46,7 +46,7 @@
         android:layout_alignParentTop="true"
         android:transitionName="toolbar"
         tools:ignore="UnusedAttribute"/>
-    <fragment
+    <androidx.fragment.app.FragmentContainerView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:id="@+id/my_nav_host_fragment"

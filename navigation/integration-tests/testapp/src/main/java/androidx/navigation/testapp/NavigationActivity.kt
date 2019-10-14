@@ -25,7 +25,7 @@ import androidx.appcompat.widget.Toolbar
 import androidx.core.app.ActivityOptionsCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.navigation.ActivityNavigatorExtras
-import androidx.navigation.findNavController
+import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.NavigationUI
 import androidx.navigation.ui.setupWithNavController
@@ -40,7 +40,9 @@ class NavigationActivity : AppCompatActivity(R.layout.navigation_activity) {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val navController = findNavController(R.id.my_nav_host_fragment)
+        val navHostFragment = supportFragmentManager.findFragmentById(R.id.my_nav_host_fragment)
+                as NavHostFragment
+        val navController = navHostFragment.navController
 
         val toolbar = findViewById<Toolbar>(R.id.toolbar)
         val drawerLayout = findViewById<DrawerLayout>(R.id.drawer_layout)
