@@ -49,7 +49,7 @@ import androidx.ui.text.style.lerp
  * @param fontFeatureSettings The advanced typography settings provided by font. The format is the
  *  same as the CSS font-feature-settings attribute:
  *  https://www.w3.org/TR/css-fonts-3/#font-feature-settings-prop
- * @param letterSpacing The amount of space (in logical pixels) to add between each letter.
+ * @param letterSpacing The amount of space (in em) to add between each letter.
  * @param baselineShift The amount by which the text is shifted up from the current baseline.
  * @param textGeometricTransform The geometric transformation applied the text.
  * @param localeList The locale list used to select region-specific glyphs.
