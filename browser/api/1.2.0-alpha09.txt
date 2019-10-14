@@ -247,6 +247,18 @@ package androidx.browser.customtabs {
 
 package androidx.browser.trusted {
 
+  public final class Token {
+    method public static androidx.browser.trusted.Token? create(String, android.content.pm.PackageManager);
+    method public static androidx.browser.trusted.Token deserialize(byte[]);
+    method public boolean matches(String, android.content.pm.PackageManager);
+    method public byte[] serialize();
+  }
+
+  public interface TokenStore {
+    method @BinderThread public androidx.browser.trusted.Token? load();
+    method @WorkerThread public void store(androidx.browser.trusted.Token?);
+  }
+
   public interface TrustedWebActivityDisplayMode {
     method public static androidx.browser.trusted.TrustedWebActivityDisplayMode fromBundle(android.os.Bundle);
     method public android.os.Bundle toBundle();
@@ -293,8 +305,9 @@ package androidx.browser.trusted {
     field public static final String EXTRA_SPLASH_SCREEN_PARAMS = "androidx.browser.trusted.EXTRA_SPLASH_SCREEN_PARAMS";
   }
 
-  public class TrustedWebActivityService extends android.app.Service {
+  public abstract class TrustedWebActivityService extends android.app.Service {
     ctor public TrustedWebActivityService();
+    method @BinderThread public abstract androidx.browser.trusted.TokenStore getTokenStore();
     method @BinderThread public boolean onAreNotificationsEnabled(String);
     method @MainThread public final android.os.IBinder? onBind(android.content.Intent?);
     method @BinderThread public void onCancelNotification(String, int);
@@ -302,7 +315,6 @@ package androidx.browser.trusted {
     method @BinderThread public int onGetSmallIconId();
     method @BinderThread public boolean onNotifyNotificationWithChannel(String, int, android.app.Notification, String);
     method @MainThread public final boolean onUnbind(android.content.Intent?);
-    method public static final void setVerifiedProvider(android.content.Context, String?);
     field public static final String ACTION_TRUSTED_WEB_ACTIVITY_SERVICE = "android.support.customtabs.trusted.TRUSTED_WEB_ACTIVITY_SERVICE";
     field public static final String KEY_SMALL_ICON_BITMAP = "android.support.customtabs.trusted.SMALL_ICON_BITMAP";
     field public static final String META_DATA_NAME_SMALL_ICON = "android.support.customtabs.trusted.SMALL_ICON";

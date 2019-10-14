@@ -48,7 +48,8 @@ public class VerifiedProviderTestRule extends TestWatcher {
 
     private void set(boolean enabled) {
         Context context = InstrumentationRegistry.getContext();
-        TrustedWebActivityService.setVerifiedProviderSynchronouslyForTesting(
-                context, enabled ? context.getPackageName() : null);
+        TestTrustedWebActivityService.setVerifiedProvider(enabled
+                ? Token.create(context.getPackageName(), context.getPackageManager())
+                : null);
     }
 }
