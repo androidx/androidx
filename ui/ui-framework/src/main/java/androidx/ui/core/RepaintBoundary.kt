@@ -31,7 +31,7 @@ import androidx.compose.composer
  */
 @Composable
 fun RepaintBoundary(name: String? = null, children: @Composable() () -> Unit) {
-    RepaintBoundaryNode(name=name) {
+    RepaintBoundaryNode(name = name) {
         children()
     }
 }
