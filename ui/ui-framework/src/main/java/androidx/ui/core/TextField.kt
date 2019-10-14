@@ -15,7 +15,6 @@
  */
 package androidx.ui.core
 
-import androidx.compose.composer
 import androidx.compose.Composable
 import androidx.compose.ambient
 import androidx.compose.memo

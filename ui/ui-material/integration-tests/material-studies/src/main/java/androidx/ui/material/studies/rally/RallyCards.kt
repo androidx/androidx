@@ -17,7 +17,6 @@
 package androidx.ui.material.studies.rally
 
 import androidx.compose.Composable
-import androidx.compose.composer
 import androidx.compose.unaryPlus
 import androidx.ui.core.Alignment
 import androidx.ui.core.Text

@@ -22,7 +22,6 @@ import androidx.ui.core.Layout
 import androidx.ui.core.isFinite
 import androidx.ui.core.looseMin
 import androidx.compose.Composable
-import androidx.compose.composer
 import androidx.ui.core.Alignment
 import androidx.ui.core.round
 import androidx.ui.core.toPx

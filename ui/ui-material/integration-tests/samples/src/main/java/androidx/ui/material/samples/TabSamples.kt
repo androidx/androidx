@@ -19,7 +19,6 @@ package androidx.ui.material.samples
 import androidx.animation.transitionDefinition
 import androidx.annotation.Sampled
 import androidx.compose.Composable
-import androidx.compose.composer
 import androidx.compose.memo
 import androidx.compose.state
 import androidx.compose.unaryPlus

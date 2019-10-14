@@ -17,7 +17,6 @@
 package androidx.ui.graphics.vector
 
 import androidx.compose.Composable
-import androidx.compose.composer
 import androidx.compose.compositionReference
 import androidx.compose.memo
 import androidx.compose.onPreCommit

@@ -28,7 +28,6 @@ import androidx.annotation.RequiresApi
 import androidx.compose.Composable
 import androidx.compose.Compose
 import androidx.compose.Model
-import androidx.compose.composer
 import androidx.compose.state
 import androidx.compose.unaryPlus
 import androidx.test.filters.SdkSuppress

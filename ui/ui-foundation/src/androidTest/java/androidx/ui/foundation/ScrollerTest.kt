@@ -39,7 +39,6 @@ import androidx.ui.layout.DpConstraints
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Paint
 import androidx.ui.graphics.PaintingStyle
-import androidx.compose.composer
 import androidx.test.filters.SdkSuppress
 import androidx.ui.core.Alignment
 import androidx.ui.core.AndroidComposeView

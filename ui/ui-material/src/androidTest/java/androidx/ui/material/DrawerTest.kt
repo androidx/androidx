@@ -17,7 +17,6 @@
 package androidx.ui.material
 
 import androidx.compose.Model
-import androidx.compose.composer
 import androidx.test.filters.MediumTest
 import androidx.ui.core.OnPositioned
 import androidx.ui.core.PxPosition

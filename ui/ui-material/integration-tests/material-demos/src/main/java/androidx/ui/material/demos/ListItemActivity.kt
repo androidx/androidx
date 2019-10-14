@@ -17,7 +17,6 @@
 package androidx.ui.material.demos
 
 import androidx.compose.Composable
-import androidx.compose.composer
 import androidx.ui.foundation.VerticalScroller
 import androidx.ui.graphics.imageFromResource
 import androidx.ui.layout.Center

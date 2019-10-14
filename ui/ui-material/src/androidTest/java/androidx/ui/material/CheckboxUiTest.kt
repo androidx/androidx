@@ -15,7 +15,6 @@
  */
 package androidx.ui.material
 
-import androidx.compose.composer
 import androidx.compose.state
 import androidx.compose.unaryPlus
 import androidx.test.filters.MediumTest

@@ -25,7 +25,6 @@ import androidx.animation.TransitionState
 import androidx.animation.transitionDefinition
 import androidx.compose.Composable
 import androidx.compose.Recompose
-import androidx.compose.composer
 import androidx.ui.animation.Transition
 import androidx.ui.animation.ColorPropKey
 import androidx.ui.core.Layout

@@ -34,7 +34,6 @@ package androidx.ui.material.demos
 
 import android.util.Log
 import androidx.compose.Composable
-import androidx.compose.composer
 import androidx.compose.unaryPlus
 import androidx.ui.layout.Center
 import androidx.ui.layout.Column

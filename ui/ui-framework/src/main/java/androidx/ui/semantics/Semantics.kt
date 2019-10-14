@@ -17,7 +17,6 @@ package androidx.ui.semantics
 
 import androidx.compose.Composable
 import androidx.compose.ambient
-import androidx.compose.composer
 import androidx.compose.unaryPlus
 import androidx.ui.core.DefaultTestTag
 import androidx.ui.core.SemanticsComponentNode

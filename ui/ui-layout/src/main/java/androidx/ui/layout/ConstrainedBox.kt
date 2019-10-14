@@ -17,7 +17,6 @@
 package androidx.ui.layout
 
 import androidx.compose.Composable
-import androidx.compose.composer
 import androidx.ui.core.Constraints
 import androidx.ui.core.IntPx
 import androidx.ui.core.Layout

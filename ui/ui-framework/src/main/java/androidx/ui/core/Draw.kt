@@ -18,7 +18,6 @@ package androidx.ui.core
 import androidx.ui.graphics.Canvas
 import androidx.compose.Composable
 import androidx.compose.ambient
-import androidx.compose.composer
 import androidx.compose.unaryPlus
 import androidx.ui.tooling.InspectionMode
 

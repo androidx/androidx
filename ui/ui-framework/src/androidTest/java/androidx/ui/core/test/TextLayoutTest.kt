@@ -17,7 +17,6 @@
 package androidx.ui.core.test
 
 import androidx.compose.Composable
-import androidx.compose.composer
 import androidx.test.filters.SmallTest
 import androidx.test.rule.ActivityTestRule
 import androidx.ui.core.Constraints

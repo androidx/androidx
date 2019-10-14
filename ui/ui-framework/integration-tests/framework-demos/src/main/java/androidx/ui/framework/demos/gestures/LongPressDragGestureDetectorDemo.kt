@@ -25,7 +25,6 @@ import androidx.ui.core.px
 import androidx.ui.core.setContent
 import androidx.ui.core.dp
 import androidx.ui.core.gesture.LongPressDragGestureDetector
-import androidx.compose.composer
 import androidx.ui.core.gesture.LongPressDragObserver
 
 /**

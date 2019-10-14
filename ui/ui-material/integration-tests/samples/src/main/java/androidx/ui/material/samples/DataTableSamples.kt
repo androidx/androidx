@@ -19,7 +19,6 @@ package androidx.ui.material.samples
 import androidx.annotation.Sampled
 import androidx.compose.Composable
 import androidx.compose.Model
-import androidx.compose.composer
 import androidx.ui.material.DataTable
 import androidx.ui.material.DefaultDataTablePagination
 import androidx.ui.material.DefaultDataTableSorting

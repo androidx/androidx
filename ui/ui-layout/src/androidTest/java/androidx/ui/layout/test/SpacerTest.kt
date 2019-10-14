@@ -31,7 +31,6 @@ import androidx.ui.layout.HeightSpacer
 import androidx.ui.layout.WidthSpacer
 import com.google.common.truth.Truth
 import androidx.compose.Composable
-import androidx.compose.composer
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4

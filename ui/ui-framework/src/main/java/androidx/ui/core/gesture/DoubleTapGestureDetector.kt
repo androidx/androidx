@@ -24,7 +24,6 @@ import androidx.compose.ambient
 import androidx.compose.memo
 import androidx.compose.unaryPlus
 import androidx.ui.core.changedToUp
-import androidx.compose.composer
 import androidx.ui.core.CoroutineContextAmbient
 import androidx.ui.core.PointerInputWrapper
 import androidx.ui.core.PxPosition

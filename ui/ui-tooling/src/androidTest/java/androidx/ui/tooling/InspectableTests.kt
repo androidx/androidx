@@ -17,7 +17,6 @@
 package androidx.ui.tooling
 
 import androidx.compose.SlotTable
-import androidx.compose.composer
 import androidx.test.filters.SmallTest
 import androidx.ui.core.DrawNode
 import androidx.ui.core.dp

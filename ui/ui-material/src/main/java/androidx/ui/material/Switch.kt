@@ -18,7 +18,6 @@ package androidx.ui.material
 
 import androidx.animation.TweenBuilder
 import androidx.compose.Composable
-import androidx.compose.composer
 import androidx.compose.memo
 import androidx.compose.unaryPlus
 import androidx.ui.core.DensityScope

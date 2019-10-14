@@ -17,7 +17,6 @@
 package androidx.ui.material.studies.rally
 
 import androidx.compose.Composable
-import androidx.compose.composer
 import androidx.ui.core.sp
 import androidx.ui.text.font.FontWeight
 import androidx.ui.text.font.FontFamily

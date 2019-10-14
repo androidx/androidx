@@ -27,7 +27,6 @@ import androidx.ui.core.changedToUpIgnoreConsumed
 import androidx.ui.core.positionChange
 import androidx.ui.core.withDensity
 import androidx.ui.core.PointerInputWrapper
-import androidx.compose.composer
 import androidx.ui.core.IntPx
 import androidx.ui.core.ambientDensity
 

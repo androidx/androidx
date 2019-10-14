@@ -17,7 +17,6 @@
 package androidx.ui.material
 
 import androidx.compose.Composable
-import androidx.compose.composer
 import androidx.test.filters.SmallTest
 import androidx.ui.core.Alignment
 import androidx.ui.core.Dp

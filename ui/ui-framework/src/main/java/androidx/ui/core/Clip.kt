@@ -17,7 +17,6 @@
 package androidx.ui.core
 
 import androidx.compose.Composable
-import androidx.compose.composer
 import androidx.ui.engine.geometry.Shape
 
 /**

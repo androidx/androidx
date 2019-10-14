@@ -17,7 +17,6 @@
 package androidx.ui.foundation.selection
 
 import androidx.compose.Composable
-import androidx.compose.composer
 import androidx.ui.core.gesture.PressReleasedGestureDetector
 import androidx.ui.foundation.Strings
 import androidx.ui.foundation.semantics.toggleableState

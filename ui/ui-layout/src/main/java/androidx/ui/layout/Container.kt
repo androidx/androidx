@@ -33,7 +33,6 @@ import androidx.ui.core.max
 import androidx.ui.core.offset
 import androidx.ui.core.withTight
 import androidx.compose.Composable
-import androidx.compose.composer
 import androidx.compose.trace
 import androidx.ui.core.Modifier
 

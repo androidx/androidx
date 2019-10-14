@@ -18,7 +18,6 @@ package androidx.ui.foundation
 
 import androidx.ui.semantics.Semantics
 import androidx.ui.core.gesture.PressReleasedGestureDetector
-import androidx.compose.composer
 import androidx.compose.Composable
 import androidx.ui.semantics.enabled
 import androidx.ui.semantics.onClick

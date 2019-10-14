@@ -23,7 +23,6 @@ import androidx.animation.DEBUG
 import androidx.animation.PhysicsBuilder
 import androidx.animation.fling
 import androidx.compose.Composable
-import androidx.compose.composer
 import androidx.compose.memo
 import androidx.compose.state
 import androidx.compose.unaryPlus

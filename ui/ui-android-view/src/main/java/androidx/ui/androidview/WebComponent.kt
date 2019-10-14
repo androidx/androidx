@@ -21,7 +21,6 @@ import android.util.Log
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.compose.Composable
-import androidx.compose.composer
 
 class WebContext {
 

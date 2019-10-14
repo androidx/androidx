@@ -28,7 +28,6 @@ import androidx.ui.graphics.Color
 import androidx.ui.core.Direction
 import androidx.ui.core.dp
 import androidx.ui.core.gesture.TouchSlopDragGestureDetector
-import androidx.compose.composer
 
 /**
  * Simple demo that shows off TouchSlopDragGestureDetector.

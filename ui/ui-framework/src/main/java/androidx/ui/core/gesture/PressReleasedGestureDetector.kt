@@ -23,7 +23,6 @@ import androidx.ui.core.changedToDown
 import androidx.ui.core.changedToUp
 import androidx.ui.core.consumeDownChange
 import androidx.compose.Composable
-import androidx.compose.composer
 import androidx.compose.memo
 import androidx.compose.unaryPlus
 import androidx.ui.core.PointerInputWrapper

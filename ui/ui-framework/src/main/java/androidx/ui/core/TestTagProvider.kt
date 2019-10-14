@@ -18,7 +18,6 @@ package androidx.ui.core
 
 import androidx.compose.Ambient
 import androidx.compose.Composable
-import androidx.compose.composer
 
 val DefaultTestTag = "DEFAULT_TEST_TAG"
 val TestTagAmbient = Ambient.of { DefaultTestTag }

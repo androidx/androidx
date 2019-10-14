@@ -32,7 +32,6 @@ import androidx.ui.layout.ConstrainedBox
 import androidx.ui.layout.Container
 import androidx.ui.layout.DpConstraints
 import androidx.compose.Composable
-import androidx.compose.composer
 import androidx.ui.core.Layout
 import androidx.ui.core.Modifier
 import androidx.ui.core.min

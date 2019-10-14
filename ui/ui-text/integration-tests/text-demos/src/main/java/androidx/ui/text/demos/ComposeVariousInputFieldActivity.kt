@@ -18,7 +18,6 @@ package androidx.ui.text.demos
 
 import android.app.Activity
 import android.os.Bundle
-import androidx.compose.composer
 import androidx.ui.core.setContent
 
 class ComposeVariousInputFieldActivity : Activity() {

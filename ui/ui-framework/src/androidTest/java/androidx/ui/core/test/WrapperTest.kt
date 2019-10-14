@@ -19,7 +19,6 @@ import androidx.test.filters.SmallTest
 import androidx.test.rule.ActivityTestRule
 import androidx.ui.framework.test.TestActivity
 import androidx.compose.Recompose
-import androidx.compose.composer
 import androidx.compose.onActive
 import androidx.compose.onCommit
 import androidx.compose.setViewContent
