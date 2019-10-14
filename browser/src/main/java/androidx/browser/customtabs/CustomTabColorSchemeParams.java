@@ -108,6 +108,8 @@ public final class CustomTabColorSchemeParams {
 
     /**
      * Builder class for {@link CustomTabColorSchemeParams} objects.
+     *
+     * The browser's default colors will be used for any unset value.
      */
     public static final class Builder {
         @Nullable @ColorInt private Integer mToolbarColor;

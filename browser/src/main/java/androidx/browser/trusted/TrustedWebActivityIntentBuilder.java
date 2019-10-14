@@ -258,7 +258,7 @@ public class TrustedWebActivityIntentBuilder {
      * Returns the {@link Uri} to be launched with this Builder.
      */
     @NonNull
-    public Uri getUrl() {
+    public Uri getUri() {
         return mUri;
     }
 

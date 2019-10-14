@@ -253,8 +253,8 @@ package androidx.browser.customtabs {
   }
 
   public class TrustedWebUtils {
+    method public static boolean areSplashScreensSupported(android.content.Context, String, String);
     method @Deprecated public static void launchAsTrustedWebActivity(android.content.Context, androidx.browser.customtabs.CustomTabsIntent, android.net.Uri);
-    method public static boolean splashScreensAreSupported(android.content.Context, String, String);
     method @WorkerThread public static boolean transferSplashImage(android.content.Context, java.io.File, String, String, androidx.browser.customtabs.CustomTabsSession);
     field public static final String EXTRA_LAUNCH_AS_TRUSTED_WEB_ACTIVITY = "android.support.customtabs.extra.LAUNCH_AS_TRUSTED_WEB_ACTIVITY";
   }
@@ -306,7 +306,7 @@ package androidx.browser.trusted {
     method public androidx.browser.trusted.TrustedWebActivityIntent build(androidx.browser.customtabs.CustomTabsSession);
     method public androidx.browser.customtabs.CustomTabsIntent buildCustomTabsIntent();
     method public androidx.browser.trusted.TrustedWebActivityDisplayMode? getDisplayMode();
-    method public android.net.Uri getUrl();
+    method public android.net.Uri getUri();
     method public androidx.browser.trusted.TrustedWebActivityIntentBuilder setAdditionalTrustedOrigins(java.util.List<java.lang.String!>);
     method public androidx.browser.trusted.TrustedWebActivityIntentBuilder setColorScheme(int);
     method public androidx.browser.trusted.TrustedWebActivityIntentBuilder setColorSchemeParams(int, androidx.browser.customtabs.CustomTabColorSchemeParams);
@@ -414,11 +414,11 @@ package androidx.browser.trusted.sharing {
 package androidx.browser.trusted.splashscreens {
 
   public final class SplashScreenParamKey {
-    field public static final String BACKGROUND_COLOR = "androidx.browser.trusted.trusted.KEY_SPLASH_SCREEN_BACKGROUND_COLOR";
-    field public static final String FADE_OUT_DURATION_MS = "androidx.browser.trusted.KEY_SPLASH_SCREEN_FADE_OUT_DURATION";
-    field public static final String IMAGE_TRANSFORMATION_MATRIX = "androidx.browser.trusted.KEY_SPLASH_SCREEN_TRANSFORMATION_MATRIX";
-    field public static final String SCALE_TYPE = "androidx.browser.trusted.KEY_SPLASH_SCREEN_SCALE_TYPE";
-    field public static final String VERSION = "androidx.browser.trusted.KEY_SPLASH_SCREEN_VERSION";
+    field public static final String KEY_BACKGROUND_COLOR = "androidx.browser.trusted.trusted.KEY_SPLASH_SCREEN_BACKGROUND_COLOR";
+    field public static final String KEY_FADE_OUT_DURATION_MS = "androidx.browser.trusted.KEY_SPLASH_SCREEN_FADE_OUT_DURATION";
+    field public static final String KEY_IMAGE_TRANSFORMATION_MATRIX = "androidx.browser.trusted.KEY_SPLASH_SCREEN_TRANSFORMATION_MATRIX";
+    field public static final String KEY_SCALE_TYPE = "androidx.browser.trusted.KEY_SPLASH_SCREEN_SCALE_TYPE";
+    field public static final String KEY_VERSION = "androidx.browser.trusted.KEY_SPLASH_SCREEN_VERSION";
   }
 
   public final class SplashScreenVersion {
