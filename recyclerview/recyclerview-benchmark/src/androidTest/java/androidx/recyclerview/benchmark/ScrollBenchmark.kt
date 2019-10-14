@@ -26,14 +26,14 @@ import androidx.recyclerview.benchmark.test.R
 import androidx.recyclerview.widget.RecyclerView
 import androidx.test.annotation.UiThreadTest
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.filters.MediumTest
+import androidx.test.filters.LargeTest
 import androidx.test.rule.ActivityTestRule
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
-@MediumTest // label medium temporarily (b/140773023), to reorder in CI
+@LargeTest
 @RunWith(AndroidJUnit4::class)
 class ScrollBenchmark {
 
