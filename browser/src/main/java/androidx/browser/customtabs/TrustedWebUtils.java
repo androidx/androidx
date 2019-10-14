@@ -119,7 +119,7 @@ public class TrustedWebUtils {
      * @return Whether the specified Custom Tabs provider supports the specified splash screen
      *         feature/version.
      */
-    public static boolean splashScreensAreSupported(@NonNull Context context,
+    public static boolean areSplashScreensSupported(@NonNull Context context,
             @NonNull String packageName, @NonNull String version) {
         Intent serviceIntent = new Intent()
                 .setAction(CustomTabsService.ACTION_CUSTOM_TABS_CONNECTION)

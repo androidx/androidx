@@ -22,7 +22,7 @@ import androidx.browser.customtabs.CustomTabsSession;
  * These constants are the categories the providers add to the intent filter of
  * CustomTabService implementation to declare the support of a particular version of splash
  * screens. The are also passed by the client as the value for the key
- * {@link SplashScreenParamKey#VERSION} when launching a Trusted Web Activity.
+ * {@link SplashScreenParamKey#KEY_VERSION} when launching a Trusted Web Activity.
  */
 public final class SplashScreenVersion {
     /**
@@ -31,10 +31,10 @@ public final class SplashScreenVersion {
      *
      * The passed image is shown in a full-screen ImageView.
      * The following parameters are supported:
-     * - {@link SplashScreenParamKey#BACKGROUND_COLOR},
-     * - {@link SplashScreenParamKey#SCALE_TYPE},
-     * - {@link SplashScreenParamKey#IMAGE_TRANSFORMATION_MATRIX}
-     * - {@link SplashScreenParamKey#FADE_OUT_DURATION_MS}.
+     * - {@link SplashScreenParamKey#KEY_BACKGROUND_COLOR},
+     * - {@link SplashScreenParamKey#KEY_SCALE_TYPE},
+     * - {@link SplashScreenParamKey#KEY_IMAGE_TRANSFORMATION_MATRIX}
+     * - {@link SplashScreenParamKey#KEY_FADE_OUT_DURATION_MS}.
      */
     public static final String V1 =
             "androidx.browser.trusted.category.TrustedWebActivitySplashScreensV1";

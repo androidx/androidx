@@ -31,14 +31,14 @@ public final class SplashScreenParamKey {
      * The version of splash screens to use.
      * The value must be one of {@link SplashScreenVersion}.
      */
-    public static final String VERSION = "androidx.browser.trusted.KEY_SPLASH_SCREEN_VERSION";
+    public static final String KEY_VERSION = "androidx.browser.trusted.KEY_SPLASH_SCREEN_VERSION";
 
     /**
      * The background color of the splash screen.
      * The value must be an integer representing the color in RGB (alpha channel is ignored if
      * provided). The default is white.
      */
-    public static final String BACKGROUND_COLOR =
+    public static final String KEY_BACKGROUND_COLOR =
             "androidx.browser.trusted.trusted.KEY_SPLASH_SCREEN_BACKGROUND_COLOR";
 
     /**
@@ -47,7 +47,8 @@ public final class SplashScreenParamKey {
      * The value must be an integer - the ordinal of the ScaleType.
      * The default is {@link android.widget.ImageView.ScaleType#CENTER}.
      */
-    public static final String SCALE_TYPE = "androidx.browser.trusted.KEY_SPLASH_SCREEN_SCALE_TYPE";
+    public static final String KEY_SCALE_TYPE =
+            "androidx.browser.trusted.KEY_SPLASH_SCREEN_SCALE_TYPE";
 
     /**
      * The transformation matrix to apply to the image on the splash screen. See
@@ -56,7 +57,7 @@ public final class SplashScreenParamKey {
      * The value must be an array of 9 floats or null. This array can be retrieved from
      * {@link android.graphics.Matrix#getValues(float[])}. The default is null.
      */
-    public static final String IMAGE_TRANSFORMATION_MATRIX =
+    public static final String KEY_IMAGE_TRANSFORMATION_MATRIX =
             "androidx.browser.trusted.KEY_SPLASH_SCREEN_TRANSFORMATION_MATRIX";
 
     /**
@@ -64,7 +65,7 @@ public final class SplashScreenParamKey {
      * screen.
      * The value must be provided as an int. The default is 0 (no animation).
      */
-    public static final String FADE_OUT_DURATION_MS =
+    public static final String KEY_FADE_OUT_DURATION_MS =
             "androidx.browser.trusted.KEY_SPLASH_SCREEN_FADE_OUT_DURATION";
 
     private SplashScreenParamKey() {}
