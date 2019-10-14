@@ -41,3 +41,10 @@ dependencies {
     implementation("androidx.appcompat:appcompat:1.1.0")
     implementation(KOTLIN_STDLIB)
 }
+
+kapt {
+    javacOptions {
+        option("-source", "8")
+        option("-target", "8")
+    }
+}
