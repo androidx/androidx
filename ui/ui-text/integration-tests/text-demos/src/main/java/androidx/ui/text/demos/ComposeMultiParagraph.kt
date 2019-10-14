@@ -64,10 +64,10 @@ fun TextDemoParagraph() {
             text = text1 + text2,
             textStyles = listOf(),
             paragraphStyles = listOf(
-                AnnotatedString.Item(ParagraphStyle(), text1.length, text1.length)
+                AnnotatedString.Item(ParagraphStyle(), text1.length, (text1 + text2).length)
             )
         ),
-        style = TextStyle(fontSize = fontSize8)
+        style = TextStyle(fontSize = fontSize6)
     )
 }
 
@@ -96,7 +96,7 @@ fun TextDemoParagraphTextAlign() {
             textStyles = listOf(),
             paragraphStyles = paragraphStyles
         ),
-        style = TextStyle(fontSize = fontSize8)
+        style = TextStyle(fontSize = fontSize6)
     )
 }
 
@@ -128,7 +128,7 @@ fun TextDemoParagraphLineHeight() {
                 )
             )
         ),
-        style = TextStyle(fontSize = fontSize8)
+        style = TextStyle(fontSize = fontSize6)
     )
 }
 
@@ -154,7 +154,7 @@ fun TextDemoParagraphIndent() {
                 )
             )
         ),
-        style = TextStyle(fontSize = fontSize8)
+        style = TextStyle(fontSize = fontSize6)
     )
 }
 
@@ -179,6 +179,6 @@ fun TextDemoParagraphTextDirection() {
                 )
             )
         ),
-        style = TextStyle(fontSize = fontSize8)
+        style = TextStyle(fontSize = fontSize6)
     )
 }
