@@ -96,10 +96,6 @@ import java.util.ArrayList;
  */
 public final class FragmentContainerView extends FrameLayout {
 
-    private final String mTag;
-    private final FragmentManager mFragmentManager;
-    private final Fragment mContainerFragment;
-
     private ArrayList<View> mDisappearingFragmentChildren;
 
     private ArrayList<View> mTransitioningFragmentViews;
@@ -110,9 +106,6 @@ public final class FragmentContainerView extends FrameLayout {
 
     public FragmentContainerView(@NonNull Context context) {
         super(context);
-        mTag = null;
-        mFragmentManager = null;
-        mContainerFragment = null;
     }
 
     /**
@@ -143,11 +136,10 @@ public final class FragmentContainerView extends FrameLayout {
             @Nullable AttributeSet attrs,
             @NonNull FragmentManager fm) {
         super(context, attrs);
-        mFragmentManager = fm;
 
         TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.FragmentContainerView);
         String name = a.getString(R.styleable.FragmentContainerView_android_name);
-        mTag = a.getString(R.styleable.FragmentContainerView_android_tag);
+        String tag = a.getString(R.styleable.FragmentContainerView_android_tag);
         a.recycle();
 
         int id = getId();
@@ -156,17 +148,19 @@ public final class FragmentContainerView extends FrameLayout {
         // we should add an inflated Fragment to the view.
         if (name != null && existingFragment == null) {
             if (id <= 0) {
-                final String tagMessage = mTag != null
-                        ? " with tag " + mTag
+                final String tagMessage = tag != null
+                        ? " with tag " + tag
                         : "";
                 throw new IllegalStateException("FragmentContainerView must have an android:id to "
                         + "add Fragment " + name + tagMessage);
             }
-            mContainerFragment =
-                    fm.getFragmentFactory().instantiate(getContext().getClassLoader(), name);
-            mContainerFragment.onInflate(getContext(), attrs, null);
-        } else {
-            mContainerFragment = null;
+            Fragment containerFragment =
+                    fm.getFragmentFactory().instantiate(context.getClassLoader(), name);
+            containerFragment.onInflate(context, attrs, null);
+            fm.beginTransaction()
+                    .setReorderingAllowed(true)
+                    .add(this, containerFragment, tag)
+                    .commitNow();
         }
     }
 
@@ -214,19 +208,6 @@ public final class FragmentContainerView extends FrameLayout {
             child.dispatchApplyWindowInsets(new WindowInsets(insets));
         }
         return insets;
-    }
-
-    @Override
-    protected void onAttachedToWindow() {
-        super.onAttachedToWindow();
-        // If we inflated a Fragment when this view was created, we should add it to the
-        // FragmentManager.
-        if (mContainerFragment != null) {
-            mFragmentManager.beginTransaction()
-                    .setReorderingAllowed(true)
-                    .add(getId(), mContainerFragment, mTag)
-                    .commitNow();
-        }
     }
 
     @Override
