@@ -112,6 +112,7 @@ private sealed class ExpandedModifier : LayoutModifier {
         containerSize: IntPxSize
     ): IntPxPosition = childPosition
 
-    override fun DensityScope.modifyAlignmentLine(line: AlignmentLine, value: IntPx?): IntPx? =
-        value
+    override fun DensityScope.modifyAlignmentLine(line: AlignmentLine, value: IntPx?) = value
+
+    override fun DensityScope.modifyParentData(parentData: Any?): Any? = parentData
 }

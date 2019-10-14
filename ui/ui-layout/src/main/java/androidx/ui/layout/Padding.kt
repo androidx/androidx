@@ -121,6 +121,8 @@ data class AbsolutePadding(
 
         return if (line.horizontal) value + left.toIntPx() else value + top.toIntPx()
     }
+
+    override fun DensityScope.modifyParentData(parentData: Any?): Any? = parentData
 }
 
 /**

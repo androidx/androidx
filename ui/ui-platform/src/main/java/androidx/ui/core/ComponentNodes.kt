@@ -611,9 +611,8 @@ class LayoutNode : ComponentNode(), Measurable, MeasureScope {
      */
     private var parentDataDirty = false
 
-    // TODO: let the ModifiedLayoutNode wrapper provide this and return null here
     override val parentData: Any?
-        get() = parentDataNode?.value
+        get() = layoutNodeWrapper.parentData
 
     /**
      * The parentData [DataNode] for this LayoutNode.
@@ -684,7 +683,7 @@ class LayoutNode : ComponentNode(), Measurable, MeasureScope {
         }
 
         override val parentData: Any?
-            get() = this@LayoutNode.parentData
+            get() = parentDataNode?.value
 
         override fun minIntrinsicWidth(height: IntPx): IntPx =
             measureBlocks.minIntrinsicWidth(this@LayoutNode, layoutChildren, height)
@@ -751,9 +750,14 @@ class LayoutNode : ComponentNode(), Measurable, MeasureScope {
             measuredConstraints = null
         }
 
-        // TODO change this once modifiers can take over for parentData
+        /**
+         * ParentData provided through the parentData node will override the data provided
+         * through a modifier
+         */
         override val parentData: Any?
-            get() = wrapped.parentData
+            get() = with(layoutModifier) {
+                parentDataNode?.value ?: modifyParentData(wrapped.parentData)
+            }
 
         override fun measure(constraints: Constraints): Placeable = with(layoutModifier) {
             val measureResult = withMeasuredConstraints(constraints) {

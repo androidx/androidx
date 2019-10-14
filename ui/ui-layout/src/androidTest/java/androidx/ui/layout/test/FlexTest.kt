@@ -50,6 +50,7 @@ import androidx.ui.layout.FlexColumn
 import androidx.ui.layout.FlexRow
 import androidx.ui.layout.Row
 import androidx.ui.layout.Wrap
+import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -2442,5 +2443,32 @@ class FlexTest : LayoutTest() {
         assertEquals(PxPosition(10.ipx, 0.ipx), childPosition[0].value)
         assertEquals(PxPosition(0.ipx, 10.ipx), childPosition[1].value)
         assertEquals(PxPosition(0.ipx, 20.ipx), childPosition[2].value)
+    }
+
+    @Test
+    fun testFlexModifiersChain_leftMostWins() = withDensity(density) {
+        val positionedLatch = CountDownLatch(1)
+        val containerSize = Ref<PxSize>()
+        val containerPosition = Ref<PxPosition>()
+        val sizeIntPx = 40.dp.toIntPx()
+
+        show {
+            Align(Alignment.TopLeft) {
+                Column(mainAxisSize = LayoutSize.Expand) {
+                    OnChildPositioned(onPositioned = { coordinates ->
+                        containerSize.value = coordinates.size
+                        containerPosition.value = coordinates.localToGlobal(PxPosition(0.px, 0.px))
+                        positionedLatch.countDown()
+                    }) {
+                        Container(Inflexible wraps Flexible(1f), width = 40.dp, height = 40.dp) {}
+                    }
+                }
+            }
+        }
+
+        positionedLatch.await(1, TimeUnit.SECONDS)
+
+        assertNotNull(containerSize)
+        assertEquals(PxSize(sizeIntPx, sizeIntPx), containerSize.value)
     }
 }

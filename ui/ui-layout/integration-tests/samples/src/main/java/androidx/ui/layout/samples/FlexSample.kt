@@ -24,6 +24,7 @@ import androidx.ui.layout.Center
 import androidx.ui.layout.Column
 import androidx.ui.layout.FlexColumn
 import androidx.ui.layout.FlexRow
+import androidx.ui.layout.LayoutSize
 import androidx.ui.layout.Row
 
 @Sampled
@@ -65,19 +66,31 @@ fun SimpleFlexColumn() {
 @Sampled
 @Composable
 fun SimpleRow() {
-    Row {
-        SizedRectangle(color = Color(0xFF0000FF), width = 40.dp, height = 40.dp)
-        SizedRectangle(color = Color(0xFFFF0000), width = 40.dp, height = 80.dp)
-        SizedRectangle(color = Color(0xFF00FF00), width = 80.dp, height = 70.dp)
+    Row(mainAxisSize = LayoutSize.Expand) {
+        // The child with no flexibility modifier is inflexible by default, will have the specified
+        // size.
+        SizedRectangle(color = Color.Magenta, width = 40.dp, height = 80.dp)
+        // Inflexible, the child will have the specified size.
+        SizedRectangle(Inflexible, color = Color.Red, width = 80.dp, height = 40.dp)
+        // Flexible, the child will occupy have of the remaining width.
+        SizedRectangle(Flexible(1f), color = Color.Yellow, height = 40.dp)
+        // Flexible not tight, the child will occupy at most half of the remaining width.
+        SizedRectangle(Flexible(1f, tight = false), color = Color.Green, height = 80.dp)
     }
 }
 
 @Sampled
 @Composable
 fun SimpleColumn() {
-    Column {
-        SizedRectangle(color = Color(0xFF0000FF), width = 40.dp, height = 40.dp)
-        SizedRectangle(color = Color(0xFFFF0000), width = 40.dp, height = 80.dp)
-        SizedRectangle(color = Color(0xFF00FF00), width = 80.dp, height = 70.dp)
+    Column(mainAxisSize = LayoutSize.Expand) {
+        // The child with no flexibility modifier is inflexible by default, will have the specified
+        // size.
+        SizedRectangle(color = Color.Magenta, width = 40.dp, height = 80.dp)
+        // Inflexible, the child will have the specified size.
+        SizedRectangle(Inflexible, color = Color.Red, width = 80.dp, height = 40.dp)
+        // Flexible, the child will occupy have of the remaining height.
+        SizedRectangle(Flexible(1f), color = Color.Yellow, width = 40.dp)
+        // Flexible not tight, the child will occupy at most half of the remaining height.
+        SizedRectangle(Flexible(1f, tight = false), color = Color.Green, width = 80.dp)
     }
 }

@@ -21,7 +21,9 @@ import androidx.compose.Composable
 import androidx.ui.core.Alignment
 import androidx.ui.core.AlignmentLine
 import androidx.ui.core.Constraints
+import androidx.ui.core.DensityScope
 import androidx.ui.core.IntPx
+import androidx.ui.core.IntPxPosition
 import androidx.ui.core.IntPxSize
 import androidx.ui.core.Placeable
 import androidx.ui.core.ipx
@@ -29,6 +31,8 @@ import androidx.ui.core.max
 import androidx.ui.core.IntrinsicMeasurable
 import androidx.ui.core.IntrinsicMeasureBlock
 import androidx.ui.core.Layout
+import androidx.ui.core.LayoutModifier
+import androidx.ui.core.Measurable
 import androidx.ui.core.Modifier
 import androidx.ui.core.ParentData
 import androidx.ui.core.isFinite
@@ -163,7 +167,40 @@ fun FlexColumn(
 }
 
 /**
- * A composable that places its children in a horizontal sequence.
+ * A FlexScope provides a scope for Inflexible/Flexible functions.
+ */
+class FlexScope internal constructor() {
+
+    /**
+     * A layout modifier within a [Column] or [Row] that makes the target component flexible.
+     * It will be assigned a space according to its flex weight relative to the flexible siblings.
+     * When [tight] is set to true, the target component is forced to occupy the entire space
+     * assigned to it by the parent.
+     */
+    fun Flexible(flex: Float, tight: Boolean = true): LayoutModifier =
+        if (tight) {
+            FlexModifier(FlexInfo(flex, FlexFit.Tight))
+        } else {
+            FlexModifier(FlexInfo(flex, FlexFit.Loose))
+        }
+
+    /**
+     * A layout modifier within a [Column] or [Row] that makes the target component inflexible.
+     * It will be measured with the loose infinite constraints to determine its preferred size.
+     */
+    val Inflexible: LayoutModifier = inflexibleModifier
+
+    internal companion object {
+        val inflexibleModifier: LayoutModifier = FlexModifier(FlexInfo(0f, FlexFit.Loose))
+    }
+}
+
+/**
+ * A composable that places its children in a horizontal sequence and is able to assign them widths
+ * according to their flex weights provided through [androidx.ui.layout.FlexScope.Flexible]
+ * modifier.
+ * If [androidx.ui.layout.FlexScope.Inflexible] or no modifier is provided, the child will be
+ * treated as inflexible, and will be sized to its preferred width.
  *
  * Example usage:
  *
@@ -185,23 +222,25 @@ fun Row(
     mainAxisSize: LayoutSize = LayoutSize.Wrap,
     crossAxisAlignment: CrossAxisAlignment = CrossAxisAlignment.Start,
     crossAxisSize: LayoutSize = LayoutSize.Wrap,
-    block: @Composable() () -> Unit
+    block: @Composable() FlexScope.() -> Unit
 ) {
-    FlexRow(
+    ModifiedFlexLayout(
+        orientation = LayoutOrientation.Horizontal,
         mainAxisAlignment = mainAxisAlignment,
         mainAxisSize = mainAxisSize,
         crossAxisAlignment = crossAxisAlignment,
         crossAxisSize = crossAxisSize,
-        modifier = modifier
-    ) {
-        inflexible {
-            block()
-        }
-    }
+        modifier = modifier,
+        block = block
+    )
 }
 
 /**
- * A composable that places its children in a vertical sequence.
+ * A composable that places its children in a vertical sequence and is able to assign them heights
+ * according to their flex weights provided through [androidx.ui.layout.FlexScope.Flexible]
+ * modifiers.
+ * If [androidx.ui.layout.FlexScope.Inflexible] or no modifier is provided, the child will be
+ * treated as inflexible, and will be sized to its preferred height.
  *
  * Example usage:
  *
@@ -223,19 +262,17 @@ fun Column(
     mainAxisSize: LayoutSize = LayoutSize.Wrap,
     crossAxisAlignment: CrossAxisAlignment = CrossAxisAlignment.Start,
     crossAxisSize: LayoutSize = LayoutSize.Wrap,
-    block: @Composable() () -> Unit
+    block: @Composable() FlexScope.() -> Unit
 ) {
-    FlexColumn(
+    ModifiedFlexLayout(
+        orientation = LayoutOrientation.Vertical,
         mainAxisAlignment = mainAxisAlignment,
         mainAxisSize = mainAxisSize,
         crossAxisAlignment = crossAxisAlignment,
         crossAxisSize = crossAxisSize,
-        modifier = modifier
-    ) {
-        inflexible {
-            block()
-        }
-    }
+        modifier = modifier,
+        block = block
+    )
 }
 
 internal enum class FlexFit {
@@ -478,13 +515,40 @@ internal data class OrientationIndependentConstraints(
         }
 }
 
-private val IntrinsicMeasurable.flex: Float get() = (parentData as FlexInfo).flex
-private val IntrinsicMeasurable.fit: FlexFit get() = (parentData as FlexInfo).fit
+private val IntrinsicMeasurable.flex: Float
+    get() = when (parentData) {
+        is FlexInfo -> (parentData as FlexInfo).flex
+        // falls back to inflexible if FlexModifier for child is not provided
+        else -> 0f
+    }
+private val IntrinsicMeasurable.fit: FlexFit
+    get() = when (parentData) {
+        is FlexInfo -> (parentData as FlexInfo).fit
+        // falls back to inflexible if FlexModifier for child is not provided
+        else -> FlexFit.Loose
+    }
 
-/**
- * Layout model that places its children in a horizontal or vertical sequence, according to the
- * specified orientation, while also looking at the flex weights of the children.
- */
+@Composable
+private fun ModifiedFlexLayout(
+    orientation: LayoutOrientation,
+    modifier: Modifier = Modifier.None,
+    mainAxisSize: LayoutSize,
+    mainAxisAlignment: MainAxisAlignment,
+    crossAxisSize: LayoutSize,
+    crossAxisAlignment: CrossAxisAlignment,
+    block: @Composable() FlexScope.() -> Unit
+) {
+    FlexLayout(
+        orientation = orientation,
+        modifier = modifier,
+        mainAxisSize = mainAxisSize,
+        mainAxisAlignment = mainAxisAlignment,
+        crossAxisSize = crossAxisSize,
+        crossAxisAlignment = crossAxisAlignment,
+        layoutChildren = { FlexScope().block() }
+    )
+}
+
 @Composable
 private fun Flex(
     orientation: LayoutOrientation,
@@ -495,11 +559,6 @@ private fun Flex(
     crossAxisAlignment: CrossAxisAlignment,
     block: FlexChildren.() -> Unit
 ) {
-    fun Placeable.mainAxisSize() =
-        if (orientation == LayoutOrientation.Horizontal) width else height
-    fun Placeable.crossAxisSize() =
-        if (orientation == LayoutOrientation.Horizontal) height else width
-
     val flexChildren: @Composable() () -> Unit = with(FlexChildren()) {
         block()
         val composable = @Composable {
@@ -507,8 +566,38 @@ private fun Flex(
         }
         composable
     }
+    FlexLayout(
+        orientation = orientation,
+        modifier = modifier,
+        mainAxisSize = mainAxisSize,
+        mainAxisAlignment = mainAxisAlignment,
+        crossAxisSize = crossAxisSize,
+        crossAxisAlignment = crossAxisAlignment,
+        layoutChildren = flexChildren
+    )
+}
+
+/**
+ * Layout model that places its children in a horizontal or vertical sequence, according to the
+ * specified orientation, while also looking at the flex weights of the children.
+ */
+@Composable
+private fun FlexLayout(
+    orientation: LayoutOrientation,
+    modifier: Modifier = Modifier.None,
+    mainAxisSize: LayoutSize,
+    mainAxisAlignment: MainAxisAlignment,
+    crossAxisSize: LayoutSize,
+    crossAxisAlignment: CrossAxisAlignment,
+    layoutChildren: @Composable() () -> Unit
+) {
+    fun Placeable.mainAxisSize() =
+        if (orientation == LayoutOrientation.Horizontal) width else height
+    fun Placeable.crossAxisSize() =
+        if (orientation == LayoutOrientation.Horizontal) height else width
+
     Layout(
-        flexChildren,
+        layoutChildren,
         modifier = modifier,
         minIntrinsicWidthMeasureBlock = MinIntrinsicWidthMeasureBlock(orientation),
         minIntrinsicHeightMeasureBlock = MinIntrinsicHeightMeasureBlock(orientation),
@@ -699,7 +788,7 @@ private /*inline*/ fun MaxIntrinsicHeightMeasureBlock(orientation: LayoutOrienta
     }
 
 private object IntrinsicMeasureBlocks {
-    val HorizontalMinWidth: IntrinsicMeasureBlock = { measurables, availableHeight: IntPx ->
+    val HorizontalMinWidth: IntrinsicMeasureBlock = { measurables, availableHeight ->
         intrinsicSize(
             measurables,
             { h -> minIntrinsicWidth(h) },
@@ -729,18 +818,15 @@ private object IntrinsicMeasureBlocks {
             LayoutOrientation.Vertical
         )
     }
-    val VerticalMinHeight by lazy(mode = LazyThreadSafetyMode.NONE) {
-        val block: IntrinsicMeasureBlock = { measurables, availableWidth ->
-            intrinsicSize(
-                measurables,
-                { w -> minIntrinsicHeight(w) },
-                { h -> maxIntrinsicWidth(h) },
-                availableWidth,
-                LayoutOrientation.Vertical,
-                LayoutOrientation.Vertical
-            )
-        }
-        block
+    val VerticalMinHeight: IntrinsicMeasureBlock = { measurables, availableWidth ->
+        intrinsicSize(
+            measurables,
+            { w -> minIntrinsicHeight(w) },
+            { h -> maxIntrinsicWidth(h) },
+            availableWidth,
+            LayoutOrientation.Vertical,
+            LayoutOrientation.Vertical
+        )
     }
     val HorizontalMaxWidth: IntrinsicMeasureBlock = { measurables, availableHeight ->
         intrinsicSize(
@@ -850,4 +936,49 @@ private fun intrinsicCrossAxisSize(
         }
     }
     return crossAxisMax
+}
+
+private data class FlexModifier(val flexInfo: FlexInfo) : LayoutModifier {
+    override fun DensityScope.modifyConstraints(constraints: Constraints): Constraints {
+        return constraints
+    }
+
+    override fun DensityScope.modifySize(
+        constraints: Constraints,
+        childSize: IntPxSize
+    ): IntPxSize {
+        return childSize
+    }
+
+    override fun DensityScope.minIntrinsicWidthOf(measurable: Measurable, height: IntPx): IntPx {
+        return measurable.minIntrinsicWidth(height)
+    }
+
+    override fun DensityScope.maxIntrinsicWidthOf(measurable: Measurable, height: IntPx): IntPx {
+        return measurable.maxIntrinsicWidth(height)
+    }
+
+    override fun DensityScope.minIntrinsicHeightOf(measurable: Measurable, width: IntPx): IntPx {
+        return measurable.minIntrinsicHeight(width)
+    }
+
+    override fun DensityScope.maxIntrinsicHeightOf(measurable: Measurable, width: IntPx): IntPx {
+        return measurable.maxIntrinsicHeight(width)
+    }
+
+    override fun DensityScope.modifyPosition(
+        childPosition: IntPxPosition,
+        childSize: IntPxSize,
+        containerSize: IntPxSize
+    ): IntPxPosition {
+        return childPosition
+    }
+
+    override fun DensityScope.modifyAlignmentLine(line: AlignmentLine, value: IntPx?): IntPx? {
+        return value
+    }
+
+    override fun DensityScope.modifyParentData(parentData: Any?): FlexInfo {
+        return if (parentData is FlexInfo) parentData else flexInfo
+    }
 }
