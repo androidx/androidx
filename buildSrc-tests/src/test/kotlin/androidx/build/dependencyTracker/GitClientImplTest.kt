@@ -368,7 +368,7 @@ class GitClientImplTest {
                     "$bodyDelimiter%b" +
                     " --no-merges"
         val gitLogCmd: String = "${GitClientImpl.GIT_LOG_CMD_PREFIX} " +
-                "$gitLogOptions sha..topSha $projectDir"
+                "$gitLogOptions sha..topSha -- $projectDir"
 
         // Check with default delimiters
         val gitLogString: String =
@@ -490,6 +490,7 @@ class GitClientImplTest {
             keepMerges = false,
             fullProjectDir = File(projectDir)
         )
+        assertEquals(3, gitLogList.size)
         gitLogList.forEach { commit ->
             when (commit.sha) {
                 "topSha" -> assertCommitsAreEqual(commitWithAPIChange, commit)
@@ -527,6 +528,7 @@ class GitClientImplTest {
         assertEquals(commitA.type, commitB.type)
         assertEquals(commitA.projectDir, commitB.projectDir)
         assertEquals(commitA.summary, commitB.summary)
+        assertEquals(commitA.releaseNote, commitB.releaseNote)
     }
 
     // For both Linux/Windows
