@@ -91,6 +91,11 @@ class AndroidComposeView constructor(context: Context) :
     // is kept separate from dirtyRepaintBoundaryNodes.
     private val repaintBoundaryChanges = TreeSet<RepaintBoundaryNode>(DepthComparator)
 
+    // RepaintBoundaryNodes that are dirty and should be redrawn. This is only
+    // used when RenderNodes are active in Q+. When Views are used, the View
+    // system tracks the dirty RenderNodes.
+    internal val dirtyRepaintBoundaryNodes = TreeSet<RepaintBoundaryNode>(DepthComparator)
+
     var ref: Ref<AndroidComposeView>? = null
         set(value) {
             field = value
@@ -212,17 +217,11 @@ class AndroidComposeView constructor(context: Context) :
     /**
      * Make sure the containing RepaintBoundary repaints.
      */
-    private fun invalidateRepaintBoundary(node: ComponentNode) {
+    internal fun invalidateRepaintBoundary(node: ComponentNode) {
         val repaintBoundary = node.repaintBoundary
         val repaintBoundaryContainer = repaintBoundary?.container
         if (repaintBoundaryContainer != null) {
             repaintBoundaryContainer.dirty = true
-            // as we marked this RepaintBoundary as dirty all the parent RepaintBoundaries
-            // are also dirty.
-            val parent = repaintBoundary.parent
-            if (parent != null) {
-                invalidateRepaintBoundary(parent)
-            }
         } else {
             invalidate()
         }
@@ -341,6 +340,7 @@ class AndroidComposeView constructor(context: Context) :
             node.ownerData = ownerData
             ownerData.attach(node.parent?.repaintBoundary?.container)
             repaintBoundaryChanges += node
+            node.parent?.let { invalidateRepaintBoundary(it) }
         }
     }
 
@@ -349,7 +349,12 @@ class AndroidComposeView constructor(context: Context) :
         if (node is RepaintBoundaryNode) {
             node.container.detach()
             node.ownerData = null
+            repaintBoundaryChanges -= node
+            dirtyRepaintBoundaryNodes -= node
+        } else if (node is LayoutNode) {
+            relayoutNodes -= node
         }
+        clearNodeModels(node)
     }
 
     /**
@@ -558,6 +563,12 @@ class AndroidComposeView constructor(context: Context) :
             val frame = currentFrame()
             frame.observeReads(frameReadObserver) {
                 callChildDraw(canvas, node)
+                if (dirtyRepaintBoundaryNodes.isNotEmpty()) {
+                    dirtyRepaintBoundaryNodes.forEach { node ->
+                        node.container.updateDisplayList()
+                    }
+                    dirtyRepaintBoundaryNodes.clear()
+                }
             }
             currentNode = null
         }
@@ -757,6 +768,12 @@ private interface RepaintBoundary {
     fun onParamsChange()
 
     /**
+     * For RenderNodes, this updates the RenderNode in place. After this, [dirty] must
+     * be `false`.
+     */
+    fun updateDisplayList()
+
+    /**
      * `true` indicates that the RepaintBoundary must be redrawn and `false` indicates
      * that no change has occured since the previous [callDraw] call.
      */
@@ -909,6 +926,10 @@ private class RepaintBoundaryView(
         alpha = repaintBoundaryNode.opacity
         elevation = withDensity(density) { repaintBoundaryNode.elevation.toPx().value }
     }
+
+    override fun updateDisplayList() {
+        // Do nothing. This is really only for RenderNodes
+    }
 }
 
 /**
@@ -924,6 +945,7 @@ private class RepaintBoundaryRenderNode(
         set(value) {
             if (value && !field) {
                 ownerView.invalidate()
+                ownerView.dirtyRepaintBoundaryNodes += repaintBoundaryNode
             }
             field = value
         }
@@ -945,6 +967,7 @@ private class RepaintBoundaryRenderNode(
             onParamsChange()
         }
         hasSize = true
+        dirty = true
     }
 
     override fun attach(parent: RepaintBoundary?) {
@@ -952,7 +975,7 @@ private class RepaintBoundaryRenderNode(
     }
 
     override fun detach() {
-        // nothing needs to be done
+        repaintBoundaryNode.parent?.let { ownerView.invalidateRepaintBoundary(it) }
     }
 
     override fun callDraw(canvas: Canvas) {
@@ -969,7 +992,7 @@ private class RepaintBoundaryRenderNode(
         }
     }
 
-    private fun updateDisplayList() {
+    override fun updateDisplayList() {
         if (dirty || !renderNode.hasDisplayList()) {
             val canvas = renderNode.beginRecording()
             clipPath?.let { canvas.clipPath(it) }

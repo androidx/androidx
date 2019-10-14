@@ -176,7 +176,6 @@ class AndroidLayoutDrawTest {
         val model = SquareModel(outerColor = blue, innerColor = white)
         composeSquaresWithNestedRepaintBoundaries(model)
         validateSquareColors(outerColor = blue, innerColor = white, size = 10)
-
         drawLatch = CountDownLatch(1)
         activityTestRule.runOnUiThreadIR {
             model.size = 20.ipx
@@ -266,7 +265,7 @@ class AndroidLayoutDrawTest {
         activityTestRule.runOnUiThreadIR {
             activity.setContentInFrameLayout {
                 Padding(size = (model.size * 3)) {
-                    FillColor(model.outerColor)
+                    FillColor(model, isInner = false)
                 }
             }
         }
@@ -300,10 +299,10 @@ class AndroidLayoutDrawTest {
             activity.setContentInFrameLayout {
                 Layout(children = {
                     Padding(size = (model.size * 3)) {
-                        FillColor(model.outerColor)
+                        FillColor(model, isInner = false)
                     }
                     Padding(size = model.size) {
-                        FillColor(model.innerColor)
+                        FillColor(model, isInner = true)
                     }
                 }, measureBlock = { measurables, constraints ->
                     val placeables = measurables.map { it.measure(constraints) }
@@ -1752,12 +1751,12 @@ class AndroidLayoutDrawTest {
     private fun composeSquaresWithNestedRepaintBoundaries(model: SquareModel) {
         activityTestRule.runOnUiThreadIR {
             activity.setContentInFrameLayout {
-                FillColor(model.outerColor, doCountDown = false)
+                FillColor(model, isInner = false, doCountDown = false)
                 Padding(size = model.size) {
                     RepaintBoundary {
                         RepaintBoundary {
                             AtLeastSize(size = model.size) {
-                                FillColor(model.innerColor)
+                                FillColor(model, isInner = true)
                             }
                         }
                     }
@@ -1769,11 +1768,11 @@ class AndroidLayoutDrawTest {
     private fun composeMovingSquaresWithRepaintBoundary(model: SquareModel, offset: OffsetModel) {
         activityTestRule.runOnUiThreadIR {
             activity.setContentInFrameLayout {
-                FillColor(model.outerColor, doCountDown = false)
+                FillColor(model, isInner = false, doCountDown = false)
                 Position(size = model.size * 3, offset = offset) {
                     RepaintBoundary {
                         AtLeastSize(size = model.size) {
-                            FillColor(model.innerColor)
+                            FillColor(model, isInner = true)
                         }
                     }
                 }
@@ -1784,10 +1783,10 @@ class AndroidLayoutDrawTest {
     private fun composeMovingSquares(model: SquareModel, offset: OffsetModel) {
         activityTestRule.runOnUiThreadIR {
             activity.setContentInFrameLayout {
-                FillColor(model.outerColor, doCountDown = false)
+                FillColor(model, isInner = false, doCountDown = false)
                 Position(size = model.size * 3, offset = offset) {
                     AtLeastSize(size = model.size) {
-                        FillColor(model.innerColor)
+                        FillColor(model, isInner = true)
                     }
                 }
             }
@@ -1800,7 +1799,7 @@ class AndroidLayoutDrawTest {
                 Draw(children = {
                     AtLeastSize(size = (model.size * 3)) {
                         Draw(children = {
-                            FillColor(model.innerColor)
+                            FillColor(model, isInner = true)
                         }, onPaint = { canvas, parentSize ->
                             val paint = Paint()
                             paint.color = model.outerColor
@@ -1882,6 +1881,18 @@ class AndroidLayoutDrawTest {
         Draw { canvas, parentSize ->
             canvas.drawRect(parentSize.toRect(), Paint().apply {
                 this.color = color
+            })
+            if (doCountDown) {
+                drawLatch.countDown()
+            }
+        }
+    }
+
+    @Composable
+    private fun FillColor(squareModel: SquareModel, isInner: Boolean, doCountDown: Boolean = true) {
+        Draw { canvas, parentSize ->
+            canvas.drawRect(parentSize.toRect(), Paint().apply {
+                this.color = if (isInner) squareModel.innerColor else squareModel.outerColor
             })
             if (doCountDown) {
                 drawLatch.countDown()
