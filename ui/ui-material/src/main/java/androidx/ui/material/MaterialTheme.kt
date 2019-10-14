@@ -85,7 +85,7 @@ fun MaterialTheme(
  *
  * To access values within this ambient, use [themeColor].
  */
-val Colors = Ambient.of<MaterialColors>("colors") { error("No colors found!") }
+val Colors = Ambient.of<MaterialColors> { error("No colors found!") }
 
 /**
  * This Ambient holds on to the current definition of typography for this application as described
@@ -96,7 +96,7 @@ val Colors = Ambient.of<MaterialColors>("colors") { error("No colors found!") }
  *
  * To access values within this ambient, use [themeTextStyle].
  */
-val Typography = Ambient.of<MaterialTypography>("typography") { error("No typography found!") }
+val Typography = Ambient.of<MaterialTypography> { error("No typography found!") }
 
 /**
  * Data class holding color values as defined by the [Material color specification]
