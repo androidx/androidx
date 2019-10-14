@@ -103,7 +103,6 @@ public class PreferenceUtils {
     public void setNeedsReschedule(boolean needsReschedule) {
         Preference preference = new Preference(KEY_RESCHEDULE_NEEDED, needsReschedule);
         mWorkDatabase.preferenceDao().insertPreference(preference);
-        mWorkDatabase.setTransactionSuccessful();
     }
 
     /**
