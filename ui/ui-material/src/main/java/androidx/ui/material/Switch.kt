@@ -19,6 +19,7 @@ package androidx.ui.material
 import androidx.animation.TweenBuilder
 import androidx.compose.Composable
 import androidx.compose.composer
+import androidx.compose.memo
 import androidx.compose.unaryPlus
 import androidx.ui.core.DensityScope
 import androidx.ui.core.Draw
@@ -35,11 +36,12 @@ import androidx.ui.graphics.Color
 import androidx.ui.layout.Container
 import androidx.ui.layout.Padding
 import androidx.ui.layout.Wrap
-import androidx.ui.material.internal.anchoredControllerByState
 import androidx.ui.material.ripple.Ripple
 import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.Paint
 import androidx.ui.graphics.StrokeCap
+import androidx.ui.material.internal.StateDraggable
+import androidx.ui.material.internal.ValueModel
 
 /**
  * A Switch is a two state toggleable component that provides on/off like options
@@ -72,20 +74,16 @@ fun Switch(
 private fun SwitchImpl(checked: Boolean, onCheckedChange: ((Boolean) -> Unit)?, color: Color) {
     val minBound = 0f
     val maxBound = +withDensity { ThumbPathLength.toPx().value }
-    val (controller, callback) =
-        +anchoredControllerByState(
-            state = checked,
-            onStateChange = onCheckedChange ?: {},
-            anchorsToState = listOf(minBound to false, maxBound to true),
-            animationBuilder = AnimationBuilder
-        )
-    Draggable(
+    StateDraggable(
+        state = checked,
+        onStateChange = onCheckedChange ?: {},
+        anchorsToState = listOf(minBound to false, maxBound to true),
+        animationBuilder = AnimationBuilder,
         dragDirection = DragDirection.Horizontal,
         minValue = minBound,
-        maxValue = maxBound,
-        valueController = controller,
-        callback = callback
-    ) { thumbPosition ->
+        maxValue = maxBound
+    ) { model ->
+        val thumbPosition = model.value
         Container(width = SwitchWidth, height = SwitchHeight, expanded = true) {
             DrawSwitch(
                 checked = checked,
