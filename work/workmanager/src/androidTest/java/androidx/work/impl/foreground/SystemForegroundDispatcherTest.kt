@@ -37,6 +37,7 @@ import androidx.work.impl.foreground.SystemForegroundDispatcher.NOTIFICATION_ID
 import androidx.work.impl.foreground.SystemForegroundDispatcher.createNotifyIntent
 import androidx.work.impl.foreground.SystemForegroundDispatcher.createStartForegroundIntent
 import androidx.work.impl.foreground.SystemForegroundDispatcher.createStopForegroundIntent
+import androidx.work.impl.foreground.SystemForegroundDispatcher.createCancelWorkIntent
 import androidx.work.impl.utils.SynchronousExecutor
 import androidx.work.impl.utils.taskexecutor.InstantWorkTaskExecutor
 import androidx.work.impl.utils.taskexecutor.TaskExecutor
@@ -51,6 +52,7 @@ import org.mockito.Mockito.spy
 import org.mockito.Mockito.times
 import org.mockito.Mockito.verify
 import org.mockito.Mockito.verifyZeroInteractions
+import java.util.UUID
 
 @RunWith(AndroidJUnit4::class)
 @MediumTest
@@ -151,5 +153,21 @@ class SystemForegroundDispatcherTest {
         verify(tracker, times(1)).replace(setOf(request.workSpec))
         dispatcher.onAllConstraintsNotMet(listOf(request.workSpec.id))
         verify(workManager, times(1)).stopForegroundWork(eq(request.workSpec.id))
+    }
+
+    @Test
+    fun testCancelForegroundWork() {
+        val request = OneTimeWorkRequest.Builder(TestWorker::class.java)
+            .setConstraints(
+                Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build()
+            ).build()
+        workDatabase.workSpecDao().insertWorkSpec(request.workSpec)
+
+        val intent = createStartForegroundIntent(context, request.stringId)
+        dispatcher.onStartCommand(intent)
+        verify(tracker, times(1)).replace(setOf(request.workSpec))
+        val stopIntent = createCancelWorkIntent(context, request.stringId)
+        dispatcher.onStartCommand(stopIntent)
+        verify(workManager, times(1)).cancelWorkById(eq(UUID.fromString(request.workSpec.id)))
     }
 }
