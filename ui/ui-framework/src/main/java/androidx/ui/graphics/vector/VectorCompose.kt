@@ -146,15 +146,15 @@ fun VectorScope.Path(
     strokeLineMiter: Float = DefaultStrokeLineMiter
 ) {
     PathComponent(
-        name=name,
-        pathData=pathData,
-        fill=fill,
-        fillAlpha=fillAlpha,
-        stroke=stroke,
-        strokeAlpha=strokeAlpha,
-        strokeLineWidth=strokeLineWidth,
-        strokeLineJoin=strokeLineJoin,
-        strokeLineCap=strokeLineCap,
-        strokeLineMiter=strokeLineMiter
+        name = name,
+        pathData = pathData,
+        fill = fill,
+        fillAlpha = fillAlpha,
+        stroke = stroke,
+        strokeAlpha = strokeAlpha,
+        strokeLineWidth = strokeLineWidth,
+        strokeLineJoin = strokeLineJoin,
+        strokeLineCap = strokeLineCap,
+        strokeLineMiter = strokeLineMiter
     )
 }

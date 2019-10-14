@@ -54,7 +54,7 @@ import kotlin.coroutines.CoroutineContext
 fun ComposeView(children: @Composable() () -> Unit) {
     val rootRef = +memo { Ref<AndroidComposeView>() }
 
-    AndroidComposeView(ref=rootRef) {
+    AndroidComposeView(ref = rootRef) {
         var reference: CompositionReference? = null
         var cc: CompositionContext? = null
 
@@ -162,7 +162,7 @@ private fun WrapWithAmbients(
     // be resolved since the widgets may be composed without attaching to the RootViewImpl.
     // In Jetpack Compose, use the locale layout direction (i.e. layoutDirection came from
     // configuration) as a default layout direction.
-    val layoutDirection = when(configuration.value.layoutDirection) {
+    val layoutDirection = when (configuration.value.layoutDirection) {
         android.util.LayoutDirection.LTR -> LayoutDirection.Ltr
         android.util.LayoutDirection.RTL -> LayoutDirection.Rtl
         // API doc says Configuration#getLayoutDirection only returns LTR or RTL.
@@ -197,10 +197,16 @@ private fun WrapWithAmbients(
             FocusManagerAmbient.Provider(value = focusManager, children = children)
         },
         { children ->
-            TextInputServiceAmbient.Provider(value = composeView.textInputService, children = children)
+            TextInputServiceAmbient.Provider(
+                value = composeView.textInputService,
+                children = children
+            )
         },
         { children ->
-            FontLoaderAmbient.Provider(value = AndroidFontResourceLoader(context), children = children)
+            FontLoaderAmbient.Provider(
+                value = AndroidFontResourceLoader(context),
+                children = children
+            )
         },
         { children ->
             AutofillTreeAmbient.Provider(value = composeView.autofillTree, children = children)

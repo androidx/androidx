@@ -39,11 +39,11 @@ inline fun Draw(
 ) {
     // Hide the internals of DrawNode
     if (+ambient(InspectionMode)) {
-        RepaintBoundaryNode(name=null) {
-            DrawNode(onPaint=onPaint)
+        RepaintBoundaryNode(name = null) {
+            DrawNode(onPaint = onPaint)
         }
     } else {
-        DrawNode(onPaint=onPaint)
+        DrawNode(onPaint = onPaint)
     }
 }
 
@@ -63,13 +63,13 @@ inline fun Draw(
 ) {
     // Hide the internals of DrawNode
     if (+ambient(InspectionMode)) {
-        RepaintBoundaryNode(name=null) {
-            DrawNode(onPaintWithChildren=onPaint) {
+        RepaintBoundaryNode(name = null) {
+            DrawNode(onPaintWithChildren = onPaint) {
                 children()
             }
         }
     } else {
-        DrawNode(onPaintWithChildren=onPaint) {
+        DrawNode(onPaintWithChildren = onPaint) {
             children()
         }
     }

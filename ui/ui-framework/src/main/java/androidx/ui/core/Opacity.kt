@@ -34,7 +34,7 @@ inline fun Opacity(
     @FloatRange(from = 0.0, to = 1.0) opacity: Float,
     crossinline children: @Composable() () -> Unit
 ) {
-    RepaintBoundaryNode(name=null, opacity=opacity) {
+    RepaintBoundaryNode(name = null, opacity = opacity) {
         children()
     }
 }
