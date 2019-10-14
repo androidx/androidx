@@ -129,29 +129,29 @@ class TextSpanTest {
     }
 
     @Test
-    fun `toPlainText with neither text nor children`() {
+    fun `toString with neither text nor children`() {
         val textSpan = TextSpan()
 
-        assertThat(textSpan.toPlainText()).isEmpty()
+        assertThat(textSpan.toString()).isEmpty()
     }
 
     @Test
-    fun `toPlainText with text`() {
+    fun `toString with text`() {
         val string = "Hello"
         val textSpan = TextSpan(text = string)
 
-        assertThat(textSpan.toPlainText()).isEqualTo(string)
+        assertThat(textSpan.toString()).isEqualTo(string)
     }
 
     @Test
-    fun `toPlainText with children`() {
+    fun `toString with children`() {
         val string1 = "Hello"
         val string2 = "World"
         val textSpan1 = TextSpan(text = string1)
         val textSpan2 = TextSpan(text = string2)
         val textSpan = TextSpan(children = mutableListOf(textSpan1, textSpan2))
 
-        assertThat(textSpan.toPlainText()).isEqualTo(string1 + string2)
+        assertThat(textSpan.toString()).isEqualTo(string1 + string2)
     }
 
     // TODO(qqd): Figure out what to do with codeUnitAt.
