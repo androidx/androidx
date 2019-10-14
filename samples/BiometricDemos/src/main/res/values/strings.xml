@@ -16,14 +16,49 @@
   -->
 
 <resources>
-    <string name="activity_sample_code">Biometric Demo</string>
 
-    <string name="button_enable_biometric_with_crypto">Create keys (for crypto)</string>
+    <!-- BiometricPromptDemo -->
+    <string name="activity_sample_code">Biometric Demo</string>
+    <string name="label_choose_mode">Choose a mode for the biometric prompt:</string>
+    <string name="button_host_in_activity">Biometric prompt in a FragmentActivity</string>
+    <string name="button_host_in_fragment">Biometric prompt in a Fragment</string>
+    <string name="button_biometric_bound_demo">Biometric prompt with biometric bound secret keys</string>
+    <string name="button_credential_bound_demo">Biometric prompt with credential bound secret
+        keys</string>
+
+    <!-- BiometricPromptDemoActivityHost -->
+    <string name="label_host_type_activity">Currently hosted in a FragmentActivity</string>
+
+    <!-- BiometricPromptDemoFragmentHost -->
+    <string name="label_host_type_fragment">Currently hosted in a Fragment</string>
+
+    <!-- BiometricPromptDemoController -->
+    <string name="button_can_authenticate">Can authenticate</string>
     <string name="button_authenticate">Authenticate</string>
 
-    <string name="checkbox_text_use_crypto">Use crypto</string>
+    <string name="checkbox_text_require_confirmation">Require confirmation</string>
+    <string name="checkbox_text_allow_device_credential">Allow device credential</string>
 
     <string name="radio_text_persist_across_configuration_changes">Persist across configuration changes</string>
     <string name="radio_text_cancel_on_configuration_change">Cancel when configuration changes</string>
     <string name="radio_text_cancel_after_three_failures">Cancel after three failures</string>
+
+    <!-- Shared between multiple activities -->
+    <string name="button_generate_key">Generate key</string>
+    <string name="button_clear_log">Clear logs</string>
+
+    <!-- BiometricPromptDemoBiometricBoundKeyActivity -->
+    <string name="label_biometric_bound_key_activity_description">This activity shows how to handle
+        secret keys that require biometric authentication before each use.</string>
+    <string name="button_unlock_and_use_key">Unlock and use the key to encrypt test payload</string>
+
+    <!-- BiometricPromptDemoCredentialBoundKeyActivity -->
+    <string name="label_credential_bound_key_activity_description">This activity shows how to handle
+        secret keys that can only be used if the user is authenticated via secure lock screen or
+        PromptInfo.Builder#setDeviceCredentialAllowed(true). These keys might also have a
+        custom authentication validity duration, allowing the key to be used for some period of
+        time after the last authentication.</string>
+    <string name="button_unlock_key">Authenticate to unlock the key</string>
+    <string name="button_use_key">Use the key to encrypt test payload</string>
+
 </resources>

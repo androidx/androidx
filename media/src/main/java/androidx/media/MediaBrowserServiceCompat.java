@@ -17,7 +17,6 @@
 package androidx.media;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 import static androidx.media.MediaBrowserProtocol.CLIENT_MSG_ADD_SUBSCRIPTION;
 import static androidx.media.MediaBrowserProtocol.CLIENT_MSG_CONNECT;
@@ -177,8 +176,6 @@ public abstract class MediaBrowserServiceCompat extends Service {
     @RestrictTo(LIBRARY)
     public static final int RESULT_PROGRESS_UPDATE = 1;
 
-    /** @hide */
-    @RestrictTo(LIBRARY)
     @Retention(RetentionPolicy.SOURCE)
     @IntDef(flag = true, value = {RESULT_FLAG_OPTION_NOT_HANDLED,
             RESULT_FLAG_ON_LOAD_ITEM_NOT_IMPLEMENTED, RESULT_FLAG_ON_SEARCH_NOT_IMPLEMENTED})
@@ -1255,6 +1252,7 @@ public abstract class MediaBrowserServiceCompat extends Service {
     }
 
     @RequiresApi(21)
+    @SuppressWarnings("unchecked")
     static class ResultWrapper<T> {
         MediaBrowserService.Result mResultFwk;
 
@@ -1304,7 +1302,7 @@ public abstract class MediaBrowserServiceCompat extends Service {
      *
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX) // accessed by media2-session
     public void attachToBaseContext(Context base) {
         attachBaseContext(base);
     }
@@ -1422,7 +1420,7 @@ public abstract class MediaBrowserServiceCompat extends Service {
      * @param option option
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RestrictTo(LIBRARY)
     public void onSubscribe(String id, Bundle option) {
     }
 
@@ -1432,7 +1430,7 @@ public abstract class MediaBrowserServiceCompat extends Service {
      * @param id
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RestrictTo(LIBRARY)
     public void onUnsubscribe(String id) {
     }
 
@@ -1533,7 +1531,8 @@ public abstract class MediaBrowserServiceCompat extends Service {
      * Gets the session token, or null if it has not yet been created
      * or if it has been destroyed.
      */
-    public @Nullable MediaSessionCompat.Token getSessionToken() {
+    @Nullable
+    public MediaSessionCompat.Token getSessionToken() {
         return mSession;
     }
 
@@ -1563,7 +1562,8 @@ public abstract class MediaBrowserServiceCompat extends Service {
      *             {@link #onLoadChildren} or {@link #onLoadItem}.
      * @see MediaSessionManager#isTrustedForMediaControl(RemoteUserInfo)
      */
-    public final @NonNull RemoteUserInfo getCurrentBrowserInfo() {
+    @NonNull
+    public final RemoteUserInfo getCurrentBrowserInfo() {
         return mImpl.getCurrentBrowserInfo();
     }
 
@@ -1616,7 +1616,7 @@ public abstract class MediaBrowserServiceCompat extends Service {
      *            contain the information about the change.
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RestrictTo(LIBRARY_GROUP_PREFIX) // accessed by media2-session
     public void notifyChildrenChanged(@NonNull RemoteUserInfo remoteUserInfo,
             @NonNull String parentId, @NonNull Bundle options) {
         if (remoteUserInfo == null) {

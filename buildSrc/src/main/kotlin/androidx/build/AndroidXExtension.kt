@@ -19,23 +19,23 @@ package androidx.build
 import groovy.lang.Closure
 import org.gradle.api.Project
 import java.util.ArrayList
-import kotlin.properties.Delegates
 
 /**
  * Extension for [AndroidXPlugin].
  */
 open class AndroidXExtension(val project: Project) {
     var name: String? = null
-    var mavenVersion: Version? by Delegates.observable<Version?>(null) { _, _, new: Version? ->
-        project.version = new?.toString()
-    }
+    var mavenVersion: Version? = null
+        set(value) {
+            field = if (isSnapshotBuild()) value?.copy(extra = "-SNAPSHOT") else value
+            project.version = field as Any
+        }
     var mavenGroup: LibraryGroup? = null
     var description: String? = null
     var inceptionYear: String? = null
     var url = SUPPORT_URL
     private var licenses: MutableCollection<License> = ArrayList()
-    var publish = false
-    var failOnUncheckedWarnings = true
+    var publish: Publish = Publish.NONE
     var failOnDeprecationWarnings = true
 
     var compilationTarget: CompilationTarget = CompilationTarget.DEVICE
@@ -64,7 +64,7 @@ open class AndroidXExtension(val project: Project) {
         val ARCHITECTURE_URL =
                 "https://developer.android.com/topic/libraries/architecture/index.html"
         @JvmField
-        val SUPPORT_URL = "http://developer.android.com/tools/extras/support-library.html"
+        val SUPPORT_URL = "https://developer.android.com/jetpack/androidx"
         val DEFAULT_UNSPECIFIED_VERSION = "unspecified"
     }
 }
@@ -74,6 +74,13 @@ enum class CompilationTarget {
     HOST,
     /** This library is meant to run on an Android device. */
     DEVICE
+}
+
+enum class Publish {
+    NONE, SNAPSHOT_ONLY, SNAPSHOT_AND_RELEASE;
+
+    fun shouldRelease() = this == SNAPSHOT_AND_RELEASE
+    fun shouldPublish() = this == SNAPSHOT_ONLY || this == SNAPSHOT_AND_RELEASE
 }
 
 class License {

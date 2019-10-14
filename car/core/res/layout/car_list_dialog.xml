@@ -56,13 +56,22 @@ limitations under the License.
             <androidx.car.widget.PagedListView
                 android:id="@+id/list"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="0dp"
+                android:layout_weight="1"
                 android:theme="?attr/dialogListTheme"
                 app:gutter="none"
                 app:dividerStartMargin="@dimen/car_keyline_1"
                 app:dividerEndMargin="@dimen/car_keyline_1"
                 app:showPagedListViewDivider="true"
-                app:scrollBarEnabled="false" />
+                app:scrollBarVisibleIfNeeded="false" />
+
+            <Button
+                android:id="@+id/dismiss_button"
+                style="?attr/dialogButtonStyle"
+                android:layout_marginTop="@dimen/car_padding_2"
+                android:layout_marginBottom="@dimen/car_padding_2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
         </LinearLayout>
     </androidx.car.widget.ColumnCardView>
 

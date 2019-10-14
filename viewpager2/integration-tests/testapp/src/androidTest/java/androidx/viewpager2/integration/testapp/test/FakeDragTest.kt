@@ -18,6 +18,7 @@ package androidx.viewpager2.integration.testapp.test
 
 import android.content.res.Configuration.ORIENTATION_LANDSCAPE
 import android.content.res.Configuration.ORIENTATION_PORTRAIT
+import android.view.VelocityTracker
 import androidx.test.espresso.Espresso.onIdle
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.ViewAction
@@ -26,25 +27,35 @@ import androidx.test.espresso.action.ViewActions.swipeDown
 import androidx.test.espresso.action.ViewActions.swipeLeft
 import androidx.test.espresso.action.ViewActions.swipeRight
 import androidx.test.espresso.action.ViewActions.swipeUp
+import androidx.test.espresso.matcher.ViewMatchers.assertThat
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry.getInstrumentation
 import androidx.viewpager2.integration.testapp.FakeDragActivity
 import androidx.viewpager2.integration.testapp.R
+import androidx.viewpager2.integration.testapp.test.util.EventRecorder
+import androidx.viewpager2.integration.testapp.test.util.OnPageChangeCallbackEvent.OnPageScrollStateChangedEvent
+import androidx.viewpager2.integration.testapp.test.util.OnPageChangeCallbackEvent.OnPageScrolledEvent
+import androidx.viewpager2.integration.testapp.test.util.RetryException
+import androidx.viewpager2.integration.testapp.test.util.tryNTimes
 import androidx.viewpager2.widget.ViewPager2
 import androidx.viewpager2.widget.ViewPager2.ORIENTATION_HORIZONTAL
 import androidx.viewpager2.widget.ViewPager2.ORIENTATION_VERTICAL
+import androidx.viewpager2.widget.ViewPager2.SCROLL_STATE_DRAGGING
+import org.hamcrest.CoreMatchers.equalTo
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
+import java.lang.reflect.Field
+import kotlin.math.sign
 
 @LargeTest
 @RunWith(Parameterized::class)
 class FakeDragTest(private val config: TestConfig) :
     BaseTest<FakeDragActivity>(FakeDragActivity::class.java) {
     data class TestConfig(
-        @ViewPager2.Orientation val orientation: Int
+        val orientation: Int
     )
 
     companion object {
@@ -54,6 +65,18 @@ class FakeDragTest(private val config: TestConfig) :
             return listOf(ORIENTATION_HORIZONTAL, ORIENTATION_VERTICAL).map { orientation ->
                 TestConfig(orientation)
             }
+        }
+
+        val mFakeDragger: Field
+        val mVelocityTracker: Field
+
+        init {
+            mFakeDragger = ViewPager2::class.java.getDeclaredField("mFakeDragger")
+            mFakeDragger.isAccessible = true
+
+            val fakeDragClass = Class.forName("androidx.viewpager2.widget.FakeDrag")
+            mVelocityTracker = fakeDragClass.getDeclaredField("mVelocityTracker")
+            mVelocityTracker.isAccessible = true
         }
     }
 
@@ -83,15 +106,19 @@ class FakeDragTest(private val config: TestConfig) :
     }
 
     private fun fakeDragForward() {
-        onTouchpad().perform(swipeNext())
-        idleWatcher.waitForIdle()
-        onIdle()
+        ensureSettleDirection {
+            onTouchpad().perform(swipeNext())
+            idleWatcher.waitForIdle()
+            onIdle()
+        }
     }
 
     private fun fakeDragBackward() {
-        onTouchpad().perform(swipePrevious())
-        idleWatcher.waitForIdle()
-        onIdle()
+        ensureSettleDirection {
+            onTouchpad().perform(swipePrevious())
+            idleWatcher.waitForIdle()
+            onIdle()
+        }
     }
 
     private fun onTouchpad(): ViewInteraction {
@@ -100,7 +127,7 @@ class FakeDragTest(private val config: TestConfig) :
 
     private fun swipeNext(): ViewAction {
         return when (phoneOrientation) {
-            ORIENTATION_LANDSCAPE -> swipeDown()
+            ORIENTATION_LANDSCAPE -> swipeUp()
             ORIENTATION_PORTRAIT -> swipeLeft()
             else -> throw RuntimeException("Orientation should be landscape or portrait")
         }
@@ -108,9 +135,61 @@ class FakeDragTest(private val config: TestConfig) :
 
     private fun swipePrevious(): ViewAction {
         return when (phoneOrientation) {
-            ORIENTATION_LANDSCAPE -> swipeUp()
+            ORIENTATION_LANDSCAPE -> swipeDown()
             ORIENTATION_PORTRAIT -> swipeRight()
             else -> throw RuntimeException("Orientation should be landscape or portrait")
         }
     }
+
+    private fun ensureSettleDirection(swipeAction: () -> Unit) {
+        var recorder: EventRecorder
+        val initialPage = viewPager.currentItem
+        val resetViewPager = {
+            activityTestRule.runOnUiThread { viewPager.setCurrentItem(initialPage, false) }
+        }
+
+        tryNTimes(3, resetBlock = resetViewPager) {
+            recorder = EventRecorder().also { viewPager.registerOnPageChangeCallback(it) }
+            swipeAction()
+            if (recorder.swipeDirection != viewPager.fakeDragVelocityDirection) {
+                // Retry if VelocityTracker calculates velocity in opposite direction of the swipe
+                // http://issuetracker.google.com/37048172
+                throw RetryException("Fling was in opposite direction of the swipe")
+            }
+        }
+    }
+
+    private val ViewPager2.fakeDragVelocityDirection: Float
+        get() {
+            val fakeDragger = mFakeDragger.get(this)
+            val velocityTracker = mVelocityTracker.get(fakeDragger) as VelocityTracker
+            return if (orientation == ORIENTATION_HORIZONTAL) {
+                sign(velocityTracker.xVelocity)
+            } else {
+                sign(velocityTracker.yVelocity)
+            }
+        }
+
+    // region EventRecorder related extensions
+
+    private val OnPageScrolledEvent.exactPosition
+        get() = position + positionOffset
+
+    private val List<OnPageScrolledEvent>.deltaSigns
+        get() = zipWithNext().map { sign(it.second.exactPosition - it.first.exactPosition) }
+
+    private val EventRecorder.swipeDirection: Float
+        get() {
+            val startDraggingEvent = OnPageScrollStateChangedEvent(SCROLL_STATE_DRAGGING)
+            val swipeDeltaSigns = allEvents
+                .dropWhile { it != startDraggingEvent }.drop(1)
+                .takeWhile { it is OnPageScrolledEvent }
+                .map { it as OnPageScrolledEvent }
+                .deltaSigns
+                .distinct()
+            assertThat(swipeDeltaSigns.size, equalTo(1))
+            return swipeDeltaSigns.first()
+        }
+
+    // endregion
 }

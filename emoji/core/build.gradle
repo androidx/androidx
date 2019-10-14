@@ -1,6 +1,7 @@
 import static androidx.build.dependencies.DependenciesKt.*
 import androidx.build.LibraryGroups
 import androidx.build.LibraryVersions
+import androidx.build.Publish
 
 plugins {
     id("AndroidXPlugin")
@@ -21,8 +22,8 @@ dependencies {
     // treats this as local jar and package it inside the aar.
     api files(configurations.repackage)
 
-    api(project(":core"))
-    implementation(project(':collection'))
+    api("androidx.core:core:1.1.0")
+    implementation(project(':collection:collection'))
 
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
     androidTestImplementation(ANDROIDX_TEST_CORE)
@@ -31,7 +32,7 @@ dependencies {
     androidTestImplementation(ESPRESSO_CORE, libs.exclude_for_espresso)
     androidTestImplementation(MOCKITO_CORE, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
     androidTestImplementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
-    androidTestImplementation project(':internal-testutils')
+    androidTestImplementation project(':internal-testutils-runtime')
 }
 
 android {
@@ -41,8 +42,8 @@ android {
             manifest.srcFile 'AndroidManifest.xml'
             res.srcDirs += 'src/main/res-public'
             resources {
-                srcDirs = [fontDir.getAbsolutePath()]
-                includes = ["LICENSE_UNICODE", "LICENSE_OFL"]
+                srcDirs += [fontDir.getAbsolutePath()]
+                includes += ["LICENSE_UNICODE", "LICENSE_OFL"]
             }
         }
 
@@ -57,7 +58,7 @@ android {
 
 androidx {
     name = "Android Emoji Compat"
-    publish = true
+    publish = Publish.SNAPSHOT_AND_RELEASE
     mavenVersion = LibraryVersions.EMOJI
     mavenGroup = LibraryGroups.EMOJI
     inceptionYear = "2017"

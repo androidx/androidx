@@ -110,7 +110,7 @@ class MutableCollectionsTest(private val testConfig: TestConfig) : BaseTest() {
     }
 
     private fun Context.setCurrentPageContent(newContent: String) {
-        runOnUiThread {
+        runOnUiThreadSync {
             PageView.setPageText(PageView.findPageInActivity(activity)!!, newContent)
         }
     }
@@ -144,7 +144,7 @@ class MutableCollectionsTest(private val testConfig: TestConfig) : BaseTest() {
         val latch = CountDownLatch(1)
         viewPager.viewTreeObserver.addOnGlobalLayoutListener { latch.countDown() }
 
-        runOnUiThread { viewPager.adapter!!.notifyDataSetChanged() }
+        runOnUiThreadSync { viewPager.adapter!!.notifyDataSetChanged() }
         latch.await(5, TimeUnit.SECONDS)
     }
 

@@ -122,7 +122,7 @@ class PathKeyframes implements Keyframes<PointF> {
     }
 
     @Override
-    public Class getType() {
+    public Class<PointF> getType() {
         return PointF.class;
     }
 
@@ -231,7 +231,7 @@ class PathKeyframes implements Keyframes<PointF> {
     abstract static class IntKeyframesBase extends SimpleKeyframes<Integer>
             implements IntKeyframes {
         @Override
-        public Class<?> getType() {
+        public Class<Integer> getType() {
             return Integer.class;
         }
 
@@ -244,7 +244,7 @@ class PathKeyframes implements Keyframes<PointF> {
     abstract static class FloatKeyframesBase extends SimpleKeyframes<Float>
             implements FloatKeyframes {
         @Override
-        public Class<?> getType() {
+        public Class<Float> getType() {
             return Float.class;
         }
 

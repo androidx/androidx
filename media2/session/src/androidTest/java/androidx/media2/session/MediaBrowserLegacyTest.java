@@ -40,6 +40,7 @@ import androidx.media2.common.MediaMetadata;
 import androidx.media2.session.MediaBrowser.BrowserCallback;
 import androidx.media2.session.MediaLibraryService.LibraryParams;
 import androidx.media2.session.MockMediaBrowserServiceCompat.Proxy;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 
 import com.google.common.util.concurrent.ListenableFuture;
@@ -47,6 +48,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -57,14 +59,15 @@ import java.util.concurrent.atomic.AtomicReference;
 /**
  * Tests {@link MediaBrowser} with {@link MediaBrowserServiceCompat}.
  */
+@RunWith(AndroidJUnit4.class)
 @LargeTest
 public class MediaBrowserLegacyTest extends MediaSessionTestBase {
     private static final String TAG = "MediaBrowserLegacyTest";
 
     @Override
-    MediaController onCreateController(final @NonNull SessionToken token,
-            final @Nullable Bundle connectionHints,
-            final @Nullable TestBrowserCallback callback) throws InterruptedException {
+    MediaController onCreateController(@NonNull final SessionToken token,
+            @Nullable final Bundle connectionHints,
+            @Nullable final TestBrowserCallback callback) throws InterruptedException {
         final AtomicReference<MediaController> controller = new AtomicReference<>();
         sHandler.postAndSync(new Runnable() {
             @Override
@@ -136,14 +139,14 @@ public class MediaBrowserLegacyTest extends MediaSessionTestBase {
         final CountDownLatch latch = new CountDownLatch(1);
         MediaBrowser browser = createBrowser(false, null, new MediaBrowser.BrowserCallback() {
             @Override
-            public void onConnected(MediaController controller,
-                    SessionCommandGroup allowedCommands) {
+            public void onConnected(@NonNull MediaController controller,
+                    @NonNull SessionCommandGroup allowedCommands) {
                 fail("shouldn't allow connection");
                 super.onConnected(controller, allowedCommands);
             }
 
             @Override
-            public void onDisconnected(MediaController controller) {
+            public void onDisconnected(@NonNull MediaController controller) {
                 super.onDisconnected(controller);
                 latch.countDown();
             }
@@ -170,7 +173,7 @@ public class MediaBrowserLegacyTest extends MediaSessionTestBase {
             public BrowserRoot onGetRoot(String clientPackageName, int clientUid,
                     Bundle rootHints) {
                 assertEquals(mContext.getPackageName(), clientPackageName);
-                if (rootHints.keySet().contains(testMediaId)) {
+                if (rootHints != null && rootHints.keySet().contains(testMediaId)) {
                     // This should happen because getLibraryRoot() is called with testExtras.
                     return browserRootWithParam;
                 }

@@ -17,38 +17,33 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="MediaControlView_ad_skip_wait_time" msgid="3753651347621953793">"మీరు <xliff:g id="WAIT_TIME">%1$d</xliff:g> సెకన్ల తర్వాత ప్రకటనను దాటవేయవచ్చు"</string>
-    <string name="MediaControlView_ad_remaining_time" msgid="4641185767261790265">"ప్రకటన · <xliff:g id="REMAINING_TIME">%1$s</xliff:g> సమయం మిగిలి ఉంది"</string>
-    <string name="MediaControlView_ad_text" msgid="2490783095255206611">"ప్రకటనదారుని సందర్శించండి"</string>
-    <string name="MediaControlView_subtitle_off_text" msgid="949804436969069183">"ఆఫ్"</string>
-    <string name="MediaControlView_audio_track_text" msgid="2340583808541225049">"ఆడియో ట్రాక్"</string>
-    <string name="MediaControlView_audio_track_none_text" msgid="817557305803450833">"ఏదీ కాదు"</string>
-    <string name="MediaControlView_video_quality_auto_text" msgid="7452749534449961098">"స్వీయ"</string>
-    <string name="MediaControlView_playback_speed_text" msgid="1105249224734567460">"ప్లేబ్యాక్ వేగం"</string>
-    <string name="MediaControlView_playback_speed_normal" msgid="7872714147547253400">"సాధారణం"</string>
-    <string name="MediaControlView_time_placeholder" msgid="7649184546978021202">"00:00:00"</string>
-    <string name="MediaControlView_subtitle_track_number_text" msgid="6445854343333368791">"ట్రాక్ <xliff:g id="TRACK_NUMBER">%1$d</xliff:g>"</string>
-    <string name="MediaControlView_subtitle_track_number_and_lang_text" msgid="3614576494603298564">"ట్రాక్ <xliff:g id="TRACK_NUMBER">%1$d</xliff:g> - <xliff:g id="LANG">%2$s</xliff:g>"</string>
-    <string name="MediaControlView_audio_track_number_text" msgid="4631844386452675665">"ట్రాక్ <xliff:g id="AUDIO_NUMBER">%1$d</xliff:g>"</string>
-    <string name="mcv2_music_title_unknown_text" msgid="1872032310053783148">"పాట శీర్షిక తెలియదు"</string>
-    <string name="mcv2_music_artist_unknown_text" msgid="7281381729593359490">"కళాకారులు తెలియదు"</string>
-    <string name="mcv2_playback_error_text" msgid="8679540579604773521">"మీరు అభ్యర్థించిన అంశాన్ని ప్లే చేయడం సాధ్యపడలేదు"</string>
-    <string name="mcv2_error_dialog_button" msgid="4729185181004825701">"సరే"</string>
-    <string name="mcv2_back_button_desc" msgid="3840841379369664026">"వెనుకకు"</string>
-    <string name="mcv2_overflow_left_button_desc" msgid="725682068946773136">"మునుపటి బటన్ జాబితాకు తిరిగి వెళ్తుంది"</string>
-    <string name="mcv2_overflow_right_button_desc" msgid="5401011338060374430">"మరిన్ని బటన్‌లను చూడండి"</string>
-    <string name="mcv2_seek_bar_desc" msgid="9175754636904349811">"ప్లేబ్యాక్ ప్రోగ్రెస్"</string>
-    <string name="mcv2_settings_button_desc" msgid="4675082771216562040">"సెట్టింగ్‌లు"</string>
-    <string name="mcv2_video_quality_button_desc" msgid="107848339014314942">"వీడియో నాణ్యత ఎంపిక"</string>
-    <string name="mcv2_cc_is_on" msgid="2833324927553141685">"ఉపశీర్షికలు ఆన్‌లో ఉన్నాయి. వాటిని దాచడానికి క్లిక్ చేయండి."</string>
-    <string name="mcv2_cc_is_off" msgid="7400772738891461543">"ఉపశీర్షికలు ఆఫ్‌లో ఉన్నాయి. వాటిని చూపడానికి క్లిక్ చేయండి."</string>
-    <string name="mcv2_replay_button_desc" msgid="5757721145658648745">"మళ్లీ ప్లే చేస్తుంది"</string>
-    <string name="mcv2_play_button_desc" msgid="2034430009829871366">"ప్లే చేస్తుంది"</string>
-    <string name="mcv2_pause_button_desc" msgid="2793415992812537478">"పాజ్ చేస్తుంది"</string>
-    <string name="mcv2_previous_button_desc" msgid="4205311679318925158">"మునుపటి మీడియా"</string>
-    <string name="mcv2_next_button_desc" msgid="3605996804603066851">"తర్వాత మీడియా"</string>
-    <string name="mcv2_rewind_button_desc" msgid="6515357295855971772">"10 సెకన్లు రివైండ్ చేస్తుంది"</string>
-    <string name="mcv2_ffwd_button_desc" msgid="5666063447193984401">"30 సెకన్లు ఫార్వర్డ్ చేస్తుంది"</string>
-    <string name="mcv2_launch_button_desc" msgid="5169287275900160563">"ప్రారంభించే లింక్"</string>
-    <string name="mcv2_full_screen_button_desc" msgid="4283494133433525143">"పూర్తి స్క్రీన్"</string>
+    <string name="MediaControlView_subtitle_off_text" msgid="1845015629089301203">"ఆఫ్‌లో ఉంది"</string>
+    <string name="MediaControlView_audio_track_text" msgid="3532548952520840186">"ఆడియో ట్రాక్"</string>
+    <string name="MediaControlView_audio_track_none_text" msgid="549548876131348304">"ఏవీ లేవు"</string>
+    <string name="MediaControlView_playback_speed_text" msgid="8150324864582460559">"ప్లేబ్యాక్ వేగం"</string>
+    <string name="MediaControlView_playback_speed_normal" msgid="480754169449450083">"సాధారణం"</string>
+    <string name="MediaControlView_time_placeholder" msgid="4037918370566028719">"00:00:00"</string>
+    <string name="MediaControlView_subtitle_track_number_text" msgid="7764843500931103738">"ట్రాక్ <xliff:g id="TRACK_NUMBER">%1$d</xliff:g>"</string>
+    <string name="MediaControlView_subtitle_track_number_and_lang_text" msgid="4652664932814816449">"ట్రాక్ <xliff:g id="TRACK_NUMBER">%1$d</xliff:g> - <xliff:g id="LANG">%2$s</xliff:g>"</string>
+    <string name="MediaControlView_audio_track_number_text" msgid="4764598467753473351">"ట్రాక్ <xliff:g id="AUDIO_NUMBER">%1$d</xliff:g>"</string>
+    <string name="mcv2_non_music_title_unknown_text" msgid="5414417081368449210">"వీడియో పేరు తెలియదు"</string>
+    <string name="mcv2_music_title_unknown_text" msgid="6768779662371844918">"పాట పేరు తెలియదు"</string>
+    <string name="mcv2_music_artist_unknown_text" msgid="1475333855817994058">"కళాకారులు తెలియదు"</string>
+    <string name="mcv2_playback_error_text" msgid="1201919666572302119">"మీరు అభ్యర్థించిన అంశాన్ని ప్లే చేయడం సాధ్యపడలేదు"</string>
+    <string name="mcv2_error_dialog_button" msgid="1892680062375516133">"సరే"</string>
+    <string name="mcv2_back_button_desc" msgid="5728972524527278943">"వెనుకకు తీసుకెళ్తుంది"</string>
+    <string name="mcv2_overflow_left_button_desc" msgid="4619938179240477643">"మునుపటి బటన్ జాబితాకు తిరిగి వెళ్తుంది"</string>
+    <string name="mcv2_overflow_right_button_desc" msgid="3959698281663418432">"మరిన్ని బటన్‌లను చూడండి"</string>
+    <string name="mcv2_seek_bar_desc" msgid="2626125787370091731">"ప్లేబ్యాక్ ప్రోగ్రెస్"</string>
+    <string name="mcv2_settings_button_desc" msgid="8453746936008970620">"సెట్టింగ్‌లు"</string>
+    <string name="mcv2_cc_is_on" msgid="8890320846743698774">"ఉపశీర్షికలు ఆన్‌లో ఉన్నాయి. వాటిని దాచడానికి క్లిక్ చేయండి."</string>
+    <string name="mcv2_cc_is_off" msgid="6888583680833967030">"ఉపశీర్షికలు ఆఫ్‌లో ఉన్నాయి. వాటిని చూపడానికి క్లిక్ చేయండి."</string>
+    <string name="mcv2_replay_button_desc" msgid="3498082316888662782">"మళ్లీ ప్లే చేస్తుంది"</string>
+    <string name="mcv2_play_button_desc" msgid="1994649551115596877">"ప్లే చేస్తుంది"</string>
+    <string name="mcv2_pause_button_desc" msgid="997297527148989963">"పాజ్ చేస్తుంది"</string>
+    <string name="mcv2_previous_button_desc" msgid="5367141424871007842">"మునుపటి మీడియా"</string>
+    <string name="mcv2_next_button_desc" msgid="4799850472802157220">"తర్వాతి మీడియా"</string>
+    <string name="mcv2_rewind_button_desc" msgid="5725552141091554735">"10 సెకన్లు రివైండ్ చేస్తుంది"</string>
+    <string name="mcv2_ffwd_button_desc" msgid="7189466356853482980">"30 సెకన్లు ఫార్వర్డ్ చేస్తుంది"</string>
+    <string name="mcv2_full_screen_button_desc" msgid="6900438429115580036">"పూర్తి స్క్రీన్"</string>
 </resources>

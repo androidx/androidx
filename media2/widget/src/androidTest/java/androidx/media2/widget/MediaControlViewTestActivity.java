@@ -17,14 +17,18 @@
 package androidx.media2.widget;
 
 import android.os.Bundle;
+import android.view.SurfaceHolder;
+import android.view.SurfaceView;
 
 import androidx.fragment.app.FragmentActivity;
 import androidx.media2.widget.test.R;
 
 /**
- * A minimal application for {@link MediaControlViewTest}.
+ * A minimal application for testing {@link MediaControlView}.
  */
 public class MediaControlViewTestActivity extends FragmentActivity {
+    private SurfaceView mSurfaceView;
+
     /**
      * Called with the activity is first created.
      */
@@ -32,5 +36,11 @@ public class MediaControlViewTestActivity extends FragmentActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.mediacontrolviewtest_layout);
+        mSurfaceView = findViewById(R.id.surfaceview);
+    }
+
+    public SurfaceHolder getSurfaceHolder() {
+        if (mSurfaceView == null) return null;
+        return mSurfaceView.getHolder();
     }
 }

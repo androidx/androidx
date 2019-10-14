@@ -23,8 +23,8 @@ import androidx.preference.PreferenceFragmentCompat
 /**
  * Fragment that shows the settings for the "Multiple tests" option
  */
-class MultiTestSettingsFragment
-    : PreferenceFragmentCompat(), SharedPreferences.OnSharedPreferenceChangeListener {
+class MultiTestSettingsFragment :
+    PreferenceFragmentCompat(), SharedPreferences.OnSharedPreferenceChangeListener {
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         setPreferencesFromResource(R.xml.multi_test_settings, rootKey)

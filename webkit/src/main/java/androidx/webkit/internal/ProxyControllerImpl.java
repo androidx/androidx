@@ -23,6 +23,7 @@ import androidx.webkit.WebViewFeature;
 
 import org.chromium.support_lib_boundary.ProxyControllerBoundaryInterface;
 
+import java.util.List;
 import java.util.concurrent.Executor;
 
 /**
@@ -37,9 +38,17 @@ public class ProxyControllerImpl extends ProxyController {
         WebViewFeatureInternal webViewFeature =
                 WebViewFeatureInternal.getFeature(WebViewFeature.PROXY_OVERRIDE);
         if (webViewFeature.isSupportedByWebView()) {
-            getBoundaryInterface().setProxyOverride(
-                    proxyConfig.proxyRules().toArray(new String[0][]),
-                    proxyConfig.bypassRules().toArray(new String[0]), listener, executor);
+            List<ProxyConfig.ProxyRule> proxyRulesList = proxyConfig.getProxyRules();
+
+            // A 2D String array representation is required by reflection
+            String[][] proxyRulesArray = new String[proxyRulesList.size()][2];
+            for (int i = 0; i < proxyRulesList.size(); i++) {
+                proxyRulesArray[i][0] = proxyRulesList.get(0).getSchemeFilter();
+                proxyRulesArray[i][1] = proxyRulesList.get(0).getUrl();
+            }
+
+            getBoundaryInterface().setProxyOverride(proxyRulesArray,
+                    proxyConfig.getBypassRules().toArray(new String[0]), listener, executor);
         } else {
             throw WebViewFeatureInternal.getUnsupportedOperationException();
         }

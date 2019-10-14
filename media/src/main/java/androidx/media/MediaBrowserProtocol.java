@@ -15,6 +15,8 @@
  */
 package androidx.media;
 
+import static androidx.annotation.RestrictTo.Scope.LIBRARY;
+
 import android.os.Bundle;
 import android.support.v4.media.MediaBrowserCompat;
 
@@ -25,7 +27,7 @@ import androidx.annotation.RestrictTo;
  *
  * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
+@RestrictTo(LIBRARY)
 public class MediaBrowserProtocol {
 
     public static final String DATA_CALLBACK_TOKEN = "data_callback_token";

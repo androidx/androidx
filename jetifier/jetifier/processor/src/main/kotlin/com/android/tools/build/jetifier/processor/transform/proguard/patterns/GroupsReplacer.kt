@@ -25,8 +25,8 @@ import java.util.regex.Pattern
  * all possible replacements (Cartesian product) and returns multiple results.
  */
 class GroupsReplacer(
-        val pattern: Pattern,
-        private val groupsMap: List<(String) -> List<String>>
+    val pattern: Pattern,
+    private val groupsMap: List<(String) -> List<String>>
 ) {
 
     /**

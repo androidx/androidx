@@ -27,12 +27,14 @@ import javax.lang.model.type.TypeMirror
 /**
  * Binder provider class that has common functionality for observables.
  */
-abstract class ObservableQueryResultBinderProvider(val context: Context)
-    : QueryResultBinderProvider {
+abstract class ObservableQueryResultBinderProvider(val context: Context) :
+    QueryResultBinderProvider {
     protected abstract fun extractTypeArg(declared: DeclaredType): TypeMirror
-    protected abstract fun create(typeArg: TypeMirror,
-                                  resultAdapter: QueryResultAdapter?,
-                                  tableNames: Set<String>): QueryResultBinder
+    protected abstract fun create(
+        typeArg: TypeMirror,
+        resultAdapter: QueryResultAdapter?,
+        tableNames: Set<String>
+    ): QueryResultBinder
 
     final override fun provide(declared: DeclaredType, query: ParsedQuery): QueryResultBinder {
         val typeArg = extractTypeArg(declared)

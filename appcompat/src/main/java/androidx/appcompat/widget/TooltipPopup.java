@@ -33,6 +33,7 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.appcompat.R;
 
@@ -55,7 +56,7 @@ class TooltipPopup {
     private final int[] mTmpAnchorPos = new int[2];
     private final int[] mTmpAppPos = new int[2];
 
-    TooltipPopup(Context context) {
+    TooltipPopup(@NonNull Context context) {
         mContext = context;
 
         mContentView = LayoutInflater.from(mContext).inflate(R.layout.abc_tooltip, null);

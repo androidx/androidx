@@ -18,25 +18,28 @@ package androidx.appcompat.app
 
 import androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_YES
 import androidx.appcompat.testutils.NightModeUtils.assertConfigurationNightModeEquals
-import androidx.appcompat.testutils.NightModeUtils.setNightModeAndWaitForDestroy
+import androidx.appcompat.testutils.NightModeUtils.setNightModeAndWaitForRecreate
 
 import android.content.res.Configuration
+import androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_NO
 
 import androidx.appcompat.testutils.NightModeUtils.NightSetMode
+import androidx.appcompat.testutils.NightModeUtils.setNightModeAndWait
 import androidx.lifecycle.Lifecycle
-import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.rule.ActivityTestRule
 import androidx.testutils.LifecycleOwnerUtils
+import org.junit.After
 
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.junit.runners.Parameterized
 
 @LargeTest
-@RunWith(AndroidJUnit4::class)
-class NightModePreventOverrideConfigTestCase {
+@RunWith(Parameterized::class)
+class NightModePreventOverrideConfigTestCase(private val setMode: NightSetMode) {
 
     @get:Rule
     val activityRule = ActivityTestRule(
@@ -46,20 +49,19 @@ class NightModePreventOverrideConfigTestCase {
     )
 
     @Before
-    @Throws(Throwable::class)
     fun setup() {
         // By default we'll set the night mode to NO, which allows us to make better
         // assumptions in the test below.
         activityRule.runOnUiThread {
-            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+            AppCompatDelegate.setDefaultNightMode(MODE_NIGHT_NO)
         }
+
+        // Launch the test activity
+        activityRule.launchActivity(null)
     }
 
     @Test
-    @Throws(Throwable::class)
     fun testActivityRecreate() {
-        activityRule.launchActivity(null)
-
         // Activity should be able to reach fully resumed state in default NIGHT_NO.
         LifecycleOwnerUtils.waitUntilState(activityRule, Lifecycle.State.RESUMED)
         assertConfigurationNightModeEquals(
@@ -68,10 +70,10 @@ class NightModePreventOverrideConfigTestCase {
         )
 
         // Simulate the user setting night mode, which should force an activity recreate().
-        setNightModeAndWaitForDestroy(
+        setNightModeAndWaitForRecreate(
             activityRule,
             MODE_NIGHT_YES,
-            NightSetMode.LOCAL
+            setMode
         )
 
         // Activity should be able to reach fully resumed state again.
@@ -83,5 +85,24 @@ class NightModePreventOverrideConfigTestCase {
             Configuration.UI_MODE_NIGHT_YES,
             activityRule.activity.resources.configuration
         )
+    }
+
+    @After
+    @Throws(Throwable::class)
+    fun cleanup() {
+        activityRule.finishActivity()
+
+        // Reset the default night mode
+        setNightModeAndWait(
+            activityRule,
+            MODE_NIGHT_NO,
+            NightSetMode.DEFAULT
+        )
+    }
+
+    companion object {
+        @JvmStatic
+        @Parameterized.Parameters
+        fun data() = listOf(NightSetMode.DEFAULT, NightSetMode.LOCAL)
     }
 }

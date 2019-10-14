@@ -25,6 +25,7 @@ import androidx.room.Query
 import androidx.room.Relation
 import androidx.room.Transaction
 import androidx.room.ext.CommonTypeNames
+import androidx.room.ext.KotlinTypeNames
 import androidx.room.ext.LifecyclesTypeNames
 import androidx.room.ext.PagingTypeNames
 import androidx.room.ext.hasAnnotation
@@ -40,10 +41,10 @@ import androidx.room.solver.query.result.SingleEntityQueryResultAdapter
 import androidx.room.testing.TestInvocation
 import androidx.room.testing.TestProcessor
 import androidx.room.vo.Field
-import androidx.room.vo.WriteQueryMethod
 import androidx.room.vo.QueryMethod
 import androidx.room.vo.ReadQueryMethod
 import androidx.room.vo.Warning
+import androidx.room.vo.WriteQueryMethod
 import com.google.auto.common.MoreElements
 import com.google.auto.common.MoreTypes
 import com.google.common.truth.Truth.assertAbout
@@ -55,6 +56,7 @@ import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.ParameterizedTypeName
 import com.squareup.javapoet.TypeName
 import com.squareup.javapoet.TypeVariableName
+import createInterpreterFromEntitiesAndViews
 import createVerifierFromEntitiesAndViews
 import mockElementAndType
 import org.hamcrest.CoreMatchers.`is`
@@ -72,6 +74,7 @@ import org.mockito.Mockito
 import javax.lang.model.type.DeclaredType
 import javax.lang.model.type.TypeKind.INT
 import javax.lang.model.type.TypeMirror
+import javax.tools.JavaFileObject
 
 @Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN")
 @RunWith(Parameterized::class)
@@ -559,6 +562,48 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
     }
 
     @Test
+    fun testBadChannelReturnForQuery() {
+        singleQueryMethod<QueryMethod>(
+            """
+                @Query("select * from user")
+                abstract ${KotlinTypeNames.CHANNEL}<User> getUsersChannel();
+                """,
+            jfos = listOf(COMMON.CHANNEL)
+        ) { _, _ ->
+        }.failsToCompile()
+            .withErrorContaining(ProcessorErrors.invalidChannelType(
+                KotlinTypeNames.CHANNEL.toString()))
+    }
+
+    @Test
+    fun testBadSendChannelReturnForQuery() {
+        singleQueryMethod<QueryMethod>(
+            """
+                @Query("select * from user")
+                abstract ${KotlinTypeNames.SEND_CHANNEL}<User> getUsersChannel();
+                """,
+            jfos = listOf(COMMON.SEND_CHANNEL)
+        ) { _, _ ->
+        }.failsToCompile()
+            .withErrorContaining(ProcessorErrors.invalidChannelType(
+                KotlinTypeNames.SEND_CHANNEL.toString()))
+    }
+
+    @Test
+    fun testBadReceiveChannelReturnForQuery() {
+        singleQueryMethod<QueryMethod>(
+            """
+                @Query("select * from user")
+                abstract ${KotlinTypeNames.RECEIVE_CHANNEL}<User> getUsersChannel();
+                """,
+            jfos = listOf(COMMON.RECEIVE_CHANNEL)
+        ) { _, _ ->
+        }.failsToCompile()
+            .withErrorContaining(ProcessorErrors.invalidChannelType(
+                KotlinTypeNames.RECEIVE_CHANNEL.toString()))
+    }
+
+    @Test
     fun query_detectTransaction_select() {
         singleQueryMethod<ReadQueryMethod>(
                 """
@@ -605,11 +650,13 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
                 @Query("SELECT uid from User")
                 abstract public int[] foo();
                 """) { method, invocation ->
+            val queryInterpreter = createInterpreterFromEntitiesAndViews(invocation)
             assertThat(
                 QueryMethodProcessor(
                     baseContext = invocation.context,
                     containing = Mockito.mock(DeclaredType::class.java),
                     executableElement = method.element,
+                    queryInterpreter = queryInterpreter,
                     dbVerifier = null
                 ).context.logger.suppressedWarnings,
                 `is`(setOf(Warning.CURSOR_MISMATCH))
@@ -639,9 +686,9 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
             assertThat(listAdapter.rowAdapter, instanceOf(PojoRowAdapter::class.java))
             val pojoRowAdapter = listAdapter.rowAdapter as PojoRowAdapter
             assertThat(pojoRowAdapter.relationCollectors.size, `is`(1))
-            assertThat(pojoRowAdapter.relationCollectors[0].collectionTypeName, `is`(
+            assertThat(pojoRowAdapter.relationCollectors[0].relationTypeName, `is`(
                 ParameterizedTypeName.get(ClassName.get(ArrayList::class.java),
-                    COMMON.USER_TYPE_NAME)
+                    COMMON.USER_TYPE_NAME) as TypeName
             ))
         }.compilesWithoutError()
             .withWarningCount(0)
@@ -818,19 +865,37 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
                 ))
     }
 
+    @Test
+    fun pojo_expandProjection() {
+        if (!enableVerification) return
+        pojoTest("""
+                String uid;
+                String name;
+            """,
+            listOf("*"),
+            options = listOf("-Aroom.expandProjection=true")
+        ) { adapter, _, _ ->
+            adapter!!
+            assertThat(adapter.mapping.unusedColumns.size, `is`(0))
+            assertThat(adapter.mapping.unusedFields.size, `is`(0))
+        }!!.compilesWithoutWarnings()
+    }
+
     fun pojoTest(
         pojoFields: String,
         queryColumns: List<String>,
+        options: List<String> = emptyList(),
         handler: (PojoRowAdapter?, QueryMethod, TestInvocation) -> Unit
     ): CompileTester? {
         val assertion = singleQueryMethod<ReadQueryMethod>(
-                """
+            """
                 static class Pojo {
                     $pojoFields
                 }
                 @Query("SELECT ${queryColumns.joinToString(", ")} from User LIMIT 1")
                 abstract MyClass.Pojo getNameAndLastNames();
-                """
+            """,
+            options = options
         ) { parsedQuery, invocation ->
             val adapter = parsedQuery.queryResultBinder.adapter
             if (enableVerification) {
@@ -854,6 +919,8 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
 
     private fun <T : QueryMethod> singleQueryMethod(
         vararg input: String,
+        jfos: Iterable<JavaFileObject> = emptyList(),
+        options: List<String> = emptyList(),
         handler: (T, TestInvocation) -> Unit
     ): CompileTester {
         return assertAbout(JavaSourcesSubjectFactory.javaSources())
@@ -863,8 +930,9 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
                         "foo.bar.MyClass",
                         DAO_PREFIX + input.joinToString("\n") + DAO_SUFFIX
                     ), COMMON.LIVE_DATA, COMMON.COMPUTABLE_LIVE_DATA, COMMON.USER, COMMON.BOOK
-                )
+                ) + jfos
             )
+            .withCompilerOptions(options)
             .processedWith(TestProcessor.builder()
                 .forAnnotations(
                     Query::class, Dao::class, ColumnInfo::class,
@@ -888,13 +956,16 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
                     } else {
                         null
                     }
+                    val queryInterpreter = createInterpreterFromEntitiesAndViews(invocation)
                     val parser = QueryMethodProcessor(
                         baseContext = invocation.context,
                         containing = MoreTypes.asDeclared(owner.asType()),
                         executableElement = MoreElements.asExecutable(methods.first()),
+                        queryInterpreter = queryInterpreter,
                         dbVerifier = verifier
                     )
                     val parsedQuery = parser.process()
+                    @Suppress("UNCHECKED_CAST")
                     handler(parsedQuery as T, invocation)
                     true
                 }

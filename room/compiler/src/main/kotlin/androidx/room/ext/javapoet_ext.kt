@@ -71,6 +71,8 @@ object RoomTypeNames {
             ClassName.get(ROOM_PACKAGE, "RoomOpenHelper")
     val OPEN_HELPER_DELEGATE: ClassName =
             ClassName.get(ROOM_PACKAGE, "RoomOpenHelper.Delegate")
+    val OPEN_HELPER_VALIDATION_RESULT: ClassName =
+            ClassName.get(ROOM_PACKAGE, "RoomOpenHelper.ValidationResult")
     val TABLE_INFO: ClassName =
             ClassName.get("$ROOM_PACKAGE.util", "TableInfo")
     val TABLE_INFO_COLUMN: ClassName =
@@ -109,6 +111,7 @@ object LifecyclesTypeNames {
 object AndroidTypeNames {
     val CURSOR: ClassName = ClassName.get("android.database", "Cursor")
     val BUILD: ClassName = ClassName.get("android.os", "Build")
+    val CANCELLATION_SIGNAL: ClassName = ClassName.get("android.os", "CancellationSignal")
 }
 
 object CollectionTypeNames {
@@ -163,6 +166,10 @@ object KotlinTypeNames {
     val UNIT = ClassName.get("kotlin", "Unit")
     val CONTINUATION = ClassName.get("kotlin.coroutines", "Continuation")
     val COROUTINE_SCOPE = ClassName.get("kotlinx.coroutines", "CoroutineScope")
+    val CHANNEL = ClassName.get("kotlinx.coroutines.channels", "Channel")
+    val RECEIVE_CHANNEL = ClassName.get("kotlinx.coroutines.channels", "ReceiveChannel")
+    val SEND_CHANNEL = ClassName.get("kotlinx.coroutines.channels", "SendChannel")
+    val FLOW = ClassName.get("kotlinx.coroutines.flow", "Flow")
 }
 
 fun TypeName.defaultValue(): String {

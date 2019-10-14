@@ -53,10 +53,9 @@ class FtsTableInfoValidationWriter(val entity: FtsEntity) : ValidationWriter() {
                     dbParam, entity.tableName)
 
             beginControlFlow("if (!$L.equals($L))", expectedInfoVar, existingVar).apply {
-                addStatement("throw new $T($S + $L + $S + $L)",
-                        IllegalStateException::class.typeName(),
-                        "Migration didn't properly handle ${entity.tableName}" +
-                                "(${entity.element.qualifiedName}).\n Expected:\n",
+                addStatement("return new $T(false, $S + $L + $S + $L)",
+                        RoomTypeNames.OPEN_HELPER_VALIDATION_RESULT,
+                        "${entity.tableName}(${entity.element.qualifiedName}).\n Expected:\n",
                         expectedInfoVar, "\n Found:\n", existingVar)
             }
             endControlFlow()

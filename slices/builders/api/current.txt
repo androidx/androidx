@@ -37,7 +37,7 @@ package androidx.slice.builders {
     method public androidx.slice.builders.ListBuilder setAccentColor(@ColorInt int);
     method public androidx.slice.builders.ListBuilder setHeader(androidx.slice.builders.ListBuilder.HeaderBuilder);
     method public androidx.slice.builders.ListBuilder setIsError(boolean);
-    method public androidx.slice.builders.ListBuilder setKeywords(java.util.Set<java.lang.String>!);
+    method public androidx.slice.builders.ListBuilder setKeywords(java.util.Set<java.lang.String!>!);
     method public androidx.slice.builders.ListBuilder setLayoutDirection(int);
     method public androidx.slice.builders.ListBuilder setSeeMoreAction(android.app.PendingIntent);
     method public androidx.slice.builders.ListBuilder setSeeMoreAction(androidx.remotecallback.RemoteCallback);

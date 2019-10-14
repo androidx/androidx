@@ -22,6 +22,8 @@
              android:paddingRight="16dip">
 
     <TextView
+            xmlns:tools="http://schemas.android.com/tools"
+            tools:ignore="RtlCompat"
             android:id="@android:id/title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

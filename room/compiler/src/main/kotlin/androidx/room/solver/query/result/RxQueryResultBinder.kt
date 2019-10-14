@@ -50,7 +50,8 @@ class RxQueryResultBinder(
                 roomSQLiteQueryVar = roomSQLiteQueryVar,
                 inTransaction = inTransaction,
                 dbField = dbField,
-                scope = scope)
+                scope = scope,
+                cancellationSignalVar = "null")
         }.apply {
             if (canReleaseQuery) {
                 addMethod(createFinalizeMethod(roomSQLiteQueryVar))

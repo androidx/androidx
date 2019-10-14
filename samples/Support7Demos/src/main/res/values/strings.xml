@@ -136,6 +136,7 @@
     <string name="toolbar_fragment_pager">AppCompat/Toolbar/Toolbar Fragment ViewPager</string>
     <string name="toolbar_action_mode">AppCompat/Toolbar/Action Mode</string>
     <string name="toolbar_background_change">AppCompat/Toolbar/Toolbar Background Change</string>
+    <string name="toolbar_tall">AppCompat/Toolbar/Toolbar (tall)</string>
 
     <string name="dialog_usage">AppCompat/Dialog/Dialog Usage</string>
     <string name="dialog_title">My great dialog</string>
@@ -147,7 +148,11 @@
     <string name="sample_media_route_activity_local">Local Playback</string>
     <string name="sample_media_route_activity_presentation">Local Playback on Presentation Display</string>
 
+    <string name="nested_scrolling_rv_cl_appbar_activity">Nested Scrolling/RecyclerView CoordinatorLayout Appbar Activity</string>
+    <string name="nested_scrolling_nsv_cl_appbar_activity">Nested Scrolling/NestedScrollView CoordinatorLayout Appbar Activity</string>
+
     <string name="recycler_view">RecyclerView/RecyclerViewActivity</string>
+    <string name="recycler_view_smooth_scroll_by">RecyclerView/RecyclerView SmoothScrollBy Activity</string>
     <string name="recycler_view_stableid">RecyclerView/Stable Ids</string>
     <string name="pager_recycler_view">RecyclerView/PagerRecyclerViewActivity</string>
     <string name="animated_recycler_view">RecyclerView/Animated RecyclerView</string>
@@ -164,6 +169,8 @@
     <string name="checkbox_layout_dir">Layout Dir</string>
     <string name="checkbox_stack_from_end">Stack From End</string>
     <string name="checkbox_snap">Snap</string>
+    <string name="checkbox_accessibility_custom_actions">Accessibility Custom Action</string>
+    <string name="arbitrary_action_label">Arbitrary Action</string>
     <string name="enableAnimations">Animate</string>
     <string name="enablePredictiveAnimations">Predictive</string>
     <string name="enableInPlaceChange">In Place Change</string>

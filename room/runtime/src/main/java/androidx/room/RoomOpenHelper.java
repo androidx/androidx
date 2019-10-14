@@ -70,8 +70,20 @@ public class RoomOpenHelper extends SupportSQLiteOpenHelper.Callback {
 
     @Override
     public void onCreate(SupportSQLiteDatabase db) {
-        updateIdentity(db);
+        boolean isEmptyDatabase = hasEmptySchema(db);
         mDelegate.createAllTables(db);
+        if (!isEmptyDatabase) {
+            // A 0 version pre-populated database goes through the create path because the
+            // framework's SQLiteOpenHelper thinks the database was just created from scratch. If we
+            // find the database not to be empty, then it is a pre-populated, we must validate it to
+            // see if its suitable for usage.
+            ValidationResult result = mDelegate.onValidateSchema(db);
+            if (!result.isValid) {
+                throw new IllegalStateException("Pre-packaged database has an invalid schema: "
+                        + result.expectedFoundMsg);
+            }
+        }
+        updateIdentity(db);
         mDelegate.onCreate(db);
     }
 
@@ -86,7 +98,11 @@ public class RoomOpenHelper extends SupportSQLiteOpenHelper.Callback {
                 for (Migration migration : migrations) {
                     migration.migrate(db);
                 }
-                mDelegate.validateMigration(db);
+                ValidationResult result = mDelegate.onValidateSchema(db);
+                if (!result.isValid) {
+                    throw new IllegalStateException("Migration didn't properly handle: "
+                            + result.expectedFoundMsg);
+                }
                 mDelegate.onPostMigrate(db);
                 updateIdentity(db);
                 migrated = true;
@@ -123,8 +139,8 @@ public class RoomOpenHelper extends SupportSQLiteOpenHelper.Callback {
     }
 
     private void checkIdentity(SupportSQLiteDatabase db) {
-        String identityHash = null;
         if (hasRoomMasterTable(db)) {
+            String identityHash = null;
             Cursor cursor = db.query(new SimpleSQLiteQuery(RoomMasterTable.READ_QUERY));
             //noinspection TryFinallyCanBeTryWithResources
             try {
@@ -134,11 +150,21 @@ public class RoomOpenHelper extends SupportSQLiteOpenHelper.Callback {
             } finally {
                 cursor.close();
             }
-        }
-        if (!mIdentityHash.equals(identityHash) && !mLegacyHash.equals(identityHash)) {
-            throw new IllegalStateException("Room cannot verify the data integrity. Looks like"
-                    + " you've changed schema but forgot to update the version number. You can"
-                    + " simply fix this by increasing the version number.");
+            if (!mIdentityHash.equals(identityHash) && !mLegacyHash.equals(identityHash)) {
+                throw new IllegalStateException("Room cannot verify the data integrity. Looks like"
+                        + " you've changed schema but forgot to update the version number. You can"
+                        + " simply fix this by increasing the version number.");
+            }
+        } else {
+            // No room_master_table, this might an a pre-populated DB, we must validate to see if
+            // its suitable for usage.
+            ValidationResult result = mDelegate.onValidateSchema(db);
+            if (!result.isValid) {
+                throw new IllegalStateException("Pre-packaged database has an invalid schema: "
+                        + result.expectedFoundMsg);
+            }
+            mDelegate.onPostMigrate(db);
+            updateIdentity(db);
         }
     }
 
@@ -157,6 +183,17 @@ public class RoomOpenHelper extends SupportSQLiteOpenHelper.Callback {
         //noinspection TryFinallyCanBeTryWithResources
         try {
             return cursor.moveToFirst() && cursor.getInt(0) != 0;
+        } finally {
+            cursor.close();
+        }
+    }
+
+    private static boolean hasEmptySchema(SupportSQLiteDatabase db) {
+        Cursor cursor = db.query(
+                "SELECT count(*) FROM sqlite_master WHERE name != 'android_metadata'");
+        //noinspection TryFinallyCanBeTryWithResources
+        try {
+            return cursor.moveToFirst() && cursor.getInt(0) == 0;
         } finally {
             cursor.close();
         }
@@ -185,9 +222,25 @@ public class RoomOpenHelper extends SupportSQLiteOpenHelper.Callback {
          * Called after a migration run to validate database integrity.
          *
          * @param db The SQLite database.
+         *
+         * @deprecated Use {@link #onValidateSchema(SupportSQLiteDatabase)}
          */
-        protected abstract void validateMigration(SupportSQLiteDatabase db);
+        @Deprecated
+        protected void validateMigration(SupportSQLiteDatabase db) {
+            throw new UnsupportedOperationException("validateMigration is deprecated");
+        }
 
+        /**
+         * Called after a migration run or pre-package database copy to validate database integrity.
+         *
+         * @param db The SQLite database.
+         */
+        @SuppressWarnings("deprecation")
+        @NonNull
+        protected ValidationResult onValidateSchema(@NonNull SupportSQLiteDatabase db) {
+            validateMigration(db);
+            return new ValidationResult(true, null);
+        }
 
         /**
          * Called before migrations execute to perform preliminary work.
@@ -206,4 +259,19 @@ public class RoomOpenHelper extends SupportSQLiteOpenHelper.Callback {
         }
     }
 
+    /**
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    public static class ValidationResult {
+
+        public final boolean isValid;
+        @Nullable
+        public final String expectedFoundMsg;
+
+        public ValidationResult(boolean isValid, @Nullable String expectedFoundMsg) {
+            this.isValid = isValid;
+            this.expectedFoundMsg = expectedFoundMsg;
+        }
+    }
 }

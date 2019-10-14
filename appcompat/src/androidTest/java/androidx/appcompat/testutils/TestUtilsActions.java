@@ -205,15 +205,34 @@ public class TestUtilsActions {
             public void perform(UiController uiController, View view) {
                 uiController.loopMainThreadUntilIdle();
 
-                switch (activity.getRequestedOrientation()) {
-                    case ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE:
-                        activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-                        break;
-                    default:
-                        activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-                        break;
+                if (activity.getRequestedOrientation()
+                        == ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE) {
+                    activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+                } else {
+                    activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
                 }
 
+                uiController.loopMainThreadUntilIdle();
+            }
+        };
+    }
+
+    public static ViewAction setScreenOrientation(final Activity activity, final int orientation) {
+        return new ViewAction() {
+            @Override
+            public Matcher<View> getConstraints() {
+                return isDisplayed();
+            }
+
+            @Override
+            public String getDescription() {
+                return "Rotating screen orientation";
+            }
+
+            @Override
+            public void perform(UiController uiController, View view) {
+                uiController.loopMainThreadUntilIdle();
+                activity.setRequestedOrientation(orientation);
                 uiController.loopMainThreadUntilIdle();
             }
         };

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="5" by="lint 3.6.0-alpha12" client="gradle" variant="debug" version="3.6.0-alpha12">
+
+    <issue
+        id="UnknownNullness"
+        message="Should explicitly declare type here since implicit type does not specify nullness"
+        errorLine1="inline operator fun &lt;F, S> Pair&lt;F, S>.component1() = first"
+        errorLine2="                                      ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/util/Pair.kt"
+            line="32"
+            column="39"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Should explicitly declare type here since implicit type does not specify nullness"
+        errorLine1="inline operator fun &lt;F, S> Pair&lt;F, S>.component1() = first"
+        errorLine2="                                      ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/util/Pair.kt"
+            line="32"
+            column="39"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Should explicitly declare type here since implicit type does not specify nullness"
+        errorLine1="inline operator fun &lt;F, S> Pair&lt;F, S>.component2() = second"
+        errorLine2="                                      ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/util/Pair.kt"
+            line="43"
+            column="39"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Should explicitly declare type here since implicit type does not specify nullness"
+        errorLine1="inline operator fun &lt;F, S> Pair&lt;F, S>.component2() = second"
+        errorLine2="                                      ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/util/Pair.kt"
+            line="43"
+            column="39"/>
+    </issue>
+
+</issues>

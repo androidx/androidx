@@ -25,6 +25,7 @@ package androidx.vectordrawable.graphics.drawable {
     method public static void registerAnimationCallback(android.graphics.drawable.Drawable!, androidx.vectordrawable.graphics.drawable.Animatable2Compat.AnimationCallback!);
     method public void setAlpha(int);
     method public void setColorFilter(android.graphics.ColorFilter!);
+    method public void setColorFilter(int, android.graphics.PorterDuff.Mode!);
     method public void start();
     method public void stop();
     method public boolean unregisterAnimationCallback(androidx.vectordrawable.graphics.drawable.Animatable2Compat.AnimationCallback);

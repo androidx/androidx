@@ -42,10 +42,8 @@ class ClassSpecTest_FieldsSelector {
 
     @Test fun proGuard_fieldsSelector_modifiers() {
         ProGuardTester()
-            .forGivenPrefixes(
-            )
-            .forGivenTypesMap(
-            )
+            .forGivenPrefixes()
+            .forGivenTypesMap()
             .testThatGivenProGuard(
                 "-keep public class * { \n" +
                 "  public <fields>; \n" +

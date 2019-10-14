@@ -16,6 +16,13 @@
 
 import static androidx.build.dependencies.DependenciesKt.*
 
+buildscript {
+    // TODO: Remove this when this test app no longer depends on 1.0.0 of vectordrawable-animated.
+    // vectordrawable and vectordrawable-animated were accidentally using the same package name
+    // which is no longer valid in namespaced resource world.
+    project.ext['android.uniquePackageNames'] = false
+}
+
 plugins {
     id("AndroidXPlugin")
     id("com.android.application")
@@ -27,14 +34,13 @@ dependencies {
     implementation(project(":sqlite:sqlite-framework"))
     implementation(project(":room:room-runtime"))
     implementation(project(":arch:core-runtime"))
-    implementation(ARCH_LIFECYCLE_EXTENSIONS)
 
     androidTestAnnotationProcessor project(":room:room-compiler")
     androidTestAnnotationProcessor(AUTO_VALUE)
     androidTestAnnotationProcessor(AUTO_VALUE_PARCEL)
 
     androidTestImplementation(project(":room:room-testing"))
-    androidTestImplementation(ARCH_CORE_TESTING)
+    androidTestImplementation("androidx.arch.core:core-testing:2.0.1")
     androidTestImplementation(AUTO_VALUE_ANNOTATIONS)
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
     androidTestImplementation(ANDROIDX_TEST_CORE)

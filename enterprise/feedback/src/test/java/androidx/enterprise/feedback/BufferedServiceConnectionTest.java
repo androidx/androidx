@@ -61,7 +61,7 @@ public class BufferedServiceConnectionTest {
     private final DevicePolicyManager mDevicePolicyManager =
             (DevicePolicyManager) mContext.getSystemService(Context.DEVICE_POLICY_SERVICE);
 
-    private final Intent mBindIntent = new Intent();
+    private final Intent mBindIntent = new Intent().setPackage("test_package");
     private final int mFlags = 0;
 
     private final Executor mExecutor = new TestExecutor();

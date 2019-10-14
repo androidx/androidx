@@ -29,9 +29,9 @@ def get_studio_version_string(agp_version):
     # Remove the patch number as this is not used by Studio outside of stable releases
     major_version = prefix[:-2]
 
-    suffix = suffix.replace("alpha", "Alpha")
+    # Studio uses canary instead of alpha
+    suffix = suffix.replace("alpha", "Canary")
     suffix = suffix.replace("beta", "Beta")
-    suffix = suffix.replace("canary", "Canary")
     suffix = suffix.replace("rc", "RC")
 
     release_type = suffix[:-2]
@@ -47,7 +47,7 @@ def parse_studio_information(studio_version_string):
     """Finds the download link and corresponding information for a given Android Studio version"""
     with urlopen('https://developer.android.com/studio/archive.html') as response:
         html = response.read().decode("utf8")
-        inner_frame_url = re.findall(r'iframe src="(.*?)"', html, re.MULTILINE)[0]
+        inner_frame_url = 'https://developer.android.com' + re.findall(r'iframe src="(.*?)"', html, re.MULTILINE)[0]
         with urlopen(inner_frame_url) as response:
             html = response.read().decode("utf8")
             version_information = re.findall(studio_version_string + REGEX, html, re.MULTILINE)[0]

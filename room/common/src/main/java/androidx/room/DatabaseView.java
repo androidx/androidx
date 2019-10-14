@@ -26,24 +26,27 @@ import java.lang.annotation.Target;
  * <p>
  * The value of the annotation is a SELECT query used when the view is created.
  * <p>
- * The class will behave like normal POJOs when it is used in {@link Dao}. You can SELECT from
- * {@link DatabaseView} like {@link Entity}, but you can not INSERT, DELETE or UPDATE
- * {@link DatabaseView}. You can use {@link ColumnInfo} and {@link Embedded} inside.
- *
+ * The class will behave like normal POJO when it is used in a {@link Dao}. You can SELECT FROM a
+ * {@link DatabaseView} similar to an {@link Entity}, but you can not INSERT, DELETE or UPDATE
+ * into a {@link DatabaseView}.
+ * <p>
+ * Similar to an {@link Entity}, you can use {@link ColumnInfo} and {@link Embedded} inside to
+ * customize the data class.
  * <p>
  * Example:
  * <pre>
- * {@literal @}DatabaseView("SELECT id, last_name FROM User")
- * public class UserSummary {
- *     public long id;
- *     {@literal @}ColumnInfo(name = "last_name")
- *     public String lastName;
+ * {@literal @}DatabaseView(
+ *     "SELECT id, name, release_year FROM Song " +
+ *     "WHERE release_year >= 1990 AND release_year <= 1999")
+ * public class SongFrom90s {
+ *   long id;
+ *   String name;
+ *   {@literal @}ColumnInfo(name = "release_year")
+ *   private int releaseYear;
  * }
  * </pre>
- *
  * <p>
- * Views have to be registered to a RoomDatabase via {@link Database#views}. Room will automatically
- * create a backing SQLite view.
+ * Views have to be registered to a RoomDatabase via {@link Database#views}.
  *
  * @see Dao
  * @see Database

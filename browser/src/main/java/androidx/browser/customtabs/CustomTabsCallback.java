@@ -19,6 +19,9 @@ package androidx.browser.customtabs;
 import android.net.Uri;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
 import androidx.browser.customtabs.CustomTabsService.Relation;
 
 /**
@@ -58,6 +61,15 @@ public class CustomTabsCallback {
     public static final int TAB_HIDDEN = 6;
 
     /**
+     * Key for the extra included in {@link #onRelationshipValidationResult} {@code extras}
+     * containing whether the verification was performed while the device was online. This may be
+     * missing in cases verification was short cut.
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public static final String ONLINE_EXTRAS_KEY = "online";
+
+    /**
      * To be called when a navigation event happens.
      *
      * @param navigationEvent The code corresponding to the navigation event.
@@ -80,6 +92,15 @@ public class CustomTabsCallback {
      * @param args Arguments for the callback
      */
     public void extraCallback(String callbackName, Bundle args) {}
+
+    /**
+     * The same as {@link #extraCallback}, except that this method allows the custom tabs provider
+     * to return a result
+     */
+    @Nullable
+    public Bundle extraCallbackWithResult(@NonNull String callbackName, @Nullable Bundle args) {
+        return null;
+    }
 
     /**
      * Called when {@link CustomTabsSession} has requested a postMessage channel through

@@ -19,7 +19,8 @@
               android:gravity="center_vertical"
               android:layout_width="wrap_content"
               android:layout_height="match_parent"
-              android:paddingEnd="@dimen/abc_slice_grid_gutter">
+              android:paddingEnd="@dimen/abc_slice_grid_gutter"
+              android:paddingRight="@dimen/abc_slice_grid_gutter">
 
     <TextView android:id="@+id/text_see_more_count"
               android:layout_width="@dimen/abc_slice_small_image_size"

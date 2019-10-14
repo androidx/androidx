@@ -15,10 +15,13 @@
 -->
 
 <resources>
+    <!-- Default style for RecyclerView. Should be set in your theme. -->
+    <attr name="recyclerViewStyle" format="reference" />
+
     <declare-styleable name="RecyclerView">
         <!-- Class name of the Layout Manager to be used.
         <p/>
-        The class must extandroidx.recyclerview.widget.RecyclerViewView$LayoutManager
+        The class must ext androidx.recyclerview.widget.RecyclerViewView$LayoutManager
         and have either a default constructor or constructor with the signature
         (android.content.Context, android.util.AttributeSet, int, int).
          <p/>
@@ -34,6 +37,7 @@
 
         <attr name="android:orientation" />
         <attr name="android:descendantFocusability" />
+        <attr name="android:clipToPadding" />
         <attr name="spanCount" format="integer"/>
         <attr name="reverseLayout" format="boolean" />
         <attr name="stackFromEnd" format="boolean" />

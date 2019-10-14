@@ -86,4 +86,31 @@ public class WebSettingsAdapter {
         return mBoundaryInterface.getWillSuppressErrorPage();
     }
 
+    /**
+     * Adapter method for {@link androidx.webkit.WebSettingsCompat#setForceDark}.
+     */
+    public void setForceDark(int forceDarkMode) {
+        mBoundaryInterface.setForceDark(forceDarkMode);
+    }
+
+    /**
+     * Adapter method for {@link androidx.webkit.WebSettingsCompat#getForceDark}.
+     */
+    public int getForceDark() {
+        return mBoundaryInterface.getForceDark();
+    }
+
+    /**
+     * Adapter method for {@link androidx.webkit.WebSettingsCompat#setForceDarkStrategy}.
+     */
+    public void setForceDarkStrategy(int forceDarkStrategy) {
+        mBoundaryInterface.setForceDarkBehavior(forceDarkStrategy);
+    }
+
+    /**
+     * Adapter method for {@link androidx.webkit.WebSettingsCompat#getForceDarkStrategy}.
+     */
+    public int getForceDarkStrategy() {
+        return mBoundaryInterface.getForceDarkBehavior();
+    }
 }

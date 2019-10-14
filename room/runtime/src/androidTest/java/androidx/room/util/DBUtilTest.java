@@ -16,16 +16,20 @@
 
 package androidx.room.util;
 
+import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 import android.database.AbstractWindowedCursor;
 import android.database.Cursor;
+import android.os.CancellationSignal;
 
 import androidx.sqlite.db.SupportSQLiteDatabase;
 import androidx.sqlite.db.SupportSQLiteOpenHelper;
 import androidx.sqlite.db.framework.FrameworkSQLiteOpenHelperFactory;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 
 import org.junit.Test;
@@ -71,5 +75,12 @@ public class DBUtilTest {
                             }
                         }).build()
         ).getWritableDatabase();
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 16)
+    public void createCancellationSignal() {
+        CancellationSignal signal = DBUtil.createCancellationSignal();
+        assertThat(signal, notNullValue());
     }
 }

@@ -26,11 +26,13 @@ import android.net.NetworkCapabilities;
 import android.net.NetworkInfo;
 import android.os.Build;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.net.ConnectivityManagerCompat;
 import androidx.work.Logger;
 import androidx.work.impl.constraints.NetworkState;
+import androidx.work.impl.utils.taskexecutor.TaskExecutor;
 
 /**
  * A {@link ConstraintTracker} for monitoring network state.
@@ -60,9 +62,10 @@ public class NetworkStateTracker extends ConstraintTracker<NetworkState> {
     /**
      * Create an instance of {@link NetworkStateTracker}
      * @param context the application {@link Context}
+     * @param taskExecutor The internal {@link TaskExecutor} being used by WorkManager.
      */
-    public NetworkStateTracker(Context context) {
-        super(context);
+    public NetworkStateTracker(@NonNull Context context, @NonNull TaskExecutor taskExecutor) {
+        super(context, taskExecutor);
         mConnectivityManager =
                 (ConnectivityManager) mAppContext.getSystemService(Context.CONNECTIVITY_SERVICE);
         if (isNetworkCallbackSupported()) {
@@ -80,8 +83,17 @@ public class NetworkStateTracker extends ConstraintTracker<NetworkState> {
     @Override
     public void startTracking() {
         if (isNetworkCallbackSupported()) {
-            Logger.get().debug(TAG, "Registering network callback");
-            mConnectivityManager.registerDefaultNetworkCallback(mNetworkCallback);
+            try {
+                Logger.get().debug(TAG, "Registering network callback");
+                mConnectivityManager.registerDefaultNetworkCallback(mNetworkCallback);
+            } catch (IllegalArgumentException e) {
+                // This seems to be happening on NVIDIA Shield K1 Tablets.  Catching the
+                // exception since and moving on.  See b/136569342.
+                Logger.get().error(
+                        TAG,
+                        "Received exception while unregistering network callback",
+                        e);
+            }
         } else {
             Logger.get().debug(TAG, "Registering broadcast receiver");
             mAppContext.registerReceiver(mBroadcastReceiver,
@@ -141,7 +153,8 @@ public class NetworkStateTracker extends ConstraintTracker<NetworkState> {
         }
 
         @Override
-        public void onCapabilitiesChanged(Network network, NetworkCapabilities capabilities) {
+        public void onCapabilitiesChanged(
+                @NonNull Network network, @NonNull NetworkCapabilities capabilities) {
             // The Network parameter is unreliable when a VPN app is running - use active network.
             Logger.get().debug(
                     TAG,
@@ -150,7 +163,7 @@ public class NetworkStateTracker extends ConstraintTracker<NetworkState> {
         }
 
         @Override
-        public void onLost(Network network) {
+        public void onLost(@NonNull Network network) {
             Logger.get().debug(TAG, "Network connection lost");
             setState(getActiveNetworkState());
         }

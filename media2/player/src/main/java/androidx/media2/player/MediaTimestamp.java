@@ -16,11 +16,8 @@
 
 package androidx.media2.player;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
-import androidx.annotation.RestrictTo;
 
 /**
  * An immutable object that represents the linear correlation between the media time
@@ -43,7 +40,7 @@ public final class MediaTimestamp {
     /**
      * An unknown media timestamp value
      */
-    public static final @NonNull MediaTimestamp TIMESTAMP_UNKNOWN =
+    public static @NonNull final MediaTimestamp TIMESTAMP_UNKNOWN =
             new MediaTimestamp(-1, -1, 0.0f);
 
     /**
@@ -76,26 +73,20 @@ public final class MediaTimestamp {
     private final long mNanoTime;
     private final float mClockRate;
 
-    /** @hide */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
-    public MediaTimestamp(long mediaUs, long systemNs, float rate) {
+    /* package */ MediaTimestamp(long mediaUs, long systemNs, float rate) {
         mMediaTimeUs = mediaUs;
         mNanoTime = systemNs;
         mClockRate = rate;
     }
 
-    /** @hide */
     @RequiresApi(23)
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
-    MediaTimestamp(android.media.MediaTimestamp timestamp) {
+    /* package */ MediaTimestamp(android.media.MediaTimestamp timestamp) {
         mMediaTimeUs = timestamp.getAnchorMediaTimeUs();
         mNanoTime = timestamp.getAnchorSytemNanoTime();
         mClockRate = timestamp.getMediaClockRate();
     }
 
-    /** @hide */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
-    MediaTimestamp() {
+    /* package */ MediaTimestamp() {
         mMediaTimeUs = 0;
         mNanoTime = 0;
         mClockRate = 1.0f;
@@ -103,8 +94,12 @@ public final class MediaTimestamp {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj) return true;
-        if (obj == null || getClass() != obj.getClass()) return false;
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null || getClass() != obj.getClass()) {
+            return false;
+        }
 
         final MediaTimestamp that = (MediaTimestamp) obj;
         return (this.mMediaTimeUs == that.mMediaTimeUs)

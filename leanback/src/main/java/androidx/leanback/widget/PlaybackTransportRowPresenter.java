@@ -408,6 +408,7 @@ public class PlaybackTransportRowPresenter extends PlaybackRowPresenter {
             mThumbsBar.setVisibility(View.INVISIBLE);
         }
 
+        @SuppressWarnings("unchecked")
         void dispatchItemSelection() {
             if (!isSelected()) {
                 return;
@@ -566,6 +567,7 @@ public class PlaybackTransportRowPresenter extends PlaybackRowPresenter {
     private final OnControlClickedListener mOnControlClickedListener =
             new OnControlClickedListener() {
         @Override
+        @SuppressWarnings("unchecked")
         public void onControlClicked(Presenter.ViewHolder itemViewHolder, Object item,
                 ControlBarPresenter.BoundData data) {
             ViewHolder vh = ((BoundData) data).mRowViewHolder;
@@ -703,15 +705,13 @@ public class PlaybackTransportRowPresenter extends PlaybackRowPresenter {
         vh.mSecondaryControlsDock.addView(vh.mSecondaryControlsVh.view);
         ((PlaybackTransportRowView) vh.view.findViewById(R.id.transport_row))
                 .setOnUnhandledKeyListener(new PlaybackTransportRowView.OnUnhandledKeyListener() {
-                @Override
-                public boolean onUnhandledKey(KeyEvent event) {
-                    if (vh.getOnKeyListener() != null) {
-                        if (vh.getOnKeyListener().onKey(vh.view, event.getKeyCode(), event)) {
-                            return true;
+                    @Override
+                    public boolean onUnhandledKey(KeyEvent event) {
+                        if (vh.getOnKeyListener() != null) {
+                            return vh.getOnKeyListener().onKey(vh.view, event.getKeyCode(), event);
                         }
+                        return false;
                     }
-                    return false;
-                }
             });
     }
 
@@ -776,6 +776,7 @@ public class PlaybackTransportRowPresenter extends PlaybackRowPresenter {
      *
      * @param vh ViewHolder of PlaybackTransportRowPresenter
      */
+    @SuppressWarnings("unchecked")
     protected void onProgressBarClicked(ViewHolder vh) {
         if (vh != null) {
             if (vh.mPlayPauseAction == null) {

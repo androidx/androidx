@@ -32,11 +32,11 @@ public class ArrayObjectAdapter extends ObjectAdapter {
     private static final Boolean DEBUG = false;
     private static final String TAG = "ArrayObjectAdapter";
 
-    private final List mItems = new ArrayList<Object>();
+    private final List<Object> mItems = new ArrayList<>();
 
     // To compute the payload correctly, we should use a temporary list to hold all the old items.
     @SuppressWarnings("WeakerAccess") /* synthetic access */
-    final List mOldItems = new ArrayList<Object>();
+    final List<Object> mOldItems = new ArrayList<>();
 
     // Un modifiable version of mItems;
     private List mUnmodifiableItems;
@@ -123,6 +123,7 @@ public class ArrayObjectAdapter extends ObjectAdapter {
      * @param index The index at which the items should be inserted.
      * @param items A {@link Collection} of items to insert.
      */
+    @SuppressWarnings("unchecked")
     public void addAll(int index, Collection items) {
         int itemsCount = items.size();
         if (itemsCount == 0) {
@@ -212,6 +213,7 @@ public class ArrayObjectAdapter extends ObjectAdapter {
     /**
      * Gets a read-only view of the list of object of this ArrayObjectAdapter.
      */
+    @SuppressWarnings("unchecked")
     public <E> List<E> unmodifiableList() {
 
         // The mUnmodifiableItems will only be created once as long as the content of mItems has not
@@ -237,6 +239,7 @@ public class ArrayObjectAdapter extends ObjectAdapter {
      * @param callback Optional DiffCallback Object to compute the difference between the old data
      *                 set and new data set. When null, {@link #notifyChanged()} will be fired.
      */
+    @SuppressWarnings("unchecked")
     public void setItems(final List itemList, final DiffCallback callback) {
         if (callback == null) {
             // shortcut when DiffCallback is not provided

@@ -665,14 +665,15 @@ public class BrowseSupportFragment extends BaseSupportFragment {
      * against {@link PageRow}.
      */
     public final static class MainFragmentAdapterRegistry {
-        private final Map<Class, FragmentFactory> mItemToFragmentFactoryMapping = new HashMap<>();
+        private final Map<Class<?>, FragmentFactory> mItemToFragmentFactoryMapping =
+                new HashMap<>();
         private final static FragmentFactory sDefaultFragmentFactory = new ListRowFragmentFactory();
 
         public MainFragmentAdapterRegistry() {
             registerFragment(ListRow.class, sDefaultFragmentFactory);
         }
 
-        public void registerFragment(Class rowClass, FragmentFactory factory) {
+        public void registerFragment(Class<?> rowClass, FragmentFactory factory) {
             mItemToFragmentFactoryMapping.put(rowClass, factory);
         }
 
@@ -1256,7 +1257,7 @@ public class BrowseSupportFragment extends BaseSupportFragment {
                 // have been set. In either of those cases mFragmentAdapter will be null.
                 // This way we can maintain the invariant that mMainFragmentAdapter is never
                 // null and it avoids doing null checks all over the code.
-                mMainFragmentAdapter = new MainFragmentAdapter(null);
+                mMainFragmentAdapter = new MainFragmentAdapter<>(null);
                 mMainFragmentAdapter.setFragmentHost(new FragmentHostImpl());
             }
 

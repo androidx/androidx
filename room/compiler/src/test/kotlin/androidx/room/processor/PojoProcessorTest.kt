@@ -22,8 +22,10 @@ import androidx.room.parser.SQLTypeAffinity
 import androidx.room.processor.ProcessorErrors.CANNOT_FIND_GETTER_FOR_FIELD
 import androidx.room.processor.ProcessorErrors.CANNOT_FIND_TYPE
 import androidx.room.processor.ProcessorErrors.POJO_FIELD_HAS_DUPLICATE_COLUMN_NAME
-import androidx.room.processor.ProcessorErrors.RELATION_NOT_COLLECTION
+import androidx.room.processor.ProcessorErrors.junctionColumnWithoutIndex
 import androidx.room.processor.ProcessorErrors.relationCannotFindEntityField
+import androidx.room.processor.ProcessorErrors.relationCannotFindJunctionEntityField
+import androidx.room.processor.ProcessorErrors.relationCannotFindJunctionParentField
 import androidx.room.processor.ProcessorErrors.relationCannotFindParentEntityField
 import androidx.room.testing.TestInvocation
 import androidx.room.vo.CallType
@@ -49,6 +51,7 @@ import org.mockito.Mockito.doReturn
 import org.mockito.Mockito.mock
 import simpleRun
 import toJFO
+import java.io.File
 import javax.lang.model.element.Element
 import javax.tools.JavaFileObject
 
@@ -353,7 +356,7 @@ class PojoProcessorTest {
                 public User user;
                 """, COMMON.USER
         ) { _ ->
-        }.failsToCompile().withErrorContaining(RELATION_NOT_COLLECTION)
+        }.compilesWithoutError()
     }
 
     @Test
@@ -574,6 +577,266 @@ class PojoProcessorTest {
             assertThat(pojo.relations.first().entityField.name, `is`("uid"))
             assertThat(pojo.relations.first().parentField.name, `is`("id"))
         }.compilesWithoutError().withWarningCount(0)
+    }
+
+    @Test
+    fun relation_associateBy() {
+        val junctionEntity = """
+            package foo.bar;
+
+            import androidx.room.*;
+
+            @Entity(
+                primaryKeys = {"uid","friendId"},
+                foreignKeys = {
+                    @ForeignKey(
+                            entity = User.class,
+                            parentColumns = "uid",
+                            childColumns = "uid",
+                            onDelete = ForeignKey.CASCADE),
+                    @ForeignKey(
+                            entity = User.class,
+                            parentColumns = "uid",
+                            childColumns = "friendId",
+                            onDelete = ForeignKey.CASCADE),
+                },
+                indices = { @Index("uid"), @Index("friendId") }
+            )
+            public class UserFriendsXRef {
+                public int uid;
+                public int friendId;
+            }
+        """.toJFO("foo.bar.UserFriendsXRef")
+        singleRun(
+            """
+                int id;
+                @Relation(
+                    parentColumn = "id", entityColumn = "uid",
+                    associateBy = @Junction(
+                        value = UserFriendsXRef.class,
+                        parentColumn = "uid", entityColumn = "friendId")
+                )
+                public List<User> user;
+                """, COMMON.USER, junctionEntity
+        ) { pojo ->
+            assertThat(pojo.relations.size, `is`(1))
+            assertThat(pojo.relations.first().junction, notNullValue())
+            assertThat(pojo.relations.first().junction!!.parentField.columnName,
+                `is`("uid"))
+            assertThat(pojo.relations.first().junction!!.entityField.columnName,
+                `is`("friendId"))
+        }.compilesWithoutError().withWarningCount(0)
+    }
+
+    @Test
+    fun relation_associateBy_withView() {
+        val junctionEntity = """
+            package foo.bar;
+
+            import androidx.room.*;
+
+            @DatabaseView("SELECT 1, 2, FROM User")
+            public class UserFriendsXRefView {
+                public int uid;
+                public int friendId;
+            }
+        """.toJFO("foo.bar.UserFriendsXRefView")
+        singleRun(
+            """
+                int id;
+                @Relation(
+                    parentColumn = "id", entityColumn = "uid",
+                    associateBy = @Junction(
+                        value = UserFriendsXRefView.class,
+                        parentColumn = "uid", entityColumn = "friendId")
+                )
+                public List<User> user;
+                """, COMMON.USER, junctionEntity
+        ) { _ ->
+        }.compilesWithoutError().withWarningCount(0)
+    }
+
+    @Test
+    fun relation_associateBy_defaultColumns() {
+        val junctionEntity = """
+            package foo.bar;
+
+            import androidx.room.*;
+
+            @Entity(
+                primaryKeys = {"uid","friendId"},
+                foreignKeys = {
+                    @ForeignKey(
+                            entity = User.class,
+                            parentColumns = "uid",
+                            childColumns = "uid",
+                            onDelete = ForeignKey.CASCADE),
+                    @ForeignKey(
+                            entity = User.class,
+                            parentColumns = "uid",
+                            childColumns = "friendId",
+                            onDelete = ForeignKey.CASCADE),
+                },
+                indices = { @Index("uid"), @Index("friendId") }
+            )
+            public class UserFriendsXRef {
+                public int uid;
+                public int friendId;
+            }
+        """.toJFO("foo.bar.UserFriendsXRef")
+        singleRun(
+            """
+                int friendId;
+                @Relation(
+                    parentColumn = "friendId", entityColumn = "uid",
+                    associateBy = @Junction(UserFriendsXRef.class))
+                public List<User> user;
+                """, COMMON.USER, junctionEntity
+        ) { _ ->
+        }.compilesWithoutError().withWarningCount(0)
+    }
+
+    @Test
+    fun relation_associateBy_missingParentColumn() {
+        val junctionEntity = """
+            package foo.bar;
+
+            import androidx.room.*;
+
+            @Entity(primaryKeys = {"friendFrom","uid"})
+            public class UserFriendsXRef {
+                public int friendFrom;
+                public int uid;
+            }
+        """.toJFO("foo.bar.UserFriendsXRef")
+        singleRun(
+            """
+                int id;
+                @Relation(
+                    parentColumn = "id", entityColumn = "uid",
+                    associateBy = @Junction(UserFriendsXRef.class)
+                )
+                public List<User> user;
+                """, COMMON.USER, junctionEntity
+        ) { _ ->
+        }.failsToCompile().withErrorContaining(relationCannotFindJunctionParentField(
+            "foo.bar.UserFriendsXRef", "id", listOf("friendFrom", "uid")))
+    }
+
+    @Test
+    fun relation_associateBy_missingEntityColumn() {
+        val junctionEntity = """
+            package foo.bar;
+
+            import androidx.room.*;
+
+            @Entity(primaryKeys = {"friendA","friendB"})
+            public class UserFriendsXRef {
+                public int friendA;
+                public int friendB;
+            }
+        """.toJFO("foo.bar.UserFriendsXRef")
+        singleRun(
+            """
+                int friendA;
+                @Relation(
+                    parentColumn = "friendA", entityColumn = "uid",
+                    associateBy = @Junction(UserFriendsXRef.class)
+                )
+                public List<User> user;
+                """, COMMON.USER, junctionEntity
+        ) { _ ->
+        }.failsToCompile().withErrorContaining(relationCannotFindJunctionEntityField(
+            "foo.bar.UserFriendsXRef", "uid", listOf("friendA", "friendB"))
+        )
+    }
+
+    @Test
+    fun relation_associateBy_missingSpecifiedParentColumn() {
+        val junctionEntity = """
+            package foo.bar;
+
+            import androidx.room.*;
+
+            @Entity(primaryKeys = {"friendA","friendB"})
+            public class UserFriendsXRef {
+                public int friendA;
+                public int friendB;
+            }
+        """.toJFO("foo.bar.UserFriendsXRef")
+        singleRun(
+            """
+                int friendA;
+                @Relation(
+                    parentColumn = "friendA", entityColumn = "uid",
+                    associateBy = @Junction(
+                        value = UserFriendsXRef.class,
+                        parentColumn = "bad_col")
+                )
+                public List<User> user;
+                """, COMMON.USER, junctionEntity
+        ) { _ ->
+        }.failsToCompile().withErrorContaining(relationCannotFindJunctionParentField(
+            "foo.bar.UserFriendsXRef", "bad_col", listOf("friendA", "friendB"))
+        )
+    }
+
+    @Test
+    fun relation_associateBy_missingSpecifiedEntityColumn() {
+        val junctionEntity = """
+            package foo.bar;
+
+            import androidx.room.*;
+
+            @Entity(primaryKeys = {"friendA","friendB"})
+            public class UserFriendsXRef {
+                public int friendA;
+                public int friendB;
+            }
+        """.toJFO("foo.bar.UserFriendsXRef")
+        singleRun(
+            """
+                int friendA;
+                @Relation(
+                    parentColumn = "friendA", entityColumn = "uid",
+                    associateBy = @Junction(
+                        value = UserFriendsXRef.class,
+                        entityColumn = "bad_col")
+                )
+                public List<User> user;
+                """, COMMON.USER, junctionEntity
+        ) { _ ->
+        }.failsToCompile().withErrorContaining(relationCannotFindJunctionEntityField(
+            "foo.bar.UserFriendsXRef", "bad_col", listOf("friendA", "friendB"))
+        )
+    }
+
+    @Test
+    fun relation_associateBy_warnIndexOnJunctionColumn() {
+        val junctionEntity = """
+            package foo.bar;
+
+            import androidx.room.*;
+
+            @Entity
+            public class UserFriendsXRef {
+                @PrimaryKey(autoGenerate = true)
+                public long rowid;
+                public int uid;
+                public int friendId;
+            }
+        """.toJFO("foo.bar.UserFriendsXRef")
+        singleRun(
+            """
+                int friendId;
+                @Relation(
+                    parentColumn = "friendId", entityColumn = "uid",
+                    associateBy = @Junction(UserFriendsXRef.class))
+                public List<User> user;
+                """, COMMON.USER, junctionEntity
+        ) { _ ->
+        }.compilesWithoutError().withWarningCount(2).withWarningContaining(
+                junctionColumnWithoutIndex("foo.bar.UserFriendsXRef", "uid"))
     }
 
     @Test
@@ -1101,6 +1364,8 @@ class PojoProcessorTest {
                 """
                 package foo.bar;
                 import androidx.room.*;
+
+                @Entity(ignoredColumns = {"bar"})
                 public class ${MY_POJO.simpleName()} {
                     public String foo;
                     public String bar;
@@ -1109,7 +1374,6 @@ class PojoProcessorTest {
             val pojo = PojoProcessor.createFor(context = invocation.context,
                     element = invocation.typeElement(MY_POJO.toString()),
                     bindingScope = FieldProcessor.BindingScope.READ_FROM_CURSOR,
-                    ignoredColumns = setOf("bar"),
                     parent = null).process()
             assertThat(pojo.fields.find { it.name == "foo" }, notNullValue())
             assertThat(pojo.fields.find { it.name == "bar" }, nullValue())
@@ -1122,6 +1386,8 @@ class PojoProcessorTest {
             """
                 package foo.bar;
                 import androidx.room.*;
+
+                @Entity(ignoredColumns = {"bar"})
                 public class ${MY_POJO.simpleName()} {
                     private final String foo;
                     private final String bar;
@@ -1139,8 +1405,7 @@ class PojoProcessorTest {
             val pojo = PojoProcessor.createFor(context = invocation.context,
                 element = invocation.typeElement(MY_POJO.toString()),
                 bindingScope = FieldProcessor.BindingScope.READ_FROM_CURSOR,
-                ignoredColumns = setOf("bar"),
-                parent = null).process()
+                    parent = null).process()
             assertThat(pojo.fields.find { it.name == "foo" }, notNullValue())
             assertThat(pojo.fields.find { it.name == "bar" }, nullValue())
         }.compilesWithoutError()
@@ -1152,6 +1417,8 @@ class PojoProcessorTest {
             """
                 package foo.bar;
                 import androidx.room.*;
+
+                @Entity(ignoredColumns = {"bar"})
                 public class ${MY_POJO.simpleName()} {
                     private String foo;
                     private String bar;
@@ -1168,7 +1435,6 @@ class PojoProcessorTest {
             val pojo = PojoProcessor.createFor(context = invocation.context,
                 element = invocation.typeElement(MY_POJO.toString()),
                 bindingScope = FieldProcessor.BindingScope.READ_FROM_CURSOR,
-                ignoredColumns = setOf("bar"),
                 parent = null).process()
             assertThat(pojo.fields.find { it.name == "foo" }, notNullValue())
             assertThat(pojo.fields.find { it.name == "bar" }, nullValue())
@@ -1181,6 +1447,8 @@ class PojoProcessorTest {
                 """
                 package foo.bar;
                 import androidx.room.*;
+
+                @Entity(ignoredColumns = {"my_bar"})
                 public class ${MY_POJO.simpleName()} {
                     public String foo;
                     @ColumnInfo(name = "my_bar")
@@ -1190,7 +1458,6 @@ class PojoProcessorTest {
             val pojo = PojoProcessor.createFor(context = invocation.context,
                     element = invocation.typeElement(MY_POJO.toString()),
                     bindingScope = FieldProcessor.BindingScope.READ_FROM_CURSOR,
-                    ignoredColumns = setOf("my_bar"),
                     parent = null).process()
             assertThat(pojo.fields.find { it.name == "foo" }, notNullValue())
             assertThat(pojo.fields.find { it.name == "bar" }, nullValue())
@@ -1203,6 +1470,8 @@ class PojoProcessorTest {
                 """
                 package foo.bar;
                 import androidx.room.*;
+
+                @Entity(ignoredColumns = {"no_such_column"})
                 public class ${MY_POJO.simpleName()} {
                     public String foo;
                     public String bar;
@@ -1211,12 +1480,137 @@ class PojoProcessorTest {
             val pojo = PojoProcessor.createFor(context = invocation.context,
                     element = invocation.typeElement(MY_POJO.toString()),
                     bindingScope = FieldProcessor.BindingScope.READ_FROM_CURSOR,
-                    ignoredColumns = setOf("no_such_column"),
                     parent = null).process()
             assertThat(pojo.fields.find { it.name == "foo" }, notNullValue())
             assertThat(pojo.fields.find { it.name == "bar" }, notNullValue())
         }.failsToCompile().withErrorContaining(
                 ProcessorErrors.missingIgnoredColumns(listOf("no_such_column")))
+    }
+
+    @Test
+    fun noSetter_scopeBindStmt() {
+        simpleRun(
+            """
+                package foo.bar;
+                import androidx.room.*;
+                public class ${MY_POJO.simpleName()} {
+                    private String foo;
+                    private String bar;
+
+                    public String getFoo() { return foo; }
+                    public String getBar() { return bar; }
+                }
+                """.toJFO(MY_POJO.toString())) { invocation ->
+            PojoProcessor.createFor(context = invocation.context,
+                element = invocation.typeElement(MY_POJO.toString()),
+                bindingScope = FieldProcessor.BindingScope.BIND_TO_STMT,
+                parent = null).process()
+        }.compilesWithoutError()
+    }
+
+    @Test
+    fun noSetter_scopeTwoWay() {
+        simpleRun(
+            """
+                package foo.bar;
+                import androidx.room.*;
+                public class ${MY_POJO.simpleName()} {
+                    private String foo;
+                    private String bar;
+
+                    public String getFoo() { return foo; }
+                    public String getBar() { return bar; }
+                }
+                """.toJFO(MY_POJO.toString())) { invocation ->
+            PojoProcessor.createFor(context = invocation.context,
+                element = invocation.typeElement(MY_POJO.toString()),
+                bindingScope = FieldProcessor.BindingScope.TWO_WAY,
+                parent = null).process()
+        }.failsToCompile().withErrorContaining("Cannot find setter for field.")
+    }
+
+    @Test
+    fun noSetter_scopeReadFromCursor() {
+        simpleRun(
+            """
+                package foo.bar;
+                import androidx.room.*;
+                public class ${MY_POJO.simpleName()} {
+                    private String foo;
+                    private String bar;
+
+                    public String getFoo() { return foo; }
+                    public String getBar() { return bar; }
+                }
+                """.toJFO(MY_POJO.toString())) { invocation ->
+            PojoProcessor.createFor(context = invocation.context,
+                element = invocation.typeElement(MY_POJO.toString()),
+                bindingScope = FieldProcessor.BindingScope.READ_FROM_CURSOR,
+                parent = null).process()
+        }.failsToCompile().withErrorContaining("Cannot find setter for field.")
+    }
+
+    @Test
+    fun noGetter_scopeBindStmt() {
+        simpleRun(
+            """
+                package foo.bar;
+                import androidx.room.*;
+                public class ${MY_POJO.simpleName()} {
+                    private String foo;
+                    private String bar;
+
+                    public void setFoo(String foo) { this.foo = foo; }
+                    public void setBar(String bar) { this.bar = bar; }
+                }
+                """.toJFO(MY_POJO.toString())) { invocation ->
+            PojoProcessor.createFor(context = invocation.context,
+                element = invocation.typeElement(MY_POJO.toString()),
+                bindingScope = FieldProcessor.BindingScope.BIND_TO_STMT,
+                parent = null).process()
+        }.failsToCompile().withErrorContaining("Cannot find getter for field.")
+    }
+
+    @Test
+    fun noGetter_scopeTwoWay() {
+        simpleRun(
+            """
+                package foo.bar;
+                import androidx.room.*;
+                public class ${MY_POJO.simpleName()} {
+                    private String foo;
+                    private String bar;
+
+                    public void setFoo(String foo) { this.foo = foo; }
+                    public void setBar(String bar) { this.bar = bar; }
+                }
+                """.toJFO(MY_POJO.toString())) { invocation ->
+            PojoProcessor.createFor(context = invocation.context,
+                element = invocation.typeElement(MY_POJO.toString()),
+                bindingScope = FieldProcessor.BindingScope.TWO_WAY,
+                parent = null).process()
+        }.failsToCompile().withErrorContaining("Cannot find getter for field.")
+    }
+
+    @Test
+    fun noGetter_scopeReadCursor() {
+        simpleRun(
+            """
+                package foo.bar;
+                import androidx.room.*;
+                public class ${MY_POJO.simpleName()} {
+                    private String foo;
+                    private String bar;
+
+                    public void setFoo(String foo) { this.foo = foo; }
+                    public void setBar(String bar) { this.bar = bar; }
+                }
+                """.toJFO(MY_POJO.toString())) { invocation ->
+            PojoProcessor.createFor(context = invocation.context,
+                element = invocation.typeElement(MY_POJO.toString()),
+                bindingScope = FieldProcessor.BindingScope.READ_FROM_CURSOR,
+                parent = null).process()
+        }.compilesWithoutError()
     }
 
     private fun singleRun(
@@ -1232,7 +1626,7 @@ class PojoProcessorTest {
     private fun singleRun(
         code: String,
         vararg jfos: JavaFileObject,
-        classLoader: ClassLoader = javaClass.classLoader,
+        classpathFiles: Set<File> = emptySet(),
         handler: (Pojo, TestInvocation) -> Unit
     ): CompileTester {
         val pojoCode = """
@@ -1243,7 +1637,7 @@ class PojoProcessorTest {
         return singleRunFullClass(
             code = pojoCode,
             jfos = *jfos,
-            classLoader = classLoader,
+            classpathFiles = classpathFiles,
             handler = handler
         )
     }
@@ -1251,16 +1645,16 @@ class PojoProcessorTest {
     private fun singleRunFullClass(
         code: String,
         vararg jfos: JavaFileObject,
-        classLoader: ClassLoader = javaClass.classLoader,
+        classpathFiles: Set<File> = emptySet(),
         handler: (Pojo, TestInvocation) -> Unit
     ): CompileTester {
         val pojoJFO = code.toJFO(MY_POJO.toString())
         val all = (jfos.toList() + pojoJFO).toTypedArray()
-        return simpleRun(*all, classLoader = classLoader) { invocation ->
+        return simpleRun(*all, classpathFiles = classpathFiles) { invocation ->
             handler.invoke(
                 PojoProcessor.createFor(context = invocation.context,
                         element = invocation.typeElement(MY_POJO.toString()),
-                        bindingScope = FieldProcessor.BindingScope.READ_FROM_CURSOR,
+                        bindingScope = FieldProcessor.BindingScope.TWO_WAY,
                         parent = null).process(),
                 invocation
             )

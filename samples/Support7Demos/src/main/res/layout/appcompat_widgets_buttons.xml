@@ -102,6 +102,21 @@
             android:text="Button (borderless + colored) disabled" />
 
         <Button
+            style="@style/Widget.AppCompat.Button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Button (tinted)"
+            app:backgroundTint="@color/background_tint" />
+
+        <Button
+            style="@style/Widget.AppCompat.Button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:enabled="false"
+            android:text="Button (tinted) disabled"
+            app:backgroundTint="@color/background_tint" />
+
+        <Button
             style="@style/Widget.AppCompat.Button.Colored"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -119,7 +134,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Button (colored + tinted)"
-            app:backgroundTint="#00FF00" />
+            app:backgroundTint="@color/background_tint" />
 
         <Button
             style="@style/Widget.AppCompat.Button.Colored"
@@ -127,7 +142,7 @@
             android:layout_height="wrap_content"
             android:enabled="false"
             android:text="Button (colored + tinted) disabled"
-            app:backgroundTint="#00FF00" />
+            app:backgroundTint="@color/background_tint" />
 
         <RatingBar
             android:layout_width="wrap_content"

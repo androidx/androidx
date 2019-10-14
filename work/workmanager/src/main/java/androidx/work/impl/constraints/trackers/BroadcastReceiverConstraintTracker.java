@@ -24,6 +24,7 @@ import android.content.IntentFilter;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.work.Logger;
+import androidx.work.impl.utils.taskexecutor.TaskExecutor;
 
 /**
  * A {@link ConstraintTracker} with a {@link BroadcastReceiver} for monitoring constraint changes.
@@ -44,8 +45,10 @@ public abstract class BroadcastReceiverConstraintTracker<T> extends ConstraintTr
         }
     };
 
-    public BroadcastReceiverConstraintTracker(Context context) {
-        super(context);
+    public BroadcastReceiverConstraintTracker(
+            @NonNull Context context,
+            @NonNull TaskExecutor taskExecutor) {
+        super(context, taskExecutor);
     }
 
     /**

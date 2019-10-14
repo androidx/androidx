@@ -25,6 +25,7 @@ import static androidx.media2.session.LibraryResult.RESULT_ERROR_INVALID_STATE;
 import static androidx.media2.session.LibraryResult.RESULT_SUCCESS;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 import android.content.ComponentName;
 import android.content.Context;
@@ -32,6 +33,8 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
 
+import androidx.annotation.GuardedBy;
+import androidx.annotation.NonNull;
 import androidx.media2.common.MediaItem;
 import androidx.media2.common.MediaMetadata;
 import androidx.media2.session.MediaLibraryService.MediaLibrarySession.MediaLibrarySessionCallback;
@@ -44,8 +47,6 @@ import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-
-import javax.annotation.concurrent.GuardedBy;
 
 /**
  * Mock implementation of {@link MediaLibraryService} for testing.
@@ -119,7 +120,7 @@ public class MockMediaLibraryService extends MediaLibraryService {
     }
 
     @Override
-    public MediaLibrarySession onGetSession(ControllerInfo controllerInfo) {
+    public MediaLibrarySession onGetSession(@NonNull ControllerInfo controllerInfo) {
         TestServiceRegistry registry = TestServiceRegistry.getInstance();
         TestServiceRegistry.OnGetSessionHandler onGetSessionHandler =
                 registry.getOnGetSessionHandler();
@@ -174,16 +175,18 @@ public class MockMediaLibraryService extends MediaLibraryService {
     private class TestLibrarySessionCallback extends MediaLibrarySessionCallback {
         private String mLastQuery;
 
+        @NonNull
         @Override
-        public LibraryResult onGetLibraryRoot(MediaLibrarySession session,
-                ControllerInfo controller, LibraryParams params) {
+        public LibraryResult onGetLibraryRoot(@NonNull MediaLibrarySession session,
+                @NonNull ControllerInfo controller, LibraryParams params) {
             assertLibraryParams(params);
             return new LibraryResult(RESULT_SUCCESS, ROOT_ITEM, ROOT_PARAMS);
         }
 
+        @NonNull
         @Override
-        public LibraryResult onGetItem(MediaLibrarySession session, ControllerInfo controller,
-                String mediaId) {
+        public LibraryResult onGetItem(@NonNull MediaLibrarySession session,
+                @NonNull ControllerInfo controller, @NonNull String mediaId) {
             if (MEDIA_ID_GET_ITEM.equals(mediaId)) {
                 return new LibraryResult(RESULT_SUCCESS, createMediaItem(mediaId), null);
             } else {
@@ -191,10 +194,11 @@ public class MockMediaLibraryService extends MediaLibraryService {
             }
         }
 
+        @NonNull
         @Override
-        public LibraryResult onGetChildren(MediaLibrarySession session,
-                ControllerInfo controller, String parentId, int page, int pageSize,
-                LibraryParams params) {
+        public LibraryResult onGetChildren(@NonNull MediaLibrarySession session,
+                @NonNull ControllerInfo controller, @NonNull String parentId, int page,
+                int pageSize, LibraryParams params) {
             assertLibraryParams(params);
             if (PARENT_ID.equals(parentId)) {
                 return new LibraryResult(RESULT_SUCCESS,
@@ -207,8 +211,8 @@ public class MockMediaLibraryService extends MediaLibraryService {
         }
 
         @Override
-        public int onSearch(MediaLibrarySession session,
-                final ControllerInfo controllerInfo, final String query,
+        public int onSearch(@NonNull MediaLibrarySession session,
+                @NonNull final ControllerInfo controllerInfo, @NonNull final String query,
                 final LibraryParams params) {
             assertLibraryParams(params);
             mLastQuery = query;
@@ -217,13 +221,13 @@ public class MockMediaLibraryService extends MediaLibraryService {
                         params);
             } else if (SEARCH_QUERY_TAKES_TIME.equals(query)) {
                 // Searching takes some time. Notify after 5 seconds.
-                Executors.newSingleThreadScheduledExecutor().schedule(new Runnable() {
+                assertNotNull(Executors.newSingleThreadScheduledExecutor().schedule(new Runnable() {
                     @Override
                     public void run() {
                         mSession.notifySearchResultChanged(
                                 controllerInfo, query, SEARCH_RESULT_COUNT, params);
                     }
-                }, SEARCH_TIME_IN_MS, TimeUnit.MILLISECONDS);
+                }, SEARCH_TIME_IN_MS, TimeUnit.MILLISECONDS));
             } else if (SEARCH_QUERY_EMPTY_RESULT.equals(query)) {
                 mSession.notifySearchResultChanged(controllerInfo, query, 0, params);
             } else {
@@ -232,10 +236,11 @@ public class MockMediaLibraryService extends MediaLibraryService {
             return RESULT_SUCCESS;
         }
 
+        @NonNull
         @Override
-        public LibraryResult onGetSearchResult(MediaLibrarySession session,
-                ControllerInfo controllerInfo, String query, int page, int pageSize,
-                LibraryParams params) {
+        public LibraryResult onGetSearchResult(@NonNull MediaLibrarySession session,
+                @NonNull ControllerInfo controllerInfo, @NonNull String query, int page,
+                int pageSize, LibraryParams params) {
             assertLibraryParams(params);
             if (!TextUtils.equals(mLastQuery, query)) {
                 // Ensure whether onSearch() has called before

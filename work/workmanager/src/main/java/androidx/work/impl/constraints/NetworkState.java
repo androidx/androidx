@@ -16,6 +16,8 @@
 
 package androidx.work.impl.constraints;
 
+import androidx.annotation.NonNull;
+
 /**
  * Stores information about network state.
  */
@@ -96,6 +98,7 @@ public class NetworkState {
         return result;
     }
 
+    @NonNull
     @Override
     public String toString() {
         return String.format("[ Connected=%b Validated=%b Metered=%b NotRoaming=%b ]",

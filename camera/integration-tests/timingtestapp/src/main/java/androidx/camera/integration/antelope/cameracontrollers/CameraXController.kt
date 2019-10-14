@@ -16,19 +16,19 @@
 
 package androidx.camera.integration.antelope.cameracontrollers
 
-import androidx.lifecycle.LifecycleOwner
 import android.graphics.SurfaceTexture
 import android.hardware.camera2.CameraCaptureSession
 import android.hardware.camera2.CameraDevice
 import android.hardware.camera2.CaptureRequest
 import android.view.ViewGroup
-import androidx.camera.integration.antelope.CameraParams
 import androidx.camera.camera2.Camera2Config
 import androidx.camera.core.CameraX
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCaptureConfig
 import androidx.camera.core.Preview
 import androidx.camera.core.PreviewConfig
+import androidx.camera.core.impl.utils.executor.CameraXExecutors
+import androidx.camera.integration.antelope.CameraParams
 import androidx.camera.integration.antelope.CameraXImageAvailableListener
 import androidx.camera.integration.antelope.CustomLifecycle
 import androidx.camera.integration.antelope.FocusMode
@@ -37,6 +37,7 @@ import androidx.camera.integration.antelope.MainActivity.Companion.logd
 import androidx.camera.integration.antelope.PrefHelper
 import androidx.camera.integration.antelope.TestConfig
 import androidx.camera.integration.antelope.TestType
+import androidx.lifecycle.LifecycleOwner
 
 /**
  * Opens the camera using the Camera X API and starts the open counter. The open call will complete
@@ -198,7 +199,10 @@ internal fun cameraXTakePicture(
     logd("Capture timer started: " + params.timer.captureStart)
     activity.runOnUiThread {
         params.cameraXImageCaptureUseCase
-            .takePicture(CameraXImageAvailableListener(activity, params, testConfig))
+            .takePicture(
+                CameraXExecutors.mainThreadExecutor(),
+                CameraXImageAvailableListener(activity, params, testConfig)
+            )
     }
 }
 

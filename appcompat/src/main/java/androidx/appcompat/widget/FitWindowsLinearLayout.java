@@ -23,6 +23,8 @@ import android.graphics.Rect;
 import android.util.AttributeSet;
 import android.widget.LinearLayout;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 
 /**
@@ -33,11 +35,11 @@ public class FitWindowsLinearLayout extends LinearLayout implements FitWindowsVi
 
     private OnFitSystemWindowsListener mListener;
 
-    public FitWindowsLinearLayout(Context context) {
+    public FitWindowsLinearLayout(@NonNull Context context) {
         super(context);
     }
 
-    public FitWindowsLinearLayout(Context context, AttributeSet attrs) {
+    public FitWindowsLinearLayout(@NonNull Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
     }
 

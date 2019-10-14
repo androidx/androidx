@@ -21,14 +21,18 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.os.SystemClock;
 
+import androidx.annotation.NonNull;
 import androidx.media2.common.MediaItem;
 import androidx.media2.common.ParcelImplListSlice;
+import androidx.media2.common.SessionPlayer.TrackInfo;
+import androidx.media2.common.VideoSize;
 import androidx.versionedparcelable.CustomVersionedParcelable;
 import androidx.versionedparcelable.NonParcelField;
 import androidx.versionedparcelable.ParcelField;
 import androidx.versionedparcelable.VersionedParcelable;
 import androidx.versionedparcelable.VersionedParcelize;
 
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -50,8 +54,10 @@ class ConnectionResult extends CustomVersionedParcelable {
     PendingIntent mSessionActivity;
     @ParcelField(3)
     int mPlayerState;
-    @ParcelField(4)
+    @NonParcelField
     MediaItem mCurrentMediaItem;
+    @ParcelField(4)
+    MediaItem mParcelableCurrentMediaItem;
     @ParcelField(5)
     long mPositionEventTimeMs;
     @ParcelField(6)
@@ -78,6 +84,19 @@ class ConnectionResult extends CustomVersionedParcelable {
     int mNextMediaItemIndex;
     @ParcelField(17)
     Bundle mTokenExtras;
+    @ParcelField(18)
+    VideoSize mVideoSize;
+    @ParcelField(19)
+    List<TrackInfo> mTracks;
+    // TODO: Reduce parceling / un-parceling cost by using track id. (b/131873726)
+    @ParcelField(20)
+    TrackInfo mSelectedVideoTrack;
+    @ParcelField(21)
+    TrackInfo mSelectedAudioTrack;
+    @ParcelField(23)
+    TrackInfo mSelectedSubtitleTrack;
+    @ParcelField(24)
+    TrackInfo mSelectedMetadataTrack;
 
     // For versioned parcelable
     ConnectionResult() {
@@ -101,6 +120,12 @@ class ConnectionResult extends CustomVersionedParcelable {
         mPreviousMediaItemIndex = sessionImpl.getPreviousMediaItemIndex();
         mNextMediaItemIndex = sessionImpl.getNextMediaItemIndex();
         mTokenExtras = sessionImpl.getToken().getExtras();
+        mVideoSize = sessionImpl.getVideoSize();
+        mTracks = sessionImpl.getTracks();
+        mSelectedVideoTrack = sessionImpl.getSelectedTrack(TrackInfo.MEDIA_TRACK_TYPE_VIDEO);
+        mSelectedAudioTrack = sessionImpl.getSelectedTrack(TrackInfo.MEDIA_TRACK_TYPE_AUDIO);
+        mSelectedSubtitleTrack = sessionImpl.getSelectedTrack(TrackInfo.MEDIA_TRACK_TYPE_SUBTITLE);
+        mSelectedMetadataTrack = sessionImpl.getSelectedTrack(TrackInfo.MEDIA_TRACK_TYPE_METADATA);
         if (allowedCommands != null
                 && allowedCommands.hasCommand(SessionCommand.COMMAND_CODE_PLAYER_GET_PLAYLIST)) {
             List<MediaItem> playlist = sessionImpl.getPlaylist();
@@ -184,14 +209,42 @@ class ConnectionResult extends CustomVersionedParcelable {
         return mTokenExtras;
     }
 
+    public VideoSize getVideoSize() {
+        return mVideoSize;
+    }
+
+    @NonNull
+    public List<TrackInfo> getTracks() {
+        return (mTracks == null) ? Collections.emptyList() : mTracks;
+    }
+
+    public TrackInfo getSelectedVideoTrack() {
+        return mSelectedVideoTrack;
+    }
+
+    public TrackInfo getSelectedAudioTrack() {
+        return mSelectedAudioTrack;
+    }
+
+    public TrackInfo getSelectedSubtitleTrack() {
+        return mSelectedSubtitleTrack;
+    }
+
+    public TrackInfo getSelectedMetadataTrack() {
+        return mSelectedMetadataTrack;
+    }
+
     @Override
     public void onPreParceling(boolean isStream) {
         mSessionBinder = (IBinder) mSessionStub;
+        mParcelableCurrentMediaItem = MediaUtils.upcastForPreparceling(mCurrentMediaItem);
     }
 
     @Override
     public void onPostParceling() {
         mSessionStub = IMediaSession.Stub.asInterface(mSessionBinder);
         mSessionBinder = null;
+        mCurrentMediaItem = mParcelableCurrentMediaItem;
+        mParcelableCurrentMediaItem = null;
     }
 }

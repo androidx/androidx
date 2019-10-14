@@ -18,6 +18,8 @@ package androidx.webkit.internal;
 
 import android.webkit.WebView;
 
+import androidx.annotation.NonNull;
+
 import org.chromium.support_lib_boundary.ProxyControllerBoundaryInterface;
 import org.chromium.support_lib_boundary.ServiceWorkerControllerBoundaryInterface;
 import org.chromium.support_lib_boundary.StaticsBoundaryInterface;
@@ -38,36 +40,43 @@ public class IncompatibleApkWebViewProviderFactory implements WebViewProviderFac
             + "method is being called too early, or is being called on start-up rather than lazily";
 
     @Override
-    public WebViewProviderBoundaryInterface createWebView(WebView webview) {
+    @NonNull
+    public WebViewProviderBoundaryInterface createWebView(@NonNull WebView webview) {
         throw new UnsupportedOperationException(UNSUPPORTED_EXCEPTION_EXPLANATION);
     }
 
     @Override
+    @NonNull
     public WebkitToCompatConverterBoundaryInterface getWebkitToCompatConverter() {
         throw new UnsupportedOperationException(UNSUPPORTED_EXCEPTION_EXPLANATION);
     }
 
     @Override
+    @NonNull
     public StaticsBoundaryInterface getStatics() {
         throw new UnsupportedOperationException(UNSUPPORTED_EXCEPTION_EXPLANATION);
     }
 
     @Override
+    @NonNull
     public String[] getWebViewFeatures() {
         return EMPTY_STRING_ARRAY;
     }
 
     @Override
+    @NonNull
     public ServiceWorkerControllerBoundaryInterface getServiceWorkerController() {
         throw new UnsupportedOperationException(UNSUPPORTED_EXCEPTION_EXPLANATION);
     }
 
     @Override
+    @NonNull
     public TracingControllerBoundaryInterface getTracingController() {
         throw new UnsupportedOperationException(UNSUPPORTED_EXCEPTION_EXPLANATION);
     }
 
     @Override
+    @NonNull
     public ProxyControllerBoundaryInterface getProxyController() {
         throw new UnsupportedOperationException(UNSUPPORTED_EXCEPTION_EXPLANATION);
     }

@@ -141,9 +141,11 @@ class MusicView extends ViewGroup {
         LayoutInflater inflater = (LayoutInflater) getContext()
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
-        mWithTitleLandscape = inflater.inflate(R.layout.music_with_title_landscape, null);
-        mWithTitlePortrait = inflater.inflate(R.layout.music_with_title_portrait, null);
-        mWithoutTitle = inflater.inflate(R.layout.music_without_title, null);
+        mWithTitleLandscape = inflater.inflate(R.layout.media2_widget_music_with_title_landscape,
+                null);
+        mWithTitlePortrait = inflater.inflate(R.layout.media2_widget_music_with_title_portrait,
+                null);
+        mWithoutTitle = inflater.inflate(R.layout.media2_widget_music_without_title, null);
 
         addView(mWithTitleLandscape);
         addView(mWithTitlePortrait);

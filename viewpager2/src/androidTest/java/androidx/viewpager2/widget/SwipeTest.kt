@@ -18,9 +18,9 @@ package androidx.viewpager2.widget
 
 import androidx.test.filters.LargeTest
 import androidx.viewpager2.widget.SwipeTest.TestConfig
-import androidx.viewpager2.widget.ViewPager2.Orientation
 import androidx.viewpager2.widget.ViewPager2.ORIENTATION_HORIZONTAL
 import androidx.viewpager2.widget.ViewPager2.ORIENTATION_VERTICAL
+import androidx.viewpager2.widget.ViewPager2.Orientation
 import androidx.viewpager2.widget.swipe.PageView
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -35,11 +35,6 @@ private const val RANDOM_TESTS_PER_CONFIG = 0 // increase to have random tests g
 @RunWith(Parameterized::class)
 @LargeTest
 class SwipeTest(private val testConfig: TestConfig) : BaseTest() {
-    override fun setUp() {
-        super.setUp()
-        assumeApiBeforeQ()
-    }
-
     @Test
     fun test() {
         testConfig.apply {
@@ -56,7 +51,7 @@ class SwipeTest(private val testConfig: TestConfig) : BaseTest() {
                     val modifiedPageValue: String? = stepToNewValue[currentStep]
                     if (modifiedPageValue != null) {
                         expectedValues[currentPage] = modifiedPageValue
-                        runOnUiThread {
+                        runOnUiThreadSync {
                             PageView.setPageText(PageView.findPageInActivity(activity)!!,
                                     modifiedPageValue)
                         }
@@ -71,7 +66,7 @@ class SwipeTest(private val testConfig: TestConfig) : BaseTest() {
                     // page swipe
                     val latch = viewPager.addWaitForScrolledLatch(targetPage)
                     swipe(currentPage, targetPage)
-                    latch.await(1, TimeUnit.SECONDS)
+                    latch.await(2, TimeUnit.SECONDS)
                     assertBasicState(targetPage, expectedValues[targetPage])
                 }
             }

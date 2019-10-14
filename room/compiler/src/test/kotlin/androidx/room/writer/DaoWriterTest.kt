@@ -25,6 +25,7 @@ import com.google.auto.common.MoreTypes
 import com.google.common.truth.Truth
 import com.google.testing.compile.CompileTester
 import com.google.testing.compile.JavaSourcesSubjectFactory
+import createInterpreterFromEntitiesAndViews
 import createVerifierFromEntitiesAndViews
 import loadJavaCode
 import org.junit.Test
@@ -77,7 +78,8 @@ class DaoWriterTest {
                 .that(jfo.toList() + COMMON.USER + COMMON.MULTI_PKEY_ENTITY + COMMON.BOOK +
                         COMMON.LIVE_DATA + COMMON.COMPUTABLE_LIVE_DATA + COMMON.SINGLE +
                         COMMON.MAYBE + COMMON.COMPLETABLE + COMMON.USER_SUMMARY + COMMON.RX2_ROOM +
-                        COMMON.PARENT + COMMON.CHILD1 + COMMON.CHILD2 + COMMON.INFO)
+                        COMMON.PARENT + COMMON.CHILD1 + COMMON.CHILD2 + COMMON.INFO +
+                        COMMON.LISTENABLE_FUTURE + COMMON.GUAVA_ROOM)
                 .processedWith(TestProcessor.builder()
                         .forAnnotations(androidx.room.Dao::class)
                         .nextRunHandler { invocation ->
@@ -89,20 +91,24 @@ class DaoWriterTest {
                                     .getElementsAnnotatedWith(
                                             androidx.room.Database::class.java)
                                     .firstOrNull()
-                            val dbType = MoreTypes.asDeclared(if (db != null) {
+                                    ?: invocation.context.processingEnv.elementUtils
+                                        .getTypeElement(RoomTypeNames.ROOM_DB.toString())
+                            val dbType = if (db != null) {
                                 db.asType()
                             } else {
                                 invocation.context.processingEnv.elementUtils
-                                        .getTypeElement(RoomTypeNames.ROOM_DB.toString()).asType()
-                            })
+                                    .getTypeElement(RoomTypeNames.ROOM_DB.toString()).asType()
+                            }.let { MoreTypes.asDeclared(it) }
+                            val queryInterpreter = createInterpreterFromEntitiesAndViews(invocation)
                             val parser = DaoProcessor(
                                     baseContext = invocation.context,
                                     element = MoreElements.asType(dao),
                                     dbType = dbType,
+                                    queryInterpreter = queryInterpreter,
                                     dbVerifier = createVerifierFromEntitiesAndViews(invocation))
                             val parsedDao = parser.process()
-                            DaoWriter(parsedDao, invocation.processingEnv)
-                                    .write(invocation.processingEnv)
+                            DaoWriter(parsedDao, db, invocation.processingEnv)
+                                .write(invocation.processingEnv)
                             true
                         }
                         .build())

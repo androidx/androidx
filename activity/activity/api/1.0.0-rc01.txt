@@ -1,0 +1,38 @@
+// Signature format: 3.0
+package androidx.activity {
+
+  public class ComponentActivity extends androidx.core.app.ComponentActivity implements androidx.lifecycle.LifecycleOwner androidx.activity.OnBackPressedDispatcherOwner androidx.savedstate.SavedStateRegistryOwner androidx.lifecycle.ViewModelStoreOwner {
+    ctor public ComponentActivity();
+    ctor @ContentView public ComponentActivity(@LayoutRes int);
+    method @Deprecated public Object? getLastCustomNonConfigurationInstance();
+    method public androidx.lifecycle.Lifecycle getLifecycle();
+    method public final androidx.activity.OnBackPressedDispatcher getOnBackPressedDispatcher();
+    method public final androidx.savedstate.SavedStateRegistry getSavedStateRegistry();
+    method public androidx.lifecycle.ViewModelStore getViewModelStore();
+    method @Deprecated public Object? onRetainCustomNonConfigurationInstance();
+    method public final Object? onRetainNonConfigurationInstance();
+  }
+
+  public abstract class OnBackPressedCallback {
+    ctor public OnBackPressedCallback(boolean);
+    method @MainThread public abstract void handleOnBackPressed();
+    method @MainThread public final boolean isEnabled();
+    method @MainThread public final void remove();
+    method @MainThread public final void setEnabled(boolean);
+  }
+
+  public final class OnBackPressedDispatcher {
+    ctor public OnBackPressedDispatcher();
+    ctor public OnBackPressedDispatcher(Runnable?);
+    method @MainThread public void addCallback(androidx.activity.OnBackPressedCallback);
+    method @MainThread public void addCallback(androidx.lifecycle.LifecycleOwner, androidx.activity.OnBackPressedCallback);
+    method @MainThread public boolean hasEnabledCallbacks();
+    method @MainThread public void onBackPressed();
+  }
+
+  public interface OnBackPressedDispatcherOwner extends androidx.lifecycle.LifecycleOwner {
+    method public androidx.activity.OnBackPressedDispatcher getOnBackPressedDispatcher();
+  }
+
+}
+

@@ -16,6 +16,8 @@
 
 package androidx.work.impl.background.systemjob;
 
+import static androidx.work.impl.background.systemjob.SystemJobInfoConverter.EXTRA_WORK_SPEC_ID;
+
 import android.app.Application;
 import android.app.job.JobParameters;
 import android.app.job.JobService;
@@ -24,6 +26,7 @@ import android.os.PersistableBundle;
 import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.work.Logger;
@@ -50,8 +53,10 @@ public class SystemJobService extends JobService implements ExecutionListener {
     @Override
     public void onCreate() {
         super.onCreate();
-        mWorkManagerImpl = WorkManagerImpl.getInstance(getApplicationContext());
-        if (mWorkManagerImpl == null) {
+        try {
+            mWorkManagerImpl = WorkManagerImpl.getInstance(getApplicationContext());
+            mWorkManagerImpl.getProcessor().addExecutionListener(this);
+        } catch (IllegalStateException e) {
             // This can occur if...
             // 1. The app is performing an auto-backup.  Prior to O, JobScheduler could erroneously
             //    try to send commands to JobService in this state (b/32180780).  Since neither
@@ -68,12 +73,10 @@ public class SystemJobService extends JobService implements ExecutionListener {
                 throw new IllegalStateException("WorkManager needs to be initialized via a "
                         + "ContentProvider#onCreate() or an Application#onCreate().");
             }
-            Logger.get().warning(TAG, "Could not find WorkManager instance; this may be because an "
-                    + "auto-backup is in progress. Ignoring JobScheduler commands for now. Please "
-                    + "make sure that you are initializing WorkManager if you have manually "
+            Logger.get().warning(TAG, "Could not find WorkManager instance; this may be because "
+                    + "an auto-backup is in progress. Ignoring JobScheduler commands for now. "
+                    + "Please make sure that you are initializing WorkManager if you have manually "
                     + "disabled WorkManagerInitializer.");
-        } else {
-            mWorkManagerImpl.getProcessor().addExecutionListener(this);
         }
     }
 
@@ -86,15 +89,14 @@ public class SystemJobService extends JobService implements ExecutionListener {
     }
 
     @Override
-    public boolean onStartJob(JobParameters params) {
+    public boolean onStartJob(@NonNull JobParameters params) {
         if (mWorkManagerImpl == null) {
             Logger.get().debug(TAG, "WorkManager is not initialized; requesting retry.");
             jobFinished(params, true);
             return false;
         }
 
-        PersistableBundle extras = params.getExtras();
-        String workSpecId = extras.getString(SystemJobInfoConverter.EXTRA_WORK_SPEC_ID);
+        String workSpecId = getWorkSpecIdFromJobParameters(params);
         if (TextUtils.isEmpty(workSpecId)) {
             Logger.get().error(TAG, "WorkSpec id not found!");
             return false;
@@ -145,13 +147,13 @@ public class SystemJobService extends JobService implements ExecutionListener {
     }
 
     @Override
-    public boolean onStopJob(JobParameters params) {
+    public boolean onStopJob(@NonNull JobParameters params) {
         if (mWorkManagerImpl == null) {
             Logger.get().debug(TAG, "WorkManager is not initialized; requesting retry.");
             return true;
         }
 
-        String workSpecId = params.getExtras().getString(SystemJobInfoConverter.EXTRA_WORK_SPEC_ID);
+        String workSpecId = getWorkSpecIdFromJobParameters(params);
         if (TextUtils.isEmpty(workSpecId)) {
             Logger.get().error(TAG, "WorkSpec id not found!");
             return false;
@@ -176,5 +178,19 @@ public class SystemJobService extends JobService implements ExecutionListener {
         if (parameters != null) {
             jobFinished(parameters, needsReschedule);
         }
+    }
+
+    @Nullable
+    @SuppressWarnings("ConstantConditions")
+    private static String getWorkSpecIdFromJobParameters(@NonNull JobParameters parameters) {
+        try {
+            PersistableBundle extras = parameters.getExtras();
+            if (extras != null && extras.containsKey(EXTRA_WORK_SPEC_ID)) {
+                return extras.getString(EXTRA_WORK_SPEC_ID);
+            }
+        } catch (NullPointerException e) {
+            // b/138441699: BaseBundle.getString sometimes throws an NPE.  Ignore and return null.
+        }
+        return null;
     }
 }

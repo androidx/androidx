@@ -17,12 +17,14 @@
 package androidx.media2.integration.testapp;
 
 import android.app.AlertDialog;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -37,12 +39,15 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
-import androidx.media2.common.UriMediaItem;
+import androidx.media2.common.MediaItem;
+import androidx.media2.common.SessionPlayer;
 import androidx.media2.session.MediaController;
+import androidx.media2.session.SessionCommandGroup;
 import androidx.media2.session.SessionToken;
 import androidx.media2.widget.MediaControlView;
 import androidx.media2.widget.VideoView;
 
+import java.util.Locale;
 import java.util.concurrent.Executor;
 
 /**
@@ -55,12 +60,16 @@ public class VideoPlayerActivity extends FragmentActivity {
             "com.example.androidx.media.VideoPlayerActivity.MediaTypeAdvertisement";
     private static final String TAG = "VideoPlayerActivity";
 
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
     MyVideoView mVideoView;
-    View mResizeHandle;
-    private float mSpeed = 1.0f;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    MediaController mMediaController;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    Uri mUri;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    float mSpeed = 1.0f;
 
-    private MediaControlView mMediaControlView = null;
-    private MediaController mMediaController = null;
+    private View mResizeHandle;
 
     private int mVideoViewDX;
     private int mVideoViewDY;
@@ -83,6 +92,14 @@ public class VideoPlayerActivity extends FragmentActivity {
                 return onTouchVideoView(event);
             }
         });
+        SessionToken token = new SessionToken(this,
+                new ComponentName(this, VideoSessionService.class));
+        Executor executor = ContextCompat.getMainExecutor(this);
+        mMediaController = new MediaController.Builder(this)
+                .setControllerCallback(executor, new ControllerCallback())
+                .setSessionToken(token)
+                .build();
+        mVideoView.setMediaController(mMediaController);
 
         mResizeHandle = findViewById(R.id.resize_handle);
         mResizeHandle.setOnTouchListener(new View.OnTouchListener() {
@@ -128,19 +145,11 @@ public class VideoPlayerActivity extends FragmentActivity {
         if (intent == null || (videoUri = intent.getData()) == null || !videoUri.isAbsolute()) {
             errorString = "Invalid intent";
         } else {
-            UriMediaItem mediaItem = new UriMediaItem.Builder(videoUri).build();
-            mVideoView.setMediaItem(mediaItem);
+            MediaControlView mediaControlView = new MediaControlView(this);
+            mVideoView.setMediaControlView(mediaControlView, 2000);
+            mediaControlView.setOnFullScreenListener(new FullScreenListener());
 
-            mMediaControlView = new MediaControlView(this);
-            mVideoView.setMediaControlView(mMediaControlView, 2000);
-            mMediaControlView.setOnFullScreenListener(new FullScreenListener());
-            SessionToken token = mVideoView.getSessionToken();
-
-            Executor executor = ContextCompat.getMainExecutor(this);
-            mMediaController = new MediaController.Builder(this)
-                    .setSessionToken(token)
-                    .setControllerCallback(executor, new ControllerCallback())
-                    .build();
+            mUri = videoUri;
         }
         if (errorString != null) {
             showErrorDialog(errorString);
@@ -151,6 +160,7 @@ public class VideoPlayerActivity extends FragmentActivity {
     protected void onDestroy() {
         Log.d(TAG, "onDestroy");
         super.onDestroy();
+        mMediaController.close();
     }
 
     @Override
@@ -164,8 +174,9 @@ public class VideoPlayerActivity extends FragmentActivity {
                 mSpeed += 0.1f;
             }
             mMediaController.setPlaybackSpeed(mSpeed);
-            Toast.makeText(this, "speed rate: " + String.format("%.2f", mSpeed), Toast.LENGTH_SHORT)
-                    .show();
+            Toast.makeText(this,
+                    "speed rate: " + String.format(Locale.US, "%.2f", mSpeed),
+                    Toast.LENGTH_SHORT).show();
         }
         return super.onTouchEvent(ev);
     }
@@ -189,6 +200,23 @@ public class VideoPlayerActivity extends FragmentActivity {
         public void onPlaybackSpeedChanged(
                 @NonNull MediaController controller, float speed) {
             mSpeed = speed;
+        }
+
+        @Override
+        public void onConnected(@NonNull MediaController controller,
+                @NonNull SessionCommandGroup allowedCommands) {
+            MediaItem currentItem = controller.getCurrentMediaItem();
+            // Return if current media item exists and it is the same as the one that is selected
+            // to play.
+            if (currentItem != null
+                    && TextUtils.equals(currentItem.getMediaId(), mUri.toString())
+                    && controller.getPlayerState() != SessionPlayer.PLAYER_STATE_IDLE
+                    && controller.getPlayerState() != SessionPlayer.PLAYER_STATE_ERROR) {
+                return;
+            }
+
+            controller.setMediaItem(mUri.toString());
+            controller.prepare();
         }
     }
 
@@ -248,7 +276,7 @@ public class VideoPlayerActivity extends FragmentActivity {
             super(context, attrs, defStyle);
         }
 
-        public void setTransformable(boolean transformable) {
+        void setTransformable(boolean transformable) {
             mTransformable = transformable;
         }
 
@@ -266,6 +294,7 @@ public class VideoPlayerActivity extends FragmentActivity {
         super.onConfigurationChanged(newConfig);
     }
 
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
     boolean onTouchVideoView(MotionEvent ev) {
         int rawX = (int) ev.getRawX();
         int rawY = (int) ev.getRawY();
@@ -303,6 +332,7 @@ public class VideoPlayerActivity extends FragmentActivity {
         return true;
     }
 
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
     boolean onTouchResizeHandle(MotionEvent ev) {
         int rawX = (int) ev.getRawX();
         int rawY = (int) ev.getRawY();
@@ -340,11 +370,13 @@ public class VideoPlayerActivity extends FragmentActivity {
         return true;
     }
 
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
     void applyTransformability(boolean transformable) {
         mVideoView.setTransformable(transformable);
         mResizeHandle.setVisibility(transformable ? View.VISIBLE : View.GONE);
     }
 
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
     String getViewTypeString(int viewType) {
         if (viewType == VideoView.VIEW_TYPE_SURFACEVIEW) {
             return "SurfaceView";
@@ -353,5 +385,4 @@ public class VideoPlayerActivity extends FragmentActivity {
         }
         return "Unknown";
     }
-
 }

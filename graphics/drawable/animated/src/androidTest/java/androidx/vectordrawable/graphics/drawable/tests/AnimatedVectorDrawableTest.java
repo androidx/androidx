@@ -45,9 +45,9 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.ActivityTestRule;
+import androidx.vectordrawable.animated.test.R;
 import androidx.vectordrawable.graphics.drawable.Animatable2Compat.AnimationCallback;
 import androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat;
-import androidx.vectordrawable.test.R;
 
 import org.junit.Before;
 import org.junit.Rule;

@@ -16,6 +16,13 @@
 
 import static androidx.build.dependencies.DependenciesKt.*
 
+buildscript {
+    // TODO: Remove this when this test app no longer depends on 1.0.0 of vectordrawable-animated.
+    // vectordrawable and vectordrawable-animated were accidentally using the same package name
+    // which is no longer valid in namespaced resource world.
+    project.ext['android.uniquePackageNames'] = false
+}
+
 plugins {
     id("AndroidXPlugin")
     id("com.android.application")
@@ -24,7 +31,7 @@ plugins {
 
 dependencies {
     implementation(KOTLIN_STDLIB)
-    implementation(project(":appcompat"))
+    implementation("androidx.appcompat:appcompat:1.1.0")
     implementation(project(":navigation:navigation-fragment-ktx"))
     implementation(project(":navigation:navigation-ui-ktx"))
     implementation(project(":navigation:navigation-testing"))

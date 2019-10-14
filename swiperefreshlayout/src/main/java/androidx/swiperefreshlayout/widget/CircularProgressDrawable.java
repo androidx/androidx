@@ -424,11 +424,14 @@ public class CircularProgressDrawable extends Drawable implements Animatable {
         mRotation = rotation;
     }
 
+    @SuppressWarnings("UnusedMethod") // TODO(b/141954576): Suppressed during upgrade to AGP 3.6.
     private float getRotation() {
         return mRotation;
     }
 
     @Override
+    @SuppressWarnings("deprecation")
+    // Remove suppression was b/120985527 is addressed.
     public int getOpacity() {
         return PixelFormat.TRANSLUCENT;
     }

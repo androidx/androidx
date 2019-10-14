@@ -21,6 +21,10 @@ import com.google.common.io.Files
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
 import org.gradle.api.logging.Logger
+import org.gradle.api.provider.ListProperty
+import org.gradle.api.provider.Property
+import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.OutputFiles
 import org.gradle.api.tasks.TaskAction
@@ -30,44 +34,64 @@ import java.io.File
  * Updates API signature text files.
  * In practice, the values they will be updated to will match the APIs defined by the source code.
  */
-open class UpdateApiTask : DefaultTask() {
+abstract class UpdateApiTask : DefaultTask() {
     /** Text file from which API signatures will be read. */
-    var inputApiLocation: ApiLocation? = null
+    @get:Input
+    abstract val inputApiLocation: Property<ApiLocation>
 
     /** Text files to which API signatures will be written. */
-    var outputApiLocations: List<ApiLocation> = listOf()
+    @get:Internal // outputs are declared in getTaskOutputs()
+    abstract val outputApiLocations: ListProperty<ApiLocation>
 
     /** Whether to update restricted API files too */
+    @get:Input
     var updateRestrictedAPIs = false
 
     @InputFiles
     fun getTaskInputs(): List<File>? {
-        return inputApiLocation?.files()
+        return inputApiLocation.get().files()
     }
 
     @OutputFiles
     fun getTaskOutputs(): List<File> {
         if (updateRestrictedAPIs) {
-            return outputApiLocations.flatMap { it.files() }
+            return outputApiLocations.get().flatMap { it.files() }
         }
-        return outputApiLocations.map { it.publicApiFile }
+        return outputApiLocations.get().flatMap { it.nonRestrictedFiles() }
     }
 
     @TaskAction
     fun exec() {
-        val inputPublicApi = checkNotNull(inputApiLocation?.publicApiFile) { "inputPublicApi not set" }
-        val inputRestrictedApi = checkNotNull(inputApiLocation?.restrictedApiFile) { "inputRestrictedApi not set" }
         var permitOverwriting = true
-        for (outputApi in outputApiLocations) {
+        for (outputApi in outputApiLocations.get()) {
             val version = outputApi.version()
-            if (version != null && version.isFinalApi() && outputApi.publicApiFile.exists() && !project.hasProperty("force")) {
+            if (version != null && version.isFinalApi() &&
+                outputApi.publicApiFile.exists() &&
+                !project.hasProperty("force")) {
                 permitOverwriting = false
             }
         }
-        for (outputApi in outputApiLocations) {
-            copy(inputPublicApi, outputApi.publicApiFile, permitOverwriting, project.logger)
+        for (outputApi in outputApiLocations.get()) {
+            val inputApi = inputApiLocation.get()
+            copy(
+                inputApi.publicApiFile,
+                outputApi.publicApiFile,
+                permitOverwriting,
+                project.logger
+            )
+            copy(
+                inputApi.experimentalApiFile,
+                outputApi.experimentalApiFile,
+                true,
+                project.logger
+            )
             if (updateRestrictedAPIs) {
-                copy(inputRestrictedApi, outputApi.restrictedApiFile, permitOverwriting, project.logger)
+                copy(
+                    inputApi.restrictedApiFile,
+                    outputApi.restrictedApiFile,
+                    permitOverwriting,
+                    project.logger
+                )
             }
         }
     }

@@ -26,4 +26,6 @@
     <string name="fingerprint_error_user_canceled" msgid="3421037373085129417">"वापरकर्त्याने फिंगरप्रिंट ऑपरेशन रद्द केले."</string>
     <string name="fingerprint_error_lockout" msgid="1651062876313169162">"खूप जास्त प्रयत्न. कृपया नंतर पुन्हा प्रयत्न करा."</string>
     <string name="default_error_msg" msgid="7497355367608150274">"अज्ञात एरर"</string>
+    <string name="generic_error_user_canceled" msgid="7474799539658018076">"वापरकर्त्याने ऑथेंटिकेशन रद्द केले आहे."</string>
+    <string name="confirm_device_credential_password" msgid="4296851028928624518">"पासवर्ड वापरा"</string>
 </resources>

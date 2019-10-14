@@ -18,30 +18,19 @@ package androidx.media2.widget;
 
 import android.view.View;
 
-import androidx.media2.player.MediaPlayer;
+import androidx.annotation.NonNull;
 
 interface VideoViewInterface {
     /**
-     * Assigns the view's surface to the given MediaPlayer instance.
+     * Assigns the view's surface to the given PlayerWrapper instance.
      *
-     * @param mp MediaPlayer
+     * @param player PlayerWrapper
      * @return true if the surface is successfully assigned, false if not. It will fail to assign
-     *         if any of MediaPlayer or surface is unavailable.
+     *         if any of PlayerWrapper or surface is unavailable.
      */
-    boolean assignSurfaceToMediaPlayer(MediaPlayer mp);
+    boolean assignSurfaceToPlayerWrapper(PlayerWrapper player);
     void setSurfaceListener(SurfaceListener l);
     int getViewType();
-    void setMediaPlayer(MediaPlayer mp);
-
-    /**
-     * Takes over oldView. It means that the MediaPlayer will start rendering on this view.
-     * If the view doesn't have a MediaPlayer instance or its surface is not available,
-     * the actual execution is deferred until a MediaPlayer instance is set
-     * by {@link #setMediaPlayer} or its surface becomes available.
-     * {@link SurfaceListener#onSurfaceTakeOverDone} will be called when the actual execution is
-     * done.
-     */
-    void takeOver();
 
     /**
      * Indicates if the view's surface is available.
@@ -55,9 +44,9 @@ interface VideoViewInterface {
      * a listener has been registered via {@link #setSurfaceListener(SurfaceListener)}.
      */
     interface SurfaceListener {
-        void onSurfaceCreated(View view, int width, int height);
-        void onSurfaceDestroyed(View view);
-        void onSurfaceChanged(View view, int width, int height);
-        void onSurfaceTakeOverDone(VideoViewInterface view);
+        void onSurfaceCreated(@NonNull View view, int width, int height);
+        void onSurfaceDestroyed(@NonNull View view);
+        void onSurfaceChanged(@NonNull View view, int width, int height);
+        void onSurfaceTakeOverDone(@NonNull VideoViewInterface view);
     }
 }

@@ -20,7 +20,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import androidx.test.filters.LargeTest
-import androidx.viewpager2.LocaleTestUtils
+import androidx.testutils.LocaleTestUtils
 import androidx.viewpager2.widget.OffscreenPageLimitTest.Event.OnChildViewAdded
 import androidx.viewpager2.widget.OffscreenPageLimitTest.Event.OnChildViewRemoved
 import androidx.viewpager2.widget.OffscreenPageLimitTest.Event.OnPageScrollStateChangedEvent
@@ -78,7 +78,7 @@ class OffscreenPageLimitTest(private val config: TestConfig) : BaseTest() {
     @LargeTest
     fun test() {
         test = setUpTest(config.orientation)
-        activityTestRule.runOnUiThread {
+        test.runOnUiThreadSync {
             test.viewPager.offscreenPageLimit = config.offscreenPageLimit
         }
         val recorder = test.viewPager.addNewRecordingCallback()
@@ -109,7 +109,7 @@ class OffscreenPageLimitTest(private val config: TestConfig) : BaseTest() {
         val onscreen = mutableSetOf<Int>()
         // Determine which pages were 'onscreen' (as opposed to 'offscreen') at any time, by
         // simulating the sequence of events and record the onscreen pages in the set 'onscreen'
-        recorder.events.forEachIndexed { i, event ->
+        recorder.eventsCopy.forEachIndexed { i, event ->
             when (event) {
                 // When a child is added, add it to the onscreen set
                 is OnChildViewAdded -> assertThat(onscreen.add(event.position), equalTo(true))
@@ -117,12 +117,12 @@ class OffscreenPageLimitTest(private val config: TestConfig) : BaseTest() {
                 is OnChildViewRemoved -> assertThat(onscreen.remove(event.position), equalTo(true))
                 // When VP2 scrolls, check if the set of onscreen pages is the expected value
                 is OnPageScrolledEvent -> {
-                    val position = event.position + event.positionOffset
+                    val position = event.position + event.positionOffset.toDouble()
                     val lower = max(0, floor(position - limit).roundToInt())
                     val upper = min(pageCount - 1, ceil(position + limit).roundToInt())
                     // First verify this calculation:
-                    assertThat(lower.toFloat(), lessThanOrEqualTo(position))
-                    assertThat(upper.toFloat(), greaterThanOrEqualTo(position))
+                    assertThat(lower.toDouble(), lessThanOrEqualTo(position))
+                    assertThat(upper.toDouble(), greaterThanOrEqualTo(position))
                     // Then verify the onscreen pages:
                     assertThat("There should be ${upper - lower + 1} pages laid out at event $i. " +
                             "Events: ${recorder.dumpEvents()}",
@@ -165,52 +165,51 @@ class OffscreenPageLimitTest(private val config: TestConfig) : BaseTest() {
 
     private class RecordingCallback : ViewPager2.OnPageChangeCallback(),
         ViewGroup.OnHierarchyChangeListener {
-        val events = mutableListOf<Event>()
+        private val events = mutableListOf<Event>()
 
-        val lastAddedIx get() = events.indexOfLast { it is OnChildViewAdded }
-        val lastRemovedIx get() = events.indexOfLast { it is OnChildViewRemoved }
-        val lastScrolledIx get() = events.indexOfLast { it is OnPageScrolledEvent }
+        val lastAddedIx get() = eventsCopy.indexOfLast { it is OnChildViewAdded }
+        val lastRemovedIx get() = eventsCopy.indexOfLast { it is OnChildViewRemoved }
+        val lastScrolledIx get() = eventsCopy.indexOfLast { it is OnPageScrolledEvent }
+
+        private fun addEvent(e: Event) {
+            synchronized(events) {
+                events.add(e)
+            }
+        }
+
+        val eventsCopy: List<Event>
+            get() = synchronized(events) {
+                return mutableListOf<Event>().apply {
+                    addAll(events)
+                }
+            }
 
         override fun onPageScrolled(
             position: Int,
             positionOffset: Float,
             positionOffsetPixels: Int
         ) {
-            synchronized(events) {
-                events.add(OnPageScrolledEvent(position, positionOffset, positionOffsetPixels))
-            }
+            addEvent(OnPageScrolledEvent(position, positionOffset, positionOffsetPixels))
         }
 
         override fun onPageSelected(position: Int) {
-            synchronized(events) {
-                events.add(OnPageSelectedEvent(position))
-            }
+            addEvent(OnPageSelectedEvent(position))
         }
 
         override fun onPageScrollStateChanged(state: Int) {
-            synchronized(events) {
-                events.add(OnPageScrollStateChangedEvent(state))
-            }
+            addEvent(OnPageScrollStateChangedEvent(state))
         }
 
         override fun onChildViewAdded(parent: View, child: View) {
-            synchronized(events) {
-                events.add(OnChildViewAdded(
-                    (parent as RecyclerView).getChildAdapterPosition(child)
-                ))
-            }
+            addEvent(OnChildViewAdded((parent as RecyclerView).getChildAdapterPosition(child)))
         }
 
         override fun onChildViewRemoved(parent: View, child: View) {
-            synchronized(events) {
-                events.add(OnChildViewRemoved(
-                    (parent as RecyclerView).getChildAdapterPosition(child)
-                ))
-            }
+            addEvent(OnChildViewRemoved((parent as RecyclerView).getChildAdapterPosition(child)))
         }
 
         fun dumpEvents(): String {
-            return events.joinToString("\n- ", "\n(${scrollStateGlossary()})\n- ")
+            return eventsCopy.joinToString("\n- ", "\n(${scrollStateGlossary()})\n- ")
         }
     }
 }

@@ -138,7 +138,10 @@ class Processor private constructor(
                 createTransformers(context)
             }
 
-            return Processor(context, transformers, stripSignatures)
+            return Processor(
+                context = context,
+                transformers = transformers,
+                stripSignatureFiles = stripSignatures)
         }
 
         /**
@@ -193,9 +196,10 @@ class Processor private constructor(
             reversedMode: Boolean = false,
             rewritingSupportLib: Boolean = false,
             useFallbackIfTypeIsMissing: Boolean = true,
-            versionSetName: String? = null,
+            @Suppress("UNUSED_PARAMETER") versionSetName: String? = null,
             dataBindingVersion: String? = null
         ): Processor {
+            @Suppress("deprecation")
             return createProcessor2(
                 config = config,
                 reversedMode = reversedMode,
@@ -237,9 +241,15 @@ class Processor private constructor(
      * @param input Files to process together with a path where they should be saved to.
      * @param copyUnmodifiedLibsAlso Whether archives that were not modified should be also copied
      * to their target path.
+     * @param skipLibsWithAndroidXReferences If true, jetifier will skip any archive that contains
+     * any androidX reference in its bytecode. This attribute does not apply for reversed mode.
      * @return list of files (existing and generated) that should replace the given [input] files.
      */
-    fun transform(input: Set<FileMapping>, copyUnmodifiedLibsAlso: Boolean = true): Set<File> {
+    fun transform2(
+        input: Set<FileMapping>,
+        copyUnmodifiedLibsAlso: Boolean = true,
+        skipLibsWithAndroidXReferences: Boolean = false
+    ): TransformationResult {
         val nonSingleFiles = HashSet<FileMapping>(input)
         for (fileMapping in nonSingleFiles) {
             // Treat all files as single files and check if they are transformable.
@@ -255,7 +265,7 @@ class Processor private constructor(
         }
         if (nonSingleFiles.isEmpty()) {
             // all files were single files, we're done.
-            return emptySet()
+            return TransformationResult(librariesMap = emptyMap(), numberOfLibsModified = 0)
         }
 
         val inputLibraries = nonSingleFiles.map { it.from }.toSet()
@@ -264,13 +274,21 @@ class Processor private constructor(
         }
 
         // 1) Extract and load all libraries
-        val libraries = loadLibraries(input)
+        val allLibraries = loadLibraries(input)
 
-        // 2) Search for POM files
-        val pomFiles = scanPomFiles(libraries)
+        // 2) Filter out libraries with AndroidX references
+        val librariesToProcess =
+            if (skipLibsWithAndroidXReferences) {
+                filterOutLibrariesWithAndroidX(allLibraries)
+            } else {
+                allLibraries
+            }
 
-        // 3) Transform all the libraries
-        libraries.forEach { transformLibrary(it) }
+        // 3) Search for POM files
+        val pomFiles = scanPomFiles(librariesToProcess)
+
+        // 4) Transform all the libraries
+        librariesToProcess.forEach { transformLibrary(it) }
 
         if (context.errorsTotal() > 0) {
             if (context.isInReversedMode && context.rewritingSupportLib) {
@@ -288,34 +306,86 @@ class Processor private constructor(
         // TODO: Here we might need to modify the POM files if they point at a library that we have
         // just refactored.
 
-        // 4) Transform the previously discovered POM files
+        // 5) Transform the previously discovered POM files
         transformPomFiles(pomFiles)
 
-        // 5) Find signature files and report them if needed
-        runSignatureDetectionFor(libraries)
+        // 6) Find signature files and report them if needed
+        runSignatureDetectionFor(librariesToProcess)
 
-        // 6) Repackage the libraries back to archive files
-        val generatedLibraries = libraries
-            .filter { copyUnmodifiedLibsAlso || it.wasChanged }
+        val numberOfLibsModified = librariesToProcess.count { it.wasChanged }
+
+        // 7) Repackage the libraries back to archive files
+        var result = allLibraries
             .map {
-                it.writeSelf()
-            }
-            .toSet()
+                if (it.wasChanged || copyUnmodifiedLibsAlso) {
+                    it.relativePath.toFile() to it.writeSelf()
+                } else {
+                    it.relativePath.toFile() to null
+                }
+            }.toMap()
 
-        if (copyUnmodifiedLibsAlso) {
-            return generatedLibraries
-        }
-
-        // 7) Create a set of files that should be removed (because they've been changed).
-        val filesToRemove = libraries
-            .filter { it.wasChanged }
-            .map { it.relativePath.toFile() }
-            .toSet()
-
-        return inputLibraries.minus(filesToRemove).plus(generatedLibraries)
+        return TransformationResult(
+            librariesMap = result,
+            numberOfLibsModified = numberOfLibsModified)
     }
 
-    private fun runSignatureDetectionFor(libraries: List<Archive>) {
+    /**
+     * Transforms the input libraries given in [inputLibraries] using all the registered
+     * [Transformer]s and returns a list of replacement libraries (the newly created libraries are
+     * get stored into [outputPath]). Also supports transforming single source files (java and xml.)
+     *
+     * Currently we have the following transformers:
+     * - [ByteCodeTransformer] for java native code
+     * - [XmlResourcesTransformer] for java native code and xml resource files
+     * - [ProGuardTransformer] for PorGuard files
+     * - [JavaTransformer] for java source code
+     *
+     * @param input Files to process together with a path where they should be saved to.
+     * @param copyUnmodifiedLibsAlso Whether archives that were not modified should be also copied
+     * to their target path.
+     * @return list of files (existing and generated) that should replace the given [input] files.
+     */
+    @Deprecated(
+        message = "Legacy method that is missing 'skipLibsWithAndroidXReferences' attribute",
+        replaceWith = ReplaceWith(expression = "Processor.transform2"))
+    fun transform(input: Set<FileMapping>, copyUnmodifiedLibsAlso: Boolean = true): Set<File> {
+        return transform2(
+            input = input,
+            copyUnmodifiedLibsAlso = copyUnmodifiedLibsAlso
+        ).librariesMap.map {
+            if (it.value != null) {
+                it.value!!
+            } else {
+                it.key
+            }
+        }.toSet()
+    }
+
+    /**
+     * When jetifying, skip processing any libs that already contain references to AndroidX (they
+     * don't need to be re-jetified). This feature does not work for reversed mode.
+     */
+    private fun filterOutLibrariesWithAndroidX(libraries: Set<Archive>): Set<Archive> {
+        if (context.isInReversedMode) {
+            // AndroidX detection does not work in reversed move.
+            return libraries
+        }
+
+        val newLibraries = mutableSetOf<Archive>()
+        libraries.forEach {
+            val androidXScanner = AndroidXRefScanner(it).scan()
+            if (androidXScanner.androidXDetected) {
+                Log.i(TAG, "Library '${it.relativePath}' contains AndroidX reference and will be " +
+                        "skipped.")
+            } else {
+                newLibraries.add(it)
+            }
+        }
+
+        return newLibraries
+    }
+
+    private fun runSignatureDetectionFor(libraries: Set<Archive>) {
         var wereSignaturesDetected = false
         val sb = StringBuilder()
 
@@ -343,8 +413,8 @@ class Processor private constructor(
                 "modified. However doing so would break the signatures. Please ask the library " +
                 "owner to provide jetpack compatible signed library. If you don't need " +
                 "the signatures you can re-run jetifier with 'stripSignatures' option on. " +
-                "Jetifier will then remove all affected signature files. Below is list of all " +
-                "the signature that were discovered: $sb}"
+                "Jetifier will then remove all affected signature files. Below is a list of all " +
+                "the signatures that were discovered: $sb}"
             )
         }
     }
@@ -407,7 +477,7 @@ class Processor private constructor(
         return newDependenciesRegex.any { it.matches(aarOrJarFile.absolutePath) }
     }
 
-    private fun loadLibraries(inputLibraries: Iterable<FileMapping>): List<Archive> {
+    private fun loadLibraries(inputLibraries: Iterable<FileMapping>): Set<Archive> {
         val libraries = mutableListOf<Archive>()
         for (library in inputLibraries) {
             if (!library.from.canRead()) {
@@ -418,10 +488,10 @@ class Processor private constructor(
             archive.setTargetPath(library.to.toPath())
             libraries.add(archive)
         }
-        return libraries.toList()
+        return libraries.toSet()
     }
 
-    private fun scanPomFiles(libraries: List<Archive>): List<PomDocument> {
+    private fun scanPomFiles(libraries: Set<Archive>): List<PomDocument> {
         val scanner = PomScanner(context)
 
         libraries.forEach { scanner.scanArchiveForPomFile(it) }

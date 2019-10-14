@@ -526,7 +526,7 @@ public abstract class MediaRouteProvider {
                     mExecutor.execute(new Runnable() {
                         @Override
                         public void run() {
-                            mListener.onRoutesChanged(DynamicGroupRouteController.this,
+                            listener.onRoutesChanged(DynamicGroupRouteController.this,
                                     routes);
                         }
                     });
@@ -546,10 +546,11 @@ public abstract class MediaRouteProvider {
                 final Collection<DynamicRouteDescriptor> routes) {
             synchronized (mLock) {
                 if (mExecutor != null) {
+                    final OnDynamicRoutesChangedListener listener = mListener;
                     mExecutor.execute(new Runnable() {
                         @Override
                         public void run() {
-                            mListener.onRoutesChanged(
+                            listener.onRoutesChanged(
                                     DynamicGroupRouteController.this, routes);
                         }
                     });

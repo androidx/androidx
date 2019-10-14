@@ -27,6 +27,8 @@ import android.content.Intent;
 import android.content.pm.ProviderInfo;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.remotecallback.CallbackBase;
 import androidx.remotecallback.CallbackHandlerRegistry;
@@ -49,13 +51,15 @@ public abstract class SliceProviderWithCallbacks<T extends SliceProviderWithCall
     String mAuthority;
 
     @Override
-    public void attachInfo(Context context, ProviderInfo info) {
+    public void attachInfo(@NonNull Context context, @NonNull ProviderInfo info) {
         super.attachInfo(context, info);
         mAuthority = info.authority;
     }
 
+    @Nullable
     @Override
-    public Bundle call(String method, String arg, Bundle extras) {
+    public Bundle call(@NonNull String method, @Nullable String arg, @Nullable Bundle extras) {
+        if (extras == null) return null;
         if (ProviderRelayReceiver.METHOD_PROVIDER_CALLBACK.equals(method)) {
             CallbackHandlerRegistry.sInstance.invokeCallback(getContext(), this, extras);
             return null;
@@ -63,8 +67,9 @@ public abstract class SliceProviderWithCallbacks<T extends SliceProviderWithCall
         return super.call(method, arg, extras);
     }
 
+    @NonNull
     @Override
-    public T createRemoteCallback(Context context) {
+    public T createRemoteCallback(@NonNull Context context) {
         return CallbackHandlerRegistry.sInstance.getAndResetStub(getClass(), context, mAuthority);
     }
 
@@ -73,10 +78,11 @@ public abstract class SliceProviderWithCallbacks<T extends SliceProviderWithCall
      * disappear when we have support for androidx-level @RestrictTo.
      * @hide
      */
+    @NonNull
     @Override
     @RestrictTo(LIBRARY_GROUP_PREFIX)
-    public RemoteCallback toRemoteCallback(Class<T> cls, Context context, String authority,
-            Bundle args, String method) {
+    public RemoteCallback toRemoteCallback(@NonNull Class<T> cls, @NonNull Context context,
+            @NonNull String authority, @NonNull Bundle args, @Nullable String method) {
         if (authority == null) {
             throw new IllegalStateException(
                     "ContentProvider must be attached before creating callbacks");

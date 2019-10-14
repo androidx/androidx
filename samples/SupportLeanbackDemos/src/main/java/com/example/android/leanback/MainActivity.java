@@ -159,7 +159,8 @@ public class MainActivity extends Activity {
                     R.string.pin_picker_description);
         }
 
-        private void addAction(List<GuidedAction> actions, Class cls, int titleRes, int descRes) {
+        private void addAction(List<GuidedAction> actions, Class<?> cls, int titleRes,
+                int descRes) {
             actions.add(new GuidedAction.Builder(getActivity())
                     .intent(new Intent(getActivity(), cls))
                     .title(getString(titleRes))

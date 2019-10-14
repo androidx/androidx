@@ -14,15 +14,21 @@
  * limitations under the License.
  */
 
+// Intentionally using deprecated com.android.builder.model.Version for 3.5 support.
+@file:Suppress("DEPRECATION")
+
 package androidx.benchmark.gradle
 
 import com.android.build.gradle.AppExtension
-import com.android.build.gradle.BaseExtension
 import com.android.build.gradle.LibraryExtension
+import com.android.build.gradle.TestedExtension
+import com.android.builder.model.Version.ANDROID_GRADLE_PLUGIN_VERSION
+import com.android.ddmlib.Log
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.api.Task
 import org.gradle.api.tasks.StopExecutionException
+
+private const val ADDITIONAL_TEST_OUTPUT_KEY = "android.enableAdditionalTestOutput"
 
 class BenchmarkPlugin : Plugin<Project> {
     private var foundAndroidPlugin = false
@@ -58,19 +64,56 @@ class BenchmarkPlugin : Plugin<Project> {
     private fun configureWithAndroidPlugin(project: Project) {
         if (!foundAndroidPlugin) {
             foundAndroidPlugin = true
-            val extension = project.extensions.getByType(BaseExtension::class.java)
+            val extension = project.extensions.getByType(TestedExtension::class.java)
             configureWithAndroidExtension(project, extension)
         }
     }
 
-    private fun configureWithAndroidExtension(project: Project, extension: BaseExtension) {
-        val adb = Adb(extension.adbExecutable.absolutePath, project.logger)
+    private fun configureWithAndroidExtension(project: Project, extension: TestedExtension) {
+        val defaultConfig = extension.defaultConfig
+        val testInstrumentationArgs = defaultConfig.testInstrumentationRunnerArguments
 
-        project.tasks.register("lockClocks", LockClocksTask::class.java, adb)
-        project.tasks.register("unlockClocks", UnlockClocksTask::class.java, adb)
-        val benchmarkReportTask =
-            project.tasks.register("benchmarkReport", BenchmarkReportTask::class.java, adb)
-        benchmarkReportTask.configure { it.dependsOn("connectedAndroidTest") }
+        defaultConfig.testInstrumentationRunner = "androidx.benchmark.junit4.AndroidBenchmarkRunner"
+
+        // Disable overhead from test coverage by default, even if we use a debug variant.
+        extension.buildTypes.configureEach { it.isTestCoverageEnabled = false }
+
+        extension.configureTestBuildType("release")
+
+        // Registering this block as a configureEach callback is only necessary because Studio skips
+        // Gradle if there are no changes, which stops this plugin from being re-applied.
+        var enabledOutput = false
+        project.configurations.configureEach {
+            if (!enabledOutput &&
+                !project.rootProject.hasProperty("android.injected.invoked.from.ide") &&
+                !testInstrumentationArgs.containsKey("androidx.benchmark.output.enable")
+            ) {
+                enabledOutput = true
+
+                // NOTE: This argument is checked by ResultWriter to enable CI reports.
+                defaultConfig.testInstrumentationRunnerArgument(
+                    "androidx.benchmark.output.enable",
+                    "true"
+                )
+
+                if (!project.properties[ADDITIONAL_TEST_OUTPUT_KEY].toString().toBoolean()) {
+                    defaultConfig.testInstrumentationRunnerArgument("no-isolated-storage", "1")
+                }
+            }
+        }
+
+        if (project.rootProject.tasks.findByName("lockClocks") == null) {
+            project.rootProject.tasks.register("lockClocks", LockClocksTask::class.java).configure {
+                it.adbPath.set(extension.adbExecutable.absolutePath)
+            }
+        }
+
+        if (project.rootProject.tasks.findByName("unlockClocks") == null) {
+            project.rootProject.tasks.register("unlockClocks", UnlockClocksTask::class.java)
+                .configure {
+                    it.adbPath.set(extension.adbExecutable.absolutePath)
+                }
+        }
 
         val extensionVariants = when (extension) {
             is AppExtension -> extension.applicationVariants
@@ -91,39 +134,64 @@ class BenchmarkPlugin : Plugin<Project> {
         extensionVariants.all {
             if (!applied) {
                 applied = true
-                project.tasks.named("connectedAndroidTest").configure {
-                    configureWithConnectedAndroidTest(project, it)
+
+                if (!project.properties[ADDITIONAL_TEST_OUTPUT_KEY].toString().toBoolean()) {
+                    // Only enable pulling benchmark data through this plugin on older versions of AGP
+                    // that do not yet enable this flag.
+                    project.tasks.register("benchmarkReport", BenchmarkReportTask::class.java)
+                        .configure {
+                            it.adbPath.set(extension.adbExecutable.absolutePath)
+                            it.dependsOn(project.tasks.named("connectedAndroidTest"))
+                        }
+
+                    project.tasks.named("connectedAndroidTest").configure {
+                        // The task benchmarkReport must be registered by this point, and is responsible
+                        // for pulling report data from all connected devices onto host machine through
+                        // adb.
+                        it.finalizedBy("benchmarkReport")
+                    }
+                } else {
+                    project.tasks.named("connectedAndroidTest").configure {
+                        it.doLast {
+                            Log.logAndDisplay(
+                                Log.LogLevel.INFO,
+                                "Benchmark",
+                                "Benchmark report files generated at ${project.buildDir}" +
+                                        "/outputs/connected_android_test_additional_output"
+                            )
+                        }
+                    }
+                }
+
+                // Check for legacy runner to provide a more helpful error message as it would
+                // normally print "No tests found" otherwise.
+                val legacyRunner = "androidx.benchmark.AndroidBenchmarkRunner"
+                if (defaultConfig.testInstrumentationRunner == legacyRunner) {
+                    throw StopExecutionException(
+                        """Detected usage of the testInstrumentationRunner,
+                            androidx.benchmark.AndroidBenchmarkRunner, in project ${project.name},
+                            which is no longer valid as it has been moved to
+                            androidx.benchmark.junit4.AndroidBenchmarkRunner."""
+                            .trimIndent()
+                    )
                 }
             }
         }
     }
 
-    private fun configureWithConnectedAndroidTest(project: Project, connectedAndroidTest: Task) {
-        // The task benchmarkReport must be registered by this point, and is responsible for
-        // pulling report data from all connected devices onto host machine through adb.
-        connectedAndroidTest.finalizedBy("benchmarkReport")
-
-        var hasJetpackBenchmark = false
-
-        project.configurations.matching { it.name.contains("androidTest") }.all {
-            it.allDependencies.all { dependency ->
-                if (dependency.name == "benchmark" && dependency.group == "androidx.benchmark") {
-                    hasJetpackBenchmark = true
-                }
-            }
-        }
-
-        if (!hasJetpackBenchmark) {
-            throw StopExecutionException(
-                """Project ${project.name} missing required project dependency,
-                    androidx.benchmark:benchmark. The androidx.benchmark plugin is meant to be
-                    used in conjunction with the androix.benchmark library, but it was not found
-                    within this project's dependencies. You can add the androidx.benchmark library
-                    to your project by including androidTestImplementation
-                    'androidx.benchmark:benchmark:<version>' in the dependencies block of the
-                    project build.gradle file"""
-                    .trimIndent()
-            )
+    /**
+     * Set test build type to release to prevent benchmarks from pulling in debug artifacts.
+     *
+     * This is only enabled for versions of AGP 3.6+, as the release build variant must be manually
+     * selected by the developer to get tests to compile on older versions of studio.
+     */
+    private fun TestedExtension.configureTestBuildType(buildType: String) {
+        val agpVersionTokens = ANDROID_GRADLE_PLUGIN_VERSION.split('.')
+        val majorVersion = agpVersionTokens[0].toInt()
+        val minorVersion = agpVersionTokens[1].toInt()
+        if (majorVersion > 3 || (majorVersion == 3 && minorVersion >= 6)) {
+            testBuildType = buildType
+            buildTypes.named(buildType).configure { it.isDefault.set(true) }
         }
     }
 }

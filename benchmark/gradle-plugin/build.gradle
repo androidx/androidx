@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
-
+import androidx.build.BuildServerConfigurationKt
 import androidx.build.CompilationTarget
 import androidx.build.LibraryGroups
 import androidx.build.LibraryVersions
 import androidx.build.SupportConfig
+import androidx.build.Publish
 
 import static androidx.build.dependencies.DependenciesKt.*
 
@@ -27,6 +28,8 @@ plugins {
     id("kotlin")
     id("java-gradle-plugin")
 }
+
+apply from: "kotlin-dsl-dependency.gradle.kts"
 
 ext.generatedResources = "$buildDir/generated/resources"
 ext.prebuiltsRoot = "${project.projectDir.getParentFile()}/../../../prebuilts"
@@ -38,7 +41,7 @@ sourceSets {
 
 dependencies {
     implementation gradleApi()
-    implementation(build_libs.gradle)
+    implementation(ANDROID_GRADLE_PLUGIN_3_6)
     implementation(KOTLIN_STDLIB)
 
     testImplementation gradleTestKit()
@@ -67,6 +70,17 @@ task generateSdkResource() {
 
 tasks["compileTestJava"].dependsOn generateSdkResource
 
+task buildOnServer(type: Copy) {
+  from {
+    def f = project.file("src/main/resources/scripts/lockClocks.sh")
+    if (!f.exists()) {
+        throw new GradleException(f.toString() + " does not exist")
+    }
+    return f
+  }
+  destinationDir BuildServerConfigurationKt.getDistributionDirectory(rootProject)
+}
+
 gradlePlugin {
     plugins {
         benchmark {
@@ -78,7 +92,7 @@ gradlePlugin {
 
 androidx {
     name = "Android Benchmark Gradle Plugin"
-    publish = true
+    publish = Publish.SNAPSHOT_AND_RELEASE
     toolingProject = true
     mavenVersion = LibraryVersions.BENCHMARK
     mavenGroup = LibraryGroups.BENCHMARK

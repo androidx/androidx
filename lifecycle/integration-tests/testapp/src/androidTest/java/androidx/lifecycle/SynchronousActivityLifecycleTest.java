@@ -29,6 +29,7 @@ import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.os.Build;
 
+import androidx.annotation.NonNull;
 import androidx.lifecycle.Lifecycle.Event;
 import androidx.lifecycle.testapp.LifecycleTestActivity;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -181,7 +182,7 @@ public class SynchronousActivityLifecycleTest {
         }
 
         @Override
-        public void onStateChanged(LifecycleOwner lifecycleOwner, Event event) {
+        public void onStateChanged(@NonNull LifecycleOwner lifecycleOwner, @NonNull Event event) {
             if (mMuted) {
                 return;
             }

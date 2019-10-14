@@ -71,7 +71,7 @@ import android.support.v4.media.MediaDescriptionCompat;
 import android.util.Log;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.filters.FlakyTest;
+import androidx.test.filters.LargeTest;
 import androidx.test.filters.MediumTest;
 import androidx.test.filters.SmallTest;
 
@@ -453,13 +453,13 @@ public class MediaBrowserCompatTest {
 
         mSubscriptionCallback.reset(1);
         mMediaBrowser.subscribe(MEDIA_ID_CHILDREN_DELAYED, mSubscriptionCallback);
-        mSubscriptionCallback.await(WAIT_TIME_FOR_NO_RESPONSE_MS);
+        assertFalse(mSubscriptionCallback.await(WAIT_TIME_FOR_NO_RESPONSE_MS));
         assertEquals(0, mSubscriptionCallback.mChildrenLoadedCount);
 
         callMediaBrowserServiceMethod(
                 SEND_DELAYED_NOTIFY_CHILDREN_CHANGED, MEDIA_ID_CHILDREN_DELAYED,
                 getApplicationContext());
-        mSubscriptionCallback.await(TIME_OUT_MS);
+        assertTrue(mSubscriptionCallback.await(TIME_OUT_MS));
         assertEquals(1, mSubscriptionCallback.mChildrenLoadedCount);
     }
 
@@ -542,8 +542,7 @@ public class MediaBrowserCompatTest {
     }
 
     @Test
-    @MediumTest
-    @FlakyTest(bugId = 74093976)
+    @LargeTest
     public void testUnsubscribeWithSubscriptionCallbackForMultipleSubscriptions() throws Exception {
         connectMediaBrowserService();
         final List<StubSubscriptionCallback> subscriptionCallbacks = new ArrayList<>();
@@ -580,21 +579,27 @@ public class MediaBrowserCompatTest {
             // Make StubMediaBrowserServiceCompat notify that the children are changed.
             callMediaBrowserServiceMethod(NOTIFY_CHILDREN_CHANGED, MEDIA_ID_ROOT,
                     getApplicationContext());
+
+            // Remaining subscriptionCallbacks should be called.
+            int remaining = orderOfRemovingCallbacks.length - i - 1;
+            for (int j = i + 1; j < orderOfRemovingCallbacks.length; j++) {
+                StubSubscriptionCallback callback = subscriptionCallbacks
+                        .get(orderOfRemovingCallbacks[j]);
+                assertTrue(callback.await(TIME_OUT_MS * remaining));
+                assertEquals(1, callback.mChildrenLoadedWithOptionCount);
+            }
+
             try {
                 Thread.sleep(SLEEP_MS);
             } catch (InterruptedException e) {
                 fail("Unexpected InterruptedException occurred.");
             }
 
-            // Only the remaining subscriptionCallbacks should be called.
-            for (int j = 0; j < 4; j++) {
-                int childrenLoadedWithOptionsCount = subscriptionCallbacks
-                        .get(orderOfRemovingCallbacks[j]).mChildrenLoadedWithOptionCount;
-                if (j <= i) {
-                    assertEquals(0, childrenLoadedWithOptionsCount);
-                } else {
-                    assertEquals(1, childrenLoadedWithOptionsCount);
-                }
+            // Removed subscriptionCallbacks should NOT be called.
+            for (int j = 0; j <= i; j++) {
+                StubSubscriptionCallback callback = subscriptionCallbacks
+                        .get(orderOfRemovingCallbacks[j]);
+                assertEquals(0, callback.mChildrenLoadedWithOptionCount);
             }
         }
     }
@@ -911,7 +916,7 @@ public class MediaBrowserCompatTest {
     }
 
     private class StubSubscriptionCallback extends MediaBrowserCompat.SubscriptionCallback {
-        private CountDownLatch mLatch;
+        private volatile CountDownLatch mLatch;
         private volatile int mChildrenLoadedCount;
         private volatile int mChildrenLoadedWithOptionCount;
         private volatile String mLastErrorId;
@@ -933,6 +938,7 @@ public class MediaBrowserCompatTest {
             try {
                 return mLatch.await(timeoutMs, TimeUnit.MILLISECONDS);
             } catch (InterruptedException e) {
+                Log.e(TAG, "interrupt while awaiting", e);
                 return false;
             }
         }

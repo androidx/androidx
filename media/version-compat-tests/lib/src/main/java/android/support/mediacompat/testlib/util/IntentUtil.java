@@ -103,6 +103,7 @@ public class IntentUtil {
         context.sendBroadcast(intent);
     }
 
+    @SuppressWarnings("unchecked")
     private static Intent createIntent(ComponentName componentName, int methodId, Object arg) {
         Intent intent = new Intent();
         intent.setComponent(componentName);

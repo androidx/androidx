@@ -32,7 +32,7 @@ import java.lang.annotation.RetentionPolicy;
  */
 public abstract class WebResourceErrorCompat {
     /** @hide */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     @IntDef(value = {
             WebViewClient.ERROR_UNKNOWN,
             WebViewClient.ERROR_HOST_LOOKUP,
@@ -89,7 +89,7 @@ public abstract class WebResourceErrorCompat {
      * This class cannot be created by applications.
      * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     public WebResourceErrorCompat() {
     }
 }

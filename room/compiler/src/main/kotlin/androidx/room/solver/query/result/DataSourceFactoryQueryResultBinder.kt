@@ -27,16 +27,17 @@ import com.squareup.javapoet.TypeSpec
 import javax.lang.model.element.Modifier
 
 class DataSourceFactoryQueryResultBinder(
-        val positionalDataSourceQueryResultBinder: PositionalDataSourceQueryResultBinder)
-    : QueryResultBinder(positionalDataSourceQueryResultBinder.listAdapter) {
+    val positionalDataSourceQueryResultBinder: PositionalDataSourceQueryResultBinder
+) :
+    QueryResultBinder(positionalDataSourceQueryResultBinder.listAdapter) {
     @Suppress("HasPlatformType")
     val typeName = positionalDataSourceQueryResultBinder.itemTypeName
     override fun convertAndReturn(
-            roomSQLiteQueryVar: String,
-            canReleaseQuery: Boolean,
-            dbField: FieldSpec,
-            inTransaction: Boolean,
-            scope: CodeGenScope
+        roomSQLiteQueryVar: String,
+        canReleaseQuery: Boolean,
+        dbField: FieldSpec,
+        inTransaction: Boolean,
+        scope: CodeGenScope
     ) {
         scope.builder().apply {
             val pagedListProvider = TypeSpec
@@ -54,10 +55,10 @@ class DataSourceFactoryQueryResultBinder(
     }
 
     private fun createCreateMethod(
-            roomSQLiteQueryVar: String,
-            dbField: FieldSpec,
-            inTransaction: Boolean,
-            scope: CodeGenScope
+        roomSQLiteQueryVar: String,
+        dbField: FieldSpec,
+        inTransaction: Boolean,
+        scope: CodeGenScope
     ): MethodSpec = MethodSpec.methodBuilder("create").apply {
         addAnnotation(Override::class.java)
         addModifiers(Modifier.PUBLIC)

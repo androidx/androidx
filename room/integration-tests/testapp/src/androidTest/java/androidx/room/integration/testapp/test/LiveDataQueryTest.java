@@ -32,13 +32,18 @@ import androidx.lifecycle.Observer;
 import androidx.room.InvalidationTrackerTrojan;
 import androidx.room.Room;
 import androidx.room.integration.testapp.FtsTestDatabase;
+import androidx.room.integration.testapp.MusicTestDatabase;
 import androidx.room.integration.testapp.dao.MailDao;
+import androidx.room.integration.testapp.dao.MusicDao;
 import androidx.room.integration.testapp.dao.SongDao;
 import androidx.room.integration.testapp.vo.AvgWeightByAge;
 import androidx.room.integration.testapp.vo.Mail;
 import androidx.room.integration.testapp.vo.Pet;
 import androidx.room.integration.testapp.vo.PetWithUser;
 import androidx.room.integration.testapp.vo.PetsToys;
+import androidx.room.integration.testapp.vo.Playlist;
+import androidx.room.integration.testapp.vo.PlaylistSongXRef;
+import androidx.room.integration.testapp.vo.PlaylistWithSongs;
 import androidx.room.integration.testapp.vo.Song;
 import androidx.room.integration.testapp.vo.SongDescription;
 import androidx.room.integration.testapp.vo.Toy;
@@ -264,6 +269,56 @@ public class LiveDataQueryTest extends TestDatabaseTest {
         expected.toys.add(toy);
         mToyDao.insert(toy);
         assertThat(observer.get(), is(expected));
+    }
+
+    @Test
+    public void withRelationAndJunction() throws ExecutionException, InterruptedException,
+            TimeoutException {
+        Context context = ApplicationProvider.getApplicationContext();
+        final MusicTestDatabase db = Room.inMemoryDatabaseBuilder(context, MusicTestDatabase.class)
+                .build();
+        final MusicDao musicDao = db.getDao();
+
+        final Song mSong1 = new Song(
+                1,
+                "I Know Places",
+                "Taylor Swift",
+                "1989",
+                195,
+                2014);
+        final Song mSong2 = new Song(
+                2,
+                "Blank Space",
+                "Taylor Swift",
+                "1989",
+                241,
+                2014);
+
+        final Playlist mPlaylist1 = new Playlist(1);
+        final Playlist mPlaylist2 = new Playlist(2);
+
+        musicDao.addSongs(mSong1, mSong2);
+        musicDao.addPlaylists(mPlaylist1, mPlaylist2);
+
+        musicDao.addPlaylistSongRelation(new PlaylistSongXRef(1, 1));
+
+        LiveData<PlaylistWithSongs> liveData = musicDao.getPlaylistsWithSongsLiveData(1);
+
+        final TestLifecycleOwner lifecycleOwner = new TestLifecycleOwner();
+        lifecycleOwner.handleEvent(Lifecycle.Event.ON_START);
+        final TestObserver<PlaylistWithSongs> observer = new MyTestObserver<>();
+        TestUtil.observeOnMainThread(liveData, lifecycleOwner, observer);
+
+        assertThat(observer.get().songs.size(), is(1));
+        assertThat(observer.get().songs.get(0), is(mSong1));
+
+        observer.reset();
+
+        musicDao.addPlaylistSongRelation(new PlaylistSongXRef(1, 2));
+
+        assertThat(observer.get().songs.size(), is(2));
+        assertThat(observer.get().songs.get(0), is(mSong1));
+        assertThat(observer.get().songs.get(1), is(mSong2));
     }
 
     @Test

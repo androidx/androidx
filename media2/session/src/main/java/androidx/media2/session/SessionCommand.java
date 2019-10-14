@@ -16,11 +16,14 @@
 
 package androidx.media2.session;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
+import android.annotation.SuppressLint;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.view.Surface;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
@@ -42,7 +45,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.util.List;
 
 /**
- * Define a command that a {@link MediaController} can send to a {@link MediaSession}.
+ * Defines a command that a {@link MediaController} can send to a {@link MediaSession}.
  * <p>
  * If {@link #getCommandCode()} isn't {@link #COMMAND_CODE_CUSTOM}), it's predefined command.
  * If {@link #getCommandCode()} is {@link #COMMAND_CODE_CUSTOM}), it's custom command and
@@ -52,7 +55,7 @@ import java.util.List;
 public final class SessionCommand implements VersionedParcelable {
     /**
      * The first version of session commands. This version is for commands introduced in
-     * AndroidX 1.0.0.
+     * AndroidX media2-session 1.0.0.
      * <p>
      * This would be used to specify which commands should be added by
      * {@link SessionCommandGroup.Builder#addAllPredefinedCommands(int)}
@@ -62,23 +65,35 @@ public final class SessionCommand implements VersionedParcelable {
     public static final int COMMAND_VERSION_1 = 1;
 
     /**
-     * @hide
+     * The first version of session commands. This version is for commands introduced in
+     * AndroidX media2-session 1.1.0.
+     * <p>
+     * This would be used to specify which commands should be added by
+     * {@link SessionCommandGroup.Builder#addAllPredefinedCommands(int)}
+     *
+     * @see SessionCommandGroup.Builder#addAllPredefinedCommands(int)
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
-    public static final int COMMAND_VERSION_CURRENT = COMMAND_VERSION_1;
+    public static final int COMMAND_VERSION_2 = 2;
 
     /**
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
-    @IntDef({COMMAND_VERSION_1})
+    @RestrictTo(LIBRARY)
+    public static final int COMMAND_VERSION_CURRENT = COMMAND_VERSION_2;
+
+    /**
+     * @hide
+     */
+    @RestrictTo(LIBRARY)
+    @SuppressLint("UniqueConstants")
+    @IntDef({COMMAND_VERSION_1, COMMAND_VERSION_2, COMMAND_VERSION_CURRENT})
     @Retention(RetentionPolicy.SOURCE)
     public @interface CommandVersion {}
 
     /**
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RestrictTo(LIBRARY)
     @IntDef({COMMAND_CODE_CUSTOM,
             COMMAND_CODE_PLAYER_PLAY,
             COMMAND_CODE_PLAYER_PAUSE,
@@ -96,9 +111,13 @@ public final class SessionCommand implements VersionedParcelable {
             COMMAND_CODE_PLAYER_ADD_PLAYLIST_ITEM,
             COMMAND_CODE_PLAYER_REMOVE_PLAYLIST_ITEM,
             COMMAND_CODE_PLAYER_REPLACE_PLAYLIST_ITEM,
+            COMMAND_CODE_PLAYER_MOVE_PLAYLIST_ITEM,
             COMMAND_CODE_PLAYER_GET_CURRENT_MEDIA_ITEM,
             COMMAND_CODE_PLAYER_UPDATE_LIST_METADATA,
             COMMAND_CODE_PLAYER_SET_MEDIA_ITEM,
+            COMMAND_CODE_PLAYER_SET_SURFACE,
+            COMMAND_CODE_PLAYER_SELECT_TRACK,
+            COMMAND_CODE_PLAYER_DESELECT_TRACK,
             COMMAND_CODE_VOLUME_SET_VOLUME,
             COMMAND_CODE_VOLUME_ADJUST_VOLUME,
             COMMAND_CODE_SESSION_FAST_FORWARD,
@@ -132,8 +151,9 @@ public final class SessionCommand implements VersionedParcelable {
     ////////////////////////////////////////////////////////////////////////////////////////////////
     // Player commands (i.e. commands to {@link SessionPlayer})
     ////////////////////////////////////////////////////////////////////////////////////////////////
-    static final ArrayMap<Integer, Range> VERSION_PLAYER_COMMANDS_MAP = new ArrayMap<>();
+    static final ArrayMap<Integer, Range> VERSION_PLAYER_BASIC_COMMANDS_MAP = new ArrayMap<>();
     static final ArrayMap<Integer, Range> VERSION_PLAYER_PLAYLIST_COMMANDS_MAP = new ArrayMap<>();
+    static final ArrayMap<Integer, Range> VERSION_PLAYER_HIDDEN_COMMANDS_MAP = new ArrayMap<>();
 
     /**
      * Command code for {@link MediaController#play()}.
@@ -336,15 +356,74 @@ public final class SessionCommand implements VersionedParcelable {
      */
     public static final int COMMAND_CODE_PLAYER_SET_MEDIA_ITEM = 10018;
 
+    /**
+     * Command code for {@link MediaController#replacePlaylistItem(int, String)}.
+     * <p>
+     * Command would be sent directly to the player if the session doesn't reject the request
+     * through the
+     * {@link SessionCallback#onCommandRequest(MediaSession, ControllerInfo, SessionCommand)}.
+     * <p>
+     * Code version is {@link #COMMAND_VERSION_2}.
+     */
+    public static final int COMMAND_CODE_PLAYER_MOVE_PLAYLIST_ITEM = 10019;
+
+    /**
+     * Command code for {@link MediaController#setSurface(Surface)}.
+     * <p>
+     * Command would be sent directly to the player if the session doesn't reject the request
+     * through the
+     * {@link SessionCallback#onCommandRequest(MediaSession, ControllerInfo, SessionCommand)}.
+     * <p>
+     * Code version is {@link #COMMAND_VERSION_1}.
+     *
+     * @hide
+     */
+    @RestrictTo(LIBRARY)
+    public static final int COMMAND_CODE_PLAYER_SET_SURFACE = 11000;
+
+    /**
+     * Command code for {@link MediaController#selectTrack(SessionPlayer.TrackInfo)}.
+     * <p>
+     * Command would be sent directly to the player if the session doesn't reject the request
+     * through the
+     * {@link SessionCallback#onCommandRequest(MediaSession, ControllerInfo, SessionCommand)}.
+     * <p>
+     * Code version is {@link #COMMAND_VERSION_1}.
+     * @hide
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    public static final int COMMAND_CODE_PLAYER_SELECT_TRACK = 11001;
+
+    /**
+     * Command code for {@link MediaController#deselectTrack(SessionPlayer.TrackInfo)}.
+     * <p>
+     * Command would be sent directly to the player if the session doesn't reject the request
+     * through the
+     * {@link SessionCallback#onCommandRequest(MediaSession, ControllerInfo, SessionCommand)}.
+     * <p>
+     * Code version is {@link #COMMAND_VERSION_1}.
+     * @hide
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    public static final int COMMAND_CODE_PLAYER_DESELECT_TRACK = 11002;
+
     static {
-        VERSION_PLAYER_COMMANDS_MAP.put(COMMAND_VERSION_1,
-                new Range(COMMAND_CODE_PLAYER_PLAY, COMMAND_CODE_PLAYER_SET_MEDIA_ITEM));
+        VERSION_PLAYER_BASIC_COMMANDS_MAP.put(COMMAND_VERSION_1,
+                new Range(COMMAND_CODE_PLAYER_PLAY, COMMAND_CODE_PLAYER_SET_SPEED));
     }
 
     static {
         VERSION_PLAYER_PLAYLIST_COMMANDS_MAP.put(COMMAND_VERSION_1,
                 new Range(COMMAND_CODE_PLAYER_GET_PLAYLIST,
                         COMMAND_CODE_PLAYER_SET_MEDIA_ITEM));
+        VERSION_PLAYER_PLAYLIST_COMMANDS_MAP.put(COMMAND_VERSION_2,
+                new Range(COMMAND_CODE_PLAYER_MOVE_PLAYLIST_ITEM,
+                        COMMAND_CODE_PLAYER_MOVE_PLAYLIST_ITEM));
+    }
+
+    static {
+        VERSION_PLAYER_HIDDEN_COMMANDS_MAP.put(COMMAND_VERSION_1,
+                new Range(COMMAND_CODE_PLAYER_SET_SURFACE, COMMAND_CODE_PLAYER_DESELECT_TRACK));
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -422,7 +501,7 @@ public final class SessionCommand implements VersionedParcelable {
      * Code version is {@link #COMMAND_VERSION_1}.
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RestrictTo(LIBRARY)
     public static final int COMMAND_CODE_SESSION_PLAY_FROM_MEDIA_ID = 40004;
 
     /**
@@ -431,7 +510,7 @@ public final class SessionCommand implements VersionedParcelable {
      * Code version is {@link #COMMAND_VERSION_1}.
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RestrictTo(LIBRARY)
     public static final int COMMAND_CODE_SESSION_PLAY_FROM_SEARCH = 40005;
 
     /**
@@ -440,7 +519,7 @@ public final class SessionCommand implements VersionedParcelable {
      * Code version is {@link #COMMAND_VERSION_1}.
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RestrictTo(LIBRARY)
     public static final int COMMAND_CODE_SESSION_PLAY_FROM_URI = 40006;
 
     /**
@@ -449,7 +528,7 @@ public final class SessionCommand implements VersionedParcelable {
      * Code version is {@link #COMMAND_VERSION_1}.
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RestrictTo(LIBRARY)
     public static final int COMMAND_CODE_SESSION_PREPARE_FROM_MEDIA_ID = 40007;
 
     /**
@@ -458,7 +537,7 @@ public final class SessionCommand implements VersionedParcelable {
      * Code version is {@link #COMMAND_VERSION_1}.
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RestrictTo(LIBRARY)
     public static final int COMMAND_CODE_SESSION_PREPARE_FROM_SEARCH = 40008;
 
     /**
@@ -467,7 +546,7 @@ public final class SessionCommand implements VersionedParcelable {
      * Code version is {@link #COMMAND_VERSION_1}.
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RestrictTo(LIBRARY)
     public static final int COMMAND_CODE_SESSION_PREPARE_FROM_URI = 40009;
 
     /**
@@ -589,7 +668,8 @@ public final class SessionCommand implements VersionedParcelable {
      * Gets the command code of a predefined command.
      * This will return {@link #COMMAND_CODE_CUSTOM} for a custom command.
      */
-    public @CommandCode int getCommandCode() {
+    @CommandCode
+    public int getCommandCode() {
         return mCommandCode;
     }
 
@@ -597,7 +677,8 @@ public final class SessionCommand implements VersionedParcelable {
      * Gets the action of a custom command.
      * This will return {@code null} for a predefined command.
      */
-    public @Nullable String getCustomAction() {
+    @Nullable
+    public String getCustomAction() {
         return mCustomAction;
     }
 
@@ -605,7 +686,8 @@ public final class SessionCommand implements VersionedParcelable {
      * Gets the extra bundle of a custom command.
      * This will return {@code null} for a predefined command.
      */
-    public @Nullable Bundle getCustomExtras() {
+    @Nullable
+    public Bundle getCustomExtras() {
         return mCustomExtras;
     }
 

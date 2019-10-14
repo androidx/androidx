@@ -38,7 +38,7 @@ public class ViewPagerWithTitleStripTest
     }
 
     @Override
-    protected Class getStripClass() {
+    protected Class<PagerTitleStrip> getStripClass() {
         return PagerTitleStrip.class;
     }
 

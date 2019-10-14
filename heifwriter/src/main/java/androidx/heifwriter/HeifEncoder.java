@@ -25,6 +25,7 @@ import android.media.MediaCodec.BufferInfo;
 import android.media.MediaCodec.CodecException;
 import android.media.MediaCodecInfo;
 import android.media.MediaCodecInfo.CodecCapabilities;
+import android.media.MediaCodecList;
 import android.media.MediaFormat;
 import android.opengl.GLES20;
 import android.os.Handler;
@@ -44,6 +45,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * This class encodes images into HEIF-compatible samples using HEVC encoder.
@@ -71,6 +73,9 @@ public final class HeifEncoder implements AutoCloseable,
     private static final int GRID_HEIGHT = 512;
     private static final double MAX_COMPRESS_RATIO = 0.25f;
     private static final int INPUT_BUFFER_POOL_SIZE = 2;
+
+    private static final MediaCodecList sMCL =
+            new MediaCodecList(MediaCodecList.REGULAR_CODECS);
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     MediaCodec mEncoder;
@@ -121,6 +126,7 @@ public final class HeifEncoder implements AutoCloseable,
     private EglRectBlt mRectBlt;
     private int mTextureId;
     private final float[] mTmpMatrix = new float[16];
+    private final AtomicBoolean mStopping = new AtomicBoolean(false);
 
     public static final int INPUT_MODE_BUFFER = HeifWriter.INPUT_MODE_BUFFER;
     public static final int INPUT_MODE_SURFACE = HeifWriter.INPUT_MODE_SURFACE;
@@ -209,7 +215,7 @@ public final class HeifEncoder implements AutoCloseable,
             }
             useHeicEncoder = true;
         } catch (Exception e) {
-            mEncoder = MediaCodec.createEncoderByType(MediaFormat.MIMETYPE_VIDEO_HEVC);
+            mEncoder = MediaCodec.createByCodecName(findHevcFallback());
             caps = mEncoder.getCodecInfo().getCapabilitiesForType(MediaFormat.MIMETYPE_VIDEO_HEVC);
             // Always enable grid if the size is too large for the HEVC encoder
             useGrid |= !caps.getVideoCapabilities().isSizeSupported(width, height);
@@ -233,6 +239,7 @@ public final class HeifEncoder implements AutoCloseable,
                 (inputMode == INPUT_MODE_SURFACE) || (inputMode == INPUT_MODE_BITMAP);
         int colorFormat = useSurfaceInternally ? CodecCapabilities.COLOR_FormatSurface :
                 CodecCapabilities.COLOR_FormatYUV420Flexible;
+        boolean copyTiles = (useGrid && !useHeicEncoder) || (inputMode == INPUT_MODE_BITMAP);
 
         mWidth = width;
         mHeight = height;
@@ -284,7 +291,20 @@ public final class HeifEncoder implements AutoCloseable,
         codecFormat.setInteger(MediaFormat.KEY_I_FRAME_INTERVAL, 0);
         codecFormat.setInteger(MediaFormat.KEY_COLOR_FORMAT, colorFormat);
         codecFormat.setInteger(MediaFormat.KEY_FRAME_RATE, mNumTiles);
-        codecFormat.setInteger(MediaFormat.KEY_CAPTURE_RATE, mNumTiles * 30);
+
+        // When we're doing tiles, set the operating rate higher as the size
+        // is small, otherwise set to the normal 30fps.
+        if (mNumTiles > 1) {
+            codecFormat.setInteger(MediaFormat.KEY_OPERATING_RATE, 120);
+        } else {
+            codecFormat.setInteger(MediaFormat.KEY_OPERATING_RATE, 30);
+        }
+
+        if (useSurfaceInternally && !copyTiles) {
+            // Use fixed PTS gap and disable backward frame drop
+            Log.d(TAG, "Setting fixed pts gap");
+            codecFormat.setLong(MediaFormat.KEY_MAX_PTS_GAP_TO_ENCODER, -1000000);
+        }
 
         MediaCodecInfo.EncoderCapabilities encoderCaps = caps.getEncoderCapabilities();
 
@@ -311,7 +331,8 @@ public final class HeifEncoder implements AutoCloseable,
             // Calculate the bitrate based on image dimension, max compression ratio and quality.
             // Note that we set the frame rate to the number of tiles, so the bitrate would be the
             // intended bits for one image.
-            int bitrate = (int) (width * height * 1.5 * 8 * MAX_COMPRESS_RATIO * quality / 100.0f);
+            int bitrate = caps.getVideoCapabilities().getBitrateRange().clamp(
+                    (int) (width * height * 1.5 * 8 * MAX_COMPRESS_RATIO * quality / 100.0f));
             codecFormat.setInteger(MediaFormat.KEY_BIT_RATE, bitrate);
         }
 
@@ -321,7 +342,6 @@ public final class HeifEncoder implements AutoCloseable,
         if (useSurfaceInternally) {
             mEncoderSurface = mEncoder.createInputSurface();
 
-            boolean copyTiles = (useGrid && !useHeicEncoder) || (inputMode == INPUT_MODE_BITMAP);
             mEOSTracker = new SurfaceEOSTracker(copyTiles);
 
             if (copyTiles) {
@@ -360,6 +380,38 @@ public final class HeifEncoder implements AutoCloseable,
         mSrcRect = new Rect();
     }
 
+    private String findHevcFallback() {
+        String hevc = null; // first HEVC encoder
+        String hevcCq = null; // first non-hw HEVC encoder with CQ support
+        for (MediaCodecInfo info : sMCL.getCodecInfos()) {
+            if (!info.isEncoder()) {
+                continue;
+            }
+            MediaCodecInfo.CodecCapabilities caps = null;
+            try {
+                caps = info.getCapabilitiesForType(MediaFormat.MIMETYPE_VIDEO_HEVC);
+            } catch (IllegalArgumentException e) { // mime is not supported
+                continue;
+            }
+            if (!caps.getVideoCapabilities().isSizeSupported(GRID_WIDTH, GRID_HEIGHT)) {
+                continue;
+            }
+            if (caps.getEncoderCapabilities().isBitrateModeSupported(
+                    MediaCodecInfo.EncoderCapabilities.BITRATE_MODE_CQ)) {
+                if (info.isHardwareAccelerated()) {
+                    // the ideal one we're looking for, can return now.
+                    return info.getName();
+                }
+                if (hevcCq == null) {
+                    hevcCq = info.getName();
+                }
+            }
+            if (hevc == null) {
+                hevc = info.getName();
+            }
+        }
+        return (hevcCq != null) ? hevcCq : hevc;
+    }
     /**
      * Copies from source frame to encoder inputs using GL. The source could be either
      * client's input surface, or the input bitmap loaded to texture.
@@ -372,7 +424,17 @@ public final class HeifEncoder implements AutoCloseable,
                 int left = col * mGridWidth;
                 int top = row * mGridHeight;
                 mSrcRect.set(left, top, left + mGridWidth, top + mGridHeight);
-                mRectBlt.copyRect(mTextureId, Texture2dProgram.V_FLIP_MATRIX, mSrcRect);
+                try {
+                    mRectBlt.copyRect(mTextureId, Texture2dProgram.V_FLIP_MATRIX, mSrcRect);
+                } catch (RuntimeException e) {
+                    // EGL copy could throw if the encoder input surface is no longer valid
+                    // after encoder is released. This is not an error because we're already
+                    // stopping (either after EOS is received or requested by client).
+                    if (mStopping.get()) {
+                        return;
+                    }
+                    throw e;
+                }
                 mEncoderEglSurface.setPresentationTime(
                         1000 * computePresentationTime(mInputIndex++));
                 mEncoderEglSurface.swapBuffers();
@@ -679,7 +741,11 @@ public final class HeifEncoder implements AutoCloseable,
     void stopInternal() {
         if (DEBUG) Log.d(TAG, "stopInternal");
 
-        // after start, mEncoder is only accessed on handler, so no need to sync
+        // set stopping, so that the tile copy would bail out
+        // if it hits failure after this point.
+        mStopping.set(true);
+
+        // after start, mEncoder is only accessed on handler, so no need to sync.
         if (mEncoder != null) {
             mEncoder.stop();
             mEncoder.release();
@@ -692,6 +758,13 @@ public final class HeifEncoder implements AutoCloseable,
             mEmptyBuffers.notifyAll();
         }
 
+        // Clean up surface and Egl related refs. This lock must come after encoder
+        // release. When we're closing, we insert stopInternal() at the front of queue
+        // so that the shutdown can be processed promptly, this means there might be
+        // some output available requests queued after this. As the tile copies trying
+        // to finish the current frame, there is a chance is might get stuck because
+        // those outputs were not returned. Shutting down the encoder will make break
+        // the tile copier out of that.
         synchronized(this) {
             if (mRectBlt != null) {
                 mRectBlt.release(false);

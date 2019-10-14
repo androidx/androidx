@@ -17,6 +17,7 @@
 
 package androidx.recyclerview.widget;
 
+import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 import static androidx.core.view.ViewCompat.TYPE_NON_TOUCH;
 import static androidx.core.view.ViewCompat.TYPE_TOUCH;
@@ -218,8 +219,6 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
     private static final int[]  NESTED_SCROLLING_ATTRS =
             {16843830 /* android.R.attr.nestedScrollingEnabled */};
 
-    private static final int[] CLIP_TO_PADDING_ATTR = {android.R.attr.clipToPadding};
-
     /**
      * On Kitkat and JB MR2, there is a bug which prevents DisplayList from being invalidated if
      * a View is two levels deep(wrt to ViewHolder.itemView). DisplayList can be invalidated by
@@ -290,7 +289,10 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
      */
     public static final int TOUCH_SLOP_PAGING = 1;
 
-    static final int UNDEFINED_DURATION = Integer.MIN_VALUE;
+    /**
+     * Constant that represents that a duration has not been defined.
+     */
+    public static final int UNDEFINED_DURATION = Integer.MIN_VALUE;
 
     static final int MAX_SCROLL_DURATION = 2000;
 
@@ -358,7 +360,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
      */
     static final String TRACE_CREATE_VIEW_TAG = "RV CreateView";
     private static final Class<?>[] LAYOUT_MANAGER_CONSTRUCTOR_SIGNATURE =
-            new Class[]{Context.class, AttributeSet.class, int.class, int.class};
+            new Class<?>[]{Context.class, AttributeSet.class, int.class, int.class};
 
     private final RecyclerViewDataObserver mObserver = new RecyclerViewDataObserver();
 
@@ -645,18 +647,11 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
     }
 
     public RecyclerView(@NonNull Context context, @Nullable AttributeSet attrs) {
-        this(context, attrs, 0);
+        this(context, attrs, R.attr.recyclerViewStyle);
     }
 
-    public RecyclerView(@NonNull Context context, @Nullable AttributeSet attrs, int defStyle) {
-        super(context, attrs, defStyle);
-        if (attrs != null) {
-            TypedArray a = context.obtainStyledAttributes(attrs, CLIP_TO_PADDING_ATTR, defStyle, 0);
-            mClipToPadding = a.getBoolean(0, true);
-            a.recycle();
-        } else {
-            mClipToPadding = true;
-        }
+    public RecyclerView(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
+        super(context, attrs, defStyleAttr);
         setScrollContainer(true);
         setFocusableInTouchMode(true);
 
@@ -683,46 +678,49 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
         mAccessibilityManager = (AccessibilityManager) getContext()
                 .getSystemService(Context.ACCESSIBILITY_SERVICE);
         setAccessibilityDelegateCompat(new RecyclerViewAccessibilityDelegate(this));
-        // Create the layoutManager if specified.
 
-        boolean nestedScrollingEnabled = true;
-
-        if (attrs != null) {
-            int defStyleRes = 0;
-            TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.RecyclerView,
-                    defStyle, defStyleRes);
-            String layoutManagerName = a.getString(R.styleable.RecyclerView_layoutManager);
-            int descendantFocusability = a.getInt(
-                    R.styleable.RecyclerView_android_descendantFocusability, -1);
-            if (descendantFocusability == -1) {
-                setDescendantFocusability(ViewGroup.FOCUS_AFTER_DESCENDANTS);
-            }
-            mEnableFastScroller = a.getBoolean(R.styleable.RecyclerView_fastScrollEnabled, false);
-            if (mEnableFastScroller) {
-                StateListDrawable verticalThumbDrawable = (StateListDrawable) a
-                        .getDrawable(R.styleable.RecyclerView_fastScrollVerticalThumbDrawable);
-                Drawable verticalTrackDrawable = a
-                        .getDrawable(R.styleable.RecyclerView_fastScrollVerticalTrackDrawable);
-                StateListDrawable horizontalThumbDrawable = (StateListDrawable) a
-                        .getDrawable(R.styleable.RecyclerView_fastScrollHorizontalThumbDrawable);
-                Drawable horizontalTrackDrawable = a
-                        .getDrawable(R.styleable.RecyclerView_fastScrollHorizontalTrackDrawable);
-                initFastScroller(verticalThumbDrawable, verticalTrackDrawable,
-                        horizontalThumbDrawable, horizontalTrackDrawable);
-            }
-            a.recycle();
-            createLayoutManager(context, layoutManagerName, attrs, defStyle, defStyleRes);
-
-            if (Build.VERSION.SDK_INT >= 21) {
-                a = context.obtainStyledAttributes(attrs, NESTED_SCROLLING_ATTRS,
-                        defStyle, defStyleRes);
-                nestedScrollingEnabled = a.getBoolean(0, true);
-                a.recycle();
-            }
-        } else {
+        TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.RecyclerView,
+                defStyleAttr, 0);
+        if (Build.VERSION.SDK_INT >= 29) {
+            saveAttributeDataForStyleable(context, R.styleable.RecyclerView, attrs, a,
+                    defStyleAttr, 0);
+        }
+        String layoutManagerName = a.getString(R.styleable.RecyclerView_layoutManager);
+        int descendantFocusability = a.getInt(
+                R.styleable.RecyclerView_android_descendantFocusability, -1);
+        if (descendantFocusability == -1) {
             setDescendantFocusability(ViewGroup.FOCUS_AFTER_DESCENDANTS);
         }
+        mClipToPadding = a.getBoolean(R.styleable.RecyclerView_android_clipToPadding, true);
+        mEnableFastScroller = a.getBoolean(R.styleable.RecyclerView_fastScrollEnabled, false);
+        if (mEnableFastScroller) {
+            StateListDrawable verticalThumbDrawable = (StateListDrawable) a
+                    .getDrawable(R.styleable.RecyclerView_fastScrollVerticalThumbDrawable);
+            Drawable verticalTrackDrawable = a
+                    .getDrawable(R.styleable.RecyclerView_fastScrollVerticalTrackDrawable);
+            StateListDrawable horizontalThumbDrawable = (StateListDrawable) a
+                    .getDrawable(R.styleable.RecyclerView_fastScrollHorizontalThumbDrawable);
+            Drawable horizontalTrackDrawable = a
+                    .getDrawable(R.styleable.RecyclerView_fastScrollHorizontalTrackDrawable);
+            initFastScroller(verticalThumbDrawable, verticalTrackDrawable,
+                    horizontalThumbDrawable, horizontalTrackDrawable);
+        }
+        a.recycle();
 
+        // Create the layoutManager if specified.
+        createLayoutManager(context, layoutManagerName, attrs, defStyleAttr, 0);
+
+        boolean nestedScrollingEnabled = true;
+        if (Build.VERSION.SDK_INT >= 21) {
+            a = context.obtainStyledAttributes(attrs, NESTED_SCROLLING_ATTRS,
+                    defStyleAttr, 0);
+            if (Build.VERSION.SDK_INT >= 29) {
+                saveAttributeDataForStyleable(
+                        context, NESTED_SCROLLING_ATTRS, attrs, a, defStyleAttr, 0);
+            }
+            nestedScrollingEnabled = a.getBoolean(0, true);
+            a.recycle();
+        }
         // Re-set whether nested scrolling is enabled so that it is set on all API levels
         setNestedScrollingEnabled(nestedScrollingEnabled);
     }
@@ -1955,13 +1953,11 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
                 TYPE_TOUCH, mReusableIntPair);
         unconsumedX -= mReusableIntPair[0];
         unconsumedY -= mReusableIntPair[1];
+        boolean consumedNestedScroll = mReusableIntPair[0] != 0 || mReusableIntPair[1] != 0;
 
         // Update the last touch co-ords, taking any scroll offset into account
         mLastTouchX -= mScrollOffset[0];
         mLastTouchY -= mScrollOffset[1];
-        if (ev != null) {
-            ev.offsetLocation(mScrollOffset[0], mScrollOffset[1]);
-        }
         mNestedOffsets[0] += mScrollOffset[0];
         mNestedOffsets[1] += mScrollOffset[1];
 
@@ -1977,7 +1973,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
         if (!awakenScrollBars()) {
             invalidate();
         }
-        return consumedX != 0 || consumedY != 0;
+        return consumedNestedScroll || consumedX != 0 || consumedY != 0;
     }
 
     /**
@@ -2213,6 +2209,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
      *
      * @param suppress true to suppress layout and scroll, false to re-enable.
      */
+    @Override
     public final void suppressLayout(boolean suppress) {
         if (suppress != mLayoutSuppressed) {
             assertNotInLayoutOrScroll("Do not suppressLayout in layout or scroll");
@@ -2240,6 +2237,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
      *
      * @return true if layout and scroll are currently suppressed, false otherwise.
      */
+    @Override
     public final boolean isLayoutSuppressed() {
         return mLayoutSuppressed;
     }
@@ -2289,6 +2287,26 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
     @Deprecated
     @Override
     public void setLayoutTransition(LayoutTransition transition) {
+        if (Build.VERSION.SDK_INT < 18) {
+            // Transitions on APIs below 18 are using an empty LayoutTransition as a replacement
+            // for suppressLayout(true) and null LayoutTransition to then unsuppress it.
+            // We can detect this cases and use our suppressLayout() implementation instead.
+            if (transition == null) {
+                suppressLayout(false);
+                return;
+            } else {
+                int layoutTransitionChanging = 4; // LayoutTransition.CHANGING (Added in API 16)
+                if (transition.getAnimator(LayoutTransition.CHANGE_APPEARING) == null
+                        && transition.getAnimator(LayoutTransition.CHANGE_DISAPPEARING) == null
+                        && transition.getAnimator(LayoutTransition.APPEARING) == null
+                        && transition.getAnimator(LayoutTransition.DISAPPEARING) == null
+                        && transition.getAnimator(layoutTransitionChanging) == null) {
+                    suppressLayout(true);
+                    return;
+                }
+            }
+        }
+
         if (transition == null) {
             super.setLayoutTransition(null);
         } else {
@@ -2314,9 +2332,61 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
      * @param dx Pixels to scroll horizontally
      * @param dy Pixels to scroll vertically
      * @param interpolator {@link Interpolator} to be used for scrolling. If it is
-     *                     {@code null}, RecyclerView is going to use the default interpolator.
+     *                     {@code null}, RecyclerView will use an internal default interpolator.
      */
     public void smoothScrollBy(@Px int dx, @Px int dy, @Nullable Interpolator interpolator) {
+        smoothScrollBy(dx, dy, interpolator, UNDEFINED_DURATION);
+    }
+
+    /**
+     * Smooth scrolls the RecyclerView by a given distance.
+     *
+     * @param dx x distance in pixels.
+     * @param dy y distance in pixels.
+     * @param interpolator {@link Interpolator} to be used for scrolling. If it is {@code null},
+     *                     RecyclerView will use an internal default interpolator.
+     * @param duration Duration of the animation in milliseconds. Set to {@link #UNDEFINED_DURATION}
+     *                 to have the duration be automatically calculated based on an internally
+     *                 defined standard initial velocity. A duration less than 1 (that does not
+     *                 equal UNDEFINED_DURATION), will result in a call to
+     *                 {@link #scrollBy(int, int)}.
+     */
+    public void smoothScrollBy(@Px int dx, @Px int dy, @Nullable Interpolator interpolator,
+            int duration) {
+        smoothScrollBy(dx, dy, interpolator, duration, false);
+    }
+
+    /**
+     * Internal smooth scroll by implementation that currently has some tricky logic related to it's
+     * parameters.
+     * <ul>
+     *   <li>For scrolling to occur, on either dimension, dx or dy must not be equal to 0 and the
+     *   {@link LayoutManager} must support scrolling in a direction for which the value is not 0.
+     *   <li>For smooth scrolling to occur, scrolling must occur and the duration must be equal to
+     *   {@link #UNDEFINED_DURATION} or greater than 0.
+     *   <li>For scrolling to occur with nested scrolling, smooth scrolling must occur and
+     *   {@code withNestedScrolling} must be {@code true}.  This could be updated, but it would
+     *   require that {@link #scrollBy(int, int)} be implemented such that it too can handle nested
+     *   scrolling.
+     * </ul>
+     *
+     * @param dx x distance in pixels.
+     * @param dy y distance in pixels.
+     * @param interpolator {@link Interpolator} to be used for scrolling. If it is {@code null},
+     *                     RecyclerView will use an internal default interpolator.
+     * @param duration Duration of the animation in milliseconds. Set to {@link #UNDEFINED_DURATION}
+     *                 to have the duration be automatically calculated based on an internally
+     *                 defined standard initial velocity. A duration less than 1 (that does not
+     *                 equal UNDEFINED_DURATION), will result in a call to
+     *                 {@link #scrollBy(int, int)}.
+     * @param withNestedScrolling True to perform the smooth scroll with nested scrolling. If
+     *                            {@code duration} is less than 0 and not equal to
+     *                            {@link #UNDEFINED_DURATION}, smooth scrolling will not occur and
+     *                            thus no nested scrolling will occur.
+     */
+    // Should be considered private. Not private to avoid synthetic accessor.
+    void smoothScrollBy(@Px int dx, @Px int dy, @Nullable Interpolator interpolator,
+            int duration, boolean withNestedScrolling) {
         if (mLayout == null) {
             Log.e(TAG, "Cannot smooth scroll without a LayoutManager set. "
                     + "Call setLayoutManager with a non-null argument.");
@@ -2332,7 +2402,22 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
             dy = 0;
         }
         if (dx != 0 || dy != 0) {
-            mViewFlinger.smoothScrollBy(dx, dy, UNDEFINED_DURATION, interpolator);
+            boolean durationSuggestsAnimation = duration == UNDEFINED_DURATION || duration > 0;
+            if (durationSuggestsAnimation) {
+                if (withNestedScrolling) {
+                    int nestedScrollAxis = ViewCompat.SCROLL_AXIS_NONE;
+                    if (dx != 0) {
+                        nestedScrollAxis |= ViewCompat.SCROLL_AXIS_HORIZONTAL;
+                    }
+                    if (dy != 0) {
+                        nestedScrollAxis |= ViewCompat.SCROLL_AXIS_VERTICAL;
+                    }
+                    startNestedScroll(nestedScrollAxis, TYPE_NON_TOUCH);
+                }
+                mViewFlinger.smoothScrollBy(dx, dy, duration, interpolator);
+            } else {
+                scrollBy(dx, dy);
+            }
         }
     }
 
@@ -3212,13 +3297,13 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
         }
         boolean eventAddedToVelocityTracker = false;
 
-        final MotionEvent vtev = MotionEvent.obtain(e);
         final int action = e.getActionMasked();
         final int actionIndex = e.getActionIndex();
 
         if (action == MotionEvent.ACTION_DOWN) {
             mNestedOffsets[0] = mNestedOffsets[1] = 0;
         }
+        final MotionEvent vtev = MotionEvent.obtain(e);
         vtev.offsetLocation(mNestedOffsets[0], mNestedOffsets[1]);
 
         switch (action) {
@@ -3256,34 +3341,27 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
                 int dx = mLastTouchX - x;
                 int dy = mLastTouchY - y;
 
-                mReusableIntPair[0] = 0;
-                mReusableIntPair[1] = 0;
-                if (dispatchNestedPreScroll(dx, dy, mReusableIntPair, mScrollOffset, TYPE_TOUCH)) {
-                    dx -= mReusableIntPair[0];
-                    dy -= mReusableIntPair[1];
-                    vtev.offsetLocation(mScrollOffset[0], mScrollOffset[1]);
-                    // Updated the nested offsets
-                    mNestedOffsets[0] += mScrollOffset[0];
-                    mNestedOffsets[1] += mScrollOffset[1];
-                }
-
                 if (mScrollState != SCROLL_STATE_DRAGGING) {
                     boolean startScroll = false;
-                    if (canScrollHorizontally && Math.abs(dx) > mTouchSlop) {
+                    if (canScrollHorizontally) {
                         if (dx > 0) {
-                            dx -= mTouchSlop;
+                            dx = Math.max(0, dx - mTouchSlop);
                         } else {
-                            dx += mTouchSlop;
+                            dx = Math.min(0, dx + mTouchSlop);
                         }
-                        startScroll = true;
+                        if (dx != 0) {
+                            startScroll = true;
+                        }
                     }
-                    if (canScrollVertically && Math.abs(dy) > mTouchSlop) {
+                    if (canScrollVertically) {
                         if (dy > 0) {
-                            dy -= mTouchSlop;
+                            dy = Math.max(0, dy - mTouchSlop);
                         } else {
-                            dy += mTouchSlop;
+                            dy = Math.min(0, dy + mTouchSlop);
                         }
-                        startScroll = true;
+                        if (dy != 0) {
+                            startScroll = true;
+                        }
                     }
                     if (startScroll) {
                         setScrollState(SCROLL_STATE_DRAGGING);
@@ -3291,13 +3369,29 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
                 }
 
                 if (mScrollState == SCROLL_STATE_DRAGGING) {
+                    mReusableIntPair[0] = 0;
+                    mReusableIntPair[1] = 0;
+                    if (dispatchNestedPreScroll(
+                            canScrollHorizontally ? dx : 0,
+                            canScrollVertically ? dy : 0,
+                            mReusableIntPair, mScrollOffset, TYPE_TOUCH
+                    )) {
+                        dx -= mReusableIntPair[0];
+                        dy -= mReusableIntPair[1];
+                        // Updated the nested offsets
+                        mNestedOffsets[0] += mScrollOffset[0];
+                        mNestedOffsets[1] += mScrollOffset[1];
+                        // Scroll has initiated, prevent parents from intercepting
+                        getParent().requestDisallowInterceptTouchEvent(true);
+                    }
+
                     mLastTouchX = x - mScrollOffset[0];
                     mLastTouchY = y - mScrollOffset[1];
 
                     if (scrollByInternal(
                             canScrollHorizontally ? dx : 0,
                             canScrollVertically ? dy : 0,
-                            vtev)) {
+                            e)) {
                         getParent().requestDisallowInterceptTouchEvent(true);
                     }
                     if (mGapWorker != null && (dx != 0 || dy != 0)) {
@@ -5058,11 +5152,13 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
 
     void dispatchOnScrolled(int hresult, int vresult) {
         mDispatchScrollCounter++;
-        // Pass the current scrollX/scrollY values; no actual change in these properties occurred
-        // but some general-purpose code may choose to respond to changes this way.
+        // Pass the current scrollX/scrollY values as current values. No actual change in these
+        // properties occurred. Pass negative hresult and vresult as old values so that
+        // postSendViewScrolledAccessibilityEventCallback(l - oldl, t - oldt) in onScrollChanged
+        // sends the scrolled accessibility event correctly.
         final int scrollX = getScrollX();
         final int scrollY = getScrollY();
-        onScrollChanged(scrollX, scrollY, scrollX, scrollY);
+        onScrollChanged(scrollX, scrollY, scrollX - hresult, scrollY - vresult);
 
         // Pass the real deltas to onScrolled, the RecyclerView-specific method.
         onScrolled(hresult, vresult);
@@ -5134,6 +5230,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
                 || mAdapterHelper.hasPendingUpdates();
     }
 
+    // Effectively private.  Set to default to avoid synthetic accessor.
     class ViewFlinger implements Runnable {
         private int mLastFlingX;
         private int mLastFlingY;
@@ -5282,7 +5379,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
 
                     postOnAnimation();
                     if (mGapWorker != null) {
-                        mGapWorker.postFromTraversal(RecyclerView.this, unconsumedX, unconsumedY);
+                        mGapWorker.postFromTraversal(RecyclerView.this, consumedX, consumedY);
                     }
                 }
             }
@@ -5330,6 +5427,17 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
             postOnAnimation();
         }
 
+        /**
+         * Smooth scrolls the RecyclerView by a given distance.
+         *
+         * @param dx x distance in pixels.
+         * @param dy y distance in pixels.
+         * @param duration Duration of the animation in milliseconds. Set to
+         *                 {@link #UNDEFINED_DURATION} to have the duration automatically calculated
+         *                 based on an internally defined standard velocity.
+         * @param interpolator {@link Interpolator} to be used for scrolling. If it is {@code null},
+         *                     RecyclerView will use an internal default interpolator.
+         */
         public void smoothScrollBy(int dx, int dy, int duration,
                 @Nullable Interpolator interpolator) {
 
@@ -5890,6 +5998,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
          *                   bind the holder.
          * @return
          */
+        @SuppressWarnings("unchecked")
         private boolean tryBindViewHolderByDeadline(@NonNull ViewHolder holder, int offsetPosition,
                 int position, long deadlineNs) {
             holder.mOwnerRecyclerView = RecyclerView.this;
@@ -6194,14 +6303,16 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
                     ViewCompat.setImportantForAccessibility(itemView,
                             ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_YES);
                 }
-                AccessibilityDelegateCompat delegate =
-                        ViewCompat.getAccessibilityDelegate(itemView);
-                if (delegate == null
-                        || delegate.getClass().equals(AccessibilityDelegateCompat.class)) {
-                    holder.addFlags(ViewHolder.FLAG_SET_A11Y_ITEM_DELEGATE);
-                    ViewCompat.setAccessibilityDelegate(itemView,
-                            mAccessibilityDelegate.getItemDelegate());
+                if (mAccessibilityDelegate == null) {
+                    return;
                 }
+                RecyclerViewAccessibilityDelegate.ItemDelegate itemDelegate =
+                        mAccessibilityDelegate.mItemDelegate;
+                // If there was already an a11y delegate set on the itemView, store it in the
+                // itemDelegate and then set the itemDelegate as the a11y delegate.
+                itemDelegate.saveOriginalDelegate(itemView);
+                ViewCompat.setAccessibilityDelegate(itemView,
+                        mAccessibilityDelegate.getItemDelegate());
             }
         }
 
@@ -6410,9 +6521,12 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
          */
         void addViewHolderToRecycledViewPool(@NonNull ViewHolder holder, boolean dispatchRecycled) {
             clearNestedRecyclerViewIfNotNested(holder);
-            if (holder.hasAnyOfTheFlags(ViewHolder.FLAG_SET_A11Y_ITEM_DELEGATE)) {
-                holder.setFlags(0, ViewHolder.FLAG_SET_A11Y_ITEM_DELEGATE);
-                ViewCompat.setAccessibilityDelegate(holder.itemView, null);
+            View itemView = holder.itemView;
+            if (mAccessibilityDelegate != null) {
+                AccessibilityDelegateCompat originalDelegate = mAccessibilityDelegate
+                        .mItemDelegate.getAndRemoveOriginalDelegateForItem(itemView);
+                // Set the a11y delegate back to whatever the original delegate was.
+                ViewCompat.setAccessibilityDelegate(itemView, originalDelegate);
             }
             if (dispatchRecycled) {
                 dispatchViewRecycled(holder);
@@ -6640,6 +6754,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
             return null;
         }
 
+        @SuppressWarnings("unchecked")
         void dispatchViewRecycled(@NonNull ViewHolder holder) {
             if (mRecyclerListener != null) {
                 mRecyclerListener.onViewRecycled(holder);
@@ -7412,6 +7527,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
         }
     }
 
+    @SuppressWarnings("unchecked")
     void dispatchChildDetached(View child) {
         final ViewHolder viewHolder = getChildViewHolderInt(child);
         onChildDetachedFromWindow(child);
@@ -7426,6 +7542,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
         }
     }
 
+    @SuppressWarnings("unchecked")
     void dispatchChildAttached(View child) {
         final ViewHolder viewHolder = getChildViewHolderInt(child);
         onChildAttachedToWindow(child);
@@ -10465,7 +10582,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
             if (vScroll == 0 && hScroll == 0) {
                 return false;
             }
-            mRecyclerView.smoothScrollBy(hScroll, vScroll);
+            mRecyclerView.smoothScrollBy(hScroll, vScroll, null, UNDEFINED_DURATION, true);
             return true;
         }
 
@@ -10931,12 +11048,6 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
          */
         static final int FLAG_BOUNCED_FROM_HIDDEN_LIST = 1 << 13;
 
-        /**
-         * Flags that RecyclerView assigned {@link RecyclerViewAccessibilityDelegate
-         * #getItemDelegate()} in onBindView when app does not provide a delegate.
-         */
-        static final int FLAG_SET_A11Y_ITEM_DELEGATE = 1 << 14;
-
         int mFlags;
 
         private static final List<Object> FULLUPDATE_PAYLOADS = Collections.emptyList();
@@ -11257,7 +11368,9 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
 
         @Override
         public String toString() {
-            final StringBuilder sb = new StringBuilder("ViewHolder{"
+            String className =
+                    getClass().isAnonymousClass() ? "ViewHolder" : getClass().getSimpleName();
+            final StringBuilder sb = new StringBuilder(className + "{"
                     + Integer.toHexString(hashCode()) + " position=" + mPosition + " id=" + mItemId
                     + ", oldPos=" + mOldPosition + ", pLpos:" + mPreLayoutPosition);
             if (isScrap()) {
@@ -11390,7 +11503,8 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
         if (verticalThumbDrawable == null || verticalTrackDrawable == null
                 || horizontalThumbDrawable == null || horizontalTrackDrawable == null) {
             throw new IllegalArgumentException(
-                "Trying to set fast scroller without both required drawables." + exceptionLabel());
+                    "Trying to set fast scroller without both required drawables."
+                            + exceptionLabel());
         }
 
         Resources resources = getContext().getResources();
@@ -11459,7 +11573,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
 
     @Override
     public final void dispatchNestedScroll(int dxConsumed, int dyConsumed, int dxUnconsumed,
-            int dyUnconsumed, int[] offsetInWindow, int type, int[] consumed) {
+            int dyUnconsumed, int[] offsetInWindow, int type, @NonNull int[] consumed) {
         getScrollingChildHelper().dispatchNestedScroll(dxConsumed, dyConsumed,
                 dxUnconsumed, dyUnconsumed, offsetInWindow, type, consumed);
     }
@@ -12180,7 +12294,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
      * This is public so that the CREATOR can be accessed on cold launch.
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RestrictTo(LIBRARY)
     public static class SavedState extends AbsSavedState {
 
         Parcelable mLayoutState;
@@ -12412,7 +12526,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
          *                   to
          *                   preserve cross functionality and avoid conflicts.
          */
-        @SuppressWarnings("TypeParameterUnusedInFormals")
+        @SuppressWarnings({"TypeParameterUnusedInFormals", "unchecked"})
         public <T> T get(int resourceId) {
             if (mData == null) {
                 return null;

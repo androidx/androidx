@@ -207,6 +207,7 @@ class ProGuardTypesMapper(private val context: TransformationContext) {
         type.fullName
             .substringAfterLast("/") // grabs class name
             .split("(?=\\p{Upper})".toRegex())
+            .filter { it.isNotEmpty() }
             .forEach { lastSegment += it; result.add(lastSegment + "*") }
 
         result.reverse()

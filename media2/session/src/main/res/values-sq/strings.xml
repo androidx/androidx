@@ -17,9 +17,9 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="default_notification_channel_name" msgid="3980628489251198480">"Po luhet tani"</string>
-    <string name="play_button_content_description" msgid="5898492519310326971">"Luaj"</string>
-    <string name="pause_button_content_description" msgid="7844788760550939526">"Pauzë"</string>
-    <string name="skip_to_previous_item_button_content_description" msgid="250823119142607886">"Kapërce tek artikulli i mëparshëm"</string>
-    <string name="skip_to_next_item_button_content_description" msgid="3508534122676007656">"Kapërce tek artikulli tjetër"</string>
+    <string name="default_notification_channel_name" msgid="6743534657295236036">"Po luhet tani"</string>
+    <string name="play_button_content_description" msgid="6034272287948142298">"Luaj"</string>
+    <string name="pause_button_content_description" msgid="4221330012095125431">"Pauzë"</string>
+    <string name="skip_to_previous_item_button_content_description" msgid="7233771088610629683">"Kapërce tek artikulli i mëparshëm"</string>
+    <string name="skip_to_next_item_button_content_description" msgid="17824442457643717">"Kapërce tek artikulli tjetër"</string>
 </resources>

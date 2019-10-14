@@ -33,8 +33,11 @@ import javax.lang.model.type.TypeMirror
  * Each context has a cache variable that uses the same backing storage as the Root Context but
  * adds current adapters and warning suppression list to the key.
  */
-class Cache(val parent: Cache?, val converters: LinkedHashSet<TypeMirror>,
-            val suppressedWarnings: Set<Warning>) {
+class Cache(
+    val parent: Cache?,
+    val converters: LinkedHashSet<TypeMirror>,
+    val suppressedWarnings: Set<Warning>
+) {
     val entities: Bucket<EntityKey, Entity> = Bucket(parent?.entities)
     val pojos: Bucket<PojoKey, Pojo> = Bucket(parent?.pojos)
 
@@ -57,9 +60,10 @@ class Cache(val parent: Cache?, val converters: LinkedHashSet<TypeMirror>,
      * Key for Pojo cache
      */
     data class PojoKey(
-            val element: Element,
-            val scope: FieldProcessor.BindingScope,
-            val parent: EmbeddedField?)
+        val element: Element,
+        val scope: FieldProcessor.BindingScope,
+        val parent: EmbeddedField?
+    )
 
     /**
      * Internal key representation with adapters & warnings included.
@@ -67,7 +71,8 @@ class Cache(val parent: Cache?, val converters: LinkedHashSet<TypeMirror>,
      * Converters are kept in a linked set since the order is important for the TypeAdapterStore.
      */
     private data class FullKey<T>(
-            val converters: LinkedHashSet<TypeMirror>,
-            val suppressedWarnings: Set<Warning>,
-            val key: T)
+        val converters: LinkedHashSet<TypeMirror>,
+        val suppressedWarnings: Set<Warning>,
+        val key: T
+    )
 }

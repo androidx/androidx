@@ -16,6 +16,8 @@
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           package="androidx.security.tests">
-    <uses-sdk android:targetSdkVersion="${target-sdk-version}"/>
     <uses-permission android:name="android.permission.INTERNET" />
+    <application>
+    </application>
+
 </manifest>

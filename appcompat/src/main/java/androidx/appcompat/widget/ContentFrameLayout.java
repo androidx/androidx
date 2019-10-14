@@ -30,6 +30,8 @@ import android.util.DisplayMetrics;
 import android.util.TypedValue;
 import android.widget.FrameLayout;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.core.view.ViewCompat;
 
@@ -55,15 +57,16 @@ public class ContentFrameLayout extends FrameLayout {
 
     private OnAttachListener mAttachListener;
 
-    public ContentFrameLayout(Context context) {
+    public ContentFrameLayout(@NonNull Context context) {
         this(context, null);
     }
 
-    public ContentFrameLayout(Context context, AttributeSet attrs) {
+    public ContentFrameLayout(@NonNull Context context, @Nullable AttributeSet attrs) {
         this(context, attrs, 0);
     }
 
-    public ContentFrameLayout(Context context, AttributeSet attrs, int defStyleAttr) {
+    public ContentFrameLayout(
+            @NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         mDecorPadding = new Rect();
     }

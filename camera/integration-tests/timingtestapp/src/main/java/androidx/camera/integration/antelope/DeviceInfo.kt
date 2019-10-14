@@ -16,12 +16,10 @@
 
 package androidx.camera.integration.antelope
 
-import androidx.appcompat.app.AppCompatActivity
-
 /**
  * Convenience class to access device information
  */
-class DeviceInfo(activity: AppCompatActivity) {
+class DeviceInfo() {
     /** Detailed string with device and OS information */
     val device: String = android.os.Build.MANUFACTURER + " " +
         android.os.Build.BRAND + " " +

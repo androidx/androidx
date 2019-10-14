@@ -15,6 +15,7 @@ package androidx.leanback.widget;
 
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.os.Build;
 import android.util.AttributeSet;
 import android.util.TypedValue;
 
@@ -57,6 +58,10 @@ public class VerticalGridView extends BaseGridView {
     protected void initAttributes(Context context, AttributeSet attrs) {
         initBaseGridViewAttributes(context, attrs);
         TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.lbVerticalGridView);
+        if (Build.VERSION.SDK_INT >= 29) {
+            saveAttributeDataForStyleable(
+                    context, R.styleable.lbVerticalGridView, attrs, a, 0, 0);
+        }
         setColumnWidth(a);
         setNumColumns(a.getInt(R.styleable.lbVerticalGridView_numberOfColumns, 1));
         a.recycle();

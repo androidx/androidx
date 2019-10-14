@@ -45,9 +45,9 @@ dependencies {
     implementation(project(":sqlite:sqlite-framework"))
     implementation(project(":room:room-runtime"))
     implementation(project(":arch:core-runtime"))
-    implementation(project(":lifecycle:lifecycle-extensions"))
+    implementation(project(":lifecycle:lifecycle-livedata"))
     implementation(KOTLIN_STDLIB)
-    implementation(KOTLIN_COROUTINES)
+    implementation(KOTLIN_COROUTINES_ANDROID)
     kaptAndroidTest project(":room:room-compiler")
 
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
@@ -61,14 +61,11 @@ dependencies {
         exclude module: "hamcrest-core"
     })
     androidTestImplementation(TRUTH)
-    // IJ's gradle integration just cannot figure this out ...
-    androidTestImplementation(ARCH_LIFECYCLE_EXTENSIONS)
-    androidTestImplementation(ARCH_CORE_RUNTIME)
     androidTestImplementation project(':room:room-guava')
     androidTestImplementation project(':room:room-testing')
     androidTestImplementation project(':room:room-rxjava2')
     androidTestImplementation(project(":room:room-ktx"))
-    androidTestImplementation(ARCH_CORE_TESTING)
+    androidTestImplementation("androidx.arch.core:core-testing:2.0.1")
     androidTestImplementation(GUAVA_ANDROID)
     androidTestImplementation(RX_JAVA)
     testImplementation(MOCKITO_CORE)

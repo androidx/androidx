@@ -24,6 +24,9 @@ import android.content.Context;
 import androidx.room.Room;
 import androidx.room.integration.testapp.TestDatabase;
 import androidx.room.integration.testapp.dao.UserDao;
+import androidx.room.integration.testapp.database.ProductDao;
+import androidx.room.integration.testapp.database.Review;
+import androidx.room.integration.testapp.database.SampleDatabase;
 import androidx.room.integration.testapp.vo.AvgWeightByAge;
 import androidx.room.integration.testapp.vo.User;
 import androidx.test.core.app.ApplicationProvider;
@@ -35,6 +38,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.Arrays;
+import java.util.List;
 
 @LargeTest
 @RunWith(AndroidJUnit4.class)
@@ -71,5 +75,16 @@ public class PojoTest {
                         new AvgWeightByAge(15, 12)
                 )
         ));
+    }
+
+    @Test
+    public void withProtectedFields() {
+        Context context = ApplicationProvider.getApplicationContext();
+        SampleDatabase db = Room.inMemoryDatabaseBuilder(context, SampleDatabase.class).build();
+        ProductDao dao = db.getProductDao();
+        dao.addReview(new Review());
+        List<Review> result = dao.getProductReviews(0);
+        assertThat(result.size(), is(1));
+        db.close();
     }
 }

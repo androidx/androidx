@@ -29,6 +29,7 @@ import androidx.room.integration.testapp.vo.EmbeddedUserAndAllPets;
 import androidx.room.integration.testapp.vo.Pet;
 import androidx.room.integration.testapp.vo.User;
 import androidx.room.integration.testapp.vo.UserAndAllPets;
+import androidx.room.integration.testapp.vo.UserAndAllPetsViaJunction;
 import androidx.room.integration.testapp.vo.UserAndGenericPet;
 import androidx.room.integration.testapp.vo.UserAndPet;
 import androidx.room.integration.testapp.vo.UserAndPetAdoptionDates;
@@ -67,6 +68,10 @@ public interface UserPetDao {
     @Transaction
     @Query("SELECT * FROM User u")
     List<UserAndAllPets> loadAllUsersWithTheirPets();
+
+    @Transaction
+    @Query("SELECT * FROM User u")
+    List<UserAndAllPetsViaJunction> loadAllUsersWithTheirPetsViaJunction();
 
     @SuppressWarnings(RoomWarnings.CURSOR_MISMATCH)
     @Transaction

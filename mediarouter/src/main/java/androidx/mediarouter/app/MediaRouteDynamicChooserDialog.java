@@ -83,6 +83,7 @@ public class MediaRouteDynamicChooserDialog extends AppCompatDialog {
     private boolean mAttachedToWindow;
     private long mUpdateRoutesDelayMs;
     private long mLastUpdateTime;
+    @SuppressWarnings("unchecked")
     private final Handler mHandler = new Handler() {
         @Override
         public void handleMessage(Message message) {

@@ -1,6 +1,7 @@
 import static androidx.build.dependencies.DependenciesKt.*
 import androidx.build.LibraryGroups
 import androidx.build.LibraryVersions
+import androidx.build.Publish
 
 plugins {
     id("AndroidXPlugin")
@@ -8,8 +9,8 @@ plugins {
 }
 
 dependencies {
-    api(project(":annotation"))
-    api(project(":core"))
+    api("androidx.annotation:annotation:1.1.0")
+    api("androidx.core:core:1.1.0")
 
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
     androidTestImplementation(ANDROIDX_TEST_CORE)
@@ -26,11 +27,10 @@ android {
 
 androidx {
     name = "Android Support TV Provider"
-    publish = true
+    publish = Publish.SNAPSHOT_AND_RELEASE
     mavenVersion = LibraryVersions.TVPROVIDER
     mavenGroup = LibraryGroups.TVPROVIDER
     inceptionYear = "2017"
     description = "Android Support Library for TV Provider"
-    failOnUncheckedWarnings = false
     failOnDeprecationWarnings = false
 }

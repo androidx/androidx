@@ -24,6 +24,7 @@ plugins {
 dependencies {
     implementation(project(":room:room-runtime"))
     annotationProcessor project(":room:room-compiler")
+    androidTestAnnotationProcessor project(":room:room-compiler")
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
     androidTestImplementation(ANDROIDX_TEST_CORE)
     androidTestImplementation(ANDROIDX_TEST_RUNNER)

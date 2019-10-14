@@ -1,0 +1,279 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="5" by="lint 3.5.0-beta04" client="gradle" variant="debug" version="3.5.0-beta04">
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void dump(String prefix, FileDescriptor fd, PrintWriter writer, String[] args) {"
+        errorLine2="                     ~~~~~~">
+        <location
+            file="src/main/java/androidx/loader/content/AsyncTaskLoader.java"
+            line="339"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void dump(String prefix, FileDescriptor fd, PrintWriter writer, String[] args) {"
+        errorLine2="                                    ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/loader/content/AsyncTaskLoader.java"
+            line="339"
+            column="37"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void dump(String prefix, FileDescriptor fd, PrintWriter writer, String[] args) {"
+        errorLine2="                                                       ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/loader/content/AsyncTaskLoader.java"
+            line="339"
+            column="56"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void dump(String prefix, FileDescriptor fd, PrintWriter writer, String[] args) {"
+        errorLine2="                                                                           ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/loader/content/AsyncTaskLoader.java"
+            line="339"
+            column="76"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public Cursor loadInBackground() {"
+        errorLine2="           ~~~~~~">
+        <location
+            file="src/main/java/androidx/loader/content/CursorLoader.java"
+            line="56"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void deliverResult(Cursor cursor) {"
+        errorLine2="                              ~~~~~~">
+        <location
+            file="src/main/java/androidx/loader/content/CursorLoader.java"
+            line="98"
+            column="31"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void onCanceled(Cursor cursor) {"
+        errorLine2="                           ~~~~~~">
+        <location
+            file="src/main/java/androidx/loader/content/CursorLoader.java"
+            line="173"
+            column="28"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void dump(String prefix, FileDescriptor fd, PrintWriter writer, String[] args) {"
+        errorLine2="                     ~~~~~~">
+        <location
+            file="src/main/java/androidx/loader/content/CursorLoader.java"
+            line="244"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void dump(String prefix, FileDescriptor fd, PrintWriter writer, String[] args) {"
+        errorLine2="                                    ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/loader/content/CursorLoader.java"
+            line="244"
+            column="37"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void dump(String prefix, FileDescriptor fd, PrintWriter writer, String[] args) {"
+        errorLine2="                                                       ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/loader/content/CursorLoader.java"
+            line="244"
+            column="56"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void dump(String prefix, FileDescriptor fd, PrintWriter writer, String[] args) {"
+        errorLine2="                                                                           ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/loader/content/CursorLoader.java"
+            line="244"
+            column="76"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void dump(String prefix, FileDescriptor fd, PrintWriter writer, String[] args) {"
+        errorLine2="                     ~~~~~~">
+        <location
+            file="src/main/java/androidx/loader/content/Loader.java"
+            line="565"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void dump(String prefix, FileDescriptor fd, PrintWriter writer, String[] args) {"
+        errorLine2="                                    ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/loader/content/Loader.java"
+            line="565"
+            column="37"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void dump(String prefix, FileDescriptor fd, PrintWriter writer, String[] args) {"
+        errorLine2="                                                       ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/loader/content/Loader.java"
+            line="565"
+            column="56"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void dump(String prefix, FileDescriptor fd, PrintWriter writer, String[] args) {"
+        errorLine2="                                                                           ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/loader/content/Loader.java"
+            line="565"
+            column="76"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        void onLoadFinished(@NonNull Loader&lt;D> loader, D data);"
+        errorLine2="                                                       ~">
+        <location
+            file="src/main/java/androidx/loader/app/LoaderManager.java"
+            line="100"
+            column="56"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public abstract void dump(String prefix, FileDescriptor fd, PrintWriter writer, String[] args);"
+        errorLine2="                              ~~~~~~">
+        <location
+            file="src/main/java/androidx/loader/app/LoaderManager.java"
+            line="227"
+            column="31"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public abstract void dump(String prefix, FileDescriptor fd, PrintWriter writer, String[] args);"
+        errorLine2="                                             ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/loader/app/LoaderManager.java"
+            line="227"
+            column="46"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public abstract void dump(String prefix, FileDescriptor fd, PrintWriter writer, String[] args);"
+        errorLine2="                                                                ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/loader/app/LoaderManager.java"
+            line="227"
+            column="65"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public abstract void dump(String prefix, FileDescriptor fd, PrintWriter writer, String[] args);"
+        errorLine2="                                                                                    ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/loader/app/LoaderManager.java"
+            line="227"
+            column="85"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public void setValue(D value) {"
+        errorLine2="                             ~">
+        <location
+            file="src/main/java/androidx/loader/app/LoaderManagerImpl.java"
+            line="187"
+            column="30"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public void dump(String prefix, FileDescriptor fd, PrintWriter writer, String[] args) {"
+        errorLine2="                         ~~~~~~">
+        <location
+            file="src/main/java/androidx/loader/app/LoaderManagerImpl.java"
+            line="214"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public void dump(String prefix, FileDescriptor fd, PrintWriter writer, String[] args) {"
+        errorLine2="                                        ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/loader/app/LoaderManagerImpl.java"
+            line="214"
+            column="41"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public void dump(String prefix, FileDescriptor fd, PrintWriter writer, String[] args) {"
+        errorLine2="                                                           ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/loader/app/LoaderManagerImpl.java"
+            line="214"
+            column="60"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public void dump(String prefix, FileDescriptor fd, PrintWriter writer, String[] args) {"
+        errorLine2="                                                                               ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/loader/app/LoaderManagerImpl.java"
+            line="214"
+            column="80"/>
+    </issue>
+
+</issues>

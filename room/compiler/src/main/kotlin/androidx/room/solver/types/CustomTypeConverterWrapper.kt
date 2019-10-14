@@ -29,8 +29,8 @@ import javax.lang.model.element.Modifier
 /**
  * Wraps a type converter specified by the developer and forwards calls to it.
  */
-class CustomTypeConverterWrapper(val custom: CustomTypeConverter)
-    : TypeConverter(custom.from, custom.to) {
+class CustomTypeConverterWrapper(val custom: CustomTypeConverter) :
+    TypeConverter(custom.from, custom.to) {
 
     override fun convert(inputVarName: String, outputVarName: String, scope: CodeGenScope) {
         scope.builder().apply {

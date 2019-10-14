@@ -1,0 +1,9 @@
+// Baseline format: 1.0
+KotlinOperator: androidx.lifecycle.ViewModelProvider#get(Class<T>):
+    Method can be invoked with an indexing operator from Kotlin: `get` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.lifecycle.ViewModelProvider#get(String, Class<T>):
+    Method can be invoked with an indexing operator from Kotlin: `get` (this is usually desirable; just make sure it makes sense for this type of object)
+
+
+SingletonConstructor: androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory#AndroidViewModelFactory(android.app.Application):
+    Singleton classes should use `getInstance()` methods: `AndroidViewModelFactory`

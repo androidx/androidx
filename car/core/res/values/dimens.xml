@@ -21,6 +21,10 @@ limitations under the License.
     <!-- Gutters -->
     <dimen name="car_gutter_width">16dp</dimen>
 
+    <!-- Focus -->
+    <dimen name="car_focus_outline_stroke_width_hovered">4dp</dimen>
+    <dimen name="car_focus_outline_stroke_width_focused">6dp</dimen>
+
     <!-- Keylines -->
     <dimen name="car_keyline_1">24dp</dimen>
     <dimen name="car_keyline_2">96dp</dimen>
@@ -90,6 +94,7 @@ limitations under the License.
     <!-- Buttons -->
     <dimen name="car_button_height">56dp</dimen>
     <dimen name="car_button_min_width">158dp</dimen>
+    <dimen name="car_dialog_button_min_width">76dp</dimen>
     <dimen name="car_button_radius">@dimen/car_radius_1</dimen>
     <dimen name="car_pill_button_size">56dp</dimen>
     <dimen name="car_button_fading_edge_length">40dp</dimen>

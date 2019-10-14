@@ -52,7 +52,8 @@ class CoroutineResultBinder(
                 canReleaseQuery = canReleaseQuery,
                 dbField = dbField,
                 inTransaction = inTransaction,
-                scope = scope)
+                scope = scope,
+                cancellationSignalVar = "null")
         }.build()
 
         scope.builder().apply {
@@ -72,7 +73,8 @@ class CoroutineResultBinder(
         canReleaseQuery: Boolean,
         dbField: FieldSpec,
         inTransaction: Boolean,
-        scope: CodeGenScope
+        scope: CodeGenScope,
+        cancellationSignalVar: String
     ) {
         val transactionWrapper = if (inTransaction) {
             builder.transactionWrapper(dbField)
@@ -84,13 +86,16 @@ class CoroutineResultBinder(
         val cursorVar = scope.getTmpVar("_cursor")
         transactionWrapper?.beginTransactionWithControlFlow()
         builder.apply {
-            addStatement("final $T $L = $T.query($N, $L, $L)",
+            addStatement(
+                "final $T $L = $T.query($N, $L, $L, $L)",
                 AndroidTypeNames.CURSOR,
                 cursorVar,
                 RoomTypeNames.DB_UTIL,
                 dbField,
                 roomSQLiteQueryVar,
-                if (shouldCopyCursor) "true" else "false")
+                if (shouldCopyCursor) "true" else "false",
+                cancellationSignalVar
+            )
             beginControlFlow("try").apply {
                 val adapterScope = scope.fork()
                 adapter?.convert(outVar, cursorVar, adapterScope)

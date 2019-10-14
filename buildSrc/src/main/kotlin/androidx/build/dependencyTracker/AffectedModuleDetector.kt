@@ -16,10 +16,15 @@
 
 package androidx.build.dependencyTracker
 
+import androidx.build.dependencyTracker.AffectedModuleDetector.Companion.CHANGED_PROJECTS_ARG
+import androidx.build.dependencyTracker.AffectedModuleDetector.Companion.DEPENDENT_PROJECTS_ARG
 import androidx.build.dependencyTracker.AffectedModuleDetector.Companion.ENABLE_ARG
 import androidx.build.getDistributionDirectory
+import androidx.build.gitclient.GitClient
+import androidx.build.gitclient.GitClientImpl
 import androidx.build.gradle.isRoot
 import androidx.build.isRunningOnBuildServer
+import java.io.File
 import org.gradle.BuildAdapter
 import org.gradle.api.GradleException
 import org.gradle.api.Project
@@ -45,7 +50,7 @@ import org.gradle.api.logging.Logger
  *  ALL_AFFECTED_PROJECTS -- The union of CHANGED_PROJECTS and DEPENDENT_PROJECTS,
  *      which encompasses all projects that could possibly break due to the changes.
  */
-internal enum class ProjectSubset { DEPENDENT_PROJECTS, CHANGED_PROJECTS, ALL_AFFECTED_PROJECTS }
+enum class ProjectSubset { DEPENDENT_PROJECTS, CHANGED_PROJECTS, ALL_AFFECTED_PROJECTS }
 
 /**
  * A utility class that can discover which files are changed based on git history.
@@ -180,7 +185,7 @@ private class AcceptAll(
  *
  * When a file in a module is changed, all modules that depend on it are considered as changed.
  */
-internal class AffectedModuleDetectorImpl constructor(
+class AffectedModuleDetectorImpl constructor(
     private val rootProject: Project,
     private val logger: Logger?,
         // used for debugging purposes when we want to ignore non module files
@@ -211,7 +216,7 @@ internal class AffectedModuleDetectorImpl constructor(
 
     override fun shouldInclude(project: Project): Boolean {
         return (project.isRoot || affectedProjects.contains(project)).also {
-            logger?.info("checking whether i should include ${project.path} and my answer is $it")
+            logger?.info("checking whether I should include ${project.path} and my answer is $it")
         }
     }
 
@@ -249,6 +254,31 @@ internal class AffectedModuleDetectorImpl constructor(
                 ProjectSubset.ALL_AFFECTED_PROJECTS -> allProjects
             }
         }
+
+        // TODO: around Q3 2019, revert to resolve b/132901339
+        val isRootProjectUi = rootProject.name.contains("ui")
+        var hasNormalFile = false
+        var hasUiFile = false
+        changedFiles.forEach {
+            val projectBaseDir = it.split(File.separatorChar)[0]
+            if (projectBaseDir == "ui" || projectBaseDir == "compose") {
+                hasUiFile = true
+            } else {
+                hasNormalFile = true
+            }
+        }
+        // if changes in both codebases, continue as usual (will test everything)
+        if (hasUiFile && hasNormalFile) {
+            // normal file exists in ui build -> don't build anything except the dummy
+            // since the "other" build will pick up the appropriate projects.
+        } else if (isRootProjectUi && hasNormalFile) {
+            return alwaysBuild
+            // ui file exists in normal build -> don't build anything except the dummy
+            // since the "other" build will pick up the appropriate projects.
+        } else if (!isRootProjectUi && hasUiFile) {
+            return alwaysBuild
+        }
+
         val containingProjects = changedFiles
                 .map(::findContainingProject)
                 .let {
@@ -266,10 +296,10 @@ internal class AffectedModuleDetectorImpl constructor(
                         ${expandToDependents(containingProjects.filterNotNull())}
                     """.trimIndent()
             )
-            return when (projectSubset) {
-                ProjectSubset.DEPENDENT_PROJECTS -> allProjects
-                ProjectSubset.CHANGED_PROJECTS -> alwaysBuild
-                ProjectSubset.ALL_AFFECTED_PROJECTS -> allProjects
+            when (projectSubset) {
+                ProjectSubset.DEPENDENT_PROJECTS -> return allProjects
+                ProjectSubset.ALL_AFFECTED_PROJECTS -> return allProjects
+                else -> {}
             }
         }
 
@@ -289,9 +319,22 @@ internal class AffectedModuleDetectorImpl constructor(
 
     private fun lookupProjectSetsFromPaths(allSets: Set<Set<String>>): Set<Set<Project>> {
         return allSets.map { setPaths ->
-            setPaths.map { path ->
-                rootProject.project(path)
-            }.toSet()
+            var setExists = false
+            val projectSet = HashSet<Project>()
+            for (path in setPaths) {
+                val project = rootProject.findProject(path)
+                if (project == null) {
+                    if (setExists) {
+                        throw IllegalStateException("One of the projects in the group of " +
+                                "projects that are required to be built together is missing. " +
+                                "Looked for " + setPaths)
+                    }
+                } else {
+                    setExists = true
+                    projectSet.add(project)
+                }
+            }
+            return@map projectSet
         }.toSet()
     }
 

@@ -114,6 +114,11 @@ public class EmojiExtractTextLayout extends LinearLayout {
             if (attrs != null) {
                 final TypedArray a = context.obtainStyledAttributes(attrs,
                         R.styleable.EmojiExtractTextLayout, defStyleAttr, defStyleRes);
+                if (Build.VERSION.SDK_INT >= 29) {
+                    saveAttributeDataForStyleable(
+                            context, R.styleable.EmojiExtractTextLayout, attrs, a, defStyleAttr,
+                            defStyleRes);
+                }
                 final int replaceStrategy = a.getInteger(
                         R.styleable.EmojiExtractTextLayout_emojiReplaceStrategy,
                         EmojiCompat.REPLACE_STRATEGY_DEFAULT);

@@ -26,6 +26,9 @@ import androidx.media2.common.MediaMetadata;
 import androidx.media2.common.MediaParcelUtils;
 import androidx.media2.common.ParcelImplListSlice;
 import androidx.media2.common.SessionPlayer.BuffState;
+import androidx.media2.common.SessionPlayer.TrackInfo;
+import androidx.media2.common.SubtitleData;
+import androidx.media2.common.VideoSize;
 import androidx.media2.session.MediaLibraryService.LibraryParams;
 import androidx.versionedparcelable.ParcelImpl;
 
@@ -238,6 +241,52 @@ class MediaControllerStub extends IMediaController.Stub {
     }
 
     @Override
+    public void onVideoSizeChanged(int seq, final ParcelImpl item, final ParcelImpl videoSize) {
+        if (videoSize == null) {
+            return;
+        }
+        dispatchControllerTask(new ControllerTask() {
+            @Override
+            public void run(MediaControllerImplBase controller) {
+                VideoSize size = MediaParcelUtils.fromParcelable(videoSize);
+                if (size == null) {
+                    Log.w(TAG, "onVideoSizeChanged(): Ignoring null VideoSize");
+                    return;
+                }
+                controller.notifyVideoSizeChanged(size);
+            }
+        });
+    }
+
+    @Override
+    public void onSubtitleData(int seq, final ParcelImpl item, final ParcelImpl track,
+            final ParcelImpl data) {
+        if (item == null || track == null || data == null) {
+            return;
+        }
+        dispatchControllerTask(new ControllerTask() {
+            @Override
+            public void run(MediaControllerImplBase controller) {
+                MediaItem itemObj = MediaParcelUtils.fromParcelable(item);
+                if (itemObj == null) {
+                    Log.w(TAG, "onSubtitleData(): Ignoring null MediaItem");
+                    return;
+                }
+                TrackInfo trackObj = MediaParcelUtils.fromParcelable(track);
+                if (trackObj == null) {
+                    Log.w(TAG, "onSubtitleData(): Ignoring null TrackInfo");
+                    return;
+                }
+                SubtitleData dataObj = MediaParcelUtils.fromParcelable(data);
+                if (dataObj == null) {
+                    Log.w(TAG, "onSubtitleData(): Ignoring null SubtitleData");
+                    return;
+                }
+                controller.notifySubtitleData(itemObj, trackObj, dataObj);
+            }
+        });
+    }
+    @Override
     public void onConnected(int seq, ParcelImpl connectionResult) {
         if (connectionResult == null) {
             // disconnected
@@ -264,7 +313,9 @@ class MediaControllerStub extends IMediaController.Stub {
                     result.getRepeatMode(), result.getShuffleMode(), itemList,
                     result.getSessionActivity(), result.getCurrentMediaItemIndex(),
                     result.getPreviousMediaItemIndex(), result.getNextMediaItemIndex(),
-                    result.getTokenExtras());
+                    result.getTokenExtras(), result.getVideoSize(), result.getTracks(),
+                    result.getSelectedVideoTrack(), result.getSelectedAudioTrack(),
+                    result.getSelectedSubtitleTrack(), result.getSelectedMetadataTrack());
         } finally {
             Binder.restoreCallingIdentity(token);
         }
@@ -281,7 +332,7 @@ class MediaControllerStub extends IMediaController.Stub {
                 }
                 return;
             }
-            controller.getInstance().close();
+            controller.mInstance.close();
         } finally {
             Binder.restoreCallingIdentity(token);
         }
@@ -341,6 +392,65 @@ class MediaControllerStub extends IMediaController.Stub {
                     return;
                 }
                 controller.onCustomCommand(seq, command, args);
+            }
+        });
+    }
+
+    @Override
+    public void onTrackInfoChanged(final int seq, final List<ParcelImpl> trackInfoList,
+            final ParcelImpl selectedVideoParcel, final ParcelImpl selectedAudioParcel,
+            final ParcelImpl selectedSubtitleParcel, final ParcelImpl selectedMetadataParcel) {
+        if (trackInfoList == null) {
+            return;
+        }
+        dispatchControllerTask(new ControllerTask() {
+            @Override
+            public void run(MediaControllerImplBase controller) {
+                List<TrackInfo> trackInfos = MediaParcelUtils.fromParcelableList(trackInfoList);
+                TrackInfo selectedVideoTrack = MediaParcelUtils.fromParcelable(selectedVideoParcel);
+                TrackInfo selectedAudioTrack = MediaParcelUtils.fromParcelable(selectedAudioParcel);
+                TrackInfo selectedSubtitleTrack =
+                        MediaParcelUtils.fromParcelable(selectedSubtitleParcel);
+                TrackInfo selectedMetadataTrack =
+                        MediaParcelUtils.fromParcelable(selectedMetadataParcel);
+                controller.notifyTracksChanged(seq, trackInfos, selectedVideoTrack,
+                        selectedAudioTrack, selectedSubtitleTrack, selectedMetadataTrack);
+            }
+        });
+    }
+
+    @Override
+    public void onTrackSelected(final int seq, final ParcelImpl trackInfoParcel) {
+        if (trackInfoParcel == null) {
+            return;
+        }
+        dispatchControllerTask(new ControllerTask() {
+            @Override
+            public void run(MediaControllerImplBase controller) {
+                TrackInfo trackInfo = MediaParcelUtils.fromParcelable(trackInfoParcel);
+                if (trackInfo == null) {
+                    Log.w(TAG, "onTrackSelected(): Ignoring null track info");
+                    return;
+                }
+                controller.notifyTrackSelected(seq, trackInfo);
+            }
+        });
+    }
+
+    @Override
+    public void onTrackDeselected(final int seq, final ParcelImpl trackInfoParcel) {
+        if (trackInfoParcel == null) {
+            return;
+        }
+        dispatchControllerTask(new ControllerTask() {
+            @Override
+            public void run(MediaControllerImplBase controller) {
+                TrackInfo trackInfo = MediaParcelUtils.fromParcelable(trackInfoParcel);
+                if (trackInfo == null) {
+                    Log.w(TAG, "onTrackSelected(): Ignoring null track info");
+                    return;
+                }
+                controller.notifyTrackDeselected(seq, trackInfo);
             }
         });
     }

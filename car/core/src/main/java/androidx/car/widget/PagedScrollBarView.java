@@ -33,10 +33,15 @@ import android.widget.TextView;
 
 import androidx.annotation.ColorRes;
 import androidx.annotation.DrawableRes;
+import androidx.annotation.IntDef;
 import androidx.annotation.IntRange;
-import androidx.annotation.VisibleForTesting;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.car.R;
 import androidx.core.content.ContextCompat;
+
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 
 /** A custom view to provide list scroll behaviour -- up/down buttons and scroll indicator. */
 public class PagedScrollBarView extends ViewGroup {
@@ -59,8 +64,43 @@ public class PagedScrollBarView extends ViewGroup {
          * <p>AlphaJump buckets only support characters from the {@code en} language. Characters
          * from other languages not supported and bucketing behavior is undefined. AlphaJump overlay
          * is still displayed if all buckets are empty.
+         *
+         * @deprecated Use {@link OnAlphaJumpListener#onAlphaJump()} instead.
+         */
+        @Deprecated
+        default void onAlphaJump() {
+        }
+    }
+
+    public interface OnAlphaJumpListener {
+        /**
+         * Called when the 'alpha jump' button is clicked and the linked view should switch into
+         * alpha jump mode, where we display a list of buttons to allow the user to quickly scroll
+         * to a certain point in the list, bypassing a lot of manual scrolling.
+         *
+         * <p>AlphaJump buckets only support characters from the {@code en} language. Characters
+         * from other languages not supported and bucketing behavior is undefined. AlphaJump overlay
+         * is still displayed if all buckets are empty.
          */
         void onAlphaJump();
+    }
+
+    @IntDef({View.VISIBLE, View.INVISIBLE, View.GONE})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface Visibility {
+    }
+
+    /** Listener for changes to the visibility of the scrollbar view. */
+    public interface OnVisibilityChangedListener {
+
+        /**
+         * Called when the visibility of the scrollbar view changes.
+         *
+         * @param view       A reference to the scrollbar for which the visibility changed.
+         * @param visibility The new visibility, one of {@code View.VISIBLE}, {@code View
+         * .INVISIBLE} or {@code View.GONE}
+         */
+        void onVisibilityChanged(@NonNull View view, @Visibility int visibility);
     }
 
     private final ImageView mUpButton;
@@ -70,6 +110,7 @@ public class PagedScrollBarView extends ViewGroup {
     private final TextView mAlphaJumpButton;
     private final AlphaJumpButtonClickListener mAlphaJumpButtonClickListener;
     private final View mScrollThumb;
+    private OnVisibilityChangedListener mOnVisibilityChangedListener;
 
     private final int mSeparatingMargin;
     private final int mScrollBarThumbWidth;
@@ -167,10 +208,35 @@ public class PagedScrollBarView extends ViewGroup {
      *
      * @param listener The listener to set.
      */
-    public void setPaginationListener(PaginationListener listener) {
+    public void setPaginationListener(@Nullable PaginationListener listener) {
         mUpButtonClickListener.setPaginationListener(listener);
         mDownButtonClickListener.setPaginationListener(listener);
         mAlphaJumpButtonClickListener.setPaginationListener(listener);
+    }
+
+    /**
+     * Sets the listener that will be notified when alpha jump button has been pressed.
+     *
+     * @param listener The listener to set.
+     */
+    public void setOnAlphaJumpListener(@Nullable OnAlphaJumpListener listener) {
+        mAlphaJumpButtonClickListener.setOnAlphaJumpListener(listener);
+    }
+
+    /**
+     * Sets the listener that will be notified when the visibility of the scrollbar changes.
+     *
+     * @param listener The listener to set.
+     */
+    public void setOnVisibilityChangedListener(@Nullable OnVisibilityChangedListener listener) {
+        mOnVisibilityChangedListener = listener;
+    }
+
+    @Override
+    protected void onVisibilityChanged(@NonNull View changedView, int visibility) {
+        if (mOnVisibilityChangedListener != null) {
+            mOnVisibilityChangedListener.onVisibilityChanged(this, visibility);
+        }
     }
 
     /** Returns {@code true} if the "up" button is pressed */
@@ -192,6 +258,7 @@ public class PagedScrollBarView extends ViewGroup {
     public boolean isScrollbarThumbEnabled() {
         return mShowScrollBarThumb;
     }
+
     /**
      * Sets whether or not the scroll bar thumb is visible, the default value is true.
      *
@@ -210,12 +277,11 @@ public class PagedScrollBarView extends ViewGroup {
      * <p>These values can be expressed in arbitrary units, so long as they share the same units.
      * The values should also be positive.
      *
-     * @param range The range of the scrollbar's thumb
-     * @param offset The offset of the scrollbar's thumb
-     * @param extent The extent of the scrollbar's thumb
+     * @param range   The range of the scrollbar's thumb
+     * @param offset  The offset of the scrollbar's thumb
+     * @param extent  The extent of the scrollbar's thumb
      * @param animate Whether or not the thumb should animate from its current position to the
      *                position specified by the given range, offset and extent.
-     *
      * @see View#computeVerticalScrollRange()
      * @see View#computeVerticalScrollOffset()
      * @see View#computeVerticalScrollExtent()
@@ -254,10 +320,9 @@ public class PagedScrollBarView extends ViewGroup {
      *
      * <p>These values can be expressed in arbitrary units, so long as they share the same units.
      *
-     * @param range The range of the scrollbar's thumb
+     * @param range  The range of the scrollbar's thumb
      * @param offset The offset of the scrollbar's thumb
      * @param extent The extent of the scrollbar's thumb
-     *
      * @see #setParameters(int, int, int, boolean)
      */
     void setParametersInLayout(int range, int offset, int extent) {
@@ -316,7 +381,7 @@ public class PagedScrollBarView extends ViewGroup {
      */
     public void setScrollbarThumbColor(@ColorRes int color) {
         GradientDrawable background = (GradientDrawable) mScrollThumb.getBackground();
-        background.setColor(getContext().getColor(color));
+        background.setColor(ContextCompat.getColor(getContext(), color));
     }
 
     /**
@@ -353,7 +418,7 @@ public class PagedScrollBarView extends ViewGroup {
 
         // A seperating margin is needed between up and down button.
         int currentHeight = getPaddingTop() + mUpButton.getMeasuredHeight() + mSeparatingMargin
-                + mDownButton.getMeasuredHeight() +  getPaddingBottom();
+                + mDownButton.getMeasuredHeight() + getPaddingBottom();
 
         // Check if there is enough room to draw buttons
         if (currentHeight > requestedHeight) {
@@ -464,10 +529,11 @@ public class PagedScrollBarView extends ViewGroup {
      * Lays out the given View starting from the given {@code top} value downwards and centered
      * within the given {@code availableWidth}.
      *
-     * @param  view The view to lay out.
-     * @param  top The top value to start laying out from. This value will be the resulting top
-     *             value of the view.
-     * @param  availableWidth The width in which to center the given view.
+     * @param view           The view to lay out.
+     * @param top            The top value to start laying out from. This value will be the
+     *                       resulting top
+     *                       value of the view.
+     * @param availableWidth The width in which to center the given view.
      */
     private void layoutViewCenteredFromTop(View view, int top, int availableWidth) {
         int viewWidth = view.getMeasuredWidth();
@@ -480,10 +546,11 @@ public class PagedScrollBarView extends ViewGroup {
      * Lays out the given View starting from the given {@code bottom} value upwards and centered
      * within the given {@code availableSpace}.
      *
-     * @param  view The view to lay out.
-     * @param  bottom The bottom value to start laying out from. This value will be the resulting
-     *                bottom value of the view.
-     * @param  availableWidth The width in which to center the given view.
+     * @param view           The view to lay out.
+     * @param bottom         The bottom value to start laying out from. This value will be the
+     *                       resulting
+     *                       bottom value of the view.
+     * @param availableWidth The width in which to center the given view.
      */
     private void layoutViewCenteredFromBottom(View view, int bottom, int availableWidth) {
         int viewWidth = view.getMeasuredWidth();
@@ -492,16 +559,11 @@ public class PagedScrollBarView extends ViewGroup {
                 viewLeft + viewWidth, bottom);
     }
 
-    @VisibleForTesting
-    int getScrollbarThumbColor() {
-        return ((GradientDrawable) mScrollThumb.getBackground()).getColor().getDefaultColor();
-    }
-
     /**
      * Calculates and returns how big the scroll bar thumb should be based on the given range and
      * extent.
      *
-     * @param range The total amount of space the scroll bar is allowed to roam over.
+     * @param range  The total amount of space the scroll bar is allowed to roam over.
      * @param extent The amount of space that the scroll bar takes up relative to the range.
      * @return The height of the scroll bar thumb in pixels.
      */
@@ -514,10 +576,10 @@ public class PagedScrollBarView extends ViewGroup {
      * Calculates and returns how much the scroll thumb should be offset from the top of where it
      * has been laid out.
      *
-     * @param  range The total amount of space the scroll bar is allowed to roam over.
-     * @param  offset The amount the scroll bar should be offset, expressed in the same units as
-     *                the given range.
-     * @param  thumbLength The current length of the thumb in pixels.
+     * @param range       The total amount of space the scroll bar is allowed to roam over.
+     * @param offset      The amount the scroll bar should be offset, expressed in the same units as
+     *                    the given range.
+     * @param thumbLength The current length of the thumb in pixels.
      * @return The amount the thumb should be offset from its current to position in pixels.
      */
     private int calculateScrollThumbOffset(int range, int offset, int thumbLength) {
@@ -559,9 +621,14 @@ public class PagedScrollBarView extends ViewGroup {
     }
 
     private static class AlphaJumpButtonClickListener implements View.OnClickListener {
+        private OnAlphaJumpListener mOnAlphaJumpListener;
         private PaginationListener mPaginationListener;
 
         AlphaJumpButtonClickListener() {
+        }
+
+        public void setOnAlphaJumpListener(OnAlphaJumpListener listener) {
+            mOnAlphaJumpListener = listener;
         }
 
         public void setPaginationListener(PaginationListener listener) {
@@ -570,6 +637,10 @@ public class PagedScrollBarView extends ViewGroup {
 
         @Override
         public void onClick(View v) {
+            if (mOnAlphaJumpListener != null) {
+                mOnAlphaJumpListener.onAlphaJump();
+            }
+
             if (mPaginationListener != null) {
                 mPaginationListener.onAlphaJump();
             }

@@ -30,12 +30,14 @@ import com.google.testing.compile.CompileTester
 import com.google.testing.compile.JavaFileObjects
 import com.google.testing.compile.JavaSourcesSubjectFactory
 import compileLibrarySource
+import createInterpreterFromEntitiesAndViews
 import createVerifierFromEntitiesAndViews
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
+import java.io.File
 
 @RunWith(Parameterized::class)
 class DaoProcessorTest(val enableVerification: Boolean) {
@@ -69,7 +71,7 @@ class DaoProcessorTest(val enableVerification: Boolean) {
 
     @Test
     fun testAbstractMethodWithoutQueryInLibraryClass() {
-        val libraryClassLoader = compileLibrarySource(
+        val libraryClasspath = compileLibrarySource(
                 "test.library.MissingAnnotationsBaseDao",
                 """
                 public interface MissingAnnotationsBaseDao {
@@ -78,7 +80,7 @@ class DaoProcessorTest(val enableVerification: Boolean) {
                 """)
         singleDao(
                 "@Dao public interface MyDao extends test.library.MissingAnnotationsBaseDao {}",
-                classLoader = libraryClassLoader) { _, _ -> }
+                classpathFiles = libraryClasspath) { _, _ -> }
                 .failsToCompile()
                 .withErrorContaining(ProcessorErrors.INVALID_ANNOTATION_COUNT_IN_DAO_METHOD +
                         " - getFoo() in test.library.MissingAnnotationsBaseDao")
@@ -169,7 +171,10 @@ class DaoProcessorTest(val enableVerification: Boolean) {
             """) { dao, invocation ->
             val dbType = MoreTypes.asDeclared(invocation.context.processingEnv.elementUtils
                     .getTypeElement(RoomTypeNames.ROOM_DB.toString()).asType())
-            val daoProcessor = DaoProcessor(invocation.context, dao.element, dbType, null)
+            val queryInterpreter = createInterpreterFromEntitiesAndViews(invocation)
+            val daoProcessor =
+                DaoProcessor(invocation.context, dao.element, dbType, null, queryInterpreter)
+
             assertThat(daoProcessor.context.logger
                     .suppressedWarnings, `is`(setOf(Warning.ALL, Warning.CURSOR_MISMATCH)))
 
@@ -178,6 +183,7 @@ class DaoProcessorTest(val enableVerification: Boolean) {
                         baseContext = daoProcessor.context,
                         containing = MoreTypes.asDeclared(dao.element.asType()),
                         executableElement = it.element,
+                        queryInterpreter = queryInterpreter,
                         dbVerifier = null).context.logger.suppressedWarnings,
                         `is`(setOf(Warning.ALL, Warning.CURSOR_MISMATCH)))
             }
@@ -196,7 +202,9 @@ class DaoProcessorTest(val enableVerification: Boolean) {
             """) { dao, invocation ->
             val dbType = MoreTypes.asDeclared(invocation.context.processingEnv.elementUtils
                     .getTypeElement(RoomTypeNames.ROOM_DB.toString()).asType())
-            val daoProcessor = DaoProcessor(invocation.context, dao.element, dbType, null)
+            val queryInterpreter = createInterpreterFromEntitiesAndViews(invocation)
+            val daoProcessor =
+                DaoProcessor(invocation.context, dao.element, dbType, null, queryInterpreter)
             assertThat(daoProcessor.context.logger
                     .suppressedWarnings, `is`(setOf(Warning.CURSOR_MISMATCH)))
 
@@ -205,6 +213,7 @@ class DaoProcessorTest(val enableVerification: Boolean) {
                         baseContext = daoProcessor.context,
                         containing = MoreTypes.asDeclared(dao.element.asType()),
                         executableElement = it.element,
+                        queryInterpreter = queryInterpreter,
                         dbVerifier = null).context.logger.suppressedWarnings,
                         `is`(setOf(Warning.ALL, Warning.CURSOR_MISMATCH)))
             }
@@ -291,15 +300,18 @@ class DaoProcessorTest(val enableVerification: Boolean) {
 
     fun singleDao(
         vararg inputs: String,
-        classLoader: ClassLoader = javaClass.classLoader,
+        classpathFiles: Set<File> = emptySet(),
         handler: (Dao, TestInvocation) -> Unit
-    ):
-            CompileTester {
+    ): CompileTester {
         return Truth.assertAbout(JavaSourcesSubjectFactory.javaSources())
                 .that(listOf(JavaFileObjects.forSourceString("foo.bar.MyDao",
                         DAO_PREFIX + inputs.joinToString("\n")
                 ), COMMON.USER))
-                .withClasspathFrom(classLoader)
+                .apply {
+                    if (classpathFiles.isNotEmpty()) {
+                        withClasspath(classpathFiles)
+                    }
+                }
                 .processedWith(TestProcessor.builder()
                         .forAnnotations(androidx.room.Dao::class,
                                 androidx.room.Entity::class,
@@ -322,8 +334,9 @@ class DaoProcessorTest(val enableVerification: Boolean) {
                                     invocation.context.processingEnv.elementUtils
                                             .getTypeElement(RoomTypeNames.ROOM_DB.toString())
                                             .asType())
+                            val queryInterpreter = createInterpreterFromEntitiesAndViews(invocation)
                             val parser = DaoProcessor(invocation.context,
-                                    MoreElements.asType(dao), dbType, dbVerifier)
+                                    MoreElements.asType(dao), dbType, dbVerifier, queryInterpreter)
 
                             val parsedDao = parser.process()
                             handler(parsedDao, invocation)

@@ -23,7 +23,11 @@
     <public type="attr" name="offsetScrollBar" />
     <public type="attr" name="gutter" />
     <public type="attr" name="gutterSize" />
+    <!-- @deprecated Use scrollBarVisibleIfNeeded instead -->
     <public type="attr" name="scrollBarEnabled" />
+    <public type="attr" name="scrollBarVisibleIfNeeded" />
+    <public type="attr" name="scrollBarDividerVisibleIfNeeded" />
+    <public type="attr" name="scrollBarDividerWidth" />
     <public type="attr" name="scrollBarTopMargin" />
     <public type="attr" name="scrollBarContainerWidth" />
     <public type="attr" name="scrollBarGravity" />
@@ -47,6 +51,9 @@
     <public type="attr" name="showScrollBarThumb"/>
 
     <!-- ListItem -->
+    <public type="attr" name="listItemFocusOutlineColor" />
+    <public type="attr" name="listItemForeground" />
+    <public type="attr" name="listItemBackground" />
     <public type="attr" name="listItemBackgroundColor" />
     <public type="attr" name="listItemTitleTextAppearance" />
     <public type="attr" name="listItemBodyTextAppearance" />

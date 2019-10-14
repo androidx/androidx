@@ -26,9 +26,7 @@
         android:id="@+id/next_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Navigate next"
-        android:transitionName="next"
-        tools:ignore="UnusedAttribute"/>
+        android:text="Navigate next"/>
     <View
         android:layout_width="match_parent"
         android:layout_height="0dp"

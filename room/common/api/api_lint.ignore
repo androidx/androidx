@@ -1,0 +1,87 @@
+// Baseline format: 1.0
+AcronymName: androidx.room.ColumnInfo.SQLiteTypeAffinity:
+    Acronyms should not be capitalized in class names: was `SQLiteTypeAffinity`, should this be `SqLiteTypeAffinity`?
+
+
+MissingNullability: androidx.room.ColumnInfo#defaultValue():
+    Missing nullability on method `defaultValue` return
+MissingNullability: androidx.room.ColumnInfo#name():
+    Missing nullability on method `name` return
+MissingNullability: androidx.room.Database#entities():
+    Missing nullability on method `entities` return
+MissingNullability: androidx.room.Database#views():
+    Missing nullability on method `views` return
+MissingNullability: androidx.room.DatabaseView#value():
+    Missing nullability on method `value` return
+MissingNullability: androidx.room.DatabaseView#viewName():
+    Missing nullability on method `viewName` return
+MissingNullability: androidx.room.Delete#entity():
+    Missing nullability on method `entity` return
+MissingNullability: androidx.room.Embedded#prefix():
+    Missing nullability on method `prefix` return
+MissingNullability: androidx.room.Entity#foreignKeys():
+    Missing nullability on method `foreignKeys` return
+MissingNullability: androidx.room.Entity#ignoredColumns():
+    Missing nullability on method `ignoredColumns` return
+MissingNullability: androidx.room.Entity#indices():
+    Missing nullability on method `indices` return
+MissingNullability: androidx.room.Entity#primaryKeys():
+    Missing nullability on method `primaryKeys` return
+MissingNullability: androidx.room.Entity#tableName():
+    Missing nullability on method `tableName` return
+MissingNullability: androidx.room.ForeignKey#childColumns():
+    Missing nullability on method `childColumns` return
+MissingNullability: androidx.room.ForeignKey#entity():
+    Missing nullability on method `entity` return
+MissingNullability: androidx.room.ForeignKey#parentColumns():
+    Missing nullability on method `parentColumns` return
+MissingNullability: androidx.room.Fts3#tokenizer():
+    Missing nullability on method `tokenizer` return
+MissingNullability: androidx.room.Fts3#tokenizerArgs():
+    Missing nullability on method `tokenizerArgs` return
+MissingNullability: androidx.room.Fts4#contentEntity():
+    Missing nullability on method `contentEntity` return
+MissingNullability: androidx.room.Fts4#languageId():
+    Missing nullability on method `languageId` return
+MissingNullability: androidx.room.Fts4#matchInfo():
+    Missing nullability on method `matchInfo` return
+MissingNullability: androidx.room.Fts4#notIndexed():
+    Missing nullability on method `notIndexed` return
+MissingNullability: androidx.room.Fts4#order():
+    Missing nullability on method `order` return
+MissingNullability: androidx.room.Fts4#prefix():
+    Missing nullability on method `prefix` return
+MissingNullability: androidx.room.Fts4#tokenizer():
+    Missing nullability on method `tokenizer` return
+MissingNullability: androidx.room.Fts4#tokenizerArgs():
+    Missing nullability on method `tokenizerArgs` return
+MissingNullability: androidx.room.Index#name():
+    Missing nullability on method `name` return
+MissingNullability: androidx.room.Index#value():
+    Missing nullability on method `value` return
+MissingNullability: androidx.room.Insert#entity():
+    Missing nullability on method `entity` return
+MissingNullability: androidx.room.Junction#entityColumn():
+    Missing nullability on method `entityColumn` return
+MissingNullability: androidx.room.Junction#parentColumn():
+    Missing nullability on method `parentColumn` return
+MissingNullability: androidx.room.Junction#value():
+    Missing nullability on method `value` return
+MissingNullability: androidx.room.Query#value():
+    Missing nullability on method `value` return
+MissingNullability: androidx.room.RawQuery#observedEntities():
+    Missing nullability on method `observedEntities` return
+MissingNullability: androidx.room.Relation#associateBy():
+    Missing nullability on method `associateBy` return
+MissingNullability: androidx.room.Relation#entity():
+    Missing nullability on method `entity` return
+MissingNullability: androidx.room.Relation#entityColumn():
+    Missing nullability on method `entityColumn` return
+MissingNullability: androidx.room.Relation#parentColumn():
+    Missing nullability on method `parentColumn` return
+MissingNullability: androidx.room.Relation#projection():
+    Missing nullability on method `projection` return
+MissingNullability: androidx.room.TypeConverters#value():
+    Missing nullability on method `value` return
+MissingNullability: androidx.room.Update#entity():
+    Missing nullability on method `entity` return

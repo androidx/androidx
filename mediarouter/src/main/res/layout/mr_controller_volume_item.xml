@@ -21,12 +21,16 @@
                   android:layout_width="fill_parent"
                   android:layout_height="@dimen/mr_controller_volume_group_list_item_height"
                   android:paddingLeft="24dp"
+                  android:paddingStart="24dp"
                   android:paddingRight="60dp"
+                  android:paddingEnd="60dp"
                   android:paddingBottom="8dp"
                   android:orientation="vertical" >
         <TextView android:id="@+id/mr_name"
                   android:layout_width="wrap_content"
                   android:layout_height="wrap_content"
+                  android:gravity="start"
+                  android:textAlignment="viewStart"
                   android:textAppearance="@style/TextAppearance.MediaRouter.SecondaryText"
                   android:singleLine="true" />
         <LinearLayout android:layout_width="fill_parent"

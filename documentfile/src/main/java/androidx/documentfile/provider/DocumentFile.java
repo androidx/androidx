@@ -16,8 +16,8 @@
 
 package androidx.documentfile.provider;
 
-import android.content.ContentResolver;
 import android.content.Context;
+import android.content.ContentResolver;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
@@ -320,7 +320,7 @@ public abstract class DocumentFile {
      * Returns an array of files contained in the directory represented by this
      * file.
      *
-     * @return an array of files or {@code null}.
+     * @return an array of files.
      * @throws UnsupportedOperationException when working with a single document
      *             created from {@link #fromSingleUri(Context, Uri)}.
      * @see android.provider.DocumentsContract#buildChildDocumentsUriUsingTree(Uri,

@@ -35,6 +35,7 @@ import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.slice.Slice;
 import androidx.slice.SliceProvider;
 import androidx.slice.SliceSpec;
@@ -131,7 +132,7 @@ public class SliceProviderCompatTest {
         }
 
         @Override
-        public Slice onBindSlice(Uri sliceUri) {
+        public Slice onBindSlice(@NonNull Uri sliceUri) {
             return null;
         }
     }

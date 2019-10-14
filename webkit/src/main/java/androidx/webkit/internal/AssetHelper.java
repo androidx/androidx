@@ -19,24 +19,32 @@ package androidx.webkit.internal;
 import android.content.Context;
 import android.content.res.AssetManager;
 import android.content.res.Resources;
-import android.net.Uri;
-import android.util.Log;
+import android.os.Build;
 import android.util.TypedValue;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.List;
+import java.net.URLConnection;
 import java.util.zip.GZIPInputStream;
 
 /**
-  * Handles opening resources and assets.
+  * A Utility class for opening resources, assets and files for
+  * {@link androidx.webkit.WebViewAssetLoader}.
   * Forked from the chromuim project org.chromium.android_webview.AndroidProtocolHandler
   */
 public class AssetHelper {
     private static final String TAG = "AssetHelper";
+
+    /**
+     * Default value to be used as MIME type if guessing MIME type failed.
+     */
+    public static final String DEFAULT_MIME_TYPE = "text/plain";
 
     @NonNull private Context mContext;
 
@@ -44,22 +52,23 @@ public class AssetHelper {
         this.mContext = context;
     }
 
-    @Nullable
-    private static InputStream handleSvgzStream(@NonNull Uri uri, @Nullable InputStream stream) {
-        if (stream != null && uri.getLastPathSegment().endsWith(".svgz")) {
-            try {
-                stream = new GZIPInputStream(stream);
-            } catch (IOException e) {
-                Log.e(TAG, "Error decompressing " + uri + " - " + e.getMessage());
-                return null;
-            }
-        }
-        return stream;
+    @NonNull
+    private static InputStream handleSvgzStream(@NonNull String path,
+            @NonNull InputStream stream) throws IOException {
+        return path.endsWith(".svgz") ? new GZIPInputStream(stream) : stream;
     }
 
-    private int getFieldId(@NonNull String assetType, @NonNull String assetName) {
+    @NonNull
+    private static String removeLeadingSlash(@NonNull String path) {
+        if (path.length() > 1 && path.charAt(0) == '/') {
+            path = path.substring(1);
+        }
+        return path;
+    }
+
+    private int getFieldId(@NonNull String resourceType, @NonNull String resourceName) {
         String packageName = mContext.getPackageName();
-        int id = mContext.getResources().getIdentifier(assetName, assetType, packageName);
+        int id = mContext.getResources().getIdentifier(resourceName, resourceType, packageName);
         return id;
     }
 
@@ -72,56 +81,127 @@ public class AssetHelper {
     /**
      * Open an InputStream for an Android resource.
      *
-     * @param uri The uri to load. The path must be of the form "asset_type/asset_name.ext".
-     * @return An InputStream to the Android resource.
+     * @param path Path of the form "resource_type/resource_name.ext".
+     * @return An {@link InputStream} to the Android resource.
      */
-    @Nullable
-    public InputStream openResource(@NonNull Uri uri) {
-        // The path must be of the form "asset_type/asset_name.ext".
-        List<String> pathSegments = uri.getPathSegments();
-        if (pathSegments.size() != 2) {
-            Log.e(TAG, "Incorrect resource path: " + uri);
-            return null;
+    @NonNull
+    public InputStream openResource(@NonNull String path)
+            throws Resources.NotFoundException, IOException {
+        path = removeLeadingSlash(path);
+        // The path must be of the form "resource_type/resource_name.ext".
+        String[] pathSegments = path.split("/", -1);
+        if (pathSegments.length != 2) {
+            throw new IllegalArgumentException("Incorrect resource path: " + path);
         }
-        String assetType = pathSegments.get(0);
-        String assetName = pathSegments.get(1);
+        String resourceType = pathSegments[0];
+        String resourceName = pathSegments[1];
 
         // Drop the file extension.
-        assetName = assetName.split("\\.")[0];
-        try {
-            int fieldId = getFieldId(assetType, assetName);
-            int valueType = getValueType(fieldId);
-            if (valueType == TypedValue.TYPE_STRING) {
-                return handleSvgzStream(uri, mContext.getResources().openRawResource(fieldId));
-            } else {
-                Log.e(TAG, "Asset not of type string: " + uri);
-                return null;
-            }
-        } catch (Resources.NotFoundException e) {
-            Log.e(TAG, "Resource not found from URL: " + uri, e);
-            return null;
+        int dotIndex = resourceName.lastIndexOf('.');
+        if (dotIndex != -1) {
+            resourceName = resourceName.substring(0, dotIndex);
         }
+        int fieldId = getFieldId(resourceType, resourceName);
+        int valueType = getValueType(fieldId);
+        if (valueType != TypedValue.TYPE_STRING) {
+            throw new IOException(
+                    String.format("Expected %s resource to be of TYPE_STRING but was %d",
+                            path, valueType));
+        }
+        return handleSvgzStream(path, mContext.getResources().openRawResource(fieldId));
     }
 
     /**
      * Open an InputStream for an Android asset.
      *
-     * @param uri The uri to load.
-     * @return An InputStream to the Android asset.
+     * @param path Path to the asset file to load.
+     * @return An {@link InputStream} to the Android asset.
+     */
+    @NonNull
+    public InputStream openAsset(@NonNull String path) throws IOException {
+        path = removeLeadingSlash(path);
+        AssetManager assets = mContext.getAssets();
+        return handleSvgzStream(path, assets.open(path, AssetManager.ACCESS_STREAMING));
+    }
+
+    /**
+     * Open an {@code InputStream} for a file in application data directories.
+     *
+     * @param file The file to be opened.
+     * @return An {@code InputStream} for the requested file.
+     */
+    @NonNull
+    public static InputStream openFile(@NonNull File file) throws FileNotFoundException,
+            IOException {
+        FileInputStream fis = new FileInputStream(file);
+        return handleSvgzStream(file.getPath(), fis);
+    }
+
+    /**
+     * Resolves the given relative child string path against the given parent directory.
+     *
+     * It resolves the given child path and creates a {@link File} object using the canonical path
+     * of that file if its canonical path starts with the canonical path of the parent directory.
+     *
+     * @param parent {@link File} for the parent directory.
+     * @param child Relative path for the child file.
+     * @return {@link File} for the given child path or {@code null} if the given path doesn't
+     *         resolve to be a child of the given parent.
      */
     @Nullable
-    public InputStream openAsset(@NonNull Uri uri) {
-        String path = uri.getPath();
-        // Strip leading slash if present.
-        if (path.length() > 1 && path.charAt(0) == '/') {
-            path = path.substring(1);
+    public static File getCanonicalFileIfChild(@NonNull File parent, @NonNull String child)
+            throws IOException {
+        String parentCanonicalPath = getCanonicalDirPath(parent);
+        String childCanonicalPath = new File(parent, child).getCanonicalPath();
+        if (childCanonicalPath.startsWith(parentCanonicalPath)) {
+            return new File(childCanonicalPath);
         }
-        try {
-            AssetManager assets = mContext.getAssets();
-            return handleSvgzStream(uri, assets.open(path, AssetManager.ACCESS_STREAMING));
-        } catch (IOException e) {
-            Log.e(TAG, "Unable to open asset URL: " + uri);
-            return null;
+        return null;
+    }
+
+    /**
+     * Returns the canonical path for the given directory with a {@code "/"} at the end if doesn't
+     * have one.
+     *
+     * Having a slash {@code "/"} at the end of a directory path is important when checking if a
+     * directory is a parent of another child directory or a file.
+     * E.g: the directory {@code "/some/path/to"} is not a parent of "/some/path/to_file". However,
+     * it will pass the {@code parentPath.startsWith(childPath)} check.
+     */
+    @NonNull
+    public static String getCanonicalDirPath(@NonNull File file) throws IOException {
+        String canonicalPath = file.getCanonicalPath();
+        if (!canonicalPath.endsWith("/")) canonicalPath += "/";
+        return canonicalPath;
+    }
+
+    /**
+     * Get the data dir for an application.
+     *
+     * @param context the {@link Context} used to get the data dir.
+     * @return data dir {@link File} for that app.
+     */
+    @NonNull
+    public static File getDataDir(@NonNull Context context) {
+        // Context#getDataDir is only available in APIs >= 24.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            return context.getDataDir();
+        } else {
+            // For APIs < 24 cache dir is created under the data dir.
+            return context.getCacheDir().getParentFile();
         }
+    }
+
+    /**
+     * Use {@link URLConnection#guessContentTypeFromName} to guess MIME type or return the
+     * {@link DEFAULT_MIME_TYPE} if it can't guess.
+     *
+     * @param filePath path of the file to guess its MIME type.
+     * @return MIME type guessed from file extension or {@link DEFAULT_MIME_TYPE}.
+     */
+    @NonNull
+    public static String guessMimeType(@NonNull String filePath) {
+        String mimeType = URLConnection.guessContentTypeFromName(filePath);
+        return mimeType == null ? DEFAULT_MIME_TYPE : mimeType;
     }
 }

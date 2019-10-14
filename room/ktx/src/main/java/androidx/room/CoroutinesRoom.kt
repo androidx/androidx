@@ -19,6 +19,9 @@ package androidx.room
 import androidx.annotation.RestrictTo
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.asCoroutineDispatcher
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.withContext
 import java.util.concurrent.Callable
 import kotlin.coroutines.coroutineContext
@@ -51,6 +54,38 @@ class CoroutinesRoom private constructor() {
                 callable.call()
             }
         }
+
+        @JvmStatic
+        fun <R> createFlow(
+            db: RoomDatabase,
+            inTransaction: Boolean,
+            tableNames: Array<String>,
+            callable: Callable<R>
+        ): Flow<@JvmSuppressWildcards R> = flow {
+            // Observer channel receives signals from the invalidation tracker to emit queries.
+            val observerChannel = Channel<Unit>(Channel.CONFLATED)
+            val observer = object : InvalidationTracker.Observer(tableNames) {
+                override fun onInvalidated(tables: MutableSet<String>) {
+                    observerChannel.offer(Unit)
+                }
+            }
+            observerChannel.offer(Unit) // Initial signal to perform first query.
+            val flowContext = coroutineContext
+            val queryContext = if (inTransaction) db.transactionDispatcher else db.queryDispatcher
+            withContext(queryContext) {
+                db.invalidationTracker.addObserver(observer)
+                try {
+                    // Iterate until cancelled, transforming observer signals to query results to
+                    // be emitted to the flow.
+                    for (signal in observerChannel) {
+                        val result = callable.call()
+                        withContext(flowContext) { emit(result) }
+                    }
+                } finally {
+                    db.invalidationTracker.removeObserver(observer)
+                }
+            }
+        }
     }
 }
 
@@ -71,5 +106,5 @@ internal val RoomDatabase.queryDispatcher: CoroutineDispatcher
  */
 internal val RoomDatabase.transactionDispatcher: CoroutineDispatcher
     get() = backingFieldMap.getOrPut("TransactionDispatcher") {
-        queryExecutor.asCoroutineDispatcher()
+        transactionExecutor.asCoroutineDispatcher()
     } as CoroutineDispatcher

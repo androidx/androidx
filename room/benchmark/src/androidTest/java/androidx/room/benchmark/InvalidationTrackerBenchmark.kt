@@ -17,8 +17,8 @@
 package androidx.room.benchmark
 
 import android.os.Build
-import androidx.benchmark.BenchmarkRule
-import androidx.benchmark.measureRepeated
+import androidx.benchmark.junit4.BenchmarkRule
+import androidx.benchmark.junit4.measureRepeated
 import androidx.room.Dao
 import androidx.room.Database
 import androidx.room.Entity

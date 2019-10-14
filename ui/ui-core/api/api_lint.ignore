@@ -1,0 +1,193 @@
+// Baseline format: 1.0
+AcronymName: androidx.ui.core.Dp#div-KkBJKWw(float):
+    Acronyms should not be capitalized in method names: was `div-KkBJKWw`, should this be `div-KkBjkWw`?
+AcronymName: androidx.ui.core.Dp#times-KkBJKWw(float):
+    Acronyms should not be capitalized in method names: was `times-KkBJKWw`, should this be `times-KkBjkWw`?
+AcronymName: androidx.ui.core.DpCubed#div-KkBJKWw(float, float):
+    Acronyms should not be capitalized in method names: was `div-KkBJKWw`, should this be `div-KkBjkWw`?
+AcronymName: androidx.ui.core.DpInverse#compareTo-ASDJgtI(float, float):
+    Acronyms should not be capitalized in method names: was `compareTo-ASDJgtI`, should this be `compareTo-AsdJgtI`?
+AcronymName: androidx.ui.core.DpInverse#minus-ASDJgtI(float, float):
+    Acronyms should not be capitalized in method names: was `minus-ASDJgtI`, should this be `minus-AsdJgtI`?
+AcronymName: androidx.ui.core.DpInverse#plus-ASDJgtI(float, float):
+    Acronyms should not be capitalized in method names: was `plus-ASDJgtI`, should this be `plus-AsdJgtI`?
+AcronymName: androidx.ui.core.DpInverse#times-KkBJKWw(float, float):
+    Acronyms should not be capitalized in method names: was `times-KkBJKWw`, should this be `times-KkBjkWw`?
+AcronymName: androidx.ui.core.DpSquared#compareTo-KkBJKWw(float, float):
+    Acronyms should not be capitalized in method names: was `compareTo-KkBJKWw`, should this be `compareTo-KkBjkWw`?
+AcronymName: androidx.ui.core.DpSquared#div-KkBJKWw(float, float):
+    Acronyms should not be capitalized in method names: was `div-KkBJKWw`, should this be `div-KkBjkWw`?
+AcronymName: androidx.ui.core.DpSquared#minus-KkBJKWw(float, float):
+    Acronyms should not be capitalized in method names: was `minus-KkBJKWw`, should this be `minus-KkBjkWw`?
+AcronymName: androidx.ui.core.DpSquared#plus-KkBJKWw(float, float):
+    Acronyms should not be capitalized in method names: was `plus-KkBJKWw`, should this be `plus-KkBjkWw`?
+AcronymName: androidx.ui.core.Px#div-kVJEwbQ(float):
+    Acronyms should not be capitalized in method names: was `div-kVJEwbQ`, should this be `div-kVjEwbQ`?
+AcronymName: androidx.ui.core.Px#times-kVJEwbQ(float):
+    Acronyms should not be capitalized in method names: was `times-kVJEwbQ`, should this be `times-kVjEwbQ`?
+AcronymName: androidx.ui.core.PxCubed#div-kVJEwbQ(float, float):
+    Acronyms should not be capitalized in method names: was `div-kVJEwbQ`, should this be `div-kVjEwbQ`?
+AcronymName: androidx.ui.core.PxInverse#compareTo-MXEAIGs(float, float):
+    Acronyms should not be capitalized in method names: was `compareTo-MXEAIGs`, should this be `compareTo-MxeaiGs`?
+AcronymName: androidx.ui.core.PxInverse#minus-MXEAIGs(float, float):
+    Acronyms should not be capitalized in method names: was `minus-MXEAIGs`, should this be `minus-MxeaiGs`?
+AcronymName: androidx.ui.core.PxInverse#plus-MXEAIGs(float, float):
+    Acronyms should not be capitalized in method names: was `plus-MXEAIGs`, should this be `plus-MxeaiGs`?
+AcronymName: androidx.ui.core.PxInverse#times-kVJEwbQ(float, float):
+    Acronyms should not be capitalized in method names: was `times-kVJEwbQ`, should this be `times-kVjEwbQ`?
+AcronymName: androidx.ui.core.PxSquared#compareTo-kVJEwbQ(float, float):
+    Acronyms should not be capitalized in method names: was `compareTo-kVJEwbQ`, should this be `compareTo-kVjEwbQ`?
+AcronymName: androidx.ui.core.PxSquared#div-kVJEwbQ(float, float):
+    Acronyms should not be capitalized in method names: was `div-kVJEwbQ`, should this be `div-kVjEwbQ`?
+AcronymName: androidx.ui.core.PxSquared#minus-kVJEwbQ(float, float):
+    Acronyms should not be capitalized in method names: was `minus-kVJEwbQ`, should this be `minus-kVjEwbQ`?
+AcronymName: androidx.ui.core.PxSquared#plus-kVJEwbQ(float, float):
+    Acronyms should not be capitalized in method names: was `plus-kVJEwbQ`, should this be `plus-kVjEwbQ`?
+AcronymName: androidx.ui.engine.geometry.Rect.Companion#fromLTRB(float, float, float, float):
+    Acronyms should not be capitalized in method names: was `fromLTRB`, should this be `fromLtrb`?
+AcronymName: androidx.ui.engine.geometry.Rect.Companion#fromLTWH(float, float, float, float):
+    Acronyms should not be capitalized in method names: was `fromLTWH`, should this be `fromLtwh`?
+
+
+AutoBoxing: androidx.ui.vectormath64.Matrix4#scale(Object, Float, Float) parameter #1:
+    Must avoid boxed primitives (`java.lang.Float`)
+AutoBoxing: androidx.ui.vectormath64.Matrix4#scale(Object, Float, Float) parameter #2:
+    Must avoid boxed primitives (`java.lang.Float`)
+AutoBoxing: androidx.ui.vectormath64.Matrix4Kt#getAsScale(androidx.ui.vectormath64.Matrix4):
+    Must avoid boxed primitives (`java.lang.Float`)
+
+
+DocumentExceptions: androidx.ui.vectormath64.Matrix2#get(androidx.ui.vectormath64.MatrixColumn):
+    Method Matrix2.get appears to be throwing java.lang.IllegalArgumentException; this should be listed in the documentation; see https://android.github.io/kotlin-guides/interop.html#document-exceptions
+DocumentExceptions: androidx.ui.vectormath64.Matrix2#get(int):
+    Method Matrix2.get appears to be throwing java.lang.IllegalArgumentException; this should be listed in the documentation; see https://android.github.io/kotlin-guides/interop.html#document-exceptions
+DocumentExceptions: androidx.ui.vectormath64.Matrix3#get(androidx.ui.vectormath64.MatrixColumn):
+    Method Matrix3.get appears to be throwing java.lang.IllegalArgumentException; this should be listed in the documentation; see https://android.github.io/kotlin-guides/interop.html#document-exceptions
+DocumentExceptions: androidx.ui.vectormath64.Matrix3#get(int):
+    Method Matrix3.get appears to be throwing java.lang.IllegalArgumentException; this should be listed in the documentation; see https://android.github.io/kotlin-guides/interop.html#document-exceptions
+DocumentExceptions: androidx.ui.vectormath64.Matrix4#get(int):
+    Method Matrix4.get appears to be throwing java.lang.IllegalArgumentException; this should be listed in the documentation; see https://android.github.io/kotlin-guides/interop.html#document-exceptions
+DocumentExceptions: androidx.ui.vectormath64.Vector2#get(androidx.ui.vectormath64.VectorComponent):
+    Method Vector2.get appears to be throwing java.lang.IllegalArgumentException; this should be listed in the documentation; see https://android.github.io/kotlin-guides/interop.html#document-exceptions
+DocumentExceptions: androidx.ui.vectormath64.Vector2#get(int):
+    Method Vector2.get appears to be throwing java.lang.IllegalArgumentException; this should be listed in the documentation; see https://android.github.io/kotlin-guides/interop.html#document-exceptions
+DocumentExceptions: androidx.ui.vectormath64.Vector2#set(androidx.ui.vectormath64.VectorComponent, float):
+    Method Vector2.set appears to be throwing java.lang.IllegalArgumentException; this should be listed in the documentation; see https://android.github.io/kotlin-guides/interop.html#document-exceptions
+DocumentExceptions: androidx.ui.vectormath64.Vector2#set(int, float):
+    Method Vector2.set appears to be throwing java.lang.IllegalArgumentException; this should be listed in the documentation; see https://android.github.io/kotlin-guides/interop.html#document-exceptions
+DocumentExceptions: androidx.ui.vectormath64.Vector3#get(androidx.ui.vectormath64.VectorComponent):
+    Method Vector3.get appears to be throwing java.lang.IllegalArgumentException; this should be listed in the documentation; see https://android.github.io/kotlin-guides/interop.html#document-exceptions
+DocumentExceptions: androidx.ui.vectormath64.Vector3#get(int):
+    Method Vector3.get appears to be throwing java.lang.IllegalArgumentException; this should be listed in the documentation; see https://android.github.io/kotlin-guides/interop.html#document-exceptions
+DocumentExceptions: androidx.ui.vectormath64.Vector3#set(androidx.ui.vectormath64.VectorComponent, float):
+    Method Vector3.set appears to be throwing java.lang.IllegalArgumentException; this should be listed in the documentation; see https://android.github.io/kotlin-guides/interop.html#document-exceptions
+DocumentExceptions: androidx.ui.vectormath64.Vector3#set(int, float):
+    Method Vector3.set appears to be throwing java.lang.IllegalArgumentException; this should be listed in the documentation; see https://android.github.io/kotlin-guides/interop.html#document-exceptions
+DocumentExceptions: androidx.ui.vectormath64.Vector4#get(int):
+    Method Vector4.get appears to be throwing java.lang.IllegalArgumentException; this should be listed in the documentation; see https://android.github.io/kotlin-guides/interop.html#document-exceptions
+DocumentExceptions: androidx.ui.vectormath64.Vector4#set(int, float):
+    Method Vector4.set appears to be throwing java.lang.IllegalArgumentException; this should be listed in the documentation; see https://android.github.io/kotlin-guides/interop.html#document-exceptions
+
+
+KotlinOperator: androidx.ui.engine.geometry.RRect#contains(androidx.ui.engine.geometry.Offset):
+    Note that adding the `operator` keyword would allow calling this method using operator syntax
+KotlinOperator: androidx.ui.engine.geometry.Rect#contains(androidx.ui.engine.geometry.Offset):
+    Note that adding the `operator` keyword would allow calling this method using operator syntax
+KotlinOperator: androidx.ui.engine.geometry.Size#contains(androidx.ui.engine.geometry.Offset):
+    Note that adding the `operator` keyword would allow calling this method using operator syntax
+KotlinOperator: androidx.ui.graphics.Path#contains(androidx.ui.engine.geometry.Offset):
+    Note that adding the `operator` keyword would allow calling this method using operator syntax
+KotlinOperator: androidx.ui.text.TextRange#contains(androidx.ui.text.TextRange):
+    Note that adding the `operator` keyword would allow calling this method using operator syntax
+KotlinOperator: androidx.ui.text.TextRange#contains(int):
+    Note that adding the `operator` keyword would allow calling this method using operator syntax
+
+
+MethodNameUnits: androidx.ui.core.Durations#inSeconds(androidx.ui.core.Duration):
+    Returned time values must be in milliseconds, was `inSeconds`
+
+
+MissingBuild: androidx.ui.graphics.vector.PathBuilder:
+    Missing `build()` method in androidx.ui.graphics.vector.PathBuilder
+
+
+MissingNullability: androidx.ui.core.Constraints#Companion:
+    Missing nullability on field `Companion` in class `class androidx.ui.core.Constraints`
+MissingNullability: androidx.ui.core.Dp#Companion:
+    Missing nullability on field `Companion` in class `class androidx.ui.core.Dp`
+MissingNullability: androidx.ui.core.DpCubed#equals(Object) parameter #0:
+    Missing nullability on parameter `p` in method `equals`
+MissingNullability: androidx.ui.core.DpCubed#toString():
+    Missing nullability on method `toString` return
+MissingNullability: androidx.ui.core.DpInverse#equals(Object) parameter #0:
+    Missing nullability on parameter `p` in method `equals`
+MissingNullability: androidx.ui.core.DpInverse#toString():
+    Missing nullability on method `toString` return
+MissingNullability: androidx.ui.core.DpSquared#equals(Object) parameter #0:
+    Missing nullability on parameter `p` in method `equals`
+MissingNullability: androidx.ui.core.DpSquared#toString():
+    Missing nullability on method `toString` return
+MissingNullability: androidx.ui.core.Duration#Companion:
+    Missing nullability on field `Companion` in class `class androidx.ui.core.Duration`
+MissingNullability: androidx.ui.core.IntPx#Companion:
+    Missing nullability on field `Companion` in class `class androidx.ui.core.IntPx`
+MissingNullability: androidx.ui.core.IntPxPosition#Companion:
+    Missing nullability on field `Companion` in class `class androidx.ui.core.IntPxPosition`
+MissingNullability: androidx.ui.core.MeasureScope.LayoutResult#INSTANCE:
+    Missing nullability on field `INSTANCE` in class `class androidx.ui.core.MeasureScope.LayoutResult`
+MissingNullability: androidx.ui.core.Modifier.None#INSTANCE:
+    Missing nullability on field `INSTANCE` in class `class androidx.ui.core.Modifier.None`
+MissingNullability: androidx.ui.core.Placeable#PlacementScope:
+    Missing nullability on field `PlacementScope` in class `class androidx.ui.core.Placeable`
+MissingNullability: androidx.ui.core.Px#Companion:
+    Missing nullability on field `Companion` in class `class androidx.ui.core.Px`
+MissingNullability: androidx.ui.core.PxCubed#equals(Object) parameter #0:
+    Missing nullability on parameter `p` in method `equals`
+MissingNullability: androidx.ui.core.PxCubed#toString():
+    Missing nullability on method `toString` return
+MissingNullability: androidx.ui.core.PxInverse#equals(Object) parameter #0:
+    Missing nullability on parameter `p` in method `equals`
+MissingNullability: androidx.ui.core.PxInverse#toString():
+    Missing nullability on method `toString` return
+MissingNullability: androidx.ui.core.PxKt#getMinDimension(androidx.ui.core.PxSize):
+    Missing nullability on method `getMinDimension` return
+MissingNullability: androidx.ui.core.PxPosition#Companion:
+    Missing nullability on field `Companion` in class `class androidx.ui.core.PxPosition`
+MissingNullability: androidx.ui.core.PxSize#Companion:
+    Missing nullability on field `Companion` in class `class androidx.ui.core.PxSize`
+MissingNullability: androidx.ui.core.PxSquared#equals(Object) parameter #0:
+    Missing nullability on parameter `p` in method `equals`
+MissingNullability: androidx.ui.core.PxSquared#toString():
+    Missing nullability on method `toString` return
+MissingNullability: androidx.ui.core.Sp#Companion:
+    Missing nullability on field `Companion` in class `class androidx.ui.core.Sp`
+MissingNullability: androidx.ui.core.Velocity#Companion:
+    Missing nullability on field `Companion` in class `class androidx.ui.core.Velocity`
+MissingNullability: androidx.ui.engine.geometry.Offset#Companion:
+    Missing nullability on field `Companion` in class `class androidx.ui.engine.geometry.Offset`
+MissingNullability: androidx.ui.engine.geometry.RRect#Companion:
+    Missing nullability on field `Companion` in class `class androidx.ui.engine.geometry.RRect`
+MissingNullability: androidx.ui.engine.geometry.Radius#Companion:
+    Missing nullability on field `Companion` in class `class androidx.ui.engine.geometry.Radius`
+MissingNullability: androidx.ui.engine.geometry.Rect#Companion:
+    Missing nullability on field `Companion` in class `class androidx.ui.engine.geometry.Rect`
+MissingNullability: androidx.ui.engine.geometry.Size#Companion:
+    Missing nullability on field `Companion` in class `class androidx.ui.engine.geometry.Size`
+MissingNullability: androidx.ui.graphics.Color#Companion:
+    Missing nullability on field `Companion` in class `class androidx.ui.graphics.Color`
+MissingNullability: androidx.ui.graphics.MaskFilter#Companion:
+    Missing nullability on field `Companion` in class `class androidx.ui.graphics.MaskFilter`
+MissingNullability: androidx.ui.graphics.Path#Companion:
+    Missing nullability on field `Companion` in class `class androidx.ui.graphics.Path`
+MissingNullability: androidx.ui.graphics.colorspace.ColorSpaces#INSTANCE:
+    Missing nullability on field `INSTANCE` in class `class androidx.ui.graphics.colorspace.ColorSpaces`
+MissingNullability: androidx.ui.graphics.colorspace.Illuminant#INSTANCE:
+    Missing nullability on field `INSTANCE` in class `class androidx.ui.graphics.colorspace.Illuminant`
+MissingNullability: androidx.ui.util.Float16#Companion:
+    Missing nullability on field `Companion` in class `class androidx.ui.util.Float16`
+MissingNullability: androidx.ui.vectormath64.Matrix2#Companion:
+    Missing nullability on field `Companion` in class `class androidx.ui.vectormath64.Matrix2`
+MissingNullability: androidx.ui.vectormath64.Matrix3#Companion:
+    Missing nullability on field `Companion` in class `class androidx.ui.vectormath64.Matrix3`
+MissingNullability: androidx.ui.vectormath64.Matrix4#Companion:
+    Missing nullability on field `Companion` in class `class androidx.ui.vectormath64.Matrix4`

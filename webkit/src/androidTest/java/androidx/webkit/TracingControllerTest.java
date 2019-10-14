@@ -86,11 +86,8 @@ public class TracingControllerTest {
     @Test
     public void testTracingControllerCallbacksOnUI() throws Throwable {
         final TracingReceiver tracingReceiver = new TracingReceiver();
-        WebkitUtils.onMainThreadSync(new Runnable() {
-            @Override
-            public void run() {
-                runTracingTestWithCallbacks(tracingReceiver, mSingleThreadExecutor);
-            }
+        WebkitUtils.onMainThreadSync(() -> {
+            runTracingTestWithCallbacks(tracingReceiver, mSingleThreadExecutor);
         });
         PollingCheck.check("Tracing did not complete", POLLING_TIMEOUT,
                 tracingReceiver.getCompleteCallable());

@@ -179,7 +179,7 @@ public class GuidedActionAdapter extends RecyclerView.Adapter {
         mActionOnFocusListener.unFocus();
         if (mDiffCallback != null) {
             // temporary variable used for DiffCallback
-            final List<GuidedAction> oldActions = new ArrayList();
+            final List<GuidedAction> oldActions = new ArrayList<>();
             oldActions.addAll(mActions);
 
             // update items.

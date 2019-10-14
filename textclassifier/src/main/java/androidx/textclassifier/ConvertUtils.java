@@ -91,7 +91,7 @@ final class ConvertUtils {
         Preconditions.checkNotNull(textLink);
 
         final int entityCount = textLink.getEntityCount();
-        Map<String, Float> floatMap = new ArrayMap<>();
+        Map<String, Float> floatMap = new ArrayMap<>(entityCount);
         for (int i = 0; i < entityCount; i++) {
             String entity = textLink.getEntity(i);
             floatMap.put(entity, textLink.getConfidenceScore(entity));

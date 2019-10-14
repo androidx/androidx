@@ -24,7 +24,6 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.ServiceConnection;
 import android.os.IBinder;
-import android.os.SystemClock;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -41,14 +40,16 @@ public class CarUxRestrictionsHelper {
     // mCar is created in the constructor, but can be null if connection to the car is not
     // successful.
     @SuppressWarnings("WeakerAccess") /* synthetic access */
-    @Nullable final Car mCar;
+    @Nullable
+    final Car mCar;
     @SuppressWarnings("WeakerAccess") /* synthetic access */
-    @Nullable CarUxRestrictionsManager mCarUxRestrictionsManager;
+    @Nullable
+    CarUxRestrictionsManager mCarUxRestrictionsManager;
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     final OnUxRestrictionsChangedListener mListener;
 
-    public CarUxRestrictionsHelper(Context context,
+    public CarUxRestrictionsHelper(@NonNull Context context,
             @NonNull OnUxRestrictionsChangedListener listener) {
         if (listener == null) {
             throw new IllegalArgumentException("Listener cannot be null.");
@@ -63,7 +64,9 @@ public class CarUxRestrictionsHelper {
      * <p>This method can be called from {@code Activity}'s {@link Activity#onStart()}, or at the
      * time of construction.
      *
-     * <p>This method must be accompanied with a matching {@link #stop()} to avoid leak.
+     * <p>This method must be accompanied with a matching {@link #stop()} to avoid leak. After
+     * {@link #start()} has been called, calling {@link #start()} subsequent times without
+     * calling {@link #stop()} will result in a no-op.
      */
     public void start() {
         try {
@@ -83,7 +86,8 @@ public class CarUxRestrictionsHelper {
      * time of being discarded.
      *
      * <p>After {@link #stop()} has been called, {@link #start()} can be called again to resume
-     * monitoring car ux restrictions change.
+     * monitoring car ux restrictions change. Calling {@link #stop()} without calling
+     * {@link #start()} will result in a no-op.
      */
     public void stop() {
         if (mCarUxRestrictionsManager != null) {
@@ -123,7 +127,7 @@ public class CarUxRestrictionsHelper {
         }
 
         return new CarUxRestrictions.Builder(false,
-                CarUxRestrictions.UX_RESTRICTIONS_BASELINE, SystemClock.elapsedRealtimeNanos())
+                CarUxRestrictions.UX_RESTRICTIONS_BASELINE)
                 .build();
     }
 
@@ -133,9 +137,17 @@ public class CarUxRestrictionsHelper {
             try {
                 mCarUxRestrictionsManager = (CarUxRestrictionsManager)
                         mCar.getCarManager(Car.CAR_UX_RESTRICTION_SERVICE);
-                // Convert framework UX restrictions to androidx type.
-                mCarUxRestrictionsManager.registerListener(restrictions ->
-                        mListener.onUxRestrictionsChanged(new CarUxRestrictions(restrictions)));
+                // Convert framework UX restrictions to androidx type. Avoid using lambda here
+                // to workaround de-sugaring issue when referencing car-lib.
+                mCarUxRestrictionsManager.registerListener(
+                        new CarUxRestrictionsManager.OnUxRestrictionsChangedListener() {
+                            @Override
+                            public void onUxRestrictionsChanged(
+                                    android.car.drivingstate.CarUxRestrictions restrictions) {
+                                mListener.onUxRestrictionsChanged(
+                                        new CarUxRestrictions(restrictions));
+                            }
+                        });
 
                 mListener.onUxRestrictionsChanged(new CarUxRestrictions(
                         mCarUxRestrictionsManager.getCurrentCarUxRestrictions()));

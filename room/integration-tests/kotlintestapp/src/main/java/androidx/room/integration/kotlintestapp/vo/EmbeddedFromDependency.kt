@@ -18,5 +18,6 @@ package androidx.room.integration.kotlintestapp.vo
 import androidx.room.Embedded
 
 data class EmbeddedFromDependency(
-        @Embedded
-        val data: DataClassFromDependency)
+    @Embedded
+    val data: DataClassFromDependency
+)

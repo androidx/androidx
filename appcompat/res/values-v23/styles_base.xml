@@ -19,7 +19,9 @@
 
     <style name="Base.Widget.AppCompat.Button.Borderless.Colored" parent="android:Widget.Material.Button.Borderless.Colored" />
 
-    <style name="Base.Widget.AppCompat.Button.Colored" parent="android:Widget.Material.Button.Colored" />
+    <style name="Base.Widget.AppCompat.Button.Colored" parent="android:Widget.Material.Button.Colored" >
+        <item name="android:textAppearance">@style/TextAppearance.AppCompat.Widget.Button.Colored</item>
+    </style>
 
     <style name="Base.Widget.AppCompat.RatingBar.Indicator" parent="android:Widget.Material.RatingBar.Indicator" />
 

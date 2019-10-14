@@ -1,6 +1,7 @@
 import static androidx.build.dependencies.DependenciesKt.*
 import androidx.build.LibraryGroups
 import androidx.build.LibraryVersions
+import androidx.build.Publish
 
 plugins {
     id("AndroidXPlugin")
@@ -14,7 +15,7 @@ android {
 }
 
 dependencies {
-    api(project(":annotation"))
+    api("androidx.annotation:annotation:1.1.0")
 
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
     androidTestImplementation(ANDROIDX_TEST_CORE)
@@ -25,7 +26,7 @@ dependencies {
 
 androidx {
     name = "Android Support HeifWriter"
-    publish = true
+    publish = Publish.SNAPSHOT_AND_RELEASE
     mavenVersion = LibraryVersions.HEIFWRITER
     mavenGroup = LibraryGroups.HEIFWRITER
     inceptionYear = "2018"

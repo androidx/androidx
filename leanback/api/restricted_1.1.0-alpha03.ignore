@@ -1,0 +1,11 @@
+// Baseline format: 1.0
+ChangedStatic: androidx.leanback.widget.ItemBridgeAdapter.ViewHolder:
+    Class androidx.leanback.widget.ItemBridgeAdapter.ViewHolder changed 'static' qualifier
+
+
+RemovedDeprecatedMethod: androidx.leanback.app.RowsFragment#onCreate(android.os.Bundle):
+    Removed deprecated method androidx.leanback.app.RowsFragment.onCreate(android.os.Bundle)
+
+
+RemovedMethod: androidx.leanback.widget.picker.DatePicker#updateDate(int, int, int, boolean):
+    Removed method androidx.leanback.widget.picker.DatePicker.updateDate(int,int,int,boolean)

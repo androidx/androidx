@@ -50,7 +50,7 @@ public class RoomMasterTable {
     public static String createInsertQuery(String hash) {
         return "INSERT OR REPLACE INTO " + TABLE_NAME + " ("
                 + COLUMN_ID + "," + COLUMN_IDENTITY_HASH + ")"
-                + " VALUES(" + DEFAULT_ID + ", \"" + hash + "\")";
+                + " VALUES(" + DEFAULT_ID + ", '" + hash + "')";
     }
 
     private RoomMasterTable() {

@@ -23,6 +23,7 @@ import android.content.res.TypedArray;
 import android.database.DataSetObserver;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.os.Handler;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -75,29 +76,35 @@ public class ListPopupWindow implements ShowableListMenu {
      */
     static final int EXPAND_LIST_TIMEOUT = 250;
 
-    private static Method sClipToWindowEnabledMethod;
+    private static Method sSetClipToWindowEnabledMethod;
     private static Method sGetMaxAvailableHeightMethod;
     private static Method sSetEpicenterBoundsMethod;
 
     static {
-        try {
-            sClipToWindowEnabledMethod = PopupWindow.class.getDeclaredMethod(
-                    "setClipToScreenEnabled", boolean.class);
-        } catch (NoSuchMethodException e) {
-            Log.i(TAG, "Could not find method setClipToScreenEnabled() on PopupWindow. Oh well.");
+        if (Build.VERSION.SDK_INT <= 28) {
+            try {
+                sSetClipToWindowEnabledMethod = PopupWindow.class.getDeclaredMethod(
+                        "setClipToScreenEnabled", boolean.class);
+            } catch (NoSuchMethodException e) {
+                Log.i(TAG,
+                        "Could not find method setClipToScreenEnabled() on PopupWindow. Oh well.");
+            }
+            try {
+                sSetEpicenterBoundsMethod = PopupWindow.class.getDeclaredMethod(
+                        "setEpicenterBounds", Rect.class);
+            } catch (NoSuchMethodException e) {
+                Log.i(TAG,
+                        "Could not find method setEpicenterBounds(Rect) on PopupWindow. Oh well.");
+            }
         }
-        try {
-            sGetMaxAvailableHeightMethod = PopupWindow.class.getDeclaredMethod(
-                    "getMaxAvailableHeight", View.class, int.class, boolean.class);
-        } catch (NoSuchMethodException e) {
-            Log.i(TAG, "Could not find method getMaxAvailableHeight(View, int, boolean)"
-                    + " on PopupWindow. Oh well.");
-        }
-        try {
-            sSetEpicenterBoundsMethod = PopupWindow.class.getDeclaredMethod(
-                    "setEpicenterBounds", Rect.class);
-        } catch (NoSuchMethodException e) {
-            Log.i(TAG, "Could not find method setEpicenterBounds(Rect) on PopupWindow. Oh well.");
+        if (Build.VERSION.SDK_INT <= 23) {
+            try {
+                sGetMaxAvailableHeightMethod = PopupWindow.class.getDeclaredMethod(
+                        "getMaxAvailableHeight", View.class, int.class, boolean.class);
+            } catch (NoSuchMethodException e) {
+                Log.i(TAG, "Could not find method getMaxAvailableHeight(View, int, boolean)"
+                        + " on PopupWindow. Oh well.");
+            }
         }
     }
 
@@ -734,12 +741,16 @@ public class ListPopupWindow implements ShowableListMenu {
             if (mOverlapAnchorSet) {
                 PopupWindowCompat.setOverlapAnchor(mPopup, mOverlapAnchor);
             }
-            if (sSetEpicenterBoundsMethod != null) {
-                try {
-                    sSetEpicenterBoundsMethod.invoke(mPopup, mEpicenterBounds);
-                } catch (Exception e) {
-                    Log.e(TAG, "Could not invoke setEpicenterBounds on PopupWindow", e);
+            if (Build.VERSION.SDK_INT <= 28) {
+                if (sSetEpicenterBoundsMethod != null) {
+                    try {
+                        sSetEpicenterBoundsMethod.invoke(mPopup, mEpicenterBounds);
+                    } catch (Exception e) {
+                        Log.e(TAG, "Could not invoke setEpicenterBounds on PopupWindow", e);
+                    }
                 }
+            } else {
+                mPopup.setEpicenterBounds(mEpicenterBounds);
             }
             PopupWindowCompat.showAsDropDown(mPopup, getAnchorView(), mDropDownHorizontalOffset,
                     mDropDownVerticalOffset, mDropDownGravity);
@@ -1418,25 +1429,33 @@ public class ListPopupWindow implements ShowableListMenu {
     }
 
     private void setPopupClipToScreenEnabled(boolean clip) {
-        if (sClipToWindowEnabledMethod != null) {
-            try {
-                sClipToWindowEnabledMethod.invoke(mPopup, clip);
-            } catch (Exception e) {
-                Log.i(TAG, "Could not call setClipToScreenEnabled() on PopupWindow. Oh well.");
+        if (Build.VERSION.SDK_INT <= 28) {
+            if (sSetClipToWindowEnabledMethod != null) {
+                try {
+                    sSetClipToWindowEnabledMethod.invoke(mPopup, clip);
+                } catch (Exception e) {
+                    Log.i(TAG, "Could not call setClipToScreenEnabled() on PopupWindow. Oh well.");
+                }
             }
+        } else {
+            mPopup.setIsClippedToScreen(clip);
         }
     }
 
     private int getMaxAvailableHeight(View anchor, int yOffset, boolean ignoreBottomDecorations) {
-        if (sGetMaxAvailableHeightMethod != null) {
-            try {
-                return (int) sGetMaxAvailableHeightMethod.invoke(mPopup, anchor, yOffset,
-                        ignoreBottomDecorations);
-            } catch (Exception e) {
-                Log.i(TAG, "Could not call getMaxAvailableHeightMethod(View, int, boolean)"
-                        + " on PopupWindow. Using the public version.");
+        if (Build.VERSION.SDK_INT <= 23) {
+            if (sGetMaxAvailableHeightMethod != null) {
+                try {
+                    return (int) sGetMaxAvailableHeightMethod.invoke(mPopup, anchor, yOffset,
+                            ignoreBottomDecorations);
+                } catch (Exception e) {
+                    Log.i(TAG, "Could not call getMaxAvailableHeightMethod(View, int, boolean)"
+                            + " on PopupWindow. Using the public version.");
+                }
             }
+            return mPopup.getMaxAvailableHeight(anchor, yOffset);
+        } else {
+            return mPopup.getMaxAvailableHeight(anchor, yOffset, ignoreBottomDecorations);
         }
-        return mPopup.getMaxAvailableHeight(anchor, yOffset);
     }
 }

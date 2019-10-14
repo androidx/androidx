@@ -21,6 +21,9 @@ import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -47,13 +50,13 @@ public class MainActivity extends AppCompatActivity {
         if (null == savedInstanceState) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 if (allPermissionsGranted()) {
-                    startCamera();
+                    startCameraView();
                 } else if (!mCheckedPermissions) {
                     requestPermissions(REQUIRED_PERMISSIONS, REQUEST_CODE_PERMISSIONS);
                     mCheckedPermissions = true;
                 }
             } else {
-                startCamera();
+                startCameraView();
             }
         }
     }
@@ -63,10 +66,31 @@ public class MainActivity extends AppCompatActivity {
             int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         if (requestCode == REQUEST_CODE_PERMISSIONS) {
             if (allPermissionsGranted()) {
-                startCamera();
+                startCameraView();
             } else {
                 report("Permissions not granted by the user.");
             }
+        }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(@NonNull Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.actionbar_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.camera_view:
+                startCameraView();
+                return true;
+            case R.id.preview_view:
+                startPreviewView();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
         }
     }
 
@@ -80,10 +104,19 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
-    private void startCamera() {
+    private void startCameraView() {
+        getSupportActionBar().setTitle(R.string.camera_view);
         getSupportFragmentManager()
                 .beginTransaction()
-                .replace(R.id.content, new MainFragment())
+                .replace(R.id.content, new CameraViewFragment())
+                .commit();
+    }
+
+    private void startPreviewView() {
+        getSupportActionBar().setTitle(R.string.preview_view);
+        getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.content, new PreviewViewFragment())
                 .commit();
     }
 

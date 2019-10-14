@@ -32,6 +32,7 @@ import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.Modifier
 import javax.lang.model.element.TypeElement
 import javax.lang.model.element.VariableElement
+import javax.lang.model.type.ExecutableType
 import javax.lang.model.type.TypeKind
 import javax.lang.model.type.TypeMirror
 import javax.lang.model.type.WildcardType
@@ -83,31 +84,29 @@ fun TypeElement.getAllFieldsIncludingPrivateSupers(processingEnvironment: Proces
     }
 }
 
-fun TypeElement.getAllAbstractMethodsIncludingSupers(): Set<ExecutableElement> {
-    val myMethods = ElementFilter.methodsIn(this.enclosedElements)
-            .filter { it.hasAnyOf(Modifier.ABSTRACT) }
-            .toSet()
+fun TypeElement.getAllMethodsIncludingSupers(): Set<ExecutableElement> {
+    val myMethods = ElementFilter.methodsIn(this.enclosedElements).toSet()
     val interfaceMethods = interfaces.flatMap {
-        it.asTypeElement().getAllAbstractMethodsIncludingSupers()
+        it.asTypeElement().getAllMethodsIncludingSupers()
     }
-    if (superclass.kind != TypeKind.NONE) {
-        return myMethods + interfaceMethods + superclass.asTypeElement()
-                .getAllAbstractMethodsIncludingSupers()
+    return if (superclass.kind != TypeKind.NONE) {
+        myMethods + interfaceMethods + superclass.asTypeElement().getAllMethodsIncludingSupers()
     } else {
-        return myMethods + interfaceMethods
+        myMethods + interfaceMethods
     }
 }
 
 interface ClassGetter {
     fun getAsTypeMirror(methodName: String): TypeMirror?
     fun getAsTypeMirrorList(methodName: String): List<TypeMirror>
-    fun <T : Annotation> getAsAnnotationBox(methodName: String): Array<AnnotationBox<T>>
+    fun <T : Annotation> getAsAnnotationBox(methodName: String): AnnotationBox<T>
+    fun <T : Annotation> getAsAnnotationBoxArray(methodName: String): Array<AnnotationBox<T>>
 }
 
 /**
  * Class that helps to read values from annotations. Simple types as string, int, lists can
  * be read from [value]. If you need to read classes or another annotations from annotation use
- * [getAsTypeMirror] and [getAsAnnotationBox] correspondingly.
+ * [getAsTypeMirror], [getAsAnnotationBox] and [getAsAnnotationBoxArray] correspondingly.
  */
 class AnnotationBox<T : Annotation>(private val obj: Any) : ClassGetter by (obj as ClassGetter) {
     @Suppress("UNCHECKED_CAST")
@@ -136,12 +135,18 @@ private fun <T : Annotation> AnnotationMirror.box(cl: Class<T>): AnnotationBox<T
                 }
             }
             returnType == Int::class.java -> value.getAsInt(defaultValue as Int?)
+            returnType.isAnnotation -> {
+                @Suppress("UNCHECKED_CAST")
+                AnnotationClassVisitor(returnType as Class<out Annotation>).visit(value)
+            }
             returnType.isArray && returnType.componentType.isAnnotation -> {
                 @Suppress("UNCHECKED_CAST")
                 ListVisitor(returnType.componentType as Class<out Annotation>).visit(value)
             }
-            returnType.isEnum -> value.getAsEnum(returnType as Class<out Enum<*>>)
-
+            returnType.isEnum -> {
+                @Suppress("UNCHECKED_CAST")
+                value.getAsEnum(returnType as Class<out Enum<*>>)
+            }
             else -> throw UnsupportedOperationException("$returnType isn't supported")
         }
         method.name to result
@@ -152,6 +157,7 @@ private fun <T : Annotation> AnnotationMirror.box(cl: Class<T>): AnnotationBox<T
             ClassGetter::getAsTypeMirror.name -> map[args[0]]
             ClassGetter::getAsTypeMirrorList.name -> map[args[0]]
             "getAsAnnotationBox" -> map[args[0]]
+            "getAsAnnotationBoxArray" -> map[args[0]]
             else -> map[method.name]
         }
     })
@@ -160,8 +166,8 @@ private fun <T : Annotation> AnnotationMirror.box(cl: Class<T>): AnnotationBox<T
 fun <T : Annotation> Element.toAnnotationBox(cl: KClass<T>) =
         MoreElements.getAnnotationMirror(this, cl.java).orNull()?.box(cl.java)
 
-private class ListVisitor<T : Annotation>(private val annotationClass: Class<T>)
-    : SimpleAnnotationValueVisitor6<Array<AnnotationBox<T>>, Void?>() {
+private class ListVisitor<T : Annotation>(private val annotationClass: Class<T>) :
+    SimpleAnnotationValueVisitor6<Array<AnnotationBox<T>>, Void?>() {
     override fun visitArray(
         values: MutableList<out AnnotationValue>?,
         void: Void?
@@ -171,15 +177,15 @@ private class ListVisitor<T : Annotation>(private val annotationClass: Class<T>)
     }
 }
 
-private class AnnotationClassVisitor<T : Annotation>(private val annotationClass: Class<T>)
-    : SimpleAnnotationValueVisitor6<AnnotationBox<T>?, Void?>() {
+private class AnnotationClassVisitor<T : Annotation>(private val annotationClass: Class<T>) :
+    SimpleAnnotationValueVisitor6<AnnotationBox<T>?, Void?>() {
     override fun visitAnnotation(a: AnnotationMirror?, v: Void?) = a?.box(annotationClass)
 }
 
 // code below taken from dagger2
 // compiler/src/main/java/dagger/internal/codegen/ConfigurationAnnotations.java
-private val TO_LIST_OF_TYPES = object
-    : SimpleAnnotationValueVisitor6<List<TypeMirror>, Void?>() {
+private val TO_LIST_OF_TYPES = object :
+    SimpleAnnotationValueVisitor6<List<TypeMirror>, Void?>() {
     override fun visitArray(values: MutableList<out AnnotationValue>?, p: Void?): List<TypeMirror> {
         return values?.mapNotNull {
             val tmp = TO_TYPE.visit(it)
@@ -223,22 +229,22 @@ private val ANNOTATION_VALUE_TO_INT_VISITOR = object : SimpleAnnotationValueVisi
     }
 }
 
-private val ANNOTATION_VALUE_TO_BOOLEAN_VISITOR = object
-    : SimpleAnnotationValueVisitor6<Boolean?, Void>() {
+private val ANNOTATION_VALUE_TO_BOOLEAN_VISITOR = object :
+    SimpleAnnotationValueVisitor6<Boolean?, Void>() {
     override fun visitBoolean(b: Boolean, p: Void?): Boolean? {
         return b
     }
 }
 
-private val ANNOTATION_VALUE_TO_STRING_VISITOR = object
-    : SimpleAnnotationValueVisitor6<String?, Void>() {
+private val ANNOTATION_VALUE_TO_STRING_VISITOR = object :
+    SimpleAnnotationValueVisitor6<String?, Void>() {
     override fun visitString(s: String?, p: Void?): String? {
         return s
     }
 }
 
-private val ANNOTATION_VALUE_STRING_ARR_VISITOR = object
-    : SimpleAnnotationValueVisitor6<List<String>, Void>() {
+private val ANNOTATION_VALUE_STRING_ARR_VISITOR = object :
+    SimpleAnnotationValueVisitor6<List<String>, Void>() {
     override fun visitArray(vals: MutableList<out AnnotationValue>?, p: Void?): List<String> {
         return vals?.mapNotNull {
             ANNOTATION_VALUE_TO_STRING_VISITOR.visit(it)
@@ -246,8 +252,8 @@ private val ANNOTATION_VALUE_STRING_ARR_VISITOR = object
     }
 }
 
-private val ANNOTATION_VALUE_INT_ARR_VISITOR = object
-    : SimpleAnnotationValueVisitor6<List<Int>, Void>() {
+private val ANNOTATION_VALUE_INT_ARR_VISITOR = object :
+    SimpleAnnotationValueVisitor6<List<Int>, Void>() {
     override fun visitArray(vals: MutableList<out AnnotationValue>?, p: Void?): List<Int> {
         return vals?.mapNotNull {
             ANNOTATION_VALUE_TO_INT_VISITOR.visit(it)
@@ -375,12 +381,12 @@ fun Element.findKotlinDefaultImpl(typeUtils: Types): Element? {
 
 /**
  * Finds the Kotlin's suspend function return type by inspecting the type param of the Continuation
- * parameter of the function. This method assumes the executable element is a suspend function.
+ * parameter of the function. This method assumes the executable type is a suspend function.
  * @see KotlinMetadataElement.isSuspendFunction
  */
-fun ExecutableElement.getSuspendFunctionReturnType(): TypeMirror {
+fun ExecutableType.getSuspendFunctionReturnType(): TypeMirror {
     // the continuation parameter is always the last parameter of a suspend function and it only has
     // one type parameter, e.g Continuation<? super T>
-    val typeParam = MoreTypes.asDeclared(parameters.last().asType()).typeArguments.first()
+    val typeParam = MoreTypes.asDeclared(parameterTypes.last()).typeArguments.first()
     return typeParam.extendsBoundOrSelf() // reduce the type param
 }

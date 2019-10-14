@@ -28,6 +28,7 @@ import com.google.common.truth.Truth
 import com.google.testing.compile.CompileTester
 import com.google.testing.compile.JavaFileObjects
 import com.google.testing.compile.JavaSourcesSubjectFactory
+import java.io.File
 import javax.tools.JavaFileObject
 
 abstract class BaseFtsEntityParserTest {
@@ -50,7 +51,7 @@ abstract class BaseFtsEntityParserTest {
         ftsAttributes: Map<String, String> = mapOf(),
         baseClass: String = "",
         jfos: List<JavaFileObject> = emptyList(),
-        classLoader: ClassLoader = javaClass.classLoader,
+        classpathFiles: Set<File> = emptySet(),
         handler: (FtsEntity, TestInvocation) -> Unit
     ): CompileTester {
         val ftsVersion = getFtsVersion().toString()
@@ -74,7 +75,11 @@ abstract class BaseFtsEntityParserTest {
                         ENTITY_PREFIX.format(entityAttributesReplacement, ftsVersion,
                                 ftsAttributesReplacement, baseClassReplacement) + input +
                                 ENTITY_SUFFIX))
-                .withClasspathFrom(classLoader)
+                .apply {
+                    if (classpathFiles.isNotEmpty()) {
+                        withClasspath(classpathFiles)
+                    }
+                }
                 .processedWith(TestProcessor.builder()
                         .forAnnotations(androidx.room.Entity::class,
                                 Fts3::class,

@@ -63,23 +63,22 @@
     <color name="car_red_700">#ffc22a2a</color>
     <color name="car_indigo_800">#ff283593</color>
 
-    <!--  Various colors for text sizes. "Light" and "dark" here refer to the lighter or darker
-          shades. -->
-    <color name="car_display1">@color/car_display1_dark</color>
-    <color name="car_display2">@color/car_display2_dark</color>
-    <color name="car_display3">@color/car_display3_dark</color>
-    <color name="car_display4">@color/car_display4_dark</color>
+    <!--  Various colors for text. "Light" and "dark" here refer to the lighter or darker
+      shades. The default for primary and secondary text color is the lighter shade.-->
+    <color name="car_primary_text">@color/car_primary_text_light</color>
+    <color name="car_secondary_text">@color/car_secondary_text_light</color>
 
-    <color name="car_body1">@color/car_body1_dark</color>
-    <color name="car_body2">@color/car_body2_dark</color>
-    <color name="car_body3">@color/car_body3_dark</color>
-    <color name="car_body4">@color/car_body4_dark</color>
-
-    <color name="car_subtext1">@color/car_subtext1_dark</color>
-    <color name="car_subtext2">@color/car_subtext2_dark</color>
-    <color name="car_subtext3">@color/car_subtext3_dark</color>
-    <color name="car_subtext4">@color/car_subtext4_dark</color>
-    <color name="car_subtext5">@color/car_subtext5_dark</color>
+    <!-- Deprecated. Mapping to primary and secondary text colors until removal. -->
+    <color name="car_display3_light">@color/car_primary_text_light</color>
+    <color name="car_body1">@color/car_primary_text</color>
+    <color name="car_body1_dark">@color/car_primary_text_dark</color>
+    <color name="car_body1_light">@color/car_primary_text_light</color>
+    <color name="car_body2">@color/car_primary_text</color>
+    <color name="car_body2_light">@color/car_primary_text_light</color>
+    <color name="car_body3_light">@color/car_secondary_text_light</color>
+    <color name="car_body3_dark">@color/car_secondary_text_dark</color>
+    <color name="car_body4_light">@color/car_secondary_text_light</color>
+    <color name="car_subtext1_light">@color/car_secondary_text_light</color>
 
     <!-- The tinting color for an icon. This icon is assumed to be on a light background. -->
     <color name="car_tint">@color/car_tint_dark</color>
@@ -88,10 +87,10 @@
     <color name="car_list_header">@color/car_blue_500</color>
 
     <!-- The color of the divider. The color here is a lighter shade. -->
-    <color name="car_list_divider_light">#18ffffff</color>
+    <color name="car_list_divider_light">#38ffffff</color>
 
     <!-- The color of the divider. The color here is a darker shade. -->
-    <color name="car_list_divider_dark">#1f000000</color>
+    <color name="car_list_divider_dark">#1fffffff</color>
 
     <!-- The color of the dividers in the list. This color is assumed to be on a light colored
          view. -->
@@ -155,4 +154,5 @@
 
     <!-- Dialog -->
     <color name="car_list_dialog_scrim">#d5000000</color>
+
 </resources>

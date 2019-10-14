@@ -32,6 +32,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.test.R;
 import androidx.core.widget.TextViewCompat;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.MediumTest;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 
@@ -54,6 +55,7 @@ public class AppCompatTextViewAutoSizeTest extends
         return new AppCompatTextView(mActivity);
     }
 
+    @MediumTest
     @Test
     public void testAutoSize_notSupportedByEditText() throws Throwable {
         final AppCompatEditText autoSizeEditText = mActivity.findViewById(

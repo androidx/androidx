@@ -15,7 +15,6 @@
  */
 package android.support.v4.media;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 import static androidx.media.MediaBrowserProtocol.CLIENT_MSG_ADD_SUBSCRIPTION;
 import static androidx.media.MediaBrowserProtocol.CLIENT_MSG_CONNECT;
@@ -233,8 +232,8 @@ public final class MediaBrowserCompat {
     /**
      * Gets the service component that the media browser is connected to.
      */
-    public @NonNull
-    ComponentName getServiceComponent() {
+    @NonNull
+    public ComponentName getServiceComponent() {
         return mImpl.getServiceComponent();
     }
 
@@ -247,7 +246,8 @@ public final class MediaBrowserCompat {
      *
      * @throws IllegalStateException if not connected.
      */
-    public @NonNull String getRoot() {
+    @NonNull
+    public String getRoot() {
         return mImpl.getRoot();
     }
 
@@ -257,8 +257,8 @@ public final class MediaBrowserCompat {
      * @return The extra bundle if it is connected and set, and {@code null} otherwise.
      * @throws IllegalStateException if not connected.
      */
-    public @Nullable
-    Bundle getExtras() {
+    @Nullable
+    public Bundle getExtras() {
         return mImpl.getExtras();
     }
 
@@ -273,7 +273,8 @@ public final class MediaBrowserCompat {
      *
      * @throws IllegalStateException if not connected.
      */
-    public @NonNull MediaSessionCompat.Token getSessionToken() {
+    @NonNull
+    public MediaSessionCompat.Token getSessionToken() {
         return mImpl.getSessionToken();
     }
 
@@ -391,7 +392,7 @@ public final class MediaBrowserCompat {
      * @param mediaId The id of the item to retrieve.
      * @param cb The callback to receive the result on.
      */
-    public void getItem(final @NonNull String mediaId, @NonNull final ItemCallback cb) {
+    public void getItem(@NonNull final String mediaId, @NonNull final ItemCallback cb) {
         mImpl.getItem(mediaId, cb);
     }
 
@@ -445,8 +446,9 @@ public final class MediaBrowserCompat {
      *         String, Bundle)}
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
-    public @Nullable Bundle getNotifyChildrenChangedOptions() {
+    @RestrictTo(LIBRARY_GROUP_PREFIX) // accessed by media2-session
+    @Nullable
+    public Bundle getNotifyChildrenChangedOptions() {
         return mImpl.getNotifyChildrenChangedOptions();
     }
 
@@ -460,11 +462,9 @@ public final class MediaBrowserCompat {
         private final int mFlags;
         private final MediaDescriptionCompat mDescription;
 
-        /** @hide */
-        @RestrictTo(LIBRARY_GROUP_PREFIX)
         @Retention(RetentionPolicy.SOURCE)
         @IntDef(flag=true, value = { FLAG_BROWSABLE, FLAG_PLAYABLE })
-        public @interface Flags { }
+        private @interface Flags { }
 
         /**
          * Flag: Indicates that the item has children of its own.
@@ -560,6 +560,7 @@ public final class MediaBrowserCompat {
         }
 
         @Override
+        @NonNull
         public String toString() {
             final StringBuilder sb = new StringBuilder("MediaItem{");
             sb.append("mFlags=").append(mFlags);
@@ -584,7 +585,8 @@ public final class MediaBrowserCompat {
         /**
          * Gets the flags of the item.
          */
-        public @Flags int getFlags() {
+        @Flags
+        public int getFlags() {
             return mFlags;
         }
 
@@ -607,7 +609,8 @@ public final class MediaBrowserCompat {
         /**
          * Returns the description of the media.
          */
-        public @NonNull MediaDescriptionCompat getDescription() {
+        @NonNull
+        public MediaDescriptionCompat getDescription() {
             return mDescription;
         }
 
@@ -615,7 +618,8 @@ public final class MediaBrowserCompat {
          * Returns the media id in the {@link MediaDescriptionCompat} for this item.
          * @see MediaMetadataCompat#METADATA_KEY_MEDIA_ID
          */
-        public @Nullable String getMediaId() {
+        @Nullable
+        public String getMediaId() {
             return mDescription.getMediaId();
         }
     }
@@ -842,7 +846,7 @@ public final class MediaBrowserCompat {
 
             @Override
             public void onChildrenLoaded(@NonNull String parentId,
-                    List<MediaBrowser.MediaItem> children,
+                    @NonNull List<MediaBrowser.MediaItem> children,
                     @NonNull Bundle options) {
                 MediaSessionCompat.ensureClassLoader(options);
                 SubscriptionCallback.this.onChildrenLoaded(
@@ -989,8 +993,8 @@ public final class MediaBrowserCompat {
         void onServiceConnected(Messenger callback, String root, MediaSessionCompat.Token session,
                 Bundle extra);
         void onConnectionFailed(Messenger callback);
-        void onLoadChildren(Messenger callback, String parentId, List list, Bundle options,
-                Bundle notifyChildrenChangedOptions);
+        void onLoadChildren(Messenger callback, String parentId,
+                List<MediaItem> list, Bundle options, Bundle notifyChildrenChangedOptions);
     }
 
     static class MediaBrowserImplBase
@@ -1155,7 +1159,8 @@ public final class MediaBrowserCompat {
         }
 
         @Override
-        public @NonNull ComponentName getServiceComponent() {
+        @NonNull
+        public ComponentName getServiceComponent() {
             if (!isConnected()) {
                 throw new IllegalStateException("getServiceComponent() called while not connected" +
                         " (state=" + mState + ")");
@@ -1164,7 +1169,8 @@ public final class MediaBrowserCompat {
         }
 
         @Override
-        public @NonNull String getRoot() {
+        @NonNull
+        public String getRoot() {
             if (!isConnected()) {
                 throw new IllegalStateException("getRoot() called while not connected"
                         + "(state=" + getStateLabel(mState) + ")");
@@ -1173,7 +1179,8 @@ public final class MediaBrowserCompat {
         }
 
         @Override
-        public @Nullable Bundle getExtras() {
+        @Nullable
+        public Bundle getExtras() {
             if (!isConnected()) {
                 throw new IllegalStateException("getExtras() called while not connected (state="
                         + getStateLabel(mState) + ")");
@@ -1182,7 +1189,8 @@ public final class MediaBrowserCompat {
         }
 
         @Override
-        public @NonNull MediaSessionCompat.Token getSessionToken() {
+        @NonNull
+        public MediaSessionCompat.Token getSessionToken() {
             if (!isConnected()) {
                 throw new IllegalStateException("getSessionToken() called while not connected"
                         + "(state=" + mState + ")");
@@ -1405,8 +1413,10 @@ public final class MediaBrowserCompat {
         }
 
         @Override
+        @SuppressWarnings("unchecked")
         public void onLoadChildren(final Messenger callback, final String parentId,
-                final List list, final Bundle options, final Bundle notifyChildrenChangedOptions) {
+                final List<MediaItem> list, final Bundle options,
+                final Bundle notifyChildrenChangedOptions) {
             // Check that there hasn't been a disconnect or a different ServiceConnection.
             if (!isCurrent(callback, "onLoadChildren")) {
                 return;
@@ -1672,20 +1682,20 @@ public final class MediaBrowserCompat {
             return mBrowserFwk.getServiceComponent();
         }
 
-        @NonNull
         @Override
+        @NonNull
         public String getRoot() {
             return mBrowserFwk.getRoot();
         }
 
-        @Nullable
         @Override
+        @Nullable
         public Bundle getExtras() {
             return mBrowserFwk.getExtras();
         }
 
-        @NonNull
         @Override
+        @NonNull
         public MediaSessionCompat.Token getSessionToken() {
             if (mMediaSessionToken == null) {
                 mMediaSessionToken = MediaSessionCompat.Token.fromToken(
@@ -1948,9 +1958,9 @@ public final class MediaBrowserCompat {
         }
 
         @Override
-        @SuppressWarnings("ReferenceEquality")
-        public void onLoadChildren(Messenger callback, String parentId, List list, Bundle options,
-                Bundle notifyChildrenChangedOptions) {
+        @SuppressWarnings({"ReferenceEquality", "unchecked"})
+        public void onLoadChildren(Messenger callback, String parentId, List<MediaItem> list,
+                Bundle options, Bundle notifyChildrenChangedOptions) {
             if (mCallbacksMessenger != callback) {
                 return;
             }
@@ -2101,7 +2111,7 @@ public final class MediaBrowserCompat {
         }
 
         @Override
-        public void handleMessage(Message msg) {
+        public void handleMessage(@NonNull Message msg) {
             if (mCallbacksMessengerRef == null || mCallbacksMessengerRef.get() == null ||
                     mCallbackImplRef.get() == null) {
                 return;
@@ -2118,9 +2128,7 @@ public final class MediaBrowserCompat {
 
                         serviceCallback.onServiceConnected(callbacksMessenger,
                                 data.getString(DATA_MEDIA_ITEM_ID),
-                                (MediaSessionCompat.Token) data.getParcelable(
-                                        DATA_MEDIA_SESSION_TOKEN),
-                                rootHints);
+                                data.getParcelable(DATA_MEDIA_SESSION_TOKEN), rootHints);
                         break;
                     }
                     case SERVICE_MSG_ON_CONNECT_FAILED:
@@ -2264,7 +2272,9 @@ public final class MediaBrowserCompat {
 
         @Override
         protected void onReceiveResult(int resultCode, Bundle resultData) {
-            MediaSessionCompat.ensureClassLoader(resultData);
+            if (resultData != null) {
+                resultData = MediaSessionCompat.unparcelWithClassLoader(resultData);
+            }
             if (resultCode != MediaBrowserServiceCompat.RESULT_OK || resultData == null
                     || !resultData.containsKey(MediaBrowserServiceCompat.KEY_MEDIA_ITEM)) {
                 mCallback.onError(mMediaId);
@@ -2294,7 +2304,9 @@ public final class MediaBrowserCompat {
 
         @Override
         protected void onReceiveResult(int resultCode, Bundle resultData) {
-            MediaSessionCompat.ensureClassLoader(resultData);
+            if (resultData != null) {
+                resultData = MediaSessionCompat.unparcelWithClassLoader(resultData);
+            }
             if (resultCode != MediaBrowserServiceCompat.RESULT_OK || resultData == null
                     || !resultData.containsKey(MediaBrowserServiceCompat.KEY_SEARCH_RESULTS)) {
                 mCallback.onError(mQuery, mExtras);
@@ -2302,14 +2314,15 @@ public final class MediaBrowserCompat {
             }
             Parcelable[] items = resultData.getParcelableArray(
                     MediaBrowserServiceCompat.KEY_SEARCH_RESULTS);
-            List<MediaItem> results = null;
             if (items != null) {
-                results = new ArrayList<>();
+                List<MediaItem> results = new ArrayList<>();
                 for (Parcelable item : items) {
                     results.add((MediaItem) item);
                 }
+                mCallback.onSearchResult(mQuery, mExtras, results);
+            } else {
+                mCallback.onError(mQuery, mExtras);
             }
-            mCallback.onSearchResult(mQuery, mExtras, results);
         }
     }
 

@@ -42,6 +42,7 @@ import java.util.TimeZone;
  * @hide
  */
 @RestrictTo(LIBRARY)
+@SuppressWarnings("unchecked")
 public abstract class BasePreviewProgram extends BaseProgram {
     /**
      * @hide

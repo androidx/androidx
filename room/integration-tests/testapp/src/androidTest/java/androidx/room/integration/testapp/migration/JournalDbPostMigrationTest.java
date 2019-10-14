@@ -91,7 +91,7 @@ public class JournalDbPostMigrationTest {
         @ColumnInfo(name = "address")
         public String address;
 
-        @ColumnInfo(name = "age")
+        @ColumnInfo(name = "age", defaultValue = "0")
         public int age;
     }
 

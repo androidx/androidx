@@ -252,7 +252,7 @@ public final class BackgroundManager {
 
         TranslucentLayerDrawable(BackgroundManager manager, Drawable[] drawables) {
             super(drawables);
-            mManagerWeakReference = new WeakReference(manager);
+            mManagerWeakReference = new WeakReference<>(manager);
             int count = drawables.length;
             mWrapper = new DrawableWrapper[count];
             for (int i = 0; i < count; i++) {

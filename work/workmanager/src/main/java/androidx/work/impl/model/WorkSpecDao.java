@@ -281,6 +281,8 @@ public interface WorkSpecDao {
             + "state=" + WorkTypeConverters.StateIds.ENQUEUED
             // We only want WorkSpecs which have not been previously scheduled.
             + " AND schedule_requested_at=" + WorkSpec.SCHEDULE_NOT_REQUESTED_YET
+            // Order by period start time so we execute scheduled WorkSpecs in FIFO order
+            + " ORDER BY period_start_time"
             + " LIMIT "
                 + "(SELECT MAX(:schedulerLimit" + "-COUNT(*), 0) FROM workspec WHERE"
                     + " schedule_requested_at<>" + WorkSpec.SCHEDULE_NOT_REQUESTED_YET
@@ -301,13 +303,13 @@ public interface WorkSpecDao {
     List<WorkSpec> getScheduledWork();
 
     /**
-     * @return The List of {@link WorkSpec}s that are unfinished and scheduled.
+     * @return The List of {@link WorkSpec}s that are running.
      */
     @Query("SELECT * FROM workspec WHERE "
             // Unfinished work
-            + "state=" + WorkTypeConverters.StateIds.ENQUEUED
+            + "state=" + WorkTypeConverters.StateIds.RUNNING
     )
-    List<WorkSpec> getEnqueuedWork();
+    List<WorkSpec> getRunningWork();
 
     /**
      * Immediately prunes eligible work from the database meeting the following criteria:

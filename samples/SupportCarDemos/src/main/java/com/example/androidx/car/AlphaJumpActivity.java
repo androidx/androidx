@@ -83,7 +83,9 @@ public class AlphaJumpActivity extends Activity {
         toolbar.setNavigationIconOnClickListener(v -> onNavigateUp());
 
         PagedListView pagedListView = findViewById(R.id.paged_list_view);
-        pagedListView.setAdapter(new CheeseAdapter());
+        CheeseAdapter adapter = new CheeseAdapter();
+        pagedListView.setAdapter(adapter);
+        pagedListView.setAlphaJumpAdapter(adapter);
     }
 
     /**

@@ -16,6 +16,11 @@
 
 package androidx.build
 
+import androidx.build.SupportConfig.getSupportRoot
+import androidx.build.gitclient.Commit
+import androidx.build.gitclient.GitClientImpl
+import androidx.build.gitclient.GitCommitRange
+import androidx.build.gmaven.GMavenVersionChecker
 import androidx.build.jetpad.LibraryBuildInfoFile
 import org.gradle.api.DefaultTask
 import org.gradle.api.artifacts.ProjectDependency
@@ -45,9 +50,13 @@ open class CreateLibraryBuildInfoFileTask : DefaultTask() {
         return "${project.group}_${project.name}_build_info.txt"
     }
 
-    /* Returns the local project directory without the full framework/support root directory path */
+    /* Returns the local project directory without the full framework/support root directory path
+    * Note: `project.projectDir.toString().removePrefix(project.rootDir.toString())` does not work
+    * because the project rootDir is not guaranteed to be a substring of the projectDir
+    */
     private fun getProjectSpecificDirectory(): String {
-        return project.projectDir.toString().removePrefix(project.rootDir.toString())
+        return project.projectDir.toString().removePrefix(
+            getSupportRoot(project).toString())
     }
 
     /* Returns whether or not the groupId of the project requires the same version for all
@@ -57,6 +66,19 @@ open class CreateLibraryBuildInfoFileTask : DefaultTask() {
         val library =
             project.extensions.findByType(AndroidXExtension::class.java)
         return library?.mavenGroup?.requireSameVersion ?: false
+    }
+
+    private fun getCommitShaAtHead(): String {
+        val commitList: List<Commit> = GitClientImpl(project.rootDir).getGitLog(
+            GitCommitRange(
+                fromExclusive = "",
+                untilInclusive = "HEAD",
+                n = 1
+            ),
+            keepMerges = true,
+            fullProjectDir = project.projectDir
+        )
+        return commitList.first().sha
     }
 
     private fun writeJsonToFile(info: LibraryBuildInfoFile) {
@@ -86,11 +108,13 @@ open class CreateLibraryBuildInfoFileTask : DefaultTask() {
         libraryBuildInfoFile.groupId = project.group.toString()
         libraryBuildInfoFile.version = project.version.toString()
         libraryBuildInfoFile.path = getProjectSpecificDirectory()
+        libraryBuildInfoFile.sha = getCommitShaAtHead()
         libraryBuildInfoFile.groupIdRequiresSameVersion = requiresSameVersion()
         val libraryDependencies = ArrayList<LibraryBuildInfoFile.Dependency>()
         val checks = ArrayList<LibraryBuildInfoFile.Check>()
         libraryBuildInfoFile.checks = checks
         val publishedProjects = project.getProjectsMap()
+        val versionChecker = project.property("versionChecker") as GMavenVersionChecker
         project.configurations.filter {
             /* Ignore test configuration dependencies */
             !it.name.contains("test", ignoreCase = true)
@@ -110,6 +134,15 @@ open class CreateLibraryBuildInfoFileTask : DefaultTask() {
                         androidXPublishedDependency.groupId = dep.group.toString()
                         androidXPublishedDependency.version = dep.version.toString()
                         androidXPublishedDependency.isTipOfTree = dep is ProjectDependency
+                        // Check GMaven to confirm that the pinned dependency is not an unreleased
+                        // version
+                        if (!androidXPublishedDependency.isTipOfTree &&
+                            !versionChecker.isReleased(
+                                    androidXPublishedDependency.groupId,
+                                    androidXPublishedDependency.artifactId,
+                                    androidXPublishedDependency.version)) {
+                                androidXPublishedDependency.isTipOfTree = true
+                        }
                         addDependencyToListIfNotAlreadyAdded(
                             libraryDependencies,
                             androidXPublishedDependency

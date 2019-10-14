@@ -15,7 +15,7 @@
  */
 package android.support.v4.media;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
 import android.annotation.SuppressLint;
 import android.graphics.Bitmap;
@@ -38,6 +38,8 @@ import androidx.annotation.RestrictTo;
  */
 @SuppressLint("BanParcelableUsage")
 public final class MediaDescriptionCompat implements Parcelable {
+    private static final String TAG = "MediaDescriptionCompat";
+
     /**
      * Used as a long extra field to indicate the bluetooth folder type of the media item as
      * specified in the section 6.10.2.2 of the Bluetooth AVRCP 1.5. This is valid only for
@@ -140,7 +142,7 @@ public final class MediaDescriptionCompat implements Parcelable {
      *
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RestrictTo(LIBRARY)
     public static final String DESCRIPTION_KEY_MEDIA_URI =
             "android.support.v4.media.description.MEDIA_URI";
     /**
@@ -148,7 +150,7 @@ public final class MediaDescriptionCompat implements Parcelable {
      *
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RestrictTo(LIBRARY)
     public static final String DESCRIPTION_KEY_NULL_BUNDLE_FLAG =
             "android.support.v4.media.description.NULL_BUNDLE_FLAG";
     /**
@@ -385,9 +387,11 @@ public final class MediaDescriptionCompat implements Parcelable {
             bob.setIconBitmap(description.getIconBitmap());
             bob.setIconUri(description.getIconUri());
             Bundle extras = description.getExtras();
+            if (extras != null) {
+                extras = MediaSessionCompat.unparcelWithClassLoader(extras);
+            }
             Uri mediaUri = null;
             if (extras != null) {
-                MediaSessionCompat.ensureClassLoader(extras);
                 mediaUri = extras.getParcelable(DESCRIPTION_KEY_MEDIA_URI);
             }
             if (mediaUri != null) {

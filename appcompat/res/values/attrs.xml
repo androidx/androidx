@@ -1005,6 +1005,8 @@
         <attr name="contentInsetEndWithActions" />
         <attr name="maxButtonHeight" format="dimension" />
         <attr name="buttonGravity">
+            <!-- Place object in the vertical center of its container, not changing its size. -->
+            <flag name="center_vertical" value="0x10" />
             <!-- Push object to the top of its container, not changing its size. -->
             <flag name="top" value="0x30" />
             <!-- Push object to the bottom of its container, not changing its size. -->

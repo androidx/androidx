@@ -270,7 +270,7 @@ public final class LegacyTextClassifierTest {
     private TextLinks.Request createTextLinksRequest(String text, List<String> entityTypes) {
         TextClassifier.EntityConfig entityConfig =
                 new TextClassifier.EntityConfig.Builder()
-                        .setIncludedEntityTypes(entityTypes)
+                        .setIncludedTypes(entityTypes)
                         .build();
         return new TextLinks.Request.Builder(text).setEntityConfig(entityConfig).build();
     }

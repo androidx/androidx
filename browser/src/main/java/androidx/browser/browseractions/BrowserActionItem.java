@@ -48,6 +48,7 @@ public class BrowserActionItem {
      * @param action The PendingIntent executed when a custom item is selected
      * @param iconId The resource id of the icon shown for a custom item.
      */
+    @SuppressWarnings("NullAway") // TODO: b/141869399
     public BrowserActionItem(
             @NonNull String title, @NonNull PendingIntent action, @DrawableRes int iconId) {
         mTitle = title;
@@ -65,6 +66,7 @@ public class BrowserActionItem {
      */
     /** @hide */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @SuppressWarnings("NullAway") // TODO: b/141869399
     public BrowserActionItem(
             @NonNull String title, @NonNull PendingIntent action, @NonNull Uri iconUri) {
         mTitle = title;
@@ -78,6 +80,7 @@ public class BrowserActionItem {
      * @param title The title of the menu item.
      * @param action The {@link Runnable} action to be executed when user choose the item.
      */
+    @SuppressWarnings("NullAway") // TODO: b/141869399
     BrowserActionItem(@NonNull String title, @NonNull Runnable action) {
         mTitle = title;
         mAction = null;

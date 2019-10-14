@@ -16,9 +16,9 @@ limitations under the License.
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="email" msgid="5568050657313893478">"Barua pepe"</string>
+    <string name="email" msgid="5568050657313893478">"Tuma barua pepe"</string>
     <string name="email_desc" msgid="6941280589171810022">"Tuma barua pepe kwa anwani uliyochagua"</string>
-    <string name="dial" msgid="7317293545368448453">"Simu"</string>
+    <string name="dial" msgid="7317293545368448453">"Piga simu"</string>
     <string name="dial_desc" msgid="5129451396208040332">"Piga simu kwa nambari uliyochagua"</string>
     <string name="browse" msgid="3733970143542020945">"Fungua"</string>
     <string name="browse_desc" msgid="3898254913938219011">"Fungua URL uliyochagua"</string>

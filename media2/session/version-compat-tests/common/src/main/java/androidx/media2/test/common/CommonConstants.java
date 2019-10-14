@@ -52,7 +52,12 @@ public class CommonConstants {
     public static final String ACTION_MEDIA_BROWSER_COMPAT =
             "androidx.media2.test.action.MEDIA_BROWSER_COMPAT";
 
+    public static final String VERSION_TOT = "tot";
+    public static final String VERSION_PREVIOUS = "previous";
+
     // Keys for arguments.
+    public static final String KEY_CLIENT_VERSION = "client_version";
+    public static final String KEY_SERVICE_VERSION = "service_version";
     public static final String KEY_AUDIO_ATTRIBUTES = "audioAttributes";
     public static final String KEY_PLAYER_STATE = "playerState";
     public static final String KEY_PLAYLIST = "playlist";
@@ -67,6 +72,8 @@ public class CommonConstants {
     public static final String KEY_MAX_VOLUME = "maxVolume";
     public static final String KEY_CURRENT_VOLUME = "currentVolume";
     public static final String KEY_VOLUME_CONTROL_TYPE = "volumeControlType";
+    public static final String KEY_VIDEO_SIZE = "videoSize";
+    public static final String KEY_TRACK_INFO = "trackInfo";
 
     // SessionCompat arguments
     public static final String KEY_SESSION_COMPAT_TOKEN = "sessionCompatToken";

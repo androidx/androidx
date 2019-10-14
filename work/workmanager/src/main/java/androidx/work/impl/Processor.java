@@ -15,13 +15,22 @@
  */
 package androidx.work.impl;
 
+import static androidx.work.impl.foreground.SystemForegroundDispatcher.createStartForegroundIntent;
+import static androidx.work.impl.foreground.SystemForegroundDispatcher.createStopForegroundIntent;
+
 import android.content.Context;
+import android.content.Intent;
+import android.os.PowerManager;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.core.content.ContextCompat;
 import androidx.work.Configuration;
 import androidx.work.Logger;
 import androidx.work.WorkerParameters;
+import androidx.work.impl.foreground.ForegroundProcessor;
+import androidx.work.impl.utils.WakeLocks;
 import androidx.work.impl.utils.taskexecutor.TaskExecutor;
 
 import com.google.common.util.concurrent.ListenableFuture;
@@ -40,13 +49,18 @@ import java.util.concurrent.ExecutionException;
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class Processor implements ExecutionListener {
+public class Processor implements ExecutionListener, ForegroundProcessor {
     private static final String TAG = Logger.tagWithPrefix("Processor");
+    private static final String FOREGROUND_WAKELOCK_TAG = "ProcessorForegroundLck";
+
+    @Nullable
+    private PowerManager.WakeLock mForegroundLock;
 
     private Context mAppContext;
     private Configuration mConfiguration;
     private TaskExecutor mWorkTaskExecutor;
     private WorkDatabase mWorkDatabase;
+    private Map<String, WorkerWrapper> mForegroundWorkMap;
     private Map<String, WorkerWrapper> mEnqueuedWorkMap;
     private List<Scheduler> mSchedulers;
 
@@ -56,19 +70,21 @@ public class Processor implements ExecutionListener {
     private final Object mLock;
 
     public Processor(
-            Context appContext,
-            Configuration configuration,
-            TaskExecutor workTaskExecutor,
-            WorkDatabase workDatabase,
-            List<Scheduler> schedulers) {
+            @NonNull Context appContext,
+            @NonNull Configuration configuration,
+            @NonNull TaskExecutor workTaskExecutor,
+            @NonNull WorkDatabase workDatabase,
+            @NonNull List<Scheduler> schedulers) {
         mAppContext = appContext;
         mConfiguration = configuration;
         mWorkTaskExecutor = workTaskExecutor;
         mWorkDatabase = workDatabase;
         mEnqueuedWorkMap = new HashMap<>();
+        mForegroundWorkMap = new HashMap<>();
         mSchedulers = schedulers;
         mCancelledIds = new HashSet<>();
         mOuterListeners = new ArrayList<>();
+        mForegroundLock = null;
         mLock = new Object();
     }
 
@@ -78,7 +94,7 @@ public class Processor implements ExecutionListener {
      * @param id The work id to execute.
      * @return {@code true} if the work was successfully enqueued for processing
      */
-    public boolean startWork(String id) {
+    public boolean startWork(@NonNull String id) {
         return startWork(id, null);
     }
 
@@ -89,7 +105,10 @@ public class Processor implements ExecutionListener {
      * @param runtimeExtras The {@link WorkerParameters.RuntimeExtras} for this work, if any.
      * @return {@code true} if the work was successfully enqueued for processing
      */
-    public boolean startWork(String id, WorkerParameters.RuntimeExtras runtimeExtras) {
+    public boolean startWork(
+            @NonNull String id,
+            @Nullable WorkerParameters.RuntimeExtras runtimeExtras) {
+
         WorkerWrapper workWrapper;
         synchronized (mLock) {
             // Work may get triggered multiple times if they have passing constraints
@@ -106,6 +125,7 @@ public class Processor implements ExecutionListener {
                             mAppContext,
                             mConfiguration,
                             mWorkTaskExecutor,
+                            this,
                             mWorkDatabase,
                             id)
                             .withSchedulers(mSchedulers)
@@ -122,23 +142,49 @@ public class Processor implements ExecutionListener {
         return true;
     }
 
+    @Override
+    public void startForeground(@NonNull String workSpecId) {
+        synchronized (mLock) {
+            Logger.get().info(TAG, String.format("Moving WorkSpec (%s) to the foreground",
+                    workSpecId));
+            WorkerWrapper wrapper = mEnqueuedWorkMap.remove(workSpecId);
+            if (wrapper != null) {
+                if (mForegroundLock == null) {
+                    mForegroundLock = WakeLocks.newWakeLock(mAppContext, FOREGROUND_WAKELOCK_TAG);
+                    mForegroundLock.acquire();
+                }
+                mForegroundWorkMap.put(workSpecId, wrapper);
+                Intent intent = createStartForegroundIntent(mAppContext, workSpecId);
+                ContextCompat.startForegroundService(mAppContext, intent);
+            }
+        }
+    }
+
+    /**
+     * Stops a unit of work running in the context of a foreground service.
+     *
+     * @param id The work id to stop
+     * @return {@code true} if the work was stopped successfully
+     */
+    public boolean stopForegroundWork(@NonNull String id) {
+        synchronized (mLock) {
+            Logger.get().debug(TAG, String.format("Processor stopping foreground work %s", id));
+            WorkerWrapper wrapper = mForegroundWorkMap.remove(id);
+            return interrupt(id, wrapper);
+        }
+    }
+
     /**
      * Stops a unit of work.
      *
      * @param id The work id to stop
      * @return {@code true} if the work was stopped successfully
      */
-    public boolean stopWork(String id) {
+    public boolean stopWork(@NonNull String id) {
         synchronized (mLock) {
-            Logger.get().debug(TAG, String.format("Processor stopping %s", id));
+            Logger.get().debug(TAG, String.format("Processor stopping background work %s", id));
             WorkerWrapper wrapper = mEnqueuedWorkMap.remove(id);
-            if (wrapper != null) {
-                wrapper.interrupt(false);
-                Logger.get().debug(TAG, String.format("WorkerWrapper stopped for %s", id));
-                return true;
-            }
-            Logger.get().debug(TAG, String.format("WorkerWrapper could not be found for %s", id));
-            return false;
+            return interrupt(id, wrapper);
         }
     }
 
@@ -148,18 +194,37 @@ public class Processor implements ExecutionListener {
      * @param id The work id to stop and cancel
      * @return {@code true} if the work was stopped successfully
      */
-    public boolean stopAndCancelWork(String id) {
+    public boolean stopAndCancelWork(@NonNull String id) {
         synchronized (mLock) {
             Logger.get().debug(TAG, String.format("Processor cancelling %s", id));
             mCancelledIds.add(id);
-            WorkerWrapper wrapper = mEnqueuedWorkMap.remove(id);
-            if (wrapper != null) {
-                wrapper.interrupt(true);
-                Logger.get().debug(TAG, String.format("WorkerWrapper cancelled for %s", id));
-                return true;
+            WorkerWrapper wrapper;
+            // Check if running in the context of a foreground service
+            wrapper = mForegroundWorkMap.remove(id);
+            if (wrapper == null) {
+                // Fallback to enqueued Work
+                wrapper = mEnqueuedWorkMap.remove(id);
             }
-            Logger.get().debug(TAG, String.format("WorkerWrapper could not be found for %s", id));
-            return false;
+            return interrupt(id, wrapper);
+        }
+    }
+
+    @Override
+    public void stopForeground(@NonNull String workSpecId) {
+        synchronized (mLock) {
+            mForegroundWorkMap.remove(workSpecId);
+            boolean hasForegroundWork = !mForegroundWorkMap.isEmpty();
+            if (!hasForegroundWork) {
+                Logger.get().debug(TAG,
+                        "No more foreground work. Stopping SystemForegroundService");
+                Intent intent = createStopForegroundIntent(mAppContext);
+                mAppContext.startService(intent);
+                // Release wake lock if there is no more pending work.
+                if (mForegroundLock != null) {
+                    mForegroundLock.release();
+                    mForegroundLock = null;
+                }
+            }
         }
     }
 
@@ -169,7 +234,7 @@ public class Processor implements ExecutionListener {
      * @param id The work id to query
      * @return {@code true} if the id has already been marked as cancelled
      */
-    public boolean isCancelled(String id) {
+    public boolean isCancelled(@NonNull String id) {
         synchronized (mLock) {
             return mCancelledIds.contains(id);
         }
@@ -180,7 +245,8 @@ public class Processor implements ExecutionListener {
      */
     public boolean hasWork() {
         synchronized (mLock) {
-            return !mEnqueuedWorkMap.isEmpty();
+            return !(mEnqueuedWorkMap.isEmpty()
+                    && mForegroundWorkMap.isEmpty());
         }
     }
 
@@ -190,7 +256,8 @@ public class Processor implements ExecutionListener {
      */
     public boolean isEnqueued(@NonNull String workSpecId) {
         synchronized (mLock) {
-            return mEnqueuedWorkMap.containsKey(workSpecId);
+            return mEnqueuedWorkMap.containsKey(workSpecId)
+                    || mForegroundWorkMap.containsKey(workSpecId);
         }
     }
 
@@ -199,7 +266,7 @@ public class Processor implements ExecutionListener {
      *
      * @param executionListener The {@link ExecutionListener} to add
      */
-    public void addExecutionListener(ExecutionListener executionListener) {
+    public void addExecutionListener(@NonNull ExecutionListener executionListener) {
         synchronized (mLock) {
             mOuterListeners.add(executionListener);
         }
@@ -210,7 +277,7 @@ public class Processor implements ExecutionListener {
      *
      * @param executionListener The {@link ExecutionListener} to remove
      */
-    public void removeExecutionListener(ExecutionListener executionListener) {
+    public void removeExecutionListener(@NonNull ExecutionListener executionListener) {
         synchronized (mLock) {
             mOuterListeners.remove(executionListener);
         }
@@ -229,6 +296,24 @@ public class Processor implements ExecutionListener {
             for (ExecutionListener executionListener : mOuterListeners) {
                 executionListener.onExecuted(workSpecId, needsReschedule);
             }
+        }
+    }
+
+    /**
+     * Interrupts a unit of work.
+     *
+     * @param id      The {@link androidx.work.impl.model.WorkSpec} id
+     * @param wrapper The {@link WorkerWrapper}
+     * @return {@code true} if the work was stopped successfully
+     */
+    private static boolean interrupt(@NonNull String id, @Nullable WorkerWrapper wrapper) {
+        if (wrapper != null) {
+            wrapper.interrupt();
+            Logger.get().debug(TAG, String.format("WorkerWrapper interrupted for %s", id));
+            return true;
+        } else {
+            Logger.get().debug(TAG, String.format("WorkerWrapper could not be found for %s", id));
+            return false;
         }
     }
 

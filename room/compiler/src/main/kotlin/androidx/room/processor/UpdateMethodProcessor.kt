@@ -20,6 +20,7 @@ import androidx.room.OnConflictStrategy.IGNORE
 import androidx.room.OnConflictStrategy.REPLACE
 import androidx.room.Update
 import androidx.room.vo.UpdateMethod
+import androidx.room.vo.findFieldByColumnName
 import javax.lang.model.element.ExecutableElement
 import javax.lang.model.type.DeclaredType
 
@@ -35,12 +36,23 @@ class UpdateMethodProcessor(
         val annotation = delegate
                 .extractAnnotation(Update::class, ProcessorErrors.MISSING_UPDATE_ANNOTATION)
 
-        val onConflict = annotation?.onConflict ?: OnConflictProcessor.INVALID_ON_CONFLICT
+        val onConflict = annotation?.value?.onConflict ?: OnConflictProcessor.INVALID_ON_CONFLICT
         context.checker.check(onConflict in REPLACE..IGNORE,
                 executableElement, ProcessorErrors.INVALID_ON_CONFLICT_VALUE)
 
         val (entities, params) = delegate.extractParams(
-                missingParamError = ProcessorErrors.UPDATE_MISSING_PARAMS
+            targetEntityType = annotation?.getAsTypeMirror("entity"),
+            missingParamError = ProcessorErrors.UPDATE_MISSING_PARAMS,
+            onValidatePartialEntity = { entity, pojo ->
+                val missingPrimaryKeys = entity.primaryKey.fields.filter {
+                    pojo.findFieldByColumnName(it.columnName) == null
+                }
+                context.checker.check(missingPrimaryKeys.isEmpty(), executableElement,
+                    ProcessorErrors.missingPrimaryKeysInPartialEntityForUpdate(
+                        partialEntityName = pojo.typeName.toString(),
+                        primaryKeyNames = missingPrimaryKeys.map { it.columnName })
+                )
+            }
         )
 
         val returnType = delegate.extractReturnType()

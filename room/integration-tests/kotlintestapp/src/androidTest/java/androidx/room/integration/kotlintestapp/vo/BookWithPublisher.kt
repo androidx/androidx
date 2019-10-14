@@ -18,5 +18,8 @@ package androidx.room.integration.kotlintestapp.vo
 
 import androidx.room.Embedded
 
-data class BookWithPublisher(val bookId: String, val title: String,
-                             @Embedded val publisher: Publisher)
+data class BookWithPublisher(
+    val bookId: String,
+    val title: String,
+    @Embedded val publisher: Publisher
+)

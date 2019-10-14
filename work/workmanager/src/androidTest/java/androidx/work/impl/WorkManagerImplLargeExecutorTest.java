@@ -30,7 +30,6 @@ import android.content.Context;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.arch.core.executor.ArchTaskExecutor;
-import androidx.arch.core.executor.TaskExecutor;
 import androidx.lifecycle.Observer;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -44,6 +43,7 @@ import androidx.work.WorkInfo;
 import androidx.work.impl.background.greedy.GreedyScheduler;
 import androidx.work.impl.model.WorkSpec;
 import androidx.work.impl.utils.taskexecutor.InstantWorkTaskExecutor;
+import androidx.work.impl.utils.taskexecutor.TaskExecutor;
 import androidx.work.worker.RandomSleepTestWorker;
 
 import org.junit.After;
@@ -84,7 +84,7 @@ public class WorkManagerImplLargeExecutorTest {
 
     @Before
     public void setUp() {
-        ArchTaskExecutor.getInstance().setDelegate(new TaskExecutor() {
+        ArchTaskExecutor.getInstance().setDelegate(new androidx.arch.core.executor.TaskExecutor() {
             @Override
             public void executeOnDiskIO(@NonNull Runnable runnable) {
                 runnable.run();
@@ -109,10 +109,13 @@ public class WorkManagerImplLargeExecutorTest {
                 .setExecutor(executor)
                 .setMaxSchedulerLimit(TEST_SCHEDULER_LIMIT)
                 .build();
+        TaskExecutor taskExecutor = new InstantWorkTaskExecutor();
         mWorkManagerImplSpy = spy(
-                new WorkManagerImpl(context, configuration, new InstantWorkTaskExecutor(), true));
+                new WorkManagerImpl(context, configuration, taskExecutor, true));
 
-        TrackingScheduler trackingScheduler = new TrackingScheduler(context, mWorkManagerImplSpy);
+        TrackingScheduler trackingScheduler =
+                new TrackingScheduler(context, taskExecutor, mWorkManagerImplSpy);
+
         Processor processor = new Processor(context,
                 configuration,
                 mWorkManagerImplSpy.getWorkTaskExecutor(),
@@ -183,13 +186,15 @@ public class WorkManagerImplLargeExecutorTest {
 
         private Set<String> mScheduledWorkSpecIds;
 
-        TrackingScheduler(Context context, WorkManagerImpl workManagerImpl) {
-            super(context, workManagerImpl);
+        TrackingScheduler(Context context,
+                TaskExecutor taskExecutor,
+                WorkManagerImpl workManagerImpl) {
+            super(context, taskExecutor, workManagerImpl);
             mScheduledWorkSpecIds = new HashSet<>();
         }
 
         @Override
-        public void schedule(WorkSpec... workSpecs) {
+        public void schedule(@NonNull WorkSpec... workSpecs) {
             synchronized (sLock) {
                 for (WorkSpec workSpec : workSpecs) {
                     assertThat(mScheduledWorkSpecIds.contains(workSpec.id), is(false));

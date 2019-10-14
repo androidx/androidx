@@ -22,10 +22,14 @@ import androidx.room.solver.types.StatementValueBinder
 /**
  * Knows how to convert a query parameter into arguments
  */
-class BasicQueryParameterAdapter(val bindAdapter: StatementValueBinder)
-            : QueryParameterAdapter(false) {
-    override fun bindToStmt(inputVarName: String, stmtVarName: String, startIndexVarName: String,
-                            scope: CodeGenScope) {
+class BasicQueryParameterAdapter(val bindAdapter: StatementValueBinder) :
+            QueryParameterAdapter(false) {
+    override fun bindToStmt(
+        inputVarName: String,
+        stmtVarName: String,
+        startIndexVarName: String,
+        scope: CodeGenScope
+    ) {
         scope.builder().apply {
             bindAdapter.bindToStmt(stmtVarName, startIndexVarName, inputVarName, scope)
         }

@@ -28,6 +28,8 @@ import static androidx.media2.test.common.CommonConstants.KEY_METADATA;
 import static androidx.media2.test.common.CommonConstants.KEY_PLAYER_STATE;
 import static androidx.media2.test.common.CommonConstants.KEY_PLAYLIST;
 import static androidx.media2.test.common.CommonConstants.KEY_SPEED;
+import static androidx.media2.test.common.CommonConstants.KEY_TRACK_INFO;
+import static androidx.media2.test.common.CommonConstants.KEY_VIDEO_SIZE;
 import static androidx.media2.test.common.CommonConstants.KEY_VOLUME_CONTROL_TYPE;
 import static androidx.media2.test.common.CommonConstants.MEDIA2_SESSION_PROVIDER_SERVICE;
 import static androidx.media2.test.common.TestUtils.PROVIDER_SERVICE_CONNECTION_TIMEOUT_MS;
@@ -52,6 +54,8 @@ import androidx.media2.common.MediaMetadata;
 import androidx.media2.common.MediaParcelUtils;
 import androidx.media2.common.ParcelImplListSlice;
 import androidx.media2.common.SessionPlayer;
+import androidx.media2.common.SubtitleData;
+import androidx.media2.common.VideoSize;
 import androidx.media2.session.MediaSession;
 import androidx.media2.session.MediaSession.CommandButton;
 import androidx.media2.session.MediaSession.ControllerInfo;
@@ -178,6 +182,19 @@ public class RemoteMediaSession {
         if (metadata != null) {
             ParcelUtils.putVersionedParcelable(bundle, KEY_METADATA, metadata);
         }
+        return bundle;
+    }
+
+    public static Bundle createMockPlayerConnectorConfigForVideoSize(@NonNull VideoSize videoSize) {
+        Bundle bundle = new Bundle();
+        bundle.putParcelable(KEY_VIDEO_SIZE, MediaParcelUtils.toParcelable(videoSize));
+        return bundle;
+    }
+
+    public static Bundle createMockPlayerConnectorConfigForTrackInfo(
+            @NonNull List<SessionPlayer.TrackInfo> trackInfos) {
+        Bundle bundle = new Bundle();
+        ParcelUtils.putVersionedParcelableList(bundle, KEY_TRACK_INFO, trackInfos);
         return bundle;
     }
 
@@ -485,7 +502,59 @@ public class RemoteMediaSession {
             try {
                 mBinder.notifyPlaybackCompleted(mSessionId);
             } catch (RemoteException ex) {
-                Log.e(TAG, "Failed to call notifyRepeatModeChanged()");
+                Log.e(TAG, "Failed to call notifyPlaybackCompleted()");
+            }
+        }
+
+        public void notifyVideoSizeChanged(@NonNull VideoSize videoSize) {
+            try {
+                mBinder.notifyVideoSizeChanged(mSessionId,
+                        MediaParcelUtils.toParcelable(videoSize));
+            } catch (RemoteException ex) {
+                Log.e(TAG, "Failed to call notifyVideoSizeChanged()");
+            }
+        }
+
+        public boolean surfaceExists() throws RemoteException {
+            return mBinder.surfaceExists(mSessionId);
+        }
+
+        public void notifyTracksChanged(List<SessionPlayer.TrackInfo> tracks) {
+            try {
+                mBinder.notifyTrackInfoChanged(mSessionId,
+                        MediaParcelUtils.toParcelableList(tracks));
+            } catch (RemoteException ex) {
+                Log.e(TAG, "Failed to call notifyTrackInfoChanged()");
+            }
+        }
+
+        public void notifyTrackSelected(SessionPlayer.TrackInfo trackInfo) {
+            try {
+                mBinder.notifyTrackSelected(mSessionId,
+                        MediaParcelUtils.toParcelable(trackInfo));
+            } catch (RemoteException ex) {
+                Log.e(TAG, "Failed to call notifyTrackSelected()");
+            }
+        }
+
+        public void notifyTrackDeselected(SessionPlayer.TrackInfo trackInfo) {
+            try {
+                mBinder.notifyTrackDeselected(mSessionId,
+                        MediaParcelUtils.toParcelable(trackInfo));
+            } catch (RemoteException ex) {
+                Log.e(TAG, "Failed to call notifyTrackDeselected()");
+            }
+        }
+
+        public void notifySubtitleData(@NonNull MediaItem item,
+                @NonNull SessionPlayer.TrackInfo track, @NonNull SubtitleData data) {
+            try {
+                mBinder.notifySubtitleData(mSessionId,
+                        MediaParcelUtils.toParcelable(item),
+                        MediaParcelUtils.toParcelable(track),
+                        MediaParcelUtils.toParcelable(data));
+            } catch (RemoteException ex) {
+                Log.e(TAG, "Failed to call notifySubtitleData");
             }
         }
     }

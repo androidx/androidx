@@ -30,7 +30,7 @@ class IndexTest {
     fun createSimpleSQL() {
         val index = Index("foo", false, listOf(mockField("bar"), mockField("baz")))
         MatcherAssert.assertThat(index.createQuery("my_table"), CoreMatchers.`is`(
-                "CREATE  INDEX `foo` ON `my_table` (`bar`, `baz`)"
+                "CREATE INDEX IF NOT EXISTS `foo` ON `my_table` (`bar`, `baz`)"
         ))
     }
 
@@ -38,7 +38,7 @@ class IndexTest {
     fun createUnique() {
         val index = Index("foo", true, listOf(mockField("bar"), mockField("baz")))
         MatcherAssert.assertThat(index.createQuery("my_table"), CoreMatchers.`is`(
-                "CREATE UNIQUE INDEX `foo` ON `my_table` (`bar`, `baz`)"
+                "CREATE UNIQUE INDEX IF NOT EXISTS `foo` ON `my_table` (`bar`, `baz`)"
         ))
     }
 

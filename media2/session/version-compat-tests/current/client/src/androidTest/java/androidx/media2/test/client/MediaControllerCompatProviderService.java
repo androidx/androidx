@@ -81,8 +81,7 @@ public class MediaControllerCompatProviderService extends Service {
     private class RemoteMediaControllerCompatStub extends IRemoteMediaControllerCompat.Stub {
 
         @Override
-        public void create(String controllerId, Bundle tokenBundle, boolean waitForConnection)
-                throws RemoteException {
+        public void create(String controllerId, Bundle tokenBundle, boolean waitForConnection) {
             MediaSessionCompat.Token token = (MediaSessionCompat.Token) getParcelable(tokenBundle);
             MediaControllerCompat controller = new MediaControllerCompat(
                     MediaControllerCompatProviderService.this, token);

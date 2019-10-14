@@ -1,0 +1,3 @@
+// Baseline format: 1.0
+RemovedMethod: androidx.recyclerview.selection.BandPredicate.NonDraggableArea#NonDraggableArea(androidx.recyclerview.widget.RecyclerView, androidx.recyclerview.selection.ItemDetailsLookup):
+    Removed constructor androidx.recyclerview.selection.BandPredicate.NonDraggableArea(androidx.recyclerview.widget.RecyclerView,androidx.recyclerview.selection.ItemDetailsLookup)
