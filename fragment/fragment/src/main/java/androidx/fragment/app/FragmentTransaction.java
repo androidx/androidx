@@ -20,6 +20,7 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.os.Bundle;
 import android.view.View;
+import android.view.ViewGroup;
 
 import androidx.annotation.AnimRes;
 import androidx.annotation.AnimatorRes;
@@ -232,6 +233,12 @@ public abstract class FragmentTransaction {
             @Nullable String tag) {
         doAddOp(containerViewId, fragment, tag, OP_ADD);
         return this;
+    }
+
+    FragmentTransaction add(@NonNull ViewGroup container, @NonNull Fragment fragment,
+            @Nullable String tag) {
+        fragment.mContainer = container;
+        return add(container.getId(), fragment, tag);
     }
 
     void doAddOp(int containerViewId, Fragment fragment, @Nullable String tag, int opcmd) {
