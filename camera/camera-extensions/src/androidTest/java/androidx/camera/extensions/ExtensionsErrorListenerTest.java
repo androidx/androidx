@@ -57,6 +57,7 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicReference;
 
 @SmallTest
@@ -94,7 +95,7 @@ public final class ExtensionsErrorListenerTest {
     }
 
     @Before
-    public void setUp() {
+    public void setUp() throws InterruptedException, ExecutionException, TimeoutException {
         assumeTrue(CameraUtil.deviceHasCamera());
 
         Context context = ApplicationProvider.getApplicationContext();
@@ -102,6 +103,7 @@ public final class ExtensionsErrorListenerTest {
         CameraX.init(context, appConfig);
 
         assumeTrue(CameraUtil.hasCameraWithLensFacing(mLensFacing));
+        assumeTrue(ExtensionsTestUtil.initExtensions());
         assumeTrue(ExtensionsManager.isExtensionAvailable(mEffectMode, mLensFacing));
 
         mLatch = new CountDownLatch(1);

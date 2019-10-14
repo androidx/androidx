@@ -38,7 +38,9 @@ import androidx.camera.extensions.BeautyImageCaptureExtender;
 import androidx.camera.extensions.BeautyPreviewExtender;
 import androidx.camera.extensions.BokehImageCaptureExtender;
 import androidx.camera.extensions.BokehPreviewExtender;
+import androidx.camera.extensions.ExtensionsManager;
 import androidx.camera.extensions.ExtensionsManager.EffectMode;
+import androidx.camera.extensions.ExtensionsManager.ExtensionsAvailability;
 import androidx.camera.extensions.HdrImageCaptureExtender;
 import androidx.camera.extensions.HdrPreviewExtender;
 import androidx.camera.extensions.ImageCaptureExtender;
@@ -59,8 +61,13 @@ import androidx.camera.extensions.impl.NightPreviewExtenderImpl;
 import androidx.camera.extensions.impl.PreviewExtenderImpl;
 import androidx.camera.testing.CameraUtil;
 
+import com.google.common.util.concurrent.ListenableFuture;
+
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 public class ExtensionsTestUtil {
     @NonNull
@@ -77,6 +84,27 @@ public class ExtensionsTestUtil {
                 {EffectMode.AUTO, LensFacing.FRONT},
                 {EffectMode.AUTO, LensFacing.BACK}
         });
+    }
+
+    /**
+     * Initializes the extensions for running the following tests.
+     *
+     * @return True if initializing successfully.
+     */
+    public static boolean initExtensions()
+            throws InterruptedException, ExecutionException, TimeoutException {
+        ListenableFuture<ExtensionsAvailability> availability = ExtensionsManager.init();
+        ExtensionsAvailability extensionsAvailability = availability.get(1, TimeUnit.SECONDS);
+
+        // Checks that there is vendor library on device for test.
+        if (extensionsAvailability == ExtensionsAvailability.NONE) {
+            return false;
+        }
+
+        // Checks that vendor library is loaded successfully.
+        assertTrue(extensionsAvailability == ExtensionsAvailability.LIBRARY_AVAILABLE);
+
+        return true;
     }
 
     /**
