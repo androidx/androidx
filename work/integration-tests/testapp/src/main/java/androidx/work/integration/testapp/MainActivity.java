@@ -19,6 +19,7 @@ package androidx.work.integration.testapp;
 import static androidx.work.ExistingWorkPolicy.KEEP;
 import static androidx.work.ExistingWorkPolicy.REPLACE;
 
+import android.app.PendingIntent;
 import android.app.job.JobInfo;
 import android.app.job.JobScheduler;
 import android.content.ComponentName;
@@ -45,6 +46,7 @@ import androidx.work.PeriodicWorkRequest;
 import androidx.work.WorkContinuation;
 import androidx.work.WorkInfo;
 import androidx.work.WorkManager;
+import androidx.work.WorkRequest;
 import androidx.work.impl.background.systemjob.SystemJobService;
 import androidx.work.integration.testapp.imageprocessing.ImageProcessingActivity;
 import androidx.work.integration.testapp.sherlockholmes.AnalyzeSherlockHolmesActivity;
@@ -62,6 +64,9 @@ public class MainActivity extends AppCompatActivity {
     private static final String UNIQUE_WORK_NAME = "importantUniqueWork";
     private static final String REPLACE_COMPLETED_WORK = "replaceCompletedWork";
     private static final int NUM_WORKERS = 150;
+
+    // Synthetic access
+    WorkRequest mLastForegroundWorkRequest;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -365,6 +370,7 @@ public class MainActivity extends AppCompatActivity {
                                         .setRequiredNetworkType(NetworkType.CONNECTED).build()
                                 ).build();
 
+                mLastForegroundWorkRequest = request;
                 WorkManager.getInstance(MainActivity.this).enqueue(request);
             }
         });
@@ -376,6 +382,29 @@ public class MainActivity extends AppCompatActivity {
                         .cancelAllWorkByTag(ForegroundWorker.class.getName());
             }
         });
+
+        findViewById(R.id.cancel_foreground_worker_intent)
+                .setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if (mLastForegroundWorkRequest != null) {
+                            PendingIntent pendingIntent =
+                                    WorkManager.getInstance(MainActivity.this)
+                                            .createCancelPendingIntent(
+                                                    MainActivity.this,
+                                                    mLastForegroundWorkRequest.getId()
+                                            );
+
+                            try {
+                                pendingIntent.send(0);
+                            } catch (PendingIntent.CanceledException exception) {
+                                Log.e(TAG, "Pending intent was cancelled.", exception);
+                            }
+                        } else {
+                            Log.d(TAG, "No work to cancel");
+                        }
+                    }
+                });
 
         findViewById(R.id.crash_app).setOnClickListener(new View.OnClickListener() {
             @Override

@@ -266,6 +266,7 @@ package androidx.work {
     method public abstract androidx.work.Operation cancelAllWorkByTag(String);
     method public abstract androidx.work.Operation cancelUniqueWork(String);
     method public abstract androidx.work.Operation cancelWorkById(java.util.UUID);
+    method public abstract android.app.PendingIntent createCancelPendingIntent(android.content.Context, java.util.UUID);
     method public final androidx.work.Operation enqueue(androidx.work.WorkRequest);
     method public abstract androidx.work.Operation enqueue(java.util.List<? extends androidx.work.WorkRequest>);
     method public abstract androidx.work.Operation enqueueUniquePeriodicWork(String, androidx.work.ExistingPeriodicWorkPolicy, androidx.work.PeriodicWorkRequest);

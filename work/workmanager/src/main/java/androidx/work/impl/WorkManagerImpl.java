@@ -16,8 +16,14 @@
 
 package androidx.work.impl;
 
+import static android.app.PendingIntent.FLAG_UPDATE_CURRENT;
+
+import static androidx.work.impl.foreground.SystemForegroundDispatcher.createCancelWorkIntent;
+
+import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Build;
 
 import androidx.annotation.NonNull;
@@ -448,6 +454,13 @@ public class WorkManagerImpl extends WorkManager {
         CancelWorkRunnable runnable = CancelWorkRunnable.forAll(this);
         mWorkTaskExecutor.executeOnBackgroundThread(runnable);
         return runnable.getOperation();
+    }
+
+    @NonNull
+    @Override
+    public PendingIntent createCancelPendingIntent(@NonNull Context context, @NonNull UUID id) {
+        Intent intent = createCancelWorkIntent(context, id.toString());
+        return PendingIntent.getService(context, 0, intent, FLAG_UPDATE_CURRENT);
     }
 
     @Override

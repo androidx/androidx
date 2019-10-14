@@ -223,6 +223,14 @@
             android:layout_marginLeft="16dp"
             android:layout_marginStart="16dp"/>
 
+        <Button android:text="@string/cancel_foreground_worker_intent"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/cancel_foreground_worker_intent"
+            android:layout_marginTop="12dp"
+            android:layout_marginLeft="16dp"
+            android:layout_marginStart="16dp"/>
+
         <Button android:text="@string/crash_app"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

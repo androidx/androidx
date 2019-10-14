@@ -27,6 +27,7 @@
     <string name="run_recursive_worker">Run Recursive Worker</string>
     <string name="run_foreground_worker">Run Foreground Worker</string>
     <string name="cancel_foreground_worker">Cancel Foreground Worker</string>
+    <string name="cancel_foreground_worker_intent">Cancel Foreground Worker (Intent)</string>
     <string name="crash_app">Crash App</string>
     <string name="create_hundred_job_exception">Create 100 Job Exception</string>
     <string name="keep">Use KEEP</string>
