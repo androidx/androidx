@@ -21,6 +21,7 @@ import android.content.res.Configuration
 import android.graphics.RenderNode
 import android.os.Build
 import android.os.Looper
+import android.util.ArrayMap
 import android.util.SparseArray
 import android.view.MotionEvent
 import android.view.View
@@ -33,6 +34,7 @@ import android.view.inputmethod.InputConnection
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.compose.ObserverMap
+import androidx.compose.WeakReference
 import androidx.ui.core.input.TextInputServiceAndroid
 import androidx.ui.core.pointerinput.PointerInputEventProcessor
 import androidx.ui.core.pointerinput.toPointerInputEvent
@@ -71,14 +73,12 @@ class AndroidComposeView constructor(context: Context) :
     // LayoutNodes that need measure and layout, the value is true when measure is needed
     private val relayoutNodes = TreeSet<LayoutNode>(DepthComparator)
 
-    // Map from model to DrawNodes that should be redrawn or LayoutNodes that need measuring
-    private val modelToNodes = ObserverMap<Any, ComponentNode>()
+    // Map of DrawNodes and models used during the last drawing or
+    // LayoutNodes and models used during the last measuring.
+    private val drawMeasureModelMap = NodeModelMap<ComponentNode>()
 
-    // Map from LayoutNode or DrawNode to the models that they use
-    private val nodeToModels = ObserverMap<ComponentNode, Any>()
-
-    // Map from model to LayoutNodes that *only* need layout and not measure
-    private val relayoutOnly = ObserverMap<Any, LayoutNode>()
+    // Map of LayoutNodes and models used during the last layout(positioning).
+    private val layoutModelMap = NodeModelMap<LayoutNode>()
 
     // Used by components that want to provide autofill semantic information.
     // TODO: Replace with SemanticsTree: Temporary hack until we have a semantics tree implemented.
@@ -130,18 +130,18 @@ class AndroidComposeView constructor(context: Context) :
             throw IllegalStateException("Frame reads are expected only on the main thread")
         }
         val node = currentNode
-        if (node != null) {
-            nodeToModels.add(node, readValue)
-            if (node is LayoutNode) {
-                if (node.isMeasuring) {
-                    relayoutOnly.remove(readValue, node)
-                    modelToNodes.add(readValue, node)
-                } else if (!modelToNodes.contains(readValue, node)) {
-                    relayoutOnly.add(readValue, node)
-                }
+        if (node is LayoutNode) {
+            if (node.isMeasuring) {
+                drawMeasureModelMap.add(node, readValue)
             } else {
-                modelToNodes.add(readValue, node)
+                layoutModelMap.add(node, readValue)
             }
+        } else if (node is DrawNode) {
+            drawMeasureModelMap.add(node, readValue)
+        } else {
+            throw IllegalStateException(
+                "The model read happened with an unsupported currentNode ($currentNode)"
+            )
         }
     }
 
@@ -186,17 +186,14 @@ class AndroidComposeView constructor(context: Context) :
     }
 
     private fun onModelsCommitted(models: Iterable<Any>) {
-        modelToNodes[models].forEach { node ->
-            require(node.isAttached())
-            when (node) {
-                is DrawNode -> node.invalidate()
-                is LayoutNode -> requestMeasure(node, false)
+        drawMeasureModelMap[models].forEach {
+            if (it is DrawNode) {
+                it.invalidate()
+            } else {
+                requestMeasure(it as LayoutNode, false)
             }
         }
-        relayoutOnly[models].forEach { node ->
-            require(node.isAttached())
-            requestRelayout(node)
-        }
+        layoutModelMap[models].forEach { requestRelayout(it) }
     }
 
     override fun onInvalidate(drawNode: DrawNode) {
@@ -218,6 +215,7 @@ class AndroidComposeView constructor(context: Context) :
      * Make sure the containing RepaintBoundary repaints.
      */
     internal fun invalidateRepaintBoundary(node: ComponentNode) {
+        node.requireOwner()
         val repaintBoundary = node.repaintBoundary
         val repaintBoundaryContainer = repaintBoundary?.container
         if (repaintBoundaryContainer != null) {
@@ -258,6 +256,7 @@ class AndroidComposeView constructor(context: Context) :
 
     private fun requestMeasure(layoutNode: LayoutNode, isNodeChange: Boolean) {
         trace("AndroidOwner:onRequestMeasure") {
+            layoutNode.requireOwner()
             if (layoutNode.needsRemeasure) {
                 // requestMeasure has already been called for this node
                 return
@@ -294,6 +293,7 @@ class AndroidComposeView constructor(context: Context) :
     }
 
     private fun requestRelayout(layoutNode: LayoutNode) {
+        layoutNode.requireOwner()
         if (layoutNode == root || constraints.isZero) {
             requestLayout()
             layoutNode.needsRemeasure = true
@@ -345,16 +345,20 @@ class AndroidComposeView constructor(context: Context) :
     }
 
     override fun onDetach(node: ComponentNode) {
-        clearNodeModels(node)
-        if (node is RepaintBoundaryNode) {
-            node.container.detach()
-            node.ownerData = null
-            repaintBoundaryChanges -= node
-            dirtyRepaintBoundaryNodes -= node
-        } else if (node is LayoutNode) {
-            relayoutNodes -= node
+        when (node) {
+            is RepaintBoundaryNode -> {
+                node.container.detach()
+                node.ownerData = null
+                repaintBoundaryChanges -= node
+                dirtyRepaintBoundaryNodes -= node
+            }
+            is LayoutNode -> {
+                relayoutNodes -= node
+                drawMeasureModelMap.clear(node)
+                layoutModelMap.clear(node)
+            }
+            is DrawNode -> drawMeasureModelMap.clear(node)
         }
-        clearNodeModels(node)
     }
 
     /**
@@ -433,11 +437,12 @@ class AndroidComposeView constructor(context: Context) :
 
     override fun onStartLayout(layoutNode: LayoutNode) {
         currentNode = layoutNode
+        layoutModelMap.clear(layoutNode)
     }
 
     override fun onStartMeasure(layoutNode: LayoutNode) {
-        clearNodeModels(layoutNode)
         currentNode = layoutNode
+        drawMeasureModelMap.clear(layoutNode)
     }
 
     override fun onLayout(changed: Boolean, l: Int, t: Int, r: Int, b: Int) {
@@ -458,7 +463,7 @@ class AndroidComposeView constructor(context: Context) :
                 is DrawNode -> {
                     val previousNode = currentNode
                     currentNode = node
-                    clearNodeModels(node)
+                    drawMeasureModelMap.clear(node)
                     val onPaintWithChildren = node.onPaintWithChildren
                     if (onPaintWithChildren != null) {
                         val ownerData = node.ownerData
@@ -644,13 +649,6 @@ class AndroidComposeView constructor(context: Context) :
         super.onConfigurationChanged(newConfig)
         density = Density(context)
         configurationChangeObserver()
-    }
-
-    private fun clearNodeModels(node: ComponentNode) {
-        nodeToModels.remove(node).forEach { model ->
-            modelToNodes.remove(model, node)
-            relayoutOnly.remove(model)
-        }
     }
 
     private inner class DrawReceiverImpl(
@@ -1196,6 +1194,36 @@ private class ElevationHandlerCompat(
             true
         } else {
             false
+        }
+    }
+}
+
+/**
+ * Holder for two ObserverMaps both from model to nodes and from nodes to models.
+ */
+private class NodeModelMap<T : ComponentNode> {
+    private val modelToNodes = ObserverMap<Any, T>()
+    // This map assumes hashCode() of ComponentNode implementations are not changing
+    // during the lifetime of the object.
+    private val nodeToModels = ArrayMap<T, MutableList<WeakReference<Any>>>()
+
+    fun add(node: T, readValue: Any) {
+        modelToNodes.add(readValue, node)
+        nodeToModels
+            // don't use Set here as we don't control the hashCode() of models
+            .getOrPut(node) { mutableListOf() }
+            .add(WeakReference(readValue))
+    }
+
+    operator fun get(keys: Iterable<Any>): List<T> {
+        return modelToNodes[keys]
+    }
+
+    fun clear(node: T) {
+        nodeToModels.remove(node)?.forEach { weakRefModel ->
+            weakRefModel.get()?.let {
+                modelToNodes.remove(it, node)
+            }
         }
     }
 }
