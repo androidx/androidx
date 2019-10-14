@@ -34,6 +34,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import android.app.Activity;
+import android.app.Instrumentation;
+import android.app.UiAutomation;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.BaseInstrumentationTestCase;
@@ -52,6 +54,7 @@ import androidx.core.view.accessibility.AccessibilityNodeInfoCompat.Accessibilit
 import androidx.core.view.accessibility.AccessibilityNodeProviderCompat;
 import androidx.core.view.accessibility.AccessibilityViewCommand;
 import androidx.core.view.accessibility.AccessibilityViewCommand.MoveAtGranularityArguments;
+import androidx.test.InstrumentationRegistry;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
 import androidx.test.filters.SdkSuppress;
@@ -62,11 +65,17 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 
 import java.util.List;
+import java.util.concurrent.TimeoutException;
+
 
 @RunWith(AndroidJUnit4.class)
 @MediumTest
 public class AccessibilityDelegateCompatTest extends
         BaseInstrumentationTestCase<ViewCompatActivity> {
+    private static final int TIMEOUT_ASYNC_PROCESSING = 5000;
+
+    private static Instrumentation sInstrumentation;
+    private static UiAutomation sUiAutomation;
 
     private ViewGroup mView;
 
@@ -76,6 +85,8 @@ public class AccessibilityDelegateCompatTest extends
 
     @Before
     public void setUp() {
+        sInstrumentation = InstrumentationRegistry.getInstrumentation();
+        sUiAutomation = sInstrumentation.getUiAutomation();
         final Activity activity = mActivityTestRule.getActivity();
         // Use a group, so it has a child
         mView = (ViewGroup) activity.findViewById(androidx.core.test.R.id.view).getParent();
@@ -356,6 +367,39 @@ public class AccessibilityDelegateCompatTest extends
 
         ViewCompat.setScreenReaderFocusable(mView, true);
         assertMockAccessibilityDelegateWorkingOnView(mockDelegate);
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 19)
+    public void testSetAccessibilityPaneTitle_sendsOutCorrectEvent() throws TimeoutException {
+        final Activity activity = mActivityTestRule.getActivity();
+
+        AccessibilityEvent awaitedEvent =
+                sUiAutomation.executeAndWaitForEvent(new Runnable() {
+                    @Override
+                    public void run() {
+                        ViewCompat.setAccessibilityPaneTitle(mView, "test");
+                    }
+                }, new UiAutomation.AccessibilityEventFilter() {
+                    @Override
+                    public boolean accept(AccessibilityEvent event) {
+                        boolean isWindowStateChanged = event.getEventType()
+                                == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED;
+                        int isPaneTitle = (event.getContentChangeTypes()
+                                & AccessibilityEvent.CONTENT_CHANGE_TYPE_PANE_TITLE);
+                        boolean isFromThisPackage = TextUtils.equals(event.getPackageName(),
+                                activity.getPackageName());
+                        boolean isFromThisSource =
+                                event.getSource().equals(mView.createAccessibilityNodeInfo());
+                        return isWindowStateChanged && (isPaneTitle != 0) && isFromThisPackage
+                                && isFromThisSource;
+                    }
+                }, TIMEOUT_ASYNC_PROCESSING);
+
+        // The event should come from a view that's important for accessibility, even though the
+        // layout we added it to isn't important. Otherwise services may not find out about the
+        // new button.
+        assertTrue(awaitedEvent.getSource().isImportantForAccessibility());
     }
 
     private void assertMockAccessibilityDelegateWorkingOnView(
