@@ -18,7 +18,6 @@ package androidx.ui.material
 
 import androidx.animation.TweenBuilder
 import androidx.compose.Composable
-import androidx.compose.memo
 import androidx.compose.unaryPlus
 import androidx.ui.core.DensityScope
 import androidx.ui.core.Draw
@@ -29,27 +28,26 @@ import androidx.ui.core.px
 import androidx.ui.core.withDensity
 import androidx.ui.engine.geometry.Offset
 import androidx.ui.foundation.gestures.DragDirection
-import androidx.ui.foundation.gestures.Draggable
 import androidx.ui.foundation.selection.Toggleable
-import androidx.ui.foundation.selection.ToggleableState
+import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.Color
+import androidx.ui.graphics.Paint
+import androidx.ui.graphics.StrokeCap
 import androidx.ui.layout.Container
 import androidx.ui.layout.Padding
 import androidx.ui.layout.Wrap
-import androidx.ui.material.ripple.Ripple
-import androidx.ui.graphics.Canvas
-import androidx.ui.graphics.Paint
-import androidx.ui.graphics.StrokeCap
 import androidx.ui.material.internal.StateDraggable
-import androidx.ui.material.internal.ValueModel
+import androidx.ui.material.ripple.Ripple
 
 /**
  * A Switch is a two state toggleable component that provides on/off like options
  *
+ * @sample androidx.ui.material.samples.SwitchSample
+ *
  * @param checked whether or not this components is checked
  * @param onCheckedChange callback to be invoked when Switch is being clicked,
  * therefore the change of checked state is requested.
- * if [null], Switch appears in [checked] state and remains disabled
+ * if `null`, Switch appears in [checked] state and remains disabled
  * @param color optional active color for Switch,
  * by default [MaterialColors.secondaryVariant] will be used
  */

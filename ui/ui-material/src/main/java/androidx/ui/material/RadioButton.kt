@@ -56,20 +56,10 @@ import androidx.ui.text.TextStyle
  *
  * Typical children for RadioGroup will be [RadioGroupScope.RadioGroupItem] and following usage:
  *
- *     RadioGroup {
- *         Column { options.forEach { item ->
- *             RadioGroupTextItem(text = item.toString(), selected = ..., onSelected = { ... })
- *         }
- *         }
- *     }
+ * @sample androidx.ui.material.samples.CustomRadioGroupSample
  *
  * If you want a simplified version with [Column] of [RadioGroupScope.RadioGroupTextItem],
- * consider using version that accepts list of [String] options and doesn't require any children:
- *
- *     RadioGroup(
- *         options = listOfOption,
- *         selectedOption = ...,
- *         onOptionSelected = { ... })
+ * consider using version that accepts list of [String] options and doesn't require any children
  */
 @Composable
 fun RadioGroup(children: @Composable RadioGroupScope.() -> Unit) {
@@ -87,9 +77,11 @@ fun RadioGroup(children: @Composable RadioGroupScope.() -> Unit) {
  * This component is ready to use without children being passed and
  * it places the options into a [Column] of [RadioGroupScope.RadioGroupTextItem].
  *
+ * @sample androidx.ui.material.samples.DefaultRadioGroupSample
+ *
  * @param options list of [String] to provide RadioButtons label
  * @param selectedOption label which represents selected RadioButton,
- * or [null] if nothing is selected
+ * or `null` if nothing is selected
  * @param onSelectedChange callback to be invoked when RadioButton is clicked,
  * therefore the selection of this item is requested
  * @param radioColor color for RadioButtons when selected.
@@ -155,10 +147,6 @@ class RadioGroupScope internal constructor() {
      * Simple component to be used inside [RadioGroup] as a child.
      * Places [RadioButton] and [Text] inside the [Row].
      *
-     * Defaults used:
-     * * for text, [MaterialTypography.body1] will be used
-     * * for selected radio button, [MaterialColors.primary] will be used
-     *
      * @param selected whether or not radio button in this item is selected
      * @param onSelect callback to be invoked when your item is being clicked,
      * therefore the selection of this item is requested. Not invoked if item is already selected
@@ -194,6 +182,8 @@ class RadioGroupScope internal constructor() {
  * RadioButton is usually used as a child of [RadioGroupScope.RadioGroupItem], and these items
  * and coupled together to [RadioGroup] to represent a multiple exclusion set of options
  * the user can choose from.
+ *
+ * @sample androidx.ui.material.samples.RadioButtonSample
  *
  * @param selected boolean state for this button: either it is selected or not
  * @param onSelect callback to be invoked when RadioButton is being clicked,
