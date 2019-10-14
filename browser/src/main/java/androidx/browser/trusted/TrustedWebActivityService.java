@@ -23,16 +23,13 @@ import android.app.Service;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.pm.ServiceInfo;
 import android.graphics.BitmapFactory;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.Parcelable;
-import android.os.StrictMode;
 import android.support.customtabs.trusted.ITrustedWebActivityService;
 
 import androidx.annotation.BinderThread;
@@ -48,7 +45,6 @@ import androidx.browser.trusted.TrustedWebActivityServiceConnection.NotifyNotifi
 import androidx.browser.trusted.TrustedWebActivityServiceConnection.ResultArgs;
 import androidx.core.app.NotificationManagerCompat;
 
-import java.util.Arrays;
 import java.util.Locale;
 
 /**
@@ -86,15 +82,14 @@ import java.util.Locale;
  * As this is an AIDL Service, calls may come in from different Binder threads, so overriding
  * implementations need to be thread safe [1].
  * <p>
- * For security, the TrustedWebActivityService will check that whatever connects to it is the
- * Trusted Web Activity provider that it was previously verified with (through
- * {@link #setVerifiedProvider}).
+ * For security, the TrustedWebActivityService will check that whatever connects to it matches the
+ * {@link Token} stored in the {@link TokenStore} returned by {@link #getTokenStore}.
  * This is because we don't want to allow any app on the users device to connect to this Service
  * be able to make it display notifications.
  *
  * [1]: https://developer.android.com/guide/components/aidl.html
  */
-public class TrustedWebActivityService extends Service {
+public abstract class TrustedWebActivityService extends Service {
     /** An Intent Action used by the provider to find the TrustedWebActivityService or subclass. */
     @SuppressLint({
             "ActionValue",  // This value was being used before being moved into AndroidX.
@@ -115,9 +110,6 @@ public class TrustedWebActivityService extends Service {
 
     /** Used as a return value of {@link #onGetSmallIconId} when the icon is not provided. */
     public static final int SMALL_ICON_NOT_SET = -1;
-
-    private static final String PREFS_FILE = "TrustedWebActivityVerifiedProvider";
-    private static final String PREFS_VERIFIED_PROVIDER = "Provider";
 
     private NotificationManager mNotificationManager;
 
@@ -183,21 +175,21 @@ public class TrustedWebActivityService extends Service {
         private void checkCaller() {
             if (mVerifiedUid == -1) {
                 String[] packages = getPackageManager().getPackagesForUid(getCallingUid());
-                // We need to read Preferences. This should only be called on the Binder thread
-                // which is designed to handle long running, blocking tasks, so disk I/O should be
-                // OK.
-                StrictMode.ThreadPolicy policy = StrictMode.allowThreadDiskReads();
-                try {
-                    String verifiedPackage = getPreferences(TrustedWebActivityService.this)
-                            .getString(PREFS_VERIFIED_PROVIDER, null);
 
-                    if (Arrays.asList(packages).contains(verifiedPackage)) {
-                        mVerifiedUid = getCallingUid();
+                if (packages == null) {
+                    packages = new String[]{};
+                }
 
-                        return;
+                Token verifiedProvider = getTokenStore().load();
+                PackageManager pm = getPackageManager();
+
+                if (verifiedProvider != null) {
+                    for (String packageName : packages) {
+                        if (verifiedProvider.matches(packageName, pm)) {
+                            mVerifiedUid = getCallingUid();
+                            break;
+                        }
                     }
-                } finally {
-                    StrictMode.setThreadPolicy(policy);
                 }
             }
 
@@ -361,54 +353,13 @@ public class TrustedWebActivityService extends Service {
     }
 
     /**
-     * Should *not* be called on UI Thread, as accessing Preferences may hit disk.
+     * Returns a {@link TokenStore} that is used to determine whether the connecting package is
+     * allowed to connect to this service.
+     * @return An {@link TokenStore} containing the verified provider.
      */
-    @SuppressWarnings("WeakerAccess") /* synthetic access */
-    static SharedPreferences getPreferences(Context context) {
-        return context.getSharedPreferences(PREFS_FILE, Context.MODE_PRIVATE);
-    }
-
-    /**
-     * Sets (asynchronously) the package that this service will accept connections from.
-     * @param context A context to be used to access SharedPreferences.
-     * @param provider The package of the provider to accept connections from or null to clear.
-     */
-    public static final void setVerifiedProvider(final @NonNull Context context,
-            @Nullable String provider) {
-        final String providerEmptyChecked =
-                (provider == null || provider.isEmpty()) ? null : provider;
-
-        // Perform on a background thread as accessing Preferences may cause disk access.
-        new AsyncTask<Void, Void, Void>() {
-            @Override
-            protected Void doInBackground(Void... voids) {
-                SharedPreferences.Editor editor = getPreferences(context).edit();
-                editor.putString(PREFS_VERIFIED_PROVIDER, providerEmptyChecked);
-                editor.apply();
-                return null;
-            }
-        }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-    }
-
-    /**
-     * See {@link #setVerifiedProvider}, the main difference being that this approach sets the
-     * provider synchronously, so may trigger a disk read.
-     * @hide
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
-    public static final void setVerifiedProviderSynchronouslyForTesting(@NonNull Context context,
-            @Nullable String provider) {
-        String providerEmptyChecked = (provider == null || provider.isEmpty()) ? null : provider;
-
-        StrictMode.ThreadPolicy policy = StrictMode.allowThreadDiskReads();
-        try {
-            SharedPreferences.Editor editor = getPreferences(context).edit();
-            editor.putString(PREFS_VERIFIED_PROVIDER, providerEmptyChecked);
-            editor.apply();
-        } finally {
-            StrictMode.setThreadPolicy(policy);
-        }
-    }
+    @BinderThread
+    @NonNull
+    public abstract TokenStore getTokenStore();
 
     private static String channelNameToId(String name) {
         return name.toLowerCase(Locale.ROOT).replace(' ', '_') + "_channel_id";
