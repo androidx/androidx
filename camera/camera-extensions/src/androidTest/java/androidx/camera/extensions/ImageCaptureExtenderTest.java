@@ -51,6 +51,7 @@ import androidx.camera.core.ImageCaptureConfig;
 import androidx.camera.extensions.ExtensionsManager.EffectMode;
 import androidx.camera.extensions.impl.CaptureStageImpl;
 import androidx.camera.extensions.impl.ImageCaptureExtenderImpl;
+import androidx.camera.extensions.util.ExtensionsTestUtil;
 import androidx.camera.testing.CameraUtil;
 import androidx.camera.testing.fakes.FakeLifecycleOwner;
 import androidx.test.core.app.ApplicationProvider;
@@ -71,6 +72,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeoutException;
 
 @RunWith(AndroidJUnit4.class)
 public class ImageCaptureExtenderTest {
@@ -81,23 +83,16 @@ public class ImageCaptureExtenderTest {
 
     private final Instrumentation mInstrumentation = InstrumentationRegistry.getInstrumentation();
     private FakeLifecycleOwner mLifecycleOwner;
-    private ImageCaptureExtenderImpl mMockImageCaptureExtenderImpl;
-    private ArrayList<CaptureStageImpl> mCaptureStages = new ArrayList<>();
-
-    {
-        mCaptureStages.add(new FakeCaptureStage());
-    }
 
     @Before
-    public void setUp() {
+    public void setUp() throws InterruptedException, ExecutionException, TimeoutException {
         assumeTrue(CameraUtil.deviceHasCamera());
         mLifecycleOwner = new FakeLifecycleOwner();
-        mMockImageCaptureExtenderImpl = mock(ImageCaptureExtenderImpl.class);
-
-        when(mMockImageCaptureExtenderImpl.getCaptureStages()).thenReturn(mCaptureStages);
 
         Context context = ApplicationProvider.getApplicationContext();
         CameraX.init(context, Camera2AppConfig.create(context));
+
+        assumeTrue(ExtensionsTestUtil.initExtensions());
     }
 
     @After
@@ -109,9 +104,15 @@ public class ImageCaptureExtenderTest {
     @Test
     @MediumTest
     public void extenderLifeCycleTest_noMoreGetCaptureStagesBeforeAndAfterInitDeInit() {
+        ImageCaptureExtenderImpl mockImageCaptureExtenderImpl = mock(
+                ImageCaptureExtenderImpl.class);
+        ArrayList<CaptureStageImpl> captureStages = new ArrayList<>();
+
+        captureStages.add(new FakeCaptureStage());
+        when(mockImageCaptureExtenderImpl.getCaptureStages()).thenReturn(captureStages);
 
         ImageCaptureExtender.ImageCaptureAdapter imageCaptureAdapter =
-                new ImageCaptureExtender.ImageCaptureAdapter(mMockImageCaptureExtenderImpl, null);
+                new ImageCaptureExtender.ImageCaptureAdapter(mockImageCaptureExtenderImpl, null);
         ImageCaptureConfig.Builder configBuilder =
                 new ImageCaptureConfig.Builder().setCaptureBundle(
                         imageCaptureAdapter).setUseCaseEventListener(
@@ -130,10 +131,10 @@ public class ImageCaptureExtenderTest {
         // To verify the event callbacks in order, and to verification of the getCaptureStages()
         // is also used to wait for the capture session created. The test for the unbind
         // would come after the capture session was created.
-        InOrder inOrder = inOrder(mMockImageCaptureExtenderImpl);
-        inOrder.verify(mMockImageCaptureExtenderImpl, timeout(3000)).onInit(any(String.class), any(
+        InOrder inOrder = inOrder(mockImageCaptureExtenderImpl);
+        inOrder.verify(mockImageCaptureExtenderImpl, timeout(3000)).onInit(any(String.class), any(
                 CameraCharacteristics.class), any(Context.class));
-        inOrder.verify(mMockImageCaptureExtenderImpl,
+        inOrder.verify(mockImageCaptureExtenderImpl,
                 timeout(3000).atLeastOnce()).getCaptureStages();
 
         mInstrumentation.runOnMainSync(new Runnable() {
@@ -145,18 +146,24 @@ public class ImageCaptureExtenderTest {
         });
 
         // To verify the deInit should been called.
-        inOrder.verify(mMockImageCaptureExtenderImpl, timeout(3000)).onDeInit();
+        inOrder.verify(mockImageCaptureExtenderImpl, timeout(3000)).onDeInit();
 
         // To verify there is no any other calls on the mock.
-        verifyNoMoreInteractions(mMockImageCaptureExtenderImpl);
+        verifyNoMoreInteractions(mockImageCaptureExtenderImpl);
     }
 
     @Test
     @MediumTest
     public void extenderLifeCycleTest_noMoreCameraEventCallbacksBeforeAndAfterInitDeInit() {
+        ImageCaptureExtenderImpl mockImageCaptureExtenderImpl = mock(
+                ImageCaptureExtenderImpl.class);
+        ArrayList<CaptureStageImpl> captureStages = new ArrayList<>();
+
+        captureStages.add(new FakeCaptureStage());
+        when(mockImageCaptureExtenderImpl.getCaptureStages()).thenReturn(captureStages);
 
         ImageCaptureExtender.ImageCaptureAdapter imageCaptureAdapter =
-                new ImageCaptureExtender.ImageCaptureAdapter(mMockImageCaptureExtenderImpl, null);
+                new ImageCaptureExtender.ImageCaptureAdapter(mockImageCaptureExtenderImpl, null);
         ImageCaptureConfig.Builder configBuilder =
                 new ImageCaptureConfig.Builder().setCaptureBundle(
                         imageCaptureAdapter).setUseCaseEventListener(
@@ -178,13 +185,11 @@ public class ImageCaptureExtenderTest {
         // To verify the event callbacks in order, and to verification of the onEnableSession()
         // is also used to wait for the capture session created. The test for the unbind
         // would come after the capture session was created.
-        InOrder inOrder = inOrder(mMockImageCaptureExtenderImpl);
-        inOrder.verify(mMockImageCaptureExtenderImpl, timeout(3000)).onInit(any(String.class), any(
-                CameraCharacteristics.class), any(Context.class));
-        inOrder.verify(mMockImageCaptureExtenderImpl,
-                timeout(3000).atLeastOnce()).onPresetSession();
-        inOrder.verify(mMockImageCaptureExtenderImpl,
-                timeout(3000).atLeastOnce()).onEnableSession();
+        InOrder inOrder = inOrder(mockImageCaptureExtenderImpl);
+        inOrder.verify(mockImageCaptureExtenderImpl, timeout(3000)).onInit(any(String.class),
+                any(CameraCharacteristics.class), any(Context.class));
+        inOrder.verify(mockImageCaptureExtenderImpl, timeout(3000).atLeastOnce()).onPresetSession();
+        inOrder.verify(mockImageCaptureExtenderImpl, timeout(3000).atLeastOnce()).onEnableSession();
 
         mInstrumentation.runOnMainSync(new Runnable() {
             @Override
@@ -195,33 +200,39 @@ public class ImageCaptureExtenderTest {
         });
 
         // To verify the onDisableSession and onDeInit.
-        inOrder.verify(mMockImageCaptureExtenderImpl,
+        inOrder.verify(mockImageCaptureExtenderImpl,
                 timeout(3000).atLeastOnce()).onDisableSession();
-        inOrder.verify(mMockImageCaptureExtenderImpl, timeout(3000)).onDeInit();
+        inOrder.verify(mockImageCaptureExtenderImpl, timeout(3000)).onDeInit();
 
         // This test item only focus on onPreset, onEnable and onDisable callback testing,
         // ignore all the getCaptureStages callbacks.
-        verify(mMockImageCaptureExtenderImpl, atLeastOnce()).getCaptureStages();
+        verify(mockImageCaptureExtenderImpl, atLeastOnce()).getCaptureStages();
 
         // To verify there is no any other calls on the mock.
-        verifyNoMoreInteractions(mMockImageCaptureExtenderImpl);
+        verifyNoMoreInteractions(mockImageCaptureExtenderImpl);
     }
 
     @Test
     @SmallTest
     public void canSetSupportedResolutionsToConfigTest() throws CameraInfoUnavailableException {
         assumeTrue(CameraUtil.deviceHasCamera());
+        // getSupportedResolutions supported since version 1.1
+        assumeTrue(ExtensionVersion.getRuntimeVersion().compareTo(Version.VERSION_1_1) >= 0);
+
         LensFacing lensFacing = CameraX.getDefaultLensFacing();
         ImageCaptureConfig.Builder configBuilder =
                 new ImageCaptureConfig.Builder().setLensFacing(lensFacing);
-        when(mMockImageCaptureExtenderImpl.isExtensionAvailable(any(), any())).thenReturn(true);
+
+        ImageCaptureExtenderImpl mockImageCaptureExtenderImpl = mock(
+                ImageCaptureExtenderImpl.class);
+        when(mockImageCaptureExtenderImpl.isExtensionAvailable(any(), any())).thenReturn(true);
         List<Pair<Integer, Size[]>> targetFormatResolutionsPairList =
                 generateImageCaptureSupportedResolutions(lensFacing);
-        when(mMockImageCaptureExtenderImpl.getSupportedResolutions()).thenReturn(
+        when(mockImageCaptureExtenderImpl.getSupportedResolutions()).thenReturn(
                 targetFormatResolutionsPairList);
 
         ImageCaptureExtender fakeExtender = new FakeImageCaptureExtender(configBuilder,
-                mMockImageCaptureExtenderImpl);
+                mockImageCaptureExtenderImpl);
 
         // Checks the config does not include supported resolutions before applying effect mode.
         assertThat(configBuilder.build().getSupportedResolutions(null)).isNull();

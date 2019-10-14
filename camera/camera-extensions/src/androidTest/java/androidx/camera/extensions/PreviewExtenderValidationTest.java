@@ -40,6 +40,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeoutException;
 
 @RunWith(AndroidJUnit4.class)
 public class PreviewExtenderValidationTest {
@@ -48,10 +49,12 @@ public class PreviewExtenderValidationTest {
             Manifest.permission.CAMERA);
 
     @Before
-    public void setUp() {
+    public void setUp() throws InterruptedException, ExecutionException, TimeoutException {
         assumeTrue(CameraUtil.deviceHasCamera());
         Context context = ApplicationProvider.getApplicationContext();
         CameraX.init(context, Camera2AppConfig.create(context));
+
+        assumeTrue(ExtensionsTestUtil.initExtensions());
     }
 
     @After
@@ -64,6 +67,8 @@ public class PreviewExtenderValidationTest {
     @SmallTest
     public void getSupportedResolutionsImplementationTest()
             throws CameraInfoUnavailableException, CameraAccessException {
+        // getSupportedResolutions supported since version 1.1
+        assumeTrue(ExtensionVersion.getRuntimeVersion().compareTo(Version.VERSION_1_1) >= 0);
 
         // Uses for-loop to check all possible effect/lens facing combinations
         for (Object[] EffectLensFacingPair :
