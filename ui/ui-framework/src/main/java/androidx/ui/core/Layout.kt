@@ -59,18 +59,25 @@ import androidx.compose.unaryPlus
  */
 @Composable
 /*inline*/ fun Layout(
-    /*crossinline*/ children: @Composable() () -> Unit,
-    /*crossinline*/ minIntrinsicWidthMeasureBlock: IntrinsicMeasureBlock,
-    /*crossinline*/ minIntrinsicHeightMeasureBlock: IntrinsicMeasureBlock,
-    /*crossinline*/ maxIntrinsicWidthMeasureBlock: IntrinsicMeasureBlock,
-    /*crossinline*/ maxIntrinsicHeightMeasureBlock: IntrinsicMeasureBlock,
+    /*crossinline*/
+    children: @Composable() () -> Unit,
+    /*crossinline*/
+    minIntrinsicWidthMeasureBlock: IntrinsicMeasureBlock,
+    /*crossinline*/
+    minIntrinsicHeightMeasureBlock: IntrinsicMeasureBlock,
+    /*crossinline*/
+    maxIntrinsicWidthMeasureBlock: IntrinsicMeasureBlock,
+    /*crossinline*/
+    maxIntrinsicHeightMeasureBlock: IntrinsicMeasureBlock,
     modifier: Modifier = Modifier.None,
-    /*crossinline*/ measureBlock: MeasureBlock
+    /*crossinline*/
+    measureBlock: MeasureBlock
 ) {
     val measureBlocks = object : LayoutNode.MeasureBlocks {
         override fun measure(
             measureScope: MeasureScope,
-            measurables: List<Measurable>, constraints: Constraints
+            measurables: List<Measurable>,
+            constraints: Constraints
         ) = measureScope.measureBlock(measurables, constraints)
         override fun minIntrinsicWidth(
             densityScope: DensityScope,
@@ -93,7 +100,7 @@ import androidx.compose.unaryPlus
             w: IntPx
         ) = densityScope.maxIntrinsicHeightMeasureBlock(measurables, w)
     }
-    Layout(children,  measureBlocks, modifier)
+    Layout(children, measureBlocks, modifier)
 }
 
 /**
@@ -120,9 +127,11 @@ import androidx.compose.unaryPlus
  */
 @Composable
 /*inline*/ fun Layout(
-    /*crossinline*/ children: @Composable() () -> Unit,
+    /*crossinline*/
+    children: @Composable() () -> Unit,
     modifier: Modifier = Modifier.None,
-    /*noinline*/ measureBlock: MeasureBlock
+    /*noinline*/
+    measureBlock: MeasureBlock
 ) {
 
     val measureBlocks = +memo(measureBlock) { MeasuringIntrinsicsMeasureBlocks(measureBlock) }
@@ -130,11 +139,12 @@ import androidx.compose.unaryPlus
 }
 
 /*@PublishedApi*/ @Composable internal /*inline*/ fun Layout(
-    /*crossinline*/ children: @Composable() () -> Unit,
+    /*crossinline*/
+    children: @Composable() () -> Unit,
     measureBlocks: LayoutNode.MeasureBlocks,
     modifier: Modifier
 ) {
-    LayoutNode(modifier=modifier, measureBlocks=measureBlocks) {
+    LayoutNode(modifier = modifier, measureBlocks = measureBlocks) {
         children()
     }
 }
@@ -217,7 +227,7 @@ internal class DefaultIntrinsicMeasurable(
  * Receiver scope for [Layout]'s layout lambda when used in an intrinsics call.
  */
 @PublishedApi
-internal class IntrinsicsMeasureScope (
+internal class IntrinsicsMeasureScope(
     override val density: Density,
     val widthHeight: IntrinsicWidthHeight
 ) : MeasureScope {
@@ -359,7 +369,7 @@ private val EmptyComposable: @Composable() () -> Unit = @Composable {}
  * A [List] of [Measurable]s passed in as the argument to the [Layout] `measureBlock` when
  * using the `vararg` variant.
  */
-class MultiComposableMeasurables internal constructor(private val layoutNode: LayoutNode):
+class MultiComposableMeasurables internal constructor(private val layoutNode: LayoutNode) :
     List<Measurable> by layoutNode.layoutChildren {
     /**
      * When multiple [Composable] children are passed into `Layout`, the [Measurable]s
@@ -415,7 +425,7 @@ fun Layout(
     } else {
         @Composable {
             childrenArray.forEach { childrenComposable ->
-                DataNode(key=ChildGroupKey, value=childrenComposable) {
+                DataNode(key = ChildGroupKey, value = childrenComposable) {
                     childrenComposable()
                 }
             }
@@ -519,9 +529,9 @@ fun WithConstraints(
     }
 
     LayoutNode(
-        ref=layoutNodeRef,
-        modifier=Modifier.None,
-        measureBlocks=measureBlocks
+        ref = layoutNodeRef,
+        modifier = Modifier.None,
+        measureBlocks = measureBlocks
     )
 }
 
@@ -545,7 +555,7 @@ fun WithConstraints(
 inline fun OnPositioned(
     noinline onPositioned: (coordinates: LayoutCoordinates) -> Unit
 ) {
-    DataNode(key=OnPositionedKey, value=onPositioned)
+    DataNode(key = OnPositionedKey, value = onPositioned)
 }
 
 /**
@@ -567,7 +577,7 @@ inline fun OnChildPositioned(
     noinline onPositioned: (coordinates: LayoutCoordinates) -> Unit,
     crossinline children: @Composable() () -> Unit
 ) {
-    DataNode(key=OnChildPositionedKey, value=onPositioned) {
+    DataNode(key = OnChildPositionedKey, value = onPositioned) {
         children()
     }
 }

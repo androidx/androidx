@@ -25,7 +25,7 @@ inline fun PointerInputWrapper(
     crossinline children: @Composable() () -> Unit
 ) {
     // Hide the internals of PointerInputNode
-    PointerInputNode(pointerInputHandler=pointerInputHandler) {
+    PointerInputNode(pointerInputHandler = pointerInputHandler) {
         children()
     }
 }

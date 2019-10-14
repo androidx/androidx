@@ -53,7 +53,7 @@ import androidx.compose.composer
  */
 @Composable
 inline fun ParentData(data: Any, crossinline children: @Composable() () -> Unit) {
-    DataNode(key=ParentDataKey, value=data) {
+    DataNode(key = ParentDataKey, value = data) {
         children()
     }
 }

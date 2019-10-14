@@ -64,9 +64,9 @@ fun Semantics(
     }
 
     SemanticsComponentNode(
-        container=container,
-        explicitChildNodes=explicitChildNodes,
-        semanticsConfiguration=semanticsConfiguration
+        container = container,
+        explicitChildNodes = explicitChildNodes,
+        semanticsConfiguration = semanticsConfiguration
     ) {
         TestTag(tag = DefaultTestTag) {
             children()
