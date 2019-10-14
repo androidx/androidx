@@ -84,15 +84,17 @@ public class ExifInterfaceTest {
     private static final String EXIF_BYTE_ORDER_MM_JPEG = "image_exif_byte_order_mm.jpg";
     private static final String LG_G4_ISO_800_DNG = "lg_g4_iso_800_dng.dng";
     private static final String LG_G4_ISO_800_JPG = "lg_g4_iso_800_jpg.jpg";
-    private static final String EXIF_BYTE_ORDER_II_PNG = "image_exif_byte_order_ii_png.png";
-    private static final String EXIF_BYTE_ORDER_II_WEBP = "image_exif_byte_order_ii_webp.webp";
+    private static final String WEBP_WITH_EXIF = "webp_with_exif.webp";
+    private static final String PNG_WITH_EXIF_BYTE_ORDER_II = "png_with_exif_byte_order_ii.png";
+    private static final String PNG_WITHOUT_EXIF = "png_without_exif.png";
     private static final int[] IMAGE_RESOURCES = new int[] {
             R.raw.image_exif_byte_order_ii, R.raw.image_exif_byte_order_mm, R.raw.lg_g4_iso_800_dng,
-            R.raw.lg_g4_iso_800_jpg, R.raw.image_exif_byte_order_ii_png,
-            R.raw.image_exif_byte_order_ii_webp};
+            R.raw.lg_g4_iso_800_jpg, R.raw.png_with_exif_byte_order_ii, R.raw.png_without_exif,
+            R.raw.webp_with_exif};
     private static final String[] IMAGE_FILENAMES = new String[] {
             EXIF_BYTE_ORDER_II_JPEG, EXIF_BYTE_ORDER_MM_JPEG, LG_G4_ISO_800_DNG,
-            LG_G4_ISO_800_JPG, EXIF_BYTE_ORDER_II_PNG, EXIF_BYTE_ORDER_II_WEBP};
+            LG_G4_ISO_800_JPG, PNG_WITH_EXIF_BYTE_ORDER_II, PNG_WITHOUT_EXIF,
+            WEBP_WITH_EXIF};
 
     private static final int USER_READ_WRITE = 0600;
     private static final String TEST_TEMP_FILE_NAME = "testImage";
@@ -389,45 +391,59 @@ public class ExifInterfaceTest {
 
     @Test
     @LargeTest
-    public void testReadExifDataFromExifByteOrderIIJpeg() throws Throwable {
-        testExifInterfaceForJpeg(EXIF_BYTE_ORDER_II_JPEG, R.array.exifbyteorderii_jpg);
+    public void testExifByteOrderIIJpegForReadAndWrite() throws Throwable {
+        testExifInterfaceForReadAndWrite(EXIF_BYTE_ORDER_II_JPEG, R.array.exifbyteorderii_jpg);
     }
 
     @Test
     @LargeTest
-    public void testReadExifDataFromExifByteOrderMMJpeg() throws Throwable {
-        testExifInterfaceForJpeg(EXIF_BYTE_ORDER_MM_JPEG, R.array.exifbyteordermm_jpg);
+    public void testExifByteOrderMMJpegForReadAndWrite() throws Throwable {
+        testExifInterfaceForReadAndWrite(EXIF_BYTE_ORDER_MM_JPEG, R.array.exifbyteordermm_jpg);
     }
 
     @Test
     @LargeTest
-    public void testReadExifDataFromLgG4Iso800Dng() throws Throwable {
-        testExifInterface(LG_G4_ISO_800_DNG, R.array.lg_g4_iso_800_dng);
+    public void testLgG4Iso800DngForRead() throws Throwable {
+        testExifInterfaceForRead(LG_G4_ISO_800_DNG, R.array.lg_g4_iso_800_dng);
     }
 
     @Test
     @LargeTest
-    public void testReadExifDataFromLgG4Iso800Jpg() throws Throwable {
-        testExifInterfaceForJpeg(LG_G4_ISO_800_JPG, R.array.lg_g4_iso_800_jpg);
+    public void testLgG4Iso800JpgForReadAndWrite() throws Throwable {
+        testExifInterfaceForReadAndWrite(LG_G4_ISO_800_JPG, R.array.lg_g4_iso_800_jpg);
     }
 
     @Test
     @LargeTest
-    public void testReadExifDataFromExifByteOrderIIPng() throws Throwable {
-        testExifInterface(EXIF_BYTE_ORDER_II_PNG, R.array.exifbyteorderii_png);
+    public void testExifByteOrderIIPngForReadAndWrite() throws Throwable {
+        testExifInterfaceForReadAndWrite(PNG_WITH_EXIF_BYTE_ORDER_II, R.array.exifbyteorderii_png);
     }
 
     @Test
     @LargeTest
-    public void testReadExifDataFromStandaloneData() throws Throwable {
+    public void testStandaloneDataForRead() throws Throwable {
         testExifInterfaceForStandalone(EXIF_BYTE_ORDER_II_JPEG, R.array.exifbyteorderii_standalone);
         testExifInterfaceForStandalone(EXIF_BYTE_ORDER_MM_JPEG, R.array.exifbyteordermm_standalone);
     }
 
     @Test
     @LargeTest
-    public void testReadExifDataFromExifByteOrderIIWebp() throws Throwable {
-        testExifInterface(EXIF_BYTE_ORDER_II_WEBP, R.array.exifbyteorderii_webp);
+    public void testExifByteOrderIIWebpForRead() throws Throwable {
+        testExifInterfaceForRead(WEBP_WITH_EXIF, R.array.exifbyteorderii_webp);
+    }
+
+    @Test
+    @LargeTest
+    public void testPngWithoutExifForWrite() throws Throwable {
+        File imageFile = new File(Environment.getExternalStorageDirectory(), PNG_WITHOUT_EXIF);
+
+        ExifInterface exifInterface = new ExifInterface(imageFile.getAbsolutePath());
+        exifInterface.setAttribute(ExifInterface.TAG_MAKE, "abc");
+        exifInterface.saveAttributes();
+
+        exifInterface = new ExifInterface(imageFile.getAbsolutePath());
+        String make = exifInterface.getAttribute(ExifInterface.TAG_MAKE);
+        assertEquals("abc", make);
     }
 
     @Test
@@ -976,7 +992,7 @@ public class ExifInterfaceTest {
         compareWithExpectedValue(exifInterface, expectedValue, verboseTag, false);
     }
 
-    private void testExifInterfaceForJpeg(String fileName, int typedArrayResourceId)
+    private void testExifInterfaceForReadAndWrite(String fileName, int typedArrayResourceId)
             throws IOException {
         ExpectedValue expectedValue = new ExpectedValue(
                 getApplicationContext().getResources().obtainTypedArray(typedArrayResourceId));
@@ -988,7 +1004,7 @@ public class ExifInterfaceTest {
         testSaveAttributes_withFileName(fileName, expectedValue);
     }
 
-    private void testExifInterface(String fileName, int typedArrayResourceId)
+    private void testExifInterfaceForRead(String fileName, int typedArrayResourceId)
             throws IOException {
         ExpectedValue expectedValue = new ExpectedValue(
                 getApplicationContext().getResources().obtainTypedArray(typedArrayResourceId));
