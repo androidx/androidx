@@ -18,6 +18,7 @@ package androidx.recyclerview.widget
 
 import android.view.ViewGroup
 import androidx.test.filters.SmallTest
+import androidx.testutils.TestExecutor
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -36,8 +37,8 @@ class ListAdapterTest {
     private val diffThread = TestExecutor()
 
     private val differConfig = AsyncDifferConfig.Builder(STRING_DIFF_CALLBACK)
-            .setBackgroundThreadExecutor(diffThread)
-            .build()
+        .setBackgroundThreadExecutor(diffThread)
+        .build()
 
     inner class Adapter(
         private val onChanged: AsyncListDiffer.ListListener<String>? = null

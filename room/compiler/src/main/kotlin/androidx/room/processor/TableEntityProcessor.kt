@@ -65,19 +65,16 @@ class TableEntityProcessor internal constructor(
         val entityIndices: List<IndexInput>
         val foreignKeyInputs: List<ForeignKeyInput>
         val inheritSuperIndices: Boolean
-        val ignoredColumns: Set<String>
         if (annotationBox != null) {
             tableName = extractTableName(element, annotationBox.value)
             entityIndices = extractIndices(annotationBox, tableName)
             inheritSuperIndices = annotationBox.value.inheritSuperIndices
             foreignKeyInputs = extractForeignKeys(annotationBox)
-            ignoredColumns = annotationBox.value.ignoredColumns.toSet()
         } else {
             tableName = element.simpleName.toString()
             foreignKeyInputs = emptyList()
             entityIndices = emptyList()
             inheritSuperIndices = false
-            ignoredColumns = emptySet()
         }
         context.checker.notBlank(tableName, element,
                 ProcessorErrors.ENTITY_TABLE_NAME_CANNOT_BE_EMPTY)
@@ -85,12 +82,12 @@ class TableEntityProcessor internal constructor(
                 ProcessorErrors.ENTITY_TABLE_NAME_CANNOT_START_WITH_SQLITE)
 
         val pojo = PojoProcessor.createFor(
-                context = context,
-                element = element,
-                bindingScope = FieldProcessor.BindingScope.TWO_WAY,
-                parent = null,
-                referenceStack = referenceStack,
-                ignoredColumns = ignoredColumns).process()
+            context = context,
+            element = element,
+            bindingScope = FieldProcessor.BindingScope.TWO_WAY,
+            parent = null,
+            referenceStack = referenceStack
+        ).process()
         context.checker.check(pojo.relations.isEmpty(), element, RELATION_IN_ENTITY)
 
         val fieldIndices = pojo.fields

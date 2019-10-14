@@ -33,6 +33,7 @@ import androidx.room.integration.kotlintestapp.vo.BookWithJavaEntity
 import androidx.room.integration.kotlintestapp.vo.BookWithPublisher
 import androidx.room.integration.kotlintestapp.vo.DateConverter
 import androidx.room.integration.kotlintestapp.vo.Lang
+import androidx.room.integration.kotlintestapp.vo.MiniBook
 import androidx.room.integration.kotlintestapp.vo.Publisher
 import androidx.room.integration.kotlintestapp.vo.PublisherWithBookSales
 import androidx.room.integration.kotlintestapp.vo.PublisherWithBooks
@@ -43,6 +44,7 @@ import io.reactivex.Completable
 import io.reactivex.Flowable
 import io.reactivex.Maybe
 import io.reactivex.Single
+import kotlinx.coroutines.flow.Flow
 import java.util.Date
 
 @Dao
@@ -114,6 +116,9 @@ interface BooksDao {
 
     @Insert
     fun addBooks(vararg books: Book)
+
+    @Insert(entity = Book::class)
+    fun addMiniBook(miniBook: MiniBook)
 
     @Insert
     fun addBookAuthors(vararg bookAuthors: BookAuthor)
@@ -376,4 +381,14 @@ interface BooksDao {
             insertBookSuspend(book)
         }
     }
+
+    @Query("SELECT * FROM book")
+    fun getBooksFlow(): Flow<List<Book>>
+
+    @Transaction
+    @Query("SELECT * FROM book")
+    fun getBooksFlowInTransaction(): Flow<List<Book>>
+
+    @Query("SELECT * FROM book WHERE bookId = :id")
+    fun getOneBooksFlow(id: String): Flow<Book?>
 }

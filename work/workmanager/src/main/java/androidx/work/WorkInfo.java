@@ -16,6 +16,7 @@
 
 package androidx.work;
 
+import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 
@@ -36,6 +37,7 @@ public final class WorkInfo {
     private @NonNull State mState;
     private @NonNull Data mOutputData;
     private @NonNull Set<String> mTags;
+    private @NonNull Data mProgress;
     private int mRunAttemptCount;
 
     /**
@@ -47,11 +49,13 @@ public final class WorkInfo {
             @NonNull State state,
             @NonNull Data outputData,
             @NonNull List<String> tags,
+            @NonNull Data progress,
             int runAttemptCount) {
         mId = id;
         mState = state;
         mOutputData = outputData;
         mTags = new HashSet<>(tags);
+        mProgress = progress;
         mRunAttemptCount = runAttemptCount;
     }
 
@@ -93,11 +97,21 @@ public final class WorkInfo {
     }
 
     /**
+     * Gets the progress {@link Data} associated with the {@link WorkRequest}.
+     *
+     * @return The progress {@link Data} associated with the {@link WorkRequest}
+     */
+    public @NonNull Data getProgress() {
+        return mProgress;
+    }
+
+    /**
      * Gets the run attempt count of the {@link WorkRequest}.  Note that for
      * {@link PeriodicWorkRequest}s, the run attempt count gets reset between successful runs.
      *
      * @return The run attempt count of the {@link WorkRequest}.
      */
+    @IntRange(from = 0)
     public int getRunAttemptCount() {
         return mRunAttemptCount;
     }
@@ -113,7 +127,8 @@ public final class WorkInfo {
         if (!mId.equals(workInfo.mId)) return false;
         if (mState != workInfo.mState) return false;
         if (!mOutputData.equals(workInfo.mOutputData)) return false;
-        return mTags.equals(workInfo.mTags);
+        if (!mTags.equals(workInfo.mTags)) return false;
+        return mProgress.equals(workInfo.mProgress);
     }
 
     @Override
@@ -122,6 +137,7 @@ public final class WorkInfo {
         result = 31 * result + mState.hashCode();
         result = 31 * result + mOutputData.hashCode();
         result = 31 * result + mTags.hashCode();
+        result = 31 * result + mProgress.hashCode();
         result = 31 * result + mRunAttemptCount;
         return result;
     }
@@ -133,6 +149,7 @@ public final class WorkInfo {
                 +   ", mState=" + mState
                 +   ", mOutputData=" + mOutputData
                 +   ", mTags=" + mTags
+                +   ", mProgress=" + mProgress
                 + '}';
     }
 

@@ -16,7 +16,7 @@
 
 package androidx.media2.player;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
 import android.media.AudioTrack;
 import android.os.Build;
@@ -75,7 +75,7 @@ import java.lang.annotation.RetentionPolicy;
  */
 public final class PlaybackParams {
     /** @hide */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RestrictTo(LIBRARY)
     @IntDef(
             value = {
                     AUDIO_FALLBACK_MODE_DEFAULT,
@@ -160,7 +160,7 @@ public final class PlaybackParams {
      *
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RestrictTo(LIBRARY)
     @RequiresApi(23)
     public android.media.PlaybackParams getPlaybackParams() {
         if (Build.VERSION.SDK_INT >= 23) {
@@ -190,7 +190,7 @@ public final class PlaybackParams {
         }
 
         /** @hide */
-        @RestrictTo(LIBRARY_GROUP_PREFIX)
+        @RestrictTo(LIBRARY)
         @RequiresApi(23)
         public Builder(android.media.PlaybackParams playbackParams) {
             mPlaybackParams = playbackParams;
@@ -232,10 +232,13 @@ public final class PlaybackParams {
          * Sets the pitch factor.
          *
          * @return this <code>Builder</code> instance.
-         * @throws IllegalArgumentException if the pitch is negative.
+         * @throws IllegalArgumentException if the pitch is negative or zero.
          */
         public @NonNull Builder setPitch(
-                @FloatRange(from = 0.0f, to = Float.MAX_VALUE) float pitch) {
+                @FloatRange(from = 0.0f, to = Float.MAX_VALUE, fromInclusive = false) float pitch) {
+            if (pitch == 0.f) {
+                throw new IllegalArgumentException("0 pitch is not allowed");
+            }
             if (pitch < 0.f) {
                 throw new IllegalArgumentException("pitch must not be negative");
             }
@@ -251,6 +254,7 @@ public final class PlaybackParams {
          * Sets the speed factor.
          *
          * @return this <code>Builder</code> instance.
+         * @throws IllegalArgumentException if the speed is negative or zero.
          */
         public @NonNull Builder setSpeed(
                 @FloatRange(from = 0.0f, to = Float.MAX_VALUE, fromInclusive = false) float speed) {

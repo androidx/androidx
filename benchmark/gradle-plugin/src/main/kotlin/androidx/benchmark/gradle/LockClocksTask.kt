@@ -17,24 +17,36 @@
 package androidx.benchmark.gradle
 
 import org.gradle.api.DefaultTask
+import org.gradle.api.GradleException
+import org.gradle.api.provider.Property
+import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.TaskAction
+import org.gradle.kotlin.dsl.property
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.nio.file.StandardCopyOption
-import javax.inject.Inject
 
-open class LockClocksTask @Inject constructor(private val adb: Adb) : DefaultTask() {
+open class LockClocksTask : DefaultTask() {
     init {
         group = "Android"
         description = "locks clocks of connected, supported, rooted device"
     }
 
+    @Input
+    val adbPath: Property<String> = project.objects.property()
+
     @Suppress("unused")
     @TaskAction
     fun exec() {
-        // Skip "adb root" if already rooted as it will fail.
-        if (adb.execSync("shell su exit", shouldThrow = false).exitValue != 0) {
-            adb.execSync("root")
+        val adb = Adb(adbPath.get(), logger)
+
+        adb.execSync("root", silent = true, shouldThrow = false)
+
+        val isAdbdRoot = adb.isAdbdRoot()
+        val isRooted = isAdbdRoot || adb.isSuInstalled()
+
+        if (!isRooted) {
+            throw GradleException("Your device must be rooted to lock clocks.")
         }
 
         val dest = "/data/local/tmp/lockClocks.sh"
@@ -49,7 +61,14 @@ open class LockClocksTask @Inject constructor(private val adb: Adb) : DefaultTas
 
         // Files pushed by adb push don't always preserve file permissions.
         adb.execSync("shell chmod 700 $dest")
-        adb.execSync("shell $dest")
+        if (!isAdbdRoot) {
+            // Default shell is not running as root, escalate with su 0. Although the root group is
+            // su's default, using syntax different from "su gid cmd", can cause the adb shell
+            // command to hang on some devices.
+            adb.execSync("shell su 0 $dest")
+        } else {
+            adb.execSync("shell $dest")
+        }
         adb.execSync("shell rm $dest")
     }
 }

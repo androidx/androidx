@@ -38,7 +38,8 @@ import androidx.recyclerview.widget.RecyclerView;
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public class DropShadowScrollListener extends RecyclerView.OnScrollListener {
-    private static final String TAG = "DropShadowScrollListener";
+    // TAG is abbreviated to meet 23 character limit for log tags.
+    private static final String TAG = "ShadowScrollListener";
     private static final int ANIMATION_DURATION_MS = 100;
 
     private final View mElevationView;

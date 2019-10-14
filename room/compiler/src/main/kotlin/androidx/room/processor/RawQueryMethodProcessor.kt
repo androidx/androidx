@@ -64,6 +64,7 @@ class RawQueryMethodProcessor(
                 inTransaction = inTransaction,
                 queryResultBinder = resultBinder
         )
+        // TODO: Lift this restriction, to allow for INSERT, UPDATE and DELETE raw statements.
         context.checker.check(rawQueryMethod.returnsValue, executableElement,
                 ProcessorErrors.RAW_QUERY_BAD_RETURN_TYPE)
         return rawQueryMethod

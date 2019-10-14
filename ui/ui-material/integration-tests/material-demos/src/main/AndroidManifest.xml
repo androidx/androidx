@@ -1,0 +1,191 @@
+<!--
+  ~ Copyright (C) 2016 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License
+  -->
+
+<manifest
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    package="androidx.ui.material.demos">
+
+    <application>
+        <activity
+            android:name=".ButtonActivity"
+            android:configChanges="orientation|screenSize"
+            android:label="Material/Buttons">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="androidx.ui.demos.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".DividersSpacersActivity"
+            android:configChanges="orientation|screenSize"
+            android:label="Material/Dividers And Spacers">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="androidx.ui.demos.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".ProgressIndicatorActivity"
+            android:configChanges="orientation|screenSize"
+            android:label="Material/Progress Indicators">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="androidx.ui.demos.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".RippleActivity"
+            android:configChanges="orientation|screenSize"
+            android:label="Material/Ripples">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="androidx.ui.demos.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".SelectionControlsActivity"
+            android:configChanges="orientation|screenSize"
+            android:label="Material/Selection Controls">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="androidx.ui.demos.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".ModalDrawerActivity"
+            android:configChanges="orientation|screenSize"
+            android:label="Material/Drawer. Modal">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="androidx.ui.demos.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".BottomDrawerActivity"
+            android:configChanges="orientation|screenSize"
+            android:label="Material/Drawer. Bottom">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="androidx.ui.demos.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".StaticDrawerActivity"
+            android:configChanges="orientation|screenSize"
+            android:label="Material/Drawer. Static">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="androidx.ui.demos.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".TextActivity"
+            android:configChanges="orientation|screenSize"
+            android:label="Material/Text">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="androidx.ui.demos.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".FloatingActionButtonActivity"
+            android:configChanges="orientation|screenSize"
+            android:label="Material/Floating Action Button">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="androidx.ui.demos.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".AppBarActivity"
+            android:configChanges="orientation|screenSize"
+            android:label="Material/App Bar">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="androidx.ui.demos.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
+        <activity android:name=".CustomShapeActivity"
+            android:configChanges="orientation|screenSize"
+            android:label="Material/Custom shapes">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="androidx.ui.demos.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
+        <activity android:name=".TabActivity"
+            android:configChanges="orientation|screenSize"
+            android:label="Material/Tabs">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="androidx.ui.demos.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
+        <activity android:name=".DataTableActivity"
+                  android:configChanges="orientation|screenSize"
+                  android:label="Material/Data tables">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="androidx.ui.demos.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
+        <activity android:name=".MaterialSettingsActivity"
+                  android:label="Material Theme Settings"
+                  android:theme="@style/Theme.AppCompat.Light.DarkActionBar">
+        </activity>
+
+        <activity android:name=".SideBySideAlertDialogActivity"
+            android:configChanges="orientation|screenSize"
+            android:label="Material/AlertDialog.SideBySide">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="androidx.ui.demos.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
+        <activity android:name=".StackedAlertDialogActivity"
+            android:configChanges="orientation|screenSize"
+            android:label="Material/AlertDialog.Stacked">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="androidx.ui.demos.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
+        <activity android:name=".ListItemActivity"
+            android:configChanges="orientation|screenSize"
+            android:label="Material/List Items">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="androidx.ui.demos.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+    </application>
+</manifest>

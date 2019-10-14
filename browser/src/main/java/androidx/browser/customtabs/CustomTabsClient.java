@@ -16,8 +16,7 @@
 
 package androidx.browser.customtabs;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
-
+import android.app.PendingIntent;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -36,7 +35,6 @@ import android.text.TextUtils;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
-import androidx.browser.customtabs.CustomTabsService.Relation;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -48,12 +46,14 @@ import java.util.List;
 public class CustomTabsClient {
     private final ICustomTabsService mService;
     private final ComponentName mServiceComponentName;
+    private final Context mApplicationContext;
 
-    /** @hide */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
-    CustomTabsClient(ICustomTabsService service, ComponentName componentName) {
+    /**@hide*/
+    CustomTabsClient(ICustomTabsService service, ComponentName componentName,
+            Context applicationContext) {
         mService = service;
         mServiceComponentName = componentName;
+        mApplicationContext = applicationContext;
     }
 
     /**
@@ -68,8 +68,9 @@ public class CustomTabsClient {
      *                    #onCustomTabsServiceConnected(ComponentName, CustomTabsClient)}
      * @return Whether the binding was successful.
      */
-    public static boolean bindCustomTabsService(Context context,
-            String packageName, CustomTabsServiceConnection connection) {
+    public static boolean bindCustomTabsService(@NonNull Context context,
+            @Nullable String packageName, @NonNull CustomTabsServiceConnection connection) {
+        connection.setApplicationContext(context.getApplicationContext());
         Intent intent = new Intent(CustomTabsService.ACTION_CUSTOM_TABS_CONNECTION);
         if (!TextUtils.isEmpty(packageName)) intent.setPackage(packageName);
         return context.bindService(intent, connection,
@@ -78,10 +79,9 @@ public class CustomTabsClient {
 
     /**
      * Returns the preferred package to use for Custom Tabs, preferring the default VIEW handler.
-     *
-     * see getPackageName(Context, List<String>, boolean)
      */
-    public static String getPackageName(Context context, @Nullable List<String> packages) {
+    public static @Nullable String getPackageName(@NonNull Context context,
+            @Nullable List<String> packages) {
         return getPackageName(context, packages, false);
     }
 
@@ -137,7 +137,8 @@ public class CustomTabsClient {
      * @param packageName Package name of the target implementation.
      * @return Whether the binding was successful.
      */
-    public static boolean connectAndInitialize(Context context, String packageName) {
+    public static boolean connectAndInitialize(@NonNull Context context,
+            @NonNull String packageName) {
         if (packageName == null) return false;
         final Context applicationContext = context.getApplicationContext();
         CustomTabsServiceConnection connection = new CustomTabsServiceConnection() {
@@ -178,6 +179,12 @@ public class CustomTabsClient {
         }
     }
 
+    private static PendingIntent createSessionId(Context context, int sessionId) {
+        // Create a {@link PendingIntent} with empty Action to prevent using it other than
+        // a session identifier.
+        return PendingIntent.getActivity(context, sessionId, new Intent(), 0);
+    }
+
     /**
      * Creates a new session through an ICustomTabsService with the optional callback. This session
      * can be used to associate any related communication through the service with an intent and
@@ -187,10 +194,88 @@ public class CustomTabsClient {
      *                 session. Can be null. All the callbacks will be received on the UI thread.
      * @return The session object that was created as a result of the transaction. The client can
      *         use this to relay session specific calls.
-     *         Null on error.
+     *         Null if the service failed to respond (threw a RemoteException).
      */
-    public CustomTabsSession newSession(final CustomTabsCallback callback) {
-        ICustomTabsCallback.Stub wrapper = new ICustomTabsCallback.Stub() {
+    public @Nullable CustomTabsSession newSession(@Nullable final CustomTabsCallback callback) {
+        return newSessionInternal(callback, null);
+    }
+
+    /**
+     * Creates a new session or updates a callback for the existing session
+     * through an ICustomTabsService. This session can be used to associate any related
+     * communication through the service with an intent and then later with a Custom Tab.
+     * The client can then send later service calls or intents to through same
+     * session-intent-Custom Tab association.
+     * @param callback The callback through which the client will receive updates about the created
+     *                 session. Can be null. All the callbacks will be received on the UI thread.
+     * @param id The session id. If the session with the specified id already exists for the given
+     *           client application, the new callback is supplied to that session and further
+     *           attempts to launch URLs using that session will update the existing Custom Tab
+     *           instead of launching a new one.
+     * @return The session object that was created as a result of the transaction. The client can
+     *         use this to relay session specific calls.
+     *         Null if the service failed to respond (threw a RemoteException).
+     *         If {@code null} is returned, attempt using {@link #newSession(CustomTabsCallback)}
+     *         which is supported with older browsers.
+     */
+    public @Nullable CustomTabsSession newSession(@Nullable final CustomTabsCallback callback,
+            int id) {
+        return newSessionInternal(callback, createSessionId(mApplicationContext, id));
+    }
+
+    /**
+     * Creates a new pending session with an optional callback. This session can be converted to
+     * a standard session using {@link #attachSession} after connection.
+     *
+     * {@see PendingSession}
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public static CustomTabsSession.PendingSession newPendingSession(
+            Context context, final CustomTabsCallback callback, int id) {
+        PendingIntent sessionId = createSessionId(context, id);
+
+        return new CustomTabsSession.PendingSession(callback, sessionId);
+    }
+
+    private @Nullable CustomTabsSession newSessionInternal(
+            @Nullable final CustomTabsCallback callback, @Nullable PendingIntent sessionId) {
+        ICustomTabsCallback.Stub wrapper = createCallbackWrapper(callback);
+
+        try {
+            boolean success;
+
+            if (sessionId != null) {
+                Bundle extras = new Bundle();
+                extras.putParcelable(CustomTabsIntent.EXTRA_SESSION_ID, sessionId);
+                success = mService.newSessionWithExtras(wrapper, extras);
+            } else {
+                success = mService.newSession(wrapper);
+            }
+
+            if (!success) return null;
+        } catch (RemoteException e) {
+            return null;
+        }
+        return new CustomTabsSession(mService, wrapper, mServiceComponentName, sessionId);
+    }
+
+    /**
+     * Can be used as a channel between the Custom Tabs client and the provider to do something that
+     * is not part of the API yet.
+     */
+    @SuppressWarnings("NullAway") // TODO: b/141869399
+    public @Nullable Bundle extraCommand(@NonNull String commandName, @Nullable Bundle args) {
+        try {
+            return mService.extraCommand(commandName, args);
+        } catch (RemoteException e) {
+            return null;
+        }
+    }
+
+    private ICustomTabsCallback.Stub createCallbackWrapper(
+            @Nullable final CustomTabsCallback callback) {
+        return new ICustomTabsCallback.Stub() {
             private Handler mHandler = new Handler(Looper.getMainLooper());
 
             @Override
@@ -214,6 +299,15 @@ public class CustomTabsClient {
                         callback.extraCallback(callbackName, args);
                     }
                 });
+            }
+
+            @Override
+            @SuppressWarnings("NullAway") // TODO: b/141869399
+            public Bundle extraCallbackWithResult(@NonNull String callbackName,
+                    @Nullable Bundle args)
+                    throws RemoteException {
+                if (callback == null) return null;
+                return callback.extraCallbackWithResult(callbackName, args);
             }
 
             @Override
@@ -242,8 +336,8 @@ public class CustomTabsClient {
 
             @Override
             public void onRelationshipValidationResult(
-                    final @Relation int relation, final Uri requestedOrigin, final boolean result,
-                    final @Nullable Bundle extras) throws RemoteException {
+                    final @CustomTabsService.Relation int relation, final Uri requestedOrigin,
+                    final boolean result, final @Nullable Bundle extras) throws RemoteException {
                 if (callback == null) return;
                 mHandler.post(new Runnable() {
                     @Override
@@ -254,20 +348,17 @@ public class CustomTabsClient {
                 });
             }
         };
-
-        try {
-            if (!mService.newSession(wrapper)) return null;
-        } catch (RemoteException e) {
-            return null;
-        }
-        return new CustomTabsSession(mService, wrapper, mServiceComponentName);
     }
 
-    public Bundle extraCommand(String commandName, Bundle args) {
-        try {
-            return mService.extraCommand(commandName, args);
-        } catch (RemoteException e) {
-            return null;
-        }
+    /**
+     * Associate {@link CustomTabsSession.PendingSession} with the service
+     * and turn it into a {@link CustomTabsSession}.
+     *
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @SuppressWarnings("NullAway") // TODO: b/141869399
+    public CustomTabsSession attachSession(CustomTabsSession.PendingSession session) {
+        return newSessionInternal(session.getCallback(), session.getId());
     }
 }

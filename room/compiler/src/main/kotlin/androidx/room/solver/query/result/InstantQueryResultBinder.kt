@@ -48,13 +48,16 @@ class InstantQueryResultBinder(adapter: QueryResultAdapter?) : QueryResultBinder
             val shouldCopyCursor = adapter?.shouldCopyCursor() == true
             val outVar = scope.getTmpVar("_result")
             val cursorVar = scope.getTmpVar("_cursor")
-            addStatement("final $T $L = $T.query($N, $L, $L)",
-                    AndroidTypeNames.CURSOR,
-                    cursorVar,
-                    RoomTypeNames.DB_UTIL,
-                    dbField,
-                    roomSQLiteQueryVar,
-                    if (shouldCopyCursor) "true" else "false")
+            addStatement(
+                "final $T $L = $T.query($N, $L, $L, $L)",
+                AndroidTypeNames.CURSOR,
+                cursorVar,
+                RoomTypeNames.DB_UTIL,
+                dbField,
+                roomSQLiteQueryVar,
+                if (shouldCopyCursor) "true" else "false",
+                "null"
+            )
             beginControlFlow("try").apply {
                 adapter?.convert(outVar, cursorVar, scope)
                 transactionWrapper?.commitTransaction()

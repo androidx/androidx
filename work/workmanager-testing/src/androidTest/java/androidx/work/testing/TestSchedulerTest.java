@@ -20,10 +20,15 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 import android.content.Context;
+import android.os.Handler;
+import android.os.Looper;
+import android.util.Log;
 
+import androidx.lifecycle.Observer;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
+import androidx.work.Configuration;
 import androidx.work.Constraints;
 import androidx.work.NetworkType;
 import androidx.work.OneTimeWorkRequest;
@@ -41,7 +46,11 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.Collections;
+import java.util.List;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 @RunWith(AndroidJUnit4.class)
@@ -50,11 +59,18 @@ public class TestSchedulerTest {
 
     private Context mContext;
     private TestDriver mTestDriver;
+    private Handler mHandler;
 
     @Before
     public void setUp() {
         mContext = ApplicationProvider.getApplicationContext();
-        WorkManagerTestInitHelper.initializeTestWorkManager(mContext);
+        mHandler = new Handler(Looper.getMainLooper());
+        // Don't set the task executor
+        Configuration configuration = new Configuration.Builder()
+                .setExecutor(new SynchronousExecutor())
+                .setMinimumLoggingLevel(Log.DEBUG)
+                .build();
+        WorkManagerTestInitHelper.initializeTestWorkManager(mContext, configuration);
         mTestDriver = WorkManagerTestInitHelper.getTestDriver(mContext);
         CountingTestWorker.COUNT.set(0);
     }
@@ -159,6 +175,131 @@ public class TestSchedulerTest {
             WorkInfo requestStatus = workManager.getWorkInfoById(request.getId()).get();
             assertThat(requestStatus.getState().isFinished(), is(false));
         }
+    }
+
+    @Test
+    public void testWorker_afterSuccessfulRun_postConditions()
+            throws InterruptedException, ExecutionException {
+
+        OneTimeWorkRequest request = createWorkRequest();
+        WorkManager workManager = WorkManager.getInstance(mContext);
+        workManager.enqueue(request).getResult().get();
+        WorkInfo status = workManager.getWorkInfoById(request.getId()).get();
+        assertThat(status.getState().isFinished(), is(true));
+        mTestDriver.setAllConstraintsMet(request.getId());
+        mTestDriver.setInitialDelayMet(request.getId());
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testWorker_afterSuccessfulRun_throwsExceptionWhenSetPeriodDelayMet()
+            throws InterruptedException, ExecutionException {
+
+        OneTimeWorkRequest request = createWorkRequest();
+        WorkManager workManager = WorkManager.getInstance(mContext);
+        workManager.enqueue(request).getResult().get();
+        WorkInfo status = workManager.getWorkInfoById(request.getId()).get();
+        assertThat(status.getState().isFinished(), is(true));
+        mTestDriver.setPeriodDelayMet(request.getId());
+    }
+
+    @Test
+    @LargeTest
+    public void testWorker_multipleSetInitialDelayMet_noDeadLock()
+            throws InterruptedException, ExecutionException {
+
+        Configuration configuration = new Configuration.Builder()
+                .setMinimumLoggingLevel(Log.DEBUG)
+                .build();
+        WorkManagerTestInitHelper.initializeTestWorkManager(mContext, configuration);
+        mTestDriver = WorkManagerTestInitHelper.getTestDriver(mContext);
+
+        // This should not deadlock
+        final OneTimeWorkRequest request = createWorkRequest();
+        final WorkManager workManager = WorkManager.getInstance(mContext);
+        workManager.enqueue(request).getResult().get();
+        mTestDriver.setInitialDelayMet(request.getId());
+        mTestDriver.setInitialDelayMet(request.getId());
+
+        final CountDownLatch latch = new CountDownLatch(1);
+        // Use the main looper to observe LiveData because we are using a SerialExecutor which is
+        // wrapping a SynchronousExecutor.
+        mHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                workManager.getWorkInfoByIdLiveData(request.getId()).observeForever(
+                        new Observer<WorkInfo>() {
+                            @Override
+                            public void onChanged(WorkInfo workInfo) {
+                                if (workInfo != null && workInfo.getState().isFinished()) {
+                                    latch.countDown();
+                                }
+                            }
+                        });
+            }
+        });
+
+        latch.await(5, TimeUnit.SECONDS);
+        assertThat(latch.getCount(), is(0L));
+    }
+
+    @Test
+    @LargeTest
+    public void testWorker_multipleSetInitialDelayMetMultiThreaded_noDeadLock()
+            throws InterruptedException {
+
+        Configuration configuration = new Configuration.Builder()
+                .setMinimumLoggingLevel(Log.DEBUG)
+                .build();
+        WorkManagerTestInitHelper.initializeTestWorkManager(mContext, configuration);
+        mTestDriver = WorkManagerTestInitHelper.getTestDriver(mContext);
+
+        // This should not deadlock
+        final WorkManager workManager = WorkManager.getInstance(mContext);
+        int numberOfWorkers = 10;
+        final ExecutorService service = Executors.newFixedThreadPool(numberOfWorkers);
+        for (int i = 0; i < numberOfWorkers; i++) {
+            service.submit(new Runnable() {
+                @Override
+                public void run() {
+                    final OneTimeWorkRequest request = createWorkRequest();
+                    workManager.enqueue(request);
+                    mTestDriver.setInitialDelayMet(request.getId());
+                    mTestDriver.setInitialDelayMet(request.getId());
+                }
+            });
+        }
+
+        final CountDownLatch latch = new CountDownLatch(1);
+        // Use the main looper to observe LiveData because we are using a SerialExecutor which is
+        // wrapping a SynchronousExecutor.
+        mHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                // Using the implicit tag name.
+                workManager.getWorkInfosByTagLiveData(TestWorker.class.getName()).observeForever(
+                        new Observer<List<WorkInfo>>() {
+                            @Override
+                            public void onChanged(List<WorkInfo> workInfos) {
+                                boolean completed = true;
+                                if (workInfos != null && !workInfos.isEmpty()) {
+                                    for (WorkInfo workInfo : workInfos) {
+                                        if (!workInfo.getState().isFinished()) {
+                                            completed = false;
+                                            break;
+                                        }
+                                    }
+                                }
+                                if (completed) {
+                                    latch.countDown();
+                                }
+                            }
+                        });
+            }
+        });
+
+        latch.await(10, TimeUnit.SECONDS);
+        service.shutdownNow();
+        assertThat(latch.getCount(), is(0L));
     }
 
     private static OneTimeWorkRequest createWorkRequest() {

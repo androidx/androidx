@@ -16,6 +16,13 @@
 
 import static androidx.build.dependencies.DependenciesKt.*
 
+buildscript {
+    // TODO: Remove this when this test app no longer depends on 1.0.0 of vectordrawable-animated.
+    // vectordrawable and vectordrawable-animated were accidentally using the same package name
+    // which is no longer valid in namespaced resource world.
+    project.ext['android.uniquePackageNames'] = false
+}
+
 plugins {
     id("AndroidXPlugin")
     id("com.android.application")
@@ -25,7 +32,10 @@ android {
     defaultConfig {
         javaCompileOptions {
             annotationProcessorOptions {
-                arguments = ["room.schemaLocation": "$projectDir/schemas".toString()]
+                arguments = [
+                        "room.schemaLocation"  : "$projectDir/schemas".toString(),
+                        "room.expandProjection": "true"
+                ]
             }
         }
     }
@@ -41,22 +51,20 @@ dependencies {
     implementation(project(":sqlite:sqlite"))
     implementation(project(":sqlite:sqlite-framework"))
     implementation(project(":arch:core-runtime"))
-    implementation(project(":lifecycle:lifecycle-extensions"))
+    implementation(project(":lifecycle:lifecycle-livedata"))
 
     // FINDBUGS dependency resolves an app/testapp version conflict.
     implementation(FINDBUGS)
-    implementation(SUPPORT_RECYCLERVIEW, libs.support_exclude_config)
-    implementation(SUPPORT_APPCOMPAT, libs.support_exclude_config)
+    implementation("androidx.recyclerview:recyclerview:1.0.0")
+    implementation("androidx.appcompat:appcompat:1.0.0")
     annotationProcessor project(":room:room-compiler")
     androidTestAnnotationProcessor project(":room:room-compiler")
 
-    // IJ's gradle integration just cannot figure this out ...
-    androidTestImplementation(ARCH_LIFECYCLE_EXTENSIONS)
     androidTestImplementation(project(":room:room-testing"))
     androidTestImplementation(project(":room:room-rxjava2"))
     androidTestImplementation(project(":room:room-guava"))
-    androidTestImplementation(ARCH_CORE_TESTING)
-    androidTestImplementation(ARCH_PAGING_RUNTIME)
+    androidTestImplementation("androidx.arch.core:core-testing:2.0.1")
+    androidTestImplementation("androidx.paging:paging-runtime:2.0.0")
 
     // FINDBUGS dependency resolves an app/testapp version conflict.
     androidTestImplementation(FINDBUGS)

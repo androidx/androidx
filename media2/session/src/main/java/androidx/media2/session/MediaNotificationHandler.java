@@ -22,8 +22,6 @@ import static android.support.v4.media.session.PlaybackStateCompat.ACTION_SKIP_T
 import static android.support.v4.media.session.PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS;
 import static android.support.v4.media.session.PlaybackStateCompat.ACTION_STOP;
 
-import static androidx.annotation.VisibleForTesting.PACKAGE_PRIVATE;
-
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -35,8 +33,6 @@ import android.os.Build;
 import android.support.v4.media.session.PlaybackStateCompat;
 import android.view.KeyEvent;
 
-import androidx.annotation.RestrictTo;
-import androidx.annotation.VisibleForTesting;
 import androidx.core.app.NotificationCompat;
 import androidx.core.content.ContextCompat;
 import androidx.media.app.NotificationCompat.MediaStyle;
@@ -48,12 +44,8 @@ import java.util.List;
 /**
  * Provides default media notification for {@link MediaSessionService}, and set the service as
  * foreground/background according to the player state.
- *
- * @hide
  */
-@VisibleForTesting(otherwise = PACKAGE_PRIVATE)
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-public class MediaNotificationHandler extends
+/* package */ class MediaNotificationHandler extends
         MediaSession.SessionCallback.ForegroundServiceEventCallback {
     private static final int NOTIFICATION_ID = 1001;
     private static final String NOTIFICATION_CHANNEL_ID = "default_channel_id";
@@ -68,7 +60,7 @@ public class MediaNotificationHandler extends
     private final NotificationCompat.Action mSkipToPrevAction;
     private final NotificationCompat.Action mSkipToNextAction;
 
-    public MediaNotificationHandler(MediaSessionService service) {
+    MediaNotificationHandler(MediaSessionService service) {
         mServiceInstance = service;
         mStartSelfIntent = new Intent(mServiceInstance, mServiceInstance.getClass());
 

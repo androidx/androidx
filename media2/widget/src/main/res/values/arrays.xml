@@ -15,7 +15,7 @@
 -->
 
 <resources>
-    <integer-array name="speed_multiplied_by_100">
+    <integer-array name="media2_widget_speed_multiplied_by_100">
         <item>25</item>
         <item>50</item>
         <item>75</item>

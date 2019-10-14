@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright 2018 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/host_type_text_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <Button
+                android:id="@+id/can_authenticate"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/button_can_authenticate" />
+
+            <Button
+                android:id="@+id/button_authenticate"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/button_authenticate" />
+
+            <CheckBox
+                android:id="@+id/checkbox_require_confirmation"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:checked="true"
+                android:text="@string/checkbox_text_require_confirmation" />
+
+            <CheckBox
+                android:id="@+id/checkbox_allow_device_credential"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/checkbox_text_allow_device_credential" />
+
+            <RadioGroup
+                android:id="@+id/radio_group_biometric_prompt_configuration"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+
+                <RadioButton
+                    android:id="@+id/radio_persist_across_configuration_changes"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checked="true"
+                    android:text="@string/radio_text_persist_across_configuration_changes" />
+
+                <RadioButton
+                    android:id="@+id/radio_cancel_on_configuration_change"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/radio_text_cancel_on_configuration_change" />
+
+                <RadioButton
+                    android:id="@+id/radio_cancel_after_three_failures"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/radio_text_cancel_after_three_failures" />
+            </RadioGroup>
+
+            <Button
+                android:id="@+id/button_clear_log"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/button_clear_log" />
+
+            <TextView
+                android:id="@+id/log_text"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+
+        </LinearLayout>
+
+    </ScrollView>
+
+</LinearLayout>

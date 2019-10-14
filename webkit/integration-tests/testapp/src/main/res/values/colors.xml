@@ -20,4 +20,11 @@
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
     <color name="colorBackground">#546072</color>
+    <color name="colorTextBox">#BDC1C2</color>
+    <color name="interstitialBackground">#FF9292</color>
+    <color name="interstitialButton">#F52424</color>
+    <color name="linkColor">#2196F3</color>
+    <color name="colorActiveSwitchThumb">#B2243FD5</color>
+    <color name="colorInctiveSwitchThumb">#f1f1f1</color>
+    <color name="colorInctiveSwitchTrack">#8F9092</color>
 </resources>

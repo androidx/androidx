@@ -24,11 +24,13 @@ import android.content.Context;
 import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.view.LayoutInflater;
 import android.view.View;
 
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
+import androidx.viewpager2.test.R;
 
 import org.junit.Rule;
 import org.junit.Test;
@@ -87,6 +89,14 @@ public class BasicTest {
         assertThat((int) ((Bundle) recreatedAdapterState[0]).get("key"), equalTo(1));
         assertThat((int) ((Bundle) recreatedAdapterState[1]).get("key"), equalTo(2));
         assertThat((int) ((Bundle) recreatedAdapterState[2]).get("key"), equalTo(3));
+    }
+
+    @Test
+    public void test_inflateWithScrollbars() {
+        // when
+        LayoutInflater.from(ApplicationProvider.getApplicationContext()).inflate(
+                R.layout.vertical_scrollbars, null);
+        // then it shouldn't crash
     }
 
     private Bundle createIntBundle(int value) {

@@ -23,8 +23,8 @@ import android.view.animation.Interpolator;
 
 import androidx.test.filters.SmallTest;
 import androidx.test.rule.ActivityTestRule;
+import androidx.vectordrawable.animated.test.R;
 import androidx.vectordrawable.graphics.drawable.AnimationUtilsCompat;
-import androidx.vectordrawable.test.R;
 
 import org.junit.Before;
 import org.junit.Rule;

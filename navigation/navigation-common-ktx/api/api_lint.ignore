@@ -1,0 +1,29 @@
+// Baseline format: 1.0
+DocumentExceptions: androidx.navigation.NavArgumentBuilder#getType():
+    Method NavArgumentBuilder.getType appears to be throwing java.lang.IllegalStateException; this should be listed in the documentation; see https://android.github.io/kotlin-guides/interop.html#document-exceptions
+DocumentExceptions: androidx.navigation.NavGraphBuilder#build():
+    Method NavGraphBuilder.build appears to be throwing java.lang.IllegalStateException; this should be listed in the documentation; see https://android.github.io/kotlin-guides/interop.html#document-exceptions
+
+
+MissingBuild: androidx.navigation.AnimBuilder:
+    Missing `build()` method in androidx.navigation.AnimBuilder
+MissingBuild: androidx.navigation.NavActionBuilder:
+    Missing `build()` method in androidx.navigation.NavActionBuilder
+MissingBuild: androidx.navigation.NavOptionsBuilder:
+    Missing `build()` method in androidx.navigation.NavOptionsBuilder
+MissingBuild: androidx.navigation.PopUpToBuilder:
+    Missing `build()` method in androidx.navigation.PopUpToBuilder
+
+
+SetterReturnsThis: androidx.navigation.AnimBuilder:
+    Methods must return the builder object (return type AnimBuilder instead of void): method androidx.navigation.AnimBuilder.setEnter(int)
+SetterReturnsThis: androidx.navigation.NavActionBuilder:
+    Methods must return the builder object (return type NavActionBuilder instead of void): method androidx.navigation.NavActionBuilder.setDestinationId(int)
+SetterReturnsThis: androidx.navigation.NavArgumentBuilder:
+    Methods must return the builder object (return type NavArgumentBuilder instead of void): method androidx.navigation.NavArgumentBuilder.setType(androidx.navigation.NavType<?>)
+SetterReturnsThis: androidx.navigation.NavDestinationBuilder:
+    Methods must return the builder object (return type NavDestinationBuilder instead of void): method androidx.navigation.NavDestinationBuilder.setLabel(CharSequence)
+SetterReturnsThis: androidx.navigation.NavOptionsBuilder:
+    Methods must return the builder object (return type NavOptionsBuilder instead of void): method androidx.navigation.NavOptionsBuilder.setLaunchSingleTop(boolean)
+SetterReturnsThis: androidx.navigation.PopUpToBuilder:
+    Methods must return the builder object (return type PopUpToBuilder instead of void): method androidx.navigation.PopUpToBuilder.setInclusive(boolean)

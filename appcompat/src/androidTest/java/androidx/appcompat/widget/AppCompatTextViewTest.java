@@ -59,6 +59,7 @@ import androidx.core.text.PrecomputedTextCompat;
 import androidx.core.view.ViewCompat;
 import androidx.core.widget.TextViewCompat;
 import androidx.test.annotation.UiThreadTest;
+import androidx.test.filters.FlakyTest;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.MediumTest;
 import androidx.test.filters.SdkSuppress;
@@ -548,6 +549,7 @@ public class AppCompatTextViewTest
     }
 
     @Test
+    @FlakyTest
     public void testSetTextFuture() throws Throwable {
         final ManualExecutor executor = new ManualExecutor();
 
@@ -581,6 +583,7 @@ public class AppCompatTextViewTest
     }
 
     @Test
+    @FlakyTest
     public void testSetTextAsync_getTextBlockingTest() throws Throwable {
         final ManualExecutor executor = new ManualExecutor();
         mActivity.runOnUiThread(new Runnable() {
@@ -599,6 +602,7 @@ public class AppCompatTextViewTest
     }
 
     @Test
+    @FlakyTest
     public void testSetTextAsync_executionOrder() throws Throwable {
         final ManualExecutor executor = new ManualExecutor();
         mActivity.runOnUiThread(new Runnable() {

@@ -1,1 +1,32 @@
 // Signature format: 3.0
+package androidx.paging {
+
+  public final class RxPagedListBuilder<Key, Value> {
+    ctor public RxPagedListBuilder(kotlin.jvm.functions.Function0<? extends androidx.paging.PagedSource<Key,Value>> pagedSourceFactory, androidx.paging.PagedList.Config config);
+    ctor public RxPagedListBuilder(kotlin.jvm.functions.Function0<? extends androidx.paging.PagedSource<Key,Value>> pagedSourceFactory, int pageSize);
+    ctor public RxPagedListBuilder(androidx.paging.DataSource.Factory<Key,Value> dataSourceFactory, androidx.paging.PagedList.Config config);
+    ctor public RxPagedListBuilder(androidx.paging.DataSource.Factory<Key,Value> dataSourceFactory, int pageSize);
+    method public io.reactivex.Flowable<androidx.paging.PagedList<Value>> buildFlowable(io.reactivex.BackpressureStrategy backpressureStrategy);
+    method public io.reactivex.Observable<androidx.paging.PagedList<Value>> buildObservable();
+    method public androidx.paging.RxPagedListBuilder<Key,Value> setBoundaryCallback(androidx.paging.PagedList.BoundaryCallback<Value>? boundaryCallback);
+    method public androidx.paging.RxPagedListBuilder<Key,Value> setFetchScheduler(io.reactivex.Scheduler scheduler);
+    method public androidx.paging.RxPagedListBuilder<Key,Value> setInitialLoadKey(Key? key);
+    method public androidx.paging.RxPagedListBuilder<Key,Value> setNotifyScheduler(io.reactivex.Scheduler scheduler);
+  }
+
+  public final class RxPagedListKt {
+    ctor public RxPagedListKt();
+    method public static <Key, Value> io.reactivex.Flowable<androidx.paging.PagedList<Value>> toFlowable(androidx.paging.DataSource.Factory<Key,Value>, androidx.paging.PagedList.Config config, Key? initialLoadKey = null, androidx.paging.PagedList.BoundaryCallback<Value>? boundaryCallback = null, io.reactivex.Scheduler? fetchScheduler = null, io.reactivex.Scheduler? notifyScheduler = null, io.reactivex.BackpressureStrategy backpressureStrategy = io.reactivex.BackpressureStrategy.LATEST);
+    method public static <Key, Value> io.reactivex.Flowable<androidx.paging.PagedList<Value>> toFlowable(androidx.paging.DataSource.Factory<Key,Value>, int pageSize, Key? initialLoadKey = null, androidx.paging.PagedList.BoundaryCallback<Value>? boundaryCallback = null, io.reactivex.Scheduler? fetchScheduler = null, io.reactivex.Scheduler? notifyScheduler = null, io.reactivex.BackpressureStrategy backpressureStrategy = io.reactivex.BackpressureStrategy.LATEST);
+    method public static <Key, Value> io.reactivex.Observable<androidx.paging.PagedList<Value>> toObservable(androidx.paging.DataSource.Factory<Key,Value>, androidx.paging.PagedList.Config config, Key? initialLoadKey = null, androidx.paging.PagedList.BoundaryCallback<Value>? boundaryCallback = null, io.reactivex.Scheduler? fetchScheduler = null, io.reactivex.Scheduler? notifyScheduler = null);
+    method public static <Key, Value> io.reactivex.Observable<androidx.paging.PagedList<Value>> toObservable(androidx.paging.DataSource.Factory<Key,Value>, int pageSize, Key? initialLoadKey = null, androidx.paging.PagedList.BoundaryCallback<Value>? boundaryCallback = null, io.reactivex.Scheduler? fetchScheduler = null, io.reactivex.Scheduler? notifyScheduler = null);
+  }
+
+  public abstract class RxPagedSource<Key, Value> extends androidx.paging.PagedSource<Key,Value> {
+    ctor public RxPagedSource();
+    method public final suspend Object load(androidx.paging.PagedSource.LoadParams<Key> params, kotlin.coroutines.Continuation<? super androidx.paging.PagedSource.LoadResult<Key,Value>> p);
+    method public abstract io.reactivex.Single<androidx.paging.PagedSource.LoadResult<Key,Value>> loadSingle(androidx.paging.PagedSource.LoadParams<Key> params);
+  }
+
+}
+

@@ -28,7 +28,7 @@ import android.os.Bundle;
 import android.util.Log;
 
 import androidx.annotation.RestrictTo;
-import androidx.collection.ArrayMap;
+import androidx.collection.SimpleArrayMap;
 
 import java.lang.reflect.InvocationTargetException;
 
@@ -45,13 +45,13 @@ public class CallbackHandlerRegistry {
     public static final CallbackHandlerRegistry sInstance = new CallbackHandlerRegistry();
     private static final String TAG = "CallbackHandlerRegistry";
 
-    private final ArrayMap<Class<? extends CallbackReceiver>, ClsHandler> mClsLookup =
-            new ArrayMap<>();
+    private final SimpleArrayMap<Class<? extends CallbackReceiver>, ClsHandler> mClsLookup =
+            new SimpleArrayMap<>();
 
     /**
      * @hide
      */
-    @SuppressWarnings("TypeParameterUnusedInFormals")
+    @SuppressWarnings({"TypeParameterUnusedInFormals", "unchecked"})
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     public <T extends CallbackReceiver> T getAndResetStub(Class<? extends CallbackReceiver> cls,
             Context context, String authority) {
@@ -195,6 +195,7 @@ public class CallbackHandlerRegistry {
      * Note: This should only be called by generated code, there is no reason to reference this
      * otherwise.
      */
+    @SuppressWarnings("unchecked")
     public static RemoteCallback stubToRemoteCallback(CallbackReceiver receiver,
             Class<? extends CallbackReceiver> cls, Bundle args, String method) {
         if (!(receiver instanceof CallbackBase)) {
@@ -211,8 +212,8 @@ public class CallbackHandlerRegistry {
     }
 
     static class ClsHandler {
-        final ArrayMap<String, CallbackHandler<? extends CallbackReceiver>> mHandlers =
-                new ArrayMap<>();
+        final SimpleArrayMap<String, CallbackHandler<? extends CallbackReceiver>> mHandlers =
+                new SimpleArrayMap<>();
         public String mAuthority;
         Context mContext;
         CallbackReceiver mCallStub;
@@ -227,7 +228,7 @@ public class CallbackHandlerRegistry {
      */
     public interface CallbackHandler<T extends CallbackReceiver> {
         /**
-         * Executes a callback given a Bundle of aurgements.
+         * Executes a callback given a Bundle of arguments.
          * Note: This should only be called by generated code, there is no reason to reference this
          * otherwise.
          */

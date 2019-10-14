@@ -5,8 +5,8 @@ plugins {
 
 dependencies {
     implementation(project(":appcompat"))
-    implementation(project(":recyclerview"))
-    implementation(project(":preference"))
+    implementation(project(":preference:preference"))
+    implementation(project(":recyclerview:recyclerview"))
     implementation(project(":leanback"))
     implementation(project(":leanback-preference"))
     implementation(project(":car"))

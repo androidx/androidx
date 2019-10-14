@@ -18,6 +18,7 @@ package androidx.media2.session;
 
 import android.os.Bundle;
 import android.net.Uri;
+import android.view.Surface;
 
 import androidx.media2.common.ParcelImplListSlice;
 import androidx.media2.session.IMediaController;
@@ -64,11 +65,15 @@ oneway interface IMediaSession {
     void addPlaylistItem(IMediaController caller, int seq, int index, String mediaId) = 24;
     void removePlaylistItem(IMediaController caller, int seq, int index) = 25;
     void replacePlaylistItem(IMediaController caller, int seq, int index, String mediaId) = 26;
+    void movePlaylistItem(IMediaController caller, int seq, int fromIndex, int toIndex) = 43;
     void skipToPlaylistItem(IMediaController caller, int seq, int index) = 27;
     void skipToPreviousItem(IMediaController caller, int seq) = 28;
     void skipToNextItem(IMediaController caller, int seq) = 29;
     void setRepeatMode(IMediaController caller, int seq, int repeatMode) = 30;
     void setShuffleMode(IMediaController caller, int seq, int shuffleMode) = 31;
+    void setSurface(IMediaController caller, int seq, in Surface surface) = 40;
+    void selectTrack(IMediaController caller, int seq, in ParcelImpl trackInfo) = 41;
+    void deselectTrack(IMediaController caller, int seq, in ParcelImpl trackInfo) = 42;
 
     void onControllerResult(IMediaController caller, int seq,
             in ParcelImpl controllerResult) = 32;
@@ -86,5 +91,5 @@ oneway interface IMediaSession {
     void subscribe(IMediaController caller, int seq, String parentId,
             in ParcelImpl libraryParams) = 38;
     void unsubscribe(IMediaController caller, int seq, String parentId) = 39;
-    // Next Id : 40
+    // Next Id : 44
 }

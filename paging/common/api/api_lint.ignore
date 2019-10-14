@@ -1,0 +1,65 @@
+// Baseline format: 1.0
+DocumentExceptions: androidx.paging.PagedList#loadAround(int):
+    Method PagedList.loadAround appears to be throwing java.lang.IndexOutOfBoundsException; this should be listed in the documentation; see https://android.github.io/kotlin-guides/interop.html#document-exceptions
+DocumentExceptions: androidx.paging.PagedList.Config.Builder#build():
+    Method Builder.build appears to be throwing java.lang.IllegalArgumentException; this should be listed in the documentation; see https://android.github.io/kotlin-guides/interop.html#document-exceptions
+DocumentExceptions: androidx.paging.PagedList.Config.Builder#setPageSize(int):
+    Method Builder.setPageSize appears to be throwing java.lang.IllegalArgumentException; this should be listed in the documentation; see https://android.github.io/kotlin-guides/interop.html#document-exceptions
+
+
+HiddenTypeParameter: androidx.paging.DataSource#load$lintWithKotlin(androidx.paging.DataSource.Params<Key>, kotlin.coroutines.Continuation<? super androidx.paging.DataSource.BaseResult<Value>>) parameter #0:
+    Parameter params references hidden type androidx.paging.DataSource.Params<Key>.
+HiddenTypeParameter: androidx.paging.DataSource#load$lintWithKotlin(androidx.paging.DataSource.Params<Key>, kotlin.coroutines.Continuation<? super androidx.paging.DataSource.BaseResult<Value>>) parameter #1:
+    Parameter p references hidden type class androidx.paging.DataSource.BaseResult.
+HiddenTypeParameter: androidx.paging.ItemKeyedDataSource#load$lintWithKotlin(androidx.paging.DataSource.Params<Key>, kotlin.coroutines.Continuation<? super androidx.paging.DataSource.BaseResult<Value>>) parameter #0:
+    Parameter params references hidden type androidx.paging.DataSource.Params<Key>.
+HiddenTypeParameter: androidx.paging.ItemKeyedDataSource#load$lintWithKotlin(androidx.paging.DataSource.Params<Key>, kotlin.coroutines.Continuation<? super androidx.paging.DataSource.BaseResult<Value>>) parameter #1:
+    Parameter p references hidden type class androidx.paging.DataSource.BaseResult.
+HiddenTypeParameter: androidx.paging.ItemKeyedDataSource#loadAfter$lintWithKotlin(androidx.paging.ItemKeyedDataSource.LoadParams<Key>, kotlin.coroutines.Continuation<? super androidx.paging.DataSource.BaseResult<Value>>) parameter #1:
+    Parameter p references hidden type class androidx.paging.DataSource.BaseResult.
+HiddenTypeParameter: androidx.paging.ItemKeyedDataSource#loadBefore$lintWithKotlin(androidx.paging.ItemKeyedDataSource.LoadParams<Key>, kotlin.coroutines.Continuation<? super androidx.paging.DataSource.BaseResult<Value>>) parameter #1:
+    Parameter p references hidden type class androidx.paging.DataSource.BaseResult.
+HiddenTypeParameter: androidx.paging.ItemKeyedDataSource#loadInitial$lintWithKotlin(androidx.paging.ItemKeyedDataSource.LoadInitialParams<Key>, kotlin.coroutines.Continuation<? super androidx.paging.DataSource.BaseResult<Value>>) parameter #1:
+    Parameter p references hidden type class androidx.paging.DataSource.BaseResult.
+HiddenTypeParameter: androidx.paging.PageKeyedDataSource#load$lintWithKotlin(androidx.paging.DataSource.Params<Key>, kotlin.coroutines.Continuation<? super androidx.paging.DataSource.BaseResult<Value>>) parameter #0:
+    Parameter params references hidden type androidx.paging.DataSource.Params<Key>.
+HiddenTypeParameter: androidx.paging.PageKeyedDataSource#load$lintWithKotlin(androidx.paging.DataSource.Params<Key>, kotlin.coroutines.Continuation<? super androidx.paging.DataSource.BaseResult<Value>>) parameter #1:
+    Parameter p references hidden type class androidx.paging.DataSource.BaseResult.
+HiddenTypeParameter: androidx.paging.PositionalDataSource#load$lintWithKotlin(androidx.paging.DataSource.Params<java.lang.Integer>, kotlin.coroutines.Continuation<? super androidx.paging.DataSource.BaseResult<T>>) parameter #0:
+    Parameter params references hidden type androidx.paging.DataSource.Params<java.lang.Integer>.
+HiddenTypeParameter: androidx.paging.PositionalDataSource#load$lintWithKotlin(androidx.paging.DataSource.Params<java.lang.Integer>, kotlin.coroutines.Continuation<? super androidx.paging.DataSource.BaseResult<T>>) parameter #1:
+    Parameter p references hidden type class androidx.paging.DataSource.BaseResult.
+HiddenTypeParameter: androidx.paging.PositionalDataSource#loadInitial$lintWithKotlin(androidx.paging.PositionalDataSource.LoadInitialParams, kotlin.coroutines.Continuation<? super androidx.paging.DataSource.BaseResult<T>>) parameter #1:
+    Parameter p references hidden type class androidx.paging.DataSource.BaseResult.
+
+
+MinMaxConstant: androidx.paging.PagedList.Config#MAX_SIZE_UNBOUNDED:
+    If min/max could change in future, make them dynamic methods: androidx.paging.PagedList.Config#MAX_SIZE_UNBOUNDED
+
+
+MissingNullability: androidx.paging.LoadState.Done#INSTANCE:
+    Missing nullability on field `INSTANCE` in class `class androidx.paging.LoadState.Done`
+MissingNullability: androidx.paging.LoadState.Idle#INSTANCE:
+    Missing nullability on field `INSTANCE` in class `class androidx.paging.LoadState.Idle`
+MissingNullability: androidx.paging.LoadState.Loading#INSTANCE:
+    Missing nullability on field `INSTANCE` in class `class androidx.paging.LoadState.Loading`
+MissingNullability: androidx.paging.PagedSource.LoadResult.Page#Companion:
+    Missing nullability on field `Companion` in class `class androidx.paging.PagedSource.LoadResult.Page`
+
+
+RegistrationName: androidx.paging.DataSource#addInvalidatedCallback(androidx.paging.DataSource.InvalidatedCallback):
+    Callback methods should be named register/unregister; was addInvalidatedCallback
+RegistrationName: androidx.paging.DataSource#addInvalidatedCallback(kotlin.jvm.functions.Function0<kotlin.Unit>):
+    Callback methods should be named register/unregister; was addInvalidatedCallback
+RegistrationName: androidx.paging.DataSource#removeInvalidatedCallback(androidx.paging.DataSource.InvalidatedCallback):
+    Callback methods should be named register/unregister; was removeInvalidatedCallback
+RegistrationName: androidx.paging.DataSource#removeInvalidatedCallback(kotlin.jvm.functions.Function0<kotlin.Unit>):
+    Callback methods should be named register/unregister; was removeInvalidatedCallback
+RegistrationName: androidx.paging.PagedList#addWeakCallback(androidx.paging.PagedList.Callback):
+    Callback methods should be named register/unregister; was addWeakCallback
+RegistrationName: androidx.paging.PagedList#removeWeakCallback(androidx.paging.PagedList.Callback):
+    Callback methods should be named register/unregister; was removeWeakCallback
+
+
+SetterReturnsThis: androidx.paging.PagedList.Builder:
+    Methods must return the builder object (return type Builder instead of androidx.paging.PagedList.Builder<Key,Value>): method androidx.paging.PagedList.Builder.setCoroutineScope(kotlinx.coroutines.CoroutineScope)

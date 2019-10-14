@@ -32,20 +32,58 @@ import java.lang.annotation.Target;
  * Example:
  * <pre>
  * {@literal @}Dao
- * public interface MyDao {
+ * public interface MusicDao {
  *     {@literal @}Delete
- *     public void deleteUsers(User... users);
+ *     public void deleteSongs(Song... songs);
+ *
  *     {@literal @}Delete
- *     public void deleteAll(User user1, User user2);
- *     {@literal @}Delete
- *     public void deleteWithFriends(User user, List&lt;User&gt; friends);
+ *     public void deleteAlbumAndSongs(Album album, List&lt;Song&gt; songs);
+ * }
+ * </pre>
+ * If the target entity is specified via {@link #entity()} then the parameters can be of arbitrary
+ * POJO types that will be interpreted as partial entities. For example:
+ * <pre>
+ * {@literal @}Entity
+ * public class Playlist {
+ *   {@literal @}PrimaryKey
+ *   long playlistId;
+ *   long ownerId;
+ *   String name;
+ *   {@literal @}ColumnInfo(defaultValue = "normal")
+ *   String category;
+ * }
+ *
+ * public class OwnerIdAndCategory {
+ *   long ownerId;
+ *   String category;
+ * }
+ *
+ * {@literal @}Dao
+ * public interface PlaylistDao {
+ *   {@literal @}Delete(entity = Playlist.class)
+ *   public void deleteByOwnerIdAndCategory(OwnerIdAndCategory... idCategory);
  * }
  * </pre>
  *
  * @see Insert
- * @see Query
+ * @see Update
  */
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.CLASS)
 public @interface Delete {
+
+    /**
+     * The target entity of the delete method.
+     * <p>
+     * When this is declared, the delete method parameters are interpreted as partial entities when
+     * the type of the parameter differs from the target. The POJO class that represents the entity
+     * must contain a subset of the fields of the target entity. The fields value will be used to
+     * find matching entities to delete.
+     * <p>
+     * By default the target entity is interpreted by the method parameters.
+     *
+     * @return the target entity of the delete method or none if the method should use the
+     *         parameter type entities.
+     */
+    Class<?> entity() default Object.class;
 }

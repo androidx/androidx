@@ -25,14 +25,22 @@ import javax.lang.model.type.TypeKind
 class ByteArrayColumnTypeAdapter(env: ProcessingEnvironment) : ColumnTypeAdapter(
         out = env.typeUtils.getArrayType(env.typeUtils.getPrimitiveType(TypeKind.BYTE)),
         typeAffinity = SQLTypeAffinity.BLOB) {
-    override fun readFromCursor(outVarName: String, cursorVarName: String, indexVarName: String,
-                                scope: CodeGenScope) {
+    override fun readFromCursor(
+        outVarName: String,
+        cursorVarName: String,
+        indexVarName: String,
+        scope: CodeGenScope
+    ) {
         scope.builder()
                 .addStatement("$L = $L.getBlob($L)", outVarName, cursorVarName, indexVarName)
     }
 
-    override fun bindToStmt(stmtName: String, indexVarName: String, valueVarName: String,
-                            scope: CodeGenScope) {
+    override fun bindToStmt(
+        stmtName: String,
+        indexVarName: String,
+        valueVarName: String,
+        scope: CodeGenScope
+    ) {
         scope.builder().apply {
             beginControlFlow("if ($L == null)", valueVarName)
                     .addStatement("$L.bindNull($L)", stmtName, indexVarName)

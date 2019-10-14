@@ -74,7 +74,7 @@ public class FragmentPagerSupport extends FragmentActivity {
 
     public static class MyAdapter extends FragmentPagerAdapter {
         public MyAdapter(FragmentManager fm) {
-            super(fm, RESUME_ONLY_CURRENT_FRAGMENT);
+            super(fm, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT);
         }
 
         @Override

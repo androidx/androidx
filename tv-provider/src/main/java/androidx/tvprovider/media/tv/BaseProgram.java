@@ -40,6 +40,7 @@ import java.lang.annotation.RetentionPolicy;
  * @hide
  */
 @RestrictTo(LIBRARY)
+@SuppressWarnings("unchecked")
 public abstract class BaseProgram {
     /**
      * @hide

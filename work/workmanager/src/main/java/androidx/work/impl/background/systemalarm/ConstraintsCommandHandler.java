@@ -25,6 +25,7 @@ import androidx.annotation.WorkerThread;
 import androidx.work.Logger;
 import androidx.work.impl.constraints.WorkConstraintsTracker;
 import androidx.work.impl.model.WorkSpec;
+import androidx.work.impl.utils.taskexecutor.TaskExecutor;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -53,7 +54,8 @@ class ConstraintsCommandHandler {
         mContext = context;
         mStartId = startId;
         mDispatcher = dispatcher;
-        mWorkConstraintsTracker = new WorkConstraintsTracker(mContext, null);
+        TaskExecutor taskExecutor = mDispatcher.getTaskExecutor();
+        mWorkConstraintsTracker = new WorkConstraintsTracker(mContext, taskExecutor, null);
     }
 
     @WorkerThread

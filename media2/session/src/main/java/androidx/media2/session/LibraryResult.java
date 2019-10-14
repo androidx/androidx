@@ -17,7 +17,6 @@
 package androidx.media2.session;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.os.SystemClock;
 
@@ -65,15 +64,17 @@ public class LibraryResult extends CustomVersionedParcelable implements RemoteRe
             RESULT_ERROR_SESSION_SKIP_LIMIT_REACHED,
             RESULT_ERROR_SESSION_SETUP_REQUIRED})
     @Retention(RetentionPolicy.SOURCE)
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RestrictTo(LIBRARY)
     public @interface ResultCode {}
 
     @ParcelField(1)
     int mResultCode;
     @ParcelField(2)
     long mCompletionTime;
-    @ParcelField(3)
+    @NonParcelField
     MediaItem mItem;
+    @ParcelField(3)
+    MediaItem mParcelableItem;
     @ParcelField(4)
     MediaLibraryService.LibraryParams mParams;
     // Mark list of media items NonParcelField to send the list through the ParcelImpListSlice.
@@ -221,6 +222,7 @@ public class LibraryResult extends CustomVersionedParcelable implements RemoteRe
     @RestrictTo(LIBRARY)
     @Override
     public void onPreParceling(boolean isStream) {
+        mParcelableItem = MediaUtils.upcastForPreparceling(mItem);
         mItemListSlice = MediaUtils.convertMediaItemListToParcelImplListSlice(mItemList);
     }
 
@@ -230,6 +232,8 @@ public class LibraryResult extends CustomVersionedParcelable implements RemoteRe
     @RestrictTo(LIBRARY)
     @Override
     public void onPostParceling() {
+        mItem = mParcelableItem;
+        mParcelableItem = null;
         mItemList = MediaUtils.convertParcelImplListSliceToMediaItemList(mItemListSlice);
         mItemListSlice = null;
     }

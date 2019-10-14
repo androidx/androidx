@@ -3,7 +3,7 @@ package androidx.work {
 
   public final class ArrayCreatingInputMerger extends androidx.work.InputMerger {
     ctor public ArrayCreatingInputMerger();
-    method public androidx.work.Data merge(java.util.List<androidx.work.Data>);
+    method public androidx.work.Data merge(java.util.List<androidx.work.Data!>);
   }
 
   public enum BackoffPolicy {
@@ -64,11 +64,11 @@ package androidx.work {
     method public float[]? getFloatArray(String);
     method public int getInt(String, int);
     method public int[]? getIntArray(String);
-    method public java.util.Map<java.lang.String,java.lang.Object> getKeyValueMap();
+    method public java.util.Map<java.lang.String!,java.lang.Object!> getKeyValueMap();
     method public long getLong(String, long);
     method public long[]? getLongArray(String);
     method public String? getString(String);
-    method public String[]? getStringArray(String);
+    method public String![]? getStringArray(String);
     field public static final androidx.work.Data! EMPTY;
     field public static final int MAX_DATA_BYTES = 10240; // 0x2800
   }
@@ -77,7 +77,7 @@ package androidx.work {
     ctor public Data.Builder();
     method public androidx.work.Data build();
     method public androidx.work.Data.Builder putAll(androidx.work.Data);
-    method public androidx.work.Data.Builder putAll(java.util.Map<java.lang.String,java.lang.Object>);
+    method public androidx.work.Data.Builder putAll(java.util.Map<java.lang.String!,java.lang.Object!>);
     method public androidx.work.Data.Builder putBoolean(String, boolean);
     method public androidx.work.Data.Builder putBooleanArray(String, boolean[]);
     method public androidx.work.Data.Builder putDouble(String, double);
@@ -89,7 +89,7 @@ package androidx.work {
     method public androidx.work.Data.Builder putLong(String, long);
     method public androidx.work.Data.Builder putLongArray(String, long[]);
     method public androidx.work.Data.Builder putString(String, String?);
-    method public androidx.work.Data.Builder putStringArray(String, String[]);
+    method public androidx.work.Data.Builder putStringArray(String, String![]);
   }
 
   public enum ExistingPeriodicWorkPolicy {
@@ -105,7 +105,7 @@ package androidx.work {
 
   public abstract class InputMerger {
     ctor public InputMerger();
-    method public abstract androidx.work.Data merge(java.util.List<androidx.work.Data>);
+    method public abstract androidx.work.Data merge(java.util.List<androidx.work.Data!>);
   }
 
   public abstract class ListenableWorker {
@@ -115,12 +115,12 @@ package androidx.work {
     method public final androidx.work.Data getInputData();
     method @RequiresApi(28) public final android.net.Network? getNetwork();
     method public final int getRunAttemptCount();
-    method public final java.util.Set<java.lang.String> getTags();
-    method @RequiresApi(24) public final java.util.List<java.lang.String> getTriggeredContentAuthorities();
-    method @RequiresApi(24) public final java.util.List<android.net.Uri> getTriggeredContentUris();
+    method public final java.util.Set<java.lang.String!> getTags();
+    method @RequiresApi(24) public final java.util.List<java.lang.String!> getTriggeredContentAuthorities();
+    method @RequiresApi(24) public final java.util.List<android.net.Uri!> getTriggeredContentUris();
     method public final boolean isStopped();
     method public void onStopped();
-    method @MainThread public abstract com.google.common.util.concurrent.ListenableFuture<androidx.work.ListenableWorker.Result> startWork();
+    method @MainThread public abstract com.google.common.util.concurrent.ListenableFuture<androidx.work.ListenableWorker.Result!> startWork();
   }
 
   public abstract static class ListenableWorker.Result {
@@ -141,7 +141,7 @@ package androidx.work {
 
   public final class OneTimeWorkRequest extends androidx.work.WorkRequest {
     method public static androidx.work.OneTimeWorkRequest from(Class<? extends androidx.work.ListenableWorker>);
-    method public static java.util.List<androidx.work.OneTimeWorkRequest> from(java.util.List<java.lang.Class<? extends androidx.work.ListenableWorker>>);
+    method public static java.util.List<androidx.work.OneTimeWorkRequest!> from(java.util.List<java.lang.Class<? extends androidx.work.ListenableWorker>!>);
   }
 
   public static final class OneTimeWorkRequest.Builder extends androidx.work.WorkRequest.Builder<androidx.work.OneTimeWorkRequest.Builder,androidx.work.OneTimeWorkRequest> {
@@ -152,8 +152,8 @@ package androidx.work {
   }
 
   public interface Operation {
-    method public com.google.common.util.concurrent.ListenableFuture<androidx.work.Operation.State.SUCCESS> getResult();
-    method public androidx.lifecycle.LiveData<androidx.work.Operation.State> getState();
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.work.Operation.State.SUCCESS!> getResult();
+    method public androidx.lifecycle.LiveData<androidx.work.Operation.State!> getState();
   }
 
   public abstract static class Operation.State {
@@ -172,7 +172,7 @@ package androidx.work {
 
   public final class OverwritingInputMerger extends androidx.work.InputMerger {
     ctor public OverwritingInputMerger();
-    method public androidx.work.Data merge(java.util.List<androidx.work.Data>);
+    method public androidx.work.Data merge(java.util.List<androidx.work.Data!>);
   }
 
   public final class PeriodicWorkRequest extends androidx.work.WorkRequest {
@@ -189,19 +189,19 @@ package androidx.work {
 
   public abstract class WorkContinuation {
     ctor public WorkContinuation();
-    method public static androidx.work.WorkContinuation combine(java.util.List<androidx.work.WorkContinuation>);
+    method public static androidx.work.WorkContinuation combine(java.util.List<androidx.work.WorkContinuation!>);
     method public abstract androidx.work.Operation enqueue();
-    method public abstract com.google.common.util.concurrent.ListenableFuture<java.util.List<androidx.work.WorkInfo>> getWorkInfos();
-    method public abstract androidx.lifecycle.LiveData<java.util.List<androidx.work.WorkInfo>> getWorkInfosLiveData();
+    method public abstract com.google.common.util.concurrent.ListenableFuture<java.util.List<androidx.work.WorkInfo!>!> getWorkInfos();
+    method public abstract androidx.lifecycle.LiveData<java.util.List<androidx.work.WorkInfo!>!> getWorkInfosLiveData();
     method public final androidx.work.WorkContinuation then(androidx.work.OneTimeWorkRequest);
-    method public abstract androidx.work.WorkContinuation then(java.util.List<androidx.work.OneTimeWorkRequest>);
+    method public abstract androidx.work.WorkContinuation then(java.util.List<androidx.work.OneTimeWorkRequest!>);
   }
 
   public final class WorkInfo {
     method public java.util.UUID getId();
     method public androidx.work.Data getOutputData();
     method public androidx.work.WorkInfo.State getState();
-    method public java.util.Set<java.lang.String> getTags();
+    method public java.util.Set<java.lang.String!> getTags();
   }
 
   public enum WorkInfo.State {
@@ -216,9 +216,9 @@ package androidx.work {
 
   public abstract class WorkManager {
     method public final androidx.work.WorkContinuation beginUniqueWork(String, androidx.work.ExistingWorkPolicy, androidx.work.OneTimeWorkRequest);
-    method public abstract androidx.work.WorkContinuation beginUniqueWork(String, androidx.work.ExistingWorkPolicy, java.util.List<androidx.work.OneTimeWorkRequest>);
+    method public abstract androidx.work.WorkContinuation beginUniqueWork(String, androidx.work.ExistingWorkPolicy, java.util.List<androidx.work.OneTimeWorkRequest!>);
     method public final androidx.work.WorkContinuation beginWith(androidx.work.OneTimeWorkRequest);
-    method public abstract androidx.work.WorkContinuation beginWith(java.util.List<androidx.work.OneTimeWorkRequest>);
+    method public abstract androidx.work.WorkContinuation beginWith(java.util.List<androidx.work.OneTimeWorkRequest!>);
     method public abstract androidx.work.Operation cancelAllWork();
     method public abstract androidx.work.Operation cancelAllWorkByTag(String);
     method public abstract androidx.work.Operation cancelUniqueWork(String);
@@ -227,16 +227,16 @@ package androidx.work {
     method public abstract androidx.work.Operation enqueue(java.util.List<? extends androidx.work.WorkRequest>);
     method public abstract androidx.work.Operation enqueueUniquePeriodicWork(String, androidx.work.ExistingPeriodicWorkPolicy, androidx.work.PeriodicWorkRequest);
     method public androidx.work.Operation enqueueUniqueWork(String, androidx.work.ExistingWorkPolicy, androidx.work.OneTimeWorkRequest);
-    method public abstract androidx.work.Operation enqueueUniqueWork(String, androidx.work.ExistingWorkPolicy, java.util.List<androidx.work.OneTimeWorkRequest>);
+    method public abstract androidx.work.Operation enqueueUniqueWork(String, androidx.work.ExistingWorkPolicy, java.util.List<androidx.work.OneTimeWorkRequest!>);
     method public static androidx.work.WorkManager getInstance();
-    method public abstract com.google.common.util.concurrent.ListenableFuture<java.lang.Long> getLastCancelAllTimeMillis();
-    method public abstract androidx.lifecycle.LiveData<java.lang.Long> getLastCancelAllTimeMillisLiveData();
-    method public abstract com.google.common.util.concurrent.ListenableFuture<androidx.work.WorkInfo> getWorkInfoById(java.util.UUID);
-    method public abstract androidx.lifecycle.LiveData<androidx.work.WorkInfo> getWorkInfoByIdLiveData(java.util.UUID);
-    method public abstract com.google.common.util.concurrent.ListenableFuture<java.util.List<androidx.work.WorkInfo>> getWorkInfosByTag(String);
-    method public abstract androidx.lifecycle.LiveData<java.util.List<androidx.work.WorkInfo>> getWorkInfosByTagLiveData(String);
-    method public abstract com.google.common.util.concurrent.ListenableFuture<java.util.List<androidx.work.WorkInfo>> getWorkInfosForUniqueWork(String);
-    method public abstract androidx.lifecycle.LiveData<java.util.List<androidx.work.WorkInfo>> getWorkInfosForUniqueWorkLiveData(String);
+    method public abstract com.google.common.util.concurrent.ListenableFuture<java.lang.Long!> getLastCancelAllTimeMillis();
+    method public abstract androidx.lifecycle.LiveData<java.lang.Long!> getLastCancelAllTimeMillisLiveData();
+    method public abstract com.google.common.util.concurrent.ListenableFuture<androidx.work.WorkInfo!> getWorkInfoById(java.util.UUID);
+    method public abstract androidx.lifecycle.LiveData<androidx.work.WorkInfo!> getWorkInfoByIdLiveData(java.util.UUID);
+    method public abstract com.google.common.util.concurrent.ListenableFuture<java.util.List<androidx.work.WorkInfo!>!> getWorkInfosByTag(String);
+    method public abstract androidx.lifecycle.LiveData<java.util.List<androidx.work.WorkInfo!>!> getWorkInfosByTagLiveData(String);
+    method public abstract com.google.common.util.concurrent.ListenableFuture<java.util.List<androidx.work.WorkInfo!>!> getWorkInfosForUniqueWork(String);
+    method public abstract androidx.lifecycle.LiveData<java.util.List<androidx.work.WorkInfo!>!> getWorkInfosForUniqueWorkLiveData(String);
     method public static void initialize(android.content.Context, androidx.work.Configuration);
     method public abstract androidx.work.Operation pruneWork();
   }
@@ -262,7 +262,7 @@ package androidx.work {
   public abstract class Worker extends androidx.work.ListenableWorker {
     ctor @Keep public Worker(android.content.Context, androidx.work.WorkerParameters);
     method @WorkerThread public abstract androidx.work.ListenableWorker.Result doWork();
-    method public final com.google.common.util.concurrent.ListenableFuture<androidx.work.ListenableWorker.Result> startWork();
+    method public final com.google.common.util.concurrent.ListenableFuture<androidx.work.ListenableWorker.Result!> startWork();
   }
 
   public abstract class WorkerFactory {
@@ -275,9 +275,9 @@ package androidx.work {
     method public androidx.work.Data getInputData();
     method @RequiresApi(28) public android.net.Network? getNetwork();
     method public int getRunAttemptCount();
-    method public java.util.Set<java.lang.String> getTags();
-    method @RequiresApi(24) public java.util.List<java.lang.String> getTriggeredContentAuthorities();
-    method @RequiresApi(24) public java.util.List<android.net.Uri> getTriggeredContentUris();
+    method public java.util.Set<java.lang.String!> getTags();
+    method @RequiresApi(24) public java.util.List<java.lang.String!> getTriggeredContentAuthorities();
+    method @RequiresApi(24) public java.util.List<android.net.Uri!> getTriggeredContentUris();
   }
 
 }

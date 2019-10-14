@@ -1,4 +1,4 @@
-// Signature format: 2.0
+// Signature format: 3.0
 package androidx.room {
 
   public class EmptyResultSetException extends java.lang.RuntimeException {
@@ -7,8 +7,8 @@ package androidx.room {
 
   public class RxRoom {
     ctor @Deprecated public RxRoom();
-    method public static io.reactivex.Flowable<java.lang.Object>! createFlowable(androidx.room.RoomDatabase!, java.lang.String...!);
-    method public static io.reactivex.Observable<java.lang.Object>! createObservable(androidx.room.RoomDatabase!, java.lang.String...!);
+    method public static io.reactivex.Flowable<java.lang.Object!>! createFlowable(androidx.room.RoomDatabase!, java.lang.String!...);
+    method public static io.reactivex.Observable<java.lang.Object!>! createObservable(androidx.room.RoomDatabase!, java.lang.String!...);
     field public static final Object! NOTHING;
   }
 

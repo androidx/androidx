@@ -29,9 +29,6 @@ limitations under the License.
     <!-- Application Bar -->
     <dimen name="car_app_bar_height">96dp</dimen>
 
-    <!-- Action Bar -->
-    <dimen name="car_action_bar_height" tools:ignore="MissingDefaultResource">128dp</dimen>
-
     <!-- List Items -->
     <dimen name="car_single_line_list_item_height">116dp</dimen>
 

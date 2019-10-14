@@ -17,7 +17,6 @@
 package androidx.camera.integration.antelope.cameracontrollers
 
 import android.hardware.camera2.CameraDevice
-import androidx.annotation.NonNull
 import androidx.camera.integration.antelope.CameraParams
 import androidx.camera.integration.antelope.MainActivity
 import androidx.camera.integration.antelope.TestConfig
@@ -36,7 +35,7 @@ class Camera2DeviceStateCallback(
     /**
      * Camera device has opened successfully, record timing and initiate the preview stream.
      */
-    override fun onOpened(@NonNull cameraDevice: CameraDevice) {
+    override fun onOpened(cameraDevice: CameraDevice) {
         params.timer.openEnd = System.currentTimeMillis()
         MainActivity.logd("In CameraStateCallback onOpened: " + cameraDevice.id +
             " current test: " + testConfig.currentRunningTest.toString())
@@ -62,7 +61,7 @@ class Camera2DeviceStateCallback(
      *
      * If this is a switch test, swizzle camera ids and move to the next step of the test.
      */
-    override fun onClosed(camera: CameraDevice?) {
+    override fun onClosed(camera: CameraDevice) {
         MainActivity.logd("In CameraStateCallback onClosed. Camera: " + params.id +
             " is closed. testFinished: " + testConfig.testFinished)
         params.isOpen = false
@@ -97,7 +96,7 @@ class Camera2DeviceStateCallback(
     /**
      * Camera has been disconnected. Whatever was happening, it won't work now.
      */
-    override fun onDisconnected(@NonNull cameraDevice: CameraDevice) {
+    override fun onDisconnected(cameraDevice: CameraDevice) {
         MainActivity.logd("In CameraStateCallback onDisconnected: " + params.id)
         if (!params.isOpen) {
             return
@@ -110,7 +109,7 @@ class Camera2DeviceStateCallback(
     /**
      * Camera device has thrown an error. Try to recover or fail gracefully.
      */
-    override fun onError(@NonNull cameraDevice: CameraDevice, error: Int) {
+    override fun onError(cameraDevice: CameraDevice, error: Int) {
         MainActivity.logd("In CameraStateCallback onError: " + cameraDevice.id + " error: " + error)
         if (!params.isOpen) {
             return

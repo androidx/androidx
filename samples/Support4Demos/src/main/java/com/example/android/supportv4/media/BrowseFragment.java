@@ -18,7 +18,6 @@ package com.example.android.supportv4.media;
 import android.content.ComponentName;
 import android.content.Context;
 import android.os.Bundle;
-import android.os.RemoteException;
 import android.support.v4.media.MediaBrowserCompat;
 import android.support.v4.media.session.MediaControllerCompat;
 import android.util.Log;
@@ -33,6 +32,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
@@ -76,8 +76,8 @@ public class BrowseFragment extends Fragment {
     private MediaBrowserCompat.SubscriptionCallback mSubscriptionCallback =
             new MediaBrowserCompat.SubscriptionCallback() {
         @Override
-        public void onChildrenLoaded(String parentId, List<MediaBrowserCompat.MediaItem> children,
-                Bundle options) {
+        public void onChildrenLoaded(@NonNull String parentId,
+                @NonNull List<MediaBrowserCompat.MediaItem> children, @NonNull Bundle options) {
             int page = options.getInt(MediaBrowserCompat.EXTRA_PAGE, -1);
             int pageSize = options.getInt(MediaBrowserCompat.EXTRA_PAGE_SIZE, -1);
             if (page < 0 || pageSize != PAGE_SIZE || children == null
@@ -116,7 +116,8 @@ public class BrowseFragment extends Fragment {
         }
 
         @Override
-        public void onChildrenLoaded(String parentId, List<MediaBrowserCompat.MediaItem> children) {
+        public void onChildrenLoaded(@NonNull String parentId,
+                @NonNull List<MediaBrowserCompat.MediaItem> children) {
             Log.d(TAG, "onChildrenLoaded: parentId=" + parentId);
             mMediaItems.clear();
             mMediaItems.addAll(children);
@@ -124,7 +125,7 @@ public class BrowseFragment extends Fragment {
         }
 
         @Override
-        public void onError(String id) {
+        public void onError(@NonNull String id) {
             Toast.makeText(getActivity(), R.string.error_loading_media,
                     Toast.LENGTH_LONG).show();
         }
@@ -139,13 +140,8 @@ public class BrowseFragment extends Fragment {
             if (mMediaBrowser.getSessionToken() == null) {
                 throw new IllegalArgumentException("No Session token");
             }
-            MediaControllerCompat mediaController = null;
-            try {
-                mediaController = new MediaControllerCompat(getActivity(),
-                        mMediaBrowser.getSessionToken());
-            } catch (RemoteException e) {
-                Log.e(TAG, "Failed to create MediaController.", e);
-            }
+            MediaControllerCompat mediaController = new MediaControllerCompat(getActivity(),
+                    mMediaBrowser.getSessionToken());
             ((MediaBrowserSupport) getActivity()).setMediaController(mediaController);
 
             if (mMediaId == null) {

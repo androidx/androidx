@@ -33,6 +33,7 @@ import androidx.work.impl.constraints.WorkConstraintsCallback;
 import androidx.work.impl.constraints.WorkConstraintsTracker;
 import androidx.work.impl.model.WorkSpec;
 import androidx.work.impl.utils.futures.SettableFuture;
+import androidx.work.impl.utils.taskexecutor.TaskExecutor;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
@@ -116,7 +117,7 @@ public class ConstraintTrackingWorker extends ListenableWorker implements WorkCo
             return;
         }
         WorkConstraintsTracker workConstraintsTracker =
-                new WorkConstraintsTracker(getApplicationContext(), this);
+                new WorkConstraintsTracker(getApplicationContext(), getTaskExecutor(), this);
 
         // Start tracking
         workConstraintsTracker.replace(Collections.singletonList(workSpec));
@@ -187,8 +188,21 @@ public class ConstraintTrackingWorker extends ListenableWorker implements WorkCo
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @VisibleForTesting
+    @NonNull
     public WorkDatabase getWorkDatabase() {
         return WorkManagerImpl.getInstance(getApplicationContext()).getWorkDatabase();
+    }
+
+    /**
+     * @return The instance of {@link TaskExecutor}.
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @VisibleForTesting
+    @NonNull
+    @Override
+    public TaskExecutor getTaskExecutor() {
+        return WorkManagerImpl.getInstance(getApplicationContext()).getWorkTaskExecutor();
     }
 
     /**
@@ -197,6 +211,7 @@ public class ConstraintTrackingWorker extends ListenableWorker implements WorkCo
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @VisibleForTesting
+    @Nullable
     public ListenableWorker getDelegate() {
         return mDelegate;
     }

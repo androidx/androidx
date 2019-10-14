@@ -120,7 +120,8 @@ class RewriteRule(private val from: String, private val to: String) {
         val from: String,
 
         @SerializedName("to")
-        val to: String) {
+        val to: String
+    ) {
 
         /** Creates instance of [RewriteRule] */
         fun toRule(): RewriteRule {

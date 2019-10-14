@@ -1,6 +1,7 @@
 import static androidx.build.dependencies.DependenciesKt.*
 import androidx.build.LibraryGroups
 import androidx.build.LibraryVersions
+import androidx.build.Publish
 
 plugins {
     id("AndroidXPlugin")
@@ -9,6 +10,8 @@ plugins {
 dependencies {
     api("androidx.annotation:annotation:1.0.1")
     api(AUTO_VALUE_ANNOTATIONS)
+    implementation(FLOGGER)
+    implementation(FLOGGER_SYSTEM_BACKEND)
     testImplementation(ANDROIDX_TEST_CORE)
     testImplementation(ANDROIDX_TEST_RUNNER)
     annotationProcessor(AUTO_VALUE)
@@ -25,7 +28,7 @@ android {
 }
 androidx {
     name = "Enterprise Feedback"
-    publish = true
+    publish = Publish.SNAPSHOT_AND_RELEASE
     mavenVersion = LibraryVersions.ENTERPRISE
     mavenGroup = LibraryGroups.ENTERPRISE
     inceptionYear = "2019"

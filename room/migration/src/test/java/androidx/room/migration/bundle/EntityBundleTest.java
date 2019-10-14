@@ -153,7 +153,7 @@ public class EntityBundleTest {
     }
 
     private FieldBundle createFieldBundle(String name) {
-        return new FieldBundle("foo", name, "text", false);
+        return new FieldBundle("foo", name, "text", false, null);
     }
 
     private IndexBundle createIndexBundle(String colName) {

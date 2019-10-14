@@ -32,8 +32,8 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.net.Uri;
 
-import androidx.benchmark.BenchmarkRule;
 import androidx.benchmark.BenchmarkState;
+import androidx.benchmark.junit4.BenchmarkRule;
 import androidx.core.graphics.drawable.IconCompat;
 import androidx.slice.benchmark.test.R;
 import androidx.slice.core.SliceHints;

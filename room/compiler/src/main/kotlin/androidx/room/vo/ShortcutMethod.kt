@@ -25,7 +25,7 @@ import javax.lang.model.element.ExecutableElement
 abstract class ShortcutMethod(
     val element: ExecutableElement,
     val name: String,
-    val entities: Map<String, Entity>,
+    val entities: Map<String, ShortcutEntity>,
     val parameters: List<ShortcutQueryParameter>,
     val methodBinder: DeleteOrUpdateMethodBinder?
 )

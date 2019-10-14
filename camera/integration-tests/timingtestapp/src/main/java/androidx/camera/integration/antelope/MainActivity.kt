@@ -33,13 +33,14 @@ import android.view.View
 import android.view.WindowManager
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
 import androidx.camera.integration.antelope.cameracontrollers.camera2Abort
 import androidx.camera.integration.antelope.cameracontrollers.cameraXAbort
 import androidx.camera.integration.antelope.cameracontrollers.closeAllCameras
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
+import androidx.test.espresso.idling.CountingIdlingResource
 import kotlinx.android.synthetic.main.activity_main.button_abort
 import kotlinx.android.synthetic.main.activity_main.button_multi
 import kotlinx.android.synthetic.main.activity_main.button_single
@@ -99,6 +100,9 @@ class MainActivity : AppCompatActivity() {
         /** Array of camera ids for this device */
         val cameraIds: ArrayList<String> = ArrayList<String>()
 
+        /** Idling Resource used for Espresso tests */
+        public val antelopeIdlingResource = CountingIdlingResource("AntelopeIdlingResource")
+
         /** Convenience wrapper for Log.d that can be toggled on/off */
         fun logd(message: String) {
             if (camViewModel.getShouldOutputLog().value ?: false)
@@ -113,9 +117,10 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        camViewModel = ViewModelProviders.of(this).get(CamViewModel::class.java)
+        camViewModel = ViewModelProvider(this)
+            .get(CamViewModel::class.java)
         cameraParams = camViewModel.getCameraParams()
-        deviceInfo = DeviceInfo(this)
+        deviceInfo = DeviceInfo()
 
         if (checkCameraPermissions()) {
             initializeCameras(this)
@@ -138,14 +143,6 @@ class MainActivity : AppCompatActivity() {
 
         button_abort.setOnClickListener {
             abortTests()
-            testsRemaining = 0
-            multiCounter = 0
-            toggleControls(true)
-            toggleRotationLock(false)
-            window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-            setProgress(0)
-            showProgressBar(false)
-            updateLog("\nABORTED", true)
         }
 
         // Human readable report
@@ -211,7 +208,7 @@ class MainActivity : AppCompatActivity() {
                 val clipboard = getSystemService(Context.CLIPBOARD_SERVICE)
                     as android.content.ClipboardManager
                 val clip = ClipData.newPlainText("Log", log)
-                clipboard.primaryClip = clip
+                clipboard.setPrimaryClip(clip)
                 Toast.makeText(this, getString(R.string.log_copied),
                     Toast.LENGTH_SHORT).show()
             }
@@ -286,7 +283,7 @@ class MainActivity : AppCompatActivity() {
      */
     fun checkCameraPermissions(): Boolean {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
-            !== PackageManager.PERMISSION_GRANTED) {
+            != PackageManager.PERMISSION_GRANTED) {
 
             // No explanation needed; request the permission
             ActivityCompat.requestPermissions(this,
@@ -295,7 +292,7 @@ class MainActivity : AppCompatActivity() {
             return false
         } else if (ContextCompat.checkSelfPermission(this,
                 Manifest.permission.WRITE_EXTERNAL_STORAGE)
-            !== PackageManager.PERMISSION_GRANTED) {
+            != PackageManager.PERMISSION_GRANTED) {
             // No explanation needed; request the permission
             ActivityCompat.requestPermissions(this,
                 arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),
@@ -390,6 +387,10 @@ class MainActivity : AppCompatActivity() {
         val config = createSingleTestConfig(this)
         setupUIForTest(config, false)
 
+        // Tell Espresso to wait until test run is complete
+        logd("Incrementing AntelopeIdlingResource")
+        antelopeIdlingResource.increment()
+
         initializeTest(this, cameraParams.get(config.camera), config)
     }
 
@@ -397,7 +398,54 @@ class MainActivity : AppCompatActivity() {
     fun startMultiTest() {
         isSingleTestRunning = false
         setupAutoTestRunner(this)
+
+        // Tell Espresso to wait until test run is complete
+        logd("Incrementing AntelopeIdlingResource")
+        antelopeIdlingResource.increment()
+
         autoTestRunner(this)
+    }
+
+    /**
+     * User has requested to abort the test run. Close cameras and reset the UI.
+     */
+    fun abortTests() {
+        val currentConfig: TestConfig = createTestConfig("ABORT")
+
+        val currentCamera = camViewModel.getCurrentCamera().value ?: 0
+        val currentParams = cameraParams.get(currentCamera.toString())
+
+        when (currentConfig.api) {
+            CameraAPI.CAMERA1 -> closeAllCameras(this, currentConfig)
+            CameraAPI.CAMERAX -> {
+                if (null != currentParams)
+                    cameraXAbort(this, currentParams, currentConfig)
+            }
+            CameraAPI.CAMERA2 -> {
+                if (null != currentParams)
+                    camera2Abort(this, currentParams)
+            }
+        }
+
+        testsRemaining = 0
+        multiCounter = 0
+
+        runOnUiThread {
+            toggleControls(true)
+            toggleRotationLock(false)
+            window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+            progress_test.progress = 0
+            showProgressBar(false)
+            updateLog("\nABORTED", true)
+        }
+
+        // Indicate to Espresso that a test run has ended
+        try {
+            logd("Decrementing AntelopeIdlingResource")
+            antelopeIdlingResource.decrement()
+        } catch (ex: IllegalStateException) {
+            logd("Antelope idling resource decremented below 0. This should never happen.")
+        }
     }
 
     /** After tests are completed, reset the UI to the initial state */
@@ -438,28 +486,6 @@ class MainActivity : AppCompatActivity() {
             updateLog("Running: " + testName + "\n", append, false)
             scroll_log.fullScroll(View.FOCUS_DOWN)
             window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-        }
-    }
-
-    /**
-     * User has requested to abort the test. Close cameras and reset the UI.
-     */
-    fun abortTests() {
-        val currentConfig: TestConfig = createTestConfig("ABORT")
-
-        val currentCamera = camViewModel.getCurrentCamera().value ?: 0
-        val currentParams = cameraParams.get(currentCamera.toString())
-
-        when (currentConfig.api) {
-            CameraAPI.CAMERA1 -> closeAllCameras(this, currentConfig)
-            CameraAPI.CAMERAX -> {
-                if (null != currentParams)
-                    cameraXAbort(this, currentParams, currentConfig)
-            }
-            CameraAPI.CAMERA2 -> {
-                if (null != currentParams)
-                    camera2Abort(this, currentParams, currentConfig)
-            }
         }
     }
 }

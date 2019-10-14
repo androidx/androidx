@@ -19,6 +19,8 @@ package androidx.webkit.internal;
 import android.os.Build;
 import android.webkit.WebView;
 
+import androidx.annotation.NonNull;
+
 import org.chromium.support_lib_boundary.WebViewProviderFactoryBoundaryInterface;
 import org.chromium.support_lib_boundary.util.BoundaryInterfaceReflectionUtil;
 
@@ -38,10 +40,12 @@ public class WebViewGlueCommunicator {
     /**
      * Fetch the one global support library WebViewProviderFactory from the WebView glue layer.
      */
+    @NonNull
     public static WebViewProviderFactory getFactory() {
         return LAZY_FACTORY_HOLDER.INSTANCE;
     }
 
+    @NonNull
     public static WebkitToCompatConverter getCompatConverter() {
         return LAZY_COMPAT_CONVERTER_HOLDER.INSTANCE;
     }
@@ -66,6 +70,7 @@ public class WebViewGlueCommunicator {
     }
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
+    @NonNull
     static WebViewProviderFactory createGlueProviderFactory() {
         // We do not support pre-L devices since their WebView APKs cannot be updated.
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {

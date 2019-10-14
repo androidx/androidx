@@ -31,9 +31,13 @@ import androidx.room.Update;
 import androidx.room.integration.testapp.TestDatabase;
 import androidx.room.integration.testapp.vo.AvgWeightByAge;
 import androidx.room.integration.testapp.vo.Day;
+import androidx.room.integration.testapp.vo.IdUsername;
 import androidx.room.integration.testapp.vo.NameAndLastName;
+import androidx.room.integration.testapp.vo.NameAndUsers;
 import androidx.room.integration.testapp.vo.User;
+import androidx.room.integration.testapp.vo.UserAndFriends;
 import androidx.room.integration.testapp.vo.UserSummary;
+import androidx.room.integration.testapp.vo.Username;
 import androidx.sqlite.db.SupportSQLiteQuery;
 
 import com.google.common.util.concurrent.ListenableFuture;
@@ -84,6 +88,9 @@ public abstract class UserDao {
     @Query("select * from user where custommm = :customField")
     public abstract List<User> findByCustomField(String customField);
 
+    @Query("select * from user")
+    public abstract List<UserAndFriends> loadUserAndFriends();
+
     @Insert
     public abstract void insert(User user);
 
@@ -93,6 +100,9 @@ public abstract class UserDao {
     @Delete
     public abstract int delete(User user);
 
+    @Delete(entity = User.class)
+    public abstract int deleteViaUsername(Username username);
+
     @Delete
     public abstract int deleteAll(User[] users);
 
@@ -101,6 +111,9 @@ public abstract class UserDao {
 
     @Update
     public abstract int update(User user);
+
+    @Update(entity = User.class)
+    public abstract int updateUsername(IdUsername username);
 
     @Update
     public abstract Completable updateCompletable(User user);
@@ -303,4 +316,10 @@ public abstract class UserDao {
 
     @Update
     public abstract ListenableFuture<Void> updateWithVoidFuture(User user);
+
+    @Query("UPDATE user SET mName = :name, mLastName = :name WHERE mId = :userId")
+    public abstract void setSameNames(String name, int userId);
+
+    @Query("SELECT mName FROM User")
+    public abstract List<NameAndUsers> getNameAndUsers();
 }

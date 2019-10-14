@@ -3,7 +3,7 @@ package androidx.textclassifier {
 
   public final class TextClassification {
     method public static androidx.textclassifier.TextClassification createFromBundle(android.os.Bundle);
-    method public java.util.List<androidx.core.app.RemoteActionCompat> getActions();
+    method public java.util.List<androidx.core.app.RemoteActionCompat!> getActions();
     method @FloatRange(from=0.0, to=1.0) public float getConfidenceScore(String!);
     method public String getEntityType(int);
     method @IntRange(from=0) public int getEntityTypeCount();
@@ -99,8 +99,8 @@ package androidx.textclassifier {
 
   public static final class TextClassifier.EntityConfig {
     method public static androidx.textclassifier.TextClassifier.EntityConfig createFromBundle(android.os.Bundle);
-    method public java.util.Collection<java.lang.String> getHints();
-    method public java.util.Collection<java.lang.String>! resolveEntityTypes(java.util.Collection<java.lang.String>?);
+    method public java.util.Collection<java.lang.String!> getHints();
+    method public java.util.Collection<java.lang.String!>! resolveEntityTypes(java.util.Collection<java.lang.String!>?);
     method public boolean shouldIncludeDefaultEntityTypes();
     method public android.os.Bundle toBundle();
   }
@@ -108,17 +108,17 @@ package androidx.textclassifier {
   public static final class TextClassifier.EntityConfig.Builder {
     ctor public TextClassifier.EntityConfig.Builder();
     method public androidx.textclassifier.TextClassifier.EntityConfig build();
-    method public androidx.textclassifier.TextClassifier.EntityConfig.Builder! setExcludedEntityTypes(java.util.Collection<java.lang.String>?);
-    method public androidx.textclassifier.TextClassifier.EntityConfig.Builder! setHints(java.util.Collection<java.lang.String>?);
+    method public androidx.textclassifier.TextClassifier.EntityConfig.Builder! setExcludedEntityTypes(java.util.Collection<java.lang.String!>?);
+    method public androidx.textclassifier.TextClassifier.EntityConfig.Builder! setHints(java.util.Collection<java.lang.String!>?);
     method public androidx.textclassifier.TextClassifier.EntityConfig.Builder! setIncludeDefaultEntityTypes(boolean);
-    method public androidx.textclassifier.TextClassifier.EntityConfig.Builder! setIncludedEntityTypes(java.util.Collection<java.lang.String>?);
+    method public androidx.textclassifier.TextClassifier.EntityConfig.Builder! setIncludedEntityTypes(java.util.Collection<java.lang.String!>?);
   }
 
   public final class TextLinks {
     method public int apply(android.text.Spannable, androidx.textclassifier.TextClassifier, androidx.textclassifier.TextLinksParams);
     method public static androidx.textclassifier.TextLinks createFromBundle(android.os.Bundle);
     method public android.os.Bundle getExtras();
-    method public java.util.Collection<androidx.textclassifier.TextLinks.TextLink> getLinks();
+    method public java.util.Collection<androidx.textclassifier.TextLinks.TextLink!> getLinks();
     method public android.os.Bundle toBundle();
     field public static final int APPLY_STRATEGY_IGNORE = 0; // 0x0
     field public static final int APPLY_STRATEGY_REPLACE = 1; // 0x1
@@ -131,7 +131,7 @@ package androidx.textclassifier {
 
   public static final class TextLinks.Builder {
     ctor public TextLinks.Builder(CharSequence);
-    method public androidx.textclassifier.TextLinks.Builder addLink(int, int, java.util.Map<java.lang.String,java.lang.Float>);
+    method public androidx.textclassifier.TextLinks.Builder addLink(int, int, java.util.Map<java.lang.String!,java.lang.Float!>);
     method public androidx.textclassifier.TextLinks build();
     method public androidx.textclassifier.TextLinks.Builder clearTextLinks();
     method public androidx.textclassifier.TextLinks.Builder setExtras(android.os.Bundle?);

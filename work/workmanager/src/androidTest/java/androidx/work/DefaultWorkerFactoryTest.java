@@ -19,6 +19,7 @@ package androidx.work;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.mockito.Mockito.mock;
 
 import android.content.Context;
 
@@ -34,16 +35,22 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.concurrent.Executor;
+
 @RunWith(AndroidJUnit4.class)
 public class DefaultWorkerFactoryTest extends DatabaseTest {
 
     private Context mContext;
     private WorkerFactory mDefaultWorkerFactory;
+    private ProgressUpdater mProgressUpdater;
+    private ForegroundUpdater mForegroundUpdater;
 
     @Before
     public void setUp() {
         mContext = ApplicationProvider.getApplicationContext();
         mDefaultWorkerFactory = WorkerFactory.getDefaultWorkerFactory();
+        mProgressUpdater = mock(ProgressUpdater.class);
+        mForegroundUpdater = mock(ForegroundUpdater.class);
     }
 
     @Test
@@ -52,6 +59,7 @@ public class DefaultWorkerFactoryTest extends DatabaseTest {
         OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class).build();
         insertWork(work);
 
+        Executor executor = new SynchronousExecutor();
         ListenableWorker worker = mDefaultWorkerFactory.createWorkerWithDefaultFallback(
                 mContext.getApplicationContext(),
                 TestWorker.class.getName(),
@@ -61,9 +69,11 @@ public class DefaultWorkerFactoryTest extends DatabaseTest {
                         work.getTags(),
                         new WorkerParameters.RuntimeExtras(),
                         1,
-                        new SynchronousExecutor(),
-                        new WorkManagerTaskExecutor(),
-                        mDefaultWorkerFactory));
+                        executor,
+                        new WorkManagerTaskExecutor(executor),
+                        mDefaultWorkerFactory,
+                        mProgressUpdater,
+                        mForegroundUpdater));
         assertThat(worker, is(notNullValue()));
         assertThat(worker,
                 is(CoreMatchers.<ListenableWorker>instanceOf(TestWorker.class)));

@@ -16,7 +16,7 @@
 
 package androidx.work.impl.utils.taskexecutor;
 
-import androidx.annotation.NonNull;
+import androidx.work.impl.utils.SerialExecutor;
 import androidx.work.impl.utils.SynchronousExecutor;
 
 import java.util.concurrent.Executor;
@@ -27,6 +27,7 @@ import java.util.concurrent.Executor;
 public class InstantWorkTaskExecutor implements TaskExecutor {
 
     private Executor mSynchronousExecutor = new SynchronousExecutor();
+    private SerialExecutor mBackgroundExecutor = new SerialExecutor(mSynchronousExecutor);
 
     @Override
     public void postToMainThread(Runnable runnable) {
@@ -44,13 +45,7 @@ public class InstantWorkTaskExecutor implements TaskExecutor {
     }
 
     @Override
-    public Executor getBackgroundExecutor() {
-        return mSynchronousExecutor;
-    }
-
-    @NonNull
-    @Override
-    public Thread getBackgroundExecutorThread() {
-        return Thread.currentThread();
+    public SerialExecutor getBackgroundExecutor() {
+        return mBackgroundExecutor;
     }
 }

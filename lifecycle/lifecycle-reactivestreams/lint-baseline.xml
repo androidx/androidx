@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="5" by="lint 3.6.0-alpha12" client="gradle" variant="debug" version="3.6.0-alpha12">
+
+    <issue
+        id="RestrictedApi"
+        message="ArchTaskExecutor can only be called from within the same library group prefix (referenced groupId=`androidx.arch.core` with prefix androidx.arch from groupId=`androidx.lifecycle`)"
+        errorLine1="                ArchTaskExecutor.getInstance().executeOnMainThread(new Runnable() {"
+        errorLine2="                ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/lifecycle/LiveDataReactiveStreams.java"
+            line="115"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="TaskExecutor.executeOnMainThread can only be called from within the same library group prefix (referenced groupId=`androidx.arch.core` with prefix androidx.arch from groupId=`androidx.lifecycle`)"
+        errorLine1="                ArchTaskExecutor.getInstance().executeOnMainThread(new Runnable() {"
+        errorLine2="                                               ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/lifecycle/LiveDataReactiveStreams.java"
+            line="115"
+            column="48"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="ArchTaskExecutor can only be called from within the same library group prefix (referenced groupId=`androidx.arch.core` with prefix androidx.arch from groupId=`androidx.lifecycle`)"
+        errorLine1="                ArchTaskExecutor.getInstance().executeOnMainThread(new Runnable() {"
+        errorLine2="                ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/lifecycle/LiveDataReactiveStreams.java"
+            line="153"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="TaskExecutor.executeOnMainThread can only be called from within the same library group prefix (referenced groupId=`androidx.arch.core` with prefix androidx.arch from groupId=`androidx.lifecycle`)"
+        errorLine1="                ArchTaskExecutor.getInstance().executeOnMainThread(new Runnable() {"
+        errorLine2="                                               ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/lifecycle/LiveDataReactiveStreams.java"
+            line="153"
+            column="48"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="ArchTaskExecutor can only be called from within the same library group prefix (referenced groupId=`androidx.arch.core` with prefix androidx.arch from groupId=`androidx.lifecycle`)"
+        errorLine1="                ArchTaskExecutor.getInstance().executeOnMainThread(new Runnable() {"
+        errorLine2="                ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/lifecycle/LiveDataReactiveStreams.java"
+            line="260"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="TaskExecutor.executeOnMainThread can only be called from within the same library group prefix (referenced groupId=`androidx.arch.core` with prefix androidx.arch from groupId=`androidx.lifecycle`)"
+        errorLine1="                ArchTaskExecutor.getInstance().executeOnMainThread(new Runnable() {"
+        errorLine2="                                               ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/lifecycle/LiveDataReactiveStreams.java"
+            line="260"
+            column="48"/>
+    </issue>
+
+    <issue
+        id="LambdaLast"
+        message="Functional interface parameters (such as parameter 1, &quot;lifecycle&quot;, in androidx.lifecycle.LiveDataReactiveStreams.toPublisher) should be last to improve Kotlin interoperability; see https://kotlinlang.org/docs/reference/java-interop.html#sam-conversions"
+        errorLine1="            @NonNull LifecycleOwner lifecycle, @NonNull LiveData&lt;T> liveData) {"
+        errorLine2="                                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/lifecycle/LiveDataReactiveStreams.java"
+            line="55"
+            column="48"/>
+    </issue>
+
+</issues>

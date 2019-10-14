@@ -25,15 +25,15 @@ package androidx.enterprise.feedback {
   public class KeyedAppStatesReporter {
     method public static androidx.enterprise.feedback.KeyedAppStatesReporter getInstance(android.content.Context);
     method public static void initialize(android.content.Context, java.util.concurrent.Executor);
-    method public void set(java.util.Collection<androidx.enterprise.feedback.KeyedAppState>);
-    method public void setImmediate(java.util.Collection<androidx.enterprise.feedback.KeyedAppState>);
+    method public void set(java.util.Collection<androidx.enterprise.feedback.KeyedAppState!>);
+    method public void setImmediate(java.util.Collection<androidx.enterprise.feedback.KeyedAppState!>);
     field public static final String APP_STATES_ACTION = "androidx.enterprise.feedback.action.APP_STATES";
   }
 
   public abstract class KeyedAppStatesService extends android.app.Service {
     ctor public KeyedAppStatesService();
     method public android.os.IBinder onBind(android.content.Intent);
-    method public abstract void onReceive(java.util.Collection<androidx.enterprise.feedback.ReceivedKeyedAppState>, boolean);
+    method public abstract void onReceive(java.util.Collection<androidx.enterprise.feedback.ReceivedKeyedAppState!>, boolean);
   }
 
   public abstract class ReceivedKeyedAppState {

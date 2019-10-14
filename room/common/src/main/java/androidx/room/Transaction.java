@@ -32,51 +32,52 @@ import java.lang.annotation.Target;
  * Example:
  * <pre>
  * {@literal @}Dao
- * public abstract class ProductDao {
- *    {@literal @}Insert
- *     public abstract void insert(Product product);
- *    {@literal @}Delete
- *     public abstract void delete(Product product);
- *    {@literal @}Transaction
- *     public void insertAndDeleteInTransaction(Product newProduct, Product oldProduct) {
- *         // Anything inside this method runs in a single transaction.
- *         insert(newProduct);
- *         delete(oldProduct);
- *     }
+ * public abstract class SongDao {
+ *   {@literal @}Insert
+ *   public abstract void insert(Song song);
+ *   {@literal @}Delete
+ *   public abstract void delete(Song song);
+ *   {@literal @}Transaction
+ *   public void insertAndDeleteInTransaction(Song newSong, Song oldSong) {
+ *     // Anything inside this method runs in a single transaction.
+ *     insert(newSong);
+ *     delete(oldSong);
+ *   }
  * }
  * </pre>
  * <p>
- * When used on a {@link Query} method that has a {@code Select} statement, the generated code for
+ * When used on a {@link Query} method that has a {@code SELECT} statement, the generated code for
  * the Query will be run in a transaction. There are 2 main cases where you may want to do that:
  * <ol>
  *     <li>If the result of the query is fairly big, it is better to run it inside a transaction
  *     to receive a consistent result. Otherwise, if the query result does not fit into a single
  *     {@link android.database.CursorWindow CursorWindow}, the query result may be corrupted due to
  *     changes in the database in between cursor window swaps.
- *     <li>If the result of the query is a Pojo with {@link Relation} fields, these fields are
- *     queried separately. To receive consistent results between these queries, you probably want
+ *     <li>If the result of the query is a POJO with {@link Relation} fields, these fields are
+ *     queried separately. To receive consistent results between these queries, you also want
  *     to run them in a single transaction.
  * </ol>
  * Example:
  * <pre>
- * class ProductWithReviews extends Product {
- *     {@literal @}Relation(parentColumn = "id", entityColumn = "productId", entity = Review.class)
- *     public List&lt;Review> reviews;
+ * class AlbumWithSongs extends Album {
+ *     {@literal @}Relation(parentColumn = "albumId", entityColumn = "songId")
+ *     public List&lt;Song&gt; songs;
  * }
+ *
  * {@literal @}Dao
- * public interface ProductDao {
- *     {@literal @}Transaction {@literal @}Query("SELECT * from products")
- *     public List&lt;ProductWithReviews> loadAll();
+ * public interface AlbumDao {
+ *     {@literal @}Transaction {@literal @}Query("SELECT * FROM album")
+ *     public List&lt;AlbumWithSongs&gt; loadAll();
  * }
  * </pre>
- * If the query is an async query (e.g. returns a {@link androidx.lifecycle.LiveData LiveData}
- * or RxJava Flowable, the transaction is properly handled when the query is run, not when the
- * method is called.
+ * If the query is asynchronous (e.g. returns a {@link androidx.lifecycle.LiveData LiveData}
+ * or RxJava {@code Flowable}), the transaction is properly handled when the query is run, not when
+ * the method is called.
  * <p>
  * Putting this annotation on an {@link Insert}, {@link Update} or {@link Delete} method has no
- * impact because they are always run inside a transaction. Similarly, if it is annotated with
- * {@link Query} but runs an update or delete statement, it is automatically wrapped in a
- * transaction.
+ * impact because those methods are always run inside a transaction. Similarly, if a method is
+ * annotated with {@link Query} but runs an INSERT, UPDATE or DELETE statement, it is automatically
+ * wrapped in a transaction and this annotation has no effect.
  * <p>
  * Room will only perform at most one transaction at a time, additional transactions are queued
  * and executed on a first come, first serve order.

@@ -22,7 +22,7 @@
         <service
             android:name=".WorkManagerGcmService"
             android:permission="com.google.android.gms.permission.BIND_NETWORK_TASK_SERVICE"
-            android:exported="true"
+            android:exported="@bool/enable_gcm_scheduler_default"
             android:directBootAware="false"
             tools:targetApi="n">
             <intent-filter>

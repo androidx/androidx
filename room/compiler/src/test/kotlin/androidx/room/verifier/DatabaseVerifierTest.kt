@@ -71,7 +71,7 @@ class DatabaseVerifierTest(private val useLocalizedCollation: Boolean) {
     }
 
     private fun createVerifier(invocation: TestInvocation): DatabaseVerifier {
-        val db = userDb(invocation.context)
+        val db = userDb(invocation)
         return DatabaseVerifier.create(invocation.context, mock(Element::class.java),
                 db.entities, db.views)!!
     }
@@ -213,6 +213,34 @@ class DatabaseVerifierTest(private val useLocalizedCollation: Boolean) {
         }.compilesWithoutError()
     }
 
+    @Test
+    fun defaultValue_exprError() {
+        simpleRun { invocation ->
+            val db = database(
+                listOf(
+                    entity(
+                        invocation,
+                        "User",
+                        field(
+                            "id",
+                            primitive(invocation.context, TypeKind.INT),
+                            SQLTypeAffinity.INTEGER
+                        ),
+                        field(
+                            "name",
+                            invocation.context.COMMON_TYPES.STRING,
+                            SQLTypeAffinity.TEXT,
+                            defaultValue = "(NO_SUCH_CONSTANT)"
+                        )
+                    )
+                ),
+                emptyList()
+            )
+            val element = mock(Element::class.java)
+            DatabaseVerifier.create(invocation.context, element, db.entities, db.views)!!
+        }.failsToCompile().withErrorContaining("default value of column [name]")
+    }
+
     private fun validQueryTest(sql: String, cb: (QueryResultInfo) -> Unit) {
         simpleRun { invocation ->
             val verifier = createVerifier(invocation)
@@ -221,16 +249,27 @@ class DatabaseVerifierTest(private val useLocalizedCollation: Boolean) {
         }.compilesWithoutError()
     }
 
-    private fun userDb(context: Context): Database {
+    private fun userDb(invocation: TestInvocation): Database {
+        val context = invocation.context
         return database(
-                listOf(entity("User",
-                        field("id", primitive(context, TypeKind.INT), SQLTypeAffinity.INTEGER),
-                        field("name", context.COMMON_TYPES.STRING, SQLTypeAffinity.TEXT),
-                        field("lastName", context.COMMON_TYPES.STRING, SQLTypeAffinity.TEXT),
-                        field("ratio", primitive(context, TypeKind.FLOAT), SQLTypeAffinity.REAL))),
-                listOf(view("UserSummary", "SELECT id, name FROM User",
-                        field("id", primitive(context, TypeKind.INT), SQLTypeAffinity.INTEGER),
-                        field("name", context.COMMON_TYPES.STRING, SQLTypeAffinity.TEXT))))
+            listOf(
+                entity(
+                    invocation,
+                    "User",
+                    field("id", primitive(context, TypeKind.INT), SQLTypeAffinity.INTEGER),
+                    field("name", context.COMMON_TYPES.STRING, SQLTypeAffinity.TEXT),
+                    field("lastName", context.COMMON_TYPES.STRING, SQLTypeAffinity.TEXT),
+                    field("ratio", primitive(context, TypeKind.FLOAT), SQLTypeAffinity.REAL)
+                )
+            ),
+            listOf(
+                view(
+                    "UserSummary", "SELECT id, name FROM User",
+                    field("id", primitive(context, TypeKind.INT), SQLTypeAffinity.INTEGER),
+                    field("name", context.COMMON_TYPES.STRING, SQLTypeAffinity.TEXT)
+                )
+            )
+        )
     }
 
     private fun database(entities: List<Entity>, views: List<DatabaseView>): Database {
@@ -245,18 +284,23 @@ class DatabaseVerifierTest(private val useLocalizedCollation: Boolean) {
                 enableForeignKeys = false)
     }
 
-    private fun entity(tableName: String, vararg fields: Field): Entity {
+    private fun entity(
+        invocation: TestInvocation,
+        tableName: String,
+        vararg fields: Field
+    ): Entity {
+        val element = invocation.typeElement("Dummy")
         return Entity(
-                element = mock(TypeElement::class.java),
-                tableName = tableName,
-                type = mock(DeclaredType::class.java),
-                fields = fields.toList(),
-                embeddedFields = emptyList(),
-                indices = emptyList(),
-                primaryKey = PrimaryKey(null, Fields(fields.take(1)), false),
-                foreignKeys = emptyList(),
-                constructor = Constructor(mock(ExecutableElement::class.java), emptyList()),
-                shadowTableName = null
+            element = element,
+            tableName = tableName,
+            type = mock(DeclaredType::class.java),
+            fields = fields.toList(),
+            embeddedFields = emptyList(),
+            indices = emptyList(),
+            primaryKey = PrimaryKey(null, Fields(fields.take(1)), false),
+            foreignKeys = emptyList(),
+            constructor = Constructor(mock(ExecutableElement::class.java), emptyList()),
+            shadowTableName = null
         )
     }
 
@@ -272,20 +316,26 @@ class DatabaseVerifierTest(private val useLocalizedCollation: Boolean) {
         )
     }
 
-    private fun field(name: String, type: TypeMirror, affinity: SQLTypeAffinity): Field {
+    private fun field(
+        name: String,
+        type: TypeMirror,
+        affinity: SQLTypeAffinity,
+        defaultValue: String? = null
+    ): Field {
         val element = mock(Element::class.java)
         doReturn(type).`when`(element).asType()
         val f = Field(
-                element = element,
-                name = name,
-                type = type,
-                columnName = name,
-                affinity = affinity,
-                collate = if (useLocalizedCollation && affinity == SQLTypeAffinity.TEXT) {
-                    Collate.LOCALIZED
-                } else {
-                    null
-                }
+            element = element,
+            name = name,
+            type = type,
+            columnName = name,
+            affinity = affinity,
+            collate = if (useLocalizedCollation && affinity == SQLTypeAffinity.TEXT) {
+                Collate.LOCALIZED
+            } else {
+                null
+            },
+            defaultValue = defaultValue
         )
         assignGetterSetter(f, name, type)
         return f

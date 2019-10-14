@@ -20,6 +20,7 @@ import android.view.KeyEvent;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebView;
 
+import androidx.annotation.Nullable;
 import androidx.concurrent.futures.ResolvableFuture;
 import androidx.test.filters.LargeTest;
 import androidx.test.runner.AndroidJUnit4;
@@ -32,6 +33,7 @@ import org.junit.runner.RunWith;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @LargeTest
@@ -84,29 +86,47 @@ public class WebViewRenderProcessClientTest {
         }
     }
 
-    private void blockRenderProcess(final JSBlocker blocker) {
-        WebkitUtils.onMainThreadSync(new Runnable() {
+    private WebViewRenderProcessClient makeWebViewRenderProcessClient(
+            @Nullable Runnable onResponsive,
+            @Nullable Runnable onUnresponsive) {
+        return new WebViewRenderProcessClient() {
             @Override
-            public void run() {
-                WebView webView = mWebViewOnUiThread.getWebViewOnCurrentThread();
-                webView.evaluateJavascript("blocker.block();", null);
-                blocker.waitForBlocked();
-                // Sending an input event that does not get acknowledged will cause
-                // the unresponsive renderer event to fire.
-                webView.dispatchKeyEvent(
-                        new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_ENTER));
+            public void onRenderProcessUnresponsive(WebView view, WebViewRenderProcess renderer) {
+                if (onResponsive != null) {
+                    onResponsive.run();
+                }
             }
+
+            @Override
+            public void onRenderProcessResponsive(WebView view, WebViewRenderProcess renderer) {
+                if (onUnresponsive != null) {
+                    onUnresponsive.run();
+                }
+            }
+        };
+    }
+
+    private WebViewRenderProcessClient makeWebViewRenderProcessClient() {
+        return makeWebViewRenderProcessClient(null, null);
+    }
+
+    private void blockRenderProcess(final JSBlocker blocker) {
+        WebkitUtils.onMainThreadSync(() -> {
+            WebView webView = mWebViewOnUiThread.getWebViewOnCurrentThread();
+            webView.evaluateJavascript("blocker.block();", null);
+            blocker.waitForBlocked();
+            // Sending an input event that does not get acknowledged will cause
+            // the unresponsive renderer event to fire.
+            webView.dispatchKeyEvent(
+                    new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_ENTER));
         });
     }
 
     private void addJsBlockerInterface(final JSBlocker blocker) {
-        WebkitUtils.onMainThreadSync(new Runnable() {
-            @Override
-            public void run() {
-                WebView webView = mWebViewOnUiThread.getWebViewOnCurrentThread();
-                webView.getSettings().setJavaScriptEnabled(true);
-                webView.addJavascriptInterface(blocker, "blocker");
-            }
+        WebkitUtils.onMainThreadSync(() -> {
+            WebView webView = mWebViewOnUiThread.getWebViewOnCurrentThread();
+            webView.getSettings().setJavaScriptEnabled(true);
+            webView.addJavascriptInterface(blocker, "blocker");
         });
     }
 
@@ -115,19 +135,10 @@ public class WebViewRenderProcessClientTest {
         final JSBlocker blocker = new JSBlocker();
         final ResolvableFuture<Void> rendererUnblocked = ResolvableFuture.create();
 
-        WebViewRenderProcessClient client = new WebViewRenderProcessClient() {
-            @Override
-            public void onRenderProcessUnresponsive(WebView view, WebViewRenderProcess renderer) {
-                // Let the renderer unblock.
-                blocker.releaseBlock();
-            }
-
-            @Override
-            public void onRenderProcessResponsive(WebView view, WebViewRenderProcess renderer) {
-                // Notify that the renderer has been unblocked.
-                rendererUnblocked.set(null);
-            }
-        };
+        WebViewRenderProcessClient client = makeWebViewRenderProcessClient(
+                () -> blocker.releaseBlock(),
+                () -> rendererUnblocked.set(null)
+            );
         if (executor == null) {
             mWebViewOnUiThread.setWebViewRenderProcessClient(client);
         } else {
@@ -159,19 +170,47 @@ public class WebViewRenderProcessClientTest {
     }
 
     @Test
-    public void testSetWebViewRenderProcessClient() throws Throwable {
+    public void testSetNullWebViewRenderProcessClient() throws Throwable {
         WebkitUtils.checkFeature(WebViewFeature.WEB_VIEW_RENDERER_CLIENT_BASIC_USAGE);
+
+        final AtomicBoolean clientCalled = new AtomicBoolean();
 
         Assert.assertNull("Initially the renderer client should be null",
                 mWebViewOnUiThread.getWebViewRenderProcessClient());
 
-        final WebViewRenderProcessClient client = new WebViewRenderProcessClient() {
-            @Override
-            public void onRenderProcessUnresponsive(WebView view, WebViewRenderProcess renderer) {}
+        WebViewRenderProcessClient client = makeWebViewRenderProcessClient(
+                () -> clientCalled.set(true),
+                () -> clientCalled.set(true)
+            );
+        mWebViewOnUiThread.setWebViewRenderProcessClient(client);
 
-            @Override
-            public void onRenderProcessResponsive(WebView view, WebViewRenderProcess renderer) {}
-        };
+        mWebViewOnUiThread.setWebViewRenderProcessClient(null);
+        Assert.assertNull("After setting renderer client to null, getting it should return null",
+                mWebViewOnUiThread.getWebViewRenderProcessClient());
+
+        final JSBlocker blocker = new JSBlocker();
+        final ResolvableFuture<Void> rendererUnblocked = ResolvableFuture.create();
+
+        addJsBlockerInterface(blocker);
+        mWebViewOnUiThread.loadUrlAndWaitForCompletion("about:blank");
+        blockRenderProcess(blocker);
+
+        // When no WebViewRenderProcessClient is set, we can't directly observe the triggering of
+        // the unresponsive renderer message. Instead, wait for 6s, which should be long enough for
+        // the message to have been triggered, and then unblock.
+        WebkitUtils.onMainThreadDelayed(6000, () -> {
+            blocker.releaseBlock();
+            rendererUnblocked.set(null);
+        });
+        WebkitUtils.waitForFuture(rendererUnblocked);
+        Assert.assertFalse(clientCalled.get());
+    }
+
+    @Test
+    public void testSetWebViewRenderProcessClient() throws Throwable {
+        WebkitUtils.checkFeature(WebViewFeature.WEB_VIEW_RENDERER_CLIENT_BASIC_USAGE);
+
+        WebViewRenderProcessClient client = makeWebViewRenderProcessClient();
         mWebViewOnUiThread.setWebViewRenderProcessClient(client);
 
         Assert.assertSame(

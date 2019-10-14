@@ -36,7 +36,7 @@ interface Keyframes<T> extends Cloneable {
     /**
      * @return The value type contained by the contained Keyframes.
      */
-    Class getType();
+    Class<?> getType();
 
     /**
      * Gets the animated value, given the elapsed fraction of the animation (interpolated by the

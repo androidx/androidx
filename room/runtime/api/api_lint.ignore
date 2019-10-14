@@ -1,0 +1,23 @@
+// Baseline format: 1.0
+CallbackName: androidx.room.InvalidationTracker.Observer:
+    Class should be named Callback
+
+
+MissingNullability: androidx.room.DatabaseConfiguration#journalMode:
+    Missing nullability on field `journalMode` in class `class androidx.room.DatabaseConfiguration`
+MissingNullability: androidx.room.InvalidationTracker.Observer#Observer(String, java.lang.String...) parameter #1:
+    Missing nullability on parameter `rest` in method `Observer`
+MissingNullability: androidx.room.RoomDatabase#compileStatement(String):
+    Missing nullability on method `compileStatement` return
+MissingNullability: androidx.room.RoomDatabase#createOpenHelper(androidx.room.DatabaseConfiguration) parameter #0:
+    Missing nullability on parameter `config` in method `createOpenHelper`
+MissingNullability: androidx.room.RoomDatabase.Builder#fallbackToDestructiveMigrationFrom(int...) parameter #0:
+    Missing nullability on parameter `startVersions` in method `fallbackToDestructiveMigrationFrom`
+
+
+RegistrationName: androidx.room.RoomDatabase.Builder#addCallback(androidx.room.RoomDatabase.Callback):
+    Callback methods should be named register/unregister; was addCallback
+
+
+SetterReturnsThis: androidx.room.RoomDatabase.Builder:
+    Methods must return the builder object (return type Builder instead of androidx.room.RoomDatabase.Builder<T>): method androidx.room.RoomDatabase.Builder.setJournalMode(androidx.room.RoomDatabase.JournalMode)

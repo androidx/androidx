@@ -18,6 +18,8 @@ package androidx.swiperefreshlayout.widget;
 
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -25,6 +27,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
+import android.view.ViewParent;
 import android.view.animation.Animation;
 import android.view.animation.Animation.AnimationListener;
 import android.view.animation.DecelerateInterpolator;
@@ -107,8 +110,6 @@ public class SwipeRefreshLayout extends ViewGroup implements NestedScrollingPare
 
     private static final int ANIMATE_TO_START_DURATION = 200;
 
-    // Default background for the progress spinner
-    private static final int CIRCLE_BG_LIGHT = 0xFFFAFAFA;
     // Default offset in dips from the top of the view to where the progress spinner should stop
     private static final int DEFAULT_CIRCLE_TARGET = 64;
 
@@ -184,6 +185,9 @@ public class SwipeRefreshLayout extends ViewGroup implements NestedScrollingPare
 
     private OnChildScrollUpCallback mChildScrollUpCallback;
 
+    /** @see #setLegacyRequestDisallowInterceptTouchEventEnabled */
+    private boolean mEnableLegacyRequestDisallowInterceptTouch;
+
     private Animation.AnimationListener mRefreshListener = new Animation.AnimationListener() {
         @Override
         public void onAnimationStart(Animation animation) {
@@ -231,6 +235,58 @@ public class SwipeRefreshLayout extends ViewGroup implements NestedScrollingPare
         if (!enabled) {
             reset();
         }
+    }
+
+    static class SavedState extends View.BaseSavedState {
+        final boolean mRefreshing;
+
+        /**
+         * Constructor called from {@link SwipeRefreshLayout#onSaveInstanceState()}
+         */
+        SavedState(Parcelable superState, boolean refreshing) {
+            super(superState);
+            this.mRefreshing = refreshing;
+        }
+
+        /**
+         * Constructor called from {@link #CREATOR}
+         */
+        SavedState(Parcel in) {
+            super(in);
+            mRefreshing = in.readByte() != 0;
+        }
+
+        @Override
+        public void writeToParcel(Parcel out, int flags) {
+            super.writeToParcel(out, flags);
+            out.writeByte(mRefreshing ? (byte) 1 : (byte) 0);
+        }
+
+        public static final Parcelable.Creator<SavedState> CREATOR =
+                new Parcelable.Creator<SavedState>() {
+                    @Override
+                    public SavedState createFromParcel(Parcel in) {
+                        return new SavedState(in);
+                    }
+
+                    @Override
+                    public SavedState[] newArray(int size) {
+                        return new SavedState[size];
+                    }
+                };
+    }
+
+    @Override
+    protected Parcelable onSaveInstanceState() {
+        Parcelable superState = super.onSaveInstanceState();
+        return new SavedState(superState, mRefreshing);
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Parcelable state) {
+        SavedState savedState = (SavedState) state;
+        super.onRestoreInstanceState(savedState.getSuperState());
+        setRefreshing(savedState.mRefreshing);
     }
 
     @Override
@@ -308,12 +364,11 @@ public class SwipeRefreshLayout extends ViewGroup implements NestedScrollingPare
     }
 
     /**
-     * Sets a custom slingshot distance.
+     * Sets the distance that the refresh indicator can be pulled beyond its resting position during
+     * a swipe gesture. The default is {@link #DEFAULT_SLINGSHOT_DISTANCE}.
      *
      * @param slingshotDistance The distance in pixels that the refresh indicator can be pulled
-     *                          beyond its resting position. Use
-     *                          {@link #DEFAULT_SLINGSHOT_DISTANCE} to reset to the default value.
-     *
+     *                          beyond its resting position.
      */
     public void setSlingshotDistance(@Px int slingshotDistance) {
         mCustomSlingshotDistance = slingshotDistance;
@@ -404,7 +459,7 @@ public class SwipeRefreshLayout extends ViewGroup implements NestedScrollingPare
     }
 
     private void createProgressView() {
-        mCircleView = new CircleImageView(getContext(), CIRCLE_BG_LIGHT);
+        mCircleView = new CircleImageView(getContext());
         mProgress = new CircularProgressDrawable(getContext());
         mProgress.setStyle(CircularProgressDrawable.DEFAULT);
         mCircleView.setImageDrawable(mProgress);
@@ -754,6 +809,32 @@ public class SwipeRefreshLayout extends ViewGroup implements NestedScrollingPare
         return mIsBeingDragged;
     }
 
+    /**
+     * Enables the legacy behavior of {@link #requestDisallowInterceptTouchEvent} from before
+     * 1.1.0-alpha03, where the request is not propagated up to its parents in either of the
+     * following two cases:
+     * <ul>
+     *     <li>The child as an {@link AbsListView} and the runtime is API < 21</li>
+     *     <li>The child has nested scrolling disabled</li>
+     * </ul>
+     * Use this method <em>only</em> if your application:
+     * <ul>
+     *     <li>is upgrading SwipeRefreshLayout from &lt; 1.1.0-alpha03 to &gt;= 1.1.0-alpha03</li>
+     *     <li>relies on a parent of SwipeRefreshLayout to intercept touch events and that
+     *     parent no longer responds to touch events</li>
+     *     <li>setting this method to {@code true} fixes that issue</li>
+     * </ul>
+     *
+     * @param enabled {@code true} to enable the legacy behavior, {@code false} for default behavior
+     * @deprecated Only use this method if the changes introduced in
+     *             {@link #requestDisallowInterceptTouchEvent} in version 1.1.0-alpha03 are breaking
+     *             your application.
+     */
+    @Deprecated
+    public void setLegacyRequestDisallowInterceptTouchEventEnabled(boolean enabled) {
+        mEnableLegacyRequestDisallowInterceptTouch = enabled;
+    }
+
     @Override
     public void requestDisallowInterceptTouchEvent(boolean b) {
         // if this is a List < L or another view that doesn't support nested
@@ -761,7 +842,15 @@ public class SwipeRefreshLayout extends ViewGroup implements NestedScrollingPare
         // isn't stolen
         if ((android.os.Build.VERSION.SDK_INT < 21 && mTarget instanceof AbsListView)
                 || (mTarget != null && !ViewCompat.isNestedScrollingEnabled(mTarget))) {
-            // Nope.
+            if (mEnableLegacyRequestDisallowInterceptTouch) {
+                // Nope.
+            } else {
+                // Ignore here, but pass it up to our parent
+                ViewParent parent = getParent();
+                if (parent != null) {
+                    parent.requestDisallowInterceptTouchEvent(b);
+                }
+            }
         } else {
             super.requestDisallowInterceptTouchEvent(b);
         }
@@ -1064,7 +1153,7 @@ public class SwipeRefreshLayout extends ViewGroup implements NestedScrollingPare
                 / slingshotDist);
         float tensionPercent = (float) ((tensionSlingshotPercent / 4) - Math.pow(
                 (tensionSlingshotPercent / 4), 2)) * 2f;
-        float extraMove = (slingshotDist) * tensionPercent * 2;
+        float extraMove = slingshotDist * tensionPercent * 2;
 
         int targetY = mOriginalOffsetTop + (int) ((slingshotDist * dragPercent) + extraMove);
         // where 1.0f is a full circle
@@ -1167,6 +1256,9 @@ public class SwipeRefreshLayout extends ViewGroup implements NestedScrollingPare
                 if (mIsBeingDragged) {
                     final float overscrollTop = (y - mInitialMotionY) * DRAG_RATE;
                     if (overscrollTop > 0) {
+                        // While the spinner is being dragged down, our parent shouldn't try
+                        // to intercept touch events. It will stop the drag gesture abruptly.
+                        getParent().requestDisallowInterceptTouchEvent(true);
                         moveSpinner(overscrollTop);
                     } else {
                         return false;

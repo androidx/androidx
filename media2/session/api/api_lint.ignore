@@ -1,0 +1,39 @@
+// Baseline format: 1.0
+InterfaceConstant: androidx.media2.session.MediaLibraryService#SERVICE_INTERFACE:
+    Inconsistent interface constant; expected 'MediaLibraryService'`
+InterfaceConstant: androidx.media2.session.MediaSessionService#SERVICE_INTERFACE:
+    Inconsistent interface constant; expected 'MediaSessionService'`
+
+
+MissingNullability: androidx.media2.session.HeartRating#equals(Object) parameter #0:
+    Missing nullability on parameter `obj` in method `equals`
+MissingNullability: androidx.media2.session.HeartRating#toString():
+    Missing nullability on method `toString` return
+MissingNullability: androidx.media2.session.MediaLibraryService#onBind(android.content.Intent):
+    Missing nullability on method `onBind` return
+MissingNullability: androidx.media2.session.MediaSession.ControllerInfo#equals(Object) parameter #0:
+    Missing nullability on parameter `obj` in method `equals`
+MissingNullability: androidx.media2.session.MediaSession.ControllerInfo#toString():
+    Missing nullability on method `toString` return
+MissingNullability: androidx.media2.session.MediaSessionService#onStartCommand(android.content.Intent, int, int) parameter #0:
+    Missing nullability on parameter `intent` in method `onStartCommand`
+MissingNullability: androidx.media2.session.PercentageRating#equals(Object) parameter #0:
+    Missing nullability on parameter `obj` in method `equals`
+MissingNullability: androidx.media2.session.PercentageRating#toString():
+    Missing nullability on method `toString` return
+MissingNullability: androidx.media2.session.SessionCommand#equals(Object) parameter #0:
+    Missing nullability on parameter `obj` in method `equals`
+MissingNullability: androidx.media2.session.SessionCommandGroup#equals(Object) parameter #0:
+    Missing nullability on parameter `obj` in method `equals`
+MissingNullability: androidx.media2.session.SessionToken#equals(Object) parameter #0:
+    Missing nullability on parameter `obj` in method `equals`
+MissingNullability: androidx.media2.session.SessionToken#toString():
+    Missing nullability on method `toString` return
+MissingNullability: androidx.media2.session.StarRating#equals(Object) parameter #0:
+    Missing nullability on parameter `obj` in method `equals`
+MissingNullability: androidx.media2.session.StarRating#toString():
+    Missing nullability on method `toString` return
+MissingNullability: androidx.media2.session.ThumbRating#equals(Object) parameter #0:
+    Missing nullability on parameter `obj` in method `equals`
+MissingNullability: androidx.media2.session.ThumbRating#toString():
+    Missing nullability on method `toString` return

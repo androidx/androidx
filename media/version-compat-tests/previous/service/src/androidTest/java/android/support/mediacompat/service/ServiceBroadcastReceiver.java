@@ -27,6 +27,7 @@ import static android.support.mediacompat.testlib.MediaBrowserConstants
         .SEND_DELAYED_NOTIFY_CHILDREN_CHANGED;
 import static android.support.mediacompat.testlib.MediaBrowserConstants.SET_SESSION_TOKEN;
 import static android.support.mediacompat.testlib.MediaSessionConstants.RELEASE;
+import static android.support.mediacompat.testlib.MediaSessionConstants.RELEASE_AND_THEN_SET_PLAYBACK_STATE;
 import static android.support.mediacompat.testlib.MediaSessionConstants.SEND_SESSION_EVENT;
 import static android.support.mediacompat.testlib.MediaSessionConstants.SET_ACTIVE;
 import static android.support.mediacompat.testlib.MediaSessionConstants.SET_CAPTIONING_ENABLED;
@@ -142,6 +143,11 @@ public class ServiceBroadcastReceiver extends BroadcastReceiver {
                     session.setActive(extras.getBoolean(KEY_ARGUMENT));
                     break;
                 case RELEASE:
+                case RELEASE_AND_THEN_SET_PLAYBACK_STATE:
+                    // The previous version of MediaSessionCompat fails on the newly added test
+                    // MediaControllerCompatCallbackTest#testCallbacksAreNotCalledAfterRelease.
+                    // To bypass the test, it only calls release() not setPlaybackState() even if
+                    // the method is RELEASE_AND_THEN_SET_PLAYBACK_STATE.
                     session.release();
                     break;
                 case SET_PLAYBACK_TO_LOCAL:

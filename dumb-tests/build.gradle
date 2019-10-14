@@ -31,5 +31,4 @@ dependencies {
 
 androidx {
     name = "Dummy Project for test runner"
-    publish = false
 }

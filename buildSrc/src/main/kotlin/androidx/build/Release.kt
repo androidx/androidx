@@ -16,21 +16,32 @@
 package androidx.build
 
 import androidx.build.gmaven.GMavenVersionChecker
+import com.android.build.gradle.LibraryExtension
+import com.android.build.gradle.api.LibraryVariant
 import org.gradle.api.Action
 import org.gradle.api.Project
+import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.Internal
+import org.gradle.api.tasks.Nested
 import org.gradle.api.tasks.TaskProvider
 import org.gradle.api.tasks.Upload
 import org.gradle.api.tasks.bundling.Zip
 import java.io.File
+import java.util.TreeSet
 
 /**
  * Simple description for an artifact that is released from this project.
  */
 data class Artifact(
+    @get:Input
     val mavenGroup: String,
+    @get:Input
     val projectName: String,
+    @get:Input
     val version: String
-)
+) {
+    override fun toString() = "$mavenGroup:$projectName:$version"
+}
 
 /**
  * Zip task that zips all artifacts from given [candidates].
@@ -42,20 +53,24 @@ open class GMavenZipTask : Zip() {
     /**
      * The version checker which is used to check if a library is already released.
      */
+    @get:Internal
     lateinit var versionChecker: GMavenVersionChecker
     /**
      * If `true`, all libraries will be included in the zip. Otherwise, only those which are not
      * in maven.google.com are included.
      */
+    @get:Input
     var includeReleased = false
     /**
      * Set to true to include maven-metadata.xml
      */
+    @get:Input
     var includeMetadata: Boolean = false
     /**
      * List of artifacts that might be included in the generated zip.
      */
-    val candidates = arrayListOf<Artifact>()
+    @get:Nested
+    val candidates = TreeSet<Artifact>(compareBy { it.toString() })
 
     /**
      * Config action that configures the task when necessary.
@@ -78,6 +93,10 @@ open class GMavenZipTask : Zip() {
              * The out folder where the zip will be created
              */
             val distDir: File,
+            /**
+             * Prefix of file name to create
+             */
+            val fileNamePrefix: String,
             /**
              * The build number specified by the server
              */
@@ -119,11 +138,7 @@ open class GMavenZipTask : Zip() {
                             .split(".")
                             .joinToString("-")
                 } + "-$buildNumber"
-                if (includeReleased) {
-                    task.archiveBaseName.set("top-of-tree-m2repository-$fileSuffix")
-                } else {
-                    task.archiveBaseName.set("gmaven-diff-$fileSuffix")
-                }
+                task.archiveBaseName.set("$fileNamePrefix-$fileSuffix")
                 task.onlyIf {
                     task.setupIncludes()
                 }
@@ -173,6 +188,7 @@ open class GMavenZipTask : Zip() {
  */
 object Release {
     @Suppress("MemberVisibilityCanBePrivate")
+    const val PROJECT_ARCHIVE_ZIP_TASK_NAME = "createProjectZip"
     const val DIFF_TASK_PREFIX = "createDiffArchive"
     const val FULL_ARCHIVE_TASK_NAME = "createArchive"
     const val DEFAULT_PUBLISH_CONFIG = "release"
@@ -180,33 +196,35 @@ object Release {
     private var configActionParams: GMavenZipTask.ConfigAction.Params? = null
 
     /**
-     * Creates the global [FULL_ARCHIVE_TASK_NAME] that create the zip for all available libraries.
-     */
-    @JvmStatic
-    fun createGlobalArchiveTask(project: Project) {
-        getGlobalFullZipTask(project)
-    }
-
-    /**
      * Registers the project to be included in its group's zip file as well as the global zip files.
      */
     fun register(project: Project, extension: AndroidXExtension) {
-        if (!extension.publish) {
-            throw IllegalArgumentException(
-                    "Cannot register ${project.path} into the release" +
-                            " because publish is false!"
-            )
+        if (extension.publish == Publish.NONE) {
+            project.logger.info("project ${project.name} isn't part of release," +
+                    " because its \"publish\" property is explicitly set to Publish.NONE")
+            return
         }
+        if (extension.publish == Publish.SNAPSHOT_ONLY && !isSnapshotBuild()) {
+            project.logger.info("project ${project.name} isn't part of release, because its" +
+                    " \"publish\" property is SNAPSHOT_ONLY, but it is not a snapshot build")
+            return
+        }
+
         val mavenGroup = extension.mavenGroup?.group ?: throw IllegalArgumentException(
                 "Cannot register a project to release if it does not have a mavenGroup set up"
         )
         val version = extension.mavenVersion ?: throw IllegalArgumentException(
                 "Cannot register a project to release if it does not have a mavenVersion set up"
         )
-        val zipTasks = listOf(
+
+        var zipTasks: MutableList<TaskProvider<GMavenZipTask>> = mutableListOf()
+        if (!extension.mavenGroup!!.requireSameVersion) {
+            zipTasks.add(getProjectZipTask(project))
+        }
+        zipTasks.addAll(listOf(
                 getGroupReleaseZipTask(project, mavenGroup),
                 getGlobalReleaseZipTask(project),
-                getGlobalFullZipTask(project))
+                getGlobalFullZipTask(project)))
         val artifact = Artifact(
                 mavenGroup = mavenGroup,
                 projectName = project.name,
@@ -227,31 +245,29 @@ object Release {
      */
     private fun getParams(
         project: Project,
+        distDir: File,
+        fileNamePrefix: String,
         group: String? = null
     ): GMavenZipTask.ConfigAction.Params {
-        val projectDist = project.getDistributionDirectory()
         val params = configActionParams ?: GMavenZipTask.ConfigAction.Params(
                 mavenGroup = "",
                 includeMetadata = false,
-                supportRepoOut = project.property("supportRepoOut") as File,
+                supportRepoOut = project.getRepositoryDirectory(),
                 gMavenVersionChecker =
                 project.property("versionChecker") as GMavenVersionChecker,
-                distDir = projectDist,
+                distDir = distDir,
+                fileNamePrefix = fileNamePrefix,
                 includeReleased = false,
                 buildNumber = getBuildId()
         ).also {
             configActionParams = it
         }
+        distDir.mkdirs()
 
         return params.copy(
                 mavenGroup = group ?: "",
-                distDir = if (group == null) {
-                    projectDist
-                } else {
-                    File(projectDist, "per-group-zips").also {
-                        it.mkdirs()
-                    }
-                }
+                distDir = distDir,
+                fileNamePrefix = fileNamePrefix
         )
     }
 
@@ -263,7 +279,12 @@ object Release {
         return project.rootProject.maybeRegister(
             name = taskName,
             onConfigure = {
-                GMavenZipTask.ConfigAction(getParams(project)).execute(it)
+                GMavenZipTask.ConfigAction(
+                    getParams(
+                        project,
+                        project.getDistributionDirectory(),
+                        "gmaven-diff")
+                    ).execute(it)
             },
             onRegister = {
             }
@@ -273,12 +294,16 @@ object Release {
     /**
      * Creates and returns the task that includes all projects regardless of their release status.
      */
-    private fun getGlobalFullZipTask(project: Project): TaskProvider<GMavenZipTask> {
+    fun getGlobalFullZipTask(project: Project): TaskProvider<GMavenZipTask> {
         return project.rootProject.maybeRegister(
             name = FULL_ARCHIVE_TASK_NAME,
             onConfigure = {
                 GMavenZipTask.ConfigAction(
-                    getParams(project).copy(
+                    getParams(
+                        project,
+                        project.getDistributionDirectory(),
+                        "top-of-tree-m2repository"
+                    ).copy(
                         includeReleased = true,
                         includeMetadata = true
                     )
@@ -300,11 +325,47 @@ object Release {
         return project.rootProject.maybeRegister(
             name = taskName,
             onConfigure = {
-                GMavenZipTask.ConfigAction(getParams(project, group)).execute(it)
+                GMavenZipTask.ConfigAction(
+                    getParams(project,
+                        File(project.getDistributionDirectory(), "per-group-zips"),
+                        "gmaven-diff", group
+                    )
+                ).execute(it)
             },
             onRegister = {
             }
         )
+    }
+
+    private fun getProjectZipTask(
+        project: Project
+    ): TaskProvider<GMavenZipTask> {
+        val taskName = "$PROJECT_ARCHIVE_ZIP_TASK_NAME"
+        return project.maybeRegister(
+            name = taskName,
+            onConfigure = {
+                GMavenZipTask.ConfigAction(
+                    getParams(project, File(project.getDistributionDirectory(), "per-project-zips"),
+                            "${project.group}-${project.name}").copy(
+                        includeReleased = true,
+                        includeMetadata = true
+                    )
+                ).execute(it)
+            },
+            onRegister = {
+            }
+        )
+    }
+}
+
+/**
+ * Let you configure a library variant associated with [Release.DEFAULT_PUBLISH_CONFIG]
+ */
+fun LibraryExtension.defaultPublishVariant(config: (LibraryVariant) -> Unit) {
+    libraryVariants.all { variant ->
+        if (variant.name == Release.DEFAULT_PUBLISH_CONFIG) {
+            config(variant)
+        }
     }
 }
 
@@ -314,6 +375,16 @@ object Release {
 private fun groupToTaskNameSuffix(group: String): String {
     return group
             .split('.')
+            .joinToString("") {
+                it.capitalize()
+            }
+}
+/**
+ * Converts the project name into a readable task name
+ */
+private fun projectToNameSuffix(project: Project): String {
+    return project.path
+            .split(":", "-")
             .joinToString("") {
                 it.capitalize()
             }

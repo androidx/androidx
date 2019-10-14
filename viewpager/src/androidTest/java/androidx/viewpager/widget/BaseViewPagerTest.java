@@ -26,8 +26,8 @@ import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.pressKey;
 import static androidx.test.espresso.action.ViewActions.swipeLeft;
 import static androidx.test.espresso.action.ViewActions.swipeRight;
-import static androidx.test.espresso.assertion.PositionAssertions.isBelow;
 import static androidx.test.espresso.assertion.PositionAssertions.isBottomAlignedWith;
+import static androidx.test.espresso.assertion.PositionAssertions.isCompletelyBelow;
 import static androidx.test.espresso.assertion.PositionAssertions.isLeftAlignedWith;
 import static androidx.test.espresso.assertion.PositionAssertions.isRightAlignedWith;
 import static androidx.test.espresso.assertion.PositionAssertions.isTopAlignedWith;
@@ -574,7 +574,7 @@ public abstract class BaseViewPagerTest<T extends Activity> {
         // the title strip
         onView(withId(selectedPageId)).check(isLeftAlignedWith(withId(R.id.pager)));
         onView(withId(selectedPageId)).check(isRightAlignedWith(withId(R.id.pager)));
-        onView(withId(selectedPageId)).check(isBelow(withId(R.id.titles)));
+        onView(withId(selectedPageId)).check(isCompletelyBelow(withId(R.id.titles)));
         onView(withId(selectedPageId)).check(isBottomAlignedWith(withId(R.id.pager)));
 
         boolean hasStartTitle = !TextUtils.isEmpty(expectedStartTitle);
@@ -664,7 +664,7 @@ public abstract class BaseViewPagerTest<T extends Activity> {
     /**
      * Returns the class of the pager strip.
      */
-    protected abstract Class getStripClass();
+    protected abstract Class<? extends View> getStripClass();
 
     /**
      * Checks assertions that are specific to the pager strip implementation (interactive or

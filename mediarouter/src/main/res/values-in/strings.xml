@@ -33,7 +33,7 @@
     <string name="mr_controller_expand_group" msgid="2422682304043876468">"Luaskan"</string>
     <string name="mr_controller_collapse_group" msgid="5518911192681928413">"Ciutkan"</string>
     <string name="mr_controller_album_art" msgid="5813284753012893250">"Sampul album"</string>
-    <string name="mr_controller_volume_slider" msgid="691656961160498512">"Penggeser volume"</string>
+    <string name="mr_controller_volume_slider" msgid="691656961160498512">"Pengatur volume"</string>
     <string name="mr_controller_no_media_selected" msgid="4342878516155861006">"Tidak ada media yang dipilih"</string>
     <string name="mr_controller_no_info_available" msgid="7299368841849988218">"Tidak ada info yang tersedia"</string>
     <string name="mr_controller_casting_screen" msgid="5286734709674025661">"Melakukan cast layar"</string>

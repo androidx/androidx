@@ -1,5 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="4" by="lint 3.0.0">
+<issues format="5" by="lint 3.5.0-beta04" client="gradle" variant="debug" version="3.5.0-beta04">
+
+    <issue
+        id="CanvasSize"
+        message="Calling `Canvas.getWidth()` is usually wrong; you should be calling `getWidth()` instead"
+        errorLine1="        final float x = canvas.getWidth() / 2;"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/animation/SpringView.java"
+            line="55"
+            column="25"/>
+    </issue>
 
     <issue
         id="DefaultLocale"
@@ -8,7 +19,7 @@
         errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/support/animation/MainActivity.java"
-            line="131"
+            line="132"
             column="31"/>
     </issue>
 
@@ -19,7 +30,7 @@
         errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/support/animation/MainActivity.java"
-            line="153"
+            line="154"
             column="31"/>
     </issue>
 
@@ -30,7 +41,7 @@
         errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/support/animation/SpringActivity.java"
-            line="116"
+            line="117"
             column="31"/>
     </issue>
 
@@ -41,7 +52,7 @@
         errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/support/animation/SpringActivity.java"
-            line="138"
+            line="139"
             column="31"/>
     </issue>
 
@@ -49,22 +60,22 @@
         id="AllowBackup"
         message="On SDK version 23 and up, your app data will be automatically backed up and restored on app install. Consider adding the attribute `android:fullBackupContent` to specify an `@xml` resource which configures which files to backup. More info: https://developer.android.com/training/backup/autosyncapi.html"
         errorLine1="    &lt;application android:label=&quot;@string/activity_sample_code&quot;"
-        errorLine2="    ^">
+        errorLine2="     ~~~~~~~~~~~">
         <location
             file="src/main/AndroidManifest.xml"
             line="19"
-            column="5"/>
+            column="6"/>
     </issue>
 
     <issue
         id="AllowBackup"
         message="Should explicitly set `android:allowBackup` to `true` or `false` (it&apos;s `true` by default, and that can have some security implications for the application&apos;s data)"
         errorLine1="    &lt;application android:label=&quot;@string/activity_sample_code&quot;"
-        errorLine2="    ^">
+        errorLine2="     ~~~~~~~~~~~">
         <location
             file="src/main/AndroidManifest.xml"
             line="19"
-            column="5"/>
+            column="6"/>
     </issue>
 
     <issue
@@ -90,25 +101,14 @@
     </issue>
 
     <issue
-        id="MergeRootFrame"
-        message="This `&lt;FrameLayout>` can be replaced with a `&lt;merge>` tag"
-        errorLine1="&lt;FrameLayout xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
-        errorLine2="^">
-        <location
-            file="src/main/res/layout/activity_chained_springs.xml"
-            line="17"
-            column="1"/>
-    </issue>
-
-    <issue
         id="UselessParent"
         message="This `FrameLayout` layout or its `RelativeLayout` parent is possibly useless"
         errorLine1="    &lt;FrameLayout"
-        errorLine2="    ^">
+        errorLine2="     ~~~~~~~~~~~">
         <location
             file="src/main/res/layout/activity_main.xml"
             line="30"
-            column="5"/>
+            column="6"/>
     </issue>
 
     <issue
@@ -136,7 +136,7 @@
         errorLine2="                           ~~~~~~~">
         <location
             file="src/main/java/com/example/android/support/animation/MainActivity.java"
-            line="74"
+            line="75"
             column="28"/>
     </issue>
 
@@ -147,7 +147,7 @@
         errorLine2="                           ~~~~~~~">
         <location
             file="src/main/java/com/example/android/support/animation/SpringActivity.java"
-            line="62"
+            line="63"
             column="28"/>
     </issue>
 
@@ -155,33 +155,33 @@
         id="ContentDescription"
         message="Missing `contentDescription` attribute on image"
         errorLine1="        &lt;ImageView"
-        errorLine2="        ^">
+        errorLine2="         ~~~~~~~~~">
         <location
             file="src/main/res/layout/activity_chained_springs.xml"
             line="87"
-            column="9"/>
+            column="10"/>
     </issue>
 
     <issue
         id="ContentDescription"
         message="Missing `contentDescription` attribute on image"
         errorLine1="        &lt;ImageView"
-        errorLine2="        ^">
+        errorLine2="         ~~~~~~~~~">
         <location
             file="src/main/res/layout/activity_chained_springs.xml"
             line="93"
-            column="9"/>
+            column="10"/>
     </issue>
 
     <issue
         id="ContentDescription"
         message="Missing `contentDescription` attribute on image"
         errorLine1="        &lt;ImageView"
-        errorLine2="        ^">
+        errorLine2="         ~~~~~~~~~">
         <location
             file="src/main/res/layout/activity_main.xml"
             line="39"
-            column="9"/>
+            column="10"/>
     </issue>
 
     <issue

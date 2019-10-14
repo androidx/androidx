@@ -1,8 +1,11 @@
 #!/bin/bash
 set -e
+set -m
 
 # This is a wrapper script that runs the specific version of Android Studio that is recommended for developing in this repository.
 # (This serves a similar purpose to gradlew)
+#
+# NOTE: if you are changing this file, consider applying the changes to ./ui/studiow, used for the Compose project.
 
 
 function getStudioUrl() {
@@ -21,7 +24,8 @@ function getStudioUrl() {
   echo "${studioUrl}"
 }
 
-acceptsLicenseAgreement="$1"
+acceptsLicenseAgreement="false"
+runStudio="true"
 scriptDir="$(cd $(dirname $0) && pwd)"
 projectDir=$scriptDir
 tempDir="${scriptDir}/studio"
@@ -40,6 +44,24 @@ studioUrl="$(getStudioUrl $osName)"
 studioDestName="$(basename ${studioUrl})"
 studioZipPath="${tempDir}/${studioDestName}"
 studioUnzippedPath="$(echo ${studioZipPath} | sed 's/\.zip$//; s/\.tar.gz$//')"
+
+function parseOptions() {
+  while :; do
+    case "$1" in
+      -y|--accept-license-agreement)
+        acceptsLicenseAgreement="true"
+        ;;
+      --update-only)
+        runStudio="false"
+        ;;
+      *)
+        break
+    esac
+
+    shift
+  done
+}
+
 
 function downloadFile() {
   fromUrl="$1"
@@ -89,13 +111,13 @@ function checkLicenseAgreement() {
   licenseAcceptedPath="${studioUnzippedPath}/STUDIOW_LICENSE_ACCEPTED"
 
   if [ ! -f "${licenseAcceptedPath}" ]; then
-    if [ "${acceptsLicenseAgreement}" == "-y" ]; then
+    if [ "${acceptsLicenseAgreement}" == "true" ]; then
       touch "${licenseAcceptedPath}"
     else
       read -r -n 1 -p "Do you accept the license agreement at $(getLicensePath) [Y/n]? " reply
 
       if [ ! -z "${reply}" ]; then
-	# Fix missing newline
+        # Fix missing newline
         echo
       fi
 
@@ -108,6 +130,16 @@ function checkLicenseAgreement() {
           ;;
       esac
     fi
+  fi
+}
+
+# Temporary fix. Remove this after fixing b/135183535
+function updateJvmHeapSize() {
+  if [ "${osName}" == "mac" ]; then
+    sed -i '' 's/-Xmx.*/-Xmx8g/' "$(findStudioMacAppPath)/Contents/bin/studio.vmoptions"
+  else
+    sed -i 's/-Xmx.*/-Xmx8g/' "${studioUnzippedPath}/android-studio/bin/studio64.vmoptions"
+    sed -i 's/-Xmx.*/-Xmx4g/' "${studioUnzippedPath}/android-studio/bin/studio.vmoptions"
   fi
 }
 
@@ -134,11 +166,26 @@ function updateStudio() {
   fi
 }
 
+function ensureLocalPropertiesUpdated() {
+  testPath="${projectDir}/local.properties"
+  populaterCommand="./gradlew help"
+  if [ ! -f "${testPath}" ]; then
+    cd "$scriptDir"
+    echo "Creating $testPath by running '$populaterCommand'"
+    eval $populaterCommand
+  fi
+}
+
+# ANDROID_LINT_NULLNESS_IGNORE_DEPRECATED environment variable prevents Studio from showing IDE
+# inspection warnings for nullability issues, if the context is deprecated
+# This environment variable is consumed by InteroperabilityDetector.kt
+
 function runStudioLinux() {
   studioPath="${studioUnzippedPath}/android-studio/bin/studio.sh"
   echo "$studioPath &"
   env STUDIO_PROPERTIES="${projectDir}/development/studio/idea.properties" \
       STUDIO_VM_OPTIONS="${projectDir}/development/studio/studio.vmoptions" \
+      ANDROID_LINT_NULLNESS_IGNORE_DEPRECATED="true" \
       "${studioPath}" "${projectDir}" &
 }
 
@@ -147,10 +194,12 @@ function runStudioMac() {
   echo "open ${appPath}"
   env STUDIO_PROPERTIES="${projectDir}/development/studio/idea.properties" \
       STUDIO_VM_OPTIONS="${projectDir}/development/studio/studio.vmoptions" \
+      ANDROID_LINT_NULLNESS_IGNORE_DEPRECATED="true" \
       open -a "${appPath}" "${projectDir}"
 }
 
 function runStudio() {
+  updateJvmHeapSize
   if [ "${osName}" == "mac" ]; then
     runStudioMac
   else
@@ -159,9 +208,13 @@ function runStudio() {
 }
 
 function main() {
+  parseOptions "$@"
   updateStudio
-  checkLicenseAgreement
-  runStudio
+  if [ "${runStudio}" == "true" ]; then
+    checkLicenseAgreement
+    ensureLocalPropertiesUpdated
+    runStudio
+  fi
 }
 
-main
+main "$@"

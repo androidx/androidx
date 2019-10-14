@@ -16,16 +16,24 @@
 
 package androidx.work.impl;
 
+import static android.content.Context.MODE_PRIVATE;
+
+import static androidx.work.impl.utils.PreferenceUtils.KEY_RESCHEDULE_NEEDED;
+import static androidx.work.impl.utils.PreferenceUtils.PREFERENCES_FILE_NAME;
+
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Build;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.room.migration.Migration;
 import androidx.sqlite.db.SupportSQLiteDatabase;
+import androidx.work.impl.model.Preference;
 import androidx.work.impl.model.WorkSpec;
 import androidx.work.impl.model.WorkTypeConverters;
-import androidx.work.impl.utils.Preferences;
+import androidx.work.impl.utils.IdGenerator;
+import androidx.work.impl.utils.PreferenceUtils;
 
 /**
  * Migration helpers for {@link androidx.work.impl.WorkDatabase}.
@@ -46,6 +54,10 @@ public class WorkDatabaseMigrations {
     public static final int VERSION_4 = 4;
     public static final int VERSION_5 = 5;
     public static final int VERSION_6 = 6;
+    public static final int VERSION_7 = 7;
+    public static final int VERSION_8 = 8;
+    public static final int VERSION_9 = 9;
+    public static final int VERSION_10 = 10;
 
     private static final String CREATE_SYSTEM_ID_INFO =
             "CREATE TABLE IF NOT EXISTS `SystemIdInfo` (`work_spec_id` TEXT NOT NULL, `system_id`"
@@ -72,11 +84,33 @@ public class WorkDatabaseMigrations {
             "ALTER TABLE workspec ADD COLUMN `trigger_max_content_delay` INTEGER NOT NULL DEFAULT"
                     + " -1";
 
+    private static final String CREATE_WORK_PROGRESS =
+            "CREATE TABLE IF NOT EXISTS `WorkProgress` (`work_spec_id` TEXT NOT NULL, `progress`"
+                    + " BLOB NOT NULL, PRIMARY KEY(`work_spec_id`), FOREIGN KEY(`work_spec_id`) "
+                    + "REFERENCES `WorkSpec`(`id`) ON UPDATE CASCADE ON DELETE CASCADE )";
+
+    private static final String CREATE_INDEX_PERIOD_START_TIME =
+            "CREATE INDEX IF NOT EXISTS `index_WorkSpec_period_start_time` ON `workspec` "
+                    + "(`period_start_time`)";
+
+    private static final String CREATE_RUN_IN_FOREGROUND =
+            "ALTER TABLE workspec ADD COLUMN `run_in_foreground` INTEGER NOT NULL DEFAULT 0";
+
+    public static final String INSERT_PREFERENCE =
+            "INSERT OR REPLACE INTO `Preference`"
+                    + " (`key`, `long_value`) VALUES"
+                    + " (@key, @long_value)";
+
+    private static final String CREATE_PREFERENCE =
+            "CREATE TABLE IF NOT EXISTS `Preference` (`key` TEXT NOT NULL, `long_value` INTEGER, "
+                    + "PRIMARY KEY(`key`))";
+
     /**
      * Removes the {@code alarmInfo} table and substitutes it for a more general
      * {@code SystemIdInfo} table.
      * Adds implicit work tags for all work (a tag with the worker class name).
      */
+    @NonNull
     public static Migration MIGRATION_1_2 = new Migration(VERSION_1, VERSION_2) {
         @Override
         public void migrate(@NonNull SupportSQLiteDatabase database) {
@@ -91,18 +125,28 @@ public class WorkDatabaseMigrations {
     /**
      * A {@link WorkDatabase} migration that reschedules all eligible Workers.
      */
-    public static class WorkMigration extends Migration {
+    public static class RescheduleMigration extends Migration {
         final Context mContext;
 
-        public WorkMigration(@NonNull Context context, int startVersion, int endVersion) {
+        public RescheduleMigration(@NonNull Context context, int startVersion, int endVersion) {
             super(startVersion, endVersion);
             mContext = context;
         }
 
         @Override
         public void migrate(@NonNull SupportSQLiteDatabase database) {
-            Preferences preferences = new Preferences(mContext);
-            preferences.setNeedsReschedule(true);
+            if (endVersion >= VERSION_10) {
+                database.execSQL(INSERT_PREFERENCE, new Object[]{KEY_RESCHEDULE_NEEDED, 1});
+            } else {
+                SharedPreferences preferences =
+                        mContext.getSharedPreferences(PREFERENCES_FILE_NAME, MODE_PRIVATE);
+
+                // Mutate the shared preferences directly, and eventually they will get
+                // migrated to the data store post v10.
+                preferences.edit()
+                        .putBoolean(KEY_RESCHEDULE_NEEDED, true)
+                        .apply();
+            }
         }
     }
 
@@ -110,6 +154,7 @@ public class WorkDatabaseMigrations {
      * Marks {@code SCHEDULE_REQUESTED_AT} to something other than
      * {@code SCHEDULE_NOT_REQUESTED_AT}.
      */
+    @NonNull
     public static Migration MIGRATION_3_4 = new Migration(VERSION_3, VERSION_4) {
         @Override
         public void migrate(@NonNull SupportSQLiteDatabase database) {
@@ -122,6 +167,7 @@ public class WorkDatabaseMigrations {
     /**
      * Adds the {@code ContentUri} delays to the WorkSpec table.
      */
+    @NonNull
     public static Migration MIGRATION_4_5 = new Migration(VERSION_4, VERSION_5) {
         @Override
         public void migrate(@NonNull SupportSQLiteDatabase database) {
@@ -129,4 +175,56 @@ public class WorkDatabaseMigrations {
             database.execSQL(WORKSPEC_ADD_TRIGGER_MAX_CONTENT_DELAY);
         }
     };
+
+    /**
+     * Adds {@link androidx.work.impl.model.WorkProgress}.
+     */
+    @NonNull
+    public static Migration MIGRATION_6_7 = new Migration(VERSION_6, VERSION_7) {
+        @Override
+        public void migrate(@NonNull SupportSQLiteDatabase database) {
+            database.execSQL(CREATE_WORK_PROGRESS);
+        }
+    };
+
+    /**
+     * Adds an index on period_start_time in {@link WorkSpec}.
+     */
+    @NonNull
+    public static Migration MIGRATION_7_8 = new Migration(VERSION_7, VERSION_8) {
+        @Override
+        public void migrate(@NonNull SupportSQLiteDatabase database) {
+            database.execSQL(CREATE_INDEX_PERIOD_START_TIME);
+        }
+    };
+
+    /**
+     * Adds a notification_provider to the {@link WorkSpec}.
+     */
+    @NonNull
+    public static Migration MIGRATION_8_9 = new Migration(VERSION_8, VERSION_9) {
+        @Override
+        public void migrate(@NonNull SupportSQLiteDatabase database) {
+            database.execSQL(CREATE_RUN_IN_FOREGROUND);
+        }
+    };
+
+    /**
+     * Adds the {@link Preference} table.
+     */
+    public static class WorkMigration9To10 extends Migration {
+        final Context mContext;
+
+        public WorkMigration9To10(@NonNull Context context) {
+            super(VERSION_9, VERSION_10);
+            mContext = context;
+        }
+
+        @Override
+        public void migrate(@NonNull SupportSQLiteDatabase database) {
+            database.execSQL(CREATE_PREFERENCE);
+            PreferenceUtils.migrateLegacyPreferences(mContext, database);
+            IdGenerator.migrateLegacyIdGenerator(mContext, database);
+        }
+    }
 }

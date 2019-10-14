@@ -16,35 +16,40 @@
 
 package androidx.paging.integration.testapp.custom;
 
+import android.annotation.SuppressLint;
+
+import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModel;
-import androidx.paging.DataSource;
 import androidx.paging.LivePagedListBuilder;
 import androidx.paging.PagedList;
+import androidx.paging.PagedSource;
+
+import kotlin.jvm.functions.Function0;
 
 /**
  * Sample ViewModel backed by an artificial data source
  */
-@SuppressWarnings("WeakerAccess")
 public class PagedListItemViewModel extends ViewModel {
     private ItemDataSource mDataSource;
     private final Object mDataSourceLock = new Object();
 
-    private final DataSource.Factory<Integer, Item> mFactory =
-            new DataSource.Factory<Integer, Item>() {
-        @Override
-        public DataSource<Integer, Item> create() {
-            ItemDataSource newDataSource = new ItemDataSource();
-            synchronized (mDataSourceLock) {
-                mDataSource = newDataSource;
-                return mDataSource;
-            }
-        }
-    };
+    private final Function0<PagedSource<Integer, Item>> mFactory =
+            new Function0<PagedSource<Integer, Item>>() {
+                @SuppressLint("SyntheticAccessor")
+                @NonNull
+                @Override
+                public PagedSource<Integer, Item> invoke() {
+                    ItemDataSource newDataSource = new ItemDataSource();
+                    synchronized (mDataSourceLock) {
+                        mDataSource = newDataSource;
+                        return mDataSource;
+                    }
+                }
+            };
 
     private LiveData<PagedList<Item>> mLivePagedList =
-            new LivePagedListBuilder<>(mFactory, 10)
-                    .build();
+            new LivePagedListBuilder<>(mFactory, 10).build();
 
     void invalidateList() {
         synchronized (mDataSourceLock) {

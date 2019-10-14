@@ -19,12 +19,12 @@ package androidx.car.widget;
 import android.view.View;
 
 import androidx.annotation.Nullable;
+import androidx.arch.core.util.Function;
 import androidx.car.uxrestrictions.OnUxRestrictionsChangedListener;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Function;
 
 /**
  * Definition of items that can be inserted into {@link ListItemAdapter}.
@@ -56,6 +56,7 @@ public abstract class ListItem<VH extends ListItem.ViewHolder> {
     /**
      * Called when ListItem is bound to its ViewHolder.
      */
+    @SuppressWarnings("unchecked")
     final void bind(VH viewHolder) {
         // Attempt to clean up custom view binder from previous item (if any).
         // Then save the clean up binders for next item.
@@ -230,6 +231,7 @@ public abstract class ListItem<VH extends ListItem.ViewHolder> {
          * Removes customization from previous ListItem. Intended to be used when this ViewHolder is
          * bound to a ListItem.
          */
+        @SuppressWarnings("unchecked")
         public final void cleanUp() {
             for (ViewBinder binder : mCleanUps) {
                 binder.bind(this);

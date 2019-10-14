@@ -40,7 +40,7 @@ limitations under the License.
     <string name="lb_playback_controls_thumb_down_outline" msgid="2847309435442474470">"থাম্ব ডাউন বাছনি কৰক"</string>
     <string name="lb_playback_controls_repeat_none" msgid="5812341701962930499">"একো পুনৰাই প্লে নকৰিব"</string>
     <string name="lb_playback_controls_repeat_all" msgid="5164826436271322261">"সকলো পুনৰাই প্লে কৰক"</string>
-    <string name="lb_playback_controls_repeat_one" msgid="7675097479246139440">"এটা পুনৰাই প্লে কৰক"</string>
+    <string name="lb_playback_controls_repeat_one" msgid="7675097479246139440">"এটা পুনৰাই প্লে’ কৰক"</string>
     <string name="lb_playback_controls_shuffle_enable" msgid="7809089255981448519">"সান-মিহলি সক্ষম কৰক"</string>
     <string name="lb_playback_controls_shuffle_disable" msgid="8182435535948303910">"সান-মিহলি অক্ষম কৰক"</string>
     <string name="lb_playback_controls_high_quality_enable" msgid="1862669142355962638">"উচ্চ মানৰ প্লেবেক সক্ষম কৰক"</string>
@@ -49,7 +49,7 @@ limitations under the License.
     <string name="lb_playback_controls_closed_captioning_disable" msgid="5508271941331836786">"ছাব-টাইটেল অক্ষম কৰক"</string>
     <string name="lb_playback_controls_picture_in_picture" msgid="8800305194045609275">"চিত্ৰৰ ভিতৰত চিত্ৰ ম\'ড আৰম্ভ কৰক"</string>
     <string name="lb_playback_time_separator" msgid="6549544638083578695">"/"</string>
-    <string name="lb_playback_controls_shown" msgid="7794717158616536936">"মিডিয়াৰ নিয়ন্ত্ৰণসমূহ দেখুওৱা হ\'ল"</string>
+    <string name="lb_playback_controls_shown" msgid="7794717158616536936">"মিডিয়াৰ নিয়ন্ত্ৰণসমূহ দেখুওৱা হ’ল"</string>
     <string name="lb_playback_controls_hidden" msgid="619396299825306757">"মিডিয়াৰ নিয়ন্ত্ৰণসমূহ লুকুৱাই ৰখা হৈছে, দেখুওৱাবলৈ ডি-পেডত টিপক"</string>
     <string name="lb_guidedaction_finish_title" msgid="7747913934287176843">"সমাপ্ত"</string>
     <string name="lb_guidedaction_continue_title" msgid="1122271825827282965">"অব্যাহত ৰাখক"</string>

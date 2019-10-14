@@ -1,0 +1,23 @@
+// Baseline format: 1.0
+AddedAbstractMethod: androidx.navigation.Navigator#createDestination():
+    Added method androidx.navigation.Navigator.createDestination()
+AddedAbstractMethod: androidx.navigation.Navigator#navigate(D, android.os.Bundle, androidx.navigation.NavOptions, androidx.navigation.Navigator.Extras):
+    Added method androidx.navigation.Navigator.navigate(D,android.os.Bundle,androidx.navigation.NavOptions,androidx.navigation.Navigator.Extras)
+AddedAbstractMethod: androidx.navigation.Navigator#popBackStack():
+    Added method androidx.navigation.Navigator.popBackStack()
+
+
+RemovedInterface: androidx.navigation.Navigator.OnNavigatorBackPressListener:
+    Removed class androidx.navigation.Navigator.OnNavigatorBackPressListener
+
+
+RemovedMethod: androidx.navigation.Navigator#addOnNavigatorBackPressListener(androidx.navigation.Navigator.OnNavigatorBackPressListener):
+    Removed method androidx.navigation.Navigator.addOnNavigatorBackPressListener(androidx.navigation.Navigator.OnNavigatorBackPressListener)
+RemovedMethod: androidx.navigation.Navigator#dispatchOnNavigatorBackPress():
+    Removed method androidx.navigation.Navigator.dispatchOnNavigatorBackPress()
+RemovedMethod: androidx.navigation.Navigator#onBackPressAdded():
+    Removed method androidx.navigation.Navigator.onBackPressAdded()
+RemovedMethod: androidx.navigation.Navigator#onBackPressRemoved():
+    Removed method androidx.navigation.Navigator.onBackPressRemoved()
+RemovedMethod: androidx.navigation.Navigator#removeOnNavigatorBackPressListener(androidx.navigation.Navigator.OnNavigatorBackPressListener):
+    Removed method androidx.navigation.Navigator.removeOnNavigatorBackPressListener(androidx.navigation.Navigator.OnNavigatorBackPressListener)

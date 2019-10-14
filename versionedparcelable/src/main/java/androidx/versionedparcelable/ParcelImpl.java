@@ -41,7 +41,7 @@ public class ParcelImpl implements Parcelable {
 
     /**
      */
-    @SuppressWarnings("TypeParameterUnusedInFormals")
+    @SuppressWarnings({"TypeParameterUnusedInFormals", "unchecked"})
     public <T extends VersionedParcelable> T getVersionedParcel() {
         return (T) mParcel;
     }

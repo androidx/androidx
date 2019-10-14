@@ -177,8 +177,7 @@ package androidx.exifinterface.media {
     field public static final String TAG_BITS_PER_SAMPLE = "BitsPerSample";
     field public static final String TAG_BODY_SERIAL_NUMBER = "BodySerialNumber";
     field public static final String TAG_BRIGHTNESS_VALUE = "BrightnessValue";
-    field @Deprecated public static final String TAG_CAMARA_OWNER_NAME = "CameraOwnerName";
-    field public static final String TAG_CAMERA_OWNER_NAME = "CameraOwnerName";
+    field public static final String TAG_CAMARA_OWNER_NAME = "CameraOwnerName";
     field public static final String TAG_CFA_PATTERN = "CFAPattern";
     field public static final String TAG_COLOR_SPACE = "ColorSpace";
     field public static final String TAG_COMPONENTS_CONFIGURATION = "ComponentsConfiguration";

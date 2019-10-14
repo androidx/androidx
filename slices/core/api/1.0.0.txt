@@ -1,11 +1,10 @@
 // Signature format: 3.0
 package androidx.slice {
 
-  @RequiresApi(19) public final class Slice extends androidx.versionedparcelable.CustomVersionedParcelable implements androidx.versionedparcelable.VersionedParcelable {
-    method public java.util.List<java.lang.String>! getHints();
-    method public java.util.List<androidx.slice.SliceItem>! getItems();
+  @RequiresApi(19) public final class Slice implements androidx.versionedparcelable.VersionedParcelable {
+    method public java.util.List<java.lang.String!>! getHints();
+    method public java.util.List<androidx.slice.SliceItem!>! getItems();
     method public android.net.Uri! getUri();
-    field public static final String EXTRA_SELECTION = "android.app.slice.extra.SELECTION";
   }
 
   @RequiresApi(28) public class SliceConvert {
@@ -17,7 +16,7 @@ package androidx.slice {
     method public void fireAction(android.content.Context?, android.content.Intent?) throws android.app.PendingIntent.CanceledException;
     method public android.app.PendingIntent! getAction();
     method public String! getFormat();
-    method public java.util.List<java.lang.String> getHints();
+    method public java.util.List<java.lang.String!> getHints();
     method public androidx.core.graphics.drawable.IconCompat! getIcon();
     method public int getInt();
     method public long getLong();
@@ -30,32 +29,32 @@ package androidx.slice {
   @RequiresApi(19) public abstract class SliceManager {
     method public abstract int checkSlicePermission(android.net.Uri, int, int);
     method public static androidx.slice.SliceManager getInstance(android.content.Context);
-    method public abstract java.util.List<android.net.Uri> getPinnedSlices();
+    method public abstract java.util.List<android.net.Uri!> getPinnedSlices();
     method public abstract void grantSlicePermission(String, android.net.Uri);
     method public abstract void revokeSlicePermission(String, android.net.Uri);
   }
 
   public abstract class SliceProvider extends android.content.ContentProvider implements androidx.core.app.CoreComponentFactory.CompatWrapped {
-    ctor public SliceProvider(java.lang.String...);
+    ctor public SliceProvider(java.lang.String!...);
     ctor public SliceProvider();
-    method public final int bulkInsert(android.net.Uri, android.content.ContentValues[]);
+    method public final int bulkInsert(android.net.Uri, android.content.ContentValues![]);
     method @RequiresApi(19) public final android.net.Uri? canonicalize(android.net.Uri);
-    method public final int delete(android.net.Uri, String?, String[]?);
-    method @RequiresApi(19) public java.util.List<android.net.Uri> getPinnedSlices();
+    method public final int delete(android.net.Uri, String?, String![]?);
+    method @RequiresApi(19) public java.util.List<android.net.Uri!> getPinnedSlices();
     method public final String! getType(android.net.Uri!);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY) @RequiresApi(19) public Object! getWrapper();
+    method @RequiresApi(19) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY) public Object! getWrapper();
     method public final android.net.Uri? insert(android.net.Uri, android.content.ContentValues?);
     method @RequiresApi(19) public abstract androidx.slice.Slice! onBindSlice(android.net.Uri!);
     method public final boolean onCreate();
     method @RequiresApi(19) public abstract boolean onCreateSliceProvider();
-    method @RequiresApi(19) public java.util.Collection<android.net.Uri>! onGetSliceDescendants(android.net.Uri!);
+    method @RequiresApi(19) public java.util.Collection<android.net.Uri!>! onGetSliceDescendants(android.net.Uri!);
     method @RequiresApi(19) public android.net.Uri onMapIntentToUri(android.content.Intent!);
     method @RequiresApi(19) public void onSlicePinned(android.net.Uri!);
     method @RequiresApi(19) public void onSliceUnpinned(android.net.Uri!);
-    method public final android.database.Cursor? query(android.net.Uri, String[]?, String?, String[]?, String?);
-    method @RequiresApi(28) public final android.database.Cursor? query(android.net.Uri, String[]?, android.os.Bundle?, android.os.CancellationSignal?);
-    method @RequiresApi(16) public final android.database.Cursor? query(android.net.Uri, String[]?, String?, String[]?, String?, android.os.CancellationSignal?);
-    method public final int update(android.net.Uri, android.content.ContentValues?, String?, String[]?);
+    method public final android.database.Cursor? query(android.net.Uri, String![]?, String?, String![]?, String?);
+    method @RequiresApi(28) public final android.database.Cursor? query(android.net.Uri, String![]?, android.os.Bundle?, android.os.CancellationSignal?);
+    method @RequiresApi(16) public final android.database.Cursor? query(android.net.Uri, String![]?, String?, String![]?, String?, android.os.CancellationSignal?);
+    method public final int update(android.net.Uri, android.content.ContentValues?, String?, String![]?);
   }
 
 }

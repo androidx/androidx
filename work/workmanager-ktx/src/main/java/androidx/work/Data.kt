@@ -34,3 +34,10 @@ inline fun workDataOf(vararg pairs: Pair<String, Any?>): Data {
     }
     return dataBuilder.build()
 }
+
+/**
+ * Returns true if the instance of [Data] has a value corresponding to the given [key] with an
+ * expected type [T].
+ */
+inline fun <reified T : Any> Data.hasKeyWithValueOfType(key: String) =
+    hasKeyWithValueOfType(key, T::class.java)

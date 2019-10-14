@@ -348,6 +348,7 @@ public class DetailsSupportFragment extends BaseSupportFragment {
     final BaseOnItemViewSelectedListener<Object> mOnItemViewSelectedListener =
             new BaseOnItemViewSelectedListener<Object>() {
         @Override
+        @SuppressWarnings("unchecked")
         public void onItemSelected(Presenter.ViewHolder itemViewHolder, Object item,
                                    RowPresenter.ViewHolder rowViewHolder, Object row) {
             int position = mRowsSupportFragment.getVerticalGridView().getSelectedPosition();

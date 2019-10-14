@@ -24,12 +24,13 @@ plugins {
 
 dependencies {
     implementation(MATERIAL)
-    implementation(project(":transition"))
-    implementation(project(":recyclerview"))
+    implementation(project(":transition:transition"))
+    implementation(project(":recyclerview:recyclerview"))
     implementation(project(":appcompat"))
     implementation(project(":contentpager"))
     implementation(project(":cardview"))
     implementation(project(":coordinatorlayout"))
+    implementation(project(":core:core"))
 }
 
 android {

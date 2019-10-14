@@ -22,7 +22,7 @@ package androidx.documentfile.provider {
     method public abstract boolean isVirtual();
     method public abstract long lastModified();
     method public abstract long length();
-    method public abstract androidx.documentfile.provider.DocumentFile[] listFiles();
+    method public abstract androidx.documentfile.provider.DocumentFile![] listFiles();
     method public abstract boolean renameTo(String);
   }
 

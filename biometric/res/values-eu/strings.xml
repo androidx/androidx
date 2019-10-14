@@ -26,4 +26,6 @@
     <string name="fingerprint_error_user_canceled" msgid="3421037373085129417">"Erabiltzaileak bertan behera utzi du hatz-marka bidezko eragiketa."</string>
     <string name="fingerprint_error_lockout" msgid="1651062876313169162">"Saiakera gehiegi egin dira. Saiatu berriro geroago."</string>
     <string name="default_error_msg" msgid="7497355367608150274">"Errore ezezaguna"</string>
+    <string name="generic_error_user_canceled" msgid="7474799539658018076">"Erabiltzaileak bertan behera utzi du autentifikazioa"</string>
+    <string name="confirm_device_credential_password" msgid="4296851028928624518">"Erabili pasahitza"</string>
 </resources>

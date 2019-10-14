@@ -18,36 +18,69 @@ package androidx.paging.integration.testapp.custom
 
 import android.graphics.Color
 import androidx.annotation.ColorInt
-import androidx.paging.PositionalDataSource
-import java.util.ArrayList
+import androidx.paging.LoadType
+import androidx.paging.PagedSource
+import kotlinx.coroutines.delay
 import java.util.concurrent.atomic.AtomicBoolean
 
 val dataSourceError = AtomicBoolean(false)
+
 /**
- * Sample data source with artificial data.
+ * Sample position-based PagedSource with artificial data.
  */
-internal class ItemDataSource : PositionalDataSource<Item>() {
+internal class ItemDataSource : PagedSource<Int, Item>() {
     class RetryableItemError : Exception()
 
-    private val mGenerationId = sGenerationId++
+    private val generationId = sGenerationId++
 
-    private fun loadRangeInternal(startPosition: Int, loadCount: Int): List<Item>? {
-        val items = ArrayList<Item>()
-        val end = Math.min(COUNT, startPosition + loadCount)
-        val bgColor = COLORS[mGenerationId % COLORS.size]
+    override fun getRefreshKeyFromPage(
+        indexInPage: Int,
+        page: LoadResult.Page<Int, Item>
+    ): Int? = page.prevKey!! + indexInPage
 
-        Thread.sleep(1000)
-
-        if (end < startPosition) {
-            throw IllegalStateException()
+    override suspend fun load(params: LoadParams<Int>): LoadResult<Int, Item> =
+        when (params.loadType) {
+            LoadType.REFRESH ->
+                loadInternal(
+                    position = ((params.key ?: 0) - params.loadSize / 2).coerceAtLeast(0),
+                    loadSize = params.loadSize
+                )
+            LoadType.START -> {
+                val loadSize = minOf(params.key!!, params.pageSize)
+                loadInternal(
+                    position = params.key!! - loadSize,
+                    loadSize = loadSize
+                )
+            }
+            LoadType.END ->
+                loadInternal(
+                    position = params.key!!,
+                    loadSize = params.loadSize
+                )
         }
-        for (i in startPosition until end) {
-            items.add(Item(i, "item $i", bgColor))
-        }
+
+    private suspend fun loadInternal(
+        position: Int,
+        loadSize: Int
+    ): LoadResult<Int, Item> {
+        delay(1000)
         if (dataSourceError.compareAndSet(true, false)) {
-            return null
+            return LoadResult.Error(RetryableItemError())
+        } else {
+            val bgColor = COLORS[generationId % COLORS.size]
+            val endExclusive = (position + loadSize).coerceAtMost(COUNT)
+            val data = (position until endExclusive).map {
+                Item(it, "item $it", bgColor)
+            }
+
+            return LoadResult.Page(
+                data = data,
+                prevKey = position,
+                nextKey = endExclusive,
+                itemsBefore = position,
+                itemsAfter = COUNT - endExclusive
+            )
         }
-        return items
     }
 
     companion object {
@@ -55,31 +88,6 @@ internal class ItemDataSource : PositionalDataSource<Item>() {
 
         @ColorInt
         private val COLORS = intArrayOf(Color.RED, Color.BLUE, Color.BLACK)
-
         private var sGenerationId: Int = 0
-    }
-
-    override fun loadInitial(params: LoadInitialParams, callback: LoadInitialCallback<Item>) {
-        val position = PositionalDataSource.computeInitialLoadPosition(params, COUNT)
-        val loadSize = PositionalDataSource.computeInitialLoadSize(params, position, COUNT)
-        val data = loadRangeInternal(position, loadSize)
-        if (data == null) {
-            callback.onError(RetryableItemError())
-        } else {
-            callback.onResult(data, position, COUNT)
-        }
-    }
-
-    override fun loadRange(params: LoadRangeParams, callback: LoadRangeCallback<Item>) {
-        val data = loadRangeInternal(params.startPosition, params.loadSize)
-        if (data == null) {
-            callback.onError(RetryableItemError())
-        } else {
-            callback.onResult(data)
-        }
-    }
-
-    override fun isRetryableError(error: Throwable): Boolean {
-        return error is RetryableItemError
     }
 }

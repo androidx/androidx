@@ -33,16 +33,17 @@ import androidx.annotation.IntRange;
 import androidx.annotation.LayoutRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
+import androidx.arch.core.util.Function;
 import androidx.car.R;
 import androidx.car.util.CarUxRestrictionsHelper;
 import androidx.car.util.ListItemBackgroundResolver;
 import androidx.car.uxrestrictions.CarUxRestrictions;
 import androidx.cardview.widget.CardView;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
-import java.util.function.Function;
 
 /**
  * Adapter for {@link PagedListView} to display {@link ListItem}.
@@ -60,6 +61,50 @@ import java.util.function.Function;
 public class ListItemAdapter extends
         RecyclerView.Adapter<ListItem.ViewHolder> implements PagedListView.ItemCap,
         PagedListView.DividerVisibilityManager {
+
+    /**
+     * Constant class for background style of items.
+     *
+     * @deprecated Use {@link #BACKGROUND_STYLE_SOLID}, {@link #BACKGROUND_STYLE_NONE},
+     * {@link #BACKGROUND_STYLE_CARD}, or {@link #BACKGROUND_STYLE_PANEL} instead.
+     */
+    @Deprecated
+    public static final class BackgroundStyle {
+        private BackgroundStyle() {
+        }
+
+        /**
+         * Sets the background color of each item. Background can be configured by
+         * {@link R.styleable#ListItem_listItemBackgroundColor}.
+         *
+         * @deprecated Use {@link #BACKGROUND_STYLE_SOLID} instead.
+         */
+        @Deprecated
+        public static final int SOLID = BACKGROUND_STYLE_SOLID;
+        /**
+         * Sets the background color of each item to none (transparent).
+         *
+         * @deprecated Use {@link #BACKGROUND_STYLE_NONE} instead.
+         */
+        @Deprecated
+        public static final int NONE = BACKGROUND_STYLE_NONE;
+        /**
+         * Sets each item in {@link CardView} with a rounded corner background and shadow.
+         *
+         * @deprecated Use {@link #BACKGROUND_STYLE_CARD} instead.
+         */
+        @Deprecated
+        public static final int CARD = BACKGROUND_STYLE_CARD;
+        /**
+         * Sets background of each item so the combined list looks like one elongated card, namely
+         * top and bottom item will have rounded corner at only top/bottom side respectively. If
+         * only one item exists, it will have both top and bottom rounded corner.
+         *
+         * @deprecated Use {@link #BACKGROUND_STYLE_PANEL} instead.
+         */
+        @Deprecated
+        public static final int PANEL = BACKGROUND_STYLE_PANEL;
+    }
 
     /**
      * @hide
@@ -95,12 +140,27 @@ public class ListItemAdapter extends
      */
     public static final int BACKGROUND_STYLE_PANEL = 3;
 
+    /** @hide */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @IntDef({
+            LIST_ITEM_TYPE_TEXT,
+            LIST_ITEM_TYPE_SEEKBAR,
+            LIST_ITEM_TYPE_SUBHEADER,
+            LIST_ITEM_TYPE_ACTION,
+            LIST_ITEM_TYPE_RADIO,
+            LIST_ITEM_TYPE_SWITCH,
+            LIST_ITEM_TYPE_CHECK_BOX})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface ListItemType {
+    }
+
     static final int LIST_ITEM_TYPE_TEXT = 1;
     static final int LIST_ITEM_TYPE_SEEKBAR = 2;
     static final int LIST_ITEM_TYPE_SUBHEADER = 3;
     static final int LIST_ITEM_TYPE_ACTION = 4;
     static final int LIST_ITEM_TYPE_RADIO = 5;
     static final int LIST_ITEM_TYPE_SWITCH = 6;
+    static final int LIST_ITEM_TYPE_CHECK_BOX = 7;
 
     private final SparseIntArray mViewHolderLayoutResIds = new SparseIntArray();
 
@@ -146,6 +206,8 @@ public class ListItemAdapter extends
                 R.layout.car_list_item_radio_content, RadioButtonListItem::createViewHolder);
         registerListItemViewTypeInternal(LIST_ITEM_TYPE_SWITCH,
                 R.layout.car_list_item_switch_content, SwitchListItem::createViewHolder);
+        registerListItemViewTypeInternal(LIST_ITEM_TYPE_CHECK_BOX,
+                R.layout.car_list_item_check_box_content, CheckBoxListItem::createViewHolder);
 
         mUxRestrictionsHelper =
                 new CarUxRestrictionsHelper(context, carUxRestrictions -> {
@@ -184,8 +246,8 @@ public class ListItemAdapter extends
     /**
      * Registers a custom {@link ListItem} that this adapter will handle. The custom list item will
      * be identified by the unique view id that is passed to this method. The {@code function}
-     * should a reference to the method that will create the {@code ViewHolder} that houses the
-     * custom {@code ListItem}.
+     * should a reference to the method that will create the {@link ListItem.ViewHolder} that houses
+     * the custom {@link ListItem}.
      *
      * <pre>{@code
      * int viewType = -1;
@@ -240,7 +302,7 @@ public class ListItemAdapter extends
 
         TypedArray a = mContext.getTheme().obtainStyledAttributes(R.styleable.ListItem);
         mListItemBackgroundColor = a.getColor(R.styleable.ListItem_listItemBackgroundColor,
-                mContext.getColor(R.color.car_card));
+                ContextCompat.getColor(mContext, R.color.car_card));
         a.recycle();
     }
 
@@ -295,6 +357,7 @@ public class ListItemAdapter extends
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public void onBindViewHolder(ListItem.ViewHolder holder, int position) {
         if (mBackgroundStyle == BACKGROUND_STYLE_PANEL) {
             ListItemBackgroundResolver.setBackground(

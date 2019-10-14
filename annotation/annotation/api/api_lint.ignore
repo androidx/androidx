@@ -1,0 +1,39 @@
+// Baseline format: 1.0
+MissingNullability: androidx.annotation.CheckResult#suggest():
+    Missing nullability on method `suggest` return
+MissingNullability: androidx.annotation.GuardedBy#value():
+    Missing nullability on method `value` return
+MissingNullability: androidx.annotation.InspectableProperty#enumMapping():
+    Missing nullability on method `enumMapping` return
+MissingNullability: androidx.annotation.InspectableProperty#flagMapping():
+    Missing nullability on method `flagMapping` return
+MissingNullability: androidx.annotation.InspectableProperty#name():
+    Missing nullability on method `name` return
+MissingNullability: androidx.annotation.InspectableProperty#valueType():
+    Missing nullability on method `valueType` return
+MissingNullability: androidx.annotation.InspectableProperty.EnumEntry#name():
+    Missing nullability on method `name` return
+MissingNullability: androidx.annotation.InspectableProperty.FlagEntry#name():
+    Missing nullability on method `name` return
+MissingNullability: androidx.annotation.IntDef#value():
+    Missing nullability on method `value` return
+MissingNullability: androidx.annotation.LongDef#value():
+    Missing nullability on method `value` return
+MissingNullability: androidx.annotation.RequiresFeature#enforcement():
+    Missing nullability on method `enforcement` return
+MissingNullability: androidx.annotation.RequiresFeature#name():
+    Missing nullability on method `name` return
+MissingNullability: androidx.annotation.RequiresPermission#allOf():
+    Missing nullability on method `allOf` return
+MissingNullability: androidx.annotation.RequiresPermission#anyOf():
+    Missing nullability on method `anyOf` return
+MissingNullability: androidx.annotation.RequiresPermission#value():
+    Missing nullability on method `value` return
+MissingNullability: androidx.annotation.RequiresPermission.Read#value():
+    Missing nullability on method `value` return
+MissingNullability: androidx.annotation.RequiresPermission.Write#value():
+    Missing nullability on method `value` return
+MissingNullability: androidx.annotation.RestrictTo#value():
+    Missing nullability on method `value` return
+MissingNullability: androidx.annotation.StringDef#value():
+    Missing nullability on method `value` return

@@ -7,7 +7,7 @@ package androidx.room.testing {
     method public void closeWhenFinished(androidx.sqlite.db.SupportSQLiteDatabase!);
     method public void closeWhenFinished(androidx.room.RoomDatabase!);
     method public androidx.sqlite.db.SupportSQLiteDatabase! createDatabase(String!, int) throws java.io.IOException;
-    method public androidx.sqlite.db.SupportSQLiteDatabase! runMigrationsAndValidate(String!, int, boolean, androidx.room.migration.Migration...!) throws java.io.IOException;
+    method public androidx.sqlite.db.SupportSQLiteDatabase! runMigrationsAndValidate(String!, int, boolean, androidx.room.migration.Migration!...) throws java.io.IOException;
   }
 
 }

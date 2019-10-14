@@ -1,0 +1,29 @@
+// Signature format: 3.0
+package androidx.vectordrawable.graphics.drawable {
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class AnimationUtilsCompat {
+    method public static android.view.animation.Interpolator! loadInterpolator(android.content.Context!, int) throws android.content.res.Resources.NotFoundException;
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class AnimatorInflaterCompat {
+    method public static android.animation.Animator! loadAnimator(android.content.Context!, @AnimatorRes int) throws android.content.res.Resources.NotFoundException;
+    method public static android.animation.Animator! loadAnimator(android.content.Context!, android.content.res.Resources!, android.content.res.Resources.Theme!, @AnimatorRes int) throws android.content.res.Resources.NotFoundException;
+    method public static android.animation.Animator! loadAnimator(android.content.Context!, android.content.res.Resources!, android.content.res.Resources.Theme!, @AnimatorRes int, float) throws android.content.res.Resources.NotFoundException;
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class ArgbEvaluator implements android.animation.TypeEvaluator {
+    ctor public ArgbEvaluator();
+    method public Object! evaluate(float, Object!, Object!);
+    method public static androidx.vectordrawable.graphics.drawable.ArgbEvaluator! getInstance();
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class PathInterpolatorCompat implements android.view.animation.Interpolator {
+    ctor public PathInterpolatorCompat(android.content.Context!, android.util.AttributeSet!, org.xmlpull.v1.XmlPullParser!);
+    ctor public PathInterpolatorCompat(android.content.res.Resources!, android.content.res.Resources.Theme!, android.util.AttributeSet!, org.xmlpull.v1.XmlPullParser!);
+    method public float getInterpolation(float);
+    field public static final double EPSILON = 1.0E-5;
+    field public static final int MAX_NUM_POINTS = 3000; // 0xbb8
+  }
+
+}
+

@@ -17,6 +17,7 @@
 package androidx.media2.test.client.tests;
 
 import static android.media.AudioAttributes.CONTENT_TYPE_MUSIC;
+import static android.media.MediaFormat.MIMETYPE_TEXT_CEA_608;
 
 import static androidx.media.VolumeProviderCompat.VOLUME_CONTROL_ABSOLUTE;
 import static androidx.media2.session.SessionResult.RESULT_SUCCESS;
@@ -34,13 +35,18 @@ import static org.junit.Assert.assertTrue;
 
 import android.graphics.Bitmap;
 import android.media.AudioManager;
+import android.media.MediaFormat;
 import android.os.Build;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.media.AudioAttributesCompat;
 import androidx.media2.common.MediaItem;
 import androidx.media2.common.MediaMetadata;
 import androidx.media2.common.SessionPlayer;
+import androidx.media2.common.SessionPlayer.TrackInfo;
+import androidx.media2.common.SubtitleData;
+import androidx.media2.common.VideoSize;
 import androidx.media2.session.MediaController;
 import androidx.media2.session.MediaController.PlaybackInfo;
 import androidx.media2.session.MediaSession;
@@ -190,8 +196,8 @@ public class MediaControllerCallbackTest extends MediaSessionTestBase {
                 .setSessionToken(mRemoteSession2.getToken())
                 .setControllerCallback(sHandlerExecutor, new MediaController.ControllerCallback() {
                     @Override
-                    public void onConnected(MediaController controller,
-                            SessionCommandGroup allowedCommands) {
+                    public void onConnected(@NonNull MediaController controller,
+                            @NonNull SessionCommandGroup allowedCommands) {
                         super.onConnected(controller, allowedCommands);
                         latch.countDown();
                     }
@@ -220,14 +226,15 @@ public class MediaControllerCallbackTest extends MediaSessionTestBase {
         mController = createController(mRemoteSession2.getToken(),
                 true /* waitForConnect */, null, new MediaController.ControllerCallback() {
                     @Override
-                    public void onPlayerStateChanged(MediaController controller, int state) {
+                    public void onPlayerStateChanged(@NonNull MediaController controller,
+                            int state) {
                         assertEquals(mController, controller);
                         assertEquals(testState, state);
                         latch.countDown();
                     }
 
                     @Override
-                    public void onPlaylistChanged(MediaController controller,
+                    public void onPlaylistChanged(@NonNull MediaController controller,
                             List<MediaItem> list, MediaMetadata metadata) {
                         assertEquals(mController, controller);
                         MediaTestUtils.assertNotMediaItemSubclass(list);
@@ -237,8 +244,8 @@ public class MediaControllerCallbackTest extends MediaSessionTestBase {
                     }
 
                     @Override
-                    public void onPlaybackInfoChanged(MediaController controller,
-                            MediaController.PlaybackInfo info) {
+                    public void onPlaybackInfoChanged(@NonNull MediaController controller,
+                            @NonNull MediaController.PlaybackInfo info) {
                         assertEquals(mController, controller);
                         assertEquals(testAudioAttributes, info.getAudioAttributes());
                         latch.countDown();
@@ -267,7 +274,7 @@ public class MediaControllerCallbackTest extends MediaSessionTestBase {
         MediaController controller = createController(mRemoteSession2.getToken(),
                 true, null /* connectionHints */, new MediaController.ControllerCallback() {
                     @Override
-                    public void onCurrentMediaItemChanged(MediaController controller,
+                    public void onCurrentMediaItemChanged(@NonNull MediaController controller,
                             MediaItem item) {
                         switch ((int) latchForControllerCallback.getCount()) {
                             case 3:
@@ -307,7 +314,7 @@ public class MediaControllerCallbackTest extends MediaSessionTestBase {
         MediaController controller = createController(
                 mRemoteSession2.getToken(), true, null, new MediaController.ControllerCallback() {
                     @Override
-                    public void onPlaybackSpeedChanged(MediaController controller,
+                    public void onPlaybackSpeedChanged(@NonNull MediaController controller,
                             float speedOut) {
                         assertEquals(speed, speedOut, 0.0f);
                         latchForControllerCallback.countDown();
@@ -336,7 +343,8 @@ public class MediaControllerCallbackTest extends MediaSessionTestBase {
         final MediaController.ControllerCallback callback =
                 new MediaController.ControllerCallback() {
             @Override
-            public void onPlaybackInfoChanged(MediaController controller, PlaybackInfo info) {
+            public void onPlaybackInfoChanged(@NonNull MediaController controller,
+                    @NonNull PlaybackInfo info) {
                 assertEquals(PlaybackInfo.PLAYBACK_TYPE_REMOTE, info.getPlaybackType());
                 assertEquals(attrs, info.getAudioAttributes());
                 assertEquals(volumeControlType, info.getPlaybackType());
@@ -373,8 +381,8 @@ public class MediaControllerCallbackTest extends MediaSessionTestBase {
         final MediaController.ControllerCallback callback =
                 new MediaController.ControllerCallback() {
                     @Override
-                    public void onPlaybackInfoChanged(MediaController controller,
-                            PlaybackInfo info) {
+                    public void onPlaybackInfoChanged(@NonNull MediaController controller,
+                            @NonNull PlaybackInfo info) {
                         assertNotNull(info.getAudioAttributes());
                         assertEquals(attrs, info.getAudioAttributes());
                         latch.countDown();
@@ -398,7 +406,7 @@ public class MediaControllerCallbackTest extends MediaSessionTestBase {
         final MediaController.ControllerCallback callback =
                 new MediaController.ControllerCallback() {
                     @Override
-                    public void onPlaylistChanged(MediaController controller,
+                    public void onPlaylistChanged(@NonNull MediaController controller,
                             List<MediaItem> playlist, MediaMetadata metadata) {
                         assertNotNull(playlist);
                         MediaTestUtils.assertNotMediaItemSubclass(playlist);
@@ -426,7 +434,7 @@ public class MediaControllerCallbackTest extends MediaSessionTestBase {
         final MediaController.ControllerCallback callback =
                 new MediaController.ControllerCallback() {
                     @Override
-                    public void onPlaylistChanged(MediaController controller,
+                    public void onPlaylistChanged(@NonNull MediaController controller,
                             List<MediaItem> playlist, MediaMetadata metadata) {
                         assertNotNull(playlist);
                         assertEquals(listSize, playlist.size());
@@ -459,7 +467,7 @@ public class MediaControllerCallbackTest extends MediaSessionTestBase {
         final MediaController.ControllerCallback callback =
                 new MediaController.ControllerCallback() {
                     @Override
-                    public void onPlaylistMetadataChanged(MediaController controller,
+                    public void onPlaylistMetadataChanged(@NonNull MediaController controller,
                             MediaMetadata metadata) {
                         assertNotNull(metadata);
                         assertEquals(testMetadata.getMediaId(), metadata.getMediaId());
@@ -490,7 +498,7 @@ public class MediaControllerCallbackTest extends MediaSessionTestBase {
         final MediaController.ControllerCallback callback =
                 new MediaController.ControllerCallback() {
                     @Override
-                    public void onPlaylistMetadataChanged(MediaController controller,
+                    public void onPlaylistMetadataChanged(@NonNull MediaController controller,
                             MediaMetadata metadata) {
                         assertNotNull(metadata);
                         Set<String> keySet = metadata.keySet();
@@ -530,7 +538,8 @@ public class MediaControllerCallbackTest extends MediaSessionTestBase {
         final MediaController.ControllerCallback callback =
                 new MediaController.ControllerCallback() {
                     @Override
-                    public void onShuffleModeChanged(MediaController controller, int shuffleMode) {
+                    public void onShuffleModeChanged(@NonNull MediaController controller,
+                            int shuffleMode) {
                         assertEquals(testShuffleMode, shuffleMode);
                         latch.countDown();
                     }
@@ -556,7 +565,8 @@ public class MediaControllerCallbackTest extends MediaSessionTestBase {
         final MediaController.ControllerCallback callback =
                 new MediaController.ControllerCallback() {
                     @Override
-                    public void onRepeatModeChanged(MediaController controller, int repeatMode) {
+                    public void onRepeatModeChanged(@NonNull MediaController controller,
+                            int repeatMode) {
                         assertEquals(testRepeatMode, repeatMode);
                         latch.countDown();
                     }
@@ -579,7 +589,7 @@ public class MediaControllerCallbackTest extends MediaSessionTestBase {
         final MediaController.ControllerCallback callback =
                 new MediaController.ControllerCallback() {
                     @Override
-                    public void onPlaybackCompleted(MediaController controller) {
+                    public void onPlaybackCompleted(@NonNull MediaController controller) {
                         latch.countDown();
                     }
                 };
@@ -601,7 +611,7 @@ public class MediaControllerCallbackTest extends MediaSessionTestBase {
         final MediaController.ControllerCallback callback =
                 new MediaController.ControllerCallback() {
             @Override
-            public void onSeekCompleted(MediaController controller, long position) {
+            public void onSeekCompleted(@NonNull MediaController controller, long position) {
                 controller.setTimeDiff(0L);
                 assertEquals(testSeekPosition, position);
                 assertEquals(testPosition, controller.getCurrentPosition());
@@ -633,8 +643,8 @@ public class MediaControllerCallbackTest extends MediaSessionTestBase {
         final MediaController.ControllerCallback callback =
                 new MediaController.ControllerCallback() {
             @Override
-            public void onBufferingStateChanged(MediaController controller, MediaItem item,
-                    int state) {
+            public void onBufferingStateChanged(@NonNull MediaController controller,
+                    @NonNull MediaItem item, int state) {
                 controller.setTimeDiff(testTimeDiff);
                 MediaTestUtils.assertNotMediaItemSubclass(item);
                 assertEquals(testPlaylist.get(targetItemIndex).getMediaId(), item.getMediaId());
@@ -676,8 +686,8 @@ public class MediaControllerCallbackTest extends MediaSessionTestBase {
         final MediaController.ControllerCallback callback =
                 new MediaController.ControllerCallback() {
             @Override
-            public void onBufferingStateChanged(MediaController controller, MediaItem item,
-                    int state) {
+            public void onBufferingStateChanged(@NonNull MediaController controller,
+                    @NonNull MediaItem item, int state) {
                 controller.setTimeDiff(testTimeDiff);
                 MediaTestUtils.assertNotMediaItemSubclass(item);
                 assertEquals(testPlaylist.get(targetItemIndex).getMediaId(), item.getMediaId());
@@ -714,7 +724,7 @@ public class MediaControllerCallbackTest extends MediaSessionTestBase {
         final MediaController.ControllerCallback callback =
                 new MediaController.ControllerCallback() {
             @Override
-            public void onPlayerStateChanged(MediaController controller, int state) {
+            public void onPlayerStateChanged(@NonNull MediaController controller, int state) {
                 controller.setTimeDiff(testTimeDiff);
                 assertEquals(testPlayerState, state);
                 assertEquals(testPlayerState, controller.getPlayerState());
@@ -741,7 +751,8 @@ public class MediaControllerCallbackTest extends MediaSessionTestBase {
         final MediaController.ControllerCallback callback =
                 new MediaController.ControllerCallback() {
                     @Override
-                    public void onPlayerStateChanged(MediaController controller, int state) {
+                    public void onPlayerStateChanged(@NonNull MediaController controller,
+                            int state) {
                         controller.setTimeDiff(testTimeDiff);
                         assertEquals(testPlayerState, state);
                         assertEquals(testPlayerState, controller.getPlayerState());
@@ -758,6 +769,9 @@ public class MediaControllerCallbackTest extends MediaSessionTestBase {
         assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
     }
 
+    /**
+     * This also tests {@link MediaController#getAllowedCommands()}.
+     */
     @Test
     public void testOnAllowedCommandsChanged() throws InterruptedException {
         prepareLooper();
@@ -770,17 +784,9 @@ public class MediaControllerCallbackTest extends MediaSessionTestBase {
         final MediaController.ControllerCallback callback =
                 new MediaController.ControllerCallback() {
             @Override
-            public void onAllowedCommandsChanged(MediaController controller,
-                    SessionCommandGroup commandsOut) {
-                assertNotNull(commandsOut);
-                Set<SessionCommand> expected = commands.getCommands();
-                Set<SessionCommand> actual = commandsOut.getCommands();
-
-                assertNotNull(actual);
-                assertEquals(expected.size(), actual.size());
-                for (SessionCommand command : expected) {
-                    assertTrue(actual.contains(command));
-                }
+            public void onAllowedCommandsChanged(@NonNull MediaController controller,
+                    @NonNull SessionCommandGroup commandsOut) {
+                assertEquals(commands, commandsOut);
                 latch.countDown();
             }
         };
@@ -789,6 +795,7 @@ public class MediaControllerCallbackTest extends MediaSessionTestBase {
                 callback);
         mRemoteSession2.setAllowedCommands(TEST_CONTROLLER_INFO, commands);
         assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
+        assertEquals(commands, controller.getAllowedCommands());
     }
 
     @Test
@@ -801,9 +808,10 @@ public class MediaControllerCallbackTest extends MediaSessionTestBase {
         final CountDownLatch latch = new CountDownLatch(2);
         final MediaController.ControllerCallback callback =
                 new MediaController.ControllerCallback() {
+            @NonNull
             @Override
-            public SessionResult onCustomCommand(MediaController controller,
-                    SessionCommand command, Bundle args) {
+            public SessionResult onCustomCommand(@NonNull MediaController controller,
+                    @NonNull SessionCommand command, Bundle args) {
                 assertEquals(testCommand, command);
                 assertTrue(TestUtils.equals(testArgs, args));
                 latch.countDown();
@@ -836,8 +844,8 @@ public class MediaControllerCallbackTest extends MediaSessionTestBase {
         final MediaController.ControllerCallback callback =
                 new MediaController.ControllerCallback() {
             @Override
-            public int onSetCustomLayout(MediaController controller,
-                    List<MediaSession.CommandButton> layout) {
+            public int onSetCustomLayout(@NonNull MediaController controller,
+                    @NonNull List<MediaSession.CommandButton> layout) {
                 assertEquals(layout.size(), buttons.size());
                 for (int i = 0; i < layout.size(); i++) {
                     assertEquals(layout.get(i).getCommand(), buttons.get(i).getCommand());
@@ -850,6 +858,136 @@ public class MediaControllerCallbackTest extends MediaSessionTestBase {
         MediaController controller = createController(mRemoteSession2.getToken(), true, null,
                 callback);
         mRemoteSession2.setCustomLayout(TEST_CONTROLLER_INFO, buttons);
+        assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
+    }
+
+    @Test
+    public void testOnVideoSizeChanged() throws InterruptedException {
+        prepareLooper();
+
+        final VideoSize testSize = new VideoSize(100, 42);
+        final CountDownLatch latch = new CountDownLatch(2);
+        final MediaController.ControllerCallback callback =
+                new MediaController.ControllerCallback() {
+                    @Override
+                    public void onVideoSizeChanged(@NonNull MediaController controller,
+                            @NonNull MediaItem item, @NonNull VideoSize videoSize) {
+                        assertNotNull(item);
+                        assertEquals(testSize, videoSize);
+                        latch.countDown();
+                    }
+
+                    @Override
+                    public void onVideoSizeChanged(@NonNull MediaController controller,
+                            @NonNull VideoSize videoSize) {
+                        assertEquals(testSize, videoSize);
+                        latch.countDown();
+                    }
+                };
+
+        MediaController controller = createController(mRemoteSession2.getToken(), true, null,
+                callback);
+        mRemoteSession2.getMockPlayer().notifyCurrentMediaItemChanged(INDEX_FOR_UNKONWN_ITEM);
+        mRemoteSession2.getMockPlayer().notifyVideoSizeChanged(testSize);
+        assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
+    }
+
+    @Test
+    public void testOnTracksChanged() throws InterruptedException {
+        prepareLooper();
+        final List<SessionPlayer.TrackInfo> testTracks = MediaTestUtils.createTrackInfoList();
+
+        final CountDownLatch latch = new CountDownLatch(1);
+        final MediaController.ControllerCallback callback =
+                new MediaController.ControllerCallback() {
+                    @Override
+                    public void onTracksChanged(@NonNull MediaController controller,
+                            @NonNull List<TrackInfo> tracks) {
+                        assertEquals(testTracks, tracks);
+                        latch.countDown();
+                    }
+                };
+        MediaController controller = createController(mRemoteSession2.getToken(), true, null,
+                callback);
+        mRemoteSession2.getMockPlayer().notifyTracksChanged(testTracks);
+        assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
+    }
+
+    @Test
+    public void testOnTrackSelected() throws InterruptedException {
+        prepareLooper();
+        final SessionPlayer.TrackInfo testTrack = MediaTestUtils.createTrackInfo(1,
+                SessionPlayer.TrackInfo.MEDIA_TRACK_TYPE_SUBTITLE);
+
+        final CountDownLatch latch = new CountDownLatch(1);
+        final MediaController.ControllerCallback callback =
+                new MediaController.ControllerCallback() {
+                    @Override
+                    public void onTrackSelected(@NonNull MediaController controller,
+                            @NonNull SessionPlayer.TrackInfo trackInfo) {
+                        assertEquals(testTrack, trackInfo);
+                        latch.countDown();
+                    }
+                };
+        MediaController controller = createController(mRemoteSession2.getToken(), true, null,
+                callback);
+        mRemoteSession2.getMockPlayer().notifyTrackSelected(testTrack);
+        assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
+    }
+
+    @Test
+    public void testOnTrackDeselected() throws InterruptedException {
+        prepareLooper();
+        final SessionPlayer.TrackInfo testTrack = MediaTestUtils.createTrackInfo(1,
+                SessionPlayer.TrackInfo.MEDIA_TRACK_TYPE_SUBTITLE);
+
+        final CountDownLatch latch = new CountDownLatch(1);
+        final MediaController.ControllerCallback callback =
+                new MediaController.ControllerCallback() {
+                    @Override
+                    public void onTrackDeselected(@NonNull MediaController controller,
+                            @NonNull SessionPlayer.TrackInfo trackInfo) {
+                        assertEquals(testTrack, trackInfo);
+                        latch.countDown();
+                    }
+                };
+        MediaController controller = createController(mRemoteSession2.getToken(), true, null,
+                callback);
+        mRemoteSession2.getMockPlayer().notifyTrackDeselected(testTrack);
+        assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
+    }
+
+    @Test
+    public void testOnSubtitleData() throws InterruptedException {
+        prepareLooper();
+
+        MediaFormat format = new MediaFormat();
+        format.setString(MediaFormat.KEY_LANGUAGE, "und");
+        format.setString(MediaFormat.KEY_MIME, MIMETYPE_TEXT_CEA_608);
+        MediaMetadata metadata = new MediaMetadata.Builder()
+                .putString(MediaMetadata.METADATA_KEY_MEDIA_ID, "onSubtitleData").build();
+        final MediaItem testItem = new MediaItem.Builder().setMetadata(metadata).build();
+        final TrackInfo testTrack = new TrackInfo(1, TrackInfo.MEDIA_TRACK_TYPE_SUBTITLE, format);
+        final SubtitleData testData = new SubtitleData(123, 456,
+                new byte[] { 7, 8, 9, 0, 1, 2, 3, 4, 5, 6 });
+
+        final CountDownLatch latch = new CountDownLatch(1);
+        final MediaController.ControllerCallback callback =
+                new MediaController.ControllerCallback() {
+                    @Override
+                    public void onSubtitleData(@NonNull MediaController controller,
+                            @NonNull MediaItem item, @NonNull TrackInfo track,
+                            @NonNull SubtitleData data) {
+                        MediaTestUtils.assertMediaIdEquals(testItem, item);
+                        assertEquals(testTrack, track);
+                        assertEquals(testData, data);
+                        latch.countDown();
+                    }
+                };
+
+        MediaController controller = createController(mRemoteSession2.getToken(), true, null,
+                callback);
+        mRemoteSession2.getMockPlayer().notifySubtitleData(testItem, testTrack, testData);
         assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
     }
 

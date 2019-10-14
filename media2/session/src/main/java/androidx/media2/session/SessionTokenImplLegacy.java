@@ -16,7 +16,6 @@
 
 package androidx.media2.session;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import static androidx.media2.session.SessionToken.TYPE_BROWSER_SERVICE_LEGACY;
 import static androidx.media2.session.SessionToken.TYPE_LIBRARY_SERVICE;
 import static androidx.media2.session.SessionToken.TYPE_SESSION;
@@ -29,7 +28,6 @@ import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
 import androidx.core.util.ObjectsCompat;
 import androidx.media2.session.SessionToken.SessionTokenImpl;
 import androidx.versionedparcelable.CustomVersionedParcelable;
@@ -58,7 +56,8 @@ final class SessionTokenImplLegacy extends CustomVersionedParcelable implements 
     @ParcelField(6)
     Bundle mExtras;
 
-    SessionTokenImplLegacy(MediaSessionCompat.Token token, String packageName, int uid) {
+    SessionTokenImplLegacy(MediaSessionCompat.Token token, String packageName, int uid,
+            Bundle sessionInfo) {
         if (token == null) {
             throw new NullPointerException("token shouldn't be null");
         }
@@ -73,7 +72,7 @@ final class SessionTokenImplLegacy extends CustomVersionedParcelable implements 
         mPackageName = packageName;
         mComponentName = null;
         mType = TYPE_SESSION_LEGACY;
-        mExtras = null;
+        mExtras = sessionInfo;
     }
 
     SessionTokenImplLegacy(ComponentName serviceComponent, int uid) {
@@ -91,9 +90,7 @@ final class SessionTokenImplLegacy extends CustomVersionedParcelable implements 
 
     /**
      * Used for {@link VersionedParcelable}
-     * @hide
      */
-    @RestrictTo(LIBRARY)
     SessionTokenImplLegacy() {
         // Do nothing.
     }
@@ -137,12 +134,14 @@ final class SessionTokenImplLegacy extends CustomVersionedParcelable implements 
     }
 
     @Override
-    public @NonNull String getPackageName() {
+    @NonNull
+    public String getPackageName() {
         return mPackageName;
     }
 
     @Override
-    public @Nullable String getServiceName() {
+    @Nullable
+    public String getServiceName() {
         return mComponentName == null ? null : mComponentName.getClassName();
     }
 
@@ -152,7 +151,8 @@ final class SessionTokenImplLegacy extends CustomVersionedParcelable implements 
     }
 
     @Override
-    public @SessionToken.TokenType int getType() {
+    @SessionToken.TokenType
+    public int getType() {
         switch (mType) {
             case TYPE_SESSION_LEGACY:
                 return TYPE_SESSION;
@@ -162,10 +162,10 @@ final class SessionTokenImplLegacy extends CustomVersionedParcelable implements 
         return TYPE_SESSION;
     }
 
-    @NonNull
     @Override
+    @Nullable
     public Bundle getExtras() {
-        return mExtras == null ? Bundle.EMPTY : new Bundle(mExtras);
+        return mExtras;
     }
 
     @Override

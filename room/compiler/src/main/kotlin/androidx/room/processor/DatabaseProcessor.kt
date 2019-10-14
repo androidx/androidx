@@ -22,7 +22,7 @@ import androidx.room.ext.RoomTypeNames
 import androidx.room.ext.hasAnnotation
 import androidx.room.ext.hasAnyOf
 import androidx.room.ext.toAnnotationBox
-import androidx.room.verifier.DatabaseVerificaitonErrors
+import androidx.room.verifier.DatabaseVerificationErrors
 import androidx.room.verifier.DatabaseVerifier
 import androidx.room.vo.Dao
 import androidx.room.vo.DaoMethod
@@ -74,7 +74,8 @@ class DatabaseProcessor(baseContext: Context, val element: TypeElement) {
 
         val allMembers = context.processingEnv.elementUtils.getAllMembers(element)
 
-        val views = viewsMap.values.toList()
+        val views = resolveDatabaseViews(viewsMap.values.toList())
+        val queryInterpreter = QueryInterpreter(context, entities + views)
         val dbVerifier = if (element.hasAnnotation(SkipQueryVerification::class)) {
             null
         } else {
@@ -85,7 +86,6 @@ class DatabaseProcessor(baseContext: Context, val element: TypeElement) {
         if (dbVerifier != null) {
             verifyDatabaseViews(viewsMap, dbVerifier)
         }
-        val resolvedViews = resolveDatabaseViews(views)
         validateUniqueTableAndViewNames(element, entities, views)
 
         val declaredType = MoreTypes.asDeclared(element.asType())
@@ -101,9 +101,11 @@ class DatabaseProcessor(baseContext: Context, val element: TypeElement) {
             // TODO when we add support for non Dao return types (e.g. database), this code needs
             // to change
             val daoType = executable.returnType.asTypeElement()
-            val dao = DaoProcessor(context, daoType, declaredType, dbVerifier).process()
+            val dao = DaoProcessor(context, daoType, declaredType, dbVerifier, queryInterpreter)
+                .process()
             DaoMethod(executable, executable.simpleName.toString(), dao)
         }
+
         validateUniqueDaoClasses(element, daoMethods, entities)
         validateUniqueIndices(element, entities)
 
@@ -114,7 +116,7 @@ class DatabaseProcessor(baseContext: Context, val element: TypeElement) {
                 element = element,
                 type = MoreElements.asType(element).asType(),
                 entities = entities,
-                views = resolvedViews,
+                views = views,
                 daoMethods = daoMethods,
                 exportSchema = dbAnnotation.value.exportSchema,
                 enableForeignKeys = hasForeignKeys)
@@ -216,12 +218,12 @@ class DatabaseProcessor(baseContext: Context, val element: TypeElement) {
         daoMethods.forEach { daoMethod ->
             daoMethod.dao.shortcutMethods.forEach { method ->
                 method.entities.forEach {
-                    check(method.element, daoMethod.dao, it.value.typeName)
+                    check(method.element, daoMethod.dao, it.value.entityTypeName)
                 }
             }
             daoMethod.dao.insertionMethods.forEach { method ->
                 method.entities.forEach {
-                    check(method.element, daoMethod.dao, it.value.typeName)
+                    check(method.element, daoMethod.dao, it.value.entityTypeName)
                 }
             }
         }
@@ -301,8 +303,8 @@ class DatabaseProcessor(baseContext: Context, val element: TypeElement) {
             view.query.resultInfo = dbVerifier.analyze(view.query.original)
             if (view.query.resultInfo?.error != null) {
                 context.logger.e(viewElement,
-                        DatabaseVerificaitonErrors.cannotVerifyQuery(
-                                view.query.resultInfo!!.error!!))
+                    DatabaseVerificationErrors.cannotVerifyQuery(
+                        view.query.resultInfo!!.error!!))
             }
         }
     }
@@ -311,7 +313,8 @@ class DatabaseProcessor(baseContext: Context, val element: TypeElement) {
      * Resolves all the underlying tables for each of the [DatabaseView]. All the tables
      * including those that are indirectly referenced are included.
      *
-     * @param views The list of all the [DatabaseView]s in this database.
+     * @param views The list of all the [DatabaseView]s in this database. The order in this list is
+     * important. A view always comes after all of the tables and views that it depends on.
      */
     fun resolveDatabaseViews(views: List<DatabaseView>): List<DatabaseView> {
         if (views.isEmpty()) {
@@ -327,8 +330,6 @@ class DatabaseProcessor(baseContext: Context, val element: TypeElement) {
         // We will resolve nested views step by step, and store the results here.
         val resolvedViews = mutableMapOf<String, Set<String>>()
         val result = mutableListOf<DatabaseView>()
-        // The current step; this is necessary for sorting the views by their dependencies.
-        var step = 0
         do {
             for ((viewName, tables) in resolvedViews) {
                 for (view in unresolvedViews) {
@@ -354,7 +355,6 @@ class DatabaseProcessor(baseContext: Context, val element: TypeElement) {
                         unresolvedViews.map { it.viewName }))
                 break
             }
-            step++
             // We are done if we have resolved tables for all the views.
         } while (unresolvedViews.isNotEmpty())
         return result

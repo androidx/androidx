@@ -1,0 +1,771 @@
+// Baseline format: 1.0
+AcronymName: androidx.recyclerview.widget.ItemTouchHelper.Callback#getDefaultUIUtil():
+    Acronyms should not be capitalized in method names: was `getDefaultUIUtil`, should this be `getDefaultUiUtil`?
+AcronymName: androidx.recyclerview.widget.ItemTouchUIUtil:
+    Acronyms should not be capitalized in class names: was `ItemTouchUIUtil`, should this be `ItemTouchUiUtil`?
+AcronymName: androidx.recyclerview.widget.LinearLayoutManager#isLayoutRTL():
+    Acronyms should not be capitalized in method names: was `isLayoutRTL`, should this be `isLayoutRtl`?
+
+
+BannedThrow: androidx.recyclerview.widget.SnapHelper#attachToRecyclerView(androidx.recyclerview.widget.RecyclerView):
+    Methods must not mention RuntimeException subclasses in throws clauses (was `java.lang.IllegalStateException`)
+BannedThrow: androidx.recyclerview.widget.SortedList#get(int):
+    Methods must not mention RuntimeException subclasses in throws clauses (was `java.lang.IndexOutOfBoundsException`)
+
+
+CallbackMethodName: androidx.recyclerview.widget.AsyncListUtil.DataCallback:
+    Callback method names must follow the on<Something> style: refreshData
+CallbackMethodName: androidx.recyclerview.widget.AsyncListUtil.ViewCallback:
+    Callback method names must follow the on<Something> style: getItemRangeInto
+CallbackMethodName: androidx.recyclerview.widget.BatchingListUpdateCallback:
+    Callback method names must follow the on<Something> style: dispatchLastEvent
+CallbackMethodName: androidx.recyclerview.widget.DiffUtil.Callback:
+    Callback method names must follow the on<Something> style: getOldListSize
+CallbackMethodName: androidx.recyclerview.widget.DiffUtil.ItemCallback:
+    Callback method names must follow the on<Something> style: areItemsTheSame
+CallbackMethodName: androidx.recyclerview.widget.ItemTouchHelper.Callback:
+    Callback method names must follow the on<Something> style: getDefaultUIUtil
+CallbackMethodName: androidx.recyclerview.widget.ItemTouchHelper.SimpleCallback:
+    Callback method names must follow the on<Something> style: setDefaultSwipeDirs
+CallbackMethodName: androidx.recyclerview.widget.SortedList.BatchedCallback:
+    Callback method names must follow the on<Something> style: compare
+CallbackMethodName: androidx.recyclerview.widget.SortedList.Callback:
+    Callback method names must follow the on<Something> style: compare
+
+
+CallbackName: androidx.recyclerview.widget.RecyclerView.AdapterDataObserver:
+    Class should be named AdapterDataCallback
+
+
+ConcreteCollection: androidx.recyclerview.widget.RecyclerView#addFocusables(java.util.ArrayList<android.view.View>, int, int) parameter #0:
+    Parameter type is concrete collection (`java.util.ArrayList`); must be higher-level interface
+ConcreteCollection: androidx.recyclerview.widget.RecyclerView.LayoutManager#onAddFocusables(androidx.recyclerview.widget.RecyclerView, java.util.ArrayList<android.view.View>, int, int) parameter #1:
+    Parameter type is concrete collection (`java.util.ArrayList`); must be higher-level interface
+
+
+KotlinOperator: androidx.recyclerview.widget.RecyclerView.State#get(int):
+    Method can be invoked with an indexing operator from Kotlin: `get` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.recyclerview.widget.SortedList#get(int):
+    Method can be invoked with an indexing operator from Kotlin: `get` (this is usually desirable; just make sure it makes sense for this type of object)
+
+
+ListenerInterface: androidx.recyclerview.widget.RecyclerView.OnFlingListener:
+    Listeners should be an interface, or otherwise renamed Callback: OnFlingListener
+ListenerInterface: androidx.recyclerview.widget.RecyclerView.OnScrollListener:
+    Listeners should be an interface, or otherwise renamed Callback: OnScrollListener
+ListenerInterface: androidx.recyclerview.widget.RecyclerView.SimpleOnItemTouchListener:
+    Listeners should be an interface, or otherwise renamed Callback: SimpleOnItemTouchListener
+
+
+ListenerLast: androidx.recyclerview.widget.AsyncListDiffer#AsyncListDiffer(androidx.recyclerview.widget.ListUpdateCallback, androidx.recyclerview.widget.AsyncDifferConfig<T>) parameter #1:
+    Listeners should always be at end of argument list (method `AsyncListDiffer`)
+ListenerLast: androidx.recyclerview.widget.DiffUtil#calculateDiff(androidx.recyclerview.widget.DiffUtil.Callback, boolean) parameter #1:
+    Listeners should always be at end of argument list (method `calculateDiff`)
+
+
+MethodNameUnits: androidx.recyclerview.widget.OrientationHelper#getTotalSpace():
+    Expected method name units to be `Bytes`, was `Space` in `getTotalSpace`
+
+
+MissingNullability: androidx.recyclerview.widget.AdapterListUpdateCallback#onChanged(int, int, Object) parameter #2:
+    Missing nullability on parameter `payload` in method `onChanged`
+MissingNullability: androidx.recyclerview.widget.AsyncDifferConfig.Builder#setBackgroundThreadExecutor(java.util.concurrent.Executor) parameter #0:
+    Missing nullability on parameter `executor` in method `setBackgroundThreadExecutor`
+MissingNullability: androidx.recyclerview.widget.BatchingListUpdateCallback#onChanged(int, int, Object) parameter #2:
+    Missing nullability on parameter `payload` in method `onChanged`
+MissingNullability: androidx.recyclerview.widget.DefaultItemAnimator#animateAdd(androidx.recyclerview.widget.RecyclerView.ViewHolder) parameter #0:
+    Missing nullability on parameter `holder` in method `animateAdd`
+MissingNullability: androidx.recyclerview.widget.DefaultItemAnimator#animateChange(androidx.recyclerview.widget.RecyclerView.ViewHolder, androidx.recyclerview.widget.RecyclerView.ViewHolder, int, int, int, int) parameter #0:
+    Missing nullability on parameter `oldHolder` in method `animateChange`
+MissingNullability: androidx.recyclerview.widget.DefaultItemAnimator#animateChange(androidx.recyclerview.widget.RecyclerView.ViewHolder, androidx.recyclerview.widget.RecyclerView.ViewHolder, int, int, int, int) parameter #1:
+    Missing nullability on parameter `newHolder` in method `animateChange`
+MissingNullability: androidx.recyclerview.widget.DefaultItemAnimator#animateMove(androidx.recyclerview.widget.RecyclerView.ViewHolder, int, int, int, int) parameter #0:
+    Missing nullability on parameter `holder` in method `animateMove`
+MissingNullability: androidx.recyclerview.widget.DefaultItemAnimator#animateRemove(androidx.recyclerview.widget.RecyclerView.ViewHolder) parameter #0:
+    Missing nullability on parameter `holder` in method `animateRemove`
+MissingNullability: androidx.recyclerview.widget.DefaultItemAnimator#endAnimation(androidx.recyclerview.widget.RecyclerView.ViewHolder) parameter #0:
+    Missing nullability on parameter `item` in method `endAnimation`
+MissingNullability: androidx.recyclerview.widget.DividerItemDecoration#DividerItemDecoration(android.content.Context, int) parameter #0:
+    Missing nullability on parameter `context` in method `DividerItemDecoration`
+MissingNullability: androidx.recyclerview.widget.DividerItemDecoration#getItemOffsets(android.graphics.Rect, android.view.View, androidx.recyclerview.widget.RecyclerView, androidx.recyclerview.widget.RecyclerView.State) parameter #0:
+    Missing nullability on parameter `outRect` in method `getItemOffsets`
+MissingNullability: androidx.recyclerview.widget.DividerItemDecoration#getItemOffsets(android.graphics.Rect, android.view.View, androidx.recyclerview.widget.RecyclerView, androidx.recyclerview.widget.RecyclerView.State) parameter #1:
+    Missing nullability on parameter `view` in method `getItemOffsets`
+MissingNullability: androidx.recyclerview.widget.DividerItemDecoration#getItemOffsets(android.graphics.Rect, android.view.View, androidx.recyclerview.widget.RecyclerView, androidx.recyclerview.widget.RecyclerView.State) parameter #2:
+    Missing nullability on parameter `parent` in method `getItemOffsets`
+MissingNullability: androidx.recyclerview.widget.DividerItemDecoration#getItemOffsets(android.graphics.Rect, android.view.View, androidx.recyclerview.widget.RecyclerView, androidx.recyclerview.widget.RecyclerView.State) parameter #3:
+    Missing nullability on parameter `state` in method `getItemOffsets`
+MissingNullability: androidx.recyclerview.widget.DividerItemDecoration#onDraw(android.graphics.Canvas, androidx.recyclerview.widget.RecyclerView, androidx.recyclerview.widget.RecyclerView.State) parameter #0:
+    Missing nullability on parameter `c` in method `onDraw`
+MissingNullability: androidx.recyclerview.widget.DividerItemDecoration#onDraw(android.graphics.Canvas, androidx.recyclerview.widget.RecyclerView, androidx.recyclerview.widget.RecyclerView.State) parameter #1:
+    Missing nullability on parameter `parent` in method `onDraw`
+MissingNullability: androidx.recyclerview.widget.DividerItemDecoration#onDraw(android.graphics.Canvas, androidx.recyclerview.widget.RecyclerView, androidx.recyclerview.widget.RecyclerView.State) parameter #2:
+    Missing nullability on parameter `state` in method `onDraw`
+MissingNullability: androidx.recyclerview.widget.GridLayoutManager#GridLayoutManager(android.content.Context, android.util.AttributeSet, int, int) parameter #0:
+    Missing nullability on parameter `context` in method `GridLayoutManager`
+MissingNullability: androidx.recyclerview.widget.GridLayoutManager#GridLayoutManager(android.content.Context, android.util.AttributeSet, int, int) parameter #1:
+    Missing nullability on parameter `attrs` in method `GridLayoutManager`
+MissingNullability: androidx.recyclerview.widget.GridLayoutManager#GridLayoutManager(android.content.Context, int) parameter #0:
+    Missing nullability on parameter `context` in method `GridLayoutManager`
+MissingNullability: androidx.recyclerview.widget.GridLayoutManager#GridLayoutManager(android.content.Context, int, int, boolean) parameter #0:
+    Missing nullability on parameter `context` in method `GridLayoutManager`
+MissingNullability: androidx.recyclerview.widget.GridLayoutManager#checkLayoutParams(androidx.recyclerview.widget.RecyclerView.LayoutParams) parameter #0:
+    Missing nullability on parameter `lp` in method `checkLayoutParams`
+MissingNullability: androidx.recyclerview.widget.GridLayoutManager#computeHorizontalScrollOffset(androidx.recyclerview.widget.RecyclerView.State) parameter #0:
+    Missing nullability on parameter `state` in method `computeHorizontalScrollOffset`
+MissingNullability: androidx.recyclerview.widget.GridLayoutManager#computeHorizontalScrollRange(androidx.recyclerview.widget.RecyclerView.State) parameter #0:
+    Missing nullability on parameter `state` in method `computeHorizontalScrollRange`
+MissingNullability: androidx.recyclerview.widget.GridLayoutManager#computeVerticalScrollOffset(androidx.recyclerview.widget.RecyclerView.State) parameter #0:
+    Missing nullability on parameter `state` in method `computeVerticalScrollOffset`
+MissingNullability: androidx.recyclerview.widget.GridLayoutManager#computeVerticalScrollRange(androidx.recyclerview.widget.RecyclerView.State) parameter #0:
+    Missing nullability on parameter `state` in method `computeVerticalScrollRange`
+MissingNullability: androidx.recyclerview.widget.GridLayoutManager#generateDefaultLayoutParams():
+    Missing nullability on method `generateDefaultLayoutParams` return
+MissingNullability: androidx.recyclerview.widget.GridLayoutManager#generateLayoutParams(android.content.Context, android.util.AttributeSet):
+    Missing nullability on method `generateLayoutParams` return
+MissingNullability: androidx.recyclerview.widget.GridLayoutManager#generateLayoutParams(android.content.Context, android.util.AttributeSet) parameter #0:
+    Missing nullability on parameter `c` in method `generateLayoutParams`
+MissingNullability: androidx.recyclerview.widget.GridLayoutManager#generateLayoutParams(android.content.Context, android.util.AttributeSet) parameter #1:
+    Missing nullability on parameter `attrs` in method `generateLayoutParams`
+MissingNullability: androidx.recyclerview.widget.GridLayoutManager#generateLayoutParams(android.view.ViewGroup.LayoutParams):
+    Missing nullability on method `generateLayoutParams` return
+MissingNullability: androidx.recyclerview.widget.GridLayoutManager#generateLayoutParams(android.view.ViewGroup.LayoutParams) parameter #0:
+    Missing nullability on parameter `lp` in method `generateLayoutParams`
+MissingNullability: androidx.recyclerview.widget.GridLayoutManager#getColumnCountForAccessibility(androidx.recyclerview.widget.RecyclerView.Recycler, androidx.recyclerview.widget.RecyclerView.State) parameter #0:
+    Missing nullability on parameter `recycler` in method `getColumnCountForAccessibility`
+MissingNullability: androidx.recyclerview.widget.GridLayoutManager#getColumnCountForAccessibility(androidx.recyclerview.widget.RecyclerView.Recycler, androidx.recyclerview.widget.RecyclerView.State) parameter #1:
+    Missing nullability on parameter `state` in method `getColumnCountForAccessibility`
+MissingNullability: androidx.recyclerview.widget.GridLayoutManager#getRowCountForAccessibility(androidx.recyclerview.widget.RecyclerView.Recycler, androidx.recyclerview.widget.RecyclerView.State) parameter #0:
+    Missing nullability on parameter `recycler` in method `getRowCountForAccessibility`
+MissingNullability: androidx.recyclerview.widget.GridLayoutManager#getRowCountForAccessibility(androidx.recyclerview.widget.RecyclerView.Recycler, androidx.recyclerview.widget.RecyclerView.State) parameter #1:
+    Missing nullability on parameter `state` in method `getRowCountForAccessibility`
+MissingNullability: androidx.recyclerview.widget.GridLayoutManager#getSpanSizeLookup():
+    Missing nullability on method `getSpanSizeLookup` return
+MissingNullability: androidx.recyclerview.widget.GridLayoutManager#onFocusSearchFailed(android.view.View, int, androidx.recyclerview.widget.RecyclerView.Recycler, androidx.recyclerview.widget.RecyclerView.State):
+    Missing nullability on method `onFocusSearchFailed` return
+MissingNullability: androidx.recyclerview.widget.GridLayoutManager#onFocusSearchFailed(android.view.View, int, androidx.recyclerview.widget.RecyclerView.Recycler, androidx.recyclerview.widget.RecyclerView.State) parameter #0:
+    Missing nullability on parameter `focused` in method `onFocusSearchFailed`
+MissingNullability: androidx.recyclerview.widget.GridLayoutManager#onFocusSearchFailed(android.view.View, int, androidx.recyclerview.widget.RecyclerView.Recycler, androidx.recyclerview.widget.RecyclerView.State) parameter #2:
+    Missing nullability on parameter `recycler` in method `onFocusSearchFailed`
+MissingNullability: androidx.recyclerview.widget.GridLayoutManager#onFocusSearchFailed(android.view.View, int, androidx.recyclerview.widget.RecyclerView.Recycler, androidx.recyclerview.widget.RecyclerView.State) parameter #3:
+    Missing nullability on parameter `state` in method `onFocusSearchFailed`
+MissingNullability: androidx.recyclerview.widget.GridLayoutManager#onInitializeAccessibilityNodeInfoForItem(androidx.recyclerview.widget.RecyclerView.Recycler, androidx.recyclerview.widget.RecyclerView.State, android.view.View, androidx.core.view.accessibility.AccessibilityNodeInfoCompat) parameter #0:
+    Missing nullability on parameter `recycler` in method `onInitializeAccessibilityNodeInfoForItem`
+MissingNullability: androidx.recyclerview.widget.GridLayoutManager#onInitializeAccessibilityNodeInfoForItem(androidx.recyclerview.widget.RecyclerView.Recycler, androidx.recyclerview.widget.RecyclerView.State, android.view.View, androidx.core.view.accessibility.AccessibilityNodeInfoCompat) parameter #1:
+    Missing nullability on parameter `state` in method `onInitializeAccessibilityNodeInfoForItem`
+MissingNullability: androidx.recyclerview.widget.GridLayoutManager#onInitializeAccessibilityNodeInfoForItem(androidx.recyclerview.widget.RecyclerView.Recycler, androidx.recyclerview.widget.RecyclerView.State, android.view.View, androidx.core.view.accessibility.AccessibilityNodeInfoCompat) parameter #2:
+    Missing nullability on parameter `host` in method `onInitializeAccessibilityNodeInfoForItem`
+MissingNullability: androidx.recyclerview.widget.GridLayoutManager#onInitializeAccessibilityNodeInfoForItem(androidx.recyclerview.widget.RecyclerView.Recycler, androidx.recyclerview.widget.RecyclerView.State, android.view.View, androidx.core.view.accessibility.AccessibilityNodeInfoCompat) parameter #3:
+    Missing nullability on parameter `info` in method `onInitializeAccessibilityNodeInfoForItem`
+MissingNullability: androidx.recyclerview.widget.GridLayoutManager#onItemsAdded(androidx.recyclerview.widget.RecyclerView, int, int) parameter #0:
+    Missing nullability on parameter `recyclerView` in method `onItemsAdded`
+MissingNullability: androidx.recyclerview.widget.GridLayoutManager#onItemsChanged(androidx.recyclerview.widget.RecyclerView) parameter #0:
+    Missing nullability on parameter `recyclerView` in method `onItemsChanged`
+MissingNullability: androidx.recyclerview.widget.GridLayoutManager#onItemsMoved(androidx.recyclerview.widget.RecyclerView, int, int, int) parameter #0:
+    Missing nullability on parameter `recyclerView` in method `onItemsMoved`
+MissingNullability: androidx.recyclerview.widget.GridLayoutManager#onItemsRemoved(androidx.recyclerview.widget.RecyclerView, int, int) parameter #0:
+    Missing nullability on parameter `recyclerView` in method `onItemsRemoved`
+MissingNullability: androidx.recyclerview.widget.GridLayoutManager#onItemsUpdated(androidx.recyclerview.widget.RecyclerView, int, int, Object) parameter #0:
+    Missing nullability on parameter `recyclerView` in method `onItemsUpdated`
+MissingNullability: androidx.recyclerview.widget.GridLayoutManager#onItemsUpdated(androidx.recyclerview.widget.RecyclerView, int, int, Object) parameter #3:
+    Missing nullability on parameter `payload` in method `onItemsUpdated`
+MissingNullability: androidx.recyclerview.widget.GridLayoutManager#onLayoutChildren(androidx.recyclerview.widget.RecyclerView.Recycler, androidx.recyclerview.widget.RecyclerView.State) parameter #0:
+    Missing nullability on parameter `recycler` in method `onLayoutChildren`
+MissingNullability: androidx.recyclerview.widget.GridLayoutManager#onLayoutChildren(androidx.recyclerview.widget.RecyclerView.Recycler, androidx.recyclerview.widget.RecyclerView.State) parameter #1:
+    Missing nullability on parameter `state` in method `onLayoutChildren`
+MissingNullability: androidx.recyclerview.widget.GridLayoutManager#onLayoutCompleted(androidx.recyclerview.widget.RecyclerView.State) parameter #0:
+    Missing nullability on parameter `state` in method `onLayoutCompleted`
+MissingNullability: androidx.recyclerview.widget.GridLayoutManager#scrollHorizontallyBy(int, androidx.recyclerview.widget.RecyclerView.Recycler, androidx.recyclerview.widget.RecyclerView.State) parameter #1:
+    Missing nullability on parameter `recycler` in method `scrollHorizontallyBy`
+MissingNullability: androidx.recyclerview.widget.GridLayoutManager#scrollHorizontallyBy(int, androidx.recyclerview.widget.RecyclerView.Recycler, androidx.recyclerview.widget.RecyclerView.State) parameter #2:
+    Missing nullability on parameter `state` in method `scrollHorizontallyBy`
+MissingNullability: androidx.recyclerview.widget.GridLayoutManager#scrollVerticallyBy(int, androidx.recyclerview.widget.RecyclerView.Recycler, androidx.recyclerview.widget.RecyclerView.State) parameter #1:
+    Missing nullability on parameter `recycler` in method `scrollVerticallyBy`
+MissingNullability: androidx.recyclerview.widget.GridLayoutManager#scrollVerticallyBy(int, androidx.recyclerview.widget.RecyclerView.Recycler, androidx.recyclerview.widget.RecyclerView.State) parameter #2:
+    Missing nullability on parameter `state` in method `scrollVerticallyBy`
+MissingNullability: androidx.recyclerview.widget.GridLayoutManager#setMeasuredDimension(android.graphics.Rect, int, int) parameter #0:
+    Missing nullability on parameter `childrenBounds` in method `setMeasuredDimension`
+MissingNullability: androidx.recyclerview.widget.GridLayoutManager#setSpanSizeLookup(androidx.recyclerview.widget.GridLayoutManager.SpanSizeLookup) parameter #0:
+    Missing nullability on parameter `spanSizeLookup` in method `setSpanSizeLookup`
+MissingNullability: androidx.recyclerview.widget.GridLayoutManager.LayoutParams#LayoutParams(android.content.Context, android.util.AttributeSet) parameter #0:
+    Missing nullability on parameter `c` in method `LayoutParams`
+MissingNullability: androidx.recyclerview.widget.GridLayoutManager.LayoutParams#LayoutParams(android.content.Context, android.util.AttributeSet) parameter #1:
+    Missing nullability on parameter `attrs` in method `LayoutParams`
+MissingNullability: androidx.recyclerview.widget.GridLayoutManager.LayoutParams#LayoutParams(android.view.ViewGroup.LayoutParams) parameter #0:
+    Missing nullability on parameter `source` in method `LayoutParams`
+MissingNullability: androidx.recyclerview.widget.GridLayoutManager.LayoutParams#LayoutParams(android.view.ViewGroup.MarginLayoutParams) parameter #0:
+    Missing nullability on parameter `source` in method `LayoutParams`
+MissingNullability: androidx.recyclerview.widget.GridLayoutManager.LayoutParams#LayoutParams(androidx.recyclerview.widget.RecyclerView.LayoutParams) parameter #0:
+    Missing nullability on parameter `source` in method `LayoutParams`
+MissingNullability: androidx.recyclerview.widget.ItemTouchHelper#getItemOffsets(android.graphics.Rect, android.view.View, androidx.recyclerview.widget.RecyclerView, androidx.recyclerview.widget.RecyclerView.State) parameter #0:
+    Missing nullability on parameter `outRect` in method `getItemOffsets`
+MissingNullability: androidx.recyclerview.widget.ItemTouchHelper#getItemOffsets(android.graphics.Rect, android.view.View, androidx.recyclerview.widget.RecyclerView, androidx.recyclerview.widget.RecyclerView.State) parameter #1:
+    Missing nullability on parameter `view` in method `getItemOffsets`
+MissingNullability: androidx.recyclerview.widget.ItemTouchHelper#getItemOffsets(android.graphics.Rect, android.view.View, androidx.recyclerview.widget.RecyclerView, androidx.recyclerview.widget.RecyclerView.State) parameter #2:
+    Missing nullability on parameter `parent` in method `getItemOffsets`
+MissingNullability: androidx.recyclerview.widget.ItemTouchHelper#getItemOffsets(android.graphics.Rect, android.view.View, androidx.recyclerview.widget.RecyclerView, androidx.recyclerview.widget.RecyclerView.State) parameter #3:
+    Missing nullability on parameter `state` in method `getItemOffsets`
+MissingNullability: androidx.recyclerview.widget.ItemTouchHelper#onDraw(android.graphics.Canvas, androidx.recyclerview.widget.RecyclerView, androidx.recyclerview.widget.RecyclerView.State) parameter #0:
+    Missing nullability on parameter `c` in method `onDraw`
+MissingNullability: androidx.recyclerview.widget.ItemTouchHelper#onDraw(android.graphics.Canvas, androidx.recyclerview.widget.RecyclerView, androidx.recyclerview.widget.RecyclerView.State) parameter #1:
+    Missing nullability on parameter `parent` in method `onDraw`
+MissingNullability: androidx.recyclerview.widget.ItemTouchHelper#onDraw(android.graphics.Canvas, androidx.recyclerview.widget.RecyclerView, androidx.recyclerview.widget.RecyclerView.State) parameter #2:
+    Missing nullability on parameter `state` in method `onDraw`
+MissingNullability: androidx.recyclerview.widget.ItemTouchHelper#onDrawOver(android.graphics.Canvas, androidx.recyclerview.widget.RecyclerView, androidx.recyclerview.widget.RecyclerView.State) parameter #0:
+    Missing nullability on parameter `c` in method `onDrawOver`
+MissingNullability: androidx.recyclerview.widget.ItemTouchHelper#onDrawOver(android.graphics.Canvas, androidx.recyclerview.widget.RecyclerView, androidx.recyclerview.widget.RecyclerView.State) parameter #1:
+    Missing nullability on parameter `parent` in method `onDrawOver`
+MissingNullability: androidx.recyclerview.widget.ItemTouchHelper#onDrawOver(android.graphics.Canvas, androidx.recyclerview.widget.RecyclerView, androidx.recyclerview.widget.RecyclerView.State) parameter #2:
+    Missing nullability on parameter `state` in method `onDrawOver`
+MissingNullability: androidx.recyclerview.widget.ItemTouchHelper.Callback#chooseDropTarget(androidx.recyclerview.widget.RecyclerView.ViewHolder, java.util.List<androidx.recyclerview.widget.RecyclerView.ViewHolder>, int, int):
+    Missing nullability on method `chooseDropTarget` return
+MissingNullability: androidx.recyclerview.widget.ItemTouchHelper.Callback#onChildDrawOver(android.graphics.Canvas, androidx.recyclerview.widget.RecyclerView, androidx.recyclerview.widget.RecyclerView.ViewHolder, float, float, int, boolean) parameter #2:
+    Missing nullability on parameter `viewHolder` in method `onChildDrawOver`
+MissingNullability: androidx.recyclerview.widget.ItemTouchUIUtil#clearView(android.view.View) parameter #0:
+    Missing nullability on parameter `view` in method `clearView`
+MissingNullability: androidx.recyclerview.widget.ItemTouchUIUtil#onDraw(android.graphics.Canvas, androidx.recyclerview.widget.RecyclerView, android.view.View, float, float, int, boolean) parameter #0:
+    Missing nullability on parameter `c` in method `onDraw`
+MissingNullability: androidx.recyclerview.widget.ItemTouchUIUtil#onDraw(android.graphics.Canvas, androidx.recyclerview.widget.RecyclerView, android.view.View, float, float, int, boolean) parameter #1:
+    Missing nullability on parameter `recyclerView` in method `onDraw`
+MissingNullability: androidx.recyclerview.widget.ItemTouchUIUtil#onDraw(android.graphics.Canvas, androidx.recyclerview.widget.RecyclerView, android.view.View, float, float, int, boolean) parameter #2:
+    Missing nullability on parameter `view` in method `onDraw`
+MissingNullability: androidx.recyclerview.widget.ItemTouchUIUtil#onDrawOver(android.graphics.Canvas, androidx.recyclerview.widget.RecyclerView, android.view.View, float, float, int, boolean) parameter #0:
+    Missing nullability on parameter `c` in method `onDrawOver`
+MissingNullability: androidx.recyclerview.widget.ItemTouchUIUtil#onDrawOver(android.graphics.Canvas, androidx.recyclerview.widget.RecyclerView, android.view.View, float, float, int, boolean) parameter #1:
+    Missing nullability on parameter `recyclerView` in method `onDrawOver`
+MissingNullability: androidx.recyclerview.widget.ItemTouchUIUtil#onDrawOver(android.graphics.Canvas, androidx.recyclerview.widget.RecyclerView, android.view.View, float, float, int, boolean) parameter #2:
+    Missing nullability on parameter `view` in method `onDrawOver`
+MissingNullability: androidx.recyclerview.widget.ItemTouchUIUtil#onSelected(android.view.View) parameter #0:
+    Missing nullability on parameter `view` in method `onSelected`
+MissingNullability: androidx.recyclerview.widget.LinearLayoutManager#LinearLayoutManager(android.content.Context) parameter #0:
+    Missing nullability on parameter `context` in method `LinearLayoutManager`
+MissingNullability: androidx.recyclerview.widget.LinearLayoutManager#LinearLayoutManager(android.content.Context, android.util.AttributeSet, int, int) parameter #0:
+    Missing nullability on parameter `context` in method `LinearLayoutManager`
+MissingNullability: androidx.recyclerview.widget.LinearLayoutManager#LinearLayoutManager(android.content.Context, android.util.AttributeSet, int, int) parameter #1:
+    Missing nullability on parameter `attrs` in method `LinearLayoutManager`
+MissingNullability: androidx.recyclerview.widget.LinearLayoutManager#LinearLayoutManager(android.content.Context, int, boolean) parameter #0:
+    Missing nullability on parameter `context` in method `LinearLayoutManager`
+MissingNullability: androidx.recyclerview.widget.LinearLayoutManager#assertNotInLayoutOrScroll(String) parameter #0:
+    Missing nullability on parameter `message` in method `assertNotInLayoutOrScroll`
+MissingNullability: androidx.recyclerview.widget.LinearLayoutManager#collectAdjacentPrefetchPositions(int, int, androidx.recyclerview.widget.RecyclerView.State, androidx.recyclerview.widget.RecyclerView.LayoutManager.LayoutPrefetchRegistry) parameter #2:
+    Missing nullability on parameter `state` in method `collectAdjacentPrefetchPositions`
+MissingNullability: androidx.recyclerview.widget.LinearLayoutManager#collectAdjacentPrefetchPositions(int, int, androidx.recyclerview.widget.RecyclerView.State, androidx.recyclerview.widget.RecyclerView.LayoutManager.LayoutPrefetchRegistry) parameter #3:
+    Missing nullability on parameter `layoutPrefetchRegistry` in method `collectAdjacentPrefetchPositions`
+MissingNullability: androidx.recyclerview.widget.LinearLayoutManager#collectInitialPrefetchPositions(int, androidx.recyclerview.widget.RecyclerView.LayoutManager.LayoutPrefetchRegistry) parameter #1:
+    Missing nullability on parameter `layoutPrefetchRegistry` in method `collectInitialPrefetchPositions`
+MissingNullability: androidx.recyclerview.widget.LinearLayoutManager#computeHorizontalScrollExtent(androidx.recyclerview.widget.RecyclerView.State) parameter #0:
+    Missing nullability on parameter `state` in method `computeHorizontalScrollExtent`
+MissingNullability: androidx.recyclerview.widget.LinearLayoutManager#computeHorizontalScrollOffset(androidx.recyclerview.widget.RecyclerView.State) parameter #0:
+    Missing nullability on parameter `state` in method `computeHorizontalScrollOffset`
+MissingNullability: androidx.recyclerview.widget.LinearLayoutManager#computeHorizontalScrollRange(androidx.recyclerview.widget.RecyclerView.State) parameter #0:
+    Missing nullability on parameter `state` in method `computeHorizontalScrollRange`
+MissingNullability: androidx.recyclerview.widget.LinearLayoutManager#computeScrollVectorForPosition(int):
+    Missing nullability on method `computeScrollVectorForPosition` return
+MissingNullability: androidx.recyclerview.widget.LinearLayoutManager#computeVerticalScrollExtent(androidx.recyclerview.widget.RecyclerView.State) parameter #0:
+    Missing nullability on parameter `state` in method `computeVerticalScrollExtent`
+MissingNullability: androidx.recyclerview.widget.LinearLayoutManager#computeVerticalScrollOffset(androidx.recyclerview.widget.RecyclerView.State) parameter #0:
+    Missing nullability on parameter `state` in method `computeVerticalScrollOffset`
+MissingNullability: androidx.recyclerview.widget.LinearLayoutManager#computeVerticalScrollRange(androidx.recyclerview.widget.RecyclerView.State) parameter #0:
+    Missing nullability on parameter `state` in method `computeVerticalScrollRange`
+MissingNullability: androidx.recyclerview.widget.LinearLayoutManager#findViewByPosition(int):
+    Missing nullability on method `findViewByPosition` return
+MissingNullability: androidx.recyclerview.widget.LinearLayoutManager#generateDefaultLayoutParams():
+    Missing nullability on method `generateDefaultLayoutParams` return
+MissingNullability: androidx.recyclerview.widget.LinearLayoutManager#getExtraLayoutSpace(androidx.recyclerview.widget.RecyclerView.State) parameter #0:
+    Missing nullability on parameter `state` in method `getExtraLayoutSpace`
+MissingNullability: androidx.recyclerview.widget.LinearLayoutManager#onDetachedFromWindow(androidx.recyclerview.widget.RecyclerView, androidx.recyclerview.widget.RecyclerView.Recycler) parameter #0:
+    Missing nullability on parameter `view` in method `onDetachedFromWindow`
+MissingNullability: androidx.recyclerview.widget.LinearLayoutManager#onDetachedFromWindow(androidx.recyclerview.widget.RecyclerView, androidx.recyclerview.widget.RecyclerView.Recycler) parameter #1:
+    Missing nullability on parameter `recycler` in method `onDetachedFromWindow`
+MissingNullability: androidx.recyclerview.widget.LinearLayoutManager#onFocusSearchFailed(android.view.View, int, androidx.recyclerview.widget.RecyclerView.Recycler, androidx.recyclerview.widget.RecyclerView.State):
+    Missing nullability on method `onFocusSearchFailed` return
+MissingNullability: androidx.recyclerview.widget.LinearLayoutManager#onFocusSearchFailed(android.view.View, int, androidx.recyclerview.widget.RecyclerView.Recycler, androidx.recyclerview.widget.RecyclerView.State) parameter #0:
+    Missing nullability on parameter `focused` in method `onFocusSearchFailed`
+MissingNullability: androidx.recyclerview.widget.LinearLayoutManager#onFocusSearchFailed(android.view.View, int, androidx.recyclerview.widget.RecyclerView.Recycler, androidx.recyclerview.widget.RecyclerView.State) parameter #2:
+    Missing nullability on parameter `recycler` in method `onFocusSearchFailed`
+MissingNullability: androidx.recyclerview.widget.LinearLayoutManager#onFocusSearchFailed(android.view.View, int, androidx.recyclerview.widget.RecyclerView.Recycler, androidx.recyclerview.widget.RecyclerView.State) parameter #3:
+    Missing nullability on parameter `state` in method `onFocusSearchFailed`
+MissingNullability: androidx.recyclerview.widget.LinearLayoutManager#onInitializeAccessibilityEvent(android.view.accessibility.AccessibilityEvent) parameter #0:
+    Missing nullability on parameter `event` in method `onInitializeAccessibilityEvent`
+MissingNullability: androidx.recyclerview.widget.LinearLayoutManager#onLayoutChildren(androidx.recyclerview.widget.RecyclerView.Recycler, androidx.recyclerview.widget.RecyclerView.State) parameter #0:
+    Missing nullability on parameter `recycler` in method `onLayoutChildren`
+MissingNullability: androidx.recyclerview.widget.LinearLayoutManager#onLayoutChildren(androidx.recyclerview.widget.RecyclerView.Recycler, androidx.recyclerview.widget.RecyclerView.State) parameter #1:
+    Missing nullability on parameter `state` in method `onLayoutChildren`
+MissingNullability: androidx.recyclerview.widget.LinearLayoutManager#onLayoutCompleted(androidx.recyclerview.widget.RecyclerView.State) parameter #0:
+    Missing nullability on parameter `state` in method `onLayoutCompleted`
+MissingNullability: androidx.recyclerview.widget.LinearLayoutManager#onRestoreInstanceState(android.os.Parcelable) parameter #0:
+    Missing nullability on parameter `state` in method `onRestoreInstanceState`
+MissingNullability: androidx.recyclerview.widget.LinearLayoutManager#onSaveInstanceState():
+    Missing nullability on method `onSaveInstanceState` return
+MissingNullability: androidx.recyclerview.widget.LinearLayoutManager#scrollHorizontallyBy(int, androidx.recyclerview.widget.RecyclerView.Recycler, androidx.recyclerview.widget.RecyclerView.State) parameter #1:
+    Missing nullability on parameter `recycler` in method `scrollHorizontallyBy`
+MissingNullability: androidx.recyclerview.widget.LinearLayoutManager#scrollHorizontallyBy(int, androidx.recyclerview.widget.RecyclerView.Recycler, androidx.recyclerview.widget.RecyclerView.State) parameter #2:
+    Missing nullability on parameter `state` in method `scrollHorizontallyBy`
+MissingNullability: androidx.recyclerview.widget.LinearLayoutManager#scrollVerticallyBy(int, androidx.recyclerview.widget.RecyclerView.Recycler, androidx.recyclerview.widget.RecyclerView.State) parameter #1:
+    Missing nullability on parameter `recycler` in method `scrollVerticallyBy`
+MissingNullability: androidx.recyclerview.widget.LinearLayoutManager#scrollVerticallyBy(int, androidx.recyclerview.widget.RecyclerView.Recycler, androidx.recyclerview.widget.RecyclerView.State) parameter #2:
+    Missing nullability on parameter `state` in method `scrollVerticallyBy`
+MissingNullability: androidx.recyclerview.widget.LinearLayoutManager#smoothScrollToPosition(androidx.recyclerview.widget.RecyclerView, androidx.recyclerview.widget.RecyclerView.State, int) parameter #0:
+    Missing nullability on parameter `recyclerView` in method `smoothScrollToPosition`
+MissingNullability: androidx.recyclerview.widget.LinearLayoutManager#smoothScrollToPosition(androidx.recyclerview.widget.RecyclerView, androidx.recyclerview.widget.RecyclerView.State, int) parameter #1:
+    Missing nullability on parameter `state` in method `smoothScrollToPosition`
+MissingNullability: androidx.recyclerview.widget.LinearSmoothScroller#LinearSmoothScroller(android.content.Context) parameter #0:
+    Missing nullability on parameter `context` in method `LinearSmoothScroller`
+MissingNullability: androidx.recyclerview.widget.LinearSmoothScroller#calculateDxToMakeVisible(android.view.View, int) parameter #0:
+    Missing nullability on parameter `view` in method `calculateDxToMakeVisible`
+MissingNullability: androidx.recyclerview.widget.LinearSmoothScroller#calculateDyToMakeVisible(android.view.View, int) parameter #0:
+    Missing nullability on parameter `view` in method `calculateDyToMakeVisible`
+MissingNullability: androidx.recyclerview.widget.LinearSmoothScroller#calculateSpeedPerPixel(android.util.DisplayMetrics) parameter #0:
+    Missing nullability on parameter `displayMetrics` in method `calculateSpeedPerPixel`
+MissingNullability: androidx.recyclerview.widget.LinearSmoothScroller#mDecelerateInterpolator:
+    Missing nullability on field `mDecelerateInterpolator` in class `class androidx.recyclerview.widget.LinearSmoothScroller`
+MissingNullability: androidx.recyclerview.widget.LinearSmoothScroller#mLinearInterpolator:
+    Missing nullability on field `mLinearInterpolator` in class `class androidx.recyclerview.widget.LinearSmoothScroller`
+MissingNullability: androidx.recyclerview.widget.LinearSmoothScroller#mTargetVector:
+    Missing nullability on field `mTargetVector` in class `class androidx.recyclerview.widget.LinearSmoothScroller`
+MissingNullability: androidx.recyclerview.widget.LinearSmoothScroller#onSeekTargetStep(int, int, androidx.recyclerview.widget.RecyclerView.State, androidx.recyclerview.widget.RecyclerView.SmoothScroller.Action) parameter #2:
+    Missing nullability on parameter `state` in method `onSeekTargetStep`
+MissingNullability: androidx.recyclerview.widget.LinearSmoothScroller#onSeekTargetStep(int, int, androidx.recyclerview.widget.RecyclerView.State, androidx.recyclerview.widget.RecyclerView.SmoothScroller.Action) parameter #3:
+    Missing nullability on parameter `action` in method `onSeekTargetStep`
+MissingNullability: androidx.recyclerview.widget.LinearSmoothScroller#onTargetFound(android.view.View, androidx.recyclerview.widget.RecyclerView.State, androidx.recyclerview.widget.RecyclerView.SmoothScroller.Action) parameter #0:
+    Missing nullability on parameter `targetView` in method `onTargetFound`
+MissingNullability: androidx.recyclerview.widget.LinearSmoothScroller#onTargetFound(android.view.View, androidx.recyclerview.widget.RecyclerView.State, androidx.recyclerview.widget.RecyclerView.SmoothScroller.Action) parameter #1:
+    Missing nullability on parameter `state` in method `onTargetFound`
+MissingNullability: androidx.recyclerview.widget.LinearSmoothScroller#onTargetFound(android.view.View, androidx.recyclerview.widget.RecyclerView.State, androidx.recyclerview.widget.RecyclerView.SmoothScroller.Action) parameter #2:
+    Missing nullability on parameter `action` in method `onTargetFound`
+MissingNullability: androidx.recyclerview.widget.LinearSmoothScroller#updateActionForInterimTarget(androidx.recyclerview.widget.RecyclerView.SmoothScroller.Action) parameter #0:
+    Missing nullability on parameter `action` in method `updateActionForInterimTarget`
+MissingNullability: androidx.recyclerview.widget.LinearSnapHelper#calculateDistanceToFinalSnap(androidx.recyclerview.widget.RecyclerView.LayoutManager, android.view.View):
+    Missing nullability on method `calculateDistanceToFinalSnap` return
+MissingNullability: androidx.recyclerview.widget.LinearSnapHelper#findSnapView(androidx.recyclerview.widget.RecyclerView.LayoutManager):
+    Missing nullability on method `findSnapView` return
+MissingNullability: androidx.recyclerview.widget.LinearSnapHelper#findSnapView(androidx.recyclerview.widget.RecyclerView.LayoutManager) parameter #0:
+    Missing nullability on parameter `layoutManager` in method `findSnapView`
+MissingNullability: androidx.recyclerview.widget.LinearSnapHelper#findTargetSnapPosition(androidx.recyclerview.widget.RecyclerView.LayoutManager, int, int) parameter #0:
+    Missing nullability on parameter `layoutManager` in method `findTargetSnapPosition`
+MissingNullability: androidx.recyclerview.widget.OrientationHelper#createHorizontalHelper(androidx.recyclerview.widget.RecyclerView.LayoutManager):
+    Missing nullability on method `createHorizontalHelper` return
+MissingNullability: androidx.recyclerview.widget.OrientationHelper#createHorizontalHelper(androidx.recyclerview.widget.RecyclerView.LayoutManager) parameter #0:
+    Missing nullability on parameter `layoutManager` in method `createHorizontalHelper`
+MissingNullability: androidx.recyclerview.widget.OrientationHelper#createOrientationHelper(androidx.recyclerview.widget.RecyclerView.LayoutManager, int):
+    Missing nullability on method `createOrientationHelper` return
+MissingNullability: androidx.recyclerview.widget.OrientationHelper#createOrientationHelper(androidx.recyclerview.widget.RecyclerView.LayoutManager, int) parameter #0:
+    Missing nullability on parameter `layoutManager` in method `createOrientationHelper`
+MissingNullability: androidx.recyclerview.widget.OrientationHelper#createVerticalHelper(androidx.recyclerview.widget.RecyclerView.LayoutManager):
+    Missing nullability on method `createVerticalHelper` return
+MissingNullability: androidx.recyclerview.widget.OrientationHelper#createVerticalHelper(androidx.recyclerview.widget.RecyclerView.LayoutManager) parameter #0:
+    Missing nullability on parameter `layoutManager` in method `createVerticalHelper`
+MissingNullability: androidx.recyclerview.widget.OrientationHelper#getDecoratedEnd(android.view.View) parameter #0:
+    Missing nullability on parameter `view` in method `getDecoratedEnd`
+MissingNullability: androidx.recyclerview.widget.OrientationHelper#getDecoratedMeasurement(android.view.View) parameter #0:
+    Missing nullability on parameter `view` in method `getDecoratedMeasurement`
+MissingNullability: androidx.recyclerview.widget.OrientationHelper#getDecoratedMeasurementInOther(android.view.View) parameter #0:
+    Missing nullability on parameter `view` in method `getDecoratedMeasurementInOther`
+MissingNullability: androidx.recyclerview.widget.OrientationHelper#getDecoratedStart(android.view.View) parameter #0:
+    Missing nullability on parameter `view` in method `getDecoratedStart`
+MissingNullability: androidx.recyclerview.widget.OrientationHelper#getLayoutManager():
+    Missing nullability on method `getLayoutManager` return
+MissingNullability: androidx.recyclerview.widget.OrientationHelper#getTransformedEndWithDecoration(android.view.View) parameter #0:
+    Missing nullability on parameter `view` in method `getTransformedEndWithDecoration`
+MissingNullability: androidx.recyclerview.widget.OrientationHelper#getTransformedStartWithDecoration(android.view.View) parameter #0:
+    Missing nullability on parameter `view` in method `getTransformedStartWithDecoration`
+MissingNullability: androidx.recyclerview.widget.OrientationHelper#mLayoutManager:
+    Missing nullability on field `mLayoutManager` in class `class androidx.recyclerview.widget.OrientationHelper`
+MissingNullability: androidx.recyclerview.widget.OrientationHelper#offsetChild(android.view.View, int) parameter #0:
+    Missing nullability on parameter `view` in method `offsetChild`
+MissingNullability: androidx.recyclerview.widget.PagerSnapHelper#createSnapScroller(androidx.recyclerview.widget.RecyclerView.LayoutManager):
+    Missing nullability on method `createSnapScroller` return
+MissingNullability: androidx.recyclerview.widget.PagerSnapHelper#createSnapScroller(androidx.recyclerview.widget.RecyclerView.LayoutManager) parameter #0:
+    Missing nullability on parameter `layoutManager` in method `createSnapScroller`
+MissingNullability: androidx.recyclerview.widget.PagerSnapHelper#findSnapView(androidx.recyclerview.widget.RecyclerView.LayoutManager) parameter #0:
+    Missing nullability on parameter `layoutManager` in method `findSnapView`
+MissingNullability: androidx.recyclerview.widget.PagerSnapHelper#findTargetSnapPosition(androidx.recyclerview.widget.RecyclerView.LayoutManager, int, int) parameter #0:
+    Missing nullability on parameter `layoutManager` in method `findTargetSnapPosition`
+MissingNullability: androidx.recyclerview.widget.RecyclerView#addFocusables(java.util.ArrayList<android.view.View>, int, int) parameter #0:
+    Missing nullability on parameter `views` in method `addFocusables`
+MissingNullability: androidx.recyclerview.widget.RecyclerView#checkLayoutParams(android.view.ViewGroup.LayoutParams) parameter #0:
+    Missing nullability on parameter `p` in method `checkLayoutParams`
+MissingNullability: androidx.recyclerview.widget.RecyclerView#dispatchNestedPreScroll(int, int, int[], int[]) parameter #2:
+    Missing nullability on parameter `consumed` in method `dispatchNestedPreScroll`
+MissingNullability: androidx.recyclerview.widget.RecyclerView#dispatchNestedPreScroll(int, int, int[], int[]) parameter #3:
+    Missing nullability on parameter `offsetInWindow` in method `dispatchNestedPreScroll`
+MissingNullability: androidx.recyclerview.widget.RecyclerView#dispatchNestedPreScroll(int, int, int[], int[], int) parameter #2:
+    Missing nullability on parameter `consumed` in method `dispatchNestedPreScroll`
+MissingNullability: androidx.recyclerview.widget.RecyclerView#dispatchNestedPreScroll(int, int, int[], int[], int) parameter #3:
+    Missing nullability on parameter `offsetInWindow` in method `dispatchNestedPreScroll`
+MissingNullability: androidx.recyclerview.widget.RecyclerView#dispatchNestedScroll(int, int, int, int, int[]) parameter #4:
+    Missing nullability on parameter `offsetInWindow` in method `dispatchNestedScroll`
+MissingNullability: androidx.recyclerview.widget.RecyclerView#dispatchNestedScroll(int, int, int, int, int[], int) parameter #4:
+    Missing nullability on parameter `offsetInWindow` in method `dispatchNestedScroll`
+MissingNullability: androidx.recyclerview.widget.RecyclerView#dispatchNestedScroll(int, int, int, int, int[], int, int[]) parameter #4:
+    Missing nullability on parameter `offsetInWindow` in method `dispatchNestedScroll`
+MissingNullability: androidx.recyclerview.widget.RecyclerView#dispatchPopulateAccessibilityEvent(android.view.accessibility.AccessibilityEvent) parameter #0:
+    Missing nullability on parameter `event` in method `dispatchPopulateAccessibilityEvent`
+MissingNullability: androidx.recyclerview.widget.RecyclerView#dispatchRestoreInstanceState(android.util.SparseArray<android.os.Parcelable>) parameter #0:
+    Missing nullability on parameter `container` in method `dispatchRestoreInstanceState`
+MissingNullability: androidx.recyclerview.widget.RecyclerView#dispatchSaveInstanceState(android.util.SparseArray<android.os.Parcelable>) parameter #0:
+    Missing nullability on parameter `container` in method `dispatchSaveInstanceState`
+MissingNullability: androidx.recyclerview.widget.RecyclerView#draw(android.graphics.Canvas) parameter #0:
+    Missing nullability on parameter `c` in method `draw`
+MissingNullability: androidx.recyclerview.widget.RecyclerView#drawChild(android.graphics.Canvas, android.view.View, long) parameter #0:
+    Missing nullability on parameter `canvas` in method `drawChild`
+MissingNullability: androidx.recyclerview.widget.RecyclerView#drawChild(android.graphics.Canvas, android.view.View, long) parameter #1:
+    Missing nullability on parameter `child` in method `drawChild`
+MissingNullability: androidx.recyclerview.widget.RecyclerView#findViewHolderForItemId(long):
+    Missing nullability on method `findViewHolderForItemId` return
+MissingNullability: androidx.recyclerview.widget.RecyclerView#focusSearch(android.view.View, int):
+    Missing nullability on method `focusSearch` return
+MissingNullability: androidx.recyclerview.widget.RecyclerView#focusSearch(android.view.View, int) parameter #0:
+    Missing nullability on parameter `focused` in method `focusSearch`
+MissingNullability: androidx.recyclerview.widget.RecyclerView#generateDefaultLayoutParams():
+    Missing nullability on method `generateDefaultLayoutParams` return
+MissingNullability: androidx.recyclerview.widget.RecyclerView#generateLayoutParams(android.util.AttributeSet):
+    Missing nullability on method `generateLayoutParams` return
+MissingNullability: androidx.recyclerview.widget.RecyclerView#generateLayoutParams(android.util.AttributeSet) parameter #0:
+    Missing nullability on parameter `attrs` in method `generateLayoutParams`
+MissingNullability: androidx.recyclerview.widget.RecyclerView#generateLayoutParams(android.view.ViewGroup.LayoutParams):
+    Missing nullability on method `generateLayoutParams` return
+MissingNullability: androidx.recyclerview.widget.RecyclerView#generateLayoutParams(android.view.ViewGroup.LayoutParams) parameter #0:
+    Missing nullability on parameter `p` in method `generateLayoutParams`
+MissingNullability: androidx.recyclerview.widget.RecyclerView#getAccessibilityClassName():
+    Missing nullability on method `getAccessibilityClassName` return
+MissingNullability: androidx.recyclerview.widget.RecyclerView#getChildViewHolder(android.view.View):
+    Missing nullability on method `getChildViewHolder` return
+MissingNullability: androidx.recyclerview.widget.RecyclerView#onDraw(android.graphics.Canvas) parameter #0:
+    Missing nullability on parameter `c` in method `onDraw`
+MissingNullability: androidx.recyclerview.widget.RecyclerView#onGenericMotionEvent(android.view.MotionEvent) parameter #0:
+    Missing nullability on parameter `event` in method `onGenericMotionEvent`
+MissingNullability: androidx.recyclerview.widget.RecyclerView#onInterceptTouchEvent(android.view.MotionEvent) parameter #0:
+    Missing nullability on parameter `e` in method `onInterceptTouchEvent`
+MissingNullability: androidx.recyclerview.widget.RecyclerView#onRequestFocusInDescendants(int, android.graphics.Rect) parameter #1:
+    Missing nullability on parameter `previouslyFocusedRect` in method `onRequestFocusInDescendants`
+MissingNullability: androidx.recyclerview.widget.RecyclerView#onRestoreInstanceState(android.os.Parcelable) parameter #0:
+    Missing nullability on parameter `state` in method `onRestoreInstanceState`
+MissingNullability: androidx.recyclerview.widget.RecyclerView#onSaveInstanceState():
+    Missing nullability on method `onSaveInstanceState` return
+MissingNullability: androidx.recyclerview.widget.RecyclerView#onTouchEvent(android.view.MotionEvent) parameter #0:
+    Missing nullability on parameter `e` in method `onTouchEvent`
+MissingNullability: androidx.recyclerview.widget.RecyclerView#removeDetachedView(android.view.View, boolean) parameter #0:
+    Missing nullability on parameter `child` in method `removeDetachedView`
+MissingNullability: androidx.recyclerview.widget.RecyclerView#requestChildFocus(android.view.View, android.view.View) parameter #0:
+    Missing nullability on parameter `child` in method `requestChildFocus`
+MissingNullability: androidx.recyclerview.widget.RecyclerView#requestChildFocus(android.view.View, android.view.View) parameter #1:
+    Missing nullability on parameter `focused` in method `requestChildFocus`
+MissingNullability: androidx.recyclerview.widget.RecyclerView#requestChildRectangleOnScreen(android.view.View, android.graphics.Rect, boolean) parameter #0:
+    Missing nullability on parameter `child` in method `requestChildRectangleOnScreen`
+MissingNullability: androidx.recyclerview.widget.RecyclerView#requestChildRectangleOnScreen(android.view.View, android.graphics.Rect, boolean) parameter #1:
+    Missing nullability on parameter `rect` in method `requestChildRectangleOnScreen`
+MissingNullability: androidx.recyclerview.widget.RecyclerView#sendAccessibilityEventUnchecked(android.view.accessibility.AccessibilityEvent) parameter #0:
+    Missing nullability on parameter `event` in method `sendAccessibilityEventUnchecked`
+MissingNullability: androidx.recyclerview.widget.RecyclerView#setLayoutTransition(android.animation.LayoutTransition) parameter #0:
+    Missing nullability on parameter `transition` in method `setLayoutTransition`
+MissingNullability: androidx.recyclerview.widget.RecyclerView.LayoutManager#addDisappearingView(android.view.View) parameter #0:
+    Missing nullability on parameter `child` in method `addDisappearingView`
+MissingNullability: androidx.recyclerview.widget.RecyclerView.LayoutManager#addDisappearingView(android.view.View, int) parameter #0:
+    Missing nullability on parameter `child` in method `addDisappearingView`
+MissingNullability: androidx.recyclerview.widget.RecyclerView.LayoutManager#addView(android.view.View) parameter #0:
+    Missing nullability on parameter `child` in method `addView`
+MissingNullability: androidx.recyclerview.widget.RecyclerView.LayoutManager#addView(android.view.View, int) parameter #0:
+    Missing nullability on parameter `child` in method `addView`
+MissingNullability: androidx.recyclerview.widget.RecyclerView.LayoutManager#assertInLayoutOrScroll(String) parameter #0:
+    Missing nullability on parameter `message` in method `assertInLayoutOrScroll`
+MissingNullability: androidx.recyclerview.widget.RecyclerView.LayoutManager#assertNotInLayoutOrScroll(String) parameter #0:
+    Missing nullability on parameter `message` in method `assertNotInLayoutOrScroll`
+MissingNullability: androidx.recyclerview.widget.RecyclerView.LayoutManager#attachView(android.view.View, int, androidx.recyclerview.widget.RecyclerView.LayoutParams) parameter #2:
+    Missing nullability on parameter `lp` in method `attachView`
+MissingNullability: androidx.recyclerview.widget.RecyclerView.LayoutManager#checkLayoutParams(androidx.recyclerview.widget.RecyclerView.LayoutParams) parameter #0:
+    Missing nullability on parameter `lp` in method `checkLayoutParams`
+MissingNullability: androidx.recyclerview.widget.RecyclerView.LayoutManager#collectAdjacentPrefetchPositions(int, int, androidx.recyclerview.widget.RecyclerView.State, androidx.recyclerview.widget.RecyclerView.LayoutManager.LayoutPrefetchRegistry) parameter #2:
+    Missing nullability on parameter `state` in method `collectAdjacentPrefetchPositions`
+MissingNullability: androidx.recyclerview.widget.RecyclerView.LayoutManager#collectAdjacentPrefetchPositions(int, int, androidx.recyclerview.widget.RecyclerView.State, androidx.recyclerview.widget.RecyclerView.LayoutManager.LayoutPrefetchRegistry) parameter #3:
+    Missing nullability on parameter `layoutPrefetchRegistry` in method `collectAdjacentPrefetchPositions`
+MissingNullability: androidx.recyclerview.widget.RecyclerView.LayoutManager#collectInitialPrefetchPositions(int, androidx.recyclerview.widget.RecyclerView.LayoutManager.LayoutPrefetchRegistry) parameter #1:
+    Missing nullability on parameter `layoutPrefetchRegistry` in method `collectInitialPrefetchPositions`
+MissingNullability: androidx.recyclerview.widget.RecyclerView.LayoutManager#endAnimation(android.view.View) parameter #0:
+    Missing nullability on parameter `view` in method `endAnimation`
+MissingNullability: androidx.recyclerview.widget.RecyclerView.LayoutManager#generateDefaultLayoutParams():
+    Missing nullability on method `generateDefaultLayoutParams` return
+MissingNullability: androidx.recyclerview.widget.RecyclerView.LayoutManager#generateLayoutParams(android.content.Context, android.util.AttributeSet):
+    Missing nullability on method `generateLayoutParams` return
+MissingNullability: androidx.recyclerview.widget.RecyclerView.LayoutManager#generateLayoutParams(android.content.Context, android.util.AttributeSet) parameter #0:
+    Missing nullability on parameter `c` in method `generateLayoutParams`
+MissingNullability: androidx.recyclerview.widget.RecyclerView.LayoutManager#generateLayoutParams(android.content.Context, android.util.AttributeSet) parameter #1:
+    Missing nullability on parameter `attrs` in method `generateLayoutParams`
+MissingNullability: androidx.recyclerview.widget.RecyclerView.LayoutManager#generateLayoutParams(android.view.ViewGroup.LayoutParams):
+    Missing nullability on method `generateLayoutParams` return
+MissingNullability: androidx.recyclerview.widget.RecyclerView.LayoutManager#generateLayoutParams(android.view.ViewGroup.LayoutParams) parameter #0:
+    Missing nullability on parameter `lp` in method `generateLayoutParams`
+MissingNullability: androidx.recyclerview.widget.RecyclerView.LayoutManager#getProperties(android.content.Context, android.util.AttributeSet, int, int):
+    Missing nullability on method `getProperties` return
+MissingNullability: androidx.recyclerview.widget.RecyclerView.LayoutManager#onAttachedToWindow(androidx.recyclerview.widget.RecyclerView) parameter #0:
+    Missing nullability on parameter `view` in method `onAttachedToWindow`
+MissingNullability: androidx.recyclerview.widget.RecyclerView.LayoutManager#onDetachedFromWindow(androidx.recyclerview.widget.RecyclerView) parameter #0:
+    Missing nullability on parameter `view` in method `onDetachedFromWindow`
+MissingNullability: androidx.recyclerview.widget.RecyclerView.LayoutManager#onDetachedFromWindow(androidx.recyclerview.widget.RecyclerView, androidx.recyclerview.widget.RecyclerView.Recycler) parameter #0:
+    Missing nullability on parameter `view` in method `onDetachedFromWindow`
+MissingNullability: androidx.recyclerview.widget.RecyclerView.LayoutManager#onDetachedFromWindow(androidx.recyclerview.widget.RecyclerView, androidx.recyclerview.widget.RecyclerView.Recycler) parameter #1:
+    Missing nullability on parameter `recycler` in method `onDetachedFromWindow`
+MissingNullability: androidx.recyclerview.widget.RecyclerView.LayoutManager#onLayoutChildren(androidx.recyclerview.widget.RecyclerView.Recycler, androidx.recyclerview.widget.RecyclerView.State) parameter #0:
+    Missing nullability on parameter `recycler` in method `onLayoutChildren`
+MissingNullability: androidx.recyclerview.widget.RecyclerView.LayoutManager#onLayoutChildren(androidx.recyclerview.widget.RecyclerView.Recycler, androidx.recyclerview.widget.RecyclerView.State) parameter #1:
+    Missing nullability on parameter `state` in method `onLayoutChildren`
+MissingNullability: androidx.recyclerview.widget.RecyclerView.LayoutManager#onLayoutCompleted(androidx.recyclerview.widget.RecyclerView.State) parameter #0:
+    Missing nullability on parameter `state` in method `onLayoutCompleted`
+MissingNullability: androidx.recyclerview.widget.RecyclerView.LayoutManager#onRestoreInstanceState(android.os.Parcelable) parameter #0:
+    Missing nullability on parameter `state` in method `onRestoreInstanceState`
+MissingNullability: androidx.recyclerview.widget.RecyclerView.LayoutManager#postOnAnimation(Runnable) parameter #0:
+    Missing nullability on parameter `action` in method `postOnAnimation`
+MissingNullability: androidx.recyclerview.widget.RecyclerView.LayoutManager#removeCallbacks(Runnable) parameter #0:
+    Missing nullability on parameter `action` in method `removeCallbacks`
+MissingNullability: androidx.recyclerview.widget.RecyclerView.LayoutManager#removeView(android.view.View) parameter #0:
+    Missing nullability on parameter `child` in method `removeView`
+MissingNullability: androidx.recyclerview.widget.RecyclerView.LayoutManager#scrollHorizontallyBy(int, androidx.recyclerview.widget.RecyclerView.Recycler, androidx.recyclerview.widget.RecyclerView.State) parameter #1:
+    Missing nullability on parameter `recycler` in method `scrollHorizontallyBy`
+MissingNullability: androidx.recyclerview.widget.RecyclerView.LayoutManager#scrollHorizontallyBy(int, androidx.recyclerview.widget.RecyclerView.Recycler, androidx.recyclerview.widget.RecyclerView.State) parameter #2:
+    Missing nullability on parameter `state` in method `scrollHorizontallyBy`
+MissingNullability: androidx.recyclerview.widget.RecyclerView.LayoutManager#scrollVerticallyBy(int, androidx.recyclerview.widget.RecyclerView.Recycler, androidx.recyclerview.widget.RecyclerView.State) parameter #1:
+    Missing nullability on parameter `recycler` in method `scrollVerticallyBy`
+MissingNullability: androidx.recyclerview.widget.RecyclerView.LayoutManager#scrollVerticallyBy(int, androidx.recyclerview.widget.RecyclerView.Recycler, androidx.recyclerview.widget.RecyclerView.State) parameter #2:
+    Missing nullability on parameter `state` in method `scrollVerticallyBy`
+MissingNullability: androidx.recyclerview.widget.RecyclerView.LayoutManager#setMeasuredDimension(android.graphics.Rect, int, int) parameter #0:
+    Missing nullability on parameter `childrenBounds` in method `setMeasuredDimension`
+MissingNullability: androidx.recyclerview.widget.RecyclerView.LayoutManager#smoothScrollToPosition(androidx.recyclerview.widget.RecyclerView, androidx.recyclerview.widget.RecyclerView.State, int) parameter #0:
+    Missing nullability on parameter `recyclerView` in method `smoothScrollToPosition`
+MissingNullability: androidx.recyclerview.widget.RecyclerView.LayoutManager#smoothScrollToPosition(androidx.recyclerview.widget.RecyclerView, androidx.recyclerview.widget.RecyclerView.State, int) parameter #1:
+    Missing nullability on parameter `state` in method `smoothScrollToPosition`
+MissingNullability: androidx.recyclerview.widget.RecyclerView.LayoutManager#startSmoothScroll(androidx.recyclerview.widget.RecyclerView.SmoothScroller) parameter #0:
+    Missing nullability on parameter `smoothScroller` in method `startSmoothScroll`
+MissingNullability: androidx.recyclerview.widget.RecyclerView.LayoutParams#LayoutParams(android.content.Context, android.util.AttributeSet) parameter #0:
+    Missing nullability on parameter `c` in method `LayoutParams`
+MissingNullability: androidx.recyclerview.widget.RecyclerView.LayoutParams#LayoutParams(android.content.Context, android.util.AttributeSet) parameter #1:
+    Missing nullability on parameter `attrs` in method `LayoutParams`
+MissingNullability: androidx.recyclerview.widget.RecyclerView.LayoutParams#LayoutParams(android.view.ViewGroup.LayoutParams) parameter #0:
+    Missing nullability on parameter `source` in method `LayoutParams`
+MissingNullability: androidx.recyclerview.widget.RecyclerView.LayoutParams#LayoutParams(android.view.ViewGroup.MarginLayoutParams) parameter #0:
+    Missing nullability on parameter `source` in method `LayoutParams`
+MissingNullability: androidx.recyclerview.widget.RecyclerView.LayoutParams#LayoutParams(androidx.recyclerview.widget.RecyclerView.LayoutParams) parameter #0:
+    Missing nullability on parameter `source` in method `LayoutParams`
+MissingNullability: androidx.recyclerview.widget.RecyclerView.RecycledViewPool#putRecycledView(androidx.recyclerview.widget.RecyclerView.ViewHolder) parameter #0:
+    Missing nullability on parameter `scrap` in method `putRecycledView`
+MissingNullability: androidx.recyclerview.widget.RecyclerView.SmoothScroller#findViewByPosition(int):
+    Missing nullability on method `findViewByPosition` return
+MissingNullability: androidx.recyclerview.widget.RecyclerView.SmoothScroller#getChildPosition(android.view.View) parameter #0:
+    Missing nullability on parameter `view` in method `getChildPosition`
+MissingNullability: androidx.recyclerview.widget.RecyclerView.SmoothScroller#onChildAttachedToWindow(android.view.View) parameter #0:
+    Missing nullability on parameter `child` in method `onChildAttachedToWindow`
+MissingNullability: androidx.recyclerview.widget.RecyclerView.State#put(int, Object) parameter #1:
+    Missing nullability on parameter `data` in method `put`
+MissingNullability: androidx.recyclerview.widget.RecyclerView.State#toString():
+    Missing nullability on method `toString` return
+MissingNullability: androidx.recyclerview.widget.RecyclerView.ViewHolder#toString():
+    Missing nullability on method `toString` return
+MissingNullability: androidx.recyclerview.widget.RecyclerViewAccessibilityDelegate#onInitializeAccessibilityEvent(android.view.View, android.view.accessibility.AccessibilityEvent) parameter #0:
+    Missing nullability on parameter `host` in method `onInitializeAccessibilityEvent`
+MissingNullability: androidx.recyclerview.widget.RecyclerViewAccessibilityDelegate#onInitializeAccessibilityEvent(android.view.View, android.view.accessibility.AccessibilityEvent) parameter #1:
+    Missing nullability on parameter `event` in method `onInitializeAccessibilityEvent`
+MissingNullability: androidx.recyclerview.widget.RecyclerViewAccessibilityDelegate#onInitializeAccessibilityNodeInfo(android.view.View, androidx.core.view.accessibility.AccessibilityNodeInfoCompat) parameter #0:
+    Missing nullability on parameter `host` in method `onInitializeAccessibilityNodeInfo`
+MissingNullability: androidx.recyclerview.widget.RecyclerViewAccessibilityDelegate#onInitializeAccessibilityNodeInfo(android.view.View, androidx.core.view.accessibility.AccessibilityNodeInfoCompat) parameter #1:
+    Missing nullability on parameter `info` in method `onInitializeAccessibilityNodeInfo`
+MissingNullability: androidx.recyclerview.widget.RecyclerViewAccessibilityDelegate#performAccessibilityAction(android.view.View, int, android.os.Bundle) parameter #0:
+    Missing nullability on parameter `host` in method `performAccessibilityAction`
+MissingNullability: androidx.recyclerview.widget.RecyclerViewAccessibilityDelegate#performAccessibilityAction(android.view.View, int, android.os.Bundle) parameter #2:
+    Missing nullability on parameter `args` in method `performAccessibilityAction`
+MissingNullability: androidx.recyclerview.widget.RecyclerViewAccessibilityDelegate.ItemDelegate#onInitializeAccessibilityNodeInfo(android.view.View, androidx.core.view.accessibility.AccessibilityNodeInfoCompat) parameter #0:
+    Missing nullability on parameter `host` in method `onInitializeAccessibilityNodeInfo`
+MissingNullability: androidx.recyclerview.widget.RecyclerViewAccessibilityDelegate.ItemDelegate#onInitializeAccessibilityNodeInfo(android.view.View, androidx.core.view.accessibility.AccessibilityNodeInfoCompat) parameter #1:
+    Missing nullability on parameter `info` in method `onInitializeAccessibilityNodeInfo`
+MissingNullability: androidx.recyclerview.widget.RecyclerViewAccessibilityDelegate.ItemDelegate#performAccessibilityAction(android.view.View, int, android.os.Bundle) parameter #0:
+    Missing nullability on parameter `host` in method `performAccessibilityAction`
+MissingNullability: androidx.recyclerview.widget.RecyclerViewAccessibilityDelegate.ItemDelegate#performAccessibilityAction(android.view.View, int, android.os.Bundle) parameter #2:
+    Missing nullability on parameter `args` in method `performAccessibilityAction`
+MissingNullability: androidx.recyclerview.widget.SimpleItemAnimator#animateAdd(androidx.recyclerview.widget.RecyclerView.ViewHolder) parameter #0:
+    Missing nullability on parameter `holder` in method `animateAdd`
+MissingNullability: androidx.recyclerview.widget.SimpleItemAnimator#animateChange(androidx.recyclerview.widget.RecyclerView.ViewHolder, androidx.recyclerview.widget.RecyclerView.ViewHolder, int, int, int, int) parameter #0:
+    Missing nullability on parameter `oldHolder` in method `animateChange`
+MissingNullability: androidx.recyclerview.widget.SimpleItemAnimator#animateChange(androidx.recyclerview.widget.RecyclerView.ViewHolder, androidx.recyclerview.widget.RecyclerView.ViewHolder, int, int, int, int) parameter #1:
+    Missing nullability on parameter `newHolder` in method `animateChange`
+MissingNullability: androidx.recyclerview.widget.SimpleItemAnimator#animateMove(androidx.recyclerview.widget.RecyclerView.ViewHolder, int, int, int, int) parameter #0:
+    Missing nullability on parameter `holder` in method `animateMove`
+MissingNullability: androidx.recyclerview.widget.SimpleItemAnimator#animateRemove(androidx.recyclerview.widget.RecyclerView.ViewHolder) parameter #0:
+    Missing nullability on parameter `holder` in method `animateRemove`
+MissingNullability: androidx.recyclerview.widget.SimpleItemAnimator#dispatchAddFinished(androidx.recyclerview.widget.RecyclerView.ViewHolder) parameter #0:
+    Missing nullability on parameter `item` in method `dispatchAddFinished`
+MissingNullability: androidx.recyclerview.widget.SimpleItemAnimator#dispatchAddStarting(androidx.recyclerview.widget.RecyclerView.ViewHolder) parameter #0:
+    Missing nullability on parameter `item` in method `dispatchAddStarting`
+MissingNullability: androidx.recyclerview.widget.SimpleItemAnimator#dispatchChangeFinished(androidx.recyclerview.widget.RecyclerView.ViewHolder, boolean) parameter #0:
+    Missing nullability on parameter `item` in method `dispatchChangeFinished`
+MissingNullability: androidx.recyclerview.widget.SimpleItemAnimator#dispatchChangeStarting(androidx.recyclerview.widget.RecyclerView.ViewHolder, boolean) parameter #0:
+    Missing nullability on parameter `item` in method `dispatchChangeStarting`
+MissingNullability: androidx.recyclerview.widget.SimpleItemAnimator#dispatchMoveFinished(androidx.recyclerview.widget.RecyclerView.ViewHolder) parameter #0:
+    Missing nullability on parameter `item` in method `dispatchMoveFinished`
+MissingNullability: androidx.recyclerview.widget.SimpleItemAnimator#dispatchMoveStarting(androidx.recyclerview.widget.RecyclerView.ViewHolder) parameter #0:
+    Missing nullability on parameter `item` in method `dispatchMoveStarting`
+MissingNullability: androidx.recyclerview.widget.SimpleItemAnimator#dispatchRemoveFinished(androidx.recyclerview.widget.RecyclerView.ViewHolder) parameter #0:
+    Missing nullability on parameter `item` in method `dispatchRemoveFinished`
+MissingNullability: androidx.recyclerview.widget.SimpleItemAnimator#dispatchRemoveStarting(androidx.recyclerview.widget.RecyclerView.ViewHolder) parameter #0:
+    Missing nullability on parameter `item` in method `dispatchRemoveStarting`
+MissingNullability: androidx.recyclerview.widget.SimpleItemAnimator#onAddFinished(androidx.recyclerview.widget.RecyclerView.ViewHolder) parameter #0:
+    Missing nullability on parameter `item` in method `onAddFinished`
+MissingNullability: androidx.recyclerview.widget.SimpleItemAnimator#onAddStarting(androidx.recyclerview.widget.RecyclerView.ViewHolder) parameter #0:
+    Missing nullability on parameter `item` in method `onAddStarting`
+MissingNullability: androidx.recyclerview.widget.SimpleItemAnimator#onChangeFinished(androidx.recyclerview.widget.RecyclerView.ViewHolder, boolean) parameter #0:
+    Missing nullability on parameter `item` in method `onChangeFinished`
+MissingNullability: androidx.recyclerview.widget.SimpleItemAnimator#onChangeStarting(androidx.recyclerview.widget.RecyclerView.ViewHolder, boolean) parameter #0:
+    Missing nullability on parameter `item` in method `onChangeStarting`
+MissingNullability: androidx.recyclerview.widget.SimpleItemAnimator#onMoveFinished(androidx.recyclerview.widget.RecyclerView.ViewHolder) parameter #0:
+    Missing nullability on parameter `item` in method `onMoveFinished`
+MissingNullability: androidx.recyclerview.widget.SimpleItemAnimator#onMoveStarting(androidx.recyclerview.widget.RecyclerView.ViewHolder) parameter #0:
+    Missing nullability on parameter `item` in method `onMoveStarting`
+MissingNullability: androidx.recyclerview.widget.SimpleItemAnimator#onRemoveFinished(androidx.recyclerview.widget.RecyclerView.ViewHolder) parameter #0:
+    Missing nullability on parameter `item` in method `onRemoveFinished`
+MissingNullability: androidx.recyclerview.widget.SimpleItemAnimator#onRemoveStarting(androidx.recyclerview.widget.RecyclerView.ViewHolder) parameter #0:
+    Missing nullability on parameter `item` in method `onRemoveStarting`
+MissingNullability: androidx.recyclerview.widget.SnapHelper#calculateScrollDistance(int, int):
+    Missing nullability on method `calculateScrollDistance` return
+MissingNullability: androidx.recyclerview.widget.SnapHelper#createScroller(androidx.recyclerview.widget.RecyclerView.LayoutManager) parameter #0:
+    Missing nullability on parameter `layoutManager` in method `createScroller`
+MissingNullability: androidx.recyclerview.widget.SnapHelper#createSnapScroller(androidx.recyclerview.widget.RecyclerView.LayoutManager) parameter #0:
+    Missing nullability on parameter `layoutManager` in method `createSnapScroller`
+MissingNullability: androidx.recyclerview.widget.SnapHelper#findSnapView(androidx.recyclerview.widget.RecyclerView.LayoutManager) parameter #0:
+    Missing nullability on parameter `layoutManager` in method `findSnapView`
+MissingNullability: androidx.recyclerview.widget.SnapHelper#findTargetSnapPosition(androidx.recyclerview.widget.RecyclerView.LayoutManager, int, int) parameter #0:
+    Missing nullability on parameter `layoutManager` in method `findTargetSnapPosition`
+MissingNullability: androidx.recyclerview.widget.SortedList.BatchedCallback#BatchedCallback(androidx.recyclerview.widget.SortedList.Callback<T2>) parameter #0:
+    Missing nullability on parameter `wrappedCallback` in method `BatchedCallback`
+MissingNullability: androidx.recyclerview.widget.SortedList.BatchedCallback#onChanged(int, int, Object) parameter #2:
+    Missing nullability on parameter `payload` in method `onChanged`
+MissingNullability: androidx.recyclerview.widget.SortedList.Callback#onChanged(int, int, Object) parameter #2:
+    Missing nullability on parameter `payload` in method `onChanged`
+MissingNullability: androidx.recyclerview.widget.SortedListAdapterCallback#SortedListAdapterCallback(androidx.recyclerview.widget.RecyclerView.Adapter) parameter #0:
+    Missing nullability on parameter `adapter` in method `SortedListAdapterCallback`
+MissingNullability: androidx.recyclerview.widget.SortedListAdapterCallback#onChanged(int, int, Object) parameter #2:
+    Missing nullability on parameter `payload` in method `onChanged`
+MissingNullability: androidx.recyclerview.widget.StaggeredGridLayoutManager#StaggeredGridLayoutManager(android.content.Context, android.util.AttributeSet, int, int) parameter #0:
+    Missing nullability on parameter `context` in method `StaggeredGridLayoutManager`
+MissingNullability: androidx.recyclerview.widget.StaggeredGridLayoutManager#StaggeredGridLayoutManager(android.content.Context, android.util.AttributeSet, int, int) parameter #1:
+    Missing nullability on parameter `attrs` in method `StaggeredGridLayoutManager`
+MissingNullability: androidx.recyclerview.widget.StaggeredGridLayoutManager#assertNotInLayoutOrScroll(String) parameter #0:
+    Missing nullability on parameter `message` in method `assertNotInLayoutOrScroll`
+MissingNullability: androidx.recyclerview.widget.StaggeredGridLayoutManager#checkLayoutParams(androidx.recyclerview.widget.RecyclerView.LayoutParams) parameter #0:
+    Missing nullability on parameter `lp` in method `checkLayoutParams`
+MissingNullability: androidx.recyclerview.widget.StaggeredGridLayoutManager#computeHorizontalScrollExtent(androidx.recyclerview.widget.RecyclerView.State) parameter #0:
+    Missing nullability on parameter `state` in method `computeHorizontalScrollExtent`
+MissingNullability: androidx.recyclerview.widget.StaggeredGridLayoutManager#computeHorizontalScrollOffset(androidx.recyclerview.widget.RecyclerView.State) parameter #0:
+    Missing nullability on parameter `state` in method `computeHorizontalScrollOffset`
+MissingNullability: androidx.recyclerview.widget.StaggeredGridLayoutManager#computeHorizontalScrollRange(androidx.recyclerview.widget.RecyclerView.State) parameter #0:
+    Missing nullability on parameter `state` in method `computeHorizontalScrollRange`
+MissingNullability: androidx.recyclerview.widget.StaggeredGridLayoutManager#computeScrollVectorForPosition(int):
+    Missing nullability on method `computeScrollVectorForPosition` return
+MissingNullability: androidx.recyclerview.widget.StaggeredGridLayoutManager#computeVerticalScrollExtent(androidx.recyclerview.widget.RecyclerView.State) parameter #0:
+    Missing nullability on parameter `state` in method `computeVerticalScrollExtent`
+MissingNullability: androidx.recyclerview.widget.StaggeredGridLayoutManager#computeVerticalScrollOffset(androidx.recyclerview.widget.RecyclerView.State) parameter #0:
+    Missing nullability on parameter `state` in method `computeVerticalScrollOffset`
+MissingNullability: androidx.recyclerview.widget.StaggeredGridLayoutManager#computeVerticalScrollRange(androidx.recyclerview.widget.RecyclerView.State) parameter #0:
+    Missing nullability on parameter `state` in method `computeVerticalScrollRange`
+MissingNullability: androidx.recyclerview.widget.StaggeredGridLayoutManager#findFirstCompletelyVisibleItemPositions(int[]):
+    Missing nullability on method `findFirstCompletelyVisibleItemPositions` return
+MissingNullability: androidx.recyclerview.widget.StaggeredGridLayoutManager#findFirstCompletelyVisibleItemPositions(int[]) parameter #0:
+    Missing nullability on parameter `into` in method `findFirstCompletelyVisibleItemPositions`
+MissingNullability: androidx.recyclerview.widget.StaggeredGridLayoutManager#findFirstVisibleItemPositions(int[]):
+    Missing nullability on method `findFirstVisibleItemPositions` return
+MissingNullability: androidx.recyclerview.widget.StaggeredGridLayoutManager#findFirstVisibleItemPositions(int[]) parameter #0:
+    Missing nullability on parameter `into` in method `findFirstVisibleItemPositions`
+MissingNullability: androidx.recyclerview.widget.StaggeredGridLayoutManager#findLastCompletelyVisibleItemPositions(int[]):
+    Missing nullability on method `findLastCompletelyVisibleItemPositions` return
+MissingNullability: androidx.recyclerview.widget.StaggeredGridLayoutManager#findLastCompletelyVisibleItemPositions(int[]) parameter #0:
+    Missing nullability on parameter `into` in method `findLastCompletelyVisibleItemPositions`
+MissingNullability: androidx.recyclerview.widget.StaggeredGridLayoutManager#findLastVisibleItemPositions(int[]):
+    Missing nullability on method `findLastVisibleItemPositions` return
+MissingNullability: androidx.recyclerview.widget.StaggeredGridLayoutManager#findLastVisibleItemPositions(int[]) parameter #0:
+    Missing nullability on parameter `into` in method `findLastVisibleItemPositions`
+MissingNullability: androidx.recyclerview.widget.StaggeredGridLayoutManager#generateDefaultLayoutParams():
+    Missing nullability on method `generateDefaultLayoutParams` return
+MissingNullability: androidx.recyclerview.widget.StaggeredGridLayoutManager#generateLayoutParams(android.content.Context, android.util.AttributeSet):
+    Missing nullability on method `generateLayoutParams` return
+MissingNullability: androidx.recyclerview.widget.StaggeredGridLayoutManager#generateLayoutParams(android.content.Context, android.util.AttributeSet) parameter #0:
+    Missing nullability on parameter `c` in method `generateLayoutParams`
+MissingNullability: androidx.recyclerview.widget.StaggeredGridLayoutManager#generateLayoutParams(android.content.Context, android.util.AttributeSet) parameter #1:
+    Missing nullability on parameter `attrs` in method `generateLayoutParams`
+MissingNullability: androidx.recyclerview.widget.StaggeredGridLayoutManager#generateLayoutParams(android.view.ViewGroup.LayoutParams):
+    Missing nullability on method `generateLayoutParams` return
+MissingNullability: androidx.recyclerview.widget.StaggeredGridLayoutManager#generateLayoutParams(android.view.ViewGroup.LayoutParams) parameter #0:
+    Missing nullability on parameter `lp` in method `generateLayoutParams`
+MissingNullability: androidx.recyclerview.widget.StaggeredGridLayoutManager#getColumnCountForAccessibility(androidx.recyclerview.widget.RecyclerView.Recycler, androidx.recyclerview.widget.RecyclerView.State) parameter #0:
+    Missing nullability on parameter `recycler` in method `getColumnCountForAccessibility`
+MissingNullability: androidx.recyclerview.widget.StaggeredGridLayoutManager#getColumnCountForAccessibility(androidx.recyclerview.widget.RecyclerView.Recycler, androidx.recyclerview.widget.RecyclerView.State) parameter #1:
+    Missing nullability on parameter `state` in method `getColumnCountForAccessibility`
+MissingNullability: androidx.recyclerview.widget.StaggeredGridLayoutManager#getRowCountForAccessibility(androidx.recyclerview.widget.RecyclerView.Recycler, androidx.recyclerview.widget.RecyclerView.State) parameter #0:
+    Missing nullability on parameter `recycler` in method `getRowCountForAccessibility`
+MissingNullability: androidx.recyclerview.widget.StaggeredGridLayoutManager#getRowCountForAccessibility(androidx.recyclerview.widget.RecyclerView.Recycler, androidx.recyclerview.widget.RecyclerView.State) parameter #1:
+    Missing nullability on parameter `state` in method `getRowCountForAccessibility`
+MissingNullability: androidx.recyclerview.widget.StaggeredGridLayoutManager#onDetachedFromWindow(androidx.recyclerview.widget.RecyclerView, androidx.recyclerview.widget.RecyclerView.Recycler) parameter #0:
+    Missing nullability on parameter `view` in method `onDetachedFromWindow`
+MissingNullability: androidx.recyclerview.widget.StaggeredGridLayoutManager#onDetachedFromWindow(androidx.recyclerview.widget.RecyclerView, androidx.recyclerview.widget.RecyclerView.Recycler) parameter #1:
+    Missing nullability on parameter `recycler` in method `onDetachedFromWindow`
+MissingNullability: androidx.recyclerview.widget.StaggeredGridLayoutManager#onFocusSearchFailed(android.view.View, int, androidx.recyclerview.widget.RecyclerView.Recycler, androidx.recyclerview.widget.RecyclerView.State) parameter #0:
+    Missing nullability on parameter `focused` in method `onFocusSearchFailed`
+MissingNullability: androidx.recyclerview.widget.StaggeredGridLayoutManager#onFocusSearchFailed(android.view.View, int, androidx.recyclerview.widget.RecyclerView.Recycler, androidx.recyclerview.widget.RecyclerView.State) parameter #2:
+    Missing nullability on parameter `recycler` in method `onFocusSearchFailed`
+MissingNullability: androidx.recyclerview.widget.StaggeredGridLayoutManager#onFocusSearchFailed(android.view.View, int, androidx.recyclerview.widget.RecyclerView.Recycler, androidx.recyclerview.widget.RecyclerView.State) parameter #3:
+    Missing nullability on parameter `state` in method `onFocusSearchFailed`
+MissingNullability: androidx.recyclerview.widget.StaggeredGridLayoutManager#onInitializeAccessibilityEvent(android.view.accessibility.AccessibilityEvent) parameter #0:
+    Missing nullability on parameter `event` in method `onInitializeAccessibilityEvent`
+MissingNullability: androidx.recyclerview.widget.StaggeredGridLayoutManager#onInitializeAccessibilityNodeInfoForItem(androidx.recyclerview.widget.RecyclerView.Recycler, androidx.recyclerview.widget.RecyclerView.State, android.view.View, androidx.core.view.accessibility.AccessibilityNodeInfoCompat) parameter #0:
+    Missing nullability on parameter `recycler` in method `onInitializeAccessibilityNodeInfoForItem`
+MissingNullability: androidx.recyclerview.widget.StaggeredGridLayoutManager#onInitializeAccessibilityNodeInfoForItem(androidx.recyclerview.widget.RecyclerView.Recycler, androidx.recyclerview.widget.RecyclerView.State, android.view.View, androidx.core.view.accessibility.AccessibilityNodeInfoCompat) parameter #1:
+    Missing nullability on parameter `state` in method `onInitializeAccessibilityNodeInfoForItem`
+MissingNullability: androidx.recyclerview.widget.StaggeredGridLayoutManager#onInitializeAccessibilityNodeInfoForItem(androidx.recyclerview.widget.RecyclerView.Recycler, androidx.recyclerview.widget.RecyclerView.State, android.view.View, androidx.core.view.accessibility.AccessibilityNodeInfoCompat) parameter #2:
+    Missing nullability on parameter `host` in method `onInitializeAccessibilityNodeInfoForItem`
+MissingNullability: androidx.recyclerview.widget.StaggeredGridLayoutManager#onInitializeAccessibilityNodeInfoForItem(androidx.recyclerview.widget.RecyclerView.Recycler, androidx.recyclerview.widget.RecyclerView.State, android.view.View, androidx.core.view.accessibility.AccessibilityNodeInfoCompat) parameter #3:
+    Missing nullability on parameter `info` in method `onInitializeAccessibilityNodeInfoForItem`
+MissingNullability: androidx.recyclerview.widget.StaggeredGridLayoutManager#onItemsAdded(androidx.recyclerview.widget.RecyclerView, int, int) parameter #0:
+    Missing nullability on parameter `recyclerView` in method `onItemsAdded`
+MissingNullability: androidx.recyclerview.widget.StaggeredGridLayoutManager#onItemsChanged(androidx.recyclerview.widget.RecyclerView) parameter #0:
+    Missing nullability on parameter `recyclerView` in method `onItemsChanged`
+MissingNullability: androidx.recyclerview.widget.StaggeredGridLayoutManager#onItemsMoved(androidx.recyclerview.widget.RecyclerView, int, int, int) parameter #0:
+    Missing nullability on parameter `recyclerView` in method `onItemsMoved`
+MissingNullability: androidx.recyclerview.widget.StaggeredGridLayoutManager#onItemsRemoved(androidx.recyclerview.widget.RecyclerView, int, int) parameter #0:
+    Missing nullability on parameter `recyclerView` in method `onItemsRemoved`
+MissingNullability: androidx.recyclerview.widget.StaggeredGridLayoutManager#onItemsUpdated(androidx.recyclerview.widget.RecyclerView, int, int, Object) parameter #0:
+    Missing nullability on parameter `recyclerView` in method `onItemsUpdated`
+MissingNullability: androidx.recyclerview.widget.StaggeredGridLayoutManager#onItemsUpdated(androidx.recyclerview.widget.RecyclerView, int, int, Object) parameter #3:
+    Missing nullability on parameter `payload` in method `onItemsUpdated`
+MissingNullability: androidx.recyclerview.widget.StaggeredGridLayoutManager#onLayoutChildren(androidx.recyclerview.widget.RecyclerView.Recycler, androidx.recyclerview.widget.RecyclerView.State) parameter #0:
+    Missing nullability on parameter `recycler` in method `onLayoutChildren`
+MissingNullability: androidx.recyclerview.widget.StaggeredGridLayoutManager#onLayoutChildren(androidx.recyclerview.widget.RecyclerView.Recycler, androidx.recyclerview.widget.RecyclerView.State) parameter #1:
+    Missing nullability on parameter `state` in method `onLayoutChildren`
+MissingNullability: androidx.recyclerview.widget.StaggeredGridLayoutManager#onLayoutCompleted(androidx.recyclerview.widget.RecyclerView.State) parameter #0:
+    Missing nullability on parameter `state` in method `onLayoutCompleted`
+MissingNullability: androidx.recyclerview.widget.StaggeredGridLayoutManager#onRestoreInstanceState(android.os.Parcelable) parameter #0:
+    Missing nullability on parameter `state` in method `onRestoreInstanceState`
+MissingNullability: androidx.recyclerview.widget.StaggeredGridLayoutManager#onSaveInstanceState():
+    Missing nullability on method `onSaveInstanceState` return
+MissingNullability: androidx.recyclerview.widget.StaggeredGridLayoutManager#scrollHorizontallyBy(int, androidx.recyclerview.widget.RecyclerView.Recycler, androidx.recyclerview.widget.RecyclerView.State) parameter #1:
+    Missing nullability on parameter `recycler` in method `scrollHorizontallyBy`
+MissingNullability: androidx.recyclerview.widget.StaggeredGridLayoutManager#scrollHorizontallyBy(int, androidx.recyclerview.widget.RecyclerView.Recycler, androidx.recyclerview.widget.RecyclerView.State) parameter #2:
+    Missing nullability on parameter `state` in method `scrollHorizontallyBy`
+MissingNullability: androidx.recyclerview.widget.StaggeredGridLayoutManager#scrollVerticallyBy(int, androidx.recyclerview.widget.RecyclerView.Recycler, androidx.recyclerview.widget.RecyclerView.State) parameter #1:
+    Missing nullability on parameter `recycler` in method `scrollVerticallyBy`
+MissingNullability: androidx.recyclerview.widget.StaggeredGridLayoutManager#scrollVerticallyBy(int, androidx.recyclerview.widget.RecyclerView.Recycler, androidx.recyclerview.widget.RecyclerView.State) parameter #2:
+    Missing nullability on parameter `state` in method `scrollVerticallyBy`
+MissingNullability: androidx.recyclerview.widget.StaggeredGridLayoutManager#setMeasuredDimension(android.graphics.Rect, int, int) parameter #0:
+    Missing nullability on parameter `childrenBounds` in method `setMeasuredDimension`
+MissingNullability: androidx.recyclerview.widget.StaggeredGridLayoutManager#smoothScrollToPosition(androidx.recyclerview.widget.RecyclerView, androidx.recyclerview.widget.RecyclerView.State, int) parameter #0:
+    Missing nullability on parameter `recyclerView` in method `smoothScrollToPosition`
+MissingNullability: androidx.recyclerview.widget.StaggeredGridLayoutManager#smoothScrollToPosition(androidx.recyclerview.widget.RecyclerView, androidx.recyclerview.widget.RecyclerView.State, int) parameter #1:
+    Missing nullability on parameter `state` in method `smoothScrollToPosition`
+MissingNullability: androidx.recyclerview.widget.StaggeredGridLayoutManager.LayoutParams#LayoutParams(android.content.Context, android.util.AttributeSet) parameter #0:
+    Missing nullability on parameter `c` in method `LayoutParams`
+MissingNullability: androidx.recyclerview.widget.StaggeredGridLayoutManager.LayoutParams#LayoutParams(android.content.Context, android.util.AttributeSet) parameter #1:
+    Missing nullability on parameter `attrs` in method `LayoutParams`
+MissingNullability: androidx.recyclerview.widget.StaggeredGridLayoutManager.LayoutParams#LayoutParams(android.view.ViewGroup.LayoutParams) parameter #0:
+    Missing nullability on parameter `source` in method `LayoutParams`
+MissingNullability: androidx.recyclerview.widget.StaggeredGridLayoutManager.LayoutParams#LayoutParams(android.view.ViewGroup.MarginLayoutParams) parameter #0:
+    Missing nullability on parameter `source` in method `LayoutParams`
+MissingNullability: androidx.recyclerview.widget.StaggeredGridLayoutManager.LayoutParams#LayoutParams(androidx.recyclerview.widget.RecyclerView.LayoutParams) parameter #0:
+    Missing nullability on parameter `source` in method `LayoutParams`
+
+
+SetterReturnsThis: androidx.recyclerview.widget.AsyncDifferConfig.Builder:
+    Methods must return the builder object (return type Builder instead of androidx.recyclerview.widget.AsyncDifferConfig.Builder<T>): method androidx.recyclerview.widget.AsyncDifferConfig.Builder.setBackgroundThreadExecutor(java.util.concurrent.Executor)

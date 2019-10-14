@@ -22,13 +22,8 @@ plugins {
 }
 
 dependencies {
-    implementation fileTree(include: ['*.jar'], dir: 'libs')
-    api project(':core')
-    api project(':sharetarget')
-    api project(':appcompat')
+    api("androidx.core:core:1.1.0")
+    api("androidx.sharetarget:sharetarget:1.0.0-alpha02")
+    api("androidx.appcompat:appcompat:1.1.0")
     api(CONSTRAINT_LAYOUT, { transitive = true })
-}
-
-android {
-    compileSdkVersion 28
 }

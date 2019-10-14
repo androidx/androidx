@@ -68,7 +68,6 @@ class SystemJobInfoConverter {
      */
     JobInfo convert(WorkSpec workSpec, int jobId) {
         Constraints constraints = workSpec.constraints;
-        // TODO(janclarin): Support newer required network types if unsupported by API version.
         int jobInfoNetworkType = convertNetworkType(constraints.getRequiredNetworkType());
         PersistableBundle extras = new PersistableBundle();
         extras.putString(EXTRA_WORK_SPEC_ID, workSpec.id);
@@ -90,10 +89,19 @@ class SystemJobInfoConverter {
         long now = System.currentTimeMillis();
         long offset = Math.max(nextRunTime - now, 0);
 
-        // Even if a WorkRequest has no constraints, setMinimumLatency(0) still needs to be
-        // called due to an issue in JobInfo.Builder#build and JobInfo with no constraints. See
-        // b/67716867.
-        builder.setMinimumLatency(offset);
+        if (Build.VERSION.SDK_INT <= 28) {
+            // Before API 29, Jobs needed at least one constraint. Therefore before API 29 we
+            // always setMinimumLatency to make sure we have at least one constraint.
+            // See aosp/5434530 & b/6771687
+            builder.setMinimumLatency(offset);
+        } else  {
+            if (offset > 0) {
+                // Only set a minimum latency when applicable.
+                builder.setMinimumLatency(offset);
+            } else {
+                builder.setImportantWhileForeground(true);
+            }
+        }
 
         if (Build.VERSION.SDK_INT >= 24 && constraints.hasContentUriTriggers()) {
             ContentUriTriggers contentUriTriggers = constraints.getContentUriTriggers();

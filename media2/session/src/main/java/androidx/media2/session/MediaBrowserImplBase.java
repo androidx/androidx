@@ -32,15 +32,15 @@ import android.os.Bundle;
 import android.os.RemoteException;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.media2.common.MediaParcelUtils;
 import androidx.media2.session.MediaBrowser.BrowserCallback;
+import androidx.media2.session.MediaBrowser.BrowserCallbackRunnable;
 import androidx.media2.session.MediaLibraryService.LibraryParams;
 import androidx.media2.session.SequencedFutureManager.SequencedFuture;
 
 import com.google.common.util.concurrent.ListenableFuture;
-
-import java.util.concurrent.Executor;
 
 /**
  * Base implementation of MediaBrowser.
@@ -51,18 +51,13 @@ class MediaBrowserImplBase extends MediaControllerImplBase implements
             new LibraryResult(RESULT_INFO_SKIPPED);
 
     MediaBrowserImplBase(Context context, MediaController instance, SessionToken token,
-            @Nullable Bundle connectionHints, Executor executor, BrowserCallback callback) {
-        super(context, instance, token, connectionHints, executor, callback);
+            @Nullable Bundle connectionHints) {
+        super(context, instance, token, connectionHints);
     }
 
-    @Override
-    public MediaBrowser.BrowserCallback getCallback() {
-        return (MediaBrowser.BrowserCallback) super.getCallback();
-    }
-
-    @Override
-    public MediaBrowser getInstance() {
-        return (MediaBrowser) super.getInstance();
+    @NonNull
+    MediaBrowser getMediaBrowser() {
+        return (MediaBrowser) mInstance;
     }
 
     @Override
@@ -153,22 +148,20 @@ class MediaBrowserImplBase extends MediaControllerImplBase implements
 
     void notifySearchResultChanged(final String query, final int itemCount,
             final LibraryParams libraryParams) {
-        if (mCallback == null) return;
-        mCallbackExecutor.execute(new Runnable() {
+        getMediaBrowser().notifyBrowserCallback(new BrowserCallbackRunnable() {
             @Override
-            public void run() {
-                getCallback().onSearchResultChanged(getInstance(), query, itemCount, libraryParams);
+            public void run(@NonNull BrowserCallback callback) {
+                callback.onSearchResultChanged(getMediaBrowser(), query, itemCount, libraryParams);
             }
         });
     }
 
     void notifyChildrenChanged(final String parentId, final int itemCount,
             final LibraryParams libraryParams) {
-        if (mCallback == null) return;
-        mCallbackExecutor.execute(new Runnable() {
+        getMediaBrowser().notifyBrowserCallback(new BrowserCallbackRunnable() {
             @Override
-            public void run() {
-                getCallback().onChildrenChanged(getInstance(), parentId, itemCount, libraryParams);
+            public void run(@NonNull BrowserCallback callback) {
+                callback.onChildrenChanged(getMediaBrowser(), parentId, itemCount, libraryParams);
             }
         });
     }

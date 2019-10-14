@@ -19,6 +19,7 @@ package androidx.media2.session;
 import static androidx.media2.common.MediaMetadata.METADATA_KEY_DISPLAY_TITLE;
 import static androidx.media2.common.MediaMetadata.METADATA_KEY_TITLE;
 import static androidx.media2.session.MediaUtils.TRANSACTION_SIZE_LIMIT_IN_BYTES;
+import static androidx.media2.session.SessionCommand.COMMAND_VERSION_CURRENT;
 import static androidx.media2.session.SessionResult.RESULT_SUCCESS;
 
 import android.content.Context;
@@ -45,6 +46,9 @@ import androidx.media.MediaSessionManager.RemoteUserInfo;
 import androidx.media2.common.MediaItem;
 import androidx.media2.common.MediaMetadata;
 import androidx.media2.common.SessionPlayer.PlayerResult;
+import androidx.media2.common.SessionPlayer.TrackInfo;
+import androidx.media2.common.SubtitleData;
+import androidx.media2.common.VideoSize;
 import androidx.media2.session.MediaController.PlaybackInfo;
 import androidx.media2.session.MediaLibraryService.LibraryParams;
 import androidx.media2.session.MediaSession.CommandButton;
@@ -66,8 +70,8 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
 
     static {
         SessionCommandGroup group = new SessionCommandGroup.Builder()
-                .addAllPlayerCommands(SessionCommand.COMMAND_VERSION_CURRENT)
-                .addAllVolumeCommands(SessionCommand.COMMAND_VERSION_CURRENT)
+                .addAllPlayerCommands(COMMAND_VERSION_CURRENT, /* includeHidden= */ false)
+                .addAllVolumeCommands(COMMAND_VERSION_CURRENT)
                 .build();
         Set<SessionCommand> commands = group.getCommands();
         for (SessionCommand command : commands) {
@@ -117,6 +121,8 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
     @Override
     public void onPrepare() {
         dispatchSessionTask(SessionCommand.COMMAND_CODE_PLAYER_PREPARE, new SessionTask() {
+            // TODO(b/138091975) Do not ignore the returned Future.
+            @SuppressWarnings("FutureReturnValueIgnored")
             @Override
             public void run(ControllerInfo controller) throws RemoteException {
                 mSessionImpl.prepare();
@@ -176,6 +182,8 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
     @Override
     public void onPlay() {
         dispatchSessionTask(SessionCommand.COMMAND_CODE_PLAYER_PLAY, new SessionTask() {
+            // TODO(b/138091975) Do not ignore the returned Future.
+            @SuppressWarnings("FutureReturnValueIgnored")
             @Override
             public void run(ControllerInfo controller) throws RemoteException {
                 mSessionImpl.play();
@@ -235,6 +243,8 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
     @Override
     public void onPause() {
         dispatchSessionTask(SessionCommand.COMMAND_CODE_PLAYER_PAUSE, new SessionTask() {
+            // TODO(b/138091975) Do not ignore the returned Future.
+            @SuppressWarnings("FutureReturnValueIgnored")
             @Override
             public void run(ControllerInfo controller) throws RemoteException {
                 mSessionImpl.pause();
@@ -252,6 +262,8 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
             public void run(ControllerInfo controller) throws RemoteException {
                 handleTaskOnExecutor(controller, null,
                         SessionCommand.COMMAND_CODE_PLAYER_SEEK_TO, new SessionTask() {
+                            // TODO(b/138091975) Do not ignore the returned Future.
+                            @SuppressWarnings("FutureReturnValueIgnored")
                             @Override
                             public void run(ControllerInfo controller) throws RemoteException {
                                 mSessionImpl.pause();
@@ -265,6 +277,8 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
     @Override
     public void onSeekTo(final long pos) {
         dispatchSessionTask(SessionCommand.COMMAND_CODE_PLAYER_SEEK_TO, new SessionTask() {
+            // TODO(b/138091975) Do not ignore the returned Future.
+            @SuppressWarnings("FutureReturnValueIgnored")
             @Override
             public void run(ControllerInfo controller) throws RemoteException {
                 mSessionImpl.seekTo(pos);
@@ -276,6 +290,8 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
     public void onSkipToNext() {
         dispatchSessionTask(SessionCommand.COMMAND_CODE_PLAYER_SKIP_TO_NEXT_PLAYLIST_ITEM,
                 new SessionTask() {
+                    // TODO(b/138091975) Do not ignore the returned Future.
+                    @SuppressWarnings("FutureReturnValueIgnored")
                     @Override
                     public void run(ControllerInfo controller) throws RemoteException {
                         mSessionImpl.skipToNextItem();
@@ -287,6 +303,8 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
     public void onSkipToPrevious() {
         dispatchSessionTask(SessionCommand.COMMAND_CODE_PLAYER_SKIP_TO_PREVIOUS_PLAYLIST_ITEM,
                 new SessionTask() {
+                    // TODO(b/138091975) Do not ignore the returned Future.
+                    @SuppressWarnings("FutureReturnValueIgnored")
                     @Override
                     public void run(ControllerInfo controller) throws RemoteException {
                         mSessionImpl.skipToPreviousItem();
@@ -297,6 +315,8 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
     @Override
     public void onSetPlaybackSpeed(final float speed) {
         dispatchSessionTask(SessionCommand.COMMAND_CODE_PLAYER_SET_SPEED, new SessionTask() {
+            // TODO(b/138091975) Do not ignore the returned Future.
+            @SuppressWarnings("FutureReturnValueIgnored")
             @Override
             public void run(ControllerInfo controller) throws RemoteException {
                 mSessionImpl.setPlaybackSpeed(speed);
@@ -308,6 +328,8 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
     public void onSkipToQueueItem(final long queueId) {
         dispatchSessionTask(SessionCommand.COMMAND_CODE_PLAYER_SKIP_TO_PLAYLIST_ITEM,
                 new SessionTask() {
+                    // TODO(b/138091975) Do not ignore the returned Future.
+                    @SuppressWarnings("FutureReturnValueIgnored")
                     @Override
                     public void run(ControllerInfo controller) throws RemoteException {
                         List<MediaItem> playlist = mSessionImpl.getPlayer().getPlaylist();
@@ -384,6 +406,8 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
     public void onSetRepeatMode(final int repeatMode) {
         dispatchSessionTask(SessionCommand.COMMAND_CODE_PLAYER_SET_REPEAT_MODE,
                 new SessionTask() {
+                    // TODO(b/138091975) Do not ignore the returned Future.
+                    @SuppressWarnings("FutureReturnValueIgnored")
                     @Override
                     public void run(ControllerInfo controller) throws RemoteException {
                         mSessionImpl.setRepeatMode(repeatMode);
@@ -395,6 +419,8 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
     public void onSetShuffleMode(final int shuffleMode) {
         dispatchSessionTask(SessionCommand.COMMAND_CODE_PLAYER_SET_SHUFFLE_MODE,
                 new SessionTask() {
+                    // TODO(b/138091975) Do not ignore the returned Future.
+                    @SuppressWarnings("FutureReturnValueIgnored")
                     @Override
                     public void run(ControllerInfo controller) throws RemoteException {
                         mSessionImpl.setShuffleMode(shuffleMode);
@@ -414,6 +440,8 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
         }
         dispatchSessionTask(SessionCommand.COMMAND_CODE_PLAYER_ADD_PLAYLIST_ITEM,
                 new SessionTask() {
+                    // TODO(b/138091975) Do not ignore the returned Future.
+                    @SuppressWarnings("FutureReturnValueIgnored")
                     @Override
                     public void run(ControllerInfo controller) throws RemoteException {
                         String mediaId = description.getMediaId();
@@ -435,6 +463,8 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
         }
         dispatchSessionTask(SessionCommand.COMMAND_CODE_PLAYER_REMOVE_PLAYLIST_ITEM,
                 new SessionTask() {
+                    // TODO(b/138091975) Do not ignore the returned Future.
+                    @SuppressWarnings("FutureReturnValueIgnored")
                     @Override
                     public void run(ControllerInfo controller) throws RemoteException {
                         String mediaId = description.getMediaId();
@@ -458,6 +488,8 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
     public void onRemoveQueueItemAt(final int index) {
         dispatchSessionTask(SessionCommand.COMMAND_CODE_PLAYER_REMOVE_PLAYLIST_ITEM,
                 new SessionTask() {
+                    // TODO(b/138091975) Do not ignore the returned Future.
+                    @SuppressWarnings("FutureReturnValueIgnored")
                     @Override
                     public void run(ControllerInfo controller) throws RemoteException {
                         if (index < 0) {
@@ -473,7 +505,7 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
         return mControllerInfoForAll;
     }
 
-    ConnectedControllersManager getConnectedControllersManager() {
+    ConnectedControllersManager<RemoteUserInfo> getConnectedControllersManager() {
         return mConnectedControllersManager;
     }
 
@@ -604,23 +636,23 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
         }
 
         @Override
-        void setCustomLayout(int seq, List<CommandButton> layout) throws RemoteException {
+        void setCustomLayout(int seq, @NonNull List<CommandButton> layout) throws RemoteException {
             // no-op.
         }
 
         @Override
-        void onPlaybackInfoChanged(int seq, PlaybackInfo info) throws RemoteException {
+        void onPlaybackInfoChanged(int seq, @NonNull PlaybackInfo info) throws RemoteException {
             throw new AssertionError("This shouldn't be called");
         }
 
         @Override
-        void onAllowedCommandsChanged(int seq, SessionCommandGroup commands)
+        void onAllowedCommandsChanged(int seq, @NonNull SessionCommandGroup commands)
                 throws RemoteException {
             // no-op
         }
 
         @Override
-        void sendCustomCommand(int seq, SessionCommand command, Bundle args)
+        void sendCustomCommand(int seq, @NonNull SessionCommand command, Bundle args)
                 throws RemoteException {
             // no-op
         }
@@ -638,7 +670,7 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
         }
 
         @Override
-        void onBufferingStateChanged(int seq, MediaItem item, int bufferingState,
+        void onBufferingStateChanged(int seq, @NonNull MediaItem item, int bufferingState,
                 long bufferedPositionMs, long eventTimeMs, long positionMs) throws RemoteException {
             throw new AssertionError("This shouldn't be called");
         }
@@ -656,7 +688,7 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
         }
 
         @Override
-        void onPlaylistChanged(int seq, List<MediaItem> playlist, MediaMetadata metadata,
+        void onPlaylistChanged(int seq, @NonNull List<MediaItem> playlist, MediaMetadata metadata,
                 int currentIdx, int previousIdx, int nextIdx) throws RemoteException {
             throw new AssertionError("This shouldn't be called");
         }
@@ -684,18 +716,47 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
         }
 
         @Override
-        void onChildrenChanged(int seq, String parentId, int itemCount, LibraryParams params)
-                throws RemoteException {
+        void onChildrenChanged(int seq, @NonNull String parentId, int itemCount,
+                LibraryParams params) throws RemoteException {
             // no-op
         }
         @Override
-        void onSearchResultChanged(int seq, String query, int itemCount, LibraryParams params)
-                throws RemoteException {
+        void onSearchResultChanged(int seq, @NonNull String query, int itemCount,
+                LibraryParams params) throws RemoteException {
             // no-op
         }
 
         @Override
         void onDisconnected(int seq) throws RemoteException {
+            // no-op
+        }
+
+        @Override
+        void onVideoSizeChanged(int seq, @NonNull VideoSize videoSize) throws RemoteException {
+            // no-op
+        }
+
+        @Override
+        void onTracksChanged(int seq, List<TrackInfo> tracks,
+                TrackInfo selectedVideoTrack, TrackInfo selectedAudioTrack,
+                TrackInfo selectedSubtitleTrack, TrackInfo selectedMetadataTrack)
+                throws RemoteException {
+            // no-op
+        }
+
+        @Override
+        void onTrackSelected(int seq, TrackInfo trackInfo) throws RemoteException {
+            // no-op
+        }
+
+        @Override
+        void onTrackDeselected(int seq, TrackInfo trackInfo) throws RemoteException {
+            // no-op
+        }
+
+        @Override
+        void onSubtitleData(int seq, @NonNull MediaItem item,
+                @NonNull TrackInfo track, @NonNull SubtitleData data) {
             // no-op
         }
 
@@ -738,24 +799,24 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
         }
 
         @Override
-        void setCustomLayout(int seq, List<CommandButton> layout) throws RemoteException {
+        void setCustomLayout(int seq, @NonNull List<CommandButton> layout) throws RemoteException {
             throw new AssertionError("This shouldn't be called");
         }
 
         @Override
-        void onPlaybackInfoChanged(int seq, PlaybackInfo info) throws RemoteException {
+        void onPlaybackInfoChanged(int seq, @NonNull PlaybackInfo info) throws RemoteException {
             // no-op. Calling MediaSessionCompat#setPlaybackToLocal/Remote
             // is already done in updatePlayerConnector().
         }
 
         @Override
-        void onAllowedCommandsChanged(int seq, SessionCommandGroup commands)
+        void onAllowedCommandsChanged(int seq, @NonNull SessionCommandGroup commands)
                 throws RemoteException {
             throw new AssertionError("This shouldn't be called");
         }
 
         @Override
-        void sendCustomCommand(int seq, SessionCommand command, Bundle args)
+        void sendCustomCommand(int seq, @NonNull SessionCommand command, Bundle args)
                 throws RemoteException {
             // no-op
         }
@@ -777,7 +838,7 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
         }
 
         @Override
-        void onBufferingStateChanged(int seq, MediaItem item, int bufferingState,
+        void onBufferingStateChanged(int seq, @NonNull MediaItem item, int bufferingState,
                 long bufferedPositionMs, long eventTimeMs, long positionMs) throws RemoteException {
             // Note: This method does not use any of the given arguments.
             mSessionImpl.getSessionCompat().setPlaybackState(
@@ -800,7 +861,7 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
         }
 
         @Override
-        void onPlaylistChanged(int seq, List<MediaItem> playlist, MediaMetadata metadata,
+        void onPlaylistChanged(int seq, @NonNull List<MediaItem> playlist, MediaMetadata metadata,
                 int currentIdx, int previousIdx, int nextIdx) throws RemoteException {
             if (Build.VERSION.SDK_INT < 21) {
                 if (playlist == null) {
@@ -870,19 +931,48 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
         }
 
         @Override
-        void onChildrenChanged(int seq, String parentId, int itemCount, LibraryParams params)
-                throws RemoteException {
+        void onChildrenChanged(int seq, @NonNull String parentId, int itemCount,
+                LibraryParams params) throws RemoteException {
             // no-op
         }
         @Override
-        void onSearchResultChanged(int seq, String query, int itemCount, LibraryParams params)
-                throws RemoteException {
+        void onSearchResultChanged(int seq, @NonNull String query, int itemCount,
+                LibraryParams params) throws RemoteException {
             // no-op
         }
 
         @Override
         void onDisconnected(int seq) throws RemoteException {
             // no-op. Calling MediaSessionCompat#release() is already done in close().
+        }
+
+        @Override
+        void onVideoSizeChanged(int seq, @NonNull VideoSize videoSize) throws RemoteException {
+            // no-op
+        }
+
+        @Override
+        void onTracksChanged(int seq, List<TrackInfo> tracks,
+                TrackInfo selectedVideoTrack, TrackInfo selectedAudioTrack,
+                TrackInfo selectedSubtitleTrack, TrackInfo selectedMetadataTrack)
+                throws RemoteException {
+            // no-op
+        }
+
+        @Override
+        void onTrackSelected(int seq, TrackInfo trackInfo) throws RemoteException {
+            // no-op
+        }
+
+        @Override
+        void onTrackDeselected(int seq, TrackInfo trackInfo) throws RemoteException {
+            // no-op
+        }
+
+        @Override
+        void onSubtitleData(int seq, @NonNull MediaItem item,
+                @NonNull TrackInfo track, @NonNull SubtitleData data) {
+            // no-op
         }
     }
 }

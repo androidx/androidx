@@ -1,0 +1,312 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="5" by="lint 3.5.0-beta04" client="gradle" variant="debug" version="3.5.0-beta04">
+
+    <issue
+        id="LambdaLast"
+        message="Functional interface parameters (such as parameter 1, &quot;keys&quot;, in androidx.recyclerview.selection.DefaultSelectionTracker.setItemsSelected) should be last to improve Kotlin interoperability; see https://kotlinlang.org/docs/reference/java-interop.html#sam-conversions"
+        errorLine1="    public boolean setItemsSelected(@NonNull Iterable&lt;K> keys, boolean selected) {"
+        errorLine2="                                                               ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/recyclerview/selection/DefaultSelectionTracker.java"
+            line="138"
+            column="64"/>
+    </issue>
+
+    <issue
+        id="LambdaLast"
+        message="Functional interface parameters (such as parameter 1, &quot;keys&quot;, in androidx.recyclerview.selection.SelectionTracker.setItemsSelected) should be last to improve Kotlin interoperability; see https://kotlinlang.org/docs/reference/java-interop.html#sam-conversions"
+        errorLine1="    public abstract boolean setItemsSelected(@NonNull Iterable&lt;K> keys, boolean selected);"
+        errorLine2="                                                                        ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/recyclerview/selection/SelectionTracker.java"
+            line="164"
+            column="73"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public abstract boolean canInitiate(MotionEvent e);"
+        errorLine2="                                        ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/recyclerview/selection/BandPredicate.java"
+            line="43"
+            column="41"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public Selection getSelection() {"
+        errorLine2="           ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/recyclerview/selection/DefaultSelectionTracker.java"
+            line="115"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected AdapterDataObserver getAdapterDataObserver() {"
+        errorLine2="              ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/recyclerview/selection/DefaultSelectionTracker.java"
+            line="356"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public Iterator&lt;K> iterator() {"
+        errorLine2="           ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/recyclerview/selection/Selection.java"
+            line="95"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static &lt;K> SelectionPredicate&lt;K> createSelectAnything() {"
+        errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/recyclerview/selection/SelectionPredicates.java"
+            line="37"
+            column="23"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static &lt;K> SelectionPredicate&lt;K> createSelectSingleAnything() {"
+        errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/recyclerview/selection/SelectionPredicates.java"
+            line="63"
+            column="23"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public abstract void addObserver(SelectionObserver observer);"
+        errorLine2="                                     ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/recyclerview/selection/SelectionTracker.java"
+            line="113"
+            column="38"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public abstract Selection&lt;K> getSelection();"
+        errorLine2="                    ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/recyclerview/selection/SelectionTracker.java"
+            line="126"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected abstract AdapterDataObserver getAdapterDataObserver();"
+        errorLine2="                       ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/recyclerview/selection/SelectionTracker.java"
+            line="184"
+            column="24"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public Builder&lt;K> withSelectionPredicate("
+        errorLine2="               ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/recyclerview/selection/SelectionTracker.java"
+            line="548"
+            column="16"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public Builder&lt;K> withOperationMonitor("
+        errorLine2="               ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/recyclerview/selection/SelectionTracker.java"
+            line="563"
+            column="16"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public Builder&lt;K> withFocusDelegate(@NonNull FocusDelegate&lt;K> delegate) {"
+        errorLine2="               ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/recyclerview/selection/SelectionTracker.java"
+            line="577"
+            column="16"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public Builder&lt;K> withOnItemActivatedListener("
+        errorLine2="               ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/recyclerview/selection/SelectionTracker.java"
+            line="589"
+            column="16"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public Builder&lt;K> withOnContextClickListener("
+        errorLine2="               ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/recyclerview/selection/SelectionTracker.java"
+            line="604"
+            column="16"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public Builder&lt;K> withOnDragInitiatedListener("
+        errorLine2="               ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/recyclerview/selection/SelectionTracker.java"
+            line="619"
+            column="16"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public Builder&lt;K> withGestureTooltypes(int... toolTypes) {"
+        errorLine2="               ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/recyclerview/selection/SelectionTracker.java"
+            line="635"
+            column="16"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public Builder&lt;K> withGestureTooltypes(int... toolTypes) {"
+        errorLine2="                                               ~~~~~~">
+        <location
+            file="src/main/java/androidx/recyclerview/selection/SelectionTracker.java"
+            line="635"
+            column="48"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public Builder&lt;K> withBandOverlay(@DrawableRes int bandOverlayId) {"
+        errorLine2="               ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/recyclerview/selection/SelectionTracker.java"
+            line="646"
+            column="16"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public Builder&lt;K> withBandPredicate(@NonNull BandPredicate bandPredicate) {"
+        errorLine2="               ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/recyclerview/selection/SelectionTracker.java"
+            line="656"
+            column="16"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public Builder&lt;K> withPointerTooltypes(int... toolTypes) {"
+        errorLine2="               ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/recyclerview/selection/SelectionTracker.java"
+            line="672"
+            column="16"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public Builder&lt;K> withPointerTooltypes(int... toolTypes) {"
+        errorLine2="                                               ~~~~~~">
+        <location
+            file="src/main/java/androidx/recyclerview/selection/SelectionTracker.java"
+            line="672"
+            column="48"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public SelectionTracker&lt;K> build() {"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/recyclerview/selection/SelectionTracker.java"
+            line="682"
+            column="16"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static &lt;K extends Parcelable> StorageStrategy&lt;K> createParcelableStorage(Class&lt;K> type) {"
+        errorLine2="                                         ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/recyclerview/selection/StorageStrategy.java"
+            line="92"
+            column="42"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static &lt;K extends Parcelable> StorageStrategy&lt;K> createParcelableStorage(Class&lt;K> type) {"
+        errorLine2="                                                                                    ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/recyclerview/selection/StorageStrategy.java"
+            line="92"
+            column="85"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static StorageStrategy&lt;String> createStringStorage() {"
+        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/recyclerview/selection/StorageStrategy.java"
+            line="99"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static StorageStrategy&lt;Long> createLongStorage() {"
+        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/recyclerview/selection/StorageStrategy.java"
+            line="106"
+            column="19"/>
+    </issue>
+
+</issues>

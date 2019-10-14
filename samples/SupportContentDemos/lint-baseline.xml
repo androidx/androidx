@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="4" by="lint 3.0.0">
+<issues format="5" by="lint 3.5.0-beta04" client="gradle" variant="debug" version="3.5.0-beta04">
 
     <issue
         id="AppCompatResource"
@@ -35,14 +35,36 @@
     </issue>
 
     <issue
+        id="PrivateResource"
+        message="The resource `@attr/actionBarSize` is marked as private in com.google.android.material:material"
+        errorLine1="        android:layout_height=&quot;?attr/actionBarSize&quot;"
+        errorLine2="                               ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/activity_demo.xml"
+            line="30"
+            column="32"/>
+    </issue>
+
+    <issue
+        id="PrivateResource"
+        message="The resource `@attr/colorPrimary` is marked as private in com.google.android.material:material"
+        errorLine1="        android:background=&quot;?attr/colorPrimary&quot;"
+        errorLine2="                            ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/activity_demo.xml"
+            line="31"
+            column="29"/>
+    </issue>
+
+    <issue
         id="AllowBackup"
         message="On SDK version 23 and up, your app data will be automatically backed up and restored on app install. Consider adding the attribute `android:fullBackupContent` to specify an `@xml` resource which configures which files to backup. More info: https://developer.android.com/training/backup/autosyncapi.html"
         errorLine1="    &lt;application"
-        errorLine2="    ^">
+        errorLine2="     ~~~~~~~~~~~">
         <location
             file="src/main/AndroidManifest.xml"
             line="20"
-            column="5"/>
+            column="6"/>
     </issue>
 
     <issue
@@ -82,7 +104,7 @@
         errorLine2="                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/support/content/demos/ContentPagerDemoActivity.java"
-            line="183"
+            line="185"
             column="37"/>
     </issue>
 
@@ -93,7 +115,7 @@
         errorLine2="                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/support/content/demos/ContentPagerDemoActivity.java"
-            line="183"
+            line="185"
             column="37"/>
     </issue>
 

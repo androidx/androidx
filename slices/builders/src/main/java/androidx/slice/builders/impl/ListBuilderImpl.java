@@ -439,6 +439,7 @@ public class ListBuilderImpl extends TemplateBuilderImpl implements ListBuilder 
             super(builder, null);
         }
 
+        @SuppressWarnings("unchecked")
         void fillFrom(RowBuilder builder) {
             if (builder.getUri() != null) {
                 setBuilder(new Slice.Builder(builder.getUri()));

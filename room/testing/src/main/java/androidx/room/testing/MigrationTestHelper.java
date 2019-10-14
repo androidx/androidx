@@ -22,11 +22,13 @@ import android.content.Context;
 import android.database.Cursor;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
 import androidx.arch.core.executor.ArchTaskExecutor;
 import androidx.room.DatabaseConfiguration;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
 import androidx.room.RoomOpenHelper;
+import androidx.room.RoomOpenHelper.ValidationResult;
 import androidx.room.migration.Migration;
 import androidx.room.migration.bundle.DatabaseBundle;
 import androidx.room.migration.bundle.DatabaseViewBundle;
@@ -162,7 +164,9 @@ public class MigrationTestHelper extends TestWatcher {
                 false,
                 true,
                 false,
-                Collections.<Integer>emptySet());
+                Collections.<Integer>emptySet(),
+                null,
+                null);
         RoomOpenHelper roomOpenHelper = new RoomOpenHelper(configuration,
                 new CreatingDelegate(schemaBundle.getDatabase()),
                 schemaBundle.getDatabase().getIdentityHash(),
@@ -220,7 +224,9 @@ public class MigrationTestHelper extends TestWatcher {
                 false,
                 true,
                 false,
-                Collections.<Integer>emptySet());
+                Collections.<Integer>emptySet(),
+                null,
+                null);
         RoomOpenHelper roomOpenHelper = new RoomOpenHelper(configuration,
                 new MigratingDelegate(schemaBundle.getDatabase(), validateDroppedTables),
                 // we pass the same hash twice since an old schema does not necessarily have
@@ -309,8 +315,8 @@ public class MigrationTestHelper extends TestWatcher {
                 throw new FileNotFoundException("Cannot find the schema file in the assets folder. "
                         + "Make sure to include the exported json schemas in your test assert "
                         + "inputs. See "
-                        + "https://developer.android.com/topic/libraries/architecture/"
-                        + "room.html#db-migration-testing for details. Missing file: "
+                        + "https://developer.android.com/training/data-storage/room/"
+                        + "migrating-db-versions#export-schema for details. Missing file: "
                         + testAssetsIOExceptions.getMessage());
             }
         }
@@ -383,7 +389,8 @@ public class MigrationTestHelper extends TestWatcher {
 
     private static TableInfo.Column toColumn(EntityBundle entity, FieldBundle field) {
         return new TableInfo.Column(field.getColumnName(), field.getAffinity(),
-                field.isNonNull(), findPrimaryKeyPosition(entity, field));
+                field.isNonNull(), findPrimaryKeyPosition(entity, field), field.getDefaultValue(),
+                TableInfo.CREATED_FROM_ENTITY);
     }
 
     private static int findPrimaryKeyPosition(EntityBundle entity, FieldBundle field) {
@@ -412,23 +419,25 @@ public class MigrationTestHelper extends TestWatcher {
                     + "Make sure you have created the database first.");
         }
 
+        @NonNull
         @Override
-        protected void validateMigration(SupportSQLiteDatabase db) {
+        protected RoomOpenHelper.ValidationResult onValidateSchema(
+                @NonNull SupportSQLiteDatabase db) {
             final Map<String, EntityBundle> tables = mDatabaseBundle.getEntitiesByTableName();
             for (EntityBundle entity : tables.values()) {
                 if (entity instanceof FtsEntityBundle) {
                     final FtsTableInfo expected = toFtsTableInfo((FtsEntityBundle) entity);
                     final FtsTableInfo found = FtsTableInfo.read(db, entity.getTableName());
                     if (!expected.equals(found)) {
-                        throw new IllegalStateException(
-                                "Migration failed.\nExpected:" + expected + "\nFound:" + found);
+                        return new ValidationResult(false, expected.name
+                                + "\nExpected: " + expected + "\nFound: " + found);
                     }
                 } else {
                     final TableInfo expected = toTableInfo(entity);
                     final TableInfo found = TableInfo.read(db, entity.getTableName());
                     if (!expected.equals(found)) {
-                        throw new IllegalStateException(
-                                "Migration failed.\nExpected:" + expected + " \nfound:" + found);
+                        return new ValidationResult(false, expected.name
+                                + "\nExpected: " + expected + " \nfound: " + found);
                     }
                 }
             }
@@ -436,8 +445,8 @@ public class MigrationTestHelper extends TestWatcher {
                 final ViewInfo expected = toViewInfo(view);
                 final ViewInfo found = ViewInfo.read(db, view.getViewName());
                 if (!expected.equals(found)) {
-                    throw new IllegalStateException(
-                                "Migration failed.\nExpected:" + expected + " \nfound:" + found);
+                    return new ValidationResult(false, expected
+                                + "\nExpected: " + expected + " \nfound: " + found);
                 }
             }
             if (mVerifyDroppedTables) {
@@ -458,7 +467,7 @@ public class MigrationTestHelper extends TestWatcher {
                     while (cursor.moveToNext()) {
                         final String tableName = cursor.getString(0);
                         if (!expectedTables.contains(tableName)) {
-                            throw new IllegalStateException("Migration failed. Unexpected table "
+                            return new ValidationResult(false, "Unexpected table "
                                     + tableName);
                         }
                     }
@@ -466,6 +475,7 @@ public class MigrationTestHelper extends TestWatcher {
                     cursor.close();
                 }
             }
+            return new ValidationResult(true, null);
         }
     }
 
@@ -482,8 +492,10 @@ public class MigrationTestHelper extends TestWatcher {
             }
         }
 
+        @NonNull
         @Override
-        protected void validateMigration(SupportSQLiteDatabase db) {
+        protected RoomOpenHelper.ValidationResult onValidateSchema(
+                @NonNull SupportSQLiteDatabase db) {
             throw new UnsupportedOperationException("This open helper just creates the database but"
                     + " it received a migration request.");
         }

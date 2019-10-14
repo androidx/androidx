@@ -50,7 +50,7 @@
                 android:layout_width="wrap_content"
                 android:text="@string/show_nothing"
                 android:textSize="@dimen/car_body3_size"
-                android:textColor="@color/car_body1_light"
+                android:textColor="@color/car_primary_text_light"
                 android:buttonTint="@color/car_tint_light"
                 android:paddingEnd="@dimen/car_keyline_1"/>
         <RadioButton
@@ -60,7 +60,7 @@
                 android:layout_width="wrap_content"
                 android:text="@string/show_buttons"
                 android:textSize="@dimen/car_body3_size"
-                android:textColor="@color/car_body1_light"
+                android:textColor="@color/car_primary_text_light"
                 android:buttonTint="@color/car_tint_light"
                 android:paddingEnd="@dimen/car_keyline_1"/>
         <RadioButton
@@ -70,7 +70,7 @@
                 android:layout_width="wrap_content"
                 android:text="@string/show_everything"
                 android:textSize="@dimen/car_body3_size"
-                android:textColor="@color/car_body1_light"
+                android:textColor="@color/car_primary_text_light"
                 android:buttonTint="@color/car_tint_light"
                 android:paddingEnd="@dimen/car_keyline_1"
         />

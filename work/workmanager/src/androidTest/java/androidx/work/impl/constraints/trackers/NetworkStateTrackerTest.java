@@ -32,6 +32,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 import androidx.work.impl.constraints.NetworkState;
+import androidx.work.impl.utils.taskexecutor.InstantWorkTaskExecutor;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -54,7 +55,7 @@ public class NetworkStateTrackerTest {
         when(mMockContext.getSystemService(eq(Context.CONNECTIVITY_SERVICE)))
                 .thenReturn(mMockConnectivityManager);
 
-        mTracker = new NetworkStateTracker(mMockContext);
+        mTracker = new NetworkStateTracker(mMockContext, new InstantWorkTaskExecutor());
     }
 
     @Test

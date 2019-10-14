@@ -25,23 +25,22 @@ import java.lang.annotation.Target;
  * Marks a method as a type converter. A class can have as many @TypeConverter methods as it needs.
  * <p>
  * Each converter method should receive 1 parameter and have non-void return type.
- *
  * <pre>
  * // example converter for java.util.Date
  * public static class Converters {
- *    {@literal @}TypeConverter
- *    public Date fromTimestamp(Long value) {
- *        return value == null ? null : new Date(value);
- *    }
+ *   {@literal @}TypeConverter
+ *   public Date fromTimestamp(Long value) {
+ *     return value == null ? null : new Date(value);
+ *   }
  *
- *    {@literal @}TypeConverter
- *    public Long dateToTimestamp(Date date) {
- *        if (date == null) {
- *            return null;
- *        } else {
- *            return date.getTime();
- *        }
- *    }
+ *   {@literal @}TypeConverter
+ *   public Long dateToTimestamp(Date date) {
+ *     if (date == null) {
+ *       return null;
+ *     } else {
+ *       return date.getTime();
+ *     }
+ *   }
  *}
  * </pre>
  * @see TypeConverters

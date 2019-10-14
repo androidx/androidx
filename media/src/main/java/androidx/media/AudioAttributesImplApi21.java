@@ -16,7 +16,7 @@
 
 package androidx.media;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import static androidx.media.AudioAttributesCompat.INVALID_STREAM_TYPE;
 
 import android.annotation.SuppressLint;
@@ -29,18 +29,20 @@ import androidx.versionedparcelable.VersionedParcelize;
 
 /** @hide */
 @VersionedParcelize(jetifyAs = "android.support.v4.media.AudioAttributesImplApi21")
-@RestrictTo(LIBRARY_GROUP_PREFIX)
+@RestrictTo(LIBRARY)
 @RequiresApi(21)
 public class AudioAttributesImplApi21 implements AudioAttributesImpl {
     private static final String TAG = "AudioAttributesCompat21";
 
     /** @hide */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    // It should be public to allow Parcelizers which never be de/jetified can access the field.
+    @RestrictTo(LIBRARY)
     @ParcelField(1)
     public AudioAttributes mAudioAttributes;
 
     /** @hide */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    // It should be public to allow Parcelizers which never be de/jetified can access the field.
+    @RestrictTo(LIBRARY)
     @ParcelField(2)
     public int mLegacyStreamType = INVALID_STREAM_TYPE;
 

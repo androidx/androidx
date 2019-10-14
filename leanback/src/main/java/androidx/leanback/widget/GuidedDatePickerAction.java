@@ -30,7 +30,10 @@ public class GuidedDatePickerAction extends GuidedAction {
      * to subclass GuidedDatePickerAction, implement your build() which should call
      * {@link #applyDatePickerValues(GuidedDatePickerAction)}.  When using GuidedDatePickerAction
      * directly, use {@link Builder}.
+     *
+     * @param <B> the type of BuilderBase
      */
+    @SuppressWarnings("unchecked")
     public abstract static class BuilderBase<B extends BuilderBase>
             extends GuidedAction.BuilderBase<B> {
 

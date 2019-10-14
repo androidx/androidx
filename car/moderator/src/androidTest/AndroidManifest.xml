@@ -16,6 +16,5 @@
   -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           package="androidx.car.moderator.test">
-    <uses-sdk android:targetSdkVersion="${target-sdk-version}"/>
     <application />
 </manifest>

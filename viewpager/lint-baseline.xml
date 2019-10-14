@@ -1,0 +1,334 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="5" by="lint 3.5.0-beta04" client="gradle" variant="debug" version="3.5.0-beta04">
+
+    <issue
+        id="LambdaLast"
+        message="Functional interface parameters (such as parameter 2, &quot;transformer&quot;, in androidx.viewpager.widget.ViewPager.setPageTransformer) should be last to improve Kotlin interoperability; see https://kotlinlang.org/docs/reference/java-interop.html#sam-conversions"
+        errorLine1="            @Nullable PageTransformer transformer, int pageLayerType) {"
+        errorLine2="                                                   ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/viewpager/widget/ViewPager.java"
+            line="787"
+            column="52"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void setBackgroundDrawable(Drawable d) {"
+        errorLine2="                                      ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/viewpager/widget/PagerTabStrip.java"
+            line="174"
+            column="39"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public boolean onTouchEvent(MotionEvent ev) {"
+        errorLine2="                                ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/viewpager/widget/PagerTabStrip.java"
+            line="226"
+            column="33"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected void onDraw(Canvas canvas) {"
+        errorLine2="                          ~~~~~~">
+        <location
+            file="src/main/java/androidx/viewpager/widget/PagerTabStrip.java"
+            line="263"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void setOnPageChangeListener(OnPageChangeListener listener) {"
+        errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/viewpager/widget/ViewPager.java"
+            line="709"
+            column="41"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected boolean verifyDrawable(Drawable who) {"
+        errorLine2="                                     ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/viewpager/widget/ViewPager.java"
+            line="910"
+            column="38"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public void writeToParcel(Parcel out, int flags) {"
+        errorLine2="                                  ~~~~~~">
+        <location
+            file="src/main/java/androidx/viewpager/widget/ViewPager.java"
+            line="1388"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public Parcelable onSaveInstanceState() {"
+        errorLine2="           ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/viewpager/widget/ViewPager.java"
+            line="1429"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void onRestoreInstanceState(Parcelable state) {"
+        errorLine2="                                       ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/viewpager/widget/ViewPager.java"
+            line="1440"
+            column="40"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void addView(View child, int index, ViewGroup.LayoutParams params) {"
+        errorLine2="                        ~~~~">
+        <location
+            file="src/main/java/androidx/viewpager/widget/ViewPager.java"
+            line="1460"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void addView(View child, int index, ViewGroup.LayoutParams params) {"
+        errorLine2="                                               ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/viewpager/widget/ViewPager.java"
+            line="1460"
+            column="48"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void removeView(View view) {"
+        errorLine2="                           ~~~~">
+        <location
+            file="src/main/java/androidx/viewpager/widget/ViewPager.java"
+            line="1484"
+            column="28"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public boolean onInterceptTouchEvent(MotionEvent ev) {"
+        errorLine2="                                         ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/viewpager/widget/ViewPager.java"
+            line="2026"
+            column="42"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public boolean onTouchEvent(MotionEvent ev) {"
+        errorLine2="                                ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/viewpager/widget/ViewPager.java"
+            line="2167"
+            column="33"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void draw(Canvas canvas) {"
+        errorLine2="                     ~~~~~~">
+        <location
+            file="src/main/java/androidx/viewpager/widget/ViewPager.java"
+            line="2427"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected void onDraw(Canvas canvas) {"
+        errorLine2="                          ~~~~~~">
+        <location
+            file="src/main/java/androidx/viewpager/widget/ViewPager.java"
+            line="2469"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected boolean canScroll(View v, boolean checkV, int dx, int x, int y) {"
+        errorLine2="                                ~~~~">
+        <location
+            file="src/main/java/androidx/viewpager/widget/ViewPager.java"
+            line="2711"
+            column="33"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public boolean dispatchKeyEvent(KeyEvent event) {"
+        errorLine2="                                    ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/viewpager/widget/ViewPager.java"
+            line="2735"
+            column="37"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void addFocusables(ArrayList&lt;View> views, int direction, int focusableMode) {"
+        errorLine2="                              ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/viewpager/widget/ViewPager.java"
+            line="2897"
+            column="31"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void addTouchables(ArrayList&lt;View> views) {"
+        errorLine2="                              ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/viewpager/widget/ViewPager.java"
+            line="2939"
+            column="31"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            Rect previouslyFocusedRect) {"
+        errorLine2="            ~~~~">
+        <location
+            file="src/main/java/androidx/viewpager/widget/ViewPager.java"
+            line="2959"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public boolean dispatchPopulateAccessibilityEvent(AccessibilityEvent event) {"
+        errorLine2="                                                      ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/viewpager/widget/ViewPager.java"
+            line="2988"
+            column="55"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected ViewGroup.LayoutParams generateDefaultLayoutParams() {"
+        errorLine2="              ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/viewpager/widget/ViewPager.java"
+            line="3011"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected ViewGroup.LayoutParams generateLayoutParams(ViewGroup.LayoutParams p) {"
+        errorLine2="              ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/viewpager/widget/ViewPager.java"
+            line="3016"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected ViewGroup.LayoutParams generateLayoutParams(ViewGroup.LayoutParams p) {"
+        errorLine2="                                                          ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/viewpager/widget/ViewPager.java"
+            line="3016"
+            column="59"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected boolean checkLayoutParams(ViewGroup.LayoutParams p) {"
+        errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/viewpager/widget/ViewPager.java"
+            line="3021"
+            column="41"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public ViewGroup.LayoutParams generateLayoutParams(AttributeSet attrs) {"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/viewpager/widget/ViewPager.java"
+            line="3026"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public ViewGroup.LayoutParams generateLayoutParams(AttributeSet attrs) {"
+        errorLine2="                                                       ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/viewpager/widget/ViewPager.java"
+            line="3026"
+            column="56"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public LayoutParams(Context context, AttributeSet attrs) {"
+        errorLine2="                            ~~~~~~~">
+        <location
+            file="src/main/java/androidx/viewpager/widget/ViewPager.java"
+            line="3141"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public LayoutParams(Context context, AttributeSet attrs) {"
+        errorLine2="                                             ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/viewpager/widget/ViewPager.java"
+            line="3141"
+            column="46"/>
+    </issue>
+
+</issues>

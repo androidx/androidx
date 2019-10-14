@@ -37,9 +37,12 @@ import android.view.SurfaceHolder;
 import android.view.WindowManager;
 
 import androidx.annotation.CallSuper;
+import androidx.annotation.NonNull;
 import androidx.media.AudioAttributesCompat;
 import androidx.media2.common.FileMediaItem;
 import androidx.media2.common.MediaItem;
+import androidx.media2.common.SessionPlayer.TrackInfo;
+import androidx.media2.common.SubtitleData;
 import androidx.media2.common.UriMediaItem;
 import androidx.media2.player.TestUtils.Monitor;
 import androidx.test.platform.app.InstrumentationRegistry;
@@ -77,7 +80,7 @@ public class MediaPlayer2TestBase extends MediaTestBase {
     protected Monitor mOnDeselectTrackCalled = new Monitor();
     protected Monitor mOnSeekCompleteCalled = new Monitor();
     protected Monitor mOnCompletionCalled = new Monitor();
-    protected Monitor mOnInfoCalled = new Monitor();
+    protected Monitor mTracksFullyFound = new Monitor();
     protected Monitor mOnErrorCalled = new Monitor();
     protected Monitor mOnMediaTimeDiscontinuityCalled = new Monitor();
     protected int mCallStatus;
@@ -349,12 +352,23 @@ public class MediaPlayer2TestBase extends MediaTestBase {
                     }
                 }
             }
+
             @Override
-            public  void onSubtitleData(MediaPlayer2 mp, MediaItem item,
-                    final SubtitleData data) {
+            public  void onSubtitleData(@NonNull MediaPlayer2 mp, @NonNull MediaItem item,
+                    @NonNull TrackInfo track, @NonNull SubtitleData data) {
                 synchronized (cbLock) {
                     for (MediaPlayer2.EventCallback ecb : ecbs) {
-                        ecb.onSubtitleData(mp, item, data);
+                        ecb.onSubtitleData(mp, item, track, data);
+                    }
+                }
+            }
+
+            @Override
+            public void onTracksChanged(@NonNull MediaPlayer2 mp,
+                    @NonNull List<TrackInfo> tracks) {
+                synchronized (cbLock) {
+                    for (MediaPlayer2.EventCallback ecb : ecbs) {
+                        ecb.onTracksChanged(mp, tracks);
                     }
                 }
             }

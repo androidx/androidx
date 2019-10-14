@@ -16,7 +16,6 @@
 
 package com.example.androidx.car;
 
-import android.graphics.drawable.Icon;
 import android.os.Bundle;
 import android.util.Log;
 
@@ -60,42 +59,40 @@ public class CarToolbarActivity extends AppCompatActivity {
 
         findViewById(R.id.add_action).setOnClickListener(v -> {
             items.add(new CarMenuItem.Builder()
-                        .setTitle("Action item")
-                        .setDisplayBehavior(CarMenuItem.DisplayBehavior.ALWAYS)
-                        .setIcon(Icon.createWithResource(this,
-                                android.R.drawable.sym_def_app_icon))
-                        .setOnClickListener(onClickListener)
-                        .build());
+                    .setTitle("Action item")
+                    .setDisplayBehavior(CarMenuItem.DisplayBehavior.ALWAYS)
+                    .setIcon(this, android.R.drawable.sym_def_app_icon)
+                    .setOnClickListener(onClickListener)
+                    .build());
             carToolbar.setMenuItems(items);
         });
 
         findViewById(R.id.add_checkable).setOnClickListener(v -> {
             items.add(new CarMenuItem.Builder()
-                        .setTitle("Checkable item")
-                        .setDisplayBehavior(CarMenuItem.DisplayBehavior.ALWAYS)
-                        .setCheckable(true)
-                        .setOnClickListener(onClickListener)
-                        .build());
+                    .setTitle("Checkable item")
+                    .setDisplayBehavior(CarMenuItem.DisplayBehavior.ALWAYS)
+                    .setCheckable(true)
+                    .setOnClickListener(onClickListener)
+                    .build());
             carToolbar.setMenuItems(items);
         });
 
         findViewById(R.id.add_if_room).setOnClickListener(v -> {
             items.add(new CarMenuItem.Builder()
-                        .setTitle("If-Room item")
-                        .setDisplayBehavior(CarMenuItem.DisplayBehavior.IF_ROOM)
-                        .setIcon(Icon.createWithResource(this,
-                                android.R.drawable.sym_def_app_icon))
-                        .setOnClickListener(onClickListener)
-                        .build());
+                    .setTitle("If-Room item")
+                    .setDisplayBehavior(CarMenuItem.DisplayBehavior.IF_ROOM)
+                    .setIcon(this, android.R.drawable.sym_def_app_icon)
+                    .setOnClickListener(onClickListener)
+                    .build());
             carToolbar.setMenuItems(items);
         });
 
         findViewById(R.id.add_overflow).setOnClickListener(v -> {
             items.add(new CarMenuItem.Builder()
-                        .setTitle("Overflow item")
-                        .setDisplayBehavior(CarMenuItem.DisplayBehavior.NEVER)
-                        .setOnClickListener(onClickListener)
-                        .build());
+                    .setTitle("Overflow item")
+                    .setDisplayBehavior(CarMenuItem.DisplayBehavior.NEVER)
+                    .setOnClickListener(onClickListener)
+                    .build());
             carToolbar.setMenuItems(items);
         });
 

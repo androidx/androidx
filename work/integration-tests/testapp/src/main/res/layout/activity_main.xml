@@ -135,6 +135,14 @@
             android:id="@+id/enqueue_periodic_work_flex"
             android:layout_marginTop="12dp"/>
 
+        <Button android:text="@string/enqueue_periodic_initial_delay"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="16dp"
+            android:layout_marginStart="16dp"
+            android:id="@+id/enqueue_periodic_initial_delay"
+            android:layout_marginTop="12dp"/>
+
         <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -195,6 +203,22 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/run_recursive_worker"
+            android:layout_marginTop="12dp"
+            android:layout_marginLeft="16dp"
+            android:layout_marginStart="16dp"/>
+
+        <Button android:text="@string/run_foreground_worker"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/run_foreground_worker"
+            android:layout_marginTop="12dp"
+            android:layout_marginLeft="16dp"
+            android:layout_marginStart="16dp"/>
+
+        <Button android:text="@string/cancel_foreground_worker"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/cancel_foreground_worker"
             android:layout_marginTop="12dp"
             android:layout_marginLeft="16dp"
             android:layout_marginStart="16dp"/>

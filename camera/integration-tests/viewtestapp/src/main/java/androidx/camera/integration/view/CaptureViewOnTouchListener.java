@@ -30,11 +30,13 @@ import android.view.View;
 import android.view.ViewConfiguration;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.camera.core.ImageCapture.OnImageSavedListener;
-import androidx.camera.core.ImageCapture.UseCaseError;
+import androidx.camera.core.ImageCapture.ImageCaptureError;
+import androidx.camera.core.ImageCapture.OnImageSavedCallback;
 import androidx.camera.core.VideoCapture;
-import androidx.camera.core.VideoCapture.OnVideoSavedListener;
+import androidx.camera.core.VideoCapture.OnVideoSavedCallback;
+import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.view.CameraView;
 import androidx.camera.view.CameraView.CaptureMode;
 
@@ -50,7 +52,7 @@ import java.util.Locale;
  * take-photo signal, while a long-press is interpreted as a record-video signal.
  */
 class CaptureViewOnTouchListener
-        implements View.OnTouchListener, OnImageSavedListener, OnVideoSavedListener {
+        implements View.OnTouchListener, OnImageSavedCallback, OnVideoSavedCallback {
     private static final String TAG = "ViewOnTouchListener";
 
     private static final String FILENAME = "yyyy-MM-dd-HH-mm-ss-SSS";
@@ -101,7 +103,8 @@ class CaptureViewOnTouchListener
     void onTap() {
         if (mCameraView.getCaptureMode() == CaptureMode.IMAGE
                 || mCameraView.getCaptureMode() == CaptureMode.MIXED) {
-            mCameraView.takePicture(createNewFile(PHOTO_EXTENSION), this);
+            mCameraView.takePicture(createNewFile(PHOTO_EXTENSION),
+                    CameraXExecutors.mainThreadExecutor(), this);
         }
     }
 
@@ -109,7 +112,8 @@ class CaptureViewOnTouchListener
     void onHold() {
         if (mCameraView.getCaptureMode() == CaptureMode.VIDEO
                 || mCameraView.getCaptureMode() == CaptureMode.MIXED) {
-            mCameraView.startRecording(createNewFile(VIDEO_EXTENSION), this);
+            mCameraView.startRecording(createNewFile(VIDEO_EXTENSION),
+                    CameraXExecutors.mainThreadExecutor(), this);
         }
     }
 
@@ -182,7 +186,7 @@ class CaptureViewOnTouchListener
     }
 
     @Override
-    public void onImageSaved(File file) {
+    public void onImageSaved(@NonNull File file) {
         report("Picture saved to " + file.getAbsolutePath());
 
         // Print out metadata about the picture
@@ -192,20 +196,21 @@ class CaptureViewOnTouchListener
     }
 
     @Override
-    public void onVideoSaved(File file) {
+    public void onVideoSaved(@NonNull File file) {
         report("Video saved to " + file.getAbsolutePath());
         broadcastVideo(file);
     }
 
     @Override
-    public void onError(UseCaseError useCaseError, String message, @Nullable Throwable cause) {
+    public void onError(@NonNull ImageCaptureError imageCaptureError, @NonNull String message,
+            @Nullable Throwable cause) {
         report("Failure");
     }
 
     @Override
     public void onError(
-            VideoCapture.UseCaseError useCaseError,
-            String message,
+            @NonNull VideoCapture.VideoCaptureError videoCaptureError,
+            @NonNull String message,
             @Nullable Throwable cause) {
         report("Failure");
     }

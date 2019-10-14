@@ -48,6 +48,10 @@ interface IRemoteMediaSession {
     void notifyPlaybackSpeedChanged(String sessionId, float speed);
     void notifyCurrentMediaItemChanged(String sessionId, int index);
     void notifyAudioAttributesChanged(String sessionId, in ParcelImpl attrs);
+    void notifyVideoSizeChanged(String sessionId, in ParcelImpl videoSize);
+    boolean surfaceExists(String sessionId);
+    void notifySubtitleData(String sessionId, in ParcelImpl item, in ParcelImpl track,
+            in ParcelImpl data);
 
     void setPlaylist(String sessionId, in List<ParcelImpl> playlist);
     void createAndSetDummyPlaylist(String sessionId, int size);
@@ -62,4 +66,7 @@ interface IRemoteMediaSession {
     void notifyShuffleModeChanged(String sessionId);
     void notifyRepeatModeChanged(String sessionId);
     void notifyPlaybackCompleted(String sessionId);
+    void notifyTrackInfoChanged(String sessionId, in List<ParcelImpl> trackInfos);
+    void notifyTrackSelected(String sessionId, in ParcelImpl trackInfo);
+    void notifyTrackDeselected(String sessionId, in ParcelImpl trackInfo);
 }

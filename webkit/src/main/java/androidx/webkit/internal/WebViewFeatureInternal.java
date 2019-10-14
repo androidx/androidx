@@ -287,9 +287,10 @@ public enum WebViewFeatureInternal {
     GET_WEB_CHROME_CLIENT(WebViewFeature.GET_WEB_CHROME_CLIENT, Features.GET_WEB_CHROME_CLIENT,
             Build.VERSION_CODES.O),
 
-    GET_WEB_VIEW_RENDERER(WebViewFeature.GET_WEB_VIEW_RENDERER, Features.GET_WEB_VIEW_RENDERER),
+    GET_WEB_VIEW_RENDERER(WebViewFeature.GET_WEB_VIEW_RENDERER, Features.GET_WEB_VIEW_RENDERER,
+            Build.VERSION_CODES.Q),
     WEB_VIEW_RENDERER_TERMINATE(WebViewFeature.WEB_VIEW_RENDERER_TERMINATE,
-            Features.WEB_VIEW_RENDERER_TERMINATE),
+            Features.WEB_VIEW_RENDERER_TERMINATE, Build.VERSION_CODES.Q),
 
     /**
      * This feature covers
@@ -309,7 +310,7 @@ public enum WebViewFeatureInternal {
      * {@link WebViewRenderProcessClient#onRenderProcessResponsive(WebView,WebViewRenderProcess)}
      */
     WEB_VIEW_RENDERER_CLIENT_BASIC_USAGE(WebViewFeature.WEB_VIEW_RENDERER_CLIENT_BASIC_USAGE,
-            Features.WEB_VIEW_RENDERER_CLIENT_BASIC_USAGE),
+            Features.WEB_VIEW_RENDERER_CLIENT_BASIC_USAGE, Build.VERSION_CODES.Q),
 
     /**
      * This feature covers
@@ -331,6 +332,28 @@ public enum WebViewFeatureInternal {
      * This feature covers {@link WebViewCompat#isMultiProcessEnabled()}.
      */
     MULTI_PROCESS_QUERY(WebViewFeature.MULTI_PROCESS_QUERY, Features.MULTI_PROCESS_QUERY),
+
+    /**
+     * This feature covers
+     * {@link androidx.webkit.WebSettingsCompat#setForceDark(WebSettings, int)} and
+     * {@link androidx.webkit.WebSettingsCompat#getForceDark(WebSettings)}.
+     */
+    FORCE_DARK(WebViewFeature.FORCE_DARK, Features.FORCE_DARK),
+
+    /**
+     * This feature covers
+     * {@link androidx.webkit.WebSettingsCompat#setForceDarkStrategy(WebSettings, int)} and
+     * {@link androidx.webkit.WebSettingsCompat#getForceDarkStrategy(WebSettings)}.
+     */
+    FORCE_DARK_STRATEGY(WebViewFeature.FORCE_DARK_STRATEGY, Features.FORCE_DARK_BEHAVIOR),
+
+    /**
+     * This feature covers
+     * {@link androidx.webkit.WebViewCompat#setWebMessageListener(android.webkit.WebView,
+     * androidx.webkit.WebViewCompat.WebMessageListener, String, String[])} and
+     * {@link androidx.webkit.WebViewCompat#removeWebMessageListener()}
+     */
+    WEB_MESSAGE_LISTENER(WebViewFeature.WEB_MESSAGE_LISTENER, Features.WEB_MESSAGE_LISTENER),
 
     ;  // This semicolon ends the enum. Add new features with a trailing comma above this line.
 
@@ -373,6 +396,7 @@ public enum WebViewFeatureInternal {
     /**
      * Return the {@link WebViewFeatureInternal} corresponding to {@param feature}.
      */
+    @NonNull
     public static WebViewFeatureInternal getFeature(@NonNull @WebViewFeature.WebViewSupportFeature
             String publicFeatureValue) {
         for (WebViewFeatureInternal internalFeature : WebViewFeatureInternal.values()) {
@@ -408,6 +432,7 @@ public enum WebViewFeatureInternal {
                         Arrays.asList(WebViewGlueCommunicator.getFactory().getWebViewFeatures()));
     }
 
+    @NonNull
     public static Set<String> getWebViewApkFeaturesForTesting() {
         return LAZY_HOLDER.WEBVIEW_APK_FEATURES;
     }
@@ -416,6 +441,7 @@ public enum WebViewFeatureInternal {
      * Utility method for throwing an exception explaining that the feature the app trying to use
      * isn't supported.
      */
+    @NonNull
     public static UnsupportedOperationException getUnsupportedOperationException() {
         return new UnsupportedOperationException("This method is not supported by the current "
                 + "version of the framework and the current WebView APK");

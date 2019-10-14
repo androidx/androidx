@@ -100,7 +100,7 @@ public class DatabaseBundleTest {
     }
 
     private FieldBundle createFieldBundle(String name) {
-        return new FieldBundle("foo", name, "text", false);
+        return new FieldBundle("foo", name, "text", false, null);
     }
 
     private FtsOptionsBundle createFtsOptionsBundle(String contentTableName) {

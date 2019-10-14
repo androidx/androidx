@@ -32,6 +32,9 @@ import io.reactivex.Observable;
 import io.reactivex.ObservableEmitter;
 import io.reactivex.ObservableOnSubscribe;
 import io.reactivex.Scheduler;
+import io.reactivex.Single;
+import io.reactivex.SingleEmitter;
+import io.reactivex.SingleOnSubscribe;
 import io.reactivex.disposables.Disposables;
 import io.reactivex.functions.Action;
 import io.reactivex.functions.Function;
@@ -209,6 +212,26 @@ public class RxRoom {
                         return maybe;
                     }
                 });
+    }
+
+    /**
+     * Helper method used by generated code to create a Single from a Callable that will ignore
+     * the EmptyResultSetException if the stream is already disposed.
+     *
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    public static <T> Single<T> createSingle(final Callable<T> callable) {
+        return Single.create(new SingleOnSubscribe<T>() {
+            @Override
+            public void subscribe(SingleEmitter<T> emitter) throws Exception {
+                try {
+                    emitter.onSuccess(callable.call());
+                } catch (EmptyResultSetException e) {
+                    emitter.tryOnError(e);
+                }
+            }
+        });
     }
 
     private static Executor getExecutor(RoomDatabase database, boolean inTransaction) {

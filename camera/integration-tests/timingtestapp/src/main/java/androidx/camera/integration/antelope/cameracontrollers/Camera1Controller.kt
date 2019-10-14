@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+// Camera 1 API is deprecated, suppress warnings as Antelope expressly tests it
+@file:Suppress("deprecation")
+
 package androidx.camera.integration.antelope.cameracontrollers
 
 import android.hardware.Camera

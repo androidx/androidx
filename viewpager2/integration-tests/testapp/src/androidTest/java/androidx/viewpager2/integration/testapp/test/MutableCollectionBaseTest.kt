@@ -56,22 +56,43 @@ abstract class MutableCollectionBaseTest<T : MutableCollectionBaseActivity>(claz
         // insert page at the beginning
         choosePage(1)
         insertPageBefore()
-        // check that we're now looking at the page before page 8
-        verifyPage(7)
-        verifyCount(0)
-        // swipe back to page 8
-        swipeToNextPage()
+        // check that we're still looking at the page 8
         verifyPage(8)
         verifyCount(3)
+        // swipe back to page 7
+        swipeToPreviousPage()
+        verifyPage(7)
+        verifyCount(0)
 
         // swipe back to page 1
-        repeat(7) { swipeToPreviousPage() }
+        repeat(6) { swipeToPreviousPage() }
         verifyPage(1)
         verifyCount(1)
 
         // check the newly inserted page
         swipeToPreviousPage()
         verifyPage(10)
+        verifyCount(0)
+    }
+
+    @Test
+    fun testKeepCurrentItemVisibleWithoutDiffUtil() {
+        // disable DiffUtil
+        toggleDiffUtil()
+
+        // increase count of page 1, go to page 2
+        increaseCount()
+        verifyPage(1)
+        verifyCount(1)
+        swipeToNextPage()
+        verifyPage(2)
+        verifyCount(0)
+
+        // insert page at the beginning
+        choosePage(1)
+        insertPageBefore()
+        // check that we're still looking at page 2 with count 0
+        verifyPage(2)
         verifyCount(0)
     }
 
@@ -97,5 +118,9 @@ abstract class MutableCollectionBaseTest<T : MutableCollectionBaseActivity>(claz
 
     private fun insertPageBefore() {
         onView(withId(R.id.buttonAddBefore)).perform(click())
+    }
+
+    private fun toggleDiffUtil() {
+        onView(withId(R.id.useDiffUtil)).perform(click())
     }
 }

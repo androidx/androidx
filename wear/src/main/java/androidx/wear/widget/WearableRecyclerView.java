@@ -19,6 +19,7 @@ package androidx.wear.widget;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Point;
+import android.os.Build;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
@@ -84,6 +85,10 @@ public class WearableRecyclerView extends RecyclerView {
         if (attrs != null) {
             TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.WearableRecyclerView,
                     defStyle, defStyleRes);
+            if (Build.VERSION.SDK_INT >= 29) {
+                saveAttributeDataForStyleable(
+                        context, R.styleable.WearableRecyclerView, attrs, a, defStyle, defStyleRes);
+            }
 
             setCircularScrollingGestureEnabled(
                     a.getBoolean(

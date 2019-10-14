@@ -35,6 +35,7 @@ import static androidx.media2.player.MediaPlayer2.CALL_COMPLETED_SET_PLAYBACK_PA
 import static androidx.media2.player.MediaPlayer2.CALL_COMPLETED_SET_PLAYER_VOLUME;
 import static androidx.media2.player.MediaPlayer2.CALL_COMPLETED_SET_SURFACE;
 import static androidx.media2.player.MediaPlayer2.CALL_COMPLETED_SKIP_TO_NEXT;
+import static androidx.media2.player.MediaPlayer2.CALL_STATUS_INVALID_OPERATION;
 import static androidx.media2.player.MediaPlayer2.CALL_STATUS_NO_ERROR;
 import static androidx.media2.player.MediaPlayer2.PLAYER_STATE_ERROR;
 import static androidx.media2.player.MediaPlayer2.PLAYER_STATE_IDLE;
@@ -53,8 +54,8 @@ import androidx.media.AudioAttributesCompat;
 import androidx.media2.common.CallbackMediaItem;
 import androidx.media2.common.DataSourceCallback;
 import androidx.media2.common.MediaItem;
+import androidx.media2.common.SessionPlayer.TrackInfo;
 import androidx.media2.player.MediaPlayer2.MediaPlayer2State;
-import androidx.media2.player.MediaPlayer2.TrackInfo;
 import androidx.media2.player.TestUtils.Monitor;
 import androidx.media2.player.test.R;
 import androidx.test.filters.LargeTest;
@@ -77,7 +78,7 @@ public class MediaPlayer2StateTest extends MediaPlayer2TestBase {
     private static final String LOG_TAG = "MediaPlayer2StateTest";
 
     // TODO: Underlying MediaPlayer1 implementation does not report an error when an operation is
-    // triggered in an invalid state. e.g. MediaPlayer.getTrackInfo in the error state. Check the
+    // triggered in an invalid state. e.g. MediaPlayer.getTracks in the error state. Check the
     // cause and update javadoc of MediaPlayer1 or change the test case.
     private static final boolean CHECK_INVALID_STATE = false;
 
@@ -639,7 +640,7 @@ public class MediaPlayer2StateTest extends MediaPlayer2TestBase {
     private static final PlayerOperation sGetTrackInfoOperation = new PlayerOperation() {
         @Override
         public void doOperation(MediaPlayer2 player) {
-            player.getTrackInfo();
+            player.getTracks();
         }
 
         @Override
@@ -649,7 +650,7 @@ public class MediaPlayer2StateTest extends MediaPlayer2TestBase {
 
         @Override
         public String toString() {
-            return "getTrackInfo()";
+            return "getTracks()";
         }
     };
     private static final PlayerOperation sGetSelectedTrackOperation = new PlayerOperation() {
@@ -671,7 +672,8 @@ public class MediaPlayer2StateTest extends MediaPlayer2TestBase {
     private static final PlayerOperation sSelectTrackOperation = new PlayerOperation() {
         @Override
         public void doOperation(MediaPlayer2 player) {
-            player.selectTrack(1);
+            // The trackId may be an illegal argument
+            player.selectTrack(/* trackId= */ 0);
         }
 
         @Override
@@ -687,7 +689,8 @@ public class MediaPlayer2StateTest extends MediaPlayer2TestBase {
     private static final PlayerOperation sDeselectTrackOperation = new PlayerOperation() {
         @Override
         public void doOperation(MediaPlayer2 player) {
-            player.deselectTrack(1);
+            // The trackId may be an illegal argument
+            player.deselectTrack(/* trackId= */ 0);
         }
 
         @Override
@@ -1119,20 +1122,20 @@ public class MediaPlayer2StateTest extends MediaPlayer2TestBase {
         }
         setupPlayer();
 
-        final List<Pair<Integer, Integer>> callCompletes = new ArrayList();
+        final List<Pair<Integer, Integer>> callCompletes = new ArrayList<>();
         final Monitor callCompleteCalled = new Monitor();
         final Monitor commandLabelReachedCalled = new Monitor();
         MediaPlayer2.EventCallback ecb = new MediaPlayer2.EventCallback() {
             @Override
             public void onCallCompleted(
                     MediaPlayer2 mp, MediaItem item, int what, int status) {
-                callCompletes.add(new Pair<Integer, Integer>(what, status));
+                callCompletes.add(new Pair<>(what, status));
                 callCompleteCalled.signal();
             }
 
             @Override
             public void onCommandLabelReached(MediaPlayer2 mp, Object label) {
-                callCompletes.add(new Pair<Integer, Integer>(
+                callCompletes.add(new Pair<>(
                             CALL_COMPLETED_NOTIFY_WHEN_COMMAND_LABEL_REACHED,
                             CALL_STATUS_NO_ERROR));
                 callCompleteCalled.signal();
@@ -1161,9 +1164,9 @@ public class MediaPlayer2StateTest extends MediaPlayer2TestBase {
             callCompleteCalled.waitForSignal();
             assertEquals(mTestOperation.getCallCompleteCode(), callCompletes.get(0).first);
             if (mIsValidOperation) {
-                assertEquals(CALL_STATUS_NO_ERROR, (int) callCompletes.get(0).second);
+                assertNotEquals(CALL_STATUS_INVALID_OPERATION, (int) callCompletes.get(0).second);
             } else {
-                assertNotEquals(CALL_STATUS_NO_ERROR, (int) callCompletes.get(0).second);
+                assertEquals(CALL_STATUS_INVALID_OPERATION, (int) callCompletes.get(0).second);
             }
         } else if (!mIsValidOperation) {
             fail();

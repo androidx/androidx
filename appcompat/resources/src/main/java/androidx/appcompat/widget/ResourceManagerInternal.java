@@ -40,9 +40,9 @@ import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.appcompat.graphics.drawable.AnimatedStateListDrawableCompat;
 import androidx.appcompat.resources.R;
-import androidx.collection.ArrayMap;
 import androidx.collection.LongSparseArray;
 import androidx.collection.LruCache;
+import androidx.collection.SimpleArrayMap;
 import androidx.collection.SparseArrayCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.drawable.DrawableCompat;
@@ -112,7 +112,7 @@ public final class ResourceManagerInternal {
     private static final ColorFilterLruCache COLOR_FILTER_CACHE = new ColorFilterLruCache(6);
 
     private WeakHashMap<Context, SparseArrayCompat<ColorStateList>> mTintLists;
-    private ArrayMap<String, InflateDelegate> mDelegates;
+    private SimpleArrayMap<String, InflateDelegate> mDelegates;
     private SparseArrayCompat<String> mKnownDrawableIdTags;
 
     private final WeakHashMap<Context, LongSparseArray<WeakReference<ConstantState>>>
@@ -365,7 +365,7 @@ public final class ResourceManagerInternal {
 
     private void addDelegate(@NonNull String tagName, @NonNull InflateDelegate delegate) {
         if (mDelegates == null) {
-            mDelegates = new ArrayMap<>();
+            mDelegates = new SimpleArrayMap<>();
         }
         mDelegates.put(tagName, delegate);
     }

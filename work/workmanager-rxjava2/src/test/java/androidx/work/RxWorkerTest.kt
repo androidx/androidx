@@ -17,6 +17,7 @@
 package androidx.work
 
 import android.content.Context
+import androidx.work.impl.utils.SerialExecutor
 import androidx.work.impl.utils.SynchronousExecutor
 import androidx.work.impl.utils.taskexecutor.TaskExecutor
 import io.reactivex.Single
@@ -27,7 +28,7 @@ import org.junit.Assert
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import org.mockito.Mockito
+import org.mockito.Mockito.mock
 import java.util.UUID
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executor
@@ -105,7 +106,7 @@ class RxWorkerTest {
             it.run()
         }
         val params = createWorkerParams(executor)
-        val worker = object : RxWorker(Mockito.mock(Context::class.java), params) {
+        val worker = object : RxWorker(mock(Context::class.java), params) {
             override fun createWork() = Single.just(result)
             override fun getBackgroundScheduler() = testScheduler
         }
@@ -115,7 +116,9 @@ class RxWorkerTest {
     }
 
     private fun createWorkerParams(
-        executor: Executor = SynchronousExecutor()
+        executor: Executor = SynchronousExecutor(),
+        progressUpdater: ProgressUpdater = mock(ProgressUpdater::class.java),
+        foregroundUpdater: ForegroundUpdater = mock(ForegroundUpdater::class.java)
     ) = WorkerParameters(
         UUID.randomUUID(),
         Data.EMPTY,
@@ -124,13 +127,15 @@ class RxWorkerTest {
         1,
         executor,
         InstantWorkTaskExecutor(),
-        WorkerFactory.getDefaultWorkerFactory()
+        WorkerFactory.getDefaultWorkerFactory(),
+        progressUpdater,
+        foregroundUpdater
     )
 
     private fun Single<ListenableWorker.Result>.toWorker(
         params: WorkerParameters = createWorkerParams()
     ): RxWorker {
-        return object : RxWorker(Mockito.mock(Context::class.java), params) {
+        return object : RxWorker(mock(Context::class.java), params) {
             override fun createWork() = this@toWorker
         }
     }
@@ -138,6 +143,7 @@ class RxWorkerTest {
     class InstantWorkTaskExecutor : TaskExecutor {
 
         private val mSynchronousExecutor = SynchronousExecutor()
+        private val mSerialExecutor = SerialExecutor(mSynchronousExecutor)
 
         override fun postToMainThread(runnable: Runnable) {
             runnable.run()
@@ -148,15 +154,11 @@ class RxWorkerTest {
         }
 
         override fun executeOnBackgroundThread(runnable: Runnable) {
-            runnable.run()
+            mSerialExecutor.execute(runnable)
         }
 
-        override fun getBackgroundExecutor(): Executor {
-            return mSynchronousExecutor
-        }
-
-        override fun getBackgroundExecutorThread(): Thread {
-            return Thread.currentThread()
+        override fun getBackgroundExecutor(): SerialExecutor {
+            return mSerialExecutor
         }
     }
 }

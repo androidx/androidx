@@ -17,6 +17,7 @@
 package androidx.room.vo
 
 import androidx.room.ext.CommonTypeNames
+import androidx.room.ext.KotlinTypeNames
 import androidx.room.ext.SupportDbTypeNames
 import androidx.room.ext.typeName
 import androidx.room.solver.query.result.QueryResultBinder
@@ -29,20 +30,22 @@ import javax.lang.model.type.TypeMirror
  * It is self sufficient and must have all generics etc resolved once created.
  */
 data class RawQueryMethod(
-        val element: ExecutableElement,
-        val name: String,
-        val returnType: TypeMirror,
-        val inTransaction: Boolean,
-        val observedTableNames: Set<String>,
-        val runtimeQueryParam: RuntimeQueryParameter?,
-        val queryResultBinder: QueryResultBinder) {
+    val element: ExecutableElement,
+    val name: String,
+    val returnType: TypeMirror,
+    val inTransaction: Boolean,
+    val observedTableNames: Set<String>,
+    val runtimeQueryParam: RuntimeQueryParameter?,
+    val queryResultBinder: QueryResultBinder
+) {
     val returnsValue by lazy {
-        returnType.typeName() != TypeName.VOID
+        returnType.typeName() != TypeName.VOID && returnType.typeName() != KotlinTypeNames.UNIT
     }
 
     data class RuntimeQueryParameter(
-            val paramName: String,
-            val type: TypeName) {
+        val paramName: String,
+        val type: TypeName
+    ) {
         fun isString() = CommonTypeNames.STRING == type
         fun isSupportQuery() = SupportDbTypeNames.QUERY == type
     }

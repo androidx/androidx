@@ -22,12 +22,11 @@ import android.support.v4.media.MediaBrowserCompat.MediaItem;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.MediaSessionCompat.Callback;
 
+import androidx.annotation.GuardedBy;
 import androidx.media.MediaBrowserServiceCompat;
 
 import java.lang.reflect.Method;
 import java.util.List;
-
-import javax.annotation.concurrent.GuardedBy;
 
 /**
  * Mock implementation of the browser.

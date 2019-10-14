@@ -69,6 +69,7 @@ public class LinearLayoutManagerExtraLayoutSpaceTest extends BaseLinearLayoutMan
 
     private int mCurrPosition = 0;
     private ScrollDirection mLastScrollDirection = TOWARDS_END;
+    private LastScrollDeltaTracker mLastScrollTracker = new LastScrollDeltaTracker();
 
     public LinearLayoutManagerExtraLayoutSpaceTest(Config config, int extraLayoutSpaceLegacy,
             int extraLayoutSpace) {
@@ -116,6 +117,7 @@ public class LinearLayoutManagerExtraLayoutSpaceTest extends BaseLinearLayoutMan
         mLayoutManager = (ExtraLayoutSpaceLayoutManager) super.mLayoutManager;
         mLayoutManager.mExtraLayoutSpaceLegacy = mExtraLayoutSpaceLegacy;
         mLayoutManager.mExtraLayoutSpace = mExtraLayoutSpace;
+        mRecyclerView.addOnScrollListener(mLastScrollTracker);
 
         // Verify start position
         verifyStartPosition();
@@ -142,6 +144,13 @@ public class LinearLayoutManagerExtraLayoutSpaceTest extends BaseLinearLayoutMan
 
         // Perform the scroll
         scrollToPosition(mCurrPosition, smoothScroll);
+        int direction = Integer.signum(mCurrPosition - prevPosition);
+        if (smoothScroll) {
+            // TODO(b/139350295): fix the overshoot instead of detecting it
+            while (!isLastScrollDirectionCorrect(direction)) {
+                correctLastScrollDirection();
+            }
+        }
 
         // Update expected results
         // Alignment means the side of the viewport to which mCurrPosition is aligned
@@ -153,6 +162,25 @@ public class LinearLayoutManagerExtraLayoutSpaceTest extends BaseLinearLayoutMan
 
         // Verify actual results
         verify(getExpectedExtraSpace(smoothScroll), getAvailableSpace(alignment));
+    }
+
+    private boolean isLastScrollDirectionCorrect(int expectedDirection) {
+        int lastDirection = mLastScrollTracker.get(mConfig.mOrientation);
+        int reversedModifier = isReversed() ? -1 : 1;
+        return lastDirection * reversedModifier * expectedDirection >= 0;
+    }
+
+    private void correctLastScrollDirection() throws Throwable {
+        final int dx = Integer.signum(mLastScrollTracker.getX());
+        final int dy = Integer.signum(mLastScrollTracker.getY());
+
+        mLayoutManager.expectIdleState(1);
+        mRecyclerView.smoothScrollBy(dx, dy);
+        mLayoutManager.waitForSnap(10);
+
+        mLayoutManager.expectIdleState(1);
+        mRecyclerView.smoothScrollBy(-dx, -dy);
+        mLayoutManager.waitForSnap(10);
     }
 
     private void scrollToPosition(final int position, final boolean smoothScroll) throws Throwable {
@@ -269,6 +297,29 @@ public class LinearLayoutManagerExtraLayoutSpaceTest extends BaseLinearLayoutMan
         );
     }
 
+
+    private class LastScrollDeltaTracker extends RecyclerView.OnScrollListener {
+        public final int[] mLastScrollDelta = new int[2];
+
+        @Override
+        public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+            mLastScrollDelta[0] = dx;
+            mLastScrollDelta[1] = dy;
+        }
+
+        public int getX() {
+            return mLastScrollDelta[0];
+        }
+
+        public int getY() {
+            return mLastScrollDelta[1];
+        }
+
+        public int get(int orientation) {
+            return mLastScrollDelta[orientation];
+        }
+    }
+
     class ExtraLayoutSpaceLayoutManager extends WrappedLinearLayoutManager {
         int mExtraLayoutSpaceLegacy = -1;
         int[] mExtraLayoutSpace = null;
@@ -304,7 +355,7 @@ public class LinearLayoutManagerExtraLayoutSpaceTest extends BaseLinearLayoutMan
                 mRecordExtraLayoutSpace = false;
                 mRecordedExtraLayoutSpace[0] = extraLayoutSpace[0];
                 mRecordedExtraLayoutSpace[1] = extraLayoutSpace[1];
-                getViewTreeObserver().addOnDrawListener(mLayoutRecorder);
+                getViewTreeObserver().addOnPreDrawListener(mLayoutRecorder);
             }
         }
 
@@ -316,7 +367,7 @@ public class LinearLayoutManagerExtraLayoutSpaceTest extends BaseLinearLayoutMan
         }
     }
 
-    class LayoutBoundsRecorder implements ViewTreeObserver.OnDrawListener {
+    class LayoutBoundsRecorder implements ViewTreeObserver.OnPreDrawListener {
         private final OrientationHelper mHelper;
         private final int[][] mBounds;
 
@@ -331,16 +382,17 @@ public class LinearLayoutManagerExtraLayoutSpaceTest extends BaseLinearLayoutMan
         }
 
         @Override
-        public void onDraw() {
+        public boolean onPreDraw() {
             if (!mHasRecorded) {
                 recordBounds();
                 mRecyclerView.post(new Runnable() {
                     @Override
                     public void run() {
-                        getViewTreeObserver().removeOnDrawListener(LayoutBoundsRecorder.this);
+                        getViewTreeObserver().removeOnPreDrawListener(LayoutBoundsRecorder.this);
                     }
                 });
             }
+            return true;
         }
 
         private void recordBounds() {

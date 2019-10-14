@@ -26,4 +26,6 @@
     <string name="fingerprint_error_user_canceled" msgid="3421037373085129417">"Người dùng đã hủy thao tác dùng dấu vân tay."</string>
     <string name="fingerprint_error_lockout" msgid="1651062876313169162">"Bạn đã thử quá nhiều lần. Vui lòng thử lại sau."</string>
     <string name="default_error_msg" msgid="7497355367608150274">"Lỗi không xác định"</string>
+    <string name="generic_error_user_canceled" msgid="7474799539658018076">"Người dùng đã hủy thao tác xác thực."</string>
+    <string name="confirm_device_credential_password" msgid="4296851028928624518">"Dùng mật khẩu"</string>
 </resources>

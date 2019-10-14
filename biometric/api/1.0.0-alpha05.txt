@@ -1,8 +1,18 @@
 // Signature format: 3.0
 package androidx.biometric {
 
+  public class BiometricManager {
+    method public int canAuthenticate();
+    method public static androidx.biometric.BiometricManager from(android.content.Context);
+    field public static final int BIOMETRIC_ERROR_HW_UNAVAILABLE = 1; // 0x1
+    field public static final int BIOMETRIC_ERROR_NONE_ENROLLED = 11; // 0xb
+    field public static final int BIOMETRIC_ERROR_NO_HARDWARE = 12; // 0xc
+    field public static final int BIOMETRIC_SUCCESS = 0; // 0x0
+  }
+
   public class BiometricPrompt {
     ctor public BiometricPrompt(androidx.fragment.app.FragmentActivity, java.util.concurrent.Executor, androidx.biometric.BiometricPrompt.AuthenticationCallback);
+    ctor public BiometricPrompt(androidx.fragment.app.Fragment, java.util.concurrent.Executor, androidx.biometric.BiometricPrompt.AuthenticationCallback);
     method public void authenticate(androidx.biometric.BiometricPrompt.PromptInfo, androidx.biometric.BiometricPrompt.CryptoObject);
     method public void authenticate(androidx.biometric.BiometricPrompt.PromptInfo);
     method public void cancelAuthentication();
@@ -13,6 +23,7 @@ package androidx.biometric {
     field public static final int ERROR_LOCKOUT_PERMANENT = 9; // 0x9
     field public static final int ERROR_NEGATIVE_BUTTON = 13; // 0xd
     field public static final int ERROR_NO_BIOMETRICS = 11; // 0xb
+    field public static final int ERROR_NO_DEVICE_CREDENTIAL = 14; // 0xe
     field public static final int ERROR_NO_SPACE = 4; // 0x4
     field public static final int ERROR_TIMEOUT = 3; // 0x3
     field public static final int ERROR_UNABLE_TO_PROCESS = 2; // 0x2
@@ -45,12 +56,16 @@ package androidx.biometric {
     method public CharSequence getNegativeButtonText();
     method public CharSequence? getSubtitle();
     method public CharSequence getTitle();
+    method public boolean isConfirmationRequired();
+    method public boolean isDeviceCredentialAllowed();
   }
 
   public static class BiometricPrompt.PromptInfo.Builder {
     ctor public BiometricPrompt.PromptInfo.Builder();
     method public androidx.biometric.BiometricPrompt.PromptInfo build();
+    method public androidx.biometric.BiometricPrompt.PromptInfo.Builder setConfirmationRequired(boolean);
     method public androidx.biometric.BiometricPrompt.PromptInfo.Builder setDescription(CharSequence?);
+    method @RequiresApi(29) public androidx.biometric.BiometricPrompt.PromptInfo.Builder setDeviceCredentialAllowed(boolean);
     method public androidx.biometric.BiometricPrompt.PromptInfo.Builder setNegativeButtonText(CharSequence);
     method public androidx.biometric.BiometricPrompt.PromptInfo.Builder setSubtitle(CharSequence?);
     method public androidx.biometric.BiometricPrompt.PromptInfo.Builder setTitle(CharSequence);

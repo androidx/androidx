@@ -60,7 +60,11 @@ class RxCallableQueryResultBinder(
             }
         }.build()
         scope.builder().apply {
-            addStatement("return $T.fromCallable($L)", rxType.className, callable)
+            if (rxType == RxType.SINGLE) {
+                addStatement("return $T.createSingle($L)", RoomRxJava2TypeNames.RX_ROOM, callable)
+            } else {
+                addStatement("return $T.fromCallable($L)", rxType.className, callable)
+            }
         }
     }
 
@@ -80,13 +84,14 @@ class RxCallableQueryResultBinder(
         val shouldCopyCursor = adapter?.shouldCopyCursor() == true
         val outVar = scope.getTmpVar("_result")
         val cursorVar = scope.getTmpVar("_cursor")
-        addStatement("final $T $L = $T.query($N, $L, $L)",
+        addStatement("final $T $L = $T.query($N, $L, $L, $L)",
                 AndroidTypeNames.CURSOR,
                 cursorVar,
                 RoomTypeNames.DB_UTIL,
                 dbField,
                 roomSQLiteQueryVar,
-                if (shouldCopyCursor) "true" else "false")
+                if (shouldCopyCursor) "true" else "false",
+                "null")
         beginControlFlow("try").apply {
             adapter?.convert(outVar, cursorVar, adapterScope)
             addCode(adapterScope.generate())

@@ -26,4 +26,6 @@
     <string name="fingerprint_error_user_canceled" msgid="3421037373085129417">"Vingerafdrukhandeling is deur gebruiker gekanselleer."</string>
     <string name="fingerprint_error_lockout" msgid="1651062876313169162">"Te veel pogings. Probeer later weer."</string>
     <string name="default_error_msg" msgid="7497355367608150274">"Onbekende fout"</string>
+    <string name="generic_error_user_canceled" msgid="7474799539658018076">"Gebruiker het stawing gekanselleer."</string>
+    <string name="confirm_device_credential_password" msgid="4296851028928624518">"Gebruik wagwoord"</string>
 </resources>

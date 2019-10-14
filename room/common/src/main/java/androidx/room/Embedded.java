@@ -22,9 +22,8 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Can be used as an annotation on a field of an {@link Entity} or {@code Pojo} to signal that
- * nested fields (i.e. fields of the annotated field's class) can be referenced directly in the SQL
- * queries.
+ * Marks a field of an {@link Entity} or POJO to allow nested fields (i.e. fields of the annotated
+ * field's class) to be referenced directly in the SQL queries.
  * <p>
  * If the container is an {@link Entity}, these sub fields will be columns in the {@link Entity}'s
  * database table.
@@ -32,13 +31,13 @@ import java.lang.annotation.Target;
  * For example, if you have 2 classes:
  * <pre>
  *   public class Coordinates {
- *       double latitude;
- *       double longitude;
+ *     double latitude;
+ *     double longitude;
  *   }
  *   public class Address {
- *       String street;
- *       {@literal @}Embedded
- *       Coordinates coordinates;
+ *     String street;
+ *     {@literal @}Embedded
+ *     Coordinates coordinates;
  *   }
  * </pre>
  * Room will consider {@code latitude} and {@code longitude} as if they are fields of the
@@ -48,10 +47,10 @@ import java.lang.annotation.Target;
  * construct an {@code Address} class.
  * <p>
  * If the {@code Address} class is annotated with {@link Entity}, its database table will have 3
- * columns: {@code street, latitude, longitude}
+ * columns: {@code street}, {@code latitude} and {@code longitude}.
  * <p>
  * If there is a name conflict with the fields of the sub object and the owner object, you can
- * specify a {@link #prefix()} for the items of the sub object. Note that prefix is always applied
+ * specify a {@link #prefix()} for the fields of the sub object. Note that prefix is always applied
  * to sub fields even if they have a {@link ColumnInfo} with a specific {@code name}.
  * <p>
  * If sub fields of an embedded field has {@link PrimaryKey} annotation, they <b>will not</b> be
@@ -77,11 +76,11 @@ public @interface Embedded {
      * <p>
      * For the example above, if we've written:
      * <pre>
-     *   {@literal @}Embedded(prefix = "foo_")
+     *   {@literal @}Embedded(prefix = "loc_")
      *   Coordinates coordinates;
      * </pre>
-     * The column names for {@code latitude} and {@code longitude} will be {@code foo_latitude} and
-     * {@code foo_longitude} respectively.
+     * The column names for {@code latitude} and {@code longitude} will be {@code loc_latitude} and
+     * {@code loc_longitude} respectively.
      * <p>
      * By default, prefix is the empty string.
      *

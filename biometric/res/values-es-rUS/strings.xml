@@ -26,4 +26,6 @@
     <string name="fingerprint_error_user_canceled" msgid="3421037373085129417">"El usuario canceló la operación de huella digital."</string>
     <string name="fingerprint_error_lockout" msgid="1651062876313169162">"Demasiados intentos. Vuelve a intentarlo más tarde."</string>
     <string name="default_error_msg" msgid="7497355367608150274">"Error desconocido"</string>
+    <string name="generic_error_user_canceled" msgid="7474799539658018076">"El usuario canceló la autenticación."</string>
+    <string name="confirm_device_credential_password" msgid="4296851028928624518">"Usar contraseña"</string>
 </resources>

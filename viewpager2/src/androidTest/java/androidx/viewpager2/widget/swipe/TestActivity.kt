@@ -17,18 +17,16 @@
 package androidx.viewpager2.widget.swipe
 
 import android.os.Bundle
+import androidx.testutils.LocaleTestUtils
 import androidx.testutils.RecreatedAppCompatActivity
-import androidx.viewpager2.LocaleTestUtils
 import androidx.viewpager2.test.R
 
-class TestActivity : RecreatedAppCompatActivity() {
+class TestActivity : RecreatedAppCompatActivity(R.layout.activity_test_layout) {
     public override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
         if (intent?.hasExtra(EXTRA_LANGUAGE) == true) {
-            LocaleTestUtils(this).setLocale(intent.getStringExtra(EXTRA_LANGUAGE))
+            LocaleTestUtils(this).setLocale(intent.getStringExtra(EXTRA_LANGUAGE)!!)
         }
-
-        setContentView(R.layout.activity_test_layout)
+        super.onCreate(savedInstanceState)
 
         /** hacky way of configuring this instance from test code */
         onCreateCallback(this)

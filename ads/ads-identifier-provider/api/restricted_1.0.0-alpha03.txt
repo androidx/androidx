@@ -1,0 +1,21 @@
+// Signature format: 3.0
+package androidx.ads.identifier.provider {
+
+  public interface AdvertisingIdProvider {
+    method public String getId();
+    method public boolean isLimitAdTrackingEnabled();
+  }
+
+  public abstract class AdvertisingIdProviderInfo {
+    method public abstract String getPackageName();
+    method public abstract android.content.Intent? getSettingsIntent();
+    method public abstract boolean isHighestPriority();
+  }
+
+  public class AdvertisingIdProviderManager {
+    method public static java.util.List<androidx.ads.identifier.provider.AdvertisingIdProviderInfo!> getAdvertisingIdProviders(android.content.Context);
+    method public static void registerProviderCallable(java.util.concurrent.Callable<androidx.ads.identifier.provider.AdvertisingIdProvider!>);
+  }
+
+}
+

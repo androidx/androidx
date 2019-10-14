@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
+@file:Suppress("DEPRECATION")
+
 package androidx.camera.integration.antelope
 
-import android.annotation.TargetApi
-import android.app.Activity
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.ImageFormat
@@ -27,6 +27,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.Environment
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageProxy
 import androidx.exifinterface.media.ExifInterface
@@ -144,7 +145,7 @@ fun rotateBitmap(original: Bitmap, degrees: Float): Bitmap {
 /**
  * Scale a given Bitmap by scaleFactor
  */
-fun scaleBitmap(activity: Activity, bitmap: Bitmap, scaleFactor: Float): Bitmap {
+fun scaleBitmap(bitmap: Bitmap, scaleFactor: Float): Bitmap {
     val scaledWidth = Math.round(bitmap.width * scaleFactor)
     val scaledHeight = Math.round(bitmap.height * scaleFactor)
 
@@ -154,7 +155,7 @@ fun scaleBitmap(activity: Activity, bitmap: Bitmap, scaleFactor: Float): Bitmap 
 /**
  * Flip a Bitmap horizontal
  */
-fun horizontalFlip(activity: Activity, bitmap: Bitmap): Bitmap {
+fun horizontalFlip(bitmap: Bitmap): Bitmap {
     val matrix = Matrix()
     matrix.preScale(-1.0f, 1.0f)
     return Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true)
@@ -172,9 +173,6 @@ fun generateTimestamp(): String {
  * Actually write a byteArray file to disk. Assume the file is a jpg and use that extension
  */
 fun writeFile(activity: MainActivity, bytes: ByteArray) {
-    val rawFile = File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM),
-        "Antelope" + generateTimestamp() + ".dng")
-
     val jpgFile = File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM),
         File.separatorChar + PHOTOS_DIR + File.separatorChar +
             "Antelope" + generateTimestamp() + ".jpg")
@@ -185,8 +183,10 @@ fun writeFile(activity: MainActivity, bytes: ByteArray) {
     if (!photosDir.exists()) {
         val createSuccess = photosDir.mkdir()
         if (!createSuccess) {
-            Toast.makeText(activity, "DCIM/" + PHOTOS_DIR + " creation failed.",
-                Toast.LENGTH_SHORT).show()
+            activity.runOnUiThread {
+                Toast.makeText(activity, "DCIM/" + PHOTOS_DIR + " creation failed.",
+                    Toast.LENGTH_SHORT).show()
+            }
             logd("Photo storage directory DCIM/" + PHOTOS_DIR + " creation failed!!")
         } else {
             logd("Photo storage directory DCIM/" + PHOTOS_DIR + " did not exist. Created.")
@@ -232,7 +232,7 @@ fun deleteTestPhotos(activity: MainActivity) {
 
     if (photosDir.exists()) {
 
-        for (photo in photosDir.listFiles())
+        for (photo in photosDir.listFiles()!!)
             photo.delete()
 
         // Files are deleted, let media scanner know
@@ -240,7 +240,9 @@ fun deleteTestPhotos(activity: MainActivity) {
         scannerIntent.data = Uri.fromFile(photosDir)
         activity.sendBroadcast(scannerIntent)
 
-        Toast.makeText(activity, "All test photos deleted", Toast.LENGTH_SHORT).show()
+        activity.runOnUiThread {
+            Toast.makeText(activity, "All test photos deleted", Toast.LENGTH_SHORT).show()
+        }
         logd("All photos in storage directory DCIM/" + PHOTOS_DIR + " deleted.")
     }
 }
@@ -250,7 +252,7 @@ fun deleteTestPhotos(activity: MainActivity) {
  *
  * Note: this does not currently work.
  */
-@TargetApi(24)
+@RequiresApi(24)
 fun isHDRPlus(bytes: ByteArray?): Boolean {
     if (24 <= Build.VERSION.SDK_INT) {
         val bytestream = ByteArrayInputStream(bytes)
@@ -275,7 +277,7 @@ class CameraXImageAvailableListener(
     internal val activity: MainActivity,
     internal var params: CameraParams,
     internal val testConfig: TestConfig
-) : ImageCapture.OnImageCapturedListener() {
+) : ImageCapture.OnImageCapturedCallback() {
 
     /** Image was captured successfully */
     override fun onCaptureSuccess(image: ImageProxy?, rotationDegrees: Int) {
@@ -323,8 +325,8 @@ class CameraXImageAvailableListener(
 
     /** Camera X was unable to capture a still image and threw an error */
     override fun onError(
-        useCaseError: ImageCapture.UseCaseError?,
-        message: String?,
+        imageCaptureError: ImageCapture.ImageCaptureError,
+        message: String,
         cause: Throwable?
     ) {
         logd("CameraX ImageCallback onError. Error: " + message)

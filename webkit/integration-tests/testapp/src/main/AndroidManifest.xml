@@ -20,6 +20,7 @@
     tools:ignore="GoogleAppIndexingWarning">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <application
         android:allowBackup="false"
@@ -51,6 +52,26 @@
             android:name=".LoudInterstitialActivity"
             android:exported="true" />
         <activity
+            android:name=".GiantInterstitialActivity"
+            android:exported="true" />
+        <activity
+            android:name=".PerWebViewEnableActivity"
+            android:exported="true" />
+        <activity
+            android:name=".InvisibleActivity"
+            android:exported="true" />
+        <activity
+            android:name=".UnattachedActivity"
+            android:exported="true" />
+        <activity
+            android:name=".CustomInterstitialActivity"
+            android:exported="true" />
+        <activity
+            android:name=".PopupInterstitialActivity" />
+        <activity
+            android:name=".WhitelistActivity"
+            android:exported="true" />
+        <activity
             android:name=".ProxyOverrideActivity"
             android:exported="true" />
         <activity
@@ -61,6 +82,22 @@
             android:exported="true" />
         <activity
             android:name=".AssetLoaderAjaxActivity"
+            android:exported="true" />
+        <activity
+            android:name=".AssetLoaderInternalStorageActivity"
+            android:exported="true" />
+        <activity
+            android:name=".ForceDarkActivity"
+            android:theme="@style/AppDayNightTheme"
+            android:exported="true" />
+        <activity
+            android:name=".MultiProcessEnabledActivity"
+            android:exported="true" />
+        <activity
+            android:name=".TracingControllerActivity"
+            android:exported="true" />
+        <activity
+            android:name=".RendererTerminationActivity"
             android:exported="true" />
     </application>
 </manifest>

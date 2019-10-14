@@ -1,5 +1,6 @@
 import androidx.build.LibraryGroups
 import androidx.build.LibraryVersions
+import androidx.build.Publish
 
 import static androidx.build.dependencies.DependenciesKt.*
 
@@ -12,7 +13,7 @@ dependencies {
     api(project(":media"))
     api(project(":media2:media2-common"))
     api(GUAVA_LISTENABLE_FUTURE)
-    implementation(project(":concurrent:concurrent-futures"))
+    implementation("androidx.concurrent:concurrent-futures:1.0.0")
     implementation("androidx.collection:collection:1.0.0")
     compileOnly(CHECKER_FRAMEWORK)
     // Depend on media2-exoplayer so that the library groupId is set to match media2.
@@ -23,7 +24,7 @@ dependencies {
     androidTestImplementation(ANDROIDX_TEST_RUNNER)
     androidTestImplementation(ANDROIDX_TEST_RULES)
     androidTestImplementation(ESPRESSO_CORE, libs.exclude_for_espresso)
-    androidTestImplementation project(':internal-testutils')
+    androidTestImplementation project(':internal-testutils-runtime')
     annotationProcessor(project(":versionedparcelable-annotation"))
 }
 
@@ -40,12 +41,11 @@ android {
 
 androidx {
     name = "AndroidX media2 player library"
-    publish = true
+    publish = Publish.SNAPSHOT_AND_RELEASE
     mavenVersion = LibraryVersions.MEDIA2_PLAYER
     mavenGroup = LibraryGroups.MEDIA2
     inceptionYear = "2018"
     description = "Media2 Player"
     // TODO: Remove these (b/130838274)
-    failOnUncheckedWarnings = false
     failOnDeprecationWarnings = false
 }

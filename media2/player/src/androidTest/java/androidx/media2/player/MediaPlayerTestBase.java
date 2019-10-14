@@ -18,6 +18,8 @@ package androidx.media2.player;
 
 import static android.content.Context.KEYGUARD_SERVICE;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 
 import android.app.Instrumentation;
@@ -47,6 +49,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 /**
  * Base class for {@link MediaPlayer} tests.
@@ -126,13 +129,13 @@ abstract class MediaPlayerTestBase extends MediaTestBase {
 
     boolean loadResource(int resid) throws Exception {
         try (AssetFileDescriptor afd = mResources.openRawResourceFd(resid)) {
-            mPlayer.setMediaItem(new FileMediaItem.Builder(
+            return mPlayer.setMediaItem(new FileMediaItem.Builder(
                     ParcelFileDescriptor.dup(afd.getFileDescriptor()))
                     .setFileDescriptorOffset(afd.getStartOffset())
                     .setFileDescriptorLength(afd.getLength())
-                    .build());
+                    .build()).get().getResultCode()
+                    == SessionPlayer.PlayerResult.RESULT_SUCCESS;
         }
-        return true;
     }
 
     private void setKeepScreenOn() throws Throwable {
@@ -155,5 +158,18 @@ abstract class MediaPlayerTestBase extends MediaTestBase {
             }
         });
         mInstrumentation.waitForIdleSync();
+    }
+
+    static <T extends SessionPlayer.PlayerResult> void assertFutureSuccess(Future<T> future)
+            throws Exception {
+        assertFutureStateEquals(future, SessionPlayer.PlayerResult.RESULT_SUCCESS);
+    }
+
+    static <T extends SessionPlayer.PlayerResult> void assertFutureStateEquals(Future<T> future,
+            int expectedResultCode) throws Exception {
+        assertNotNull(future);
+        SessionPlayer.PlayerResult result = future.get();
+        assertNotNull(result);
+        assertEquals(expectedResultCode, result.getResultCode());
     }
 }

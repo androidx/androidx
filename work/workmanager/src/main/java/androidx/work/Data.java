@@ -16,6 +16,7 @@
 
 package androidx.work;
 
+import android.annotation.SuppressLint;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -29,9 +30,11 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * A persistable set of key/value pairs which are used as inputs and outputs for
@@ -57,6 +60,7 @@ public final class Data {
      * The maximum number of bytes for Data when it is serialized (converted to a byte array).
      * Please see the class-level Javadoc for more information.
      */
+    @SuppressLint("MinMaxConstant")
     public static final int MAX_DATA_BYTES = 10 * 1024;    // 10KB
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
@@ -330,6 +334,35 @@ public final class Data {
     }
 
     /**
+     * Converts this Data to a byte array suitable for sending to other processes in your
+     * application.  There are no versioning guarantees with this byte array, so you should not
+     * use this for IPCs between applications or persistence.
+     *
+     * @return The byte array representation of the input
+     * @throws IllegalStateException if the serialized payload is bigger than
+     *                               {@link #MAX_DATA_BYTES}
+     */
+    @NonNull
+    public byte[] toByteArray() {
+        return Data.toByteArray(this);
+    }
+
+     /**
+     * Returns {@code true} if the instance of {@link Data} has a non-null value corresponding to
+     * the given {@link String} key with the expected type of {@code T}.
+     *
+     * @param key   The {@link String} key
+     * @param klass The {@link Class} container for the expected type
+     * @param <T>   The expected type
+     * @return {@code true} If the instance of {@link Data} has a value for the given
+     * {@link String} key with the expected type.
+     */
+    public <T> boolean hasKeyWithValueOfType(@NonNull String key, @NonNull Class<T> klass) {
+        Object value = mValues.get(key);
+        return value != null && klass.isAssignableFrom(value.getClass());
+    }
+
+    /**
      * @return The number of elements in this Data object.
      * @hide
      */
@@ -345,12 +378,12 @@ public final class Data {
      * @param data The {@link Data} object to convert
      * @return The byte array representation of the input
      * @throws IllegalStateException if the serialized payload is bigger than
-     *         {@link #MAX_DATA_BYTES}
+     *                               {@link #MAX_DATA_BYTES}
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @TypeConverter
-    public static @NonNull byte[] toByteArray(@NonNull Data data) throws IllegalStateException {
+    public static @NonNull byte[] toByteArray(@NonNull Data data) {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         ObjectOutputStream objectOutputStream = null;
         try {
@@ -394,11 +427,9 @@ public final class Data {
      * @param bytes The byte array representation to convert
      * @return An {@link Data} object built from the input
      * @throws IllegalStateException if bytes is bigger than {@link #MAX_DATA_BYTES}
-     * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @TypeConverter
-    public static @NonNull Data fromByteArray(@NonNull byte[] bytes) throws IllegalStateException {
+    public static @NonNull Data fromByteArray(@NonNull byte[] bytes) {
         if (bytes.length > MAX_DATA_BYTES) {
             throw new IllegalStateException(
                     "Data cannot occupy more than " + MAX_DATA_BYTES + " bytes when serialized");
@@ -439,13 +470,55 @@ public final class Data {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
+
         Data other = (Data) o;
-        return mValues.equals(other.mValues);
+        Set<String> keys = mValues.keySet();
+        if (!keys.equals(other.mValues.keySet())) {
+            return false;
+        }
+
+        for (String key : keys) {
+            Object value = mValues.get(key);
+            Object otherValue = other.mValues.get(key);
+            boolean equal;
+            if (value == null || otherValue == null) {
+                equal = value == otherValue;
+            } else if (value instanceof Object[] && otherValue instanceof Object[]) {
+                equal = Arrays.deepEquals((Object[]) value, (Object[]) otherValue);
+            } else {
+                equal = value.equals(otherValue);
+            }
+
+            if (!equal) {
+                return false;
+            }
+        }
+        return true;
     }
 
     @Override
     public int hashCode() {
         return 31 * mValues.hashCode();
+    }
+
+    @NonNull
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder("Data {");
+        if (!mValues.isEmpty()) {
+            for (String key : mValues.keySet()) {
+                sb.append(key).append(" : ");
+                Object value = mValues.get(key);
+                if (value instanceof Object[]) {
+                    sb.append(Arrays.toString((Object[]) value));
+                } else {
+                    sb.append(value);
+                }
+                sb.append(", ");
+            }
+        }
+        sb.append("}");
+        return sb.toString();
     }
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
@@ -723,7 +796,7 @@ public final class Data {
             if (value == null) {
                 mValues.put(key, null);
             } else {
-                Class valueType = value.getClass();
+                Class<?> valueType = value.getClass();
                 if (valueType == Boolean.class
                         || valueType == Byte.class
                         || valueType == Integer.class

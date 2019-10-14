@@ -1,0 +1,21 @@
+// Signature format: 3.0
+package androidx.ads.identifier {
+
+  public class AdvertisingIdClient {
+    method public static com.google.common.util.concurrent.ListenableFuture<androidx.ads.identifier.AdvertisingIdInfo!> getAdvertisingIdInfo(android.content.Context);
+    method public static boolean isAdvertisingIdProviderAvailable(android.content.Context);
+  }
+
+  public abstract class AdvertisingIdInfo {
+    method public abstract String getId();
+    method public abstract String getProviderPackageName();
+    method public abstract boolean isLimitAdTrackingEnabled();
+  }
+
+  public class AdvertisingIdNotAvailableException extends java.lang.Exception {
+    ctor public AdvertisingIdNotAvailableException(String);
+    ctor public AdvertisingIdNotAvailableException(String, Throwable);
+  }
+
+}
+

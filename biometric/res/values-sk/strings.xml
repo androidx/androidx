@@ -26,4 +26,6 @@
     <string name="fingerprint_error_user_canceled" msgid="3421037373085129417">"Overenie odtlačku prsta zrušil používateľ."</string>
     <string name="fingerprint_error_lockout" msgid="1651062876313169162">"Príliš veľa pokusov. Skúste to znova neskôr."</string>
     <string name="default_error_msg" msgid="7497355367608150274">"Neznáma chyba"</string>
+    <string name="generic_error_user_canceled" msgid="7474799539658018076">"Overenie zrušil používateľ."</string>
+    <string name="confirm_device_credential_password" msgid="4296851028928624518">"Použiť heslo"</string>
 </resources>

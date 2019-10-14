@@ -1,0 +1,774 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="5" by="lint 3.5.0-beta04" client="gradle" variant="debug" version="3.5.0-beta04">
+
+    <issue
+        id="LambdaLast"
+        message="Functional interface parameters (such as parameter 1, &quot;executor&quot;, in androidx.media2.session.MediaBrowser.Builder.setControllerCallback) should be last to improve Kotlin interoperability; see https://kotlinlang.org/docs/reference/java-interop.html#sam-conversions"
+        errorLine1="                @NonNull BrowserCallback callback) {"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/session/MediaBrowser.java"
+            line="327"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="LambdaLast"
+        message="Functional interface parameters (such as parameter 1, &quot;executor&quot;, in androidx.media2.session.MediaController.registerExtraCallback) should be last to improve Kotlin interoperability; see https://kotlinlang.org/docs/reference/java-interop.html#sam-conversions"
+        errorLine1="            @NonNull ControllerCallback callback) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/session/MediaController.java"
+            line="1216"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="LambdaLast"
+        message="Functional interface parameters (such as parameter 1, &quot;executor&quot;, in androidx.media2.session.MediaController.Builder.setControllerCallback) should be last to improve Kotlin interoperability; see https://kotlinlang.org/docs/reference/java-interop.html#sam-conversions"
+        errorLine1="                @NonNull ControllerCallback callback) {"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/session/MediaController.java"
+            line="1452"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="LambdaLast"
+        message="Functional interface parameters (such as parameter 3, &quot;callbackExecutor&quot;, in androidx.media2.session.MediaLibraryService.MediaLibrarySession.Builder.Builder) should be last to improve Kotlin interoperability; see https://kotlinlang.org/docs/reference/java-interop.html#sam-conversions"
+        errorLine1="                    @NonNull MediaLibrarySessionCallback callback) {"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/session/MediaLibraryService.java"
+            line="272"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="LambdaLast"
+        message="Functional interface parameters (such as parameter 1, &quot;executor&quot;, in androidx.media2.session.MediaSession.Builder.setSessionCallback) should be last to improve Kotlin interoperability; see https://kotlinlang.org/docs/reference/java-interop.html#sam-conversions"
+        errorLine1="                @NonNull SessionCallback callback) {"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/session/MediaSession.java"
+            line="848"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public ListenableFuture&lt;SessionResult> setSurface(@Nullable Surface surface) {"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/session/MediaController.java"
+            line="1114"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void setTimeDiff(Long timeDiff) {"
+        errorLine2="                            ~~~~">
+        <location
+            file="src/main/java/androidx/media2/session/MediaController.java"
+            line="1202"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void notifyControllerCallback(final ControllerCallbackRunnable callbackRunnable) {"
+        errorLine2="                                               ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/session/MediaController.java"
+            line="1307"
+            column="48"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public IBinder onBind(Intent intent) {"
+        errorLine2="           ~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/session/MediaLibraryService.java"
+            line="446"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public IBinder onBind(Intent intent) {"
+        errorLine2="                          ~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/session/MediaLibraryService.java"
+            line="446"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public MediaNotificationHandler(MediaSessionService service) {"
+        errorLine2="                                    ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/session/MediaNotificationHandler.java"
+            line="71"
+            column="37"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void onPlayerStateChanged(MediaSession session,"
+        errorLine2="                                     ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/session/MediaNotificationHandler.java"
+            line="101"
+            column="38"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void onSessionClosed(MediaSession session) {"
+        errorLine2="                                ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/session/MediaNotificationHandler.java"
+            line="126"
+            column="33"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public MediaSessionService.MediaNotification onUpdateNotification(MediaSession session) {"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/session/MediaNotificationHandler.java"
+            line="147"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public MediaSessionService.MediaNotification onUpdateNotification(MediaSession session) {"
+        errorLine2="                                                                      ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/session/MediaNotificationHandler.java"
+            line="147"
+            column="71"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public MediaSessionCompat getSessionCompat() {"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/session/MediaSession.java"
+            line="383"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public int onStartCommand(Intent intent, int flags, int startId) {"
+        errorLine2="                              ~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/session/MediaSessionService.java"
+            line="264"
+            column="31"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static MediaBrowserCompat.MediaItem convertToMediaItem(MediaItem item2) {"
+        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/session/MediaUtils.java"
+            line="135"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static MediaBrowserCompat.MediaItem convertToMediaItem(MediaItem item2) {"
+        errorLine2="                                                                  ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/session/MediaUtils.java"
+            line="135"
+            column="67"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static List&lt;MediaBrowserCompat.MediaItem> convertToMediaItemList(List&lt;MediaItem> items) {"
+        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/session/MediaUtils.java"
+            line="185"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static List&lt;MediaBrowserCompat.MediaItem> convertToMediaItemList(List&lt;MediaItem> items) {"
+        errorLine2="                                                                            ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/session/MediaUtils.java"
+            line="185"
+            column="77"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static MediaItem convertToMediaItem(MediaBrowserCompat.MediaItem item) {"
+        errorLine2="                  ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/session/MediaUtils.java"
+            line="202"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static MediaItem convertToMediaItem(MediaBrowserCompat.MediaItem item) {"
+        errorLine2="                                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/session/MediaUtils.java"
+            line="202"
+            column="48"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static MediaItem convertToMediaItem(QueueItem item) {"
+        errorLine2="                  ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/session/MediaUtils.java"
+            line="216"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static MediaItem convertToMediaItem(QueueItem item) {"
+        errorLine2="                                               ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/session/MediaUtils.java"
+            line="216"
+            column="48"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static MediaItem convertToMediaItem(MediaMetadataCompat metadataCompat) {"
+        errorLine2="                  ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/session/MediaUtils.java"
+            line="232"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static MediaItem convertToMediaItem(MediaMetadataCompat metadataCompat) {"
+        errorLine2="                                               ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/session/MediaUtils.java"
+            line="232"
+            column="48"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static MediaItem convertToMediaItem(MediaDescriptionCompat descriptionCompat) {"
+        errorLine2="                  ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/session/MediaUtils.java"
+            line="267"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static MediaItem convertToMediaItem(MediaDescriptionCompat descriptionCompat) {"
+        errorLine2="                                               ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/session/MediaUtils.java"
+            line="267"
+            column="48"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static List&lt;MediaItem> convertMediaItemListToMediaItemList("
+        errorLine2="                  ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/session/MediaUtils.java"
+            line="278"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            List&lt;MediaBrowserCompat.MediaItem> items) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/session/MediaUtils.java"
+            line="279"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static List&lt;MediaItem> convertQueueItemListToMediaItemList(List&lt;QueueItem> items) {"
+        errorLine2="                  ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/session/MediaUtils.java"
+            line="293"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static List&lt;MediaItem> convertQueueItemListToMediaItemList(List&lt;QueueItem> items) {"
+        errorLine2="                                                                      ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/session/MediaUtils.java"
+            line="293"
+            column="71"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static MediaDescriptionCompat createMediaDescriptionCompat(String mediaId) {"
+        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/session/MediaUtils.java"
+            line="310"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static MediaDescriptionCompat createMediaDescriptionCompat(String mediaId) {"
+        errorLine2="                                                                      ~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/session/MediaUtils.java"
+            line="310"
+            column="71"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static List&lt;QueueItem> convertToQueueItemList(List&lt;MediaItem> items) {"
+        errorLine2="                  ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/session/MediaUtils.java"
+            line="321"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static List&lt;QueueItem> convertToQueueItemList(List&lt;MediaItem> items) {"
+        errorLine2="                                                         ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/session/MediaUtils.java"
+            line="321"
+            column="58"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static List&lt;MediaItem> convertParcelImplListSliceToMediaItemList("
+        errorLine2="                  ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/session/MediaUtils.java"
+            line="339"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            ParcelImplListSlice listSlice) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/session/MediaUtils.java"
+            line="340"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static &lt;T extends Parcelable> List&lt;T> truncateListBySize(final List&lt;T> list,"
+        errorLine2="                                         ~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/session/MediaUtils.java"
+            line="360"
+            column="42"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static &lt;T extends Parcelable> List&lt;T> truncateListBySize(final List&lt;T> list,"
+        errorLine2="                                                                          ~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/session/MediaUtils.java"
+            line="360"
+            column="75"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static MediaMetadata convertToMediaMetadata(CharSequence queueTitle) {"
+        errorLine2="                  ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/session/MediaUtils.java"
+            line="452"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static MediaMetadata convertToMediaMetadata(CharSequence queueTitle) {"
+        errorLine2="                                                       ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/session/MediaUtils.java"
+            line="452"
+            column="56"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static MediaMetadataCompat convertToMediaMetadataCompat(MediaMetadata metadata) {"
+        errorLine2="                  ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/session/MediaUtils.java"
+            line="469"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static MediaMetadataCompat convertToMediaMetadataCompat(MediaMetadata metadata) {"
+        errorLine2="                                                                   ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/session/MediaUtils.java"
+            line="469"
+            column="68"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static Rating convertToRating(RatingCompat ratingCompat) {"
+        errorLine2="                  ~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/session/MediaUtils.java"
+            line="504"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static Rating convertToRating(RatingCompat ratingCompat) {"
+        errorLine2="                                         ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/session/MediaUtils.java"
+            line="504"
+            column="42"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static RatingCompat convertToRatingCompat(Rating rating) {"
+        errorLine2="                  ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/session/MediaUtils.java"
+            line="540"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static RatingCompat convertToRatingCompat(Rating rating) {"
+        errorLine2="                                                     ~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/session/MediaUtils.java"
+            line="540"
+            column="54"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static List&lt;ParcelImpl> convertCommandButtonListToParcelImplList("
+        errorLine2="                  ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/session/MediaUtils.java"
+            line="570"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            List&lt;CommandButton> commandButtonList) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/session/MediaUtils.java"
+            line="571"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static ParcelImplListSlice convertMediaItemListToParcelImplListSlice("
+        errorLine2="                  ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/session/MediaUtils.java"
+            line="586"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            List&lt;MediaItem> mediaItemList) {"
+        errorLine2="            ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/session/MediaUtils.java"
+            line="587"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static int convertToPlayerState(PlaybackStateCompat state) {"
+        errorLine2="                                           ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/session/MediaUtils.java"
+            line="628"
+            column="44"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static MediaController.PlaybackInfo toPlaybackInfo2("
+        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/session/MediaUtils.java"
+            line="672"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            MediaControllerCompat.PlaybackInfo info) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/session/MediaUtils.java"
+            line="673"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static boolean isUnparcelableBundle(Bundle bundle) {"
+        errorLine2="                                               ~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/session/MediaUtils.java"
+            line="683"
+            column="48"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static void keepUnparcelableBundlesOnly(final List&lt;Bundle> bundles) {"
+        errorLine2="                                                         ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/session/MediaUtils.java"
+            line="699"
+            column="58"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static LibraryParams convertToLibraryParams(Context context, Bundle legacyBundle) {"
+        errorLine2="                  ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/session/MediaUtils.java"
+            line="737"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static LibraryParams convertToLibraryParams(Context context, Bundle legacyBundle) {"
+        errorLine2="                                                       ~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/session/MediaUtils.java"
+            line="737"
+            column="56"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static LibraryParams convertToLibraryParams(Context context, Bundle legacyBundle) {"
+        errorLine2="                                                                        ~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/session/MediaUtils.java"
+            line="737"
+            column="73"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static Bundle convertToRootHints(LibraryParams params) {"
+        errorLine2="                  ~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/session/MediaUtils.java"
+            line="760"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static Bundle convertToRootHints(LibraryParams params) {"
+        errorLine2="                                            ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/session/MediaUtils.java"
+            line="760"
+            column="45"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static &lt;T> List&lt;T> removeNullElements(@Nullable List&lt;T> list) {"
+        errorLine2="                      ~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/session/MediaUtils.java"
+            line="778"
+            column="23"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            PlaybackStateCompat state) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/session/MediaUtils.java"
+            line="805"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static List&lt;CommandButton> convertToCustomLayout(PlaybackStateCompat state) {"
+        errorLine2="                                                            ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/session/MediaUtils.java"
+            line="835"
+            column="61"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public ComponentName getComponentName() {"
+        errorLine2="           ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/session/SessionToken.java"
+            line="217"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public Object getBinder() {"
+        errorLine2="           ~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/session/SessionToken.java"
+            line="252"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        void onSessionTokenCreated(MediaSessionCompat.Token token, SessionToken token2);"
+        errorLine2="                                   ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/session/SessionToken.java"
+            line="442"
+            column="36"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        void onSessionTokenCreated(MediaSessionCompat.Token token, SessionToken token2);"
+        errorLine2="                                                                   ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/session/SessionToken.java"
+            line="442"
+            column="68"/>
+    </issue>
+
+</issues>

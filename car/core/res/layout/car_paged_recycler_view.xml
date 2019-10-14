@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ Copyright (C) 2017 The Android Open Source Project
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,8 +13,7 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-<merge
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -30,7 +28,15 @@
      view can then be used when displaying preferences.  -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recycler_view"
-        android:layout_gravity="center_vertical"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        android:layout_gravity="center_vertical" />
+
+    <!-- Divider that, when enabled, is rendered between the scrollbar and RecyclerView. -->
+    <View
+        android:id="@+id/divider"
+        android:layout_width="@dimen/car_vertical_line_divider_width"
+        android:layout_height="match_parent"
+        android:background="@color/car_list_divider"
+        android:visibility="gone"/>
 </merge>

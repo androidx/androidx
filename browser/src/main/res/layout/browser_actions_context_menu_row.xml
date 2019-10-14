@@ -28,15 +28,16 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center_vertical"
         android:layout_marginStart="10dp"
+        android:layout_marginLeft="10dp"
         android:layout_weight="1"
         android:textSize="15sp"
         android:textColor="@color/browser_actions_text_color" />
     <ImageView
-            android:id="@+id/browser_actions_menu_item_icon"
-            android:layout_width="20dp"
-            android:layout_height="match_parent"
-            android:paddingTop="8dp"
-            android:paddingBottom="8dp"
-            android:scaleType="centerInside"
-            android:contentDescription="@null" />
+        android:id="@+id/browser_actions_menu_item_icon"
+        android:layout_width="20dp"
+        android:layout_height="match_parent"
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp"
+        android:scaleType="centerInside"
+        android:contentDescription="@null" />
 </LinearLayout>

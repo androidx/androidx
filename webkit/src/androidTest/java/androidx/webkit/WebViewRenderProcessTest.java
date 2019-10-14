@@ -35,47 +35,32 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.util.concurrent.Callable;
-
 @MediumTest
 @RunWith(AndroidJUnit4.class)
 public class WebViewRenderProcessTest {
     private boolean terminateRenderProcessOnUiThread(
             final WebViewRenderProcess renderer) {
-        return WebkitUtils.onMainThreadSync(new Callable<Boolean>() {
-            @Override
-            public Boolean call() {
-                return renderer.terminate();
-            }
-        });
+        return WebkitUtils.onMainThreadSync(() -> renderer.terminate());
     }
 
     WebViewRenderProcess getRenderProcessOnUiThread(final WebView webView) {
-        return WebkitUtils.onMainThreadSync(new Callable<WebViewRenderProcess>() {
-            @Override
-            public WebViewRenderProcess call() {
-                return WebViewCompat.getWebViewRenderProcess(webView);
-            }
-        });
+        return WebkitUtils.onMainThreadSync(() -> WebViewCompat.getWebViewRenderProcess(webView));
     }
 
     private ListenableFuture<WebViewRenderProcess> startAndGetRenderProcess(
             final WebView webView) throws Throwable {
         final ResolvableFuture<WebViewRenderProcess> future = ResolvableFuture.create();
 
-        WebkitUtils.onMainThread(new Runnable() {
-            @Override
-            public void run() {
-                webView.setWebViewClient(new WebViewClient() {
-                    @Override
-                    public void onPageFinished(WebView view, String url) {
-                        WebViewRenderProcess result =
-                                WebViewCompat.getWebViewRenderProcess(webView);
-                        future.set(result);
-                    }
-                });
-                webView.loadUrl("about:blank");
-            }
+        WebkitUtils.onMainThread(() -> {
+            webView.setWebViewClient(new WebViewClient() {
+                @Override
+                public void onPageFinished(WebView view, String url) {
+                    WebViewRenderProcess result =
+                            WebViewCompat.getWebViewRenderProcess(webView);
+                    future.set(result);
+                }
+            });
+            webView.loadUrl("about:blank");
         });
 
         return future;
@@ -84,20 +69,17 @@ public class WebViewRenderProcessTest {
     ListenableFuture<Boolean> catchRenderProcessTermination(final WebView webView) {
         final ResolvableFuture<Boolean> future = ResolvableFuture.create();
 
-        WebkitUtils.onMainThread(new Runnable() {
-            @Override
-            public void run() {
-                webView.setWebViewClient(new WebViewClient() {
-                    @Override
-                    public boolean onRenderProcessGone(
-                            WebView view,
-                            RenderProcessGoneDetail detail) {
-                        view.destroy();
-                        future.set(true);
-                        return true;
-                    }
-                });
-            }
+        WebkitUtils.onMainThread(() -> {
+            webView.setWebViewClient(new WebViewClient() {
+                @Override
+                public boolean onRenderProcessGone(
+                        WebView view,
+                        RenderProcessGoneDetail detail) {
+                    view.destroy();
+                    future.set(true);
+                    return true;
+                }
+            });
         });
 
         return future;

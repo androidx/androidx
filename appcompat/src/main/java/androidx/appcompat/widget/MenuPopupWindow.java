@@ -33,6 +33,7 @@ import android.widget.ListAdapter;
 import android.widget.PopupWindow;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.appcompat.view.menu.ListMenuItemView;
 import androidx.appcompat.view.menu.MenuAdapter;
@@ -57,8 +58,10 @@ public class MenuPopupWindow extends ListPopupWindow implements MenuItemHoverLis
 
     static {
         try {
-            sSetTouchModalMethod = PopupWindow.class.getDeclaredMethod(
-                    "setTouchModal", boolean.class);
+            if (Build.VERSION.SDK_INT <= 28) {
+                sSetTouchModalMethod = PopupWindow.class.getDeclaredMethod(
+                        "setTouchModal", boolean.class);
+            }
         } catch (NoSuchMethodException e) {
             Log.i(TAG, "Could not find method setTouchModal() on PopupWindow. Oh well.");
         }
@@ -66,10 +69,12 @@ public class MenuPopupWindow extends ListPopupWindow implements MenuItemHoverLis
 
     private MenuItemHoverListener mHoverListener;
 
-    public MenuPopupWindow(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
+    public MenuPopupWindow(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr,
+            int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
     }
 
+    @NonNull
     @Override
     DropDownListView createDropDownListView(Context context, boolean hijackFocus) {
         MenuDropDownListView view = new MenuDropDownListView(context, hijackFocus);
@@ -98,12 +103,16 @@ public class MenuPopupWindow extends ListPopupWindow implements MenuItemHoverLis
      * other windows behind it.
      */
     public void setTouchModal(final boolean touchModal) {
-        if (sSetTouchModalMethod != null) {
-            try {
-                sSetTouchModalMethod.invoke(mPopup, touchModal);
-            } catch (Exception e) {
-                Log.i(TAG, "Could not invoke setTouchModal() on PopupWindow. Oh well.");
+        if (Build.VERSION.SDK_INT <= 28) {
+            if (sSetTouchModalMethod != null) {
+                try {
+                    sSetTouchModalMethod.invoke(mPopup, touchModal);
+                } catch (Exception e) {
+                    Log.i(TAG, "Could not invoke setTouchModal() on PopupWindow. Oh well.");
+                }
             }
+        } else {
+            mPopup.setTouchModal(touchModal);
         }
     }
 

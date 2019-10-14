@@ -68,7 +68,7 @@ public abstract class ConstraintController<T> implements ConstraintListener<T> {
      *
      * @param callback The callback to inform about constraint met/unmet states
      */
-    public void setCallback(OnConstraintUpdatedCallback callback) {
+    public void setCallback(@Nullable OnConstraintUpdatedCallback callback) {
         if (mCallback != callback) {
             mCallback = callback;
             updateCallback();
@@ -84,7 +84,7 @@ public abstract class ConstraintController<T> implements ConstraintListener<T> {
      *
      * @param workSpecs A list of {@link WorkSpec}s to monitor constraints for
      */
-    public void replace(@NonNull List<WorkSpec> workSpecs) {
+    public void replace(@NonNull Iterable<WorkSpec> workSpecs) {
         mMatchingWorkSpecIds.clear();
 
         for (WorkSpec workSpec : workSpecs) {

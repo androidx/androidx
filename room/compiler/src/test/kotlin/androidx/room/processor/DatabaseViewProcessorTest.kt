@@ -85,7 +85,7 @@ class DatabaseViewProcessorTest {
             assertThat(view.query.resultInfo).isNotNull()
             val resultInfo = view.query.resultInfo!!
             assertThat(resultInfo.columns).hasSize(2)
-            assertThat(resultInfo.columns).containsAllOf(
+            assertThat(resultInfo.columns).containsAtLeast(
                     ColumnInfo("id", SQLTypeAffinity.INTEGER),
                     ColumnInfo("name", SQLTypeAffinity.TEXT))
             assertThat(view.viewName).isEqualTo("MyView")
@@ -180,12 +180,10 @@ class DatabaseViewProcessorTest {
         input: String,
         jfos: List<JavaFileObject> = ENTITIES,
         verify: Boolean = true,
-        classLoader: ClassLoader = javaClass.classLoader,
         handler: (view: DatabaseView, invocation: TestInvocation) -> Unit
     ): CompileTester {
         return Truth.assertAbout(JavaSourcesSubjectFactory.javaSources())
                 .that(jfos + JavaFileObjects.forSourceString(name, DATABASE_PREFIX + input))
-                .withClasspathFrom(classLoader)
                 .processedWith(TestProcessor.builder()
                         .forAnnotations(
                                 androidx.room.DatabaseView::class,

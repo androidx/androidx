@@ -14,13 +14,18 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:orientation="vertical"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent">
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/framelayout"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
 
-    <androidx.media2.widget.VideoView
-            android:id="@+id/videoview"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"/>
-</LinearLayout>
+    <SurfaceView
+        android:id="@+id/surfaceview"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+    <androidx.media2.widget.MediaControlView
+        android:id="@+id/mediacontrolview"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+</FrameLayout>

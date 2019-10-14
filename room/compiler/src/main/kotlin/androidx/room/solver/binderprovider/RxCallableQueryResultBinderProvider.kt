@@ -26,9 +26,11 @@ import androidx.room.solver.query.result.QueryResultBinder
 import androidx.room.solver.query.result.RxCallableQueryResultBinder
 import javax.lang.model.type.DeclaredType
 
-sealed class RxCallableQueryResultBinderProvider(val context: Context,
-                                                 val rxType: RxCallableQueryResultBinder.RxType)
-    : QueryResultBinderProvider {
+sealed class RxCallableQueryResultBinderProvider(
+    val context: Context,
+    val rxType: RxCallableQueryResultBinder.RxType
+) :
+    QueryResultBinderProvider {
     private val hasRxJava2Artifact by lazy {
         context.processingEnv.elementUtils
                 .getTypeElement(RoomRxJava2TypeNames.RX_ROOM.toString()) != null
@@ -53,8 +55,8 @@ sealed class RxCallableQueryResultBinderProvider(val context: Context,
     }
 }
 
-class RxSingleQueryResultBinderProvider(context: Context)
-    : RxCallableQueryResultBinderProvider(context, RxCallableQueryResultBinder.RxType.SINGLE)
+class RxSingleQueryResultBinderProvider(context: Context) :
+    RxCallableQueryResultBinderProvider(context, RxCallableQueryResultBinder.RxType.SINGLE)
 
-class RxMaybeQueryResultBinderProvider(context: Context)
-    : RxCallableQueryResultBinderProvider(context, RxCallableQueryResultBinder.RxType.MAYBE)
+class RxMaybeQueryResultBinderProvider(context: Context) :
+    RxCallableQueryResultBinderProvider(context, RxCallableQueryResultBinder.RxType.MAYBE)

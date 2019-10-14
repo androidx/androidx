@@ -63,7 +63,7 @@ public class ToolbarFragmentPagerMenu extends AppCompatActivity {
         private final List<Fragment> mFragments;
 
         public PagerAdapter(FragmentManager fm, Fragment... fragments) {
-            super(fm, RESUME_ONLY_CURRENT_FRAGMENT);
+            super(fm, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT);
 
             mFragments = new ArrayList<Fragment>();
             for (Fragment fragment : fragments) {

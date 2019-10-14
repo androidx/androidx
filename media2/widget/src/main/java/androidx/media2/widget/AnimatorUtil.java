@@ -35,4 +35,8 @@ class AnimatorUtil {
         }
         return set;
     }
+
+    private AnimatorUtil() {
+    }
+
 }

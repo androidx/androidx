@@ -86,7 +86,16 @@ public final class SliceLiveData {
      * this method your app must have the permission to the slice Uri.
      */
     public static @NonNull LiveData<Slice> fromUri(@NonNull Context context, @NonNull Uri uri) {
-        return new SliceLiveDataImpl(context.getApplicationContext(), uri);
+        return new SliceLiveDataImpl(context.getApplicationContext(), uri, null);
+    }
+
+    /**
+     * Produces a {@link LiveData} that tracks a Slice for a given Uri. To use
+     * this method your app must have the permission to the slice Uri.
+     */
+    public static @NonNull LiveData<Slice> fromUri(
+            @NonNull Context context, @NonNull Uri uri, @Nullable OnErrorListener listener) {
+        return new SliceLiveDataImpl(context.getApplicationContext(), uri, listener);
     }
 
     /**
@@ -95,7 +104,16 @@ public final class SliceLiveData {
      */
     public static @NonNull LiveData<Slice> fromIntent(@NonNull Context context,
             @NonNull Intent intent) {
-        return new SliceLiveDataImpl(context.getApplicationContext(), intent);
+        return new SliceLiveDataImpl(context.getApplicationContext(), intent, null);
+    }
+
+    /**
+     * Produces a {@link LiveData} that tracks a Slice for a given Intent. To use
+     * this method your app must have the permission to the slice Uri.
+     */
+    public static @NonNull LiveData<Slice> fromIntent(@NonNull Context context,
+            @NonNull Intent intent, @Nullable OnErrorListener listener) {
+        return new SliceLiveDataImpl(context.getApplicationContext(), intent, listener);
     }
 
     /**
@@ -338,21 +356,23 @@ public final class SliceLiveData {
     private static class SliceLiveDataImpl extends LiveData<Slice> {
         final Intent mIntent;
         final SliceViewManager mSliceViewManager;
+        final OnErrorListener mListener;
         Uri mUri;
 
-        SliceLiveDataImpl(Context context, Uri uri) {
+        SliceLiveDataImpl(Context context, Uri uri, OnErrorListener listener) {
             super();
             mSliceViewManager = SliceViewManager.getInstance(context);
             mUri = uri;
             mIntent = null;
-            // TODO: Check if uri points at a Slice?
+            mListener = listener;
         }
 
-        SliceLiveDataImpl(Context context, Intent intent) {
+        SliceLiveDataImpl(Context context, Intent intent, OnErrorListener listener) {
             super();
             mSliceViewManager = SliceViewManager.getInstance(context);
             mUri = null;
             mIntent = intent;
+            mListener = listener;
         }
 
         @Override
@@ -376,25 +396,39 @@ public final class SliceLiveData {
                 try {
                     Slice s = mUri != null ? mSliceViewManager.bindSlice(mUri)
                             : mSliceViewManager.bindSlice(mIntent);
-                    if (mUri == null && s != null) {
+                    if (s == null) {
+                        onSliceError(OnErrorListener.ERROR_SLICE_NO_LONGER_PRESENT, null);
+                        return;
+                    }
+                    if (mUri == null) {
                         mUri = s.getUri();
                         mSliceViewManager.registerSliceCallback(mUri, mSliceCallback);
                     }
                     postValue(s);
+                } catch (IllegalArgumentException e) {
+                    onSliceError(OnErrorListener.ERROR_INVALID_INPUT, e);
                 } catch (Exception e) {
-                    Log.e(TAG, "Error binding slice", e);
-                    postValue(null);
+                    onSliceError(OnErrorListener.ERROR_UNKNOWN, e);
                 }
             }
         };
 
-        final SliceViewManager.SliceCallback mSliceCallback =
-                new SliceViewManager.SliceCallback() {
-            @Override
-            public void onSliceUpdated(@NonNull Slice s) {
-                postValue(s);
+        final SliceViewManager.SliceCallback mSliceCallback = this::postValue;
+
+        void onSliceError(int error, Throwable t) {
+            if (mUri != null) {
+                mSliceViewManager.unregisterSliceCallback(mUri, mSliceCallback);
             }
-        };
+            if (mListener != null) {
+                mListener.onSliceError(error, t);
+                return;
+            }
+            if (t != null) {
+                Log.e(TAG, "Error binding slice", t);
+            } else {
+                Log.e(TAG, "Error binding slice, error code: " + error);
+            }
+        }
     }
 
     private SliceLiveData() {

@@ -23,7 +23,7 @@ import android.view.View;
 import android.widget.TextView;
 
 import androidx.annotation.Nullable;
-import androidx.test.espresso.Espresso;
+import androidx.test.espresso.IdlingRegistry;
 import androidx.test.espresso.IdlingResource;
 import androidx.test.espresso.UiController;
 import androidx.test.espresso.ViewAction;
@@ -124,14 +124,14 @@ public class ViewPagerActions {
                 try {
                     // Register our listener as idling resource so that Espresso waits until the
                     // wrapped action results in the view pager getting to the STATE_IDLE state
-                    Espresso.registerIdlingResources(customListener);
+                    IdlingRegistry.getInstance().register(customListener);
                     baseAction.perform(uiController, view);
                     customListener.mNeedsIdle = true;
                     uiController.loopMainThreadUntilIdle();
                     customListener.mNeedsIdle = false;
                 } finally {
                     // Unregister our idling resource
-                    Espresso.unregisterIdlingResources(customListener);
+                    IdlingRegistry.getInstance().unregister(customListener);
                     // And remove our tracker listener from ViewPager
                     viewPager.removeOnPageChangeListener(customListener);
                 }
@@ -383,6 +383,8 @@ public class ViewPagerActions {
                         }
                     }
                 },
-                Press.FINGER);
+                Press.FINGER,
+                0,
+                0);
     }
 }

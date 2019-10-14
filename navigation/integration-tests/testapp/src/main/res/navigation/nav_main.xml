@@ -32,6 +32,7 @@
     </navigation>
     <dialog
         android:id="@+id/learn_more"
+        android:label="This Should Not Show"
         android:name="androidx.navigation.testapp.LearnMoreDialogFragment">
         <argument android:name="myarg" android:defaultValue="@null" />
         <action
@@ -42,6 +43,7 @@
               android:label="@string/android"
               android:name="androidx.navigation.testapp.AndroidFragment">
         <argument android:name="myarg" android:defaultValue="Android!" />
+        <!-- Handle the 'More information' link on www.example.com -->
         <deepLink app:uri="www.iana.org/domains/{myarg}"/>
         <action android:id="@+id/next" app:destination="@+id/first_screen"/>
     </fragment>

@@ -20,11 +20,5 @@ dependencies {
     implementation build_libs.lint.core
     implementation build_libs.lint.api
     implementation build_libs.kotlin.stdlib
-    testImplementation build_libs.lint.tests
     api("androidx.annotation:annotation:1.0.0")
-}
-jar {
-    manifest {
-        attributes('Lint-Registry-v2': 'androidx.build.lint.AndroidXIssueRegistry')
-    }
 }

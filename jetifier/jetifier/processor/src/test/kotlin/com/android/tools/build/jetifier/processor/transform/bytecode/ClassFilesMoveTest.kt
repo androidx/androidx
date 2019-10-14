@@ -79,12 +79,14 @@ class ClassFilesMoveTest {
         val inputZipPath = "/fileRenameTest/inputTestLib.zip"
         val expectedZipPath = "/fileRenameTest/expectedTestLib.zip"
 
+        @Suppress("deprecation")
         val processor = Processor.createProcessor(TEST_CONFIG)
         val inputFile = File(javaClass.getResource(inputZipPath).file)
 
         val tempDir = createTempDir()
         val expectedFile = File(createTempDir(), "test.zip")
 
+        @Suppress("deprecation")
         val resultFiles = processor.transform(setOf(FileMapping(inputFile, expectedFile)))
 
         Truth.assertThat(resultFiles).hasSize(1)
@@ -101,12 +103,14 @@ class ClassFilesMoveTest {
         val inputZipPath = "/fileRenameTest/inputTestLibNested.zip"
         val expectedZipPath = "/fileRenameTest/expectedTestLibNested.zip"
 
+        @Suppress("deprecation")
         val processor = Processor.createProcessor(TEST_CONFIG)
         val inputFile = File(javaClass.getResource(inputZipPath).file)
 
         val tempDir = createTempDir()
         val expectedFile = File(createTempDir(), "test.zip")
 
+        @Suppress("deprecation")
         val resultFiles = processor.transform(setOf(FileMapping(inputFile, expectedFile)))
 
         Truth.assertThat(resultFiles).hasSize(1)
@@ -123,20 +127,24 @@ class ClassFilesMoveTest {
         val inputZipPath = "/fileRenameTest/inputTestLib.zip"
 
         // Transform forward
+        @Suppress("deprecation")
         val processor = Processor.createProcessor(TEST_CONFIG)
         val inputFile = File(javaClass.getResource(inputZipPath).file)
 
         val tempDir = createTempDir()
         val expectedFile = File(createTempDir(), "test.zip")
 
+        @Suppress("deprecation")
         val resultFiles = processor.transform(setOf(FileMapping(inputFile, expectedFile)))
 
         // Take previous result & reverse it
+        @Suppress("deprecation")
         val processor2 = Processor.createProcessor(
             TEST_CONFIG,
             rewritingSupportLib = true,
             reversedMode = true)
         val expectedFile2 = File(createTempDir(), "test2.zip")
+        @Suppress("deprecation")
         val resultFiles2 = processor2.transform(setOf(
             FileMapping(resultFiles.first(), expectedFile2)))
 
