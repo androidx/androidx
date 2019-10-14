@@ -121,7 +121,7 @@ fun FlexRow(
  * A widget that places its children in a vertical sequence, assigning children heights
  * according to their flex weights.
  *
- * [FlexRow] children can be:
+ * [FlexColumn] children can be:
  * - [inflexible] meaning that the child is not flex, and it should be measured with
  * loose constraints to determine its preferred height
  * - [expanded] meaning that the child is flexible, and it should be assigned a
