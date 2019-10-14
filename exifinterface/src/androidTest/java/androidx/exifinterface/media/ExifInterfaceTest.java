@@ -85,12 +85,14 @@ public class ExifInterfaceTest {
     private static final String LG_G4_ISO_800_DNG = "lg_g4_iso_800_dng.dng";
     private static final String LG_G4_ISO_800_JPG = "lg_g4_iso_800_jpg.jpg";
     private static final String EXIF_BYTE_ORDER_II_PNG = "image_exif_byte_order_ii_png.png";
+    private static final String EXIF_BYTE_ORDER_II_WEBP = "image_exif_byte_order_ii_webp.webp";
     private static final int[] IMAGE_RESOURCES = new int[] {
             R.raw.image_exif_byte_order_ii, R.raw.image_exif_byte_order_mm, R.raw.lg_g4_iso_800_dng,
-            R.raw.lg_g4_iso_800_jpg, R.raw.image_exif_byte_order_ii_png};
+            R.raw.lg_g4_iso_800_jpg, R.raw.image_exif_byte_order_ii_png,
+            R.raw.image_exif_byte_order_ii_webp};
     private static final String[] IMAGE_FILENAMES = new String[] {
             EXIF_BYTE_ORDER_II_JPEG, EXIF_BYTE_ORDER_MM_JPEG, LG_G4_ISO_800_DNG,
-            LG_G4_ISO_800_JPG, EXIF_BYTE_ORDER_II_PNG};
+            LG_G4_ISO_800_JPG, EXIF_BYTE_ORDER_II_PNG, EXIF_BYTE_ORDER_II_WEBP};
 
     private static final int USER_READ_WRITE = 0600;
     private static final String TEST_TEMP_FILE_NAME = "testImage";
@@ -411,6 +413,12 @@ public class ExifInterfaceTest {
 
     @Test
     @LargeTest
+    public void testReadExifDataFromExifByteOrderIIPng() throws Throwable {
+        testExifInterface(EXIF_BYTE_ORDER_II_PNG, R.array.exifbyteorderii_png);
+    }
+
+    @Test
+    @LargeTest
     public void testReadExifDataFromStandaloneData() throws Throwable {
         testExifInterfaceForStandalone(EXIF_BYTE_ORDER_II_JPEG, R.array.exifbyteorderii_standalone);
         testExifInterfaceForStandalone(EXIF_BYTE_ORDER_MM_JPEG, R.array.exifbyteordermm_standalone);
@@ -418,8 +426,8 @@ public class ExifInterfaceTest {
 
     @Test
     @LargeTest
-    public void testReadExifDataFromExifByteOrderIIPng() throws Throwable {
-        testExifInterface(EXIF_BYTE_ORDER_II_PNG, R.array.exifbyteorderii_png);
+    public void testReadExifDataFromExifByteOrderIIWebp() throws Throwable {
+        testExifInterface(EXIF_BYTE_ORDER_II_WEBP, R.array.exifbyteorderii_webp);
     }
 
     @Test
