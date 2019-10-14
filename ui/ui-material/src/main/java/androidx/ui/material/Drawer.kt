@@ -20,12 +20,14 @@ import androidx.animation.PhysicsBuilder
 import androidx.compose.Composable
 import androidx.compose.composer
 import androidx.compose.ambient
+import androidx.compose.memo
 import androidx.compose.state
 import androidx.compose.unaryPlus
 import androidx.ui.core.Alignment
 import androidx.ui.core.Constraints
 import androidx.ui.core.ContextAmbient
 import androidx.ui.core.Dp
+import androidx.ui.core.Draw
 import androidx.ui.core.IntPx
 import androidx.ui.core.Layout
 import androidx.ui.core.Px
@@ -35,17 +37,23 @@ import androidx.ui.core.hasBoundedHeight
 import androidx.ui.core.hasBoundedWidth
 import androidx.ui.core.ipx
 import androidx.ui.core.min
+import androidx.ui.core.px
+import androidx.ui.core.toRect
 import androidx.ui.core.withDensity
 import androidx.ui.foundation.Clickable
 import androidx.ui.foundation.ColoredRect
 import androidx.ui.foundation.gestures.DragDirection
+import androidx.ui.foundation.gestures.DragValueController
 import androidx.ui.foundation.gestures.Draggable
+import androidx.ui.graphics.Paint
+import androidx.ui.graphics.PaintingStyle
 import androidx.ui.layout.Container
 import androidx.ui.layout.DpConstraints
 import androidx.ui.layout.EdgeInsets
 import androidx.ui.layout.Stack
 import androidx.ui.lerp
-import androidx.ui.material.internal.anchoredControllerByState
+import androidx.ui.material.internal.StateDraggable
+import androidx.ui.material.internal.ValueModel
 import androidx.ui.material.surface.Surface
 import kotlin.math.max
 
@@ -127,32 +135,25 @@ fun ModalDrawerLayout(
             val minValue = -pxConstraints.maxWidth.value.toFloat()
             val maxValue = 0f
 
-            val (controller, callback) = +anchoredControllerByState(
-                drawerState,
-                onStateChange,
-                listOf(minValue to DrawerState.Closed, maxValue to DrawerState.Opened),
-                AnimationBuilder
-            )
-            controller.enabled = gesturesEnabled
+            val anchors = listOf(minValue to DrawerState.Closed, maxValue to DrawerState.Opened)
 
-            Draggable(
+            StateDraggable(
+                state = drawerState,
+                onStateChange = onStateChange,
+                anchorsToState = anchors,
+                animationBuilder = AnimationBuilder,
                 dragDirection = DragDirection.Horizontal,
                 minValue = minValue,
                 maxValue = maxValue,
-                valueController = controller,
-                callback = callback
-            ) { value ->
-                val fraction = calculateFraction(minValue, maxValue, value)
-                val scrimAlpha = fraction * ScrimDefaultOpacity
-                val dpOffset = +withDensity {
-                    value.toDp()
-                }
-
+                enabled = gesturesEnabled
+            ) { model ->
                 Stack {
                     aligned(Alignment.TopLeft) {
                         bodyContent()
-                        Scrim(drawerState, onStateChange, scrimAlpha)
-                        DrawerContent(dpOffset, constraints, drawerContent)
+                        Scrim(drawerState, onStateChange, fraction = {
+                            calculateFraction(minValue, maxValue, model.value)
+                        })
+                        DrawerContent(model, constraints, drawerContent)
                     }
                 }
             }
@@ -216,29 +217,25 @@ fun BottomDrawerLayout(
                 openedValue to DrawerState.Opened,
                 minValue to DrawerState.Opened
             )
-            val (controller, callback) =
-                +anchoredControllerByState(drawerState, onStateChange, anchors, AnimationBuilder)
-            controller.enabled = gesturesEnabled
 
-            Draggable(
+            StateDraggable(
+                state = drawerState,
+                onStateChange = onStateChange,
+                anchorsToState = anchors,
+                animationBuilder = AnimationBuilder,
                 dragDirection = DragDirection.Vertical,
                 minValue = minValue,
                 maxValue = maxValue,
-                valueController = controller,
-                callback = callback
-            ) { value ->
-                // as we scroll "from height to 0" backwards, (1 - fraction) will reverse it
-                val fractionToOpened =
-                    1 - max(0f, calculateFraction(openedValue, maxValue, value))
-                val scrimAlpha = fractionToOpened * ScrimDefaultOpacity
-                val dpOffset = +withDensity {
-                    value.toDp()
-                }
+                enabled = gesturesEnabled
+            ) { model ->
                 Stack {
                     aligned(Alignment.TopLeft) {
                         bodyContent()
-                        Scrim(drawerState, onStateChange, scrimAlpha)
-                        BottomDrawerContent(dpOffset, constraints, drawerContent)
+                        Scrim(drawerState, onStateChange, fraction = {
+                            // as we scroll "from height to 0" , need to reverse fraction
+                            1 - calculateFraction(openedValue, maxValue, model.value)
+                        })
+                        BottomDrawerContent(model, constraints, drawerContent)
                     }
                 }
             }
@@ -248,7 +245,7 @@ fun BottomDrawerLayout(
 
 @Composable
 private fun DrawerContent(
-    xOffset: Dp,
+    xOffset: ValueModel,
     constraints: DpConstraints,
     children: @Composable() () -> Unit
 ) {
@@ -265,7 +262,7 @@ private fun DrawerContent(
 
 @Composable
 private fun BottomDrawerContent(
-    yOffset: Dp,
+    yOffset: ValueModel,
     constraints: DpConstraints,
     children: @Composable() () -> Unit
 ) {
@@ -277,25 +274,39 @@ private fun BottomDrawerContent(
     }
 }
 
-private fun calculateFraction(a: Float, b: Float, pos: Float) = (pos - a) / (b - a)
+private fun calculateFraction(a: Float, b: Float, pos: Float) =
+    ((pos - a) / (b - a)).coerceIn(0f, 1f)
 
 @Composable
-private fun Scrim(state: DrawerState, onStateChange: (DrawerState) -> Unit, opacity: Float) {
+private fun Scrim(
+    state: DrawerState,
+    onStateChange: (DrawerState) -> Unit,
+    fraction: () -> Float
+) {
     // TODO: use enabled = false here when it will be available
-    if (state == DrawerState.Opened) {
-        Clickable(onClick = { onStateChange(DrawerState.Closed) }) {
-            ColoredRect(+themeColor { onSurface.copy(alpha = opacity) })
+    val scrimContent = @Composable {
+        Container(expanded = true) {
+            val paint = +memo { Paint().apply { style = PaintingStyle.fill } }
+            val color = +themeColor { onSurface }
+            Draw { canvas, parentSize ->
+                val scrimAlpha = fraction() * ScrimDefaultOpacity
+                paint.color = color.copy(alpha = scrimAlpha)
+                canvas.drawRect(parentSize.toRect(), paint)
+            }
         }
+    }
+    if (state == DrawerState.Opened) {
+        Clickable(onClick = { onStateChange(DrawerState.Closed) }, children = scrimContent)
     } else {
-        ColoredRect(+themeColor { onSurface.copy(alpha = opacity) })
+        scrimContent()
     }
 }
 
 // TODO: consider make pretty and move to public
 @Composable
 private fun WithOffset(
-    xOffset: Dp = 0.dp,
-    yOffset: Dp = 0.dp,
+    xOffset: ValueModel? = null,
+    yOffset: ValueModel? = null,
     child: @Composable() () -> Unit
 ) {
     Layout(children = {
@@ -317,8 +328,10 @@ private fun WithOffset(
             width = min(placeable.width, constraints.maxWidth)
             height = min(placeable.height, constraints.maxHeight)
         }
+        val offX = xOffset?.value?.px ?: 0.px
+        val offY = yOffset?.value?.px ?: 0.px
         layout(width, height) {
-            placeable?.place(xOffset.toIntPx(), yOffset.toIntPx())
+            placeable?.place(offX, offY)
         }
     }
 }

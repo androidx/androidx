@@ -337,8 +337,8 @@ package androidx.ui.material {
 
 package androidx.ui.material.internal {
 
-  public final class AnchoredControllerByStateKt {
-    ctor public AnchoredControllerByStateKt();
+  public final class StateDraggableKt {
+    ctor public StateDraggableKt();
   }
 
 }
