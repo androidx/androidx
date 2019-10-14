@@ -68,7 +68,7 @@ public class TrustedWebActivityIntentBuilderTest {
 
         Bundle splashScreenParams = new Bundle();
         int splashBgColor = 0x112233;
-        splashScreenParams.putInt(SplashScreenParamKey.BACKGROUND_COLOR, splashBgColor);
+        splashScreenParams.putInt(SplashScreenParamKey.KEY_BACKGROUND_COLOR, splashBgColor);
 
         CustomTabColorSchemeParams colorSchemeParams = new CustomTabColorSchemeParams.Builder()
                     .setToolbarColor(0xff112233).build();
@@ -111,7 +111,7 @@ public class TrustedWebActivityIntentBuilderTest {
 
         // No need to test every splash screen param: they are sent in as-is in provided Bundle.
         assertEquals(splashBgColor, splashScreenParamsReceived.getInt(
-                SplashScreenParamKey.BACKGROUND_COLOR));
+                SplashScreenParamKey.KEY_BACKGROUND_COLOR));
 
         ShareData shareDataFromIntent = ShareData.fromBundle(intent.getBundleExtra(
                 TrustedWebActivityIntentBuilder.EXTRA_SHARE_DATA));
