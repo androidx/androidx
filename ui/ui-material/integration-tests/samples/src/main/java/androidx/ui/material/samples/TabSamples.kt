@@ -54,7 +54,7 @@ import androidx.ui.graphics.Image
 @Composable
 fun TextTabs() {
     val state = +state { 0 }
-    val titles = listOf("TAB 1", "TAB 2", "TAB 3")
+    val titles = listOf("TAB 1", "TAB 2", "TAB 3 WITH LOTS OF TEXT")
     FlexColumn {
         inflexible {
             TabRow(items = titles, selectedIndex = state.value) { index, text ->
@@ -97,7 +97,8 @@ fun IconTabs(image: Image) {
 @Composable
 fun TextAndIconTabs(image: Image) {
     val state = +state { 0 }
-    val titlesAndIcons = listOf("TAB 1" to image, "TAB 2" to image, "TAB 3" to image)
+    val titlesAndIcons =
+        listOf("TAB 1" to image, "TAB 2" to image, "TAB 3 WITH LOTS OF TEXT" to image)
     FlexColumn {
         inflexible {
             TabRow(items = titlesAndIcons, selectedIndex = state.value) { index, data ->
@@ -122,7 +123,16 @@ fun TextAndIconTabs(image: Image) {
 fun ScrollingTextTabs() {
     val state = +state { 0 }
     val titles = listOf(
-        "TAB 1", "TAB 2", "TAB 3", "TAB 4", "TAB 5", "TAB 6", "TAB 7", "TAB 8", "TAB 9", "TAB 10"
+        "TAB 1",
+        "TAB 2",
+        "TAB 3 WITH LOTS OF TEXT",
+        "TAB 4",
+        "TAB 5",
+        "TAB 6 WITH LOTS OF TEXT",
+        "TAB 7",
+        "TAB 8",
+        "TAB 9 WITH LOTS OF TEXT",
+        "TAB 10"
     )
     FlexColumn {
         inflexible {
@@ -236,9 +246,17 @@ fun FancyIndicatorContainerTabs() {
 fun ScrollingFancyIndicatorContainerTabs() {
     val state = +state { 0 }
     val titles = listOf(
-        "TAB 1", "TAB 2", "TAB 3", "TAB 4", "TAB 5", "TAB 6", "TAB 7", "TAB 8", "TAB 9", "TAB 10"
+        "TAB 1",
+        "TAB 2",
+        "TAB 3 WITH LOTS OF TEXT",
+        "TAB 4",
+        "TAB 5",
+        "TAB 6 WITH LOTS OF TEXT",
+        "TAB 7",
+        "TAB 8",
+        "TAB 9 WITH LOTS OF TEXT",
+        "TAB 10"
     )
-
     val indicatorContainer = @Composable { tabPositions: List<TabRow.TabPosition> ->
         FancyIndicatorContainer(tabPositions = tabPositions, selectedIndex = state.value)
     }
