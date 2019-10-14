@@ -18,6 +18,22 @@ package androidx.fragment.lint.stubs
 
 import com.android.tools.lint.checks.infrastructure.LintDetectorTest.java
 
+private val BACK_PRESSED_CALLBACK = java("""
+    package androidx.activity;
+
+    public abstract class OnBackPressedCallback {}
+""")
+
+private val BACK_PRESSED_DISPATCHER = java("""
+    package androidx.activity;
+
+    import androidx.lifecycle.LifecycleOwner;
+
+    public final class OnBackPressedDispatcher {
+        public void addCallback(LifecycleOwner owner, OnBackPressedCallback callback) {}
+    }
+""")
+
 private val FRAGMENT = java("""
     package androidx.fragment.app;
 
@@ -58,10 +74,19 @@ private val OBSERVER = java("""
     public interface Observer<T> {}
 """)
 
-internal val STUBS = arrayOf(
+// stubs for testing calls to LiveData.observe calls
+internal val LIVEDATA_STUBS = arrayOf(
     FRAGMENT,
+    LIFECYCLE_OWNER,
     LIVEDATA,
     MUTABLE_LIVEDATA,
-    OBSERVER,
+    OBSERVER
+)
+
+// stubs for testing calls to OnBackPressedDispatcher.addCallback calls
+internal val BACK_CALLBACK_STUBS = arrayOf(
+    BACK_PRESSED_CALLBACK,
+    BACK_PRESSED_DISPATCHER,
+    FRAGMENT,
     LIFECYCLE_OWNER
 )

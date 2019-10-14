@@ -27,6 +27,7 @@ class FragmentIssueRegistry : IssueRegistry() {
     override val api = 6
     override val minApi = CURRENT_API
     override val issues get() = listOf(
-        FragmentLiveDataObserverDetector.ISSUE,
+        FragmentLiveDataObserverDetector.BACK_PRESSED_ISSUE,
+        FragmentLiveDataObserverDetector.LIVEDATA_ISSUE,
         FragmentTagDetector.ISSUE)
 }
