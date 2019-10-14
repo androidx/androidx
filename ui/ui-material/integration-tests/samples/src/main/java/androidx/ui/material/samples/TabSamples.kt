@@ -28,6 +28,7 @@ import androidx.ui.animation.PxPropKey
 import androidx.ui.animation.Transition
 import androidx.ui.core.Alignment
 import androidx.ui.core.Text
+import androidx.ui.core.ambientDensity
 import androidx.ui.core.dp
 import androidx.ui.core.toPx
 import androidx.ui.core.withDensity
@@ -343,8 +344,10 @@ fun FancyIndicatorContainer(tabPositions: List<TabRow.TabPosition>, selectedInde
     // Padding to set the 'offset'
     Container(expanded = true, alignment = Alignment.BottomLeft) {
         Transition(transitionDefinition, selectedIndex) { state ->
-            val offset = +withDensity { state[indicatorStart].toDp() }
-            val width = +withDensity { (state[indicatorEnd] - state[indicatorStart]).toDp() }
+            val offset = withDensity(+ambientDensity()) { state[indicatorStart].toDp() }
+            val width = withDensity(+ambientDensity()) {
+                (state[indicatorEnd] - state[indicatorStart]).toDp()
+            }
             Padding(left = offset) {
                 Container(width = width) {
                     // Pass the current color to the indicator

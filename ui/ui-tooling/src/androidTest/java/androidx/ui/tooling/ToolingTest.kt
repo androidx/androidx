@@ -17,7 +17,6 @@
 package androidx.ui.tooling
 
 import android.os.Handler
-import androidx.compose.Children
 import androidx.compose.Composable
 import androidx.compose.composer
 import androidx.test.rule.ActivityTestRule
@@ -50,7 +49,7 @@ open class ToolingTest {
         OnPositioned(onPositioned = { positionedLatch.countDown() })
     }
 
-    internal fun show(@Children composable: @Composable() () -> Unit) {
+    internal fun show(composable: @Composable() () -> Unit) {
         positionedLatch = CountDownLatch(1)
         activityTestRule.onUiThread {
             activity.setContent {

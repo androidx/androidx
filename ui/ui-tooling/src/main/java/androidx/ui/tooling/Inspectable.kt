@@ -16,7 +16,6 @@
 
 package androidx.ui.tooling
 
-import androidx.compose.Children
 import androidx.compose.Composable
 import androidx.compose.SlotTable
 import androidx.compose.ambient
@@ -30,7 +29,7 @@ import java.util.WeakHashMap
  * is in inspection mode.
  */
 @Composable
-fun Inspectable(@Children children: @Composable() () -> Unit) {
+fun Inspectable(children: @Composable() () -> Unit) {
     composer.composer.collectKeySourceInformation()
     tables.add(composer.composer.slotTable)
     InspectionMode.Provider(true) {
@@ -45,7 +44,7 @@ val tables = Collections.newSetFromMap(WeakHashMap<SlotTable, Boolean>())
  * in the composition when the composition is in inspection mode.
  */
 @Composable
-fun InInspectionModeOnly(@Children children: @Composable() () -> Unit) {
+fun InInspectionModeOnly(children: @Composable() () -> Unit) {
     if (+ambient(InspectionMode)) {
         children()
     }

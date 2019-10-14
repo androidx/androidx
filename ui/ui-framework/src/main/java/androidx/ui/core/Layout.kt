@@ -134,9 +134,9 @@ import androidx.compose.unaryPlus
     measureBlocks: LayoutNode.MeasureBlocks,
     modifier: Modifier
 ) {
-    <LayoutNode modifier=modifier measureBlocks=measureBlocks>
+    LayoutNode(modifier=modifier, measureBlocks=measureBlocks) {
         children()
-    </LayoutNode>
+    }
 }
 
 /**
@@ -415,9 +415,9 @@ fun Layout(
     } else {
         @Composable {
             childrenArray.forEach { childrenComposable ->
-                <DataNode key=ChildGroupKey value=childrenComposable>
+                DataNode(key=ChildGroupKey, value=childrenComposable) {
                     childrenComposable()
-                </DataNode>
+                }
             }
         }
     }
@@ -518,11 +518,11 @@ fun WithConstraints(
         ) = error("Intrinsic measurements not supported for WithConstraints")
     }
 
-    <LayoutNode
-        ref=layoutNodeRef
-        modifier=Modifier.None
+    LayoutNode(
+        ref=layoutNodeRef,
+        modifier=Modifier.None,
         measureBlocks=measureBlocks
-    />
+    )
 }
 
 /**
@@ -545,7 +545,7 @@ fun WithConstraints(
 inline fun OnPositioned(
     noinline onPositioned: (coordinates: LayoutCoordinates) -> Unit
 ) {
-    <DataNode key=OnPositionedKey value=onPositioned/>
+    DataNode(key=OnPositionedKey, value=onPositioned)
 }
 
 /**
@@ -567,7 +567,7 @@ inline fun OnChildPositioned(
     noinline onPositioned: (coordinates: LayoutCoordinates) -> Unit,
     crossinline children: @Composable() () -> Unit
 ) {
-    <DataNode key=OnChildPositionedKey value=onPositioned>
+    DataNode(key=OnChildPositionedKey, value=onPositioned) {
         children()
-    </DataNode>
+    }
 }

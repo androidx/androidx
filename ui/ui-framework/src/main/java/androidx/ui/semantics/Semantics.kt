@@ -15,7 +15,6 @@
  */
 package androidx.ui.semantics
 
-import androidx.compose.Children
 import androidx.compose.Composable
 import androidx.compose.ambient
 import androidx.compose.composer
@@ -64,11 +63,13 @@ fun Semantics(
         it.testTag = it.getOrNull(SemanticsProperties.TestTag) ?: providedTestTag
     }
 
-    <SemanticsComponentNode
-        container
-        explicitChildNodes
-        semanticsConfiguration> TestTag(tag = DefaultTestTag) {
-        children()
+    SemanticsComponentNode(
+        container=container,
+        explicitChildNodes=explicitChildNodes,
+        semanticsConfiguration=semanticsConfiguration
+    ) {
+        TestTag(tag = DefaultTestTag) {
+            children()
+        }
     }
-    </SemanticsComponentNode>
 }

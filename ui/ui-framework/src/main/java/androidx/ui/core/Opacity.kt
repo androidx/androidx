@@ -17,7 +17,6 @@
 package androidx.ui.core
 
 import androidx.annotation.FloatRange
-import androidx.compose.Children
 import androidx.compose.Composable
 import androidx.compose.composer
 
@@ -35,7 +34,7 @@ inline fun Opacity(
     @FloatRange(from = 0.0, to = 1.0) opacity: Float,
     crossinline children: @Composable() () -> Unit
 ) {
-    <RepaintBoundaryNode name=null opacity=opacity>
+    RepaintBoundaryNode(name=null, opacity=opacity) {
         children()
-    </RepaintBoundaryNode>
+    }
 }

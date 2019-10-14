@@ -16,7 +16,7 @@
 
 package androidx.ui.layout.test
 
-import androidx.compose.Children
+import androidx.compose.Composable
 import androidx.compose.composer
 import androidx.test.filters.SmallTest
 import androidx.ui.core.Constraints
@@ -43,7 +43,7 @@ import java.util.concurrent.TimeUnit
 class AspectRatioModifierTest : LayoutTest() {
     @Test
     fun testAspectRatioModifier_intrinsicDimensions() = withDensity(density) {
-        testIntrinsics(@Children {
+        testIntrinsics(@Composable {
             Container(modifier = AspectRatio(2f), width = 30.dp, height = 40.dp) { }
         }) { minIntrinsicWidth, minIntrinsicHeight, maxIntrinsicWidth, maxIntrinsicHeight ->
             assertEquals(40.ipx, minIntrinsicWidth(20.ipx))
@@ -99,7 +99,7 @@ class AspectRatioModifierTest : LayoutTest() {
         val size = Ref<PxSize>()
         val position = Ref<PxPosition>()
         show {
-            Layout(@Children {
+            Layout(@Composable {
                 Container(AspectRatio(aspectRatio)) {
                     SaveLayoutInfo(size, position, positionedLatch)
                 }

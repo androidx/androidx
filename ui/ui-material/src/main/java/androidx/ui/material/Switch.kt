@@ -24,6 +24,7 @@ import androidx.compose.unaryPlus
 import androidx.ui.core.DensityScope
 import androidx.ui.core.Draw
 import androidx.ui.core.PxSize
+import androidx.ui.core.ambientDensity
 import androidx.ui.core.dp
 import androidx.ui.core.px
 import androidx.ui.core.withDensity
@@ -73,7 +74,7 @@ fun Switch(
 @Composable
 private fun SwitchImpl(checked: Boolean, onCheckedChange: ((Boolean) -> Unit)?, color: Color) {
     val minBound = 0f
-    val maxBound = +withDensity { ThumbPathLength.toPx().value }
+    val maxBound = withDensity(+ambientDensity()) { ThumbPathLength.toPx().value }
     StateDraggable(
         state = checked,
         onStateChange = onCheckedChange ?: {},

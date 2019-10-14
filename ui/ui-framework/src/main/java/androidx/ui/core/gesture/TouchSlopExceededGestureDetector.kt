@@ -29,6 +29,7 @@ import androidx.ui.core.withDensity
 import androidx.ui.core.PointerInputWrapper
 import androidx.compose.composer
 import androidx.ui.core.IntPx
+import androidx.ui.core.ambientDensity
 
 // TODO(shepshapard): Convert to functional component with effects once effects are ready.
 /**
@@ -48,7 +49,7 @@ fun TouchSlopExceededGestureDetector(
     canDrag: ((Direction) -> Boolean)? = null,
     children: @Composable() () -> Unit
 ) {
-    val touchSlop = +withDensity { TouchSlop.toIntPx() }
+    val touchSlop = withDensity(+ambientDensity()) { TouchSlop.toIntPx() }
     val recognizer = +memo { TouchSlopExceededGestureRecognizer(touchSlop) }
 
     recognizer.canDrag = canDrag
