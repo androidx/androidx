@@ -262,7 +262,9 @@ class FragmentStateManager {
             Log.d(TAG, "moveto CREATE_VIEW: " + mFragment);
         }
         ViewGroup container = null;
-        if (mFragment.mContainerId != 0) {
+        if (mFragment.mContainer != null) {
+            container = mFragment.mContainer;
+        } else if (mFragment.mContainerId != 0) {
             if (mFragment.mContainerId == View.NO_ID) {
                 throw new IllegalArgumentException("Cannot create fragment " + mFragment
                         + " for a container view with no id");

@@ -48,6 +48,15 @@ class FragmentContainerInflatedFragmentTest {
     }
 
     @Test
+    fun testGetInflatedFragmentInActivityOnCreate() {
+        with(ActivityScenario.launch(ContainerViewActivity::class.java)) {
+            val foundFragment = withActivity { foundFragment }
+
+            assertThat(foundFragment).isTrue()
+        }
+    }
+
+    @Test
     fun testContentViewWithNoID() {
         with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
             withActivity {
@@ -159,6 +168,17 @@ class FragmentContainerInflatedFragmentTest {
 }
 
 class SimpleContainerActivity : FragmentActivity(R.layout.simple_container)
+
+class ContainerViewActivity : FragmentActivity(R.layout.inflated_fragment_container_view) {
+    var foundFragment = false
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        foundFragment = (supportFragmentManager.findFragmentById(R.id
+            .fragment_container_view)) != null
+    }
+}
 
 class InflatedParentFragment : StrictViewFragment(R.layout.inflated_fragment_container_view)
 
