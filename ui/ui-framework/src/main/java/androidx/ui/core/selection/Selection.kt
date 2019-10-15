@@ -30,7 +30,7 @@ data class Selection(
      * This graphical position is the point at the left bottom corner for LTR
      * character, or right bottom corner for RTL character.
      *
-     * This coordinates is in child widget coordinates system.
+     * This coordinates is in child composable coordinates system.
      */
     val startCoordinates: PxPosition,
     /**
@@ -39,19 +39,19 @@ data class Selection(
      * This graphical position is the point at the left bottom corner for LTR
      * character, or right bottom corner for RTL character.
      *
-     * This coordinates is in child widget coordinates system.
+     * This coordinates is in child composable coordinates system.
      */
     val endCoordinates: PxPosition,
     /**
      * The character offset of the starting character in selection.
      *
-     * This offset is within individual child text widget.
+     * This offset is within individual child text composable.
      */
     val startOffset: Int,
     /**
      * The character offset of the last character in selection.
      *
-     * This offset is within individual child text widget.
+     * This offset is within individual child text composable.
      */
     val endOffset: Int,
     /**

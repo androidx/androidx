@@ -34,7 +34,7 @@ import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
 /**
- * The benchmark for [Text] widget with the input being a plain string.
+ * The benchmark for [Text] composable with the input being a plain string.
  */
 @LargeTest
 @RunWith(Parameterized::class)
@@ -62,7 +62,7 @@ class TextBasicBenchmark(
     }
 
     /**
-     * Measure the time taken to compose a [Text] widget from scratch with the given input.
+     * Measure the time taken to compose a [Text] composable from scratch with the given input.
      * This is the time taken to call the [Text] composable function.
      */
     @Test
@@ -76,8 +76,8 @@ class TextBasicBenchmark(
     }
 
     /**
-     * Measure the time taken by the first time measure the [Text] widget with the given input.
-     * This is mainly the time used to measure all the [Measurable]s in the [Text] widget.
+     * Measure the time taken by the first time measure the [Text] composable with the given input.
+     * This is mainly the time used to measure all the [Measurable]s in the [Text] composable.
      */
     @Test
     fun first_measure() {
@@ -90,8 +90,8 @@ class TextBasicBenchmark(
     }
 
     /**
-     * Measure the time taken by the first time layout the [Text] widget with the given input.
-     * This is mainly the time used to place [Placeable]s in [Text] widget.
+     * Measure the time taken by the first time layout the [Text] composable with the given input.
+     * This is mainly the time used to place [Placeable]s in [Text] composable.
      */
     @Test
     fun first_layout() {
@@ -104,7 +104,7 @@ class TextBasicBenchmark(
     }
 
     /**
-     * Measure the time taken by first time draw the [Text] widget with the given input.
+     * Measure the time taken by first time draw the [Text] composable with the given input.
      */
     @Test
     fun first_draw() {
@@ -117,8 +117,8 @@ class TextBasicBenchmark(
     }
 
     /**
-     * Measure the time taken by layout the [Text] widget after the layout constrains changed.
-     * This is mainly the time used to re-measure and re-layout the widget.
+     * Measure the time taken by layout the [Text] composable after the layout constrains changed.
+     * This is mainly the time used to re-measure and re-layout the composable.
      */
     @Test
     fun layout() {
@@ -131,7 +131,7 @@ class TextBasicBenchmark(
     }
 
     /**
-     * Measure the time taken by redrawing the [Text] widget.
+     * Measure the time taken by redrawing the [Text] composable.
      */
     @Test
     fun draw() {

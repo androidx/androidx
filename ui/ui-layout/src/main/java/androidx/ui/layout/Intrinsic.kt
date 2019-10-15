@@ -23,7 +23,7 @@ import androidx.ui.core.enforce
 import androidx.ui.core.ipx
 
 /**
- * Layout widget that forces its child to be as wide as its min intrinsic width.
+ * Layout composable that forces its child to be as wide as its min intrinsic width.
  * If incoming constraints do not allow this, the closest possible width will be used.
  *
  * Example usage:
@@ -68,7 +68,7 @@ fun MinIntrinsicWidth(children: @Composable() () -> Unit) {
 }
 
 /**
- * Layout widget that forces its child to be as tall as its min intrinsic height.
+ * Layout composable that forces its child to be as tall as its min intrinsic height.
  * If incoming constraints do not allow this, the closest possible height will be used.
  *
  * Example usage:
@@ -113,7 +113,7 @@ fun MinIntrinsicHeight(children: @Composable() () -> Unit) {
 }
 
 /**
- * Layout widget that forces its child to be as wide as its max intrinsic width.
+ * Layout composable that forces its child to be as wide as its max intrinsic width.
  * If incoming constraints do not allow this, the closest possible width will be used.
  *
  * Example usage:
@@ -127,7 +127,7 @@ fun MinIntrinsicHeight(children: @Composable() () -> Unit) {
  * [ConstrainedBox]. Then [MaxIntrinsicWidth] will measure the [Column] with tight width, the same
  * as the premeasured maximum intrinsic width, which due to [CrossAxisAlignment.Stretch] will force
  * the [ConstrainedBox]s to use the same width.
- * The sample is a layout containing three widgets having the same width as the widest one.
+ * The sample is a layout containing three composables having the same width as the widest one.
  */
 @Composable
 fun MaxIntrinsicWidth(children: @Composable() () -> Unit) {
@@ -158,7 +158,7 @@ fun MaxIntrinsicWidth(children: @Composable() () -> Unit) {
 }
 
 /**
- * Layout widget that forces its child to be as tall as its max intrinsic height.
+ * Layout composable that forces its child to be as tall as its max intrinsic height.
  * If incoming constraints do not allow this, the closest possible height will be used.
  *
  * Example usage:

@@ -27,7 +27,7 @@ import androidx.ui.semantics.accessibilityValue
 /**
  * Ensures the created [SemanticsConfiguration] object doesn't have any default values set.
  * This intentionally enforces choosing every value in order to minimise possible unwanted
- * side effects. Should be used to create initial default semantics for widgets and afterwards
+ * side effects. Should be used to create initial default semantics for composables and afterwards
  * [SemanticsConfiguration.copyWith] should be used to create a modified copy.
  */
 // TODO(b/131309551): investigate the structure of this API

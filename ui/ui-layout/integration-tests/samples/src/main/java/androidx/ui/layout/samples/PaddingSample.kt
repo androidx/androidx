@@ -80,7 +80,7 @@ fun SymmetricalPaddingModifier() {
 
 @Sampled
 @Composable
-fun PaddingWidgetEdgeInsets() {
+fun PaddingComposableEdgeInsets() {
     Align(Alignment.TopLeft) {
         Container {
             DrawRectangle(Color.Gray)
@@ -93,7 +93,7 @@ fun PaddingWidgetEdgeInsets() {
 
 @Sampled
 @Composable
-fun PaddingWidget() {
+fun PaddingComposable() {
     Align(Alignment.TopLeft) {
         Container {
             DrawRectangle(Color.Gray)
@@ -106,7 +106,7 @@ fun PaddingWidget() {
 
 @Sampled
 @Composable
-fun PaddingWidgetSameInset() {
+fun PaddingComposableSameInset() {
     Align(Alignment.TopLeft) {
         Container {
             DrawRectangle(Color.Gray)

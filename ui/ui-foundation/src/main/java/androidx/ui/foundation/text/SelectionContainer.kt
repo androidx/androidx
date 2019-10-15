@@ -35,9 +35,9 @@ import androidx.ui.core.selection.SelectionRegistrarAmbient
 import androidx.ui.text.style.TextDirection
 
 /**
- * Selection Widget.
+ * Selection Composable.
  *
- * The selection widget wraps composables and let them to be selectable. It paints the selection
+ * The selection composable wraps composables and let them to be selectable. It paints the selection
  * area with start and end handles.
  */
 @Composable
@@ -51,7 +51,7 @@ fun SelectionContainer(
     children: @Composable() () -> Unit
 ) {
     val manager = +memo { SelectionManager() }
-    // TODO (qqd): After selection widget is fully implemented, evaluate if the following 2 items
+    // TODO (qqd): After selection composable is fully implemented, evaluate if the following 2 items
     // are expensive. If so, use
     // +memo(selection) { manager.selection = selection }
     // +memo(onSelectionChange) { manager.onSelectionChange = onSelectionChange }
@@ -63,7 +63,7 @@ fun SelectionContainer(
         val content = @Composable {
             val content = @Composable() {
                 // Get the layout coordinates of the selection container. This is for hit test of
-                // cross-widget selection.
+                // cross-composable selection.
                 OnPositioned(onPositioned = { manager.containerLayoutCoordinates = it })
                 PressIndicatorGestureDetector(onStart = { position -> manager.onPress(position) }) {
                     children()

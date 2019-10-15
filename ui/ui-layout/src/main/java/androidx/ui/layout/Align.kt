@@ -31,8 +31,8 @@ import androidx.ui.core.Alignment
  * Example usage:
  * @sample androidx.ui.layout.samples.SimpleAlign
  *
- * For a widget that just does center alignment, see [Center].
- * For a widget that does alignment and tries to be the same size as its child, see [Wrap].
+ * For a composable that just does center alignment, see [Center].
+ * For a composable that does alignment and tries to be the same size as its child, see [Wrap].
  * @see Center
  * @see Wrap
  */
@@ -75,8 +75,8 @@ fun Align(alignment: Alignment, children: @Composable() () -> Unit) {
  * Example usage:
  * @sample androidx.ui.layout.samples.SimpleCenter
  *
- * For a widget that supports other alignments than just center, see [Align].
- * For a widget that does alignment and tries to be the same size as its child, see [Wrap].
+ * For a composable that supports other alignments than just center, see [Align].
+ * For a composable that does alignment and tries to be the same size as its child, see [Wrap].
  * @see Align
  * @see Wrap
  */

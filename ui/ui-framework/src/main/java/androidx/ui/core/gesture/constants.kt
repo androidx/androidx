@@ -118,8 +118,8 @@ val PanSlop = TouchSlop * 2.dp
 val ScaleSlop = TouchSlop
 
 /**
- * The margin around a dialog, popup menu, or other window-like widget inside
- * which we do not consider a tap to dismiss the widget. (Not currently used.)
+ * The margin around a dialog, popup menu, or other window-like composable inside
+ * which we do not consider a tap to dismiss the composable. (Not currently used.)
  */
 // TODO(shepshapard): Make ModalBarrier support this.
 val WindowTouchSlop = 16.dp

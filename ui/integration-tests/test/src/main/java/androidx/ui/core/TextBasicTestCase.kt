@@ -40,8 +40,8 @@ class TextBasicTestCase(
      * Text render has a word cache in the underlying system. To get a proper metric of its
      * performance, the cache needs to be disabled, which unfortunately is not doable right now.
      * Here is a workaround which generates a new string when setupContentInternal is called.
-     * Notice that this function is called whenever a new ViewTree(and of course the text widget)
-     * is recreated. This helps to make sure that the text widget created later won't benefit
+     * Notice that this function is called whenever a new ViewTree(and of course the text composable)
+     * is recreated. This helps to make sure that the text composable created later won't benefit
      * from the previous result.
      */
     override fun setupContentInternal(activity: Activity): ViewGroup {
