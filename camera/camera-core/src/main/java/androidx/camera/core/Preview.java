@@ -135,9 +135,6 @@ public class Preview extends UseCase {
                         resolution, mPreviewSurfaceCallbackExecutor,
                         mPreviewSurfaceCallback) : null;
         if (captureProcessor != null) {
-            // TODO(b/117519540): Use {@link PreviewSurfaceCallback} for extensions too.
-            Preconditions.checkState(!isUsingPreviewSurfaceCallback(),
-                    "PreviewSurfaceCallback not yet supported for extensions.");
             CaptureStage captureStage = new CaptureStage.DefaultCaptureStage();
             // TODO: To allow user to use an Executor for the processing.
 
@@ -154,7 +151,8 @@ public class Preview extends UseCase {
                             ImageFormat.YUV_420_888,
                             mProcessingPreviewHandler,
                             captureStage,
-                            captureProcessor);
+                            captureProcessor,
+                            callbackDeferrableSurface);
 
             sessionConfigBuilder.addCameraCaptureCallback(
                     processingSurfaceTexture.getCameraCaptureCallback());
