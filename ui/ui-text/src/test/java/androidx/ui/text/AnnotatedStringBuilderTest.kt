@@ -19,6 +19,8 @@ package androidx.ui.text
 import androidx.ui.core.Sp
 import androidx.ui.core.sp
 import androidx.ui.graphics.Color
+import androidx.ui.text.font.FontStyle
+import androidx.ui.text.font.FontWeight
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -162,6 +164,287 @@ class AnnotatedStringBuilderTest {
         assertThat(buildResult.text).isEqualTo(expectedString)
         assertThat(buildResult.textStyles).isEqualTo(expectedTextStyles)
         assertThat(buildResult.paragraphStyles).isEqualTo(expectedParagraphStyles)
+    }
+
+    @Test
+    fun pushStyle() {
+        val text = "Test"
+        val style = TextStyle(color = Color.Red)
+        val buildResult = AnnotatedString.Builder().apply {
+            push(style)
+            append(text)
+            pop()
+        }.build()
+
+        assertThat(buildResult.text).isEqualTo(text)
+        assertThat(buildResult.textStyles).hasSize(1)
+        assertThat(buildResult.textStyles[0].style).isEqualTo(style)
+        assertThat(buildResult.textStyles[0].start).isEqualTo(0)
+        assertThat(buildResult.textStyles[0].end).isEqualTo(buildResult.length)
+    }
+
+    @Test
+    fun pushStyle_without_pop() {
+        val styles = arrayOf(
+            TextStyle(color = Color.Red),
+            TextStyle(fontStyle = FontStyle.Italic),
+            TextStyle(fontWeight = FontWeight.Bold)
+        )
+
+        val buildResult = AnnotatedString.Builder().apply {
+            styles.forEachIndexed { index, textStyle ->
+                // pop is intentionally not called here
+                push(textStyle)
+                append("Style$index")
+            }
+        }.build()
+
+        assertThat(buildResult.text).isEqualTo("Style0Style1Style2")
+        assertThat(buildResult.textStyles).hasSize(3)
+
+        styles.forEachIndexed { index, textStyle ->
+            assertThat(buildResult.textStyles[index].style).isEqualTo(textStyle)
+            assertThat(buildResult.textStyles[index].end).isEqualTo(buildResult.length)
+        }
+
+        assertThat(buildResult.textStyles[0].start).isEqualTo(0)
+        assertThat(buildResult.textStyles[1].start).isEqualTo("Style0".length)
+        assertThat(buildResult.textStyles[2].start).isEqualTo("Style0Style1".length)
+    }
+
+    @Test
+    fun pushStyle_with_multiple_styles() {
+        val textStyle1 = TextStyle(color = Color.Red)
+        val textStyle2 = TextStyle(fontStyle = FontStyle.Italic)
+
+        val buildResult = AnnotatedString.Builder().apply {
+            push(textStyle1)
+            append("Test")
+            push(textStyle2)
+            append(" me")
+            pop()
+            pop()
+        }.build()
+
+        assertThat(buildResult.text).isEqualTo("Test me")
+        assertThat(buildResult.textStyles).hasSize(2)
+
+        assertThat(buildResult.textStyles[0].style).isEqualTo(textStyle1)
+        assertThat(buildResult.textStyles[0].start).isEqualTo(0)
+        assertThat(buildResult.textStyles[0].end).isEqualTo(buildResult.length)
+
+        assertThat(buildResult.textStyles[1].style).isEqualTo(textStyle2)
+        assertThat(buildResult.textStyles[1].start).isEqualTo("Test".length)
+        assertThat(buildResult.textStyles[1].end).isEqualTo(buildResult.length)
+    }
+
+    @Test
+    fun pushStyle_with_multiple_styles_on_top_of_each_other() {
+        val styles = arrayOf(
+            TextStyle(color = Color.Red),
+            TextStyle(fontStyle = FontStyle.Italic),
+            TextStyle(fontWeight = FontWeight.Bold)
+        )
+
+        val buildResult = AnnotatedString.Builder().apply {
+            styles.forEach { textStyle ->
+                // pop is intentionally not called here
+                push(textStyle)
+            }
+        }.build()
+
+        assertThat(buildResult.text).isEmpty()
+        assertThat(buildResult.textStyles).hasSize(3)
+        styles.forEachIndexed { index, textStyle ->
+            assertThat(buildResult.textStyles[index].style).isEqualTo(textStyle)
+            assertThat(buildResult.textStyles[index].start).isEqualTo(buildResult.length)
+            assertThat(buildResult.textStyles[index].end).isEqualTo(buildResult.length)
+        }
+    }
+
+    @Test
+    fun pushStyle_with_multiple_stacks_should_construct_styles_in_the_same_order() {
+        val styles = arrayOf(
+            TextStyle(color = Color.Red),
+            TextStyle(fontStyle = FontStyle.Italic),
+            TextStyle(fontWeight = FontWeight.Bold),
+            TextStyle(letterSpacing = 1.2f)
+        )
+
+        val buildResult = AnnotatedString.Builder()
+            .push(styles[0])
+            .append("layer1-1")
+            .push(styles[1])
+            .append("layer2-1")
+            .push(styles[2])
+            .append("layer3-1")
+            .pop()
+            .push(styles[3])
+            .append("layer3-2")
+            .pop()
+            .append("layer2-2")
+            .pop()
+            .append("layer1-2")
+            .build()
+
+        assertThat(buildResult.textStyles).hasSize(4)
+        styles.forEachIndexed { index, textStyle ->
+            assertThat(buildResult.textStyles[index].style).isEqualTo(textStyle)
+        }
+    }
+
+    @Test
+    fun pushStyle_with_multiple_nested_styles_should_return_styles_in_same_order() {
+        val styles = arrayOf(
+            TextStyle(color = Color.Red),
+            TextStyle(fontStyle = FontStyle.Italic),
+            TextStyle(fontWeight = FontWeight.Bold),
+            TextStyle(letterSpacing = 1.2f)
+        )
+
+        val buildResult = AnnotatedString.Builder()
+            .push(styles[0])
+            .append("layer1-1")
+            .push(styles[1])
+            .append("layer2-1")
+            .pop()
+            .push(styles[2])
+            .append("layer2-2")
+            .push(styles[3])
+            .append("layer3-1")
+            .pop()
+            .append("layer2-3")
+            .pop()
+            .append("layer1-2")
+            .pop()
+            .build()
+
+        assertThat(buildResult.textStyles).hasSize(4)
+        styles.forEachIndexed { index, textStyle ->
+            assertThat(buildResult.textStyles[index].style).isEqualTo(textStyle)
+        }
+    }
+
+    @Test(expected = IllegalStateException::class)
+    fun pop_when_empty_does_not_throw_exception() {
+        AnnotatedString.Builder().pop()
+    }
+
+    @Test
+    fun pop_in_the_middle() {
+        val textStyle1 = TextStyle(color = Color.Red)
+        val textStyle2 = TextStyle(fontStyle = FontStyle.Italic)
+
+        val buildResult = AnnotatedString.Builder()
+            .append("Style0")
+            .push(textStyle1)
+            .append("Style1")
+            .pop()
+            .push(textStyle2)
+            .append("Style2")
+            .pop()
+            .append("Style3")
+            .build()
+
+        assertThat(buildResult.text).isEqualTo("Style0Style1Style2Style3")
+        assertThat(buildResult.textStyles).hasSize(2)
+
+        // the order is first applied is in the second
+        assertThat(buildResult.textStyles[0].style).isEqualTo((textStyle1))
+        assertThat(buildResult.textStyles[0].start).isEqualTo(("Style0".length))
+        assertThat(buildResult.textStyles[0].end).isEqualTo(("Style0Style1".length))
+
+        assertThat(buildResult.textStyles[1].style).isEqualTo((textStyle2))
+        assertThat(buildResult.textStyles[1].start).isEqualTo(("Style0Style1".length))
+        assertThat(buildResult.textStyles[1].end).isEqualTo(("Style0Style1Style2".length))
+    }
+
+    @Test
+    fun push_increments_the_style_index() {
+        val style = TextStyle(color = Color.Red)
+        with(AnnotatedString.Builder()) {
+            val styleIndex0 = pushIndexed(style)
+            val styleIndex1 = pushIndexed(style)
+            val styleIndex2 = pushIndexed(style)
+
+            assertThat(styleIndex0).isEqualTo(0)
+            assertThat(styleIndex1).isEqualTo(1)
+            assertThat(styleIndex2).isEqualTo(2)
+        }
+    }
+
+    @Test
+    fun push_reduces_the_style_index_after_pop() {
+        val textStyle = TextStyle(color = Color.Red)
+        val paragraphStyle = ParagraphStyle(lineHeight = 18.sp)
+
+        with(AnnotatedString.Builder()) {
+            val styleIndex0 = pushIndexed(textStyle)
+            val styleIndex1 = pushIndexed(textStyle)
+
+            assertThat(styleIndex0).isEqualTo(0)
+            assertThat(styleIndex1).isEqualTo(1)
+
+            // a pop should reduce the next index to one
+            pop()
+
+            val paragraphStyleIndex = pushIndexed(paragraphStyle)
+            assertThat(paragraphStyleIndex).isEqualTo(1)
+        }
+    }
+
+    @Test(expected = IllegalStateException::class)
+    fun pop_until_throws_exception_for_invalid_index() {
+        val style = TextStyle(color = Color.Red)
+        with(AnnotatedString.Builder()) {
+            val styleIndex = pushIndexed(style)
+
+            // should throw exception
+            popTo(styleIndex + 1)
+        }
+    }
+
+    @Test
+    fun pop_until_index_pops_correctly() {
+        val style = TextStyle(color = Color.Red)
+        with(AnnotatedString.Builder()) {
+            push(style)
+            // store the index of second push
+            val styleIndex = pushIndexed(style)
+            push(style)
+            // pop up to and including styleIndex
+            popTo(styleIndex)
+            // push again to get a new index to compare
+            val newStyleIndex = pushIndexed(style)
+
+            assertThat(newStyleIndex).isEqualTo(styleIndex)
+        }
+    }
+
+    @Test
+    fun withStyle_applies_style_to_block() {
+        val style = TextStyle(color = Color.Red)
+        val buildResult = AnnotatedString.Builder().withStyle(style) {
+            append("Style")
+        }.build()
+
+        assertThat(buildResult.paragraphStyles).isEmpty()
+        assertThat(buildResult.textStyles).isEqualTo(
+            listOf(AnnotatedString.Item(style, 0, buildResult.length))
+        )
+    }
+
+    @Test
+    fun withStyle_with_paragraphStyle_applies_style_to_block() {
+        val style = ParagraphStyle(lineHeight = 18.sp)
+        val buildResult = AnnotatedString.Builder().withStyle(style) {
+            append("Style")
+        }.build()
+
+        assertThat(buildResult.textStyles).isEmpty()
+        assertThat(buildResult.paragraphStyles).isEqualTo(
+            listOf(AnnotatedString.Item(style, 0, buildResult.length))
+        )
     }
 
     private fun createAnnotatedString(
