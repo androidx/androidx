@@ -50,10 +50,8 @@ class MultiParagraphIntrinsics(
     internal val infoList: List<ParagraphIntrinsicInfo>
 
     init {
-        if (paragraphStyle.textDirectionAlgorithm == null) {
-            throw IllegalArgumentException(
-                "ParagraphStyle.textDirectionAlgorithm should not be null"
-            )
+        requireNotNull(paragraphStyle.textDirectionAlgorithm) {
+            "ParagraphStyle.textDirectionAlgorithm should not be null"
         }
 
         infoList = annotatedString

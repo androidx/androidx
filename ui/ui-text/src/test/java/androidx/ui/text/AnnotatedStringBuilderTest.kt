@@ -359,6 +359,94 @@ class AnnotatedStringBuilderTest {
         assertThat(buildResult.textStyles[1].end).isEqualTo(("Style0Style1Style2".length))
     }
 
+    @Test
+    fun push_increments_the_style_index() {
+        val style = TextStyle(color = Color.Red)
+        with(AnnotatedString.Builder()) {
+            val styleIndex0 = pushIndexed(style)
+            val styleIndex1 = pushIndexed(style)
+            val styleIndex2 = pushIndexed(style)
+
+            assertThat(styleIndex0).isEqualTo(0)
+            assertThat(styleIndex1).isEqualTo(1)
+            assertThat(styleIndex2).isEqualTo(2)
+        }
+    }
+
+    @Test
+    fun push_reduces_the_style_index_after_pop() {
+        val textStyle = TextStyle(color = Color.Red)
+        val paragraphStyle = ParagraphStyle(lineHeight = 18.sp)
+
+        with(AnnotatedString.Builder()) {
+            val styleIndex0 = pushIndexed(textStyle)
+            val styleIndex1 = pushIndexed(textStyle)
+
+            assertThat(styleIndex0).isEqualTo(0)
+            assertThat(styleIndex1).isEqualTo(1)
+
+            // a pop should reduce the next index to one
+            pop()
+
+            val paragraphStyleIndex = pushIndexed(paragraphStyle)
+            assertThat(paragraphStyleIndex).isEqualTo(1)
+        }
+    }
+
+    @Test(expected = IllegalStateException::class)
+    fun pop_until_throws_exception_for_invalid_index() {
+        val style = TextStyle(color = Color.Red)
+        with(AnnotatedString.Builder()) {
+            val styleIndex = pushIndexed(style)
+
+            // should throw exception
+            popTo(styleIndex + 1)
+        }
+    }
+
+    @Test
+    fun pop_until_index_pops_correctly() {
+        val style = TextStyle(color = Color.Red)
+        with(AnnotatedString.Builder()) {
+            push(style)
+            // store the index of second push
+            val styleIndex = pushIndexed(style)
+            push(style)
+            // pop up to and including styleIndex
+            popTo(styleIndex)
+            // push again to get a new index to compare
+            val newStyleIndex = pushIndexed(style)
+
+            assertThat(newStyleIndex).isEqualTo(styleIndex)
+        }
+    }
+
+    @Test
+    fun withStyle_applies_style_to_block() {
+        val style = TextStyle(color = Color.Red)
+        val buildResult = AnnotatedString.Builder().withStyle(style) {
+            append("Style")
+        }.build()
+
+        assertThat(buildResult.paragraphStyles).isEmpty()
+        assertThat(buildResult.textStyles).isEqualTo(
+            listOf(AnnotatedString.Item(style, 0, buildResult.length))
+        )
+    }
+
+    @Test
+    fun withStyle_with_paragraphStyle_applies_style_to_block() {
+        val style = ParagraphStyle(lineHeight = 18.sp)
+        val buildResult = AnnotatedString.Builder().withStyle(style) {
+            append("Style")
+        }.build()
+
+        assertThat(buildResult.textStyles).isEmpty()
+        assertThat(buildResult.paragraphStyles).isEqualTo(
+            listOf(AnnotatedString.Item(style, 0, buildResult.length))
+        )
+    }
+
     private fun createAnnotatedString(
         text: String,
         color: Color = Color.Red,

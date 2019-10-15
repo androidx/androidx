@@ -31,12 +31,10 @@ data class AnnotatedString(
     init {
         var lastStyleEnd = -1
         for (paragraphStyle in paragraphStyles) {
-            if (paragraphStyle.start < lastStyleEnd) {
-                throw IllegalArgumentException("ParagraphStyle should not overlap")
-            }
-            if (paragraphStyle.end > text.length) {
-                throw IllegalArgumentException("ParagraphStyle range " +
-                        "[${paragraphStyle.start}, ${paragraphStyle.end}) is out of boundary")
+            require(paragraphStyle.start >= lastStyleEnd) { "ParagraphStyle should not overlap" }
+            require(paragraphStyle.end <= text.length) {
+                "ParagraphStyle range [${paragraphStyle.start}, ${paragraphStyle.end})" +
+                        " is out of boundary"
             }
             lastStyleEnd = paragraphStyle.end
         }
@@ -160,6 +158,25 @@ data class AnnotatedString(
         }
 
         /**
+         * Applies the given [TextStyle] to any appended text up until the corresponding [pop]
+         * or [popTo] is called.
+         *
+         * @sample androidx.ui.text.samples.AnnotatedStringBuilderPushSample
+         *
+         * @param style TextStyle to be applied
+         *
+         * @return index of the push that can be used with [popTo]
+         *
+         * @see push
+         * @see withStyle
+         */
+        fun pushIndexed(style: TextStyle): Int {
+            push(style)
+            // return the index of most recent push
+            return styleStack.size - 1
+        }
+
+        /**
          * Applies the given [ParagraphStyle] to any appended text until the [pop] is called.
          *
          * @sample androidx.ui.text.samples.AnnotatedStringBuilderPushParagraphStyleSample
@@ -174,6 +191,24 @@ data class AnnotatedString(
         }
 
         /**
+         * Applies the given [ParagraphStyle] to any appended text the corresponding [pop]
+         * or [popTo] is called.
+         *
+         * @sample androidx.ui.text.samples.AnnotatedStringBuilderPushParagraphStyleSample
+         *
+         * @param style ParagraphStyle to be applied
+         *
+         * @return index of the push that can be used with [popTo]
+         *
+         * @see withStyle
+         */
+        fun pushIndexed(style: ParagraphStyle): Int {
+            push(style)
+            // return the index of most recent push
+            return styleStack.size - 1
+        }
+
+        /**
          * Ends the style that was added via a push operation before.
          *
          * @see push
@@ -183,6 +218,21 @@ data class AnnotatedString(
             // pop the last element
             val item = styleStack.removeAt(styleStack.size - 1)
             item.end = text.length
+        }
+
+        /**
+         * Ends the styles up to and `including` the [push] that returned the given index.
+         *
+         * @param index
+         *
+         * @see pop
+         * @see push
+         */
+        fun popTo(index: Int) = apply {
+            check(index < styleStack.size) { "$index should be less than ${styleStack.size}" }
+            while ((styleStack.size - 1) >= index) {
+                pop()
+            }
         }
 
         /**
@@ -466,3 +516,53 @@ private fun <T> collectItemTransitions(
  * Returns the length of the [AnnotatedString].
  */
 val AnnotatedString.length: Int get() = text.length
+
+/**
+ * Pushes [style] to the [AnnotatedString.Builder], executes [block] and then pops the [style].
+ *
+ * @sample androidx.ui.text.samples.AnnotatedStringBuilderWithStyleSample
+ *
+ * @param style [TextStyle] to be applied
+ * @param block function to be executed
+ *
+ * @return result of the [block]
+ *
+ * @see AnnotatedString.Builder.push
+ * @see AnnotatedString.Builder.pop
+ */
+inline fun <R : Any> AnnotatedString.Builder.withStyle(
+    style: TextStyle,
+    crossinline block: AnnotatedString.Builder.() -> R
+): R {
+    val index = pushIndexed(style)
+    return try {
+        block(this)
+    } finally {
+        popTo(index)
+    }
+}
+
+/**
+ * Pushes [style] to the [AnnotatedString.Builder], executes [block] and then pops the [style].
+ *
+ * @sample androidx.ui.text.samples.AnnotatedStringBuilderWithStyleSample
+ *
+ * @param style [TextStyle] to be applied
+ * @param block function to be executed
+ *
+ * @return result of the [block]
+ *
+ * @see AnnotatedString.Builder.push
+ * @see AnnotatedString.Builder.pop
+ */
+inline fun <R : Any> AnnotatedString.Builder.withStyle(
+    style: ParagraphStyle,
+    crossinline block: AnnotatedString.Builder.() -> R
+): R {
+    val index = pushIndexed(style)
+    return try {
+        block(this)
+    } finally {
+        popTo(index)
+    }
+}

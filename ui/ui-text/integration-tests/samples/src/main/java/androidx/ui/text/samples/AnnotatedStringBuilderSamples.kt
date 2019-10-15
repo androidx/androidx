@@ -22,6 +22,7 @@ import androidx.ui.graphics.Color
 import androidx.ui.text.AnnotatedString
 import androidx.ui.text.ParagraphStyle
 import androidx.ui.text.TextStyle
+import androidx.ui.text.withStyle
 
 @Sampled
 fun AnnotatedStringBuilderSample() {
@@ -65,4 +66,13 @@ fun AnnotatedStringBuilderPushParagraphStyleSample() {
         // append new paragraph, this paragraph will not have the line height defined.
         append("Paragraph Two\n")
     }
+}
+
+@Sampled
+fun AnnotatedStringBuilderWithStyleSample() {
+    AnnotatedString.Builder()
+        .withStyle(TextStyle(color = Color.Green)) {
+            // green text style will be applied to all text in this block
+            append("Hello")
+        }.build()
 }
