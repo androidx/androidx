@@ -91,6 +91,12 @@ package androidx.ui.text {
     method public androidx.ui.text.AnnotatedString.Builder append(androidx.ui.text.AnnotatedString text);
     method public androidx.ui.text.AnnotatedString build();
     method public int getLength();
+    method public androidx.ui.text.AnnotatedString.Builder pop();
+    method public androidx.ui.text.AnnotatedString.Builder popTo(int index);
+    method public androidx.ui.text.AnnotatedString.Builder push(androidx.ui.text.TextStyle style);
+    method public androidx.ui.text.AnnotatedString.Builder push(androidx.ui.text.ParagraphStyle style);
+    method public int pushIndexed(androidx.ui.text.TextStyle style);
+    method public int pushIndexed(androidx.ui.text.ParagraphStyle style);
     property public final int length;
   }
 
@@ -112,6 +118,8 @@ package androidx.ui.text {
     method public static int getLength(androidx.ui.text.AnnotatedString);
     method public static androidx.ui.text.AnnotatedString toLowerCase(androidx.ui.text.AnnotatedString, androidx.ui.text.LocaleList localeList = LocaleList.current);
     method public static androidx.ui.text.AnnotatedString toUpperCase(androidx.ui.text.AnnotatedString, androidx.ui.text.LocaleList localeList = LocaleList.current);
+    method public static inline <R> R withStyle(androidx.ui.text.AnnotatedString.Builder, androidx.ui.text.TextStyle style, kotlin.jvm.functions.Function1<? super androidx.ui.text.AnnotatedString.Builder,? extends R> block);
+    method public static inline <R> R withStyle(androidx.ui.text.AnnotatedString.Builder, androidx.ui.text.ParagraphStyle style, kotlin.jvm.functions.Function1<? super androidx.ui.text.AnnotatedString.Builder,? extends R> block);
   }
 
   public final class Locale {

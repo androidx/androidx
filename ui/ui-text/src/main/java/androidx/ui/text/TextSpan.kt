@@ -59,12 +59,7 @@ class TextSpan(
         return true
     }
 
-    /**
-     * Flattens the [TextSpan] tree into a single string.
-     *
-     * Styles are not honored in this process.
-     */
-    fun toPlainText(): String {
+    override fun toString(): String {
         val buffer = StringBuilder()
         visitTextSpan { span: TextSpan ->
             buffer.append(span.text)
@@ -111,29 +106,19 @@ class TextSpan(
     }
 }
 
-private data class RecordInternal(
-    val style: TextStyle,
-    val start: Int,
-    var end: Int
-)
-
-private fun TextSpan.annotatedStringVisitor(
-    stringBuilder: java.lang.StringBuilder,
-    styles: MutableList<RecordInternal>
-) {
-    val styleSpan = style?.let {
-        val span = RecordInternal(it, stringBuilder.length, -1)
-        styles.add(span)
-        span
+private fun TextSpan.annotatedStringVisitor(builder: AnnotatedString.Builder) {
+    style?.let {
+        builder.push(style)
     }
 
-    text?.let { stringBuilder.append(text) }
+    text?.let { builder.append(text) }
+
     for (child in children) {
-        child.annotatedStringVisitor(stringBuilder, styles)
+        child.annotatedStringVisitor(builder)
     }
 
-    if (styleSpan != null) {
-        styleSpan.end = stringBuilder.length
+    style?.let {
+        builder.pop()
     }
 }
 
@@ -143,15 +128,8 @@ private fun TextSpan.annotatedStringVisitor(
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 fun TextSpan.toAnnotatedString(): AnnotatedString {
-    val stringBuilder = java.lang.StringBuilder()
-    val tempRecords = mutableListOf<RecordInternal>()
-    annotatedStringVisitor(stringBuilder, tempRecords)
-    val records = tempRecords.map {
-        AnnotatedString.Item(
-            it.style,
-            it.start,
-            it.end
-        )
+    return with(AnnotatedString.Builder()) {
+        annotatedStringVisitor(this)
+        build()
     }
-    return AnnotatedString(stringBuilder.toString(), records)
 }
