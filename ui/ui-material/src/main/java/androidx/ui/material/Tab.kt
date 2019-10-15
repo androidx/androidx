@@ -27,7 +27,9 @@ import androidx.ui.animation.ColorPropKey
 import androidx.ui.animation.PxPropKey
 import androidx.ui.animation.Transition
 import androidx.ui.core.Alignment
+import androidx.ui.core.FirstBaseline
 import androidx.ui.core.IntPx
+import androidx.ui.core.LastBaseline
 import androidx.ui.core.Layout
 import androidx.ui.core.Placeable
 import androidx.ui.core.Px
@@ -35,6 +37,8 @@ import androidx.ui.core.Text
 import androidx.ui.core.ambientDensity
 import androidx.ui.core.coerceIn
 import androidx.ui.core.dp
+import androidx.ui.core.max
+import androidx.ui.core.sp
 import androidx.ui.core.toPx
 import androidx.ui.core.withDensity
 import androidx.ui.core.withTight
@@ -44,18 +48,16 @@ import androidx.ui.foundation.ScrollerPosition
 import androidx.ui.foundation.SimpleImage
 import androidx.ui.foundation.selection.MutuallyExclusiveSetItem
 import androidx.ui.graphics.Color
-import androidx.ui.layout.Column
 import androidx.ui.layout.Container
-import androidx.ui.layout.CrossAxisAlignment
 import androidx.ui.layout.FlexRow
-import androidx.ui.layout.LayoutSize
-import androidx.ui.layout.MainAxisAlignment
 import androidx.ui.layout.Padding
 import androidx.ui.layout.Stack
 import androidx.ui.material.TabRow.TabPosition
 import androidx.ui.material.ripple.Ripple
 import androidx.ui.material.surface.Surface
 import androidx.ui.graphics.Image
+import androidx.ui.text.ParagraphStyle
+import androidx.ui.text.style.TextAlign
 
 /**
  * A TabRow contains a row of [Tab]s, and displays an indicator underneath the currently
@@ -434,13 +436,13 @@ object TabRow {
 }
 
 /**
- * A Tab represents a single page of content using a title and/or image. It represents its selected
- * state by tinting the title and/or image with [MaterialColors.onPrimary].
+ * A Tab represents a single page of content using a text label and/or image. It represents its
+ * selected state by tinting the text label and/or image with [MaterialColors.onPrimary].
  *
  * This should typically be used inside of a [TabRow], see the corresponding documentation for
  * example usage.
  *
- * @param text the title displayed in this tab
+ * @param text the text label displayed in this tab
  * @param icon the icon displayed in this tab
  * @param selected whether this tab is selected or not
  * @param onSelected the callback to be invoked when this tab is selected
@@ -476,21 +478,20 @@ private fun BaseTab(selected: Boolean, onSelected: () -> Unit, children: @Compos
 }
 
 /**
- * A Tab that contains a title, and represents its selected state by tinting the title with [tint].
+ * A Tab that contains a text label, and represents its selected state by tinting the text label
+ * with [tint].
  *
- * @param text the title displayed in this tab
+ * @param text the text label displayed in this tab
  * @param selected whether this tab is selected or not
  * @param onSelected the callback to be invoked when this tab is selected
- * @param tint the color that will be used to tint the title
+ * @param tint the color that will be used to tint the text label
  */
 @Composable
 private fun TextTab(text: String, selected: Boolean, onSelected: () -> Unit, tint: Color) {
     BaseTab(selected = selected, onSelected = onSelected) {
-        Container(height = SmallTabHeight, alignment = Alignment.BottomCenter) {
-            Padding(bottom = SingleRowTextBaselinePadding) {
-                TabTransition(color = tint, selected = selected) { tabTintColor ->
-                    // TODO: This should be aligned to the bottom padding by baseline,
-                    // not raw layout
+        Container(height = SmallTabHeight) {
+            TabTransition(color = tint, selected = selected) { tabTintColor ->
+                TabTextBaselineLayout {
                     TabText(text, tabTintColor)
                 }
             }
@@ -518,14 +519,14 @@ private fun IconTab(icon: Image, selected: Boolean, onSelected: () -> Unit, tint
 }
 
 /**
- * A Tab that contains a title and an icon, and represents its selected state by tinting the
- * title and icon with [tint].
+ * A Tab that contains a text label and an icon, and represents its selected state by tinting the
+ * text label and icon with [tint].
  *
- * @param text the title displayed in this tab
+ * @param text the text label displayed in this tab
  * @param icon the icon displayed in this tab
  * @param selected whether this tab is selected or not
  * @param onSelected the callback to be invoked when this tab is selected
- * @param tint the color that will be used to tint the title and icon
+ * @param tint the color that will be used to tint the text label and icon
  */
 @Composable
 private fun CombinedTab(
@@ -537,19 +538,11 @@ private fun CombinedTab(
 ) {
     BaseTab(selected = selected, onSelected = onSelected) {
         Container(height = LargeTabHeight) {
-            Padding(top = SingleRowTextImagePadding, bottom = SingleRowTextBaselinePadding) {
-                TabTransition(color = tint, selected = selected) { tabTintColor ->
-                    Column(
-                        mainAxisSize = LayoutSize.Expand,
-                        mainAxisAlignment = MainAxisAlignment.SpaceBetween,
-                        crossAxisAlignment = CrossAxisAlignment.Center
-                    ) {
-                        TabIcon(icon, tabTintColor)
-                        // TODO: This should be aligned to the bottom padding by baseline,
-                        // not raw layout
-                        TabText(text, tabTintColor)
-                    }
-                }
+            TabTransition(color = tint, selected = selected) { tabTintColor ->
+                TabTextBaselineLayout(
+                    icon = { TabIcon(icon, tabTintColor) },
+                    text = { TabText(text, tabTintColor) }
+                )
             }
         }
     }
@@ -607,7 +600,88 @@ private fun TabTransition(
 private fun TabText(text: String, color: Color) {
     val buttonTextStyle = +themeTextStyle { button }
     Padding(left = HorizontalTextPadding, right = HorizontalTextPadding) {
-        Text(text = text, style = buttonTextStyle.copy(color = color), maxLines = MaxTitleLineCount)
+        Text(
+            text = text,
+            style = buttonTextStyle.copy(color = color),
+            paragraphStyle = ParagraphStyle(TextAlign.Center),
+            maxLines = TextLabelMaxLines
+        )
+    }
+}
+
+/**
+ * A [Layout] that positions [text] and an optional [icon] with the correct baseline distances. This
+ * Layout will expand to fit the full height of the tab, and then place the text and icon positioned
+ * correctly from the bottom edge of the tab.
+ */
+@Suppress("USELESS_CAST")
+@Composable
+private fun TabTextBaselineLayout(
+    icon: @Composable() (() -> Unit) = {},
+    text: @Composable() () -> Unit
+) {
+    Layout(text, icon) { measurables, constraints ->
+        require(measurables[text].isNotEmpty()) { "No text found" }
+
+        val textPlaceable = measurables[text].first().measure(
+            // Measure with loose constraints for height as we don't want the text to take up more
+            // space than it needs
+            constraints.copy(minHeight = IntPx.Zero)
+        )
+
+        val firstBaseline =
+            requireNotNull(textPlaceable[FirstBaseline]) { "No text baselines found" }
+        val lastBaseline =
+            requireNotNull(textPlaceable[LastBaseline]) { "No text baselines found" }
+
+        val iconPlaceable = measurables[icon].firstOrNull()?.measure(constraints)
+
+        // Total offset from the bottom of this layout to the last text baseline
+        val baselineOffset = if (firstBaseline == lastBaseline) {
+            if (iconPlaceable == null) {
+                SingleLineTextBaseline
+            } else {
+                SingleLineTextBaselineWithIcon
+            }
+        } else {
+            DoubleLineTextBaseline
+        }.toIntPx() + IndicatorHeight.toIntPx()
+
+        val textHeight = textPlaceable.height
+
+        // How much space there is between the bottom of the text layout's bounding box (not
+        // baseline) and the bottom of this layout.
+        val textOffsetBelow = baselineOffset - textHeight + lastBaseline
+
+        if (iconPlaceable == null) {
+
+            val containerWidth = textPlaceable.width
+            val contentHeight = textPlaceable.height + textOffsetBelow
+            val containerHeight = constraints.maxHeight
+            layout(containerWidth, containerHeight) {
+                val textPlaceableY = containerHeight - contentHeight
+                textPlaceable.place(IntPx.Zero, textPlaceableY)
+            }
+        } else {
+            // How much space there is between the top of the text layout's bounding box (not
+            // baseline) and the top of the icon (essentially the top of this layout).
+            val textOffsetAbove =
+                iconPlaceable.height + IconDistanceFromBaseline.toIntPx() - firstBaseline
+
+            // Calculate the size of the AlignmentLineOffset widget & define layout.
+            val containerWidth = max(textPlaceable.width, iconPlaceable.width)
+            val contentHeight = textOffsetAbove + textPlaceable.height + textOffsetBelow
+            val containerHeight = constraints.maxHeight
+            layout(containerWidth, containerHeight) {
+                val iconPlaceableX = (containerWidth - iconPlaceable.width) / 2
+                val iconPlaceableY = containerHeight - contentHeight
+                iconPlaceable.place(iconPlaceableX, iconPlaceableY)
+
+                val textPlaceableX = (containerWidth - textPlaceable.width) / 2
+                val textPlaceableY = iconPlaceableY + textOffsetAbove
+                textPlaceable.place(textPlaceableX, textPlaceableY)
+            }
+        }
     }
 }
 
@@ -629,7 +703,7 @@ private val ScrollableTabRowMinimumTabWidth = 90.dp
 private val SmallTabHeight = 48.dp
 private val LargeTabHeight = 72.dp
 private val InactiveTabOpacity = 0.74f
-private val MaxTitleLineCount = 2
+private val TextLabelMaxLines = 2
 
 // Tab transition specifications
 private val TabFadeInAnimationDuration = 150
@@ -641,11 +715,14 @@ private val HorizontalTextPadding = 16.dp
 
 private val IconDiameter = 24.dp
 
-// TODO: this should be 18.dp + IndicatorHeight, but as we are not currently aligning by
-// baseline, this can be 13.dp + IndicatorHeight to make it look more correct
-private val SingleRowTextBaselinePadding = 13.dp + IndicatorHeight
-private val SingleRowTextImagePadding = 12.dp
-// TODO: need to figure out how many lines of text are drawn in the tab, so we can adjust
-// the baseline padding
-private val DoubleRowTextBaselinePadding = 8.dp + IndicatorHeight
-private val DoubleRowTextImagePadding = 6.dp
+// Distance from the top of the indicator to the text baseline when there is one line of text
+private val SingleLineTextBaseline = 18.sp
+// Distance from the top of the indicator to the text baseline when there is one line of text and an
+// icon
+// TODO: clarify spec for this
+private val SingleLineTextBaselineWithIcon = 14.sp
+// Distance from the top of the indicator to the last text baseline when there are two lines of text
+// with or without an icon
+private val DoubleLineTextBaseline = 8.sp
+// Distance from the first text baseline to the bottom of the icon in a combined tab
+private val IconDistanceFromBaseline = 20.sp
