@@ -16,7 +16,6 @@
 
 package androidx.ui.text.samples
 
-import androidx.compose.composer
 import androidx.annotation.Sampled
 import androidx.compose.Composable
 import androidx.ui.core.Span

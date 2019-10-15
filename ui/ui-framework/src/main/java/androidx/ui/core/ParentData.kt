@@ -16,7 +16,6 @@
 package androidx.ui.core
 
 import androidx.compose.Composable
-import androidx.compose.composer
 
 /**
  * Provide data that can be read from the [Measurable] children.

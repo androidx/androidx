@@ -17,7 +17,6 @@
 package androidx.ui.test.cases
 
 import android.app.Activity
-import androidx.compose.composer
 import androidx.compose.memo
 import androidx.compose.unaryPlus
 import androidx.ui.core.Draw

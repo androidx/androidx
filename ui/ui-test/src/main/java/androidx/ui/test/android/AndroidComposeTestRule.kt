@@ -22,7 +22,6 @@ import android.view.ViewGroup
 import android.view.ViewTreeObserver
 import androidx.compose.Composable
 import androidx.compose.Compose
-import androidx.compose.composer
 import androidx.test.rule.ActivityTestRule
 import androidx.ui.animation.transitionsEnabled
 import androidx.ui.core.Density

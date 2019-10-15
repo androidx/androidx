@@ -27,7 +27,6 @@ import androidx.ui.core.dp
 import androidx.ui.core.ipx
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Paint
-import androidx.compose.composer
 import androidx.ui.core.Draw
 import androidx.ui.core.IntPx
 import androidx.ui.graphics.PaintingStyle

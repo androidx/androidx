@@ -17,7 +17,6 @@
 package androidx.ui.test.cases
 
 import android.app.Activity
-import androidx.compose.composer
 import androidx.ui.core.dp
 import androidx.ui.core.setContent
 import androidx.ui.foundation.shape.DrawShape

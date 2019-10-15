@@ -41,7 +41,6 @@ import androidx.ui.layout.Row
 import androidx.ui.layout.Wrap
 import androidx.compose.Composable
 import androidx.compose.Model
-import androidx.compose.composer
 import androidx.ui.core.Alignment
 import androidx.ui.core.IntPx
 import androidx.ui.core.ipx

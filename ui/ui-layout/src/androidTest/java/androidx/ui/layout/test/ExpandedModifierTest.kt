@@ -18,7 +18,6 @@ package androidx.ui.layout.test
 
 import android.content.res.Resources
 import androidx.compose.Composable
-import androidx.compose.composer
 import androidx.test.filters.SmallTest
 import androidx.ui.core.Alignment
 import androidx.ui.core.IntPx

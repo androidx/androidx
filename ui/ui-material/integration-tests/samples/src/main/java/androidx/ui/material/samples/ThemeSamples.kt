@@ -18,7 +18,6 @@ package androidx.ui.material.samples
 
 import androidx.annotation.Sampled
 import androidx.compose.Composable
-import androidx.compose.composer
 import androidx.compose.unaryPlus
 import androidx.ui.core.Text
 import androidx.ui.core.sp

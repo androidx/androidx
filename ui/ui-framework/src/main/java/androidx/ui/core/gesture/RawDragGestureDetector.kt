@@ -31,7 +31,6 @@ import androidx.ui.core.consumePositionChange
 import androidx.ui.core.gesture.util.VelocityTracker
 import androidx.ui.core.positionChange
 import androidx.ui.core.px
-import androidx.compose.composer
 import androidx.ui.core.PointerInputWrapper
 
 interface DragObserver {

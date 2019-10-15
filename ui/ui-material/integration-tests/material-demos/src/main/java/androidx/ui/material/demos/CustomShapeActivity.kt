@@ -19,7 +19,6 @@ package androidx.ui.material.demos
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import androidx.compose.Composable
-import androidx.compose.composer
 import androidx.ui.core.Alignment
 import androidx.ui.core.dp
 import androidx.ui.foundation.shape.border.Border

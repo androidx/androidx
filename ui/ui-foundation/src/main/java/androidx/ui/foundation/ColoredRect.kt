@@ -17,7 +17,6 @@
 package androidx.ui.foundation
 
 import androidx.compose.Composable
-import androidx.compose.composer
 import androidx.compose.trace
 import androidx.ui.core.Dp
 import androidx.ui.core.Modifier

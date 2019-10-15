@@ -22,7 +22,6 @@ import androidx.animation.TransitionDefinition
 import androidx.animation.TransitionState
 import androidx.compose.Composable
 import androidx.compose.Model
-import androidx.compose.composer
 import androidx.compose.memo
 import androidx.compose.unaryPlus
 

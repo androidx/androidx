@@ -26,7 +26,6 @@ import androidx.ui.material.LinearProgressIndicator
 import androidx.ui.graphics.Color
 import androidx.compose.Composable
 import androidx.compose.Model
-import androidx.compose.composer
 import androidx.compose.onActive
 import androidx.compose.onDispose
 import androidx.compose.unaryPlus

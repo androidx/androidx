@@ -17,7 +17,6 @@
 package androidx.ui.test.cases
 
 import android.app.Activity
-import androidx.compose.composer
 import androidx.compose.Composable
 import androidx.compose.FrameManager
 import androidx.compose.State

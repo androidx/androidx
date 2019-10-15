@@ -19,7 +19,6 @@ package androidx.ui.material
 import androidx.annotation.CheckResult
 import androidx.compose.Ambient
 import androidx.compose.Composable
-import androidx.compose.composer
 import androidx.compose.ambient
 import androidx.compose.effectOf
 import androidx.compose.memo

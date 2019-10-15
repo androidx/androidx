@@ -20,7 +20,6 @@ import androidx.animation.AnimationEndReason
 import androidx.animation.TweenBuilder
 import androidx.compose.Composable
 import androidx.compose.Key
-import androidx.compose.composer
 import androidx.compose.effectOf
 import androidx.compose.memo
 import androidx.compose.onCommit

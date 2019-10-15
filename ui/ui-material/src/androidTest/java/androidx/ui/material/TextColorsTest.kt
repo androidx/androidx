@@ -17,7 +17,6 @@
 package androidx.ui.material
 
 import androidx.compose.unaryPlus
-import androidx.compose.composer
 import androidx.test.filters.MediumTest
 import androidx.ui.graphics.Color
 import androidx.ui.test.createComposeRule

@@ -34,7 +34,6 @@ import androidx.ui.layout.DpConstraints
 import androidx.ui.layout.LayoutSize
 import androidx.ui.layout.MainAxisAlignment
 import androidx.compose.Composable
-import androidx.compose.composer
 import androidx.ui.core.Alignment
 import androidx.ui.core.HorizontalAlignmentLine
 import androidx.ui.core.OnChildPositioned

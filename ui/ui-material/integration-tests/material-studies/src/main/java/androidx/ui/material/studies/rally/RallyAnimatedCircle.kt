@@ -21,7 +21,6 @@ import androidx.animation.FloatPropKey
 import androidx.animation.LinearOutSlowInEasing
 import androidx.animation.transitionDefinition
 import androidx.compose.Composable
-import androidx.compose.composer
 import androidx.compose.memo
 import androidx.compose.unaryPlus
 import androidx.ui.animation.Transition

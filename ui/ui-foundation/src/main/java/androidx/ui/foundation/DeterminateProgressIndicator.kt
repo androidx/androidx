@@ -19,7 +19,6 @@ package androidx.ui.foundation
 import androidx.annotation.FloatRange
 import androidx.ui.semantics.Semantics
 import androidx.compose.Composable
-import androidx.compose.composer
 import androidx.ui.semantics.accessibilityValue
 
 /**

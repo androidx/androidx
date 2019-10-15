@@ -34,7 +34,6 @@ import androidx.ui.layout.DpConstraints
 import androidx.ui.layout.EdgeInsets
 import androidx.ui.layout.Padding
 import androidx.compose.Composable
-import androidx.compose.composer
 import androidx.ui.layout.AspectRatio
 import org.junit.Test
 import org.junit.runner.RunWith

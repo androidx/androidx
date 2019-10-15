@@ -38,7 +38,6 @@ import androidx.compose.Composable
 import androidx.compose.Model
 import androidx.compose.state
 import androidx.compose.unaryPlus
-import androidx.compose.composer
 import androidx.compose.setViewContent
 
 @Model

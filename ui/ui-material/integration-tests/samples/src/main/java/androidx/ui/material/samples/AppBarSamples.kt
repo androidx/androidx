@@ -19,7 +19,6 @@ package androidx.ui.material.samples
 import androidx.animation.TweenBuilder
 import androidx.annotation.Sampled
 import androidx.compose.Composable
-import androidx.compose.composer
 import androidx.compose.unaryPlus
 import androidx.ui.animation.animatedFloat
 import androidx.ui.core.Text

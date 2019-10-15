@@ -30,7 +30,6 @@ import androidx.compose.Context
 import androidx.compose.Immutable
 import androidx.compose.TestOnly
 import androidx.compose.ambient
-import androidx.compose.composer
 import androidx.compose.disposeComposition
 import androidx.compose.escapeCompose
 import androidx.compose.memo

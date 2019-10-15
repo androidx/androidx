@@ -17,7 +17,6 @@
 package androidx.ui.core
 
 import androidx.compose.Composable
-import androidx.compose.composer
 
 /**
  * A repaint boundary blocks parents from having to repaint when contained children

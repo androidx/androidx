@@ -25,7 +25,6 @@ import androidx.ui.core.Placeable
 import androidx.ui.core.looseMin
 import androidx.ui.core.max
 import androidx.compose.Composable
-import androidx.compose.composer
 import androidx.ui.core.Alignment
 import androidx.ui.core.Layout
 import androidx.ui.core.Modifier

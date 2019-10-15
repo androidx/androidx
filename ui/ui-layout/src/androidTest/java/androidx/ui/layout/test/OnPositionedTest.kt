@@ -20,7 +20,6 @@ import android.widget.FrameLayout
 import androidx.compose.Composable
 import androidx.compose.Model
 import androidx.test.filters.SmallTest
-import androidx.compose.composer
 import androidx.ui.core.Alignment
 import androidx.ui.core.Layout
 import androidx.ui.core.LayoutCoordinates

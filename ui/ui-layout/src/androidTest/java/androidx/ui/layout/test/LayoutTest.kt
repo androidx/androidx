@@ -30,7 +30,6 @@ import androidx.ui.core.PxSize
 import androidx.ui.core.Ref
 import androidx.ui.core.px
 import androidx.compose.Composable
-import androidx.compose.composer
 import androidx.ui.core.AlignmentLine
 import androidx.ui.core.IntPx
 import androidx.ui.core.Layout

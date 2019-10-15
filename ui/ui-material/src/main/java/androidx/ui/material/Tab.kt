@@ -20,7 +20,6 @@ import androidx.animation.FastOutSlowInEasing
 import androidx.animation.LinearEasing
 import androidx.animation.transitionDefinition
 import androidx.compose.Composable
-import androidx.compose.composer
 import androidx.compose.memo
 import androidx.compose.state
 import androidx.compose.unaryPlus

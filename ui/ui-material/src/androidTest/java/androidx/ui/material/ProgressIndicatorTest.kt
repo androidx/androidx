@@ -15,7 +15,6 @@
  */
 package androidx.ui.material
 
-import androidx.compose.composer
 import androidx.compose.Model
 import androidx.test.filters.LargeTest
 import androidx.ui.core.TestTag

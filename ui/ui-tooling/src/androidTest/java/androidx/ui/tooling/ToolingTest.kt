@@ -18,7 +18,6 @@ package androidx.ui.tooling
 
 import android.os.Handler
 import androidx.compose.Composable
-import androidx.compose.composer
 import androidx.test.rule.ActivityTestRule
 import androidx.ui.core.OnPositioned
 import androidx.ui.core.setContent

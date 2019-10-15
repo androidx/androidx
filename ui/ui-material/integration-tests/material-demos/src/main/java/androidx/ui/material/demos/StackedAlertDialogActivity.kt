@@ -16,7 +16,6 @@
 
 package androidx.ui.material.demos
 import androidx.compose.Composable
-import androidx.compose.composer
 import androidx.ui.material.samples.StackedAlertDialogSample
 
 class StackedAlertDialogActivity : MaterialDemoActivity() {

@@ -25,7 +25,6 @@ import android.os.Build
 import android.os.PowerManager
 import androidx.annotation.RequiresApi
 import androidx.compose.ambient
-import androidx.compose.composer
 import androidx.compose.effectOf
 import androidx.compose.memo
 import androidx.compose.onActive

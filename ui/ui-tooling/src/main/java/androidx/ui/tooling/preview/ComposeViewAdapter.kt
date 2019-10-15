@@ -23,7 +23,6 @@ import android.graphics.Paint
 import android.util.AttributeSet
 import android.util.Log
 import android.widget.FrameLayout
-import androidx.compose.composer
 import androidx.compose.disposeComposition
 import androidx.ui.core.FontLoaderAmbient
 import androidx.ui.core.Px

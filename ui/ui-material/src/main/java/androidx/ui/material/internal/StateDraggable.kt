@@ -21,7 +21,6 @@ import androidx.animation.AnimationBuilder
 import androidx.animation.ValueHolder
 import androidx.compose.Composable
 import androidx.compose.Model
-import androidx.compose.composer
 import androidx.compose.memo
 import androidx.compose.onCommit
 import androidx.compose.state

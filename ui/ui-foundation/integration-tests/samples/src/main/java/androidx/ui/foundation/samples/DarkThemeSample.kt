@@ -18,7 +18,6 @@ package androidx.ui.foundation.samples
 
 import androidx.annotation.Sampled
 import androidx.compose.Composable
-import androidx.compose.composer
 import androidx.compose.unaryPlus
 import androidx.ui.core.dp
 import androidx.ui.foundation.ColoredRect

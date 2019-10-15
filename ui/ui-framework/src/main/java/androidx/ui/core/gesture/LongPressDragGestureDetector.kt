@@ -20,7 +20,6 @@ import androidx.compose.Composable
 import androidx.compose.memo
 import androidx.compose.unaryPlus
 import androidx.ui.core.PxPosition
-import androidx.compose.composer
 import androidx.ui.core.PointerEventPass
 import androidx.ui.core.PointerInputChange
 import androidx.ui.core.PointerInputHandler

@@ -24,7 +24,6 @@ import androidx.ui.core.changedToDown
 import androidx.ui.core.consumeDownChange
 import androidx.ui.engine.geometry.Offset
 import androidx.compose.Composable
-import androidx.compose.composer
 import androidx.compose.memo
 import androidx.compose.unaryPlus
 import androidx.ui.core.PointerInputWrapper

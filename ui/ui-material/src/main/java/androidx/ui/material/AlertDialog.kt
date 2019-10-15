@@ -17,7 +17,6 @@
 package androidx.ui.material
 
 import androidx.compose.Composable
-import androidx.compose.composer
 import androidx.compose.ambient
 import androidx.compose.unaryPlus
 import androidx.ui.core.Alignment

@@ -16,7 +16,6 @@
 
 package androidx.ui.layout.test
 
-import androidx.compose.composer
 import androidx.test.filters.SmallTest
 import androidx.ui.core.Constraints
 import androidx.ui.core.HorizontalAlignmentLine

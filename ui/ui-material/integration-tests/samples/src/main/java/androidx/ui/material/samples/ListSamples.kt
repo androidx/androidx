@@ -18,7 +18,6 @@ package androidx.ui.material.samples
 
 import androidx.annotation.Sampled
 import androidx.compose.Composable
-import androidx.compose.composer
 import androidx.ui.core.Text
 import androidx.ui.foundation.SimpleImage
 import androidx.ui.graphics.Image

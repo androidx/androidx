@@ -18,7 +18,6 @@ package androidx.ui.core
 
 import android.app.Activity
 import android.view.ViewGroup
-import androidx.compose.composer
 import androidx.ui.graphics.Color
 import androidx.ui.layout.ConstrainedBox
 import androidx.ui.layout.DpConstraints

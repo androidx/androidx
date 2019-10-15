@@ -28,7 +28,6 @@ import androidx.ui.core.PxPosition
 import androidx.ui.core.changedToUp
 import androidx.ui.core.changedToUpIgnoreConsumed
 import androidx.ui.core.consumeDownChange
-import androidx.compose.composer
 import androidx.ui.core.CoroutineContextAmbient
 import androidx.ui.core.PointerInputWrapper
 import androidx.ui.temputils.delay

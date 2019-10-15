@@ -16,7 +16,6 @@
 
 package androidx.ui.core.test
 
-import androidx.compose.composer
 import androidx.compose.state
 import androidx.compose.unaryPlus
 import androidx.test.filters.SmallTest

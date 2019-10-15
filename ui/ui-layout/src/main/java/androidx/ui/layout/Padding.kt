@@ -21,7 +21,6 @@ import androidx.ui.core.dp
 import androidx.ui.core.min
 import androidx.ui.core.offset
 import androidx.compose.Composable
-import androidx.compose.composer
 import androidx.ui.core.AlignmentLine
 import androidx.ui.core.Constraints
 import androidx.ui.core.DensityScope

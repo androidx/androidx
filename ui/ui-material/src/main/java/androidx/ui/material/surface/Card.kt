@@ -17,7 +17,6 @@
 package androidx.ui.material.surface
 
 import androidx.compose.Composable
-import androidx.compose.composer
 import androidx.compose.unaryPlus
 import androidx.ui.core.Dp
 import androidx.ui.core.dp

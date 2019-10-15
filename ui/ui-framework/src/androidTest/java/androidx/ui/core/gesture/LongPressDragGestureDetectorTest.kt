@@ -39,7 +39,6 @@ import com.nhaarman.mockitokotlin2.spy
 import com.nhaarman.mockitokotlin2.times
 import androidx.test.filters.LargeTest
 import androidx.ui.core.Layout
-import androidx.compose.composer
 
 @LargeTest
 @RunWith(JUnit4::class)
