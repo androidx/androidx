@@ -401,7 +401,7 @@ public class CameraXActivity extends AppCompatActivity
                 CameraXExecutors.mainThreadExecutor(),
                 new ImageAnalysis.Analyzer() {
                     @Override
-                    public void analyze(ImageProxy image, int rotationDegrees) {
+                    public void analyze(@NonNull ImageProxy image, int rotationDegrees) {
                         // Since we set the callback handler to a main thread handler, we can call
                         // setValue()
                         // here. If we weren't on the main thread, we would have to call postValue()

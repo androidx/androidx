@@ -890,8 +890,9 @@ public final class Camera2CameraImplTest {
         }
 
         @Override
+        @NonNull
         protected Map<String, Size> onSuggestedResolutionUpdated(
-                Map<String, Size> suggestedResolutionMap) {
+                @NonNull Map<String, Size> suggestedResolutionMap) {
             LensFacing lensFacing = ((CameraDeviceConfig) getUseCaseConfig()).getLensFacing();
             String cameraId = getCameraIdForLensFacingUnchecked(lensFacing);
             Size resolution = suggestedResolutionMap.get(cameraId);

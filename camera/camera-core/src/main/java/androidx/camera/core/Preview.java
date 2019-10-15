@@ -443,7 +443,7 @@ public class Preview extends UseCase {
      *
      * @param crop rectangle with dimensions in sensor coordinate frame for zooming
      */
-    public void zoom(Rect crop) {
+    public void zoom(@Nullable Rect crop) {
         getCurrentCameraControl().setCropRegion(crop);
     }
 
@@ -568,8 +568,9 @@ public class Preview extends UseCase {
      */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
+    @NonNull
     protected Map<String, Size> onSuggestedResolutionUpdated(
-            Map<String, Size> suggestedResolutionMap) {
+            @NonNull Map<String, Size> suggestedResolutionMap) {
         PreviewConfig config = (PreviewConfig) getUseCaseConfig();
         String cameraId = getCameraIdUnchecked(config);
         Size resolution = suggestedResolutionMap.get(cameraId);

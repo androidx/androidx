@@ -534,7 +534,7 @@ public class FocusMeteringControlTest {
 
         // This is necessary for running delayed task in robolectric.
         ShadowLooper.runUiThreadTasksIncludingDelayedTasks();
-        verify(mFocusMeteringControl, timeout(action.getAutoCancelDurationInMs()))
+        verify(mFocusMeteringControl, timeout(action.getAutoCancelDurationInMillis()))
                 .cancelFocusAndMetering();
     }
 

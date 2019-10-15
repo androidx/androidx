@@ -624,11 +624,12 @@ final class CameraXModule {
         return available;
     }
 
+    @NonNull
     public FlashMode getFlash() {
         return mFlash;
     }
 
-    public void setFlash(FlashMode flash) {
+    public void setFlash(@NonNull FlashMode flash) {
         this.mFlash = flash;
 
         if (mImageCapture == null) {
@@ -719,11 +720,12 @@ final class CameraXModule {
         mCameraView.onPreviewSourceDimensUpdated(width, height);
     }
 
+    @NonNull
     public CameraView.CaptureMode getCaptureMode() {
         return mCaptureMode;
     }
 
-    public void setCaptureMode(CameraView.CaptureMode captureMode) {
+    public void setCaptureMode(@NonNull CameraView.CaptureMode captureMode) {
         this.mCaptureMode = captureMode;
         rebindToLifecycle();
     }

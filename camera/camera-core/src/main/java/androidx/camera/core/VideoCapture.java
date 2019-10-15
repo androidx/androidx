@@ -196,8 +196,9 @@ public class VideoCapture extends UseCase {
      */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
+    @NonNull
     protected Map<String, Size> onSuggestedResolutionUpdated(
-            Map<String, Size> suggestedResolutionMap) {
+            @NonNull Map<String, Size> suggestedResolutionMap) {
         VideoCaptureConfig config = (VideoCaptureConfig) getUseCaseConfig();
         if (mCameraSurface != null) {
             mVideoEncoder.stop();

@@ -61,13 +61,14 @@ public final class FakeImageProxy implements ImageProxy {
     }
 
     @Override
+    @NonNull
     public Rect getCropRect() {
         return mCropRect;
     }
 
     @Override
-    public void setCropRect(Rect rect) {
-        mCropRect = rect;
+    public void setCropRect(@Nullable Rect rect) {
+        mCropRect = rect != null ? rect : new Rect();
     }
 
     @Override
@@ -96,6 +97,7 @@ public final class FakeImageProxy implements ImageProxy {
     }
 
     @Override
+    @NonNull
     public PlaneProxy[] getPlanes() {
         return mPlaneProxy;
     }
