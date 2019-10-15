@@ -70,6 +70,7 @@ class TestFragment : Fragment {
     private fun test() {
         val liveData = MutableLiveData<String>()
         liveData.observe(getViewLifecycleOwner(), Observer<String> {})
+        test()
     }
 }
             """),
