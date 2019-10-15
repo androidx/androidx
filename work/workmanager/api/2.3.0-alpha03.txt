@@ -127,8 +127,8 @@ package androidx.work {
   public final class ForegroundInfo {
     ctor public ForegroundInfo(android.app.Notification);
     ctor public ForegroundInfo(android.app.Notification, int);
+    method public int getForegroundServiceType();
     method public android.app.Notification getNotification();
-    method public int getNotificationType();
   }
 
   public interface ForegroundUpdater {
