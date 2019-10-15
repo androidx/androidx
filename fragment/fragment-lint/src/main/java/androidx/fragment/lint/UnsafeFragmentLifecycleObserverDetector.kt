@@ -15,8 +15,8 @@
  */
 package androidx.fragment.lint
 
-import androidx.fragment.lint.FragmentLiveDataObserverDetector.Issues.BACK_PRESSED_ISSUE
-import androidx.fragment.lint.FragmentLiveDataObserverDetector.Issues.LIVEDATA_ISSUE
+import androidx.fragment.lint.UnsafeFragmentLifecycleObserverDetector.Issues.BACK_PRESSED_ISSUE
+import androidx.fragment.lint.UnsafeFragmentLifecycleObserverDetector.Issues.LIVEDATA_ISSUE
 import com.android.tools.lint.detector.api.Category
 import com.android.tools.lint.detector.api.Detector
 import com.android.tools.lint.detector.api.Implementation
@@ -42,7 +42,7 @@ import org.jetbrains.uast.visitor.AbstractUastVisitor
  * [androidx.fragment.app.Fragment.onActivityCreated], or
  * [androidx.fragment.app.Fragment.onViewStateRestored].
  */
-class FragmentLiveDataObserverDetector : Detector(), SourceCodeScanner {
+class UnsafeFragmentLifecycleObserverDetector : Detector(), SourceCodeScanner {
 
     companion object Issues {
         val LIVEDATA_ISSUE = Issue.create(
@@ -58,7 +58,7 @@ class FragmentLiveDataObserverDetector : Detector(), SourceCodeScanner {
             category = Category.CORRECTNESS,
             severity = Severity.ERROR,
             implementation = Implementation(
-                FragmentLiveDataObserverDetector::class.java, Scope.JAVA_FILE_SCOPE
+                UnsafeFragmentLifecycleObserverDetector::class.java, Scope.JAVA_FILE_SCOPE
             ),
             androidSpecific = true
         )
@@ -77,7 +77,7 @@ class FragmentLiveDataObserverDetector : Detector(), SourceCodeScanner {
             category = Category.CORRECTNESS,
             severity = Severity.ERROR,
             implementation = Implementation(
-                FragmentLiveDataObserverDetector::class.java, Scope.JAVA_FILE_SCOPE
+                UnsafeFragmentLifecycleObserverDetector::class.java, Scope.JAVA_FILE_SCOPE
             ),
             androidSpecific = true
         )

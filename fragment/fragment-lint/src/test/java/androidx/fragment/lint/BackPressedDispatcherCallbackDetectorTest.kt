@@ -31,16 +31,16 @@ import java.util.Properties
 @RunWith(JUnit4::class)
 class BackPressedDispatcherCallbackDetectorTest : LintDetectorTest() {
 
-    override fun getDetector(): Detector = FragmentLiveDataObserverDetector()
+    override fun getDetector(): Detector = UnsafeFragmentLifecycleObserverDetector()
 
     override fun getIssues(): MutableList<Issue> =
-        mutableListOf(FragmentLiveDataObserverDetector.BACK_PRESSED_ISSUE)
+        mutableListOf(UnsafeFragmentLifecycleObserverDetector.BACK_PRESSED_ISSUE)
 
     private var sdkDir: File? = null
 
     @Before
     fun setup() {
-        val stream = FragmentLiveDataObserveDetectorTest::class.java.classLoader
+        val stream = BackPressedDispatcherCallbackDetectorTest::class.java.classLoader
             .getResourceAsStream("sdk.prop")
         val properties = Properties()
         properties.load(stream)
