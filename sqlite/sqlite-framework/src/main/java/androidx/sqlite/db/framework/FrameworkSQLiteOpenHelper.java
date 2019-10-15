@@ -25,42 +25,95 @@ import android.os.Build;
 import androidx.sqlite.db.SupportSQLiteDatabase;
 import androidx.sqlite.db.SupportSQLiteOpenHelper;
 
-class FrameworkSQLiteOpenHelper implements SupportSQLiteOpenHelper {
-    private final OpenHelper mDelegate;
+import java.io.File;
 
-    FrameworkSQLiteOpenHelper(Context context, String name, Callback callback) {
-        mDelegate = createDelegate(context, name, callback);
+class FrameworkSQLiteOpenHelper implements SupportSQLiteOpenHelper {
+
+    private final Context mContext;
+    private final String mName;
+    private final Callback mCallback;
+    private final boolean mUseNoBackupDirectory;
+    private final Object mLock;
+
+    // Delegate is created lazily
+    private OpenHelper mDelegate;
+    private boolean mWriteAheadLoggingEnabled;
+
+    FrameworkSQLiteOpenHelper(
+            Context context,
+            String name,
+            Callback callback) {
+        this(context, name, callback, false);
     }
 
-    private OpenHelper createDelegate(Context context, String name, Callback callback) {
-        final FrameworkSQLiteDatabase[] dbRef = new FrameworkSQLiteDatabase[1];
-        return new OpenHelper(context, name, dbRef, callback);
+    FrameworkSQLiteOpenHelper(
+            Context context,
+            String name,
+            Callback callback,
+            boolean useNoBackupDirectory) {
+        mContext = context;
+        mName = name;
+        mCallback = callback;
+        mUseNoBackupDirectory = useNoBackupDirectory;
+        mLock = new Object();
+    }
+
+    private OpenHelper getDelegate() {
+        // getDelegate() is lazy because we don't want to File I/O until the call to
+        // getReadableDatabase() or getWritableDatabase(). This is better because the call to
+        // a getReadableDatabase() or a getWritableDatabase() happens on a background thread unless
+        // queries are allowed on the main thread.
+
+        // We defer computing the path the database from the constructor to getDelegate()
+        // because context.getNoBackupFilesDir() does File I/O :(
+        synchronized (mLock) {
+            if (mDelegate == null) {
+                final FrameworkSQLiteDatabase[] dbRef = new FrameworkSQLiteDatabase[1];
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M
+                        && mName != null
+                        && mUseNoBackupDirectory) {
+                    File file = new File(mContext.getNoBackupFilesDir(), mName);
+                    mDelegate = new OpenHelper(mContext, file.getAbsolutePath(), dbRef, mCallback);
+                } else {
+                    mDelegate = new OpenHelper(mContext, mName, dbRef, mCallback);
+                }
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                    mDelegate.setWriteAheadLoggingEnabled(mWriteAheadLoggingEnabled);
+                }
+            }
+            return mDelegate;
+        }
     }
 
     @Override
     public String getDatabaseName() {
-        return mDelegate.getDatabaseName();
+        return mName;
     }
 
     @Override
     @androidx.annotation.RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
     public void setWriteAheadLoggingEnabled(boolean enabled) {
-        mDelegate.setWriteAheadLoggingEnabled(enabled);
+        synchronized (mLock) {
+            if (mDelegate != null) {
+                mDelegate.setWriteAheadLoggingEnabled(enabled);
+            }
+            mWriteAheadLoggingEnabled = enabled;
+        }
     }
 
     @Override
     public SupportSQLiteDatabase getWritableDatabase() {
-        return mDelegate.getWritableSupportDatabase();
+        return getDelegate().getWritableSupportDatabase();
     }
 
     @Override
     public SupportSQLiteDatabase getReadableDatabase() {
-        return mDelegate.getReadableSupportDatabase();
+        return getDelegate().getReadableSupportDatabase();
     }
 
     @Override
     public void close() {
-        mDelegate.close();
+        getDelegate().close();
     }
 
     static class OpenHelper extends SQLiteOpenHelper {
