@@ -92,9 +92,24 @@ package androidx.ui.text {
     method public java.util.List<androidx.ui.text.AnnotatedString.Item<androidx.ui.text.TextStyle>> component2();
     method public java.util.List<androidx.ui.text.AnnotatedString.Item<androidx.ui.text.ParagraphStyle>> component3();
     method public androidx.ui.text.AnnotatedString copy(String text, java.util.List<androidx.ui.text.AnnotatedString.Item<androidx.ui.text.TextStyle>> textStyles, java.util.List<androidx.ui.text.AnnotatedString.Item<androidx.ui.text.ParagraphStyle>> paragraphStyles);
+    method public int getLength();
     method public java.util.List<androidx.ui.text.AnnotatedString.Item<androidx.ui.text.ParagraphStyle>> getParagraphStyles();
     method public String getText();
     method public java.util.List<androidx.ui.text.AnnotatedString.Item<androidx.ui.text.TextStyle>> getTextStyles();
+    property public final int length;
+  }
+
+  public static final class AnnotatedString.Builder {
+    ctor public AnnotatedString.Builder();
+    ctor public AnnotatedString.Builder(String text);
+    ctor public AnnotatedString.Builder(androidx.ui.text.AnnotatedString text);
+    method public androidx.ui.text.AnnotatedString.Builder addStyle(androidx.ui.text.TextStyle style, int start, int end);
+    method public androidx.ui.text.AnnotatedString.Builder addStyle(androidx.ui.text.ParagraphStyle style, int start, int end);
+    method public androidx.ui.text.AnnotatedString.Builder append(String text);
+    method public androidx.ui.text.AnnotatedString.Builder append(androidx.ui.text.AnnotatedString text);
+    method public androidx.ui.text.AnnotatedString build();
+    method public int getLength();
+    property public final int length;
   }
 
   public static final class AnnotatedString.Item<T> {

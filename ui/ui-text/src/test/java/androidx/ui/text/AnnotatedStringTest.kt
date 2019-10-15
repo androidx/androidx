@@ -26,7 +26,7 @@ import org.junit.runners.JUnit4
 @RunWith(JUnit4::class)
 class AnnotatedStringTest {
     @Test
-    fun `test normalizedParagraphStyles`() {
+    fun normalizedParagraphStyles() {
         val text = "Hello World"
         val paragraphStyle = ParagraphStyle(textAlign = TextAlign.Center)
         val paragraphStyles = listOf(AnnotatedString.Item(paragraphStyle, 0, 5))
@@ -47,7 +47,7 @@ class AnnotatedStringTest {
     }
 
     @Test
-    fun `test normalizedParagraphStyles only string`() {
+    fun normalizedParagraphStyles_only_string() {
         val text = "Hello World"
         val annotatedString = AnnotatedString(text = text)
         val defaultParagraphStyle = ParagraphStyle(lineHeight = 20.sp)
@@ -62,7 +62,7 @@ class AnnotatedStringTest {
     }
 
     @Test
-    fun `test normalizedParagraphStyles empty string`() {
+    fun normalizedParagraphStyles_empty_string() {
         val text = ""
         val annotatedString = AnnotatedString(text = text)
         val defaultParagraphStyle = ParagraphStyle(lineHeight = 20.sp)
@@ -77,7 +77,7 @@ class AnnotatedStringTest {
     }
 
     @Test
-    fun `test normalizedParagraphStyles with newLine`() {
+    fun normalizedParagraphStyles_with_newLine() {
         val text = "Hello\nWorld"
         val annotatedString = AnnotatedString(text = text)
         val defaultParagraphStyle = ParagraphStyle(lineHeight = 20.sp)
@@ -92,7 +92,7 @@ class AnnotatedStringTest {
     }
 
     @Test
-    fun `test normalizedParagraphStyles with only lineFeed`() {
+    fun normalizedParagraphStyles_with_only_lineFeed() {
         val text = "\n"
         val annotatedString = AnnotatedString(text = text)
         val defaultParagraphStyle = ParagraphStyle(lineHeight = 20.sp)
@@ -104,5 +104,19 @@ class AnnotatedStringTest {
         assertThat(paragraphs[0].style).isEqualTo(defaultParagraphStyle)
         assertThat(paragraphs[0].start).isEqualTo(0)
         assertThat(paragraphs[0].end).isEqualTo(1)
+    }
+
+    @Test
+    fun length_returns_text_length() {
+        val text = "abc"
+        val annotatedString = AnnotatedString(text)
+        assertThat(annotatedString.length).isEqualTo(text.length)
+    }
+
+    @Test
+    fun toString_returns_text() {
+        val text = "abc"
+        val annotatedString = AnnotatedString(text)
+        assertThat(annotatedString.toString()).isEqualTo(text)
     }
 }
