@@ -36,7 +36,8 @@
         android:layout_width="match_parent" android:layout_height="wrap_content">
 
 <!-- BEGIN_INCLUDE(from_attributes) -->
-        <fragment class="com.example.android.supportv4.app.FragmentArgumentsSupport$MyFragment"
+        <androidx.fragment.app.FragmentContainerView
+                class="com.example.android.supportv4.app.FragmentArgumentsSupport$MyFragment"
                 android:id="@+id/embedded"
                 android:layout_width="0px" android:layout_height="wrap_content"
                 android:layout_weight="1"

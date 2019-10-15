@@ -1508,15 +1508,14 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     /**
      * Called when a fragment is being created as part of a view layout
      * inflation, typically from setting the content view of an activity.  This
-     * may be called immediately after the fragment is created from a <fragment>
-     * tag in a layout file.  Note this is <em>before</em> the fragment's
-     * {@link #onAttach(Activity)} has been called; all you should do here is
-     * parse the attributes and save them away.
+     * may be called immediately after the fragment is created from a
+     * {@link FragmentContainerView} in a layout file.  Note this is <em>before</em>
+     * the fragment's {@link #onAttach(Context)} has been called; all you should
+     * do here is parse the attributes and save them away.
      *
-     * <p>This is called every time the fragment is inflated, even if it is
-     * being inflated into a new instance with saved state.  It typically makes
-     * sense to re-parse the parameters each time, to allow them to change with
-     * different configurations.</p>
+     * <p>This is called <em>the first time</em> the fragment is inflated. If it is
+     * being inflated into a new instance with saved state, this method will not be
+     * called a second time for the restored state fragment.</p>
      *
      * <p>Here is a typical implementation of a fragment that can take parameters
      * both through attributes supplied here as well from {@link #getArguments()}:</p>
