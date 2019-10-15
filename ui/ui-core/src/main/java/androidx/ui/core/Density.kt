@@ -39,20 +39,11 @@ fun Density(context: Context): Density =
 /**
  * If you have a [Density] object and you want to perform some conversions use this.
  *
- * Usage examples:
- *
- *     withDensity(density) {
- *        drawWithHeight(canvas, DpHeight.toPx())
- *     }
- *
- * or
- *
- *     val pxHeight = withDensity(density) { DpHeight.toPx() }
- *
+ * @sample androidx.ui.core.samples.WithDensitySample
  */
 // can't make this inline as tests are failing with "DensityKt.$jacocoInit()' is inaccessible"
 /*inline*/ fun <R> withDensity(density: Density, block: DensityScope.() -> R) =
-    DensityScopeImpl(density).block()
+    DensityScope(density).block()
 
 /**
  * Used to add density resolution logic within a receiver scope.
