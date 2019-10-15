@@ -27,6 +27,7 @@ import android.os.SystemClock;
 import android.util.Log;
 import android.view.Surface;
 
+import androidx.annotation.CallSuper;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.IntDef;
 import androidx.annotation.IntRange;
@@ -977,6 +978,20 @@ public abstract class SessionPlayer implements AutoCloseable {
     public TrackInfo getSelectedTrack(@TrackInfo.MediaTrackType int trackType) {
         throw new UnsupportedOperationException(
                 "getSelectedTrack is not implemented");
+    }
+
+    /**
+     * Removes all existing references to callbacks and executors.
+     *
+     * Note: Sub classes of {@link SessionPlayer} that override this API should call this super
+     * method.
+     */
+    @CallSuper
+    @Override
+    public void close() throws Exception {
+        synchronized (mLock) {
+            mCallbacks.clear();
+        }
     }
 
     /**

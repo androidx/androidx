@@ -178,6 +178,7 @@ package androidx.media2.common {
   public abstract class SessionPlayer implements java.lang.AutoCloseable {
     ctor public SessionPlayer();
     method public abstract com.google.common.util.concurrent.ListenableFuture<androidx.media2.common.SessionPlayer.PlayerResult!> addPlaylistItem(int, androidx.media2.common.MediaItem);
+    method @CallSuper public void close() throws java.lang.Exception;
     method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.common.SessionPlayer.PlayerResult!> deselectTrack(androidx.media2.common.SessionPlayer.TrackInfo);
     method public abstract androidx.media.AudioAttributesCompat? getAudioAttributes();
     method public abstract long getBufferedPosition();
