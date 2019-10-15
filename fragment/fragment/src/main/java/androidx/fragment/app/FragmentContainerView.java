@@ -163,7 +163,7 @@ public final class FragmentContainerView extends FrameLayout {
             fm.beginTransaction()
                     .setReorderingAllowed(true)
                     .add(this, containerFragment, tag)
-                    .commitNow();
+                    .commitNowAllowingStateLoss();
         }
     }
 
