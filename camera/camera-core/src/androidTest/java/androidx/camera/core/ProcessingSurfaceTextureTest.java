@@ -27,7 +27,10 @@ import android.os.HandlerThread;
 import android.util.Size;
 import android.view.Surface;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
+import androidx.camera.core.impl.utils.executor.CameraXExecutors;
+import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.camera.testing.fakes.FakeCameraCaptureResult;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
@@ -41,6 +44,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executor;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -135,14 +139,70 @@ public final class ProcessingSurfaceTextureTest {
         assertThat(frameReceivedSemaphore.tryAcquire(1, TimeUnit.SECONDS)).isTrue();
     }
 
-    ProcessingSurfaceTexture createProcessingSurfaceTexture() {
+    @Test
+    @SdkSuppress(minSdkVersion = 28)
+    public void writeToInputSurface_userOutputSurfaceReceivesFrame() throws ExecutionException,
+            InterruptedException {
+        // Arrange.
+        // Create a user provided Surface.
+        SurfaceTexture userSurfaceTexture = new SurfaceTexture(0);
+        userSurfaceTexture.setDefaultBufferSize(mResolution.getWidth(), mResolution.getHeight());
+        userSurfaceTexture.detachFromGLContext();
+        ListenableFuture<Surface> surfaceFuture =
+                Futures.immediateFuture(new Surface(userSurfaceTexture));
+
+        // Create ProcessingSurfaceTexture with user Surface.
+        ProcessingSurfaceTexture processingSurfaceTexture = createProcessingSurfaceTexture(
+                createCallbackDeferrableSurface(mResolution,
+                        CameraXExecutors.directExecutor(), surfaceFuture));
+        final Semaphore frameReceivedSemaphore = new Semaphore(0);
+        userSurfaceTexture.setOnFrameAvailableListener(
+                surfaceTexture -> frameReceivedSemaphore.release(),
+                mBackgroundHandler);
+
+        // Act: Send one frame to processingSurfaceTexture.
+        triggerImage(processingSurfaceTexture, 1);
+
+        // Assert: verify that the frame has been received or time-out after 1 second.
+        assertThat(frameReceivedSemaphore.tryAcquire(1, TimeUnit.SECONDS)).isTrue();
+    }
+
+    private ProcessingSurfaceTexture createProcessingSurfaceTexture() {
+        return createProcessingSurfaceTexture(null);
+    }
+
+    private ProcessingSurfaceTexture createProcessingSurfaceTexture(
+            CallbackDeferrableSurface callbackDeferrableSurface) {
         return new ProcessingSurfaceTexture(
                 mResolution.getWidth(),
                 mResolution.getHeight(),
                 mFormat,
                 mBackgroundHandler,
                 mCaptureStage,
-                mCaptureProcessor);
+                mCaptureProcessor,
+                callbackDeferrableSurface);
+    }
+
+    private CallbackDeferrableSurface createCallbackDeferrableSurface(Size resolution,
+            Executor callbackExecutor, ListenableFuture<Surface> surfaceListenableFuture) {
+        return new CallbackDeferrableSurface(resolution, callbackExecutor,
+                new Preview.PreviewSurfaceCallback() {
+                    @NonNull
+                    @Override
+                    public ListenableFuture<Surface> createSurfaceFuture(@NonNull Size resolution,
+                            int imageFormat) {
+                        return surfaceListenableFuture;
+                    }
+
+                    @Override
+                    public void onSafeToRelease(@NonNull ListenableFuture<Surface> surfaceFuture) {
+                        try {
+                            surfaceFuture.get().release();
+                        } catch (ExecutionException | InterruptedException e) {
+                            // no-op
+                        }
+                    }
+                });
     }
 
     @Test

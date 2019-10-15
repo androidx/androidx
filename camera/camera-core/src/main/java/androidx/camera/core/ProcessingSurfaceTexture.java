@@ -16,6 +16,8 @@
 
 package androidx.camera.core;
 
+import static androidx.camera.core.impl.utils.executor.CameraXExecutors.directExecutor;
+
 import android.graphics.PixelFormat;
 import android.graphics.SurfaceTexture;
 import android.os.AsyncTask;
@@ -28,18 +30,25 @@ import android.view.Surface;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.camera.core.impl.utils.executor.CameraXExecutors;
+import androidx.camera.core.impl.utils.futures.FutureCallback;
 import androidx.camera.core.impl.utils.futures.Futures;
+import androidx.core.util.Preconditions;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
+import java.util.concurrent.Executor;
+
 /**
  * A {@link DeferrableSurface} that does processing and outputs a {@link SurfaceTexture}.
+ *
+ * TODO(b/117519540): rename to ProcessingSurface.
  */
 final class ProcessingSurfaceTexture extends DeferrableSurface implements SurfaceTextureHolder {
     private static final String TAG = "ProcessingSurfaceTextur";
 
-    private final Object mLock = new Object();
+    // Synthetic Accessor
+    @SuppressWarnings("WeakerAccess")
+    final Object mLock = new Object();
 
     // Callback when Image is ready from InputImageReader.
     private final ImageReaderProxy.OnImageAvailableListener mTransformedListener =
@@ -92,22 +101,29 @@ final class ProcessingSurfaceTexture extends DeferrableSurface implements Surfac
     final CaptureProcessor mCaptureProcessor;
 
     private final CameraCaptureCallback mCameraCaptureCallback;
+    private final CallbackDeferrableSurface mCallbackDeferrableSurface;
 
     /**
      * Create a {@link ProcessingSurfaceTexture} with specific configurations.
      *
-     * @param width            Width of the ImageReader
-     * @param height           Height of the ImageReader
-     * @param format           Image format
-     * @param handler          Handler for executing
-     *                         {@link ImageReaderProxy.OnImageAvailableListener}. If this is
-     *                         {@code null} then execution will be done on the calling thread's
-     *                         {@link Looper}.
-     * @param captureStage     The {@link CaptureStage} includes the processing information
-     * @param captureProcessor The {@link CaptureProcessor} to be invoked when the Images are ready
+     * @param width                     Width of the ImageReader
+     * @param height                    Height of the ImageReader
+     * @param format                    Image format
+     * @param handler                   Handler for executing
+     *                                  {@link ImageReaderProxy.OnImageAvailableListener}. If
+     *                                  this is
+     *                                  {@code null} then execution will be done on the calling
+     *                                  thread's
+     *                                  {@link Looper}.
+     * @param captureStage              The {@link CaptureStage} includes the processing information
+     * @param captureProcessor          The {@link CaptureProcessor} to be invoked when the
+     *                                  Images are ready
+     * @param callbackDeferrableSurface the {@link CallbackDeferrableSurface} wrapping user
+     *                                  provided {@link Surface} and {@link Executor}
      */
     ProcessingSurfaceTexture(int width, int height, int format, @Nullable Handler handler,
-            @NonNull CaptureStage captureStage, @NonNull CaptureProcessor captureProcessor) {
+            @NonNull CaptureStage captureStage, @NonNull CaptureProcessor captureProcessor,
+            @Nullable CallbackDeferrableSurface callbackDeferrableSurface) {
 
         mResolution = new Size(width, height);
 
@@ -136,15 +152,35 @@ final class ProcessingSurfaceTexture extends DeferrableSurface implements Surfac
         mInputSurface = mInputImageReader.getSurface();
         mCameraCaptureCallback = mInputImageReader.getCameraCaptureCallback();
 
-        // output
-        mSurfaceTexture = FixedSizeSurfaceTextures.createDetachedSurfaceTexture(mResolution);
-        mSurfaceTextureSurface = new Surface(mSurfaceTexture);
-
         // processing
         mCaptureProcessor = captureProcessor;
-        mCaptureProcessor.onOutputSurface(mSurfaceTextureSurface, PixelFormat.RGBA_8888);
         mCaptureProcessor.onResolutionUpdate(mResolution);
         mCaptureStage = captureStage;
+
+        // output
+        mCallbackDeferrableSurface = callbackDeferrableSurface;
+        if (callbackDeferrableSurface == null) {
+            // TODO(b/117519540): remove once {@link Preview.OnPreviewOutputUpdateListener} is
+            //  removed.
+            mSurfaceTexture = FixedSizeSurfaceTextures.createDetachedSurfaceTexture(mResolution);
+            mSurfaceTextureSurface = new Surface(mSurfaceTexture);
+            mCaptureProcessor.onOutputSurface(mSurfaceTextureSurface, PixelFormat.RGBA_8888);
+        } else {
+            Futures.addCallback(callbackDeferrableSurface.getSurface(),
+                    new FutureCallback<Surface>() {
+                        @Override
+                        public void onSuccess(@Nullable Surface surface) {
+                            synchronized (mLock) {
+                                mCaptureProcessor.onOutputSurface(surface, PixelFormat.RGBA_8888);
+                            }
+                        }
+
+                        @Override
+                        public void onFailure(Throwable t) {
+                            Log.e(TAG, "Failed to extract Listenable<Surface>.", t);
+                        }
+                    }, directExecutor());
+        }
     }
 
     @SuppressWarnings("GuardedBy") // TODO(b/141958189): Suppressed during upgrade to AGP 3.6.
@@ -160,10 +196,15 @@ final class ProcessingSurfaceTexture extends DeferrableSurface implements Surfac
      * <p> This should only be called by the consumer thread.
      *
      * @throws IllegalStateException if {@link #release()} ()} has already been called
+     * @deprecated This method will not be called if userSurface is provided in constructor.
+     * Remove once {@link Preview.OnPreviewOutputUpdateListener} is removed.
      */
     @Override
     @NonNull
+    @Deprecated
     public SurfaceTexture getSurfaceTexture() {
+        Preconditions.checkState(mCallbackDeferrableSurface == null,
+                "getSurfaceTexture() should not be triggered for PreviewSurfaceCallback");
         synchronized (mLock) {
             if (mReleased) {
                 throw new IllegalStateException("ProcessingSurfaceTexture already released!");
@@ -201,15 +242,18 @@ final class ProcessingSurfaceTexture extends DeferrableSurface implements Surfac
             if (mReleased) {
                 return;
             }
-
-            mSurfaceTexture.release();
-            mSurfaceTexture = null;
-            mSurfaceTextureSurface.release();
-            mSurfaceTextureSurface = null;
+            if (mCallbackDeferrableSurface == null) {
+                mSurfaceTexture.release();
+                mSurfaceTexture = null;
+                mSurfaceTextureSurface.release();
+                mSurfaceTextureSurface = null;
+            } else {
+                mCallbackDeferrableSurface.release();
+            }
 
             mReleased = true;
 
-            // Remove the previous listener so that if an image is queued it will not be processed
+            // Remove the previous listener so that if an image is queued it will not be processed.
             mInputImageReader.setOnImageAvailableListener(
                     new ImageReaderProxy.OnImageAvailableListener() {
                         @Override
@@ -227,7 +271,7 @@ final class ProcessingSurfaceTexture extends DeferrableSurface implements Surfac
             );
 
             // Need to wait for Surface has been detached before closing it
-            setOnSurfaceDetachedListener(CameraXExecutors.directExecutor(),
+            setOnSurfaceDetachedListener(directExecutor(),
                     new OnSurfaceDetachedListener() {
                         @Override
                         public void onSurfaceDetached() {
