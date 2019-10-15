@@ -29,6 +29,8 @@ plugins {
 
 dependencies {
     implementation(KOTLIN_COMPOSE_COROUTINES)
+    // TODO: remove / refactor out reflection dependencies, this is a large dependency to bundle
+    // with a library.
     implementation(KOTLIN_COMPOSE_REFLECT)
     implementation(KOTLIN_COMPOSE_STDLIB)
 
