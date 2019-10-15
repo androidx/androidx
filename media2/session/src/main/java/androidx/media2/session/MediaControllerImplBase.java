@@ -1232,7 +1232,8 @@ class MediaControllerImplBase implements MediaControllerImpl {
     }
 
     // Should be used without a lock to prevent potential deadlock.
-    void onConnectedNotLocked(IMediaSession sessionBinder,
+    void onConnectedNotLocked(final int sessionVersion,
+            IMediaSession sessionBinder,
             final SessionCommandGroup allowedCommands,
             final int playerState,
             final MediaItem currentMediaItem,
@@ -1312,7 +1313,7 @@ class MediaControllerImplBase implements MediaControllerImpl {
                 }
                 mConnectedToken = new SessionToken(new SessionTokenImplBase(
                         mToken.getUid(), TYPE_SESSION, mToken.getPackageName(), sessionBinder,
-                        tokenExtras));
+                        tokenExtras, sessionVersion));
             }
             mInstance.notifyControllerCallback(new ControllerCallbackRunnable() {
                 @Override

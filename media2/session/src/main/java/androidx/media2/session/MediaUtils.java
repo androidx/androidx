@@ -101,6 +101,9 @@ public class MediaUtils {
         }
     };
 
+    // UNKNOWN version for legacy support
+    public static final int VERSION_UNKNOWN = -1;
+
     // Initial version for all Media2 APIs.
     public static final int VERSION_0 = 0;
 
