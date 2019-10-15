@@ -26,7 +26,5 @@ class FragmentIssueRegistry : IssueRegistry() {
     // tests are run with this version. We ensure that with ApiLintVersionsTest
     override val api = 6
     override val minApi = CURRENT_API
-    override val issues get() = listOf(
-        FragmentLiveDataObserverDetector.ISSUE,
-        FragmentTagDetector.ISSUE)
+    override val issues get() = listOf(FragmentTagDetector.ISSUE)
 }
