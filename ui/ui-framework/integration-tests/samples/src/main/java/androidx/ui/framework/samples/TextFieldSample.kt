@@ -18,17 +18,12 @@ package androidx.ui.framework.samples
 
 import androidx.annotation.Sampled
 import androidx.compose.Composable
-import androidx.compose.memo
+import androidx.compose.composer
 import androidx.compose.state
 import androidx.compose.unaryPlus
-import androidx.ui.core.Draw
 import androidx.ui.core.EditorModel
+import androidx.ui.core.PasswordTextField
 import androidx.ui.core.TextField
-import androidx.ui.core.toRect
-import androidx.ui.graphics.Color
-import androidx.ui.graphics.Paint
-import androidx.ui.input.KeyboardType
-import androidx.ui.input.PasswordVisualTransformation
 import androidx.ui.text.TextRange
 
 @Sampled
@@ -68,13 +63,10 @@ fun CompositionEditorModelTextFieldSample() {
 
 @Sampled
 @Composable
-fun PasswordFieldSample() {
+fun PasswordTextFieldSample() {
     val state = +state { "" }
-    val passwordVisualTransformation = +memo { PasswordVisualTransformation() }
-    TextField(
+    PasswordTextField(
         value = state.value,
-        onValueChange = { state.value = it },
-        keyboardType = KeyboardType.Password,
-        visualTransformation = passwordVisualTransformation
+        onValueChange = { state.value = it }
     )
 }
