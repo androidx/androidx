@@ -29,10 +29,7 @@ import java.util.concurrent.Executor;
  * Configuration for adding implementation and user-specific behavior to CameraX.
  *
  * <p>The AppConfiguration
- *
- * @hide
  */
-@RestrictTo(Scope.LIBRARY_GROUP)
 public final class AppConfig implements TargetConfig<CameraX>, Config {
 
     // Option Declarations:

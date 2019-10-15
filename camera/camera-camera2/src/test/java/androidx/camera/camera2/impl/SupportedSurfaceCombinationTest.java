@@ -158,7 +158,7 @@ public final class SupportedSurfaceCombinationTest {
 
     @After
     public void tearDown() throws ExecutionException, InterruptedException {
-        CameraX.deinit().get();
+        CameraX.shutdown().get();
     }
 
     @Test
@@ -1129,7 +1129,7 @@ public final class SupportedSurfaceCombinationTest {
         AppConfig appConfig = AppConfig.Builder.fromConfig(Camera2AppConfig.create(mContext))
                 .setCameraFactory(mCameraFactory)
                 .build();
-        CameraX.init(mContext, appConfig);
+        CameraX.initialize(mContext, appConfig);
     }
 
     private boolean isRawSupported(int[] capabilities) {

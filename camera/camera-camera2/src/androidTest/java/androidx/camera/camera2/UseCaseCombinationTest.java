@@ -93,7 +93,7 @@ public final class UseCaseCombinationTest {
         Context context = ApplicationProvider.getApplicationContext();
         AppConfig config = Camera2AppConfig.create(context);
 
-        CameraX.init(context, config);
+        CameraX.initialize(context, config);
 
         mLifecycle = new FakeLifecycleOwner();
 
@@ -102,15 +102,8 @@ public final class UseCaseCombinationTest {
 
     @After
     public void tearDown() throws InterruptedException, ExecutionException {
-        mInstrumentation.runOnMainSync(new Runnable() {
-            @Override
-            public void run() {
-                CameraX.unbindAll();
-            }
-        });
-
-        // Wait for deinit to finish.
-        CameraX.deinit().get();
+        mInstrumentation.runOnMainSync(CameraX::unbindAll);
+        CameraX.shutdown().get();
     }
 
     /**

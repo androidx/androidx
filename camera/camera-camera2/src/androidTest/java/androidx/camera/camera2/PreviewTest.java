@@ -152,7 +152,7 @@ public final class PreviewTest {
             throw new IllegalArgumentException(
                     "Unable to attach to camera with LensFacing " + LensFacing.BACK, e);
         }
-        CameraX.init(context, appConfig);
+        CameraX.initialize(context, appConfig);
         mCamera = cameraFactory.getCamera(mCameraId);
 
         // init CameraX before creating Preview to get preview size with CameraX's context
@@ -164,7 +164,7 @@ public final class PreviewTest {
         mInstrumentation.runOnMainSync(CameraX::unbindAll);
 
         // Ensure all cameras are released for the next test
-        CameraX.deinit().get();
+        CameraX.shutdown().get();
         if (mCamera != null) {
             mCamera.release().get();
         }

@@ -90,15 +90,14 @@ public class ImageCaptureExtenderTest {
         mLifecycleOwner = new FakeLifecycleOwner();
 
         Context context = ApplicationProvider.getApplicationContext();
-        CameraX.init(context, Camera2AppConfig.create(context));
+        CameraX.initialize(context, Camera2AppConfig.create(context));
 
         assumeTrue(ExtensionsTestUtil.initExtensions());
     }
 
     @After
     public void tearDown() throws ExecutionException, InterruptedException {
-        // Wait for CameraX to finish deinitializing before the next test.
-        CameraX.deinit().get();
+        CameraX.shutdown().get();
     }
 
     @Test
