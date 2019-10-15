@@ -52,11 +52,11 @@ class FindAllTest {
         }
 
         findAll {
-            getOrNull(FoundationSemanticsProperties.ToggleableState) == ToggleableState.Checked
+            getOrNull(FoundationSemanticsProperties.ToggleableState) == ToggleableState.On
         }
             .assertCountEquals(2)
             .forEach {
-                it.assertIsChecked()
+                it.assertIsOn()
             }
     }
 
@@ -85,7 +85,7 @@ class FindAllTest {
             .assertCountEquals(2)
             .forEach {
                 it.doClick()
-                it.assertIsChecked()
+                it.assertIsOn()
             }
     }
 
@@ -103,7 +103,7 @@ class FindAllTest {
         }
 
         findAll {
-            getOrNull(FoundationSemanticsProperties.ToggleableState) != ToggleableState.Checked
+            getOrNull(FoundationSemanticsProperties.ToggleableState) != ToggleableState.On
         }
             .assertCountEquals(0)
     }
@@ -133,9 +133,9 @@ class FindAllTest {
         findAll { isToggleable }.apply {
             get(0)
                 .doClick()
-                .assertIsChecked()
+                .assertIsOn()
             get(1)
-                .assertIsUnchecked()
+                .assertIsOff()
         }.assertCountEquals(2)
     }
 
@@ -171,14 +171,14 @@ class FindAllTest {
 
         findAll { isToggleable }.assertCountEquals(2).apply {
             get(0)
-                .assertIsUnchecked()
+                .assertIsOff()
                 .doClick()
-                .assertIsChecked()
+                .assertIsOn()
         }
 
         findAll { isToggleable }.assertCountEquals(3).apply {
             get(2)
-                .assertIsUnchecked()
+                .assertIsOff()
         }
     }
 
@@ -209,9 +209,9 @@ class FindAllTest {
 
         findAll { isToggleable }.assertCountEquals(2).apply {
             get(0)
-                .assertIsUnchecked()
+                .assertIsOff()
                 .doClick()
-                .assertIsChecked()
+                .assertIsOn()
             get(1)
                 .assertNoLongerExists()
         }

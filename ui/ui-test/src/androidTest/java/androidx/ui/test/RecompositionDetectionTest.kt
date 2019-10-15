@@ -67,6 +67,6 @@ class RecompositionDetectionTest {
 
         Truth.assertThat(interaction.hadPendingChangesAfterLastAction).isTrue()
 
-        node.assertIsChecked()
+        node.assertIsOn()
     }
 }

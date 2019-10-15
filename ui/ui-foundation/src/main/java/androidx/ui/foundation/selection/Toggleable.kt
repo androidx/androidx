@@ -33,35 +33,36 @@ import androidx.ui.semantics.accessibilityValue
  *
  * @see [TriStateToggleable] if you require support for an indeterminate state.
  *
- * @param checked whether Toggleable is checked or unchecked
- * @param onCheckedChange callback to be invoked when toggleable is being clicked,
- * therefore the change of checked state in requested.
- * If null, Toggleable will appears in the [checked] state and remains disabled
+ * @param value whether Toggleable is on or off
+ * @param onValueChange callback to be invoked when toggleable is being clicked,
+ * therefore the change of the state in requested.
+ * If null, Toggleable will appear in the [value] state and remains disabled
  */
 @Composable
 fun Toggleable(
-    checked: Boolean,
-    onCheckedChange: ((Boolean) -> Unit)? = null,
+    value: Boolean,
+    onValueChange: ((Boolean) -> Unit)? = null,
     children: @Composable() () -> Unit
 ) {
     TriStateToggleable(
-        value = ToggleableState(checked),
-        onToggle = onCheckedChange?.let { { it(!checked) } },
+        value = ToggleableState(value),
+        onToggle = onValueChange?.let { { it(!value) } },
         children = children
     )
 }
+
 /**
  * Combines [PressReleasedGestureDetector] and [Semantics] for the components with three states
- * like Checkbox.
+ * like TriStateCheckbox.
  *
- * It supports three states: checked, unchecked and indeterminate.
+ * It supports three states: On, Off and Indeterminate.
  *
  * TriStateToggleable should be used when there are
  * dependent Toggleables associated to this component and those can have different values.
  *
  * @sample androidx.ui.foundation.samples.TriStateToggleableSample
  *
- * @see [Toggleable] if you want to support only two states: checked and unchecked
+ * @see [Toggleable] if you want to support only two states: on and off
  *
  * @param value current value for the component
  * @param onToggle will be called when user toggles the toggleable. The children will not be
@@ -69,7 +70,7 @@ fun Toggleable(
  */
 @Composable
 fun TriStateToggleable(
-    value: ToggleableState = ToggleableState.Checked,
+    value: ToggleableState = ToggleableState.On,
     onToggle: (() -> Unit)? = null,
     children: @Composable() () -> Unit
 ) {
@@ -81,8 +82,8 @@ fun TriStateToggleable(
         Semantics(properties = {
             this.accessibilityValue = when (value) {
                 // TODO(ryanmentley): These should be set by Checkbox, Switch, etc.
-                ToggleableState.Checked -> Strings.Checked
-                ToggleableState.Unchecked -> Strings.Unchecked
+                ToggleableState.On -> Strings.Checked
+                ToggleableState.Off -> Strings.Unchecked
                 ToggleableState.Indeterminate -> Strings.Indeterminate
             }
             this.toggleableState = value
@@ -95,14 +96,22 @@ fun TriStateToggleable(
     }
 }
 
-// TODO: These shouldn't use checkbox-specific language
+/**
+ * Enum that represents possible toggleable states.
+ * @property On components is on
+ * @property Off components is off
+ * @property Indeterminate means that on/off value cannot be determined
+ */
 enum class ToggleableState {
-    Checked,
-    Unchecked,
+    On,
+    Off,
     Indeterminate
 }
 
-fun ToggleableState(checked: Boolean) = when (checked) {
-    true -> ToggleableState.Checked
-    false -> ToggleableState.Unchecked
-}
+/**
+ * Return corresponding ToggleableState based on a Boolean representation
+ *
+ * @param value whether the ToggleableState is on or off
+ */
+fun ToggleableState(value: Boolean) =
+    if (value) ToggleableState.On else ToggleableState.Off

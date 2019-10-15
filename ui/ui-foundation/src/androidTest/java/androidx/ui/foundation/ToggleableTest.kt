@@ -49,12 +49,12 @@ class ToggleableTest {
         composeTestRule.setContent {
             Column {
                 TestTag(tag = "checkedToggleable") {
-                    TriStateToggleable(ToggleableState.Checked, onToggle = {}) {
+                    TriStateToggleable(ToggleableState.On, onToggle = {}) {
                         Text("ToggleableText")
                     }
                 }
                 TestTag(tag = "unCheckedToggleable") {
-                    TriStateToggleable(ToggleableState.Unchecked, onToggle = {}) {
+                    TriStateToggleable(ToggleableState.Off, onToggle = {}) {
                         Text("ToggleableText")
                     }
                 }
@@ -70,7 +70,7 @@ class ToggleableTest {
             .assertSemanticsIsEqualTo(
                 createFullSemantics(
                     isEnabled = true,
-                    toggleableState = ToggleableState.Checked
+                    toggleableState = ToggleableState.On
                 )
             )
             .assertHasClickAction()
@@ -78,7 +78,7 @@ class ToggleableTest {
             .assertSemanticsIsEqualTo(
                 createFullSemantics(
                     isEnabled = true,
-                    toggleableState = ToggleableState.Unchecked
+                    toggleableState = ToggleableState.Off
                 )
             )
             .assertHasClickAction()
@@ -97,12 +97,12 @@ class ToggleableTest {
         composeTestRule.setContent {
             Column {
                 TestTag(tag = "checkedToggleable") {
-                    Toggleable(checked = true, onCheckedChange = {}) {
+                    Toggleable(value = true, onValueChange = {}) {
                         Text("ToggleableText")
                     }
                 }
                 TestTag(tag = "unCheckedToggleable") {
-                    Toggleable(checked = false, onCheckedChange = {}) {
+                    Toggleable(value = false, onValueChange = {}) {
                         Text("ToggleableText")
                     }
                 }
@@ -113,7 +113,7 @@ class ToggleableTest {
             .assertSemanticsIsEqualTo(
                 createFullSemantics(
                     isEnabled = true,
-                    toggleableState = ToggleableState.Checked
+                    toggleableState = ToggleableState.On
                 )
             )
             .assertHasClickAction()
@@ -121,7 +121,7 @@ class ToggleableTest {
             .assertSemanticsIsEqualTo(
                 createFullSemantics(
                     isEnabled = true,
-                    toggleableState = ToggleableState.Unchecked
+                    toggleableState = ToggleableState.Off
                 )
             )
             .assertHasClickAction()
@@ -132,7 +132,7 @@ class ToggleableTest {
         composeTestRule.setContent {
             Center {
                 TestTag(tag = "myToggleable") {
-                    TriStateToggleable(value = ToggleableState.Checked) {
+                    TriStateToggleable(value = ToggleableState.On) {
                         Text("ToggleableText")
                     }
                 }
@@ -156,7 +156,7 @@ class ToggleableTest {
         composeTestRule.setContent {
             Center {
                 TestTag(tag = "myToggleable") {
-                    Toggleable(checked = checked, onCheckedChange = onCheckedChange) {
+                    Toggleable(value = checked, onValueChange = onCheckedChange) {
                         Text("ToggleableText")
                     }
                 }

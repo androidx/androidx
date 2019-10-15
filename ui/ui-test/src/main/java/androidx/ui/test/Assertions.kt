@@ -76,10 +76,10 @@ fun SemanticsNodeInteraction.assertNoLongerExists() {
  *
  * Throws [AssertionError] if the component is not unchecked, indeterminate, or not toggleable.
  */
-fun SemanticsNodeInteraction.assertIsChecked(): SemanticsNodeInteraction {
+fun SemanticsNodeInteraction.assertIsOn(): SemanticsNodeInteraction {
     assertIsToggleable()
     verify({ "Component is toggled off, expected it to be toggled on" }) {
-        it[FoundationSemanticsProperties.ToggleableState] == ToggleableState.Checked
+        it[FoundationSemanticsProperties.ToggleableState] == ToggleableState.On
     }
     return this
 }
@@ -89,10 +89,10 @@ fun SemanticsNodeInteraction.assertIsChecked(): SemanticsNodeInteraction {
  *
  * Throws [AssertionError] if the component is checked, indeterminate, or not toggleable.
  */
-fun SemanticsNodeInteraction.assertIsUnchecked(): SemanticsNodeInteraction {
+fun SemanticsNodeInteraction.assertIsOff(): SemanticsNodeInteraction {
     assertIsToggleable()
     verify({ "Component is toggled on, expected it to be toggled off" }) {
-        it[FoundationSemanticsProperties.ToggleableState] == ToggleableState.Unchecked
+        it[FoundationSemanticsProperties.ToggleableState] == ToggleableState.Off
     }
 
     return this

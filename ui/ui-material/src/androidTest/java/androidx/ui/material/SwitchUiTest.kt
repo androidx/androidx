@@ -27,8 +27,8 @@ import androidx.ui.foundation.semantics.toggleableState
 import androidx.ui.layout.Column
 import androidx.ui.semantics.accessibilityValue
 import androidx.ui.test.assertHasNoClickAction
-import androidx.ui.test.assertIsChecked
-import androidx.ui.test.assertIsUnchecked
+import androidx.ui.test.assertIsOn
+import androidx.ui.test.assertIsOff
 import androidx.ui.test.assertSemanticsIsEqualTo
 import androidx.ui.test.copyWith
 import androidx.ui.test.createComposeRule
@@ -49,12 +49,12 @@ class SwitchUiTest {
 
     private val defaultUncheckedSwitchSemantics = createFullSemantics(
         isEnabled = true,
-        toggleableState = ToggleableState.Unchecked,
+        toggleableState = ToggleableState.Off,
         value = Strings.Unchecked // TODO(a11y): Do we still call this checked/unchecked?
     )
 
     private val defaultCheckedSwitchSemantics = defaultUncheckedSwitchSemantics.copyWith {
-        toggleableState = ToggleableState.Checked
+        toggleableState = ToggleableState.On
         accessibilityValue = Strings.Checked
     }
     private val defaultSwitchTag = "switch"
@@ -85,9 +85,9 @@ class SwitchUiTest {
             }
         }
         findByTag(defaultSwitchTag)
-            .assertIsUnchecked()
+            .assertIsOff()
             .doClick()
-            .assertIsChecked()
+            .assertIsOn()
     }
 
     @Test
@@ -100,11 +100,11 @@ class SwitchUiTest {
             }
         }
         findByTag(defaultSwitchTag)
-            .assertIsUnchecked()
+            .assertIsOff()
             .doClick()
-            .assertIsChecked()
+            .assertIsOn()
             .doClick()
-            .assertIsUnchecked()
+            .assertIsOff()
     }
 
     @Test

@@ -366,12 +366,12 @@ fun DataTable(
                     if (showCheckboxes) {
                         Container(height = headerRowHeight, padding = cellSpacing) {
                             val parentState = when (selectableRows.count { it.selected }) {
-                                selectableRows.size -> ToggleableState.Checked
-                                0 -> ToggleableState.Unchecked
+                                selectableRows.size -> ToggleableState.On
+                                0 -> ToggleableState.Off
                                 else -> ToggleableState.Indeterminate
                             }
                             TriStateCheckbox(value = parentState, onClick = {
-                                val newValue = parentState != ToggleableState.Checked
+                                val newValue = parentState != ToggleableState.On
                                 if (header.onSelectAll != null) {
                                     header.onSelectAll.invoke(newValue)
                                 } else {
