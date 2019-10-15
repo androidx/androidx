@@ -133,12 +133,15 @@ public final class FragmentContainerView extends FrameLayout {
 
     FragmentContainerView(
             @NonNull Context context,
-            @Nullable AttributeSet attrs,
+            @NonNull AttributeSet attrs,
             @NonNull FragmentManager fm) {
         super(context, attrs);
 
+        String name = attrs.getClassAttribute();
         TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.FragmentContainerView);
-        String name = a.getString(R.styleable.FragmentContainerView_android_name);
+        if (name == null) {
+            name = a.getString(R.styleable.FragmentContainerView_android_name);
+        }
         String tag = a.getString(R.styleable.FragmentContainerView_android_tag);
         a.recycle();
 
