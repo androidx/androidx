@@ -40,7 +40,7 @@ import androidx.ui.core.dp
 import androidx.ui.core.setContent
 import androidx.ui.layout.Container
 import androidx.ui.layout.Padding
-import androidx.ui.layout.padding
+import androidx.ui.layout.Spacing
 import androidx.ui.test.ComposeTestCase
 import androidx.ui.test.DisableTransitions
 import androidx.ui.test.ToggleableTestCase
@@ -201,7 +201,7 @@ private class ModifierTestCase(activity: Activity) : PaddingTestCase(activity) {
 
     @Composable
     override fun emitPaddedContainer(padding: Dp, child: @Composable() () -> Unit) {
-        Container(expanded = true, modifier = padding(padding), children = child)
+        Container(expanded = true, modifier = Spacing(padding), children = child)
     }
 }
 

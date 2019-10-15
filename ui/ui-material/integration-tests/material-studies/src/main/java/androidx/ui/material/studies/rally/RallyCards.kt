@@ -33,9 +33,9 @@ import androidx.ui.layout.HeightSpacer
 import androidx.ui.layout.LayoutSize
 import androidx.ui.layout.MainAxisAlignment
 import androidx.ui.layout.Row
+import androidx.ui.layout.Spacing
 import androidx.ui.layout.Stack
 import androidx.ui.layout.WidthSpacer
-import androidx.ui.layout.padding
 import androidx.ui.material.Button
 import androidx.ui.material.Divider
 import androidx.ui.material.TextButtonStyle
@@ -49,7 +49,7 @@ import androidx.ui.material.themeTextStyle
 @Composable
 fun RallyAlertCard() {
     Card {
-        Column(padding(12.dp)) {
+        Column(Spacing(12.dp)) {
             Row(
                 mainAxisSize = LayoutSize.Expand,
                 mainAxisAlignment = MainAxisAlignment.SpaceBetween
@@ -57,7 +57,11 @@ fun RallyAlertCard() {
                 Text(text = "Alerts", style = +themeTextStyle { subtitle2 })
                 Button(text = "See All", onClick = { }, style = TextButtonStyle())
             }
-            Divider(padding(vertical = 12.dp), color = +themeColor { background }, height = 2.dp)
+            Divider(
+                Spacing(top = 12.dp, bottom = 12.dp),
+                color = +themeColor { background },
+                height = 2.dp
+            )
             FlexRow {
                 expanded(flex = 1.0f) {
                     val text = "Heads up, you've used up 90% of your " +
@@ -85,12 +89,12 @@ fun RallyAlertCard() {
 fun RallyAccountsOverviewCard() {
     Card {
         Column(mainAxisSize = LayoutSize.Expand) {
-            Column(modifier = padding(12.dp)) {
+            Column(modifier = Spacing(12.dp)) {
                 Text(text = "Accounts", style = +themeTextStyle { body1 })
                 Text(text = "$12,132.49", style = +themeTextStyle { h3 })
             }
             Divider(color = rallyGreen, height = 1.dp)
-            Column(modifier = padding(12.dp), mainAxisSize = LayoutSize.Expand) {
+            Column(modifier = Spacing(12.dp), mainAxisSize = LayoutSize.Expand) {
                 RallyAccountRow(
                     name = "Checking",
                     number = "1234",
@@ -125,7 +129,7 @@ fun RallyAccountsOverviewCard() {
 fun RallyAccountsCard() {
     VerticalScroller {
         Column {
-                Stack(padding(16.dp)) {
+                Stack(Spacing(16.dp)) {
                         aligned(Alignment.Center) {
                             val accountsProportion = listOf(0.595f, 0.045f, 0.095f, 0.195f, 0.045f)
                             val colors = listOf(0xFF1EB980, 0xFF005D57, 0xFF04B97F, 0xFF37EFBA,
@@ -141,7 +145,7 @@ fun RallyAccountsCard() {
                     }
                 HeightSpacer(height = 10.dp)
                 Card {
-                    Column(modifier = padding(12.dp), mainAxisSize = LayoutSize.Expand) {
+                    Column(modifier = Spacing(12.dp), mainAxisSize = LayoutSize.Expand) {
                         RallyAccountRow(
                             name = "Checking",
                             number = "1234",
@@ -180,7 +184,7 @@ fun RallyAccountsCard() {
  */
 @Composable
 fun RallyAccountRow(name: String, number: String, amount: String, color: Color) {
-    FlexRow(padding(vertical = 12.dp)) {
+    FlexRow(Spacing(top = 12.dp, bottom = 12.dp)) {
         inflexible {
             AccountIndicator(color = color)
             WidthSpacer(width = 8.dp)
@@ -216,13 +220,13 @@ fun AccountIndicator(color: Color) {
 fun RallyBillsOverviewCard() {
     Card {
         Column(mainAxisSize = LayoutSize.Expand) {
-            Column(modifier = padding(12.dp)) {
+            Column(modifier = Spacing(12.dp)) {
                 Text(text = "Bills", style = +themeTextStyle { subtitle2 })
                 Text(text = "$1,810.00", style = +themeTextStyle { h3 })
             }
             Divider(color = rallyGreen, height = 1.dp)
             // TODO: change to proper bill items
-            Column(modifier = padding(12.dp), mainAxisSize = LayoutSize.Expand) {
+            Column(modifier = Spacing(12.dp), mainAxisSize = LayoutSize.Expand) {
                 RallyAccountRow(
                     name = "RedPay Credit",
                     number = "Jan 29",
@@ -257,7 +261,7 @@ fun RallyBillsOverviewCard() {
 fun RallyBillsCard() {
     VerticalScroller {
         Column {
-            Stack(padding(16.dp)) {
+            Stack(Spacing(16.dp)) {
                 aligned(alignment = Alignment.Center) {
                     val accountsProportion = listOf(0.65f, 0.25f, 0.03f, 0.05f)
                     val colors = listOf(0xFF1EB980, 0xFF005D57, 0xFF04B97F, 0xFF37EFBA).map {
@@ -274,7 +278,7 @@ fun RallyBillsCard() {
             HeightSpacer(height = 10.dp)
             Card {
                 // TODO: change to proper bill items
-                Column(modifier = padding(12.dp), mainAxisSize = LayoutSize.Expand) {
+                Column(modifier = Spacing(12.dp), mainAxisSize = LayoutSize.Expand) {
                     RallyAccountRow(
                         name = "RedPay Credit",
                         number = "Jan 29",

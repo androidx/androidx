@@ -35,43 +35,34 @@ import androidx.ui.core.coerceIn
 import androidx.ui.core.ipx
 
 /**
- * Padding on all sides.
+ * Layout modifier that applies whitespace spacing on specified sides of the target layout.
  *
  * Example usage:
- * @sample androidx.ui.layout.samples.AbsolutePaddingModifier
+ * @sample androidx.ui.layout.samples.SpacingModifier
  */
-fun absolutePadding(
+fun Spacing(
     left: Dp = 0.dp,
     top: Dp = 0.dp,
     right: Dp = 0.dp,
     bottom: Dp = 0.dp
-) = AbsolutePadding(left = left, top = top, right = right, bottom = bottom)
+): LayoutModifier = SpacingModifier(left = left, top = top, right = right, bottom = bottom)
 
 /**
- * Padding with [all] dp on each side.
+ * Layout modifier that applies the same whitespace spacing of [all] dp on each side
+ * of the target layout.
  *
  * Example usage:
- * @sample androidx.ui.layout.samples.PaddingModifier
+ * @sample androidx.ui.layout.samples.SpacingAllModifier
  */
-fun padding(all: Dp = 0.dp) = AbsolutePadding(left = all, top = all, right = all, bottom = all)
-
-/**
- * Padding with [horizontal] dp of padding on the left and right and [vertical] dp of padding
- * on the top and bottom.
- *
- * Example usage:
- * @sample androidx.ui.layout.samples.SymmetricalPaddingModifier
- */
-fun padding(
-    horizontal: Dp = 0.dp,
-    vertical: Dp = 0.dp
-) = AbsolutePadding(left = horizontal, top = vertical, right = horizontal, bottom = vertical)
+fun Spacing(all: Dp = 0.dp): LayoutModifier =
+    SpacingModifier(left = all, top = all, right = all, bottom = all)
 
 /**
  * A [LayoutModifier] that adds [left], [top], [right] and [bottom] padding
- * to the wrapped UI element.
+ * to the wrapped layout.
+ * Used as shared implementation for the [Spacing] overloads.
  */
-data class AbsolutePadding(
+private data class SpacingModifier(
     val left: Dp = 0.dp,
     val top: Dp = 0.dp,
     val right: Dp = 0.dp,
