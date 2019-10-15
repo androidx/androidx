@@ -556,7 +556,8 @@ abstract class BaseStaggeredGridLayoutManagerTest extends BaseRecyclerViewInstru
         }
 
         public void waitForSnap(int seconds) throws Throwable {
-            mSnapLatch.await(seconds * (DEBUG ? 100 : 1), SECONDS);
+            // 2 Seconds because some flakiness is occurring on slower emulators.
+            mSnapLatch.await(seconds * (DEBUG ? 100 : 2), SECONDS);
             checkForMainThreadException();
             MatcherAssert.assertThat("all scrolling should complete on time",
                     mSnapLatch.getCount(), CoreMatchers.is(0L));
@@ -935,7 +936,6 @@ abstract class BaseStaggeredGridLayoutManagerTest extends BaseRecyclerViewInstru
             stl.addState(new int[]{android.R.attr.state_focused},
                     new ColorDrawable(Color.RED));
             stl.addState(StateSet.WILD_CARD, new ColorDrawable(Color.BLUE));
-            //noinspection deprecation using this for kitkat tests
             holder.itemView.setBackgroundDrawable(stl);
             if (mOnBindCallback != null) {
                 mOnBindCallback.onBoundItem(holder, position);
