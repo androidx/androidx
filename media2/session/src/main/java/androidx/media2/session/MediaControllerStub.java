@@ -305,7 +305,7 @@ class MediaControllerStub extends IMediaController.Stub {
             ConnectionResult result = MediaParcelUtils.fromParcelable(connectionResult);
             List<MediaItem> itemList =
                     MediaUtils.convertParcelImplListSliceToMediaItemList(result.getPlaylistSlice());
-            controller.onConnectedNotLocked(result.getSessionStub(),
+            controller.onConnectedNotLocked(result.getVersion(), result.getSessionStub(),
                     result.getAllowedCommands(), result.getPlayerState(),
                     result.getCurrentMediaItem(), result.getPositionEventTimeMs(),
                     result.getPositionMs(), result.getPlaybackSpeed(),
