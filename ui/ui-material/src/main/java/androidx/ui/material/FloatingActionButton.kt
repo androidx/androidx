@@ -42,10 +42,7 @@ import androidx.ui.text.TextStyle
  *
  * By default it adds the circle shape, the [FabSize] size and the centering for the content.
  *
- * Example:
- *     FloatingActionButton(onClick = { ... }) {
- *         SimpleImage(image = icon)
- *     }
+ * @sample androidx.ui.material.samples.FloatingActionButtonCustomContent
  *
  * @see FloatingActionButton overload for the variants with an icon or an icon and a text.
  *
@@ -83,8 +80,7 @@ fun FloatingActionButton(
  *
  * It draws the [icon] in the center of the FAB with [FabSize] size.
  *
- * Example:
- *     FloatingActionButton(icon = icon, onClick = { ... })
+ * @sample androidx.ui.material.samples.FloatingActionButtonSimple
  *
  * @see FloatingActionButton overload for the variants with a custom content or an icon and a text.
  *
@@ -111,8 +107,7 @@ fun FloatingActionButton(
 /**
  * An extended [FloatingActionButton] with an [icon] and a [text].
  *
- * Example:
- *     FloatingActionButton(icon = icon, text = "ADD TO BASKET" onClick = { ... })
+ * @sample androidx.ui.material.samples.FloatingActionButtonExtended
  *
  * @see FloatingActionButton overload for the variants with a custom content or an icon.
  *
