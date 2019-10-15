@@ -87,7 +87,7 @@ public class GridLayoutManagerSnappingTest extends BaseGridLayoutManagerTest {
         int scrollDist = mReverseScroll ? -scrollDistance : scrollDistance;
         mGlm.expectIdleState(2);
         smoothScrollBy(scrollDist);
-        mGlm.waitForSnap(10);
+        mGlm.waitForSnap(25);
 
         // Views have not changed
         View viewAfterFling = findCenterView();
@@ -179,7 +179,7 @@ public class GridLayoutManagerSnappingTest extends BaseGridLayoutManagerTest {
         SnapHelper snapHelper = new LinearSnapHelper();
         mGlm.expectIdleState(1);
         snapHelper.attachToRecyclerView(mRecyclerView);
-        mGlm.waitForSnap(10);
+        mGlm.waitForSnap(25);
 
         mGlm.expectLayout(1);
         scrollToPosition(mConfig.mItemCount / 2);
@@ -195,7 +195,7 @@ public class GridLayoutManagerSnappingTest extends BaseGridLayoutManagerTest {
 
         mGlm.expectIdleState(2);
         smoothScrollBy(scrollDist);
-        mGlm.waitForSnap(10);
+        mGlm.waitForSnap(25);
     }
 
     @Nullable

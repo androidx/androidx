@@ -556,8 +556,7 @@ abstract class BaseStaggeredGridLayoutManagerTest extends BaseRecyclerViewInstru
         }
 
         public void waitForSnap(int seconds) throws Throwable {
-            // 2 Seconds because some flakiness is occurring on slower emulators.
-            mSnapLatch.await(seconds * (DEBUG ? 100 : 2), SECONDS);
+            mSnapLatch.await(seconds * (DEBUG ? 100 : 1), SECONDS);
             checkForMainThreadException();
             MatcherAssert.assertThat("all scrolling should complete on time",
                     mSnapLatch.getCount(), CoreMatchers.is(0L));
