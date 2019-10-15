@@ -81,8 +81,7 @@ import androidx.ui.text.TextRange
  * that this IME action may be different from what you specified in [imeAction].
  * @param visualTransformation Optional visual filter for changing visual output of input field.
  *
- * @sample androidx.ui.framework.samples.PasswordFieldSample
- *
+ * @see PasswordTextField
  * @see EditorModel
  * @see EditorStyle
  * @see ImeAction
