@@ -43,44 +43,46 @@ import androidx.ui.graphics.PaintingStyle
 import androidx.ui.graphics.StrokeCap
 
 /**
+ * A component that represents two states (checked / unchecked).
+ *
+ * @sample androidx.ui.material.samples.CheckboxSample
+ *
+ * @see [TriStateCheckbox] if you require support for an indeterminate state.
+ *
+ * @param checked whether Checkbox is checked or unchecked
+ * @param onCheckedChange callback to be invoked when checkbox is being clicked,
+ * therefore the change of checked state in requested.
+ * If `null`, Checkbox will appears in the [checked] state and remains disabled
+ * @param color custom color for checkbox. By default [MaterialColors.secondary] will be used
+ */
+@Composable
+fun Checkbox(
+    checked: Boolean,
+    onCheckedChange: ((Boolean) -> Unit)?,
+    color: Color = +themeColor { secondary }
+) {
+    TriStateCheckbox(
+        value = ToggleableState(checked),
+        onClick = onCheckedChange?.let { { it(!checked) } },
+        color = color
+    )
+}
+
+/**
  * A TriStateCheckbox is a toggleable component that provides
  * checked / unchecked / indeterminate options.
  * <p>
  * A TriStateCheckbox should be used when there are
  * dependent checkboxes associated to this component and those can have different values.
  *
- * Example:
- *     Column {
- *         // define dependent checkboxes states
- *         val (state, onStateChange) = +state { true }
- *         val (state2, onStateChange2) = +state { true }
- *
- *         // TriStateCheckbox state reflects state of dependent checkboxes
- *         val parentState = +memo(state, state2) {
- *             if (state && state2) ToggleableState.Checked
- *             else if (!state && !state2) ToggleableState.Unchecked
- *             else ToggleableState.Indeterminate
- *         }
- *         // click on TriStateCheckbox can set state for dependent checkboxes
- *         val onParentClick = {
- *             val s = parentState != Checked
- *             onStateChange(s)
- *             onStateChange2(s)
- *         }
- *
- *         TriStateCheckbox(value = parentState, onClick = onParentClick)
- *         Padding(left = 10.dp) {
- *             Checkbox(state, onStateChange)
- *             Checkbox(state2, onStateChange2)
- *         }
- *     }
+ * @sample androidx.ui.material.samples.TriStateCheckboxSample
  *
  * @see [Checkbox] if you want a simple component that represents Boolean state
  *
  * @param value whether TriStateCheckbox is checked, unchecked or in indeterminate state
  * @param onClick callback to be invoked when checkbox is being clicked,
  * therefore the change of ToggleableState state is requested.
- * If [null], TriStateCheckbox appears in the [value] state and remains disabled
+ * If `null`, TriStateCheckbox appears in the [value] state and remains disabled
  * @param color custom color for checkbox. By default [MaterialColors.secondary] will be used
  */
 @Composable
@@ -100,38 +102,6 @@ fun TriStateCheckbox(
             }
         }
     }
-}
-
-/**
- * A component that represents only two states (checked / unchecked).
- *
- * Example:
- *     val checkedState = +state { true }
- *     Checkbox(
- *         checked = checkedState.value,
- *         onCheckedChange = { checkedState.value = it },
- *         color = customColor
- *     )
- *
- * @see [TriStateCheckbox] if you require support for an indeterminate state.
- *
- * @param checked whether Checkbox is checked or unchecked
- * @param onCheckedChange callback to be invoked when checkbox is being clicked,
- * therefore the change of checked state in requested.
- * If [null], Checkbox will appears in the [checked] state and remains disabled
- * @param color custom color for checkbox. By default [MaterialColors.secondary] will be used
- */
-@Composable
-fun Checkbox(
-    checked: Boolean,
-    onCheckedChange: ((Boolean) -> Unit)?,
-    color: Color = +themeColor { secondary }
-) {
-    TriStateCheckbox(
-        value = ToggleableState(checked),
-        onClick = onCheckedChange?.let { { it(!checked) } },
-        color = color
-    )
 }
 
 @Composable
