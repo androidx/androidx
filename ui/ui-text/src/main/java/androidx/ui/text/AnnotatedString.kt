@@ -566,3 +566,10 @@ inline fun <R : Any> AnnotatedString.Builder.withStyle(
         popTo(index)
     }
 }
+
+operator fun AnnotatedString.plus(other: AnnotatedString): AnnotatedString {
+    return with(AnnotatedString.Builder(this)) {
+        append(other)
+        build()
+    }
+}

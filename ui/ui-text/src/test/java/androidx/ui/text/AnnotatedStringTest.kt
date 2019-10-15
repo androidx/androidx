@@ -17,6 +17,7 @@
 package androidx.ui.text
 
 import androidx.ui.core.sp
+import androidx.ui.graphics.Color
 import androidx.ui.text.style.TextAlign
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
@@ -118,5 +119,61 @@ class AnnotatedStringTest {
         val text = "abc"
         val annotatedString = AnnotatedString(text)
         assertThat(annotatedString.toString()).isEqualTo(text)
+    }
+
+    @Test
+    fun plus_operator_creates_a_new_annotated_string() {
+        val text1 = "Hello"
+        val textStyles1 = listOf(
+            AnnotatedString.Item(TextStyle(color = Color.Red), 0, 3),
+            AnnotatedString.Item(TextStyle(color = Color.Blue), 2, 4)
+        )
+        val paragraphStyles1 = listOf(
+            AnnotatedString.Item(ParagraphStyle(lineHeight = 20.sp), 0, 1),
+            AnnotatedString.Item(ParagraphStyle(lineHeight = 30.sp), 1, 5)
+        )
+        val annotatedString1 = AnnotatedString(
+            text = text1,
+            textStyles = textStyles1,
+            paragraphStyles = paragraphStyles1
+        )
+
+        val text2 = "World"
+        val textStyle = TextStyle(color = Color.Cyan)
+        val paragraphStyle = ParagraphStyle(lineHeight = 10.sp)
+        val annotatedString2 = AnnotatedString(
+            text = text2,
+            textStyles = listOf(AnnotatedString.Item(textStyle, 0, text2.length)),
+            paragraphStyles = listOf(AnnotatedString.Item(paragraphStyle, 0, text2.length))
+        )
+
+        val plusResult = annotatedString1 + annotatedString2
+
+        val expectedTextStyles = textStyles1 + listOf(
+            AnnotatedString.Item(textStyle, text1.length, text1.length + text2.length)
+        )
+        val expectedParagraphStyles = paragraphStyles1 + listOf(
+            AnnotatedString.Item(paragraphStyle, text1.length, text1.length + text2.length)
+        )
+        assertThat(plusResult.text).isEqualTo("$text1$text2")
+        assertThat(plusResult.textStyles).isEqualTo(expectedTextStyles)
+        assertThat(plusResult.paragraphStyles).isEqualTo(expectedParagraphStyles)
+    }
+
+    @Test
+    fun string_plus_annotated_string_returns_string() {
+        val string = "Hello"
+        val text = "World"
+        assertThat(
+            string + AnnotatedString(
+                text = text,
+                textStyles = listOf(
+                    AnnotatedString.Item(TextStyle(color = Color.Red), 0, 1)
+                ),
+                paragraphStyles = listOf(
+                    AnnotatedString.Item(ParagraphStyle(lineHeight = 20.sp), 0, 2)
+                )
+            )
+        ).isEqualTo("$string$text")
     }
 }

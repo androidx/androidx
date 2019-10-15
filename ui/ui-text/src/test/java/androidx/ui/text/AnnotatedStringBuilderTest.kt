@@ -30,7 +30,7 @@ import org.junit.runners.JUnit4
 class AnnotatedStringBuilderTest {
 
     @Test
-    fun testDefaultConstructor() {
+    fun defaultConstructor() {
         val annotatedString = AnnotatedString.Builder().build()
 
         assertThat(annotatedString.text).isEmpty()
@@ -39,7 +39,7 @@ class AnnotatedStringBuilderTest {
     }
 
     @Test
-    fun testConstructorWithString() {
+    fun constructorWithString() {
         val text = "a"
         val annotatedString = AnnotatedString.Builder(text).build()
 
@@ -49,7 +49,7 @@ class AnnotatedStringBuilderTest {
     }
 
     @Test
-    fun testConstructorWithAnnotatedString_hasSameAnnotatedStringAttributes() {
+    fun constructorWithAnnotatedString_hasSameAnnotatedStringAttributes() {
         val text = createAnnotatedString(text = "a")
         val annotatedString = AnnotatedString.Builder(text).build()
 
@@ -59,7 +59,7 @@ class AnnotatedStringBuilderTest {
     }
 
     @Test
-    fun textAddStyle_withTextStyle_addsStyle() {
+    fun addStyle_withTextStyle_addsStyle() {
         val style = TextStyle(color = Color.Red)
         val range = TextRange(0, 1)
         val annotatedString = AnnotatedString.Builder("ab")
@@ -75,7 +75,7 @@ class AnnotatedStringBuilderTest {
     }
 
     @Test
-    fun textAddStyle_withParagraphStyle_addsStyle() {
+    fun addStyle_withParagraphStyle_addsStyle() {
         val style = ParagraphStyle(lineHeight = 30.sp)
         val range = TextRange(0, 1)
         val annotatedString = AnnotatedString.Builder("ab")
@@ -91,7 +91,7 @@ class AnnotatedStringBuilderTest {
     }
 
     @Test
-    fun testAppend_withString_appendsTheText() {
+    fun append_withString_appendsTheText() {
         val text = "a"
         val appendedText = "b"
         val annotatedString = AnnotatedString.Builder(text).append(appendedText).build()
@@ -104,14 +104,14 @@ class AnnotatedStringBuilderTest {
     }
 
     @Test
-    fun testAppend_withString_andMultipleCalls_appendsAllOfTheText() {
+    fun append_withString_andMultipleCalls_appendsAllOfTheText() {
         val annotatedString = AnnotatedString.Builder("a").append("b").append("c").build()
 
         assertThat(annotatedString.text).isEqualTo("abc")
     }
 
     @Test
-    fun testAppend_withAnnotatedString_appendsTheText() {
+    fun append_withAnnotatedString_appendsTheText() {
         val color = Color.Red
         val text = "a"
         val lineHeight = 20.sp
