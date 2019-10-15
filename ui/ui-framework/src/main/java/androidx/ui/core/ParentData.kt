@@ -18,37 +18,19 @@ package androidx.ui.core
 import androidx.compose.Composable
 
 /**
- * Provide data that can be read from the [Measurable] children.
+ * Provide data for the parent of a [Layout], which can then be read from the
+ * corresponding [Measurable].
  *
  * A containing [Layout] sometimes needs to mark children with attributes that can later
  * be read during layout. [data] is assigned to the [Measurable.parentData] to be read.
  * Normally [ParentData] is completely controlled by the containing Layout. For example,
- * [Flex] is used like this:
+ * Row and Column layout models use parent data to access the flex value of their children
+ * during measurement (though that is achieved using the Inflexible and Flexible modifiers,
+ * rather than using this widget).
  *
- *     Flex(...) {
- *         expanded(2f) {
- *             Text(...)
- *         }
- *         inflexible {
- *             Center {Text(...)}
- *         }
- *     }
+ * Example usage:
+ * @sample androidx.ui.framework.samples.ParentDataSample
  *
- * The Flex component internally adds a ParentData to mark the expanded and inflexible
- * children so that they can later be read during layout. Conceptually, Flex will treat it
- * like this:
- *
- *     Flex(...) {
- *         ParentData(value = FlexInfo(FlexFit.Tight, 2f)) {
- *             Text(...)
- *         }
- *         ParentData(value = FlexInfo(FlexFit.Loose, 0f)) {
- *             Center {Text(...)}
- *         }
- *     }
- *
- * Flex then reads the [Measurable.parentData] and can determine which elements are
- * expanded, which are inflexible and which are flexible.
  */
 @Composable
 inline fun ParentData(data: Any, crossinline children: @Composable() () -> Unit) {
