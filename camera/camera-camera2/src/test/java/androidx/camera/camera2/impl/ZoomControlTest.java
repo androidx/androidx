@@ -87,9 +87,9 @@ public class ZoomControlTest {
                 cameraManager.getCameraCharacteristics(
                         CAMERA0_ID);
 
-        mCamera2CameraControl = spy(new Camera2CameraControl(cameraCharacteristics, mock(
-                CameraControlInternal.ControlUpdateCallback.class),
-                CameraXExecutors.mainThreadExecutor(), CameraXExecutors.mainThreadExecutor()));
+        mCamera2CameraControl = spy(new Camera2CameraControl(cameraCharacteristics,
+                CameraXExecutors.mainThreadExecutor(), CameraXExecutors.mainThreadExecutor(),
+                mock(CameraControlInternal.ControlUpdateCallback.class)));
         mZoomControl = new ZoomControl(mCamera2CameraControl, cameraCharacteristics);
         mZoomControl.setActive(true);
 
@@ -483,9 +483,9 @@ public class ZoomControlTest {
         CameraCharacteristics cameraCharacteristics =
                 cameraManager.getCameraCharacteristics(CAMERA1_ID);
 
-        mCamera2CameraControl = new Camera2CameraControl(cameraCharacteristics, mock(
-                CameraControlInternal.ControlUpdateCallback.class),
-                CameraXExecutors.mainThreadExecutor(), CameraXExecutors.mainThreadExecutor());
+        mCamera2CameraControl = new Camera2CameraControl(cameraCharacteristics,
+                CameraXExecutors.mainThreadExecutor(), CameraXExecutors.mainThreadExecutor(),
+                mock(CameraControlInternal.ControlUpdateCallback.class));
         ZoomControl zoomControl = new ZoomControl(mCamera2CameraControl, cameraCharacteristics);
         zoomControl.setActive(true);
 
@@ -504,9 +504,9 @@ public class ZoomControlTest {
         CameraCharacteristics cameraCharacteristics =
                 cameraManager.getCameraCharacteristics(CAMERA1_ID);
 
-        mCamera2CameraControl = new Camera2CameraControl(cameraCharacteristics, mock(
-                CameraControlInternal.ControlUpdateCallback.class),
-                CameraXExecutors.mainThreadExecutor(), CameraXExecutors.mainThreadExecutor());
+        mCamera2CameraControl = new Camera2CameraControl(cameraCharacteristics,
+                CameraXExecutors.mainThreadExecutor(), CameraXExecutors.mainThreadExecutor(),
+                mock(CameraControlInternal.ControlUpdateCallback.class));
         ZoomControl zoomControl = new ZoomControl(mCamera2CameraControl, cameraCharacteristics);
         zoomControl.setActive(true);
 
@@ -526,9 +526,9 @@ public class ZoomControlTest {
         CameraCharacteristics cameraCharacteristics =
                 cameraManager.getCameraCharacteristics(CAMERA1_ID);
 
-        mCamera2CameraControl = new Camera2CameraControl(cameraCharacteristics, mock(
-                CameraControlInternal.ControlUpdateCallback.class),
-                CameraXExecutors.mainThreadExecutor(), CameraXExecutors.mainThreadExecutor());
+        mCamera2CameraControl = new Camera2CameraControl(cameraCharacteristics,
+                CameraXExecutors.mainThreadExecutor(), CameraXExecutors.mainThreadExecutor(),
+                mock(CameraControlInternal.ControlUpdateCallback.class));
         ZoomControl zoomControl = new ZoomControl(mCamera2CameraControl, cameraCharacteristics);
         zoomControl.setActive(true);
 
@@ -548,9 +548,9 @@ public class ZoomControlTest {
         CameraCharacteristics cameraCharacteristics =
                 cameraManager.getCameraCharacteristics(CAMERA1_ID);
 
-        mCamera2CameraControl = new Camera2CameraControl(cameraCharacteristics, mock(
-                CameraControlInternal.ControlUpdateCallback.class),
-                CameraXExecutors.mainThreadExecutor(), CameraXExecutors.mainThreadExecutor());
+        mCamera2CameraControl = new Camera2CameraControl(cameraCharacteristics,
+                CameraXExecutors.mainThreadExecutor(), CameraXExecutors.mainThreadExecutor(),
+                mock(CameraControlInternal.ControlUpdateCallback.class));
         ZoomControl zoomControl = new ZoomControl(mCamera2CameraControl, cameraCharacteristics);
         zoomControl.setActive(true);
 
@@ -571,9 +571,9 @@ public class ZoomControlTest {
         CameraCharacteristics cameraCharacteristics =
                 cameraManager.getCameraCharacteristics(CAMERA1_ID);
 
-        mCamera2CameraControl = new Camera2CameraControl(cameraCharacteristics, mock(
-                CameraControlInternal.ControlUpdateCallback.class),
-                CameraXExecutors.mainThreadExecutor(), CameraXExecutors.mainThreadExecutor());
+        mCamera2CameraControl = new Camera2CameraControl(cameraCharacteristics,
+                CameraXExecutors.mainThreadExecutor(), CameraXExecutors.mainThreadExecutor(),
+                mock(CameraControlInternal.ControlUpdateCallback.class));
         ZoomControl zoomControl = new ZoomControl(mCamera2CameraControl, cameraCharacteristics);
         zoomControl.setActive(true);
 

@@ -109,7 +109,7 @@ public final class Camera2CameraControlTest {
 
         ScheduledExecutorService executorService = CameraXExecutors.newHandlerExecutor(mHandler);
         mCamera2CameraControl = new Camera2CameraControl(mCameraCharacteristics,
-                mControlUpdateCallback, executorService, executorService);
+                executorService, executorService, mControlUpdateCallback);
 
         HandlerUtil.waitForLooperToIdle(mHandler);
 

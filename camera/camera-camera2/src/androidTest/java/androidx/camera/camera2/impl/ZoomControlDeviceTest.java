@@ -107,7 +107,7 @@ public final class ZoomControlDeviceTest {
 
         ScheduledExecutorService executorService = CameraXExecutors.newHandlerExecutor(mHandler);
         mCamera2CameraControl = new Camera2CameraControl(mCameraCharacteristics,
-                mControlUpdateCallback, executorService, executorService);
+                executorService, executorService, mControlUpdateCallback);
 
         mZoomControl = new ZoomControl(mCamera2CameraControl, mCameraCharacteristics);
         mZoomControl.setActive(true);
