@@ -70,9 +70,10 @@ fun AnnotatedStringBuilderPushParagraphStyleSample() {
 
 @Sampled
 fun AnnotatedStringBuilderWithStyleSample() {
-    AnnotatedString.Builder()
-        .withStyle(TextStyle(color = Color.Green)) {
+    with(AnnotatedString.Builder()) {
+        withStyle(TextStyle(color = Color.Green)) {
             // green text style will be applied to all text in this block
             append("Hello")
-        }.build()
+        }
+    }
 }

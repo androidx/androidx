@@ -101,7 +101,7 @@ data class AnnotatedString(
          * @param start the inclusive starting offset of the range
          * @param end the exclusive end offset of the range
          */
-        fun addStyle(style: TextStyle, start: Int, end: Int): Builder = apply {
+        fun addStyle(style: TextStyle, start: Int, end: Int) {
             textStyles.add(MutableItem(style = style, start = start, end = end))
         }
 
@@ -113,7 +113,7 @@ data class AnnotatedString(
          * @param start the inclusive starting offset of the range
          * @param end the exclusive end offset of the range
          */
-        fun addStyle(style: ParagraphStyle, start: Int, end: Int): Builder = apply {
+        fun addStyle(style: ParagraphStyle, start: Int, end: Int) {
             paragraphStyles.add(MutableItem(style = style, start = start, end = end))
         }
 
@@ -122,7 +122,7 @@ data class AnnotatedString(
          *
          * @param text the text to append
          */
-        fun append(text: String): Builder = apply {
+        fun append(text: String) {
             this.text.append(text)
         }
 
@@ -131,7 +131,7 @@ data class AnnotatedString(
          *
          * @param text the text to append
          */
-        fun append(text: AnnotatedString): Builder = apply {
+        fun append(text: AnnotatedString) {
             val start = this.text.length
             this.text.append(text.text)
             // offset every style with start and add to the builder
@@ -144,67 +144,33 @@ data class AnnotatedString(
         }
 
         /**
-         * Applies the given [TextStyle] to any appended text until the [pop] is called.
+         * Applies the given [TextStyle] to any appended text until a corresponding [pop] is called.
          *
          * @sample androidx.ui.text.samples.AnnotatedStringBuilderPushSample
          *
          * @param style TextStyle to be applied
          */
-        fun push(style: TextStyle): Builder = apply {
+        fun push(style: TextStyle): Int {
             MutableItem(style = style, start = text.length, end = text.length).also {
                 styleStack.add(it)
                 textStyles.add(it)
             }
-        }
-
-        /**
-         * Applies the given [TextStyle] to any appended text up until the corresponding [pop]
-         * or [popTo] is called.
-         *
-         * @sample androidx.ui.text.samples.AnnotatedStringBuilderPushSample
-         *
-         * @param style TextStyle to be applied
-         *
-         * @return index of the push that can be used with [popTo]
-         *
-         * @see push
-         * @see withStyle
-         */
-        fun pushIndexed(style: TextStyle): Int {
-            push(style)
-            // return the index of most recent push
             return styleStack.size - 1
         }
 
         /**
-         * Applies the given [ParagraphStyle] to any appended text until the [pop] is called.
+         * Applies the given [ParagraphStyle] to any appended text until a corresponding [pop] is
+         * called.
          *
          * @sample androidx.ui.text.samples.AnnotatedStringBuilderPushParagraphStyleSample
          *
          * @param style ParagraphStyle to be applied
          */
-        fun push(style: ParagraphStyle): Builder = apply {
+        fun push(style: ParagraphStyle): Int {
             MutableItem(style = style, start = text.length, end = text.length).also {
                 styleStack.add(it)
                 paragraphStyles.add(it)
             }
-        }
-
-        /**
-         * Applies the given [ParagraphStyle] to any appended text the corresponding [pop]
-         * or [popTo] is called.
-         *
-         * @sample androidx.ui.text.samples.AnnotatedStringBuilderPushParagraphStyleSample
-         *
-         * @param style ParagraphStyle to be applied
-         *
-         * @return index of the push that can be used with [popTo]
-         *
-         * @see withStyle
-         */
-        fun pushIndexed(style: ParagraphStyle): Int {
-            push(style)
-            // return the index of most recent push
             return styleStack.size - 1
         }
 
@@ -213,7 +179,7 @@ data class AnnotatedString(
          *
          * @see push
          */
-        fun pop(): Builder = apply {
+        fun pop() {
             check(styleStack.isNotEmpty()) { "Nothing to pop." }
             // pop the last element
             val item = styleStack.removeAt(styleStack.size - 1)
@@ -228,7 +194,7 @@ data class AnnotatedString(
          * @see pop
          * @see push
          */
-        fun popTo(index: Int) = apply {
+        fun pop(index: Int) {
             check(index < styleStack.size) { "$index should be less than ${styleStack.size}" }
             while ((styleStack.size - 1) >= index) {
                 pop()
@@ -534,11 +500,11 @@ inline fun <R : Any> AnnotatedString.Builder.withStyle(
     style: TextStyle,
     crossinline block: AnnotatedString.Builder.() -> R
 ): R {
-    val index = pushIndexed(style)
+    val index = push(style)
     return try {
         block(this)
     } finally {
-        popTo(index)
+        pop(index)
     }
 }
 
@@ -559,11 +525,11 @@ inline fun <R : Any> AnnotatedString.Builder.withStyle(
     style: ParagraphStyle,
     crossinline block: AnnotatedString.Builder.() -> R
 ): R {
-    val index = pushIndexed(style)
+    val index = push(style)
     return try {
         block(this)
     } finally {
-        popTo(index)
+        pop(index)
     }
 }
 
