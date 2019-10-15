@@ -35,7 +35,7 @@ import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
 /**
- * The benchmark for [Text] widget with the input being styled text in form of composable [Span]s.
+ * The benchmark for [Text] composable with the input being styled text in form of composable [Span]s.
  */
 @LargeTest
 @RunWith(Parameterized::class)
@@ -65,9 +65,9 @@ class TextWithSpanBenchmark(
     }
 
     /**
-     * Measure the time taken to compose a Text widget with [Span]s as input.
+     * Measure the time taken to compose a Text composable with [Span]s as input.
      * This is mainly the time used to call the [Text] composable function. Different from other
-     * [Text] widget benchmarks, this one include the time used to create [Span] tree.
+     * [Text] composable benchmarks, this one include the time used to create [Span] tree.
      */
     @Test
     fun first_compose() {
@@ -84,8 +84,8 @@ class TextWithSpanBenchmark(
     }
 
     /**
-     * Measure the time taken to measure a Text widget with [Span]s as input.
-     * This is mainly the time used to measure all the [Measurable]s in the [Text] widget.
+     * Measure the time taken to measure a Text composable with [Span]s as input.
+     * This is mainly the time used to measure all the [Measurable]s in the [Text] composable.
      */
     @Test
     fun first_measure() {
@@ -102,8 +102,8 @@ class TextWithSpanBenchmark(
     }
 
     /**
-     * Measure the time taken to layout a Text widget with [Span]s as input for the first time.
-     * This is mainly the time used to place [Placeable]s in [Text] widget.
+     * Measure the time taken to layout a Text composable with [Span]s as input for the first time.
+     * This is mainly the time used to place [Placeable]s in [Text] composable.
      */
     @Test
     fun first_layout() {
@@ -120,7 +120,7 @@ class TextWithSpanBenchmark(
     }
 
     /**
-     * Measure the time taken to draw a Text widget with [Span]s as input for the first time.
+     * Measure the time taken to draw a Text composable with [Span]s as input for the first time.
      */
     @Test
     fun first_draw() {
@@ -137,9 +137,9 @@ class TextWithSpanBenchmark(
     }
 
     /**
-     * Measure the time taken to layout a Text widget with [Span]s as input after layout
+     * Measure the time taken to layout a Text composable with [Span]s as input after layout
      * constrains changed.
-     * This is mainly the time used to re-measure and re-layout the widget.
+     * This is mainly the time used to re-measure and re-layout the composable.
      */
     @Test
     fun layout() {
@@ -156,7 +156,7 @@ class TextWithSpanBenchmark(
     }
 
     /**
-     * Measure the time taken to draw a Text widget with [Span]s as input.
+     * Measure the time taken to draw a Text composable with [Span]s as input.
      */
     @Test
     fun draw() {

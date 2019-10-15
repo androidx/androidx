@@ -119,7 +119,7 @@ internal class TextFieldDelegate {
          * @param value The editor state
          * @param offsetMap The offset map
          * @param textDelegate The text painter
-         * @param hasFocus true if this widget is focused, otherwise false
+         * @param hasFocus true if this composable is focused, otherwise false
          * @param selectionColor The selection color
          */
         @JvmStatic
@@ -227,7 +227,7 @@ internal class TextFieldDelegate {
         /**
          * Called when onDrag event is fired.
          *
-         * @param position The event position in widget coordinate.
+         * @param position The event position in composable coordinate.
          */
         @JvmStatic
         fun onDragAt(position: PxPosition) {
@@ -238,14 +238,14 @@ internal class TextFieldDelegate {
         /**
          * Called when onRelease event is fired.
          *
-         * @param position The event position in widget coordinate.
+         * @param position The event position in composable coordinate.
          * @param textDelegate The text painter
          * @param editProcessor The edit processor
          * @param offsetMap The offset map
          * @param onValueChange The callback called when the new editor state arrives.
          * @param textInputService The text input service
          * @param token The current input session token.
-         * @param hasFocus True if the widget has input focus, otherwise false.
+         * @param hasFocus True if the composable has input focus, otherwise false.
          */
         @JvmStatic
         fun onRelease(
@@ -270,7 +270,7 @@ internal class TextFieldDelegate {
         }
 
         /**
-         * Called when the widget gained input focus
+         * Called when the composable gained input focus
          *
          * @param textInputService The text input service
          * @param value The editor state
@@ -298,7 +298,7 @@ internal class TextFieldDelegate {
         }
 
         /**
-         * Called when the widget loses input focus
+         * Called when the composable loses input focus
          *
          * @param textInputService The text input service
          * @param token The current input session token.

@@ -39,7 +39,7 @@ fun Semantics(
     container: Boolean = false,
     /**
      * Whether descendants of this component are allowed to add semantic
-     * information to the [SemanticsNode] annotated by this widget.
+     * information to the [SemanticsNode] annotated by this composable.
      *
      * When set to false descendants are allowed to annotate [SemanticNode]s of
      * their parent with the semantic information they want to contribute to the

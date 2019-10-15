@@ -54,7 +54,7 @@ interface LayoutCoordinates {
     fun localToGlobal(local: PxPosition): PxPosition
 
     /**
-     * Converts a local position within this layout into an offset from the root widget.
+     * Converts a local position within this layout into an offset from the root composable.
      */
     fun localToRoot(local: PxPosition): PxPosition
 
@@ -70,6 +70,6 @@ interface LayoutCoordinates {
 inline val LayoutCoordinates.globalPosition: PxPosition get() = localToGlobal(PxPosition.Origin)
 
 /**
- * The position of this layout inside the root widget.
+ * The position of this layout inside the root composable.
  */
 inline val LayoutCoordinates.positionInRoot: PxPosition get() = localToGlobal(PxPosition.Origin)

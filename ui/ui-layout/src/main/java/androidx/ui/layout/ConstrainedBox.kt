@@ -26,7 +26,7 @@ import androidx.ui.core.enforce
 import androidx.ui.core.ipx
 
 /**
- * Widget that enforces additional [Constraints] to its only child. The ConstrainedBox will
+ * Composable that enforces additional [Constraints] to its only child. The ConstrainedBox will
  * itself create a [Layout] which will take the same size that the child chooses.
  * If there is no child, the ConstrainedBox will size itself to the min constraints that would
  * have been passed to the child.

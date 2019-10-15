@@ -35,7 +35,7 @@ import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
 /**
- * The benchmark for [Text] widget with the input being a styled text in the form of
+ * The benchmark for [Text] composable with the input being a styled text in the form of
  * AnnotatedString.
  */
 @LargeTest
@@ -68,7 +68,7 @@ class TextMultiStyleBenchmark(
     }
 
     /**
-     * Measure the time taken to compose a [Text] widget from scratch with styled text as input.
+     * Measure the time taken to compose a [Text] composable from scratch with styled text as input.
      * This is the time taken to call the [Text] composable function.
      */
     @Test
@@ -87,8 +87,8 @@ class TextMultiStyleBenchmark(
     }
 
     /**
-     * Measure the time taken by first time measure the Text widget with styled text as input.
-     * This is mainly the time used to measure all the [Measurable]s in the [Text] widget.
+     * Measure the time taken by first time measure the Text composable with styled text as input.
+     * This is mainly the time used to measure all the [Measurable]s in the [Text] composable.
      */
     @Test
     fun first_measure() {
@@ -106,8 +106,8 @@ class TextMultiStyleBenchmark(
     }
 
     /**
-     * Measure the time taken by first time layout the Text widget with styled text as input.
-     * This is mainly the time used to place [Placeable]s in [Text] widget.
+     * Measure the time taken by first time layout the Text composable with styled text as input.
+     * This is mainly the time used to place [Placeable]s in [Text] composable.
      */
     @Test
     fun first_layout() {
@@ -125,7 +125,7 @@ class TextMultiStyleBenchmark(
     }
 
     /**
-     * Measure the time taken by first time draw the Text widget with styled text
+     * Measure the time taken by first time draw the Text composable with styled text
      * as input.
      */
     @Test
@@ -144,9 +144,9 @@ class TextMultiStyleBenchmark(
     }
 
     /**
-     * Measure the time taken by layout a Text widget with styled text input, when
+     * Measure the time taken by layout a Text composable with styled text input, when
      * layout constrains changed.
-     * This is mainly the time used to re-measure and re-layout the widget.
+     * This is mainly the time used to re-measure and re-layout the composable.
      */
     @Test
     fun layout() {
@@ -164,7 +164,7 @@ class TextMultiStyleBenchmark(
     }
 
     /**
-     * Measure the time taken by re-draw a Text widget with styled text input.
+     * Measure the time taken by re-draw a Text composable with styled text input.
      */
     @Test
     fun draw() {

@@ -17,7 +17,7 @@
 package androidx.ui.core.input
 
 /**
- * Manages focused widget and available.
+ * Manages focused composable and available.
  *
  * You can access the active focus manager via ambient.
  */

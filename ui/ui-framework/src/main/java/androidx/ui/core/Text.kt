@@ -52,7 +52,7 @@ private val DefaultMaxLines: Int? = null
 private val DefaultSelectionColor = Color(0x6633B5E5)
 
 /**
- * The Text widget displays text that uses multiple different styles. The text to display is
+ * The Text composable displays text that uses multiple different styles. The text to display is
  * described using a tree of [Span], each of which has an associated style that is used
  * for that subtree. The text might break across multiple lines or might all be displayed on the
  * same line depending on the layout constraints.
@@ -61,7 +61,7 @@ private val DefaultSelectionColor = Color(0x6633B5E5)
 fun Text(
     modifier: Modifier = Modifier.None,
     /**
-     * Text to render in this widget. If there are also [Span]s in this widget, they will be append
+     * Text to render in this composable. If there are also [Span]s in this composable, they will be append
      * after the given [text].
      */
     text: String? = null,
@@ -150,7 +150,7 @@ fun Text(
 }
 
 /**
- * The Text widget displays text that uses multiple different styles. The text to display is
+ * The Text composable displays text that uses multiple different styles. The text to display is
  * described using a [AnnotatedString].
  *
  */
@@ -164,7 +164,7 @@ fun Text(
      * Modifier to apply to this layout node
      */
     modifier: Modifier = Modifier.None,
-    /** The default text style applied to all text in this widget. */
+    /** The default text style applied to all text in this composable. */
     style: TextStyle? = null,
     /**
      * Style configuration that applies only to paragraphs such as text alignment, or text
@@ -233,8 +233,8 @@ fun Text(
         }
 
         val children = @Composable {
-            // Get the layout coordinates of the text widget. This is for hit test of cross-widget
-            // selection.
+            // Get the layout coordinates of the text composable. This is for hit test of
+            // cross-composable selection.
             OnPositioned(onPositioned = { layoutCoordinates.value = it })
             Draw { canvas, _ ->
                 internalSelection.value?.let {

@@ -42,7 +42,6 @@ import androidx.ui.layout.EdgeInsets
 import androidx.ui.layout.FlexRow
 import androidx.ui.layout.Padding
 import androidx.ui.material.ripple.Ripple
-import androidx.ui.material.surface.Surface
 import androidx.ui.text.TextStyle
 import androidx.ui.text.style.TextOverflow
 
@@ -412,7 +411,7 @@ private object ThreeLine {
  * top of the layout and the first text, as well as the last baseline and first baseline
  * for subsequent pairs of texts.
  */
-// TODO(popam): consider making this a layout widget in ui-layout.
+// TODO(popam): consider making this a layout composable in ui-layout.
 @Composable
 private fun BaselinesOffsetColumn(offsets: List<Dp>, children: @Composable() () -> Unit) {
     Layout(children) { measurables, constraints ->

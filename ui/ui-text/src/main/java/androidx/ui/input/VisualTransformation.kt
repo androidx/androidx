@@ -75,7 +75,7 @@ interface VisualTransformation {
     /**
      * Change the visual output of given text.
      *
-     * Note that the returned text length can be different length from the given text. The widget
+     * Note that the returned text length can be different length from the given text. The composable
      * will call the offset translator for converting offsets for various reasons, cursor drawing
      * position, text selection by gesture, etc.
      *

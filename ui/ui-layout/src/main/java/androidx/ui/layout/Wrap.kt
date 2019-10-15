@@ -31,7 +31,7 @@ import androidx.ui.core.Alignment
  * (the child is too small and does not satisfy the min constraints of the parent), the parent
  * will size itself to min constraints and the child will be aligned according to the alignment.
  *
- * For a widget that does alignment and tries to be as large as possible, see [Align].
+ * For a composable that does alignment and tries to be as large as possible, see [Align].
  */
 @Composable
 fun Wrap(alignment: Alignment = Alignment.TopLeft, children: @Composable() () -> Unit) {

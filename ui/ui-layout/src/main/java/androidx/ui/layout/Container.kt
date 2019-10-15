@@ -33,11 +33,10 @@ import androidx.ui.core.max
 import androidx.ui.core.offset
 import androidx.ui.core.withTight
 import androidx.compose.Composable
-import androidx.compose.trace
 import androidx.ui.core.Modifier
 
 /**
- * A convenience widget that combines common layout widgets for one child:
+ * A convenience composable that combines common layout composables for one child:
  * - padding: the padding to be applied to the child
  * - alignment: how to position the padded child if the [Container] is larger than the child
  * - constraints: additional Constraints to be enforced when measuring the Container

@@ -1060,18 +1060,18 @@ class SemanticsComponentNode(
     // TODO(ryanmentley): probably take away these default values
     semanticsConfiguration: SemanticsConfiguration = SemanticsConfiguration(),
     /**
-     * If [container] is true, this widget will introduce a new
+     * If [container] is true, this composable will introduce a new
      * node in the semantics tree. Otherwise, the semantics will be
      * merged with the semantics of any ancestors (if the ancestor allows that).
      *
-     * Whether descendants of this widget can add their semantic information to the
+     * Whether descendants of this composable can add their semantic information to the
      * [SemanticsNode] introduced by this configuration is controlled by
      * [explicitChildNodes].
      */
     container: Boolean = false,
     /**
-     * Whether descendants of this widget are allowed to add semantic information
-     * to the [SemanticsNode] annotated by this widget.
+     * Whether descendants of this composable are allowed to add semantic information
+     * to the [SemanticsNode] annotated by this composable.
      *
      * When set to false descendants are allowed to annotate [SemanticNode]s of
      * their parent with the semantic information they want to contribute to the

@@ -111,7 +111,7 @@ class StackChildren {
 }
 
 /**
- * A widget that positions its children relative to its edges.
+ * A composable that positions its children relative to its edges.
  * The component is useful for drawing children that overlap. The children will always be
  * drawn in the order they are specified in the body of the [Stack].
  *

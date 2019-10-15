@@ -59,7 +59,7 @@ import androidx.ui.layout.samples.SizedRectangle
 import androidx.ui.text.TextStyle
 
 /**
- * A widget that forces its only child to be as wide as its min intrinsic width.
+ * A composable that forces its only child to be as wide as its min intrinsic width.
  */
 @Composable
 fun IntrinsicWidth(children: @Composable() () -> Unit) {
