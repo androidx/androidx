@@ -16,6 +16,7 @@
 
 package androidx.ui.text
 
+import androidx.ui.text.AnnotatedString.Builder
 import java.util.SortedSet
 
 /**
@@ -496,9 +497,9 @@ val AnnotatedString.length: Int get() = text.length
  * @see AnnotatedString.Builder.push
  * @see AnnotatedString.Builder.pop
  */
-inline fun <R : Any> AnnotatedString.Builder.withStyle(
+inline fun <R : Any> Builder.withStyle(
     style: TextStyle,
-    crossinline block: AnnotatedString.Builder.() -> R
+    crossinline block: Builder.() -> R
 ): R {
     val index = push(style)
     return try {
@@ -521,9 +522,9 @@ inline fun <R : Any> AnnotatedString.Builder.withStyle(
  * @see AnnotatedString.Builder.push
  * @see AnnotatedString.Builder.pop
  */
-inline fun <R : Any> AnnotatedString.Builder.withStyle(
+inline fun <R : Any> Builder.withStyle(
     style: ParagraphStyle,
-    crossinline block: AnnotatedString.Builder.() -> R
+    crossinline block: Builder.() -> R
 ): R {
     val index = push(style)
     return try {
@@ -534,8 +535,19 @@ inline fun <R : Any> AnnotatedString.Builder.withStyle(
 }
 
 operator fun AnnotatedString.plus(other: AnnotatedString): AnnotatedString {
-    return with(AnnotatedString.Builder(this)) {
+    return with(Builder(this)) {
         append(other)
         build()
     }
 }
+
+/**
+ * Build a new AnnotatedString by populating newly created [AnnotatedString.Builder] provided
+ * by [builder].
+ *
+ * @sample androidx.ui.text.samples.AnnotatedStringBuilderLambdaSample
+ *
+ * @param builder lambda to modify [AnnotatedString.Builder]
+ */
+inline fun AnnotatedString(builder: (Builder).() -> Unit): AnnotatedString =
+    Builder().apply(builder).build()

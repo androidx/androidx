@@ -21,6 +21,7 @@ import androidx.ui.core.sp
 import androidx.ui.graphics.Color
 import androidx.ui.text.font.FontStyle
 import androidx.ui.text.font.FontWeight
+import androidx.ui.text.style.TextAlign
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -467,6 +468,43 @@ class AnnotatedStringBuilderTest {
         assertThat(buildResult.paragraphStyles).isEqualTo(
             listOf(AnnotatedString.Item(style, 0, buildResult.length))
         )
+    }
+
+    @Test
+    fun builderLambda() {
+        val text1 = "Hello"
+        val text2 = "World"
+        val textStyle1 = TextStyle(color = Color.Red)
+        val textStyle2 = TextStyle(color = Color.Blue)
+        val paragraphStyle1 = ParagraphStyle(textAlign = TextAlign.Right)
+        val paragraphStyle2 = ParagraphStyle(textAlign = TextAlign.Right)
+
+        val buildResult = AnnotatedString {
+            withStyle(paragraphStyle1) {
+                withStyle(textStyle1) {
+                    append(text1)
+                }
+            }
+            append(" ")
+            push(paragraphStyle2)
+            push(textStyle2)
+            append(text2)
+            pop()
+        }
+
+        val expectedString = "$text1 $text2"
+        val expectedTextStyles = listOf(
+            AnnotatedString.Item(textStyle1, 0, text1.length),
+            AnnotatedString.Item(textStyle2, text1.length + 1, expectedString.length)
+        )
+        val expectedParagraphStyles = listOf(
+            AnnotatedString.Item(paragraphStyle1, 0, text1.length),
+            AnnotatedString.Item(paragraphStyle2, text1.length + 1, expectedString.length)
+        )
+
+        assertThat(buildResult.text).isEqualTo(expectedString)
+        assertThat(buildResult.textStyles).isEqualTo(expectedTextStyles)
+        assertThat(buildResult.paragraphStyles).isEqualTo(expectedParagraphStyles)
     }
 
     private fun createAnnotatedString(

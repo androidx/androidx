@@ -128,6 +128,7 @@ package androidx.ui.text {
 
   public final class AnnotatedStringKt {
     ctor public AnnotatedStringKt();
+    method public static inline androidx.ui.text.AnnotatedString AnnotatedString(kotlin.jvm.functions.Function1<? super androidx.ui.text.AnnotatedString.Builder,kotlin.Unit> builder);
     method public static androidx.ui.text.AnnotatedString capitalize(androidx.ui.text.AnnotatedString, androidx.ui.text.LocaleList localeList = LocaleList.current);
     method public static androidx.ui.text.AnnotatedString decapitalize(androidx.ui.text.AnnotatedString, androidx.ui.text.LocaleList localeList = LocaleList.current);
     method public static int getLength(androidx.ui.text.AnnotatedString);
