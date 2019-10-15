@@ -36,11 +36,11 @@ import kotlin.math.roundToInt
  * Provide Android specific input service with the Operating System.
  */
 internal class TextInputServiceAndroid(val view: View) : PlatformTextInputService {
-    /** True if the currently editable widget has connected */
+    /** True if the currently editable composable has connected */
     private var editorHasFocus = false
 
     /**
-     *  The following three observers are set when the editable widget has initiated the input
+     *  The following three observers are set when the editable composable has initiated the input
      *  session
      */
     private var onEditCommand: (List<EditOperation>) -> Unit = {}

@@ -159,7 +159,7 @@ private fun WrapWithAmbients(
     val configuration = +state { context.applicationContext.resources.configuration }
 
     // We don't use the attached View's layout direction here since that layout direction may not
-    // be resolved since the widgets may be composed without attaching to the RootViewImpl.
+    // be resolved since the composables may be composed without attaching to the RootViewImpl.
     // In Jetpack Compose, use the locale layout direction (i.e. layoutDirection came from
     // configuration) as a default layout direction.
     val layoutDirection = when (configuration.value.layoutDirection) {

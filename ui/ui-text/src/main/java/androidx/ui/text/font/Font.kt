@@ -49,7 +49,7 @@ data class Font(
     val ttcIndex: Int = 0,
     // TODO(siyamed): implement integration and add tests
     // https://docs.microsoft.com/en-us/typography/opentype/spec/otvaroverview
-    // not sure if this would be here or in the widget properties similar to TextStyle.fontWeight
+    // not sure if this would be here or in the composable properties similar to TextStyle.fontWeight
     // CSS says: "These descriptors define initial settings that apply when the font defined by an
     // @font-face rule is rendered. They do not affect font selection"
     // https://www.w3.org/TR/css-fonts-4/#ref-for-descdef-font-face-font-variation-settings

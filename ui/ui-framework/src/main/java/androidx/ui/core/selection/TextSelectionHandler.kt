@@ -20,7 +20,7 @@ import androidx.ui.core.LayoutCoordinates
 import androidx.ui.core.PxPosition
 
 /**
- * An interface handling selection. Get selection from a widget by passing in the start and end of
+ * An interface handling selection. Get selection from a composable by passing in the start and end of
  * selection in a selection container as a pair, and the layout coordinates of the selection
  * container.
  */

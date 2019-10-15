@@ -111,16 +111,16 @@ private data class AspectRatioModifier(val aspectRatio: Float) : LayoutModifier 
 }
 
 /**
- * Layout widget that attempts to size itself and a potential layout child to match a specified
- * aspect ratio. The widget will try to match one of the incoming constraints, in the following
+ * Layout composable that attempts to size itself and a potential layout child to match a specified
+ * aspect ratio. The composable will try to match one of the incoming constraints, in the following
  * order: maxWidth, maxHeight, minWidth, minHeight. The size in the other dimension will then be
  * computed according to the aspect ratio. Note that the provided aspectRatio will always
  * correspond to the width/height ratio.
  *
- * If a valid size that satisfies the constraints is found this way, the widget will size itself to
+ * If a valid size that satisfies the constraints is found this way, the composable will size itself to
  * this size. If a child is present, this will be measured with tight constraints to match the size.
- * If no valid size is found, the aspect ratio will not be satisfied, and the widget will
- * wrap its child, which is measured with the same constraints. If there is no child, the widget
+ * If no valid size is found, the aspect ratio will not be satisfied, and the composable will
+ * wrap its child, which is measured with the same constraints. If there is no child, the composable
  * will size itself to the incoming min constraints.
  *
  * Example usage:
@@ -130,7 +130,7 @@ private data class AspectRatioModifier(val aspectRatio: Float) : LayoutModifier 
  *             SizedRectangle(color = Color.Black)
  *         }
  *     }
- * The AspectRatio widget will make the Container have the width twice its height.
+ * The AspectRatio composable will make the Container have the width twice its height.
  */
 @Deprecated(
     "Use AspectRatio layout modifier instead.",

@@ -54,9 +54,9 @@ package androidx.ui.text.style
 // statements, the right-to-left case is listed first, to avoid the impression
 // that it is an afterthought.
 //
-// At the higher levels (specifically starting at the widgets library), an
+// At the higher levels (specifically starting at the composables library), an
 // ambient [Directionality] is introduced, which provides a default. Thus, for
-// instance, a [Text] widget in the scope of a [MaterialApp] widget does not
+// instance, a [Text] composable in the scope of a [MaterialApp] composable does not
 // need to be given an explicit writing direction. The [Directionality.of]
 // static method can be used to obtain the ambient text direction for a
 // particular [BuildContext].
@@ -69,7 +69,7 @@ package androidx.ui.text.style
 //  * The [Canvas] origin is at the top left, and the x-axis increases in a
 //    left-to-right direction.
 //
-//  * The default localization in the widgets and material libraries is
+//  * The default localization in the composables and material libraries is
 //    American English, which is left-to-right.
 //
 // ### Visual properties vs directional properties

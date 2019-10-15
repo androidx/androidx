@@ -125,7 +125,7 @@ data class AbsolutePadding(
 
 /**
  * Describes a set of offsets from each of the four sides of a box. For example,
- * it is used to describe padding for the [Padding] widget.
+ * it is used to describe padding for the [Padding] composable.
  */
 data class EdgeInsets(
     val left: Dp = 0.dp,
@@ -137,12 +137,12 @@ data class EdgeInsets(
 }
 
 /**
- * Layout widget that takes a child composable and applies whitespace padding around it.
+ * Layout composable that takes a child composable and applies whitespace padding around it.
  * When passing layout constraints to its child, [Padding] shrinks the constraints by the
  * requested padding, causing the child to layout at a smaller size.
  *
  * Example usage:
- * @sample androidx.ui.layout.samples.PaddingWidgetEdgeInsets
+ * @sample androidx.ui.layout.samples.PaddingComposableEdgeInsets
  */
 @Composable
 fun Padding(
@@ -176,13 +176,13 @@ fun Padding(
 }
 
 /**
- * Layout widget that takes a child composable and applies whitespace padding around it.
+ * Layout composable that takes a child composable and applies whitespace padding around it.
  *
  * When passing layout constraints to its child, [Padding] shrinks the constraints by the
  * requested padding, causing the child to layout at a smaller size.
  *
  * Example usage:
- * @sample androidx.ui.layout.samples.PaddingWidget
+ * @sample androidx.ui.layout.samples.PaddingComposable
  */
 @Composable
 fun Padding(
@@ -199,14 +199,14 @@ fun Padding(
 }
 
 /**
- * Layout widget that takes a child composable and applies
+ * Layout composable that takes a child composable and applies
  * the same amount of whitespace padding around it.
  *
  * When passing layout constraints to its child, [Padding] shrinks the constraints by the
  * requested padding, causing the child to layout at a smaller size.
  *
  * Example usage:
- * @sample androidx.ui.layout.samples.PaddingWidgetSameInset
+ * @sample androidx.ui.layout.samples.PaddingComposableSameInset
  */
 @Composable
 fun Padding(

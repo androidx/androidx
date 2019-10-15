@@ -20,7 +20,6 @@ import androidx.annotation.Sampled
 import androidx.compose.Composable
 import androidx.compose.memo
 import androidx.compose.unaryPlus
-import androidx.ui.animation.animatedFloat
 import androidx.ui.core.Alignment
 import androidx.ui.core.ambientDensity
 import androidx.ui.core.dp
@@ -52,7 +51,7 @@ fun DraggableSample() {
         }
         val squareSize = 50.dp
 
-        // Draw a seekbar-like widget that has a black background
+        // Draw a seekbar-like composable that has a black background
         // with a red square that moves along the drag
         Container(width = max + squareSize, alignment = Alignment.CenterLeft) {
             DrawShape(RectangleShape, Color.Black)
@@ -90,7 +89,7 @@ fun AnchoredDraggableSample() {
             dragValue.toDp()
         }
         val squareSize = 50.dp
-        // Draw a seekbar-like widget that has a black background
+        // Draw a seekbar-like composable that has a black background
         // with a red square that moves along the drag
         Container(width = max + squareSize, alignment = Alignment.CenterLeft) {
             DrawShape(RectangleShape, Color.Black)

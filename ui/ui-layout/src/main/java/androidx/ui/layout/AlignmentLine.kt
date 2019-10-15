@@ -20,19 +20,16 @@ import androidx.compose.Composable
 import androidx.ui.core.Alignment
 import androidx.ui.core.AlignmentLine
 import androidx.ui.core.Dp
-import androidx.ui.core.HorizontalAlignmentLine
 import androidx.ui.core.IntPxSize
 import androidx.ui.core.Layout
-import androidx.ui.core.coerceAtLeast
 import androidx.ui.core.coerceIn
 import androidx.ui.core.dp
 import androidx.ui.core.ipx
 import androidx.ui.core.isFinite
-import androidx.ui.core.looseMin
 import androidx.ui.core.max
 
 /**
- * Layout widget that takes a child and tries to position it within itself according to
+ * Layout composable that takes a child and tries to position it within itself according to
  * specified offsets relative to an [alignment line][AlignmentLine], subject to the incoming
  * layout constraints. The [AlignmentLineOffset] layout will try to size itself to wrap the
  * child and include the needed padding, such that the distance from the [AlignmentLineOffset]
@@ -68,7 +65,7 @@ fun AlignmentLineOffset(
             0.ipx,
             axisMax - axis - paddingBefore
         )
-        // Calculate the size of the AlignmentLineOffset widget & define layout.
+        // Calculate the size of the AlignmentLineOffset composable & define layout.
         val containerWidth =
             if (alignmentLine.horizontal) placeable.width
             else paddingBefore + placeable.width + paddingAfter
@@ -84,7 +81,7 @@ fun AlignmentLineOffset(
 }
 
 /**
- * Layout widget that takes a child and positions it within itself such that the specified
+ * Layout composable that takes a child and positions it within itself such that the specified
  * alignment line is centered. The layout will expand to fill the available space in the
  * alignment line axis. If infinite space is available, the layout will wrap the child and
  * add the least possible amount of padding such that the centering will work, assuming that
@@ -94,7 +91,7 @@ fun AlignmentLineOffset(
  * decides to be smaller than the min constraints of the layout in the axis opposite to the
  * alignment line axis, the child will be centered with respect to that axis. To make the
  * layout expand to fill the available space in the axis opposite to the alignment line,
- * consider wrapping this widget in an [Align].
+ * consider wrapping this composable in an [Align].
  *
  * @param alignmentLine the alignment line to be centered in the container
  *

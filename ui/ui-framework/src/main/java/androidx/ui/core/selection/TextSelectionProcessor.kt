@@ -28,14 +28,14 @@ import kotlin.math.max
  *  selection mode.
  */
 internal class TextSelectionProcessor(
-    /** The positions of the start and end of the selection in Text widget coordinate system.*/
+    /** The positions of the start and end of the selection in Text composable coordinate system.*/
     val selectionCoordinates: Pair<PxPosition, PxPosition>,
     /** The mode of selection. */
     val mode: SelectionMode,
     /** The lambda contains certain behavior when selection changes. Currently this is for changing
-     * the selection used for drawing in Text widget. */
+     * the selection used for drawing in Text composable. */
     var onSelectionChange: (TextRange?) -> Unit = {},
-    /** The TextDelegate object from Text widget. */
+    /** The TextDelegate object from Text composable. */
     val textDelegate: TextDelegate
 ) {
     /**
@@ -44,7 +44,7 @@ internal class TextSelectionProcessor(
      * This graphical position is the point at the left bottom corner for LTR
      * character, or right bottom corner for RTL character.
      *
-     * This coordinates is in child widget coordinates system.
+     * This coordinates is in child composable coordinates system.
      */
     internal var startCoordinates: PxPosition = PxPosition.Origin
     /**
@@ -53,7 +53,7 @@ internal class TextSelectionProcessor(
      * This graphical position is the point at the left bottom corner for LTR
      * character, or right bottom corner for RTL character.
      *
-     * This coordinates is in child widget coordinates system.
+     * This coordinates is in child composable coordinates system.
      */
     internal var endCoordinates: PxPosition = PxPosition.Origin
     /**
@@ -76,19 +76,19 @@ internal class TextSelectionProcessor(
      */
     internal var endDirection = TextDirection.Ltr
     /**
-     * A flag to check if the text widget contains the whole selection's start.
+     * A flag to check if the text composable contains the whole selection's start.
      */
     internal var containsWholeSelectionStart = false
     /**
-     * A flag to check if the text widget contains the whole selection's end.
+     * A flag to check if the text composable contains the whole selection's end.
      */
     internal var containsWholeSelectionEnd = false
     /**
-     *  A flag to check if the text widget is selected.
+     *  A flag to check if the text composable is selected.
      */
     internal var isSelected = false
 
-    /** The length of the text in text widget. */
+    /** The length of the text in text composable. */
     private val length = textDelegate.text.text.length
 
     init {
@@ -140,24 +140,24 @@ internal class TextSelectionProcessor(
      */
     private fun getSelectionBorder(
         textDelegate: TextDelegate,
-        // This position is in Text widget coordinate system.
+        // This position is in Text composable coordinate system.
         position: PxPosition,
         isStart: Boolean
     ): Pair<Int, Boolean> {
         // The character offset of the border of selection. The default value is set to the
-        // beginning of the text widget for the start border, and the very last character offset
-        // of the text widget for the end border. If the widget contains the whole selection's
+        // beginning of the text composable for the start border, and the very last character offset
+        // of the text composable for the end border. If the composable contains the whole selection's
         // border, this value will be reset.
         var selectionBorder = if (isStart) 0 else max(length - 1, 0)
-        // Flag to check if the widget contains the whole selection's border.
+        // Flag to check if the composable contains the whole selection's border.
         var containsWholeSelectionBorder = false
 
         val top = 0.px
         val bottom = textDelegate.height.px
         val left = 0.px
         val right = textDelegate.width.px
-        // If the current text widget contains the whole selection's border, then find the exact
-        // character offset of the border, and the flag checking if the widget contains the whole
+        // If the current text composable contains the whole selection's border, then find the exact
+        // character offset of the border, and the flag checking if the composable contains the whole
         // selection's border will be set to true.
         if (position.x >= left &&
             position.x < right &&
@@ -165,7 +165,7 @@ internal class TextSelectionProcessor(
             position.y < bottom
         ) {
             // Constrain the character offset of the selection border to be within the text range
-            // of the current widget.
+            // of the current composable.
             val constrainedSelectionBorderOffset =
                 textDelegate.getOffsetForPosition(position).coerceIn(0, length - 1)
             selectionBorder = constrainedSelectionBorderOffset

@@ -119,7 +119,7 @@ fun RallyAccountsOverviewCard() {
 }
 
 /**
- * The Accounts widget used in a separate tab.
+ * The Accounts composable used in a separate tab.
  */
 @Composable
 fun RallyAccountsCard() {
@@ -251,7 +251,7 @@ fun RallyBillsOverviewCard() {
 }
 
 /**
- * The Accounts widget used in a separate tab.
+ * The Accounts composable used in a separate tab.
  */
 @Composable
 fun RallyBillsCard() {

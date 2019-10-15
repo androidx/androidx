@@ -96,7 +96,7 @@ private fun resolveTextStyle(style: TextStyle?) =
  * to the last line before the line truncated by [maxLines], if [maxLines] is non-null and that
  * line overflows the width constraint.
  *
- * @param layoutDirection The widget layout direction.
+ * @param layoutDirection The composable layout direction.
  *
  * @hide
  */

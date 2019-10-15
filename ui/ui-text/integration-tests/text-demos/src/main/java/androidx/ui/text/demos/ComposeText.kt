@@ -137,7 +137,7 @@ fun SecondTagLine(tag: String) {
 
 @Composable
 fun TextDemoBasic() {
-    // This group of text widgets show different color, fontSize, fontWeight and fontStyle in
+    // This group of text composables show different color, fontSize, fontWeight and fontStyle in
     // English.
     Text {
         Span(
@@ -179,7 +179,7 @@ fun TextDemoComplexStyling() {
 
 @Composable
 fun TextDemoLanguage() {
-    // This group of text widgets show different color, fontSize, fontWeight and fontStyle in
+    // This group of text composables show different color, fontSize, fontWeight and fontStyle in
     // Chinese, Arabic, and Hindi.
     Text {
         Span(
@@ -216,7 +216,7 @@ fun TextDemoLanguage() {
 
 @Composable
 fun TextDemoFontFamily() {
-    // This group of text widgets show different fontFamilies in English.
+    // This group of text composables show different fontFamilies in English.
     Text {
         Span(
             text = "$displayText sans-serif\n", style = TextStyle(
@@ -243,7 +243,7 @@ fun TextDemoFontFamily() {
 
 @Composable
 fun TextDemoFontFamilyDefaultValues() {
-    // This group of text widgets show the default font families in English.
+    // This group of text composables show the default font families in English.
     FontFamilySerifSample()
     FontFamilySansSerifSample()
     FontFamilyMonospaceSample()
@@ -252,7 +252,7 @@ fun TextDemoFontFamilyDefaultValues() {
 
 @Composable
 fun TextDemoTextDecoration() {
-    // This group of text widgets show different decoration, decorationColor and decorationStyle.
+    // This group of text composables show different decoration, decorationColor and decorationStyle.
     TextDecorationLineThroughSample()
     TextDecorationUnderlineSample()
     TextDecorationCombinedSample()
@@ -260,7 +260,7 @@ fun TextDemoTextDecoration() {
 
 @Composable
 fun TextDemoLetterSpacing() {
-    // This group of text widgets show different letterSpacing.
+    // This group of text composables show different letterSpacing.
     Text {
         Span(text = "$displayText   ", style = TextStyle(fontSize = fontSize8))
         Span(
@@ -280,7 +280,7 @@ fun TextDemoBaselineShift() {
 
 @Composable
 fun TextDemoHeight() {
-    // This group of text widgets show different height.
+    // This group of text composables show different height.
     Row(mainAxisSize = LayoutSize.Expand) {
         Text {
             Span(
@@ -303,7 +303,7 @@ fun TextDemoHeight() {
 
 @Composable
 fun TextDemoBackground() {
-    // This group of text widgets show different background.
+    // This group of text composables show different background.
     Text {
         Span(
             text = "$displayText   ",
@@ -333,7 +333,7 @@ fun TextDemoBackground() {
 
 @Composable
 fun TextDemoLocale() {
-    // This group of text widgets show different Locales of the same Unicode codepoint.
+    // This group of text composables show different Locales of the same Unicode codepoint.
     val text = "\u82B1"
     Text {
         Span(
@@ -364,7 +364,7 @@ fun TextDemoLocale() {
 
 @Composable
 fun TextDemoTextAlign() {
-    // This group of text widgets show different TextAligns: LEFT, RIGHT, CENTER, JUSTIFY, START for
+    // This group of text composables show different TextAligns: LEFT, RIGHT, CENTER, JUSTIFY, START for
     // LTR and RTL, END for LTR and RTL.
     var text = ""
     for (i in 1..10) {
@@ -434,7 +434,7 @@ fun TextDemoTextAlign() {
 
 @Composable
 fun TextDemoSoftWrap() {
-    // This group of text widgets show difference between softWrap is true and false.
+    // This group of text composables show difference between softWrap is true and false.
     var text = ""
     for (i in 1..10) {
         text = "$text$displayText"

@@ -73,7 +73,7 @@ class FlexChildren internal constructor() {
 }
 
 /**
- * A widget that places its children in a horizontal sequence, assigning children widths
+ * A composable that places its children in a horizontal sequence, assigning children widths
  * according to their flex weights.
  *
  * [FlexRow] children can be:
@@ -118,7 +118,7 @@ fun FlexRow(
 }
 
 /**
- * A widget that places its children in a vertical sequence, assigning children heights
+ * A composable that places its children in a vertical sequence, assigning children heights
  * according to their flex weights.
  *
  * [FlexColumn] children can be:
@@ -163,7 +163,7 @@ fun FlexColumn(
 }
 
 /**
- * A widget that places its children in a horizontal sequence.
+ * A composable that places its children in a horizontal sequence.
  *
  * Example usage:
  *
@@ -201,7 +201,7 @@ fun Row(
 }
 
 /**
- * A widget that places its children in a vertical sequence.
+ * A composable that places its children in a vertical sequence.
  *
  * Example usage:
  *

@@ -39,7 +39,7 @@ import androidx.compose.unaryPlus
  * - [maxIntrinsicHeightMeasureBlock] defines the minimum height such that increasing it further
  *   will not decrease the minimum intrinsic width
  *
- * For a widget able to define its content according to the incoming constraints,
+ * For a composable able to define its content according to the incoming constraints,
  * see [WithConstraints].
  *
  * Example usage:
@@ -111,7 +111,7 @@ import androidx.compose.unaryPlus
  * provided implementations will not be accurate in all cases - when this happens, the other
  * overload of [Layout] should be used to provide correct measurements.
  *
- * For a widget able to define its content according to the incoming constraints,
+ * For a composable able to define its content according to the incoming constraints,
  * see [WithConstraints].
  *
  * Example usage:
@@ -437,17 +437,17 @@ fun Layout(
 }
 
 /**
- * A widget that defines its own content according to the available space, based on the incoming
+ * A composable that defines its own content according to the available space, based on the incoming
  * constraints. Example usage:
  * @sample androidx.ui.framework.samples.WithConstraintsSample
  *
- * The widget will compose the given children, and will position the resulting layout widgets
- * in a parent [Layout]. The widget will be as small as possible such that it can fit its
+ * The composable will compose the given children, and will position the resulting layout composables
+ * in a parent [Layout]. The composable will be as small as possible such that it can fit its
  * children. If the composition yields multiple layout children, these will be all placed at the
  * top left of the WithConstraints, so consider wrapping them in an additional common
  * parent if different positioning is preferred.
  *
- * Please note that using this widget might be a performance hit, so please use with care.
+ * Please note that using this composable might be a performance hit, so please use with care.
  */
 @Composable
 fun WithConstraints(

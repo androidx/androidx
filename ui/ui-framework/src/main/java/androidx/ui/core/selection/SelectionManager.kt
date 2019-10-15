@@ -23,7 +23,7 @@ import androidx.ui.core.gesture.DragObserver
 import androidx.ui.core.px
 
 /**
- * A bridge class between user interaction to the text widgets for text selection.
+ * A bridge class between user interaction to the text composables for text selection.
  */
 class SelectionManager : SelectionRegistrar {
     /**
@@ -115,9 +115,9 @@ class SelectionManager : SelectionRegistrar {
     fun handleDragObserver(dragStartHandle: Boolean): DragObserver {
         return object : DragObserver {
             override fun onStart(downPosition: PxPosition) {
-                // The LayoutCoordinates of the widget where the drag gesture should begin. This
+                // The LayoutCoordinates of the composable where the drag gesture should begin. This
                 // is used to convert the position of the beginning of the drag gesture from the
-                // widget coordinates to selection container coordinates.
+                // composable coordinates to selection container coordinates.
                 val beginLayoutCoordinates =
                     if (dragStartHandle) {
                         selection!!.startLayoutCoordinates!!
@@ -125,7 +125,7 @@ class SelectionManager : SelectionRegistrar {
                         selection!!.endLayoutCoordinates!!
                     }
                 // The position of the character where the drag gesture should begin. This is in
-                // the widget coordinates.
+                // the composable coordinates.
                 val beginCoordinates =
                     getAdjustedCoordinates(
                         if (dragStartHandle) {
@@ -134,7 +134,7 @@ class SelectionManager : SelectionRegistrar {
                             selection!!.endCoordinates
                         }
                     )
-                // Convert the position where drag gesture begins from widget coordinates to
+                // Convert the position where drag gesture begins from composable coordinates to
                 // selection container coordinates.
                 dragBeginPosition = containerLayoutCoordinates.childToLocal(
                     beginLayoutCoordinates,
