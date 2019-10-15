@@ -102,18 +102,16 @@ package androidx.ui.text {
     ctor public AnnotatedString.Builder();
     ctor public AnnotatedString.Builder(String text);
     ctor public AnnotatedString.Builder(androidx.ui.text.AnnotatedString text);
-    method public androidx.ui.text.AnnotatedString.Builder addStyle(androidx.ui.text.TextStyle style, int start, int end);
-    method public androidx.ui.text.AnnotatedString.Builder addStyle(androidx.ui.text.ParagraphStyle style, int start, int end);
-    method public androidx.ui.text.AnnotatedString.Builder append(String text);
-    method public androidx.ui.text.AnnotatedString.Builder append(androidx.ui.text.AnnotatedString text);
+    method public void addStyle(androidx.ui.text.TextStyle style, int start, int end);
+    method public void addStyle(androidx.ui.text.ParagraphStyle style, int start, int end);
+    method public void append(String text);
+    method public void append(androidx.ui.text.AnnotatedString text);
     method public androidx.ui.text.AnnotatedString build();
     method public int getLength();
-    method public androidx.ui.text.AnnotatedString.Builder pop();
-    method public androidx.ui.text.AnnotatedString.Builder popTo(int index);
-    method public androidx.ui.text.AnnotatedString.Builder push(androidx.ui.text.TextStyle style);
-    method public androidx.ui.text.AnnotatedString.Builder push(androidx.ui.text.ParagraphStyle style);
-    method public int pushIndexed(androidx.ui.text.TextStyle style);
-    method public int pushIndexed(androidx.ui.text.ParagraphStyle style);
+    method public void pop();
+    method public void pop(int index);
+    method public int push(androidx.ui.text.TextStyle style);
+    method public int push(androidx.ui.text.ParagraphStyle style);
     property public final int length;
   }
 
