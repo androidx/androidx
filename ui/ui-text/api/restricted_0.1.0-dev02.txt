@@ -549,13 +549,13 @@ package androidx.ui.text.style {
   }
 
   public final class TextIndent {
-    ctor public TextIndent(androidx.ui.core.Px firstLine, androidx.ui.core.Px restLine);
+    ctor public TextIndent(androidx.ui.core.Sp firstLine, androidx.ui.core.Sp restLine);
     ctor public TextIndent();
-    method public androidx.ui.core.Px component1();
-    method public androidx.ui.core.Px component2();
-    method public androidx.ui.text.style.TextIndent copy(androidx.ui.core.Px firstLine, androidx.ui.core.Px restLine);
-    method public androidx.ui.core.Px getFirstLine();
-    method public androidx.ui.core.Px getRestLine();
+    method public androidx.ui.core.Sp component1();
+    method public androidx.ui.core.Sp component2();
+    method public androidx.ui.text.style.TextIndent copy(androidx.ui.core.Sp firstLine, androidx.ui.core.Sp restLine);
+    method public androidx.ui.core.Sp getFirstLine();
+    method public androidx.ui.core.Sp getRestLine();
   }
 
   public final class TextIndentKt {

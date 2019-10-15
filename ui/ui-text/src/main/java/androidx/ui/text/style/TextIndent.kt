@@ -16,9 +16,9 @@
 
 package androidx.ui.text.style
 
-import androidx.ui.core.Px
-import androidx.ui.core.px
+import androidx.ui.core.Sp
 import androidx.ui.core.lerp
+import androidx.ui.core.sp
 
 /**
  * Specify the indentation of a paragraph.
@@ -27,8 +27,8 @@ import androidx.ui.core.lerp
  * @param restLine the amount of indentation applied to every line except the first line.
  */
 data class TextIndent(
-    val firstLine: Px = 0.px,
-    val restLine: Px = 0.px
+    val firstLine: Sp = 0.sp,
+    val restLine: Sp = 0.sp
 )
 
 /**

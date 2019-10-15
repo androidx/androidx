@@ -621,7 +621,7 @@ class AndroidParagraphTest {
 
         val paragraph = simpleParagraph(
             text = text,
-            textIndent = TextIndent(firstLine.px, restLine.px),
+            textIndent = TextIndent(firstLine.sp, restLine.sp),
             constraints = ParagraphConstraints(width = 100.0f) // width is not important
         )
 
