@@ -20,7 +20,7 @@ import androidx.compose.Composable
 import androidx.compose.memo
 import androidx.compose.unaryPlus
 import androidx.ui.core.Draw
-import androidx.ui.core.px
+import androidx.ui.core.dp
 import androidx.ui.core.selection.Selection
 import androidx.ui.engine.geometry.Rect
 import androidx.ui.graphics.Color
@@ -28,8 +28,8 @@ import androidx.ui.graphics.Paint
 import androidx.ui.graphics.Path
 import androidx.ui.text.style.TextDirection
 
-internal val HANDLE_WIDTH = 80.px
-internal val HANDLE_HEIGHT = 80.px
+internal val HANDLE_WIDTH = 25.dp
+internal val HANDLE_HEIGHT = 25.dp
 private val HANDLE_COLOR = Color(0xFF2B28F5.toInt())
 
 @Composable
@@ -41,17 +41,17 @@ internal fun LeftPointingSelectionHandle() {
         path.addRect(
             Rect(
                 top = 0f,
-                bottom = 0.5f * HANDLE_HEIGHT.value,
-                left = 0.5f * HANDLE_WIDTH.value,
-                right = HANDLE_WIDTH.value
+                bottom = 0.5f * HANDLE_HEIGHT.toPx().value,
+                left = 0.5f * HANDLE_WIDTH.toPx().value,
+                right = HANDLE_WIDTH.toPx().value
             )
         )
         path.addOval(
             Rect(
                 top = 0f,
-                bottom = HANDLE_HEIGHT.value,
+                bottom = HANDLE_HEIGHT.toPx().value,
                 left = 0f,
-                right = HANDLE_WIDTH.value
+                right = HANDLE_WIDTH.toPx().value
             )
         )
 
@@ -68,17 +68,17 @@ internal fun RightPointingSelectionHandle() {
         path.addRect(
             Rect(
                 top = 0f,
-                bottom = 0.5f * HANDLE_HEIGHT.value,
+                bottom = 0.5f * HANDLE_HEIGHT.toPx().value,
                 left = 0f,
-                right = 0.5f * HANDLE_WIDTH.value
+                right = 0.5f * HANDLE_WIDTH.toPx().value
             )
         )
         path.addOval(
             Rect(
                 top = 0f,
-                bottom = HANDLE_HEIGHT.value,
+                bottom = HANDLE_HEIGHT.toPx().value,
                 left = 0f,
-                right = HANDLE_WIDTH.value
+                right = HANDLE_WIDTH.toPx().value
             )
         )
 

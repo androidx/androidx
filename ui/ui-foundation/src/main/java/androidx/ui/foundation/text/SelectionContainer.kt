@@ -27,7 +27,6 @@ import androidx.ui.core.gesture.TouchSlopDragGestureDetector
 import androidx.ui.core.gesture.PressIndicatorGestureDetector
 import androidx.ui.core.ipx
 import androidx.ui.core.px
-import androidx.ui.core.round
 import androidx.ui.core.selection.Selection
 import androidx.ui.core.selection.SelectionManager
 import androidx.ui.core.selection.SelectionMode
@@ -104,15 +103,15 @@ fun SelectionContainer(
             val start =
                 measurables[startHandle].first().measure(
                     Constraints.tightConstraints(
-                        HANDLE_WIDTH.round(),
-                        HANDLE_HEIGHT.round()
+                        HANDLE_WIDTH.toIntPx(),
+                        HANDLE_HEIGHT.toIntPx()
                     )
                 )
             val end =
                 measurables[endHandle].first().measure(
                     Constraints.tightConstraints(
-                        HANDLE_WIDTH.round(),
-                        HANDLE_HEIGHT.round()
+                        HANDLE_WIDTH.toIntPx(),
+                        HANDLE_HEIGHT.toIntPx()
                     )
                 )
             layout(width, height) {
@@ -130,9 +129,11 @@ fun SelectionContainer(
                         selection.endCoordinates
                     )
                     val startAdjustedDistance =
-                        if (selection.startDirection == TextDirection.Ltr) -HANDLE_WIDTH else 0.px
+                        if (selection.startDirection == TextDirection.Ltr) -HANDLE_WIDTH.toPx()
+                        else 0.px
                     val endAdjustedDistance =
-                        if (selection.endDirection == TextDirection.Ltr) 0.px else -HANDLE_WIDTH
+                        if (selection.endDirection == TextDirection.Ltr) 0.px
+                        else -HANDLE_WIDTH.toPx()
                     start.place(startOffset.x + startAdjustedDistance, startOffset.y)
                     end.place(endOffset.x + endAdjustedDistance, endOffset.y)
                 }
