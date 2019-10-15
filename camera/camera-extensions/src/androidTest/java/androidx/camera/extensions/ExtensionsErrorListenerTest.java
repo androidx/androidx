@@ -100,7 +100,7 @@ public final class ExtensionsErrorListenerTest {
 
         Context context = ApplicationProvider.getApplicationContext();
         AppConfig appConfig = Camera2AppConfig.create(context);
-        CameraX.init(context, appConfig);
+        CameraX.initialize(context, appConfig);
 
         assumeTrue(CameraUtil.hasCameraWithLensFacing(mLensFacing));
         assumeTrue(ExtensionsTestUtil.initExtensions());
@@ -111,8 +111,7 @@ public final class ExtensionsErrorListenerTest {
 
     @After
     public void tearDown() throws ExecutionException, InterruptedException {
-        // Wait for CameraX to finish deinitializing before the next test.
-        CameraX.deinit().get();
+        CameraX.shutdown().get();
     }
 
     @Test

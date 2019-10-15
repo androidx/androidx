@@ -52,6 +52,7 @@ dependencies {
     // Internal library
     implementation(project(":camera:camera-camera2"))
     implementation(project(":camera:camera-view"))
+    implementation(GUAVA_LISTENABLE_FUTURE)
 
     // Lifecycle and LiveData
     implementation("androidx.lifecycle:lifecycle-livedata:2.1.0")

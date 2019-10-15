@@ -72,13 +72,13 @@ public class PreviewViewTest {
         CoreAppTestUtil.assumeCompatibleDevice();
 
         mContext = ApplicationProvider.getApplicationContext();
-        CameraX.init(mContext, Camera2AppConfig.create(mContext));
+        CameraX.initialize(mContext, Camera2AppConfig.create(mContext));
     }
 
     @After
     public void tearDown() throws ExecutionException, InterruptedException {
         mInstrumentation.runOnMainSync(CameraX::unbindAll);
-        CameraX.deinit().get();
+        CameraX.shutdown().get();
     }
 
     @Test

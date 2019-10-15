@@ -16,10 +16,7 @@
 
 package androidx.camera.testing.fakes;
 
-import android.content.Context;
-
-import androidx.annotation.RestrictTo;
-import androidx.annotation.RestrictTo.Scope;
+import androidx.annotation.NonNull;
 import androidx.camera.core.AppConfig;
 import androidx.camera.core.CameraDeviceSurfaceManager;
 import androidx.camera.core.CameraX;
@@ -30,9 +27,7 @@ import androidx.camera.core.UseCaseConfigFactory;
  * Convenience class for generating a fake {@link AppConfig}.
  *
  * <p>This {@link AppConfig} contains all fake CameraX implementation components.
- * @hide Hidden until {@link CameraX#init(Context, AppConfig)} is public.
  */
-@RestrictTo(Scope.LIBRARY_GROUP)
 public final class FakeAppConfig {
     private FakeAppConfig() {
     }
@@ -41,6 +36,7 @@ public final class FakeAppConfig {
     private static final String CAMERA_ID_1 = "1";
 
     /** Generates a fake {@link AppConfig}. */
+    @NonNull
     public static AppConfig create() {
         FakeCameraFactory cameraFactory = new FakeCameraFactory();
         cameraFactory.insertCamera(CameraX.LensFacing.BACK, CAMERA_ID_0,

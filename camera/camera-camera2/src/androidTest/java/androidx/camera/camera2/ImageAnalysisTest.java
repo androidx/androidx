@@ -122,7 +122,7 @@ public final class ImageAnalysisTest {
         }
         mCamera = cameraFactory.getCamera(mCameraId);
 
-        CameraX.init(context, config);
+        CameraX.initialize(context, config);
 
         mHandlerThread = new HandlerThread("AnalysisThread");
         mHandlerThread.start();
@@ -135,7 +135,7 @@ public final class ImageAnalysisTest {
             mHandlerThread.quitSafely();
             mCamera.release();
         }
-        CameraX.deinit().get();
+        CameraX.shutdown().get();
     }
 
     @Test

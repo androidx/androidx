@@ -91,7 +91,7 @@ public final class ZoomControlDeviceTest {
         // Init CameraX
         Context context = ApplicationProvider.getApplicationContext();
         AppConfig config = Camera2AppConfig.create(context);
-        CameraX.init(context, config);
+        CameraX.initialize(context, config);
 
         String cameraId = CameraX.getCameraWithLensFacing(LensFacing.BACK);
         CameraManager cameraManager = (CameraManager) context.getSystemService(
@@ -118,7 +118,8 @@ public final class ZoomControlDeviceTest {
     }
 
     @After
-    public void tearDown() {
+    public void tearDown() throws ExecutionException, InterruptedException {
+        CameraX.shutdown().get();
         if (mHandlerThread != null) {
             mHandlerThread.quit();
         }

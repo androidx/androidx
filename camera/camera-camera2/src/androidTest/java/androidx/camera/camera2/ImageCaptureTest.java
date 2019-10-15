@@ -169,7 +169,7 @@ public final class ImageCaptureTest {
         Context context = ApplicationProvider.getApplicationContext();
         AppConfig appConfig = Camera2AppConfig.create(context);
         CameraFactory cameraFactory = appConfig.getCameraFactory(null);
-        CameraX.init(context, appConfig);
+        CameraX.initialize(context, appConfig);
         try {
             mCameraId = cameraFactory.cameraIdForLensFacing(BACK_LENS_FACING);
         } catch (Exception e) {
@@ -226,7 +226,7 @@ public final class ImageCaptureTest {
         if (mListenerExecutor != null) {
             mListenerExecutor.shutdown();
         }
-        CameraX.deinit().get();
+        CameraX.shutdown().get();
     }
 
     @Test

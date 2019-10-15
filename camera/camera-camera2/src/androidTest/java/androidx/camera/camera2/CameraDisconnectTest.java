@@ -73,7 +73,7 @@ public class CameraDisconnectTest {
         CoreAppTestUtil.assumeCompatibleDevice();
 
         Context context = ApplicationProvider.getApplicationContext();
-        CameraX.init(context, Camera2AppConfig.create(context));
+        CameraX.initialize(context, Camera2AppConfig.create(context));
 
         // In case the lock screen on top, the action to dismiss it.
         UiDevice.getInstance(mInstrumentation).pressKeyCode(DISMISS_LOCK_SCREEN_CODE);
@@ -92,10 +92,10 @@ public class CameraDisconnectTest {
         mCamera2ActivityRule.finishActivity();
 
         // Actively unbind all use cases to avoid lifecycle callback later to stop/clear use case
-        // after deinit() is complete.
+        // after shutdown() is complete.
         mInstrumentation.runOnMainSync(CameraX::unbindAll);
 
-        CameraX.deinit().get();
+        CameraX.shutdown().get();
     }
 
     @Test

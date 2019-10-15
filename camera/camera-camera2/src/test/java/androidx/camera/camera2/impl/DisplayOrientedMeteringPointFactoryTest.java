@@ -94,7 +94,7 @@ public class DisplayOrientedMeteringPointFactoryTest {
                         .setDeviceSurfaceManager(surfaceManager)
                         .setUseCaseConfigFactory(defaultConfigFactory)
                         .build();
-        CameraX.init(context, appConfig);
+        CameraX.initialize(context, appConfig);
 
         mMockDisplay = Mockito.mock(Display.class);
         when(mMockDisplay.getRotation()).thenReturn(Surface.ROTATION_0);
@@ -106,7 +106,7 @@ public class DisplayOrientedMeteringPointFactoryTest {
 
     @After
     public void tearDown() throws ExecutionException, InterruptedException {
-        CameraX.deinit().get();
+        CameraX.shutdown().get();
     }
 
     @Test

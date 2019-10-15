@@ -92,7 +92,7 @@ public class PreviewExtenderTest {
         assumeTrue(CameraUtil.hasCameraWithLensFacing(LensFacing.BACK));
 
         Context context = ApplicationProvider.getApplicationContext();
-        CameraX.init(context, Camera2AppConfig.create(context));
+        CameraX.initialize(context, Camera2AppConfig.create(context));
 
         mFakeLifecycle = new FakeLifecycleOwner();
         mFakeLifecycle.startAndResume();
@@ -102,15 +102,8 @@ public class PreviewExtenderTest {
 
     @After
     public void cleanUp() throws ExecutionException, InterruptedException {
-        mInstrumentation.runOnMainSync(new Runnable() {
-            @Override
-            public void run() {
-                CameraX.unbindAll();
-            }
-        });
-
-        // Wait for CameraX to finish deinitializing before the next test.
-        CameraX.deinit().get();
+        mInstrumentation.runOnMainSync(CameraX::unbindAll);
+        CameraX.shutdown().get();
     }
 
     @Test

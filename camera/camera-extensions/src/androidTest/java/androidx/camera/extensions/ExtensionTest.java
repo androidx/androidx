@@ -101,7 +101,7 @@ public class ExtensionTest {
 
         Context context = ApplicationProvider.getApplicationContext();
         AppConfig appConfig = Camera2AppConfig.create(context);
-        CameraX.init(context, appConfig);
+        CameraX.initialize(context, appConfig);
 
         assumeTrue(CameraUtil.hasCameraWithLensFacing(mLensFacing));
         assumeTrue(ExtensionsTestUtil.initExtensions());
@@ -113,7 +113,8 @@ public class ExtensionTest {
 
     @After
     public void cleanUp() throws InterruptedException, ExecutionException {
-        CameraX.deinit().get();
+        mInstrumentation.runOnMainSync(CameraX::unbindAll);
+        CameraX.shutdown().get();
     }
 
     @Test
