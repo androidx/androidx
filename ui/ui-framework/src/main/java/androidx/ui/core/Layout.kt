@@ -439,17 +439,7 @@ fun Layout(
 /**
  * A widget that defines its own content according to the available space, based on the incoming
  * constraints. Example usage:
- *
- * WithConstraints { constraints ->
- *     if (constraints.maxWidth < 100.ipx) {
- *         Icon()
- *     } else {
- *         Row {
- *             Icon()
- *             IconDescription()
- *          }
- *     }
- * }
+ * @sample androidx.ui.framework.samples.WithConstraintsSample
  *
  * The widget will compose the given children, and will position the resulting layout widgets
  * in a parent [Layout]. The widget will be as small as possible such that it can fit its
@@ -540,14 +530,7 @@ fun WithConstraints(
  * Note that it will be called after a composition when the coordinates are finalized.
  *
  * Usage example:
- *     Column {
- *         Item1()
- *         Item2()
- *         OnPositioned (onPositioned={ coordinates ->
- *             // This coordinates contain bounds of the Column within it's parent Layout.
- *             // Store it if you want to use it later f.e. when a touch happens.
- *         })
- *     }
+ * @sample androidx.ui.framework.samples.OnPositionedSample
  */
 @Composable
 @Suppress("NOTHING_TO_INLINE")
@@ -563,13 +546,7 @@ inline fun OnPositioned(
  * Note that it will be called after a composition when the coordinates are finalized.
  *
  * Usage example:
- *     OnChildPositioned (onPositioned={ coordinates ->
- *         // This coordinates contain bounds of the Item within it's parent Layout.
- *         // Store it if you want to use it later f.e. when a touch happens.
- *     }) {
- *         Item()
- *     }
- * }
+ * @sample androidx.ui.framework.samples.OnChildPositionedSample
  */
 @Composable
 inline fun OnChildPositioned(

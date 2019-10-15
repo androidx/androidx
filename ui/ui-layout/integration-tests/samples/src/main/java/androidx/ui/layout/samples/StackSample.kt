@@ -19,42 +19,9 @@ package androidx.ui.layout.samples
 import androidx.annotation.Sampled
 import androidx.compose.Composable
 import androidx.ui.core.Alignment
-import androidx.ui.core.Dp
-import androidx.ui.core.Draw
-import androidx.ui.core.Layout
-import androidx.ui.core.Modifier
 import androidx.ui.core.dp
-import androidx.ui.core.toRect
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Stack
-import androidx.ui.graphics.Paint
-
-/**
- * Draws a rectangle of a specified dimension, or to its max incoming constraints if dimensions are
- * not specified.
- */
-@Composable
-fun SizedRectangle(
-    modifier: Modifier = Modifier.None,
-    color: Color,
-    width: Dp? = null,
-    height: Dp? = null
-) {
-    Layout(children = { DrawRectangle(color = color) }, modifier = modifier) { _, constraints ->
-        val widthPx = width?.toIntPx() ?: constraints.maxWidth
-        val heightPx = height?.toIntPx() ?: constraints.maxHeight
-        layout(widthPx, heightPx) {}
-    }
-}
-
-@Composable
-fun DrawRectangle(color: Color) {
-    val paint = Paint()
-    paint.color = color
-    Draw { canvas, parentSize ->
-        canvas.drawRect(parentSize.toRect(), paint)
-    }
-}
 
 @Sampled
 @Composable

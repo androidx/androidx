@@ -36,6 +36,9 @@ import androidx.ui.core.ipx
 
 /**
  * Padding on all sides.
+ *
+ * Example usage:
+ * @sample androidx.ui.layout.samples.AbsolutePaddingModifier
  */
 fun absolutePadding(
     left: Dp = 0.dp,
@@ -46,12 +49,18 @@ fun absolutePadding(
 
 /**
  * Padding with [all] dp on each side.
+ *
+ * Example usage:
+ * @sample androidx.ui.layout.samples.PaddingModifier
  */
 fun padding(all: Dp = 0.dp) = AbsolutePadding(left = all, top = all, right = all, bottom = all)
 
 /**
  * Padding with [horizontal] dp of padding on the left and right and [vertical] dp of padding
  * on the top and bottom.
+ *
+ * Example usage:
+ * @sample androidx.ui.layout.samples.SymmetricalPaddingModifier
  */
 fun padding(
     horizontal: Dp = 0.dp,
@@ -133,11 +142,7 @@ data class EdgeInsets(
  * requested padding, causing the child to layout at a smaller size.
  *
  * Example usage:
- *     Row {
- *         Padding(padding=EdgeInsets(right=20.dp)) {
- *             SizedRectangle(color=Color(0xFFFF0000), width=20.dp, height= 20.dp)
- *         }
- *     }
+ * @sample androidx.ui.layout.samples.PaddingWidgetEdgeInsets
  */
 @Composable
 fun Padding(
@@ -177,9 +182,7 @@ fun Padding(
  * requested padding, causing the child to layout at a smaller size.
  *
  * Example usage:
- *     Padding(left=20.dp, right=20.dp) {
- *         SizedRectangle(color=Color(0xFFFF0000), width=20.dp, height= 20.dp)
- *     }
+ * @sample androidx.ui.layout.samples.PaddingWidget
  */
 @Composable
 fun Padding(
@@ -203,9 +206,7 @@ fun Padding(
  * requested padding, causing the child to layout at a smaller size.
  *
  * Example usage:
- *     Padding(padding=20.dp) {
- *         SizedRectangle(color=Color(0xFFFF0000), width=20.dp, height= 20.dp)
- *     }
+ * @sample androidx.ui.layout.samples.PaddingWidgetSameInset
  */
 @Composable
 fun Padding(
