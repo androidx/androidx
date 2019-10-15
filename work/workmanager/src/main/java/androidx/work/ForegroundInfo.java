@@ -27,15 +27,15 @@ import androidx.annotation.Nullable;
  */
 public final class ForegroundInfo {
 
-    private final int mNotificationType;
+    private final int mForegroundServiceType;
     private final Notification mNotification;
 
     /**
      * Creates an instance of {@link ForegroundInfo} with a {@link Notification}.
      * <p>
-     * On API 29 and above, you should specify a {@code notificationType} by using the
+     * On API 29 and above, you can specify a {@code foregroundServiceType} by using the
      * {@link #ForegroundInfo(Notification, int)} constructor; otherwise, a default {@code
-     * notificationType} of {@code 0} will be used.
+     * foregroundServiceType} of {@code 0} will be used.
      *
      * @param notification The {@link Notification} to show when the Worker is running in the
      *                     context of a foreground {@link android.app.Service}
@@ -45,25 +45,25 @@ public final class ForegroundInfo {
     }
 
     /**
-     * Creates an instance of {@link ForegroundInfo} with a {@link Notification} and a
-     * notification type.
+     * Creates an instance of {@link ForegroundInfo} with a {@link Notification} and foreground
+     * {@link android.app.Service} type.
      *
      * Fore more information look at {@code android.app.Service#startForeground(int,
      * Notification, int)}.
      *
      * @param notification     The {@link Notification}
-     * @param notificationType The foreground {@link android.app.Service} type
+     * @param foregroundServiceType The foreground {@link android.app.Service} type
      */
-    public ForegroundInfo(@NonNull Notification notification, int notificationType) {
+    public ForegroundInfo(@NonNull Notification notification, int foregroundServiceType) {
         mNotification = notification;
-        mNotificationType = notificationType;
+        mForegroundServiceType = foregroundServiceType;
     }
 
     /**
      * @return The Foreground service notification type
      */
-    public int getNotificationType() {
-        return mNotificationType;
+    public int getForegroundServiceType() {
+        return mForegroundServiceType;
     }
 
     /**
@@ -81,14 +81,14 @@ public final class ForegroundInfo {
 
         ForegroundInfo that = (ForegroundInfo) other;
 
-        if (mNotificationType != that.mNotificationType) return false;
+        if (mForegroundServiceType != that.mForegroundServiceType) return false;
         return mNotification != null ? mNotification.equals(that.mNotification)
                 : that.mNotification == null;
     }
 
     @Override
     public int hashCode() {
-        int result = mNotificationType;
+        int result = mForegroundServiceType;
         result = 31 * result + (mNotification != null ? mNotification.hashCode() : 0);
         return result;
     }
@@ -97,7 +97,7 @@ public final class ForegroundInfo {
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("ForegroundInfo{");
-        sb.append("mNotificationType=").append(mNotificationType);
+        sb.append("mForegroundServiceType=").append(mForegroundServiceType);
         sb.append(", mNotification=").append(mNotification);
         sb.append('}');
         return sb.toString();

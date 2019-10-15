@@ -59,7 +59,7 @@ public class SystemForegroundDispatcher implements WorkConstraintsCallback, Exec
     // keys
     private static final String KEY_NOTIFICATION = "KEY_NOTIFICATION";
     private static final String KEY_NOTIFICATION_ID = "KEY_NOTIFICATION_ID";
-    private static final String KEY_NOTIFICATION_TYPE = "KEY_NOTIFICATION_TYPE";
+    private static final String KEY_FOREGROUND_SERVICE_TYPE = "KEY_FOREGROUND_SERVICE_TYPE";
     private static final String KEY_NOTIFICATION_TAG = "KEY_NOTIFICATION_TAG";
     private static final String KEY_WORKSPEC_ID = "KEY_WORKSPEC_ID";
 
@@ -194,7 +194,7 @@ public class SystemForegroundDispatcher implements WorkConstraintsCallback, Exec
     @MainThread
     private void handleNotify(@NonNull Intent intent) {
         int notificationId = intent.getIntExtra(KEY_NOTIFICATION_ID, 0);
-        int notificationType = intent.getIntExtra(KEY_NOTIFICATION_TYPE, 0);
+        int notificationType = intent.getIntExtra(KEY_FOREGROUND_SERVICE_TYPE, 0);
         String notificationTag = intent.getStringExtra(KEY_NOTIFICATION_TAG);
         Notification notification = intent.getParcelableExtra(KEY_NOTIFICATION);
         if (notification != null && mCallback != null) {
@@ -279,19 +279,19 @@ public class SystemForegroundDispatcher implements WorkConstraintsCallback, Exec
      *
      * @param context    The application {@link Context}
      * @param workSpecId The {@link WorkSpec} id
-     * @param metadata   The {@link ForegroundInfo}
+     * @param info       The {@link ForegroundInfo}
      * @return The {@link Intent}
      */
     @NonNull
     public static Intent createNotifyIntent(
             @NonNull Context context,
             @NonNull String workSpecId,
-            @NonNull ForegroundInfo metadata) {
+            @NonNull ForegroundInfo info) {
         Intent intent = new Intent(context, SystemForegroundService.class);
         intent.setAction(ACTION_NOTIFY);
         intent.putExtra(KEY_NOTIFICATION_ID, NOTIFICATION_ID);
-        intent.putExtra(KEY_NOTIFICATION_TYPE, metadata.getNotificationType());
-        intent.putExtra(KEY_NOTIFICATION, metadata.getNotification());
+        intent.putExtra(KEY_FOREGROUND_SERVICE_TYPE, info.getForegroundServiceType());
+        intent.putExtra(KEY_NOTIFICATION, info.getNotification());
         intent.putExtra(KEY_NOTIFICATION_TAG, workSpecId);
         return intent;
     }
