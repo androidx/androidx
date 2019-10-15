@@ -65,7 +65,7 @@ class TabTest {
     val composeTestRule = createComposeRule(disableTransitions = true)
 
     @Test
-    fun textTab_Height() {
+    fun textTab_height() {
         composeTestRule
             .setMaterialContentAndCollectSizes {
                 Container {
@@ -78,7 +78,7 @@ class TabTest {
     }
 
     @Test
-    fun iconTab_Height() {
+    fun iconTab_height() {
         composeTestRule
             .setMaterialContentAndCollectSizes {
                 Container {
@@ -91,7 +91,7 @@ class TabTest {
     }
 
     @Test
-    fun textAndIconTab_Height() {
+    fun textAndIconTab_height() {
         composeTestRule
             .setMaterialContentAndCollectSizes {
                 Container {
