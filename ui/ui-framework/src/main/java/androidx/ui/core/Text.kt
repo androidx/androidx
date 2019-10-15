@@ -348,9 +348,7 @@ val FirstBaseline = HorizontalAlignmentLine(::min)
  */
 val LastBaseline = HorizontalAlignmentLine(::max)
 
-internal val CurrentTextStyleAmbient = Ambient.of<TextStyle>("current text style") {
-    TextStyle()
-}
+internal val CurrentTextStyleAmbient = Ambient.of { TextStyle() }
 
 /**
  * This component is used to set the current value of the Text style ambient. The given style will

@@ -21,4 +21,4 @@ import androidx.compose.Ambient
 /**
  * Inspectable mode ambient. True if the composition is composed inside a Inspectable component.
  */
-val InspectionMode = Ambient.of("Inspection Mode") { false }
+val InspectionMode = Ambient.of { false }
