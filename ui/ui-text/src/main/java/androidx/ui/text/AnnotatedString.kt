@@ -41,6 +41,8 @@ data class AnnotatedString(
         }
     }
 
+    override fun toString(): String = text
+
     /**
      * The information attached on the text such as a TextStyle.
      *
@@ -55,6 +57,92 @@ data class AnnotatedString(
                 throw IllegalArgumentException("Reversed range is not supported")
             }
         }
+    }
+
+    /**
+     * Builder class for AnnotatedString. Enables construction of an [AnnotatedString] using
+     * methods such as [append] and [addStyle].
+     */
+    class Builder() {
+        private val text: StringBuilder = StringBuilder()
+        private val textStyles: MutableList<Item<TextStyle>> = mutableListOf()
+        private val paragraphStyles: MutableList<Item<ParagraphStyle>> = mutableListOf()
+
+        constructor(text: String) : this() {
+            append(text)
+        }
+
+        /**
+         * Create an [Builder] instance
+         */
+        constructor(text: AnnotatedString) : this() {
+            append(text)
+        }
+
+        /**
+         * Returns the length of the [String].
+         */
+        val length: Int get() = text.length
+
+        override fun toString(): String = text.toString()
+
+        /**
+         * Set a [TextStyle] for the given [range].
+         *
+         * @param style [TextStyle] to be applied
+         * @param start the inclusive starting offset of the range
+         * @param end the exclusive end offset of the range
+         */
+        fun addStyle(style: TextStyle, start: Int, end: Int): Builder = apply {
+            textStyles.add(Item(style = style, start = start, end = end))
+        }
+
+        /**
+         * Set a [ParagraphStyle] for the given [range]. When a [ParagraphStyle] is applied to the
+         * [AnnotatedString], it will be rendered as a separate paragraph.
+         *
+         * @param style [ParagraphStyle] to be applied.
+         * @param start the inclusive starting offset of the range
+         * @param end the exclusive end offset of the range
+         */
+        fun addStyle(style: ParagraphStyle, start: Int, end: Int): Builder = apply {
+            paragraphStyles.add(Item(style = style, start = start, end = end))
+        }
+
+        /**
+         * Appends the given [String] to this [Builder].
+         *
+         * @param text the text to append
+         */
+        fun append(text: String): Builder = apply {
+            this.text.append(text)
+        }
+
+        /**
+         * Appends the given [AnnotatedString] to this [Builder].
+         *
+         * @param text the text to append
+         */
+        fun append(text: AnnotatedString): Builder = apply {
+            val start = this.text.length
+            this.text.append(text.text)
+            // offset every style with start and add to the builder
+            text.textStyles.forEach {
+                addStyle(it.style, start + it.start, start + it.end)
+            }
+            text.paragraphStyles.forEach {
+                addStyle(it.style, start + it.start, start + it.end)
+            }
+        }
+
+        /**
+         * Constructs an [AnnotatedString] based on the configurations applied to the [Builder].
+         */
+        fun build(): AnnotatedString = AnnotatedString(
+            text = text.toString(),
+            textStyles = textStyles.toList(),
+            paragraphStyles = paragraphStyles.toList()
+        )
     }
 }
 
@@ -316,3 +404,8 @@ private fun <T> collectItemTransitions(
         }
     }
 }
+
+/**
+ * Returns the length of the [AnnotatedString].
+ */
+val AnnotatedString.length: Int get() = text.length
