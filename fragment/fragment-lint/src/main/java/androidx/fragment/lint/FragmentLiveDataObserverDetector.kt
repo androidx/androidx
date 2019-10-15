@@ -86,7 +86,12 @@ private class RecursiveMethodVisitor(
     private val originFragmentName: String?,
     private val lifecycleMethod: String
 ) : AbstractUastVisitor() {
+    private val visitedMethods = mutableSetOf<UCallExpression>()
+
     override fun visitCallExpression(node: UCallExpression): Boolean {
+        if (visitedMethods.contains(node)) {
+            return super.visitCallExpression(node)
+        }
         if (node.isLiveDataObserve(context)) {
             val lifecycleOwner = node.valueArguments[0]
             val lifecycleOwnerType = PsiTypesUtil.getPsiClass(lifecycleOwner.getExpressionType())
@@ -104,10 +109,11 @@ private class RecursiveMethodVisitor(
                 }
             }
         } else if (node.isInteresting(context)) {
+            visitedMethods.add(node)
             val psiMethod = node.resolve() ?: return super.visitCallExpression(node)
             val uastNode = context.uastContext.getMethod(psiMethod)
-            val visitor = RecursiveMethodVisitor(context, originFragmentName, lifecycleMethod)
-            uastNode.uastBody?.accept(visitor)
+            uastNode.uastBody?.accept(this)
+            visitedMethods.remove(node)
         }
         return super.visitCallExpression(node)
     }
