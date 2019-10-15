@@ -454,8 +454,7 @@ public class BaseLinearLayoutManagerTest extends BaseRecyclerViewInstrumentation
         }
 
         public void waitForSnap(int seconds) throws Throwable {
-            // 2 Seconds because some flakiness is occurring on slower emulators.
-            snapLatch.await(seconds * (DEBUG ? 100 : 2), SECONDS);
+            snapLatch.await(seconds * (DEBUG ? 100 : 1), SECONDS);
             checkForMainThreadException();
             MatcherAssert.assertThat("all scrolling should complete on time",
                     snapLatch.getCount(), CoreMatchers.is(0L));
