@@ -20,11 +20,8 @@ import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
 import android.animation.ValueAnimator
 import android.os.Build
-import android.os.Bundle
 import android.transition.ChangeBounds
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import android.view.animation.Animation
 import android.view.animation.TranslateAnimation
 import androidx.annotation.AnimRes
@@ -254,16 +251,7 @@ class FragmentTransitionAnimTest(private val reorderingAllowed: Boolean) {
     }
 
     class TransitionAnimationFragment : TransitionFragment(R.layout.scene1) {
-        lateinit var createdView: View
         val exitAnimationLatch = CountDownLatch(1)
-
-        override fun onCreateView(
-            inflater: LayoutInflater,
-            container: ViewGroup?,
-            savedInstanceState: Bundle?
-        ) = super.onCreateView(inflater, container, savedInstanceState)?.apply {
-            createdView = this
-        }
 
         override fun onCreateAnimation(transit: Int, enter: Boolean, nextAnim: Int): Animation? {
             if (nextAnim == 0) {
@@ -279,9 +267,7 @@ class FragmentTransitionAnimTest(private val reorderingAllowed: Boolean) {
                         if (viewLifecycleOwner.lifecycle.currentState != Lifecycle.State.DESTROYED
                         ) {
                             if (!enter) {
-                                // When exiting, the view is detached after onAnimationEnd,
-                                // so wait one frame to count down the latch
-                                createdView.post { exitAnimationLatch.countDown() }
+                                exitAnimationLatch.countDown()
                             }
                         }
                     }
