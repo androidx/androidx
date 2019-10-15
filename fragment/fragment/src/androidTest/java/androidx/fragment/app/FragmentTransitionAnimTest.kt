@@ -26,7 +26,6 @@ import android.view.animation.Animation
 import android.view.animation.TranslateAnimation
 import androidx.annotation.AnimRes
 import androidx.fragment.test.R
-import androidx.lifecycle.Lifecycle
 import androidx.test.core.app.ActivityScenario
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
@@ -50,12 +49,13 @@ class FragmentTransitionAnimTest(private val reorderingAllowed: Boolean) {
         onBackStackChangedTimes = 0
     }
 
-    // Ensure when transition duration is longer than animation duration, we will get both end
+    // Ensure when transition duration is shorter than animation duration, we will get both end
     // callbacks
     @Test
     fun transitionShorterThanAnimation() {
         with(ActivityScenario.launch(SimpleContainerActivity::class.java)) {
             val fragment = TransitionAnimationFragment()
+            fragment.exitTransition.duration = 100
 
             val fragmentManager = withActivity { supportFragmentManager }
 
@@ -70,7 +70,6 @@ class FragmentTransitionAnimTest(private val reorderingAllowed: Boolean) {
             executePendingTransactions()
 
             assertThat(onBackStackChangedTimes).isEqualTo(1)
-
             fragment.waitForTransition()
 
             val blue = withActivity { findViewById<View>(R.id.blueSquare) }
@@ -100,12 +99,13 @@ class FragmentTransitionAnimTest(private val reorderingAllowed: Boolean) {
         }
     }
 
-    // Ensure when transition duration is shorter than animation duration, we will get both end
+    // Ensure when transition duration is longer than animation duration, we will get both end
     // callbacks
     @Test
     fun transitionLongerThanAnimation() {
         with(ActivityScenario.launch(SimpleContainerActivity::class.java)) {
             val fragment = TransitionAnimationFragment()
+            fragment.exitTransition.duration = 1000
 
             val fragmentManager = withActivity { supportFragmentManager }
 
@@ -120,7 +120,6 @@ class FragmentTransitionAnimTest(private val reorderingAllowed: Boolean) {
             executePendingTransactions()
 
             assertThat(onBackStackChangedTimes).isEqualTo(1)
-
             fragment.waitForTransition()
 
             val blue = withActivity { findViewById<View>(R.id.blueSquare) }
@@ -264,11 +263,8 @@ class FragmentTransitionAnimTest(private val reorderingAllowed: Boolean) {
                     override fun onAnimationStart(animation: Animation) { }
 
                     override fun onAnimationEnd(animation: Animation) {
-                        if (viewLifecycleOwner.lifecycle.currentState != Lifecycle.State.DESTROYED
-                        ) {
-                            if (!enter) {
-                                exitAnimationLatch.countDown()
-                            }
+                        if (!enter) {
+                            exitAnimationLatch.countDown()
                         }
                     }
                     override fun onAnimationRepeat(animation: Animation) {}
