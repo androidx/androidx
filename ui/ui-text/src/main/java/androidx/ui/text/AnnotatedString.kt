@@ -65,9 +65,19 @@ data class AnnotatedString(
      */
     class Builder() {
 
-        private data class MutableItem<T>(val style: T, val start: Int, var end: Int = -1) {
-            fun toItem(): Item<T> {
-                check(end != -1) { "Item.end should be set first" }
+        private data class MutableItem<T>(
+            val style: T,
+            val start: Int,
+            var end: Int = Int.MIN_VALUE
+        ) {
+            /**
+             * Create an immutable [Item] object.
+             *
+             * @param defaultEnd if the end is not set yet, it will be set to this value.
+             */
+            fun toItem(defaultEnd: Int = Int.MIN_VALUE): Item<T> {
+                val end = if (end == Int.MIN_VALUE) defaultEnd else end
+                check(end != Int.MIN_VALUE) { "Item.end should be set first" }
                 return Item(style = style, start = start, end = end)
             }
         }
@@ -152,7 +162,7 @@ data class AnnotatedString(
          * @param style TextStyle to be applied
          */
         fun push(style: TextStyle): Int {
-            MutableItem(style = style, start = text.length, end = text.length).also {
+            MutableItem(style = style, start = text.length).also {
                 styleStack.add(it)
                 textStyles.add(it)
             }
@@ -168,7 +178,7 @@ data class AnnotatedString(
          * @param style ParagraphStyle to be applied
          */
         fun push(style: ParagraphStyle): Int {
-            MutableItem(style = style, start = text.length, end = text.length).also {
+            MutableItem(style = style, start = text.length).also {
                 styleStack.add(it)
                 paragraphStyles.add(it)
             }
@@ -205,16 +215,11 @@ data class AnnotatedString(
         /**
          * Constructs an [AnnotatedString] based on the configurations applied to the [Builder].
          */
-        fun build(): AnnotatedString {
-            // pop all the pushed elements in order to set their [end]
-            while (styleStack.isNotEmpty()) {
-                pop()
-            }
-
+        fun toAnnotatedString(): AnnotatedString {
             return AnnotatedString(
                 text = text.toString(),
-                textStyles = textStyles.map { it.toItem() }.toList(),
-                paragraphStyles = paragraphStyles.map { it.toItem() }.toList()
+                textStyles = textStyles.map { it.toItem(text.length) }.toList(),
+                paragraphStyles = paragraphStyles.map { it.toItem(text.length) }.toList()
             )
         }
     }
@@ -537,7 +542,7 @@ inline fun <R : Any> Builder.withStyle(
 operator fun AnnotatedString.plus(other: AnnotatedString): AnnotatedString {
     return with(Builder(this)) {
         append(other)
-        build()
+        toAnnotatedString()
     }
 }
 
@@ -550,4 +555,4 @@ operator fun AnnotatedString.plus(other: AnnotatedString): AnnotatedString {
  * @param builder lambda to modify [AnnotatedString.Builder]
  */
 inline fun AnnotatedString(builder: (Builder).() -> Unit): AnnotatedString =
-    Builder().apply(builder).build()
+    Builder().apply(builder).toAnnotatedString()
