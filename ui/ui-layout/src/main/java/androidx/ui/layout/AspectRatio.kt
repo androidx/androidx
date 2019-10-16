@@ -71,13 +71,7 @@ private data class AspectRatioModifier(val aspectRatio: Float) : LayoutModifier 
     override fun DensityScope.modifySize(
         constraints: Constraints,
         childSize: IntPxSize
-    ): IntPxSize {
-        val size = constraints.findSizeWith(aspectRatio)
-        return IntPxSize(
-            size?.width ?: childSize.width,
-            size?.height ?: childSize.height
-        )
-    }
+    ) = childSize
 
     override fun DensityScope.minIntrinsicWidthOf(measurable: Measurable, height: IntPx): IntPx {
         return if (height == IntPx.Infinity) measurable.minIntrinsicWidth(height)
@@ -105,9 +99,9 @@ private data class AspectRatioModifier(val aspectRatio: Float) : LayoutModifier 
         containerSize: IntPxSize
     ): IntPxPosition = childPosition
 
-    override fun DensityScope.modifyAlignmentLine(line: AlignmentLine, value: IntPx?): IntPx? {
-        return value
-    }
+    override fun DensityScope.modifyAlignmentLine(line: AlignmentLine, value: IntPx?) = value
+
+    override fun DensityScope.modifyParentData(parentData: Any?): Any? = parentData
 }
 
 /**

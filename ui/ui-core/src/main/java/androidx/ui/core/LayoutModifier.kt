@@ -72,4 +72,9 @@ interface LayoutModifier : Modifier.Element {
         line: AlignmentLine,
         value: IntPx?
     ): IntPx?
+
+    /**
+     * Provides a parentData given the [parentData] already provided through the modifier's chain.
+     */
+    fun DensityScope.modifyParentData(parentData: Any?): Any?
 }

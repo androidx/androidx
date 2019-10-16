@@ -65,7 +65,7 @@ class RadioGroupUiTest {
     fun VerticalRadioGroupforTests(children: @Composable() RadioGroupScope.() -> Unit) {
         RadioGroup {
             Column {
-                children(p1 = this)
+                children(p1 = this@RadioGroup)
             }
         }
     }
