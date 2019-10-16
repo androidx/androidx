@@ -23,6 +23,13 @@
     authentication is invoked by calling BiometricPrompt#authenticate(PromptInfo, CryptoObject).
     -->
     <string-array name="crypto_fingerprint_fallback_prefixes">
+        <item>SM-G95</item> <!-- Samsung Galaxy S8/S8+ -->
+        <item>SM-G96</item> <!-- Samsung Galaxy S9/S9+ -->
+        <item>SM-G97</item> <!-- Samsung Galaxy S10/S10+ -->
+        <item>SM-N95</item> <!-- Samsung Galaxy Note 8 -->
+        <item>SM-N96</item> <!-- Samsung Galaxy Note 9 -->
+        <item>SM-N97</item> <!-- Samsung Galaxy Note 10/10+ -->
+        <item>SM-A20</item> <!-- Samsung Galaxy A20/A20e -->
     </string-array>
 
     <!--
@@ -31,5 +38,7 @@
     needed as a workaround but which otherwise display a custom UI, such as an overlay.
     -->
     <string-array name="hide_fingerprint_instantly_prefixes">
+        <item>SM-G97</item> <!-- Samsung Galaxy S10/S10+ -->
+        <item>SM-N97</item> <!-- Samsung Galaxy Note 10/10+ -->
     </string-array>
 </resources>
