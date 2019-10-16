@@ -77,3 +77,19 @@ fun AnnotatedStringBuilderWithStyleSample() {
         }
     }
 }
+
+@Sampled
+fun AnnotatedStringBuilderLambdaSample() {
+    // create an AnnotatedString using the lambda builder
+    AnnotatedString {
+        // append "Hello" with red text color
+        withStyle(TextStyle(color = Color.Red)) {
+            append("Hello")
+        }
+        append(" ")
+        // append "Hello" with blue text color
+        withStyle(TextStyle(color = Color.Blue)) {
+            append("World!")
+        }
+    }
+}
