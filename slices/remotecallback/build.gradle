@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017 The Android Open Source Project
+ * Copyright 2019 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,25 +26,25 @@ plugins {
 }
 
 dependencies {
-    implementation "androidx.annotation:annotation:1.1.0"
     implementation "androidx.appcompat:appcompat:1.1.0"
-    api "androidx.collection:collection:1.1.0"
+
+    implementation(project(":slice-core"))
+    implementation(project(":remotecallback"))
 
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
     androidTestImplementation(ANDROIDX_TEST_CORE)
     androidTestImplementation(ANDROIDX_TEST_RUNNER)
     androidTestImplementation(MOCKITO_CORE, libs.exclude_bytebuddy)
     androidTestImplementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy)
-
-    annotationProcessor project(":versionedparcelable-annotation")
+    androidTestAnnotationProcessor project(":remotecallback-processor")
 }
 
 androidx {
-    name = "Common utilities for slices"
+    name = "Slice Remote Callback"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenVersion = LibraryVersions.SLICE
+    mavenVersion = LibraryVersions.SLICE_REMOTECALLBACK
     mavenGroup = LibraryGroups.SLICE
-    inceptionYear = "2017"
-    description = "The slices core library provides utilities for the slices view and provider libraries"
+    inceptionYear = "2019"
+    description = "A library that handles PendingIntents in slices as remote callbacks"
     failOnDeprecationWarnings = false
 }

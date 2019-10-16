@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.slice;
+package androidx.slice.remotecallback;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 import static androidx.remotecallback.ProviderRelayReceiver.ACTION_PROVIDER_RELAY;
@@ -35,6 +35,7 @@ import androidx.remotecallback.CallbackHandlerRegistry;
 import androidx.remotecallback.CallbackReceiver;
 import androidx.remotecallback.ProviderRelayReceiver;
 import androidx.remotecallback.RemoteCallback;
+import androidx.slice.SliceProvider;
 
 /**
  * Version of SliceProvider that can be used as a {@link CallbackReceiver}.
@@ -43,9 +44,9 @@ import androidx.remotecallback.RemoteCallback;
  * callbacks are triggered.
  *
  * @param <T> Should be specified as the root class (e.g. class X extends
- *           SliceProviderWithCallbacks\<X>)
+ *           RemoteSliceProvider\<X>)
  */
-public abstract class SliceProviderWithCallbacks<T extends SliceProviderWithCallbacks> extends
+public abstract class RemoteSliceProvider<T extends RemoteSliceProvider> extends
         SliceProvider implements CallbackReceiver<T>, CallbackBase<T> {
 
     String mAuthority;
