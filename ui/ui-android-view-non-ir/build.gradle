@@ -52,6 +52,8 @@ dependencies {
 androidx {
     name = "AndroidX UI View components (non-IR)"
     publish = Publish.SNAPSHOT_AND_RELEASE
+    // Set toolingProject to true so Dokka does not generate reference docs for it
+    toolingProject = true
     mavenVersion = LibraryVersions.UI
     mavenGroup = LibraryGroups.UI
     inceptionYear = "2019"
