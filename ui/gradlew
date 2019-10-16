@@ -7,7 +7,7 @@
 ##############################################################################
 
 # Override Kotlin version needed for compose - see buildSrc/build_dependencies.gradle
-export KOTLIN_OVERRIDE="1.3.60-withExperimentalGoogleExtensions-20191010"
+export KOTLIN_OVERRIDE="1.3.60-withExperimentalGoogleExtensions-20191014"
 
 # Relative path to the directory containing this script, from the current directory
 relativeScriptPath="`dirname \"$0\"`/"
