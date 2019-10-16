@@ -41,7 +41,8 @@
     <supports-screens android:requiresSmallestWidthDp="320"
             android:compatibleWidthLimitDp="480" />
 
-    <application android:label="@string/activity_sample_code"
+    <application
+            android:label="@string/activity_sample_code"
             android:supportsRtl="true"
             android:icon="@drawable/app_sample_code"
             android:hardwareAccelerated="true">
@@ -400,6 +401,22 @@
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="com.example.android.supportv7.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
+        <activity android:name=".app.AppCompatDefaultNightModeBootAwareActivity"
+            android:label="@string/mode_night_activity_title_bootaware"
+            android:directBootAware="true"
+            android:exported="true"
+            android:theme="@style/Theme.AppCompat.DayNight">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="com.example.android.supportv7.SAMPLE_CODE" />
+            </intent-filter>
+
+            <intent-filter>
+                <action android:name="android.intent.action.DEV_CORE_DIRECT_BOOT_BUG_REPRO" />
+                <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
 
