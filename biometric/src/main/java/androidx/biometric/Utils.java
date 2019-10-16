@@ -35,7 +35,9 @@ import androidx.fragment.app.FragmentActivity;
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 class Utils {
-    private Utils() { }
+    // Private constructor to prevent instantiation.
+    private Utils() {
+    }
 
     /**
      * Determines if the given ID fails to match any known error message.
@@ -149,5 +151,63 @@ class Utils {
         if (activity instanceof DeviceCredentialHandlerActivity && !activity.isFinishing()) {
             activity.finish();
         }
+    }
+
+    /**
+     * Determines if the current device should explicitly fall back to using
+     * {@link FingerprintDialogFragment} and {@link FingerprintHelperFragment} when
+     * {@link BiometricPrompt#authenticate(BiometricPrompt.PromptInfo,
+     * BiometricPrompt.CryptoObject)} is called.
+     *
+     * @param context The application or activity context.
+     * @param deviceModel Model name of the current device.
+     * @return true if the current device should fall back to fingerprint for crypto-based
+     * authentication, or false otherwise.
+     */
+    static boolean shouldUseFingerprintForCrypto(@NonNull Context context, String deviceModel) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P
+                || Build.VERSION.SDK_INT > Build.VERSION_CODES.Q) {
+            // This workaround is only needed for Android P and Q.
+            return false;
+        }
+        return isModelInList(context, deviceModel, R.array.crypto_fingerprint_fallback_models);
+    }
+
+    /**
+     * Determines if the current device requires {@link FingerprintDialogFragment} to always be
+     * dismissed immediately upon receiving an error or cancel signal (e.g., if the dialog is
+     * shown behind an overlay that sends a cancel signal when it is dismissed).
+     *
+     * @param context The application or activity context.
+     * @param deviceModel Model name of the current device.
+     * @return true if {@link FingerprintDialogFragment} should always be dismissed immediately, or
+     * false otherwise.
+     */
+    static boolean shouldAlwaysHideFingerprintDialogInstantly(@NonNull Context context,
+            String deviceModel) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P
+                || Build.VERSION.SDK_INT > Build.VERSION_CODES.Q) {
+            // This workaround is only needed for Android P and Q.
+            return false;
+        }
+        return isModelInList(context, deviceModel, R.array.hide_fingerprint_instantly_models);
+    }
+
+    /**
+     * Determines if the current device model matches a string in the given array resource.
+     *
+     * @param context The application or activity context.
+     * @param deviceModel Model name of the current device.
+     * @param resId Resource ID for the string array of device models to check against.
+     * @return true if the model matches one in the given string array, or false otherwise.
+     */
+    private static boolean isModelInList(@NonNull Context context, String deviceModel, int resId) {
+        final String[] models = context.getResources().getStringArray(resId);
+        for (final String model : models) {
+            if (model.equals(deviceModel)) {
+                return true;
+            }
+        }
+        return false;
     }
 }

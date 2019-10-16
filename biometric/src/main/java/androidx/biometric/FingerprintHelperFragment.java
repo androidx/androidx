@@ -171,7 +171,7 @@ public class FingerprintHelperFragment extends Fragment {
                                             });
                                         }
                                     },
-                                    FingerprintDialogFragment.HIDE_DIALOG_DELAY);
+                                    FingerprintDialogFragment.getHideDialogDelay(getContext()));
                         }
                     }
                     cleanup();
