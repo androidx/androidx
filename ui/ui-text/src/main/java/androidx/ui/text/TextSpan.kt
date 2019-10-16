@@ -130,6 +130,6 @@ private fun TextSpan.annotatedStringVisitor(builder: AnnotatedString.Builder) {
 fun TextSpan.toAnnotatedString(): AnnotatedString {
     return with(AnnotatedString.Builder()) {
         annotatedStringVisitor(this)
-        build()
+        toAnnotatedString()
     }
 }

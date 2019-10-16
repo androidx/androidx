@@ -37,6 +37,8 @@ fun AnnotatedStringBuilderSample() {
         append("!")
         // then style the last added word as red, exclamation mark will be red
         addStyle(TextStyle(color = Color.Red), "Hello World".length, this.length)
+
+        toAnnotatedString()
     }
 }
 
@@ -51,6 +53,8 @@ fun AnnotatedStringBuilderPushSample() {
         pop()
         // append new string, this string will be default color
         append(" World")
+
+        toAnnotatedString()
     }
 }
 
@@ -65,6 +69,8 @@ fun AnnotatedStringBuilderPushParagraphStyleSample() {
         pop()
         // append new paragraph, this paragraph will not have the line height defined.
         append("Paragraph Two\n")
+
+        toAnnotatedString()
     }
 }
 
@@ -75,6 +81,7 @@ fun AnnotatedStringBuilderWithStyleSample() {
             // green text style will be applied to all text in this block
             append("Hello")
         }
+        toAnnotatedString()
     }
 }
 

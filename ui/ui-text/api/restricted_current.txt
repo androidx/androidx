@@ -106,12 +106,12 @@ package androidx.ui.text {
     method public void addStyle(androidx.ui.text.ParagraphStyle style, int start, int end);
     method public void append(String text);
     method public void append(androidx.ui.text.AnnotatedString text);
-    method public androidx.ui.text.AnnotatedString build();
     method public int getLength();
     method public void pop();
     method public void pop(int index);
     method public int push(androidx.ui.text.TextStyle style);
     method public int push(androidx.ui.text.ParagraphStyle style);
+    method public androidx.ui.text.AnnotatedString toAnnotatedString();
     property public final int length;
   }
 
