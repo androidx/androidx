@@ -348,11 +348,9 @@ package androidx.browser.trusted {
   }
 
   public final class TrustedWebActivityServiceConnectionPool {
-    method @MainThread public com.google.common.util.concurrent.ListenableFuture<androidx.browser.trusted.TrustedWebActivityServiceConnection!> connect(android.net.Uri, String, java.util.concurrent.Executor);
+    method @MainThread public com.google.common.util.concurrent.ListenableFuture<androidx.browser.trusted.TrustedWebActivityServiceConnection!> connect(android.net.Uri, java.util.Set<androidx.browser.trusted.Token!>, java.util.concurrent.Executor);
     method public static androidx.browser.trusted.TrustedWebActivityServiceConnectionPool create(android.content.Context);
-    method public static java.util.Set<java.lang.String!> getVerifiedPackages(android.content.Context, String);
-    method public static void registerClient(android.content.Context, String, String);
-    method @MainThread public boolean serviceExistsForScope(android.net.Uri, String);
+    method @MainThread public boolean serviceExistsForScope(android.net.Uri, java.util.Set<androidx.browser.trusted.Token!>);
   }
 
 }
