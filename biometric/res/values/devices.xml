@@ -22,7 +22,7 @@
     to using FingerprintDialogFragment and FingerprintHelperFragment when crypto-based
     authentication is invoked by calling BiometricPrompt#authenticate(PromptInfo, CryptoObject).
     -->
-    <string-array name="crypto_fingerprint_fallback_models">
+    <string-array name="crypto_fingerprint_fallback_prefixes">
     </string-array>
 
     <!--
@@ -30,6 +30,6 @@
     instantly. This is intended to improve responsiveness on devices for which this dialog is
     needed as a workaround but which otherwise display a custom UI, such as an overlay.
     -->
-    <string-array name="hide_fingerprint_instantly_models">
+    <string-array name="hide_fingerprint_instantly_prefixes">
     </string-array>
 </resources>
