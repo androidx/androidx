@@ -30,6 +30,9 @@ public final class FrameworkSQLiteOpenHelperFactory implements SupportSQLiteOpen
     public SupportSQLiteOpenHelper create(
             @NonNull SupportSQLiteOpenHelper.Configuration configuration) {
         return new FrameworkSQLiteOpenHelper(
-                configuration.context, configuration.name, configuration.callback);
+                configuration.context,
+                configuration.name,
+                configuration.callback,
+                configuration.useNoBackupDirectory);
     }
 }
