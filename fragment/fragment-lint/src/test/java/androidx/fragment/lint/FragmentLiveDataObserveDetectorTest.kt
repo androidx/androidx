@@ -97,6 +97,49 @@ class Foo {
     }
 
     @Test
+    fun javaLintFixTest() {
+        lint().files(
+            java("""
+package com.example;
+
+import androidx.fragment.app.Fragment;
+import androidx.lifecycle.MutableLiveData;
+
+class TestFragment extends Fragment {
+
+    @Override
+    void onCreateView() {
+        MutableLiveData<String> liveData = new MutableLiveData<String>();
+        liveData.observe(this, new Observer<String>() {});
+    }
+}
+            """), *STUBS)
+            .sdkHome(sdkDir!!)
+            .run()
+            .expect("""
+src/com/example/TestFragment.java:12: Error: Use getViewLifecycleOwner() as the LifecycleOwner. [FragmentLiveDataObserve]
+        liveData.observe(this, new Observer<String>() {});
+                         ~~~~
+1 errors, 0 warnings
+            """)
+            .checkFix(null, java("""
+package com.example;
+
+import androidx.fragment.app.Fragment;
+import androidx.lifecycle.MutableLiveData;
+
+class TestFragment extends Fragment {
+
+    @Override
+    void onCreateView() {
+        MutableLiveData<String> liveData = new MutableLiveData<String>();
+        liveData.observe(getViewLifecycleOwner(), new Observer<String>() {});
+    }
+}
+            """))
+    }
+
+    @Test
     fun observeInMethodFails() {
         lint().files(
             kotlin("""
@@ -116,7 +159,7 @@ class TestFragment : Fragment {
             .sdkHome(sdkDir!!)
             .run()
             .expect("""
-src/com/example/TestFragment.kt:11: Error: Use getViewLifecycleOwner() as the LifecycleOwner. [FragmentLiveDataObserve]
+src/com/example/TestFragment.kt:11: Error: Use viewLifecycleOwner as the LifecycleOwner. [FragmentLiveDataObserve]
         liveData.observe(this, Observer<String> {})
                          ~~~~
 1 errors, 0 warnings
@@ -131,7 +174,7 @@ class TestFragment : Fragment {
 
     override fun onCreateView() {
         val liveData = MutableLiveData<String>()
-        liveData.observe(getViewLifecycleOwner(), Observer<String> {})
+        liveData.observe(viewLifecycleOwner, Observer<String> {})
     }
 }
             """))
@@ -161,7 +204,7 @@ class TestFragment : Fragment {
             .sdkHome(sdkDir!!)
             .run()
             .expect("""
-src/com/example/TestFragment.kt:15: Error: Use getViewLifecycleOwner() as the LifecycleOwner. [FragmentLiveDataObserve]
+src/com/example/TestFragment.kt:15: Error: Use viewLifecycleOwner as the LifecycleOwner. [FragmentLiveDataObserve]
         liveData.observe(this, Observer<String> {})
                          ~~~~
 1 errors, 0 warnings
@@ -180,7 +223,7 @@ class TestFragment : Fragment {
 
     private fun test() {
         val liveData = MutableLiveData<String>()
-        liveData.observe(getViewLifecycleOwner(), Observer<String> {})
+        liveData.observe(viewLifecycleOwner, Observer<String> {})
     }
 }
             """))
