@@ -93,7 +93,9 @@ public class CameraDisconnectTest {
 
         // Actively unbind all use cases to avoid lifecycle callback later to stop/clear use case
         // after shutdown() is complete.
-        mInstrumentation.runOnMainSync(CameraX::unbindAll);
+        if (CameraX.isInitialized()) {
+            mInstrumentation.runOnMainSync(CameraX::unbindAll);
+        }
 
         CameraX.shutdown().get();
     }

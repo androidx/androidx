@@ -161,7 +161,9 @@ public final class PreviewTest {
 
     @After
     public void tearDown() throws ExecutionException, InterruptedException {
-        mInstrumentation.runOnMainSync(CameraX::unbindAll);
+        if (CameraX.isInitialized()) {
+            mInstrumentation.runOnMainSync(CameraX::unbindAll);
+        }
 
         // Ensure all cameras are released for the next test
         CameraX.shutdown().get();

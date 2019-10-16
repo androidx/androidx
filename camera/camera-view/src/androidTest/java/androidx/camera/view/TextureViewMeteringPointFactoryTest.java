@@ -106,7 +106,9 @@ public class TextureViewMeteringPointFactoryTest {
 
     @After
     public void tearDown() throws InterruptedException, ExecutionException {
-        mInstrumentation.runOnMainSync(CameraX::unbindAll);
+        if (CameraX.isInitialized()) {
+            mInstrumentation.runOnMainSync(CameraX::unbindAll);
+        }
         CameraX.shutdown().get();
     }
 
