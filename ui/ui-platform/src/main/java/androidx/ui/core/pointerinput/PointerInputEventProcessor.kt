@@ -18,6 +18,8 @@ package androidx.ui.core.pointerinput
 
 import androidx.ui.core.ComponentNode
 import androidx.ui.core.ConsumedData
+import androidx.ui.core.IntPxPosition
+import androidx.ui.core.IntPxSize
 import androidx.ui.core.LayoutNode
 import androidx.ui.core.PointerEventPass
 import androidx.ui.core.PointerInputChange
@@ -95,19 +97,13 @@ internal class PointerInputEventProcessor(val root: LayoutNode) {
         // intersected with our bounds.  This prevents hits from occurring outside of LayoutNode
         // bounds among the descendants of LayoutNode.
 
-        val newMaxBoundingBox =
+        val boundingBox =
             if (this is LayoutNode) {
-                val layoutNodeRect = Rect(
-                    0f,
-                    0f,
-                    this.width.value.toFloat(),
-                    this.height.value.toFloat()
-                )
+                val layoutNodeRect = Rect(contentPosition, contentSize)
                 val intersectingBoundingBox = maxBoundingBox.intersect(layoutNodeRect)
-                // If the point is not inside the new max bounding box, it won't hit any of our
-                // children so there is no point in looking any further.  Return early with
-                // the same intersecting bounding box (which is our size intersected with the max
-                // bounding box we were given).
+                // If the point is not inside the intersecting bounding box, it won't hit any of
+                // our children so there is no point in looking any further.  Return early with
+                // our own bounding box so our parent can build its overarching bounding box.
                 if (!intersectingBoundingBox.contains(point.toOffset())) {
                     return HitTestBoundingBoxResult(layoutNodeRect, false)
                 } else {
@@ -116,12 +112,21 @@ internal class PointerInputEventProcessor(val root: LayoutNode) {
             } else {
                 maxBoundingBox
             }
+        val contentOffset =
+            if (this is LayoutNode) {
+                contentPosition
+            } else {
+                IntPxPosition.Origin
+            }
+
+        val translatedBoundingBox = boundingBox.translate(-contentOffset)
+        val translatedPoint = point - contentOffset
 
         // Step 2: Traverse down the hierarchy into our children and then back out with the
         // result of the traversal.  The outcome will either be that we hit a PointerInputNode, at
         // which point we can quickly backtrack out of the tree traversal, or we didn't hit a leaf
         // PointerInputNode yet, in which case we have a bounding box to use to do hit testing
-        // against if we, or a ancestor is a PointerInputNode.
+        // against if we, or an ancestor is a PointerInputNode.
 
         var hitDescendantPointerInputNode = false
         var overarchingBoundingBox: Rect? = null
@@ -132,28 +137,7 @@ internal class PointerInputEventProcessor(val root: LayoutNode) {
             if (!hitDescendantPointerInputNode) {
 
                 val result =
-                    if (child is LayoutNode) {
-                        // If the child is a LayoutNode, offset the point and bounding box to be
-                        // relative to the LayoutNode's (0,0), and then when we get a result, offset
-                        // back to our (0,0).
-                        val resultRelativeToChild = child.hitTest(
-                            PxPosition(point.x - child.x, point.y - child.y),
-                            newMaxBoundingBox.translate(
-                                -child.x.value.toFloat(),
-                                -child.y.value.toFloat()
-                            ),
-                            hitPointerInputNodes
-                        )
-                        HitTestBoundingBoxResult(
-                            resultRelativeToChild.boundingBox?.translate(
-                                child.x.value.toFloat(),
-                                child.y.value.toFloat()
-                            ),
-                            resultRelativeToChild.hit
-                        )
-                    } else {
-                        child.hitTest(point, newMaxBoundingBox, hitPointerInputNodes)
-                    }
+                    child.hitTest(translatedPoint, translatedBoundingBox, hitPointerInputNodes)
 
                 hitDescendantPointerInputNode = result.hit
 
@@ -168,7 +152,11 @@ internal class PointerInputEventProcessor(val root: LayoutNode) {
                 // all ancestor PointerInputNodes.
                 if (this !is LayoutNode && !hitDescendantPointerInputNode) {
                     overarchingBoundingBox =
-                        overarchingBoundingBox.expandToInclude(result.boundingBox)
+                        // The resulting boundingBox is in the child's coordinate system.
+                        // Translate back to our coordinate system.
+                        overarchingBoundingBox.expandToInclude(
+                            result.boundingBox?.translate(contentOffset)
+                        )
                 }
             }
         }
@@ -198,7 +186,7 @@ internal class PointerInputEventProcessor(val root: LayoutNode) {
             // bounding box). If we aren't a layout node, return the overarchingBoundingBox, which
             // is the box around any previously returned LayoutNode bounding boxes.
             return HitTestBoundingBoxResult(
-                if (this is LayoutNode) newMaxBoundingBox else overarchingBoundingBox,
+                if (this is LayoutNode) boundingBox else overarchingBoundingBox,
                 false
             )
         }
@@ -256,3 +244,16 @@ private fun Rect?.expandToInclude(other: Rect?) =
         this == null -> other
         else -> this.expandToInclude(other)
     }
+
+private fun Rect(position: IntPxPosition, size: IntPxSize): Rect {
+    return Rect(
+        position.x.value.toFloat(),
+        position.y.value.toFloat(),
+        (position.x.value + size.width.value).toFloat(),
+        (position.y.value + size.height.value).toFloat()
+    )
+}
+
+private fun Rect.translate(offset: IntPxPosition): Rect {
+    return translate(offset.x.value.toFloat(), offset.y.value.toFloat())
+}
