@@ -458,9 +458,9 @@ public class WorkManagerImpl extends WorkManager {
 
     @NonNull
     @Override
-    public PendingIntent createCancelPendingIntent(@NonNull Context context, @NonNull UUID id) {
-        Intent intent = createCancelWorkIntent(context, id.toString());
-        return PendingIntent.getService(context, 0, intent, FLAG_UPDATE_CURRENT);
+    public PendingIntent createCancelPendingIntent(@NonNull UUID id) {
+        Intent intent = createCancelWorkIntent(mContext, id.toString());
+        return PendingIntent.getService(mContext, 0, intent, FLAG_UPDATE_CURRENT);
     }
 
     @Override
