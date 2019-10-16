@@ -75,7 +75,7 @@ import java.util.concurrent.TimeoutException;
 @SmallTest
 @RunWith(AndroidJUnit4.class)
 public final class ZoomControlDeviceTest {
-    private static final int TOLERANCE = 1;
+    private static final int TOLERANCE = 5;
     private ZoomControl mZoomControl;
     private Camera2CameraControl mCamera2CameraControl;
     private HandlerThread mHandlerThread;
