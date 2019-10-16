@@ -18,6 +18,7 @@ package androidx.fragment.app
 
 import android.app.AlertDialog
 import android.app.Dialog
+import android.content.DialogInterface
 import android.os.Bundle
 import androidx.fragment.app.test.EmptyFragmentTestActivity
 import androidx.test.annotation.UiThreadTest
@@ -59,7 +60,58 @@ class DialogFragmentTest {
             .isTrue()
     }
 
+    @Test
+    fun testCancelDialog() {
+        val dialogFragment = TestDialogFragment()
+        val fm = activityTestRule.activity.supportFragmentManager
+
+        activityTestRule.runOnUiThread {
+            fm.beginTransaction()
+                .add(dialogFragment, null)
+                .commitNow()
+        }
+
+        val dialog = dialogFragment.requireDialog()
+        activityTestRule.runOnUiThread {
+            dialog.cancel()
+        }
+
+        activityTestRule.runOnUiThread {
+            assertWithMessage("OnCancel should have been called")
+                .that(dialogFragment.onCancelCalled)
+                .isTrue()
+        }
+    }
+
+    @Test
+    fun testCancelDestroyedDialog() {
+        val dialogFragment = TestDialogFragment()
+        val fm = activityTestRule.activity.supportFragmentManager
+
+        activityTestRule.runOnUiThread {
+            fm.beginTransaction()
+                .add(dialogFragment, null)
+                .commitNow()
+        }
+
+        val dialog = dialogFragment.requireDialog()
+
+        activityTestRule.runOnUiThread {
+            dialog.cancel()
+            fm.beginTransaction()
+                .remove(dialogFragment)
+                .commitNow()
+        }
+
+        activityTestRule.runOnUiThread {
+            assertWithMessage("OnCancel should not have been called")
+                .that(dialogFragment.onCancelCalled)
+                .isFalse()
+        }
+    }
+
     class TestDialogFragment : DialogFragment() {
+        var onCancelCalled = false
 
         override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
             return AlertDialog.Builder(context)
@@ -67,6 +119,11 @@ class DialogFragmentTest {
                 .setMessage("Message")
                 .setPositiveButton("Button", null)
                 .create()
+        }
+
+        override fun onCancel(dialog: DialogInterface) {
+            super.onCancel(dialog)
+            onCancelCalled = true
         }
     }
 }
