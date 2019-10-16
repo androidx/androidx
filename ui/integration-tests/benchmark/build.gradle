@@ -50,6 +50,8 @@ dependencies {
 androidx {
     name = "UI Benchmarks"
     publish = Publish.NONE
+    // b/142788501: Set toolingProject to true so Dokka does not generate reference docs for this project
+    toolingProject = true
     mavenVersion = LibraryVersions.UI
     mavenGroup = LibraryGroups.UI
     inceptionYear = "2019"
