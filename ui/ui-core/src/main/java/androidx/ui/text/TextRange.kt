@@ -23,7 +23,7 @@ fun CharSequence.substring(range: TextRange): String = this.substring(range.min,
  * (exclusive). [end] can be smaller than [start] and in those cases [min] and [max] can be
  * used in order to fetch the values.
  *
- * @param start the inclusive starting offset of the range.
+ * @param start the inclusive start offset of the range.
  * @param end the exclusive end offset of the range
  */
 data class TextRange(val start: Int, val end: Int) {
