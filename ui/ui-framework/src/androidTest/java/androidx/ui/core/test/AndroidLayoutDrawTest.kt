@@ -1725,6 +1725,42 @@ class AndroidLayoutDrawTest {
         assertTrue(latch.await(1, TimeUnit.SECONDS))
     }
 
+    @Test
+    fun testParentData_noModifier() {
+        activityTestRule.runOnUiThreadIR {
+            activity.setContentInFrameLayout {
+                Layout({
+                    ParentData(data = 123) {
+                        Layout(children = { }) { _, _ ->
+                            layout(0.ipx, 0.ipx) { }
+                        }
+                    }
+                }) { measurables, _ ->
+                    assertEquals(123, measurables.first().parentData)
+                    layout(0.ipx, 0.ipx) { }
+                }
+            }
+        }
+    }
+
+    @Test
+    fun testParentData_withModifier() {
+        activityTestRule.runOnUiThreadIR {
+            activity.setContentInFrameLayout {
+                Layout({
+                    ParentData(data = 456) {
+                        Layout(children = { }, modifier = PaddingModifier(10.ipx)) { _, _ ->
+                            layout(0.ipx, 0.ipx) { }
+                        }
+                    }
+                }) { measurables, _ ->
+                    assertEquals(456, measurables.first().parentData)
+                    layout(0.ipx, 0.ipx) { }
+                }
+            }
+        }
+    }
+
     private fun composeSquares(model: SquareModel) {
         activityTestRule.runOnUiThreadIR {
             activity.setContentInFrameLayout {
@@ -2189,6 +2225,8 @@ data class PaddingModifier(
         if (value == null) return null
         return if (line.horizontal) value + left else value + top
     }
+
+    override fun DensityScope.modifyParentData(parentData: Any?): Any? = parentData
 }
 
 @Model

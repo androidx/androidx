@@ -138,10 +138,16 @@ package androidx.ui.layout {
 
   public final class FlexKt {
     ctor public FlexKt();
-    method public static void Column(androidx.ui.core.Modifier modifier = Modifier.None, androidx.ui.layout.MainAxisAlignment mainAxisAlignment = MainAxisAlignment.Start, androidx.ui.layout.LayoutSize mainAxisSize = LayoutSize.Wrap, androidx.ui.layout.CrossAxisAlignment crossAxisAlignment = CrossAxisAlignment.Start, androidx.ui.layout.LayoutSize crossAxisSize = LayoutSize.Wrap, kotlin.jvm.functions.Function0<kotlin.Unit> block);
+    method public static void Column(androidx.ui.core.Modifier modifier = Modifier.None, androidx.ui.layout.MainAxisAlignment mainAxisAlignment = MainAxisAlignment.Start, androidx.ui.layout.LayoutSize mainAxisSize = LayoutSize.Wrap, androidx.ui.layout.CrossAxisAlignment crossAxisAlignment = CrossAxisAlignment.Start, androidx.ui.layout.LayoutSize crossAxisSize = LayoutSize.Wrap, kotlin.jvm.functions.Function1<? super androidx.ui.layout.FlexScope,kotlin.Unit> block);
     method public static void FlexColumn(androidx.ui.core.Modifier modifier = Modifier.None, androidx.ui.layout.MainAxisAlignment mainAxisAlignment = MainAxisAlignment.Start, androidx.ui.layout.LayoutSize mainAxisSize = LayoutSize.Expand, androidx.ui.layout.CrossAxisAlignment crossAxisAlignment = CrossAxisAlignment.Start, androidx.ui.layout.LayoutSize crossAxisSize = LayoutSize.Wrap, kotlin.jvm.functions.Function1<? super androidx.ui.layout.FlexChildren,kotlin.Unit> block);
     method public static void FlexRow(androidx.ui.core.Modifier modifier = Modifier.None, androidx.ui.layout.MainAxisAlignment mainAxisAlignment = MainAxisAlignment.Start, androidx.ui.layout.LayoutSize mainAxisSize = LayoutSize.Expand, androidx.ui.layout.CrossAxisAlignment crossAxisAlignment = CrossAxisAlignment.Start, androidx.ui.layout.LayoutSize crossAxisSize = LayoutSize.Wrap, kotlin.jvm.functions.Function1<? super androidx.ui.layout.FlexChildren,kotlin.Unit> block);
-    method public static void Row(androidx.ui.core.Modifier modifier = Modifier.None, androidx.ui.layout.MainAxisAlignment mainAxisAlignment = MainAxisAlignment.Start, androidx.ui.layout.LayoutSize mainAxisSize = LayoutSize.Wrap, androidx.ui.layout.CrossAxisAlignment crossAxisAlignment = CrossAxisAlignment.Start, androidx.ui.layout.LayoutSize crossAxisSize = LayoutSize.Wrap, kotlin.jvm.functions.Function0<kotlin.Unit> block);
+    method public static void Row(androidx.ui.core.Modifier modifier = Modifier.None, androidx.ui.layout.MainAxisAlignment mainAxisAlignment = MainAxisAlignment.Start, androidx.ui.layout.LayoutSize mainAxisSize = LayoutSize.Wrap, androidx.ui.layout.CrossAxisAlignment crossAxisAlignment = CrossAxisAlignment.Start, androidx.ui.layout.LayoutSize crossAxisSize = LayoutSize.Wrap, kotlin.jvm.functions.Function1<? super androidx.ui.layout.FlexScope,kotlin.Unit> block);
+  }
+
+  public final class FlexScope {
+    ctor public FlexScope();
+    method public androidx.ui.core.LayoutModifier Flexible(float flex, boolean tight = true);
+    method public androidx.ui.core.LayoutModifier Inflexible();
   }
 
   public enum FlowCrossAxisAlignment {
