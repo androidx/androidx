@@ -25,6 +25,7 @@ import com.android.tools.lint.detector.api.LintFix
 import com.android.tools.lint.detector.api.Scope
 import com.android.tools.lint.detector.api.Severity
 import com.android.tools.lint.detector.api.SourceCodeScanner
+import com.android.tools.lint.detector.api.isKotlin
 import com.intellij.psi.util.PsiTypesUtil
 import org.jetbrains.uast.UCallExpression
 import org.jetbrains.uast.UClass
@@ -97,11 +98,17 @@ private class RecursiveMethodVisitor(
             val lifecycleOwnerType = PsiTypesUtil.getPsiClass(lifecycleOwner.getExpressionType())
             if (lifecycleOwner.getExpressionType().extends(context, FRAGMENT_CLASS)) {
                 if (lifecycleOwnerType == node.getContainingUClass()?.javaPsi) {
+                    val methodFix = if (isKotlin(context.psiFile)) {
+                        "viewLifecycleOwner"
+                    } else {
+                        "getViewLifecycleOwner()"
+                    }
                     context.report(ISSUE, context.getLocation(lifecycleOwner),
-                        "Use getViewLifecycleOwner() as the LifecycleOwner.",
+                        "Use $methodFix as the LifecycleOwner.",
                         LintFix.create()
                             .replace()
-                            .with("getViewLifecycleOwner()").build())
+                            .with(methodFix)
+                            .build())
                 } else {
                     context.report(ISSUE, context.getLocation(node),
                         "Unsafe call to observe with Fragment instance from $originFragmentName" +
