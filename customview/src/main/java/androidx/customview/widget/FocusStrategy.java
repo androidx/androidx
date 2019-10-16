@@ -425,12 +425,12 @@ class FocusStrategy {
             case View.FOCUS_RIGHT:
                 // the distance between the center verticals
                 return Math.abs(
-                        ((source.top + source.height() / 2) - ((dest.top + dest.height() / 2))));
+                        ((source.top + source.height() / 2) - (dest.top + dest.height() / 2)));
             case View.FOCUS_UP:
             case View.FOCUS_DOWN:
                 // the distance between the center horizontals
                 return Math.abs(
-                        ((source.left + source.width() / 2) - ((dest.left + dest.width() / 2))));
+                        ((source.left + source.width() / 2) - (dest.left + dest.width() / 2)));
         }
         throw new IllegalArgumentException("direction must be one of "
                 + "{FOCUS_UP, FOCUS_DOWN, FOCUS_LEFT, FOCUS_RIGHT}.");

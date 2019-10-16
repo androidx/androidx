@@ -305,7 +305,7 @@ class ProcessingImageReader implements ImageReaderProxy {
     void setupSettableImageProxyBundleCallbacks() {
         List<ListenableFuture<ImageProxy>> futureList = new ArrayList<>();
         for (Integer id : mCaptureIdList) {
-            futureList.add(mSettableImageProxyBundle.getImageProxy((id)));
+            futureList.add(mSettableImageProxyBundle.getImageProxy(id));
         }
         Futures.addCallback(Futures.allAsList(futureList), mCaptureStageReadyCallback,
                 CameraXExecutors.directExecutor());

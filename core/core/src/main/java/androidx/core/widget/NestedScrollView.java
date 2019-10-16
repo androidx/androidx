@@ -725,7 +725,7 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
         * motion.
         */
         final int action = ev.getAction();
-        if ((action == MotionEvent.ACTION_MOVE) && (mIsBeingDragged)) {
+        if ((action == MotionEvent.ACTION_MOVE) && mIsBeingDragged) {
             return true;
         }
 

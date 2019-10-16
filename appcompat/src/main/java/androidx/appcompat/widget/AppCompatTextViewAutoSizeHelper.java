@@ -711,7 +711,7 @@ class AppCompatTextViewAutoSizeHelper {
                 maxLines);
         // Lines overflow.
         if (maxLines != -1 && (layout.getLineCount() > maxLines
-                || (layout.getLineEnd(layout.getLineCount() - 1)) != text.length())) {
+                || layout.getLineEnd(layout.getLineCount() - 1) != text.length())) {
             return false;
         }
 

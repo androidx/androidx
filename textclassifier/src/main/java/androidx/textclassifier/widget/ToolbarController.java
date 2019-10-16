@@ -16,7 +16,6 @@
 
 package androidx.textclassifier.widget;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.app.PendingIntent;
@@ -249,7 +248,7 @@ public final class ToolbarController {
         final Layout layout = textView.getLayout();
         final int line = layout.getLineForOffset(index);
         final int x = (int) layout.getPrimaryHorizontal(index);
-        final int y = (startCoordinate) ? layout.getLineTop(line) : layout.getLineBottom(line);
+        final int y = startCoordinate ? layout.getLineTop(line) : layout.getLineBottom(line);
         final int[] xy = new int[2];
         textView.getLocationOnScreen(xy);
         return new int[]{

@@ -406,7 +406,7 @@ final class SupportedSurfaceCombination {
         boolean isDefaultResolutionSupported = outputSizeCandidates.contains(DEFAULT_SIZE);
 
         // Check the default resolution if the target resolution is not set
-        targetSize = (targetSize.equals(ZERO_SIZE)) ? config.getDefaultResolution(ZERO_SIZE)
+        targetSize = targetSize.equals(ZERO_SIZE) ? config.getDefaultResolution(ZERO_SIZE)
                 : targetSize;
 
         // If the target resolution is set, use it to find the minimum one from big enough items

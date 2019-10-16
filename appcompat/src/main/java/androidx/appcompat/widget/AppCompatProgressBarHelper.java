@@ -106,7 +106,7 @@ class AppCompatProgressBarHelper {
                     Shader.TileMode.REPEAT, Shader.TileMode.CLAMP);
             shapeDrawable.getPaint().setShader(bitmapShader);
             shapeDrawable.getPaint().setColorFilter(bitmapDrawable.getPaint().getColorFilter());
-            return (clip) ? new ClipDrawable(shapeDrawable, Gravity.LEFT,
+            return clip ? new ClipDrawable(shapeDrawable, Gravity.LEFT,
                     ClipDrawable.HORIZONTAL) : shapeDrawable;
         }
 

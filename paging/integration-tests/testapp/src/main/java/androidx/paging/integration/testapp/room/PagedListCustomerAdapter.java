@@ -60,9 +60,9 @@ class PagedListCustomerAdapter extends PagedListAdapter<Customer, RecyclerView.V
         Customer customer = getItem(position);
 
         if (customer != null) {
-            ((TextView) (holder.itemView)).setText(customer.getId() + " " + customer.getLastName());
+            ((TextView) holder.itemView).setText(customer.getId() + " " + customer.getLastName());
         } else {
-            ((TextView) (holder.itemView)).setText(R.string.loading);
+            ((TextView) holder.itemView).setText(R.string.loading);
         }
     }
 

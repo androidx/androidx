@@ -54,7 +54,7 @@ public class CycleInterpolator implements Interpolator {
     @Override
     @FloatRange(from = 0, to = 1)
     public float getInterpolation(@FloatRange(from = 0, to = 1) float input) {
-        return (float) (Math.sin(2 * mCycles * Math.PI * input));
+        return (float) Math.sin(2 * mCycles * Math.PI * input);
     }
 
     private float mCycles;

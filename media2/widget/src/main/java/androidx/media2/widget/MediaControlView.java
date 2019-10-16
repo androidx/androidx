@@ -718,7 +718,7 @@ public class MediaControlView extends MediaViewGroup {
                 R.dimen.media2_widget_full_settings_width);
         mSettingsItemHeight = mResources.getDimensionPixelSize(
                 R.dimen.media2_widget_settings_height);
-        mSettingsWindowMargin = (-1) * mResources.getDimensionPixelSize(
+        mSettingsWindowMargin = -1 * mResources.getDimensionPixelSize(
                 R.dimen.media2_widget_settings_offset);
         mSettingsWindow = new PopupWindow(mSettingsListView, mEmbeddedSettingsItemWidth,
                 LayoutParams.WRAP_CONTENT, true);
@@ -1599,14 +1599,14 @@ public class MediaControlView extends MediaViewGroup {
 
     void animateOverflow(float animatedValue) {
         int extraControlWidth = mExtraControls.getWidth();
-        int extraControlTranslationX = (-1) * (int) (extraControlWidth * animatedValue);
+        int extraControlTranslationX = -1 * (int) (extraControlWidth * animatedValue);
         mExtraControls.setTranslationX(extraControlTranslationX);
 
         mTimeView.setAlpha(1 - animatedValue);
         mBasicControls.setAlpha(1 - animatedValue);
 
         int transportControlLeftWidth = findFullSizedControlButton(R.id.pause).getLeft();
-        int transportControlTranslationX = (-1) * (int) (transportControlLeftWidth * animatedValue);
+        int transportControlTranslationX = -1 * (int) (transportControlLeftWidth * animatedValue);
         mFullTransportControls.setTranslationX(transportControlTranslationX);
         findFullSizedControlButton(R.id.ffwd).setAlpha(1 - animatedValue);
     }

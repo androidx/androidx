@@ -679,7 +679,7 @@ public class AnimatorInflaterCompat {
             Keyframe keyframe = (Keyframe) keyframes[i];
             Log.d(TAG, "Keyframe " + i + ": fraction "
                     + (keyframe.getFraction() < 0 ? "null" : keyframe.getFraction()) + ", "
-                    + ", value : " + ((keyframe.hasValue()) ? keyframe.getValue() : "null"));
+                    + ", value : " + (keyframe.hasValue() ? keyframe.getValue() : "null"));
         }
     }
 

@@ -424,7 +424,7 @@ public abstract class PreferenceFragmentCompat extends Fragment implements
                         // Attempt to replace this fragment in its root view - developers should
                         // implement onPreferenceStartFragment in their activity so that they can
                         // customize this behaviour and handle any transitions between fragments
-                        .replace((((View) getView().getParent()).getId()), fragment)
+                        .replace(((View) getView().getParent()).getId(), fragment)
                         .addToBackStack(null)
                         .commit();
             }

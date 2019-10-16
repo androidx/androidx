@@ -1518,7 +1518,7 @@ class AppCompatDelegateImpl extends AppCompatDelegate
         }
 
         Window.Callback cb = getWindowCallback();
-        if ((cb != null) && (!cb.onMenuOpened(st.featureId, st.menu))) {
+        if ((cb != null) && !cb.onMenuOpened(st.featureId, st.menu)) {
             // Callback doesn't want the menu to open, reset any state
             closePanel(st, true);
             return;
@@ -1949,8 +1949,9 @@ class AppCompatDelegateImpl extends AppCompatDelegate
         }
 
         // If the panel is not open, do not callback
-        if ((panel != null) && (!panel.isOpen))
+        if ((panel != null) && !panel.isOpen) {
             return;
+        }
 
         if (!mIsDestroyed) {
             // We need to be careful which callback we dispatch the call to. We can not dispatch

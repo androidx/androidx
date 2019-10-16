@@ -210,7 +210,7 @@ final class DetailsBackgroundVideoHelper {
             @Override
             public void onAnimationUpdate(ValueAnimator valueAnimator) {
                 mBackgroundDrawable.setAlpha(
-                        (int) ((Float) (valueAnimator.getAnimatedValue()) * 255));
+                        (int) (((Float) valueAnimator.getAnimatedValue()) * 255));
             }
         });
 
