@@ -46,7 +46,7 @@ import androidx.ui.text.TextStyle
 import androidx.ui.text.style.TextOverflow
 
 /**
- * Material Design implementation of [list items][https://material.io/components/lists].
+ * Material Design implementation of [list items](https://material.io/components/lists).
  *
  * This component can be used to achieve the list item templates existing in the spec. For example:
  * - one-line items
@@ -105,7 +105,7 @@ fun ListItem(
 }
 
 /**
- * Material Design implementation of [list items][https://material.io/components/lists].
+ * Material Design implementation of [list items](https://material.io/components/lists).
  *
  * This component can be used to achieve the list item templates existing in the spec. For example:
  * - one-line items
