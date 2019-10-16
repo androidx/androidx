@@ -75,12 +75,14 @@ package androidx.sqlite.db {
     field public final androidx.sqlite.db.SupportSQLiteOpenHelper.Callback callback;
     field public final android.content.Context context;
     field public final String? name;
+    field public final boolean useNoBackupDirectory;
   }
 
   public static class SupportSQLiteOpenHelper.Configuration.Builder {
     method public androidx.sqlite.db.SupportSQLiteOpenHelper.Configuration build();
     method public androidx.sqlite.db.SupportSQLiteOpenHelper.Configuration.Builder callback(androidx.sqlite.db.SupportSQLiteOpenHelper.Callback);
     method public androidx.sqlite.db.SupportSQLiteOpenHelper.Configuration.Builder name(String?);
+    method public androidx.sqlite.db.SupportSQLiteOpenHelper.Configuration.Builder noBackupDirectory(boolean);
   }
 
   public static interface SupportSQLiteOpenHelper.Factory {
