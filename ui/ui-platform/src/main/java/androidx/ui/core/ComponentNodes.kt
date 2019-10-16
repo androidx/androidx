@@ -788,7 +788,8 @@ class LayoutNode : ComponentNode(), Measurable, MeasureScope {
 
         override fun performPlace(position: IntPxPosition) {
             val placeable = measuredPlaceable ?: error("Placeable not measured")
-            placeable.place(with(layoutModifier) { modifyPosition(position, placeable.size, size) })
+            this.position = with(layoutModifier) { modifyPosition(position, placeable.size, size) }
+            placeable.place(this.position)
         }
 
         override fun get(line: AlignmentLine): IntPx? = with(layoutModifier) {
