@@ -17,6 +17,7 @@
 package androidx.ui.text
 
 import androidx.ui.core.Sp
+import androidx.ui.core.em
 import androidx.ui.core.sp
 import androidx.ui.graphics.Color
 import androidx.ui.text.font.FontStyle
@@ -281,7 +282,7 @@ class AnnotatedStringBuilderTest {
             TextStyle(color = Color.Red),
             TextStyle(fontStyle = FontStyle.Italic),
             TextStyle(fontWeight = FontWeight.Bold),
-            TextStyle(letterSpacing = 1.2f)
+            TextStyle(letterSpacing = 1.2.em)
         )
 
         val buildResult = with(AnnotatedString.Builder()) {
@@ -313,7 +314,7 @@ class AnnotatedStringBuilderTest {
             TextStyle(color = Color.Red),
             TextStyle(fontStyle = FontStyle.Italic),
             TextStyle(fontWeight = FontWeight.Bold),
-            TextStyle(letterSpacing = 1.2f)
+            TextStyle(letterSpacing = 1.2.em)
         )
 
         val buildResult = with(AnnotatedString.Builder()) {

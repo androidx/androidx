@@ -16,7 +16,9 @@
 
 package androidx.ui.text
 
+import androidx.ui.core.Em
 import androidx.ui.core.Sp
+import androidx.ui.core.em
 import androidx.ui.core.sp
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Shadow
@@ -68,7 +70,7 @@ data class TextStyle(
     val fontSynthesis: FontSynthesis? = null,
     var fontFamily: FontFamily? = null,
     val fontFeatureSettings: String? = null,
-    val letterSpacing: Float? = null,
+    val letterSpacing: Em? = null,
     val baselineShift: BaselineShift? = null,
     val textGeometricTransform: TextGeometricTransform? = null,
     val localeList: LocaleList? = null,
@@ -125,6 +127,13 @@ data class TextStyle(
         }
 
         private fun lerpSp(a: Sp?, b: Sp?, t: Float, default: Sp = 0f.sp): Sp? {
+            if (a == null && b == null) return null
+            val start = a ?: default
+            val end = b ?: default
+            return androidx.ui.core.lerp(start, end, t)
+        }
+
+        private fun lerpEm(a: Em?, b: Em?, t: Float, default: Em = 0f.em): Em? {
             if (a == null && b == null) return null
             val start = a ?: default
             val end = b ?: default
@@ -213,7 +222,7 @@ data class TextStyle(
                     stop.fontFeatureSettings,
                     fraction
                 ),
-                letterSpacing = lerpFloat(
+                letterSpacing = lerpEm(
                     start.letterSpacing,
                     stop.letterSpacing,
                     fraction

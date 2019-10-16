@@ -22,6 +22,7 @@ import androidx.test.platform.app.InstrumentationRegistry
 import androidx.ui.core.Density
 import androidx.ui.core.PxPosition
 import androidx.ui.core.Sp
+import androidx.ui.core.em
 import androidx.ui.core.px
 import androidx.ui.core.sp
 import androidx.ui.core.withDensity
@@ -2348,7 +2349,7 @@ class ParagraphIntegrationTest {
             val fontSize = 20.sp
             val fontSizeInPx = fontSize.toPx().value
             val letterSpacing = 5.0f
-            val textStyle = TextStyle(letterSpacing = letterSpacing)
+            val textStyle = TextStyle(letterSpacing = letterSpacing.em)
             val paragraphWidth = fontSizeInPx * (1 + letterSpacing) * text.length
 
             val paragraph = simpleParagraph(
@@ -2373,7 +2374,7 @@ class ParagraphIntegrationTest {
             val fontSize = 20.sp
             val fontSizeInPx = fontSize.toPx().value
             val letterSpacing = 5.0f
-            val textStyle = TextStyle(letterSpacing = letterSpacing)
+            val textStyle = TextStyle(letterSpacing = letterSpacing.em)
             val paragraphWidth = fontSizeInPx * (1 + letterSpacing) * text.length
 
             val paragraph = simpleParagraph(
@@ -2398,11 +2399,11 @@ class ParagraphIntegrationTest {
             val fontSize = 20.sp
             val fontSizeInPx = fontSize.toPx().value
             val letterSpacing = 5.0f
-            val textStyle = TextStyle(letterSpacing = letterSpacing)
+            val textStyle = TextStyle(letterSpacing = letterSpacing.em)
 
             val letterSpacingOverwrite = 10.0f
             val textStyleOverwrite =
-                TextStyle(letterSpacing = letterSpacingOverwrite)
+                TextStyle(letterSpacing = letterSpacingOverwrite.em)
             val paragraphWidth = fontSizeInPx * (1 + letterSpacingOverwrite) * text.length
 
             val paragraph = simpleParagraph(
@@ -2625,7 +2626,7 @@ class ParagraphIntegrationTest {
             val fontSize = 100.sp
             val fontSizeInPx = fontSize.toPx().value
             val letterSpacing = 1f
-            val textStyle = TextStyle(letterSpacing = letterSpacing)
+            val textStyle = TextStyle(letterSpacing = letterSpacing.em)
 
             val paragraph = simpleParagraph(
                 text = text,

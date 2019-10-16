@@ -373,6 +373,39 @@ package androidx.ui.core {
     field public static final long SecondsPerMinute = 60L; // 0x3cL
   }
 
+  public final class Em {
+    ctor public Em(float value);
+    method public inline operator int compareTo(androidx.ui.core.Em other);
+    method public float component1();
+    method public androidx.ui.core.Em copy(float value);
+    method public inline operator androidx.ui.core.Em div(float other);
+    method public inline operator androidx.ui.core.Em div(int other);
+    method public inline operator float div(androidx.ui.core.Em other);
+    method public float getValue();
+    method public inline operator androidx.ui.core.Em minus(androidx.ui.core.Em other);
+    method public inline operator androidx.ui.core.Em plus(androidx.ui.core.Em other);
+    method public inline operator androidx.ui.core.Em times(float other);
+    method public inline operator androidx.ui.core.Em times(int other);
+    method public inline operator androidx.ui.core.Em unaryMinus();
+  }
+
+  public final class EmKt {
+    ctor public EmKt();
+    method public static inline androidx.ui.core.Em coerceAtLeast(androidx.ui.core.Em, androidx.ui.core.Em minimumValue);
+    method public static inline androidx.ui.core.Em coerceAtMost(androidx.ui.core.Em, androidx.ui.core.Em maximumValue);
+    method public static inline androidx.ui.core.Em coerceIn(androidx.ui.core.Em, androidx.ui.core.Em minimumValue, androidx.ui.core.Em maximumValue);
+    method public static inline androidx.ui.core.Em getEm(int);
+    method public static inline androidx.ui.core.Em getEm(double);
+    method public static inline androidx.ui.core.Em getEm(float);
+    method public static androidx.ui.core.Em lerp(androidx.ui.core.Em start, androidx.ui.core.Em stop, float fraction);
+    method public static inline androidx.ui.core.Em max(androidx.ui.core.Em a, androidx.ui.core.Em b);
+    method public static inline androidx.ui.core.Em min(androidx.ui.core.Em a, androidx.ui.core.Em b);
+    method public static inline operator androidx.ui.core.Em times(float, androidx.ui.core.Em other);
+    method public static inline operator androidx.ui.core.Em times(double, androidx.ui.core.Em other);
+    method public static inline operator androidx.ui.core.Em times(int, androidx.ui.core.Em other);
+    method public static inline androidx.ui.core.Em toEm(androidx.ui.core.Sp, androidx.ui.core.Sp fontSize);
+  }
+
   public final class HorizontalAlignmentLine extends androidx.ui.core.AlignmentLine {
     ctor public HorizontalAlignmentLine(kotlin.jvm.functions.Function2<? super androidx.ui.core.IntPx,? super androidx.ui.core.IntPx,androidx.ui.core.IntPx> merger);
   }
