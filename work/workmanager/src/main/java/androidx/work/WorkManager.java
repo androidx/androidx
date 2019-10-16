@@ -445,12 +445,10 @@ public abstract class WorkManager {
      * Creates a {@link PendingIntent} which can be used to cancel a {@link WorkRequest} with the
      * given {@code id}.
      *
-     * @param context The Application {@link Context}
      * @param id      The {@link WorkRequest} id.
      * @return The {@link PendingIntent} that can be used to cancel the {@link WorkRequest}.
      */
-    public abstract @NonNull PendingIntent createCancelPendingIntent(
-            @NonNull Context context, @NonNull UUID id);
+    public abstract @NonNull PendingIntent createCancelPendingIntent(@NonNull UUID id);
 
     /**
      * Prunes all eligible finished work from the internal database.  Eligible work must be finished

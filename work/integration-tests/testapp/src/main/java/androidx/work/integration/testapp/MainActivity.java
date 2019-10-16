@@ -391,7 +391,6 @@ public class MainActivity extends AppCompatActivity {
                             PendingIntent pendingIntent =
                                     WorkManager.getInstance(MainActivity.this)
                                             .createCancelPendingIntent(
-                                                    MainActivity.this,
                                                     mLastForegroundWorkRequest.getId()
                                             );
 
