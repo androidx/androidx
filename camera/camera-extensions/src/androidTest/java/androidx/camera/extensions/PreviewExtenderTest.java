@@ -102,7 +102,9 @@ public class PreviewExtenderTest {
 
     @After
     public void cleanUp() throws ExecutionException, InterruptedException {
-        mInstrumentation.runOnMainSync(CameraX::unbindAll);
+        if (CameraX.isInitialized()) {
+            mInstrumentation.runOnMainSync(CameraX::unbindAll);
+        }
         CameraX.shutdown().get();
     }
 

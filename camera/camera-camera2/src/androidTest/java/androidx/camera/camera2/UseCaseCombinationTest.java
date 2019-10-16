@@ -102,7 +102,9 @@ public final class UseCaseCombinationTest {
 
     @After
     public void tearDown() throws InterruptedException, ExecutionException {
-        mInstrumentation.runOnMainSync(CameraX::unbindAll);
+        if (CameraX.isInitialized()) {
+            mInstrumentation.runOnMainSync(CameraX::unbindAll);
+        }
         CameraX.shutdown().get();
     }
 
