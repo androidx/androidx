@@ -15,15 +15,27 @@ MissingBuild: androidx.navigation.PopUpToBuilder:
     Missing `build()` method in androidx.navigation.PopUpToBuilder
 
 
-SetterReturnsThis: androidx.navigation.AnimBuilder:
-    Methods must return the builder object (return type AnimBuilder instead of void): method androidx.navigation.AnimBuilder.setEnter(int)
-SetterReturnsThis: androidx.navigation.NavActionBuilder:
-    Methods must return the builder object (return type NavActionBuilder instead of void): method androidx.navigation.NavActionBuilder.setDestinationId(int)
-SetterReturnsThis: androidx.navigation.NavArgumentBuilder:
-    Methods must return the builder object (return type NavArgumentBuilder instead of void): method androidx.navigation.NavArgumentBuilder.setType(androidx.navigation.NavType<?>)
-SetterReturnsThis: androidx.navigation.NavDestinationBuilder:
-    Methods must return the builder object (return type NavDestinationBuilder instead of void): method androidx.navigation.NavDestinationBuilder.setLabel(CharSequence)
-SetterReturnsThis: androidx.navigation.NavOptionsBuilder:
-    Methods must return the builder object (return type NavOptionsBuilder instead of void): method androidx.navigation.NavOptionsBuilder.setLaunchSingleTop(boolean)
-SetterReturnsThis: androidx.navigation.PopUpToBuilder:
-    Methods must return the builder object (return type PopUpToBuilder instead of void): method androidx.navigation.PopUpToBuilder.setInclusive(boolean)
+SetterReturnsThis: androidx.navigation.AnimBuilder#setEnter(int):
+    Methods must return the builder object (return type androidx.navigation.AnimBuilder instead of void): method androidx.navigation.AnimBuilder.setEnter(int)
+SetterReturnsThis: androidx.navigation.AnimBuilder#setExit(int):
+    Methods must return the builder object (return type androidx.navigation.AnimBuilder instead of void): method androidx.navigation.AnimBuilder.setExit(int)
+SetterReturnsThis: androidx.navigation.AnimBuilder#setPopEnter(int):
+    Methods must return the builder object (return type androidx.navigation.AnimBuilder instead of void): method androidx.navigation.AnimBuilder.setPopEnter(int)
+SetterReturnsThis: androidx.navigation.AnimBuilder#setPopExit(int):
+    Methods must return the builder object (return type androidx.navigation.AnimBuilder instead of void): method androidx.navigation.AnimBuilder.setPopExit(int)
+SetterReturnsThis: androidx.navigation.NavActionBuilder#setDestinationId(int):
+    Methods must return the builder object (return type androidx.navigation.NavActionBuilder instead of void): method androidx.navigation.NavActionBuilder.setDestinationId(int)
+SetterReturnsThis: androidx.navigation.NavArgumentBuilder#setDefaultValue(Object):
+    Methods must return the builder object (return type androidx.navigation.NavArgumentBuilder instead of void): method androidx.navigation.NavArgumentBuilder.setDefaultValue(Object)
+SetterReturnsThis: androidx.navigation.NavArgumentBuilder#setNullable(boolean):
+    Methods must return the builder object (return type androidx.navigation.NavArgumentBuilder instead of void): method androidx.navigation.NavArgumentBuilder.setNullable(boolean)
+SetterReturnsThis: androidx.navigation.NavArgumentBuilder#setType(androidx.navigation.NavType<?>):
+    Methods must return the builder object (return type androidx.navigation.NavArgumentBuilder instead of void): method androidx.navigation.NavArgumentBuilder.setType(androidx.navigation.NavType<?>)
+SetterReturnsThis: androidx.navigation.NavDestinationBuilder#setLabel(CharSequence):
+    Methods must return the builder object (return type androidx.navigation.NavDestinationBuilder<D> instead of void): method androidx.navigation.NavDestinationBuilder.setLabel(CharSequence)
+SetterReturnsThis: androidx.navigation.NavOptionsBuilder#setLaunchSingleTop(boolean):
+    Methods must return the builder object (return type androidx.navigation.NavOptionsBuilder instead of void): method androidx.navigation.NavOptionsBuilder.setLaunchSingleTop(boolean)
+SetterReturnsThis: androidx.navigation.NavOptionsBuilder#setPopUpTo(int):
+    Methods must return the builder object (return type androidx.navigation.NavOptionsBuilder instead of void): method androidx.navigation.NavOptionsBuilder.setPopUpTo(int)
+SetterReturnsThis: androidx.navigation.PopUpToBuilder#setInclusive(boolean):
+    Methods must return the builder object (return type androidx.navigation.PopUpToBuilder instead of void): method androidx.navigation.PopUpToBuilder.setInclusive(boolean)

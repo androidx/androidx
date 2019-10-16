@@ -1230,7 +1230,7 @@ package androidx.ui.graphics {
 
   public final class AndroidImageKt {
     ctor public AndroidImageKt();
-    method public static androidx.ui.graphics.Image Image(int width, int height, androidx.ui.graphics.ImageConfig config = ImageConfig.Argb8888, boolean hasAlpha = true, androidx.ui.graphics.colorspace.ColorSpace colorSpace = ColorSpaces.Srgb);
+    method public static androidx.ui.graphics.Image Image(int width, int height, androidx.ui.graphics.ImageConfig config = androidx.ui.graphics.ImageConfig.Argb8888, boolean hasAlpha = true, androidx.ui.graphics.colorspace.ColorSpace colorSpace = ColorSpaces.Srgb);
     method public static androidx.ui.graphics.Image imageFromResource(android.content.res.Resources res, int resId);
   }
 
@@ -1280,20 +1280,20 @@ package androidx.ui.graphics {
 
   public final class BrushKt {
     ctor public BrushKt();
-    method public static androidx.ui.graphics.LinearGradient HorizontalGradient(java.util.List<androidx.ui.graphics.Color> colors, androidx.ui.core.Px startX, androidx.ui.core.Px endX, androidx.ui.graphics.TileMode tileMode = TileMode.Clamp);
-    method public static androidx.ui.graphics.Brush HorizontalGradient(kotlin.Pair<java.lang.Float,androidx.ui.graphics.Color>![] colorStops, androidx.ui.core.Px startX, androidx.ui.core.Px endX, androidx.ui.graphics.TileMode tileMode = TileMode.Clamp);
-    method public static androidx.ui.graphics.LinearGradient LinearGradient(java.util.List<androidx.ui.graphics.Color> colors, androidx.ui.core.Px startX, androidx.ui.core.Px startY, androidx.ui.core.Px endX, androidx.ui.core.Px endY, androidx.ui.graphics.TileMode tileMode = TileMode.Clamp);
-    method public static androidx.ui.graphics.LinearGradient LinearGradient(kotlin.Pair<java.lang.Float,androidx.ui.graphics.Color>![] colorStops, androidx.ui.core.Px startX, androidx.ui.core.Px startY, androidx.ui.core.Px endX, androidx.ui.core.Px endY, androidx.ui.graphics.TileMode tileMode = TileMode.Clamp);
-    method public static androidx.ui.graphics.RadialGradient RadialGradient(kotlin.Pair<java.lang.Float,androidx.ui.graphics.Color>![] colorStops, float centerX, float centerY, float radius, androidx.ui.graphics.TileMode tileMode = TileMode.Clamp);
-    method public static androidx.ui.graphics.RadialGradient RadialGradient(java.util.List<androidx.ui.graphics.Color> colors, float centerX, float centerY, float radius, androidx.ui.graphics.TileMode tileMode = TileMode.Clamp);
-    method public static androidx.ui.graphics.LinearGradient VerticalGradient(java.util.List<androidx.ui.graphics.Color> colors, androidx.ui.core.Px startY, androidx.ui.core.Px endY, androidx.ui.graphics.TileMode tileMode = TileMode.Clamp);
-    method public static androidx.ui.graphics.LinearGradient VerticalGradient(kotlin.Pair<java.lang.Float,androidx.ui.graphics.Color>![] colorStops, androidx.ui.core.Px startY, androidx.ui.core.Px endY, androidx.ui.graphics.TileMode tileMode = TileMode.Clamp);
+    method public static androidx.ui.graphics.LinearGradient HorizontalGradient(java.util.List<androidx.ui.graphics.Color> colors, androidx.ui.core.Px startX, androidx.ui.core.Px endX, androidx.ui.graphics.TileMode tileMode = androidx.ui.graphics.TileMode.Clamp);
+    method public static androidx.ui.graphics.Brush HorizontalGradient(kotlin.Pair<java.lang.Float,androidx.ui.graphics.Color>![] colorStops, androidx.ui.core.Px startX, androidx.ui.core.Px endX, androidx.ui.graphics.TileMode tileMode = androidx.ui.graphics.TileMode.Clamp);
+    method public static androidx.ui.graphics.LinearGradient LinearGradient(java.util.List<androidx.ui.graphics.Color> colors, androidx.ui.core.Px startX, androidx.ui.core.Px startY, androidx.ui.core.Px endX, androidx.ui.core.Px endY, androidx.ui.graphics.TileMode tileMode = androidx.ui.graphics.TileMode.Clamp);
+    method public static androidx.ui.graphics.LinearGradient LinearGradient(kotlin.Pair<java.lang.Float,androidx.ui.graphics.Color>![] colorStops, androidx.ui.core.Px startX, androidx.ui.core.Px startY, androidx.ui.core.Px endX, androidx.ui.core.Px endY, androidx.ui.graphics.TileMode tileMode = androidx.ui.graphics.TileMode.Clamp);
+    method public static androidx.ui.graphics.RadialGradient RadialGradient(kotlin.Pair<java.lang.Float,androidx.ui.graphics.Color>![] colorStops, float centerX, float centerY, float radius, androidx.ui.graphics.TileMode tileMode = androidx.ui.graphics.TileMode.Clamp);
+    method public static androidx.ui.graphics.RadialGradient RadialGradient(java.util.List<androidx.ui.graphics.Color> colors, float centerX, float centerY, float radius, androidx.ui.graphics.TileMode tileMode = androidx.ui.graphics.TileMode.Clamp);
+    method public static androidx.ui.graphics.LinearGradient VerticalGradient(java.util.List<androidx.ui.graphics.Color> colors, androidx.ui.core.Px startY, androidx.ui.core.Px endY, androidx.ui.graphics.TileMode tileMode = androidx.ui.graphics.TileMode.Clamp);
+    method public static androidx.ui.graphics.LinearGradient VerticalGradient(kotlin.Pair<java.lang.Float,androidx.ui.graphics.Color>![] colorStops, androidx.ui.core.Px startY, androidx.ui.core.Px endY, androidx.ui.graphics.TileMode tileMode = androidx.ui.graphics.TileMode.Clamp);
   }
 
   public interface Canvas {
     method public void clipPath(androidx.ui.graphics.Path path);
     method public void clipRRect(androidx.ui.engine.geometry.RRect rrect);
-    method public void clipRect(androidx.ui.engine.geometry.Rect rect, androidx.ui.graphics.ClipOp clipOp = ClipOp.intersect);
+    method public void clipRect(androidx.ui.engine.geometry.Rect rect, androidx.ui.graphics.ClipOp clipOp = androidx.ui.graphics.ClipOp.intersect);
     method public void concat(androidx.ui.vectormath64.Matrix4 matrix4);
     method public void drawArc(androidx.ui.engine.geometry.Rect rect, float startAngle, float sweepAngle, boolean useCenter, androidx.ui.graphics.Paint paint);
     method public default void drawArcRad(androidx.ui.engine.geometry.Rect rect, float startAngleRad, float sweepAngleRad, boolean useCenter, androidx.ui.graphics.Paint paint);
@@ -1611,9 +1611,9 @@ package androidx.ui.graphics {
 
   public final class ShaderKt {
     ctor public ShaderKt();
-    method public static androidx.ui.graphics.Shader ImageShader(androidx.ui.graphics.Image image, androidx.ui.graphics.TileMode tileModeX = TileMode.Clamp, androidx.ui.graphics.TileMode tileModeY = TileMode.Clamp);
-    method public static androidx.ui.graphics.Shader LinearGradientShader(androidx.ui.engine.geometry.Offset from, androidx.ui.engine.geometry.Offset to, java.util.List<androidx.ui.graphics.Color> colors, java.util.List<java.lang.Float>? colorStops = null, androidx.ui.graphics.TileMode tileMode = TileMode.Clamp);
-    method public static androidx.ui.graphics.Shader RadialGradientShader(androidx.ui.engine.geometry.Offset center, float radius, java.util.List<androidx.ui.graphics.Color> colors, java.util.List<java.lang.Float>? colorStops = null, androidx.ui.graphics.TileMode tileMode = TileMode.Clamp);
+    method public static androidx.ui.graphics.Shader ImageShader(androidx.ui.graphics.Image image, androidx.ui.graphics.TileMode tileModeX = androidx.ui.graphics.TileMode.Clamp, androidx.ui.graphics.TileMode tileModeY = androidx.ui.graphics.TileMode.Clamp);
+    method public static androidx.ui.graphics.Shader LinearGradientShader(androidx.ui.engine.geometry.Offset from, androidx.ui.engine.geometry.Offset to, java.util.List<androidx.ui.graphics.Color> colors, java.util.List<java.lang.Float>? colorStops = null, androidx.ui.graphics.TileMode tileMode = androidx.ui.graphics.TileMode.Clamp);
+    method public static androidx.ui.graphics.Shader RadialGradientShader(androidx.ui.engine.geometry.Offset center, float radius, java.util.List<androidx.ui.graphics.Color> colors, java.util.List<java.lang.Float>? colorStops = null, androidx.ui.graphics.TileMode tileMode = androidx.ui.graphics.TileMode.Clamp);
   }
 
   public final class Shadow {
@@ -1703,9 +1703,9 @@ package androidx.ui.graphics.colorspace {
 
   public final class ColorSpaceKt {
     ctor public ColorSpaceKt();
-    method public static androidx.ui.graphics.colorspace.ColorSpace adapt(androidx.ui.graphics.colorspace.ColorSpace, androidx.ui.graphics.colorspace.WhitePoint whitePoint, androidx.ui.graphics.colorspace.Adaptation adaptation = Adaptation.Bradford);
+    method public static androidx.ui.graphics.colorspace.ColorSpace adapt(androidx.ui.graphics.colorspace.ColorSpace, androidx.ui.graphics.colorspace.WhitePoint whitePoint, androidx.ui.graphics.colorspace.Adaptation adaptation = androidx.ui.graphics.colorspace.Adaptation.Bradford);
     method public static androidx.ui.graphics.colorspace.ColorSpace adapt(androidx.ui.graphics.colorspace.ColorSpace, androidx.ui.graphics.colorspace.WhitePoint whitePoint);
-    method public static androidx.ui.graphics.colorspace.Connector connect(androidx.ui.graphics.colorspace.ColorSpace, androidx.ui.graphics.colorspace.ColorSpace destination = ColorSpaces.Srgb, androidx.ui.graphics.colorspace.RenderIntent intent = RenderIntent.Perceptual);
+    method public static androidx.ui.graphics.colorspace.Connector connect(androidx.ui.graphics.colorspace.ColorSpace, androidx.ui.graphics.colorspace.ColorSpace destination = ColorSpaces.Srgb, androidx.ui.graphics.colorspace.RenderIntent intent = androidx.ui.graphics.colorspace.RenderIntent.Perceptual);
   }
 
   public final class ColorSpaces {

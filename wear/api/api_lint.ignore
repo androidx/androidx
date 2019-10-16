@@ -97,20 +97,6 @@ MissingNullability: androidx.wear.widget.CircularProgressLayout#setColorSchemeCo
     Missing nullability on parameter `colors` in method `setColorSchemeColors`
 MissingNullability: androidx.wear.widget.CircularProgressLayout.OnTimerFinishedListener#onTimerFinished(androidx.wear.widget.CircularProgressLayout) parameter #0:
     Missing nullability on parameter `layout` in method `onTimerFinished`
-MissingNullability: androidx.wear.widget.ConfirmationOverlay#setDuration(int):
-    Missing nullability on method `setDuration` return
-MissingNullability: androidx.wear.widget.ConfirmationOverlay#setFinishedAnimationListener(androidx.wear.widget.ConfirmationOverlay.OnAnimationFinishedListener):
-    Missing nullability on method `setFinishedAnimationListener` return
-MissingNullability: androidx.wear.widget.ConfirmationOverlay#setMessage(String):
-    Missing nullability on method `setMessage` return
-MissingNullability: androidx.wear.widget.ConfirmationOverlay#setMessage(String) parameter #0:
-    Missing nullability on parameter `message` in method `setMessage`
-MissingNullability: androidx.wear.widget.ConfirmationOverlay#setType(int):
-    Missing nullability on method `setType` return
-MissingNullability: androidx.wear.widget.ConfirmationOverlay#showAbove(android.view.View) parameter #0:
-    Missing nullability on parameter `view` in method `showAbove`
-MissingNullability: androidx.wear.widget.ConfirmationOverlay#showOn(android.app.Activity) parameter #0:
-    Missing nullability on parameter `activity` in method `showOn`
 MissingNullability: androidx.wear.widget.CurvingLayoutCallback#CurvingLayoutCallback(android.content.Context) parameter #0:
     Missing nullability on parameter `context` in method `CurvingLayoutCallback`
 MissingNullability: androidx.wear.widget.CurvingLayoutCallback#adjustAnchorOffsetXY(android.view.View, float[]) parameter #0:
