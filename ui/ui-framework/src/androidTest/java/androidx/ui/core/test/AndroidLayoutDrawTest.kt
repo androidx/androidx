@@ -1761,6 +1761,34 @@ class AndroidLayoutDrawTest {
         }
     }
 
+    @Test
+    fun alignmentLinesInheritedCorrectlyByParents_withModifiedPosition() {
+        val testLine = HorizontalAlignmentLine(::min)
+        val latch = CountDownLatch(1)
+        val alignmentLinePosition = 10.ipx
+        val padding = 20.ipx
+        activityTestRule.runOnUiThreadIR {
+            activity.setContentInFrameLayout {
+                val child = @Composable {
+                    Wrap {
+                        Layout({}, modifier = PaddingModifier(padding)) { _, _ ->
+                            layout(0.ipx, 0.ipx, mapOf(testLine to alignmentLinePosition)) { }
+                        }
+                    }
+                }
+
+                Layout(child) { measurables, constraints ->
+                    assertEquals(
+                        padding + alignmentLinePosition,
+                        measurables[0].measure(constraints)[testLine]
+                    )
+                    latch.countDown()
+                    layout(0.ipx, 0.ipx) { }
+                }
+            }
+        }
+    }
+
     private fun composeSquares(model: SquareModel) {
         activityTestRule.runOnUiThreadIR {
             activity.setContentInFrameLayout {
