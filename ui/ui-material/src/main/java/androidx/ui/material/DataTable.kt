@@ -383,7 +383,7 @@ fun DataTable(
                         Container(height = headerRowHeight, padding = cellSpacing) {
                             var fontWeight = FontWeight.W500
                             var onSort = null as (() -> Unit)?
-                            var headerDecoration = null as (@Composable() () -> Unit)?
+                            var headerDecoration: @Composable() (() -> Unit)? = null
 
                             if (sorting != null && sorting.sortableColumns.contains(j)) {
                                 if (sorting.column == j) {

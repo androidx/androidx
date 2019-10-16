@@ -95,7 +95,6 @@ fun SelectionContainer(
                 }
             }
         }
-        @Suppress("USELESS_CAST")
         Layout(content, startHandle, endHandle) { measurables, constraints ->
             val placeable = measurables[0].measure(constraints)
             val width = placeable.width

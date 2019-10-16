@@ -80,13 +80,11 @@ import kotlin.math.sqrt
  * used.
  * @param navigationIcon The navigation icon displayed at the start of the TopAppBar
  */
-// TODO: b/137311217 - type inference for nullable lambdas currently doesn't work
-@Suppress("USELESS_CAST")
 @Composable
 fun TopAppBar(
     title: @Composable() () -> Unit,
     color: Color = +themeColor { primary },
-    navigationIcon: @Composable() (() -> Unit)? = null as @Composable() (() -> Unit)?
+    navigationIcon: @Composable() (() -> Unit)? = null
 ) {
     BaseTopAppBar(
         color = color,
@@ -95,7 +93,7 @@ fun TopAppBar(
             // Text color comes from the underlying Surface
             CurrentTextStyleProvider(value = +themeTextStyle { h6 }, children = title)
         },
-        endContent = null as @Composable() (() -> Unit)?
+        endContent = null
     )
 }
 
@@ -123,14 +121,12 @@ fun TopAppBar(
  * will actually be displayed to the user.
  * @param T the type of data in [actionData]
  */
-// TODO: b/137311217 - type inference for nullable lambdas currently doesn't work
-@Suppress("USELESS_CAST")
 @Composable
 fun <T> TopAppBar(
     title: @Composable() () -> Unit,
     actionData: List<T>,
     color: Color = +themeColor { primary },
-    navigationIcon: @Composable() (() -> Unit)? = null as @Composable() (() -> Unit)?,
+    navigationIcon: @Composable() (() -> Unit)? = null,
     action: @Composable() (T) -> Unit
     // TODO: support overflow menu here with the remainder of the list
 ) {
@@ -277,12 +273,10 @@ object BottomAppBar {
  * will actually be displayed to the user.
  * @param T the type of data in [actionData]
  */
-// TODO: b/137311217 - type inference for nullable lambdas currently doesn't work
-@Suppress("USELESS_CAST")
 @Composable
 fun <T> BottomAppBar(
     color: Color = +themeColor { primary },
-    navigationIcon: (@Composable() () -> Unit)? = null as @Composable() (() -> Unit)?,
+    navigationIcon: @Composable() (() -> Unit)? = null,
     fabConfiguration: FabConfiguration? = null,
     actionData: List<T> = emptyList(),
     action: @Composable() (T) -> Unit = {}
@@ -296,7 +290,7 @@ fun <T> BottomAppBar(
         BaseBottomAppBar(
             color = color,
             startContent = navigationIcon,
-            fabContainer = null as @Composable() (() -> Unit)?,
+            fabContainer = null,
             endContent = getActions(actionData, MaxIconsInBottomAppBarNoFab, action)
         )
         return
@@ -331,7 +325,7 @@ fun <T> BottomAppBar(
             color = color,
             startContent = getActions(actionData, MaxIconsInBottomAppBarEndFab, action),
             fabContainer = { FabContainerLayout(Alignment.CenterRight, fab) },
-            endContent = null as @Composable() (() -> Unit)?,
+            endContent = null,
             shape = shape
         )
         FabPosition.Center -> BaseBottomAppBar(
@@ -703,14 +697,13 @@ private fun BaseAppBar(
 /**
  * @return [AppBarActions] if [actionData] is not empty, else `null`
  */
-@Suppress("USELESS_CAST")
 private fun <T> getActions(
     actionData: List<T>,
     numberOfActions: Int,
     action: @Composable() (T) -> Unit
 ): @Composable() (() -> Unit)? {
     return if (actionData.isEmpty()) {
-        null as @Composable() (() -> Unit)?
+        null
     } else {
         @Composable {
             AppBarActions(numberOfActions, actionData, action)

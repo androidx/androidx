@@ -123,16 +123,14 @@ fun ListItem(
  * @param trailing The trailing meta text or meta icon of the list item
  * @param onClick Callback to be invoked when the list item is clicked
  */
-// TODO(popam): b/137311217
-@Suppress("USELESS_CAST")
 @Composable
 fun ListItem(
     text: @Composable() (() -> Unit),
-    icon: @Composable() (() -> Unit)? = null as @Composable() (() -> Unit)?,
-    secondaryText: @Composable() (() -> Unit)? = null as @Composable() (() -> Unit)?,
+    icon: @Composable() (() -> Unit)? = null,
+    secondaryText: @Composable() (() -> Unit)? = null,
     singleLineSecondaryText: Boolean = true,
-    overlineText: @Composable() (() -> Unit)? = null as @Composable() (() -> Unit)?,
-    trailing: @Composable() (() -> Unit)? = null as @Composable() (() -> Unit)?,
+    overlineText: @Composable() (() -> Unit)? = null,
+    trailing: @Composable() (() -> Unit)? = null,
     onClick: (() -> Unit)? = null
 ) {
     val styledText = applyTextStyle(PrimaryTextStyle, text)!!
@@ -476,13 +474,11 @@ private data class ListItemTextStyle(
     val opacity: Float
 )
 
-// TODO(popam): b/137311217
-@Suppress("USELESS_CAST")
 private fun applyTextStyle(
     textStyle: ListItemTextStyle,
     children: @Composable() (() -> Unit)?
 ): @Composable() (() -> Unit)? {
-    if (children == null) return null as @Composable() (() -> Unit)?
+    if (children == null) return null
     return {
         val textColor = (+themeColor(textStyle.color)).copy(alpha = textStyle.opacity)
         val appliedTextStyle = (+themeTextStyle(textStyle.style)).copy(color = textColor)

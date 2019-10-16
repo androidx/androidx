@@ -117,8 +117,6 @@ import androidx.ui.text.style.TextAlign
  * [TabRow.Indicator] between tabs.
  * @param tab the [Tab] to be emitted for the given index and element of type [T] in [items]
  */
-// TODO: b/137311217 - type inference for nullable lambdas currently doesn't work
-@Suppress("USELESS_CAST")
 @Composable
 fun <T> TabRow(
     items: List<T>,
@@ -614,7 +612,6 @@ private fun TabText(text: String, color: Color) {
  * Layout will expand to fit the full height of the tab, and then place the text and icon positioned
  * correctly from the bottom edge of the tab.
  */
-@Suppress("USELESS_CAST")
 @Composable
 private fun TabTextBaselineLayout(
     icon: @Composable() (() -> Unit) = {},

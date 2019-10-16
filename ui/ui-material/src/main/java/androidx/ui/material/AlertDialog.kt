@@ -62,15 +62,13 @@ import androidx.ui.material.surface.Surface
  * SideBySide or Stacked.
  *
  */
-// TODO(b/137311217): type inference for nullable lambdas currently doesn't work
-@Suppress("USELESS_CAST")
 @Composable
 fun AlertDialog(
     onCloseRequest: () -> Unit,
-    title: (@Composable() () -> Unit)? = null as @Composable() (() -> Unit)?,
-    text: (@Composable() () -> Unit),
-    confirmButton: (@Composable() () -> Unit),
-    dismissButton: (@Composable() () -> Unit)? = null as @Composable() (() -> Unit)?,
+    title: @Composable() (() -> Unit)? = null,
+    text: @Composable() () -> Unit,
+    confirmButton: @Composable() () -> Unit,
+    dismissButton: @Composable() (() -> Unit)? = null,
     buttonLayout: AlertDialogButtonLayout = AlertDialogButtonLayout.SideBySide
 ) {
     // TODO: Find a cleaner way to pass the properties of the MaterialTheme
