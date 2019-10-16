@@ -171,6 +171,33 @@ class DialogFragmentDismissTest(
         }
     }
 
+    @Test
+    fun testDismissDestroyedDialog() {
+        val dialogFragment = TestDialogFragment()
+        val fm = activityTestRule.activity.supportFragmentManager
+
+        activityTestRule.runOnUiThread {
+            fm.beginTransaction()
+                .add(dialogFragment, null)
+                .commitNow()
+        }
+
+        val dialog = dialogFragment.requireDialog()
+
+        activityTestRule.runOnUiThread {
+            dialog.dismiss()
+            fm.beginTransaction()
+                .remove(dialogFragment)
+                .commitNow()
+        }
+
+        activityTestRule.runOnUiThread {
+            assertWithMessage("onDismiss should only have been called once")
+                .that(dialogFragment.onDismissCalledCount)
+                .isEqualTo(1)
+        }
+    }
+
     class TestDialogFragment : DialogFragment() {
 
         var onDismissCalledCount = 0

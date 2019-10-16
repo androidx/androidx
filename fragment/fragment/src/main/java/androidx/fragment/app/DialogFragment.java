@@ -94,11 +94,30 @@ public class DialogFragment extends Fragment
     private Runnable mDismissRunnable = new Runnable() {
         @Override
         public void run() {
+            mOnDismissListener.onDismiss(mDialog);
+        }
+    };
+
+    DialogInterface.OnCancelListener mOnCancelListener =
+            new DialogInterface.OnCancelListener() {
+        @Override
+        public void onCancel(@Nullable DialogInterface dialog) {
             if (mDialog != null) {
-                onDismiss(mDialog);
+                DialogFragment.this.onCancel(mDialog);
             }
         }
     };
+
+    DialogInterface.OnDismissListener mOnDismissListener =
+            new DialogInterface.OnDismissListener() {
+        @Override
+        public void onDismiss(@Nullable DialogInterface dialog) {
+            if (mDialog != null) {
+                DialogFragment.this.onDismiss(mDialog);
+            }
+        }
+    };
+
     int mStyle = STYLE_NORMAL;
     int mTheme = 0;
     boolean mCancelable = true;
@@ -473,8 +492,8 @@ public class DialogFragment extends Fragment
             mDialog.setOwnerActivity(activity);
         }
         mDialog.setCancelable(mCancelable);
-        mDialog.setOnCancelListener(this);
-        mDialog.setOnDismissListener(this);
+        mDialog.setOnCancelListener(mOnCancelListener);
+        mDialog.setOnDismissListener(mOnDismissListener);
         if (savedInstanceState != null) {
             Bundle dialogState = savedInstanceState.getBundle(SAVED_DIALOG_STATE_TAG);
             if (dialogState != null) {
