@@ -66,7 +66,7 @@ data class ButtonStyle(
 
 /**
  * Style used to configure a Button to look like a
- * [Material Contained Button][https://material.io/design/components/buttons.html#contained-button].
+ * [Material Contained Button](https://material.io/design/components/buttons.html#contained-button).
  *
  * Contained buttons are high-emphasis, distinguished by their use of elevation and fill. They
  * contain actions that are primary to your app.
@@ -97,7 +97,7 @@ fun ContainedButtonStyle(
 
 /**
  * Style used to configure a Button to look like a
- * [Material Outlined Button][https://material.io/design/components/buttons.html#outlined-button].
+ * [Material Outlined Button](https://material.io/design/components/buttons.html#outlined-button).
  *
  * Outlined buttons are medium-emphasis buttons. They contain actions that are important, but are
  * not the primary action in an app.
@@ -134,7 +134,7 @@ fun OutlinedButtonStyle(
 
 /**
  * Style used to configure a Button to look like a
- * [Material Text Button][https://material.io/design/components/buttons.html#text-button].
+ * [Material Text Button](https://material.io/design/components/buttons.html#text-button).
  *
  * Text buttons are typically used for less-pronounced actions, including those located in cards and
  * dialogs.
@@ -159,7 +159,7 @@ fun TextButtonStyle(
 )
 
 /**
- * Material Design implementation of [Button][https://material.io/design/components/buttons.html].
+ * Material Design implementation of [Button](https://material.io/design/components/buttons.html).
  *
  * To make a button clickable, you must provide an onClick. If no onClick is provided, this button will display
  * itself as disabled.
@@ -194,7 +194,7 @@ fun Button(
 }
 
 /**
- * Material Design implementation of [Button][https://material.io/design/components/buttons.html] that contains some
+ * Material Design implementation of [Button](https://material.io/design/components/buttons.html) that contains some
  * text.
  *
  * To make a button clickable, you must provide an onClick. If no onClick is provided, this button will display

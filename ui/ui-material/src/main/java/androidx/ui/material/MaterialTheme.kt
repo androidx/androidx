@@ -49,10 +49,8 @@ import androidx.ui.text.TextStyle
  *
  * Material components such as [Button] and [Checkbox] use this definition to set default values.
  *
- * It defines colors as specified in the [Material Color theme creation spec]
- * [https://material.io/design/color/the-color-system.html#color-theme-creation] and the typography
- * defined in the [Material Type Scale spec]
- * [https://material.io/design/typography/the-type-system.html#type-scale].
+ * It defines colors as specified in the [Material Color theme creation spec](https://material.io/design/color/the-color-system.html#color-theme-creation)
+ * and the typography defined in the [Material Type Scale spec](https://material.io/design/typography/the-type-system.html#type-scale).
  *
  * All values may be set by providing this component with the [colors][MaterialColors] and
  * [typography][MaterialTypography] attributes. Use this to configure the overall theme of your
@@ -99,8 +97,7 @@ val Colors = Ambient.of<MaterialColors> { error("No colors found!") }
 val Typography = Ambient.of<MaterialTypography> { error("No typography found!") }
 
 /**
- * Data class holding color values as defined by the [Material color specification]
- * [https://material.io/design/color/the-color-system.html#color-theme-creation].
+ * Data class holding color values as defined by the [Material color specification](https://material.io/design/color/the-color-system.html#color-theme-creation).
  */
 data class MaterialColors(
     /**
@@ -163,8 +160,7 @@ data class MaterialColors(
 )
 
 /**
- * Data class holding typography definitions as defined by the [Material typography specification]
- * [https://material.io/design/typography/the-type-system.html#type-scale].
+ * Data class holding typography definitions as defined by the [Material typography specification](https://material.io/design/typography/the-type-system.html#type-scale).
  */
 data class MaterialTypography(
     // TODO(clara): case
