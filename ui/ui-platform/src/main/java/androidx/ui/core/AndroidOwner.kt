@@ -17,11 +17,10 @@ package androidx.ui.core
 
 import android.annotation.TargetApi
 import android.content.Context
+import android.content.pm.ApplicationInfo
 import android.content.res.Configuration
 import android.graphics.RenderNode
 import android.os.Build
-import android.os.Looper
-import android.util.ArrayMap
 import android.util.SparseArray
 import android.view.MotionEvent
 import android.view.View
@@ -33,8 +32,6 @@ import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputConnection
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
-import androidx.compose.ObserverMap
-import androidx.compose.WeakReference
 import androidx.ui.core.input.TextInputServiceAndroid
 import androidx.ui.core.pointerinput.PointerInputEventProcessor
 import androidx.ui.core.pointerinput.toPointerInputEvent
@@ -42,10 +39,6 @@ import androidx.ui.engine.geometry.Outline
 import androidx.ui.input.TextInputService
 import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.Path
-import androidx.compose.frames.FrameCommitObserver
-import androidx.compose.frames.FrameReadObserver
-import androidx.compose.frames.currentFrame
-import androidx.compose.frames.registerCommitObserver
 import androidx.ui.engine.geometry.Rect
 import androidx.ui.engine.geometry.RRect
 import androidx.ui.engine.geometry.Shape
@@ -59,6 +52,7 @@ import androidx.ui.autofill.performAutofill
 import androidx.ui.autofill.populateViewStructure
 import androidx.ui.autofill.registerCallback
 import androidx.ui.autofill.unregisterCallback
+import androidx.ui.core.NodeStagesModelObserver.Stage
 
 @TargetApi(Build.VERSION_CODES.LOLLIPOP)
 class AndroidComposeView constructor(context: Context) :
@@ -72,13 +66,6 @@ class AndroidComposeView constructor(context: Context) :
 
     // LayoutNodes that need measure and layout, the value is true when measure is needed
     private val relayoutNodes = TreeSet<LayoutNode>(DepthComparator)
-
-    // Map of DrawNodes and models used during the last drawing or
-    // LayoutNodes and models used during the last measuring.
-    private val drawMeasureModelMap = NodeModelMap<ComponentNode>()
-
-    // Map of LayoutNodes and models used during the last layout(positioning).
-    private val layoutModelMap = NodeModelMap<LayoutNode>()
 
     // Used by components that want to provide autofill semantic information.
     // TODO: Replace with SemanticsTree: Temporary hack until we have a semantics tree implemented.
@@ -109,9 +96,6 @@ class AndroidComposeView constructor(context: Context) :
     // TODO(mount): reinstate when coroutines are supported by IR compiler
     // private val ownerScope = CoroutineScope(Dispatchers.Main.immediate + Job())
 
-    // Used for tracking which nodes a frame read is applied to
-    internal var currentNode: ComponentNode? = null
-
     // Used for updating the ConfigurationAmbient when configuration changes - consume the
     // configuration ambient instead of changing this observer if you are writing a component that
     // adapts to configuration changes.
@@ -124,41 +108,6 @@ class AndroidComposeView constructor(context: Context) :
 
     override var measureIteration: Long = 1L
         private set
-
-    private val frameReadObserver: FrameReadObserver = { readValue ->
-        if (Looper.getMainLooper() != Looper.myLooper()) {
-            throw IllegalStateException("Frame reads are expected only on the main thread")
-        }
-        val node = currentNode
-        if (node is LayoutNode) {
-            if (node.isMeasuring) {
-                drawMeasureModelMap.add(node, readValue)
-            } else {
-                layoutModelMap.add(node, readValue)
-            }
-        } else if (node is DrawNode) {
-            drawMeasureModelMap.add(node, readValue)
-        } else {
-            throw IllegalStateException(
-                "The model read happened with an unsupported currentNode ($currentNode)"
-            )
-        }
-    }
-
-    private val commitObserver: FrameCommitObserver = { committed ->
-        if (Looper.getMainLooper() == Looper.myLooper()) {
-            onModelsCommitted(committed)
-        } else {
-            val list = ArrayList(committed)
-            post(object : Runnable {
-                override fun run() {
-                    onModelsCommitted(list)
-                }
-            })
-        }
-    }
-
-    var commitUnsubscribe: (() -> Unit)? = null
 
     private val elevationHandler =
         if (Build.VERSION.SDK_INT >= 29) {
@@ -175,6 +124,22 @@ class AndroidComposeView constructor(context: Context) :
      */
     private var duringMeasureLayout = false
 
+    /**
+     * This is true when the apk is build with android:debuggable=true.
+     * We can enable some additional expensive assertions while in debug mode.
+     */
+    private val debugMode = 0 != context.applicationInfo.flags and
+            ApplicationInfo.FLAG_DEBUGGABLE
+
+    private val modelObserver = NodeStagesModelObserver(debugMode) { stage, affectedNode ->
+        when (stage) {
+            Stage.Draw -> (affectedNode as DrawNode).invalidate()
+            Stage.Measure -> requestMeasure(affectedNode as LayoutNode, false)
+            Stage.Layout -> requestRelayout(affectedNode as LayoutNode)
+        }
+    }
+    internal fun isObservingModels() = modelObserver.isObserving
+
     init {
         setWillNotDraw(false)
         isFocusable = true
@@ -183,17 +148,6 @@ class AndroidComposeView constructor(context: Context) :
         }
         isFocusableInTouchMode = true
         clipChildren = false
-    }
-
-    private fun onModelsCommitted(models: Iterable<Any>) {
-        drawMeasureModelMap[models].forEach {
-            if (it is DrawNode) {
-                it.invalidate()
-            } else {
-                requestMeasure(it as LayoutNode, false)
-            }
-        }
-        layoutModelMap[models].forEach { requestRelayout(it) }
     }
 
     override fun onInvalidate(drawNode: DrawNode) {
@@ -354,11 +308,9 @@ class AndroidComposeView constructor(context: Context) :
             }
             is LayoutNode -> {
                 relayoutNodes -= node
-                drawMeasureModelMap.clear(node)
-                layoutModelMap.clear(node)
             }
-            is DrawNode -> drawMeasureModelMap.clear(node)
         }
+        modelObserver.onNodeDetached(node)
     }
 
     /**
@@ -372,9 +324,8 @@ class AndroidComposeView constructor(context: Context) :
             try {
                 duringMeasureLayout = true
                 measureIteration++
-                val frame = currentFrame()
                 val topNode = relayoutNodes.firstOrNull()
-                frame.observeReads(frameReadObserver) {
+                modelObserver.observeReads {
                     relayoutNodes.forEach { layoutNode ->
                         if (layoutNode.needsRemeasure) {
                             val parent = layoutNode.parentLayoutNode
@@ -417,10 +368,8 @@ class AndroidComposeView constructor(context: Context) :
 
             this.constraints = constraints
 
-            // commit the current frame
-            val frame = currentFrame()
             measureIteration++
-            frame.observeReads(frameReadObserver) {
+            modelObserver.observeReads {
                 root.measure(constraints)
             }
             setMeasuredDimension(root.width.value, root.height.value)
@@ -428,21 +377,19 @@ class AndroidComposeView constructor(context: Context) :
     }
 
     override fun onEndLayout(layoutNode: LayoutNode) {
-        currentNode = layoutNode.parentLayoutNode // TODO(mount): make this smarter
+        modelObserver.afterStage(Stage.Layout, layoutNode)
     }
 
     override fun onEndMeasure(layoutNode: LayoutNode) {
-        currentNode = layoutNode.parentLayoutNode // TODO(mount): make this smarter
+        modelObserver.afterStage(Stage.Measure, layoutNode)
     }
 
     override fun onStartLayout(layoutNode: LayoutNode) {
-        currentNode = layoutNode
-        layoutModelMap.clear(layoutNode)
+        modelObserver.beforeStage(Stage.Layout, layoutNode)
     }
 
     override fun onStartMeasure(layoutNode: LayoutNode) {
-        currentNode = layoutNode
-        drawMeasureModelMap.clear(layoutNode)
+        modelObserver.beforeStage(Stage.Measure, layoutNode)
     }
 
     override fun onLayout(changed: Boolean, l: Int, t: Int, r: Int, b: Int) {
@@ -461,34 +408,32 @@ class AndroidComposeView constructor(context: Context) :
         trace("AndroidOwner:callDraw") {
             when (node) {
                 is DrawNode -> {
-                    val previousNode = currentNode
-                    currentNode = node
-                    drawMeasureModelMap.clear(node)
-                    val onPaintWithChildren = node.onPaintWithChildren
-                    if (onPaintWithChildren != null) {
-                        val ownerData = node.ownerData
-                        val receiver: DrawReceiverImpl
-                        if (ownerData == null) {
-                            receiver =
-                                DrawReceiverImpl(node, canvas, parentSize, density)
-                            node.ownerData = receiver
+                    modelObserver.stage(Stage.Draw, node) {
+                        val onPaintWithChildren = node.onPaintWithChildren
+                        if (onPaintWithChildren != null) {
+                            val ownerData = node.ownerData
+                            val receiver: DrawReceiverImpl
+                            if (ownerData == null) {
+                                receiver =
+                                    DrawReceiverImpl(node, canvas, parentSize, density)
+                                node.ownerData = receiver
+                            } else {
+                                receiver = ownerData as DrawReceiverImpl
+                                receiver.childDrawn = false
+                                receiver.canvas = canvas
+                                receiver.parentSize = parentSize
+                                receiver.density = density
+                            }
+                            onPaintWithChildren(receiver, canvas, parentSize)
+                            if (!receiver.childDrawn) {
+                                receiver.drawChildren()
+                            }
                         } else {
-                            receiver = ownerData as DrawReceiverImpl
-                            receiver.childDrawn = false
-                            receiver.canvas = canvas
-                            receiver.parentSize = parentSize
-                            receiver.density = density
+                            val onPaint = node.onPaint!!
+                            this.onPaint(canvas, parentSize)
                         }
-                        onPaintWithChildren(receiver, canvas, parentSize)
-                        if (!receiver.childDrawn) {
-                            receiver.drawChildren()
-                        }
-                    } else {
-                        val onPaint = node.onPaint!!
-                        this.onPaint(canvas, parentSize)
+                        node.needsPaint = false
                     }
-                    node.needsPaint = false
-                    currentNode = previousNode
                 }
                 is RepaintBoundaryNode -> {
                     val container = node.container
@@ -563,10 +508,7 @@ class AndroidComposeView constructor(context: Context) :
      */
     internal fun watchDraw(canvas: android.graphics.Canvas, node: ComponentNode) {
         trace("AndroidOwner:draw") {
-            currentNode = node
-            // Start looking for model changes:
-            val frame = currentFrame()
-            frame.observeReads(frameReadObserver) {
+            modelObserver.observeReads {
                 callChildDraw(canvas, node)
                 if (dirtyRepaintBoundaryNodes.isNotEmpty()) {
                     dirtyRepaintBoundaryNodes.forEach { node ->
@@ -575,20 +517,19 @@ class AndroidComposeView constructor(context: Context) :
                     dirtyRepaintBoundaryNodes.clear()
                 }
             }
-            currentNode = null
         }
     }
 
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
-        commitUnsubscribe = registerCommitObserver(commitObserver)
+        modelObserver.enableModelUpdatesObserving(true)
         ifDebug { if (autofillSupported()) _autofill?.registerCallback() }
         root.attach(this)
     }
 
     override fun onDetachedFromWindow() {
         super.onDetachedFromWindow()
-        commitUnsubscribe?.invoke()
+        modelObserver.enableModelUpdatesObserving(false)
         ifDebug { if (autofillSupported()) _autofill?.unregisterCallback() }
         root.detach()
     }
@@ -890,7 +831,7 @@ private class RepaintBoundaryView(
             canvas.save()
             canvas.clipPath(clipPath)
         }
-        if (ownerView.currentNode == null) {
+        if (!ownerView.isObservingModels()) {
             // Only this repaint boundary was invalidated and nothing higher in the view hierarchy.
             // We must observe changes
             ownerView.watchDraw(canvas, repaintBoundaryNode)
@@ -1194,36 +1135,6 @@ private class ElevationHandlerCompat(
             true
         } else {
             false
-        }
-    }
-}
-
-/**
- * Holder for two ObserverMaps both from model to nodes and from nodes to models.
- */
-private class NodeModelMap<T : ComponentNode> {
-    private val modelToNodes = ObserverMap<Any, T>()
-    // This map assumes hashCode() of ComponentNode implementations are not changing
-    // during the lifetime of the object.
-    private val nodeToModels = ArrayMap<T, MutableList<WeakReference<Any>>>()
-
-    fun add(node: T, readValue: Any) {
-        modelToNodes.add(readValue, node)
-        nodeToModels
-            // don't use Set here as we don't control the hashCode() of models
-            .getOrPut(node) { mutableListOf() }
-            .add(WeakReference(readValue))
-    }
-
-    operator fun get(keys: Iterable<Any>): List<T> {
-        return modelToNodes[keys]
-    }
-
-    fun clear(node: T) {
-        nodeToModels.remove(node)?.forEach { weakRefModel ->
-            weakRefModel.get()?.let {
-                modelToNodes.remove(it, node)
-            }
         }
     }
 }
