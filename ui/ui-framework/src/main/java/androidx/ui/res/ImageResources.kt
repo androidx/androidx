@@ -16,11 +16,12 @@
 
 package androidx.ui.res
 
+import android.util.TypedValue
 import androidx.annotation.CheckResult
 import androidx.annotation.DrawableRes
-import androidx.compose.Composable
 import androidx.compose.ambient
 import androidx.compose.effectOf
+import androidx.compose.memo
 import androidx.ui.core.ContextAmbient
 import androidx.ui.graphics.Image
 import androidx.ui.graphics.imageFromResource
@@ -36,5 +37,10 @@ import androidx.ui.graphics.imageFromResource
 @CheckResult(suggest = "+")
 fun imageResource(@DrawableRes id: Int) = effectOf<Image> {
     val context = +ambient(ContextAmbient)
-    imageFromResource(context.resources, id)
+    val value = +memo { TypedValue() }
+    context.resources.getValue(id, value, true)
+    // We use the file path as a key of the request cache.
+    // TODO(nona): Add density to the key?
+    val key = value.string?.toString()
+    +memo(key) { imageFromResource(context.resources, id) }
 }
