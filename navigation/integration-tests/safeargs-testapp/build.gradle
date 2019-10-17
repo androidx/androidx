@@ -32,7 +32,7 @@ buildscript {
         }
     }
     dependencies {
-        classpath build_libs.gradle
+        classpath build_libs.agp
         classpath "${LibraryGroups.NAVIGATION}:navigation-safe-args-gradle-plugin:${LibraryVersions.NAVIGATION}"
     }
 }
