@@ -19,6 +19,7 @@ package androidx.ui.text.samples
 import androidx.annotation.Sampled
 import androidx.compose.Composable
 import androidx.ui.core.Text
+import androidx.ui.core.em
 import androidx.ui.core.sp
 import androidx.ui.graphics.Color
 import androidx.ui.text.TextStyle
@@ -38,7 +39,7 @@ fun TextStyleSample() {
             fontFamily = FontFamily.Monospace,
             fontWeight = FontWeight.W800,
             fontStyle = FontStyle.Italic,
-            letterSpacing = 0.5f,
+            letterSpacing = 0.5.em,
             background = Color.LightGray,
             decoration = TextDecoration.Underline
         )

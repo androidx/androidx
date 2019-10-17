@@ -98,7 +98,7 @@ internal fun TextPaint.applyTextStyle(
     }
 
     style.letterSpacing?.let {
-        letterSpacing = it
+        letterSpacing = it.value
     }
 
     style.fontFeatureSettings?.let {
@@ -283,7 +283,7 @@ internal fun createStyledText(
         // TODO(haoyuchang): support letter spacing with pixel.
         style.letterSpacing?.let {
             spannableString.setSpan(
-                LetterSpacingSpan(it),
+                LetterSpacingSpan(it.value),
                 start,
                 end,
                 Spanned.SPAN_EXCLUSIVE_EXCLUSIVE

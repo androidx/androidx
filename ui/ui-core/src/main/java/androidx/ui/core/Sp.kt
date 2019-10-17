@@ -152,7 +152,7 @@ inline fun Sp.coerceAtMost(maximumValue: Sp): Sp =
     Sp(value = value.coerceAtMost(maximumValue.value))
 
 /**
- * Linearly interpolate between two [Dp]s.
+ * Linearly interpolate between two [Sp]s.
  *
  * The [fraction] argument represents position on the timeline, with 0.0 meaning
  * that the interpolation has not started, returning [start] (or something
