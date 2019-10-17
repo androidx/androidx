@@ -81,7 +81,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * <p>Capture requests will be issued only for use cases which are in both the online and active
  * state.
  */
-final class Camera implements BaseCamera {
+final class Camera2CameraImpl implements BaseCamera {
     private static final String TAG = "Camera";
     private static final int ERROR_NONE = 0;
 
@@ -168,7 +168,7 @@ final class Camera implements BaseCamera {
      * @param handler                    the handler for the thread on which all camera
      *                                   operations run
      */
-    Camera(CameraManagerCompat cameraManager, String cameraId,
+    Camera2CameraImpl(CameraManagerCompat cameraManager, String cameraId,
             @NonNull Observable<Integer> availableCamerasObservable, Handler handler) {
         mCameraManager = cameraManager;
         mCameraId = cameraId;
@@ -213,7 +213,7 @@ final class Camera implements BaseCamera {
             mHandler.post(new Runnable() {
                 @Override
                 public void run() {
-                    Camera.this.open();
+                    Camera2CameraImpl.this.open();
                 }
             });
             return;
@@ -255,7 +255,7 @@ final class Camera implements BaseCamera {
             mHandler.post(new Runnable() {
                 @Override
                 public void run() {
-                    Camera.this.close();
+                    Camera2CameraImpl.this.close();
                 }
             });
             return;
@@ -472,7 +472,7 @@ final class Camera implements BaseCamera {
             mHandler.post(new Runnable() {
                 @Override
                 public void run() {
-                    Camera.this.releaseInternal();
+                    Camera2CameraImpl.this.releaseInternal();
                 }
             });
         } else {
@@ -529,7 +529,7 @@ final class Camera implements BaseCamera {
                                         "Camera can only be released once, so release completer "
                                                 + "should be null on creation.");
                                 mUserReleaseNotifier = completer;
-                                return "Release[camera=" + Camera.this + "]";
+                                return "Release[camera=" + Camera2CameraImpl.this + "]";
                             }
                         });
             } else {
@@ -552,7 +552,7 @@ final class Camera implements BaseCamera {
             mHandler.post(new Runnable() {
                 @Override
                 public void run() {
-                    Camera.this.onUseCaseActive(useCase);
+                    Camera2CameraImpl.this.onUseCaseActive(useCase);
                 }
             });
             return;
@@ -575,7 +575,7 @@ final class Camera implements BaseCamera {
             mHandler.post(new Runnable() {
                 @Override
                 public void run() {
-                    Camera.this.onUseCaseInactive(useCase);
+                    Camera2CameraImpl.this.onUseCaseInactive(useCase);
                 }
             });
             return;
@@ -596,7 +596,7 @@ final class Camera implements BaseCamera {
             mHandler.post(new Runnable() {
                 @Override
                 public void run() {
-                    Camera.this.onUseCaseUpdated(useCase);
+                    Camera2CameraImpl.this.onUseCaseUpdated(useCase);
                 }
             });
             return;
@@ -617,7 +617,7 @@ final class Camera implements BaseCamera {
             mHandler.post(new Runnable() {
                 @Override
                 public void run() {
-                    Camera.this.onUseCaseReset(useCase);
+                    Camera2CameraImpl.this.onUseCaseReset(useCase);
                 }
             });
             return;
@@ -714,7 +714,7 @@ final class Camera implements BaseCamera {
             mHandler.post(new Runnable() {
                 @Override
                 public void run() {
-                    Camera.this.addOnlineUseCase(useCases);
+                    Camera2CameraImpl.this.addOnlineUseCase(useCases);
                 }
             });
             return;
@@ -778,7 +778,7 @@ final class Camera implements BaseCamera {
             mHandler.post(new Runnable() {
                 @Override
                 public void run() {
-                    Camera.this.removeOnlineUseCase(useCases);
+                    Camera2CameraImpl.this.removeOnlineUseCase(useCases);
                 }
             });
             return;
