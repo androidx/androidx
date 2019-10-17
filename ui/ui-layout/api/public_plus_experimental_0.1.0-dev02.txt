@@ -1,29 +1,6 @@
 // Signature format: 3.0
 package androidx.ui.layout {
 
-  public final class AbsolutePadding implements androidx.ui.core.LayoutModifier {
-    ctor public AbsolutePadding(androidx.ui.core.Dp left, androidx.ui.core.Dp top, androidx.ui.core.Dp right, androidx.ui.core.Dp bottom);
-    ctor public AbsolutePadding();
-    method public androidx.ui.core.Dp component1();
-    method public androidx.ui.core.Dp component2();
-    method public androidx.ui.core.Dp component3();
-    method public androidx.ui.core.Dp component4();
-    method public androidx.ui.layout.AbsolutePadding copy(androidx.ui.core.Dp left, androidx.ui.core.Dp top, androidx.ui.core.Dp right, androidx.ui.core.Dp bottom);
-    method public androidx.ui.core.Dp getBottom();
-    method public androidx.ui.core.Dp getLeft();
-    method public androidx.ui.core.Dp getRight();
-    method public androidx.ui.core.Dp getTop();
-    method public androidx.ui.core.IntPx maxIntrinsicHeightOf(androidx.ui.core.DensityScope, androidx.ui.core.Measurable measurable, androidx.ui.core.IntPx width);
-    method public androidx.ui.core.IntPx maxIntrinsicWidthOf(androidx.ui.core.DensityScope, androidx.ui.core.Measurable measurable, androidx.ui.core.IntPx height);
-    method public androidx.ui.core.IntPx minIntrinsicHeightOf(androidx.ui.core.DensityScope, androidx.ui.core.Measurable measurable, androidx.ui.core.IntPx width);
-    method public androidx.ui.core.IntPx minIntrinsicWidthOf(androidx.ui.core.DensityScope, androidx.ui.core.Measurable measurable, androidx.ui.core.IntPx height);
-    method public androidx.ui.core.IntPx? modifyAlignmentLine(androidx.ui.core.DensityScope, androidx.ui.core.AlignmentLine line, androidx.ui.core.IntPx? value);
-    method public androidx.ui.core.Constraints modifyConstraints(androidx.ui.core.DensityScope, androidx.ui.core.Constraints constraints);
-    method public Object? modifyParentData(androidx.ui.core.DensityScope, Object? parentData);
-    method public androidx.ui.core.IntPxPosition modifyPosition(androidx.ui.core.DensityScope, androidx.ui.core.IntPxPosition childPosition, androidx.ui.core.IntPxSize childSize, androidx.ui.core.IntPxSize containerSize);
-    method public androidx.ui.core.IntPxSize modifySize(androidx.ui.core.DensityScope, androidx.ui.core.Constraints constraints, androidx.ui.core.IntPxSize childSize);
-  }
-
   public final class AlignKt {
     ctor public AlignKt();
     method public static void Align(androidx.ui.core.Alignment alignment, kotlin.jvm.functions.Function0<kotlin.Unit> children);
@@ -185,21 +162,20 @@ package androidx.ui.layout {
     enum_constant public static final androidx.ui.layout.MainAxisAlignment Start;
   }
 
-  public final class PaddingKt {
-    ctor public PaddingKt();
-    method public static void Padding(androidx.ui.layout.EdgeInsets padding, kotlin.jvm.functions.Function0<kotlin.Unit> children);
-    method public static void Padding(androidx.ui.core.Dp left = 0.dp, androidx.ui.core.Dp top = 0.dp, androidx.ui.core.Dp right = 0.dp, androidx.ui.core.Dp bottom = 0.dp, kotlin.jvm.functions.Function0<kotlin.Unit> children);
-    method public static void Padding(androidx.ui.core.Dp padding, kotlin.jvm.functions.Function0<kotlin.Unit> children);
-    method public static androidx.ui.layout.AbsolutePadding absolutePadding(androidx.ui.core.Dp left = 0.dp, androidx.ui.core.Dp top = 0.dp, androidx.ui.core.Dp right = 0.dp, androidx.ui.core.Dp bottom = 0.dp);
-    method public static androidx.ui.layout.AbsolutePadding padding(androidx.ui.core.Dp all = 0.dp);
-    method public static androidx.ui.layout.AbsolutePadding padding(androidx.ui.core.Dp horizontal = 0.dp, androidx.ui.core.Dp vertical = 0.dp);
-  }
-
   public final class SpacerKt {
     ctor public SpacerKt();
     method public static void FixedSpacer(androidx.ui.core.Dp width, androidx.ui.core.Dp height);
     method public static void HeightSpacer(androidx.ui.core.Dp height);
     method public static void WidthSpacer(androidx.ui.core.Dp width);
+  }
+
+  public final class SpacingKt {
+    ctor public SpacingKt();
+    method public static void Padding(androidx.ui.layout.EdgeInsets padding, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method public static void Padding(androidx.ui.core.Dp left = 0.dp, androidx.ui.core.Dp top = 0.dp, androidx.ui.core.Dp right = 0.dp, androidx.ui.core.Dp bottom = 0.dp, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method public static void Padding(androidx.ui.core.Dp padding, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method public static androidx.ui.core.LayoutModifier Spacing(androidx.ui.core.Dp left = 0.dp, androidx.ui.core.Dp top = 0.dp, androidx.ui.core.Dp right = 0.dp, androidx.ui.core.Dp bottom = 0.dp);
+    method public static androidx.ui.core.LayoutModifier Spacing(androidx.ui.core.Dp all = 0.dp);
   }
 
   public final class StackChildren {
