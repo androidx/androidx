@@ -2284,18 +2284,19 @@ class MultiParagraphIntegrationTest {
             val text = "abc"
             val fontSize = 20.sp
             val fontSizeInPx = fontSize.toPx().value
-            val indent = 20.0f
+            val indent = 20.sp
+            val indentInPx = indent.toPx().value
 
             val paragraph = simpleMultiParagraph(
                 text = text,
-                textIndent = TextIndent(firstLine = indent.px),
+                textIndent = TextIndent(firstLine = indent),
                 fontSize = fontSize,
                 fontFamily = fontFamilyMeasureFont
             )
 
             // This position should point to the first character 'a' if indent is applied.
             // Otherwise this position will point to the second character 'b'.
-            val position = PxPosition((indent + 1).px, (fontSizeInPx / 2).px)
+            val position = PxPosition((indentInPx + 1).px, (fontSizeInPx / 2).px)
             // The offset corresponding to the position should be the first char 'a'.
             assertThat(paragraph.getOffsetForPosition(position)).isZero()
         }
@@ -2307,12 +2308,13 @@ class MultiParagraphIntegrationTest {
             val text = "abcdef"
             val fontSize = 20.sp
             val fontSizeInPx = fontSize.toPx().value
-            val indent = 20.0f
+            val indent = 20.sp
+            val indentInPx = indent.toPx().value
             val paragraphWidth = "abcd".length * fontSizeInPx
 
             val paragraph = simpleMultiParagraph(
                 text = text,
-                textIndent = TextIndent(firstLine = indent.px),
+                textIndent = TextIndent(firstLine = indent),
                 fontSize = fontSize,
                 fontFamily = fontFamilyMeasureFont,
                 constraints = ParagraphConstraints(width = paragraphWidth)
@@ -2321,7 +2323,7 @@ class MultiParagraphIntegrationTest {
             assertThat(paragraph.lineCount).isEqualTo(2)
             // This position should point to the first character of the first line if indent is
             // applied. Otherwise this position will point to the second character of the second line.
-            val position = PxPosition((indent + 1).px, (fontSizeInPx / 2).px)
+            val position = PxPosition((indentInPx + 1).px, (fontSizeInPx / 2).px)
             // The offset corresponding to the position should be the first char 'a'.
             assertThat(paragraph.getOffsetForPosition(position)).isZero()
         }
@@ -2333,14 +2335,15 @@ class MultiParagraphIntegrationTest {
             val text = "abcde"
             val fontSize = 20.sp
             val fontSizeInPx = fontSize.toPx().value
-            val indent = 20.0f
+            val indent = 20.sp
+            val indentInPx = indent.toPx().value
             val paragraphWidth = "abc".length * fontSizeInPx
 
             val paragraph = simpleMultiParagraph(
                 text = text,
                 textIndent = TextIndent(
-                    firstLine = 0.px,
-                    restLine = indent.px
+                    firstLine = 0.sp,
+                    restLine = indent
                 ),
                 fontSize = fontSize,
                 fontFamily = fontFamilyMeasureFont,
@@ -2349,7 +2352,7 @@ class MultiParagraphIntegrationTest {
 
             // This position should point to the first character of the second line if indent is
             // applied. Otherwise this position will point to the second character of the second line.
-            val position = PxPosition((indent + 1).px, (fontSizeInPx / 2 + fontSizeInPx).px)
+            val position = PxPosition((indentInPx + 1).px, (fontSizeInPx / 2 + fontSizeInPx).px)
             // The offset corresponding to the position should be the 'd' in the second line.
             assertThat(paragraph.getOffsetForPosition(position)).isEqualTo("abcd".length - 1)
         }

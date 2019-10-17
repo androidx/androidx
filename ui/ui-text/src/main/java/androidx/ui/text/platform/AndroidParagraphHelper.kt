@@ -43,7 +43,7 @@ import androidx.text.style.SkewXSpan
 import androidx.text.style.TypefaceSpan
 import androidx.ui.core.Density
 import androidx.ui.core.Sp
-import androidx.ui.core.px
+import androidx.ui.core.sp
 import androidx.ui.core.withDensity
 import androidx.ui.graphics.toArgb
 import androidx.ui.text.AnnotatedString
@@ -162,16 +162,18 @@ internal fun createStyledText(
     }
 
     textIndent?.let { indent ->
-        if (indent.firstLine == 0.px && indent.restLine == 0.px) return@let
-        spannableString.setSpan(
-            LeadingMarginSpan.Standard(
-                indent.firstLine.value.toInt(),
-                indent.restLine.value.toInt()
-            ),
-            0,
-            text.length,
-            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
-        )
+        if (indent.firstLine == 0.sp && indent.restLine == 0.sp) return@let
+        withDensity(density) {
+            spannableString.setSpan(
+                LeadingMarginSpan.Standard(
+                    indent.firstLine.toPx().value.toInt(),
+                    indent.restLine.toPx().value.toInt()
+                ),
+                0,
+                text.length,
+                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+            )
+        }
     }
 
     for (textStyle in textStyles) {
