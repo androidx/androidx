@@ -33,8 +33,6 @@ import android.view.Surface;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
-import androidx.annotation.RestrictTo.Scope;
 import androidx.annotation.WorkerThread;
 import androidx.camera.camera2.impl.compat.CameraManagerCompat;
 import androidx.camera.core.BaseCamera;
@@ -53,6 +51,7 @@ import androidx.camera.core.SessionConfig.ValidatingBuilder;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.UseCaseAttachState;
 import androidx.camera.core.impl.LiveDataObservable;
+import androidx.camera.core.impl.annotation.ExecutedBy;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.impl.utils.futures.FutureCallback;
 import androidx.camera.core.impl.utils.futures.Futures;
@@ -136,7 +135,8 @@ final class Camera implements BaseCamera {
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     CaptureSession mCaptureSession;
     /** The session configuration of camera control. */
-    private SessionConfig mCameraControlSessionConfig = SessionConfig.defaultEmptySessionConfig();
+    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+    SessionConfig mCameraControlSessionConfig = SessionConfig.defaultEmptySessionConfig();
 
     private final Object mPendingLock = new Object();
     @GuardedBy("mPendingLock")
@@ -183,7 +183,7 @@ final class Camera implements BaseCamera {
             CameraCharacteristics cameraCharacteristics =
                     mCameraManager.unwrap().getCameraCharacteristics(mCameraId);
             mCameraControlInternal = new Camera2CameraControl(cameraCharacteristics,
-                    this, executorScheduler, executorScheduler);
+                new ControlUpdateListenerInternal(), executorScheduler, executorScheduler);
             @SuppressWarnings("ConstantConditions") /* characteristic on all devices */
             int supportedHardwareLevel = cameraCharacteristics.get(
                     CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL);
@@ -857,7 +857,10 @@ final class Camera implements BaseCamera {
     }
 
     /** Updates the capture request configuration for the current capture session. */
-    private void updateCaptureSessionConfig() {
+    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+    @ExecutedBy("mHandler") // TODO(b/115747543): mExecutor currently wraps mHandler, so this
+    // handles mExecutor and mHandler. Replace with mExecutor once mHandler is removed.
+    void updateCaptureSessionConfig() {
         ValidatingBuilder validatingBuilder;
         synchronized (mAttachedUseCaseLock) {
             validatingBuilder = mUseCaseAttachState.getActiveAndOnlineBuilder();
@@ -1009,21 +1012,10 @@ final class Camera implements BaseCamera {
      * Submits capture requests
      *
      * @param captureConfigs capture configuration used for creating CaptureRequest
-     * @hide
      */
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-    @RestrictTo(Scope.LIBRARY_GROUP)
-    void submitCaptureRequests(final List<CaptureConfig> captureConfigs) {
-        if (Looper.myLooper() != mHandler.getLooper()) {
-            mHandler.post(new Runnable() {
-                @Override
-                public void run() {
-                    Camera.this.submitCaptureRequests(captureConfigs);
-                }
-            });
-            return;
-        }
-
+    @ExecutedBy("mExecutor")
+    void submitCaptureRequests(@NonNull List<CaptureConfig> captureConfigs) {
         List<CaptureConfig> captureConfigsWithSurface = new ArrayList<>();
         for (CaptureConfig captureConfig : captureConfigs) {
             // Recreates the Builder to add extra config needed
@@ -1043,19 +1035,6 @@ final class Camera implements BaseCamera {
         Log.d(TAG, "issue capture request for camera " + mCameraId);
 
         mCaptureSession.issueCaptureRequests(captureConfigsWithSurface);
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public void onCameraControlUpdateSessionConfig(@NonNull SessionConfig sessionConfig) {
-        mCameraControlSessionConfig = sessionConfig;
-        updateCaptureSessionConfig();
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public void onCameraControlCaptureRequests(@NonNull List<CaptureConfig> captureConfigs) {
-        submitCaptureRequests(captureConfigs);
     }
 
     @NonNull
@@ -1394,6 +1373,23 @@ final class Camera implements BaseCamera {
          */
         boolean isCameraAvailable() {
             return mCameraAvailable && mNumAvailableCameras > 0;
+        }
+    }
+
+    final class ControlUpdateListenerInternal implements
+            CameraControlInternal.ControlUpdateCallback {
+
+        @ExecutedBy("mExecutor")
+        @Override
+        public void onCameraControlUpdateSessionConfig(@NonNull SessionConfig sessionConfig) {
+            mCameraControlSessionConfig = Preconditions.checkNotNull(sessionConfig);
+            updateCaptureSessionConfig();
+        }
+
+        @ExecutedBy("mExecutor")
+        @Override
+        public void onCameraControlCaptureRequests(@NonNull List<CaptureConfig> captureConfigs) {
+            submitCaptureRequests(Preconditions.checkNotNull(captureConfigs));
         }
     }
 }
