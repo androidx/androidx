@@ -355,7 +355,12 @@ class ComponentNodeTest {
         val owner = mock(Owner::class.java)
         node.attach(owner)
         verify(owner, times(0)).onSizeChange(node)
-        node.layout(10.ipx, 10.ipx) {}
+        node.handleLayoutResult(object : MeasureScope.LayoutResult {
+            override val width: IntPx = 10.ipx
+            override val height: IntPx = 10.ipx
+            override val alignmentLines: Map<AlignmentLine, IntPx> = emptyMap()
+            override fun placeChildren(placementScope: Placeable.PlacementScope) { }
+        })
         verify(owner, times(1)).onSizeChange(node)
     }
 

@@ -138,16 +138,16 @@ package androidx.ui.core {
     property public final kotlin.jvm.functions.Function3<androidx.ui.core.DrawReceiver,androidx.ui.graphics.Canvas,androidx.ui.core.PxSize,kotlin.Unit>? onPaintWithChildren;
   }
 
-  public final class LayoutNode extends androidx.ui.core.ComponentNode implements androidx.ui.core.Measurable androidx.ui.core.MeasureScope {
+  public final class LayoutNode extends androidx.ui.core.ComponentNode implements androidx.ui.core.Measurable {
     ctor public LayoutNode();
     method public boolean getAffectsParentSize();
     method public androidx.ui.core.Constraints getConstraints();
     method public androidx.ui.core.IntPxPosition getContentPosition();
     method public androidx.ui.core.IntPxSize getContentSize();
-    method public androidx.ui.core.Density getDensity();
     method public androidx.ui.core.IntPx getHeight();
     method public java.util.List<androidx.ui.core.LayoutNode> getLayoutChildren();
     method public androidx.ui.core.LayoutNode.MeasureBlocks getMeasureBlocks();
+    method public androidx.ui.core.MeasureScope getMeasureScope();
     method public androidx.ui.core.IntPxPosition getModifiedPosition();
     method public androidx.ui.core.IntPxSize getModifiedSize();
     method public androidx.ui.core.Modifier getModifier();
@@ -161,7 +161,6 @@ package androidx.ui.core {
     method public androidx.ui.core.IntPx getY();
     method public boolean isMeasuring();
     method public boolean isPlaced();
-    method public androidx.ui.core.MeasureScope.LayoutResult layout(androidx.ui.core.IntPx width, androidx.ui.core.IntPx height, java.util.Map<androidx.ui.core.AlignmentLine,androidx.ui.core.IntPx> alignmentLines, kotlin.jvm.functions.Function1<? super androidx.ui.core.Placeable.PlacementScope,kotlin.Unit> placementBlock);
     method public androidx.ui.core.IntPx maxIntrinsicHeight(androidx.ui.core.IntPx width);
     method public androidx.ui.core.IntPx maxIntrinsicWidth(androidx.ui.core.IntPx height);
     method public androidx.ui.core.Placeable measure(androidx.ui.core.Constraints constraints);
@@ -184,12 +183,12 @@ package androidx.ui.core {
     property protected androidx.ui.core.LayoutNode? containingLayoutNode;
     property public final androidx.ui.core.IntPxPosition contentPosition;
     property public final androidx.ui.core.IntPxSize contentSize;
-    property public androidx.ui.core.Density density;
     property public final androidx.ui.core.IntPx height;
     property public final boolean isMeasuring;
     property public final boolean isPlaced;
     property public final java.util.List<androidx.ui.core.LayoutNode> layoutChildren;
     property public final androidx.ui.core.LayoutNode.MeasureBlocks measureBlocks;
+    property public final androidx.ui.core.MeasureScope measureScope;
     property public final androidx.ui.core.IntPxPosition modifiedPosition;
     property public final androidx.ui.core.IntPxSize modifiedSize;
     property public final androidx.ui.core.Modifier modifier;
@@ -202,6 +201,12 @@ package androidx.ui.core {
     property public final androidx.ui.core.IntPx width;
     property public final androidx.ui.core.IntPx x;
     property public final androidx.ui.core.IntPx y;
+  }
+
+  public abstract static class LayoutNode.InnerMeasureScope extends androidx.ui.core.MeasureScope {
+    ctor public LayoutNode.InnerMeasureScope();
+    method public abstract androidx.ui.core.LayoutNode getLayoutNode();
+    property public abstract androidx.ui.core.LayoutNode layoutNode;
   }
 
   public static interface LayoutNode.MeasureBlocks {

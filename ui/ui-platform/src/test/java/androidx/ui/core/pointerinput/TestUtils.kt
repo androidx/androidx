@@ -16,7 +16,11 @@
 
 package androidx.ui.core.pointerinput
 
+import androidx.ui.core.AlignmentLine
+import androidx.ui.core.IntPx
 import androidx.ui.core.IntPxPosition
+import androidx.ui.core.MeasureScope
+import androidx.ui.core.Placeable
 import androidx.ui.core.PointerEventPass
 import androidx.ui.core.PointerInputChange
 import androidx.ui.core.PointerInputHandler
@@ -42,7 +46,12 @@ open class MyPointerInputHandler : PointerInputHandler {
 
 internal fun LayoutNode(x: Int, y: Int, x2: Int, y2: Int) =
     androidx.ui.core.LayoutNode().apply {
-        layout(x2.ipx - x.ipx, y2.ipx - y.ipx) {}
+        handleLayoutResult(object : MeasureScope.LayoutResult {
+            override val width: IntPx = x2.ipx - x.ipx
+            override val height: IntPx = y2.ipx - y.ipx
+            override val alignmentLines: Map<AlignmentLine, IntPx> = emptyMap()
+            override fun placeChildren(placementScope: Placeable.PlacementScope) { }
+        })
         place(x.ipx, y.ipx)
     }
 
