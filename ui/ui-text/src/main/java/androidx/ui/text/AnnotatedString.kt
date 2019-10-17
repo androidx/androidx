@@ -604,6 +604,36 @@ fun AnnotatedString.subSequence(start: Int, end: Int): AnnotatedString {
 }
 
 /**
+ * Create an AnnotatedString with a [textStyle] that will apply to the whole text.
+ *
+ * @param textStyle [TextStyle] to be applied to whole text
+ * @param paragraphStyle [ParagraphStyle] to be applied to whole text
+ */
+fun AnnotatedString(
+    text: String,
+    textStyle: TextStyle,
+    paragraphStyle: ParagraphStyle? = null
+): AnnotatedString = AnnotatedString(
+    text,
+    listOf(Item(textStyle, 0, text.length)),
+    if (paragraphStyle == null) listOf() else listOf(Item(paragraphStyle, 0, text.length))
+)
+
+/**
+ * Create an AnnotatedString with a [paragraphStyle] that will apply to the whole text.
+ *
+ * @param paragraphStyle [ParagraphStyle] to be applied to whole text
+ */
+fun AnnotatedString(
+    text: String,
+    paragraphStyle: ParagraphStyle
+): AnnotatedString = AnnotatedString(
+    text,
+    listOf(),
+    listOf(Item(paragraphStyle, 0, text.length))
+)
+
+/**
  * Build a new AnnotatedString by populating newly created [AnnotatedString.Builder] provided
  * by [builder].
  *

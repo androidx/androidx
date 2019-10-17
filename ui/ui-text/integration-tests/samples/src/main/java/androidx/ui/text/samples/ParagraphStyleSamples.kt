@@ -48,6 +48,7 @@ fun ParagraphStyleAnnotatedStringsSample() {
     val text = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor " +
             "incididunt ut labore et dolore magna aliqua.\nUt enim ad minim veniam, quis " +
             "nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat."
+
     val paragraphStyle1 = ParagraphStyle(
         textDirectionAlgorithm = TextDirectionAlgorithm.ContentOrLtr,
         textIndent = TextIndent(firstLine = 14.sp)
@@ -56,20 +57,12 @@ fun ParagraphStyleAnnotatedStringsSample() {
         lineHeight = 30.sp,
         textDirectionAlgorithm = TextDirectionAlgorithm.ContentOrLtr
     )
-    val paragraphTextStyle1 = AnnotatedString.Item(
-        style = paragraphStyle1,
-        start = 0,
-        end = 124
-    )
-    val paragraphTextStyle2 = AnnotatedString.Item(
-        style = paragraphStyle2,
-        start = 124,
-        end = 231
-    )
 
-    val annotatedString = AnnotatedString(
-        text = text,
-        paragraphStyles = listOf(paragraphTextStyle1, paragraphTextStyle2)
+    Text(
+        text = AnnotatedString {
+            append(text)
+            addStyle(paragraphStyle1, 0, text.indexOf('\n') + 1)
+            addStyle(paragraphStyle2, text.indexOf('\n') + 1, text.length)
+        }
     )
-    Text(text = annotatedString)
 }

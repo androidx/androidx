@@ -320,4 +320,46 @@ class AnnotatedStringTest {
     fun creating_item_with_start_equal_to_end_does_not_throw_exception() {
         Item(TextStyle(color = Color.Red), 1, 1)
     }
+
+    @Test
+    fun constructor_function_with_single_textStyle() {
+        val text = "a"
+        val textStyle = TextStyle(color = Color.Red)
+        assertThat(
+            AnnotatedString(text, textStyle)
+        ).isEqualTo(
+            AnnotatedString(text, listOf(Item(textStyle, 0, text.length)))
+        )
+    }
+
+    @Test
+    fun constructor_function_with_single_paragraphStyle() {
+        val text = "a"
+        val paragraphStyle = ParagraphStyle(lineHeight = 12.sp)
+        assertThat(
+            AnnotatedString(text, paragraphStyle)
+        ).isEqualTo(
+            AnnotatedString(
+                text,
+                listOf(),
+                listOf(Item(paragraphStyle, 0, text.length))
+            )
+        )
+    }
+
+    @Test
+    fun constructor_function_with_single_textStyle_and_paragraphStyle() {
+        val text = "a"
+        val textStyle = TextStyle(color = Color.Red)
+        val paragraphStyle = ParagraphStyle(lineHeight = 12.sp)
+        assertThat(
+            AnnotatedString(text, textStyle, paragraphStyle)
+        ).isEqualTo(
+            AnnotatedString(
+                text,
+                listOf(Item(textStyle, 0, text.length)),
+                listOf(Item(paragraphStyle, 0, text.length))
+            )
+        )
+    }
 }

@@ -24,6 +24,7 @@ import androidx.ui.core.sp
 import androidx.ui.text.AnnotatedString
 import androidx.ui.text.TextStyle
 import androidx.ui.text.style.BaselineShift
+import androidx.ui.text.withStyle
 
 @Sampled
 @Composable
@@ -52,19 +53,11 @@ fun BaselineShiftSample() {
 @Sampled
 @Composable
 fun BaselineShiftAnnotatedStringSample() {
-    val item1 = AnnotatedString.Item(
-        style = TextStyle(),
-        start = 0,
-        end = 4
-    )
-    val item2 = AnnotatedString.Item(
-        style = TextStyle(baselineShift = BaselineShift.Superscript),
-        start = 0,
-        end = 4
-    )
-    val annotatedString = AnnotatedString(
-        text = "Text Demo",
-        textStyles = listOf(item1, item2)
-    )
+    val annotatedString = AnnotatedString {
+        append("Text ")
+        withStyle(TextStyle(baselineShift = BaselineShift.Superscript)) {
+            append("Demo")
+        }
+    }
     Text(text = annotatedString)
 }
