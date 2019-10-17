@@ -37,7 +37,6 @@ import androidx.ui.engine.geometry.Rect
 import androidx.ui.engine.geometry.Shape
 import androidx.ui.framework.test.TestActivity
 import androidx.ui.graphics.Color
-import androidx.ui.graphics.toArgb
 import androidx.ui.graphics.Paint
 import androidx.ui.graphics.Path
 import androidx.ui.graphics.PathOperation
@@ -49,7 +48,6 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
-import kotlin.math.abs
 
 @SmallTest
 @RunWith(JUnit4::class)
@@ -398,29 +396,6 @@ class ClipTest {
 @Model
 private class ShapeModel(var shape: Shape)
 
-fun Bitmap.assertRect(
-    color: Color,
-    holeSize: Int = 0,
-    size: Int = width,
-    centerX: Int = width / 2,
-    centerY: Int = height / 2
-) {
-    Assert.assertTrue(centerX + size / 2 <= width)
-    Assert.assertTrue(centerX - size / 2 >= 0)
-    Assert.assertTrue(centerY + size / 2 <= height)
-    Assert.assertTrue(centerY - size / 2 >= 0)
-    val halfHoleSize = holeSize / 2
-    for (x in centerX - size / 2 until centerX + size / 2) {
-        for (y in centerY - size / 2 until centerY + size / 2) {
-            if (abs(x - centerX) > halfHoleSize &&
-                abs(y - centerY) > halfHoleSize
-            ) {
-                assertColor(color, x, y)
-            }
-        }
-    }
-}
-
 fun Bitmap.assertTriangle(innerColor: Color, outerColor: Color) {
     Assert.assertEquals(width, height)
     val center = (width - 1) / 2
@@ -442,9 +417,8 @@ fun Bitmap.assertTriangle(innerColor: Color, outerColor: Color) {
 }
 
 fun Bitmap.assertColor(expectedColor: Color, x: Int, y: Int) {
-    val pixel = getPixel(x, y)
-    val pixelString = Color(pixel).toString()
-    Assert.assertEquals(
-        "Pixel [$x, $y] is expected to be $expectedColor, " +
-                "but was $pixelString", expectedColor.toArgb(), pixel)
+    val pixel = Color(getPixel(x, y))
+    assertColorsEqual(expectedColor, pixel) {
+        "Pixel [$x, $y] is expected to be $expectedColor," + " " + "but was $pixel"
+    }
 }

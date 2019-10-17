@@ -120,7 +120,7 @@ class OpacityTest {
         }
 
         takeScreenShot(20, 10).apply {
-            assertSimilar(color(5, 5), color(15, 5))
+            assertColorsEqual(color(5, 5), color(15, 5))
         }
     }
 
@@ -221,14 +221,6 @@ fun Row(children: @Composable() () -> Unit) {
 }
 
 fun Bitmap.color(x: Int, y: Int): Color = Color(getPixel(x, y))
-
-fun assertSimilar(color1: Color, color2: Color) {
-    val errorString = "$color1 and $color2 are not similar!"
-    assertEquals(errorString, color1.red, color2.red, 0.01f)
-    assertEquals(errorString, color1.green, color2.green, 0.01f)
-    assertEquals(errorString, color1.blue, color2.blue, 0.01f)
-    assertEquals(errorString, color1.alpha, color2.alpha, 0.01f)
-}
 
 @Model
 private data class OpacityModel(var opacity: Float)
