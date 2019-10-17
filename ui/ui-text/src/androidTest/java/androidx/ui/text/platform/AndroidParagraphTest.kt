@@ -21,6 +21,7 @@ import androidx.text.style.ShadowSpan
 import androidx.text.style.SkewXSpan
 import androidx.text.style.TypefaceSpan
 import androidx.ui.core.Density
+import androidx.ui.core.em
 import androidx.ui.core.px
 import androidx.ui.core.sp
 import androidx.ui.core.withDensity
@@ -330,7 +331,7 @@ class AndroidParagraphTest {
     fun testAnnotatedString_setLetterSpacingOnWholeText() {
         val text = "abcde"
         val letterSpacing = 2.0f
-        val textStyle = TextStyle(letterSpacing = letterSpacing)
+        val textStyle = TextStyle(letterSpacing = letterSpacing.em)
 
         val paragraph = simpleParagraph(
             text = text,
@@ -345,7 +346,7 @@ class AndroidParagraphTest {
     @Test
     fun testAnnotatedString_setLetterSpacingOnPartText() {
         val text = "abcde"
-        val textStyle = TextStyle(letterSpacing = 2.0f)
+        val textStyle = TextStyle(letterSpacing = 2.em)
 
         val paragraph = simpleParagraph(
             text = text,
@@ -360,8 +361,8 @@ class AndroidParagraphTest {
     @Test
     fun testAnnotatedString_setLetterSpacingTwice_lastOneOverwrite() {
         val text = "abcde"
-        val textStyle = TextStyle(letterSpacing = 2.0f)
-        val textStyleOverwrite = TextStyle(letterSpacing = 3.0f)
+        val textStyle = TextStyle(letterSpacing = 2.em)
+        val textStyleOverwrite = TextStyle(letterSpacing = 3.em)
 
         val paragraph = simpleParagraph(
             text = text,
@@ -1035,10 +1036,10 @@ class AndroidParagraphTest {
 
     @Test
     fun testTextStyle_letterSpacing_appliedOnTextPaint() {
-        val letterSpacing = 2.0f
+        val letterSpacing = 2
         val paragraph = simpleParagraph(
             text = "",
-            textStyle = TextStyle(letterSpacing = letterSpacing),
+            textStyle = TextStyle(letterSpacing = letterSpacing.em),
             constraints = ParagraphConstraints(width = 0.0f)
         )
 

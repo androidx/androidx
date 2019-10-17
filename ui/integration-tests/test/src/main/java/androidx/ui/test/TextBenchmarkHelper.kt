@@ -16,6 +16,7 @@
 
 package androidx.ui.test
 
+import androidx.ui.core.em
 import androidx.ui.core.px
 import androidx.ui.core.sp
 import androidx.ui.engine.geometry.Offset
@@ -49,7 +50,7 @@ class RandomTextGenerator(
         TextStyle(fontSizeScale = 2f),
         TextStyle(fontWeight = FontWeight.Bold),
         TextStyle(fontStyle = FontStyle.Italic),
-        TextStyle(letterSpacing = 0.2f),
+        TextStyle(letterSpacing = 0.2.em),
         TextStyle(baselineShift = BaselineShift.Subscript),
         TextStyle(textGeometricTransform = TextGeometricTransform(0.5f, 0.5f)),
         TextStyle(localeList = LocaleList("it"))

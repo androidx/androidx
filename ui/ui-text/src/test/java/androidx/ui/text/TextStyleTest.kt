@@ -16,6 +16,7 @@
 
 package androidx.ui.text
 
+import androidx.ui.core.em
 import androidx.ui.core.px
 import androidx.ui.core.sp
 import androidx.ui.engine.geometry.Offset
@@ -90,7 +91,7 @@ class TextStyleTest {
 
     @Test
     fun `constructor with customized letterSpacing`() {
-        val letterSpacing = 1.0f
+        val letterSpacing = 1.em
 
         val textStyle = TextStyle(letterSpacing = letterSpacing)
 
@@ -317,7 +318,7 @@ class TextStyleTest {
 
     @Test
     fun `merge with other's letterSpacing is null should use this' letterSpacing`() {
-        val letterSpacing = 1.2f
+        val letterSpacing = 1.2.em
         val textStyle = TextStyle(letterSpacing = letterSpacing)
         val otherTextStyle = TextStyle()
 
@@ -328,8 +329,8 @@ class TextStyleTest {
 
     @Test
     fun `merge with other's letterSpacing is set should use other's letterSpacing`() {
-        val letterSpacing = 1.2f
-        val otherLetterSpacing = 1.5f
+        val letterSpacing = 1.2.em
+        val otherLetterSpacing = 1.5.em
         val textStyle = TextStyle(letterSpacing = letterSpacing)
         val otherTextStyle = TextStyle(letterSpacing = otherLetterSpacing)
 
@@ -978,7 +979,7 @@ class TextStyleTest {
 
     @Test
     fun `lerp letterSpacing with a is Null and t is smaller than half`() {
-        val letterSpacing = 2.0f
+        val letterSpacing = 2.em
         val t = 0.3f
         val textStyle = TextStyle(letterSpacing = letterSpacing)
 
@@ -989,7 +990,7 @@ class TextStyleTest {
 
     @Test
     fun `lerp letterSpacing with a is Null and t is larger than half`() {
-        val letterSpacing = 2.0f
+        val letterSpacing = 2.em
         val t = 0.8f
         val textStyle = TextStyle(letterSpacing = letterSpacing)
 
@@ -1000,7 +1001,7 @@ class TextStyleTest {
 
     @Test
     fun `lerp letterSpacing with b is Null and t is smaller than half`() {
-        val letterSpacing = 2.0f
+        val letterSpacing = 2.em
         val t = 0.3f
         val textStyle = TextStyle(letterSpacing = letterSpacing)
 
@@ -1011,7 +1012,7 @@ class TextStyleTest {
 
     @Test
     fun `lerp letterSpacing with b is Null and t is larger than half`() {
-        val letterSpacing = 2.0f
+        val letterSpacing = 2.em
         val t = 0.8f
         val textStyle = TextStyle(letterSpacing = letterSpacing)
 
@@ -1374,7 +1375,7 @@ class TextStyleTest {
             fontWeight = FontWeight.W800,
             fontStyle = FontStyle.Italic,
             fontFeatureSettings = fontFeatureSettings,
-            letterSpacing = 1.0f,
+            letterSpacing = 1.em,
             baselineShift = BaselineShift.Subscript,
             textGeometricTransform = TextGeometricTransform(scaleX = 1.0f),
             localeList = LocaleList("en-US"),
@@ -1405,7 +1406,7 @@ class TextStyleTest {
         assertThat(textStyle.compareTo(textStyle.copy(fontFeatureSettings = null)))
             .isEqualTo(RenderComparison.LAYOUT)
 
-        assertThat(textStyle.compareTo(textStyle.copy(letterSpacing = 2.0f)))
+        assertThat(textStyle.compareTo(textStyle.copy(letterSpacing = 2.em)))
             .isEqualTo(RenderComparison.LAYOUT)
 
         assertThat(textStyle.compareTo(textStyle.copy(baselineShift = BaselineShift.Superscript)))
@@ -1433,7 +1434,7 @@ class TextStyleTest {
             fontSize = fontSize,
             fontWeight = FontWeight.W800,
             fontStyle = FontStyle.Italic,
-            letterSpacing = 1.0f,
+            letterSpacing = 1.em,
             baselineShift = BaselineShift.Superscript,
             textGeometricTransform = TextGeometricTransform(null, null),
             localeList = LocaleList("en-US"),

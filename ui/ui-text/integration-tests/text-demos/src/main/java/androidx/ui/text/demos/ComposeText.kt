@@ -37,6 +37,7 @@ import androidx.ui.graphics.Shadow
 import androidx.ui.text.TextStyle
 import androidx.ui.text.style.TextOverflow
 import androidx.ui.core.Sp
+import androidx.ui.core.em
 import androidx.ui.core.sp
 import androidx.ui.text.LocaleList
 import androidx.ui.text.samples.BaselineShiftSample
@@ -267,7 +268,7 @@ fun TextDemoLetterSpacing() {
             text = displayText,
             style = TextStyle(
                 fontSize = fontSize8,
-                letterSpacing = 0.5f
+                letterSpacing = 0.5.em
             )
         )
     }
