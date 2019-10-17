@@ -628,7 +628,6 @@ class ActionMenuPresenter extends BaseMenuPresenter
 
     private class OverflowMenuButton extends AppCompatImageView
             implements ActionMenuView.ActionMenuChildView {
-        private final float[] mTempPts = new float[2];
 
         public OverflowMenuButton(Context context) {
             super(context, null, R.attr.actionOverflowButtonStyle);

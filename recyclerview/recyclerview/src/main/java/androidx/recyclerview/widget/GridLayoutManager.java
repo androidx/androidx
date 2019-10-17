@@ -539,7 +539,6 @@ public class GridLayoutManager extends LinearLayoutManager {
         final boolean layingOutInPrimaryDirection =
                 layoutState.mItemDirection == LayoutState.ITEM_DIRECTION_TAIL;
         int count = 0;
-        int consumedSpanCount = 0;
         int remainingSpan = mSpanCount;
         if (!layingOutInPrimaryDirection) {
             int itemSpanIndex = getSpanIndex(recycler, state, layoutState.mCurrentPosition);
@@ -562,7 +561,6 @@ public class GridLayoutManager extends LinearLayoutManager {
             if (view == null) {
                 break;
             }
-            consumedSpanCount += spanSize;
             mSet[count] = view;
             count++;
         }

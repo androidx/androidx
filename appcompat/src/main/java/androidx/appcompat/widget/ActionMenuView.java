@@ -446,7 +446,6 @@ public class ActionMenuView extends LinearLayoutCompat implements MenuBuilder.It
         final int midVertical = (bottom - top) / 2;
         final int dividerWidth = getDividerWidth();
         int overflowWidth = 0;
-        int nonOverflowWidth = 0;
         int nonOverflowCount = 0;
         int widthRemaining = right - left - getPaddingRight() - getPaddingLeft();
         boolean hasOverflow = false;
@@ -481,10 +480,8 @@ public class ActionMenuView extends LinearLayoutCompat implements MenuBuilder.It
                 hasOverflow = true;
             } else {
                 final int size = v.getMeasuredWidth() + p.leftMargin + p.rightMargin;
-                nonOverflowWidth += size;
                 widthRemaining -= size;
                 if (hasSupportDividerBeforeChildAt(i)) {
-                    nonOverflowWidth += dividerWidth;
                 }
                 nonOverflowCount++;
             }

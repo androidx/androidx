@@ -987,7 +987,7 @@ public class CoordinatorLayout extends ViewGroup implements NestedScrollingParen
         }
     }
 
-    private void getDesiredAnchoredChildRectWithoutConstraints(View child, int layoutDirection,
+    private void getDesiredAnchoredChildRectWithoutConstraints(int layoutDirection,
             Rect anchorRect, Rect out, LayoutParams lp, int childWidth, int childHeight) {
         final int absGravity = GravityCompat.getAbsoluteGravity(
                 resolveAnchoredChildGravity(lp.gravity), layoutDirection);
@@ -1090,7 +1090,7 @@ public class CoordinatorLayout extends ViewGroup implements NestedScrollingParen
         final LayoutParams lp = (LayoutParams) child.getLayoutParams();
         final int childWidth = child.getMeasuredWidth();
         final int childHeight = child.getMeasuredHeight();
-        getDesiredAnchoredChildRectWithoutConstraints(child, layoutDirection, anchorRect, out, lp,
+        getDesiredAnchoredChildRectWithoutConstraints(layoutDirection, anchorRect, out, lp,
                 childWidth, childHeight);
         constrainChildRect(lp, out, childWidth, childHeight);
     }
@@ -1661,7 +1661,7 @@ public class CoordinatorLayout extends ViewGroup implements NestedScrollingParen
 
             int childWidth = child.getMeasuredWidth();
             int childHeight = child.getMeasuredHeight();
-            getDesiredAnchoredChildRectWithoutConstraints(child, layoutDirection, anchorRect,
+            getDesiredAnchoredChildRectWithoutConstraints(layoutDirection, anchorRect,
                     desiredChildRect, lp, childWidth, childHeight);
             boolean changed = desiredChildRect.left != childRect.left ||
                     desiredChildRect.top != childRect.top;

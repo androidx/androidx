@@ -46,8 +46,6 @@ public interface AccessibilityViewCommand {
     abstract class CommandArguments {
         Bundle mBundle;
 
-        private static final Bundle sEmptyBundle = new Bundle();
-
         /**
          * @hide
          */

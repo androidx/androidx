@@ -1,7 +1,6 @@
 package androidx.leanback.widget;
 
 import android.content.Context;
-import android.content.res.TypedArray;
 import android.util.AttributeSet;
 import android.view.KeyEvent;
 import android.view.View;
@@ -35,14 +34,6 @@ class GuidedActionsRelativeLayout extends RelativeLayout {
     public GuidedActionsRelativeLayout(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
         mKeyLinePercent = GuidanceStylingRelativeLayout.getKeyLinePercent(context);
-    }
-
-    private void init() {
-        TypedArray ta = getContext().getTheme().obtainStyledAttributes(
-                R.styleable.LeanbackGuidedStepTheme);
-        mKeyLinePercent = ta.getFloat(R.styleable.LeanbackGuidedStepTheme_guidedStepKeyline,
-                40);
-        ta.recycle();
     }
 
     @Override

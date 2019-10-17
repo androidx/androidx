@@ -290,8 +290,6 @@ public class ActionBarOverlayLayout extends ViewGroup implements DecorContentPar
     protected boolean fitSystemWindows(Rect insets) {
         pullChildren();
 
-        final int vis = ViewCompat.getWindowSystemUiVisibility(this);
-        final boolean stable = (vis & SYSTEM_UI_FLAG_LAYOUT_STABLE) != 0;
         final Rect systemInsets = insets;
 
         // The top action bar is always within the content area.
@@ -429,10 +427,7 @@ public class ActionBarOverlayLayout extends ViewGroup implements DecorContentPar
         final int count = getChildCount();
 
         final int parentLeft = getPaddingLeft();
-        final int parentRight = right - left - getPaddingRight();
-
         final int parentTop = getPaddingTop();
-        final int parentBottom = bottom - top - getPaddingBottom();
 
         for (int i = 0; i < count; i++) {
             final View child = getChildAt(i);
@@ -558,7 +553,7 @@ public class ActionBarOverlayLayout extends ViewGroup implements DecorContentPar
         if (!mHideOnContentScroll || !consumed) {
             return false;
         }
-        if (shouldHideActionBarOnFling(velocityX, velocityY)) {
+        if (shouldHideActionBarOnFling(velocityY)) {
             addActionBarHideOffset();
         } else {
             removeActionBarHideOffset();
@@ -654,7 +649,7 @@ public class ActionBarOverlayLayout extends ViewGroup implements DecorContentPar
         mAddActionBarHideOffset.run();
     }
 
-    private boolean shouldHideActionBarOnFling(float velocityX, float velocityY) {
+    private boolean shouldHideActionBarOnFling(float velocityY) {
         mFlingEstimator.fling(0, 0, 0, (int) velocityY, 0, 0, Integer.MIN_VALUE, Integer.MAX_VALUE);
         final int finalY = mFlingEstimator.getFinalY();
         return finalY > mActionBarTop.getHeight();

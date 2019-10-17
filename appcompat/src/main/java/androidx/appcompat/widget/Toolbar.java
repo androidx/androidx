@@ -2226,10 +2226,6 @@ public class Toolbar extends ViewGroup {
         return super.checkLayoutParams(p) && p instanceof LayoutParams;
     }
 
-    private static boolean isCustomView(View child) {
-        return ((LayoutParams) child.getLayoutParams()).mViewType == LayoutParams.CUSTOM;
-    }
-
     /** @hide */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     public DecorToolbar getWrapper() {

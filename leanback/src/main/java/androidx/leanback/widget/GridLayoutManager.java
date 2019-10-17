@@ -1162,16 +1162,6 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         return (mOrientation == HORIZONTAL) ? getViewCenterX(view) : getViewCenterY(view);
     }
 
-    private int getAdjustedViewCenter(View view) {
-        if (view.hasFocus()) {
-            View child = view.findFocus();
-            if (child != null && child != view) {
-                return getAdjustedPrimaryAlignedScrollDistance(getViewCenter(view), view, child);
-            }
-        }
-        return getViewCenter(view);
-    }
-
     private int getViewCenterSecondary(View view) {
         return (mOrientation == HORIZONTAL) ? getViewCenterY(view) : getViewCenterX(view);
     }

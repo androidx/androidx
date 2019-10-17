@@ -289,8 +289,6 @@ class DropDownListView extends ListView {
 
         final int paddingTop = getListPaddingTop();
         final int paddingBottom = getListPaddingBottom();
-        final int paddingLeft = getListPaddingLeft();
-        final int paddingRight = getListPaddingRight();
         final int reportedDividerHeight = getDividerHeight();
         final Drawable divider = getDivider();
 

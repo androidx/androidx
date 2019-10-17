@@ -235,7 +235,6 @@ abstract class StaggeredGrid extends Grid {
      * prependVisibleItemsWithoutCache().
      */
     protected final int prependVisibleItemToRow(int itemIndex, int rowIndex, int edge) {
-        int offset;
         if (mFirstVisibleIndex >= 0) {
             if (mFirstVisibleIndex != getFirstIndex() || mFirstVisibleIndex != itemIndex + 1) {
                 // should never hit this when we prepend a new item with a new Location object.

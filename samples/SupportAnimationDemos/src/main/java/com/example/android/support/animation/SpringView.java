@@ -53,7 +53,6 @@ public class SpringView extends View {
         int num = 20;
         float sectionLen = 150; // px
         final float x = canvas.getWidth() / 2;
-        float y = 0;
         float sectionHeight = mLastHeight / num;
         float sectionWidth = (float) Math.sqrt(sectionLen * sectionLen
                 - sectionHeight * sectionHeight);
