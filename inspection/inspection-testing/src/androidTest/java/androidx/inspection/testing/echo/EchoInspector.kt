@@ -18,6 +18,7 @@ package androidx.inspection.testing.echo
 
 import androidx.inspection.Connection
 import androidx.inspection.Inspector
+import androidx.inspection.InspectorEnvironment
 import androidx.inspection.InspectorFactory
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -53,5 +54,6 @@ class EchoInspector(connection: Connection) : Inspector(connection) {
 const val ECHO_INSPECTION_ID = "androidx.inspection.testing.echo"
 
 class EchoInspectorFactory : InspectorFactory<EchoInspector>(ECHO_INSPECTION_ID) {
-    override fun createInspector(connection: Connection) = EchoInspector(connection)
+    override fun createInspector(connection: Connection, unusedEnvironment: InspectorEnvironment) =
+        EchoInspector(connection)
 }
