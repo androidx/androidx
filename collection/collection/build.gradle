@@ -21,7 +21,7 @@ import androidx.build.Publish
 
 plugins {
     id("AndroidXPlugin")
-    id("java")
+    id("java-library")
 }
 
 targetCompatibility = JavaVersion.VERSION_1_7
