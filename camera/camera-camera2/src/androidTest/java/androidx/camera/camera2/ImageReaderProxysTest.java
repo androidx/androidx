@@ -18,6 +18,7 @@ package androidx.camera.camera2;
 
 import static org.junit.Assume.assumeTrue;
 
+import android.Manifest;
 import android.content.Context;
 import android.graphics.ImageFormat;
 import android.hardware.camera2.CameraDevice;
@@ -42,10 +43,12 @@ import androidx.camera.testing.fakes.FakeUseCaseConfig;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
+import androidx.test.rule.GrantPermissionRule;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -62,6 +65,11 @@ import java.util.concurrent.Semaphore;
 @LargeTest
 @RunWith(AndroidJUnit4.class)
 public final class ImageReaderProxysTest {
+
+    @Rule
+    public GrantPermissionRule mRuntimePermissionRule = GrantPermissionRule.grant(
+            Manifest.permission.CAMERA);
+
     private static final String CAMERA_ID = "0";
 
     private static CameraFactory sCameraFactory;
@@ -104,18 +112,19 @@ public final class ImageReaderProxysTest {
         mReaders = new ArrayList<>();
 
         // Grab the camera so we can wait for release in tearDown()
-
         mCamera = sCameraFactory.getCamera(CAMERA_ID);
     }
 
     @After
     public void tearDown() throws ExecutionException, InterruptedException {
-        for (ImageReaderProxy reader : mReaders) {
-            reader.close();
-        }
 
         if (mCamera != null) {
+            // Ensure all cameras are released for the next test
             mCamera.release().get();
+        }
+
+        for (ImageReaderProxy reader : mReaders) {
+            reader.close();
         }
 
         if (mHandlerThread != null) {
