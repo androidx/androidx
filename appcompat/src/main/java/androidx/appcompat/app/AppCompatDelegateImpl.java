@@ -2452,8 +2452,20 @@ class AppCompatDelegateImpl extends AppCompatDelegate
                 return false;
             }
             try {
+                int flags = 0;
+                // On newer versions of the OS we need to pass direct boot
+                // flags so that getActivityInfo doesn't crash under strict
+                // mode checks
+                if (Build.VERSION.SDK_INT >= 29) {
+                    flags = PackageManager.MATCH_DIRECT_BOOT_AUTO
+                            | PackageManager.MATCH_DIRECT_BOOT_AWARE
+                            | PackageManager.MATCH_DIRECT_BOOT_UNAWARE;
+                } else if (Build.VERSION.SDK_INT >= 24) {
+                    flags = PackageManager.MATCH_DIRECT_BOOT_AWARE
+                            | PackageManager.MATCH_DIRECT_BOOT_UNAWARE;
+                }
                 final ActivityInfo info = pm.getActivityInfo(
-                        new ComponentName(mContext, mHost.getClass()), 0);
+                        new ComponentName(mContext, mHost.getClass()), flags);
                 mActivityHandlesUiMode = info != null
                         && (info.configChanges & ActivityInfo.CONFIG_UI_MODE) != 0;
             } catch (PackageManager.NameNotFoundException e) {
