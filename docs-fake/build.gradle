@@ -41,14 +41,20 @@ project.tasks.whenTaskAdded { task ->
             || task.name == "checkPublicDebugDuplicateClasses") {
         if (!reentrance) {
             reentrance = true
-            project.tasks.replace(task.name)
+            project.tasks.named(task.name) {
+                actions = []
+                dependsOn = []
+            }
             reentrance = false
         }
     }
 }
 
 // Also replace some tasks that will have already been created (and not trigger `whenTaskAdded`)
-project.tasks.replace("lint")
+project.tasks.named("lint") {
+    actions = []
+    dependsOn = []
+}
 
 android {
     defaultConfig {
