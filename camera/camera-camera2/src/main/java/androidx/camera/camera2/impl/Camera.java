@@ -61,7 +61,6 @@ import androidx.core.util.Preconditions;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -156,6 +155,8 @@ final class Camera implements BaseCamera {
 
     private final Observable<Integer> mAvailableCamerasObservable;
     private final CameraAvailability mCameraAvailability;
+
+    private boolean mIsConfiguringForClose = false;
 
     /**
      * Constructor for a camera.
@@ -281,12 +282,15 @@ final class Camera implements BaseCamera {
         }
     }
 
+    // Configure the camera with a dummy capture session in order to clear the
+    // previous session. This should be released immediately after being configured.
     @WorkerThread
-    private void configAndClose() {
-        // Configure the camera with a dummy capture session in order to clear the
-        // previous session. This should be released immediately after being configured.
-        final CaptureSession dummySession = mCaptureSessionBuilder.build();
+    private void configAndClose(boolean abortInFlightCaptures) {
 
+        mIsConfiguringForClose = true;  // Make mCameraDevice is not closed and existed.
+        resetCaptureSession(abortInFlightCaptures);
+
+        final CaptureSession dummySession = mCaptureSessionBuilder.build();
         final SurfaceTexture surfaceTexture = new SurfaceTexture(0);
         surfaceTexture.setDefaultBufferSize(640, 480);
         final Surface surface = new Surface(surfaceTexture);
@@ -304,6 +308,7 @@ final class Camera implements BaseCamera {
         try {
             Log.d(TAG, "Start configAndClose.");
             dummySession.open(builder.build(), mCameraDevice);
+            mIsConfiguringForClose = false;  // Exit the condition.
 
             // Don't need to abort captures since there are none submitted for this session.
             ListenableFuture<Void> releaseFuture = releaseSession(
@@ -319,12 +324,16 @@ final class Camera implements BaseCamera {
             closeAndCleanupRunner.run();
         } catch (DeferrableSurface.SurfaceClosedException e) {
             postSurfaceClosedError(e);
+        } finally {
+            mIsConfiguringForClose = false;
+            resetCaptureSession(false);
         }
     }
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     boolean isSessionCloseComplete() {
-        return mReleasedCaptureSessions.isEmpty();
+        return mReleasedCaptureSessions.isEmpty()
+                && !mIsConfiguringForClose;
     }
 
     // This will notify futures of completion.
@@ -380,12 +389,12 @@ final class Camera implements BaseCamera {
                 && mCameraDeviceError == ERROR_NONE) { // Cannot open session on device in error
             // To configure surface again before close camera. This step would
             // disconnect previous connected surface in some legacy device to prevent exception.
-            configAndClose();
+            configAndClose(abortInFlightCaptures);
+        } else {
+            // Release the current session and replace with a new uninitialized session in case the
+            // camera enters a REOPENING state during session closing.
+            resetCaptureSession(abortInFlightCaptures);
         }
-
-        // Release the current session and replace with a new uninitialized session in case the
-        // camera enters a REOPENING state during session closing.
-        resetCaptureSession(abortInFlightCaptures);
     }
 
     @WorkerThread
