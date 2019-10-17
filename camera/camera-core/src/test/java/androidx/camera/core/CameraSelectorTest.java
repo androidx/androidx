@@ -1,0 +1,124 @@
+/*
+ * Copyright 2019 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package androidx.camera.core;
+
+import static com.google.common.truth.Truth.assertThat;
+
+import static org.mockito.Mockito.mock;
+
+import android.content.Context;
+import android.os.Build;
+
+import androidx.camera.testing.fakes.FakeCamera;
+import androidx.camera.testing.fakes.FakeCameraDeviceSurfaceManager;
+import androidx.camera.testing.fakes.FakeCameraFactory;
+import androidx.camera.testing.fakes.FakeCameraInfoInternal;
+import androidx.camera.testing.fakes.FakeUseCaseConfig;
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.filters.SmallTest;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.Config;
+import org.robolectric.annotation.internal.DoNotInstrument;
+
+import java.util.HashSet;
+import java.util.Set;
+import java.util.concurrent.ExecutionException;
+
+@SmallTest
+@RunWith(RobolectricTestRunner.class)
+@DoNotInstrument
+@Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
+public class CameraSelectorTest {
+    private CameraInternal mRearCamera;
+    private CameraInternal mFrontCamera;
+    private static final String REAR_ID = "0";
+    private static final String FRONT_ID = "1";
+    private Set<String> mCameraIds = new HashSet<>();
+
+    @Before
+    public void setUp() throws ExecutionException, InterruptedException {
+        Context context = ApplicationProvider.getApplicationContext();
+        CameraDeviceSurfaceManager surfaceManager = new FakeCameraDeviceSurfaceManager();
+        ExtendableUseCaseConfigFactory defaultConfigFactory = new ExtendableUseCaseConfigFactory();
+        defaultConfigFactory.installDefaultProvider(FakeUseCaseConfig.class,
+                new ConfigProvider<FakeUseCaseConfig>() {
+                    @Override
+                    public FakeUseCaseConfig getConfig(LensFacing lensFacing) {
+                        return new FakeUseCaseConfig.Builder().build();
+                    }
+                });
+        FakeCameraFactory cameraFactory = new FakeCameraFactory();
+        mRearCamera = new FakeCamera(mock(CameraControlInternal.class),
+                new FakeCameraInfoInternal(0,
+                        LensFacing.BACK));
+        cameraFactory.insertCamera(LensFacing.BACK, REAR_ID, () -> mRearCamera);
+        cameraFactory.setDefaultCameraIdForLensFacing(LensFacing.BACK, REAR_ID);
+        mFrontCamera = new FakeCamera(mock(CameraControlInternal.class),
+                new FakeCameraInfoInternal(0,
+                        LensFacing.FRONT));
+        cameraFactory.insertCamera(LensFacing.FRONT, FRONT_ID, () -> mFrontCamera);
+        cameraFactory.setDefaultCameraIdForLensFacing(LensFacing.FRONT, FRONT_ID);
+        AppConfig.Builder appConfigBuilder =
+                new AppConfig.Builder()
+                        .setCameraFactory(cameraFactory)
+                        .setDeviceSurfaceManager(surfaceManager)
+                        .setUseCaseConfigFactory(defaultConfigFactory);
+        CameraX.initialize(context, appConfigBuilder.build()).get();
+        mCameraIds.add(REAR_ID);
+        mCameraIds.add(FRONT_ID);
+    }
+
+    @After
+    public void tearDown() throws ExecutionException, InterruptedException {
+        CameraX.shutdown().get();
+    }
+
+    @Test
+    public void canSelectWithLensFacing() {
+        CameraSelector.Builder cameraSelectorBuilder = new CameraSelector.Builder();
+        cameraSelectorBuilder.requireLensFacing(LensFacing.BACK);
+        String result = cameraSelectorBuilder.build().select(mCameraIds);
+        assertThat(result).isEqualTo(REAR_ID);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void exception_ifNoAvailableCamera() {
+        CameraSelector.Builder cameraSelectorBuilder = new CameraSelector.Builder();
+        cameraSelectorBuilder.requireLensFacing(LensFacing.BACK).requireLensFacing(
+                LensFacing.FRONT);
+        cameraSelectorBuilder.build().select(mCameraIds);
+    }
+
+    @Test
+    public void canGetLensFacing() {
+        CameraSelector.Builder cameraSelectorBuilder = new CameraSelector.Builder();
+        cameraSelectorBuilder.requireLensFacing(LensFacing.BACK);
+        assertThat(cameraSelectorBuilder.build().getLensFacing()).isEqualTo(LensFacing.BACK);
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void exception_ifGetLensFacingConflicted() {
+        CameraSelector.Builder cameraSelectorBuilder = new CameraSelector.Builder();
+        cameraSelectorBuilder.requireLensFacing(LensFacing.BACK).requireLensFacing(
+                LensFacing.FRONT);
+        cameraSelectorBuilder.build().getLensFacing();
+    }
+}
