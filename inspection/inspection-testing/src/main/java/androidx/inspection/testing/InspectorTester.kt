@@ -18,6 +18,7 @@ package androidx.inspection.testing
 
 import androidx.inspection.Connection
 import androidx.inspection.Inspector
+import androidx.inspection.InspectorEnvironment
 import androidx.inspection.InspectorFactory
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
@@ -41,6 +42,7 @@ import kotlin.coroutines.suspendCoroutine
  */
 suspend fun InspectorTester(
     inspectorId: String,
+    environment: InspectorEnvironment = FakeInspectorEnvironment(),
     dispatcher: CoroutineDispatcher = Executors.newSingleThreadExecutor().asCoroutineDispatcher()
 ): InspectorTester {
     return withContext(dispatcher) {
@@ -49,7 +51,7 @@ suspend fun InspectorTester(
             ?: throw AssertionError("Failed to find with inspector with $inspectorId")
         val channel = Channel<ByteArray>(Channel.UNLIMITED)
         val scope = CoroutineScope(dispatcher)
-        val inspector = factory.createInspector(ConnectionImpl(scope, channel))
+        val inspector = factory.createInspector(ConnectionImpl(scope, channel), environment)
         InspectorTester(scope, inspector, channel)
     }
 }
@@ -72,6 +74,29 @@ class InspectorTester internal constructor(
 
     fun dispose() {
         scope.cancel()
+    }
+}
+
+internal class FakeInspectorEnvironment : InspectorEnvironment {
+    override fun <T : Any?> findInstances(clazz: Class<T>): List<T> {
+        TODO("not implemented")
+    }
+    override fun registerEntryHook(
+        originClass: Class<*>,
+        originMethod: String,
+        hookClass: Class<*>,
+        hookMethodName: String
+    ) {
+        TODO("not implemented")
+    }
+
+    override fun registerExitHook(
+        originClass: Class<*>,
+        originMethod: String,
+        hookClass: Class<*>,
+        hookMethod: String
+    ) {
+        TODO("not implemented")
     }
 }
 
