@@ -114,28 +114,6 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public Camera2CameraControl(ControlUpdateListener controlUpdateListener, Handler handler) {"
-        errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/camera2/impl/Camera2CameraControl.java"
-            line="96"
-            column="33"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public Camera2CameraControl(ControlUpdateListener controlUpdateListener, Handler handler) {"
-        errorLine2="                                                                             ~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/camera2/impl/Camera2CameraControl.java"
-            line="96"
-            column="78"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    public void setCropRegion(final Rect crop) {"
         errorLine2="                                    ~~~~">
         <location

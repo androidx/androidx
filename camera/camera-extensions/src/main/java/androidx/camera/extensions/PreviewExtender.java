@@ -138,7 +138,7 @@ public abstract class PreviewExtender {
 
         new Camera2Config.Extender(mBuilder).setCameraEventCallback(
                 new CameraEventCallbacks(previewExtenderAdapter));
-        mBuilder.setUseCaseEventListener(previewExtenderAdapter);
+        mBuilder.setUseCaseEventCallback(previewExtenderAdapter);
         mBuilder.getMutableConfig().insertOption(OPTION_PREVIEW_EXTENDER_MODE, mEffectMode);
         setSupportedResolutions();
     }
@@ -195,7 +195,7 @@ public abstract class PreviewExtender {
      * An implementation to adapt the OEM provided implementation to core.
      */
     private static class PreviewExtenderAdapter extends CameraEventCallback implements
-            UseCase.EventListener {
+            UseCase.EventCallback {
         final EffectMode mEffectMode;
 
         final PreviewExtenderImpl mImpl;

@@ -42,7 +42,7 @@ import androidx.camera.core.ImageAnalysis.Analyzer;
 import androidx.camera.core.ImageAnalysis.ImageReaderMode;
 import androidx.camera.core.ImageAnalysisConfig;
 import androidx.camera.core.ImageProxy;
-import androidx.camera.core.UseCase.StateChangeListener;
+import androidx.camera.core.UseCase.StateChangeCallback;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.testing.CameraUtil;
 import androidx.test.annotation.UiThreadTest;
@@ -78,7 +78,7 @@ public final class ImageAnalysisTest {
     private static final Size SECONDARY_RESOLUTION = new Size(320, 240);
     private final Instrumentation mInstrumentation = InstrumentationRegistry.getInstrumentation();
     private final ImageAnalysisConfig mDefaultConfig = ImageAnalysis.DEFAULT_CONFIG.getConfig(null);
-    private final StateChangeListener mMockListener = Mockito.mock(StateChangeListener.class);
+    private final StateChangeCallback mMockCallback = Mockito.mock(StateChangeCallback.class);
     private final Analyzer mMockAnalyzer = Mockito.mock(Analyzer.class);
     private final Object mAnalysisResultLock = new Object();
     @GuardedBy("mAnalysisResultLock")
@@ -164,11 +164,11 @@ public final class ImageAnalysisTest {
         Map<String, Size> suggestedResolutionMap = new HashMap<>();
         suggestedResolutionMap.put(mCameraId, DEFAULT_RESOLUTION);
         useCase.updateSuggestedResolution(suggestedResolutionMap);
-        useCase.addStateChangeListener(mMockListener);
+        useCase.addStateChangeCallback(mMockCallback);
 
         useCase.setAnalyzer(CameraXExecutors.newHandlerExecutor(mHandler), mMockAnalyzer);
 
-        verify(mMockListener, times(1)).onUseCaseActive(useCase);
+        verify(mMockCallback, times(1)).onUseCaseActive(useCase);
     }
 
     @Test
@@ -178,11 +178,11 @@ public final class ImageAnalysisTest {
         Map<String, Size> suggestedResolutionMap = new HashMap<>();
         suggestedResolutionMap.put(mCameraId, DEFAULT_RESOLUTION);
         useCase.updateSuggestedResolution(suggestedResolutionMap);
-        useCase.addStateChangeListener(mMockListener);
+        useCase.addStateChangeCallback(mMockCallback);
         useCase.setAnalyzer(CameraXExecutors.newHandlerExecutor(mHandler), mMockAnalyzer);
         useCase.removeAnalyzer();
 
-        verify(mMockListener, times(1)).onUseCaseInactive(useCase);
+        verify(mMockCallback, times(1)).onUseCaseInactive(useCase);
     }
 
     @Test

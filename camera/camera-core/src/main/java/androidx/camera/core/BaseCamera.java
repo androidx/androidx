@@ -30,8 +30,8 @@ import java.util.Collection;
  * @hide
  */
 @RestrictTo(Scope.LIBRARY_GROUP)
-public interface BaseCamera extends UseCase.StateChangeListener,
-        CameraControlInternal.ControlUpdateListener {
+public interface BaseCamera extends UseCase.StateChangeCallback,
+        CameraControlInternal.ControlUpdateCallback {
     /**
      * The state of a camera within the process.
      *

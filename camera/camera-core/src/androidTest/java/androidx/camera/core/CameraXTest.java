@@ -375,19 +375,19 @@ public final class CameraXTest {
 
     @Test
     @UiThreadTest
-    public void eventListenerCalled_bindAndUnbind() {
+    public void eventCallbackCalled_bindAndUnbind() {
         initCameraX();
-        UseCase.EventListener eventListener = Mockito.mock(UseCase.EventListener.class);
+        UseCase.EventCallback eventCallback = Mockito.mock(UseCase.EventCallback.class);
 
         FakeUseCaseConfig.Builder fakeConfigBuilder = new FakeUseCaseConfig.Builder();
-        fakeConfigBuilder.setUseCaseEventListener(eventListener);
+        fakeConfigBuilder.setUseCaseEventCallback(eventCallback);
         AttachCameraFakeCase fakeUseCase = new AttachCameraFakeCase(fakeConfigBuilder.build());
 
         CameraX.bindToLifecycle(mLifecycle, fakeUseCase);
-        Mockito.verify(eventListener).onBind(mCameraId);
+        Mockito.verify(eventCallback).onBind(mCameraId);
 
         CameraX.unbind(fakeUseCase);
-        Mockito.verify(eventListener).onUnbind();
+        Mockito.verify(eventCallback).onUnbind();
     }
 
     @Test

@@ -131,7 +131,7 @@ public abstract class ImageCaptureExtender {
         ImageCaptureAdapter imageCaptureAdapter = new ImageCaptureAdapter(mImpl, mEffectMode);
         new Camera2Config.Extender(mBuilder).setCameraEventCallback(
                 new CameraEventCallbacks(imageCaptureAdapter));
-        mBuilder.setUseCaseEventListener(imageCaptureAdapter);
+        mBuilder.setUseCaseEventCallback(imageCaptureAdapter);
         mBuilder.setCaptureBundle(imageCaptureAdapter);
         mBuilder.getMutableConfig().insertOption(OPTION_IMAGE_CAPTURE_EXTENDER_MODE, mEffectMode);
         setSupportedResolutions();
@@ -187,7 +187,7 @@ public abstract class ImageCaptureExtender {
     /**
      * An implementation to adapt the OEM provided implementation to core.
      */
-    static class ImageCaptureAdapter extends CameraEventCallback implements UseCase.EventListener,
+    static class ImageCaptureAdapter extends CameraEventCallback implements UseCase.EventCallback,
             CaptureBundle {
         final EffectMode mEffectMode;
         private final ImageCaptureExtenderImpl mImpl;
