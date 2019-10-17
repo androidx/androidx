@@ -28,11 +28,11 @@ import androidx.ui.text.withStyle
 fun AnnotatedStringBuilderSample() {
     with(AnnotatedString.Builder("Hello")) {
         // push green text style so that any appended text will be green
-        push(TextStyle(color = Color.Green))
+        pushStyle(TextStyle(color = Color.Green))
         // append new text, this text will be rendered as green
         append(" World")
         // pop the green style
-        pop()
+        popStyle()
         // append a string without style
         append("!")
         // then style the last added word as red, exclamation mark will be red
@@ -46,11 +46,11 @@ fun AnnotatedStringBuilderSample() {
 fun AnnotatedStringBuilderPushSample() {
     with(AnnotatedString.Builder()) {
         // push green text color so that any appended text will be rendered green
-        push(TextStyle(color = Color.Green))
+        pushStyle(TextStyle(color = Color.Green))
         // append string, this text will be rendered green
         append("Hello")
         // pop the green text style
-        pop()
+        popStyle()
         // append new string, this string will be default color
         append(" World")
 
@@ -62,11 +62,11 @@ fun AnnotatedStringBuilderPushSample() {
 fun AnnotatedStringBuilderPushParagraphStyleSample() {
     with(AnnotatedString.Builder()) {
         // push a ParagraphStyle to be applied to any appended text after this point.
-        push(ParagraphStyle(lineHeight = 18.sp))
+        pushStyle(ParagraphStyle(lineHeight = 18.sp))
         // append a paragraph which will have lineHeight 18.sp
         append("Paragraph One\n")
         // pop the ParagraphStyle
-        pop()
+        popStyle()
         // append new paragraph, this paragraph will not have the line height defined.
         append("Paragraph Two\n")
 

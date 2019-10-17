@@ -17,6 +17,7 @@
 package androidx.ui.text
 
 import androidx.ui.text.AnnotatedString.Builder
+import androidx.ui.text.AnnotatedString.Item
 import java.util.SortedSet
 
 /**
@@ -41,14 +42,19 @@ data class AnnotatedString(
         }
     }
 
-    override fun toString(): String = text
+    operator fun plus(other: AnnotatedString): AnnotatedString {
+        return with(Builder(this)) {
+            append(other)
+            toAnnotatedString()
+        }
+    }
 
     /**
      * The information attached on the text such as a TextStyle.
      *
-     * @param style The style being applied on this part of [AnnotatedString].
-     * @param start The start of the range where [style] takes effect. It's inclusive.
-     * @param end The end of the range where [style] takes effect. It's exclusive.
+     * @param style The style being applied on this part of [AnnotatedString]
+     * @param start The start of the range where [style] takes effect. It's inclusive
+     * @param end The end of the range where [style] takes effect. It's exclusive
      */
     // TODO(haoyuchang): Check some other naming options.
     data class Item<T>(val style: T, val start: Int, val end: Int) {
@@ -62,8 +68,10 @@ data class AnnotatedString(
      * methods such as [append] and [addStyle].
      *
      * @sample androidx.ui.text.samples.AnnotatedStringBuilderSample
+     *
+     * @param capacity initial capacity for the internal char buffer
      */
-    class Builder() {
+    class Builder(capacity: Int = 16) {
 
         private data class MutableItem<T>(
             val style: T,
@@ -82,17 +90,20 @@ data class AnnotatedString(
             }
         }
 
-        private val text: StringBuilder = StringBuilder()
+        private val text: StringBuilder = StringBuilder(capacity)
         private val textStyles: MutableList<MutableItem<TextStyle>> = mutableListOf()
         private val paragraphStyles: MutableList<MutableItem<ParagraphStyle>> = mutableListOf()
         private val styleStack: MutableList<MutableItem<out Any>> = mutableListOf()
 
+        /**
+         * Create an [Builder] instance using the given [String].
+         */
         constructor(text: String) : this() {
             append(text)
         }
 
         /**
-         * Create an [Builder] instance
+         * Create an [Builder] instance using the given [AnnotatedString].
          */
         constructor(text: AnnotatedString) : this() {
             append(text)
@@ -106,35 +117,21 @@ data class AnnotatedString(
         override fun toString(): String = text.toString()
 
         /**
-         * Set a [TextStyle] for the given [range].
-         *
-         * @param style [TextStyle] to be applied
-         * @param start the inclusive starting offset of the range
-         * @param end the exclusive end offset of the range
-         */
-        fun addStyle(style: TextStyle, start: Int, end: Int) {
-            textStyles.add(MutableItem(style = style, start = start, end = end))
-        }
-
-        /**
-         * Set a [ParagraphStyle] for the given [range]. When a [ParagraphStyle] is applied to the
-         * [AnnotatedString], it will be rendered as a separate paragraph.
-         *
-         * @param style [ParagraphStyle] to be applied.
-         * @param start the inclusive starting offset of the range
-         * @param end the exclusive end offset of the range
-         */
-        fun addStyle(style: ParagraphStyle, start: Int, end: Int) {
-            paragraphStyles.add(MutableItem(style = style, start = start, end = end))
-        }
-
-        /**
          * Appends the given [String] to this [Builder].
          *
          * @param text the text to append
          */
         fun append(text: String) {
             this.text.append(text)
+        }
+
+        /**
+         * Appends the given [Char] to this [Builder].
+         *
+         * @param char the Char to append
+         */
+        fun append(char: Char) {
+            this.text.append(char)
         }
 
         /**
@@ -155,13 +152,37 @@ data class AnnotatedString(
         }
 
         /**
-         * Applies the given [TextStyle] to any appended text until a corresponding [pop] is called.
+         * Set a [TextStyle] for the given [range].
+         *
+         * @param style [TextStyle] to be applied
+         * @param start the inclusive starting offset of the range
+         * @param end the exclusive end offset of the range
+         */
+        fun addStyle(style: TextStyle, start: Int, end: Int) {
+            textStyles.add(MutableItem(style = style, start = start, end = end))
+        }
+
+        /**
+         * Set a [ParagraphStyle] for the given [range]. When a [ParagraphStyle] is applied to the
+         * [AnnotatedString], it will be rendered as a separate paragraph.
+         *
+         * @param style [ParagraphStyle] to be applied
+         * @param start the inclusive starting offset of the range
+         * @param end the exclusive end offset of the range
+         */
+        fun addStyle(style: ParagraphStyle, start: Int, end: Int) {
+            paragraphStyles.add(MutableItem(style = style, start = start, end = end))
+        }
+
+        /**
+         * Applies the given [TextStyle] to any appended text until a corresponding [popStyle] is
+         * called.
          *
          * @sample androidx.ui.text.samples.AnnotatedStringBuilderPushSample
          *
          * @param style TextStyle to be applied
          */
-        fun push(style: TextStyle): Int {
+        fun pushStyle(style: TextStyle): Int {
             MutableItem(style = style, start = text.length).also {
                 styleStack.add(it)
                 textStyles.add(it)
@@ -170,14 +191,14 @@ data class AnnotatedString(
         }
 
         /**
-         * Applies the given [ParagraphStyle] to any appended text until a corresponding [pop] is
-         * called.
+         * Applies the given [ParagraphStyle] to any appended text until a corresponding [popStyle]
+         * is called.
          *
          * @sample androidx.ui.text.samples.AnnotatedStringBuilderPushParagraphStyleSample
          *
          * @param style ParagraphStyle to be applied
          */
-        fun push(style: ParagraphStyle): Int {
+        fun pushStyle(style: ParagraphStyle): Int {
             MutableItem(style = style, start = text.length).also {
                 styleStack.add(it)
                 paragraphStyles.add(it)
@@ -188,9 +209,9 @@ data class AnnotatedString(
         /**
          * Ends the style that was added via a push operation before.
          *
-         * @see push
+         * @see pushStyle
          */
-        fun pop() {
+        fun popStyle() {
             check(styleStack.isNotEmpty()) { "Nothing to pop." }
             // pop the last element
             val item = styleStack.removeAt(styleStack.size - 1)
@@ -198,17 +219,17 @@ data class AnnotatedString(
         }
 
         /**
-         * Ends the styles up to and `including` the [push] that returned the given index.
+         * Ends the styles up to and `including` the [pushStyle] that returned the given index.
          *
-         * @param index
+         * @param index the result of the a previous [pushStyle] in order to pop to
          *
-         * @see pop
-         * @see push
+         * @see popStyle
+         * @see pushStyle
          */
-        fun pop(index: Int) {
+        fun popStyle(index: Int) {
             check(index < styleStack.size) { "$index should be less than ${styleStack.size}" }
             while ((styleStack.size - 1) >= index) {
-                pop()
+                popStyle()
             }
         }
 
@@ -242,26 +263,26 @@ data class AnnotatedString(
  */
 internal fun AnnotatedString.normalizedParagraphStyles(
     defaultParagraphStyle: ParagraphStyle
-): List<AnnotatedString.Item<ParagraphStyle>> {
+): List<Item<ParagraphStyle>> {
     val length = text.length
     val paragraphStyles = paragraphStyles
 
     var lastOffset = 0
-    val result = mutableListOf<AnnotatedString.Item<ParagraphStyle>>()
+    val result = mutableListOf<Item<ParagraphStyle>>()
     for ((style, start, end) in paragraphStyles) {
         if (start != lastOffset) {
-            result.add(AnnotatedString.Item(defaultParagraphStyle, lastOffset, start))
+            result.add(Item(defaultParagraphStyle, lastOffset, start))
         }
-        result.add(AnnotatedString.Item(defaultParagraphStyle.merge(style), start, end))
+        result.add(Item(defaultParagraphStyle.merge(style), start, end))
         lastOffset = end
     }
     if (lastOffset != length) {
-        result.add(AnnotatedString.Item(defaultParagraphStyle, lastOffset, length))
+        result.add(Item(defaultParagraphStyle, lastOffset, length))
     }
     // This is a corner case where annotatedString is an empty string without any ParagraphStyle.
     // In this case, a dummy ParagraphStyle is created.
     if (result.isEmpty()) {
-        result.add(AnnotatedString.Item(defaultParagraphStyle, 0, 0))
+        result.add(Item(defaultParagraphStyle, 0, 0))
     }
     return result
 }
@@ -270,14 +291,14 @@ internal fun AnnotatedString.normalizedParagraphStyles(
  * Helper function used to find the [TextStyle]s in the given paragraph range and also convert the
  * range of those [TextStyle]s to paragraph local range.
  *
- * @param start The start index of the paragraph range, inclusive.
- * @param end The end index of the paragraph range, exclusive.
- * @return The list of converted [TextStyle]s in the given paragraph range.
+ * @param start The start index of the paragraph range, inclusive
+ * @param end The end index of the paragraph range, exclusive
+ * @return The list of converted [TextStyle]s in the given paragraph range
  */
 private fun AnnotatedString.getLocalStyles(
     start: Int,
     end: Int
-): List<AnnotatedString.Item<TextStyle>> {
+): List<Item<TextStyle>> {
     if (start == end) {
         return listOf()
     }
@@ -287,7 +308,7 @@ private fun AnnotatedString.getLocalStyles(
     }
     return textStyles.filter { it.start < end && it.end > start }
         .map {
-            AnnotatedString.Item(
+            Item(
                 it.style,
                 it.start.coerceIn(start, end) - start,
                 it.end.coerceIn(start, end) - start
@@ -300,9 +321,9 @@ private fun AnnotatedString.getLocalStyles(
  * [end]. This will ignore the [ParagraphStyle]s and the resulting [AnnotatedString] will have no
  * [ParagraphStyle]s.
  *
- * @param start The start index of the paragraph range, inclusive.
- * @param end The end index of the paragraph range, exclusive.
- * @return The list of converted [TextStyle]s in the given paragraph range.
+ * @param start The start index of the paragraph range, inclusive
+ * @param end The end index of the paragraph range, exclusive
+ * @return The list of converted [TextStyle]s in the given paragraph range
  */
 private fun AnnotatedString.substringWithoutParagraphStyles(
     start: Int,
@@ -318,7 +339,7 @@ internal inline fun <T> AnnotatedString.mapEachParagraphStyle(
     defaultParagraphStyle: ParagraphStyle,
     crossinline block: (
         annotatedString: AnnotatedString,
-        paragraphStyle: AnnotatedString.Item<ParagraphStyle>
+        paragraphStyle: Item<ParagraphStyle>
     ) -> T
 ): List<T> {
     return normalizedParagraphStyles(defaultParagraphStyle).map { paragraphStyleItem ->
@@ -436,13 +457,13 @@ private fun AnnotatedString.transform(transform: (String, Int, Int) -> String): 
         offsetMap.put(end, resultStr.length)
     }
 
-    val newTextStyles = mutableListOf<AnnotatedString.Item<TextStyle>>()
-    val newParaStyles = mutableListOf<AnnotatedString.Item<ParagraphStyle>>()
+    val newTextStyles = mutableListOf<Item<TextStyle>>()
+    val newParaStyles = mutableListOf<Item<ParagraphStyle>>()
 
     for (textStyle in textStyles) {
         // The offset map must have mapping entry from all style start, end position.
         newTextStyles.add(
-            AnnotatedString.Item(
+            Item(
                 textStyle.style,
                 offsetMap[textStyle.start]!!,
                 offsetMap[textStyle.end]!!
@@ -452,7 +473,7 @@ private fun AnnotatedString.transform(transform: (String, Int, Int) -> String): 
 
     for (paraStyle in paragraphStyles) {
         newParaStyles.add(
-            AnnotatedString.Item(
+            Item(
                 paraStyle.style,
                 offsetMap[paraStyle.start]!!,
                 offsetMap[paraStyle.end]!!
@@ -473,7 +494,7 @@ private fun AnnotatedString.transform(transform: (String, Int, Int) -> String): 
  * @param target The output list
  */
 private fun <T> collectItemTransitions(
-    items: List<AnnotatedString.Item<T>>,
+    items: List<Item<T>>,
     target: SortedSet<Int>
 ) {
     items.fold(target) { acc, item ->
@@ -499,18 +520,18 @@ val AnnotatedString.length: Int get() = text.length
  *
  * @return result of the [block]
  *
- * @see AnnotatedString.Builder.push
- * @see AnnotatedString.Builder.pop
+ * @see AnnotatedString.Builder.pushStyle
+ * @see AnnotatedString.Builder.popStyle
  */
 inline fun <R : Any> Builder.withStyle(
     style: TextStyle,
     crossinline block: Builder.() -> R
 ): R {
-    val index = push(style)
+    val index = pushStyle(style)
     return try {
         block(this)
     } finally {
-        pop(index)
+        popStyle(index)
     }
 }
 
@@ -524,26 +545,62 @@ inline fun <R : Any> Builder.withStyle(
  *
  * @return result of the [block]
  *
- * @see AnnotatedString.Builder.push
- * @see AnnotatedString.Builder.pop
+ * @see AnnotatedString.Builder.pushStyle
+ * @see AnnotatedString.Builder.popStyle
  */
 inline fun <R : Any> Builder.withStyle(
     style: ParagraphStyle,
     crossinline block: Builder.() -> R
 ): R {
-    val index = push(style)
+    val index = pushStyle(style)
     return try {
         block(this)
     } finally {
-        pop(index)
+        popStyle(index)
     }
 }
 
-operator fun AnnotatedString.plus(other: AnnotatedString): AnnotatedString {
-    return with(Builder(this)) {
-        append(other)
-        toAnnotatedString()
+/**
+ * Filter the Item list based on [Item.start] and [Item.end] to include items only in the range
+ * of [start] (inclusive) and [end] (exclusive).
+ *
+ * @param start the inclusive start offset of the text range
+ * @param end the exclusive end offset of the text range
+ */
+private fun <T> filterItemsByRange(items: List<Item<T>>, start: Int, end: Int): List<Item<T>> {
+    require(start <= end) { "start ($start) should be less than or equal to end ($end)" }
+    return items.filter {
+        // for collapsed items/ranges, if starts are same accept. Otherwise:
+        // item.end is exclusive, therefore if equals to start which is inclusive should be
+        // filtered
+        // likewise end is exclusive, if equals to item.start which is inclusive should be
+        // filtered
+        (it.start == start) || !(it.end <= start || it.start >= end)
+    }.map {
+        Item(
+            style = it.style,
+            start = (if (it.start < start) start else it.start) - start,
+            end = (if (end < it.end) end else it.end) - start
+        )
     }
+}
+
+/**
+ * Return a substring for the AnnotatedString and include the styles in the range of [start]
+ * (inclusive) and [end] (exclusive).
+ *
+ * @param start the inclusive start offset of the range
+ * @param end the exclusive end offset of the range
+ */
+fun AnnotatedString.subSequence(start: Int, end: Int): AnnotatedString {
+    require(start <= end) { "start ($start) should be less or equal to end ($end)" }
+
+    val text = text.substring(start, end)
+    return AnnotatedString(
+        text = text,
+        textStyles = filterItemsByRange(textStyles, start, end),
+        paragraphStyles = filterItemsByRange(paragraphStyles, start, end)
+    )
 }
 
 /**
