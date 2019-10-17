@@ -134,7 +134,7 @@ public interface CameraControlInternal extends CameraControl {
     };
 
     /** Listener called when CameraControlInternal need to notify event. */
-    interface ControlUpdateListener {
+    interface ControlUpdateCallback {
 
         /** Called when CameraControlInternal has updated session configuration. */
         void onCameraControlUpdateSessionConfig(@NonNull SessionConfig sessionConfig);

@@ -35,8 +35,8 @@ import org.mockito.Mockito;
 @SmallTest
 @RunWith(AndroidJUnit4.class)
 public final class UseCaseGroupTest {
-    private final UseCaseGroup.StateChangeListener mMockListener =
-            Mockito.mock(UseCaseGroup.StateChangeListener.class);
+    private final UseCaseGroup.StateChangeCallback mMockCallback =
+            Mockito.mock(UseCaseGroup.StateChangeCallback.class);
     private UseCaseGroup mUseCaseGroup;
     private FakeUseCase mFakeUseCase;
     private FakeOtherUseCase mFakeOtherUseCase;
@@ -103,26 +103,26 @@ public final class UseCaseGroupTest {
 
     @Test
     public void listenerOnGroupActive_ifUseCaseGroupStarted() {
-        mUseCaseGroup.setListener(mMockListener);
+        mUseCaseGroup.setListener(mMockCallback);
         mUseCaseGroup.start();
 
-        verify(mMockListener, times(1)).onGroupActive(mUseCaseGroup);
+        verify(mMockCallback, times(1)).onGroupActive(mUseCaseGroup);
     }
 
     @Test
     public void listenerOnGroupInactive_ifUseCaseGroupStopped() {
-        mUseCaseGroup.setListener(mMockListener);
+        mUseCaseGroup.setListener(mMockCallback);
         mUseCaseGroup.stop();
 
-        verify(mMockListener, times(1)).onGroupInactive(mUseCaseGroup);
+        verify(mMockCallback, times(1)).onGroupInactive(mUseCaseGroup);
     }
 
     @Test
     public void setListener_replacesPreviousListener() {
-        mUseCaseGroup.setListener(mMockListener);
+        mUseCaseGroup.setListener(mMockCallback);
         mUseCaseGroup.setListener(null);
 
         mUseCaseGroup.start();
-        verify(mMockListener, never()).onGroupActive(mUseCaseGroup);
+        verify(mMockCallback, never()).onGroupActive(mUseCaseGroup);
     }
 }

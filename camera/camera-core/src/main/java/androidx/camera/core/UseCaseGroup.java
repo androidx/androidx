@@ -44,7 +44,7 @@ public final class UseCaseGroup {
     private static final String TAG = "UseCaseGroup";
 
     /**
-     * The lock for the single {@link StateChangeListener} held by the group.
+     * The lock for the single {@link StateChangeCallback} held by the group.
      *
      * <p>This lock is always acquired prior to acquiring the mUseCasesLock so that there is no
      * lock-ordering deadlock.
@@ -60,14 +60,14 @@ public final class UseCaseGroup {
     @GuardedBy("mUseCasesLock")
     private final Set<UseCase> mUseCases = new HashSet<>();
     @GuardedBy("mListenerLock")
-    private StateChangeListener mListener;
+    private StateChangeCallback mStateChangeCallback;
     private volatile boolean mIsActive = false;
 
     /** Starts all the use cases so that they are brought into an online state. */
     void start() {
         synchronized (mListenerLock) {
-            if (mListener != null) {
-                mListener.onGroupActive(this);
+            if (mStateChangeCallback != null) {
+                mStateChangeCallback.onGroupActive(this);
             }
             mIsActive = true;
         }
@@ -76,16 +76,16 @@ public final class UseCaseGroup {
     /** Stops all the use cases so that they are brought into an offline state. */
     void stop() {
         synchronized (mListenerLock) {
-            if (mListener != null) {
-                mListener.onGroupInactive(this);
+            if (mStateChangeCallback != null) {
+                mStateChangeCallback.onGroupInactive(this);
             }
             mIsActive = false;
         }
     }
 
-    void setListener(StateChangeListener listener) {
+    void setListener(StateChangeCallback stateChangeCallback) {
         synchronized (mListenerLock) {
-            this.mListener = listener;
+            this.mStateChangeCallback = stateChangeCallback;
         }
     }
 
@@ -162,7 +162,7 @@ public final class UseCaseGroup {
     }
 
     /** Listener called when a {@link UseCaseGroup} transitions between active/inactive states. */
-    interface StateChangeListener {
+    interface StateChangeCallback {
         /**
          * Called when a {@link UseCaseGroup} becomes active.
          *

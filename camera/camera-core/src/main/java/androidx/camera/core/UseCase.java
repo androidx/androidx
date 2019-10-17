@@ -46,10 +46,10 @@ public abstract class UseCase {
     private static final String TAG = "UseCase";
 
     /**
-     * The set of {@link StateChangeListener} that are currently listening state transitions of this
+     * The set of {@link StateChangeCallback} that are currently listening state transitions of this
      * use case.
      */
-    private final Set<StateChangeListener> mListeners = new HashSet<>();
+    private final Set<StateChangeCallback> mStateChangeCallbacks = new HashSet<>();
 
     /**
      * A map of camera id and CameraControlInternal. A CameraControlInternal will be attached
@@ -207,14 +207,14 @@ public abstract class UseCase {
     }
 
     /**
-     * Add a {@link StateChangeListener}, which listens to this UseCase's active and inactive
+     * Add a {@link StateChangeCallback}, which listens to this UseCase's active and inactive
      * transition events.
      *
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
-    public void addStateChangeListener(StateChangeListener listener) {
-        mListeners.add(listener);
+    public void addStateChangeCallback(@NonNull StateChangeCallback callback) {
+        mStateChangeCallbacks.add(callback);
     }
 
     /**
@@ -234,7 +234,7 @@ public abstract class UseCase {
     }
 
     /**
-     * Remove a {@link StateChangeListener} from listening to this UseCase's active and inactive
+     * Remove a {@link StateChangeCallback} from listening to this UseCase's active and inactive
      * transition events.
      *
      * <p>If the listener isn't currently listening to the UseCase then this call does nothing.
@@ -242,8 +242,8 @@ public abstract class UseCase {
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
-    public void removeStateChangeListener(StateChangeListener listener) {
-        mListeners.remove(listener);
+    public void removeStateChangeCallback(@NonNull StateChangeCallback callback) {
+        mStateChangeCallbacks.remove(callback);
     }
 
     /**
@@ -265,7 +265,7 @@ public abstract class UseCase {
     }
 
     /**
-     * Notify all {@link StateChangeListener} that are listening to this UseCase that it has
+     * Notify all {@link StateChangeCallback} that are listening to this UseCase that it has
      * transitioned to an active state.
      *
      * @hide
@@ -277,7 +277,7 @@ public abstract class UseCase {
     }
 
     /**
-     * Notify all {@link StateChangeListener} that are listening to this UseCase that it has
+     * Notify all {@link StateChangeCallback} that are listening to this UseCase that it has
      * transitioned to an inactive state.
      *
      * @hide
@@ -289,33 +289,33 @@ public abstract class UseCase {
     }
 
     /**
-     * Notify all {@link StateChangeListener} that are listening to this UseCase that the
+     * Notify all {@link StateChangeCallback} that are listening to this UseCase that the
      * settings have been updated.
      *
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     protected final void notifyUpdated() {
-        for (StateChangeListener listener : mListeners) {
-            listener.onUseCaseUpdated(this);
+        for (StateChangeCallback stateChangeCallback : mStateChangeCallbacks) {
+            stateChangeCallback.onUseCaseUpdated(this);
         }
     }
 
     /**
-     * Notify all {@link StateChangeListener} that are listening to this UseCase that the use
+     * Notify all {@link StateChangeCallback} that are listening to this UseCase that the use
      * case needs to be completely reset.
      *
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     protected final void notifyReset() {
-        for (StateChangeListener listener : mListeners) {
-            listener.onUseCaseReset(this);
+        for (StateChangeCallback stateChangeCallback : mStateChangeCallbacks) {
+            stateChangeCallback.onUseCaseReset(this);
         }
     }
 
     /**
-     * Notify all {@link StateChangeListener} that are listening to this UseCase of its current
+     * Notify all {@link StateChangeCallback} that are listening to this UseCase of its current
      * state.
      *
      * @hide
@@ -324,13 +324,13 @@ public abstract class UseCase {
     protected final void notifyState() {
         switch (mState) {
             case INACTIVE:
-                for (StateChangeListener listener : mListeners) {
-                    listener.onUseCaseInactive(this);
+                for (StateChangeCallback stateChangeCallback : mStateChangeCallbacks) {
+                    stateChangeCallback.onUseCaseInactive(this);
                 }
                 break;
             case ACTIVE:
-                for (StateChangeListener listener : mListeners) {
-                    listener.onUseCaseActive(this);
+                for (StateChangeCallback stateChangeCallback : mStateChangeCallbacks) {
+                    stateChangeCallback.onUseCaseActive(this);
                 }
                 break;
         }
@@ -360,12 +360,12 @@ public abstract class UseCase {
     /** Clears internal state of this use case. */
     @CallSuper
     protected void clear() {
-        EventListener eventListener = mUseCaseConfig.getUseCaseEventListener(null);
-        if (eventListener != null) {
-            eventListener.onUnbind();
+        EventCallback eventCallback = mUseCaseConfig.getUseCaseEventCallback(null);
+        if (eventCallback != null) {
+            eventCallback.onUnbind();
         }
 
-        mListeners.clear();
+        mStateChangeCallbacks.clear();
     }
 
     public String getName() {
@@ -447,9 +447,9 @@ public abstract class UseCase {
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     protected void onBind() {
-        EventListener eventListener = mUseCaseConfig.getUseCaseEventListener(null);
-        if (eventListener != null) {
-            eventListener.onBind(getCameraIdUnchecked(mUseCaseConfig));
+        EventCallback eventCallback = mUseCaseConfig.getUseCaseEventCallback(null);
+        if (eventCallback != null) {
+            eventCallback.onBind(getCameraIdUnchecked(mUseCaseConfig));
         }
     }
 
@@ -490,12 +490,12 @@ public abstract class UseCase {
     }
 
     /**
-     * Listener called when a {@link UseCase} transitions between active/inactive states.
+     * Callback for when a {@link UseCase} transitions between active/inactive states.
      *
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
-    public interface StateChangeListener {
+    public interface StateChangeCallback {
         /**
          * Called when a {@link UseCase} becomes active.
          *
@@ -503,7 +503,7 @@ public abstract class UseCase {
          * should start producing data for it to consume. In addition the UseCase will start
          * producing data that other classes can be consumed.
          */
-        void onUseCaseActive(UseCase useCase);
+        void onUseCaseActive(@NonNull UseCase useCase);
 
         /**
          * Called when a {@link UseCase} becomes inactive.
@@ -511,7 +511,7 @@ public abstract class UseCase {
          * <p>When a UseCase is inactive it no longer expects data to be produced for it. In
          * addition the UseCase will stop producing data for other classes to consume.
          */
-        void onUseCaseInactive(UseCase useCase);
+        void onUseCaseInactive(@NonNull UseCase useCase);
 
         /**
          * Called when a {@link UseCase} has updated settings.
@@ -520,7 +520,7 @@ public abstract class UseCase {
          * use these updated settings to reconfigure the listener's own state. A settings update is
          * orthogonal to the active/inactive state change.
          */
-        void onUseCaseUpdated(UseCase useCase);
+        void onUseCaseUpdated(@NonNull UseCase useCase);
 
         /**
          * Called when a {@link UseCase} has updated settings that require complete reset of the
@@ -533,12 +533,12 @@ public abstract class UseCase {
     }
 
     /**
-     * Listener called when a {@link UseCase} transitions between bind/unbind states.
+     * Callback for when a {@link UseCase} transitions between bind/unbind states.
      *
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public interface EventListener {
+    public interface EventCallback {
 
         /**
          * Called when use case was bound to the life cycle.

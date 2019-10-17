@@ -41,7 +41,7 @@ import java.util.Set;
  * @hide
  */
 @RestrictTo(Scope.LIBRARY_GROUP)
-public final class CameraRepository implements UseCaseGroup.StateChangeListener {
+public final class CameraRepository implements UseCaseGroup.StateChangeCallback {
     private static final String TAG = "CameraRepository";
 
     private final Object mCamerasLock = new Object();

@@ -68,7 +68,7 @@ final class UseCaseGroupLifecycleController implements LifecycleObserver {
 
     /**
      * Starts the underlying {@link UseCaseGroup} so that its {@link
-     * UseCaseGroup.StateChangeListener} can be notified.
+     * UseCaseGroup.StateChangeCallback} can be notified.
      *
      * <p>This is required when the contained {@link Lifecycle} is in a STARTED state, since the
      * default state for a {@link UseCaseGroup} is inactive. The explicit call forces a check on the

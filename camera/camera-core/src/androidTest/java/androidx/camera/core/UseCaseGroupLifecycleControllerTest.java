@@ -33,8 +33,8 @@ import org.mockito.Mockito;
 @SmallTest
 @RunWith(AndroidJUnit4.class)
 public class UseCaseGroupLifecycleControllerTest {
-    private final UseCaseGroup.StateChangeListener mMockListener =
-            Mockito.mock(UseCaseGroup.StateChangeListener.class);
+    private final UseCaseGroup.StateChangeCallback mMockCallback =
+            Mockito.mock(UseCaseGroup.StateChangeCallback.class);
     private UseCaseGroupLifecycleController mUseCaseGroupLifecycleController;
     private FakeLifecycleOwner mLifecycleOwner;
 
@@ -81,11 +81,11 @@ public class UseCaseGroupLifecycleControllerTest {
         mUseCaseGroupLifecycleController =
                 new UseCaseGroupLifecycleController(
                         mLifecycleOwner.getLifecycle(), new UseCaseGroup());
-        mUseCaseGroupLifecycleController.getUseCaseGroup().setListener(mMockListener);
+        mUseCaseGroupLifecycleController.getUseCaseGroup().setListener(mMockCallback);
 
         mLifecycleOwner.start();
 
-        verify(mMockListener, times(1))
+        verify(mMockCallback, times(1))
                 .onGroupActive(mUseCaseGroupLifecycleController.getUseCaseGroup());
     }
 
@@ -94,12 +94,12 @@ public class UseCaseGroupLifecycleControllerTest {
         mUseCaseGroupLifecycleController =
                 new UseCaseGroupLifecycleController(
                         mLifecycleOwner.getLifecycle(), new UseCaseGroup());
-        mUseCaseGroupLifecycleController.getUseCaseGroup().setListener(mMockListener);
+        mUseCaseGroupLifecycleController.getUseCaseGroup().setListener(mMockCallback);
         mLifecycleOwner.start();
 
         mLifecycleOwner.stop();
 
-        verify(mMockListener, times(1))
+        verify(mMockCallback, times(1))
                 .onGroupInactive(mUseCaseGroupLifecycleController.getUseCaseGroup());
     }
 }

@@ -794,7 +794,7 @@ public final class CameraX {
             throw new IllegalArgumentException("Invalid camera: " + cameraId);
         }
 
-        useCase.addStateChangeListener(camera);
+        useCase.addStateChangeCallback(camera);
         useCase.attachCameraControl(cameraId, camera.getCameraControlInternal());
     }
 
@@ -813,7 +813,7 @@ public final class CameraX {
         }
 
         for (UseCase useCase : useCases) {
-            useCase.removeStateChangeListener(camera);
+            useCase.removeStateChangeCallback(camera);
             useCase.detachCameraControl(cameraId);
         }
         camera.removeOnlineUseCase(useCases);

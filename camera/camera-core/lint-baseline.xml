@@ -4888,28 +4888,6 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void addStateChangeListener(StateChangeListener listener) {"
-        errorLine2="                                       ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/core/UseCase.java"
-            line="216"
-            column="40"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void addStateChangeListener(StateChangeListener listener) {"
-        errorLine2="                                       ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/core/UseCase.java"
-            line="216"
-            column="40"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    public final void attachCameraControl(String cameraId, CameraControlInternal cameraControl) {"
         errorLine2="                                          ~~~~~~">
         <location
@@ -4949,28 +4927,6 @@
             file="src/main/java/androidx/camera/core/UseCase.java"
             line="226"
             column="60"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void removeStateChangeListener(StateChangeListener listener) {"
-        errorLine2="                                          ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/core/UseCase.java"
-            line="245"
-            column="43"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void removeStateChangeListener(StateChangeListener listener) {"
-        errorLine2="                                          ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/core/UseCase.java"
-            line="245"
-            column="43"/>
     </issue>
 
     <issue
@@ -5279,72 +5235,6 @@
             file="src/main/java/androidx/camera/core/UseCase.java"
             line="462"
             column="54"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        void onUseCaseActive(UseCase useCase);"
-        errorLine2="                             ~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/core/UseCase.java"
-            line="506"
-            column="30"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        void onUseCaseActive(UseCase useCase);"
-        errorLine2="                             ~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/core/UseCase.java"
-            line="506"
-            column="30"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        void onUseCaseInactive(UseCase useCase);"
-        errorLine2="                               ~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/core/UseCase.java"
-            line="514"
-            column="32"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        void onUseCaseInactive(UseCase useCase);"
-        errorLine2="                               ~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/core/UseCase.java"
-            line="514"
-            column="32"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        void onUseCaseUpdated(UseCase useCase);"
-        errorLine2="                              ~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/core/UseCase.java"
-            line="523"
-            column="31"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        void onUseCaseUpdated(UseCase useCase);"
-        errorLine2="                              ~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/core/UseCase.java"
-            line="523"
-            column="31"/>
     </issue>
 
     <issue

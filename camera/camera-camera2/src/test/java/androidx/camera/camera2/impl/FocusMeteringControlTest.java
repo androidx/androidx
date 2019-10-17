@@ -127,8 +127,8 @@ public class FocusMeteringControlTest {
                 cameraManager.getCameraCharacteristics(
                         cameraID);
 
-        CameraControlInternal.ControlUpdateListener updateListener = mock(
-                CameraControlInternal.ControlUpdateListener.class);
+        CameraControlInternal.ControlUpdateCallback updateListener = mock(
+                CameraControlInternal.ControlUpdateCallback.class);
 
         mCamera2CameraControl = spy(new Camera2CameraControl(cameraCharacteristics, updateListener,
                 CameraXExecutors.mainThreadExecutor(), CameraXExecutors.mainThreadExecutor()));

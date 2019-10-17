@@ -41,11 +41,11 @@ import java.util.Set;
 @SmallTest
 @RunWith(AndroidJUnit4.class)
 public class UseCaseTest {
-    private UseCase.StateChangeListener mMockUseCaseListener;
+    private UseCase.StateChangeCallback mMockUseCaseCallback;
 
     @Before
     public void setup() {
-        mMockUseCaseListener = Mockito.mock(UseCase.StateChangeListener.class);
+        mMockUseCaseCallback = Mockito.mock(UseCase.StateChangeCallback.class);
     }
 
     @Test
@@ -76,63 +76,63 @@ public class UseCaseTest {
     public void removeListener() {
         FakeUseCaseConfig config = new FakeUseCaseConfig.Builder().setTargetName("UseCase").build();
         TestUseCase testUseCase = new TestUseCase(config);
-        testUseCase.addStateChangeListener(mMockUseCaseListener);
-        testUseCase.removeStateChangeListener(mMockUseCaseListener);
+        testUseCase.addStateChangeCallback(mMockUseCaseCallback);
+        testUseCase.removeStateChangeCallback(mMockUseCaseCallback);
 
         testUseCase.activate();
 
-        verify(mMockUseCaseListener, never()).onUseCaseActive(any(UseCase.class));
+        verify(mMockUseCaseCallback, never()).onUseCaseActive(any(UseCase.class));
     }
 
     @Test
     public void clearListeners() {
         FakeUseCaseConfig config = new FakeUseCaseConfig.Builder().setTargetName("UseCase").build();
         TestUseCase testUseCase = new TestUseCase(config);
-        testUseCase.addStateChangeListener(mMockUseCaseListener);
+        testUseCase.addStateChangeCallback(mMockUseCaseCallback);
         testUseCase.clear();
 
         testUseCase.activate();
-        verify(mMockUseCaseListener, never()).onUseCaseActive(any(UseCase.class));
+        verify(mMockUseCaseCallback, never()).onUseCaseActive(any(UseCase.class));
     }
 
     @Test
     public void notifyActiveState() {
         FakeUseCaseConfig config = new FakeUseCaseConfig.Builder().setTargetName("UseCase").build();
         TestUseCase testUseCase = new TestUseCase(config);
-        testUseCase.addStateChangeListener(mMockUseCaseListener);
+        testUseCase.addStateChangeCallback(mMockUseCaseCallback);
 
         testUseCase.activate();
-        verify(mMockUseCaseListener, times(1)).onUseCaseActive(testUseCase);
+        verify(mMockUseCaseCallback, times(1)).onUseCaseActive(testUseCase);
     }
 
     @Test
     public void notifyInactiveState() {
         FakeUseCaseConfig config = new FakeUseCaseConfig.Builder().setTargetName("UseCase").build();
         TestUseCase testUseCase = new TestUseCase(config);
-        testUseCase.addStateChangeListener(mMockUseCaseListener);
+        testUseCase.addStateChangeCallback(mMockUseCaseCallback);
 
         testUseCase.deactivate();
-        verify(mMockUseCaseListener, times(1)).onUseCaseInactive(testUseCase);
+        verify(mMockUseCaseCallback, times(1)).onUseCaseInactive(testUseCase);
     }
 
     @Test
     public void notifyUpdatedSettings() {
         FakeUseCaseConfig config = new FakeUseCaseConfig.Builder().setTargetName("UseCase").build();
         TestUseCase testUseCase = new TestUseCase(config);
-        testUseCase.addStateChangeListener(mMockUseCaseListener);
+        testUseCase.addStateChangeCallback(mMockUseCaseCallback);
 
         testUseCase.update();
-        verify(mMockUseCaseListener, times(1)).onUseCaseUpdated(testUseCase);
+        verify(mMockUseCaseCallback, times(1)).onUseCaseUpdated(testUseCase);
     }
 
     @Test
     public void notifyResetUseCase() {
         FakeUseCaseConfig config = new FakeUseCaseConfig.Builder().setTargetName("UseCase").build();
         TestUseCase testUseCase = new TestUseCase(config);
-        testUseCase.addStateChangeListener(mMockUseCaseListener);
+        testUseCase.addStateChangeCallback(mMockUseCaseCallback);
 
         testUseCase.notifyReset();
-        verify(mMockUseCaseListener, times(1)).onUseCaseReset(testUseCase);
+        verify(mMockUseCaseCallback, times(1)).onUseCaseReset(testUseCase);
     }
 
     @Test

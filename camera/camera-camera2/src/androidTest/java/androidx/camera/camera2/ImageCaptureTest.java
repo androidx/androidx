@@ -239,7 +239,7 @@ public final class ImageCaptureTest {
         mInstrumentation.runOnMainSync(
                 () -> useCase.updateSuggestedResolution(suggestedResolutionMap));
         CameraUtil.openCameraWithUseCase(mCameraId, mCamera, useCase, mRepeatingUseCase);
-        useCase.addStateChangeListener(mCamera);
+        useCase.addStateChangeCallback(mCamera);
 
         useCase.takePicture(mListenerExecutor, mOnImageCapturedCallback);
         // Wait for the signal that the image has been captured.
@@ -258,7 +258,7 @@ public final class ImageCaptureTest {
         mInstrumentation.runOnMainSync(
                 () -> useCase.updateSuggestedResolution(suggestedResolutionMap));
         CameraUtil.openCameraWithUseCase(mCameraId, mCamera, useCase, mRepeatingUseCase);
-        useCase.addStateChangeListener(mCamera);
+        useCase.addStateChangeCallback(mCamera);
 
         int numImages = 5;
         for (int i = 0; i < numImages; ++i) {
@@ -295,7 +295,7 @@ public final class ImageCaptureTest {
         mInstrumentation.runOnMainSync(
                 () -> useCase.updateSuggestedResolution(suggestedResolutionMap));
         CameraUtil.openCameraWithUseCase(mCameraId, mCamera, useCase, mRepeatingUseCase);
-        useCase.addStateChangeListener(mCamera);
+        useCase.addStateChangeCallback(mCamera);
 
         int numImages = 5;
         for (int i = 0; i < numImages; ++i) {
@@ -328,7 +328,7 @@ public final class ImageCaptureTest {
         mInstrumentation.runOnMainSync(
                 () -> useCase.updateSuggestedResolution(suggestedResolutionMap));
         CameraUtil.openCameraWithUseCase(mCameraId, mCamera, useCase, mRepeatingUseCase);
-        useCase.addStateChangeListener(mCamera);
+        useCase.addStateChangeCallback(mCamera);
 
         File saveLocation = File.createTempFile("test", ".jpg");
         saveLocation.deleteOnExit();
@@ -349,7 +349,7 @@ public final class ImageCaptureTest {
         mInstrumentation.runOnMainSync(
                 () -> useCase.updateSuggestedResolution(suggestedResolutionMap));
         CameraUtil.openCameraWithUseCase(mCameraId, mCamera, useCase, mRepeatingUseCase);
-        useCase.addStateChangeListener(mCamera);
+        useCase.addStateChangeCallback(mCamera);
 
         File saveLocation = File.createTempFile("test", ".jpg");
         saveLocation.deleteOnExit();
@@ -378,7 +378,7 @@ public final class ImageCaptureTest {
         mInstrumentation.runOnMainSync(
                 () -> useCase.updateSuggestedResolution(suggestedResolutionMap));
         CameraUtil.openCameraWithUseCase(mCameraId, mCamera, useCase, mRepeatingUseCase);
-        useCase.addStateChangeListener(mCamera);
+        useCase.addStateChangeCallback(mCamera);
 
         File saveLocation = File.createTempFile("test", ".jpg");
         saveLocation.deleteOnExit();
@@ -405,7 +405,7 @@ public final class ImageCaptureTest {
         mInstrumentation.runOnMainSync(
                 () -> useCase.updateSuggestedResolution(suggestedResolutionMap));
         CameraUtil.openCameraWithUseCase(mCameraId, mCamera, useCase, mRepeatingUseCase);
-        useCase.addStateChangeListener(mCamera);
+        useCase.addStateChangeCallback(mCamera);
 
         File saveLocation = File.createTempFile("test", ".jpg");
         saveLocation.deleteOnExit();
@@ -429,7 +429,7 @@ public final class ImageCaptureTest {
         mInstrumentation.runOnMainSync(
                 () -> useCase.updateSuggestedResolution(suggestedResolutionMap));
         CameraUtil.openCameraWithUseCase(mCameraId, mCamera, useCase, mRepeatingUseCase);
-        useCase.addStateChangeListener(mCamera);
+        useCase.addStateChangeCallback(mCamera);
 
         File saveLocation = File.createTempFile("test", ".jpg");
         saveLocation.deleteOnExit();
@@ -454,7 +454,7 @@ public final class ImageCaptureTest {
         mInstrumentation.runOnMainSync(
                 () -> useCase.updateSuggestedResolution(suggestedResolutionMap));
         CameraUtil.openCameraWithUseCase(mCameraId, mCamera, useCase, mRepeatingUseCase);
-        useCase.addStateChangeListener(mCamera);
+        useCase.addStateChangeCallback(mCamera);
 
         int numImages = 5;
         for (int i = 0; i < numImages; ++i) {
@@ -478,7 +478,7 @@ public final class ImageCaptureTest {
         mInstrumentation.runOnMainSync(
                 () -> useCase.updateSuggestedResolution(suggestedResolutionMap));
         CameraUtil.openCameraWithUseCase(mCameraId, mCamera, useCase, mRepeatingUseCase);
-        useCase.addStateChangeListener(mCamera);
+        useCase.addStateChangeCallback(mCamera);
 
         // Note the invalid path
         File saveLocation = new File("/not/a/real/path.jpg");
@@ -497,7 +497,7 @@ public final class ImageCaptureTest {
         ImageCaptureConfig config =
                 new ImageCaptureConfig.Builder().build();
         ImageCapture useCase = new ImageCapture(config);
-        useCase.addStateChangeListener(mCamera);
+        useCase.addStateChangeCallback(mCamera);
         final Size[] sizes = {SECONDARY_RESOLUTION, DEFAULT_RESOLUTION};
 
         for (Size size : sizes) {
@@ -531,7 +531,7 @@ public final class ImageCaptureTest {
         mInstrumentation.runOnMainSync(
                 () -> useCase.updateSuggestedResolution(suggestedResolutionMap));
         CameraUtil.openCameraWithUseCase(mCameraId, mCamera, useCase, mRepeatingUseCase);
-        useCase.addStateChangeListener(mCamera);
+        useCase.addStateChangeCallback(mCamera);
 
         useCase.takePicture(mListenerExecutor, mOnImageCapturedCallback);
         // Wait for the signal that the image has been captured.
@@ -576,7 +576,7 @@ public final class ImageCaptureTest {
         mInstrumentation.runOnMainSync(
                 () -> useCase.updateSuggestedResolution(suggestedResolutionMap));
         CameraUtil.openCameraWithUseCase(mCameraId, mCamera, useCase, mRepeatingUseCase);
-        useCase.addStateChangeListener(mCamera);
+        useCase.addStateChangeCallback(mCamera);
 
         useCase.takePicture(mListenerExecutor, mOnImageCapturedCallback);
 
@@ -701,7 +701,7 @@ public final class ImageCaptureTest {
         });
 
         FakeCameraControl fakeCameraControl = new FakeCameraControl(mock(
-                CameraControlInternal.ControlUpdateListener.class));
+                CameraControlInternal.ControlUpdateCallback.class));
         imageCapture.attachCameraControl(mCameraId, fakeCameraControl);
         CountDownLatch captureSubmittedLatch = new CountDownLatch(1);
         OnImageCapturedCallback onImageCapturedCallback = mock(OnImageCapturedCallback.class);
@@ -734,7 +734,7 @@ public final class ImageCaptureTest {
         });
 
         FakeCameraControl fakeCameraControl = new FakeCameraControl(mock(
-                CameraControlInternal.ControlUpdateListener.class));
+                CameraControlInternal.ControlUpdateCallback.class));
         imageCapture.attachCameraControl(mCameraId, fakeCameraControl);
         CountDownLatch captureSubmittedLatch = new CountDownLatch(1);
         OnImageCapturedCallback onImageCapturedCallback = mock(OnImageCapturedCallback.class);
