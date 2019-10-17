@@ -40,7 +40,7 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * The factory class that creates {@link Camera} instances.
+ * The factory class that creates {@link Camera2CameraImpl} instances.
  *
  * @hide
  */
@@ -71,10 +71,10 @@ public final class Camera2CameraFactory implements CameraFactory {
     @Override
     @NonNull
     public BaseCamera getCamera(@NonNull String cameraId) {
-        Camera camera = new Camera(mCameraManager, cameraId,
+        Camera2CameraImpl camera2CameraImpl = new Camera2CameraImpl(mCameraManager, cameraId,
                 mAvailabilityRegistry.getAvailableCameraCount(), sHandler);
-        mAvailabilityRegistry.registerCamera(camera);
-        return camera;
+        mAvailabilityRegistry.registerCamera(camera2CameraImpl);
+        return camera2CameraImpl;
     }
 
     @Override
