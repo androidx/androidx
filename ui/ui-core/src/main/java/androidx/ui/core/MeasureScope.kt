@@ -20,12 +20,29 @@ package androidx.ui.core
  * The receiver scope of a layout's measure lambda. The return value of the
  * measure lambda is [LayoutResult], which should be returned by [layout]
  */
-interface MeasureScope : DensityScope {
+abstract class MeasureScope : DensityScope {
     /**
-     * Sets the size and alignment lines of the measured layout, and assigns the positioning block.
-     * The [placementBlock] is a lambda used for positioning children. [Placeable.place] should
-     * be called on children inside [placementBlock].
+     * Interface holding the size and alignment lines of the measured layout, as well as the
+     * children positioning logic.
+     * [placeChildren] is the function used for positioning children. [Placeable.place] should
+     * be called on children inside [placeChildren].
      * The alignment lines can be used by the parent layouts to decide layout, and can be queried
+     * using the [Placeable.get] operator. Note that alignment lines will be inherited by parent
+     * layouts, such that indirect parents will be able to query them as well.
+     */
+    interface LayoutResult {
+        val width: IntPx
+        val height: IntPx
+        val alignmentLines: Map<AlignmentLine, IntPx>
+        fun placeChildren(placementScope: Placeable.PlacementScope)
+    }
+
+    /**
+     * Sets the size and alignment lines of the measured layout, as well as
+     * the positioning block that defines the children positioning logic.
+     * The [placementBlock] is a lambda used for positioning children. [Placeable.place] should
+     * be called on children inside placementBlock.
+     * The [alignmentLines] can be used by the parent layouts to decide layout, and can be queried
      * using the [Placeable.get] operator. Note that alignment lines will be inherited by parent
      * layouts, such that indirect parents will be able to query them as well.
      *
@@ -34,18 +51,19 @@ interface MeasureScope : DensityScope {
      * @param alignmentLines the alignment lines defined by the layout
      * @param placementBlock block defining the children positioning of the current layout
      */
-    fun layout(
+    /*inline*/ fun layout(
         width: IntPx,
         height: IntPx,
         alignmentLines: Map<AlignmentLine, IntPx> = emptyMap(),
+        /*crossinline*/
         placementBlock: Placeable.PlacementScope.() -> Unit
-    ): LayoutResult
-
-    /**
-     * Value returned by [MeasureScope.layout] to encourage developers to call
-     * it during the measure pass.
-     */
-    object LayoutResult
+    ) = object : LayoutResult {
+        override val width = width
+        override val height = height
+        override val alignmentLines = alignmentLines
+        override fun placeChildren(placementScope: Placeable.PlacementScope) =
+            placementScope.placementBlock()
+    }
 }
 
 /**

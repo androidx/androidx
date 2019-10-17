@@ -133,8 +133,6 @@ MissingNullability: androidx.ui.core.IntPx#Companion:
     Missing nullability on field `Companion` in class `class androidx.ui.core.IntPx`
 MissingNullability: androidx.ui.core.IntPxPosition#Companion:
     Missing nullability on field `Companion` in class `class androidx.ui.core.IntPxPosition`
-MissingNullability: androidx.ui.core.MeasureScope.LayoutResult#INSTANCE:
-    Missing nullability on field `INSTANCE` in class `class androidx.ui.core.MeasureScope.LayoutResult`
 MissingNullability: androidx.ui.core.Modifier.None#INSTANCE:
     Missing nullability on field `INSTANCE` in class `class androidx.ui.core.Modifier.None`
 MissingNullability: androidx.ui.core.Placeable#PlacementScope:
