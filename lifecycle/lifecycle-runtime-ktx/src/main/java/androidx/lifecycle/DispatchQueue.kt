@@ -79,7 +79,7 @@ internal class DispatchQueue {
     @MainThread
     fun maybeEnqueueConsumer() {
         if (queue.isNotEmpty()) {
-            Dispatchers.Main.dispatch(EmptyCoroutineContext, consumer)
+            Dispatchers.Main.immediate.dispatch(EmptyCoroutineContext, consumer)
         }
     }
 
