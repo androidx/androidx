@@ -25,5 +25,15 @@ MissingNullability: androidx.work.WorkInfo#toString():
     Missing nullability on method `toString` return
 
 
-SetterReturnsThis: androidx.work.WorkRequest.Builder:
-    Methods must return the builder object (return type Builder instead of B): method androidx.work.WorkRequest.Builder.setBackoffCriteria(androidx.work.BackoffPolicy,long,java.util.concurrent.TimeUnit)
+SetterReturnsThis: androidx.work.WorkRequest.Builder#setBackoffCriteria(androidx.work.BackoffPolicy, java.time.Duration):
+    Methods must return the builder object (return type androidx.work.WorkRequest.Builder<B,W> instead of B): method androidx.work.WorkRequest.Builder.setBackoffCriteria(androidx.work.BackoffPolicy,java.time.Duration)
+SetterReturnsThis: androidx.work.WorkRequest.Builder#setBackoffCriteria(androidx.work.BackoffPolicy, long, java.util.concurrent.TimeUnit):
+    Methods must return the builder object (return type androidx.work.WorkRequest.Builder<B,W> instead of B): method androidx.work.WorkRequest.Builder.setBackoffCriteria(androidx.work.BackoffPolicy,long,java.util.concurrent.TimeUnit)
+SetterReturnsThis: androidx.work.WorkRequest.Builder#setConstraints(androidx.work.Constraints):
+    Methods must return the builder object (return type androidx.work.WorkRequest.Builder<B,W> instead of B): method androidx.work.WorkRequest.Builder.setConstraints(androidx.work.Constraints)
+SetterReturnsThis: androidx.work.WorkRequest.Builder#setInitialDelay(java.time.Duration):
+    Methods must return the builder object (return type androidx.work.WorkRequest.Builder<B,W> instead of B): method androidx.work.WorkRequest.Builder.setInitialDelay(java.time.Duration)
+SetterReturnsThis: androidx.work.WorkRequest.Builder#setInitialDelay(long, java.util.concurrent.TimeUnit):
+    Methods must return the builder object (return type androidx.work.WorkRequest.Builder<B,W> instead of B): method androidx.work.WorkRequest.Builder.setInitialDelay(long,java.util.concurrent.TimeUnit)
+SetterReturnsThis: androidx.work.WorkRequest.Builder#setInputData(androidx.work.Data):
+    Methods must return the builder object (return type androidx.work.WorkRequest.Builder<B,W> instead of B): method androidx.work.WorkRequest.Builder.setInputData(androidx.work.Data)

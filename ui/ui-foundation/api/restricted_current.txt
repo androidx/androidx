@@ -53,7 +53,7 @@ package androidx.ui.foundation {
 
   public final class PopupKt {
     ctor public PopupKt();
-    method public static void DropdownPopup(androidx.ui.foundation.DropDownAlignment dropDownAlignment = DropDownAlignment.Left, androidx.ui.core.IntPxPosition offset = IntPxPosition(IntPx.Zero, IntPx.Zero), androidx.ui.foundation.PopupProperties popupProperties = androidx.ui.foundation.PopupProperties(), kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method public static void DropdownPopup(androidx.ui.foundation.DropDownAlignment dropDownAlignment = androidx.ui.foundation.DropDownAlignment.Left, androidx.ui.core.IntPxPosition offset = IntPxPosition(IntPx.Zero, IntPx.Zero), androidx.ui.foundation.PopupProperties popupProperties = androidx.ui.foundation.PopupProperties(), kotlin.jvm.functions.Function0<kotlin.Unit> children);
     method public static void Popup(androidx.ui.core.Alignment alignment = Alignment.TopLeft, androidx.ui.core.IntPxPosition offset = IntPxPosition(IntPx.Zero, IntPx.Zero), androidx.ui.foundation.PopupProperties popupProperties = androidx.ui.foundation.PopupProperties(), kotlin.jvm.functions.Function0<kotlin.Unit> children);
     method public static void disposeActivityComposition(android.app.Activity activity);
     method public static boolean isPopupLayout(android.view.View view, String? testTag = null);
@@ -141,7 +141,7 @@ package androidx.ui.foundation.animation {
 
   public final class FlingConfigKt {
     ctor public FlingConfigKt();
-    method public static androidx.ui.foundation.animation.FlingConfig AnchorsFlingConfig(java.util.List<java.lang.Float> anchors, androidx.animation.AnimationBuilder<java.lang.Float> animationBuilder = PhysicsBuilder(), kotlin.jvm.functions.Function3<? super androidx.animation.AnimationEndReason,? super java.lang.Float,? super java.lang.Float,kotlin.Unit>? onAnimationEnd = null, androidx.animation.DecayAnimation decayAnimation = ExponentialDecay());
+    method public static androidx.ui.foundation.animation.FlingConfig AnchorsFlingConfig(java.util.List<java.lang.Float> anchors, androidx.animation.AnimationBuilder<java.lang.Float> animationBuilder = androidx.animation.PhysicsBuilder(), kotlin.jvm.functions.Function3<? super androidx.animation.AnimationEndReason,? super java.lang.Float,? super java.lang.Float,kotlin.Unit>? onAnimationEnd = null, androidx.animation.DecayAnimation decayAnimation = androidx.animation.ExponentialDecay());
     method public static void fling(androidx.animation.AnimatedFloat, androidx.ui.foundation.animation.FlingConfig config, float startVelocity);
   }
 
@@ -202,7 +202,7 @@ package androidx.ui.foundation.selection {
     ctor public ToggleableKt();
     method public static void Toggleable(boolean checked, kotlin.jvm.functions.Function1<? super java.lang.Boolean,kotlin.Unit>? onCheckedChange = null, kotlin.jvm.functions.Function0<kotlin.Unit> children);
     method public static androidx.ui.foundation.selection.ToggleableState ToggleableState(boolean checked);
-    method public static void TriStateToggleable(androidx.ui.foundation.selection.ToggleableState value = ToggleableState.Checked, kotlin.jvm.functions.Function0<kotlin.Unit>? onToggle = null, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method public static void TriStateToggleable(androidx.ui.foundation.selection.ToggleableState value = androidx.ui.foundation.selection.ToggleableState.Checked, kotlin.jvm.functions.Function0<kotlin.Unit>? onToggle = null, kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
 
   public enum ToggleableState {

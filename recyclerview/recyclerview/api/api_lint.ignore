@@ -765,7 +765,3 @@ MissingNullability: androidx.recyclerview.widget.StaggeredGridLayoutManager.Layo
     Missing nullability on parameter `source` in method `LayoutParams`
 MissingNullability: androidx.recyclerview.widget.StaggeredGridLayoutManager.LayoutParams#LayoutParams(androidx.recyclerview.widget.RecyclerView.LayoutParams) parameter #0:
     Missing nullability on parameter `source` in method `LayoutParams`
-
-
-SetterReturnsThis: androidx.recyclerview.widget.AsyncDifferConfig.Builder:
-    Methods must return the builder object (return type Builder instead of androidx.recyclerview.widget.AsyncDifferConfig.Builder<T>): method androidx.recyclerview.widget.AsyncDifferConfig.Builder.setBackgroundThreadExecutor(java.util.concurrent.Executor)

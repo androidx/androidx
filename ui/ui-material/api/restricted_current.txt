@@ -8,7 +8,7 @@ package androidx.ui.material {
 
   public final class AlertDialogKt {
     ctor public AlertDialogKt();
-    method public static void AlertDialog(kotlin.jvm.functions.Function0<kotlin.Unit> onCloseRequest, kotlin.jvm.functions.Function0<kotlin.Unit>? title = (kotlin.jvm.functions.Function0<? extends kotlin.Unit>)null, kotlin.jvm.functions.Function0<kotlin.Unit> text, kotlin.jvm.functions.Function0<kotlin.Unit> confirmButton, kotlin.jvm.functions.Function0<kotlin.Unit>? dismissButton = (kotlin.jvm.functions.Function0<? extends kotlin.Unit>)null, androidx.ui.material.AlertDialogButtonLayout buttonLayout = AlertDialogButtonLayout.SideBySide);
+    method public static void AlertDialog(kotlin.jvm.functions.Function0<kotlin.Unit> onCloseRequest, kotlin.jvm.functions.Function0<kotlin.Unit>? title = (kotlin.jvm.functions.Function0<? extends kotlin.Unit>)null, kotlin.jvm.functions.Function0<kotlin.Unit> text, kotlin.jvm.functions.Function0<kotlin.Unit> confirmButton, kotlin.jvm.functions.Function0<kotlin.Unit>? dismissButton = (kotlin.jvm.functions.Function0<? extends kotlin.Unit>)null, androidx.ui.material.AlertDialogButtonLayout buttonLayout = androidx.ui.material.AlertDialogButtonLayout.SideBySide);
   }
 
   public final class AppBarKt {
