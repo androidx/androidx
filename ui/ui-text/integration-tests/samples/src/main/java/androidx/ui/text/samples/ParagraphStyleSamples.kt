@@ -19,7 +19,6 @@ package androidx.ui.text.samples
 import androidx.annotation.Sampled
 import androidx.compose.Composable
 import androidx.ui.core.Text
-import androidx.ui.core.px
 import androidx.ui.core.sp
 import androidx.ui.text.AnnotatedString
 import androidx.ui.text.ParagraphStyle
@@ -33,7 +32,7 @@ fun ParagraphStyleSample() {
     val paragraphStyle = ParagraphStyle(
         textAlign = TextAlign.Justify,
         lineHeight = 20.sp,
-        textIndent = TextIndent(firstLine = 50f.px, restLine = 5.px)
+        textIndent = TextIndent(firstLine = 14.sp, restLine = 3.sp)
     )
     Text(
         text = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor " +
@@ -51,7 +50,7 @@ fun ParagraphStyleAnnotatedStringsSample() {
             "nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat."
     val paragraphStyle1 = ParagraphStyle(
         textDirectionAlgorithm = TextDirectionAlgorithm.ContentOrLtr,
-        textIndent = TextIndent(firstLine = 50f.px)
+        textIndent = TextIndent(firstLine = 14.sp)
     )
     val paragraphStyle2 = ParagraphStyle(
         lineHeight = 30.sp,

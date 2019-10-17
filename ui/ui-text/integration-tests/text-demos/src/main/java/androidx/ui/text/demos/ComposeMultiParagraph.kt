@@ -18,7 +18,6 @@ package androidx.ui.text.demos
 
 import androidx.compose.Composable
 import androidx.ui.core.Text
-import androidx.ui.core.px
 import androidx.ui.core.sp
 import androidx.ui.foundation.VerticalScroller
 import androidx.ui.layout.Column
@@ -142,12 +141,12 @@ fun TextDemoParagraphIndent() {
             textStyles = listOf(),
             paragraphStyles = listOf(
                 AnnotatedString.Item(
-                    ParagraphStyle(textIndent = TextIndent(firstLine = 100.px)),
+                    ParagraphStyle(textIndent = TextIndent(firstLine = 20.sp)),
                     0,
                     text1.length
                 ),
                 AnnotatedString.Item(
-                    ParagraphStyle(textIndent = TextIndent(restLine = 100.px)),
+                    ParagraphStyle(textIndent = TextIndent(restLine = 20.sp)),
                     text1.length,
                     text1.length + text2.length
                 )
