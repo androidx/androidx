@@ -61,8 +61,9 @@ public class FakeCamera implements BaseCamera {
 
     @Nullable
     private SessionConfig mSessionConfig;
+    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     @Nullable
-    private SessionConfig mCameraControlSessionConfig;
+    SessionConfig mCameraControlSessionConfig;
 
     private List<DeferrableSurface> mConfiguredDeferrableSurfaces = Collections.emptyList();
 
@@ -81,10 +82,25 @@ public class FakeCamera implements BaseCamera {
 
     public FakeCamera(@NonNull String cameraId, @Nullable CameraControlInternal cameraControl,
             @NonNull CameraInfoInternal cameraInfo) {
-        mCameraInfoInternal = (CameraInfoInternal) cameraInfo;
+        mCameraInfoInternal = cameraInfo;
         mCameraId = cameraId;
         mUseCaseAttachState = new UseCaseAttachState(cameraId);
-        mCameraControlInternal = cameraControl == null ? new FakeCameraControl(this)
+        mCameraControlInternal = cameraControl == null ? new FakeCameraControl(
+                new CameraControlInternal.ControlUpdateCallback() {
+                    @Override
+                    public void onCameraControlUpdateSessionConfig(
+                            @NonNull SessionConfig sessionConfig) {
+                        mCameraControlSessionConfig = sessionConfig;
+                        updateCaptureSessionConfig();
+                    }
+
+                    @Override
+                    public void onCameraControlCaptureRequests(
+                            @NonNull List<CaptureConfig> captureConfigs) {
+                        Log.d(TAG, "Capture requests submitted:\n    " + TextUtils.join("\n    ",
+                                captureConfigs));
+                    }
+                })
                 : cameraControl;
         mObservableState.postValue(State.CLOSED);
     }
@@ -262,17 +278,6 @@ public class FakeCamera implements BaseCamera {
         return mCameraInfoInternal;
     }
 
-    @Override
-    public void onCameraControlUpdateSessionConfig(@NonNull SessionConfig sessionConfig) {
-        mCameraControlSessionConfig = sessionConfig;
-        updateCaptureSessionConfig();
-    }
-
-    @Override
-    public void onCameraControlCaptureRequests(@NonNull List<CaptureConfig> captureConfigs) {
-        Log.d(TAG, "Capture requests submitted:\n    " + TextUtils.join("\n    ", captureConfigs));
-    }
-
     private void checkNotReleased() {
         if (mState == State.RELEASED) {
             throw new IllegalStateException("Camera has been released.");
@@ -296,7 +301,8 @@ public class FakeCamera implements BaseCamera {
         reconfigure();
     }
 
-    private void updateCaptureSessionConfig() {
+    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+    void updateCaptureSessionConfig() {
         SessionConfig.ValidatingBuilder validatingBuilder;
         validatingBuilder = mUseCaseAttachState.getActiveAndOnlineBuilder();
 
