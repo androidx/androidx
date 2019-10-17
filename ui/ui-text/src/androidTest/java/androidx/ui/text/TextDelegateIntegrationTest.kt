@@ -69,10 +69,7 @@ class TextDelegateIntegrationTest {
             val fontSize = 20.sp
             val text = "Hello"
             val textStyle = TextStyle(fontSize = fontSize, fontFamily = fontFamily)
-            val annotatedString = AnnotatedString(
-                text = text,
-                textStyles = listOf(AnnotatedString.Item(textStyle, 0, text.length))
-            )
+            val annotatedString = AnnotatedString(text, textStyle)
             val textDelegate = TextDelegate(
                 text = annotatedString,
                 paragraphStyle = ParagraphStyle(),
@@ -93,16 +90,7 @@ class TextDelegateIntegrationTest {
             val fontSize = 20.sp
             val text = "Hello"
             val textStyle = TextStyle(fontSize = fontSize, fontFamily = fontFamily)
-            val annotatedString = AnnotatedString(
-                text = text,
-                textStyles = listOf(
-                    AnnotatedString.Item(
-                        textStyle,
-                        0,
-                        text.length
-                    )
-                )
-            )
+            val annotatedString = AnnotatedString(text, textStyle)
             val textDelegate = TextDelegate(
                 text = annotatedString,
                 paragraphStyle = ParagraphStyle(),
@@ -124,16 +112,7 @@ class TextDelegateIntegrationTest {
             val fontSize = 20.sp
             val text = "Hello"
             val textStyle = TextStyle(fontSize = fontSize, fontFamily = fontFamily)
-            val annotatedString = AnnotatedString(
-                text = text,
-                textStyles = listOf(
-                    AnnotatedString.Item(
-                        textStyle,
-                        0,
-                        text.length
-                    )
-                )
-            )
+            val annotatedString = AnnotatedString(text, textStyle)
             val textDelegate = TextDelegate(
                 text = annotatedString,
                 paragraphStyle = ParagraphStyle(),
@@ -153,10 +132,7 @@ class TextDelegateIntegrationTest {
         val text = "Hello"
         val width = 80.ipx
         val textStyle = TextStyle(fontSize = 20.sp, fontFamily = fontFamily)
-        val annotatedString = AnnotatedString(
-            text = text,
-            textStyles = listOf(AnnotatedString.Item(textStyle, 0, text.length))
-        )
+        val annotatedString = AnnotatedString(text, textStyle)
         val textDelegate = TextDelegate(
             text = annotatedString,
             paragraphStyle = ParagraphStyle(),
@@ -176,16 +152,7 @@ class TextDelegateIntegrationTest {
             val fontSize = 20.sp
             val textStyle = TextStyle(fontSize = fontSize, fontFamily = fontFamily)
             val text = "hello"
-            val annotatedString = AnnotatedString(
-                text = text,
-                textStyles = listOf(
-                    AnnotatedString.Item(
-                        textStyle,
-                        0,
-                        text.length
-                    )
-                )
-            )
+            val annotatedString = AnnotatedString(text, textStyle)
             val textDelegate = TextDelegate(
                 text = annotatedString,
                 paragraphStyle = ParagraphStyle(),
@@ -219,15 +186,10 @@ class TextDelegateIntegrationTest {
     fun getPositionForOffset_First_Character() {
         val text = "Hello"
         val annotatedString = AnnotatedString(
-            text = text,
-            textStyles = listOf(
-                AnnotatedString.Item(
-                    TextStyle(fontSize = 20.sp, fontFamily = fontFamily),
-                    0,
-                    text.length
-                )
-            )
+            text,
+            TextStyle(fontSize = 20.sp, fontFamily = fontFamily)
         )
+
         val textDelegate = TextDelegate(
             text = annotatedString,
             paragraphStyle = ParagraphStyle(),
@@ -248,16 +210,12 @@ class TextDelegateIntegrationTest {
             val fontSize = 20.sp
             val characterIndex = 2 // Start from 0.
             val text = "Hello"
+
             val annotatedString = AnnotatedString(
-                text = text,
-                textStyles = listOf(
-                    AnnotatedString.Item(
-                        TextStyle(fontSize = fontSize, fontFamily = fontFamily),
-                        0,
-                        text.length
-                    )
-                )
+                text,
+                TextStyle(fontSize = fontSize, fontFamily = fontFamily)
             )
+
             val textDelegate = TextDelegate(
                 text = annotatedString,
                 paragraphStyle = ParagraphStyle(),
@@ -279,10 +237,7 @@ class TextDelegateIntegrationTest {
     fun hasOverflowShaderFalse() {
         val text = "Hello"
         val textStyle = TextStyle(fontSize = 20.sp, fontFamily = fontFamily)
-        val annotatedString = AnnotatedString(
-            text = text,
-            textStyles = listOf(AnnotatedString.Item(textStyle, 0, text.length))
-        )
+        val annotatedString = AnnotatedString(text, textStyle)
         val textDelegate = TextDelegate(
             text = annotatedString,
             paragraphStyle = ParagraphStyle(),
@@ -303,13 +258,11 @@ class TextDelegateIntegrationTest {
     fun hasOverflowShaderFadeHorizontallyTrue() {
         var text = ""
         for (i in 1..15) {
-            text = text + "Hello World"
+            text += "Hello World"
         }
         val textStyle = TextStyle(fontSize = 20.sp, fontFamily = fontFamily)
-        val annotatedString = AnnotatedString(
-            text = text,
-            textStyles = listOf(AnnotatedString.Item(textStyle, 0, text.length))
-        )
+        val annotatedString = AnnotatedString(text, textStyle)
+
         val textDelegate = TextDelegate(
             text = annotatedString,
             paragraphStyle = ParagraphStyle(),
@@ -336,10 +289,7 @@ class TextDelegateIntegrationTest {
             text = text + "Hello World"
         }
         val textStyle = TextStyle(fontSize = 20.sp, fontFamily = fontFamily)
-        val annotatedString = AnnotatedString(
-            text = text,
-            textStyles = listOf(AnnotatedString.Item(textStyle, 0, text.length))
-        )
+        val annotatedString = AnnotatedString(text, textStyle)
         val textDelegate = TextDelegate(
             text = annotatedString,
             paragraphStyle = ParagraphStyle(),
@@ -366,16 +316,7 @@ class TextDelegateIntegrationTest {
             val fontSizeInPx = fontSize.toPx().value
             val text = "HelloHello"
             val textStyle = TextStyle(fontSize = fontSize, fontFamily = fontFamily)
-            val annotatedString = AnnotatedString(
-                text = text,
-                textStyles = listOf(
-                    AnnotatedString.Item(
-                        textStyle,
-                        0,
-                        text.length
-                    )
-                )
-            )
+            val annotatedString = AnnotatedString(text, textStyle)
             val textDelegate = TextDelegate(
                 text = annotatedString,
                 paragraphStyle = ParagraphStyle(),
@@ -445,16 +386,7 @@ class TextDelegateIntegrationTest {
             val fontSizeInPx = fontSize.toPx().value
             val text = "Hello"
             val textStyle = TextStyle(fontSize = fontSize, fontFamily = fontFamily)
-            val annotatedString = AnnotatedString(
-                text = text,
-                textStyles = listOf(
-                    AnnotatedString.Item(
-                        textStyle,
-                        0,
-                        text.length
-                    )
-                )
-            )
+            val annotatedString = AnnotatedString(text, textStyle)
             val textDelegate = TextDelegate(
                 text = annotatedString,
                 paragraphStyle = ParagraphStyle(),
@@ -517,16 +449,7 @@ class TextDelegateIntegrationTest {
             val fontSize = 20.sp
             val fontSizeInPx = fontSize.toPx().value
             val textStyle = TextStyle(fontSize = fontSize, fontFamily = fontFamily)
-            val annotatedString = AnnotatedString(
-                text = text,
-                textStyles = listOf(
-                    AnnotatedString.Item(
-                        textStyle,
-                        0,
-                        text.length
-                    )
-                )
-            )
+            val annotatedString = AnnotatedString(text, textStyle)
             val textDelegate = TextDelegate(
                 text = annotatedString,
                 paragraphStyle = ParagraphStyle(),
@@ -598,16 +521,7 @@ class TextDelegateIntegrationTest {
             val fontSizeInPx = fontSize.toPx().value
             val text = "Hello"
             val textStyle = TextStyle(fontSize = fontSize, fontFamily = fontFamily)
-            val annotatedString = AnnotatedString(
-                text = text,
-                textStyles = listOf(
-                    AnnotatedString.Item(
-                        textStyle,
-                        0,
-                        text.length
-                    )
-                )
-            )
+            val annotatedString = AnnotatedString(text, textStyle)
             val selectionColor = Color(0x66AABB33)
             val textDelegate = TextDelegate(
                 text = annotatedString,

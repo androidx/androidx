@@ -307,12 +307,7 @@ class TextSelectionProcessorTest {
         density: Density
     ): TextDelegate {
         val textStyle = TextStyle(fontSize = fontSize, fontFamily = fontFamily)
-
-        val annotatedString = AnnotatedString(
-            text = text,
-            textStyles = listOf(AnnotatedString.Item(textStyle, 0, text.length))
-        )
-
+        val annotatedString = AnnotatedString(text, textStyle)
         val textDelegate = TextDelegate(
             text = annotatedString,
             paragraphStyle = ParagraphStyle(),
