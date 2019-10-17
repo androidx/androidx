@@ -183,9 +183,9 @@ class AnnotatedStringBuilderTest {
         val text = "Test"
         val style = TextStyle(color = Color.Red)
         val buildResult = AnnotatedString.Builder().apply {
-            push(style)
+            pushStyle(style)
             append(text)
-            pop()
+            popStyle()
         }.toAnnotatedString()
 
         assertThat(buildResult.text).isEqualTo(text)
@@ -196,7 +196,7 @@ class AnnotatedStringBuilderTest {
     }
 
     @Test
-    fun pushStyle_without_pop() {
+    fun pushStyle_without_popStyle() {
         val styles = arrayOf(
             TextStyle(color = Color.Red),
             TextStyle(fontStyle = FontStyle.Italic),
@@ -206,7 +206,7 @@ class AnnotatedStringBuilderTest {
         val buildResult = with(AnnotatedString.Builder()) {
             styles.forEachIndexed { index, textStyle ->
                 // pop is intentionally not called here
-                push(textStyle)
+                pushStyle(textStyle)
                 append("Style$index")
             }
             toAnnotatedString()
@@ -231,12 +231,12 @@ class AnnotatedStringBuilderTest {
         val textStyle2 = TextStyle(fontStyle = FontStyle.Italic)
 
         val buildResult = with(AnnotatedString.Builder()) {
-            push(textStyle1)
+            pushStyle(textStyle1)
             append("Test")
-            push(textStyle2)
+            pushStyle(textStyle2)
             append(" me")
-            pop()
-            pop()
+            popStyle()
+            popStyle()
             toAnnotatedString()
         }
 
@@ -263,7 +263,7 @@ class AnnotatedStringBuilderTest {
         val buildResult = with(AnnotatedString.Builder()) {
             styles.forEach { textStyle ->
                 // pop is intentionally not called here
-                push(textStyle)
+                pushStyle(textStyle)
             }
             toAnnotatedString()
         }
@@ -287,18 +287,18 @@ class AnnotatedStringBuilderTest {
         )
 
         val buildResult = with(AnnotatedString.Builder()) {
-            push(styles[0])
+            pushStyle(styles[0])
             append("layer1-1")
-            push(styles[1])
+            pushStyle(styles[1])
             append("layer2-1")
-            push(styles[2])
+            pushStyle(styles[2])
             append("layer3-1")
-            pop()
-            push(styles[3])
+            popStyle()
+            pushStyle(styles[3])
             append("layer3-2")
-            pop()
+            popStyle()
             append("layer2-2")
-            pop()
+            popStyle()
             append("layer1-2")
             toAnnotatedString()
         }
@@ -319,20 +319,20 @@ class AnnotatedStringBuilderTest {
         )
 
         val buildResult = with(AnnotatedString.Builder()) {
-            push(styles[0])
+            pushStyle(styles[0])
             append("layer1-1")
-            push(styles[1])
+            pushStyle(styles[1])
             append("layer2-1")
-            pop()
-            push(styles[2])
+            popStyle()
+            pushStyle(styles[2])
             append("layer2-2")
-            push(styles[3])
+            pushStyle(styles[3])
             append("layer3-1")
-            pop()
+            popStyle()
             append("layer2-3")
-            pop()
+            popStyle()
             append("layer1-2")
-            pop()
+            popStyle()
             toAnnotatedString()
         }
 
@@ -344,7 +344,7 @@ class AnnotatedStringBuilderTest {
 
     @Test(expected = IllegalStateException::class)
     fun pop_when_empty_does_not_throw_exception() {
-        AnnotatedString.Builder().pop()
+        AnnotatedString.Builder().popStyle()
     }
 
     @Test
@@ -354,12 +354,12 @@ class AnnotatedStringBuilderTest {
 
         val buildResult = with(AnnotatedString.Builder()) {
             append("Style0")
-            push(textStyle1)
+            pushStyle(textStyle1)
             append("Style1")
-            pop()
-            push(textStyle2)
+            popStyle()
+            pushStyle(textStyle2)
             append("Style2")
-            pop()
+            popStyle()
             append("Style3")
             toAnnotatedString()
         }
@@ -381,9 +381,9 @@ class AnnotatedStringBuilderTest {
     fun push_increments_the_style_index() {
         val style = TextStyle(color = Color.Red)
         with(AnnotatedString.Builder()) {
-            val styleIndex0 = push(style)
-            val styleIndex1 = push(style)
-            val styleIndex2 = push(style)
+            val styleIndex0 = pushStyle(style)
+            val styleIndex1 = pushStyle(style)
+            val styleIndex2 = pushStyle(style)
 
             assertThat(styleIndex0).isEqualTo(0)
             assertThat(styleIndex1).isEqualTo(1)
@@ -392,21 +392,21 @@ class AnnotatedStringBuilderTest {
     }
 
     @Test
-    fun push_reduces_the_style_index_after_pop() {
+    fun push_reduces_the_style_index_after_popStyle() {
         val textStyle = TextStyle(color = Color.Red)
         val paragraphStyle = ParagraphStyle(lineHeight = 18.sp)
 
         with(AnnotatedString.Builder()) {
-            val styleIndex0 = push(textStyle)
-            val styleIndex1 = push(textStyle)
+            val styleIndex0 = pushStyle(textStyle)
+            val styleIndex1 = pushStyle(textStyle)
 
             assertThat(styleIndex0).isEqualTo(0)
             assertThat(styleIndex1).isEqualTo(1)
 
             // a pop should reduce the next index to one
-            pop()
+            popStyle()
 
-            val paragraphStyleIndex = push(paragraphStyle)
+            val paragraphStyleIndex = pushStyle(paragraphStyle)
             assertThat(paragraphStyleIndex).isEqualTo(1)
         }
     }
@@ -415,10 +415,10 @@ class AnnotatedStringBuilderTest {
     fun pop_until_throws_exception_for_invalid_index() {
         val style = TextStyle(color = Color.Red)
         with(AnnotatedString.Builder()) {
-            val styleIndex = push(style)
+            val styleIndex = pushStyle(style)
 
             // should throw exception
-            pop(styleIndex + 1)
+            popStyle(styleIndex + 1)
         }
     }
 
@@ -426,14 +426,14 @@ class AnnotatedStringBuilderTest {
     fun pop_until_index_pops_correctly() {
         val style = TextStyle(color = Color.Red)
         with(AnnotatedString.Builder()) {
-            push(style)
+            pushStyle(style)
             // store the index of second push
-            val styleIndex = push(style)
-            push(style)
+            val styleIndex = pushStyle(style)
+            pushStyle(style)
             // pop up to and including styleIndex
-            pop(styleIndex)
+            popStyle(styleIndex)
             // push again to get a new index to compare
-            val newStyleIndex = push(style)
+            val newStyleIndex = pushStyle(style)
 
             assertThat(newStyleIndex).isEqualTo(styleIndex)
         }
@@ -472,6 +472,17 @@ class AnnotatedStringBuilderTest {
     }
 
     @Test
+    fun append_char_appends() {
+        val buildResult = with(AnnotatedString.Builder("a")) {
+            append('b')
+            append('c')
+            toAnnotatedString()
+        }
+
+        assertThat(buildResult).isEqualTo(AnnotatedString("abc"))
+    }
+
+    @Test
     fun builderLambda() {
         val text1 = "Hello"
         val text2 = "World"
@@ -487,10 +498,10 @@ class AnnotatedStringBuilderTest {
                 }
             }
             append(" ")
-            push(paragraphStyle2)
-            push(textStyle2)
+            pushStyle(paragraphStyle2)
+            pushStyle(textStyle2)
             append(text2)
-            pop()
+            popStyle()
         }
 
         val expectedString = "$text1 $text2"
@@ -512,11 +523,10 @@ class AnnotatedStringBuilderTest {
     fun toAnnotatedString_calling_twice_creates_equal_annotated_strings() {
         val builder = AnnotatedString.Builder().apply {
             // pushed styles not popped on purpose
-            push(TextStyle(color = Color.Red))
+            pushStyle(TextStyle(color = Color.Red))
             append("Hello")
-            push(TextStyle(color = Color.Blue))
+            pushStyle(TextStyle(color = Color.Blue))
             append("World")
-            this
         }
 
         assertThat(builder.toAnnotatedString()).isEqualTo(builder.toAnnotatedString())
@@ -526,18 +536,17 @@ class AnnotatedStringBuilderTest {
     fun can_call_other_functions_after_toAnnotatedString() {
         val builder = AnnotatedString.Builder().apply {
             // pushed styles not popped on purpose
-            push(TextStyle(fontSize = 12.sp))
+            pushStyle(TextStyle(fontSize = 12.sp))
             append("Hello")
-            push(TextStyle(fontSize = 16.sp))
+            pushStyle(TextStyle(fontSize = 16.sp))
             append("World")
-            this
         }
 
         val buildResult1 = builder.toAnnotatedString()
         val buildResult2 = with(builder) {
-            pop()
-            pop()
-            push(TextStyle(fontSize = 18.sp))
+            popStyle()
+            popStyle()
+            pushStyle(TextStyle(fontSize = 18.sp))
             append("!")
             toAnnotatedString()
         }

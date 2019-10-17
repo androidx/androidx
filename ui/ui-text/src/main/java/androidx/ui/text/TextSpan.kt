@@ -108,7 +108,7 @@ class TextSpan(
 
 private fun TextSpan.annotatedStringVisitor(builder: AnnotatedString.Builder) {
     style?.let {
-        builder.push(style)
+        builder.pushStyle(style)
     }
 
     text?.let { builder.append(text) }
@@ -118,7 +118,7 @@ private fun TextSpan.annotatedStringVisitor(builder: AnnotatedString.Builder) {
     }
 
     style?.let {
-        builder.pop()
+        builder.popStyle()
     }
 }
 

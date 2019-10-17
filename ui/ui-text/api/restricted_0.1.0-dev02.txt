@@ -96,21 +96,24 @@ package androidx.ui.text {
     method public java.util.List<androidx.ui.text.AnnotatedString.Item<androidx.ui.text.ParagraphStyle>> getParagraphStyles();
     method public String getText();
     method public java.util.List<androidx.ui.text.AnnotatedString.Item<androidx.ui.text.TextStyle>> getTextStyles();
+    method public operator androidx.ui.text.AnnotatedString plus(androidx.ui.text.AnnotatedString other);
   }
 
   public static final class AnnotatedString.Builder {
+    ctor public AnnotatedString.Builder(int capacity);
     ctor public AnnotatedString.Builder();
     ctor public AnnotatedString.Builder(String text);
     ctor public AnnotatedString.Builder(androidx.ui.text.AnnotatedString text);
     method public void addStyle(androidx.ui.text.TextStyle style, int start, int end);
     method public void addStyle(androidx.ui.text.ParagraphStyle style, int start, int end);
     method public void append(String text);
+    method public void append(char p);
     method public void append(androidx.ui.text.AnnotatedString text);
     method public int getLength();
-    method public void pop();
-    method public void pop(int index);
-    method public int push(androidx.ui.text.TextStyle style);
-    method public int push(androidx.ui.text.ParagraphStyle style);
+    method public void popStyle();
+    method public void popStyle(int index);
+    method public int pushStyle(androidx.ui.text.TextStyle style);
+    method public int pushStyle(androidx.ui.text.ParagraphStyle style);
     method public androidx.ui.text.AnnotatedString toAnnotatedString();
     property public final int length;
   }
@@ -132,7 +135,7 @@ package androidx.ui.text {
     method public static androidx.ui.text.AnnotatedString capitalize(androidx.ui.text.AnnotatedString, androidx.ui.text.LocaleList localeList = LocaleList.current);
     method public static androidx.ui.text.AnnotatedString decapitalize(androidx.ui.text.AnnotatedString, androidx.ui.text.LocaleList localeList = LocaleList.current);
     method public static int getLength(androidx.ui.text.AnnotatedString);
-    method public static operator androidx.ui.text.AnnotatedString plus(androidx.ui.text.AnnotatedString, androidx.ui.text.AnnotatedString other);
+    method public static androidx.ui.text.AnnotatedString subSequence(androidx.ui.text.AnnotatedString, int start, int end);
     method public static androidx.ui.text.AnnotatedString toLowerCase(androidx.ui.text.AnnotatedString, androidx.ui.text.LocaleList localeList = LocaleList.current);
     method public static androidx.ui.text.AnnotatedString toUpperCase(androidx.ui.text.AnnotatedString, androidx.ui.text.LocaleList localeList = LocaleList.current);
     method public static inline <R> R withStyle(androidx.ui.text.AnnotatedString.Builder, androidx.ui.text.TextStyle style, kotlin.jvm.functions.Function1<? super androidx.ui.text.AnnotatedString.Builder,? extends R> block);
