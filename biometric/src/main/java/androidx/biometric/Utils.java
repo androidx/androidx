@@ -160,17 +160,17 @@ class Utils {
      * BiometricPrompt.CryptoObject)} is called.
      *
      * @param context The application or activity context.
-     * @param deviceModel Model name of the current device.
+     * @param model Model name of the current device.
      * @return true if the current device should fall back to fingerprint for crypto-based
      * authentication, or false otherwise.
      */
-    static boolean shouldUseFingerprintForCrypto(@NonNull Context context, String deviceModel) {
+    static boolean shouldUseFingerprintForCrypto(@NonNull Context context, String model) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P
                 || Build.VERSION.SDK_INT > Build.VERSION_CODES.Q) {
             // This workaround is only needed for Android P and Q.
             return false;
         }
-        return isModelInList(context, deviceModel, R.array.crypto_fingerprint_fallback_models);
+        return isModelInPrefixList(context, model, R.array.crypto_fingerprint_fallback_prefixes);
     }
 
     /**
@@ -179,32 +179,36 @@ class Utils {
      * shown behind an overlay that sends a cancel signal when it is dismissed).
      *
      * @param context The application or activity context.
-     * @param deviceModel Model name of the current device.
+     * @param model Model name of the current device.
      * @return true if {@link FingerprintDialogFragment} should always be dismissed immediately, or
      * false otherwise.
      */
     static boolean shouldAlwaysHideFingerprintDialogInstantly(@NonNull Context context,
-            String deviceModel) {
+            String model) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P
                 || Build.VERSION.SDK_INT > Build.VERSION_CODES.Q) {
             // This workaround is only needed for Android P and Q.
             return false;
         }
-        return isModelInList(context, deviceModel, R.array.hide_fingerprint_instantly_models);
+        return isModelInPrefixList(context, model, R.array.hide_fingerprint_instantly_prefixes);
     }
 
     /**
-     * Determines if the current device model matches a string in the given array resource.
+     * Determines if the current device model matches a prefix in the given string array resource.
      *
      * @param context The application or activity context.
-     * @param deviceModel Model name of the current device.
-     * @param resId Resource ID for the string array of device models to check against.
+     * @param model Model name of the current device.
+     * @param resId Resource ID for the string array of device model prefixes to check against.
      * @return true if the model matches one in the given string array, or false otherwise.
      */
-    private static boolean isModelInList(@NonNull Context context, String deviceModel, int resId) {
-        final String[] models = context.getResources().getStringArray(resId);
-        for (final String model : models) {
-            if (model.equals(deviceModel)) {
+    private static boolean isModelInPrefixList(@NonNull Context context, String model, int resId) {
+        if (model == null) {
+            return false;
+        }
+
+        final String[] modelPrefixes = context.getResources().getStringArray(resId);
+        for (final String modelPrefix : modelPrefixes) {
+            if (model.startsWith(modelPrefix)) {
                 return true;
             }
         }
