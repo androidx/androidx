@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 3.5.0-beta05" client="gradle" variant="debug" version="3.5.0-beta05">
+<issues format="5" by="lint 3.6.0-beta01" client="gradle" variant="debug" version="3.6.0-beta01">
 
     <issue
         id="KotlinPropertyAccess"
@@ -8,19 +8,8 @@
         errorLine2="                              ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/common/SessionPlayer.java"
-            line="793"
+            line="811"
             column="31"/>
-    </issue>
-
-    <issue
-        id="LambdaLast"
-        message="Functional interface parameters (such as parameter 1, &quot;executor&quot;, in androidx.media2.common.SessionPlayer.registerPlayerCallback) should be last to improve Kotlin interoperability; see https://kotlinlang.org/docs/reference/java-interop.html#sam-conversions"
-        errorLine1="            @NonNull PlayerCallback callback) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/common/SessionPlayer.java"
-            line="839"
-            column="13"/>
     </issue>
 
     <issue
@@ -30,7 +19,7 @@
         errorLine2="            ~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/common/MediaItem.java"
-            line="226"
+            line="227"
             column="13"/>
     </issue>
 
@@ -41,7 +30,7 @@
         errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/common/MediaItem.java"
-            line="226"
+            line="227"
             column="32"/>
     </issue>
 
@@ -52,7 +41,7 @@
         errorLine2="                                                ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/common/MediaItem.java"
-            line="241"
+            line="242"
             column="49"/>
     </issue>
 
@@ -63,7 +52,7 @@
         errorLine2="                               ~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/common/MediaItem.java"
-            line="332"
+            line="333"
             column="32"/>
     </issue>
 
@@ -76,17 +65,6 @@
             file="src/main/java/androidx/media2/common/ParcelImplListSlice.java"
             line="127"
             column="31"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public static ListenableFuture&lt;PlayerResult> createFuture(int resultCode) {"
-        errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/common/SessionPlayer.java"
-            line="1451"
-            column="23"/>
     </issue>
 
 </issues>

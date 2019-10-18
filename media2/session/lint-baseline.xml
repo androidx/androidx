@@ -1,71 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 3.5.0-beta04" client="gradle" variant="debug" version="3.5.0-beta04">
-
-    <issue
-        id="LambdaLast"
-        message="Functional interface parameters (such as parameter 1, &quot;executor&quot;, in androidx.media2.session.MediaBrowser.Builder.setControllerCallback) should be last to improve Kotlin interoperability; see https://kotlinlang.org/docs/reference/java-interop.html#sam-conversions"
-        errorLine1="                @NonNull BrowserCallback callback) {"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/session/MediaBrowser.java"
-            line="327"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="LambdaLast"
-        message="Functional interface parameters (such as parameter 1, &quot;executor&quot;, in androidx.media2.session.MediaController.registerExtraCallback) should be last to improve Kotlin interoperability; see https://kotlinlang.org/docs/reference/java-interop.html#sam-conversions"
-        errorLine1="            @NonNull ControllerCallback callback) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/session/MediaController.java"
-            line="1216"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="LambdaLast"
-        message="Functional interface parameters (such as parameter 1, &quot;executor&quot;, in androidx.media2.session.MediaController.Builder.setControllerCallback) should be last to improve Kotlin interoperability; see https://kotlinlang.org/docs/reference/java-interop.html#sam-conversions"
-        errorLine1="                @NonNull ControllerCallback callback) {"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/session/MediaController.java"
-            line="1452"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="LambdaLast"
-        message="Functional interface parameters (such as parameter 3, &quot;callbackExecutor&quot;, in androidx.media2.session.MediaLibraryService.MediaLibrarySession.Builder.Builder) should be last to improve Kotlin interoperability; see https://kotlinlang.org/docs/reference/java-interop.html#sam-conversions"
-        errorLine1="                    @NonNull MediaLibrarySessionCallback callback) {"
-        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/session/MediaLibraryService.java"
-            line="272"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="LambdaLast"
-        message="Functional interface parameters (such as parameter 1, &quot;executor&quot;, in androidx.media2.session.MediaSession.Builder.setSessionCallback) should be last to improve Kotlin interoperability; see https://kotlinlang.org/docs/reference/java-interop.html#sam-conversions"
-        errorLine1="                @NonNull SessionCallback callback) {"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/session/MediaSession.java"
-            line="848"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public ListenableFuture&lt;SessionResult> setSurface(@Nullable Surface surface) {"
-        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/session/MediaController.java"
-            line="1114"
-            column="12"/>
-    </issue>
+<issues format="5" by="lint 3.6.0-beta01" client="gradle" variant="debug" version="3.6.0-beta01">
 
     <issue
         id="UnknownNullness"
@@ -74,7 +8,7 @@
         errorLine2="                            ~~~~">
         <location
             file="src/main/java/androidx/media2/session/MediaController.java"
-            line="1202"
+            line="1261"
             column="29"/>
     </issue>
 
@@ -85,85 +19,19 @@
         errorLine2="                                               ~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/session/MediaController.java"
-            line="1307"
+            line="1364"
             column="48"/>
     </issue>
 
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public IBinder onBind(Intent intent) {"
+        errorLine1="    public IBinder onBind(@NonNull Intent intent) {"
         errorLine2="           ~~~~~~~">
         <location
             file="src/main/java/androidx/media2/session/MediaLibraryService.java"
-            line="446"
+            line="457"
             column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public IBinder onBind(Intent intent) {"
-        errorLine2="                          ~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/session/MediaLibraryService.java"
-            line="446"
-            column="27"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public MediaNotificationHandler(MediaSessionService service) {"
-        errorLine2="                                    ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/session/MediaNotificationHandler.java"
-            line="71"
-            column="37"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void onPlayerStateChanged(MediaSession session,"
-        errorLine2="                                     ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/session/MediaNotificationHandler.java"
-            line="101"
-            column="38"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void onSessionClosed(MediaSession session) {"
-        errorLine2="                                ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/session/MediaNotificationHandler.java"
-            line="126"
-            column="33"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public MediaSessionService.MediaNotification onUpdateNotification(MediaSession session) {"
-        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/session/MediaNotificationHandler.java"
-            line="147"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public MediaSessionService.MediaNotification onUpdateNotification(MediaSession session) {"
-        errorLine2="                                                                      ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/session/MediaNotificationHandler.java"
-            line="147"
-            column="71"/>
     </issue>
 
     <issue
@@ -173,7 +41,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/session/MediaSession.java"
-            line="383"
+            line="388"
             column="12"/>
     </issue>
 
@@ -184,52 +52,8 @@
         errorLine2="                              ~~~~~~">
         <location
             file="src/main/java/androidx/media2/session/MediaSessionService.java"
-            line="264"
+            line="262"
             column="31"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static MediaBrowserCompat.MediaItem convertToMediaItem(MediaItem item2) {"
-        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/session/MediaUtils.java"
-            line="135"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static MediaBrowserCompat.MediaItem convertToMediaItem(MediaItem item2) {"
-        errorLine2="                                                                  ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/session/MediaUtils.java"
-            line="135"
-            column="67"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static List&lt;MediaBrowserCompat.MediaItem> convertToMediaItemList(List&lt;MediaItem> items) {"
-        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/session/MediaUtils.java"
-            line="185"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static List&lt;MediaBrowserCompat.MediaItem> convertToMediaItemList(List&lt;MediaItem> items) {"
-        errorLine2="                                                                            ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/session/MediaUtils.java"
-            line="185"
-            column="77"/>
     </issue>
 
     <issue
@@ -239,7 +63,7 @@
         errorLine2="                  ~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/session/MediaUtils.java"
-            line="202"
+            line="283"
             column="19"/>
     </issue>
 
@@ -250,7 +74,7 @@
         errorLine2="                                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/session/MediaUtils.java"
-            line="202"
+            line="283"
             column="48"/>
     </issue>
 
@@ -261,7 +85,7 @@
         errorLine2="                  ~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/session/MediaUtils.java"
-            line="216"
+            line="297"
             column="19"/>
     </issue>
 
@@ -272,7 +96,7 @@
         errorLine2="                                               ~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/session/MediaUtils.java"
-            line="216"
+            line="297"
             column="48"/>
     </issue>
 
@@ -283,7 +107,7 @@
         errorLine2="                  ~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/session/MediaUtils.java"
-            line="232"
+            line="313"
             column="19"/>
     </issue>
 
@@ -294,7 +118,7 @@
         errorLine2="                                               ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/session/MediaUtils.java"
-            line="232"
+            line="313"
             column="48"/>
     </issue>
 
@@ -305,7 +129,7 @@
         errorLine2="                  ~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/session/MediaUtils.java"
-            line="267"
+            line="348"
             column="19"/>
     </issue>
 
@@ -316,7 +140,7 @@
         errorLine2="                                               ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/session/MediaUtils.java"
-            line="267"
+            line="348"
             column="48"/>
     </issue>
 
@@ -327,7 +151,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/session/MediaUtils.java"
-            line="278"
+            line="359"
             column="19"/>
     </issue>
 
@@ -338,7 +162,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/session/MediaUtils.java"
-            line="279"
+            line="360"
             column="13"/>
     </issue>
 
@@ -349,7 +173,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/session/MediaUtils.java"
-            line="293"
+            line="374"
             column="19"/>
     </issue>
 
@@ -360,7 +184,7 @@
         errorLine2="                                                                      ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/session/MediaUtils.java"
-            line="293"
+            line="374"
             column="71"/>
     </issue>
 
@@ -371,7 +195,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/session/MediaUtils.java"
-            line="310"
+            line="391"
             column="19"/>
     </issue>
 
@@ -382,7 +206,7 @@
         errorLine2="                                                                      ~~~~~~">
         <location
             file="src/main/java/androidx/media2/session/MediaUtils.java"
-            line="310"
+            line="391"
             column="71"/>
     </issue>
 
@@ -393,7 +217,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/session/MediaUtils.java"
-            line="321"
+            line="402"
             column="19"/>
     </issue>
 
@@ -404,7 +228,7 @@
         errorLine2="                                                         ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/session/MediaUtils.java"
-            line="321"
+            line="402"
             column="58"/>
     </issue>
 
@@ -415,7 +239,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/session/MediaUtils.java"
-            line="339"
+            line="420"
             column="19"/>
     </issue>
 
@@ -426,7 +250,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/session/MediaUtils.java"
-            line="340"
+            line="421"
             column="13"/>
     </issue>
 
@@ -437,7 +261,7 @@
         errorLine2="                                         ~~~~~~~">
         <location
             file="src/main/java/androidx/media2/session/MediaUtils.java"
-            line="360"
+            line="441"
             column="42"/>
     </issue>
 
@@ -448,7 +272,7 @@
         errorLine2="                                                                          ~~~~~~~">
         <location
             file="src/main/java/androidx/media2/session/MediaUtils.java"
-            line="360"
+            line="441"
             column="75"/>
     </issue>
 
@@ -459,7 +283,7 @@
         errorLine2="                  ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/session/MediaUtils.java"
-            line="452"
+            line="533"
             column="19"/>
     </issue>
 
@@ -470,7 +294,7 @@
         errorLine2="                                                       ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/session/MediaUtils.java"
-            line="452"
+            line="533"
             column="56"/>
     </issue>
 
@@ -481,7 +305,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/session/MediaUtils.java"
-            line="469"
+            line="550"
             column="19"/>
     </issue>
 
@@ -492,7 +316,7 @@
         errorLine2="                                                                   ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/session/MediaUtils.java"
-            line="469"
+            line="550"
             column="68"/>
     </issue>
 
@@ -503,7 +327,7 @@
         errorLine2="                  ~~~~~~">
         <location
             file="src/main/java/androidx/media2/session/MediaUtils.java"
-            line="504"
+            line="585"
             column="19"/>
     </issue>
 
@@ -514,7 +338,7 @@
         errorLine2="                                         ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/session/MediaUtils.java"
-            line="504"
+            line="585"
             column="42"/>
     </issue>
 
@@ -525,7 +349,7 @@
         errorLine2="                  ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/session/MediaUtils.java"
-            line="540"
+            line="621"
             column="19"/>
     </issue>
 
@@ -536,7 +360,7 @@
         errorLine2="                                                     ~~~~~~">
         <location
             file="src/main/java/androidx/media2/session/MediaUtils.java"
-            line="540"
+            line="621"
             column="54"/>
     </issue>
 
@@ -547,7 +371,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/session/MediaUtils.java"
-            line="570"
+            line="651"
             column="19"/>
     </issue>
 
@@ -558,7 +382,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/session/MediaUtils.java"
-            line="571"
+            line="652"
             column="13"/>
     </issue>
 
@@ -569,7 +393,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/session/MediaUtils.java"
-            line="586"
+            line="667"
             column="19"/>
     </issue>
 
@@ -580,7 +404,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/session/MediaUtils.java"
-            line="587"
+            line="668"
             column="13"/>
     </issue>
 
@@ -591,7 +415,7 @@
         errorLine2="                                           ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/session/MediaUtils.java"
-            line="628"
+            line="709"
             column="44"/>
     </issue>
 
@@ -602,7 +426,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/session/MediaUtils.java"
-            line="672"
+            line="753"
             column="19"/>
     </issue>
 
@@ -613,7 +437,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/session/MediaUtils.java"
-            line="673"
+            line="754"
             column="13"/>
     </issue>
 
@@ -624,7 +448,7 @@
         errorLine2="                                               ~~~~~~">
         <location
             file="src/main/java/androidx/media2/session/MediaUtils.java"
-            line="683"
+            line="764"
             column="48"/>
     </issue>
 
@@ -635,96 +459,8 @@
         errorLine2="                                                         ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/session/MediaUtils.java"
-            line="699"
+            line="780"
             column="58"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static LibraryParams convertToLibraryParams(Context context, Bundle legacyBundle) {"
-        errorLine2="                  ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/session/MediaUtils.java"
-            line="737"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static LibraryParams convertToLibraryParams(Context context, Bundle legacyBundle) {"
-        errorLine2="                                                       ~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/session/MediaUtils.java"
-            line="737"
-            column="56"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static LibraryParams convertToLibraryParams(Context context, Bundle legacyBundle) {"
-        errorLine2="                                                                        ~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/session/MediaUtils.java"
-            line="737"
-            column="73"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static Bundle convertToRootHints(LibraryParams params) {"
-        errorLine2="                  ~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/session/MediaUtils.java"
-            line="760"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static Bundle convertToRootHints(LibraryParams params) {"
-        errorLine2="                                            ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/session/MediaUtils.java"
-            line="760"
-            column="45"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static &lt;T> List&lt;T> removeNullElements(@Nullable List&lt;T> list) {"
-        errorLine2="                      ~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/session/MediaUtils.java"
-            line="778"
-            column="23"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="            PlaybackStateCompat state) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/session/MediaUtils.java"
-            line="805"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static List&lt;CommandButton> convertToCustomLayout(PlaybackStateCompat state) {"
-        errorLine2="                                                            ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/session/MediaUtils.java"
-            line="835"
-            column="61"/>
     </issue>
 
     <issue
@@ -734,7 +470,7 @@
         errorLine2="           ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/session/SessionToken.java"
-            line="217"
+            line="210"
             column="12"/>
     </issue>
 
@@ -745,7 +481,7 @@
         errorLine2="           ~~~~~~">
         <location
             file="src/main/java/androidx/media2/session/SessionToken.java"
-            line="252"
+            line="250"
             column="12"/>
     </issue>
 
@@ -756,7 +492,7 @@
         errorLine2="                                   ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/session/SessionToken.java"
-            line="442"
+            line="426"
             column="36"/>
     </issue>
 
@@ -767,7 +503,7 @@
         errorLine2="                                                                   ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/session/SessionToken.java"
-            line="442"
+            line="426"
             column="68"/>
     </issue>
 

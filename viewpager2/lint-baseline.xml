@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 3.6.0-alpha12" client="gradle" variant="debug" version="3.6.0-alpha12">
+<issues format="5" by="lint 3.6.0-beta01" client="gradle" variant="debug" version="3.6.0-beta01">
 
     <issue
         id="UnknownNullness"
@@ -96,7 +96,7 @@
         errorLine2="                                                  ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/viewpager2/widget/ViewPager2.java"
-            line="938"
+            line="948"
             column="51"/>
     </issue>
 
@@ -107,7 +107,7 @@
         errorLine2="                                                  ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/viewpager2/widget/ViewPager2.java"
-            line="938"
+            line="948"
             column="51"/>
     </issue>
 
@@ -118,7 +118,7 @@
         errorLine2="                                                          ~~~~~~">
         <location
             file="src/main/java/androidx/viewpager2/widget/ViewPager2.java"
-            line="945"
+            line="955"
             column="59"/>
     </issue>
 
@@ -129,7 +129,7 @@
         errorLine2="                                                          ~~~~~~">
         <location
             file="src/main/java/androidx/viewpager2/widget/ViewPager2.java"
-            line="945"
+            line="955"
             column="59"/>
     </issue>
 

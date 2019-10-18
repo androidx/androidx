@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 3.5.0-beta04" client="gradle" version="3.5.0-beta04">
+<issues format="5" by="lint 3.6.0-beta01" client="gradle" version="3.6.0-beta01">
 
     <issue
         id="UnknownNullness"
@@ -63,7 +63,7 @@
         errorLine2="           ~">
         <location
             file="src/main/java/androidx/collection/ArraySet.java"
-            line="446"
+            line="510"
             column="12"/>
     </issue>
 
@@ -74,7 +74,7 @@
         errorLine2="           ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/collection/ArraySet.java"
-            line="693"
+            line="759"
             column="12"/>
     </issue>
 

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 3.6.0-alpha12" client="gradle" variant="debug" version="3.6.0-alpha12">
+<issues format="5" by="lint 3.6.0-beta01" client="gradle" variant="debug" version="3.6.0-beta01">
 
     <issue
         id="KotlinPropertyAccess"
@@ -45,7 +45,7 @@
         errorLine2="              ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/swiperefreshlayout/widget/SwipeRefreshLayout.java"
-            line="278"
+            line="280"
             column="15"/>
     </issue>
 
@@ -56,7 +56,7 @@
         errorLine2="                                          ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/swiperefreshlayout/widget/SwipeRefreshLayout.java"
-            line="284"
+            line="286"
             column="43"/>
     </issue>
 
@@ -67,7 +67,7 @@
         errorLine2="                                         ~~~~~~">
         <location
             file="src/main/java/androidx/swiperefreshlayout/widget/SwipeRefreshLayout.java"
-            line="607"
+            line="608"
             column="42"/>
     </issue>
 
@@ -78,7 +78,7 @@
         errorLine2="                                                  ~~~~~~">
         <location
             file="src/main/java/androidx/swiperefreshlayout/widget/SwipeRefreshLayout.java"
-            line="618"
+            line="619"
             column="51"/>
     </issue>
 
@@ -89,7 +89,7 @@
         errorLine2="                                               ~~~~~~">
         <location
             file="src/main/java/androidx/swiperefreshlayout/widget/SwipeRefreshLayout.java"
-            line="634"
+            line="635"
             column="48"/>
     </issue>
 
@@ -100,7 +100,7 @@
         errorLine2="                                         ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/swiperefreshlayout/widget/SwipeRefreshLayout.java"
-            line="754"
+            line="755"
             column="42"/>
     </issue>
 
@@ -111,7 +111,7 @@
         errorLine2="                                       ~~~~">
         <location
             file="src/main/java/androidx/swiperefreshlayout/widget/SwipeRefreshLayout.java"
-            line="910"
+            line="911"
             column="40"/>
     </issue>
 
@@ -122,7 +122,7 @@
         errorLine2="                                                   ~~~~">
         <location
             file="src/main/java/androidx/swiperefreshlayout/widget/SwipeRefreshLayout.java"
-            line="910"
+            line="911"
             column="52"/>
     </issue>
 
@@ -133,7 +133,7 @@
         errorLine2="                                       ~~~~">
         <location
             file="src/main/java/androidx/swiperefreshlayout/widget/SwipeRefreshLayout.java"
-            line="919"
+            line="920"
             column="40"/>
     </issue>
 
@@ -144,7 +144,7 @@
         errorLine2="                                                   ~~~~">
         <location
             file="src/main/java/androidx/swiperefreshlayout/widget/SwipeRefreshLayout.java"
-            line="919"
+            line="920"
             column="52"/>
     </issue>
 
@@ -155,7 +155,7 @@
         errorLine2="                                   ~~~~">
         <location
             file="src/main/java/androidx/swiperefreshlayout/widget/SwipeRefreshLayout.java"
-            line="928"
+            line="929"
             column="36"/>
     </issue>
 
@@ -166,7 +166,7 @@
         errorLine2="                               ~~~~">
         <location
             file="src/main/java/androidx/swiperefreshlayout/widget/SwipeRefreshLayout.java"
-            line="937"
+            line="938"
             column="32"/>
     </issue>
 
@@ -177,7 +177,7 @@
         errorLine2="                                  ~~~~">
         <location
             file="src/main/java/androidx/swiperefreshlayout/widget/SwipeRefreshLayout.java"
-            line="944"
+            line="945"
             column="35"/>
     </issue>
 
@@ -188,7 +188,7 @@
         errorLine2="                                                               ~~~~~">
         <location
             file="src/main/java/androidx/swiperefreshlayout/widget/SwipeRefreshLayout.java"
-            line="944"
+            line="945"
             column="64"/>
     </issue>
 
@@ -199,7 +199,7 @@
         errorLine2="                                       ~~~~">
         <location
             file="src/main/java/androidx/swiperefreshlayout/widget/SwipeRefreshLayout.java"
-            line="955"
+            line="956"
             column="40"/>
     </issue>
 
@@ -210,7 +210,7 @@
         errorLine2="                                                   ~~~~">
         <location
             file="src/main/java/androidx/swiperefreshlayout/widget/SwipeRefreshLayout.java"
-            line="955"
+            line="956"
             column="52"/>
     </issue>
 
@@ -221,7 +221,7 @@
         errorLine2="                                       ~~~~">
         <location
             file="src/main/java/androidx/swiperefreshlayout/widget/SwipeRefreshLayout.java"
-            line="961"
+            line="962"
             column="40"/>
     </issue>
 
@@ -232,7 +232,7 @@
         errorLine2="                                                   ~~~~">
         <location
             file="src/main/java/androidx/swiperefreshlayout/widget/SwipeRefreshLayout.java"
-            line="961"
+            line="962"
             column="52"/>
     </issue>
 
@@ -243,7 +243,7 @@
         errorLine2="                                  ~~~~">
         <location
             file="src/main/java/androidx/swiperefreshlayout/widget/SwipeRefreshLayout.java"
-            line="971"
+            line="972"
             column="35"/>
     </issue>
 
@@ -254,7 +254,7 @@
         errorLine2="                                                               ~~~~~">
         <location
             file="src/main/java/androidx/swiperefreshlayout/widget/SwipeRefreshLayout.java"
-            line="971"
+            line="972"
             column="64"/>
     </issue>
 
@@ -265,7 +265,7 @@
         errorLine2="                                   ~~~~">
         <location
             file="src/main/java/androidx/swiperefreshlayout/widget/SwipeRefreshLayout.java"
-            line="1008"
+            line="1009"
             column="36"/>
     </issue>
 
@@ -276,7 +276,7 @@
         errorLine2="                                     ~~~~">
         <location
             file="src/main/java/androidx/swiperefreshlayout/widget/SwipeRefreshLayout.java"
-            line="1022"
+            line="1023"
             column="38"/>
     </issue>
 
@@ -287,7 +287,7 @@
         errorLine2="                                    ~~~~">
         <location
             file="src/main/java/androidx/swiperefreshlayout/widget/SwipeRefreshLayout.java"
-            line="1029"
+            line="1030"
             column="37"/>
     </issue>
 
@@ -298,7 +298,7 @@
         errorLine2="                                 ~~~~">
         <location
             file="src/main/java/androidx/swiperefreshlayout/widget/SwipeRefreshLayout.java"
-            line="1035"
+            line="1036"
             column="34"/>
     </issue>
 
@@ -309,7 +309,7 @@
         errorLine2="                              ~~~~~">
         <location
             file="src/main/java/androidx/swiperefreshlayout/widget/SwipeRefreshLayout.java"
-            line="1073"
+            line="1074"
             column="31"/>
     </issue>
 
@@ -320,7 +320,7 @@
         errorLine2="                                                           ~~~~~">
         <location
             file="src/main/java/androidx/swiperefreshlayout/widget/SwipeRefreshLayout.java"
-            line="1079"
+            line="1080"
             column="60"/>
     </issue>
 
@@ -331,7 +331,7 @@
         errorLine2="                                                                           ~~~~~">
         <location
             file="src/main/java/androidx/swiperefreshlayout/widget/SwipeRefreshLayout.java"
-            line="1079"
+            line="1080"
             column="76"/>
     </issue>
 
@@ -342,7 +342,7 @@
         errorLine2="                              ~~~~~">
         <location
             file="src/main/java/androidx/swiperefreshlayout/widget/SwipeRefreshLayout.java"
-            line="1114"
+            line="1115"
             column="31"/>
     </issue>
 
@@ -353,7 +353,7 @@
         errorLine2="                                                           ~~~~~">
         <location
             file="src/main/java/androidx/swiperefreshlayout/widget/SwipeRefreshLayout.java"
-            line="1120"
+            line="1121"
             column="60"/>
     </issue>
 
@@ -364,7 +364,7 @@
         errorLine2="                                                                           ~~~~~">
         <location
             file="src/main/java/androidx/swiperefreshlayout/widget/SwipeRefreshLayout.java"
-            line="1120"
+            line="1121"
             column="76"/>
     </issue>
 
@@ -375,7 +375,7 @@
         errorLine2="                                ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/swiperefreshlayout/widget/SwipeRefreshLayout.java"
-            line="1225"
+            line="1226"
             column="33"/>
     </issue>
 

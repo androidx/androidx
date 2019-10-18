@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 3.6.0-alpha12" client="gradle" variant="debug" version="3.6.0-alpha12">
+<issues format="5" by="lint 3.6.0-beta01" client="gradle" variant="debug" version="3.6.0-beta01">
 
     <issue
         id="UnknownNullness"
@@ -2736,7 +2736,7 @@
         errorLine2="                      ~~~~~~~">
         <location
             file="src/main/java/androidx/transition/Transition.java"
-            line="277"
+            line="274"
             column="23"/>
     </issue>
 
@@ -2747,7 +2747,7 @@
         errorLine2="                      ~~~~~~~">
         <location
             file="src/main/java/androidx/transition/Transition.java"
-            line="277"
+            line="274"
             column="23"/>
     </issue>
 
@@ -2758,7 +2758,7 @@
         errorLine2="                                       ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/transition/Transition.java"
-            line="277"
+            line="274"
             column="40"/>
     </issue>
 
@@ -2769,7 +2769,7 @@
         errorLine2="                                       ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/transition/Transition.java"
-            line="277"
+            line="274"
             column="40"/>
     </issue>
 
@@ -2780,7 +2780,7 @@
         errorLine2="                                          ~~~~~~">
         <location
             file="src/main/java/androidx/transition/Transition.java"
-            line="509"
+            line="506"
             column="43"/>
     </issue>
 
@@ -2791,7 +2791,7 @@
         errorLine2="                                          ~~~~~~">
         <location
             file="src/main/java/androidx/transition/Transition.java"
-            line="509"
+            line="506"
             column="43"/>
     </issue>
 
@@ -2802,7 +2802,7 @@
         errorLine2="                                   ~~~~~~~~~">
         <location
             file="src/main/java/androidx/transition/Transition.java"
-            line="704"
+            line="701"
             column="36"/>
     </issue>
 
@@ -2813,7 +2813,7 @@
         errorLine2="                                   ~~~~~~~~~">
         <location
             file="src/main/java/androidx/transition/Transition.java"
-            line="704"
+            line="701"
             column="36"/>
     </issue>
 
@@ -2824,7 +2824,7 @@
         errorLine2="                                                        ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/transition/Transition.java"
-            line="704"
+            line="701"
             column="57"/>
     </issue>
 
@@ -2835,7 +2835,7 @@
         errorLine2="                                                        ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/transition/Transition.java"
-            line="704"
+            line="701"
             column="57"/>
     </issue>
 
@@ -2846,7 +2846,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/transition/Transition.java"
-            line="705"
+            line="702"
             column="13"/>
     </issue>
 
@@ -2857,7 +2857,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/transition/Transition.java"
-            line="705"
+            line="702"
             column="13"/>
     </issue>
 
@@ -2868,7 +2868,7 @@
         errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/transition/Transition.java"
-            line="705"
+            line="702"
             column="45"/>
     </issue>
 
@@ -2879,7 +2879,7 @@
         errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/transition/Transition.java"
-            line="705"
+            line="702"
             column="45"/>
     </issue>
 
@@ -2890,7 +2890,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/transition/Transition.java"
-            line="706"
+            line="703"
             column="13"/>
     </issue>
 
@@ -2901,7 +2901,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/transition/Transition.java"
-            line="706"
+            line="703"
             column="13"/>
     </issue>
 
@@ -2912,7 +2912,7 @@
         errorLine2="                      ~~~~">
         <location
             file="src/main/java/androidx/transition/Transition.java"
-            line="1718"
+            line="1715"
             column="23"/>
     </issue>
 
@@ -2923,7 +2923,7 @@
         errorLine2="                      ~~~~">
         <location
             file="src/main/java/androidx/transition/Transition.java"
-            line="1718"
+            line="1715"
             column="23"/>
     </issue>
 
@@ -2934,7 +2934,7 @@
         errorLine2="                       ~~~~">
         <location
             file="src/main/java/androidx/transition/Transition.java"
-            line="1750"
+            line="1747"
             column="24"/>
     </issue>
 
@@ -2945,7 +2945,7 @@
         errorLine2="                       ~~~~">
         <location
             file="src/main/java/androidx/transition/Transition.java"
-            line="1750"
+            line="1747"
             column="24"/>
     </issue>
 
@@ -2956,7 +2956,7 @@
         errorLine2="                           ~~~~~~~~">
         <location
             file="src/main/java/androidx/transition/Transition.java"
-            line="1897"
+            line="1894"
             column="28"/>
     </issue>
 
@@ -2967,7 +2967,7 @@
         errorLine2="                           ~~~~~~~~">
         <location
             file="src/main/java/androidx/transition/Transition.java"
-            line="1897"
+            line="1894"
             column="28"/>
     </issue>
 
@@ -2978,7 +2978,7 @@
         errorLine2="           ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/transition/Transition.java"
-            line="2222"
+            line="2214"
             column="12"/>
     </issue>
 
@@ -2989,7 +2989,7 @@
         errorLine2="           ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/transition/Transition.java"
-            line="2222"
+            line="2214"
             column="12"/>
     </issue>
 
@@ -3000,7 +3000,7 @@
         errorLine2="                        ~~~~">
         <location
             file="src/main/java/androidx/transition/Transition.java"
-            line="2445"
+            line="2437"
             column="25"/>
     </issue>
 
@@ -3011,7 +3011,7 @@
         errorLine2="                        ~~~~">
         <location
             file="src/main/java/androidx/transition/Transition.java"
-            line="2445"
+            line="2437"
             column="25"/>
     </issue>
 
@@ -3132,7 +3132,7 @@
         errorLine2="                                            ~~~~~~~~~">
         <location
             file="src/main/java/androidx/transition/TransitionManager.java"
-            line="429"
+            line="428"
             column="45"/>
     </issue>
 
@@ -3143,7 +3143,7 @@
         errorLine2="                                            ~~~~~~~~~">
         <location
             file="src/main/java/androidx/transition/TransitionManager.java"
-            line="429"
+            line="428"
             column="45"/>
     </issue>
 
@@ -3506,7 +3506,7 @@
         errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/transition/TransitionSet.java"
-            line="619"
+            line="609"
             column="32"/>
     </issue>
 
@@ -3517,7 +3517,7 @@
         errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/transition/TransitionSet.java"
-            line="619"
+            line="609"
             column="32"/>
     </issue>
 
@@ -3528,7 +3528,7 @@
         errorLine2="                                     ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/transition/TransitionSet.java"
-            line="629"
+            line="619"
             column="38"/>
     </issue>
 
@@ -3539,7 +3539,7 @@
         errorLine2="                                     ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/transition/TransitionSet.java"
-            line="629"
+            line="619"
             column="38"/>
     </issue>
 
@@ -3550,7 +3550,7 @@
         errorLine2="           ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/transition/TransitionSet.java"
-            line="648"
+            line="638"
             column="12"/>
     </issue>
 
@@ -3561,7 +3561,7 @@
         errorLine2="           ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/transition/TransitionSet.java"
-            line="648"
+            line="638"
             column="12"/>
     </issue>
 

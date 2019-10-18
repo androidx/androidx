@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 3.5.0-beta04" client="gradle" variant="debug" version="3.5.0-beta04">
+<issues format="5" by="lint 3.6.0-beta01" client="gradle" variant="debug" version="3.6.0-beta01">
 
     <issue
         id="UnknownNullness"
@@ -8,7 +8,7 @@
         errorLine2="           ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/widget/MediaControlView.java"
-            line="356"
+            line="408"
             column="12"/>
     </issue>
 
@@ -19,7 +19,7 @@
         errorLine2="                                ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/widget/MediaControlView.java"
-            line="362"
+            line="414"
             column="33"/>
     </issue>
 
@@ -30,7 +30,7 @@
         errorLine2="                                    ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/widget/MediaControlView.java"
-            line="379"
+            line="431"
             column="37"/>
     </issue>
 
@@ -41,7 +41,8 @@
         errorLine2="           ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/widget/VideoView.java"
-            line="518"
+            line="525"
             column="12"/>
     </issue>
+
 </issues>
