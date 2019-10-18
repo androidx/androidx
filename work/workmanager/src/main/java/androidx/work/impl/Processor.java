@@ -201,11 +201,16 @@ public class Processor implements ExecutionListener, ForegroundProcessor {
             WorkerWrapper wrapper;
             // Check if running in the context of a foreground service
             wrapper = mForegroundWorkMap.remove(id);
+            boolean isForegroundWork = wrapper != null;
             if (wrapper == null) {
                 // Fallback to enqueued Work
                 wrapper = mEnqueuedWorkMap.remove(id);
             }
-            return interrupt(id, wrapper);
+            boolean interrupted = interrupt(id, wrapper);
+            if (isForegroundWork) {
+                stopForegroundService();
+            }
+            return interrupted;
         }
     }
 
@@ -213,18 +218,7 @@ public class Processor implements ExecutionListener, ForegroundProcessor {
     public void stopForeground(@NonNull String workSpecId) {
         synchronized (mLock) {
             mForegroundWorkMap.remove(workSpecId);
-            boolean hasForegroundWork = !mForegroundWorkMap.isEmpty();
-            if (!hasForegroundWork) {
-                Logger.get().debug(TAG,
-                        "No more foreground work. Stopping SystemForegroundService");
-                Intent intent = createStopForegroundIntent(mAppContext);
-                mAppContext.startService(intent);
-                // Release wake lock if there is no more pending work.
-                if (mForegroundLock != null) {
-                    mForegroundLock.release();
-                    mForegroundLock = null;
-                }
-            }
+            stopForegroundService();
         }
     }
 
@@ -295,6 +289,23 @@ public class Processor implements ExecutionListener, ForegroundProcessor {
 
             for (ExecutionListener executionListener : mOuterListeners) {
                 executionListener.onExecuted(workSpecId, needsReschedule);
+            }
+        }
+    }
+
+    private void stopForegroundService() {
+        synchronized (mLock) {
+            boolean hasForegroundWork = !mForegroundWorkMap.isEmpty();
+            if (!hasForegroundWork) {
+                Logger.get().debug(TAG,
+                        "No more foreground work. Stopping SystemForegroundService");
+                Intent intent = createStopForegroundIntent(mAppContext);
+                mAppContext.startService(intent);
+                // Release wake lock if there is no more pending work.
+                if (mForegroundLock != null) {
+                    mForegroundLock.release();
+                    mForegroundLock = null;
+                }
             }
         }
     }
