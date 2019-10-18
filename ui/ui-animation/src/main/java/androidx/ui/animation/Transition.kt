@@ -28,17 +28,7 @@ import androidx.compose.unaryPlus
 /**
  * Composable to use with TransitionDefinition-based animations.
  *
- * Example:
- *
- *     val definition = transitionDefinition { ... }
- *     val alpha = FloatPropKey()
- *
- *     @Composable
- *     fun TransitionBackground() {
- *         Transition(definition = definition, toState = State.Pressed) { state ->
- *             Background(alpha = state[alpha])
- *         Transition()
- *     }
+ * @sample androidx.ui.animation.samples.TransitionSample
  */
 @Composable
 fun <T> Transition(
@@ -50,10 +40,10 @@ fun <T> Transition(
         // TODO: This null is workaround for b/132148894
         val model = +memo(definition, null) { TransitionModel(definition) }
         model.anim.toState(toState)
-        children(state = model)
+        children(model)
     } else {
         val state = +memo(definition, toState) { definition.getStateFor(toState) }
-        children(state = state)
+        children(state)
     }
 }
 

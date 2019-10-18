@@ -35,6 +35,7 @@ dependencies {
     implementation project(":compose:compose-runtime")
     implementation project(":ui:ui-animation")
     implementation project(":ui:ui-text")
+    implementation project(":ui:ui-foundation")
 }
 
 android {
