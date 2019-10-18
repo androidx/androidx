@@ -26,6 +26,7 @@ import android.view.View;
 
 import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.selection.SelectionTracker.SelectionPredicate;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -53,7 +54,7 @@ final class DefaultBandHost<K> extends GridModel.GridHost<K> {
         checkArgument(recyclerView != null);
 
         mRecyclerView = recyclerView;
-        mBand = mRecyclerView.getContext().getResources().getDrawable(bandOverlayId);
+        mBand = ContextCompat.getDrawable(mRecyclerView.getContext(), bandOverlayId);
 
         checkArgument(mBand != null);
         checkArgument(keyProvider != null);
