@@ -66,7 +66,6 @@ import androidx.ui.core.toRect
 import androidx.ui.engine.geometry.Rect
 import androidx.ui.framework.test.TestActivity
 import androidx.ui.graphics.Color
-import androidx.ui.graphics.toArgb
 import androidx.ui.graphics.Paint
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -79,6 +78,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
+import java.lang.Math.abs
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 
@@ -1922,18 +1922,15 @@ class AndroidLayoutDrawTest {
         val squareEnd = totalSize - ((totalSize - size) / 2) + offset
         for (x in 0 until totalSize) {
             for (y in 0 until totalSize) {
-                val pixel = bitmap.getPixel(x, y)
-                val pixelString = Color(pixel).toString()
-                if (x < squareStart || x >= squareEnd || y < squareStart || y >= squareEnd) {
-                    assertEquals(
-                        "Pixel within drawn rect[$x, $y] is $outerColor, " +
-                                "but was $pixelString", outerColor.toArgb(), pixel
-                    )
-                } else {
-                    assertEquals(
-                        "Pixel within drawn rect[$x, $y] is $innerColor, " +
-                                "but was $pixelString", innerColor.toArgb(), pixel
-                    )
+                val pixel = Color(bitmap.getPixel(x, y))
+                val expected =
+                    if (!(x < squareStart || x >= squareEnd || y < squareStart || y >= squareEnd)) {
+                        innerColor
+                    } else {
+                        outerColor
+                    }
+                assertColorsEqual(expected, pixel) {
+                    "Pixel within drawn rect[$x, $y] is $expected, but was $pixel"
                 }
             }
         }
@@ -1962,6 +1959,42 @@ class AndroidLayoutDrawTest {
             }
         }
     }
+}
+
+fun Bitmap.assertRect(
+    color: Color,
+    holeSize: Int = 0,
+    size: Int = width,
+    centerX: Int = width / 2,
+    centerY: Int = height / 2
+) {
+    assertTrue(centerX + size / 2 <= width)
+    assertTrue(centerX - size / 2 >= 0)
+    assertTrue(centerY + size / 2 <= height)
+    assertTrue(centerY - size / 2 >= 0)
+    val halfHoleSize = holeSize / 2
+    for (x in centerX - size / 2 until centerX + size / 2) {
+        for (y in centerY - size / 2 until centerY + size / 2) {
+            if (abs(x - centerX) > halfHoleSize &&
+                abs(y - centerY) > halfHoleSize
+            ) {
+                val currentColor = Color(getPixel(x, y))
+                assertColorsEqual(color, currentColor)
+            }
+        }
+    }
+}
+
+fun assertColorsEqual(
+    expected: Color,
+    color: Color,
+    error: () -> String = { "$expected and $color are not similar!" }
+) {
+    val errorString = error()
+    assertEquals(errorString, expected.red, color.red, 0.01f)
+    assertEquals(errorString, expected.green, color.green, 0.01f)
+    assertEquals(errorString, expected.blue, color.blue, 0.01f)
+    assertEquals(errorString, expected.alpha, color.alpha, 0.01f)
 }
 
 @Composable
