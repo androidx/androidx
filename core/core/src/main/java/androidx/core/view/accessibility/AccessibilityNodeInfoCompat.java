@@ -3823,7 +3823,7 @@ public class AccessibilityNodeInfoCompat {
         }
         if (getBooleanProperty(BOOLEAN_PROPERTY_IS_HEADING)) return true;
         CollectionItemInfoCompat collectionItemInfo = getCollectionItemInfo();
-        return (collectionItemInfo != null) && (collectionItemInfo.isHeading());
+        return (collectionItemInfo != null) && collectionItemInfo.isHeading();
     }
 
     /**
@@ -4082,7 +4082,7 @@ public class AccessibilityNodeInfoCompat {
         if (extras != null) {
             int booleanProperties = extras.getInt(BOOLEAN_PROPERTY_KEY, 0);
             booleanProperties &= ~property;
-            booleanProperties |= (value) ? property : 0;
+            booleanProperties |= value ? property : 0;
             extras.putInt(BOOLEAN_PROPERTY_KEY, booleanProperties);
         }
     }

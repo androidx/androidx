@@ -65,13 +65,13 @@ public class ArgbEvaluator implements TypeEvaluator {
         float startA = ((startInt >> 24) & 0xff) / 255.0f;
         float startR = ((startInt >> 16) & 0xff) / 255.0f;
         float startG = ((startInt >> 8) & 0xff) / 255.0f;
-        float startB = ((startInt) & 0xff) / 255.0f;
+        float startB = (startInt & 0xff) / 255.0f;
 
         int endInt = (Integer) endValue;
         float endA = ((endInt >> 24) & 0xff) / 255.0f;
         float endR = ((endInt >> 16) & 0xff) / 255.0f;
         float endG = ((endInt >> 8) & 0xff) / 255.0f;
-        float endB = ((endInt) & 0xff) / 255.0f;
+        float endB = (endInt & 0xff) / 255.0f;
 
         // convert from sRGB to linear
         startR = (float) Math.pow(startR, 2.2);

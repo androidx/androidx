@@ -295,7 +295,7 @@ public final class SpringForce implements Force {
             double coeffB = lastVelocity + mNaturalFreq * lastDisplacement;
             displacement = (coeffA + coeffB * deltaT) * Math.pow(Math.E, -mNaturalFreq * deltaT);
             currentVelocity = (coeffA + coeffB * deltaT) * Math.pow(Math.E, -mNaturalFreq * deltaT)
-                    * (-mNaturalFreq) + coeffB * Math.pow(Math.E, -mNaturalFreq * deltaT);
+                    * -mNaturalFreq + coeffB * Math.pow(Math.E, -mNaturalFreq * deltaT);
         } else {
             // Underdamped
             double cosCoeff = lastDisplacement;
@@ -304,7 +304,7 @@ public final class SpringForce implements Force {
             displacement = Math.pow(Math.E, -mDampingRatio * mNaturalFreq * deltaT)
                     * (cosCoeff * Math.cos(mDampedFreq * deltaT)
                     + sinCoeff * Math.sin(mDampedFreq * deltaT));
-            currentVelocity = displacement * (-mNaturalFreq) * mDampingRatio
+            currentVelocity = displacement * -mNaturalFreq * mDampingRatio
                     + Math.pow(Math.E, -mDampingRatio * mNaturalFreq * deltaT)
                     * (-mDampedFreq * cosCoeff * Math.sin(mDampedFreq * deltaT)
                     + mDampedFreq * sinCoeff * Math.cos(mDampedFreq * deltaT));

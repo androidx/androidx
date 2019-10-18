@@ -173,7 +173,7 @@ public class AudioFocusRequestCompat {
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     /* package */ AudioAttributes getAudioAttributes() {
         return (mAudioAttributesCompat != null)
-                ? (AudioAttributes) (mAudioAttributesCompat.unwrap())
+                ? (AudioAttributes) mAudioAttributesCompat.unwrap()
                 : null;
     }
 

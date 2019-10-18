@@ -59,7 +59,7 @@ public final class AlbumArtCache {
         // Holds no more than MAX_ALBUM_ART_CACHE_SIZE bytes, bounded by maxmemory/4 and
         // Integer.MAX_VALUE:
         int maxSize = Math.min(MAX_ALBUM_ART_CACHE_SIZE,
-            (int) (Math.min(Integer.MAX_VALUE, Runtime.getRuntime().maxMemory()/4)));
+                (int) Math.min(Integer.MAX_VALUE, Runtime.getRuntime().maxMemory() / 4));
         mCache = new LruCache<String, Bitmap[]>(maxSize) {
             @Override
             protected int sizeOf(String key, Bitmap[] value) {

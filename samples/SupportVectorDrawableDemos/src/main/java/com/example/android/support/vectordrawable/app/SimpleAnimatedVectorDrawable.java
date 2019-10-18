@@ -68,7 +68,7 @@ public class SimpleAnimatedVectorDrawable extends AppCompatActivity implements
         time = android.os.SystemClock.currentThreadTimeMillis() - time;
         TextView t = new TextView(this);
         DecimalFormat df = new DecimalFormat("#.##");
-        t.setText("avgL=" + df.format(time / (mIcons.length)) + " ms");
+        t.setText("avgL=" + df.format(time / mIcons.length) + " ms");
         container.addView(t);
 
         addDrawableButtons(container, d);

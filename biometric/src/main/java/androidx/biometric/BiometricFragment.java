@@ -282,7 +282,7 @@ public class BiometricFragment extends Fragment {
             // Set builder flags introduced in Q.
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                 builder.setConfirmationRequired(
-                        mBundle.getBoolean((BiometricPrompt.KEY_REQUIRE_CONFIRMATION), true));
+                        mBundle.getBoolean(BiometricPrompt.KEY_REQUIRE_CONFIRMATION, true));
                 builder.setDeviceCredentialAllowed(allowDeviceCredential);
             }
 

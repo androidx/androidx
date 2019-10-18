@@ -736,8 +736,8 @@ public class SampleSliceProvider extends SliceProvider {
                         .setSubtitle(state)
                         .setContentDescription(sliceCDString)
                         .setPrimaryAction(primaryAction))
-                .addAction((SliceAction.createToggle(getBroadcastIntent(ACTION_WIFI_CHANGED, null),
-                        toggleCDString, finalWifiEnabled)));
+                .addAction(SliceAction.createToggle(getBroadcastIntent(ACTION_WIFI_CHANGED, null),
+                        toggleCDString, finalWifiEnabled));
 
         // Add fake wifi networks
         int[] wifiIcons = new int[]{R.drawable.ic_wifi_full, R.drawable.ic_wifi_low,

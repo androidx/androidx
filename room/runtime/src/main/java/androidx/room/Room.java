@@ -80,7 +80,7 @@ public class Room {
         String name = klass.getCanonicalName();
         final String postPackageName = fullPackage.isEmpty()
                 ? name
-                : (name.substring(fullPackage.length() + 1));
+                : name.substring(fullPackage.length() + 1);
         final String implName = postPackageName.replace('.', '_') + suffix;
         //noinspection TryWithIdenticalCatches
         try {

@@ -91,9 +91,9 @@ public abstract class PreferenceGroup extends Preference {
                         R.styleable.PreferenceGroup_orderingFromXml, true);
 
         if (a.hasValue(R.styleable.PreferenceGroup_initialExpandedChildrenCount)) {
-            setInitialExpandedChildrenCount((TypedArrayUtils.getInt(
+            setInitialExpandedChildrenCount(TypedArrayUtils.getInt(
                     a, R.styleable.PreferenceGroup_initialExpandedChildrenCount,
-                    R.styleable.PreferenceGroup_initialExpandedChildrenCount, Integer.MAX_VALUE)));
+                    R.styleable.PreferenceGroup_initialExpandedChildrenCount, Integer.MAX_VALUE));
         }
         a.recycle();
     }
