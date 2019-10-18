@@ -75,7 +75,7 @@ public class CustomTabsCallback {
      * @param navigationEvent The code corresponding to the navigation event.
      * @param extras Reserved for future use.
      */
-    public void onNavigationEvent(int navigationEvent, Bundle extras) {}
+    public void onNavigationEvent(int navigationEvent, @Nullable Bundle extras) {}
 
     /**
      * Unsupported callbacks that may be provided by the implementation.
@@ -91,7 +91,7 @@ public class CustomTabsCallback {
      * @param callbackName Name of the extra callback.
      * @param args Arguments for the callback
      */
-    public void extraCallback(String callbackName, Bundle args) {}
+    public void extraCallback(@NonNull String callbackName, @Nullable Bundle args) {}
 
     /**
      * The same as {@link #extraCallback}, except that this method allows the custom tabs provider
@@ -110,7 +110,7 @@ public class CustomTabsCallback {
      *
      * @param extras Reserved for future use.
      */
-    public void onMessageChannelReady(Bundle extras) {}
+    public void onMessageChannelReady(@Nullable Bundle extras) {}
 
     /**
      * Called when a tab controlled by this {@link CustomTabsSession} has sent a postMessage.
@@ -121,7 +121,7 @@ public class CustomTabsCallback {
      * @param message The message sent.
      * @param extras Reserved for future use.
      */
-    public void onPostMessage(String message, Bundle extras) {}
+    public void onPostMessage(@NonNull String message, @Nullable Bundle extras) {}
 
     /**
      * Called when a relationship validation result is available.
@@ -134,6 +134,6 @@ public class CustomTabsCallback {
      * @param result Whether the relation was validated.
      * @param extras Reserved for future use.
      */
-    public void onRelationshipValidationResult(@Relation int relation, Uri requestedOrigin,
-            boolean result, Bundle extras) {}
+    public void onRelationshipValidationResult(@Relation int relation, @NonNull Uri requestedOrigin,
+            boolean result, @Nullable Bundle extras) {}
 }

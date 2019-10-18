@@ -21,6 +21,7 @@ import static org.junit.Assert.fail;
 import android.content.ComponentName;
 import android.content.Context;
 
+import androidx.annotation.NonNull;
 import androidx.browser.customtabs.CustomTabsClient;
 import androidx.browser.customtabs.CustomTabsServiceConnection;
 import androidx.browser.customtabs.CustomTabsSession;
@@ -44,7 +45,8 @@ public class CustomTabConnectionRule extends TestWatcher {
 
     private CustomTabsServiceConnection mConnection = new CustomTabsServiceConnection() {
         @Override
-        public void onCustomTabsServiceConnected(ComponentName name, CustomTabsClient client) {
+        public void onCustomTabsServiceConnected(@NonNull ComponentName name,
+                @NonNull CustomTabsClient client) {
             mSession = client.newSession(null);
             mConnectionLatch.countDown();
         }

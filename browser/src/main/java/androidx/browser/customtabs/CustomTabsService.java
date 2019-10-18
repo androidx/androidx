@@ -167,27 +167,22 @@ public abstract class CustomTabsService extends Service {
         }
 
         @Override
-        @SuppressWarnings("NullAway") // TODO: b/141869399
-        public boolean newSession(ICustomTabsCallback callback) {
+        public boolean newSession(@NonNull ICustomTabsCallback callback) {
             return newSessionInternal(callback, null);
         }
 
         @Override
-        @SuppressWarnings("NullAway") // TODO: b/141869399
-        public boolean newSessionWithExtras(ICustomTabsCallback callback, Bundle extras) {
+        public boolean newSessionWithExtras(@NonNull ICustomTabsCallback callback,
+                @Nullable Bundle extras) {
             return newSessionInternal(callback, getSessionIdFromBundle(extras));
         }
 
-        private boolean newSessionInternal(ICustomTabsCallback callback, PendingIntent sessionId) {
+        private boolean newSessionInternal(@NonNull ICustomTabsCallback callback,
+                @Nullable PendingIntent sessionId) {
             final CustomTabsSessionToken sessionToken =
                     new CustomTabsSessionToken(callback, sessionId);
             try {
-                DeathRecipient deathRecipient = new IBinder.DeathRecipient() {
-                    @Override
-                    public void binderDied() {
-                        cleanUpSession(sessionToken);
-                    }
-                };
+                DeathRecipient deathRecipient = () -> cleanUpSession(sessionToken);
                 synchronized (mDeathRecipientMap) {
                     callback.asBinder().linkToDeath(deathRecipient, 0);
                     mDeathRecipientMap.put(callback.asBinder(), deathRecipient);
@@ -199,7 +194,6 @@ public abstract class CustomTabsService extends Service {
         }
 
         @Override
-        @SuppressWarnings("NullAway") // TODO: b/141869399
         public boolean mayLaunchUrl(@Nullable ICustomTabsCallback callback, @NonNull Uri url,
                 @Nullable Bundle extras, @Nullable List<Bundle> otherLikelyBundles) {
             return CustomTabsService.this.mayLaunchUrl(
@@ -207,34 +201,37 @@ public abstract class CustomTabsService extends Service {
                     url, extras, otherLikelyBundles);
         }
 
+        @SuppressWarnings("NullAway")  // TODO: b/142938599
         @Override
-        public Bundle extraCommand(String commandName, Bundle args) {
+        public Bundle extraCommand(@NonNull String commandName, @Nullable Bundle args) {
             return CustomTabsService.this.extraCommand(commandName, args);
         }
 
         @Override
-        public boolean updateVisuals(ICustomTabsCallback callback, Bundle bundle) {
+        public boolean updateVisuals(@NonNull ICustomTabsCallback callback,
+                @Nullable Bundle bundle) {
             return CustomTabsService.this.updateVisuals(
                     new CustomTabsSessionToken(callback, getSessionIdFromBundle(bundle)), bundle);
         }
 
         @Override
-        public boolean requestPostMessageChannel(ICustomTabsCallback callback,
-                Uri postMessageOrigin) {
+        public boolean requestPostMessageChannel(@NonNull ICustomTabsCallback callback,
+                @NonNull Uri postMessageOrigin) {
             return CustomTabsService.this.requestPostMessageChannel(
                     new CustomTabsSessionToken(callback, null), postMessageOrigin);
         }
 
         @Override
-        public boolean requestPostMessageChannelWithExtras(ICustomTabsCallback callback,
-                Uri postMessageOrigin, Bundle extras) {
+        public boolean requestPostMessageChannelWithExtras(@NonNull ICustomTabsCallback callback,
+                @NonNull Uri postMessageOrigin, @NonNull Bundle extras) {
             return CustomTabsService.this.requestPostMessageChannel(
                     new CustomTabsSessionToken(callback, getSessionIdFromBundle(extras)),
                     postMessageOrigin);
         }
 
         @Override
-        public int postMessage(ICustomTabsCallback callback, String message, Bundle extras) {
+        public int postMessage(@NonNull ICustomTabsCallback callback, @NonNull String message,
+                @Nullable Bundle extras) {
             return CustomTabsService.this.postMessage(
                     new CustomTabsSessionToken(callback, getSessionIdFromBundle(extras)),
                     message, extras);
@@ -242,14 +239,15 @@ public abstract class CustomTabsService extends Service {
 
         @Override
         public boolean validateRelationship(
-                ICustomTabsCallback callback, @Relation int relation, Uri origin, Bundle extras) {
+                @NonNull ICustomTabsCallback callback, @Relation int relation,
+                @NonNull Uri origin, @Nullable Bundle extras) {
             return CustomTabsService.this.validateRelationship(
                     new CustomTabsSessionToken(callback, getSessionIdFromBundle(extras)),
                     relation, origin, extras);
         }
 
         @Override
-        public boolean receiveFile(ICustomTabsCallback callback, @NonNull Uri uri,
+        public boolean receiveFile(@NonNull ICustomTabsCallback callback, @NonNull Uri uri,
                 @FilePurpose int purpose, @Nullable Bundle extras) {
             return CustomTabsService.this.receiveFile(
                     new CustomTabsSessionToken(callback, getSessionIdFromBundle(extras)),
@@ -266,7 +264,8 @@ public abstract class CustomTabsService extends Service {
     };
 
     @Override
-    public IBinder onBind(Intent intent) {
+    @NonNull
+    public IBinder onBind(@Nullable Intent intent) {
         return mBinder;
     }
 
@@ -279,13 +278,12 @@ public abstract class CustomTabsService extends Service {
      * @return Whether the clean up was successful. Multiple calls with two tokens holdings the
      * same binder will return false.
      */
-    @SuppressWarnings("NullAway") // TODO: b/141869399
-    protected boolean cleanUpSession(CustomTabsSessionToken sessionToken) {
+    protected boolean cleanUpSession(@NonNull CustomTabsSessionToken sessionToken) {
         try {
             synchronized (mDeathRecipientMap) {
                 IBinder binder = sessionToken.getCallbackBinder();
-                DeathRecipient deathRecipient =
-                        mDeathRecipientMap.get(binder);
+                if (binder == null) return false;
+                DeathRecipient deathRecipient = mDeathRecipientMap.get(binder);
                 binder.unlinkToDeath(deathRecipient, 0);
                 mDeathRecipientMap.remove(binder);
             }
@@ -315,7 +313,7 @@ public abstract class CustomTabsService extends Service {
      *                     {@link CustomTabsSessionToken#getCallback()}.
      * @return Whether a new session was successfully created.
      */
-    protected abstract boolean newSession(CustomTabsSessionToken sessionToken);
+    protected abstract boolean newSession(@NonNull CustomTabsSessionToken sessionToken);
 
     /**
      * Tells the browser of a likely future navigation to a URL.
@@ -334,8 +332,8 @@ public abstract class CustomTabsService extends Service {
      *                           likelihood order. Each Bundle has to provide a url.
      * @return Whether the call was successful.
      */
-    protected abstract boolean mayLaunchUrl(CustomTabsSessionToken sessionToken, Uri url,
-            Bundle extras, List<Bundle> otherLikelyBundles);
+    protected abstract boolean mayLaunchUrl(@NonNull CustomTabsSessionToken sessionToken,
+            @NonNull Uri url, @Nullable Bundle extras, @Nullable List<Bundle> otherLikelyBundles);
 
     /**
      * Unsupported commands that may be provided by the implementation.
@@ -349,9 +347,10 @@ public abstract class CustomTabsService extends Service {
      *
      * @param commandName Name of the extra command to execute.
      * @param args        Arguments for the command
-     * @return The result {@link Bundle}, or null.
+     * @return The result {@link Bundle}, or {@code null}.
      */
-    protected abstract Bundle extraCommand(String commandName, Bundle args);
+    @Nullable
+    protected abstract Bundle extraCommand(@NonNull String commandName, @Nullable Bundle args);
 
     /**
      * Updates the visuals of custom tabs for the given session. Will only succeed if the given
@@ -362,7 +361,8 @@ public abstract class CustomTabsService extends Service {
      *                     with the same structure in {@link CustomTabsIntent.Builder}.
      * @return Whether the operation was successful.
      */
-    protected abstract boolean updateVisuals(CustomTabsSessionToken sessionToken, Bundle bundle);
+    protected abstract boolean updateVisuals(@NonNull CustomTabsSessionToken sessionToken,
+            @Nullable Bundle bundle);
 
     /**
      * Sends a request to create a two way postMessage channel between the client and the browser
@@ -375,8 +375,8 @@ public abstract class CustomTabsService extends Service {
      * here doesn't mean an origin has already been assigned as the validation is
      * asynchronous.
      */
-    protected abstract boolean requestPostMessageChannel(CustomTabsSessionToken sessionToken,
-            Uri postMessageOrigin);
+    protected abstract boolean requestPostMessageChannel(
+            @NonNull CustomTabsSessionToken sessionToken, @NonNull Uri postMessageOrigin);
 
     /**
      * Sends a postMessage request using the origin communicated via
@@ -392,8 +392,8 @@ public abstract class CustomTabsService extends Service {
      * {@link CustomTabsService#RESULT_SUCCESS} if successful.
      */
     @Result
-    protected abstract int postMessage(
-            CustomTabsSessionToken sessionToken, String message, Bundle extras);
+    protected abstract int postMessage(@NonNull CustomTabsSessionToken sessionToken,
+            @NonNull String message, @Nullable Bundle extras);
 
     /**
      * Request to validate a relationship between the application and an origin.
@@ -410,9 +410,8 @@ public abstract class CustomTabsService extends Service {
      * @param extras Reserved for future use.
      * @return true if the request has been submitted successfully.
      */
-    protected abstract boolean validateRelationship(
-            CustomTabsSessionToken sessionToken, @Relation int relation, Uri origin, Bundle extras);
-
+    protected abstract boolean validateRelationship(@NonNull CustomTabsSessionToken sessionToken,
+            @Relation int relation, @NonNull Uri origin, @Nullable Bundle extras);
 
     /**
      * Receive a file from client by given Uri, e.g. in order to display a large bitmap in a Custom

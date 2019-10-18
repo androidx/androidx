@@ -27,6 +27,7 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.browser.R;
 import androidx.core.content.res.ResourcesCompat;
 
@@ -70,11 +71,13 @@ class BrowserActionsFallbackMenuAdapter extends BaseAdapter {
         if (convertView == null) {
             convertView = LayoutInflater.from(mContext).inflate(
                     R.layout.browser_actions_context_menu_row, null);
-            viewHolder = new ViewHolderItem();
-            viewHolder.mIcon =
-                    (ImageView) convertView.findViewById(R.id.browser_actions_menu_item_icon);
-            viewHolder.mText =
-                    (TextView) convertView.findViewById(R.id.browser_actions_menu_item_text);
+            ImageView icon = convertView.findViewById(R.id.browser_actions_menu_item_icon);
+            TextView text = convertView.findViewById(R.id.browser_actions_menu_item_text);
+            if (icon == null || text == null) {
+                throw new IllegalStateException(
+                        "Browser Actions fallback UI does not contain necessary Views.");
+            }
+            viewHolder = new ViewHolderItem(icon, text);
             convertView.setTag(viewHolder);
         } else {
             viewHolder = (ViewHolderItem) convertView.getTag();
@@ -113,7 +116,7 @@ class BrowserActionsFallbackMenuAdapter extends BaseAdapter {
                 }
             }, new Executor() {
                 @Override
-                public void execute(Runnable runnable) {
+                public void execute(@NonNull Runnable runnable) {
                     runnable.run();
                 }
             });
@@ -126,9 +129,12 @@ class BrowserActionsFallbackMenuAdapter extends BaseAdapter {
     }
 
     static class ViewHolderItem {
-        @SuppressWarnings("NullAway") // TODO: b/141869399
-        ImageView mIcon;
-        @SuppressWarnings("NullAway") // TODO: b/141869399
-        TextView mText;
+        final ImageView mIcon;
+        final TextView mText;
+
+        ViewHolderItem(ImageView icon, TextView text) {
+            mIcon = icon;
+            mText = text;
+        }
     }
 }

@@ -179,7 +179,7 @@ public class BrowserActionsIntent {
         void onDialogShown();
     }
 
-    @SuppressWarnings("NullAway") // TODO: b/141869399
+    @Nullable
     private static BrowserActionsFallDialogListener sDialogListenter;
 
     /**
@@ -201,7 +201,7 @@ public class BrowserActionsIntent {
          * @param context The context requesting the Browser Actions context menu.
          * @param uri The selected url for Browser Actions menu.
          */
-        public Builder(Context context, Uri uri) {
+        public Builder(@NonNull Context context, @NonNull Uri uri) {
             mContext = context;
             mUri = uri;
         }
@@ -210,6 +210,7 @@ public class BrowserActionsIntent {
          * Sets the type of Browser Actions context menu.
          * @param type The type of url.
          */
+        @NonNull
         public Builder setUrlType(@BrowserActionsUrlType int type) {
             mType = type;
             return this;
@@ -221,7 +222,8 @@ public class BrowserActionsIntent {
          * otherwise throws an {@link IllegalStateException}.
          * @param items The list of {@link BrowserActionItem} for custom items.
          */
-        public Builder setCustomItems(ArrayList<BrowserActionItem> items) {
+        @NonNull
+        public Builder setCustomItems(@NonNull ArrayList<BrowserActionItem> items) {
             if (items.size() > MAX_CUSTOM_ITEMS) {
                 throw new IllegalStateException(
                         "Exceeded maximum toolbar item count of " + MAX_CUSTOM_ITEMS);
@@ -247,7 +249,8 @@ public class BrowserActionsIntent {
          * otherwise throws an {@link IllegalStateException}.
          * @param items The varargs of {@link BrowserActionItem} for custom items.
          */
-        public Builder setCustomItems(BrowserActionItem... items) {
+        @NonNull
+        public Builder setCustomItems(@NonNull BrowserActionItem... items) {
             return setCustomItems(new ArrayList<BrowserActionItem>(Arrays.asList(items)));
         }
 
@@ -255,7 +258,8 @@ public class BrowserActionsIntent {
          * Set the PendingIntent to be launched when a a browser specified menu item is selected.
          * @param onItemSelectedPendingIntent The PendingIntent to be launched.
          */
-        public Builder setOnItemSelectedAction(PendingIntent onItemSelectedPendingIntent) {
+        @NonNull
+        public Builder setOnItemSelectedAction(@NonNull PendingIntent onItemSelectedPendingIntent) {
             mOnItemSelectedPendingIntent = onItemSelectedPendingIntent;
             return this;
         }
@@ -265,7 +269,8 @@ public class BrowserActionsIntent {
          * @param item A custom item for Browser Actions menu.
          * @return The Bundle of custom item.
          */
-        private Bundle getBundleFromItem(BrowserActionItem item) {
+        @NonNull
+        private Bundle getBundleFromItem(@NonNull BrowserActionItem item) {
             Bundle bundle = new Bundle();
             bundle.putString(KEY_TITLE, item.getTitle());
             bundle.putParcelable(KEY_ACTION, item.getAction());
@@ -278,6 +283,7 @@ public class BrowserActionsIntent {
          * Combines all the options that have been set and returns a new {@link
          * BrowserActionsIntent} object.
          */
+        @NonNull
         public BrowserActionsIntent build() {
             mIntent.setData(mUri);
             mIntent.putExtra(EXTRA_TYPE, mType);
@@ -299,7 +305,7 @@ public class BrowserActionsIntent {
      * @param context The context requesting for a Browser Actions menu.
      * @param uri The url for Browser Actions menu.
      */
-    public static void openBrowserAction(Context context, Uri uri) {
+    public static void openBrowserAction(@NonNull Context context, @NonNull Uri uri) {
         BrowserActionsIntent intent = new BrowserActionsIntent.Builder(context, uri).build();
         launchIntent(context, intent.getIntent());
     }
@@ -314,8 +320,8 @@ public class BrowserActionsIntent {
      * @param pendingIntent The PendingIntent to be launched when a browser specified menu item is
      * selected.
      */
-    public static void openBrowserAction(Context context, Uri uri, int type,
-            ArrayList<BrowserActionItem> items, PendingIntent pendingIntent) {
+    public static void openBrowserAction(@NonNull Context context, @NonNull Uri uri, int type,
+            @NonNull ArrayList<BrowserActionItem> items, @NonNull PendingIntent pendingIntent) {
         BrowserActionsIntent intent = new BrowserActionsIntent.Builder(context, uri)
                 .setUrlType(type)
                 .setCustomItems(items)
@@ -333,7 +339,7 @@ public class BrowserActionsIntent {
      * @param context The context requesting for a Browser Actions menu.
      * @param intent The {@link Intent} holds the setting for Browser Actions menu.
      */
-    public static void launchIntent(Context context, Intent intent) {
+    public static void launchIntent(@NonNull Context context, @NonNull Intent intent) {
         List<ResolveInfo> handlers = getBrowserActionsIntentHandlers(context);
         launchIntent(context, intent, handlers);
     }
@@ -384,10 +390,9 @@ public class BrowserActionsIntent {
     @SuppressWarnings("NullAway") // TODO: b/141869398
     private static void openFallbackBrowserActionsMenu(Context context, Intent intent) {
         Uri uri = intent.getData();
-        int type = intent.getIntExtra(EXTRA_TYPE, URL_TYPE_NONE);
         ArrayList<Bundle> bundles = intent.getParcelableArrayListExtra(EXTRA_MENU_ITEMS);
         List<BrowserActionItem> items = bundles != null ? parseBrowserActionItems(bundles) : null;
-        openFallbackBrowserActionsMenu(context, uri, type, items);
+        openFallbackBrowserActionsMenu(context, uri, items);
     }
 
     /** @hide */
@@ -401,11 +406,10 @@ public class BrowserActionsIntent {
      * Open a Browser Actions menu from support library.
      * @param context The context requesting for a Browser Actions menu.
      * @param uri The url for Browser Actions menu.
-     * @param type The type of the url for context menu to be opened.
      * @param menuItems List of {@link BrowserActionItem} to add to the fallback menu.
      */
     private static void openFallbackBrowserActionsMenu(
-            Context context, Uri uri, int type, List<BrowserActionItem> menuItems) {
+            Context context, Uri uri, List<BrowserActionItem> menuItems) {
         BrowserActionsFallbackMenuUi menuUi =
                 new BrowserActionsFallbackMenuUi(context, uri, menuItems);
         menuUi.displayMenu();
@@ -419,7 +423,9 @@ public class BrowserActionsIntent {
      * @param bundles Data for custom items from {@link BrowserActionsIntent}.
      * @return List of {@link BrowserActionItem}
      */
-    public static List<BrowserActionItem> parseBrowserActionItems(ArrayList<Bundle> bundles) {
+    @NonNull
+    public static List<BrowserActionItem> parseBrowserActionItems(
+            @NonNull ArrayList<Bundle> bundles) {
         List<BrowserActionItem> mActions = new ArrayList<>();
         for (int i = 0; i < bundles.size(); i++) {
             Bundle bundle = bundles.get(i);

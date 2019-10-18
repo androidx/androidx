@@ -36,11 +36,11 @@ import androidx.annotation.RestrictTo;
 @Deprecated
 public class BrowserActionItem {
     private final String mTitle;
-    private final PendingIntent mAction;
+    @Nullable private final PendingIntent mAction;
     @DrawableRes
     private int mIconId;
-    private Uri mIconUri;
-    private Runnable mRunnableAction;
+    @Nullable private Uri mIconUri;
+    @Nullable private Runnable mRunnableAction;
 
     /**
      * Constructor for BrowserActionItem with icon, string and action provided.
@@ -48,7 +48,6 @@ public class BrowserActionItem {
      * @param action The PendingIntent executed when a custom item is selected
      * @param iconId The resource id of the icon shown for a custom item.
      */
-    @SuppressWarnings("NullAway") // TODO: b/141869399
     public BrowserActionItem(
             @NonNull String title, @NonNull PendingIntent action, @DrawableRes int iconId) {
         mTitle = title;
@@ -66,7 +65,6 @@ public class BrowserActionItem {
      */
     /** @hide */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
-    @SuppressWarnings("NullAway") // TODO: b/141869399
     public BrowserActionItem(
             @NonNull String title, @NonNull PendingIntent action, @NonNull Uri iconUri) {
         mTitle = title;
@@ -80,7 +78,6 @@ public class BrowserActionItem {
      * @param title The title of the menu item.
      * @param action The {@link Runnable} action to be executed when user choose the item.
      */
-    @SuppressWarnings("NullAway") // TODO: b/141869399
     BrowserActionItem(@NonNull String title, @NonNull Runnable action) {
         mTitle = title;
         mAction = null;
@@ -116,6 +113,13 @@ public class BrowserActionItem {
      */
     @NonNull
     public PendingIntent getAction() {
+        if (mAction == null) {
+            // This is a bit ugly but the published API has getAction being @NonNull and we don't
+            // want to make a breaking change to the whole API because we're just applying
+            // NullAway to a deprecated class.
+            throw new IllegalStateException("Can't call getAction on BrowserActionItem with null "
+                    + "action.");
+        }
         return mAction;
     }
 

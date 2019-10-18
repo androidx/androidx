@@ -24,27 +24,33 @@ import android.os.RemoteException;
 import android.support.customtabs.ICustomTabsCallback;
 import android.support.customtabs.IPostMessageService;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 /**
  * A service to receive postMessage related communication from a Custom Tabs provider.
  */
 public class PostMessageService extends Service {
     private IPostMessageService.Stub mBinder = new IPostMessageService.Stub() {
 
+        @SuppressWarnings("NullAway")  // onMessageChannelReady accepts null extras.
         @Override
-        public void onMessageChannelReady(
-                ICustomTabsCallback callback, Bundle extras) throws RemoteException {
+        public void onMessageChannelReady(@NonNull ICustomTabsCallback callback,
+                @Nullable Bundle extras) throws RemoteException {
             callback.onMessageChannelReady(extras);
         }
 
+        @SuppressWarnings("NullAway")  // onPostMessage accepts null extras.
         @Override
-        public void onPostMessage(ICustomTabsCallback callback,
-                String message, Bundle extras) throws RemoteException {
+        public void onPostMessage(@NonNull ICustomTabsCallback callback,
+                @NonNull String message, @Nullable Bundle extras) throws RemoteException {
             callback.onPostMessage(message, extras);
         }
     };
 
     @Override
-    public IBinder onBind(Intent intent) {
+    @NonNull
+    public IBinder onBind(@Nullable Intent intent) {
         return mBinder;
     }
 }

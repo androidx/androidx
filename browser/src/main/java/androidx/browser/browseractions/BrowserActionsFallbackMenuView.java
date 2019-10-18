@@ -22,6 +22,7 @@ import android.content.Context;
 import android.util.AttributeSet;
 import android.widget.LinearLayout;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.browser.R;
 
@@ -34,7 +35,7 @@ public class BrowserActionsFallbackMenuView extends LinearLayout {
     private final int mBrowserActionsMenuMinPaddingPx;
     private final int mBrowserActionsMenuMaxWidthPx;
 
-    public BrowserActionsFallbackMenuView(Context context, AttributeSet attrs) {
+    public BrowserActionsFallbackMenuView(@NonNull Context context, @NonNull AttributeSet attrs) {
         super(context, attrs);
         mBrowserActionsMenuMinPaddingPx = getResources().getDimensionPixelOffset(
                 R.dimen.browser_actions_context_menu_min_padding);

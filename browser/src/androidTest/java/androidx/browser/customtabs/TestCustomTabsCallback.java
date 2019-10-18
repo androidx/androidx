@@ -21,6 +21,8 @@ import android.os.Bundle;
 import android.os.RemoteException;
 import android.support.customtabs.ICustomTabsCallback;
 
+import androidx.annotation.NonNull;
+
 import java.util.ArrayList;
 
 /**
@@ -84,7 +86,7 @@ public class TestCustomTabsCallback extends CustomTabsCallback {
     }
 
     @Override
-    public void onPostMessage(String message, Bundle extras) {
+    public void onPostMessage(@NonNull String message, Bundle extras) {
         mMessageList.add(message);
     }
 
