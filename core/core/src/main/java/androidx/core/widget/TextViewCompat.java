@@ -711,7 +711,7 @@ public final class TextViewCompat {
         // in settings). At the moment, we don't.
 
         if (firstBaselineToTopHeight > Math.abs(fontMetricsTop)) {
-            final int paddingTop = firstBaselineToTopHeight - (-fontMetricsTop);
+            final int paddingTop = firstBaselineToTopHeight + fontMetricsTop;
             textView.setPadding(textView.getPaddingLeft(), paddingTop,
                     textView.getPaddingRight(), textView.getPaddingBottom());
         }

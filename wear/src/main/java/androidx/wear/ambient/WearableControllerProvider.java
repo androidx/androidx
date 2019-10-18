@@ -87,7 +87,7 @@ public class WearableControllerProvider {
             // Proguard is sneaky -- it will actually rewrite strings it finds in addition to
             // function names. Therefore add a "." prefix to the method name check to ensure the
             // function was not renamed by proguard.
-            if (!(".onEnterAmbient".equals("." + method.getName()))) {
+            if (!".onEnterAmbient".equals("." + method.getName())) {
                 throw new NoSuchMethodException();
             }
         } catch (NoSuchMethodException e) {

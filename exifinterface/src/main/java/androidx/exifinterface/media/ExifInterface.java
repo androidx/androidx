@@ -3900,7 +3900,7 @@ public class ExifInterface {
                 mAssetInputStream = (AssetManager.AssetInputStream) inputStream;
                 mSeekableFileDescriptor = null;
             } else if (inputStream instanceof FileInputStream
-                    && (isSeekableFD(((FileInputStream) inputStream).getFD()))) {
+                    && isSeekableFD(((FileInputStream) inputStream).getFD())) {
                 mAssetInputStream = null;
                 mSeekableFileDescriptor = ((FileInputStream) inputStream).getFD();
             } else {

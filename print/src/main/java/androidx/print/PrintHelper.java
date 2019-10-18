@@ -555,7 +555,7 @@ public final class PrintHelper {
      */
     @RequiresApi(19)
     private static PrintAttributes.Builder copyAttributes(PrintAttributes other) {
-        PrintAttributes.Builder b = (new PrintAttributes.Builder())
+        PrintAttributes.Builder b = new PrintAttributes.Builder()
                 .setMediaSize(other.getMediaSize())
                 .setResolution(other.getResolution())
                 .setMinMargins(other.getMinMargins());
@@ -632,7 +632,7 @@ public final class PrintHelper {
                     .setMinMargins(new PrintAttributes.Margins(0, 0, 0, 0)).build();
         }
 
-        (new AsyncTask<Void, Void, Throwable>() {
+        new AsyncTask<Void, Void, Throwable>() {
             @Override
             protected Throwable doInBackground(Void... params) {
                 try {
@@ -731,7 +731,7 @@ public final class PrintHelper {
                     writeResultCallback.onWriteFailed(null);
                 }
             }
-        }).execute();
+        }.execute();
     }
 
     /**

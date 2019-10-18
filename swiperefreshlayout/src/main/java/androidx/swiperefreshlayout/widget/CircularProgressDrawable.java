@@ -809,7 +809,7 @@ public class CircularProgressDrawable extends Drawable implements Animatable {
         }
 
         int getNextColorIndex() {
-            return (mColorIndex + 1) % (mColors.length);
+            return (mColorIndex + 1) % mColors.length;
         }
 
         /**

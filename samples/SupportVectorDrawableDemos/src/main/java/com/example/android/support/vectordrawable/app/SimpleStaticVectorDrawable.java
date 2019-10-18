@@ -122,7 +122,7 @@ public class SimpleStaticVectorDrawable extends AppCompatActivity {
         // Just show the average create time as the first view.
         TextView t = new TextView(this);
         DecimalFormat df = new DecimalFormat("#.##");
-        t.setText("avgL=" + df.format(time / (mIcons.length)) + " ms");
+        t.setText("avgL=" + df.format(time / mIcons.length) + " ms");
         container.addView(t);
 
         addDrawableButtons(container, extras);

@@ -283,7 +283,7 @@ final class GestureSelectionHelper implements OnItemTouchListener {
             // of items in the adapter. Using the adapter is the for sure way to get the actual last
             // item position.
             final float inboundY = getInboundY(mRecyclerView.getHeight(), e.getY());
-            return (pastLastItem) ? mRecyclerView.getAdapter().getItemCount() - 1
+            return pastLastItem ? mRecyclerView.getAdapter().getItemCount() - 1
                     : mRecyclerView.getChildAdapterPosition(
                             mRecyclerView.findChildViewUnder(e.getX(), inboundY));
         }

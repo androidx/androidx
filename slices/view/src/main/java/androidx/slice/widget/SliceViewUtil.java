@@ -104,7 +104,7 @@ public class SliceViewUtil {
     @ColorInt
     public static int applyAlpha(float alpha, int inputColor) {
         alpha *= Color.alpha(inputColor);
-        return Color.argb((int) (alpha), Color.red(inputColor), Color.green(inputColor),
+        return Color.argb((int) alpha, Color.red(inputColor), Color.green(inputColor),
                 Color.blue(inputColor));
     }
 
