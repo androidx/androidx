@@ -169,6 +169,7 @@ class ProgressDrawable extends Drawable {
         // Not supported.
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public int getOpacity() {
         return PixelFormat.OPAQUE;
