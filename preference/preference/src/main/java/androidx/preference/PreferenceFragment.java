@@ -18,8 +18,6 @@ package androidx.preference;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
-import android.app.DialogFragment;
-import android.app.Fragment;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.content.res.TypedArray;
@@ -91,9 +89,9 @@ import androidx.recyclerview.widget.RecyclerView;
  *
  * @deprecated Use {@link PreferenceFragmentCompat} instead
  */
-@SuppressWarnings("deprecation")
+@SuppressWarnings({"deprecation", "DeprecatedIsStillUsed"})
 @Deprecated
-public abstract class PreferenceFragment extends Fragment implements
+public abstract class PreferenceFragment extends android.app.Fragment implements
         PreferenceManager.OnPreferenceTreeClickListener,
         PreferenceManager.OnDisplayPreferenceDialogListener,
         PreferenceManager.OnNavigateToScreenListener,
@@ -624,7 +622,7 @@ public abstract class PreferenceFragment extends Fragment implements
             return;
         }
 
-        final DialogFragment f;
+        final android.app.DialogFragment f;
         if (preference instanceof EditTextPreference) {
             f = EditTextPreferenceDialogFragment.newInstance(preference.getKey());
         } else if (preference instanceof ListPreference) {
@@ -642,11 +640,11 @@ public abstract class PreferenceFragment extends Fragment implements
     /**
      * A wrapper for getParentFragment which is v17+. Used by the leanback preference library.
      *
-     * @return The {@link Fragment} to possibly use as a callback
+     * @return The {@link android.app.Fragment} to possibly use as a callback
      * @hide
      */
     @RestrictTo(LIBRARY)
-    public Fragment getCallbackFragment() {
+    public android.app.Fragment getCallbackFragment() {
         return null;
     }
 

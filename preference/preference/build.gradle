@@ -73,6 +73,4 @@ androidx {
     mavenGroup = LibraryGroups.PREFERENCE
     inceptionYear = "2015"
     description = "AndroidX Preference"
-    // TODO: remove when PreferenceFragment / PreferenceDialogFragment are removed
-    failOnDeprecationWarnings = false
 }
