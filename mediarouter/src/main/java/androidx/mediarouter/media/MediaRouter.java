@@ -1125,8 +1125,8 @@ public final class MediaRouter {
         public boolean isDeviceSpeaker() {
             int defaultAudioRouteNameResourceId = Resources.getSystem().getIdentifier(
                     "default_audio_route_name", "string", "android");
-            return isDefault()
-                    && Resources.getSystem().getText(defaultAudioRouteNameResourceId).equals(mName);
+            return isDefault() && TextUtils.equals(
+                    Resources.getSystem().getText(defaultAudioRouteNameResourceId), mName);
         }
 
         /**

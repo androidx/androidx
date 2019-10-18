@@ -87,7 +87,6 @@ import androidx.mediarouter.media.MediaRouter.ControlRequestCallback;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.Executor;
 
 /**
  * Maintains a connection to a particular media route provider service.
@@ -439,8 +438,6 @@ final class RegisteredMediaRouteProvider extends MediaRouteProvider
 
         private Connection mConnection;
         private int mControllerId = -1;
-        private Executor mListenerExecutor;
-        OnDynamicRoutesChangedListener mDynamicRoutesChangedListener;
 
         RegisteredDynamicController(String initialMemberRouteId) {
             mInitialMemberRouteId = initialMemberRouteId;

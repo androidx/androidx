@@ -21,8 +21,6 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.media.AudioManager;
-import android.media.AudioManager.OnAudioFocusChangeListener;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -197,21 +195,7 @@ public class SampleMediaRouterActivity extends AppCompatActivity {
 
     private MediaSessionCompat mMediaSession;
     private ComponentName mEventReceiver;
-    private AudioManager mAudioManager;
     private PendingIntent mMediaPendingIntent;
-    private final OnAudioFocusChangeListener mAfChangeListener =
-            new OnAudioFocusChangeListener() {
-        @Override
-        public void onAudioFocusChange(int focusChange) {
-            if (focusChange == AudioManager.AUDIOFOCUS_LOSS_TRANSIENT) {
-                Log.d(TAG, "onAudioFocusChange: LOSS_TRANSIENT");
-            } else if (focusChange == AudioManager.AUDIOFOCUS_GAIN) {
-                Log.d(TAG, "onAudioFocusChange: AUDIOFOCUS_GAIN");
-            } else if (focusChange == AudioManager.AUDIOFOCUS_LOSS) {
-                Log.d(TAG, "onAudioFocusChange: AUDIOFOCUS_LOSS");
-            }
-        }
-    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -380,7 +364,6 @@ public class SampleMediaRouterActivity extends AppCompatActivity {
         mHandler.postDelayed(mUpdateSeekRunnable, 1000);
 
         // Build the PendingIntent for the remote control client
-        mAudioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
         mEventReceiver = new ComponentName(getPackageName(),
                 SampleMediaButtonReceiver.class.getName());
         Intent mediaButtonIntent = new Intent(Intent.ACTION_MEDIA_BUTTON);
@@ -542,7 +525,7 @@ public class SampleMediaRouterActivity extends AppCompatActivity {
         mediaRouteActionProvider.setDialogFactory(new MediaRouteDialogFactory() {
             @Override
             public MediaRouteControllerDialogFragment onCreateControllerDialogFragment() {
-                return new ControllerDialogFragment(mPlayer, mUseDefaultControlCheckBox);
+                return new ControllerDialogFragment(mUseDefaultControlCheckBox);
             }
         });
 
@@ -616,7 +599,6 @@ public class SampleMediaRouterActivity extends AppCompatActivity {
     }
 
     private void updateButtons() {
-        MediaRouter.RouteInfo route = mMediaRouter.getSelectedRoute();
         // show pause or resume icon depending on current state
         mPauseResumeButton.setImageResource(mSessionManager.isPaused() ?
                 R.drawable.ic_media_play : R.drawable.ic_media_pause);
@@ -768,15 +750,13 @@ public class SampleMediaRouterActivity extends AppCompatActivity {
 
     public static class ControllerDialogFragment extends MediaRouteControllerDialogFragment {
         private MediaRouteControllerDialog mControllerDialog;
-        private Player mPlayer;
         private CheckBox mUseDefaultControlCheckBox;
 
         public ControllerDialogFragment() {
             super();
         }
 
-        public ControllerDialogFragment(Player player, CheckBox customControlViewCheckBox) {
-            mPlayer = player;
+        public ControllerDialogFragment(CheckBox customControlViewCheckBox) {
             this.mUseDefaultControlCheckBox = customControlViewCheckBox;
         }
 
@@ -793,10 +773,6 @@ public class SampleMediaRouterActivity extends AppCompatActivity {
                 }
             });
             return mControllerDialog;
-        }
-
-        public void setPlayer(Player player) {
-            mPlayer = player;
         }
     }
 }
