@@ -72,7 +72,6 @@ class DrawableContainer extends Drawable implements Drawable.Callback {
     /** Whether setAlpha() has been called at least once. */
     private boolean mHasAlpha;
     private int mCurIndex = -1;
-    private int mLastIndex = -1;
     private boolean mMutated;
     // Animations.
     private Runnable mAnimationRunnable;
@@ -251,7 +250,6 @@ class DrawableContainer extends Drawable implements Drawable.Callback {
         if (mLastDrawable != null) {
             mLastDrawable.jumpToCurrentState();
             mLastDrawable = null;
-            mLastIndex = -1;
             changed = true;
         }
         if (mCurrDrawable != null) {
@@ -441,11 +439,9 @@ class DrawableContainer extends Drawable implements Drawable.Callback {
             }
             if (mCurrDrawable != null) {
                 mLastDrawable = mCurrDrawable;
-                mLastIndex = mCurIndex;
                 mExitAnimationEnd = now + mDrawableContainerState.mExitFadeDuration;
             } else {
                 mLastDrawable = null;
-                mLastIndex = -1;
                 mExitAnimationEnd = 0;
             }
         } else if (mCurrDrawable != null) {
@@ -558,7 +554,6 @@ class DrawableContainer extends Drawable implements Drawable.Callback {
                 if (mExitAnimationEnd <= now) {
                     mLastDrawable.setVisible(false, false);
                     mLastDrawable = null;
-                    mLastIndex = -1;
                     mExitAnimationEnd = 0;
                 } else {
                     int animAlpha = (int) ((mExitAnimationEnd - now) * 255)
@@ -1163,7 +1158,6 @@ class DrawableContainer extends Drawable implements Drawable.Callback {
         }
         // Clear out the last drawable. We don't have enough information to
         // propagate local state from the past.
-        mLastIndex = -1;
         mLastDrawable = null;
     }
 
