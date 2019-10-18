@@ -227,6 +227,7 @@ public class RoundedDrawable extends Drawable {
         canvas.restore();
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public int getOpacity() {
         return PixelFormat.TRANSLUCENT;

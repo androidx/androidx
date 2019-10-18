@@ -29,6 +29,7 @@ import android.view.SubMenu;
 import android.view.View;
 
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -277,7 +278,7 @@ import java.util.List;
 
         @Override
         public MenuItem setIcon(int iconRes) {
-            return setIcon(mContext.getResources().getDrawable(iconRes));
+            return setIcon(ContextCompat.getDrawable(mContext, iconRes));
         }
 
         @Override

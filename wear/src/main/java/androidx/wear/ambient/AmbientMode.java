@@ -16,8 +16,6 @@
 package androidx.wear.ambient;
 
 import android.app.Activity;
-import android.app.Fragment;
-import android.app.FragmentManager;
 import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
@@ -51,8 +49,9 @@ import java.io.PrintWriter;
  * }</pre>
  * @deprecated please use {@link AmbientModeSupport} instead.
  */
+@SuppressWarnings("deprecation")
 @Deprecated
-public final class AmbientMode extends Fragment {
+public final class AmbientMode extends android.app.Fragment {
     private static final String TAG = "AmbientMode";
 
     /**
@@ -249,7 +248,7 @@ public final class AmbientMode extends Fragment {
      * ambient mode.
      */
     public static <T extends Activity> AmbientController attachAmbientSupport(T activity) {
-        FragmentManager fragmentManager = activity.getFragmentManager();
+        android.app.FragmentManager fragmentManager = activity.getFragmentManager();
         AmbientMode ambientFragment = (AmbientMode) fragmentManager.findFragmentByTag(FRAGMENT_TAG);
         if (ambientFragment == null) {
             AmbientMode fragment = new AmbientMode();

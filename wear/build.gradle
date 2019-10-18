@@ -43,6 +43,5 @@ androidx {
     mavenGroup = LibraryGroups.WEAR
     inceptionYear = "2016"
     description = "Android Wear Support UI"
-    failOnDeprecationWarnings = false
     trackRestrictedAPIs = false
 }
