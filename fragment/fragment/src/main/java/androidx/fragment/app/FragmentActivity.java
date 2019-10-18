@@ -244,6 +244,7 @@ public class FragmentActivity extends ComponentActivity implements
      *
      * @param isInMultiWindowMode True if the activity is in multi-window mode.
      */
+    @SuppressWarnings("deprecation")
     @Override
     @CallSuper
     public void onMultiWindowModeChanged(boolean isInMultiWindowMode) {
@@ -259,6 +260,7 @@ public class FragmentActivity extends ComponentActivity implements
      *
      * @param isInPictureInPictureMode True if the activity is in picture-in-picture mode.
      */
+    @SuppressWarnings("deprecation")
     @Override
     @CallSuper
     public void onPictureInPictureModeChanged(boolean isInPictureInPictureMode) {
@@ -440,6 +442,7 @@ public class FragmentActivity extends ComponentActivity implements
     /**
      * Hook in to note that fragment state is no longer saved.
      */
+    @SuppressWarnings("deprecation")
     @Override
     public void onStateNotSaved() {
         mFragments.noteStateNotSaved();
@@ -481,6 +484,7 @@ public class FragmentActivity extends ComponentActivity implements
     /**
      * Dispatch onPrepareOptionsMenu() to fragments.
      */
+    @SuppressWarnings("deprecation")
     @Override
     public boolean onPreparePanel(int featureId, @Nullable View view, @NonNull Menu menu) {
         if (featureId == Window.FEATURE_OPTIONS_PANEL) {
@@ -495,6 +499,7 @@ public class FragmentActivity extends ComponentActivity implements
      * @hide
      * @deprecated Override {@link #onPreparePanel(int, View, Menu)}.
      */
+    @SuppressWarnings("DeprecatedIsStillUsed")
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Deprecated
     protected boolean onPrepareOptionsPanel(@Nullable View view, @NonNull Menu menu) {
@@ -577,6 +582,7 @@ public class FragmentActivity extends ComponentActivity implements
      *
      * @deprecated Call {@link Activity#invalidateOptionsMenu} directly.
      */
+    @SuppressWarnings("DeprecatedIsStillUsed")
     @Deprecated
     public void supportInvalidateOptionsMenu() {
         invalidateOptionsMenu();
@@ -592,6 +598,7 @@ public class FragmentActivity extends ComponentActivity implements
      * closed for you after you return.
      * @param args additional arguments to the dump request.
      */
+    @SuppressWarnings("deprecation")
     @Override
     public void dump(@NonNull String prefix, @Nullable FileDescriptor fd,
             @NonNull PrintWriter writer, @Nullable String[] args) {
