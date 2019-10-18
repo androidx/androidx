@@ -23,3 +23,6 @@ RemovedMethod: androidx.media2.player.VideoSize#getHeight():
     Removed method androidx.media2.player.VideoSize.getHeight()
 RemovedMethod: androidx.media2.player.VideoSize#getWidth():
     Removed method androidx.media2.player.VideoSize.getWidth()
+
+RemovedMethod: androidx.media2.player.MediaPlayer#close():
+    RemovedMethod: androidx.media2.player.MediaPlayer#close()

@@ -5,7 +5,6 @@ package androidx.media2.player {
     ctor public MediaPlayer(android.content.Context);
     method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.common.SessionPlayer.PlayerResult!> addPlaylistItem(int, androidx.media2.common.MediaItem);
     method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.common.SessionPlayer.PlayerResult!> attachAuxEffect(int);
-    method public void close() throws java.lang.Exception;
     method public androidx.media.AudioAttributesCompat? getAudioAttributes();
     method public int getAudioSessionId();
     method public long getBufferedPosition();

@@ -1743,6 +1743,8 @@ public final class MediaPlayer extends SessionPlayer {
 
     @Override
     public void close() throws Exception {
+        super.close();
+
         synchronized (mStateLock) {
             if (!mClosed) {
                 mClosed = true;

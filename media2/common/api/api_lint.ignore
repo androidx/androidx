@@ -11,3 +11,6 @@ MissingNullability: androidx.media2.common.MediaItem#toString():
     Missing nullability on method `toString` return
 MissingNullability: androidx.media2.common.MediaMetadata#toString():
     Missing nullability on method `toString` return
+
+GenericException: androidx.media2.common.SessionPlayer#close():
+    Methods must not throw generic exceptions (`java.lang.Exception`)
