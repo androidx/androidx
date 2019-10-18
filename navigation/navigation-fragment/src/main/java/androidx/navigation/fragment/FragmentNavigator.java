@@ -254,26 +254,6 @@ public class FragmentNavigator extends Navigator<FragmentNavigator.Destination> 
         return backStackIndex + "-" + destId;
     }
 
-    private int getDestId(@Nullable String backStackName) {
-        String[] split = backStackName != null ? backStackName.split("-") : new String[0];
-        if (split.length != 2) {
-            throw new IllegalStateException("Invalid back stack entry on the "
-                    + "NavHostFragment's back stack - use getChildFragmentManager() "
-                    + "if you need to do custom FragmentTransactions from within "
-                    + "Fragments created via your navigation graph.");
-        }
-        try {
-            // Just make sure the backStackIndex is correctly formatted
-            Integer.parseInt(split[0]);
-            return Integer.parseInt(split[1]);
-        } catch (NumberFormatException e) {
-            throw new IllegalStateException("Invalid back stack entry on the "
-                    + "NavHostFragment's back stack - use getChildFragmentManager() "
-                    + "if you need to do custom FragmentTransactions from within "
-                    + "Fragments created via your navigation graph.");
-        }
-    }
-
     /**
      * NavDestination specific to {@link FragmentNavigator}
      */
