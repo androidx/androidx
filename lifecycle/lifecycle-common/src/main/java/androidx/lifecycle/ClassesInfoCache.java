@@ -198,7 +198,7 @@ class ClassesInfoCache {
     }
 
     @SuppressWarnings("WeakerAccess")
-    static class MethodReference {
+    static final class MethodReference {
         final int mCallType;
         final Method mMethod;
 
