@@ -21,6 +21,8 @@ import android.media.Image;
 import android.os.Build;
 
 import androidx.annotation.GuardedBy;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import java.nio.ByteBuffer;
 
@@ -70,12 +72,13 @@ final class AndroidImageProxy implements ImageProxy {
     }
 
     @Override
+    @NonNull
     public synchronized Rect getCropRect() {
         return mImage.getCropRect();
     }
 
     @Override
-    public synchronized void setCropRect(Rect rect) {
+    public synchronized void setCropRect(@Nullable Rect rect) {
         mImage.setCropRect(rect);
     }
 
@@ -113,6 +116,7 @@ final class AndroidImageProxy implements ImageProxy {
     }
 
     @Override
+    @NonNull
     public synchronized ImageProxy.PlaneProxy[] getPlanes() {
         return mPlanes;
     }
@@ -137,6 +141,7 @@ final class AndroidImageProxy implements ImageProxy {
         }
 
         @Override
+        @NonNull
         public synchronized ByteBuffer getBuffer() {
             return mPlane.getBuffer();
         }

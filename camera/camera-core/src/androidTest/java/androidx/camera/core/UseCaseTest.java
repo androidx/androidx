@@ -25,6 +25,7 @@ import static org.mockito.Mockito.verify;
 
 import android.util.Size;
 
+import androidx.annotation.NonNull;
 import androidx.camera.testing.fakes.FakeUseCase;
 import androidx.camera.testing.fakes.FakeUseCaseConfig;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -179,8 +180,9 @@ public class UseCaseTest {
         }
 
         @Override
+        @NonNull
         protected Map<String, Size> onSuggestedResolutionUpdated(
-                Map<String, Size> suggestedResolutionMap) {
+                @NonNull Map<String, Size> suggestedResolutionMap) {
             return suggestedResolutionMap;
         }
     }

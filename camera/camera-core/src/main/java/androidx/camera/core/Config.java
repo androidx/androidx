@@ -16,6 +16,9 @@
 
 package androidx.camera.core;
 
+import android.annotation.SuppressLint;
+
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
@@ -105,6 +108,7 @@ public interface Config {
     /**
      * Extendable builders are used to add externally defined options to a configuration.
      */
+    @SuppressLint("MissingBuild") // The builder interface only define get(set) methods.
     interface ExtendableBuilder {
 
         /**
@@ -114,6 +118,7 @@ public interface Config {
          * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
         MutableConfig getMutableConfig();
     }
 

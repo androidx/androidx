@@ -475,8 +475,9 @@ public final class CameraXTest {
         }
 
         @Override
+        @NonNull
         protected Map<String, Size> onSuggestedResolutionUpdated(
-                Map<String, Size> suggestedResolutionMap) {
+                @NonNull Map<String, Size> suggestedResolutionMap) {
 
             SessionConfig.Builder builder = new SessionConfig.Builder();
 

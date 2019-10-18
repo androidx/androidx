@@ -184,7 +184,7 @@ public final class ImageCaptureTest {
         mOnImageCapturedCallback =
                 new OnImageCapturedCallback() {
                     @Override
-                    public void onCaptureSuccess(ImageProxy image, int rotationDegrees) {
+                    public void onCaptureSuccess(@NonNull ImageProxy image, int rotationDegrees) {
                         mCapturedImage = image;
                         // Signal that the image has been captured.
                         mSemaphore.release();
@@ -266,7 +266,8 @@ public final class ImageCaptureTest {
                     mListenerExecutor,
                     new OnImageCapturedCallback() {
                         @Override
-                        public void onCaptureSuccess(ImageProxy image, int rotationDegrees) {
+                        public void onCaptureSuccess(@NonNull ImageProxy image,
+                                int rotationDegrees) {
                             mMockImageCapturedListener.onCaptureSuccess(image, rotationDegrees);
                             image.close();
 
@@ -303,7 +304,8 @@ public final class ImageCaptureTest {
                     mListenerExecutor,
                     new OnImageCapturedCallback() {
                         @Override
-                        public void onCaptureSuccess(ImageProxy image, int rotationDegrees) {
+                        public void onCaptureSuccess(@NonNull ImageProxy image,
+                                int rotationDegrees) {
                             mMockImageCapturedListener.onCaptureSuccess(image, rotationDegrees);
                             image.close();
 

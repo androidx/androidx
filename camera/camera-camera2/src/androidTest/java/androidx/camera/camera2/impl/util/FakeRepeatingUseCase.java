@@ -97,8 +97,9 @@ public class FakeRepeatingUseCase extends FakeUseCase {
     }
 
     @Override
+    @NonNull
     protected Map<String, Size> onSuggestedResolutionUpdated(
-            Map<String, Size> suggestedResolutionMap) {
+            @NonNull Map<String, Size> suggestedResolutionMap) {
         return suggestedResolutionMap;
     }
 }

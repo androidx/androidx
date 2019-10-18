@@ -34,7 +34,7 @@ public abstract class MeteringPointFactory {
     public static final float DEFAULT_AREASIZE = 0.15f;
     public static final float DEFAULT_WEIGHT = 1.0f;
     @Nullable
-    protected Rational mFOVAspectRatio = null; // null for using Preview aspect ratio.
+    protected Rational mFovAspectRatio = null; // null for using Preview aspect ratio.
 
     /**
      * Translates a logical x/y into the normalized crop region x/y.
@@ -81,6 +81,6 @@ public abstract class MeteringPointFactory {
     public final MeteringPoint createPoint(float x, float y, float size, float weight) {
         PointF translatedXY = translatePoint(x, y);
         return new MeteringPoint(translatedXY.x, translatedXY.y, size, weight,
-                mFOVAspectRatio);
+                mFovAspectRatio);
     }
 }

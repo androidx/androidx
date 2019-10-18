@@ -280,11 +280,11 @@ class CameraXImageAvailableListener(
 ) : ImageCapture.OnImageCapturedCallback() {
 
     /** Image was captured successfully */
-    override fun onCaptureSuccess(image: ImageProxy?, rotationDegrees: Int) {
+    override fun onCaptureSuccess(image: ImageProxy, rotationDegrees: Int) {
         logd("CameraXImageAvailableListener onCaptureSuccess. Current test: " +
             testConfig.currentRunningTest)
 
-        when (image?.format) {
+        when (image.format) {
             ImageFormat.JPEG -> {
                 params.timer.imageReaderEnd = System.currentTimeMillis()
 
@@ -320,7 +320,7 @@ class CameraXImageAvailableListener(
             }
         }
 
-        image?.close()
+        image.close()
     }
 
     /** Camera X was unable to capture a still image and threw an error */

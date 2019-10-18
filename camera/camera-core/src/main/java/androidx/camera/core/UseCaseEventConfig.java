@@ -20,7 +20,12 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 
-/** Configuration containing options pertaining to EventCallback object. */
+/**
+ * Configuration containing options pertaining to EventCallback object.
+ *
+ * @hide
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface UseCaseEventConfig {
 
     /**
@@ -61,7 +66,10 @@ public interface UseCaseEventConfig {
      * Builder for a {@link UseCaseEventConfig}.
      *
      * @param <B> The top level builder type for which this builder is composed with.
+     *
+     * @hide
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     interface Builder<B> {
 
         /**

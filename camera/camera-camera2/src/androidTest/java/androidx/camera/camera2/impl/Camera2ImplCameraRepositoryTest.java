@@ -197,8 +197,9 @@ public final class Camera2ImplCameraRepositoryTest {
         }
 
         @Override
+        @NonNull
         protected Map<String, Size> onSuggestedResolutionUpdated(
-                Map<String, Size> suggestedResolutionMap) {
+                @NonNull Map<String, Size> suggestedResolutionMap) {
             return suggestedResolutionMap;
         }
 

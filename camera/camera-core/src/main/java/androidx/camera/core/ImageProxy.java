@@ -19,6 +19,7 @@ package androidx.camera.core;
 import android.graphics.Rect;
 import android.media.Image;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import java.nio.ByteBuffer;
@@ -41,6 +42,7 @@ public interface ImageProxy extends AutoCloseable {
      *
      * <p>@see {@link android.media.Image#getCropRect()}.
      */
+    @NonNull
     Rect getCropRect();
 
     /**
@@ -48,7 +50,7 @@ public interface ImageProxy extends AutoCloseable {
      *
      * <p>@see {@link android.media.Image#setCropRect(Rect)}.
      */
-    void setCropRect(Rect rect);
+    void setCropRect(@Nullable Rect rect);
 
     /**
      * Returns the image format.
@@ -90,6 +92,7 @@ public interface ImageProxy extends AutoCloseable {
      *
      * <p>@see {@link android.media.Image#getPlanes()}.
      */
+    @NonNull
     PlaneProxy[] getPlanes();
 
     /** A plane proxy which has an analogous interface as {@link android.media.Image.Plane}. */
@@ -113,6 +116,7 @@ public interface ImageProxy extends AutoCloseable {
          *
          * <p>@see {@link android.media.Image.Plane#getBuffer()}.
          */
+        @NonNull
         ByteBuffer getBuffer();
     }
 

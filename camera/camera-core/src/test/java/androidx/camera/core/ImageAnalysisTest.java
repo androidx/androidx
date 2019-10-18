@@ -27,6 +27,7 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.util.Size;
 
+import androidx.annotation.NonNull;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.test.filters.MediumTest;
 
@@ -205,7 +206,7 @@ public class ImageAnalysisTest {
         mImageAnalysis.setAnalyzer(CameraXExecutors.newHandlerExecutor(mCallbackHandler),
                 new ImageAnalysis.Analyzer() {
                     @Override
-                    public void analyze(ImageProxy image, int rotationDegrees) {
+                    public void analyze(@NonNull ImageProxy image, int rotationDegrees) {
                         mImagesReceived.add(image.getImage());
                     }
                 });

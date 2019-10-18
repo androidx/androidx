@@ -39,7 +39,7 @@ public class MeteringPoint {
     private float mSize;
     private float mWeight;
     @Nullable
-    private Rational mFOVAspectRatio; // null for preview aspect ratio.
+    private Rational mFovAspectRatio; // null for preview aspect ratio.
 
     /**
      * Constructor is restricted for use within library.
@@ -61,7 +61,7 @@ public class MeteringPoint {
         mNormalizedCropRegionY = normalizedCropRegionY;
         mSize = size;
         mWeight = weight;
-        mFOVAspectRatio = fovAspectRatio;
+        mFovAspectRatio = fovAspectRatio;
     }
 
     /**
@@ -116,8 +116,8 @@ public class MeteringPoint {
     /**
      * Set custom aspect ratio to be adjusted for final sensor coordinates.
      */
-    public void setFOVAspectRatio(@Nullable Rational fovAspectRatio) {
-        mFOVAspectRatio = fovAspectRatio;
+    public void setFovAspectRatio(@Nullable Rational fovAspectRatio) {
+        mFovAspectRatio = fovAspectRatio;
     }
 
 
@@ -125,7 +125,7 @@ public class MeteringPoint {
      * Get custom aspect ratio to be adjusted for final sensor coordinates.
      */
     @Nullable
-    public Rational getFOVAspectRatio() {
-        return mFOVAspectRatio;
+    public Rational getFovAspectRatio() {
+        return mFovAspectRatio;
     }
 }

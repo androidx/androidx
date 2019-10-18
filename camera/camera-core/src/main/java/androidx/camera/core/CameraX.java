@@ -206,7 +206,8 @@ public final class CameraX {
      * @throws IllegalStateException If the use case has already been bound to another lifecycle
      *                               or method is not called on main thread.
      */
-    public static void bindToLifecycle(LifecycleOwner lifecycleOwner, UseCase... useCases) {
+    public static void bindToLifecycle(@NonNull LifecycleOwner lifecycleOwner,
+            @NonNull UseCase... useCases) {
         Threads.checkMainThread();
         CameraX cameraX = checkInitialized();
 
@@ -251,7 +252,7 @@ public final class CameraX {
      * lifecycle reaches a {@link Lifecycle.State#DESTROYED} state or if is unbound by calls to
      * {@link #unbind(UseCase...)} or {@link #unbindAll()}.
      */
-    public static boolean isBound(UseCase useCase) {
+    public static boolean isBound(@NonNull UseCase useCase) {
         CameraX cameraX = checkInitialized();
 
         Collection<UseCaseGroupLifecycleController> controllers =
@@ -281,7 +282,7 @@ public final class CameraX {
      * @param useCases The collection of use cases to remove.
      * @throws IllegalStateException If not called on main thread.
      */
-    public static void unbind(UseCase... useCases) {
+    public static void unbind(@NonNull UseCase... useCases) {
         Threads.checkMainThread();
         CameraX cameraX = checkInitialized();
 
@@ -348,7 +349,7 @@ public final class CameraX {
      * @throws CameraInfoUnavailableException if unable to access cameras, perhaps due to
      *                                        insufficient permissions
      */
-    public static boolean hasCameraWithLensFacing(LensFacing lensFacing)
+    public static boolean hasCameraWithLensFacing(@NonNull LensFacing lensFacing)
             throws CameraInfoUnavailableException {
         checkInitialized();
 
@@ -490,7 +491,8 @@ public final class CameraX {
      * @throws CameraInfoUnavailableException if unable to access cameras, perhaps due to
      *                                        insufficient permissions.
      */
-    public static CameraControl getCameraControl(LensFacing lensFacing)
+    @NonNull
+    public static CameraControl getCameraControl(@NonNull LensFacing lensFacing)
             throws CameraInfoUnavailableException {
         CameraX cameraX = checkInitialized();
 
@@ -506,6 +508,7 @@ public final class CameraX {
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
+    @NonNull
     public static CameraDeviceSurfaceManager getSurfaceManager() {
         CameraX cameraX = checkInitialized();
 
@@ -543,7 +546,8 @@ public final class CameraX {
      *                      set to
      *                      {@code null} then it will default to run on the main thread.
      */
-    public static void setErrorListener(ErrorListener errorListener, Handler handler) {
+    public static void setErrorListener(@Nullable ErrorListener errorListener,
+            @Nullable Handler handler) {
         CameraX cameraX = checkInitialized();
 
         cameraX.mErrorHandler.setErrorListener(errorListener, handler);
@@ -557,7 +561,7 @@ public final class CameraX {
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
-    public static void postError(ErrorCode errorCode, String message) {
+    public static void postError(@NonNull ErrorCode errorCode, @NonNull String message) {
         CameraX cameraX = checkInitialized();
 
         cameraX.mErrorHandler.postError(errorCode, message);

@@ -213,7 +213,7 @@ public final class UseCaseCombinationTest {
         mImageAnalyzer =
                 new ImageAnalysis.Analyzer() {
                     @Override
-                    public void analyze(ImageProxy image, int rotationDegrees) {
+                    public void analyze(@NonNull ImageProxy image, int rotationDegrees) {
                         mAnalysisResult.postValue(image.getTimestamp());
                     }
                 };

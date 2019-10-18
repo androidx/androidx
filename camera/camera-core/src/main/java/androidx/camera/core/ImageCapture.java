@@ -337,7 +337,7 @@ public class ImageCapture extends UseCase {
 
     /** Configures flash mode to CameraControlInternal once it is ready. */
     @Override
-    protected void onCameraControlReady(String cameraId) {
+    protected void onCameraControlReady(@NonNull String cameraId) {
         getCameraControl(cameraId).setFlashMode(mFlashMode);
     }
 
@@ -346,6 +346,7 @@ public class ImageCapture extends UseCase {
      *
      * @return the {@link FlashMode}.
      */
+    @NonNull
     public FlashMode getFlashMode() {
         return mFlashMode;
     }
@@ -355,7 +356,7 @@ public class ImageCapture extends UseCase {
      *
      * @param flashMode the {@link FlashMode}.
      */
-    public void setFlashMode(FlashMode flashMode) {
+    public void setFlashMode(@NonNull FlashMode flashMode) {
         this.mFlashMode = flashMode;
         getCurrentCameraControl().setFlashMode(flashMode);
     }
@@ -375,7 +376,7 @@ public class ImageCapture extends UseCase {
      *
      * @param aspectRatio New target aspect ratio.
      */
-    public void setTargetAspectRatioCustom(Rational aspectRatio) {
+    public void setTargetAspectRatioCustom(@NonNull Rational aspectRatio) {
         ImageOutputConfig oldConfig = (ImageOutputConfig) getUseCaseConfig();
         Rational oldRatio = oldConfig.getTargetAspectRatioCustom(null);
         if (!aspectRatio.equals(oldRatio)) {
@@ -533,7 +534,7 @@ public class ImageCapture extends UseCase {
         OnImageCapturedCallback imageCaptureCallbackWrapper =
                 new OnImageCapturedCallback() {
                     @Override
-                    public void onCaptureSuccess(ImageProxy image, int rotationDegrees) {
+                    public void onCaptureSuccess(@NonNull ImageProxy image, int rotationDegrees) {
                         mIoExecutor.execute(
                                 new ImageSaver(
                                         image,
@@ -681,10 +682,11 @@ public class ImageCapture extends UseCase {
      *
      * @hide
      */
+    @NonNull
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     protected Map<String, Size> onSuggestedResolutionUpdated(
-            Map<String, Size> suggestedResolutionMap) {
+            @NonNull Map<String, Size> suggestedResolutionMap) {
         String cameraId = getCameraIdUnchecked(mConfig);
         Size resolution = suggestedResolutionMap.get(cameraId);
         if (resolution == null) {
@@ -1040,12 +1042,14 @@ public class ImageCapture extends UseCase {
          * Optimizes capture pipeline to prioritize image quality over latency. When the capture
          * mode is set to MAX_QUALITY, images may take longer to capture.
          */
+        @SuppressLint("MinMaxConstant") // It is a name but not a constant number.
         MAX_QUALITY,
         /**
          * Optimizes capture pipeline to prioritize latency over image quality. When the capture
          * mode is set to MIN_LATENCY, images may capture faster but the image quality may be
          * reduced.
          */
+        @SuppressLint("MinMaxConstant") // It is a name but not a constant number.
         MIN_LATENCY
     }
 
@@ -1092,7 +1096,7 @@ public class ImageCapture extends UseCase {
          *                        {@link Surface#ROTATION_0}, {@link Surface#ROTATION_90},
          *                        {@link Surface#ROTATION_180}, or {@link Surface#ROTATION_270}.
          */
-        public void onCaptureSuccess(ImageProxy image, int rotationDegrees) {
+        public void onCaptureSuccess(@NonNull ImageProxy image, int rotationDegrees) {
             image.close();
         }
 
