@@ -526,6 +526,7 @@ public abstract class PreferenceFragmentCompat extends Fragment implements
      *                           saved state as given here.
      * @return A new {@link RecyclerView} object to be placed into the view hierarchy
      */
+    @SuppressWarnings("deprecation")
     public RecyclerView onCreateRecyclerView(LayoutInflater inflater, ViewGroup parent,
             Bundle savedInstanceState) {
         // If device detected is Auto, use Auto's custom layout that contains a custom ViewGroup
