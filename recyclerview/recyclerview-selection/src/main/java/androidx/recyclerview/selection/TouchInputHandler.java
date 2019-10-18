@@ -119,8 +119,6 @@ final class TouchInputHandler<K> extends MotionInputHandler<K> {
             return;
         }
 
-        boolean handled = false;
-
         if (shouldExtendRange(e)) {
             extendSelectionRange(item);
             mHapticPerformer.run();

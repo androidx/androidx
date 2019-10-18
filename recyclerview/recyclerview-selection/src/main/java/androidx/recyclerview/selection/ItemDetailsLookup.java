@@ -110,10 +110,6 @@ public abstract class ItemDetailsLookup<K> {
         return item != null && item.getSelectionKey() != null;
     }
 
-    private static boolean hasPosition(@Nullable ItemDetails<?> item) {
-        return item != null && item.getPosition() != RecyclerView.NO_POSITION;
-    }
-
     /**
      * @return the ItemDetails for the item under the event, or null.
      */
