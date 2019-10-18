@@ -442,19 +442,6 @@ public class DefaultSelectionTracker<K> extends SelectionTracker<K> {
         }
     }
 
-    private void updateForRange(int begin, int end, boolean selected, @RangeType int type) {
-        switch (type) {
-            case Range.TYPE_PRIMARY:
-                updateForRegularRange(begin, end, selected);
-                break;
-            case Range.TYPE_PROVISIONAL:
-                updateForProvisionalRange(begin, end, selected);
-                break;
-            default:
-                throw new IllegalArgumentException("Invalid range type: " + type);
-        }
-    }
-
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     void updateForRegularRange(int begin, int end, boolean selected) {
         checkArgument(end >= begin);
