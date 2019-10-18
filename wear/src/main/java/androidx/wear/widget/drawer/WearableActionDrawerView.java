@@ -21,6 +21,7 @@ import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
+import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.Gravity;
@@ -43,8 +44,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.wear.R;
 import androidx.wear.internal.widget.ResourcesUtil;
 import androidx.wear.widget.drawer.WearableActionDrawerMenu.WearableActionDrawerMenuItem;
-
-import java.util.Objects;
 
 /**
  * Ease of use class for creating a Wearable action drawer. This can be used with {@link
@@ -237,7 +236,7 @@ public class WearableActionDrawerView extends WearableDrawerView {
      * be removed.
      */
     public void setTitle(@Nullable CharSequence title) {
-        if (Objects.equals(title, mTitle)) {
+        if (TextUtils.equals(title, mTitle)) {
             return;
         }
 

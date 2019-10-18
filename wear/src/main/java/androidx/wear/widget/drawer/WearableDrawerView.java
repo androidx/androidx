@@ -165,7 +165,7 @@ public class WearableDrawerView extends FrameLayout {
                     }
                 });
 
-        parseAttributes(context, attrs, defStyleAttr, defStyleRes);
+        parseAttributes(context, attrs, defStyleAttr);
     }
 
     private static Drawable getDrawable(
@@ -458,7 +458,7 @@ public class WearableDrawerView extends FrameLayout {
     }
 
     private void parseAttributes(
-            Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
+            Context context, AttributeSet attrs, int defStyleAttr) {
         if (attrs == null) {
             return;
         }
