@@ -562,7 +562,8 @@ public class Loader<D> {
      */
     @SuppressWarnings("DeprecatedIsStillUsed")
     @Deprecated
-    public void dump(String prefix, FileDescriptor fd, PrintWriter writer, String[] args) {
+    public void dump(@NonNull String prefix, @Nullable FileDescriptor fd,
+            @NonNull PrintWriter writer, @Nullable String[] args) {
         writer.print(prefix); writer.print("mId="); writer.print(mId);
                 writer.print(" mListener="); writer.println(mListener);
         if (mStarted || mContentChanged || mProcessingChange) {
