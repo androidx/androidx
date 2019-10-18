@@ -42,5 +42,4 @@ androidx {
     inceptionYear '2017'
     description "Android Lifecycle Runtime"
     url AndroidXExtension.ARCHITECTURE_URL
-    failOnDeprecationWarnings = false
 }
