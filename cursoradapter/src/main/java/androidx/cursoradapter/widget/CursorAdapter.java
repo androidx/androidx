@@ -106,6 +106,7 @@ public abstract class CursorAdapter extends BaseAdapter implements Filterable,
      * responsiveness or even Application Not Responding errors.  As an alternative,
      * use {@link android.app.LoaderManager} with a {@link android.content.CursorLoader}.
      */
+    @SuppressWarnings("DeprecatedIsStillUsed")
     @Deprecated
     public static final int FLAG_AUTO_REQUERY = 0x01;
 
@@ -130,6 +131,7 @@ public abstract class CursorAdapter extends BaseAdapter implements Filterable,
      * @param c The cursor from which to get the data.
      * @param context The context
      */
+    @SuppressWarnings("deprecation")
     @Deprecated
     public CursorAdapter(Context context, Cursor c) {
         init(context, c, FLAG_AUTO_REQUERY);
@@ -147,6 +149,7 @@ public abstract class CursorAdapter extends BaseAdapter implements Filterable,
      *                    cursor whenever it changes so the most recent
      *                    data is always displayed.  Using true here is discouraged.
      */
+    @SuppressWarnings("deprecation")
     public CursorAdapter(Context context, Cursor c, boolean autoRequery) {
         init(context, c, autoRequery ? FLAG_AUTO_REQUERY : FLAG_REGISTER_CONTENT_OBSERVER);
     }
@@ -168,11 +171,13 @@ public abstract class CursorAdapter extends BaseAdapter implements Filterable,
      * @deprecated Don't use this, use the normal constructor.  This will
      * be removed in the future.
      */
+    @SuppressWarnings("deprecation")
     @Deprecated
     protected void init(Context context, Cursor c, boolean autoRequery) {
         init(context, c, autoRequery ? FLAG_AUTO_REQUERY : FLAG_REGISTER_CONTENT_OBSERVER);
     }
 
+    @SuppressWarnings("deprecation")
     void init(Context context, Cursor c, int flags) {
         if ((flags & FLAG_AUTO_REQUERY) == FLAG_AUTO_REQUERY) {
             flags |= FLAG_REGISTER_CONTENT_OBSERVER;
@@ -465,6 +470,7 @@ public abstract class CursorAdapter extends BaseAdapter implements Filterable,
      *
      * @see ContentObserver#onChange(boolean)
      */
+    @SuppressWarnings("deprecation")
     protected void onContentChanged() {
         if (mAutoRequery && mCursor != null && !mCursor.isClosed()) {
             if (false) Log.v("Cursor", "Auto requerying " + mCursor + " due to update");
