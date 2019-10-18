@@ -120,6 +120,7 @@ class PackageIdentityUtils {
     }
 
     static class Pre28Implementation implements SignaturesCompat {
+        @SuppressWarnings("deprecation")  // For GET_SIGNATURES and PackageInfo#signatures.
         @SuppressLint("PackageManagerGetSignatures")  // We deal with multiple signatures.
         @Override
         @Nullable

@@ -28,8 +28,11 @@ import androidx.browser.R;
 
 /**
  * The class responsible for deciding the size of Browser Actions context menu.
+ *
+ * @deprecated Browser Actions are deprecated as of release 1.2.0.
+ * @hide
  */
-/** @hide */
+@Deprecated
 @RestrictTo(LIBRARY_GROUP_PREFIX)
 public class BrowserActionsFallbackMenuView extends LinearLayout {
     private final int mBrowserActionsMenuMinPaddingPx;

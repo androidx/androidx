@@ -55,8 +55,11 @@ import java.util.concurrent.TimeUnit;
  * client.
  *
  * Call {@link #saveBitmap} to save the image and {@link #loadBitmap} to read it.
+ *
+ * @deprecated Browser Actions are deprecated as of release 1.2.0.
  * @hide
  */
+@Deprecated
 @RestrictTo(LIBRARY)
 public final class BrowserServiceFileProvider extends FileProvider {
     private static final String TAG = "BrowserServiceFP";

@@ -51,5 +51,4 @@ androidx {
     mavenGroup = LibraryGroups.BROWSER
     inceptionYear = "2015"
     description = "Android Support Custom Tabs"
-    failOnDeprecationWarnings = false
 }
