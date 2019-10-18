@@ -4,7 +4,7 @@ package androidx.loader.app {
   public abstract class LoaderManager {
     ctor public LoaderManager();
     method @MainThread public abstract void destroyLoader(int);
-    method @Deprecated public abstract void dump(String!, java.io.FileDescriptor!, java.io.PrintWriter!, String![]!);
+    method @Deprecated public abstract void dump(String, java.io.FileDescriptor?, java.io.PrintWriter, String![]?);
     method @Deprecated public static void enableDebugLogging(boolean);
     method public static <T extends androidx.lifecycle.LifecycleOwner & androidx.lifecycle.ViewModelStoreOwner> androidx.loader.app.LoaderManager getInstance(T);
     method public abstract <D> androidx.loader.content.Loader<D!>? getLoader(int);
@@ -38,14 +38,14 @@ package androidx.loader.content {
   public class CursorLoader extends androidx.loader.content.AsyncTaskLoader<android.database.Cursor> {
     ctor public CursorLoader(android.content.Context);
     ctor public CursorLoader(android.content.Context, android.net.Uri, String![]?, String?, String![]?, String?);
-    method public void deliverResult(android.database.Cursor!);
+    method public void deliverResult(android.database.Cursor?);
     method public String![]? getProjection();
     method public String? getSelection();
     method public String![]? getSelectionArgs();
     method public String? getSortOrder();
     method public android.net.Uri getUri();
-    method public android.database.Cursor! loadInBackground();
-    method public void onCanceled(android.database.Cursor!);
+    method public android.database.Cursor? loadInBackground();
+    method public void onCanceled(android.database.Cursor?);
     method public void setProjection(String![]?);
     method public void setSelection(String?);
     method public void setSelectionArgs(String![]?);
@@ -61,7 +61,7 @@ package androidx.loader.content {
     method public String dataToString(D?);
     method @MainThread public void deliverCancellation();
     method @MainThread public void deliverResult(D?);
-    method @Deprecated public void dump(String!, java.io.FileDescriptor!, java.io.PrintWriter!, String![]!);
+    method @Deprecated public void dump(String, java.io.FileDescriptor?, java.io.PrintWriter, String![]?);
     method @MainThread public void forceLoad();
     method public android.content.Context getContext();
     method public int getId();
