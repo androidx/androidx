@@ -17,13 +17,17 @@
 package androidx.appcompat.view;
 
 /**
- * When a {@link android.view.View} implements this interface it will receive callbacks when expanded or
- * collapsed as an action view alongside the optional, app-specified callbacks to {@link
- * androidx.core.view.MenuItemCompat.OnActionExpandListener}.
+ * When a {@link android.view.View} implements this interface it will receive callbacks when
+ * expanded or collapsed as an action view alongside the optional, app-specified callbacks to
+ * {@link androidx.core.view.MenuItemCompat.OnActionExpandListener}.
  *
  * <p>See {@link androidx.core.view.MenuItemCompat} for more information about action views.
  * See {@link android.app.ActionBar} for more information about the action bar.
+ *
+ * @deprecated Use the platform-provided {@link android.view.CollapsibleActionView} interface.
  */
+@SuppressWarnings("deprecation")
+@Deprecated
 public interface CollapsibleActionView {
 
     /**

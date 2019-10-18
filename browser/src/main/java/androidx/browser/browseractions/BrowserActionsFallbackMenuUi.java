@@ -45,7 +45,11 @@ import java.util.List;
 
 /**
  * The class to show fallback menu for Browser Actions if no provider is available.
+ *
+ * @deprecated Browser Actions are deprecated as of release 1.2.0.
  */
+@SuppressWarnings("deprecation")
+@Deprecated
 class BrowserActionsFallbackMenuUi implements AdapterView.OnItemClickListener {
     /** @hide */
     @VisibleForTesting
