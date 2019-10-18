@@ -41,7 +41,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 
@@ -66,6 +68,44 @@ public class NotificationManagerCompatTest {
      */
     private static String genUniqueId(String type) {
         return TAG + "_" + UUID.randomUUID() + "_" + type + "_id";
+    }
+
+    /*
+    * On older versions of the OS that do not have the NotificationChannel class,
+    * loading this test class with a method that has NotificationChannel in its parameters
+    * signature will throw a NoClassDefFoundError at runtime.
+    * To work around this, we use a separate inner class that provides static helper methods
+    */
+    private static class TestHelper {
+        private static boolean listContains(Collection<NotificationChannel> containsAll,
+                Collection<NotificationChannel> containedList) {
+            boolean contains = false;
+            for (NotificationChannel nc: containedList) {
+                for (NotificationChannel member: containsAll) {
+                    contains |= areEqual(nc, member);
+                }
+                if (!contains) {
+                    return false;
+                }
+                contains = false;
+            }
+            return true;
+        }
+
+        private static boolean areEqual(NotificationChannel nc1, NotificationChannel nc2) {
+            NotificationChannel that = nc2;
+            return nc1.getImportance() == that.getImportance()
+                    && nc1.canBypassDnd() == that.canBypassDnd()
+                    && nc1.getLockscreenVisibility() == that.getLockscreenVisibility()
+                    && nc1.getLightColor() == that.getLightColor()
+                    && Objects.equals(nc1.getId(), that.getId())
+                    && Objects.equals(nc1.getName(), that.getName())
+                    && Objects.equals(nc1.getDescription(), that.getDescription())
+                    && Objects.equals(nc1.getSound(), that.getSound())
+                    && Arrays.equals(nc1.getVibrationPattern(), that.getVibrationPattern())
+                    && Objects.equals(nc1.getGroup(), that.getGroup())
+                    && Objects.equals(nc1.getAudioAttributes(), that.getAudioAttributes());
+        }
     }
 
 
@@ -311,8 +351,9 @@ public class NotificationManagerCompatTest {
                 mPlatformNotificationManager.getNotificationChannel(channelId);
         assertNotNull(resultChannel);
         assertEquals(groupId, resultChannel.getGroup());
-        assertEquals(notificationChannel, resultChannel);
+        assertTrue(TestHelper.areEqual(notificationChannel, resultChannel));
     }
+
 
     @SdkSuppress(minSdkVersion = 26)
     @Test
@@ -324,7 +365,6 @@ public class NotificationManagerCompatTest {
         NotificationChannel channelTwo = new NotificationChannel(channelTwoId, "twoName",
                 NotificationManagerCompat.IMPORTANCE_MIN);
         List<NotificationChannel> channels = Arrays.asList(channelOne, channelTwo);
-
         int channelsBefore = mPlatformNotificationManager.getNotificationChannels().size();
 
         NotificationManagerCompat.from(mContext).createNotificationChannels(channels);
@@ -332,7 +372,7 @@ public class NotificationManagerCompatTest {
         // check if channels were created
         List<NotificationChannel> result = mPlatformNotificationManager.getNotificationChannels();
         assertEquals(channelsBefore + channels.size(), result.size());
-        assertTrue(result.containsAll(channels));
+        assertTrue(TestHelper.listContains(result, channels));
 
         // just to be sure
         NotificationChannel channel =
@@ -394,7 +434,7 @@ public class NotificationManagerCompatTest {
         NotificationChannel resultChannel =
                 mPlatformNotificationManager.getNotificationChannel(channelGroupOneId);
         assertEquals(groupOneId, resultChannel.getGroup());
-        assertEquals(channelGroupOne, resultChannel);
+        assertTrue(TestHelper.areEqual(channelGroupOne, resultChannel));
 
         NotificationChannelGroup resultTwo = notificationManager.getNotificationChannelGroup(
                 groupTwo.getId());
@@ -403,7 +443,8 @@ public class NotificationManagerCompatTest {
         //assertEquals(Arrays.asList(channelGroupTwo, secondChannelGroupTwo),
         //        resultTwo.getChannels());
 
-        assertTrue(mPlatformNotificationManager.getNotificationChannels().containsAll(channels));
+        assertTrue(TestHelper.listContains(
+                mPlatformNotificationManager.getNotificationChannels(), channels));
     }
 
     @Test
