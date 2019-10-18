@@ -73,7 +73,7 @@ final class FragmentManagerViewModel extends ViewModel {
      *     is being permanently destroyed.</li>
      *     <li>Not automatically saved: in this model, the FragmentManager is responsible for
      *     calling {@link #getSnapshot()} and later restoring the ViewModel with
-     *     {@link #restoreFromSnapshot(FragmentManagerNonConfig)}.</li>
+     *     <code>restoreFromSnapshot</code>.</li>
      * </ol>
      * These states are mutually exclusive.
      *
@@ -176,6 +176,7 @@ final class FragmentManagerViewModel extends ViewModel {
      * code, alongside
      * {@link FragmentController#restoreAllState(android.os.Parcelable, FragmentManagerNonConfig)}.
      */
+    @SuppressWarnings({"deprecation", "DeprecatedIsStillUsed"})
     @Deprecated
     void restoreFromSnapshot(@Nullable FragmentManagerNonConfig nonConfig) {
         mRetainedFragments.clear();
