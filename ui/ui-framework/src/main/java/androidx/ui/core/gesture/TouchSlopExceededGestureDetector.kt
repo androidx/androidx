@@ -29,6 +29,7 @@ import androidx.ui.core.withDensity
 import androidx.ui.core.PointerInputWrapper
 import androidx.ui.core.IntPx
 import androidx.ui.core.ambientDensity
+import androidx.ui.core.IntPxSize
 
 // TODO(shepshapard): Convert to functional component with effects once effects are ready.
 /**
@@ -54,7 +55,7 @@ fun TouchSlopExceededGestureDetector(
     recognizer.canDrag = canDrag
     recognizer.onTouchSlopExceeded = onTouchSlopExceeded
 
-    PointerInputWrapper(pointerInputHandler = recognizer::onPointerInputChanges) {
+    PointerInputWrapper(pointerInputHandler = recognizer.pointerInputHandler) {
         children()
     }
 }
@@ -66,118 +67,116 @@ internal class TouchSlopExceededGestureRecognizer(private val touchSlop: IntPx) 
     var canDrag: ((Direction) -> Boolean)? = null
     var onTouchSlopExceeded: () -> Unit = {}
 
-    fun onPointerInputChanges(
-        changes: List<PointerInputChange>,
-        pass: PointerEventPass
-    ): List<PointerInputChange> {
-        if (pass == PointerEventPass.PostUp) {
-            changes.forEach {
-                if (it.changedToUpIgnoreConsumed()) {
-                    pointerTrackers.remove(it.id)
-                } else if (it.changedToDownIgnoreConsumed()) {
-                    pointerTrackers[it.id] = PointerTrackingData()
+    val pointerInputHandler =
+        { changes: List<PointerInputChange>, pass: PointerEventPass, _: IntPxSize ->
+            if (pass == PointerEventPass.PostUp) {
+                changes.forEach {
+                    if (it.changedToUpIgnoreConsumed()) {
+                        pointerTrackers.remove(it.id)
+                    } else if (it.changedToDownIgnoreConsumed()) {
+                        pointerTrackers[it.id] = PointerTrackingData()
+                    }
                 }
-            }
-
-            if (!passedSlop) {
-                pointerTrackers.forEach {
-                    it.value.dxForPass = 0f
-                    it.value.dyForPass = 0f
-                }
-            }
-        }
-
-        if (!passedSlop &&
-            (pass == PointerEventPass.PostUp || pass == PointerEventPass.PostDown)
-        ) {
-
-            changes.filter { it.current.down && !it.changedToDownIgnoreConsumed() }.forEach {
 
                 if (!passedSlop) {
-
-                    // TODO(shepshapard): handle the case that the pointerTrackingData is null,
-                    //   either with an exception or a logged error, or something else. It should
-                    //   only ever be able to be null at this point if we received a "move" change
-                    //   for a pointer before we received an change that the pointer became "down".
-                    val pointerTracker: PointerTrackingData = pointerTrackers[it.id]!!
-
-                    val positionChanged = it.positionChange()
-                    val dx = positionChanged.x.value
-                    val dy = positionChanged.y.value
-
-                    // TODO(shepshapard): I believe the logic in this block could be simplified
-                    //   to be much more clear.  Will need to revisit. The need to make
-                    //   improvements may be rendered obsolete with upcoming changes however.
-
-                    val directionX = when {
-                        dx == 0f -> null
-                        dx < 0f -> Direction.LEFT
-                        else -> Direction.RIGHT
+                    pointerTrackers.forEach {
+                        it.value.dxForPass = 0f
+                        it.value.dyForPass = 0f
                     }
-                    val directionY = when {
-                        dy == 0f -> null
-                        dy < 0f -> Direction.UP
-                        else -> Direction.DOWN
-                    }
+                }
+            }
 
-                    val internalCanDrag = canDrag
+            if (!passedSlop &&
+                (pass == PointerEventPass.PostUp || pass == PointerEventPass.PostDown)
+            ) {
 
-                    val canDragX =
-                        directionX != null &&
-                                (internalCanDrag == null || internalCanDrag.invoke(directionX))
-                    val canDragY =
-                        directionY != null &&
-                                (internalCanDrag == null || internalCanDrag.invoke(directionY))
+                changes.filter { it.current.down && !it.changedToDownIgnoreConsumed() }.forEach {
 
-                    if (pass == PointerEventPass.PostUp) {
-                        pointerTracker.dxForPass = dx
-                        pointerTracker.dyForPass = dy
-                        pointerTracker.dxUnderSlop += dx
-                        pointerTracker.dyUnderSlop += dy
-                    } else {
-                        pointerTracker.dxUnderSlop += dx - pointerTracker.dxForPass
-                        pointerTracker.dyUnderSlop += dy - pointerTracker.dyForPass
-                    }
+                    if (!passedSlop) {
 
-                    val passedSlopX =
-                        canDragX && Math.abs(pointerTracker.dxUnderSlop) > touchSlop.value
-                    val passedSlopY =
-                        canDragY && Math.abs(pointerTracker.dyUnderSlop) > touchSlop.value
+                        // TODO(shepshapard): handle the case that the pointerTrackingData is null,
+                        //  either with an exception or a logged error, or something else. It should
+                        //  only ever be able to be null at this point if we received a "move"
+                        //  change for a pointer before we received an change that the pointer
+                        //  became "down".
+                        val pointerTracker: PointerTrackingData = pointerTrackers[it.id]!!
 
-                    if (passedSlopX || passedSlopY) {
-                        passedSlop = true
-                        onTouchSlopExceeded.invoke()
-                    } else {
-                        if (!canDragX &&
-                            ((directionX == Direction.LEFT &&
-                                    pointerTracker.dxUnderSlop < 0) ||
-                                    (directionX == Direction.RIGHT &&
-                                            pointerTracker.dxUnderSlop > 0))
-                        ) {
-                            pointerTracker.dxUnderSlop = 0f
+                        val positionChanged = it.positionChange()
+                        val dx = positionChanged.x.value
+                        val dy = positionChanged.y.value
+
+                        // TODO(shepshapard): I believe the logic in this block could be simplified
+                        //   to be much more clear.  Will need to revisit. The need to make
+                        //   improvements may be rendered obsolete with upcoming changes however.
+
+                        val directionX = when {
+                            dx == 0f -> null
+                            dx < 0f -> Direction.LEFT
+                            else -> Direction.RIGHT
                         }
-                        if (!canDragY &&
-                            ((directionY == Direction.LEFT &&
-                                    pointerTracker.dyUnderSlop < 0) ||
-                                    (directionY == Direction.DOWN &&
-                                            pointerTracker.dyUnderSlop > 0))
-                        ) {
-                            pointerTracker.dyUnderSlop = 0f
+                        val directionY = when {
+                            dy == 0f -> null
+                            dy < 0f -> Direction.UP
+                            else -> Direction.DOWN
+                        }
+
+                        val internalCanDrag = canDrag
+
+                        val canDragX =
+                            directionX != null &&
+                                    (internalCanDrag == null || internalCanDrag.invoke(directionX))
+                        val canDragY =
+                            directionY != null &&
+                                    (internalCanDrag == null || internalCanDrag.invoke(directionY))
+
+                        if (pass == PointerEventPass.PostUp) {
+                            pointerTracker.dxForPass = dx
+                            pointerTracker.dyForPass = dy
+                            pointerTracker.dxUnderSlop += dx
+                            pointerTracker.dyUnderSlop += dy
+                        } else {
+                            pointerTracker.dxUnderSlop += dx - pointerTracker.dxForPass
+                            pointerTracker.dyUnderSlop += dy - pointerTracker.dyForPass
+                        }
+
+                        val passedSlopX =
+                            canDragX && Math.abs(pointerTracker.dxUnderSlop) > touchSlop.value
+                        val passedSlopY =
+                            canDragY && Math.abs(pointerTracker.dyUnderSlop) > touchSlop.value
+
+                        if (passedSlopX || passedSlopY) {
+                            passedSlop = true
+                            onTouchSlopExceeded.invoke()
+                        } else {
+                            if (!canDragX &&
+                                ((directionX == Direction.LEFT &&
+                                        pointerTracker.dxUnderSlop < 0) ||
+                                        (directionX == Direction.RIGHT &&
+                                                pointerTracker.dxUnderSlop > 0))
+                            ) {
+                                pointerTracker.dxUnderSlop = 0f
+                            }
+                            if (!canDragY &&
+                                ((directionY == Direction.LEFT &&
+                                        pointerTracker.dyUnderSlop < 0) ||
+                                        (directionY == Direction.DOWN &&
+                                                pointerTracker.dyUnderSlop > 0))
+                            ) {
+                                pointerTracker.dyUnderSlop = 0f
+                            }
                         }
                     }
                 }
             }
-        }
 
-        if (passedSlop &&
-            pass == PointerEventPass.PostDown &&
-            changes.all { it.changedToUpIgnoreConsumed() }
-        ) {
-            passedSlop = false
+            if (passedSlop &&
+                pass == PointerEventPass.PostDown &&
+                changes.all { it.changedToUpIgnoreConsumed() }
+            ) {
+                passedSlop = false
+            }
+            changes
         }
-
-        return changes
-    }
 
     internal data class PointerTrackingData(
         var dxUnderSlop: Float = 0f,

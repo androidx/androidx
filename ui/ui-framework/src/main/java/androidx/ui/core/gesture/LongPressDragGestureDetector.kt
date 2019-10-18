@@ -20,6 +20,7 @@ import androidx.compose.Composable
 import androidx.compose.memo
 import androidx.compose.unaryPlus
 import androidx.ui.core.PxPosition
+import androidx.ui.core.IntPxSize
 import androidx.ui.core.PointerEventPass
 import androidx.ui.core.PointerInputChange
 import androidx.ui.core.PointerInputHandler
@@ -147,17 +148,18 @@ private class LongPressDragGestureDetectorGlue {
             }
         }
 
-    val pointerInputHandler = { changes: List<PointerInputChange>, pass: PointerEventPass ->
-        if (pass == PointerEventPass.PostUp &&
-            dragEnabled &&
-            !dragStarted &&
-            changes.all { it.changedToUpIgnoreConsumed() }
-        ) {
-            dragEnabled = false
-            longPressDragObserver.onStop(PxPosition.Origin)
+    val pointerInputHandler =
+        { changes: List<PointerInputChange>, pass: PointerEventPass, _: IntPxSize ->
+            if (pass == PointerEventPass.PostUp &&
+                dragEnabled &&
+                !dragStarted &&
+                changes.all { it.changedToUpIgnoreConsumed() }
+            ) {
+                dragEnabled = false
+                longPressDragObserver.onStop(PxPosition.Origin)
+            }
+            changes
         }
-        changes
-    }
 
     val onLongPress = { pxPosition: PxPosition ->
         dragEnabled = true

@@ -29,6 +29,7 @@ import androidx.ui.core.changedToUp
 import androidx.ui.core.changedToUpIgnoreConsumed
 import androidx.ui.core.consumeDownChange
 import androidx.ui.core.CoroutineContextAmbient
+import androidx.ui.core.IntPxSize
 import androidx.ui.core.PointerInputWrapper
 import androidx.ui.temputils.delay
 import kotlinx.coroutines.Job
@@ -74,7 +75,7 @@ internal class LongPressGestureRecognizer(
     var job: Job? = null
 
     val pointerInputHandler =
-        { changes: List<PointerInputChange>, pass: PointerEventPass ->
+        { changes: List<PointerInputChange>, pass: PointerEventPass, _: IntPxSize ->
 
             var changesToReturn = changes
 

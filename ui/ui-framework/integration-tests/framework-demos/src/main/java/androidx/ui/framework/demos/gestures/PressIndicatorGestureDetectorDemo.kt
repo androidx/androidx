@@ -50,15 +50,21 @@ class PressIndicatorGestureDetectorDemo : Activity() {
                     Grey
                 }
 
-            PressIndicatorGestureDetector(onStart = onStart, onStop = onStop, onCancel = onStop) {
-                MatchParent {
-                    DrawBox(
-                        0.px,
-                        0.px,
-                        96.dp,
-                        96.dp,
-                        color
-                    )
+            Center {
+                PressIndicatorGestureDetector(
+                    onStart = onStart,
+                    onStop = onStop,
+                    onCancel = onStop
+                ) {
+                    SimpleContainer(192.dp, 192.dp, 0.dp) {
+                        DrawBox(
+                            0.px,
+                            0.px,
+                            192.dp,
+                            192.dp,
+                            color
+                        )
+                    }
                 }
             }
         }

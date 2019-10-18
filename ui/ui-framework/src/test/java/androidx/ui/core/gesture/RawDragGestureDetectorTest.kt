@@ -18,6 +18,7 @@ package androidx.ui.core.gesture
 
 import androidx.ui.core.Direction
 import androidx.ui.core.Duration
+import androidx.ui.core.IntPxSize
 import androidx.ui.core.PointerEventPass
 import androidx.ui.core.PxPosition
 import androidx.ui.core.anyPositionChangeConsumed
@@ -493,7 +494,8 @@ class RawDragGestureDetectorTest {
         dragObserver.dragConsume = PxPosition(7.ipx, (-11).ipx)
 
         var change = down()
-        recognizer.pointerInputHandler.invoke(listOf(change), PointerEventPass.PostUp)
+        recognizer.pointerInputHandler
+            .invoke(listOf(change), PointerEventPass.PostUp, IntPxSize(0.ipx, 0.ipx))
         dragStartBlocked = false
 
         change = change.moveTo(
@@ -501,7 +503,11 @@ class RawDragGestureDetectorTest {
             3f,
             -5f
         )
-        val result = recognizer.pointerInputHandler.invoke(listOf(change), PointerEventPass.PostUp)
+        val result = recognizer.pointerInputHandler.invoke(
+            listOf(change),
+            PointerEventPass.PostUp,
+            IntPxSize(0.ipx, 0.ipx)
+        )
 
         assertThat(result.first().consumed.positionChange.x.value).isEqualTo(7f)
         assertThat(result.first().consumed.positionChange.y.value).isEqualTo(-11f)

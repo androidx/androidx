@@ -16,9 +16,11 @@
 
 package androidx.ui.core.gesture
 
+import androidx.ui.core.IntPxSize
 import androidx.ui.core.PointerEventPass
 import androidx.ui.core.PxPosition
 import androidx.ui.core.consumeDownChange
+import androidx.ui.core.ipx
 import androidx.ui.core.milliseconds
 import androidx.ui.core.millisecondsToTimestamp
 import androidx.ui.core.px
@@ -139,19 +141,25 @@ class LongPressGestureDetectorTest {
 
         // Act
 
-        mRecognizer.pointerInputHandler.invokeOverAllPasses(listOf(
-            down0
-        ))
+        mRecognizer.pointerInputHandler.invokeOverAllPasses(
+            listOf(
+                down0
+            )
+        )
 
         testContext.advanceTimeBy(50, TimeUnit.MILLISECONDS)
-        mRecognizer.pointerInputHandler.invokeOverAllPasses(listOf(
-            up0
-        ))
+        mRecognizer.pointerInputHandler.invokeOverAllPasses(
+            listOf(
+                up0
+            )
+        )
 
         testContext.advanceTimeBy(1, TimeUnit.MILLISECONDS)
-        mRecognizer.pointerInputHandler.invokeOverAllPasses(listOf(
-            down1
-        ))
+        mRecognizer.pointerInputHandler.invokeOverAllPasses(
+            listOf(
+                down1
+            )
+        )
 
         testContext.advanceTimeBy(50, TimeUnit.MILLISECONDS)
 
@@ -191,19 +199,25 @@ class LongPressGestureDetectorTest {
 
         // Act
 
-        mRecognizer.pointerInputHandler.invokeOverAllPasses(listOf(
-            down0
-        ))
+        mRecognizer.pointerInputHandler.invokeOverAllPasses(
+            listOf(
+                down0
+            )
+        )
 
         testContext.advanceTimeBy(50, TimeUnit.MILLISECONDS)
-        mRecognizer.pointerInputHandler.invokeOverAllPasses(listOf(
-            move0, down1
-        ))
+        mRecognizer.pointerInputHandler.invokeOverAllPasses(
+            listOf(
+                move0, down1
+            )
+        )
 
         testContext.advanceTimeBy(25, TimeUnit.MILLISECONDS)
-        mRecognizer.pointerInputHandler.invokeOverAllPasses(listOf(
-            up0, move1
-        ))
+        mRecognizer.pointerInputHandler.invokeOverAllPasses(
+            listOf(
+                up0, move1
+            )
+        )
 
         testContext.advanceTimeBy(25, TimeUnit.MILLISECONDS)
 
@@ -325,9 +339,11 @@ class LongPressGestureDetectorTest {
     @Test
     fun pointerInputHandler_1Down_notConsumed() {
         val down0 = down(0)
-        val result = mRecognizer.pointerInputHandler.invokeOverAllPasses(listOf(
-            down0
-        ))
+        val result = mRecognizer.pointerInputHandler.invokeOverAllPasses(
+            listOf(
+                down0
+            )
+        )
         assertThat(result[0].consumed.downChange).isFalse()
     }
 
@@ -337,18 +353,22 @@ class LongPressGestureDetectorTest {
         // Arrange
 
         val down0 = down(0, 0L.millisecondsToTimestamp())
-        mRecognizer.pointerInputHandler.invokeOverAllPasses(listOf(
-            down0
-        ))
+        mRecognizer.pointerInputHandler.invokeOverAllPasses(
+            listOf(
+                down0
+            )
+        )
 
         // Act
 
         testContext.advanceTimeBy(10, TimeUnit.MILLISECONDS)
         val move0 = down0.moveTo(10L.millisecondsToTimestamp(), 0f, 0f)
         val down1 = down(0, 10L.millisecondsToTimestamp())
-        val result = mRecognizer.pointerInputHandler.invokeOverAllPasses(listOf(
-            move0, down1
-        ))
+        val result = mRecognizer.pointerInputHandler.invokeOverAllPasses(
+            listOf(
+                move0, down1
+            )
+        )
 
         // Assert
 
@@ -362,17 +382,21 @@ class LongPressGestureDetectorTest {
         // Arrange
 
         val down0 = down(0, 0L.millisecondsToTimestamp())
-        mRecognizer.pointerInputHandler.invokeOverAllPasses(listOf(
-            down0
-        ))
+        mRecognizer.pointerInputHandler.invokeOverAllPasses(
+            listOf(
+                down0
+            )
+        )
 
         // Act
 
         testContext.advanceTimeBy(50, TimeUnit.MILLISECONDS)
         val up0 = down0.up(50L.millisecondsToTimestamp())
-        val result = mRecognizer.pointerInputHandler.invokeOverAllPasses(listOf(
-            up0
-        ))
+        val result = mRecognizer.pointerInputHandler.invokeOverAllPasses(
+            listOf(
+                up0
+            )
+        )
 
         // Assert
 
@@ -385,17 +409,21 @@ class LongPressGestureDetectorTest {
         // Arrange
 
         val down0 = down(0, 0L.millisecondsToTimestamp())
-        mRecognizer.pointerInputHandler.invokeOverAllPasses(listOf(
-            down0
-        ))
+        mRecognizer.pointerInputHandler.invokeOverAllPasses(
+            listOf(
+                down0
+            )
+        )
 
         // Act
 
         testContext.advanceTimeBy(101, TimeUnit.MILLISECONDS)
         val up0 = down0.up(100L.millisecondsToTimestamp())
-        val result = mRecognizer.pointerInputHandler.invoke(listOf(
-            up0
-        ), PointerEventPass.InitialDown)
+        val result = mRecognizer.pointerInputHandler.invoke(
+            listOf(up0),
+            PointerEventPass.InitialDown,
+            IntPxSize(0.ipx, 0.ipx)
+        )
 
         // Assert
 

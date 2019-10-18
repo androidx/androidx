@@ -25,6 +25,7 @@ import androidx.ui.core.consumeDownChange
 import androidx.compose.Composable
 import androidx.compose.memo
 import androidx.compose.unaryPlus
+import androidx.ui.core.IntPxSize
 import androidx.ui.core.PointerInputWrapper
 
 /**
@@ -79,7 +80,7 @@ internal class PressReleaseGestureRecognizer {
     private var active = false
 
     val pointerInputHandler =
-        { changes: List<PointerInputChange>, pass: PointerEventPass ->
+        { changes: List<PointerInputChange>, pass: PointerEventPass, _: IntPxSize ->
 
             var internalChanges = changes
 
