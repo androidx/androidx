@@ -38,7 +38,7 @@ public class MutableMediaMetadata {
         if (this == o) {
             return true;
         }
-        if (o == null || o.getClass() != MutableMediaMetadata.class) {
+        if (!(o instanceof MutableMediaMetadata)) {
             return false;
         }
 
