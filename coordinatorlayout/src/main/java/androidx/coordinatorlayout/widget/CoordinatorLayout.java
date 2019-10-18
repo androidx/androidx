@@ -91,8 +91,8 @@ import java.util.Map;
  * <p>By specifying {@link Behavior Behaviors} for child views of a
  * CoordinatorLayout you can provide many different interactions within a single parent and those
  * views can also interact with one another. View classes can specify a default behavior when
- * used as a child of a CoordinatorLayout using the
- * {@link DefaultBehavior} annotation.</p>
+ * used as a child of a CoordinatorLayout by implementing the
+ * {@link AttachedBehavior} interface.</p>
  *
  * <p>Behaviors may be used to implement a variety of interactions and additional layout
  * modifications ranging from sliding drawers and panels to swipe-dismissable elements and buttons
