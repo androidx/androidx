@@ -37,7 +37,7 @@ public class TestUtilsMatchers {
     /**
      * Returns a matcher that matches views which have specific background color.
      */
-    public static Matcher backgroundColor(@ColorInt final int backgroundColor) {
+    public static Matcher<View> backgroundColor(@ColorInt final int backgroundColor) {
         return new BoundedMatcher<View, View>(View.class) {
             private String failedComparisonDescription;
 
