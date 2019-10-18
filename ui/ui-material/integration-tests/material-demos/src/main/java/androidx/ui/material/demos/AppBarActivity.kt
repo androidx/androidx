@@ -26,7 +26,6 @@ import androidx.ui.layout.Column
 import androidx.ui.layout.Container
 import androidx.ui.layout.CrossAxisAlignment
 import androidx.ui.layout.FlexColumn
-import androidx.ui.layout.LayoutSize
 import androidx.ui.layout.MainAxisAlignment
 import androidx.ui.material.RadioGroup
 import androidx.ui.material.demos.AppBarActivity.BottomAppBarOption.CenterFab
@@ -48,6 +47,7 @@ import androidx.ui.material.samples.SimpleTopAppBarNavIconWithActions
 import androidx.ui.material.surface.Surface
 import androidx.ui.material.themeTextStyle
 import androidx.ui.graphics.imageFromResource
+import androidx.ui.layout.ExpandedHeight
 
 class AppBarActivity : MaterialDemoActivity() {
 
@@ -93,7 +93,7 @@ class AppBarActivity : MaterialDemoActivity() {
                 }
                 flexible(1f) {
                     Column(
-                        mainAxisSize = LayoutSize.Expand,
+                        ExpandedHeight,
                         mainAxisAlignment = MainAxisAlignment.SpaceBetween,
                         crossAxisAlignment = CrossAxisAlignment.Center
                     ) {

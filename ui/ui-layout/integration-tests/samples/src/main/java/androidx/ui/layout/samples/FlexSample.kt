@@ -24,7 +24,6 @@ import androidx.ui.layout.Center
 import androidx.ui.layout.Column
 import androidx.ui.layout.FlexColumn
 import androidx.ui.layout.FlexRow
-import androidx.ui.layout.LayoutSize
 import androidx.ui.layout.Row
 
 @Sampled
@@ -66,7 +65,7 @@ fun SimpleFlexColumn() {
 @Sampled
 @Composable
 fun SimpleRow() {
-    Row(mainAxisSize = LayoutSize.Expand) {
+    Row {
         // The child with no flexibility modifier is inflexible by default, will have the specified
         // size.
         SizedRectangle(color = Color.Magenta, width = 40.dp, height = 80.dp)
@@ -82,7 +81,7 @@ fun SimpleRow() {
 @Sampled
 @Composable
 fun SimpleColumn() {
-    Column(mainAxisSize = LayoutSize.Expand) {
+    Column {
         // The child with no flexibility modifier is inflexible by default, will have the specified
         // size.
         SizedRectangle(color = Color.Magenta, width = 40.dp, height = 80.dp)

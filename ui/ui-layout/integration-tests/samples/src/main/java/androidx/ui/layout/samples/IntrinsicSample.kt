@@ -29,8 +29,8 @@ import androidx.ui.layout.ConstrainedBox
 import androidx.ui.layout.Container
 import androidx.ui.layout.CrossAxisAlignment
 import androidx.ui.layout.DpConstraints
+import androidx.ui.layout.ExpandedHeight
 import androidx.ui.layout.FlexRow
-import androidx.ui.layout.LayoutSize
 import androidx.ui.layout.MaxIntrinsicHeight
 import androidx.ui.layout.MaxIntrinsicWidth
 import androidx.ui.layout.MinIntrinsicHeight
@@ -52,7 +52,7 @@ fun SameWidthBoxes() {
     Wrap {
         MinIntrinsicWidth {
             Column(
-                mainAxisSize = LayoutSize.Expand,
+                ExpandedHeight,
                 crossAxisAlignment = CrossAxisAlignment.Stretch
             ) {
                 ConstrainedBox(DpConstraints.tightConstraints(width = 20.dp, height = 10.dp)) {
@@ -115,7 +115,7 @@ fun SameWidthTextBoxes() {
     Wrap {
         MaxIntrinsicWidth {
             Column(
-                mainAxisSize = LayoutSize.Expand,
+                ExpandedHeight,
                 crossAxisAlignment = CrossAxisAlignment.Stretch
             ) {
                 Wrap {

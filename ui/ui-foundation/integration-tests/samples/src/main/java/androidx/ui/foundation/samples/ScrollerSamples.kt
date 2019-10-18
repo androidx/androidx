@@ -16,7 +16,6 @@
 
 package androidx.ui.foundation.samples
 
-import android.util.Log
 import androidx.annotation.Sampled
 import androidx.compose.Composable
 import androidx.compose.State
@@ -24,16 +23,11 @@ import androidx.compose.memo
 import androidx.compose.state
 import androidx.compose.unaryPlus
 import androidx.ui.core.Alignment
-import androidx.ui.core.Draw
-import androidx.ui.core.PxSize
 import androidx.ui.core.Text
 import androidx.ui.core.dp
 import androidx.ui.core.px
-import androidx.ui.core.setContent
 import androidx.ui.core.sp
-import androidx.ui.core.toRect
 import androidx.ui.foundation.Clickable
-import androidx.ui.foundation.ColoredRect
 import androidx.ui.foundation.HorizontalScroller
 import androidx.ui.foundation.VerticalScroller
 import androidx.ui.graphics.Color
@@ -44,16 +38,7 @@ import androidx.ui.foundation.ScrollerPosition
 import androidx.ui.foundation.shape.DrawShape
 import androidx.ui.foundation.shape.RectangleShape
 import androidx.ui.layout.Container
-import androidx.ui.layout.EdgeInsets
-import androidx.ui.layout.FlexColumn
-import androidx.ui.layout.HeightSpacer
-import androidx.ui.layout.LayoutSize
-import androidx.ui.layout.Stack
 import androidx.ui.layout.Table
-import androidx.ui.layout.Wrap
-import androidx.ui.graphics.Canvas
-import androidx.ui.graphics.Paint
-import androidx.ui.text.ParagraphStyle
 import androidx.ui.text.TextStyle
 
 private val colors = listOf(
@@ -104,7 +89,7 @@ fun VerticalScrollerSample() {
     // Scroller will be clipped to this padding
     Padding(padding = 10.dp) {
         VerticalScroller {
-            Column(mainAxisSize = LayoutSize.Expand) {
+            Column {
                 phrases.forEach { phrase ->
                     Text(text = phrase, style = style)
                 }
@@ -117,7 +102,7 @@ fun VerticalScrollerSample() {
 @Composable
 fun SimpleHorizontalScrollerSample() {
     HorizontalScroller {
-        Row(mainAxisSize = LayoutSize.Expand) {
+        Row {
             repeat(100) { index ->
                 Square(index)
             }
@@ -131,9 +116,9 @@ fun ControlledHorizontalScrollerSample() {
     // Create and own ScrollerPosition to call `smoothScrollTo` later
     val position = +memo { ScrollerPosition() }
     val scrollable = +state { true }
-    Column(mainAxisSize = LayoutSize.Expand) {
+    Column {
         HorizontalScroller(scrollerPosition = position, isScrollable = scrollable.value) {
-            Row(mainAxisSize = LayoutSize.Expand) {
+            Row {
                 repeat(1000) { index ->
                     Square(index)
                 }
