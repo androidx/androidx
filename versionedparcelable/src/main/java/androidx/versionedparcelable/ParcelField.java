@@ -27,7 +27,7 @@ import java.lang.annotation.Target;
  * Tags a field that should be serialized as part of SafeParcelization.
  * @hide
  */
-@Retention(RetentionPolicy.SOURCE)
+@Retention(RetentionPolicy.CLASS)
 @Target(ElementType.FIELD)
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public @interface ParcelField {
