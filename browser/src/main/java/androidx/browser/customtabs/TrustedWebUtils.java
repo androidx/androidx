@@ -91,8 +91,8 @@ public class TrustedWebUtils {
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    public static void launchBrowserSiteSettings(Context context, CustomTabsSession session,
-            Uri uri) {
+    public static void launchBrowserSiteSettings(@NonNull Context context,
+            @NonNull CustomTabsSession session, @NonNull Uri uri) {
         Intent intent = new Intent(TrustedWebUtils.ACTION_MANAGE_TRUSTED_WEB_ACTIVITY_DATA);
         intent.setPackage(session.getComponentName().getPackageName());
         intent.setData(uri);

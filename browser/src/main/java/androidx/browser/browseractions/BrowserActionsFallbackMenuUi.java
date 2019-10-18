@@ -35,6 +35,8 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.browser.R;
@@ -64,8 +66,10 @@ class BrowserActionsFallbackMenuUi implements AdapterView.OnItemClickListener {
     private final List<BrowserActionItem> mMenuItems;
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
+    @Nullable
     BrowserActionsFallMenuUiListener mMenuUiListener;
 
+    @Nullable
     private BrowserActionsFallbackMenuDialog mBrowserActionsDialog;
 
     /**
@@ -73,22 +77,22 @@ class BrowserActionsFallbackMenuUi implements AdapterView.OnItemClickListener {
      * @param uri The uri which users click to trigger the menu.
      * @param customItems The custom menu items shown in the menu.
      */
-    @SuppressWarnings("NullAway") // TODO: b/141869399
-    BrowserActionsFallbackMenuUi(Context context, Uri uri, List<BrowserActionItem> customItems) {
+    BrowserActionsFallbackMenuUi(@NonNull Context context, @NonNull Uri uri,
+            @NonNull List<BrowserActionItem> customItems) {
         mContext = context;
         mUri = uri;
-        mMenuItems = buildFallbackMenuItemList(context, customItems);
+        mMenuItems = buildFallbackMenuItemList(customItems);
     }
 
     /** @hide */
     @VisibleForTesting
     @RestrictTo(LIBRARY_GROUP_PREFIX)
-    void setMenuUiListener(BrowserActionsFallMenuUiListener menuUiListener) {
+    void setMenuUiListener(@Nullable BrowserActionsFallMenuUiListener menuUiListener) {
         mMenuUiListener = menuUiListener;
     }
 
-    private List<BrowserActionItem> buildFallbackMenuItemList(
-            Context context, List<BrowserActionItem> customItems) {
+    @NonNull
+    private List<BrowserActionItem> buildFallbackMenuItemList(List<BrowserActionItem> customItems) {
         List<BrowserActionItem> fallbackMenuItems = new ArrayList<>();
         fallbackMenuItems.add(new BrowserActionItem(
                 mContext.getString(R.string.fallback_menu_item_open_in_browser),
@@ -139,6 +143,10 @@ class BrowserActionsFallbackMenuUi implements AdapterView.OnItemClickListener {
             mBrowserActionsDialog.setOnShowListener(new DialogInterface.OnShowListener() {
                 @Override
                 public void onShow(DialogInterface dialogInterface) {
+                    if (mMenuUiListener == null) {
+                        Log.e(TAG, "Cannot trigger menu item listener, it is null");
+                        return;
+                    }
                     mMenuUiListener.onMenuShown(view);
                 }
             });
@@ -185,6 +193,10 @@ class BrowserActionsFallbackMenuUi implements AdapterView.OnItemClickListener {
             }
         } else if (menuItem.getRunnableAction() != null) {
             menuItem.getRunnableAction().run();
+        }
+        if (mBrowserActionsDialog == null) {
+            Log.e(TAG, "Cannot dismiss dialog, it has already been dismissed.");
+            return;
         }
         mBrowserActionsDialog.dismiss();
     }

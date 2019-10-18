@@ -56,7 +56,7 @@ public final class CustomTabsSession {
      *
      * {@see Intent#filterEquals()}
      */
-    private final PendingIntent mId;
+    @Nullable private final PendingIntent mId;
 
     /**
      * Provides browsers a way to generate a mock {@link CustomTabsSession} for testing
@@ -67,14 +67,12 @@ public final class CustomTabsSession {
      */
     @VisibleForTesting
     @NonNull
-    @SuppressWarnings("NullAway") // TODO: b/141869399
     public static CustomTabsSession createMockSessionForTesting(
             @NonNull ComponentName componentName) {
         return new CustomTabsSession(
-                null, new CustomTabsSessionToken.MockCallback(), componentName, null);
+                new MockSession(), new CustomTabsSessionToken.MockCallback(), componentName, null);
     }
 
-    @SuppressWarnings("NullAway") // TODO: b/141869399
     /* package */ CustomTabsSession(
             ICustomTabsService service, ICustomTabsCallback callback, ComponentName componentName,
             @Nullable PendingIntent sessionId) {
@@ -100,7 +98,7 @@ public final class CustomTabsSession {
      *                           {@link Bundle#putParcelable(String, android.os.Parcelable)}.
      * @return                   true for success.
      */
-    @SuppressWarnings("NullAway") // TODO: b/141869399
+    @SuppressWarnings("NullAway")  // TODO: b/142938599
     public boolean mayLaunchUrl(@NonNull Uri url, @Nullable Bundle extras,
             @Nullable List<Bundle> otherLikelyBundles) {
         extras = createBundleWithId(extras);
@@ -316,6 +314,7 @@ public final class CustomTabsSession {
         return mComponentName;
     }
 
+    @Nullable
     /* package */ PendingIntent getId() {
         return mId;
     }
@@ -330,21 +329,90 @@ public final class CustomTabsSession {
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public static class PendingSession {
-        private final CustomTabsCallback mCallback;
-        private final PendingIntent mId;
+        @Nullable private final CustomTabsCallback mCallback;
+        @Nullable private final PendingIntent mId;
 
         /* package */ PendingSession(
-                CustomTabsCallback callback, PendingIntent sessionId) {
+                @Nullable CustomTabsCallback callback, @Nullable PendingIntent sessionId) {
             mCallback = callback;
             mId = sessionId;
         }
 
+        @Nullable
         /* package */ PendingIntent getId() {
             return mId;
         }
 
+        @Nullable
         /* package */ CustomTabsCallback getCallback() {
             return mCallback;
+        }
+    }
+
+    // For use in testing only.
+    static class MockSession extends ICustomTabsService.Stub {
+        @Override
+        public boolean warmup(long flags) throws RemoteException {
+            return false;
+        }
+
+        @Override
+        public boolean newSession(ICustomTabsCallback callback) throws RemoteException {
+            return false;
+        }
+
+        @Override
+        public boolean newSessionWithExtras(ICustomTabsCallback callback, Bundle extras)
+                throws RemoteException {
+            return false;
+        }
+
+        @Override
+        public boolean mayLaunchUrl(ICustomTabsCallback callback, Uri url, Bundle extras,
+                List<Bundle> otherLikelyBundles) throws RemoteException {
+            return false;
+        }
+
+        @SuppressWarnings("NullAway")  // TODO: b/142938599
+        @Override
+        public Bundle extraCommand(String commandName, Bundle args) throws RemoteException {
+            return null;
+        }
+
+        @Override
+        public boolean updateVisuals(ICustomTabsCallback callback, Bundle bundle)
+                throws RemoteException {
+            return false;
+        }
+
+        @Override
+        public boolean requestPostMessageChannel(ICustomTabsCallback callback,
+                Uri postMessageOrigin) throws RemoteException {
+            return false;
+        }
+
+        @Override
+        public boolean requestPostMessageChannelWithExtras(ICustomTabsCallback callback,
+                Uri postMessageOrigin, Bundle extras) throws RemoteException {
+            return false;
+        }
+
+        @Override
+        public int postMessage(ICustomTabsCallback callback, String message, Bundle extras)
+                throws RemoteException {
+            return 0;
+        }
+
+        @Override
+        public boolean validateRelationship(ICustomTabsCallback callback, int relation, Uri origin,
+                Bundle extras) throws RemoteException {
+            return false;
+        }
+
+        @Override
+        public boolean receiveFile(ICustomTabsCallback callback, Uri uri, int purpose,
+                Bundle extras) throws RemoteException {
+            return false;
         }
     }
 }

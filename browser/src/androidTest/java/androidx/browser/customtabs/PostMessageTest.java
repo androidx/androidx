@@ -27,6 +27,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
 import androidx.test.rule.ActivityTestRule;
@@ -51,9 +52,10 @@ import java.util.concurrent.TimeoutException;
 @SmallTest
 public class PostMessageTest {
     @Rule
-    public final ServiceTestRule mServiceRule;
+    public final ServiceTestRule mServiceRule = new ServiceTestRule();
     @Rule
-    public final ActivityTestRule<TestActivity> mActivityTestRule;
+    public final ActivityTestRule<TestActivity> mActivityTestRule =
+            new ActivityTestRule<>(TestActivity.class);
     @Rule
     public final EnableComponentsTestRule mEnableComponents = new EnableComponentsTestRule(
             TestActivity.class,
@@ -63,16 +65,10 @@ public class PostMessageTest {
 
     private TestCustomTabsCallback mCallback;
     private Context mContext;
-    private CustomTabsServiceConnection mCustomTabsServiceConnection;
     private PostMessageServiceConnection mPostMessageServiceConnection;
     private boolean mCustomTabsServiceConnected;
     private boolean mPostMessageServiceConnected;
     private CustomTabsSession mSession;
-
-    public PostMessageTest() {
-        mActivityTestRule = new ActivityTestRule<TestActivity>(TestActivity.class);
-        mServiceRule = new ServiceTestRule();
-    }
 
     @Before
     public void setup() {
@@ -80,7 +76,7 @@ public class PostMessageTest {
         // callback is sent after requestPostMessageChannel is called.
         mCallback = new TestCustomTabsCallback() {
             @Override
-            public void extraCallback(String callbackName, Bundle args) {
+            public void extraCallback(@NonNull String callbackName, Bundle args) {
                 if (TestCustomTabsService.CALLBACK_BIND_TO_POST_MESSAGE.equals(callbackName)) {
                     // This gets run on the UI thread, where mServiceRule.bindService will not work.
                     AsyncTask.THREAD_POOL_EXECUTOR.execute(new Runnable() {
@@ -101,18 +97,20 @@ public class PostMessageTest {
             }
         };
         mContext = mActivityTestRule.getActivity();
-        mCustomTabsServiceConnection = new CustomTabsServiceConnection() {
-            @Override
-            public void onCustomTabsServiceConnected(ComponentName name, CustomTabsClient client) {
-                mCustomTabsServiceConnected = true;
-                mSession = client.newSession(mCallback);
-            }
+        CustomTabsServiceConnection customTabsServiceConnection =
+                new CustomTabsServiceConnection() {
+                    @Override
+                    public void onCustomTabsServiceConnected(@NonNull ComponentName name,
+                            @NonNull CustomTabsClient client) {
+                        mCustomTabsServiceConnected = true;
+                        mSession = client.newSession(mCallback);
+                    }
 
-            @Override
-            public void onServiceDisconnected(ComponentName componentName) {
-                mCustomTabsServiceConnected = false;
-            }
-        };
+                    @Override
+                    public void onServiceDisconnected(ComponentName componentName) {
+                        mCustomTabsServiceConnected = false;
+                    }
+                };
         mPostMessageServiceConnection = new PostMessageServiceConnection(
                 new CustomTabsSessionToken(mCallback.getStub(), null)) {
             @Override
@@ -129,8 +127,9 @@ public class PostMessageTest {
         customTabsServiceIntent.setClassName(
                 mContext.getPackageName(), TestCustomTabsService.class.getName());
         try {
+            customTabsServiceConnection.setApplicationContext(mContext);
             mServiceRule.bindService(customTabsServiceIntent,
-                    mCustomTabsServiceConnection, Context.BIND_AUTO_CREATE);
+                    customTabsServiceConnection, Context.BIND_AUTO_CREATE);
         } catch (TimeoutException e) {
             fail();
         }
@@ -138,21 +137,11 @@ public class PostMessageTest {
 
     @Test
     public void testCustomTabsConnection() {
-        PollingCheck.waitFor(new PollingCheck.PollingCheckCondition() {
-            @Override
-            public boolean canProceed() {
-                return mCustomTabsServiceConnected;
-            }
-        });
+        PollingCheck.waitFor(() -> mCustomTabsServiceConnected);
         assertTrue(mCustomTabsServiceConnected);
         assertTrue(mSession.requestPostMessageChannel(Uri.EMPTY));
         assertEquals(CustomTabsService.RESULT_SUCCESS, mSession.postMessage("", null));
-        PollingCheck.waitFor(new PollingCheck.PollingCheckCondition() {
-            @Override
-            public boolean canProceed() {
-                return mPostMessageServiceConnected;
-            }
-        });
+        PollingCheck.waitFor(() -> mPostMessageServiceConnected);
         assertTrue(mPostMessageServiceConnected);
     }
 }

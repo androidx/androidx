@@ -51,6 +51,7 @@ public class TestCustomTabsService extends CustomTabsService {
         return sInstance;
     }
 
+    @NonNull
     @Override
     public IBinder onBind(Intent intent) {
         sInstance = this;
@@ -63,30 +64,30 @@ public class TestCustomTabsService extends CustomTabsService {
     }
 
     @Override
-    protected boolean newSession(CustomTabsSessionToken sessionToken) {
+    protected boolean newSession(@NonNull CustomTabsSessionToken sessionToken) {
         mSession = sessionToken;
         return true;
     }
 
     @Override
-    protected boolean mayLaunchUrl(CustomTabsSessionToken sessionToken,
-                                   Uri url, Bundle extras, List<Bundle> otherLikelyBundles) {
+    protected boolean mayLaunchUrl(@NonNull CustomTabsSessionToken sessionToken,
+            @NonNull Uri url, Bundle extras, List<Bundle> otherLikelyBundles) {
         return false;
     }
 
     @Override
-    protected Bundle extraCommand(String commandName, Bundle args) {
+    protected Bundle extraCommand(@NonNull String commandName, Bundle args) {
         return null;
     }
 
     @Override
-    protected boolean updateVisuals(CustomTabsSessionToken sessionToken, Bundle bundle) {
+    protected boolean updateVisuals(@NonNull CustomTabsSessionToken sessionToken, Bundle bundle) {
         return false;
     }
 
     @Override
     protected boolean requestPostMessageChannel(
-            CustomTabsSessionToken sessionToken, Uri postMessageOrigin) {
+            @NonNull CustomTabsSessionToken sessionToken, @NonNull Uri postMessageOrigin) {
         if (mSession == null) return false;
         mPostMessageRequested = true;
         mSession.getCallback().extraCallback(CALLBACK_BIND_TO_POST_MESSAGE, null);
@@ -94,14 +95,15 @@ public class TestCustomTabsService extends CustomTabsService {
     }
 
     @Override
-    protected int postMessage(CustomTabsSessionToken sessionToken, String message, Bundle extras) {
+    protected int postMessage(@NonNull CustomTabsSessionToken sessionToken, @NonNull String message,
+            Bundle extras) {
         if (!mPostMessageRequested) return CustomTabsService.RESULT_FAILURE_DISALLOWED;
         return CustomTabsService.RESULT_SUCCESS;
     }
 
     @Override
-    protected boolean validateRelationship(CustomTabsSessionToken sessionToken,
-                                           @Relation int relation, Uri origin, Bundle extras) {
+    protected boolean validateRelationship(@NonNull CustomTabsSessionToken sessionToken,
+            @Relation int relation, @NonNull Uri origin, Bundle extras) {
         return false;
     }
 

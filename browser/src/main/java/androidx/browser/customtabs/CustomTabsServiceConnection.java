@@ -22,6 +22,8 @@ import android.content.ServiceConnection;
 import android.os.IBinder;
 import android.support.customtabs.ICustomTabsService;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 
 /**
@@ -30,23 +32,28 @@ import androidx.annotation.RestrictTo;
  * connection like rebinding on disconnect.
  */
 public abstract class CustomTabsServiceConnection implements ServiceConnection {
-    @SuppressWarnings("NullAway") // TODO: b/141869399
+    @Nullable
     private Context mApplicationContext;
 
     /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    /* package */ void setApplicationContext(Context context) {
+    /* package */ void setApplicationContext(@NonNull Context context) {
         mApplicationContext = context;
     }
 
     /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @Nullable
     /* package */ Context getApplicationContext() {
         return mApplicationContext;
     }
 
     @Override
-    public final void onServiceConnected(ComponentName name, IBinder service) {
+    public final void onServiceConnected(@NonNull ComponentName name, @NonNull IBinder service) {
+        if (mApplicationContext == null) {
+            throw new IllegalStateException("Custom Tabs Service connected before an application"
+                    + "context has been provided.");
+        }
         onCustomTabsServiceConnected(name, new CustomTabsClient(
                 ICustomTabsService.Stub.asInterface(service), name, mApplicationContext) {
         });
@@ -59,5 +66,6 @@ public abstract class CustomTabsServiceConnection implements ServiceConnection {
      *               connection have been established. All further communication should be initiated
      *               using this client.
      */
-    public abstract void onCustomTabsServiceConnected(ComponentName name, CustomTabsClient client);
+    public abstract void onCustomTabsServiceConnected(@NonNull ComponentName name,
+            @NonNull CustomTabsClient client);
 }

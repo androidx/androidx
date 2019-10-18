@@ -27,6 +27,8 @@ import android.support.customtabs.ICustomTabsCallback;
 import android.support.customtabs.IPostMessageService;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 
 /**
@@ -41,15 +43,18 @@ public abstract class PostMessageServiceConnection
 
     private final Object mLock = new Object();
     private final ICustomTabsCallback mSessionBinder;
-    private IPostMessageService mService;
-    private String mPackageName;
+    @Nullable private IPostMessageService mService;
+    @Nullable private String mPackageName;
     // Indicates that a message channel has been opened. We're ready to post messages once this is
     // true and we've connected to the {@link PostMessageService}.
     private boolean mMessageChannelCreated;
 
-    @SuppressWarnings("NullAway") // TODO: b/141869399
-    public PostMessageServiceConnection(CustomTabsSessionToken session) {
-        mSessionBinder = ICustomTabsCallback.Stub.asInterface(session.getCallbackBinder());
+    public PostMessageServiceConnection(@NonNull CustomTabsSessionToken session) {
+        IBinder binder = session.getCallbackBinder();
+        if (binder == null) {
+            throw new IllegalArgumentException("Provided session must have binder.");
+        }
+        mSessionBinder = ICustomTabsCallback.Stub.asInterface(binder);
     }
 
     /**
@@ -59,7 +64,7 @@ public abstract class PostMessageServiceConnection
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    public void setPackageName(String packageName) {
+    public void setPackageName(@NonNull String packageName) {
         mPackageName = packageName;
     }
 
@@ -71,7 +76,8 @@ public abstract class PostMessageServiceConnection
      * @param packageName The name of the package to be bound to.
      * @return Whether the binding was successful.
      */
-    public boolean bindSessionToPostMessageService(Context context, String packageName) {
+    public boolean bindSessionToPostMessageService(@NonNull Context context,
+            @NonNull String packageName) {
         Intent intent = new Intent();
         intent.setClassName(packageName, PostMessageService.class.getName());
         boolean success = context.bindService(intent, this, Context.BIND_AUTO_CREATE);
@@ -89,7 +95,11 @@ public abstract class PostMessageServiceConnection
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    public boolean bindSessionToPostMessageService(Context appContext) {
+    public boolean bindSessionToPostMessageService(@NonNull Context appContext) {
+        if (mPackageName == null) {
+            throw new IllegalStateException("setPackageName must be called before "
+                    + "bindSessionToPostMessageService.");
+        }
         return bindSessionToPostMessageService(appContext, mPackageName);
     }
 
@@ -101,8 +111,7 @@ public abstract class PostMessageServiceConnection
      * Unbinds this service connection from the given context.
      * @param context The context to be unbound from.
      */
-    @SuppressWarnings("NullAway") // TODO: b/141869399
-    public void unbindFromContext(Context context) {
+    public void unbindFromContext(@NonNull Context context) {
         if (isBoundToService()) {
             context.unbindService(this);
             mService = null;
@@ -110,14 +119,13 @@ public abstract class PostMessageServiceConnection
     }
 
     @Override
-    public final void onServiceConnected(ComponentName name, IBinder service) {
+    public final void onServiceConnected(@NonNull ComponentName name, @NonNull IBinder service) {
         mService = IPostMessageService.Stub.asInterface(service);
         onPostMessageServiceConnected();
     }
 
     @Override
-    @SuppressWarnings("NullAway") // TODO: b/141869399
-    public final void onServiceDisconnected(ComponentName name) {
+    public final void onServiceDisconnected(@NonNull ComponentName name) {
         mService = null;
         onPostMessageServiceDisconnected();
     }
@@ -127,7 +135,7 @@ public abstract class PostMessageServiceConnection
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Override
-    public final boolean onNotifyMessageChannelReady(Bundle extras) {
+    public final boolean onNotifyMessageChannelReady(@Nullable Bundle extras) {
         return notifyMessageChannelReady(extras);
     }
 
@@ -138,7 +146,7 @@ public abstract class PostMessageServiceConnection
      * @param extras Unused.
      * @return Whether the notification was sent successfully.
      */
-    public final boolean notifyMessageChannelReady(Bundle extras) {
+    public final boolean notifyMessageChannelReady(@Nullable Bundle extras) {
         mMessageChannelCreated = true;
         return notifyMessageChannelReadyInternal(extras);
     }
@@ -153,8 +161,9 @@ public abstract class PostMessageServiceConnection
      * @param extras Reserved for future use.
      * @return Whether the notification was sent to the remote successfully.
      */
-    private boolean notifyMessageChannelReadyInternal(Bundle extras) {
-        if (!isBoundToService()) return false;
+    @SuppressWarnings("NullAway")  // onMessageChannelReady accepts null extras.
+    private boolean notifyMessageChannelReadyInternal(@Nullable Bundle extras) {
+        if (mService == null) return false;
         synchronized (mLock) {
             try {
                 mService.onMessageChannelReady(mSessionBinder, extras);
@@ -170,7 +179,7 @@ public abstract class PostMessageServiceConnection
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Override
-    public final boolean onPostMessage(String message, Bundle extras) {
+    public final boolean onPostMessage(@NonNull String message, @Nullable Bundle extras) {
         return postMessage(message, extras);
     }
 
@@ -183,8 +192,9 @@ public abstract class PostMessageServiceConnection
      * @param extras Reserved for future use.
      * @return Whether the postMessage was sent to the remote successfully.
      */
-    public final boolean postMessage(String message, Bundle extras) {
-        if (!isBoundToService()) return false;
+    @SuppressWarnings("NullAway")  // onPostMessage accepts null extras.
+    public final boolean postMessage(@NonNull String message, @Nullable Bundle extras) {
+        if (mService == null) return false;
         synchronized (mLock) {
             try {
                 mService.onPostMessage(mSessionBinder, message, extras);
@@ -200,14 +210,13 @@ public abstract class PostMessageServiceConnection
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Override
-    public void onDisconnectChannel(Context appContext) {
+    public void onDisconnectChannel(@NonNull Context appContext) {
         unbindFromContext(appContext);
     }
 
     /**
      * Called when the {@link PostMessageService} connection is established.
      */
-    @SuppressWarnings("NullAway") // TODO: b/141869399
     public void onPostMessageServiceConnected() {
         if (mMessageChannelCreated) notifyMessageChannelReadyInternal(null);
     }
@@ -224,7 +233,7 @@ public abstract class PostMessageServiceConnection
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    public void cleanup(Context context) {
+    public void cleanup(@NonNull Context context) {
         if (isBoundToService()) unbindFromContext(context);
     }
 }
