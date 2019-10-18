@@ -45,7 +45,6 @@ class SubtitleController {
     private final Object mRenderersLock = new Object();
     private final Object mTracksLock = new Object();
     private SubtitleTrack mSelectedTrack;
-    private boolean mShowing;
     private CaptioningManager mCaptioningManager;
     private Handler mHandler;
 
@@ -107,7 +106,6 @@ class SubtitleController {
         mListener = listener;
 
         mRenderers = new ArrayList<Renderer>();
-        mShowing = false;
         mTracks = new ArrayList<SubtitleTrack>();
         mCaptioningManager =
             (CaptioningManager) context.getSystemService(Context.CAPTIONING_SERVICE);
@@ -370,7 +368,6 @@ class SubtitleController {
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     void doShow() {
-        mShowing = true;
         mVisibilityIsExplicit = true;
         if (mSelectedTrack != null) {
             mSelectedTrack.show();
@@ -392,7 +389,6 @@ class SubtitleController {
         if (mSelectedTrack != null) {
             mSelectedTrack.hide();
         }
-        mShowing = false;
     }
 
     /**

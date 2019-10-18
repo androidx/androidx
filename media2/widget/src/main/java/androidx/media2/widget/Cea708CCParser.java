@@ -100,7 +100,6 @@ class Cea708CCParser {
             "\u266B".getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8);
 
     private final StringBuilder mBuilder = new StringBuilder();
-    private int mCommand = 0;
 
     // Assign a dummy listener in order to avoid null checks.
     private DisplayListener mListener = new DisplayListener() {
@@ -184,54 +183,55 @@ class Cea708CCParser {
     // Step 4. Main code groups
     private int parseServiceBlockData(byte[] data, int pos) {
         // For the details of the ranges of DTVCC code groups, see CEA-708B Table 6.
-        mCommand = data[pos] & 0xff;
+        int command = data[pos] & 0xff;
         ++pos;
-        if (mCommand == Const.CODE_C0_EXT1) {
+        if (command == Const.CODE_C0_EXT1) {
             if (DEBUG) {
-                Log.d(TAG, String.format("parseServiceBlockData EXT1 %x", mCommand));
+                Log.d(TAG, String.format("parseServiceBlockData EXT1 %x", command));
             }
             pos = parseExt1(data, pos);
-        } else if (mCommand >= Const.CODE_C0_RANGE_START
-                && mCommand <= Const.CODE_C0_RANGE_END) {
+        } else if (command >= Const.CODE_C0_RANGE_START
+                && command <= Const.CODE_C0_RANGE_END) {
             if (DEBUG) {
-                Log.d(TAG, String.format("parseServiceBlockData C0 %x", mCommand));
+                Log.d(TAG, String.format("parseServiceBlockData C0 %x", command));
             }
-            pos = parseC0(data, pos);
-        } else if (mCommand >= Const.CODE_C1_RANGE_START
-                && mCommand <= Const.CODE_C1_RANGE_END) {
+            pos = parseC0(command, data, pos);
+        } else if (command >= Const.CODE_C1_RANGE_START
+                && command <= Const.CODE_C1_RANGE_END) {
             if (DEBUG) {
-                Log.d(TAG, String.format("parseServiceBlockData C1 %x", mCommand));
+                Log.d(TAG, String.format("parseServiceBlockData C1 %x", command));
             }
-            pos = parseC1(data, pos);
-        } else if (mCommand >= Const.CODE_G0_RANGE_START
-                && mCommand <= Const.CODE_G0_RANGE_END) {
+            pos = parseC1(command, data, pos);
+        } else if (command >= Const.CODE_G0_RANGE_START
+                && command <= Const.CODE_G0_RANGE_END) {
             if (DEBUG) {
-                Log.d(TAG, String.format("parseServiceBlockData G0 %x", mCommand));
+                Log.d(TAG, String.format("parseServiceBlockData G0 %x", command));
             }
-            pos = parseG0(data, pos);
-        } else if (mCommand >= Const.CODE_G1_RANGE_START
-                && mCommand <= Const.CODE_G1_RANGE_END) {
+            parseG0(command);
+        } else if (command >= Const.CODE_G1_RANGE_START
+                && command <= Const.CODE_G1_RANGE_END) {
             if (DEBUG) {
-                Log.d(TAG, String.format("parseServiceBlockData G1 %x", mCommand));
+                Log.d(TAG, String.format("parseServiceBlockData G1 %x", command));
             }
-            pos = parseG1(data, pos);
+            parseG1(command);
         }
         return pos;
     }
 
-    private int parseC0(byte[] data, int pos) {
+    private int parseC0(int commandCode, byte[] data, int pos) {
         // For the details of C0 code group, see CEA-708B Section 7.4.1.
         // CL Group: C0 Subset of ASCII Control codes
-        if (mCommand >= Const.CODE_C0_SKIP2_RANGE_START
-                && mCommand <= Const.CODE_C0_SKIP2_RANGE_END) {
-            if (mCommand == Const.CODE_C0_P16) {
+        if (commandCode >= Const.CODE_C0_SKIP2_RANGE_START
+                && commandCode <= Const.CODE_C0_SKIP2_RANGE_END) {
+            if (commandCode == Const.CODE_C0_P16) {
                 // P16 escapes next two bytes for the large character maps.(no standard rule)
                 // For Korea broadcasting, express whole letters by using this.
                 try {
                     if (data[pos] == 0) {
                         mBuilder.append((char) data[pos + 1]);
                     } else {
-                        String value = new String(Arrays.copyOfRange(data, pos, pos + 2), "EUC-KR");
+                        String value = new String(
+                                Arrays.copyOfRange(data, pos, pos + 2), "EUC-KR");
                         mBuilder.append(value);
                     }
                 } catch (UnsupportedEncodingException e) {
@@ -239,8 +239,8 @@ class Cea708CCParser {
                 }
             }
             pos += 2;
-        } else if (mCommand >= Const.CODE_C0_SKIP1_RANGE_START
-                && mCommand <= Const.CODE_C0_SKIP1_RANGE_END) {
+        } else if (commandCode >= Const.CODE_C0_SKIP1_RANGE_START
+                && commandCode <= Const.CODE_C0_SKIP1_RANGE_END) {
             ++pos;
         } else {
             // NUL, BS, FF, CR interpreted as they are in ASCII control codes.
@@ -248,24 +248,18 @@ class Cea708CCParser {
             // FF clears the screen and moves the pen location to (0,0).
             // ETX is the NULL command which is used to flush text to the current window when no
             // other command is pending.
-            switch (mCommand) {
-                case Const.CODE_C0_NUL:
-                    break;
+            switch (commandCode) {
                 case Const.CODE_C0_ETX:
-                    emitCaptionEvent(new CaptionEvent(CAPTION_EMIT_TYPE_CONTROL, (char) mCommand));
-                    break;
                 case Const.CODE_C0_BS:
-                    emitCaptionEvent(new CaptionEvent(CAPTION_EMIT_TYPE_CONTROL, (char) mCommand));
-                    break;
                 case Const.CODE_C0_FF:
-                    emitCaptionEvent(new CaptionEvent(CAPTION_EMIT_TYPE_CONTROL, (char) mCommand));
+                case Const.CODE_C0_HCR:
+                    emitCaptionEvent(
+                            new CaptionEvent(CAPTION_EMIT_TYPE_CONTROL, (char) commandCode));
                     break;
                 case Const.CODE_C0_CR:
                     mBuilder.append('\n');
                     break;
-                case Const.CODE_C0_HCR:
-                    emitCaptionEvent(new CaptionEvent(CAPTION_EMIT_TYPE_CONTROL, (char) mCommand));
-                    break;
+                case Const.CODE_C0_NUL:
                 default:
                     break;
             }
@@ -273,10 +267,10 @@ class Cea708CCParser {
         return pos;
     }
 
-    private int parseC1(byte[] data, int pos) {
+    private int parseC1(int commandCode, byte[] data, int pos) {
         // For the details of C1 code group, see CEA-708B Section 8.10.
         // CR Group: C1 Caption Control Codes
-        switch (mCommand) {
+        switch (commandCode) {
             case Const.CODE_C1_CW0:
             case Const.CODE_C1_CW1:
             case Const.CODE_C1_CW2:
@@ -286,7 +280,7 @@ class Cea708CCParser {
             case Const.CODE_C1_CW6:
             case Const.CODE_C1_CW7: {
                 // SetCurrentWindow0-7
-                int windowId = mCommand - Const.CODE_C1_CW0;
+                int windowId = commandCode - Const.CODE_C1_CW0;
                 emitCaptionEvent(new CaptionEvent(CAPTION_EMIT_TYPE_COMMAND_CWX, windowId));
                 if (DEBUG) {
                     Log.d(TAG, String.format("CaptionCommand CWX windowId: %d", windowId));
@@ -491,7 +485,7 @@ class Cea708CCParser {
             case Const.CODE_C1_DF6:
             case Const.CODE_C1_DF7: {
                 // DefineWindow0-7
-                int windowId = mCommand - Const.CODE_C1_DF0;
+                int windowId = commandCode - Const.CODE_C1_DF0;
                 boolean visible = (data[pos] & 0x20) != 0;
                 boolean rowLock = (data[pos] & 0x10) != 0;
                 boolean columnLock = (data[pos] & 0x08) != 0;
@@ -529,86 +523,84 @@ class Cea708CCParser {
         return pos;
     }
 
-    private int parseG0(byte[] data, int pos) {
+    private void parseG0(int characterCode) {
         // For the details of G0 code group, see CEA-708B Section 7.4.3.
         // GL Group: G0 Modified version of ANSI X3.4 Printable Character Set (ASCII)
-        if (mCommand == Const.CODE_G0_MUSICNOTE) {
+        if (characterCode == Const.CODE_G0_MUSICNOTE) {
             // Music note.
             mBuilder.append(MUSIC_NOTE_CHAR);
         } else {
             // Put ASCII code into buffer.
-            mBuilder.append((char) mCommand);
+            mBuilder.append((char) characterCode);
         }
-        return pos;
     }
 
-    private int parseG1(byte[] data, int pos) {
-        // For the details of G0 code group, see CEA-708B Section 7.4.4.
+    private void parseG1(int characterCode) {
+        // For the details of G1 code group, see CEA-708B Section 7.4.4.
         // GR Group: G1 ISO 8859-1 Latin 1 Characters
         // Put ASCII Extended character set into buffer.
-        mBuilder.append((char) mCommand);
-        return pos;
+        mBuilder.append((char) characterCode);
     }
 
     // Step 4. Extended code groups
     private int parseExt1(byte[] data, int pos) {
         // For the details of EXT1 code group, see CEA-708B Section 7.2.
-        mCommand = data[pos] & 0xff;
+        int command = data[pos] & 0xff;
         ++pos;
-        if (mCommand >= Const.CODE_C2_RANGE_START
-                && mCommand <= Const.CODE_C2_RANGE_END) {
-            pos = parseC2(data, pos);
-        } else if (mCommand >= Const.CODE_C3_RANGE_START
-                && mCommand <= Const.CODE_C3_RANGE_END) {
-            pos = parseC3(data, pos);
-        } else if (mCommand >= Const.CODE_G2_RANGE_START
-                && mCommand <= Const.CODE_G2_RANGE_END) {
-            pos = parseG2(data, pos);
-        } else if (mCommand >= Const.CODE_G3_RANGE_START
-                && mCommand <= Const.CODE_G3_RANGE_END) {
-            pos = parseG3(data, pos);
+        if (command >= Const.CODE_C2_RANGE_START
+                && command <= Const.CODE_C2_RANGE_END) {
+            pos = parseC2(command, pos);
+        } else if (command >= Const.CODE_C3_RANGE_START
+                && command <= Const.CODE_C3_RANGE_END) {
+            pos = parseC3(command, pos);
+        } else if (command >= Const.CODE_G2_RANGE_START
+                && command <= Const.CODE_G2_RANGE_END) {
+            parseG2(command);
+        } else if (command >= Const.CODE_G3_RANGE_START
+                && command <= Const.CODE_G3_RANGE_END) {
+            parseG3(command);
         }
         return pos;
     }
 
-    private int parseC2(byte[] data, int pos) {
+    private int parseC2(int commandCode, int pos) {
         // For the details of C2 code group, see CEA-708B Section 7.4.7.
         // Extended Miscellaneous Control Codes
         // C2 Table : No commands as of CEA-708B. A decoder must skip.
-        if (mCommand >= Const.CODE_C2_SKIP0_RANGE_START
-                && mCommand <= Const.CODE_C2_SKIP0_RANGE_END) {
+        if (commandCode >= Const.CODE_C2_SKIP0_RANGE_START
+                && commandCode <= Const.CODE_C2_SKIP0_RANGE_END) {
             // Do nothing.
-        } else if (mCommand >= Const.CODE_C2_SKIP1_RANGE_START
-                && mCommand <= Const.CODE_C2_SKIP1_RANGE_END) {
+        } else if (commandCode >= Const.CODE_C2_SKIP1_RANGE_START
+                && commandCode <= Const.CODE_C2_SKIP1_RANGE_END) {
             ++pos;
-        } else if (mCommand >= Const.CODE_C2_SKIP2_RANGE_START
-                && mCommand <= Const.CODE_C2_SKIP2_RANGE_END) {
+        } else if (commandCode >= Const.CODE_C2_SKIP2_RANGE_START
+                && commandCode <= Const.CODE_C2_SKIP2_RANGE_END) {
             pos += 2;
-        } else if (mCommand >= Const.CODE_C2_SKIP3_RANGE_START
-                && mCommand <= Const.CODE_C2_SKIP3_RANGE_END) {
+        } else if (commandCode >= Const.CODE_C2_SKIP3_RANGE_START
+                && commandCode <= Const.CODE_C2_SKIP3_RANGE_END) {
             pos += 3;
         }
         return pos;
     }
 
-    private int parseC3(byte[] data, int pos) {
+    private int parseC3(int commandCode, int pos) {
         // For the details of C3 code group, see CEA-708B Section 7.4.8.
         // Extended Control Code Set 2
         // C3 Table : No commands as of CEA-708B. A decoder must skip.
-        if (mCommand >= Const.CODE_C3_SKIP4_RANGE_START
-                && mCommand <= Const.CODE_C3_SKIP4_RANGE_END) {
+        if (commandCode >= Const.CODE_C3_SKIP4_RANGE_START
+                && commandCode <= Const.CODE_C3_SKIP4_RANGE_END) {
             pos += 4;
-        } else if (mCommand >= Const.CODE_C3_SKIP5_RANGE_START
-                && mCommand <= Const.CODE_C3_SKIP5_RANGE_END) {
+        } else if (commandCode >= Const.CODE_C3_SKIP5_RANGE_START
+                && commandCode <= Const.CODE_C3_SKIP5_RANGE_END) {
             pos += 5;
         }
         return pos;
     }
 
-    private int parseG2(byte[] data, int pos) {
+    private void parseG2(int characterCode) {
         // For the details of C3 code group, see CEA-708B Section 7.4.5.
         // Extended Control Code Set 1(G2 Table)
-        switch (mCommand) {
+        switch (characterCode) {
             case Const.CODE_G2_TSP:
                 // TODO : TSP is the Transparent space
                 break;
@@ -622,18 +614,14 @@ class Cea708CCParser {
             default:
                 break;
         }
-        return pos;
     }
 
-    private int parseG3(byte[] data, int pos) {
+    private void parseG3(int characterCode) {
         // For the details of C3 code group, see CEA-708B Section 7.4.6.
         // Future characters and icons(G3 Table)
-        if (mCommand == Const.CODE_G3_CC) {
+        if (characterCode == Const.CODE_G3_CC) {
             // TODO : [CC] icon with square corners
         }
-
-        // Do nothing
-        return pos;
     }
 
     /**
