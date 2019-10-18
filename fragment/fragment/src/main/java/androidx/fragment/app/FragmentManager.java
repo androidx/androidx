@@ -2632,6 +2632,7 @@ public abstract class FragmentManager {
         return fms;
     }
 
+    @SuppressWarnings("deprecation")
     void restoreAllState(@Nullable Parcelable state, @Nullable FragmentManagerNonConfig nonConfig) {
         if (mHost instanceof ViewModelStoreOwner) {
             throwException(new IllegalStateException("You must use restoreSaveState when your "

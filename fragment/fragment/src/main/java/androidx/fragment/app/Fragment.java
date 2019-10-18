@@ -2566,6 +2566,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * closed for you after you return.
      * @param args additional arguments to the dump request.
      */
+    @SuppressWarnings("deprecation")
     public void dump(@NonNull String prefix, @Nullable FileDescriptor fd,
             @NonNull PrintWriter writer, @Nullable String[] args) {
         writer.print(prefix); writer.print("mFragmentId=#");

@@ -147,16 +147,19 @@ final class BackStackRecord extends FragmentTransaction implements
         return mIndex;
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public int getBreadCrumbTitleRes() {
         return mBreadCrumbTitleRes;
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public int getBreadCrumbShortTitleRes() {
         return mBreadCrumbShortTitleRes;
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     @Nullable
     public CharSequence getBreadCrumbTitle() {
@@ -166,6 +169,7 @@ final class BackStackRecord extends FragmentTransaction implements
         return mBreadCrumbTitleText;
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     @Nullable
     public CharSequence getBreadCrumbShortTitle() {
