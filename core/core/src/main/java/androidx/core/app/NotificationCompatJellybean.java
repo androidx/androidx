@@ -24,6 +24,7 @@ import android.util.Log;
 import android.util.SparseArray;
 
 import androidx.annotation.RequiresApi;
+import androidx.core.graphics.drawable.IconCompat;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -137,7 +138,11 @@ class NotificationCompatJellybean {
 
     public static Bundle writeActionAndGetExtras(
             Notification.Builder builder, NotificationCompat.Action action) {
-        builder.addAction(action.getIcon(), action.getTitle(), action.getActionIntent());
+        IconCompat iconCompat = action.getIconCompat();
+        builder.addAction(
+                iconCompat != null ? iconCompat.getResId() : 0,
+                action.getTitle(),
+                action.getActionIntent());
         Bundle actionExtras = new Bundle(action.getExtras());
         if (action.getRemoteInputs() != null) {
             actionExtras.putParcelableArray(NotificationCompatExtras.EXTRA_REMOTE_INPUTS,
@@ -247,7 +252,8 @@ class NotificationCompatJellybean {
 
     static Bundle getBundleForAction(NotificationCompat.Action action) {
         Bundle bundle = new Bundle();
-        bundle.putInt(KEY_ICON, action.getIcon());
+        IconCompat icon = action.getIconCompat();
+        bundle.putInt(KEY_ICON, icon != null ? icon.getResId() : 0);
         bundle.putCharSequence(KEY_TITLE, action.getTitle());
         bundle.putParcelable(KEY_ACTION_INTENT, action.getActionIntent());
         Bundle actionExtras;

@@ -348,7 +348,6 @@ public final class MediaRouteDescriptor {
         result.append(", description=").append(getDescription());
         result.append(", iconUri=").append(getIconUri());
         result.append(", isEnabled=").append(isEnabled());
-        result.append(", isConnecting=").append(isConnecting());
         result.append(", connectionState=").append(getConnectionState());
         result.append(", controlFilters=").append(Arrays.toString(getControlFilters().toArray()));
         result.append(", playbackType=").append(getPlaybackType());
