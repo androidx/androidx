@@ -39,23 +39,11 @@ const val Infinite: Int = Int.MAX_VALUE
  * the duration of the animation (i.e. different keyframes). Each keyframe can be defined using
  * [at]. [Keyframes] allows very specific animation definitions with a precision to millisecond.
  *
- * The following sample creates a [Keyframes] animation for a float property.
- *     keyframes {
- *         duration = 375
- *         0f at 0 // ms  // Optional
- *         0.4f at 75 // ms
- *         0.4f at 225 // ms
- *         0f at 375 // ms  // Optional
- *     }
+ * @sample androidx.animation.samples.FloatKeyframesBuilder
  *
  * You can also provide a custom [Easing] for the interval with use of [with] function applied
- * for the interval starting keyframe. In this sample [FastOutSlowInEasing] is added for
- * the interval from 0 to 100 ms.
- *     keyframes {
- *         duration = 100
- *         0f at 0 with FastOutSlowInEasing
- *         1f at 100
- *     }
+ * for the interval starting keyframe.
+ * @sample androidx.animation.samples.KeyframesBuilderWithEasing
  */
 class KeyframesBuilder<T> : DurationBasedAnimationBuilder<T>() {
 
@@ -81,13 +69,7 @@ class KeyframesBuilder<T> : DurationBasedAnimationBuilder<T>() {
     /**
      * Adds an [Easing] for the interval started with the just provided timestamp.
      *
-     * The following sample adds a custom Easing for the interval from 0 to 100 ms:
-     *     keyframes {
-     *         duration = 100
-     *         0f at 0 with FastOutSlowInEasing
-     *         1f at 100
-     *     }
-     *
+     * @sample androidx.animation.samples.KeyframesBuilderWithEasing
      * @param easing [Easing] to be used for the next interval.
      */
     infix fun KeyframeEntity.with(easing: Easing) {

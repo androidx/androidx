@@ -25,27 +25,7 @@ import kotlin.experimental.ExperimentalTypeInference
  * associated with it. When such an animation is defined, the animation system will be using it
  * instead of the default [Physics] animation to createAnimation the value change for that property.
  *
- * The following sample code will create a [TransitionSpec] that defines animations for 3
- * properties: `radius`, `alpha`, and `background`.
- * ```
- *  transition(fromState = ButtonState.Released, toState = ButtonState.Pressed) {
- *      radius using tween {
- *          easing = LinearEasing
- *          duration = 75
- *      }
- *      alpha using keyframes {
- *          duration = 375
- *          0f at 0 // ms  // Optional
- *          0.4f at 75 // ms
- *          0.4f at 225 // ms
- *          0f at 375 // ms  // Optional
- *      }
- *      background using physics {
- *          dampingRatio = 1.0f
- *      }
- *      interruptionHandling = InterruptionHandling.UNINTERRUPTIBLE
- *  }
- * ```
+ * @sample androidx.animation.samples.TransitionSpecWith3Properties
  **/
 class TransitionSpec<S> internal constructor(private val fromToPairs: Array<out Pair<S?, S?>>) {
 
@@ -183,9 +163,7 @@ class TransitionDefinition<T> {
      * from/to any state.
      *
      * Sample of usage with [Pair]s infix extension [to]:
-     *     transition(State.Released to State.Pressed) {
-     *         ...
-     *     }
+     * @sample androidx.animation.samples.TransitionSpecWithPairs
      *
      * @param fromToPairs The pairs of from and to states for this transition
      * @param init Lambda to initialize the transition
