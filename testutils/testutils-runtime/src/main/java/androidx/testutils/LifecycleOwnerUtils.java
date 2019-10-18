@@ -51,8 +51,8 @@ public class LifecycleOwnerUtils {
      * suitable time period, it asserts that the current state equals the given state.
      */
     public static <T extends Activity & LifecycleOwner> void waitUntilState(
-            final ActivityTestRule<T> activityRule,
-            final Lifecycle.State state) throws Throwable {
+            final @NonNull ActivityTestRule<T> activityRule,
+            final @NonNull Lifecycle.State state) throws Throwable {
         waitUntilState(activityRule.getActivity(), activityRule, state);
     }
 
@@ -61,9 +61,9 @@ public class LifecycleOwnerUtils {
      * {@link androidx.lifecycle.Lifecycle.State}. If the owner has not hit that state within a
      * suitable time period, it asserts that the current state equals the given state.
      */
-    public static void waitUntilState(final LifecycleOwner owner,
-            final ActivityTestRule<?> activityRule,
-            final Lifecycle.State state) throws Throwable {
+    public static void waitUntilState(final @NonNull LifecycleOwner owner,
+            final @NonNull ActivityTestRule<?> activityRule,
+            final @NonNull Lifecycle.State state) throws Throwable {
         final CountDownLatch latch = new CountDownLatch(1);
         activityRule.runOnUiThread(new Runnable() {
             @Override

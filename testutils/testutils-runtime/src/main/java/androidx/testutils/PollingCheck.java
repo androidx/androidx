@@ -16,6 +16,8 @@
 
 package androidx.testutils;
 
+import androidx.annotation.NonNull;
+
 import org.junit.Assert;
 
 /**
@@ -72,7 +74,7 @@ public abstract class PollingCheck {
      * Instantiate and start polling for a given condition with a default 3000ms timeout.
      * @param condition The condition to check for success.
      */
-    public static void waitFor(final PollingCheckCondition condition) {
+    public static void waitFor(final @NonNull PollingCheckCondition condition) {
         new PollingCheck(DEFAULT_TIMEOUT) {
             @Override
             protected boolean check() {
@@ -86,7 +88,7 @@ public abstract class PollingCheck {
      * @param timeout Time out in ms
      * @param condition The condition to check for success.
      */
-    public static void waitFor(long timeout, final PollingCheckCondition condition) {
+    public static void waitFor(long timeout, final @NonNull PollingCheckCondition condition) {
         new PollingCheck(timeout) {
             @Override
             protected boolean check() {
