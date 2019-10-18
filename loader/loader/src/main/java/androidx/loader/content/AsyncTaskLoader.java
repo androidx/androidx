@@ -336,7 +336,8 @@ public abstract class AsyncTaskLoader<D> extends Loader<D> {
     @SuppressWarnings("deprecation")
     @Override
     @Deprecated
-    public void dump(String prefix, FileDescriptor fd, PrintWriter writer, String[] args) {
+    public void dump(@NonNull String prefix, @Nullable FileDescriptor fd,
+            @NonNull PrintWriter writer, @Nullable String[] args) {
         super.dump(prefix, fd, writer, args);
         if (mTask != null) {
             writer.print(prefix); writer.print("mTask="); writer.print(mTask);
