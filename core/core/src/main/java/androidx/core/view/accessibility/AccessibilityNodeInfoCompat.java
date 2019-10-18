@@ -675,7 +675,7 @@ public class AccessibilityNodeInfoCompat {
             if (obj == null) {
                 return false;
             }
-            if (getClass() != obj.getClass()) {
+            if (!(obj instanceof AccessibilityNodeInfoCompat.AccessibilityActionCompat)) {
                 return false;
             }
             AccessibilityNodeInfoCompat.AccessibilityActionCompat other =
@@ -3997,7 +3997,7 @@ public class AccessibilityNodeInfoCompat {
         if (obj == null) {
             return false;
         }
-        if (getClass() != obj.getClass()) {
+        if (!(obj instanceof AccessibilityNodeInfoCompat)) {
             return false;
         }
         AccessibilityNodeInfoCompat other = (AccessibilityNodeInfoCompat) obj;

@@ -34,7 +34,7 @@ import java.util.Set;
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-public class FtsTableInfo {
+public final class FtsTableInfo {
 
     // A set of valid FTS Options
     private static final String[] FTS_OPTIONS = new String[] {
@@ -192,7 +192,7 @@ public class FtsTableInfo {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (!(o instanceof FtsTableInfo)) return false;
 
         FtsTableInfo that = (FtsTableInfo) o;
 

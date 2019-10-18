@@ -761,10 +761,7 @@ public class AccessibilityRecordCompat {
         if (this == obj) {
             return true;
         }
-        if (obj == null) {
-            return false;
-        }
-        if (getClass() != obj.getClass()) {
+        if (!(obj instanceof AccessibilityRecordCompat)) {
             return false;
         }
         AccessibilityRecordCompat other = (AccessibilityRecordCompat) obj;

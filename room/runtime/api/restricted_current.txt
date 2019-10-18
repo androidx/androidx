@@ -244,7 +244,7 @@ package androidx.room.util {
     method public static void copy(java.nio.channels.ReadableByteChannel, java.nio.channels.FileChannel) throws java.io.IOException;
   }
 
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class FtsTableInfo {
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class FtsTableInfo {
     ctor public FtsTableInfo(String!, java.util.Set<java.lang.String!>!, java.util.Set<java.lang.String!>!);
     ctor public FtsTableInfo(String!, java.util.Set<java.lang.String!>!, String!);
     method public static androidx.room.util.FtsTableInfo! read(androidx.sqlite.db.SupportSQLiteDatabase!, String!);
@@ -265,7 +265,7 @@ package androidx.room.util {
     field public static final String![]! EMPTY_STRING_ARRAY;
   }
 
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class TableInfo {
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class TableInfo {
     ctor public TableInfo(String!, java.util.Map<java.lang.String!,androidx.room.util.TableInfo.Column!>!, java.util.Set<androidx.room.util.TableInfo.ForeignKey!>!, java.util.Set<androidx.room.util.TableInfo.Index!>!);
     ctor public TableInfo(String!, java.util.Map<java.lang.String!,androidx.room.util.TableInfo.Column!>!, java.util.Set<androidx.room.util.TableInfo.ForeignKey!>!);
     method public static androidx.room.util.TableInfo! read(androidx.sqlite.db.SupportSQLiteDatabase!, String!);
@@ -278,7 +278,7 @@ package androidx.room.util {
     field public final String! name;
   }
 
-  public static class TableInfo.Column {
+  public static final class TableInfo.Column {
     ctor @Deprecated public TableInfo.Column(String!, String!, boolean, int);
     ctor public TableInfo.Column(String!, String!, boolean, int, String!, int);
     method public boolean isPrimaryKey();
@@ -290,7 +290,7 @@ package androidx.room.util {
     field public final String! type;
   }
 
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static class TableInfo.ForeignKey {
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static final class TableInfo.ForeignKey {
     ctor public TableInfo.ForeignKey(String, String, String, java.util.List<java.lang.String!>, java.util.List<java.lang.String!>);
     field public final java.util.List<java.lang.String!> columnNames;
     field public final String onDelete;
@@ -299,7 +299,7 @@ package androidx.room.util {
     field public final String referenceTable;
   }
 
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static class TableInfo.Index {
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static final class TableInfo.Index {
     ctor public TableInfo.Index(String!, boolean, java.util.List<java.lang.String!>!);
     field public static final String DEFAULT_PREFIX = "index_";
     field public final java.util.List<java.lang.String!>! columns;
@@ -307,7 +307,7 @@ package androidx.room.util {
     field public final boolean unique;
   }
 
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class ViewInfo {
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class ViewInfo {
     ctor public ViewInfo(String!, String!);
     method public static androidx.room.util.ViewInfo! read(androidx.sqlite.db.SupportSQLiteDatabase!, String!);
     field public final String! name;

@@ -523,7 +523,7 @@ class MediaLibraryServiceLegacyStub extends MediaSessionServiceLegacyStub {
         }
     }
 
-    private class BrowserLegacyCb extends BaseBrowserLegacyCb {
+    private final class BrowserLegacyCb extends BaseBrowserLegacyCb {
         private final Object mLock = new Object();
         private final RemoteUserInfo mRemoteUserInfo;
 
@@ -629,7 +629,7 @@ class MediaLibraryServiceLegacyStub extends MediaSessionServiceLegacyStub {
             if (this == obj) {
                 return true;
             }
-            if (obj == null || obj.getClass() != BrowserLegacyCb.class) {
+            if (!(obj instanceof BrowserLegacyCb)) {
                 return false;
             }
             BrowserLegacyCb other = (BrowserLegacyCb) obj;
