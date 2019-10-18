@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 The Android Open Source Project
+ * Copyright 2019 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.slice;
+package androidx.slice.remotecallback;
 
 import static junit.framework.TestCase.assertNotNull;
 
@@ -29,6 +29,7 @@ import android.net.Uri;
 import androidx.annotation.NonNull;
 import androidx.remotecallback.RemoteCallable;
 import androidx.remotecallback.RemoteCallback;
+import androidx.slice.Slice;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
@@ -43,7 +44,7 @@ import java.util.concurrent.TimeUnit;
 @SdkSuppress(minSdkVersion = 26)
 @RunWith(AndroidJUnit4.class)
 @MediumTest
-public class SliceProviderCallbackTest {
+public class RemoteSliceProviderTest {
 
     private static Provider sProvider;
 
@@ -137,7 +138,7 @@ public class SliceProviderCallbackTest {
         assertNull(sNullableInt);
     }
 
-    public static class Provider extends SliceProviderWithCallbacks<Provider> {
+    public static class Provider extends RemoteSliceProvider<Provider> {
 
         @RemoteCallable
         public RemoteCallback myCallbackMethod(Uri myUri, String myStr, int myInt,
