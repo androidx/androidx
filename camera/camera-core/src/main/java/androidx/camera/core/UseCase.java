@@ -456,6 +456,23 @@ public abstract class UseCase {
     }
 
     /**
+     * Called when use case is online in camera. This method is called on main thread.
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    public void onStateOnline(@NonNull String cameraId) {
+    }
+
+    /**
+     * Called when use case is offline in camera. This method is called on main thread.
+     *
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    public void onStateOffline(@NonNull String cameraId) {
+    }
+
+    /**
      * Retrieves a previously attached {@link CameraControlInternal}.
      *
      * @hide

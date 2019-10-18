@@ -217,6 +217,7 @@ public final class ImageCaptureTest {
 
     @After
     public void tearDown() throws ExecutionException, InterruptedException {
+        mInstrumentation.runOnMainSync(() -> CameraX.unbindAll());
         if (mCamera != null) {
             mCamera.close();
             if (mCapturedImage != null) {
@@ -622,12 +623,9 @@ public final class ImageCaptureTest {
                 new ImageCaptureConfig.Builder().setCaptureBundle(captureBundle);
         ImageCapture imageCapture = new ImageCapture(configBuilder.build());
 
-        mInstrumentation.runOnMainSync(new Runnable() {
-            @Override
-            public void run() {
-                CameraX.bindToLifecycle(lifecycle, imageCapture);
-                lifecycle.startAndResume();
-            }
+        mInstrumentation.runOnMainSync(() -> {
+            CameraX.bindToLifecycle(lifecycle, imageCapture);
+            lifecycle.startAndResume();
         });
 
         OnImageCapturedCallback mockOnImageCaptureListener = mock(OnImageCapturedCallback.class);
@@ -636,12 +634,6 @@ public final class ImageCaptureTest {
         verify(mockOnImageCaptureListener, timeout(3000)).onError(any(ImageCaptureError.class),
                 anyString(), any(IllegalArgumentException.class));
 
-        mInstrumentation.runOnMainSync(new Runnable() {
-            @Override
-            public void run() {
-                CameraX.unbind(imageCapture);
-            }
-        });
     }
 
     @Test
@@ -686,7 +678,6 @@ public final class ImageCaptureTest {
         verify(mockOnImageCaptureListener, timeout(3000).times(2)).onError(
                 any(ImageCaptureError.class), anyString(), any(IllegalArgumentException.class));
 
-        mInstrumentation.runOnMainSync(() -> CameraX.unbind(imageCapture));
     }
 
     @Test
@@ -719,8 +710,6 @@ public final class ImageCaptureTest {
                 any(String.class),
                 any(Throwable.class));
         assertThat(errorCaptor.getValue()).isEqualTo(ImageCaptureError.CAMERA_CLOSED);
-
-        mInstrumentation.runOnMainSync(() -> CameraX.unbind(imageCapture));
     }
 
     @Test
@@ -755,7 +744,39 @@ public final class ImageCaptureTest {
                 any(String.class),
                 any(Throwable.class));
         assertThat(errorCaptor.getValue()).isEqualTo(ImageCaptureError.CAPTURE_FAILED);
+    }
 
-        mInstrumentation.runOnMainSync(() -> CameraX.unbind(imageCapture));
+    @Test
+    public void onStateOffline_abortAllCaptureRequests() throws InterruptedException {
+        FakeLifecycleOwner lifecycle = new FakeLifecycleOwner();
+        ImageCaptureConfig config = new ImageCaptureConfig.Builder()
+                .setLensFacing(BACK_LENS_FACING)
+                .build();
+        ImageCapture imageCapture = new ImageCapture(config);
+        mInstrumentation.runOnMainSync(() -> {
+            CameraX.bindToLifecycle(lifecycle, imageCapture);
+            lifecycle.startAndResume();
+        });
+
+        FakeCameraControl fakeCameraControl = new FakeCameraControl(mock(
+                CameraControlInternal.ControlUpdateCallback.class));
+        imageCapture.attachCameraControl(mCameraId, fakeCameraControl);
+        OnImageCapturedCallback onImageCapturedCallback = mock(OnImageCapturedCallback.class);
+
+        imageCapture.takePicture(mListenerExecutor, onImageCapturedCallback);
+        imageCapture.takePicture(mListenerExecutor, onImageCapturedCallback);
+        imageCapture.takePicture(mListenerExecutor, onImageCapturedCallback);
+
+        mInstrumentation.runOnMainSync(() -> imageCapture.onStateOffline(mCameraId));
+
+        ArgumentCaptor<ImageCaptureError> errorCaptor =
+                ArgumentCaptor.forClass(ImageCaptureError.class);
+        verify(onImageCapturedCallback, timeout(500).times(3)).onError(errorCaptor.capture(),
+                any(String.class),
+                any(Throwable.class));
+        assertThat(errorCaptor.getAllValues()).containsExactly(
+                ImageCaptureError.CAMERA_CLOSED,
+                ImageCaptureError.CAMERA_CLOSED,
+                ImageCaptureError.CAMERA_CLOSED);
     }
 }

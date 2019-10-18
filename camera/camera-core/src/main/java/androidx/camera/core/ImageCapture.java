@@ -561,6 +561,24 @@ public class ImageCapture extends UseCase {
     }
 
     @UiThread
+    @Override
+    public void onStateOffline(@NonNull String cameraId) {
+        super.onStateOffline(cameraId);
+        abortImagecaptureRequests();
+    }
+
+    private void abortImagecaptureRequests() {
+        Throwable throwable = new CameraClosedException("Camera is closed.");
+        for (ImageCaptureRequest captureRequest :
+                mImageCaptureRequests) {
+            captureRequest.notifyCallbackError(
+                    getError(throwable),
+                    throwable.getMessage(), throwable);
+        }
+        mImageCaptureRequests.clear();
+    }
+
+    @UiThread
     private void sendImageCaptureRequest(
             @Nullable Executor listenerExecutor, OnImageCapturedCallback callback) {
 
