@@ -19,7 +19,7 @@ package androidx.camera.integration.antelope.cameracontrollers
 import android.graphics.SurfaceTexture
 import android.hardware.camera2.CameraCaptureSession
 import android.hardware.camera2.CameraDevice
-import android.hardware.camera2.CaptureRequest
+import android.util.Log
 import android.view.ViewGroup
 import androidx.camera.camera2.Camera2Config
 import androidx.camera.core.CameraX
@@ -158,7 +158,7 @@ internal fun closeCameraX(activity: MainActivity, params: CameraParams, testConf
         params.cameraXLifecycle.finish()
 
         // CameraX calls need to be on the main thread
-        activity.run {
+        activity.runOnUiThread {
             CameraX.unbindAll()
         }
     }
@@ -269,12 +269,10 @@ private fun cameraXPreviewUseCaseBuilder(
     Camera2Config.Extender(configBuilder)
         .setDeviceStateCallback(deviceStateCallback)
         .setSessionStateCallback(sessionCaptureStateCallback)
-        .setCaptureRequestOption(CaptureRequest.CONTROL_AF_MODE,
-            when (focusMode) {
-                FocusMode.AUTO -> CaptureRequest.CONTROL_AF_MODE_AUTO
-                FocusMode.CONTINUOUS -> CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE
-                FocusMode.FIXED -> CaptureRequest.CONTROL_AF_MODE_AUTO
-            })
+    // TODO(b/142915154): Enables focusMode when CameraX support direct AF mode setting.
+
+    // Prints a log to suppress "fix Parameter 'focusMode' is never used" build error"
+    Log.d("Antelope", "focusMode($focusMode) Not enabled.")
     return configBuilder.build()
 }
 
@@ -298,12 +296,9 @@ private fun cameraXImageCaptureUseCaseBuilder(
     Camera2Config.Extender(configBuilder)
         .setDeviceStateCallback(deviceStateCallback)
         .setSessionCaptureCallback(sessionCaptureCallback)
-        .setCaptureRequestOption(CaptureRequest.CONTROL_AF_MODE,
-            when (focusMode) {
-                FocusMode.AUTO -> CaptureRequest.CONTROL_AF_MODE_AUTO
-                FocusMode.CONTINUOUS -> CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE
-                FocusMode.FIXED -> CaptureRequest.CONTROL_AF_MODE_AUTO
-            })
+    // TODO(b/142915154): Enables focusMode when CameraX support direct AF mode setting.
 
+    // Prints a log to suppress "fix Parameter 'focusMode' is never used" build error"
+    Log.d("Antelope", "focusMode($focusMode) Not enabled.")
     return configBuilder.build()
 }
