@@ -18,7 +18,6 @@ package androidx.lifecycle;
 
 import android.app.Activity;
 import android.app.Application;
-import android.app.Fragment;
 import android.os.Build;
 import android.os.Bundle;
 
@@ -31,9 +30,10 @@ import androidx.annotation.RestrictTo;
  *
  * @hide
  */
-@SuppressWarnings("UnknownNullness") // TODO https://issuetracker.google.com/issues/112197238
+@SuppressWarnings({"UnknownNullness", "deprecation"})
+// TODO https://issuetracker.google.com/issues/112197238
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-public class ReportFragment extends Fragment {
+public class ReportFragment extends android.app.Fragment {
     private static final String REPORT_FRAGMENT_TAG = "androidx.lifecycle"
             + ".LifecycleDispatcher.report_fragment_tag";
 
