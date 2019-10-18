@@ -57,9 +57,11 @@ import javax.tools.Diagnostic;
 /**
  * Processes annotations from VersionedParcelables.
  */
-@SupportedAnnotationTypes({VersionedParcelProcessor.VERSIONED_PARCELIZE,
+@SupportedAnnotationTypes({
+        VersionedParcelProcessor.VERSIONED_PARCELIZE,
         VersionedParcelProcessor.PARCEL_FIELD,
-        VersionedParcelProcessor.NON_PARCEL_FIELD})
+        VersionedParcelProcessor.NON_PARCEL_FIELD
+})
 @SupportedSourceVersion(SourceVersion.RELEASE_8)
 public class VersionedParcelProcessor extends AbstractProcessor {
 
@@ -216,6 +218,7 @@ public class VersionedParcelProcessor extends AbstractProcessor {
                 .build();
         TypeSpec.Builder genClass = TypeSpec
                 .classBuilder(versionedParcelable.getSimpleName() + GEN_SUFFIX)
+                .addOriginatingElement(versionedParcelable)
                 .addJavadoc("@hide\n")
                 .addAnnotation(restrictTo)
                 .addModifiers(Modifier.PUBLIC);
@@ -263,6 +266,7 @@ public class VersionedParcelProcessor extends AbstractProcessor {
         }
         parcelFields.sort(Comparator.comparing(e -> getValue(getAnnotation(e), "value", null)));
         for (VariableElement e: parcelFields) {
+            genClass.addOriginatingElement(e);
             AnnotationMirror annotation = getAnnotation(e);
             String id = getValue(annotation, "value", null);
             String defaultValue = getValue(annotation, "defaultValue", null, false);

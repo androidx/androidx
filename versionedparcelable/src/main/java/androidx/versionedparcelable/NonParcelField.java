@@ -30,7 +30,7 @@ import java.lang.annotation.Target;
  * not be initialized in all instances.
  * @hide
  */
-@Retention(RetentionPolicy.SOURCE)
+@Retention(RetentionPolicy.CLASS)
 @Target(ElementType.FIELD)
 @RestrictTo(LIBRARY_GROUP_PREFIX)
 public @interface NonParcelField {

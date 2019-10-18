@@ -36,7 +36,7 @@ import java.lang.annotation.Target;
  *
  * @hide
  */
-@Retention(RetentionPolicy.SOURCE)
+@Retention(RetentionPolicy.CLASS)
 @Target(ElementType.TYPE)
 @RestrictTo(LIBRARY_GROUP_PREFIX)
 public @interface VersionedParcelize {
