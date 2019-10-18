@@ -96,7 +96,7 @@ class SystemForegroundDispatcherTest {
         tracker = spy(WorkConstraintsTracker(context, taskExecutor, constraintsCallback))
         // Initialize dispatcher
         dispatcherCallback = mock(SystemForegroundDispatcher.Callback::class.java)
-        dispatcher = SystemForegroundDispatcher(context, workManager, tracker)
+        dispatcher = spy(SystemForegroundDispatcher(context, workManager, tracker))
         dispatcher.setCallback(dispatcherCallback)
     }
 
@@ -169,5 +169,7 @@ class SystemForegroundDispatcherTest {
         val stopIntent = createCancelWorkIntent(context, request.stringId)
         dispatcher.onStartCommand(stopIntent)
         verify(workManager, times(1)).cancelWorkById(eq(UUID.fromString(request.workSpec.id)))
+        val stopForegroundIntent = createStopForegroundIntent(context)
+        verify(dispatcher, times(1)).onStartCommand(stopForegroundIntent)
     }
 }
