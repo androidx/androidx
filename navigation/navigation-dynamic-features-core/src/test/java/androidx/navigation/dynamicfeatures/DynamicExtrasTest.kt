@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-package androidx.navigation
+package androidx.navigation.dynamicfeatures
 
+import androidx.navigation.Navigator
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
@@ -24,21 +25,26 @@ import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
 @SmallTest
-class ActionOnlyNavDirectionsTest {
+class DynamicExtrasTest {
+
+    class TestNavigatorExtras : Navigator.Extras
 
     @Test
-    fun testEquals() {
-        assertThat(ActionOnlyNavDirections(1))
-            .isEqualTo(ActionOnlyNavDirections(1))
-        assertThat(ActionOnlyNavDirections(1))
-            .isNotEqualTo(ActionOnlyNavDirections(2))
+    fun build_withMonitorAndExtras() {
+        val monitor = DynamicInstallMonitor()
+        val navExtras = TestNavigatorExtras()
+        val builder = DynamicExtras.Builder()
+            .setInstallMonitor(monitor)
+            .setDestinationExtras(navExtras)
+        val extras = builder.build()
+        assertThat(extras.destinationExtras).isNotNull()
+        assertThat(extras.installMonitor).isNotNull()
     }
 
     @Test
-    fun testHashCode() {
-        assertThat(ActionOnlyNavDirections(1).hashCode())
-            .isEqualTo(ActionOnlyNavDirections(1).hashCode())
-        assertThat(ActionOnlyNavDirections(1).hashCode())
-            .isNotEqualTo(ActionOnlyNavDirections(2).hashCode())
+    fun build_withoutMonitorOrExtras() {
+        val extras = DynamicExtras.Builder().build()
+        assertThat(extras.destinationExtras).isNull()
+        assertThat(extras.installMonitor).isNull()
     }
 }
