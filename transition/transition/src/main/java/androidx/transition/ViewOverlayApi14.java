@@ -154,6 +154,7 @@ class ViewOverlayApi14 implements ViewOverlayImpl {
             return false;
         }
 
+        @SuppressWarnings("deprecation")
         public void add(Drawable drawable) {
             assertNotDisposed();
             if (mDrawables == null) {
@@ -168,6 +169,7 @@ class ViewOverlayApi14 implements ViewOverlayImpl {
             }
         }
 
+        @SuppressWarnings("deprecation")
         public void remove(Drawable drawable) {
             if (mDrawables != null) {
                 mDrawables.remove(drawable);
@@ -229,6 +231,7 @@ class ViewOverlayApi14 implements ViewOverlayImpl {
             }
         }
 
+        @SuppressWarnings("deprecation")
         @Override
         public void invalidateDrawable(@NonNull Drawable drawable) {
             invalidate(drawable.getBounds());
