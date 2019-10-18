@@ -405,9 +405,9 @@ package androidx.appcompat.view {
     method public boolean onPrepareActionMode(androidx.appcompat.view.ActionMode!, android.view.Menu!);
   }
 
-  public interface CollapsibleActionView {
-    method public void onActionViewCollapsed();
-    method public void onActionViewExpanded();
+  @Deprecated public interface CollapsibleActionView {
+    method @Deprecated public void onActionViewCollapsed();
+    method @Deprecated public void onActionViewExpanded();
   }
 
   public class ContextThemeWrapper extends android.content.ContextWrapper {
