@@ -238,6 +238,7 @@ public final class AccessibilityEventCompat {
      *
      * @deprecated Use {@link AccessibilityEvent#appendRecord(AccessibilityRecord)} directly.
      */
+    @SuppressWarnings("deprecation")
     @Deprecated
     public static void appendRecord(AccessibilityEvent event, AccessibilityRecordCompat record) {
         event.appendRecord((AccessibilityRecord) record.getImpl());
@@ -251,6 +252,7 @@ public final class AccessibilityEventCompat {
      *
      * @deprecated Use {@link AccessibilityEvent#getRecord(int)} directly.
      */
+    @SuppressWarnings("deprecation")
     @Deprecated
     public static AccessibilityRecordCompat getRecord(AccessibilityEvent event, int index) {
         return new AccessibilityRecordCompat(event.getRecord(index));
@@ -271,6 +273,7 @@ public final class AccessibilityEventCompat {
      *
      * @deprecated Use the {@link AccessibilityEvent} directly as {@link AccessibilityRecord}.
      */
+    @SuppressWarnings("deprecation")
     @Deprecated
     public static AccessibilityRecordCompat asRecord(AccessibilityEvent event) {
         return new AccessibilityRecordCompat(event);

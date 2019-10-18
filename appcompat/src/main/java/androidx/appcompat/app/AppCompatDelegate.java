@@ -118,6 +118,7 @@ public abstract class AppCompatDelegate {
     /**
      * @deprecated Use {@link AppCompatDelegate#MODE_NIGHT_AUTO_TIME} instead
      */
+    @SuppressWarnings("deprecation")
     @Deprecated
     public static final int MODE_NIGHT_AUTO = MODE_NIGHT_AUTO_TIME;
 
@@ -167,6 +168,7 @@ public abstract class AppCompatDelegate {
     private static final Object sActiveDelegatesLock = new Object();
 
     /** @hide */
+    @SuppressWarnings("deprecation")
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @IntDef({MODE_NIGHT_NO, MODE_NIGHT_YES, MODE_NIGHT_AUTO_TIME, MODE_NIGHT_FOLLOW_SYSTEM,
             MODE_NIGHT_UNSPECIFIED, MODE_NIGHT_AUTO_BATTERY})
@@ -543,6 +545,7 @@ public abstract class AppCompatDelegate {
      * @see #setLocalNightMode(int)
      * @see #getDefaultNightMode()
      */
+    @SuppressWarnings("deprecation")
     public static void setDefaultNightMode(@NightMode int mode) {
         switch (mode) {
             case MODE_NIGHT_NO:

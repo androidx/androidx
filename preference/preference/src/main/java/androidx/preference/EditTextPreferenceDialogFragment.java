@@ -28,6 +28,7 @@ import androidx.annotation.RestrictTo;
 /**
  * @deprecated Use {@link EditTextPreferenceDialogFragmentCompat} instead
  */
+@SuppressWarnings("deprecation")
 @Deprecated
 public class EditTextPreferenceDialogFragment extends PreferenceDialogFragment {
 

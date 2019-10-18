@@ -99,6 +99,7 @@ public class Picker extends FrameLayout {
      * @return The separator that will be populated between all the Picker columns.
      * @deprecated Use {@link #getSeparators()}
      */
+    @Deprecated
     public final CharSequence getSeparator() {
         return mSeparators.get(0);
     }

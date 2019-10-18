@@ -177,7 +177,9 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
      */
     @Override
     @Nullable
+    @SuppressWarnings("deprecation")
     public final Object onRetainNonConfigurationInstance() {
+        // Maintain backward compatibility.
         Object custom = onRetainCustomNonConfigurationInstance();
 
         ViewModelStore viewModelStore = mViewModelStore;

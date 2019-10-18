@@ -54,6 +54,7 @@ import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.RecyclerViewAccessibilityDelegate;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.FlakyTest;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.platform.app.InstrumentationRegistry;
@@ -4342,6 +4343,7 @@ public class GridWidgetTest {
         assertEquals(0, mGridView.getSelectedPosition());
     }
 
+    @FlakyTest
     @Test
     public void testExtraLayoutSpace() throws Throwable {
         Intent intent = new Intent();
@@ -5389,6 +5391,7 @@ public class GridWidgetTest {
                 mGridView.findViewHolderForAdapterPosition(29).itemView, lastChild);
     }
 
+    @FlakyTest
     @Test
     public void testAnimateOutBlockLayout() throws Throwable {
         Intent intent = new Intent();

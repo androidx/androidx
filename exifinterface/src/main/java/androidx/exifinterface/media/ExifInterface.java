@@ -3945,11 +3945,13 @@ public class ExifInterface {
      *
      * @param tag the name of the tag.
      */
+    @SuppressWarnings("deprecation")
     @Nullable
     private ExifAttribute getExifAttribute(@NonNull String tag) {
         if (tag == null) {
             throw new NullPointerException("tag shouldn't be null");
         }
+        // Maintain compatibility.
         if (TAG_ISO_SPEED_RATINGS.equals(tag)) {
             if (DEBUG) {
                 Log.d(TAG, "getExifAttribute: Replacing TAG_ISO_SPEED_RATINGS with "
@@ -4064,10 +4066,12 @@ public class ExifInterface {
      * @param tag the name of the tag.
      * @param value the value of the tag.
      */
+    @SuppressWarnings("deprecation")
     public void setAttribute(@NonNull String tag, @Nullable String value) {
         if (tag == null) {
             throw new NullPointerException("tag shouldn't be null");
         }
+        // Maintain compatibility.
         if (TAG_ISO_SPEED_RATINGS.equals(tag)) {
             if (DEBUG) {
                 Log.d(TAG, "setAttribute: Replacing TAG_ISO_SPEED_RATINGS with "

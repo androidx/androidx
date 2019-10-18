@@ -53,6 +53,7 @@ import java.util.List;
  *
  * @deprecated Browser Actions are deprecated as of release 1.2.0.
  */
+@SuppressWarnings("deprecation")
 @Deprecated
 public class BrowserActionsIntent {
     private static final String TAG = "BrowserActions";

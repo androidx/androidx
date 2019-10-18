@@ -26,7 +26,7 @@ import androidx.leanback.R;
 
 /**
  * An abstract {@link Presenter} for rendering a detailed description of an
- * item. Typically this Presenter will be used in a {@link DetailsOverviewRowPresenter}
+ * item. Typically this Presenter will be used in a {@link FullWidthDetailsOverviewRowPresenter}
  * or {@link PlaybackControlsRowPresenter}.
  *
  * <p>Subclasses must override {@link #onBindDescription} to implement the data
