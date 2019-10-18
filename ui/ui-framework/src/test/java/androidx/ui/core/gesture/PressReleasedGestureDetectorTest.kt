@@ -16,8 +16,10 @@
 
 package androidx.ui.core.gesture
 
+import androidx.ui.core.IntPxSize
 import androidx.ui.core.PointerEventPass
 import androidx.ui.core.consumeDownChange
+import androidx.ui.core.ipx
 import androidx.ui.core.millisecondsToTimestamp
 import androidx.ui.testutils.consume
 import androidx.ui.testutils.down
@@ -141,7 +143,8 @@ class PressReleasedGestureDetectorTest {
 
         pointerEventChange = recognizer.pointerInputHandler.invoke(
             pointerEventChange,
-            PointerEventPass.PostUp
+            PointerEventPass.PostUp,
+            IntPxSize(0.ipx, 0.ipx)
         )
         assertThat(pointerEventChange.first().consumed.downChange, `is`(true))
     }
@@ -161,7 +164,8 @@ class PressReleasedGestureDetectorTest {
 
         pointerEventChange = recognizer.pointerInputHandler.invoke(
             pointerEventChange,
-            PointerEventPass.PostUp
+            PointerEventPass.PostUp,
+            IntPxSize(0.ipx, 0.ipx)
         )
         assertThat(pointerEventChange.first().consumed.downChange, `is`(true))
     }

@@ -19,6 +19,7 @@ package androidx.ui.core.pointerinput
 import androidx.test.filters.SmallTest
 import androidx.ui.core.ConsumedData
 import androidx.ui.core.DrawNode
+import androidx.ui.core.IntPxSize
 import androidx.ui.core.LayoutNode
 import androidx.ui.core.Owner
 import androidx.ui.core.PointerEventPass
@@ -29,6 +30,7 @@ import androidx.ui.core.PointerInputData
 import androidx.ui.core.PointerInputNode
 import androidx.ui.core.PxPosition
 import androidx.ui.core.SemanticsComponentNode
+import androidx.ui.core.ipx
 import androidx.ui.core.millisecondsToTimestamp
 import androidx.ui.core.px
 import com.nhaarman.mockitokotlin2.any
@@ -137,7 +139,11 @@ class PointerInputEventProcessorTest {
         inOrder(pointerInputNode.pointerInputHandler) {
             for (expected in expectedChanges) {
                 for (pass in PointerEventPass.values()) {
-                    verify(pointerInputNode.pointerInputHandler).invoke(listOf(expected), pass)
+                    verify(pointerInputNode.pointerInputHandler).invoke(
+                        eq(listOf(expected)),
+                        eq(pass),
+                        any()
+                    )
                 }
             }
         }
@@ -187,9 +193,17 @@ class PointerInputEventProcessorTest {
 
         // Assert
 
-        verify(pointerInputNode.pointerInputHandler, times(4)).invoke(any(), eq(InitialDown))
+        verify(pointerInputNode.pointerInputHandler, times(4)).invoke(
+            any(),
+            eq(InitialDown),
+            any()
+        )
         for (expected in expectedChanges) {
-            verify(pointerInputNode.pointerInputHandler).invoke(listOf(expected), InitialDown)
+            verify(pointerInputNode.pointerInputHandler).invoke(
+                eq(listOf(expected)),
+                eq(InitialDown),
+                any()
+            )
         }
     }
 
@@ -227,7 +241,7 @@ class PointerInputEventProcessorTest {
 
         // Assert
 
-        verify(pointerInputNode.pointerInputHandler, never()).invoke(any(), any())
+        verify(pointerInputNode.pointerInputHandler, never()).invoke(any(), any(), any())
     }
 
     @Test
@@ -286,19 +300,55 @@ class PointerInputEventProcessorTest {
 
         when (numberOfChildrenHit) {
             3 -> {
-                verify(parentPointerInputNode.pointerInputHandler).invoke(any(), eq(InitialDown))
-                verify(middlePointerInputNode.pointerInputHandler).invoke(any(), eq(InitialDown))
-                verify(childPointerInputNode.pointerInputHandler).invoke(any(), eq(InitialDown))
+                verify(parentPointerInputNode.pointerInputHandler).invoke(
+                    any(),
+                    eq(InitialDown),
+                    any()
+                )
+                verify(middlePointerInputNode.pointerInputHandler).invoke(
+                    any(),
+                    eq(InitialDown),
+                    any()
+                )
+                verify(childPointerInputNode.pointerInputHandler).invoke(
+                    any(),
+                    eq(InitialDown),
+                    any()
+                )
             }
             2 -> {
-                verify(parentPointerInputNode.pointerInputHandler).invoke(any(), eq(InitialDown))
-                verify(middlePointerInputNode.pointerInputHandler).invoke(any(), eq(InitialDown))
-                verify(childPointerInputNode.pointerInputHandler, never()).invoke(any(), any())
+                verify(parentPointerInputNode.pointerInputHandler).invoke(
+                    any(),
+                    eq(InitialDown),
+                    any()
+                )
+                verify(middlePointerInputNode.pointerInputHandler).invoke(
+                    any(),
+                    eq(InitialDown),
+                    any()
+                )
+                verify(childPointerInputNode.pointerInputHandler, never()).invoke(
+                    any(),
+                    any(),
+                    any()
+                )
             }
             1 -> {
-                verify(parentPointerInputNode.pointerInputHandler).invoke(any(), eq(InitialDown))
-                verify(middlePointerInputNode.pointerInputHandler, never()).invoke(any(), any())
-                verify(childPointerInputNode.pointerInputHandler, never()).invoke(any(), any())
+                verify(parentPointerInputNode.pointerInputHandler).invoke(
+                    any(),
+                    eq(InitialDown),
+                    any()
+                )
+                verify(middlePointerInputNode.pointerInputHandler, never()).invoke(
+                    any(),
+                    any(),
+                    any()
+                )
+                verify(childPointerInputNode.pointerInputHandler, never()).invoke(
+                    any(),
+                    any(),
+                    any()
+                )
             }
             else -> throw IllegalStateException()
         }
@@ -333,11 +383,18 @@ class PointerInputEventProcessorTest {
         val pointerInputNode: PointerInputNode = PointerInputNode().apply {
             emitInsertAt(0, LayoutNode(0, 0, 500, 500))
             pointerInputHandler = spy(MyPointerInputHandler())
-            whenever(pointerInputHandler.invoke(listOf(input), InitialDown)).thenReturn(
-                listOf(
-                    output
+            whenever(
+                pointerInputHandler.invoke(
+                    listOf(input),
+                    InitialDown,
+                    IntPxSize(500.ipx, 500.ipx)
                 )
             )
+                .thenReturn(
+                    listOf(
+                        output
+                    )
+                )
         }
         root.emitInsertAt(0, pointerInputNode)
 
@@ -361,13 +418,15 @@ class PointerInputEventProcessorTest {
 
         // Assert
 
-        verify(pointerInputNode.pointerInputHandler).invoke(listOf(input), InitialDown)
-        verify(pointerInputNode.pointerInputHandler).invoke(listOf(output), PreUp)
+        verify(pointerInputNode.pointerInputHandler)
+            .invoke(eq(listOf(input)), eq(InitialDown), any())
+        verify(pointerInputNode.pointerInputHandler)
+            .invoke(eq(listOf(output)), eq(PreUp), any())
     }
 
     @Test
-    fun process_layoutNodesIncreasinglyInset_changeTranslatedCorrectly() {
-        process_changeTranslatedCorrectly(
+    fun process_layoutNodesIncreasinglyInset_dispatchInfoIsCorrect() {
+        process_dispatchInfoIsCorrect(
             0, 0, 100, 100,
             2, 11, 100, 100,
             23, 31, 100, 100,
@@ -376,8 +435,8 @@ class PointerInputEventProcessorTest {
     }
 
     @Test
-    fun process_layoutNodesIncreasinglyOutset_changeTranslatedCorrectly() {
-        process_changeTranslatedCorrectly(
+    fun process_layoutNodesIncreasinglyOutset_dispatchInfoIsCorrect() {
+        process_dispatchInfoIsCorrect(
             0, 0, 100, 100,
             -2, -11, 100, 100,
             -23, -31, 100, 100,
@@ -386,8 +445,8 @@ class PointerInputEventProcessorTest {
     }
 
     @Test
-    fun process_layoutNodesNotOffset_changeTranslatedCorrectly() {
-        process_changeTranslatedCorrectly(
+    fun process_layoutNodesNotOffset_dispatchInfoIsCorrect() {
+        process_dispatchInfoIsCorrect(
             0, 0, 100, 100,
             0, 0, 100, 100,
             0, 0, 100, 100,
@@ -395,7 +454,8 @@ class PointerInputEventProcessorTest {
         )
     }
 
-    private fun process_changeTranslatedCorrectly(
+    @Suppress("SameParameterValue")
+    private fun process_dispatchInfoIsCorrect(
         pX1: Int,
         pY1: Int,
         pX2: Int,
@@ -476,6 +536,12 @@ class PointerInputEventProcessorTest {
             )
         )
 
+        val expectedSizes = arrayOf(
+            IntPxSize(pX2.ipx - pX1.ipx, pY2.ipx - pY1.ipx),
+            IntPxSize(mX2.ipx - mX1.ipx, mY2.ipx - mY1.ipx),
+            IntPxSize(cX2.ipx - cX1.ipx, cY2.ipx - cY1.ipx)
+        )
+
         // Act
 
         pointerInputEventProcessor.process(down)
@@ -483,10 +549,11 @@ class PointerInputEventProcessorTest {
         // Assert
 
         for (pass in PointerEventPass.values()) {
-            for (i in 0..2) {
+            for (i in pointerInputNodes.indices) {
                 verify(pointerInputNodes[i].pointerInputHandler).invoke(
                     listOf(expectedPointerInputChanges[i]),
-                    pass
+                    pass,
+                    expectedSizes[i]
                 )
             }
         }
@@ -511,7 +578,7 @@ class PointerInputEventProcessorTest {
      * one in the top left and one in the bottom right.
      */
     @Test
-    fun process_2DownOn2DifferentPointerNodes_changesHitCorrectNodesAndAreTranslatedCorrectly() {
+    fun process_2DownOn2DifferentPointerNodes_hitAndDispatchInfoAreCorrect() {
 
         // Arrange
 
@@ -564,10 +631,22 @@ class PointerInputEventProcessorTest {
 
         for (pointerEventPass in PointerEventPass.values()) {
             verify(childPointerInputNode1.pointerInputHandler)
-                .invoke(listOf(expectedChange1), pointerEventPass)
+                .invoke(
+                    listOf(expectedChange1),
+                    pointerEventPass,
+                    IntPxSize(50.ipx, 50.ipx)
+                )
             verify(childPointerInputNode2.pointerInputHandler)
-                .invoke(listOf(expectedChange2), pointerEventPass)
+                .invoke(
+                    listOf(expectedChange2),
+                    pointerEventPass,
+                    IntPxSize(50.ipx, 50.ipx)
+                )
         }
+        verifyNoMoreInteractions(
+            childPointerInputNode1.pointerInputHandler,
+            childPointerInputNode2.pointerInputHandler
+        )
     }
 
     /**
@@ -593,7 +672,7 @@ class PointerInputEventProcessorTest {
      * child 2.
      */
     @Test
-    fun process_3DownOnOverlappingPointerNodes_changesHitCorrectNodesAndAreTranslatedCorrectly() {
+    fun process_3DownOnOverlappingPointerNodes_hitAndDispatchInfoAreCorrect() {
         val childPointerInputNode1: PointerInputNode = PointerInputNode().apply {
             emitInsertAt(0, LayoutNode(0, 0, 100, 100))
             pointerInputHandler = spy(MyPointerInputHandler())
@@ -660,11 +739,11 @@ class PointerInputEventProcessorTest {
 
         for (pointerEventPass in PointerEventPass.values()) {
             verify(childPointerInputNode1.pointerInputHandler)
-                .invoke(listOf(expectedChange1), pointerEventPass)
+                .invoke(listOf(expectedChange1), pointerEventPass, IntPxSize(100.ipx, 100.ipx))
             verify(childPointerInputNode2.pointerInputHandler)
-                .invoke(listOf(expectedChange2), pointerEventPass)
+                .invoke(listOf(expectedChange2), pointerEventPass, IntPxSize(100.ipx, 100.ipx))
             verify(childPointerInputNode3.pointerInputHandler)
-                .invoke(listOf(expectedChange3), pointerEventPass)
+                .invoke(listOf(expectedChange3), pointerEventPass, IntPxSize(100.ipx, 100.ipx))
         }
         verifyNoMoreInteractions(
             childPointerInputNode1.pointerInputHandler,
@@ -695,7 +774,7 @@ class PointerInputEventProcessorTest {
      * child 2.
      */
     @Test
-    fun process_3DownOnFloatingPointerNodeV_changesHitCorrectNodesAndAreTranslatedCorrectly() {
+    fun process_3DownOnFloatingPointerNodeV_hitAndDispatchInfoAreCorrect() {
         val childPointerInputNode1: PointerInputNode = PointerInputNode().apply {
             emitInsertAt(0, LayoutNode(0, 0, 100, 150))
             pointerInputHandler = spy(MyPointerInputHandler())
@@ -753,9 +832,17 @@ class PointerInputEventProcessorTest {
 
         for (pointerEventPass in PointerEventPass.values()) {
             verify(childPointerInputNode1.pointerInputHandler)
-                .invoke(listOf(expectedChange1, expectedChange3), pointerEventPass)
+                .invoke(
+                    listOf(expectedChange1, expectedChange3),
+                    pointerEventPass,
+                    IntPxSize(100.ipx, 150.ipx)
+                )
             verify(childPointerInputNode2.pointerInputHandler)
-                .invoke(listOf(expectedChange2), pointerEventPass)
+                .invoke(
+                    listOf(expectedChange2),
+                    pointerEventPass,
+                    IntPxSize(50.ipx, 50.ipx)
+                )
         }
         verifyNoMoreInteractions(
             childPointerInputNode1.pointerInputHandler,
@@ -781,7 +868,7 @@ class PointerInputEventProcessorTest {
      * child 2.
      */
     @Test
-    fun process_3DownOnFloatingPointerNodeH_changesHitCorrectNodesAndAreTranslatedCorrectly() {
+    fun process_3DownOnFloatingPointerNodeH_hitAndDispatchInfoAreCorrect() {
         val childPointerInputNode1: PointerInputNode = PointerInputNode().apply {
             emitInsertAt(0, LayoutNode(0, 0, 150, 100))
             pointerInputHandler = spy(MyPointerInputHandler())
@@ -839,9 +926,17 @@ class PointerInputEventProcessorTest {
 
         for (pointerEventPass in PointerEventPass.values()) {
             verify(childPointerInputNode1.pointerInputHandler)
-                .invoke(listOf(expectedChange1, expectedChange3), pointerEventPass)
+                .invoke(
+                    listOf(expectedChange1, expectedChange3),
+                    pointerEventPass,
+                    IntPxSize(150.ipx, 100.ipx)
+                )
             verify(childPointerInputNode2.pointerInputHandler)
-                .invoke(listOf(expectedChange2), pointerEventPass)
+                .invoke(
+                    listOf(expectedChange2),
+                    pointerEventPass,
+                    IntPxSize(50.ipx, 50.ipx)
+                )
         }
         verifyNoMoreInteractions(
             childPointerInputNode1.pointerInputHandler,
@@ -910,7 +1005,7 @@ class PointerInputEventProcessorTest {
         val pointerInputEvent =
             PointerInputEvent(
                 11L.millisecondsToTimestamp(),
-                (0 until allOffsets.size).map {
+                (allOffsets.indices).map {
                     PointerInputEventData(it, 11L.millisecondsToTimestamp(), allOffsets[it], true)
                 }
             )
@@ -922,7 +1017,7 @@ class PointerInputEventProcessorTest {
         // Assert
 
         val expectedChanges =
-            (0 until offsetsThatHit.size).map {
+            (offsetsThatHit.indices).map {
                 PointerInputChange(
                     id = it,
                     current = PointerInputData(
@@ -935,7 +1030,11 @@ class PointerInputEventProcessorTest {
                 )
             }
         PointerEventPass.values().forEach { pointerEventPass ->
-            verify(pointerInputNode.pointerInputHandler).invoke(expectedChanges, pointerEventPass)
+            verify(pointerInputNode.pointerInputHandler).invoke(
+                eq(expectedChanges),
+                eq(pointerEventPass),
+                any()
+            )
         }
         verifyNoMoreInteractions(
             pointerInputNode.pointerInputHandler
@@ -1003,7 +1102,7 @@ class PointerInputEventProcessorTest {
         val pointerInputEvent =
             PointerInputEvent(
                 11L.millisecondsToTimestamp(),
-                (0 until allOffsets.size).map {
+                (allOffsets.indices).map {
                     PointerInputEventData(it, 11L.millisecondsToTimestamp(), allOffsets[it], true)
                 }
             )
@@ -1015,7 +1114,7 @@ class PointerInputEventProcessorTest {
         // Assert
 
         val expectedChanges =
-            (0 until offsetsThatHit.size).map {
+            (offsetsThatHit.indices).map {
                 PointerInputChange(
                     id = it,
                     current = PointerInputData(
@@ -1028,7 +1127,11 @@ class PointerInputEventProcessorTest {
                 )
             }
         PointerEventPass.values().forEach { pointerEventPass ->
-            verify(pointerInputNode.pointerInputHandler).invoke(expectedChanges, pointerEventPass)
+            verify(pointerInputNode.pointerInputHandler).invoke(
+                eq(expectedChanges),
+                eq(pointerEventPass),
+                any()
+            )
         }
         verifyNoMoreInteractions(
             pointerInputNode.pointerInputHandler
@@ -1110,7 +1213,7 @@ class PointerInputEventProcessorTest {
         val pointerInputEvent =
             PointerInputEvent(
                 11L.millisecondsToTimestamp(),
-                (0 until allOffsets.size).map {
+                (allOffsets.indices).map {
                     PointerInputEventData(it, 11L.millisecondsToTimestamp(), allOffsets[it], true)
                 }
             )
@@ -1122,7 +1225,7 @@ class PointerInputEventProcessorTest {
         // Assert
 
         val expectedChanges =
-            (0 until offsetsThatHit.size).map {
+            (offsetsThatHit.indices).map {
                 PointerInputChange(
                     id = it,
                     current = PointerInputData(
@@ -1139,7 +1242,11 @@ class PointerInputEventProcessorTest {
             }
         PointerEventPass.values().forEach { pointerEventPass ->
             expectedChanges.forEach { change ->
-                verify(singlePointerInputHandler).invoke(listOf(change), pointerEventPass)
+                verify(singlePointerInputHandler).invoke(
+                    eq(listOf(change)),
+                    eq(pointerEventPass),
+                    any()
+                )
             }
         }
         verifyNoMoreInteractions(
@@ -1209,7 +1316,7 @@ class PointerInputEventProcessorTest {
         val pointerInputEvent =
             PointerInputEvent(
                 11L.millisecondsToTimestamp(),
-                (0 until allOffsets.size).map {
+                (allOffsets.indices).map {
                     PointerInputEventData(it, 11L.millisecondsToTimestamp(), allOffsets[it], true)
                 }
             )
@@ -1221,7 +1328,7 @@ class PointerInputEventProcessorTest {
         // Assert
 
         val expectedChanges =
-            (0 until offsetsThatHit.size).map {
+            (offsetsThatHit.indices).map {
                 PointerInputChange(
                     id = it,
                     current = PointerInputData(
@@ -1234,7 +1341,11 @@ class PointerInputEventProcessorTest {
                 )
             }
         PointerEventPass.values().forEach { pointerEventPass ->
-            verify(pointerInputNode.pointerInputHandler).invoke(expectedChanges, pointerEventPass)
+            verify(pointerInputNode.pointerInputHandler).invoke(
+                eq(expectedChanges),
+                eq(pointerEventPass),
+                any()
+            )
         }
         verifyNoMoreInteractions(
             pointerInputNode.pointerInputHandler
@@ -1263,7 +1374,7 @@ class PointerInputEventProcessorTest {
      * it.  Those that happen inside all hit, those that happen outside do not.
      */
     @Test
-    fun process_ManyPointersOnPinWith2LnsWithNoSize_onlyCorrectPointersHit() {
+    fun process_manyPointersOnPinWith2LnsWithNoSize_onlyCorrectPointersHit() {
 
         // Arrange
 
@@ -1302,7 +1413,7 @@ class PointerInputEventProcessorTest {
         val pointerInputEvent =
             PointerInputEvent(
                 11L.millisecondsToTimestamp(),
-                (0 until allOffsets.size).map {
+                (allOffsets.indices).map {
                     PointerInputEventData(it, 11L.millisecondsToTimestamp(), allOffsets[it], true)
                 }
             )
@@ -1314,7 +1425,7 @@ class PointerInputEventProcessorTest {
         // Assert
 
         val expectedChanges =
-            (0 until offsetsThatHit.size).map {
+            (offsetsThatHit.indices).map {
                 PointerInputChange(
                     id = it,
                     current = PointerInputData(
@@ -1327,7 +1438,11 @@ class PointerInputEventProcessorTest {
                 )
             }
         PointerEventPass.values().forEach { pointerEventPass ->
-            verify(pointerInputNode.pointerInputHandler).invoke(expectedChanges, pointerEventPass)
+            verify(pointerInputNode.pointerInputHandler).invoke(
+                eq(expectedChanges),
+                eq(pointerEventPass),
+                any()
+            )
         }
         verifyNoMoreInteractions(
             pointerInputNode.pointerInputHandler
@@ -1335,7 +1450,7 @@ class PointerInputEventProcessorTest {
     }
 
     @Test
-    fun process_downOn3NestedPointerInputNodes_changeHitsNodesAndIsTranslatedCorrectly() {
+    fun process_downOn3NestedPointerInputNodes_hitAndDispatchInfoAreCorrect() {
         val childPointerInputNode1: PointerInputNode = PointerInputNode().apply {
             emitInsertAt(0, LayoutNode(25, 50, 75, 100))
             pointerInputHandler = spy(MyPointerInputHandler())
@@ -1380,11 +1495,23 @@ class PointerInputEventProcessorTest {
 
         for (pointerEventPass in PointerEventPass.values()) {
             verify(childPointerInputNode1.pointerInputHandler)
-                .invoke(listOf(expectedChange), pointerEventPass)
+                .invoke(
+                    listOf(expectedChange),
+                    pointerEventPass,
+                    IntPxSize(50.ipx, 50.ipx)
+                )
             verify(childPointerInputNode2.pointerInputHandler)
-                .invoke(listOf(expectedChange), pointerEventPass)
+                .invoke(
+                    listOf(expectedChange),
+                    pointerEventPass,
+                    IntPxSize(50.ipx, 50.ipx)
+                )
             verify(childPointerInputNode3.pointerInputHandler)
-                .invoke(listOf(expectedChange), pointerEventPass)
+                .invoke(
+                    listOf(expectedChange),
+                    pointerEventPass,
+                    IntPxSize(50.ipx, 50.ipx)
+                )
         }
         verifyNoMoreInteractions(childPointerInputNode1.pointerInputHandler)
         verifyNoMoreInteractions(childPointerInputNode2.pointerInputHandler)
@@ -1392,7 +1519,7 @@ class PointerInputEventProcessorTest {
     }
 
     @Test
-    fun process_downOnDeeplyNestedPointerInputNode_changeHitsNodeAndIsTranslatedCorrectly() {
+    fun process_downOnDeeplyNestedPointerInputNode_hitAndDispatchInfoAreCorrect() {
         val layoutNode1 = LayoutNode(1, 5, 500, 500)
         val pointerInputNode: PointerInputNode = PointerInputNode().apply {
             emitInsertAt(0, layoutNode1)
@@ -1439,13 +1566,17 @@ class PointerInputEventProcessorTest {
 
         for (pointerEventPass in PointerEventPass.values()) {
             verify(pointerInputNode.pointerInputHandler)
-                .invoke(listOf(expectedChange), pointerEventPass)
+                .invoke(
+                    listOf(expectedChange),
+                    pointerEventPass,
+                    IntPxSize(499.ipx, 495.ipx)
+                )
         }
         verifyNoMoreInteractions(pointerInputNode.pointerInputHandler)
     }
 
     @Test
-    fun process_downOnComplexPointerAndLayoutNodePath_changeHitsNodesAndIsTranslatedCorrectly() {
+    fun process_downOnComplexPointerAndLayoutNodePath_hitAndDispatchInfoAreCorrect() {
         val layoutNode1 = LayoutNode(1, 6, 500, 500)
         val pointerInputNode1: PointerInputNode = PointerInputNode().apply {
             emitInsertAt(0, layoutNode1)
@@ -1521,13 +1652,29 @@ class PointerInputEventProcessorTest {
 
         for (pointerEventPass in PointerEventPass.values()) {
             verify(pointerInputNode1.pointerInputHandler)
-                .invoke(listOf(expectedChange1), pointerEventPass)
+                .invoke(
+                    listOf(expectedChange1),
+                    pointerEventPass,
+                    IntPxSize(499.ipx, 494.ipx)
+                )
             verify(pointerInputNode2.pointerInputHandler)
-                .invoke(listOf(expectedChange1), pointerEventPass)
+                .invoke(
+                    listOf(expectedChange1),
+                    pointerEventPass,
+                    IntPxSize(499.ipx, 494.ipx)
+                )
             verify(pointerInputNode3.pointerInputHandler)
-                .invoke(listOf(expectedChange2), pointerEventPass)
+                .invoke(
+                    listOf(expectedChange2),
+                    pointerEventPass,
+                    IntPxSize(497.ipx, 492.ipx)
+                )
             verify(pointerInputNode4.pointerInputHandler)
-                .invoke(listOf(expectedChange2), pointerEventPass)
+                .invoke(
+                    listOf(expectedChange2),
+                    pointerEventPass,
+                    IntPxSize(497.ipx, 492.ipx)
+                )
         }
         verifyNoMoreInteractions(pointerInputNode1.pointerInputHandler)
         verifyNoMoreInteractions(pointerInputNode2.pointerInputHandler)
@@ -1559,8 +1706,8 @@ class PointerInputEventProcessorTest {
         pointerInputEventProcessor.process(down)
 
         // Assert
-        verify(childPointerInputNode2.pointerInputHandler, times(5)).invoke(any(), any())
-        verify(childPointerInputNode1.pointerInputHandler, never()).invoke(any(), any())
+        verify(childPointerInputNode2.pointerInputHandler, times(5)).invoke(any(), any(), any())
+        verify(childPointerInputNode1.pointerInputHandler, never()).invoke(any(), any(), any())
     }
 
     @Test
@@ -1589,7 +1736,7 @@ class PointerInputEventProcessorTest {
         pointerInputEventProcessor.process(down)
 
         // Assert
-        verify(pointerInputNode.pointerInputHandler, times(5)).invoke(any(), any())
+        verify(pointerInputNode.pointerInputHandler, times(5)).invoke(any(), any(), any())
     }
 
     @Test
@@ -1611,7 +1758,7 @@ class PointerInputEventProcessorTest {
         pointerInputEventProcessor.process(down)
 
         // Assert
-        verify(pointerInputNode.pointerInputHandler, never()).invoke(any(), any())
+        verify(pointerInputNode.pointerInputHandler, never()).invoke(any(), any(), any())
     }
 
     @Test
@@ -1638,7 +1785,7 @@ class PointerInputEventProcessorTest {
         pointerInputEventProcessor.process(down)
 
         // Assert
-        verify(pointerInputNode.pointerInputHandler, never()).invoke(any(), any())
+        verify(pointerInputNode.pointerInputHandler, never()).invoke(any(), any(), any())
     }
 
     @Test
@@ -1660,7 +1807,7 @@ class PointerInputEventProcessorTest {
         pointerInputEventProcessor.process(down)
 
         // Assert
-        verify(pointerInputNode.pointerInputHandler, never()).invoke(any(), any())
+        verify(pointerInputNode.pointerInputHandler, never()).invoke(any(), any(), any())
     }
 
     @Test
@@ -1711,11 +1858,11 @@ class PointerInputEventProcessorTest {
 
         PointerEventPass.values().forEach {
             verify(parentPointerInputNode.pointerInputHandler)
-                .invoke(listOf(expectedDownChange), it)
+                .invoke(eq(listOf(expectedDownChange)), eq(it), any())
             verify(childPointerInputNode.pointerInputHandler)
-                .invoke(listOf(expectedDownChange), it)
+                .invoke(eq(listOf(expectedDownChange)), eq(it), any())
             verify(parentPointerInputNode.pointerInputHandler)
-                .invoke(listOf(expectedUpChange), it)
+                .invoke(eq(listOf(expectedUpChange)), eq(it), any())
         }
         verifyNoMoreInteractions(parentPointerInputNode.pointerInputHandler)
         verifyNoMoreInteractions(childPointerInputNode.pointerInputHandler)

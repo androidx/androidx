@@ -52,7 +52,7 @@ enum class PointerEventPass {
 }
 
 typealias PointerInputHandler =
-            (List<PointerInputChange>, PointerEventPass) -> List<PointerInputChange>
+            (List<PointerInputChange>, PointerEventPass, IntPxSize) -> List<PointerInputChange>
 
 // PointerInputChange extension functions
 

@@ -70,7 +70,6 @@ internal fun Padding(
     children: @Composable() () -> Unit
 ) {
     Layout(children) { measurables, constraints ->
-        println(constraints)
         val paddingLeftIpx = paddingLeft?.toIntPx() ?: IntPx.Zero
         val paddingTopIpx = paddingTop?.toIntPx() ?: IntPx.Zero
         val paddingRightIpx = paddingRight?.toIntPx() ?: IntPx.Zero

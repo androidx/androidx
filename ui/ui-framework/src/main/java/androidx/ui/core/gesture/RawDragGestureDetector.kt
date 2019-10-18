@@ -31,6 +31,7 @@ import androidx.ui.core.consumePositionChange
 import androidx.ui.core.gesture.util.VelocityTracker
 import androidx.ui.core.positionChange
 import androidx.ui.core.px
+import androidx.ui.core.IntPxSize
 import androidx.ui.core.PointerInputWrapper
 
 interface DragObserver {
@@ -133,7 +134,7 @@ internal class RawDragGestureRecognizer {
     lateinit var dragObserver: DragObserver
 
     val pointerInputHandler =
-        { changes: List<PointerInputChange>, pass: PointerEventPass ->
+        { changes: List<PointerInputChange>, pass: PointerEventPass, _: IntPxSize ->
 
             var changesToReturn = changes
 

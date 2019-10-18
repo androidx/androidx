@@ -329,7 +329,7 @@ class RepaintBoundaryNode(val name: String?) : ComponentNode() {
  * Backing node for handling pointer events.
  */
 class PointerInputNode : ComponentNode() {
-    var pointerInputHandler: PointerInputHandler = { event, _ -> event }
+    var pointerInputHandler: PointerInputHandler = { event, _, _ -> event }
 }
 
 /**

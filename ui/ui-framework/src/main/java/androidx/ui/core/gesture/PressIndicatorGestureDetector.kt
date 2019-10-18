@@ -26,8 +26,10 @@ import androidx.ui.engine.geometry.Offset
 import androidx.compose.Composable
 import androidx.compose.memo
 import androidx.compose.unaryPlus
+import androidx.ui.core.IntPxSize
 import androidx.ui.core.PointerInputWrapper
 import androidx.ui.core.changedToUpIgnoreConsumed
+import androidx.ui.core.gesture.util.anyPointersInBounds
 
 /**
  * This gesture detector has callbacks for when a press gesture starts and ends for the purposes of
@@ -94,7 +96,7 @@ internal class PressIndicatorGestureRecognizer {
     private var started = false
 
     val pointerInputHandler =
-        { changes: List<PointerInputChange>, pass: PointerEventPass ->
+        { changes: List<PointerInputChange>, pass: PointerEventPass, bounds: IntPxSize ->
 
             var internalChanges = changes
 
@@ -121,6 +123,12 @@ internal class PressIndicatorGestureRecognizer {
                         // If we have started and all of the changes changed to up, we are stopping.
                         started = false
                         onStop?.invoke()
+                    } else if (!internalChanges.anyPointersInBounds(bounds)) {
+                        // If all of the down pointers are currently out of bounds, we should cancel
+                        // as this indicates that the user does not which to trigger a press based
+                        // event.
+                        started = false
+                        onCancel?.invoke()
                     }
                 }
 
