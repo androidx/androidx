@@ -210,11 +210,9 @@ internal class MultiParagraph(
 
     /** Returns path that enclose the given text range. */
     fun getPathForRange(start: Int, end: Int): Path {
-        if (start !in 0..end || end > annotatedString.text.length) {
-            throw AssertionError(
-                "Start($start) or End($end) is out of range [0..${annotatedString.text.length})," +
-                        " or start > end!"
-            )
+        require(start in 0..end && end <= annotatedString.text.length) {
+            "Start($start) or End($end) is out of range [0..${annotatedString.text.length})," +
+                    " or start > end!"
         }
 
         if (start == end) return Path()
@@ -259,7 +257,7 @@ internal class MultiParagraph(
      * includes the top, bottom, left and right of a character.
      */
     fun getBoundingBox(offset: Int): Rect {
-        assertIndexInRange(offset)
+        requireIndexInRange(offset)
 
         val paragraphIndex = findParagraphByIndex(paragraphInfoList, offset)
         return with(paragraphInfoList[paragraphIndex]) {
@@ -269,10 +267,7 @@ internal class MultiParagraph(
 
     /** Get the primary horizontal position for the specified text offset. */
     fun getPrimaryHorizontal(offset: Int): Float {
-        if (offset !in 0..annotatedString.text.length) {
-            throw AssertionError("offset($offset) is out of bounds " +
-                    "(0,${annotatedString.text.length}")
-        }
+        requireIndexInRangeInclusiveEnd(offset)
 
         val paragraphIndex = if (offset == annotatedString.text.length) {
             paragraphInfoList.lastIndex
@@ -287,10 +282,7 @@ internal class MultiParagraph(
 
     /** Get the secondary horizontal position for the specified text offset. */
     fun getSecondaryHorizontal(offset: Int): Float {
-        if (offset !in 0..annotatedString.text.length) {
-            throw AssertionError("offset($offset) is out of bounds " +
-                    "(0,${annotatedString.text.length}")
-        }
+        requireIndexInRangeInclusiveEnd(offset)
 
         val paragraphIndex = if (offset == annotatedString.text.length) {
             paragraphInfoList.lastIndex
@@ -307,10 +299,7 @@ internal class MultiParagraph(
      * Get the text direction of the paragraph containing the given offset.
      */
     fun getParagraphDirection(offset: Int): TextDirection {
-        if (offset !in 0..annotatedString.text.length) {
-            throw AssertionError("offset($offset) is out of bounds " +
-                    "(0,${annotatedString.text.length}")
-        }
+        requireIndexInRange(offset)
 
         val paragraphIndex = if (offset == annotatedString.text.length) {
             paragraphInfoList.lastIndex
@@ -327,10 +316,7 @@ internal class MultiParagraph(
      * Get the text direction of the character at the given offset.
      */
     fun getBidiRunDirection(offset: Int): TextDirection {
-        if (offset !in 0..annotatedString.text.length) {
-            throw AssertionError("offset($offset) is out of bounds " +
-                    "(0,${annotatedString.text.length}")
-        }
+        requireIndexInRange(offset)
 
         val paragraphIndex = if (offset == annotatedString.text.length) {
             paragraphInfoList.lastIndex
@@ -351,7 +337,7 @@ internal class MultiParagraph(
      * http://www.unicode.org/reports/tr29/#Word_Boundaries
      */
     fun getWordBoundary(offset: Int): TextRange {
-        assertIndexInRange(offset)
+        requireIndexInRange(offset)
 
         val paragraphIndex = findParagraphByIndex(paragraphInfoList, offset)
 
@@ -362,10 +348,7 @@ internal class MultiParagraph(
 
     /** Returns rectangle of the cursor area. */
     fun getCursorRect(offset: Int): Rect {
-        if (offset !in 0..annotatedString.text.length) {
-            throw AssertionError("offset($offset) is out of bounds " +
-                    "(0,${annotatedString.text.length}")
-        }
+        requireIndexInRangeInclusiveEnd(offset)
 
         val paragraphIndex = if (offset == annotatedString.text.length) {
             paragraphInfoList.lastIndex
@@ -384,7 +367,7 @@ internal class MultiParagraph(
      * beyond the end of the text, you get the last line.
      */
     fun getLineForOffset(offset: Int): Int {
-        assertIndexInRange(offset)
+        requireIndexInRange(offset)
 
         val paragraphIndex = findParagraphByIndex(paragraphInfoList, offset)
         return with(paragraphInfoList[paragraphIndex]) {
@@ -394,7 +377,7 @@ internal class MultiParagraph(
 
     /** Returns the left x Coordinate of the given line. */
     fun getLineLeft(lineIndex: Int): Float {
-        assertLineIndexInRange(lineIndex)
+        requireLineIndexInRange(lineIndex)
 
         val paragraphIndex = findParagraphByLineIndex(paragraphInfoList, lineIndex)
 
@@ -405,7 +388,7 @@ internal class MultiParagraph(
 
     /** Returns the right x Coordinate of the given line. */
     fun getLineRight(lineIndex: Int): Float {
-        assertLineIndexInRange(lineIndex)
+        requireLineIndexInRange(lineIndex)
 
         val paragraphIndex = findParagraphByLineIndex(paragraphInfoList, lineIndex)
 
@@ -416,7 +399,7 @@ internal class MultiParagraph(
 
     /** Returns the bottom y coordinate of the given line. */
     fun getLineBottom(lineIndex: Int): Float {
-        assertLineIndexInRange(lineIndex)
+        requireLineIndexInRange(lineIndex)
 
         val paragraphIndex = findParagraphByLineIndex(paragraphInfoList, lineIndex)
 
@@ -427,7 +410,7 @@ internal class MultiParagraph(
 
     /** Returns the height of the given line. */
     fun getLineHeight(lineIndex: Int): Float {
-        assertLineIndexInRange(lineIndex)
+        requireLineIndexInRange(lineIndex)
 
         val paragraphIndex = findParagraphByLineIndex(paragraphInfoList, lineIndex)
 
@@ -438,7 +421,7 @@ internal class MultiParagraph(
 
     /** Returns the width of the given line. */
     fun getLineWidth(lineIndex: Int): Float {
-        assertLineIndexInRange(lineIndex)
+        requireLineIndexInRange(lineIndex)
 
         val paragraphIndex = findParagraphByLineIndex(paragraphInfoList, lineIndex)
 
@@ -447,17 +430,21 @@ internal class MultiParagraph(
         }
     }
 
-    private fun assertIndexInRange(offset: Int) {
-        if (offset !in (0 until annotatedString.text.length)) {
-            throw IndexOutOfBoundsException("offset($offset) is out of bounds" +
-                    " [0, ${annotatedString.text.length})")
+    private fun requireIndexInRange(offset: Int) {
+        require(offset in annotatedString.text.indices) {
+            "offset($offset) is out of bounds [0, ${annotatedString.text.length})"
         }
     }
 
-    private fun assertLineIndexInRange(lineIndex: Int) {
-        if (lineIndex !in (0 until lineCount)) {
-            throw IndexOutOfBoundsException("lineIndex($lineIndex) is out of bounds" +
-                    " [0, $lineIndex)")
+    private fun requireIndexInRangeInclusiveEnd(offset: Int) {
+        require(offset in 0..annotatedString.text.length) {
+            "offset($offset) is out of bounds [0, ${annotatedString.text.length}]"
+        }
+    }
+
+    private fun requireLineIndexInRange(lineIndex: Int) {
+        require(lineIndex in 0 until lineCount) {
+            "lineIndex($lineIndex) is out of bounds [0, $lineIndex)"
         }
     }
 }

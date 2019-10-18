@@ -469,7 +469,7 @@ class MultiParagraphIntegrationTest {
         }
     }
 
-    @Test(expected = java.lang.IndexOutOfBoundsException::class)
+    @Test(expected = java.lang.IllegalArgumentException::class)
     fun getBoundingBox_ltr_textPosition_negative() {
         withDensity(defaultDensity) {
             val text = "abc"
@@ -486,7 +486,7 @@ class MultiParagraphIntegrationTest {
     }
 
     @Suppress
-    @Test(expected = java.lang.IndexOutOfBoundsException::class)
+    @Test(expected = java.lang.IllegalArgumentException::class)
     fun getBoundingBox_ltr_textPosition_larger_than_length_throw_exception() {
         withDensity(defaultDensity) {
             val text = "abc"
@@ -503,7 +503,7 @@ class MultiParagraphIntegrationTest {
         }
     }
 
-    @Test(expected = java.lang.AssertionError::class)
+    @Test(expected = java.lang.IllegalArgumentException::class)
     fun getCursorRect_larger_than_length_throw_exception() {
         withDensity(defaultDensity) {
             val text = "abc"
@@ -518,7 +518,7 @@ class MultiParagraphIntegrationTest {
         }
     }
 
-    @Test(expected = java.lang.AssertionError::class)
+    @Test(expected = java.lang.IllegalArgumentException::class)
     fun getCursorRect_negative_throw_exception() {
         withDensity(defaultDensity) {
             val text = "abc"
@@ -1163,7 +1163,7 @@ class MultiParagraphIntegrationTest {
                 constraints = ParagraphConstraints(width)
             )
 
-            for (i in 0..text.length) {
+            for (i in text.indices) {
                 assertThat(paragraph.getParagraphDirection(i)).isEqualTo(TextDirection.Ltr)
             }
         }
@@ -1183,7 +1183,7 @@ class MultiParagraphIntegrationTest {
                 constraints = ParagraphConstraints(width)
             )
 
-            for (i in 0..text.length) {
+            for (i in text.indices) {
                 assertThat(paragraph.getParagraphDirection(i)).isEqualTo(TextDirection.Rtl)
             }
         }
@@ -1222,7 +1222,7 @@ class MultiParagraphIntegrationTest {
                 constraints = ParagraphConstraints(width)
             )
 
-            for (i in 0..text.length) {
+            for (i in text.indices) {
                 assertThat(paragraph.getParagraphDirection(i)).isEqualTo(TextDirection.Ltr)
             }
         }
@@ -1243,7 +1243,7 @@ class MultiParagraphIntegrationTest {
                 constraints = ParagraphConstraints(width)
             )
 
-            for (i in 0..text.length) {
+            for (i in text.indices) {
                 assertThat(paragraph.getParagraphDirection(i)).isEqualTo(TextDirection.Ltr)
             }
         }
@@ -1265,7 +1265,7 @@ class MultiParagraphIntegrationTest {
                 constraints = ParagraphConstraints(width)
             )
 
-            for (i in 0..text.length) {
+            for (i in text.indices) {
                 assertThat(paragraph.getParagraphDirection(i)).isEqualTo(TextDirection.Ltr)
             }
         }
@@ -1287,7 +1287,7 @@ class MultiParagraphIntegrationTest {
                 constraints = ParagraphConstraints(width)
             )
 
-            for (i in 0..text.length) {
+            for (i in text.indices) {
                 assertThat(paragraph.getParagraphDirection(i)).isEqualTo(TextDirection.Rtl)
             }
         }
@@ -1306,7 +1306,7 @@ class MultiParagraphIntegrationTest {
                 constraints = ParagraphConstraints(width)
             )
 
-            for (i in 0..text.length) {
+            for (i in text.indices) {
                 assertThat(paragraph.getBidiRunDirection(i)).isEqualTo(TextDirection.Ltr)
             }
         }
@@ -1326,7 +1326,7 @@ class MultiParagraphIntegrationTest {
                 constraints = ParagraphConstraints(width)
             )
 
-            for (i in 0..text.length) {
+            for (i in text.indices) {
                 assertThat(paragraph.getBidiRunDirection(i)).isEqualTo(TextDirection.Ltr)
             }
         }
@@ -1546,7 +1546,7 @@ class MultiParagraphIntegrationTest {
         }
     }
 
-    @Test(expected = java.lang.IndexOutOfBoundsException::class)
+    @Test(expected = java.lang.IllegalArgumentException::class)
     fun getLineForOffset_negativeOffset() {
         withDensity(defaultDensity) {
             val text = "abc"
@@ -1563,7 +1563,7 @@ class MultiParagraphIntegrationTest {
         }
     }
 
-    @Test(expected = java.lang.IndexOutOfBoundsException::class)
+    @Test(expected = java.lang.IllegalArgumentException::class)
     fun getLineForOffset_outOfBoundary() {
         withDensity(defaultDensity) {
             val text = "abc"
@@ -1914,7 +1914,7 @@ class MultiParagraphIntegrationTest {
         assertThat(resultHebrew.end).isEqualTo(text.indexOf('\u05d2') + 1)
     }
 
-    @Test(expected = AssertionError::class)
+    @Test(expected = IllegalArgumentException::class)
     fun getPathForRange_throws_exception_if_start_larger_than_end() {
         val text = "ab"
         val textStart = 0
@@ -1924,7 +1924,7 @@ class MultiParagraphIntegrationTest {
         paragraph.getPathForRange(textEnd, textStart)
     }
 
-    @Test(expected = AssertionError::class)
+    @Test(expected = IllegalArgumentException::class)
     fun getPathForRange_throws_exception_if_start_is_smaller_than_zero() {
         val text = "ab"
         val textStart = 0
@@ -1934,7 +1934,7 @@ class MultiParagraphIntegrationTest {
         paragraph.getPathForRange(textStart - 2, textEnd - 1)
     }
 
-    @Test(expected = AssertionError::class)
+    @Test(expected = IllegalArgumentException::class)
     fun getPathForRange_throws_exception_if_end_is_larger_than_text_length() {
         val text = "ab"
         val textStart = 0
