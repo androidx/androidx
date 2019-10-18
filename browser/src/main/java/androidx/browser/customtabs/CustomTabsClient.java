@@ -144,7 +144,7 @@ public class CustomTabsClient {
         CustomTabsServiceConnection connection = new CustomTabsServiceConnection() {
             @Override
             public final void onCustomTabsServiceConnected(
-                    ComponentName name, CustomTabsClient client) {
+                    @NonNull ComponentName name, @NonNull CustomTabsClient client) {
                 client.warmup(0);
                 // Unbinding immediately makes the target process "Empty", provided that it is
                 // not used by anyone else, and doesn't contain any Activity. This makes it
@@ -231,8 +231,9 @@ public class CustomTabsClient {
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @NonNull
     public static CustomTabsSession.PendingSession newPendingSession(
-            Context context, final CustomTabsCallback callback, int id) {
+            @NonNull Context context, @Nullable final CustomTabsCallback callback, int id) {
         PendingIntent sessionId = createSessionId(context, id);
 
         return new CustomTabsSession.PendingSession(callback, sessionId);
@@ -358,7 +359,8 @@ public class CustomTabsClient {
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @SuppressWarnings("NullAway") // TODO: b/141869399
-    public CustomTabsSession attachSession(CustomTabsSession.PendingSession session) {
+    @Nullable
+    public CustomTabsSession attachSession(@NonNull CustomTabsSession.PendingSession session) {
         return newSessionInternal(session.getCallback(), session.getId());
     }
 }

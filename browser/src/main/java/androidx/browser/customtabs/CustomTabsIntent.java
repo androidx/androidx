@@ -326,13 +326,13 @@ public final class CustomTabsIntent {
      * @param context The source Context.
      * @param url The URL to load in the Custom Tab.
      */
-    public void launchUrl(Context context, Uri url) {
+    public void launchUrl(@NonNull Context context, @NonNull Uri url) {
         intent.setData(url);
         ContextCompat.startActivity(context, intent, startAnimationBundle);
     }
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
-    CustomTabsIntent(Intent intent, Bundle startAnimationBundle) {
+    CustomTabsIntent(@NonNull Intent intent, @Nullable Bundle startAnimationBundle) {
         this.intent = intent;
         this.startAnimationBundle = startAnimationBundle;
     }
@@ -344,12 +344,9 @@ public final class CustomTabsIntent {
         private final Intent mIntent = new Intent(Intent.ACTION_VIEW);
         private final CustomTabColorSchemeParams.Builder mDefaultColorSchemeBuilder =
                 new CustomTabColorSchemeParams.Builder();
-        @SuppressWarnings("NullAway") // TODO: b/141869399
-        private ArrayList<Bundle> mMenuItems = null;
-        @SuppressWarnings("NullAway") // TODO: b/141869399
-        private Bundle mStartAnimationBundle = null;
-        @SuppressWarnings("NullAway") // TODO: b/141869399
-        private ArrayList<Bundle> mActionButtons = null;
+        @Nullable private ArrayList<Bundle> mMenuItems;
+        @Nullable private Bundle mStartAnimationBundle;
+        @Nullable private ArrayList<Bundle> mActionButtons;
         private boolean mInstantAppsEnabled = true;
         @Nullable
         private SparseArray<Bundle> mColorSchemeParamBundles;
@@ -547,7 +544,7 @@ public final class CustomTabsIntent {
         @Deprecated
         @NonNull
         public Builder addToolbarItem(int id, @NonNull Bitmap icon, @NonNull String description,
-                PendingIntent pendingIntent) throws IllegalStateException {
+                @NonNull PendingIntent pendingIntent) throws IllegalStateException {
             if (mActionButtons == null) {
                 mActionButtons = new ArrayList<>();
             }
@@ -772,7 +769,8 @@ public final class CustomTabsIntent {
      * @param intent The intent to modify for always showing browser UI.
      * @return The same intent with the necessary flags and extras added.
      */
-    public static Intent setAlwaysUseBrowserUI(Intent intent) {
+    @NonNull
+    public static Intent setAlwaysUseBrowserUI(@Nullable Intent intent) {
         if (intent == null) intent = new Intent(Intent.ACTION_VIEW);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         intent.putExtra(EXTRA_USER_OPT_OUT_FROM_CUSTOM_TABS, true);
@@ -786,7 +784,7 @@ public final class CustomTabsIntent {
      * @param intent The intent to check for the required flags and extras.
      * @return Whether the browser UI should be used exclusively.
      */
-    public static boolean shouldAlwaysUseBrowserUI(Intent intent) {
+    public static boolean shouldAlwaysUseBrowserUI(@NonNull Intent intent) {
         return intent.getBooleanExtra(EXTRA_USER_OPT_OUT_FROM_CUSTOM_TABS, false)
                 && (intent.getFlags() & Intent.FLAG_ACTIVITY_NEW_TASK) != 0;
     }

@@ -19,6 +19,8 @@ package androidx.browser.customtabs;
 import android.content.Context;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 
 /**
@@ -40,18 +42,18 @@ public interface PostMessageBackend {
      * @param extras Unused.
      * @return Whether the postMessage was sent successfully.
      */
-    boolean onPostMessage(String message, Bundle extras);
+    boolean onPostMessage(@NonNull String message, @Nullable Bundle extras);
 
     /**
      * Notifies the client that the postMessage channel is ready to be used.
      * @param extras Unused.
      * @return Whether the notification was sent successfully.
      */
-    boolean onNotifyMessageChannelReady(Bundle extras);
+    boolean onNotifyMessageChannelReady(@Nullable Bundle extras);
 
     /**
      * Notifies the client that the channel has been disconnected.
      * @param appContext The application context.
      */
-    void onDisconnectChannel(Context appContext);
+    void onDisconnectChannel(@NonNull Context appContext);
 }
