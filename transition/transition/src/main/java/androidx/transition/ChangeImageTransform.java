@@ -190,6 +190,8 @@ public class ChangeImageTransform extends Transition {
                     return fitXYMatrix(view);
                 case CENTER_CROP:
                     return centerCropMatrix(view);
+                default:
+                    return new Matrix(view.getImageMatrix());
             }
         }
         return new Matrix(view.getImageMatrix());
