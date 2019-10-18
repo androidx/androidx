@@ -126,6 +126,7 @@ import android.widget.RelativeLayout;
  *
  * &lt;/androidx.constraintlayout.widget.ConstraintLayout&gt
  */
+@SuppressWarnings("deprecation")
 @Deprecated
 public class PercentRelativeLayout extends RelativeLayout {
     private final PercentLayoutHelper mHelper = new PercentLayoutHelper(this);

@@ -129,6 +129,7 @@ import androidx.annotation.RequiresApi;
  * &lt;/androidx.constraintlayout.widget.ConstraintLayout&gt
  * </pre>
  */
+@SuppressWarnings("deprecation")
 @Deprecated
 public class PercentFrameLayout extends FrameLayout {
     private final PercentLayoutHelper mHelper = new PercentLayoutHelper(this);
