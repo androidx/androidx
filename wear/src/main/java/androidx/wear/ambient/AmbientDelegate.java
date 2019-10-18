@@ -36,8 +36,6 @@ final class AmbientDelegate {
 
     private WearableActivityController mWearableController;
 
-    private static boolean sInitAutoResumeEnabledMethod;
-    private static boolean sHasAutoResumeEnabledMethod;
     private final WearableControllerProvider mWearableControllerProvider;
     private final AmbientCallback mCallback;
     private final WeakReference<Activity> mActivity;
