@@ -631,6 +631,18 @@ final class CaptureSession {
         }
     }
 
+    void cancelIssuedCaptureRequests() {
+        if (!mCaptureConfigs.isEmpty()) {
+            for (CaptureConfig captureConfig : mCaptureConfigs) {
+                for (CameraCaptureCallback cameraCaptureCallback :
+                        captureConfig.getCameraCaptureCallbacks()) {
+                    cameraCaptureCallback.onCaptureCancelled();
+                }
+            }
+            mCaptureConfigs.clear();
+        }
+    }
+
     private CameraCaptureSession.CaptureCallback createCamera2CaptureCallback(
             List<CameraCaptureCallback> cameraCaptureCallbacks,
             CameraCaptureSession.CaptureCallback... additionalCallbacks) {

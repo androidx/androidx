@@ -560,6 +560,19 @@ public final class CaptureSessionTest {
         return captureSession;
     }
 
+    @Test
+    public void issueCaptureCancelledBeforeExecuting() {
+        CaptureSession captureSession = createCaptureSession(mTestParameters0);
+        captureSession.setSessionConfig(mTestParameters0.mSessionConfig);
+        captureSession.issueCaptureRequests(
+                Collections.singletonList(mTestParameters0.mCaptureConfig));
+
+        captureSession.cancelIssuedCaptureRequests();
+
+        verify(mTestParameters0.mCameraCaptureCallback, timeout(3000).times(1))
+                .onCaptureCancelled();
+    }
+
     /**
      * A implementation to test {@link CameraEventCallback} on CaptureSession.
      */

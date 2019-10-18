@@ -19,9 +19,11 @@ package androidx.camera.camera2.impl;
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assume.assumeTrue;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 import static org.mockito.internal.verification.VerificationModeFactory.times;
@@ -33,6 +35,7 @@ import android.media.ImageReader;
 import android.media.ImageReader.OnImageAvailableListener;
 import android.os.Handler;
 import android.os.HandlerThread;
+import android.os.Looper;
 import android.util.Size;
 
 import androidx.annotation.GuardedBy;
@@ -809,6 +812,43 @@ public final class Camera2CameraImplTest {
         return testUseCase;
     }
 
+    @Test
+    public void useCaseOnStateOnline_isCalled() throws InterruptedException {
+        TestUseCase useCase1 = spy((TestUseCase) createUseCase());
+        TestUseCase useCase2 = spy((TestUseCase) createUseCase());
+
+        mCamera2CameraImpl.addOnlineUseCase(Arrays.asList(useCase1));
+        mCamera2CameraImpl.addOnlineUseCase(Arrays.asList(useCase1, useCase2));
+
+        HandlerUtil.waitForLooperToIdle(mCameraHandler);
+
+        Handler uiThreadHandler = new Handler(Looper.getMainLooper());
+        HandlerUtil.waitForLooperToIdle(uiThreadHandler);
+
+        verify(useCase1, times(1)).onStateOnline(eq(mCameraId));
+        verify(useCase2, times(1)).onStateOnline(eq(mCameraId));
+    }
+
+    @Test
+    public void useCaseOnStateOffline_isCalled() throws InterruptedException {
+        TestUseCase useCase1 = spy((TestUseCase) createUseCase());
+        TestUseCase useCase2 = spy((TestUseCase) createUseCase());
+        TestUseCase useCase3 = spy((TestUseCase) createUseCase());
+
+        mCamera2CameraImpl.addOnlineUseCase(Arrays.asList(useCase1, useCase2));
+
+        mCamera2CameraImpl.removeOnlineUseCase(Arrays.asList(useCase1, useCase2, useCase3));
+
+        HandlerUtil.waitForLooperToIdle(mCameraHandler);
+
+        Handler uiThreadHandler = new Handler(Looper.getMainLooper());
+        HandlerUtil.waitForLooperToIdle(uiThreadHandler);
+
+        verify(useCase1, times(1)).onStateOffline(eq(mCameraId));
+        verify(useCase2, times(1)).onStateOffline(eq(mCameraId));
+        verify(useCase3, times(0)).onStateOffline(eq(mCameraId));
+    }
+
     private DeferrableSurface getUseCaseSurface(UseCase useCase) {
         return useCase.getSessionConfig(mCameraId).getSurfaces().get(0);
     }
@@ -843,7 +883,7 @@ public final class Camera2CameraImplTest {
         semaphore.acquire();
     }
 
-    private static class TestUseCase extends FakeUseCase {
+    public static class TestUseCase extends FakeUseCase {
         private final ImageReader.OnImageAvailableListener mImageAvailableListener;
         HandlerThread mHandlerThread = new HandlerThread("HandlerThread");
         Handler mHandler;

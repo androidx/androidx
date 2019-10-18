@@ -395,6 +395,8 @@ final class Camera2CameraImpl implements BaseCamera {
             // camera enters a REOPENING state during session closing.
             resetCaptureSession(abortInFlightCaptures);
         }
+
+        mCaptureSession.cancelIssuedCaptureRequests();
     }
 
     @WorkerThread
@@ -721,15 +723,21 @@ final class Camera2CameraImpl implements BaseCamera {
         }
 
         Log.d(TAG, "Use cases " + useCases + " ONLINE for camera " + mCameraId);
+        List<UseCase> useCasesChangedToOnline = new ArrayList<>();
         synchronized (mAttachedUseCaseLock) {
             for (UseCase useCase : useCases) {
-                mUseCaseAttachState.setUseCaseOnline(useCase);
+                if (!isUseCaseOnline(useCase)) {
+                    mUseCaseAttachState.setUseCaseOnline(useCase);
+                    useCasesChangedToOnline.add(useCase);
+                }
             }
         }
 
         synchronized (mPendingLock) {
             mPendingForAddOnline.removeAll(useCases);
         }
+
+        notifyStateOnlineToUseCases(useCasesChangedToOnline);
 
         updateCaptureSessionConfig();
         resetCaptureSession(/*abortInFlightCaptures=*/false);
@@ -741,6 +749,22 @@ final class Camera2CameraImpl implements BaseCamera {
         }
 
         updateCameraControlPreviewAspectRatio(useCases);
+    }
+
+    private void notifyStateOnlineToUseCases(List<UseCase> useCases) {
+        CameraXExecutors.mainThreadExecutor().execute(()-> {
+            for (UseCase useCase : useCases) {
+                useCase.onStateOnline(mCameraId);
+            }
+        });
+    }
+
+    private void notifyStateOfflineToUseCases(List<UseCase> useCases) {
+        CameraXExecutors.mainThreadExecutor().execute(()-> {
+            for (UseCase useCase : useCases) {
+                useCase.onStateOffline(mCameraId);
+            }
+        });
     }
 
 
@@ -786,17 +810,19 @@ final class Camera2CameraImpl implements BaseCamera {
 
         Log.d(TAG, "Use cases " + useCases + " OFFLINE for camera " + mCameraId);
         synchronized (mAttachedUseCaseLock) {
-            List<UseCase> toDetach = new ArrayList<>();
+            List<UseCase> useCasesChangedToOffline = new ArrayList<>();
             for (UseCase useCase : useCases) {
                 if (mUseCaseAttachState.isUseCaseOnline(useCase)) {
-                    toDetach.add(useCase);
+                    useCasesChangedToOffline.add(useCase);
                 }
                 mUseCaseAttachState.setUseCaseOffline(useCase);
             }
 
-            for (UseCase detach : toDetach) {
+            for (UseCase detach : useCasesChangedToOffline) {
                 notifyDetachFromUseCaseSurfaces(detach);
             }
+
+            notifyStateOfflineToUseCases(useCasesChangedToOffline);
 
             if (mUseCaseAttachState.getOnlineUseCases().isEmpty()) {
                 resetCaptureSession(/*abortInFlightCaptures=*/false);
