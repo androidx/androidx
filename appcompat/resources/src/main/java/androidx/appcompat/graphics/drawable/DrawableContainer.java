@@ -154,6 +154,7 @@ class DrawableContainer extends Drawable implements Drawable.Callback {
         return mAlpha;
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public void setDither(boolean dither) {
         if (mDrawableContainerState.mDither != dither) {
@@ -400,6 +401,7 @@ class DrawableContainer extends Drawable implements Drawable.Callback {
         return changed;
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public int getOpacity() {
         return mCurrDrawable == null || !mCurrDrawable.isVisible() ? PixelFormat.TRANSPARENT :
@@ -487,6 +489,7 @@ class DrawableContainer extends Drawable implements Drawable.Callback {
      *
      * @param d The drawable to initialize.
      */
+    @SuppressWarnings("deprecation")
     private void initializeDrawableForDisplay(Drawable d) {
         if (mBlockInvalidateCallback == null) {
             mBlockInvalidateCallback = new BlockInvalidateCallback();
@@ -1079,6 +1082,7 @@ class DrawableContainer extends Drawable implements Drawable.Callback {
         /**
          * @return the resolved opacity of all child drawables.
          */
+        @SuppressWarnings("deprecation")
         public final int getOpacity() {
             if (mCheckedOpacity) {
                 return mOpacity;
