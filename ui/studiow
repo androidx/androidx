@@ -1,5 +1,8 @@
 #!/bin/bash
 set -e
-set -m
 
+# This is a wrapper script that runs the specific version of Android Studio that is recommended for
+# developing in this project (This serves a similar purpose to gradlew).
+
+echo "Running ./gradlew studio"
 ./gradlew studio

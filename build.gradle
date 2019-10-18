@@ -32,7 +32,7 @@ buildscript {
     SdkHelperKt.setSdkInLocalPropertiesFile(ext.supportRootFolder)
 
     dependencies {
-        classpath build_libs.gradle
+        classpath build_libs.agp
         classpath build_libs.kotlin.gradle_plugin
         classpath build_libs.dokka_gradle
     }
