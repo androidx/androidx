@@ -116,13 +116,13 @@ class FocusMeteringControl {
     }
 
     @WorkerThread
-    private PointF getFOVAdjustedPoint(@NonNull MeteringPoint meteringPoint,
+    private PointF getFovAdjustedPoint(@NonNull MeteringPoint meteringPoint,
             @NonNull Rational cropRegionAspectRatio,
             @NonNull Rational defaultAspectRatio) {
         // Use default aspect ratio unless there is a custom aspect ratio in MeteringPoint.
         Rational fovAspectRatio = defaultAspectRatio;
-        if (meteringPoint.getFOVAspectRatio() != null) {
-            fovAspectRatio = meteringPoint.getFOVAspectRatio();
+        if (meteringPoint.getFovAspectRatio() != null) {
+            fovAspectRatio = meteringPoint.getFovAspectRatio();
         }
 
         PointF adjustedPoint = new PointF(meteringPoint.getNormalizedCropRegionX(),
@@ -199,24 +199,24 @@ class FocusMeteringControl {
         List<MeteringRectangle> meteringRectanglesListAE = new ArrayList<>();
         List<MeteringRectangle> meteringRectanglesListAWB = new ArrayList<>();
 
-        for (MeteringPoint meteringPoint : action.getMeteringPointsAF()) {
-            PointF adjustedPoint = getFOVAdjustedPoint(meteringPoint, cropRegionAspectRatio,
+        for (MeteringPoint meteringPoint : action.getMeteringPointsAf()) {
+            PointF adjustedPoint = getFovAdjustedPoint(meteringPoint, cropRegionAspectRatio,
                     defaultAspectRatio);
             MeteringRectangle meteringRectangle = getMeteringRect(meteringPoint, adjustedPoint,
                     cropSensorRegion);
             meteringRectanglesListAF.add(meteringRectangle);
         }
 
-        for (MeteringPoint meteringPoint : action.getMeteringPointsAE()) {
-            PointF adjustedPoint = getFOVAdjustedPoint(meteringPoint, cropRegionAspectRatio,
+        for (MeteringPoint meteringPoint : action.getMeteringPointsAe()) {
+            PointF adjustedPoint = getFovAdjustedPoint(meteringPoint, cropRegionAspectRatio,
                     defaultAspectRatio);
             MeteringRectangle meteringRectangle = getMeteringRect(meteringPoint, adjustedPoint,
                     cropSensorRegion);
             meteringRectanglesListAE.add(meteringRectangle);
         }
 
-        for (MeteringPoint meteringPoint : action.getMeteringPointsAWB()) {
-            PointF adjustedPoint = getFOVAdjustedPoint(meteringPoint, cropRegionAspectRatio,
+        for (MeteringPoint meteringPoint : action.getMeteringPointsAwb()) {
+            PointF adjustedPoint = getFovAdjustedPoint(meteringPoint, cropRegionAspectRatio,
                     defaultAspectRatio);
             MeteringRectangle meteringRectangle = getMeteringRect(meteringPoint, adjustedPoint,
                     cropSensorRegion);
@@ -382,7 +382,7 @@ class FocusMeteringControl {
             };
 
             mAutoCancelHandle = mScheduler.schedule(autoCancelRunnable,
-                    focusMeteringAction.getAutoCancelDurationInMs(),
+                    focusMeteringAction.getAutoCancelDurationInMillis(),
                     TimeUnit.MILLISECONDS);
         }
     }

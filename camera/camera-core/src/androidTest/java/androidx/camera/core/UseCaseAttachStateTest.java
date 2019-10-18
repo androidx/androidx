@@ -27,6 +27,7 @@ import android.hardware.camera2.CameraDevice;
 import android.util.Size;
 import android.view.Surface;
 
+import androidx.annotation.NonNull;
 import androidx.camera.core.CameraX.LensFacing;
 import androidx.camera.testing.fakes.FakeAppConfig;
 import androidx.camera.testing.fakes.FakeUseCase;
@@ -367,8 +368,9 @@ public class UseCaseAttachStateTest {
         }
 
         @Override
+        @NonNull
         protected Map<String, Size> onSuggestedResolutionUpdated(
-                Map<String, Size> suggestedResolutionMap) {
+                @NonNull Map<String, Size> suggestedResolutionMap) {
             SessionConfig.Builder builder = new SessionConfig.Builder();
             builder.setTemplateType(CameraDevice.TEMPLATE_PREVIEW);
             builder.addSurface(new ImmediateSurface(mSurface));

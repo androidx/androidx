@@ -16,6 +16,7 @@
 
 package androidx.camera.testing.fakes;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
@@ -95,6 +96,7 @@ public final class FakeConfig implements Config {
         }
 
         @Override
+        @NonNull
         public MutableConfig getMutableConfig() {
             return mOptionsBundle;
         }
@@ -104,6 +106,7 @@ public final class FakeConfig implements Config {
          *
          * @return A {@link FakeConfig} populated with the current state.
          */
+        @NonNull
         public FakeConfig build() {
             return new FakeConfig(OptionsBundle.from(mOptionsBundle));
         }

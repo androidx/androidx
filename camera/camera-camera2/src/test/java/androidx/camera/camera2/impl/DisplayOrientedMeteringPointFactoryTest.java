@@ -117,7 +117,7 @@ public class DisplayOrientedMeteringPointFactoryTest {
         MeteringPoint point = factory.createPoint(0, 0);
         assertThat(point.getSize()).isEqualTo(MeteringPointFactory.DEFAULT_AREASIZE);
         assertThat(point.getWeight()).isEqualTo(MeteringPointFactory.DEFAULT_WEIGHT);
-        assertThat(point.getFOVAspectRatio()).isNull();
+        assertThat(point.getFovAspectRatio()).isNull();
     }
 
     @Test
@@ -130,7 +130,7 @@ public class DisplayOrientedMeteringPointFactoryTest {
         MeteringPoint point = factory.createPoint(0, 0, areaSize, weight);
         assertThat(point.getSize()).isEqualTo(areaSize);
         assertThat(point.getWeight()).isEqualTo(weight);
-        assertThat(point.getFOVAspectRatio()).isNull();
+        assertThat(point.getFovAspectRatio()).isNull();
     }
 
     @Test

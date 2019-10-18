@@ -26,6 +26,7 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.util.Size;
 
+import androidx.annotation.NonNull;
 import androidx.camera.camera2.impl.Camera2CameraFactory;
 import androidx.camera.camera2.impl.Camera2DeviceSurfaceManager;
 import androidx.camera.core.BaseCamera;
@@ -194,8 +195,9 @@ public final class ImageReaderProxysTest {
         }
 
         @Override
+        @NonNull
         protected Map<String, Size> onSuggestedResolutionUpdated(
-                Map<String, Size> suggestedResolutionMap) {
+                @NonNull Map<String, Size> suggestedResolutionMap) {
             SessionConfig.Builder sessionConfigBuilder = new SessionConfig.Builder();
             sessionConfigBuilder.setTemplateType(CameraDevice.TEMPLATE_PREVIEW);
             for (ImageReaderProxy reader : mImageReaders) {

@@ -185,7 +185,7 @@ public final class PreviewTest {
     public void removePreviewSurfaceCallback() {
         Preview preview = new Preview(mDefaultConfig);
         preview.setPreviewSurfaceCallback(MOCK_PREVIEW_SURFACE_CALLBACK);
-        preview.removePreviewSurfaceCallback();
+        preview.setPreviewSurfaceCallback(null);
         assertThat(preview.getPreviewSurfaceCallback()).isNull();
     }
 

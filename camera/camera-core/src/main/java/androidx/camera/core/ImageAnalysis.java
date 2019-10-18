@@ -289,6 +289,7 @@ public final class ImageAnalysis extends UseCase {
     }
 
     @Override
+    @NonNull
     public String toString() {
         return TAG + ":" + getName();
     }
@@ -330,8 +331,9 @@ public final class ImageAnalysis extends UseCase {
      */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
+    @NonNull
     protected Map<String, Size> onSuggestedResolutionUpdated(
-            Map<String, Size> suggestedResolutionMap) {
+            @NonNull Map<String, Size> suggestedResolutionMap) {
         final ImageAnalysisConfig config = (ImageAnalysisConfig) getUseCaseConfig();
 
         String cameraId = getCameraIdUnchecked(config);
@@ -410,7 +412,7 @@ public final class ImageAnalysis extends UseCase {
          *                        the current target rotation of {@link ImageAnalysis}, expressed in
          *                        degrees in the range {@code [0..360)}.
          */
-        void analyze(ImageProxy image, int rotationDegrees);
+        void analyze(@NonNull ImageProxy image, int rotationDegrees);
     }
 
     /**

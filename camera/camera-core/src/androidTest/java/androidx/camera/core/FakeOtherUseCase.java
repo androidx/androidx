@@ -18,6 +18,7 @@ package androidx.camera.core;
 
 import android.util.Size;
 
+import androidx.annotation.NonNull;
 import androidx.camera.testing.fakes.FakeUseCase;
 
 import java.util.Map;
@@ -54,8 +55,9 @@ class FakeOtherUseCase extends UseCase {
     }
 
     @Override
+    @NonNull
     protected Map<String, Size> onSuggestedResolutionUpdated(
-            Map<String, Size> suggestedResolutionMap) {
+            @NonNull Map<String, Size> suggestedResolutionMap) {
         return suggestedResolutionMap;
     }
 

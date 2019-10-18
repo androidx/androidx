@@ -16,6 +16,7 @@
 
 package androidx.camera.core;
 
+import android.annotation.SuppressLint;
 import android.graphics.ImageFormat;
 import android.graphics.Rect;
 import android.graphics.SurfaceTexture;
@@ -241,6 +242,8 @@ public class Preview extends UseCase {
      *
      * @throws IllegalStateException If not called on main thread.
      */
+    @SuppressLint("PairedRegistration") // TODO(b/117519540): once bug fixed, this API and
+    // SuppressLint should be removed.
     @UiThread
     public void removePreviewOutputListener() {
         Threads.checkMainThread();
@@ -362,15 +365,20 @@ public class Preview extends UseCase {
      */
     @UiThread
     public void setPreviewSurfaceCallback(@NonNull Executor callbackExecutor,
-            @NonNull PreviewSurfaceCallback previewSurfaceCallback) {
+            @Nullable PreviewSurfaceCallback previewSurfaceCallback) {
         Threads.checkMainThread();
-        Preconditions.checkState(mSubscribedPreviewOutputListener == null,
-                CONFLICTING_SURFACE_API_ERROR_MESSAGE);
-        mPreviewSurfaceCallback = previewSurfaceCallback;
-        mPreviewSurfaceCallbackExecutor = callbackExecutor;
-        notifyActive();
-        if (mLatestResolution != null) {
-            updateConfigAndOutput((PreviewConfig) getUseCaseConfig(), mLatestResolution);
+        if (previewSurfaceCallback == null) {
+            mPreviewSurfaceCallback = null;
+            notifyInactive();
+        } else {
+            Preconditions.checkState(mSubscribedPreviewOutputListener == null,
+                    CONFLICTING_SURFACE_API_ERROR_MESSAGE);
+            mPreviewSurfaceCallback = previewSurfaceCallback;
+            mPreviewSurfaceCallbackExecutor = callbackExecutor;
+            notifyActive();
+            if (mLatestResolution != null) {
+                updateConfigAndOutput((PreviewConfig) getUseCaseConfig(), mLatestResolution);
+            }
         }
     }
 
@@ -383,7 +391,7 @@ public class Preview extends UseCase {
      * @param previewSurfaceCallback PreviewSurfaceCallback that provides a Preview.
      */
     @UiThread
-    public void setPreviewSurfaceCallback(@NonNull PreviewSurfaceCallback previewSurfaceCallback) {
+    public void setPreviewSurfaceCallback(@Nullable PreviewSurfaceCallback previewSurfaceCallback) {
         setPreviewSurfaceCallback(CameraXExecutors.mainThreadExecutor(), previewSurfaceCallback);
     }
 
@@ -399,19 +407,6 @@ public class Preview extends UseCase {
                 mSubscribedPreviewOutputListener == null || mPreviewSurfaceCallback == null,
                 CONFLICTING_SURFACE_API_ERROR_MESSAGE);
         return mPreviewSurfaceCallback != null && mPreviewSurfaceCallbackExecutor != null;
-    }
-
-    /**
-     * Removes the {@link PreviewSurfaceCallback}.
-     *
-     * <p> Removing the callback will signal to the camera that the camera should no longer
-     * stream data.
-     */
-    @UiThread
-    public void removePreviewSurfaceCallback() {
-        Threads.checkMainThread();
-        mPreviewSurfaceCallback = null;
-        notifyInactive();
     }
 
     private void updateConfigAndOutput(PreviewConfig config, Size resolution) {
@@ -448,7 +443,7 @@ public class Preview extends UseCase {
      *
      * @param crop rectangle with dimensions in sensor coordinate frame for zooming
      */
-    public void zoom(Rect crop) {
+    public void zoom(@Nullable Rect crop) {
         getCurrentCameraControl().setCropRegion(crop);
     }
 
@@ -573,8 +568,9 @@ public class Preview extends UseCase {
      */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
+    @NonNull
     protected Map<String, Size> onSuggestedResolutionUpdated(
-            Map<String, Size> suggestedResolutionMap) {
+            @NonNull Map<String, Size> suggestedResolutionMap) {
         PreviewConfig config = (PreviewConfig) getUseCaseConfig();
         String cameraId = getCameraIdUnchecked(config);
         Size resolution = suggestedResolutionMap.get(cameraId);

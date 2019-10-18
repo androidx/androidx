@@ -31,6 +31,7 @@ import android.os.HandlerThread;
 import android.util.Size;
 
 import androidx.annotation.GuardedBy;
+import androidx.annotation.NonNull;
 import androidx.camera.core.AppConfig;
 import androidx.camera.core.BaseCamera;
 import androidx.camera.core.CameraFactory;
@@ -104,7 +105,7 @@ public final class ImageAnalysisTest {
         mAnalyzer =
                 new Analyzer() {
                     @Override
-                    public void analyze(ImageProxy image, int rotationDegrees) {
+                    public void analyze(@NonNull ImageProxy image, int rotationDegrees) {
                         synchronized (mAnalysisResultLock) {
                             mAnalysisResults.add(new ImageProperties(image, rotationDegrees));
                         }

@@ -368,6 +368,7 @@ public abstract class UseCase {
         mStateChangeCallbacks.clear();
     }
 
+    @NonNull
     public String getName() {
         return mUseCaseConfig.getTargetName("<UnknownUseCase-" + this.hashCode() + ">");
     }
@@ -425,8 +426,9 @@ public abstract class UseCase {
      * @return The map with the resolutions that finally used to create the SessionConfig to
      * attach to the camera device.
      */
+    @NonNull
     protected abstract Map<String, Size> onSuggestedResolutionUpdated(
-            Map<String, Size> suggestedResolutionMap);
+            @NonNull Map<String, Size> suggestedResolutionMap);
 
     /**
      * Called when CameraControlInternal is attached into the UseCase. UseCase may need to

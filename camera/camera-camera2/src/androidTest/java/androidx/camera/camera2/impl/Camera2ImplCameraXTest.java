@@ -33,6 +33,7 @@ import android.hardware.camera2.CameraCaptureSession;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CameraDevice;
 
+import androidx.annotation.NonNull;
 import androidx.camera.camera2.Camera2AppConfig;
 import androidx.camera.camera2.Camera2Config;
 import androidx.camera.camera2.impl.util.SemaphoreReleasingCamera2Callbacks.DeviceStateCallback;
@@ -80,14 +81,14 @@ public final class Camera2ImplCameraXTest {
     private final ImageAnalysis.Analyzer mImageAnalyzer =
             new ImageAnalysis.Analyzer() {
                 @Override
-                public void analyze(ImageProxy image, int rotationDegrees) {
+                public void analyze(@NonNull ImageProxy image, int rotationDegrees) {
                     mAnalysisResult.postValue(image.getTimestamp());
                 }
             };
     private final ImageAnalysis.Analyzer mImageAnalyzer2 =
             new ImageAnalysis.Analyzer() {
                 @Override
-                public void analyze(ImageProxy image, int rotationDegrees) {
+                public void analyze(@NonNull ImageProxy image, int rotationDegrees) {
                     mAnalysisResult2.postValue(image.getTimestamp());
                 }
             };

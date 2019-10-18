@@ -129,21 +129,22 @@ public final class CameraView extends ViewGroup {
     private MotionEvent mUpEvent;
     private @Nullable Paint mLayerPaint;
 
-    public CameraView(Context context) {
+    public CameraView(@NonNull Context context) {
         this(context, null);
     }
 
-    public CameraView(Context context, AttributeSet attrs) {
+    public CameraView(@NonNull Context context, @Nullable AttributeSet attrs) {
         this(context, attrs, 0);
     }
 
-    public CameraView(Context context, AttributeSet attrs, int defStyle) {
+    public CameraView(@NonNull Context context, @Nullable AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
         init(context, attrs);
     }
 
     @RequiresApi(21)
-    public CameraView(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
+    public CameraView(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr,
+            int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
         init(context, attrs);
     }
@@ -185,7 +186,7 @@ public final class CameraView extends ViewGroup {
      * @throws IllegalStateException    if camera permissions are not granted.
      */
     @RequiresPermission(permission.CAMERA)
-    public void bindToLifecycle(LifecycleOwner lifecycleOwner) {
+    public void bindToLifecycle(@NonNull LifecycleOwner lifecycleOwner) {
         mCameraModule.bindToLifecycle(lifecycleOwner);
     }
 
@@ -253,12 +254,14 @@ public final class CameraView extends ViewGroup {
     }
 
     @Override
+    @NonNull
     protected LayoutParams generateDefaultLayoutParams() {
         return new LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
     }
 
     @Override
+    @NonNull
     protected Parcelable onSaveInstanceState() {
         // TODO(b/113884082): Decide what belongs here or what should be invalidated on
         // configuration
@@ -279,7 +282,7 @@ public final class CameraView extends ViewGroup {
     }
 
     @Override
-    protected void onRestoreInstanceState(Parcelable savedState) {
+    protected void onRestoreInstanceState(@Nullable Parcelable savedState) {
         // TODO(b/113884082): Decide what belongs here or what should be invalidated on
         // configuration
         // change
@@ -552,6 +555,7 @@ public final class CameraView extends ViewGroup {
      *
      * @return The current {@link ScaleType}.
      */
+    @NonNull
     public ScaleType getScaleType() {
         return mScaleType;
     }
@@ -563,7 +567,7 @@ public final class CameraView extends ViewGroup {
      *
      * @param scaleType The desired {@link ScaleType}.
      */
-    public void setScaleType(ScaleType scaleType) {
+    public void setScaleType(@NonNull ScaleType scaleType) {
         if (scaleType != mScaleType) {
             mScaleType = scaleType;
             requestLayout();
@@ -575,6 +579,7 @@ public final class CameraView extends ViewGroup {
      *
      * @return The current {@link CaptureMode}.
      */
+    @NonNull
     public CaptureMode getCaptureMode() {
         return mCameraModule.getCaptureMode();
     }
@@ -586,7 +591,7 @@ public final class CameraView extends ViewGroup {
      *
      * @param captureMode The desired {@link CaptureMode}.
      */
-    public void setCaptureMode(CaptureMode captureMode) {
+    public void setCaptureMode(@NonNull CaptureMode captureMode) {
         mCameraModule.setCaptureMode(captureMode);
     }
 
@@ -680,7 +685,7 @@ public final class CameraView extends ViewGroup {
      * @throws IllegalStateException if the CAMERA permission is not currently granted.
      */
     @RequiresPermission(permission.CAMERA)
-    public boolean hasCameraWithLensFacing(LensFacing lensFacing) {
+    public boolean hasCameraWithLensFacing(@NonNull LensFacing lensFacing) {
         return mCameraModule.hasCameraWithLensFacing(lensFacing);
     }
 
@@ -720,6 +725,7 @@ public final class CameraView extends ViewGroup {
     }
 
     /** Gets the active flash strategy. */
+    @NonNull
     public FlashMode getFlash() {
         return mCameraModule.getFlash();
     }

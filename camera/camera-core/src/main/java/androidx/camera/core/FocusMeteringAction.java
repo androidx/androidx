@@ -60,23 +60,23 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class FocusMeteringAction {
     static final MeteringMode DEFAULT_METERINGMODE = MeteringMode.AF_AE_AWB;
     static final long DEFAULT_AUTOCANCEL_DURATION = 5000;
-    private final List<MeteringPoint> mMeteringPointsAF;
-    private final List<MeteringPoint> mMeteringPointsAE;
-    private final List<MeteringPoint> mMeteringPointsAWB;
+    private final List<MeteringPoint> mMeteringPointsAf;
+    private final List<MeteringPoint> mMeteringPointsAe;
+    private final List<MeteringPoint> mMeteringPointsAwb;
     private final Executor mListenerExecutor;
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     final OnAutoFocusListener mOnAutoFocusListener;
-    private final long mAutoCancelDurationInMs;
+    private final long mAutoCancelDurationInMillis;
     private AtomicBoolean mHasNotifiedListener = new AtomicBoolean(false);
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     FocusMeteringAction(Builder builder) {
-        mMeteringPointsAF = builder.mMeteringPointsAF;
-        mMeteringPointsAE = builder.mMeteringPointsAE;
-        mMeteringPointsAWB = builder.mMeteringPointsAWB;
+        mMeteringPointsAf = builder.mMeteringPointsAf;
+        mMeteringPointsAe = builder.mMeteringPointsAe;
+        mMeteringPointsAwb = builder.mMeteringPointsAwb;
         mListenerExecutor = builder.mListenerExecutor;
         mOnAutoFocusListener = builder.mOnAutoFocusListener;
-        mAutoCancelDurationInMs = builder.mAutoCancelDurationInMs;
+        mAutoCancelDurationInMillis = builder.mAutoCancelDurationInMillis;
     }
 
     /**
@@ -90,39 +90,39 @@ public class FocusMeteringAction {
     /**
      * Returns auto-cancel duration.  Returns 0 if auto-cancel is disabled.
      */
-    public long getAutoCancelDurationInMs() {
-        return mAutoCancelDurationInMs;
+    public long getAutoCancelDurationInMillis() {
+        return mAutoCancelDurationInMillis;
     }
 
     /**
      * Returns all {@link MeteringPoint}s used for AF regions.
      */
     @NonNull
-    public List<MeteringPoint> getMeteringPointsAF() {
-        return mMeteringPointsAF;
+    public List<MeteringPoint> getMeteringPointsAf() {
+        return mMeteringPointsAf;
     }
 
     /**
      * Returns all {@link MeteringPoint}s used for AE regions.
      */
     @NonNull
-    public List<MeteringPoint> getMeteringPointsAE() {
-        return mMeteringPointsAE;
+    public List<MeteringPoint> getMeteringPointsAe() {
+        return mMeteringPointsAe;
     }
 
     /**
      * Returns all {@link MeteringPoint}s used for AWB regions.
      */
     @NonNull
-    public List<MeteringPoint> getMeteringPointsAWB() {
-        return mMeteringPointsAWB;
+    public List<MeteringPoint> getMeteringPointsAwb() {
+        return mMeteringPointsAwb;
     }
 
     /**
      * Returns if auto-cancel is enabled or not.
      */
     public boolean isAutoCancelEnabled() {
-        return mAutoCancelDurationInMs != 0;
+        return mAutoCancelDurationInMillis != 0;
     }
 
     @VisibleForTesting
@@ -183,17 +183,17 @@ public class FocusMeteringAction {
      */
     public static class Builder {
         @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-        final List<MeteringPoint> mMeteringPointsAF = new ArrayList<>();
+        final List<MeteringPoint> mMeteringPointsAf = new ArrayList<>();
         @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-        final List<MeteringPoint> mMeteringPointsAE = new ArrayList<>();
+        final List<MeteringPoint> mMeteringPointsAe = new ArrayList<>();
         @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-        final List<MeteringPoint> mMeteringPointsAWB = new ArrayList<>();
+        final List<MeteringPoint> mMeteringPointsAwb = new ArrayList<>();
         @SuppressWarnings("WeakerAccess") /* synthetic accessor */
         OnAutoFocusListener mOnAutoFocusListener = null;
         @SuppressWarnings("WeakerAccess") /* synthetic accessor */
         Executor mListenerExecutor = CameraXExecutors.mainThreadExecutor();
         @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-        long mAutoCancelDurationInMs = DEFAULT_AUTOCANCEL_DURATION;
+        long mAutoCancelDurationInMillis = DEFAULT_AUTOCANCEL_DURATION;
 
         private Builder(@NonNull MeteringPoint point) {
             this(point, DEFAULT_METERINGMODE);
@@ -237,21 +237,21 @@ public class FocusMeteringAction {
                     || mode == MeteringMode.AF_AE
                     || mode == MeteringMode.AF_AWB
                     || mode == MeteringMode.AF_ONLY) {
-                mMeteringPointsAF.add(point);
+                mMeteringPointsAf.add(point);
             }
 
             if (mode == MeteringMode.AF_AE_AWB
                     || mode == MeteringMode.AF_AE
                     || mode == MeteringMode.AE_AWB
                     || mode == MeteringMode.AE_ONLY) {
-                mMeteringPointsAE.add(point);
+                mMeteringPointsAe.add(point);
             }
 
             if (mode == MeteringMode.AF_AE_AWB
                     || mode == MeteringMode.AE_AWB
                     || mode == MeteringMode.AF_AWB
                     || mode == MeteringMode.AWB_ONLY) {
-                mMeteringPointsAWB.add(point);
+                mMeteringPointsAwb.add(point);
             }
             return this;
         }
@@ -285,7 +285,7 @@ public class FocusMeteringAction {
          */
         @NonNull
         public Builder setAutoCancelDuration(long duration, @NonNull TimeUnit timeUnit) {
-            mAutoCancelDurationInMs = timeUnit.toMillis(duration);
+            mAutoCancelDurationInMillis = timeUnit.toMillis(duration);
             return this;
         }
 
@@ -294,7 +294,7 @@ public class FocusMeteringAction {
          */
         @NonNull
         public Builder disableAutoCancel() {
-            mAutoCancelDurationInMs = 0;
+            mAutoCancelDurationInMillis = 0;
             return this;
         }
 
