@@ -34,7 +34,7 @@ import javax.tools.Diagnostic;
  * Holder class that is created for each class instance that is a
  * CallbackReceiver and has methods tagged with @RemoteCallable.
  */
-public class CallbackReceiver {
+class CallbackReceiver {
 
     private static final String RESET = "reset";
     private static final String GET_METHOD = "getMethod";
@@ -47,7 +47,7 @@ public class CallbackReceiver {
     private final ArrayList<CallableMethod> mMethods = new ArrayList<>();
     private final Messager mMessager;
 
-    public CallbackReceiver(Element c, ProcessingEnvironment env,
+    CallbackReceiver(Element c, ProcessingEnvironment env,
             Messager messager) {
         mEnv = env;
         mElement = c;
@@ -58,7 +58,7 @@ public class CallbackReceiver {
     /**
      * Adds a method tagged with @RemoteCallable to this receiver.
      */
-    public void addMethod(Element element) {
+    void addMethod(Element element) {
         for (CallableMethod method: mMethods) {
             if (method.getName().equals(element.getSimpleName().toString())) {
                 mMessager.printMessage(Diagnostic.Kind.ERROR,
@@ -74,13 +74,14 @@ public class CallbackReceiver {
      * is assembled in one class that implements runnable that when run,
      * registers all of the CallbackHandlers.
      */
-    public void finish(ProcessingEnvironment env, Messager messager) {
+    void finish(ProcessingEnvironment env, Messager messager) {
         if (mMethods.size() == 0) {
             messager.printMessage(Diagnostic.Kind.ERROR, "No methods found for " + mClsName);
             return;
         }
         TypeSpec.Builder genClass = TypeSpec
                 .classBuilder(findInitClass(mElement))
+                .addOriginatingElement(mElement)
                 .superclass(TypeName.get(mElement.asType()))
                 .addModifiers(Modifier.PUBLIC);
 

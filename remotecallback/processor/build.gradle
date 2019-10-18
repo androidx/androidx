@@ -27,7 +27,8 @@ plugins {
 }
 
 dependencies {
-    compile(JAVAPOET)
+    implementation("androidx.annotation:annotation:1.1.0")
+    implementation(JAVAPOET)
 }
 
 androidx {
