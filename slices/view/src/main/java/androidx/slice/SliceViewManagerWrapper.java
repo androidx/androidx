@@ -82,7 +82,11 @@ class SliceViewManagerWrapper extends SliceViewManagerBase {
 
     @Override
     public void unpinSlice(@NonNull Uri uri) {
-        mManager.unpinSlice(uri);
+        try {
+            mManager.unpinSlice(uri);
+        } catch (IllegalStateException e) {
+            // There is no pinned slice with given uri
+        }
     }
 
     @Nullable
