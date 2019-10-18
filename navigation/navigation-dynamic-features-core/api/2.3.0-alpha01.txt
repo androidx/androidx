@@ -1,0 +1,67 @@
+// Signature format: 3.0
+package androidx.navigation.dynamicfeatures {
+
+  public final class DynamicExtras implements androidx.navigation.Navigator.Extras {
+    method public androidx.navigation.Navigator.Extras? getDestinationExtras();
+    method public androidx.navigation.dynamicfeatures.DynamicInstallMonitor? getInstallMonitor();
+  }
+
+  public static final class DynamicExtras.Builder {
+    ctor public DynamicExtras.Builder();
+    method public androidx.navigation.dynamicfeatures.DynamicExtras build();
+    method public androidx.navigation.dynamicfeatures.DynamicExtras.Builder setDestinationExtras(androidx.navigation.Navigator.Extras);
+    method public androidx.navigation.dynamicfeatures.DynamicExtras.Builder setInstallMonitor(androidx.navigation.dynamicfeatures.DynamicInstallMonitor);
+  }
+
+  @androidx.navigation.Navigator.Name("navigation") public final class DynamicGraphNavigator extends androidx.navigation.NavGraphNavigator {
+    ctor public DynamicGraphNavigator(androidx.navigation.NavigatorProvider, androidx.navigation.dynamicfeatures.DynamicInstallManager);
+    method public androidx.navigation.dynamicfeatures.DynamicGraphNavigator.DynamicNavGraph createDestination();
+    method public void installDefaultProgressDestination(androidx.navigation.dynamicfeatures.DynamicGraphNavigator.ProgressDestinationSupplier?);
+  }
+
+  public static final class DynamicGraphNavigator.DynamicNavGraph extends androidx.navigation.NavGraph {
+    ctor public DynamicGraphNavigator.DynamicNavGraph(androidx.navigation.Navigator<? extends androidx.navigation.NavGraph>, androidx.navigation.NavigatorProvider);
+    method public String? getModuleName();
+    method public int getProgressDestination();
+    method public void setModuleName(String?);
+    method public void setProgressDestination(int);
+  }
+
+  public static interface DynamicGraphNavigator.ProgressDestinationSupplier {
+    method public androidx.navigation.NavDestination getProgressDestination();
+  }
+
+  @androidx.navigation.Navigator.Name("include-dynamic") public final class DynamicIncludeGraphNavigator extends androidx.navigation.Navigator<androidx.navigation.dynamicfeatures.DynamicIncludeGraphNavigator.DynamicIncludeNavGraph> {
+    ctor public DynamicIncludeGraphNavigator(android.content.Context, androidx.navigation.NavigatorProvider, androidx.navigation.NavInflater, androidx.navigation.dynamicfeatures.DynamicInstallManager);
+    method public androidx.navigation.dynamicfeatures.DynamicIncludeGraphNavigator.DynamicIncludeNavGraph createDestination();
+    method public androidx.navigation.NavDestination? navigate(androidx.navigation.dynamicfeatures.DynamicIncludeGraphNavigator.DynamicIncludeNavGraph, android.os.Bundle?, androidx.navigation.NavOptions?, androidx.navigation.Navigator.Extras?);
+    method public boolean popBackStack();
+  }
+
+  public static final class DynamicIncludeGraphNavigator.DynamicIncludeNavGraph extends androidx.navigation.NavDestination {
+    method public String getGraphPackage();
+    method public String getGraphResourceName();
+    method public String? getModuleName();
+    method public void setGraphPackage(String);
+    method public void setGraphResourceName(String);
+    method public void setModuleName(String?);
+  }
+
+  public class DynamicInstallManager {
+    ctor public DynamicInstallManager(android.content.Context, com.google.android.play.core.splitinstall.SplitInstallManager);
+  }
+
+  public final class DynamicInstallMonitor {
+    ctor public DynamicInstallMonitor();
+    method public void cancelInstall();
+    method public Exception? getException();
+    method public int getSessionId();
+    method public androidx.lifecycle.LiveData<com.google.android.play.core.splitinstall.SplitInstallSessionState!> getStatus();
+    method public boolean hasException();
+    method public static boolean isEndState(int);
+    method public boolean isInstallRequired();
+    method public void setSessionId(int);
+  }
+
+}
+

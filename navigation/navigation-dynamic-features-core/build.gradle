@@ -33,8 +33,8 @@ android {
 }
 
 dependencies {
-    api("androidx.core:core:1.0.1")
-    implementation("androidx.collection:collection:1.0.0")
+    api("androidx.core:core:1.1.0")
+    implementation("androidx.collection:collection:1.1.0")
     implementation(project(":navigation:navigation-runtime"))
     implementation("com.google.android.play:core:1.6.1")
 
@@ -44,6 +44,7 @@ dependencies {
     testImplementation(JUNIT)
     testImplementation(KOTLIN_STDLIB)
     testImplementation(MOCKITO_CORE)
+    testImplementation(ROBOLECTRIC)
     testImplementation(TRUTH)
 
     androidTestImplementation(ANDROIDX_TEST_CORE)
@@ -68,11 +69,11 @@ android.libraryVariants.all { variant ->
 }
 
 androidx {
-    name = "Android Dynamic Feature Navigation"
-    publish = Publish.NONE
+    name = "Android Dynamic Feature Navigation Core"
+    publish = Publish.SNAPSHOT_ONLY
     mavenVersion = LibraryVersions.NAVIGATION
     mavenGroup = LibraryGroups.NAVIGATION
     inceptionYear = "2019"
-    description = "Android Dynamic Feature Navigation"
+    description = "Android Dynamic Feature Navigation Core"
     url = AndroidXExtension.ARCHITECTURE_URL
 }
