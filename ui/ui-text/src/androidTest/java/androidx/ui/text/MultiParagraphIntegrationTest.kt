@@ -855,6 +855,8 @@ class MultiParagraphIntegrationTest {
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = 23)
+    // The behavior of getPrimaryHorizontal on API 19 to API 22 was wrong. Suppress this test.
     fun getPrimaryHorizontal_rtl_newLine_textDirectionDefault() {
         withDensity(defaultDensity) {
             val text = "\u05D0\u05D1\u05D2\n"
@@ -1098,6 +1100,8 @@ class MultiParagraphIntegrationTest {
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = 23)
+    // The behavior of getSecondaryHorizontal on API 19 to API 22 was wrong. Suppress this test.
     fun getSecondaryHorizontal_rtl_newLine_textDirectionDefault() {
         withDensity(defaultDensity) {
             val text = "\u05D0\u05D1\u05D2\n"
