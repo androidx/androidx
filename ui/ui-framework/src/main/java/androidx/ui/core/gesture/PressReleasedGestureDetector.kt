@@ -27,6 +27,7 @@ import androidx.compose.memo
 import androidx.compose.unaryPlus
 import androidx.ui.core.IntPxSize
 import androidx.ui.core.PointerInputWrapper
+import androidx.ui.core.gesture.util.anyPointersInBounds
 
 /**
  * This gesture detector fires a callback when a traditional press is being released.  This is
@@ -80,7 +81,7 @@ internal class PressReleaseGestureRecognizer {
     private var active = false
 
     val pointerInputHandler =
-        { changes: List<PointerInputChange>, pass: PointerEventPass, _: IntPxSize ->
+        { changes: List<PointerInputChange>, pass: PointerEventPass, bounds: IntPxSize ->
 
             var internalChanges = changes
 
@@ -95,6 +96,10 @@ internal class PressReleaseGestureRecognizer {
                     active = false
                     internalChanges = internalChanges.map { it.consumeDownChange() }
                     onRelease?.invoke()
+                } else if (!internalChanges.anyPointersInBounds(bounds)) {
+                    // If none of the pointers are in bounds of our bounds, we should reset and wait
+                    // till all pointers are changing to down.
+                    active = false
                 }
 
                 if (active && consumeDownOnStart) {

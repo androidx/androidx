@@ -38,15 +38,17 @@ class PressReleasedGestureDetectorDemo : Activity() {
                 color.value = color.value.anotherRandomColor()
             }
 
-            PressReleasedGestureDetector(onRelease) {
-                MatchParent {
-                    DrawBox(
-                        0.px,
-                        0.px,
-                        96.dp,
-                        96.dp,
-                        color.value
-                    )
+            Center {
+                PressReleasedGestureDetector(onRelease) {
+                    SimpleContainer(192.dp, 192.dp, 0.dp) {
+                        DrawBox(
+                            0.px,
+                            0.px,
+                            192.dp,
+                            192.dp,
+                            color.value
+                        )
+                    }
                 }
             }
         }

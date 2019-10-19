@@ -31,6 +31,7 @@ import androidx.ui.core.PxPosition
 import androidx.ui.core.anyPositionChangeConsumed
 import androidx.ui.core.changedToUpIgnoreConsumed
 import androidx.ui.core.consumeDownChange
+import androidx.ui.core.gesture.util.anyPointersInBounds
 import androidx.ui.temputils.delay
 import kotlinx.coroutines.Job
 import kotlin.coroutines.CoroutineContext
@@ -78,7 +79,7 @@ internal class DoubleTapGestureRecognizer(
     private var job: Job? = null
 
     val pointerInputHandler =
-        { changes: List<PointerInputChange>, pass: PointerEventPass, _: IntPxSize ->
+        { changes: List<PointerInputChange>, pass: PointerEventPass, bounds: IntPxSize ->
 
             var changesToReturn = changes
 
@@ -101,6 +102,11 @@ internal class DoubleTapGestureRecognizer(
                     changesToReturn.all { it.changedToUpIgnoreConsumed() }
                 ) {
                     state = State.Idle
+                } else if ((state == State.Down || state == State.SecondDown) &&
+                    !changesToReturn.anyPointersInBounds(bounds)) {
+                    // If we are in one of the down states, and none of pointers are in our bounds,
+                    // then we should cancel and wait till we can be Idle again.
+                    state = State.Cancelled
                 }
             }
 
