@@ -27,8 +27,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
-import android.widget.TabHost;
-import android.widget.TabWidget;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -44,16 +42,17 @@ import java.util.ArrayList;
  * @deprecated Use <a href="https://developer.android.com/guide/navigation/navigation-swipe-view ">
  *  TabLayout and ViewPager</a> instead.
  */
+@SuppressWarnings("deprecation")
 @Deprecated
-public class FragmentTabHost extends TabHost
-        implements TabHost.OnTabChangeListener {
+public class FragmentTabHost extends android.widget.TabHost
+        implements android.widget.TabHost.OnTabChangeListener {
     private final ArrayList<TabInfo> mTabs = new ArrayList<>();
 
     private FrameLayout mRealTabContent;
     private Context mContext;
     private FragmentManager mFragmentManager;
     private int mContainerId;
-    private TabHost.OnTabChangeListener mOnTabChangeListener;
+    private android.widget.TabHost.OnTabChangeListener mOnTabChangeListener;
     private TabInfo mLastTab;
     private boolean mAttached;
 
@@ -70,7 +69,7 @@ public class FragmentTabHost extends TabHost
         }
     }
 
-    static class DummyTabFactory implements TabHost.TabContentFactory {
+    static class DummyTabFactory implements android.widget.TabHost.TabContentFactory {
         private final Context mContext;
 
         public DummyTabFactory(Context context) {
@@ -169,9 +168,9 @@ public class FragmentTabHost extends TabHost
                     ViewGroup.LayoutParams.MATCH_PARENT,
                     ViewGroup.LayoutParams.MATCH_PARENT));
 
-            TabWidget tw = new TabWidget(context);
+            android.widget.TabWidget tw = new android.widget.TabWidget(context);
             tw.setId(android.R.id.tabs);
-            tw.setOrientation(TabWidget.HORIZONTAL);
+            tw.setOrientation(android.widget.TabWidget.HORIZONTAL);
             ll.addView(tw, new LinearLayout.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT,
                     ViewGroup.LayoutParams.WRAP_CONTENT, 0));
@@ -266,7 +265,7 @@ public class FragmentTabHost extends TabHost
      *  TabLayout and ViewPager</a> instead.
      */
     @Deprecated
-    public void addTab(@NonNull TabHost.TabSpec tabSpec, @NonNull Class<?> clss,
+    public void addTab(@NonNull android.widget.TabHost.TabSpec tabSpec, @NonNull Class<?> clss,
             @Nullable Bundle args) {
         tabSpec.setContent(new DummyTabFactory(mContext));
 
