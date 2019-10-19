@@ -181,7 +181,6 @@ public class TransitionManager {
                 sPendingTransitions.add(sceneRoot);
 
                 Transition transitionClone = transition.clone();
-                transitionClone.setSceneRoot(sceneRoot);
 
                 if (oldScene != null && oldScene.isCreatedFromLayoutResource()) {
                     transitionClone.setCanRemoveViews(true);
