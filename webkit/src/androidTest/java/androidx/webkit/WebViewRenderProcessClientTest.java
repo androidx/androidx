@@ -22,8 +22,8 @@ import android.webkit.WebView;
 
 import androidx.annotation.Nullable;
 import androidx.concurrent.futures.ResolvableFuture;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
-import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.After;
 import org.junit.Assert;
