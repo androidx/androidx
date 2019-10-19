@@ -55,7 +55,7 @@ import java.util.UUID;
                 @Index(value = {"period_start_time"})
         }
 )
-public class WorkSpec {
+public final class WorkSpec {
     private static final String TAG = Logger.tagWithPrefix("WorkSpec");
     public static final long SCHEDULE_NOT_REQUESTED_YET = -1;
 
@@ -301,7 +301,7 @@ public class WorkSpec {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (!(o instanceof WorkSpec)) return false;
 
         WorkSpec workSpec = (WorkSpec) o;
 
@@ -370,7 +370,7 @@ public class WorkSpec {
         @Override
         public boolean equals(Object o) {
             if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
+            if (!(o instanceof IdAndState)) return false;
 
             IdAndState that = (IdAndState) o;
 
@@ -442,7 +442,7 @@ public class WorkSpec {
         @Override
         public boolean equals(Object o) {
             if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
+            if (!(o instanceof WorkInfoPojo)) return false;
 
             WorkInfoPojo that = (WorkInfoPojo) o;
 

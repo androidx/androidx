@@ -89,7 +89,7 @@ public final class AccessibilityManagerCompat {
             if (this == o) {
                 return true;
             }
-            if (o == null || getClass() != o.getClass()) {
+            if (!(o instanceof AccessibilityStateChangeListenerWrapper)) {
                 return false;
             }
             AccessibilityStateChangeListenerWrapper other =
@@ -193,7 +193,7 @@ public final class AccessibilityManagerCompat {
     }
 
     @RequiresApi(19)
-    private static class TouchExplorationStateChangeListenerWrapper
+    private static final class TouchExplorationStateChangeListenerWrapper
             implements AccessibilityManager.TouchExplorationStateChangeListener {
         final TouchExplorationStateChangeListener mListener;
 
@@ -212,7 +212,7 @@ public final class AccessibilityManagerCompat {
             if (this == o) {
                 return true;
             }
-            if (o == null || getClass() != o.getClass()) {
+            if (!(o instanceof TouchExplorationStateChangeListenerWrapper)) {
                 return false;
             }
             TouchExplorationStateChangeListenerWrapper other =

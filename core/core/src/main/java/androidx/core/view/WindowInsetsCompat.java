@@ -507,7 +507,7 @@ public class WindowInsetsCompat {
         if (this == o) {
             return true;
         }
-        if (o == null || getClass() != o.getClass()) {
+        if (!(o instanceof WindowInsetsCompat)) {
             return false;
         }
         WindowInsetsCompat other = (WindowInsetsCompat) o;
