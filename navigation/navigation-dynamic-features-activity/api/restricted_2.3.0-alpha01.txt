@@ -1,0 +1,17 @@
+// Signature format: 3.0
+package androidx.navigation.dynamicfeatures.activity {
+
+  @androidx.navigation.Navigator.Name("activity") public final class DynamicActivityNavigator extends androidx.navigation.ActivityNavigator {
+    ctor public DynamicActivityNavigator(android.app.Activity, androidx.navigation.dynamicfeatures.DynamicInstallManager);
+    method public androidx.navigation.dynamicfeatures.activity.DynamicActivityNavigator.Destination createDestination();
+  }
+
+  public static final class DynamicActivityNavigator.Destination extends androidx.navigation.ActivityNavigator.Destination {
+    ctor public DynamicActivityNavigator.Destination(androidx.navigation.NavigatorProvider);
+    ctor public DynamicActivityNavigator.Destination(androidx.navigation.Navigator<? extends androidx.navigation.ActivityNavigator.Destination>);
+    method public String? getModuleName();
+    method public void setModuleName(String?);
+  }
+
+}
+
