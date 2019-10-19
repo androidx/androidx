@@ -597,16 +597,6 @@ public class TransitionSet extends Transition {
     }
 
     @Override
-    TransitionSet setSceneRoot(ViewGroup sceneRoot) {
-        super.setSceneRoot(sceneRoot);
-        int numTransitions = mTransitions.size();
-        for (int i = 0; i < numTransitions; ++i) {
-            mTransitions.get(i).setSceneRoot(sceneRoot);
-        }
-        return this;
-    }
-
-    @Override
     void setCanRemoveViews(boolean canRemoveViews) {
         super.setCanRemoveViews(canRemoveViews);
         int numTransitions = mTransitions.size();
