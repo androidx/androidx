@@ -2095,7 +2095,7 @@ public class GridLayout extends ViewGroup {
         @Override
         public boolean equals(Object o) {
             if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
+            if (!(o instanceof LayoutParams)) return false;
 
             LayoutParams that = (LayoutParams) o;
 
@@ -2485,7 +2485,7 @@ public class GridLayout extends ViewGroup {
             if (this == that) {
                 return true;
             }
-            if (that == null || getClass() != that.getClass()) {
+            if (!(that instanceof Spec)) {
                 return false;
             }
 

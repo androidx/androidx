@@ -52,8 +52,8 @@ import java.util.TreeMap;
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 @SuppressWarnings({"WeakerAccess", "unused", "TryFinallyCanBeTryWithResources",
         "SimplifiableIfStatement"})
-// if you change this class, you must change TableInfoWriter.kt
-public class TableInfo {
+// if you change this class, you must change TableInfoValidationWriter.kt
+public final class TableInfo {
 
     /**
      * Identifies from where the info object was created.
@@ -118,7 +118,7 @@ public class TableInfo {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (!(o instanceof TableInfo)) return false;
 
         TableInfo tableInfo = (TableInfo) o;
 
@@ -340,7 +340,7 @@ public class TableInfo {
      * Holds the information about a database column.
      */
     @SuppressWarnings("WeakerAccess")
-    public static class Column {
+    public static final class Column {
         /**
          * The column name.
          */
@@ -439,7 +439,7 @@ public class TableInfo {
         @Override
         public boolean equals(Object o) {
             if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
+            if (!(o instanceof Column)) return false;
 
             Column column = (Column) o;
             if (Build.VERSION.SDK_INT >= 20) {
@@ -512,7 +512,7 @@ public class TableInfo {
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-    public static class ForeignKey {
+    public static final class ForeignKey {
         @NonNull
         public final String referenceTable;
         @NonNull
@@ -537,7 +537,7 @@ public class TableInfo {
         @Override
         public boolean equals(Object o) {
             if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
+            if (!(o instanceof ForeignKey)) return false;
 
             ForeignKey that = (ForeignKey) o;
 
@@ -608,7 +608,7 @@ public class TableInfo {
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-    public static class Index {
+    public static final class Index {
         // should match the value in Index.kt
         public static final String DEFAULT_PREFIX = "index_";
         public final String name;
@@ -624,7 +624,7 @@ public class TableInfo {
         @Override
         public boolean equals(Object o) {
             if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
+            if (!(o instanceof Index)) return false;
 
             Index index = (Index) o;
             if (unique != index.unique) {

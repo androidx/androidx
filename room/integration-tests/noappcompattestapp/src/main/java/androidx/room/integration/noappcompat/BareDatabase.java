@@ -57,7 +57,7 @@ abstract class BareDatabase extends RoomDatabase {
         @Override
         public boolean equals(Object o) {
             if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
+            if (!(o instanceof BareEntity)) return false;
             BareEntity that = (BareEntity) o;
             return id == that.id && name.equals(that.name);
         }

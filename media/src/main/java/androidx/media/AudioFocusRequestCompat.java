@@ -150,7 +150,7 @@ public class AudioFocusRequestCompat {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (!(o instanceof AudioFocusRequestCompat)) return false;
         AudioFocusRequestCompat that = (AudioFocusRequestCompat) o;
         return mFocusGain == that.mFocusGain
                 && mPauseOnDuck == that.mPauseOnDuck

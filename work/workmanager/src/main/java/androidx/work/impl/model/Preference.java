@@ -50,7 +50,7 @@ public class Preference {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (!(o instanceof Preference)) return false;
 
         Preference that = (Preference) o;
 
