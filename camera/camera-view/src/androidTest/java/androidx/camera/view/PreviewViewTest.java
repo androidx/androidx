@@ -31,6 +31,7 @@ import android.widget.FrameLayout;
 import androidx.camera.testing.CameraUtil;
 import androidx.camera.testing.CoreAppTestUtil;
 import androidx.camera.testing.fakes.FakeActivity;
+import androidx.test.annotation.UiThreadTest;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
@@ -67,6 +68,7 @@ public class PreviewViewTest {
     }
 
     @Test
+    @UiThreadTest
     public void defaultImplementation_isSurfaceView() throws Throwable {
         PreviewView previewView = new PreviewView(mContext);
         setContentView(previewView);
