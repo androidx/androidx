@@ -25,7 +25,7 @@ class FontWeightTest {
 
     @Test
     fun `lerp with null parameters`() {
-        assertThat(FontWeight.lerp(null, null, 0.0f)).isEqualTo(
+        assertThat(lerp(null, null, 0.0f)).isEqualTo(
             FontWeight.Normal
         )
     }
@@ -33,14 +33,14 @@ class FontWeightTest {
     @Test
     fun `lerp with one null parameter should use normal for null value`() {
         assertThat(
-            FontWeight.lerp(
+            lerp(
                 FontWeight.W200,
                 null,
                 0.5f
             )
         ).isEqualTo(FontWeight.W300)
         assertThat(
-            FontWeight.lerp(
+            lerp(
                 null,
                 FontWeight.W200,
                 0.5f
@@ -51,7 +51,7 @@ class FontWeightTest {
     @Test
     fun `lerp at start returns start value`() {
         assertThat(
-            FontWeight.lerp(
+            lerp(
                 FontWeight.W200,
                 FontWeight.W400,
                 0.0f
@@ -62,7 +62,7 @@ class FontWeightTest {
     @Test
     fun `lerp at end returns end value`() {
         assertThat(
-            FontWeight.lerp(
+            lerp(
                 FontWeight.W200,
                 FontWeight.W400,
                 1.0f
@@ -73,7 +73,7 @@ class FontWeightTest {
     @Test
     fun `lerp in the mid-time`() {
         assertThat(
-            FontWeight.lerp(
+            lerp(
                 FontWeight.W200,
                 FontWeight.W800,
                 0.5f
@@ -84,7 +84,7 @@ class FontWeightTest {
     @Test
     fun `lerp in the mid-time with odd distance should be rounded to up`() {
         assertThat(
-            FontWeight.lerp(
+            lerp(
                 FontWeight.W200,
                 FontWeight.W900,
                 0.5f

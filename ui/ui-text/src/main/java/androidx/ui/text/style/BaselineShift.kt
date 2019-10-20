@@ -40,23 +40,23 @@ import androidx.ui.lerp
          * Default baseline shift for subscript
          */
         val Subscript = BaselineShift(-0.5f)
-
-        /**
-         * Linearly interpolate two [BaselineShift]s.
-         */
-        // TODO(haoyuchang): This should not be in the companion, it should be at file level
-        // TODO(haoyuchang): This should not accept nullables
-        fun lerp(start: BaselineShift?, stop: BaselineShift?, fraction: Float): BaselineShift? {
-            if (start == null && stop == null) {
-                return null
-            }
-            if (start == null) {
-                return BaselineShift(stop!!.multiplier * fraction)
-            }
-            if (stop == null) {
-                return BaselineShift(start.multiplier * (1f - fraction))
-            }
-            return BaselineShift(lerp(start.multiplier, stop.multiplier, fraction))
-        }
     }
+}
+
+/**
+ * Linearly interpolate two [BaselineShift]s.
+ */
+// TODO(haoyuchang): This should not be in the companion, it should be at file level
+// TODO(haoyuchang): This should not accept nullables
+fun lerp(start: BaselineShift?, stop: BaselineShift?, fraction: Float): BaselineShift? {
+    if (start == null && stop == null) {
+        return null
+    }
+    if (start == null) {
+        return BaselineShift(stop!!.multiplier * fraction)
+    }
+    if (stop == null) {
+        return BaselineShift(start.multiplier * (1f - fraction))
+    }
+    return BaselineShift(lerp(start.multiplier, stop.multiplier, fraction))
 }
