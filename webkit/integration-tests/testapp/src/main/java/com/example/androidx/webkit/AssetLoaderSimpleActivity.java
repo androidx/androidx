@@ -37,6 +37,7 @@ public class AssetLoaderSimpleActivity extends AppCompatActivity {
 
     private class MyWebViewClient extends WebViewClient {
         @Override
+        @SuppressWarnings("deprecation") // use the old one for compatibility with all API levels.
         public boolean shouldOverrideUrlLoading(WebView view, String url) {
             return false;
         }
@@ -49,6 +50,7 @@ public class AssetLoaderSimpleActivity extends AppCompatActivity {
         }
 
         @Override
+        @SuppressWarnings("deprecation") // use the old one for compatibility with all API levels.
         public WebResourceResponse shouldInterceptRequest(WebView view, String request) {
             return mAssetLoader.shouldInterceptRequest(Uri.parse(request));
         }
