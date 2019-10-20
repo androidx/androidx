@@ -1,4 +1,12 @@
 // Baseline format: 1.0
+ArrayReturn: androidx.annotation.InspectableProperty#enumMapping():
+    Method should return Collection<EnumEntry> (or subclass) instead of raw array; was `androidx.annotation.InspectableProperty.EnumEntry[]`
+ArrayReturn: androidx.annotation.InspectableProperty#flagMapping():
+    Method should return Collection<FlagEntry> (or subclass) instead of raw array; was `androidx.annotation.InspectableProperty.FlagEntry[]`
+ArrayReturn: androidx.annotation.RestrictTo#value():
+    Method should return Collection<Scope> (or subclass) instead of raw array; was `androidx.annotation.RestrictTo.Scope[]`
+
+
 MissingNullability: androidx.annotation.CheckResult#suggest():
     Missing nullability on method `suggest` return
 MissingNullability: androidx.annotation.GuardedBy#value():

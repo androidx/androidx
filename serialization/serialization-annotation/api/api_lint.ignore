@@ -1,4 +1,8 @@
 // Baseline format: 1.0
+ArrayReturn: androidx.serialization.Reserved#idRanges():
+    Method should return Collection<IdRange> (or subclass) instead of raw array; was `androidx.serialization.Reserved.IdRange[]`
+
+
 MissingNullability: androidx.serialization.EnumValue#Companion:
     Missing nullability on field `Companion` in class `class androidx.serialization.EnumValue`
 MissingNullability: androidx.serialization.Field#mapKeyProtoEncoding():

@@ -1,4 +1,8 @@
 // Baseline format: 1.0
+ArrayReturn: androidx.room.RoomDatabase#query(String, Object[]) parameter #1:
+    Method parameter should be Collection<Object> (or subclass) instead of raw array; was `java.lang.Object[]`
+
+
 CallbackName: androidx.room.InvalidationTracker.Observer:
     Class should be named Callback
 

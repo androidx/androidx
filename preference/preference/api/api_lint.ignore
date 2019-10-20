@@ -1,4 +1,24 @@
 // Baseline format: 1.0
+ArrayReturn: androidx.preference.DropDownPreference#setEntries(CharSequence[]) parameter #0:
+    Method parameter should be Collection<CharSequence> (or subclass) instead of raw array; was `java.lang.CharSequence[]`
+ArrayReturn: androidx.preference.ListPreference#getEntries():
+    Method should return Collection<CharSequence> (or subclass) instead of raw array; was `java.lang.CharSequence[]`
+ArrayReturn: androidx.preference.ListPreference#getEntryValues():
+    Method should return Collection<CharSequence> (or subclass) instead of raw array; was `java.lang.CharSequence[]`
+ArrayReturn: androidx.preference.ListPreference#setEntries(CharSequence[]) parameter #0:
+    Method parameter should be Collection<CharSequence> (or subclass) instead of raw array; was `java.lang.CharSequence[]`
+ArrayReturn: androidx.preference.ListPreference#setEntryValues(CharSequence[]) parameter #0:
+    Method parameter should be Collection<CharSequence> (or subclass) instead of raw array; was `java.lang.CharSequence[]`
+ArrayReturn: androidx.preference.MultiSelectListPreference#getEntries():
+    Method should return Collection<CharSequence> (or subclass) instead of raw array; was `java.lang.CharSequence[]`
+ArrayReturn: androidx.preference.MultiSelectListPreference#getEntryValues():
+    Method should return Collection<CharSequence> (or subclass) instead of raw array; was `java.lang.CharSequence[]`
+ArrayReturn: androidx.preference.MultiSelectListPreference#setEntries(CharSequence[]) parameter #0:
+    Method parameter should be Collection<CharSequence> (or subclass) instead of raw array; was `java.lang.CharSequence[]`
+ArrayReturn: androidx.preference.MultiSelectListPreference#setEntryValues(CharSequence[]) parameter #0:
+    Method parameter should be Collection<CharSequence> (or subclass) instead of raw array; was `java.lang.CharSequence[]`
+
+
 CallbackMethodName: androidx.preference.PreferenceManager.PreferenceComparisonCallback:
     Callback method names must follow the on<Something> style: arePreferenceItemsTheSame
 CallbackMethodName: androidx.preference.PreferenceManager.SimplePreferenceComparisonCallback:

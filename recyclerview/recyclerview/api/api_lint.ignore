@@ -7,6 +7,16 @@ AcronymName: androidx.recyclerview.widget.LinearLayoutManager#isLayoutRTL():
     Acronyms should not be capitalized in method names: was `isLayoutRTL`, should this be `isLayoutRtl`?
 
 
+ArrayReturn: androidx.recyclerview.widget.AsyncListUtil.DataCallback#fillData(T[], int, int) parameter #0:
+    Method parameter should be Collection<T> (or subclass) instead of raw array; was `T[]`
+ArrayReturn: androidx.recyclerview.widget.AsyncListUtil.DataCallback#recycleData(T[], int) parameter #0:
+    Method parameter should be Collection<T> (or subclass) instead of raw array; was `T[]`
+ArrayReturn: androidx.recyclerview.widget.SortedList#addAll(T[], boolean) parameter #0:
+    Method parameter should be Collection<T> (or subclass) instead of raw array; was `T[]`
+ArrayReturn: androidx.recyclerview.widget.SortedList#replaceAll(T[], boolean) parameter #0:
+    Method parameter should be Collection<T> (or subclass) instead of raw array; was `T[]`
+
+
 BannedThrow: androidx.recyclerview.widget.SnapHelper#attachToRecyclerView(androidx.recyclerview.widget.RecyclerView):
     Methods must not mention RuntimeException subclasses in throws clauses (was `java.lang.IllegalStateException`)
 BannedThrow: androidx.recyclerview.widget.SortedList#get(int):

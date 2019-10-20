@@ -5,6 +5,14 @@ AcronymName: androidx.appcompat.widget.AppCompatImageView#setImageURI(android.ne
     Acronyms should not be capitalized in method names: was `setImageURI`, should this be `setImageUri`?
 
 
+ArrayReturn: androidx.appcompat.app.AlertDialog.Builder#setItems(CharSequence[], android.content.DialogInterface.OnClickListener) parameter #0:
+    Method parameter should be Collection<CharSequence> (or subclass) instead of raw array; was `java.lang.CharSequence[]`
+ArrayReturn: androidx.appcompat.app.AlertDialog.Builder#setMultiChoiceItems(CharSequence[], boolean[], android.content.DialogInterface.OnMultiChoiceClickListener) parameter #0:
+    Method parameter should be Collection<CharSequence> (or subclass) instead of raw array; was `java.lang.CharSequence[]`
+ArrayReturn: androidx.appcompat.app.AlertDialog.Builder#setSingleChoiceItems(CharSequence[], int, android.content.DialogInterface.OnClickListener) parameter #0:
+    Method parameter should be Collection<CharSequence> (or subclass) instead of raw array; was `java.lang.CharSequence[]`
+
+
 ContextFirst: androidx.appcompat.app.AppCompatDelegate#createView(android.view.View, String, android.content.Context, android.util.AttributeSet) parameter #2:
     Context is distinct, so it must be the first argument (method `createView`)
 

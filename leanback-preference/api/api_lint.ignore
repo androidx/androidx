@@ -5,6 +5,16 @@ ActionValue: androidx.leanback.preference.LeanbackEditTextPreferenceDialogFragme
     Inconsistent extra value; expected `androidx.leanback.preference.extra.INPUT_TYPE`, was `input_type`
 
 
+ArrayReturn: androidx.leanback.preference.LeanbackListPreferenceDialogFragment.AdapterMulti#AdapterMulti(CharSequence[], CharSequence[], java.util.Set<java.lang.String>) parameter #0:
+    Method parameter should be Collection<CharSequence> (or subclass) instead of raw array; was `java.lang.CharSequence[]`
+ArrayReturn: androidx.leanback.preference.LeanbackListPreferenceDialogFragment.AdapterMulti#AdapterMulti(CharSequence[], CharSequence[], java.util.Set<java.lang.String>) parameter #1:
+    Method parameter should be Collection<CharSequence> (or subclass) instead of raw array; was `java.lang.CharSequence[]`
+ArrayReturn: androidx.leanback.preference.LeanbackListPreferenceDialogFragment.AdapterSingle#AdapterSingle(CharSequence[], CharSequence[], CharSequence) parameter #0:
+    Method parameter should be Collection<CharSequence> (or subclass) instead of raw array; was `java.lang.CharSequence[]`
+ArrayReturn: androidx.leanback.preference.LeanbackListPreferenceDialogFragment.AdapterSingle#AdapterSingle(CharSequence[], CharSequence[], CharSequence) parameter #1:
+    Method parameter should be Collection<CharSequence> (or subclass) instead of raw array; was `java.lang.CharSequence[]`
+
+
 MissingNullability: androidx.leanback.preference.BaseLeanbackPreferenceFragment#onCreateRecyclerView(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle):
     Missing nullability on method `onCreateRecyclerView` return
 MissingNullability: androidx.leanback.preference.BaseLeanbackPreferenceFragment#onCreateRecyclerView(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle) parameter #0:

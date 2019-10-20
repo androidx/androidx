@@ -1,4 +1,10 @@
 // Baseline format: 1.0
+ArrayReturn: androidx.animation.TransitionDefinition#snapTransition(kotlin.Pair<? extends T,? extends T>[], T) parameter #0:
+    Method parameter should be Collection<Pair> (or subclass) instead of raw array; was `kotlin.Pair<? extends T,? extends T>[]`
+ArrayReturn: androidx.animation.TransitionDefinition#transition(kotlin.Pair<? extends T,? extends T>[], kotlin.jvm.functions.Function1<? super androidx.animation.TransitionSpec<T>,kotlin.Unit>) parameter #0:
+    Method parameter should be Collection<Pair> (or subclass) instead of raw array; was `kotlin.Pair<? extends T,? extends T>[]`
+
+
 AutoBoxing: androidx.animation.CubicBezierEasing#invoke(float):
     Must avoid boxed primitives (`java.lang.Float`)
 AutoBoxing: androidx.animation.FloatPropKey#interpolate(float, float, float):
