@@ -26,11 +26,8 @@ import androidx.compose.onCommit
 import androidx.compose.onDispose
 import androidx.compose.state
 import androidx.compose.unaryPlus
-import androidx.ui.core.selection.Selection
-import androidx.ui.core.selection.SelectionMode
 import androidx.ui.core.selection.SelectionRegistrarAmbient
-import androidx.ui.core.selection.TextSelectionHandler
-import androidx.ui.core.selection.TextSelectionProcessor
+import androidx.ui.core.selection.TextSelectionDelegate
 import androidx.ui.graphics.Color
 import androidx.ui.semantics.Semantics
 import androidx.ui.semantics.accessibilityLabel
@@ -194,9 +191,12 @@ fun Text(
      */
     selectionColor: Color = DefaultSelectionColor
 ) {
+    // The selection range for this Composable, used by selection
     val internalSelection = +state<TextRange?> { null }
-    val registrar = +ambient(SelectionRegistrarAmbient)
+    // The last layout coordinates recorded for this Composable, used by selection
     val layoutCoordinates = +state<LayoutCoordinates?> { null }
+    // selection manager
+    val registrar = +ambient(SelectionRegistrarAmbient)
 
     val themeStyle = +ambient(CurrentTextStyleAmbient)
     val mergedStyle = themeStyle.merge(style)
@@ -290,46 +290,11 @@ fun Text(
             density
         ) {
             val id = registrar.subscribe(
-                object : TextSelectionHandler {
-                    override fun getSelection(
-                        selectionCoordinates: Pair<PxPosition, PxPosition>,
-                        containerLayoutCoordinates: LayoutCoordinates,
-                        mode: SelectionMode
-                    ): Selection? {
-                        val relativePosition = containerLayoutCoordinates.childToLocal(
-                            layoutCoordinates.value!!, PxPosition.Origin
-                        )
-                        val startPx = selectionCoordinates.first - relativePosition
-                        val endPx = selectionCoordinates.second - relativePosition
-
-                        val textSelectionProcessor = TextSelectionProcessor(
-                            selectionCoordinates = Pair(startPx, endPx),
-                            mode = mode,
-                            onSelectionChange = { internalSelection.value = it },
-                            textDelegate = textDelegate
-                        )
-                        if (!textSelectionProcessor.isSelected) return null
-
-                        // TODO(qqd): Determine a set of coordinates around a character that we
-                        //  need.
-                        return Selection(
-                            startCoordinates = textSelectionProcessor.startCoordinates,
-                            endCoordinates = textSelectionProcessor.endCoordinates,
-                            startOffset = textSelectionProcessor.startOffset,
-                            endOffset = textSelectionProcessor.endOffset,
-                            startDirection = textSelectionProcessor.startDirection,
-                            endDirection = textSelectionProcessor.endDirection,
-                            startLayoutCoordinates =
-                            if (textSelectionProcessor.containsWholeSelectionStart) {
-                                layoutCoordinates.value!!
-                            } else null,
-                            endLayoutCoordinates =
-                            if (textSelectionProcessor.containsWholeSelectionEnd) {
-                                layoutCoordinates.value!!
-                            } else null
-                        )
-                    }
-                }
+                TextSelectionDelegate(
+                    internalSelection = internalSelection,
+                    layoutCoordinates = layoutCoordinates,
+                    textDelegate = textDelegate
+                )
             )
             onDispose {
                 registrar.unsubscribe(id)

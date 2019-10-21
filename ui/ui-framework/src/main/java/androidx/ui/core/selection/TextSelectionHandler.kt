@@ -25,6 +25,12 @@ import androidx.ui.core.PxPosition
  * container.
  */
 interface TextSelectionHandler {
+    // TODO(qqd) add API Docs and params
+    /**
+     * @param selectionCoordinates
+     * @param containerLayoutCoordinates
+     * @param mode
+     */
     fun getSelection(
         selectionCoordinates: Pair<PxPosition, PxPosition>,
         containerLayoutCoordinates: LayoutCoordinates,
