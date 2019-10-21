@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 3.5.0-beta04" client="gradle" variant="debug" version="3.5.0-beta04">
+<issues format="5" by="lint 3.6.0-beta01" client="gradle" variant="debug" version="3.6.0-beta01">
 
     <issue
         id="UnknownNullness"
@@ -151,7 +151,7 @@
         errorLine2="                        ~~~~">
         <location
             file="src/main/java/androidx/slice/widget/GridRowView.java"
-            line="490"
+            line="491"
             column="25"/>
     </issue>
 
@@ -162,7 +162,7 @@
         errorLine2="                           ~~~~">
         <location
             file="src/main/java/androidx/slice/widget/GridRowView.java"
-            line="511"
+            line="512"
             column="28"/>
     </issue>
 
@@ -173,7 +173,7 @@
         errorLine2="                                      ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/GridRowView.java"
-            line="511"
+            line="512"
             column="39"/>
     </issue>
 
@@ -723,7 +723,7 @@
         errorLine2="                    ~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/RowStyle.java"
-            line="42"
+            line="45"
             column="21"/>
     </issue>
 
@@ -767,7 +767,7 @@
         errorLine2="                                ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/RowView.java"
-            line="286"
+            line="295"
             column="33"/>
     </issue>
 
@@ -778,7 +778,7 @@
         errorLine2="                             ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/RowView.java"
-            line="380"
+            line="389"
             column="30"/>
     </issue>
 
@@ -789,7 +789,7 @@
         errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/RowView.java"
-            line="381"
+            line="390"
             column="27"/>
     </issue>
 
@@ -800,7 +800,7 @@
         errorLine2="                                  ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/RowView.java"
-            line="896"
+            line="906"
             column="35"/>
     </issue>
 
@@ -811,7 +811,7 @@
         errorLine2="                        ~~~~">
         <location
             file="src/main/java/androidx/slice/widget/RowView.java"
-            line="908"
+            line="918"
             column="25"/>
     </issue>
 
@@ -822,7 +822,7 @@
         errorLine2="                               ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/RowView.java"
-            line="947"
+            line="957"
             column="32"/>
     </issue>
 
@@ -833,7 +833,7 @@
         errorLine2="                                                      ~~~~">
         <location
             file="src/main/java/androidx/slice/widget/RowView.java"
-            line="947"
+            line="957"
             column="55"/>
     </issue>
 
@@ -844,7 +844,7 @@
         errorLine2="                                  ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/RowView.java"
-            line="982"
+            line="992"
             column="35"/>
     </issue>
 
@@ -1438,7 +1438,7 @@
         errorLine2="                                        ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/SliceLiveData.java"
-            line="110"
+            line="128"
             column="41"/>
     </issue>
 
@@ -1449,7 +1449,7 @@
         errorLine2="                                        ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/SliceLiveData.java"
-            line="119"
+            line="137"
             column="41"/>
     </issue>
 
@@ -1460,7 +1460,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/SliceLiveData.java"
-            line="130"
+            line="148"
             column="13"/>
     </issue>
 
@@ -1471,7 +1471,7 @@
         errorLine2="                                                                  ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/SliceLiveData.java"
-            line="130"
+            line="148"
             column="67"/>
     </issue>
 

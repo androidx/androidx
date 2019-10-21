@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 3.6.0-alpha12" client="gradle" variant="debug" version="3.6.0-alpha12">
+<issues format="5" by="lint 3.6.0-beta01" client="gradle" variant="debug" version="3.6.0-beta01">
 
     <issue
         id="KotlinPropertyAccess"
@@ -30,7 +30,7 @@
         errorLine2="                             ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="7165"
+            line="7174"
             column="30"/>
     </issue>
 
@@ -41,7 +41,7 @@
         errorLine2="                             ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="7165"
+            line="7174"
             column="30"/>
     </issue>
 
@@ -52,7 +52,7 @@
         errorLine2="                          ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="11404"
+            line="11413"
             column="27"/>
     </issue>
 
@@ -63,7 +63,7 @@
         errorLine2="                          ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="11404"
+            line="11413"
             column="27"/>
     </issue>
 
@@ -3660,7 +3660,7 @@
         errorLine2="                                    ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="2287"
+            line="2289"
             column="37"/>
     </issue>
 
@@ -3671,7 +3671,7 @@
         errorLine2="                                    ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="2287"
+            line="2289"
             column="37"/>
     </issue>
 
@@ -3682,7 +3682,7 @@
         errorLine2="           ~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="2745"
+            line="2747"
             column="12"/>
     </issue>
 
@@ -3693,7 +3693,7 @@
         errorLine2="           ~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="2745"
+            line="2747"
             column="12"/>
     </issue>
 
@@ -3704,7 +3704,7 @@
         errorLine2="                            ~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="2745"
+            line="2747"
             column="29"/>
     </issue>
 
@@ -3715,7 +3715,7 @@
         errorLine2="                            ~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="2745"
+            line="2747"
             column="29"/>
     </issue>
 
@@ -3726,7 +3726,7 @@
         errorLine2="                                  ~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="2890"
+            line="2892"
             column="35"/>
     </issue>
 
@@ -3737,7 +3737,7 @@
         errorLine2="                                  ~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="2890"
+            line="2892"
             column="35"/>
     </issue>
 
@@ -3748,7 +3748,7 @@
         errorLine2="                                              ~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="2890"
+            line="2892"
             column="47"/>
     </issue>
 
@@ -3759,7 +3759,7 @@
         errorLine2="                                              ~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="2890"
+            line="2892"
             column="47"/>
     </issue>
 
@@ -3770,7 +3770,7 @@
         errorLine2="                                                 ~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="2935"
+            line="2937"
             column="50"/>
     </issue>
 
@@ -3781,7 +3781,7 @@
         errorLine2="                                                 ~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="2935"
+            line="2937"
             column="50"/>
     </issue>
 
@@ -3792,7 +3792,7 @@
         errorLine2="                                                             ~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="2935"
+            line="2937"
             column="62"/>
     </issue>
 
@@ -3803,7 +3803,7 @@
         errorLine2="                                                             ~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="2935"
+            line="2937"
             column="62"/>
     </issue>
 
@@ -3814,7 +3814,7 @@
         errorLine2="                              ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="2940"
+            line="2942"
             column="31"/>
     </issue>
 
@@ -3825,7 +3825,7 @@
         errorLine2="                              ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="2940"
+            line="2942"
             column="31"/>
     </issue>
 
@@ -3836,7 +3836,7 @@
         errorLine2="                                                                 ~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="2947"
+            line="2949"
             column="66"/>
     </issue>
 
@@ -3847,7 +3847,7 @@
         errorLine2="                                                                 ~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="2947"
+            line="2949"
             column="66"/>
     </issue>
 
@@ -3858,7 +3858,7 @@
         errorLine2="                                         ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="3158"
+            line="3160"
             column="42"/>
     </issue>
 
@@ -3869,7 +3869,7 @@
         errorLine2="                                         ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="3158"
+            line="3160"
             column="42"/>
     </issue>
 
@@ -3880,7 +3880,7 @@
         errorLine2="                                ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="3277"
+            line="3279"
             column="33"/>
     </issue>
 
@@ -3891,7 +3891,7 @@
         errorLine2="                                ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="3277"
+            line="3279"
             column="33"/>
     </issue>
 
@@ -3902,7 +3902,7 @@
         errorLine2="                                        ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="3457"
+            line="3459"
             column="41"/>
     </issue>
 
@@ -3913,7 +3913,7 @@
         errorLine2="                                        ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="3457"
+            line="3459"
             column="41"/>
     </issue>
 
@@ -3924,7 +3924,7 @@
         errorLine2="                                                ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="3730"
+            line="3732"
             column="49"/>
     </issue>
 
@@ -3935,7 +3935,7 @@
         errorLine2="                                                ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="3730"
+            line="3732"
             column="49"/>
     </issue>
 
@@ -3946,7 +3946,7 @@
         errorLine2="                                                      ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="3738"
+            line="3740"
             column="55"/>
     </issue>
 
@@ -3957,7 +3957,7 @@
         errorLine2="                                                      ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="3738"
+            line="3740"
             column="55"/>
     </issue>
 
@@ -3968,7 +3968,7 @@
         errorLine2="                                      ~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="4331"
+            line="4333"
             column="39"/>
     </issue>
 
@@ -3979,7 +3979,7 @@
         errorLine2="                                      ~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="4331"
+            line="4333"
             column="39"/>
     </issue>
 
@@ -3990,7 +3990,7 @@
         errorLine2="                     ~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="4426"
+            line="4428"
             column="22"/>
     </issue>
 
@@ -4001,7 +4001,7 @@
         errorLine2="                     ~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="4426"
+            line="4428"
             column="22"/>
     </issue>
 
@@ -4012,7 +4012,7 @@
         errorLine2="                       ~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="4487"
+            line="4489"
             column="24"/>
     </issue>
 
@@ -4023,7 +4023,7 @@
         errorLine2="                       ~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="4487"
+            line="4489"
             column="24"/>
     </issue>
 
@@ -4034,7 +4034,7 @@
         errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="4497"
+            line="4499"
             column="41"/>
     </issue>
 
@@ -4045,7 +4045,7 @@
         errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="4497"
+            line="4499"
             column="41"/>
     </issue>
 
@@ -4056,7 +4056,7 @@
         errorLine2="              ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="4502"
+            line="4504"
             column="15"/>
     </issue>
 
@@ -4067,7 +4067,7 @@
         errorLine2="              ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="4502"
+            line="4504"
             column="15"/>
     </issue>
 
@@ -4078,7 +4078,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="4510"
+            line="4512"
             column="12"/>
     </issue>
 
@@ -4089,7 +4089,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="4510"
+            line="4512"
             column="12"/>
     </issue>
 
@@ -4100,7 +4100,7 @@
         errorLine2="                                                       ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="4510"
+            line="4512"
             column="56"/>
     </issue>
 
@@ -4111,7 +4111,7 @@
         errorLine2="                                                       ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="4510"
+            line="4512"
             column="56"/>
     </issue>
 
@@ -4122,7 +4122,7 @@
         errorLine2="              ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="4518"
+            line="4520"
             column="15"/>
     </issue>
 
@@ -4133,7 +4133,7 @@
         errorLine2="              ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="4518"
+            line="4520"
             column="15"/>
     </issue>
 
@@ -4144,7 +4144,7 @@
         errorLine2="                                                          ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="4518"
+            line="4520"
             column="59"/>
     </issue>
 
@@ -4155,7 +4155,7 @@
         errorLine2="                                                          ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="4518"
+            line="4520"
             column="59"/>
     </issue>
 
@@ -4166,7 +4166,7 @@
         errorLine2="           ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="4766"
+            line="4768"
             column="12"/>
     </issue>
 
@@ -4177,7 +4177,7 @@
         errorLine2="           ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="4766"
+            line="4768"
             column="12"/>
     </issue>
 
@@ -4188,7 +4188,7 @@
         errorLine2="           ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="4983"
+            line="4985"
             column="12"/>
     </issue>
 
@@ -4199,7 +4199,7 @@
         errorLine2="           ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="4983"
+            line="4985"
             column="12"/>
     </issue>
 
@@ -4210,7 +4210,7 @@
         errorLine2="                             ~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="5027"
+            line="5029"
             column="30"/>
     </issue>
 
@@ -4221,7 +4221,7 @@
         errorLine2="                             ~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="5027"
+            line="5029"
             column="30"/>
     </issue>
 
@@ -4232,7 +4232,7 @@
         errorLine2="                                            ~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="5027"
+            line="5029"
             column="45"/>
     </issue>
 
@@ -4243,7 +4243,7 @@
         errorLine2="                                            ~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="5027"
+            line="5029"
             column="45"/>
     </issue>
 
@@ -4254,7 +4254,7 @@
         errorLine2="                                    ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="5737"
+            line="5739"
             column="37"/>
     </issue>
 
@@ -4265,7 +4265,7 @@
         errorLine2="                                    ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="5737"
+            line="5739"
             column="37"/>
     </issue>
 
@@ -4276,7 +4276,7 @@
         errorLine2="                                         ~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="7826"
+            line="7835"
             column="42"/>
     </issue>
 
@@ -4287,7 +4287,7 @@
         errorLine2="                                         ~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="7826"
+            line="7835"
             column="42"/>
     </issue>
 
@@ -4298,7 +4298,7 @@
         errorLine2="                                           ~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="7850"
+            line="7859"
             column="44"/>
     </issue>
 
@@ -4309,7 +4309,7 @@
         errorLine2="                                           ~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="7850"
+            line="7859"
             column="44"/>
     </issue>
 
@@ -4320,7 +4320,7 @@
         errorLine2="                                              ~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="7887"
+            line="7896"
             column="47"/>
     </issue>
 
@@ -4331,7 +4331,7 @@
         errorLine2="                                              ~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="7887"
+            line="7896"
             column="47"/>
     </issue>
 
@@ -4342,7 +4342,7 @@
         errorLine2="                                                                     ~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="8072"
+            line="8081"
             column="70"/>
     </issue>
 
@@ -4353,7 +4353,7 @@
         errorLine2="                                                                     ~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="8072"
+            line="8081"
             column="70"/>
     </issue>
 
@@ -4364,7 +4364,7 @@
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="8073"
+            line="8082"
             column="17"/>
     </issue>
 
@@ -4375,7 +4375,7 @@
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="8073"
+            line="8082"
             column="17"/>
     </issue>
 
@@ -4386,7 +4386,7 @@
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="8101"
+            line="8110"
             column="17"/>
     </issue>
 
@@ -4397,7 +4397,7 @@
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="8101"
+            line="8110"
             column="17"/>
     </issue>
 
@@ -4408,7 +4408,7 @@
         errorLine2="                                    ~~~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="8134"
+            line="8143"
             column="37"/>
     </issue>
 
@@ -4419,7 +4419,7 @@
         errorLine2="                                    ~~~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="8134"
+            line="8143"
             column="37"/>
     </issue>
 
@@ -4430,7 +4430,7 @@
         errorLine2="                                       ~~~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="8154"
+            line="8163"
             column="40"/>
     </issue>
 
@@ -4441,7 +4441,7 @@
         errorLine2="                                       ~~~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="8154"
+            line="8163"
             column="40"/>
     </issue>
 
@@ -4452,7 +4452,7 @@
         errorLine2="                                       ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="8175"
+            line="8184"
             column="40"/>
     </issue>
 
@@ -4463,7 +4463,7 @@
         errorLine2="                                       ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="8175"
+            line="8184"
             column="40"/>
     </issue>
 
@@ -4474,7 +4474,7 @@
         errorLine2="                                         ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="8183"
+            line="8192"
             column="42"/>
     </issue>
 
@@ -4485,7 +4485,7 @@
         errorLine2="                                         ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="8183"
+            line="8192"
             column="42"/>
     </issue>
 
@@ -4496,7 +4496,7 @@
         errorLine2="                                         ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="8211"
+            line="8220"
             column="42"/>
     </issue>
 
@@ -4507,7 +4507,7 @@
         errorLine2="                                         ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="8211"
+            line="8220"
             column="42"/>
     </issue>
 
@@ -4518,7 +4518,7 @@
         errorLine2="                                                            ~~~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="8211"
+            line="8220"
             column="61"/>
     </issue>
 
@@ -4529,7 +4529,7 @@
         errorLine2="                                                            ~~~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="8211"
+            line="8220"
             column="61"/>
     </issue>
 
@@ -4540,7 +4540,7 @@
         errorLine2="                                     ~~~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="8275"
+            line="8284"
             column="38"/>
     </issue>
 
@@ -4551,7 +4551,7 @@
         errorLine2="                                     ~~~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="8275"
+            line="8284"
             column="38"/>
     </issue>
 
@@ -4562,7 +4562,7 @@
         errorLine2="                                                        ~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="8275"
+            line="8284"
             column="57"/>
     </issue>
 
@@ -4573,7 +4573,7 @@
         errorLine2="                                                        ~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="8275"
+            line="8284"
             column="57"/>
     </issue>
 
@@ -4584,7 +4584,7 @@
         errorLine2="                                      ~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="8290"
+            line="8299"
             column="39"/>
     </issue>
 
@@ -4595,7 +4595,7 @@
         errorLine2="                                      ~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="8290"
+            line="8299"
             column="39"/>
     </issue>
 
@@ -4606,7 +4606,7 @@
         errorLine2="                        ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="8308"
+            line="8317"
             column="25"/>
     </issue>
 
@@ -4617,7 +4617,7 @@
         errorLine2="                        ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="8308"
+            line="8317"
             column="25"/>
     </issue>
 
@@ -4628,7 +4628,7 @@
         errorLine2="                                         ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="8320"
+            line="8329"
             column="42"/>
     </issue>
 
@@ -4639,7 +4639,7 @@
         errorLine2="                                         ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="8320"
+            line="8329"
             column="42"/>
     </issue>
 
@@ -4650,7 +4650,7 @@
         errorLine2="               ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="8337"
+            line="8346"
             column="16"/>
     </issue>
 
@@ -4661,7 +4661,7 @@
         errorLine2="               ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="8337"
+            line="8346"
             column="16"/>
     </issue>
 
@@ -4672,7 +4672,7 @@
         errorLine2="                                                 ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="8337"
+            line="8346"
             column="50"/>
     </issue>
 
@@ -4683,7 +4683,7 @@
         errorLine2="                                                 ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="8337"
+            line="8346"
             column="50"/>
     </issue>
 
@@ -4694,7 +4694,7 @@
         errorLine2="               ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="8361"
+            line="8370"
             column="16"/>
     </issue>
 
@@ -4705,7 +4705,7 @@
         errorLine2="               ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="8361"
+            line="8370"
             column="16"/>
     </issue>
 
@@ -4716,7 +4716,7 @@
         errorLine2="                                                 ~~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="8361"
+            line="8370"
             column="50"/>
     </issue>
 
@@ -4727,7 +4727,7 @@
         errorLine2="                                                 ~~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="8361"
+            line="8370"
             column="50"/>
     </issue>
 
@@ -4738,7 +4738,7 @@
         errorLine2="                                                            ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="8361"
+            line="8370"
             column="61"/>
     </issue>
 
@@ -4749,7 +4749,7 @@
         errorLine2="                                                            ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="8361"
+            line="8370"
             column="61"/>
     </issue>
 
@@ -4760,7 +4760,7 @@
         errorLine2="                                                ~~~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="8378"
+            line="8387"
             column="49"/>
     </issue>
 
@@ -4771,7 +4771,7 @@
         errorLine2="                                                ~~~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="8378"
+            line="8387"
             column="49"/>
     </issue>
 
@@ -4782,7 +4782,7 @@
         errorLine2="                                                                   ~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="8378"
+            line="8387"
             column="68"/>
     </issue>
 
@@ -4793,7 +4793,7 @@
         errorLine2="                                                                   ~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="8378"
+            line="8387"
             column="68"/>
     </issue>
 
@@ -4804,7 +4804,7 @@
         errorLine2="                                              ~~~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="8395"
+            line="8404"
             column="47"/>
     </issue>
 
@@ -4815,7 +4815,7 @@
         errorLine2="                                              ~~~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="8395"
+            line="8404"
             column="47"/>
     </issue>
 
@@ -4826,7 +4826,7 @@
         errorLine2="                                                                 ~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="8395"
+            line="8404"
             column="66"/>
     </issue>
 
@@ -4837,7 +4837,7 @@
         errorLine2="                                                                 ~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="8395"
+            line="8404"
             column="66"/>
     </issue>
 
@@ -4848,7 +4848,7 @@
         errorLine2="                                           ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="8440"
+            line="8449"
             column="44"/>
     </issue>
 
@@ -4859,7 +4859,7 @@
         errorLine2="                                           ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="8440"
+            line="8449"
             column="44"/>
     </issue>
 
@@ -4870,7 +4870,7 @@
         errorLine2="                                                                      ~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="8440"
+            line="8449"
             column="71"/>
     </issue>
 
@@ -4881,7 +4881,7 @@
         errorLine2="                                                                      ~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="8440"
+            line="8449"
             column="71"/>
     </issue>
 
@@ -4892,7 +4892,7 @@
         errorLine2="                                      ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="8455"
+            line="8464"
             column="39"/>
     </issue>
 
@@ -4903,7 +4903,7 @@
         errorLine2="                                      ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="8455"
+            line="8464"
             column="39"/>
     </issue>
 
@@ -4914,7 +4914,7 @@
         errorLine2="                                 ~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="8489"
+            line="8498"
             column="34"/>
     </issue>
 
@@ -4925,7 +4925,7 @@
         errorLine2="                                 ~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="8489"
+            line="8498"
             column="34"/>
     </issue>
 
@@ -4936,7 +4936,7 @@
         errorLine2="                                        ~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="8508"
+            line="8517"
             column="41"/>
     </issue>
 
@@ -4947,7 +4947,7 @@
         errorLine2="                                        ~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="8508"
+            line="8517"
             column="41"/>
     </issue>
 
@@ -4958,7 +4958,7 @@
         errorLine2="                                        ~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="8526"
+            line="8535"
             column="41"/>
     </issue>
 
@@ -4969,7 +4969,7 @@
         errorLine2="                                        ~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="8526"
+            line="8535"
             column="41"/>
     </issue>
 
@@ -4980,7 +4980,7 @@
         errorLine2="                            ~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="8537"
+            line="8546"
             column="29"/>
     </issue>
 
@@ -4991,7 +4991,7 @@
         errorLine2="                            ~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="8537"
+            line="8546"
             column="29"/>
     </issue>
 
@@ -5002,7 +5002,7 @@
         errorLine2="                            ~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="8549"
+            line="8558"
             column="29"/>
     </issue>
 
@@ -5013,7 +5013,7 @@
         errorLine2="                            ~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="8549"
+            line="8558"
             column="29"/>
     </issue>
 
@@ -5024,7 +5024,7 @@
         errorLine2="                               ~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="8615"
+            line="8624"
             column="32"/>
     </issue>
 
@@ -5035,7 +5035,7 @@
         errorLine2="                               ~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="8615"
+            line="8624"
             column="32"/>
     </issue>
 
@@ -5046,7 +5046,7 @@
         errorLine2="                                                               ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="8794"
+            line="8803"
             column="64"/>
     </issue>
 
@@ -5057,7 +5057,7 @@
         errorLine2="                                                               ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="8794"
+            line="8803"
             column="64"/>
     </issue>
 
@@ -5068,7 +5068,7 @@
         errorLine2="                                           ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="10292"
+            line="10301"
             column="44"/>
     </issue>
 
@@ -5079,7 +5079,7 @@
         errorLine2="                                           ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="10292"
+            line="10301"
             column="44"/>
     </issue>
 
@@ -5090,7 +5090,7 @@
         errorLine2="                      ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="10623"
+            line="10632"
             column="23"/>
     </issue>
 
@@ -5101,7 +5101,7 @@
         errorLine2="                      ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="10623"
+            line="10632"
             column="23"/>
     </issue>
 
@@ -5112,7 +5112,7 @@
         errorLine2="                              ~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="11559"
+            line="11568"
             column="31"/>
     </issue>
 
@@ -5123,7 +5123,7 @@
         errorLine2="                              ~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="11559"
+            line="11568"
             column="31"/>
     </issue>
 
@@ -5134,7 +5134,7 @@
         errorLine2="                              ~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="11566"
+            line="11575"
             column="31"/>
     </issue>
 
@@ -5145,7 +5145,7 @@
         errorLine2="                              ~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="11566"
+            line="11575"
             column="31"/>
     </issue>
 
@@ -5156,7 +5156,7 @@
         errorLine2="                              ~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="11573"
+            line="11582"
             column="31"/>
     </issue>
 
@@ -5167,7 +5167,7 @@
         errorLine2="                              ~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="11573"
+            line="11582"
             column="31"/>
     </issue>
 
@@ -5178,7 +5178,7 @@
         errorLine2="                                                           ~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="11579"
+            line="11588"
             column="60"/>
     </issue>
 
@@ -5189,7 +5189,7 @@
         errorLine2="                                                           ~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="11579"
+            line="11588"
             column="60"/>
     </issue>
 
@@ -5200,7 +5200,7 @@
         errorLine2="                                                                           ~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="11579"
+            line="11588"
             column="76"/>
     </issue>
 
@@ -5211,7 +5211,7 @@
         errorLine2="                                                                           ~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="11579"
+            line="11588"
             column="76"/>
     </issue>
 
@@ -5222,7 +5222,7 @@
         errorLine2="                                                           ~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="11584"
+            line="11593"
             column="60"/>
     </issue>
 
@@ -5233,7 +5233,7 @@
         errorLine2="                                                           ~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="11584"
+            line="11593"
             column="60"/>
     </issue>
 
@@ -5244,7 +5244,7 @@
         errorLine2="                                                                           ~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="11584"
+            line="11593"
             column="76"/>
     </issue>
 
@@ -5255,7 +5255,7 @@
         errorLine2="                                                                           ~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="11584"
+            line="11593"
             column="76"/>
     </issue>
 
@@ -5266,7 +5266,7 @@
         errorLine2="                            ~~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="11615"
+            line="11624"
             column="29"/>
     </issue>
 
@@ -5277,7 +5277,7 @@
         errorLine2="                            ~~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="11615"
+            line="11624"
             column="29"/>
     </issue>
 
@@ -5288,7 +5288,7 @@
         errorLine2="                                       ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="11615"
+            line="11624"
             column="40"/>
     </issue>
 
@@ -5299,7 +5299,7 @@
         errorLine2="                                       ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="11615"
+            line="11624"
             column="40"/>
     </issue>
 
@@ -5310,7 +5310,7 @@
         errorLine2="                            ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="11623"
+            line="11632"
             column="29"/>
     </issue>
 
@@ -5321,7 +5321,7 @@
         errorLine2="                            ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="11623"
+            line="11632"
             column="29"/>
     </issue>
 
@@ -5332,7 +5332,7 @@
         errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="11627"
+            line="11636"
             column="29"/>
     </issue>
 
@@ -5343,7 +5343,7 @@
         errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="11627"
+            line="11636"
             column="29"/>
     </issue>
 
@@ -5354,7 +5354,7 @@
         errorLine2="                            ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="11631"
+            line="11640"
             column="29"/>
     </issue>
 
@@ -5365,7 +5365,7 @@
         errorLine2="                            ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="11631"
+            line="11640"
             column="29"/>
     </issue>
 
@@ -5376,7 +5376,7 @@
         errorLine2="                                    ~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="11948"
+            line="11957"
             column="37"/>
     </issue>
 
@@ -5387,7 +5387,7 @@
         errorLine2="                                    ~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="11948"
+            line="11957"
             column="37"/>
     </issue>
 
@@ -5398,7 +5398,7 @@
         errorLine2="               ~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="11962"
+            line="11971"
             column="16"/>
     </issue>
 
@@ -5409,7 +5409,7 @@
         errorLine2="               ~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="11962"
+            line="11971"
             column="16"/>
     </issue>
 
@@ -5420,7 +5420,7 @@
         errorLine2="                                               ~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="11975"
+            line="11984"
             column="48"/>
     </issue>
 
@@ -5431,7 +5431,7 @@
         errorLine2="                                               ~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="11975"
+            line="11984"
             column="48"/>
     </issue>
 
@@ -5442,7 +5442,7 @@
         errorLine2="                                  ~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="12316"
+            line="12325"
             column="35"/>
     </issue>
 
@@ -5453,7 +5453,7 @@
         errorLine2="                                  ~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="12316"
+            line="12325"
             column="35"/>
     </issue>
 
@@ -5464,7 +5464,7 @@
         errorLine2="                   ~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="12527"
+            line="12536"
             column="20"/>
     </issue>
 
@@ -5475,7 +5475,7 @@
         errorLine2="                   ~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="12527"
+            line="12536"
             column="20"/>
     </issue>
 
@@ -5486,7 +5486,7 @@
         errorLine2="                                        ~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="12542"
+            line="12551"
             column="41"/>
     </issue>
 
@@ -5497,7 +5497,7 @@
         errorLine2="                                        ~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="12542"
+            line="12551"
             column="41"/>
     </issue>
 
@@ -5508,7 +5508,7 @@
         errorLine2="                                              ~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerViewAccessibilityDelegate.java"
-            line="51"
+            line="59"
             column="47"/>
     </issue>
 
@@ -5519,7 +5519,7 @@
         errorLine2="                                              ~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerViewAccessibilityDelegate.java"
-            line="51"
+            line="59"
             column="47"/>
     </issue>
 
@@ -5530,7 +5530,7 @@
         errorLine2="                                                                     ~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerViewAccessibilityDelegate.java"
-            line="51"
+            line="59"
             column="70"/>
     </issue>
 
@@ -5541,7 +5541,7 @@
         errorLine2="                                                                     ~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerViewAccessibilityDelegate.java"
-            line="51"
+            line="59"
             column="70"/>
     </issue>
 
@@ -5552,7 +5552,7 @@
         errorLine2="                                                  ~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerViewAccessibilityDelegate.java"
-            line="63"
+            line="71"
             column="51"/>
     </issue>
 
@@ -5563,7 +5563,7 @@
         errorLine2="                                                  ~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerViewAccessibilityDelegate.java"
-            line="63"
+            line="71"
             column="51"/>
     </issue>
 
@@ -5574,7 +5574,7 @@
         errorLine2="                                                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerViewAccessibilityDelegate.java"
-            line="63"
+            line="71"
             column="62"/>
     </issue>
 
@@ -5585,7 +5585,7 @@
         errorLine2="                                                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerViewAccessibilityDelegate.java"
-            line="63"
+            line="71"
             column="62"/>
     </issue>
 
@@ -5596,7 +5596,7 @@
         errorLine2="                                               ~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerViewAccessibilityDelegate.java"
-            line="71"
+            line="79"
             column="48"/>
     </issue>
 
@@ -5607,7 +5607,7 @@
         errorLine2="                                               ~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerViewAccessibilityDelegate.java"
-            line="71"
+            line="79"
             column="48"/>
     </issue>
 
@@ -5618,7 +5618,7 @@
         errorLine2="                                                          ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerViewAccessibilityDelegate.java"
-            line="71"
+            line="79"
             column="59"/>
     </issue>
 
@@ -5629,7 +5629,7 @@
         errorLine2="                                                          ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerViewAccessibilityDelegate.java"
-            line="71"
+            line="79"
             column="59"/>
     </issue>
 
@@ -5640,7 +5640,7 @@
         errorLine2="                                                      ~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerViewAccessibilityDelegate.java"
-            line="131"
+            line="142"
             column="55"/>
     </issue>
 
@@ -5651,7 +5651,7 @@
         errorLine2="                                                      ~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerViewAccessibilityDelegate.java"
-            line="131"
+            line="142"
             column="55"/>
     </issue>
 
@@ -5662,7 +5662,7 @@
         errorLine2="                                                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerViewAccessibilityDelegate.java"
-            line="131"
+            line="142"
             column="66"/>
     </issue>
 
@@ -5673,7 +5673,7 @@
         errorLine2="                                                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerViewAccessibilityDelegate.java"
-            line="131"
+            line="142"
             column="66"/>
     </issue>
 
@@ -5684,7 +5684,7 @@
         errorLine2="                                                  ~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerViewAccessibilityDelegate.java"
-            line="148"
+            line="159"
             column="51"/>
     </issue>
 
@@ -5695,7 +5695,7 @@
         errorLine2="                                                  ~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerViewAccessibilityDelegate.java"
-            line="148"
+            line="159"
             column="51"/>
     </issue>
 
@@ -5706,7 +5706,7 @@
         errorLine2="                                                                         ~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerViewAccessibilityDelegate.java"
-            line="148"
+            line="159"
             column="74"/>
     </issue>
 
@@ -5717,7 +5717,7 @@
         errorLine2="                                                                         ~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerViewAccessibilityDelegate.java"
-            line="148"
+            line="159"
             column="74"/>
     </issue>
 
