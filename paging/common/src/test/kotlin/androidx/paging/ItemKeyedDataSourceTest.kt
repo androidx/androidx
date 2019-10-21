@@ -286,6 +286,7 @@ class ItemKeyedDataSourceTest {
             }
         }
 
+        @Suppress("DEPRECATION")
         PagedList.Builder(dataSource, 10)
             .setNotifyDispatcher(FailDispatcher())
             .setFetchDispatcher(DirectDispatcher)
