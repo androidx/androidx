@@ -243,6 +243,7 @@ class ContiguousPagedListTest(private val placeholdersEnabled: Boolean) {
         @Suppress("DEPRECATION")
         assertFailsWith<IllegalStateException> { pagedListWithPagedSource.dataSource }
 
+        @Suppress("DEPRECATION")
         val pagedListWithDataSource = PagedList.Builder(ItemDataSource(), 10).build()
 
         @Suppress("DEPRECATION")
