@@ -296,7 +296,6 @@ package androidx.ui.text {
     method public androidx.ui.graphics.Shadow? getShadow();
     method public androidx.ui.text.style.TextGeometricTransform? getTextGeometricTransform();
     method public androidx.ui.text.TextStyle merge(androidx.ui.text.TextStyle? other = null);
-    method public void setFontFamily(androidx.ui.text.font.FontFamily? p);
   }
 
 }
