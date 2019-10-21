@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<lint>
+    <!-- AndroidX global lint rules from ../buildSrc/lint.xml -->
+    <issue id="LintBaseline" severity="ignore">
+        <ignore regexp=".* filtered out because .* listed in the baseline file.*"/>
+    </issue>
+    <!-- Webkit-specific lint rules: -->
+    <!-- Ignore all warnings for webview-support-interfaces, since it's external chromium code. -->
+    <issue id="all" severity="ignore">
+        <ignore regexp=".*/org/chromium/support_lib_boundary/.*" />
+    </issue>
+</lint>
