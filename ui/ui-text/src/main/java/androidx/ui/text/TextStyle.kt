@@ -68,7 +68,7 @@ data class TextStyle(
     val fontWeight: FontWeight? = null,
     val fontStyle: FontStyle? = null,
     val fontSynthesis: FontSynthesis? = null,
-    var fontFamily: FontFamily? = null,
+    val fontFamily: FontFamily? = null,
     val fontFeatureSettings: String? = null,
     val letterSpacing: Em? = null,
     val baselineShift: BaselineShift? = null,
