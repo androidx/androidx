@@ -77,7 +77,6 @@ public abstract class ParallaxTarget {
         private static final long PSEUDO_DURATION = 1000000;
 
         private final ObjectAnimator mAnimator;
-        private float mFraction;
 
         public PropertyValuesHolderTarget(Object targetObject, PropertyValuesHolder values) {
             mAnimator = ObjectAnimator.ofPropertyValuesHolder(targetObject, values);
@@ -87,7 +86,6 @@ public abstract class ParallaxTarget {
 
         @Override
         public void update(float fraction) {
-            mFraction = fraction;
             mAnimator.setCurrentPlayTime((long) (PSEUDO_DURATION * fraction));
         }
 

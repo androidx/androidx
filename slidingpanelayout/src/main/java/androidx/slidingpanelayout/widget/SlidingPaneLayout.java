@@ -843,7 +843,7 @@ public class SlidingPaneLayout extends ViewGroup {
                     if (dx * dx + dy * dy < slop * slop
                             && mDragHelper.isViewUnder(mSlideableView, (int) x, (int) y)) {
                         // Taps close a dimmed open pane.
-                        closePane(mSlideableView, 0);
+                        closePane(0);
                         break;
                     }
                 }
@@ -854,7 +854,7 @@ public class SlidingPaneLayout extends ViewGroup {
         return wantTouchEvents;
     }
 
-    private boolean closePane(View pane, int initialVelocity) {
+    private boolean closePane(int initialVelocity) {
         if (mFirstLayout || smoothSlideTo(0.f, initialVelocity)) {
             mPreservedOpenState = false;
             return true;
@@ -862,7 +862,7 @@ public class SlidingPaneLayout extends ViewGroup {
         return false;
     }
 
-    private boolean openPane(View pane, int initialVelocity) {
+    private boolean openPane(int initialVelocity) {
         if (mFirstLayout || smoothSlideTo(1.f, initialVelocity)) {
             mPreservedOpenState = true;
             return true;
@@ -885,7 +885,7 @@ public class SlidingPaneLayout extends ViewGroup {
      * @return true if the pane was slideable and is now open/in the process of opening
      */
     public boolean openPane() {
-        return openPane(mSlideableView, 0);
+        return openPane(0);
     }
 
     /**
@@ -903,7 +903,7 @@ public class SlidingPaneLayout extends ViewGroup {
      * @return true if the pane was slideable and is now closed/in the process of closing
      */
     public boolean closePane() {
-        return closePane(mSlideableView, 0);
+        return closePane(0);
     }
 
     /**

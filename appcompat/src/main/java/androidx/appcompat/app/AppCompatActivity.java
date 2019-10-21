@@ -571,7 +571,7 @@ public class AppCompatActivity extends FragmentActivity implements AppCompatCall
      * or lower. Here, we check if the keypress corresponds to a menuitem's shortcut combination
      * and perform the corresponding action.
      */
-    private boolean performMenuItemShortcut(int keycode, KeyEvent event) {
+    private boolean performMenuItemShortcut(KeyEvent event) {
         if (!(Build.VERSION.SDK_INT >= 26) && !event.isCtrlPressed()
                 && !KeyEvent.metaStateHasNoModifiers(event.getMetaState())
                 && event.getRepeatCount() == 0
@@ -589,7 +589,7 @@ public class AppCompatActivity extends FragmentActivity implements AppCompatCall
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if (performMenuItemShortcut(keyCode, event)) {
+        if (performMenuItemShortcut(event)) {
             return true;
         }
         return super.onKeyDown(keyCode, event);

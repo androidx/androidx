@@ -85,7 +85,6 @@ public final class WatchNextProgram extends BasePreviewProgram {
     public static final String[] PROJECTION = getProjection();
 
     private static final long INVALID_LONG_VALUE = -1;
-    private static final int INVALID_INT_VALUE = -1;
 
     /** @hide */
     @IntDef({

@@ -65,7 +65,6 @@ import java.util.HashMap;
 @SuppressWarnings("unchecked")
 public class ValueAnimator extends Animator implements AnimationHandler.AnimationFrameCallback {
     private static final String TAG = "ValueAnimator";
-    private static final boolean DEBUG = false;
 
     /**
      * Internal constants
@@ -133,12 +132,6 @@ public class ValueAnimator extends Animator implements AnimationHandler.Animatio
      * Tracks the time (in milliseconds) when the last frame arrived.
      */
     private long mLastFrameTime = -1;
-
-    /**
-     * Tracks the time (in milliseconds) when the first frame arrived. Note the frame may arrive
-     * during the start delay.
-     */
-    private long mFirstFrameTime = -1;
 
     /**
      * Additional playing state to indicate whether an animator has been start()'d. There is
@@ -990,7 +983,6 @@ public class ValueAnimator extends Animator implements AnimationHandler.Animatio
         // calling start() would put the animation in the
         // started-but-not-yet-reached-the-first-frame phase.
         mLastFrameTime = -1;
-        mFirstFrameTime = -1;
         mStartTime = -1;
 
         if (mStartDelay == 0 || mSeekFraction >= 0 || mReversing) {
@@ -1158,7 +1150,6 @@ public class ValueAnimator extends Animator implements AnimationHandler.Animatio
         mStarted = false;
         mStartListenersCalled = false;
         mLastFrameTime = -1;
-        mFirstFrameTime = -1;
         mStartTime = -1;
         if (notify && mListeners != null) {
             ArrayList<AnimatorListener> tmpListeners =
@@ -1487,7 +1478,6 @@ public class ValueAnimator extends Animator implements AnimationHandler.Animatio
         anim.mAnimationEndRequested = false;
         anim.mPauseTime = -1;
         anim.mLastFrameTime = -1;
-        anim.mFirstFrameTime = -1;
         anim.mOverallFraction = 0;
         anim.mCurrentFraction = 0;
         anim.mSelfPulse = true;

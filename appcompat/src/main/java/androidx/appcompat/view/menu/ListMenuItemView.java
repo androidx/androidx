@@ -66,8 +66,6 @@ public class ListMenuItemView extends LinearLayout
     private Drawable mSubMenuArrow;
     private boolean mHasListDivider;
 
-    private int mMenuType;
-
     private LayoutInflater mInflater;
 
     private boolean mForceShowIcon;
@@ -124,7 +122,6 @@ public class ListMenuItemView extends LinearLayout
     @Override
     public void initialize(MenuItemImpl itemData, int menuType) {
         mItemData = itemData;
-        mMenuType = menuType;
 
         setVisibility(itemData.isVisible() ? View.VISIBLE : View.GONE);
 

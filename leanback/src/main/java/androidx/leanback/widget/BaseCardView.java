@@ -344,7 +344,7 @@ public class BaseCardView extends FrameLayout {
     public void setActivated(boolean activated) {
         if (activated != isActivated()) {
             super.setActivated(activated);
-            applyActiveState(isActivated());
+            applyActiveState();
         }
     }
 
@@ -620,7 +620,7 @@ public class BaseCardView extends FrameLayout {
         }
     }
 
-    private void applyActiveState(boolean active) {
+    private void applyActiveState() {
         if (hasInfoRegion() && mInfoVisibility == CARD_REGION_VISIBLE_ACTIVATED) {
             setInfoViewVisibility(isRegionVisible(mInfoVisibility));
         }

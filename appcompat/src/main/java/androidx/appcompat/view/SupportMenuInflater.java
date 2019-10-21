@@ -484,7 +484,6 @@ public class SupportMenuInflater extends MenuInflater {
                         new InflatedOnMenuItemClickListener(getRealOwner(), itemListenerMethodName));
             }
 
-            final MenuItemImpl impl = item instanceof MenuItemImpl ? (MenuItemImpl) item : null;
             if (itemCheckable >= 2) {
                 if (item instanceof MenuItemImpl) {
                     ((MenuItemImpl) item).setExclusiveCheckable(true);

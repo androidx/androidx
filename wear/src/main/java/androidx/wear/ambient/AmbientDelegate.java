@@ -31,9 +31,6 @@ import java.lang.ref.WeakReference;
  * Provides compatibility for ambient mode.
  */
 final class AmbientDelegate {
-
-    private static final String TAG = "AmbientDelegate";
-
     private WearableActivityController mWearableController;
 
     private final WearableControllerProvider mWearableControllerProvider;

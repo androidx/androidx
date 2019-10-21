@@ -19,9 +19,7 @@ package androidx.vectordrawable.graphics.drawable;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.content.Context;
-import android.content.res.Resources;
 import android.content.res.Resources.NotFoundException;
-import android.content.res.Resources.Theme;
 import android.content.res.XmlResourceParser;
 import android.os.Build;
 import android.util.AttributeSet;
@@ -79,8 +77,7 @@ public class AnimationUtilsCompat {
                 return new LinearOutSlowInInterpolator();
             }
             parser = context.getResources().getAnimation(id);
-            return createInterpolatorFromXml(context, context.getResources(), context.getTheme(),
-                    parser);
+            return createInterpolatorFromXml(context, parser);
         } catch (XmlPullParserException ex) {
             NotFoundException rnf = new NotFoundException("Can't load animation resource ID #0x"
                     + Integer.toHexString(id));
@@ -97,8 +94,7 @@ public class AnimationUtilsCompat {
 
     }
 
-    private static Interpolator createInterpolatorFromXml(Context context, Resources res,
-            Theme theme,
+    private static Interpolator createInterpolatorFromXml(Context context,
             XmlPullParser parser)
             throws XmlPullParserException, IOException {
 

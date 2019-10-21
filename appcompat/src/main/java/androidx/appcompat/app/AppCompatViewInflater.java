@@ -389,7 +389,7 @@ public class AppCompatViewInflater {
         @Override
         public void onClick(@NonNull View v) {
             if (mResolvedMethod == null) {
-                resolveMethod(mHostView.getContext(), mMethodName);
+                resolveMethod(mHostView.getContext());
             }
 
             try {
@@ -403,8 +403,7 @@ public class AppCompatViewInflater {
             }
         }
 
-        @NonNull
-        private void resolveMethod(@Nullable Context context, @NonNull String name) {
+        private void resolveMethod(@Nullable Context context) {
             while (context != null) {
                 try {
                     if (!context.isRestricted()) {
