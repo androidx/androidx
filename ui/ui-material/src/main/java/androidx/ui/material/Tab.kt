@@ -644,7 +644,11 @@ private fun TabTextBaselineLayout(
                 SingleLineTextBaselineWithIcon
             }
         } else {
-            DoubleLineTextBaseline
+            if (iconPlaceable == null) {
+                DoubleLineTextBaseline
+            } else {
+                DoubleLineTextBaselineWithIcon
+            }
         }.toIntPx() + IndicatorHeight.toIntPx()
 
         val textHeight = textPlaceable.height
@@ -719,10 +723,11 @@ private val IconDiameter = 24.dp
 private val SingleLineTextBaseline = 18.sp
 // Distance from the top of the indicator to the text baseline when there is one line of text and an
 // icon
-// TODO: clarify spec for this
 private val SingleLineTextBaselineWithIcon = 14.sp
 // Distance from the top of the indicator to the last text baseline when there are two lines of text
-// with or without an icon
-private val DoubleLineTextBaseline = 8.sp
+private val DoubleLineTextBaseline = 10.sp
+// Distance from the top of the indicator to the last text baseline when there are two lines of text
+// and an icon
+private val DoubleLineTextBaselineWithIcon = 6.sp
 // Distance from the first text baseline to the bottom of the icon in a combined tab
 private val IconDistanceFromBaseline = 20.sp
