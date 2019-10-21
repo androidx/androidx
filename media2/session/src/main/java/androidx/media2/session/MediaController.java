@@ -1165,10 +1165,7 @@ public class MediaController implements AutoCloseable {
      * If it is not connected yet, it returns {@code new VideoSize(0, 0)}.
      *
      * @return The video size
-     *
-     * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
     @NonNull
     public VideoSize getVideoSize() {
         return isConnected() ? getImpl().getVideoSize() : new VideoSize(0, 0);
@@ -1177,14 +1174,13 @@ public class MediaController implements AutoCloseable {
     /**
      * Sets the {@link Surface} to be used as the sink for the video portion of the media.
      * <p>
-     * This calls {@link SessionPlayer#setSurfaceInternal(Surface)}.
+     * This makes the currently connected {@link MediaSession} instance call
+     * {@link SessionPlayer#setSurface(Surface)} on the {@link SessionPlayer}
+     * instance that is associated with it via {@link MediaSession#updatePlayer(SessionPlayer)}
      *
      * @param surface The {@link Surface} to be used for the video portion of the media.
      * @return a {@link ListenableFuture} which represents the pending completion of the command.
-     *
-     * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
     @NonNull
     public ListenableFuture<SessionResult> setSurface(@Nullable Surface surface) {
         if (isConnected()) {
@@ -1201,9 +1197,7 @@ public class MediaController implements AutoCloseable {
      *
      * @return List of tracks. The total number of tracks is the size of the list. If empty,
      *         the implementation should return a empty list instead of {@code null}.
-     * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
     @NonNull
     public List<TrackInfo> getTracks() {
         return isConnected() ? getImpl().getTracks() : Collections.emptyList();
@@ -1214,10 +1208,7 @@ public class MediaController implements AutoCloseable {
      * The types of tracks supported may vary based on player implementation.
      *
      * @param trackInfo track to be selected.
-     *
-     * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
     @NonNull
     public ListenableFuture<SessionResult> selectTrack(@NonNull TrackInfo trackInfo) {
         if (trackInfo == null) {
@@ -1231,10 +1222,7 @@ public class MediaController implements AutoCloseable {
      * The types of tracks supported may vary based on player implementation.
      *
      * @param trackInfo track to be deselected.
-     *
-     * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
     @NonNull
     public ListenableFuture<SessionResult> deselectTrack(@NonNull TrackInfo trackInfo) {
         if (trackInfo == null) {
@@ -1244,9 +1232,9 @@ public class MediaController implements AutoCloseable {
     }
 
     /**
-     * Gets the currently selected track for the given {@link TrackInfo.MediaTrackType}. The return
-     * value is an element in the list returned by {@link #getTracks()} and supported track types
-     * may vary based on the player implementation.
+     * Gets the currently selected track for the given track type. The return value is an element in
+     * the list returned by {@link #getTracks()} and supported track types may vary based on the
+     * player implementation.
      *
      * The returned value can be outdated after
      * {@link ControllerCallback#onTracksChanged(MediaController, List)},
@@ -1257,12 +1245,9 @@ public class MediaController implements AutoCloseable {
      *
      * @param trackType type of selected track
      * @return selected track info
-     *
-     * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
     @Nullable
-    public TrackInfo getSelectedTrack(@TrackInfo.MediaTrackType int trackType) {
+    public TrackInfo getSelectedTrack(int trackType) {
         return isConnected() ? getImpl().getSelectedTrack(trackType) : null;
     }
 
@@ -1943,11 +1928,7 @@ public class MediaController implements AutoCloseable {
          *
          * @param controller the controller for this event
          * @param videoSize the size of video
-         *
-         * @hide
          */
-        // TODO (b/134749006): Unhide this
-        @RestrictTo(LIBRARY_GROUP)
         public void onVideoSizeChanged(@NonNull MediaController controller,
                 @NonNull VideoSize videoSize) {}
 
@@ -1970,11 +1951,7 @@ public class MediaController implements AutoCloseable {
          *
          * @param controller the controller for this event
          * @param tracks the list of tracks. It can be empty.
-         *
-         * @hide
          */
-        // TODO (b/134749006): Unhide this
-        @RestrictTo(LIBRARY_GROUP)
         public void onTracksChanged(@NonNull MediaController controller,
                 @NonNull List<TrackInfo> tracks) {}
 
@@ -1991,9 +1968,7 @@ public class MediaController implements AutoCloseable {
          *
          * @param controller the controller for this event
          * @param trackInfo the selected track
-         * @hide
          */
-        @RestrictTo(LIBRARY_GROUP)
         public void onTrackSelected(@NonNull MediaController controller,
                 @NonNull TrackInfo trackInfo) {}
 
@@ -2011,9 +1986,7 @@ public class MediaController implements AutoCloseable {
          *
          * @param controller the controller for this event
          * @param trackInfo the deselected track
-         * @hide
          */
-        @RestrictTo(LIBRARY_GROUP)
         public void onTrackDeselected(@NonNull MediaController controller,
                 @NonNull TrackInfo trackInfo) {}
 
@@ -2023,10 +1996,7 @@ public class MediaController implements AutoCloseable {
          * @param item the MediaItem of this media item
          * @param track the track that has the subtitle data
          * @param data the subtitle data
-         *
-         * @hide
          */
-        @RestrictTo(LIBRARY_GROUP)
         public void onSubtitleData(@NonNull MediaController controller, @NonNull MediaItem item,
                 @NonNull TrackInfo track, @NonNull SubtitleData data) {}
     }
