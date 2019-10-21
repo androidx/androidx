@@ -31,8 +31,6 @@ AutoBoxing: androidx.ui.text.style.TextGeometricTransform#getSkewX():
 
 KotlinOperator: androidx.ui.text.font.FontFamily#contains(androidx.ui.text.font.Font):
     Note that adding the `operator` keyword would allow calling this method using operator syntax
-KotlinOperator: androidx.ui.text.font.FontFamilyList#contains(androidx.ui.text.font.FontFamily):
-    Note that adding the `operator` keyword would allow calling this method using operator syntax
 KotlinOperator: androidx.ui.text.style.TextDecoration#contains(androidx.ui.text.style.TextDecoration):
     Note that adding the `operator` keyword would allow calling this method using operator syntax
 

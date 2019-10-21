@@ -356,26 +356,6 @@ package androidx.ui.text.font {
     property public final androidx.ui.text.font.FontFamily Serif;
   }
 
-  public final class FontFamilyList implements kotlin.jvm.internal.markers.KMappedMarker java.util.List<androidx.ui.text.font.FontFamily> {
-    ctor public FontFamilyList(java.util.List<androidx.ui.text.font.FontFamily> fontFamilies);
-    ctor public FontFamilyList(androidx.ui.text.font.FontFamily fontFamily);
-    ctor public FontFamilyList(androidx.ui.text.font.FontFamily... fontFamily);
-    method public java.util.List<androidx.ui.text.font.FontFamily> component1();
-    method public boolean contains(androidx.ui.text.font.FontFamily element);
-    method public boolean containsAll(java.util.Collection<?> elements);
-    method public androidx.ui.text.font.FontFamilyList copy(java.util.List<androidx.ui.text.font.FontFamily> fontFamilies);
-    method public androidx.ui.text.font.FontFamily get(int index);
-    method public java.util.List<androidx.ui.text.font.FontFamily> getFontFamilies();
-    method public int getSize();
-    method public int indexOf(androidx.ui.text.font.FontFamily element);
-    method public boolean isEmpty();
-    method public java.util.Iterator<androidx.ui.text.font.FontFamily> iterator();
-    method public int lastIndexOf(androidx.ui.text.font.FontFamily element);
-    method public java.util.ListIterator<androidx.ui.text.font.FontFamily> listIterator();
-    method public java.util.ListIterator<androidx.ui.text.font.FontFamily> listIterator(int index);
-    method public java.util.List<androidx.ui.text.font.FontFamily> subList(int fromIndex, int toIndex);
-  }
-
   public final class FontKt {
     ctor public FontKt();
     method public static androidx.ui.text.font.FontFamily asFontFamily(androidx.ui.text.font.Font);
