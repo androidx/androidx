@@ -298,6 +298,11 @@ package androidx.ui.text {
     method public androidx.ui.text.TextStyle merge(androidx.ui.text.TextStyle? other = null);
   }
 
+  public final class TextStyleKt {
+    ctor public TextStyleKt();
+    method public static androidx.ui.text.TextStyle? lerp(androidx.ui.text.TextStyle? start = null, androidx.ui.text.TextStyle? stop = null, float fraction);
+  }
+
 }
 
 package androidx.ui.text.font {
@@ -382,7 +387,6 @@ package androidx.ui.text.font {
   public static final class FontWeight.Companion {
     method public androidx.ui.text.font.FontWeight getBold();
     method public androidx.ui.text.font.FontWeight getNormal();
-    method public java.util.List<androidx.ui.text.font.FontWeight> getValues();
     method public androidx.ui.text.font.FontWeight getW100();
     method public androidx.ui.text.font.FontWeight getW200();
     method public androidx.ui.text.font.FontWeight getW300();
@@ -392,7 +396,6 @@ package androidx.ui.text.font {
     method public androidx.ui.text.font.FontWeight getW700();
     method public androidx.ui.text.font.FontWeight getW800();
     method public androidx.ui.text.font.FontWeight getW900();
-    method public androidx.ui.text.font.FontWeight lerp(androidx.ui.text.font.FontWeight? start, androidx.ui.text.font.FontWeight? stop, float fraction);
     property public final androidx.ui.text.font.FontWeight Bold;
     property public final androidx.ui.text.font.FontWeight Normal;
     property public final androidx.ui.text.font.FontWeight W100;
@@ -404,7 +407,11 @@ package androidx.ui.text.font {
     property public final androidx.ui.text.font.FontWeight W700;
     property public final androidx.ui.text.font.FontWeight W800;
     property public final androidx.ui.text.font.FontWeight W900;
-    property public final java.util.List<androidx.ui.text.font.FontWeight> values;
+  }
+
+  public final class FontWeightKt {
+    ctor public FontWeightKt();
+    method public static androidx.ui.text.font.FontWeight lerp(androidx.ui.text.font.FontWeight? start, androidx.ui.text.font.FontWeight? stop, float fraction);
   }
 
 }
@@ -438,9 +445,13 @@ package androidx.ui.text.style {
   public static final class BaselineShift.Companion {
     method public androidx.ui.text.style.BaselineShift getSubscript();
     method public androidx.ui.text.style.BaselineShift getSuperscript();
-    method public androidx.ui.text.style.BaselineShift? lerp(androidx.ui.text.style.BaselineShift? start, androidx.ui.text.style.BaselineShift? stop, float fraction);
     property public final androidx.ui.text.style.BaselineShift Subscript;
     property public final androidx.ui.text.style.BaselineShift Superscript;
+  }
+
+  public final class BaselineShiftKt {
+    ctor public BaselineShiftKt();
+    method public static androidx.ui.text.style.BaselineShift? lerp(androidx.ui.text.style.BaselineShift? start, androidx.ui.text.style.BaselineShift? stop, float fraction);
   }
 
   public enum TextAlign {

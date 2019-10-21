@@ -28,6 +28,7 @@ import androidx.ui.text.font.FontFamily
 import androidx.ui.text.font.FontStyle
 import androidx.ui.text.font.FontSynthesis
 import androidx.ui.text.font.FontWeight
+import androidx.ui.text.font.lerp
 import androidx.ui.text.style.BaselineShift
 import androidx.ui.text.style.TextDecoration
 import androidx.ui.text.style.TextGeometricTransform
@@ -109,154 +110,6 @@ data class TextStyle(
         )
     }
 
-    internal companion object {
-        private fun lerpColor(a: Color?, b: Color?, t: Float): Color? {
-            if (a == null && b == null) {
-                return null
-            }
-            val start = a ?: b!!.copy(alpha = 0f)
-            val end = b ?: a!!.copy(alpha = 0f)
-            return lerp(start, end, t)
-        }
-
-        private fun lerpFloat(a: Float?, b: Float?, t: Float, default: Float = 0f): Float? {
-            if (a == null && b == null) return null
-            val start = a ?: default
-            val end = b ?: default
-            return lerp(start, end, t)
-        }
-
-        private fun lerpSp(a: Sp?, b: Sp?, t: Float, default: Sp = 0f.sp): Sp? {
-            if (a == null && b == null) return null
-            val start = a ?: default
-            val end = b ?: default
-            return androidx.ui.core.lerp(start, end, t)
-        }
-
-        private fun lerpEm(a: Em?, b: Em?, t: Float, default: Em = 0f.em): Em? {
-            if (a == null && b == null) return null
-            val start = a ?: default
-            val end = b ?: default
-            return androidx.ui.core.lerp(start, end, t)
-        }
-
-        private fun <T> lerpDiscrete(a: T?, b: T?, t: Float): T? = if (t < 0.5) a else b
-
-        /**
-         * Interpolate between two text styles.
-         *
-         * This will not work well if the styles don't set the same fields.
-         *
-         * The [fraction] argument represents position on the timeline, with 0.0 meaning
-         * that the interpolation has not started, returning [start] (or something
-         * equivalent to [start]), 1.0 meaning that the interpolation has finished,
-         * returning [stop] (or something equivalent to [stop]), and values in between
-         * meaning that the interpolation is at the relevant point on the timeline
-         * between [start] and [stop]. The interpolation can be extrapolated beyond 0.0 and
-         * 1.0, so negative values and values greater than 1.0 are valid.
-         */
-        // TODO(siyamed): This should not accept nullable values
-        // TODO(siyamed): This should be in the file level, not a companon function
-        fun lerp(start: TextStyle? = null, stop: TextStyle? = null, fraction: Float): TextStyle? {
-            val aIsNull = start == null
-            val bIsNull = stop == null
-
-            if (aIsNull && bIsNull) return null
-
-            if (start == null) {
-                val newB = stop?.copy() ?: TextStyle()
-                return if (fraction < 0.5) {
-                    TextStyle(
-                        color = lerpColor(null, newB.color, fraction),
-                        fontWeight = FontWeight.lerp(null, newB.fontWeight, fraction)
-                    )
-                } else {
-                    newB.copy(
-                        color = lerpColor(null, newB.color, fraction),
-                        fontWeight = FontWeight.lerp(null, newB.fontWeight, fraction)
-                    )
-                }
-            }
-
-            if (stop == null) {
-                return if (fraction < 0.5) {
-                    start.copy(
-                        color = lerpColor(start.color, null, fraction),
-                        fontWeight = FontWeight.lerp(start.fontWeight, null, fraction)
-                    )
-                } else {
-                    TextStyle(
-                        color = lerpColor(start.color, null, fraction),
-                        fontWeight = FontWeight.lerp(start.fontWeight, null, fraction)
-                    )
-                }
-            }
-
-            return TextStyle(
-                color = lerpColor(start.color, stop.color, fraction),
-                fontFamily = lerpDiscrete(
-                    start.fontFamily,
-                    stop.fontFamily,
-                    fraction
-                ),
-                fontSize = lerpSp(start.fontSize, stop.fontSize, fraction),
-                fontSizeScale = lerpFloat(
-                    start.fontSizeScale,
-                    stop.fontSizeScale,
-                    fraction,
-                    1f
-                ),
-                fontWeight = FontWeight.lerp(start.fontWeight, stop.fontWeight, fraction),
-                fontStyle = lerpDiscrete(
-                    start.fontStyle,
-                    stop.fontStyle,
-                    fraction
-                ),
-                fontSynthesis = lerpDiscrete(
-                    start.fontSynthesis,
-                    stop.fontSynthesis,
-                    fraction
-                ),
-                fontFeatureSettings = lerpDiscrete(
-                    start.fontFeatureSettings,
-                    stop.fontFeatureSettings,
-                    fraction
-                ),
-                letterSpacing = lerpEm(
-                    start.letterSpacing,
-                    stop.letterSpacing,
-                    fraction
-                ),
-                baselineShift = BaselineShift.lerp(
-                    start.baselineShift,
-                    stop.baselineShift,
-                    fraction
-                ),
-                textGeometricTransform = lerp(
-                    start.textGeometricTransform ?: TextGeometricTransform.None,
-                    stop.textGeometricTransform ?: TextGeometricTransform.None,
-                    fraction
-                ),
-                localeList = lerpDiscrete(start.localeList, stop.localeList, fraction),
-                background = lerpDiscrete(
-                    start.background,
-                    stop.background,
-                    fraction
-                ),
-                decoration = lerpDiscrete(
-                    start.decoration,
-                    stop.decoration,
-                    fraction
-                ),
-                shadow = lerp(
-                    start.shadow ?: Shadow(),
-                    stop.shadow ?: Shadow(),
-                    fraction
-                )
-            )
-        }
-    }
-
     /**
      * Describe the difference between this style and another, in terms of how
      * much damage it will make to the rendering.
@@ -288,4 +141,150 @@ data class TextStyle(
         }
         return RenderComparison.IDENTICAL
     }
+}
+
+private fun lerpColor(a: Color?, b: Color?, t: Float): Color? {
+    if (a == null && b == null) {
+        return null
+    }
+    val start = a ?: b!!.copy(alpha = 0f)
+    val end = b ?: a!!.copy(alpha = 0f)
+    return lerp(start, end, t)
+}
+
+private fun lerpFloat(a: Float?, b: Float?, t: Float, default: Float = 0f): Float? {
+    if (a == null && b == null) return null
+    val start = a ?: default
+    val end = b ?: default
+    return lerp(start, end, t)
+}
+
+private fun lerpSp(a: Sp?, b: Sp?, t: Float, default: Sp = 0f.sp): Sp? {
+    if (a == null && b == null) return null
+    val start = a ?: default
+    val end = b ?: default
+    return androidx.ui.core.lerp(start, end, t)
+}
+
+private fun lerpEm(a: Em?, b: Em?, t: Float, default: Em = 0f.em): Em? {
+    if (a == null && b == null) return null
+    val start = a ?: default
+    val end = b ?: default
+    return androidx.ui.core.lerp(start, end, t)
+}
+
+private fun <T> lerpDiscrete(a: T?, b: T?, t: Float): T? = if (t < 0.5) a else b
+
+/**
+ * Interpolate between two text styles.
+ *
+ * This will not work well if the styles don't set the same fields.
+ *
+ * The [fraction] argument represents position on the timeline, with 0.0 meaning
+ * that the interpolation has not started, returning [start] (or something
+ * equivalent to [start]), 1.0 meaning that the interpolation has finished,
+ * returning [stop] (or something equivalent to [stop]), and values in between
+ * meaning that the interpolation is at the relevant point on the timeline
+ * between [start] and [stop]. The interpolation can be extrapolated beyond 0.0 and
+ * 1.0, so negative values and values greater than 1.0 are valid.
+ */
+// TODO(siyamed): This should not accept nullable values
+// TODO(siyamed): This should be in the file level, not a companon function
+fun lerp(start: TextStyle? = null, stop: TextStyle? = null, fraction: Float): TextStyle? {
+    val aIsNull = start == null
+    val bIsNull = stop == null
+
+    if (aIsNull && bIsNull) return null
+
+    if (start == null) {
+        val newB = stop?.copy() ?: TextStyle()
+        return if (fraction < 0.5) {
+            TextStyle(
+                color = lerpColor(null, newB.color, fraction),
+                fontWeight = lerp(null, newB.fontWeight, fraction)
+            )
+        } else {
+            newB.copy(
+                color = lerpColor(null, newB.color, fraction),
+                fontWeight = lerp(null, newB.fontWeight, fraction)
+            )
+        }
+    }
+
+    if (stop == null) {
+        return if (fraction < 0.5) {
+            start.copy(
+                color = lerpColor(start.color, null, fraction),
+                fontWeight = lerp(start.fontWeight, null, fraction)
+            )
+        } else {
+            TextStyle(
+                color = lerpColor(start.color, null, fraction),
+                fontWeight = lerp(start.fontWeight, null, fraction)
+            )
+        }
+    }
+
+    return TextStyle(
+        color = lerpColor(start.color, stop.color, fraction),
+        fontFamily = lerpDiscrete(
+            start.fontFamily,
+            stop.fontFamily,
+            fraction
+        ),
+        fontSize = lerpSp(start.fontSize, stop.fontSize, fraction),
+        fontSizeScale = lerpFloat(
+            start.fontSizeScale,
+            stop.fontSizeScale,
+            fraction,
+            1f
+        ),
+        fontWeight = lerp(start.fontWeight, stop.fontWeight, fraction),
+        fontStyle = lerpDiscrete(
+            start.fontStyle,
+            stop.fontStyle,
+            fraction
+        ),
+        fontSynthesis = lerpDiscrete(
+            start.fontSynthesis,
+            stop.fontSynthesis,
+            fraction
+        ),
+        fontFeatureSettings = lerpDiscrete(
+            start.fontFeatureSettings,
+            stop.fontFeatureSettings,
+            fraction
+        ),
+        letterSpacing = lerpEm(
+            start.letterSpacing,
+            stop.letterSpacing,
+            fraction
+        ),
+        baselineShift = lerp(
+            start.baselineShift,
+            stop.baselineShift,
+            fraction
+        ),
+        textGeometricTransform = lerp(
+            start.textGeometricTransform ?: TextGeometricTransform.None,
+            stop.textGeometricTransform ?: TextGeometricTransform.None,
+            fraction
+        ),
+        localeList = lerpDiscrete(start.localeList, stop.localeList, fraction),
+        background = lerpDiscrete(
+            start.background,
+            stop.background,
+            fraction
+        ),
+        decoration = lerpDiscrete(
+            start.decoration,
+            stop.decoration,
+            fraction
+        ),
+        shadow = lerp(
+            start.shadow ?: Shadow(),
+            stop.shadow ?: Shadow(),
+            fraction
+        )
+    )
 }
