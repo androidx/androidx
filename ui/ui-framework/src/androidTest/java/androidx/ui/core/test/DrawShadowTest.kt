@@ -19,7 +19,6 @@ package androidx.ui.core.test
 import android.graphics.Bitmap
 import android.os.Build
 import androidx.compose.Composable
-import androidx.compose.Model
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.test.rule.ActivityTestRule
@@ -108,17 +107,17 @@ class DrawShadowTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun switchFromShadowToNoShadow() {
-        val model = ShadowModel(12.dp)
+        val model = ValueModel(12.dp)
 
         rule.runOnUiThreadIR {
             activity.setContent {
-                ShadowContainer(model.elevation)
+                ShadowContainer(model.value)
             }
         }
         assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
 
         rule.runOnUiThreadIR {
-            model.elevation = 0.dp
+            model.value = 0.dp
         }
 
         takeScreenShot(12).apply {
@@ -156,7 +155,7 @@ class DrawShadowTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun emitShadowLater() {
-        val model = DoDraw(false)
+        val model = ValueModel(false)
 
         rule.runOnUiThreadIR {
             activity.setContent {
@@ -213,6 +212,3 @@ class DrawShadowTest {
         return bitmap
     }
 }
-
-@Model
-private data class ShadowModel(var elevation: Dp)

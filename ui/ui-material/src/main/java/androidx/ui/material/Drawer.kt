@@ -25,7 +25,6 @@ import androidx.compose.unaryPlus
 import androidx.ui.core.Alignment
 import androidx.ui.core.Constraints
 import androidx.ui.core.ContextAmbient
-import androidx.ui.core.Dp
 import androidx.ui.core.Draw
 import androidx.ui.core.IntPx
 import androidx.ui.core.Layout
@@ -41,10 +40,7 @@ import androidx.ui.core.px
 import androidx.ui.core.toRect
 import androidx.ui.core.withDensity
 import androidx.ui.foundation.Clickable
-import androidx.ui.foundation.ColoredRect
 import androidx.ui.foundation.gestures.DragDirection
-import androidx.ui.foundation.gestures.DragValueController
-import androidx.ui.foundation.gestures.Draggable
 import androidx.ui.graphics.Paint
 import androidx.ui.graphics.PaintingStyle
 import androidx.ui.layout.Container
@@ -55,7 +51,6 @@ import androidx.ui.lerp
 import androidx.ui.material.internal.StateDraggable
 import androidx.ui.material.internal.ValueModel
 import androidx.ui.material.surface.Surface
-import kotlin.math.max
 
 /**
  * Possible states of the drawer
@@ -328,9 +323,9 @@ private fun WithOffset(
             width = min(placeable.width, constraints.maxWidth)
             height = min(placeable.height, constraints.maxHeight)
         }
-        val offX = xOffset?.value?.px ?: 0.px
-        val offY = yOffset?.value?.px ?: 0.px
         layout(width, height) {
+            val offX = xOffset?.value?.px ?: 0.px
+            val offY = yOffset?.value?.px ?: 0.px
             placeable?.place(offX, offY)
         }
     }

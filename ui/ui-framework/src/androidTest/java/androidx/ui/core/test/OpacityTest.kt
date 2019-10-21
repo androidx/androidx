@@ -19,7 +19,6 @@ package androidx.ui.core.test
 import android.graphics.Bitmap
 import android.os.Build
 import androidx.compose.Composable
-import androidx.compose.Model
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.test.rule.ActivityTestRule
@@ -128,13 +127,13 @@ class OpacityTest {
     @Test
     fun switchFromHalfOpacityToFull() {
         val color = Color.Green
-        val model = OpacityModel(0.5f)
+        val model = ValueModel(0.5f)
 
         rule.runOnUiThreadIR {
             activity.setContent {
                 AtLeastSize(size = 10.ipx) {
                     FillColor(Color.White)
-                    Opacity(opacity = model.opacity) {
+                    Opacity(opacity = model.value) {
                         FillColor(color)
                     }
                 }
@@ -144,7 +143,7 @@ class OpacityTest {
 
         drawLatch = CountDownLatch(1)
         rule.runOnUiThreadIR {
-            model.opacity = 1f
+            model.value = 1f
         }
 
         takeScreenShot(10).apply {
@@ -155,7 +154,7 @@ class OpacityTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun emitDrawWithOpacityLater() {
-        val model = DoDraw(false)
+        val model = ValueModel(false)
 
         rule.runOnUiThreadIR {
             activity.setContent {
@@ -221,6 +220,3 @@ fun Row(children: @Composable() () -> Unit) {
 }
 
 fun Bitmap.color(x: Int, y: Int): Color = Color(getPixel(x, y))
-
-@Model
-private data class OpacityModel(var opacity: Float)
