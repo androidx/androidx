@@ -158,39 +158,6 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public FrameworkServiceWorkerClient(ServiceWorkerClientCompat impl) {"
-        errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/webkit/internal/FrameworkServiceWorkerClient.java"
-            line="36"
-            column="41"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public WebResourceResponse shouldInterceptRequest(WebResourceRequest request) {"
-        errorLine2="           ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/webkit/internal/FrameworkServiceWorkerClient.java"
-            line="41"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public WebResourceResponse shouldInterceptRequest(WebResourceRequest request) {"
-        errorLine2="                                                      ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/webkit/internal/FrameworkServiceWorkerClient.java"
-            line="41"
-            column="55"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    Object getOrCreatePeer(Callable&lt;Object> creationCallable);"
         errorLine2="    ~~~~~~">
         <location
@@ -290,39 +257,6 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public ServiceWorkerClientAdapter(ServiceWorkerClientCompat client) {"
-        errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/webkit/internal/ServiceWorkerClientAdapter.java"
-            line="36"
-            column="39"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public WebResourceResponse shouldInterceptRequest(WebResourceRequest request) {"
-        errorLine2="           ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/webkit/internal/ServiceWorkerClientAdapter.java"
-            line="41"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public WebResourceResponse shouldInterceptRequest(WebResourceRequest request) {"
-        errorLine2="                                                      ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/webkit/internal/ServiceWorkerClientAdapter.java"
-            line="41"
-            column="55"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    WebResourceResponse shouldInterceptRequest(WebResourceRequest request);"
         errorLine2="    ~~~~~~~~~~~~~~~~~~~">
         <location
@@ -362,17 +296,6 @@
             file="../../../external/webview_support_interfaces/src/org/chromium/support_lib_boundary/ServiceWorkerControllerBoundaryInterface.java"
             line="14"
             column="59"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void setServiceWorkerClient(ServiceWorkerClientCompat client)  {"
-        errorLine2="                                       ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/webkit/internal/ServiceWorkerControllerImpl.java"
-            line="84"
-            column="40"/>
     </issue>
 
     <issue
@@ -1086,7 +1009,7 @@
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/webkit/internal/WebViewProviderFactory.java"
-            line="40"
+            line="42"
             column="5"/>
     </issue>
 
@@ -1097,7 +1020,7 @@
         errorLine2="                                                   ~~~~~~~">
         <location
             file="src/main/java/androidx/webkit/internal/WebViewProviderFactory.java"
-            line="40"
+            line="42"
             column="52"/>
     </issue>
 
@@ -1108,7 +1031,7 @@
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/webkit/internal/WebViewProviderFactory.java"
-            line="46"
+            line="48"
             column="5"/>
     </issue>
 
@@ -1119,7 +1042,7 @@
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/webkit/internal/WebViewProviderFactory.java"
-            line="52"
+            line="54"
             column="5"/>
     </issue>
 
@@ -1130,18 +1053,7 @@
         errorLine2="    ~~~~~~~~">
         <location
             file="src/main/java/androidx/webkit/internal/WebViewProviderFactory.java"
-            line="57"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    ServiceWorkerControllerBoundaryInterface getServiceWorkerController();"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/webkit/internal/WebViewProviderFactory.java"
-            line="62"
+            line="59"
             column="5"/>
     </issue>
 
@@ -1152,7 +1064,7 @@
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/webkit/internal/WebViewProviderFactory.java"
-            line="67"
+            line="70"
             column="5"/>
     </issue>
 
@@ -1163,7 +1075,7 @@
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/webkit/internal/WebViewProviderFactory.java"
-            line="72"
+            line="75"
             column="5"/>
     </issue>
 
@@ -1174,7 +1086,7 @@
         errorLine2="                                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/webkit/internal/WebViewProviderFactoryAdapter.java"
-            line="38"
+            line="40"
             column="42"/>
     </issue>
 
@@ -1185,7 +1097,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/webkit/internal/WebViewProviderFactoryAdapter.java"
-            line="48"
+            line="50"
             column="12"/>
     </issue>
 
@@ -1196,7 +1108,7 @@
         errorLine2="                                                          ~~~~~~~">
         <location
             file="src/main/java/androidx/webkit/internal/WebViewProviderFactoryAdapter.java"
-            line="48"
+            line="50"
             column="59"/>
     </issue>
 
@@ -1207,7 +1119,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/webkit/internal/WebViewProviderFactoryAdapter.java"
-            line="59"
+            line="61"
             column="12"/>
     </issue>
 
@@ -1218,7 +1130,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/webkit/internal/WebViewProviderFactoryAdapter.java"
-            line="69"
+            line="71"
             column="12"/>
     </issue>
 
@@ -1229,18 +1141,7 @@
         errorLine2="           ~~~~~~~~">
         <location
             file="src/main/java/androidx/webkit/internal/WebViewProviderFactoryAdapter.java"
-            line="78"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public ServiceWorkerControllerBoundaryInterface getServiceWorkerController() {"
-        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/webkit/internal/WebViewProviderFactoryAdapter.java"
-            line="87"
+            line="80"
             column="12"/>
     </issue>
 
@@ -1251,7 +1152,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/webkit/internal/WebViewProviderFactoryAdapter.java"
-            line="97"
+            line="100"
             column="12"/>
     </issue>
 
@@ -1262,7 +1163,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/webkit/internal/WebViewProviderFactoryAdapter.java"
-            line="107"
+            line="110"
             column="12"/>
     </issue>
 
@@ -1429,50 +1330,6 @@
             file="src/main/java/androidx/webkit/internal/WebkitToCompatConverter.java"
             line="66"
             column="64"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public InvocationHandler convertServiceWorkerSettings("
-        errorLine2="           ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/webkit/internal/WebkitToCompatConverter.java"
-            line="77"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="            ServiceWorkerWebSettings settings) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/webkit/internal/WebkitToCompatConverter.java"
-            line="78"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public ServiceWorkerWebSettings convertServiceWorkerSettings("
-        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/webkit/internal/WebkitToCompatConverter.java"
-            line="88"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="            /* SupportLibServiceWorkerSettings */ InvocationHandler serviceWorkerSettings) {"
-        errorLine2="                                                  ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/webkit/internal/WebkitToCompatConverter.java"
-            line="89"
-            column="51"/>
     </issue>
 
     <issue

@@ -21,6 +21,8 @@ import android.webkit.ServiceWorkerClient;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebResourceResponse;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.webkit.ServiceWorkerClientCompat;
 
@@ -33,12 +35,13 @@ import androidx.webkit.ServiceWorkerClientCompat;
 public class FrameworkServiceWorkerClient extends ServiceWorkerClient {
     private final ServiceWorkerClientCompat mImpl;
 
-    public FrameworkServiceWorkerClient(ServiceWorkerClientCompat impl) {
+    public FrameworkServiceWorkerClient(@NonNull ServiceWorkerClientCompat impl) {
         mImpl = impl;
     }
 
     @Override
-    public WebResourceResponse shouldInterceptRequest(WebResourceRequest request) {
+    @Nullable
+    public WebResourceResponse shouldInterceptRequest(@NonNull WebResourceRequest request) {
         return mImpl.shouldInterceptRequest(request);
     }
 }
