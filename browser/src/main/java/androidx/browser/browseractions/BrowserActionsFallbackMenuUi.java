@@ -50,7 +50,6 @@ import java.util.List;
  *
  * @deprecated Browser Actions are deprecated as of release 1.2.0.
  */
-@SuppressWarnings("deprecation")
 @Deprecated
 class BrowserActionsFallbackMenuUi implements AdapterView.OnItemClickListener {
     /** @hide */

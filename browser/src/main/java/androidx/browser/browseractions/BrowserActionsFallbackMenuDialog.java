@@ -31,7 +31,10 @@ import androidx.interpolator.view.animation.LinearOutSlowInInterpolator;
 /**
  * The dialog class showing the context menu and ensures proper animation is played upon calling
  * {@link #show()} and {@link #dismiss()}.
+ *
+ * @deprecated Browser Actions are deprecated as of release 1.2.0.
  */
+@Deprecated
 class BrowserActionsFallbackMenuDialog extends Dialog {
     private static final long ENTER_ANIMATION_DURATION_MS = 250;
     // Exit animation duration should be set to 60% of the enter animation duration.
