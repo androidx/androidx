@@ -10,8 +10,8 @@ package androidx.browser.browseractions {
     method @Deprecated public String getTitle();
   }
 
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class BrowserActionsFallbackMenuView extends android.widget.LinearLayout {
-    ctor public BrowserActionsFallbackMenuView(android.content.Context, android.util.AttributeSet);
+  @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class BrowserActionsFallbackMenuView extends android.widget.LinearLayout {
+    ctor @Deprecated public BrowserActionsFallbackMenuView(android.content.Context, android.util.AttributeSet);
   }
 
   @Deprecated public class BrowserActionsIntent {

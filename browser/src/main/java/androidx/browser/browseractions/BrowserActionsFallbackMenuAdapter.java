@@ -39,7 +39,10 @@ import java.util.concurrent.Executor;
 
 /**
  * The adapter to display the icon and title of custom Browser Actions item.
+ *
+ * @deprecated Browser Actions are deprecated as of release 1.2.0.
  */
+@Deprecated
 class BrowserActionsFallbackMenuAdapter extends BaseAdapter {
     private final List<BrowserActionItem> mMenuItems;
     private final Context mContext;
