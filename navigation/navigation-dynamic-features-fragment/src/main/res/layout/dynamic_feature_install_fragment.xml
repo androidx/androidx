@@ -28,7 +28,7 @@
         android:gravity="center"
         android:text="@string/installing_module"
         android:layout_margin="8dp"
-        style="@android:style/TextAppearance.DeviceDefault.Large" />
+        android:textAppearance="?android:attr/textAppearanceLarge" />
 
     <ImageView
         android:id="@+id/progress_icon"
@@ -49,6 +49,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="8dp"
-        style="@android:style/Widget.ProgressBar.Horizontal" />
+        style="?android:attr/progressBarStyleHorizontal" />
 
 </LinearLayout>
