@@ -34,6 +34,7 @@ import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.WorkerThread;
+import androidx.camera.camera2.impl.annotation.CameraExecutor;
 import androidx.camera.camera2.impl.compat.CameraManagerCompat;
 import androidx.camera.core.BaseCamera;
 import androidx.camera.core.CameraControlInternal;
@@ -102,6 +103,7 @@ final class Camera2CameraImpl implements BaseCamera {
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     final Handler mHandler;
+    @CameraExecutor
     private final Executor mExecutor;
 
     /**
@@ -183,7 +185,7 @@ final class Camera2CameraImpl implements BaseCamera {
             CameraCharacteristics cameraCharacteristics =
                     mCameraManager.unwrap().getCameraCharacteristics(mCameraId);
             mCameraControlInternal = new Camera2CameraControl(cameraCharacteristics,
-                new ControlUpdateListenerInternal(), executorScheduler, executorScheduler);
+                    executorScheduler, executorScheduler, new ControlUpdateListenerInternal());
             @SuppressWarnings("ConstantConditions") /* characteristic on all devices */
             int supportedHardwareLevel = cameraCharacteristics.get(
                     CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL);
