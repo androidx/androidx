@@ -30,6 +30,7 @@ import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.camera.camera2.Camera2Config;
+import androidx.camera.camera2.impl.annotation.CameraExecutor;
 import androidx.camera.camera2.impl.compat.CameraCaptureSessionCompat;
 import androidx.camera.camera2.impl.compat.CameraDeviceCompat;
 import androidx.camera.camera2.impl.compat.params.OutputConfigurationCompat;
@@ -42,7 +43,6 @@ import androidx.camera.core.DeferrableSurface;
 import androidx.camera.core.DeferrableSurfaces;
 import androidx.camera.core.MutableOptionsBundle;
 import androidx.camera.core.SessionConfig;
-import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.core.util.Preconditions;
@@ -70,6 +70,7 @@ final class CaptureSession {
     /** Lock on whether the camera is open or closed. */
     final Object mStateLock = new Object();
     /** Executor for all the callbacks from the {@link CameraCaptureSession}. */
+    @CameraExecutor
     private final Executor mExecutor;
     /** The configuration for the currently issued single capture requests. */
     private final List<CaptureConfig> mCaptureConfigs = new ArrayList<>();
@@ -123,15 +124,9 @@ final class CaptureSession {
      * @param executor The executor is responsible for queuing up callbacks from capture requests.
      * @param isLegacyDevice whether the device is LEGACY.
      */
-    CaptureSession(@NonNull Executor executor, boolean isLegacyDevice) {
+    CaptureSession(@NonNull @CameraExecutor Executor executor, boolean isLegacyDevice) {
         mState = State.INITIALIZED;
-
-        // Ensure tasks posted to the executor are executed sequentially.
-        if (CameraXExecutors.isSequentialExecutor(executor)) {
-            mExecutor = executor;
-        } else {
-            mExecutor = CameraXExecutors.newSequentialExecutor(executor);
-        }
+        mExecutor = executor;
         mIsLegacyDevice = isLegacyDevice;
     }
 
@@ -876,31 +871,29 @@ final class CaptureSession {
         return ret;
     }
 
-    // TODO: We should enforce that mExecutor is never null.
-    //  We can remove this method once that is the case.
+    @CameraExecutor
+    @NonNull
     private Executor getExecutor() {
-        if (mExecutor == null) {
-            return CameraXExecutors.myLooperExecutor();
-        }
-
         return mExecutor;
     }
 
     static final class Builder {
+        @CameraExecutor
         private Executor mExecutor;
         private int mSupportedHardwareLevel = -1;
 
         CaptureSession build() {
             if (mExecutor == null) {
-                mExecutor = CameraXExecutors.myLooperExecutor();
+                throw new IllegalStateException("Missing camera executor. Executor must be set "
+                        + "with setExecutor()");
             }
 
             return new CaptureSession(mExecutor, mSupportedHardwareLevel
                     == CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY);
         }
 
-        void setExecutor(@NonNull Executor executor) {
-            mExecutor = executor;
+        void setExecutor(@NonNull @CameraExecutor Executor executor) {
+            mExecutor = Preconditions.checkNotNull(executor);
         }
 
         void setSupportedHardwareLevel(int supportedHardwareLevel) {

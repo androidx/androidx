@@ -31,13 +31,14 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.annotation.WorkerThread;
 import androidx.camera.camera2.Camera2Config;
+import androidx.camera.camera2.impl.annotation.CameraExecutor;
 import androidx.camera.core.CameraControlInternal;
 import androidx.camera.core.CaptureConfig;
 import androidx.camera.core.Config;
 import androidx.camera.core.FlashMode;
 import androidx.camera.core.FocusMeteringAction;
 import androidx.camera.core.SessionConfig;
-import androidx.camera.core.impl.utils.executor.CameraXExecutors;
+import androidx.core.util.Preconditions;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -53,19 +54,17 @@ import java.util.concurrent.ScheduledExecutorService;
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public final class Camera2CameraControl implements CameraControlInternal {
-    private static final String TAG = "Camera2CameraControl";
-    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+    @VisibleForTesting
     final CameraControlSessionCallback mSessionCallback;
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+    @CameraExecutor
     final Executor mExecutor;
     private final CameraCharacteristics mCameraCharacteristics;
     private final ControlUpdateCallback mControlUpdateCallback;
-    private final ScheduledExecutorService mScheduler;
     private final SessionConfig.Builder mSessionConfigBuilder = new SessionConfig.Builder();
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     volatile Rational mPreviewAspectRatio = null;
-    @VisibleForTesting
-    final FocusMeteringControl mFocusMeteringControl;
+    private final FocusMeteringControl mFocusMeteringControl;
     // use volatile modifier to make these variables in sync in all threads.
     private volatile boolean mIsTorchOn = false;
     private volatile FlashMode mFlashMode = FlashMode.OFF;
@@ -75,31 +74,33 @@ public final class Camera2CameraControl implements CameraControlInternal {
     //**************************************************************************************//
 
 
+    /**
+     * Constructor for a Camera2CameraControl.
+     *
+     * <p>All {@code controlUpdateListener} invocations will be on the provided {@code executor}.
+     *
+     * <p>All tasks scheduled by {@code scheduler} will be immediately executed by {@code executor}.
+     * @param cameraCharacteristics Characteristics for the camera being controlled.
+     * @param scheduler Scheduler used for scheduling tasks in the future.
+     * @param executor Camera executor for synchronizing and offloading all commands.
+     * @param controlUpdateCallback Listener which will be notified of control changes.
+     */
     public Camera2CameraControl(@NonNull CameraCharacteristics cameraCharacteristics,
-            @NonNull ControlUpdateCallback controlUpdateCallback,
-            @NonNull ScheduledExecutorService scheduler, @NonNull Executor executor) {
+            @NonNull ScheduledExecutorService scheduler,
+            @NonNull @CameraExecutor Executor executor,
+            @NonNull ControlUpdateCallback controlUpdateCallback) {
         mCameraCharacteristics = cameraCharacteristics;
         mControlUpdateCallback = controlUpdateCallback;
-        if (CameraXExecutors.isSequentialExecutor(executor)) {
-            mExecutor = executor;
-        } else {
-            mExecutor = CameraXExecutors.newSequentialExecutor(executor);
-        }
-        mScheduler = scheduler;
+        mExecutor = executor;
         mSessionCallback = new CameraControlSessionCallback(mExecutor);
         mSessionConfigBuilder.setTemplateType(getDefaultTemplate());
         mSessionConfigBuilder.addRepeatingCameraCaptureCallback(
                 CaptureCallbackContainer.create(mSessionCallback));
 
-        mFocusMeteringControl = new FocusMeteringControl(this, mExecutor, mScheduler);
+        mFocusMeteringControl = new FocusMeteringControl(this, scheduler, mExecutor);
 
         // Initialize the session config
-        mExecutor.execute(new Runnable() {
-            @Override
-            public void run() {
-                updateSessionConfig();
-            }
-        });
+        mExecutor.execute(this::updateSessionConfig);
     }
 
     public void setPreviewAspectRatio(@Nullable Rational previewAspectRatio) {
@@ -108,33 +109,19 @@ public final class Camera2CameraControl implements CameraControlInternal {
 
     @Override
     public void startFocusAndMetering(@NonNull FocusMeteringAction action) {
-        mExecutor.execute(new Runnable() {
-            @Override
-            public void run() {
-                mFocusMeteringControl.startFocusAndMetering(action, mPreviewAspectRatio);
-            }
-        });
+        mExecutor.execute(
+                () -> mFocusMeteringControl.startFocusAndMetering(action, mPreviewAspectRatio));
     }
 
     @Override
     public void cancelFocusAndMetering() {
-        mExecutor.execute(new Runnable() {
-            @Override
-            public void run() {
-                mFocusMeteringControl.cancelFocusAndMetering();
-            }
-        });
+        mExecutor.execute(mFocusMeteringControl::cancelFocusAndMetering);
     }
 
     /** {@inheritDoc} */
     @Override
     public void setCropRegion(@Nullable final Rect crop) {
-        mExecutor.execute(new Runnable() {
-            @Override
-            public void run() {
-                setCropRegionInternal(crop);
-            }
-        });
+        mExecutor.execute(() -> setCropRegionInternal(crop));
     }
 
     @NonNull
@@ -149,12 +136,7 @@ public final class Camera2CameraControl implements CameraControlInternal {
         // update mFlashMode immediately so that following getFlashMode() returns correct value.
         mFlashMode = flashMode;
 
-        mExecutor.execute(new Runnable() {
-            @Override
-            public void run() {
-                updateSessionConfig();
-            }
-        });
+        mExecutor.execute(this::updateSessionConfig);
     }
 
     /** {@inheritDoc} */
@@ -163,12 +145,7 @@ public final class Camera2CameraControl implements CameraControlInternal {
         // update isTorchOn immediately so that following isTorchOn() returns correct value.
         mIsTorchOn = torch;
 
-        mExecutor.execute(new Runnable() {
-            @Override
-            public void run() {
-                enableTorchInternal(torch);
-            }
-        });
+        mExecutor.execute(() -> enableTorchInternal(torch));
 
     }
 
@@ -183,12 +160,7 @@ public final class Camera2CameraControl implements CameraControlInternal {
      */
     @Override
     public void triggerAf() {
-        mExecutor.execute(new Runnable() {
-            @Override
-            public void run() {
-                mFocusMeteringControl.triggerAf();
-            }
-        });
+        mExecutor.execute(mFocusMeteringControl::triggerAf);
     }
 
     /**
@@ -197,12 +169,7 @@ public final class Camera2CameraControl implements CameraControlInternal {
      */
     @Override
     public void triggerAePrecapture() {
-        mExecutor.execute(new Runnable() {
-            @Override
-            public void run() {
-                mFocusMeteringControl.triggerAePrecapture();
-            }
-        });
+        mExecutor.execute(mFocusMeteringControl::triggerAePrecapture);
     }
 
     /**
@@ -213,24 +180,14 @@ public final class Camera2CameraControl implements CameraControlInternal {
     @Override
     public void cancelAfAeTrigger(final boolean cancelAfTrigger,
             final boolean cancelAePrecaptureTrigger) {
-        mExecutor.execute(new Runnable() {
-            @Override
-            public void run() {
-                mFocusMeteringControl.cancelAfAeTrigger(cancelAfTrigger,
-                        cancelAePrecaptureTrigger);
-            }
-        });
+        mExecutor.execute(() -> mFocusMeteringControl.cancelAfAeTrigger(cancelAfTrigger,
+                cancelAePrecaptureTrigger));
     }
 
     /** {@inheritDoc} */
     @Override
     public void submitCaptureRequests(@NonNull final List<CaptureConfig> captureConfigs) {
-        mExecutor.execute(new Runnable() {
-            @Override
-            public void run() {
-                submitCaptureRequestsInternal(captureConfigs);
-            }
-        });
+        mExecutor.execute(() -> submitCaptureRequestsInternal(captureConfigs));
     }
 
     @WorkerThread
@@ -238,7 +195,6 @@ public final class Camera2CameraControl implements CameraControlInternal {
         return CameraDevice.TEMPLATE_PREVIEW;
     }
 
-    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     @WorkerThread
     void updateSessionConfig() {
         mSessionConfigBuilder.setImplementationOptions(getSessionOptions());
@@ -265,7 +221,8 @@ public final class Camera2CameraControl implements CameraControlInternal {
     @WorkerThread
     @NonNull
     Rect getSensorRect() {
-        return mCameraCharacteristics.get(CameraCharacteristics.SENSOR_INFO_ACTIVE_ARRAY_SIZE);
+        return Preconditions.checkNotNull(
+                mCameraCharacteristics.get(CameraCharacteristics.SENSOR_INFO_ACTIVE_ARRAY_SIZE));
     }
 
     @WorkerThread
@@ -298,7 +255,6 @@ public final class Camera2CameraControl implements CameraControlInternal {
     }
 
 
-    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     @WorkerThread
     void submitCaptureRequestsInternal(final List<CaptureConfig> captureConfigs) {
         mControlUpdateCallback.onCameraControlCaptureRequests(captureConfigs);
@@ -466,9 +422,10 @@ public final class Camera2CameraControl implements CameraControlInternal {
     static final class CameraControlSessionCallback extends CaptureCallback {
 
         /* synthetic accessor */final Set<CaptureResultListener> mResultListeners = new HashSet<>();
+        @CameraExecutor
         private final Executor mExecutor;
 
-        CameraControlSessionCallback(@NonNull Executor executor) {
+        CameraControlSessionCallback(@NonNull @CameraExecutor Executor executor) {
             mExecutor = executor;
         }
 
@@ -488,20 +445,17 @@ public final class Camera2CameraControl implements CameraControlInternal {
                 @NonNull CaptureRequest request,
                 @NonNull final TotalCaptureResult result) {
 
-            mExecutor.execute(new Runnable() {
-                @Override
-                public void run() {
-                    Set<CaptureResultListener> removeSet = new HashSet<>();
-                    for (CaptureResultListener listener : mResultListeners) {
-                        boolean isFinished = listener.onCaptureResult(result);
-                        if (isFinished) {
-                            removeSet.add(listener);
-                        }
+            mExecutor.execute(() -> {
+                Set<CaptureResultListener> removeSet = new HashSet<>();
+                for (CaptureResultListener listener : mResultListeners) {
+                    boolean isFinished = listener.onCaptureResult(result);
+                    if (isFinished) {
+                        removeSet.add(listener);
                     }
+                }
 
-                    if (!removeSet.isEmpty()) {
-                        mResultListeners.removeAll(removeSet);
-                    }
+                if (!removeSet.isEmpty()) {
+                    mResultListeners.removeAll(removeSet);
                 }
             });
         }

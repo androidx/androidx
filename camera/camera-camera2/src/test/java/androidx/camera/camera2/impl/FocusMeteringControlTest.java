@@ -44,6 +44,7 @@ import android.util.Size;
 import androidx.annotation.NonNull;
 import androidx.camera.camera2.Camera2Config;
 import androidx.camera.camera2.impl.Camera2CameraControl.CaptureResultListener;
+import androidx.camera.camera2.impl.annotation.CameraExecutor;
 import androidx.camera.core.CameraControlInternal;
 import androidx.camera.core.FocusMeteringAction;
 import androidx.camera.core.ImageAnalysis;
@@ -56,6 +57,7 @@ import androidx.test.filters.SmallTest;
 
 import com.google.common.collect.Sets;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -69,6 +71,8 @@ import org.robolectric.shadows.ShadowCameraManager;
 import org.robolectric.shadows.ShadowLooper;
 
 import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 @SmallTest
@@ -110,11 +114,18 @@ public class FocusMeteringControlTest {
 
     private static final Rational PREVIEW_ASPECT_RATIO_4_X_3 = new Rational(4, 3);
     private Camera2CameraControl mCamera2CameraControl;
+    @CameraExecutor
+    private ExecutorService mCameraExecutor;
 
     @Before
     public void setUp() throws CameraAccessException {
         initCameras();
         mFocusMeteringControl = spy(initFocusMeteringControl(CAMERA0_ID));
+    }
+
+    @After
+    public void tearDown() {
+        mCameraExecutor.shutdown();
     }
 
     private FocusMeteringControl initFocusMeteringControl(String cameraID) throws
@@ -127,15 +138,20 @@ public class FocusMeteringControlTest {
                 cameraManager.getCameraCharacteristics(
                         cameraID);
 
-        CameraControlInternal.ControlUpdateCallback updateListener = mock(
+        CameraControlInternal.ControlUpdateCallback updateCallback = mock(
                 CameraControlInternal.ControlUpdateCallback.class);
 
-        mCamera2CameraControl = spy(new Camera2CameraControl(cameraCharacteristics, updateListener,
-                CameraXExecutors.mainThreadExecutor(), CameraXExecutors.mainThreadExecutor()));
+        mCameraExecutor = Executors.newSingleThreadExecutor();
+
+        mCamera2CameraControl = spy(new Camera2CameraControl(
+                cameraCharacteristics,
+                CameraXExecutors.mainThreadExecutor(),
+                mCameraExecutor,
+                updateCallback));
 
 
         return new FocusMeteringControl(mCamera2CameraControl,
-                CameraXExecutors.mainThreadExecutor(), CameraXExecutors.mainThreadExecutor());
+                CameraXExecutors.mainThreadExecutor(), mCameraExecutor);
     }
 
     private void initCameras() {
