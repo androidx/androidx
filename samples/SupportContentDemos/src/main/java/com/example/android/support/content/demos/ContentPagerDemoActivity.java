@@ -210,9 +210,6 @@ public class ContentPagerDemoActivity extends AppCompatActivity {
             notifyDataSetChanged();
         }
 
-        private int getCorpusSize(Bundle extras) {
-            return extras.getInt(ContentPager.EXTRA_TOTAL_COUNT, -1);
-        }
     }
 
     private static class Holder extends RecyclerView.ViewHolder {

@@ -55,6 +55,7 @@ public class AnimatorInflater {
      * These flags are used when parsing AnimatorSet objects
      */
     private static final int TOGETHER = 0;
+    @SuppressWarnings("unused") // kept around for parity with XML values.
     private static final int SEQUENTIALLY = 1;
 
     /**

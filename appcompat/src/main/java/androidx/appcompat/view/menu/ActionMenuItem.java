@@ -44,7 +44,6 @@ public class ActionMenuItem implements SupportMenuItem {
 
     private final int mId;
     private final int mGroup;
-    private final int mCategoryOrder;
     private final int mOrdering;
 
     private CharSequence mTitle;
@@ -56,7 +55,6 @@ public class ActionMenuItem implements SupportMenuItem {
     private int mShortcutAlphabeticModifiers = KeyEvent.META_CTRL_ON;
 
     private Drawable mIconDrawable;
-    private int mIconResId = NO_ICON;
 
     private Context mContext;
 
@@ -70,8 +68,6 @@ public class ActionMenuItem implements SupportMenuItem {
     private boolean mHasIconTint = false;
     private boolean mHasIconTintMode = false;
 
-    private static final int NO_ICON = 0;
-
     private int mFlags = ENABLED;
     private static final int CHECKABLE = 0x00000001;
     private static final int CHECKED = 0x00000002;
@@ -84,7 +80,6 @@ public class ActionMenuItem implements SupportMenuItem {
         mContext = context;
         mId = id;
         mGroup = group;
-        mCategoryOrder = categoryOrder;
         mOrdering = ordering;
         mTitle = title;
     }
@@ -218,7 +213,6 @@ public class ActionMenuItem implements SupportMenuItem {
     @Override
     public MenuItem setIcon(Drawable icon) {
         mIconDrawable = icon;
-        mIconResId = NO_ICON;
 
         applyIconTint();
         return this;
@@ -226,7 +220,6 @@ public class ActionMenuItem implements SupportMenuItem {
 
     @Override
     public MenuItem setIcon(int iconRes) {
-        mIconResId = iconRes;
         mIconDrawable = ContextCompat.getDrawable(mContext, iconRes);
 
         applyIconTint();

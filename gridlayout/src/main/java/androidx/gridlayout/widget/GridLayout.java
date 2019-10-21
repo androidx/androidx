@@ -644,29 +644,14 @@ public class GridLayout extends ViewGroup {
         }
     }
 
-    /** @noinspection UnusedParameters*/
-    private int getDefaultMargin(View c, boolean horizontal, boolean leading) {
+    private int getDefaultMargin(View c) {
+        if (!mUseDefaultMargins) {
+            return 0;
+        }
         if (c.getClass() == android.widget.Space.class) {
             return 0;
         }
         return mDefaultGap / 2;
-    }
-
-    private int getDefaultMargin(View c, boolean isAtEdge, boolean horizontal, boolean leading) {
-        return /*isAtEdge ? DEFAULT_CONTAINER_MARGIN :*/ getDefaultMargin(c, horizontal, leading);
-    }
-
-    private int getDefaultMargin(View c, LayoutParams p, boolean horizontal, boolean leading) {
-        if (!mUseDefaultMargins) {
-            return 0;
-        }
-        Spec spec = horizontal ? p.columnSpec : p.rowSpec;
-        Axis axis = horizontal ? mHorizontalAxis : mVerticalAxis;
-        Interval span = spec.span;
-        boolean leading1 = (horizontal && isLayoutRtlCompat()) ? !leading : leading;
-        boolean isAtEdge = leading1 ? (span.min == 0) : (span.max == axis.getCount());
-
-        return getDefaultMargin(c, isAtEdge, horizontal, leading);
     }
 
     int getMargin1(View view, boolean horizontal, boolean leading) {
@@ -674,7 +659,7 @@ public class GridLayout extends ViewGroup {
         int margin = horizontal ?
                 (leading ? lp.leftMargin : lp.rightMargin) :
                 (leading ? lp.topMargin : lp.bottomMargin);
-        return margin == UNDEFINED ? getDefaultMargin(view, lp, horizontal, leading) : margin;
+        return margin == UNDEFINED ? getDefaultMargin(view) : margin;
     }
 
     private boolean isLayoutRtlCompat() {

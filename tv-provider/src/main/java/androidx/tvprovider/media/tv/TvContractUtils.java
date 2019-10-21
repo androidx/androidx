@@ -36,7 +36,6 @@ public class TvContractUtils {
     static final TvContentRating[] EMPTY = new TvContentRating[0];
 
     private static final String TAG = "TvContractUtils";
-    private static final boolean DEBUG = false;
     private static final String DELIMITER = ",";
 
     /**

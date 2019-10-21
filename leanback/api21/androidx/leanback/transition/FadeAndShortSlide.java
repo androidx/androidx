@@ -314,8 +314,7 @@ public class FadeAndShortSlide extends Visibility {
 
     @Override
     public Transition clone() {
-        FadeAndShortSlide clone = null;
-        clone = (FadeAndShortSlide) super.clone();
+        FadeAndShortSlide clone = (FadeAndShortSlide) super.clone();
         clone.mFade = (Visibility) mFade.clone();
         return clone;
     }

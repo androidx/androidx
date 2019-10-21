@@ -82,8 +82,6 @@ public class AnimatorInflaterCompat {
     private static final int VALUE_TYPE_COLOR = 3;
     private static final int VALUE_TYPE_UNDEFINED = 4;
 
-    private static final boolean DBG_ANIMATOR_INFLATER = false;
-
     /**
      * Loads an {@link Animator} object from a context
      *

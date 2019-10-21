@@ -67,7 +67,6 @@ class SuggestionsAdapter extends ResourceCursorAdapter implements OnClickListene
     static final int REFINE_BY_ENTRY = 1;
     static final int REFINE_ALL = 2;
 
-    private final SearchManager mSearchManager;
     private final SearchView mSearchView;
     private final SearchableInfo mSearchable;
     private final Context mProviderContext;
@@ -95,7 +94,6 @@ class SuggestionsAdapter extends ResourceCursorAdapter implements OnClickListene
             WeakHashMap<String, Drawable.ConstantState> outsideDrawablesCache) {
         super(context, searchView.getSuggestionRowLayout(), null /* no initial cursor */,
                 true /* auto-requery */);
-        mSearchManager = (SearchManager) mContext.getSystemService(Context.SEARCH_SERVICE);
         mSearchView = searchView;
         mSearchable = searchable;
         mCommitIconResId = searchView.getSuggestionCommitIconResId();
@@ -368,7 +366,7 @@ class SuggestionsAdapter extends ResourceCursorAdapter implements OnClickListene
         if (drawable != null) {
             return drawable;
         }
-        return getDefaultIcon1(cursor);
+        return getDefaultIcon1();
     }
 
     private Drawable getIcon2(Cursor cursor) {
@@ -599,10 +597,9 @@ class SuggestionsAdapter extends ResourceCursorAdapter implements OnClickListene
      * Gets the left-hand side icon that will be used for the current suggestion
      * if the suggestion contains an icon column but no icon or a broken icon.
      *
-     * @param cursor A cursor positioned at the current suggestion.
      * @return A non-null drawable.
      */
-    private Drawable getDefaultIcon1(Cursor cursor) {
+    private Drawable getDefaultIcon1() {
         // Check the component that gave us the suggestion
         Drawable drawable = getActivityIconWithCache(mSearchable.getSearchActivity());
         if (drawable != null) {

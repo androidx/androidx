@@ -153,12 +153,6 @@ public class MenuBuilder implements SupportMenu {
     View mHeaderView;
 
     /**
-     * Contains the state of the View hierarchy for all menu views when the menu
-     * was frozen.
-     */
-    private SparseArray<Parcelable> mFrozenViewStates;
-
-    /**
      * Prevents onItemsChanged from doing its junk, useful for batching commands
      * that may individually call onItemsChanged.
      */

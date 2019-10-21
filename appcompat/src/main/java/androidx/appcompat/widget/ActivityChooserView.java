@@ -78,9 +78,6 @@ import androidx.core.view.accessibility.AccessibilityNodeInfoCompat;
 @RestrictTo(LIBRARY_GROUP_PREFIX)
 public class ActivityChooserView extends ViewGroup implements
         ActivityChooserModel.ActivityChooserModelClient {
-
-    private static final String LOG_TAG = "ActivityChooserView";
-
     /**
      * An adapter for displaying the activities in an {@link android.widget.AdapterView}.
      */
@@ -721,12 +718,11 @@ public class ActivityChooserView extends ViewGroup implements
 
         @Override
         public int getCount() {
-            int count = 0;
             int activityCount = mDataModel.getActivityCount();
             if (!mShowDefaultActivity && mDataModel.getDefaultActivity() != null) {
                 activityCount--;
             }
-            count = Math.min(activityCount, mMaxActivityCount);
+            int count = Math.min(activityCount, mMaxActivityCount);
             if (mShowFooterView) {
                 count++;
             }

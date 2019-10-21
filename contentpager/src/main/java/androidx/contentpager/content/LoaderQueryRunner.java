@@ -36,7 +36,6 @@ public final class LoaderQueryRunner implements ContentPager.QueryRunner {
 
     private static final boolean DEBUG = false;
     private static final String TAG = "LoaderQueryRunner";
-    private static final String CONTENT_URI_KEY = "contentUri";
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     final Context mContext;

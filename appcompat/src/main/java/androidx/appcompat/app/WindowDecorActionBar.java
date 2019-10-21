@@ -87,7 +87,6 @@ public class WindowDecorActionBar extends ActionBar implements
     Context mContext;
     private Context mThemedContext;
     private Activity mActivity;
-    private Dialog mDialog;
 
     ActionBarOverlayLayout mOverlayLayout;
     ActionBarContainer mContainerView;
@@ -177,7 +176,6 @@ public class WindowDecorActionBar extends ActionBar implements
     }
 
     public WindowDecorActionBar(Dialog dialog) {
-        mDialog = dialog;
         init(dialog.getWindow().getDecorView());
     }
 

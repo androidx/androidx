@@ -1345,14 +1345,13 @@ public class SwipeRefreshLayout extends ViewGroup implements NestedScrollingPare
     private final Animation mAnimateToCorrectPosition = new Animation() {
         @Override
         public void applyTransformation(float interpolatedTime, Transformation t) {
-            int targetTop = 0;
-            int endTarget = 0;
+            int endTarget;
             if (!mUsingCustomStart) {
                 endTarget = mSpinnerOffsetEnd - Math.abs(mOriginalOffsetTop);
             } else {
                 endTarget = mSpinnerOffsetEnd;
             }
-            targetTop = (mFrom + (int) ((endTarget - mFrom) * interpolatedTime));
+            int targetTop = (mFrom + (int) ((endTarget - mFrom) * interpolatedTime));
             int offset = targetTop - mCircleView.getTop();
             setTargetOffsetTopAndBottom(offset);
             mProgress.setArrowScale(1 - interpolatedTime);
@@ -1360,8 +1359,7 @@ public class SwipeRefreshLayout extends ViewGroup implements NestedScrollingPare
     };
 
     void moveToStart(float interpolatedTime) {
-        int targetTop = 0;
-        targetTop = (mFrom + (int) ((mOriginalOffsetTop - mFrom) * interpolatedTime));
+        int targetTop = (mFrom + (int) ((mOriginalOffsetTop - mFrom) * interpolatedTime));
         int offset = targetTop - mCircleView.getTop();
         setTargetOffsetTopAndBottom(offset);
     }

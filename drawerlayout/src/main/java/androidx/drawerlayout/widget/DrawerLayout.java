@@ -163,7 +163,6 @@ public class DrawerLayout extends ViewGroup {
 
 
     private static final int MIN_DRAWER_MARGIN = 64; // dp
-    private static final int DRAWER_ELEVATION = 10; //dp
 
     private static final int DEFAULT_SCRIM_COLOR = 0x99000000;
 

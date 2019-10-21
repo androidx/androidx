@@ -15,9 +15,7 @@ package androidx.leanback.widget;
 
 import android.content.res.Resources;
 import android.graphics.Color;
-import android.graphics.Rect;
 import android.graphics.drawable.ColorDrawable;
-import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -66,7 +64,6 @@ public class FullWidthDetailsOverviewRowPresenter extends RowPresenter {
     static final String TAG = "FullWidthDetailsRP";
     static final boolean DEBUG = false;
 
-    private static Rect sTmpRect = new Rect();
     static final Handler sHandler = new Handler();
 
     /**
@@ -279,10 +276,6 @@ public class FullWidthDetailsOverviewRowPresenter extends RowPresenter {
                 checkFirstAndLastPosition(true);
             }
         };
-
-        private int getViewCenter(View view) {
-            return (view.getRight() - view.getLeft()) / 2;
-        }
 
         void checkFirstAndLastPosition(boolean fromScroll) {
             RecyclerView.ViewHolder viewHolder;
@@ -564,16 +557,6 @@ public class FullWidthDetailsOverviewRowPresenter extends RowPresenter {
             }
         });
         return vh;
-    }
-
-    private static int getNonNegativeWidth(Drawable drawable) {
-        final int width = (drawable == null) ? 0 : drawable.getIntrinsicWidth();
-        return (width > 0 ? width : 0);
-    }
-
-    private static int getNonNegativeHeight(Drawable drawable) {
-        final int height = (drawable == null) ? 0 : drawable.getIntrinsicHeight();
-        return (height > 0 ? height : 0);
     }
 
     @Override

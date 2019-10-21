@@ -1055,7 +1055,7 @@ class AppCompatDelegateImpl extends AppCompatDelegate
 
     @Override
     public void onMenuModeChange(MenuBuilder menu) {
-        reopenMenu(menu, true);
+        reopenMenu(true);
     }
 
     @Override
@@ -1606,7 +1606,7 @@ class AppCompatDelegateImpl extends AppCompatDelegate
         return true;
     }
 
-    private void reopenMenu(MenuBuilder menu, boolean toggleMenuMode) {
+    private void reopenMenu(boolean toggleMenuMode) {
         if (mDecorContentParent != null && mDecorContentParent.canShowOverflowMenu()
                 && (!ViewConfiguration.get(mContext).hasPermanentMenuKey()
                         || mDecorContentParent.isOverflowMenuShowPending())) {
