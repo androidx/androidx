@@ -16,137 +16,162 @@
 
 package androidx.ui.res
 
+import android.util.LruCache
 import androidx.compose.unaryPlus
 import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.ui.core.ContextAmbient
 import androidx.ui.framework.test.R
+import androidx.ui.graphics.imageFromResource
 import androidx.ui.test.createComposeRule
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import java.util.Locale
+import java.util.concurrent.Executor
 
 @RunWith(JUnit4::class)
 @SmallTest
 class ResourcesTest {
 
-    // Constants defined in strings.xml
-    private val NotLocalizedText = "NotLocalizedText"
-    private val DefaultLocalizedText = "DefaultLocaleText"
-    private val SpanishLocalizedText = "SpanishText"
-
-    // Constants defined in strings.xml with formatting with integer 100.
-    private val NotLocalizedFormatText = "NotLocalizedFormatText:100"
-    private val DefaultLocalizedFormatText = "DefaultLocaleFormatText:100"
-    private val SpanishLocalizedFormatText = "SpanishFormatText:100"
-
-    // Constant used for formatting string in test.
-    private val FormatValue = 100
-
     @get:Rule
     val composeTestRule = createComposeRule()
 
-    @Test
-    fun stringResource_not_localized() {
+    class PendingExecutor : Executor {
+        var runnable: Runnable? = null
 
+        override fun execute(r: Runnable) {
+            runnable = r
+        }
+
+        fun runNow() {
+            runnable?.run()
+            runnable = null
+        }
+    }
+
+    @Test
+    fun asyncLoadingTest() {
         val context = InstrumentationRegistry.getInstrumentation().targetContext
+        val resource = context.resources
+        val pendingExecutor = PendingExecutor()
+        val cacheLock = Any()
+        val requestCache = mutableMapOf<String, MutableList<DeferredResource<*>>>()
+        val resourceCache = LruCache<String, Any>(1)
+
+        val loadedImage = imageFromResource(resource, R.drawable.loaded_image)
+        val pendingImage = imageFromResource(resource, R.drawable.pending_image)
+        val failedImage = imageFromResource(resource, R.drawable.failed_image)
+
+        var uiThreadWork: (() -> Unit)? = null
 
         composeTestRule.setContent {
             ContextAmbient.Provider(value = context) {
-                assertThat(+stringResource(R.string.not_localized)).isEqualTo(NotLocalizedText)
+                val res = +loadResourceInternal(
+                    id = R.drawable.loaded_image,
+                    pendingResource = pendingImage,
+                    failedResource = failedImage,
+                    executor = pendingExecutor,
+                    uiThreadHandler = { uiThreadWork = it },
+                    cacheLock = cacheLock,
+                    requestCache = requestCache,
+                    resourceCache = resourceCache,
+                    loader = { imageFromResource(resource, it) }
+                )
+
+                assertThat(pendingExecutor.runnable).isNotNull()
+                assertThat(res.resource).isInstanceOf(PendingResource::class.java)
+                assertThat(res.resource.resource).isNotNull()
+                assertThat(res.resource.resource!!.nativeImage.sameAs(pendingImage.nativeImage))
+                    .isTrue()
             }
         }
 
-        val spanishContext = context.createConfigurationContext(
-            context.resources.configuration.apply {
-                setLocale(Locale.forLanguageTag("es-ES"))
-            }
-        )
-
         composeTestRule.setContent {
-            ContextAmbient.Provider(value = spanishContext) {
-                assertThat(+stringResource(R.string.not_localized)).isEqualTo(NotLocalizedText)
+            ContextAmbient.Provider(value = context) {
+                pendingExecutor.runNow()
+                uiThreadWork!!.invoke()
+
+                val res = +loadResourceInternal(
+                    id = R.drawable.loaded_image,
+                    pendingResource = pendingImage,
+                    failedResource = failedImage,
+                    executor = pendingExecutor,
+                    uiThreadHandler = { uiThreadWork = it },
+                    cacheLock = cacheLock,
+                    requestCache = requestCache,
+                    resourceCache = resourceCache,
+                    loader = { imageFromResource(resource, it) }
+                )
+
+                assertThat(pendingExecutor.runnable).isNull()
+                assertThat(res.resource).isInstanceOf(LoadedResource::class.java)
+                assertThat(res.resource.resource).isNotNull()
+                assertThat(res.resource.resource!!.nativeImage.sameAs(loadedImage.nativeImage))
+                    .isTrue()
             }
         }
     }
 
     @Test
-    fun stringResource_localized() {
-
+    fun asyncLoadingFailTest() {
         val context = InstrumentationRegistry.getInstrumentation().targetContext
+        val resource = context.resources
+        val pendingExecutor = PendingExecutor()
+        val cacheLock = Any()
+        val requestCache = mutableMapOf<String, MutableList<DeferredResource<*>>>()
+        val resourceCache = LruCache<String, Any>(1)
+
+        val pendingImage = imageFromResource(resource, R.drawable.pending_image)
+        val failedImage = imageFromResource(resource, R.drawable.failed_image)
+
+        var uiThreadWork: (() -> Unit)? = null
 
         composeTestRule.setContent {
             ContextAmbient.Provider(value = context) {
-                assertThat(+stringResource(R.string.localized))
-                    .isEqualTo(DefaultLocalizedText)
+                val res = +loadResourceInternal(
+                    id = R.drawable.loaded_image,
+                    pendingResource = pendingImage,
+                    failedResource = failedImage,
+                    executor = pendingExecutor,
+                    uiThreadHandler = { uiThreadWork = it },
+                    cacheLock = cacheLock,
+                    requestCache = requestCache,
+                    resourceCache = resourceCache,
+                    loader = { throw RuntimeException("Resource Load Failed") }
+                )
+
+                assertThat(pendingExecutor.runnable).isNotNull()
+                assertThat(res.resource).isInstanceOf(PendingResource::class.java)
+                assertThat(res.resource.resource).isNotNull()
+                assertThat(res.resource.resource!!.nativeImage.sameAs(pendingImage.nativeImage))
+                    .isTrue()
             }
         }
-
-        val spanishContext = context.createConfigurationContext(
-            context.resources.configuration.apply {
-                setLocale(Locale.forLanguageTag("es-ES"))
-            }
-        )
-
-        composeTestRule.setContent {
-            ContextAmbient.Provider(value = spanishContext) {
-                assertThat(+stringResource(R.string.localized))
-                    .isEqualTo(SpanishLocalizedText)
-            }
-        }
-    }
-
-    @Test
-    fun stringResource_not_localized_format() {
-
-        val context = InstrumentationRegistry.getInstrumentation().targetContext
 
         composeTestRule.setContent {
             ContextAmbient.Provider(value = context) {
-                assertThat(+stringResource(R.string.not_localized_format, FormatValue))
-                    .isEqualTo(NotLocalizedFormatText)
-            }
-        }
+                pendingExecutor.runNow()
+                uiThreadWork!!.invoke()
 
-        val spanishContext = context.createConfigurationContext(
-            context.resources.configuration.apply {
-                setLocale(Locale.forLanguageTag("es-ES"))
-            }
-        )
+                val res = +loadResourceInternal(
+                    id = R.drawable.loaded_image,
+                    pendingResource = pendingImage,
+                    failedResource = failedImage,
+                    executor = pendingExecutor,
+                    uiThreadHandler = { uiThreadWork = it },
+                    cacheLock = cacheLock,
+                    requestCache = requestCache,
+                    resourceCache = resourceCache,
+                    loader = { throw RuntimeException("Resource Load Failed") }
+                )
 
-        composeTestRule.setContent {
-            ContextAmbient.Provider(value = spanishContext) {
-                assertThat(+stringResource(R.string.not_localized_format, FormatValue))
-                    .isEqualTo(NotLocalizedFormatText)
-            }
-        }
-    }
-
-    @Test
-    fun stringResource_localized_format() {
-
-        val context = InstrumentationRegistry.getInstrumentation().targetContext
-
-        composeTestRule.setContent {
-            ContextAmbient.Provider(value = context) {
-                assertThat(+stringResource(R.string.localized_format, FormatValue))
-                    .isEqualTo(DefaultLocalizedFormatText)
-            }
-        }
-
-        val spanishContext = context.createConfigurationContext(
-            context.resources.configuration.apply {
-                setLocale(Locale.forLanguageTag("es-ES"))
-            }
-        )
-
-        composeTestRule.setContent {
-            ContextAmbient.Provider(value = spanishContext) {
-                assertThat(+stringResource(R.string.localized_format, FormatValue))
-                    .isEqualTo(SpanishLocalizedFormatText)
+                assertThat(pendingExecutor.runnable).isNull()
+                assertThat(res.resource).isInstanceOf(FailedResource::class.java)
+                assertThat(res.resource.resource).isNotNull()
+                assertThat(res.resource.resource!!.nativeImage.sameAs(failedImage.nativeImage))
+                    .isTrue()
             }
         }
     }
