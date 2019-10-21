@@ -16,7 +16,7 @@
 
 package androidx.webkit;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 
 import java.util.concurrent.Callable;
 
