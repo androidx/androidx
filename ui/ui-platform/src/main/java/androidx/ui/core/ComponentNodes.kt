@@ -839,10 +839,8 @@ class LayoutNode : ComponentNode(), Measurable {
     }
 
     override fun measure(constraints: Constraints): Placeable {
-        val owner = owner
-        // The more idiomatic `val iteration = owner?.measureIteration ?: 0L` causes boxing.
-        @Suppress("IfThenToElvis")
-        val iteration = if (owner == null) 0L else owner.measureIteration
+        val owner = requireOwner()
+        val iteration = owner.measureIteration
         check(measureIteration != iteration) {
             "measure() may not be called multiple times on the same Measurable"
         }
@@ -860,13 +858,13 @@ class LayoutNode : ComponentNode(), Measurable {
         layoutChildren.forEach { child ->
             child.affectsParentSize = false
         }
-        owner?.onStartMeasure(this)
+        owner.onStartMeasure(this)
         try {
             this.constraints = constraints
 
             layoutNodeWrapper.measure(constraints)
         } finally {
-            owner?.onEndMeasure(this)
+            owner.onEndMeasure(this)
             isMeasuring = false
         }
         needsRemeasure = false
@@ -894,7 +892,8 @@ class LayoutNode : ComponentNode(), Measurable {
 
     fun placeChildren() {
         if (needsRelayout) {
-            owner?.onStartLayout(this)
+            val owner = requireOwner()
+            owner.onStartLayout(this)
             layoutChildren.forEach { child ->
                 child.isPlaced = false
                 if (alignmentLinesRequired && child.dirtyAlignmentLines) child.needsRelayout = true
@@ -909,7 +908,7 @@ class LayoutNode : ComponentNode(), Measurable {
             layoutChildren.forEach { child ->
                 child.alignmentLinesRead = child.alignmentLinesQueriedSinceLastLayout
             }
-            owner?.onEndLayout(this)
+            owner.onEndLayout(this)
             needsRelayout = false
 
             if (alignmentLinesRequired && dirtyAlignmentLines) {

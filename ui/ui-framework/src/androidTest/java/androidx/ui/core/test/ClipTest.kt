@@ -19,7 +19,6 @@ package androidx.ui.core.test
 import android.graphics.Bitmap
 import android.os.Build
 import androidx.compose.Composable
-import androidx.compose.Model
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.test.rule.ActivityTestRule
@@ -247,13 +246,13 @@ class ClipTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun switchFromRectToRounded() {
-        val model = ShapeModel(rectShape)
+        val model = ValueModel<Shape>(rectShape)
 
         rule.runOnUiThreadIR {
             activity.setContent {
                 AtLeastSize(size = 30.ipx) {
                     FillColor(Color.Green)
-                    Clip(model.shape) {
+                    Clip(model.value) {
                         FillColor(Color.Cyan)
                     }
                 }
@@ -266,7 +265,7 @@ class ClipTest {
 
         drawLatch = CountDownLatch(1)
         rule.runOnUiThreadIR {
-            model.shape = object : Shape {
+            model.value = object : Shape {
                 override fun createOutline(size: PxSize, density: Density): Outline =
                     Outline.Rounded(RRect(size.toRect(), Radius.circular(12f)))
             }
@@ -283,13 +282,13 @@ class ClipTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun switchFromRectToPath() {
-        val model = ShapeModel(rectShape)
+        val model = ValueModel<Shape>(rectShape)
 
         rule.runOnUiThreadIR {
             activity.setContent {
                 FillColor(Color.Green)
                 AtLeastSize(size = 30.ipx) {
-                    Clip(model.shape) {
+                    Clip(model.value) {
                         FillColor(Color.Cyan)
                     }
                 }
@@ -301,7 +300,7 @@ class ClipTest {
         }
 
         drawLatch = CountDownLatch(1)
-        rule.runOnUiThreadIR { model.shape = triangleShape }
+        rule.runOnUiThreadIR { model.value = triangleShape }
 
         takeScreenShot(30).apply {
             assertTriangle(Color.Cyan, Color.Green)
@@ -311,13 +310,13 @@ class ClipTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun switchFromPathToRect() {
-        val model = ShapeModel(triangleShape)
+        val model = ValueModel<Shape>(triangleShape)
 
         rule.runOnUiThreadIR {
             activity.setContent {
                 FillColor(Color.Green)
                 AtLeastSize(size = 30.ipx) {
-                    Clip(model.shape) {
+                    Clip(model.value) {
                         FillColor(Color.Cyan)
                     }
                 }
@@ -329,7 +328,7 @@ class ClipTest {
         }
 
         drawLatch = CountDownLatch(1)
-        rule.runOnUiThreadIR { model.shape = rectShape }
+        rule.runOnUiThreadIR { model.value = rectShape }
 
         takeScreenShot(30).apply {
             assertRect(Color.Cyan, size = 30)
@@ -339,7 +338,7 @@ class ClipTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun emitClipLater() {
-        val model = DoDraw(false)
+        val model = ValueModel(false)
 
         rule.runOnUiThreadIR {
             activity.setContent {
@@ -392,9 +391,6 @@ class ClipTest {
         return bitmap
     }
 }
-
-@Model
-private class ShapeModel(var shape: Shape)
 
 fun Bitmap.assertTriangle(innerColor: Color, outerColor: Color) {
     Assert.assertEquals(width, height)

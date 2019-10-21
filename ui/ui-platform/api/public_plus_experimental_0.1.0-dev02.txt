@@ -20,7 +20,6 @@ package androidx.ui.core {
     method public java.util.List<androidx.ui.core.SemanticsTreeNode> getAllSemanticNodes();
     method public androidx.ui.autofill.Autofill? getAutofill();
     method public androidx.ui.autofill.AutofillTree getAutofillTree();
-    method public kotlin.jvm.functions.Function0<kotlin.Unit>? getCommitUnsubscribe();
     method public kotlin.jvm.functions.Function0<kotlin.Unit> getConfigurationChangeObserver();
     method public androidx.ui.core.Constraints getConstraints();
     method public androidx.ui.core.Density getDensity();
@@ -39,13 +38,11 @@ package androidx.ui.core {
     method public void onStartLayout(androidx.ui.core.LayoutNode layoutNode);
     method public void onStartMeasure(androidx.ui.core.LayoutNode layoutNode);
     method public void sendEvent(android.view.MotionEvent event);
-    method public void setCommitUnsubscribe(kotlin.jvm.functions.Function0<kotlin.Unit>? p);
     method public void setConfigurationChangeObserver(kotlin.jvm.functions.Function0<kotlin.Unit> p);
     method public void setConstraints(androidx.ui.core.Constraints p);
     method public void setRef(androidx.ui.core.Ref<androidx.ui.core.AndroidComposeView>? value);
     property public final androidx.ui.autofill.Autofill? autofill;
     property public final androidx.ui.autofill.AutofillTree autofillTree;
-    property public final kotlin.jvm.functions.Function0<kotlin.Unit>? commitUnsubscribe;
     property public final kotlin.jvm.functions.Function0<kotlin.Unit> configurationChangeObserver;
     property public final androidx.ui.core.Constraints constraints;
     property public androidx.ui.core.Density density;
