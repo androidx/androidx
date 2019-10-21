@@ -56,6 +56,7 @@ package androidx.media2.session {
     method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.session.SessionResult!> addPlaylistItem(@IntRange(from=0) int, String);
     method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.session.SessionResult!> adjustVolume(int, int);
     method public void close();
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.session.SessionResult!> deselectTrack(androidx.media2.common.SessionPlayer.TrackInfo);
     method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.session.SessionResult!> fastForward();
     method public long getBufferedPosition();
     method @androidx.media2.common.SessionPlayer.BuffState public int getBufferingState();
@@ -72,8 +73,11 @@ package androidx.media2.session {
     method public androidx.media2.common.MediaMetadata? getPlaylistMetadata();
     method public int getPreviousMediaItemIndex();
     method @androidx.media2.common.SessionPlayer.RepeatMode public int getRepeatMode();
+    method public androidx.media2.common.SessionPlayer.TrackInfo? getSelectedTrack(int);
     method public android.app.PendingIntent? getSessionActivity();
     method @androidx.media2.common.SessionPlayer.ShuffleMode public int getShuffleMode();
+    method public java.util.List<androidx.media2.common.SessionPlayer.TrackInfo!> getTracks();
+    method public androidx.media2.common.VideoSize getVideoSize();
     method public boolean isConnected();
     method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.session.SessionResult!> movePlaylistItem(@IntRange(from=0) int, @IntRange(from=0) int);
     method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.session.SessionResult!> pause();
@@ -83,6 +87,7 @@ package androidx.media2.session {
     method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.session.SessionResult!> replacePlaylistItem(@IntRange(from=0) int, String);
     method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.session.SessionResult!> rewind();
     method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.session.SessionResult!> seekTo(long);
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.session.SessionResult!> selectTrack(androidx.media2.common.SessionPlayer.TrackInfo);
     method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.session.SessionResult!> sendCustomCommand(androidx.media2.session.SessionCommand, android.os.Bundle?);
     method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.session.SessionResult!> setMediaItem(String);
     method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.session.SessionResult!> setPlaybackSpeed(float);
@@ -90,6 +95,7 @@ package androidx.media2.session {
     method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.session.SessionResult!> setRating(String, androidx.media2.common.Rating);
     method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.session.SessionResult!> setRepeatMode(@androidx.media2.common.SessionPlayer.RepeatMode int);
     method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.session.SessionResult!> setShuffleMode(@androidx.media2.common.SessionPlayer.ShuffleMode int);
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.session.SessionResult!> setSurface(android.view.Surface?);
     method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.session.SessionResult!> setVolumeTo(int, int);
     method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.session.SessionResult!> skipBackward();
     method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.session.SessionResult!> skipForward();
@@ -125,6 +131,11 @@ package androidx.media2.session {
     method public void onSeekCompleted(androidx.media2.session.MediaController, long);
     method public int onSetCustomLayout(androidx.media2.session.MediaController, java.util.List<androidx.media2.session.MediaSession.CommandButton!>);
     method public void onShuffleModeChanged(androidx.media2.session.MediaController, @androidx.media2.common.SessionPlayer.ShuffleMode int);
+    method public void onSubtitleData(androidx.media2.session.MediaController, androidx.media2.common.MediaItem, androidx.media2.common.SessionPlayer.TrackInfo, androidx.media2.common.SubtitleData);
+    method public void onTrackDeselected(androidx.media2.session.MediaController, androidx.media2.common.SessionPlayer.TrackInfo);
+    method public void onTrackSelected(androidx.media2.session.MediaController, androidx.media2.common.SessionPlayer.TrackInfo);
+    method public void onTracksChanged(androidx.media2.session.MediaController, java.util.List<androidx.media2.common.SessionPlayer.TrackInfo!>);
+    method public void onVideoSizeChanged(androidx.media2.session.MediaController, androidx.media2.common.VideoSize);
   }
 
   public static final class MediaController.PlaybackInfo implements androidx.versionedparcelable.VersionedParcelable {
