@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 3.6.0-alpha12" client="gradle" variant="debug" version="3.6.0-alpha12">
+<issues format="5" by="lint 3.6.0-beta01" client="gradle" variant="debug" version="3.6.0-beta01">
 
     <issue
         id="KotlinPropertyAccess"
@@ -1163,7 +1163,7 @@
         errorLine2="                                ~~~~~~~~">
         <location
             file="src/main/java/androidx/car/widget/PagedListView.java"
-            line="894"
+            line="892"
             column="33"/>
     </issue>
 
@@ -1174,7 +1174,7 @@
         errorLine2="                                  ~~~~~~~~">
         <location
             file="src/main/java/androidx/car/widget/PagedListView.java"
-            line="899"
+            line="897"
             column="35"/>
     </issue>
 
@@ -1185,7 +1185,7 @@
         errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/car/widget/PagedListView.java"
-            line="934"
+            line="932"
             column="45"/>
     </issue>
 
@@ -1196,7 +1196,7 @@
         errorLine2="                                    ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/car/widget/PagedListView.java"
-            line="1115"
+            line="1113"
             column="37"/>
     </issue>
 
@@ -1207,7 +1207,7 @@
         errorLine2="           ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/car/widget/PagedListView.java"
-            line="1517"
+            line="1515"
             column="12"/>
     </issue>
 
@@ -1218,7 +1218,7 @@
         errorLine2="                                       ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/car/widget/PagedListView.java"
-            line="1529"
+            line="1527"
             column="40"/>
     </issue>
 
@@ -1229,7 +1229,7 @@
         errorLine2="                                             ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/car/widget/PagedListView.java"
-            line="1543"
+            line="1541"
             column="46"/>
     </issue>
 
@@ -1240,7 +1240,7 @@
         errorLine2="                                                ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/car/widget/PagedListView.java"
-            line="1553"
+            line="1551"
             column="49"/>
     </issue>
 
@@ -1251,7 +1251,7 @@
         errorLine2="                               ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/car/widget/PagedListView.java"
-            line="1654"
+            line="1652"
             column="32"/>
     </issue>
 
@@ -1262,7 +1262,7 @@
         errorLine2="                                         ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/car/widget/PagedListView.java"
-            line="1658"
+            line="1656"
             column="42"/>
     </issue>
 

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 3.5.0-beta04" client="gradle" variant="debug" version="3.5.0-beta04">
+<issues format="5" by="lint 3.6.0-beta01" client="gradle" variant="debug" version="3.6.0-beta01">
 
     <issue
         id="LambdaLast"
@@ -1317,7 +1317,7 @@
         errorLine2="           ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/SliceItem.java"
-            line="267"
+            line="268"
             column="12"/>
     </issue>
 
@@ -1328,7 +1328,7 @@
         errorLine2="           ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/SliceItem.java"
-            line="308"
+            line="310"
             column="12"/>
     </issue>
 
@@ -1339,7 +1339,7 @@
         errorLine2="           ~~~~~">
         <location
             file="src/main/java/androidx/slice/SliceItem.java"
-            line="323"
+            line="326"
             column="12"/>
     </issue>
 
@@ -1350,7 +1350,7 @@
         errorLine2="                                            ~~~~~~">
         <location
             file="src/main/java/androidx/slice/SliceItem.java"
-            line="342"
+            line="345"
             column="45"/>
     </issue>
 
@@ -1361,7 +1361,7 @@
         errorLine2="                     ~~~~~~">
         <location
             file="src/main/java/androidx/slice/SliceItem.java"
-            line="350"
+            line="353"
             column="22"/>
     </issue>
 
@@ -1372,7 +1372,7 @@
         errorLine2="           ~~~~~~">
         <location
             file="src/main/java/androidx/slice/SliceItem.java"
-            line="362"
+            line="365"
             column="12"/>
     </issue>
 
@@ -1383,7 +1383,7 @@
         errorLine2="                                             ~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/SliceItem.java"
-            line="375"
+            line="378"
             column="46"/>
     </issue>
 
@@ -1394,7 +1394,7 @@
         errorLine2="                                                ~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/SliceItem.java"
-            line="389"
+            line="392"
             column="49"/>
     </issue>
 
@@ -1405,7 +1405,7 @@
         errorLine2="                  ~~~~~~">
         <location
             file="src/main/java/androidx/slice/SliceItem.java"
-            line="452"
+            line="456"
             column="19"/>
     </issue>
 
@@ -1416,7 +1416,7 @@
         errorLine2="                                      ~~~~~~">
         <location
             file="src/main/java/androidx/slice/SliceItem.java"
-            line="452"
+            line="456"
             column="39"/>
     </issue>
 
@@ -1427,7 +1427,7 @@
         errorLine2="           ~~~~~~">
         <location
             file="src/main/java/androidx/slice/SliceItem.java"
-            line="485"
+            line="490"
             column="12"/>
     </issue>
 
@@ -1438,7 +1438,7 @@
         errorLine2="                           ~~~~~~">
         <location
             file="src/main/java/androidx/slice/SliceItem.java"
-            line="485"
+            line="490"
             column="28"/>
     </issue>
 
@@ -1449,7 +1449,7 @@
         errorLine2="                      ~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/SliceItem.java"
-            line="700"
+            line="705"
             column="23"/>
     </issue>
 
@@ -1460,7 +1460,7 @@
         errorLine2="                                      ~~~~~~~">
         <location
             file="src/main/java/androidx/slice/SliceItem.java"
-            line="700"
+            line="705"
             column="39"/>
     </issue>
 
@@ -1471,7 +1471,7 @@
         errorLine2="                                                       ~~~~~~">
         <location
             file="src/main/java/androidx/slice/SliceItem.java"
-            line="700"
+            line="705"
             column="56"/>
     </issue>
 
@@ -1504,7 +1504,7 @@
         errorLine2="                           ~~~~~~">
         <location
             file="src/main/java/androidx/slice/SliceItemHolder.java"
-            line="84"
+            line="85"
             column="28"/>
     </issue>
 
@@ -1515,7 +1515,7 @@
         errorLine2="                                          ~~~~~~">
         <location
             file="src/main/java/androidx/slice/SliceItemHolder.java"
-            line="84"
+            line="85"
             column="43"/>
     </issue>
 
@@ -1526,7 +1526,7 @@
         errorLine2="           ~~~~~~">
         <location
             file="src/main/java/androidx/slice/SliceItemHolder.java"
-            line="120"
+            line="121"
             column="12"/>
     </issue>
 
@@ -1537,7 +1537,7 @@
         errorLine2="                         ~~~~~~">
         <location
             file="src/main/java/androidx/slice/SliceItemHolder.java"
-            line="120"
+            line="121"
             column="26"/>
     </issue>
 
@@ -1548,7 +1548,7 @@
         errorLine2="                    ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/SliceItemHolder.java"
-            line="152"
+            line="153"
             column="21"/>
     </issue>
 
@@ -1559,7 +1559,7 @@
         errorLine2="                                            ~~~~~~">
         <location
             file="src/main/java/androidx/slice/SliceItemHolder.java"
-            line="152"
+            line="153"
             column="45"/>
     </issue>
 
@@ -1570,7 +1570,7 @@
         errorLine2="               ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/SliceItemHolder.java"
-            line="165"
+            line="166"
             column="16"/>
     </issue>
 
@@ -1581,7 +1581,7 @@
         errorLine2="                            ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/SliceItemHolder.java"
-            line="175"
+            line="176"
             column="29"/>
     </issue>
 
@@ -1621,946 +1621,11 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public Object getWrapper() {"
-        errorLine2="           ~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/SliceProvider.java"
-            line="193"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    protected CompatPermissionManager onCreatePermissionManager("
-        errorLine2="              ~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/SliceProvider.java"
-            line="218"
-            column="15"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="            String[] autoGrantPermissions) {"
-        errorLine2="            ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/SliceProvider.java"
-            line="219"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public final String getType(Uri uri) {"
-        errorLine2="                 ~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/SliceProvider.java"
-            line="225"
-            column="18"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public final String getType(Uri uri) {"
-        errorLine2="                                ~~~">
-        <location
-            file="src/main/java/androidx/slice/SliceProvider.java"
-            line="225"
-            column="33"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public Bundle call(String method, String arg, Bundle extras) {"
-        errorLine2="           ~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/SliceProvider.java"
-            line="232"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public Bundle call(String method, String arg, Bundle extras) {"
-        errorLine2="                       ~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/SliceProvider.java"
-            line="232"
-            column="24"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public Bundle call(String method, String arg, Bundle extras) {"
-        errorLine2="                                      ~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/SliceProvider.java"
-            line="232"
-            column="39"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public Bundle call(String method, String arg, Bundle extras) {"
-        errorLine2="                                                  ~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/SliceProvider.java"
-            line="232"
-            column="51"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public Slice createPermissionSlice(Uri sliceUri, String callingPackage) {"
-        errorLine2="           ~~~~~">
-        <location
-            file="src/main/java/androidx/slice/SliceProvider.java"
-            line="261"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public Slice createPermissionSlice(Uri sliceUri, String callingPackage) {"
-        errorLine2="                                       ~~~">
-        <location
-            file="src/main/java/androidx/slice/SliceProvider.java"
-            line="261"
-            column="40"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public Slice createPermissionSlice(Uri sliceUri, String callingPackage) {"
-        errorLine2="                                                     ~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/SliceProvider.java"
-            line="261"
-            column="54"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public abstract Slice onBindSlice(Uri sliceUri);"
-        errorLine2="                    ~~~~~">
-        <location
-            file="src/main/java/androidx/slice/SliceProvider.java"
-            line="340"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public abstract Slice onBindSlice(Uri sliceUri);"
-        errorLine2="                                      ~~~">
-        <location
-            file="src/main/java/androidx/slice/SliceProvider.java"
-            line="340"
-            column="39"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void onSlicePinned(Uri sliceUri) {}"
-        errorLine2="                              ~~~">
-        <location
-            file="src/main/java/androidx/slice/SliceProvider.java"
-            line="361"
-            column="31"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void onSliceUnpinned(Uri sliceUri) {}"
-        errorLine2="                                ~~~">
-        <location
-            file="src/main/java/androidx/slice/SliceProvider.java"
-            line="372"
-            column="33"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void handleSlicePinned(Uri sliceUri) {"
-        errorLine2="                                  ~~~">
-        <location
-            file="src/main/java/androidx/slice/SliceProvider.java"
-            line="379"
-            column="35"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void handleSliceUnpinned(Uri sliceUri) {"
-        errorLine2="                                    ~~~">
-        <location
-            file="src/main/java/androidx/slice/SliceProvider.java"
-            line="391"
-            column="37"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public @NonNull Uri onMapIntentToUri(Intent intent) {"
-        errorLine2="                                         ~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/SliceProvider.java"
-            line="407"
-            column="42"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public Collection&lt;Uri> onGetSliceDescendants(Uri uri) {"
-        errorLine2="           ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/SliceProvider.java"
-            line="423"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public Collection&lt;Uri> onGetSliceDescendants(Uri uri) {"
-        errorLine2="                                                 ~~~">
-        <location
-            file="src/main/java/androidx/slice/SliceProvider.java"
-            line="423"
-            column="50"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static void setSpecs(Set&lt;SliceSpec> specs) {"
-        errorLine2="                                ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/SliceProvider.java"
-            line="503"
-            column="33"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static Set&lt;SliceSpec> getCurrentSpecs() {"
-        errorLine2="                  ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/SliceProvider.java"
-            line="512"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static void setClock(Clock clock) {"
-        errorLine2="                                ~~~~~">
-        <location
-            file="src/main/java/androidx/slice/SliceProvider.java"
-            line="521"
-            column="33"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static Clock getClock() {"
-        errorLine2="                  ~~~~~">
-        <location
-            file="src/main/java/androidx/slice/SliceProvider.java"
-            line="530"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public SliceProviderCompat(SliceProvider provider, CompatPermissionManager permissionManager,"
-        errorLine2="                               ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/compat/SliceProviderCompat.java"
-            line="111"
-            column="32"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public SliceProviderCompat(SliceProvider provider, CompatPermissionManager permissionManager,"
-        errorLine2="                                                       ~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/compat/SliceProviderCompat.java"
-            line="111"
-            column="56"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="            Context context) {"
-        errorLine2="            ~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/compat/SliceProviderCompat.java"
-            line="112"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public String getCallingPackage() {"
-        errorLine2="           ~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/compat/SliceProviderCompat.java"
-            line="134"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public Bundle call(String method, String arg, Bundle extras) {"
-        errorLine2="           ~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/compat/SliceProviderCompat.java"
-            line="141"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public Bundle call(String method, String arg, Bundle extras) {"
-        errorLine2="                       ~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/compat/SliceProviderCompat.java"
-            line="141"
-            column="24"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public Bundle call(String method, String arg, Bundle extras) {"
-        errorLine2="                                      ~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/compat/SliceProviderCompat.java"
-            line="141"
-            column="39"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public Bundle call(String method, String arg, Bundle extras) {"
-        errorLine2="                                                  ~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/compat/SliceProviderCompat.java"
-            line="141"
-            column="51"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static Slice bindSlice(Context context, Uri uri,"
-        errorLine2="                  ~~~~~">
-        <location
-            file="src/main/java/androidx/slice/compat/SliceProviderCompat.java"
-            line="312"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static Slice bindSlice(Context context, Uri uri,"
-        errorLine2="                                  ~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/compat/SliceProviderCompat.java"
-            line="312"
-            column="35"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static Slice bindSlice(Context context, Uri uri,"
-        errorLine2="                                                   ~~~">
-        <location
-            file="src/main/java/androidx/slice/compat/SliceProviderCompat.java"
-            line="312"
-            column="52"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="            Set&lt;SliceSpec> supportedSpecs) {"
-        errorLine2="            ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/compat/SliceProviderCompat.java"
-            line="313"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static void addSpecs(Bundle extras, Set&lt;SliceSpec> supportedSpecs) {"
-        errorLine2="                                ~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/compat/SliceProviderCompat.java"
-            line="336"
-            column="33"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static void addSpecs(Bundle extras, Set&lt;SliceSpec> supportedSpecs) {"
-        errorLine2="                                               ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/compat/SliceProviderCompat.java"
-            line="336"
-            column="48"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static Set&lt;SliceSpec> getSpecs(Bundle extras) {"
-        errorLine2="                  ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/compat/SliceProviderCompat.java"
-            line="350"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static Set&lt;SliceSpec> getSpecs(Bundle extras) {"
-        errorLine2="                                          ~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/compat/SliceProviderCompat.java"
-            line="350"
-            column="43"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static Slice bindSlice(Context context, Intent intent,"
-        errorLine2="                  ~~~~~">
-        <location
-            file="src/main/java/androidx/slice/compat/SliceProviderCompat.java"
-            line="365"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static Slice bindSlice(Context context, Intent intent,"
-        errorLine2="                                  ~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/compat/SliceProviderCompat.java"
-            line="365"
-            column="35"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static Slice bindSlice(Context context, Intent intent,"
-        errorLine2="                                                   ~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/compat/SliceProviderCompat.java"
-            line="365"
-            column="52"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="            Set&lt;SliceSpec> supportedSpecs) {"
-        errorLine2="            ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/compat/SliceProviderCompat.java"
-            line="366"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static void pinSlice(Context context, Uri uri,"
-        errorLine2="                                ~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/compat/SliceProviderCompat.java"
-            line="456"
-            column="33"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static void pinSlice(Context context, Uri uri,"
-        errorLine2="                                                 ~~~">
-        <location
-            file="src/main/java/androidx/slice/compat/SliceProviderCompat.java"
-            line="456"
-            column="50"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="            Set&lt;SliceSpec> supportedSpecs) {"
-        errorLine2="            ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/compat/SliceProviderCompat.java"
-            line="457"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static void unpinSlice(Context context, Uri uri,"
-        errorLine2="                                  ~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/compat/SliceProviderCompat.java"
-            line="478"
-            column="35"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static void unpinSlice(Context context, Uri uri,"
-        errorLine2="                                                   ~~~">
-        <location
-            file="src/main/java/androidx/slice/compat/SliceProviderCompat.java"
-            line="478"
-            column="52"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="            Set&lt;SliceSpec> supportedSpecs) {"
-        errorLine2="            ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/compat/SliceProviderCompat.java"
-            line="479"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static Set&lt;SliceSpec> getPinnedSpecs(Context context, Uri uri) {"
-        errorLine2="                  ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/compat/SliceProviderCompat.java"
-            line="502"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static Set&lt;SliceSpec> getPinnedSpecs(Context context, Uri uri) {"
-        errorLine2="                                                ~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/compat/SliceProviderCompat.java"
-            line="502"
-            column="49"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static Set&lt;SliceSpec> getPinnedSpecs(Context context, Uri uri) {"
-        errorLine2="                                                                 ~~~">
-        <location
-            file="src/main/java/androidx/slice/compat/SliceProviderCompat.java"
-            line="502"
-            column="66"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static Uri mapIntentToUri(Context context, Intent intent) {"
-        errorLine2="                  ~~~">
-        <location
-            file="src/main/java/androidx/slice/compat/SliceProviderCompat.java"
-            line="526"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static Uri mapIntentToUri(Context context, Intent intent) {"
-        errorLine2="                                     ~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/compat/SliceProviderCompat.java"
-            line="526"
-            column="38"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static Uri mapIntentToUri(Context context, Intent intent) {"
-        errorLine2="                                                      ~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/compat/SliceProviderCompat.java"
-            line="526"
-            column="55"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static @NonNull Collection&lt;Uri> getSliceDescendants(Context context, @NonNull Uri uri) {"
-        errorLine2="                                                               ~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/compat/SliceProviderCompat.java"
-            line="580"
-            column="64"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static int checkSlicePermission(Context context, String packageName, Uri uri, int pid,"
-        errorLine2="                                           ~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/compat/SliceProviderCompat.java"
-            line="599"
-            column="44"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static int checkSlicePermission(Context context, String packageName, Uri uri, int pid,"
-        errorLine2="                                                            ~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/compat/SliceProviderCompat.java"
-            line="599"
-            column="61"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static int checkSlicePermission(Context context, String packageName, Uri uri, int pid,"
-        errorLine2="                                                                                ~~~">
-        <location
-            file="src/main/java/androidx/slice/compat/SliceProviderCompat.java"
-            line="599"
-            column="81"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static void grantSlicePermission(Context context, String packageName, String toPackage,"
-        errorLine2="                                            ~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/compat/SliceProviderCompat.java"
-            line="623"
-            column="45"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static void grantSlicePermission(Context context, String packageName, String toPackage,"
-        errorLine2="                                                             ~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/compat/SliceProviderCompat.java"
-            line="623"
-            column="62"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static void grantSlicePermission(Context context, String packageName, String toPackage,"
-        errorLine2="                                                                                 ~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/compat/SliceProviderCompat.java"
-            line="623"
-            column="82"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="            Uri uri) {"
-        errorLine2="            ~~~">
-        <location
-            file="src/main/java/androidx/slice/compat/SliceProviderCompat.java"
-            line="624"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static void revokeSlicePermission(Context context, String packageName, String toPackage,"
-        errorLine2="                                             ~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/compat/SliceProviderCompat.java"
-            line="642"
-            column="46"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static void revokeSlicePermission(Context context, String packageName, String toPackage,"
-        errorLine2="                                                              ~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/compat/SliceProviderCompat.java"
-            line="642"
-            column="63"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static void revokeSlicePermission(Context context, String packageName, String toPackage,"
-        errorLine2="                                                                                  ~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/compat/SliceProviderCompat.java"
-            line="642"
-            column="83"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="            Uri uri) {"
-        errorLine2="            ~~~">
-        <location
-            file="src/main/java/androidx/slice/compat/SliceProviderCompat.java"
-            line="643"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static List&lt;Uri> getPinnedSlices(Context context) {"
-        errorLine2="                  ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/compat/SliceProviderCompat.java"
-            line="661"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static List&lt;Uri> getPinnedSlices(Context context) {"
-        errorLine2="                                            ~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/compat/SliceProviderCompat.java"
-            line="661"
-            column="45"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void attachInfo(Context context, ProviderInfo info) {"
-        errorLine2="                           ~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/SliceProviderWithCallbacks.java"
-            line="52"
-            column="28"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void attachInfo(Context context, ProviderInfo info) {"
-        errorLine2="                                            ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/SliceProviderWithCallbacks.java"
-            line="52"
-            column="45"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public Bundle call(String method, String arg, Bundle extras) {"
-        errorLine2="           ~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/SliceProviderWithCallbacks.java"
-            line="58"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public Bundle call(String method, String arg, Bundle extras) {"
-        errorLine2="                       ~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/SliceProviderWithCallbacks.java"
-            line="58"
-            column="24"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public Bundle call(String method, String arg, Bundle extras) {"
-        errorLine2="                                      ~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/SliceProviderWithCallbacks.java"
-            line="58"
-            column="39"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public Bundle call(String method, String arg, Bundle extras) {"
-        errorLine2="                                                  ~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/SliceProviderWithCallbacks.java"
-            line="58"
-            column="51"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public T createRemoteCallback(Context context) {"
-        errorLine2="           ~">
-        <location
-            file="src/main/java/androidx/slice/SliceProviderWithCallbacks.java"
-            line="67"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public T createRemoteCallback(Context context) {"
-        errorLine2="                                  ~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/SliceProviderWithCallbacks.java"
-            line="67"
-            column="35"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public RemoteCallback toRemoteCallback(Class&lt;T> cls, Context context, String authority,"
-        errorLine2="           ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/SliceProviderWithCallbacks.java"
-            line="78"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public RemoteCallback toRemoteCallback(Class&lt;T> cls, Context context, String authority,"
-        errorLine2="                                           ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/SliceProviderWithCallbacks.java"
-            line="78"
-            column="44"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public RemoteCallback toRemoteCallback(Class&lt;T> cls, Context context, String authority,"
-        errorLine2="                                                         ~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/SliceProviderWithCallbacks.java"
-            line="78"
-            column="58"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public RemoteCallback toRemoteCallback(Class&lt;T> cls, Context context, String authority,"
-        errorLine2="                                                                          ~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/SliceProviderWithCallbacks.java"
-            line="78"
-            column="75"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="            Bundle args, String method) {"
-        errorLine2="            ~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/SliceProviderWithCallbacks.java"
-            line="79"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="            Bundle args, String method) {"
-        errorLine2="                         ~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/SliceProviderWithCallbacks.java"
-            line="79"
-            column="26"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="        public SliceProviderWrapper(androidx.slice.SliceProvider provider,"
         errorLine2="                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/compat/SliceProviderWrapperContainer.java"
-            line="67"
+            line="64"
             column="37"/>
     </issue>
 
@@ -2571,7 +1636,7 @@
         errorLine2="                ~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/compat/SliceProviderWrapperContainer.java"
-            line="68"
+            line="65"
             column="17"/>
     </issue>
 
@@ -2582,7 +1647,7 @@
         errorLine2="                               ~~~~~~~">
         <location
             file="src/main/java/androidx/slice/compat/SliceProviderWrapperContainer.java"
-            line="76"
+            line="73"
             column="32"/>
     </issue>
 
@@ -2593,7 +1658,7 @@
         errorLine2="                                                ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/compat/SliceProviderWrapperContainer.java"
-            line="76"
+            line="73"
             column="49"/>
     </issue>
 
@@ -2604,7 +1669,7 @@
         errorLine2="               ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/compat/SliceProviderWrapperContainer.java"
-            line="88"
+            line="85"
             column="16"/>
     </issue>
 
@@ -2615,7 +1680,7 @@
         errorLine2="                                                       ~~~">
         <location
             file="src/main/java/androidx/slice/compat/SliceProviderWrapperContainer.java"
-            line="88"
+            line="85"
             column="56"/>
     </issue>
 
@@ -2626,7 +1691,7 @@
         errorLine2="               ~~~~~~">
         <location
             file="src/main/java/androidx/slice/compat/SliceProviderWrapperContainer.java"
-            line="101"
+            line="98"
             column="16"/>
     </issue>
 
@@ -2637,7 +1702,7 @@
         errorLine2="                           ~~~~~~">
         <location
             file="src/main/java/androidx/slice/compat/SliceProviderWrapperContainer.java"
-            line="101"
+            line="98"
             column="28"/>
     </issue>
 
@@ -2648,7 +1713,7 @@
         errorLine2="                                          ~~~~~~">
         <location
             file="src/main/java/androidx/slice/compat/SliceProviderWrapperContainer.java"
-            line="101"
+            line="98"
             column="43"/>
     </issue>
 
@@ -2659,7 +1724,7 @@
         errorLine2="                                                      ~~~~~~">
         <location
             file="src/main/java/androidx/slice/compat/SliceProviderWrapperContainer.java"
-            line="101"
+            line="98"
             column="55"/>
     </issue>
 
@@ -2670,7 +1735,7 @@
         errorLine2="               ~~~~~">
         <location
             file="src/main/java/androidx/slice/compat/SliceProviderWrapperContainer.java"
-            line="144"
+            line="139"
             column="16"/>
     </issue>
 
@@ -2681,7 +1746,7 @@
         errorLine2="                                 ~~~">
         <location
             file="src/main/java/androidx/slice/compat/SliceProviderWrapperContainer.java"
-            line="144"
+            line="139"
             column="34"/>
     </issue>
 
@@ -2692,7 +1757,7 @@
         errorLine2="                                               ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/compat/SliceProviderWrapperContainer.java"
-            line="144"
+            line="139"
             column="48"/>
     </issue>
 
@@ -2703,7 +1768,7 @@
         errorLine2="                                  ~~~">
         <location
             file="src/main/java/androidx/slice/compat/SliceProviderWrapperContainer.java"
-            line="157"
+            line="152"
             column="35"/>
     </issue>
 
@@ -2714,7 +1779,7 @@
         errorLine2="                                    ~~~">
         <location
             file="src/main/java/androidx/slice/compat/SliceProviderWrapperContainer.java"
-            line="163"
+            line="158"
             column="37"/>
     </issue>
 
@@ -2725,7 +1790,7 @@
         errorLine2="               ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/compat/SliceProviderWrapperContainer.java"
-            line="169"
+            line="164"
             column="16"/>
     </issue>
 
@@ -2736,7 +1801,7 @@
         errorLine2="                                                     ~~~">
         <location
             file="src/main/java/androidx/slice/compat/SliceProviderWrapperContainer.java"
-            line="169"
+            line="164"
             column="54"/>
     </issue>
 
@@ -2747,7 +1812,7 @@
         errorLine2="                                             ~~~~~~">
         <location
             file="src/main/java/androidx/slice/compat/SliceProviderWrapperContainer.java"
-            line="177"
+            line="172"
             column="46"/>
     </issue>
 

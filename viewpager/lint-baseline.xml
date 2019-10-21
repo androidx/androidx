@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 3.5.0-beta04" client="gradle" variant="debug" version="3.5.0-beta04">
+<issues format="5" by="lint 3.6.0-beta01" client="gradle" variant="debug" version="3.6.0-beta01">
 
     <issue
         id="LambdaLast"
@@ -19,7 +19,7 @@
         errorLine2="                                      ~~~~~~~~">
         <location
             file="src/main/java/androidx/viewpager/widget/PagerTabStrip.java"
-            line="174"
+            line="172"
             column="39"/>
     </issue>
 
@@ -30,7 +30,7 @@
         errorLine2="                                ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/viewpager/widget/PagerTabStrip.java"
-            line="226"
+            line="224"
             column="33"/>
     </issue>
 
@@ -41,7 +41,7 @@
         errorLine2="                          ~~~~~~">
         <location
             file="src/main/java/androidx/viewpager/widget/PagerTabStrip.java"
-            line="263"
+            line="261"
             column="27"/>
     </issue>
 

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 3.6.0-alpha12" client="gradle" variant="debug" version="3.6.0-alpha12">
+<issues format="5" by="lint 3.6.0-beta01" client="gradle" variant="debug" version="3.6.0-beta01">
 
     <issue
         id="KotlinPropertyAccess"
@@ -139,28 +139,6 @@
             file="src/main/java/androidx/work/impl/OperationImpl.java"
             line="61"
             column="17"/>
-    </issue>
-
-    <issue
-        id="KotlinPropertyAccess"
-        message="This method should be called `getNeedsReschedule` such that `needsReschedule` can be accessed as a property from Kotlin; see https://android.github.io/kotlin-guides/interop.html#property-prefixes"
-        errorLine1="    public boolean needsReschedule() {"
-        errorLine2="                   ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/utils/Preferences.java"
-            line="82"
-            column="20"/>
-    </issue>
-
-    <issue
-        id="KotlinPropertyAccess"
-        message="This method should be called `getNeedsReschedule` such that `needsReschedule` can be accessed as a property from Kotlin; see https://android.github.io/kotlin-guides/interop.html#property-prefixes"
-        errorLine1="    public boolean needsReschedule() {"
-        errorLine2="                   ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/utils/Preferences.java"
-            line="82"
-            column="20"/>
     </issue>
 
     <issue
@@ -662,7 +640,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/utils/CancelWorkRunnable.java"
-            line="112"
+            line="113"
             column="19"/>
     </issue>
 
@@ -673,7 +651,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/utils/CancelWorkRunnable.java"
-            line="112"
+            line="113"
             column="19"/>
     </issue>
 
@@ -684,7 +662,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/utils/CancelWorkRunnable.java"
-            line="139"
+            line="140"
             column="19"/>
     </issue>
 
@@ -695,7 +673,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/utils/CancelWorkRunnable.java"
-            line="139"
+            line="140"
             column="19"/>
     </issue>
 
@@ -706,7 +684,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/utils/CancelWorkRunnable.java"
-            line="171"
+            line="172"
             column="19"/>
     </issue>
 
@@ -717,7 +695,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/utils/CancelWorkRunnable.java"
-            line="171"
+            line="172"
             column="19"/>
     </issue>
 
@@ -728,7 +706,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/utils/CancelWorkRunnable.java"
-            line="205"
+            line="206"
             column="19"/>
     </issue>
 
@@ -739,7 +717,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/utils/CancelWorkRunnable.java"
-            line="205"
+            line="206"
             column="19"/>
     </issue>
 
@@ -1102,7 +1080,7 @@
         errorLine2="                              ~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/utils/ForceStopRunnable.java"
-            line="217"
+            line="220"
             column="31"/>
     </issue>
 
@@ -1113,7 +1091,7 @@
         errorLine2="                              ~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/utils/ForceStopRunnable.java"
-            line="217"
+            line="220"
             column="31"/>
     </issue>
 
@@ -1124,7 +1102,7 @@
         errorLine2="                                               ~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/utils/ForceStopRunnable.java"
-            line="217"
+            line="220"
             column="48"/>
     </issue>
 
@@ -1135,30 +1113,8 @@
         errorLine2="                                               ~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/utils/ForceStopRunnable.java"
-            line="217"
+            line="220"
             column="48"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public IdGenerator(Context context) {"
-        errorLine2="                       ~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/utils/IdGenerator.java"
-            line="50"
-            column="24"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public IdGenerator(Context context) {"
-        errorLine2="                       ~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/utils/IdGenerator.java"
-            line="50"
-            column="24"/>
     </issue>
 
     <issue
@@ -2198,28 +2154,6 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public LiveData&lt;Long> getLastCancelAllTimeMillisLiveData() {"
-        errorLine2="           ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/utils/Preferences.java"
-            line="66"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public LiveData&lt;Long> getLastCancelAllTimeMillisLiveData() {"
-        errorLine2="           ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/utils/Preferences.java"
-            line="66"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    public PruneWorkRunnable(WorkManagerImpl workManagerImpl) {"
         errorLine2="                             ~~~~~~~~~~~~~~~">
         <location
@@ -2664,7 +2598,7 @@
         errorLine2="            ~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/background/systemjob/SystemJobScheduler.java"
-            line="73"
+            line="72"
             column="13"/>
     </issue>
 
@@ -2675,6 +2609,17 @@
         errorLine2="            ~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/background/systemjob/SystemJobScheduler.java"
+            line="72"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            WorkManagerImpl workManager,"
+        errorLine2="            ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/work/impl/background/systemjob/SystemJobScheduler.java"
             line="73"
             column="13"/>
     </issue>
@@ -2686,15 +2631,15 @@
         errorLine2="            ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/background/systemjob/SystemJobScheduler.java"
-            line="74"
+            line="73"
             column="13"/>
     </issue>
 
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="            WorkManagerImpl workManager,"
-        errorLine2="            ~~~~~~~~~~~~~~~">
+        errorLine1="            JobScheduler jobScheduler,"
+        errorLine2="            ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/background/systemjob/SystemJobScheduler.java"
             line="74"
@@ -2708,15 +2653,15 @@
         errorLine2="            ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/background/systemjob/SystemJobScheduler.java"
-            line="75"
+            line="74"
             column="13"/>
     </issue>
 
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="            JobScheduler jobScheduler,"
-        errorLine2="            ~~~~~~~~~~~~">
+        errorLine1="            SystemJobInfoConverter systemJobInfoConverter) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/background/systemjob/SystemJobScheduler.java"
             line="75"
@@ -2730,18 +2675,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/background/systemjob/SystemJobScheduler.java"
-            line="76"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="            SystemJobInfoConverter systemJobInfoConverter) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/background/systemjob/SystemJobScheduler.java"
-            line="76"
+            line="75"
             column="13"/>
     </issue>
 
@@ -2752,7 +2686,7 @@
         errorLine2="                                 ~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/background/systemjob/SystemJobScheduler.java"
-            line="176"
+            line="175"
             column="34"/>
     </issue>
 
@@ -2763,7 +2697,7 @@
         errorLine2="                                 ~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/background/systemjob/SystemJobScheduler.java"
-            line="176"
+            line="175"
             column="34"/>
     </issue>
 
@@ -4556,7 +4490,7 @@
         errorLine2="               ~~~~~~~">
         <location
             file="src/main/java/androidx/work/WorkerParameters.java"
-            line="197"
+            line="208"
             column="16"/>
     </issue>
 
@@ -4567,7 +4501,7 @@
         errorLine2="               ~~~~~~~">
         <location
             file="src/main/java/androidx/work/WorkerParameters.java"
-            line="197"
+            line="208"
             column="16"/>
     </issue>
 
@@ -4578,7 +4512,7 @@
         errorLine2="               ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/WorkerWrapper.java"
-            line="714"
+            line="688"
             column="16"/>
     </issue>
 
@@ -4589,7 +4523,7 @@
         errorLine2="               ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/WorkerWrapper.java"
-            line="714"
+            line="688"
             column="16"/>
     </issue>
 

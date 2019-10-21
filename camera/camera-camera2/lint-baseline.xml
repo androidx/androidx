@@ -1,93 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 3.5.0-beta04" client="gradle" variant="debug" version="3.5.0-beta04">
-
-    <issue
-        id="LambdaLast"
-        message="Functional interface parameters (such as parameter 3, &quot;executor&quot;, in androidx.camera.camera2.impl.compat.CameraCaptureSessionCompat.captureBurstRequests) should be last to improve Kotlin interoperability; see https://kotlinlang.org/docs/reference/java-interop.html#sam-conversions"
-        errorLine1="            @NonNull CameraCaptureSession.CaptureCallback callback)"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/camera2/impl/compat/CameraCaptureSessionCompat.java"
-            line="102"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="LambdaLast"
-        message="Functional interface parameters (such as parameter 3, &quot;executor&quot;, in androidx.camera.camera2.impl.compat.CameraCaptureSessionCompat.captureSingleRequest) should be last to improve Kotlin interoperability; see https://kotlinlang.org/docs/reference/java-interop.html#sam-conversions"
-        errorLine1="            @NonNull CameraCaptureSession.CaptureCallback callback)"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/camera2/impl/compat/CameraCaptureSessionCompat.java"
-            line="148"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="LambdaLast"
-        message="Functional interface parameters (such as parameter 3, &quot;executor&quot;, in androidx.camera.camera2.impl.compat.CameraCaptureSessionCompat.setRepeatingBurstRequests) should be last to improve Kotlin interoperability; see https://kotlinlang.org/docs/reference/java-interop.html#sam-conversions"
-        errorLine1="            @NonNull CameraCaptureSession.CaptureCallback callback)"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/camera2/impl/compat/CameraCaptureSessionCompat.java"
-            line="193"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="LambdaLast"
-        message="Functional interface parameters (such as parameter 3, &quot;executor&quot;, in androidx.camera.camera2.impl.compat.CameraCaptureSessionCompat.setSingleRepeatingRequest) should be last to improve Kotlin interoperability; see https://kotlinlang.org/docs/reference/java-interop.html#sam-conversions"
-        errorLine1="            @NonNull CameraCaptureSession.CaptureCallback callback)"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/camera2/impl/compat/CameraCaptureSessionCompat.java"
-            line="235"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="LambdaLast"
-        message="Functional interface parameters (such as parameter 2, &quot;executor&quot;, in androidx.camera.camera2.impl.compat.CameraManagerCompat.openCamera) should be last to improve Kotlin interoperability; see https://kotlinlang.org/docs/reference/java-interop.html#sam-conversions"
-        errorLine1="            @NonNull CameraDevice.StateCallback callback)"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/camera2/impl/compat/CameraManagerCompat.java"
-            line="78"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="LambdaLast"
-        message="Functional interface parameters (such as parameter 3, &quot;executor&quot;, in androidx.camera.camera2.impl.compat.params.SessionConfigurationCompat.SessionConfigurationCompat) should be last to improve Kotlin interoperability; see https://kotlinlang.org/docs/reference/java-interop.html#sam-conversions"
-        errorLine1="            @NonNull CameraCaptureSession.StateCallback cb) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/camera2/impl/compat/params/SessionConfigurationCompat.java"
-            line="86"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static AppConfig create(Context context) {"
-        errorLine2="                  ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/camera2/Camera2AppConfig.java"
-            line="53"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static AppConfig create(Context context) {"
-        errorLine2="                                   ~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/camera2/Camera2AppConfig.java"
-            line="53"
-            column="36"/>
-    </issue>
+<issues format="5" by="lint 3.6.0-beta01" client="gradle" variant="debug" version="3.6.0-beta01">
 
     <issue
         id="UnknownNullness"
@@ -109,358 +21,6 @@
             file="src/main/java/androidx/camera/camera2/impl/Camera2CameraCaptureResultConverter.java"
             line="36"
             column="50"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void setCropRegion(final Rect crop) {"
-        errorLine2="                                    ~~~~">
-        <location
-            file="src/main/java/androidx/camera/camera2/impl/Camera2CameraControl.java"
-            line="108"
-            column="37"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="            final Rect focus,"
-        errorLine2="                  ~~~~">
-        <location
-            file="src/main/java/androidx/camera/camera2/impl/Camera2CameraControl.java"
-            line="126"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="            final Rect metering,"
-        errorLine2="                  ~~~~">
-        <location
-            file="src/main/java/androidx/camera/camera2/impl/Camera2CameraControl.java"
-            line="127"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void focus(Rect focus, Rect metering) {"
-        errorLine2="                      ~~~~">
-        <location
-            file="src/main/java/androidx/camera/camera2/impl/Camera2CameraControl.java"
-            line="209"
-            column="23"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void focus(Rect focus, Rect metering) {"
-        errorLine2="                                  ~~~~">
-        <location
-            file="src/main/java/androidx/camera/camera2/impl/Camera2CameraControl.java"
-            line="209"
-            column="35"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public FlashMode getFlashMode() {"
-        errorLine2="           ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/camera2/impl/Camera2CameraControl.java"
-            line="255"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void setFlashMode(FlashMode flashMode) {"
-        errorLine2="                             ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/camera2/impl/Camera2CameraControl.java"
-            line="261"
-            column="30"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void submitCaptureRequests(final List&lt;CaptureConfig> captureConfigs) {"
-        errorLine2="                                            ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/camera2/impl/Camera2CameraControl.java"
-            line="433"
-            column="45"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static CameraCaptureSession.CaptureCallback createNoOpCallback() {"
-        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/camera2/impl/Camera2CaptureCallbacks.java"
-            line="46"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static CameraCaptureSession.CaptureCallback createComboCallback("
-        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/camera2/impl/Camera2CaptureCallbacks.java"
-            line="57"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="            CameraCaptureSession.CaptureCallback... callbacks) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/camera2/impl/Camera2CaptureCallbacks.java"
-            line="58"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public Camera2DeviceSurfaceManager(Context context) {"
-        errorLine2="                                       ~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/camera2/impl/Camera2DeviceSurfaceManager.java"
-            line="58"
-            column="40"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="            String cameraId, List&lt;SurfaceConfig> surfaceConfigList) {"
-        errorLine2="            ~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/camera2/impl/Camera2DeviceSurfaceManager.java"
-            line="82"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="            String cameraId, List&lt;SurfaceConfig> surfaceConfigList) {"
-        errorLine2="                             ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/camera2/impl/Camera2DeviceSurfaceManager.java"
-            line="82"
-            column="30"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public SurfaceConfig transformSurfaceConfig(String cameraId, int imageFormat, Size size) {"
-        errorLine2="           ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/camera2/impl/Camera2DeviceSurfaceManager.java"
-            line="112"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public SurfaceConfig transformSurfaceConfig(String cameraId, int imageFormat, Size size) {"
-        errorLine2="                                                ~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/camera2/impl/Camera2DeviceSurfaceManager.java"
-            line="112"
-            column="49"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public SurfaceConfig transformSurfaceConfig(String cameraId, int imageFormat, Size size) {"
-        errorLine2="                                                                                  ~~~~">
-        <location
-            file="src/main/java/androidx/camera/camera2/impl/Camera2DeviceSurfaceManager.java"
-            line="112"
-            column="83"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public Map&lt;UseCase, Size> getSuggestedResolutions("
-        errorLine2="           ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/camera2/impl/Camera2DeviceSurfaceManager.java"
-            line="139"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="            String cameraId, List&lt;UseCase> originalUseCases, List&lt;UseCase> newUseCases) {"
-        errorLine2="            ~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/camera2/impl/Camera2DeviceSurfaceManager.java"
-            line="140"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="            String cameraId, List&lt;UseCase> originalUseCases, List&lt;UseCase> newUseCases) {"
-        errorLine2="                             ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/camera2/impl/Camera2DeviceSurfaceManager.java"
-            line="140"
-            column="30"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="            String cameraId, List&lt;UseCase> originalUseCases, List&lt;UseCase> newUseCases) {"
-        errorLine2="                                                             ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/camera2/impl/Camera2DeviceSurfaceManager.java"
-            line="140"
-            column="62"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public Size getMaxOutputSize(String cameraId, int imageFormat) {"
-        errorLine2="           ~~~~">
-        <location
-            file="src/main/java/androidx/camera/camera2/impl/Camera2DeviceSurfaceManager.java"
-            line="216"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public Size getMaxOutputSize(String cameraId, int imageFormat) {"
-        errorLine2="                                 ~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/camera2/impl/Camera2DeviceSurfaceManager.java"
-            line="216"
-            column="34"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public Size getPreviewSize() {"
-        errorLine2="           ~~~~">
-        <location
-            file="src/main/java/androidx/camera/camera2/impl/Camera2DeviceSurfaceManager.java"
-            line="238"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="            Uri uri,"
-        errorLine2="            ~~~">
-        <location
-            file="src/main/java/androidx/camera/camera2/impl/Camera2Initializer.java"
-            line="51"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public String getType(Uri uri) {"
-        errorLine2="                          ~~~">
-        <location
-            file="src/main/java/androidx/camera/camera2/impl/Camera2Initializer.java"
-            line="61"
-            column="27"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public Uri insert(Uri uri, @Nullable ContentValues contentValues) {"
-        errorLine2="                      ~~~">
-        <location
-            file="src/main/java/androidx/camera/camera2/impl/Camera2Initializer.java"
-            line="67"
-            column="23"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public int delete(Uri uri, @Nullable String s, @Nullable String[] strings) {"
-        errorLine2="                      ~~~">
-        <location
-            file="src/main/java/androidx/camera/camera2/impl/Camera2Initializer.java"
-            line="72"
-            column="23"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="            Uri uri,"
-        errorLine2="            ~~~">
-        <location
-            file="src/main/java/androidx/camera/camera2/impl/Camera2Initializer.java"
-            line="78"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="            CameraCaptureSession session, CaptureRequest request, Surface surface, long frame) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/camera2/impl/CameraBurstCaptureCallback.java"
-            line="56"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="            CameraCaptureSession session, CaptureRequest request, Surface surface, long frame) {"
-        errorLine2="                                          ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/camera2/impl/CameraBurstCaptureCallback.java"
-            line="56"
-            column="43"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="            CameraCaptureSession session, CaptureRequest request, Surface surface, long frame) {"
-        errorLine2="                                                                  ~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/camera2/impl/CameraBurstCaptureCallback.java"
-            line="56"
-            column="67"/>
     </issue>
 
     <issue
@@ -521,44 +81,11 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public ComboCameraEventCallback createComboCallback() {"
-        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/camera2/impl/CameraEventCallbacks.java"
-            line="43"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static CameraEventCallbacks createEmptyCallback() {"
-        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/camera2/impl/CameraEventCallbacks.java"
-            line="48"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public MultiValueSet&lt;CameraEventCallback> clone() {"
-        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/camera2/impl/CameraEventCallbacks.java"
-            line="53"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="        public List&lt;CaptureConfig> onPresetSession() {"
         errorLine2="               ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/camera2/impl/CameraEventCallbacks.java"
-            line="78"
+            line="81"
             column="16"/>
     </issue>
 
@@ -569,7 +96,7 @@
         errorLine2="               ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/camera2/impl/CameraEventCallbacks.java"
-            line="95"
+            line="101"
             column="16"/>
     </issue>
 
@@ -580,7 +107,7 @@
         errorLine2="               ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/camera2/impl/CameraEventCallbacks.java"
-            line="112"
+            line="119"
             column="16"/>
     </issue>
 
@@ -591,7 +118,7 @@
         errorLine2="               ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/camera2/impl/CameraEventCallbacks.java"
-            line="129"
+            line="137"
             column="16"/>
     </issue>
 
@@ -602,7 +129,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/camera2/impl/compat/CameraManagerCompat.java"
-            line="45"
+            line="46"
             column="19"/>
     </issue>
 
@@ -613,7 +140,7 @@
         errorLine2="                                           ~~~~~~~">
         <location
             file="src/main/java/androidx/camera/camera2/impl/compat/CameraManagerCompat.java"
-            line="45"
+            line="46"
             column="44"/>
     </issue>
 
@@ -624,7 +151,7 @@
         errorLine2="                                       ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/camera2/impl/ImageAnalysisConfigProvider.java"
-            line="52"
+            line="49"
             column="40"/>
     </issue>
 
@@ -635,7 +162,7 @@
         errorLine2="                                                                    ~~~~~~~">
         <location
             file="src/main/java/androidx/camera/camera2/impl/ImageAnalysisConfigProvider.java"
-            line="52"
+            line="49"
             column="69"/>
     </issue>
 
@@ -646,7 +173,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/camera2/impl/ImageAnalysisConfigProvider.java"
-            line="58"
+            line="55"
             column="12"/>
     </issue>
 
@@ -657,7 +184,7 @@
         errorLine2="                                         ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/camera2/impl/ImageAnalysisConfigProvider.java"
-            line="58"
+            line="55"
             column="42"/>
     </issue>
 
@@ -668,7 +195,7 @@
         errorLine2="                                      ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/camera2/impl/ImageCaptureConfigProvider.java"
-            line="52"
+            line="49"
             column="39"/>
     </issue>
 
@@ -679,7 +206,7 @@
         errorLine2="                                                                   ~~~~~~~">
         <location
             file="src/main/java/androidx/camera/camera2/impl/ImageCaptureConfigProvider.java"
-            line="52"
+            line="49"
             column="68"/>
     </issue>
 
@@ -690,7 +217,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/camera2/impl/ImageCaptureConfigProvider.java"
-            line="58"
+            line="55"
             column="12"/>
     </issue>
 
@@ -701,7 +228,7 @@
         errorLine2="                                        ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/camera2/impl/ImageCaptureConfigProvider.java"
-            line="58"
+            line="55"
             column="41"/>
     </issue>
 
@@ -712,7 +239,7 @@
         errorLine2="                                 ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/camera2/impl/PreviewConfigProvider.java"
-            line="48"
+            line="49"
             column="34"/>
     </issue>
 
@@ -723,7 +250,7 @@
         errorLine2="                                                              ~~~~~~~">
         <location
             file="src/main/java/androidx/camera/camera2/impl/PreviewConfigProvider.java"
-            line="48"
+            line="49"
             column="63"/>
     </issue>
 
@@ -734,7 +261,7 @@
         errorLine2="           ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/camera2/impl/PreviewConfigProvider.java"
-            line="54"
+            line="55"
             column="12"/>
     </issue>
 
@@ -745,7 +272,7 @@
         errorLine2="                                   ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/camera2/impl/PreviewConfigProvider.java"
-            line="54"
+            line="55"
             column="36"/>
     </issue>
 
@@ -756,7 +283,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/camera2/impl/compat/params/SessionConfigurationCompat.java"
-            line="138"
+            line="137"
             column="19"/>
     </issue>
 
@@ -767,7 +294,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/camera2/impl/compat/params/SessionConfigurationCompat.java"
-            line="163"
+            line="162"
             column="12"/>
     </issue>
 
@@ -778,7 +305,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/camera2/impl/compat/params/SessionConfigurationCompat.java"
-            line="172"
+            line="171"
             column="12"/>
     </issue>
 
@@ -789,7 +316,7 @@
         errorLine2="           ~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/camera2/impl/compat/params/SessionConfigurationCompat.java"
-            line="181"
+            line="180"
             column="12"/>
     </issue>
 
@@ -800,7 +327,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/camera2/impl/compat/params/SessionConfigurationCompat.java"
-            line="190"
+            line="189"
             column="12"/>
     </issue>
 
@@ -811,7 +338,7 @@
         errorLine2="           ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/camera2/impl/compat/params/SessionConfigurationCompat.java"
-            line="212"
+            line="211"
             column="12"/>
     </issue>
 
@@ -822,7 +349,7 @@
         errorLine2="                                     ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/camera2/impl/compat/params/SessionConfigurationCompat.java"
-            line="234"
+            line="233"
             column="38"/>
     </issue>
 
@@ -833,7 +360,7 @@
         errorLine2="                                      ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/camera2/impl/VideoCaptureConfigProvider.java"
-            line="52"
+            line="49"
             column="39"/>
     </issue>
 
@@ -844,7 +371,7 @@
         errorLine2="                                                                   ~~~~~~~">
         <location
             file="src/main/java/androidx/camera/camera2/impl/VideoCaptureConfigProvider.java"
-            line="52"
+            line="49"
             column="68"/>
     </issue>
 
@@ -855,7 +382,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/camera2/impl/VideoCaptureConfigProvider.java"
-            line="58"
+            line="55"
             column="12"/>
     </issue>
 
@@ -866,7 +393,7 @@
         errorLine2="                                        ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/camera2/impl/VideoCaptureConfigProvider.java"
-            line="58"
+            line="55"
             column="41"/>
     </issue>
 
