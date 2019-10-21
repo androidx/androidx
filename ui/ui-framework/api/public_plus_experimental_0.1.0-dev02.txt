@@ -331,6 +331,10 @@ package androidx.ui.core.selection {
     method public void unsubscribe(Object key);
   }
 
+  public final class TextSelectionDelegateKt {
+    ctor public TextSelectionDelegateKt();
+  }
+
   public interface TextSelectionHandler {
     method public androidx.ui.core.selection.Selection? getSelection(kotlin.Pair<androidx.ui.core.PxPosition,androidx.ui.core.PxPosition> selectionCoordinates, androidx.ui.core.LayoutCoordinates containerLayoutCoordinates, androidx.ui.core.selection.SelectionMode mode);
   }

@@ -115,16 +115,16 @@ fun SelectionContainer(
                 )
             layout(width, height) {
                 placeable.place(IntPx.Zero, IntPx.Zero)
-                if (selection != null &&
-                    selection.startLayoutCoordinates != null &&
-                    selection.endLayoutCoordinates != null
-                ) {
+
+                val startLayoutCoordinates = selection?.startLayoutCoordinates
+                val endLayoutCoordinates = selection?.endLayoutCoordinates
+                if (startLayoutCoordinates != null && endLayoutCoordinates != null) {
                     val startOffset = manager.containerLayoutCoordinates.childToLocal(
-                        selection.startLayoutCoordinates!!,
+                        startLayoutCoordinates,
                         selection.startCoordinates
                     )
                     val endOffset = manager.containerLayoutCoordinates.childToLocal(
-                        selection.endLayoutCoordinates!!,
+                        endLayoutCoordinates,
                         selection.endCoordinates
                     )
                     val startAdjustedDistance =

@@ -16,9 +16,8 @@
 
 package androidx.ui.core.selection
 
+import androidx.ui.core.PxBounds
 import androidx.ui.core.PxPosition
-import androidx.ui.core.px
-import androidx.ui.text.TextDelegate
 
 /**
  * The enum class allows user to decide the selection mode.
@@ -31,30 +30,25 @@ enum class SelectionMode {
      */
     Vertical {
         override fun isSelected(
-            textDelegate: TextDelegate,
+            bounds: PxBounds,
             start: PxPosition,
             end: PxPosition
         ): Boolean {
-            val top = 0.px
-            val bottom = textDelegate.height.px
-            val left = 0.px
-            val right = textDelegate.width.px
-
             // When the end of the selection is above the top of the composable, the composable is outside
             // of the selection range.
-            if (end.y < top) return false
+            if (end.y < bounds.top) return false
 
             // When the end of the selection is on the left of the composable, and not below the bottom
             // of composable, the composable is outside of the selection range.
-            if (end.x < left && end.y < bottom) return false
+            if (end.x < bounds.left && end.y < bounds.bottom) return false
 
             // When the start of the selection is below the bottom of the composable, the composable is
             // outside of the selection range.
-            if (start.y >= bottom) return false
+            if (start.y >= bounds.bottom) return false
 
             // When the start of the selection is on the right of the composable, and not above the top
             // of the composable, the composable is outside of the selection range.
-            if (start.x >= right && start.y >= top) return false
+            if (start.x >= bounds.right && start.y >= bounds.top) return false
 
             return true
         }
@@ -67,37 +61,41 @@ enum class SelectionMode {
      */
     Horizontal {
         override fun isSelected(
-            textDelegate: TextDelegate,
+            bounds: PxBounds,
             start: PxPosition,
             end: PxPosition
         ): Boolean {
-            val top = 0.px
-            val bottom = textDelegate.height.px
-            val left = 0.px
-            val right = textDelegate.width.px
-
             // When the end of the selection is on the left of the composable, the composable is outside of
             // the selection range.
-            if (end.x < left) return false
+            if (end.x < bounds.left) return false
 
             // When the end of the selection is on the top of the composable, and the not on the right
             // of the composable, the composable is outside of the selection range.
-            if (end.y < top && end.x < right) return false
+            if (end.y < bounds.top && end.x < bounds.right) return false
 
             // When the start of the selection is on the right of the composable, the composable is outside
             // of the selection range.
-            if (start.x >= right) return false
+            if (start.x >= bounds.right) return false
 
             // When the start of the selection is below the composable, and not on the left of the
             // composable, the composable is outside of the selection range.
-            if (start.y >= bottom && start.x >= left) return false
+            if (start.y >= bounds.bottom && start.x >= bounds.left) return false
 
             return true
         }
     };
 
+    // TODO(qqd) add function API docs
+    /**
+     * Decides if Composable which has [bounds], should be accepted by the selection and
+     * change its selected state for a selection that starts at [start] and ends at [end].
+     *
+     * @param bounds Composable bounds
+     * @param start
+     * @param end
+     */
     internal abstract fun isSelected(
-        textDelegate: TextDelegate,
+        bounds: PxBounds,
         start: PxPosition,
         end: PxPosition
     ): Boolean

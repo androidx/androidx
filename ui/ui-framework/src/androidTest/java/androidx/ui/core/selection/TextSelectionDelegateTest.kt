@@ -32,7 +32,6 @@ import androidx.ui.core.withDensity
 import androidx.ui.text.AnnotatedString
 import androidx.ui.text.ParagraphStyle
 import androidx.ui.text.TextDelegate
-import androidx.ui.text.TextRange
 import androidx.ui.text.TextStyle
 import androidx.ui.text.font.Font
 import androidx.ui.text.font.FontStyle
@@ -52,14 +51,14 @@ val BASIC_MEASURE_FONT = Font(
 
 @RunWith(JUnit4::class)
 @SmallTest
-class TextSelectionProcessorTest {
+class TextSelectionDelegateTest {
     private val fontFamily = BASIC_MEASURE_FONT.asFontFamily()
     private val context = InstrumentationRegistry.getInstrumentation().context
     private val defaultDensity = Density(density = 1f)
     private val resourceLoader = TestFontResourceLoader(context)
 
     @Test
-    fun testTextSelectionProcessor_tap_select_word_ltr() {
+    fun getTextSelectionInfo_tap_select_word_ltr() {
         withDensity(defaultDensity) {
             val text = "hello world\n"
             val fontSize = 20.sp
@@ -73,34 +72,41 @@ class TextSelectionProcessorTest {
 
             val start = PxPosition((fontSizeInPx * 2).px, (fontSizeInPx / 2).px)
             val end = start
-            var selection: TextRange? = null
 
             // Act.
-            val textSelectionProcessor = TextSelectionProcessor(
+            val textSelectionInfo = getTextSelectionInfo(
+                textDelegate = textDelegate,
                 selectionCoordinates = Pair(start, end),
-                mode = SelectionMode.Horizontal,
-                onSelectionChange = { selection = it },
-                textDelegate = textDelegate
+                mode = SelectionMode.Horizontal
             )
 
             // Assert.
-            assertThat(textSelectionProcessor.startCoordinates)
-                .isEqualTo(PxPosition(0.px, fontSizeInPx.px))
-            assertThat(textSelectionProcessor.endCoordinates)
-                .isEqualTo(PxPosition(("hello".length * fontSizeInPx).px, fontSizeInPx.px))
-            assertThat(textSelectionProcessor.startOffset).isEqualTo(0)
-            assertThat(textSelectionProcessor.endOffset).isEqualTo("hello".length)
-            assertThat(textSelectionProcessor.startDirection).isEqualTo(TextDirection.Ltr)
-            assertThat(textSelectionProcessor.endDirection).isEqualTo(TextDirection.Ltr)
-            assertThat(textSelectionProcessor.containsWholeSelectionStart).isTrue()
-            assertThat(textSelectionProcessor.containsWholeSelectionEnd).isTrue()
-            assertThat(textSelectionProcessor.isSelected).isTrue()
-            assertThat(selection).isEqualTo(TextRange(0, "hello".length))
+            assertThat(textSelectionInfo).isNotNull()
+
+            assertThat(textSelectionInfo?.start).isNotNull()
+            textSelectionInfo?.start?.let {
+                assertThat(it.coordinate).isEqualTo(
+                    PxPosition(0.px, fontSizeInPx.px)
+                )
+                assertThat(it.direction).isEqualTo(TextDirection.Ltr)
+                assertThat(it.containsWholeSelection).isTrue()
+                assertThat(it.offset).isEqualTo(0)
+            }
+
+            assertThat(textSelectionInfo?.end).isNotNull()
+            textSelectionInfo?.end?.let {
+                assertThat(it.coordinate).isEqualTo(
+                    PxPosition(("hello".length * fontSizeInPx).px, fontSizeInPx.px)
+                )
+                assertThat(it.direction).isEqualTo(TextDirection.Ltr)
+                assertThat(it.containsWholeSelection).isTrue()
+                assertThat(it.offset).isEqualTo("hello".length)
+            }
         }
     }
 
     @Test
-    fun testTextSelectionProcessor_tap_select_word_rtl() {
+    fun getTextSelectionInfo_tap_select_word_rtl() {
         withDensity(defaultDensity) {
             val text = "\u05D0\u05D1\u05D2 \u05D3\u05D4\u05D5\n"
             val fontSize = 20.sp
@@ -114,40 +120,41 @@ class TextSelectionProcessorTest {
 
             val start = PxPosition((fontSizeInPx * 2).px, (fontSizeInPx / 2).px)
             val end = start
-            var selection: TextRange? = null
 
             // Act.
-            val textSelectionProcessor = TextSelectionProcessor(
+            val textSelectionInfo = getTextSelectionInfo(
+                textDelegate = textDelegate,
                 selectionCoordinates = Pair(start, end),
-                mode = SelectionMode.Horizontal,
-                onSelectionChange = { selection = it },
-                textDelegate = textDelegate
+                mode = SelectionMode.Horizontal
             )
 
             // Assert.
-            assertThat(textSelectionProcessor.startCoordinates).isEqualTo(
-                PxPosition(("\u05D3\u05D4\u05D5".length * fontSizeInPx).px, fontSizeInPx.px)
-            )
-            assertThat(textSelectionProcessor.endCoordinates).isEqualTo(
-                PxPosition(0.px, fontSizeInPx.px)
-            )
-            assertThat(textSelectionProcessor.startOffset).isEqualTo("\u05D0\u05D1\u05D2 ".length)
-            assertThat(textSelectionProcessor.endOffset).isEqualTo(
-                "\u05D0\u05D1\u05D2 \u05D3\u05D4\u05D5".length
-            )
-            assertThat(textSelectionProcessor.startDirection).isEqualTo(TextDirection.Rtl)
-            assertThat(textSelectionProcessor.endDirection).isEqualTo(TextDirection.Rtl)
-            assertThat(textSelectionProcessor.containsWholeSelectionStart).isTrue()
-            assertThat(textSelectionProcessor.containsWholeSelectionEnd).isTrue()
-            assertThat(textSelectionProcessor.isSelected).isTrue()
-            assertThat(selection).isEqualTo(
-                TextRange(text.indexOf("\u05D3"), text.indexOf("\u05D5") + 1)
-            )
+            assertThat(textSelectionInfo).isNotNull()
+
+            assertThat(textSelectionInfo?.start).isNotNull()
+            textSelectionInfo?.start?.let {
+                assertThat(it.coordinate).isEqualTo(
+                    PxPosition(("\u05D3\u05D4\u05D5".length * fontSizeInPx).px, fontSizeInPx.px)
+                )
+                assertThat(it.direction).isEqualTo(TextDirection.Rtl)
+                assertThat(it.containsWholeSelection).isTrue()
+                assertThat(it.offset).isEqualTo(text.indexOf("\u05D3"))
+            }
+
+            assertThat(textSelectionInfo?.end).isNotNull()
+            textSelectionInfo?.end?.let {
+                assertThat(it.coordinate).isEqualTo(
+                    PxPosition(0.px, fontSizeInPx.px)
+                )
+                assertThat(it.direction).isEqualTo(TextDirection.Rtl)
+                assertThat(it.containsWholeSelection).isTrue()
+                assertThat(it.offset).isEqualTo(text.indexOf("\u05D5") + 1)
+            }
         }
     }
 
     @Test
-    fun testTextSelectionProcessor_drag_select_range_ltr() {
+    fun getTextSelectionInfo_drag_select_range_ltr() {
         withDensity(defaultDensity) {
             val text = "hello world\n"
             val fontSize = 20.sp
@@ -164,36 +171,41 @@ class TextSelectionProcessorTest {
             val endOffset = text.indexOf("r") + 1
             val start = PxPosition((fontSizeInPx * startOffset).px, (fontSizeInPx / 2).px)
             val end = PxPosition((fontSizeInPx * endOffset).px, (fontSizeInPx / 2).px)
-            var selection: TextRange? = null
 
             // Act.
-            val textSelectionProcessor = TextSelectionProcessor(
+            val textSelectionInfo = getTextSelectionInfo(
+                textDelegate = textDelegate,
                 selectionCoordinates = Pair(start, end),
-                mode = SelectionMode.Horizontal,
-                onSelectionChange = { selection = it },
-                textDelegate = textDelegate
+                mode = SelectionMode.Horizontal
             )
 
             // Assert.
-            assertThat(textSelectionProcessor.startCoordinates).isEqualTo(
-                PxPosition((startOffset * fontSizeInPx).px, fontSizeInPx.px)
-            )
-            assertThat(textSelectionProcessor.endCoordinates).isEqualTo(
-                PxPosition((endOffset * fontSizeInPx).px, fontSizeInPx.px)
-            )
-            assertThat(textSelectionProcessor.startOffset).isEqualTo(startOffset)
-            assertThat(textSelectionProcessor.endOffset).isEqualTo(endOffset)
-            assertThat(textSelectionProcessor.startDirection).isEqualTo(TextDirection.Ltr)
-            assertThat(textSelectionProcessor.endDirection).isEqualTo(TextDirection.Ltr)
-            assertThat(textSelectionProcessor.containsWholeSelectionStart).isTrue()
-            assertThat(textSelectionProcessor.containsWholeSelectionEnd).isTrue()
-            assertThat(textSelectionProcessor.isSelected).isTrue()
-            assertThat(selection).isEqualTo(TextRange(startOffset, endOffset))
+            assertThat(textSelectionInfo).isNotNull()
+
+            assertThat(textSelectionInfo?.start).isNotNull()
+            textSelectionInfo?.start?.let {
+                assertThat(it.coordinate).isEqualTo(
+                    PxPosition((startOffset * fontSizeInPx).px, fontSizeInPx.px)
+                )
+                assertThat(it.direction).isEqualTo(TextDirection.Ltr)
+                assertThat(it.containsWholeSelection).isTrue()
+                assertThat(it.offset).isEqualTo(startOffset)
+            }
+
+            assertThat(textSelectionInfo?.end).isNotNull()
+            textSelectionInfo?.end?.let {
+                assertThat(it.coordinate).isEqualTo(
+                    PxPosition((endOffset * fontSizeInPx).px, fontSizeInPx.px)
+                )
+                assertThat(it.direction).isEqualTo(TextDirection.Ltr)
+                assertThat(it.containsWholeSelection).isTrue()
+                assertThat(it.offset).isEqualTo(endOffset)
+            }
         }
     }
 
     @Test
-    fun testTextSelectionProcessor_drag_select_range_rtl() {
+    fun getTextSelectionInfo_drag_select_range_rtl() {
         withDensity(defaultDensity) {
             val text = "\u05D0\u05D1\u05D2 \u05D3\u05D4\u05D5\n"
             val fontSize = 20.sp
@@ -216,36 +228,44 @@ class TextSelectionProcessorTest {
                 (fontSizeInPx * (text.length - 1 - endOffset)).px,
                 (fontSizeInPx / 2).px
             )
-            var selection: TextRange? = null
 
             // Act.
-            val textSelectionProcessor = TextSelectionProcessor(
+            val textSelectionInfo = getTextSelectionInfo(
+                textDelegate = textDelegate,
                 selectionCoordinates = Pair(start, end),
-                mode = SelectionMode.Horizontal,
-                onSelectionChange = { selection = it },
-                textDelegate = textDelegate
+                mode = SelectionMode.Horizontal
             )
 
             // Assert.
-            assertThat(textSelectionProcessor.startCoordinates).isEqualTo(
-                PxPosition(((text.length - 1 - startOffset) * fontSizeInPx).px, fontSizeInPx.px)
-            )
-            assertThat(textSelectionProcessor.endCoordinates).isEqualTo(
-                PxPosition(((text.length - 1 - endOffset) * fontSizeInPx).px, fontSizeInPx.px)
-            )
-            assertThat(textSelectionProcessor.startOffset).isEqualTo(startOffset)
-            assertThat(textSelectionProcessor.endOffset).isEqualTo(endOffset)
-            assertThat(textSelectionProcessor.startDirection).isEqualTo(TextDirection.Rtl)
-            assertThat(textSelectionProcessor.endDirection).isEqualTo(TextDirection.Rtl)
-            assertThat(textSelectionProcessor.containsWholeSelectionStart).isTrue()
-            assertThat(textSelectionProcessor.containsWholeSelectionEnd).isTrue()
-            assertThat(textSelectionProcessor.isSelected).isTrue()
-            assertThat(selection).isEqualTo(TextRange(startOffset, endOffset))
+            assertThat(textSelectionInfo).isNotNull()
+
+            assertThat(textSelectionInfo?.start).isNotNull()
+            textSelectionInfo?.start?.let {
+                assertThat(it.coordinate).isEqualTo(
+                    PxPosition(
+                        ((text.length - 1 - startOffset) * fontSizeInPx).px,
+                        fontSizeInPx.px
+                    )
+                )
+                assertThat(it.direction).isEqualTo(TextDirection.Rtl)
+                assertThat(it.containsWholeSelection).isTrue()
+                assertThat(it.offset).isEqualTo(startOffset)
+            }
+
+            assertThat(textSelectionInfo?.end).isNotNull()
+            textSelectionInfo?.end?.let {
+                assertThat(it.coordinate).isEqualTo(
+                    PxPosition(((text.length - 1 - endOffset) * fontSizeInPx).px, fontSizeInPx.px)
+                )
+                assertThat(it.direction).isEqualTo(TextDirection.Rtl)
+                assertThat(it.containsWholeSelection).isTrue()
+                assertThat(it.offset).isEqualTo(endOffset)
+            }
         }
     }
 
     @Test
-    fun testTextSelectionProcessor_drag_select_range_bidi() {
+    fun getTextSelectionInfo_drag_select_range_bidi() {
         withDensity(defaultDensity) {
             val textLtr = "Hello"
             val textRtl = "\u05D0\u05D1\u05D2\u05D3\u05D4"
@@ -270,36 +290,43 @@ class TextSelectionProcessorTest {
                 (fontSizeInPx * (textLtr.length + text.length - endOffset)).px,
                 (fontSizeInPx / 2).px
             )
-            var selection: TextRange? = null
 
             // Act.
-            val textSelectionProcessor = TextSelectionProcessor(
+            val textSelectionInfo = getTextSelectionInfo(
+                textDelegate = textDelegate,
                 selectionCoordinates = Pair(start, end),
-                mode = SelectionMode.Horizontal,
-                onSelectionChange = { selection = it },
-                textDelegate = textDelegate
+                mode = SelectionMode.Horizontal
             )
 
             // Assert.
-            assertThat(textSelectionProcessor.startCoordinates).isEqualTo(
-                PxPosition((startOffset * fontSizeInPx).px, fontSizeInPx.px)
-            )
-            assertThat(textSelectionProcessor.endCoordinates).isEqualTo(
-                PxPosition(
-                    ((textLtr.length + text.length - endOffset) * fontSizeInPx).px,
-                    fontSizeInPx.px
+            assertThat(textSelectionInfo).isNotNull()
+
+            assertThat(textSelectionInfo?.start).isNotNull()
+            textSelectionInfo?.start?.let {
+                assertThat(it.coordinate).isEqualTo(
+                    PxPosition((startOffset * fontSizeInPx).px, fontSizeInPx.px)
                 )
-            )
-            assertThat(textSelectionProcessor.startOffset).isEqualTo(startOffset)
-            assertThat(textSelectionProcessor.endOffset).isEqualTo(endOffset)
-            assertThat(textSelectionProcessor.startDirection).isEqualTo(TextDirection.Ltr)
-            assertThat(textSelectionProcessor.endDirection).isEqualTo(TextDirection.Rtl)
-            assertThat(textSelectionProcessor.containsWholeSelectionStart).isTrue()
-            assertThat(textSelectionProcessor.containsWholeSelectionEnd).isTrue()
-            assertThat(textSelectionProcessor.isSelected).isTrue()
-            assertThat(selection).isEqualTo(TextRange(startOffset, endOffset))
+                assertThat(it.direction).isEqualTo(TextDirection.Ltr)
+                assertThat(it.containsWholeSelection).isTrue()
+                assertThat(it.offset).isEqualTo(startOffset)
+            }
+
+            assertThat(textSelectionInfo?.end).isNotNull()
+            textSelectionInfo?.end?.let {
+                assertThat(it.coordinate).isEqualTo(
+                    PxPosition(
+                        ((textLtr.length + text.length - endOffset) * fontSizeInPx).px,
+                        fontSizeInPx.px
+                    )
+                )
+                assertThat(it.direction).isEqualTo(TextDirection.Rtl)
+                assertThat(it.containsWholeSelection).isTrue()
+                assertThat(it.offset).isEqualTo(endOffset)
+            }
         }
     }
+
+    // TODO(qqd) add tests for the case where selection is false (returned value is null)
 
     private fun simpleTextDelegate(
         text: String = "",
