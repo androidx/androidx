@@ -64,7 +64,7 @@ fun PressableContainer(
     paddingTop: Dp? = null,
     paddingRight: Dp? = null,
     paddingBottom: Dp? = null,
-    children: (@Composable() () -> Unit)
+    children: @Composable() () -> Unit
 ) {
     val defaultColor = DefaultBackgroundColor
     val pressedColor = PressedColor

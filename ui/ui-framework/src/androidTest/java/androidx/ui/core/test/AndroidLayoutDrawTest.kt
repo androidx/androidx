@@ -504,7 +504,7 @@ class AndroidLayoutDrawTest {
                         layout(0.ipx, 0.ipx) {}
                     }, children = {})
                 }
-                @Suppress("USELESS_CAST")
+
                 Layout(header, footer) { measurables, _ ->
                     assertEquals(childrenCount, measurables.size)
                     measurables.forEachIndexed { index, measurable ->

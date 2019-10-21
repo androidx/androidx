@@ -63,7 +63,6 @@ fun HeaderFooterLayout(
     footer: @Composable() () -> Unit,
     content: @Composable() () -> Unit
 ) {
-    @Suppress("USELESS_CAST")
     Layout(header, content, footer) { measurables, constraints ->
         val headerPlaceable = measurables[header].first().measure(
             Constraints.tightConstraints(constraints.maxWidth, 100.ipx)
