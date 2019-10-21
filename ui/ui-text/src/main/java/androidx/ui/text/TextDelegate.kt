@@ -415,18 +415,13 @@ class TextDelegate(
     }
 
     /**
-     * Get the primary horizontal position for the specified text offset.
+     * Get the horizontal position for the specified text [offset].
+     * @see MultiParagraph.getHorizontalPosition
      */
-    fun getPrimaryHorizontal(offset: Int): Float = assumeLayout { layoutResult ->
-        layoutResult.multiParagraph.getPrimaryHorizontal(offset)
-    }
-
-    /**
-     * Get the secondary horizontal position for the specified text offset.
-     */
-    fun getSecondaryHorizontal(offset: Int): Float = assumeLayout { layoutResult ->
-        layoutResult.multiParagraph.getSecondaryHorizontal(offset)
-    }
+    fun getHorizontalPosition(offset: Int, usePrimaryDirection: Boolean): Float =
+        assumeLayout { layoutResult ->
+            layoutResult.multiParagraph.getHorizontalPosition(offset, usePrimaryDirection)
+        }
 
     /**
      * Get the text direction of the paragraph containing the given offset.

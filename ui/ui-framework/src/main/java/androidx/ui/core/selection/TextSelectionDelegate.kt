@@ -208,11 +208,10 @@ private fun getSelectionHandleCoordinates(
     val bidiRunDirection = textDelegate.getBidiRunDirection(offsetToCheck)
     val paragraphDirection = textDelegate.getParagraphDirection(offset)
 
-    val x = if (bidiRunDirection == paragraphDirection)
-        textDelegate.getPrimaryHorizontal(offset)
-    else
-        textDelegate.getSecondaryHorizontal(offset)
-
+    val x = textDelegate.getHorizontalPosition(
+        offset = offset,
+        usePrimaryDirection = bidiRunDirection == paragraphDirection
+    )
     val y = textDelegate.getLineBottom(line)
 
     return PxPosition(x.px, y.px)

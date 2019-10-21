@@ -238,11 +238,12 @@ internal class AndroidParagraph constructor(
 
     override fun getLineForOffset(offset: Int): Int = layout.getLineForOffset(offset)
 
-    override fun getPrimaryHorizontal(offset: Int): Float =
-        layout.getPrimaryHorizontal(offset)
-
-    override fun getSecondaryHorizontal(offset: Int): Float =
-        layout.getSecondaryHorizontal(offset)
+    override fun getHorizontalPosition(offset: Int, usePrimaryDirection: Boolean): Float =
+        if (usePrimaryDirection) {
+            layout.getPrimaryHorizontal(offset)
+        } else {
+            layout.getSecondaryHorizontal(offset)
+        }
 
     override fun getParagraphDirection(offset: Int): TextDirection {
         val lineIndex = layout.getLineForOffset(offset)

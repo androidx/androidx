@@ -202,6 +202,7 @@ package androidx.ui.text {
     method public boolean getDidExceedMaxLines();
     method public float getFirstBaseline();
     method public float getHeight();
+    method public float getHorizontalPosition(int offset, boolean usePrimaryDirection);
     method public float getLastBaseline();
     method public float getLineBottom(int lineIndex);
     method public int getLineCount();
