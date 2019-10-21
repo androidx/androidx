@@ -41,68 +41,7 @@ public class ReportFragment extends Fragment {
         if (Build.VERSION.SDK_INT >= 29) {
             // On API 29+, we can register for the correct Lifecycle callbacks directly
             activity.registerActivityLifecycleCallbacks(
-                    new Application.ActivityLifecycleCallbacks() {
-                        @Override
-                        public void onActivityCreated(@NonNull Activity activity,
-                                @Nullable Bundle bundle) {
-                        }
-
-                        @Override
-                        public void onActivityPostCreated(@NonNull Activity activity,
-                                @Nullable Bundle savedInstanceState) {
-                            dispatch(activity, Lifecycle.Event.ON_CREATE);
-                        }
-
-                        @Override
-                        public void onActivityStarted(@NonNull Activity activity) {
-                        }
-
-                        @Override
-                        public void onActivityPostStarted(@NonNull Activity activity) {
-                            dispatch(activity, Lifecycle.Event.ON_START);
-                        }
-
-                        @Override
-                        public void onActivityResumed(@NonNull Activity activity) {
-                        }
-
-                        @Override
-                        public void onActivityPostResumed(@NonNull Activity activity) {
-                            dispatch(activity, Lifecycle.Event.ON_RESUME);
-                        }
-
-                        @Override
-                        public void onActivityPrePaused(@NonNull Activity activity) {
-                            dispatch(activity, Lifecycle.Event.ON_PAUSE);
-                        }
-
-                        @Override
-                        public void onActivityPaused(@NonNull Activity activity) {
-                        }
-
-                        @Override
-                        public void onActivityPreStopped(@NonNull Activity activity) {
-                            dispatch(activity, Lifecycle.Event.ON_STOP);
-                        }
-
-                        @Override
-                        public void onActivityStopped(@NonNull Activity activity) {
-                        }
-
-                        @Override
-                        public void onActivitySaveInstanceState(@NonNull Activity activity,
-                                @NonNull Bundle bundle) {
-                        }
-
-                        @Override
-                        public void onActivityPreDestroyed(@NonNull Activity activity) {
-                            dispatch(activity, Lifecycle.Event.ON_DESTROY);
-                        }
-
-                        @Override
-                        public void onActivityDestroyed(@NonNull Activity activity) {
-                        }
-                    });
+                    new LifecycleCallbacks());
         }
         // Prior to API 29 and to maintain compatibility with older versions of
         // ProcessLifecycleOwner (which may not be updated when lifecycle-runtime is updated and
@@ -216,5 +155,69 @@ public class ReportFragment extends Fragment {
         void onStart();
 
         void onResume();
+    }
+
+    // this class isn't inlined only because we need to add a proguard rule for it. (b/142778206)
+    static class LifecycleCallbacks implements Application.ActivityLifecycleCallbacks {
+        @Override
+        public void onActivityCreated(@NonNull Activity activity,
+                @Nullable Bundle bundle) {
+        }
+
+        @Override
+        public void onActivityPostCreated(@NonNull Activity activity,
+                @Nullable Bundle savedInstanceState) {
+            dispatch(activity, Lifecycle.Event.ON_CREATE);
+        }
+
+        @Override
+        public void onActivityStarted(@NonNull Activity activity) {
+        }
+
+        @Override
+        public void onActivityPostStarted(@NonNull Activity activity) {
+            dispatch(activity, Lifecycle.Event.ON_START);
+        }
+
+        @Override
+        public void onActivityResumed(@NonNull Activity activity) {
+        }
+
+        @Override
+        public void onActivityPostResumed(@NonNull Activity activity) {
+            dispatch(activity, Lifecycle.Event.ON_RESUME);
+        }
+
+        @Override
+        public void onActivityPrePaused(@NonNull Activity activity) {
+            dispatch(activity, Lifecycle.Event.ON_PAUSE);
+        }
+
+        @Override
+        public void onActivityPaused(@NonNull Activity activity) {
+        }
+
+        @Override
+        public void onActivityPreStopped(@NonNull Activity activity) {
+            dispatch(activity, Lifecycle.Event.ON_STOP);
+        }
+
+        @Override
+        public void onActivityStopped(@NonNull Activity activity) {
+        }
+
+        @Override
+        public void onActivitySaveInstanceState(@NonNull Activity activity,
+                @NonNull Bundle bundle) {
+        }
+
+        @Override
+        public void onActivityPreDestroyed(@NonNull Activity activity) {
+            dispatch(activity, Lifecycle.Event.ON_DESTROY);
+        }
+
+        @Override
+        public void onActivityDestroyed(@NonNull Activity activity) {
+        }
     }
 }
