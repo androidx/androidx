@@ -21,6 +21,8 @@ import androidx.compose.Composable
 import androidx.compose.state
 import androidx.compose.unaryPlus
 import androidx.ui.core.Text
+import androidx.ui.layout.MainAxisAlignment
+import androidx.ui.layout.Row
 import androidx.ui.material.AlertDialog
 import androidx.ui.material.AlertDialogButtonLayout
 import androidx.ui.material.Button
@@ -88,6 +90,32 @@ fun StackedAlertDialogSample() {
                 })
             },
             buttonLayout = AlertDialogButtonLayout.Stacked
+        )
+    }
+}
+
+@Sampled
+@Composable
+fun CustomAlertDialogSample() {
+    val openDialog = +state { true }
+
+    if (openDialog.value) {
+        AlertDialog(
+            onCloseRequest = {
+                openDialog.value = false
+            },
+            title = {
+                Text(text = "Title")
+            },
+            text = {
+                Text("This area typically contains the supportive text" +
+                        " which presents the details regarding the Dialog's purpose.")
+            },
+            buttons = {
+                Row(mainAxisAlignment = MainAxisAlignment.Center) {
+                    Button("Button", onClick = { openDialog.value = false })
+                }
+            }
         )
     }
 }

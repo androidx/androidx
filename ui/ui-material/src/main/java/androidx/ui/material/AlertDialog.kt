@@ -71,6 +71,43 @@ fun AlertDialog(
     dismissButton: @Composable() (() -> Unit)? = null,
     buttonLayout: AlertDialogButtonLayout = AlertDialogButtonLayout.SideBySide
 ) {
+    AlertDialog(
+        onCloseRequest = onCloseRequest,
+        title = title,
+        text = text,
+        buttons = {
+            AlertDialogButtonLayout(
+                confirmButton = confirmButton,
+                dismissButton = dismissButton,
+                buttonLayout = buttonLayout
+            )
+        }
+    )
+}
+
+/**
+ * Alert dialog is a [Dialog] which interrupts the user with urgent information, details or actions.
+ *
+ * This function can be used to fully customize the button area, e.g. with:
+ *
+ * @sample androidx.ui.material.samples.CustomAlertDialogSample
+ *
+ * @param onCloseRequest Executes when the user tries to dismiss the Dialog by clicking outside
+ * or pressing the back button.
+ * @param title The title of the Dialog which should specify the purpose of the Dialog. The title
+ * is not mandatory, because there may be sufficient information inside the [text].
+ * @param text The text which presents the details regarding
+ * the Dialog's purpose.
+ * @param buttons Function that emits the layout with the buttons
+ */
+@Suppress("USELESS_CAST")
+@Composable
+fun AlertDialog(
+    onCloseRequest: () -> Unit,
+    title: (@Composable() () -> Unit)? = null as @Composable() (() -> Unit)?,
+    text: (@Composable() () -> Unit),
+    buttons: @Composable() () -> Unit
+) {
     // TODO: Find a cleaner way to pass the properties of the MaterialTheme
     val currentColors = +ambient(Colors)
     val currentTypography = +ambient(Typography)
@@ -98,11 +135,7 @@ fun AlertDialog(
                             CurrentTextStyleProvider(textStyle, text)
                         }
                         HeightSpacer(height = TextToButtonsHeight)
-                        AlertDialogButtonLayout(
-                            confirmButton = confirmButton,
-                            dismissButton = dismissButton,
-                            buttonLayout = buttonLayout
-                        )
+                        buttons()
                     }
                 }
             }
