@@ -91,6 +91,7 @@ class PageKeyedDataSourceTest {
         // validate paging entire ItemDataSource results in full, correctly ordered data
         val testCoroutineScope = CoroutineScope(EmptyCoroutineContext)
 
+        @Suppress("DEPRECATION")
         val pagedList = PagedList.Builder(ItemDataSource(), 100)
             .setCoroutineScope(testCoroutineScope)
             .setNotifyDispatcher(mainThread)
@@ -143,6 +144,7 @@ class PageKeyedDataSourceTest {
             }
         }
 
+        @Suppress("DEPRECATION")
         PagedList.Builder(dataSource, 10)
             .setNotifyDispatcher(FailDispatcher())
             .setFetchDispatcher(DirectDispatcher)
@@ -240,6 +242,7 @@ class PageKeyedDataSourceTest {
         val dispatcher = TestDispatcher()
 
         val testCoroutineScope = CoroutineScope(EmptyCoroutineContext)
+        @Suppress("DEPRECATION")
         val pagedList = PagedList.Builder(dataSource, 10)
             .setBoundaryCallback(boundaryCallback)
             .setCoroutineScope(testCoroutineScope)
@@ -291,6 +294,7 @@ class PageKeyedDataSourceTest {
         val dispatcher = TestDispatcher()
 
         val testCoroutineScope = CoroutineScope(EmptyCoroutineContext)
+        @Suppress("DEPRECATION")
         val pagedList = PagedList.Builder(dataSource, 10)
             .setBoundaryCallback(boundaryCallback)
             .setCoroutineScope(testCoroutineScope)
