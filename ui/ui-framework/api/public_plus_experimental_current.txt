@@ -422,9 +422,36 @@ package androidx.ui.graphics.vector.compat {
 
 package androidx.ui.res {
 
+  public final class DeferredResource<T> {
+    method public androidx.ui.res.Resource<T> getResource();
+    property public final androidx.ui.res.Resource<T> resource;
+  }
+
+  public final class FailedResource<T> extends androidx.ui.res.Resource<T> {
+    ctor public FailedResource(T? resource, Throwable? throwable);
+    method public Throwable? getThrowable();
+  }
+
   public final class ImageResourcesKt {
     ctor public ImageResourcesKt();
     method @CheckResult(suggest="+") public static androidx.compose.Effect<androidx.ui.graphics.Image> imageResource(@DrawableRes int id);
+    method @CheckResult(suggest="+") public static androidx.compose.Effect<androidx.ui.res.DeferredResource<androidx.ui.graphics.Image>> loadImageResource(int id, androidx.ui.graphics.Image? pendingImage = null, androidx.ui.graphics.Image? failedImage = null);
+  }
+
+  public final class LoadedResource<T> extends androidx.ui.res.Resource<T> {
+    ctor public LoadedResource(T! resource);
+  }
+
+  public final class PendingResource<T> extends androidx.ui.res.Resource<T> {
+    ctor public PendingResource(T? resource);
+  }
+
+  public abstract sealed class Resource<T> {
+    method public final T? getResource();
+  }
+
+  public final class ResourcesKt {
+    ctor public ResourcesKt();
   }
 
   public final class StringResourcesKt {
@@ -435,7 +462,8 @@ package androidx.ui.res {
 
   public final class VectorResourcesKt {
     ctor public VectorResourcesKt();
-    method @CheckResult(suggest="+") public static androidx.compose.Effect<androidx.ui.graphics.vector.VectorAsset> vectorResource(@DrawableRes int resId);
+    method @CheckResult(suggest="+") public static androidx.compose.Effect<androidx.ui.res.DeferredResource<androidx.ui.graphics.vector.VectorAsset>> loadVectorResource(int id, androidx.ui.graphics.vector.VectorAsset? pendingResource = null, androidx.ui.graphics.vector.VectorAsset? failedResource = null);
+    method @CheckResult(suggest="+") public static androidx.compose.Effect<androidx.ui.graphics.vector.VectorAsset> vectorResource(@DrawableRes int id);
   }
 
 }
