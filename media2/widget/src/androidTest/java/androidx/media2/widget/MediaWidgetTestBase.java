@@ -26,6 +26,7 @@ import android.app.KeyguardManager;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Build;
+import android.text.TextUtils;
 import android.view.View;
 import android.view.WindowManager;
 
@@ -146,11 +147,11 @@ public class MediaWidgetTestBase extends MediaTestBase {
     List<MediaItem> createTestPlaylist() {
         List<MediaItem> list = new ArrayList<>();
         list.add(createTestMediaItem(Uri.parse("android.resource://" + mContext.getPackageName()
-                + "/" + R.raw.test_file_scheme_video)));
+                + "/" + R.raw.test_file_scheme_video), "id_1"));
         list.add(createTestMediaItem(Uri.parse("android.resource://" + mContext.getPackageName()
-                + "/" + R.raw.test_music)));
+                + "/" + R.raw.test_music), "id_2"));
         list.add(createTestMediaItem(Uri.parse("android.resource://" + mContext.getPackageName()
-                + "/" + R.raw.testvideo_with_2_subtitle_tracks)));
+                + "/" + R.raw.testvideo_with_2_subtitle_tracks), "id_3"));
         return list;
     }
 
@@ -242,11 +243,13 @@ public class MediaWidgetTestBase extends MediaTestBase {
         volatile CountDownLatch mItemLatch = new CountDownLatch(1);
         CountDownLatch mPausedLatch = new CountDownLatch(1);
         CountDownLatch mPlayingLatch = new CountDownLatch(1);
+        String mPrevId = "dummyId";
 
         @Override
         void onCurrentMediaItemChanged(@NonNull PlayerWrapper player,
                 @Nullable MediaItem item) {
-            if (item != null) {
+            if (item != null && !TextUtils.equals(mPrevId, item.getMediaId())) {
+                mPrevId = item.getMediaId();
                 mItemLatch.countDown();
             }
         }
