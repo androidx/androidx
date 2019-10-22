@@ -270,24 +270,26 @@ package androidx.ui.core.input {
 package androidx.ui.core.selection {
 
   public final class Selection {
-    ctor public Selection(androidx.ui.core.PxPosition startCoordinates, androidx.ui.core.PxPosition endCoordinates, int startOffset, int endOffset, androidx.ui.text.style.TextDirection startDirection, androidx.ui.text.style.TextDirection endDirection, androidx.ui.core.LayoutCoordinates? startLayoutCoordinates, androidx.ui.core.LayoutCoordinates? endLayoutCoordinates);
+    ctor public Selection(androidx.ui.core.selection.Selection.AnchorInfo start, androidx.ui.core.selection.Selection.AnchorInfo end);
+    method public androidx.ui.core.selection.Selection.AnchorInfo component1();
+    method public androidx.ui.core.selection.Selection.AnchorInfo component2();
+    method public androidx.ui.core.selection.Selection copy(androidx.ui.core.selection.Selection.AnchorInfo start, androidx.ui.core.selection.Selection.AnchorInfo end);
+    method public androidx.ui.core.selection.Selection.AnchorInfo getEnd();
+    method public androidx.ui.core.selection.Selection.AnchorInfo getStart();
+    method public androidx.ui.text.TextRange toTextRange();
+  }
+
+  public static final class Selection.AnchorInfo {
+    ctor public Selection.AnchorInfo(androidx.ui.core.PxPosition coordinates, androidx.ui.text.style.TextDirection direction, int offset, androidx.ui.core.LayoutCoordinates? layoutCoordinates);
     method public androidx.ui.core.PxPosition component1();
-    method public androidx.ui.core.PxPosition component2();
+    method public androidx.ui.text.style.TextDirection component2();
     method public int component3();
-    method public int component4();
-    method public androidx.ui.text.style.TextDirection component5();
-    method public androidx.ui.text.style.TextDirection component6();
-    method public androidx.ui.core.LayoutCoordinates? component7();
-    method public androidx.ui.core.LayoutCoordinates? component8();
-    method public androidx.ui.core.selection.Selection copy(androidx.ui.core.PxPosition startCoordinates, androidx.ui.core.PxPosition endCoordinates, int startOffset, int endOffset, androidx.ui.text.style.TextDirection startDirection, androidx.ui.text.style.TextDirection endDirection, androidx.ui.core.LayoutCoordinates? startLayoutCoordinates, androidx.ui.core.LayoutCoordinates? endLayoutCoordinates);
-    method public androidx.ui.core.PxPosition getEndCoordinates();
-    method public androidx.ui.text.style.TextDirection getEndDirection();
-    method public androidx.ui.core.LayoutCoordinates? getEndLayoutCoordinates();
-    method public int getEndOffset();
-    method public androidx.ui.core.PxPosition getStartCoordinates();
-    method public androidx.ui.text.style.TextDirection getStartDirection();
-    method public androidx.ui.core.LayoutCoordinates? getStartLayoutCoordinates();
-    method public int getStartOffset();
+    method public androidx.ui.core.LayoutCoordinates? component4();
+    method public androidx.ui.core.selection.Selection.AnchorInfo copy(androidx.ui.core.PxPosition coordinates, androidx.ui.text.style.TextDirection direction, int offset, androidx.ui.core.LayoutCoordinates? layoutCoordinates);
+    method public androidx.ui.core.PxPosition getCoordinates();
+    method public androidx.ui.text.style.TextDirection getDirection();
+    method public androidx.ui.core.LayoutCoordinates? getLayoutCoordinates();
+    method public int getOffset();
   }
 
   public final class SelectionKt {
@@ -296,12 +298,11 @@ package androidx.ui.core.selection {
 
   public final class SelectionManager implements androidx.ui.core.selection.SelectionRegistrar {
     ctor public SelectionManager();
-    method public androidx.ui.core.PxPosition getAdjustedCoordinates(androidx.ui.core.PxPosition p);
     method public androidx.ui.core.LayoutCoordinates getContainerLayoutCoordinates();
     method public androidx.ui.core.selection.SelectionMode getMode();
     method public kotlin.jvm.functions.Function1<androidx.ui.core.selection.Selection,kotlin.Unit> getOnSelectionChange();
     method public androidx.ui.core.selection.Selection? getSelection();
-    method public androidx.ui.core.gesture.DragObserver handleDragObserver(boolean dragStartHandle);
+    method public androidx.ui.core.gesture.DragObserver handleDragObserver(boolean isStartHandle);
     method public void onPress(androidx.ui.core.PxPosition position);
     method public void setContainerLayoutCoordinates(androidx.ui.core.LayoutCoordinates p);
     method public void setMode(androidx.ui.core.selection.SelectionMode p);
@@ -336,7 +337,7 @@ package androidx.ui.core.selection {
   }
 
   public interface TextSelectionHandler {
-    method public androidx.ui.core.selection.Selection? getSelection(kotlin.Pair<androidx.ui.core.PxPosition,androidx.ui.core.PxPosition> selectionCoordinates, androidx.ui.core.LayoutCoordinates containerLayoutCoordinates, androidx.ui.core.selection.SelectionMode mode);
+    method public androidx.ui.core.selection.Selection? getSelection(androidx.ui.core.PxPosition startPosition, androidx.ui.core.PxPosition endPosition, androidx.ui.core.LayoutCoordinates containerLayoutCoordinates, androidx.ui.core.selection.SelectionMode mode);
   }
 
 }

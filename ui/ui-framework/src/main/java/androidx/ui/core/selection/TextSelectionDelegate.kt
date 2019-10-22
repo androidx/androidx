@@ -24,7 +24,6 @@ import androidx.ui.core.PxPosition
 import androidx.ui.core.px
 import androidx.ui.text.TextDelegate
 import androidx.ui.text.TextRange
-import androidx.ui.text.style.TextDirection
 import kotlin.math.max
 
 internal class TextSelectionDelegate(
@@ -34,7 +33,8 @@ internal class TextSelectionDelegate(
 ) : TextSelectionHandler {
 
     override fun getSelection(
-        selectionCoordinates: Pair<PxPosition, PxPosition>,
+        startPosition: PxPosition,
+        endPosition: PxPosition,
         containerLayoutCoordinates: LayoutCoordinates,
         mode: SelectionMode
     ): Selection? {
@@ -43,42 +43,22 @@ internal class TextSelectionDelegate(
         val relativePosition = containerLayoutCoordinates.childToLocal(
             layoutCoordinates, PxPosition.Origin
         )
-        val startPx = selectionCoordinates.first - relativePosition
-        val endPx = selectionCoordinates.second - relativePosition
+        val startPx = startPosition - relativePosition
+        val endPx = endPosition - relativePosition
 
-        val textSelectionInfo = getTextSelectionInfo(
+        val selection = getTextSelectionInfo(
             textDelegate = textDelegate,
             mode = mode,
-            selectionCoordinates = Pair(startPx, endPx)
+            selectionCoordinates = Pair(startPx, endPx),
+            layoutCoordinates = layoutCoordinates
         )
 
-        return if (textSelectionInfo == null) {
+        return if (selection == null) {
             internalSelection.value = null
             null
         } else {
-            val textRange = textSelectionInfo.toTextRange()
-            internalSelection.value = textRange
-
-            // TODO(qqd): Determine a set of coordinates around a character that we
-            //  need.
-            Selection(
-                startCoordinates = textSelectionInfo.start.coordinate,
-                endCoordinates = textSelectionInfo.end.coordinate,
-                startOffset = textRange.start,
-                endOffset = textRange.end,
-                startDirection = textSelectionInfo.start.direction,
-                endDirection = textSelectionInfo.end.direction,
-                startLayoutCoordinates = if (textSelectionInfo.start.containsWholeSelection) {
-                    layoutCoordinates
-                } else {
-                    null
-                },
-                endLayoutCoordinates = if (textSelectionInfo.end.containsWholeSelection) {
-                    layoutCoordinates
-                } else {
-                    null
-                }
-            )
+            internalSelection.value = selection.toTextRange()
+            return selection
         }
     }
 }
@@ -94,8 +74,9 @@ internal class TextSelectionDelegate(
 internal fun getTextSelectionInfo(
     textDelegate: TextDelegate,
     mode: SelectionMode,
-    selectionCoordinates: Pair<PxPosition, PxPosition>
-): TextSelectionInfo? {
+    selectionCoordinates: Pair<PxPosition, PxPosition>,
+    layoutCoordinates: LayoutCoordinates
+): Selection? {
     val startPx = selectionCoordinates.first
     val endPx = selectionCoordinates.second
 
@@ -103,10 +84,17 @@ internal fun getTextSelectionInfo(
     if (!mode.isSelected(bounds, start = startPx, end = endPx)) {
         return null
     } else {
-        var (textSelectionStart, containsWholeSelectionStart) =
-            getSelectionBorder(textDelegate, startPx, true)
-        var (textSelectionEnd, containsWholeSelectionEnd) =
-            getSelectionBorder(textDelegate, endPx, false)
+        var (textSelectionStart, containsWholeSelectionStart) = getSelectionBorder(
+            textDelegate = textDelegate,
+            position = startPx,
+            isStart = true
+        )
+
+        var (textSelectionEnd, containsWholeSelectionEnd) = getSelectionBorder(
+            textDelegate = textDelegate,
+            position = endPx,
+            isStart = false
+        )
 
         if (textSelectionStart == textSelectionEnd) {
             val wordBoundary = textDelegate.getWordBoundary(textSelectionStart)
@@ -114,26 +102,26 @@ internal fun getTextSelectionInfo(
             textSelectionEnd = wordBoundary.end
         }
 
-        return TextSelectionInfo(
-            start = TextSelectionEdgeInfo(
-                coordinate = getSelectionHandleCoordinates(
+        return Selection(
+            start = Selection.AnchorInfo(
+                coordinates = getSelectionHandleCoordinates(
                     textDelegate = textDelegate,
                     offset = textSelectionStart,
                     isStart = true
                 ),
-                containsWholeSelection = containsWholeSelectionStart,
                 direction = textDelegate.getBidiRunDirection(textSelectionStart),
-                offset = textSelectionStart
+                offset = textSelectionStart,
+                layoutCoordinates = if (containsWholeSelectionStart) layoutCoordinates else null
             ),
-            end = TextSelectionEdgeInfo(
-                coordinate = getSelectionHandleCoordinates(
+            end = Selection.AnchorInfo(
+                coordinates = getSelectionHandleCoordinates(
                     textDelegate = textDelegate,
                     offset = textSelectionEnd,
                     isStart = false
                 ),
-                containsWholeSelection = containsWholeSelectionEnd,
                 direction = textDelegate.getBidiRunDirection(Math.max(textSelectionEnd - 1, 0)),
-                offset = textSelectionEnd
+                offset = textSelectionEnd,
+                layoutCoordinates = if (containsWholeSelectionEnd) layoutCoordinates else null
             )
         )
     }
@@ -217,55 +205,3 @@ private fun getSelectionHandleCoordinates(
 
     return PxPosition(x.px, y.px)
 }
-
-/**
- * Contains information about the current selection on a Text.
- */
-internal data class TextSelectionInfo(
-    /**
-     * Provides information for selection start.
-     */
-    val start: TextSelectionEdgeInfo,
-
-    /**
-     * Provides information for selection end.
-     */
-    val end: TextSelectionEdgeInfo
-) {
-    /**
-     * Returns the selection offset information as a [TextRange]
-     */
-    fun toTextRange(): TextRange {
-        return TextRange(start.offset, end.offset)
-    }
-}
-
-/**
- * Contains information about an edge (start/end) of text selection
- */
-internal data class TextSelectionEdgeInfo(
-    /**
-     * The coordinates of the graphical position for selection character offset.
-     *
-     * This graphical position is the point at the left bottom corner for LTR
-     * character, or right bottom corner for RTL character.
-     *
-     * This coordinates is in child composable coordinates system.
-     */
-    val coordinate: PxPosition,
-
-    /**
-     * Text direction of the character in selection edge.
-     */
-    val direction: TextDirection,
-
-    /**
-     * A flag to check if the text composable contains the whole selection's edge.
-     */
-    val containsWholeSelection: Boolean,
-
-    /**
-     * Character offset for the selection edge.
-     */
-    val offset: Int
-)

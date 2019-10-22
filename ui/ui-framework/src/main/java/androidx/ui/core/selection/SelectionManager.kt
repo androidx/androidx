@@ -89,16 +89,37 @@ class SelectionManager : SelectionRegistrar {
         handlers.remove(key as TextSelectionHandler)
     }
 
+    /**
+     * Iterates over the handlers, gets the selection for each Composable, and merges all the
+     * returned [Selection]s.
+     *
+     * @param startPosition [PxPosition] for the start of the selection
+     * @param endPosition [PxPosition] for the end of the selection
+     * @param selection initial selection to start with
+     *
+     * @return [Selection] object which is constructed by combining all Composables that are
+     * selected.
+     */
+    private fun mergeSelections(
+        startPosition: PxPosition,
+        endPosition: PxPosition,
+        selection: Selection? = null
+    ): Selection? {
+        return handlers.fold(selection) { mergedSelection: Selection?,
+                                          handler: TextSelectionHandler ->
+            mergedSelection + handler.getSelection(
+                startPosition = startPosition,
+                endPosition = endPosition,
+                containerLayoutCoordinates = containerLayoutCoordinates,
+                mode = mode
+            )
+        }
+    }
+
     fun onPress(position: PxPosition) {
         if (draggingHandle) return
-        var result: Selection? = null
-        for (handler in handlers) {
-            result += handler.getSelection(
-                Pair(position, position),
-                containerLayoutCoordinates,
-                mode)
-        }
-        onSelectionChange(result)
+        val selection = mergeSelections(position, position)
+        onSelectionChange(selection)
     }
 
     /**
@@ -108,32 +129,33 @@ class SelectionManager : SelectionRegistrar {
      * line's top offset, which is not included in current line's hit area. To be able to
      * hit current line, move up this y coordinates by 1 pixel.
      */
-    fun getAdjustedCoordinates(p: PxPosition): PxPosition {
-        return PxPosition(p.x, p.y - 1.px)
+    private fun getAdjustedCoordinates(position: PxPosition): PxPosition {
+        return PxPosition(position.x, position.y - 1.px)
     }
 
-    fun handleDragObserver(dragStartHandle: Boolean): DragObserver {
+    fun handleDragObserver(isStartHandle: Boolean): DragObserver {
         return object : DragObserver {
             override fun onStart(downPosition: PxPosition) {
+                val selection = selection!!
                 // The LayoutCoordinates of the composable where the drag gesture should begin. This
                 // is used to convert the position of the beginning of the drag gesture from the
                 // composable coordinates to selection container coordinates.
-                val beginLayoutCoordinates =
-                    if (dragStartHandle) {
-                        selection!!.startLayoutCoordinates!!
-                    } else {
-                        selection!!.endLayoutCoordinates!!
-                    }
+                val beginLayoutCoordinates = if (isStartHandle) {
+                    selection.start.layoutCoordinates!!
+                } else {
+                    selection.end.layoutCoordinates!!
+                }
+
                 // The position of the character where the drag gesture should begin. This is in
                 // the composable coordinates.
-                val beginCoordinates =
-                    getAdjustedCoordinates(
-                        if (dragStartHandle) {
-                            selection!!.startCoordinates
-                        } else {
-                            selection!!.endCoordinates
-                        }
-                    )
+                val beginCoordinates = getAdjustedCoordinates(
+                    if (isStartHandle) {
+                        selection.start.coordinates
+                    } else {
+                        selection.end.coordinates
+                    }
+                )
+
                 // Convert the position where drag gesture begins from composable coordinates to
                 // selection container coordinates.
                 dragBeginPosition = containerLayoutCoordinates.childToLocal(
@@ -147,36 +169,29 @@ class SelectionManager : SelectionRegistrar {
             }
 
             override fun onDrag(dragDistance: PxPosition): PxPosition {
-                var result = selection
+                val selection = selection!!
                 dragTotalDistance += dragDistance
 
-                val currentStart =
-                    if (dragStartHandle) {
-                        dragBeginPosition + dragTotalDistance
-                    } else {
-                        containerLayoutCoordinates.childToLocal(
-                            selection!!.startLayoutCoordinates!!,
-                            getAdjustedCoordinates(selection!!.startCoordinates)
-                        )
-                    }
-
-                val currentEnd =
-                    if (dragStartHandle) {
-                        containerLayoutCoordinates.childToLocal(
-                            selection!!.endLayoutCoordinates!!,
-                            getAdjustedCoordinates(selection!!.endCoordinates)
-                        )
-                    } else {
-                        dragBeginPosition + dragTotalDistance
-                    }
-
-                for (handler in handlers) {
-                    result += handler.getSelection(
-                        Pair(currentStart, currentEnd),
-                        containerLayoutCoordinates,
-                        mode)
+                val currentStart = if (isStartHandle) {
+                    dragBeginPosition + dragTotalDistance
+                } else {
+                    containerLayoutCoordinates.childToLocal(
+                        selection.start.layoutCoordinates!!,
+                        getAdjustedCoordinates(selection.start.coordinates)
+                    )
                 }
-                onSelectionChange(result)
+
+                val currentEnd = if (isStartHandle) {
+                    containerLayoutCoordinates.childToLocal(
+                        selection.end.layoutCoordinates!!,
+                        getAdjustedCoordinates(selection.end.coordinates)
+                    )
+                } else {
+                    dragBeginPosition + dragTotalDistance
+                }
+
+                val finalSelection = mergeSelections(currentStart, currentEnd, selection)
+                onSelectionChange(finalSelection)
                 return dragDistance
             }
 
