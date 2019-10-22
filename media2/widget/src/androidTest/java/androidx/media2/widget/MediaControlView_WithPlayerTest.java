@@ -360,7 +360,7 @@ public class MediaControlView_WithPlayerTest extends MediaWidgetTestBase {
     }
 
     @Test
-    public void testButtonVisibilityForMusicFile() throws Throwable {
+    public void testSubtitleButtonVisibilityForMusicFile() throws Throwable {
         Uri uri = Uri.parse("android.resource://" + mContext.getPackageName() + "/"
                 + androidx.media2.widget.test.R.raw.test_music);
         final MediaItem uriMediaItem = createTestMediaItem(uri);

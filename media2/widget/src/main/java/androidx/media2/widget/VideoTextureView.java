@@ -20,7 +20,6 @@ import static androidx.media2.widget.VideoView.VIEW_TYPE_TEXTUREVIEW;
 
 import android.content.Context;
 import android.graphics.SurfaceTexture;
-import android.util.Log;
 import android.view.Surface;
 import android.view.TextureView;
 
@@ -28,9 +27,6 @@ import androidx.core.content.ContextCompat;
 
 class VideoTextureView extends TextureView
         implements VideoViewInterface, TextureView.SurfaceTextureListener {
-    private static final String TAG = "VideoTextureView";
-    private static final boolean DEBUG = Log.isLoggable(TAG, Log.DEBUG);
-
     private Surface mSurface;
     SurfaceListener mSurfaceListener;
     private PlayerWrapper mPlayer;
