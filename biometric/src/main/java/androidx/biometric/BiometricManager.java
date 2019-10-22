@@ -33,10 +33,10 @@ import java.lang.annotation.RetentionPolicy;
  * {@link android.hardware.biometrics.BiometricManager}. On devices P and older, this will query
  * {@link androidx.core.hardware.fingerprint.FingerprintManagerCompat}.
  */
+@SuppressWarnings("deprecation")
 public class BiometricManager {
 
     // Only guaranteed to be non-null on SDK < 29
-    @SuppressWarnings("deprecation")
     private final androidx.core.hardware.fingerprint.FingerprintManagerCompat mFingerprintManager;
 
     // Only guaranteed to be non-null on SDK >= 29 (Q)
@@ -91,7 +91,6 @@ public class BiometricManager {
         return new BiometricManager(context);
     }
 
-    @SuppressWarnings("deprecation")
     private BiometricManager(Context context) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             mBiometricManager = Api29Impl.create(context);
