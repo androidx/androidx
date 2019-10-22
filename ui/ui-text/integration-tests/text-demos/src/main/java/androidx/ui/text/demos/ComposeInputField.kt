@@ -25,8 +25,8 @@ import androidx.ui.input.ImeAction
 import androidx.ui.input.KeyboardType
 import androidx.ui.layout.Column
 import androidx.ui.layout.CrossAxisAlignment
-import androidx.ui.layout.LayoutSize
 import androidx.ui.foundation.VerticalScroller
+import androidx.ui.layout.ExpandedHeight
 import androidx.ui.text.TextStyle
 
 val KEYBOARD_TYPES = listOf(
@@ -54,7 +54,7 @@ val IME_ACTIONS = listOf(
 fun InputFieldDemo() {
     VerticalScroller {
         Column(
-            mainAxisSize = LayoutSize.Expand,
+            ExpandedHeight,
             crossAxisAlignment = CrossAxisAlignment.Start
         ) {
             TagLine(tag = "simple editing")

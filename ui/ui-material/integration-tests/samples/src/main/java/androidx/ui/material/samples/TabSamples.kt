@@ -43,12 +43,12 @@ import androidx.ui.layout.Container
 import androidx.ui.layout.CrossAxisAlignment
 import androidx.ui.layout.EdgeInsets
 import androidx.ui.layout.FlexColumn
-import androidx.ui.layout.LayoutSize
 import androidx.ui.layout.Padding
 import androidx.ui.material.Tab
 import androidx.ui.material.TabRow
 import androidx.ui.material.themeTextStyle
 import androidx.ui.graphics.Image
+import androidx.ui.layout.ExpandedHeight
 
 @Sampled
 @Composable
@@ -290,7 +290,7 @@ fun FancyTab(title: String, onClick: () -> Unit, selected: Boolean) {
     MutuallyExclusiveSetItem(selected = selected, onClick = { onClick() }) {
         Container(height = 50.dp, padding = EdgeInsets(10.dp)) {
             Column(
-                mainAxisSize = LayoutSize.Expand,
+                ExpandedHeight,
                 crossAxisAlignment = CrossAxisAlignment.Center
             ) {
                 val color = if (selected) Color.Red else Color.Gray

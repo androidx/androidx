@@ -31,11 +31,11 @@ import androidx.ui.graphics.Color
 import androidx.ui.layout.Column
 import androidx.ui.layout.Container
 import androidx.ui.layout.CrossAxisAlignment
-import androidx.ui.layout.LayoutSize
 import androidx.ui.foundation.ScrollerPosition
 import androidx.ui.foundation.VerticalScroller
 import androidx.ui.graphics.Paint
 import androidx.ui.graphics.PaintingStyle
+import androidx.ui.layout.ExpandedHeight
 import androidx.ui.test.ComposeTestCase
 import androidx.ui.test.ToggleableTestCase
 
@@ -52,7 +52,7 @@ class ScrollerTestCase(
             scrollerPosition = scrollerPosition
         ) {
             Column(
-                mainAxisSize = LayoutSize.Expand,
+                ExpandedHeight,
                 crossAxisAlignment = CrossAxisAlignment.Start
             ) {
                 for (green in 0..0xFF) {

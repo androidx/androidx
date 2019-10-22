@@ -28,7 +28,7 @@ import androidx.ui.layout.Column
 import androidx.ui.layout.Container
 import androidx.ui.layout.CrossAxisAlignment
 import androidx.ui.layout.EdgeInsets
-import androidx.ui.layout.LayoutSize
+import androidx.ui.layout.ExpandedHeight
 import androidx.ui.layout.HeightSpacer
 import androidx.ui.layout.MainAxisAlignment
 import androidx.ui.layout.Row
@@ -143,7 +143,7 @@ private fun AlertDialogButtonLayout(
                 confirmButton()
             }
         } else {
-            Column(mainAxisSize = LayoutSize.Expand) {
+            Column(ExpandedHeight) {
                 confirmButton()
 
                 if (dismissButton != null) {

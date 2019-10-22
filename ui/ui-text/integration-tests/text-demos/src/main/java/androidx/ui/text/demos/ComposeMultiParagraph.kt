@@ -22,7 +22,6 @@ import androidx.ui.core.sp
 import androidx.ui.foundation.VerticalScroller
 import androidx.ui.layout.Column
 import androidx.ui.layout.CrossAxisAlignment
-import androidx.ui.layout.LayoutSize
 import androidx.ui.text.AnnotatedString
 import androidx.ui.text.ParagraphStyle
 import androidx.ui.text.TextStyle
@@ -36,10 +35,7 @@ val lorem = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas f
 @Composable
 fun MultiParagraphDemo() {
     VerticalScroller {
-        Column(
-            mainAxisSize = LayoutSize.Expand,
-            crossAxisAlignment = CrossAxisAlignment.Start
-        ) {
+        Column(crossAxisAlignment = CrossAxisAlignment.Start) {
             TagLine(tag = "multiple paragraphs basic")
             TextDemoParagraph()
             TagLine(tag = "multiple paragraphs TextAlign")
