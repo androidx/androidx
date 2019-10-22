@@ -338,9 +338,6 @@ class BackspaceKeyEditOp : EditOperation {
             return
         }
 
-        // TODO(nona): Support font based grapheme breaking. Some units could be ligated form.
-        //             e.g. Arabic LAM + ALEF (U+0644 U+0627)
-        // TODO(nona): Copy Android backspace behavior implemented in BaseKeyListener
         val it = BreakIterator.getCharacterInstance()
         it.setText(buffer.toString())
         val prevCursorPos = it.preceding(buffer.cursor)
@@ -372,8 +369,6 @@ data class MoveCursorEditOp(
 ) : EditOperation {
 
     override fun process(buffer: EditingBuffer) {
-        // TODO(nona): Support font based grapheme breaking. Some units could be ligated form.
-        //             e.g. Arabic LAM + ALEF (U+0644 U+0627)
         val it = BreakIterator.getCharacterInstance()
         it.setText(buffer.toString())
         if (buffer.cursor == -1) {

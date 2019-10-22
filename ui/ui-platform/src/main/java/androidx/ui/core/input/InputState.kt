@@ -26,6 +26,6 @@ internal fun InputState.toExtractedText(): ExtractedText {
     res.partialStartOffset = -1 // -1 means full text
     res.selectionStart = selection.min
     res.selectionEnd = selection.max
-    res.flags = ExtractedText.FLAG_SINGLE_LINE // TODO(nona): Support multiline text.
+    res.flags = if ('\n' in text) 0 else ExtractedText.FLAG_SINGLE_LINE
     return res
 }

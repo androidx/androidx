@@ -97,7 +97,7 @@ private class CapitalizeTransformation(
     val locale: LocaleList = LocaleList("en-US")
 ) : VisualTransformation {
     override fun filter(text: AnnotatedString): TransformedText {
-        // TODO(nona): identityTranslater doesn't work for some locale, e.g. Turkish
+        // Note: identityTranslater doesn't work for some locale, e.g. Turkish
         return TransformedText(AnnotatedString(text.text).toUpperCase(locale), identityTranslater)
     }
 }

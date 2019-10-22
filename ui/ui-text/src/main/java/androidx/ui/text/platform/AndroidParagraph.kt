@@ -205,7 +205,6 @@ internal class AndroidParagraph constructor(
         if (offset !in 0..charSequence.length) {
             throw AssertionError("offset($offset) is out of bounds (0,${charSequence.length}")
         }
-        // TODO(nona): Support cursor drawable.
         val cursorWidth = 4.0f
         val horizontal = layout.getPrimaryHorizontal(offset)
         val line = layout.getLineForOffset(offset)

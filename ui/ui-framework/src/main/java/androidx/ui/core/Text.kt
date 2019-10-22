@@ -46,7 +46,7 @@ private val DefaultOverflow: TextOverflow = TextOverflow.Clip
 private val DefaultMaxLines: Int? = null
 
 /** The default selection color if none is specified. */
-private val DefaultSelectionColor = Color(0x6633B5E5)
+internal val DefaultSelectionColor = Color(0x6633B5E5)
 
 /**
  * The Text composable displays text that uses multiple different styles. The text to display is

@@ -33,7 +33,6 @@ class EditingBuffer(
     /**
      * The initial text of this editing buffer
      */
-    // TODO(nona): Change the argument to AnnotatedString once it is introduced
     initialText: String,
 
     /**
@@ -50,8 +49,6 @@ class EditingBuffer(
     }
 
     private val gapBuffer = PartialGapBuffer(initialText)
-
-    // TODO(nona): Add style data.
 
     /**
      * The inclusive selection start offset
@@ -180,7 +177,6 @@ class EditingBuffer(
      * Instead, preserve the selection with adjusting the deleted text.
      */
     fun delete(start: Int, end: Int) {
-        // TODO(nona): Remove TextRange object creation if this is performance critical.
         val deleteRange = TextRange(start, end)
         if (deleteRange.intersects(TextRange(selectionStart, selectionEnd))) {
             // Currently only target for deleteSurroundingText/deleteSurroundingTextInCodePoints.

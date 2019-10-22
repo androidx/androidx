@@ -359,7 +359,6 @@ internal fun BaseTextField(
             TextFieldDelegate.applyVisualFilter(value, visualTransformation)
         }
         val textDelegate = +memo(visualText, mergedStyle, density, resourceLoader) {
-            // TODO(nona): Add parameter softwrap, etc.
             TextDelegate(
                 text = visualText,
                 style = mergedStyle,
@@ -412,7 +411,6 @@ internal fun BaseTextField(
                     onValueChangeWrapper)
                 onBlur()
             },
-            onDragAt = { TextFieldDelegate.onDragAt(it) },
             onRelease = {
                 TextFieldDelegate.onRelease(
                     it,
@@ -429,8 +427,6 @@ internal fun BaseTextField(
                 children = @Composable {
                     OnPositioned {
                         if (textInputService != null) {
-                            // TODO(nona): notify focused rect in onPreDraw equivalent callback for
-                            //             supporting multiline text.
                             coords.value = it
                             TextFieldDelegate.notifyFocusedRect(
                                 value,
@@ -470,7 +466,6 @@ internal fun BaseTextField(
 @Composable
 private fun TextInputEventObserver(
     onPress: (PxPosition) -> Unit,
-    onDragAt: (PxPosition) -> Unit,
     onRelease: (PxPosition) -> Unit,
     onFocus: () -> Unit,
     onBlur: () -> Unit,
@@ -525,7 +520,6 @@ private fun TextInputEventObserver(
                     doFocusIn()
                 }
             },
-            onDragAt = onDragAt,
             onRelease = onRelease
         ) {
             children()
@@ -574,7 +568,6 @@ internal class DragEventTracker {
 @Composable
 private fun DragPositionGestureDetector(
     onPress: (PxPosition) -> Unit,
-    onDragAt: (PxPosition) -> Unit,
     onRelease: (PxPosition) -> Unit,
     children: @Composable() () -> Unit
 ) {
@@ -590,7 +583,6 @@ private fun DragPositionGestureDetector(
             dragObserver = object : DragObserver {
                 override fun onDrag(dragDistance: PxPosition): PxPosition {
                     tracker.value.onDrag(dragDistance)
-                    onDragAt(tracker.value.getPosition())
                     return tracker.value.getPosition()
                 }
             }
