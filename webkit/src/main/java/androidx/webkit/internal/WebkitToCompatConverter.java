@@ -74,8 +74,9 @@ public class WebkitToCompatConverter {
      * {@link ServiceWorkerWebSettings} such that calls on either of those objects affect the other
      * object.
      */
+    @NonNull
     public InvocationHandler convertServiceWorkerSettings(
-            ServiceWorkerWebSettings settings) {
+            @NonNull ServiceWorkerWebSettings settings) {
         return mImpl.convertServiceWorkerSettings(settings);
     }
 
@@ -85,8 +86,10 @@ public class WebkitToCompatConverter {
      * {@link ServiceWorkerWebSettings}.
      */
     @RequiresApi(24)
+    @NonNull
     public ServiceWorkerWebSettings convertServiceWorkerSettings(
-            /* SupportLibServiceWorkerSettings */ InvocationHandler serviceWorkerSettings) {
+            @NonNull /* SupportLibServiceWorkerSettings */ InvocationHandler
+            serviceWorkerSettings) {
         return (ServiceWorkerWebSettings) mImpl.convertServiceWorkerSettings(serviceWorkerSettings);
     }
 
