@@ -67,6 +67,7 @@ public class DrawableWrapper extends Drawable implements Drawable.Callback {
         return mDrawable.getChangingConfigurations();
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public void setDither(boolean dither) {
         mDrawable.setDither(dither);
@@ -104,7 +105,7 @@ public class DrawableWrapper extends Drawable implements Drawable.Callback {
 
     @Override
     public void jumpToCurrentState() {
-        DrawableCompat.jumpToCurrentState(mDrawable);
+        mDrawable.jumpToCurrentState();
     }
 
     @Override
@@ -117,6 +118,7 @@ public class DrawableWrapper extends Drawable implements Drawable.Callback {
         return super.setVisible(visible, restart) || mDrawable.setVisible(visible, restart);
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public int getOpacity() {
         return mDrawable.getOpacity();

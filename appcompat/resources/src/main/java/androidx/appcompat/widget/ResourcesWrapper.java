@@ -22,7 +22,6 @@ import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.content.res.XmlResourceParser;
-import android.graphics.Movie;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.AttributeSet;
@@ -44,6 +43,7 @@ class ResourcesWrapper extends Resources {
 
     private final Resources mResources;
 
+    @SuppressWarnings("deprecation")
     public ResourcesWrapper(Resources resources) {
         super(resources.getAssets(), resources.getDisplayMetrics(), resources.getConfiguration());
         mResources = resources;
@@ -125,6 +125,7 @@ class ResourcesWrapper extends Resources {
         return mResources.getFraction(id, base, pbase);
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public Drawable getDrawable(int id) throws NotFoundException {
         return mResources.getDrawable(id);
@@ -136,6 +137,7 @@ class ResourcesWrapper extends Resources {
         return mResources.getDrawable(id, theme);
     }
 
+    @SuppressWarnings("deprecation")
     @RequiresApi(15)
     @Override
     public Drawable getDrawableForDensity(int id, int density) throws NotFoundException {
@@ -148,16 +150,19 @@ class ResourcesWrapper extends Resources {
         return mResources.getDrawableForDensity(id, density, theme);
     }
 
+    @SuppressWarnings("deprecation")
     @Override
-    public Movie getMovie(int id) throws NotFoundException {
+    public android.graphics.Movie getMovie(int id) throws NotFoundException {
         return mResources.getMovie(id);
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public int getColor(int id) throws NotFoundException {
         return mResources.getColor(id);
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public ColorStateList getColorStateList(int id) throws NotFoundException {
         return mResources.getColorStateList(id);
@@ -227,6 +232,7 @@ class ResourcesWrapper extends Resources {
         return mResources.obtainAttributes(set, attrs);
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public void updateConfiguration(Configuration config, DisplayMetrics metrics) {
         super.updateConfiguration(config, metrics);

@@ -50,6 +50,7 @@ public class VectorEnabledTintResources extends Resources {
 
     private final WeakReference<Context> mContextRef;
 
+    @SuppressWarnings("deprecation")
     public VectorEnabledTintResources(@NonNull final Context context,
             @NonNull final Resources res) {
         super(res.getAssets(), res.getDisplayMetrics(), res.getConfiguration());
@@ -61,6 +62,7 @@ public class VectorEnabledTintResources extends Resources {
      * things like {@link android.graphics.drawable.DrawableContainer}s which can retrieve
      * their children via this method.
      */
+    @SuppressWarnings("deprecation")
     @Override
     public Drawable getDrawable(int id) throws NotFoundException {
         final Context context = mContextRef.get();
@@ -71,6 +73,7 @@ public class VectorEnabledTintResources extends Resources {
         }
     }
 
+    @SuppressWarnings("deprecation")
     final Drawable superGetDrawable(int id) {
         return super.getDrawable(id);
     }

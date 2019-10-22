@@ -325,7 +325,7 @@ public final class ResourceManagerInternal {
                 return entry.newDrawable(context.getResources());
             } else {
                 // Our entry has been purged
-                cache.delete(key);
+                cache.remove(key);
             }
         }
         return null;
