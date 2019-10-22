@@ -21,11 +21,11 @@ import com.intellij.psi.PsiType
 import com.intellij.psi.util.PsiTypesUtil
 
 /**
- * Checks if the [PsiType] is a subclass of class with canonical name {@code superName}.
+ * Checks if the [PsiType] is a subclass of class with canonical name [superName].
  *
  * @param context The context of the lint request.
  * @param superName The canonical name to check that the [PsiType] is a subclass of.
- * @param strict Whether {@code superName} is inclusive.
+ * @param strict Whether [superName] is inclusive.
  */
 internal fun PsiType?.extends(
     context: JavaContext,
