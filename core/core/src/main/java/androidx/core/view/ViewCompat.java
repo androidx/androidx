@@ -4011,6 +4011,7 @@ public class ViewCompat {
         private final int mTagKey;
         private final Class<T> mType;
         private final int mFrameworkMinimumSdk;
+        private final int mContentChangeType;
 
         AccessibilityViewProperty(int tagKey, Class<T> type, int frameworkMinimumSdk) {
             this(tagKey, type,
@@ -4021,6 +4022,7 @@ public class ViewCompat {
                 int tagKey, Class<T> type, int contentChangeType, int frameworkMinimumSdk) {
             mTagKey = tagKey;
             mType = type;
+            mContentChangeType = contentChangeType;
             mFrameworkMinimumSdk = frameworkMinimumSdk;
         }
 
