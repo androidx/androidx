@@ -16,6 +16,8 @@
 
 package androidx.camera.camera2;
 
+import static androidx.camera.core.PreviewUtil.createPreviewSurfaceCallback;
+
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
 
@@ -48,22 +50,19 @@ import androidx.camera.core.Preview;
 import androidx.camera.core.Preview.OnPreviewOutputUpdateListener;
 import androidx.camera.core.Preview.PreviewOutput;
 import androidx.camera.core.PreviewConfig;
+import androidx.camera.core.PreviewUtil;
 import androidx.camera.core.SessionConfig;
-import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.camera.testing.CameraUtil;
 import androidx.camera.testing.fakes.FakeCameraControl;
 import androidx.camera.testing.fakes.FakeLifecycleOwner;
 import androidx.test.annotation.UiThreadTest;
 import androidx.test.core.app.ApplicationProvider;
-import androidx.test.espresso.core.internal.deps.guava.base.Preconditions;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.FlakyTest;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.MediumTest;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.GrantPermissionRule;
-
-import com.google.common.util.concurrent.ListenableFuture;
 
 import org.junit.After;
 import org.junit.Before;
@@ -112,31 +111,19 @@ public final class PreviewTest {
     private String mCameraId;
     private Semaphore mSurfaceFutureSemaphore;
     private Preview.PreviewSurfaceCallback mPreviewSurfaceCallbackWithFrameAvailableListener =
-            new Preview.PreviewSurfaceCallback() {
-
-                @NonNull
+            createPreviewSurfaceCallback(new PreviewUtil.SurfaceTextureCallback() {
                 @Override
-                public ListenableFuture<Surface> createSurfaceFuture(@NonNull Size resolution,
-                        int imageFormat) {
-                    Preconditions.checkNotNull(mSurfaceFutureSemaphore);
-                    SurfaceTexture surfaceTexture = new SurfaceTexture(0);
-                    surfaceTexture.setDefaultBufferSize(resolution.getWidth(),
-                            resolution.getHeight());
-                    surfaceTexture.detachFromGLContext();
+                public void onSurfaceTextureReady(@NonNull SurfaceTexture surfaceTexture) {
                     surfaceTexture.setOnFrameAvailableListener(
                             surfaceTexture1 -> mSurfaceFutureSemaphore.release());
-                    return Futures.immediateFuture(new Surface(surfaceTexture));
                 }
 
                 @Override
-                public void onSafeToRelease(@NonNull ListenableFuture<Surface> surfaceFuture) {
-                    try {
-                        surfaceFuture.get().release();
-                    } catch (ExecutionException | InterruptedException e) {
-                        throw new IllegalStateException("Failed to release Surface");
-                    }
+                public void onSafeToRelease(@NonNull SurfaceTexture surfaceTexture) {
+                    surfaceTexture.release();
                 }
-            };
+            });
+
 
     @Before
     public void setUp() {

@@ -16,6 +16,8 @@
 
 package androidx.camera.view;
 
+import static androidx.camera.core.PreviewUtil.createPreviewSurfaceCallback;
+
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assume.assumeTrue;
@@ -38,6 +40,7 @@ import androidx.camera.core.MeteringPoint;
 import androidx.camera.core.MeteringPointFactory;
 import androidx.camera.core.Preview;
 import androidx.camera.core.PreviewConfig;
+import androidx.camera.core.PreviewUtil;
 import androidx.camera.testing.CameraUtil;
 import androidx.camera.testing.CoreAppTestUtil;
 import androidx.camera.testing.fakes.FakeActivity;
@@ -196,43 +199,41 @@ public class TextureViewMeteringPointFactoryTest {
                         .setLensFacing(lensFacing);
 
         Preview preview = new Preview(previewConfigBuilder.build());
-        mInstrumentation.runOnMainSync(new Runnable() {
-            @Override
-            public void run() {
-                preview.setOnPreviewOutputUpdateListener(
-                        new Preview.OnPreviewOutputUpdateListener() {
-                            @Override
-                            public void onUpdated(@NonNull Preview.PreviewOutput output) {
-                                mActivityRule.getActivity().runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        ViewGroup viewGroup = (ViewGroup) mTextureView.getParent();
-                                        viewGroup.removeView(mTextureView);
-                                        viewGroup.addView(mTextureView);
+        mInstrumentation.runOnMainSync(() -> {
+            preview.setPreviewSurfaceCallback(createPreviewSurfaceCallback(
+                    new PreviewUtil.SurfaceTextureCallback() {
+                        @Override
+                        public void onSurfaceTextureReady(@NonNull SurfaceTexture surfaceTexture) {
+                            ViewGroup viewGroup = (ViewGroup) mTextureView.getParent();
+                            viewGroup.removeView(mTextureView);
+                            viewGroup.addView(mTextureView);
+                            mTextureView.setSurfaceTexture(surfaceTexture);
 
-                                        mTextureView.setSurfaceTexture(output.getSurfaceTexture());
-                                        output.getSurfaceTexture().setOnFrameAvailableListener(
-                                                new SurfaceTexture.OnFrameAvailableListener() {
-                                                    int mFrameCount = 0;
-                                                    @Override
-                                                    public void onFrameAvailable(
-                                                            SurfaceTexture surfaceTexture) {
-                                                        mFrameCount++;
-                                                        if (mFrameCount == WAIT_FRAMECOUNT) {
-                                                            mLatchForFrameReady.countDown();
-                                                        }
-                                                    }
-                                                });
-                                    }
-                                });
-                            }
-                        });
+                            surfaceTexture.setOnFrameAvailableListener(
+                                    new SurfaceTexture.OnFrameAvailableListener() {
+                                        int mFrameCount = 0;
 
-                // SurfaceTexture#getTransformMatrix is initialized properly when camera starts
-                // to output.
-                CameraX.bindToLifecycle(mLifecycle, preview);
-                mLifecycle.startAndResume();
-            }
+                                        @Override
+                                        public void onFrameAvailable(
+                                                SurfaceTexture surfaceTexture) {
+                                            mFrameCount++;
+                                            if (mFrameCount == WAIT_FRAMECOUNT) {
+                                                mLatchForFrameReady.countDown();
+                                            }
+                                        }
+                                    });
+                        }
+
+                        @Override
+                        public void onSafeToRelease(@NonNull SurfaceTexture surfaceTexture) {
+                            surfaceTexture.release();
+                        }
+                    }));
+
+            // SurfaceTexture#getTransformMatrix is initialized properly when camera starts
+            // to output.
+            CameraX.bindToLifecycle(mLifecycle, preview);
+            mLifecycle.startAndResume();
         });
 
         mLatchForFrameReady.await(3, TimeUnit.SECONDS);

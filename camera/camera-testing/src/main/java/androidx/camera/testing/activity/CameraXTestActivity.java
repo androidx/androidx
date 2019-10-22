@@ -16,6 +16,9 @@
 
 package androidx.camera.testing.activity;
 
+
+import static androidx.camera.core.PreviewUtil.createPreviewSurfaceCallback;
+
 import android.graphics.SurfaceTexture;
 import android.os.Bundle;
 import android.util.Log;
@@ -30,6 +33,7 @@ import androidx.camera.core.CameraInfoUnavailableException;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.Preview;
 import androidx.camera.core.PreviewConfig;
+import androidx.camera.core.PreviewUtil;
 import androidx.camera.testing.CameraUtil;
 import androidx.camera.testing.R;
 import androidx.test.espresso.idling.CountingIdlingResource;
@@ -89,18 +93,21 @@ public class CameraXTestActivity extends AppCompatActivity {
 
         mPreview = new Preview(config);
         TextureView textureView = findViewById(R.id.textureView);
-        mPreview.setOnPreviewOutputUpdateListener(
-                new Preview.OnPreviewOutputUpdateListener() {
+        mPreview.setPreviewSurfaceCallback(createPreviewSurfaceCallback(
+                new PreviewUtil.SurfaceTextureCallback() {
                     @Override
-                    public void onUpdated(Preview.PreviewOutput previewOutput) {
-                        // If TextureView was already created, need to re-add it to change the
-                        // SurfaceTexture.
+                    public void onSurfaceTextureReady(@NonNull SurfaceTexture surfaceTexture) {
                         ViewGroup viewGroup = (ViewGroup) textureView.getParent();
                         viewGroup.removeView(textureView);
                         viewGroup.addView(textureView);
-                        textureView.setSurfaceTexture(previewOutput.getSurfaceTexture());
+                        textureView.setSurfaceTexture(surfaceTexture);
                     }
-                });
+
+                    @Override
+                    public void onSafeToRelease(@NonNull SurfaceTexture surfaceTexture) {
+                        surfaceTexture.release();
+                    }
+                }));
 
         try {
             CameraX.bindToLifecycle(this, mPreview);

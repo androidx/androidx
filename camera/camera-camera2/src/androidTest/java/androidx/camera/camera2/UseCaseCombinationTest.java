@@ -16,6 +16,8 @@
 
 package androidx.camera.camera2;
 
+import static androidx.camera.core.PreviewUtil.createPreviewSurfaceCallback;
+
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assume.assumeTrue;
@@ -36,6 +38,7 @@ import androidx.camera.core.ImageCaptureConfig;
 import androidx.camera.core.ImageProxy;
 import androidx.camera.core.Preview;
 import androidx.camera.core.PreviewConfig;
+import androidx.camera.core.PreviewUtil;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.testing.CameraUtil;
 import androidx.camera.testing.GLUtil;
@@ -115,30 +118,26 @@ public final class UseCaseCombinationTest {
     public void previewCombinesImageCapture() throws InterruptedException {
         initPreview();
         initImageCapture();
+        mInstrumentation.runOnMainSync(() -> {
+            mPreview.setPreviewSurfaceCallback(createPreviewSurfaceCallback(
+                    new PreviewUtil.SurfaceTextureCallback() {
+                        @Override
+                        public void onSurfaceTextureReady(@NonNull SurfaceTexture surfaceTexture) {
+                            surfaceTexture.attachToGLContext(GLUtil.getTexIdFromGLContext());
+                            surfaceTexture.setOnFrameAvailableListener(
+                                    surfaceTexture1 -> {
+                                        surfaceTexture.updateTexImage();
+                                        mSemaphore.release();
+                                    });
+                        }
 
-        mInstrumentation.runOnMainSync(new Runnable() {
-            @Override
-            public void run() {
-                CameraX.bindToLifecycle(mLifecycle, mPreview, mImageCapture);
-                mPreview.setOnPreviewOutputUpdateListener(
-                        new Preview.OnPreviewOutputUpdateListener() {
-                            @Override
-                            public void onUpdated(@NonNull Preview.PreviewOutput output) {
-                                output.getSurfaceTexture().attachToGLContext(
-                                        GLUtil.getTexIdFromGLContext());
-                                output.getSurfaceTexture().setOnFrameAvailableListener(
-                                        new SurfaceTexture.OnFrameAvailableListener() {
-                                            @Override
-                                            public void onFrameAvailable(
-                                                    SurfaceTexture surfaceTexture) {
-                                                surfaceTexture.updateTexImage();
-                                                mSemaphore.release();
-                                            }
-                                        });
-                            }
-                        });
-                mLifecycle.startAndResume();
-            }
+                        @Override
+                        public void onSafeToRelease(@NonNull SurfaceTexture surfaceTexture) {
+                            surfaceTexture.release();
+                        }
+                    }));
+            CameraX.bindToLifecycle(mLifecycle, mPreview, mImageCapture);
+            mLifecycle.startAndResume();
         });
 
         // Wait for the frame available update.
