@@ -31,6 +31,7 @@ import androidx.ui.core.consumeDownChange
 import androidx.ui.core.CoroutineContextAmbient
 import androidx.ui.core.IntPxSize
 import androidx.ui.core.PointerInputWrapper
+import androidx.ui.core.gesture.util.anyPointersInBounds
 import androidx.ui.temputils.delay
 import kotlinx.coroutines.Job
 import kotlin.coroutines.CoroutineContext
@@ -75,7 +76,7 @@ internal class LongPressGestureRecognizer(
     var job: Job? = null
 
     val pointerInputHandler =
-        { changes: List<PointerInputChange>, pass: PointerEventPass, _: IntPxSize ->
+        { changes: List<PointerInputChange>, pass: PointerEventPass, bounds: IntPxSize ->
 
             var changesToReturn = changes
 
@@ -104,6 +105,10 @@ internal class LongPressGestureRecognizer(
                 } else if (state != State.Idle && changes.all { it.changedToUpIgnoreConsumed() }) {
                     // If we have started and all of the changes changed to up, we are stopping.
                     reset()
+                } else if (!changesToReturn.anyPointersInBounds(bounds)) {
+                    // If none of the pointers are in bounds of our bounds, we should reset and wait
+                    // till all pointers are changing to down to "prime" again.
+                    reset()
                 }
 
                 if (state == State.Primed) {
@@ -124,8 +129,8 @@ internal class LongPressGestureRecognizer(
                 changes.any { it.anyPositionChangeConsumed() }
             ) {
                 // If we are primed, reset so we don't fire.
-                // If we are fired, reset to idle so we don't block up events that still fire after dragging
-                // (like flinging).
+                // If we are fired, reset to idle so we don't block up events that still fire after
+                // dragging (like flinging).
                 reset()
             }
 
