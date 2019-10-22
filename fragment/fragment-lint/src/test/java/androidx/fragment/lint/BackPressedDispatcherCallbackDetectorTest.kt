@@ -13,9 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package androidx.fragment.lint
 
-import androidx.fragment.lint.stubs.LIVEDATA_STUBS
+import androidx.fragment.lint.stubs.BACK_CALLBACK_STUBS
 import com.android.tools.lint.checks.infrastructure.LintDetectorTest
 import com.android.tools.lint.checks.infrastructure.TestLintResult
 import com.android.tools.lint.detector.api.Detector
@@ -28,18 +29,18 @@ import java.io.File
 import java.util.Properties
 
 @RunWith(JUnit4::class)
-class FragmentLiveDataObserveDetectorTest : LintDetectorTest() {
+class BackPressedDispatcherCallbackDetectorTest : LintDetectorTest() {
 
     override fun getDetector(): Detector = UnsafeFragmentLifecycleObserverDetector()
 
     override fun getIssues(): MutableList<Issue> =
-        mutableListOf(UnsafeFragmentLifecycleObserverDetector.LIVEDATA_ISSUE)
+        mutableListOf(UnsafeFragmentLifecycleObserverDetector.BACK_PRESSED_ISSUE)
 
     private var sdkDir: File? = null
 
     @Before
     fun setup() {
-        val stream = FragmentLiveDataObserveDetectorTest::class.java.classLoader
+        val stream = BackPressedDispatcherCallbackDetectorTest::class.java.classLoader
             .getResourceAsStream("sdk.prop")
         val properties = Properties()
         properties.load(stream)
@@ -47,7 +48,7 @@ class FragmentLiveDataObserveDetectorTest : LintDetectorTest() {
     }
 
     private fun check(vararg files: TestFile): TestLintResult {
-        return lint().files(*files, *LIVEDATA_STUBS)
+        return lint().files(*files, *BACK_CALLBACK_STUBS)
             .sdkHome(sdkDir!!)
             .run()
     }
@@ -59,26 +60,27 @@ class FragmentLiveDataObserveDetectorTest : LintDetectorTest() {
 package com.example
 
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.MutableLiveData
+import androidx.activity.OnBackPressedDispatcher
+import androidx.activity.OnBackPressedCallback
 import com.example.test.Foo
 
 class TestFragment : Fragment {
 
     override fun onCreateView() {
-        val liveData = MutableLiveData<String>()
-        liveData.observe(getViewLifecycleOwner(), Observer<String> {})
+        val dispatcher = OnBackPressedDispatcher()
+        dispatcher.addCallback(getViewLifecycleOwner(), OnBackPressedCallback {})
     }
 
     override fun onViewCreated() {
         test()
         val foo = Foo()
-        foo.observeData(this)
-        foo.observe(this)
+        foo.addCallback(this)
+        foo.callback(this)
     }
 
     private fun test() {
-        val liveData = MutableLiveData<String>()
-        liveData.observe(getViewLifecycleOwner(), Observer<String> {})
+        val dispatcher = OnBackPressedDispatcher()
+        dispatcher.addCallback(getViewLifecycleOwner(), OnBackPressedCallback {})
         test()
     }
 }
@@ -88,60 +90,19 @@ package com.example.test
 
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.MutableLiveData
+import androidx.activity.OnBackPressedDispatcher
+import androidx.activity.OnBackPressedCallback
 
 class Foo {
-    fun observeData(fragment: Fragment) {
-        val liveData = MutableLiveData<String>()
-        liveData.observe(LifecycleOwner(), Observer<String> {})
-        liveData.observe(fragment, Observer<String> {}, true)
+    fun addCallback(fragment: Fragment) {
+        val dispatcher = OnBackPressedDispatcher()
+        dispatcher.addCallback(LifecycleOwner(), OnBackPressedCallback {})
     }
 
-    fun observe(fragment: Fragment) {}
+    fun callback(fragment: Fragment) {}
 }
             """))
             .expectClean()
-    }
-
-    @Test
-    fun javaLintFixTest() {
-        check(
-            java("""
-package com.example;
-
-import androidx.fragment.app.Fragment;
-import androidx.lifecycle.MutableLiveData;
-
-class TestFragment extends Fragment {
-
-    @Override
-    void onCreateView() {
-        MutableLiveData<String> liveData = new MutableLiveData<String>();
-        liveData.observe(this, new Observer<String>() {});
-    }
-}
-            """))
-            .expect("""
-src/com/example/TestFragment.java:12: Error: Use getViewLifecycleOwner() as the LifecycleOwner. [FragmentLiveDataObserve]
-        liveData.observe(this, new Observer<String>() {});
-                         ~~~~
-1 errors, 0 warnings
-            """)
-            .checkFix(null, java("""
-package com.example;
-
-import androidx.fragment.app.Fragment;
-import androidx.lifecycle.MutableLiveData;
-
-class TestFragment extends Fragment {
-
-    @Override
-    void onCreateView() {
-        MutableLiveData<String> liveData = new MutableLiveData<String>();
-        liveData.observe(getViewLifecycleOwner(), new Observer<String>() {});
-    }
-}
-            """))
     }
 
     @Test
@@ -151,33 +112,35 @@ class TestFragment extends Fragment {
 package com.example
 
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.MutableLiveData
+import androidx.activity.OnBackPressedDispatcher
+import androidx.activity.OnBackPressedCallback
 
 class TestFragment : Fragment {
 
     override fun onCreateView() {
-        val liveData = MutableLiveData<String>()
-        liveData.observe(this, Observer<String> {})
+        val dispatcher = OnBackPressedDispatcher()
+        dispatcher.addCallback(this, OnBackPressedCallback {})
     }
 }
             """))
             .expect("""
-src/com/example/TestFragment.kt:11: Error: Use viewLifecycleOwner as the LifecycleOwner. [FragmentLiveDataObserve]
-        liveData.observe(this, Observer<String> {})
-                         ~~~~
+src/com/example/TestFragment.kt:12: Error: Use viewLifecycleOwner as the LifecycleOwner. [FragmentBackPressedCallback]
+        dispatcher.addCallback(this, OnBackPressedCallback {})
+                               ~~~~
 1 errors, 0 warnings
             """)
             .checkFix(null, kotlin("""
 package com.example
 
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.MutableLiveData
+import androidx.activity.OnBackPressedDispatcher
+import androidx.activity.OnBackPressedCallback
 
 class TestFragment : Fragment {
 
     override fun onCreateView() {
-        val liveData = MutableLiveData<String>()
-        liveData.observe(viewLifecycleOwner, Observer<String> {})
+        val dispatcher = OnBackPressedDispatcher()
+        dispatcher.addCallback(viewLifecycleOwner, OnBackPressedCallback {})
     }
 }
             """))
@@ -190,7 +153,8 @@ class TestFragment : Fragment {
 package com.example
 
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.MutableLiveData
+import androidx.activity.OnBackPressedDispatcher
+import androidx.activity.OnBackPressedCallback
 
 class TestFragment : Fragment {
 
@@ -199,22 +163,23 @@ class TestFragment : Fragment {
     }
 
     private fun test() {
-        val liveData = MutableLiveData<String>()
-        liveData.observe(this, Observer<String> {})
+        val dispatcher = OnBackPressedDispatcher()
+        dispatcher.addCallback(this, OnBackPressedCallback {})
     }
 }
             """))
             .expect("""
-src/com/example/TestFragment.kt:15: Error: Use viewLifecycleOwner as the LifecycleOwner. [FragmentLiveDataObserve]
-        liveData.observe(this, Observer<String> {})
-                         ~~~~
+src/com/example/TestFragment.kt:16: Error: Use viewLifecycleOwner as the LifecycleOwner. [FragmentBackPressedCallback]
+        dispatcher.addCallback(this, OnBackPressedCallback {})
+                               ~~~~
 1 errors, 0 warnings
             """)
             .checkFix(null, kotlin("""
 package com.example
 
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.MutableLiveData
+import androidx.activity.OnBackPressedDispatcher
+import androidx.activity.OnBackPressedCallback
 
 class TestFragment : Fragment {
 
@@ -223,8 +188,8 @@ class TestFragment : Fragment {
     }
 
     private fun test() {
-        val liveData = MutableLiveData<String>()
-        liveData.observe(viewLifecycleOwner, Observer<String> {})
+        val dispatcher = OnBackPressedDispatcher()
+        dispatcher.addCallback(viewLifecycleOwner, OnBackPressedCallback {})
     }
 }
             """))
@@ -237,7 +202,6 @@ class TestFragment : Fragment {
 package com.example
 
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.MutableLiveData
 import com.example.test.Foo
 
 class TestFragment : Fragment {
@@ -248,7 +212,7 @@ class TestFragment : Fragment {
 
     private fun test() {
         val foo = Foo()
-        foo.observeData(this)
+        foo.addCallback(this)
     }
 }
             """),
@@ -256,19 +220,20 @@ class TestFragment : Fragment {
 package com.example.test
 
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.MutableLiveData
+import androidx.activity.OnBackPressedDispatcher
+import androidx.activity.OnBackPressedCallback
 
 class Foo {
-    fun observeData(fragment: Fragment) {
-        val liveData = MutableLiveData<String>()
-        liveData.observe(fragment, Observer<String> {})
+    fun addCallback(fragment: Fragment) {
+        val dispatcher = OnBackPressedDispatcher()
+        dispatcher.addCallback(fragment, OnBackPressedCallback {})
     }
 }
             """))
             .expect("""
-src/com/example/test/Foo.kt:10: Error: Unsafe call to observe with Fragment instance as LifecycleOwner from TestFragment.onCreateView. [FragmentLiveDataObserve]
-        liveData.observe(fragment, Observer<String> {})
-        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+src/com/example/test/Foo.kt:11: Error: Unsafe call to addCallback with Fragment instance as LifecycleOwner from TestFragment.onCreateView. [FragmentBackPressedCallback]
+        dispatcher.addCallback(fragment, OnBackPressedCallback {})
+        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 1 errors, 0 warnings
             """)
     }
@@ -280,7 +245,6 @@ src/com/example/test/Foo.kt:10: Error: Unsafe call to observe with Fragment inst
 package com.example
 
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.MutableLiveData
 import com.example.test.Foo
 
 class TestFragment : Fragment {
@@ -291,7 +255,7 @@ class TestFragment : Fragment {
 
     private fun test() {
         val foo = Foo()
-        foo.observeData(this)
+        foo.addCallback(this)
     }
 }
             """),
@@ -299,26 +263,27 @@ class TestFragment : Fragment {
 package com.example.test
 
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.MutableLiveData
+import androidx.activity.OnBackPressedDispatcher
+import androidx.activity.OnBackPressedCallback
 
 class Foo {
     private lateinit val fragment: Fragment
 
-    fun observeData(fragment: Fragment) {
+    fun addCallback(fragment: Fragment) {
         this.fragment = fragment
-        observe()
+        callback()
     }
 
-    private fun observe() {
-        val liveData = MutableLiveData<String>()
-        liveData.observe(fragment, Observer<String> {})
+    private fun callback() {
+        val dispatcher = OnBackPressedDispatcher()
+        dispatcher.addCallback(fragment, OnBackPressedCallback {})
     }
 }
             """))
             .expect("""
-src/com/example/test/Foo.kt:17: Error: Unsafe call to observe with Fragment instance as LifecycleOwner from TestFragment.onCreateView. [FragmentLiveDataObserve]
-        liveData.observe(fragment, Observer<String> {})
-        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+src/com/example/test/Foo.kt:18: Error: Unsafe call to addCallback with Fragment instance as LifecycleOwner from TestFragment.onCreateView. [FragmentBackPressedCallback]
+        dispatcher.addCallback(fragment, OnBackPressedCallback {})
+        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 1 errors, 0 warnings
             """)
     }

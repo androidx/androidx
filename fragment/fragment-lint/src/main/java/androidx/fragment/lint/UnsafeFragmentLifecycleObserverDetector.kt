@@ -15,7 +15,8 @@
  */
 package androidx.fragment.lint
 
-import androidx.fragment.lint.FragmentLiveDataObserverDetector.Companion.ISSUE
+import androidx.fragment.lint.UnsafeFragmentLifecycleObserverDetector.Issues.BACK_PRESSED_ISSUE
+import androidx.fragment.lint.UnsafeFragmentLifecycleObserverDetector.Issues.LIVEDATA_ISSUE
 import com.android.tools.lint.detector.api.Category
 import com.android.tools.lint.detector.api.Detector
 import com.android.tools.lint.detector.api.Implementation
@@ -26,6 +27,7 @@ import com.android.tools.lint.detector.api.Scope
 import com.android.tools.lint.detector.api.Severity
 import com.android.tools.lint.detector.api.SourceCodeScanner
 import com.android.tools.lint.detector.api.isKotlin
+import com.intellij.psi.PsiMethod
 import com.intellij.psi.util.PsiTypesUtil
 import org.jetbrains.uast.UCallExpression
 import org.jetbrains.uast.UClass
@@ -33,14 +35,17 @@ import org.jetbrains.uast.getContainingUClass
 import org.jetbrains.uast.visitor.AbstractUastVisitor
 
 /**
- * Lint check for detecting calls to [LiveData.observe] with a [Fragment] instance as the
- * lifecycle owner inside the [Fragment]'s [Fragment.onCreateView], [Fragment.onViewCreated],
- * [Fragment.onActivityCreated], or [Fragment.onViewStateRestored].
+ * Lint check for detecting calls to lifecycle aware components with a
+ * [androidx.fragment.app.Fragment] instance as the [androidx.lifecycle.LifecycleOwner] while
+ * inside the [androidx.fragment.app.Fragment]'s [androidx.fragment.app.Fragment.onCreateView],
+ * [androidx.fragment.app.Fragment.onViewCreated],
+ * [androidx.fragment.app.Fragment.onActivityCreated], or
+ * [androidx.fragment.app.Fragment.onViewStateRestored].
  */
-class FragmentLiveDataObserverDetector : Detector(), SourceCodeScanner {
+class UnsafeFragmentLifecycleObserverDetector : Detector(), SourceCodeScanner {
 
-    companion object {
-        val ISSUE = Issue.create(
+    companion object Issues {
+        val LIVEDATA_ISSUE = Issue.create(
             id = "FragmentLiveDataObserve",
             briefDescription = "Use getViewLifecycleOwner() as the LifecycleOwner instead of " +
                     "a Fragment instance when observing a LiveData object.",
@@ -53,7 +58,26 @@ class FragmentLiveDataObserverDetector : Detector(), SourceCodeScanner {
             category = Category.CORRECTNESS,
             severity = Severity.ERROR,
             implementation = Implementation(
-                FragmentLiveDataObserverDetector::class.java, Scope.JAVA_FILE_SCOPE
+                UnsafeFragmentLifecycleObserverDetector::class.java, Scope.JAVA_FILE_SCOPE
+            ),
+            androidSpecific = true
+        )
+
+        val BACK_PRESSED_ISSUE = Issue.create(
+            id = "FragmentBackPressedCallback",
+            briefDescription = "Use getViewLifecycleOwner() as the LifecycleOwner instead of " +
+                    "a Fragment instance.",
+            explanation = """The Fragment lifecycle can result in a Fragment being active
+                | longer than its view. This can lead to unexpected behavior from lifecycle aware
+                | objects remaining active longer than the Fragment's view. To solve this issue,
+                | getViewLifecycleOwner() should be used as a LifecycleOwner rather than the
+                | Fragment instance once it is safe to access the view lifecycle in a
+                | Fragment's onCreateView, onViewCreated, onActivityCreated, or
+                | onViewStateRestored methods.""",
+            category = Category.CORRECTNESS,
+            severity = Severity.ERROR,
+            implementation = Implementation(
+                UnsafeFragmentLifecycleObserverDetector::class.java, Scope.JAVA_FILE_SCOPE
             ),
             androidSpecific = true
         )
@@ -75,8 +99,9 @@ class FragmentLiveDataObserverDetector : Detector(), SourceCodeScanner {
 }
 
 /**
- * A UAST Visitor that recursively explores all method calls within a method to check for a call to
- * [LiveData.observe] with a [Fragment] instance as the lifecycle owner.
+ * A UAST Visitor that recursively explores all method calls within a
+ * [androidx.fragment.app.Fragment] lifecycle method to check for an unsafe method call
+ * ([UNSAFE_METHODS]) with a [androidx.fragment.app.Fragment] instance as the lifecycle owner.
  *
  * @param context The context of the lint request.
  * @param originFragmentName The name of the Fragment class being checked.
@@ -93,43 +118,62 @@ private class RecursiveMethodVisitor(
         if (visitedMethods.contains(node)) {
             return super.visitCallExpression(node)
         }
-        if (node.isLiveDataObserve(context)) {
-            val lifecycleOwner = node.valueArguments[0]
-            val lifecycleOwnerType = PsiTypesUtil.getPsiClass(lifecycleOwner.getExpressionType())
-            if (lifecycleOwner.getExpressionType().extends(context, FRAGMENT_CLASS)) {
-                if (lifecycleOwnerType == node.getContainingUClass()?.javaPsi) {
+        val psiMethod = node.resolve() ?: return super.visitCallExpression(node)
+        if (!checkCall(node, psiMethod) && node.isInteresting(context)) {
+            val uastNode = context.uastContext.getMethod(psiMethod)
+            visitedMethods.add(node)
+            uastNode.uastBody?.accept(this)
+            visitedMethods.remove(node)
+        }
+        return super.visitCallExpression(node)
+    }
+
+    /**
+     * Checks if the current method call is unsafe.
+     *
+     * Returns `true` and report the appropriate lint issue if an error is found, otherwise return
+     * `false`.
+     *
+     * @param call The [UCallExpression] to check.
+     * @param psiMethod The resolved [PsiMethod] of [call].
+     * @return `true` if a lint error was found and reported, `false` otherwise.
+     */
+    private fun checkCall(call: UCallExpression, psiMethod: PsiMethod): Boolean {
+        val method = Method(psiMethod.containingClass?.qualifiedName, psiMethod.name)
+        val issue = UNSAFE_METHODS[method] ?: return false
+        val argMap = context.evaluator.computeArgumentMapping(call, psiMethod)
+        argMap.forEach { (arg, param) ->
+            if (arg.getExpressionType().extends(context, FRAGMENT_CLASS) &&
+                param.type.extends(context, "androidx.lifecycle.LifecycleOwner")) {
+                val argType = PsiTypesUtil.getPsiClass(arg.getExpressionType())
+                if (argType == call.getContainingUClass()?.javaPsi) {
                     val methodFix = if (isKotlin(context.psiFile)) {
                         "viewLifecycleOwner"
                     } else {
                         "getViewLifecycleOwner()"
                     }
-                    context.report(ISSUE, context.getLocation(lifecycleOwner),
+                    context.report(issue, context.getLocation(arg),
                         "Use $methodFix as the LifecycleOwner.",
                         LintFix.create()
                             .replace()
                             .with(methodFix)
                             .build())
                 } else {
-                    context.report(ISSUE, context.getLocation(node),
-                        "Unsafe call to observe with Fragment instance from $originFragmentName" +
-                                ".$lifecycleMethod.")
+                    context.report(issue, context.getLocation(call),
+                        "Unsafe call to ${call.methodName} with Fragment instance as " +
+                                "LifecycleOwner from $originFragmentName.$lifecycleMethod.")
                 }
+                return true
             }
-        } else if (node.isInteresting(context)) {
-            visitedMethods.add(node)
-            val psiMethod = node.resolve() ?: return super.visitCallExpression(node)
-            val uastNode = context.uastContext.getMethod(psiMethod)
-            uastNode.uastBody?.accept(this)
-            visitedMethods.remove(node)
         }
-        return super.visitCallExpression(node)
+        return false
     }
 }
 
 /**
  * Checks if the [UCallExpression] is a call that should be explored. If the call chain
- * will exit the current class without reference to the [Fragment] instance then the call chain
- * does not need to be explored further.
+ * will exit the current class without reference to the [androidx.fragment.app.Fragment] instance
+ * then the call chain does not need to be explored further.
  *
  * @return Whether this [UCallExpression] is to a call within the Fragment class or has a
  *         reference to the Fragment passed as a parameter.
@@ -148,18 +192,11 @@ internal fun UCallExpression.isInteresting(context: JavaContext): Boolean {
     return false
 }
 
-/**
- * Checks if the [UCallExpression] is a [LiveData.observe] call.
- */
-internal fun UCallExpression.isLiveDataObserve(context: JavaContext): Boolean {
-    if (methodName != "observe" ||
-            !receiverType.extends(context, "androidx.lifecycle.LiveData") ||
-            valueArgumentCount != 2) {
-        return false
-    }
-    val psiParameters = resolve()?.parameterList?.parameters ?: return false
-    return psiParameters[0].type.extends(context, "androidx.lifecycle.LifecycleOwner") &&
-            psiParameters[1].type.extends(context, "androidx.lifecycle.Observer")
-}
+internal data class Method(val cls: String?, val name: String)
+
+internal val UNSAFE_METHODS = mapOf(
+    Method("androidx.lifecycle.LiveData", "observe") to LIVEDATA_ISSUE,
+    Method("androidx.activity.OnBackPressedDispatcher", "addCallback") to BACK_PRESSED_ISSUE
+)
 
 private const val FRAGMENT_CLASS = "androidx.fragment.app.Fragment"
