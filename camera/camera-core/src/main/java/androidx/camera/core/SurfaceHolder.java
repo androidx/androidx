@@ -17,36 +17,25 @@
 package androidx.camera.core;
 
 import android.graphics.SurfaceTexture;
+import android.view.Surface;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 
 /**
  * A class that holds a {@link SurfaceTexture}.
  *
- * TODO(b/117519540): rename to SurfaceFutureHolder or merge it into DeferrableSurface.
+ * TODO(b/117519540): maybe merge it into DeferrableSurface.
  *
  * @hide
  */
 @RestrictTo(Scope.LIBRARY_GROUP)
-interface SurfaceTextureHolder {
-    /**
-     * Returns the held {@link SurfaceTexture}.
-     *
-     * @deprecated TODO(b / 117519540): remove after
-     * {@link Preview.OnPreviewOutputUpdateListener} is
-     * removed.
-     */
-    @NonNull
-    @Deprecated
-    SurfaceTexture getSurfaceTexture();
+interface SurfaceHolder {
 
     /**
-     * Release the object, including the {@link SurfaceTexture}.
+     * Release the Surface future.
      *
-     * <p>Once this has been called the {@link SurfaceTexture} obtained via {@link
-     * #getSurfaceTexture()} should no longer be used.
+     * <p>Once this has been called the {@link Surface} obtained should no longer be used.
      */
     void release();
 }

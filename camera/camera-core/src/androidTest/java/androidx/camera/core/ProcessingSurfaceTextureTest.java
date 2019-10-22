@@ -54,11 +54,28 @@ import java.util.concurrent.TimeoutException;
 @SdkSuppress(minSdkVersion = 23)
 public final class ProcessingSurfaceTextureTest {
 
-    private final Size mResolution = new Size(640, 480);
-    private final int mFormat = ImageFormat.YUV_420_888;
+    private static final Size RESOLUTION = new Size(640, 480);
+    private static final int FORMAT = ImageFormat.YUV_420_888;
+    private static final CallbackDeferrableSurface NO_OP_CALLBACK_DEFERRABLE_SURFACE =
+            new CallbackDeferrableSurface(RESOLUTION,
+                    CameraXExecutors.directExecutor(),
+                    createPreviewSurfaceCallback(new PreviewUtil.SurfaceTextureCallback() {
+                        @Override
+                        public void onSurfaceTextureReady(
+                                @NonNull SurfaceTexture surfaceTexture) {
+                            // No-op.
+                        }
+
+                        @Override
+                        public void onSafeToRelease(@NonNull SurfaceTexture surfaceTexture) {
+                            // No-op.
+                        }
+                    }));
+
     private HandlerThread mBackgroundThread;
     private Handler mBackgroundHandler;
     private CaptureStage mCaptureStage = new CaptureStage.DefaultCaptureStage();
+
 
     /*
      * Capture processor that simply writes out an empty image to exercise the pipeline
@@ -107,36 +124,12 @@ public final class ProcessingSurfaceTextureTest {
 
     @Test
     public void validInputSurface() throws ExecutionException, InterruptedException {
-        ProcessingSurfaceTexture processingSurfaceTexture = createProcessingSurfaceTexture();
+        ProcessingSurface processingSurface = createProcessingSurfaceTexture(
+                NO_OP_CALLBACK_DEFERRABLE_SURFACE);
 
-        Surface surface = processingSurfaceTexture.getSurface().get();
+        Surface surface = processingSurface.getSurface().get();
 
         assertThat(surface).isNotNull();
-    }
-
-    @Test
-    @SdkSuppress(minSdkVersion = 28)
-    public void writeToInputSurface_outputSurfaceReceivesFrame() throws ExecutionException,
-            InterruptedException {
-        // Arrange.
-        ProcessingSurfaceTexture processingSurfaceTexture = createProcessingSurfaceTexture();
-        SurfaceTexture outputSurface = processingSurfaceTexture.getSurfaceTexture();
-
-        final Semaphore frameReceivedSemaphore = new Semaphore(0);
-        outputSurface.setOnFrameAvailableListener(
-                new SurfaceTexture.OnFrameAvailableListener() {
-                    @Override
-                    public void onFrameAvailable(SurfaceTexture surfaceTexture) {
-                        frameReceivedSemaphore.release();
-                    }
-                },
-                mBackgroundHandler);
-
-        // Act: Send one frame to processingSurfaceTexture.
-        triggerImage(processingSurfaceTexture, 1);
-
-        // Assert: verify that the frame has been received or time-out after 1 second.
-        assertThat(frameReceivedSemaphore.tryAcquire(1, TimeUnit.SECONDS)).isTrue();
     }
 
     @Test
@@ -147,8 +140,8 @@ public final class ProcessingSurfaceTextureTest {
         final Semaphore frameReceivedSemaphore = new Semaphore(0);
 
         // Create ProcessingSurfaceTexture with user Surface.
-        ProcessingSurfaceTexture processingSurfaceTexture = createProcessingSurfaceTexture(
-                new CallbackDeferrableSurface(mResolution, CameraXExecutors.directExecutor(),
+        ProcessingSurface processingSurface = createProcessingSurfaceTexture(
+                new CallbackDeferrableSurface(RESOLUTION, CameraXExecutors.directExecutor(),
                         createPreviewSurfaceCallback(new PreviewUtil.SurfaceTextureCallback() {
                             @Override
                             public void onSurfaceTextureReady(
@@ -165,22 +158,18 @@ public final class ProcessingSurfaceTextureTest {
                         })));
 
         // Act: Send one frame to processingSurfaceTexture.
-        triggerImage(processingSurfaceTexture, 1);
+        triggerImage(processingSurface, 1);
 
         // Assert: verify that the frame has been received or time-out after 1 second.
         assertThat(frameReceivedSemaphore.tryAcquire(1, TimeUnit.SECONDS)).isTrue();
     }
 
-    private ProcessingSurfaceTexture createProcessingSurfaceTexture() {
-        return createProcessingSurfaceTexture(null);
-    }
-
-    private ProcessingSurfaceTexture createProcessingSurfaceTexture(
+    private ProcessingSurface createProcessingSurfaceTexture(
             CallbackDeferrableSurface callbackDeferrableSurface) {
-        return new ProcessingSurfaceTexture(
-                mResolution.getWidth(),
-                mResolution.getHeight(),
-                mFormat,
+        return new ProcessingSurface(
+                RESOLUTION.getWidth(),
+                RESOLUTION.getHeight(),
+                FORMAT,
                 mBackgroundHandler,
                 mCaptureStage,
                 mCaptureProcessor,
@@ -189,12 +178,13 @@ public final class ProcessingSurfaceTextureTest {
 
     @Test
     public void getSurfaceThrowsExceptionWhenClosed() {
-        ProcessingSurfaceTexture processingSurfaceTexture = createProcessingSurfaceTexture();
+        ProcessingSurface processingSurface =
+                createProcessingSurfaceTexture(NO_OP_CALLBACK_DEFERRABLE_SURFACE);
 
-        processingSurfaceTexture.close();
+        processingSurface.close();
 
         // Exception should be thrown here
-        ListenableFuture<Surface> futureSurface = processingSurfaceTexture.getSurface();
+        ListenableFuture<Surface> futureSurface = processingSurface.getSurface();
 
         Throwable cause = null;
         try {
@@ -208,29 +198,20 @@ public final class ProcessingSurfaceTextureTest {
     }
 
     @Test(expected = IllegalStateException.class)
-    public void getSurfaceTextureThrowsExceptionWhenReleased() {
-        ProcessingSurfaceTexture processingSurfaceTexture = createProcessingSurfaceTexture();
-
-        processingSurfaceTexture.release();
-
-        // Exception should be thrown here
-        processingSurfaceTexture.getSurfaceTexture();
-    }
-
-    @Test(expected = IllegalStateException.class)
     public void getCameraCaptureCallbackThrowsExceptionWhenReleased() {
-        ProcessingSurfaceTexture processingSurfaceTexture = createProcessingSurfaceTexture();
+        ProcessingSurface processingSurface =
+                createProcessingSurfaceTexture(NO_OP_CALLBACK_DEFERRABLE_SURFACE);
 
-        processingSurfaceTexture.release();
+        processingSurface.release();
 
         // Exception should be thrown here
-        processingSurfaceTexture.getCameraCaptureCallback();
+        processingSurface.getCameraCaptureCallback();
     }
 
     @RequiresApi(28)
-    void triggerImage(ProcessingSurfaceTexture processingSurfaceTexture, long timestamp)
+    void triggerImage(ProcessingSurface processingSurface, long timestamp)
             throws ExecutionException, InterruptedException {
-        Surface surface = processingSurfaceTexture.getSurface().get();
+        Surface surface = processingSurface.getSurface().get();
 
         ImageWriter imageWriter = ImageWriter.newInstance(surface, 2);
 
@@ -238,7 +219,7 @@ public final class ProcessingSurfaceTextureTest {
         image.setTimestamp(timestamp);
         imageWriter.queueInputImage(image);
 
-        CameraCaptureCallback callback = processingSurfaceTexture.getCameraCaptureCallback();
+        CameraCaptureCallback callback = processingSurface.getCameraCaptureCallback();
 
         FakeCameraCaptureResult cameraCaptureResult = new FakeCameraCaptureResult();
         cameraCaptureResult.setTimestamp(timestamp);
