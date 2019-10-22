@@ -35,7 +35,7 @@ class FragmentLiveDataObserveDetectorTest : LintDetectorTest() {
     override fun getIssues(): MutableList<Issue> =
         mutableListOf(UnsafeFragmentLifecycleObserverDetector.LIVEDATA_ISSUE)
 
-    private var sdkDir: File? = null
+    private lateinit var sdkDir: File
 
     @Before
     fun setup() {
@@ -48,7 +48,7 @@ class FragmentLiveDataObserveDetectorTest : LintDetectorTest() {
 
     private fun check(vararg files: TestFile): TestLintResult {
         return lint().files(*files, *LIVEDATA_STUBS)
-            .sdkHome(sdkDir!!)
+            .sdkHome(sdkDir)
             .run()
     }
 
