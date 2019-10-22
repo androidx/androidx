@@ -80,7 +80,7 @@ public final class Camera2ConfigTest {
 
         Camera2Config config = new Camera2Config(builder.build());
 
-        assertThat(config.getSessionCaptureCallback(/*valueIfMissing=*/ null))
+        assertThat(config.getSessionCaptureCallbackInternal(/*valueIfMissing=*/ null))
                 .isSameInstanceAs(SESSION_CAPTURE_CALLBACK);
     }
 
@@ -92,7 +92,7 @@ public final class Camera2ConfigTest {
 
         Camera2Config config = new Camera2Config(builder.build());
 
-        assertThat(config.getSessionStateCallback(/*valueIfMissing=*/ null))
+        assertThat(config.getSessionStateCallbackInternal(/*valueIfMissing=*/ null))
                 .isSameInstanceAs(SESSION_STATE_CALLBACK);
     }
 
@@ -104,7 +104,7 @@ public final class Camera2ConfigTest {
 
         Camera2Config config = new Camera2Config(builder.build());
 
-        assertThat(config.getDeviceStateCallback(/*valueIfMissing=*/ null))
+        assertThat(config.getDeviceStateCallbackInternal(/*valueIfMissing=*/ null))
                 .isSameInstanceAs(DEVICE_STATE_CALLBACK);
     }
 
@@ -134,12 +134,12 @@ public final class Camera2ConfigTest {
         Camera2Config config = new Camera2Config(builder.build());
 
         assertThat(
-                config.getCaptureRequestOption(
+                config.getCaptureRequestOptionInternal(
                         CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE,
                         /*valueIfMissing=*/ null))
                 .isSameInstanceAs(fakeRange);
         assertThat(
-                config.getCaptureRequestOption(
+                config.getCaptureRequestOptionInternal(
                         CaptureRequest.COLOR_CORRECTION_MODE,
                         INVALID_COLOR_CORRECTION_MODE))
                 .isEqualTo(CameraMetadata.COLOR_CORRECTION_MODE_FAST);
@@ -191,12 +191,12 @@ public final class Camera2ConfigTest {
         Camera2Config config = new Camera2Config(builder.build());
 
         assertThat(
-                config.getCaptureRequestOption(
+                config.getCaptureRequestOptionInternal(
                         CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE,
                         /*valueIfMissing=*/ null))
                 .isSameInstanceAs(fakeRange);
         assertThat(
-                config.getCaptureRequestOption(
+                config.getCaptureRequestOptionInternal(
                         CaptureRequest.COLOR_CORRECTION_MODE,
                         INVALID_COLOR_CORRECTION_MODE))
                 .isEqualTo(CameraMetadata.COLOR_CORRECTION_MODE_FAST);
@@ -227,20 +227,21 @@ public final class Camera2ConfigTest {
         Camera2Config config2 = new Camera2Config(builder2.build());
 
         assertThat(
-                config2.getCaptureRequestOption(
+                config2.getCaptureRequestOptionInternal(
                         CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE,
                         /*valueIfMissing=*/ null))
                 .isSameInstanceAs(fakeRange);
         assertThat(
-                config2.getCaptureRequestOption(
+                config2.getCaptureRequestOptionInternal(
                         CaptureRequest.COLOR_CORRECTION_MODE,
                         INVALID_COLOR_CORRECTION_MODE))
                 .isEqualTo(CameraMetadata.COLOR_CORRECTION_MODE_FAST);
         assertThat(
-                config2.getCaptureRequestOption(
+                config2.getCaptureRequestOptionInternal(
                         CaptureRequest.CONTROL_AE_MODE, /*valueIfMissing=*/ 0))
                 .isEqualTo(CaptureRequest.CONTROL_AE_MODE_ON);
-        assertThat(config2.getCaptureRequestOption(CaptureRequest.CONTROL_AWB_MODE, 0))
+        assertThat(config2.getCaptureRequestOptionInternal(
+                CaptureRequest.CONTROL_AWB_MODE, 0))
                 .isEqualTo(CaptureRequest.CONTROL_AWB_MODE_AUTO);
     }
 }

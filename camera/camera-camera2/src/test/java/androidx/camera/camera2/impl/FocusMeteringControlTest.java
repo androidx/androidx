@@ -214,7 +214,7 @@ public class FocusMeteringControlTest {
         control.addFocusMeteringOptions(configBuilder);
         Camera2Config config = configBuilder.build();
 
-        return config.getCaptureRequestOption(CaptureRequest.CONTROL_AF_REGIONS,
+        return config.getCaptureRequestOptionInternal(CaptureRequest.CONTROL_AF_REGIONS,
                 new MeteringRectangle[]{});
     }
 
@@ -223,7 +223,7 @@ public class FocusMeteringControlTest {
         control.addFocusMeteringOptions(configBuilder);
         Camera2Config config = configBuilder.build();
 
-        return config.getCaptureRequestOption(CaptureRequest.CONTROL_AE_REGIONS,
+        return config.getCaptureRequestOptionInternal(CaptureRequest.CONTROL_AE_REGIONS,
                 new MeteringRectangle[]{});
     }
 
@@ -232,7 +232,7 @@ public class FocusMeteringControlTest {
         control.addFocusMeteringOptions(configBuilder);
         Camera2Config config = configBuilder.build();
 
-        return config.getCaptureRequestOption(CaptureRequest.CONTROL_AWB_REGIONS,
+        return config.getCaptureRequestOptionInternal(CaptureRequest.CONTROL_AWB_REGIONS,
                 new MeteringRectangle[]{});
     }
 
@@ -877,7 +877,8 @@ public class FocusMeteringControlTest {
     private void verifyAfMode(int expectAfMode) {
         Camera2Config.Builder builder1 = new Camera2Config.Builder();
         mFocusMeteringControl.addFocusMeteringOptions(builder1);
-        assertThat(builder1.build().getCaptureRequestOption(CaptureRequest.CONTROL_AF_MODE, null))
+        assertThat(builder1.build().getCaptureRequestOptionInternal(
+                CaptureRequest.CONTROL_AF_MODE, null))
                 .isEqualTo(expectAfMode);
     }
 

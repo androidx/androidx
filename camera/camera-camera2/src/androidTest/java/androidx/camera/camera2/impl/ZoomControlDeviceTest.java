@@ -224,7 +224,8 @@ public final class ZoomControlDeviceTest {
         Camera2Config camera2Config = new Camera2Config(sessionConfig.getImplementationOptions());
 
         reset(controlUpdateCallback);
-        return camera2Config.getCaptureRequestOption(CaptureRequest.SCALER_CROP_REGION, null);
+        return camera2Config.getCaptureRequestOptionInternal(
+                CaptureRequest.SCALER_CROP_REGION, null);
     }
 
     @UiThreadTest

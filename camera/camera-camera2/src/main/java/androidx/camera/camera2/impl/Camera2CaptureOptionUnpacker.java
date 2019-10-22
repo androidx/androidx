@@ -60,7 +60,7 @@ class Camera2CaptureOptionUnpacker implements CaptureConfig.OptionUnpacker {
         // Add extension callbacks
         builder.addCameraCaptureCallback(
                 CaptureCallbackContainer.create(
-                        camera2Config.getSessionCaptureCallback(
+                        camera2Config.getSessionCaptureCallbackInternal(
                                 Camera2CaptureCallbacks.createNoOpCallback())));
 
         // Copy extension keys

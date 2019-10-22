@@ -106,10 +106,10 @@ public final class Camera2SessionOptionUnpackerTest {
 
         Camera2Config config = new Camera2Config(sessionConfig.getImplementationOptions());
 
-        assertThat(config.getCaptureRequestOption(
+        assertThat(config.getCaptureRequestOptionInternal(
                 CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_OFF))
                 .isEqualTo(CaptureRequest.CONTROL_AF_MODE_AUTO);
-        assertThat(config.getCaptureRequestOption(
+        assertThat(config.getCaptureRequestOptionInternal(
                 CaptureRequest.FLASH_MODE, CaptureRequest.FLASH_MODE_OFF))
                 .isEqualTo(CaptureRequest.FLASH_MODE_TORCH);
     }

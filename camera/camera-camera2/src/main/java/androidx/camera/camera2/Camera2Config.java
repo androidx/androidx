@@ -90,15 +90,34 @@ public final class Camera2Config implements Config {
      * @param <ValueT>       The type of the value.
      * @return The stored value or <code>valueIfMissing</code> if the value does not exist in this
      * configuration.
+     * @hide
      */
+    @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
-    public <ValueT> ValueT getCaptureRequestOption(
+    public <ValueT> ValueT getCaptureRequestOptionInternal(
             @NonNull CaptureRequest.Key<ValueT> key, @Nullable ValueT valueIfMissing) {
         @SuppressWarnings(
                 "unchecked") // Type should have been only set via Builder#setCaptureRequestOption()
                 Option<ValueT> opt = (Option<ValueT>) Camera2Config.createCaptureRequestOption(key);
         return mConfig.retrieveOption(opt, valueIfMissing);
     }
+
+    /**
+     * Returns a value for the given {@link CaptureRequest.Key}.
+     *
+     * @param key            The key to retrieve.
+     * @param valueIfMissing The value to return if this configuration option has not been set.
+     * @param <ValueT>       The type of the value.
+     * @return The stored value or <code>valueIfMissing</code> if the value does not exist in this
+     * configuration.
+     */
+    @ExperimentalCamera2Interop
+    @Nullable
+    public <ValueT> ValueT getCaptureRequestOption(
+            @NonNull CaptureRequest.Key<ValueT> key, @Nullable ValueT valueIfMissing) {
+        return getCaptureRequestOptionInternal(key, valueIfMissing);
+    }
+
 
     /**
      * Returns all capture request options contained in this configuration.
@@ -142,11 +161,43 @@ public final class Camera2Config implements Config {
      * @param valueIfMissing The value to return if this configuration option has not been set.
      * @return The stored value or <code>valueIfMissing</code> if the value does not exist in this
      * configuration.
+     * @hide
      */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @Nullable
+    public CameraDevice.StateCallback getDeviceStateCallbackInternal(
+            @Nullable CameraDevice.StateCallback valueIfMissing) {
+        return mConfig.retrieveOption(DEVICE_STATE_CALLBACK_OPTION, valueIfMissing);
+    }
+
+    /**
+     * Returns the stored {@link CameraDevice.StateCallback}.
+     *
+     * @param valueIfMissing The value to return if this configuration option has not been set.
+     * @return The stored value or <code>valueIfMissing</code> if the value does not exist in this
+     * configuration.
+     */
+    @ExperimentalCamera2Interop
     @Nullable
     public CameraDevice.StateCallback getDeviceStateCallback(
             @Nullable CameraDevice.StateCallback valueIfMissing) {
-        return mConfig.retrieveOption(DEVICE_STATE_CALLBACK_OPTION, valueIfMissing);
+        return getDeviceStateCallbackInternal(valueIfMissing);
+    }
+
+
+    /**
+     * Returns the stored {@link CameraCaptureSession.StateCallback}.
+     *
+     * @param valueIfMissing The value to return if this configuration option has not been set.
+     * @return The stored value or <code>valueIfMissing</code> if the value does not exist in this
+     * configuration.
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @Nullable
+    public CameraCaptureSession.StateCallback getSessionStateCallbackInternal(
+            @Nullable CameraCaptureSession.StateCallback valueIfMissing) {
+        return mConfig.retrieveOption(SESSION_STATE_CALLBACK_OPTION, valueIfMissing);
     }
 
     /**
@@ -156,10 +207,26 @@ public final class Camera2Config implements Config {
      * @return The stored value or <code>valueIfMissing</code> if the value does not exist in this
      * configuration.
      */
+    @ExperimentalCamera2Interop
     @Nullable
     public CameraCaptureSession.StateCallback getSessionStateCallback(
             @Nullable CameraCaptureSession.StateCallback valueIfMissing) {
-        return mConfig.retrieveOption(SESSION_STATE_CALLBACK_OPTION, valueIfMissing);
+        return getSessionStateCallbackInternal(valueIfMissing);
+    }
+
+    /**
+     * Returns the stored {@link CameraCaptureSession.CaptureCallback}.
+     *
+     * @param valueIfMissing The value to return if this configuration option has not been set.
+     * @return The stored value or <code>valueIfMissing</code> if the value does not exist in this
+     * configuration.
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @Nullable
+    public CameraCaptureSession.CaptureCallback getSessionCaptureCallbackInternal(
+            @Nullable CameraCaptureSession.CaptureCallback valueIfMissing) {
+        return mConfig.retrieveOption(SESSION_CAPTURE_CALLBACK_OPTION, valueIfMissing);
     }
 
     /**
@@ -169,10 +236,11 @@ public final class Camera2Config implements Config {
      * @return The stored value or <code>valueIfMissing</code> if the value does not exist in this
      * configuration.
      */
+    @ExperimentalCamera2Interop
     @Nullable
     public CameraCaptureSession.CaptureCallback getSessionCaptureCallback(
             @Nullable CameraCaptureSession.CaptureCallback valueIfMissing) {
-        return mConfig.retrieveOption(SESSION_CAPTURE_CALLBACK_OPTION, valueIfMissing);
+        return getSessionCaptureCallbackInternal(valueIfMissing);
     }
 
     /**
