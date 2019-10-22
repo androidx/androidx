@@ -65,7 +65,6 @@ internal fun TextPaint.applyTextStyle(
     typefaceAdapter: TypefaceAdapter,
     density: Density
 ): TextStyle {
-    // TODO(haoyuchang) remove this engine.ParagraphStyle
     style.fontSize?.let {
         withDensity(density) {
             textSize = it.toPx().value
@@ -261,7 +260,6 @@ internal fun createStyledText(
             )
         }
 
-        // TODO(haoyuchang): implement textBaseLine
         style.textGeometricTransform?.scaleX?.let {
             spannableString.setSpan(
                 ScaleXSpan(it),
@@ -280,7 +278,6 @@ internal fun createStyledText(
             )
         }
 
-        // TODO(haoyuchang): support letter spacing with pixel.
         style.letterSpacing?.let {
             spannableString.setSpan(
                 LetterSpacingSpan(it.value),
@@ -289,7 +286,6 @@ internal fun createStyledText(
                 Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
             )
         }
-        // TODO(haoyuchang): implement height
         style.localeList?.let {
             spannableString.setSpan(
                 if (Build.VERSION.SDK_INT >= 24) {
@@ -303,7 +299,6 @@ internal fun createStyledText(
                 Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
             )
         }
-        // TODO(haoyuchang): framework only support background color now
         style.background?.let {
             spannableString.setSpan(
                 BackgroundColorSpan(it.toArgb()),
@@ -312,7 +307,6 @@ internal fun createStyledText(
                 Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
             )
         }
-        // TODO(haoyuchang): implement foreground or decide if we really need it
         style.shadow?.let {
             spannableString.setSpan(
                 ShadowSpan(it.color.toArgb(), it.offset.dx, it.offset.dy, it.blurRadius.value),

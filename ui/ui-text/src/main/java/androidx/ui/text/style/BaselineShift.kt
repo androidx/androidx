@@ -26,7 +26,6 @@ import androidx.ui.lerp
  *
  * @param multiplier shift the baseline by multiplier * (baseline - ascent)
  */
-// TODO(haoyuchang): support baseline shift given by pixel and other multiplier reference
 /*inline*/ data class BaselineShift constructor(
     val multiplier: Float
 ) {
@@ -46,7 +45,6 @@ import androidx.ui.lerp
 /**
  * Linearly interpolate two [BaselineShift]s.
  */
-// TODO(haoyuchang): This should not be in the companion, it should be at file level
 // TODO(haoyuchang): This should not accept nullables
 fun lerp(start: BaselineShift?, stop: BaselineShift?, fraction: Float): BaselineShift? {
     if (start == null && stop == null) {
