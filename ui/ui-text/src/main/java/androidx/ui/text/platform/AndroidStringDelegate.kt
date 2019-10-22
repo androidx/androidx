@@ -29,10 +29,8 @@ internal class AndroidStringDelegate : PlatformStringDelegate {
         string.toLowerCase((locale as AndroidLocale).javaLocale)
 
     override fun capitalize(string: String, locale: PlatformLocale): String =
-        // TODO(nona): pass locale when capitalize with locale is out of experiment.
         string.capitalize()
 
     override fun decapitalize(string: String, locale: PlatformLocale): String =
-        // TODO(nona): pass locale when decapitalize with locale is out of experiment.
         string.decapitalize()
 }
