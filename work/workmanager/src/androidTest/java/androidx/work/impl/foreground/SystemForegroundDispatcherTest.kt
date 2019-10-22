@@ -34,14 +34,16 @@ import androidx.work.impl.WorkManagerImpl
 import androidx.work.impl.constraints.WorkConstraintsCallback
 import androidx.work.impl.constraints.WorkConstraintsTracker
 import androidx.work.impl.foreground.SystemForegroundDispatcher.NOTIFICATION_ID
+import androidx.work.impl.foreground.SystemForegroundDispatcher.createCancelWorkIntent
 import androidx.work.impl.foreground.SystemForegroundDispatcher.createNotifyIntent
 import androidx.work.impl.foreground.SystemForegroundDispatcher.createStartForegroundIntent
 import androidx.work.impl.foreground.SystemForegroundDispatcher.createStopForegroundIntent
-import androidx.work.impl.foreground.SystemForegroundDispatcher.createCancelWorkIntent
 import androidx.work.impl.utils.SynchronousExecutor
 import androidx.work.impl.utils.taskexecutor.InstantWorkTaskExecutor
 import androidx.work.impl.utils.taskexecutor.TaskExecutor
 import androidx.work.worker.TestWorker
+import org.hamcrest.CoreMatchers.`is`
+import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -169,7 +171,6 @@ class SystemForegroundDispatcherTest {
         val stopIntent = createCancelWorkIntent(context, request.stringId)
         dispatcher.onStartCommand(stopIntent)
         verify(workManager, times(1)).cancelWorkById(eq(UUID.fromString(request.workSpec.id)))
-        val stopForegroundIntent = createStopForegroundIntent(context)
-        verify(dispatcher, times(1)).onStartCommand(stopForegroundIntent)
+        assertThat(processor.hasWork(), `is`(false))
     }
 }
