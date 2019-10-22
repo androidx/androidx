@@ -36,7 +36,6 @@ import androidx.ui.graphics.Paint
 import androidx.ui.layout.Container
 import androidx.ui.layout.FlexColumn
 import androidx.ui.layout.FlexRow
-import androidx.ui.layout.LayoutSize
 import kotlin.random.Random
 
 class CrossfadeActivity : Activity() {
@@ -50,7 +49,7 @@ class CrossfadeActivity : Activity() {
 @Composable
 private fun CrossfadeDemo() {
     var current by +state { tabs[0] }
-    FlexColumn(mainAxisSize = LayoutSize.Wrap) {
+    FlexColumn {
         inflexible {
             FlexRow {
                 tabs.forEach {

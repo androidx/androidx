@@ -30,7 +30,6 @@ import androidx.ui.core.toRect
 import androidx.ui.layout.Center
 import androidx.ui.layout.Column
 import androidx.ui.layout.Container
-import androidx.ui.layout.LayoutSize
 import androidx.ui.layout.MainAxisAlignment
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Paint
@@ -53,10 +52,7 @@ class RepeatedRotationActivity : Activity() {
 fun RepeatedRotation() {
     Center {
         val state = +state { RotationStates.Original }
-        Column(
-            mainAxisSize = LayoutSize.Expand,
-            mainAxisAlignment = MainAxisAlignment.SpaceEvenly
-        ) {
+        Column(mainAxisAlignment = MainAxisAlignment.SpaceEvenly) {
             val textStyle = TextStyle(fontSize = 18.sp)
             PressReleasedGestureDetector(onRelease = {
                 state.value = RotationStates.Rotated

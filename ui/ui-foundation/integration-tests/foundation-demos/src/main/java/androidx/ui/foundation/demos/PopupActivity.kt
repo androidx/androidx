@@ -53,7 +53,8 @@ import androidx.ui.layout.MainAxisAlignment
 import androidx.ui.layout.Wrap
 import androidx.ui.graphics.Paint
 import androidx.ui.layout.CrossAxisAlignment
-import androidx.ui.layout.LayoutSize
+import androidx.ui.layout.ExpandedHeight
+import androidx.ui.layout.ExpandedWidth
 import androidx.ui.text.ParagraphStyle
 import androidx.ui.text.TextStyle
 import androidx.ui.text.style.TextAlign
@@ -68,7 +69,7 @@ class PopupActivity : Activity() {
 
             Column(crossAxisAlignment = CrossAxisAlignment.Center) {
                 FlexRow(
-                    mainAxisSize = LayoutSize.Expand,
+                    ExpandedWidth,
                     mainAxisAlignment = MainAxisAlignment.SpaceBetween
                 ) {
                     inflexible {
@@ -190,10 +191,7 @@ fun PopupToggle() {
 @Composable
 fun PopupWithChangingContent() {
     Container {
-        Column(
-            mainAxisSize = LayoutSize.Expand,
-            crossAxisAlignment = CrossAxisAlignment.Center
-        ) {
+        Column(crossAxisAlignment = CrossAxisAlignment.Center) {
             val heightSize = 120.dp
             val widthSize = 160.dp
             val popupContentState = +state { 0 }
@@ -245,10 +243,7 @@ fun PopupWithChangingParent() {
     val parentHeight = +state { 60.dp }
     val parentSizeChanged = +state { false }
 
-    Column(
-        mainAxisSize = LayoutSize.Expand,
-        crossAxisAlignment = CrossAxisAlignment.Center
-    ) {
+    Column(crossAxisAlignment = CrossAxisAlignment.Center) {
         Container(
             height = containerHeight,
             width = containerWidth,
@@ -299,10 +294,7 @@ fun PopupWithChangingParent() {
 @Composable
 fun PopupDropdownAlignment() {
     Container {
-        Column(
-            mainAxisSize = LayoutSize.Expand,
-            crossAxisAlignment = CrossAxisAlignment.Center
-        ) {
+        Column(crossAxisAlignment = CrossAxisAlignment.Center) {
             val heightSize = 120.dp
             val widthSize = 160.dp
             val dropDownAlignment = +state { DropDownAlignment.Left }
@@ -348,10 +340,7 @@ fun PopupAlignmentDemo() {
         val counter = +state { 0 }
         val popupAlignment = +state { Alignment.TopLeft }
 
-        Column(
-            mainAxisSize = LayoutSize.Expand,
-            crossAxisAlignment = CrossAxisAlignment.Center
-        ) {
+        Column(crossAxisAlignment = CrossAxisAlignment.Center) {
             ColoredContainer(
                 height = heightSize,
                 width = widthSize,
@@ -391,10 +380,7 @@ fun PopupAlignmentDemo() {
 @Composable
 fun PopupWithEditText() {
     Container {
-        Column(
-            mainAxisSize = LayoutSize.Expand,
-            crossAxisAlignment = CrossAxisAlignment.Center
-        ) {
+        Column(crossAxisAlignment = CrossAxisAlignment.Center) {
             val widthSize = 190.dp
             val heightSize = 120.dp
             val editLineSize = 150.dp
@@ -441,10 +427,7 @@ fun PopupWithEditText() {
 @Composable
 fun PopupWithChangingSize() {
     Container {
-        Column(
-            mainAxisSize = LayoutSize.Expand,
-            crossAxisAlignment = CrossAxisAlignment.Center
-        ) {
+        Column(crossAxisAlignment = CrossAxisAlignment.Center) {
             val showPopup = +state { true }
             val heightSize = 120.dp
             val widthSize = 160.dp
@@ -502,7 +485,7 @@ fun PopupInsideScroller() {
     Container(width = widthSize, height = heightSize) {
         VerticalScroller {
             Column(
-                mainAxisSize = LayoutSize.Expand,
+                ExpandedHeight,
                 crossAxisAlignment = CrossAxisAlignment.Center
             ) {
                 ColoredContainer(
@@ -526,10 +509,7 @@ fun PopupInsideScroller() {
 @Composable
 fun PopupOnKeyboardUp() {
     Container {
-        Column(
-            mainAxisSize = LayoutSize.Expand,
-            crossAxisAlignment = CrossAxisAlignment.Center
-        ) {
+        Column(crossAxisAlignment = CrossAxisAlignment.Center) {
             val widthSize = 190.dp
             val heightSize = 120.dp
 

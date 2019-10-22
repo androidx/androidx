@@ -23,7 +23,6 @@ import androidx.ui.core.TextField
 import androidx.ui.core.sp
 import androidx.ui.layout.Column
 import androidx.ui.layout.CrossAxisAlignment
-import androidx.ui.layout.LayoutSize
 import androidx.ui.foundation.VerticalScroller
 import androidx.ui.input.EditorStyle
 import androidx.ui.input.KeyboardType
@@ -32,10 +31,7 @@ import androidx.ui.text.TextStyle
 @Composable
 fun InputFieldTrickyUseCase() {
     VerticalScroller {
-        Column(
-            mainAxisSize = LayoutSize.Expand,
-            crossAxisAlignment = CrossAxisAlignment.Start
-        ) {
+        Column(crossAxisAlignment = CrossAxisAlignment.Start) {
             TagLine(tag = "don't set if non number is added")
             RejectNonDigits()
 

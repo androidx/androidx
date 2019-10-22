@@ -41,7 +41,6 @@ import androidx.ui.core.sp
 import androidx.ui.engine.geometry.Rect
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Column
-import androidx.ui.layout.LayoutSize
 import androidx.ui.layout.Padding
 import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.Paint
@@ -59,7 +58,7 @@ class FancyScrolling : Activity() {
 
     @Composable
     fun FancyScrollingExample() {
-        Column(mainAxisSize = LayoutSize.Expand) {
+        Column {
             Padding(40.dp) {
                 Text("<== Scroll horizontally ==>", style = TextStyle(fontSize = 20.sp))
             }

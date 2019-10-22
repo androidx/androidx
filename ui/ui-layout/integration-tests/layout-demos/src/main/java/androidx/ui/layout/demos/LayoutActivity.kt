@@ -25,7 +25,6 @@ import androidx.ui.layout.Column
 import androidx.ui.layout.Container
 import androidx.ui.layout.CrossAxisAlignment
 import androidx.ui.layout.HeightSpacer
-import androidx.ui.layout.LayoutSize
 import androidx.ui.layout.MainAxisAlignment
 import androidx.ui.layout.Row
 import androidx.ui.layout.WidthSpacer
@@ -35,6 +34,8 @@ import androidx.ui.text.TextStyle
 import androidx.compose.Composable
 import androidx.ui.core.setContent
 import androidx.ui.core.sp
+import androidx.ui.layout.ExpandedHeight
+import androidx.ui.layout.ExpandedWidth
 import androidx.ui.layout.samples.DrawRectangle
 
 class LayoutActivity : Activity() {
@@ -66,13 +67,12 @@ fun ContainerWithBackground(
 fun LayoutDemo() {
     val lightGrey = Color(0xFFCFD8DC)
     Column(
-        mainAxisSize = LayoutSize.Expand,
         mainAxisAlignment = MainAxisAlignment.Start,
         crossAxisAlignment = CrossAxisAlignment.Start
     ) {
         Text(text = "Row", style = TextStyle(fontSize = 48.sp))
         ContainerWithBackground(width = ExampleSize, color = lightGrey) {
-            Row(mainAxisSize = LayoutSize.Expand) {
+            Row(ExpandedWidth) {
                 PurpleSquare()
                 CyanSquare()
             }
@@ -80,7 +80,7 @@ fun LayoutDemo() {
         HeightSpacer(height = 24.dp)
         ContainerWithBackground(width = ExampleSize, color = lightGrey) {
             Row(
-                mainAxisSize = LayoutSize.Expand,
+                ExpandedWidth,
                 mainAxisAlignment = MainAxisAlignment.Center
             ) {
                 PurpleSquare()
@@ -90,7 +90,7 @@ fun LayoutDemo() {
         HeightSpacer(height = 24.dp)
         ContainerWithBackground(width = ExampleSize, color = lightGrey) {
             Row(
-                mainAxisSize = LayoutSize.Expand,
+                ExpandedWidth,
                 mainAxisAlignment = MainAxisAlignment.End
             ) {
                 PurpleSquare()
@@ -100,7 +100,7 @@ fun LayoutDemo() {
         HeightSpacer(height = 24.dp)
         ContainerWithBackground(width = ExampleSize, color = lightGrey) {
             Row(
-                mainAxisSize = LayoutSize.Expand,
+                ExpandedWidth,
                 crossAxisAlignment = CrossAxisAlignment.Start
             ) {
                 PurpleSquare()
@@ -110,7 +110,7 @@ fun LayoutDemo() {
         HeightSpacer(height = 24.dp)
         ContainerWithBackground(width = ExampleSize, color = lightGrey) {
             Row(
-                mainAxisSize = LayoutSize.Expand,
+                ExpandedWidth,
                 crossAxisAlignment = CrossAxisAlignment.End
             ) {
                 PurpleSquare()
@@ -119,9 +119,9 @@ fun LayoutDemo() {
         }
         HeightSpacer(height = 24.dp)
         Text(text = "Column", style = TextStyle(fontSize = 48.sp))
-        Row(mainAxisSize = LayoutSize.Expand) {
+        Row(ExpandedWidth) {
             ContainerWithBackground(height = ExampleSize, color = lightGrey) {
-                Column(mainAxisSize = LayoutSize.Expand) {
+                Column(ExpandedHeight) {
                     PurpleSquare()
                     CyanSquare()
                 }
@@ -129,7 +129,7 @@ fun LayoutDemo() {
             WidthSpacer(width = 24.dp)
             ContainerWithBackground(height = ExampleSize, color = lightGrey) {
                 Column(
-                    mainAxisSize = LayoutSize.Expand,
+                    ExpandedHeight,
                     mainAxisAlignment = MainAxisAlignment.Center
                 ) {
                     PurpleSquare()
@@ -139,7 +139,7 @@ fun LayoutDemo() {
             WidthSpacer(width = 24.dp)
             ContainerWithBackground(height = ExampleSize, color = lightGrey) {
                 Column(
-                    mainAxisSize = LayoutSize.Expand,
+                    ExpandedHeight,
                     mainAxisAlignment = MainAxisAlignment.End
                 ) {
                     PurpleSquare()
@@ -149,7 +149,7 @@ fun LayoutDemo() {
             WidthSpacer(width = 24.dp)
             ContainerWithBackground(height = ExampleSize, color = lightGrey) {
                 Column(
-                    mainAxisSize = LayoutSize.Expand,
+                    ExpandedHeight,
                     crossAxisAlignment = CrossAxisAlignment.Start
                 ) {
                     PurpleSquare()
@@ -159,7 +159,7 @@ fun LayoutDemo() {
             WidthSpacer(width = 24.dp)
             ContainerWithBackground(height = ExampleSize, color = lightGrey) {
                 Column(
-                    mainAxisSize = LayoutSize.Expand,
+                    ExpandedHeight,
                     crossAxisAlignment = CrossAxisAlignment.End
                 ) {
                     PurpleSquare()

@@ -28,7 +28,8 @@ import androidx.ui.foundation.text.SelectionContainer
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Column
 import androidx.ui.layout.CrossAxisAlignment
-import androidx.ui.layout.LayoutSize
+import androidx.ui.layout.ExpandedHeight
+import androidx.ui.layout.ExpandedWidth
 import androidx.ui.layout.Row
 import androidx.ui.text.LocaleList
 import androidx.ui.text.TextStyle
@@ -38,10 +39,7 @@ import androidx.ui.text.font.FontWeight
 @Composable
 fun TextSelectionDemo() {
     VerticalScroller {
-        Column(
-            mainAxisSize = LayoutSize.Expand,
-            crossAxisAlignment = CrossAxisAlignment.Start
-        ) {
+        Column(crossAxisAlignment = CrossAxisAlignment.Start) {
             TagLine(tag = "selection")
             TextDemoSelection()
             TagLine(tag = "selection with string input")
@@ -139,9 +137,9 @@ fun TextDemoSelection2DArrayVertical() {
     SelectionContainer(
         selection = selection.value,
         onSelectionChange = { selection.value = it }) {
-        Column(mainAxisSize = LayoutSize.Expand) {
+        Column(ExpandedHeight) {
             for (i in 0..2) {
-                Row(mainAxisSize = LayoutSize.Expand) {
+                Row(ExpandedWidth) {
                     for (j in 0..2) {
                         Text {
                             Span(
@@ -184,9 +182,9 @@ fun TextDemoSelection2DArrayHorizontal() {
         onSelectionChange = { selection.value = it },
         mode = SelectionMode.Horizontal
     ) {
-        Column(mainAxisSize = LayoutSize.Expand) {
+        Column(ExpandedHeight) {
             for (i in 0..2) {
-                Row(mainAxisSize = LayoutSize.Expand) {
+                Row(ExpandedWidth) {
                     for (j in 0..2) {
                         Text {
                             Span(

@@ -94,8 +94,6 @@ class FlexChildren internal constructor() {
  *
  * @param mainAxisAlignment The alignment of the layout's children in main axis direction.
  * Default is [MainAxisAlignment.Start].
- * @param mainAxisSize The size of the layout in the main axis dimension.
- * Default is [LayoutSize.Expand].
  * @param crossAxisAlignment The alignment of the layout's children in cross axis direction.
  * Default is [CrossAxisAlignment.Start].
  * @param crossAxisSize The size of the layout in the cross axis dimension.
@@ -105,7 +103,6 @@ class FlexChildren internal constructor() {
 fun FlexRow(
     modifier: Modifier = Modifier.None,
     mainAxisAlignment: MainAxisAlignment = MainAxisAlignment.Start,
-    mainAxisSize: LayoutSize = LayoutSize.Expand,
     crossAxisAlignment: CrossAxisAlignment = CrossAxisAlignment.Start,
     crossAxisSize: LayoutSize = LayoutSize.Wrap,
     block: FlexChildren.() -> Unit
@@ -113,7 +110,6 @@ fun FlexRow(
     Flex(
         orientation = LayoutOrientation.Horizontal,
         mainAxisAlignment = mainAxisAlignment,
-        mainAxisSize = mainAxisSize,
         crossAxisAlignment = crossAxisAlignment,
         crossAxisSize = crossAxisSize,
         modifier = modifier,
@@ -139,8 +135,6 @@ fun FlexRow(
  *
  * @param mainAxisAlignment The alignment of the layout's children in main axis direction.
  * Default is [MainAxisAlignment.Start].
- * @param mainAxisSize The size of the layout in the main axis dimension.
- * Default is [LayoutSize.Expand].
  * @param crossAxisAlignment The alignment of the layout's children in cross axis direction.
  * Default is [CrossAxisAlignment.Start].
  * @param crossAxisSize The size of the layout in the cross axis dimension.
@@ -150,7 +144,6 @@ fun FlexRow(
 fun FlexColumn(
     modifier: Modifier = Modifier.None,
     mainAxisAlignment: MainAxisAlignment = MainAxisAlignment.Start,
-    mainAxisSize: LayoutSize = LayoutSize.Expand,
     crossAxisAlignment: CrossAxisAlignment = CrossAxisAlignment.Start,
     crossAxisSize: LayoutSize = LayoutSize.Wrap,
     block: FlexChildren.() -> Unit
@@ -158,7 +151,6 @@ fun FlexColumn(
     Flex(
         orientation = LayoutOrientation.Vertical,
         mainAxisAlignment = mainAxisAlignment,
-        mainAxisSize = mainAxisSize,
         crossAxisAlignment = crossAxisAlignment,
         crossAxisSize = crossAxisSize,
         modifier = modifier,
@@ -208,8 +200,6 @@ class FlexScope internal constructor() {
  *
  * @param mainAxisAlignment The alignment of the layout's children in main axis direction.
  * Default is [MainAxisAlignment.Start].
- * @param mainAxisSize The size of the layout in the main axis dimension.
- * Default is [LayoutSize.Wrap].
  * @param crossAxisAlignment The alignment of the layout's children in cross axis direction.
  * Default is [CrossAxisAlignment.Start].
  * @param crossAxisSize The size of the layout in the cross axis dimension.
@@ -219,7 +209,6 @@ class FlexScope internal constructor() {
 fun Row(
     modifier: Modifier = Modifier.None,
     mainAxisAlignment: MainAxisAlignment = MainAxisAlignment.Start,
-    mainAxisSize: LayoutSize = LayoutSize.Wrap,
     crossAxisAlignment: CrossAxisAlignment = CrossAxisAlignment.Start,
     crossAxisSize: LayoutSize = LayoutSize.Wrap,
     block: @Composable() FlexScope.() -> Unit
@@ -227,7 +216,6 @@ fun Row(
     ModifiedFlexLayout(
         orientation = LayoutOrientation.Horizontal,
         mainAxisAlignment = mainAxisAlignment,
-        mainAxisSize = mainAxisSize,
         crossAxisAlignment = crossAxisAlignment,
         crossAxisSize = crossAxisSize,
         modifier = modifier,
@@ -248,8 +236,6 @@ fun Row(
  *
  * @param mainAxisAlignment The alignment of the layout's children in main axis direction.
  * Default is [MainAxisAlignment.Start].
- * @param mainAxisSize The size of the layout in the main axis dimension.
- * Default is [LayoutSize.Wrap].
  * @param crossAxisAlignment The alignment of the layout's children in cross axis direction.
  * Default is [CrossAxisAlignment.Start].
  * @param crossAxisSize The size of the layout in the cross axis dimension.
@@ -259,7 +245,6 @@ fun Row(
 fun Column(
     modifier: Modifier = Modifier.None,
     mainAxisAlignment: MainAxisAlignment = MainAxisAlignment.Start,
-    mainAxisSize: LayoutSize = LayoutSize.Wrap,
     crossAxisAlignment: CrossAxisAlignment = CrossAxisAlignment.Start,
     crossAxisSize: LayoutSize = LayoutSize.Wrap,
     block: @Composable() FlexScope.() -> Unit
@@ -267,7 +252,6 @@ fun Column(
     ModifiedFlexLayout(
         orientation = LayoutOrientation.Vertical,
         mainAxisAlignment = mainAxisAlignment,
-        mainAxisSize = mainAxisSize,
         crossAxisAlignment = crossAxisAlignment,
         crossAxisSize = crossAxisSize,
         modifier = modifier,
@@ -532,7 +516,6 @@ private val IntrinsicMeasurable.fit: FlexFit
 private fun ModifiedFlexLayout(
     orientation: LayoutOrientation,
     modifier: Modifier = Modifier.None,
-    mainAxisSize: LayoutSize,
     mainAxisAlignment: MainAxisAlignment,
     crossAxisSize: LayoutSize,
     crossAxisAlignment: CrossAxisAlignment,
@@ -541,7 +524,6 @@ private fun ModifiedFlexLayout(
     FlexLayout(
         orientation = orientation,
         modifier = modifier,
-        mainAxisSize = mainAxisSize,
         mainAxisAlignment = mainAxisAlignment,
         crossAxisSize = crossAxisSize,
         crossAxisAlignment = crossAxisAlignment,
@@ -553,7 +535,6 @@ private fun ModifiedFlexLayout(
 private fun Flex(
     orientation: LayoutOrientation,
     modifier: Modifier = Modifier.None,
-    mainAxisSize: LayoutSize,
     mainAxisAlignment: MainAxisAlignment,
     crossAxisSize: LayoutSize,
     crossAxisAlignment: CrossAxisAlignment,
@@ -569,7 +550,6 @@ private fun Flex(
     FlexLayout(
         orientation = orientation,
         modifier = modifier,
-        mainAxisSize = mainAxisSize,
         mainAxisAlignment = mainAxisAlignment,
         crossAxisSize = crossAxisSize,
         crossAxisAlignment = crossAxisAlignment,
@@ -585,7 +565,6 @@ private fun Flex(
 private fun FlexLayout(
     orientation: LayoutOrientation,
     modifier: Modifier = Modifier.None,
-    mainAxisSize: LayoutSize,
     mainAxisAlignment: MainAxisAlignment,
     crossAxisSize: LayoutSize,
     crossAxisAlignment: CrossAxisAlignment,
@@ -650,7 +629,7 @@ private fun FlexLayout(
         }
 
         // Then measure the rest according to their flexes in the remaining main axis space.
-        val targetSpace = if (mainAxisSize == LayoutSize.Expand) {
+        val targetSpace = if (totalFlex > 0f && constraints.mainAxisMax.isFinite()) {
             constraints.mainAxisMax
         } else {
             constraints.mainAxisMin
@@ -689,9 +668,7 @@ private fun FlexLayout(
         }
 
         // Compute the Flex size and position the children.
-        val mainAxisLayoutSize = if (constraints.mainAxisMax.isFinite() &&
-            mainAxisSize == LayoutSize.Expand
-        ) {
+        val mainAxisLayoutSize = if (totalFlex > 0f && constraints.mainAxisMax.isFinite()) {
             constraints.mainAxisMax
         } else {
             max(inflexibleSpace + flexibleSpace, constraints.mainAxisMin)

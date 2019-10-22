@@ -27,10 +27,10 @@ import androidx.ui.graphics.Color
 import androidx.ui.layout.Column
 import androidx.ui.layout.Container
 import androidx.ui.layout.CrossAxisAlignment
+import androidx.ui.layout.ExpandedWidth
 import androidx.ui.layout.FixedSpacer
 import androidx.ui.layout.FlexRow
 import androidx.ui.layout.HeightSpacer
-import androidx.ui.layout.LayoutSize
 import androidx.ui.layout.MainAxisAlignment
 import androidx.ui.layout.Row
 import androidx.ui.layout.Spacing
@@ -51,10 +51,13 @@ fun RallyAlertCard() {
     Card {
         Column(Spacing(12.dp)) {
             Row(
-                mainAxisSize = LayoutSize.Expand,
+                ExpandedWidth,
                 mainAxisAlignment = MainAxisAlignment.SpaceBetween
             ) {
-                Text(text = "Alerts", style = +themeTextStyle { subtitle2 })
+                Text(
+                    text = "Alerts",
+                    style = +themeTextStyle { body1 }
+                )
                 Button(text = "See All", onClick = { }, style = TextButtonStyle())
             }
             Divider(
@@ -62,21 +65,18 @@ fun RallyAlertCard() {
                 color = +themeColor { background },
                 height = 2.dp
             )
-            FlexRow {
-                expanded(flex = 1.0f) {
-                    val text = "Heads up, you've used up 90% of your " +
-                            "Shopping budget for this month."
-                    Text(
-                        style = +themeTextStyle { body1 },
-                        text = text
-                    )
-                }
-                inflexible {
-                    // TODO: icons still don't work
+            Row {
+                val text = "Heads up, you've used up 90% of your " +
+                        "Shopping budget for this month."
+                Text(
+                    style = +themeTextStyle { body1 },
+                    modifier = Flexible(1f),
+                    text = text
+                )
+                // TODO: icons still don't work
 //                        <vectorResource res=context.resources
 //                            resId=androidx.ui.material.studies.R.drawable.sort_icon/>
-                    Button(text = "Sort", onClick = { }, style = TextButtonStyle())
-                }
+                Button(text = "Sort", onClick = { }, style = TextButtonStyle())
             }
         }
     }
@@ -88,13 +88,13 @@ fun RallyAlertCard() {
 @Composable
 fun RallyAccountsOverviewCard() {
     Card {
-        Column(mainAxisSize = LayoutSize.Expand) {
+        Column {
             Column(modifier = Spacing(12.dp)) {
                 Text(text = "Accounts", style = +themeTextStyle { body1 })
                 Text(text = "$12,132.49", style = +themeTextStyle { h3 })
             }
             Divider(color = rallyGreen, height = 1.dp)
-            Column(modifier = Spacing(12.dp), mainAxisSize = LayoutSize.Expand) {
+            Column(modifier = Spacing(12.dp)) {
                 RallyAccountRow(
                     name = "Checking",
                     number = "1234",
@@ -145,7 +145,7 @@ fun RallyAccountsCard() {
                     }
                 HeightSpacer(height = 10.dp)
                 Card {
-                    Column(modifier = Spacing(12.dp), mainAxisSize = LayoutSize.Expand) {
+                    Column(modifier = Spacing(12.dp)) {
                         RallyAccountRow(
                             name = "Checking",
                             number = "1234",
@@ -188,10 +188,7 @@ fun RallyAccountRow(name: String, number: String, amount: String, color: Color) 
         inflexible {
             AccountIndicator(color = color)
             WidthSpacer(width = 8.dp)
-            Column(
-                mainAxisSize = LayoutSize.Expand,
-                crossAxisAlignment = CrossAxisAlignment.Start
-            ) {
+            Column(crossAxisAlignment = CrossAxisAlignment.Start) {
                 Text(text = name, style = +themeTextStyle { body1 })
                 Text(text = "•••••$number", style = +themeTextStyle { subtitle1 })
             }
@@ -219,14 +216,14 @@ fun AccountIndicator(color: Color) {
 @Composable
 fun RallyBillsOverviewCard() {
     Card {
-        Column(mainAxisSize = LayoutSize.Expand) {
+        Column {
             Column(modifier = Spacing(12.dp)) {
                 Text(text = "Bills", style = +themeTextStyle { subtitle2 })
                 Text(text = "$1,810.00", style = +themeTextStyle { h3 })
             }
             Divider(color = rallyGreen, height = 1.dp)
             // TODO: change to proper bill items
-            Column(modifier = Spacing(12.dp), mainAxisSize = LayoutSize.Expand) {
+            Column(modifier = Spacing(12.dp)) {
                 RallyAccountRow(
                     name = "RedPay Credit",
                     number = "Jan 29",
@@ -278,7 +275,7 @@ fun RallyBillsCard() {
             HeightSpacer(height = 10.dp)
             Card {
                 // TODO: change to proper bill items
-                Column(modifier = Spacing(12.dp), mainAxisSize = LayoutSize.Expand) {
+                Column(modifier = Spacing(12.dp)) {
                     RallyAccountRow(
                         name = "RedPay Credit",
                         number = "Jan 29",
