@@ -16,6 +16,7 @@
 
 package androidx.viewpager2.integration.testapp
 
+import android.os.Build
 import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
@@ -60,6 +61,9 @@ abstract class MutableCollectionBaseActivity : FragmentActivity() {
         itemSpinner.adapter = object : BaseAdapter() {
             override fun getView(position: Int, convertView: View?, parent: ViewGroup): View =
                 ((convertView as TextView?) ?: TextView(parent.context)).apply {
+                    if (Build.VERSION.SDK_INT >= 17) {
+                        textDirection = View.TEXT_DIRECTION_LOCALE
+                    }
                     text = getItem(position)
                 }
 
