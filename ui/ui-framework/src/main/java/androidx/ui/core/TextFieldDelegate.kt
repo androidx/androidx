@@ -39,8 +39,10 @@ import androidx.ui.text.Paragraph
 import androidx.ui.text.ParagraphConstraints
 import androidx.ui.text.ParagraphStyle
 import androidx.ui.text.TextDelegate
+import androidx.ui.text.TextRange
 import androidx.ui.text.TextStyle
 import androidx.ui.text.font.Font
+import androidx.ui.text.style.TextDecoration
 import androidx.ui.text.style.TextDirectionAlgorithm
 import kotlin.math.roundToInt
 
@@ -131,14 +133,6 @@ internal class TextFieldDelegate {
             hasFocus: Boolean,
             selectionColor: Color? = null
         ) {
-            value.composition?.let {
-                textDelegate.paintBackground(
-                    offsetMap.originalToTransformed(it.min),
-                    offsetMap.originalToTransformed(it.max),
-                    Color(DEFAULT_COMPOSITION_COLOR),
-                    canvas
-                )
-            }
             if (value.selection.collapsed) {
                 if (hasFocus) {
                     textDelegate.paintCursor(
@@ -331,5 +325,24 @@ internal class TextFieldDelegate {
             return visualTransformation?.filter(annotatedString)
                     ?: TransformedText(annotatedString, identityOffsetMap)
         }
+
+        /**
+         *  Apply the composition text decoration (undeline) to the transformed text.
+         *
+         *  @param compositionRange An input state
+         *  @param transformed A transformed text
+         *  @return The transformed text with composition decoration.
+         */
+        fun applyCompositionDecoration(
+            compositionRange: TextRange,
+            transformed: TransformedText
+        ): TransformedText =
+            TransformedText(
+                AnnotatedString.Builder(transformed.transformedText).apply {
+                    addStyle(TextStyle(decoration = TextDecoration.Underline),
+                        compositionRange.start, compositionRange.end)
+                }.toAnnotatedString(),
+                transformed.offsetMap
+            )
     }
 }
