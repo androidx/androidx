@@ -17,8 +17,10 @@
 package androidx.ui.graphics.vector
 
 import android.graphics.Bitmap
+import android.os.Build
 import androidx.compose.Composable
 import androidx.compose.composer
+import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.test.rule.ActivityTestRule
 import androidx.ui.core.Px
@@ -60,6 +62,7 @@ class VectorTest {
         drawLatch = CountDownLatch(1)
     }
 
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun testVectorTint() {
         rule.runOnUiThreadIR {
