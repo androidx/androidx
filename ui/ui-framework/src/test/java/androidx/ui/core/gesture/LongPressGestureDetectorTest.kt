@@ -168,6 +168,17 @@ class LongPressGestureDetectorTest {
         verify(onLongPress, never()).invoke(any())
     }
 
+    @Test
+    fun pointerInputHandler_downMoveOutOfBoundsWait_onLongPressNotCalled() {
+        var pointer = down()
+        mRecognizer.pointerInputHandler.invokeOverAllPasses(pointer, IntPxSize(1.ipx, 1.ipx))
+        pointer = pointer.moveTo(50L.millisecondsToTimestamp(), 1f, 0f)
+        mRecognizer.pointerInputHandler.invokeOverAllPasses(pointer, IntPxSize(1.ipx, 1.ipx))
+        testContext.advanceTimeBy(100, TimeUnit.MILLISECONDS)
+
+        verify(onLongPress, never()).invoke(any())
+    }
+
     // Tests that verify conditions under which onLongPress will be called.
 
     @Test
@@ -181,6 +192,23 @@ class LongPressGestureDetectorTest {
     fun pointerInputHandler_2DownBeyondTimeout_onLongPressCalled() {
         mRecognizer.pointerInputHandler.invokeOverAllPasses(listOf(down(0), down(1)))
         testContext.advanceTimeBy(100, TimeUnit.MILLISECONDS)
+        verify(onLongPress).invoke(any())
+    }
+
+    @Test
+    fun pointerInputHandler_downMoveOutOfBoundsWaitUpThenDownWait_onLongPressCalledOnce() {
+        var pointer = down()
+        mRecognizer.pointerInputHandler.invokeOverAllPasses(pointer, IntPxSize(1.ipx, 1.ipx))
+        pointer = pointer.moveTo(50L.millisecondsToTimestamp(), 1f, 0f)
+        mRecognizer.pointerInputHandler.invokeOverAllPasses(pointer, IntPxSize(1.ipx, 1.ipx))
+        testContext.advanceTimeBy(100, TimeUnit.MILLISECONDS)
+        pointer = pointer.up(105L.millisecondsToTimestamp())
+        mRecognizer.pointerInputHandler.invokeOverAllPasses(pointer, IntPxSize(1.ipx, 1.ipx))
+
+        pointer = down(timestamp = 200L.millisecondsToTimestamp())
+        mRecognizer.pointerInputHandler.invokeOverAllPasses(pointer, IntPxSize(1.ipx, 1.ipx))
+        testContext.advanceTimeBy(100, TimeUnit.MILLISECONDS)
+
         verify(onLongPress).invoke(any())
     }
 
@@ -254,14 +282,14 @@ class LongPressGestureDetectorTest {
     @Test
     fun pointerInputHandler_downMove_onLongPressCalledWithMovePosition() {
         val down = down(0, x = 13f, y = 17f)
-        val move = down.moveTo(50L.millisecondsToTimestamp(), -7f, 5f)
+        val move = down.moveTo(50L.millisecondsToTimestamp(), 7f, 5f)
 
         mRecognizer.pointerInputHandler.invokeOverAllPasses(listOf(down))
         testContext.advanceTimeBy(50, TimeUnit.MILLISECONDS)
         mRecognizer.pointerInputHandler.invokeOverAllPasses(listOf(move))
         testContext.advanceTimeBy(50, TimeUnit.MILLISECONDS)
 
-        verify(onLongPress).invoke(PxPosition((-7).px, 5.px))
+        verify(onLongPress).invoke(PxPosition((7).px, 5.px))
     }
 
     @Test
