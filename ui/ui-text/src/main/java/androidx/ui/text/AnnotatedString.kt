@@ -56,7 +56,6 @@ data class AnnotatedString(
      * @param start The start of the range where [style] takes effect. It's inclusive
      * @param end The end of the range where [style] takes effect. It's exclusive
      */
-    // TODO(haoyuchang): Check some other naming options.
     data class Item<T>(val style: T, val start: Int, val end: Int) {
         init {
             require(start <= end) { "Reversed range is not supported" }

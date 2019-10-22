@@ -2125,8 +2125,7 @@ class ParagraphIntegrationTest {
             )
 
             assertThat(paragraph.lineCount).isEqualTo(4)
-            // TODO(haoyuchang): Due to bug b/120530738, the height of the first line is
-            // wrong in the framework. Will fix it when the lineHeight in TextSpan is implemented.
+            // First/last line is influenced by top/bottom padding
             for (i in 1 until paragraph.lineCount - 1) {
                 val actualHeight = paragraph.getLineHeight(i)
                 // In the sample_font.ttf, the height of the line should be
