@@ -36,7 +36,7 @@ class BackPressedDispatcherCallbackDetectorTest : LintDetectorTest() {
     override fun getIssues(): MutableList<Issue> =
         mutableListOf(UnsafeFragmentLifecycleObserverDetector.BACK_PRESSED_ISSUE)
 
-    private var sdkDir: File? = null
+    private lateinit var sdkDir: File
 
     @Before
     fun setup() {
@@ -49,7 +49,7 @@ class BackPressedDispatcherCallbackDetectorTest : LintDetectorTest() {
 
     private fun check(vararg files: TestFile): TestLintResult {
         return lint().files(*files, *BACK_CALLBACK_STUBS)
-            .sdkHome(sdkDir!!)
+            .sdkHome(sdkDir)
             .run()
     }
 
