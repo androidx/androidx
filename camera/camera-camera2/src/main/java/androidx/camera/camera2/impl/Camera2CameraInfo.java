@@ -16,16 +16,13 @@
 
 package androidx.camera.camera2.impl;
 
-import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCharacteristics;
-import android.hardware.camera2.CameraManager;
 import android.util.Log;
 import android.view.Surface;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.camera.core.CameraInfoInternal;
-import androidx.camera.core.CameraInfoUnavailableException;
 import androidx.camera.core.CameraOrientationUtil;
 import androidx.camera.core.ImageOutputConfig.RotationValue;
 import androidx.camera.core.LensFacing;
@@ -40,29 +37,19 @@ import androidx.lifecycle.MutableLiveData;
  */
 final class Camera2CameraInfo implements CameraInfoInternal {
 
+    private static final String TAG = "Camera2CameraInfo";
     private final CameraCharacteristics mCameraCharacteristics;
     private final ZoomControl mZoomControl;
-    private static final String TAG = "Camera2CameraInfo";
-    private MutableLiveData<Boolean> mFlashAvailability;
+    private final MutableLiveData<Boolean> mFlashAvailability;
 
-    Camera2CameraInfo(@NonNull CameraManager cameraManager, @NonNull String cameraId,
-            @NonNull ZoomControl zoomControl)
-            throws CameraInfoUnavailableException {
-        try {
-            mCameraCharacteristics = cameraManager.getCameraCharacteristics(cameraId);
-        } catch (CameraAccessException e) {
-            throw new CameraInfoUnavailableException(
-                    "Unable to retrieve info for camera " + cameraId, e);
-        }
-
+    Camera2CameraInfo(@NonNull CameraCharacteristics cameraCharacteristics,
+            @NonNull ZoomControl zoomControl) {
+        Preconditions.checkNotNull(cameraCharacteristics, "Camera characteristics map is missing");
+        mCameraCharacteristics = cameraCharacteristics;
         mZoomControl = zoomControl;
+
         mFlashAvailability = new MutableLiveData<>(
                 mCameraCharacteristics.get(CameraCharacteristics.FLASH_INFO_AVAILABLE));
-        checkCharacteristicAvailable(
-                CameraCharacteristics.SENSOR_ORIENTATION, "Sensor orientation");
-        checkCharacteristicAvailable(CameraCharacteristics.LENS_FACING, "Lens facing direction");
-        checkCharacteristicAvailable(
-                CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL, "Supported hardware level");
         logDeviceInfo();
     }
 
@@ -108,15 +95,6 @@ final class Camera2CameraInfo implements CameraInfoInternal {
                 mCameraCharacteristics.get(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL);
         Preconditions.checkNotNull(deviceLevel);
         return deviceLevel;
-    }
-
-    private void checkCharacteristicAvailable(CameraCharacteristics.Key<?> key, String readableName)
-            throws CameraInfoUnavailableException {
-        if (mCameraCharacteristics.get(key) == null) {
-            throw new CameraInfoUnavailableException(
-                    "Camera characteristics map is missing value for characteristic: "
-                            + readableName);
-        }
     }
 
     @Override

@@ -22,13 +22,13 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import android.content.Context;
+import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CameraManager;
 import android.os.Build;
 import android.view.Surface;
 
 import androidx.camera.core.CameraInfoInternal;
-import androidx.camera.core.CameraInfoUnavailableException;
 import androidx.camera.core.LensFacing;
 import androidx.lifecycle.MutableLiveData;
 import androidx.test.core.app.ApplicationProvider;
@@ -65,35 +65,38 @@ public class Camera2CameraInfoTest {
             CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_3;
 
     private CameraManager mCameraManager;
+    private CameraCharacteristics mCameraCharacteristics0;
+    private CameraCharacteristics mCameraCharacteristics1;
 
     @Before
-    public void setUp() {
+    public void setUp() throws CameraAccessException {
         initCameras();
 
         mCameraManager =
                 (CameraManager) ApplicationProvider.getApplicationContext().getSystemService(
                         Context.CAMERA_SERVICE);
+        mCameraCharacteristics0 = mCameraManager.getCameraCharacteristics(CAMERA0_ID);
+        mCameraCharacteristics1 = mCameraManager.getCameraCharacteristics(CAMERA1_ID);
     }
 
     @Test
-    public void canCreateCameraInfo() throws CameraInfoUnavailableException {
-        CameraInfoInternal cameraInfoInternal = new Camera2CameraInfo(mCameraManager, CAMERA0_ID,
+    public void canCreateCameraInfo() {
+        CameraInfoInternal cameraInfoInternal = new Camera2CameraInfo(mCameraCharacteristics0,
                 mock(ZoomControl.class));
         assertThat(cameraInfoInternal).isNotNull();
     }
 
     @Test
-    public void cameraInfo_canReturnSensorOrientation() throws CameraInfoUnavailableException {
-        CameraInfoInternal cameraInfoInternal = new Camera2CameraInfo(mCameraManager, CAMERA0_ID,
+    public void cameraInfo_canReturnSensorOrientation() {
+        CameraInfoInternal cameraInfoInternal = new Camera2CameraInfo(mCameraCharacteristics0,
                 mock(ZoomControl.class));
         assertThat(cameraInfoInternal.getSensorRotationDegrees()).isEqualTo(
                 CAMERA0_SENSOR_ORIENTATION);
     }
 
     @Test
-    public void cameraInfo_canCalculateCorrectRelativeRotation_forBackCamera()
-            throws CameraInfoUnavailableException {
-        CameraInfoInternal cameraInfoInternal = new Camera2CameraInfo(mCameraManager, CAMERA0_ID,
+    public void cameraInfo_canCalculateCorrectRelativeRotation_forBackCamera() {
+        CameraInfoInternal cameraInfoInternal = new Camera2CameraInfo(mCameraCharacteristics0,
                 mock(ZoomControl.class));
 
         // Note: these numbers depend on the camera being a back-facing camera.
@@ -108,9 +111,8 @@ public class Camera2CameraInfoTest {
     }
 
     @Test
-    public void cameraInfo_canCalculateCorrectRelativeRotation_forFrontCamera()
-            throws CameraInfoUnavailableException {
-        CameraInfoInternal cameraInfoInternal = new Camera2CameraInfo(mCameraManager, CAMERA1_ID,
+    public void cameraInfo_canCalculateCorrectRelativeRotation_forFrontCamera() {
+        CameraInfoInternal cameraInfoInternal = new Camera2CameraInfo(mCameraCharacteristics1,
                 mock(ZoomControl.class));
 
         // Note: these numbers depend on the camera being a front-facing camera.
@@ -125,25 +127,23 @@ public class Camera2CameraInfoTest {
     }
 
     @Test
-    public void cameraInfo_canReturnLensFacing() throws CameraInfoUnavailableException {
-        CameraInfoInternal cameraInfoInternal = new Camera2CameraInfo(mCameraManager, CAMERA0_ID,
+    public void cameraInfo_canReturnLensFacing() {
+        CameraInfoInternal cameraInfoInternal = new Camera2CameraInfo(mCameraCharacteristics0,
                 mock(ZoomControl.class));
         assertThat(cameraInfoInternal.getLensFacing()).isEqualTo(CAMERA0_LENS_FACING_ENUM);
     }
 
     @Test
-    public void cameraInfo_canReturnFlashAvailable_forBackCamera()
-            throws CameraInfoUnavailableException {
-        CameraInfoInternal cameraInfoInternal = new Camera2CameraInfo(mCameraManager, CAMERA0_ID,
+    public void cameraInfo_canReturnFlashAvailable_forBackCamera() {
+        CameraInfoInternal cameraInfoInternal = new Camera2CameraInfo(mCameraCharacteristics0,
                 mock(ZoomControl.class));
         assertThat(cameraInfoInternal.isFlashAvailable().getValue().booleanValue()).isEqualTo(
                 CAMERA0_FLASH_INFO_BOOLEAN);
     }
 
     @Test
-    public void cameraInfo_canReturnFlashAvailable_forFrontCamera()
-            throws CameraInfoUnavailableException {
-        CameraInfoInternal cameraInfoInternal = new Camera2CameraInfo(mCameraManager, CAMERA1_ID,
+    public void cameraInfo_canReturnFlashAvailable_forFrontCamera() {
+        CameraInfoInternal cameraInfoInternal = new Camera2CameraInfo(mCameraCharacteristics1,
                 mock(ZoomControl.class));
         assertThat(cameraInfoInternal.isFlashAvailable().getValue().booleanValue()).isEqualTo(
                 CAMERA1_FLASH_INFO_BOOLEAN);
@@ -152,37 +152,36 @@ public class Camera2CameraInfoTest {
     // zoom related tests just ensure it uses ZoomControl to get the value
     // Full tests are performed at ZoomControlTest / ZoomControlRoboTest.
     @Test
-    public void cameraInfo_getZoomRatio_valueIsCorrect() throws CameraInfoUnavailableException {
+    public void cameraInfo_getZoomRatio_valueIsCorrect() {
         ZoomControl zoomControl = mock(ZoomControl.class);
-        CameraInfoInternal cameraInfo = new Camera2CameraInfo(mCameraManager, CAMERA0_ID,
+        CameraInfoInternal cameraInfo = new Camera2CameraInfo(mCameraCharacteristics0,
                 zoomControl);
         when(zoomControl.getZoomRatio()).thenReturn(new MutableLiveData<>(3.0f));
         assertThat(cameraInfo.getZoomRatio().getValue()).isEqualTo(3.0f);
     }
 
     @Test
-    public void cameraInfo_getZoomPercentage_valueIsCorrect()
-            throws CameraInfoUnavailableException {
+    public void cameraInfo_getZoomPercentage_valueIsCorrect() {
         ZoomControl zoomControl = mock(ZoomControl.class);
-        CameraInfoInternal cameraInfo = new Camera2CameraInfo(mCameraManager, CAMERA0_ID,
+        CameraInfoInternal cameraInfo = new Camera2CameraInfo(mCameraCharacteristics0,
                 zoomControl);
         when(zoomControl.getZoomPercentage()).thenReturn(new MutableLiveData<>(0.2f));
         assertThat(cameraInfo.getZoomPercentage().getValue()).isEqualTo(0.2f);
     }
 
     @Test
-    public void cameraInfo_getMaxZoomRatio_valueIsCorrect() throws CameraInfoUnavailableException {
+    public void cameraInfo_getMaxZoomRatio_valueIsCorrect() {
         ZoomControl zoomControl = mock(ZoomControl.class);
-        CameraInfoInternal cameraInfo = new Camera2CameraInfo(mCameraManager, CAMERA0_ID,
+        CameraInfoInternal cameraInfo = new Camera2CameraInfo(mCameraCharacteristics0,
                 zoomControl);
         when(zoomControl.getMaxZoomRatio()).thenReturn(new MutableLiveData<>(8.0f));
         assertThat(cameraInfo.getMaxZoomRatio().getValue()).isEqualTo(8.0f);
     }
 
     @Test
-    public void cameraInfo_getMinZoomRatio_valueIsCorrect() throws CameraInfoUnavailableException {
+    public void cameraInfo_getMinZoomRatio_valueIsCorrect() {
         ZoomControl zoomControl = mock(ZoomControl.class);
-        CameraInfoInternal cameraInfo = new Camera2CameraInfo(mCameraManager, CAMERA0_ID,
+        CameraInfoInternal cameraInfo = new Camera2CameraInfo(mCameraCharacteristics0,
                 zoomControl);
         when(zoomControl.getMinZoomRatio()).thenReturn(new MutableLiveData<>(1.0f));
         assertThat(cameraInfo.getMinZoomRatio().getValue()).isEqualTo(1.0f);

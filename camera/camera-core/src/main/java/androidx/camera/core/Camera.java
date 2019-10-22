@@ -16,10 +16,30 @@
 
 package androidx.camera.core;
 
+import androidx.annotation.NonNull;
+
 /**
  * The camera interface. It is used to control the flow of data to use cases, control the
  * camera via the {@link CameraControl}, and publish the state of the camera via {@link CameraInfo}.
  */
 public interface Camera {
 
+    /**
+     * Returns a control which can be used to drive this camera's settings.
+     *
+     * @return the {@link CameraControl}.
+     */
+    @NonNull
+    CameraControl getCameraControl();
+
+    /**
+     * Returns information about this camera.
+     *
+     * <p>The returned information can be used to query static camera
+     * characteristics or observe the runtime state of the camera.
+     *
+     * @return the {@link CameraInfo}.
+     */
+    @NonNull
+    CameraInfo getCameraInfo();
 }
