@@ -16,6 +16,8 @@
 
 package androidx.camera.extensions;
 
+import static androidx.camera.core.PreviewUtil.createPreviewSurfaceCallback;
+
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assume.assumeTrue;
@@ -32,6 +34,7 @@ import android.Manifest;
 import android.app.Instrumentation;
 import android.content.Context;
 import android.graphics.ImageFormat;
+import android.graphics.SurfaceTexture;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.TotalCaptureResult;
@@ -47,6 +50,7 @@ import androidx.camera.core.CameraX;
 import androidx.camera.core.CameraX.LensFacing;
 import androidx.camera.core.Preview;
 import androidx.camera.core.PreviewConfig;
+import androidx.camera.core.PreviewUtil;
 import androidx.camera.extensions.ExtensionsManager.EffectMode;
 import androidx.camera.extensions.impl.CaptureStageImpl;
 import androidx.camera.extensions.impl.PreviewExtenderImpl;
@@ -80,6 +84,20 @@ public class PreviewExtenderTest {
 
     private final Instrumentation mInstrumentation = InstrumentationRegistry.getInstrumentation();
     private FakeLifecycleOwner mFakeLifecycle;
+
+    private static final PreviewUtil.SurfaceTextureCallback NO_OP_SURFACE_TEXTURE_CALLBACK =
+            new PreviewUtil.SurfaceTextureCallback() {
+                @Override
+                public void onSurfaceTextureReady(
+                        @NonNull SurfaceTexture surfaceTexture) {
+                    // No-op.
+                }
+
+                @Override
+                public void onSafeToRelease(@NonNull SurfaceTexture surfaceTexture) {
+                    // No-op.
+                }
+            };
 
     @Rule
     public GrantPermissionRule mRuntimePermissionRule = GrantPermissionRule.grant(
@@ -130,11 +148,11 @@ public class PreviewExtenderTest {
         mInstrumentation.runOnMainSync(new Runnable() {
             @Override
             public void run() {
-                CameraX.bindToLifecycle(mFakeLifecycle, useCase);
-
                 // To set the update listener and Preview will change to active state.
-                useCase.setOnPreviewOutputUpdateListener(
-                        mock(Preview.OnPreviewOutputUpdateListener.class));
+                useCase.setPreviewSurfaceCallback(
+                        createPreviewSurfaceCallback(NO_OP_SURFACE_TEXTURE_CALLBACK));
+
+                CameraX.bindToLifecycle(mFakeLifecycle, useCase);
             }
         });
 
@@ -207,11 +225,11 @@ public class PreviewExtenderTest {
         mInstrumentation.runOnMainSync(new Runnable() {
             @Override
             public void run() {
-                CameraX.bindToLifecycle(mFakeLifecycle, preview);
-
                 // To set the update listener and Preview will change to active state.
-                preview.setOnPreviewOutputUpdateListener(
-                        mock(Preview.OnPreviewOutputUpdateListener.class));
+                preview.setPreviewSurfaceCallback(
+                        createPreviewSurfaceCallback(NO_OP_SURFACE_TEXTURE_CALLBACK));
+
+                CameraX.bindToLifecycle(mFakeLifecycle, preview);
             }
         });
 
@@ -258,10 +276,11 @@ public class PreviewExtenderTest {
         mInstrumentation.runOnMainSync(new Runnable() {
             @Override
             public void run() {
-                CameraX.bindToLifecycle(mFakeLifecycle, preview);
                 // To set the update listener and Preview will change to active state.
-                preview.setOnPreviewOutputUpdateListener(
-                        mock(Preview.OnPreviewOutputUpdateListener.class));
+                preview.setPreviewSurfaceCallback(
+                        createPreviewSurfaceCallback(NO_OP_SURFACE_TEXTURE_CALLBACK));
+
+                CameraX.bindToLifecycle(mFakeLifecycle, preview);
             }
         });
 
