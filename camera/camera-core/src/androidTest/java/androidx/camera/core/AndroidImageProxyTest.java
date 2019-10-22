@@ -26,6 +26,7 @@ import android.graphics.ImageFormat;
 import android.graphics.Rect;
 import android.media.Image;
 
+import androidx.annotation.experimental.UseExperimental;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
 
@@ -131,6 +132,7 @@ public final class AndroidImageProxyTest {
     }
 
     @Test
+    @UseExperimental(markerClass = ExperimentalGetImage.class)
     public void getImage_returnsWrappedImage() {
         assertThat(mImageProxy.getImage()).isEqualTo(mImage);
     }

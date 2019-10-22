@@ -27,6 +27,7 @@ import androidx.camera.camera2.impl.Camera2CameraCaptureResultConverter;
 import androidx.camera.core.CameraCaptureResult;
 import androidx.camera.core.CameraCaptureResults;
 import androidx.camera.core.CaptureProcessor;
+import androidx.camera.core.ExperimentalGetImage;
 import androidx.camera.core.ImageInfo;
 import androidx.camera.core.ImageProxy;
 import androidx.camera.core.ImageProxyBundle;
@@ -64,6 +65,7 @@ final class AdaptingPreviewProcessor implements CaptureProcessor,
     }
 
     @Override
+    @ExperimentalGetImage
     public void process(ImageProxyBundle bundle) {
         List<Integer> ids = bundle.getCaptureIds();
         Preconditions.checkArgument(ids.size() == 1,

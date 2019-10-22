@@ -157,6 +157,7 @@ final class AndroidImageProxy implements ImageProxy {
     }
 
     @Override
+    @ExperimentalGetImage
     public synchronized Image getImage() {
         return mImage;
     }

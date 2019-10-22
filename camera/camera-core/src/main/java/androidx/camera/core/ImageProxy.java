@@ -147,5 +147,6 @@ public interface ImageProxy extends AutoCloseable {
      * @return the android image.
      */
     @Nullable
+    @ExperimentalGetImage
     Image getImage();
 }
