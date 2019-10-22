@@ -17,6 +17,7 @@
 package androidx.inspection;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import java.util.List;
 
@@ -24,7 +25,6 @@ import java.util.List;
  * This interface exposes special tooling capabilities provided by JVMTI.
  */
 public interface InspectorEnvironment {
-
     /**
      * Returns a list of all present instances of the given class in heap.
      *
@@ -34,59 +34,71 @@ public interface InspectorEnvironment {
     @NonNull
     <T> List<T> findInstances(@NonNull Class<T> clazz);
 
-    // TODO(b/142729179): migrate this API to callbacks instead of static methods
+    /**
+     * A callback invoked at the entry to an instrumented method.
+     *
+     * {@link InspectorEnvironment#registerEntryHook(Class, String, EntryHook)}
+     */
+    interface EntryHook {
+        /**
+         * Called inline at the entry of an instrumented method.
+         *
+         * @param thisObject "this" object of origin method or {@code null} if origin method is
+         *                   static.
+         * @param args arguments passed into the origin method
+         */
+        void onEntry(@Nullable Object thisObject, @NonNull List<Object> args);
+    }
+
     /**
      * Register entry hook for the {@code originMethod} in the {@code originClass}.
      * <p/>
-     * This method performs bytecode transformation and injects a call to {@code hookMethod} of
-     * {@code hookClass} at the start of {@code originMethod} of {@code originClass}.
+     * This method performs bytecode transformation and injects a call to {@code entryHook}
+     * at the start of {@code originMethod} of {@code originClass}.
      * <p/>
      * {@code originMethod} should be in the format:
      * "methodName(signature)", where signature is JAVA VM's format (the one that JNI uses). For
      * example, for method {@code Foo bla(Bar bla);} it should look like:
      * {@code bla(LpackageOfBar/Bar;)LpackageOfFoo/Foo;}
-     * <p/>
-     * {@code hookMethodName} is simply a name of the method <b>without signature</b>, this
-     * method:
-     * <ul>
-     * <li> must be public static;</li>
-     * <li> must have void return type;</li>
-     * <li> must have {@link Object} as a first param, if the origin method isn't static. Reference
-     * to {@code this} object will be passed as a first parameter;</li>
-     * <li>must have all other parameters strictly matching parameters of {@code originMethod} </li>
-     * </ul>
      *
-     * @param originClass    class where {@code originMethod} is defined
-     * @param originMethod   method which should be instrumented with entry hook
-     * @param hookClass      class where {@code hookMethod} is defined
-     * @param hookMethodName name of a method that should be called at the start of
-     *                       {@code originMethod}
+     * @param originClass  class where {@code originMethod} is defined
+     * @param originMethod method which should be instrumented with entry hook
+     * @param entryHook    a hook to be called at the entry of {@code origin method}
      */
     void registerEntryHook(@NonNull Class<?> originClass, @NonNull String originMethod,
-            @NonNull Class<?> hookClass, @NonNull String hookMethodName);
+            @NonNull EntryHook entryHook);
+
+    /**
+     * A callback invoked at the exit to an instrumented method.
+     *
+     * @param <T> The type of data returned by an instrumented method.
+     */
+    interface ExitHook<T> {
+        /**
+         * Called inline at the exit of an instrumented method and allows to intercept
+         * a returned value of an origin method.
+         *
+         * @param result an object that was meant to be returned by origin method
+         * @return an object that should be returned instead by origin method.
+         */
+        T onExit(T result);
+    }
 
     /**
      * Register exit hook for the {@code originMethod} in the {@code originClass}.
      * <p/>
-     * This method performs bytecode transformation and injects a call to {@code hookMethod} of
-     * {@code hookClass} at the end of {@code originMethod} of {@code originClass}.
+     * This method performs bytecode transformation and injects a call to {@code exitHook}
+     * at the end of {@code originMethod} of {@code originClass}.
      * <p/>
      * {@code originMethod} should be in the format:
      * "methodName(signature)", where signature is JAVA VM's format (the one that JNI uses). For
      * example, for method {@code Foo bla(Bar bla);} it should look like:
      * {@code bla(LpackageOfBar/Bar;)LpackageOfFoo/Foo;}
-     * <p/>
-     * {@code hookMethodName} is simply a name of the method <b>without signature</b>, this
-     * method:
-     * <ul>
-     * <li> must be public static;</li>
-     * <li> must have the same return type as {@code originMethod};</li>
-     * <li> must have the only one parameter that matches return type of {@code originMethod};</li>
-     * </ul>
      *
      * @param originClass  class where {@code originMethod} is defined
      * @param originMethod method which should be instrumented with entry hook
+     * @param exitHook    a hook to be called at the exit of {@code origin method}
      */
-    void registerExitHook(@NonNull Class<?> originClass, @NonNull String originMethod,
-            @NonNull Class<?> hookClass, @NonNull String hookMethod);
+    <T> void registerExitHook(@NonNull Class<?> originClass, @NonNull String originMethod,
+            @NonNull ExitHook<T> exitHook);
 }

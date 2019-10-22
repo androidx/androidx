@@ -78,24 +78,23 @@ class InspectorTester internal constructor(
 }
 
 internal class FakeInspectorEnvironment : InspectorEnvironment {
-    override fun <T : Any?> findInstances(clazz: Class<T>): List<T> {
-        TODO("not implemented")
-    }
     override fun registerEntryHook(
         originClass: Class<*>,
         originMethod: String,
-        hookClass: Class<*>,
-        hookMethodName: String
+        entryHook: InspectorEnvironment.EntryHook
     ) {
         TODO("not implemented")
     }
 
-    override fun registerExitHook(
+    override fun <T : Any?> registerExitHook(
         originClass: Class<*>,
         originMethod: String,
-        hookClass: Class<*>,
-        hookMethod: String
+        exitHook: InspectorEnvironment.ExitHook<T>
     ) {
+        TODO("not implemented")
+    }
+
+    override fun <T : Any?> findInstances(clazz: Class<T>): List<T> {
         TODO("not implemented")
     }
 }
