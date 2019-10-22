@@ -65,7 +65,7 @@ public final class SessionCommand implements VersionedParcelable {
     public static final int COMMAND_VERSION_1 = 1;
 
     /**
-     * The first version of session commands. This version is for commands introduced in
+     * The 2nd version of session commands. This version is for commands introduced in
      * AndroidX media2-session 1.1.0.
      * <p>
      * This would be used to specify which commands should be added by
