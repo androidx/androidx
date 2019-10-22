@@ -146,7 +146,7 @@ public final class Camera2ImplCameraXTest {
                 mLifecycle.startAndResume();
             }
         });
-        verify(mockObserver, timeout(5000).times(10)).onChanged(any());
+        verify(mockObserver, timeout(5000).atLeast(10)).onChanged(any());
     }
 
     @Test
@@ -194,7 +194,7 @@ public final class Camera2ImplCameraXTest {
 
         // Let second ImageAnalysis get some images. This shows that the first ImageAnalysis has
         // not observed any images, even though the camera has started to stream.
-        verify(mockObserver2, timeout(3000).times(3)).onChanged(any());
+        verify(mockObserver2, timeout(3000).atLeast(3)).onChanged(any());
         verify(mockObserver, never()).onChanged(any());
     }
 
