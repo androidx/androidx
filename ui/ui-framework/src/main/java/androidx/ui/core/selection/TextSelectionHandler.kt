@@ -27,12 +27,14 @@ import androidx.ui.core.PxPosition
 interface TextSelectionHandler {
     // TODO(qqd) add API Docs and params
     /**
-     * @param selectionCoordinates
+     * @param startPosition
+     * @param endPosition
      * @param containerLayoutCoordinates
      * @param mode
      */
     fun getSelection(
-        selectionCoordinates: Pair<PxPosition, PxPosition>,
+        startPosition: PxPosition,
+        endPosition: PxPosition,
         containerLayoutCoordinates: LayoutCoordinates,
         mode: SelectionMode
     ): Selection?

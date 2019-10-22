@@ -18,89 +18,82 @@ package androidx.ui.core.selection
 
 import androidx.ui.core.LayoutCoordinates
 import androidx.ui.core.PxPosition
+import androidx.ui.text.TextRange
 import androidx.ui.text.style.TextDirection
 
 /**
- * Data class of Selection.
+ * Information about the current Selection.
  */
 data class Selection(
     /**
-     * The coordinates of the graphical position for selection start character offset.
-     *
-     * This graphical position is the point at the left bottom corner for LTR
-     * character, or right bottom corner for RTL character.
-     *
-     * This coordinates is in child composable coordinates system.
+     * Information about the start of the selection.
      */
-    val startCoordinates: PxPosition,
+    val start: AnchorInfo,
+
     /**
-     * The coordinates of the graphical position for selection end character offset.
-     *
-     * This graphical position is the point at the left bottom corner for LTR
-     * character, or right bottom corner for RTL character.
-     *
-     * This coordinates is in child composable coordinates system.
+     * Information about the end of the selection.
      */
-    val endCoordinates: PxPosition,
-    /**
-     * The character offset of the starting character in selection.
-     *
-     * This offset is within individual child text composable.
-     */
-    val startOffset: Int,
-    /**
-     * The character offset of the last character in selection.
-     *
-     * This offset is within individual child text composable.
-     */
-    val endOffset: Int,
-    /**
-     * Text direction of the starting character in selection.
-     */
-    val startDirection: TextDirection,
-    /**
-     * Text direction of the last character in selection.
-     *
-     * Note: The selection is inclusive-exclusive. But this is the text direction of the last
-     * character of the selection.
-     */
-    val endDirection: TextDirection,
-    /**
-     * The layout coordinates of the child which contains the start of the selection. If the child
-     * does not contain the start of the selection, this should be null.
-     */
-    val startLayoutCoordinates: LayoutCoordinates?,
-    /**
-     * The layout coordinates of the child which contains the end of the selection. If the child
-     * does not contain the end of the selection, this should be null.
-     */
-    val endLayoutCoordinates: LayoutCoordinates?
+    val end: AnchorInfo
 ) {
-    internal fun merge(other: Selection): Selection {
-        // TODO: combine two selections' contents with styles together.
-        var currentSelection = this.copy()
-        if (other.startLayoutCoordinates != null) {
-            currentSelection = currentSelection.copy(
-                startCoordinates = other.startCoordinates,
-                startLayoutCoordinates = other.startLayoutCoordinates,
-                startDirection = other.startDirection,
-                startOffset = other.startOffset
-            )
+    /**
+     * Contains information about an anchor (start/end) of selection.
+     */
+    data class AnchorInfo(
+        /**
+         * The coordinates of the graphical position for selection character offset.
+         *
+         * This graphical position is the point at the left bottom corner for LTR
+         * character, or right bottom corner for RTL character.
+         *
+         * This coordinates is in child composable coordinates system.
+         */
+        val coordinates: PxPosition,
+
+        /**
+         * Text direction of the character in selection edge.
+         */
+        val direction: TextDirection,
+
+        /**
+         * Character offset for the selection edge. This offset is within individual child text
+         * composable.
+         */
+        val offset: Int,
+        /**
+         * The layout coordinates of the child which contains the whole selection. If the child
+         * does not contain the end of the selection, this should be null.
+         */
+        val layoutCoordinates: LayoutCoordinates?
+    )
+
+    // TODO(qqd): add tests, important
+    internal fun merge(other: Selection?): Selection {
+        if (other == null) return this
+
+        // TODO(qqd): combine two selections' contents with styles together.
+        var selection = this
+
+        other.start.layoutCoordinates?.let {
+            selection = selection.copy(start = other.start)
         }
-        if (other.endLayoutCoordinates != null) {
-            currentSelection = currentSelection.copy(
-                endCoordinates = other.endCoordinates,
-                endLayoutCoordinates = other.endLayoutCoordinates,
-                endDirection = other.endDirection,
-                endOffset = other.endOffset
-            )
+
+        other.end.layoutCoordinates?.let {
+            selection = selection.copy(end = other.end)
         }
-        return currentSelection
+
+        return selection
+    }
+
+    /**
+     * Returns the selection offset information as a [TextRange]
+     */
+    fun toTextRange(): TextRange {
+        return TextRange(start.offset, end.offset)
     }
 }
 
+// TODO(qqd): add tests, important
 internal operator fun Selection?.plus(rhs: Selection?): Selection? {
     if (this == null) return rhs
-    if (rhs == null) return this
     return merge(rhs)
 }

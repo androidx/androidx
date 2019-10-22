@@ -89,7 +89,7 @@ internal fun RightPointingSelectionHandle() {
 @Composable
 internal fun StartSelectionHandle(selection: Selection?) {
     selection?.let {
-        if (it.startDirection == TextDirection.Ltr) LeftPointingSelectionHandle()
+        if (it.start.direction == TextDirection.Ltr) LeftPointingSelectionHandle()
         else RightPointingSelectionHandle()
     }
 }
@@ -97,7 +97,7 @@ internal fun StartSelectionHandle(selection: Selection?) {
 @Composable
 internal fun EndSelectionHandle(selection: Selection?) {
     selection?.let {
-        if (it.endDirection == TextDirection.Ltr) RightPointingSelectionHandle()
+        if (it.end.direction == TextDirection.Ltr) RightPointingSelectionHandle()
         else LeftPointingSelectionHandle()
     }
 }
