@@ -39,6 +39,7 @@ import androidx.ui.text.font.FontWeight
 import androidx.ui.text.font.asFontFamily
 import androidx.ui.text.style.TextDirection
 import com.google.common.truth.Truth.assertThat
+import com.nhaarman.mockitokotlin2.mock
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -77,7 +78,8 @@ class TextSelectionDelegateTest {
             val textSelectionInfo = getTextSelectionInfo(
                 textDelegate = textDelegate,
                 selectionCoordinates = Pair(start, end),
-                mode = SelectionMode.Horizontal
+                mode = SelectionMode.Horizontal,
+                layoutCoordinates = mock()
             )
 
             // Assert.
@@ -85,21 +87,21 @@ class TextSelectionDelegateTest {
 
             assertThat(textSelectionInfo?.start).isNotNull()
             textSelectionInfo?.start?.let {
-                assertThat(it.coordinate).isEqualTo(
+                assertThat(it.coordinates).isEqualTo(
                     PxPosition(0.px, fontSizeInPx.px)
                 )
                 assertThat(it.direction).isEqualTo(TextDirection.Ltr)
-                assertThat(it.containsWholeSelection).isTrue()
+                assertThat(it.layoutCoordinates).isNotNull()
                 assertThat(it.offset).isEqualTo(0)
             }
 
             assertThat(textSelectionInfo?.end).isNotNull()
             textSelectionInfo?.end?.let {
-                assertThat(it.coordinate).isEqualTo(
+                assertThat(it.coordinates).isEqualTo(
                     PxPosition(("hello".length * fontSizeInPx).px, fontSizeInPx.px)
                 )
                 assertThat(it.direction).isEqualTo(TextDirection.Ltr)
-                assertThat(it.containsWholeSelection).isTrue()
+                assertThat(it.layoutCoordinates).isNotNull()
                 assertThat(it.offset).isEqualTo("hello".length)
             }
         }
@@ -125,7 +127,8 @@ class TextSelectionDelegateTest {
             val textSelectionInfo = getTextSelectionInfo(
                 textDelegate = textDelegate,
                 selectionCoordinates = Pair(start, end),
-                mode = SelectionMode.Horizontal
+                mode = SelectionMode.Horizontal,
+                layoutCoordinates = mock()
             )
 
             // Assert.
@@ -133,21 +136,21 @@ class TextSelectionDelegateTest {
 
             assertThat(textSelectionInfo?.start).isNotNull()
             textSelectionInfo?.start?.let {
-                assertThat(it.coordinate).isEqualTo(
+                assertThat(it.coordinates).isEqualTo(
                     PxPosition(("\u05D3\u05D4\u05D5".length * fontSizeInPx).px, fontSizeInPx.px)
                 )
                 assertThat(it.direction).isEqualTo(TextDirection.Rtl)
-                assertThat(it.containsWholeSelection).isTrue()
+                assertThat(it.layoutCoordinates).isNotNull()
                 assertThat(it.offset).isEqualTo(text.indexOf("\u05D3"))
             }
 
             assertThat(textSelectionInfo?.end).isNotNull()
             textSelectionInfo?.end?.let {
-                assertThat(it.coordinate).isEqualTo(
+                assertThat(it.coordinates).isEqualTo(
                     PxPosition(0.px, fontSizeInPx.px)
                 )
                 assertThat(it.direction).isEqualTo(TextDirection.Rtl)
-                assertThat(it.containsWholeSelection).isTrue()
+                assertThat(it.layoutCoordinates).isNotNull()
                 assertThat(it.offset).isEqualTo(text.indexOf("\u05D5") + 1)
             }
         }
@@ -176,7 +179,8 @@ class TextSelectionDelegateTest {
             val textSelectionInfo = getTextSelectionInfo(
                 textDelegate = textDelegate,
                 selectionCoordinates = Pair(start, end),
-                mode = SelectionMode.Horizontal
+                mode = SelectionMode.Horizontal,
+                layoutCoordinates = mock()
             )
 
             // Assert.
@@ -184,21 +188,21 @@ class TextSelectionDelegateTest {
 
             assertThat(textSelectionInfo?.start).isNotNull()
             textSelectionInfo?.start?.let {
-                assertThat(it.coordinate).isEqualTo(
+                assertThat(it.coordinates).isEqualTo(
                     PxPosition((startOffset * fontSizeInPx).px, fontSizeInPx.px)
                 )
                 assertThat(it.direction).isEqualTo(TextDirection.Ltr)
-                assertThat(it.containsWholeSelection).isTrue()
+                assertThat(it.layoutCoordinates).isNotNull()
                 assertThat(it.offset).isEqualTo(startOffset)
             }
 
             assertThat(textSelectionInfo?.end).isNotNull()
             textSelectionInfo?.end?.let {
-                assertThat(it.coordinate).isEqualTo(
+                assertThat(it.coordinates).isEqualTo(
                     PxPosition((endOffset * fontSizeInPx).px, fontSizeInPx.px)
                 )
                 assertThat(it.direction).isEqualTo(TextDirection.Ltr)
-                assertThat(it.containsWholeSelection).isTrue()
+                assertThat(it.layoutCoordinates).isNotNull()
                 assertThat(it.offset).isEqualTo(endOffset)
             }
         }
@@ -233,7 +237,9 @@ class TextSelectionDelegateTest {
             val textSelectionInfo = getTextSelectionInfo(
                 textDelegate = textDelegate,
                 selectionCoordinates = Pair(start, end),
-                mode = SelectionMode.Horizontal
+                mode = SelectionMode.Horizontal,
+                layoutCoordinates = mock()
+
             )
 
             // Assert.
@@ -241,24 +247,24 @@ class TextSelectionDelegateTest {
 
             assertThat(textSelectionInfo?.start).isNotNull()
             textSelectionInfo?.start?.let {
-                assertThat(it.coordinate).isEqualTo(
+                assertThat(it.coordinates).isEqualTo(
                     PxPosition(
                         ((text.length - 1 - startOffset) * fontSizeInPx).px,
                         fontSizeInPx.px
                     )
                 )
                 assertThat(it.direction).isEqualTo(TextDirection.Rtl)
-                assertThat(it.containsWholeSelection).isTrue()
+                assertThat(it.layoutCoordinates).isNotNull()
                 assertThat(it.offset).isEqualTo(startOffset)
             }
 
             assertThat(textSelectionInfo?.end).isNotNull()
             textSelectionInfo?.end?.let {
-                assertThat(it.coordinate).isEqualTo(
+                assertThat(it.coordinates).isEqualTo(
                     PxPosition(((text.length - 1 - endOffset) * fontSizeInPx).px, fontSizeInPx.px)
                 )
                 assertThat(it.direction).isEqualTo(TextDirection.Rtl)
-                assertThat(it.containsWholeSelection).isTrue()
+                assertThat(it.layoutCoordinates).isNotNull()
                 assertThat(it.offset).isEqualTo(endOffset)
             }
         }
@@ -295,7 +301,8 @@ class TextSelectionDelegateTest {
             val textSelectionInfo = getTextSelectionInfo(
                 textDelegate = textDelegate,
                 selectionCoordinates = Pair(start, end),
-                mode = SelectionMode.Horizontal
+                mode = SelectionMode.Horizontal,
+                layoutCoordinates = mock()
             )
 
             // Assert.
@@ -303,30 +310,31 @@ class TextSelectionDelegateTest {
 
             assertThat(textSelectionInfo?.start).isNotNull()
             textSelectionInfo?.start?.let {
-                assertThat(it.coordinate).isEqualTo(
+                assertThat(it.coordinates).isEqualTo(
                     PxPosition((startOffset * fontSizeInPx).px, fontSizeInPx.px)
                 )
                 assertThat(it.direction).isEqualTo(TextDirection.Ltr)
-                assertThat(it.containsWholeSelection).isTrue()
+                assertThat(it.layoutCoordinates).isNotNull()
                 assertThat(it.offset).isEqualTo(startOffset)
             }
 
             assertThat(textSelectionInfo?.end).isNotNull()
             textSelectionInfo?.end?.let {
-                assertThat(it.coordinate).isEqualTo(
+                assertThat(it.coordinates).isEqualTo(
                     PxPosition(
                         ((textLtr.length + text.length - endOffset) * fontSizeInPx).px,
                         fontSizeInPx.px
                     )
                 )
                 assertThat(it.direction).isEqualTo(TextDirection.Rtl)
-                assertThat(it.containsWholeSelection).isTrue()
+                assertThat(it.layoutCoordinates).isNotNull()
                 assertThat(it.offset).isEqualTo(endOffset)
             }
         }
     }
 
     // TODO(qqd) add tests for the case where selection is false (returned value is null)
+    // TODO(qqd) add tests for the case where layoutCoordinates is null
 
     private fun simpleTextDelegate(
         text: String = "",

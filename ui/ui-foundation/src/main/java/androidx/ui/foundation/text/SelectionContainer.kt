@@ -23,8 +23,8 @@ import androidx.ui.core.Constraints
 import androidx.ui.core.IntPx
 import androidx.ui.core.Layout
 import androidx.ui.core.OnPositioned
-import androidx.ui.core.gesture.TouchSlopDragGestureDetector
 import androidx.ui.core.gesture.PressIndicatorGestureDetector
+import androidx.ui.core.gesture.TouchSlopDragGestureDetector
 import androidx.ui.core.ipx
 import androidx.ui.core.px
 import androidx.ui.core.selection.Selection
@@ -79,7 +79,7 @@ fun SelectionContainer(
         }
         val startHandle = @Composable {
             TouchSlopDragGestureDetector(
-                dragObserver = manager.handleDragObserver(dragStartHandle = true)
+                dragObserver = manager.handleDragObserver(isStartHandle = true)
             ) {
                 Layout(children = { StartSelectionHandle(selection) }) { _, constraints ->
                     layout(constraints.minWidth, constraints.minHeight) {}
@@ -88,7 +88,7 @@ fun SelectionContainer(
         }
         val endHandle = @Composable {
             TouchSlopDragGestureDetector(
-                dragObserver = manager.handleDragObserver(dragStartHandle = false)
+                dragObserver = manager.handleDragObserver(isStartHandle = false)
             ) {
                 Layout(children = { EndSelectionHandle(selection) }) { _, constraints ->
                     layout(constraints.minWidth, constraints.minHeight) {}
@@ -116,23 +116,24 @@ fun SelectionContainer(
             layout(width, height) {
                 placeable.place(IntPx.Zero, IntPx.Zero)
 
-                val startLayoutCoordinates = selection?.startLayoutCoordinates
-                val endLayoutCoordinates = selection?.endLayoutCoordinates
+                val startLayoutCoordinates = selection?.start?.layoutCoordinates
+                val endLayoutCoordinates = selection?.end?.layoutCoordinates
                 if (startLayoutCoordinates != null && endLayoutCoordinates != null) {
                     val startOffset = manager.containerLayoutCoordinates.childToLocal(
                         startLayoutCoordinates,
-                        selection.startCoordinates
+                        selection.start.coordinates
                     )
                     val endOffset = manager.containerLayoutCoordinates.childToLocal(
                         endLayoutCoordinates,
-                        selection.endCoordinates
+                        selection.end.coordinates
                     )
                     val startAdjustedDistance =
-                        if (selection.startDirection == TextDirection.Ltr) -HANDLE_WIDTH.toPx()
+                        if (selection.start.direction == TextDirection.Ltr) -HANDLE_WIDTH.toPx()
                         else 0.px
                     val endAdjustedDistance =
-                        if (selection.endDirection == TextDirection.Ltr) 0.px
+                        if (selection.end.direction == TextDirection.Ltr) 0.px
                         else -HANDLE_WIDTH.toPx()
+
                     start.place(startOffset.x + startAdjustedDistance, startOffset.y)
                     end.place(endOffset.x + endAdjustedDistance, endOffset.y)
                 }
