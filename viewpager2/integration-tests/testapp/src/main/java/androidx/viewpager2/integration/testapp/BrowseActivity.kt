@@ -55,6 +55,8 @@ class BrowseActivity : ListActivity() {
                 "intent" to activityToIntent(PageTransformerActivity::class.java.name)))
         myData.add(mapOf("title" to "ViewPager2 with a Preview of Next/Prev Page",
                 "intent" to activityToIntent(PreviewPagesActivity::class.java.name)))
+        myData.add(mapOf("title" to "ViewPager2 with Nested RecyclerViews",
+                "intent" to activityToIntent(ParallelNestedScrollingActivity::class.java.name)))
 
         return myData
     }
