@@ -340,19 +340,25 @@ public final class CameraX {
     }
 
     /**
-     * Checks if the device supports specified lens facing.
+     * Checks if the device supports at least one camera that meets the requirements from a
+     * {@link CameraSelector}.
      *
-     * @param lensFacing the lens facing
-     * @return true if the device has at least one camera with the specified lens facing,
-     * otherwise false.
+     * @param cameraSelector the {@link CameraSelector} that filters available cameras.
+     * @return true if the device has at least one available camera, otherwise false.
      * @throws CameraInfoUnavailableException if unable to access cameras, perhaps due to
-     *                                        insufficient permissions
+     *                                        insufficient permissions.
      */
-    public static boolean hasCameraWithLensFacing(@NonNull LensFacing lensFacing)
+    public static boolean hasCamera(@NonNull CameraSelector cameraSelector)
             throws CameraInfoUnavailableException {
         checkInitialized();
 
-        return getCameraFactory().cameraIdForLensFacing(lensFacing) != null;
+        try {
+            cameraSelector.select(getCameraFactory().getAvailableCameraIds());
+        } catch (IllegalArgumentException e) {
+            return false;
+        }
+
+        return true;
     }
 
     /**
