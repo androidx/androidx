@@ -1655,10 +1655,36 @@ public class MediaControlView extends MediaViewGroup {
             mSeekAvailable = true;
             mProgress.setEnabled(true);
         }
-        if (mPlayer.canSelectDeselectTrack()) {
-            mSubtitleButton.setVisibility(View.VISIBLE);
-        } else {
+        updateSubtitleButtonVisibility();
+    }
+
+    void updateSubtitleButtonVisibility() {
+        // 1. If player doesn't support select/deselect track, subtitle button will not be shown.
+        // 2. If there's no valid track information, subtitle button will not be shown.
+        // The second criteria prevents the case that "cc" button is shortly shown and disappears
+        // when the media item is a music without subtitle tracks.
+        if (!mPlayer.canSelectDeselectTrack()
+                || (mVideoTrackCount == 0 && mAudioTracks.isEmpty() && mSubtitleTracks.isEmpty())) {
             mSubtitleButton.setVisibility(View.GONE);
+            mSubtitleButton.setEnabled(false);
+            return;
+        }
+
+        if (mSubtitleTracks.isEmpty()) {
+            // For Audio only media item, CC button will not be shown when there's
+            // no subtitle tracks.
+            if (isCurrentItemMusic()) {
+                mSubtitleButton.setVisibility(View.GONE);
+                mSubtitleButton.setEnabled(false);
+            } else {
+                mSubtitleButton.setVisibility(View.VISIBLE);
+                mSubtitleButton.setAlpha(0.5f);
+                mSubtitleButton.setEnabled(false);
+            }
+        } else {
+            mSubtitleButton.setVisibility(View.VISIBLE);
+            mSubtitleButton.setAlpha(1.0f);
+            mSubtitleButton.setEnabled(true);
         }
     }
 
@@ -1844,17 +1870,7 @@ public class MediaControlView extends MediaViewGroup {
 
         // Update subtitle description list and subtitle button visibility.
         mSubtitleDescriptionsList = new ArrayList<>();
-        if (mSubtitleTracks.isEmpty()) {
-            // For Audio only media item, CC button will not be shown when there's
-            // no subtitle tracks.
-            if (isCurrentItemMusic()) {
-                mSubtitleButton.setVisibility(View.GONE);
-            } else {
-                mSubtitleButton.setVisibility(View.VISIBLE);
-                mSubtitleButton.setAlpha(0.5f);
-                mSubtitleButton.setEnabled(false);
-            }
-        } else {
+        if (!mSubtitleTracks.isEmpty()) {
             mSubtitleDescriptionsList.add(mResources.getString(
                     R.string.MediaControlView_subtitle_off_text));
             for (int i = 0; i < mSubtitleTracks.size(); i++) {
@@ -1870,10 +1886,8 @@ public class MediaControlView extends MediaViewGroup {
                 }
                 mSubtitleDescriptionsList.add(trackDescription);
             }
-            mSubtitleButton.setVisibility(View.VISIBLE);
-            mSubtitleButton.setAlpha(1.0f);
-            mSubtitleButton.setEnabled(true);
         }
+        updateSubtitleButtonVisibility();
     }
 
     private boolean hasActualVideo() {

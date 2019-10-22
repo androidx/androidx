@@ -50,8 +50,7 @@ class Cea608CCParser {
     // EIA-CEA-608: Table 70 - Control Codes
     private static final int RCL = 0x20;
     private static final int BS  = 0x21;
-    private static final int AOF = 0x22;
-    private static final int AON = 0x23;
+    // Note: 0x22 (alarm off) and 0x23 (alarm on) are unused code.
     private static final int DER = 0x24;
     private static final int RU2 = 0x25;
     private static final int RU3 = 0x26;
@@ -69,7 +68,6 @@ class Cea608CCParser {
     private static final char TS = '\u00A0';
 
     // Captioning Modes
-    private static final int MODE_UNKNOWN = 0;
     private static final int MODE_PAINT_ON = 1;
     private static final int MODE_ROLL_UP = 2;
     private static final int MODE_POP_ON = 3;
@@ -647,10 +645,6 @@ class Cea608CCParser {
             mCol = clamp(col, 1, MAX_COLS);
         }
 
-        private void moveCursorToRow(int row) {
-            mRow = clamp(row, 1, MAX_ROWS);
-        }
-
         private void moveCursorByCol(int col) {
             mCol = clamp(mCol + col, 1, MAX_COLS);
         }
@@ -951,8 +945,6 @@ class Cea608CCParser {
 
         @Override
         public String toString() {
-            String str;
-
             if (mData1 < 0x10 && mData2 < 0x10) {
                 // Null Pad, ignore
                 return String.format("[%d]Null: %02x %02x", mType, mData1, mData2);
