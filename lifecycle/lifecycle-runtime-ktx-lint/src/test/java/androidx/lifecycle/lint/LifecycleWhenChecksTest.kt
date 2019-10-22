@@ -33,7 +33,7 @@ import java.util.Properties
 @RunWith(JUnit4::class)
 class LifecycleWhenChecksTest {
 
-    private var sdkDir: File? = null
+    private lateinit var sdkDir: File
 
     @Before
     fun setup() {
@@ -46,7 +46,7 @@ class LifecycleWhenChecksTest {
     private fun check(body: String): TestLintResult {
         return TestLintTask.lint()
             .files(VIEW_STUB, LIFECYCLE_STUB, COROUTINES_STUB, kt(template(body)))
-            .sdkHome(sdkDir!!)
+            .sdkHome(sdkDir)
             .issues(ISSUE)
             .run()
     }

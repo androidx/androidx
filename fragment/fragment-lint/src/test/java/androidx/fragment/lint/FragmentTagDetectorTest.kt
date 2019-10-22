@@ -33,7 +33,7 @@ class FragmentTagDetectorTest : LintDetectorTest() {
 
     override fun getIssues(): MutableList<Issue> = mutableListOf(FragmentTagDetector.ISSUE)
 
-    private var sdkDir: File? = null
+    private lateinit var sdkDir: File
 
     @Before
     fun setup() {
