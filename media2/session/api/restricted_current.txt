@@ -59,7 +59,7 @@ package androidx.media2.session {
     method public void close();
     method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.session.SessionResult!> deselectTrack(androidx.media2.common.SessionPlayer.TrackInfo);
     method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.session.SessionResult!> fastForward();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.media2.session.SessionCommandGroup? getAllowedCommands();
+    method public androidx.media2.session.SessionCommandGroup? getAllowedCommands();
     method public long getBufferedPosition();
     method @androidx.media2.common.SessionPlayer.BuffState public int getBufferingState();
     method public androidx.media2.session.SessionToken? getConnectedToken();

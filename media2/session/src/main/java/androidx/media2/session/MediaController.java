@@ -1342,10 +1342,7 @@ public class MediaController implements AutoCloseable {
      * If it is not connected yet, it returns {@code null}.
      *
      * @return the allowed commands
-     *
-     * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
     @Nullable
     public SessionCommandGroup getAllowedCommands() {
         if (!isConnected()) {
