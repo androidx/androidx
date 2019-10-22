@@ -370,21 +370,6 @@ public final class ResourceManagerInternal {
         mDelegates.put(tagName, delegate);
     }
 
-    private void removeDelegate(@NonNull String tagName, @NonNull InflateDelegate delegate) {
-        if (mDelegates != null && mDelegates.get(tagName) == delegate) {
-            mDelegates.remove(tagName);
-        }
-    }
-
-    private static boolean arrayContains(int[] array, int value) {
-        for (int id : array) {
-            if (id == value) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     PorterDuff.Mode getTintMode(final int resId) {
         return (mHooks == null) ? null : mHooks.getTintModeForDrawableRes(resId);
     }
