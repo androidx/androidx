@@ -18,20 +18,16 @@ package androidx.ui.text
 
 import androidx.ui.text.platform.platformLocaleDelegate
 
-// TODO(nona): LocaleList should not be in text package.
-
 /**
  * Defines a list of [Locale] objects.
  *
  * @see [TextStyle]
  */
-// TODO(nona): We may need to reorder based on supported locale by the device.
 data class LocaleList constructor(val localeList: List<Locale>) : Collection<Locale> {
     companion object {
         /**
          * Returns Locale object which represents current locale
          */
-        // TODO: invalidate current locale with onConfigurationChanged
         val current = LocaleList(platformLocaleDelegate.current.map { Locale(it) })
     }
 

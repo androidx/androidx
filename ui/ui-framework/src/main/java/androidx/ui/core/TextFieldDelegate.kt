@@ -16,7 +16,6 @@
 
 package androidx.ui.core
 
-import android.util.Log
 import androidx.ui.engine.geometry.Rect
 import androidx.ui.graphics.Color
 import androidx.ui.input.EditOperation
@@ -46,8 +45,6 @@ import kotlin.math.roundToInt
 
 // -5185306 = 0xFFB0E0E6 = A(0xFF), R(0xB0), G(0xE0), B(0xE6)
 internal const val DEFAULT_COMPOSITION_COLOR: Int = -5185306
-// TODO(nona): share with Text.DEFAULT_SELECTION_COLOR
-internal const val DEFAULT_SELECTION_COLOR: Int = 0x6633B5E5
 
 /**
  * Computed the line height for the empty TextField.
@@ -60,7 +57,6 @@ internal const val DEFAULT_SELECTION_COLOR: Int = 0x6633B5E5
  *
  * Until we have font metrics APIs, use the height of reference text as a workaround.
  */
-// TODO(nona): Add FontMetrics API and stop doing this workaround.
 private fun computeLineHeightForEmptyText(
     textStyle: TextStyle,
     density: Density,
@@ -95,7 +91,6 @@ internal class TextFieldDelegate {
 
             // We anyway need to compute layout for preventing NPE during draw which require layout
             // result.
-            // TODO(nona): Fix this?
             textDelegate.layout(Constraints.tightConstraintsForWidth(constraints.maxWidth))
 
             val isEmptyText = textDelegate.text.text.isEmpty()
@@ -148,7 +143,7 @@ internal class TextFieldDelegate {
                 textDelegate.paintBackground(
                     offsetMap.originalToTransformed(value.selection.min),
                     offsetMap.originalToTransformed(value.selection.max),
-                    selectionColor ?: Color(DEFAULT_SELECTION_COLOR),
+                    selectionColor ?: DefaultSelectionColor,
                     canvas
                 )
             }
@@ -222,17 +217,6 @@ internal class TextFieldDelegate {
             onValueChange: (InputState) -> Unit
         ) {
             onValueChange(editProcessor.onEditCommands(ops))
-        }
-
-        /**
-         * Called when onDrag event is fired.
-         *
-         * @param position The event position in composable coordinate.
-         */
-        @JvmStatic
-        fun onDragAt(position: PxPosition) {
-            // TODO(nona): Implement this function
-            Log.d("TextFieldDelegate", "onDrag: $position")
         }
 
         /**

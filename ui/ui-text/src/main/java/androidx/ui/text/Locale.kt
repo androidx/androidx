@@ -16,8 +16,6 @@
 
 package androidx.ui.text
 
-// TODO(nona): Locale should not be in text package.
-
 import androidx.ui.text.platform.PlatformLocale
 import androidx.ui.text.platform.platformLocaleDelegate
 
@@ -35,7 +33,6 @@ class Locale internal constructor(internal val platformLocale: PlatformLocale) {
         /**
          * Returns a [Locale] object which represents current locale
          */
-        // TODO: invalidate current locale with onConfigurationChanged
         val current: Locale get() = Locale(platformLocaleDelegate.current[0])
     }
 
@@ -62,8 +59,6 @@ class Locale internal constructor(internal val platformLocale: PlatformLocale) {
      * The ISO 3166 compliant region code.
      */
     val region: String get() = platformLocale.region
-
-    // TODO(nona): Add extension, variant
 
     /**
      * Returns a IETF BCP47 compliant language tag representation of this Locale.

@@ -267,8 +267,6 @@ class PartialGapBuffer(var text: String) {
         if (bufferStart < 0 || bufferEnd > buffer.length()) {
             // Text modification outside of gap buffer has requested. Flush the buffer and try it
             // again.
-            // TODO(nona): Performance: instead of flushing, reset the bufStart/bufEnd with copying
-            //             additional surroundings.
             text = toString()
             this.buffer = null
             bufStart = NOWHERE
