@@ -18,6 +18,8 @@ package androidx.webkit.internal;
 
 import android.webkit.WebView;
 
+import androidx.annotation.NonNull;
+
 import org.chromium.support_lib_boundary.ProxyControllerBoundaryInterface;
 import org.chromium.support_lib_boundary.ServiceWorkerControllerBoundaryInterface;
 import org.chromium.support_lib_boundary.StaticsBoundaryInterface;
@@ -59,6 +61,7 @@ public interface WebViewProviderFactory {
     /**
      * Fetch the boundary interface representing {@link android.webkit.ServiceWorkerController}.
      */
+    @NonNull
     ServiceWorkerControllerBoundaryInterface getServiceWorkerController();
 
     /**

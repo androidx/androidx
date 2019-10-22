@@ -20,6 +20,7 @@ import android.annotation.SuppressLint;
 import android.webkit.ServiceWorkerController;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.webkit.ServiceWorkerClientCompat;
 import androidx.webkit.ServiceWorkerControllerCompat;
@@ -81,7 +82,7 @@ public class ServiceWorkerControllerImpl extends ServiceWorkerControllerCompat {
 
     @SuppressLint("NewApi")
     @Override
-    public void setServiceWorkerClient(ServiceWorkerClientCompat client)  {
+    public void setServiceWorkerClient(@Nullable ServiceWorkerClientCompat client)  {
         final WebViewFeatureInternal feature = WebViewFeatureInternal.SERVICE_WORKER_BASIC_USAGE;
         if (feature.isSupportedByFramework()) {
             getFrameworksImpl().setServiceWorkerClient(new FrameworkServiceWorkerClient(client));
