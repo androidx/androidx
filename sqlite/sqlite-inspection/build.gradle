@@ -23,11 +23,17 @@ import androidx.build.Publish
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
+    id("kotlin-android")
 }
 
 dependencies {
     implementation("androidx.annotation:annotation:1.0.0")
     implementation(project(":inspection:inspection"))
+
+    androidTestImplementation(KOTLIN_STDLIB)
+    androidTestImplementation(ANDROIDX_TEST_RUNNER)
+    androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
+    androidTestImplementation(TRUTH)
 }
 
 androidx {
