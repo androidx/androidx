@@ -748,7 +748,7 @@ class ParagraphIntegrationTest {
     }
 
     @Test
-    fun getPrimaryHorizontal_ltr_singleLine_textDirectionDefault() {
+    fun getHorizontalPositionForOffset_primary_ltr_singleLine_textDirectionDefault() {
         withDensity(defaultDensity) {
             val text = "abc"
             val fontSize = 50.sp
@@ -760,13 +760,14 @@ class ParagraphIntegrationTest {
             )
 
             for (i in 0..text.length) {
-                assertThat(paragraph.getPrimaryHorizontal(i)).isEqualTo(fontSizeInPx * i)
+                assertThat(paragraph.getHorizontalPosition(i, true))
+                    .isEqualTo(fontSizeInPx * i)
             }
         }
     }
 
     @Test
-    fun getPrimaryHorizontal_rtl_singleLine_textDirectionDefault() {
+    fun getHorizontalPositionForOffset_primary_rtl_singleLine_textDirectionDefault() {
         withDensity(defaultDensity) {
             val text = "\u05D0\u05D1\u05D2"
             val fontSize = 50.sp
@@ -779,13 +780,14 @@ class ParagraphIntegrationTest {
             )
 
             for (i in 0..text.length) {
-                assertThat(paragraph.getPrimaryHorizontal(i)).isEqualTo(width - fontSizeInPx * i)
+                assertThat(paragraph.getHorizontalPosition(i, true))
+                    .isEqualTo(width - fontSizeInPx * i)
             }
         }
     }
 
     @Test
-    fun getPrimaryHorizontal_Bidi_singleLine_textDirectionDefault() {
+    fun getHorizontalPositionForOffset_primary_Bidi_singleLine_textDirectionDefault() {
         withDensity(defaultDensity) {
             val ltrText = "abc"
             val rtlText = "\u05D0\u05D1\u05D2"
@@ -800,20 +802,22 @@ class ParagraphIntegrationTest {
             )
 
             for (i in 0..ltrText.length) {
-                assertThat(paragraph.getPrimaryHorizontal(i)).isEqualTo(fontSizeInPx * i)
+                assertThat(paragraph.getHorizontalPosition(i, true))
+                    .isEqualTo(fontSizeInPx * i)
             }
 
             for (i in 1 until rtlText.length) {
-                assertThat(paragraph.getPrimaryHorizontal(i + ltrText.length))
+                assertThat(paragraph.getHorizontalPosition(i + ltrText.length, true))
                     .isEqualTo(width - fontSizeInPx * i)
             }
 
-            assertThat(paragraph.getPrimaryHorizontal(text.length)).isEqualTo(width)
+            assertThat(paragraph.getHorizontalPosition(text.length, true))
+                .isEqualTo(width)
         }
     }
 
     @Test
-    fun getPrimaryHorizontal_ltr_singleLine_textDirectionRtl() {
+    fun getHorizontalPositionForOffset_primary_ltr_singleLine_textDirectionRtl() {
         withDensity(defaultDensity) {
             val text = "abc"
             val fontSize = 50.sp
@@ -826,18 +830,19 @@ class ParagraphIntegrationTest {
                 constraints = ParagraphConstraints(width)
             )
 
-            assertThat(paragraph.getPrimaryHorizontal(0)).isEqualTo(width)
+            assertThat(paragraph.getHorizontalPosition(0, true)).isEqualTo(width)
 
             for (i in 1 until text.length) {
-                assertThat(paragraph.getPrimaryHorizontal(i)).isEqualTo(fontSizeInPx * i)
+                assertThat(paragraph.getHorizontalPosition(i, true))
+                    .isEqualTo(fontSizeInPx * i)
             }
 
-            assertThat(paragraph.getPrimaryHorizontal(text.length)).isZero()
+            assertThat(paragraph.getHorizontalPosition(text.length, true)).isZero()
         }
     }
 
     @Test
-    fun getPrimaryHorizontal_rtl_singleLine_textDirectionLtr() {
+    fun getHorizontalPositionForOffset_primary_rtl_singleLine_textDirectionLtr() {
         withDensity(defaultDensity) {
             val text = "\u05D0\u05D1\u05D2"
             val fontSize = 50.sp
@@ -850,18 +855,20 @@ class ParagraphIntegrationTest {
                 constraints = ParagraphConstraints(width)
             )
 
-            assertThat(paragraph.getPrimaryHorizontal(0)).isZero()
+            assertThat(paragraph.getHorizontalPosition(0, true)).isZero()
 
             for (i in 1 until text.length) {
-                assertThat(paragraph.getPrimaryHorizontal(i)).isEqualTo(width - fontSizeInPx * i)
+                assertThat(paragraph.getHorizontalPosition(i, true))
+                    .isEqualTo(width - fontSizeInPx * i)
             }
 
-            assertThat(paragraph.getPrimaryHorizontal(text.length)).isEqualTo(width)
+            assertThat(paragraph.getHorizontalPosition(text.length, true))
+                .isEqualTo(width)
         }
     }
 
     @Test
-    fun getPrimaryHorizontal_Bidi_singleLine_textDirectionLtr() {
+    fun getHorizontalPositionForOffset_primary_Bidi_singleLine_textDirectionLtr() {
         withDensity(defaultDensity) {
             val ltrText = "abc"
             val rtlText = "\u05D0\u05D1\u05D2"
@@ -877,20 +884,22 @@ class ParagraphIntegrationTest {
             )
 
             for (i in 0..ltrText.length) {
-                assertThat(paragraph.getPrimaryHorizontal(i)).isEqualTo(fontSizeInPx * i)
+                assertThat(paragraph.getHorizontalPosition(i, true))
+                    .isEqualTo(fontSizeInPx * i)
             }
 
             for (i in 1 until rtlText.length) {
-                assertThat(paragraph.getPrimaryHorizontal(i + ltrText.length))
+                assertThat(paragraph.getHorizontalPosition(i + ltrText.length, true))
                     .isEqualTo(width - fontSizeInPx * i)
             }
 
-            assertThat(paragraph.getPrimaryHorizontal(text.length)).isEqualTo(width)
+            assertThat(paragraph.getHorizontalPosition(text.length, true))
+                .isEqualTo(width)
         }
     }
 
     @Test
-    fun getPrimaryHorizontal_Bidi_singleLine_textDirectionRtl() {
+    fun getHorizontalPositionForOffset_primary_Bidi_singleLine_textDirectionRtl() {
         withDensity(defaultDensity) {
             val ltrText = "abc"
             val rtlText = "\u05D0\u05D1\u05D2"
@@ -905,22 +914,22 @@ class ParagraphIntegrationTest {
                 constraints = ParagraphConstraints(width)
             )
 
-            assertThat(paragraph.getPrimaryHorizontal(0)).isEqualTo(width)
+            assertThat(paragraph.getHorizontalPosition(0, true)).isEqualTo(width)
 
             for (i in 1 until ltrText.length) {
-                assertThat(paragraph.getPrimaryHorizontal(i))
+                assertThat(paragraph.getHorizontalPosition(i, true))
                     .isEqualTo(rtlText.length * fontSizeInPx + i * fontSizeInPx)
             }
 
             for (i in 0..rtlText.length) {
-                assertThat(paragraph.getPrimaryHorizontal(i + ltrText.length))
+                assertThat(paragraph.getHorizontalPosition(i + ltrText.length, true))
                     .isEqualTo(rtlText.length * fontSizeInPx - i * fontSizeInPx)
             }
         }
     }
 
     @Test
-    fun getPrimaryHorizontal_ltr_newLine_textDirectionDefault() {
+    fun getHorizontalPositionForOffset_primary_ltr_newLine_textDirectionDefault() {
         withDensity(defaultDensity) {
             val text = "abc\n"
             val fontSize = 50.sp
@@ -932,14 +941,14 @@ class ParagraphIntegrationTest {
                 constraints = ParagraphConstraints(width)
             )
 
-            assertThat(paragraph.getPrimaryHorizontal(text.length)).isZero()
+            assertThat(paragraph.getHorizontalPosition(text.length, true)).isZero()
         }
     }
 
     @Test
     // The behavior of getPrimaryHorizontal on API 19 to API 22 was wrong. Suppress this test.
     @SdkSuppress(minSdkVersion = 23)
-    fun getPrimaryHorizontal_rtl_newLine_textDirectionDefault() {
+    fun getHorizontalPositionForOffset_primary_rtl_newLine_textDirectionDefault() {
         withDensity(defaultDensity) {
             val text = "\u05D0\u05D1\u05D2\n"
             val fontSize = 50.sp
@@ -951,12 +960,12 @@ class ParagraphIntegrationTest {
                 constraints = ParagraphConstraints(width)
             )
 
-            assertThat(paragraph.getPrimaryHorizontal(text.length)).isZero()
+            assertThat(paragraph.getHorizontalPosition(text.length, true)).isZero()
         }
     }
 
     @Test
-    fun getPrimaryHorizontal_ltr_newLine_textDirectionRtl() {
+    fun getHorizontalPositionForOffset_primary_ltr_newLine_textDirectionRtl() {
         withDensity(defaultDensity) {
             val text = "abc\n"
             val fontSize = 50.sp
@@ -969,12 +978,13 @@ class ParagraphIntegrationTest {
                 constraints = ParagraphConstraints(width)
             )
 
-            assertThat(paragraph.getPrimaryHorizontal(text.length)).isEqualTo(width)
+            assertThat(paragraph.getHorizontalPosition(text.length, true))
+                .isEqualTo(width)
         }
     }
 
     @Test
-    fun getPrimaryHorizontal_rtl_newLine_textDirectionLtr() {
+    fun getHorizontalPositionForOffset_primary_rtl_newLine_textDirectionLtr() {
         withDensity(defaultDensity) {
             val text = "\u05D0\u05D1\u05D2\n"
             val fontSize = 50.sp
@@ -987,12 +997,12 @@ class ParagraphIntegrationTest {
                 constraints = ParagraphConstraints(width)
             )
 
-            assertThat(paragraph.getPrimaryHorizontal(text.length)).isZero()
+            assertThat(paragraph.getHorizontalPosition(text.length, true)).isZero()
         }
     }
 
     @Test
-    fun getSecondaryHorizontal_ltr_singleLine_textDirectionDefault() {
+    fun getHorizontalPositionForOffset_notPrimary_ltr_singleLine_textDirectionDefault() {
         withDensity(defaultDensity) {
             val text = "abc"
             val fontSize = 50.sp
@@ -1004,13 +1014,14 @@ class ParagraphIntegrationTest {
             )
 
             for (i in 0..text.length) {
-                assertThat(paragraph.getSecondaryHorizontal(i)).isEqualTo(fontSizeInPx * i)
+                assertThat(paragraph.getHorizontalPosition(i, false))
+                    .isEqualTo(fontSizeInPx * i)
             }
         }
     }
 
     @Test
-    fun getSecondaryHorizontal_rtl_singleLine_textDirectionDefault() {
+    fun getHorizontalPositionForOffset_notPrimary_rtl_singleLine_textDirectionDefault() {
         withDensity(defaultDensity) {
             val text = "\u05D0\u05D1\u05D2"
             val fontSize = 50.sp
@@ -1023,13 +1034,14 @@ class ParagraphIntegrationTest {
             )
 
             for (i in 0..text.length) {
-                assertThat(paragraph.getSecondaryHorizontal(i)).isEqualTo(width - fontSizeInPx * i)
+                assertThat(paragraph.getHorizontalPosition(i, false))
+                    .isEqualTo(width - fontSizeInPx * i)
             }
         }
     }
 
     @Test
-    fun getSecondaryHorizontal_Bidi_singleLine_textDirectionDefault() {
+    fun getHorizontalPositionForOffset_notPrimary_Bidi_singleLine_textDirectionDefault() {
         withDensity(defaultDensity) {
             val ltrText = "abc"
             val rtlText = "\u05D0\u05D1\u05D2"
@@ -1044,18 +1056,19 @@ class ParagraphIntegrationTest {
             )
 
             for (i in ltrText.indices) {
-                assertThat(paragraph.getSecondaryHorizontal(i)).isEqualTo(fontSizeInPx * i)
+                assertThat(paragraph.getHorizontalPosition(i, false))
+                    .isEqualTo(fontSizeInPx * i)
             }
 
             for (i in 0..rtlText.length) {
-                assertThat(paragraph.getSecondaryHorizontal(i + ltrText.length))
+                assertThat(paragraph.getHorizontalPosition(i + ltrText.length, false))
                     .isEqualTo(width - fontSizeInPx * i)
             }
         }
     }
 
     @Test
-    fun getSecondaryHorizontal_ltr_singleLine_textDirectionRtl() {
+    fun getHorizontalPositionForOffset_notPrimary_ltr_singleLine_textDirectionRtl() {
         withDensity(defaultDensity) {
             val text = "abc"
             val fontSize = 50.sp
@@ -1068,18 +1081,20 @@ class ParagraphIntegrationTest {
                 constraints = ParagraphConstraints(width)
             )
 
-            assertThat(paragraph.getSecondaryHorizontal(0)).isZero()
+            assertThat(paragraph.getHorizontalPosition(0, false)).isZero()
 
             for (i in 1 until text.length) {
-                assertThat(paragraph.getSecondaryHorizontal(i)).isEqualTo(fontSizeInPx * i)
+                assertThat(paragraph.getHorizontalPosition(i, false))
+                    .isEqualTo(fontSizeInPx * i)
             }
 
-            assertThat(paragraph.getSecondaryHorizontal(text.length)).isEqualTo(width)
+            assertThat(paragraph.getHorizontalPosition(text.length, false))
+                .isEqualTo(width)
         }
     }
 
     @Test
-    fun getSecondaryHorizontal_rtl_singleLine_textDirectionLtr() {
+    fun getHorizontalPositionForOffset_notPrimary_rtl_singleLine_textDirectionLtr() {
         withDensity(defaultDensity) {
             val text = "\u05D0\u05D1\u05D2"
             val fontSize = 50.sp
@@ -1092,18 +1107,19 @@ class ParagraphIntegrationTest {
                 constraints = ParagraphConstraints(width)
             )
 
-            assertThat(paragraph.getSecondaryHorizontal(0)).isEqualTo(width)
+            assertThat(paragraph.getHorizontalPosition(0, false)).isEqualTo(width)
 
             for (i in 1 until text.length) {
-                assertThat(paragraph.getSecondaryHorizontal(i)).isEqualTo(width - fontSizeInPx * i)
+                assertThat(paragraph.getHorizontalPosition(i, false))
+                    .isEqualTo(width - fontSizeInPx * i)
             }
 
-            assertThat(paragraph.getSecondaryHorizontal(text.length)).isZero()
+            assertThat(paragraph.getHorizontalPosition(text.length, false)).isZero()
         }
     }
 
     @Test
-    fun getSecondaryHorizontal_Bidi_singleLine_textDirectionLtr() {
+    fun getHorizontalPositionForOffset_notPrimary_Bidi_singleLine_textDirectionLtr() {
         withDensity(defaultDensity) {
             val ltrText = "abc"
             val rtlText = "\u05D0\u05D1\u05D2"
@@ -1119,21 +1135,22 @@ class ParagraphIntegrationTest {
             )
 
             for (i in ltrText.indices) {
-                assertThat(paragraph.getSecondaryHorizontal(i)).isEqualTo(fontSizeInPx * i)
+                assertThat(paragraph.getHorizontalPosition(i, false))
+                    .isEqualTo(fontSizeInPx * i)
             }
 
             for (i in rtlText.indices) {
-                assertThat(paragraph.getSecondaryHorizontal(i + ltrText.length))
+                assertThat(paragraph.getHorizontalPosition(i + ltrText.length, false))
                     .isEqualTo(width - fontSizeInPx * i)
             }
 
-            assertThat(paragraph.getSecondaryHorizontal(text.length))
+            assertThat(paragraph.getHorizontalPosition(text.length, false))
                 .isEqualTo(width - rtlText.length * fontSizeInPx)
         }
     }
 
     @Test
-    fun getSecondaryHorizontal_Bidi_singleLine_textDirectionRtl() {
+    fun getHorizontalPositionForOffset_notPrimary_Bidi_singleLine_textDirectionRtl() {
         withDensity(defaultDensity) {
             val ltrText = "abc"
             val rtlText = "\u05D0\u05D1\u05D2"
@@ -1148,23 +1165,23 @@ class ParagraphIntegrationTest {
                 constraints = ParagraphConstraints(width)
             )
 
-            assertThat(paragraph.getSecondaryHorizontal(0))
+            assertThat(paragraph.getHorizontalPosition(0, false))
                 .isEqualTo(width - ltrText.length * fontSizeInPx)
 
             for (i in 1..ltrText.length) {
-                assertThat(paragraph.getSecondaryHorizontal(i))
+                assertThat(paragraph.getHorizontalPosition(i, false))
                     .isEqualTo(rtlText.length * fontSizeInPx + i * fontSizeInPx)
             }
 
             for (i in 1..rtlText.length) {
-                assertThat(paragraph.getSecondaryHorizontal(i + ltrText.length))
+                assertThat(paragraph.getHorizontalPosition(i + ltrText.length, false))
                     .isEqualTo(rtlText.length * fontSizeInPx - i * fontSizeInPx)
             }
         }
     }
 
     @Test
-    fun getSecondaryHorizontal_ltr_newLine_textDirectionDefault() {
+    fun getHorizontalPositionForOffset_notPrimary_ltr_newLine_textDirectionDefault() {
         withDensity(defaultDensity) {
             val text = "abc\n"
             val fontSize = 50.sp
@@ -1176,14 +1193,14 @@ class ParagraphIntegrationTest {
                 constraints = ParagraphConstraints(width)
             )
 
-            assertThat(paragraph.getSecondaryHorizontal(text.length)).isZero()
+            assertThat(paragraph.getHorizontalPosition(text.length, false)).isZero()
         }
     }
 
     @Test
     @SdkSuppress(minSdkVersion = 23)
     // The behavior of getSecondaryHorizontal on API 19 to API 22 was wrong. Suppress this test.
-    fun getSecondaryHorizontal_rtl_newLine_textDirectionDefault() {
+    fun getHorizontalPositionForOffset_notPrimary_rtl_newLine_textDirectionDefault() {
         withDensity(defaultDensity) {
             val text = "\u05D0\u05D1\u05D2\n"
             val fontSize = 50.sp
@@ -1195,12 +1212,12 @@ class ParagraphIntegrationTest {
                 constraints = ParagraphConstraints(width)
             )
 
-            assertThat(paragraph.getSecondaryHorizontal(text.length)).isZero()
+            assertThat(paragraph.getHorizontalPosition(text.length, false)).isZero()
         }
     }
 
     @Test
-    fun getSecondaryHorizontal_ltr_newLine_textDirectionRtl() {
+    fun getHorizontalPositionForOffset_notPrimary_ltr_newLine_textDirectionRtl() {
         withDensity(defaultDensity) {
             val text = "abc\n"
             val fontSize = 50.sp
@@ -1213,12 +1230,13 @@ class ParagraphIntegrationTest {
                 constraints = ParagraphConstraints(width)
             )
 
-            assertThat(paragraph.getSecondaryHorizontal(text.length)).isEqualTo(width)
+            assertThat(paragraph.getHorizontalPosition(text.length, false))
+                .isEqualTo(width)
         }
     }
 
     @Test
-    fun getSecondaryHorizontal_rtl_newLine_textDirectionLtr() {
+    fun getHorizontalPositionForOffset_notPrimary_rtl_newLine_textDirectionLtr() {
         withDensity(defaultDensity) {
             val text = "\u05D0\u05D1\u05D2\n"
             val fontSize = 50.sp
@@ -1231,7 +1249,7 @@ class ParagraphIntegrationTest {
                 constraints = ParagraphConstraints(width)
             )
 
-            assertThat(paragraph.getSecondaryHorizontal(text.length)).isZero()
+            assertThat(paragraph.getHorizontalPosition(text.length, false)).isZero()
         }
     }
 
