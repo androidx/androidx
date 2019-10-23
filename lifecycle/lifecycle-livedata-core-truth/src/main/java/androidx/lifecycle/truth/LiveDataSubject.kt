@@ -23,7 +23,7 @@ import com.google.common.truth.Subject
 import com.google.common.truth.Truth.assertAbout
 
 /**
- * A Truth Subject for making assertions about {@link LiveData}
+ * A Truth Subject for making assertions about [LiveData].
  */
 class LiveDataSubject private constructor(
     metadata: FailureMetadata,
@@ -31,14 +31,14 @@ class LiveDataSubject private constructor(
 ) : Subject(metadata, actual) {
 
     /**
-     * Assertion that the {@link LiveData} has active observers.
+     * Assertion that the [LiveData] has active observers.
      */
     fun hasActiveObservers() {
         check("activeObservers").that(actual.hasActiveObservers()).isTrue()
     }
 
     /**
-     * Assertion that the {@link LiveData} has no active observers.
+     * Assertion that the [LiveData] has no active observers.
      */
     fun hasNoActiveObservers() {
         check("activeObservers").that(actual.hasActiveObservers()).isFalse()

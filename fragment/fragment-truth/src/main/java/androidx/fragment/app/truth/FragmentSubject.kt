@@ -23,7 +23,7 @@ import com.google.common.truth.Subject
 import com.google.common.truth.Truth.assertAbout
 
 /**
- * A Truth Subject for making assertions about {@link Fragment}
+ * A Truth Subject for making assertions about [Fragment].
  */
 class FragmentSubject private constructor(
     metadata: FailureMetadata,
@@ -31,14 +31,14 @@ class FragmentSubject private constructor(
 ) : Subject(metadata, actual) {
 
     /**
-     * Assertion that the {@link Fragment} is currently added to an activity.
+     * Assertion that the [Fragment] is currently added to an activity.
      */
     fun isAdded() {
         check("isAdded").that(actual.isAdded).isTrue()
     }
 
     /**
-     * Assertion that the {@link Fragment} is not currently added to an activity.
+     * Assertion that the [Fragment] is not currently added to an activity.
      */
     fun isNotAdded() {
         check("isAdded").that(actual.isAdded).isFalse()
