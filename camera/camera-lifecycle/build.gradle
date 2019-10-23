@@ -26,6 +26,7 @@ plugins {
 
 dependencies {
     api(project(":camera:camera-core"))
+    api("androidx.lifecycle:lifecycle-common:2.1.0")
     annotationProcessor(AUTO_VALUE)
 }
 

@@ -24,10 +24,10 @@ import android.widget.FrameLayout;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.camera.core.CameraX;
 import androidx.camera.core.LensFacing;
 import androidx.camera.core.Preview;
 import androidx.camera.core.PreviewConfig;
+import androidx.camera.lifecycle.LifecycleCameraProvider;
 import androidx.camera.view.PreviewView;
 import androidx.fragment.app.Fragment;
 
@@ -52,7 +52,7 @@ public class PreviewViewFragment extends Fragment {
                         mPreviewViewContainer.addView(mPreviewView);
                         bindPreview();
                     } else {
-                        CameraX.unbindAll();
+                        LifecycleCameraProvider.unbindAll();
                         mPreviewViewContainer.removeView(mPreviewView);
                     }
                 });
@@ -72,7 +72,7 @@ public class PreviewViewFragment extends Fragment {
                 .setTargetName("Preview")
                 .build());
         preview.setPreviewSurfaceCallback(mPreviewView.getPreviewSurfaceCallback());
-        CameraX.bindToLifecycle(PreviewViewFragment.this, preview);
+        LifecycleCameraProvider.bindToLifecycle(PreviewViewFragment.this, preview);
     }
 
     @NonNull

@@ -60,6 +60,7 @@ import androidx.camera.core.UseCase;
 import androidx.camera.core.VideoCapture;
 import androidx.camera.core.VideoCaptureConfig;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
+import androidx.camera.lifecycle.LifecycleCameraProvider;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.LiveData;
@@ -180,7 +181,7 @@ public class CameraXActivity extends AppCompatActivity
                         if (mPreview != null) {
                             // Remove the use case
                             buttonView.setBackgroundColor(Color.RED);
-                            CameraX.unbind(mPreview);
+                            LifecycleCameraProvider.unbind(mPreview);
                             mPreview = null;
                         } else {
                             // Add the use case
@@ -383,7 +384,7 @@ public class CameraXActivity extends AppCompatActivity
                         if (mImageAnalysis != null) {
                             // Remove the use case
                             buttonView.setBackgroundColor(Color.RED);
-                            CameraX.unbind(mImageAnalysis);
+                            LifecycleCameraProvider.unbind(mImageAnalysis);
                             mImageAnalysis = null;
                         } else {
                             // Add the use case
@@ -568,7 +569,7 @@ public class CameraXActivity extends AppCompatActivity
     }
 
     void disableImageCapture() {
-        CameraX.unbind(mImageCapture);
+        LifecycleCameraProvider.unbind(mImageCapture);
 
         mImageCapture = null;
         Button button = this.findViewById(R.id.Picture);
@@ -707,7 +708,7 @@ public class CameraXActivity extends AppCompatActivity
     void disableVideoCapture() {
         Button button = this.findViewById(R.id.Video);
         button.setOnClickListener(null);
-        CameraX.unbind(mVideoCapture);
+        LifecycleCameraProvider.unbind(mVideoCapture);
 
         mVideoCapture = null;
     }
@@ -814,7 +815,7 @@ public class CameraXActivity extends AppCompatActivity
 
     private void rebindUseCases() {
         // Rebind all use cases.
-        CameraX.unbindAll();
+        LifecycleCameraProvider.unbindAll();
         if (mImageCapture != null) {
             enableImageCapture();
         }
@@ -897,7 +898,7 @@ public class CameraXActivity extends AppCompatActivity
 
     private boolean bindToLifecycleSafely(UseCase useCase, int buttonViewId) {
         try {
-            CameraX.bindToLifecycle(this, useCase);
+            LifecycleCameraProvider.bindToLifecycle(this, useCase);
         } catch (IllegalArgumentException e) {
             Log.e(TAG, e.getMessage());
             Toast.makeText(getApplicationContext(), "Bind too many use cases.", Toast.LENGTH_SHORT)

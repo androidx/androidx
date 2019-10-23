@@ -22,7 +22,6 @@ import android.util.Size;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.lifecycle.LifecycleOwner;
 
 import java.util.Set;
 
@@ -69,7 +68,7 @@ public class SensorOrientedMeteringPointFactory extends MeteringPointFactory {
      * make the XY the normalized coordinates [0..1].
      *
      * <p>useCaseForFov is used to determine the FOV of this translation. This useCaseForFov needs
-     * to be bound via {@link CameraX#bindToLifecycle(LifecycleOwner, UseCase...)} first. Otherwise
+     * to be bound via CameraX#bindToLifecycle(LifecycleOwner, UseCase...) first. Otherwise
      * it will throw a {@link IllegalStateException}
      *
      * @param width the logical width of FOV in sensor orientation.

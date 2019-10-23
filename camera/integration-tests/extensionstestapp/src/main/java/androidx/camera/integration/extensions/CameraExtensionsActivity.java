@@ -60,6 +60,7 @@ import androidx.camera.extensions.HdrImageCaptureExtender;
 import androidx.camera.extensions.HdrPreviewExtender;
 import androidx.camera.extensions.NightImageCaptureExtender;
 import androidx.camera.extensions.NightPreviewExtender;
+import androidx.camera.lifecycle.LifecycleCameraProvider;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.test.espresso.idling.CountingIdlingResource;
@@ -115,7 +116,7 @@ public class CameraExtensionsActivity extends AppCompatActivity
 
     void enablePreview() {
         if (mPreview != null) {
-            CameraX.unbind(mPreview);
+            LifecycleCameraProvider.unbind(mPreview);
         }
 
         PreviewConfig.Builder builder =
@@ -354,7 +355,7 @@ public class CameraExtensionsActivity extends AppCompatActivity
 
     void disableImageCapture() {
         if (mImageCapture != null) {
-            CameraX.unbind(mImageCapture);
+            LifecycleCameraProvider.unbind(mImageCapture);
             mImageCapture = null;
         }
 
@@ -384,7 +385,8 @@ public class CameraExtensionsActivity extends AppCompatActivity
             useCases.add(mImageCapture);
         }
         useCases.add(mPreview);
-        CameraX.bindToLifecycle(this, useCases.toArray(new UseCase[useCases.size()]));
+        LifecycleCameraProvider.bindToLifecycle(this,
+                useCases.toArray(new UseCase[useCases.size()]));
     }
 
     private void showTakePictureButton() {

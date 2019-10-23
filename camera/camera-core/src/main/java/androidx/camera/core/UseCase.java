@@ -26,7 +26,6 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.camera.core.Config.Option;
 import androidx.camera.core.UseCaseConfig.Builder;
-import androidx.lifecycle.LifecycleOwner;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -447,9 +446,8 @@ public abstract class UseCase {
     }
 
     /**
-     * Called when binding new use cases via {@link CameraX#bindToLifecycle(LifecycleOwner,
-     * UseCase...)}. Override to create necessary objects like
-     * {@link android.media.ImageReader}
+     * Called when binding new use cases via CameraX#bindToLifecycle(LifecycleOwner,
+     * UseCase...). Override to create necessary objects like {@link android.media.ImageReader}
      * depending on the resolution.
      *
      * @param suggestedResolutionMap A map of the names of the {@link
@@ -480,7 +478,7 @@ public abstract class UseCase {
 
     /**
      * Called when use case is binding to life cycle via
-     * {@link CameraX#bindToLifecycle(LifecycleOwner, UseCase...)}.
+     * CameraX#bindToLifecycle(LifecycleOwner, UseCase...).
      *
      * @hide
      */
