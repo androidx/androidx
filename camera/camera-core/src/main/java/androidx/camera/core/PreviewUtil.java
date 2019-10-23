@@ -76,6 +76,7 @@ public final class PreviewUtil {
                     SurfaceTexture surfaceTexture = mSurfaceTextureMap.get(surface);
                     if (surfaceTexture != null) {
                         surfaceTextureCallback.onSafeToRelease(surfaceTexture);
+                        mSurfaceTextureMap.remove(surface);
                     }
                     surface.release();
                 } catch (ExecutionException | InterruptedException e) {

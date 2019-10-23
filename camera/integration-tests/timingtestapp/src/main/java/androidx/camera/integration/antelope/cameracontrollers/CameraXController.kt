@@ -27,6 +27,8 @@ import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCaptureConfig
 import androidx.camera.core.Preview
 import androidx.camera.core.PreviewConfig
+import androidx.camera.core.PreviewUtil
+import androidx.camera.core.PreviewUtil.createPreviewSurfaceCallback
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.integration.antelope.CameraParams
 import androidx.camera.integration.antelope.CameraXImageAvailableListener
@@ -90,19 +92,22 @@ internal fun cameraXOpenCamera(
 
         // Set preview to observe the surface texture
         activity.runOnUiThread {
-            previewUseCase.setOnPreviewOutputUpdateListener {
-                viewFinderOutput: Preview.PreviewOutput? ->
-                if (viewFinderOutput?.surfaceTexture != null) {
-                    if (!isCameraSurfaceTextureReleased(viewFinderOutput.surfaceTexture)) {
-                        // View swizzling required to for the view hierarchy to update correctly
+            previewUseCase.previewSurfaceCallback = createPreviewSurfaceCallback(
+                    object : PreviewUtil.SurfaceTextureCallback {
+
+                override fun onSafeToRelease(surfaceTexture: SurfaceTexture) {
+                    surfaceTexture.release()
+                }
+
+                override fun onSurfaceTextureReady(surfaceTexture: SurfaceTexture) {
+                    if (!isCameraSurfaceTextureReleased(surfaceTexture)) {
                         val viewGroup = params.cameraXPreviewTexture?.parent as ViewGroup
                         viewGroup.removeView(params.cameraXPreviewTexture)
                         viewGroup.addView(params.cameraXPreviewTexture)
-                        params.cameraXPreviewTexture?.surfaceTexture =
-                            viewFinderOutput.surfaceTexture
+                        params.cameraXPreviewTexture?.surfaceTexture = surfaceTexture
                     }
                 }
-            }
+            })
         }
 
         when (testConfig.currentRunningTest) {
@@ -187,7 +192,8 @@ internal fun cameraXTakePicture(
 
     // Pause in multi-captures to make sure HDR routines don't get overloaded
     logd("CameraX TakePicture. Pausing for " +
-        PrefHelper.getPreviewBuffer(activity) + "ms to let preview run.")
+            PrefHelper.getPreviewBuffer(activity) + "ms to let preview run.")
+
     params.timer.previewFillStart = System.currentTimeMillis()
     Thread.sleep(PrefHelper.getPreviewBuffer(activity))
     params.timer.previewFillEnd = System.currentTimeMillis()

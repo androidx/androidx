@@ -16,6 +16,8 @@
 
 package androidx.camera.integration.extensions;
 
+import static androidx.camera.core.PreviewUtil.createPreviewSurfaceCallback;
+
 import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertNotNull;
 
@@ -39,6 +41,7 @@ import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCaptureConfig;
 import androidx.camera.core.Preview;
 import androidx.camera.core.PreviewConfig;
+import androidx.camera.core.PreviewUtil;
 import androidx.camera.extensions.AutoImageCaptureExtender;
 import androidx.camera.extensions.AutoPreviewExtender;
 import androidx.camera.extensions.BeautyImageCaptureExtender;
@@ -240,15 +243,21 @@ public class PreviewProcessorTimestampTest {
         Preview preview = new Preview(mPreviewConfigBuilder.build());
 
         // To set the update listener and Preview will change to active state.
-        preview.setOnPreviewOutputUpdateListener(previewOutput -> {
-                    mProcessingHandler.post(() -> previewOutput.getSurfaceTexture()
-                            .attachToGLContext(GLUtil.getTexIdFromGLContext()));
-                    previewOutput.getSurfaceTexture().setOnFrameAvailableListener(
-                            mOnFrameAvailableListener, mProcessingHandler);
+        preview.setPreviewSurfaceCallback(createPreviewSurfaceCallback(
+                new PreviewUtil.SurfaceTextureCallback() {
+                    @Override
+                    public void onSurfaceTextureReady(@NonNull SurfaceTexture surfaceTexture) {
+                        surfaceTexture.attachToGLContext(GLUtil.getTexIdFromGLContext());
+                        surfaceTexture.setOnFrameAvailableListener(
+                                mOnFrameAvailableListener, mProcessingHandler);
+                        mSurfaceTextureLatch.countDown();
+                    }
 
-                    mSurfaceTextureLatch.countDown();
-                }
-        );
+                    @Override
+                    public void onSafeToRelease(@NonNull SurfaceTexture surfaceTexture) {
+                        // No-op.
+                    }
+                }));
 
         mInstrumentation.runOnMainSync(() -> {
             CameraX.bindToLifecycle(mLifecycleOwner, preview, imageCapture);

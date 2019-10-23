@@ -29,6 +29,7 @@ import android.os.Looper;
 import android.util.Log;
 import android.util.Rational;
 import android.util.Size;
+import android.view.Surface;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -50,16 +51,22 @@ import androidx.camera.core.PreviewConfig;
 import androidx.camera.core.VideoCapture;
 import androidx.camera.core.VideoCapture.OnVideoSavedCallback;
 import androidx.camera.core.VideoCaptureConfig;
+import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.camera.view.CameraView.CaptureMode;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleObserver;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.OnLifecycleEvent;
 
+import com.google.common.util.concurrent.ListenableFuture;
+
 import java.io.File;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
+import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -99,7 +106,7 @@ final class CameraXModule {
                 public void onDestroy(LifecycleOwner owner) {
                     if (owner == mCurrentLifecycle) {
                         clearCurrentLifecycle();
-                        mPreview.removePreviewOutputListener();
+                        mPreview.setPreviewSurfaceCallback(null);
                     }
                 }
             };
@@ -245,24 +252,51 @@ final class CameraXModule {
         mPreviewConfigBuilder.setTargetResolution(new Size(getMeasuredWidth(), height));
 
         mPreview = new Preview(mPreviewConfigBuilder.build());
-        mPreview.setOnPreviewOutputUpdateListener(
-                new Preview.OnPreviewOutputUpdateListener() {
-                    @Override
-                    public void onUpdated(@NonNull Preview.PreviewOutput output) {
-                        boolean needReverse = cameraOrientation != 0 && cameraOrientation != 180;
-                        int textureWidth =
-                                needReverse
-                                        ? output.getTextureSize().getHeight()
-                                        : output.getTextureSize().getWidth();
-                        int textureHeight =
-                                needReverse
-                                        ? output.getTextureSize().getWidth()
-                                        : output.getTextureSize().getHeight();
-                        CameraXModule.this.onPreviewSourceDimensUpdated(textureWidth,
-                                textureHeight);
-                        CameraXModule.this.setSurfaceTexture(output.getSurfaceTexture());
+        mPreview.setPreviewSurfaceCallback(new Preview.PreviewSurfaceCallback() {
+            // Thread safe because it only accessed on the default executor, which is UI thread.
+            Map<Surface, SurfaceTexture> mSurfaceTextureMap = new HashMap<>();
+
+            @NonNull
+            @Override
+            public ListenableFuture<Surface> createSurfaceFuture(@NonNull Size resolution,
+                    int imageFormat) {
+                boolean needReverse = cameraOrientation != 0 && cameraOrientation != 180;
+                int textureWidth =
+                        needReverse
+                                ? resolution.getHeight()
+                                : resolution.getWidth();
+                int textureHeight =
+                        needReverse
+                                ? resolution.getWidth()
+                                : resolution.getHeight();
+                CameraXModule.this.onPreviewSourceDimensUpdated(textureWidth,
+                        textureHeight);
+                // Create SurfaceTexture and Surface.
+                SurfaceTexture surfaceTexture = new SurfaceTexture(0);
+                surfaceTexture.setDefaultBufferSize(resolution.getWidth(),
+                        resolution.getHeight());
+                surfaceTexture.detachFromGLContext();
+                CameraXModule.this.setSurfaceTexture(surfaceTexture);
+                Surface surface = new Surface(surfaceTexture);
+                mSurfaceTextureMap.put(surface, surfaceTexture);
+                return Futures.immediateFuture(surface);
+            }
+
+            @Override
+            public void onSafeToRelease(@NonNull ListenableFuture<Surface> surfaceFuture) {
+                try {
+                    Surface surface = surfaceFuture.get();
+                    surface.release();
+                    SurfaceTexture surfaceTexture = mSurfaceTextureMap.get(surface);
+                    if (surfaceTexture != null) {
+                        surfaceTexture.release();
+                        mSurfaceTextureMap.remove(surface);
                     }
-                });
+                } catch (ExecutionException | InterruptedException e) {
+                    Log.e(TAG, "Failed to release Surface", e);
+                }
+            }
+        });
 
         if (getCaptureMode() == CaptureMode.IMAGE) {
             CameraX.bindToLifecycle(mCurrentLifecycle, mImageCapture, mPreview);

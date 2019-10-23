@@ -16,6 +16,8 @@
 
 package androidx.camera.integration.core;
 
+import static androidx.camera.core.PreviewUtil.createPreviewSurfaceCallback;
+
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
@@ -32,12 +34,12 @@ import android.view.Surface;
 import android.view.TextureView;
 import android.view.TextureView.SurfaceTextureListener;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.VisibleForTesting;
 import androidx.appcompat.app.AppCompatActivity;
@@ -53,11 +55,11 @@ import androidx.camera.core.ImageCaptureConfig;
 import androidx.camera.core.ImageProxy;
 import androidx.camera.core.Preview;
 import androidx.camera.core.PreviewConfig;
+import androidx.camera.core.PreviewUtil;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.VideoCapture;
 import androidx.camera.core.VideoCaptureConfig;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
-import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.LiveData;
@@ -66,19 +68,15 @@ import androidx.lifecycle.Observer;
 import androidx.test.espresso.IdlingResource;
 import androidx.test.espresso.idling.CountingIdlingResource;
 
-import com.google.common.util.concurrent.ListenableFuture;
-
 import java.io.File;
 import java.math.BigDecimal;
 import java.text.Format;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
-
 
 /**
  * An activity with four use cases: (1) view finder, (2) image capture, (3) image analysis, (4)
@@ -113,9 +111,33 @@ public class CameraXActivity extends AppCompatActivity
     private ImageCapture mImageCapture;
     private VideoCapture mVideoCapture;
     private ImageCapture.CaptureMode mCaptureMode = ImageCapture.CaptureMode.MIN_LATENCY;
-    private TextureView mTextureView;
-    TextureViewSurfaceTextureListener mTextureViewSurfaceTextureListener =
-            new TextureViewSurfaceTextureListener();
+    // Synthetic Accessor
+    @SuppressWarnings("WeakerAccess")
+    TextureView mTextureView;
+    private final SurfaceTextureListener mSurfaceTextureListener = new SurfaceTextureListener() {
+        @Override
+        public void onSurfaceTextureAvailable(SurfaceTexture surface, int width, int height) {
+
+        }
+
+        @Override
+        public void onSurfaceTextureSizeChanged(SurfaceTexture surface, int width, int height) {
+
+        }
+
+        @Override
+        public boolean onSurfaceTextureDestroyed(SurfaceTexture surface) {
+            return false;
+        }
+
+        @Override
+        public void onSurfaceTextureUpdated(SurfaceTexture surface) {
+            // Wait until surface texture receives enough updates.
+            if (!mViewIdlingResource.isIdleNow()) {
+                mViewIdlingResource.decrement();
+            }
+        }
+    };
 
     // Espresso testing variables
     @VisibleForTesting
@@ -181,33 +203,26 @@ public class CameraXActivity extends AppCompatActivity
 
         mPreview = new Preview(config);
         Log.d(TAG, "enablePreview");
-        mPreview.setPreviewSurfaceCallback(new Preview.PreviewSurfaceCallback() {
+        mPreview.setPreviewSurfaceCallback(createPreviewSurfaceCallback(
+                new PreviewUtil.SurfaceTextureCallback() {
+                    @Override
+                    public void onSurfaceTextureReady(@NonNull SurfaceTexture surfaceTexture) {
+                        Log.d(TAG, "onSurfaceTextureReady");
+                        // If TextureView was already created, need to re-add it to change the
+                        // SurfaceTexture.
+                        ViewGroup viewGroup = (ViewGroup) mTextureView.getParent();
+                        viewGroup.removeView(mTextureView);
+                        viewGroup.addView(mTextureView);
+                        mTextureView.setSurfaceTexture(surfaceTexture);
+                        transformPreview();
+                    }
 
-            @NonNull
-            @Override
-            public ListenableFuture<Surface> createSurfaceFuture(@NonNull Size resolution,
-                    int imageFormat) {
-                Log.d(TAG, "Surface requested by CameraX Preview. Size: " + resolution);
-                return CallbackToFutureAdapter.getFuture(
-                        completer -> {
-                            mTextureView.getSurfaceTexture().setDefaultBufferSize(
-                                    resolution.getWidth(), resolution.getHeight());
-                            mTextureViewSurfaceTextureListener.setCompleter(completer,
-                                    new Surface(mTextureView.getSurfaceTexture()));
-                            return "GetTextureViewSurface";
-                        });
-            }
-
-            @Override
-            public void onSafeToRelease(@NonNull ListenableFuture<Surface> surfaceFuture) {
-                Log.d(TAG, "Release Surface.");
-                try {
-                    surfaceFuture.get().release();
-                } catch (ExecutionException | InterruptedException e) {
-                    Log.e(TAG, "Failed to release Surface", e);
-                }
-            }
-        });
+                    @Override
+                    public void onSafeToRelease(@NonNull SurfaceTexture surfaceTexture) {
+                        Log.d(TAG, "onSafeToRelease");
+                        surfaceTexture.release();
+                    }
+                }));
 
         for (int i = 0; i < FRAMES_UNTIL_VIEW_IS_READY; i++) {
             mViewIdlingResource.increment();
@@ -710,9 +725,7 @@ public class CameraXActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_camera_xmain);
         mTextureView = findViewById(R.id.textureView);
-        // Set SurfaceTextureListener in onCreate() to make sure onSurfaceTextureAvailable() is
-        // triggered.
-        mTextureView.setSurfaceTextureListener(mTextureViewSurfaceTextureListener);
+        mTextureView.setSurfaceTextureListener(mSurfaceTextureListener);
 
         StrictMode.VmPolicy policy =
                 new StrictMode.VmPolicy.Builder().detectAll().penaltyLog().build();
@@ -931,74 +944,5 @@ public class CameraXActivity extends AppCompatActivity
 
     VideoCapture getVideoCapture() {
         return mVideoCapture;
-    }
-
-    /**
-     * Class to resolve the race condition where the Surface future should
-     * only be completed when both the SurfaceTexture and the Preview are ready.
-     */
-    class TextureViewSurfaceTextureListener implements SurfaceTextureListener {
-
-        @GuardedBy("this")
-        private CallbackToFutureAdapter.Completer<Surface> mCompleter;
-        @GuardedBy("this")
-        private Surface mSurface;
-
-        private boolean mIsSurfaceTextureAvailable = false;
-
-        /**
-         * Called when {@link Preview} is ready for Surface.
-         */
-        synchronized void setCompleter(CallbackToFutureAdapter.Completer<Surface> completer,
-                Surface surface) {
-            if (mCompleter != null) {
-                mCompleter.setCancelled();
-            }
-            mCompleter = completer;
-            mSurface = surface;
-            tryComplete();
-        }
-
-        /**
-         * Completes the Surface future if both {@link Preview} and {@link TextureView} are ready.
-         */
-        private synchronized void tryComplete() {
-            if (mCompleter != null && mSurface != null && mIsSurfaceTextureAvailable) {
-                mCompleter.set(mSurface);
-                mCompleter = null;
-                mSurface = null;
-                transformPreview();
-            }
-        }
-
-        /**
-         * Called when SurfaceTexture is available.
-         */
-        @Override
-        public void onSurfaceTextureAvailable(SurfaceTexture surfaceTexture,
-                int width,
-                int height) {
-            mIsSurfaceTextureAvailable = true;
-            tryComplete();
-        }
-
-        @Override
-        public void onSurfaceTextureSizeChanged(SurfaceTexture surfaceTexture, int width,
-                int height) {
-            // No need to handle here since this app doesn't change the View size.
-        }
-
-        @Override
-        public boolean onSurfaceTextureDestroyed(SurfaceTexture surfaceTexture) {
-            return false;
-        }
-
-        @Override
-        public void onSurfaceTextureUpdated(SurfaceTexture surfaceTexture) {
-            // Wait until surface texture receives enough updates.
-            if (!mViewIdlingResource.isIdleNow()) {
-                mViewIdlingResource.decrement();
-            }
-        }
     }
 }
