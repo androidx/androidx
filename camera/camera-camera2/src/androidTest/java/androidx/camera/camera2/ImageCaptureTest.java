@@ -217,7 +217,9 @@ public final class ImageCaptureTest {
 
     @After
     public void tearDown() throws ExecutionException, InterruptedException {
-        mInstrumentation.runOnMainSync(() -> CameraX.unbindAll());
+        if (CameraX.isInitialized()) {
+            mInstrumentation.runOnMainSync(() -> CameraX.unbindAll());
+        }
         if (mCamera != null) {
             mCamera.close();
             if (mCapturedImage != null) {
