@@ -15,7 +15,6 @@
  */
 package androidx.ui.core
 
-import android.annotation.SuppressLint
 import androidx.compose.Ambient
 import androidx.compose.ambient
 import androidx.compose.Composable
@@ -53,49 +52,32 @@ internal val DefaultSelectionColor = Color(0x6633B5E5)
  * described using a tree of [Span], each of which has an associated style that is used
  * for that subtree. The text might break across multiple lines or might all be displayed on the
  * same line depending on the layout constraints.
+ *
+ * @param modifier Modifier to apply to this layout node.
+ * @param text Text to render in this composable. If there are also [Span]s in this composable,
+ * they will be append after the given [text].
+ * @param style Style configuration that applies at character level such as color, font etc.
+ * @param paragraphStyle Style configuration that applies only to paragraphs such as text
+ * alignment, or text direction.
+ * @param softWrap Whether the text should break at soft line breaks. If false, the glyphs in the
+ * text will be positioned as if there was unlimited horizontal space. If [softWrap] is false,
+ * [overflow] and [TextAlign] may have unexpected effects.
+ * @param overflow How visual overflow should be handled.
+ * @param maxLines An optional maximum number of lines for the text to span, wrapping if
+ * necessary. If the text exceeds the given number of lines, it will be truncated according to
+ * [overflow] and [softWrap]. If it is not null, then it must be greater than zero.
+ * @param selectionColor The color used to draw selected region.
  */
 @Composable
 fun Text(
     modifier: Modifier = Modifier.None,
-    /**
-     * Text to render in this composable. If there are also [Span]s in this composable, they will be append
-     * after the given [text].
-     */
     text: String? = null,
-    /**
-     * Style configuration that applies at character level such as color, font etc.
-     */
     style: TextStyle? = null,
-    /**
-     * Style configuration that applies only to paragraphs such as text alignment, or text
-     * direction.
-     */
     paragraphStyle: ParagraphStyle? = null,
-    /**
-     *  Whether the text should break at soft line breaks.
-     *  If false, the glyphs in the text will be positioned as if there was unlimited horizontal
-     *  space.
-     *  If [softWrap] is false, [overflow] and [TextAlign] may have unexpected effects.
-     */
     softWrap: Boolean = DefaultSoftWrap,
-    /** How visual overflow should be handled. */
     overflow: TextOverflow = DefaultOverflow,
-    /**
-     *  An optional maximum number of lines for the text to span, wrapping if necessary.
-     *  If the text exceeds the given number of lines, it will be truncated according to [overflow]
-     *  and [softWrap].
-     *  The value may be null. If it is not null, then it must be greater than zero.
-     */
-    // TODO(siyamed): remove suppress
-    @SuppressLint("AutoBoxing")
     maxLines: Int? = DefaultMaxLines,
-    /**
-     *  The color used to draw selected region.
-     */
     selectionColor: Color = DefaultSelectionColor,
-    /**
-     * Composable TextSpan attached after [text].
-     */
     child: @Composable TextSpanScope.() -> Unit
 ) {
     val rootTextSpan = +memo(text) { TextSpan(text = text) }
@@ -118,8 +100,19 @@ fun Text(
 /**
  * Simplified version of [Text] component with minimal set of customizations.
  *
- * @param text The text to display.
- * @param style The text style for the text.
+ * @param text The text to be displayed.
+ * @param modifier Modifier to apply to this layout node.
+ * @param style Style configuration that applies at character level such as color, font etc.
+ * @param paragraphStyle Style configuration that applies only to paragraphs such as text
+ * alignment, or text direction.
+ * @param softWrap Whether the text should break at soft line breaks. If false, the glyphs in the
+ * text will be positioned as if there was unlimited horizontal space. If [softWrap] is false,
+ * [overflow] and [TextAlign] may have unexpected effects.
+ * @param overflow How visual overflow should be handled.
+ * @param maxLines An optional maximum number of lines for the text to span, wrapping if
+ * necessary. If the text exceeds the given number of lines, it will be truncated according to
+ * [overflow] and [softWrap]. If it is not null, then it must be greater than zero.
+ * @param selectionColor The color used to draw selected region.
  */
 @Composable
 fun Text(
@@ -129,8 +122,6 @@ fun Text(
     paragraphStyle: ParagraphStyle? = null,
     softWrap: Boolean = DefaultSoftWrap,
     overflow: TextOverflow = DefaultOverflow,
-    // TODO(siyamed): remove suppress
-    @SuppressLint("AutoBoxing")
     maxLines: Int? = DefaultMaxLines,
     selectionColor: Color = DefaultSelectionColor
 ) {
@@ -150,47 +141,34 @@ fun Text(
  * The Text composable displays text that uses multiple different styles. The text to display is
  * described using a [AnnotatedString].
  *
+ * @param text AnnotatedString encoding a styled text.
+ * @param modifier Modifier to apply to this layout node.
+ * @param style Style configuration that applies at character level such as color, font etc.
+ * @param paragraphStyle Style configuration that applies only to paragraphs such as text
+ * alignment, or text direction.
+ * @param softWrap Whether the text should break at soft line breaks. If false, the glyphs in the
+ * text will be positioned as if there was unlimited horizontal space. If [softWrap] is false,
+ * [overflow] and [TextAlign] may have unexpected effects.
+ * @param overflow How visual overflow should be handled.
+ * @param maxLines An optional maximum number of lines for the text to span, wrapping if
+ * necessary. If the text exceeds the given number of lines, it will be truncated according to
+ * [overflow] and [softWrap]. If it is not null, then it must be greater than zero.
+ * @param selectionColor The color used to draw selected region.
  */
 @Composable
 fun Text(
-    /**
-     * AnnotatedString encoding a styled text.
-     */
     text: AnnotatedString,
-    /**
-     * Modifier to apply to this layout node
-     */
     modifier: Modifier = Modifier.None,
-    /** The default text style applied to all text in this composable. */
     style: TextStyle? = null,
-    /**
-     * Style configuration that applies only to paragraphs such as text alignment, or text
-     * direction.
-     */
     paragraphStyle: ParagraphStyle? = null,
-    /**
-     *  Whether the text should break at soft line breaks.
-     *  If false, the glyphs in the text will be positioned as if there was unlimited horizontal
-     *  space.
-     *  If [softWrap] is false, [overflow] and [TextAlign] may have unexpected effects.
-     */
     softWrap: Boolean = DefaultSoftWrap,
-    /** How visual overflow should be handled. */
     overflow: TextOverflow = DefaultOverflow,
-    /**
-     *  An optional maximum number of lines for the text to span, wrapping if necessary.
-     *  If the text exceeds the given number of lines, it will be truncated according to [overflow]
-     *  and [softWrap].
-     *  The value may be null. If it is not null, then it must be greater than zero.
-     */
-    // TODO(siyamed): remove suppress
-    @SuppressLint("AutoBoxing")
     maxLines: Int? = DefaultMaxLines,
-    /**
-     *  The color used to draw selected region.
-     */
     selectionColor: Color = DefaultSelectionColor
 ) {
+    maxLines?.let {
+        require(it > 0) { "maxLines should be greater than 0" }
+    }
     // The selection range for this Composable, used by selection
     val internalSelection = +state<TextRange?> { null }
     // The last layout coordinates recorded for this Composable, used by selection
