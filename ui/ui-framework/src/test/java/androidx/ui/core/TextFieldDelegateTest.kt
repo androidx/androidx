@@ -17,26 +17,28 @@
 package androidx.ui.core
 
 import androidx.ui.engine.geometry.Rect
+import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.Color
 import androidx.ui.input.CommitTextEditOp
 import androidx.ui.input.EditOperation
 import androidx.ui.input.EditProcessor
 import androidx.ui.input.FinishComposingTextEditOp
 import androidx.ui.input.ImeAction
+import androidx.ui.input.InputState
 import androidx.ui.input.KeyboardType
 import androidx.ui.input.OffsetMap
 import androidx.ui.input.SetSelectionEditOp
 import androidx.ui.input.TextInputService
-import androidx.ui.graphics.Canvas
-import androidx.ui.input.InputState
+import androidx.ui.input.TransformedText
 import androidx.ui.text.AnnotatedString
 import androidx.ui.text.TextDelegate
 import androidx.ui.text.TextRange
 import androidx.ui.text.TextStyle
+import androidx.ui.text.style.TextDecoration
+import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.argumentCaptor
 import com.nhaarman.mockitokotlin2.eq
-import com.nhaarman.mockitokotlin2.inOrder
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.never
 import com.nhaarman.mockitokotlin2.times
@@ -160,28 +162,6 @@ class TextFieldDelegateTest {
     }
 
     @Test
-    fun draw_composition_test() {
-        val composition = TextRange(0, 1)
-        val compositionColor = DefaultCompositionColor
-
-        val cursor = TextRange(1, 1)
-
-        TextFieldDelegate.draw(
-            canvas = canvas,
-            textDelegate = mDelegate,
-            value = InputState(text = "Hello, World", selection = cursor,
-                composition = composition),
-            hasFocus = true,
-            offsetMap = identityOffsetMap
-        )
-
-        verify(mDelegate, times(1)).paintBackground(
-            eq(composition.min), eq(composition.max), eq(compositionColor), eq(canvas))
-        verify(mDelegate, times(1)).paint(eq(canvas))
-        verify(mDelegate, times(1)).paintCursor(eq(cursor.min), any())
-    }
-
-    @Test
     fun test_on_edit_command() {
         val ops = listOf(CommitTextEditOp("Hello, World", 1))
         val dummyEditorState = InputState(text = "Hello, World", selection = TextRange(1, 1))
@@ -252,32 +232,6 @@ class TextFieldDelegateTest {
 
         verify(onValueChange, never()).invoke(any())
         verify(textInputService).showSoftwareKeyboard(eq(dummyInputSessionToken))
-    }
-
-    @Test
-    fun test_draw_order() {
-        val canvas: Canvas = mock()
-
-        TextFieldDelegate.draw(
-            canvas = canvas,
-            textDelegate = mDelegate,
-            value = InputState(
-                text = "Hello, World", selection = TextRange(1, 1),
-                composition = TextRange(1, 3)
-            ),
-            hasFocus = true,
-            offsetMap = identityOffsetMap
-            )
-
-        inOrder(mDelegate) {
-            verify(mDelegate).paintBackground(
-                eq(1),
-                eq(3),
-                eq(DefaultCompositionColor),
-                eq(canvas)
-            )
-            verify(mDelegate).paintCursor(eq(1), eq(canvas))
-        }
     }
 
     @Test
@@ -492,5 +446,32 @@ class TextFieldDelegateTest {
             assertEquals(i, offsetMap.originalToTransformed(i))
             assertEquals(i, offsetMap.transformedToOriginal(i))
         }
+    }
+
+    @Test
+    fun apply_composition_decoration() {
+        val identityOffsetMap = object : OffsetMap {
+            override fun originalToTransformed(offset: Int): Int = offset
+            override fun transformedToOriginal(offset: Int): Int = offset
+        }
+
+        val input = TransformedText(
+            transformedText = AnnotatedString.Builder().apply {
+                pushStyle(TextStyle(color = Color.Red))
+                append("Hello, World")
+            }.toAnnotatedString(),
+            offsetMap = identityOffsetMap
+        )
+
+        val result = TextFieldDelegate.applyCompositionDecoration(
+            compositionRange = TextRange(3, 6),
+            transformed = input
+        )
+
+        assertThat(result.transformedText.text).isEqualTo(input.transformedText.text)
+        assertThat(result.transformedText.textStyles.size).isEqualTo(2)
+        assertThat(result.transformedText.textStyles).contains(
+            AnnotatedString.Item(TextStyle(decoration = TextDecoration.Underline), 3, 6)
+        )
     }
 }
