@@ -152,21 +152,11 @@ class ParagraphMethodBenchmark(private val textType: TextType, private val textL
     }
 
     @Test
-    fun getPrimaryHorizontal() {
+    fun getHorizontalPosition() {
         textBenchmarkRule.generator { generator ->
             val paragraph = paragraph(generator)
             benchmarkRule.measureRepeated {
-                paragraph.getPrimaryHorizontal(textLength / 2)
-            }
-        }
-    }
-
-    @Test
-    fun getSecondaryHorizontal() {
-        textBenchmarkRule.generator { generator ->
-            val paragraph = paragraph(generator)
-            benchmarkRule.measureRepeated {
-                paragraph.getSecondaryHorizontal(textLength / 2)
+                paragraph.getHorizontalPosition(textLength / 2, true)
             }
         }
     }

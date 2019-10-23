@@ -128,18 +128,48 @@ interface Paragraph {
     fun getLineForOffset(offset: Int): Int
 
     /**
-     * Get the primary horizontal position for the specified text offset.
-     * @hide
+     * Compute the horizontal position where a newly inserted character at [offset] would be.
+     *
+     * If the inserted character at [offset] is within a LTR/RTL run, the returned position will be
+     * the left(right) edge of the character.
+     * ```
+     * For example:
+     *     Paragraph's direction is LTR.
+     *     Text in logic order:               L0 L1 L2 R3 R4 R5
+     *     Text in visual order:              L0 L1 L2 R5 R4 R3
+     *         position of the offset(2):          |
+     *         position of the offset(4):                   |
+     *```
+     * However, when the [offset] is at the BiDi transition offset, there will be two possible
+     * visual positions, which depends on the direction of the inserted character.
+     * ```
+     * For example:
+     *     Paragraph's direction is LTR.
+     *     Text in logic order:               L0 L1 L2 R3 R4 R5
+     *     Text in visual order:              L0 L1 L2 R5 R4 R3
+     *         position of the offset(3):             |           (The inserted character is LTR)
+     *                                                         |  (The inserted character is RTL)
+     *```
+     * In this case, [usePrimaryDirection] will be used to resolve the ambiguity. If true, the
+     * inserted character's direction is assumed to be the same as Paragraph's direction.
+     * Otherwise, the inserted character's direction is assumed to be the opposite of the
+     * Paragraph's direction.
+     * ```
+     * For example:
+     *     Paragraph's direction is LTR.
+     *     Text in logic order:               L0 L1 L2 R3 R4 R5
+     *     Text in visual order:              L0 L1 L2 R5 R4 R3
+     *         position of the offset(3):             |           (usePrimaryDirection is true)
+     *                                                         |  (usePrimaryDirection is false)
+     *```
+     * This method is useful to compute cursor position.
+     *
+     * @param offset the offset of the character, in the range of [0, length].
+     * @param usePrimaryDirection whether the paragraph direction is respected when [offset]
+     * points to a BiDi transition point.
+     * @return a float number representing the horizontal position in the unit of pixel.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
-    fun getPrimaryHorizontal(offset: Int): Float
-
-    /**
-     * Get the secondary horizontal position for the specified text offset.
-     * @hide
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
-    fun getSecondaryHorizontal(offset: Int): Float
+    fun getHorizontalPosition(offset: Int, usePrimaryDirection: Boolean): Float
 
     /**
      * Get the text direction of the paragraph containing the given offset.
