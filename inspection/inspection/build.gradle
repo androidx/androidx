@@ -27,10 +27,10 @@ plugins {
 }
 
 dependencies {
-    compile("androidx.annotation:annotation:1.1.0")
+    implementation("androidx.annotation:annotation:1.1.0")
     testImplementation(TRUTH)
     testImplementation(KOTLIN_STDLIB)
-    testCompile(JUNIT)
+    testImplementation(JUNIT)
 }
 
 androidx {
