@@ -1,4 +1,12 @@
 // Baseline format: 1.0
+AutoBoxing: androidx.ui.core.TextKt#Text(String, androidx.ui.core.Modifier, androidx.ui.text.TextStyle, androidx.ui.text.ParagraphStyle, boolean, androidx.ui.text.style.TextOverflow, Integer, androidx.ui.graphics.Color) parameter #6:
+    Must avoid boxed primitives (`java.lang.Integer`)
+AutoBoxing: androidx.ui.core.TextKt#Text(androidx.ui.core.Modifier, String, androidx.ui.text.TextStyle, androidx.ui.text.ParagraphStyle, boolean, androidx.ui.text.style.TextOverflow, Integer, androidx.ui.graphics.Color, kotlin.jvm.functions.Function1<? super androidx.ui.core.TextSpanScope,kotlin.Unit>) parameter #6:
+    Must avoid boxed primitives (`java.lang.Integer`)
+AutoBoxing: androidx.ui.core.TextKt#Text(androidx.ui.text.AnnotatedString, androidx.ui.core.Modifier, androidx.ui.text.TextStyle, androidx.ui.text.ParagraphStyle, boolean, androidx.ui.text.style.TextOverflow, Integer, androidx.ui.graphics.Color) parameter #6:
+    Must avoid boxed primitives (`java.lang.Integer`)
+
+
 CallbackName: androidx.ui.core.gesture.DragObserver:
     Class should be named DragCallback
 CallbackName: androidx.ui.core.gesture.LongPressDragObserver:

@@ -502,7 +502,7 @@ private fun TextInputEventObserver(
             focusManager.unregisterFocusNode(focusIdentifier)
     }
 
-    // TODO: unregister when memo-ed object has disposed.
+    // TODO(nona): unregister when memo-ed object has disposed.
 
     val doFocusIn = {
         if (!focused.value) {
