@@ -21,9 +21,9 @@ import androidx.compose.memo
 import androidx.compose.onDispose
 import androidx.compose.state
 import androidx.compose.unaryPlus
-import androidx.ui.core.gesture.TouchSlopDragGestureDetector
 import androidx.ui.core.gesture.DragObserver
 import androidx.ui.core.gesture.PressGestureDetector
+import androidx.ui.core.gesture.TouchSlopDragGestureDetector
 import androidx.ui.core.input.FocusManager
 import androidx.ui.input.EditProcessor
 import androidx.ui.input.EditorStyle
@@ -356,7 +356,10 @@ internal fun BaseTextField(
         val processor = +memo { EditProcessor() }
         val mergedStyle = style.merge(editorStyle?.textStyle)
         val (visualText, offsetMap) = +memo(value, visualTransformation) {
-            TextFieldDelegate.applyVisualFilter(value, visualTransformation)
+            val transformed = TextFieldDelegate.applyVisualFilter(value, visualTransformation)
+            value.composition?.let {
+                TextFieldDelegate.applyCompositionDecoration(it, transformed)
+            } ?: transformed
         }
         val textDelegate = +memo(visualText, mergedStyle, density, resourceLoader) {
             TextDelegate(
