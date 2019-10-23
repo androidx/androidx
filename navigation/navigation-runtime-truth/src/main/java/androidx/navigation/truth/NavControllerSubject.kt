@@ -25,7 +25,7 @@ import com.google.common.truth.Subject
 import com.google.common.truth.Truth.assertAbout
 
 /**
- * A Truth Subject for making assertions about {@link NavController}
+ * A Truth Subject for making assertions about [NavController].
  */
 class NavControllerSubject private constructor(
     metadata: FailureMetadata,
@@ -33,10 +33,10 @@ class NavControllerSubject private constructor(
 ) : Subject(metadata, actual) {
 
     /**
-     * Assert that the {@link NavController} has the given current destination
-     * in its {@link NavGraph}.
+     * Assert that the [NavController] has the given current destination
+     * in its [androidx.navigation.NavGraph].
      *
-     * @param navDest The ID resource of a {@link NavDestination}
+     * @param navDest The ID resource of a [androidx.navigation.NavDestination]
      */
     fun isCurrentDestination(@IdRes navDest: Int) {
         val actualDest = actual.currentDestination?.id
@@ -50,10 +50,10 @@ class NavControllerSubject private constructor(
     }
 
     /**
-     * Assert that the {@link NavController} has the given {@link NavGraph} as
+     * Assert that the [NavController] has the given [androidx.navigation.NavGraph] as
      * its current graph.
      *
-     * @param navGraph The ID resource of a {@link NavGraph}
+     * @param navGraph The ID resource of a [androidx.navigation.NavGraph]
      */
     fun isGraph(@IdRes navGraph: Int) {
         val actualGraph = actual.graph.id
