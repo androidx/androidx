@@ -328,6 +328,7 @@ public final class Camera2Config implements Config {
          * @return The current Extender.
          */
         @NonNull
+        @ExperimentalCamera2Interop
         public <ValueT> Extender setCaptureRequestOption(
                 @NonNull CaptureRequest.Key<ValueT> key, @NonNull ValueT value) {
             // Reify the type so we can obtain the class
@@ -369,6 +370,7 @@ public final class Camera2Config implements Config {
          * @return The current Extender.
          */
         @NonNull
+        @ExperimentalCamera2Interop
         public Extender setDeviceStateCallback(@NonNull CameraDevice.StateCallback stateCallback) {
             mBaseBuilder.getMutableConfig().insertOption(DEVICE_STATE_CALLBACK_OPTION,
                     stateCallback);
@@ -392,6 +394,7 @@ public final class Camera2Config implements Config {
          * @return The current Extender.
          */
         @NonNull
+        @ExperimentalCamera2Interop
         public Extender setSessionStateCallback(
                 @NonNull CameraCaptureSession.StateCallback stateCallback) {
             mBaseBuilder.getMutableConfig().insertOption(SESSION_STATE_CALLBACK_OPTION,
@@ -418,6 +421,7 @@ public final class Camera2Config implements Config {
          * @return The current Extender.
          */
         @NonNull
+        @ExperimentalCamera2Interop
         public Extender setSessionCaptureCallback(
                 @NonNull CameraCaptureSession.CaptureCallback captureCallback) {
             mBaseBuilder.getMutableConfig().insertOption(SESSION_CAPTURE_CALLBACK_OPTION,

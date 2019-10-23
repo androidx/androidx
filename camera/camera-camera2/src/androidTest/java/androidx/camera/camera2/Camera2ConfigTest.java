@@ -24,6 +24,7 @@ import android.hardware.camera2.CameraMetadata;
 import android.hardware.camera2.CaptureRequest;
 import android.util.Range;
 
+import androidx.annotation.experimental.UseExperimental;
 import androidx.camera.camera2.impl.Camera2CaptureCallbacks;
 import androidx.camera.camera2.impl.CameraEventCallbacks;
 import androidx.camera.core.CameraCaptureSessionStateCallbacks;
@@ -73,6 +74,7 @@ public final class Camera2ConfigTest {
     }
 
     @Test
+    @UseExperimental(markerClass = ExperimentalCamera2Interop.class)
     public void canExtendWithSessionCaptureCallback() {
         FakeConfig.Builder builder = new FakeConfig.Builder();
 
@@ -97,6 +99,7 @@ public final class Camera2ConfigTest {
     }
 
     @Test
+    @UseExperimental(markerClass = ExperimentalCamera2Interop.class)
     public void canExtendWithDeviceStateCallback() {
         FakeConfig.Builder builder = new FakeConfig.Builder();
 
@@ -121,6 +124,7 @@ public final class Camera2ConfigTest {
     }
 
     @Test
+    @UseExperimental(markerClass = ExperimentalCamera2Interop.class)
     public void canSetAndRetrieveCaptureRequestKeys() {
         FakeConfig.Builder builder = new FakeConfig.Builder();
 
@@ -146,6 +150,7 @@ public final class Camera2ConfigTest {
     }
 
     @Test
+    @UseExperimental(markerClass = ExperimentalCamera2Interop.class)
     public void canSetAndRetrieveCaptureRequestKeys_fromOptionIds() {
         FakeConfig.Builder builder = new FakeConfig.Builder();
 

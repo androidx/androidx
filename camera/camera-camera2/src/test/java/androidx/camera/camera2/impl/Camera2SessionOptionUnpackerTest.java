@@ -27,7 +27,9 @@ import android.hardware.camera2.CameraDevice;
 import android.hardware.camera2.CaptureRequest;
 import android.os.Build;
 
+import androidx.annotation.experimental.UseExperimental;
 import androidx.camera.camera2.Camera2Config;
+import androidx.camera.camera2.ExperimentalCamera2Interop;
 import androidx.camera.core.CameraCaptureCallback;
 import androidx.camera.core.ImageCaptureConfig;
 import androidx.camera.core.SessionConfig;
@@ -54,6 +56,7 @@ public final class Camera2SessionOptionUnpackerTest {
     }
 
     @Test
+    @UseExperimental(markerClass = ExperimentalCamera2Interop.class)
     public void unpackerExtractsInteropCallbacks() {
         ImageCaptureConfig.Builder imageCaptureConfigBuilder = new ImageCaptureConfig.Builder();
         CaptureCallback captureCallback = mock(CaptureCallback.class);
@@ -90,6 +93,7 @@ public final class Camera2SessionOptionUnpackerTest {
     }
 
     @Test
+    @UseExperimental(markerClass = ExperimentalCamera2Interop.class)
     public void unpackerExtractsOptions() {
         ImageCaptureConfig.Builder imageCaptureConfigBuilder = new ImageCaptureConfig.Builder();
 

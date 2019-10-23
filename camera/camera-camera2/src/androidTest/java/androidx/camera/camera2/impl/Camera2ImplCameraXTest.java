@@ -34,8 +34,10 @@ import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CameraDevice;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.experimental.UseExperimental;
 import androidx.camera.camera2.Camera2AppConfig;
 import androidx.camera.camera2.Camera2Config;
+import androidx.camera.camera2.ExperimentalCamera2Interop;
 import androidx.camera.camera2.impl.util.SemaphoreReleasingCamera2Callbacks.DeviceStateCallback;
 import androidx.camera.camera2.impl.util.SemaphoreReleasingCamera2Callbacks.SessionCaptureCallback;
 import androidx.camera.core.CameraInfoUnavailableException;
@@ -71,9 +73,11 @@ import java.util.concurrent.atomic.AtomicLong;
  * Contains tests for {@link androidx.camera.core.CameraX} which require an actual implementation to
  * run.
  */
+
 @FlakyTest
 @LargeTest
 @RunWith(AndroidJUnit4.class)
+@UseExperimental(markerClass = ExperimentalCamera2Interop.class)
 public final class Camera2ImplCameraXTest {
     private static final LensFacing DEFAULT_LENS_FACING = LensFacing.BACK;
     private final MutableLiveData<Long> mAnalysisResult = new MutableLiveData<>();
