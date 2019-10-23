@@ -16,6 +16,7 @@
 
 package androidx.sqlite.inspection
 
+import androidx.sqlite.inspection.SqliteInspectorProtocol.SampleCommand
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth
@@ -27,6 +28,9 @@ import org.junit.runner.RunWith
 class SqliteInspectorTest {
     @Test
     fun test() {
-        Truth.assertThat<Int>(0).isEqualTo(0)
+        val command = SampleCommand.newBuilder().setParam1("p1").setParam2("p2").build()
+        val commandBytes = command.toByteArray()
+        val commandBack = SampleCommand.parseFrom(commandBytes)
+        Truth.assertThat(commandBack).isEqualTo(command)
     }
 }
