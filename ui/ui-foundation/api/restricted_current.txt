@@ -366,5 +366,9 @@ package androidx.ui.foundation.text {
     ctor public SelectionHandlesKt();
   }
 
+  public final class SelectionManagerKt {
+    ctor public SelectionManagerKt();
+  }
+
 }
 

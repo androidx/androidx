@@ -67,7 +67,7 @@ data class Selection(
     )
 
     // TODO(qqd): add tests, important
-    internal fun merge(other: Selection?): Selection {
+    fun merge(other: Selection?): Selection {
         if (other == null) return this
 
         // TODO(qqd): combine two selections' contents with styles together.
@@ -90,10 +90,4 @@ data class Selection(
     fun toTextRange(): TextRange {
         return TextRange(start.offset, end.offset)
     }
-}
-
-// TODO(qqd): add tests, important
-internal operator fun Selection?.plus(rhs: Selection?): Selection? {
-    if (this == null) return rhs
-    return merge(rhs)
 }

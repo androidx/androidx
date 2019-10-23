@@ -28,7 +28,6 @@ import androidx.ui.core.gesture.TouchSlopDragGestureDetector
 import androidx.ui.core.ipx
 import androidx.ui.core.px
 import androidx.ui.core.selection.Selection
-import androidx.ui.core.selection.SelectionManager
 import androidx.ui.core.selection.SelectionMode
 import androidx.ui.core.selection.SelectionRegistrarAmbient
 import androidx.ui.text.style.TextDirection
@@ -49,16 +48,13 @@ fun SelectionContainer(
     mode: SelectionMode = SelectionMode.Vertical,
     children: @Composable() () -> Unit
 ) {
-    val manager = +memo { SelectionManager() }
-    // TODO (qqd): After selection composable is fully implemented, evaluate if the following 2 items
-    // are expensive. If so, use
-    // +memo(selection) { manager.selection = selection }
-    // +memo(onSelectionChange) { manager.onSelectionChange = onSelectionChange }
-    manager.selection = selection
+    val registrarImpl = +memo { SelectionRegistrarImpl() }
+    val manager = +memo { SelectionManager(registrarImpl) }
     manager.onSelectionChange = onSelectionChange
+    manager.selection = selection
     manager.mode = mode
 
-    SelectionRegistrarAmbient.Provider(value = manager) {
+    SelectionRegistrarAmbient.Provider(value = registrarImpl) {
         val content = @Composable {
             val content = @Composable() {
                 // Get the layout coordinates of the selection container. This is for hit test of
@@ -99,20 +95,18 @@ fun SelectionContainer(
             val placeable = measurables[0].measure(constraints)
             val width = placeable.width
             val height = placeable.height
-            val start =
-                measurables[startHandle].first().measure(
-                    Constraints.tightConstraints(
-                        HANDLE_WIDTH.toIntPx(),
-                        HANDLE_HEIGHT.toIntPx()
-                    )
+            val start = measurables[startHandle].first().measure(
+                Constraints.tightConstraints(
+                    HANDLE_WIDTH.toIntPx(),
+                    HANDLE_HEIGHT.toIntPx()
                 )
-            val end =
-                measurables[endHandle].first().measure(
-                    Constraints.tightConstraints(
-                        HANDLE_WIDTH.toIntPx(),
-                        HANDLE_HEIGHT.toIntPx()
-                    )
+            )
+            val end = measurables[endHandle].first().measure(
+                Constraints.tightConstraints(
+                    HANDLE_WIDTH.toIntPx(),
+                    HANDLE_HEIGHT.toIntPx()
                 )
+            )
             layout(width, height) {
                 placeable.place(IntPx.Zero, IntPx.Zero)
 

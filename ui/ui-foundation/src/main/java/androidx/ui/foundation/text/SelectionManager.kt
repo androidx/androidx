@@ -14,19 +14,21 @@
  * limitations under the License.
  */
 
-package androidx.ui.core.selection
+package androidx.ui.foundation.text
 
-import androidx.compose.Ambient
 import androidx.ui.core.LayoutCoordinates
 import androidx.ui.core.PxPosition
 import androidx.ui.core.gesture.DragObserver
 import androidx.ui.core.gesture.LongPressDragObserver
 import androidx.ui.core.px
+import androidx.ui.core.selection.Selection
+import androidx.ui.core.selection.SelectionMode
+import androidx.ui.core.selection.TextSelectionHandler
 
 /**
  * A bridge class between user interaction to the text composables for text selection.
  */
-class SelectionManager : SelectionRegistrar {
+internal class SelectionManager(private val selectionRegistrar: SelectionRegistrarImpl) {
     /**
      * The current selection.
      */
@@ -40,7 +42,7 @@ class SelectionManager : SelectionRegistrar {
     var onSelectionChange: (Selection?) -> Unit = {}
 
     /**
-     * The selection mode. The default value is Vertical.
+     * Selection mode to be used. Default value is Vertical.
      */
     var mode: SelectionMode = SelectionMode.Vertical
 
@@ -48,12 +50,6 @@ class SelectionManager : SelectionRegistrar {
      * Layout Coordinates of the selection container.
      */
     lateinit var containerLayoutCoordinates: LayoutCoordinates
-
-    /**
-     * This is essentially the list of registered components that want
-     * to handle text selection that are below the SelectionContainer.
-     */
-    private val handlers = mutableSetOf<TextSelectionHandler>()
 
     /**
      * The beginning position of the drag gesture. Every time a new drag gesture starts, it wil be
@@ -76,21 +72,6 @@ class SelectionManager : SelectionRegistrar {
     private var draggingHandle = false
 
     /**
-     * Allow a Text composable to "register" itself with the manager
-     */
-    override fun subscribe(handler: TextSelectionHandler): Any {
-        handlers.add(handler)
-        return handler
-    }
-
-    /**
-     * Allow a Text composable to "unregister" itself with the manager
-     */
-    override fun unsubscribe(key: Any) {
-        handlers.remove(key as TextSelectionHandler)
-    }
-
-    /**
      * Iterates over the handlers, gets the selection for each Composable, and merges all the
      * returned [Selection]s.
      *
@@ -106,43 +87,46 @@ class SelectionManager : SelectionRegistrar {
         endPosition: PxPosition,
         selection: Selection? = null
     ): Selection? {
+        val handlers = selectionRegistrar.handlers
         return handlers.fold(selection) { mergedSelection: Selection?,
                                           handler: TextSelectionHandler ->
-            mergedSelection + handler.getSelection(
-                startPosition = startPosition,
-                endPosition = endPosition,
-                containerLayoutCoordinates = containerLayoutCoordinates,
-                mode = mode
+            merge(
+                mergedSelection,
+                handler.getSelection(
+                    startPosition = startPosition,
+                    endPosition = endPosition,
+                    containerLayoutCoordinates = containerLayoutCoordinates,
+                    mode = mode
+                )
             )
         }
     }
 
-    val longPressDragObserver =
-        object : LongPressDragObserver {
-            override fun onLongPress(pxPosition: PxPosition) {
-                if (draggingHandle) return
-                val selection = mergeSelections(pxPosition, pxPosition)
-                onSelectionChange(selection)
-                dragBeginPosition = pxPosition
-            }
-
-            override fun onDragStart() {
-                super.onDragStart()
-
-                // Zero out the total distance that being dragged.
-                dragTotalDistance = PxPosition.Origin
-            }
-
-            override fun onDrag(dragDistance: PxPosition): PxPosition {
-
-                dragTotalDistance += dragDistance
-
-                val selection =
-                    mergeSelections(dragBeginPosition, dragBeginPosition + dragTotalDistance)
-                onSelectionChange(selection)
-                return dragDistance
-            }
+    val longPressDragObserver = object : LongPressDragObserver {
+        override fun onLongPress(pxPosition: PxPosition) {
+            if (draggingHandle) return
+            val selection = mergeSelections(pxPosition, pxPosition)
+            onSelectionChange(selection)
+            dragBeginPosition = pxPosition
         }
+
+        override fun onDragStart() {
+            super.onDragStart()
+            // Zero out the total distance that being dragged.
+            dragTotalDistance = PxPosition.Origin
+        }
+
+        override fun onDrag(dragDistance: PxPosition): PxPosition {
+            dragTotalDistance += dragDistance
+
+            val selection = mergeSelections(
+                dragBeginPosition,
+                dragBeginPosition + dragTotalDistance
+            )
+            onSelectionChange(selection)
+            return dragDistance
+        }
+    }
 
     /**
      * Adjust coordinates for given text offset.
@@ -225,7 +209,6 @@ class SelectionManager : SelectionRegistrar {
     }
 }
 
-/**
- * Ambient of SelectionRegistrar for SelectionManager.
- */
-val SelectionRegistrarAmbient = Ambient.of<SelectionRegistrar> { SelectionManager() }
+private fun merge(lhs: Selection?, rhs: Selection?): Selection? {
+    return lhs?.merge(rhs) ?: rhs
+}
