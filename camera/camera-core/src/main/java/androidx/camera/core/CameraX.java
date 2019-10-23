@@ -150,7 +150,6 @@ public final class CameraX {
     final CameraRepository mCameraRepository = new CameraRepository();
     private final Object mInitializeLock = new Object();
     private final UseCaseGroupRepository mUseCaseGroupRepository = new UseCaseGroupRepository();
-    private final ErrorHandler mErrorHandler = new ErrorHandler();
     private final Executor mCameraExecutor;
     private CameraFactory mCameraFactory;
     private CameraDeviceSurfaceManager mSurfaceManager;
@@ -534,37 +533,6 @@ public final class CameraX {
         CameraX cameraX = checkInitialized();
 
         return cameraX.getDefaultConfigFactory().getConfig(configType, lensFacing);
-    }
-
-    /**
-     * Sets an {@link ErrorListener} which will get called any time a CameraX specific error is
-     * encountered.
-     *
-     * @param errorListener the listener which will get all the error messages. If this is set to
-     *                      {@code null} then the default error listener will be set.
-     * @param handler       the handler for the thread to run the error handling on. If this is
-     *                      set to
-     *                      {@code null} then it will default to run on the main thread.
-     */
-    public static void setErrorListener(@Nullable ErrorListener errorListener,
-            @Nullable Handler handler) {
-        CameraX cameraX = checkInitialized();
-
-        cameraX.mErrorHandler.setErrorListener(errorListener, handler);
-    }
-
-    /**
-     * Posts an error which can be handled by the {@link ErrorListener}.
-     *
-     * @param errorCode the type of error that occurred
-     * @param message   the associated message with more details of the error
-     * @hide
-     */
-    @RestrictTo(Scope.LIBRARY_GROUP)
-    public static void postError(@NonNull ErrorCode errorCode, @NonNull String message) {
-        CameraX cameraX = checkInitialized();
-
-        cameraX.mErrorHandler.postError(errorCode, message);
     }
 
     /**
@@ -1024,32 +992,12 @@ public final class CameraX {
         return mCameraRepository;
     }
 
-    /** The types of error states that can occur. */
-    public enum ErrorCode {
-        /** The camera has moved into an unexpected state from which it can not recover from. */
-        CAMERA_STATE_INCONSISTENT,
-        /** A {@link UseCase} has encountered an error from which it can not recover from. */
-        USE_CASE_ERROR
-    }
-
     /** The direction the camera faces relative to device screen. */
     public enum LensFacing {
         /** A camera on the device facing the same direction as the device's screen. */
         FRONT,
         /** A camera on the device facing the opposite direction as the device's screen. */
         BACK
-    }
-
-    /** Listener called whenever an error condition occurs within CameraX. */
-    public interface ErrorListener {
-
-        /**
-         * Called whenever an error occurs within CameraX.
-         *
-         * @param error   the type of error that occurred
-         * @param message detailed message of the error condition
-         */
-        void onError(@NonNull ErrorCode error, @NonNull String message);
     }
 
     /** Internal initialization state. */

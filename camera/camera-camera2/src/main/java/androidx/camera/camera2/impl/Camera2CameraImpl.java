@@ -41,7 +41,6 @@ import androidx.camera.core.CameraControlInternal;
 import androidx.camera.core.CameraDeviceStateCallbacks;
 import androidx.camera.core.CameraInfoInternal;
 import androidx.camera.core.CameraInfoUnavailableException;
-import androidx.camera.core.CameraX;
 import androidx.camera.core.CaptureConfig;
 import androidx.camera.core.DeferrableSurface;
 import androidx.camera.core.ImmediateSurface;
@@ -1229,9 +1228,7 @@ final class Camera2CameraImpl implements BaseCamera {
                     openCameraDevice();
                     break;
                 default:
-                    CameraX.postError(
-                            CameraX.ErrorCode.CAMERA_STATE_INCONSISTENT,
-                            "Camera closed while in state: " + mState);
+                    throw new IllegalStateException("Camera closed while in state: " + mState);
             }
         }
 
