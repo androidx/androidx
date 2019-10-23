@@ -20,6 +20,7 @@ import androidx.compose.Ambient
 import androidx.ui.core.LayoutCoordinates
 import androidx.ui.core.PxPosition
 import androidx.ui.core.gesture.DragObserver
+import androidx.ui.core.gesture.LongPressDragObserver
 import androidx.ui.core.px
 
 /**
@@ -116,11 +117,32 @@ class SelectionManager : SelectionRegistrar {
         }
     }
 
-    fun onPress(position: PxPosition) {
-        if (draggingHandle) return
-        val selection = mergeSelections(position, position)
-        onSelectionChange(selection)
-    }
+    val longPressDragObserver =
+        object : LongPressDragObserver {
+            override fun onLongPress(pxPosition: PxPosition) {
+                if (draggingHandle) return
+                val selection = mergeSelections(pxPosition, pxPosition)
+                onSelectionChange(selection)
+                dragBeginPosition = pxPosition
+            }
+
+            override fun onDragStart() {
+                super.onDragStart()
+
+                // Zero out the total distance that being dragged.
+                dragTotalDistance = PxPosition.Origin
+            }
+
+            override fun onDrag(dragDistance: PxPosition): PxPosition {
+
+                dragTotalDistance += dragDistance
+
+                val selection =
+                    mergeSelections(dragBeginPosition, dragBeginPosition + dragTotalDistance)
+                onSelectionChange(selection)
+                return dragDistance
+            }
+        }
 
     /**
      * Adjust coordinates for given text offset.
