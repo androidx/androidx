@@ -479,7 +479,7 @@ internal class MultiParagraph(
  *  [0, text.length)
  * @return The index of the target [ParagraphInfo] in [paragraphInfoList].
  */
-private fun findParagraphByIndex(paragraphInfoList: List<ParagraphInfo>, index: Int): Int {
+internal fun findParagraphByIndex(paragraphInfoList: List<ParagraphInfo>, index: Int): Int {
     return paragraphInfoList.binarySearch { paragraphInfo ->
         when {
             paragraphInfo.startIndex > index -> 1
@@ -499,7 +499,7 @@ private fun findParagraphByIndex(paragraphInfoList: List<ParagraphInfo>, index: 
  *  of [0, [MultiParagraph.height]].
  * @return The index of the target [ParagraphInfo] in [paragraphInfoList].
  */
-private fun findParagraphByY(paragraphInfoList: List<ParagraphInfo>, y: Px): Int {
+internal fun findParagraphByY(paragraphInfoList: List<ParagraphInfo>, y: Px): Int {
     return paragraphInfoList.binarySearch { paragraphInfo ->
         when {
             paragraphInfo.top > y -> 1
@@ -519,7 +519,7 @@ private fun findParagraphByY(paragraphInfoList: List<ParagraphInfo>, y: Px): Int
  *  [0, [MultiParagraph.lineCount])
  * @return The index of the target [ParagraphInfo] in [paragraphInfoList].
  */
-private fun findParagraphByLineIndex(paragraphInfoList: List<ParagraphInfo>, lineIndex: Int): Int {
+internal fun findParagraphByLineIndex(paragraphInfoList: List<ParagraphInfo>, lineIndex: Int): Int {
     return paragraphInfoList.binarySearch { paragraphInfo ->
         when {
             paragraphInfo.startLineIndex > lineIndex -> 1
