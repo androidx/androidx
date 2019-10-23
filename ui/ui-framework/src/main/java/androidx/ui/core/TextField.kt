@@ -523,10 +523,9 @@ private fun TextInputEventObserver(
                     doFocusIn()
                 }
             },
-            onRelease = onRelease
-        ) {
-            children()
-        }
+            onRelease = onRelease,
+            children = children
+        )
     }
 }
 
@@ -588,9 +587,6 @@ private fun DragPositionGestureDetector(
                     tracker.value.onDrag(dragDistance)
                     return tracker.value.getPosition()
                 }
-            }
-        ) {
-            children()
-        }
+            }, children = children)
     }
 }

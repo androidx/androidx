@@ -57,9 +57,7 @@ fun ContainerWithBackground(
 ) {
     Wrap {
         DrawRectangle(color = color)
-        Container(width = width, height = height) {
-            children()
-        }
+        Container(width = width, height = height, children = children)
     }
 }
 

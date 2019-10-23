@@ -169,14 +169,10 @@ private fun FixedTabRow(
     Stack {
         aligned(Alignment.Center) {
             FlexRow {
-                expanded(1f) {
-                    tabs()
-                }
+                expanded(1f, tabs)
             }
         }
-        aligned(Alignment.BottomCenter) {
-            divider()
-        }
+        aligned(Alignment.BottomCenter, children = divider)
         positioned(0.dp, 0.dp, 0.dp, 0.dp) {
             indicatorContainer(tabPositions)
         }
@@ -368,9 +364,7 @@ object TabRow {
         Container(expanded = true, alignment = Alignment.BottomLeft) {
             IndicatorTransition(tabPositions, selectedIndex) { indicatorOffset ->
                 Padding(left = withDensity(+ambientDensity()) { indicatorOffset.toDp() }) {
-                    Container(width = currentTabWidth) {
-                        indicator()
-                    }
+                    Container(width = currentTabWidth, children = indicator)
                 }
             }
         }
@@ -469,9 +463,7 @@ fun Tab(text: String? = null, icon: Image? = null, selected: Boolean, onSelected
 @Composable
 private fun BaseTab(selected: Boolean, onSelected: () -> Unit, children: @Composable() () -> Unit) {
     Ripple(bounded = true) {
-        MutuallyExclusiveSetItem(selected = selected, onClick = onSelected) {
-            children()
-        }
+        MutuallyExclusiveSetItem(selected = selected, onClick = onSelected, children = children)
     }
 }
 

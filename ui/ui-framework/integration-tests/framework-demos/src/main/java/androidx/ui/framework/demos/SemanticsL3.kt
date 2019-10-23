@@ -38,7 +38,7 @@ fun ClickInteraction(
         }.build()
 
     Semantics(actions = setOf(clickAction)) {
-        PressGestureDetectorWithActions(onRelease = clickAction) { children() }
+        PressGestureDetectorWithActions(onRelease = clickAction, children = children)
     }
 }
 

@@ -67,8 +67,6 @@ fun Semantics(
         explicitChildNodes = explicitChildNodes,
         semanticsConfiguration = semanticsConfiguration
     ) {
-        TestTag(tag = DefaultTestTag) {
-            children()
-        }
+        TestTag(tag = DefaultTestTag, children = children)
     }
 }

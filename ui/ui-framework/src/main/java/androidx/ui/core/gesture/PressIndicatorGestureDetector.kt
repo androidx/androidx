@@ -60,9 +60,7 @@ fun PressIndicatorGestureDetector(
     recognizer.onStop = onStop
     recognizer.onCancel = onCancel
 
-    PointerInputWrapper(pointerInputHandler = recognizer.pointerInputHandler) {
-        children()
-    }
+    PointerInputWrapper(pointerInputHandler = recognizer.pointerInputHandler, children = children)
 }
 
 internal class PressIndicatorGestureRecognizer {

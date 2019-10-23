@@ -55,9 +55,7 @@ fun TouchSlopExceededGestureDetector(
     recognizer.canDrag = canDrag
     recognizer.onTouchSlopExceeded = onTouchSlopExceeded
 
-    PointerInputWrapper(pointerInputHandler = recognizer.pointerInputHandler) {
-        children()
-    }
+    PointerInputWrapper(pointerInputHandler = recognizer.pointerInputHandler, children = children)
 }
 
 internal class TouchSlopExceededGestureRecognizer(private val touchSlop: IntPx) {

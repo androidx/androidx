@@ -126,7 +126,7 @@ private class RippleState {
             density,
             radius,
             bounded,
-            { recompose() },
+            recompose,
             onAnimationFinished
         )
 

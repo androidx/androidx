@@ -56,9 +56,7 @@ fun LongPressGestureDetector(
         +memo { LongPressGestureRecognizer(coroutineContext) }
     recognizer.onLongPress = onLongPress
 
-    PointerInputWrapper(pointerInputHandler = recognizer.pointerInputHandler) {
-        children()
-    }
+    PointerInputWrapper(pointerInputHandler = recognizer.pointerInputHandler, children = children)
 }
 
 internal class LongPressGestureRecognizer(

@@ -253,9 +253,7 @@ class LongPressDragGestureDetectorTest {
 
     private fun waitForLongPress(block: () -> Unit) {
         longPressCountDownLatch = CountDownLatch(1)
-        activityTestRule.runOnUiThreadIR {
-            block()
-        }
+        activityTestRule.runOnUiThreadIR(block)
         assertTrue(longPressCountDownLatch.await(750, TimeUnit.MILLISECONDS))
     }
 }

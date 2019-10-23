@@ -28,9 +28,7 @@ import androidx.ui.test.ComposeTestRule
 fun ComposeTestRule.setMaterialContent(composable: @Composable() () -> Unit) {
     setContent {
         MaterialTheme {
-            Surface {
-                composable()
-            }
+            Surface(children = composable)
         }
     }
 }
@@ -51,8 +49,6 @@ fun ComposeTestRule.setMaterialContentAndGetPixelSize(
     { setMaterialContent(it) }
 ) {
     MaterialTheme {
-        Surface {
-            children()
-        }
+        Surface(children = children)
     }
 }

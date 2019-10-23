@@ -91,9 +91,7 @@ fun ComposeView(children: @Composable() () -> Unit) {
         val coroutineContext = Dispatchers.Main
         cc =
             Compose.composeInto(container = rootLayoutNode, context = context, parent = reference) {
-                WrapWithAmbients(rootRef.value!!, context, coroutineContext) {
-                    children()
-                }
+                WrapWithAmbients(rootRef.value!!, context, coroutineContext, children)
             }
     }
 }
@@ -116,9 +114,7 @@ fun Activity.setContent(
     // kotlinx.coroutines.Dispatchers' not instance of 'Precise Reference: androidx.compose.Ambient'.
     val coroutineContext = Dispatchers.Main
     return Compose.composeInto(composeView.root, this) {
-        WrapWithAmbients(composeView, this, coroutineContext) {
-            content()
-        }
+        WrapWithAmbients(composeView, this, coroutineContext, content)
     }
 }
 
@@ -138,9 +134,7 @@ fun ViewGroup.setContent(
     // kotlinx.coroutines.Dispatchers' not instance of 'Precise Reference: androidx.compose.Ambient'.
     val coroutineContext = Dispatchers.Main
     return Compose.composeInto(composeView.root, context) {
-        WrapWithAmbients(composeView, context, coroutineContext) {
-            content()
-        }
+        WrapWithAmbients(composeView, context, coroutineContext, content)
     }
 }
 

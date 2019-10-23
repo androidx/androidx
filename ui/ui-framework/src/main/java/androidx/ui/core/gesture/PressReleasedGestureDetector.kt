@@ -58,9 +58,7 @@ fun PressReleasedGestureDetector(
     recognizer.onRelease = onRelease
     recognizer.consumeDownOnStart = consumeDownOnStart
 
-    PointerInputWrapper(pointerInputHandler = recognizer.pointerInputHandler) {
-        children()
-    }
+    PointerInputWrapper(pointerInputHandler = recognizer.pointerInputHandler, children = children)
 }
 
 internal class PressReleaseGestureRecognizer {

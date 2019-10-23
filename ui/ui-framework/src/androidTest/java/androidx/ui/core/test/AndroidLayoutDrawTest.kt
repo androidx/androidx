@@ -552,9 +552,7 @@ class AndroidLayoutDrawTest {
         setContentView(root)
         Compose.composeInto(root.root, context = this) {
             ContextAmbient.Provider(value = this) {
-                DensityAmbient.Provider(value = Density(this)) {
-                    composable()
-                }
+                DensityAmbient.Provider(value = Density(this), children = composable)
             }
         }
     }
