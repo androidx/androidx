@@ -25,13 +25,9 @@ import static org.mockito.Mockito.spy;
 
 import android.app.Instrumentation;
 import android.content.Context;
-import android.os.Handler;
-import android.os.HandlerThread;
 import android.util.Size;
 
 import androidx.annotation.NonNull;
-import androidx.camera.core.CameraX.ErrorCode;
-import androidx.camera.core.CameraX.ErrorListener;
 import androidx.camera.core.CameraX.LensFacing;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.testing.fakes.FakeCamera;
@@ -55,12 +51,9 @@ import org.mockito.Mockito;
 
 import java.util.Collection;
 import java.util.Map;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
 
 @MediumTest
 @RunWith(AndroidJUnit4.class)
@@ -73,10 +66,6 @@ public final class CameraXTest {
     private String mCameraId;
     private BaseCamera mCamera;
     private FakeLifecycleOwner mLifecycle;
-    private CountingErrorListener mErrorListener;
-    private CountDownLatch mLatch;
-    private HandlerThread mHandlerThread;
-    private Handler mHandler;
     private AppConfig.Builder mAppConfigBuilder;
 
     @Before
@@ -105,11 +94,6 @@ public final class CameraXTest {
 
         mLifecycle = new FakeLifecycleOwner();
 
-        mLatch = new CountDownLatch(1);
-        mErrorListener = new CountingErrorListener(mLatch);
-        mHandlerThread = new HandlerThread("ErrorHandlerThread");
-        mHandlerThread.start();
-        mHandler = new Handler(mHandlerThread.getLooper());
         mCameraId = cameraFactory.cameraIdForLensFacing(CAMERA_LENS_FACING);
     }
 
@@ -120,7 +104,6 @@ public final class CameraXTest {
         }
 
         CameraX.shutdown().get();
-        mHandlerThread.quitSafely();
     }
 
     @Test
@@ -308,16 +291,6 @@ public final class CameraXTest {
     }
 
     @Test
-    public void errorListenerGetsCalled_whenErrorPosted() throws InterruptedException {
-        initCameraX();
-        CameraX.setErrorListener(mErrorListener, mHandler);
-        CameraX.postError(CameraX.ErrorCode.CAMERA_STATE_INCONSISTENT, "");
-        mLatch.await(1, TimeUnit.SECONDS);
-
-        assertThat(mErrorListener.getCount()).isEqualTo(1);
-    }
-
-    @Test
     public void requestingDefaultConfiguration_returnsDefaultConfiguration() {
         initCameraX();
         // Requesting a default configuration will throw if CameraX is not initialized.
@@ -446,25 +419,6 @@ public final class CameraXTest {
 
     private void initCameraX() {
         CameraX.initialize(mContext, mAppConfigBuilder.build());
-    }
-
-    private static class CountingErrorListener implements ErrorListener {
-        CountDownLatch mLatch;
-        AtomicInteger mCount = new AtomicInteger(0);
-
-        CountingErrorListener(CountDownLatch latch) {
-            mLatch = latch;
-        }
-
-        @Override
-        public void onError(@NonNull ErrorCode errorCode, @NonNull String message) {
-            mCount.getAndIncrement();
-            mLatch.countDown();
-        }
-
-        public int getCount() {
-            return mCount.get();
-        }
     }
 
     /** FakeUseCase that will call attachToCamera */
