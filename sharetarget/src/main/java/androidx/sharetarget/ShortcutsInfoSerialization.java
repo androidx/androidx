@@ -56,6 +56,7 @@ class ShortcutsInfoSerialization {
     private static final String ATTR_SHORT_LABEL = "short_label";
     private static final String ATTR_LONG_LABEL = "long_label";
     private static final String ATTR_DISABLED_MSG = "disabled_message";
+    private static final String ATTR_RANK = "rank";
 
     private static final String ATTR_ICON_RES_NAME = "icon_resource_name";
     private static final String ATTR_ICON_BMP_PATH = "icon_bitmap_path";
@@ -157,6 +158,7 @@ class ShortcutsInfoSerialization {
             return null;
         }
 
+        int rank = Integer.parseInt(getAttributeValue(parser, ATTR_RANK));
         CharSequence longLabel = getAttributeValue(parser, ATTR_LONG_LABEL);
         CharSequence disabledMessage = getAttributeValue(parser, ATTR_DISABLED_MSG);
         ComponentName activity = parseComponentName(parser);
@@ -188,7 +190,8 @@ class ShortcutsInfoSerialization {
         }
 
         ShortcutInfoCompat.Builder builder = new ShortcutInfoCompat.Builder(context, id)
-                .setShortLabel(label);
+                .setShortLabel(label)
+                .setRank(rank);
         if (!TextUtils.isEmpty(longLabel)) {
             builder.setLongLabel(longLabel);
         }
@@ -248,6 +251,7 @@ class ShortcutsInfoSerialization {
         ShortcutInfoCompat shortcut = container.mShortcutInfo;
         serializeAttribute(serializer, ATTR_ID, shortcut.getId());
         serializeAttribute(serializer, ATTR_SHORT_LABEL, shortcut.getShortLabel().toString());
+        serializeAttribute(serializer, ATTR_RANK, Integer.toString(shortcut.getRank()));
         if (!TextUtils.isEmpty(shortcut.getLongLabel())) {
             serializeAttribute(serializer, ATTR_LONG_LABEL, shortcut.getLongLabel().toString());
         }
