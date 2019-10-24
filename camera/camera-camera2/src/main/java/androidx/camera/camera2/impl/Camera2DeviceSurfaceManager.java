@@ -31,6 +31,7 @@ import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.CameraDeviceConfig;
 import androidx.camera.core.CameraDeviceSurfaceManager;
 import androidx.camera.core.CameraX;
+import androidx.camera.core.LensFacing;
 import androidx.camera.core.SurfaceConfig;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.UseCaseConfig;
@@ -327,7 +328,7 @@ public final class Camera2DeviceSurfaceManager implements CameraDeviceSurfaceMan
         CameraDeviceConfig config = (CameraDeviceConfig) useCaseConfig;
         String cameraId;
         try {
-            CameraX.LensFacing lensFacing = config.getLensFacing(null);
+            LensFacing lensFacing = config.getLensFacing(null);
             // Adds default lensFacing if the user doesn't specify the lens facing.
             if (lensFacing == null) {
                 lensFacing = CameraX.getDefaultLensFacing();

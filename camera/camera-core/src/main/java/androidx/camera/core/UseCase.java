@@ -24,7 +24,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
-import androidx.camera.core.CameraX.LensFacing;
 import androidx.camera.core.Config.Option;
 import androidx.camera.core.UseCaseConfig.Builder;
 import androidx.lifecycle.LifecycleOwner;
@@ -111,8 +110,7 @@ public abstract class UseCase {
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
-    protected UseCaseConfig.Builder<?, ?, ?> getDefaultBuilder(
-            CameraX.LensFacing lensFacing) {
+    protected UseCaseConfig.Builder<?, ?, ?> getDefaultBuilder(LensFacing lensFacing) {
         return null;
     }
 
@@ -134,7 +132,7 @@ public abstract class UseCase {
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     protected void updateUseCaseConfig(UseCaseConfig<?> useCaseConfig) {
-        CameraX.LensFacing lensFacing = ((CameraDeviceConfig) useCaseConfig).getLensFacing(null);
+        LensFacing lensFacing = ((CameraDeviceConfig) useCaseConfig).getLensFacing(null);
 
         UseCaseConfig.Builder<?, ?, ?> defaultBuilder = getDefaultBuilder(lensFacing);
         if (defaultBuilder == null) {

@@ -28,7 +28,6 @@ import android.content.Context;
 import android.util.Size;
 
 import androidx.annotation.NonNull;
-import androidx.camera.core.CameraX.LensFacing;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.testing.fakes.FakeCamera;
 import androidx.camera.testing.fakes.FakeCameraDeviceSurfaceManager;
@@ -77,7 +76,7 @@ public final class CameraXTest {
         defaultConfigFactory.installDefaultProvider(FakeUseCaseConfig.class,
                 new ConfigProvider<FakeUseCaseConfig>() {
                     @Override
-                    public FakeUseCaseConfig getConfig(CameraX.LensFacing lensFacing) {
+                    public FakeUseCaseConfig getConfig(LensFacing lensFacing) {
                         return new FakeUseCaseConfig.Builder().build();
                     }
                 });
@@ -413,7 +412,7 @@ public final class CameraXTest {
     public void cameraInfo_returnFlashAvailableFailed_forFrontCamera()
             throws CameraInfoUnavailableException {
         initCameraX();
-        CameraInfo cameraInfo = CameraX.getCameraInfo(CameraX.LensFacing.FRONT);
+        CameraInfo cameraInfo = CameraX.getCameraInfo(LensFacing.FRONT);
         cameraInfo.isFlashAvailable();
     }
 

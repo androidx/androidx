@@ -20,9 +20,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.camera.core.CameraDeviceConfig;
 import androidx.camera.core.CameraIdFilter;
-import androidx.camera.core.CameraX;
 import androidx.camera.core.CaptureConfig;
 import androidx.camera.core.Config;
+import androidx.camera.core.LensFacing;
 import androidx.camera.core.MutableConfig;
 import androidx.camera.core.MutableOptionsBundle;
 import androidx.camera.core.OptionsBundle;
@@ -115,13 +115,13 @@ public class FakeUseCaseConfig
 
     @Override
     @Nullable
-    public CameraX.LensFacing getLensFacing(@Nullable CameraX.LensFacing valueIfMissing) {
+    public LensFacing getLensFacing(@Nullable LensFacing valueIfMissing) {
         return retrieveOption(OPTION_LENS_FACING, valueIfMissing);
     }
 
     @Override
     @NonNull
-    public CameraX.LensFacing getLensFacing() {
+    public LensFacing getLensFacing() {
         return retrieveOption(OPTION_LENS_FACING);
     }
 
@@ -226,7 +226,7 @@ public class FakeUseCaseConfig
         public Builder() {
             mOptionsBundle = MutableOptionsBundle.create();
             setTargetClass(FakeUseCase.class);
-            setLensFacing(CameraX.LensFacing.BACK);
+            setLensFacing(LensFacing.BACK);
         }
 
         @Override
@@ -268,7 +268,7 @@ public class FakeUseCaseConfig
 
         @Override
         @NonNull
-        public Builder setLensFacing(@NonNull CameraX.LensFacing lensFacing) {
+        public Builder setLensFacing(@NonNull LensFacing lensFacing) {
             getMutableConfig().insertOption(OPTION_LENS_FACING, lensFacing);
             return this;
         }

@@ -25,6 +25,7 @@ import androidx.camera.camera2.Camera2Config
 import androidx.camera.core.CameraX
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCaptureConfig
+import androidx.camera.core.LensFacing
 import androidx.camera.core.Preview
 import androidx.camera.core.PreviewConfig
 import androidx.camera.core.PreviewUtil
@@ -269,7 +270,7 @@ private fun cameraXPreviewUseCaseBuilder(
 ): PreviewConfig {
 
     // TODO: As of 0.3.0 CameraX can only use front and back cameras. Update in future versions
-    val cameraXcameraID = if (id.equals("0")) CameraX.LensFacing.BACK else CameraX.LensFacing.FRONT
+    val cameraXcameraID = if (id.equals("0")) LensFacing.BACK else LensFacing.FRONT
     val configBuilder = PreviewConfig.Builder()
         .setLensFacing(cameraXcameraID)
     Camera2Config.Extender(configBuilder)
@@ -294,7 +295,7 @@ private fun cameraXImageCaptureUseCaseBuilder(
 ): ImageCaptureConfig {
 
     // TODO: As of 0.3.0 CameraX can only use front and back cameras. Update in future versions
-    val cameraXcameraID = if (id.equals("0")) CameraX.LensFacing.BACK else CameraX.LensFacing.FRONT
+    val cameraXcameraID = if (id.equals("0")) LensFacing.BACK else LensFacing.FRONT
 
     val configBuilder = ImageCaptureConfig.Builder()
         .setLensFacing(cameraXcameraID)

@@ -24,7 +24,7 @@ import androidx.lifecycle.LiveData;
 /**
  * An interface for retrieving camera information.
  *
- * <p>Applications can retrieve an instance via {@link CameraX#getCameraInfo(CameraX.LensFacing)}.
+ * <p>Applications can retrieve an instance via {@link CameraX#getCameraInfo(LensFacing)}.
  */
 public interface CameraInfo {
 

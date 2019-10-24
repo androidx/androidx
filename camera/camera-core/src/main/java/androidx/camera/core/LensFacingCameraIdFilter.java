@@ -32,19 +32,19 @@ import java.util.TreeSet;
 public abstract class LensFacingCameraIdFilter implements CameraIdFilter {
     /** Returns the lens facing associated with this lens facing camera id filter. */
     @NonNull
-    public abstract CameraX.LensFacing getLensFacing();
+    public abstract LensFacing getLensFacing();
 
     /** Creates a lens facing camera id filter with a given set of ids for a LensFacing. */
     @NonNull
     public static LensFacingCameraIdFilter createLensFacingCameraIdFilterWithIdSet(
-            @NonNull CameraX.LensFacing lensFacing, @Nullable Set<String> ids) {
+            @NonNull LensFacing lensFacing, @Nullable Set<String> ids) {
         return new SettableLensFacingCameraIdFilter(lensFacing, ids);
     }
 
     /** Creates a lens facing camera id filter. */
     @NonNull
     public static LensFacingCameraIdFilter createLensFacingCameraIdFilter(
-            @NonNull CameraX.LensFacing lensFacing) {
+            @NonNull LensFacing lensFacing) {
         if (CameraX.isInitialized()) {
             return CameraX.getCameraFactory().getLensFacingCameraIdFilter(lensFacing);
         }
@@ -53,11 +53,11 @@ public abstract class LensFacingCameraIdFilter implements CameraIdFilter {
     }
 
     private static final class SettableLensFacingCameraIdFilter extends LensFacingCameraIdFilter {
-        private final CameraX.LensFacing mLensFacing;
+        private final LensFacing mLensFacing;
         @Nullable
         private final Set<String> mIds;
 
-        SettableLensFacingCameraIdFilter(CameraX.LensFacing lensFacing, @Nullable Set<String> ids) {
+        SettableLensFacingCameraIdFilter(LensFacing lensFacing, @Nullable Set<String> ids) {
             mLensFacing = lensFacing;
             mIds = ids;
         }
@@ -77,7 +77,7 @@ public abstract class LensFacingCameraIdFilter implements CameraIdFilter {
 
         @Override
         @NonNull
-        public CameraX.LensFacing getLensFacing() {
+        public LensFacing getLensFacing() {
             return mLensFacing;
         }
     }

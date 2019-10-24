@@ -41,7 +41,6 @@ import androidx.camera.core.CameraCaptureMetaData.AfMode;
 import androidx.camera.core.CameraCaptureMetaData.AfState;
 import androidx.camera.core.CameraCaptureMetaData.AwbState;
 import androidx.camera.core.CameraCaptureResult.EmptyCameraCaptureResult;
-import androidx.camera.core.CameraX.LensFacing;
 import androidx.camera.core.ForwardingImageProxy.OnImageCloseListener;
 import androidx.camera.core.ImageOutputConfig.RotationValue;
 import androidx.camera.core.impl.utils.Threads;

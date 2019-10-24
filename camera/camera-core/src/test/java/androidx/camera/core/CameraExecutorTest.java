@@ -49,12 +49,10 @@ public class CameraExecutorTest {
     public void setUp() {
         mCameraExecutor = new CameraExecutor();
         mCameraFactory = new FakeCameraFactory();
-        mCameraFactory.insertCamera(CameraX.LensFacing.BACK, "0",
-                () -> new FakeCamera(null, new FakeCameraInfoInternal(0,
-                        CameraX.LensFacing.BACK)));
-        mCameraFactory.insertCamera(CameraX.LensFacing.FRONT, "1",
-                () -> new FakeCamera(null, new FakeCameraInfoInternal(0,
-                        CameraX.LensFacing.FRONT)));
+        mCameraFactory.insertCamera(LensFacing.BACK, "0",
+                () -> new FakeCamera(null, new FakeCameraInfoInternal(0, LensFacing.BACK)));
+        mCameraFactory.insertCamera(LensFacing.FRONT, "1",
+                () -> new FakeCamera(null, new FakeCameraInfoInternal(0, LensFacing.FRONT)));
     }
 
     @After

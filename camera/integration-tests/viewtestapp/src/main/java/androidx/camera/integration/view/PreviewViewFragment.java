@@ -25,6 +25,7 @@ import android.widget.FrameLayout;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.camera.core.CameraX;
+import androidx.camera.core.LensFacing;
 import androidx.camera.core.Preview;
 import androidx.camera.core.PreviewConfig;
 import androidx.camera.view.PreviewView;
@@ -67,7 +68,7 @@ public class PreviewViewFragment extends Fragment {
 
     private void bindPreview() {
         Preview preview = new Preview(new PreviewConfig.Builder()
-                .setLensFacing(CameraX.LensFacing.BACK)
+                .setLensFacing(LensFacing.BACK)
                 .setTargetName("Preview")
                 .build());
         preview.setPreviewSurfaceCallback(mPreviewView.getPreviewSurfaceCallback());

@@ -26,7 +26,7 @@ import android.view.Surface;
 
 import androidx.camera.core.CameraInfoInternal;
 import androidx.camera.core.CameraInfoUnavailableException;
-import androidx.camera.core.CameraX.LensFacing;
+import androidx.camera.core.LensFacing;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.filters.SmallTest;
 

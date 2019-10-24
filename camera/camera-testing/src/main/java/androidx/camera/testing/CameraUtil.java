@@ -34,7 +34,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresPermission;
 import androidx.camera.core.CameraInternal;
-import androidx.camera.core.CameraX;
+import androidx.camera.core.LensFacing;
 import androidx.camera.core.UseCase;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.core.util.Preconditions;
@@ -295,7 +295,7 @@ public final class CameraUtil {
      * @return True if the device supports the lensFacing.
      * @throws IllegalStateException if the CAMERA permission is not currently granted.
      */
-    public static boolean hasCameraWithLensFacing(@NonNull CameraX.LensFacing lensFacing) {
+    public static boolean hasCameraWithLensFacing(@NonNull LensFacing lensFacing) {
 
         CameraManager cameraManager = getCameraManager();
 
@@ -350,19 +350,19 @@ public final class CameraUtil {
 
     /**
      * Converts a lens facing direction from a {@link CameraMetadata} integer to a
-     * {@link CameraX.LensFacing}.
+     * {@link LensFacing}.
      *
      * @param lensFacingInteger The lens facing integer, as defined in {@link CameraMetadata}.
      * @return The lens facing enum.
      */
     @NonNull
-    public static CameraX.LensFacing getLensFacingEnumFromInt(
+    public static LensFacing getLensFacingEnumFromInt(
             @SupportedLensFacingInt int lensFacingInteger) {
         switch (lensFacingInteger) {
             case CameraMetadata.LENS_FACING_BACK:
-                return CameraX.LensFacing.BACK;
+                return LensFacing.BACK;
             case CameraMetadata.LENS_FACING_FRONT:
-                return CameraX.LensFacing.FRONT;
+                return LensFacing.FRONT;
             default:
                 throw new IllegalArgumentException(
                         "Unsupported lens facing integer: " + lensFacingInteger);
