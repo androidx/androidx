@@ -16,7 +16,7 @@ dependencies {
     implementation(project(":ui:ui-material:integration-tests:ui-material-demos"))
     implementation(project(":ui:ui-foundation:integration-tests:ui-foundation-demos"))
     implementation(project(":ui:ui-text:integration-tests:ui-text-demos"))
-    implementation(KOTLIN_COMPOSE_STDLIB)
+    implementation(KOTLIN_STDLIB)
 
     androidTestImplementation project(':ui:ui-test')
     androidTestImplementation(JUNIT)

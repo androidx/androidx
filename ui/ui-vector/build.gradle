@@ -34,7 +34,7 @@ dependencies {
     api project(':ui:ui-core')
     implementation "androidx.collection:collection:1.0.0"
     api project(":compose:compose-runtime")
-    implementation (KOTLIN_COMPOSE_STDLIB)
+    implementation (KOTLIN_STDLIB)
 
     // TODO: Non-Kotlin dependency, move to Android-specific code
 //    implementation "androidx.collection:collection:1.0.0-alpha01"

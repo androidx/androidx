@@ -28,11 +28,11 @@ plugins {
 }
 
 dependencies {
-    implementation(KOTLIN_COMPOSE_COROUTINES)
+    implementation(KOTLIN_COROUTINES_ANDROID)
     // TODO: remove / refactor out reflection dependencies, this is a large dependency to bundle
     // with a library.
-    implementation(KOTLIN_COMPOSE_REFLECT)
-    implementation(KOTLIN_COMPOSE_STDLIB)
+    implementation(KOTLIN_REFLECT)
+    implementation(KOTLIN_STDLIB)
 
     implementation "androidx.activity:activity:1.0.0-alpha01"
     implementation "androidx.annotation:annotation:1.1.0"

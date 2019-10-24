@@ -29,8 +29,8 @@ plugins {
 }
 
 dependencies {
-    implementation(KOTLIN_COMPOSE_COROUTINES)
-    implementation(KOTLIN_COMPOSE_STDLIB)
+    implementation(KOTLIN_COROUTINES_ANDROID)
+    implementation(KOTLIN_STDLIB)
 
     implementation "androidx.core:core:1.0.2"
 
