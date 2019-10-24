@@ -64,7 +64,7 @@ public final class CameraXTest {
     private final Instrumentation mInstrumentation = InstrumentationRegistry.getInstrumentation();
     private Context mContext;
     private String mCameraId;
-    private BaseCamera mCamera;
+    private CameraInternal mCameraInternal;
     private FakeLifecycleOwner mLifecycle;
     private AppConfig.Builder mAppConfigBuilder;
 
@@ -82,9 +82,9 @@ public final class CameraXTest {
                     }
                 });
         FakeCameraFactory cameraFactory = new FakeCameraFactory();
-        mCamera = new FakeCamera(mock(CameraControlInternal.class), new FakeCameraInfoInternal(0,
-                CAMERA_LENS_FACING));
-        cameraFactory.insertCamera(CAMERA_LENS_FACING, CAMERA_ID, () -> mCamera);
+        mCameraInternal = new FakeCamera(mock(CameraControlInternal.class),
+                new FakeCameraInfoInternal(0, CAMERA_LENS_FACING));
+        cameraFactory.insertCamera(CAMERA_LENS_FACING, CAMERA_ID, () -> mCameraInternal);
         cameraFactory.setDefaultCameraIdForLensFacing(CAMERA_LENS_FACING, CAMERA_ID);
         mAppConfigBuilder =
                 new AppConfig.Builder()
@@ -311,7 +311,7 @@ public final class CameraXTest {
         CameraX.bindToLifecycle(mLifecycle, fakeUseCase);
 
         assertThat(fakeUseCase.getCameraControl(mCameraId)).isEqualTo(
-                mCamera.getCameraControlInternal());
+                mCameraInternal.getCameraControlInternal());
     }
 
     @Test
@@ -340,7 +340,7 @@ public final class CameraXTest {
 
         // after unbind, Camera's CameraControlInternal should be detached from Usecase
         assertThat(fakeUseCase.getCameraControl(mCameraId)).isNotEqualTo(
-                mCamera.getCameraControlInternal());
+                mCameraInternal.getCameraControlInternal());
         // UseCase still gets a non-null default CameraControlInternal that does nothing.
         assertThat(fakeUseCase.getCameraControl(mCameraId)).isEqualTo(
                 CameraControlInternal.DEFAULT_EMPTY_INSTANCE);

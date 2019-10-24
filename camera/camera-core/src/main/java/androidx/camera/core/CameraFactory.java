@@ -23,7 +23,7 @@ import androidx.annotation.RestrictTo;
 import java.util.Set;
 
 /**
- * The factory class that creates {@link BaseCamera} instances.
+ * The factory class that creates {@link CameraInternal} instances.
  *
  * @hide
  */
@@ -31,7 +31,7 @@ import java.util.Set;
 public interface CameraFactory {
 
     /** Gets the camera with the associated id. */
-    BaseCamera getCamera(String cameraId);
+    CameraInternal getCamera(String cameraId);
 
     /** Gets ids for all the available cameras. */
     Set<String> getAvailableCameraIds() throws CameraInfoUnavailableException;

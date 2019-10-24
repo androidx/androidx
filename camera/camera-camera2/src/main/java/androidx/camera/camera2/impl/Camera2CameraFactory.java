@@ -26,9 +26,9 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.camera.camera2.impl.compat.CameraManagerCompat;
-import androidx.camera.core.BaseCamera;
 import androidx.camera.core.CameraFactory;
 import androidx.camera.core.CameraInfoUnavailableException;
+import androidx.camera.core.CameraInternal;
 import androidx.camera.core.CameraX.LensFacing;
 import androidx.camera.core.CameraXThreads;
 import androidx.camera.core.LensFacingCameraIdFilter;
@@ -70,7 +70,7 @@ public final class Camera2CameraFactory implements CameraFactory {
 
     @Override
     @NonNull
-    public BaseCamera getCamera(@NonNull String cameraId) {
+    public CameraInternal getCamera(@NonNull String cameraId) {
         Camera2CameraImpl camera2CameraImpl = new Camera2CameraImpl(mCameraManager, cameraId,
                 mAvailabilityRegistry.getAvailableCameraCount(), sHandler);
         mAvailabilityRegistry.registerCamera(camera2CameraImpl);

@@ -33,9 +33,9 @@ import android.util.Size;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.camera.core.AppConfig;
-import androidx.camera.core.BaseCamera;
 import androidx.camera.core.CameraFactory;
 import androidx.camera.core.CameraInfoUnavailableException;
+import androidx.camera.core.CameraInternal;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.CameraX.LensFacing;
 import androidx.camera.core.ImageAnalysis;
@@ -85,7 +85,7 @@ public final class ImageAnalysisTest {
     @GuardedBy("mAnalysisResultLock")
     private Set<ImageProperties> mAnalysisResults;
     private Analyzer mAnalyzer;
-    private BaseCamera mCamera;
+    private CameraInternal mCameraInternal;
     private HandlerThread mHandlerThread;
     private Handler mHandler;
     private Semaphore mAnalysisResultsSemaphore;
@@ -121,7 +121,7 @@ public final class ImageAnalysisTest {
             throw new IllegalArgumentException(
                     "Unable to attach to camera with LensFacing " + LensFacing.BACK, e);
         }
-        mCamera = cameraFactory.getCamera(mCameraId);
+        mCameraInternal = cameraFactory.getCamera(mCameraId);
 
         CameraX.initialize(context, config);
 
@@ -132,9 +132,9 @@ public final class ImageAnalysisTest {
 
     @After
     public void tearDown() throws ExecutionException, InterruptedException {
-        if (mHandlerThread != null && mCamera != null) {
+        if (mHandlerThread != null && mCameraInternal != null) {
             mHandlerThread.quitSafely();
-            mCamera.release();
+            mCameraInternal.release();
         }
         CameraX.shutdown().get();
     }
@@ -208,7 +208,7 @@ public final class ImageAnalysisTest {
         suggestedResolutionMap.put(mCameraId, DEFAULT_RESOLUTION);
         mInstrumentation.runOnMainSync(() ->
                 useCase.updateSuggestedResolution(suggestedResolutionMap));
-        CameraUtil.openCameraWithUseCase(mCameraId, mCamera, useCase);
+        CameraUtil.openCameraWithUseCase(mCameraId, mCameraInternal, useCase);
         mInstrumentation.runOnMainSync(new Runnable() {
             @Override
             public void run() {
@@ -264,7 +264,7 @@ public final class ImageAnalysisTest {
             Map<String, Size> suggestedResolutionMap = new HashMap<>();
             suggestedResolutionMap.put(mCameraId, size);
             useCase.updateSuggestedResolution(suggestedResolutionMap);
-            CameraUtil.openCameraWithUseCase(mCameraId, mCamera, useCase);
+            CameraUtil.openCameraWithUseCase(mCameraId, mCameraInternal, useCase);
 
             // Clear previous results
             synchronized (mAnalysisResultLock) {
@@ -282,7 +282,7 @@ public final class ImageAnalysisTest {
             }
 
             // Detach use case from camera device to run next resolution setting
-            CameraUtil.detachUseCaseFromCamera(mCamera, useCase);
+            CameraUtil.detachUseCaseFromCamera(mCameraInternal, useCase);
         }
     }
 

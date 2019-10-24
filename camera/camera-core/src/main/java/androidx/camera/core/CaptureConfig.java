@@ -69,8 +69,8 @@ public final class CaptureConfig {
      * <p>In practice, the {@link CaptureConfig.Builder} will be used to construct a CaptureConfig.
      *
      * @param surfaces               The set of {@link Surface} where data will be put into.
-     * @param implementationOptions  The generic parameters to be passed to the {@link BaseCamera}
-     *                               class.
+     * @param implementationOptions  The generic parameters to be passed to the
+     *                               {@link CameraInternal} class.
      * @param templateType           The template for parameters of the CaptureRequest. This
      *                               must match the
      *                               constants defined by {@link CameraDevice}.
