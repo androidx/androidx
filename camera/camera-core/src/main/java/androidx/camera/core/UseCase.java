@@ -355,7 +355,12 @@ public abstract class UseCase {
         }
     }
 
-    /** Clears internal state of this use case. */
+    /**
+     * Clears internal state of this use case.
+     *
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
     @CallSuper
     protected void clear() {
         EventCallback eventCallback = mUseCaseConfig.getUseCaseEventCallback(null);
@@ -366,6 +371,8 @@ public abstract class UseCase {
         mStateChangeCallbacks.clear();
     }
 
+    /** @hide */
+    @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
     public String getName() {
         return mUseCaseConfig.getTargetName("<UnknownUseCase-" + this.hashCode() + ">");
@@ -423,7 +430,10 @@ public abstract class UseCase {
      *                               bound.
      * @return The map with the resolutions that finally used to create the SessionConfig to
      * attach to the camera device.
+     *
+     * @hide
      */
+    @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
     protected abstract Map<String, Size> onSuggestedResolutionUpdated(
             @NonNull Map<String, Size> suggestedResolutionMap);
@@ -495,6 +505,8 @@ public abstract class UseCase {
         return mImageFormat;
     }
 
+    /** @hide */
+    @RestrictTo(Scope.LIBRARY_GROUP)
     protected void setImageFormat(int imageFormat) {
         mImageFormat = imageFormat;
     }
