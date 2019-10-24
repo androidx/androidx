@@ -22,7 +22,6 @@ import android.view.Display;
 import android.view.WindowManager;
 
 import androidx.annotation.NonNull;
-import androidx.camera.core.CameraX.LensFacing;
 
 /**
  * A {@link MeteringPointFactory} that can create {@link MeteringPoint} by display oriented x, y.

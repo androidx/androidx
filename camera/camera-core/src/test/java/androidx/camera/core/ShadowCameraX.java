@@ -43,8 +43,8 @@ public class ShadowCameraX {
     private static final CameraInfo DEFAULT_CAMERA_INFO = new CameraInfoInternal() {
         MutableLiveData<Boolean> mFlashAvailability = new MutableLiveData<>(Boolean.TRUE);
         @Override
-        public CameraX.LensFacing getLensFacing() {
-            return CameraX.LensFacing.BACK;
+        public LensFacing getLensFacing() {
+            return LensFacing.BACK;
         }
 
         @Override
@@ -84,12 +84,12 @@ public class ShadowCameraX {
     }
 
     /**
-     * Shadow of {@link CameraX#getDefaultUseCaseConfig(Class, CameraX.LensFacing)}.
+     * Shadow of {@link CameraX#getDefaultUseCaseConfig(Class, LensFacing)}.
      */
     @SuppressWarnings("unchecked")
     @Implementation
     public static <C extends UseCaseConfig<?>> C getDefaultUseCaseConfig(
-            Class<C> configType, CameraX.LensFacing lensFacing) {
+            Class<C> configType, LensFacing lensFacing) {
         return (C) DEFAULT_IMAGE_ANALYSIS_CONFIG;
     }
 

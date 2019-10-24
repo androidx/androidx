@@ -29,6 +29,7 @@ import androidx.camera.core.AspectRatio;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.ImageAnalysis;
 import androidx.camera.core.ImageAnalysisConfig;
+import androidx.camera.core.LensFacing;
 import androidx.camera.core.MeteringPoint;
 import androidx.camera.core.MeteringPointFactory;
 import androidx.camera.core.SensorOrientedMeteringPointFactory;
@@ -113,11 +114,11 @@ public final class SensorOrientedMeteringPointFactoryTest {
 
     @Test
     public void createPointWithFoVUseCase_success() {
-        assumeTrue(CameraUtil.hasCameraWithLensFacing(CameraX.LensFacing.BACK));
+        assumeTrue(CameraUtil.hasCameraWithLensFacing(LensFacing.BACK));
 
         ImageAnalysisConfig imageAnalysisConfig =
                 new ImageAnalysisConfig.Builder()
-                        .setLensFacing(CameraX.LensFacing.BACK)
+                        .setLensFacing(LensFacing.BACK)
                         .setTargetAspectRatio(AspectRatio.RATIO_4_3)
                         .setTargetName("ImageAnalysis")
                         .build();
@@ -137,11 +138,11 @@ public final class SensorOrientedMeteringPointFactoryTest {
 
     @Test(expected = IllegalStateException.class)
     public void createPointWithFoVUseCase_FailedNotBound() {
-        assumeTrue(CameraUtil.hasCameraWithLensFacing(CameraX.LensFacing.BACK));
+        assumeTrue(CameraUtil.hasCameraWithLensFacing(LensFacing.BACK));
 
         ImageAnalysisConfig imageAnalysisConfig =
                 new ImageAnalysisConfig.Builder()
-                        .setLensFacing(CameraX.LensFacing.BACK)
+                        .setLensFacing(LensFacing.BACK)
                         .setTargetAspectRatio(AspectRatio.RATIO_4_3)
                         .setTargetName("ImageAnalysis")
                         .build();

@@ -31,6 +31,7 @@ import androidx.annotation.VisibleForTesting;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.camera.core.CameraInfoUnavailableException;
 import androidx.camera.core.CameraX;
+import androidx.camera.core.LensFacing;
 import androidx.camera.core.Preview;
 import androidx.camera.core.PreviewConfig;
 import androidx.camera.core.PreviewUtil;
@@ -48,7 +49,7 @@ public class CameraXTestActivity extends AppCompatActivity {
     @Nullable
     public String mCameraId = null;
     @NonNull
-    public CameraX.LensFacing mLensFacing = CameraX.LensFacing.BACK;
+    public LensFacing mLensFacing = LensFacing.BACK;
 
     @VisibleForTesting
     public final CountingIdlingResource mPreviewReady = new CountingIdlingResource("PreviewReady");

@@ -22,7 +22,7 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.camera.core.CameraFactory;
 import androidx.camera.core.CameraInternal;
-import androidx.camera.core.CameraX.LensFacing;
+import androidx.camera.core.LensFacing;
 import androidx.camera.core.LensFacingCameraIdFilter;
 import androidx.core.util.Pair;
 import androidx.core.util.Preconditions;

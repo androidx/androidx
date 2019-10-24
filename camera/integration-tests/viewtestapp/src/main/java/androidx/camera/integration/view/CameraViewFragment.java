@@ -30,7 +30,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.camera.core.CameraX.LensFacing;
+import androidx.camera.core.LensFacing;
 import androidx.camera.view.CameraView;
 import androidx.camera.view.CameraView.CaptureMode;
 import androidx.camera.view.CameraView.ScaleType;
@@ -45,7 +45,7 @@ import java.io.PrintStream;
 public class CameraViewFragment extends Fragment {
     private static final String TAG = "CameraViewFragment";
 
-    // Possible values for this intent key are the name values of CameraX.LensFacing encoded as
+    // Possible values for this intent key are the name values of LensFacing encoded as
     // strings (case-insensitive): "back", "front".
     private static final String INTENT_EXTRA_CAMERA_DIRECTION = "camera_direction";
 

@@ -40,8 +40,7 @@ public final class ExtendableUseCaseConfigFactory implements UseCaseConfigFactor
 
     @Nullable
     @Override
-    public <C extends UseCaseConfig<?>> C getConfig(Class<C> configType,
-            CameraX.LensFacing lensFacing) {
+    public <C extends UseCaseConfig<?>> C getConfig(Class<C> configType, LensFacing lensFacing) {
         @SuppressWarnings("unchecked") // Providers only could have been inserted with
                 // installDefaultProvider(), so the class should return the correct type.
                 ConfigProvider<C> provider = (ConfigProvider<C>) mDefaultProviders.get(configType);

@@ -992,14 +992,6 @@ public final class CameraX {
         return mCameraRepository;
     }
 
-    /** The direction the camera faces relative to device screen. */
-    public enum LensFacing {
-        /** A camera on the device facing the same direction as the device's screen. */
-        FRONT,
-        /** A camera on the device facing the opposite direction as the device's screen. */
-        BACK
-    }
-
     /** Internal initialization state. */
     private enum InternalInitState {
         /** The CameraX instance has not yet been initialized. */
