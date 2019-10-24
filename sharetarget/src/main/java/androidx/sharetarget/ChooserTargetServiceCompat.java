@@ -26,14 +26,17 @@ import android.service.chooser.ChooserTarget;
 import android.service.chooser.ChooserTargetService;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
+import androidx.annotation.VisibleForTesting;
 import androidx.core.content.pm.ShortcutInfoCompat;
 import androidx.core.content.pm.ShortcutManagerCompat;
 import androidx.core.graphics.drawable.IconCompat;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -53,7 +56,6 @@ public class ChooserTargetServiceCompat extends ChooserTargetService {
     public List<ChooserTarget> onGetChooserTargets(ComponentName targetActivityName,
             IntentFilter matchedFilter) {
         Context context = getApplicationContext();
-        ArrayList<ChooserTarget> chooserTargets = new ArrayList<>();
 
         // Retrieve share targets
         List<ShareTargetCompat> targets = ShareTargetXmlParser.getShareTargets(context);
@@ -71,59 +73,99 @@ public class ChooserTargetServiceCompat extends ChooserTargetService {
             }
         }
         if (matchedTargets.isEmpty()) {
-            return chooserTargets;
+            return Collections.emptyList();
         }
 
         // Retrieve shortcuts
-        ShortcutInfoCompatSaverImpl shortcutSaver = ShortcutInfoCompatSaverImpl.getInstance(
-                context);
+        ShortcutInfoCompatSaverImpl shortcutSaver =
+                ShortcutInfoCompatSaverImpl.getInstance(context);
         List<ShortcutInfoCompat> shortcuts;
         try {
             shortcuts = shortcutSaver.getShortcuts();
         } catch (Exception e) {
             Log.e(TAG, "Failed to retrieve shortcuts: ", e);
-            return chooserTargets;
+            return Collections.emptyList();
         }
         if (shortcuts == null || shortcuts.isEmpty()) {
-            return chooserTargets;
+            return Collections.emptyList();
         }
 
+        // List of matched shortcuts with their target component names
+        List<ShortcutHolder> matchedShortcuts = new ArrayList<>();
         for (ShortcutInfoCompat shortcut : shortcuts) {
-            ShareTargetCompat target = null;
             for (ShareTargetCompat item : matchedTargets) {
-                // Shortcut must have all share target categories (AND operation)
+                // Shortcut must have all the share target's categories (AND operation)
                 if (shortcut.getCategories().containsAll(Arrays.asList(item.mCategories))) {
-                    target = item;
+                    matchedShortcuts.add(new ShortcutHolder(shortcut,
+                            new ComponentName(context.getPackageName(), item.mTargetClass)));
                     break;
                 }
             }
-            if (target == null) {
-                continue;
-            }
+        }
+        return convertShortcutsToChooserTargets(shortcutSaver, matchedShortcuts);
+    }
 
-            IconCompat icon;
+    @VisibleForTesting
+    @NonNull
+    static List<ChooserTarget> convertShortcutsToChooserTargets(
+            @NonNull ShortcutInfoCompatSaverImpl shortcutSaver,
+            @NonNull List<ShortcutHolder> matchedShortcuts) {
+        if (matchedShortcuts.isEmpty()) {
+            return new ArrayList<>();
+        }
+        Collections.sort(matchedShortcuts);
+
+        ArrayList<ChooserTarget> chooserTargets = new ArrayList<>();
+        float currentScore = 1.0f;
+        int lastRank = matchedShortcuts.get(0).getShortcut().getRank();
+        for (ShortcutHolder holder : matchedShortcuts) {
+            final ShortcutInfoCompat shortcut = holder.getShortcut();
+            IconCompat shortcutIcon;
             try {
-                icon = shortcutSaver.getShortcutIcon(shortcut.getId());
+                shortcutIcon = shortcutSaver.getShortcutIcon(shortcut.getId());
             } catch (Exception e) {
                 Log.e(TAG, "Failed to retrieve shortcut icon: ", e);
-                continue;
+                shortcutIcon = null;
             }
+
             Bundle extras = new Bundle();
             extras.putString(ShortcutManagerCompat.EXTRA_SHORTCUT_ID, shortcut.getId());
+
+            if (lastRank != shortcut.getRank()) {
+                currentScore -= 0.01f;
+                lastRank = shortcut.getRank();
+            }
             chooserTargets.add(new ChooserTarget(
-                    // The name of this target.
                     shortcut.getShortLabel(),
-                    // The icon to represent this target.
-                    icon != null ? icon.toIcon() : null,
-                    // The ranking score for this target (0.0-1.0); the system will omit items with
-                    // low scores when there are too many Direct Share items.
-                    0.5f,
-                    // The name of the component to be launched if this target is chosen.
-                    new ComponentName(context.getPackageName(), target.mTargetClass),
-                    // The extra values here will be merged into the Intent when this target is
-                    // chosen.
+                    shortcutIcon == null ? null : shortcutIcon.toIcon(),
+                    currentScore,
+                    holder.getTargetClass(),
                     extras));
         }
+
         return chooserTargets;
+    }
+
+    static class ShortcutHolder implements Comparable<ShortcutHolder> {
+        private final ShortcutInfoCompat mShortcut;
+        private final ComponentName mTargetClass;
+
+        ShortcutHolder(ShortcutInfoCompat shortcut, ComponentName targetClass) {
+            mShortcut = shortcut;
+            mTargetClass = targetClass;
+        }
+
+        ShortcutInfoCompat getShortcut() {
+            return mShortcut;
+        }
+
+        ComponentName getTargetClass() {
+            return mTargetClass;
+        }
+
+        @Override
+        public int compareTo(ShortcutHolder other) {
+            return this.getShortcut().getRank() - other.getShortcut().getRank();
+        }
     }
 }
