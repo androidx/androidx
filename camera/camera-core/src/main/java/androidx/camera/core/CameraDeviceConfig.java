@@ -20,7 +20,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
-import androidx.camera.core.CameraX.LensFacing;
 import androidx.camera.core.Config.Option;
 
 /**
@@ -43,7 +42,7 @@ public interface CameraDeviceConfig {
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     Option<LensFacing> OPTION_LENS_FACING =
-            Option.create("camerax.core.camera.lensFacing", CameraX.LensFacing.class);
+            Option.create("camerax.core.camera.lensFacing", LensFacing.class);
 
     /**
      * Option: camerax.core.camera.cameraIdFilter
@@ -64,7 +63,7 @@ public interface CameraDeviceConfig {
      * configuration.
      */
     @Nullable
-    CameraX.LensFacing getLensFacing(@Nullable LensFacing valueIfMissing);
+    LensFacing getLensFacing(@Nullable LensFacing valueIfMissing);
 
     /**
      * Retrieves the lens facing direction for the primary camera to be configured.
@@ -73,7 +72,7 @@ public interface CameraDeviceConfig {
      * @throws IllegalArgumentException if the option does not exist in this configuration.
      */
     @NonNull
-    CameraX.LensFacing getLensFacing();
+    LensFacing getLensFacing();
 
     /**
      * Retrieves the {@link CameraIdFilter} that filter out the unavailable camera ids.
@@ -112,7 +111,7 @@ public interface CameraDeviceConfig {
          * @param lensFacing The direction of the camera's lens.
          * @return the current Builder.
          */
-        B setLensFacing(@NonNull CameraX.LensFacing lensFacing);
+        B setLensFacing(@NonNull LensFacing lensFacing);
 
         /**
          * Sets the {@link CameraIdFilter} that filter out the unavailable camera ids.

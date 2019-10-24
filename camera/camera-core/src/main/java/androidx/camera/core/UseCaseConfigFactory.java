@@ -32,8 +32,8 @@ public interface UseCaseConfigFactory {
      * Returns the configuration for the given type, or <code>null</code> if the configuration
      * cannot be produced.
      *
-     * @param lensFacing The {@link CameraX.LensFacing} that the configuration will target to.
+     * @param lensFacing The {@link LensFacing} that the configuration will target to.
      */
     @Nullable
-    <C extends UseCaseConfig<?>> C getConfig(Class<C> configType, CameraX.LensFacing lensFacing);
+    <C extends UseCaseConfig<?>> C getConfig(Class<C> configType, LensFacing lensFacing);
 }

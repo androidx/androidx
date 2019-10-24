@@ -19,7 +19,6 @@ package androidx.camera.core;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
-import androidx.camera.core.CameraX.LensFacing;
 
 /**
  * An interface for retrieving camera information.

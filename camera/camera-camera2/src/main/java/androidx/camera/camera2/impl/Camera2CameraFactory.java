@@ -29,8 +29,8 @@ import androidx.camera.camera2.impl.compat.CameraManagerCompat;
 import androidx.camera.core.CameraFactory;
 import androidx.camera.core.CameraInfoUnavailableException;
 import androidx.camera.core.CameraInternal;
-import androidx.camera.core.CameraX.LensFacing;
 import androidx.camera.core.CameraXThreads;
+import androidx.camera.core.LensFacing;
 import androidx.camera.core.LensFacingCameraIdFilter;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 

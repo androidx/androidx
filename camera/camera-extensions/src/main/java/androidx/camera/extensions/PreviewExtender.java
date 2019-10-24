@@ -34,6 +34,7 @@ import androidx.camera.core.CameraInfoUnavailableException;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.CaptureConfig;
 import androidx.camera.core.Config;
+import androidx.camera.core.LensFacing;
 import androidx.camera.core.PreviewConfig;
 import androidx.camera.core.UseCase;
 import androidx.camera.extensions.ExtensionsErrorListener.ExtensionsErrorCode;
@@ -72,7 +73,7 @@ public abstract class PreviewExtender {
      * @return True if the specific extension function is supported for the camera device.
      */
     public boolean isExtensionAvailable() {
-        CameraX.LensFacing lensFacing = mBuilder.build().getLensFacing();
+        LensFacing lensFacing = mBuilder.build().getLensFacing();
         Set<String> availableCameraIds = null;
         try {
             availableCameraIds = CameraUtil.getCameraIdSetWithLensFacing(lensFacing);

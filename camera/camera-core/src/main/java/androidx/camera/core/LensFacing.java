@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 The Android Open Source Project
+ * Copyright 2019 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,23 +16,10 @@
 
 package androidx.camera.core;
 
-import androidx.annotation.RestrictTo;
-import androidx.annotation.RestrictTo.Scope;
-
-/**
- * A class which provides a {@link Config} object.
- *
- * @param <C> the {@link Config} type provided
- *
- * @hide
- */
-@RestrictTo(Scope.LIBRARY_GROUP)
-public interface ConfigProvider<C extends Config> {
-
-    /**
-     * Retrieve the {@link Config} object.
-     *
-     * @param lensFacing The {@link LensFacing} that the configuration provider will target to.
-     */
-    C getConfig(LensFacing lensFacing);
+/** The direction the camera faces relative to device screen. */
+public enum LensFacing {
+    /** A camera on the device facing the same direction as the device's screen. */
+    FRONT,
+    /** A camera on the device facing the opposite direction as the device's screen. */
+    BACK
 }

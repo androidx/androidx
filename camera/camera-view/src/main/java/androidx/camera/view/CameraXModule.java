@@ -40,12 +40,12 @@ import androidx.camera.core.CameraInfo;
 import androidx.camera.core.CameraInfoUnavailableException;
 import androidx.camera.core.CameraOrientationUtil;
 import androidx.camera.core.CameraX;
-import androidx.camera.core.CameraX.LensFacing;
 import androidx.camera.core.FlashMode;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCapture.OnImageCapturedCallback;
 import androidx.camera.core.ImageCapture.OnImageSavedCallback;
 import androidx.camera.core.ImageCaptureConfig;
+import androidx.camera.core.LensFacing;
 import androidx.camera.core.Preview;
 import androidx.camera.core.PreviewConfig;
 import androidx.camera.core.VideoCapture;
@@ -116,7 +116,7 @@ final class CameraXModule {
     @Nullable
     private Rect mCropRegion;
     @Nullable
-    private CameraX.LensFacing mCameraLensFacing = LensFacing.BACK;
+    private LensFacing mCameraLensFacing = LensFacing.BACK;
 
     CameraXModule(CameraView view) {
         this.mCameraView = view;

@@ -19,7 +19,7 @@ package androidx.camera.testing.fakes;
 import android.util.Size;
 
 import androidx.annotation.NonNull;
-import androidx.camera.core.CameraX.LensFacing;
+import androidx.camera.core.LensFacing;
 import androidx.camera.core.SessionConfig;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.UseCaseConfig;

@@ -169,7 +169,7 @@ public final class PreviewConfig
      */
     @Override
     @Nullable
-    public CameraX.LensFacing getLensFacing(@Nullable CameraX.LensFacing valueIfMissing) {
+    public LensFacing getLensFacing(@Nullable LensFacing valueIfMissing) {
         return retrieveOption(OPTION_LENS_FACING, valueIfMissing);
     }
 
@@ -181,7 +181,7 @@ public final class PreviewConfig
      */
     @Override
     @NonNull
-    public CameraX.LensFacing getLensFacing() {
+    public LensFacing getLensFacing() {
         return retrieveOption(OPTION_LENS_FACING);
     }
 
@@ -688,7 +688,7 @@ public final class PreviewConfig
          */
         @Override
         @NonNull
-        public Builder setLensFacing(@NonNull CameraX.LensFacing lensFacing) {
+        public Builder setLensFacing(@NonNull LensFacing lensFacing) {
             getMutableConfig().insertOption(OPTION_LENS_FACING, lensFacing);
             return this;
         }

@@ -27,6 +27,7 @@ import androidx.annotation.Nullable;
 import androidx.camera.core.CameraDeviceConfig;
 import androidx.camera.core.CameraInfoUnavailableException;
 import androidx.camera.core.CameraX;
+import androidx.camera.core.LensFacing;
 import androidx.camera.core.LensFacingCameraIdFilter;
 
 import java.util.Set;
@@ -49,7 +50,7 @@ class CameraUtil {
     }
 
     @NonNull
-    static Set<String> getCameraIdSetWithLensFacing(CameraX.LensFacing lensFacing)
+    static Set<String> getCameraIdSetWithLensFacing(LensFacing lensFacing)
             throws CameraInfoUnavailableException {
         Set<String> availableCameraIds = CameraX.getCameraFactory().getAvailableCameraIds();
         LensFacingCameraIdFilter lensFacingCameraIdFilter =

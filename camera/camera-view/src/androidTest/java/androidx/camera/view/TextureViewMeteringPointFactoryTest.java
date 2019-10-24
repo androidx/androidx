@@ -36,6 +36,7 @@ import androidx.camera.camera2.Camera2AppConfig;
 import androidx.camera.core.AppConfig;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.DisplayOrientedMeteringPointFactory;
+import androidx.camera.core.LensFacing;
 import androidx.camera.core.MeteringPoint;
 import androidx.camera.core.MeteringPointFactory;
 import androidx.camera.core.Preview;
@@ -117,15 +118,15 @@ public class TextureViewMeteringPointFactoryTest {
 
     @Test
     public void backCamera_translatedPoint_SameAsDisplayOriented() throws Throwable {
-        assumeTrue(CameraUtil.hasCameraWithLensFacing(CameraX.LensFacing.BACK));
+        assumeTrue(CameraUtil.hasCameraWithLensFacing(LensFacing.BACK));
 
-        startAndWaitForCameraReady(CameraX.LensFacing.BACK);
+        startAndWaitForCameraReady(LensFacing.BACK);
 
         TextureViewMeteringPointFactory factory = new TextureViewMeteringPointFactory(mTextureView);
 
         // Creates the DisplayOrientedMeteringPointFactory with same width / height as TextureView
         DisplayOrientedMeteringPointFactory displayFactory =
-                new DisplayOrientedMeteringPointFactory(mContext, CameraX.LensFacing.BACK,
+                new DisplayOrientedMeteringPointFactory(mContext, LensFacing.BACK,
                         mTextureView.getWidth(), mTextureView.getHeight());
 
         // Uses DisplayOrientedMeteringPointFactory to verify if coordinates are correct.
@@ -136,15 +137,15 @@ public class TextureViewMeteringPointFactoryTest {
 
     @Test
     public void frontCamera_translatedPoint_SameAsDisplayOriented() throws Throwable {
-        assumeTrue(CameraUtil.hasCameraWithLensFacing(CameraX.LensFacing.FRONT));
+        assumeTrue(CameraUtil.hasCameraWithLensFacing(LensFacing.FRONT));
 
-        startAndWaitForCameraReady(CameraX.LensFacing.FRONT);
+        startAndWaitForCameraReady(LensFacing.FRONT);
 
         TextureViewMeteringPointFactory factory = new TextureViewMeteringPointFactory(mTextureView);
 
         // Creates the DisplayOrientedMeteringPointFactory with same width / height as TextureView
         DisplayOrientedMeteringPointFactory displayFactory =
-                new DisplayOrientedMeteringPointFactory(mContext, CameraX.LensFacing.FRONT,
+                new DisplayOrientedMeteringPointFactory(mContext, LensFacing.FRONT,
                         mWidth, mHeight);
 
         // Uses DisplayOrientedMeteringPointFactory to verify if coordinates are correct.
@@ -157,7 +158,7 @@ public class TextureViewMeteringPointFactoryTest {
 
     @Test
     public void xy_OutOfRange() throws Throwable {
-        startAndWaitForCameraReady(CameraX.LensFacing.BACK);
+        startAndWaitForCameraReady(LensFacing.BACK);
 
         TextureViewMeteringPointFactory factory = new TextureViewMeteringPointFactory(mTextureView);
 
@@ -192,8 +193,7 @@ public class TextureViewMeteringPointFactoryTest {
         return xValid && yValid;
     }
 
-    private void startAndWaitForCameraReady(CameraX.LensFacing lensFacing)
-            throws InterruptedException {
+    private void startAndWaitForCameraReady(LensFacing lensFacing) throws InterruptedException {
         PreviewConfig.Builder previewConfigBuilder =
                 new PreviewConfig.Builder()
                         .setLensFacing(lensFacing);

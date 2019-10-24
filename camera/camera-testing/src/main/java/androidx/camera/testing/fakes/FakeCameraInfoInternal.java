@@ -22,8 +22,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.camera.core.CameraInfoInternal;
 import androidx.camera.core.CameraOrientationUtil;
-import androidx.camera.core.CameraX.LensFacing;
 import androidx.camera.core.ImageOutputConfig.RotationValue;
+import androidx.camera.core.LensFacing;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 

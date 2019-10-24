@@ -32,6 +32,7 @@ import androidx.camera.core.CameraX;
 import androidx.camera.core.ConfigProvider;
 import androidx.camera.core.DisplayOrientedMeteringPointFactory;
 import androidx.camera.core.ExtendableUseCaseConfigFactory;
+import androidx.camera.core.LensFacing;
 import androidx.camera.core.MeteringPoint;
 import androidx.camera.core.MeteringPointFactory;
 import androidx.camera.testing.fakes.FakeCamera;
@@ -72,18 +73,16 @@ public class DisplayOrientedMeteringPointFactoryTest {
         // Init CameraX to inject our FakeCamera with FakeCameraInfo.
         FakeCameraFactory fakeCameraFactory = new FakeCameraFactory();
         fakeCameraFactory.insertDefaultBackCamera(BACK_CAMERA_ID,
-                () -> new FakeCamera(null,
-                        new FakeCameraInfoInternal(90, CameraX.LensFacing.BACK)));
+                () -> new FakeCamera(null, new FakeCameraInfoInternal(90, LensFacing.BACK)));
         fakeCameraFactory.insertDefaultFrontCamera(FRONT_CAMERA_ID,
-                () -> new FakeCamera(null,
-                        new FakeCameraInfoInternal(270, CameraX.LensFacing.FRONT)));
+                () -> new FakeCamera(null, new FakeCameraInfoInternal(270, LensFacing.FRONT)));
 
         CameraDeviceSurfaceManager surfaceManager = new FakeCameraDeviceSurfaceManager();
         ExtendableUseCaseConfigFactory defaultConfigFactory = new ExtendableUseCaseConfigFactory();
         defaultConfigFactory.installDefaultProvider(FakeUseCaseConfig.class,
                 new ConfigProvider<FakeUseCaseConfig>() {
                     @Override
-                    public FakeUseCaseConfig getConfig(CameraX.LensFacing lensFacing) {
+                    public FakeUseCaseConfig getConfig(LensFacing lensFacing) {
                         return new FakeUseCaseConfig.Builder().build();
                     }
                 });
@@ -112,7 +111,7 @@ public class DisplayOrientedMeteringPointFactoryTest {
     @Test
     public void defaultWeightAndAreaSize() {
         DisplayOrientedMeteringPointFactory factory = new DisplayOrientedMeteringPointFactory(
-                mMockContext, CameraX.LensFacing.BACK, WIDTH, HEIGHT);
+                mMockContext, LensFacing.BACK, WIDTH, HEIGHT);
 
         MeteringPoint point = factory.createPoint(0, 0);
         assertThat(point.getSize()).isEqualTo(MeteringPointFactory.DEFAULT_AREASIZE);
@@ -123,7 +122,7 @@ public class DisplayOrientedMeteringPointFactoryTest {
     @Test
     public void createPointWithValidWeightAndAreaSize() {
         DisplayOrientedMeteringPointFactory factory = new DisplayOrientedMeteringPointFactory(
-                mMockContext, CameraX.LensFacing.BACK, WIDTH, HEIGHT);
+                mMockContext, LensFacing.BACK, WIDTH, HEIGHT);
 
         final float areaSize = 0.2f;
         final float weight = 0.5f;
@@ -138,7 +137,7 @@ public class DisplayOrientedMeteringPointFactoryTest {
         when(mMockDisplay.getRotation()).thenReturn(Surface.ROTATION_0);
 
         DisplayOrientedMeteringPointFactory factory = new DisplayOrientedMeteringPointFactory(
-                mMockContext, CameraX.LensFacing.BACK, WIDTH, HEIGHT);
+                mMockContext, LensFacing.BACK, WIDTH, HEIGHT);
 
         MeteringPoint meteringPoint = factory.createPoint(0f, 0f);
         assertThat(meteringPoint.getNormalizedCropRegionX()).isEqualTo(0f);
@@ -164,7 +163,7 @@ public class DisplayOrientedMeteringPointFactoryTest {
         when(mMockDisplay.getRotation()).thenReturn(Surface.ROTATION_0);
 
         DisplayOrientedMeteringPointFactory factory = new DisplayOrientedMeteringPointFactory(
-                mMockContext, CameraX.LensFacing.FRONT, WIDTH, HEIGHT);
+                mMockContext, LensFacing.FRONT, WIDTH, HEIGHT);
 
         MeteringPoint meteringPoint = factory.createPoint(0f, 0f);
         assertThat(meteringPoint.getNormalizedCropRegionX()).isEqualTo(1f);
@@ -190,7 +189,7 @@ public class DisplayOrientedMeteringPointFactoryTest {
         when(mMockDisplay.getRotation()).thenReturn(Surface.ROTATION_90);
 
         DisplayOrientedMeteringPointFactory factory = new DisplayOrientedMeteringPointFactory(
-                mMockContext, CameraX.LensFacing.BACK, WIDTH, HEIGHT);
+                mMockContext, LensFacing.BACK, WIDTH, HEIGHT);
 
         MeteringPoint meteringPoint = factory.createPoint(0f, 0f);
         assertThat(meteringPoint.getNormalizedCropRegionX()).isEqualTo(0f);
@@ -216,7 +215,7 @@ public class DisplayOrientedMeteringPointFactoryTest {
         when(mMockDisplay.getRotation()).thenReturn(Surface.ROTATION_90);
 
         DisplayOrientedMeteringPointFactory factory = new DisplayOrientedMeteringPointFactory(
-                mMockContext, CameraX.LensFacing.FRONT, WIDTH, HEIGHT);
+                mMockContext, LensFacing.FRONT, WIDTH, HEIGHT);
 
         MeteringPoint meteringPoint = factory.createPoint(0f, 0f);
         assertThat(meteringPoint.getNormalizedCropRegionX()).isEqualTo(1f);
@@ -242,7 +241,7 @@ public class DisplayOrientedMeteringPointFactoryTest {
         when(mMockDisplay.getRotation()).thenReturn(Surface.ROTATION_180);
 
         DisplayOrientedMeteringPointFactory factory = new DisplayOrientedMeteringPointFactory(
-                mMockContext, CameraX.LensFacing.BACK, WIDTH, HEIGHT);
+                mMockContext, LensFacing.BACK, WIDTH, HEIGHT);
 
         MeteringPoint meteringPoint = factory.createPoint(0f, 0f);
         assertThat(meteringPoint.getNormalizedCropRegionX()).isEqualTo(1f);
@@ -268,7 +267,7 @@ public class DisplayOrientedMeteringPointFactoryTest {
         when(mMockDisplay.getRotation()).thenReturn(Surface.ROTATION_180);
 
         DisplayOrientedMeteringPointFactory factory = new DisplayOrientedMeteringPointFactory(
-                mMockContext, CameraX.LensFacing.FRONT, WIDTH, HEIGHT);
+                mMockContext, LensFacing.FRONT, WIDTH, HEIGHT);
 
         MeteringPoint meteringPoint = factory.createPoint(0f, 0f);
         assertThat(meteringPoint.getNormalizedCropRegionX()).isEqualTo(0f);
@@ -294,7 +293,7 @@ public class DisplayOrientedMeteringPointFactoryTest {
         when(mMockDisplay.getRotation()).thenReturn(Surface.ROTATION_270);
 
         DisplayOrientedMeteringPointFactory factory = new DisplayOrientedMeteringPointFactory(
-                mMockContext, CameraX.LensFacing.BACK, WIDTH, HEIGHT);
+                mMockContext, LensFacing.BACK, WIDTH, HEIGHT);
 
         MeteringPoint meteringPoint = factory.createPoint(0f, 0f);
         assertThat(meteringPoint.getNormalizedCropRegionX()).isEqualTo(1f);
@@ -320,7 +319,7 @@ public class DisplayOrientedMeteringPointFactoryTest {
         when(mMockDisplay.getRotation()).thenReturn(Surface.ROTATION_270);
 
         DisplayOrientedMeteringPointFactory factory = new DisplayOrientedMeteringPointFactory(
-                mMockContext, CameraX.LensFacing.FRONT, WIDTH, HEIGHT);
+                mMockContext, LensFacing.FRONT, WIDTH, HEIGHT);
 
         MeteringPoint meteringPoint = factory.createPoint(0f, 0f);
         assertThat(meteringPoint.getNormalizedCropRegionX()).isEqualTo(0f);
@@ -346,7 +345,7 @@ public class DisplayOrientedMeteringPointFactoryTest {
         when(mMockDisplay.getRotation()).thenReturn(Surface.ROTATION_270);
 
         DisplayOrientedMeteringPointFactory factory = new DisplayOrientedMeteringPointFactory(
-                mMockDisplay, CameraX.LensFacing.FRONT, WIDTH, HEIGHT);
+                mMockDisplay, LensFacing.FRONT, WIDTH, HEIGHT);
 
         MeteringPoint meteringPoint = factory.createPoint(0f, 0f);
         assertThat(meteringPoint.getNormalizedCropRegionX()).isEqualTo(0f);

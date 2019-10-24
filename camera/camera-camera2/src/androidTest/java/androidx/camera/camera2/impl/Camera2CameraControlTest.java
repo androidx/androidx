@@ -51,11 +51,11 @@ import android.os.HandlerThread;
 import androidx.camera.camera2.Camera2Config;
 import androidx.camera.core.CameraControlInternal;
 import androidx.camera.core.CameraInfoUnavailableException;
-import androidx.camera.core.CameraX;
 import androidx.camera.core.CaptureConfig;
 import androidx.camera.core.FlashMode;
 import androidx.camera.core.FocusMeteringAction;
 import androidx.camera.core.FocusMeteringAction.MeteringMode;
+import androidx.camera.core.LensFacing;
 import androidx.camera.core.SensorOrientedMeteringPointFactory;
 import androidx.camera.core.SessionConfig;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
@@ -93,14 +93,14 @@ public final class Camera2CameraControlTest {
     @Before
     public void setUp() throws InterruptedException, CameraAccessException,
             CameraInfoUnavailableException {
-        assumeTrue(CameraUtil.hasCameraWithLensFacing(CameraX.LensFacing.BACK));
+        assumeTrue(CameraUtil.hasCameraWithLensFacing(LensFacing.BACK));
 
         Context context = ApplicationProvider.getApplicationContext();
         CameraManager cameraManager = (CameraManager) context.getSystemService(
                 Context.CAMERA_SERVICE);
         Camera2CameraFactory camera2CameraFactory = new Camera2CameraFactory(context);
         mCameraCharacteristics = cameraManager.getCameraCharacteristics(
-                camera2CameraFactory.cameraIdForLensFacing(CameraX.LensFacing.BACK));
+                camera2CameraFactory.cameraIdForLensFacing(LensFacing.BACK));
 
         mControlUpdateCallback = mock(CameraControlInternal.ControlUpdateCallback.class);
         mHandlerThread = new HandlerThread("ControlThread");

@@ -29,7 +29,7 @@ import android.util.Size;
 import androidx.camera.core.AppConfig;
 import androidx.camera.core.CameraFactory;
 import androidx.camera.core.CameraX;
-import androidx.camera.core.CameraX.LensFacing;
+import androidx.camera.core.LensFacing;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.UseCase.StateChangeCallback;
 import androidx.camera.core.VideoCapture;
