@@ -42,8 +42,12 @@ internal class PointerInputEventProcessor(val root: LayoutNode) {
 
     /**
      * Receives [PointerInputEvent]s and process them through the tree rooted on [root].
+     *
+     * @param pointerEvent The [PointerInputEvent] to process.
+     * @param additionalPointerOffset The additional offset that has been added to all coordinate
+     * data in [PointerInputEvent].
      */
-    fun process(pointerEvent: PointerInputEvent) {
+    fun process(pointerEvent: PointerInputEvent, additionalPointerOffset: IntPxPosition) {
 
         // Gets a new PointerInputChangeEvent with the PointerInputEvent.
         val pointerInputChangeEvent = pointerInputChangeEventProducer.produce(pointerEvent)
@@ -52,7 +56,7 @@ internal class PointerInputEventProcessor(val root: LayoutNode) {
         pointerInputChangeEvent.changes.filter { it.changedToDownIgnoreConsumed() }.forEach {
             val hitResult: MutableList<PointerInputNode> = mutableListOf()
             root.hitTest(
-                it.current.position!!,
+                it.current.position!! - additionalPointerOffset,
                 Rect.largest,
                 hitResult
             )
@@ -61,7 +65,7 @@ internal class PointerInputEventProcessor(val root: LayoutNode) {
 
         // Remove PointerInputNodes that are no longer valid and refresh the offset information for
         // those that are.
-        hitPathTracker.refreshPathInformation()
+        hitPathTracker.refreshPathInformation(additionalPointerOffset)
 
         // Dispatch the PointerInputChanges to the hit PointerInputNodes.
         var changes = pointerInputChangeEvent.changes
@@ -167,9 +171,9 @@ internal class PointerInputEventProcessor(val root: LayoutNode) {
                 // If we have hit a leaf PointerInputNode, we will quickly back track and also hit
                 // all ancestor PointerInputNodes.
                 if (this !is LayoutNode && !hitDescendantPointerInputNode) {
+                    // The resulting boundingBox is in the child's coordinate system.
+                    // Translate back to our coordinate system.
                     overarchingBoundingBox =
-                        // The resulting boundingBox is in the child's coordinate system.
-                        // Translate back to our coordinate system.
                         overarchingBoundingBox.expandToInclude(
                             result.boundingBox?.translate(contentOffset)
                         )

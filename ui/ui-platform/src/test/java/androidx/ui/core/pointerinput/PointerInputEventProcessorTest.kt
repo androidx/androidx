@@ -19,6 +19,7 @@ package androidx.ui.core.pointerinput
 import androidx.test.filters.SmallTest
 import androidx.ui.core.ConsumedData
 import androidx.ui.core.DrawNode
+import androidx.ui.core.IntPxPosition
 import androidx.ui.core.IntPxSize
 import androidx.ui.core.LayoutNode
 import androidx.ui.core.Owner
@@ -132,7 +133,7 @@ class PointerInputEventProcessorTest {
 
         // Act
 
-        events.forEach { pointerInputEventProcessor.process(it) }
+        events.forEach { pointerInputEventProcessor.process(it, IntPxPosition.Origin) }
 
         // Assert
 
@@ -188,7 +189,7 @@ class PointerInputEventProcessorTest {
         // Act
 
         events.forEach {
-            pointerInputEventProcessor.process(it)
+            pointerInputEventProcessor.process(it, IntPxPosition.Origin)
         }
 
         // Assert
@@ -236,7 +237,7 @@ class PointerInputEventProcessorTest {
         // Act
 
         events.forEach {
-            pointerInputEventProcessor.process(it)
+            pointerInputEventProcessor.process(it, IntPxPosition.Origin)
         }
 
         // Assert
@@ -294,7 +295,7 @@ class PointerInputEventProcessorTest {
 
         // Act
 
-        pointerInputEventProcessor.process(event)
+        pointerInputEventProcessor.process(event, IntPxPosition.Origin)
 
         // Assert
 
@@ -413,8 +414,8 @@ class PointerInputEventProcessorTest {
 
         // Act
 
-        pointerInputEventProcessor.process(down)
-        pointerInputEventProcessor.process(move)
+        pointerInputEventProcessor.process(down, IntPxPosition.Origin)
+        pointerInputEventProcessor.process(move, IntPxPosition.Origin)
 
         // Assert
 
@@ -425,31 +426,34 @@ class PointerInputEventProcessorTest {
     }
 
     @Test
-    fun process_layoutNodesIncreasinglyInset_dispatchInfoIsCorrect() {
+    fun process_nodesAndAdditionalOffsetIncreasinglyInset_dispatchInfoIsCorrect() {
         process_dispatchInfoIsCorrect(
             0, 0, 100, 100,
             2, 11, 100, 100,
             23, 31, 100, 100,
+            43, 51,
             99, 99
         )
     }
 
     @Test
-    fun process_layoutNodesIncreasinglyOutset_dispatchInfoIsCorrect() {
+    fun process_nodesAndAdditionalOffsetIncreasinglyOutset_dispatchInfoIsCorrect() {
         process_dispatchInfoIsCorrect(
             0, 0, 100, 100,
             -2, -11, 100, 100,
             -23, -31, 100, 100,
+            -43, -51,
             1, 1
         )
     }
 
     @Test
-    fun process_layoutNodesNotOffset_dispatchInfoIsCorrect() {
+    fun process_nodesAndAdditionalOffsetNotOffset_dispatchInfoIsCorrect() {
         process_dispatchInfoIsCorrect(
             0, 0, 100, 100,
             0, 0, 100, 100,
             0, 0, 100, 100,
+            0, 0,
             50, 50
         )
     }
@@ -468,6 +472,8 @@ class PointerInputEventProcessorTest {
         cY1: Int,
         cX2: Int,
         cY2: Int,
+        aOX: Int,
+        aOY: Int,
         pointerX: Int,
         pointerY: Int
     ) {
@@ -497,6 +503,8 @@ class PointerInputEventProcessorTest {
         }
         root.emitInsertAt(0, parentPointerInputNode)
 
+        val additionalOffset = IntPxPosition(aOX.ipx, aOY.ipx)
+
         val offset = PxPosition(pointerX.px, pointerY.px)
 
         val down = PointerInputEvent(0, 7L.millisecondsToTimestamp(), offset, true)
@@ -510,15 +518,9 @@ class PointerInputEventProcessorTest {
         val expectedPointerInputChanges = arrayOf(
             PointerInputChange(
                 id = 0,
-                current = PointerInputData(7L.millisecondsToTimestamp(), offset, true),
-                previous = PointerInputData(null, null, false),
-                consumed = ConsumedData()
-            ),
-            PointerInputChange(
-                id = 0,
                 current = PointerInputData(
                     7L.millisecondsToTimestamp(),
-                    offset - middleOffset,
+                    offset - additionalOffset,
                     true
                 ),
                 previous = PointerInputData(null, null, false),
@@ -528,7 +530,17 @@ class PointerInputEventProcessorTest {
                 id = 0,
                 current = PointerInputData(
                     7L.millisecondsToTimestamp(),
-                    offset - middleOffset - childOffset,
+                    offset - middleOffset - additionalOffset,
+                    true
+                ),
+                previous = PointerInputData(null, null, false),
+                consumed = ConsumedData()
+            ),
+            PointerInputChange(
+                id = 0,
+                current = PointerInputData(
+                    7L.millisecondsToTimestamp(),
+                    offset - middleOffset - childOffset - additionalOffset,
                     true
                 ),
                 previous = PointerInputData(null, null, false),
@@ -544,7 +556,7 @@ class PointerInputEventProcessorTest {
 
         // Act
 
-        pointerInputEventProcessor.process(down)
+        pointerInputEventProcessor.process(down, additionalOffset)
 
         // Assert
 
@@ -625,7 +637,7 @@ class PointerInputEventProcessorTest {
 
         // Act
 
-        pointerInputEventProcessor.process(down)
+        pointerInputEventProcessor.process(down, IntPxPosition.Origin)
 
         // Assert
 
@@ -733,7 +745,7 @@ class PointerInputEventProcessorTest {
 
         // Act
 
-        pointerInputEventProcessor.process(down)
+        pointerInputEventProcessor.process(down, IntPxPosition.Origin)
 
         // Assert
 
@@ -826,7 +838,7 @@ class PointerInputEventProcessorTest {
 
         // Act
 
-        pointerInputEventProcessor.process(down)
+        pointerInputEventProcessor.process(down, IntPxPosition.Origin)
 
         // Assert
 
@@ -920,7 +932,7 @@ class PointerInputEventProcessorTest {
 
         // Act
 
-        pointerInputEventProcessor.process(down)
+        pointerInputEventProcessor.process(down, IntPxPosition.Origin)
 
         // Assert
 
@@ -1012,7 +1024,7 @@ class PointerInputEventProcessorTest {
 
         // Act
 
-        pointerInputEventProcessor.process(pointerInputEvent)
+        pointerInputEventProcessor.process(pointerInputEvent, IntPxPosition.Origin)
 
         // Assert
 
@@ -1109,7 +1121,7 @@ class PointerInputEventProcessorTest {
 
         // Act
 
-        pointerInputEventProcessor.process(pointerInputEvent)
+        pointerInputEventProcessor.process(pointerInputEvent, IntPxPosition.Origin)
 
         // Assert
 
@@ -1220,7 +1232,7 @@ class PointerInputEventProcessorTest {
 
         // Act
 
-        pointerInputEventProcessor.process(pointerInputEvent)
+        pointerInputEventProcessor.process(pointerInputEvent, IntPxPosition.Origin)
 
         // Assert
 
@@ -1323,7 +1335,7 @@ class PointerInputEventProcessorTest {
 
         // Act
 
-        pointerInputEventProcessor.process(pointerInputEvent)
+        pointerInputEventProcessor.process(pointerInputEvent, IntPxPosition.Origin)
 
         // Assert
 
@@ -1420,7 +1432,7 @@ class PointerInputEventProcessorTest {
 
         // Act
 
-        pointerInputEventProcessor.process(pointerInputEvent)
+        pointerInputEventProcessor.process(pointerInputEvent, IntPxPosition.Origin)
 
         // Assert
 
@@ -1431,6 +1443,90 @@ class PointerInputEventProcessorTest {
                     current = PointerInputData(
                         11L.millisecondsToTimestamp(),
                         offsetsThatHit[it] - PxPosition(100.px, 100.px),
+                        true
+                    ),
+                    previous = PointerInputData(null, null, false),
+                    consumed = ConsumedData()
+                )
+            }
+        PointerEventPass.values().forEach { pointerEventPass ->
+            verify(pointerInputNode.pointerInputHandler).invoke(
+                eq(expectedChanges),
+                eq(pointerEventPass),
+                any()
+            )
+        }
+        verifyNoMoreInteractions(
+            pointerInputNode.pointerInputHandler
+        )
+    }
+
+    /**
+     * This test creates a layout of this shape:
+     *
+     *   |---|
+     *   |tt |
+     *   |t  |
+     *   |---|t
+     *       tt
+     *
+     *   But where the additional offset suggest something more like this shape.
+     *
+     *   tt
+     *   t|---|
+     *    |  t|
+     *    | tt|
+     *    |---|
+     *
+     *   Without the additional offset, it would be expected that only the top left 3 pointers would
+     *   hit, but with the additional offset, only the bottom right 3 hit.
+     */
+    @Test
+    fun process_additionalOffsetExists_onlyCorrectPointersHit() {
+
+        // Arrange
+
+        val pointerInputNode: PointerInputNode = PointerInputNode().apply {
+            emitInsertAt(0, LayoutNode(0, 0, 2, 2))
+            pointerInputHandler = spy(MyPointerInputHandler())
+        }
+        root.apply {
+            emitInsertAt(0, pointerInputNode)
+        }
+        val offsetsThatHit =
+            listOf(
+                PxPosition(2.px, 2.px),
+                PxPosition(2.px, 1.px),
+                PxPosition(1.px, 2.px)
+            )
+        val offsetsThatMiss =
+            listOf(
+                PxPosition(0.px, 0.px),
+                PxPosition(0.px, 1.px),
+                PxPosition(1.px, 0.px)
+            )
+        val allOffsets = offsetsThatHit + offsetsThatMiss
+        val pointerInputEvent =
+            PointerInputEvent(
+                11L.millisecondsToTimestamp(),
+                (allOffsets.indices).map {
+                    PointerInputEventData(it, 11L.millisecondsToTimestamp(), allOffsets[it], true)
+                }
+            )
+
+        // Act
+
+        pointerInputEventProcessor.process(pointerInputEvent, IntPxPosition(1.ipx, 1.ipx))
+
+        // Assert
+
+        val expectedChanges =
+            (offsetsThatHit.indices).map {
+                PointerInputChange(
+                    id = it,
+                    current = PointerInputData(
+                        11L.millisecondsToTimestamp(),
+                        offsetsThatHit[it] - PxPosition(1.px, 1.px),
                         true
                     ),
                     previous = PointerInputData(null, null, false),
@@ -1489,7 +1585,7 @@ class PointerInputEventProcessorTest {
 
         // Act
 
-        pointerInputEventProcessor.process(down)
+        pointerInputEventProcessor.process(down, IntPxPosition.Origin)
 
         // Assert
 
@@ -1560,7 +1656,7 @@ class PointerInputEventProcessorTest {
 
         // Act
 
-        pointerInputEventProcessor.process(downEvent)
+        pointerInputEventProcessor.process(downEvent, IntPxPosition.Origin)
 
         // Assert
 
@@ -1646,7 +1742,7 @@ class PointerInputEventProcessorTest {
 
         // Act
 
-        pointerInputEventProcessor.process(downEvent)
+        pointerInputEventProcessor.process(downEvent, IntPxPosition.Origin)
 
         // Assert
 
@@ -1703,7 +1799,7 @@ class PointerInputEventProcessorTest {
 
         // Act
 
-        pointerInputEventProcessor.process(down)
+        pointerInputEventProcessor.process(down, IntPxPosition.Origin)
 
         // Assert
         verify(childPointerInputNode2.pointerInputHandler, times(5)).invoke(any(), any(), any())
@@ -1733,7 +1829,7 @@ class PointerInputEventProcessorTest {
 
         // Act
 
-        pointerInputEventProcessor.process(down)
+        pointerInputEventProcessor.process(down, IntPxPosition.Origin)
 
         // Assert
         verify(pointerInputNode.pointerInputHandler, times(5)).invoke(any(), any(), any())
@@ -1755,7 +1851,7 @@ class PointerInputEventProcessorTest {
 
         // Act
 
-        pointerInputEventProcessor.process(down)
+        pointerInputEventProcessor.process(down, IntPxPosition.Origin)
 
         // Assert
         verify(pointerInputNode.pointerInputHandler, never()).invoke(any(), any(), any())
@@ -1782,7 +1878,7 @@ class PointerInputEventProcessorTest {
 
         // Act
 
-        pointerInputEventProcessor.process(down)
+        pointerInputEventProcessor.process(down, IntPxPosition.Origin)
 
         // Assert
         verify(pointerInputNode.pointerInputHandler, never()).invoke(any(), any(), any())
@@ -1804,7 +1900,7 @@ class PointerInputEventProcessorTest {
 
         // Act
 
-        pointerInputEventProcessor.process(down)
+        pointerInputEventProcessor.process(down, IntPxPosition.Origin)
 
         // Assert
         verify(pointerInputNode.pointerInputHandler, never()).invoke(any(), any(), any())
@@ -1850,9 +1946,9 @@ class PointerInputEventProcessorTest {
 
         // Act
 
-        pointerInputEventProcessor.process(down)
+        pointerInputEventProcessor.process(down, IntPxPosition.Origin)
         parentLayoutNode.emitRemoveAt(0, 1)
-        pointerInputEventProcessor.process(up)
+        pointerInputEventProcessor.process(up, IntPxPosition.Origin)
 
         // Assert
 
@@ -1907,7 +2003,7 @@ class PointerInputEventProcessorTest {
 
         // Act
 
-        pointerInputEventProcessor.process(pointerInputEvent)
+        pointerInputEventProcessor.process(pointerInputEvent, IntPxPosition.Origin)
         pointerInputEventProcessor.processCancel()
 
         // Assert
@@ -2011,8 +2107,8 @@ class PointerInputEventProcessorTest {
 
         // Act
 
-        pointerInputEventProcessor.process(pointerInputEvent1)
-        pointerInputEventProcessor.process(pointerInputEvent2)
+        pointerInputEventProcessor.process(pointerInputEvent1, IntPxPosition.Origin)
+        pointerInputEventProcessor.process(pointerInputEvent2, IntPxPosition.Origin)
         pointerInputEventProcessor.processCancel()
 
         // Assert
@@ -2105,7 +2201,7 @@ class PointerInputEventProcessorTest {
 
         // Act
 
-        pointerInputEventProcessor.process(pointerInputEvent)
+        pointerInputEventProcessor.process(pointerInputEvent, IntPxPosition.Origin)
         pointerInputEventProcessor.processCancel()
 
         // Assert
@@ -2196,8 +2292,8 @@ class PointerInputEventProcessorTest {
 
         // Act
 
-        pointerInputEventProcessor.process(down)
-        pointerInputEventProcessor.process(move)
+        pointerInputEventProcessor.process(down, IntPxPosition.Origin)
+        pointerInputEventProcessor.process(move, IntPxPosition.Origin)
         pointerInputEventProcessor.processCancel()
 
         // Assert
@@ -2259,7 +2355,7 @@ class PointerInputEventProcessorTest {
 
         // Act
 
-        pointerInputEventProcessor.process(down)
+        pointerInputEventProcessor.process(down, IntPxPosition.Origin)
         pointerInputEventProcessor.processCancel()
 
         // Assert
@@ -2334,9 +2430,9 @@ class PointerInputEventProcessorTest {
 
         // Act
 
-        pointerInputEventProcessor.process(down1)
+        pointerInputEventProcessor.process(down1, IntPxPosition.Origin)
         pointerInputEventProcessor.processCancel()
-        pointerInputEventProcessor.process(down2)
+        pointerInputEventProcessor.process(down2, IntPxPosition.Origin)
 
         // Assert
 

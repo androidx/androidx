@@ -26,10 +26,13 @@ import androidx.ui.core.millisecondsToTimestamp
 import androidx.ui.core.px
 
 /**
- * Converts Android framework [MotionEvent]s into [PointerInputEvent]s.
+ * Converts an Android framework [MotionEvent] into a [PointerInputEvent].
+ *
+ * The resulting [PointerInputEvent] has coordinates that are relative to the screen (the
+ * [MotionEvent]s raw coordinates are used as provided by [MotionEvent.getRawX] and
+ * [MotionEvent.getRawY].
  */
 internal fun MotionEvent.toPointerInputEvent(): PointerInputEvent {
-
     val upIndex = when (this.actionMasked) {
         ACTION_POINTER_UP -> this.actionIndex
         ACTION_UP -> 0
@@ -37,6 +40,7 @@ internal fun MotionEvent.toPointerInputEvent(): PointerInputEvent {
     }
 
     val pointers: MutableList<PointerInputEventData> = mutableListOf()
+    offsetLocation(getRawX() - getX(), getRawY() - getY())
     for (i in 0 until this.pointerCount) {
         pointers.add(
             PointerInputEventData(this, i, upIndex)
@@ -47,7 +51,7 @@ internal fun MotionEvent.toPointerInputEvent(): PointerInputEvent {
 }
 
 /**
- * Creates a new Pointer.
+ * Creates a new [PointerInputEventData] with coordinates relative to the screen.
  */
 private fun PointerInputEventData(
     motionEvent: MotionEvent,
@@ -66,7 +70,7 @@ private fun PointerInputEventData(
 }
 
 /**
- * Creates a new PointerData.
+ * Creates a new [PointerInputData] with coordinates that are relative to the screen.
  */
 private fun PointerInputData(
     timestamp: Timestamp,
@@ -74,9 +78,7 @@ private fun PointerInputData(
     index: Int,
     upIndex: Int?
 ): PointerInputData {
-    val pointerCoords = MotionEvent.PointerCoords()
-    motionEvent.getPointerCoords(index, pointerCoords)
-    val offset = PxPosition(pointerCoords.x.px, pointerCoords.y.px)
+    val offset = PxPosition(motionEvent.getX(index).px, motionEvent.getY(index).px)
 
     return PointerInputData(
         timestamp,
