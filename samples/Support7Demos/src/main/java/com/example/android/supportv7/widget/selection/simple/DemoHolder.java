@@ -20,7 +20,6 @@ import android.view.MotionEvent;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import androidx.annotation.Nullable;
 import androidx.recyclerview.selection.ItemDetailsLookup.ItemDetails;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -32,7 +31,6 @@ final class DemoHolder extends RecyclerView.ViewHolder {
     private final TextView mSelector;
     private final TextView mLabel;
     private final ItemDetails<Long> mDetails;
-    private @Nullable Long mKey;
 
     DemoHolder(LinearLayout layout) {
         super(layout);

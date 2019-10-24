@@ -57,7 +57,7 @@ public class SimpleSelectionDemoActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.selection_demo_layout);
-        RecyclerView recView = (RecyclerView) findViewById(R.id.list);
+        RecyclerView recView = findViewById(R.id.list);
 
         // keyProvider depends on mAdapter.setHasStableIds(true).
         ItemKeyProvider<Long> keyProvider = new StableIdKeyProvider(recView);
@@ -65,7 +65,7 @@ public class SimpleSelectionDemoActivity extends AppCompatActivity {
         mLayout = new GridLayoutManager(this, mColumnCount);
         recView.setLayoutManager(mLayout);
 
-        mAdapter = new SimpleSelectionDemoAdapter(this, keyProvider);
+        mAdapter = new SimpleSelectionDemoAdapter(this);
         // The adapter is paired with a key provider that supports
         // the native RecyclerView stableId. For this to work correctly
         // the adapter must report that it supports stable ids.
