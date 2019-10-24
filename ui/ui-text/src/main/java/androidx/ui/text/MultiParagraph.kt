@@ -85,19 +85,13 @@ internal class MultiParagraph(
     /**
      * The width for text if all soft wrap opportunities were taken.
      */
-    val minIntrinsicWidth: Float
-        get() = paragraphInfoList.foldRight(0f) { paragraphInfo, minWidth ->
-            max(paragraphInfo.paragraph.minIntrinsicWidth, minWidth)
-        }
+    val minIntrinsicWidth: Float get() = intrinsics.maxIntrinsicWidth
 
     /**
      * Returns the smallest width beyond which increasing the width never
      * decreases the height.
      */
-    val maxIntrinsicWidth: Float
-        get() = paragraphInfoList.foldRight(0f) { paragraphInfo, maxWidth ->
-            max(paragraphInfo.paragraph.maxIntrinsicWidth, maxWidth)
-        }
+    val maxIntrinsicWidth: Float get() = intrinsics.maxIntrinsicWidth
 
     /**
      * True if there is more vertical content, but the text was truncated, either
