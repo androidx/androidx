@@ -18,7 +18,6 @@ package androidx.camera.testing;
 
 import android.Manifest;
 import android.content.Context;
-import android.hardware.Camera;
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CameraDevice;
@@ -34,7 +33,7 @@ import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresPermission;
-import androidx.camera.core.BaseCamera;
+import androidx.camera.core.CameraInternal;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.UseCase;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
@@ -230,16 +229,16 @@ public final class CameraUtil {
      * capture requests to the camera. The caller is responsible for making the use case inactive
      * and offline and for closing the camera afterwards.
      *
-     * @param cameraId to open
-     * @param camera   to open
-     * @param useCases to associate with
+     * @param cameraId       to open
+     * @param cameraInternal to open
+     * @param useCases       to associate with
      */
-    public static void openCameraWithUseCase(String cameraId, BaseCamera camera,
+    public static void openCameraWithUseCase(String cameraId, CameraInternal cameraInternal,
             UseCase... useCases) {
-        camera.addOnlineUseCase(Arrays.asList(useCases));
+        cameraInternal.addOnlineUseCase(Arrays.asList(useCases));
         for (UseCase useCase : useCases) {
-            useCase.attachCameraControl(cameraId, camera.getCameraControlInternal());
-            camera.onUseCaseActive(useCase);
+            useCase.attachCameraControl(cameraId, cameraInternal.getCameraControlInternal());
+            cameraInternal.onUseCaseActive(useCase);
         }
     }
 
@@ -248,14 +247,14 @@ public final class CameraUtil {
      *
      * <p>Sets the use cases to be inactive and remove from the online list.
      *
-     * @param camera   to detach from
-     * @param useCases to be detached
+     * @param cameraInternal to detach from
+     * @param useCases       to be detached
      */
-    public static void detachUseCaseFromCamera(BaseCamera camera, UseCase... useCases) {
+    public static void detachUseCaseFromCamera(CameraInternal cameraInternal, UseCase... useCases) {
         for (UseCase useCase : useCases) {
-            camera.onUseCaseInactive(useCase);
+            cameraInternal.onUseCaseInactive(useCase);
         }
-        camera.removeOnlineUseCase(Arrays.asList(useCases));
+        cameraInternal.removeOnlineUseCase(Arrays.asList(useCases));
     }
 
     /**
@@ -283,7 +282,7 @@ public final class CameraUtil {
                 Log.e(CameraUtil.class.getSimpleName(), "Unable to check camera availability.", e);
             }
         } else {
-            numberOfCamera = Camera.getNumberOfCameras();
+            numberOfCamera = android.hardware.Camera.getNumberOfCameras();
         }
 
         return numberOfCamera > 0;

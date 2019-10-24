@@ -22,7 +22,7 @@ import android.os.Build;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.camera.core.BaseCamera;
+import androidx.camera.core.CameraInternal;
 import androidx.camera.core.Observable;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.testing.fakes.FakeCamera;
@@ -215,12 +215,12 @@ public final class CameraAvailabilityRegistryTest {
 
         FakeCamera camera = new FakeCamera();
 
-        AtomicReference<BaseCamera.State> cameraState = new AtomicReference<>(null);
-        Observable.Observer<BaseCamera.State> stateObserver =
-                new Observable.Observer<BaseCamera.State>() {
+        AtomicReference<CameraInternal.State> cameraState = new AtomicReference<>(null);
+        Observable.Observer<CameraInternal.State> stateObserver =
+                new Observable.Observer<CameraInternal.State>() {
 
                     @Override
-                    public void onNewData(@Nullable BaseCamera.State value) {
+                    public void onNewData(@Nullable CameraInternal.State value) {
                         cameraState.set(value);
                     }
 
@@ -241,7 +241,7 @@ public final class CameraAvailabilityRegistryTest {
 
         // Ensure that even though the camera is the PENDING_OPEN state, there is still 1 camera
         // available to be opened.
-        assertThat(cameraState.get()).isEqualTo(BaseCamera.State.PENDING_OPEN);
+        assertThat(cameraState.get()).isEqualTo(CameraInternal.State.PENDING_OPEN);
         assertThat(mAvailableCameraCount).isEqualTo(1);
     }
 }

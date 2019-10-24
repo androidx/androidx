@@ -42,11 +42,11 @@ import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.camera.camera2.impl.compat.CameraManagerCompat;
-import androidx.camera.core.BaseCamera;
 import androidx.camera.core.CameraCaptureCallback;
 import androidx.camera.core.CameraCaptureResult;
 import androidx.camera.core.CameraDeviceConfig;
 import androidx.camera.core.CameraFactory;
+import androidx.camera.core.CameraInternal;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.CameraX.LensFacing;
 import androidx.camera.core.CaptureConfig;
@@ -101,10 +101,10 @@ public final class Camera2CameraImplTest {
     private static final LensFacing DEFAULT_LENS_FACING = LensFacing.BACK;
     // For the purpose of this test, always say we have 1 camera available.
     private static final int DEFAULT_AVAILABLE_CAMERA_COUNT = 1;
-    private static final Set<BaseCamera.State> STABLE_STATES = new HashSet<>(Arrays.asList(
-            BaseCamera.State.CLOSED,
-            BaseCamera.State.OPEN,
-            BaseCamera.State.RELEASED));
+    private static final Set<CameraInternal.State> STABLE_STATES = new HashSet<>(Arrays.asList(
+            CameraInternal.State.CLOSED,
+            CameraInternal.State.OPEN,
+            CameraInternal.State.RELEASED));
     static CameraFactory sCameraFactory;
 
     @Rule
@@ -670,19 +670,19 @@ public final class Camera2CameraImplTest {
     @Test
     public void cameraStateIsClosed_afterInitialization()
             throws ExecutionException, InterruptedException {
-        Observable<BaseCamera.State> state = mCamera2CameraImpl.getCameraState();
-        BaseCamera.State currentState = state.fetchData().get();
-        assertThat(currentState).isEqualTo(BaseCamera.State.CLOSED);
+        Observable<CameraInternal.State> state = mCamera2CameraImpl.getCameraState();
+        CameraInternal.State currentState = state.fetchData().get();
+        assertThat(currentState).isEqualTo(CameraInternal.State.CLOSED);
     }
 
     @Test
     public void cameraStateTransitionTest() throws InterruptedException {
 
-        final AtomicReference<BaseCamera.State> lastStableState = new AtomicReference<>(null);
-        Observable.Observer<BaseCamera.State> observer =
-                new Observable.Observer<BaseCamera.State>() {
+        final AtomicReference<CameraInternal.State> lastStableState = new AtomicReference<>(null);
+        Observable.Observer<CameraInternal.State> observer =
+                new Observable.Observer<CameraInternal.State>() {
                     @Override
-                    public void onNewData(@Nullable BaseCamera.State value) {
+                    public void onNewData(@Nullable CameraInternal.State value) {
                         // Ignore any transient states.
                         if (STABLE_STATES.contains(value)) {
                             lastStableState.set(value);
@@ -694,7 +694,7 @@ public final class Camera2CameraImplTest {
                     public void onError(@NonNull Throwable t) { /* Ignore any transient errors. */ }
                 };
 
-        List<BaseCamera.State> observedStates = new ArrayList<>();
+        List<CameraInternal.State> observedStates = new ArrayList<>();
         mCamera2CameraImpl.getCameraState().addObserver(CameraXExecutors.directExecutor(),
                 observer);
 
@@ -720,16 +720,16 @@ public final class Camera2CameraImplTest {
         mCamera2CameraImpl.getCameraState().removeObserver(observer);
 
         assertThat(observedStates).containsExactly(
-                BaseCamera.State.CLOSED,
-                BaseCamera.State.OPEN,
-                BaseCamera.State.CLOSED,
-                BaseCamera.State.RELEASED);
+                CameraInternal.State.CLOSED,
+                CameraInternal.State.OPEN,
+                CameraInternal.State.CLOSED,
+                CameraInternal.State.RELEASED);
     }
 
     @Test
     public void cameraTransitionsThroughPendingState_whenNoCamerasAvailable() {
         @SuppressWarnings("unchecked") // Cannot mock generic type inline
-                Observable.Observer<BaseCamera.State> mockObserver =
+                Observable.Observer<CameraInternal.State> mockObserver =
                 mock(Observable.Observer.class);
 
         // Set the available cameras to zero
@@ -741,12 +741,12 @@ public final class Camera2CameraImplTest {
         mCamera2CameraImpl.open();
 
         // Ensure that the camera gets to a PENDING_OPEN state
-        verify(mockObserver, timeout(3000)).onNewData(BaseCamera.State.PENDING_OPEN);
+        verify(mockObserver, timeout(3000)).onNewData(CameraInternal.State.PENDING_OPEN);
 
         // Allow camera to be opened
         mAvailableCameras.setValue(1);
 
-        verify(mockObserver, timeout(3000)).onNewData(BaseCamera.State.OPEN);
+        verify(mockObserver, timeout(3000)).onNewData(CameraInternal.State.OPEN);
 
         mCamera2CameraImpl.getCameraState().removeObserver(mockObserver);
     }
@@ -754,13 +754,13 @@ public final class Camera2CameraImplTest {
     @Test
     public void cameraStateIsReleased_afterRelease()
             throws ExecutionException, InterruptedException {
-        Observable<BaseCamera.State> state = mCamera2CameraImpl.getCameraState();
+        Observable<CameraInternal.State> state = mCamera2CameraImpl.getCameraState();
 
         // Wait for camera to release
         mCamera2CameraImpl.release().get();
-        BaseCamera.State currentState = state.fetchData().get();
+        CameraInternal.State currentState = state.fetchData().get();
 
-        assertThat(currentState).isEqualTo(BaseCamera.State.RELEASED);
+        assertThat(currentState).isEqualTo(CameraInternal.State.RELEASED);
     }
 
     @Test
@@ -863,12 +863,12 @@ public final class Camera2CameraImplTest {
             throws InterruptedException {
         Semaphore semaphore = new Semaphore(0);
 
-        Observable.Observer<BaseCamera.State> observer =
-                new Observable.Observer<BaseCamera.State>() {
+        Observable.Observer<CameraInternal.State> observer =
+                new Observable.Observer<CameraInternal.State>() {
                     @Override
-                    public void onNewData(@Nullable BaseCamera.State value) {
+                    public void onNewData(@Nullable CameraInternal.State value) {
                         // Ignore any transient states.
-                        if (value == BaseCamera.State.CLOSED) {
+                        if (value == CameraInternal.State.CLOSED) {
                             semaphore.release();
                         }
                     }

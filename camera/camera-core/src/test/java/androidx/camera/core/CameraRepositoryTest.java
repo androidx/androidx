@@ -75,9 +75,9 @@ public final class CameraRepositoryTest {
     @Test
     public void cameraCanBeObtainedWithValidId() {
         for (String cameraId : mCameraRepository.getCameraIds()) {
-            BaseCamera camera = mCameraRepository.getCamera(cameraId);
+            CameraInternal cameraInternal = mCameraRepository.getCamera(cameraId);
 
-            assertThat(camera).isNotNull();
+            assertThat(cameraInternal).isNotNull();
         }
     }
 
@@ -107,9 +107,9 @@ public final class CameraRepositoryTest {
 
     @Test
     public void camerasAreReleasedByDeinit() throws ExecutionException, InterruptedException {
-        List<BaseCamera> cameras = new ArrayList<>();
+        List<CameraInternal> cameraInternals = new ArrayList<>();
         for (String cameraId : mCameraRepository.getCameraIds()) {
-            cameras.add(mCameraRepository.getCamera(cameraId));
+            cameraInternals.add(mCameraRepository.getCamera(cameraId));
         }
 
         ListenableFuture<Void> deinitFuture = mCameraRepository.deinit();
@@ -118,9 +118,9 @@ public final class CameraRepositoryTest {
         ShadowLooper.runUiThreadTasks();
 
         assertThat(deinitFuture.isDone()).isTrue();
-        for (BaseCamera camera : cameras) {
-            assertThat(camera.getCameraState().fetchData().get()).isEqualTo(
-                    BaseCamera.State.RELEASED);
+        for (CameraInternal cameraInternal : cameraInternals) {
+            assertThat(cameraInternal.getCameraState().fetchData().get()).isEqualTo(
+                    CameraInternal.State.RELEASED);
         }
     }
 }

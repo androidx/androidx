@@ -20,8 +20,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
-import androidx.camera.core.BaseCamera;
 import androidx.camera.core.CameraFactory;
+import androidx.camera.core.CameraInternal;
 import androidx.camera.core.CameraX.LensFacing;
 import androidx.camera.core.LensFacingCameraIdFilter;
 import androidx.core.util.Pair;
@@ -54,18 +54,19 @@ public final class FakeCameraFactory implements CameraFactory {
     private String mBackCameraId = DEFAULT_BACK_ID;
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-    final Map<String, Pair<LensFacing, Callable<BaseCamera>>> mCameraMap = new HashMap<>();
+    final Map<String, Pair<LensFacing, Callable<CameraInternal>>> mCameraMap = new HashMap<>();
 
     public FakeCameraFactory() {
     }
 
     @Override
     @NonNull
-    public BaseCamera getCamera(@NonNull String cameraId) {
-        Pair<LensFacing, Callable<BaseCamera>> cameraPair = mCameraMap.get(cameraId);
+    public CameraInternal getCamera(@NonNull String cameraId) {
+        Pair<LensFacing, Callable<CameraInternal>> cameraPair = mCameraMap.get(cameraId);
         if (cameraPair != null) {
             try {
-                Callable<BaseCamera> cameraCallable = Preconditions.checkNotNull(cameraPair.second);
+                Callable<CameraInternal> cameraCallable = Preconditions.checkNotNull(
+                        cameraPair.second);
                 return cameraCallable.call();
             } catch (Exception e) {
                 throw new RuntimeException("Unable to create camera.", e);
@@ -77,16 +78,16 @@ public final class FakeCameraFactory implements CameraFactory {
     /**
      * Inserts a {@link Callable} for creating cameras with the given camera ID.
      *
-     * @param cameraId Identifier to use for the camera.
-     * @param camera   Callable used to provide the Camera implementation.
+     * @param cameraId       Identifier to use for the camera.
+     * @param cameraInternal Callable used to provide the Camera implementation.
      */
     public void insertCamera(@NonNull LensFacing lensFacing, @NonNull String cameraId,
-            @NonNull Callable<BaseCamera> camera) {
+            @NonNull Callable<CameraInternal> cameraInternal) {
         // Invalidate caches
         mCachedCameraIds = null;
         mCachedLensFacingToIdMap = null;
 
-        mCameraMap.put(cameraId, Pair.create(lensFacing, camera));
+        mCameraMap.put(cameraId, Pair.create(lensFacing, cameraInternal));
     }
 
     /**
@@ -97,12 +98,12 @@ public final class FakeCameraFactory implements CameraFactory {
      * followed by {@link #setDefaultCameraIdForLensFacing(LensFacing, String)} with
      * {@link LensFacing#FRONT} for all lens facing arguments.
      *
-     * @param cameraId Identifier to use for the front camera.
-     * @param camera   Camera implementation.
+     * @param cameraId       Identifier to use for the front camera.
+     * @param cameraInternal Camera implementation.
      */
     public void insertDefaultFrontCamera(@NonNull String cameraId,
-            @NonNull Callable<BaseCamera> camera) {
-        insertCamera(LensFacing.FRONT, cameraId, camera);
+            @NonNull Callable<CameraInternal> cameraInternal) {
+        insertCamera(LensFacing.FRONT, cameraId, cameraInternal);
         setDefaultCameraIdForLensFacing(LensFacing.FRONT, cameraId);
     }
 
@@ -114,12 +115,12 @@ public final class FakeCameraFactory implements CameraFactory {
      * followed by {@link #setDefaultCameraIdForLensFacing(LensFacing, String)} with
      * {@link LensFacing#BACK} for all lens facing arguments.
      *
-     * @param cameraId Identifier to use for the back camera.
-     * @param camera   Camera implementation.
+     * @param cameraId       Identifier to use for the back camera.
+     * @param cameraInternal Camera implementation.
      */
     public void insertDefaultBackCamera(@NonNull String cameraId,
-            @NonNull Callable<BaseCamera> camera) {
-        insertCamera(LensFacing.BACK, cameraId, camera);
+            @NonNull Callable<CameraInternal> cameraInternal) {
+        insertCamera(LensFacing.BACK, cameraId, cameraInternal);
         setDefaultCameraIdForLensFacing(LensFacing.BACK, cameraId);
     }
 
@@ -182,7 +183,7 @@ public final class FakeCameraFactory implements CameraFactory {
             }
 
             // Populate the sets of ids
-            for (Map.Entry<String, Pair<LensFacing, Callable<BaseCamera>>> entry :
+            for (Map.Entry<String, Pair<LensFacing, Callable<CameraInternal>>> entry :
                     mCameraMap.entrySet()) {
                 Preconditions.checkNotNull(lensFacingToIdMap.get(entry.getValue().first))
                         .add(entry.getKey());
