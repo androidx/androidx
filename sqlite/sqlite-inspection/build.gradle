@@ -20,14 +20,44 @@ import androidx.build.LibraryVersions
 import androidx.build.AndroidXExtension
 import androidx.build.Publish
 
+buildscript {
+    dependencies {
+        classpath("gradle.plugin.com.google.protobuf:protobuf-gradle-plugin:0.8.8")
+    }
+}
+
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
+    id("kotlin-android")
 }
+
+apply(plugin: "com.google.protobuf")
 
 dependencies {
     implementation("androidx.annotation:annotation:1.0.0")
     implementation(project(":inspection:inspection"))
+    implementation 'com.google.protobuf:protobuf-javalite:3.10.0'
+
+    androidTestImplementation(KOTLIN_STDLIB)
+    androidTestImplementation(ANDROIDX_TEST_RUNNER)
+    androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
+    androidTestImplementation(TRUTH)
+}
+
+protobuf {
+    protoc {
+        artifact = 'com.google.protobuf:protoc:3.10.0'
+    }
+    generateProtoTasks {
+        all().each { task ->
+            task.builtins {
+                java {
+                    option "lite"
+                }
+            }
+        }
+    }
 }
 
 androidx {
