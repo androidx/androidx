@@ -2140,11 +2140,6 @@ public class ExifInterface {
     private static final String TAG_ORF_CAMERA_SETTINGS_IFD_POINTER = "CameraSettingsIFDPointer";
     private static final String TAG_ORF_IMAGE_PROCESSING_IFD_POINTER = "ImageProcessingIFDPointer";
 
-    // Private tags used for thumbnail information.
-    private static final String TAG_HAS_THUMBNAIL = "HasThumbnail";
-    private static final String TAG_THUMBNAIL_OFFSET = "ThumbnailOffset";
-    private static final String TAG_THUMBNAIL_LENGTH = "ThumbnailLength";
-    private static final String TAG_THUMBNAIL_DATA = "ThumbnailData";
     private static final int MAX_THUMBNAIL_SIZE = 512;
 
     // Constants used for the Orientation Exif tag.
@@ -2868,7 +2863,6 @@ public class ExifInterface {
     static final byte[] JPEG_SIGNATURE = new byte[] {(byte) 0xff, (byte) 0xd8, (byte) 0xff};
     private static final String RAF_SIGNATURE = "FUJIFILMCCD-RAW";
     private static final int RAF_OFFSET_TO_JPEG_IMAGE_OFFSET = 84;
-    private static final int RAF_INFO_SIZE = 160;
     private static final int RAF_JPEG_LENGTH_VALUE_SIZE = 4;
 
     private static final byte[] HEIF_TYPE_FTYP = new byte[] {'f', 't', 'y', 'p'};
@@ -2911,7 +2905,6 @@ public class ExifInterface {
             (byte) 0x4e, (byte) 0x44};
     private static final int PNG_CHUNK_TYPE_BYTE_LENGTH = 4;
     private static final int PNG_CHUNK_CRC_BYTE_LENGTH = 4;
-    private static final int PNG_OFFSET_TO_IHDR_BYTES = 12;
 
     // See https://developers.google.com/speed/webp/docs/riff_container, Section "WebP File Header"
     private static final byte[] WEBP_SIGNATURE_1 = new byte[] {'R', 'I', 'F', 'F'};
@@ -2920,7 +2913,6 @@ public class ExifInterface {
     private static final byte[] WEBP_CHUNK_TYPE_EXIF = new byte[]{(byte) 0x45, (byte) 0x58,
             (byte) 0x49, (byte) 0x46};
     private static final int WEBP_CHUNK_TYPE_BYTE_LENGTH = 4;
-    private static final int WEBP_CHUNK_SIZE_BYTE_LENGTH = 4;
 
     private static SimpleDateFormat sFormatter;
 
@@ -4387,24 +4379,6 @@ public class ExifInterface {
     }
 
     /**
-     * Update the values of the tags in the tag groups if any value for the tag already was stored.
-     *
-     * @param tag the name of the tag.
-     * @param value the value of the tag in a form of {@link ExifAttribute}.
-     * @return Returns {@code true} if updating is placed.
-     */
-    private boolean updateAttribute(String tag, ExifAttribute value) {
-        boolean updated = false;
-        for (int i = 0 ; i < EXIF_TAGS.length; ++i) {
-            if (mAttributes[i].containsKey(tag)) {
-                mAttributes[i].put(tag, value);
-                updated = true;
-            }
-        }
-        return updated;
-    }
-
-    /**
      * Remove any values of the specified tag.
      *
      * @param tag the name of the tag.
@@ -5446,6 +5420,7 @@ public class ExifInterface {
                                     IFD_FORMAT_BYTE, value.length, offset, value));
                         }
                     }
+                    break;
                 }
 
                 case MARKER_COM: {
