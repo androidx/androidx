@@ -710,7 +710,7 @@ public class BiometricPrompt implements BiometricConstants {
         // Force some devices to fall back to fingerprint in order to support strong (crypto) auth.
         final boolean shouldForceFingerprint = DEBUG_FORCE_FINGERPRINT
                 || (activity != null && crypto != null && Utils.shouldUseFingerprintForCrypto(
-                        activity, Build.MODEL));
+                        activity, Build.MANUFACTURER, Build.MODEL));
 
         if (!shouldForceFingerprint && canUseBiometricFragment()) {
             BiometricFragment biometricFragment =
