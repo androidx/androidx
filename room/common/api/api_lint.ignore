@@ -3,6 +3,20 @@ AcronymName: androidx.room.ColumnInfo.SQLiteTypeAffinity:
     Acronyms should not be capitalized in class names: was `SQLiteTypeAffinity`, should this be `SqLiteTypeAffinity`?
 
 
+ArrayReturn: androidx.room.Database#entities():
+    Method should return Collection<Class> (or subclass) instead of raw array; was `java.lang.Class<?>[]`
+ArrayReturn: androidx.room.Database#views():
+    Method should return Collection<Class> (or subclass) instead of raw array; was `java.lang.Class<?>[]`
+ArrayReturn: androidx.room.Entity#foreignKeys():
+    Method should return Collection<ForeignKey> (or subclass) instead of raw array; was `androidx.room.ForeignKey[]`
+ArrayReturn: androidx.room.Entity#indices():
+    Method should return Collection<Index> (or subclass) instead of raw array; was `androidx.room.Index[]`
+ArrayReturn: androidx.room.RawQuery#observedEntities():
+    Method should return Collection<Class> (or subclass) instead of raw array; was `java.lang.Class<?>[]`
+ArrayReturn: androidx.room.TypeConverters#value():
+    Method should return Collection<Class> (or subclass) instead of raw array; was `java.lang.Class<?>[]`
+
+
 MissingNullability: androidx.room.ColumnInfo#defaultValue():
     Missing nullability on method `defaultValue` return
 MissingNullability: androidx.room.ColumnInfo#name():

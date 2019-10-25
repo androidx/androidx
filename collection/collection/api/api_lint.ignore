@@ -1,4 +1,12 @@
 // Baseline format: 1.0
+ArrayReturn: androidx.collection.ArraySet#toArray():
+    Method should return Collection<Object> (or subclass) instead of raw array; was `java.lang.Object[]`
+ArrayReturn: androidx.collection.ArraySet#toArray(T[]):
+    Method should return Collection<T> (or subclass) instead of raw array; was `T[]`
+ArrayReturn: androidx.collection.ArraySet#toArray(T[]) parameter #0:
+    Method parameter should be Collection<T> (or subclass) instead of raw array; was `T[]`
+
+
 KotlinOperator: androidx.collection.CircularArray#get(int):
     Method can be invoked with an indexing operator from Kotlin: `get` (this is usually desirable; just make sure it makes sense for this type of object)
 KotlinOperator: androidx.collection.CircularIntArray#get(int):

@@ -1,3 +1,11 @@
 // Baseline format: 1.0
+ArrayReturn: androidx.webkit.WebMessageCompat#WebMessageCompat(String, androidx.webkit.WebMessagePortCompat[]) parameter #1:
+    Method parameter should be Collection<WebMessagePortCompat> (or subclass) instead of raw array; was `androidx.webkit.WebMessagePortCompat[]`
+ArrayReturn: androidx.webkit.WebMessageCompat#getPorts():
+    Method should return Collection<WebMessagePortCompat> (or subclass) instead of raw array; was `androidx.webkit.WebMessagePortCompat[]`
+ArrayReturn: androidx.webkit.WebViewCompat#createWebMessageChannel(android.webkit.WebView):
+    Method should return Collection<WebMessagePortCompat> (or subclass) instead of raw array; was `androidx.webkit.WebMessagePortCompat[]`
+
+
 IntentName: androidx.webkit.WebViewFeature#DISABLED_ACTION_MODE_MENU_ITEMS:
     Intent action constant name must be ACTION_FOO: DISABLED_ACTION_MODE_MENU_ITEMS

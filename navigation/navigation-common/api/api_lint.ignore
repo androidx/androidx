@@ -1,4 +1,18 @@
 // Baseline format: 1.0
+ArrayReturn: androidx.navigation.NavType.ParcelableArrayType#get(android.os.Bundle, String):
+    Method should return Collection<D> (or subclass) instead of raw array; was `D[]`
+ArrayReturn: androidx.navigation.NavType.ParcelableArrayType#parseValue(String):
+    Method should return Collection<D> (or subclass) instead of raw array; was `D[]`
+ArrayReturn: androidx.navigation.NavType.ParcelableArrayType#put(android.os.Bundle, String, D[]) parameter #2:
+    Method parameter should be Collection<D> (or subclass) instead of raw array; was `D[]`
+ArrayReturn: androidx.navigation.NavType.SerializableArrayType#get(android.os.Bundle, String):
+    Method should return Collection<D> (or subclass) instead of raw array; was `D[]`
+ArrayReturn: androidx.navigation.NavType.SerializableArrayType#parseValue(String):
+    Method should return Collection<D> (or subclass) instead of raw array; was `D[]`
+ArrayReturn: androidx.navigation.NavType.SerializableArrayType#put(android.os.Bundle, String, D[]) parameter #2:
+    Method parameter should be Collection<D> (or subclass) instead of raw array; was `D[]`
+
+
 KotlinOperator: androidx.navigation.NavType#get(android.os.Bundle, String):
     Method can be invoked with an indexing operator from Kotlin: `get` (this is usually desirable; just make sure it makes sense for this type of object)
 
