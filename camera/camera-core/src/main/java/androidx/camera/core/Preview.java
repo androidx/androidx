@@ -288,16 +288,30 @@ public class Preview extends UseCase {
      */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
-    protected void updateUseCaseConfig(UseCaseConfig<?> useCaseConfig) {
-        PreviewConfig config = (PreviewConfig) useCaseConfig;
+    @NonNull
+    protected UseCaseConfig<?> applyDefaults(
+            @NonNull UseCaseConfig<?> userConfig,
+            @Nullable UseCaseConfig.Builder<?, ?, ?> defaultConfigBuilder) {
+        PreviewConfig previewConfig = (PreviewConfig) super.applyDefaults(userConfig,
+                defaultConfigBuilder);
+
+        // TODO(b/142839697): This should come from the bound Camera
+        CameraDeviceConfig deviceConfig = previewConfig;
         // Checks the device constraints and get the corrected aspect ratio.
-        if (CameraX.getSurfaceManager().requiresCorrectedAspectRatio(config)) {
-            Rational resultRatio = CameraX.getSurfaceManager().getCorrectedAspectRatio(config);
-            PreviewConfig.Builder configBuilder = PreviewConfig.Builder.fromConfig(config);
-            configBuilder.setTargetAspectRatioCustom(resultRatio);
-            config = configBuilder.build();
+        if (CameraX.getSurfaceManager().requiresCorrectedAspectRatio(deviceConfig)) {
+            ImageOutputConfig imageConfig = previewConfig;
+            Rational resultRatio =
+                    CameraX.getSurfaceManager().getCorrectedAspectRatio(deviceConfig,
+                            imageConfig.getTargetRotation(Surface.ROTATION_0));
+            if (resultRatio != null) {
+                PreviewConfig.Builder configBuilder = PreviewConfig.Builder.fromConfig(
+                        previewConfig);
+                configBuilder.setTargetAspectRatioCustom(resultRatio);
+                previewConfig = configBuilder.build();
+            }
         }
-        super.updateUseCaseConfig(config);
+
+        return previewConfig;
     }
 
     /**

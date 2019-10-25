@@ -35,6 +35,7 @@ import android.os.Build;
 import android.util.Pair;
 import android.util.Rational;
 import android.util.Size;
+import android.view.Surface;
 import android.view.WindowManager;
 
 import androidx.camera.camera2.Camera2AppConfig;
@@ -477,7 +478,9 @@ public final class SupportedSurfaceCombinationTest {
         PreviewConfig config = (PreviewConfig) preview.getUseCaseConfig();
         Rational previewAspectRatio = config.getTargetAspectRatioCustom();
 
-        Rational correctedAspectRatio = supportedSurfaceCombination.getCorrectedAspectRatio(config);
+        Rational correctedAspectRatio =
+                supportedSurfaceCombination.getCorrectedAspectRatio(
+                        config.getTargetRotation(Surface.ROTATION_0));
 
         Size maxJpegSize = supportedSurfaceCombination.getMaxOutputSizeByFormat(ImageFormat.JPEG);
         Rational maxJpegAspectRatio = new Rational(maxJpegSize.getHeight(), maxJpegSize.getWidth());
