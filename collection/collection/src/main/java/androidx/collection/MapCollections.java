@@ -51,6 +51,7 @@ abstract class MapCollections<K, V> {
         }
 
         @Override
+        @SuppressWarnings("unchecked")
         public T next() {
             if (!hasNext()) throw new NoSuchElementException();
             Object res = colGetEntry(mIndex, mOffset);
@@ -106,6 +107,7 @@ abstract class MapCollections<K, V> {
         }
 
         @Override
+        @SuppressWarnings("unchecked")
         public K getKey() {
             if (!mEntryValid) {
                 throw new IllegalStateException(
@@ -115,6 +117,7 @@ abstract class MapCollections<K, V> {
         }
 
         @Override
+        @SuppressWarnings("unchecked")
         public V getValue() {
             if (!mEntryValid) {
                 throw new IllegalStateException(
@@ -495,6 +498,7 @@ abstract class MapCollections<K, V> {
         return result;
     }
 
+    @SuppressWarnings("unchecked")
     public <T> T[] toArrayHelper(T[] array, int offset) {
         final int N  = colGetSize();
         if (array.length < N) {

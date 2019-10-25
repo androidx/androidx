@@ -36,9 +36,13 @@ import javax.tools.Diagnostic;
  */
 class CallbackReceiver {
 
+    @SuppressWarnings("unused")
     private static final String RESET = "reset";
+    @SuppressWarnings("unused")
     private static final String GET_METHOD = "getMethod";
+    @SuppressWarnings("unused")
     private static final String GET_ARGUMENTS = "getArguments";
+    @SuppressWarnings("unused")
     private static final String GET_CLS_NAME = "getClsName";
 
     private final ProcessingEnvironment mEnv;
