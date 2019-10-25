@@ -27,13 +27,16 @@ import androidx.ui.core.Draw
 import androidx.ui.core.IntPx
 import androidx.ui.core.IntPxSize
 import androidx.ui.core.Px
+import androidx.ui.core.PxSize
 import androidx.ui.core.ambientDensity
 import androidx.ui.core.withDensity
 import androidx.ui.graphics.BlendMode
 import androidx.ui.graphics.Brush
 import androidx.ui.graphics.Color
+import androidx.ui.graphics.ScaleFit
 import androidx.ui.graphics.StrokeCap
 import androidx.ui.graphics.StrokeJoin
+import androidx.ui.graphics.withSave
 import kotlin.math.ceil
 
 /**
@@ -56,6 +59,7 @@ private val DefaultAlignment = Alignment.Center
  * @param[tintColor] Optional color used to tint this vector graphic
  * @param[tintBlendMode] Optional blend mode used with [tintColor], default is [BlendMode.srcIn]
  * @param[alignment] Specifies the placement of the vector within the drawing bounds
+ * @param[scaleFit] Specifies how the vector is to be scaled within the parent bounds
  */
 @Composable
 fun DrawVector(
@@ -66,6 +70,7 @@ fun DrawVector(
     tintColor: Color = DefaultTintColor,
     tintBlendMode: BlendMode = DefaultTintBlendMode,
     alignment: Alignment = DefaultAlignment,
+    scaleFit: ScaleFit = ScaleFit.Fit,
     name: String = "",
     children: @Composable() VectorScope.(viewportWidth: Float, viewportHeight: Float) -> Unit
 ) {
@@ -75,15 +80,16 @@ fun DrawVector(
     val vpWidth = if (viewportWidth == unset) widthPx.value else viewportWidth
     val vpHeight = if (viewportHeight == unset) heightPx.value else viewportHeight
     DrawVector(
-        widthPx,
-        heightPx,
-        vpWidth,
-        vpHeight,
-        tintColor,
-        tintBlendMode,
-        alignment,
-        name,
-        children
+        defaultWidth = widthPx,
+        defaultHeight = heightPx,
+        viewportWidth = vpWidth,
+        viewportHeight = vpHeight,
+        tintColor = tintColor,
+        tintBlendMode = tintBlendMode,
+        alignment = alignment,
+        scaleFit = scaleFit,
+        name = name,
+        children = children
     )
 }
 
@@ -100,6 +106,7 @@ fun DrawVector(
  * @param[tintColor] Optional color used to tint this vector graphic
  * @param[tintBlendMode] Optional blend mode used with [tintColor], default is [BlendMode.srcIn]
  * @param[alignment] Specifies the placement of the vector within the drawing bounds
+ * @param[scaleFit] Specifies how the vector is to be scaled within the parent bounds
  */
 @Composable
 fun DrawVector(
@@ -110,6 +117,7 @@ fun DrawVector(
     tintColor: Color = DefaultTintColor,
     tintBlendMode: BlendMode = DefaultTintBlendMode,
     alignment: Alignment = DefaultAlignment,
+    scaleFit: ScaleFit = ScaleFit.Fit,
     name: String = "",
     children: @Composable() VectorScope.(viewportWidth: Float, viewportHeight: Float) -> Unit
 ) {
@@ -132,19 +140,33 @@ fun DrawVector(
         }
     }
 
+    val vectorWidth = defaultWidth.value
+    val vectorHeight = defaultHeight.value
+    val vectorPxSize = PxSize(Px(vectorWidth), Px(vectorHeight))
+
     Draw { canvas, parentSize ->
+        val parentWidth = parentSize.width.value
+        val parentHeight = parentSize.height.value
+        val scale = scaleFit.scale(vectorPxSize, parentSize)
+
         val alignedPosition = alignment.align(
             IntPxSize(
-                IntPx(ceil(parentSize.width.value - defaultWidth.value).toInt()),
-                IntPx(ceil(parentSize.height.value - defaultHeight.value).toInt())
+                IntPx(ceil(parentWidth - (vectorWidth * scale)).toInt()),
+                IntPx(ceil(parentHeight - (vectorHeight * scale)).toInt())
             )
         )
 
-        val dx = alignedPosition.x.value.toFloat()
-        val dy = alignedPosition.y.value.toFloat()
-        canvas.translate(dx, dy)
-        vector.draw(canvas, tintColor, tintBlendMode)
-        canvas.translate(-dx, -dy)
+        val translateX = alignedPosition.x.value.toFloat()
+        val translateY = alignedPosition.y.value.toFloat()
+
+        // apply the scale to the root of the vector
+        vector.root.scaleX = (vectorWidth / viewportWidth) * scale
+        vector.root.scaleY = (vectorHeight / viewportHeight) * scale
+
+        canvas.withSave {
+            canvas.translate(translateX, translateY)
+            vector.draw(canvas, tintColor, tintBlendMode)
+        }
     }
 }
 

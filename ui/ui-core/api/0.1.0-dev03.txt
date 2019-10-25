@@ -1454,6 +1454,14 @@ package androidx.ui.graphics {
     enum_constant public static final androidx.ui.graphics.FilterQuality none;
   }
 
+  public final class FixedScale implements androidx.ui.graphics.ScaleFit {
+    ctor public FixedScale(float value);
+    method public float component1();
+    method public androidx.ui.graphics.FixedScale copy(float value);
+    method public float getValue();
+    method public float scale(androidx.ui.core.PxSize srcSize, androidx.ui.core.PxSize dstSize);
+  }
+
   public interface Image {
     method public androidx.ui.graphics.colorspace.ColorSpace getColorSpace();
     method public androidx.ui.graphics.ImageConfig getConfig();
@@ -1645,6 +1653,30 @@ package androidx.ui.graphics {
 
   public final class RadialGradient extends androidx.ui.graphics.ShaderBrush {
     method public androidx.ui.graphics.RadialGradient copy(java.util.List<androidx.ui.graphics.Color> colors, java.util.List<java.lang.Float>? stops, float centerX, float centerY, float radius, androidx.ui.graphics.TileMode tileMode);
+  }
+
+  public interface ScaleFit {
+    method public float scale(androidx.ui.core.PxSize srcSize, androidx.ui.core.PxSize dstSize);
+    field public static final androidx.ui.graphics.ScaleFit.Companion! Companion;
+  }
+
+  public static final class ScaleFit.Companion {
+    method public androidx.ui.graphics.ScaleFit getFillHeight();
+    method public androidx.ui.graphics.ScaleFit getFillMaxDimension();
+    method public androidx.ui.graphics.ScaleFit getFillMinDimension();
+    method public androidx.ui.graphics.ScaleFit getFillWidth();
+    method public androidx.ui.graphics.ScaleFit getFit();
+    method public androidx.ui.graphics.FixedScale getNone();
+    property public final androidx.ui.graphics.ScaleFit FillHeight;
+    property public final androidx.ui.graphics.ScaleFit FillMaxDimension;
+    property public final androidx.ui.graphics.ScaleFit FillMinDimension;
+    property public final androidx.ui.graphics.ScaleFit FillWidth;
+    property public final androidx.ui.graphics.ScaleFit Fit;
+    property public final androidx.ui.graphics.FixedScale None;
+  }
+
+  public final class ScaleFitKt {
+    ctor public ScaleFitKt();
   }
 
   public final class Shader {
