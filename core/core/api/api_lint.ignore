@@ -141,6 +141,60 @@ ActionValue: androidx.core.view.accessibility.AccessibilityNodeInfoCompat#ACTION
     Inconsistent action value; expected `androidx.core.view.accessibility.action.ARGUMENT_SET_TEXT_CHARSEQUENCE`, was `ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE`
 
 
+ArrayReturn: androidx.core.app.FrameMetricsAggregator#getMetrics():
+    Method should return Collection<SparseIntArray> (or subclass) instead of raw array; was `android.util.SparseIntArray[]`
+ArrayReturn: androidx.core.app.FrameMetricsAggregator#remove(android.app.Activity):
+    Method should return Collection<SparseIntArray> (or subclass) instead of raw array; was `android.util.SparseIntArray[]`
+ArrayReturn: androidx.core.app.FrameMetricsAggregator#reset():
+    Method should return Collection<SparseIntArray> (or subclass) instead of raw array; was `android.util.SparseIntArray[]`
+ArrayReturn: androidx.core.app.FrameMetricsAggregator#stop():
+    Method should return Collection<SparseIntArray> (or subclass) instead of raw array; was `android.util.SparseIntArray[]`
+ArrayReturn: androidx.core.app.NotificationCompat.Action#getDataOnlyRemoteInputs():
+    Method should return Collection<RemoteInput> (or subclass) instead of raw array; was `androidx.core.app.RemoteInput[]`
+ArrayReturn: androidx.core.app.NotificationCompat.Action#getRemoteInputs():
+    Method should return Collection<RemoteInput> (or subclass) instead of raw array; was `androidx.core.app.RemoteInput[]`
+ArrayReturn: androidx.core.app.NotificationCompat.Builder#setRemoteInputHistory(CharSequence[]) parameter #0:
+    Method parameter should be Collection<CharSequence> (or subclass) instead of raw array; was `java.lang.CharSequence[]`
+ArrayReturn: androidx.core.app.RemoteInput#addResultsToIntent(androidx.core.app.RemoteInput[], android.content.Intent, android.os.Bundle) parameter #0:
+    Method parameter should be Collection<RemoteInput> (or subclass) instead of raw array; was `androidx.core.app.RemoteInput[]`
+ArrayReturn: androidx.core.app.RemoteInput#getChoices():
+    Method should return Collection<CharSequence> (or subclass) instead of raw array; was `java.lang.CharSequence[]`
+ArrayReturn: androidx.core.app.RemoteInput.Builder#setChoices(CharSequence[]) parameter #0:
+    Method parameter should be Collection<CharSequence> (or subclass) instead of raw array; was `java.lang.CharSequence[]`
+ArrayReturn: androidx.core.app.TaskStackBuilder#getIntents():
+    Method should return Collection<Intent> (or subclass) instead of raw array; was `android.content.Intent[]`
+ArrayReturn: androidx.core.content.ContextCompat#getExternalCacheDirs(android.content.Context):
+    Method should return Collection<File> (or subclass) instead of raw array; was `java.io.File[]`
+ArrayReturn: androidx.core.content.ContextCompat#getExternalFilesDirs(android.content.Context, String):
+    Method should return Collection<File> (or subclass) instead of raw array; was `java.io.File[]`
+ArrayReturn: androidx.core.content.ContextCompat#getObbDirs(android.content.Context):
+    Method should return Collection<File> (or subclass) instead of raw array; was `java.io.File[]`
+ArrayReturn: androidx.core.content.ContextCompat#startActivities(android.content.Context, android.content.Intent[]) parameter #1:
+    Method parameter should be Collection<Intent> (or subclass) instead of raw array; was `android.content.Intent[]`
+ArrayReturn: androidx.core.content.ContextCompat#startActivities(android.content.Context, android.content.Intent[], android.os.Bundle) parameter #1:
+    Method parameter should be Collection<Intent> (or subclass) instead of raw array; was `android.content.Intent[]`
+ArrayReturn: androidx.core.content.pm.ShortcutInfoCompat#getIntents():
+    Method should return Collection<Intent> (or subclass) instead of raw array; was `android.content.Intent[]`
+ArrayReturn: androidx.core.content.pm.ShortcutInfoCompat.Builder#setIntents(android.content.Intent[]) parameter #0:
+    Method parameter should be Collection<Intent> (or subclass) instead of raw array; was `android.content.Intent[]`
+ArrayReturn: androidx.core.content.pm.ShortcutInfoCompat.Builder#setPersons(androidx.core.app.Person[]) parameter #0:
+    Method parameter should be Collection<Person> (or subclass) instead of raw array; was `androidx.core.app.Person[]`
+ArrayReturn: androidx.core.hardware.display.DisplayManagerCompat#getDisplays():
+    Method should return Collection<Display> (or subclass) instead of raw array; was `android.view.Display[]`
+ArrayReturn: androidx.core.hardware.display.DisplayManagerCompat#getDisplays(String):
+    Method should return Collection<Display> (or subclass) instead of raw array; was `android.view.Display[]`
+ArrayReturn: androidx.core.os.ParcelableCompatCreatorCallbacks#newArray(int):
+    Method should return Collection<T> (or subclass) instead of raw array; was `T[]`
+ArrayReturn: androidx.core.provider.FontsContractCompat#buildTypeface(android.content.Context, android.os.CancellationSignal, androidx.core.provider.FontsContractCompat.FontInfo[]) parameter #2:
+    Method parameter should be Collection<FontInfo> (or subclass) instead of raw array; was `androidx.core.provider.FontsContractCompat.FontInfo[]`
+ArrayReturn: androidx.core.provider.FontsContractCompat.FontFamilyResult#getFonts():
+    Method should return Collection<FontInfo> (or subclass) instead of raw array; was `androidx.core.provider.FontsContractCompat.FontInfo[]`
+ArrayReturn: androidx.core.text.PrecomputedTextCompat#getSpans(int, int, Class<T>):
+    Method should return Collection<T> (or subclass) instead of raw array; was `T[]`
+ArrayReturn: androidx.core.widget.TextViewCompat#getCompoundDrawablesRelative(android.widget.TextView):
+    Method should return Collection<Drawable> (or subclass) instead of raw array; was `android.graphics.drawable.Drawable[]`
+
+
 BannedThrow: androidx.core.widget.TextViewCompat#setAutoSizeTextTypeUniformWithConfiguration(android.widget.TextView, int, int, int, int):
     Methods must not mention RuntimeException subclasses in throws clauses (was `java.lang.IllegalArgumentException`)
 BannedThrow: androidx.core.widget.TextViewCompat#setAutoSizeTextTypeUniformWithPresetSizes(android.widget.TextView, int[], int):

@@ -1,4 +1,10 @@
 // Baseline format: 1.0
+ArrayReturn: androidx.emoji.widget.EmojiAppCompatButton#setFilters(android.text.InputFilter[]) parameter #0:
+    Method parameter should be Collection<InputFilter> (or subclass) instead of raw array; was `android.text.InputFilter[]`
+ArrayReturn: androidx.emoji.widget.EmojiAppCompatTextView#setFilters(android.text.InputFilter[]) parameter #0:
+    Method parameter should be Collection<InputFilter> (or subclass) instead of raw array; was `android.text.InputFilter[]`
+
+
 MissingNullability: androidx.emoji.widget.EmojiAppCompatButton#EmojiAppCompatButton(android.content.Context) parameter #0:
     Missing nullability on parameter `context` in method `EmojiAppCompatButton`
 MissingNullability: androidx.emoji.widget.EmojiAppCompatButton#EmojiAppCompatButton(android.content.Context, android.util.AttributeSet) parameter #0:

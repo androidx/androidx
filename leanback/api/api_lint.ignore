@@ -5,6 +5,40 @@ ActionValue: androidx.leanback.app.GuidedStepSupportFragment#EXTRA_UI_STYLE:
     Inconsistent extra value; expected `androidx.leanback.app.extra.UI_STYLE`, was `uiStyle`
 
 
+ArrayReturn: androidx.leanback.app.SearchFragment#displayCompletions(android.view.inputmethod.CompletionInfo[]) parameter #0:
+    Method parameter should be Collection<CompletionInfo> (or subclass) instead of raw array; was `android.view.inputmethod.CompletionInfo[]`
+ArrayReturn: androidx.leanback.app.SearchSupportFragment#displayCompletions(android.view.inputmethod.CompletionInfo[]) parameter #0:
+    Method parameter should be Collection<CompletionInfo> (or subclass) instead of raw array; was `android.view.inputmethod.CompletionInfo[]`
+ArrayReturn: androidx.leanback.widget.AbstractMediaItemPresenter.ViewHolder#getMediaItemRowActions():
+    Method should return Collection<MultiAction> (or subclass) instead of raw array; was `androidx.leanback.widget.MultiActionsProvider.MultiAction[]`
+ArrayReturn: androidx.leanback.widget.ClassPresenterSelector#getPresenters():
+    Method should return Collection<Presenter> (or subclass) instead of raw array; was `androidx.leanback.widget.Presenter[]`
+ArrayReturn: androidx.leanback.widget.ControlButtonPresenterSelector#getPresenters():
+    Method should return Collection<Presenter> (or subclass) instead of raw array; was `androidx.leanback.widget.Presenter[]`
+ArrayReturn: androidx.leanback.widget.ItemAlignmentFacet#getAlignmentDefs():
+    Method should return Collection<ItemAlignmentDef> (or subclass) instead of raw array; was `androidx.leanback.widget.ItemAlignmentFacet.ItemAlignmentDef[]`
+ArrayReturn: androidx.leanback.widget.ItemAlignmentFacet#setAlignmentDefs(androidx.leanback.widget.ItemAlignmentFacet.ItemAlignmentDef[]) parameter #0:
+    Method parameter should be Collection<ItemAlignmentDef> (or subclass) instead of raw array; was `androidx.leanback.widget.ItemAlignmentFacet.ItemAlignmentDef[]`
+ArrayReturn: androidx.leanback.widget.MultiActionsProvider#getActions():
+    Method should return Collection<MultiAction> (or subclass) instead of raw array; was `androidx.leanback.widget.MultiActionsProvider.MultiAction[]`
+ArrayReturn: androidx.leanback.widget.MultiActionsProvider.MultiAction#getDrawables():
+    Method should return Collection<Drawable> (or subclass) instead of raw array; was `android.graphics.drawable.Drawable[]`
+ArrayReturn: androidx.leanback.widget.MultiActionsProvider.MultiAction#setDrawables(android.graphics.drawable.Drawable[]) parameter #0:
+    Method parameter should be Collection<Drawable> (or subclass) instead of raw array; was `android.graphics.drawable.Drawable[]`
+ArrayReturn: androidx.leanback.widget.PlaybackControlsRow.MultiAction#setDrawables(android.graphics.drawable.Drawable[]) parameter #0:
+    Method parameter should be Collection<Drawable> (or subclass) instead of raw array; was `android.graphics.drawable.Drawable[]`
+ArrayReturn: androidx.leanback.widget.PresenterSelector#getPresenters():
+    Method should return Collection<Presenter> (or subclass) instead of raw array; was `androidx.leanback.widget.Presenter[]`
+ArrayReturn: androidx.leanback.widget.SearchBar#displayCompletions(android.view.inputmethod.CompletionInfo[]) parameter #0:
+    Method parameter should be Collection<CompletionInfo> (or subclass) instead of raw array; was `android.view.inputmethod.CompletionInfo[]`
+ArrayReturn: androidx.leanback.widget.SinglePresenterSelector#getPresenters():
+    Method should return Collection<Presenter> (or subclass) instead of raw array; was `androidx.leanback.widget.Presenter[]`
+ArrayReturn: androidx.leanback.widget.picker.PickerColumn#getStaticLabels():
+    Method should return Collection<CharSequence> (or subclass) instead of raw array; was `java.lang.CharSequence[]`
+ArrayReturn: androidx.leanback.widget.picker.PickerColumn#setStaticLabels(CharSequence[]) parameter #0:
+    Method parameter should be Collection<CharSequence> (or subclass) instead of raw array; was `java.lang.CharSequence[]`
+
+
 AutoBoxing: androidx.leanback.widget.Parallax.FloatProperty#get(androidx.leanback.widget.Parallax):
     Must avoid boxed primitives (`java.lang.Float`)
 AutoBoxing: androidx.leanback.widget.Parallax.FloatProperty#set(androidx.leanback.widget.Parallax, Float) parameter #1:

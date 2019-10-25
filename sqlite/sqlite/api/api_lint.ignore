@@ -19,6 +19,22 @@ AcronymName: androidx.sqlite.db.SupportSQLiteStatement:
     Acronyms should not be capitalized in class names: was `SupportSQLiteStatement`, should this be `SupportSqLiteStatement`?
 
 
+ArrayReturn: androidx.sqlite.db.SimpleSQLiteQuery#SimpleSQLiteQuery(String, Object[]) parameter #1:
+    Method parameter should be Collection<Object> (or subclass) instead of raw array; was `java.lang.Object[]`
+ArrayReturn: androidx.sqlite.db.SimpleSQLiteQuery#bind(androidx.sqlite.db.SupportSQLiteProgram, Object[]) parameter #1:
+    Method parameter should be Collection<Object> (or subclass) instead of raw array; was `java.lang.Object[]`
+ArrayReturn: androidx.sqlite.db.SupportSQLiteDatabase#delete(String, String, Object[]) parameter #2:
+    Method parameter should be Collection<Object> (or subclass) instead of raw array; was `java.lang.Object[]`
+ArrayReturn: androidx.sqlite.db.SupportSQLiteDatabase#execSQL(String, Object[]) parameter #1:
+    Method parameter should be Collection<Object> (or subclass) instead of raw array; was `java.lang.Object[]`
+ArrayReturn: androidx.sqlite.db.SupportSQLiteDatabase#query(String, Object[]) parameter #1:
+    Method parameter should be Collection<Object> (or subclass) instead of raw array; was `java.lang.Object[]`
+ArrayReturn: androidx.sqlite.db.SupportSQLiteDatabase#update(String, int, android.content.ContentValues, String, Object[]) parameter #4:
+    Method parameter should be Collection<Object> (or subclass) instead of raw array; was `java.lang.Object[]`
+ArrayReturn: androidx.sqlite.db.SupportSQLiteQueryBuilder#selection(String, Object[]) parameter #1:
+    Method parameter should be Collection<Object> (or subclass) instead of raw array; was `java.lang.Object[]`
+
+
 MissingBuild: androidx.sqlite.db.SupportSQLiteQueryBuilder:
     Missing `build()` method in androidx.sqlite.db.SupportSQLiteQueryBuilder
 
