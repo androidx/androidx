@@ -216,10 +216,14 @@ public final class CameraXTest {
     public void bindMultipleUseCases() {
         initCameraX();
         FakeUseCaseConfig config0 =
-                new FakeUseCaseConfig.Builder().setTargetName("config0").build();
+                new FakeUseCaseConfig.Builder()
+                        .setTargetName("config0")
+                        .setLensFacing(CAMERA_LENS_FACING).build();
         FakeUseCase fakeUseCase = new FakeUseCase(config0);
         FakeOtherUseCaseConfig config1 =
-                new FakeOtherUseCaseConfig.Builder().setTargetName("config1").build();
+                new FakeOtherUseCaseConfig.Builder()
+                        .setTargetName("config1")
+                        .setLensFacing(CAMERA_LENS_FACING).build();
         FakeOtherUseCase fakeOtherUseCase = new FakeOtherUseCase(config1);
 
         CameraX.bindToLifecycle(mLifecycle, fakeUseCase, fakeOtherUseCase);
@@ -383,10 +387,14 @@ public final class CameraXTest {
     public void canGetActiveUseCases_afterBindToLifecycle() {
         initCameraX();
         FakeUseCaseConfig config0 =
-                new FakeUseCaseConfig.Builder().setTargetName("config0").build();
+                new FakeUseCaseConfig.Builder()
+                        .setTargetName("config0")
+                        .setLensFacing(CAMERA_LENS_FACING).build();
         FakeUseCase fakeUseCase = new FakeUseCase(config0);
         FakeOtherUseCaseConfig config1 =
-                new FakeOtherUseCaseConfig.Builder().setTargetName("config1").build();
+                new FakeOtherUseCaseConfig.Builder()
+                        .setTargetName("config1")
+                        .setLensFacing(CAMERA_LENS_FACING).build();
         FakeOtherUseCase fakeOtherUseCase = new FakeOtherUseCase(config1);
 
         CameraX.bindToLifecycle(mLifecycle, fakeUseCase, fakeOtherUseCase);
@@ -434,7 +442,7 @@ public final class CameraXTest {
 
             SessionConfig.Builder builder = new SessionConfig.Builder();
 
-            UseCaseConfig<?> config = getUseCaseConfig();
+            CameraDeviceConfig config = getBoundDeviceConfig();
             String cameraId = getCameraIdUnchecked(config);
             attachToCamera(cameraId, builder.build());
             return suggestedResolutionMap;

@@ -295,10 +295,10 @@ public class Preview extends UseCase {
         PreviewConfig previewConfig = (PreviewConfig) super.applyDefaults(userConfig,
                 defaultConfigBuilder);
 
-        // TODO(b/142839697): This should come from the bound Camera
-        CameraDeviceConfig deviceConfig = previewConfig;
+        CameraDeviceConfig deviceConfig = getBoundDeviceConfig();
         // Checks the device constraints and get the corrected aspect ratio.
-        if (CameraX.getSurfaceManager().requiresCorrectedAspectRatio(deviceConfig)) {
+        if (deviceConfig != null && CameraX.getSurfaceManager().requiresCorrectedAspectRatio(
+                deviceConfig)) {
             ImageOutputConfig imageConfig = previewConfig;
             Rational resultRatio =
                     CameraX.getSurfaceManager().getCorrectedAspectRatio(deviceConfig,

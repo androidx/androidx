@@ -199,7 +199,8 @@ public final class Camera2DeviceSurfaceManager implements CameraDeviceSurfaceMan
 
         if (originalUseCases != null) {
             for (UseCase useCase : originalUseCases) {
-                CameraDeviceConfig deviceConfig = (CameraDeviceConfig) useCase.getUseCaseConfig();
+                CameraDeviceConfig deviceConfig =
+                        Preconditions.checkNotNull(useCase.getBoundDeviceConfig());
                 String useCaseCameraId = getCameraIdFromConfig(deviceConfig);
                 Size resolution = useCase.getAttachedSurfaceResolution(useCaseCameraId);
 

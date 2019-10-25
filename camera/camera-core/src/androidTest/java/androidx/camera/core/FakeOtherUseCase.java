@@ -49,12 +49,6 @@ class FakeOtherUseCase extends UseCase {
     }
 
     @Override
-    protected UseCaseConfig.Builder<?, ?, ?> getDefaultBuilder(LensFacing lensFacing) {
-        return new FakeOtherUseCaseConfig.Builder().setLensFacing(
-                lensFacing == null ? LensFacing.BACK : lensFacing);
-    }
-
-    @Override
     @NonNull
     protected Map<String, Size> onSuggestedResolutionUpdated(
             @NonNull Map<String, Size> suggestedResolutionMap) {
