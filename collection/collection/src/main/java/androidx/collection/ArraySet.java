@@ -385,6 +385,7 @@ public final class ArraySet<E> implements Collection<E>, Set<E> {
      * @return Returns the value stored at the given index.
      */
     @Nullable
+    @SuppressWarnings("unchecked")
     public E valueAt(int index) {
         return (E) mArray[index];
     }
@@ -507,6 +508,7 @@ public final class ArraySet<E> implements Collection<E>, Set<E> {
      * @param index The desired index, must be between 0 and {@link #size()}-1.
      * @return Returns the value that was stored at this index.
      */
+    @SuppressWarnings("unchecked")
     public E removeAt(int index) {
         final int oSize = mSize;
         final Object old = mArray[index];

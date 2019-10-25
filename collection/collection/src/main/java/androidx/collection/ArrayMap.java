@@ -67,6 +67,7 @@ public class ArrayMap<K, V> extends SimpleArrayMap<K, V> implements Map<K, V> {
     /**
      * Create a new ArrayMap with the mappings from the given ArrayMap.
      */
+    @SuppressWarnings("unchecked")
     public ArrayMap(SimpleArrayMap map) {
         super(map);
     }

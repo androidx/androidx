@@ -376,6 +376,7 @@ public class SimpleArrayMap<K, V> {
      * @return Returns the value associated with the given key,
      * or {@code defaultValue} if there is no mapping for the key.
      */
+    @SuppressWarnings("unchecked")
     public V getOrDefault(Object key, V defaultValue) {
         final int index = indexOfKey(key);
         return index >= 0 ? (V) mArray[(index << 1) + 1] : defaultValue;
@@ -386,6 +387,7 @@ public class SimpleArrayMap<K, V> {
      * @param index The desired index, must be between 0 and {@link #size()}-1.
      * @return Returns the key stored at the given index.
      */
+    @SuppressWarnings("unchecked")
     public K keyAt(int index) {
         return (K)mArray[index << 1];
     }
@@ -395,6 +397,7 @@ public class SimpleArrayMap<K, V> {
      * @param index The desired index, must be between 0 and {@link #size()}-1.
      * @return Returns the value stored at the given index.
      */
+    @SuppressWarnings("unchecked")
     public V valueAt(int index) {
         return (V)mArray[(index << 1) + 1];
     }
@@ -405,6 +408,7 @@ public class SimpleArrayMap<K, V> {
      * @param value The new value to store at this index.
      * @return Returns the previous value at the given index.
      */
+    @SuppressWarnings("unchecked")
     public V setValueAt(int index, V value) {
         index = (index << 1) + 1;
         V old = (V)mArray[index];
@@ -428,6 +432,7 @@ public class SimpleArrayMap<K, V> {
      * was no such key.
      */
     @Nullable
+    @SuppressWarnings("unchecked")
     public V put(K key, V value) {
         final int osize = mSize;
         final int hash;
@@ -566,6 +571,7 @@ public class SimpleArrayMap<K, V> {
      * @param index The desired index, must be between 0 and {@link #size()}-1.
      * @return Returns the value that was stored at this index.
      */
+    @SuppressWarnings("unchecked")
     public V removeAt(int index) {
         final Object old = mArray[(index << 1) + 1];
         final int osize = mSize;

@@ -163,6 +163,7 @@ class CallableMethod {
                 "CallbackHandlerRegistry");
         ClassName callbackHandler = ClassName.get("androidx.remotecallback",
                 "CallbackHandlerRegistry.CallbackHandler");
+        @SuppressWarnings("unused")
         ClassName remoteInputHolder = ClassName.get("androidx.remotecallback",
                 "RemoteInputHolder");
         ClassName bundle = ClassName.get("android.os", "Bundle");
@@ -244,6 +245,7 @@ class CallableMethod {
         genClass.addMethod(builder.build());
     }
 
+    @SuppressWarnings("unused")
     private int countArgs(ClassName context) {
         int ct = 0;
         for (int i = 0; i < mTypes.size(); i++) {
@@ -255,6 +257,7 @@ class CallableMethod {
         return ct;
     }
 
+    @SuppressWarnings("unused")
     private String getBundleParam(String type, int index) {
         String key = getBundleKey(index);
         return getBundleParam(type, key);
@@ -361,6 +364,7 @@ class CallableMethod {
         return "\"p" + index + "\"";
     }
 
+    @SuppressWarnings("unused")
     private boolean checkType(String type, Messager messager) {
         switch (type) {
             case BYTE:
