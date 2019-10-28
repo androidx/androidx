@@ -34,7 +34,7 @@ private val HANDLE_COLOR = Color(0xFF2B28F5.toInt())
 
 @Composable
 internal fun LeftPointingSelectionHandle() {
-    val paint = +memo { Paint() }
+    val paint = +memo { Paint().also { it.isAntiAlias = true } }
     paint.color = HANDLE_COLOR
     Draw { canvas, _ ->
         var path = Path()
@@ -61,7 +61,7 @@ internal fun LeftPointingSelectionHandle() {
 
 @Composable
 internal fun RightPointingSelectionHandle() {
-    val paint = +memo { Paint() }
+    val paint = +memo { Paint().also { it.isAntiAlias = true } }
     paint.color = HANDLE_COLOR
     Draw { canvas, _ ->
         var path = Path()
