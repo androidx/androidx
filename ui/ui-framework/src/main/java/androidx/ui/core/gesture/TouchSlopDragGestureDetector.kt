@@ -52,9 +52,7 @@ fun TouchSlopDragGestureDetector(
     glue.touchSlopDragObserver = dragObserver
 
     RawDragGestureDetector(glue.rawDragObserver, glue::dragEnabled) {
-        TouchSlopExceededGestureDetector(glue::enableDrag, canDrag) {
-            children()
-        }
+        TouchSlopExceededGestureDetector(glue::enableDrag, canDrag, children)
     }
 }
 

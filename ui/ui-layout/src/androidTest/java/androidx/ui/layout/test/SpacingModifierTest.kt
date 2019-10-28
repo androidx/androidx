@@ -68,9 +68,7 @@ class SpacingModifierTest : LayoutTest() {
     fun spacingAllAppliedToChild() = withDensity(density) {
         val spacing = 10.dp
         testSpacingIsAppliedImplementation(spacing) { child: @Composable() () -> Unit ->
-            TestBox(modifier = Spacing(spacing)) {
-                child()
-            }
+            TestBox(modifier = Spacing(spacing), body = child)
         }
     }
 
@@ -92,9 +90,7 @@ class SpacingModifierTest : LayoutTest() {
             spacingRight,
             spacingBottom
         ) { child: @Composable() () -> Unit ->
-            TestBox(modifier = spacing) {
-                child()
-            }
+            TestBox(modifier = spacing, body = child)
         }
     }
 
@@ -108,9 +104,7 @@ class SpacingModifierTest : LayoutTest() {
     fun insufficientSpaceAvailable() = withDensity(density) {
         val spacing = 30.dp
         testSpacingWithInsufficientSpaceImplementation(spacing) { child: @Composable() () -> Unit ->
-            TestBox(modifier = Spacing(spacing)) {
-                child()
-            }
+            TestBox(modifier = Spacing(spacing), body = child)
         }
     }
 

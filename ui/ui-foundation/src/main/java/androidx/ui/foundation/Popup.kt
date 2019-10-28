@@ -168,9 +168,7 @@ private fun Popup(
 
                 // Update the popup's position
                 popupLayout.updatePosition()
-            }) {
-                children()
-            }
+            }, children)
         }
     }
 

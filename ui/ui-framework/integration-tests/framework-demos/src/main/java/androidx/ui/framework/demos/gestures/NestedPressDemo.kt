@@ -115,9 +115,7 @@ fun PressableContainer(
                             (-1).dp,
                             color
                         )
-                        Padding(paddingLeft, paddingTop, paddingRight, paddingBottom) {
-                            children()
-                        }
+                        Padding(paddingLeft, paddingTop, paddingRight, paddingBottom, children)
                     }
                 }
             }

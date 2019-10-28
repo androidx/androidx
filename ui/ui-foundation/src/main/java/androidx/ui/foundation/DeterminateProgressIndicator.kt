@@ -40,7 +40,5 @@ fun DeterminateProgressIndicator(
     if (progress !in 0f..1f) {
         throw IllegalArgumentException("Progress must be between 0.0 and 1.0")
     }
-    Semantics(properties = { accessibilityValue = "$progress" }) {
-        children()
-    }
+    Semantics(properties = { accessibilityValue = "$progress" }, children = children)
 }

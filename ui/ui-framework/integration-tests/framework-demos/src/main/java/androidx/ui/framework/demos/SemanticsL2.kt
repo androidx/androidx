@@ -38,7 +38,7 @@ fun SemanticProperties(
         propertySet.add(visibility)
     }
 
-    Semantics(properties = propertySet, actions = actions) { children() }
+    Semantics(properties = propertySet, actions = actions, children = children)
 }
 
 /**

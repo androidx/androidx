@@ -55,9 +55,7 @@ fun ComposeTestRule.setContentAndGetPixelSize(
             ConstrainedBox(constraints = parentConstraints) {
                 OnChildPositioned(onPositioned = { coordinates ->
                     realSize = coordinates.size
-                }) {
-                    children()
-                }
+                }, children = children)
             }
         }
     }

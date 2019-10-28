@@ -287,7 +287,7 @@ fun ScrollingFancyIndicatorContainerTabs() {
 @Sampled
 @Composable
 fun FancyTab(title: String, onClick: () -> Unit, selected: Boolean) {
-    MutuallyExclusiveSetItem(selected = selected, onClick = { onClick() }) {
+    MutuallyExclusiveSetItem(selected = selected, onClick = onClick) {
         Container(height = 50.dp, padding = EdgeInsets(10.dp)) {
             Column(
                 ExpandedHeight,

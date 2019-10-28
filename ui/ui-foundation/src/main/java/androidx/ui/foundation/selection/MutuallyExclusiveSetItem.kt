@@ -51,9 +51,8 @@ fun MutuallyExclusiveSetItem(
         }) {
         PressReleasedGestureDetector(
             onRelease = onClick,
-            consumeDownOnStart = false
-        ) {
-            children()
-        }
+            consumeDownOnStart = false,
+            children = children
+        )
     }
 }

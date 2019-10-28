@@ -50,9 +50,8 @@ fun Clickable(
     ) {
         PressReleasedGestureDetector(
             onRelease = onClick,
-            consumeDownOnStart = consumeDownOnStart
-        ) {
-            children()
-        }
+            consumeDownOnStart = consumeDownOnStart,
+            children = children
+        )
     }
 }

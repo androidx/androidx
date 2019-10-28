@@ -60,9 +60,7 @@ fun DoubleTapGestureDetector(
         +memo { DoubleTapGestureRecognizer(coroutineContext) }
     recognizer.onDoubleTap = onDoubleTap
 
-    PointerInputWrapper(pointerInputHandler = recognizer.pointerInputHandler) {
-        children()
-    }
+    PointerInputWrapper(pointerInputHandler = recognizer.pointerInputHandler, children = children)
 }
 
 internal class DoubleTapGestureRecognizer(

@@ -303,9 +303,7 @@ internal val CurrentTextStyleAmbient = Ambient.of { TextStyle() }
 fun CurrentTextStyleProvider(value: TextStyle, children: @Composable() () -> Unit) {
     val style = +ambient(CurrentTextStyleAmbient)
     val mergedStyle = style.merge(value)
-    CurrentTextStyleAmbient.Provider(value = mergedStyle) {
-        children()
-    }
+    CurrentTextStyleAmbient.Provider(value = mergedStyle, children = children)
 }
 
 /**
