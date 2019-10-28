@@ -16,7 +16,6 @@
 
 package androidx.camera.core;
 
-import android.graphics.SurfaceTexture;
 import android.util.Size;
 import android.view.Surface;
 
@@ -32,7 +31,7 @@ import java.util.concurrent.Executor;
  * A {@link DeferrableSurface} wraps around user provided {@link Preview.PreviewSurfaceCallback}
  * and {@link Executor}.
  */
-final class CallbackDeferrableSurface extends DeferrableSurface implements SurfaceTextureHolder {
+final class CallbackDeferrableSurface extends DeferrableSurface implements SurfaceHolder {
 
     @NonNull
     private ListenableFuture<Surface> mSurfaceFuture;
@@ -61,13 +60,6 @@ final class CallbackDeferrableSurface extends DeferrableSurface implements Surfa
     @Override
     ListenableFuture<Surface> provideSurface() {
         return mSurfaceFuture;
-    }
-
-    @NonNull
-    @Override
-    public SurfaceTexture getSurfaceTexture() {
-        throw new IllegalStateException("getSurfaceTexture() is a deprecated method that is not "
-                + "supported by UserDeferrableSurface.");
     }
 
     /**

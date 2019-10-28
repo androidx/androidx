@@ -16,17 +16,17 @@
 
 package androidx.camera.core;
 
-import android.annotation.SuppressLint;
 import android.graphics.ImageFormat;
 import android.graphics.SurfaceTexture;
+import android.media.ImageReader;
+import android.media.MediaCodec;
 import android.os.Handler;
 import android.os.HandlerThread;
-import android.util.Log;
 import android.util.Rational;
 import android.util.Size;
-import android.view.Display;
 import android.view.Surface;
-import android.view.View;
+import android.view.SurfaceView;
+import android.view.TextureView;
 
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
@@ -34,44 +34,21 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.annotation.UiThread;
-import androidx.camera.core.ImageOutputConfig.RotationValue;
 import androidx.camera.core.impl.utils.Threads;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.core.util.Preconditions;
 
-import com.google.auto.value.AutoValue;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.Map;
-import java.util.Objects;
 import java.util.concurrent.Executor;
-import java.util.concurrent.RejectedExecutionException;
 
 /**
  * A use case that provides a camera preview stream for displaying on-screen.
  *
- * <p>The preview stream is connected to an underlying {@link SurfaceTexture}.  This SurfaceTexture
- * is created by the Preview use case and provided as an output after it is configured and attached
- * to the camera.  The application receives the SurfaceTexture by setting an output listener with
- * {@link Preview#setOnPreviewOutputUpdateListener(OnPreviewOutputUpdateListener)}. When the
- * lifecycle becomes active, the camera will start and images will be streamed to the
- * SurfaceTexture.
- * {@link OnPreviewOutputUpdateListener#onUpdated(PreviewOutput)} is called when a
- * new SurfaceTexture is created.  A SurfaceTexture is created each time the use case becomes
- * active and no previous SurfaceTexture exists.
- *
- * <p>The application can then decide how this texture is shown.  The texture data is as received
- * by the camera system with no rotation applied.  To display the SurfaceTexture with the correct
- * orientation, the rotation parameter sent to {@link Preview.OnPreviewOutputUpdateListener} can
- * be used to create a correct transformation matrix for display. See
- * {@link #setTargetRotation(int)} and {@link PreviewConfig.Builder#setTargetRotation(int)} for
- * details.  See {@link Preview#setOnPreviewOutputUpdateListener(OnPreviewOutputUpdateListener)} for
- * notes if attaching the SurfaceTexture to {@link android.view.TextureView}.
- *
- * <p>The application is responsible for managing SurfaceTexture after receiving it.  See
- * {@link Preview#setOnPreviewOutputUpdateListener(OnPreviewOutputUpdateListener)} for notes on
- * if overriding {@link
- * android.view.TextureView.SurfaceTextureListener#onSurfaceTextureDestroyed(SurfaceTexture)}.
+ * <p>The preview stream is connected to the {@link Surface} provided
+ * via{@link PreviewSurfaceCallback}. The application decides how the {@link Surface} is shown,
+ * and is responsible for managing the {@link Surface} lifecycle after providing it.
  */
 public class Preview extends UseCase {
     /**
@@ -82,34 +59,24 @@ public class Preview extends UseCase {
     @RestrictTo(Scope.LIBRARY_GROUP)
     public static final Defaults DEFAULT_CONFIG = new Defaults();
     private static final String TAG = "Preview";
-    private static final String CONFLICTING_SURFACE_API_ERROR_MESSAGE =
-            "PreviewSurfaceCallback cannot be used with OnPreviewOutputUpdateListener.";
     @Nullable
     private HandlerThread mProcessingPreviewThread;
     @Nullable
     private Handler mProcessingPreviewHandler;
 
-    private final PreviewConfig.Builder mUseCaseConfigBuilder;
-    @Nullable
-    private OnPreviewOutputUpdateListener mSubscribedPreviewOutputListener;
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     @Nullable
     PreviewSurfaceCallback mPreviewSurfaceCallback;
     @SuppressWarnings("WeakerAccess") /* Synthetic Accessor */
     @Nullable
     Executor mPreviewSurfaceCallbackExecutor;
-    @Nullable
-    private PreviewOutput mLatestPreviewOutput;
     // Cached latest resolution for creating the pipeline as soon as it's ready.
     @Nullable
     private Size mLatestResolution;
-    private boolean mSurfaceDispatched = false;
-    private SessionConfig.Builder mSessionConfigBuilder;
 
-    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-            SurfaceTextureHolder mSurfaceTextureHolder;
-
-    private Executor mOutputUpdateExecutor;
+    // Synthetic Accessor
+    @SuppressWarnings("WeakerAccess")
+    SurfaceHolder mSurfaceHolder;
 
     /**
      * Creates a new preview use case from the given configuration.
@@ -119,20 +86,18 @@ public class Preview extends UseCase {
     @MainThread
     public Preview(@NonNull PreviewConfig config) {
         super(config);
-        mUseCaseConfigBuilder = PreviewConfig.Builder.fromConfig(config);
     }
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     SessionConfig.Builder createPipeline(PreviewConfig config, Size resolution) {
         Threads.checkMainThread();
+        Preconditions.checkState(isPreviewSurfaceCallbackSet());
         SessionConfig.Builder sessionConfigBuilder = SessionConfig.Builder.createFrom(config);
 
         final CaptureProcessor captureProcessor = config.getCaptureProcessor(null);
-
-        CallbackDeferrableSurface callbackDeferrableSurface =
-                isUsingPreviewSurfaceCallback() ? new CallbackDeferrableSurface(
-                        resolution, mPreviewSurfaceCallbackExecutor,
-                        mPreviewSurfaceCallback) : null;
+        final CallbackDeferrableSurface callbackDeferrableSurface = new CallbackDeferrableSurface(
+                resolution, mPreviewSurfaceCallbackExecutor,
+                mPreviewSurfaceCallback);
         if (captureProcessor != null) {
             CaptureStage captureStage = new CaptureStage.DefaultCaptureStage();
             // TODO: To allow user to use an Executor for the processing.
@@ -143,8 +108,8 @@ public class Preview extends UseCase {
                 mProcessingPreviewHandler = new Handler(mProcessingPreviewThread.getLooper());
             }
 
-            ProcessingSurfaceTexture processingSurfaceTexture =
-                    new ProcessingSurfaceTexture(
+            ProcessingSurface processingSurface =
+                    new ProcessingSurface(
                             resolution.getWidth(),
                             resolution.getHeight(),
                             ImageFormat.YUV_420_888,
@@ -154,10 +119,10 @@ public class Preview extends UseCase {
                             callbackDeferrableSurface);
 
             sessionConfigBuilder.addCameraCaptureCallback(
-                    processingSurfaceTexture.getCameraCaptureCallback());
+                    processingSurface.getCameraCaptureCallback());
 
-            mSurfaceTextureHolder = processingSurfaceTexture;
-            sessionConfigBuilder.addSurface(processingSurfaceTexture);
+            mSurfaceHolder = processingSurface;
+            sessionConfigBuilder.addSurface(processingSurface);
             sessionConfigBuilder.setTag(captureStage.getId());
         } else {
             final ImageInfoProcessor processor = config.getImageInfoProcessor(null);
@@ -175,169 +140,22 @@ public class Preview extends UseCase {
                     }
                 });
             }
-
-            if (callbackDeferrableSurface != null) {
-                mSurfaceTextureHolder = callbackDeferrableSurface;
-                sessionConfigBuilder.addSurface(callbackDeferrableSurface);
-            } else {
-                CheckedSurfaceTexture checkedSurfaceTexture = new CheckedSurfaceTexture(resolution);
-                mSurfaceTextureHolder = checkedSurfaceTexture;
-                sessionConfigBuilder.addSurface(checkedSurfaceTexture);
-            }
+            mSurfaceHolder = callbackDeferrableSurface;
+            sessionConfigBuilder.addSurface(callbackDeferrableSurface);
         }
         sessionConfigBuilder.addErrorListener(new SessionConfig.ErrorListener() {
             @Override
             public void onError(@NonNull SessionConfig sessionConfig,
                     @NonNull SessionConfig.SessionError error) {
-                if (callbackDeferrableSurface == null) {
-                    clearPipeline();
-                } else {
-                    callbackDeferrableSurface.release();
-                }
+                callbackDeferrableSurface.release();
                 SessionConfig.Builder sessionConfigBuilder = createPipeline(config, resolution);
                 String cameraId = getCameraIdUnchecked(config);
                 attachToCamera(cameraId, sessionConfigBuilder.build());
-                if (!isUsingPreviewSurfaceCallback()) {
-                    updateOutput(mSurfaceTextureHolder.getSurfaceTexture(), resolution);
-                }
                 notifyReset();
             }
         });
 
         return sessionConfigBuilder;
-    }
-
-
-    /**
-     * Clear the internal pipeline so that the pipeline can be set up again.
-     *
-     * @deprecated TODO(b / 117519540): remove after {@link OnPreviewOutputUpdateListener} is
-     * removed.
-     */
-    @Deprecated
-    void clearPipeline() {
-        Threads.checkMainThread();
-        SurfaceTextureHolder surfaceTextureHolder = mSurfaceTextureHolder;
-        mSurfaceTextureHolder = null;
-        if (surfaceTextureHolder != null) {
-            surfaceTextureHolder.release();
-        }
-
-        // The handler no longer used by the ProcessingSurfaceTexture, we can close the
-        // handlerTread after the ProcessingSurfaceTexture was released.
-        if (mProcessingPreviewHandler != null) {
-            mProcessingPreviewThread.quitSafely();
-            mProcessingPreviewThread = null;
-            mProcessingPreviewHandler = null;
-        }
-    }
-
-    /**
-     * Un-register a listener previously registered via
-     * {@link Preview#setOnPreviewOutputUpdateListener(OnPreviewOutputUpdateListener)}.
-     * It will signal to the camera that the camera should no longer stream data to the last
-     * {@link PreviewOutput}.
-     *
-     * @throws IllegalStateException If not called on main thread.
-     */
-    @SuppressLint("PairedRegistration") // TODO(b/117519540): once bug fixed, this API and
-    // SuppressLint should be removed.
-    @UiThread
-    public void removePreviewOutputListener() {
-        Threads.checkMainThread();
-        if (mSubscribedPreviewOutputListener != null) {
-            mSubscribedPreviewOutputListener = null;
-            notifyInactive();
-        }
-    }
-
-    /**
-     * Gets {@link OnPreviewOutputUpdateListener}
-     *
-     * @return the last set listener or {@code null} if no listener is set
-     * @throws IllegalStateException If not called on main thread.
-     */
-    @UiThread
-    @Nullable
-    public OnPreviewOutputUpdateListener getOnPreviewOutputUpdateListener() {
-        Threads.checkMainThread();
-        return mSubscribedPreviewOutputListener;
-    }
-
-    /**
-     * Sets a listener to get the {@link PreviewOutput} updates.
-     *
-     * <p>Setting this listener will signal to the camera that the use case is ready to receive
-     * data.
-     *
-     * <p>Once {@link OnPreviewOutputUpdateListener#onUpdated(PreviewOutput)}  is called,
-     * ownership of the {@link PreviewOutput} and its contents is transferred to the application. It
-     * is the application's responsibility to release the last {@link SurfaceTexture} returned by
-     * {@link PreviewOutput#getSurfaceTexture()} when a new SurfaceTexture is provided via an update
-     * or when the user is finished with the use case.  A SurfaceTexture is created each time the
-     * use case becomes active and no previous SurfaceTexture exists.
-     * {@link OnPreviewOutputUpdateListener#onUpdated(PreviewOutput)} is called when a new
-     * SurfaceTexture is created.
-     *
-     * <p>Calling {@link android.view.TextureView#setSurfaceTexture(SurfaceTexture)} when the
-     * TextureView's SurfaceTexture is already created, should be preceded by calling
-     * {@link android.view.ViewGroup#removeView(View)} and
-     * {@link android.view.ViewGroup#addView(View)} on the parent view of the TextureView to ensure
-     * the setSurfaceTexture() call succeeds.
-     *
-     * <p>Since {@link OnPreviewOutputUpdateListener#onUpdated(PreviewOutput)} is called when the
-     * underlying SurfaceTexture is created, applications that override and return false from {@link
-     * android.view.TextureView.SurfaceTextureListener#onSurfaceTextureDestroyed(SurfaceTexture)}
-     * should be sure to call {@link android.view.TextureView#setSurfaceTexture(SurfaceTexture)}
-     * with the output from the previous {@link PreviewOutput} to attach it to a new TextureView,
-     * such as on resuming the application.
-     *
-     * <p>The listener will run on the UI thread. See
-     * {@link Preview#setOnPreviewOutputUpdateListener(Executor, OnPreviewOutputUpdateListener)}
-     * to set the updates run on the given executor.
-     *
-     * @param newListener The listener which will receive {@link PreviewOutput} updates.
-     */
-    @UiThread
-    public void setOnPreviewOutputUpdateListener(
-            @NonNull OnPreviewOutputUpdateListener newListener) {
-        setOnPreviewOutputUpdateListener(CameraXExecutors.mainThreadExecutor(), newListener);
-    }
-
-    /**
-     * Sets a listener and its executor to get the {@link PreviewOutput} updates.
-     *
-     * <p>See {@link Preview#setOnPreviewOutputUpdateListener(OnPreviewOutputUpdateListener)} for
-     * more information.
-     *
-     * @param executor    The executor on which the listener should be invoked.
-     * @param newListener The listener which will receive {@link PreviewOutput} updates.
-     * @throws IllegalStateException If not called on main thread.
-     */
-    @UiThread
-    public void setOnPreviewOutputUpdateListener(
-            @NonNull /* @CallbackExecutor */ Executor executor,
-            @NonNull OnPreviewOutputUpdateListener newListener) {
-        Threads.checkMainThread();
-        Preconditions.checkState(mPreviewSurfaceCallback == null,
-                CONFLICTING_SURFACE_API_ERROR_MESSAGE);
-        mOutputUpdateExecutor = executor;
-        OnPreviewOutputUpdateListener oldListener = mSubscribedPreviewOutputListener;
-        mSubscribedPreviewOutputListener = newListener;
-        if (oldListener == null && newListener != null) {
-            notifyActive();
-            if (mLatestPreviewOutput != null) {
-                mSurfaceDispatched = true;
-                updateListener(newListener, mLatestPreviewOutput);
-            }
-        } else if (oldListener != null && oldListener != newListener) {
-            if (mLatestPreviewOutput != null) {
-                PreviewConfig config = (PreviewConfig) getUseCaseConfig();
-                Size resolution = mLatestPreviewOutput.getTextureSize();
-                updateConfigAndOutput(config, resolution);
-                notifyReset();
-            }
-        }
     }
 
     /**
@@ -369,8 +187,6 @@ public class Preview extends UseCase {
             mPreviewSurfaceCallback = null;
             notifyInactive();
         } else {
-            Preconditions.checkState(mSubscribedPreviewOutputListener == null,
-                    CONFLICTING_SURFACE_API_ERROR_MESSAGE);
             mPreviewSurfaceCallback = previewSurfaceCallback;
             mPreviewSurfaceCallbackExecutor = callbackExecutor;
             notifyActive();
@@ -394,35 +210,17 @@ public class Preview extends UseCase {
     }
 
     /**
-     * Checks if we are using the new {@link PreviewSurfaceCallback}.
-     *
-     * TODO(b/117519540): Once the {@link OnPreviewOutputUpdateListener} is removed, we should
-     * remove this method along with all the code it's guarding.
+     * Checks if {@link PreviewSurfaceCallback} is set by the user.
      */
     @SuppressWarnings("WeakerAccess")
-    boolean isUsingPreviewSurfaceCallback() {
-        Preconditions.checkState(
-                mSubscribedPreviewOutputListener == null || mPreviewSurfaceCallback == null,
-                CONFLICTING_SURFACE_API_ERROR_MESSAGE);
+    boolean isPreviewSurfaceCallbackSet() {
         return mPreviewSurfaceCallback != null && mPreviewSurfaceCallbackExecutor != null;
     }
 
     private void updateConfigAndOutput(PreviewConfig config, Size resolution) {
+        Preconditions.checkState(isPreviewSurfaceCallbackSet());
         String cameraId = getCameraIdUnchecked(config);
-
-        mSessionConfigBuilder = createPipeline(config, resolution);
-        attachToCamera(cameraId, mSessionConfigBuilder.build());
-        if (!isUsingPreviewSurfaceCallback()) {
-            updateOutput(mSurfaceTextureHolder.getSurfaceTexture(), resolution);
-        }
-    }
-
-    private void updateListener(OnPreviewOutputUpdateListener listener, PreviewOutput output) {
-        try {
-            mOutputUpdateExecutor.execute(() -> listener.onUpdated(output));
-        } catch (RejectedExecutionException e) {
-            Log.e(TAG, "Unable to post to the supplied executor.", e);
-        }
+        attachToCamera(cameraId, createPipeline(config, resolution).build());
     }
 
     private CameraControlInternal getCurrentCameraControl() {
@@ -446,38 +244,6 @@ public class Preview extends UseCase {
     /** True if the torch is on */
     public boolean isTorchOn() {
         return getCurrentCameraControl().isTorchOn();
-    }
-
-    /**
-     * Sets the target rotation.
-     *
-     * <p>This informs the use case so it can adjust the rotation value sent to
-     * {@link Preview.OnPreviewOutputUpdateListener}.
-     *
-     * <p>In most cases this should be set to the current rotation returned by {@link
-     * Display#getRotation()}. In that case, the rotation values output by the use case will be
-     * the rotation, which if applied to the output image, will make the image match the display
-     * orientation.
-     *
-     * <p>If no target rotation is set by the application, it is set to the value of
-     * {@link Display#getRotation()} of the default display at the time the
-     * use case is created.
-     *
-     * @param rotation Rotation of the surface texture consumer expressed as one of
-     *                 {@link Surface#ROTATION_0}, {@link Surface#ROTATION_90},
-     *                 {@link Surface#ROTATION_180}, or {@link Surface#ROTATION_270}.
-     */
-    public void setTargetRotation(@RotationValue int rotation) {
-        ImageOutputConfig oldConfig = (ImageOutputConfig) getUseCaseConfig();
-        int oldRotation = oldConfig.getTargetRotation(ImageOutputConfig.INVALID_ROTATION);
-        if (oldRotation == ImageOutputConfig.INVALID_ROTATION || oldRotation != rotation) {
-            mUseCaseConfigBuilder.setTargetRotation(rotation);
-            updateUseCaseConfig(mUseCaseConfigBuilder.build());
-
-            // TODO(b/122846516): Update session configuration and possibly reconfigure session.
-            // For now we'll just attempt to update the rotation metadata.
-            invalidateMetadata();
-        }
     }
 
     @NonNull
@@ -530,18 +296,10 @@ public class Preview extends UseCase {
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
     public void clear() {
-        removePreviewOutputListener();
         notifyInactive();
-
-        SurfaceTexture oldTexture =
-                (mLatestPreviewOutput == null)
-                        ? null
-                        : mLatestPreviewOutput.getSurfaceTexture();
-        if (oldTexture != null && !mSurfaceDispatched) {
-            oldTexture.release();
+        if (mSurfaceHolder != null) {
+            mSurfaceHolder.release();
         }
-
-        clearPipeline();
         super.clear();
     }
 
@@ -563,95 +321,12 @@ public class Preview extends UseCase {
                     "Suggested resolution map missing resolution for camera " + cameraId);
         }
         mLatestResolution = resolution;
-        updateConfigAndOutput(config, resolution);
+        if (isPreviewSurfaceCallbackSet()) {
+            updateConfigAndOutput(config, resolution);
+        }
         return suggestedResolutionMap;
     }
 
-    @UiThread
-    private void invalidateMetadata() {
-        // TODO(b/117519540): Find a way to pass relative rotation to user.
-        if (!isUsingPreviewSurfaceCallback() && mLatestPreviewOutput != null) {
-            // Only update the output if we have a SurfaceTexture. Otherwise we'll wait until a
-            // SurfaceTexture is ready.
-            updateOutput(
-                    mLatestPreviewOutput.getSurfaceTexture(),
-                    mLatestPreviewOutput.getTextureSize());
-        }
-    }
-
-    /**
-     * @deprecated TODO(b / 117519540) remove after {@link OnPreviewOutputUpdateListener} is
-     * removed.
-     */
-    @Deprecated
-    @UiThread
-    void updateOutput(SurfaceTexture surfaceTexture, Size resolution) {
-        Preconditions.checkState(!isUsingPreviewSurfaceCallback());
-        PreviewConfig useCaseConfig = (PreviewConfig) getUseCaseConfig();
-
-        int relativeRotation =
-                (mLatestPreviewOutput == null) ? 0
-                        : mLatestPreviewOutput.getRotationDegrees();
-        try {
-            // Attempt to get the camera ID. If this fails, we probably don't have permission, so we
-            // will rely on the updated UseCaseConfig to set the correct rotation in
-            // onSuggestedResolutionUpdated()
-            String cameraId = getCameraIdUnchecked(useCaseConfig);
-            CameraInfoInternal cameraInfoInternal = CameraX.getCameraInfo(cameraId);
-            relativeRotation =
-                    cameraInfoInternal.getSensorRotationDegrees(
-                            useCaseConfig.getTargetRotation(Surface.ROTATION_0));
-        } catch (CameraInfoUnavailableException e) {
-            Log.e(TAG, "Unable to update output metadata: " + e);
-        }
-
-        PreviewOutput newOutput =
-                PreviewOutput.create(surfaceTexture, resolution, relativeRotation);
-
-        // Only update the output if something has changed
-        if (!Objects.equals(mLatestPreviewOutput, newOutput)) {
-            SurfaceTexture oldTexture =
-                    (mLatestPreviewOutput == null)
-                            ? null
-                            : mLatestPreviewOutput.getSurfaceTexture();
-            OnPreviewOutputUpdateListener outputListener = getOnPreviewOutputUpdateListener();
-
-            mLatestPreviewOutput = newOutput;
-
-            boolean textureChanged = oldTexture != surfaceTexture;
-            if (textureChanged) {
-                // If the old surface was never dispatched, we can safely release the old
-                // SurfaceTexture.
-                if (oldTexture != null && !mSurfaceDispatched) {
-                    oldTexture.release();
-                }
-
-                // Keep track of whether this SurfaceTexture is dispatched
-                mSurfaceDispatched = false;
-            }
-
-            if (outputListener != null) {
-                mSurfaceDispatched = true;
-                updateListener(outputListener, newOutput);
-            }
-        }
-    }
-
-    /** Describes the error that occurred during preview operation. */
-    public enum UseCaseError {
-        /** Unknown error occurred. See message or log for more details. */
-        UNKNOWN_ERROR
-    }
-
-    /**
-     * A listener of {@link PreviewOutput}.
-     *
-     * TODO(b/117519540): Mark as deprecated once PreviewSurfaceCallback is ready.
-     */
-    public interface OnPreviewOutputUpdateListener {
-        /** Callback when PreviewOutput has been updated. */
-        void onUpdated(@NonNull PreviewOutput output);
-    }
 
     /**
      * A callback to access the Preview Surface.
@@ -665,6 +340,14 @@ public class Preview extends UseCase {
          * to lifecycle. If the {@link Surface} is backed by a {@link SurfaceTexture}, both the
          * {@link Surface} and the {@link ListenableFuture} need to be recreated each time this
          * is invoked.
+         *
+         * <p> To display the preview with the correct orientation, if the {@link Surface} is
+         * backed by a {@link SurfaceTexture}, {@link SurfaceTexture#getTransformMatrix(float[])}
+         * can be used to transform the preview to natural orientation ({@link TextureView}
+         * handles this automatically); if the {@link Surface} is backed by a {@link SurfaceView}
+         * , it will always be in display orientation; for {@link Surface} backed by
+         * {@link ImageReader}, {@link MediaCodec} or other objects, it's user's responsibility
+         * to calculate the rotation.
          *
          * @param resolution  the resolution required by CameraX.
          * @param imageFormat the {@link ImageFormat} required by CameraX.
@@ -721,38 +404,5 @@ public class Preview extends UseCase {
                 return DEFAULT_CONFIG;
             }
         }
-    }
-
-    /**
-     * A bundle containing a {@link SurfaceTexture} and properties needed to display a Preview.
-     */
-    @AutoValue
-    public abstract static class PreviewOutput {
-
-        PreviewOutput() {
-        }
-
-        static PreviewOutput create(
-                SurfaceTexture surfaceTexture, Size textureSize, int rotationDegrees) {
-            return new AutoValue_Preview_PreviewOutput(
-                    surfaceTexture, textureSize, rotationDegrees);
-        }
-
-        /** Returns the PreviewOutput that receives image data. */
-        @NonNull
-        public abstract SurfaceTexture getSurfaceTexture();
-
-        /** Returns the dimensions of the PreviewOutput. */
-        @NonNull
-        public abstract Size getTextureSize();
-
-        /**
-         * Returns the rotation required, in degrees, to transform the PreviewOutput to match the
-         * orientation given by ImageOutputConfig#getTargetRotation(int).
-         *
-         * <p>This number is independent of any rotation value that can be derived from the
-         * PreviewOutput's {@link SurfaceTexture#getTransformMatrix(float[])}.
-         */
-        public abstract int getRotationDegrees();
     }
 }
