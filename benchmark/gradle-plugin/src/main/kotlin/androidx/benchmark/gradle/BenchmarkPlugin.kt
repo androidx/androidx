@@ -14,11 +14,15 @@
  * limitations under the License.
  */
 
+// Intentionally using deprecated com.android.builder.model.Version for 3.5 support.
+@file:Suppress("DEPRECATION")
+
 package androidx.benchmark.gradle
 
 import com.android.build.gradle.AppExtension
 import com.android.build.gradle.LibraryExtension
 import com.android.build.gradle.TestedExtension
+import com.android.builder.model.Version.ANDROID_GRADLE_PLUGIN_VERSION
 import com.android.ddmlib.Log
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -73,6 +77,8 @@ class BenchmarkPlugin : Plugin<Project> {
 
         // Disable overhead from test coverage by default, even if we use a debug variant.
         extension.buildTypes.configureEach { it.isTestCoverageEnabled = false }
+
+        extension.configureTestBuildType("release")
 
         // Registering this block as a configureEach callback is only necessary because Studio skips
         // Gradle if there are no changes, which stops this plugin from being re-applied.
@@ -170,6 +176,22 @@ class BenchmarkPlugin : Plugin<Project> {
                     )
                 }
             }
+        }
+    }
+
+    /**
+     * Set test build type to release to prevent benchmarks from pulling in debug artifacts.
+     *
+     * This is only enabled for versions of AGP 3.6+, as the release build variant must be manually
+     * selected by the developer to get tests to compile on older versions of studio.
+     */
+    private fun TestedExtension.configureTestBuildType(buildType: String) {
+        val agpVersionTokens = ANDROID_GRADLE_PLUGIN_VERSION.split('.')
+        val majorVersion = agpVersionTokens[0].toInt()
+        val minorVersion = agpVersionTokens[1].toInt()
+        if (majorVersion > 3 || (majorVersion == 3 && minorVersion >= 6)) {
+            testBuildType = buildType
+            buildTypes.named(buildType).configure { it.isDefault.set(true) }
         }
     }
 }
