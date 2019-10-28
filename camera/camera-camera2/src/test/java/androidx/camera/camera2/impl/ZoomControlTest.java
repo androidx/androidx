@@ -136,19 +136,14 @@ public class ZoomControlTest {
         return ZoomControl.getCropRectByRatio(SENSOR_RECT, ratio);
     }
 
-    // Tests setZoomRatio(1.0) , ListenableFuture completes when result crop region is null.
     @Test
-    public void setZoomRatio1_whenResultCropRegionIsNull_ListenableFutureSucceeded()
+    public void setZoomRatio1_whenResultCropRegionIsAlive_ListenableFutureSucceeded()
             throws InterruptedException {
         CountDownLatch latch = new CountDownLatch(1);
         ListenableFuture<Void> listenableFuture = mZoomControl.setZoomRatio(1.0f);
 
-        // pass a non-null value and then null value to verify if null is handling properly.
-        TotalCaptureResult result = mockCaptureResult(getCropRectByRatio(3.0f));
+        TotalCaptureResult result = mockCaptureResult(getCropRectByRatio(1.0f));
         mCaptureResultListener.onCaptureResult(result);
-
-        TotalCaptureResult result2 = mockCaptureResult(null);
-        mCaptureResultListener.onCaptureResult(result2);
 
         Futures.addCallback(listenableFuture, new FutureCallback<Void>() {
             @Override
@@ -174,17 +169,11 @@ public class ZoomControlTest {
         return result;
     }
 
-    // Tests setZoomRatio other than 1.0f , ListenableFuture completes when expected result crop
-    // region is retrieved .
     @Test
     public void setZoomRatioOtherThan1_whenResultCropRegionIsAlive_ListenableFutureSucceeded()
             throws InterruptedException {
         CountDownLatch latch = new CountDownLatch(1);
         ListenableFuture<Void> listenableFuture = mZoomControl.setZoomRatio(2.0f);
-
-            // pass a null value and then correct value to verify if null is handling properly.
-        TotalCaptureResult result = mockCaptureResult(null);
-        mCaptureResultListener.onCaptureResult(result);
 
         TotalCaptureResult result2 = mockCaptureResult(getCropRectByRatio(2.0f));
         mCaptureResultListener.onCaptureResult(result2);
