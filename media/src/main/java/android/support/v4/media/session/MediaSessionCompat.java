@@ -602,6 +602,9 @@ public class MediaSessionCompat {
      * Adds a callback to receive updates on for the MediaSession. This includes
      * media button and volume events. The caller's thread will be used to post
      * events.
+     * <p>
+     * Don't reuse the callback among the sessions. Callbacks keep internal reference to the
+     * session when it's set, so it may misbehave.
      *
      * @param callback The callback object
      */
@@ -613,6 +616,9 @@ public class MediaSessionCompat {
      * Sets the callback to receive updates for the MediaSession. This includes
      * media button and volume events. Set the callback to null to stop
      * receiving events.
+     * <p>
+     * Don't reuse the callback among the sessions. Callbacks keep internal reference to the
+     * session when it's set, so it may misbehave.
      *
      * @param callback The callback to receive updates on.
      * @param handler The handler that events should be posted on.
@@ -1092,6 +1098,9 @@ public class MediaSessionCompat {
     /**
      * Receives transport controls, media buttons, and commands from controllers
      * and the system. The callback may be set using {@link #setCallback}.
+     * <p>
+     * Don't reuse the callback among the sessions. Callbacks keep internal reference to the
+     * session when it's set, so it may misbehave.
      */
     public abstract static class Callback {
         final MediaSession.Callback mCallbackFwk;
@@ -2417,6 +2426,7 @@ public class MediaSessionCompat {
             mDestroyed = true;
             updateMbrAndRcc();
             sendSessionDestroyed();
+            setCallback(null, null);
         }
 
         @Override
@@ -3709,6 +3719,8 @@ public class MediaSessionCompat {
         public void release() {
             mDestroyed = true;
             mExtraControllerCallbacks.kill();
+            // Prevent from receiving callbacks from released session.
+            mSessionFwk.setCallback(null);
             mSessionFwk.release();
         }
 

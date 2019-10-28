@@ -1066,6 +1066,57 @@ public class MediaSessionCompatCallbackTest {
         assertEquals(testValue, customParcelableOut.mValue);
     }
 
+    /**
+     * Tests b/139093164.
+     */
+    @Test
+    @SmallTest
+    public void testCallbacksAfterReleased() {
+        getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                mSession.setActive(true);
+
+                // Dispatch media key events from the controller while blocking the looper for the
+                // session callback. For blocking purpose, create a local media controller here
+                // rather than using RemoteMediaController.
+                MediaControllerCompat controller =
+                        new MediaControllerCompat(getApplicationContext(),
+                                mSession.getSessionToken());
+                long currentTimeMs = System.currentTimeMillis();
+                KeyEvent down = new KeyEvent(
+                        currentTimeMs, currentTimeMs, KeyEvent.ACTION_DOWN,
+                        KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE, 0);
+                KeyEvent up = new KeyEvent(
+                        currentTimeMs, System.currentTimeMillis(), KeyEvent.ACTION_UP,
+                        KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE, 0);
+                controller.dispatchMediaButtonEvent(down);
+                controller.dispatchMediaButtonEvent(up);
+
+                // Keeps the old reference to prevent GC.
+                MediaSessionCompat oldSession = mSession;
+
+                // Recreate media session with the same callback reference.
+                mSession.release();
+                mSession = new MediaSessionCompat(getApplicationContext(), TEST_SESSION_TAG,
+                        null, null, mSessionInfo);
+                mSession.setCallback(mCallback, mHandler);
+
+                // Do something with old session, just not to be optimized away.
+                oldSession.setActive(false);
+            }
+        });
+        // Post asserts to the main thread to ensure that mCallback has received all pended
+        // callbacks.
+        getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                assertEquals(0, mCallback.mOnPlayCalledCount);
+                assertFalse(mCallback.mOnPauseCalled);
+            }
+        });
+    }
+
     private void setPlaybackState(int state) {
         final long allActions = PlaybackStateCompat.ACTION_PLAY | PlaybackStateCompat.ACTION_PAUSE
                 | PlaybackStateCompat.ACTION_PLAY_PAUSE | PlaybackStateCompat.ACTION_STOP
