@@ -32,7 +32,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.camera.core.impl.utils.futures.FutureCallback;
 import androidx.camera.core.impl.utils.futures.Futures;
-import androidx.core.util.Preconditions;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
@@ -40,10 +39,8 @@ import java.util.concurrent.Executor;
 
 /**
  * A {@link DeferrableSurface} that does processing and outputs a {@link SurfaceTexture}.
- *
- * TODO(b/117519540): rename to ProcessingSurface.
  */
-final class ProcessingSurfaceTexture extends DeferrableSurface implements SurfaceTextureHolder {
+final class ProcessingSurface extends DeferrableSurface implements SurfaceHolder {
     private static final String TAG = "ProcessingSurfaceTextur";
 
     // Synthetic Accessor
@@ -104,7 +101,7 @@ final class ProcessingSurfaceTexture extends DeferrableSurface implements Surfac
     private final CallbackDeferrableSurface mCallbackDeferrableSurface;
 
     /**
-     * Create a {@link ProcessingSurfaceTexture} with specific configurations.
+     * Create a {@link ProcessingSurface} with specific configurations.
      *
      * @param width                     Width of the ImageReader
      * @param height                    Height of the ImageReader
@@ -121,9 +118,9 @@ final class ProcessingSurfaceTexture extends DeferrableSurface implements Surfac
      * @param callbackDeferrableSurface the {@link CallbackDeferrableSurface} wrapping user
      *                                  provided {@link Surface} and {@link Executor}
      */
-    ProcessingSurfaceTexture(int width, int height, int format, @Nullable Handler handler,
+    ProcessingSurface(int width, int height, int format, @Nullable Handler handler,
             @NonNull CaptureStage captureStage, @NonNull CaptureProcessor captureProcessor,
-            @Nullable CallbackDeferrableSurface callbackDeferrableSurface) {
+            @NonNull CallbackDeferrableSurface callbackDeferrableSurface) {
 
         mResolution = new Size(width, height);
 
@@ -159,28 +156,22 @@ final class ProcessingSurfaceTexture extends DeferrableSurface implements Surfac
 
         // output
         mCallbackDeferrableSurface = callbackDeferrableSurface;
-        if (callbackDeferrableSurface == null) {
-            // TODO(b/117519540): remove once {@link Preview.OnPreviewOutputUpdateListener} is
-            //  removed.
-            mSurfaceTexture = FixedSizeSurfaceTextures.createDetachedSurfaceTexture(mResolution);
-            mSurfaceTextureSurface = new Surface(mSurfaceTexture);
-            mCaptureProcessor.onOutputSurface(mSurfaceTextureSurface, PixelFormat.RGBA_8888);
-        } else {
-            Futures.addCallback(callbackDeferrableSurface.getSurface(),
-                    new FutureCallback<Surface>() {
-                        @Override
-                        public void onSuccess(@Nullable Surface surface) {
-                            synchronized (mLock) {
-                                mCaptureProcessor.onOutputSurface(surface, PixelFormat.RGBA_8888);
-                            }
-                        }
 
-                        @Override
-                        public void onFailure(Throwable t) {
-                            Log.e(TAG, "Failed to extract Listenable<Surface>.", t);
+        Futures.addCallback(callbackDeferrableSurface.getSurface(),
+                new FutureCallback<Surface>() {
+                    @Override
+                    public void onSuccess(@Nullable Surface surface) {
+                        synchronized (mLock) {
+                            mCaptureProcessor.onOutputSurface(surface, PixelFormat.RGBA_8888);
                         }
-                    }, directExecutor());
-        }
+                    }
+
+                    @Override
+                    public void onFailure(Throwable t) {
+                        Log.e(TAG, "Failed to extract Listenable<Surface>.", t);
+                    }
+                }, directExecutor());
+
     }
 
     @SuppressWarnings("GuardedBy") // TODO(b/141958189): Suppressed during upgrade to AGP 3.6.
@@ -188,30 +179,6 @@ final class ProcessingSurfaceTexture extends DeferrableSurface implements Surfac
     @NonNull
     public ListenableFuture<Surface> provideSurface() {
         return Futures.immediateFuture(mInputSurface);
-    }
-
-    /**
-     * Returns the SurfaceTexture that the result of the processing gets written to.
-     *
-     * <p> This should only be called by the consumer thread.
-     *
-     * @throws IllegalStateException if {@link #release()} ()} has already been called
-     * @deprecated This method will not be called if userSurface is provided in constructor.
-     * Remove once {@link Preview.OnPreviewOutputUpdateListener} is removed.
-     */
-    @Override
-    @NonNull
-    @Deprecated
-    public SurfaceTexture getSurfaceTexture() {
-        Preconditions.checkState(mCallbackDeferrableSurface == null,
-                "getSurfaceTexture() should not be triggered for PreviewSurfaceCallback");
-        synchronized (mLock) {
-            if (mReleased) {
-                throw new IllegalStateException("ProcessingSurfaceTexture already released!");
-            }
-
-            return mSurfaceTexture;
-        }
     }
 
     /**
@@ -231,7 +198,7 @@ final class ProcessingSurfaceTexture extends DeferrableSurface implements Surfac
     }
 
     /**
-     * Close the {@link ProcessingSurfaceTexture}.
+     * Close the {@link ProcessingSurface}.
      *
      * <p> After closing the ProcessingSurfaceTexture it should not be used again. A new instance
      * should be created. This should only be called by the consumer thread.

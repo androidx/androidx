@@ -288,6 +288,7 @@ public final class PreviewConfig
      * @param valueIfMissing The value to return if this configuration option has not been set.
      * @return The stored value or <code>valueIfMissing</code> if the value does not exist in this
      * configuration.
+     * @hide Preview always set the rotation to device's nature orientation.
      */
     @Override
     @RotationValue
@@ -304,6 +305,7 @@ public final class PreviewConfig
      *
      * @return The stored value, if it exists in this configuration.
      * @throws IllegalArgumentException if the option does not exist in this configuration.
+     * @hide Preview always set the rotation to device's nature orientation.
      */
     @Override
     @RotationValue
@@ -729,8 +731,8 @@ public final class PreviewConfig
          *
          * <p>This method will remove any value set by setTargetAspectRatio().
          *
-         * <p>For Preview, the output is the SurfaceTexture of the
-         * {@link androidx.camera.core.Preview.PreviewOutput}.
+         * <p>For Preview, the value will be used to calculate the suggested resolution size in
+         * {@link Preview.PreviewSurfaceCallback#createSurfaceFuture(Size, int)}.
          *
          * @param aspectRatio A {@link Rational} representing the ratio of the target's width and
          *                    height.
@@ -756,8 +758,8 @@ public final class PreviewConfig
          * ratio which may differ from the request, possibly due to device constraints.
          * Application code should check the resulting output's resolution.
          *
-         * <p>For Preview, the output is the SurfaceTexture of the
-         * {@link androidx.camera.core.Preview.PreviewOutput}.
+         * <p>For Preview, the value will be used to calculate the suggested resolution size in
+         * {@link Preview.PreviewSurfaceCallback#createSurfaceFuture(Size, int)}.
          *
          * @param aspectRatio A {@link AspectRatio} representing the ratio of the
          *                    target's width and height.

@@ -22,17 +22,12 @@ import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
 
 import static org.junit.Assume.assumeTrue;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.timeout;
-import static org.mockito.Mockito.verify;
 
 import android.Manifest;
 import android.app.Instrumentation;
 import android.content.Context;
 import android.graphics.SurfaceTexture;
-import android.os.AsyncTask;
-import android.os.Build;
 import android.util.Size;
 import android.view.Surface;
 
@@ -46,20 +41,17 @@ import androidx.camera.core.CaptureConfig;
 import androidx.camera.core.DeferrableSurfaces;
 import androidx.camera.core.LensFacing;
 import androidx.camera.core.Preview;
-import androidx.camera.core.Preview.OnPreviewOutputUpdateListener;
-import androidx.camera.core.Preview.PreviewOutput;
 import androidx.camera.core.PreviewConfig;
 import androidx.camera.core.PreviewUtil;
 import androidx.camera.core.SessionConfig;
+import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.testing.CameraUtil;
 import androidx.camera.testing.fakes.FakeCameraControl;
-import androidx.camera.testing.fakes.FakeLifecycleOwner;
 import androidx.test.annotation.UiThreadTest;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.FlakyTest;
 import androidx.test.filters.LargeTest;
-import androidx.test.filters.MediumTest;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.GrantPermissionRule;
 
@@ -68,18 +60,12 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Mock;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Executor;
-import java.util.concurrent.FutureTask;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 @LargeTest
 @RunWith(AndroidJUnit4.class)
@@ -96,19 +82,15 @@ public final class PreviewTest {
 
     private static final Preview.PreviewSurfaceCallback MOCK_PREVIEW_SURFACE_CALLBACK =
             mock(Preview.PreviewSurfaceCallback.class);
-    private static final Preview.OnPreviewOutputUpdateListener
-            MOCK_ON_PREVIEW_OUTPUT_UPDATE_LISTENER =
-            mock(Preview.OnPreviewOutputUpdateListener.class);
 
     private final Instrumentation mInstrumentation = InstrumentationRegistry.getInstrumentation();
 
     private CameraInternal mCameraInternal;
 
     private PreviewConfig mDefaultConfig;
-    @Mock
-    private OnPreviewOutputUpdateListener mMockListener;
     private String mCameraId;
     private Semaphore mSurfaceFutureSemaphore;
+    private Semaphore mSaveToReleaseSemaphore;
     private Preview.PreviewSurfaceCallback mPreviewSurfaceCallbackWithFrameAvailableListener =
             createPreviewSurfaceCallback(new PreviewUtil.SurfaceTextureCallback() {
                 @Override
@@ -120,6 +102,7 @@ public final class PreviewTest {
                 @Override
                 public void onSafeToRelease(@NonNull SurfaceTexture surfaceTexture) {
                     surfaceTexture.release();
+                    mSaveToReleaseSemaphore.release();
                 }
             });
 
@@ -127,8 +110,6 @@ public final class PreviewTest {
     @Before
     public void setUp() {
         assumeTrue(CameraUtil.deviceHasCamera());
-        // Instantiates OnPreviewOutputUpdateListener before each test run.
-        mMockListener = mock(OnPreviewOutputUpdateListener.class);
         Context context = ApplicationProvider.getApplicationContext();
         AppConfig appConfig = Camera2AppConfig.create(context);
         CameraFactory cameraFactory = appConfig.getCameraFactory(/*valueIfMissing=*/ null);
@@ -143,6 +124,8 @@ public final class PreviewTest {
 
         // init CameraX before creating Preview to get preview size with CameraX's context
         mDefaultConfig = Preview.DEFAULT_CONFIG.getConfig(LensFacing.BACK);
+        mSurfaceFutureSemaphore = new Semaphore(/*permits=*/ 0);
+        mSaveToReleaseSemaphore = new Semaphore(/*permits=*/ 0);
     }
 
     @After
@@ -173,22 +156,6 @@ public final class PreviewTest {
         preview.setPreviewSurfaceCallback(MOCK_PREVIEW_SURFACE_CALLBACK);
         preview.setPreviewSurfaceCallback(null);
         assertThat(preview.getPreviewSurfaceCallback()).isNull();
-    }
-
-    @Test(expected = IllegalStateException.class)
-    @UiThreadTest
-    public void setPreviewSurfaceCallbackThenOnPreviewOutputUpdateListener_throwsException() {
-        Preview preview = new Preview(mDefaultConfig);
-        preview.setPreviewSurfaceCallback(MOCK_PREVIEW_SURFACE_CALLBACK);
-        preview.setOnPreviewOutputUpdateListener(MOCK_ON_PREVIEW_OUTPUT_UPDATE_LISTENER);
-    }
-
-    @Test(expected = IllegalStateException.class)
-    @UiThreadTest
-    public void setOnPreviewOutputUpdateListenerThenPreviewSurfaceCallback_throwsException() {
-        Preview preview = new Preview(mDefaultConfig);
-        preview.setOnPreviewOutputUpdateListener(MOCK_ON_PREVIEW_OUTPUT_UPDATE_LISTENER);
-        preview.setPreviewSurfaceCallback(MOCK_PREVIEW_SURFACE_CALLBACK);
     }
 
     @FlakyTest
@@ -235,124 +202,6 @@ public final class PreviewTest {
     @FlakyTest
     @Test
     @UiThreadTest
-    public void surfaceTextureIsNotReleased()
-            throws InterruptedException, ExecutionException, TimeoutException {
-        // This test only target SDK >= 26
-        if (Build.VERSION.SDK_INT < 26) {
-            return;
-        }
-        Preview useCase = new Preview(mDefaultConfig);
-
-        final SurfaceTextureCallable surfaceTextureCallable0 = new SurfaceTextureCallable();
-        final FutureTask<SurfaceTexture> future0 = new FutureTask<>(surfaceTextureCallable0);
-        useCase.setOnPreviewOutputUpdateListener(
-                AsyncTask.SERIAL_EXECUTOR,
-                new OnPreviewOutputUpdateListener() {
-                    @Override
-                    public void onUpdated(@NonNull Preview.PreviewOutput previewOutput) {
-                        surfaceTextureCallable0.setSurfaceTexture(
-                                previewOutput.getSurfaceTexture());
-                        future0.run();
-                    }
-                });
-        useCase.updateSuggestedResolution(Collections.singletonMap(mCameraId, DEFAULT_RESOLUTION));
-
-        SurfaceTexture surfaceTexture0 = future0.get(1, TimeUnit.SECONDS);
-        surfaceTexture0.release();
-
-        final SurfaceTextureCallable surfaceTextureCallable1 = new SurfaceTextureCallable();
-        final FutureTask<SurfaceTexture> future1 = new FutureTask<>(surfaceTextureCallable1);
-        useCase.setOnPreviewOutputUpdateListener(
-                AsyncTask.SERIAL_EXECUTOR,
-                new OnPreviewOutputUpdateListener() {
-                    @Override
-                    public void onUpdated(@NonNull Preview.PreviewOutput previewOutput) {
-                        surfaceTextureCallable1.setSurfaceTexture(
-                                previewOutput.getSurfaceTexture());
-                        future1.run();
-                    }
-                });
-        useCase.updateSuggestedResolution(Collections.singletonMap(mCameraId, DEFAULT_RESOLUTION));
-        SurfaceTexture surfaceTexture1 = future1.get(1, TimeUnit.SECONDS);
-
-        assertThat(surfaceTexture1.isReleased()).isFalse();
-    }
-
-    @Test
-    @UiThreadTest
-    public void listenedSurfaceTextureIsNotReleased_whenCleared()
-            throws InterruptedException, ExecutionException, TimeoutException {
-        // This test only target SDK >= 26
-        if (Build.VERSION.SDK_INT <= 26) {
-            return;
-        }
-        Preview useCase = new Preview(mDefaultConfig);
-
-        final SurfaceTextureCallable surfaceTextureCallable = new SurfaceTextureCallable();
-        final FutureTask<SurfaceTexture> future = new FutureTask<>(surfaceTextureCallable);
-
-        useCase.setOnPreviewOutputUpdateListener(
-                AsyncTask.SERIAL_EXECUTOR,
-                new OnPreviewOutputUpdateListener() {
-                    @Override
-                    public void onUpdated(@NonNull Preview.PreviewOutput previewOutput) {
-                        surfaceTextureCallable.setSurfaceTexture(
-                                previewOutput.getSurfaceTexture());
-                        future.run();
-                    }
-                });
-
-        useCase.updateSuggestedResolution(Collections.singletonMap(mCameraId, DEFAULT_RESOLUTION));
-        SurfaceTexture surfaceTexture = future.get(1, TimeUnit.SECONDS);
-
-        useCase.clear();
-
-        assertThat(surfaceTexture.isReleased()).isFalse();
-    }
-
-    @Test
-    @UiThreadTest
-    public void surfaceTexture_isListenedOnlyOnce()
-            throws InterruptedException, ExecutionException, TimeoutException {
-        Preview useCase = new Preview(mDefaultConfig);
-
-        final SurfaceTextureCallable surfaceTextureCallable0 = new SurfaceTextureCallable();
-        final FutureTask<SurfaceTexture> future0 = new FutureTask<>(surfaceTextureCallable0);
-        useCase.setOnPreviewOutputUpdateListener(
-                AsyncTask.SERIAL_EXECUTOR,
-                new OnPreviewOutputUpdateListener() {
-                    @Override
-                    public void onUpdated(@NonNull PreviewOutput previewOutput) {
-                        surfaceTextureCallable0.setSurfaceTexture(
-                                previewOutput.getSurfaceTexture());
-                        future0.run();
-                    }
-                });
-
-        useCase.updateSuggestedResolution(Collections.singletonMap(mCameraId, DEFAULT_RESOLUTION));
-        SurfaceTexture surfaceTexture0 = future0.get();
-
-        final SurfaceTextureCallable surfaceTextureCallable1 = new SurfaceTextureCallable();
-        final FutureTask<SurfaceTexture> future1 = new FutureTask<>(surfaceTextureCallable1);
-        useCase.setOnPreviewOutputUpdateListener(
-                AsyncTask.SERIAL_EXECUTOR,
-                new Preview.OnPreviewOutputUpdateListener() {
-                    @Override
-                    public void onUpdated(@NonNull Preview.PreviewOutput previewOutput) {
-                        surfaceTextureCallable1.setSurfaceTexture(
-                                previewOutput.getSurfaceTexture());
-                        future1.run();
-                    }
-                });
-
-        SurfaceTexture surfaceTexture1 = future1.get(1, TimeUnit.SECONDS);
-
-        assertThat(surfaceTexture0).isNotSameInstanceAs(surfaceTexture1);
-    }
-
-    @FlakyTest
-    @Test
-    @UiThreadTest
     public void updateSessionConfigWithSuggestedResolution() {
         PreviewConfig config = new PreviewConfig.Builder().setLensFacing(LensFacing.BACK).build();
         Preview useCase = new Preview(config);
@@ -371,71 +220,33 @@ public final class PreviewTest {
         }
     }
 
-    @MediumTest
     @Test
-    @UiThreadTest
-    public void previewOutputListenerCanBeSetAndRetrieved() {
-        Preview useCase = new Preview(mDefaultConfig);
-        useCase.updateSuggestedResolution(Collections.singletonMap(mCameraId, DEFAULT_RESOLUTION));
-        Preview.OnPreviewOutputUpdateListener previewOutputListener =
-                useCase.getOnPreviewOutputUpdateListener();
-        useCase.setOnPreviewOutputUpdateListener(mMockListener);
+    public void previewDetached_onSafeToReleaseCalled() throws InterruptedException {
+        // Arrange.
+        PreviewConfig config = new PreviewConfig.Builder().setLensFacing(
+                LensFacing.BACK).build();
+        Preview preview = new Preview(config);
 
-        OnPreviewOutputUpdateListener retrievedPreviewOutputListener =
-                useCase.getOnPreviewOutputUpdateListener();
+        // Act.
+        mInstrumentation.runOnMainSync(() -> {
+            preview.setPreviewSurfaceCallback(CameraXExecutors.highPriorityExecutor(),
+                    mPreviewSurfaceCallbackWithFrameAvailableListener);
+            preview.updateSuggestedResolution(
+                    Collections.singletonMap(mCameraId, DEFAULT_RESOLUTION));
+            CameraUtil.openCameraWithUseCase(mCameraId, mCameraInternal, preview);
+        });
+        // Wait until preview gets frame.
+        assertThat(mSurfaceFutureSemaphore.tryAcquire(5, TimeUnit.SECONDS)).isTrue();
+        // Clear and detach to trigger release.
+        preview.clear();
+        CameraUtil.detachUseCaseFromCamera(mCameraInternal, preview);
 
-        assertThat(previewOutputListener).isNull();
-        assertThat(retrievedPreviewOutputListener).isSameInstanceAs(mMockListener);
-    }
-
-    @Test
-    @UiThreadTest
-    public void clear_removePreviewOutputListener() {
-        Preview useCase = new Preview(mDefaultConfig);
-        useCase.updateSuggestedResolution(Collections.singletonMap(mCameraId, DEFAULT_RESOLUTION));
-
-        useCase.setOnPreviewOutputUpdateListener(mMockListener);
-        useCase.clear();
-
-        assertThat(useCase.getOnPreviewOutputUpdateListener()).isNull();
-    }
-
-    @Test
-    @UiThreadTest
-    public void previewOutput_isResetOnUpdatedResolution() {
-        Preview useCase = new Preview(mDefaultConfig);
-        useCase.updateSuggestedResolution(Collections.singletonMap(mCameraId, DEFAULT_RESOLUTION));
-
-        useCase.setOnPreviewOutputUpdateListener(AsyncTask.SERIAL_EXECUTOR, mMockListener);
-        verify(mMockListener, timeout(3000)).onUpdated(any(PreviewOutput.class));
-
-        useCase.updateSuggestedResolution(
-                Collections.singletonMap(mCameraId, SECONDARY_RESOLUTION));
-
-        verify(mMockListener, timeout(3000).times(2)).onUpdated(any(PreviewOutput.class));
-    }
-
-    @Test
-    @UiThreadTest
-    public void previewOutput_invokedByExecutor() {
-        Executor mockExecutor = mock(Executor.class);
-
-        Preview useCase = new Preview(mDefaultConfig);
-
-        FakeLifecycleOwner lifecycleOwner = new FakeLifecycleOwner();
-        lifecycleOwner.startAndResume();
-        CameraX.bindToLifecycle(lifecycleOwner, useCase);
-
-        useCase.setOnPreviewOutputUpdateListener(mockExecutor,
-                mock(OnPreviewOutputUpdateListener.class));
-
-        verify(mockExecutor, timeout(1000)).execute(any(Runnable.class));
+        // Assert.
+        assertThat(mSaveToReleaseSemaphore.tryAcquire(5, TimeUnit.SECONDS)).isTrue();
     }
 
     @Test
     public void updateSuggestedResolution_getsFrame() throws InterruptedException {
-        mSurfaceFutureSemaphore = new Semaphore(/*permits=*/ 0);
-
         mInstrumentation.runOnMainSync(() -> {
             // Arrange.
             Preview preview = new Preview(mDefaultConfig);
@@ -454,7 +265,6 @@ public final class PreviewTest {
 
     @Test
     public void setPreviewSurfaceCallback_getsFrame() throws InterruptedException {
-        mSurfaceFutureSemaphore = new Semaphore(/*permits=*/ 0);
         mInstrumentation.runOnMainSync(() -> {
             // Arrange.
             Preview preview = new Preview(mDefaultConfig);
@@ -470,80 +280,6 @@ public final class PreviewTest {
         assertThat(mSurfaceFutureSemaphore.tryAcquire(10, TimeUnit.SECONDS)).isTrue();
     }
 
-    @Test
-    @UiThreadTest
-    public void previewOutput_updatesWithTargetRotation() {
-        Preview useCase = new Preview(mDefaultConfig);
-        useCase.setTargetRotation(Surface.ROTATION_0);
-        useCase.updateSuggestedResolution(Collections.singletonMap(mCameraId, DEFAULT_RESOLUTION));
-
-        ArgumentCaptor<PreviewOutput> previewOutput = ArgumentCaptor.forClass(PreviewOutput.class);
-        useCase.setOnPreviewOutputUpdateListener(AsyncTask.SERIAL_EXECUTOR, mMockListener);
-
-        useCase.setTargetRotation(Surface.ROTATION_90);
-
-        verify(mMockListener, timeout(3000).times(2)).onUpdated(previewOutput.capture());
-        assertThat(previewOutput.getAllValues()).hasSize(2);
-        Preview.PreviewOutput initialOutput = previewOutput.getAllValues().get(0);
-        Preview.PreviewOutput latestPreviewOutput = previewOutput.getAllValues().get(1);
-
-        assertThat(initialOutput).isNotNull();
-        assertThat(initialOutput.getSurfaceTexture())
-                .isEqualTo(latestPreviewOutput.getSurfaceTexture());
-        assertThat(initialOutput.getRotationDegrees())
-                .isNotEqualTo(latestPreviewOutput.getRotationDegrees());
-    }
-
-    @Test
-    @UiThreadTest
-    public void outputIsPublished_whenListenerIsSetBefore()
-            throws InterruptedException, ExecutionException {
-        Preview useCase = new Preview(mDefaultConfig);
-
-        final SurfaceTextureCallable surfaceTextureCallable0 = new SurfaceTextureCallable();
-        final FutureTask<SurfaceTexture> future0 = new FutureTask<>(surfaceTextureCallable0);
-        useCase.setOnPreviewOutputUpdateListener(
-                AsyncTask.SERIAL_EXECUTOR,
-                new OnPreviewOutputUpdateListener() {
-                    @Override
-                    public void onUpdated(@NonNull Preview.PreviewOutput previewOutput) {
-                        surfaceTextureCallable0.setSurfaceTexture(
-                                previewOutput.getSurfaceTexture());
-                        future0.run();
-                    }
-                });
-
-        useCase.updateSuggestedResolution(Collections.singletonMap(mCameraId, DEFAULT_RESOLUTION));
-        SurfaceTexture surfaceTexture0 = future0.get();
-
-        assertThat(surfaceTexture0).isNotNull();
-    }
-
-    @Test
-    @UiThreadTest
-    public void outputIsPublished_whenListenerIsSetAfter()
-            throws InterruptedException, ExecutionException {
-        Preview useCase = new Preview(mDefaultConfig);
-
-        final SurfaceTextureCallable surfaceTextureCallable0 = new SurfaceTextureCallable();
-        final FutureTask<SurfaceTexture> future0 = new FutureTask<>(surfaceTextureCallable0);
-        useCase.updateSuggestedResolution(Collections.singletonMap(mCameraId, DEFAULT_RESOLUTION));
-
-        useCase.setOnPreviewOutputUpdateListener(
-                AsyncTask.SERIAL_EXECUTOR,
-                new Preview.OnPreviewOutputUpdateListener() {
-                    @Override
-                    public void onUpdated(@NonNull PreviewOutput previewOutput) {
-                        surfaceTextureCallable0.setSurfaceTexture(
-                                previewOutput.getSurfaceTexture());
-                        future0.run();
-                    }
-                });
-        SurfaceTexture surfaceTexture0 = future0.get();
-
-        assertThat(surfaceTexture0).isNotNull();
-    }
-
     private CameraControlInternal getFakeCameraControl() {
         return new FakeCameraControl(new CameraControlInternal.ControlUpdateCallback() {
             @Override
@@ -555,18 +291,5 @@ public final class PreviewTest {
                     @NonNull List<CaptureConfig> captureConfigs) {
             }
         });
-    }
-
-    private static final class SurfaceTextureCallable implements Callable<SurfaceTexture> {
-        SurfaceTexture mSurfaceTexture;
-
-        void setSurfaceTexture(SurfaceTexture surfaceTexture) {
-            this.mSurfaceTexture = surfaceTexture;
-        }
-
-        @Override
-        public SurfaceTexture call() {
-            return mSurfaceTexture;
-        }
     }
 }
