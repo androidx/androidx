@@ -29,6 +29,9 @@ import androidx.camera.core.CaptureConfig;
 import androidx.camera.core.FlashMode;
 import androidx.camera.core.FocusMeteringAction;
 import androidx.camera.core.SessionConfig;
+import androidx.camera.core.impl.utils.futures.Futures;
+
+import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -155,6 +158,18 @@ public final class FakeCameraControl implements CameraControlInternal {
     /** Sets a listener to be notified when there are new capture request submitted */
     public void setOnNewCaptureRequestListener(@NonNull OnNewCaptureRequestListener listener) {
         mOnNewCaptureRequestListener = listener;
+    }
+
+    @NonNull
+    @Override
+    public ListenableFuture<Void> setZoomRatio(float ratio) {
+        return Futures.immediateFuture(null);
+    }
+
+    @NonNull
+    @Override
+    public ListenableFuture<Void> setZoomPercentage(float percentage) {
+        return Futures.immediateFuture(null);
     }
 
     /** A listener which are used to notify when there are new submitted capture requests */

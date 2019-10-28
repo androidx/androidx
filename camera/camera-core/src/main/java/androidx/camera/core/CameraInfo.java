@@ -19,7 +19,9 @@ package androidx.camera.core;
 import android.view.Surface;
 
 import androidx.annotation.NonNull;
+import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LiveData;
+import androidx.lifecycle.Observer;
 
 /**
  * An interface for retrieving camera information.
@@ -50,4 +52,62 @@ public interface CameraInfo {
     /** Returns if flash unit is available or not. */
     @NonNull
     LiveData<Boolean> isFlashAvailable();
+
+    /**
+     * Returns a {@link LiveData} of current zoom ratio.
+     *
+     * <p>Apps can either get immediate value via {@link LiveData#getValue()} (The value is never
+     * null, it has default value in the beginning) or they can observe it via
+     * {@link LiveData#observe(LifecycleOwner, Observer)} to update zoom UI accordingly.
+     *
+     * <p>Setting zoom ratio or zoom percentage will both trigger the change event.
+     *
+     * @return a {@link LiveData} containing current zoom ratio.
+     */
+    @NonNull
+    LiveData<Float> getZoomRatio();
+
+    /**
+     * Returns a {@link LiveData} of the maximum zoom ratio.
+     *
+     * <p>Apps can either get immediate value via {@link LiveData#getValue()} (The value is never
+     * null, it has default value in the beginning) or they can observe it via
+     * {@link LiveData#observe(LifecycleOwner, Observer)} to update zoom UI accordingly.
+     *
+     * <p>While the value is fixed most of the time, enabling extension could change the maximum
+     * zoom ratio.
+     *
+     * @return a {@link LiveData} containing the maximum zoom ratio value.
+     */
+    @NonNull
+    LiveData<Float> getMaxZoomRatio();
+
+    /**
+     * Returns a {@link LiveData} of the minimum zoom ratio.
+     *
+     * <p>Apps can either get immediate value via {@link LiveData#getValue()} (The value is never
+     * null, it has default value in the beginning) or they can observe it via
+     * {@link LiveData#observe(LifecycleOwner, Observer)} to update zoom UI accordingly.
+     *
+     * <p>While the value is fixed most of the time, enabling extension could change the minimum
+     * zoom ratio value.
+     *
+     * @return a {@link LiveData} containing the minimum zoom ratio value.
+     */
+    @NonNull
+    LiveData<Float> getMinZoomRatio();
+
+    /**
+     * Returns a {@link LiveData} of current zoom percentage which is in range [0..1].
+     * Percentage 0 represents the maximum zoom while percentage 1.0 represents the maximum zoom.
+     *
+     * <p>Apps can either get immediate value via {@link LiveData#getValue()} (The value is never
+     * null, it has default value in the beginning) or they can observe it via
+     * {@link LiveData#observe(LifecycleOwner, Observer)} to update zoom UI accordingly.
+     * <p>Setting zoom ratio or zoom percentage will both trigger the change event.
+     *
+     * @return a {@link LiveData} containing current zoom percentage.
+     */
+    @NonNull
+    LiveData<Float> getZoomPercentage();
 }

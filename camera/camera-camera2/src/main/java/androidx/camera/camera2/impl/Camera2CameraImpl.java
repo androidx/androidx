@@ -713,6 +713,9 @@ final class Camera2CameraImpl implements CameraInternal {
             }
         }
 
+        // CameraControl is active when there are any online use cases.
+        mCameraControlInternal.setActive(true);
+
         if (Looper.myLooper() != mHandler.getLooper()) {
             mHandler.post(new Runnable() {
                 @Override
@@ -768,7 +771,6 @@ final class Camera2CameraImpl implements CameraInternal {
         });
     }
 
-
     private void updateCameraControlPreviewAspectRatio(Collection<UseCase> useCases) {
         for (UseCase useCase : useCases) {
             if (useCase instanceof Preview) {
@@ -780,8 +782,8 @@ final class Camera2CameraImpl implements CameraInternal {
         }
     }
 
-    private void clearCameraControlPreviewAspectRatio(Collection<UseCase> useCases) {
-        for (UseCase useCase : useCases) {
+    private void clearCameraControlPreviewAspectRatio(Collection<UseCase> removedUseCases) {
+        for (UseCase useCase : removedUseCases) {
             if (useCase instanceof Preview) {
                 mCameraControlInternal.setPreviewAspectRatio(null);
                 return;
@@ -810,6 +812,7 @@ final class Camera2CameraImpl implements CameraInternal {
         }
 
         Log.d(TAG, "Use cases " + useCases + " OFFLINE for camera " + mCameraId);
+        clearCameraControlPreviewAspectRatio(useCases);
         synchronized (mAttachedUseCaseLock) {
             List<UseCase> useCasesChangedToOffline = new ArrayList<>();
             for (UseCase useCase : useCases) {
@@ -826,6 +829,7 @@ final class Camera2CameraImpl implements CameraInternal {
             notifyStateOfflineToUseCases(useCasesChangedToOffline);
 
             if (mUseCaseAttachState.getOnlineUseCases().isEmpty()) {
+                mCameraControlInternal.setActive(false);
                 resetCaptureSession(/*abortInFlightCaptures=*/false);
                 close();
                 return;
@@ -839,7 +843,6 @@ final class Camera2CameraImpl implements CameraInternal {
             openCaptureSession();
         }
 
-        clearCameraControlPreviewAspectRatio(useCases);
     }
 
     /** Returns an interface to retrieve characteristics of the camera. */
@@ -849,7 +852,8 @@ final class Camera2CameraImpl implements CameraInternal {
         synchronized (mCameraInfoLock) {
             if (mCameraInfoInternal == null) {
                 // Lazily instantiate camera info
-                mCameraInfoInternal = new Camera2CameraInfo(mCameraManager.unwrap(), mCameraId);
+                mCameraInfoInternal = new Camera2CameraInfo(mCameraManager.unwrap(), mCameraId,
+                        mCameraControlInternal.getZoomControl());
             }
 
             return mCameraInfoInternal;
