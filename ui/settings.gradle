@@ -51,6 +51,7 @@ includeProject(":ui:ui-foundation:integration-tests:ui-foundation-demos", "ui-fo
 includeProject(":ui:ui-framework", "ui-framework")
 includeProject(":ui:ui-framework:integration-tests:ui-framework-demos", "ui-framework/integration-tests/framework-demos")
 includeProject(":ui:ui-framework:integration-tests:samples", "ui-framework/integration-tests/samples")
+includeProject(":ui:ui-internal-lint-checks", "ui-internal-lint-checks")
 includeProject(":ui:ui-layout", "ui-layout")
 includeProject(":ui:ui-layout:integration-tests:samples", "ui-layout/integration-tests/samples")
 includeProject(":ui:ui-layout:integration-tests:ui-layout-demos", "ui-layout/integration-tests/layout-demos")

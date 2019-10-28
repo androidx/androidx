@@ -152,10 +152,9 @@ internal fun SimpleContainer(
         Padding(padding) {
             Border(
                 color = borderColor,
-                width = borderWidth
-            ) {
-                children()
-            }
+                width = borderWidth,
+                children = children
+            )
         }
     }) { measurables, constraints ->
         val newConstraints =

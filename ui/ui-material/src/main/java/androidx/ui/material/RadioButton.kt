@@ -64,7 +64,7 @@ import androidx.ui.text.TextStyle
 @Composable
 fun RadioGroup(children: @Composable RadioGroupScope.() -> Unit) {
     val scope = +memo { RadioGroupScope() }
-    children(p1 = scope)
+    scope.children()
 }
 
 /**
@@ -136,9 +136,7 @@ class RadioGroupScope internal constructor() {
             Ripple(bounded = true) {
                 MutuallyExclusiveSetItem(
                     selected = selected,
-                    onClick = { if (!selected) onSelect() }) {
-                    children()
-                }
+                    onClick = { if (!selected) onSelect() }, children = children)
             }
         }
     }

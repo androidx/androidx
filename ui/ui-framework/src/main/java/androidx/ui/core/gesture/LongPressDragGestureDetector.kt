@@ -112,9 +112,7 @@ fun LongPressDragGestureDetector(
 
     RawDragGestureDetector(glue.dragObserver, glue::dragEnabled) {
         PointerInputWrapper(glue.pointerInputHandler) {
-            LongPressGestureDetector(glue.onLongPress) {
-                children()
-            }
+            LongPressGestureDetector(glue.onLongPress, children)
         }
     }
 }

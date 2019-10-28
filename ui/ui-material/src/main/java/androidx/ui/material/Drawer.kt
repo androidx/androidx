@@ -84,9 +84,7 @@ enum class DrawerState {
 fun StaticDrawer(
     drawerContent: @Composable() () -> Unit
 ) {
-    Container(width = StaticDrawerWidth, expanded = true) {
-        drawerContent()
-    }
+    Container(width = StaticDrawerWidth, expanded = true, children = drawerContent)
 }
 
 /**
@@ -250,7 +248,7 @@ private fun DrawerContent(
             padding = EdgeInsets(right = VerticalDrawerPadding)
         ) {
             // remove Container when we will support multiply children
-            Surface { Container(expanded = true) { children() } }
+            Surface { Container(expanded = true, children = children) }
         }
     }
 }
@@ -264,7 +262,7 @@ private fun BottomDrawerContent(
     WithOffset(yOffset = yOffset) {
         Container(constraints = constraints) {
             // remove Container when we will support multiply children
-            Surface { Container(expanded = true) { children() } }
+            Surface { Container(expanded = true, children = children) }
         }
     }
 }
@@ -305,9 +303,7 @@ private fun WithOffset(
     child: @Composable() () -> Unit
 ) {
     Layout(children = {
-        RepaintBoundary {
-            child()
-        }
+        RepaintBoundary(children = child)
     }) { measurables, constraints ->
         if (measurables.size > 1) {
             throw IllegalStateException("Only one child is allowed")

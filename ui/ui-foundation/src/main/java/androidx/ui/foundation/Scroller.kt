@@ -228,9 +228,7 @@ private fun ScrollerLayout(
     Layout(children = {
         Clip(RectangleShape) {
             Container {
-                RepaintBoundary {
-                    child()
-                }
+                RepaintBoundary(children = child)
             }
         }
     }) { measurables, constraints ->

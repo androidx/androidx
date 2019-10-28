@@ -115,7 +115,7 @@ class AppBarTest {
                         action = { action ->
                             OnChildPositioned(onPositioned = { coords ->
                                 actionCoords = coords
-                            }) { action() }
+                            }, children = action)
                         }
                     )
                 }
@@ -173,7 +173,7 @@ class AppBarTest {
                         action = { action ->
                             OnChildPositioned(onPositioned = { coords ->
                                 actionCoords = coords
-                            }) { action() }
+                            }, children = action)
                         }
                     )
                 }
@@ -204,9 +204,7 @@ class AppBarTest {
                     title = { Text("Title") },
                     actionData = createImageList(numberOfActions),
                     action = { action ->
-                        Semantics(properties = { testTag = tag }) {
-                            action()
-                        }
+                        Semantics(properties = { testTag = tag }, children = action)
                     }
                 )
             }
@@ -226,9 +224,7 @@ class AppBarTest {
                     title = { Text("Title") },
                     actionData = createImageList(numberOfActions),
                     action = { action ->
-                        Semantics(properties = { testTag = tag }) {
-                            action()
-                        }
+                        Semantics(properties = { testTag = tag }, children = action)
                     }
                 )
             }
@@ -281,7 +277,7 @@ class AppBarTest {
                         action = { action ->
                             OnChildPositioned(onPositioned = { coords ->
                                 actionCoords = coords
-                            }) { action() }
+                            }, children = action)
                         }
                     )
                 }
@@ -319,7 +315,7 @@ class AppBarTest {
                         action = { action ->
                             OnChildPositioned(onPositioned = { coords ->
                                 actionCoords = coords
-                            }) { action() }
+                            }, children = action)
                         }
                     )
                 }
@@ -370,7 +366,7 @@ class AppBarTest {
                         action = { action ->
                             OnChildPositioned(onPositioned = { coords ->
                                 actionCoords = coords
-                            }) { action() }
+                            }, children = action)
                         }
                     )
                 }
@@ -427,7 +423,7 @@ class AppBarTest {
                         action = { action ->
                             OnChildPositioned(onPositioned = { coords ->
                                 actionCoords = coords
-                            }) { action() }
+                            }, children = action)
                         }
                     )
                 }
@@ -476,7 +472,7 @@ class AppBarTest {
                         action = { action ->
                             OnChildPositioned(onPositioned = { coords ->
                                 actionCoords = coords
-                            }) { action() }
+                            }, children = action)
                         }
                     )
                 }
@@ -519,7 +515,7 @@ class AppBarTest {
                         action = { action ->
                             OnChildPositioned(onPositioned = { coords ->
                                 actionCoords = coords
-                            }) { action() }
+                            }, children = action)
                         }
                     )
                 }
@@ -549,9 +545,7 @@ class AppBarTest {
                 BottomAppBar(
                     actionData = createImageList(numberOfActions),
                     action = { action ->
-                        Semantics(properties = { testTag = tag }) {
-                            action()
-                        }
+                        Semantics(properties = { testTag = tag }, children = action)
                     }
                 )
             }
@@ -570,9 +564,7 @@ class AppBarTest {
                 BottomAppBar(
                     actionData = createImageList(numberOfActions),
                     action = { action ->
-                        Semantics(properties = { testTag = tag }) {
-                            action()
-                        }
+                        Semantics(properties = { testTag = tag }, children = action)
                     }
                 )
             }

@@ -91,9 +91,7 @@ fun TriStateToggleable(
             if (onToggle != null) {
                 onClick(action = onToggle, label = "Toggle")
             }
-        }) {
-            children()
-        }
+        }, children = children)
     }
 }
 

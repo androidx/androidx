@@ -121,9 +121,7 @@ fun RawDragGestureDetector(
     recognizer.dragObserver = dragObserver
     recognizer.canStartDragging = canStartDragging
 
-    PointerInputWrapper(pointerInputHandler = recognizer.pointerInputHandler) {
-        children()
-    }
+    PointerInputWrapper(pointerInputHandler = recognizer.pointerInputHandler, children = children)
 }
 
 internal class RawDragGestureRecognizer {

@@ -85,9 +85,7 @@ fun AlertDialog(
                                 padding = TitlePadding
                             ) {
                                 val textStyle = +themeTextStyle { h6 }
-                                CurrentTextStyleProvider(textStyle) {
-                                    title()
-                                }
+                                CurrentTextStyleProvider(textStyle, title)
                             }
                         } else {
                             // TODO(b/138924683): Temporary until padding for the Text's
@@ -97,9 +95,7 @@ fun AlertDialog(
 
                         Container(alignment = Alignment.CenterLeft, padding = TextPadding) {
                             val textStyle = +themeTextStyle { body1 }
-                            CurrentTextStyleProvider(textStyle) {
-                                text()
-                            }
+                            CurrentTextStyleProvider(textStyle, text)
                         }
                         HeightSpacer(height = TextToButtonsHeight)
                         AlertDialogButtonLayout(

@@ -32,9 +32,7 @@ import java.util.WeakHashMap
 fun Inspectable(children: @Composable() () -> Unit) {
     composer.composer.collectKeySourceInformation()
     tables.add(composer.composer.slotTable)
-    InspectionMode.Provider(true) {
-        children()
-    }
+    InspectionMode.Provider(true, children)
 }
 
 val tables = Collections.newSetFromMap(WeakHashMap<SlotTable, Boolean>())

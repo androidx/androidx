@@ -149,9 +149,8 @@ fun PressGestureDetectorWithActions(
     PressGestureDetector(
         onPress = { onPress.action(ActionParam(ActionCaller.PointerInput, it)) },
         onRelease = { onRelease.action(ActionParam(ActionCaller.PointerInput, Unit)) },
-        onCancel = { onCancel.action(ActionParam(ActionCaller.PointerInput, Unit)) }) {
-        children()
-    }
+        onCancel = { onCancel.action(ActionParam(ActionCaller.PointerInput, Unit)) },
+        children = children)
 }
 
 /**
@@ -181,9 +180,7 @@ fun Semantics(
             mainAxisAlignment = MainAxisAlignment.Center,
             crossAxisAlignment = CrossAxisAlignment.Center
         ) {
-            Container(height = 300.dp, width = 500.dp) {
-                children()
-            }
+            Container(height = 300.dp, width = 500.dp, children = children)
         }
     }
 }
