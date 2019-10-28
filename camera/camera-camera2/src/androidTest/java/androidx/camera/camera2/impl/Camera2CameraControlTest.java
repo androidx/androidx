@@ -30,6 +30,8 @@ import static android.hardware.camera2.CameraMetadata.FLASH_MODE_TORCH;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import static org.junit.Assume.assumeTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
@@ -48,7 +50,9 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.HandlerThread;
 
+import androidx.annotation.NonNull;
 import androidx.camera.camera2.Camera2Config;
+import androidx.camera.core.CameraControl;
 import androidx.camera.core.CameraControlInternal;
 import androidx.camera.core.CameraInfoUnavailableException;
 import androidx.camera.core.CaptureConfig;
@@ -66,7 +70,10 @@ import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
 
+import com.google.common.util.concurrent.ListenableFuture;
+
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -74,7 +81,9 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 @SmallTest
 @RunWith(AndroidJUnit4.class)
@@ -111,6 +120,7 @@ public final class Camera2CameraControlTest {
         mCamera2CameraControl = new Camera2CameraControl(mCameraCharacteristics,
                 executorService, executorService, mControlUpdateCallback);
 
+        mCamera2CameraControl.setActive(true);
         HandlerUtil.waitForLooperToIdle(mHandler);
 
         // Reset the method call onCameraControlUpdateSessionConfig() in Camera2CameraControl
@@ -627,4 +637,102 @@ public final class Camera2CameraControlTest {
                     CaptureRequest.CONTROL_AWB_MODE, null)).isEqualTo(fallbackMode);
         }
     }
+
+    private boolean isZoomSupported() {
+        return mCameraCharacteristics.get(CameraCharacteristics.SCALER_AVAILABLE_MAX_DIGITAL_ZOOM)
+                > 1.0f;
+    }
+
+    private Rect getSensorRect() {
+        Rect rect = mCameraCharacteristics.get(CameraCharacteristics.SENSOR_INFO_ACTIVE_ARRAY_SIZE);
+        // Some device like pixel 2 will have (0, 8) as the left-top corner.
+        return new Rect(0, 0, rect.width(), rect.height());
+    }
+
+    // Here we just test if setZoomRatio / setZoomPercentage is working. For thorough tests, we
+    // do it on ZoomControlTest and ZoomControlRoboTest.
+    @Test
+    public void setZoomRatio_CropRegionIsUpdatedCorrectly() throws InterruptedException {
+        assumeTrue(isZoomSupported());
+        mCamera2CameraControl.setZoomRatio(2.0f);
+
+        HandlerUtil.waitForLooperToIdle(mHandler);
+
+        Rect sessionCropRegion = getSessionCropRegion(mControlUpdateCallback);
+
+        Rect sensorRect = getSensorRect();
+        int cropX = (sensorRect.width() / 4);
+        int cropY = (sensorRect.height() / 4);
+        Rect cropRect = new Rect(cropX, cropY, cropX + sensorRect.width() / 2,
+                cropY + sensorRect.height() / 2);
+        assertThat(sessionCropRegion).isEqualTo(cropRect);
+    }
+
+    @NonNull
+    private Rect getSessionCropRegion(
+            CameraControlInternal.ControlUpdateCallback controlUpdateCallback)
+            throws InterruptedException {
+        verify(controlUpdateCallback, times(1)).onCameraControlUpdateSessionConfig(
+                mSessionConfigArgumentCaptor.capture());
+        SessionConfig sessionConfig = mSessionConfigArgumentCaptor.getValue();
+        Camera2Config camera2Config = new Camera2Config(sessionConfig.getImplementationOptions());
+
+        reset(controlUpdateCallback);
+        return camera2Config.getCaptureRequestOption(CaptureRequest.SCALER_CROP_REGION, null);
+    }
+
+    @Test
+    public void setZoomPercentage_CropRegionIsUpdatedCorrectly() throws InterruptedException {
+        assumeTrue(isZoomSupported());
+        mCamera2CameraControl.setZoomPercentage(1.0f);
+        HandlerUtil.waitForLooperToIdle(mHandler);
+
+        Rect cropRegionMaxZoom = getSessionCropRegion(mControlUpdateCallback);
+        Rect cropRegionMinZoom = getSensorRect();
+
+        mCamera2CameraControl.setZoomPercentage(0.5f);
+
+        HandlerUtil.waitForLooperToIdle(mHandler);
+
+        Rect cropRegionHalfZoom = getSessionCropRegion(mControlUpdateCallback);
+
+        Assert.assertEquals(cropRegionHalfZoom.width(),
+                (cropRegionMinZoom.width() + cropRegionMaxZoom.width()) / 2.0f, 1
+                /* 1 pixel tolerance */);
+    }
+
+    @Test
+    public void setZoomRatio_cameraControlInactive_operationCanceled() {
+        mCamera2CameraControl.setActive(false);
+        ListenableFuture<Void> listenableFuture = mCamera2CameraControl.setZoomRatio(2.0f);
+        try {
+            listenableFuture.get(1000, TimeUnit.MILLISECONDS);
+        } catch (ExecutionException e) {
+            if (e.getCause() instanceof CameraControl.OperationCanceledException) {
+                assertTrue(true);
+                return;
+            }
+        } catch (Exception e) {
+        }
+
+        fail();
+    }
+
+    @Test
+    public void setZoomPercentage_cameraControlInactive_operationCanceled() {
+        mCamera2CameraControl.setActive(false);
+        ListenableFuture<Void> listenableFuture = mCamera2CameraControl.setZoomPercentage(0.0f);
+        try {
+            listenableFuture.get(1000, TimeUnit.MILLISECONDS);
+        } catch (ExecutionException e) {
+            if (e.getCause() instanceof CameraControl.OperationCanceledException) {
+                assertTrue(true);
+                return;
+            }
+        } catch (Exception e) {
+        }
+
+        fail();
+    }
+
 }

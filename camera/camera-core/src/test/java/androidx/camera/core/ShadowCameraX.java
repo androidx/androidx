@@ -35,13 +35,19 @@ public class ShadowCameraX {
             new ImageAnalysisConfig.Builder().setSessionOptionUnpacker(
                     new SessionConfig.OptionUnpacker() {
                         @Override
-                        public void unpack(UseCaseConfig<?> config, SessionConfig.Builder builder) {
+                        public void unpack(@NonNull UseCaseConfig<?> config,
+                                @NonNull SessionConfig.Builder builder) {
                             // no op.
                         }
                     }).build();
 
     private static final CameraInfo DEFAULT_CAMERA_INFO = new CameraInfoInternal() {
         MutableLiveData<Boolean> mFlashAvailability = new MutableLiveData<>(Boolean.TRUE);
+        MutableLiveData<Float> mZoomRatio = new MutableLiveData<>(1.0f);
+        MutableLiveData<Float> mMaxZoomRatio = new MutableLiveData<>(4.0f);
+        MutableLiveData<Float> mMinZoomRatio = new MutableLiveData<>(1.0f);
+        MutableLiveData<Float> mZoomPercentage = new MutableLiveData<>(0f);
+
         @Override
         public LensFacing getLensFacing() {
             return LensFacing.BACK;
@@ -61,6 +67,30 @@ public class ShadowCameraX {
         @Override
         public LiveData<Boolean> isFlashAvailable() {
             return mFlashAvailability;
+        }
+
+        @NonNull
+        @Override
+        public LiveData<Float> getZoomRatio() {
+            return mZoomRatio;
+        }
+
+        @NonNull
+        @Override
+        public LiveData<Float> getMaxZoomRatio() {
+            return mMaxZoomRatio;
+        }
+
+        @NonNull
+        @Override
+        public LiveData<Float> getMinZoomRatio() {
+            return mMinZoomRatio;
+        }
+
+        @NonNull
+        @Override
+        public LiveData<Float> getZoomPercentage() {
+            return mZoomPercentage;
         }
     };
 

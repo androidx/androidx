@@ -22,6 +22,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
+import androidx.camera.core.impl.utils.futures.Futures;
+
+import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.List;
 
@@ -130,6 +133,18 @@ public interface CameraControlInternal extends CameraControl {
         @Override
         public void cancelFocusAndMetering() {
 
+        }
+
+        @NonNull
+        @Override
+        public ListenableFuture<Void> setZoomRatio(float ratio) {
+            return Futures.immediateFuture(null);
+        }
+
+        @NonNull
+        @Override
+        public ListenableFuture<Void> setZoomPercentage(float percentage) {
+            return Futures.immediateFuture(null);
         }
     };
 

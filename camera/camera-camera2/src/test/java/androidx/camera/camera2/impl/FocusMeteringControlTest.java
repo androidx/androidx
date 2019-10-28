@@ -121,6 +121,7 @@ public class FocusMeteringControlTest {
     public void setUp() throws CameraAccessException {
         initCameras();
         mFocusMeteringControl = spy(initFocusMeteringControl(CAMERA0_ID));
+        mFocusMeteringControl.setActive(true);
     }
 
     @After
@@ -149,9 +150,10 @@ public class FocusMeteringControlTest {
                 mCameraExecutor,
                 updateCallback));
 
-
-        return new FocusMeteringControl(mCamera2CameraControl,
+        FocusMeteringControl focusMeteringControl = new FocusMeteringControl(mCamera2CameraControl,
                 CameraXExecutors.mainThreadExecutor(), mCameraExecutor);
+        focusMeteringControl.setActive(true);
+        return focusMeteringControl;
     }
 
     private void initCameras() {
@@ -896,5 +898,4 @@ public class FocusMeteringControlTest {
         mFocusMeteringControl.cancelFocusAndMetering();
         verifyAfMode(CaptureResult.CONTROL_AF_MODE_CONTINUOUS_PICTURE);
     }
-
 }

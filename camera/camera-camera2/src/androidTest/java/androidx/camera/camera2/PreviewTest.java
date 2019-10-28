@@ -30,7 +30,6 @@ import static org.mockito.Mockito.verify;
 import android.Manifest;
 import android.app.Instrumentation;
 import android.content.Context;
-import android.graphics.Rect;
 import android.graphics.SurfaceTexture;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -219,23 +218,6 @@ public final class PreviewTest {
 
         assertThat(surfaces.size()).isEqualTo(1);
         assertThat(surfaces.get(0).isValid()).isTrue();
-    }
-
-    @Test
-    @UiThreadTest
-    public void zoomRegionCanBeSet() {
-        Preview useCase = new Preview(mDefaultConfig);
-        useCase.updateSuggestedResolution(Collections.singletonMap(mCameraId, DEFAULT_RESOLUTION));
-
-        CameraControlInternal cameraControl = mock(CameraControlInternal.class);
-        useCase.attachCameraControl(mCameraId, cameraControl);
-
-        Rect rect = new Rect(/*left=*/ 200, /*top=*/ 200, /*right=*/ 800, /*bottom=*/ 800);
-        useCase.zoom(rect);
-
-        ArgumentCaptor<Rect> rectArgumentCaptor = ArgumentCaptor.forClass(Rect.class);
-        verify(cameraControl).setCropRegion(rectArgumentCaptor.capture());
-        assertThat(rectArgumentCaptor.getValue()).isEqualTo(rect);
     }
 
     @Test
