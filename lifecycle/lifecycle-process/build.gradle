@@ -25,6 +25,12 @@ plugins {
     id("com.android.library")
 }
 
+android {
+    buildTypes.all {
+        consumerProguardFiles 'proguard-rules.pro'
+    }
+}
+
 dependencies {
     api(project(":lifecycle:lifecycle-runtime"))
 
