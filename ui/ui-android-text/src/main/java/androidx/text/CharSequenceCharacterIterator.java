@@ -58,6 +58,7 @@ public class CharSequenceCharacterIterator implements CharacterIterator {
      * the text is empty
      * @see #getBeginIndex()
      */
+    @Override
     public char first() {
         mIndex = mBeginIndex;
         return current();
@@ -71,6 +72,7 @@ public class CharSequenceCharacterIterator implements CharacterIterator {
      * text is empty
      * @see #getEndIndex()
      */
+    @Override
     public char last() {
         if (mBeginIndex == mEndIndex) {
             mIndex = mEndIndex;
@@ -89,6 +91,7 @@ public class CharSequenceCharacterIterator implements CharacterIterator {
      * position is off the end of the text.
      * @see #getIndex()
      */
+    @Override
     public char current() {
         return (mIndex == mEndIndex) ? DONE : mCharSequence.charAt(mIndex);
     }
@@ -103,6 +106,7 @@ public class CharSequenceCharacterIterator implements CharacterIterator {
      * the new
      * position is off the end of the text range.
      */
+    @Override
     public char next() {
         mIndex++;
         if (mIndex >= mEndIndex) {
@@ -123,6 +127,7 @@ public class CharSequenceCharacterIterator implements CharacterIterator {
      * the current
      * position is equal to getBeginIndex().
      */
+    @Override
     public char previous() {
         if (mIndex <= mBeginIndex) {
             return DONE;
@@ -143,6 +148,7 @@ public class CharSequenceCharacterIterator implements CharacterIterator {
      * {@link java.text.CharacterIterator#DONE} if the specified
      * position is equal to getEndIndex()
      */
+    @Override
     public char setIndex(int position) {
         if (mBeginIndex <= position && position <= mEndIndex) {
             mIndex = position;
@@ -157,6 +163,7 @@ public class CharSequenceCharacterIterator implements CharacterIterator {
      *
      * @return the index at which the text begins.
      */
+    @Override
     public int getBeginIndex() {
         return mBeginIndex;
     }
@@ -167,6 +174,7 @@ public class CharSequenceCharacterIterator implements CharacterIterator {
      *
      * @return the index after the last character in the text
      */
+    @Override
     public int getEndIndex() {
         return mEndIndex;
     }
@@ -176,6 +184,7 @@ public class CharSequenceCharacterIterator implements CharacterIterator {
      *
      * @return the current index.
      */
+    @Override
     public int getIndex() {
         return mIndex;
     }

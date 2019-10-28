@@ -300,7 +300,7 @@ public class WordIterator {
      */
     private void checkOffsetIsValid(int offset) {
         if (!(mStart <= offset && offset <= mEnd)) {
-            throw new IllegalArgumentException("Invalid offset: " + (offset)
+            throw new IllegalArgumentException("Invalid offset: " + offset
                     + ". Valid range is [" + mStart + ", " + mEnd + "]");
         }
     }
