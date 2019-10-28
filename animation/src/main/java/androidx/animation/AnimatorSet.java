@@ -827,10 +827,6 @@ public final class AnimatorSet extends Animator implements AnimationHandler.Anim
         return mChildrenInitialized;
     }
 
-    private void skipToStartValue(boolean inReverse) {
-        skipToEndValue(!inReverse);
-    }
-
     /**
      * Sets the position of the animation to the specified point in time. This time should
      * be between 0 and the total duration of the animation, including any repetition. If
@@ -1364,34 +1360,6 @@ public final class AnimatorSet extends Animator implements AnimationHandler.Anim
             returnVal += "\n    " + node.mAnimation.toString();
         }
         return returnVal + "\n}";
-    }
-
-    private void printChildCount() {
-        // Print out the child count through a level traverse.
-        ArrayList<Node> list = new ArrayList<>(mNodes.size());
-        list.add(mRootNode);
-        Log.d(TAG, "Current tree: ");
-        int index = 0;
-        while (index < list.size()) {
-            int listSize = list.size();
-            StringBuilder builder = new StringBuilder();
-            for (; index < listSize; index++) {
-                Node node = list.get(index);
-                int num = 0;
-                if (node.mChildNodes != null) {
-                    for (int i = 0; i < node.mChildNodes.size(); i++) {
-                        Node child = node.mChildNodes.get(i);
-                        if (child.mLatestParent == node) {
-                            num++;
-                            list.add(child);
-                        }
-                    }
-                }
-                builder.append(" ");
-                builder.append(num);
-            }
-            Log.d(TAG, builder.toString());
-        }
     }
 
     private void createDependencyGraph() {
