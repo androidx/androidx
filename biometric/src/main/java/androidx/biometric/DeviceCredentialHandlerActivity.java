@@ -56,6 +56,7 @@ public class DeviceCredentialHandlerActivity extends AppCompatActivity {
 
         if (bridge.getExecutor() == null || bridge.getAuthenticationCallback() == null) {
             Log.e(TAG, "onCreate: Executor and/or callback was null!");
+            finish();
         } else {
             // (Re)connect to and launch a biometric prompt within this activity.
             final BiometricPrompt biometricPrompt = new BiometricPrompt(this,
