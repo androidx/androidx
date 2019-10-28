@@ -206,11 +206,9 @@ public final class DynamicGraphNavigator extends NavGraphNavigator {
             TypedArray a = context.getResources().obtainAttributes(attrs,
                     R.styleable.DynamicGraphNavigator);
             String moduleName = a.getString(R.styleable.DynamicGraphNavigator_moduleName);
-
+            setModuleName(moduleName);
             mProgressDestId =
                     a.getResourceId(R.styleable.DynamicGraphNavigator_progressDestination, 0);
-
-            setModuleName(moduleName);
             a.recycle();
         }
 

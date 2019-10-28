@@ -18,9 +18,6 @@ package androidx.navigation.dynamicfeatures
 
 import androidx.test.filters.SmallTest
 import com.google.android.play.core.splitinstall.SplitInstallManager
-import com.google.android.play.core.splitinstall.model.SplitInstallSessionStatus
-import org.junit.Assert.assertFalse
-import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -32,34 +29,6 @@ import org.mockito.Mockito.verify
 @RunWith(JUnit4::class)
 @SmallTest
 class DynamicInstallMonitorTest {
-
-    @Test
-    fun testIsEndState_true() {
-        val endStates = arrayListOf(
-            SplitInstallSessionStatus.UNKNOWN,
-            SplitInstallSessionStatus.INSTALLED,
-            SplitInstallSessionStatus.FAILED,
-            SplitInstallSessionStatus.CANCELED
-        )
-        endStates.forEach {
-            assertTrue(DynamicInstallMonitor.isEndState(it))
-        }
-    }
-
-    @Test
-    fun testIsEndState_false() {
-        val nonTerminalStates = arrayListOf(
-            SplitInstallSessionStatus.PENDING,
-            SplitInstallSessionStatus.REQUIRES_USER_CONFIRMATION,
-            SplitInstallSessionStatus.DOWNLOADING,
-            SplitInstallSessionStatus.DOWNLOADED,
-            SplitInstallSessionStatus.INSTALLING
-        )
-        nonTerminalStates.forEach {
-            assertFalse(DynamicInstallMonitor.isEndState(it))
-        }
-    }
-
     @Test
     fun testCancelInstall_sessionIdZero() {
         val monitor = DynamicInstallMonitor()
@@ -81,18 +50,5 @@ class DynamicInstallMonitorTest {
         monitor.cancelInstall()
 
         verify(manager).cancelInstall(anyInt())
-    }
-
-    @Test
-    fun testHasException_true() {
-        val monitor = DynamicInstallMonitor()
-        monitor.exception = Exception()
-        assertTrue(monitor.hasException())
-    }
-
-    @Test
-    fun testHasException_false() {
-        val monitor = DynamicInstallMonitor()
-        assertFalse(monitor.hasException())
     }
 }

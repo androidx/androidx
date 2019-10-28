@@ -54,25 +54,7 @@ public final class DynamicInstallMonitor {
     }
 
     /**
-     * Check if the installation status is in a final state.
-     *
-     * Soon this method will be provided through PlayCore and removed from this library before
-     * the first stable release.
-     *
-     * @param status The {@link SplitInstallSessionStatus} to check.
-     * @return <code>true</code> if the state is final, <code>false</code> otherwise.
-     *
-     */
-    public static boolean isEndState(@SplitInstallSessionStatus int status) {
-        // TODO: b/142674186 Remove once PlayCore supports this.
-        return status == SplitInstallSessionStatus.UNKNOWN
-                || status == SplitInstallSessionStatus.INSTALLED
-                || status == SplitInstallSessionStatus.FAILED
-                || status == SplitInstallSessionStatus.CANCELED;
-    }
-
-    /**
-     * Get the current status.
+     * Get a LiveData with updates on the installation progress.
      *
      * @return The current {@link SplitInstallSessionStatus} wrapped in a {@link LiveData}.
      */
@@ -93,7 +75,10 @@ public final class DynamicInstallMonitor {
     }
 
     /**
-     * Checks whether an installation is required.
+     * Check whether an installation is required.
+     *
+     * <p>If this returns <code>true</code>, you should observe the LiveData returned by
+     * {@link #getStatus()} for installation updates and handle them accordingly.</p>
      *
      * @return <code>true</code> if installation is required, <code>false</code> otherwise.
      */
@@ -127,14 +112,7 @@ public final class DynamicInstallMonitor {
     }
 
     /**
-     * @return <code>true</code> if an Exception is set, <code>false</code> otherwise.
-     */
-    public boolean hasException() {
-        return mException != null;
-    }
-
-    /**
-     * Cancel the running installation with the current session.
+     * Cancel the current split installation session in the SplitInstallManager.
      */
     public void cancelInstall() {
         if (mSplitInstallManager != null && mSessionId != 0) {
@@ -143,9 +121,9 @@ public final class DynamicInstallMonitor {
     }
 
     /**
-     * @param sessionId The PlayCore session id.
+     * @param sessionId The session id from Play Core.
      */
-    public void setSessionId(int sessionId) {
+    void setSessionId(int sessionId) {
         mSessionId = sessionId;
     }
 

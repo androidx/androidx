@@ -30,11 +30,15 @@ import androidx.navigation.Navigator;
 import androidx.navigation.dynamicfeatures.DynamicGraphNavigator.DynamicNavGraph;
 
 import com.google.android.play.core.splitcompat.SplitCompat;
+import com.google.android.play.core.splitinstall.SplitInstallException;
 import com.google.android.play.core.splitinstall.SplitInstallManager;
 import com.google.android.play.core.splitinstall.SplitInstallRequest;
 import com.google.android.play.core.splitinstall.SplitInstallSessionState;
 import com.google.android.play.core.splitinstall.SplitInstallStateUpdatedListener;
+import com.google.android.play.core.splitinstall.model.SplitInstallErrorCode;
 import com.google.android.play.core.splitinstall.model.SplitInstallSessionStatus;
+
+import java.util.Collections;
 
 /**
  * Install manager for dynamic features.
@@ -52,7 +56,7 @@ public class DynamicInstallManager {
      *
      * @param context             The context the manager is using.
      * @param splitInstallManager The {@link SplitInstallManager} to use.
- *                            This is provided through the PlayCore library.
+     *                            This is provided through the PlayCore library.
      */
     public DynamicInstallManager(
             @NonNull Context context, @NonNull SplitInstallManager splitInstallManager) {
@@ -123,13 +127,20 @@ public class DynamicInstallManager {
         mSplitInstallManager
                 .startInstall(request)
                 .addOnSuccessListener(sessionId -> {
-                    if (sessionId == 0) { // The feature is already installed, nothing to do here.
-                        installMonitor.setInstallRequired(false);
-                        status.setValue(null);
+                    installMonitor.setSessionId(sessionId);
+                    installMonitor.setSplitInstallManager(mSplitInstallManager);
+                    if (sessionId == 0) {
+                        // The feature is already installed, emit synthetic INSTALLED state.
+                        status.setValue(SplitInstallSessionState.create(
+                                sessionId,
+                                SplitInstallSessionStatus.INSTALLED,
+                                SplitInstallErrorCode.NO_ERROR,
+                                /* bytesDownloaded */ 0,
+                                /* totalBytesToDownload */ 0,
+                                Collections.singletonList(module),
+                                Collections.emptyList()));
                         terminateLiveData(status);
                     } else {
-                        installMonitor.setSessionId(sessionId);
-                        installMonitor.setSplitInstallManager(mSplitInstallManager);
                         SplitInstallStateUpdatedListener listener =
                                 new SplitInstallListenerWrapper(mContext, status,
                                         installMonitor);
@@ -141,7 +152,16 @@ public class DynamicInstallManager {
                             "Error requesting install of "
                                     + module + ": " + exception.getMessage());
                     installMonitor.setException(exception);
-                    status.setValue(null);
+                    status.setValue(SplitInstallSessionState.create(
+                            /* sessionId */ 0,
+                            SplitInstallSessionStatus.FAILED,
+                            exception instanceof SplitInstallException
+                                    ? ((SplitInstallException) exception).getErrorCode()
+                                    : SplitInstallErrorCode.INTERNAL_ERROR,
+                            /* bytesDownloaded */ 0,
+                            /* totalBytesToDownload */ 0,
+                            Collections.singletonList(module),
+                            Collections.emptyList()));
                     terminateLiveData(status);
                 });
     }
@@ -183,7 +203,7 @@ public class DynamicInstallManager {
                     SplitCompat.install(mContext);
                 }
                 mStatus.setValue(splitInstallSessionState);
-                if (DynamicInstallMonitor.isEndState(splitInstallSessionState.status())) {
+                if (splitInstallSessionState.hasTerminalStatus()) {
                     mInstallMonitor.getSplitInstallManager().unregisterListener(this);
                     terminateLiveData(mStatus);
                 }

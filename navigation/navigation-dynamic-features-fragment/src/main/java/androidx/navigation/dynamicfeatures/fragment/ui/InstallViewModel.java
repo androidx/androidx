@@ -18,13 +18,10 @@ package androidx.navigation.dynamicfeatures.fragment.ui;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelStore;
 import androidx.navigation.dynamicfeatures.DynamicInstallMonitor;
-
-import com.google.android.play.core.splitinstall.SplitInstallSessionState;
 
 /**
  * View model for installation of dynamic feature modules.
@@ -55,12 +52,7 @@ final class InstallViewModel extends ViewModel {
         return mInstallMonitor;
     }
 
-    @Nullable
-    LiveData<SplitInstallSessionState> getInstallStatus() {
-        return mInstallMonitor != null ? mInstallMonitor.getStatus() : null;
-    }
-
-    void setInstallMonitor(DynamicInstallMonitor installMonitor) {
+    void setInstallMonitor(@Nullable DynamicInstallMonitor installMonitor) {
         mInstallMonitor = installMonitor;
     }
 }

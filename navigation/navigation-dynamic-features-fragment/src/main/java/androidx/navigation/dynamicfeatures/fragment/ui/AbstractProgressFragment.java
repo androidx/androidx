@@ -16,7 +16,6 @@
 
 package androidx.navigation.dynamicfeatures.fragment.ui;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.IntentSender;
@@ -27,20 +26,24 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
 import androidx.navigation.NavController;
-import androidx.navigation.NavOptions;
 import androidx.navigation.dynamicfeatures.Constants;
 import androidx.navigation.dynamicfeatures.DynamicExtras;
 import androidx.navigation.dynamicfeatures.DynamicInstallMonitor;
 import androidx.navigation.fragment.NavHostFragment;
 
 import com.google.android.play.core.splitinstall.SplitInstallSessionState;
+import com.google.android.play.core.splitinstall.model.SplitInstallErrorCode;
 import com.google.android.play.core.splitinstall.model.SplitInstallSessionStatus;
 
 /**
- * The default fragment to display during installation progress.
+ * The base class for fragments that handle dynamic feature installation.
+ *
+ * <p>When extending from this class, you are responsible for updating the UI in
+ * {@link #onCancelled()}, {@link #onFailed(int)}, {@link #onProgress(int, long, long)}.</p>
+ * <p>The installation process is handled automatically and navigation will happen
+ * once the install is completed.</p>
  */
 public abstract class AbstractProgressFragment extends Fragment {
 
@@ -50,10 +53,6 @@ public abstract class AbstractProgressFragment extends Fragment {
     private NavController mNavController;
     private int mDestinationId;
     private Bundle mDestinationArgs;
-    private NavOptions mDestinationNavOpts;
-    private StateObserver mObserver = new StateObserver();
-
-    @Nullable
     private InstallViewModel mInstallViewModel;
 
     public AbstractProgressFragment() {
@@ -68,14 +67,12 @@ public abstract class AbstractProgressFragment extends Fragment {
         super.onActivityCreated(savedInstanceState);
         mNavController = NavHostFragment.findNavController(this);
         mInstallViewModel = InstallViewModel.getInstance(getViewModelStore());
-
         if (savedInstanceState != null) {
             mNavigated = savedInstanceState.getBoolean(Constants.KEY_NAVIGATED, false);
         }
         Bundle arguments = requireArguments();
         mDestinationId = arguments.getInt(Constants.DESTINATION_ID);
         mDestinationArgs = arguments.getBundle(Constants.DESTINATION_ARGS);
-        mDestinationNavOpts = arguments.getParcelable(Constants.DESTINATION_NAVOPTS);
     }
 
     @Override
@@ -85,15 +82,15 @@ public abstract class AbstractProgressFragment extends Fragment {
             mNavController.popBackStack();
             return;
         }
-        LiveData<SplitInstallSessionState> status = mInstallViewModel.getInstallStatus();
-        if (status == null) {
-            Log.i(TAG, "onResume: STATUS is null, navigating");
+        DynamicInstallMonitor monitor = mInstallViewModel.getInstallMonitor();
+        if (monitor == null) {
+            Log.i(TAG, "onResume: monitor is null, navigating");
             navigate();
-            status = mInstallViewModel.getInstallStatus();
+            monitor = mInstallViewModel.getInstallMonitor();
         }
-        if (status != null) {
-            Log.i(TAG, "onResume: STATUS is now not null, observing");
-            status.observe(this, mObserver);
+        if (monitor != null) {
+            Log.i(TAG, "onResume: monitor is now not null, observing");
+            monitor.getStatus().observe(this, new StateObserver(monitor));
         }
     }
 
@@ -108,7 +105,7 @@ public abstract class AbstractProgressFragment extends Fragment {
                 new DynamicExtras.Builder()
                         .setInstallMonitor(installMonitor)
                         .build();
-        mNavController.navigate(mDestinationId, mDestinationArgs, mDestinationNavOpts, extras);
+        mNavController.navigate(mDestinationId, mDestinationArgs, null, extras);
         if (!installMonitor.isInstallRequired()) {
             Log.i(TAG, "navigate: install not required");
             mNavigated = true;
@@ -124,31 +121,18 @@ public abstract class AbstractProgressFragment extends Fragment {
         outState.putBoolean(Constants.KEY_NAVIGATED, mNavigated);
     }
 
-    /**
-     * @hide
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
-    protected class StateObserver implements Observer<SplitInstallSessionState> {
+    private class StateObserver implements Observer<SplitInstallSessionState> {
+        private final DynamicInstallMonitor mMonitor;
+
+        StateObserver(@NonNull DynamicInstallMonitor monitor) {
+            this.mMonitor = monitor;
+        }
+
         @Override
         public void onChanged(SplitInstallSessionState sessionState) {
-            Log.i(TAG, String.valueOf(sessionState != null ? sessionState.status() : 0));
-            @SuppressLint("SyntheticAccessor")
-            DynamicInstallMonitor monitor = mInstallViewModel.getInstallMonitor();
-            if (sessionState == null) {
-                Log.i(TAG, "onChanged: sessionstate is null");
-                if (monitor.hasException()) {
-                    onException(monitor.getException());
-                } else if (!monitor.isInstallRequired()) {
-                    Log.i(TAG, "onChanged: install not required");
-                    monitor.getStatus().removeObserver(this);
-                    navigate();
-                }
-            } else {
-                onProgress(sessionState.bytesDownloaded(),
-                        sessionState.totalBytesToDownload());
-
-                if (DynamicInstallMonitor.isEndState(sessionState.status())) {
-                    monitor.getStatus().removeObserver(this);
+            if (sessionState != null) {
+                if (sessionState.hasTerminalStatus()) {
+                    mMonitor.getStatus().removeObserver(this);
                 }
                 switch (sessionState.status()) {
                     case SplitInstallSessionStatus.INSTALLED:
@@ -157,23 +141,34 @@ public abstract class AbstractProgressFragment extends Fragment {
                         break;
                     case SplitInstallSessionStatus.REQUIRES_USER_CONFIRMATION:
                         try {
-                            // TODO: request Play Core to support fragments for resolution handling
                             startIntentSenderForResult(
                                     sessionState.resolutionIntent().getIntentSender(),
                                     INSTALL_REQUEST_CODE,
                                     null, 0, 0, 0, null);
                         } catch (IntentSender.SendIntentException e) {
-                            onException(e);
+                            onFailed(SplitInstallErrorCode.INTERNAL_ERROR);
                         }
                         break;
                     case SplitInstallSessionStatus.CANCELED:
                         onCancelled();
                         break;
                     case SplitInstallSessionStatus.FAILED:
-                        onFailed();
+                        onFailed(sessionState.errorCode());
                         break;
-                    default:
-                        Log.i(TAG, "onChanged: DEFAULT" + sessionState.status());
+                    case SplitInstallSessionStatus.UNKNOWN:
+                        onFailed(SplitInstallErrorCode.INTERNAL_ERROR);
+                        break;
+                    case SplitInstallSessionStatus.CANCELING:
+                    case SplitInstallSessionStatus.DOWNLOADED:
+                    case SplitInstallSessionStatus.DOWNLOADING:
+                    case SplitInstallSessionStatus.INSTALLING:
+                    case SplitInstallSessionStatus.PENDING:
+                        Log.i(TAG, "onChanged: status " + sessionState.status());
+                        onProgress(
+                                sessionState.status(),
+                                sessionState.bytesDownloaded(),
+                                sessionState.totalBytesToDownload()
+                        );
                 }
             }
         }
@@ -190,17 +185,14 @@ public abstract class AbstractProgressFragment extends Fragment {
     }
 
     /**
-     * @param exception The occurred exception.
-     */
-    protected abstract void onException(@NonNull Exception exception);
-
-    /**
      * Called when there was a progress update for an active module download.
      *
+     * @param status          the current installation status from SplitInstallSessionStatus
      * @param bytesDownloaded The bytes downloaded so far.
-     * @param bytesTotal      The total bytes to be downloaded.
+     * @param bytesTotal      The total bytes to be downloaded (can be 0 for some status updates)
      */
-    protected abstract void onProgress(long bytesDownloaded, long bytesTotal);
+    protected abstract void onProgress(@SplitInstallSessionStatus int status,
+            long bytesDownloaded, long bytesTotal);
 
     /**
      * Called when the user decided to cancel installation.
@@ -209,21 +201,10 @@ public abstract class AbstractProgressFragment extends Fragment {
 
     /**
      * Called when the installation has failed due to non-user issues.
-     */
-    protected abstract void onFailed();
-
-    /**
-     * Set arguments for an AbstractProgressFragment.
      *
-     * @param fragment The target fragment.
+     * <p>Please check {@link SplitInstallErrorCode} for error code constants.</p>
+     *
+     * @param errorCode contains the error code of the installation failure.
      */
-    public static void setArguments(@NonNull AbstractProgressFragment fragment, int destinationId,
-            @Nullable Bundle destinationArguments) {
-        Bundle args = new Bundle();
-        args.putInt(Constants.DESTINATION_ID, destinationId);
-        if (destinationArguments != null) {
-            args.putBundle(Constants.DESTINATION_ARGS, destinationArguments);
-        }
-        fragment.setArguments(args);
-    }
+    protected abstract void onFailed(@SplitInstallErrorCode int errorCode);
 }

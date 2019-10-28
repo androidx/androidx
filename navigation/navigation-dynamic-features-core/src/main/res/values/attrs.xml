@@ -18,6 +18,7 @@
         <attr name="progressDestination" format="reference"/>
     </declare-styleable>
     <declare-styleable name="DynamicIncludeGraphNavigator">
+        <attr name="moduleName"/>
         <attr name="graphResName" format="string|reference"/>
         <attr name="graphPackage" format="string|reference"/>
     </declare-styleable>

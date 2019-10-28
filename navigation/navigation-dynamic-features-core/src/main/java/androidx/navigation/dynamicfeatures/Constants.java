@@ -25,9 +25,7 @@ import androidx.annotation.RestrictTo;
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface Constants {
-
     String KEY_NAVIGATED = "dfn:navigated";
     String DESTINATION_ID = "dfn:destinationId";
     String DESTINATION_ARGS = "dfn:destinationArgs";
-    String DESTINATION_NAVOPTS = "dfn:destinationNavOpts";
 }

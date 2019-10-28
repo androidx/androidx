@@ -33,7 +33,6 @@ dependencies {
     implementation(project(":navigation:navigation-dynamic-features-core"))
     implementation(project(":navigation:navigation-runtime"))
     implementation(project(":navigation:navigation-fragment"))
-    implementation("com.google.android.play:core:1.6.1")
 
     testImplementation(ANDROIDX_TEST_CORE)
     testImplementation(ANDROIDX_TEST_EXT_JUNIT)
