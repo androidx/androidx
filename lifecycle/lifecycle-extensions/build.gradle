@@ -30,7 +30,7 @@ dependencies {
     api(project(":lifecycle:lifecycle-runtime"))
     api("androidx.arch.core:core-common:2.1.0")
     api("androidx.arch.core:core-runtime:2.1.0")
-    api(project(":fragment:fragment"))
+    api("androidx.fragment:fragment:1.2.0-rc01")
     api(project(":lifecycle:lifecycle-common"))
     api(project(":lifecycle:lifecycle-livedata"))
     api(project(":lifecycle:lifecycle-process"))
