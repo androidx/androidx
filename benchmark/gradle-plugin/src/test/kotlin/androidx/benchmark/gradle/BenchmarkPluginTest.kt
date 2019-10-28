@@ -274,6 +274,10 @@ class BenchmarkPluginTest {
             dependencies {
                 androidTestImplementation "androidx.benchmark:benchmark:1.0.0-alpha01"
             }
+
+            tasks.register("printTestBuildType") {
+                println android.testBuildType
+            }
         """.trimIndent()
         )
 
@@ -286,6 +290,9 @@ class BenchmarkPluginTest {
 
         // Should depend on AGP to pull benchmark reports via additionalTestOutputDir.
         assertFalse { output.output.contains("benchmarkReport - ") }
+
+        val testBuildTypeOutput = gradleRunner.withArguments("printTestBuildType").build()
+        assertTrue { testBuildTypeOutput.output.contains("release") }
     }
 
     @Test
@@ -320,6 +327,10 @@ class BenchmarkPluginTest {
             tasks.register("printInstrumentationArgs") {
                 println android.defaultConfig.testInstrumentationRunnerArguments
             }
+
+            tasks.register("printTestBuildType") {
+                println android.testBuildType
+            }
         """.trimIndent()
         )
 
@@ -334,6 +345,9 @@ class BenchmarkPluginTest {
 
         val argsOutput = gradleRunner.withArguments("printInstrumentationArgs").build()
         assertTrue { argsOutput.output.contains("no-isolated-storage:1") }
+
+        val testBuildTypeOutput = gradleRunner.withArguments("printTestBuildType").build()
+        assertTrue { testBuildTypeOutput.output.contains("release") }
     }
 
     @Test
