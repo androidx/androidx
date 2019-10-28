@@ -41,7 +41,7 @@ sourceSets {
 
 dependencies {
     implementation gradleApi()
-    implementation(AGP_STABLE)
+    implementation("com.android.tools.build:gradle:3.6.0-beta01")
     implementation(KOTLIN_STDLIB)
 
     testImplementation gradleTestKit()
