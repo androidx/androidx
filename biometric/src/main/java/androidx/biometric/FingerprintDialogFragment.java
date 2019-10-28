@@ -119,7 +119,7 @@ public class FingerprintDialogFragment extends DialogFragment {
                 case DISPLAYED_FOR_500_MS:
                     final Context context = getContext();
                     mDismissInstantly =
-                            context != null && Utils.shouldAlwaysHideFingerprintDialogInstantly(
+                            context != null && Utils.shouldHideFingerprintDialog(
                                     context, Build.MODEL);
                     break;
             }
@@ -330,7 +330,7 @@ public class FingerprintDialogFragment extends DialogFragment {
      * the result of {@link Utils#shouldAlwaysHideFingerprintDialogInstantly(String)}.
      */
     static int getHideDialogDelay(Context context) {
-        return context != null && Utils.shouldAlwaysHideFingerprintDialogInstantly(
+        return context != null && Utils.shouldHideFingerprintDialog(
                 context, Build.MODEL) ? 0 : MESSAGE_DISPLAY_TIME_MS;
     }
 
@@ -373,6 +373,11 @@ public class FingerprintDialogFragment extends DialogFragment {
     }
 
     private void updateFingerprintIcon(int newState) {
+        // May be null if we're intentionally suppressing the dialog.
+        if (mFingerprintIcon == null) {
+            return;
+        }
+
         // Devices older than this do not have FP support (and also do not support SVG), so it's
         // fine for this to be a no-op. An error is returned immediately and the dialog is not
         // shown.
@@ -398,8 +403,12 @@ public class FingerprintDialogFragment extends DialogFragment {
     private void handleShowHelp(CharSequence msg) {
         updateFingerprintIcon(STATE_FINGERPRINT_ERROR);
         mHandler.removeMessages(MSG_RESET_MESSAGE);
-        mErrorText.setTextColor(mErrorColor);
-        mErrorText.setText(msg);
+
+        // May be null if we're intentionally suppressing the dialog.
+        if (mErrorText != null) {
+            mErrorText.setTextColor(mErrorColor);
+            mErrorText.setText(msg);
+        }
 
         // Reset the text after a delay
         mHandler.sendMessageDelayed(mHandler.obtainMessage(MSG_RESET_MESSAGE),
@@ -409,8 +418,12 @@ public class FingerprintDialogFragment extends DialogFragment {
     private void handleShowError(CharSequence msg) {
         updateFingerprintIcon(STATE_FINGERPRINT_ERROR);
         mHandler.removeMessages(MSG_RESET_MESSAGE);
-        mErrorText.setTextColor(mErrorColor);
-        mErrorText.setText(msg);
+
+        // May be null if we're intentionally suppressing the dialog.
+        if (mErrorText != null) {
+            mErrorText.setTextColor(mErrorColor);
+            mErrorText.setText(msg);
+        }
 
         // Dismiss the dialog after a delay
         mHandler.sendMessageDelayed(mHandler.obtainMessage(MSG_DISMISS_DIALOG_ERROR),
@@ -418,11 +431,14 @@ public class FingerprintDialogFragment extends DialogFragment {
     }
 
     private void dismissAfterDelay(CharSequence msg) {
-        mErrorText.setTextColor(mErrorColor);
-        if (msg != null) {
-            mErrorText.setText(msg);
-        } else {
-            mErrorText.setText(R.string.fingerprint_error_lockout);
+        // May be null if we're intentionally suppressing the dialog.
+        if (mErrorText != null) {
+            mErrorText.setTextColor(mErrorColor);
+            if (msg != null) {
+                mErrorText.setText(msg);
+            } else {
+                mErrorText.setText(R.string.fingerprint_error_lockout);
+            }
         }
 
         mHandler.postDelayed(new Runnable() {
@@ -446,7 +462,11 @@ public class FingerprintDialogFragment extends DialogFragment {
 
     private void handleResetMessage() {
         updateFingerprintIcon(STATE_FINGERPRINT);
-        mErrorText.setTextColor(mTextColor);
-        mErrorText.setText(mContext.getString(R.string.fingerprint_dialog_touch_sensor));
+
+        // May be null if we're intentionally suppressing the dialog.
+        if (mErrorText != null) {
+            mErrorText.setTextColor(mTextColor);
+            mErrorText.setText(mContext.getString(R.string.fingerprint_dialog_touch_sensor));
+        }
     }
 }

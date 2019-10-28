@@ -185,8 +185,7 @@ class Utils {
      * @return true if {@link FingerprintDialogFragment} should always be dismissed immediately, or
      * false otherwise.
      */
-    static boolean shouldAlwaysHideFingerprintDialogInstantly(@NonNull Context context,
-            String model) {
+    static boolean shouldHideFingerprintDialog(@NonNull Context context, String model) {
         if (Build.VERSION.SDK_INT != Build.VERSION_CODES.P) {
             // This workaround is only needed for API 28.
             return false;
