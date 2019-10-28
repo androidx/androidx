@@ -27,6 +27,7 @@ import java.io.OutputStream
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
+import java.nio.file.StandardCopyOption
 import java.nio.file.attribute.FileTime
 import java.time.Instant
 import java.util.zip.ZipEntry
@@ -85,6 +86,17 @@ class Archive(
 
     fun writeSelf(): File {
         return writeSelfToFile(targetPath)
+    }
+
+    /**
+     * Copies the original file into the target path.
+     *
+     * Meaning that any changes made to this archive so far won't be propagated to the target.
+     * @return Returns the copied file in the target path.
+     */
+    fun copySelfFromOriginToTarget(): File {
+        Files.copy(relativePath, targetPath, StandardCopyOption.REPLACE_EXISTING)
+        return targetPath.toFile()
     }
 
     fun removeItem(item: ArchiveItem) {
