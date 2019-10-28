@@ -20,8 +20,10 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.annotation.SuppressLint;
 import android.graphics.Rect;
+import android.graphics.RectF;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewParent;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
@@ -77,9 +79,32 @@ public abstract class FragmentTransitionImpl {
      * containing the bounds relative to the screen that the view is in.
      */
     protected void getBoundsOnScreen(View view, Rect epicenter) {
-        int[] loc = new int[2];
-        view.getLocationOnScreen(loc);
-        epicenter.set(loc[0], loc[1], loc[0] + view.getWidth(), loc[1] + view.getHeight());
+        if (!ViewCompat.isAttachedToWindow(view)) {
+            return;
+        }
+
+        final RectF rect = new RectF();
+        rect.set(0, 0, view.getWidth(), view.getHeight());
+
+        view.getMatrix().mapRect(rect);
+        rect.offset(view.getLeft(), view.getTop());
+
+        ViewParent parent = view.getParent();
+        while (parent instanceof View) {
+            View parentView = (View) parent;
+
+            rect.offset(-parentView.getScrollX(), -parentView.getScrollY());
+            parentView.getMatrix().mapRect(rect);
+            rect.offset(parentView.getLeft(), parentView.getTop());
+
+            parent = parentView.getParent();
+        }
+
+        final int[] loc = new int[2];
+        view.getRootView().getLocationOnScreen(loc);
+        rect.offset(loc[0], loc[1]);
+        epicenter.set(Math.round(rect.left), Math.round(rect.top), Math.round(rect.right),
+                Math.round(rect.bottom));
     }
 
     /**
