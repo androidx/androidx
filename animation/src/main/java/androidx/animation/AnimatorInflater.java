@@ -23,7 +23,6 @@ import android.content.res.TypedArray;
 import android.content.res.XmlResourceParser;
 import android.graphics.Path;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.util.TypedValue;
 import android.util.Xml;
 import android.view.InflateException;
@@ -66,8 +65,6 @@ public class AnimatorInflater {
     private static final int VALUE_TYPE_PATH        = 2;
     private static final int VALUE_TYPE_COLOR       = 3;
     private static final int VALUE_TYPE_UNDEFINED   = 4;
-
-    private static final boolean DBG_ANIMATOR_INFLATER = false;
 
     private AnimatorInflater() {}
 
@@ -328,46 +325,6 @@ public class AnimatorInflater {
     }
 
     /**
-     * Setup the Animator to achieve path morphing.
-     *
-     * @param anim The target Animator which will be updated.
-     * @param arrayAnimator TypedArray for the ValueAnimator.
-     * @return the PathDataEvaluator.
-     */
-    private static TypeEvaluator setupAnimatorForPath(ValueAnimator anim,
-            TypedArray arrayAnimator) {
-        TypeEvaluator evaluator = null;
-        String fromString = arrayAnimator.getString(AndroidResources.STYLEABLE_ANIMATOR_VALUE_FROM);
-        String toString = arrayAnimator.getString(AndroidResources.STYLEABLE_ANIMATOR_VALUE_TO);
-        PathParser.PathDataNode[] pathDataFrom = fromString == null
-                ? null : PathParser.createNodesFromPathData(fromString);
-        PathParser.PathDataNode[] pathDataTo = toString == null
-                ? null : PathParser.createNodesFromPathData(toString);
-
-        if (pathDataFrom != null) {
-            if (pathDataTo != null) {
-                anim.setObjectValues(pathDataFrom, pathDataTo);
-                if (!PathParser.canMorph(pathDataFrom, pathDataTo)) {
-                    throw new InflateException(arrayAnimator.getPositionDescription()
-                            + " Can't morph from " + fromString + " to " + toString);
-                }
-            } else {
-                anim.setObjectValues((Object) pathDataFrom);
-            }
-            evaluator = new PathDataEvaluator();
-        } else if (pathDataTo != null) {
-            anim.setObjectValues((Object) pathDataTo);
-            evaluator = new PathDataEvaluator();
-        }
-
-        if (DBG_ANIMATOR_INFLATER && evaluator != null) {
-            Log.v(TAG, "create a new PathDataEvaluator here");
-        }
-
-        return evaluator;
-    }
-
-    /**
      * Setup ObjectAnimator's property or values from pathData.
      *
      * @param anim The target Animator which will be updated.
@@ -446,87 +403,6 @@ public class AnimatorInflater {
             String propertyName = arrayObjectAnimator.getString(
                     AndroidResources.STYLEABLE_PROPERTY_ANIMATOR_PROPERTY_NAME);
             oa.setPropertyName(propertyName);
-        }
-    }
-
-    /**
-     * Setup ValueAnimator's values.
-     * This will handle all of the integer, float and color types.
-     *
-     * @param anim The target Animator which will be updated.
-     * @param arrayAnimator TypedArray for the ValueAnimator.
-     * @param getFloats True if the value type is float.
-     * @param hasFrom True if "valueFrom" exists.
-     * @param fromType The type of "valueFrom".
-     * @param hasTo True if "valueTo" exists.
-     * @param toType The type of "valueTo".
-     */
-    private static void setupValues(ValueAnimator anim, TypedArray arrayAnimator,
-            boolean getFloats, boolean hasFrom, int fromType, boolean hasTo, int toType) {
-        int valueFromIndex = AndroidResources.STYLEABLE_ANIMATOR_VALUE_FROM;
-        int valueToIndex = AndroidResources.STYLEABLE_ANIMATOR_VALUE_TO;
-        if (getFloats) {
-            float valueFrom;
-            float valueTo;
-            if (hasFrom) {
-                if (fromType == TypedValue.TYPE_DIMENSION) {
-                    valueFrom = arrayAnimator.getDimension(valueFromIndex, 0f);
-                } else {
-                    valueFrom = arrayAnimator.getFloat(valueFromIndex, 0f);
-                }
-                if (hasTo) {
-                    if (toType == TypedValue.TYPE_DIMENSION) {
-                        valueTo = arrayAnimator.getDimension(valueToIndex, 0f);
-                    } else {
-                        valueTo = arrayAnimator.getFloat(valueToIndex, 0f);
-                    }
-                    anim.setFloatValues(valueFrom, valueTo);
-                } else {
-                    anim.setFloatValues(valueFrom);
-                }
-            } else {
-                if (toType == TypedValue.TYPE_DIMENSION) {
-                    valueTo = arrayAnimator.getDimension(valueToIndex, 0f);
-                } else {
-                    valueTo = arrayAnimator.getFloat(valueToIndex, 0f);
-                }
-                anim.setFloatValues(valueTo);
-            }
-        } else {
-            int valueFrom;
-            int valueTo;
-            if (hasFrom) {
-                if (fromType == TypedValue.TYPE_DIMENSION) {
-                    valueFrom = (int) arrayAnimator.getDimension(valueFromIndex, 0f);
-                } else if (isColorType(fromType)) {
-                    valueFrom = arrayAnimator.getColor(valueFromIndex, 0);
-                } else {
-                    valueFrom = arrayAnimator.getInt(valueFromIndex, 0);
-                }
-                if (hasTo) {
-                    if (toType == TypedValue.TYPE_DIMENSION) {
-                        valueTo = (int) arrayAnimator.getDimension(valueToIndex, 0f);
-                    } else if (isColorType(toType)) {
-                        valueTo = arrayAnimator.getColor(valueToIndex, 0);
-                    } else {
-                        valueTo = arrayAnimator.getInt(valueToIndex, 0);
-                    }
-                    anim.setIntValues(valueFrom, valueTo);
-                } else {
-                    anim.setIntValues(valueFrom);
-                }
-            } else {
-                if (hasTo) {
-                    if (toType == TypedValue.TYPE_DIMENSION) {
-                        valueTo = (int) arrayAnimator.getDimension(valueToIndex, 0f);
-                    } else if (isColorType(toType)) {
-                        valueTo = arrayAnimator.getColor(valueToIndex, 0);
-                    } else {
-                        valueTo = arrayAnimator.getInt(valueToIndex, 0);
-                    }
-                    anim.setIntValues(valueTo);
-                }
-            }
         }
     }
 
@@ -709,20 +585,6 @@ public class AnimatorInflater {
             valueType = VALUE_TYPE_FLOAT;
         }
         return valueType;
-    }
-
-    private static void dumpKeyframes(Object[] keyframes, String header) {
-        if (keyframes == null || keyframes.length == 0) {
-            return;
-        }
-        Log.d(TAG, header);
-        int count = keyframes.length;
-        for (int i = 0; i < count; ++i) {
-            Keyframe keyframe = (Keyframe) keyframes[i];
-            Log.d(TAG, "Keyframe " + i + ": fraction " + (keyframe.getFraction() < 0 ? "null"
-                    : keyframe.getFraction()) + ", " + ", value : "
-                    + (keyframe.hasValue() ? keyframe.getValue() : "null"));
-        }
     }
 
     // Load property values holder if there are keyframes defined in it. Otherwise return null.
