@@ -61,7 +61,7 @@ function printSuccess() {
 
 function buildProjectUsingGradle() {
 	cd $1
-	sh gradlew :jetifier-preprocessor:clean :jetifier-preprocessor:uploadArchives $2 > $TEMP_LOG --stacktrace
+	sh gradlew :jetifier-preprocessor:clean :jetifier-preprocessor:publish $2 > $TEMP_LOG --stacktrace
 }
 
 function downloadPackage() {
