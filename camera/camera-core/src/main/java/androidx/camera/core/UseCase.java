@@ -446,9 +446,11 @@ public abstract class UseCase {
     }
 
     /**
-     * Called when binding new use cases via CameraX#bindToLifecycle(LifecycleOwner,
-     * UseCase...). Override to create necessary objects like {@link android.media.ImageReader}
-     * depending on the resolution.
+     * Called when binding new use cases via {@code CameraX#bindToLifecycle(LifecycleOwner,
+     * CameraSelector, UseCase...)}.
+     *
+     * <p>Override to create necessary objects like {@link android.media.ImageReader} depending
+     * on the resolution.
      *
      * @param suggestedResolutionMap A map of the names of the {@link
      *                               android.hardware.camera2.CameraDevice} to the suggested
@@ -478,7 +480,7 @@ public abstract class UseCase {
 
     /**
      * Called when use case is binding to life cycle via
-     * CameraX#bindToLifecycle(LifecycleOwner, UseCase...).
+     * {@code CameraX#bindToLifecycle(LifecycleOwner, CameraSelector, UseCase...)}.
      *
      * @hide
      */

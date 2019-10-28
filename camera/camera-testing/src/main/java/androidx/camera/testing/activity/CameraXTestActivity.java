@@ -31,11 +31,13 @@ import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.camera.core.CameraInfoUnavailableException;
+import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.LensFacing;
 import androidx.camera.core.Preview;
 import androidx.camera.core.PreviewConfig;
 import androidx.camera.core.PreviewSurfaceProviders;
+import androidx.camera.core.impl.utils.CameraSelectorUtil;
 import androidx.camera.testing.CameraUtil;
 import androidx.camera.testing.R;
 import androidx.test.espresso.idling.CountingIdlingResource;
@@ -89,7 +91,6 @@ public class CameraXTestActivity extends AppCompatActivity {
 
         PreviewConfig config =
                 new PreviewConfig.Builder()
-                        .setLensFacing(mLensFacing)
                         .setTargetName("Preview")
                         .build();
 
@@ -112,15 +113,20 @@ public class CameraXTestActivity extends AppCompatActivity {
                     }
                 }));
 
+
+        CameraSelector cameraSelector =
+                new CameraSelector.Builder().requireLensFacing(mLensFacing).build();
         try {
-            CameraX.bindToLifecycle(this, mPreview);
+            CameraX.bindToLifecycle(this, cameraSelector, mPreview);
         } catch (IllegalArgumentException e) {
             mPreview = null;
             return;
         }
 
         try {
-            mCameraId = CameraX.getCameraWithCameraDeviceConfig(config);
+            mCameraId =
+                    CameraX.getCameraWithCameraDeviceConfig(
+                            CameraSelectorUtil.toCameraDeviceConfig(cameraSelector));
         } catch (CameraInfoUnavailableException e) {
             throw new IllegalArgumentException(
                     "Unable to get camera id for the camera device config "

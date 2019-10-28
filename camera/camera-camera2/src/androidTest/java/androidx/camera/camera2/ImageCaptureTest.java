@@ -52,6 +52,7 @@ import androidx.camera.core.CameraControlInternal;
 import androidx.camera.core.CameraFactory;
 import androidx.camera.core.CameraInfoUnavailableException;
 import androidx.camera.core.CameraInternal;
+import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.CaptureBundle;
 import androidx.camera.core.CaptureConfig;
@@ -116,6 +117,8 @@ public final class ImageCaptureTest {
     private static final Size DEFAULT_RESOLUTION = new Size(640, 480);
     private static final Size SECONDARY_RESOLUTION = new Size(320, 240);
     private static final LensFacing BACK_LENS_FACING = LensFacing.BACK;
+    private static final CameraSelector BACK_SELECTOR =
+            new CameraSelector.Builder().requireLensFacing(BACK_LENS_FACING).build();
 
     private final Instrumentation mInstrumentation = InstrumentationRegistry.getInstrumentation();
 
@@ -158,7 +161,6 @@ public final class ImageCaptureTest {
         }
 
         return new ImageCaptureConfig.Builder()
-                .setLensFacing(BACK_LENS_FACING)
                 .setTargetRotation(surfaceRotation)
                 .build();
     }
@@ -629,7 +631,7 @@ public final class ImageCaptureTest {
         ImageCapture imageCapture = new ImageCapture(configBuilder.build());
 
         mInstrumentation.runOnMainSync(() -> {
-            CameraX.bindToLifecycle(lifecycle, imageCapture);
+            CameraX.bindToLifecycle(lifecycle, BACK_SELECTOR, imageCapture);
             lifecycle.startAndResume();
         });
 
@@ -665,7 +667,7 @@ public final class ImageCaptureTest {
         ImageCapture imageCapture = new ImageCapture(config);
 
         mInstrumentation.runOnMainSync(() -> {
-            CameraX.bindToLifecycle(lifecycle, imageCapture);
+            CameraX.bindToLifecycle(lifecycle, BACK_SELECTOR, imageCapture);
             lifecycle.startAndResume();
         });
 
@@ -690,11 +692,10 @@ public final class ImageCaptureTest {
             throws InterruptedException {
         FakeLifecycleOwner lifecycle = new FakeLifecycleOwner();
         ImageCaptureConfig config = new ImageCaptureConfig.Builder()
-                .setLensFacing(BACK_LENS_FACING)
                 .build();
         ImageCapture imageCapture = new ImageCapture(config);
         mInstrumentation.runOnMainSync(() -> {
-            CameraX.bindToLifecycle(lifecycle, imageCapture);
+            CameraX.bindToLifecycle(lifecycle, BACK_SELECTOR, imageCapture);
             lifecycle.startAndResume();
         });
 
@@ -721,11 +722,10 @@ public final class ImageCaptureTest {
     public void onRequestFailed_OnErrorCAPTURE_FAILED() throws InterruptedException {
         FakeLifecycleOwner lifecycle = new FakeLifecycleOwner();
         ImageCaptureConfig config = new ImageCaptureConfig.Builder()
-                .setLensFacing(BACK_LENS_FACING)
                 .build();
         ImageCapture imageCapture = new ImageCapture(config);
         mInstrumentation.runOnMainSync(() -> {
-            CameraX.bindToLifecycle(lifecycle, imageCapture);
+            CameraX.bindToLifecycle(lifecycle, BACK_SELECTOR, imageCapture);
             lifecycle.startAndResume();
         });
 
@@ -755,11 +755,10 @@ public final class ImageCaptureTest {
     public void onStateOffline_abortAllCaptureRequests() throws InterruptedException {
         FakeLifecycleOwner lifecycle = new FakeLifecycleOwner();
         ImageCaptureConfig config = new ImageCaptureConfig.Builder()
-                .setLensFacing(BACK_LENS_FACING)
                 .build();
         ImageCapture imageCapture = new ImageCapture(config);
         mInstrumentation.runOnMainSync(() -> {
-            CameraX.bindToLifecycle(lifecycle, imageCapture);
+            CameraX.bindToLifecycle(lifecycle, BACK_SELECTOR, imageCapture);
             lifecycle.startAndResume();
         });
 

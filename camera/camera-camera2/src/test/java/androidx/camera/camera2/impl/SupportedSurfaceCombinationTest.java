@@ -42,6 +42,7 @@ import android.view.WindowManager;
 import androidx.camera.camera2.Camera2AppConfig;
 import androidx.camera.core.AppConfig;
 import androidx.camera.core.AspectRatio;
+import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.ImageAnalysis;
 import androidx.camera.core.ImageAnalysisConfig;
@@ -479,12 +480,13 @@ public final class SupportedSurfaceCombinationTest {
         PreviewConfig.Builder previewConfigBuilder = new PreviewConfig.Builder();
 
         previewConfigBuilder.setTargetAspectRatio(AspectRatio.RATIO_16_9);
-        previewConfigBuilder.setLensFacing(LensFacing.FRONT);
         Preview preview = new Preview(previewConfigBuilder.build());
 
         // Ensure we are bound to a camera to ensure aspect ratio correction is applied.
         FakeLifecycleOwner fakeLifecycle = new FakeLifecycleOwner();
-        CameraX.bindToLifecycle(fakeLifecycle, preview);
+        CameraSelector cameraSelector =
+                new CameraSelector.Builder().requireLensFacing(LensFacing.FRONT).build();
+        CameraX.bindToLifecycle(fakeLifecycle, cameraSelector, preview);
 
         PreviewConfig config = (PreviewConfig) preview.getUseCaseConfig();
         Rational previewAspectRatio = config.getTargetAspectRatioCustom();
