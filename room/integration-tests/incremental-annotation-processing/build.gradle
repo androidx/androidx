@@ -25,7 +25,7 @@ plugins {
 def generatedResources = "$buildDir/generated/resources"
 def prebuiltsRoot = SupportConfig.getPrebuiltsRootPath(project)
 def localSupportRepo = SupportConfig.getSupportRepoPath(project)
-def agpVersion = SupportConfig.getAGPVersion(project)
+def agpDependency = AGP_LATEST
 def debugKeystore = "${SupportConfig.getKeystore(project)}"
 
 sourceSets {
@@ -54,7 +54,7 @@ task generateSdkResource() {
         new File(generatedResources, "sdk.prop").withWriter('UTF-8') { writer ->
             writer.write("prebuiltsRepo=$prebuiltsRoot\n")
             writer.write("localSupportRepo=$localSupportRepo\n")
-            writer.write("agpVersion=$agpVersion\n")
+            writer.write("agpDependency=$agpDependency\n")
             writer.write("compileSdkVersion=$SupportConfig.TARGET_SDK_VERSION\n")
             writer.write("buildToolsVersion=$SupportConfig.BUILD_TOOLS_VERSION\n")
             writer.write("minSdkVersion=$SupportConfig.DEFAULT_MIN_SDK_VERSION\n")

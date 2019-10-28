@@ -56,7 +56,7 @@ class RoomIncrementalAnnotationProcessingTest(private val withIncrementalRoom: B
 
     // Properties to set up test project
     private lateinit var prebuiltsRepo: String
-    private lateinit var agpVersion: String
+    private lateinit var agpDependency: String
     private lateinit var localSupportRepo: String
     private lateinit var compileSdkVersion: String
     private lateinit var buildToolsVersion: String
@@ -113,7 +113,7 @@ class RoomIncrementalAnnotationProcessingTest(private val withIncrementalRoom: B
                 val properties = Properties().apply { load(input) }
                 prebuiltsRepo = properties.getProperty("prebuiltsRepo")
                 localSupportRepo = properties.getProperty("localSupportRepo")
-                agpVersion = properties.getProperty("agpVersion")
+                agpDependency = properties.getProperty("agpDependency")
                 compileSdkVersion = properties.getProperty("compileSdkVersion")
                 buildToolsVersion = properties.getProperty("buildToolsVersion")
                 minSdkVersion = properties.getProperty("minSdkVersion")
@@ -137,7 +137,7 @@ class RoomIncrementalAnnotationProcessingTest(private val withIncrementalRoom: B
                     maven { url "$prebuiltsRepo/androidx/internal" }
                 }
                 dependencies {
-                    classpath 'com.android.tools.build:gradle:$agpVersion'
+                    classpath "$agpDependency"
                 }
             }
 

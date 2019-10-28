@@ -30,8 +30,8 @@ plugins {
 
 dependencies {
     kotlinPlugin project(path: ":compose:compose-compiler", configuration: "embeddablePlugin")
-    implementation(KOTLIN_COMPOSE_COROUTINES)
-    implementation(KOTLIN_COMPOSE_STDLIB)
+    implementation(KOTLIN_COROUTINES_ANDROID)
+    implementation(KOTLIN_STDLIB)
 
     // TODO: Non-Kotlin dependency, move to Android-specific code
     implementation "androidx.core:core:1.0.2"

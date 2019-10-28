@@ -14,7 +14,7 @@ plugins {
 dependencies {
     kotlinPlugin project(path: ":compose:compose-compiler", configuration: "embeddablePlugin")
 
-    implementation(KOTLIN_COMPOSE_STDLIB)
+    implementation(KOTLIN_STDLIB)
 
     implementation "androidx.activity:activity:1.0.0-alpha01"
     implementation "androidx.annotation:annotation:1.1.0"

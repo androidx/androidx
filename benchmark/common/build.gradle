@@ -35,7 +35,7 @@ dependencies {
 
     androidTestImplementation(ANDROIDX_TEST_RULES)
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
-    androidTestImplementation(KOTLIN_TEST_COMMON)
+    androidTestImplementation(KOTLIN_TEST)
 }
 
 androidx {
