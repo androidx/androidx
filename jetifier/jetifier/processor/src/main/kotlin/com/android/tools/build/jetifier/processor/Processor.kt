@@ -228,9 +228,10 @@ class Processor private constructor(
     }
 
     /**
-     * Transforms the input libraries given in [inputLibraries] using all the registered
-     * [Transformer]s and returns a list of replacement libraries (the newly created libraries are
-     * get stored into [outputPath]). Also supports transforming single source files (java and xml.)
+     * Transforms the input libraries given in [input] using all the registered [Transformer]s
+     * and returns a results map in [TransformationResult]. Whether unmodified libraries will be
+     * also copied depends on [copyUnmodifiedLibsAlso] param. Also supports transforming single
+     * source files (java and xml).
      *
      * Currently we have the following transformers:
      * - [ByteCodeTransformer] for java native code
@@ -317,10 +318,11 @@ class Processor private constructor(
         // 7) Repackage the libraries back to archive files
         var result = allLibraries
             .map {
-                if (it.wasChanged || copyUnmodifiedLibsAlso) {
-                    it.relativePath.toFile() to it.writeSelf()
-                } else {
-                    it.relativePath.toFile() to null
+                when {
+                    it.wasChanged -> it.relativePath.toFile() to it.writeSelf()
+                    copyUnmodifiedLibsAlso -> // Copy unmodified archives directly from the input
+                        it.relativePath.toFile() to it.copySelfFromOriginToTarget()
+                    else -> it.relativePath.toFile() to null
                 }
             }.toMap()
 
@@ -330,9 +332,10 @@ class Processor private constructor(
     }
 
     /**
-     * Transforms the input libraries given in [inputLibraries] using all the registered
-     * [Transformer]s and returns a list of replacement libraries (the newly created libraries are
-     * get stored into [outputPath]). Also supports transforming single source files (java and xml.)
+     * Transforms the input libraries given in [input] using all the registered [Transformer]s
+     * and returns a list of replacement libraries (the newly created libraries get stored into
+     * paths defined in the mappings.). Also supports transforming single source files (java and
+     * xml).
      *
      * Currently we have the following transformers:
      * - [ByteCodeTransformer] for java native code
